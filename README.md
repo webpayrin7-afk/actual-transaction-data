@@ -91,3 +91,38 @@ npm run build && npm start   # 프로덕션
 - 매매: `RTMSDataSvcAptTradeDev`
 - 전월세: `RTMSDataSvcAptRent`
 - 파라미터: `LAWD_CD=41173`, `DEAL_YMD=YYYYMM`
+
+## Vercel 배포
+
+### 1) 대시보드에서 GitHub 연동 (권장)
+
+1. [Vercel](https://vercel.com) → **Add New → Project**
+2. `webpayrin7-afk/actual-transaction-data` Import
+3. Framework Preset: **Next.js**
+4. Environment Variables에 `MOLIT_API_KEY` 추가 (선택)
+5. **Deploy**
+
+이후 `main` 푸시마다 Production, PR마다 Preview가 자동 배포됩니다.
+
+### 2) CLI / GitHub Actions
+
+```bash
+npm i -g vercel
+vercel login
+vercel link
+vercel env add MOLIT_API_KEY
+vercel --prod
+```
+
+GitHub Actions(`.github/workflows/deploy-vercel.yml`)를 쓰려면 아래 Secrets가 필요합니다.
+
+| Secret | 설명 |
+|--------|------|
+| `VERCEL_TOKEN` | [Account Tokens](https://vercel.com/account/tokens) |
+| `VERCEL_ORG_ID` | `.vercel/project.json`의 `orgId` |
+| `VERCEL_PROJECT_ID` | `.vercel/project.json`의 `projectId` |
+
+### 설정 파일
+
+- `vercel.json` — Next.js, 리전 `icn1`(서울)
+- `.github/workflows/deploy-vercel.yml` — Preview/Production 배포 워크플로
