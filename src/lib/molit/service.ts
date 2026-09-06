@@ -1,0 +1,117 @@
+import { PAGE_SIZE } from "@/lib/constants/regions";
+import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
+import { filterTransactions, sortByDealDateDesc } from "@/lib/molit/parse";
+import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
+import {
+  matchesAreaFilter,
+  recentYearMonths,
+} from "@/lib/utils/format";
+import type {
+  AreaFilter,
+  DealType,
+  Transaction,
+  TransactionStats,
+  TransactionsResponse,
+} from "@/types/transaction";
+
+function buildStats(items: Transaction[]): TransactionStats {
+  const today = new Date().toISOString().slice(0, 10);
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+
+  const tradeItems = items.filter((i) => i.dealType === "trade");
+  const maxDeal =
+    tradeItems.length > 0
+      ? tradeItems.reduce((max, cur) =>
+          cur.dealAmount > max.dealAmount ? cur : max,
+        )
+      : null;
+
+  const avgDealAmount =
+    tradeItems.length > 0
+      ? Math.round(
+          tradeItems.reduce((sum, i) => sum + i.dealAmount, 0) /
+            tradeItems.length,
+        )
+      : 0;
+
+  return {
+    totalCount: items.length,
+    recentCount: items.filter((i) => i.dealDate >= weekAgoStr).length,
+    todayCount: items.filter((i) => i.dealDate === today).length,
+    maxDeal,
+    avgDealAmount,
+  };
+}
+
+function paginate(
+  items: Transaction[],
+  page: number,
+  pageSize: number,
+): Transaction[] {
+  const start = (page - 1) * pageSize;
+  return items.slice(start, start + pageSize);
+}
+
+export async function getTransactions(params: {
+  aptName?: string;
+  dong?: string;
+  dealType?: DealType | "all";
+  area?: AreaFilter;
+  yearMonth?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<TransactionsResponse> {
+  const yearMonth = params.yearMonth || recentYearMonths(1)[0];
+  const dealType = params.dealType ?? "all";
+  const page = Math.max(1, params.page ?? 1);
+  const pageSize = params.pageSize ?? PAGE_SIZE;
+
+  let source: "api" | "mock" = "mock";
+  let raw: Transaction[] = [];
+
+  if (hasApiKey()) {
+    try {
+      raw = await fetchTransactionsByType(yearMonth, dealType);
+      source = "api";
+    } catch (error) {
+      console.error("[molit] API fetch failed, falling back to mock:", error);
+      raw = MOCK_TRANSACTIONS;
+      source = "mock";
+    }
+  } else {
+    raw = MOCK_TRANSACTIONS;
+  }
+
+  // mock은 여러 월 데이터를 포함하므로 yearMonth로 좁힘
+  if (source === "mock") {
+    const ymPrefix = `${yearMonth.slice(0, 4)}-${yearMonth.slice(4, 6)}`;
+    const filteredByMonth = raw.filter((i) => i.dealDate.startsWith(ymPrefix));
+    raw = filteredByMonth.length > 0 ? filteredByMonth : raw;
+  }
+
+  const filtered = sortByDealDateDesc(
+    filterTransactions(raw, {
+      aptName: params.aptName,
+      dong: params.dong,
+      dealType: source === "api" ? "all" : dealType, // API에서 이미 dealType 반영
+      areaMatcher: (sqm) => matchesAreaFilter(sqm, params.area ?? "all"),
+    }),
+  );
+
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const safePage = Math.min(page, totalPages);
+
+  return {
+    items: paginate(filtered, safePage, pageSize),
+    totalCount,
+    page: safePage,
+    pageSize,
+    totalPages,
+    stats: buildStats(filtered),
+    source,
+    yearMonth,
+  };
+}
