@@ -115,6 +115,7 @@ vercel --prod
 ```
 
 GitHub Actions(`.github/workflows/deploy-vercel.yml`)를 쓰려면 아래 Secrets가 필요합니다.
+Secrets가 없으면 배포 job은 **건너뛰고 성공** 처리되며, `CI` 워크플로가 lint/build만 검증합니다.
 
 | Secret | 설명 |
 |--------|------|
@@ -125,4 +126,5 @@ GitHub Actions(`.github/workflows/deploy-vercel.yml`)를 쓰려면 아래 Secret
 ### 설정 파일
 
 - `vercel.json` — Next.js, 리전 `icn1`(서울)
-- `.github/workflows/deploy-vercel.yml` — Preview/Production 배포 워크플로
+- `.github/workflows/ci.yml` — lint + build
+- `.github/workflows/deploy-vercel.yml` — Secrets 있을 때 Preview/Production 배포
