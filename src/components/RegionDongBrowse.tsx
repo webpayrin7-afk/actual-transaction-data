@@ -42,10 +42,6 @@ export function RegionDongBrowse({ regionSlug }: { regionSlug: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500">
-        동을 선택하면 해당 동의 단지 목록으로 이동합니다.
-      </p>
-
       {query.isError && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           동 목록을 불러오지 못했습니다.
