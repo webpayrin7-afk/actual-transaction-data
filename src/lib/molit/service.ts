@@ -501,3 +501,145 @@ export async function getRegionBrowse(params: {
     apts,
   };
 }
+
+export interface RegionDailyDaySummary {
+  date: string; // YYYY-MM-DD
+  dealCount: number;
+  tradeCount: number;
+  maxDealAmount: number;
+}
+
+export interface RegionDailyDeal {
+  id: string;
+  aptName: string;
+  gu: string;
+  dong: string;
+  exclusiveArea: number;
+  floor: number;
+  dealAmount: number;
+  dealDate: string;
+  buildYear: number | null;
+}
+
+export interface RegionDailyResponse {
+  regionSlug: string;
+  yearMonth: string;
+  source: "api" | "mock";
+  warning?: string;
+  selectedDate: string | null;
+  days: RegionDailyDaySummary[];
+  deals: RegionDailyDeal[];
+  maxDeal: RegionDailyDeal | null;
+  avgDealAmount: number;
+  tradeCount: number;
+}
+
+export async function getRegionDaily(params: {
+  regionSlug: string;
+  yearMonth?: string;
+  date?: string;
+}): Promise<RegionDailyResponse> {
+  const region = getRegion(params.regionSlug);
+  if (!region) {
+    throw new Error(`Unknown region: ${params.regionSlug}`);
+  }
+
+  const preferredYm = params.yearMonth || recentYearMonths(1)[0];
+  const loaded = await loadRawTransactions(
+    preferredYm,
+    "trade",
+    [...region.lawdCodes],
+    region.slug,
+  );
+
+  let items = loaded.items.filter((tx) => tx.dealType === "trade");
+  let source: "api" | "mock" = loaded.source;
+  let warning = loaded.warning;
+  let resolvedYearMonth = loaded.resolvedYearMonth;
+
+  if (items.length === 0) {
+    const demo = loadDemoItems(preferredYm, [...region.lawdCodes], region.slug);
+    items = demo.filter((tx) => tx.dealType === "trade");
+    source = "mock";
+    warning =
+      warning ??
+      "선택한 기간에 매매 신고가가 없어 데모 데이터로 표시합니다.";
+    resolvedYearMonth = preferredYm;
+  }
+
+  const dayMap = new Map<
+    string,
+    { dealCount: number; tradeCount: number; maxDealAmount: number }
+  >();
+
+  for (const tx of items) {
+    const date = tx.dealDate.slice(0, 10);
+    if (!date) continue;
+    const prev = dayMap.get(date);
+    if (!prev) {
+      dayMap.set(date, {
+        dealCount: 1,
+        tradeCount: 1,
+        maxDealAmount: tx.dealAmount,
+      });
+      continue;
+    }
+    prev.dealCount += 1;
+    prev.tradeCount += 1;
+    prev.maxDealAmount = Math.max(prev.maxDealAmount, tx.dealAmount);
+  }
+
+  const days: RegionDailyDaySummary[] = [...dayMap.entries()]
+    .map(([date, value]) => ({ date, ...value }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const requestedDate = params.date?.trim() || null;
+  const selectedDate =
+    (requestedDate && dayMap.has(requestedDate) ? requestedDate : null) ??
+    days[0]?.date ??
+    null;
+
+  const dayDeals = selectedDate
+    ? items
+        .filter((tx) => tx.dealDate.slice(0, 10) === selectedDate)
+        .sort(
+          (a, b) =>
+            b.dealAmount - a.dealAmount ||
+            a.aptName.localeCompare(b.aptName, "ko"),
+        )
+    : [];
+
+  const deals: RegionDailyDeal[] = dayDeals.map((tx) => ({
+    id: tx.id,
+    aptName: tx.aptName,
+    gu: tx.gu,
+    dong: tx.dong,
+    exclusiveArea: tx.exclusiveArea,
+    floor: tx.floor,
+    dealAmount: tx.dealAmount,
+    dealDate: tx.dealDate,
+    buildYear: tx.buildYear,
+  }));
+
+  const maxDeal = deals[0] ?? null;
+  const avgDealAmount =
+    deals.length > 0
+      ? Math.round(
+          deals.reduce((sum, d) => sum + d.dealAmount, 0) / deals.length,
+        )
+      : 0;
+
+  return {
+    regionSlug: region.slug,
+    yearMonth: resolvedYearMonth,
+    source,
+    warning,
+    selectedDate,
+    days,
+    deals,
+    maxDeal,
+    avgDealAmount,
+    tradeCount: deals.length,
+  };
+}
+

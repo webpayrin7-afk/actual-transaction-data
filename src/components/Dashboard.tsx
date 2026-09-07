@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
+import { RegionDailyStatus } from "@/components/RegionDailyStatus";
 import { RegionDongBrowse } from "@/components/RegionDongBrowse";
-import { StatsCards } from "@/components/StatsCards";
 import { TransactionTable } from "@/components/TransactionTable";
 import { PAGE_SIZE, type RegionDef } from "@/lib/constants/regions";
-import { recentYearMonths, yearMonthLabel } from "@/lib/utils/format";
+import { recentYearMonths } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
 import type { AreaFilter, DealType } from "@/types/transaction";
 
@@ -75,7 +75,7 @@ export function Dashboard({
       pageSize: PAGE_SIZE,
       region: region.slug,
     },
-    { enabled: tab === "stats" || tab === "search" },
+    { enabled: tab === "search" },
   );
 
   const data = query.data;
@@ -181,54 +181,12 @@ export function Dashboard({
       {tab === "dong" && <RegionDongBrowse regionSlug={region.slug} />}
 
       {tab === "stats" && (
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-end">
-            <label className="flex w-full flex-col gap-1.5 sm:max-w-[11rem]">
-              <span className="text-xs font-medium text-slate-500">
-                기준 계약월
-              </span>
-              <select
-                value={resolvedYearMonth}
-                onChange={(e) => handleYearMonthChange(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-              >
-                {yearMonths.map((ym) => (
-                  <option key={ym} value={ym}>
-                    {yearMonthLabel(ym)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          {(data?.warning || data?.source === "mock") && (
-            <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>
-                {data?.warning ? (
-                  data.warning
-                ) : (
-                  <>
-                    <span className="font-semibold">데모 데이터</span>로 표시
-                    중입니다. `MOLIT_API_KEY`를 설정하면 해당 지역 실시간
-                    실거래가가 조회됩니다.
-                  </>
-                )}
-              </p>
-            </div>
-          )}
-
-          {query.isError && (
-            <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>
-                현황 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
-              </p>
-            </div>
-          )}
-
-          <StatsCards stats={data?.stats} isLoading={query.isLoading} />
-        </div>
+        <RegionDailyStatus
+          regionSlug={region.slug}
+          yearMonth={yearMonth}
+          yearMonths={yearMonths}
+          onYearMonthChange={handleYearMonthChange}
+        />
       )}
 
       {tab === "search" && (
