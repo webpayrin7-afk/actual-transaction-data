@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -83,6 +83,8 @@ export function AptDetailPage({
   } | null>(null);
   const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}`);
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const heroRef = useRef<HTMLElement | null>(null);
 
   const quickQuery = useQuery({
     queryKey: ["apt-detail", aptName, regionSlug, "quick", QUICK_MONTHS],
@@ -98,6 +100,28 @@ export function AptDetailPage({
   });
 
   const data = fullQuery.data ?? quickQuery.data;
+
+  useEffect(() => {
+    if (!data) return;
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setStickyVisible(!entry.isIntersecting);
+      },
+      {
+        // 사이트 헤더(h-14) 아래에서 히어로가 사라질 때 고정 바 표시
+        rootMargin: "-56px 0px 0px 0px",
+        threshold: 0,
+      },
+    );
+    observer.observe(hero);
+    return () => {
+      observer.disconnect();
+      setStickyVisible(false);
+    };
+  }, [data]);
   const isExtendingHistory =
     quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
@@ -241,7 +265,37 @@ export function AptDetailPage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-      <header className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8">
+      <div
+        className={`fixed inset-x-0 top-14 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
+          stickyVisible
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-2 opacity-0"
+        }`}
+        aria-hidden={!stickyVisible}
+      >
+        <div className="mx-auto flex h-12 w-full max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-900">
+              {data.aptName}
+            </p>
+            <p className="truncate text-xs text-slate-500">
+              {data.regionName}
+              {data.dong ? ` · ${data.dong}` : ""}
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+          >
+            ← 메인
+          </Link>
+        </div>
+      </div>
+
+      <header
+        ref={heroRef}
+        className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8"
+      >
         <div
           className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl opacity-30"
           style={{
