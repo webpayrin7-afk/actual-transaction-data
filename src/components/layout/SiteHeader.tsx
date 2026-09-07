@@ -106,21 +106,23 @@ export function SiteHeader() {
         </div>
 
         <nav
-          className="-mx-1 flex items-center gap-0.5 overflow-x-auto pb-2.5 text-sm sm:gap-1"
+          className="-mx-1 flex items-center gap-0.5 pb-2.5 text-sm sm:gap-1"
           aria-label="주요 메뉴"
         >
-          {PRIMARY_NAV.map((item) => {
-            const active = item.match(pathname);
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={navClass(active)}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+          <div className="flex min-w-0 items-center gap-0.5 overflow-x-auto sm:gap-1">
+            {PRIMARY_NAV.map((item) => {
+              const active = item.match(pathname);
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={navClass(active)}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
 
           <div className="relative shrink-0" ref={toolsRef}>
             <button
