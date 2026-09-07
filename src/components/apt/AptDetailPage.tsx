@@ -27,7 +27,7 @@ async function fetchAptDetail(
   aptName: string,
   region: string,
 ): Promise<AptDetailResponse> {
-  const qs = new URLSearchParams({ aptName, region, months: "36" });
+  const qs = new URLSearchParams({ aptName, region, months: "120" });
   const res = await fetch(`/api/apt-detail?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   return res.json();
@@ -172,6 +172,11 @@ export function AptDetailPage({
       start: Math.max(0, chartMonths.length - count),
       end: chartMonths.length - 1,
     });
+  };
+
+  const setFullRange = () => {
+    if (chartMonths.length === 0) return;
+    setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
   if (query.isLoading) {
@@ -327,6 +332,7 @@ export function AptDetailPage({
           endIndex={endIndex}
           onChange={(start, end) => setRangeOverride({ start, end })}
           onRecentYears={setRecentYears}
+          onFullRange={setFullRange}
         />
       </section>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import {
   Bar,
   CartesianGrid,
@@ -140,24 +140,83 @@ export function AptPriceChart({
   );
 }
 
+type DragHandle = "start" | "end";
+
 export function PeriodRangeSlider({
   months,
   startIndex,
   endIndex,
   onChange,
   onRecentYears,
+  onFullRange,
 }: {
   months: string[];
   startIndex: number;
   endIndex: number;
   onChange: (start: number, end: number) => void;
   onRecentYears?: (years: number) => void;
+  onFullRange?: () => void;
 }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const valuesRef = useRef({ startIndex, endIndex });
+
   if (months.length === 0) return null;
 
   const startYm = months[startIndex] ?? months[0];
   const endYm = months[endIndex] ?? months[months.length - 1];
   const max = months.length - 1;
+  const startPct = max <= 0 ? 0 : (startIndex / max) * 100;
+  const endPct = max <= 0 ? 100 : (endIndex / max) * 100;
+
+  const indexFromClientX = (clientX: number) => {
+    const track = trackRef.current;
+    if (!track || max <= 0) return 0;
+    const rect = track.getBoundingClientRect();
+    if (rect.width <= 0) return 0;
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    return Math.round(ratio * max);
+  };
+
+  const applyDrag = (clientX: number, handle: DragHandle) => {
+    const next = indexFromClientX(clientX);
+    const { startIndex: s, endIndex: e } = valuesRef.current;
+    if (handle === "start") {
+      const start = Math.min(next, e);
+      valuesRef.current = { startIndex: start, endIndex: e };
+      onChange(start, e);
+    } else {
+      const end = Math.max(next, s);
+      valuesRef.current = { startIndex: s, endIndex: end };
+      onChange(s, end);
+    }
+  };
+
+  const pickHandle = (clientX: number): DragHandle => {
+    const idx = indexFromClientX(clientX);
+    const { startIndex: s, endIndex: e } = valuesRef.current;
+    return Math.abs(idx - s) <= Math.abs(idx - e) ? "start" : "end";
+  };
+
+  const beginDrag = (
+    event: React.PointerEvent<HTMLElement>,
+    handle?: DragHandle,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    valuesRef.current = { startIndex, endIndex };
+    const selected = handle ?? pickHandle(event.clientX);
+    applyDrag(event.clientX, selected);
+
+    const onMove = (ev: PointerEvent) => applyDrag(ev.clientX, selected);
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+  };
 
   return (
     <div className="mt-4 space-y-3">
@@ -167,49 +226,64 @@ export function PeriodRangeSlider({
           <span className="mx-1.5 text-slate-400">~</span>
           {formatYmLabel(endYm)}
         </p>
-        {onRecentYears ? (
-          <button
-            type="button"
-            onClick={() => onRecentYears(3)}
-            className="text-sm font-medium text-teal-700 hover:text-teal-800 hover:underline"
-          >
-            최근 3년 보기
-          </button>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          {onRecentYears ? (
+            <button
+              type="button"
+              onClick={() => onRecentYears(3)}
+              className="text-sm font-medium text-slate-600 hover:text-teal-800 hover:underline"
+            >
+              최근 3년
+            </button>
+          ) : null}
+          {onFullRange ? (
+            <button
+              type="button"
+              onClick={onFullRange}
+              className="text-sm font-medium text-teal-700 hover:text-teal-800 hover:underline"
+            >
+              전체 기간
+            </button>
+          ) : null}
+        </div>
       </div>
 
-      <div className="relative h-8">
-        <div className="absolute top-1/2 right-0 left-0 h-1.5 -translate-y-1/2 rounded-full bg-slate-200" />
+      <div className="relative h-10 touch-none select-none">
         <div
-          className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-teal-600"
-          style={{
-            left: `${(startIndex / Math.max(max, 1)) * 100}%`,
-            right: `${100 - (endIndex / Math.max(max, 1)) * 100}%`,
-          }}
-        />
-        <input
+          ref={trackRef}
+          className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 cursor-pointer rounded-full bg-slate-200"
+          onPointerDown={(e) => beginDrag(e)}
+        >
+          <div
+            className="absolute top-0 h-full rounded-full bg-teal-600"
+            style={{
+              left: `${startPct}%`,
+              width: `${Math.max(endPct - startPct, 0)}%`,
+            }}
+          />
+        </div>
+
+        <button
+          type="button"
+          role="slider"
           aria-label="시작 기간"
-          type="range"
-          min={0}
-          max={max}
-          value={startIndex}
-          onChange={(e) => {
-            const next = Number(e.target.value);
-            onChange(Math.min(next, endIndex), endIndex);
-          }}
-          className="pointer-events-none absolute inset-0 w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-teal-700 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:relative [&::-webkit-slider-thumb]:z-20 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-teal-700 [&::-webkit-slider-thumb]:bg-white"
+          aria-valuemin={0}
+          aria-valuemax={max}
+          aria-valuenow={startIndex}
+          className="absolute top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          style={{ left: `${startPct}%` }}
+          onPointerDown={(e) => beginDrag(e, "start")}
         />
-        <input
+        <button
+          type="button"
+          role="slider"
           aria-label="종료 기간"
-          type="range"
-          min={0}
-          max={max}
-          value={endIndex}
-          onChange={(e) => {
-            const next = Number(e.target.value);
-            onChange(startIndex, Math.max(next, startIndex));
-          }}
-          className="pointer-events-none absolute inset-0 w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-teal-700 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:relative [&::-webkit-slider-thumb]:z-30 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-teal-700 [&::-webkit-slider-thumb]:bg-white"
+          aria-valuemin={0}
+          aria-valuemax={max}
+          aria-valuenow={endIndex}
+          className="absolute top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          style={{ left: `${endPct}%` }}
+          onPointerDown={(e) => beginDrag(e, "end")}
         />
       </div>
 

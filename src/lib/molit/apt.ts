@@ -415,17 +415,34 @@ async function fetchAptHistoryPool(
   lawdCodes: string[],
 ): Promise<Transaction[]> {
   const items: Transaction[] = [];
-  const concurrency = 4;
+  // 최근 48개월은 매매+전월세, 그 이전은 매매만 (전체 기간 확보 + API 부하 완화)
+  const recentSet = new Set(months.slice(0, 48));
+  const concurrency = 6;
   for (let i = 0; i < months.length; i += concurrency) {
     const batch = months.slice(i, i + concurrency);
     const settled = await Promise.allSettled(
-      batch.map((ym) => fetchTransactionsByType(ym, "all", lawdCodes)),
+      batch.map((ym) =>
+        fetchTransactionsByType(
+          ym,
+          recentSet.has(ym) ? "all" : "trade",
+          lawdCodes,
+        ),
+      ),
     );
     for (const result of settled) {
       if (result.status === "fulfilled") items.push(...result.value);
     }
   }
   return items;
+}
+
+function trimChartToActivity(points: AptChartPoint[]): AptChartPoint[] {
+  if (points.length === 0) return points;
+  const first = points.findIndex((p) => p.volume > 0);
+  if (first < 0) return points;
+  let last = points.length - 1;
+  while (last > first && points[last].volume === 0) last -= 1;
+  return points.slice(first, last + 1);
 }
 
 /** 단지 실거래 이력 (매매·전월세 + 시세 차트용 월별 집계) */
@@ -440,7 +457,7 @@ export async function getAptDetail(params: {
   const aptName = params.aptName.trim();
   if (!aptName) return null;
 
-  const monthCount = Math.min(Math.max(params.months ?? 36, 6), 60);
+  const monthCount = Math.min(Math.max(params.months ?? 120, 12), 120);
   const months = recentYearMonths(monthCount);
   let source: "api" | "mock" = "mock";
   let warning: string | undefined;
@@ -493,7 +510,7 @@ export async function getAptDetail(params: {
       totalRentCount: 0,
     },
     areas: [],
-    chart: buildChartPoints([], months).reverse(),
+    chart: trimChartToActivity(buildChartPoints([], months)),
     items: [],
   });
 
@@ -556,9 +573,11 @@ export async function getAptDetail(params: {
       tx.dealAmount === (maxByArea.get(areaKey(tx.exclusiveArea)) ?? -1),
   }));
 
-  // chart: oldest → newest for x-axis
-  const chart = buildChartPoints(deals, months).sort((a, b) =>
-    a.yearMonth < b.yearMonth ? -1 : 1,
+  // chart: oldest → newest, 실거래 있는 구간만 (전체 기간 슬라이더)
+  const chart = trimChartToActivity(
+    buildChartPoints(deals, months).sort((a, b) =>
+      a.yearMonth < b.yearMonth ? -1 : 1,
+    ),
   );
 
   return {
