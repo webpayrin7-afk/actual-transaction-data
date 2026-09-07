@@ -103,7 +103,7 @@ export function RegionDongAptList({
         </h1>
         <p className="mt-2 text-sm text-slate-500">
           {regionName}
-          {gu ? ` · ${gu}` : ""} · 단지를 누르면 단지 상세로 이동합니다
+          {gu ? ` · ${gu}` : ""}
         </p>
       </div>
 
