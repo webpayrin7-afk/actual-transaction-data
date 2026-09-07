@@ -282,8 +282,8 @@ export function AptDetailPage({
         <p className="text-sm font-medium text-slate-700">
           단지 정보를 불러오지 못했습니다.
         </p>
-        <Link href="/" className="text-sm text-teal-700 hover:underline">
-          ← 메인으로
+        <Link href="/complexes" className="text-sm text-teal-700 hover:underline">
+          ← 단지별 조회로
         </Link>
       </div>
     );
@@ -316,10 +316,10 @@ export function AptDetailPage({
               </span>
             </Link>
             <Link
-              href="/"
+              href="/complexes"
               className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700 transition hover:bg-slate-100"
             >
-              ← 메인
+              ← 단지별 조회
             </Link>
           </div>
           <div className="flex min-w-0 items-end justify-between gap-3">
@@ -367,7 +367,7 @@ export function AptDetailPage({
               href="/"
               className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur transition hover:bg-white/20"
             >
-              ← 메인
+              ← 오늘의 시장
             </Link>
           </div>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">

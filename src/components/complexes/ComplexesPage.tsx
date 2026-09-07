@@ -127,7 +127,7 @@ function RankSection({
   );
 }
 
-export function HomePage() {
+export function ComplexesPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -230,11 +230,10 @@ export function HomePage() {
         />
         <div className="relative">
           <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            관심 단지의 실거래가를 찾아보세요
+            단지별 조회
           </h1>
           <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
-            단지명을 입력하면 매매·전월세 이력과 시세 그래프를 바로 볼 수
-            있습니다.
+            아파트 단지명을 검색해 실거래가와 거래 이력을 확인하세요.
           </p>
 
           <form onSubmit={onSubmit} className="mt-6 max-w-2xl">

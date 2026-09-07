@@ -31,7 +31,7 @@ export function ComingSoonPage({
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
           <Link
-            href="/"
+            href="/complexes"
             className="inline-flex items-center rounded-lg bg-teal-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-teal-700"
           >
             단지별 조회
