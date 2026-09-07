@@ -1,5 +1,7 @@
 "use client";
 
+/* rebuild-marker: drop apt-nav hint */
+
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ChevronRight, MapPinned } from "lucide-react";

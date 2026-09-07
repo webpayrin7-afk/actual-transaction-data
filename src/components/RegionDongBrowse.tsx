@@ -1,5 +1,7 @@
 "use client";
 
+/* rebuild-marker: drop dong-nav hint */
+
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import type { RegionBrowseResponse, RegionDongSummary } from "@/lib/molit/service";
