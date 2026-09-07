@@ -54,6 +54,29 @@ function paginate(
   return items.slice(start, start + pageSize);
 }
 
+export async function loadRawTransactions(
+  yearMonth: string,
+  dealType: DealType | "all" = "all",
+): Promise<{ items: Transaction[]; source: "api" | "mock" }> {
+  if (hasApiKey()) {
+    try {
+      const items = await fetchTransactionsByType(yearMonth, dealType);
+      return { items, source: "api" };
+    } catch (error) {
+      console.error("[molit] API fetch failed, falling back to mock:", error);
+    }
+  }
+
+  const ymPrefix = `${yearMonth.slice(0, 4)}-${yearMonth.slice(4, 6)}`;
+  const filteredByMonth = MOCK_TRANSACTIONS.filter((i) =>
+    i.dealDate.startsWith(ymPrefix),
+  );
+  return {
+    items: filteredByMonth.length > 0 ? filteredByMonth : MOCK_TRANSACTIONS,
+    source: "mock",
+  };
+}
+
 export async function getTransactions(params: {
   aptName?: string;
   gu?: string;
@@ -69,27 +92,7 @@ export async function getTransactions(params: {
   const page = Math.max(1, params.page ?? 1);
   const pageSize = params.pageSize ?? PAGE_SIZE;
 
-  let source: "api" | "mock" = "mock";
-  let raw: Transaction[] = [];
-
-  if (hasApiKey()) {
-    try {
-      raw = await fetchTransactionsByType(yearMonth, dealType);
-      source = "api";
-    } catch (error) {
-      console.error("[molit] API fetch failed, falling back to mock:", error);
-      raw = MOCK_TRANSACTIONS;
-      source = "mock";
-    }
-  } else {
-    raw = MOCK_TRANSACTIONS;
-  }
-
-  if (source === "mock") {
-    const ymPrefix = `${yearMonth.slice(0, 4)}-${yearMonth.slice(4, 6)}`;
-    const filteredByMonth = raw.filter((i) => i.dealDate.startsWith(ymPrefix));
-    raw = filteredByMonth.length > 0 ? filteredByMonth : raw;
-  }
+  const { items: raw, source } = await loadRawTransactions(yearMonth, dealType);
 
   const filtered = sortByDealDateDesc(
     filterTransactions(raw, {

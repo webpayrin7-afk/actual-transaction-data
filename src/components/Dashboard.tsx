@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { AlertCircle, MapPin } from "lucide-react";
 import { FilterBar } from "@/components/FilterBar";
@@ -15,16 +16,24 @@ import { recentYearMonths, yearMonthLabel } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
 import type { AreaFilter, DealType } from "@/types/transaction";
 
-export function Dashboard() {
+export function Dashboard({
+  initialAptName = "",
+  initialGu = "all",
+  initialDealType = "all",
+}: {
+  initialAptName?: string;
+  initialGu?: string;
+  initialDealType?: DealType | "all";
+}) {
   const yearMonths = useMemo(() => recentYearMonths(6), []);
-  const [aptNameInput, setAptNameInput] = useState("");
-  const [gu, setGu] = useState("all");
+  const [aptNameInput, setAptNameInput] = useState(initialAptName);
+  const [gu, setGu] = useState(initialGu);
   const [dong, setDong] = useState("all");
-  const [dealType, setDealType] = useState<DealType | "all">("all");
+  const [dealType, setDealType] = useState<DealType | "all">(initialDealType);
   const [area, setArea] = useState<AreaFilter>("all");
   const [yearMonth, setYearMonth] = useState(yearMonths[0]);
   const [page, setPage] = useState(1);
-  const [appliedAptName, setAppliedAptName] = useState("");
+  const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
 
   const query = useTransactions({
@@ -86,12 +95,20 @@ export function Dashboard() {
           }}
         />
         <div className="relative">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur">
-            <MapPin className="h-3.5 w-3.5" />
-            {REGION_LABEL} · {REGION_DETAIL} · 41171 / 41173
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur">
+              <MapPin className="h-3.5 w-3.5" />
+              {REGION_LABEL} · {REGION_DETAIL} · 41171 / 41173
+            </div>
+            <Link
+              href="/"
+              className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur transition hover:bg-white/20"
+            >
+              ← 메인
+            </Link>
           </div>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            안양시 아파트 실거래가
+            지역별 아파트 실거래가
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-teal-50/85 sm:text-base">
             국토교통부 아파트 매매·전월세 실거래 자료를 기반으로 {REGION_LABEL}{" "}

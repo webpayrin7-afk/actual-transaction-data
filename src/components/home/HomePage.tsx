@@ -1,0 +1,252 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+import {
+  ArrowRight,
+  CalendarDays,
+  MapPinned,
+  Search,
+  TrendingUp,
+} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { RankItem, RankingsResponse } from "@/lib/molit/rankings";
+import { yearMonthLabel } from "@/lib/utils/format";
+
+async function fetchRankings(): Promise<RankingsResponse> {
+  const res = await fetch("/api/rankings");
+  if (!res.ok) throw new Error("failed");
+  return res.json();
+}
+
+function RankCard({
+  item,
+  accent = "teal",
+}: {
+  item: RankItem;
+  accent?: "teal" | "rose" | "sky";
+}) {
+  const tx = item.transaction;
+  const href = `/anyang?aptName=${encodeURIComponent(tx.aptName)}&gu=${encodeURIComponent(tx.gu)}`;
+  const priceColor =
+    accent === "rose"
+      ? "text-rose-600"
+      : accent === "sky"
+        ? "text-sky-700"
+        : "text-teal-700";
+
+  return (
+    <Link
+      href={href}
+      className="group relative flex flex-col rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm transition hover:border-teal-300 hover:shadow-md"
+    >
+      <span className="absolute top-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
+        {item.rank}
+      </span>
+      <p className="pr-10 text-sm font-semibold text-slate-900 group-hover:text-teal-800">
+        {tx.aptName}
+      </p>
+      <p className="mt-1 text-xs text-slate-500">
+        {tx.gu} · {tx.dong}
+      </p>
+      <p className={`mt-3 text-2xl font-semibold tracking-tight ${priceColor}`}>
+        {item.priceLabel}
+      </p>
+      <p className="mt-1 text-xs text-slate-500">{item.metaLabel}</p>
+      <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-teal-700">
+        지역에서 보기
+        <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+      </span>
+    </Link>
+  );
+}
+
+function RankSection({
+  title,
+  dateLabel,
+  items,
+  accent,
+  emptyText,
+}: {
+  title: string;
+  dateLabel: string;
+  items: RankItem[];
+  accent?: "teal" | "rose" | "sky";
+  emptyText: string;
+}) {
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex items-end justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+          <span className="h-5 w-1 rounded-full bg-teal-600" />
+          {title}
+        </h2>
+        <p className="text-xs text-slate-500">{dateLabel}</p>
+      </div>
+      {items.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-slate-300 bg-white/70 px-4 py-8 text-center text-sm text-slate-500">
+          {emptyText}
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {items.map((item) => (
+            <RankCard key={`${title}-${item.rank}-${item.transaction.id}`} item={item} accent={accent} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+export function HomePage() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const rankings = useQuery({
+    queryKey: ["rankings"],
+    queryFn: fetchRankings,
+  });
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const q = query.trim();
+    const href = q
+      ? `/anyang?aptName=${encodeURIComponent(q)}`
+      : "/anyang";
+    router.push(href);
+  };
+
+  const data = rankings.data;
+  const ymLabel = data ? yearMonthLabel(data.yearMonth) : "";
+
+  return (
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <section className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-8 text-white shadow-lg sm:px-8 sm:py-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-35"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 15% 20%, rgba(45,212,191,0.35), transparent 42%), radial-gradient(circle at 85% 0%, rgba(56,189,248,0.22), transparent 38%)",
+          }}
+        />
+        <div className="relative">
+          <p className="text-sm font-medium tracking-wide text-teal-100/90">
+            안양실거래
+          </p>
+          <h1 className="mt-2 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+            안양시 아파트 실거래가 TOP
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
+            만안구·동안구 매매·전월세 실거래를 한곳에서. 단지명으로 바로
+            찾아보세요.
+          </p>
+
+          <form onSubmit={onSubmit} className="mt-6 max-w-2xl">
+            <label className="sr-only" htmlFor="home-search">
+              단지명 검색
+            </label>
+            <div className="flex overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="home-search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="예) 평촌 래미안, 석수 푸르지오"
+                  className="w-full border-0 bg-transparent py-3.5 pr-3 pl-12 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-teal-600 px-5 text-sm font-semibold text-white transition hover:bg-teal-700"
+              >
+                조회
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-teal-100/70">
+              단어+공백+단어로 조회 · 지역별 상세 필터는 지역별 조회에서
+            </p>
+          </form>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Link
+          href="/anyang"
+          className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-4 text-white shadow-sm transition hover:from-teal-700 hover:to-teal-600"
+        >
+          <span className="inline-flex items-center gap-2 text-sm font-semibold">
+            <MapPinned className="h-4 w-4" />
+            지역별 실거래 전체 보기
+          </span>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link
+          href="/anyang?dealType=trade"
+          className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 text-white shadow-sm transition hover:from-slate-900 hover:to-slate-800"
+        >
+          <span className="inline-flex items-center gap-2 text-sm font-semibold">
+            <CalendarDays className="h-4 w-4" />
+            매매만 빠르게 보기
+          </span>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+
+      {data?.headline && (
+        <p className="rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm leading-relaxed text-slate-700 shadow-sm">
+          <TrendingUp className="mr-1.5 inline h-4 w-4 text-teal-600" />
+          {data.headline}
+        </p>
+      )}
+
+      {rankings.isLoading ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-36 animate-pulse rounded-2xl border border-slate-200 bg-white/70"
+            />
+          ))}
+        </div>
+      ) : data ? (
+        <div className="flex flex-col gap-10">
+          <RankSection
+            title="매매 최고가 TOP5"
+            dateLabel={ymLabel}
+            items={data.tradeHigh}
+            accent="rose"
+            emptyText="매매 최고가 데이터가 없습니다."
+          />
+          <RankSection
+            title="최근 실거래 TOP5"
+            dateLabel={ymLabel}
+            items={data.recent}
+            accent="teal"
+            emptyText="최근 거래 데이터가 없습니다."
+          />
+          <RankSection
+            title="전월세 최고가 TOP5"
+            dateLabel={ymLabel}
+            items={data.rentHigh}
+            accent="sky"
+            emptyText="전월세 데이터가 없습니다."
+          />
+          <RankSection
+            title="대형면적(85㎡+) 최고가 TOP5"
+            dateLabel={ymLabel}
+            items={data.largeArea}
+            accent="rose"
+            emptyText="대형면적 매매 데이터가 없습니다."
+          />
+        </div>
+      ) : (
+        <p className="text-sm text-slate-500">순위 데이터를 불러오지 못했습니다.</p>
+      )}
+
+      <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
+        국토교통부 아파트 실거래 OpenAPI 기반 · 안양시 만안구·동안구
+      </footer>
+    </div>
+  );
+}
