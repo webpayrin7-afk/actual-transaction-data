@@ -132,6 +132,16 @@ CREATE TABLE IF NOT EXISTS market_stats_meta (
   hist_from TEXT NOT NULL DEFAULT '',
   stats_from TEXT NOT NULL DEFAULT ''
 );
+
+CREATE TABLE IF NOT EXISTS market_stats_feeds (
+  period TEXT NOT NULL,
+  scope TEXT NOT NULL,
+  as_of_date TEXT NOT NULL DEFAULT '',
+  computed_at TEXT NOT NULL DEFAULT '',
+  complex_key_version TEXT NOT NULL DEFAULT '',
+  payload TEXT NOT NULL,
+  PRIMARY KEY (period, scope)
+);
 `);
   } catch (err) {
     // Turso write 차단 시에도 기존 테이블 조회는 가능해야 함

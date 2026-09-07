@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   Area,
@@ -25,6 +26,10 @@ import {
 import type { MarketStatsResponse, StatsRegionRank } from "@/lib/market/stats";
 import type { StatsPeriod, StatsScope } from "@/lib/market/keys";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
+import {
+  StatsDealExplorer,
+  type DealExplorerTab,
+} from "@/components/stats/StatsDealExplorer";
 
 async function fetchStats(
   period: StatsPeriod,
@@ -33,8 +38,18 @@ async function fetchStats(
   const res = await fetch(
     `/api/market-stats?period=${period}&scope=${scope}`,
   );
-  if (!res.ok) throw new Error("통계 데이터를 불러오지 못했습니다.");
+  if (!res.ok) throw new Error("시장동향 데이터를 불러오지 못했습니다.");
   return res.json();
+}
+
+function parsePeriod(v: string | null): StatsPeriod {
+  if (v === "daily" || v === "weekly" || v === "monthly") return v;
+  return "weekly";
+}
+
+function parseScope(v: string | null): StatsScope {
+  if (v === "all" || v === "seoul" || v === "gyeonggi") return v;
+  return "all";
 }
 
 function Segmented<T extends string>({
@@ -125,14 +140,10 @@ function RankList({
   mode: "volume" | "growth" | "singoga" | "drop";
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white">
-      <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
-        <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
-          {title}
-        </h2>
-      </div>
+    <div>
+      <div className="sr-only">{title}</div>
       {items.length === 0 ? (
-        <p className="px-4 py-10 text-center text-sm text-slate-500">
+        <p className="px-1 py-10 text-center text-sm text-slate-500">
           표시할 지역이 없습니다.
         </p>
       ) : (
@@ -141,7 +152,7 @@ function RankList({
             <li key={item.lawdCd}>
               <Link
                 href={item.href}
-                className="flex items-center justify-between gap-3 px-4 py-3 transition hover:bg-slate-50 sm:px-5"
+                className="flex items-center justify-between gap-3 px-1 py-3 transition hover:bg-slate-50 sm:px-2"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-slate-900">
@@ -192,7 +203,7 @@ function RankList({
           ))}
         </ul>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -234,8 +245,34 @@ function chartXAxisProps(interval: number) {
 }
 
 export function MarketStatsPage() {
-  const [period, setPeriod] = useState<StatsPeriod>("weekly");
-  const [scope, setScope] = useState<StatsScope>("all");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [period, setPeriod] = useState<StatsPeriod>(() =>
+    parsePeriod(searchParams.get("period")),
+  );
+  const [scope, setScope] = useState<StatsScope>(() =>
+    parseScope(searchParams.get("scope")),
+  );
+  const [dealTab, setDealTab] = useState<DealExplorerTab>("notables");
+  const [regionTab, setRegionTab] = useState<
+    "volume" | "growth" | "singoga" | "drop"
+  >("volume");
+
+  const syncUrl = useCallback(
+    (nextPeriod: StatsPeriod, nextScope: StatsScope) => {
+      const params = new URLSearchParams();
+      params.set("period", nextPeriod);
+      params.set("scope", nextScope);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router],
+  );
+
+  useEffect(() => {
+    syncUrl(period, scope);
+  }, [period, scope, syncUrl]);
 
   const query = useQuery({
     queryKey: ["market-stats", period, scope],
@@ -271,15 +308,17 @@ export function MarketStatsPage() {
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="max-w-3xl">
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          아파트 시장 통계
+          아파트 시장동향
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          거래량과 가격 흐름, 신고가·하락거래 변화를 일·주·월 단위로 확인하세요.
+          실거래를 기준으로 거래량·신고가·하락거래와 주요 거래를 확인하세요.
         </p>
         {data?.asOfDate ? (
           <p className="mt-2 text-xs text-slate-500">
             데이터 기준 {formatDealDate(data.asOfDate)}
-            {data.kpi ? ` · ${data.kpi.windowLabel}` : null}
+            {data.kpi
+              ? ` · ${data.kpi.windowLabel} (${formatDealDate(data.kpi.windowFrom)} ~ ${formatDealDate(data.kpi.windowTo)})`
+              : null}
           </p>
         ) : null}
         {data?.dateBasisNote ? (
@@ -359,9 +398,11 @@ export function MarketStatsPage() {
                 : "-"
             }
             sub={
-              data.kpi.medianPpsqm != null
-                ? `㎡당 ${Math.round(data.kpi.medianPpsqm).toLocaleString("ko-KR")}만`
-                : "구성 변화에 주의"
+              data.kpi.medianIsApprox
+                ? "일별 중위의 중위(근사) · 구성 변화 주의"
+                : data.kpi.medianPpsqm != null
+                  ? `㎡당 ${Math.round(data.kpi.medianPpsqm).toLocaleString("ko-KR")}만`
+                  : "구성 변화에 주의"
             }
             change={
               data.kpi.medianAmount != null &&
@@ -493,39 +534,84 @@ export function MarketStatsPage() {
             </ChartCard>
           </div>
 
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <TrendingUp className="h-4 w-4 text-teal-700" />
-            지역별 시장
-          </div>
+          {data.feeds ? (
+            <StatsDealExplorer
+              tab={dealTab}
+              onTabChange={setDealTab}
+              notables={data.feeds.notables}
+              singoga={data.feeds.singoga}
+              drops={data.feeds.drops}
+              activeComplexes={data.feeds.activeComplexes}
+              windowLabel={data.feeds.windowLabel}
+              prevWindowLabel={data.feeds.prevWindowLabel}
+              windowFrom={data.feeds.windowFrom}
+              windowTo={data.feeds.windowTo}
+            />
+          ) : null}
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-teal-700" />
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+                  지역별 시장
+                </h2>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  선택 기간 기준 지역 순위
+                </p>
+              </div>
+            </div>
+            <div className="mb-3 flex w-full gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-1">
+              {(
+                [
+                  { id: "volume", label: "거래량" },
+                  { id: "growth", label: "증가" },
+                  { id: "singoga", label: "신고가" },
+                  { id: "drop", label: "하락" },
+                ] as const
+              ).map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setRegionTab(t.id)}
+                  className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 text-center text-xs font-medium transition sm:text-sm ${
+                    regionTab === t.id
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
             <RankList
-              title="거래량 TOP 지역"
-              items={data.rankings.volumeTop}
-              mode="volume"
+              title={
+                regionTab === "volume"
+                  ? "거래량 TOP 지역"
+                  : regionTab === "growth"
+                    ? "거래 증가 지역"
+                    : regionTab === "singoga"
+                      ? "신고가 많은 지역"
+                      : "하락거래 많은 지역"
+              }
+              items={
+                regionTab === "volume"
+                  ? data.rankings.volumeTop
+                  : regionTab === "growth"
+                    ? data.rankings.growthTop
+                    : regionTab === "singoga"
+                      ? data.rankings.singogaTop
+                      : data.rankings.dropTop
+              }
+              mode={regionTab}
             />
-            <RankList
-              title="거래 증가 지역"
-              items={data.rankings.growthTop}
-              mode="growth"
-            />
-            <RankList
-              title="신고가 많은 지역"
-              items={data.rankings.singogaTop}
-              mode="singoga"
-            />
-            <RankList
-              title="하락거래 많은 지역"
-              items={data.rankings.dropTop}
-              mode="drop"
-            />
-          </div>
+          </section>
         </>
       ) : null}
 
       {!query.isLoading && data && chartData.length === 0 && !data.warning ? (
         <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-12 text-center text-sm text-slate-500">
-          표시할 통계가 없습니다.
+          표시할 시장동향이 없습니다.
         </p>
       ) : null}
 

@@ -25,7 +25,7 @@ const PRIMARY_NAV = [
   },
   {
     href: "/stats",
-    label: "통계",
+    label: "시장동향",
     match: (pathname: string) => pathname.startsWith("/stats"),
   },
 ] as const;

@@ -271,7 +271,7 @@ export function MarketHome() {
               href="/stats"
               className="inline-flex items-center gap-1 text-sm font-medium text-teal-700 hover:underline"
             >
-              시장 통계 자세히 보기
+              시장동향 자세히 보기
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>

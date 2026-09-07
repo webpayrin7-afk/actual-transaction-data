@@ -13,6 +13,13 @@ import {
   type StatsScope,
   weekStartMonday,
 } from "@/lib/market/keys";
+import {
+  periodWindows,
+  readStatsDealFeed,
+  rebuildAllStatsDealFeeds,
+  type StatsDealFeed,
+} from "@/lib/market/stats-feeds";
+import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
 
 /** 차트·KPI용 일별 집계 보관 기간 */
 const STATS_KEEP_MONTHS = 24;
@@ -68,6 +75,10 @@ export interface StatsKpiBlock {
   medianPpsqm: number | null;
   windowLabel: string;
   prevWindowLabel: string;
+  /** 주/월 중위가는 일별 중위의 중위(근사). true면 UI에서 안내 */
+  medianIsApprox: boolean;
+  windowFrom: string;
+  windowTo: string;
 }
 
 export interface StatsRegionRank {
@@ -102,6 +113,16 @@ export interface MarketStatsResponse {
     singogaTop: StatsRegionRank[];
     dropTop: StatsRegionRank[];
   };
+  feeds: {
+    notables: MarketDealItem[];
+    singoga: MarketDealItem[];
+    drops: MarketDealItem[];
+    activeComplexes: MarketVolumeItem[];
+    windowLabel: string;
+    prevWindowLabel: string;
+    windowFrom: string;
+    windowTo: string;
+  } | null;
   warning?: string;
 }
 
@@ -174,6 +195,7 @@ function emptyStats(
       singogaTop: [],
       dropTop: [],
     },
+    feeds: null,
     warning,
   };
 }
@@ -397,6 +419,13 @@ export async function rebuildMarketStats(): Promise<{
     args: [asOfDate, computedAt, histFrom, statsFrom],
   });
 
+  // 기간×지역 실거래 피드 스냅샷 (요청 시 대량 스캔 방지)
+  try {
+    await rebuildAllStatsDealFeeds(asOfDate);
+  } catch (err) {
+    console.warn("[market-stats] deal feeds rebuild failed:", err);
+  }
+
   readCache = null;
 
   return {
@@ -588,41 +617,9 @@ function buildKpi(
   asOf: string,
   period: StatsPeriod,
 ): StatsKpiBlock {
-  let curFrom: string;
-  let curTo: string;
-  let prevFrom: string;
-  let prevTo: string;
-  let windowLabel: string;
-  let prevWindowLabel: string;
-
-  if (period === "daily") {
-    curTo = asOf;
-    curFrom = addDays(asOf, -6);
-    prevTo = addDays(curFrom, -1);
-    prevFrom = addDays(prevTo, -6);
-    windowLabel = "최근 7일";
-    prevWindowLabel = "직전 7일";
-  } else if (period === "weekly") {
-    const thisWeek = weekStartMonday(asOf);
-    curFrom = thisWeek;
-    curTo = asOf;
-    prevFrom = addDays(thisWeek, -7);
-    prevTo = addDays(thisWeek, -1);
-    windowLabel = "이번 주";
-    prevWindowLabel = "지난 주";
-  } else {
-    const ym = asOf.slice(0, 7);
-    curFrom = `${ym}-01`;
-    curTo = asOf;
-    const prevMonthStart = addMonths(curFrom, -1);
-    prevFrom = prevMonthStart;
-    prevTo = addDays(curFrom, -1);
-    windowLabel = "이번 달";
-    prevWindowLabel = "지난 달";
-  }
-
-  const cur = sumDays(days, curFrom, curTo);
-  const prev = sumDays(days, prevFrom, prevTo);
+  const w = periodWindows(asOf, period);
+  const cur = sumDays(days, w.curFrom, w.curTo);
+  const prev = sumDays(days, w.prevFrom, w.prevTo);
 
   return {
     tradeCount: cur.trade,
@@ -637,8 +634,11 @@ function buildKpi(
     medianAmount: medianOf(cur.medians),
     medianAmountPrev: medianOf(prev.medians),
     medianPpsqm: medianOf(cur.ppsqm),
-    windowLabel,
-    prevWindowLabel,
+    windowLabel: w.windowLabel,
+    prevWindowLabel: w.prevWindowLabel,
+    medianIsApprox: period !== "daily",
+    windowFrom: w.curFrom,
+    windowTo: w.curTo,
   };
 }
 
@@ -647,32 +647,10 @@ function buildRankings(
   asOf: string,
   period: StatsPeriod,
 ): MarketStatsResponse["rankings"] {
-  let curFrom: string;
-  let curTo: string;
-  let prevFrom: string;
-  let prevTo: string;
-  let minTrades: number;
-
-  if (period === "daily") {
-    curTo = asOf;
-    curFrom = addDays(asOf, -6);
-    prevTo = addDays(curFrom, -1);
-    prevFrom = addDays(prevTo, -6);
-    minTrades = 5;
-  } else if (period === "weekly") {
-    const thisWeek = weekStartMonday(asOf);
-    curFrom = thisWeek;
-    curTo = asOf;
-    prevFrom = addDays(thisWeek, -7);
-    prevTo = addDays(thisWeek, -1);
-    minTrades = 8;
-  } else {
-    curFrom = `${asOf.slice(0, 7)}-01`;
-    curTo = asOf;
-    prevFrom = addMonths(curFrom, -1);
-    prevTo = addDays(curFrom, -1);
-    minTrades = 20;
-  }
+  const w = periodWindows(asOf, period);
+  const { curFrom, curTo, prevFrom, prevTo } = w;
+  const minTrades =
+    period === "daily" ? 5 : period === "weekly" ? 8 : 20;
 
   type Agg = {
     lawdCd: string;
@@ -813,6 +791,15 @@ export async function getMarketStats(params: {
   const series = rollupSeries(days, params.period);
   const kpi = buildKpi(days, asOf, params.period);
   const rankings = buildRankings(regions, asOf, params.period);
+  let feedSnap = await readStatsDealFeed(params.period, params.scope);
+  if (!feedSnap) {
+    try {
+      const { computeStatsDealFeed } = await import("@/lib/market/stats-feeds");
+      feedSnap = await computeStatsDealFeed(asOf, params.period, params.scope);
+    } catch (err) {
+      console.warn("[market-stats] on-demand feed compute failed:", err);
+    }
+  }
 
   const data: MarketStatsResponse = {
     source: "preagg",
@@ -826,6 +813,18 @@ export async function getMarketStats(params: {
     series,
     kpi,
     rankings,
+    feeds: feedSnap
+      ? {
+          notables: feedSnap.notables,
+          singoga: feedSnap.singoga,
+          drops: feedSnap.drops,
+          activeComplexes: feedSnap.activeComplexes,
+          windowLabel: feedSnap.window.windowLabel,
+          prevWindowLabel: feedSnap.window.prevWindowLabel,
+          windowFrom: feedSnap.window.curFrom,
+          windowTo: feedSnap.window.curTo,
+        }
+      : null,
   };
 
   readCache = { expiresAt: Date.now() + READ_CACHE_TTL_MS, key: cacheKey, data };
