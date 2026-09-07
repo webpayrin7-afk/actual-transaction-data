@@ -30,7 +30,7 @@ export function SiteHeader() {
             <Building2 className="h-4 w-4" />
           </span>
           <span className="text-base font-semibold tracking-tight text-slate-900">
-            아파트 실거래
+            아파트 데이터랩
           </span>
         </Link>
 
