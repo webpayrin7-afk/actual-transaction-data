@@ -27,22 +27,13 @@ const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
 const RECENT_YEARS = 3;
 
-function AptLoadProgressBar({
-  active,
-  label,
-}: {
-  active: boolean;
-  label: string;
-}) {
+function AptLoadProgressBar({ active }: { active: boolean }) {
   if (!active) return null;
 
   return (
     <div className="fixed inset-x-0 top-14 z-50">
       <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
         <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
-      </div>
-      <div className="border-b border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 backdrop-blur sm:px-6">
-        {label}
       </div>
     </div>
   );
@@ -264,19 +255,7 @@ export function AptDetailPage({
   if (quickQuery.isLoading && !data) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 sm:px-6">
-        <AptLoadProgressBar
-          active
-          label={`${aptName} 실거래 불러오는 중…`}
-        />
-        <div className="mt-10 space-y-3 rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-800">{aptName}</p>
-          <p className="text-xs text-slate-500">
-            국토부 실거래 자료를 조회하고 있습니다. 잠시만 기다려 주세요.
-          </p>
-          <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-            <div className="h-full w-1/3 animate-pulse rounded-full bg-teal-500/80" />
-          </div>
-        </div>
+        <AptLoadProgressBar active />
         <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
         <div className="h-72 animate-pulse rounded-2xl bg-slate-200/60" />
         <div className="h-96 animate-pulse rounded-2xl bg-slate-200/50" />
@@ -299,10 +278,7 @@ export function AptDetailPage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-      <AptLoadProgressBar
-        active={isExtendingHistory}
-        label="과거 시세 추가로 불러오는 중…"
-      />
+      <AptLoadProgressBar active={isExtendingHistory} />
       <div
         className={`fixed inset-x-0 top-14 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
           stickyVisible
