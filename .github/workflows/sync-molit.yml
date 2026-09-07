@@ -35,13 +35,23 @@ jobs:
           MOLIT_API_KEY: ${{ secrets.MOLIT_API_KEY }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          MOLIT_SYNCING: "1"
         run: |
-          SCOPE="${{ github.event.inputs.scope || 'featured' }}"
+          SCOPE="${{ github.event.inputs.scope || 'all' }}"
           TRADE="${{ github.event.inputs.trade_months || '120' }}"
           RENT="${{ github.event.inputs.rent_months || '48' }}"
-          # 스케줄 실행은 최근 월만 빠르게 갱신
+          # 스케줄 실행: 전체 지역 최근 3개월만 갱신 (이미 있는 월은 스크립트에서 스킵 가능하나
+          # 최신월은 국토부 데이터가 매일 갱신되므로 skip-existing=0 으로 덮어씀)
+          SKIP_EXISTING=1
           if [ "${{ github.event_name }}" = "schedule" ]; then
+            SCOPE=all
             TRADE=3
             RENT=3
+            SKIP_EXISTING=0
           fi
-          npx tsx scripts/sync-molit.ts --scope="$SCOPE" --trade-months="$TRADE" --rent-months="$RENT" --concurrency=3
+          npx tsx scripts/sync-molit.ts \
+            --scope="$SCOPE" \
+            --trade-months="$TRADE" \
+            --rent-months="$RENT" \
+            --concurrency=3 \
+            --skip-existing="$SKIP_EXISTING"
