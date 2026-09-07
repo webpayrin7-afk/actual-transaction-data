@@ -27,35 +27,6 @@ const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
 const RECENT_YEARS = 3;
 
-function useLoadingProgress(active: boolean) {
-  const [progress, setProgress] = useState(0);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (active) {
-      setVisible(true);
-      setProgress(12);
-      const timer = window.setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 92) return prev;
-          const step = prev < 50 ? 7 : prev < 75 ? 4 : 1.5;
-          return Math.min(92, prev + step);
-        });
-      }, 280);
-      return () => window.clearInterval(timer);
-    }
-
-    setProgress((prev) => (prev > 0 ? 100 : 0));
-    const hide = window.setTimeout(() => {
-      setVisible(false);
-      setProgress(0);
-    }, 280);
-    return () => window.clearTimeout(hide);
-  }, [active]);
-
-  return { progress, visible: visible || active };
-}
-
 function AptLoadProgressBar({
   active,
   label,
@@ -63,23 +34,16 @@ function AptLoadProgressBar({
   active: boolean;
   label: string;
 }) {
-  const { progress, visible } = useLoadingProgress(active);
-
-  if (!visible) return null;
+  if (!active) return null;
 
   return (
     <div className="fixed inset-x-0 top-14 z-50">
-      <div className="h-1 w-full bg-teal-100/80">
-        <div
-          className="h-full bg-teal-600 transition-[width] duration-300 ease-out"
-          style={{ width: `${progress}%` }}
-        />
+      <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
+        <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
       </div>
-      {active ? (
-        <div className="border-b border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 backdrop-blur sm:px-6">
-          {label}
-        </div>
-      ) : null}
+      <div className="border-b border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 backdrop-blur sm:px-6">
+        {label}
+      </div>
     </div>
   );
 }
