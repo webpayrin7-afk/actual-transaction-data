@@ -5,18 +5,8 @@ import { usePathname } from "next/navigation";
 import { Building2 } from "lucide-react";
 
 const NAV = [
-  { href: "/", label: "홈", match: "home" as const },
-  { href: "/#regions", label: "지역 찾기", match: "none" as const },
-  {
-    href: "/region/seoul-gangnam",
-    label: "서울",
-    match: "seoul" as const,
-  },
-  {
-    href: "/region/gyeonggi-suwon",
-    label: "경기",
-    match: "gyeonggi" as const,
-  },
+  { href: "/", label: "홈" },
+  { href: "/#regions", label: "지역 찾기" },
 ];
 
 export function SiteHeader() {
@@ -36,11 +26,7 @@ export function SiteHeader() {
 
         <nav className="flex items-center gap-1 overflow-x-auto text-sm">
           {NAV.map((item) => {
-            const active =
-              (item.match === "home" && pathname === "/") ||
-              (item.match === "seoul" && pathname.includes("/region/seoul-")) ||
-              (item.match === "gyeonggi" &&
-                pathname.includes("/region/gyeonggi-"));
+            const active = item.href === "/" && pathname === "/";
 
             return (
               <Link
