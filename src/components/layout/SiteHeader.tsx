@@ -5,8 +5,13 @@ import { usePathname } from "next/navigation";
 import { Building2 } from "lucide-react";
 
 const NAV = [
-  { href: "/", label: "홈" },
-  { href: "/#regions", label: "지역 찾기" },
+  { href: "/", label: "홈", match: (pathname: string) => pathname === "/" },
+  {
+    href: "/regions",
+    label: "지역별 조회",
+    match: (pathname: string) =>
+      pathname === "/regions" || pathname.startsWith("/region/"),
+  },
 ];
 
 export function SiteHeader() {
@@ -26,7 +31,7 @@ export function SiteHeader() {
 
         <nav className="flex items-center gap-1 overflow-x-auto text-sm">
           {NAV.map((item) => {
-            const active = item.href === "/" && pathname === "/";
+            const active = item.match(pathname);
 
             return (
               <Link
