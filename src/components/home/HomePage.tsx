@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ArrowRight,
   MapPinned,
@@ -12,12 +18,17 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   GYEONGGI_REGIONS,
+  LAWD_TO_REGION,
   SEOUL_REGIONS,
   type RegionDef,
 } from "@/lib/constants/regions";
 import type { RankItem, RankingsResponse } from "@/lib/molit/rankings";
-import { LAWD_TO_REGION } from "@/lib/constants/regions";
-import { formatDealDate, yearMonthLabel } from "@/lib/utils/format";
+import { aptDetailHref, type AptSuggestion } from "@/lib/molit/apt";
+import {
+  formatDealDate,
+  formatEok,
+  yearMonthLabel,
+} from "@/lib/utils/format";
 
 async function fetchRankings(): Promise<RankingsResponse> {
   const res = await fetch("/api/rankings");
@@ -27,7 +38,6 @@ async function fetchRankings(): Promise<RankingsResponse> {
 
 function regionHrefForTx(item: RankItem): string {
   const tx = item.transaction;
-  // try match by gu containing region name
   const found = Object.values(LAWD_TO_REGION).find((r) => {
     if (r.metro === "seoul") return tx.gu.includes(r.name) || r.name === tx.gu;
     return (
@@ -36,7 +46,7 @@ function regionHrefForTx(item: RankItem): string {
     );
   });
   const slug = found?.slug ?? "seoul-gangnam";
-  return `/region/${slug}?aptName=${encodeURIComponent(tx.aptName)}`;
+  return aptDetailHref(tx.aptName, slug);
 }
 
 function RankCard({
@@ -84,7 +94,7 @@ function RankCard({
       <span
         className={`mt-3 inline-flex items-center gap-1 text-xs font-medium ${priceColor}`}
       >
-        지역에서 보기
+        단지에서 보기
         <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
       </span>
     </Link>
@@ -180,11 +190,47 @@ function RegionGrid({
 export function HomePage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [openSuggest, setOpenSuggest] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [regionQuery, setRegionQuery] = useState("");
+  const searchWrapRef = useRef<HTMLDivElement>(null);
+
   const rankings = useQuery({
     queryKey: ["rankings"],
     queryFn: fetchRankings,
   });
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 220);
+    return () => window.clearTimeout(t);
+  }, [query]);
+
+  const suggestQuery = useQuery({
+    queryKey: ["apt-suggest", debouncedQuery],
+    queryFn: async (): Promise<AptSuggestion[]> => {
+      const res = await fetch(
+        `/api/apt-suggest?q=${encodeURIComponent(debouncedQuery)}`,
+      );
+      if (!res.ok) return [];
+      const json = (await res.json()) as { suggestions?: AptSuggestion[] };
+      return json.suggestions ?? [];
+    },
+    enabled: debouncedQuery.length >= 1,
+  });
+
+  const suggestions = suggestQuery.data ?? [];
+
+  useEffect(() => {
+    const onPointerDown = (event: MouseEvent) => {
+      if (!searchWrapRef.current?.contains(event.target as Node)) {
+        setOpenSuggest(false);
+        setActiveIndex(-1);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
 
   const filteredSeoul = useMemo(() => {
     const q = regionQuery.trim();
@@ -200,15 +246,44 @@ export function HomePage() {
     );
   }, [regionQuery]);
 
-  const onSubmit = (e: FormEvent) => {
+  const goApt = (aptName: string, regionSlug: string) => {
+    setOpenSuggest(false);
+    router.push(aptDetailHref(aptName, regionSlug));
+  };
+
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const q = query.trim();
-    // 단지 검색은 지역 선택 유도 — 기본 강남으로 이동하되 쿼리 전달
-    // 사용자가 지역 디렉터리에서 고르는 게 정확함
     if (!q) {
       document.getElementById("regions")?.scrollIntoView({ behavior: "smooth" });
       return;
     }
+
+    if (activeIndex >= 0 && suggestions[activeIndex]) {
+      const hit = suggestions[activeIndex];
+      goApt(hit.aptName, hit.regionSlug);
+      return;
+    }
+
+    if (suggestions[0]) {
+      goApt(suggestions[0].aptName, suggestions[0].regionSlug);
+      return;
+    }
+
+    // 자동완성 결과가 아직 없으면 즉시 조회
+    try {
+      const res = await fetch(`/api/apt-suggest?q=${encodeURIComponent(q)}`);
+      const json = (await res.json()) as { suggestions?: AptSuggestion[] };
+      const hit = json.suggestions?.[0];
+      if (hit) {
+        goApt(hit.aptName, hit.regionSlug);
+        return;
+      }
+    } catch {
+      // fall through
+    }
+
+    // 최후: 강남 지역 필터로 이동 (검색어만 전달)
     router.push(`/region/seoul-gangnam?aptName=${encodeURIComponent(q)}`);
   };
 
@@ -244,26 +319,93 @@ export function HomePage() {
             <label className="sr-only" htmlFor="home-search">
               단지명 검색
             </label>
-            <div className="flex overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5">
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <input
-                  id="home-search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="예) 래미안, 헬리오시티, 자이"
-                  className="w-full border-0 bg-transparent py-3.5 pr-3 pl-12 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                />
+            <div ref={searchWrapRef} className="relative">
+              <div className="flex overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="home-search"
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setOpenSuggest(true);
+                      setActiveIndex(-1);
+                    }}
+                    onFocus={() => setOpenSuggest(true)}
+                    onKeyDown={(e) => {
+                      if (!openSuggest || suggestions.length === 0) return;
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setActiveIndex((i) =>
+                          i < suggestions.length - 1 ? i + 1 : 0,
+                        );
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setActiveIndex((i) =>
+                          i > 0 ? i - 1 : suggestions.length - 1,
+                        );
+                      } else if (e.key === "Escape") {
+                        setOpenSuggest(false);
+                        setActiveIndex(-1);
+                      }
+                    }}
+                    placeholder="예) 래미안, 헬리오시티, 자이"
+                    className="w-full border-0 bg-transparent py-3.5 pr-3 pl-12 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                    autoComplete="off"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-teal-600 px-5 text-sm font-semibold text-white transition hover:bg-teal-700"
+                >
+                  조회
+                </button>
               </div>
-              <button
-                type="submit"
-                className="bg-teal-600 px-5 text-sm font-semibold text-white transition hover:bg-teal-700"
-              >
-                조회
-              </button>
+
+              {openSuggest && debouncedQuery.length >= 1 && (
+                <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                  {suggestQuery.isFetching ? (
+                    <p className="px-4 py-3 text-sm text-slate-500">검색 중…</p>
+                  ) : suggestions.length === 0 ? (
+                    <p className="px-4 py-3 text-sm text-slate-500">
+                      일치하는 단지가 없습니다. 지역을 골라 조회해 보세요.
+                    </p>
+                  ) : (
+                    <ul className="max-h-72 overflow-y-auto py-1">
+                      {suggestions.map((item, index) => (
+                        <li key={`${item.regionSlug}-${item.aptName}`}>
+                          <button
+                            type="button"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => goApt(item.aptName, item.regionSlug)}
+                            className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
+                              index === activeIndex
+                                ? "bg-teal-50"
+                                : "hover:bg-slate-50"
+                            }`}
+                          >
+                            <span>
+                              <span className="block text-sm font-semibold text-slate-900">
+                                {item.aptName}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-slate-500">
+                                {item.regionName} · {item.dong} · 거래{" "}
+                                {item.dealCount}건
+                              </span>
+                            </span>
+                            <span className="shrink-0 text-sm font-semibold text-rose-600">
+                              {formatEok(item.maxDealAmount)}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
             <p className="mt-2 text-xs text-teal-100/70">
-              아래에서 구·시를 선택한 뒤 조회하면 더 정확합니다
+              단지명을 입력하면 자동완성되며, 선택 시 단지 상세로 이동합니다
             </p>
           </form>
         </div>
