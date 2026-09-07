@@ -30,9 +30,7 @@ function hasFlag(name: string): boolean {
 const DEFAULT_SENTINELS = [
   "11680", // 강남
   "11710", // 송파
-  "11650", // 서초
   "41173", // 안양 동안
-  "41135", // 분당
   "11230", // 동대문
 ];
 
@@ -161,6 +159,8 @@ async function main() {
         stale: false,
       });
     }
+    // 공공 API 429 완화
+    await new Promise((r) => setTimeout(r, 400));
   }
 
   const shouldSync = force || reasons.length > 0;

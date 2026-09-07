@@ -337,7 +337,7 @@ export interface RegionDongApt {
 export interface RegionBrowseResponse {
   regionSlug: string;
   yearMonth: string;
-  source: "api" | "mock" | "catalog";
+  source: "api" | "mock" | "catalog" | "db";
   warning?: string;
   selectedDong: string | null;
   dongs: RegionDongSummary[];
@@ -467,7 +467,7 @@ export async function getRegionBrowse(params: {
         return {
           regionSlug: region.slug,
           yearMonth: "",
-          source: "api",
+          source: "db",
           selectedDong,
           dongs,
           apts,
