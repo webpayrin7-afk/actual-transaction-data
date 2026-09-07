@@ -35,7 +35,7 @@ const TOOL_NAV = [
   {
     href: "/loan",
     label: "대출계산기",
-    description: "상환액·이자 간단 계산",
+    description: "LTV·DSR·DTI 대출 한도 계산",
     match: (pathname: string) => pathname.startsWith("/loan"),
   },
   {
