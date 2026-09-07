@@ -24,12 +24,15 @@ export function Dashboard({
   initialDealType?: DealType | "all";
 }) {
   const yearMonths = useMemo(() => recentYearMonths(6), []);
+  // 당월은 매매 신고 건수가 적어 기본값은 직전월
   const [aptNameInput, setAptNameInput] = useState(initialAptName);
   const [gu, setGu] = useState(initialGu);
   const [dong, setDong] = useState("all");
   const [dealType, setDealType] = useState<DealType | "all">(initialDealType);
   const [area, setArea] = useState<AreaFilter>("all");
-  const [yearMonth, setYearMonth] = useState(yearMonths[0]);
+  const [yearMonth, setYearMonth] = useState(
+    () => yearMonths[1] ?? yearMonths[0],
+  );
   const [page, setPage] = useState(1);
   const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
@@ -115,7 +118,8 @@ export function Dashboard({
             동향을 조회합니다.
           </p>
           <p className="mt-4 text-xs text-teal-100/70">
-            계약년월 {yearMonthLabel(yearMonth)} · 최근 거래일 기준 내림차순
+            계약년월 {yearMonthLabel(data?.yearMonth ?? yearMonth)} · 최근
+            거래일 기준 내림차순
           </p>
         </div>
       </header>

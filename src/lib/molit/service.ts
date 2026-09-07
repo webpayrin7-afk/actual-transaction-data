@@ -118,24 +118,51 @@ export async function loadRawTransactions(
     ].slice(0, 3);
 
     let lastError = "";
+    // dealType=all 일 때: 전월세만 있는 당월에 멈추면 매매가 비어 보임 → 매매가 있는 월 우선
+    let rentOnlyFallback:
+      | { items: Transaction[]; ym: string }
+      | undefined;
+
     for (const ym of monthsToTry) {
       try {
         const items = await fetchTransactionsByType(ym, dealType, lawdCodes);
-        if (items.length > 0) {
-          return {
-            items,
-            source: "api",
-            resolvedYearMonth: ym,
-            warning:
-              ym !== yearMonth
-                ? `${yearMonth.slice(0, 4)}.${yearMonth.slice(4, 6)} 데이터가 없어 ${ym.slice(0, 4)}.${ym.slice(4, 6)} 기준으로 표시합니다.`
-                : undefined,
-          };
+        if (items.length === 0) continue;
+
+        if (dealType === "all") {
+          const hasTrade = items.some((item) => item.dealType === "trade");
+          if (!hasTrade) {
+            if (!rentOnlyFallback) {
+              rentOnlyFallback = { items, ym };
+            }
+            continue;
+          }
         }
+
+        return {
+          items,
+          source: "api",
+          resolvedYearMonth: ym,
+          warning:
+            ym !== yearMonth
+              ? `${yearMonth.slice(0, 4)}.${yearMonth.slice(4, 6)} 매매 데이터가 없어 ${ym.slice(0, 4)}.${ym.slice(4, 6)} 기준으로 표시합니다.`
+              : undefined,
+        };
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
         console.error("[molit] fetch failed:", ym, lastError);
       }
+    }
+
+    if (rentOnlyFallback) {
+      return {
+        items: rentOnlyFallback.items,
+        source: "api",
+        resolvedYearMonth: rentOnlyFallback.ym,
+        warning:
+          rentOnlyFallback.ym !== yearMonth
+            ? `${yearMonth.slice(0, 4)}.${yearMonth.slice(4, 6)} 매매 데이터가 없어 ${rentOnlyFallback.ym.slice(0, 4)}.${rentOnlyFallback.ym.slice(4, 6)} 전월세 기준으로 표시합니다.`
+            : "선택한 기간에 매매 실거래가 아직 없어 전월세만 표시합니다.",
+      };
     }
 
     return {
