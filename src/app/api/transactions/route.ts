@@ -3,6 +3,8 @@ import { getRegion } from "@/lib/constants/regions";
 import { getTransactions } from "@/lib/molit/service";
 import type { AreaFilter, DealType } from "@/types/transaction";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
@@ -16,11 +18,25 @@ export async function GET(request: NextRequest) {
   const page = Number(searchParams.get("page") ?? "1");
   const pageSize = Number(searchParams.get("pageSize") ?? "15");
 
-  const region = regionSlug ? getRegion(regionSlug) : undefined;
-  let lawdCodes = region?.lawdCodes;
+  if (!regionSlug) {
+    return NextResponse.json(
+      { error: "region 파라미터가 필요합니다." },
+      { status: 400 },
+    );
+  }
+
+  const region = getRegion(regionSlug);
+  if (!region) {
+    return NextResponse.json(
+      { error: `지원하지 않는 지역입니다: ${regionSlug}` },
+      { status: 400 },
+    );
+  }
+
+  let lawdCodes = [...region.lawdCodes];
 
   // 구 단위로 좁히기 (예: 수원시 영통구만)
-  if (region && gu && gu !== "all") {
+  if (gu && gu !== "all") {
     const matched = region.districts.filter(
       (d) => d.name === gu || d.name.includes(gu) || gu.includes(d.name),
     );
@@ -32,7 +48,8 @@ export async function GET(request: NextRequest) {
   try {
     const data = await getTransactions({
       aptName,
-      gu: region && region.districts.length <= 1 ? "all" : gu,
+      // 단일 구/시군은 lawdCodes로 이미 한정되므로 gu 문자열 필터는 생략
+      gu: region.districts.length <= 1 ? "all" : gu,
       dong,
       dealType,
       area,
@@ -40,6 +57,7 @@ export async function GET(request: NextRequest) {
       page: Number.isFinite(page) ? page : 1,
       pageSize: Number.isFinite(pageSize) ? pageSize : 15,
       lawdCodes,
+      regionSlug: region.slug,
     });
 
     return NextResponse.json(data);

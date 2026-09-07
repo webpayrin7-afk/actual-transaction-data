@@ -51,4 +51,7 @@ export interface TransactionsResponse {
   stats: TransactionStats;
   source: "api" | "mock";
   yearMonth: string;
+  warning?: string;
+  apiConfigured?: boolean;
+  lawdCodes?: string[];
 }

@@ -120,12 +120,19 @@ export function Dashboard({
         </div>
       </header>
 
-      {data?.source === "mock" && (
+      {(data?.warning || data?.source === "mock") && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            <span className="font-semibold">데모 데이터</span>로 표시 중입니다.
-            `MOLIT_API_KEY`를 설정하면 해당 지역 실시간 실거래가가 조회됩니다.
+            {data?.warning ? (
+              data.warning
+            ) : (
+              <>
+                <span className="font-semibold">데모 데이터</span>로 표시
+                중입니다. `MOLIT_API_KEY`를 설정하면 해당 지역 실시간 실거래가가
+                조회됩니다.
+              </>
+            )}
           </p>
         </div>
       )}

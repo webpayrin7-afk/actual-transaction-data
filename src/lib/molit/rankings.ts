@@ -103,9 +103,11 @@ export async function getRankings(
   yearMonth?: string,
 ): Promise<RankingsResponse> {
   const ym = yearMonth || recentYearMonths(1)[0];
-  const { items, source } = await loadRawTransactions(ym, "all", [
-    ...FEATURED_LAWD_CODES,
-  ]);
+  const { items, source, resolvedYearMonth } = await loadRawTransactions(
+    ym,
+    "all",
+    [...FEATURED_LAWD_CODES],
+  );
 
   const tradeHigh = toTradeRank(items);
   const recent = toRecentRank(items);
@@ -114,14 +116,15 @@ export async function getRankings(
 
   const top = tradeHigh[0];
   const rentTop = rentHigh[0];
+  const displayYm = resolvedYearMonth || ym;
   const headline = top
-    ? `아파트 실거래 ${ym.slice(0, 4)}.${ym.slice(4, 6)} (서울·경기 주요지역): 매매 최고가 ${top.transaction.aptName} ${top.priceLabel}${
+    ? `아파트 실거래 ${displayYm.slice(0, 4)}.${displayYm.slice(4, 6)} (서울·경기 주요지역): 매매 최고가 ${top.transaction.aptName} ${top.priceLabel}${
         rentTop ? `, 전세 최고 ${rentTop.transaction.aptName} ${rentTop.priceLabel}` : ""
       }.`
-    : `아파트 실거래 ${ym.slice(0, 4)}.${ym.slice(4, 6)} 순위입니다.`;
+    : `아파트 실거래 ${displayYm.slice(0, 4)}.${displayYm.slice(4, 6)} 순위입니다.`;
 
   return {
-    yearMonth: ym,
+    yearMonth: displayYm,
     source,
     headline,
     tradeHigh,

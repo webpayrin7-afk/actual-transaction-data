@@ -10,8 +10,14 @@ import {
 import type { DealType, Transaction } from "@/types/transaction";
 
 function getServiceKey(): string | null {
-  const key = process.env.MOLIT_API_KEY?.trim();
-  return key && key.length > 0 ? key : null;
+  const raw = process.env.MOLIT_API_KEY?.trim();
+  if (!raw) return null;
+  // 인코딩 키가 아니면 encode, 이미 % 포함이면 그대로 사용
+  return raw.includes("%") ? raw : encodeURIComponent(raw);
+}
+
+export function hasApiKey(): boolean {
+  return Boolean(process.env.MOLIT_API_KEY?.trim());
 }
 
 async function fetchMolitXml(
@@ -26,7 +32,6 @@ async function fetchMolitXml(
     throw new Error("MOLIT_API_KEY is not configured");
   }
 
-  const url = new URL(baseUrl);
   const params = new URLSearchParams({
     LAWD_CD: lawdCd,
     DEAL_YMD: yearMonth,
@@ -34,10 +39,10 @@ async function fetchMolitXml(
     numOfRows: String(numOfRows),
   });
 
-  const fullUrl = `${url.toString()}?serviceKey=${serviceKey}&${params.toString()}`;
+  const fullUrl = `${baseUrl}?serviceKey=${serviceKey}&${params.toString()}`;
   const res = await fetch(fullUrl, {
-    next: { revalidate: 3600 },
-    headers: { Accept: "application/xml" },
+    next: { revalidate: 1800 },
+    headers: { Accept: "application/xml, text/xml, */*" },
   });
 
   if (!res.ok) {
@@ -47,43 +52,91 @@ async function fetchMolitXml(
   return res.text();
 }
 
-function assertApiOk(xml: string, label: string) {
+function isOkOrEmpty(xml: string): { ok: boolean; empty: boolean; message: string } {
   const { code, message } = getApiResultCode(xml);
-  if (code !== "00" && code !== "0" && code !== "NORMAL_SERVICE") {
-    // NODATA is ok for empty months
-    if (code === "03" || message.includes("NODATA") || message.includes("없음")) {
-      return;
-    }
-    throw new Error(`${label} error: ${code} ${message}`);
+  if (code === "00" || code === "0" || code === "NORMAL_SERVICE") {
+    return { ok: true, empty: false, message };
   }
+  if (
+    code === "03" ||
+    message.includes("NODATA") ||
+    message.includes("없는") ||
+    message.includes("없음")
+  ) {
+    return { ok: true, empty: true, message };
+  }
+  return { ok: false, empty: false, message: `${code} ${message}` };
 }
 
+async function fetchOneTrade(
+  lawdCd: string,
+  yearMonth: string,
+): Promise<Transaction[]> {
+  const xml = await fetchMolitXml(TRADE_API_URL, lawdCd, yearMonth);
+  const status = isOkOrEmpty(xml);
+  if (!status.ok) {
+    throw new Error(`Trade API ${lawdCd}: ${status.message}`);
+  }
+  if (status.empty) return [];
+  return parseTradeXml(xml, lawdCd);
+}
+
+async function fetchOneRent(
+  lawdCd: string,
+  yearMonth: string,
+): Promise<Transaction[]> {
+  const xml = await fetchMolitXml(RENT_API_URL, lawdCd, yearMonth);
+  const status = isOkOrEmpty(xml);
+  if (!status.ok) {
+    throw new Error(`Rent API ${lawdCd}: ${status.message}`);
+  }
+  if (status.empty) return [];
+  return parseRentXml(xml, lawdCd);
+}
+
+/** 구/시군 코드별 병렬 조회. 일부 실패해도 성공분 반환 */
 export async function fetchTradeTransactions(
   yearMonth: string,
   lawdCodes: string[],
 ): Promise<Transaction[]> {
-  const results = await Promise.all(
-    lawdCodes.map(async (lawdCd) => {
-      const xml = await fetchMolitXml(TRADE_API_URL, lawdCd, yearMonth);
-      assertApiOk(xml, `Trade API ${lawdCd}`);
-      return parseTradeXml(xml, lawdCd);
-    }),
+  const settled = await Promise.allSettled(
+    lawdCodes.map((lawdCd) => fetchOneTrade(lawdCd, yearMonth)),
   );
-  return results.flat();
+  const items: Transaction[] = [];
+  const errors: string[] = [];
+  for (const r of settled) {
+    if (r.status === "fulfilled") items.push(...r.value);
+    else errors.push(String(r.reason));
+  }
+  if (items.length === 0 && errors.length === lawdCodes.length) {
+    throw new Error(errors[0] || "Trade API failed");
+  }
+  if (errors.length) {
+    console.warn("[molit] partial trade failures:", errors);
+  }
+  return items;
 }
 
 export async function fetchRentTransactions(
   yearMonth: string,
   lawdCodes: string[],
 ): Promise<Transaction[]> {
-  const results = await Promise.all(
-    lawdCodes.map(async (lawdCd) => {
-      const xml = await fetchMolitXml(RENT_API_URL, lawdCd, yearMonth);
-      assertApiOk(xml, `Rent API ${lawdCd}`);
-      return parseRentXml(xml, lawdCd);
-    }),
+  const settled = await Promise.allSettled(
+    lawdCodes.map((lawdCd) => fetchOneRent(lawdCd, yearMonth)),
   );
-  return results.flat();
+  const items: Transaction[] = [];
+  const errors: string[] = [];
+  for (const r of settled) {
+    if (r.status === "fulfilled") items.push(...r.value);
+    else errors.push(String(r.reason));
+  }
+  if (items.length === 0 && errors.length === lawdCodes.length) {
+    throw new Error(errors[0] || "Rent API failed");
+  }
+  if (errors.length) {
+    console.warn("[molit] partial rent failures:", errors);
+  }
+  return items;
 }
 
 export async function fetchTransactionsByType(
@@ -105,8 +158,4 @@ export async function fetchTransactionsByType(
     fetchRentTransactions(yearMonth, lawdCodes),
   ]);
   return [...trade, ...rent];
-}
-
-export function hasApiKey(): boolean {
-  return Boolean(getServiceKey());
 }
