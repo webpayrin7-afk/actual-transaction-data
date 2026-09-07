@@ -1,5 +1,5 @@
 import {
-  LAWD_CD,
+  LAWD_CDS,
   RENT_API_URL,
   TRADE_API_URL,
 } from "@/lib/constants/regions";
@@ -17,6 +17,7 @@ function getServiceKey(): string | null {
 
 async function fetchMolitXml(
   baseUrl: string,
+  lawdCd: string,
   yearMonth: string,
   pageNo = 1,
   numOfRows = 1000,
@@ -27,9 +28,8 @@ async function fetchMolitXml(
   }
 
   const url = new URL(baseUrl);
-  // 공공데이터포털 키는 이미 URL-encoded 형태일 수 있음 → 직접 쿼리 문자열에 붙임
   const params = new URLSearchParams({
-    LAWD_CD,
+    LAWD_CD: lawdCd,
     DEAL_YMD: yearMonth,
     pageNo: String(pageNo),
     numOfRows: String(numOfRows),
@@ -42,32 +42,43 @@ async function fetchMolitXml(
   });
 
   if (!res.ok) {
-    throw new Error(`MOLIT API HTTP ${res.status}`);
+    throw new Error(`MOLIT API HTTP ${res.status} (${lawdCd})`);
   }
 
   return res.text();
 }
 
+function assertApiOk(xml: string, label: string) {
+  const { code, message } = getApiResultCode(xml);
+  if (code !== "00" && code !== "0" && code !== "NORMAL_SERVICE") {
+    throw new Error(`${label} error: ${code} ${message}`);
+  }
+}
+
 export async function fetchTradeTransactions(
   yearMonth: string,
 ): Promise<Transaction[]> {
-  const xml = await fetchMolitXml(TRADE_API_URL, yearMonth);
-  const { code, message } = getApiResultCode(xml);
-  if (code !== "00" && code !== "0" && code !== "NORMAL_SERVICE") {
-    throw new Error(`Trade API error: ${code} ${message}`);
-  }
-  return parseTradeXml(xml);
+  const results = await Promise.all(
+    LAWD_CDS.map(async (lawdCd) => {
+      const xml = await fetchMolitXml(TRADE_API_URL, lawdCd, yearMonth);
+      assertApiOk(xml, `Trade API ${lawdCd}`);
+      return parseTradeXml(xml, lawdCd);
+    }),
+  );
+  return results.flat();
 }
 
 export async function fetchRentTransactions(
   yearMonth: string,
 ): Promise<Transaction[]> {
-  const xml = await fetchMolitXml(RENT_API_URL, yearMonth);
-  const { code, message } = getApiResultCode(xml);
-  if (code !== "00" && code !== "0" && code !== "NORMAL_SERVICE") {
-    throw new Error(`Rent API error: ${code} ${message}`);
-  }
-  return parseRentXml(xml);
+  const results = await Promise.all(
+    LAWD_CDS.map(async (lawdCd) => {
+      const xml = await fetchMolitXml(RENT_API_URL, lawdCd, yearMonth);
+      assertApiOk(xml, `Rent API ${lawdCd}`);
+      return parseRentXml(xml, lawdCd);
+    }),
+  );
+  return results.flat();
 }
 
 export async function fetchTransactionsByType(

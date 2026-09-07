@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Building2,
   CalendarDays,
@@ -9,19 +10,22 @@ import {
 import {
   AREA_OPTIONS,
   DEAL_TYPE_OPTIONS,
-  DONG_OPTIONS,
+  DISTRICT_OPTIONS,
+  dongOptionsForDistrict,
 } from "@/lib/constants/regions";
 import { yearMonthLabel } from "@/lib/utils/format";
 import type { AreaFilter, DealType } from "@/types/transaction";
 
 interface FilterBarProps {
   aptName: string;
+  gu: string;
   dong: string;
   dealType: DealType | "all";
   area: AreaFilter;
   yearMonth: string;
   yearMonths: string[];
   onAptNameChange: (value: string) => void;
+  onGuChange: (value: string) => void;
   onDongChange: (value: string) => void;
   onDealTypeChange: (value: DealType | "all") => void;
   onAreaChange: (value: AreaFilter) => void;
@@ -34,18 +38,22 @@ const selectClass =
 
 export function FilterBar({
   aptName,
+  gu,
   dong,
   dealType,
   area,
   yearMonth,
   yearMonths,
   onAptNameChange,
+  onGuChange,
   onDongChange,
   onDealTypeChange,
   onAreaChange,
   onYearMonthChange,
   onSearch,
 }: FilterBarProps) {
+  const dongOptions = useMemo(() => dongOptionsForDistrict(gu), [gu]);
+
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-sm backdrop-blur sm:p-5">
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -53,7 +61,7 @@ export function FilterBar({
         검색 필터
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-7">
         <label className="flex flex-col gap-1.5 xl:col-span-2">
           <span className="text-xs font-medium text-slate-500">단지명</span>
           <div className="relative">
@@ -72,13 +80,28 @@ export function FilterBar({
         </label>
 
         <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-medium text-slate-500">구</span>
+          <select
+            value={gu}
+            onChange={(e) => onGuChange(e.target.value)}
+            className={selectClass}
+          >
+            {DISTRICT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-slate-500">법정동</span>
           <select
             value={dong}
             onChange={(e) => onDongChange(e.target.value)}
             className={selectClass}
           >
-            {DONG_OPTIONS.map((opt) => (
+            {dongOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>

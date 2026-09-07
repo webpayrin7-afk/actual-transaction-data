@@ -6,7 +6,11 @@ import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
 import { StatsCards } from "@/components/StatsCards";
 import { TransactionTable } from "@/components/TransactionTable";
-import { PAGE_SIZE, REGION_LABEL } from "@/lib/constants/regions";
+import {
+  PAGE_SIZE,
+  REGION_DETAIL,
+  REGION_LABEL,
+} from "@/lib/constants/regions";
 import { recentYearMonths, yearMonthLabel } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
 import type { AreaFilter, DealType } from "@/types/transaction";
@@ -14,6 +18,7 @@ import type { AreaFilter, DealType } from "@/types/transaction";
 export function Dashboard() {
   const yearMonths = useMemo(() => recentYearMonths(6), []);
   const [aptNameInput, setAptNameInput] = useState("");
+  const [gu, setGu] = useState("all");
   const [dong, setDong] = useState("all");
   const [dealType, setDealType] = useState<DealType | "all">("all");
   const [area, setArea] = useState<AreaFilter>("all");
@@ -24,6 +29,7 @@ export function Dashboard() {
 
   const query = useTransactions({
     aptName: appliedAptName,
+    gu,
     dong,
     dealType,
     area,
@@ -33,6 +39,12 @@ export function Dashboard() {
   });
 
   const resetPage = () => setPage(1);
+
+  const handleGuChange = (value: string) => {
+    setGu(value);
+    setDong("all");
+    resetPage();
+  };
 
   const handleDongChange = (value: string) => {
     setDong(value);
@@ -76,14 +88,14 @@ export function Dashboard() {
         <div className="relative">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur">
             <MapPin className="h-3.5 w-3.5" />
-            {REGION_LABEL} · 법정동코드 41173
+            {REGION_LABEL} · {REGION_DETAIL} · 41171 / 41173
           </div>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             안양시 아파트 실거래가
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-teal-50/85 sm:text-base">
             국토교통부 아파트 매매·전월세 실거래 자료를 기반으로 {REGION_LABEL}{" "}
-            주요 동의 일별 거래 동향을 조회합니다.
+            {REGION_DETAIL} 전역 일별 거래 동향을 조회합니다.
           </p>
           <p className="mt-4 text-xs text-teal-100/70">
             계약년월 {yearMonthLabel(yearMonth)} · 최근 거래일 기준 내림차순
@@ -96,8 +108,8 @@ export function Dashboard() {
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
             <span className="font-semibold">데모 데이터</span>로 표시 중입니다.
-            `.env.local`에 `MOLIT_API_KEY`를 설정하면 공공데이터포털 실시간
-            실거래가가 조회됩니다.
+            `.env.local`에 `MOLIT_API_KEY`를 설정하면 공공데이터포털에서 안양시
+            만안구·동안구 실시간 실거래가가 조회됩니다.
           </p>
         </div>
       )}
@@ -113,12 +125,14 @@ export function Dashboard() {
 
       <FilterBar
         aptName={aptNameInput}
+        gu={gu}
         dong={dong}
         dealType={dealType}
         area={area}
         yearMonth={yearMonth}
         yearMonths={yearMonths}
         onAptNameChange={setAptNameInput}
+        onGuChange={handleGuChange}
         onDongChange={handleDongChange}
         onDealTypeChange={handleDealTypeChange}
         onAreaChange={handleAreaChange}
@@ -131,7 +145,7 @@ export function Dashboard() {
           <div>
             <h2 className="text-lg font-semibold text-slate-900">거래 내역</h2>
             <p className="text-sm text-slate-500">
-              계약일자 · 단지명 · 법정동 · 전용면적 · 거래금액 · 층수
+              계약일자 · 단지명 · 구 · 법정동 · 전용면적 · 거래금액 · 층수
             </p>
           </div>
         </div>
@@ -153,7 +167,7 @@ export function Dashboard() {
 
       <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
         데이터 출처: 국토교통부 아파트매매/전월세 실거래가 상세자료 OpenAPI ·
-        안양시 동안구(41173)
+        안양시 만안구(41171) · 동안구(41173)
       </footer>
     </div>
   );

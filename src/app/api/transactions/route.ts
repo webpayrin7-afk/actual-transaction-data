@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
 
   const aptName = searchParams.get("aptName") ?? "";
+  const gu = searchParams.get("gu") ?? "all";
   const dong = searchParams.get("dong") ?? "all";
   const dealType = (searchParams.get("dealType") ?? "all") as DealType | "all";
   const area = (searchParams.get("area") ?? "all") as AreaFilter;
@@ -16,6 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     const data = await getTransactions({
       aptName,
+      gu,
       dong,
       dealType,
       area,

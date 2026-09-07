@@ -63,7 +63,7 @@ function MaxDealFeatureCard({ deal }: { deal: Transaction }) {
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600">
             <span className="inline-flex items-center gap-1.5">
               <MapPinned className="h-4 w-4 text-amber-600" />
-              {deal.dong}
+              {deal.gu} {deal.dong}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Building2 className="h-4 w-4 text-amber-600" />

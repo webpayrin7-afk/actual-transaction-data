@@ -9,6 +9,7 @@ import type {
 
 export interface TransactionQueryParams {
   aptName: string;
+  gu: string;
   dong: string;
   dealType: DealType | "all";
   area: AreaFilter;
@@ -22,6 +23,7 @@ async function fetchTransactions(
 ): Promise<TransactionsResponse> {
   const qs = new URLSearchParams({
     aptName: params.aptName,
+    gu: params.gu,
     dong: params.dong,
     dealType: params.dealType,
     area: params.area,

@@ -51,6 +51,7 @@ export function TransactionTable({ items, isLoading }: TransactionTableProps) {
               <th className="px-4 py-3 font-medium whitespace-nowrap">계약일자</th>
               <th className="px-4 py-3 font-medium whitespace-nowrap">유형</th>
               <th className="px-4 py-3 font-medium whitespace-nowrap">단지명</th>
+              <th className="px-4 py-3 font-medium whitespace-nowrap">구</th>
               <th className="px-4 py-3 font-medium whitespace-nowrap">법정동</th>
               <th className="px-4 py-3 font-medium whitespace-nowrap">전용면적</th>
               <th className="px-4 py-3 font-medium whitespace-nowrap">거래금액</th>
@@ -79,6 +80,9 @@ export function TransactionTable({ items, isLoading }: TransactionTableProps) {
                 </td>
                 <td className="px-4 py-3 font-medium text-slate-900">
                   {tx.aptName}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-slate-600">
+                  {tx.gu}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-slate-600">
                   {tx.dong}

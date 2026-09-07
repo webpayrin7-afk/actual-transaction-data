@@ -1,4 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
+import { districtNameFromCode } from "@/lib/constants/regions";
 import type { DealType, Transaction } from "@/types/transaction";
 import { pad2, parseManwon } from "@/lib/utils/format";
 
@@ -20,6 +21,12 @@ function text(value: unknown): string {
 
 function buildDealDate(year: string, month: string, day: string): string {
   return `${year}-${pad2(month)}-${pad2(day)}`;
+}
+
+function resolveGu(sggCd: string | undefined, lawdCd: string): string {
+  const fromItem = districtNameFromCode(text(sggCd));
+  if (fromItem) return fromItem;
+  return districtNameFromCode(lawdCd) || "";
 }
 
 interface RawTradeItem {
@@ -53,7 +60,7 @@ interface RawRentItem {
   sggCd?: string;
 }
 
-export function parseTradeXml(xml: string): Transaction[] {
+export function parseTradeXml(xml: string, lawdCd: string): Transaction[] {
   const json = parser.parse(xml);
   const items = asArray<RawTradeItem>(json?.response?.body?.items?.item);
 
@@ -64,6 +71,7 @@ export function parseTradeXml(xml: string): Transaction[] {
       const day = text(item.dealDay);
       const aptName = text(item.aptNm);
       const dong = text(item.umdNm);
+      const gu = resolveGu(item.sggCd, lawdCd);
       const exclusiveArea = Number(item.excluUseAr) || 0;
       const dealAmount = parseManwon(item.dealAmount);
       const floor = Number(text(item.floor)) || 0;
@@ -72,10 +80,11 @@ export function parseTradeXml(xml: string): Transaction[] {
 
       const dealDate = buildDealDate(year, month, day);
       const tx: Transaction = {
-        id: `trade-${dealDate}-${aptName}-${dong}-${floor}-${dealAmount}-${exclusiveArea}-${index}`,
+        id: `trade-${lawdCd}-${dealDate}-${aptName}-${dong}-${floor}-${dealAmount}-${exclusiveArea}-${index}`,
         dealType: "trade",
         dealDate,
         aptName,
+        gu,
         dong,
         exclusiveArea,
         dealAmount,
@@ -90,7 +99,7 @@ export function parseTradeXml(xml: string): Transaction[] {
     .filter((v): v is Transaction => v !== null);
 }
 
-export function parseRentXml(xml: string): Transaction[] {
+export function parseRentXml(xml: string, lawdCd: string): Transaction[] {
   const json = parser.parse(xml);
   const items = asArray<RawRentItem>(json?.response?.body?.items?.item);
 
@@ -101,6 +110,7 @@ export function parseRentXml(xml: string): Transaction[] {
       const day = text(item.dealDay);
       const aptName = text(item.aptNm);
       const dong = text(item.umdNm);
+      const gu = resolveGu(item.sggCd, lawdCd);
       const exclusiveArea = Number(item.excluUseAr) || 0;
       const dealAmount = parseManwon(item.deposit);
       const monthlyRent = parseManwon(item.monthlyRent);
@@ -110,10 +120,11 @@ export function parseRentXml(xml: string): Transaction[] {
 
       const dealDate = buildDealDate(year, month, day);
       const tx: Transaction = {
-        id: `rent-${dealDate}-${aptName}-${dong}-${floor}-${dealAmount}-${monthlyRent}-${exclusiveArea}-${index}`,
+        id: `rent-${lawdCd}-${dealDate}-${aptName}-${dong}-${floor}-${dealAmount}-${monthlyRent}-${exclusiveArea}-${index}`,
         dealType: "rent",
         dealDate,
         aptName,
+        gu,
         dong,
         exclusiveArea,
         dealAmount,
@@ -153,6 +164,7 @@ export function filterTransactions(
   items: Transaction[],
   opts: {
     aptName?: string;
+    gu?: string;
     dong?: string;
     dealType?: DealType | "all";
     areaMatcher?: (sqm: number) => boolean;
@@ -161,6 +173,9 @@ export function filterTransactions(
   const keyword = opts.aptName?.trim().toLowerCase() ?? "";
   return items.filter((item) => {
     if (opts.dealType && opts.dealType !== "all" && item.dealType !== opts.dealType) {
+      return false;
+    }
+    if (opts.gu && opts.gu !== "all" && item.gu !== opts.gu) {
       return false;
     }
     if (opts.dong && opts.dong !== "all" && item.dong !== opts.dong) {

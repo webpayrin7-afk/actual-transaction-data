@@ -56,6 +56,7 @@ function paginate(
 
 export async function getTransactions(params: {
   aptName?: string;
+  gu?: string;
   dong?: string;
   dealType?: DealType | "all";
   area?: AreaFilter;
@@ -84,7 +85,6 @@ export async function getTransactions(params: {
     raw = MOCK_TRANSACTIONS;
   }
 
-  // mock은 여러 월 데이터를 포함하므로 yearMonth로 좁힘
   if (source === "mock") {
     const ymPrefix = `${yearMonth.slice(0, 4)}-${yearMonth.slice(4, 6)}`;
     const filteredByMonth = raw.filter((i) => i.dealDate.startsWith(ymPrefix));
@@ -94,8 +94,9 @@ export async function getTransactions(params: {
   const filtered = sortByDealDateDesc(
     filterTransactions(raw, {
       aptName: params.aptName,
+      gu: params.gu,
       dong: params.dong,
-      dealType: source === "api" ? "all" : dealType, // API에서 이미 dealType 반영
+      dealType: source === "api" ? "all" : dealType,
       areaMatcher: (sqm) => matchesAreaFilter(sqm, params.area ?? "all"),
     }),
   );

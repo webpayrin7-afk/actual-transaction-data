@@ -12,6 +12,7 @@ export interface Transaction {
   dealType: DealType;
   dealDate: string; // YYYY-MM-DD
   aptName: string;
+  gu: string; // 만안구 | 동안구
   dong: string;
   exclusiveArea: number; // ㎡
   dealAmount: number; // 만원 (매매) or 보증금 (전월세)
@@ -24,6 +25,7 @@ export interface Transaction {
 
 export interface TransactionFilters {
   aptName: string;
+  gu: string;
   dong: string;
   dealType: DealType | "all";
   area: AreaFilter;
