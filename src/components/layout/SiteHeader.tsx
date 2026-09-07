@@ -5,7 +5,12 @@ import { usePathname } from "next/navigation";
 import { Building2 } from "lucide-react";
 
 const NAV = [
-  { href: "/", label: "홈", match: (pathname: string) => pathname === "/" },
+  {
+    href: "/",
+    label: "단지별 조회",
+    match: (pathname: string) =>
+      pathname === "/" || pathname.startsWith("/apt/"),
+  },
   {
     href: "/regions",
     label: "지역별 조회",
