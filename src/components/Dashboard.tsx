@@ -56,8 +56,6 @@ export function Dashboard({
   const [aptNameInput, setAptNameInput] = useState(initialAptName);
   const [gu, setGu] = useState(initialGu);
   const [dong, setDong] = useState("all");
-  const [browseDong, setBrowseDong] = useState<string | null>(null);
-  const [browseGu, setBrowseGu] = useState<string | null>(null);
   const [dealType, setDealType] = useState<DealType | "all">(initialDealType);
   const [area, setArea] = useState<AreaFilter>("all");
   const [yearMonth, setYearMonth] = useState(() => yearMonths[0]);
@@ -94,8 +92,6 @@ export function Dashboard({
   const handleGuChange = (value: string) => {
     setGu(value);
     setDong("all");
-    setBrowseDong(null);
-    setBrowseGu(null);
     resetPage();
   };
 
@@ -124,14 +120,6 @@ export function Dashboard({
       setAppliedAptName(aptNameInput.trim());
       setPage(1);
     });
-  };
-
-  const handleBrowseDongSelect = (
-    nextDong: string | null,
-    nextGu: string | null,
-  ) => {
-    setBrowseDong(nextDong);
-    setBrowseGu(nextGu);
   };
 
   const codesLabel = region.lawdCodes.join(" / ");
@@ -197,14 +185,7 @@ export function Dashboard({
         })}
       </nav>
 
-      {tab === "dong" && (
-        <RegionDongBrowse
-          regionSlug={region.slug}
-          selectedDong={browseDong}
-          selectedGu={browseGu}
-          onDongSelect={handleBrowseDongSelect}
-        />
-      )}
+      {tab === "dong" && <RegionDongBrowse regionSlug={region.slug} />}
 
       {tab === "stats" && (
         <div className="flex flex-col gap-4">
