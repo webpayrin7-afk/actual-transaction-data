@@ -20,6 +20,7 @@ interface FilterBarProps {
   dealType: DealType | "all";
   area: AreaFilter;
   yearMonth: string;
+  availableYearMonths: string[];
   districts: DistrictUnit[];
   onAptNameChange: (value: string) => void;
   onGuChange: (value: string) => void;
@@ -40,6 +41,7 @@ export function FilterBar({
   dealType,
   area,
   yearMonth,
+  availableYearMonths,
   districts,
   onAptNameChange,
   onGuChange,
@@ -54,29 +56,32 @@ export function FilterBar({
   const selectedMonth = yearMonth.slice(4, 6);
 
   const years = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    return Array.from({ length: 10 }, (_, i) => String(currentYear - i));
-  }, []);
+    const set = new Set(
+      availableYearMonths
+        .filter((ym) => /^\d{6}$/.test(ym))
+        .map((ym) => ym.slice(0, 4)),
+    );
+    if (selectedYear) set.add(selectedYear);
+    return [...set].sort((a, b) => b.localeCompare(a));
+  }, [availableYearMonths, selectedYear]);
 
   const monthsForYear = useMemo(() => {
-    const now = new Date();
-    const currentYear = String(now.getFullYear());
-    const lastMonth =
-      selectedYear === currentYear ? now.getMonth() + 1 : 12;
-    return Array.from({ length: lastMonth }, (_, i) =>
-      String(i + 1).padStart(2, "0"),
-    );
-  }, [selectedYear]);
+    const months = availableYearMonths
+      .filter((ym) => ym.startsWith(selectedYear))
+      .map((ym) => ym.slice(4, 6));
+    const set = new Set(months);
+    if (selectedMonth) set.add(selectedMonth);
+    return [...set].sort((a, b) => a.localeCompare(b));
+  }, [availableYearMonths, selectedYear, selectedMonth]);
 
   function handleYearChange(nextYear: string) {
-    const now = new Date();
-    const currentYear = String(now.getFullYear());
-    const lastMonth =
-      nextYear === currentYear ? now.getMonth() + 1 : 12;
-    const monthNum = Number(selectedMonth);
-    const nextMonth = String(
-      Math.min(Math.max(monthNum || 1, 1), lastMonth),
-    ).padStart(2, "0");
+    const months = availableYearMonths
+      .filter((ym) => ym.startsWith(nextYear))
+      .map((ym) => ym.slice(4, 6))
+      .sort((a, b) => a.localeCompare(b));
+    const nextMonth = months.includes(selectedMonth)
+      ? selectedMonth
+      : (months[months.length - 1] ?? months[0] ?? "01");
     onYearMonthChange(`${nextYear}${nextMonth}`);
   }
 

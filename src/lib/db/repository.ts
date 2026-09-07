@@ -494,4 +494,26 @@ export async function getSyncStats(): Promise<{
   };
 }
 
+/** 지역(법정동코드)에 적재된 계약년월 목록 (최신순) */
+export async function listSyncedYearMonths(
+  lawdCodes: string[],
+): Promise<string[]> {
+  const db = await readyDb();
+  if (!db || !lawdCodes.length) return [];
+
+  const placeholders = lawdCodes.map(() => "?").join(",");
+  const result = await db.execute({
+    sql: `SELECT DISTINCT year_month AS ym
+          FROM sync_months
+          WHERE lawd_cd IN (${placeholders})
+            AND row_count > 0
+          ORDER BY year_month DESC`,
+    args: [...lawdCodes],
+  });
+
+  return result.rows
+    .map((row) => String(row.ym ?? ""))
+    .filter((ym) => /^\d{6}$/.test(ym));
+}
+
 export { yearMonthFromDealDate };

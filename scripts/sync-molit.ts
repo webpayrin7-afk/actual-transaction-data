@@ -76,8 +76,9 @@ async function main() {
     lawdCodes = expandFeatured();
   }
 
-  const tradeYms = recentYearMonths(Math.min(Math.max(tradeMonths, 1), 120));
-  const rentYms = recentYearMonths(Math.min(Math.max(rentMonths, 0), 120));
+  // MOLIT 아파트 실거래는 2006년경부터 공개 — 최대 약 20년(240개월)까지 적재 가능
+  const tradeYms = recentYearMonths(Math.min(Math.max(tradeMonths, 1), 240));
+  const rentYms = recentYearMonths(Math.min(Math.max(rentMonths, 0), 240));
 
   type Job = {
     lawdCd: string;

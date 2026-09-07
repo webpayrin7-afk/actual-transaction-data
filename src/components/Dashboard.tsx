@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
   BarChart3,
@@ -31,6 +32,15 @@ const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
 function parseTab(value: string | null | undefined): RegionTab | null {
   if (value === "dong" || value === "stats" || value === "search") return value;
   return null;
+}
+
+async function fetchRegionCoverage(region: string): Promise<string[]> {
+  const res = await fetch(
+    `/api/region-coverage?region=${encodeURIComponent(region)}`,
+  );
+  if (!res.ok) throw new Error("Failed to fetch region coverage");
+  const data = (await res.json()) as { yearMonths?: string[] };
+  return Array.isArray(data.yearMonths) ? data.yearMonths : [];
 }
 
 export function Dashboard({
@@ -62,6 +72,18 @@ export function Dashboard({
   const [page, setPage] = useState(1);
   const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
+
+  const coverageQuery = useQuery({
+    queryKey: ["region-coverage", region.slug],
+    queryFn: () => fetchRegionCoverage(region.slug),
+    enabled: tab === "search",
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+
+  const availableYearMonths = coverageQuery.data?.length
+    ? coverageQuery.data
+    : yearMonths;
 
   const query = useTransactions(
     {
@@ -224,6 +246,7 @@ export function Dashboard({
             dealType={dealType}
             area={area}
             yearMonth={resolvedYearMonth}
+            availableYearMonths={availableYearMonths}
             districts={region.districts}
             onAptNameChange={setAptNameInput}
             onGuChange={handleGuChange}
