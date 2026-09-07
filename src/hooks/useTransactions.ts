@@ -50,5 +50,7 @@ export function useTransactions(
     queryFn: () => fetchTransactions(params),
     placeholderData: (prev) => prev,
     enabled: options?.enabled ?? true,
+    staleTime: 30_000,
+    retry: 1,
   });
 }

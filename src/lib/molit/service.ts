@@ -9,6 +9,7 @@ import { hasDb } from "@/lib/db/client";
 import {
   listAptCatalog,
   normalizeAptName,
+  queryRegionMonthPool,
   queryRentPool,
   queryTradePool,
 } from "@/lib/db/repository";
@@ -132,6 +133,7 @@ export async function loadRawTransactions(
   dealType: DealType | "all" = "all",
   lawdCodes: string[] = [...FEATURED_LAWD_CODES],
   regionSlug?: string,
+  options?: { maxMonthTries?: number },
 ): Promise<{
   items: Transaction[];
   source: "api" | "mock";
@@ -139,10 +141,11 @@ export async function loadRawTransactions(
   resolvedYearMonth: string;
 }> {
   if (hasApiKey()) {
+    const maxTries = Math.max(1, options?.maxMonthTries ?? 4);
     const monthsToTry = [
       yearMonth,
       ...recentYearMonths(6).filter((ym) => ym !== yearMonth),
-    ].slice(0, 4);
+    ].slice(0, maxTries);
 
     let lastError = "";
     // dealType=all 일 때: 전월세만 있는 당월에 멈추면 매매가 비어 보임 → 매매가 있는 월 우선
@@ -237,19 +240,58 @@ export async function getTransactions(params: {
     ? params.lawdCodes
     : [...FEATURED_LAWD_CODES];
 
-  const loaded = await loadRawTransactions(
-    yearMonth,
-    dealType,
-    lawdCodes,
-    params.regionSlug,
-  );
+  let items: Transaction[] = [];
+  let source: "api" | "mock" = "api";
+  let warning: string | undefined;
+  let resolvedYearMonth = yearMonth;
+  let usedDb = false;
+
+  if (hasDb()) {
+    try {
+      const dealKinds: DealType[] =
+        dealType === "all" ? ["trade", "rent"] : [dealType];
+      const fromDb = await queryRegionMonthPool({
+        lawdCodes,
+        yearMonths: [yearMonth],
+        dealKinds,
+      });
+      if (fromDb) {
+        items = fromDb;
+        usedDb = true;
+        resolvedYearMonth = yearMonth;
+      }
+    } catch (error) {
+      console.warn("[transactions] db read failed:", error);
+    }
+  }
+
+  if (!usedDb) {
+    try {
+      const loaded = await loadRawTransactions(
+        yearMonth,
+        dealType,
+        lawdCodes,
+        params.regionSlug,
+        { maxMonthTries: 1 },
+      );
+      items = loaded.items;
+      source = loaded.source;
+      warning = loaded.warning;
+      resolvedYearMonth = loaded.resolvedYearMonth;
+    } catch (error) {
+      console.warn("[transactions] api read failed:", error);
+      items = [];
+      source = "api";
+      warning = "실거래 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+    }
+  }
 
   const filtered = sortByDealDateDesc(
-    filterTransactions(loaded.items, {
+    filterTransactions(items, {
       aptName: params.aptName,
       gu: params.gu,
       dong: params.dong,
-      dealType: loaded.source === "api" ? "all" : dealType,
+      dealType,
       areaMatcher: (sqm) => matchesAreaFilter(sqm, params.area ?? "all"),
     }),
   );
@@ -265,9 +307,9 @@ export async function getTransactions(params: {
     pageSize,
     totalPages,
     stats: buildStats(filtered),
-    source: loaded.source,
-    yearMonth: loaded.resolvedYearMonth,
-    warning: loaded.warning,
+    source,
+    yearMonth: resolvedYearMonth,
+    warning,
     lawdCodes,
     apiConfigured: hasApiKey(),
   };
@@ -779,7 +821,7 @@ export async function getRegionDaily(params: {
         for (const tx of tradePool) byId.set(tx.id, tx);
         for (const tx of items) byId.set(tx.id, tx);
         historyTrades = [...byId.values()];
-        if (source !== "mock") source = "db";
+        source = "db";
       }
       if (rentPool && rentPool.length > 0) {
         historyRents = rentPool;

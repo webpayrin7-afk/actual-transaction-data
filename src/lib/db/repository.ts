@@ -270,6 +270,58 @@ export async function queryRentPool(params: {
   }));
 }
 
+/** 지역 검색용: 해당 월(들) 매매/전월세 (적재된 것만, 커버리지 없으면 null) */
+export async function queryRegionMonthPool(params: {
+  lawdCodes: string[];
+  yearMonths: string[];
+  dealKinds?: DealType[];
+}): Promise<Transaction[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  if (!params.lawdCodes.length || !params.yearMonths.length) return null;
+
+  const dealKinds = params.dealKinds ?? ["trade", "rent"];
+  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
+  const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
+  const kindPlaceholders = dealKinds.map(() => "?").join(",");
+
+  const coverage = await db.execute({
+    sql: `SELECT COUNT(*) AS cnt FROM sync_months
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_kind IN (${kindPlaceholders})`,
+    args: [...params.lawdCodes, ...params.yearMonths, ...dealKinds],
+  });
+  if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
+
+  const result = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+          FROM transactions
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_type IN (${kindPlaceholders})
+          ORDER BY deal_date DESC`,
+    args: [...params.lawdCodes, ...params.yearMonths, ...dealKinds],
+  });
+
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    dealType: row.deal_type as DealType,
+    dealDate: String(row.deal_date),
+    aptName: String(row.apt_name),
+    gu: String(row.gu ?? ""),
+    dong: String(row.dong ?? ""),
+    exclusiveArea: Number(row.exclusive_area) || 0,
+    dealAmount: Number(row.deal_amount) || 0,
+    monthlyRent: Number(row.monthly_rent) || 0,
+    floor: Number(row.floor) || 0,
+    buildYear: row.build_year == null ? null : Number(row.build_year),
+    jibun: String(row.jibun ?? ""),
+    dealingGbn: String(row.dealing_gbn ?? ""),
+  }));
+}
+
 /** 단지명 LIKE 집계 — apt_catalog 우선, 없으면 transactions 폴백 */
 export async function searchAptAggregatesFromDb(params: {
   queryNorm: string;
