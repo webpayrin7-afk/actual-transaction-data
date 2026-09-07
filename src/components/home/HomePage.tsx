@@ -64,7 +64,7 @@ function RankCard({
   return (
     <Link
       href={href}
-      className={`group relative flex flex-col rounded-xl border border-slate-200/80 bg-slate-50/90 p-4 transition ${hoverBorder}`}
+      className={`group relative flex flex-col rounded-2xl border border-slate-200/70 bg-white/85 p-4 backdrop-blur-sm transition ${hoverBorder}`}
     >
       <span className="absolute top-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white">
         {item.rank}
@@ -131,7 +131,7 @@ function RankSection({
         <p className="text-xs text-slate-500">{dateLabel}</p>
       </div>
       {items.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-8 text-center text-sm text-slate-500">
+        <p className="rounded-xl border border-dashed border-slate-300/80 bg-white/60 px-4 py-8 text-center text-sm text-slate-500">
           {emptyText}
         </p>
       ) : (
@@ -300,18 +300,18 @@ export function HomePage() {
       )}
 
       {rankings.isLoading ? (
-        <div className="overflow-hidden rounded-3xl border border-slate-200/70 bg-white/70 p-5 shadow-sm backdrop-blur-sm sm:p-6">
+        <div className="flex flex-col gap-8">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="h-36 animate-pulse rounded-xl border border-slate-200 bg-slate-50/80"
+                className="h-36 animate-pulse rounded-2xl border border-slate-200/70 bg-white/70"
               />
             ))}
           </div>
         </div>
       ) : data ? (
-        <div className="flex flex-col gap-8 overflow-hidden rounded-3xl border border-slate-200/70 bg-white/70 p-5 shadow-sm backdrop-blur-sm sm:gap-10 sm:p-6">
+        <div className="flex flex-col gap-10">
           <RankSection
             title="아파트 신고가 TOP5"
             dateLabel={sectionDateLabel(singogaItems, fallbackYm)}
@@ -319,6 +319,7 @@ export function HomePage() {
             accent="rose"
             emptyText="아파트 신고가 데이터가 없습니다."
           />
+          <div className="h-px bg-slate-200/70" />
           <RankSection
             title="아파트 전세 TOP5"
             dateLabel={sectionDateLabel(jeonseItems, fallbackYm)}
@@ -326,6 +327,7 @@ export function HomePage() {
             accent="teal"
             emptyText="아파트 전세 데이터가 없습니다."
           />
+          <div className="h-px bg-slate-200/70" />
           <RankSection
             title="아파트 월세 TOP5"
             dateLabel={sectionDateLabel(wolseItems, fallbackYm)}
