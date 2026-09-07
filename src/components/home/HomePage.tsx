@@ -17,7 +17,7 @@ import {
 } from "@/lib/constants/regions";
 import type { RankItem, RankingsResponse } from "@/lib/molit/rankings";
 import { LAWD_TO_REGION } from "@/lib/constants/regions";
-import { yearMonthLabel } from "@/lib/utils/format";
+import { formatDealDate, yearMonthLabel } from "@/lib/utils/format";
 
 async function fetchRankings(): Promise<RankingsResponse> {
   const res = await fetch("/api/rankings");
@@ -79,6 +79,16 @@ function RankCard({
       </span>
     </Link>
   );
+}
+
+function sectionDateLabel(items: RankItem[], fallbackYm: string): string {
+  if (items.length === 0) {
+    return fallbackYm ? yearMonthLabel(fallbackYm) : "";
+  }
+  const latest = items.reduce((best, cur) =>
+    cur.transaction.dealDate > best.transaction.dealDate ? cur : best,
+  );
+  return formatDealDate(latest.transaction.dealDate);
 }
 
 function RankSection({
@@ -186,7 +196,10 @@ export function HomePage() {
   };
 
   const data = rankings.data;
-  const ymLabel = data ? yearMonthLabel(data.yearMonth) : "";
+  const fallbackYm = data?.yearMonth ?? "";
+  const singogaItems = data?.singogaTop ?? data?.tradeHigh ?? [];
+  const jeonseItems = data?.jeonseTop ?? [];
+  const wolseItems = data?.wolseTop ?? [];
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -282,22 +295,22 @@ export function HomePage() {
         <div className="flex flex-col gap-10">
           <RankSection
             title="아파트 신고가 TOP5"
-            dateLabel={ymLabel}
-            items={data.singogaTop ?? data.tradeHigh}
+            dateLabel={sectionDateLabel(singogaItems, fallbackYm)}
+            items={singogaItems}
             accent="rose"
             emptyText="아파트 신고가 데이터가 없습니다."
           />
           <RankSection
             title="아파트 전세 TOP5"
-            dateLabel={ymLabel}
-            items={data.jeonseTop ?? []}
+            dateLabel={sectionDateLabel(jeonseItems, fallbackYm)}
+            items={jeonseItems}
             accent="teal"
             emptyText="아파트 전세 데이터가 없습니다."
           />
           <RankSection
             title="아파트 월세 TOP5"
-            dateLabel={ymLabel}
-            items={data.wolseTop ?? []}
+            dateLabel={sectionDateLabel(wolseItems, fallbackYm)}
+            items={wolseItems}
             accent="sky"
             emptyText="아파트 월세 데이터가 없습니다."
           />
