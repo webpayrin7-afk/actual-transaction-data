@@ -190,10 +190,7 @@ export function MarketHome() {
           }}
         />
         <div className="relative max-w-2xl">
-          <p className="text-xs font-medium tracking-wide text-teal-700">
-            아파트 데이터랩
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
             오늘의 아파트 시장
           </h1>
           <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
