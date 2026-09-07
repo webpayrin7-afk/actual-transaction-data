@@ -52,12 +52,14 @@ async function fetchAptDetail(
   aptName: string,
   region: string,
   months: number,
+  gu?: string,
 ): Promise<AptDetailResponse> {
   const qs = new URLSearchParams({
     aptName,
     region,
     months: String(months),
   });
+  if (gu?.trim()) qs.set("gu", gu.trim());
   const res = await fetch(`/api/apt-detail?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   return res.json();
@@ -92,9 +94,11 @@ type PeriodPreset = "recent3" | "full" | "custom";
 export function AptDetailPage({
   aptName,
   regionSlug,
+  gu,
 }: {
   aptName: string;
   regionSlug: string;
+  gu?: string;
 }) {
   const [areaKey, setAreaKey] = useState("all");
   const [dealFilter, setDealFilter] = useState<"all" | "trade" | "rent">("all");
@@ -102,20 +106,20 @@ export function AptDetailPage({
     start: number;
     end: number;
   } | null>(null);
-  const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}`);
+  const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}|${gu ?? ""}`);
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
   const [stickyVisible, setStickyVisible] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
 
   const quickQuery = useQuery({
-    queryKey: ["apt-detail", aptName, regionSlug, "quick", QUICK_MONTHS],
-    queryFn: () => fetchAptDetail(aptName, regionSlug, QUICK_MONTHS),
+    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "quick", QUICK_MONTHS],
+    queryFn: () => fetchAptDetail(aptName, regionSlug, QUICK_MONTHS, gu),
     staleTime: 5 * 60 * 1000,
   });
 
   const fullQuery = useQuery({
-    queryKey: ["apt-detail", aptName, regionSlug, "full", FULL_MONTHS],
-    queryFn: () => fetchAptDetail(aptName, regionSlug, FULL_MONTHS),
+    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "full", FULL_MONTHS],
+    queryFn: () => fetchAptDetail(aptName, regionSlug, FULL_MONTHS, gu),
     enabled: quickQuery.isSuccess,
     staleTime: 30 * 60 * 1000,
   });

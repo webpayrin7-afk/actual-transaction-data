@@ -46,7 +46,7 @@ function regionHrefForTx(item: RankItem): string {
     );
   });
   const slug = found?.slug ?? "seoul-gangnam";
-  return aptDetailHref(tx.aptName, slug);
+  return aptDetailHref(tx.aptName, slug, tx.gu);
 }
 
 function RankCard({
@@ -246,9 +246,9 @@ export function HomePage() {
     );
   }, [regionQuery]);
 
-  const goApt = (aptName: string, regionSlug: string) => {
+  const goApt = (aptName: string, regionSlug: string, gu?: string) => {
     setOpenSuggest(false);
-    router.push(aptDetailHref(aptName, regionSlug));
+    router.push(aptDetailHref(aptName, regionSlug, gu));
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -261,12 +261,12 @@ export function HomePage() {
 
     if (activeIndex >= 0 && suggestions[activeIndex]) {
       const hit = suggestions[activeIndex];
-      goApt(hit.aptName, hit.regionSlug);
+      goApt(hit.aptName, hit.regionSlug, hit.gu);
       return;
     }
 
     if (suggestions[0]) {
-      goApt(suggestions[0].aptName, suggestions[0].regionSlug);
+      goApt(suggestions[0].aptName, suggestions[0].regionSlug, suggestions[0].gu);
       return;
     }
 
@@ -276,7 +276,7 @@ export function HomePage() {
       const json = (await res.json()) as { suggestions?: AptSuggestion[] };
       const hit = json.suggestions?.[0];
       if (hit) {
-        goApt(hit.aptName, hit.regionSlug);
+        goApt(hit.aptName, hit.regionSlug, hit.gu);
         return;
       }
     } catch {
@@ -377,7 +377,7 @@ export function HomePage() {
                           <button
                             type="button"
                             onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => goApt(item.aptName, item.regionSlug)}
+                            onClick={() => goApt(item.aptName, item.regionSlug, item.gu)}
                             className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
                               index === activeIndex
                                 ? "bg-teal-50"

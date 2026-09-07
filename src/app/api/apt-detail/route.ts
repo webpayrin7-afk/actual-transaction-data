@@ -7,6 +7,7 @@ export const maxDuration = 60;
 export async function GET(request: NextRequest) {
   const aptName = request.nextUrl.searchParams.get("aptName")?.trim() ?? "";
   const regionSlug = request.nextUrl.searchParams.get("region")?.trim() ?? "";
+  const gu = request.nextUrl.searchParams.get("gu")?.trim() ?? "";
   const monthsRaw = Number(request.nextUrl.searchParams.get("months") ?? "36");
 
   if (!aptName || !regionSlug) {
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
       aptName,
       regionSlug,
       months,
+      gu: gu || undefined,
     });
     if (!detail) {
       return NextResponse.json(
@@ -37,8 +39,8 @@ export async function GET(request: NextRequest) {
     res.headers.set(
       "Cache-Control",
       detail.partial
-        ? "private, max-age=60, stale-while-revalidate=300"
-        : "private, max-age=300, stale-while-revalidate=1800",
+        ? "private, max-age=120, stale-while-revalidate=600"
+        : "private, max-age=600, stale-while-revalidate=3600",
     );
     return res;
   } catch (error) {
