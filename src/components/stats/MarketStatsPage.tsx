@@ -220,6 +220,21 @@ function ChartCard({
   );
 }
 
+/** 화면 너비에 맞춰 겹치지 않게 눈금을 건너뜀 */
+function StatsXAxis() {
+  return (
+    <XAxis
+      dataKey="label"
+      interval="preserveStartEnd"
+      minTickGap={44}
+      tick={{ fill: "#64748b", fontSize: 10 }}
+      tickMargin={6}
+      axisLine={{ stroke: "#cbd5e1" }}
+      tickLine={false}
+    />
+  );
+}
+
 export function MarketStatsPage() {
   const [period, setPeriod] = useState<StatsPeriod>("weekly");
   const [scope, setScope] = useState<StatsScope>("all");
@@ -243,8 +258,6 @@ export function MarketStatsPage() {
       })),
     [data?.series],
   );
-
-  const tickInterval = period === "daily" ? 4 : period === "weekly" ? 1 : 0;
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -367,7 +380,7 @@ export function MarketStatsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
-                  margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                  margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
                 >
                   <defs>
                     <linearGradient id="volFill" x1="0" y1="0" x2="0" y2="1">
@@ -380,14 +393,7 @@ export function MarketStatsPage() {
                     stroke="#e2e8f0"
                     vertical={false}
                   />
-                  <XAxis
-                    dataKey="label"
-                    interval={tickInterval}
-                    minTickGap={24}
-                    tick={{ fill: "#64748b", fontSize: 11 }}
-                    axisLine={{ stroke: "#cbd5e1" }}
-                    tickLine={false}
-                  />
+                  <StatsXAxis />
                   <YAxis
                     tick={{ fill: "#64748b", fontSize: 11 }}
                     axisLine={false}
@@ -426,7 +432,7 @@ export function MarketStatsPage() {
             >
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChartSafe data={chartData} tickInterval={tickInterval} />
+                  <LineChartSafe data={chartData} />
                 </ResponsiveContainer>
               </div>
             </ChartCard>
@@ -439,21 +445,14 @@ export function MarketStatsPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart
                     data={chartData}
-                    margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                    margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke="#e2e8f0"
                       vertical={false}
                     />
-                    <XAxis
-                      dataKey="label"
-                      interval={tickInterval}
-                      minTickGap={24}
-                      tick={{ fill: "#64748b", fontSize: 11 }}
-                      axisLine={{ stroke: "#cbd5e1" }}
-                      tickLine={false}
-                    />
+                    <StatsXAxis />
                     <YAxis
                       tick={{ fill: "#64748b", fontSize: 11 }}
                       axisLine={false}
@@ -544,22 +543,16 @@ export function MarketStatsPage() {
 
 function LineChartSafe({
   data,
-  tickInterval,
 }: {
   data: Array<{ label: string; medianEok: number | null }>;
-  tickInterval: number;
 }) {
   return (
-    <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+    <ComposedChart
+      data={data}
+      margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
+    >
       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-      <XAxis
-        dataKey="label"
-        interval={tickInterval}
-        minTickGap={24}
-        tick={{ fill: "#64748b", fontSize: 11 }}
-        axisLine={{ stroke: "#cbd5e1" }}
-        tickLine={false}
-      />
+      <StatsXAxis />
       <YAxis
         tick={{ fill: "#64748b", fontSize: 11 }}
         axisLine={false}

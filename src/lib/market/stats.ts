@@ -517,9 +517,10 @@ function rollupSeries(
   for (const d of days) {
     const key =
       period === "weekly" ? weekStartMonday(d.day) : monthKey(d.day);
+    // 주간은 "MM.DD"만 표기(탭이 주간임을 이미 표시) — 차트 가로축 겹침 완화
     const label =
       period === "weekly"
-        ? `${key.slice(5).replace("-", ".")}주`
+        ? key.slice(5).replace("-", ".")
         : `${key.slice(2).replace("-", ".")}`;
     let b = map.get(key);
     if (!b) {
