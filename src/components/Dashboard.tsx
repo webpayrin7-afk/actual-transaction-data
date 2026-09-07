@@ -23,8 +23,8 @@ import type { AreaFilter, DealType } from "@/types/transaction";
 type RegionTab = "dong" | "stats" | "search";
 
 const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
+  { id: "stats", label: "지역 현황", icon: BarChart3 },
   { id: "dong", label: "동별 선택", icon: Building2 },
-  { id: "stats", label: "지역 통계", icon: BarChart3 },
   { id: "search", label: "지역 검색", icon: Search },
 ];
 
@@ -52,7 +52,7 @@ export function Dashboard({
   const yearMonths = useMemo(() => recentYearMonths(6), []);
   const tab =
     parseTab(searchParams.get("tab")) ??
-    (initialTab ?? (initialAptName.trim() ? "search" : "dong"));
+    (initialTab ?? (initialAptName.trim() ? "search" : "stats"));
   const [aptNameInput, setAptNameInput] = useState(initialAptName);
   const [gu, setGu] = useState(initialGu);
   const [dong, setDong] = useState("all");
@@ -170,7 +170,7 @@ export function Dashboard({
             {region.name} 아파트 실거래가
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-teal-50/85 sm:text-base">
-            동별 단지 · 지역 통계 · 거래 검색을 한곳에서 확인합니다.
+            지역 현황 · 동별 단지 · 거래 검색을 한곳에서 확인합니다.
           </p>
           <p className="mt-4 text-xs text-teal-100/70">
             계약년월 {yearMonthLabel(resolvedYearMonth)} · 최근 거래일 기준
@@ -222,7 +222,7 @@ export function Dashboard({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-end sm:justify-between sm:p-5">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">지역 통계</h2>
+              <h2 className="text-lg font-semibold text-slate-900">지역 현황</h2>
               <p className="mt-1 text-sm text-slate-500">
                 선택한 계약월 기준 {region.name} 매매·전월세 요약입니다.
               </p>
@@ -266,7 +266,7 @@ export function Dashboard({
             <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <p>
-                통계 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+                현황 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
               </p>
             </div>
           )}
