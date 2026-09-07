@@ -22,9 +22,9 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const region = getRegion(slug);
-  if (!region) return { title: "아파트 실거래" };
+  if (!region) return { title: "아파트 데이터랩" };
   return {
-    title: `${region.name} 아파트 실거래가 | 아파트 실거래`,
+    title: `${region.name} 아파트 실거래가 | 아파트 데이터랩`,
     description: `${region.fullName} 아파트 매매·전월세 실거래가 조회`,
   };
 }
