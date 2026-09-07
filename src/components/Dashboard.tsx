@@ -144,8 +144,11 @@ export function Dashboard() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">거래 내역</h2>
-            <p className="text-sm text-slate-500">
+            <p className="hidden text-sm text-slate-500 sm:block">
               계약일자 · 단지명 · 구 · 법정동 · 전용면적 · 거래금액 · 층수
+            </p>
+            <p className="text-sm text-slate-500 sm:hidden">
+              금액 · 단지 · 위치 · 면적/층을 한눈에 확인
             </p>
           </div>
         </div>
