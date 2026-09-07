@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ChevronRight, MapPinned } from "lucide-react";
+import { ChevronRight, MapPinned } from "lucide-react";
 import { aptDetailHref } from "@/lib/molit/apt";
 import type {
   RegionBrowseResponse,
@@ -90,24 +90,34 @@ export function RegionDongAptList({
   const backHref = `/region/${regionSlug}?tab=dong`;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-      <div>
-        <Link
-          href={backHref}
-          className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-teal-700"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          동 목록으로
-        </Link>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          <MapPinned className="h-6 w-6 text-teal-600" />
-          {dong} 단지 목록
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          {regionName}
-          {gu ? ` · ${gu}` : ""}
-        </p>
-      </div>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+      <header className="relative overflow-hidden rounded-2xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-4 py-4 text-white shadow-sm sm:px-5 sm:py-4">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-25"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 20%, rgba(45,212,191,0.3), transparent 40%), radial-gradient(circle at 80% 0%, rgba(125,211,252,0.2), transparent 35%)",
+          }}
+        />
+        <div className="relative min-w-0">
+          <div className="mb-1.5 flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-teal-100 backdrop-blur">
+              <MapPinned className="h-3 w-3" />
+              {regionName}
+              {gu ? ` · ${gu}` : ""}
+            </div>
+            <Link
+              href={backHref}
+              className="rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-teal-100 backdrop-blur transition hover:bg-white/20"
+            >
+              ← 동 목록으로
+            </Link>
+          </div>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+            {dong} 단지 목록
+          </h1>
+        </div>
+      </header>
 
       {query.isError && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
