@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getMarketStats } from "@/lib/market/stats";
 import type { StatsPeriod, StatsScope } from "@/lib/market/keys";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 function parsePeriod(raw: string | null): StatsPeriod {
