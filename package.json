@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:sync": "tsx scripts/sync-molit.ts",
     "db:sync:anyang": "tsx scripts/sync-molit.ts --scope=anyang --trade-months=120 --rent-months=48",
-    "db:sync:featured": "tsx scripts/sync-molit.ts --scope=featured --trade-months=120 --rent-months=48"
+    "db:sync:featured": "tsx scripts/sync-molit.ts --scope=featured --trade-months=120 --rent-months=48",
+    "db:catalog": "tsx scripts/rebuild-apt-catalog.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

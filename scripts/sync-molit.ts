@@ -16,7 +16,7 @@ import {
   ALL_REGIONS,
 } from "../src/lib/constants/regions-registry";
 import { ensureSchema, getDb } from "../src/lib/db/client";
-import { replaceMonthTransactions } from "../src/lib/db/repository";
+import { replaceMonthTransactions, rebuildAptCatalog } from "../src/lib/db/repository";
 import {
   fetchOneTradeForSync,
   fetchOneRentForSync,
@@ -170,6 +170,13 @@ async function main() {
   console.log(
     `[sync] done jobs=${done} rows=${rows} failures=${failures} skipped=${skipped} db=${process.env.TURSO_DATABASE_URL}`,
   );
+
+  try {
+    const catalogSize = await rebuildAptCatalog();
+    console.log(`[sync] apt_catalog rebuilt entries=${catalogSize}`);
+  } catch (err) {
+    console.warn("[sync] apt_catalog rebuild failed:", err);
+  }
 }
 
 main().catch((err) => {

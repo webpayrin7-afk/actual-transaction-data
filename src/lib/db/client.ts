@@ -69,5 +69,19 @@ CREATE INDEX IF NOT EXISTS idx_tx_lawd_ym_type
 
 CREATE INDEX IF NOT EXISTS idx_tx_apt_norm
   ON transactions (apt_name_norm);
+
+CREATE TABLE IF NOT EXISTS apt_catalog (
+  apt_name_norm TEXT NOT NULL,
+  apt_name TEXT NOT NULL,
+  gu TEXT NOT NULL,
+  dong TEXT NOT NULL DEFAULT '',
+  deal_count INTEGER NOT NULL DEFAULT 0,
+  max_deal_amount INTEGER NOT NULL DEFAULT 0,
+  latest_deal_date TEXT NOT NULL DEFAULT '',
+  PRIMARY KEY (apt_name_norm, gu)
+);
+
+CREATE INDEX IF NOT EXISTS idx_apt_catalog_norm
+  ON apt_catalog (apt_name_norm);
 `);
 }

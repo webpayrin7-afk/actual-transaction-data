@@ -12,6 +12,7 @@ import {
   isMonthCoverageComplete,
   queryAptTransactions,
   queryTradePool,
+  searchAptAggregatesFromDb,
 } from "@/lib/db/repository";
 import {
   formatEok,
@@ -351,6 +352,35 @@ export async function searchAptSuggestions(
   const q = normalizeName(query.trim());
   if (q.length < 1) return [];
 
+  // 1) DB LIKE 집계 — 적재된 전체 기간에서 즉시 검색
+  if (hasDb() && q.length >= 2) {
+    const hits = await searchAptAggregatesFromDb({ queryNorm: q, limit: limit * 2 });
+    if (hits && hits.length > 0) {
+      const mapped: AptSuggestion[] = [];
+      for (const hit of hits) {
+        const region =
+          regionFromGu(hit.gu) ??
+          ALL_REGIONS.find((r) =>
+            normalizeName(hit.aptName).includes(regionNameKey(r.name)),
+          );
+        if (!region) continue;
+        mapped.push({
+          aptName: hit.aptName,
+          regionSlug: region.slug,
+          regionName: region.name,
+          gu: hit.gu,
+          dong: hit.dong,
+          dealCount: hit.dealCount,
+          maxDealAmount: hit.maxDealAmount,
+          latestDealDate: hit.latestDealDate,
+        });
+        if (mapped.length >= limit) break;
+      }
+      if (mapped.length > 0) return mapped;
+    }
+  }
+
+  // 2) 풀 로드(부분 DB → MOLIT) 후 부분일치·subsequence 매칭
   const pool = await loadSuggestPool(q);
   let suggestions = aggregateSuggestions(pool, q, limit);
 
