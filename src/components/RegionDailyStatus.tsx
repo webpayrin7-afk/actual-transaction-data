@@ -266,17 +266,36 @@ export function RegionDailyStatus({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const query = useQuery({
-    queryKey: ["region-daily", regionSlug, yearMonth, selectedDate ?? ""],
+    queryKey: ["region-daily", regionSlug, yearMonth],
     queryFn: () =>
       fetchRegionDaily({
         region: regionSlug,
         yearMonth,
-        date: selectedDate ?? undefined,
       }),
+    staleTime: 60_000,
+    retry: 1,
   });
 
   const data = query.data;
   const activeDate = selectedDate ?? data?.selectedDate ?? null;
+  const monthDeals = data?.monthDeals ?? data?.deals ?? [];
+  const dayDeals = useMemo(() => {
+    if (!activeDate) return [];
+    return monthDeals
+      .filter((deal) => deal.dealDate.slice(0, 10) === activeDate)
+      .sort(
+        (a, b) =>
+          b.dealAmount - a.dealAmount ||
+          a.aptName.localeCompare(b.aptName, "ko"),
+      );
+  }, [monthDeals, activeDate]);
+
+  const avgDealAmount =
+    dayDeals.length > 0
+      ? Math.round(
+          dayDeals.reduce((sum, d) => sum + d.dealAmount, 0) / dayDeals.length,
+        )
+      : 0;
 
   const canPrev = yearMonths.includes(shiftYearMonth(yearMonth, -1));
   const canNext = yearMonths.includes(shiftYearMonth(yearMonth, 1));
@@ -357,7 +376,7 @@ export function RegionDailyStatus({
         <div className="flex flex-col gap-3">
           {query.isLoading && !data ? (
             <div className="h-40 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
-          ) : !activeDate || !data?.deals.length ? (
+          ) : !activeDate || dayDeals.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
               신고가가 있는 날짜를 달력에서 선택해 주세요.
             </div>
@@ -369,14 +388,14 @@ export function RegionDailyStatus({
                     {formatDealDate(activeDate)} 신고가
                   </p>
                   <p className="mt-0.5 text-xs text-slate-500">
-                    신고가 {data.tradeCount.toLocaleString("ko-KR")}건 · 평균{" "}
-                    {formatEok(data.avgDealAmount)}
+                    신고가 {dayDeals.length.toLocaleString("ko-KR")}건 · 평균{" "}
+                    {formatEok(avgDealAmount)}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                {data.deals.map((deal) => (
+                {dayDeals.map((deal) => (
                   <DealCard
                     key={deal.id}
                     deal={deal}
