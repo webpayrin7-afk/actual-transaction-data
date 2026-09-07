@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { AlertCircle, MapPin } from "lucide-react";
 import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
@@ -32,9 +32,27 @@ export function Dashboard() {
     pageSize: PAGE_SIZE,
   });
 
-  useEffect(() => {
-    setPage(1);
-  }, [dong, dealType, area, yearMonth, appliedAptName]);
+  const resetPage = () => setPage(1);
+
+  const handleDongChange = (value: string) => {
+    setDong(value);
+    resetPage();
+  };
+
+  const handleDealTypeChange = (value: DealType | "all") => {
+    setDealType(value);
+    resetPage();
+  };
+
+  const handleAreaChange = (value: AreaFilter) => {
+    setArea(value);
+    resetPage();
+  };
+
+  const handleYearMonthChange = (value: string) => {
+    setYearMonth(value);
+    resetPage();
+  };
 
   const handleSearch = () => {
     startTransition(() => {
@@ -81,10 +99,10 @@ export function Dashboard() {
         yearMonth={yearMonth}
         yearMonths={yearMonths}
         onAptNameChange={setAptNameInput}
-        onDongChange={setDong}
-        onDealTypeChange={setDealType}
-        onAreaChange={setArea}
-        onYearMonthChange={setYearMonth}
+        onDongChange={handleDongChange}
+        onDealTypeChange={handleDealTypeChange}
+        onAreaChange={handleAreaChange}
+        onYearMonthChange={handleYearMonthChange}
         onSearch={handleSearch}
       />
 
