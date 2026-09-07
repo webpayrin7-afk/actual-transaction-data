@@ -137,40 +137,37 @@ function DealCard({
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2">
-        <div className="flex gap-2">
-          <div className="min-w-0 flex-1 rounded-xl bg-white/70 px-2.5 py-2">
-            <p className="text-[11px] text-slate-500">최고가대비</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
-              {deal.vsHighPct != null ? `${deal.vsHighPct}%` : "-"}
-            </p>
-          </div>
-          <div className="min-w-0 flex-1 rounded-xl bg-white/70 px-2.5 py-2">
-            <p className="text-[11px] text-slate-500">3개월건수</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
-              {deal.recent3mCount.toLocaleString("ko-KR")}건
-            </p>
-          </div>
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="min-w-0 rounded-xl bg-white/70 px-2.5 py-2">
+          <p className="text-[11px] text-slate-500">최고가대비</p>
+          <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+            {deal.vsHighPct != null ? `${deal.vsHighPct}%` : "-"}
+          </p>
         </div>
-        <div className="flex gap-2">
-          <div className="min-w-0 flex-1 rounded-xl bg-white/70 px-2.5 py-2">
-            <p className="text-[11px] text-slate-500">타입최고</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
-              {formatEok(deal.typeMaxAmount)}
-            </p>
-          </div>
-          <div className="min-w-0 flex-1 rounded-xl bg-white/70 px-2.5 py-2">
-            <p className="text-[11px] text-slate-500">평형최고</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
-              {formatEok(deal.pyeongMaxAmount)}
-            </p>
-          </div>
-          <div className="min-w-0 flex-1 rounded-xl bg-white/70 px-2.5 py-2">
-            <p className="text-[11px] text-slate-500">전세가</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
-              {deal.jeonseAmount != null ? formatEok(deal.jeonseAmount) : "-"}
-            </p>
-          </div>
+        <div className="min-w-0 rounded-xl bg-white/70 px-2.5 py-2">
+          <p className="text-[11px] text-slate-500">3개월건수</p>
+          <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+            {deal.recent3mCount.toLocaleString("ko-KR")}건
+          </p>
+        </div>
+        <div className="min-w-0" aria-hidden />
+        <div className="min-w-0 rounded-xl bg-white/70 px-2.5 py-2">
+          <p className="text-[11px] text-slate-500">타입최고</p>
+          <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+            {formatEok(deal.typeMaxAmount)}
+          </p>
+        </div>
+        <div className="min-w-0 rounded-xl bg-white/70 px-2.5 py-2">
+          <p className="text-[11px] text-slate-500">평형최고</p>
+          <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+            {formatEok(deal.pyeongMaxAmount)}
+          </p>
+        </div>
+        <div className="min-w-0 rounded-xl bg-white/70 px-2.5 py-2">
+          <p className="text-[11px] text-slate-500">전세가</p>
+          <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+            {deal.jeonseAmount != null ? formatEok(deal.jeonseAmount) : "-"}
+          </p>
         </div>
       </div>
     </Link>
