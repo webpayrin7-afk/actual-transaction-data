@@ -93,6 +93,7 @@ export function parseTradeXml(xml: string, lawdCd: string): Transaction[] {
         buildYear: item.buildYear ? Number(item.buildYear) : null,
         jibun: text(item.jibun),
         dealingGbn: text(item.dealingGbn) || "중개거래",
+        lawdCd,
       };
       return tx;
     })
@@ -133,6 +134,7 @@ export function parseRentXml(xml: string, lawdCd: string): Transaction[] {
         buildYear: item.buildYear ? Number(item.buildYear) : null,
         jibun: text(item.jibun),
         dealingGbn: text(item.contractType) || "전월세",
+        lawdCd,
       };
       return tx;
     })

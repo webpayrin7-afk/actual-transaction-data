@@ -6,6 +6,14 @@ import {
 } from "@/lib/constants/regions";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import {
+  hasDb,
+} from "@/lib/db/client";
+import {
+  isMonthCoverageComplete,
+  queryAptTransactions,
+  queryTradePool,
+} from "@/lib/db/repository";
+import {
   formatEok,
   recentYearMonths,
   toPyeong,
@@ -56,7 +64,7 @@ export interface AptDetailResponse {
   gu: string;
   dong: string;
   buildYear: number | null;
-  source: "api" | "mock";
+  source: "api" | "mock" | "db";
   yearMonth: string;
   warning?: string;
   /** 최근 N개월만 먼저 내려준 부분 응답 */
@@ -208,6 +216,14 @@ async function loadTradePool(
   if (inflight) return inflight;
 
   const promise = (async () => {
+    const fromDb = hasDb()
+      ? await queryTradePool({ lawdCodes, yearMonths: months })
+      : null;
+    if (fromDb) {
+      suggestPoolCache.set(key, { builtAt: Date.now(), items: fromDb });
+      return fromDb;
+    }
+
     const items: Transaction[] = [];
     if (hasApiKey()) {
       // 2개월씩 묶어서 조회 (429 완화 + 초기 지연 단축)
@@ -547,19 +563,43 @@ async function buildAptDetail(params: {
 }): Promise<AptDetailResponse | null> {
   const { region, aptName, monthCount, lawdCodes } = params;
   const months = recentYearMonths(monthCount);
-  let source: "api" | "mock" = "mock";
+  let source: "api" | "mock" | "db" = "mock";
   let warning: string | undefined;
   let collected: Transaction[] = [];
 
-  if (hasApiKey()) {
+  const includeRent = monthCount > 36;
+  const dealKinds = includeRent
+    ? (["trade", "rent"] as const)
+    : (["trade"] as const);
+
+  if (hasDb()) {
+    const covered = await isMonthCoverageComplete({
+      lawdCodes,
+      yearMonths: months,
+      dealKinds: [...dealKinds],
+    });
+    if (covered) {
+      collected = await queryAptTransactions({
+        lawdCodes,
+        aptName,
+        yearMonths: months,
+        dealKinds: [...dealKinds],
+      });
+      source = "db";
+      if (collected.length === 0) {
+        warning = "선택한 단지·기간에 실거래 데이터가 없습니다.";
+      }
+    }
+  }
+
+  if (source !== "db" && hasApiKey()) {
     // 최초(≤36개월)는 매매만 — 전월세는 전체 이력 확장 단계에서 채움
-    const includeRent = monthCount > 36;
     collected = await fetchAptHistoryPool(months, lawdCodes, {
       includeRent,
     });
     if (collected.length > 0) source = "api";
     else warning = "선택한 단지·기간에 API 실거래 데이터가 없습니다.";
-  } else {
+  } else if (source !== "db" && !hasApiKey()) {
     warning =
       "MOLIT_API_KEY가 없어 지역별 데모 데이터로 표시 중입니다. Vercel/로컬 환경변수에 키를 설정하세요.";
     for (const ym of months.slice(0, Math.min(12, months.length))) {

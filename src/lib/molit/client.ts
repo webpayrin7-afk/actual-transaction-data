@@ -184,6 +184,14 @@ async function fetchOneTrade(
   const promise = fetchOneTradeUncached(lawdCd, yearMonth)
     .then((items) => {
       setCachedMonth(key, items);
+      void import("@/lib/db/persist").then(({ persistMonthInBackground }) => {
+        persistMonthInBackground({
+          lawdCd,
+          yearMonth,
+          dealKind: "trade",
+          items,
+        });
+      });
       return items;
     })
     .finally(() => {
@@ -208,6 +216,14 @@ async function fetchOneRent(
   const promise = fetchOneRentUncached(lawdCd, yearMonth)
     .then((items) => {
       setCachedMonth(key, items);
+      void import("@/lib/db/persist").then(({ persistMonthInBackground }) => {
+        persistMonthInBackground({
+          lawdCd,
+          yearMonth,
+          dealKind: "rent",
+          items,
+        });
+      });
       return items;
     })
     .finally(() => {
@@ -217,6 +233,10 @@ async function fetchOneRent(
   monthInflight.set(key, promise);
   return promise;
 }
+
+/** 동기화 스크립트용 (월 캐시 포함) */
+export const fetchOneTradeForSync = fetchOneTrade;
+export const fetchOneRentForSync = fetchOneRent;
 
 /** 구/시군 코드별 병렬 조회. 일부 실패해도 성공분 반환 */
 export async function fetchTradeTransactions(

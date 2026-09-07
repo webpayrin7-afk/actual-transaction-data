@@ -6,9 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:sync": "tsx scripts/sync-molit.ts",
+    "db:sync:anyang": "tsx scripts/sync-molit.ts --scope=anyang --trade-months=120 --rent-months=48",
+    "db:sync:featured": "tsx scripts/sync-molit.ts --scope=featured --trade-months=120 --rent-months=48"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "@tanstack/react-query": "^5.102.8",
     "fast-xml-parser": "^5.11.1",
     "lucide-react": "^1.41.0",
@@ -22,9 +26,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }
