@@ -273,22 +273,42 @@ export function AptDetailPage({
         }`}
         aria-hidden={!stickyVisible}
       >
-        <div className="mx-auto flex h-12 w-full max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-900">
-              {data.aptName}
-            </p>
-            <p className="truncate text-xs text-slate-500">
-              {data.regionName}
-              {data.dong ? ` · ${data.dong}` : ""}
-            </p>
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-1.5 px-4 py-2.5 sm:px-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/region/${data.regionSlug}`}
+              className="inline-flex max-w-[60%] items-center gap-1.5 truncate rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-[11px] font-medium text-teal-800 transition hover:bg-teal-100"
+            >
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="truncate">
+                {data.fullName}
+                {data.dong ? ` ${data.dong}` : ""}
+              </span>
+            </Link>
+            <Link
+              href="/"
+              className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700 transition hover:bg-slate-100"
+            >
+              ← 메인
+            </Link>
           </div>
-          <Link
-            href="/"
-            className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
-          >
-            ← 메인
-          </Link>
+          <div className="flex min-w-0 items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900">
+                {data.aptName}
+                {data.buildYear ? (
+                  <span className="ml-1.5 text-xs font-medium text-slate-500">
+                    ({data.buildYear}년)
+                  </span>
+                ) : null}
+              </p>
+              <p className="mt-0.5 inline-flex items-center gap-1 truncate text-xs text-slate-500">
+                <Building2 className="h-3 w-3 shrink-0" />
+                매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 ·
+                전월세 {data.stats.totalRentCount.toLocaleString("ko-KR")}건
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
