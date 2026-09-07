@@ -137,8 +137,6 @@ export function Dashboard({
         </div>
       )}
 
-      <StatsCards stats={data?.stats} isLoading={query.isLoading} />
-
       <FilterBar
         aptName={aptNameInput}
         gu={gu}
@@ -156,6 +154,8 @@ export function Dashboard({
         onYearMonthChange={handleYearMonthChange}
         onSearch={handleSearch}
       />
+
+      <StatsCards stats={data?.stats} isLoading={query.isLoading} />
 
       <section className="flex flex-col gap-4">
         <div className="flex items-end justify-between gap-3">
