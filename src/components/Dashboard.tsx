@@ -79,11 +79,11 @@ export function Dashboard() {
             {REGION_LABEL} · 법정동코드 41173
           </div>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            평촌 신도시 아파트 실거래가
+            안양시 아파트 실거래가
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-teal-50/85 sm:text-base">
             국토교통부 아파트 매매·전월세 실거래 자료를 기반으로 {REGION_LABEL}{" "}
-            평촌동·관양동·비산동·호계동 등 주요 동의 일별 거래 동향을 조회합니다.
+            주요 동의 일별 거래 동향을 조회합니다.
           </p>
           <p className="mt-4 text-xs text-teal-100/70">
             계약년월 {yearMonthLabel(yearMonth)} · 최근 거래일 기준 내림차순

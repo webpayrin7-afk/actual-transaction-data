@@ -1,6 +1,6 @@
 import type { Transaction } from "@/types/transaction";
 
-/** API Key 미설정·장애 시 데모용 샘플 (안양 동안구 평촌 신도시 가정) */
+/** API Key 미설정·장애 시 데모용 샘플 (안양시 동안구 가정) */
 export const MOCK_TRANSACTIONS: Transaction[] = [
   {
     id: "mock-1",

@@ -65,7 +65,7 @@ export function FilterBar({
               onKeyDown={(e) => {
                 if (e.key === "Enter") onSearch();
               }}
-              placeholder="예: 평촌자이, 래미안"
+              placeholder="예: 래미안, 자이, 푸르지오"
               className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pr-3 pl-10 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
             />
           </div>

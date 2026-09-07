@@ -3,7 +3,7 @@ export const LAWD_CD = "41173";
 
 export const REGION_LABEL = "안양시 동안구";
 
-/** 평촌 신도시 주요 법정동 */
+/** 안양시 동안구 주요 법정동 */
 export const DONG_OPTIONS = [
   { value: "all", label: "전체 동" },
   { value: "평촌동", label: "평촌동" },
