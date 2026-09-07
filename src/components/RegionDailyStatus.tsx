@@ -4,13 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Building2,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  Crown,
-  Layers3,
-  MapPinned,
 } from "lucide-react";
 import { aptDetailHref } from "@/lib/molit/apt";
 import type {
@@ -59,63 +55,6 @@ function weekdayOfFirst(ym: string): number {
   const year = Number(ym.slice(0, 4));
   const month = Number(ym.slice(4, 6));
   return new Date(year, month - 1, 1).getDay();
-}
-
-function MaxReportCard({
-  deal,
-  regionSlug,
-}: {
-  deal: RegionDailyDeal;
-  regionSlug: string;
-}) {
-  return (
-    <Link
-      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="group relative block overflow-hidden rounded-2xl border border-teal-300/70 bg-gradient-to-br from-teal-50 via-white to-cyan-50 p-5 shadow-sm transition hover:border-teal-400"
-    >
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-700 px-2.5 py-1 text-xs font-semibold text-white">
-          <Crown className="h-3.5 w-3.5" />
-          당일 최고 신고가
-        </span>
-        <span className="text-xs text-teal-800/70">
-          {formatDealDate(deal.dealDate)}
-        </span>
-      </div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-xl font-semibold tracking-tight text-slate-900 group-hover:text-teal-900 sm:text-2xl">
-            {deal.aptName}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
-            <span className="inline-flex items-center gap-1">
-              <MapPinned className="h-3.5 w-3.5 text-teal-600" />
-              {deal.gu} {deal.dong}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Building2 className="h-3.5 w-3.5 text-teal-600" />
-              {formatArea(deal.exclusiveArea)}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Layers3 className="h-3.5 w-3.5 text-teal-600" />
-              {deal.floor}층
-            </span>
-          </div>
-        </div>
-        <div className="shrink-0 text-left sm:text-right">
-          <p className="text-xs font-medium tracking-wide text-teal-700 uppercase">
-            신고가
-          </p>
-          <p className="mt-0.5 text-3xl font-semibold tracking-tight text-teal-800 sm:text-4xl">
-            {formatEok(deal.dealAmount)}
-          </p>
-          <p className="mt-0.5 text-xs text-slate-500">
-            {deal.dealAmount.toLocaleString("ko-KR")}만원
-          </p>
-        </div>
-      </div>
-    </Link>
-  );
 }
 
 function DealCard({
@@ -336,7 +275,7 @@ export function RegionDailyStatus({
         <div className="flex flex-col gap-3">
           {query.isLoading && !data ? (
             <div className="h-40 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
-          ) : !activeDate || !data?.maxDeal ? (
+          ) : !activeDate || !data?.deals.length ? (
             <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
               신고가가 있는 날짜를 달력에서 선택해 주세요.
             </div>
@@ -354,10 +293,8 @@ export function RegionDailyStatus({
                 </div>
               </div>
 
-              <MaxReportCard deal={data.maxDeal} regionSlug={regionSlug} />
-
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {data.deals.slice(0, 6).map((deal, index) => (
+                {data.deals.map((deal, index) => (
                   <DealCard
                     key={deal.id}
                     deal={deal}
