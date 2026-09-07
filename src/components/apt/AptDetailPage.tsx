@@ -250,8 +250,23 @@ export function AptDetailPage({
           }}
         />
         <div className="relative">
-          <p className="text-sm text-teal-100/85">아파트 실거래가 이력</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Link
+              href={`/region/${data.regionSlug}`}
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur transition hover:bg-white/20"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              {data.fullName}
+              {data.dong ? ` ${data.dong}` : ""}
+            </Link>
+            <Link
+              href="/"
+              className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur transition hover:bg-white/20"
+            >
+              ← 메인
+            </Link>
+          </div>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             {data.aptName}
             {data.buildYear ? (
               <span className="ml-2 text-lg font-medium text-teal-100/80">
@@ -259,15 +274,7 @@ export function AptDetailPage({
               </span>
             ) : null}
           </h1>
-          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-teal-50/85">
-            <Link
-              href={`/region/${data.regionSlug}`}
-              className="inline-flex items-center gap-1 transition hover:text-white"
-            >
-              <MapPin className="h-4 w-4" />
-              {data.fullName}
-              {data.dong ? ` ${data.dong}` : ""}
-            </Link>
+          <p className="mt-2 inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-teal-50/85">
             <span className="inline-flex items-center gap-1">
               <Building2 className="h-4 w-4" />
               매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
