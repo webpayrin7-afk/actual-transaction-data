@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   FormEvent,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -16,12 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  GYEONGGI_REGIONS,
-  LAWD_TO_REGION,
-  SEOUL_REGIONS,
-  type RegionDef,
-} from "@/lib/constants/regions";
+import { LAWD_TO_REGION } from "@/lib/constants/regions";
 import type { RankItem, RankingsResponse } from "@/lib/molit/rankings";
 import { aptDetailHref, type AptSuggestion } from "@/lib/molit/apt";
 import {
@@ -133,41 +127,12 @@ function RankSection({
   );
 }
 
-function RegionGrid({
-  title,
-  regions,
-}: {
-  title: string;
-  regions: RegionDef[];
-}) {
-  return (
-    <section className="flex flex-col gap-3">
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-        <span className="h-5 w-1 rounded-full bg-teal-600" />
-        {title}
-      </h2>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {regions.map((region) => (
-          <Link
-            key={region.slug}
-            href={`/region/${region.slug}`}
-            className="rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-3 text-sm font-medium text-slate-800 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900"
-          >
-            {region.name}
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export function HomePage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [openSuggest, setOpenSuggest] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [regionQuery, setRegionQuery] = useState("");
   const searchWrapRef = useRef<HTMLDivElement>(null);
 
   const rankings = useQuery({
@@ -206,20 +171,6 @@ export function HomePage() {
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, []);
 
-  const filteredSeoul = useMemo(() => {
-    const q = regionQuery.trim();
-    if (!q) return SEOUL_REGIONS;
-    return SEOUL_REGIONS.filter((r) => r.name.includes(q) || r.fullName.includes(q));
-  }, [regionQuery]);
-
-  const filteredGyeonggi = useMemo(() => {
-    const q = regionQuery.trim();
-    if (!q) return GYEONGGI_REGIONS;
-    return GYEONGGI_REGIONS.filter(
-      (r) => r.name.includes(q) || r.fullName.includes(q),
-    );
-  }, [regionQuery]);
-
   const goApt = (aptName: string, regionSlug: string, gu?: string) => {
     setOpenSuggest(false);
     router.push(aptDetailHref(aptName, regionSlug, gu));
@@ -229,7 +180,7 @@ export function HomePage() {
     e.preventDefault();
     const q = query.trim();
     if (!q) {
-      document.getElementById("regions")?.scrollIntoView({ behavior: "smooth" });
+      router.push("/regions");
       return;
     }
 
@@ -386,8 +337,8 @@ export function HomePage() {
       </section>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <a
-          href="#regions-seoul"
+        <Link
+          href="/regions#seoul"
           className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-4 text-white shadow-sm transition hover:from-teal-700 hover:to-teal-600"
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold">
@@ -395,9 +346,9 @@ export function HomePage() {
             서울 구별 실거래
           </span>
           <ArrowRight className="h-4 w-4" />
-        </a>
-        <a
-          href="#regions-gyeonggi"
+        </Link>
+        <Link
+          href="/regions#gyeonggi"
           className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 text-white shadow-sm transition hover:from-slate-900 hover:to-slate-800"
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold">
@@ -405,7 +356,7 @@ export function HomePage() {
             경기 시·군별 실거래
           </span>
           <ArrowRight className="h-4 w-4" />
-        </a>
+        </Link>
       </div>
 
       {data?.headline && (
@@ -452,35 +403,6 @@ export function HomePage() {
           </div>
         </div>
       ) : null}
-
-      <div
-        id="regions"
-        className="scroll-mt-20 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6"
-      >
-        <div className="flex flex-col gap-3 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">지역별 조회</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              서울 25개 구 · 경기 31개 시·군
-            </p>
-          </div>
-          <input
-            value={regionQuery}
-            onChange={(e) => setRegionQuery(e.target.value)}
-            placeholder="지역명 검색 (예: 강남, 분당, 수원)"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 sm:max-w-xs"
-          />
-        </div>
-
-        <div className="mt-5 flex flex-col gap-8">
-          <div id="regions-seoul" className="scroll-mt-24">
-            <RegionGrid title="서울특별시" regions={filteredSeoul} />
-          </div>
-          <div id="regions-gyeonggi" className="scroll-mt-24">
-            <RegionGrid title="경기도" regions={filteredGyeonggi} />
-          </div>
-        </div>
-      </div>
 
       <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
         국토교통부 아파트 실거래 OpenAPI 기반 · 아파트 실거래
