@@ -35,10 +35,6 @@ export function AptPriceChart({
         ...p,
         tradeEok: toEok(p.tradeAvg),
         jeonseEok: toEok(p.jeonseAvg),
-        yearTick:
-          p.yearMonth.endsWith("01") || p.yearMonth.endsWith("07")
-            ? `${p.yearMonth.slice(2, 4)}년`
-            : "",
       })),
     [points],
   );
