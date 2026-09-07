@@ -218,7 +218,7 @@ function MonthCalendar({
           if (!day) return <div key={`e-${idx}`} className="aspect-square" />;
           const date = `${year}-${month}-${String(day).padStart(2, "0")}`;
           const summary = byDate.get(date);
-          const hasDeals = Boolean(summary);
+          const hasDeals = Boolean(summary && summary.dealCount > 0);
           const active = selectedDate === date;
           return (
             <button
@@ -228,28 +228,38 @@ function MonthCalendar({
               onClick={() => onSelectDate(date)}
               className={`relative flex aspect-square flex-col items-center justify-center rounded-xl text-sm transition ${
                 active
-                  ? "bg-teal-700 text-white shadow-sm"
+                  ? hasDeals
+                    ? "bg-teal-700 text-white shadow-sm"
+                    : "bg-teal-600/50 text-white"
                   : hasDeals
                     ? "bg-teal-50 text-teal-900 hover:bg-teal-100"
-                    : "text-slate-300"
+                    : "cursor-not-allowed text-slate-300"
               }`}
             >
               <span className="font-medium">{day}</span>
-              {hasDeals && (
+              {hasDeals ? (
                 <span
                   className={`mt-0.5 text-[10px] ${
                     active ? "text-teal-100" : "text-teal-600"
                   }`}
                 >
-                  {summary!.dealCount > 0 ? summary!.dealCount : "-"}
+                  {summary!.dealCount}
                 </span>
-              )}
+              ) : null}
             </button>
           );
         })}
       </div>
     </div>
   );
+}
+
+function todayYmAndDate(): { ym: string; date: string } {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return { ym: `${y}${m}`, date: `${y}-${m}-${day}` };
 }
 
 export function RegionDailyStatus({
@@ -263,7 +273,10 @@ export function RegionDailyStatus({
   yearMonths: string[];
   onYearMonthChange: (value: string) => void;
 }) {
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const today = useMemo(() => todayYmAndDate(), []);
+  const [selectedDate, setSelectedDate] = useState<string | null>(() =>
+    yearMonth === today.ym ? today.date : null,
+  );
 
   const query = useQuery({
     queryKey: ["region-daily", regionSlug, yearMonth],
@@ -277,7 +290,11 @@ export function RegionDailyStatus({
   });
 
   const data = query.data;
-  const activeDate = selectedDate ?? data?.selectedDate ?? null;
+  const activeDate =
+    selectedDate ??
+    (yearMonth === today.ym ? today.date : null) ??
+    data?.selectedDate ??
+    null;
   const monthDeals = data?.monthDeals ?? data?.deals ?? [];
   const dayDeals = useMemo(() => {
     if (!activeDate) return [];
@@ -300,6 +317,11 @@ export function RegionDailyStatus({
   const canPrev = yearMonths.includes(shiftYearMonth(yearMonth, -1));
   const canNext = yearMonths.includes(shiftYearMonth(yearMonth, 1));
 
+  function changeMonth(nextYm: string) {
+    setSelectedDate(nextYm === today.ym ? today.date : null);
+    onYearMonthChange(nextYm);
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -311,10 +333,7 @@ export function RegionDailyStatus({
           <button
             type="button"
             disabled={!canPrev}
-            onClick={() => {
-              setSelectedDate(null);
-              onYearMonthChange(shiftYearMonth(yearMonth, -1));
-            }}
+            onClick={() => changeMonth(shiftYearMonth(yearMonth, -1))}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
             aria-label="이전 달"
           >
@@ -322,10 +341,7 @@ export function RegionDailyStatus({
           </button>
           <select
             value={yearMonth}
-            onChange={(e) => {
-              setSelectedDate(null);
-              onYearMonthChange(e.target.value);
-            }}
+            onChange={(e) => changeMonth(e.target.value)}
             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
           >
             {yearMonths.map((ym) => (
@@ -337,10 +353,7 @@ export function RegionDailyStatus({
           <button
             type="button"
             disabled={!canNext}
-            onClick={() => {
-              setSelectedDate(null);
-              onYearMonthChange(shiftYearMonth(yearMonth, 1));
-            }}
+            onClick={() => changeMonth(shiftYearMonth(yearMonth, 1))}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
             aria-label="다음 달"
           >
@@ -367,11 +380,7 @@ export function RegionDailyStatus({
         ) : (data?.monthDeals.length ?? 0) === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-16 text-center lg:col-span-2">
             <p className="text-sm font-medium text-slate-700">
-              신고가 데이터 없음
-            </p>
-            <p className="mt-1 text-xs text-slate-500">
-              {yearMonthLabel(data?.yearMonth ?? yearMonth)}에 표시할 신고가가
-              없습니다.
+              해당 월에 신고가 데이터가 없습니다
             </p>
           </div>
         ) : (
@@ -390,9 +399,11 @@ export function RegionDailyStatus({
                 </div>
               ) : dayDeals.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
-                  <p className="font-medium text-slate-700">신고가 데이터 없음</p>
+                  <p className="font-medium text-slate-700">
+                    신고가 데이터가 없습니다
+                  </p>
                   <p className="mt-1 text-xs text-slate-500">
-                    {formatDealDate(activeDate)}에는 신고가 거래가 없습니다.
+                    {formatDealDate(activeDate)}
                   </p>
                 </div>
               ) : (
