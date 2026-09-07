@@ -32,7 +32,8 @@ export function hasDb(): boolean {
 }
 
 export async function ensureSchema(db: Client = getDb()!): Promise<void> {
-  await db.executeMultiple(`
+  try {
+    await db.executeMultiple(`
 CREATE TABLE IF NOT EXISTS sync_months (
   lawd_cd TEXT NOT NULL,
   year_month TEXT NOT NULL,
@@ -132,4 +133,13 @@ CREATE TABLE IF NOT EXISTS market_stats_meta (
   stats_from TEXT NOT NULL DEFAULT ''
 );
 `);
+  } catch (err) {
+    // Turso write 차단 시에도 기존 테이블 조회는 가능해야 함
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/BLOCKED|write operations are forbidden|READONLY/i.test(msg)) {
+      console.warn("[db] ensureSchema skipped (writes blocked):", msg);
+      return;
+    }
+    throw err;
+  }
 }

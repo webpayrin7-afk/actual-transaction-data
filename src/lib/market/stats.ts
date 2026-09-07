@@ -494,7 +494,7 @@ function rollupSeries(
   if (period === "daily") {
     return days.map((d) => ({
       key: d.day,
-      label: d.day.slice(5).replace("-", "."),
+      label: d.day.slice(5).replace("-", "/"),
       tradeCount: d.tradeCount,
       singogaCount: d.singogaCount,
       dropCount: d.dropCount,
@@ -517,11 +517,11 @@ function rollupSeries(
   for (const d of days) {
     const key =
       period === "weekly" ? weekStartMonday(d.day) : monthKey(d.day);
-    // 주간은 "MM.DD"만 표기(탭이 주간임을 이미 표시) — 차트 가로축 겹침 완화
+    // 슬래시 표기: "05.11"은 Number()로 파싱되어 Recharts 축이 깨질 수 있음
     const label =
       period === "weekly"
-        ? key.slice(5).replace("-", ".")
-        : `${key.slice(2).replace("-", ".")}`;
+        ? key.slice(5).replace("-", "/")
+        : key.slice(2).replace("-", "/");
     let b = map.get(key);
     if (!b) {
       b = {

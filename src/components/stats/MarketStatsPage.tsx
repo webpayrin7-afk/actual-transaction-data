@@ -220,19 +220,17 @@ function ChartCard({
   );
 }
 
-function StatsXAxis({ interval }: { interval: number }) {
-  return (
-    <XAxis
-      dataKey="label"
-      interval={interval}
-      minTickGap={28}
-      tick={{ fill: "#64748b", fontSize: 11 }}
-      tickMargin={8}
-      height={32}
-      axisLine={{ stroke: "#cbd5e1" }}
-      tickLine={false}
-    />
-  );
+function chartXAxisProps(interval: number) {
+  return {
+    type: "category" as const,
+    dataKey: "label",
+    interval,
+    tick: { fill: "#475569", fontSize: 11 },
+    axisLine: { stroke: "#cbd5e1" },
+    tickLine: false as const,
+    // "05.11"처럼 숫자로 보이는 문자열이 number scale로 깨지지 않게 함
+    allowDuplicatedCategory: false,
+  };
 }
 
 export function MarketStatsPage() {
@@ -386,11 +384,11 @@ export function MarketStatsPage() {
             title="거래량 추이"
             hint="선택 기간의 매매 거래 건수 흐름"
           >
-            <div className="h-56 w-full sm:h-64">
+            <div className="h-60 w-full pb-1 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
-                  margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
                 >
                   <defs>
                     <linearGradient id="volFill" x1="0" y1="0" x2="0" y2="1">
@@ -403,7 +401,7 @@ export function MarketStatsPage() {
                     stroke="#e2e8f0"
                     vertical={false}
                   />
-                  <StatsXAxis interval={axisInterval} />
+                  <XAxis {...chartXAxisProps(axisInterval)} />
                   <YAxis
                     tick={{ fill: "#64748b", fontSize: 11 }}
                     axisLine={false}
@@ -462,7 +460,7 @@ export function MarketStatsPage() {
                       stroke="#e2e8f0"
                       vertical={false}
                     />
-                    <StatsXAxis interval={axisInterval} />
+                    <XAxis {...chartXAxisProps(axisInterval)} />
                     <YAxis
                       tick={{ fill: "#64748b", fontSize: 11 }}
                       axisLine={false}
@@ -564,7 +562,7 @@ function LineChartSafe({
       margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
     >
       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-      <StatsXAxis interval={interval} />
+      <XAxis {...chartXAxisProps(interval)} />
       <YAxis
         tick={{ fill: "#64748b", fontSize: 11 }}
         axisLine={false}
