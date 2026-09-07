@@ -2,22 +2,32 @@ name: Sync MOLIT warehouse
 
 on:
   schedule:
-    # 매일 08:00 KST (23:00 UTC) — 전일 실거래 반영
-    - cron: "0 23 * * *"
+    # 국토부 OpenAPI는 일 1회 갱신(시각 비공시). 전일 신고분 공개 직후를 노려
+    # 06:00~14:45 KST 동안 15분마다 신선도 probe → 변경 시에만 재적재.
+    # KST = UTC+9
+    - cron: "*/15 21-23 * * *" # 06:00~08:45 KST
+    - cron: "*/15 0-5 * * *" # 09:00~14:45 KST
+    # 오후·야간 추가 유입 대비 강제 갱신
+    - cron: "0 9 * * *" # 18:00 KST
+    - cron: "0 14 * * *" # 23:00 KST
   workflow_dispatch:
     inputs:
       scope:
         description: "featured | anyang | all"
         required: false
-        default: "featured"
+        default: "all"
       trade_months:
         description: "매매 적재 개월 수"
         required: false
-        default: "120"
+        default: "2"
       rent_months:
         description: "전월세 적재 개월 수"
         required: false
-        default: "48"
+        default: "2"
+      force:
+        description: "probe 무시하고 강제 sync (true/false)"
+        required: false
+        default: "true"
 
 jobs:
   sync:
@@ -30,7 +40,38 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - name: Sync warehouse
+
+      - name: Decide force window
+        id: window
+        run: |
+          UTC_HOUR=$(date -u +%H)
+          UTC_MIN=$(date -u +%M)
+          FORCE=false
+          # workflow_dispatch force 입력
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force || 'true' }}" != "false" ]; then
+            FORCE=true
+          fi
+          # 18:00 KST(09 UTC) · 23:00 KST(14 UTC) 정각은 강제
+          if [ "$UTC_HOUR" = "09" ] && [ "$UTC_MIN" = "00" ]; then FORCE=true; fi
+          if [ "$UTC_HOUR" = "14" ] && [ "$UTC_MIN" = "00" ]; then FORCE=true; fi
+          echo "force=$FORCE" >> "$GITHUB_OUTPUT"
+          echo "utc=${UTC_HOUR}:${UTC_MIN} force=$FORCE"
+
+      - name: Probe MOLIT freshness
+        id: probe
+        env:
+          MOLIT_API_KEY: ${{ secrets.MOLIT_API_KEY }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: |
+          ARGS=(--github-output)
+          if [ "${{ steps.window.outputs.force }}" = "true" ]; then
+            ARGS+=(--force=1)
+          fi
+          npx tsx scripts/probe-molit-freshness.ts "${ARGS[@]}"
+
+      - name: Sync warehouse when stale
+        if: steps.probe.outputs.should_sync == 'true'
         env:
           MOLIT_API_KEY: ${{ secrets.MOLIT_API_KEY }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
@@ -38,20 +79,22 @@ jobs:
           MOLIT_SYNCING: "1"
         run: |
           SCOPE="${{ github.event.inputs.scope || 'all' }}"
-          TRADE="${{ github.event.inputs.trade_months || '120' }}"
-          RENT="${{ github.event.inputs.rent_months || '48' }}"
-          # 스케줄 실행: 전체 지역 최근 3개월만 갱신 (이미 있는 월은 스크립트에서 스킵 가능하나
-          # 최신월은 국토부 데이터가 매일 갱신되므로 skip-existing=0 으로 덮어씀)
-          SKIP_EXISTING=1
+          TRADE="${{ github.event.inputs.trade_months || '2' }}"
+          RENT="${{ github.event.inputs.rent_months || '2' }}"
+          # 스케줄: 최근 2개월 덮어쓰기 (당월 신고분 유입 반영)
           if [ "${{ github.event_name }}" = "schedule" ]; then
             SCOPE=all
-            TRADE=3
-            RENT=3
-            SKIP_EXISTING=0
+            TRADE=2
+            RENT=2
           fi
+          echo "probe summary: ${{ steps.probe.outputs.summary }}"
           npx tsx scripts/sync-molit.ts \
             --scope="$SCOPE" \
             --trade-months="$TRADE" \
             --rent-months="$RENT" \
             --concurrency=3 \
-            --skip-existing="$SKIP_EXISTING"
+            --skip-existing=0
+
+      - name: Skip sync (already fresh)
+        if: steps.probe.outputs.should_sync != 'true'
+        run: echo "Warehouse already matches MOLIT probe sentinels — skip sync."

@@ -5,6 +5,9 @@
  *   TURSO_DATABASE_URL=file:./data/molit.db npx tsx scripts/sync-molit.ts
  *   TURSO_DATABASE_URL=file:./data/molit.db npx tsx scripts/sync-molit.ts --scope=featured --trade-months=120 --rent-months=48
  *   TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... npx tsx scripts/sync-molit.ts --scope=all --trade-months=36
+ *
+ * 신선도: GitHub Actions가 아침~낮 15분 간격으로 probe-molit-freshness 후
+ * 국토부 당월 건수/최근계약일이 DB와 다르면 이 스크립트로 최근 개월을 덮어쓴다.
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });

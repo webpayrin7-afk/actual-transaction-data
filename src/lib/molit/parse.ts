@@ -153,6 +153,16 @@ export function getApiResultCode(xml: string): {
   };
 }
 
+/** body.totalCount (없으면 item 개수) */
+export function getApiTotalCount(xml: string): number {
+  const json = parser.parse(xml);
+  const body = json?.response?.body;
+  const raw = Number(body?.totalCount);
+  if (Number.isFinite(raw) && raw >= 0) return raw;
+  const items = asArray(body?.items?.item);
+  return items.length;
+}
+
 export function sortByDealDateDesc(items: Transaction[]): Transaction[] {
   return [...items].sort((a, b) => {
     if (a.dealDate === b.dealDate) {

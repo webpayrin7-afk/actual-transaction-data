@@ -4,6 +4,7 @@ import {
 } from "@/lib/constants/regions";
 import {
   getApiResultCode,
+  getApiTotalCount,
   parseRentXml,
   parseTradeXml,
 } from "@/lib/molit/parse";
@@ -237,6 +238,26 @@ async function fetchOneRent(
 /** 동기화 스크립트용 (월 캐시 포함) */
 export const fetchOneTradeForSync = fetchOneTrade;
 export const fetchOneRentForSync = fetchOneRent;
+
+/** 신선도 probe용 — 캐시/백그라운드 적재 없이 당월 건수·최근 계약일만 조회 */
+export async function fetchTradeMonthProbe(
+  lawdCd: string,
+  yearMonth: string,
+): Promise<{ count: number; maxDealDate: string }> {
+  const xml = await fetchMolitXml(TRADE_API_URL, lawdCd, yearMonth);
+  const status = isOkOrEmpty(xml);
+  if (!status.ok) {
+    throw new Error(`Trade API ${lawdCd}: ${status.message}`);
+  }
+  if (status.empty) return { count: 0, maxDealDate: "" };
+  const count = getApiTotalCount(xml);
+  const items = parseTradeXml(xml, lawdCd);
+  let maxDealDate = "";
+  for (const tx of items) {
+    if (tx.dealDate > maxDealDate) maxDealDate = tx.dealDate;
+  }
+  return { count, maxDealDate };
+}
 
 /** 구/시군 코드별 병렬 조회. 일부 실패해도 성공분 반환 */
 export async function fetchTradeTransactions(
