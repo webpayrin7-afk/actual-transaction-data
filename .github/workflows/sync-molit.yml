@@ -1,0 +1,47 @@
+name: Sync MOLIT warehouse
+
+on:
+  schedule:
+    # 매일 08:00 KST (23:00 UTC) — 전일 실거래 반영
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "featured | anyang | all"
+        required: false
+        default: "featured"
+      trade_months:
+        description: "매매 적재 개월 수"
+        required: false
+        default: "120"
+      rent_months:
+        description: "전월세 적재 개월 수"
+        required: false
+        default: "48"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Sync warehouse
+        env:
+          MOLIT_API_KEY: ${{ secrets.MOLIT_API_KEY }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: |
+          SCOPE="${{ github.event.inputs.scope || 'featured' }}"
+          TRADE="${{ github.event.inputs.trade_months || '120' }}"
+          RENT="${{ github.event.inputs.rent_months || '48' }}"
+          # 스케줄 실행은 최근 월만 빠르게 갱신
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            TRADE=3
+            RENT=3
+          fi
+          npx tsx scripts/sync-molit.ts --scope="$SCOPE" --trade-months="$TRADE" --rent-months="$RENT" --concurrency=3

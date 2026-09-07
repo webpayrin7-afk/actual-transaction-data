@@ -9,7 +9,38 @@ import {
 } from "@/lib/molit/parse";
 import type { DealType, Transaction } from "@/types/transaction";
 
-const FETCH_CONCURRENCY = 6;
+const FETCH_CONCURRENCY = 10;
+const MONTH_CACHE_TTL_MS = 45 * 60 * 1000;
+
+type MonthCacheEntry = {
+  builtAt: number;
+  items: Transaction[];
+};
+
+const monthCache = new Map<string, MonthCacheEntry>();
+const monthInflight = new Map<string, Promise<Transaction[]>>();
+
+function monthCacheKey(
+  kind: "trade" | "rent",
+  lawdCd: string,
+  yearMonth: string,
+): string {
+  return `${kind}|${lawdCd}|${yearMonth}`;
+}
+
+function getCachedMonth(key: string): Transaction[] | null {
+  const hit = monthCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.builtAt > MONTH_CACHE_TTL_MS) {
+    monthCache.delete(key);
+    return null;
+  }
+  return hit.items;
+}
+
+function setCachedMonth(key: string, items: Transaction[]) {
+  monthCache.set(key, { builtAt: Date.now(), items });
+}
 
 function getServiceKey(): string | null {
   const raw = process.env.MOLIT_API_KEY?.trim();
@@ -113,7 +144,7 @@ function isOkOrEmpty(xml: string): { ok: boolean; empty: boolean; message: strin
   return { ok: false, empty: false, message: `${code} ${message}` };
 }
 
-async function fetchOneTrade(
+async function fetchOneTradeUncached(
   lawdCd: string,
   yearMonth: string,
 ): Promise<Transaction[]> {
@@ -126,7 +157,7 @@ async function fetchOneTrade(
   return parseTradeXml(xml, lawdCd);
 }
 
-async function fetchOneRent(
+async function fetchOneRentUncached(
   lawdCd: string,
   yearMonth: string,
 ): Promise<Transaction[]> {
@@ -138,6 +169,74 @@ async function fetchOneRent(
   if (status.empty) return [];
   return parseRentXml(xml, lawdCd);
 }
+
+async function fetchOneTrade(
+  lawdCd: string,
+  yearMonth: string,
+): Promise<Transaction[]> {
+  const key = monthCacheKey("trade", lawdCd, yearMonth);
+  const cached = getCachedMonth(key);
+  if (cached) return cached;
+
+  const inflight = monthInflight.get(key);
+  if (inflight) return inflight;
+
+  const promise = fetchOneTradeUncached(lawdCd, yearMonth)
+    .then((items) => {
+      setCachedMonth(key, items);
+      void import("@/lib/db/persist").then(({ persistMonthInBackground }) => {
+        persistMonthInBackground({
+          lawdCd,
+          yearMonth,
+          dealKind: "trade",
+          items,
+        });
+      });
+      return items;
+    })
+    .finally(() => {
+      monthInflight.delete(key);
+    });
+
+  monthInflight.set(key, promise);
+  return promise;
+}
+
+async function fetchOneRent(
+  lawdCd: string,
+  yearMonth: string,
+): Promise<Transaction[]> {
+  const key = monthCacheKey("rent", lawdCd, yearMonth);
+  const cached = getCachedMonth(key);
+  if (cached) return cached;
+
+  const inflight = monthInflight.get(key);
+  if (inflight) return inflight;
+
+  const promise = fetchOneRentUncached(lawdCd, yearMonth)
+    .then((items) => {
+      setCachedMonth(key, items);
+      void import("@/lib/db/persist").then(({ persistMonthInBackground }) => {
+        persistMonthInBackground({
+          lawdCd,
+          yearMonth,
+          dealKind: "rent",
+          items,
+        });
+      });
+      return items;
+    })
+    .finally(() => {
+      monthInflight.delete(key);
+    });
+
+  monthInflight.set(key, promise);
+  return promise;
+}
+
+/** 동기화 스크립트용 (월 캐시 포함) */
+export const fetchOneTradeForSync = fetchOneTrade;
+export const fetchOneRentForSync = fetchOneRent;
 
 /** 구/시군 코드별 병렬 조회. 일부 실패해도 성공분 반환 */
 export async function fetchTradeTransactions(

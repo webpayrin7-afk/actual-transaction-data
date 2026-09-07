@@ -6,6 +6,14 @@ import {
 } from "@/lib/constants/regions";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import {
+  hasDb,
+} from "@/lib/db/client";
+import {
+  isMonthCoverageComplete,
+  queryAptTransactions,
+  queryTradePool,
+} from "@/lib/db/repository";
+import {
   formatEok,
   recentYearMonths,
   toPyeong,
@@ -56,7 +64,7 @@ export interface AptDetailResponse {
   gu: string;
   dong: string;
   buildYear: number | null;
-  source: "api" | "mock";
+  source: "api" | "mock" | "db";
   yearMonth: string;
   warning?: string;
   /** 최근 N개월만 먼저 내려준 부분 응답 */
@@ -135,6 +143,17 @@ function regionFromGu(gu: string): RegionDef | undefined {
   });
 }
 
+/** 구명이 있으면 해당 법정동코드만, 없으면 지역 전체 */
+function resolveDetailLawdCodes(region: RegionDef, gu?: string): string[] {
+  const needle = gu?.trim();
+  if (!needle) return [...region.lawdCodes];
+  const hit = region.districts.find(
+    (d) => needle === d.name || needle.includes(d.name) || d.name.includes(needle),
+  );
+  if (hit) return [hit.code];
+  return [...region.lawdCodes];
+}
+
 function regionNameKey(name: string): string {
   return normalizeName(name.replace(/(특별시|광역시|특별자치시|시|군|구)$/g, ""));
 }
@@ -197,6 +216,14 @@ async function loadTradePool(
   if (inflight) return inflight;
 
   const promise = (async () => {
+    const fromDb = hasDb()
+      ? await queryTradePool({ lawdCodes, yearMonths: months })
+      : null;
+    if (fromDb) {
+      suggestPoolCache.set(key, { builtAt: Date.now(), items: fromDb });
+      return fromDb;
+    }
+
     const items: Transaction[] = [];
     if (hasApiKey()) {
       // 2개월씩 묶어서 조회 (429 완화 + 초기 지연 단축)
@@ -416,26 +443,47 @@ function buildChartPoints(
 async function fetchAptHistoryPool(
   months: string[],
   lawdCodes: string[],
+  options?: { includeRent?: boolean },
 ): Promise<Transaction[]> {
-  const items: Transaction[] = [];
-  // 최근 48개월은 매매+전월세, 그 이전은 매매만 (전체 기간 확보 + API 부하 완화)
+  const includeRent = options?.includeRent ?? true;
+  // 최근 48개월만 전월세 포함 (전체 기간은 매매로 차트·이력 확보)
   const recentSet = new Set(months.slice(0, 48));
-  const concurrency = 6;
-  for (let i = 0; i < months.length; i += concurrency) {
-    const batch = months.slice(i, i + concurrency);
-    const settled = await Promise.allSettled(
-      batch.map((ym) =>
-        fetchTransactionsByType(
-          ym,
-          recentSet.has(ym) ? "all" : "trade",
+  const jobs = months.map((ym) => ({
+    ym,
+    dealType: (includeRent && recentSet.has(ym) ? "all" : "trade") as
+      | "all"
+      | "trade",
+  }));
+
+  const items: Transaction[] = [];
+  // 매매만이면 병렬을 더 열고, 배치 대기 대신 워커 풀로 유휴 시간을 줄임
+  const concurrency = includeRent ? 6 : 12;
+  let next = 0;
+
+  async function worker() {
+    while (next < jobs.length) {
+      const index = next;
+      next += 1;
+      const job = jobs[index];
+      try {
+        const txs = await fetchTransactionsByType(
+          job.ym,
+          job.dealType,
           lawdCodes,
-        ),
-      ),
-    );
-    for (const result of settled) {
-      if (result.status === "fulfilled") items.push(...result.value);
+        );
+        items.push(...txs);
+      } catch (reason) {
+        console.warn("[apt-detail] month fetch failed:", job.ym, reason);
+      }
     }
   }
+
+  await Promise.all(
+    Array.from(
+      { length: Math.min(concurrency, Math.max(jobs.length, 1)) },
+      () => worker(),
+    ),
+  );
   return items;
 }
 
@@ -448,7 +496,7 @@ function trimChartToActivity(points: AptChartPoint[]): AptChartPoint[] {
   return points.slice(first, last + 1);
 }
 
-const DETAIL_CACHE_TTL_MS = 30 * 60 * 1000;
+const DETAIL_CACHE_TTL_MS = 60 * 60 * 1000;
 const detailCache = new Map<
   string,
   { builtAt: number; data: AptDetailResponse }
@@ -459,8 +507,9 @@ function detailCacheKey(
   regionSlug: string,
   aptName: string,
   monthCount: number,
+  lawdScope: string,
 ): string {
-  return `${regionSlug}|${normalizeName(aptName)}|${monthCount}`;
+  return `${regionSlug}|${normalizeName(aptName)}|${monthCount}|${lawdScope}`;
 }
 
 /** 단지 실거래 이력 (매매·전월세 + 시세 차트용 월별 집계) */
@@ -468,6 +517,7 @@ export async function getAptDetail(params: {
   aptName: string;
   regionSlug: string;
   months?: number;
+  gu?: string;
 }): Promise<AptDetailResponse | null> {
   const region = getRegion(params.regionSlug);
   if (!region) return null;
@@ -476,7 +526,9 @@ export async function getAptDetail(params: {
   if (!aptName) return null;
 
   const monthCount = Math.min(Math.max(params.months ?? 120, 6), 120);
-  const cacheKey = detailCacheKey(region.slug, aptName, monthCount);
+  const lawdCodes = resolveDetailLawdCodes(region, params.gu);
+  const lawdScope = lawdCodes.slice().sort().join(",");
+  const cacheKey = detailCacheKey(region.slug, aptName, monthCount, lawdScope);
   const cached = detailCache.get(cacheKey);
   if (cached && Date.now() - cached.builtAt < DETAIL_CACHE_TTL_MS) {
     return cached.data;
@@ -489,6 +541,7 @@ export async function getAptDetail(params: {
     region,
     aptName,
     monthCount,
+    lawdCodes,
   }).then((data) => {
     if (data) {
       detailCache.set(cacheKey, { builtAt: Date.now(), data });
@@ -506,18 +559,47 @@ async function buildAptDetail(params: {
   region: RegionDef;
   aptName: string;
   monthCount: number;
+  lawdCodes: string[];
 }): Promise<AptDetailResponse | null> {
-  const { region, aptName, monthCount } = params;
+  const { region, aptName, monthCount, lawdCodes } = params;
   const months = recentYearMonths(monthCount);
-  let source: "api" | "mock" = "mock";
+  let source: "api" | "mock" | "db" = "mock";
   let warning: string | undefined;
   let collected: Transaction[] = [];
 
-  if (hasApiKey()) {
-    collected = await fetchAptHistoryPool(months, [...region.lawdCodes]);
+  const includeRent = monthCount > 36;
+  const dealKinds = includeRent
+    ? (["trade", "rent"] as const)
+    : (["trade"] as const);
+
+  if (hasDb()) {
+    const covered = await isMonthCoverageComplete({
+      lawdCodes,
+      yearMonths: months,
+      dealKinds: [...dealKinds],
+    });
+    if (covered) {
+      collected = await queryAptTransactions({
+        lawdCodes,
+        aptName,
+        yearMonths: months,
+        dealKinds: [...dealKinds],
+      });
+      source = "db";
+      if (collected.length === 0) {
+        warning = "선택한 단지·기간에 실거래 데이터가 없습니다.";
+      }
+    }
+  }
+
+  if (source !== "db" && hasApiKey()) {
+    // 최초(≤36개월)는 매매만 — 전월세는 전체 이력 확장 단계에서 채움
+    collected = await fetchAptHistoryPool(months, lawdCodes, {
+      includeRent,
+    });
     if (collected.length > 0) source = "api";
     else warning = "선택한 단지·기간에 API 실거래 데이터가 없습니다.";
-  } else {
+  } else if (source !== "db" && !hasApiKey()) {
     warning =
       "MOLIT_API_KEY가 없어 지역별 데모 데이터로 표시 중입니다. Vercel/로컬 환경변수에 키를 설정하세요.";
     for (const ym of months.slice(0, Math.min(12, months.length))) {
@@ -658,8 +740,14 @@ async function buildAptDetail(params: {
   };
 }
 
-export function aptDetailHref(aptName: string, regionSlug: string): string {
-  return `/apt/${encodeURIComponent(aptName)}?region=${encodeURIComponent(regionSlug)}`;
+export function aptDetailHref(
+  aptName: string,
+  regionSlug: string,
+  gu?: string,
+): string {
+  const qs = new URLSearchParams({ region: regionSlug });
+  if (gu?.trim()) qs.set("gu", gu.trim());
+  return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
 }
 
 export function formatAptPriceLabel(manwon: number): string {

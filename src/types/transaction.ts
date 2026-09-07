@@ -21,6 +21,8 @@ export interface Transaction {
   buildYear: number | null;
   jibun: string;
   dealingGbn: string;
+  /** 법정동코드 (웨어하우스 적재용) */
+  lawdCd?: string;
 }
 
 export interface TransactionFilters {
