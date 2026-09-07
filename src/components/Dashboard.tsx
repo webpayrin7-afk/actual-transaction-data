@@ -220,13 +220,7 @@ export function Dashboard({
 
       {tab === "stats" && (
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-end sm:justify-between sm:p-5">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">지역 현황</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                선택한 계약월 기준 {region.name} 매매·전월세 요약입니다.
-              </p>
-            </div>
+          <div className="flex justify-end">
             <label className="flex w-full flex-col gap-1.5 sm:max-w-[11rem]">
               <span className="text-xs font-medium text-slate-500">
                 기준 계약월
