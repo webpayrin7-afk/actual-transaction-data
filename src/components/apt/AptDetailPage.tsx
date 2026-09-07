@@ -289,7 +289,7 @@ export function AptDetailPage({
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
       <AptLoadProgressBar
         active={isExtendingHistory}
-        label="시세 불러오는 중…"
+        label="과거 시세 추가로 불러오는 중…"
       />
       <div
         className={`fixed inset-x-0 top-14 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
@@ -406,7 +406,7 @@ export function AptDetailPage({
             {isExtendingHistory ? (
               <p className="inline-flex items-center gap-1.5 text-teal-700">
                 <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                과거 시세 불러오는 중…
+                과거 시세 추가로 불러오는 중…
               </p>
             ) : null}
             <p className="text-slate-600">
