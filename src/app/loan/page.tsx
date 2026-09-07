@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { LoanCalculator } from "@/components/loan/LoanCalculator";
 
 export const metadata: Metadata = {
@@ -10,7 +11,15 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <main className="flex-1">
-      <LoanCalculator />
+      <Suspense
+        fallback={
+          <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-slate-500 sm:px-6 lg:px-8">
+            대출계산기를 불러오는 중…
+          </div>
+        }
+      >
+        <LoanCalculator />
+      </Suspense>
     </main>
   );
 }

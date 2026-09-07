@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   SAMPLE_PRODUCTS,
   calculateLoanLimit,
@@ -12,6 +13,14 @@ import {
   type MetroType,
   type RegType,
 } from "@/lib/loan/calc";
+
+function initialRateFromQuery(searchParams: URLSearchParams): string {
+  const raw = searchParams.get("rate");
+  if (!raw) return "3.9";
+  const n = Number(String(raw).replaceAll(",", "").trim());
+  if (!Number.isFinite(n) || n <= 0 || n > 30) return "3.9";
+  return String(Number(n.toFixed(2)));
+}
 
 const YEARS = [10, 15, 20, 25, 30, 35, 40] as const;
 
@@ -85,6 +94,7 @@ function parseMan(raw: string): number {
 }
 
 export function LoanCalculator() {
+  const searchParams = useSearchParams();
   const [metro, setMetro] = useState<MetroType>("capital");
   const [regulated, setRegulated] = useState<RegType>("regulated");
   const [homes, setHomes] = useState<HomeCount>("0");
@@ -95,7 +105,7 @@ export function LoanCalculator() {
   const [existingMonthly, setExistingMonthly] = useState("0");
   const [otherInterest, setOtherInterest] = useState("0");
   const [years, setYears] = useState(30);
-  const [rate, setRate] = useState("3.9");
+  const [rate, setRate] = useState(() => initialRateFromQuery(searchParams));
   const [showRegions, setShowRegions] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 

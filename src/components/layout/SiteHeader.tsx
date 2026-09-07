@@ -41,7 +41,7 @@ const TOOL_NAV = [
   {
     href: "/rates",
     label: "금리비교",
-    description: "주담대·전세자금 금리 비교",
+    description: "은행별 대출·보전 금리 비교",
     match: (pathname: string) => pathname.startsWith("/rates"),
   },
 ] as const;
