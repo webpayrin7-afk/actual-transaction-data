@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDownRight,
+  ArrowRight,
   ArrowUpRight,
   Activity,
   TrendingDown,
@@ -263,6 +264,16 @@ export function MarketHome() {
               hint="신고가·하락·고가 등"
               tone="neutral"
             />
+          </div>
+
+          <div className="flex justify-end">
+            <Link
+              href="/stats"
+              className="inline-flex items-center gap-1 text-sm font-medium text-teal-700 hover:underline"
+            >
+              시장 통계 자세히 보기
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
         </>
       ) : null}

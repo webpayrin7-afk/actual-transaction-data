@@ -14,7 +14,8 @@
     "db:sync:backfill": "tsx scripts/sync-molit.ts --scope=all --trade-months=120 --rent-months=48 --concurrency=1 --skip-existing=1 --only-changed=0",
     "db:probe": "tsx scripts/probe-molit-freshness.ts",
     "db:catalog": "tsx scripts/rebuild-apt-catalog.ts",
-    "db:market": "tsx scripts/rebuild-market-home.ts"
+    "db:market": "tsx scripts/rebuild-market-home.ts",
+    "db:stats": "tsx scripts/rebuild-market-stats.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

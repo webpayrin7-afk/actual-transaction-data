@@ -288,6 +288,16 @@ async function main() {
     } catch (err) {
       console.warn("[sync] market_home snapshot rebuild failed:", err);
     }
+
+    try {
+      const { rebuildMarketStats } = await import("../src/lib/market/stats");
+      const stats = await rebuildMarketStats();
+      console.log(
+        `[sync] market_stats rebuilt asOf=${stats.asOfDate} days=${stats.days} regions=${stats.regions} ms=${stats.ms}`,
+      );
+    } catch (err) {
+      console.warn("[sync] market_stats rebuild failed:", err);
+    }
   }
 }
 

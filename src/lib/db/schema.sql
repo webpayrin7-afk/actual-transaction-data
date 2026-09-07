@@ -62,3 +62,41 @@ CREATE TABLE IF NOT EXISTS market_home_snapshots (
 
 CREATE INDEX IF NOT EXISTS idx_tx_type_deal_date
   ON transactions (deal_type, deal_date);
+
+CREATE TABLE IF NOT EXISTS market_stats_daily (
+  day TEXT NOT NULL,
+  scope TEXT NOT NULL,
+  trade_count INTEGER NOT NULL DEFAULT 0,
+  singoga_count INTEGER NOT NULL DEFAULT 0,
+  drop_count INTEGER NOT NULL DEFAULT 0,
+  median_amount INTEGER,
+  avg_amount INTEGER,
+  median_ppsqm REAL,
+  PRIMARY KEY (day, scope)
+);
+
+CREATE INDEX IF NOT EXISTS idx_stats_daily_scope_day
+  ON market_stats_daily (scope, day);
+
+CREATE TABLE IF NOT EXISTS market_stats_daily_region (
+  day TEXT NOT NULL,
+  lawd_cd TEXT NOT NULL,
+  metro TEXT NOT NULL,
+  region_slug TEXT NOT NULL DEFAULT '',
+  region_name TEXT NOT NULL DEFAULT '',
+  trade_count INTEGER NOT NULL DEFAULT 0,
+  singoga_count INTEGER NOT NULL DEFAULT 0,
+  drop_count INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, lawd_cd)
+);
+
+CREATE INDEX IF NOT EXISTS idx_stats_region_day_metro
+  ON market_stats_daily_region (metro, day);
+
+CREATE TABLE IF NOT EXISTS market_stats_meta (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  as_of_date TEXT NOT NULL DEFAULT '',
+  computed_at TEXT NOT NULL DEFAULT '',
+  hist_from TEXT NOT NULL DEFAULT '',
+  stats_from TEXT NOT NULL DEFAULT ''
+);
