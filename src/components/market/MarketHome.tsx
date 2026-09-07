@@ -202,8 +202,15 @@ export function MarketHome() {
           </p>
           {data?.asOfDate ? (
             <p className="mt-3 text-xs text-slate-500">
-              최근 계약일 기준 {formatDealDate(data.recentFrom ?? "")} ~{" "}
-              {formatDealDate(data.recentTo ?? "")} · {data.dateBasisNote}
+              데이터 기준 {formatDealDate(data.asOfDate)}
+              {data.recentFrom && data.recentTo
+                ? ` · 최근 계약 ${formatDealDate(data.recentFrom)} ~ ${formatDealDate(data.recentTo)}`
+                : null}
+            </p>
+          ) : null}
+          {data?.dateBasisNote ? (
+            <p className="mt-1 text-[11px] leading-4 text-slate-400">
+              {data.dateBasisNote}
             </p>
           ) : null}
         </div>

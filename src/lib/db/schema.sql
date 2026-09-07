@@ -51,3 +51,14 @@ CREATE TABLE IF NOT EXISTS apt_catalog (
 
 CREATE INDEX IF NOT EXISTS idx_apt_catalog_norm
   ON apt_catalog (apt_name_norm);
+
+-- 시장 홈 사전 집계 스냅샷 (sync/db:market 후 갱신)
+CREATE TABLE IF NOT EXISTS market_home_snapshots (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  computed_at TEXT NOT NULL,
+  as_of_date TEXT NOT NULL DEFAULT '',
+  payload TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tx_type_deal_date
+  ON transactions (deal_type, deal_date);

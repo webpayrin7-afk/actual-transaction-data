@@ -270,6 +270,25 @@ async function main() {
   } else if (written === 0) {
     console.log("[sync] apt_catalog rebuild skipped (no writes)");
   }
+
+  // 시장 홈 스냅샷 — 쓰기가 있거나 강제 플래그일 때 갱신
+  const rebuildMarket =
+    process.env.REBUILD_MARKET_HOME === "1" ||
+    process.argv.includes("--rebuild-market=1") ||
+    written > 0;
+  if (rebuildMarket) {
+    try {
+      const { rebuildMarketHomeSnapshot } = await import(
+        "../src/lib/market/home"
+      );
+      const snap = await rebuildMarketHomeSnapshot();
+      console.log(
+        `[sync] market_home snapshot asOf=${snap.asOfDate} singoga=${snap.kpis.singogaCount} drops=${snap.kpis.dropCount}`,
+      );
+    } catch (err) {
+      console.warn("[sync] market_home snapshot rebuild failed:", err);
+    }
+  }
 }
 
 main().catch((err) => {

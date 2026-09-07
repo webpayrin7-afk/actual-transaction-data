@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { getMarketHome } from "@/lib/market/home";
 
-export const revalidate = 300;
+/** 스냅샷 읽기 전용 — 계산은 sync/db:market 에서 수행 */
+export const revalidate = 60;
 
 export async function GET() {
   try {
     const data = await getMarketHome();
     return NextResponse.json(data, {
       headers: {
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
       },
     });
   } catch (error) {
