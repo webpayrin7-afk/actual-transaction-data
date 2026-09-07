@@ -140,7 +140,7 @@ function RegionGrid({
           <Link
             key={region.slug}
             href={`/region/${region.slug}`}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-800 shadow-sm transition hover:border-teal-300 hover:bg-teal-50/50 hover:text-teal-900"
+            className="rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-3 text-sm font-medium text-slate-800 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900"
           >
             {region.name}
           </Link>
@@ -304,8 +304,11 @@ export function HomePage() {
         </div>
       ) : null}
 
-      <div id="regions" className="flex flex-col gap-6 scroll-mt-20">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div
+        id="regions"
+        className="scroll-mt-20 overflow-hidden rounded-3xl border border-slate-200/70 bg-white/70 p-5 shadow-sm backdrop-blur-sm sm:p-6"
+      >
+        <div className="flex flex-col gap-3 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">지역별 조회</h2>
             <p className="mt-1 text-sm text-slate-500">
@@ -316,15 +319,17 @@ export function HomePage() {
             value={regionQuery}
             onChange={(e) => setRegionQuery(e.target.value)}
             placeholder="지역명 검색 (예: 강남, 분당, 수원)"
-            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 sm:max-w-xs"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 sm:max-w-xs"
           />
         </div>
 
-        <div id="regions-seoul" className="scroll-mt-24">
-          <RegionGrid title="서울특별시" regions={filteredSeoul} />
-        </div>
-        <div id="regions-gyeonggi" className="scroll-mt-24">
-          <RegionGrid title="경기도" regions={filteredGyeonggi} />
+        <div className="mt-5 flex flex-col gap-8">
+          <div id="regions-seoul" className="scroll-mt-24">
+            <RegionGrid title="서울특별시" regions={filteredSeoul} />
+          </div>
+          <div id="regions-gyeonggi" className="scroll-mt-24">
+            <RegionGrid title="경기도" regions={filteredGyeonggi} />
+          </div>
         </div>
       </div>
 
