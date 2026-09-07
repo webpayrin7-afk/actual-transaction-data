@@ -122,46 +122,39 @@ export function Dashboard({
     });
   };
 
-  const codesLabel = region.lawdCodes.join(" / ");
-
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-      <header className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-6 py-8 text-white shadow-lg sm:px-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+      <header className="relative overflow-hidden rounded-2xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-4 py-4 text-white shadow-sm sm:px-5 sm:py-4">
         <div
-          className="pointer-events-none absolute inset-0 opacity-30"
+          className="pointer-events-none absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(45,212,191,0.35), transparent 40%), radial-gradient(circle at 80% 0%, rgba(125,211,252,0.25), transparent 35%), linear-gradient(135deg, transparent 40%, rgba(15,23,42,0.4))",
+              "radial-gradient(circle at 20% 20%, rgba(45,212,191,0.3), transparent 40%), radial-gradient(circle at 80% 0%, rgba(125,211,252,0.2), transparent 35%)",
           }}
         />
-        <div className="relative">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur">
-              <MapPin className="h-3.5 w-3.5" />
-              {region.fullName} · {codesLabel}
+        <div className="relative flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-teal-100 backdrop-blur">
+                <MapPin className="h-3 w-3" />
+                {region.fullName}
+              </div>
+              <Link
+                href="/regions"
+                className="rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-teal-100 backdrop-blur transition hover:bg-white/20"
+              >
+                ← 지역별 조회
+              </Link>
             </div>
-            <Link
-              href="/regions"
-              className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-teal-100 backdrop-blur transition hover:bg-white/20"
-            >
-              ← 지역별 조회
-            </Link>
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              {region.name} 아파트 실거래가
+            </h1>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            {region.name} 아파트 실거래가
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-teal-50/85 sm:text-base">
-            지역 현황 · 동별 상세 · 거래 검색을 한곳에서 확인합니다.
-          </p>
-          <p className="mt-4 text-xs text-teal-100/70">
-            계약년월 {yearMonthLabel(resolvedYearMonth)} · 최근 거래일 기준
-            내림차순
-          </p>
         </div>
       </header>
 
       <nav
-        className="flex gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm"
+        className="flex gap-1 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm"
         aria-label="지역 상세 탭"
       >
         {TABS.map(({ id, label, icon: Icon }) => {
