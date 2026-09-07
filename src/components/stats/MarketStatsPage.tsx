@@ -47,7 +47,7 @@ function Segmented<T extends string>({
   options: { value: T; label: string }[];
 }) {
   return (
-    <div className="inline-flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+    <div className="flex w-full gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
       {options.map((opt) => {
         const active = value === opt.value;
         return (
@@ -55,7 +55,7 @@ function Segmented<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+            className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 text-center text-sm font-medium transition sm:px-3 ${
               active
                 ? "bg-white text-slate-900 shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
@@ -266,7 +266,7 @@ export function MarketStatsPage() {
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <Segmented
           value={period}
           onChange={setPeriod}
