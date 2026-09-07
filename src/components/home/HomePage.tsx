@@ -229,10 +229,7 @@ export function HomePage() {
           }}
         />
         <div className="relative">
-          <p className="text-sm font-medium tracking-wide text-teal-100/90">
-            아파트 실거래
-          </p>
-          <h1 className="mt-2 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
             서울 · 경기 아파트 실거래가
           </h1>
           <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
