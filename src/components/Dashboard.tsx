@@ -24,7 +24,7 @@ type RegionTab = "dong" | "stats" | "search";
 
 const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
   { id: "stats", label: "지역 현황", icon: BarChart3 },
-  { id: "dong", label: "동별 선택", icon: Building2 },
+  { id: "dong", label: "동별 상세", icon: Building2 },
   { id: "search", label: "지역 검색", icon: Search },
 ];
 
@@ -126,13 +126,6 @@ export function Dashboard({
     });
   };
 
-  const handleBrowseDeals = (selected: string, nextGu: string) => {
-    setDong(selected);
-    setGu(nextGu);
-    setPage(1);
-    selectTab("search");
-  };
-
   const handleBrowseDongSelect = (
     nextDong: string | null,
     nextGu: string | null,
@@ -170,7 +163,7 @@ export function Dashboard({
             {region.name} 아파트 실거래가
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-teal-50/85 sm:text-base">
-            지역 현황 · 동별 단지 · 거래 검색을 한곳에서 확인합니다.
+            지역 현황 · 동별 상세 · 거래 검색을 한곳에서 확인합니다.
           </p>
           <p className="mt-4 text-xs text-teal-100/70">
             계약년월 {yearMonthLabel(resolvedYearMonth)} · 최근 거래일 기준
@@ -207,14 +200,9 @@ export function Dashboard({
       {tab === "dong" && (
         <RegionDongBrowse
           regionSlug={region.slug}
-          regionName={region.name}
-          yearMonth={yearMonth}
-          yearMonths={yearMonths}
           selectedDong={browseDong}
           selectedGu={browseGu}
-          onYearMonthChange={handleYearMonthChange}
           onDongSelect={handleBrowseDongSelect}
-          onBrowseDeals={handleBrowseDeals}
         />
       )}
 

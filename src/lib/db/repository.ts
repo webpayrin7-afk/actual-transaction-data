@@ -274,7 +274,7 @@ export async function searchAptAggregatesFromDb(params: {
   }));
 }
 
-type CatalogRow = {
+export type CatalogRow = {
   aptNameNorm: string;
   aptName: string;
   gu: string;
@@ -343,6 +343,10 @@ async function loadAptCatalogRows(): Promise<CatalogRow[] | null> {
 
   catalogCache = { builtAt: Date.now(), rows };
   return rows;
+}
+
+export async function listAptCatalog(): Promise<CatalogRow[] | null> {
+  return loadAptCatalogRows();
 }
 
 /** transactions → apt_catalog 전체 재구축 (적재 후 1회/주기) */
