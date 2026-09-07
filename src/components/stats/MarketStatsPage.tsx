@@ -220,28 +220,15 @@ function ChartCard({
   );
 }
 
-/** 가로축에 표시할 라벨만 골라 겹침을 방지 */
-function pickAxisTicks(labels: string[], maxTicks: number): string[] {
-  if (labels.length <= maxTicks) return labels;
-  if (maxTicks <= 1) return labels.slice(0, 1);
-  const picked: string[] = [];
-  const last = labels.length - 1;
-  for (let i = 0; i < maxTicks; i++) {
-    const idx = Math.round((i * last) / (maxTicks - 1));
-    const label = labels[idx];
-    if (label && picked[picked.length - 1] !== label) picked.push(label);
-  }
-  return picked;
-}
-
-function StatsXAxis({ ticks }: { ticks: string[] }) {
+function StatsXAxis({ interval }: { interval: number }) {
   return (
     <XAxis
       dataKey="label"
-      ticks={ticks}
-      interval={0}
-      tick={{ fill: "#64748b", fontSize: 10 }}
-      tickMargin={6}
+      interval={interval}
+      minTickGap={28}
+      tick={{ fill: "#64748b", fontSize: 11 }}
+      tickMargin={8}
+      height={32}
       axisLine={{ stroke: "#cbd5e1" }}
       tickLine={false}
     />
@@ -272,13 +259,15 @@ export function MarketStatsPage() {
     [data?.series],
   );
 
-  // 좁은 화면에서도 겹치지 않도록 기간별 최대 눈금 수 제한
-  const axisTicks = useMemo(() => {
-    const labels = chartData.map((p) => p.label);
+  // 기간별 최대 눈금 수에 맞춰 interval 계산 (0=전부, n=n+1개마다 1개)
+  const axisInterval = useMemo(() => {
+    const n = chartData.length;
+    if (n <= 1) return 0;
     const maxTicks =
       period === "daily" ? 6 : period === "weekly" ? 6 : 7;
-    return pickAxisTicks(labels, maxTicks);
-  }, [chartData, period]);
+    if (n <= maxTicks) return 0;
+    return Math.ceil(n / maxTicks) - 1;
+  }, [chartData.length, period]);
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -414,7 +403,7 @@ export function MarketStatsPage() {
                     stroke="#e2e8f0"
                     vertical={false}
                   />
-                  <StatsXAxis ticks={axisTicks} />
+                  <StatsXAxis interval={axisInterval} />
                   <YAxis
                     tick={{ fill: "#64748b", fontSize: 11 }}
                     axisLine={false}
@@ -453,7 +442,7 @@ export function MarketStatsPage() {
             >
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChartSafe data={chartData} ticks={axisTicks} />
+                  <LineChartSafe data={chartData} interval={axisInterval} />
                 </ResponsiveContainer>
               </div>
             </ChartCard>
@@ -473,7 +462,7 @@ export function MarketStatsPage() {
                       stroke="#e2e8f0"
                       vertical={false}
                     />
-                    <StatsXAxis ticks={axisTicks} />
+                    <StatsXAxis interval={axisInterval} />
                     <YAxis
                       tick={{ fill: "#64748b", fontSize: 11 }}
                       axisLine={false}
@@ -564,10 +553,10 @@ export function MarketStatsPage() {
 
 function LineChartSafe({
   data,
-  ticks,
+  interval,
 }: {
   data: Array<{ label: string; medianEok: number | null }>;
-  ticks: string[];
+  interval: number;
 }) {
   return (
     <ComposedChart
@@ -575,7 +564,7 @@ function LineChartSafe({
       margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
     >
       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-      <StatsXAxis ticks={ticks} />
+      <StatsXAxis interval={interval} />
       <YAxis
         tick={{ fill: "#64748b", fontSize: 11 }}
         axisLine={false}
