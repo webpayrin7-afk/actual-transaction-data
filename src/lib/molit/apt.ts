@@ -59,6 +59,9 @@ export interface AptDetailResponse {
   source: "api" | "mock";
   yearMonth: string;
   warning?: string;
+  /** 최근 N개월만 먼저 내려준 부분 응답 */
+  partial?: boolean;
+  loadedMonths: number;
   stats: {
     recent3mCount: number;
     maxDealAmount: number;
@@ -445,6 +448,21 @@ function trimChartToActivity(points: AptChartPoint[]): AptChartPoint[] {
   return points.slice(first, last + 1);
 }
 
+const DETAIL_CACHE_TTL_MS = 30 * 60 * 1000;
+const detailCache = new Map<
+  string,
+  { builtAt: number; data: AptDetailResponse }
+>();
+const detailInflight = new Map<string, Promise<AptDetailResponse | null>>();
+
+function detailCacheKey(
+  regionSlug: string,
+  aptName: string,
+  monthCount: number,
+): string {
+  return `${regionSlug}|${normalizeName(aptName)}|${monthCount}`;
+}
+
 /** 단지 실거래 이력 (매매·전월세 + 시세 차트용 월별 집계) */
 export async function getAptDetail(params: {
   aptName: string;
@@ -457,7 +475,39 @@ export async function getAptDetail(params: {
   const aptName = params.aptName.trim();
   if (!aptName) return null;
 
-  const monthCount = Math.min(Math.max(params.months ?? 120, 12), 120);
+  const monthCount = Math.min(Math.max(params.months ?? 120, 6), 120);
+  const cacheKey = detailCacheKey(region.slug, aptName, monthCount);
+  const cached = detailCache.get(cacheKey);
+  if (cached && Date.now() - cached.builtAt < DETAIL_CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  const inflight = detailInflight.get(cacheKey);
+  if (inflight) return inflight;
+
+  const promise = buildAptDetail({
+    region,
+    aptName,
+    monthCount,
+  }).then((data) => {
+    if (data) {
+      detailCache.set(cacheKey, { builtAt: Date.now(), data });
+    }
+    return data;
+  }).finally(() => {
+    detailInflight.delete(cacheKey);
+  });
+
+  detailInflight.set(cacheKey, promise);
+  return promise;
+}
+
+async function buildAptDetail(params: {
+  region: RegionDef;
+  aptName: string;
+  monthCount: number;
+}): Promise<AptDetailResponse | null> {
+  const { region, aptName, monthCount } = params;
   const months = recentYearMonths(monthCount);
   let source: "api" | "mock" = "mock";
   let warning: string | undefined;
@@ -470,7 +520,7 @@ export async function getAptDetail(params: {
   } else {
     warning =
       "MOLIT_API_KEY가 없어 지역별 데모 데이터로 표시 중입니다. Vercel/로컬 환경변수에 키를 설정하세요.";
-    for (const ym of months.slice(0, 12)) {
+    for (const ym of months.slice(0, Math.min(12, months.length))) {
       collected.push(...buildRegionDemoTransactions(region, ym));
     }
   }
@@ -488,6 +538,7 @@ export async function getAptDetail(params: {
   const deals = exact.length > 0 ? exact : matched;
   const trades = deals.filter((tx) => tx.dealType === "trade");
   const rents = deals.filter((tx) => tx.dealType === "rent");
+  const partial = monthCount < 120;
 
   const emptyResponse = (
     extraWarning?: string,
@@ -502,6 +553,8 @@ export async function getAptDetail(params: {
     source,
     yearMonth,
     warning: extraWarning ?? warning ?? "해당 단지의 실거래를 찾지 못했습니다.",
+    partial,
+    loadedMonths: monthCount,
     stats: {
       recent3mCount: 0,
       maxDealAmount: 0,
@@ -573,7 +626,6 @@ export async function getAptDetail(params: {
       tx.dealAmount === (maxByArea.get(areaKey(tx.exclusiveArea)) ?? -1),
   }));
 
-  // chart: oldest → newest, 실거래 있는 구간만 (전체 기간 슬라이더)
   const chart = trimChartToActivity(
     buildChartPoints(deals, months).sort((a, b) =>
       a.yearMonth < b.yearMonth ? -1 : 1,
@@ -591,6 +643,8 @@ export async function getAptDetail(params: {
     source,
     yearMonth,
     warning,
+    partial,
+    loadedMonths: monthCount,
     stats: {
       recent3mCount: recent3m.length,
       maxDealAmount,

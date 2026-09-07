@@ -9,6 +9,7 @@ import {
   Building2,
   CalendarDays,
   Flame,
+  LoaderCircle,
   MapPin,
 } from "lucide-react";
 import type { AptDetailResponse } from "@/lib/molit/apt";
@@ -23,11 +24,19 @@ import {
   toPyeong,
 } from "@/lib/utils/format";
 
+const QUICK_MONTHS = 18;
+const FULL_MONTHS = 120;
+
 async function fetchAptDetail(
   aptName: string,
   region: string,
+  months: number,
 ): Promise<AptDetailResponse> {
-  const qs = new URLSearchParams({ aptName, region, months: "120" });
+  const qs = new URLSearchParams({
+    aptName,
+    region,
+    months: String(months),
+  });
   const res = await fetch(`/api/apt-detail?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   return res.json();
@@ -62,18 +71,31 @@ export function AptDetailPage({
     end: number;
   } | null>(null);
   const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}`);
+  const [preferFullRange, setPreferFullRange] = useState(true);
 
-  const query = useQuery({
-    queryKey: ["apt-detail", aptName, regionSlug],
-    queryFn: () => fetchAptDetail(aptName, regionSlug),
+  const quickQuery = useQuery({
+    queryKey: ["apt-detail", aptName, regionSlug, "quick", QUICK_MONTHS],
+    queryFn: () => fetchAptDetail(aptName, regionSlug, QUICK_MONTHS),
+    staleTime: 5 * 60 * 1000,
   });
 
-  const data = query.data;
+  const fullQuery = useQuery({
+    queryKey: ["apt-detail", aptName, regionSlug, "full", FULL_MONTHS],
+    queryFn: () => fetchAptDetail(aptName, regionSlug, FULL_MONTHS),
+    enabled: quickQuery.isSuccess,
+    staleTime: 30 * 60 * 1000,
+  });
+
+  const data = fullQuery.data ?? quickQuery.data;
+  const isExtendingHistory =
+    quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
-  const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}`;
+  const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
   if (boundKey !== dataKey) {
     setBoundKey(dataKey);
-    setRangeOverride(null);
+    if (preferFullRange || rangeOverride == null) {
+      setRangeOverride(null);
+    }
   }
 
   const startIndex = rangeOverride?.start ?? 0;
@@ -108,7 +130,6 @@ export function AptDetailPage({
     const base = data.chart.slice(startIndex, endIndex + 1);
     if (areaKey === "all") return base;
 
-    // 면적 필터 시 클라이언트에서 월별 재집계
     const months = base.map((p) => p.yearMonth);
     const byMonth = new Map(
       months.map((ym) => [
@@ -156,7 +177,9 @@ export function AptDetailPage({
     });
   }, [data, startIndex, endIndex, areaKey, areaFiltered]);
 
-  const periodTradeCount = periodItems.filter((i) => i.dealType === "trade").length;
+  const periodTradeCount = periodItems.filter(
+    (i) => i.dealType === "trade",
+  ).length;
   const periodRentCount = periodItems.filter((i) => i.dealType === "rent").length;
   const periodMax =
     periodItems
@@ -168,6 +191,7 @@ export function AptDetailPage({
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
     const count = Math.min(years * 12, chartMonths.length);
+    setPreferFullRange(false);
     setRangeOverride({
       start: Math.max(0, chartMonths.length - count),
       end: chartMonths.length - 1,
@@ -176,10 +200,11 @@ export function AptDetailPage({
 
   const setFullRange = () => {
     if (chartMonths.length === 0) return;
+    setPreferFullRange(true);
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
-  if (query.isLoading) {
+  if (quickQuery.isLoading && !data) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 sm:px-6">
         <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
@@ -189,7 +214,7 @@ export function AptDetailPage({
     );
   }
 
-  if (query.isError || !data) {
+  if ((quickQuery.isError && !data) || !data) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-16 text-center sm:px-6">
         <p className="text-sm font-medium text-slate-700">
@@ -272,7 +297,13 @@ export function AptDetailPage({
               매매·전세 평균가와 월별 거래량 · 국토부 실거래 기준
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            {isExtendingHistory ? (
+              <p className="inline-flex items-center gap-1.5 text-teal-700">
+                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                과거 시세 불러오는 중…
+              </p>
+            ) : null}
             <p className="text-slate-600">
               선택 기간 매매{" "}
               <span className="font-semibold text-teal-800">
@@ -330,7 +361,12 @@ export function AptDetailPage({
           months={chartMonths}
           startIndex={startIndex}
           endIndex={endIndex}
-          onChange={(start, end) => setRangeOverride({ start, end })}
+          onChange={(start, end) => {
+            setPreferFullRange(
+              start === 0 && end === Math.max(chartMonths.length - 1, 0),
+            );
+            setRangeOverride({ start, end });
+          }}
           onRecentYears={setRecentYears}
           onFullRange={setFullRange}
         />
