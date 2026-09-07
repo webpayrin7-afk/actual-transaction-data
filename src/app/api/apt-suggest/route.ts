@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { searchAptSuggestions } from "@/lib/molit/apt";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";

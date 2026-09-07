@@ -5,7 +5,6 @@ import {
   type RegionDef,
 } from "@/lib/constants/regions";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
-import { loadRawTransactions } from "@/lib/molit/service";
 import {
   formatEok,
   recentYearMonths,
@@ -58,6 +57,26 @@ export interface AptDetailResponse {
   items: AptHistoryItem[];
 }
 
+const SUGGEST_MONTHS = 6;
+const SUGGEST_CACHE_TTL_MS = 45 * 60 * 1000;
+
+type SuggestAgg = {
+  aptName: string;
+  gu: string;
+  dong: string;
+  dealCount: number;
+  maxDealAmount: number;
+  latestDealDate: string;
+};
+
+type SuggestCacheBucket = {
+  builtAt: number;
+  items: Transaction[];
+};
+
+const suggestPoolCache = new Map<string, SuggestCacheBucket>();
+const suggestPoolInflight = new Map<string, Promise<Transaction[]>>();
+
 function normalizeName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
 }
@@ -77,14 +96,16 @@ function threeMonthsAgoDate(): string {
   return d.toISOString().slice(0, 10);
 }
 
-async function loadSuggestPool(): Promise<Transaction[]> {
-  const months = recentYearMonths(2);
-  const chunks = await Promise.all(
-    months.map((ym) =>
-      loadRawTransactions(ym, "trade", [...FEATURED_LAWD_CODES]),
-    ),
-  );
-  return chunks.flatMap((c) => c.items);
+/** FEATURED에 한 구만 있어도 같은 시의 나머지 구까지 포함 (예: 동안 → 만안) */
+function expandFeaturedLawdCodes(): string[] {
+  const featured = new Set<string>(FEATURED_LAWD_CODES);
+  const codes = new Set<string>();
+  for (const region of ALL_REGIONS) {
+    if (region.lawdCodes.some((code) => featured.has(code))) {
+      for (const code of region.lawdCodes) codes.add(code);
+    }
+  }
+  return [...codes];
 }
 
 function regionFromGu(gu: string): RegionDef | undefined {
@@ -97,34 +118,138 @@ function regionFromGu(gu: string): RegionDef | undefined {
   });
 }
 
-/** 단지명 자동완성 */
-export async function searchAptSuggestions(
-  query: string,
-  limit = 8,
-): Promise<AptSuggestion[]> {
-  const q = normalizeName(query.trim());
-  if (q.length < 1) return [];
+function regionNameKey(name: string): string {
+  return normalizeName(name.replace(/(특별시|광역시|특별자치시|시|군|구)$/g, ""));
+}
 
-  const pool = await loadSuggestPool();
-  const grouped = new Map<
-    string,
-    {
-      aptName: string;
-      gu: string;
-      dong: string;
-      dealCount: number;
-      maxDealAmount: number;
-      latestDealDate: string;
+/** 검색어에 지역명이 보이면 해당 지역 LAWD를 추가로 조회 */
+function hintedLawdCodes(queryNorm: string): string[] {
+  if (queryNorm.length < 2) return [];
+  const codes = new Set<string>();
+  for (const region of ALL_REGIONS) {
+    const keys = [
+      regionNameKey(region.name),
+      ...region.districts.map((d) => regionNameKey(d.name)),
+    ].filter((k) => k.length >= 2);
+    if (keys.some((k) => queryNorm.includes(k) || k.includes(queryNorm))) {
+      for (const code of region.lawdCodes) codes.add(code);
     }
-  >();
+  }
+  return [...codes];
+}
+
+function isSubsequence(query: string, target: string): boolean {
+  let i = 0;
+  for (const ch of target) {
+    if (ch === query[i]) i += 1;
+    if (i >= query.length) return true;
+  }
+  return false;
+}
+
+/** 공백 제거 후 연속 포함 + (긴 검색어) 부분 누락 허용 매칭 */
+function matchScore(query: string, aptKey: string): number {
+  if (!query) return 0;
+  if (aptKey === query) return 10_000;
+  if (aptKey.startsWith(query)) return 5_000 + query.length;
+  if (aptKey.includes(query)) return 3_000 + query.length;
+  // "안양한양수자인" ↔ "안양역한양수자인리버파크" 처럼 중간 글자 누락
+  if (query.length >= 4 && isSubsequence(query, aptKey)) {
+    return 1_000 + query.length;
+  }
+  return 0;
+}
+
+function cacheKey(lawdCodes: string[], months: string[]): string {
+  return `${[...lawdCodes].sort().join(",")}|${months.join(",")}`;
+}
+
+async function loadTradePool(
+  lawdCodes: string[],
+  monthCount: number,
+): Promise<Transaction[]> {
+  if (lawdCodes.length === 0) return [];
+  const months = recentYearMonths(monthCount);
+  const key = cacheKey(lawdCodes, months);
+  const cached = suggestPoolCache.get(key);
+  if (cached && Date.now() - cached.builtAt < SUGGEST_CACHE_TTL_MS) {
+    return cached.items;
+  }
+
+  const inflight = suggestPoolInflight.get(key);
+  if (inflight) return inflight;
+
+  const promise = (async () => {
+    const items: Transaction[] = [];
+    if (hasApiKey()) {
+      // 월별로 순차 조회해 MOLIT 429를 줄임 (구 코드는 client에서 동시성 제한)
+      for (const ym of months) {
+        try {
+          const monthItems = await fetchTransactionsByType(ym, "trade", lawdCodes);
+          items.push(...monthItems);
+        } catch (error) {
+          console.warn("[apt-suggest] month fetch failed:", ym, error);
+        }
+      }
+    } else {
+      // 키 없을 때: 지역별 데모로 최소한의 자동완성 유지
+      const regions = ALL_REGIONS.filter((r) =>
+        r.lawdCodes.some((code) => lawdCodes.includes(code)),
+      );
+      for (const region of regions) {
+        for (const ym of months.slice(0, 2)) {
+          items.push(
+            ...buildRegionDemoTransactions(region, ym).filter(
+              (tx) => tx.dealType === "trade",
+            ),
+          );
+        }
+      }
+    }
+    suggestPoolCache.set(key, { builtAt: Date.now(), items });
+    return items;
+  })().finally(() => {
+    suggestPoolInflight.delete(key);
+  });
+
+  suggestPoolInflight.set(key, promise);
+  return promise;
+}
+
+async function loadSuggestPool(queryNorm: string): Promise<Transaction[]> {
+  const baseCodes = expandFeaturedLawdCodes();
+  const hinted = hintedLawdCodes(queryNorm);
+  const extra = hinted.filter((code) => !baseCodes.includes(code));
+
+  const [baseItems, hintItems] = await Promise.all([
+    loadTradePool(baseCodes, SUGGEST_MONTHS),
+    extra.length > 0 ? loadTradePool(extra, SUGGEST_MONTHS) : Promise.resolve([]),
+  ]);
+
+  if (extra.length === 0) return baseItems;
+  return [...baseItems, ...hintItems];
+}
+
+function aggregateSuggestions(
+  pool: Transaction[],
+  queryNorm: string,
+  limit: number,
+): AptSuggestion[] {
+  const grouped = new Map<string, SuggestAgg & { score: number; regionSlug: string }>();
 
   for (const tx of pool) {
     if (tx.dealType !== "trade") continue;
     const aptKey = normalizeName(tx.aptName);
-    if (!aptKey.includes(q)) continue;
-    const region = regionFromGu(tx.gu);
+    const score = matchScore(queryNorm, aptKey);
+    if (score <= 0) continue;
+
+    const region =
+      regionFromGu(tx.gu) ??
+      // gu 매핑 실패 시 단지명에 시·구명이 들어있는 경우 대비
+      ALL_REGIONS.find((r) => aptKey.includes(regionNameKey(r.name)));
     if (!region) continue;
-    const key = `${normalizeName(tx.aptName)}|${region.slug}`;
+
+    const key = `${aptKey}|${region.slug}`;
     const prev = grouped.get(key);
     if (!prev) {
       grouped.set(key, {
@@ -134,22 +259,31 @@ export async function searchAptSuggestions(
         dealCount: 1,
         maxDealAmount: tx.dealAmount,
         latestDealDate: tx.dealDate,
+        score,
+        regionSlug: region.slug,
       });
       continue;
     }
     prev.dealCount += 1;
     prev.maxDealAmount = Math.max(prev.maxDealAmount, tx.dealAmount);
+    prev.score = Math.max(prev.score, score);
     if (tx.dealDate > prev.latestDealDate) {
       prev.latestDealDate = tx.dealDate;
       prev.dong = tx.dong;
       prev.gu = tx.gu;
+      prev.aptName = tx.aptName;
     }
   }
 
-  return [...grouped.entries()]
-    .map(([key, value]) => {
-      const regionSlug = key.split("|")[1];
-      const region = getRegion(regionSlug)!;
+  return [...grouped.values()]
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.dealCount !== a.dealCount) return b.dealCount - a.dealCount;
+      return b.maxDealAmount - a.maxDealAmount;
+    })
+    .slice(0, limit)
+    .map((value) => {
+      const region = getRegion(value.regionSlug)!;
       return {
         aptName: value.aptName,
         regionSlug: region.slug,
@@ -160,15 +294,30 @@ export async function searchAptSuggestions(
         maxDealAmount: value.maxDealAmount,
         latestDealDate: value.latestDealDate,
       };
-    })
-    .sort((a, b) => {
-      const aExact = normalizeName(a.aptName) === q ? 1 : 0;
-      const bExact = normalizeName(b.aptName) === q ? 1 : 0;
-      if (aExact !== bExact) return bExact - aExact;
-      if (b.dealCount !== a.dealCount) return b.dealCount - a.dealCount;
-      return b.maxDealAmount - a.maxDealAmount;
-    })
-    .slice(0, limit);
+    });
+}
+
+/** 단지명 자동완성 */
+export async function searchAptSuggestions(
+  query: string,
+  limit = 8,
+): Promise<AptSuggestion[]> {
+  const q = normalizeName(query.trim());
+  if (q.length < 1) return [];
+
+  const pool = await loadSuggestPool(q);
+  let suggestions = aggregateSuggestions(pool, q, limit);
+
+  // 주요·힌트 지역에 없으면 전체 시군구 최근 1개월로 보강
+  if (suggestions.length === 0 && q.length >= 4) {
+    const allCodes = [
+      ...new Set(ALL_REGIONS.flatMap((r) => r.lawdCodes)),
+    ];
+    const widePool = await loadTradePool(allCodes, 1);
+    suggestions = aggregateSuggestions([...pool, ...widePool], q, limit);
+  }
+
+  return suggestions;
 }
 
 /** 단지 실거래 이력 (최근 N개월 매매 중심) */

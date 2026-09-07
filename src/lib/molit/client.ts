@@ -9,6 +9,8 @@ import {
 } from "@/lib/molit/parse";
 import type { DealType, Transaction } from "@/types/transaction";
 
+const FETCH_CONCURRENCY = 6;
+
 function getServiceKey(): string | null {
   const raw = process.env.MOLIT_API_KEY?.trim();
   if (!raw) return null;
@@ -18,6 +20,35 @@ function getServiceKey(): string | null {
 
 export function hasApiKey(): boolean {
   return Boolean(process.env.MOLIT_API_KEY?.trim());
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>,
+): Promise<PromiseSettledResult<R>[]> {
+  const results: PromiseSettledResult<R>[] = new Array(items.length);
+  let next = 0;
+
+  async function worker() {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      try {
+        const value = await mapper(items[index]);
+        results[index] = { status: "fulfilled", value };
+      } catch (reason) {
+        results[index] = { status: "rejected", reason };
+      }
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, Math.max(items.length, 1)) },
+    () => worker(),
+  );
+  await Promise.all(workers);
+  return results;
 }
 
 async function fetchMolitXml(
@@ -40,16 +71,25 @@ async function fetchMolitXml(
   });
 
   const fullUrl = `${baseUrl}?serviceKey=${serviceKey}&${params.toString()}`;
-  const res = await fetch(fullUrl, {
-    next: { revalidate: 1800 },
-    headers: { Accept: "application/xml, text/xml, */*" },
-  });
 
-  if (!res.ok) {
-    throw new Error(`MOLIT API HTTP ${res.status} (${lawdCd})`);
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const res = await fetch(fullUrl, {
+      next: { revalidate: 1800 },
+      headers: { Accept: "application/xml, text/xml, */*" },
+    });
+    lastStatus = res.status;
+    if (res.status === 429 || res.status === 503) {
+      await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+      continue;
+    }
+    if (!res.ok) {
+      throw new Error(`MOLIT API HTTP ${res.status} (${lawdCd})`);
+    }
+    return res.text();
   }
 
-  return res.text();
+  throw new Error(`MOLIT API HTTP ${lastStatus} (${lawdCd})`);
 }
 
 function isOkOrEmpty(xml: string): { ok: boolean; empty: boolean; message: string } {
@@ -104,8 +144,10 @@ export async function fetchTradeTransactions(
   yearMonth: string,
   lawdCodes: string[],
 ): Promise<Transaction[]> {
-  const settled = await Promise.allSettled(
-    lawdCodes.map((lawdCd) => fetchOneTrade(lawdCd, yearMonth)),
+  const settled = await mapWithConcurrency(
+    lawdCodes,
+    FETCH_CONCURRENCY,
+    (lawdCd) => fetchOneTrade(lawdCd, yearMonth),
   );
   const items: Transaction[] = [];
   const errors: string[] = [];
@@ -126,8 +168,10 @@ export async function fetchRentTransactions(
   yearMonth: string,
   lawdCodes: string[],
 ): Promise<Transaction[]> {
-  const settled = await Promise.allSettled(
-    lawdCodes.map((lawdCd) => fetchOneRent(lawdCd, yearMonth)),
+  const settled = await mapWithConcurrency(
+    lawdCodes,
+    FETCH_CONCURRENCY,
+    (lawdCd) => fetchOneRent(lawdCd, yearMonth),
   );
   const items: Transaction[] = [];
   const errors: string[] = [];
