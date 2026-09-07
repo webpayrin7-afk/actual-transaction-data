@@ -143,7 +143,7 @@ export function SiteHeader() {
               <div
                 id={menuId}
                 role="menu"
-                className="absolute top-full left-0 z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/70 sm:left-auto sm:right-0"
+                className="absolute top-full right-0 z-50 mt-1.5 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/70"
               >
                 {TOOL_NAV.map((item) => {
                   const active = item.match(pathname);
