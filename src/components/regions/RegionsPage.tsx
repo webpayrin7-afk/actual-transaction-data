@@ -161,9 +161,9 @@ export function RegionsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <section className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8">
+      <section className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8">
         <div
-          className="pointer-events-none absolute inset-0 opacity-35"
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl opacity-35"
           style={{
             backgroundImage:
               "radial-gradient(circle at 15% 20%, rgba(45,212,191,0.35), transparent 42%), radial-gradient(circle at 85% 0%, rgba(56,189,248,0.22), transparent 38%)",
@@ -180,11 +180,11 @@ export function RegionsPage() {
             지역명을 검색하거나 아래에서 시·군·구를 선택하세요.
           </p>
 
-          <form onSubmit={onSubmit} className="relative z-20 mt-6 max-w-xl">
+          <form onSubmit={onSubmit} className="relative z-30 mt-6 max-w-xl">
             <label className="sr-only" htmlFor="region-search">
               지역명 검색
             </label>
-            <div ref={searchWrapRef} className="relative">
+            <div ref={searchWrapRef} className="relative z-30">
               <input
                 id="region-search"
                 value={regionQuery}
