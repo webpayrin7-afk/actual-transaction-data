@@ -94,7 +94,17 @@ npm run build && npm start   # 프로덕션
 
 ## Vercel 배포
 
-### 1) 대시보드에서 GitHub 연동 (권장)
+### Production (GitHub Import 연동 완료)
+
+- Vercel Project: `actual-transaction-data`
+- Production 배포 URL 예시: `https://actual-transaction-data-*.vercel.app`
+- `main`에 머지되면 Production이 자동 재배포됩니다.
+- Preview는 PR 브랜치 푸시마다 생성됩니다.
+
+> Deployment Protection(SSO)이 켜져 있으면 브라우저 로그인 후 접근해야 할 수 있습니다.  
+> 공개 사이트로 쓰려면 Vercel → Project → Settings → Deployment Protection에서 완화하세요.
+
+### 1) 대시보드에서 GitHub 연동 (권장) — 완료됨
 
 1. [Vercel](https://vercel.com) → **Add New → Project**
 2. `webpayrin7-afk/actual-transaction-data` Import
