@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { AlertCircle, MapPin } from "lucide-react";
 import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
@@ -24,15 +24,12 @@ export function Dashboard({
   initialDealType?: DealType | "all";
 }) {
   const yearMonths = useMemo(() => recentYearMonths(6), []);
-  // 당월은 매매 신고 건수가 적어 기본값은 직전월
   const [aptNameInput, setAptNameInput] = useState(initialAptName);
   const [gu, setGu] = useState(initialGu);
   const [dong, setDong] = useState("all");
   const [dealType, setDealType] = useState<DealType | "all">(initialDealType);
   const [area, setArea] = useState<AreaFilter>("all");
-  const [yearMonth, setYearMonth] = useState(
-    () => yearMonths[1] ?? yearMonths[0],
-  );
+  const [yearMonth, setYearMonth] = useState(() => yearMonths[0]);
   const [page, setPage] = useState(1);
   const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
@@ -48,6 +45,14 @@ export function Dashboard({
     pageSize: PAGE_SIZE,
     region: region.slug,
   });
+
+  const data = query.data;
+
+  // 당월에 데이터가 없어 서버가 다른 월로 폴백하면 필터도 맞춤
+  useEffect(() => {
+    if (!data?.yearMonth || data.yearMonth === yearMonth) return;
+    setYearMonth(data.yearMonth);
+  }, [data?.yearMonth, yearMonth]);
 
   const resetPage = () => setPage(1);
 
@@ -84,7 +89,6 @@ export function Dashboard({
     });
   };
 
-  const data = query.data;
   const codesLabel = region.lawdCodes.join(" / ");
 
   return (

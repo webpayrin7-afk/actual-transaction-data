@@ -102,9 +102,8 @@ function toLargeAreaRank(items: Transaction[], limit = 5): RankItem[] {
 export async function getRankings(
   yearMonth?: string,
 ): Promise<RankingsResponse> {
-  // 당월은 매매 건수가 적어 기본은 직전월
-  const months = recentYearMonths(2);
-  const ym = yearMonth || months[1] || months[0];
+  // 당월 우선. 데이터 없으면 loadRawTransactions가 데이터가 있는 월로 폴백
+  const ym = yearMonth || recentYearMonths(1)[0];
   const { items, source, resolvedYearMonth } = await loadRawTransactions(
     ym,
     "all",

@@ -114,8 +114,8 @@ export async function loadRawTransactions(
   if (hasApiKey()) {
     const monthsToTry = [
       yearMonth,
-      ...recentYearMonths(4).filter((ym) => ym !== yearMonth),
-    ].slice(0, 3);
+      ...recentYearMonths(6).filter((ym) => ym !== yearMonth),
+    ].slice(0, 4);
 
     let lastError = "";
     // dealType=all 일 때: 전월세만 있는 당월에 멈추면 매매가 비어 보임 → 매매가 있는 월 우선
@@ -144,7 +144,7 @@ export async function loadRawTransactions(
           resolvedYearMonth: ym,
           warning:
             ym !== yearMonth
-              ? `${yearMonth.slice(0, 4)}.${yearMonth.slice(4, 6)} 매매 데이터가 없어 ${ym.slice(0, 4)}.${ym.slice(4, 6)} 기준으로 표시합니다.`
+              ? `${yearMonth.slice(0, 4)}.${yearMonth.slice(4, 6)} 데이터가 없어 ${ym.slice(0, 4)}.${ym.slice(4, 6)} 기준으로 표시합니다.`
               : undefined,
         };
       } catch (error) {
@@ -160,7 +160,7 @@ export async function loadRawTransactions(
         resolvedYearMonth: rentOnlyFallback.ym,
         warning:
           rentOnlyFallback.ym !== yearMonth
-            ? `${yearMonth.slice(0, 4)}.${yearMonth.slice(4, 6)} 매매 데이터가 없어 ${rentOnlyFallback.ym.slice(0, 4)}.${rentOnlyFallback.ym.slice(4, 6)} 전월세 기준으로 표시합니다.`
+            ? `${yearMonth.slice(0, 4)}.${yearMonth.slice(4, 6)} 데이터가 없어 ${rentOnlyFallback.ym.slice(0, 4)}.${rentOnlyFallback.ym.slice(4, 6)} 기준으로 표시합니다.`
             : "선택한 기간에 매매 실거래가 아직 없어 전월세만 표시합니다.",
       };
     }
