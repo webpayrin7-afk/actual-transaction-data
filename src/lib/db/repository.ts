@@ -450,6 +450,61 @@ export async function listAptCatalog(): Promise<CatalogRow[] | null> {
   return loadAptCatalogRows();
 }
 
+export type RegionBrowseAptRow = {
+  aptName: string;
+  gu: string;
+  dong: string;
+  dealCount: number;
+  tradeCount: number;
+  maxDealAmount: number;
+  latestDealDate: string;
+  buildYear: number | null;
+};
+
+/** 지역(법정동코드) 매매 거래 기준 단지 집계 — 동별 상세용 */
+export async function queryRegionBrowseApts(
+  lawdCodes: string[],
+): Promise<RegionBrowseAptRow[] | null> {
+  const db = await readyDb();
+  if (!db || !lawdCodes.length) return null;
+
+  const placeholders = lawdCodes.map(() => "?").join(",");
+  const result = await db.execute({
+    sql: `SELECT MAX(apt_name) AS apt_name,
+                 MAX(gu) AS gu,
+                 MAX(dong) AS dong,
+                 COUNT(*) AS deal_count,
+                 MAX(deal_amount) AS max_deal_amount,
+                 MAX(deal_date) AS latest_deal_date,
+                 MAX(build_year) AS build_year
+          FROM transactions
+          WHERE lawd_cd IN (${placeholders})
+            AND deal_type = 'trade'
+            AND TRIM(dong) != ''
+          GROUP BY apt_name_norm, gu, dong`,
+    args: [...lawdCodes],
+  });
+
+  if (!result.rows.length) return null;
+
+  return result.rows.map((row) => {
+    const dealCount = Number(row.deal_count) || 0;
+    return {
+      aptName: String(row.apt_name ?? ""),
+      gu: String(row.gu ?? ""),
+      dong: String(row.dong ?? ""),
+      dealCount,
+      tradeCount: dealCount,
+      maxDealAmount: Number(row.max_deal_amount) || 0,
+      latestDealDate: String(row.latest_deal_date ?? ""),
+      buildYear:
+        row.build_year == null || row.build_year === ""
+          ? null
+          : Number(row.build_year) || null,
+    };
+  });
+}
+
 /** transactions → apt_catalog 전체 재구축 (적재 후 1회/주기) */
 export async function rebuildAptCatalog(): Promise<number> {
   const db = await readyDb();

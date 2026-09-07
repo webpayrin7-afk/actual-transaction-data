@@ -9,6 +9,7 @@ import { hasDb } from "@/lib/db/client";
 import {
   listAptCatalog,
   normalizeAptName,
+  queryRegionBrowseApts,
   queryRegionMonthPool,
   queryRentPool,
   queryTradePool,
@@ -452,6 +453,30 @@ export async function getRegionBrowse(params: {
 
   const selectedDong = params.dong?.trim() || null;
   const selectedGu = params.gu?.trim() || undefined;
+
+  // 거래 테이블(법정동코드) 기준으로 동/단지 목록 구성 — apt_catalog는 지역별 누락이 있을 수 있음
+  if (hasDb()) {
+    try {
+      const fromDb = await queryRegionBrowseApts([...region.lawdCodes]);
+      if (fromDb && fromDb.length > 0) {
+        const { dongs, apts } = buildBrowseFromRows(
+          fromDb,
+          selectedDong,
+          selectedGu,
+        );
+        return {
+          regionSlug: region.slug,
+          yearMonth: "",
+          source: "api",
+          selectedDong,
+          dongs,
+          apts,
+        };
+      }
+    } catch (error) {
+      console.warn("[region-browse] db aggregate failed:", error);
+    }
+  }
 
   const catalog = await listAptCatalog();
   if (catalog && catalog.length > 0) {
