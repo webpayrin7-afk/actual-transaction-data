@@ -25,7 +25,7 @@ const PRIMARY_NAV = [
   },
   {
     href: "/stats",
-    label: "일·주·월간 통계",
+    label: "통계",
     match: (pathname: string) => pathname.startsWith("/stats"),
   },
 ] as const;
@@ -52,7 +52,7 @@ const TOOL_NAV = [
 ] as const;
 
 function navClass(active: boolean) {
-  return `whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium transition ${
+  return `whitespace-nowrap rounded-lg px-2 py-1.5 font-medium transition sm:px-2.5 ${
     active
       ? "bg-teal-50 text-teal-800"
       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -106,23 +106,21 @@ export function SiteHeader() {
         </div>
 
         <nav
-          className="-mx-1 flex items-center gap-1 pb-2.5 text-sm"
+          className="-mx-1 flex items-center gap-0.5 overflow-x-auto pb-2.5 text-sm sm:gap-1"
           aria-label="주요 메뉴"
         >
-          <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
-            {PRIMARY_NAV.map((item) => {
-              const active = item.match(pathname);
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={navClass(active)}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
+          {PRIMARY_NAV.map((item) => {
+            const active = item.match(pathname);
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={navClass(active)}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
 
           <div className="relative shrink-0" ref={toolsRef}>
             <button
@@ -131,7 +129,7 @@ export function SiteHeader() {
               aria-controls={menuId}
               aria-haspopup="menu"
               onClick={() => setToolsOpen((open) => !open)}
-              className={`inline-flex items-center gap-1 ${navClass(toolsActive || toolsOpen)}`}
+              className={`inline-flex items-center gap-0.5 ${navClass(toolsActive || toolsOpen)}`}
             >
               도구
               <ChevronDown
@@ -143,7 +141,7 @@ export function SiteHeader() {
               <div
                 id={menuId}
                 role="menu"
-                className="absolute top-full right-0 z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/70"
+                className="absolute top-full left-0 z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/70 sm:left-auto sm:right-0"
               >
                 {TOOL_NAV.map((item) => {
                   const active = item.match(pathname);
