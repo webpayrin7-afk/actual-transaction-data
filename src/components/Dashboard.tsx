@@ -191,13 +191,6 @@ export function Dashboard({
 
       {tab === "search" && (
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-            <h2 className="text-lg font-semibold text-slate-900">지역 검색</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              구·동·단지명·거래유형으로 실거래 내역을 검색합니다.
-            </p>
-          </div>
-
           {(data?.warning || data?.source === "mock") && (
             <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
