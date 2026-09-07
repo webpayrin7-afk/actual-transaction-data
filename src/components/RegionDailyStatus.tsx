@@ -137,39 +137,39 @@ function DealCard({
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2">
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-xl bg-white/70 px-2.5 py-2 sm:px-3">
-            <p className="truncate text-[11px] text-slate-500">최고가대비</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+      <div className="mt-4 flex flex-col gap-1.5">
+        <div className="flex gap-2">
+          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-1 rounded-xl bg-white/70 px-2.5 py-2">
+            <span className="shrink-0 text-[11px] text-slate-500">최고가대비</span>
+            <span className="truncate text-sm font-semibold text-slate-800">
               {deal.vsHighPct != null ? `${deal.vsHighPct}%` : "-"}
-            </p>
+            </span>
           </div>
-          <div className="rounded-xl bg-white/70 px-2.5 py-2 sm:px-3">
-            <p className="truncate text-[11px] text-slate-500">3개월건수</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-1 rounded-xl bg-white/70 px-2.5 py-2">
+            <span className="shrink-0 text-[11px] text-slate-500">3개월건수</span>
+            <span className="truncate text-sm font-semibold text-slate-800">
               {deal.recent3mCount.toLocaleString("ko-KR")}건
-            </p>
+            </span>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-white/70 px-2.5 py-2 sm:px-3">
-            <p className="truncate text-[11px] text-slate-500">타입최고</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+        <div className="flex gap-2">
+          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-1 rounded-xl bg-white/70 px-2.5 py-2">
+            <span className="shrink-0 text-[11px] text-slate-500">타입최고</span>
+            <span className="truncate text-sm font-semibold text-slate-800">
               {formatEok(deal.typeMaxAmount)}
-            </p>
+            </span>
           </div>
-          <div className="rounded-xl bg-white/70 px-2.5 py-2 sm:px-3">
-            <p className="truncate text-[11px] text-slate-500">평형최고</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-1 rounded-xl bg-white/70 px-2.5 py-2">
+            <span className="shrink-0 text-[11px] text-slate-500">평형최고</span>
+            <span className="truncate text-sm font-semibold text-slate-800">
               {formatEok(deal.pyeongMaxAmount)}
-            </p>
+            </span>
           </div>
-          <div className="rounded-xl bg-white/70 px-2.5 py-2 sm:px-3">
-            <p className="truncate text-[11px] text-slate-500">전세가</p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
+          <div className="flex min-w-0 flex-1 items-baseline justify-between gap-1 rounded-xl bg-white/70 px-2.5 py-2">
+            <span className="shrink-0 text-[11px] text-slate-500">전세가</span>
+            <span className="truncate text-sm font-semibold text-slate-800">
               {deal.jeonseAmount != null ? formatEok(deal.jeonseAmount) : "-"}
-            </p>
+            </span>
           </div>
         </div>
       </div>
