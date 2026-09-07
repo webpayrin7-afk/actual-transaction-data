@@ -87,8 +87,8 @@ export function SiteHeader() {
   }, [toolsOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center">
           <Link href="/" className="inline-flex shrink-0 items-center gap-2">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-white">
@@ -101,23 +101,25 @@ export function SiteHeader() {
         </div>
 
         <nav
-          className="-mx-1 flex items-center gap-1 overflow-x-auto pb-2.5 text-sm"
+          className="-mx-1 flex items-center gap-1 pb-2.5 text-sm"
           aria-label="주요 메뉴"
         >
-          {PRIMARY_NAV.map((item) => {
-            const active = item.match(pathname);
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={navClass(active)}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+          <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+            {PRIMARY_NAV.map((item) => {
+              const active = item.match(pathname);
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={navClass(active)}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
 
-          <div className="relative" ref={toolsRef}>
+          <div className="relative shrink-0" ref={toolsRef}>
             <button
               type="button"
               aria-expanded={toolsOpen}
@@ -136,7 +138,7 @@ export function SiteHeader() {
               <div
                 id={menuId}
                 role="menu"
-                className="absolute top-full left-0 z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/70"
+                className="absolute top-full right-0 z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/70"
               >
                 {TOOL_NAV.map((item) => {
                   const active = item.match(pathname);
