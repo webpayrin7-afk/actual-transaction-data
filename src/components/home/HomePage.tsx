@@ -295,9 +295,9 @@ export function HomePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <section className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-8 text-white shadow-lg sm:px-8 sm:py-10">
+      <section className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-8 text-white shadow-lg sm:px-8 sm:py-10">
         <div
-          className="pointer-events-none absolute inset-0 opacity-35"
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl opacity-35"
           style={{
             backgroundImage:
               "radial-gradient(circle at 15% 20%, rgba(45,212,191,0.35), transparent 42%), radial-gradient(circle at 85% 0%, rgba(56,189,248,0.22), transparent 38%)",
@@ -319,7 +319,7 @@ export function HomePage() {
             <label className="sr-only" htmlFor="home-search">
               단지명 검색
             </label>
-            <div ref={searchWrapRef} className="relative">
+            <div ref={searchWrapRef} className="relative z-30">
               <div className="flex overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5">
                 <div className="relative flex-1">
                   <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
@@ -363,7 +363,7 @@ export function HomePage() {
               </div>
 
               {openSuggest && debouncedQuery.length >= 1 && (
-                <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                <div className="absolute top-full left-0 z-50 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-xl">
                   {suggestQuery.isFetching ? (
                     <p className="px-4 py-3 text-sm text-slate-500">검색 중…</p>
                   ) : suggestions.length === 0 ? (
@@ -371,7 +371,7 @@ export function HomePage() {
                       일치하는 단지가 없습니다. 지역을 골라 조회해 보세요.
                     </p>
                   ) : (
-                    <ul className="max-h-72 overflow-y-auto py-1">
+                    <ul className="max-h-80 overflow-y-auto py-1">
                       {suggestions.map((item, index) => (
                         <li key={`${item.regionSlug}-${item.aptName}`}>
                           <button
