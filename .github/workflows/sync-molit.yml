@@ -81,19 +81,21 @@ jobs:
           SCOPE="${{ github.event.inputs.scope || 'all' }}"
           TRADE="${{ github.event.inputs.trade_months || '2' }}"
           RENT="${{ github.event.inputs.rent_months || '2' }}"
-          # 스케줄: 최근 2개월 덮어쓰기 (당월 신고분 유입 반영)
+          # 스케줄: 최근 2개월만 대상, 실제 write는 변경분
           if [ "${{ github.event_name }}" = "schedule" ]; then
             SCOPE=all
             TRADE=2
             RENT=2
           fi
           echo "probe summary: ${{ steps.probe.outputs.summary }}"
+          # 변경된 월만 DB에 기록 (Turso write 절약)
           npx tsx scripts/sync-molit.ts \
             --scope="$SCOPE" \
             --trade-months="$TRADE" \
             --rent-months="$RENT" \
-            --concurrency=3 \
-            --skip-existing=0
+            --concurrency=2 \
+            --skip-existing=0 \
+            --only-changed=1
 
       - name: Skip sync (already fresh)
         if: steps.probe.outputs.should_sync != 'true'
