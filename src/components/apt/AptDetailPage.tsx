@@ -24,8 +24,9 @@ import {
   toPyeong,
 } from "@/lib/utils/format";
 
-const QUICK_MONTHS = 18;
+const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
+const RECENT_YEARS = 3;
 
 async function fetchAptDetail(
   aptName: string,
@@ -57,6 +58,17 @@ function ymFromDealDate(dealDate: string): string {
   return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
 }
 
+function recentYearsRange(length: number, years = RECENT_YEARS) {
+  if (length <= 0) return { start: 0, end: 0 };
+  const count = Math.min(years * 12, length);
+  return {
+    start: Math.max(0, length - count),
+    end: length - 1,
+  };
+}
+
+type PeriodPreset = "recent3" | "full" | "custom";
+
 export function AptDetailPage({
   aptName,
   regionSlug,
@@ -71,7 +83,7 @@ export function AptDetailPage({
     end: number;
   } | null>(null);
   const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}`);
-  const [preferFullRange, setPreferFullRange] = useState(true);
+  const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
 
   const quickQuery = useQuery({
     queryKey: ["apt-detail", aptName, regionSlug, "quick", QUICK_MONTHS],
@@ -93,14 +105,19 @@ export function AptDetailPage({
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
   if (boundKey !== dataKey) {
     setBoundKey(dataKey);
-    if (preferFullRange || rangeOverride == null) {
+    // 프리셋 유지 시 새 데이터 길이에 맞게 기본 구간 재계산
+    if (periodPreset !== "custom") {
       setRangeOverride(null);
     }
   }
 
-  const startIndex = rangeOverride?.start ?? 0;
-  const endIndex =
-    rangeOverride?.end ?? Math.max(chartMonths.length - 1, 0);
+  const defaultRange =
+    periodPreset === "full"
+      ? { start: 0, end: Math.max(chartMonths.length - 1, 0) }
+      : recentYearsRange(chartMonths.length, RECENT_YEARS);
+
+  const startIndex = rangeOverride?.start ?? defaultRange.start;
+  const endIndex = rangeOverride?.end ?? defaultRange.end;
   const startYm = chartMonths[startIndex] ?? "";
   const endYm = chartMonths[endIndex] ?? "";
 
@@ -190,17 +207,13 @@ export function AptDetailPage({
 
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
-    const count = Math.min(years * 12, chartMonths.length);
-    setPreferFullRange(false);
-    setRangeOverride({
-      start: Math.max(0, chartMonths.length - count),
-      end: chartMonths.length - 1,
-    });
+    setPeriodPreset(years === 3 ? "recent3" : "custom");
+    setRangeOverride(recentYearsRange(chartMonths.length, years));
   };
 
   const setFullRange = () => {
     if (chartMonths.length === 0) return;
-    setPreferFullRange(true);
+    setPeriodPreset("full");
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
@@ -361,10 +374,9 @@ export function AptDetailPage({
           months={chartMonths}
           startIndex={startIndex}
           endIndex={endIndex}
+          activePreset={periodPreset === "custom" ? null : periodPreset}
           onChange={(start, end) => {
-            setPreferFullRange(
-              start === 0 && end === Math.max(chartMonths.length - 1, 0),
-            );
+            setPeriodPreset("custom");
             setRangeOverride({ start, end });
           }}
           onRecentYears={setRecentYears}

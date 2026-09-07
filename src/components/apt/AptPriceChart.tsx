@@ -149,6 +149,7 @@ export function PeriodRangeSlider({
   onChange,
   onRecentYears,
   onFullRange,
+  activePreset = null,
 }: {
   months: string[];
   startIndex: number;
@@ -156,6 +157,7 @@ export function PeriodRangeSlider({
   onChange: (start: number, end: number) => void;
   onRecentYears?: (years: number) => void;
   onFullRange?: () => void;
+  activePreset?: "recent3" | "full" | null;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef({ startIndex, endIndex });
@@ -218,6 +220,13 @@ export function PeriodRangeSlider({
     window.addEventListener("pointercancel", onUp);
   };
 
+  const presetBtn = (active: boolean) =>
+    `rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+      active
+        ? "bg-teal-700 text-white shadow-sm"
+        : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+    }`;
+
   return (
     <div className="mt-4 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
@@ -226,12 +235,13 @@ export function PeriodRangeSlider({
           <span className="mx-1.5 text-slate-400">~</span>
           {formatYmLabel(endYm)}
         </p>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {onRecentYears ? (
             <button
               type="button"
               onClick={() => onRecentYears(3)}
-              className="text-sm font-medium text-slate-600 hover:text-teal-800 hover:underline"
+              aria-pressed={activePreset === "recent3"}
+              className={presetBtn(activePreset === "recent3")}
             >
               최근 3년
             </button>
@@ -240,7 +250,8 @@ export function PeriodRangeSlider({
             <button
               type="button"
               onClick={onFullRange}
-              className="text-sm font-medium text-teal-700 hover:text-teal-800 hover:underline"
+              aria-pressed={activePreset === "full"}
+              className={presetBtn(activePreset === "full")}
             >
               전체 기간
             </button>

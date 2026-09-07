@@ -7,7 +7,7 @@ export const maxDuration = 60;
 export async function GET(request: NextRequest) {
   const aptName = request.nextUrl.searchParams.get("aptName")?.trim() ?? "";
   const regionSlug = request.nextUrl.searchParams.get("region")?.trim() ?? "";
-  const monthsRaw = Number(request.nextUrl.searchParams.get("months") ?? "18");
+  const monthsRaw = Number(request.nextUrl.searchParams.get("months") ?? "36");
 
   if (!aptName || !regionSlug) {
     return NextResponse.json(
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   try {
     const months = Number.isFinite(monthsRaw)
       ? Math.min(Math.max(monthsRaw, 6), 120)
-      : 18;
+      : 36;
     const detail = await getAptDetail({
       aptName,
       regionSlug,
