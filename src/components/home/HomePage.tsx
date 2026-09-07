@@ -288,18 +288,18 @@ export function HomePage() {
             emptyText="아파트 신고가 데이터가 없습니다."
           />
           <RankSection
-            title="최근 실거래 TOP5"
+            title="아파트 전세 TOP5"
             dateLabel={ymLabel}
-            items={data.recent}
+            items={data.jeonseTop ?? []}
             accent="teal"
-            emptyText="최근 거래 데이터가 없습니다."
+            emptyText="아파트 전세 데이터가 없습니다."
           />
           <RankSection
-            title="전월세 최고가 TOP5"
+            title="아파트 월세 TOP5"
             dateLabel={ymLabel}
-            items={data.rentHigh}
+            items={data.wolseTop ?? []}
             accent="sky"
-            emptyText="전월세 데이터가 없습니다."
+            emptyText="아파트 월세 데이터가 없습니다."
           />
         </div>
       ) : null}
