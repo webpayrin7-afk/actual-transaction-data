@@ -50,6 +50,8 @@ async function main() {
   const concurrency = Number(argValue("concurrency", "4"));
   const codesArg = argValue("codes", "");
 
+  const skipExisting = argValue("skip-existing", "1") !== "0";
+
   if (!process.env.TURSO_DATABASE_URL) {
     // 로컬 기본 파일 DB
     process.env.TURSO_DATABASE_URL = `file:${resolve("data/molit.db")}`;
@@ -82,7 +84,7 @@ async function main() {
     yearMonth: string;
     kind: "trade" | "rent";
   };
-  const jobs: Job[] = [];
+  let jobs: Job[] = [];
   for (const lawdCd of lawdCodes) {
     for (const yearMonth of tradeYms) {
       jobs.push({ lawdCd, yearMonth, kind: "trade" });
@@ -92,14 +94,37 @@ async function main() {
     }
   }
 
+  let skipped = 0;
+  if (skipExisting && jobs.length > 0) {
+    const existing = await db.execute(
+      `SELECT lawd_cd, year_month, deal_kind FROM sync_months`,
+    );
+    const have = new Set(
+      existing.rows.map(
+        (r) => `${r.lawd_cd}|${r.year_month}|${r.deal_kind}`,
+      ),
+    );
+    const before = jobs.length;
+    jobs = jobs.filter(
+      (j) => !have.has(`${j.lawdCd}|${j.yearMonth}|${j.kind}`),
+    );
+    skipped = before - jobs.length;
+  }
+
   console.log(
-    `[sync] lawds=${lawdCodes.length} jobs=${jobs.length} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
+    `[sync] lawds=${lawdCodes.length} jobs=${jobs.length} skipped=${skipped} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
   );
+
+  if (jobs.length === 0) {
+    console.log("[sync] nothing to do");
+    return;
+  }
 
   let done = 0;
   let rows = 0;
   let failures = 0;
   let next = 0;
+  const startedAt = Date.now();
 
   async function worker() {
     while (next < jobs.length) {
@@ -127,8 +152,11 @@ async function main() {
       } finally {
         done += 1;
         if (done % 25 === 0 || done === jobs.length) {
+          const elapsedMin = ((Date.now() - startedAt) / 60000).toFixed(1);
+          const rate = done / Math.max((Date.now() - startedAt) / 1000, 1);
+          const etaMin = ((jobs.length - done) / Math.max(rate, 0.01) / 60).toFixed(0);
           console.log(
-            `[sync] progress ${done}/${jobs.length} rows=${rows} failures=${failures}`,
+            `[sync] progress ${done}/${jobs.length} rows=${rows} failures=${failures} elapsed=${elapsedMin}m eta~${etaMin}m`,
           );
         }
       }
@@ -140,7 +168,7 @@ async function main() {
   );
 
   console.log(
-    `[sync] done jobs=${done} rows=${rows} failures=${failures} db=${process.env.TURSO_DATABASE_URL}`,
+    `[sync] done jobs=${done} rows=${rows} failures=${failures} skipped=${skipped} db=${process.env.TURSO_DATABASE_URL}`,
   );
 }
 
