@@ -51,30 +51,16 @@ function regionHrefForTx(item: RankItem): string {
 
 function RankCard({
   item,
-  accent = "teal",
 }: {
   item: RankItem;
-  accent?: "teal" | "rose" | "sky";
 }) {
   const tx = item.transaction;
   const href = regionHrefForTx(item);
-  const priceColor =
-    accent === "rose"
-      ? "text-rose-700"
-      : accent === "sky"
-        ? "text-sky-700"
-        : "text-teal-700";
-  const hoverBorder =
-    accent === "rose"
-      ? "hover:border-rose-300 hover:bg-rose-50/70"
-      : accent === "sky"
-        ? "hover:border-sky-300 hover:bg-sky-50/70"
-        : "hover:border-teal-300 hover:bg-teal-50/70";
 
   return (
     <Link
       href={href}
-      className={`group relative flex flex-col rounded-2xl border border-slate-200/70 bg-white/85 p-4 backdrop-blur-sm transition ${hoverBorder}`}
+      className="group relative flex flex-col rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:bg-teal-50/50"
     >
       <span className="absolute top-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-white">
         {item.rank}
@@ -85,15 +71,13 @@ function RankCard({
       <p className="mt-1 text-xs text-slate-500">
         {tx.gu} · {tx.dong}
       </p>
-      <p className={`mt-3 text-2xl font-semibold tracking-tight ${priceColor}`}>
+      <p className="mt-3 text-2xl font-semibold tracking-tight text-teal-700">
         {item.priceLabel}
       </p>
       <p className="mt-1 text-xs leading-relaxed text-slate-500">
         {item.metaLabel}
       </p>
-      <span
-        className={`mt-3 inline-flex items-center gap-1 text-xs font-medium ${priceColor}`}
-      >
+      <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-teal-700">
         단지에서 보기
         <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
       </span>
@@ -115,33 +99,24 @@ function RankSection({
   title,
   dateLabel,
   items,
-  accent,
   emptyText,
 }: {
   title: string;
   dateLabel: string;
   items: RankItem[];
-  accent?: "teal" | "rose" | "sky";
   emptyText: string;
 }) {
-  const barColor =
-    accent === "rose"
-      ? "bg-rose-500"
-      : accent === "sky"
-        ? "bg-sky-500"
-        : "bg-teal-600";
-
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-end justify-between gap-3">
         <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-          <span className={`h-5 w-1 rounded-full ${barColor}`} />
+          <span className="h-5 w-1 rounded-full bg-teal-600" />
           {title}
         </h2>
         <p className="text-xs text-slate-500">{dateLabel}</p>
       </div>
       {items.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-300/80 bg-white/60 px-4 py-8 text-center text-sm text-slate-500">
+        <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
           {emptyText}
         </p>
       ) : (
@@ -150,7 +125,6 @@ function RankSection({
             <RankCard
               key={`${title}-${item.rank}-${item.transaction.id}`}
               item={item}
-              accent={accent}
             />
           ))}
         </div>
@@ -442,47 +416,46 @@ export function HomePage() {
       )}
 
       {rankings.isLoading ? (
-        <div className="flex flex-col gap-8">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="h-36 animate-pulse rounded-2xl border border-slate-200/70 bg-white/70"
+                className="h-36 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"
               />
             ))}
           </div>
         </div>
       ) : data ? (
-        <div className="flex flex-col gap-10">
-          <RankSection
-            title="아파트 신고가 TOP5"
-            dateLabel={sectionDateLabel(singogaItems, fallbackYm)}
-            items={singogaItems}
-            accent="rose"
-            emptyText="아파트 신고가 데이터가 없습니다."
-          />
-          <div className="h-px bg-slate-200/70" />
-          <RankSection
-            title="아파트 전세 TOP5"
-            dateLabel={sectionDateLabel(jeonseItems, fallbackYm)}
-            items={jeonseItems}
-            accent="teal"
-            emptyText="아파트 전세 데이터가 없습니다."
-          />
-          <div className="h-px bg-slate-200/70" />
-          <RankSection
-            title="아파트 월세 TOP5"
-            dateLabel={sectionDateLabel(wolseItems, fallbackYm)}
-            items={wolseItems}
-            accent="sky"
-            emptyText="아파트 월세 데이터가 없습니다."
-          />
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div className="flex flex-col gap-8">
+            <RankSection
+              title="아파트 신고가 TOP5"
+              dateLabel={sectionDateLabel(singogaItems, fallbackYm)}
+              items={singogaItems}
+              emptyText="아파트 신고가 데이터가 없습니다."
+            />
+            <div className="h-px bg-slate-200" />
+            <RankSection
+              title="아파트 전세 TOP5"
+              dateLabel={sectionDateLabel(jeonseItems, fallbackYm)}
+              items={jeonseItems}
+              emptyText="아파트 전세 데이터가 없습니다."
+            />
+            <div className="h-px bg-slate-200" />
+            <RankSection
+              title="아파트 월세 TOP5"
+              dateLabel={sectionDateLabel(wolseItems, fallbackYm)}
+              items={wolseItems}
+              emptyText="아파트 월세 데이터가 없습니다."
+            />
+          </div>
         </div>
       ) : null}
 
       <div
         id="regions"
-        className="scroll-mt-20 overflow-hidden rounded-3xl border border-slate-200/70 bg-white/70 p-5 shadow-sm backdrop-blur-sm sm:p-6"
+        className="scroll-mt-20 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6"
       >
         <div className="flex flex-col gap-3 border-b border-slate-200/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
