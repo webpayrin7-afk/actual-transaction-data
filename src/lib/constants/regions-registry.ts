@@ -120,8 +120,9 @@ export const FEATURED_LAWD_CODES = [
   "41480", // 파주
 ] as const;
 
+// 일반 매매 실거래 (RTMSDataSvcAptTrade). TradeDev(상세)는 별도 활용신청 필요.
 export const TRADE_API_URL =
-  "https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev";
+  "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";
 export const RENT_API_URL =
   "https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent";
 export const PAGE_SIZE = 15;

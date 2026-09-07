@@ -54,7 +54,12 @@ async function fetchMolitXml(
 
 function isOkOrEmpty(xml: string): { ok: boolean; empty: boolean; message: string } {
   const { code, message } = getApiResultCode(xml);
-  if (code === "00" || code === "0" || code === "NORMAL_SERVICE") {
+  if (
+    code === "00" ||
+    code === "000" ||
+    code === "0" ||
+    code === "NORMAL_SERVICE"
+  ) {
     return { ok: true, empty: false, message };
   }
   if (
