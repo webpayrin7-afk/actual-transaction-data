@@ -230,11 +230,10 @@ export function HomePage() {
         />
         <div className="relative">
           <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            서울 · 경기 아파트 실거래가
+            단지별 조회
           </h1>
           <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
-            서울 25개 구, 경기 31개 시·군의 매매·전월세 실거래를 지역별로
-            조회하세요.
+            단지명을 검색해 매매·전월세 실거래 이력과 시세를 바로 확인하세요.
           </p>
 
           <form onSubmit={onSubmit} className="mt-6 max-w-2xl">
@@ -327,7 +326,7 @@ export function HomePage() {
               )}
             </div>
             <p className="mt-2 text-xs text-teal-100/70">
-              단지명을 입력하면 자동완성되며, 선택 시 단지 상세로 이동합니다
+              예) 래미안, 헬리오시티 — 선택하면 단지 상세로 이동합니다
             </p>
           </form>
         </div>
