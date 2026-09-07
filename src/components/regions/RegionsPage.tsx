@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   GYEONGGI_REGIONS,
   SEOUL_REGIONS,
@@ -44,6 +44,16 @@ function RegionGrid({
 
 export function RegionsPage() {
   const [regionQuery, setRegionQuery] = useState("");
+
+  useEffect(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) return;
+    const el = document.getElementById(hash);
+    if (!el) return;
+    window.setTimeout(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }, []);
 
   const filteredSeoul = useMemo(() => {
     const q = regionQuery.trim();
