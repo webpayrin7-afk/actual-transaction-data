@@ -27,13 +27,22 @@ const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
 const RECENT_YEARS = 3;
 
-function AptLoadProgressBar({ active }: { active: boolean }) {
+function AptLoadProgressBar({
+  active,
+  label = "시세 불러오는 중…",
+}: {
+  active: boolean;
+  label?: string;
+}) {
   if (!active) return null;
 
   return (
     <div className="fixed inset-x-0 top-14 z-50">
       <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
         <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
+      </div>
+      <div className="border-b border-teal-100/70 bg-white/90 px-4 py-1.5 text-center text-xs font-medium text-teal-800 backdrop-blur sm:px-6">
+        {label}
       </div>
     </div>
   );
@@ -255,7 +264,7 @@ export function AptDetailPage({
   if (quickQuery.isLoading && !data) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 sm:px-6">
-        <AptLoadProgressBar active />
+        <AptLoadProgressBar active label="시세 불러오는 중…" />
         <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
         <div className="h-72 animate-pulse rounded-2xl bg-slate-200/60" />
         <div className="h-96 animate-pulse rounded-2xl bg-slate-200/50" />
@@ -278,7 +287,10 @@ export function AptDetailPage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-      <AptLoadProgressBar active={isExtendingHistory} />
+      <AptLoadProgressBar
+        active={isExtendingHistory}
+        label="시세 불러오는 중…"
+      />
       <div
         className={`fixed inset-x-0 top-14 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
           stickyVisible
