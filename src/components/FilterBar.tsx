@@ -20,7 +20,6 @@ interface FilterBarProps {
   dealType: DealType | "all";
   area: AreaFilter;
   yearMonth: string;
-  yearMonths: string[];
   districts: DistrictUnit[];
   onAptNameChange: (value: string) => void;
   onGuChange: (value: string) => void;
@@ -41,7 +40,6 @@ export function FilterBar({
   dealType,
   area,
   yearMonth,
-  yearMonths,
   districts,
   onAptNameChange,
   onGuChange,
@@ -56,25 +54,29 @@ export function FilterBar({
   const selectedMonth = yearMonth.slice(4, 6);
 
   const years = useMemo(() => {
-    const set = new Set(yearMonths.map((ym) => ym.slice(0, 4)));
-    return [...set].sort((a, b) => b.localeCompare(a));
-  }, [yearMonths]);
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 10 }, (_, i) => String(currentYear - i));
+  }, []);
 
   const monthsForYear = useMemo(() => {
-    return yearMonths
-      .filter((ym) => ym.startsWith(selectedYear))
-      .map((ym) => ym.slice(4, 6))
-      .sort((a, b) => b.localeCompare(a));
-  }, [yearMonths, selectedYear]);
+    const now = new Date();
+    const currentYear = String(now.getFullYear());
+    const lastMonth =
+      selectedYear === currentYear ? now.getMonth() + 1 : 12;
+    return Array.from({ length: lastMonth }, (_, i) =>
+      String(i + 1).padStart(2, "0"),
+    );
+  }, [selectedYear]);
 
   function handleYearChange(nextYear: string) {
-    const months = yearMonths
-      .filter((ym) => ym.startsWith(nextYear))
-      .map((ym) => ym.slice(4, 6))
-      .sort((a, b) => b.localeCompare(a));
-    const nextMonth = months.includes(selectedMonth)
-      ? selectedMonth
-      : (months[0] ?? "01");
+    const now = new Date();
+    const currentYear = String(now.getFullYear());
+    const lastMonth =
+      nextYear === currentYear ? now.getMonth() + 1 : 12;
+    const monthNum = Number(selectedMonth);
+    const nextMonth = String(
+      Math.min(Math.max(monthNum || 1, 1), lastMonth),
+    ).padStart(2, "0");
     onYearMonthChange(`${nextYear}${nextMonth}`);
   }
 

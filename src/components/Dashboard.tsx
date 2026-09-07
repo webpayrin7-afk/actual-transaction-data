@@ -224,7 +224,6 @@ export function Dashboard({
             dealType={dealType}
             area={area}
             yearMonth={resolvedYearMonth}
-            yearMonths={yearMonths}
             districts={region.districts}
             onAptNameChange={setAptNameInput}
             onGuChange={handleGuChange}
