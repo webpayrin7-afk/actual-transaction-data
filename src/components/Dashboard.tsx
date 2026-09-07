@@ -60,6 +60,7 @@ export function Dashboard({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const yearMonths = useMemo(() => recentYearMonths(6), []);
+  const currentYearMonth = yearMonths[0];
   const tab =
     parseTab(searchParams.get("tab")) ??
     (initialTab ?? (initialAptName.trim() ? "search" : "stats"));
@@ -68,7 +69,8 @@ export function Dashboard({
   const [dong, setDong] = useState("all");
   const [dealType, setDealType] = useState<DealType | "all">(initialDealType);
   const [area, setArea] = useState<AreaFilter>("all");
-  const [yearMonth, setYearMonth] = useState(() => yearMonths[0]);
+  const [searchYearMonth, setSearchYearMonth] = useState(() => currentYearMonth);
+  const [statsYearMonth, setStatsYearMonth] = useState(() => currentYearMonth);
   const [page, setPage] = useState(1);
   const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
@@ -92,7 +94,7 @@ export function Dashboard({
       dong,
       dealType,
       area,
-      yearMonth,
+      yearMonth: searchYearMonth,
       page,
       pageSize: PAGE_SIZE,
       region: region.slug,
@@ -101,11 +103,25 @@ export function Dashboard({
   );
 
   const data = query.data;
-  const resolvedYearMonth = data?.yearMonth ?? yearMonth;
+  const resolvedYearMonth = data?.yearMonth ?? searchYearMonth;
 
   const resetPage = () => setPage(1);
 
+  const resetTabFilters = () => {
+    setAptNameInput("");
+    setAppliedAptName("");
+    setGu(initialGu);
+    setDong("all");
+    setDealType(initialDealType);
+    setArea("all");
+    setSearchYearMonth(currentYearMonth);
+    setStatsYearMonth(currentYearMonth);
+    setPage(1);
+  };
+
   const selectTab = (next: RegionTab) => {
+    if (next === tab) return;
+    resetTabFilters();
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", next);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -132,9 +148,13 @@ export function Dashboard({
     resetPage();
   };
 
-  const handleYearMonthChange = (value: string) => {
-    setYearMonth(value);
+  const handleSearchYearMonthChange = (value: string) => {
+    setSearchYearMonth(value);
     resetPage();
+  };
+
+  const handleStatsYearMonthChange = (value: string) => {
+    setStatsYearMonth(value);
   };
 
   const handleSearch = () => {
@@ -205,9 +225,9 @@ export function Dashboard({
       {tab === "stats" && (
         <RegionDailyStatus
           regionSlug={region.slug}
-          yearMonth={yearMonth}
+          yearMonth={statsYearMonth}
           yearMonths={yearMonths}
-          onYearMonthChange={handleYearMonthChange}
+          onYearMonthChange={handleStatsYearMonthChange}
         />
       )}
 
@@ -253,7 +273,7 @@ export function Dashboard({
             onDongChange={handleDongChange}
             onDealTypeChange={handleDealTypeChange}
             onAreaChange={handleAreaChange}
-            onYearMonthChange={handleYearMonthChange}
+            onYearMonthChange={handleSearchYearMonthChange}
             onSearch={handleSearch}
           />
 
