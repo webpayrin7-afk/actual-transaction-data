@@ -221,6 +221,55 @@ export async function queryTradePool(params: {
   }));
 }
 
+/** 지역 다개월 전세(월세 0) 풀 — 커버리지가 전혀 없으면 null */
+export async function queryRentPool(params: {
+  lawdCodes: string[];
+  yearMonths: string[];
+}): Promise<Transaction[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  if (!params.lawdCodes.length || !params.yearMonths.length) return null;
+
+  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
+  const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
+
+  const coverage = await db.execute({
+    sql: `SELECT COUNT(*) AS cnt FROM sync_months
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_kind = 'rent'`,
+    args: [...params.lawdCodes, ...params.yearMonths],
+  });
+  if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
+
+  const result = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+          FROM transactions
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_type = 'rent'
+            AND monthly_rent = 0`,
+    args: [...params.lawdCodes, ...params.yearMonths],
+  });
+
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    dealType: "rent" as const,
+    dealDate: String(row.deal_date),
+    aptName: String(row.apt_name),
+    gu: String(row.gu ?? ""),
+    dong: String(row.dong ?? ""),
+    exclusiveArea: Number(row.exclusive_area) || 0,
+    dealAmount: Number(row.deal_amount) || 0,
+    monthlyRent: Number(row.monthly_rent) || 0,
+    floor: Number(row.floor) || 0,
+    buildYear: row.build_year == null ? null : Number(row.build_year),
+    jibun: String(row.jibun ?? ""),
+    dealingGbn: String(row.dealing_gbn ?? ""),
+  }));
+}
+
 /** 단지명 LIKE 집계 — apt_catalog 우선, 없으면 transactions 폴백 */
 export async function searchAptAggregatesFromDb(params: {
   queryNorm: string;

@@ -4,9 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
+  Building2,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Flame,
+  Layers3,
+  MapPinned,
 } from "lucide-react";
 import { aptDetailHref } from "@/lib/molit/apt";
 import type {
@@ -18,6 +22,7 @@ import {
   formatArea,
   formatDealDate,
   formatEok,
+  toPyeong,
   yearMonthLabel,
 } from "@/lib/utils/format";
 
@@ -57,40 +62,113 @@ function weekdayOfFirst(ym: string): number {
   return new Date(year, month - 1, 1).getDay();
 }
 
+function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
+  if (kind === "type") return "타입신고가";
+  if (kind === "pyeong") return "평형신고가";
+  return "신고가";
+}
+
 function DealCard({
   deal,
   regionSlug,
-  rank,
 }: {
   deal: RegionDailyDeal;
   regionSlug: string;
-  rank: number;
 }) {
+  const pyeong = Math.round(toPyeong(deal.exclusiveArea));
+  const contractShort = formatDealDate(deal.dealDate).replace(/^20/, "");
+
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-teal-300 hover:bg-teal-50/40"
+      className="group relative block overflow-hidden rounded-2xl border border-teal-300/70 bg-gradient-to-br from-teal-50 via-white to-cyan-50 p-5 shadow-sm transition hover:border-teal-400"
     >
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-md bg-slate-100 px-1.5 text-xs font-semibold text-slate-600">
-          {rank}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-700 px-2.5 py-1 text-xs font-semibold text-white">
+          <Flame className="h-3.5 w-3.5" />
+          {singogaLabel(deal.singogaKind)}
         </span>
-        <span className="rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold tracking-wide text-teal-700">
-          신고가
+        <span className="text-xs text-teal-800/70">
+          {formatDealDate(deal.dealDate)}
         </span>
       </div>
-      <p className="text-2xl font-semibold tracking-tight text-teal-800">
-        {formatEok(deal.dealAmount)}
-      </p>
-      <p className="mt-0.5 text-[11px] text-slate-400">
-        {deal.dealAmount.toLocaleString("ko-KR")}만원
-      </p>
-      <p className="mt-3 truncate text-sm font-semibold text-slate-900 group-hover:text-teal-900">
-        {deal.aptName}
-      </p>
-      <p className="mt-1 truncate text-xs text-slate-500">
-        {deal.gu} {deal.dong} · {formatArea(deal.exclusiveArea)} · {deal.floor}층
-      </p>
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xl font-semibold tracking-tight text-slate-900 group-hover:text-teal-900 sm:text-2xl">
+            {deal.aptName}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
+            <span className="inline-flex items-center gap-1">
+              <MapPinned className="h-3.5 w-3.5 text-teal-600" />
+              {deal.gu} {deal.dong}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Building2 className="h-3.5 w-3.5 text-teal-600" />
+              {formatArea(deal.exclusiveArea)}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Layers3 className="h-3.5 w-3.5 text-teal-600" />
+              {deal.floor}층
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-slate-500">
+            {deal.exclusiveArea.toFixed(2)}㎡ {pyeong}평 · {deal.floor}층{" "}
+            {deal.dealingGbn || "중개거래"} · {contractShort} 계약
+          </p>
+        </div>
+
+        <div className="shrink-0 text-left sm:text-right">
+          <p className="text-xs font-medium tracking-wide text-teal-700 uppercase">
+            신고가
+          </p>
+          <p className="mt-0.5 text-3xl font-semibold tracking-tight text-teal-800 sm:text-4xl">
+            {formatEok(deal.dealAmount)}
+          </p>
+          {deal.increaseAmount > 0 ? (
+            <p className="mt-1 text-sm font-semibold text-rose-600">
+              ▲ {formatEok(deal.increaseAmount)}
+            </p>
+          ) : (
+            <p className="mt-0.5 text-xs text-slate-500">
+              {deal.dealAmount.toLocaleString("ko-KR")}만원
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="rounded-xl bg-white/70 px-3 py-2">
+          <p className="text-[11px] text-slate-500">최고가대비</p>
+          <p className="mt-0.5 text-sm font-semibold text-slate-800">
+            {deal.vsHighPct != null ? `${deal.vsHighPct}%` : "-"}
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/70 px-3 py-2">
+          <p className="text-[11px] text-slate-500">3개월건수</p>
+          <p className="mt-0.5 text-sm font-semibold text-slate-800">
+            {deal.recent3mCount.toLocaleString("ko-KR")}건
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/70 px-3 py-2">
+          <p className="text-[11px] text-slate-500">타입최고</p>
+          <p className="mt-0.5 text-sm font-semibold text-slate-800">
+            {formatEok(deal.typeMaxAmount)}
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/70 px-3 py-2">
+          <p className="text-[11px] text-slate-500">평형최고</p>
+          <p className="mt-0.5 text-sm font-semibold text-slate-800">
+            {formatEok(deal.pyeongMaxAmount)}
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/70 px-3 py-2 sm:col-span-2 lg:col-span-1">
+          <p className="text-[11px] text-slate-500">전세가</p>
+          <p className="mt-0.5 text-sm font-semibold text-slate-800">
+            {deal.jeonseAmount != null ? formatEok(deal.jeonseAmount) : "-"}
+          </p>
+        </div>
+      </div>
     </Link>
   );
 }
@@ -287,19 +365,18 @@ export function RegionDailyStatus({
                     {formatDealDate(activeDate)} 신고가
                   </p>
                   <p className="mt-0.5 text-xs text-slate-500">
-                    매매 {data.tradeCount.toLocaleString("ko-KR")}건 · 평균{" "}
+                    신고가 {data.tradeCount.toLocaleString("ko-KR")}건 · 평균{" "}
                     {formatEok(data.avgDealAmount)}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {data.deals.map((deal, index) => (
+              <div className="flex flex-col gap-3">
+                {data.deals.map((deal) => (
                   <DealCard
                     key={deal.id}
                     deal={deal}
                     regionSlug={regionSlug}
-                    rank={index + 1}
                   />
                 ))}
               </div>
