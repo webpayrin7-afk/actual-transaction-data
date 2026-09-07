@@ -36,6 +36,18 @@ export interface AptHistoryItem extends Transaction {
   pyeong: number;
 }
 
+export interface AptChartPoint {
+  yearMonth: string; // YYYYMM
+  label: string; // YY.MM
+  tradeAvg: number | null;
+  tradeMax: number | null;
+  tradeCount: number;
+  jeonseAvg: number | null;
+  jeonseCount: number;
+  wolseCount: number;
+  volume: number;
+}
+
 export interface AptDetailResponse {
   aptName: string;
   regionSlug: string;
@@ -52,8 +64,10 @@ export interface AptDetailResponse {
     maxDealAmount: number;
     avgDealAmount: number;
     totalTradeCount: number;
+    totalRentCount: number;
   };
   areas: AptAreaOption[];
+  chart: AptChartPoint[];
   items: AptHistoryItem[];
 }
 
@@ -322,7 +336,99 @@ export async function searchAptSuggestions(
   return suggestions;
 }
 
-/** 단지 실거래 이력 (최근 N개월 매매 중심) */
+function yearMonthFromDealDate(dealDate: string): string {
+  return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
+}
+
+function chartLabel(ym: string): string {
+  return `${ym.slice(2, 4)}.${ym.slice(4, 6)}`;
+}
+
+function buildChartPoints(
+  items: Transaction[],
+  months: string[],
+): AptChartPoint[] {
+  const byMonth = new Map<
+    string,
+    {
+      tradeSums: number[];
+      jeonseSums: number[];
+      wolseCount: number;
+    }
+  >();
+
+  for (const ym of months) {
+    byMonth.set(ym, { tradeSums: [], jeonseSums: [], wolseCount: 0 });
+  }
+
+  for (const tx of items) {
+    const ym = yearMonthFromDealDate(tx.dealDate);
+    let bucket = byMonth.get(ym);
+    if (!bucket) {
+      bucket = { tradeSums: [], jeonseSums: [], wolseCount: 0 };
+      byMonth.set(ym, bucket);
+    }
+    if (tx.dealType === "trade") {
+      bucket.tradeSums.push(tx.dealAmount);
+    } else if (tx.monthlyRent > 0) {
+      bucket.wolseCount += 1;
+    } else {
+      bucket.jeonseSums.push(tx.dealAmount);
+    }
+  }
+
+  const ordered = [...byMonth.keys()].sort();
+  return ordered.map((ym) => {
+    const bucket = byMonth.get(ym)!;
+    const tradeCount = bucket.tradeSums.length;
+    const jeonseCount = bucket.jeonseSums.length;
+    const tradeAvg =
+      tradeCount > 0
+        ? Math.round(
+            bucket.tradeSums.reduce((a, b) => a + b, 0) / tradeCount,
+          )
+        : null;
+    const tradeMax =
+      tradeCount > 0 ? Math.max(...bucket.tradeSums) : null;
+    const jeonseAvg =
+      jeonseCount > 0
+        ? Math.round(
+            bucket.jeonseSums.reduce((a, b) => a + b, 0) / jeonseCount,
+          )
+        : null;
+    return {
+      yearMonth: ym,
+      label: chartLabel(ym),
+      tradeAvg,
+      tradeMax,
+      tradeCount,
+      jeonseAvg,
+      jeonseCount,
+      wolseCount: bucket.wolseCount,
+      volume: tradeCount + jeonseCount + bucket.wolseCount,
+    };
+  });
+}
+
+async function fetchAptHistoryPool(
+  months: string[],
+  lawdCodes: string[],
+): Promise<Transaction[]> {
+  const items: Transaction[] = [];
+  const concurrency = 4;
+  for (let i = 0; i < months.length; i += concurrency) {
+    const batch = months.slice(i, i + concurrency);
+    const settled = await Promise.allSettled(
+      batch.map((ym) => fetchTransactionsByType(ym, "all", lawdCodes)),
+    );
+    for (const result of settled) {
+      if (result.status === "fulfilled") items.push(...result.value);
+    }
+  }
+  return items;
+}
+
+/** 단지 실거래 이력 (매매·전월세 + 시세 차트용 월별 집계) */
 export async function getAptDetail(params: {
   aptName: string;
   regionSlug: string;
@@ -334,36 +440,20 @@ export async function getAptDetail(params: {
   const aptName = params.aptName.trim();
   if (!aptName) return null;
 
-  const months = recentYearMonths(params.months ?? 12);
+  const monthCount = Math.min(Math.max(params.months ?? 36, 6), 60);
+  const months = recentYearMonths(monthCount);
   let source: "api" | "mock" = "mock";
   let warning: string | undefined;
-  const collected: Transaction[] = [];
+  let collected: Transaction[] = [];
 
   if (hasApiKey()) {
-    const settled = await Promise.allSettled(
-      months.map(async (ym) => {
-        try {
-          return await fetchTransactionsByType(ym, "trade", [
-            ...region.lawdCodes,
-          ]);
-        } catch {
-          return [] as Transaction[];
-        }
-      }),
-    );
-    for (const result of settled) {
-      if (result.status === "fulfilled" && result.value.length > 0) {
-        source = "api";
-        collected.push(...result.value);
-      }
-    }
-    if (collected.length === 0) {
-      warning = "선택한 단지·기간에 API 매매 데이터가 없습니다.";
-    }
+    collected = await fetchAptHistoryPool(months, [...region.lawdCodes]);
+    if (collected.length > 0) source = "api";
+    else warning = "선택한 단지·기간에 API 실거래 데이터가 없습니다.";
   } else {
     warning =
       "MOLIT_API_KEY가 없어 지역별 데모 데이터로 표시 중입니다. Vercel/로컬 환경변수에 키를 설정하세요.";
-    for (const ym of months.slice(0, 3)) {
+    for (const ym of months.slice(0, 12)) {
       collected.push(...buildRegionDemoTransactions(region, ym));
     }
   }
@@ -371,50 +461,57 @@ export async function getAptDetail(params: {
   const yearMonth = months[0];
   const aptKey = normalizeName(aptName);
   const matched = collected
-    .filter(
-      (tx) =>
-        tx.dealType === "trade" &&
-        normalizeName(tx.aptName).includes(aptKey),
-    )
+    .filter((tx) => normalizeName(tx.aptName).includes(aptKey))
     .sort((a, b) => {
       if (a.dealDate === b.dealDate) return b.dealAmount - a.dealAmount;
       return a.dealDate < b.dealDate ? 1 : -1;
     });
 
-  // Prefer exact name cluster if any
   const exact = matched.filter((tx) => normalizeName(tx.aptName) === aptKey);
-  const trades = exact.length > 0 ? exact : matched;
+  const deals = exact.length > 0 ? exact : matched;
+  const trades = deals.filter((tx) => tx.dealType === "trade");
+  const rents = deals.filter((tx) => tx.dealType === "rent");
 
-  if (trades.length === 0) {
-    return {
-      aptName,
-      regionSlug: region.slug,
-      regionName: region.name,
-      fullName: region.fullName,
-      gu: region.districts[0]?.name ?? region.name,
-      dong: "",
-      buildYear: null,
-      source,
-      yearMonth,
-      warning: warning ?? "해당 단지의 매매 실거래를 찾지 못했습니다.",
-      stats: {
-        recent3mCount: 0,
-        maxDealAmount: 0,
-        avgDealAmount: 0,
-        totalTradeCount: 0,
-      },
-      areas: [],
-      items: [],
-    };
+  const emptyResponse = (
+    extraWarning?: string,
+  ): AptDetailResponse => ({
+    aptName,
+    regionSlug: region.slug,
+    regionName: region.name,
+    fullName: region.fullName,
+    gu: region.districts[0]?.name ?? region.name,
+    dong: "",
+    buildYear: null,
+    source,
+    yearMonth,
+    warning: extraWarning ?? warning ?? "해당 단지의 실거래를 찾지 못했습니다.",
+    stats: {
+      recent3mCount: 0,
+      maxDealAmount: 0,
+      avgDealAmount: 0,
+      totalTradeCount: 0,
+      totalRentCount: 0,
+    },
+    areas: [],
+    chart: buildChartPoints([], months).reverse(),
+    items: [],
+  });
+
+  if (deals.length === 0) {
+    return emptyResponse();
   }
 
-  const canonicalName = trades[0].aptName;
+  const canonicalName = deals[0].aptName;
   const since = threeMonthsAgoDate();
   const recent3m = trades.filter((t) => t.dealDate >= since);
-  const maxDealAmount = Math.max(...trades.map((t) => t.dealAmount));
-  const avgDealAmount = Math.round(
-    trades.reduce((s, t) => s + t.dealAmount, 0) / trades.length,
-  );
+  const maxDealAmount =
+    trades.length > 0 ? Math.max(...trades.map((t) => t.dealAmount)) : 0;
+  const avgDealAmount =
+    trades.length > 0
+      ? Math.round(
+          trades.reduce((s, t) => s + t.dealAmount, 0) / trades.length,
+        )
+      : 0;
 
   const maxByArea = new Map<string, number>();
   for (const tx of trades) {
@@ -423,7 +520,7 @@ export async function getAptDetail(params: {
   }
 
   const areaCount = new Map<string, { sqm: number; count: number }>();
-  for (const tx of trades) {
+  for (const tx of deals) {
     const key = areaKey(tx.exclusiveArea);
     const prev = areaCount.get(key);
     if (!prev) areaCount.set(key, { sqm: tx.exclusiveArea, count: 1 });
@@ -439,7 +536,7 @@ export async function getAptDetail(params: {
     }))
     .sort((a, b) => a.exclusiveArea - b.exclusiveArea);
 
-  const buildYears = trades
+  const buildYears = deals
     .map((t) => t.buildYear)
     .filter((y): y is number => typeof y === "number" && y > 1900);
   const buildYear =
@@ -451,20 +548,26 @@ export async function getAptDetail(params: {
         )[0]
       : null;
 
-  const items: AptHistoryItem[] = trades.map((tx) => ({
+  const items: AptHistoryItem[] = deals.map((tx) => ({
     ...tx,
     pyeong: toPyeong(tx.exclusiveArea),
     isSingoga:
+      tx.dealType === "trade" &&
       tx.dealAmount === (maxByArea.get(areaKey(tx.exclusiveArea)) ?? -1),
   }));
+
+  // chart: oldest → newest for x-axis
+  const chart = buildChartPoints(deals, months).sort((a, b) =>
+    a.yearMonth < b.yearMonth ? -1 : 1,
+  );
 
   return {
     aptName: canonicalName,
     regionSlug: region.slug,
     regionName: region.name,
     fullName: region.fullName,
-    gu: trades[0].gu,
-    dong: trades[0].dong,
+    gu: deals[0].gu,
+    dong: deals[0].dong,
     buildYear,
     source,
     yearMonth,
@@ -474,8 +577,10 @@ export async function getAptDetail(params: {
       maxDealAmount,
       avgDealAmount,
       totalTradeCount: trades.length,
+      totalRentCount: rents.length,
     },
     areas,
+    chart,
     items,
   };
 }

@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAptDetail } from "@/lib/molit/apt";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
   const aptName = request.nextUrl.searchParams.get("aptName")?.trim() ?? "";
   const regionSlug = request.nextUrl.searchParams.get("region")?.trim() ?? "";
-  const months = Number(request.nextUrl.searchParams.get("months") ?? "12");
+  const months = Number(request.nextUrl.searchParams.get("months") ?? "36");
 
   if (!aptName || !regionSlug) {
     return NextResponse.json(
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     const detail = await getAptDetail({
       aptName,
       regionSlug,
-      months: Number.isFinite(months) ? Math.min(Math.max(months, 3), 24) : 12,
+      months: Number.isFinite(months) ? Math.min(Math.max(months, 6), 60) : 36,
     });
     if (!detail) {
       return NextResponse.json(

@@ -13,8 +13,13 @@ import {
 } from "lucide-react";
 import type { AptDetailResponse } from "@/lib/molit/apt";
 import {
+  AptPriceChart,
+  PeriodRangeSlider,
+} from "@/components/apt/AptPriceChart";
+import {
   formatDealDate,
   formatEok,
+  formatRentAmount,
   toPyeong,
 } from "@/lib/utils/format";
 
@@ -22,7 +27,7 @@ async function fetchAptDetail(
   aptName: string,
   region: string,
 ): Promise<AptDetailResponse> {
-  const qs = new URLSearchParams({ aptName, region, months: "12" });
+  const qs = new URLSearchParams({ aptName, region, months: "36" });
   const res = await fetch(`/api/apt-detail?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   return res.json();
@@ -39,6 +44,10 @@ function groupByYear(items: AptDetailResponse["items"]) {
   return [...map.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
 }
 
+function ymFromDealDate(dealDate: string): string {
+  return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
+}
+
 export function AptDetailPage({
   aptName,
   regionSlug,
@@ -47,13 +56,33 @@ export function AptDetailPage({
   regionSlug: string;
 }) {
   const [areaKey, setAreaKey] = useState("all");
+  const [dealFilter, setDealFilter] = useState<"all" | "trade" | "rent">("all");
+  const [rangeOverride, setRangeOverride] = useState<{
+    start: number;
+    end: number;
+  } | null>(null);
+  const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}`);
+
   const query = useQuery({
     queryKey: ["apt-detail", aptName, regionSlug],
     queryFn: () => fetchAptDetail(aptName, regionSlug),
   });
 
   const data = query.data;
-  const filtered = useMemo(() => {
+  const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
+  const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}`;
+  if (boundKey !== dataKey) {
+    setBoundKey(dataKey);
+    setRangeOverride(null);
+  }
+
+  const startIndex = rangeOverride?.start ?? 0;
+  const endIndex =
+    rangeOverride?.end ?? Math.max(chartMonths.length - 1, 0);
+  const startYm = chartMonths[startIndex] ?? "";
+  const endYm = chartMonths[endIndex] ?? "";
+
+  const areaFiltered = useMemo(() => {
     if (!data) return [];
     if (areaKey === "all") return data.items;
     return data.items.filter(
@@ -61,13 +90,95 @@ export function AptDetailPage({
     );
   }, [data, areaKey]);
 
+  const periodItems = useMemo(() => {
+    if (!startYm || !endYm) return areaFiltered;
+    return areaFiltered.filter((item) => {
+      const ym = ymFromDealDate(item.dealDate);
+      return ym >= startYm && ym <= endYm;
+    });
+  }, [areaFiltered, startYm, endYm]);
+
+  const filtered = useMemo(() => {
+    if (dealFilter === "all") return periodItems;
+    return periodItems.filter((item) => item.dealType === dealFilter);
+  }, [periodItems, dealFilter]);
+
+  const chartPoints = useMemo(() => {
+    if (!data) return [];
+    const base = data.chart.slice(startIndex, endIndex + 1);
+    if (areaKey === "all") return base;
+
+    // 면적 필터 시 클라이언트에서 월별 재집계
+    const months = base.map((p) => p.yearMonth);
+    const byMonth = new Map(
+      months.map((ym) => [
+        ym,
+        {
+          yearMonth: ym,
+          label: `${ym.slice(2, 4)}.${ym.slice(4, 6)}`,
+          tradeSums: [] as number[],
+          jeonseSums: [] as number[],
+          wolseCount: 0,
+        },
+      ]),
+    );
+
+    for (const tx of areaFiltered) {
+      const ym = ymFromDealDate(tx.dealDate);
+      const bucket = byMonth.get(ym);
+      if (!bucket) continue;
+      if (tx.dealType === "trade") bucket.tradeSums.push(tx.dealAmount);
+      else if (tx.monthlyRent > 0) bucket.wolseCount += 1;
+      else bucket.jeonseSums.push(tx.dealAmount);
+    }
+
+    return months.map((ym) => {
+      const b = byMonth.get(ym)!;
+      const tradeCount = b.tradeSums.length;
+      const jeonseCount = b.jeonseSums.length;
+      return {
+        yearMonth: ym,
+        label: b.label,
+        tradeAvg:
+          tradeCount > 0
+            ? Math.round(b.tradeSums.reduce((a, c) => a + c, 0) / tradeCount)
+            : null,
+        tradeMax: tradeCount > 0 ? Math.max(...b.tradeSums) : null,
+        tradeCount,
+        jeonseAvg:
+          jeonseCount > 0
+            ? Math.round(b.jeonseSums.reduce((a, c) => a + c, 0) / jeonseCount)
+            : null,
+        jeonseCount,
+        wolseCount: b.wolseCount,
+        volume: tradeCount + jeonseCount + b.wolseCount,
+      };
+    });
+  }, [data, startIndex, endIndex, areaKey, areaFiltered]);
+
+  const periodTradeCount = periodItems.filter((i) => i.dealType === "trade").length;
+  const periodRentCount = periodItems.filter((i) => i.dealType === "rent").length;
+  const periodMax =
+    periodItems
+      .filter((i) => i.dealType === "trade")
+      .reduce((m, i) => Math.max(m, i.dealAmount), 0) || 0;
+
   const grouped = useMemo(() => groupByYear(filtered), [filtered]);
+
+  const setRecentYears = (years: number) => {
+    if (chartMonths.length === 0) return;
+    const count = Math.min(years * 12, chartMonths.length);
+    setRangeOverride({
+      start: Math.max(0, chartMonths.length - count),
+      end: chartMonths.length - 1,
+    });
+  };
 
   if (query.isLoading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 sm:px-6">
         <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
-        <div className="h-24 animate-pulse rounded-2xl bg-slate-200/60" />
+        <div className="h-72 animate-pulse rounded-2xl bg-slate-200/60" />
         <div className="h-96 animate-pulse rounded-2xl bg-slate-200/50" />
       </div>
     );
@@ -105,9 +216,9 @@ export function AptDetailPage({
         </Link>
       </div>
 
-      <header className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8">
+      <header className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8">
         <div
-          className="pointer-events-none absolute inset-0 opacity-30"
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl opacity-30"
           style={{
             backgroundImage:
               "radial-gradient(circle at 18% 20%, rgba(45,212,191,0.35), transparent 42%), radial-gradient(circle at 85% 0%, rgba(125,211,252,0.22), transparent 36%)",
@@ -131,7 +242,8 @@ export function AptDetailPage({
             </span>
             <span className="inline-flex items-center gap-1">
               <Building2 className="h-4 w-4" />
-              최근 12개월 매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건
+              매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
+              {data.stats.totalRentCount.toLocaleString("ko-KR")}건
             </span>
           </p>
         </div>
@@ -147,40 +259,36 @@ export function AptDetailPage({
         </div>
       )}
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <article className="rounded-2xl border border-slate-200/80 bg-white/85 p-4 shadow-sm">
-          <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">
-            3개월 거래
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-slate-900">
-            {data.stats.recent3mCount.toLocaleString("ko-KR")}
-            <span className="ml-1 text-sm font-medium text-slate-500">건</span>
-          </p>
-        </article>
-        <article className="rounded-2xl border border-rose-200/80 bg-rose-50/70 p-4 shadow-sm">
-          <p className="text-xs font-medium tracking-wide text-rose-700 uppercase">
-            최고가
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-rose-700">
-            {formatEok(data.stats.maxDealAmount)}
-          </p>
-        </article>
-        <article className="rounded-2xl border border-slate-200/80 bg-white/85 p-4 shadow-sm">
-          <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">
-            평균가
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-slate-900">
-            {formatEok(data.stats.avgDealAmount)}
-          </p>
-        </article>
-      </section>
-
-      <section className="rounded-2xl border border-slate-200/80 bg-white/85 p-4 shadow-sm sm:p-5">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="text-base font-semibold text-slate-900">거래이력</h2>
-          <p className="text-xs text-slate-500">
-            국토교통부 실거래가 기준 · 최근 12개월
-          </p>
+      <section className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-sm sm:p-5">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900">시세 추이</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              매매·전세 평균가와 월별 거래량 · 국토부 실거래 기준
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <p className="text-slate-600">
+              선택 기간 매매{" "}
+              <span className="font-semibold text-teal-800">
+                {periodTradeCount}건
+              </span>
+            </p>
+            <p className="text-slate-600">
+              전월세{" "}
+              <span className="font-semibold text-orange-700">
+                {periodRentCount}건
+              </span>
+            </p>
+            {periodMax > 0 ? (
+              <p className="text-slate-600">
+                최고{" "}
+                <span className="font-semibold text-rose-600">
+                  {formatEok(periodMax)}
+                </span>
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -193,7 +301,7 @@ export function AptDetailPage({
                 : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
-            전체 ({data.stats.totalTradeCount})
+            전체 면적
           </button>
           {data.areas.map((area) => (
             <button
@@ -209,6 +317,44 @@ export function AptDetailPage({
               {area.label} · {area.count}건
             </button>
           ))}
+        </div>
+
+        <AptPriceChart points={chartPoints} />
+
+        <PeriodRangeSlider
+          months={chartMonths}
+          startIndex={startIndex}
+          endIndex={endIndex}
+          onChange={(start, end) => setRangeOverride({ start, end })}
+          onRecentYears={setRecentYears}
+        />
+      </section>
+
+      <section className="rounded-2xl border border-slate-200/80 bg-white/85 p-4 shadow-sm sm:p-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-slate-900">거래이력</h2>
+          <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+            {(
+              [
+                ["all", "전체"],
+                ["trade", "매매"],
+                ["rent", "전월세"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setDealFilter(value)}
+                className={`rounded-md px-3 py-1 text-xs font-medium transition ${
+                  dealFilter === value
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {grouped.length === 0 ? (
@@ -249,8 +395,16 @@ export function AptDetailPage({
                             신고가
                           </span>
                         ) : null}
-                        <p className="text-base font-semibold text-slate-900">
-                          {formatEok(tx.dealAmount)}
+                        <p
+                          className={`text-base font-semibold ${
+                            tx.dealType === "trade"
+                              ? "text-teal-800"
+                              : "text-orange-700"
+                          }`}
+                        >
+                          {tx.dealType === "trade"
+                            ? `매매 ${formatEok(tx.dealAmount)}`
+                            : formatRentAmount(tx.dealAmount, tx.monthlyRent)}
                         </p>
                       </div>
                     </li>
