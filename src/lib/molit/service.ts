@@ -731,24 +731,37 @@ export async function getRegionDaily(params: {
         lawdCodes,
         region.slug,
       );
-      items = loaded.items.filter((tx) => tx.dealType === "trade");
-      source = loaded.source;
-      warning = loaded.warning;
-      resolvedYearMonth = loaded.resolvedYearMonth;
+      // 신고가 현황에서는 데모/목 데이터를 쓰지 않는다
+      if (loaded.source !== "mock") {
+        items = loaded.items.filter((tx) => tx.dealType === "trade");
+        source = loaded.source;
+        warning = loaded.warning;
+        resolvedYearMonth = loaded.resolvedYearMonth;
+      } else {
+        source = "api";
+        resolvedYearMonth = preferredYm;
+      }
     } catch (error) {
       console.warn("[region-daily] month api read failed:", error);
       warning = "실거래 조회 중 오류가 발생했습니다.";
     }
   }
 
+  // 해당 월 실데이터가 없으면 빈 결과 (데모 표시 안 함)
   if (items.length === 0) {
-    const demo = loadDemoItems(preferredYm, lawdCodes, region.slug);
-    items = demo.filter((tx) => tx.dealType === "trade");
-    source = "mock";
-    warning =
-      warning ??
-      "선택한 기간에 매매 신고가가 없어 데모 데이터로 표시합니다.";
-    resolvedYearMonth = preferredYm;
+    return {
+      regionSlug: region.slug,
+      yearMonth: preferredYm,
+      source: source === "db" ? "db" : "api",
+      warning: undefined,
+      selectedDate: null,
+      days: [],
+      monthDeals: [],
+      deals: [],
+      maxDeal: null,
+      avgDealAmount: 0,
+      tradeCount: 0,
+    };
   }
 
   const historyMonths = recentYearMonths(REGION_DAILY_HISTORY_MONTHS);

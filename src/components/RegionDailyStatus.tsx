@@ -355,66 +355,74 @@ export function RegionDailyStatus({
         </p>
       )}
 
-      {(data?.warning || data?.source === "mock") && (
+      {data?.warning ? (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {data?.warning ?? "데모 데이터로 표시 중입니다."}
+          {data.warning}
         </p>
-      )}
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
         {query.isLoading && !data ? (
-          <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
+          <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-slate-50 lg:col-span-2" />
+        ) : (data?.monthDeals.length ?? 0) === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-16 text-center lg:col-span-2">
+            <p className="text-sm font-medium text-slate-700">
+              신고가 데이터 없음
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              {yearMonthLabel(data?.yearMonth ?? yearMonth)}에 표시할 신고가가
+              없습니다.
+            </p>
+          </div>
         ) : (
-          <MonthCalendar
-            yearMonth={data?.yearMonth ?? yearMonth}
-            days={data?.days ?? []}
-            selectedDate={activeDate}
-            onSelectDate={setSelectedDate}
-          />
-        )}
+          <>
+            <MonthCalendar
+              yearMonth={data?.yearMonth ?? yearMonth}
+              days={data?.days ?? []}
+              selectedDate={activeDate}
+              onSelectDate={setSelectedDate}
+            />
 
-        <div className="flex flex-col gap-3">
-          {query.isLoading && !data ? (
-            <div className="h-40 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
-          ) : !activeDate ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
-              {(data?.days.length ?? 0) === 0
-                ? "신고가 데이터 없음"
-                : "날짜를 달력에서 선택해 주세요."}
-            </div>
-          ) : dayDeals.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
-              <p className="font-medium text-slate-700">신고가 데이터 없음</p>
-              <p className="mt-1 text-xs text-slate-500">
-                {formatDealDate(activeDate)}에는 신고가 거래가 없습니다.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-end justify-between gap-2">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">
-                    {formatDealDate(activeDate)} 신고가
-                  </p>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    신고가 {dayDeals.length.toLocaleString("ko-KR")}건 · 평균{" "}
-                    {formatEok(avgDealAmount)}
+            <div className="flex flex-col gap-3">
+              {!activeDate ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
+                  날짜를 달력에서 선택해 주세요.
+                </div>
+              ) : dayDeals.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
+                  <p className="font-medium text-slate-700">신고가 데이터 없음</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {formatDealDate(activeDate)}에는 신고가 거래가 없습니다.
                   </p>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        {formatDealDate(activeDate)} 신고가
+                      </p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        신고가 {dayDeals.length.toLocaleString("ko-KR")}건 · 평균{" "}
+                        {formatEok(avgDealAmount)}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="flex flex-col gap-3">
-                {dayDeals.map((deal) => (
-                  <DealCard
-                    key={deal.id}
-                    deal={deal}
-                    regionSlug={regionSlug}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+                  <div className="flex flex-col gap-3">
+                    {dayDeals.map((deal) => (
+                      <DealCard
+                        key={deal.id}
+                        deal={deal}
+                        regionSlug={regionSlug}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
