@@ -9,10 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,12 +16,30 @@ jobs:
       - name: Check Vercel secrets
         id: check
         run: |
-          if [ -z "${{ secrets.VERCEL_TOKEN }}" ] || [ -z "${{ secrets.VERCEL_ORG_ID }}" ] || [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+          TOKEN='${{ secrets.VERCEL_TOKEN }}'
+          ORG='${{ secrets.VERCEL_ORG_ID }}'
+          PROJECT='${{ secrets.VERCEL_PROJECT_ID }}'
+          # trim whitespace/newlines from dashboard paste
+          TOKEN=$(printf '%s' "$TOKEN" | tr -d '\r\n' | xargs)
+          ORG=$(printf '%s' "$ORG" | tr -d '\r\n' | xargs)
+          PROJECT=$(printf '%s' "$PROJECT" | tr -d '\r\n' | xargs)
+
+          if [ -z "$TOKEN" ] || [ -z "$ORG" ] || [ -z "$PROJECT" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Vercel secrets(VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)가 없어 배포를 건너뜁니다. Vercel Dashboard에서 GitHub Import를 하거나 Secrets를 등록하세요."
-          else
-            echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Vercel secrets(VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)가 없어 배포를 건너뜁니다."
+            exit 0
           fi
+
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+          echo "ORG prefix=${ORG:0:5} len=${#ORG}"
+          echo "PROJECT prefix=${PROJECT:0:4} len=${#PROJECT}"
+          echo "TOKEN len=${#TOKEN}"
+
+          {
+            echo "VERCEL_TOKEN=$TOKEN"
+            echo "VERCEL_ORG_ID=$ORG"
+            echo "VERCEL_PROJECT_ID=$PROJECT"
+          } >> "$GITHUB_ENV"
 
       - name: Checkout
         if: steps.check.outputs.configured == 'true'
@@ -35,22 +49,47 @@ jobs:
         if: steps.check.outputs.configured == 'true'
         run: npm install --global vercel@latest
 
+      - name: Prepare Vercel project link
+        if: steps.check.outputs.configured == 'true'
+        run: |
+          rm -rf .vercel
+          mkdir -p .vercel
+          printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+          echo "Linked project.json:"
+          cat .vercel/project.json
+          echo "Whoami:"
+          vercel whoami --token="$VERCEL_TOKEN" || true
+          echo "Projects (default scope):"
+          vercel project ls --token="$VERCEL_TOKEN" || true
+          echo "Projects (org scope):"
+          vercel project ls --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID" || true
+
       - name: Pull Vercel Environment
         if: steps.check.outputs.configured == 'true'
-        run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          ENV_NAME='preview'
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            ENV_NAME='production'
+          fi
+          vercel pull --yes --environment="$ENV_NAME" --token="$VERCEL_TOKEN"
 
       - name: Build Project Artifacts
         if: steps.check.outputs.configured == 'true'
-        run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            vercel build --prod --token="$VERCEL_TOKEN"
+          else
+            vercel build --token="$VERCEL_TOKEN"
+          fi
 
       - name: Deploy to Vercel
         if: steps.check.outputs.configured == 'true'
         id: deploy
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+            url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
           else
-            url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+            url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Deployed: $url"
