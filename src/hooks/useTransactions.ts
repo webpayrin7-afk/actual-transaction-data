@@ -41,10 +41,14 @@ async function fetchTransactions(
   return res.json();
 }
 
-export function useTransactions(params: TransactionQueryParams) {
+export function useTransactions(
+  params: TransactionQueryParams,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: ["transactions", params],
     queryFn: () => fetchTransactions(params),
     placeholderData: (prev) => prev,
+    enabled: options?.enabled ?? true,
   });
 }

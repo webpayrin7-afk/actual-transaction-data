@@ -7,6 +7,7 @@ type SearchParams = Promise<{
   aptName?: string;
   gu?: string;
   dealType?: string;
+  tab?: string;
 }>;
 
 export function generateStaticParams() {
@@ -43,6 +44,10 @@ export default async function RegionPage({
     sp.dealType === "trade" || sp.dealType === "rent"
       ? (sp.dealType as DealType)
       : "all";
+  const initialTab =
+    sp.tab === "dong" || sp.tab === "stats" || sp.tab === "search"
+      ? sp.tab
+      : undefined;
 
   return (
     <main className="flex-1">
@@ -51,6 +56,7 @@ export default async function RegionPage({
         initialAptName={sp.aptName ?? ""}
         initialGu={sp.gu ?? "all"}
         initialDealType={dealType}
+        initialTab={initialTab}
       />
     </main>
   );
