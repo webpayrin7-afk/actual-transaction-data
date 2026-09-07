@@ -75,7 +75,7 @@ npm run build && npm start   # 프로덕션
 
 ## API 연동 요약
 
-- 매매: `RTMSDataSvcAptTradeDev`
+- 매매: `RTMSDataSvcAptTrade`
 - 전월세: `RTMSDataSvcAptRent`
 - 파라미터: `LAWD_CD=41171|41173`, `DEAL_YMD=YYYYMM` (두 구 병렬 조회 후 병합)
 
