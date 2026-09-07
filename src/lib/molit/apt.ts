@@ -57,7 +57,7 @@ export interface AptDetailResponse {
   items: AptHistoryItem[];
 }
 
-const SUGGEST_MONTHS = 6;
+const SUGGEST_MONTHS = 4;
 const SUGGEST_CACHE_TTL_MS = 45 * 60 * 1000;
 
 type SuggestAgg = {
@@ -182,13 +182,15 @@ async function loadTradePool(
   const promise = (async () => {
     const items: Transaction[] = [];
     if (hasApiKey()) {
-      // 월별로 순차 조회해 MOLIT 429를 줄임 (구 코드는 client에서 동시성 제한)
-      for (const ym of months) {
-        try {
-          const monthItems = await fetchTransactionsByType(ym, "trade", lawdCodes);
-          items.push(...monthItems);
-        } catch (error) {
-          console.warn("[apt-suggest] month fetch failed:", ym, error);
+      // 2개월씩 묶어서 조회 (429 완화 + 초기 지연 단축)
+      for (let i = 0; i < months.length; i += 2) {
+        const batch = months.slice(i, i + 2);
+        const settled = await Promise.allSettled(
+          batch.map((ym) => fetchTransactionsByType(ym, "trade", lawdCodes)),
+        );
+        for (const result of settled) {
+          if (result.status === "fulfilled") items.push(...result.value);
+          else console.warn("[apt-suggest] month fetch failed:", result.reason);
         }
       }
     } else {
