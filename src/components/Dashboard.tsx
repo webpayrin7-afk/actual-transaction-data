@@ -91,21 +91,6 @@ export function Dashboard() {
         </div>
       </header>
 
-      <FilterBar
-        aptName={aptNameInput}
-        dong={dong}
-        dealType={dealType}
-        area={area}
-        yearMonth={yearMonth}
-        yearMonths={yearMonths}
-        onAptNameChange={setAptNameInput}
-        onDongChange={handleDongChange}
-        onDealTypeChange={handleDealTypeChange}
-        onAreaChange={handleAreaChange}
-        onYearMonthChange={handleYearMonthChange}
-        onSearch={handleSearch}
-      />
-
       {data?.source === "mock" && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -125,6 +110,21 @@ export function Dashboard() {
       )}
 
       <StatsCards stats={data?.stats} isLoading={query.isLoading} />
+
+      <FilterBar
+        aptName={aptNameInput}
+        dong={dong}
+        dealType={dealType}
+        area={area}
+        yearMonth={yearMonth}
+        yearMonths={yearMonths}
+        onAptNameChange={setAptNameInput}
+        onDongChange={handleDongChange}
+        onDealTypeChange={handleDealTypeChange}
+        onAreaChange={handleAreaChange}
+        onYearMonthChange={handleYearMonthChange}
+        onSearch={handleSearch}
+      />
 
       <section className="flex flex-col gap-4">
         <div className="flex items-end justify-between gap-3">
