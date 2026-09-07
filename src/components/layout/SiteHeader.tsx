@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronDown, Menu, X } from "lucide-react";
+import { Building2, ChevronDown } from "lucide-react";
 
 const PRIMARY_NAV = [
   {
@@ -25,17 +25,17 @@ const PRIMARY_NAV = [
   },
   {
     href: "/stats",
-    label: "통계",
+    label: "일·주·월간 통계",
     match: (pathname: string) => pathname.startsWith("/stats"),
   },
 ] as const;
 
 const TOOL_NAV = [
   {
-    href: "/tools",
-    label: "도구 허브",
-    description: "부동산 계산 도구 모음",
-    match: (pathname: string) => pathname === "/tools",
+    href: "/school",
+    label: "학군 정보",
+    description: "단지·지역 주변 학군 살펴보기",
+    match: (pathname: string) => pathname.startsWith("/school"),
   },
   {
     href: "/loan",
@@ -48,12 +48,6 @@ const TOOL_NAV = [
     label: "금리비교",
     description: "은행별 대출·보전 금리 비교",
     match: (pathname: string) => pathname.startsWith("/rates"),
-  },
-  {
-    href: "/school",
-    label: "학군 정보",
-    description: "단지·지역 주변 학군 살펴보기",
-    match: (pathname: string) => pathname.startsWith("/school"),
   },
 ] as const;
 
@@ -68,14 +62,12 @@ function navClass(active: boolean) {
 export function SiteHeader() {
   const pathname = usePathname();
   const [toolsOpen, setToolsOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const toolsRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const toolsActive = TOOL_NAV.some((item) => item.match(pathname));
 
   useEffect(() => {
     setToolsOpen(false);
-    setMobileOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -102,7 +94,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur">
       <div className="relative mx-auto flex w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
-        <div className="flex h-14 items-center justify-between gap-3">
+        <div className="flex h-14 items-center">
           <Link href="/" className="inline-flex shrink-0 items-center gap-2">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-white">
               <Building2 className="h-4 w-4" />
@@ -111,21 +103,10 @@ export function SiteHeader() {
               아파트 데이터랩
             </span>
           </Link>
-
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-lg border border-slate-200 p-2 text-slate-700 md:hidden"
-            aria-expanded={mobileOpen}
-            aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
-            onClick={() => setMobileOpen((v) => !v)}
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
 
-        {/* Desktop / tablet nav */}
         <nav
-          className="-mx-1 hidden items-center gap-1 pb-2.5 text-sm md:flex"
+          className="-mx-1 flex items-center gap-1 pb-2.5 text-sm"
           aria-label="주요 메뉴"
         >
           <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
@@ -190,55 +171,6 @@ export function SiteHeader() {
             ) : null}
           </div>
         </nav>
-
-        {/* Mobile panel */}
-        {mobileOpen ? (
-          <nav
-            className="border-t border-slate-100 pb-3 pt-2 md:hidden"
-            aria-label="모바일 메뉴"
-          >
-            <div className="flex flex-col gap-0.5 text-sm">
-              {PRIMARY_NAV.map((item) => {
-                const active = item.match(pathname);
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className={`rounded-lg px-3 py-2.5 font-medium ${
-                      active
-                        ? "bg-teal-50 text-teal-800"
-                        : "text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-              <p className="mt-2 px-3 text-[11px] font-medium tracking-wide text-slate-400">
-                도구
-              </p>
-              {TOOL_NAV.map((item) => {
-                const active = item.match(pathname);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`rounded-lg px-3 py-2.5 ${
-                      active
-                        ? "bg-teal-50 text-teal-800"
-                        : "text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    <span className="block text-sm font-medium">{item.label}</span>
-                    <span className="mt-0.5 block text-xs text-slate-500">
-                      {item.description}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </nav>
-        ) : null}
       </div>
     </header>
   );
