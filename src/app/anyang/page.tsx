@@ -1,30 +1,21 @@
-import { Dashboard } from "@/components/Dashboard";
-import type { DealType } from "@/types/transaction";
+import { redirect } from "next/navigation";
 
-type SearchParams = Promise<{
-  aptName?: string;
-  gu?: string;
-  dealType?: string;
-}>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function AnyangPage({
+export default async function AnyangRedirect({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const params = await searchParams;
-  const dealType =
-    params.dealType === "trade" || params.dealType === "rent"
-      ? (params.dealType as DealType)
-      : "all";
-
-  return (
-    <main className="flex-1">
-      <Dashboard
-        initialAptName={params.aptName ?? ""}
-        initialGu={params.gu ?? "all"}
-        initialDealType={dealType}
-      />
-    </main>
+  const sp = await searchParams;
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === "string") qs.set(key, value);
+  }
+  const suffix = qs.toString();
+  redirect(
+    suffix
+      ? `/region/gyeonggi-anyang?${suffix}`
+      : "/region/gyeonggi-anyang",
   );
 }

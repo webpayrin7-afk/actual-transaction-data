@@ -16,6 +16,7 @@ export interface TransactionQueryParams {
   yearMonth: string;
   page: number;
   pageSize: number;
+  region: string;
 }
 
 async function fetchTransactions(
@@ -30,6 +31,7 @@ async function fetchTransactions(
     yearMonth: params.yearMonth,
     page: String(params.page),
     pageSize: String(params.pageSize),
+    region: params.region,
   });
 
   const res = await fetch(`/api/transactions?${qs.toString()}`);

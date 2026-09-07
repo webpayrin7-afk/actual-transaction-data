@@ -1,4 +1,8 @@
-import { PAGE_SIZE } from "@/lib/constants/regions";
+import {
+  FEATURED_LAWD_CODES,
+  PAGE_SIZE,
+  districtNameFromCode,
+} from "@/lib/constants/regions";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import { filterTransactions, sortByDealDateDesc } from "@/lib/molit/parse";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
@@ -54,13 +58,32 @@ function paginate(
   return items.slice(start, start + pageSize);
 }
 
+function filterMockByLawd(
+  items: Transaction[],
+  lawdCodes: string[],
+): Transaction[] {
+  if (!lawdCodes.length) return items;
+  const names = lawdCodes.map((c) => districtNameFromCode(c)).filter(Boolean);
+  if (!names.length) return items;
+
+  const matched = items.filter((item) =>
+    names.some((n) => item.gu.includes(n) || n.includes(item.gu)),
+  );
+  return matched.length > 0 ? matched : items;
+}
+
 export async function loadRawTransactions(
   yearMonth: string,
   dealType: DealType | "all" = "all",
+  lawdCodes: string[] = [...FEATURED_LAWD_CODES],
 ): Promise<{ items: Transaction[]; source: "api" | "mock" }> {
   if (hasApiKey()) {
     try {
-      const items = await fetchTransactionsByType(yearMonth, dealType);
+      const items = await fetchTransactionsByType(
+        yearMonth,
+        dealType,
+        lawdCodes,
+      );
       return { items, source: "api" };
     } catch (error) {
       console.error("[molit] API fetch failed, falling back to mock:", error);
@@ -68,13 +91,10 @@ export async function loadRawTransactions(
   }
 
   const ymPrefix = `${yearMonth.slice(0, 4)}-${yearMonth.slice(4, 6)}`;
-  const filteredByMonth = MOCK_TRANSACTIONS.filter((i) =>
-    i.dealDate.startsWith(ymPrefix),
-  );
-  return {
-    items: filteredByMonth.length > 0 ? filteredByMonth : MOCK_TRANSACTIONS,
-    source: "mock",
-  };
+  let items = MOCK_TRANSACTIONS.filter((i) => i.dealDate.startsWith(ymPrefix));
+  if (items.length === 0) items = [...MOCK_TRANSACTIONS];
+  items = filterMockByLawd(items, lawdCodes);
+  return { items, source: "mock" };
 }
 
 export async function getTransactions(params: {
@@ -86,13 +106,21 @@ export async function getTransactions(params: {
   yearMonth?: string;
   page?: number;
   pageSize?: number;
+  lawdCodes?: string[];
 }): Promise<TransactionsResponse> {
   const yearMonth = params.yearMonth || recentYearMonths(1)[0];
   const dealType = params.dealType ?? "all";
   const page = Math.max(1, params.page ?? 1);
   const pageSize = params.pageSize ?? PAGE_SIZE;
+  const lawdCodes = params.lawdCodes?.length
+    ? params.lawdCodes
+    : [...FEATURED_LAWD_CODES];
 
-  const { items: raw, source } = await loadRawTransactions(yearMonth, dealType);
+  const { items: raw, source } = await loadRawTransactions(
+    yearMonth,
+    dealType,
+    lawdCodes,
+  );
 
   const filtered = sortByDealDateDesc(
     filterTransactions(raw, {

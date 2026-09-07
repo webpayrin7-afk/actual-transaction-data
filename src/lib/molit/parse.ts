@@ -175,10 +175,15 @@ export function filterTransactions(
     if (opts.dealType && opts.dealType !== "all" && item.dealType !== opts.dealType) {
       return false;
     }
-    if (opts.gu && opts.gu !== "all" && item.gu !== opts.gu) {
+    if (
+      opts.gu &&
+      opts.gu !== "all" &&
+      !item.gu.includes(opts.gu) &&
+      opts.gu !== item.gu
+    ) {
       return false;
     }
-    if (opts.dong && opts.dong !== "all" && item.dong !== opts.dong) {
+    if (opts.dong && opts.dong !== "all" && !item.dong.includes(opts.dong)) {
       return false;
     }
     if (keyword && !item.aptName.toLowerCase().includes(keyword)) {

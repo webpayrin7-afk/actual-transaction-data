@@ -17,9 +17,9 @@ const notoSansKr = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "안양실거래 | 아파트 실거래가 TOP · 만안구·동안구",
+  title: "아파트 실거래 | 서울·경기 아파트 실거래가",
   description:
-    "안양시 만안구·동안구 아파트 매매·전월세 실거래가 TOP 순위와 지역별 상세 조회",
+    "서울 25개 구, 경기 31개 시·군 아파트 매매·전월세 실거래가 TOP 및 지역별 조회",
 };
 
 export default function RootLayout({

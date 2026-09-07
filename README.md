@@ -1,42 +1,24 @@
-# 안양시 아파트 실거래가 대시보드
+# 아파트 실거래
 
-안양시 **만안구(41171) · 동안구(41173)** 아파트 **매매·전월세** 실거래가를 조회하는 Next.js 웹 애플리케이션입니다.
+서울 25개 구 · 경기 31개 시·군 아파트 **매매·전월세** 실거래가 웹 앱입니다.
 
-## 페이지 구성
+## 페이지
 
 | 경로 | 설명 |
 |------|------|
-| `/` | 메인 — 실거래 TOP 순위 · 검색 (apt2.me 스타일) |
-| `/anyang` | 지역별 상세 조회 — 필터 · 통계 · 거래 목록 |
+| `/` | 메인 — TOP 순위 · 지역 디렉터리 |
+| `/region/[slug]` | 지역별 상세 조회 (예: `/region/seoul-gangnam`, `/region/gyeonggi-suwon`) |
+| `/anyang` | `/region/gyeonggi-anyang` 로 리다이렉트 |
 
-```text
-├── .env.local.example          # API Key 예시
-├── package.json
-├── src/
-│   ├── app/
-│   │   ├── api/transactions/route.ts   # 실거래 조회 API Route
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   └── providers.tsx               # TanStack Query Provider
-│   ├── components/
-│   │   ├── Dashboard.tsx               # 메인 화면
-│   │   ├── FilterBar.tsx               # 단지명/동/유형/면적/년월 필터
-│   │   ├── StatsCards.tsx              # 통계 카드
-│   │   ├── TransactionTable.tsx        # 거래 테이블
-│   │   └── Pagination.tsx
-│   ├── hooks/
-│   │   └── useTransactions.ts
-│   ├── lib/
-│   │   ├── constants/regions.ts        # 동안구 동 목록·API URL
-│   │   ├── molit/
-│   │   │   ├── client.ts               # 국토부 API 요청
-│   │   │   ├── parse.ts                # XML 파싱·필터·정렬
-│   │   │   └── service.ts              # 조회/통계/페이지네이션
-│   │   ├── mock/sample-data.ts         # API Key 없을 때 데모 데이터
-│   │   └── utils/format.ts             # 억 원·평형 변환 등
-│   └── types/transaction.ts
+## 실행
+
+```bash
+npm install
+cp .env.local.example .env.local
+# MOLIT_API_KEY=공공데이터포털_키
+npm run dev
 ```
+
 
 ## 1. 패키지 설치
 

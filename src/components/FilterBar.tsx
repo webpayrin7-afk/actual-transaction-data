@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import {
   Building2,
   CalendarDays,
@@ -10,8 +9,7 @@ import {
 import {
   AREA_OPTIONS,
   DEAL_TYPE_OPTIONS,
-  DISTRICT_OPTIONS,
-  dongOptionsForDistrict,
+  type DistrictUnit,
 } from "@/lib/constants/regions";
 import { yearMonthLabel } from "@/lib/utils/format";
 import type { AreaFilter, DealType } from "@/types/transaction";
@@ -24,6 +22,7 @@ interface FilterBarProps {
   area: AreaFilter;
   yearMonth: string;
   yearMonths: string[];
+  districts: DistrictUnit[];
   onAptNameChange: (value: string) => void;
   onGuChange: (value: string) => void;
   onDongChange: (value: string) => void;
@@ -44,6 +43,7 @@ export function FilterBar({
   area,
   yearMonth,
   yearMonths,
+  districts,
   onAptNameChange,
   onGuChange,
   onDongChange,
@@ -52,7 +52,7 @@ export function FilterBar({
   onYearMonthChange,
   onSearch,
 }: FilterBarProps) {
-  const dongOptions = useMemo(() => dongOptionsForDistrict(gu), [gu]);
+  const showDistrict = districts.length > 1;
 
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-sm backdrop-blur sm:p-5">
@@ -61,8 +61,8 @@ export function FilterBar({
         검색 필터
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-7">
-        <label className="flex flex-col gap-1.5 xl:col-span-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
+        <label className={`flex flex-col gap-1.5 ${showDistrict ? "xl:col-span-1" : "xl:col-span-2"}`}>
           <span className="text-xs font-medium text-slate-500">단지명</span>
           <div className="relative">
             <Building2 className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -79,34 +79,33 @@ export function FilterBar({
           </div>
         </label>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-slate-500">구</span>
-          <select
-            value={gu}
-            onChange={(e) => onGuChange(e.target.value)}
-            className={selectClass}
-          >
-            {DISTRICT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        {showDistrict && (
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-slate-500">구</span>
+            <select
+              value={gu}
+              onChange={(e) => onGuChange(e.target.value)}
+              className={selectClass}
+            >
+              <option value="all">전체 구</option>
+              {districts.map((d) => (
+                <option key={d.code} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-slate-500">법정동</span>
-          <select
-            value={dong}
-            onChange={(e) => onDongChange(e.target.value)}
+          <input
+            type="text"
+            value={dong === "all" ? "" : dong}
+            onChange={(e) => onDongChange(e.target.value.trim() || "all")}
+            placeholder="예: 역삼동"
             className={selectClass}
-          >
-            {dongOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+          />
         </label>
 
         <label className="flex flex-col gap-1.5">

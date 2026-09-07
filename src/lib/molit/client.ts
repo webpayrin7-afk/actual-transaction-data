@@ -1,5 +1,4 @@
 import {
-  LAWD_CDS,
   RENT_API_URL,
   TRADE_API_URL,
 } from "@/lib/constants/regions";
@@ -51,15 +50,20 @@ async function fetchMolitXml(
 function assertApiOk(xml: string, label: string) {
   const { code, message } = getApiResultCode(xml);
   if (code !== "00" && code !== "0" && code !== "NORMAL_SERVICE") {
+    // NODATA is ok for empty months
+    if (code === "03" || message.includes("NODATA") || message.includes("없음")) {
+      return;
+    }
     throw new Error(`${label} error: ${code} ${message}`);
   }
 }
 
 export async function fetchTradeTransactions(
   yearMonth: string,
+  lawdCodes: string[],
 ): Promise<Transaction[]> {
   const results = await Promise.all(
-    LAWD_CDS.map(async (lawdCd) => {
+    lawdCodes.map(async (lawdCd) => {
       const xml = await fetchMolitXml(TRADE_API_URL, lawdCd, yearMonth);
       assertApiOk(xml, `Trade API ${lawdCd}`);
       return parseTradeXml(xml, lawdCd);
@@ -70,9 +74,10 @@ export async function fetchTradeTransactions(
 
 export async function fetchRentTransactions(
   yearMonth: string,
+  lawdCodes: string[],
 ): Promise<Transaction[]> {
   const results = await Promise.all(
-    LAWD_CDS.map(async (lawdCd) => {
+    lawdCodes.map(async (lawdCd) => {
       const xml = await fetchMolitXml(RENT_API_URL, lawdCd, yearMonth);
       assertApiOk(xml, `Rent API ${lawdCd}`);
       return parseRentXml(xml, lawdCd);
@@ -84,17 +89,20 @@ export async function fetchRentTransactions(
 export async function fetchTransactionsByType(
   yearMonth: string,
   dealType: DealType | "all",
+  lawdCodes: string[],
 ): Promise<Transaction[]> {
+  if (!lawdCodes.length) return [];
+
   if (dealType === "trade") {
-    return fetchTradeTransactions(yearMonth);
+    return fetchTradeTransactions(yearMonth, lawdCodes);
   }
   if (dealType === "rent") {
-    return fetchRentTransactions(yearMonth);
+    return fetchRentTransactions(yearMonth, lawdCodes);
   }
 
   const [trade, rent] = await Promise.all([
-    fetchTradeTransactions(yearMonth),
-    fetchRentTransactions(yearMonth),
+    fetchTradeTransactions(yearMonth, lawdCodes),
+    fetchRentTransactions(yearMonth, lawdCodes),
   ]);
   return [...trade, ...rent];
 }

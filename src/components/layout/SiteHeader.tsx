@@ -6,16 +6,16 @@ import { Building2 } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "홈", match: "home" as const },
-  { href: "/anyang", label: "지역별 조회", match: "anyang" as const },
+  { href: "/#regions", label: "지역 찾기", match: "none" as const },
   {
-    href: "/anyang?gu=%EB%A7%8C%EC%95%88%EA%B5%AC",
-    label: "만안구",
-    match: "none" as const,
+    href: "/region/seoul-gangnam",
+    label: "서울",
+    match: "seoul" as const,
   },
   {
-    href: "/anyang?gu=%EB%8F%99%EC%95%88%EA%B5%AC",
-    label: "동안구",
-    match: "none" as const,
+    href: "/region/gyeonggi-suwon",
+    label: "경기",
+    match: "gyeonggi" as const,
   },
 ];
 
@@ -30,7 +30,7 @@ export function SiteHeader() {
             <Building2 className="h-4 w-4" />
           </span>
           <span className="text-base font-semibold tracking-tight text-slate-900">
-            안양실거래
+            아파트 실거래
           </span>
         </Link>
 
@@ -38,7 +38,9 @@ export function SiteHeader() {
           {NAV.map((item) => {
             const active =
               (item.match === "home" && pathname === "/") ||
-              (item.match === "anyang" && pathname.startsWith("/anyang"));
+              (item.match === "seoul" && pathname.includes("/region/seoul-")) ||
+              (item.match === "gyeonggi" &&
+                pathname.includes("/region/gyeonggi-"));
 
             return (
               <Link

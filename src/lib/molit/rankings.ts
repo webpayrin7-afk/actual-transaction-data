@@ -1,3 +1,4 @@
+import { FEATURED_LAWD_CODES } from "@/lib/constants/regions";
 import { loadRawTransactions } from "@/lib/molit/service";
 import { recentYearMonths, toPyeong } from "@/lib/utils/format";
 import type { Transaction } from "@/types/transaction";
@@ -102,7 +103,9 @@ export async function getRankings(
   yearMonth?: string,
 ): Promise<RankingsResponse> {
   const ym = yearMonth || recentYearMonths(1)[0];
-  const { items, source } = await loadRawTransactions(ym, "all");
+  const { items, source } = await loadRawTransactions(ym, "all", [
+    ...FEATURED_LAWD_CODES,
+  ]);
 
   const tradeHigh = toTradeRank(items);
   const recent = toRecentRank(items);
@@ -112,10 +115,10 @@ export async function getRankings(
   const top = tradeHigh[0];
   const rentTop = rentHigh[0];
   const headline = top
-    ? `안양시 실거래 ${ym.slice(0, 4)}.${ym.slice(4, 6)}: 매매 최고가 ${top.transaction.aptName} ${top.priceLabel}${
+    ? `아파트 실거래 ${ym.slice(0, 4)}.${ym.slice(4, 6)} (서울·경기 주요지역): 매매 최고가 ${top.transaction.aptName} ${top.priceLabel}${
         rentTop ? `, 전세 최고 ${rentTop.transaction.aptName} ${rentTop.priceLabel}` : ""
       }.`
-    : `안양시 ${ym.slice(0, 4)}.${ym.slice(4, 6)} 실거래 순위입니다.`;
+    : `아파트 실거래 ${ym.slice(0, 4)}.${ym.slice(4, 6)} 순위입니다.`;
 
   return {
     yearMonth: ym,

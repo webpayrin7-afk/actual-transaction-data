@@ -2,22 +2,41 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import {
   ArrowRight,
-  CalendarDays,
   MapPinned,
   Search,
   TrendingUp,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import {
+  GYEONGGI_REGIONS,
+  SEOUL_REGIONS,
+  type RegionDef,
+} from "@/lib/constants/regions";
 import type { RankItem, RankingsResponse } from "@/lib/molit/rankings";
+import { LAWD_TO_REGION } from "@/lib/constants/regions";
 import { yearMonthLabel } from "@/lib/utils/format";
 
 async function fetchRankings(): Promise<RankingsResponse> {
   const res = await fetch("/api/rankings");
   if (!res.ok) throw new Error("failed");
   return res.json();
+}
+
+function regionHrefForTx(item: RankItem): string {
+  const tx = item.transaction;
+  // try match by gu containing region name
+  const found = Object.values(LAWD_TO_REGION).find((r) => {
+    if (r.metro === "seoul") return tx.gu.includes(r.name) || r.name === tx.gu;
+    return (
+      tx.gu.includes(r.name.replace("시", "").replace("군", "")) ||
+      r.districts.some((d) => tx.gu.includes(d.name))
+    );
+  });
+  const slug = found?.slug ?? "seoul-gangnam";
+  return `/region/${slug}?aptName=${encodeURIComponent(tx.aptName)}`;
 }
 
 function RankCard({
@@ -28,7 +47,7 @@ function RankCard({
   accent?: "teal" | "rose" | "sky";
 }) {
   const tx = item.transaction;
-  const href = `/anyang?aptName=${encodeURIComponent(tx.aptName)}&gu=${encodeURIComponent(tx.gu)}`;
+  const href = regionHrefForTx(item);
   const priceColor =
     accent === "rose"
       ? "text-rose-600"
@@ -91,7 +110,11 @@ function RankSection({
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {items.map((item) => (
-            <RankCard key={`${title}-${item.rank}-${item.transaction.id}`} item={item} accent={accent} />
+            <RankCard
+              key={`${title}-${item.rank}-${item.transaction.id}`}
+              item={item}
+              accent={accent}
+            />
           ))}
         </div>
       )}
@@ -99,21 +122,67 @@ function RankSection({
   );
 }
 
+function RegionGrid({
+  title,
+  regions,
+}: {
+  title: string;
+  regions: RegionDef[];
+}) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+        <span className="h-5 w-1 rounded-full bg-teal-600" />
+        {title}
+      </h2>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {regions.map((region) => (
+          <Link
+            key={region.slug}
+            href={`/region/${region.slug}`}
+            className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-800 shadow-sm transition hover:border-teal-300 hover:bg-teal-50/50 hover:text-teal-900"
+          >
+            {region.name}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function HomePage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [regionQuery, setRegionQuery] = useState("");
   const rankings = useQuery({
     queryKey: ["rankings"],
     queryFn: fetchRankings,
   });
 
+  const filteredSeoul = useMemo(() => {
+    const q = regionQuery.trim();
+    if (!q) return SEOUL_REGIONS;
+    return SEOUL_REGIONS.filter((r) => r.name.includes(q) || r.fullName.includes(q));
+  }, [regionQuery]);
+
+  const filteredGyeonggi = useMemo(() => {
+    const q = regionQuery.trim();
+    if (!q) return GYEONGGI_REGIONS;
+    return GYEONGGI_REGIONS.filter(
+      (r) => r.name.includes(q) || r.fullName.includes(q),
+    );
+  }, [regionQuery]);
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const q = query.trim();
-    const href = q
-      ? `/anyang?aptName=${encodeURIComponent(q)}`
-      : "/anyang";
-    router.push(href);
+    // 단지 검색은 지역 선택 유도 — 기본 강남으로 이동하되 쿼리 전달
+    // 사용자가 지역 디렉터리에서 고르는 게 정확함
+    if (!q) {
+      document.getElementById("regions")?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    router.push(`/region/seoul-gangnam?aptName=${encodeURIComponent(q)}`);
   };
 
   const data = rankings.data;
@@ -131,14 +200,14 @@ export function HomePage() {
         />
         <div className="relative">
           <p className="text-sm font-medium tracking-wide text-teal-100/90">
-            안양실거래
+            아파트 실거래
           </p>
           <h1 className="mt-2 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            안양시 아파트 실거래가 TOP
+            서울 · 경기 아파트 실거래가
           </h1>
           <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
-            만안구·동안구 매매·전월세 실거래를 한곳에서. 단지명으로 바로
-            찾아보세요.
+            서울 25개 구, 경기 31개 시·군의 매매·전월세 실거래를 지역별로
+            조회하세요.
           </p>
 
           <form onSubmit={onSubmit} className="mt-6 max-w-2xl">
@@ -152,7 +221,7 @@ export function HomePage() {
                   id="home-search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="예) 평촌 래미안, 석수 푸르지오"
+                  placeholder="예) 래미안, 헬리오시티, 자이"
                   className="w-full border-0 bg-transparent py-3.5 pr-3 pl-12 text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
               </div>
@@ -164,33 +233,33 @@ export function HomePage() {
               </button>
             </div>
             <p className="mt-2 text-xs text-teal-100/70">
-              단어+공백+단어로 조회 · 지역별 상세 필터는 지역별 조회에서
+              아래에서 구·시를 선택한 뒤 조회하면 더 정확합니다
             </p>
           </form>
         </div>
       </section>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Link
-          href="/anyang"
+        <a
+          href="#regions-seoul"
           className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-4 text-white shadow-sm transition hover:from-teal-700 hover:to-teal-600"
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold">
             <MapPinned className="h-4 w-4" />
-            지역별 실거래 전체 보기
+            서울 구별 실거래
           </span>
           <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          href="/anyang?dealType=trade"
+        </a>
+        <a
+          href="#regions-gyeonggi"
           className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 text-white shadow-sm transition hover:from-slate-900 hover:to-slate-800"
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold">
-            <CalendarDays className="h-4 w-4" />
-            매매만 빠르게 보기
+            <MapPinned className="h-4 w-4" />
+            경기 시·군별 실거래
           </span>
           <ArrowRight className="h-4 w-4" />
-        </Link>
+        </a>
       </div>
 
       {data?.headline && (
@@ -232,20 +301,35 @@ export function HomePage() {
             accent="sky"
             emptyText="전월세 데이터가 없습니다."
           />
-          <RankSection
-            title="대형면적(85㎡+) 최고가 TOP5"
-            dateLabel={ymLabel}
-            items={data.largeArea}
-            accent="rose"
-            emptyText="대형면적 매매 데이터가 없습니다."
+        </div>
+      ) : null}
+
+      <div id="regions" className="flex flex-col gap-6 scroll-mt-20">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900">지역별 조회</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              서울 25개 구 · 경기 31개 시·군
+            </p>
+          </div>
+          <input
+            value={regionQuery}
+            onChange={(e) => setRegionQuery(e.target.value)}
+            placeholder="지역명 검색 (예: 강남, 분당, 수원)"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 sm:max-w-xs"
           />
         </div>
-      ) : (
-        <p className="text-sm text-slate-500">순위 데이터를 불러오지 못했습니다.</p>
-      )}
+
+        <div id="regions-seoul" className="scroll-mt-24">
+          <RegionGrid title="서울특별시" regions={filteredSeoul} />
+        </div>
+        <div id="regions-gyeonggi" className="scroll-mt-24">
+          <RegionGrid title="경기도" regions={filteredGyeonggi} />
+        </div>
+      </div>
 
       <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 OpenAPI 기반 · 안양시 만안구·동안구
+        국토교통부 아파트 실거래 OpenAPI 기반 · 아파트 실거래
       </footer>
     </div>
   );
