@@ -54,6 +54,7 @@ async function main() {
     // 로컬 기본 파일 DB
     process.env.TURSO_DATABASE_URL = `file:${resolve("data/molit.db")}`;
   }
+  process.env.MOLIT_SYNCING = "1";
 
   const db = getDb();
   if (!db) {

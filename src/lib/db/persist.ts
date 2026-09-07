@@ -9,6 +9,8 @@ export function persistMonthInBackground(params: {
   items: Transaction[];
 }): void {
   if (!hasDb()) return;
+  // 동기화 스크립트가 직접 적재 중일 때는 write-through 생략 (UNIQUE 경합 방지)
+  if (process.env.MOLIT_SYNCING === "1") return;
   void (async () => {
     try {
       const { replaceMonthTransactions } = await import("@/lib/db/repository");

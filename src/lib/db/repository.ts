@@ -56,7 +56,7 @@ export async function replaceMonthTransactions(params: {
   ];
 
   // libSQL batch limit — chunk inserts
-  const insertSql = `INSERT INTO transactions (
+  const insertSql = `INSERT OR REPLACE INTO transactions (
     id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
     gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
