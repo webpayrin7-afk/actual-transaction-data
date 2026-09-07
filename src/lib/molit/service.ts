@@ -245,3 +245,198 @@ export async function getTransactions(params: {
     apiConfigured: hasApiKey(),
   };
 }
+
+export interface RegionDongSummary {
+  dong: string;
+  gu: string;
+  aptCount: number;
+  dealCount: number;
+}
+
+export interface RegionDongApt {
+  aptName: string;
+  gu: string;
+  dong: string;
+  dealCount: number;
+  tradeCount: number;
+  maxDealAmount: number;
+  latestDealDate: string;
+  buildYear: number | null;
+}
+
+export interface RegionBrowseResponse {
+  regionSlug: string;
+  yearMonth: string;
+  source: "api" | "mock";
+  warning?: string;
+  selectedDong: string | null;
+  dongs: RegionDongSummary[];
+  apts: RegionDongApt[];
+}
+
+function normalizeDongKey(dong: string): string {
+  return dong.replace(/\s+/g, "");
+}
+
+export async function getRegionBrowse(params: {
+  regionSlug: string;
+  yearMonth?: string;
+  dong?: string;
+  gu?: string;
+  months?: number;
+}): Promise<RegionBrowseResponse> {
+  const region = getRegion(params.regionSlug);
+  if (!region) {
+    throw new Error(`Unknown region: ${params.regionSlug}`);
+  }
+
+  const monthCount = Math.min(Math.max(params.months ?? 3, 1), 6);
+  const months = recentYearMonths(monthCount);
+  const preferredYm = params.yearMonth || months[0];
+  const orderedMonths = [
+    preferredYm,
+    ...months.filter((ym) => ym !== preferredYm),
+  ];
+
+  const collected: Transaction[] = [];
+  let source: "api" | "mock" = "mock";
+  let warning: string | undefined;
+  let resolvedYearMonth = preferredYm;
+
+  for (const ym of orderedMonths) {
+    const loaded = await loadRawTransactions(
+      ym,
+      "trade",
+      [...region.lawdCodes],
+      region.slug,
+    );
+    if (loaded.items.length === 0) continue;
+    collected.push(...loaded.items);
+    source = loaded.source;
+    if (loaded.warning) warning = loaded.warning;
+    if (ym === preferredYm) resolvedYearMonth = loaded.resolvedYearMonth;
+  }
+
+  if (collected.length === 0) {
+    const demo = loadDemoItems(preferredYm, [...region.lawdCodes], region.slug);
+    collected.push(...demo.filter((tx) => tx.dealType === "trade"));
+    source = "mock";
+    warning =
+      warning ??
+      "선택한 기간에 실거래 데이터가 없어 데모 데이터로 표시합니다.";
+  }
+
+  const scoped = collected;
+  const dongScoped =
+    params.gu && params.gu !== "all"
+      ? scoped.filter((tx) => tx.gu.includes(params.gu!))
+      : scoped;
+
+  // 동 목록은 구 필터를 동 선택 전에는 적용하고, 동 선택 후에는 전체 동을 유지한다.
+  const dongSource = params.dong?.trim() ? scoped : dongScoped;
+
+  const dongMap = new Map<
+    string,
+    { dong: string; gu: string; apts: Set<string>; dealCount: number }
+  >();
+  for (const tx of dongSource) {
+    const dong = tx.dong.trim();
+    if (!dong) continue;
+    const key = `${tx.gu}|${normalizeDongKey(dong)}`;
+    const prev = dongMap.get(key);
+    if (!prev) {
+      dongMap.set(key, {
+        dong,
+        gu: tx.gu,
+        apts: new Set([tx.aptName]),
+        dealCount: 1,
+      });
+      continue;
+    }
+    prev.apts.add(tx.aptName);
+    prev.dealCount += 1;
+  }
+
+  const dongs: RegionDongSummary[] = [...dongMap.values()]
+    .map((value) => ({
+      dong: value.dong,
+      gu: value.gu,
+      aptCount: value.apts.size,
+      dealCount: value.dealCount,
+    }))
+    .sort(
+      (a, b) =>
+        b.aptCount - a.aptCount ||
+        b.dealCount - a.dealCount ||
+        a.dong.localeCompare(b.dong, "ko"),
+    );
+
+  const selectedDong = params.dong?.trim() || null;
+  let apts: RegionDongApt[] = [];
+
+  if (selectedDong) {
+    const needle = normalizeDongKey(selectedDong);
+    const aptMap = new Map<
+      string,
+      {
+        aptName: string;
+        gu: string;
+        dong: string;
+        dealCount: number;
+        tradeCount: number;
+        maxDealAmount: number;
+        latestDealDate: string;
+        buildYear: number | null;
+      }
+    >();
+
+    for (const tx of dongScoped) {
+      if (normalizeDongKey(tx.dong) !== needle) continue;
+      if (params.gu && params.gu !== "all" && !tx.gu.includes(params.gu)) {
+        continue;
+      }
+      const key = `${tx.gu}|${tx.aptName}`;
+      const prev = aptMap.get(key);
+      if (!prev) {
+        aptMap.set(key, {
+          aptName: tx.aptName,
+          gu: tx.gu,
+          dong: tx.dong,
+          dealCount: 1,
+          tradeCount: tx.dealType === "trade" ? 1 : 0,
+          maxDealAmount: tx.dealType === "trade" ? tx.dealAmount : 0,
+          latestDealDate: tx.dealDate,
+          buildYear: tx.buildYear,
+        });
+        continue;
+      }
+      prev.dealCount += 1;
+      if (tx.dealType === "trade") {
+        prev.tradeCount += 1;
+        prev.maxDealAmount = Math.max(prev.maxDealAmount, tx.dealAmount);
+      }
+      if (tx.dealDate > prev.latestDealDate) {
+        prev.latestDealDate = tx.dealDate;
+        prev.dong = tx.dong;
+        if (tx.buildYear) prev.buildYear = tx.buildYear;
+      }
+    }
+
+    apts = [...aptMap.values()].sort(
+      (a, b) =>
+        b.dealCount - a.dealCount ||
+        b.maxDealAmount - a.maxDealAmount ||
+        a.aptName.localeCompare(b.aptName, "ko"),
+    );
+  }
+
+  return {
+    regionSlug: region.slug,
+    yearMonth: resolvedYearMonth,
+    source,
+    warning,
+    selectedDong,
+    dongs,
+    apts,
+  };
+}

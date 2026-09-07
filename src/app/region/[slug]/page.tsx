@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Dashboard } from "@/components/Dashboard";
 import { ALL_REGIONS, getRegion } from "@/lib/constants/regions";
@@ -7,6 +8,7 @@ type SearchParams = Promise<{
   aptName?: string;
   gu?: string;
   dealType?: string;
+  tab?: string;
 }>;
 
 export function generateStaticParams() {
@@ -43,15 +45,28 @@ export default async function RegionPage({
     sp.dealType === "trade" || sp.dealType === "rent"
       ? (sp.dealType as DealType)
       : "all";
+  const initialTab =
+    sp.tab === "dong" || sp.tab === "stats" || sp.tab === "search"
+      ? sp.tab
+      : undefined;
 
   return (
     <main className="flex-1">
-      <Dashboard
-        region={region}
-        initialAptName={sp.aptName ?? ""}
-        initialGu={sp.gu ?? "all"}
-        initialDealType={dealType}
-      />
+      <Suspense
+        fallback={
+          <div className="mx-auto max-w-7xl px-4 py-8 text-sm text-slate-500">
+            불러오는 중…
+          </div>
+        }
+      >
+        <Dashboard
+          region={region}
+          initialAptName={sp.aptName ?? ""}
+          initialGu={sp.gu ?? "all"}
+          initialDealType={dealType}
+          initialTab={initialTab}
+        />
+      </Suspense>
     </main>
   );
 }
