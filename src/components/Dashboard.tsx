@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { AlertCircle, MapPin } from "lucide-react";
 import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
@@ -47,12 +47,7 @@ export function Dashboard({
   });
 
   const data = query.data;
-
-  // 당월에 데이터가 없어 서버가 다른 월로 폴백하면 필터도 맞춤
-  useEffect(() => {
-    if (!data?.yearMonth || data.yearMonth === yearMonth) return;
-    setYearMonth(data.yearMonth);
-  }, [data?.yearMonth, yearMonth]);
+  const resolvedYearMonth = data?.yearMonth ?? yearMonth;
 
   const resetPage = () => setPage(1);
 
@@ -122,8 +117,8 @@ export function Dashboard({
             동향을 조회합니다.
           </p>
           <p className="mt-4 text-xs text-teal-100/70">
-            계약년월 {yearMonthLabel(data?.yearMonth ?? yearMonth)} · 최근
-            거래일 기준 내림차순
+            계약년월 {yearMonthLabel(resolvedYearMonth)} · 최근 거래일 기준
+            내림차순
           </p>
         </div>
       </header>
@@ -158,7 +153,7 @@ export function Dashboard({
         dong={dong}
         dealType={dealType}
         area={area}
-        yearMonth={yearMonth}
+        yearMonth={resolvedYearMonth}
         yearMonths={yearMonths}
         districts={region.districts}
         onAptNameChange={setAptNameInput}
