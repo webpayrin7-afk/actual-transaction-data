@@ -230,10 +230,11 @@ export function HomePage() {
         />
         <div className="relative">
           <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            단지별 조회
+            관심 단지의 실거래가를 찾아보세요
           </h1>
           <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
-            단지명을 검색해 매매·전월세 실거래 이력과 시세를 바로 확인하세요.
+            단지명을 입력하면 매매·전월세 이력과 시세 그래프를 바로 볼 수
+            있습니다.
           </p>
 
           <form onSubmit={onSubmit} className="mt-6 max-w-2xl">
@@ -326,7 +327,7 @@ export function HomePage() {
               )}
             </div>
             <p className="mt-2 text-xs text-teal-100/70">
-              예) 래미안, 헬리오시티 — 선택하면 단지 상세로 이동합니다
+              예) 래미안, 헬리오시티 — 선택 시 단지 상세로 이동합니다
             </p>
           </form>
         </div>
@@ -339,7 +340,7 @@ export function HomePage() {
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold">
             <MapPinned className="h-4 w-4" />
-            서울 구별 실거래
+            서울 지역별 조회
           </span>
           <ArrowRight className="h-4 w-4" />
         </Link>
@@ -349,7 +350,7 @@ export function HomePage() {
         >
           <span className="inline-flex items-center gap-2 text-sm font-semibold">
             <MapPinned className="h-4 w-4" />
-            경기 시·군별 실거래
+            경기 지역별 조회
           </span>
           <ArrowRight className="h-4 w-4" />
         </Link>
