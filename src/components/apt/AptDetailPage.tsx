@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
-  ArrowLeft,
   Building2,
   CalendarDays,
   Flame,
@@ -242,23 +241,6 @@ export function AptDetailPage({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex flex-wrap items-center gap-2 text-sm">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-slate-600 hover:bg-slate-100"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          메인
-        </Link>
-        <span className="text-slate-300">/</span>
-        <Link
-          href={`/region/${data.regionSlug}`}
-          className="rounded-lg px-2 py-1 text-slate-600 hover:bg-slate-100"
-        >
-          {data.regionName}
-        </Link>
-      </div>
-
       <header className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8">
         <div
           className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl opacity-30"
@@ -278,11 +260,14 @@ export function AptDetailPage({
             ) : null}
           </h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-teal-50/85">
-            <span className="inline-flex items-center gap-1">
+            <Link
+              href={`/region/${data.regionSlug}`}
+              className="inline-flex items-center gap-1 transition hover:text-white"
+            >
               <MapPin className="h-4 w-4" />
               {data.fullName}
               {data.dong ? ` ${data.dong}` : ""}
-            </span>
+            </Link>
             <span className="inline-flex items-center gap-1">
               <Building2 className="h-4 w-4" />
               매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
