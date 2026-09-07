@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -27,6 +28,11 @@ const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
   { id: "search", label: "지역 검색", icon: Search },
 ];
 
+function parseTab(value: string | null | undefined): RegionTab | null {
+  if (value === "dong" || value === "stats" || value === "search") return value;
+  return null;
+}
+
 export function Dashboard({
   region,
   initialAptName = "",
@@ -40,12 +46,13 @@ export function Dashboard({
   initialDealType?: DealType | "all";
   initialTab?: RegionTab;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const yearMonths = useMemo(() => recentYearMonths(6), []);
-  const [tab, setTab] = useState<RegionTab>(() => {
-    if (initialTab) return initialTab;
-    if (initialAptName.trim()) return "search";
-    return "dong";
-  });
+  const tab =
+    parseTab(searchParams.get("tab")) ??
+    (initialTab ?? (initialAptName.trim() ? "search" : "dong"));
   const [aptNameInput, setAptNameInput] = useState(initialAptName);
   const [gu, setGu] = useState(initialGu);
   const [dong, setDong] = useState("all");
@@ -77,6 +84,12 @@ export function Dashboard({
   const resolvedYearMonth = data?.yearMonth ?? yearMonth;
 
   const resetPage = () => setPage(1);
+
+  const selectTab = (next: RegionTab) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", next);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const handleGuChange = (value: string) => {
     setGu(value);
@@ -117,7 +130,7 @@ export function Dashboard({
     setDong(selected);
     setGu(nextGu);
     setPage(1);
-    setTab("search");
+    selectTab("search");
   };
 
   const handleBrowseDongSelect = (
@@ -176,7 +189,8 @@ export function Dashboard({
             <button
               key={id}
               type="button"
-              onClick={() => setTab(id)}
+              onClick={() => selectTab(id)}
+              aria-pressed={active}
               className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                 active
                   ? "bg-teal-700 text-white shadow-sm"

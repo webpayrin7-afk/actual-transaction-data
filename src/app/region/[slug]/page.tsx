@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Dashboard } from "@/components/Dashboard";
 import { ALL_REGIONS, getRegion } from "@/lib/constants/regions";
@@ -51,13 +52,21 @@ export default async function RegionPage({
 
   return (
     <main className="flex-1">
-      <Dashboard
-        region={region}
-        initialAptName={sp.aptName ?? ""}
-        initialGu={sp.gu ?? "all"}
-        initialDealType={dealType}
-        initialTab={initialTab}
-      />
+      <Suspense
+        fallback={
+          <div className="mx-auto max-w-7xl px-4 py-8 text-sm text-slate-500">
+            불러오는 중…
+          </div>
+        }
+      >
+        <Dashboard
+          region={region}
+          initialAptName={sp.aptName ?? ""}
+          initialGu={sp.gu ?? "all"}
+          initialDealType={dealType}
+          initialTab={initialTab}
+        />
+      </Suspense>
     </main>
   );
 }
