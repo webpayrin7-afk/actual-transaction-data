@@ -281,11 +281,11 @@ export function HomePage() {
       ) : data ? (
         <div className="flex flex-col gap-10">
           <RankSection
-            title="매매 최고가 TOP5"
+            title="아파트 신고가 TOP5"
             dateLabel={ymLabel}
-            items={data.tradeHigh}
+            items={data.singogaTop ?? data.tradeHigh}
             accent="rose"
-            emptyText="매매 최고가 데이터가 없습니다."
+            emptyText="아파트 신고가 데이터가 없습니다."
           />
           <RankSection
             title="최근 실거래 TOP5"

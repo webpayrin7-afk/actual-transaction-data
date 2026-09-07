@@ -14,10 +14,13 @@ export interface RankingsResponse {
   yearMonth: string;
   source: "api" | "mock";
   headline: string;
-  tradeHigh: RankItem[];
+  /** 아파트 신고가 TOP — 단지별 최고 매매가 */
+  singogaTop: RankItem[];
   recent: RankItem[];
   rentHigh: RankItem[];
   largeArea: RankItem[];
+  /** @deprecated singogaTop 사용 */
+  tradeHigh: RankItem[];
 }
 
 function formatManwonShort(manwon: number): string {
@@ -28,17 +31,42 @@ function formatManwonShort(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만`;
 }
 
-function toTradeRank(items: Transaction[], limit = 5): RankItem[] {
-  return [...items]
-    .filter((i) => i.dealType === "trade")
-    .sort((a, b) => b.dealAmount - a.dealAmount)
+function normalizeAptKey(tx: Transaction): string {
+  const apt = tx.aptName.replace(/\s+/g, "").toLowerCase();
+  const areaBucket = Math.round(tx.exclusiveArea);
+  return `${apt}|${tx.gu}|${areaBucket}`;
+}
+
+/** 단지·유사면적별 최고 매매가 1건 → 금액순 TOP N (신고가) */
+function toSingogaRank(items: Transaction[], limit = 5): RankItem[] {
+  const bestByKey = new Map<string, Transaction>();
+
+  for (const tx of items) {
+    if (tx.dealType !== "trade" || tx.dealAmount <= 0) continue;
+    const key = normalizeAptKey(tx);
+    const prev = bestByKey.get(key);
+    if (!prev || tx.dealAmount > prev.dealAmount) {
+      bestByKey.set(key, tx);
+    }
+  }
+
+  return [...bestByKey.values()]
+    .sort((a, b) => {
+      if (b.dealAmount !== a.dealAmount) return b.dealAmount - a.dealAmount;
+      return a.dealDate < b.dealDate ? 1 : -1;
+    })
     .slice(0, limit)
-    .map((transaction, index) => ({
-      rank: index + 1,
-      transaction,
-      priceLabel: formatManwonShort(transaction.dealAmount),
-      metaLabel: `${transaction.exclusiveArea.toFixed(1)}㎡ (${toPyeong(transaction.exclusiveArea)}평) · ${transaction.dealDate.replaceAll("-", ".")}`,
-    }));
+    .map((transaction, index) => {
+      const pyeong = toPyeong(transaction.exclusiveArea);
+      const perPyeong =
+        pyeong > 0 ? Math.round(transaction.dealAmount / pyeong) : 0;
+      return {
+        rank: index + 1,
+        transaction,
+        priceLabel: formatManwonShort(transaction.dealAmount),
+        metaLabel: `${transaction.gu} ${transaction.dong} · ${transaction.exclusiveArea.toFixed(1)}㎡ (${pyeong}평) · 평당 ${perPyeong.toLocaleString("ko-KR")}만 · ${transaction.dealDate.replaceAll("-", ".")}`,
+      };
+    });
 }
 
 function toRentRank(items: Transaction[], limit = 5): RankItem[] {
@@ -104,22 +132,27 @@ export async function getRankings(
 ): Promise<RankingsResponse> {
   // 당월 우선. 데이터 없으면 loadRawTransactions가 데이터가 있는 월로 폴백
   const ym = yearMonth || recentYearMonths(1)[0];
-  const { items, source, resolvedYearMonth } = await loadRawTransactions(
-    ym,
-    "all",
-    [...FEATURED_LAWD_CODES],
-  );
 
-  const tradeHigh = toTradeRank(items);
-  const recent = toRecentRank(items);
-  const rentHigh = toRentRank(items);
-  const largeArea = toLargeAreaRank(items);
+  // 신고가는 매매 전용 조회로 구성, 나머지 섹션은 전체 거래
+  const [tradeLoaded, allLoaded] = await Promise.all([
+    loadRawTransactions(ym, "trade", [...FEATURED_LAWD_CODES]),
+    loadRawTransactions(ym, "all", [...FEATURED_LAWD_CODES]),
+  ]);
 
-  const top = tradeHigh[0];
+  const displayYm =
+    tradeLoaded.resolvedYearMonth || allLoaded.resolvedYearMonth || ym;
+  const source =
+    tradeLoaded.source === "api" || allLoaded.source === "api" ? "api" : "mock";
+
+  const singogaTop = toSingogaRank(tradeLoaded.items);
+  const recent = toRecentRank(allLoaded.items);
+  const rentHigh = toRentRank(allLoaded.items);
+  const largeArea = toLargeAreaRank(tradeLoaded.items);
+
+  const top = singogaTop[0];
   const rentTop = rentHigh[0];
-  const displayYm = resolvedYearMonth || ym;
   const headline = top
-    ? `아파트 실거래 ${displayYm.slice(0, 4)}.${displayYm.slice(4, 6)} (서울·경기 주요지역): 매매 최고가 ${top.transaction.aptName} ${top.priceLabel}${
+    ? `아파트 실거래 ${displayYm.slice(0, 4)}.${displayYm.slice(4, 6)} (서울·경기 주요지역): 아파트 신고가 ${top.transaction.aptName} ${top.priceLabel}${
         rentTop ? `, 전세 최고 ${rentTop.transaction.aptName} ${rentTop.priceLabel}` : ""
       }.`
     : `아파트 실거래 ${displayYm.slice(0, 4)}.${displayYm.slice(4, 6)} 순위입니다.`;
@@ -128,7 +161,8 @@ export async function getRankings(
     yearMonth: displayYm,
     source,
     headline,
-    tradeHigh,
+    singogaTop,
+    tradeHigh: singogaTop,
     recent,
     rentHigh,
     largeArea,
