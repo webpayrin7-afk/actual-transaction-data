@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDownRight,
-  ArrowRight,
   ArrowUpRight,
   Activity,
-  MapPinned,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
@@ -329,29 +327,6 @@ export function MarketHome() {
           </Section>
         </div>
       ) : null}
-
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Link
-          href="/regions#seoul"
-          className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-4 text-white shadow-sm transition hover:from-teal-700 hover:to-teal-600"
-        >
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
-            <MapPinned className="h-4 w-4" />
-            서울 지역별 조회
-          </span>
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          href="/regions#gyeonggi"
-          className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 text-white shadow-sm transition hover:from-slate-900 hover:to-slate-800"
-        >
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
-            <MapPinned className="h-4 w-4" />
-            경기 지역별 조회
-          </span>
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </section>
 
       <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
         국토교통부 아파트 실거래 기반 · 아파트 데이터랩

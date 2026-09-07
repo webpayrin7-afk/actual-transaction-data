@@ -10,7 +10,6 @@ import {
 } from "react";
 import {
   ArrowRight,
-  MapPinned,
   Search,
   TrendingUp,
 } from "lucide-react";
@@ -331,29 +330,6 @@ export function ComplexesPage() {
           </form>
         </div>
       </section>
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Link
-          href="/regions#seoul"
-          className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-4 text-white shadow-sm transition hover:from-teal-700 hover:to-teal-600"
-        >
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
-            <MapPinned className="h-4 w-4" />
-            서울 지역별 조회
-          </span>
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          href="/regions#gyeonggi"
-          className="inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 text-white shadow-sm transition hover:from-slate-900 hover:to-slate-800"
-        >
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
-            <MapPinned className="h-4 w-4" />
-            경기 지역별 조회
-          </span>
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
 
       {data?.headline && (
         <p className="rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm leading-relaxed text-slate-700 shadow-sm">
