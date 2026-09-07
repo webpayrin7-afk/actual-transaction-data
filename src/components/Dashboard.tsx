@@ -23,7 +23,7 @@ import type { AreaFilter, DealType } from "@/types/transaction";
 type RegionTab = "dong" | "stats" | "search";
 
 const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
-  { id: "stats", label: "지역 현황", icon: BarChart3 },
+  { id: "stats", label: "신고가 현황", icon: BarChart3 },
   { id: "dong", label: "동별 상세", icon: Building2 },
   { id: "search", label: "지역 검색", icon: Search },
 ];
