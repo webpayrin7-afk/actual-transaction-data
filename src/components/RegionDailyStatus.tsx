@@ -241,7 +241,7 @@ function MonthCalendar({
                     active ? "text-teal-100" : "text-teal-600"
                   }`}
                 >
-                  {summary!.dealCount}
+                  {summary!.dealCount > 0 ? summary!.dealCount : "-"}
                 </span>
               )}
             </button>
@@ -376,9 +376,18 @@ export function RegionDailyStatus({
         <div className="flex flex-col gap-3">
           {query.isLoading && !data ? (
             <div className="h-40 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
-          ) : !activeDate || dayDeals.length === 0 ? (
+          ) : !activeDate ? (
             <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
-              신고가가 있는 날짜를 달력에서 선택해 주세요.
+              {(data?.days.length ?? 0) === 0
+                ? "신고가 데이터 없음"
+                : "날짜를 달력에서 선택해 주세요."}
+            </div>
+          ) : dayDeals.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
+              <p className="font-medium text-slate-700">신고가 데이터 없음</p>
+              <p className="mt-1 text-xs text-slate-500">
+                {formatDealDate(activeDate)}에는 신고가 거래가 없습니다.
+              </p>
             </div>
           ) : (
             <>

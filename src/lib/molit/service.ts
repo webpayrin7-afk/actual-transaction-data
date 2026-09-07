@@ -799,6 +799,22 @@ export async function getRegionDaily(params: {
     { dealCount: number; tradeCount: number; maxDealAmount: number }
   >();
 
+  // 달력: 매매가 있는 날짜는 모두 선택 가능 (신고가 0건이어도)
+  for (const tx of items) {
+    const date = tx.dealDate.slice(0, 10);
+    if (!date) continue;
+    const prev = dayMap.get(date);
+    if (!prev) {
+      dayMap.set(date, {
+        dealCount: 0,
+        tradeCount: 1,
+        maxDealAmount: 0,
+      });
+      continue;
+    }
+    prev.tradeCount += 1;
+  }
+
   for (const deal of enrichedMonth) {
     const date = deal.dealDate.slice(0, 10);
     if (!date) continue;
@@ -812,7 +828,6 @@ export async function getRegionDaily(params: {
       continue;
     }
     prev.dealCount += 1;
-    prev.tradeCount += 1;
     prev.maxDealAmount = Math.max(prev.maxDealAmount, deal.dealAmount);
   }
 
@@ -820,9 +835,13 @@ export async function getRegionDaily(params: {
     .map(([date, value]) => ({ date, ...value }))
     .sort((a, b) => b.date.localeCompare(a.date));
 
+  const singogaDates = new Set(
+    enrichedMonth.map((deal) => deal.dealDate.slice(0, 10)),
+  );
   const requestedDate = params.date?.trim() || null;
   const selectedDate =
     (requestedDate && dayMap.has(requestedDate) ? requestedDate : null) ??
+    days.find((day) => singogaDates.has(day.date))?.date ??
     days[0]?.date ??
     null;
 
