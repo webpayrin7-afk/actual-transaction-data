@@ -288,12 +288,23 @@ export function RegionsPage() {
         </div>
 
         <div className="mt-5 flex flex-col gap-8">
-          <div id="seoul" className="scroll-mt-24">
-            <RegionGrid title="서울특별시" regions={filteredSeoul} />
-          </div>
-          <div id="gyeonggi" className="scroll-mt-24">
-            <RegionGrid title="경기도" regions={filteredGyeonggi} />
-          </div>
+          {filteredSeoul.length > 0 && (
+            <div id="seoul" className="scroll-mt-24">
+              <RegionGrid title="서울특별시" regions={filteredSeoul} />
+            </div>
+          )}
+          {filteredGyeonggi.length > 0 && (
+            <div id="gyeonggi" className="scroll-mt-24">
+              <RegionGrid title="경기도" regions={filteredGyeonggi} />
+            </div>
+          )}
+          {regionQuery.trim().length > 0 &&
+            filteredSeoul.length === 0 &&
+            filteredGyeonggi.length === 0 && (
+              <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+                검색 결과가 없습니다.
+              </p>
+            )}
         </div>
       </div>
 
