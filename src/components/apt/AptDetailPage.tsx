@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
+  ArrowLeft,
   CalendarDays,
   Flame,
   LoaderCircle,
 } from "lucide-react";
-import type { AptDetailResponse } from "@/lib/molit/apt";
+import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt";
 import {
   AptPriceChart,
   PeriodRangeSlider,
@@ -25,6 +27,7 @@ import {
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { useLoadProgress } from "@/components/layout/LoadProgress";
 import {
   formatArea,
   formatDealDate,
@@ -38,24 +41,63 @@ const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
 const RECENT_YEARS = 3;
 
-function AptLoadProgressBar({
-  active,
-  label = "시세 불러오는 중…",
-}: {
-  active: boolean;
-  label?: string;
-}) {
-  if (!active) return null;
+/**
+ * Compact 2-line trade row.
+ * Line 1: date (left) · price (right, never truncated)
+ * Line 2: 전용 ㎡ (평) · 층 · 신규/갱신 등 거래구분
+ */
+function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
+  const dateFull = formatDealDate(tx.dealDate);
+  const dateShort =
+    dateFull.length >= 10 ? dateFull.slice(5) : dateFull;
+  const priceLabel =
+    tx.dealType === "trade"
+      ? `매매 ${formatEok(tx.dealAmount)}`
+      : formatRentAmount(tx.dealAmount, tx.monthlyRent);
+  const dealingLabel = tx.dealingGbn || "중개거래";
 
   return (
-    <div className="fixed inset-x-0 top-14 z-50">
-      <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
-        <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
+    <li className="px-3.5 py-2.5 sm:px-4 sm:py-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <time
+          dateTime={tx.dealDate}
+          title={dateFull}
+          aria-label={dateFull}
+          className="shrink-0 text-sm font-medium tabular-nums text-slate-900"
+        >
+          <span className="sm:hidden">{dateShort}</span>
+          <span className="hidden sm:inline">{dateFull}</span>
+        </time>
+        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
+          {tx.isSingoga ? (
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
+              <Flame className="h-3 w-3" aria-hidden />
+              신고가
+            </span>
+          ) : null}
+          <p
+            className={`whitespace-nowrap text-sm font-semibold tabular-nums sm:text-base ${
+              tx.dealType === "trade" ? "text-teal-800" : "text-orange-700"
+            }`}
+          >
+            {priceLabel}
+          </p>
+        </div>
       </div>
-      <div className="border-b border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 backdrop-blur sm:px-6">
-        {label}
-      </div>
-    </div>
+      <p className="mt-1 text-xs leading-snug text-slate-500 sm:text-[13px]">
+        <span className="tabular-nums">{formatArea(tx.exclusiveArea)}</span>
+        <span className="text-slate-300" aria-hidden>
+          {" "}
+          ·{" "}
+        </span>
+        <span className="tabular-nums">{tx.floor}층</span>
+        <span className="text-slate-300" aria-hidden>
+          {" "}
+          ·{" "}
+        </span>
+        <span>{dealingLabel}</span>
+      </p>
+    </li>
   );
 }
 
@@ -115,6 +157,7 @@ export function AptDetailPage({
   initialAreaKey?: string;
 }) {
   const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
+  const router = useRouter();
   /** 사용자/수동 선택. aptIdentity가 바뀌면 자동 기본값으로 복귀 */
   const [areaOverride, setAreaOverride] = useState<{
     forId: string;
@@ -200,24 +243,55 @@ export function AptDetailPage({
     const hero = heroRef.current;
     if (!hero) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setStickyVisible(!entry.isIntersecting);
-      },
-      {
-        // 사이트 헤더(h-14) 아래에서 히어로가 사라질 때 고정 바 표시
-        rootMargin: "-56px 0px 0px 0px",
-        threshold: 0,
-      },
-    );
-    observer.observe(hero);
+    let observer: IntersectionObserver | null = null;
+
+    const bind = () => {
+      observer?.disconnect();
+      const header = document.querySelector<HTMLElement>("[data-site-header]");
+      const headerH = Math.max(
+        56,
+        Math.round(header?.getBoundingClientRect().height ?? 56),
+      );
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          setStickyVisible(!entry.isIntersecting);
+        },
+        {
+          // 사이트 헤더 아래에서 히어로가 사라질 때 고정 타이틀 표시
+          rootMargin: `-${headerH}px 0px 0px 0px`,
+          threshold: 0,
+        },
+      );
+      observer.observe(hero);
+    };
+
+    bind();
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    const ro = header ? new ResizeObserver(bind) : null;
+    if (header && ro) ro.observe(header);
+
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
+      ro?.disconnect();
       setStickyVisible(false);
     };
   }, [data]);
   const isExtendingHistory =
     quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
+  const { show: showLoadProgress, hide: hideLoadProgress } = useLoadProgress();
+  const loadProgressLabel =
+    quickQuery.isLoading && !data
+      ? "시세 불러오는 중…"
+      : isExtendingHistory
+        ? "과거 시세 추가로 불러오는 중…"
+        : null;
+
+  useEffect(() => {
+    if (loadProgressLabel) showLoadProgress(loadProgressLabel);
+    else hideLoadProgress();
+    return () => hideLoadProgress();
+  }, [loadProgressLabel, showLoadProgress, hideLoadProgress]);
+
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
   if (boundKey !== dataKey) {
@@ -359,7 +433,6 @@ export function AptDetailPage({
   if (quickQuery.isLoading && !data) {
     return (
       <div className={`${PAGE_SHELL} max-w-5xl`}>
-        <AptLoadProgressBar active label="시세 불러오는 중…" />
         <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -388,31 +461,42 @@ export function AptDetailPage({
 
   return (
     <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} max-w-5xl`}>
-      <AptLoadProgressBar
-        active={isExtendingHistory}
-        label="과거 시세 추가로 불러오는 중…"
-      />
       <div
-        className={`fixed inset-x-0 top-12 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 sm:top-14 ${
+        className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
           stickyVisible
             ? "translate-y-0 opacity-100"
             : "pointer-events-none invisible -translate-y-2 opacity-0"
         }`}
+        style={{ top: "var(--site-header-height, 5.5rem)" }}
         aria-hidden={!stickyVisible}
       >
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
-          <div className="min-w-0">
+        <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                router.push("/complexes");
+              }
+            }}
+            aria-label="뒤로 가기"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100"
+          >
+            <ArrowLeft className="h-5 w-5" strokeWidth={2} aria-hidden />
+          </button>
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-slate-900">
               {data.aptName}
             </p>
             <p className="truncate text-[11px] text-slate-500">
               {locationLabel}
-              {latestTrade ? ` · 최근 ${formatEok(latestTrade.dealAmount)}` : ""}
+              {data.buildYear ? ` · ${data.buildYear}년 입주` : ""}
+              {" · "}
+              매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
+              {data.stats.totalRentCount.toLocaleString("ko-KR")}건
             </p>
           </div>
-          <Link href="/complexes" className="shrink-0 text-xs font-medium text-teal-700">
-            단지 조회
-          </Link>
         </div>
       </div>
 
@@ -601,41 +685,7 @@ export function AptDetailPage({
                 </h3>
                 <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
                   {items.map((tx, idx) => (
-                    <li
-                      key={`${tx.id}-${idx}`}
-                      className="flex items-center justify-between gap-3 px-3.5 py-3 sm:px-4"
-                    >
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <p className="truncate text-sm font-medium text-slate-900">
-                          {formatDealDate(tx.dealDate).slice(5)}{" "}
-                          <span className="font-normal text-slate-500">
-                            {formatArea(tx.exclusiveArea)} · {tx.floor}층
-                          </span>
-                        </p>
-                        <p className="mt-0.5 truncate text-xs text-slate-500">
-                          {tx.dong} · {tx.dealingGbn || "중개거래"}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                        {tx.isSingoga ? (
-                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
-                            <Flame className="h-3 w-3" />
-                            신고가
-                          </span>
-                        ) : null}
-                        <p
-                          className={`whitespace-nowrap text-[13px] font-semibold tabular-nums leading-none sm:text-base ${
-                            tx.dealType === "trade"
-                              ? "text-teal-800"
-                              : "text-orange-700"
-                          }`}
-                        >
-                          {tx.dealType === "trade"
-                            ? `매매 ${formatEok(tx.dealAmount)}`
-                            : formatRentAmount(tx.dealAmount, tx.monthlyRent)}
-                        </p>
-                      </div>
-                    </li>
+                    <TradeHistoryRow key={`${tx.id}-${idx}`} tx={tx} />
                   ))}
                 </ul>
               </div>
