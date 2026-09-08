@@ -6,14 +6,14 @@ import { ActiveComplexList } from "@/components/complexes/ActiveComplexList";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 /**
- * 단지 조회 = 검색 · 다시보기 · 단지 발견.
+ * 단지별 조회 = 검색 · 다시보기 · 단지 발견.
  * 지역 탐색(/regions) · 시장 이벤트 랭킹(/ · /stats)과 역할을 겹치지 않는다.
  */
 export function ComplexesPage() {
   return (
     <div className={`${PAGE_SHELL} gap-8`}>
       <PageHeader
-        title="단지 조회"
+        title="단지별 조회"
         description="궁금한 아파트를 검색하고 실거래가와 거래 이력을 확인하세요."
       >
         <AptQuickSearch
@@ -28,10 +28,6 @@ export function ComplexesPage() {
       <RecentComplexList />
 
       <ActiveComplexList />
-
-      <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 OpenAPI 기반 · 아파트 데이터랩
-      </footer>
     </div>
   );
 }

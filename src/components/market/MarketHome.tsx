@@ -279,7 +279,7 @@ export function MarketHome() {
             href="/complexes"
             className="shrink-0 text-xs font-medium text-teal-700 hover:underline"
           >
-            단지 조회
+            단지별 조회
           </Link>
         </div>
         <AptQuickSearch compact inputId="market-home-search" />
@@ -329,9 +329,6 @@ export function MarketHome() {
         </div>
       ) : null}
 
-      <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 기반 · 아파트 데이터랩
-      </footer>
     </div>
   );
 }

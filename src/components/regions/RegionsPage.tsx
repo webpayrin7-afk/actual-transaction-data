@@ -84,7 +84,7 @@ function suggestRegions(query: string, limit = 8): RegionSuggestion[] {
 }
 
 /**
- * 지역 조회 인덱스.
+ * 지역별 조회 인덱스.
  * 시·도 → 시·군·구 compact selector 후 /region/[slug]로 이동.
  * 시장 KPI/랭킹은 지역 상세에서 확인 (여기선 선택만).
  */
@@ -136,7 +136,7 @@ export function RegionsPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="지역 조회"
+        title="지역별 조회"
         description="지역별 아파트 실거래와 시장 현황을 확인하세요."
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
@@ -267,9 +267,6 @@ export function RegionsPage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 OpenAPI 기반 · 아파트 데이터랩
-      </footer>
     </div>
   );
 }
