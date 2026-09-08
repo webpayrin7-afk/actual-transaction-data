@@ -490,9 +490,11 @@ export function AptDetailPage({
               {data.aptName}
             </p>
             <p className="truncate text-[11px] text-slate-500">
-              매매 {periodTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
-              {periodRentCount.toLocaleString("ko-KR")}건
-              {latestTrade ? ` · 최근 ${formatEok(latestTrade.dealAmount)}` : ""}
+              {locationLabel}
+              {data.buildYear ? ` · ${data.buildYear}년 입주` : ""}
+              {" · "}
+              매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
+              {data.stats.totalRentCount.toLocaleString("ko-KR")}건
             </p>
           </div>
         </div>
