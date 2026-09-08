@@ -176,9 +176,19 @@ export function LoanRateCompare() {
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-8 text-sm text-rose-800">
           {(query.error as Error).message}
           <p className="mt-2 text-rose-600">
-            Vercel/로컬 환경변수{" "}
-            <code className="rounded bg-white/70 px-1">SEOUL_OPENAPI_KEY</code>
-            에 서울 열린데이터광장 인증키가 설정돼 있는지 확인해 주세요.
+            서울 열린데이터광장에서 발급한{" "}
+            <strong className="font-semibold">일반 인증키</strong>를 Vercel 환경변수{" "}
+            <code className="rounded bg-white/70 px-1">SEOUL_OPENAPI_KEY</code>에
+            넣어 주세요. (Vercel 토큰이 아닙니다)
+            {" "}
+            <a
+              href="https://data.seoul.go.kr/together/mypage/actkeyMain.do"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium underline"
+            >
+              인증키 확인
+            </a>
           </p>
         </div>
       ) : null}

@@ -101,6 +101,12 @@ function resolveApiKey(): { key: string; usingSampleKey: boolean } {
   return { key: "sample", usingSampleKey: true };
 }
 
+/** INFO-000 정상, INFO-200 데이터 없음. INFO-100 등은 인증/요청 오류. */
+function assertSeoulOk(code: string, message: string): void {
+  if (code === "INFO-000" || code === "INFO-200") return;
+  throw new Error(message || `서울 OpenAPI 오류: ${code}`);
+}
+
 interface RawRow {
   lo_org_cd?: string;
   lo_org_nm?: string;
@@ -184,10 +190,7 @@ export async function fetchDreamMoneyRates(): Promise<DreamMoneyResult> {
 
   const firstXml = await fetchPage(key, 1, maxEnd);
   const first = parseDreamMoneyXml(firstXml);
-
-  if (!first.code.startsWith("INFO-")) {
-    throw new Error(first.message || `서울 OpenAPI 오류: ${first.code}`);
-  }
+  assertSeoulOk(first.code, first.message);
 
   const items = [...first.rows];
   const totalCount = first.totalCount || items.length;
@@ -197,9 +200,7 @@ export async function fetchDreamMoneyRates(): Promise<DreamMoneyResult> {
       const end = Math.min(start + PAGE_SIZE - 1, totalCount);
       const xml = await fetchPage(key, start, end);
       const page = parseDreamMoneyXml(xml);
-      if (!page.code.startsWith("INFO-")) {
-        throw new Error(page.message || `서울 OpenAPI 오류: ${page.code}`);
-      }
+      assertSeoulOk(page.code, page.message);
       items.push(...page.rows);
     }
   }
