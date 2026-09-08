@@ -5,15 +5,25 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { aptDetailHref, type AptSuggestion } from "@/lib/molit/apt";
+import { formatComplexLocationLabel } from "@/lib/complexes/recent-views";
 import { formatEok } from "@/lib/utils/format";
 
 /** 메인·단지조회에서 재사용하는 단지 자동완성 검색 */
 export function AptQuickSearch({
   compact = false,
   inputId = "apt-quick-search",
+  placeholder = "아파트 단지명을 검색하세요",
+  emptySubmitHref = "/complexes",
+  /** false면 가격 대신 동명 구분용 지역만 강조 */
+  showPrice = true,
+  hint,
 }: {
   compact?: boolean;
   inputId?: string;
+  placeholder?: string;
+  emptySubmitHref?: string;
+  showPrice?: boolean;
+  hint?: string;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -62,7 +72,7 @@ export function AptQuickSearch({
     e.preventDefault();
     const q = query.trim();
     if (!q) {
-      router.push("/complexes");
+      router.push(emptySubmitHref);
       return;
     }
 
@@ -89,7 +99,7 @@ export function AptQuickSearch({
       // fall through
     }
 
-    router.push(`/complexes`);
+    router.push(emptySubmitHref);
   };
 
   return (
@@ -97,10 +107,10 @@ export function AptQuickSearch({
       <label className="sr-only" htmlFor={inputId}>
         단지명 검색
       </label>
-      <div ref={searchWrapRef} className="relative z-20">
-        <div className="flex overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+      <div ref={searchWrapRef} className="relative z-30">
+        <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               id={inputId}
               value={query}
@@ -127,9 +137,9 @@ export function AptQuickSearch({
                   setActiveIndex(-1);
                 }
               }}
-              placeholder="단지명으로 바로 이동 (예: 래미안)"
+              placeholder={placeholder}
               className={`w-full border-0 bg-transparent pr-3 pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400 ${
-                compact ? "py-2.5" : "py-3"
+                compact ? "py-2.5" : "py-2.5 sm:py-3"
               }`}
               autoComplete="off"
             />
@@ -143,44 +153,63 @@ export function AptQuickSearch({
         </div>
 
         {openSuggest && debouncedQuery.length >= 1 && (
-          <div className="absolute top-full left-0 z-50 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-xl">
+          <div className="absolute top-full left-0 z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900 shadow-lg">
             {suggestQuery.isFetching ? (
               <p className="px-4 py-3 text-sm text-slate-500">검색 중…</p>
             ) : suggestions.length === 0 ? (
               <p className="px-4 py-3 text-sm text-slate-500">
-                일치하는 단지가 없습니다.
+                일치하는 단지가 없습니다. 아래에서 지역으로 찾아보세요.
               </p>
             ) : (
-              <ul className="max-h-72 overflow-y-auto py-1">
-                {suggestions.map((item, index) => (
-                  <li key={`${item.regionSlug}-${item.aptName}-${item.gu}`}>
-                    <button
-                      type="button"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => goApt(item.aptName, item.regionSlug, item.gu)}
-                      className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
-                        index === activeIndex ? "bg-teal-50" : "hover:bg-slate-50"
-                      }`}
+              <ul className="max-h-80 overflow-y-auto py-1">
+                {suggestions.map((item, index) => {
+                  const location = formatComplexLocationLabel({
+                    regionSlug: item.regionSlug,
+                    regionName: item.regionName,
+                    gu: item.gu,
+                    dong: item.dong,
+                  });
+                  return (
+                    <li
+                      key={`${item.regionSlug}-${item.aptName}-${item.gu}-${item.dong}`}
                     >
-                      <span>
-                        <span className="block text-sm font-semibold text-slate-900">
-                          {item.aptName}
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() =>
+                          goApt(item.aptName, item.regionSlug, item.gu)
+                        }
+                        className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
+                          index === activeIndex
+                            ? "bg-teal-50"
+                            : "hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-slate-900">
+                            {item.aptName}
+                          </span>
+                          <span className="mt-0.5 block truncate text-xs text-slate-500">
+                            {location}
+                          </span>
                         </span>
-                        <span className="mt-0.5 block text-xs text-slate-500">
-                          {item.regionName} · {item.dong}
-                        </span>
-                      </span>
-                      <span className="shrink-0 text-sm font-semibold text-rose-600">
-                        {formatEok(item.maxDealAmount)}
-                      </span>
-                    </button>
-                  </li>
-                ))}
+                        {showPrice ? (
+                          <span className="shrink-0 text-sm font-semibold text-rose-600">
+                            {formatEok(item.maxDealAmount)}
+                          </span>
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
         )}
       </div>
+      {hint ? (
+        <p className="mt-1.5 text-xs text-slate-500">{hint}</p>
+      ) : null}
     </form>
   );
 }

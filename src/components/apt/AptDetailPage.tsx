@@ -17,6 +17,10 @@ import {
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import {
+  formatComplexLocationLabel,
+  recordRecentComplex,
+} from "@/lib/complexes/recent-views";
+import {
   formatDealDate,
   formatEok,
   formatRentAmount,
@@ -125,6 +129,30 @@ export function AptDetailPage({
   });
 
   const data = fullQuery.data ?? quickQuery.data;
+
+  // 단지 상세 진입 시 최근 조회 기록 (localStorage MVP)
+  useEffect(() => {
+    if (!data?.aptName || !data.regionSlug) return;
+    recordRecentComplex({
+      aptName: data.aptName,
+      regionSlug: data.regionSlug,
+      gu: data.gu || gu,
+      dong: data.dong,
+      regionLabel: formatComplexLocationLabel({
+        regionSlug: data.regionSlug,
+        regionName: data.regionName,
+        gu: data.gu || gu,
+        dong: data.dong,
+      }),
+    });
+  }, [
+    data?.aptName,
+    data?.regionSlug,
+    data?.gu,
+    data?.dong,
+    data?.regionName,
+    gu,
+  ]);
 
   useEffect(() => {
     if (!data) return;

@@ -13,7 +13,7 @@ const PRIMARY_NAV = [
   },
   {
     href: "/complexes",
-    label: "단지별 조회",
+    label: "단지 조회",
     match: (pathname: string) =>
       pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
   },
