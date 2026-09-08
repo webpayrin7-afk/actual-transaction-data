@@ -193,10 +193,13 @@ function AreaSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="absolute left-0 right-0 z-10 mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
+        className="absolute left-0 right-0 z-10 mx-auto flex w-full max-w-md flex-col bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
         style={{
           height: "66.666dvh",
           bottom: open ? 0 : "-66.666dvh",
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          overflow: "hidden",
           transition: `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
       >
@@ -207,7 +210,7 @@ function AreaSheet({
         <div className="relative flex shrink-0 items-center justify-center px-12 pb-3 pt-1">
           <h2
             id={titleId}
-            className="text-center text-base font-bold text-slate-900 sm:text-[17px]"
+            className="text-center text-[17px] font-bold leading-none text-slate-900"
           >
             면적 선택
           </h2>
@@ -253,12 +256,12 @@ function AreaOption({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 py-3.5 text-left transition ${
+      className={`flex w-full items-center gap-3 py-3 text-left transition ${
         active ? "bg-slate-50" : "hover:bg-slate-50/80"
       }`}
     >
       <span
-        className={`min-w-0 flex-1 truncate text-[15px] tabular-nums ${
+        className={`min-w-0 flex-1 truncate text-sm tabular-nums ${
           active
             ? "font-semibold text-slate-900"
             : "font-medium text-slate-800"
