@@ -375,7 +375,7 @@ export function AptDetailPage({
   const locationLabel = `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl gap-3`}>
+    <div className={`${PAGE_SHELL} max-w-5xl`}>
       <AptLoadProgressBar
         active={isExtendingHistory}
         label="과거 시세 추가로 불러오는 중…"
@@ -404,7 +404,7 @@ export function AptDetailPage({
         </div>
       </div>
 
-      <header ref={heroRef}>
+      <header ref={heroRef} className="-mb-3">
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
