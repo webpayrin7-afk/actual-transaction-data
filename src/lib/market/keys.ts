@@ -28,7 +28,11 @@ export function metroFromLawd(lawdCd: string): "seoul" | "gyeonggi" | "other" {
 }
 
 export function scopeMatchesLawd(scope: StatsScope, lawdCd: string): boolean {
-  if (scope === "all") return true;
+  // "all" = 서울·경기 (기존 stats UI ‘전국’ 의미 유지). 타 시도는 별도 scope 확장 전까지 제외.
+  if (scope === "all") {
+    const m = metroFromLawd(lawdCd);
+    return m === "seoul" || m === "gyeonggi";
+  }
   return metroFromLawd(lawdCd) === scope;
 }
 

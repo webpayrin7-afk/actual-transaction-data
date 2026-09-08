@@ -109,6 +109,7 @@ async function fetchMolitXml(
     const res = await fetch(fullUrl, {
       next: { revalidate: 1800 },
       headers: { Accept: "application/xml, text/xml, */*" },
+      signal: AbortSignal.timeout(30_000),
     });
     lastStatus = res.status;
     if (res.status === 429 || res.status === 503) {
@@ -122,6 +123,47 @@ async function fetchMolitXml(
   }
 
   throw new Error(`MOLIT API HTTP ${lastStatus} (${lawdCd})`);
+}
+
+/**
+ * 모든 page를 수집. totalCount > numOfRows 인 대량 월 누락 방지.
+ * page 상한 100으로 폭주 방지.
+ */
+async function fetchAllPages(
+  baseUrl: string,
+  lawdCd: string,
+  yearMonth: string,
+  parse: (xml: string, lawdCd: string) => Transaction[],
+): Promise<Transaction[]> {
+  const numOfRows = 1000;
+  const firstXml = await fetchMolitXml(baseUrl, lawdCd, yearMonth, 1, numOfRows);
+  const status = isOkOrEmpty(firstXml);
+  if (!status.ok) {
+    throw new Error(`API ${lawdCd}: ${status.message}`);
+  }
+  if (status.empty) return [];
+
+  const first = parse(firstXml, lawdCd);
+  const total = getApiTotalCount(firstXml);
+  if (!total || total <= first.length || first.length === 0) {
+    return first;
+  }
+
+  const pages = Math.min(100, Math.ceil(total / numOfRows));
+  const all = [...first];
+  for (let pageNo = 2; pageNo <= pages; pageNo += 1) {
+    const xml = await fetchMolitXml(baseUrl, lawdCd, yearMonth, pageNo, numOfRows);
+    const st = isOkOrEmpty(xml);
+    if (!st.ok) {
+      throw new Error(`API ${lawdCd} page ${pageNo}: ${st.message}`);
+    }
+    if (st.empty) break;
+    const chunk = parse(xml, lawdCd);
+    if (chunk.length === 0) break;
+    all.push(...chunk);
+    if (chunk.length < numOfRows) break;
+  }
+  return all;
 }
 
 function isOkOrEmpty(xml: string): { ok: boolean; empty: boolean; message: string } {
@@ -149,26 +191,14 @@ async function fetchOneTradeUncached(
   lawdCd: string,
   yearMonth: string,
 ): Promise<Transaction[]> {
-  const xml = await fetchMolitXml(TRADE_API_URL, lawdCd, yearMonth);
-  const status = isOkOrEmpty(xml);
-  if (!status.ok) {
-    throw new Error(`Trade API ${lawdCd}: ${status.message}`);
-  }
-  if (status.empty) return [];
-  return parseTradeXml(xml, lawdCd);
+  return fetchAllPages(TRADE_API_URL, lawdCd, yearMonth, parseTradeXml);
 }
 
 async function fetchOneRentUncached(
   lawdCd: string,
   yearMonth: string,
 ): Promise<Transaction[]> {
-  const xml = await fetchMolitXml(RENT_API_URL, lawdCd, yearMonth);
-  const status = isOkOrEmpty(xml);
-  if (!status.ok) {
-    throw new Error(`Rent API ${lawdCd}: ${status.message}`);
-  }
-  if (status.empty) return [];
-  return parseRentXml(xml, lawdCd);
+  return fetchAllPages(RENT_API_URL, lawdCd, yearMonth, parseRentXml);
 }
 
 async function fetchOneTrade(
@@ -235,9 +265,9 @@ async function fetchOneRent(
   return promise;
 }
 
-/** 동기화 스크립트용 (월 캐시 포함) */
-export const fetchOneTradeForSync = fetchOneTrade;
-export const fetchOneRentForSync = fetchOneRent;
+/** 동기화 스크립트용 — 캐시/백그라운드 persist 없이 전체 page 수집 */
+export const fetchOneTradeForSync = fetchOneTradeUncached;
+export const fetchOneRentForSync = fetchOneRentUncached;
 
 /** 신선도 probe용 — 캐시/백그라운드 적재 없이 당월 건수·최근 계약일만 조회 */
 export async function fetchTradeMonthProbe(

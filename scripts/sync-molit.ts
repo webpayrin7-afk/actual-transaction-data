@@ -2,14 +2,20 @@
  * MOLIT → Turso/SQLite 웨어하우스 적재
  *
  * 사용 예:
- *   # 미적재분만 (백필)
+ *   # 미적재분만 (서울·경기 백필) — scope=all 은 수도권만
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=120 --rent-months=48 --skip-existing=1
  *
- *   # 최근 개월 변경분만 DB 기록 (기본 운영)
+ *   # 최근 개월 변경분만 (기본 daily)
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=2 --rent-months=2 --skip-existing=0 --only-changed=1
  *
- * 신선도: Actions가 probe 후 이 스크립트를 only-changed 로 돌려
- * 국토부 응답이 DB와 같을 때는 write를 건너뛴다.
+ *   # 전국 plan (WRITE 0)
+ *   npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
+ *
+ *   # 신규 지역 smoke (historical → discovery=0)
+ *   npx tsx scripts/sync-molit.ts --codes=26350 --trade-months=1 --rent-months=0 \
+ *     --skip-existing=0 --only-changed=0 --discovery=0 --concurrency=1
+ *
+ * 문서: docs/nationwide-sync.md
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });
@@ -19,6 +25,8 @@ import { resolve } from "node:path";
 import {
   FEATURED_LAWD_CODES,
   ALL_REGIONS,
+  allCapitalLawdCodes,
+  allNationwideLawdCodes,
 } from "../src/lib/constants/regions-registry";
 import { ensureSchema, getDb } from "../src/lib/db/client";
 import {
@@ -40,16 +48,13 @@ function argValue(name: string, fallback: string): string {
 function expandFeatured(): string[] {
   const featured = new Set<string>(FEATURED_LAWD_CODES);
   const codes = new Set<string>();
+  // featured는 서울·경기 중심 — CAPITAL + 동일 규칙
   for (const region of ALL_REGIONS) {
     if (region.lawdCodes.some((c) => featured.has(c))) {
       for (const c of region.lawdCodes) codes.add(c);
     }
   }
   return [...codes];
-}
-
-function allLawdCodes(): string[] {
-  return [...new Set(ALL_REGIONS.flatMap((r) => r.lawdCodes))];
 }
 
 function maxDealDate(items: Transaction[]): string {
@@ -108,16 +113,44 @@ function isUnchanged(
   return snap.rowCount === items.length && snap.maxDealDate === apiMax;
 }
 
+function yearMonthsBetween(fromYm: string, toYm: string): string[] {
+  const out: string[] = [];
+  let y = Number(fromYm.slice(0, 4));
+  let m = Number(fromYm.slice(4, 6));
+  const ty = Number(toYm.slice(0, 4));
+  const tm = Number(toYm.slice(4, 6));
+  while (y < ty || (y === ty && m <= tm)) {
+    out.push(`${y}${String(m).padStart(2, "0")}`);
+    m += 1;
+    if (m > 12) {
+      m = 1;
+      y += 1;
+    }
+    if (out.length > 240) break;
+  }
+  return out;
+}
+
 async function main() {
-  const scope = argValue("scope", "featured"); // featured | all | anyang | codes
+  const scope = argValue("scope", "featured"); // featured | all | nationwide | anyang | codes
   const tradeMonths = Number(argValue("trade-months", "120"));
   const rentMonths = Number(argValue("rent-months", "48"));
-  const concurrency = Number(argValue("concurrency", "4"));
+  const concurrency = Math.min(
+    8,
+    Math.max(1, Number(argValue("concurrency", "4"))),
+  );
   const codesArg = argValue("codes", "");
   const skipExisting = argValue("skip-existing", "1") !== "0";
   // 운영 기본: API는 조회하되 DB write는 변경된 월만
   const onlyChanged = argValue("only-changed", skipExisting ? "0" : "1") !== "0";
   const rebuildCatalog = argValue("rebuild-catalog", "1") !== "0";
+  const planOnly = argValue("plan", "0") === "1" || process.argv.includes("--plan");
+  /** historical backfill: first_seen_at=NULL → 오늘의 시장 발견 feed 오염 방지 */
+  const discovery = argValue("discovery", "1") !== "0";
+  const maxRegions = Number(argValue("max-regions", "0"));
+  const maxMonths = Number(argValue("max-months", "0"));
+  const fromMonth = argValue("from-month", "");
+  const toMonth = argValue("to-month", "");
 
   if (!process.env.TURSO_DATABASE_URL) {
     process.env.TURSO_DATABASE_URL = `file:${resolve("data/molit.db")}`;
@@ -134,16 +167,35 @@ async function main() {
   let lawdCodes: string[];
   if (codesArg) {
     lawdCodes = codesArg.split(",").map((s) => s.trim()).filter(Boolean);
+  } else if (scope === "nationwide") {
+    lawdCodes = allNationwideLawdCodes();
   } else if (scope === "all") {
-    lawdCodes = allLawdCodes();
+    // 하위 호환: all = 서울·경기 (기존 Actions/스크립트)
+    lawdCodes = allCapitalLawdCodes();
   } else if (scope === "anyang") {
     lawdCodes = ["41171", "41173"];
   } else {
     lawdCodes = expandFeatured();
   }
 
-  const tradeYms = recentYearMonths(Math.min(Math.max(tradeMonths, 1), 240));
-  const rentYms = recentYearMonths(Math.min(Math.max(rentMonths, 0), 240));
+  if (maxRegions > 0) {
+    lawdCodes = lawdCodes.slice(0, maxRegions);
+  }
+
+  let tradeYms: string[];
+  let rentYms: string[];
+  if (fromMonth && toMonth) {
+    const span = yearMonthsBetween(fromMonth, toMonth);
+    tradeYms = span;
+    rentYms = rentMonths > 0 ? span : [];
+  } else {
+    tradeYms = recentYearMonths(Math.min(Math.max(tradeMonths, 1), 240));
+    rentYms = recentYearMonths(Math.min(Math.max(rentMonths, 0), 240));
+  }
+  if (maxMonths > 0) {
+    tradeYms = tradeYms.slice(0, maxMonths);
+    rentYms = rentYms.slice(0, maxMonths);
+  }
 
   type Job = {
     lawdCd: string;
@@ -182,8 +234,25 @@ async function main() {
     : null;
 
   console.log(
-    `[sync] lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
+    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} plan=${planOnly ? 1 : 0} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
   );
+  if (lawdCodes.length <= 20) {
+    console.log(`[sync] lawds: ${lawdCodes.join(",")}`);
+  } else {
+    console.log(
+      `[sync] lawds sample: ${lawdCodes.slice(0, 8).join(",")} … (+${lawdCodes.length - 8})`,
+    );
+  }
+
+  if (planOnly) {
+    console.log(
+      `[sync:plan] NO WRITE. estimated API cells≈${jobs.length} (1+ pages each). Use without --plan=1 to execute.`,
+    );
+    console.log(
+      `[sync:plan] tip: nationwide historical is dangerous for write quota — prefer --discovery=0 --trade-months=3 --skip-existing=1 --max-regions=N`,
+    );
+    return;
+  }
 
   if (jobs.length === 0) {
     console.log("[sync] nothing to do");
@@ -191,11 +260,14 @@ async function main() {
   }
 
   let done = 0;
-  let rows = 0;
+  let inserted = 0;
+  let updated = 0;
+  let deleted = 0;
   let written = 0;
   let unchanged = 0;
   let failures = 0;
   let next = 0;
+  const failedKeys: string[] = [];
   const startedAt = Date.now();
 
   async function worker() {
@@ -218,14 +290,14 @@ async function main() {
             yearMonth: job.yearMonth,
             dealKind: job.kind,
             items,
+            setFirstSeenOnInsert: discovery,
           });
-          // written = 실제 transaction INSERT/UPDATE/DELETE 가 있는 cell만
-          // (동일 본문 NO-OP cell은 catalog/market rebuild 트리거에서 제외)
+          inserted += result.inserted;
+          updated += result.updated;
+          deleted += result.deleted;
+          unchanged += result.unchanged;
           if (result.wrote) {
             written += 1;
-            rows += result.inserted + result.updated + result.deleted;
-          } else {
-            unchanged += 1;
           }
           if (snapshots) {
             snapshots.set(key, {
@@ -236,6 +308,7 @@ async function main() {
         }
       } catch (err) {
         failures += 1;
+        failedKeys.push(key);
         console.warn(
           `[sync] fail ${job.kind} ${job.lawdCd} ${job.yearMonth}:`,
           err instanceof Error ? err.message : err,
@@ -251,7 +324,7 @@ async function main() {
             60
           ).toFixed(0);
           console.log(
-            `[sync] progress ${done}/${jobs.length} written=${written} unchanged=${unchanged} rows=${rows} failures=${failures} elapsed=${elapsedMin}m eta~${etaMin}m`,
+            `[sync] progress ${done}/${jobs.length} writtenCells=${written} ins=${inserted} upd=${updated} del=${deleted} unchanged=${unchanged} failures=${failures} elapsed=${elapsedMin}m eta~${etaMin}m`,
           );
         }
       }
@@ -262,9 +335,15 @@ async function main() {
     Array.from({ length: Math.min(concurrency, jobs.length) }, () => worker()),
   );
 
+  const durationSec = Math.round((Date.now() - startedAt) / 1000);
   console.log(
-    `[sync] done jobs=${done} written=${written} unchanged=${unchanged} rows=${rows} failures=${failures} skippedExisting=${skippedExisting} db=${process.env.TURSO_DATABASE_URL}`,
+    `[sync] SUMMARY regions=${lawdCodes.length} jobs=${done} writtenCells=${written} inserted=${inserted} updated=${updated} deleted=${deleted} unchanged=${unchanged} failures=${failures} skippedExisting=${skippedExisting} durationSec=${durationSec} discovery=${discovery ? 1 : 0}`,
   );
+  if (failedKeys.length) {
+    console.log(
+      `[sync] failed keys (${failedKeys.length}): ${failedKeys.slice(0, 30).join(", ")}${failedKeys.length > 30 ? " …" : ""}`,
+    );
+  }
 
   if (rebuildCatalog && written > 0) {
     try {
