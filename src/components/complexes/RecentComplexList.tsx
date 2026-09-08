@@ -43,7 +43,9 @@ export function RecentComplexList() {
 
       {items.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-center text-sm text-slate-500">
-          아직 조회한 단지가 없습니다. 위 검색에서 궁금한 아파트를 찾아보세요.
+          아직 조회한 단지가 없습니다.
+          <br />
+          위 검색에서 궁금한 아파트를 찾아보세요.
         </p>
       ) : (
         <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
