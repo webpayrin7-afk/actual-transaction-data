@@ -25,7 +25,11 @@ CREATE TABLE IF NOT EXISTS transactions (
   floor INTEGER NOT NULL DEFAULT 0,
   build_year INTEGER,
   jibun TEXT NOT NULL DEFAULT '',
-  dealing_gbn TEXT NOT NULL DEFAULT ''
+  dealing_gbn TEXT NOT NULL DEFAULT '',
+  -- 시스템 최초/마지막 확인 시각 (UTC ISO). legacy는 NULL.
+  -- 신고일/공개일이 아님.
+  first_seen_at TEXT,
+  last_seen_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_tx_lawd_apt_ym
@@ -62,6 +66,9 @@ CREATE TABLE IF NOT EXISTS market_home_snapshots (
 
 CREATE INDEX IF NOT EXISTS idx_tx_type_deal_date
   ON transactions (deal_type, deal_date);
+
+CREATE INDEX IF NOT EXISTS idx_tx_type_first_seen
+  ON transactions (deal_type, first_seen_at);
 
 CREATE TABLE IF NOT EXISTS market_stats_daily (
   day TEXT NOT NULL,

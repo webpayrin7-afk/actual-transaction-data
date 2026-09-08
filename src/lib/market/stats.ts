@@ -1,25 +1,25 @@
 import { getDb, hasDb, ensureSchema } from "@/lib/db/client";
 import { LAWD_TO_REGION, ALL_REGIONS } from "@/lib/constants/regions";
 import {
-  DROP_THRESHOLD,
   MARKET_COMPLEX_KEY_VERSION,
   addDays,
   addMonths,
   medianOf,
   metroFromLawd,
   monthKey,
-  typeKey,
+  resolvePeriodWindow,
+  weekStartMonday,
   type StatsPeriod,
   type StatsScope,
-  weekStartMonday,
 } from "@/lib/market/keys";
 import {
-  periodWindows,
   readStatsDealFeed,
   rebuildAllStatsDealFeeds,
+  computeStatsDealFeed,
   type StatsDealFeed,
 } from "@/lib/market/stats-feeds";
 import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
+import { judgeTradesChronological } from "@/lib/market/judge";
 
 /** 차트·KPI용 일별 집계 보관 기간 */
 const STATS_KEEP_MONTHS = 24;
@@ -67,18 +67,29 @@ export interface StatsKpiBlock {
   singogaCount: number;
   singogaPrev: number;
   singogaChangePct: number | null;
+  singogaSharePct: number | null;
   dropCount: number;
   dropPrev: number;
   dropChangePct: number | null;
+  dropSharePct: number | null;
   medianAmount: number | null;
   medianAmountPrev: number | null;
   medianPpsqm: number | null;
   windowLabel: string;
   prevWindowLabel: string;
+  compareLabel: string;
+  reportingLagRisk: boolean;
   /** 주/월 중위가는 일별 중위의 중위(근사). true면 UI에서 안내 */
   medianIsApprox: boolean;
   windowFrom: string;
   windowTo: string;
+  chartFrom: string;
+  chartTo: string;
+  canGoNext: boolean;
+  canGoPrev: boolean;
+  prevAnchor: string;
+  nextAnchor: string;
+  anchorDate: string;
 }
 
 export interface StatsRegionRank {
@@ -100,6 +111,7 @@ export interface StatsRegionRank {
 export interface MarketStatsResponse {
   source: "preagg" | "empty";
   asOfDate: string | null;
+  selectedDate: string | null;
   computedAt: string | null;
   period: StatsPeriod;
   scope: StatsScope;
@@ -181,6 +193,7 @@ function emptyStats(
   return {
     source: "empty",
     asOfDate: null,
+    selectedDate: null,
     computedAt: null,
     period,
     scope,
@@ -311,31 +324,40 @@ export async function rebuildMarketStats(): Promise<{
       args: ["trade", ym, histFrom, asOfDate],
     });
 
+    const monthTrades = [];
     for (const row of result.rows) {
-      const day = String(row.deal_date).slice(0, 10);
-      const lawdCd = String(row.lawd_cd);
-      const norm = String(row.apt_name_norm);
-      const dong = String(row.dong ?? "");
-      const area = Number(row.exclusive_area) || 0;
       const amount = Number(row.deal_amount) || 0;
       if (amount <= 0) continue;
+      monthTrades.push({
+        id: String(row.id),
+        dealDate: String(row.deal_date).slice(0, 10),
+        aptNameNorm: String(row.apt_name_norm),
+        lawdCd: String(row.lawd_cd),
+        dong: String(row.dong ?? ""),
+        exclusiveArea: Number(row.exclusive_area) || 0,
+        dealAmount: amount,
+      });
+    }
 
-      const key = typeKey(norm, lawdCd, dong, area);
-      const prior = runningMax.get(key) ?? 0;
-      const singoga = prior > 0 && amount > prior;
-      const drop = prior > 0 && (amount - prior) / prior <= DROP_THRESHOLD;
-      const flags = { singoga, drop };
+    // 동일일 비연쇄 — runningMax는 월을 넘어 유지
+    const flagsMap = judgeTradesChronological(monthTrades, runningMax);
 
+    for (const t of monthTrades) {
+      const f = flagsMap.get(t.id);
+      const flags = {
+        singoga: Boolean(f?.singoga),
+        drop: Boolean(f?.drop),
+      };
+      const day = t.dealDate;
       if (day >= statsFrom) {
-        bumpScope(day, "all", amount, area, flags);
-        const metro = metroFromLawd(lawdCd);
-        if (metro === "seoul") bumpScope(day, "seoul", amount, area, flags);
+        bumpScope(day, "all", t.dealAmount, t.exclusiveArea, flags);
+        const metro = metroFromLawd(t.lawdCd);
+        if (metro === "seoul")
+          bumpScope(day, "seoul", t.dealAmount, t.exclusiveArea, flags);
         if (metro === "gyeonggi")
-          bumpScope(day, "gyeonggi", amount, area, flags);
-        bumpRegion(day, lawdCd, flags);
+          bumpScope(day, "gyeonggi", t.dealAmount, t.exclusiveArea, flags);
+        bumpRegion(day, t.lawdCd, flags);
       }
-
-      runningMax.set(key, Math.max(prior, amount));
     }
   }
 
@@ -614,10 +636,11 @@ function sumDays(
 
 function buildKpi(
   days: StatsDayRow[],
+  selectedDate: string,
   asOf: string,
   period: StatsPeriod,
 ): StatsKpiBlock {
-  const w = periodWindows(asOf, period);
+  const w = resolvePeriodWindow(selectedDate, period, asOf);
   const cur = sumDays(days, w.curFrom, w.curTo);
   const prev = sumDays(days, w.prevFrom, w.prevTo);
 
@@ -628,26 +651,42 @@ function buildKpi(
     singogaCount: cur.singoga,
     singogaPrev: prev.singoga,
     singogaChangePct: pctChange(cur.singoga, prev.singoga),
+    singogaSharePct:
+      cur.trade > 0
+        ? Math.round((cur.singoga / cur.trade) * 1000) / 10
+        : null,
     dropCount: cur.drop,
     dropPrev: prev.drop,
     dropChangePct: pctChange(cur.drop, prev.drop),
+    dropSharePct:
+      cur.trade > 0 ? Math.round((cur.drop / cur.trade) * 1000) / 10 : null,
     medianAmount: medianOf(cur.medians),
     medianAmountPrev: medianOf(prev.medians),
     medianPpsqm: medianOf(cur.ppsqm),
     windowLabel: w.windowLabel,
     prevWindowLabel: w.prevWindowLabel,
+    compareLabel: w.compareLabel,
+    reportingLagRisk: w.reportingLagRisk,
     medianIsApprox: period !== "daily",
     windowFrom: w.curFrom,
     windowTo: w.curTo,
+    chartFrom: w.chartFrom,
+    chartTo: w.chartTo,
+    canGoNext: w.canGoNext,
+    canGoPrev: w.canGoPrev,
+    prevAnchor: w.prevAnchor,
+    nextAnchor: w.nextAnchor,
+    anchorDate: w.anchorDate,
   };
 }
 
 function buildRankings(
   rows: StatsRegionDayRow[],
+  selectedDate: string,
   asOf: string,
   period: StatsPeriod,
 ): MarketStatsResponse["rankings"] {
-  const w = periodWindows(asOf, period);
+  const w = resolvePeriodWindow(selectedDate, period, asOf);
   const { curFrom, curTo, prevFrom, prevTo } = w;
   const minTrades =
     period === "daily" ? 5 : period === "weekly" ? 8 : 20;
@@ -747,8 +786,9 @@ function buildRankings(
 export async function getMarketStats(params: {
   period: StatsPeriod;
   scope: StatsScope;
+  date?: string | null;
 }): Promise<MarketStatsResponse> {
-  const cacheKey = `${params.period}|${params.scope}`;
+  const cacheKey = `${params.period}|${params.scope}|${params.date ?? ""}`;
   if (readCache && readCache.key === cacheKey && readCache.expiresAt > Date.now()) {
     return readCache.data;
   }
@@ -768,34 +808,51 @@ export async function getMarketStats(params: {
   }
 
   const asOf = meta.asOfDate;
-  const lookbackDays =
-    params.period === "daily" ? 30 : params.period === "weekly" ? 16 * 7 : 560;
-  const from = addDays(asOf, -lookbackDays);
-  // monthly: ~18 months
-  const fromFinal =
-    params.period === "monthly" ? addMonths(asOf, -18) : from;
+  const rawDate = (params.date ?? asOf).slice(0, 10);
+  const selectedDate = rawDate > asOf ? asOf : rawDate;
+  const window = resolvePeriodWindow(selectedDate, params.period, asOf);
+  const anchor = window.anchorDate;
 
-  const [days, regions] = await Promise.all([
-    loadDailyScope(params.scope, fromFinal, asOf),
-    loadRegionRange(params.scope, fromFinal, asOf),
+  const [days, regionsFull] = await Promise.all([
+    loadDailyScope(params.scope, window.chartFrom, window.chartTo),
+    loadRegionRange(
+      params.scope,
+      window.prevFrom < window.curFrom ? window.prevFrom : window.curFrom,
+      window.curTo,
+    ),
   ]);
 
   if (days.length === 0) {
     return {
       ...emptyStats(params.period, params.scope, "해당 기간 집계가 없습니다."),
       asOfDate: asOf,
+      selectedDate: anchor,
       computedAt: meta.computedAt,
     };
   }
 
   const series = rollupSeries(days, params.period);
-  const kpi = buildKpi(days, asOf, params.period);
-  const rankings = buildRankings(regions, asOf, params.period);
-  let feedSnap = await readStatsDealFeed(params.period, params.scope);
+  const kpi = buildKpi(days, anchor, asOf, params.period);
+  const rankings = buildRankings(regionsFull, anchor, asOf, params.period);
+
+  // 기본 as-of 스냅샷이 선택 기간과 같으면 캐시 피드, 아니면 on-demand
+  const defaultWindow = resolvePeriodWindow(asOf, params.period, asOf);
+  const isDefaultSelection =
+    window.curFrom === defaultWindow.curFrom &&
+    window.curTo === defaultWindow.curTo;
+
+  let feedSnap: StatsDealFeed | null = null;
+  if (isDefaultSelection) {
+    feedSnap = await readStatsDealFeed(params.period, params.scope);
+  }
   if (!feedSnap) {
     try {
-      const { computeStatsDealFeed } = await import("@/lib/market/stats-feeds");
-      feedSnap = await computeStatsDealFeed(asOf, params.period, params.scope);
+      feedSnap = await computeStatsDealFeed(
+        asOf,
+        params.period,
+        params.scope,
+        anchor,
+      );
     } catch (err) {
       console.warn("[market-stats] on-demand feed compute failed:", err);
     }
@@ -804,11 +861,13 @@ export async function getMarketStats(params: {
   const data: MarketStatsResponse = {
     source: "preagg",
     asOfDate: asOf,
+    selectedDate: anchor,
     computedAt: meta.computedAt,
     period: params.period,
     scope: params.scope,
-    dateBasisNote:
-      "계약일 기준입니다. 국토부 신고·DB 적재 시차로 달력상 ‘오늘’과 다를 수 있습니다.",
+    dateBasisNote: window.reportingLagRisk
+      ? "계약일 기준입니다. 최신 계약 기간은 신고 지연으로 거래량이 과소 보일 수 있어, 단순 급락으로 해석하지 마세요."
+      : "계약일(deal_date) 기준입니다. 홈의 ‘새로 확인’(first_seen_at)과 다른 시간축입니다.",
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
     series,
     kpi,

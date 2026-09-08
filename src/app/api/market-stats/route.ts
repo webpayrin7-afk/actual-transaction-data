@@ -15,11 +15,18 @@ function parseScope(raw: string | null): StatsScope {
   return "all";
 }
 
+function parseDate(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  return raw;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const period = parsePeriod(request.nextUrl.searchParams.get("period"));
     const scope = parseScope(request.nextUrl.searchParams.get("scope"));
-    const data = await getMarketStats({ period, scope });
+    const date = parseDate(request.nextUrl.searchParams.get("date"));
+    const data = await getMarketStats({ period, scope, date });
     return NextResponse.json(data, {
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",

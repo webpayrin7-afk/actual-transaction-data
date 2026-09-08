@@ -65,7 +65,7 @@ export function parseTradeXml(xml: string, lawdCd: string): Transaction[] {
   const items = asArray<RawTradeItem>(json?.response?.body?.items?.item);
 
   return items
-    .map((item, index) => {
+    .map((item) => {
       const year = text(item.dealYear);
       const month = text(item.dealMonth);
       const day = text(item.dealDay);
@@ -79,8 +79,9 @@ export function parseTradeXml(xml: string, lawdCd: string): Transaction[] {
       if (!year || !month || !day || !aptName) return null;
 
       const dealDate = buildDealDate(year, month, day);
+      const jibun = text(item.jibun);
       const tx: Transaction = {
-        id: `trade-${lawdCd}-${dealDate}-${aptName}-${dong}-${floor}-${dealAmount}-${exclusiveArea}-${index}`,
+        id: `trade-${lawdCd}-${dealDate}-${aptName}-${dong}-${jibun}-${floor}-${dealAmount}-${exclusiveArea}`,
         dealType: "trade",
         dealDate,
         aptName,
@@ -91,7 +92,7 @@ export function parseTradeXml(xml: string, lawdCd: string): Transaction[] {
         monthlyRent: 0,
         floor,
         buildYear: item.buildYear ? Number(item.buildYear) : null,
-        jibun: text(item.jibun),
+        jibun,
         dealingGbn: text(item.dealingGbn) || "중개거래",
         lawdCd,
       };
@@ -105,7 +106,7 @@ export function parseRentXml(xml: string, lawdCd: string): Transaction[] {
   const items = asArray<RawRentItem>(json?.response?.body?.items?.item);
 
   return items
-    .map((item, index) => {
+    .map((item) => {
       const year = text(item.dealYear);
       const month = text(item.dealMonth);
       const day = text(item.dealDay);
@@ -120,8 +121,9 @@ export function parseRentXml(xml: string, lawdCd: string): Transaction[] {
       if (!year || !month || !day || !aptName) return null;
 
       const dealDate = buildDealDate(year, month, day);
+      const jibun = text(item.jibun);
       const tx: Transaction = {
-        id: `rent-${lawdCd}-${dealDate}-${aptName}-${dong}-${floor}-${dealAmount}-${monthlyRent}-${exclusiveArea}-${index}`,
+        id: `rent-${lawdCd}-${dealDate}-${aptName}-${dong}-${jibun}-${floor}-${dealAmount}-${monthlyRent}-${exclusiveArea}`,
         dealType: "rent",
         dealDate,
         aptName,
@@ -132,7 +134,7 @@ export function parseRentXml(xml: string, lawdCd: string): Transaction[] {
         monthlyRent,
         floor,
         buildYear: item.buildYear ? Number(item.buildYear) : null,
-        jibun: text(item.jibun),
+        jibun,
         dealingGbn: text(item.contractType) || "전월세",
         lawdCd,
       };

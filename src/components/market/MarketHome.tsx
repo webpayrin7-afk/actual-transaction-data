@@ -72,8 +72,8 @@ function DealRow({ item }: { item: MarketDealItem }) {
           </span>
         </div>
         <p className="mt-0.5 text-xs text-slate-500">
-          {item.gu} {item.dong} · {formatArea(item.exclusiveArea)} ·{" "}
-          {formatDealDate(item.dealDate)}
+          계약일 {formatDealDate(item.dealDate)} · {item.gu} {item.dong} ·{" "}
+          {formatArea(item.exclusiveArea)}
         </p>
         {item.priorMaxAmount != null ? (
           <p className="mt-1 text-[11px] text-slate-500">
@@ -161,7 +161,7 @@ function Section({
       <div className="px-3 py-1 sm:px-4">
         {empty ? (
           <p className="px-1 py-10 text-center text-sm text-slate-500">
-            해당 조건의 최근 거래가 없습니다.
+            해당 조건의 새로 확인된 거래가 없습니다.
           </p>
         ) : (
           children
@@ -195,15 +195,12 @@ export function MarketHome() {
             오늘의 아파트 시장
           </h1>
           <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-            오늘의 아파트 실거래와 신고가, 하락거래, 거래량 변화를 한눈에
-            확인하세요.
+            오늘 새로 확인된 실거래·신고가·하락거래를 한눈에 확인하세요.
           </p>
-          {data?.asOfDate ? (
+          {data?.lastUpdatedLabel || data?.computedAt ? (
             <p className="mt-3 text-xs text-slate-500">
-              데이터 기준 {formatDealDate(data.asOfDate)}
-              {data.recentFrom && data.recentTo
-                ? ` · 최근 계약 ${formatDealDate(data.recentFrom)} ~ ${formatDealDate(data.recentTo)}`
-                : null}
+              최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
+              {data.discoveryDate ? ` · 확인일 ${data.discoveryDate}` : null}
             </p>
           ) : null}
           {data?.dateBasisNote ? (
@@ -241,28 +238,28 @@ export function MarketHome() {
 
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <KpiCard
-              label="신고가 거래"
+              label="오늘 새로 확인"
+              value={`${data.kpis.newDealCount ?? 0}건`}
+              hint="시스템 최초 확인 기준"
+              tone="neutral"
+            />
+            <KpiCard
+              label="신규 신고가"
               value={`${data.kpis.singogaCount}건`}
-              hint="타입면적 기준 최고가 갱신"
+              hint="계약일 이전 최고가 갱신"
               tone="up"
             />
             <KpiCard
-              label="큰 폭 하락"
+              label="신규 하락거래"
               value={`${data.kpis.dropCount}건`}
               hint="최고가 대비 −10% 이상"
               tone="down"
             />
             <KpiCard
-              label="거래량 급증"
-              value={`${data.kpis.volumeSurgeCount}곳`}
-              hint="최근 30일 vs 직전 30일"
+              label="20억 이상 신규"
+              value={`${data.kpis.highCount ?? 0}건`}
+              hint="오늘 새로 확인된 고가"
               tone="hot"
-            />
-            <KpiCard
-              label="주요 거래"
-              value={`${data.kpis.notableCount}건`}
-              hint="신고가·하락·고가 등"
-              tone="neutral"
             />
           </div>
 
@@ -299,7 +296,7 @@ export function MarketHome() {
       {data ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Section
-            title="오늘의 신고가"
+            title="신규 신고가"
             icon={<TrendingUp className="h-4 w-4 text-teal-700" />}
             empty={data.singoga.length === 0}
           >
@@ -309,7 +306,7 @@ export function MarketHome() {
           </Section>
 
           <Section
-            title="큰 폭 하락 거래"
+            title="신규 하락거래"
             icon={<TrendingDown className="h-4 w-4 text-rose-600" />}
             empty={data.drops.length === 0}
           >
@@ -319,20 +316,17 @@ export function MarketHome() {
           </Section>
 
           <Section
-            title="거래량 급증 단지"
+            title="신규 고가거래"
             icon={<Activity className="h-4 w-4 text-amber-700" />}
-            empty={data.volumeSurges.length === 0}
+            empty={(data.highDeals ?? []).length === 0}
           >
-            {data.volumeSurges.map((item) => (
-              <VolumeRow
-                key={`${item.aptName}-${item.gu}`}
-                item={item}
-              />
+            {(data.highDeals ?? []).map((item) => (
+              <DealRow key={`h-${item.id}`} item={item} />
             ))}
           </Section>
 
           <Section
-            title="주요 거래"
+            title="새로 확인된 주요 거래"
             icon={<ArrowUpRight className="h-4 w-4 text-slate-700" />}
             empty={data.notables.length === 0}
           >

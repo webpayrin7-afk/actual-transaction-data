@@ -8,13 +8,12 @@ import { aptDetailHref } from "@/lib/molit/apt";
 import {
   DROP_THRESHOLD,
   MARKET_COMPLEX_KEY_VERSION,
-  addDays,
-  addMonths,
+  resolvePeriodWindow,
   scopeMatchesLawd,
   typeKey,
-  weekStartMonday,
   type StatsPeriod,
   type StatsScope,
+  type PeriodWindow,
 } from "@/lib/market/keys";
 import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
 
@@ -22,22 +21,27 @@ const FEED_LIST_LIMIT = 12;
 const HIGH_PRICE_MAN = 200_000; // 20억
 const ACTIVE_MIN_COUNT = 2;
 
-export interface StatsPeriodWindow {
-  curFrom: string;
-  curTo: string;
-  prevFrom: string;
-  prevTo: string;
-  windowLabel: string;
-  prevWindowLabel: string;
-  /** 진행 중 주/월을 동일 경과일으로 맞췄는지 */
-  alignedPartial: boolean;
+/** @deprecated resolvePeriodWindow 사용. 호환용 래퍼 */
+export type StatsPeriodWindow = PeriodWindow;
+
+export function periodWindows(
+  selectedDate: string,
+  period: StatsPeriod,
+  asOfDate?: string,
+): PeriodWindow {
+  return resolvePeriodWindow(
+    selectedDate,
+    period,
+    asOfDate ?? selectedDate,
+  );
 }
 
 export interface StatsDealFeed {
   period: StatsPeriod;
   scope: StatsScope;
   asOfDate: string;
-  window: StatsPeriodWindow;
+  selectedDate: string;
+  window: PeriodWindow;
   notables: MarketDealItem[];
   singoga: MarketDealItem[];
   drops: MarketDealItem[];
@@ -75,83 +79,19 @@ function hrefFor(row: {
   return aptDetailHref(row.aptName, regionSlugFor(row.lawdCd, row.gu), row.gu);
 }
 
-function daysBetweenInclusive(from: string, to: string): number {
-  const a = new Date(`${from}T00:00:00Z`).getTime();
-  const b = new Date(`${to}T00:00:00Z`).getTime();
-  return Math.max(0, Math.round((b - a) / 86_400_000));
-}
-
-/** 진행 중 주/월은 직전 기간도 같은 경과일 길이로 맞춘다. */
-export function periodWindows(
-  asOf: string,
-  period: StatsPeriod,
-): StatsPeriodWindow {
-  if (period === "daily") {
-    const curTo = asOf;
-    const curFrom = addDays(asOf, -6);
-    const prevTo = addDays(curFrom, -1);
-    const prevFrom = addDays(prevTo, -6);
-    return {
-      curFrom,
-      curTo,
-      prevFrom,
-      prevTo,
-      windowLabel: "최근 7일",
-      prevWindowLabel: "직전 7일",
-      alignedPartial: false,
-    };
-  }
-
-  if (period === "weekly") {
-    const thisWeek = weekStartMonday(asOf);
-    const curFrom = thisWeek;
-    const curTo = asOf;
-    const elapsed = daysBetweenInclusive(curFrom, curTo);
-    const prevFrom = addDays(thisWeek, -7);
-    const prevTo = addDays(prevFrom, elapsed);
-    const partial = curTo < addDays(thisWeek, 6);
-    return {
-      curFrom,
-      curTo,
-      prevFrom,
-      prevTo,
-      windowLabel: "이번 주",
-      prevWindowLabel: partial ? "지난 주 동일 경과일" : "지난 주",
-      alignedPartial: partial,
-    };
-  }
-
-  const ym = asOf.slice(0, 7);
-  const curFrom = `${ym}-01`;
-  const curTo = asOf;
-  const dayNum = Number(asOf.slice(8, 10));
-  const prevFrom = addMonths(curFrom, -1);
-  const prevMonthLast = addDays(curFrom, -1);
-  const candidate = `${prevFrom.slice(0, 7)}-${String(dayNum).padStart(2, "0")}`;
-  const prevTo = candidate <= prevMonthLast ? candidate : prevMonthLast;
-  const monthEnd = addDays(addMonths(curFrom, 1), -1);
-  const isPartial = curTo < monthEnd;
-  return {
-    curFrom,
-    curTo,
-    prevFrom,
-    prevTo,
-    windowLabel: "이번 달",
-    prevWindowLabel: isPartial ? "지난 달 동일 경과일" : "지난 달",
-    alignedPartial: isPartial,
-  };
-}
-
 function emptyFeed(
   period: StatsPeriod,
   scope: StatsScope,
   asOfDate: string,
+  selectedDate?: string,
 ): StatsDealFeed {
+  const sel = selectedDate ?? asOfDate;
   return {
     period,
     scope,
     asOfDate,
-    window: periodWindows(asOfDate || "1970-01-01", period),
+    selectedDate: sel,
+    window: periodWindows(sel || "1970-01-01", period, asOfDate || sel),
     notables: [],
     singoga: [],
     drops: [],
@@ -163,11 +103,13 @@ export async function computeStatsDealFeed(
   asOfDate: string,
   period: StatsPeriod,
   scope: StatsScope,
+  selectedDate?: string,
 ): Promise<StatsDealFeed> {
   const db = getDb();
-  if (!db || !asOfDate) return emptyFeed(period, scope, asOfDate);
+  const sel = (selectedDate ?? asOfDate).slice(0, 10);
+  if (!db || !asOfDate) return emptyFeed(period, scope, asOfDate, sel);
 
-  const window = periodWindows(asOfDate, period);
+  const window = periodWindows(sel, period, asOfDate);
   const { curFrom, curTo, prevFrom, prevTo } = window;
 
   const [curResult, volResult] = await Promise.all([
@@ -195,7 +137,7 @@ export async function computeStatsDealFeed(
     .map((row) => ({
       id: String(row.id),
       lawdCd: String(row.lawd_cd),
-      dealDate: String(row.deal_date),
+      dealDate: String(row.deal_date).slice(0, 10),
       aptName: String(row.apt_name),
       aptNameNorm: String(row.apt_name_norm),
       gu: String(row.gu ?? ""),
@@ -206,48 +148,58 @@ export async function computeStatsDealFeed(
     .filter((tx) => scopeMatchesLawd(scope, tx.lawdCd));
 
   if (recent.length === 0) {
-    return { ...emptyFeed(period, scope, asOfDate), window };
+    return { ...emptyFeed(period, scope, asOfDate, sel), window };
   }
 
-  const norms = [...new Set(recent.map((r) => r.aptNameNorm))];
-  const priorMax = new Map<string, number>();
-  const CHUNK = 250;
-  await Promise.all(
-    Array.from({ length: Math.ceil(norms.length / CHUNK) }, (_, i) => {
-      const slice = norms.slice(i * CHUNK, i * CHUNK + CHUNK);
-      const placeholders = slice.map(() => "?").join(",");
-      return db
-        .execute({
-          sql: `SELECT apt_name_norm, lawd_cd, dong, exclusive_area,
-                       MAX(deal_amount) AS max_amt
-                FROM transactions
-                WHERE deal_type = ?
-                  AND deal_date < ?
-                  AND apt_name_norm IN (${placeholders})
-                GROUP BY apt_name_norm, lawd_cd, dong, ROUND(exclusive_area * 100)`,
-          args: ["trade", curFrom, ...slice],
-        })
-        .then((hist) => {
-          for (const row of hist.rows) {
-            const key = typeKey(
-              String(row.apt_name_norm),
-              String(row.lawd_cd),
-              String(row.dong ?? ""),
-              Number(row.exclusive_area) || 0,
-            );
-            priorMax.set(key, Number(row.max_amt) || 0);
-          }
-        });
-    }),
-  );
+  // 동일일 비연쇄: 계약일별로 deal_date 이전 peak만 사용
+  const byDay = new Map<string, RawTrade[]>();
+  for (const tx of recent) {
+    const list = byDay.get(tx.dealDate) ?? [];
+    list.push(tx);
+    byDay.set(tx.dealDate, list);
+  }
 
-  const running = new Map<string, number>(priorMax);
+  const priorById = new Map<string, number>();
+  const dayDates = [...byDay.keys()].sort();
+  for (const day of dayDates) {
+    const dayTrades = byDay.get(day)!;
+    const norms = [...new Set(dayTrades.map((t) => t.aptNameNorm))];
+    const peak = new Map<string, number>();
+    const CHUNK = 200;
+    for (let i = 0; i < norms.length; i += CHUNK) {
+      const slice = norms.slice(i, i + CHUNK);
+      const placeholders = slice.map(() => "?").join(",");
+      const hist = await db.execute({
+        sql: `SELECT apt_name_norm, lawd_cd, dong, exclusive_area,
+                     MAX(deal_amount) AS max_amt
+              FROM transactions
+              WHERE deal_type = ?
+                AND deal_date < ?
+                AND apt_name_norm IN (${placeholders})
+              GROUP BY apt_name_norm, lawd_cd, dong, ROUND(exclusive_area * 100)`,
+        args: ["trade", day, ...slice],
+      });
+      for (const row of hist.rows) {
+        const key = typeKey(
+          String(row.apt_name_norm),
+          String(row.lawd_cd),
+          String(row.dong ?? ""),
+          Number(row.exclusive_area) || 0,
+        );
+        peak.set(key, Number(row.max_amt) || 0);
+      }
+    }
+    for (const tx of dayTrades) {
+      const key = typeKey(tx.aptNameNorm, tx.lawdCd, tx.dong, tx.exclusiveArea);
+      priorById.set(tx.id, peak.get(key) ?? 0);
+    }
+  }
+
   const singoga: MarketDealItem[] = [];
   const drops: MarketDealItem[] = [];
 
   for (const tx of recent) {
-    const key = typeKey(tx.aptNameNorm, tx.lawdCd, tx.dong, tx.exclusiveArea);
-    const prior = running.get(key) ?? 0;
+    const prior = priorById.get(tx.id) ?? 0;
 
     if (prior > 0 && tx.dealAmount > prior) {
       const changeAmount = tx.dealAmount - prior;
@@ -289,8 +241,6 @@ export async function computeStatsDealFeed(
         });
       }
     }
-
-    running.set(key, Math.max(prior, tx.dealAmount));
   }
 
   singoga.sort((a, b) => (b.changeAmount ?? 0) - (a.changeAmount ?? 0));
@@ -359,15 +309,13 @@ export async function computeStatsDealFeed(
   const nearHigh: MarketDealItem[] = recent
     .filter((tx) => {
       if (shownIds.has(tx.id)) return false;
-      const key = typeKey(tx.aptNameNorm, tx.lawdCd, tx.dong, tx.exclusiveArea);
-      const prior = priorMax.get(key) ?? 0;
+      const prior = priorById.get(tx.id) ?? 0;
       if (prior <= 0) return false;
       const ratio = tx.dealAmount / prior;
       return ratio >= 0.95 && ratio < 1;
     })
     .map((tx) => {
-      const key = typeKey(tx.aptNameNorm, tx.lawdCd, tx.dong, tx.exclusiveArea);
-      const prior = priorMax.get(key)!;
+      const prior = priorById.get(tx.id)!;
       const changeAmount = tx.dealAmount - prior;
       return {
         id: tx.id,
@@ -398,9 +346,7 @@ export async function computeStatsDealFeed(
       dealAmount: tx.dealAmount,
       dealDate: tx.dealDate,
       href: hrefFor(tx),
-      priorMaxAmount: priorMax.get(
-        typeKey(tx.aptNameNorm, tx.lawdCd, tx.dong, tx.exclusiveArea),
-      ) ?? null,
+      priorMaxAmount: priorById.get(tx.id) ?? null,
       changeAmount: null,
       changePct: null,
       kind: "high" as const,
@@ -425,6 +371,7 @@ export async function computeStatsDealFeed(
     period,
     scope,
     asOfDate,
+    selectedDate: window.anchorDate,
     window,
     notables,
     singoga: singoga.slice(0, FEED_LIST_LIMIT),

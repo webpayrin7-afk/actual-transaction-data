@@ -34,10 +34,13 @@ import {
 async function fetchStats(
   period: StatsPeriod,
   scope: StatsScope,
+  date: string | null,
 ): Promise<MarketStatsResponse> {
-  const res = await fetch(
-    `/api/market-stats?period=${period}&scope=${scope}`,
-  );
+  const params = new URLSearchParams();
+  params.set("period", period);
+  params.set("scope", scope);
+  if (date) params.set("date", date);
+  const res = await fetch(`/api/market-stats?${params.toString()}`);
   if (!res.ok) throw new Error("시장동향 데이터를 불러오지 못했습니다.");
   return res.json();
 }
@@ -84,23 +87,39 @@ function Segmented<T extends string>({
   );
 }
 
-function ChangeText({ pct }: { pct: number | null }) {
-  if (pct == null) return <span className="text-slate-400">대비 없음</span>;
+function ChangeText({
+  pct,
+  compareLabel,
+}: {
+  pct: number | null;
+  compareLabel?: string;
+}) {
+  if (pct == null)
+    return (
+      <span className="text-slate-400">
+        {compareLabel ? `${compareLabel} 없음` : "대비 없음"}
+      </span>
+    );
   const up = pct > 0;
   const down = pct < 0;
   return (
     <span
-      className={`inline-flex items-center gap-0.5 tabular-nums ${
+      className={`inline-flex flex-wrap items-center gap-x-1 gap-y-0.5 tabular-nums ${
         up ? "text-teal-700" : down ? "text-rose-600" : "text-slate-500"
       }`}
     >
-      {up ? (
-        <ArrowUpRight className="h-3.5 w-3.5" />
-      ) : down ? (
-        <ArrowDownRight className="h-3.5 w-3.5" />
+      <span className="inline-flex items-center gap-0.5">
+        {up ? (
+          <ArrowUpRight className="h-3.5 w-3.5" />
+        ) : down ? (
+          <ArrowDownRight className="h-3.5 w-3.5" />
+        ) : null}
+        {pct > 0 ? "+" : ""}
+        {pct}%
+      </span>
+      {compareLabel ? (
+        <span className="font-normal text-slate-400">{compareLabel}</span>
       ) : null}
-      {pct > 0 ? "+" : ""}
-      {pct}%
     </span>
   );
 }
@@ -110,11 +129,15 @@ function KpiCard({
   value,
   sub,
   change,
+  compareLabel,
+  share,
 }: {
   label: string;
   value: string;
   sub?: string;
   change: number | null;
+  compareLabel?: string;
+  share?: string | null;
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3.5">
@@ -122,8 +145,11 @@ function KpiCard({
       <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-slate-900">
         {value}
       </p>
+      {share ? (
+        <p className="mt-0.5 text-[11px] text-slate-500">{share}</p>
+      ) : null}
       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
-        <ChangeText pct={change} />
+        <ChangeText pct={change} compareLabel={compareLabel} />
         {sub ? <span>{sub}</span> : null}
       </div>
     </div>
@@ -255,32 +281,43 @@ export function MarketStatsPage() {
   const [scope, setScope] = useState<StatsScope>(() =>
     parseScope(searchParams.get("scope")),
   );
+  const [date, setDate] = useState<string | null>(() =>
+    searchParams.get("date"),
+  );
   const [dealTab, setDealTab] = useState<DealExplorerTab>("notables");
   const [regionTab, setRegionTab] = useState<
     "volume" | "growth" | "singoga" | "drop"
   >("volume");
 
   const syncUrl = useCallback(
-    (nextPeriod: StatsPeriod, nextScope: StatsScope) => {
+    (nextPeriod: StatsPeriod, nextScope: StatsScope, nextDate: string | null) => {
       const params = new URLSearchParams();
       params.set("period", nextPeriod);
       params.set("scope", nextScope);
+      if (nextDate) params.set("date", nextDate);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [pathname, router],
   );
 
   useEffect(() => {
-    syncUrl(period, scope);
-  }, [period, scope, syncUrl]);
+    syncUrl(period, scope, date);
+  }, [period, scope, date, syncUrl]);
 
   const query = useQuery({
-    queryKey: ["market-stats", period, scope],
-    queryFn: () => fetchStats(period, scope),
+    queryKey: ["market-stats", period, scope, date],
+    queryFn: () => fetchStats(period, scope, date),
     staleTime: 60_000,
   });
 
   const data = query.data;
+
+  // API가 정규화한 anchor를 URL에 반영
+  useEffect(() => {
+    if (data?.selectedDate && data.selectedDate !== date) {
+      setDate(data.selectedDate);
+    }
+  }, [data?.selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const chartData = useMemo(
     () =>
@@ -311,13 +348,13 @@ export function MarketStatsPage() {
           아파트 시장동향
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          실거래를 기준으로 거래량·신고가·하락거래와 주요 거래를 확인하세요.
+          실제 계약일 기준으로 거래량·신고가·하락거래와 주요 거래를 확인하세요.
         </p>
         {data?.asOfDate ? (
           <p className="mt-2 text-xs text-slate-500">
-            데이터 기준 {formatDealDate(data.asOfDate)}
+            데이터 기준(최신 계약일) {formatDealDate(data.asOfDate)}
             {data.kpi
-              ? ` · ${data.kpi.windowLabel} (${formatDealDate(data.kpi.windowFrom)} ~ ${formatDealDate(data.kpi.windowTo)})`
+              ? ` · 선택 ${data.kpi.windowLabel} (${formatDealDate(data.kpi.windowFrom)} ~ ${formatDealDate(data.kpi.windowTo)})`
               : null}
           </p>
         ) : null}
@@ -329,7 +366,10 @@ export function MarketStatsPage() {
       <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <Segmented
           value={period}
-          onChange={setPeriod}
+          onChange={(v) => {
+            setPeriod(v);
+            // period 변경 시 date(anchor)는 유지 — scope도 유지
+          }}
           options={[
             { value: "daily", label: "일간" },
             { value: "weekly", label: "주간" },
@@ -346,6 +386,32 @@ export function MarketStatsPage() {
           ]}
         />
       </div>
+
+      {data?.kpi ? (
+        <div className="flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2">
+          <button
+            type="button"
+            disabled={!data.kpi.canGoPrev}
+            onClick={() => setDate(data.kpi!.prevAnchor)}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="이전 기간"
+          >
+            ‹
+          </button>
+          <p className="min-w-[10rem] text-center text-sm font-semibold tabular-nums text-slate-900 sm:min-w-[14rem]">
+            {data.kpi.windowLabel}
+          </p>
+          <button
+            type="button"
+            disabled={!data.kpi.canGoNext}
+            onClick={() => setDate(data.kpi!.nextAnchor)}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="다음 기간"
+          >
+            ›
+          </button>
+        </div>
+      ) : null}
 
       {query.isLoading ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -373,25 +439,42 @@ export function MarketStatsPage() {
       {data?.kpi ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <KpiCard
-            label={`${data.kpi.windowLabel} 거래량`}
+            label="거래량"
             value={`${data.kpi.tradeCount.toLocaleString("ko-KR")}건`}
             sub={`${data.kpi.prevWindowLabel} ${data.kpi.tradePrev.toLocaleString("ko-KR")}건`}
-            change={data.kpi.tradeChangePct}
+            change={data.kpi.reportingLagRisk ? null : data.kpi.tradeChangePct}
+            compareLabel={
+              data.kpi.reportingLagRisk
+                ? "신고 지연 가능 · 단순 증감 비표시"
+                : data.kpi.compareLabel
+            }
           />
           <KpiCard
-            label={`${data.kpi.windowLabel} 신고가`}
+            label="신고가"
             value={`${data.kpi.singogaCount.toLocaleString("ko-KR")}건`}
+            share={
+              data.kpi.singogaSharePct != null
+                ? `전체 거래의 ${data.kpi.singogaSharePct}%`
+                : null
+            }
             sub={`${data.kpi.prevWindowLabel} ${data.kpi.singogaPrev.toLocaleString("ko-KR")}건`}
             change={data.kpi.singogaChangePct}
+            compareLabel={data.kpi.compareLabel}
           />
           <KpiCard
-            label={`${data.kpi.windowLabel} 하락거래`}
+            label="하락거래"
             value={`${data.kpi.dropCount.toLocaleString("ko-KR")}건`}
+            share={
+              data.kpi.dropSharePct != null
+                ? `전체 거래의 ${data.kpi.dropSharePct}%`
+                : null
+            }
             sub={`${data.kpi.prevWindowLabel} ${data.kpi.dropPrev.toLocaleString("ko-KR")}건`}
             change={data.kpi.dropChangePct}
+            compareLabel={data.kpi.compareLabel}
           />
           <KpiCard
-            label={`${data.kpi.windowLabel} 중위가`}
+            label="중위가"
             value={
               data.kpi.medianAmount != null
                 ? formatEok(data.kpi.medianAmount)
@@ -415,6 +498,7 @@ export function MarketStatsPage() {
                   ) / 10
                 : null
             }
+            compareLabel={data.kpi.compareLabel}
           />
         </div>
       ) : null}
@@ -423,7 +507,11 @@ export function MarketStatsPage() {
         <>
           <ChartCard
             title="거래량 추이"
-            hint="선택 기간의 매매 거래 건수 흐름"
+            hint={
+              data.kpi
+                ? `선택 기간 KPI와 별도 · 추세 ${formatDealDate(data.kpi.chartFrom)} ~ ${formatDealDate(data.kpi.chartTo)}`
+                : "선택 기간까지의 추세"
+            }
           >
             <div className="h-60 w-full pb-1 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
