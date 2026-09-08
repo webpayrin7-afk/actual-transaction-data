@@ -21,6 +21,7 @@ import {
 } from "@/lib/complexes/recent-views";
 import {
   isValidAreaKey,
+  normalizeAreaKey,
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
@@ -28,6 +29,7 @@ import {
   formatArea,
   formatDealDate,
   formatEok,
+  formatExclusiveArea,
   formatPyeong,
   formatRentAmount,
 } from "@/lib/utils/format";
@@ -239,10 +241,20 @@ export function AptDetailPage({
   const areaFiltered = useMemo(() => {
     if (!data) return [];
     if (areaKey === "all") return data.items;
+    // areas.key 와 item 면적을 동일 normalize로 맞춰 거래이력·차트에 반영
+    const selected = data.areas.find((a) => a.key === areaKey);
+    const matchKey = selected
+      ? normalizeAreaKey(selected.exclusiveArea)
+      : areaKey;
     return data.items.filter(
-      (item) => String(Math.round(item.exclusiveArea * 100) / 100) === areaKey,
+      (item) => normalizeAreaKey(Number(item.exclusiveArea)) === matchKey,
     );
   }, [data, areaKey]);
+
+  const selectedArea = useMemo(
+    () => data?.areas.find((a) => a.key === areaKey) ?? null,
+    [data, areaKey],
+  );
 
   const periodItems = useMemo(() => {
     if (!startYm || !endYm) return areaFiltered;
@@ -532,11 +544,23 @@ export function AptDetailPage({
         />
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section
+        key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
+        className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
+      >
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold text-slate-900 sm:text-base">거래이력</h2>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+              거래이력
+            </h2>
+            <p className="mt-0.5 truncate text-xs text-slate-500">
+              {areaKey === "all" || !selectedArea
+                ? `전체 면적 · ${filtered.length.toLocaleString("ko-KR")}건`
+                : `${formatPyeong(selectedArea.exclusiveArea)} (${formatExclusiveArea(selectedArea.exclusiveArea)}) · ${filtered.length.toLocaleString("ko-KR")}건`}
+            </p>
+          </div>
 
-          <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+          <div className="flex shrink-0 gap-1 rounded-lg bg-slate-100 p-1">
             {(
               [
                 ["all", "전체"],
@@ -571,33 +595,36 @@ export function AptDetailPage({
                 <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800">
                   <CalendarDays className="h-4 w-4 text-teal-700" />
                   {year}년
+                  <span className="font-normal text-slate-400">
+                    {items.length.toLocaleString("ko-KR")}건
+                  </span>
                 </h3>
                 <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
-                  {items.map((tx) => (
+                  {items.map((tx, idx) => (
                     <li
-                      key={tx.id}
-                      className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-3 sm:px-4"
+                      key={`${tx.id}-${idx}`}
+                      className="flex items-center justify-between gap-3 px-3.5 py-3 sm:px-4"
                     >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-slate-900">
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <p className="truncate text-sm font-medium text-slate-900">
                           {formatDealDate(tx.dealDate).slice(5)}{" "}
                           <span className="font-normal text-slate-500">
                             {formatArea(tx.exclusiveArea)} · {tx.floor}층
                           </span>
                         </p>
-                        <p className="mt-0.5 text-xs text-slate-500">
+                        <p className="mt-0.5 truncate text-xs text-slate-500">
                           {tx.dong} · {tx.dealingGbn || "중개거래"}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                         {tx.isSingoga ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[11px] font-semibold text-white">
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
                             <Flame className="h-3 w-3" />
                             신고가
                           </span>
                         ) : null}
                         <p
-                          className={`text-base font-semibold ${
+                          className={`whitespace-nowrap text-[13px] font-semibold tabular-nums leading-none sm:text-base ${
                             tx.dealType === "trade"
                               ? "text-teal-800"
                               : "text-orange-700"
