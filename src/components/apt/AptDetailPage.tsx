@@ -428,16 +428,15 @@ export function AptDetailPage({
               </Link>
             </div>
           }
-          action={
-            <AptAreaSelector
-              areas={data.areas}
-              value={areaKey}
-              onChange={(key) => {
-                setAreaOverride({ forId: aptIdentity, key });
-              }}
-            />
-          }
-        />
+        >
+          <AptAreaSelector
+            areas={data.areas}
+            value={areaKey}
+            onChange={(key) => {
+              setAreaOverride({ forId: aptIdentity, key });
+            }}
+          />
+        </PageHeader>
       </header>
 
       {(data.warning || data.source === "mock") && (
