@@ -10,7 +10,7 @@ export const PAGE_SHELL =
  * -mt: SiteHeader에 조금 더 붙이고, gap으로 title과 여유를 둠.
  */
 export const PAGE_HEADER_WITH_BACK =
-  "-mt-2 flex flex-col gap-3.5 sm:-mt-2.5 sm:gap-4";
+  "-mt-2 flex flex-col gap-4 sm:-mt-2.5 sm:gap-5";
 
 /**
  * 주요 페이지 상단 타이틀 영역.
