@@ -94,7 +94,10 @@ export function SiteHeader() {
   }, [toolsOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+    <header
+      data-site-header
+      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur"
+    >
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-1 py-2 sm:h-14 sm:flex-row sm:items-center sm:gap-5 sm:py-0">
           <div className="flex min-w-0 items-center gap-2 sm:gap-5">

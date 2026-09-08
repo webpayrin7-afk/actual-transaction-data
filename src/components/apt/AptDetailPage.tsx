@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -105,10 +105,31 @@ function AptLoadProgressBar({
   active: boolean;
   label?: string;
 }) {
+  const [top, setTop] = useState(56);
+
+  useLayoutEffect(() => {
+    if (!active) return;
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    if (!header) return;
+
+    const sync = () => {
+      setTop(Math.round(header.getBoundingClientRect().height));
+    };
+    sync();
+
+    const ro = new ResizeObserver(sync);
+    ro.observe(header);
+    window.addEventListener("resize", sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", sync);
+    };
+  }, [active]);
+
   if (!active) return null;
 
   return (
-    <div className="fixed inset-x-0 top-14 z-50">
+    <div className="fixed inset-x-0 z-40" style={{ top }} role="status" aria-live="polite">
       <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
         <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
       </div>
