@@ -7,8 +7,10 @@ export const PAGE_SHELL =
 /**
  * BackLink + PageHeader 묶음.
  * shell의 gap-6과 분리해 돌아가기가 별도 section처럼 벌어지지 않게 함.
+ * -mt: SiteHeader에 조금 더 붙이고, gap으로 title과 여유를 둠.
  */
-export const PAGE_HEADER_WITH_BACK = "flex flex-col gap-2.5 sm:gap-3";
+export const PAGE_HEADER_WITH_BACK =
+  "-mt-2 flex flex-col gap-3.5 sm:-mt-2.5 sm:gap-4";
 
 /**
  * 주요 페이지 상단 타이틀 영역.
