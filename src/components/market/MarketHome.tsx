@@ -11,6 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
+import { LabSection } from "@/components/lab/LabSection";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import type {
   MarketDealItem,
@@ -328,6 +329,9 @@ export function MarketHome() {
           </Section>
         </div>
       ) : null}
+
+      {/* 오늘의 시장 콘텐츠 아래 — 실험실은 두 번째 콘텐츠 영역 */}
+      <LabSection />
 
       <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
         국토교통부 아파트 실거래 기반 · 아파트 데이터랩
