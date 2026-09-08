@@ -240,19 +240,36 @@ export function AptDetailPage({
     const hero = heroRef.current;
     if (!hero) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setStickyVisible(!entry.isIntersecting);
-      },
-      {
-        // 사이트 헤더(h-14) 아래에서 히어로가 사라질 때 고정 바 표시
-        rootMargin: "-56px 0px 0px 0px",
-        threshold: 0,
-      },
-    );
-    observer.observe(hero);
+    let observer: IntersectionObserver | null = null;
+
+    const bind = () => {
+      observer?.disconnect();
+      const header = document.querySelector<HTMLElement>("[data-site-header]");
+      const headerH = Math.max(
+        56,
+        Math.round(header?.getBoundingClientRect().height ?? 56),
+      );
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          setStickyVisible(!entry.isIntersecting);
+        },
+        {
+          // 사이트 헤더 아래에서 히어로가 사라질 때 고정 타이틀 표시
+          rootMargin: `-${headerH}px 0px 0px 0px`,
+          threshold: 0,
+        },
+      );
+      observer.observe(hero);
+    };
+
+    bind();
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    const ro = header ? new ResizeObserver(bind) : null;
+    if (header && ro) ro.observe(header);
+
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
+      ro?.disconnect();
       setStickyVisible(false);
     };
   }, [data]);
@@ -442,11 +459,12 @@ export function AptDetailPage({
   return (
     <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} max-w-5xl`}>
       <div
-        className={`fixed inset-x-0 top-12 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 sm:top-14 ${
+        className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
           stickyVisible
             ? "translate-y-0 opacity-100"
             : "pointer-events-none invisible -translate-y-2 opacity-0"
         }`}
+        style={{ top: "var(--site-header-height, 5.5rem)" }}
         aria-hidden={!stickyVisible}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-2 sm:px-6">

@@ -65,6 +65,7 @@ export function SiteHeader() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [navPath, setNavPath] = useState(pathname);
   const toolsRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const menuId = useId();
   const toolsActive = TOOL_NAV.some((item) => item.match(pathname));
 
@@ -72,6 +73,25 @@ export function SiteHeader() {
     setNavPath(pathname);
     if (toolsOpen) setToolsOpen(false);
   }
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+
+    const sync = () => {
+      const h = Math.max(1, Math.round(el.getBoundingClientRect().height));
+      document.documentElement.style.setProperty("--site-header-height", `${h}px`);
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    window.addEventListener("resize", sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", sync);
+      document.documentElement.style.removeProperty("--site-header-height");
+    };
+  }, []);
 
   useEffect(() => {
     if (!toolsOpen) return;
@@ -96,6 +116,7 @@ export function SiteHeader() {
 
   return (
     <header
+      ref={headerRef}
       data-site-header
       className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur"
     >
