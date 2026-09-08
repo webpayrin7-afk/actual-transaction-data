@@ -78,15 +78,17 @@ export default function GuidePage() {
           <Link href="/stats" className="font-medium text-teal-700 hover:underline">
             시장동향
           </Link>
-          과{" "}
+          의 일·주·월 구간은 거래의 계약일을 기준으로 집계합니다.{" "}
           <Link href="/" className="font-medium text-teal-700 hover:underline">
             오늘의 시장
           </Link>
-          에서는 계약일 기준으로 시장 흐름을 살펴봅니다.
+          은 서비스가 새롭게 확인한 거래를 중심으로 보여 주므로, 계약일 기준
+          시장동향과 집계 시점이 다를 수 있습니다. ‘새롭게 확인한 시점’은 공식
+          신고일을 의미하지 않습니다.
         </p>
         <InfoList
           items={[
-            "일간·주간·월간 기간 선택",
+            "일간·주간·월간 기간 선택(시장동향)",
             "전체·서울·경기 등 지역 범위 선택",
             "거래량 추이와 주요 실거래",
             "신고가·하락거래 관련 지표와 목록",
