@@ -184,10 +184,11 @@ function AreaSheet({
       <button
         type="button"
         aria-label="면적 선택 닫기"
-        className={`absolute inset-0 bg-slate-900/40 transition-opacity duration-280 ease-out ${
-          open ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ transitionDuration: `${SHEET_MS}ms` }}
+        className="absolute inset-0 bg-slate-900/40"
+        style={{
+          opacity: open ? 1 : 0,
+          transition: `opacity ${SHEET_MS}ms ease-out`,
+        }}
         onClick={onClose}
       />
       <div
@@ -196,10 +197,11 @@ function AreaSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative z-[61] flex w-full max-h-[min(65vh,26rem)] flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md transition-transform ease-out ${
-          open ? "translate-y-0" : "translate-y-full"
-        }`}
-        style={{ transitionDuration: `${SHEET_MS}ms` }}
+        className="relative z-[61] flex h-auto w-full max-h-[min(65vh,26rem)] flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md will-change-transform"
+        style={{
+          transform: open ? "translateY(0)" : "translateY(100%)",
+          transition: `transform ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
+        }}
       >
         {/* drag affordance */}
         <div className="flex shrink-0 justify-center pt-2.5 pb-1" aria-hidden>
