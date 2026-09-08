@@ -13,7 +13,7 @@ const PRIMARY_NAV = [
   },
   {
     href: "/complexes",
-    label: "단지별 조회",
+    label: "단지 조회",
     match: (pathname: string) =>
       pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
   },
@@ -63,15 +63,18 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [toolsOpen, setToolsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [navPath, setNavPath] = useState(pathname);
   const toolsRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const mobileMenuId = useId();
   const toolsActive = TOOL_NAV.some((item) => item.match(pathname));
 
-  useEffect(() => {
-    setToolsOpen(false);
-    setMobileOpen(false);
-  }, [pathname]);
+  // 라우트 변경 시 열린 메뉴 닫기
+  if (navPath !== pathname) {
+    setNavPath(pathname);
+    if (toolsOpen) setToolsOpen(false);
+    if (mobileOpen) setMobileOpen(false);
+  }
 
   useEffect(() => {
     if (!toolsOpen) return;
