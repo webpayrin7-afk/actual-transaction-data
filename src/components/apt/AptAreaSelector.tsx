@@ -189,12 +189,17 @@ function AreaSheet({
 
   // 시트 마운트 직후(올라오기 전) 선택 항목으로 스크롤 고정
   useLayoutEffect(() => {
-    const list = listRef.current;
-    const el = activeRef.current;
-    if (!list || !el) return;
-    const target =
-      el.offsetTop - list.clientHeight / 2 + el.offsetHeight / 2;
-    list.scrollTop = Math.max(0, target);
+    const run = () => {
+      const list = listRef.current;
+      const el = activeRef.current;
+      if (!list || !el || list.clientHeight < 8) return;
+      const target =
+        el.offsetTop - list.clientHeight / 2 + el.offsetHeight / 2;
+      list.scrollTop = Math.max(0, target);
+    };
+    run();
+    const id = requestAnimationFrame(run);
+    return () => cancelAnimationFrame(id);
   }, []);
 
   function onDragStart(clientY: number) {
@@ -261,7 +266,10 @@ function AreaSheet({
         <div
           className="relative flex shrink-0 touch-none flex-col bg-white"
           onTouchStart={(e) => onDragStart(e.touches[0].clientY)}
-          onTouchMove={(e) => onDragMove(e.touches[0].clientY)}
+          onTouchMove={(e) => {
+            e.preventDefault();
+            onDragMove(e.touches[0].clientY);
+          }}
           onTouchEnd={onDragEnd}
           onTouchCancel={onDragEnd}
           onMouseDown={(e) => onDragStart(e.clientY)}
@@ -273,11 +281,15 @@ function AreaSheet({
             if (draggingRef.current) onDragEnd();
           }}
         >
-          <div className="flex justify-center pt-2.5 pb-0.5" aria-hidden>
-            <span className="h-1.5 w-11 rounded-full bg-slate-300" />
+          {/* 상단 중앙 스와이프 핸들 */}
+          <div
+            className="flex w-full items-center justify-center pt-3 pb-1"
+            aria-hidden
+          >
+            <span className="block h-1.5 w-12 rounded-full bg-slate-300" />
           </div>
 
-          <div className="relative flex items-center justify-center px-12 pt-2.5 pb-4">
+          <div className="relative flex items-center justify-center px-12 pt-3 pb-5">
             <h2
               id={titleId}
               className="text-center text-[26px] font-extrabold leading-none tracking-tight text-slate-900"
@@ -291,7 +303,7 @@ function AreaSheet({
               onClick={onClose}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
               style={{
                 position: "absolute",
                 right: 10,
@@ -301,7 +313,7 @@ function AreaSheet({
             >
               <X
                 className="pointer-events-none h-6 w-6"
-                strokeWidth={2.25}
+                strokeWidth={1.5}
                 aria-hidden
               />
             </button>
@@ -311,13 +323,7 @@ function AreaSheet({
         <div className="relative min-h-0 flex-1">
           <div
             ref={listRef}
-            className="h-full overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]"
-            style={{
-              WebkitMaskImage:
-                "linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 22px), transparent 100%)",
-              maskImage:
-                "linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 22px), transparent 100%)",
-            }}
+            className="absolute inset-0 overflow-y-auto overscroll-contain touch-pan-y pb-[max(0.5rem,env(safe-area-inset-bottom))]"
           >
             {rows.map((row, index) => (
               <div key={row.key}>
@@ -333,6 +339,14 @@ function AreaSheet({
               </div>
             ))}
           </div>
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white to-transparent"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-white to-transparent"
+            aria-hidden
+          />
         </div>
       </div>
     </div>
