@@ -132,7 +132,7 @@ export function AptAreaSelector({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={openSheet}
-        className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-800 hover:bg-slate-50"
+        className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-[13px] text-slate-800 hover:bg-slate-50"
       >
         <span className="truncate tabular-nums">{triggerLabel}</span>
         <ChevronDown
@@ -195,18 +195,18 @@ function AreaSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative z-[61] flex w-full max-h-[min(65vh,26rem)] flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md transition-transform ease-out ${
+        className={`relative z-[61] flex w-full max-h-[min(40vh,16rem)] flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md transition-transform ease-out ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ transitionDuration: `${SHEET_MS}ms` }}
       >
         {/* drag affordance */}
-        <div className="flex shrink-0 justify-center pt-2.5 pb-1" aria-hidden>
+        <div className="flex shrink-0 justify-center pt-2 pb-0.5" aria-hidden>
           <span className="h-1 w-9 rounded-full bg-slate-200" />
         </div>
 
-        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
-          <h2 id={titleId} className="text-sm font-semibold text-slate-900">
+        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-1.5">
+          <h2 id={titleId} className="text-[13px] font-semibold text-slate-900">
             면적 선택
           </h2>
           <button
@@ -214,9 +214,9 @@ function AreaSheet({
             data-sheet-close
             aria-label="닫기"
             onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
@@ -255,35 +255,35 @@ function AreaOption({
   active: boolean;
   onClick: () => void;
   label: string;
-  /** 우측 보조 수치 (거래 건수 등) */
+  /** 괄호 바로 오른쪽 보조 수치 */
   meta?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition ${
+      className={`flex w-full items-center gap-2 px-4 py-2 text-left transition ${
         active ? "bg-slate-100" : "hover:bg-slate-50"
       }`}
     >
-      <span
-        className={`min-w-0 flex-1 truncate text-[15px] tabular-nums sm:text-base ${
-          active
-            ? "font-semibold text-slate-900"
-            : "font-medium text-slate-800"
-        }`}
-      >
-        {label}
-      </span>
-      {meta ? (
-        <span className="shrink-0 text-sm tabular-nums text-slate-400">
-          {meta}
+      <span className="min-w-0 flex-1 truncate text-[13px] tabular-nums">
+        <span
+          className={
+            active
+              ? "font-semibold text-slate-900"
+              : "font-medium text-slate-800"
+          }
+        >
+          {label}
         </span>
-      ) : null}
+        {meta ? (
+          <span className="ml-1 text-[12px] text-slate-400">{meta}</span>
+        ) : null}
+      </span>
       {active ? (
-        <Check className="h-4 w-4 shrink-0 text-teal-700" aria-hidden />
+        <Check className="h-3.5 w-3.5 shrink-0 text-teal-700" aria-hidden />
       ) : (
-        <span className="h-4 w-4 shrink-0" aria-hidden />
+        <span className="h-3.5 w-3.5 shrink-0" aria-hidden />
       )}
     </button>
   );
