@@ -329,9 +329,6 @@ export function MarketHome() {
         </div>
       ) : null}
 
-      <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 기반 · 아파트 데이터랩
-      </footer>
     </div>
   );
 }

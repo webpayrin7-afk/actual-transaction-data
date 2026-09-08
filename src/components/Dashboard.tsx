@@ -288,10 +288,6 @@ export function Dashboard({
         </div>
       )}
 
-      <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-400">
-        데이터 출처: 국토교통부 아파트매매/전월세 실거래 OpenAPI ·{" "}
-        {region.fullName}
-      </footer>
     </div>
   );
 }
