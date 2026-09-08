@@ -14,7 +14,7 @@ import {
   AptPriceChart,
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
-import { AptAreaSelect } from "@/components/apt/AptAreaSelect";
+import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
   formatComplexLocationLabel,
   recordRecentComplex,
@@ -428,7 +428,7 @@ export function AptDetailPage({
             </div>
           }
         >
-          <AptAreaSelect
+          <AptAreaSelector
             areas={data.areas}
             value={areaKey}
             onChange={(key) => {
