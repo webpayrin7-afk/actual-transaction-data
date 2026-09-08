@@ -263,7 +263,7 @@ function AreaSheet({
         }}
       >
         <div
-          className="flex shrink-0 touch-none flex-col border-b border-transparent bg-white"
+          className="flex shrink-0 touch-none flex-col bg-white"
           onTouchStart={(e) => onDragStart(e.touches[0].clientY)}
           onTouchMove={(e) => onDragMove(e.touches[0].clientY)}
           onTouchEnd={onDragEnd}
@@ -277,18 +277,13 @@ function AreaSheet({
             if (draggingRef.current) onDragEnd();
           }}
         >
-          {/* 스와이프 핸들 */}
-          <div
-            className="flex flex-col items-center gap-1.5 px-4 pt-3 pb-2"
-            aria-hidden
-          >
-            <span className="h-1.5 w-12 rounded-full bg-slate-300" />
-            <span className="text-[11px] font-medium text-slate-400">
-              아래로 밀어서 닫기
-            </span>
+          {/* 스와이프 핸들 (바만) */}
+          <div className="flex justify-center pt-3 pb-1" aria-hidden>
+            <span className="h-1.5 w-11 rounded-full bg-slate-300" />
           </div>
 
-          <div className="relative flex items-center justify-center px-14 pt-4 pb-7">
+          <div className="grid shrink-0 grid-cols-[2.75rem_1fr_2.75rem] items-center px-2 pt-4 pb-8">
+            <span aria-hidden />
             <h2
               id={titleId}
               className="text-center text-[24px] font-extrabold leading-tight tracking-tight text-slate-900"
@@ -302,7 +297,7 @@ function AreaSheet({
               onClick={onClose}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
-              className="absolute right-2.5 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             >
               <X
                 className="pointer-events-none h-6 w-6"
