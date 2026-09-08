@@ -344,7 +344,7 @@ export function AptDetailPage({
         className={`fixed inset-x-0 top-12 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 sm:top-14 ${
           stickyVisible
             ? "translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-2 opacity-0"
+            : "pointer-events-none invisible -translate-y-2 opacity-0"
         }`}
         aria-hidden={!stickyVisible}
       >
