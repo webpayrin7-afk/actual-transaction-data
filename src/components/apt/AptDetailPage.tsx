@@ -14,6 +14,7 @@ import {
   AptPriceChart,
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
+import { AptAreaSelect } from "@/components/apt/AptAreaSelect";
 import {
   formatComplexLocationLabel,
   recordRecentComplex,
@@ -389,33 +390,11 @@ export function AptDetailPage({
             </div>
           }
         >
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => setAreaKey("all")}
-              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-                areaKey === "all"
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
-            >
-              전체 면적
-            </button>
-            {data.areas.map((area) => (
-              <button
-                key={area.key}
-                type="button"
-                onClick={() => setAreaKey(area.key)}
-                className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-                  areaKey === area.key
-                    ? "bg-teal-700 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {area.label}
-              </button>
-            ))}
-          </div>
+          <AptAreaSelect
+            areas={data.areas}
+            value={areaKey}
+            onChange={setAreaKey}
+          />
         </PageHeader>
       </header>
 
