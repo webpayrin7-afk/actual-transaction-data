@@ -11,7 +11,6 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
 import {
-  formatAreaTriggerLabel,
   formatExclusiveArea,
   formatPyeong,
 } from "@/lib/utils/format";
@@ -101,17 +100,33 @@ export function AptAreaSelector({
 
   if (sorted.length <= 1) {
     const only = sorted[0];
+    if (!only) {
+      return (
+        <div className="flex h-10 w-full items-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-700">
+          전체 면적
+        </div>
+      );
+    }
     return (
-      <span className="inline-flex h-8 items-center rounded-md border border-slate-200 bg-white px-2.5 text-sm tabular-nums text-slate-700">
-        {only ? formatAreaTriggerLabel(only.exclusiveArea) : "전체 면적"}
-      </span>
+      <div className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-sm">
+        <span className="min-w-0 truncate font-medium tabular-nums text-slate-800">
+          {formatPyeong(only.exclusiveArea)} ({formatExclusiveArea(only.exclusiveArea)})
+        </span>
+        <span className="shrink-0 tabular-nums text-slate-500">
+          거래 {only.count.toLocaleString("ko-KR")}건
+        </span>
+      </div>
     );
   }
 
-  const triggerLabel =
-    value === "all" || !selected
-      ? "전체 면적"
-      : formatAreaTriggerLabel(selected.exclusiveArea);
+  const totalDeals = sorted.reduce((sum, a) => sum + a.count, 0);
+  const isAll = value === "all" || !selected;
+  const triggerMain = isAll
+    ? "전체 면적"
+    : `${formatPyeong(selected.exclusiveArea)} (${formatExclusiveArea(selected.exclusiveArea)})`;
+  const triggerMeta = isAll
+    ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · 거래 ${totalDeals.toLocaleString("ko-KR")}건`
+    : `거래 ${selected.count.toLocaleString("ko-KR")}건`;
 
   return (
     <>
@@ -120,13 +135,18 @@ export function AptAreaSelector({
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={`면적 선택, 현재 ${triggerLabel}`}
+        aria-label={`면적 선택, 현재 ${triggerMain}, ${triggerMeta}`}
         onClick={openSheet}
-        className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+        className="flex h-10 w-full items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-left hover:bg-slate-50"
       >
-        <span className="truncate tabular-nums">{triggerLabel}</span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium tabular-nums text-slate-800">
+          {triggerMain}
+        </span>
+        <span className="shrink-0 text-xs tabular-nums text-slate-500 sm:text-[13px]">
+          {triggerMeta}
+        </span>
         <ChevronDown
-          className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition ${
+          className={`h-4 w-4 shrink-0 text-slate-400 transition ${
             open ? "rotate-180" : ""
           }`}
           aria-hidden
