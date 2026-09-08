@@ -9,7 +9,6 @@ import {
   hasDb,
 } from "@/lib/db/client";
 import {
-  isMonthCoverageComplete,
   queryAptTransactions,
   queryTradePool,
   searchAptAggregatesFromDb,
@@ -539,7 +538,7 @@ function detailCacheKey(
   monthCount: number,
   lawdScope: string,
 ): string {
-  return `${regionSlug}|${normalizeName(aptName)}|${monthCount}|${lawdScope}`;
+  return `v2|${regionSlug}|${normalizeName(aptName)}|${monthCount}|${lawdScope}`;
 }
 
 /** 단지 실거래 이력 (매매·전월세 + 시세 차트용 월별 집계) */
@@ -596,40 +595,37 @@ async function buildAptDetail(params: {
   let source: "api" | "mock" | "db" = "mock";
   let warning: string | undefined;
   let collected: Transaction[] = [];
+  const timing: Record<string, number> = {};
+  const mark = (key: string, started: number) => {
+    timing[key] = Math.round(performance.now() - started);
+  };
 
-  const includeRent = monthCount > 36;
-  const dealKinds = includeRent
-    ? (["trade", "rent"] as const)
-    : (["trade"] as const);
-
+  // DB가 있으면 사용자 경로에서는 항상 DB만 사용 (coverage 미완이어도 MOLIT 실시간 호출 금지).
+  // 매매+전월세를 함께 읽어 quick(36m)에서도 전월세 KPI가 비지 않게 한다.
   if (hasDb()) {
-    const covered = await isMonthCoverageComplete({
+    const tDb = performance.now();
+    collected = await queryAptTransactions({
       lawdCodes,
+      aptName,
       yearMonths: months,
-      dealKinds: [...dealKinds],
+      dealKinds: ["trade", "rent"],
     });
-    if (covered) {
-      collected = await queryAptTransactions({
-        lawdCodes,
-        aptName,
-        yearMonths: months,
-        dealKinds: [...dealKinds],
-      });
-      source = "db";
-      if (collected.length === 0) {
-        warning = "선택한 단지·기간에 실거래 데이터가 없습니다.";
-      }
+    mark("dbQueryMs", tDb);
+    source = "db";
+    if (collected.length === 0) {
+      warning = "선택한 단지·기간에 실거래 데이터가 없습니다.";
     }
-  }
-
-  if (source !== "db" && hasApiKey()) {
-    // 최초(≤36개월)는 매매만 — 전월세는 전체 이력 확장 단계에서 채움
+  } else if (hasApiKey()) {
+    // DB 미설정 환경(로컬 데모)만 API. 운영(hasDb)에서는 도달하지 않음.
+    const includeRent = monthCount > 36;
+    const tApi = performance.now();
     collected = await fetchAptHistoryPool(months, lawdCodes, {
       includeRent,
     });
+    mark("apiPoolMs", tApi);
     if (collected.length > 0) source = "api";
     else warning = "선택한 단지·기간에 API 실거래 데이터가 없습니다.";
-  } else if (source !== "db" && !hasApiKey()) {
+  } else {
     warning =
       "MOLIT_API_KEY가 없어 지역별 데모 데이터로 표시 중입니다. Vercel/로컬 환경변수에 키를 설정하세요.";
     for (const ym of months.slice(0, Math.min(12, months.length))) {
@@ -637,6 +633,7 @@ async function buildAptDetail(params: {
     }
   }
 
+  const tProc = performance.now();
   const yearMonth = months[0];
   const aptKey = normalizeName(aptName);
   const matched = collected
@@ -743,6 +740,17 @@ async function buildAptDetail(params: {
       a.yearMonth < b.yearMonth ? -1 : 1,
     ),
   );
+  mark("processMs", tProc);
+
+  if (process.env.APT_DETAIL_TIMING === "1") {
+    console.info("[apt-detail:timing]", {
+      aptName,
+      monthCount,
+      source,
+      items: deals.length,
+      ...timing,
+    });
+  }
 
   return {
     aptName: canonicalName,
