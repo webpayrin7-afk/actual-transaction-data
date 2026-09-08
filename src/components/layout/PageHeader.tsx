@@ -5,6 +5,14 @@ export const PAGE_SHELL =
   "mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-5 pb-8 sm:px-6 sm:pt-6 sm:pb-10 lg:px-8";
 
 /**
+ * BackLink + PageHeader 묶음.
+ * shell의 gap-6과 분리해 돌아가기가 별도 section처럼 벌어지지 않게 함.
+ * -mt: SiteHeader에 조금 더 붙이고, gap으로 title과 여유를 둠.
+ */
+export const PAGE_HEADER_WITH_BACK =
+  "-mt-2 flex flex-col gap-4 sm:-mt-2.5 sm:gap-5";
+
+/**
  * 주요 페이지 상단 타이틀 영역.
  * hero/banner 없이 제목·설명·옵션 컨트롤만 통일.
  * - action: 제목 오른쪽 (면적 선택 등 compact control)

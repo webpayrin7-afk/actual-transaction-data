@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
-  ArrowLeft,
   CalendarDays,
   Flame,
   LoaderCircle,
 } from "lucide-react";
+import { BackLink } from "@/components/layout/BackLink";
 import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt";
 import {
   AptPriceChart,
@@ -26,7 +25,11 @@ import {
   normalizeAreaKey,
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import {
+  PAGE_HEADER_WITH_BACK,
+  PAGE_SHELL,
+  PageHeader,
+} from "@/components/layout/PageHeader";
 import { useLoadProgress } from "@/components/layout/LoadProgress";
 import {
   formatArea,
@@ -157,7 +160,6 @@ export function AptDetailPage({
   initialAreaKey?: string;
 }) {
   const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
-  const router = useRouter();
   /** 사용자/수동 선택. aptIdentity가 바뀌면 자동 기본값으로 복귀 */
   const [areaOverride, setAreaOverride] = useState<{
     forId: string;
@@ -450,9 +452,9 @@ export function AptDetailPage({
         <p className="text-sm font-medium text-slate-700">
           단지 정보를 불러오지 못했습니다.
         </p>
-        <Link href="/complexes" className="mt-2 inline-block text-sm text-teal-700 hover:underline">
-          ← 단지 조회로
-        </Link>
+        <div className="mt-3 flex justify-center">
+          <BackLink fallback="/complexes" />
+        </div>
       </div>
     );
   }
@@ -471,20 +473,7 @@ export function AptDetailPage({
         aria-hidden={!stickyVisible}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== "undefined" && window.history.length > 1) {
-                router.back();
-              } else {
-                router.push("/complexes");
-              }
-            }}
-            aria-label="뒤로 가기"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100"
-          >
-            <ArrowLeft className="h-5 w-5" strokeWidth={2} aria-hidden />
-          </button>
+          <BackLink fallback="/complexes" compact />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-slate-900">
               {data.aptName}
@@ -500,7 +489,8 @@ export function AptDetailPage({
         </div>
       </div>
 
-      <header ref={heroRef}>
+      <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
+        <BackLink fallback="/complexes" />
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
@@ -515,12 +505,6 @@ export function AptDetailPage({
                 className="font-medium text-teal-700 underline-offset-2 hover:underline"
               >
                 {data.regionName} 지역
-              </Link>
-              <Link
-                href="/complexes"
-                className="font-medium text-teal-700 underline-offset-2 hover:underline"
-              >
-                ← 단지 조회
               </Link>
             </div>
           }
