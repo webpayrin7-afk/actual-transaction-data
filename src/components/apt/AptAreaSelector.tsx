@@ -180,11 +180,11 @@ function AreaSheet({
   onPick: (key: string) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none">
       <button
         type="button"
         aria-label="면적 선택 닫기"
-        className="absolute inset-0 bg-slate-900/40"
+        className="pointer-events-auto absolute inset-0 bg-slate-900/40"
         style={{
           opacity: open ? 1 : 0,
           transition: `opacity ${SHEET_MS}ms ease-out`,
@@ -197,8 +197,10 @@ function AreaSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="relative z-[61] flex h-auto w-full max-h-[min(65vh,26rem)] flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md will-change-transform"
+        className="pointer-events-auto relative z-[61] flex w-full flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md"
         style={{
+          height: "fit-content",
+          maxHeight: "min(42vh, 20rem)",
           transform: open ? "translateY(0)" : "translateY(100%)",
           transition: `transform ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
@@ -223,7 +225,10 @@ function AreaSheet({
           </button>
         </div>
 
-        <div className="min-h-0 overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div
+          className="overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+          style={{ maxHeight: "min(30vh, 14rem)" }}
+        >
           <AreaOption
             active={value === "all"}
             onClick={() => onPick("all")}
