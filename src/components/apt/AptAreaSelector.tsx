@@ -309,12 +309,12 @@ function AreaSheet({
 
           <div
             className="relative flex items-center justify-center px-12"
-            style={{ paddingTop: 22, paddingBottom: 32 }}
+            style={{ paddingTop: 18, paddingBottom: 24 }}
           >
             <h2
               id={titleId}
               className="text-center leading-none tracking-tight text-slate-900"
-              style={{ fontSize: 30, fontWeight: 800 }}
+              style={{ fontSize: 26, fontWeight: 800 }}
             >
               면적 선택
             </h2>
