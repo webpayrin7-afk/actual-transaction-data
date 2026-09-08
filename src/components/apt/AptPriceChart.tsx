@@ -24,6 +24,12 @@ function formatYmLabel(ym: string): string {
   return `${ym.slice(2, 4)}년 ${Number(ym.slice(4, 6))}월`;
 }
 
+/** Recharts category tick — avoid "24.01" parsing as a number */
+function axisLabelFromYm(ym: string): string {
+  if (ym.length !== 6) return ym;
+  return `${ym.slice(2, 4)}/${ym.slice(4, 6)}`;
+}
+
 export function AptPriceChart({
   points,
 }: {
@@ -33,11 +39,20 @@ export function AptPriceChart({
     () =>
       points.map((p) => ({
         ...p,
+        axisLabel: axisLabelFromYm(p.yearMonth),
         tradeEok: toEok(p.tradeAvg),
         jeonseEok: toEok(p.jeonseAvg),
       })),
     [points],
   );
+
+  const axisInterval = useMemo(() => {
+    const n = data.length;
+    if (n <= 1) return 0;
+    const maxTicks = 6;
+    if (n <= maxTicks) return 0;
+    return Math.ceil(n / maxTicks) - 1;
+  }, [data.length]);
 
   if (data.length === 0) {
     return (
@@ -52,19 +67,18 @@ export function AptPriceChart({
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
           <XAxis
-            dataKey="yearMonth"
-            tickFormatter={(ym: string) =>
-              ym.endsWith("01") ? `${ym.slice(2, 4)}년` : ""
-            }
-            interval="preserveStartEnd"
-            minTickGap={28}
+            type="category"
+            dataKey="axisLabel"
+            interval={axisInterval}
             tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
+            allowDuplicatedCategory={false}
+            height={28}
           />
           <YAxis
             yAxisId="price"
@@ -90,7 +104,10 @@ export function AptPriceChart({
               border: "1px solid #e2e8f0",
               boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
             }}
-            labelFormatter={(ym) => formatYmLabel(String(ym))}
+            labelFormatter={(_label, payload) => {
+              const ym = payload?.[0]?.payload?.yearMonth;
+              return ym ? formatYmLabel(String(ym)) : String(_label ?? "");
+            }}
             formatter={(value: number | string, name: string) => {
               if (name === "거래량") return [`${value}건`, name];
               if (value == null || value === "") return ["-", name];
