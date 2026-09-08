@@ -11,7 +11,12 @@ import type {
   RegionDongApt,
 } from "@/lib/molit/service";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { BackLink } from "@/components/layout/BackLink";
+import {
+  PAGE_HEADER_WITH_BACK,
+  PAGE_SHELL,
+  PageHeader,
+} from "@/components/layout/PageHeader";
 
 async function fetchRegionDongApts(params: {
   region: string;
@@ -88,22 +93,16 @@ export function RegionDongAptList({
   });
 
   const data = query.data;
-  const backHref = `/region/${regionSlug}?tab=dong`;
 
   return (
     <div className={PAGE_SHELL}>
-      <PageHeader
-        title={`${dong} 단지 목록`}
-        description={`${regionName}${gu ? ` · ${gu}` : ""} — 거래 이력이 있는 단지`}
-        meta={
-          <Link
-            href={backHref}
-            className="font-medium text-teal-700 underline-offset-2 hover:underline"
-          >
-            ← 단지 탐색으로
-          </Link>
-        }
-      />
+      <header className={PAGE_HEADER_WITH_BACK}>
+        <BackLink fallback={`/region/${regionSlug}?tab=dong`} />
+        <PageHeader
+          title={`${dong} 단지 목록`}
+          description={`${regionName}${gu ? ` · ${gu}` : ""} — 거래 이력이 있는 단지`}
+        />
+      </header>
 
       {query.isError && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">

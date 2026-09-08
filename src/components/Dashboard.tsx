@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +14,12 @@ import { Pagination } from "@/components/Pagination";
 import { RegionDailyStatus } from "@/components/RegionDailyStatus";
 import { RegionDongBrowse } from "@/components/RegionDongBrowse";
 import { TransactionTable } from "@/components/TransactionTable";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { BackLink } from "@/components/layout/BackLink";
+import {
+  PAGE_HEADER_WITH_BACK,
+  PAGE_SHELL,
+  PageHeader,
+} from "@/components/layout/PageHeader";
 import { PAGE_SIZE, type RegionDef } from "@/lib/constants/regions";
 import { recentYearMonths } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -167,18 +171,13 @@ export function Dashboard({
 
   return (
     <div className={PAGE_SHELL}>
-      <PageHeader
-        title={`${region.name} 아파트 시장`}
-        description={`${region.fullName} 실거래·신고가·단지 현황을 확인하세요.`}
-        meta={
-          <Link
-            href="/regions"
-            className="font-medium text-teal-700 underline-offset-2 hover:underline"
-          >
-            ← 지역 조회
-          </Link>
-        }
-      />
+      <header className={PAGE_HEADER_WITH_BACK}>
+        <BackLink fallback="/regions" />
+        <PageHeader
+          title={`${region.name} 아파트 시장`}
+          description={`${region.fullName} 실거래·신고가·단지 현황을 확인하세요.`}
+        />
+      </header>
 
       <nav
         className="inline-flex w-full gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto"

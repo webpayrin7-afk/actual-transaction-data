@@ -1,8 +1,9 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { LoadProgressProvider } from "@/components/layout/LoadProgress";
+import { InternalNavTracker } from "@/components/layout/InternalNavTracker";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
@@ -20,7 +21,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={client}>
-      <LoadProgressProvider>{children}</LoadProgressProvider>
+      <LoadProgressProvider>
+        <Suspense fallback={null}>
+          <InternalNavTracker />
+        </Suspense>
+        {children}
+      </LoadProgressProvider>
     </QueryClientProvider>
   );
 }
