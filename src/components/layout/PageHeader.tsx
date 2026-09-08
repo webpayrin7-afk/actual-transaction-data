@@ -43,7 +43,7 @@ export function PageHeader({
           {meta}
         </div>
       ) : null}
-      {children ? <div className="mt-2.5">{children}</div> : null}
+      {children ? <div className="mt-4">{children}</div> : null}
     </header>
   );
 }
