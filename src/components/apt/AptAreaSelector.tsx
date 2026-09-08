@@ -167,6 +167,10 @@ function AreaSheet({
   onClose: () => void;
   onPick: (key: string) => void;
 }) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLButtonElement>(null);
+  const didScroll = useRef(false);
+
   const rows: { key: string; label: string }[] = [
     { key: "all", label: "전체 면적" },
     ...areas.map((area) => ({
@@ -175,12 +179,30 @@ function AreaSheet({
     })),
   ];
 
+  useEffect(() => {
+    if (!open) {
+      didScroll.current = false;
+      return;
+    }
+    if (didScroll.current) return;
+    didScroll.current = true;
+    const id = window.setTimeout(() => {
+      activeRef.current?.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: "auto",
+      });
+    }, SHEET_MS);
+    return () => window.clearTimeout(id);
+  }, [open]);
+
   return (
     <div className="fixed inset-0 z-[60]">
       <div
         role="presentation"
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0"
         style={{
+          backgroundColor: "rgba(0, 0, 0, 0.55)",
           opacity: open ? 1 : 0,
           transition: `opacity ${SHEET_MS}ms ease-out`,
         }}
@@ -203,14 +225,14 @@ function AreaSheet({
           transition: `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
       >
-        <div className="flex shrink-0 justify-center pt-2.5 pb-1" aria-hidden>
+        <div className="flex shrink-0 justify-center pt-3 pb-1" aria-hidden>
           <span className="h-1 w-9 rounded-full bg-slate-200" />
         </div>
 
-        <div className="relative flex shrink-0 items-center justify-center px-12 pb-3 pt-1">
+        <div className="relative flex shrink-0 items-center justify-center px-12 py-4">
           <h2
             id={titleId}
-            className="text-center text-[17px] font-bold leading-none text-slate-900"
+            className="text-center text-[19px] font-extrabold leading-none tracking-tight text-slate-900"
           >
             면적 선택
           </h2>
@@ -224,11 +246,15 @@ function AreaSheet({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div
+          ref={listRef}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+        >
           {rows.map((row, index) => (
             <div key={row.key} className="px-4">
               <AreaOption
                 active={value === row.key}
+                buttonRef={value === row.key ? activeRef : undefined}
                 onClick={() => onPick(row.key)}
                 label={row.label}
               />
@@ -245,15 +271,18 @@ function AreaSheet({
 
 function AreaOption({
   active,
+  buttonRef,
   onClick,
   label,
 }: {
   active: boolean;
+  buttonRef?: React.RefObject<HTMLButtonElement | null>;
   onClick: () => void;
   label: string;
 }) {
   return (
     <button
+      ref={buttonRef}
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-3 py-3 text-left transition ${
