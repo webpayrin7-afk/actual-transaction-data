@@ -15,7 +15,8 @@
     "db:probe": "tsx scripts/probe-molit-freshness.ts",
     "db:catalog": "tsx scripts/rebuild-apt-catalog.ts",
     "db:market": "tsx scripts/rebuild-market-home.ts",
-    "db:stats": "tsx scripts/rebuild-market-stats.ts"
+    "db:stats": "tsx scripts/rebuild-market-stats.ts",
+    "db:feeds": "tsx scripts/rebuild-market-stats-feeds.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
