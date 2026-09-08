@@ -172,8 +172,9 @@ function AreaSheet({
   const didScroll = useRef(false);
   const startY = useRef(0);
   const dragYRef = useRef(0);
-  const dragging = useRef(false);
+  const draggingRef = useRef(false);
   const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const rows: { key: string; label: string }[] = [
     { key: "all", label: "전체 면적" },
@@ -186,7 +187,6 @@ function AreaSheet({
   useEffect(() => {
     if (!open) {
       didScroll.current = false;
-      setDragY(0);
       return;
     }
     if (didScroll.current) return;
@@ -202,21 +202,23 @@ function AreaSheet({
   }, [open]);
 
   function onDragStart(clientY: number) {
-    dragging.current = true;
+    draggingRef.current = true;
+    setIsDragging(true);
     startY.current = clientY;
     dragYRef.current = 0;
   }
 
   function onDragMove(clientY: number) {
-    if (!dragging.current) return;
+    if (!draggingRef.current) return;
     const next = Math.max(0, clientY - startY.current);
     dragYRef.current = next;
     setDragY(next);
   }
 
   function onDragEnd() {
-    if (!dragging.current) return;
-    dragging.current = false;
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    setIsDragging(false);
     const finalY = dragYRef.current;
     dragYRef.current = 0;
     if (finalY > 88) {
@@ -235,7 +237,7 @@ function AreaSheet({
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.55)",
           opacity: open ? Math.max(0, 1 - dragY / 280) : 0,
-          transition: dragging.current
+          transition: isDragging
             ? "none"
             : `opacity ${SHEET_MS}ms ease-out`,
         }}
@@ -255,10 +257,9 @@ function AreaSheet({
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           overflow: "hidden",
-          transition:
-            dragging.current || dragY > 0
-              ? "none"
-              : `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
+          transition: isDragging
+            ? "none"
+            : `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
       >
         <div
@@ -273,7 +274,7 @@ function AreaSheet({
           }}
           onMouseUp={onDragEnd}
           onMouseLeave={() => {
-            if (dragging.current) onDragEnd();
+            if (draggingRef.current) onDragEnd();
           }}
         >
           {/* 스와이프 핸들 */}
