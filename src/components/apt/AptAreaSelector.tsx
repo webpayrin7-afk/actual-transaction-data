@@ -8,7 +8,7 @@ import {
   useEffect,
 } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown, GripHorizontal, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
 import {
   formatAreaTriggerLabel,
@@ -283,29 +283,33 @@ function AreaSheet({
         >
           {/* 상단 중앙 스와이프 핸들 */}
           <div
-            className="flex w-full shrink-0 items-center justify-center"
-            style={{ paddingTop: 14, paddingBottom: 6 }}
-            aria-hidden
+            role="presentation"
+            style={{
+              display: "flex",
+              width: "100%",
+              flexShrink: 0,
+              alignItems: "center",
+              justifyContent: "center",
+              paddingTop: 12,
+              paddingBottom: 4,
+            }}
           >
-            <span
-              style={{
-                display: "block",
-                width: 48,
-                height: 5,
-                borderRadius: 999,
-                backgroundColor: "#cbd5e1",
-              }}
+            <GripHorizontal
+              size={32}
+              color="#94a3b8"
+              strokeWidth={2}
+              aria-hidden
             />
           </div>
 
           <div
             className="relative flex items-center justify-center px-12"
-            style={{ paddingTop: 18, paddingBottom: 28 }}
+            style={{ paddingTop: 22, paddingBottom: 32 }}
           >
             <h2
               id={titleId}
               className="text-center leading-none tracking-tight text-slate-900"
-              style={{ fontSize: 28, fontWeight: 800 }}
+              style={{ fontSize: 30, fontWeight: 800 }}
             >
               면적 선택
             </h2>
