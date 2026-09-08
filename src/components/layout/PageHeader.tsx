@@ -7,25 +7,34 @@ export const PAGE_SHELL =
 /**
  * 주요 페이지 상단 타이틀 영역.
  * hero/banner 없이 제목·설명·옵션 컨트롤만 통일.
+ * - action: 제목 오른쪽 (면적 선택 등 compact control)
+ * - children: 제목 아래 (검색 폼 등)
  */
 export function PageHeader({
   title,
   description,
   meta,
+  action,
   children,
   className = "",
 }: {
   title: string;
   description: string;
   meta?: ReactNode;
+  action?: ReactNode;
   children?: ReactNode;
   className?: string;
 }) {
   return (
     <header className={`max-w-3xl ${className}`.trim()}>
-      <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-[1.875rem] sm:leading-tight">
-        {title}
-      </h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-[1.875rem] sm:leading-tight">
+          {title}
+        </h1>
+        {action ? (
+          <div className="shrink-0 pt-0.5 sm:pt-1">{action}</div>
+        ) : null}
+      </div>
       <p className="mt-1.5 text-sm leading-6 text-slate-600 sm:text-[0.9375rem]">
         {description}
       </p>

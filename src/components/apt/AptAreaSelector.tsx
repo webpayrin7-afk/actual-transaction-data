@@ -102,11 +102,9 @@ export function AptAreaSelector({
   if (sorted.length <= 1) {
     const only = sorted[0];
     return (
-      <div className="flex w-full min-w-0 justify-end">
-        <span className="text-[15px] tabular-nums text-slate-800">
-          {only ? formatAreaTriggerLabel(only.exclusiveArea) : "전체 면적"}
-        </span>
-      </div>
+      <span className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-[13px] tabular-nums text-slate-700 sm:h-10 sm:text-[15px]">
+        {only ? formatAreaTriggerLabel(only.exclusiveArea) : "전체 면적"}
+      </span>
     );
   }
 
@@ -116,18 +114,19 @@ export function AptAreaSelector({
       : formatAreaTriggerLabel(selected.exclusiveArea);
 
   return (
-    <div className="flex w-full min-w-0 justify-end">
+    <>
       <button
         ref={triggerRef}
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-label={`면적 선택, 현재 ${triggerLabel}`}
         onClick={openSheet}
-        className="inline-flex h-10 max-w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-[15px] font-medium text-slate-800 hover:bg-slate-50"
+        className="inline-flex h-9 max-w-[11.5rem] items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-800 hover:bg-slate-50 sm:h-10 sm:max-w-[14rem] sm:gap-2 sm:px-3.5 sm:text-[15px]"
       >
         <span className="truncate tabular-nums">{triggerLabel}</span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-400 transition ${
+          className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition sm:h-4 sm:w-4 ${
             open ? "rotate-180" : ""
           }`}
           aria-hidden
@@ -148,7 +147,7 @@ export function AptAreaSelector({
             document.body,
           )
         : null}
-    </div>
+    </>
   );
 }
 
