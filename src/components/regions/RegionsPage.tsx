@@ -13,6 +13,7 @@ import {
   ALL_REGIONS,
   GYEONGGI_REGIONS,
   SEOUL_REGIONS,
+  type Metro,
   type RegionDef,
 } from "@/lib/constants/regions";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
@@ -82,50 +83,24 @@ function suggestRegions(query: string, limit = 8): RegionSuggestion[] {
   return unique;
 }
 
-function RegionGrid({
-  title,
-  regions,
-}: {
-  title: string;
-  regions: RegionDef[];
-}) {
-  return (
-    <section className="flex flex-col gap-3">
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-        <span className="h-5 w-1 rounded-full bg-teal-600" />
-        {title}
-      </h2>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {regions.map((region) => (
-          <Link
-            key={region.slug}
-            href={`/region/${region.slug}`}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-medium text-slate-800 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900"
-          >
-            {region.name}
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
+/**
+ * 지역 조회 인덱스.
+ * 시·도 → 시·군·구 compact selector 후 /region/[slug]로 이동.
+ * 시장 KPI/랭킹은 지역 상세에서 확인 (여기선 선택만).
+ */
 export function RegionsPage() {
   const router = useRouter();
+  const [metro, setMetro] = useState<Metro>(() => {
+    if (typeof window === "undefined") return "seoul";
+    const hash = window.location.hash.replace("#", "");
+    return hash === "gyeonggi" ? "gyeonggi" : "seoul";
+  });
   const [regionQuery, setRegionQuery] = useState("");
   const [openSuggest, setOpenSuggest] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const searchWrapRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
-    if (!hash) return;
-    const el = document.getElementById(hash);
-    if (!el) return;
-    window.setTimeout(() => {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-  }, []);
+  const regions = metro === "seoul" ? SEOUL_REGIONS : GYEONGGI_REGIONS;
 
   useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
@@ -155,15 +130,13 @@ export function RegionsPage() {
       goRegion(suggestions[activeIndex].slug);
       return;
     }
-    if (suggestions[0]) {
-      goRegion(suggestions[0].slug);
-    }
+    if (suggestions[0]) goRegion(suggestions[0].slug);
   };
 
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="지역별 조회"
+        title="지역 조회"
         description="지역별 아파트 실거래와 시장 현황을 확인하세요."
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
@@ -244,18 +217,57 @@ export function RegionsPage() {
         </form>
       </PageHeader>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-8">
-          <div id="seoul" className="scroll-mt-24">
-            <RegionGrid title="서울특별시" regions={SEOUL_REGIONS} />
-          </div>
-          <div id="gyeonggi" className="scroll-mt-24">
-            <RegionGrid title="경기도" regions={GYEONGGI_REGIONS} />
-          </div>
+      <section className="flex flex-col gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
+            지역 선택
+          </h2>
+          <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
+            시·도를 고른 뒤 시·군·구를 선택하면 해당 지역 시장으로 이동합니다
+          </p>
         </div>
-      </div>
 
-      <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
+        {/* 시·도 — 향후 전국 시도 확장 시 options만 추가 */}
+        <div className="inline-flex w-fit gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+          {(
+            [
+              { value: "seoul" as const, label: "서울" },
+              { value: "gyeonggi" as const, label: "경기" },
+            ] as const
+          ).map((opt) => {
+            const active = metro === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setMetro(opt.value)}
+                className={`min-h-8 rounded-md px-3 text-xs font-medium transition sm:text-[13px] ${
+                  active
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 시·군·구 */}
+        <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+          {regions.map((region) => (
+            <Link
+              key={region.slug}
+              href={`/region/${region.slug}`}
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-center text-xs font-medium text-slate-800 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 sm:text-sm"
+            >
+              {region.name}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-400">
         국토교통부 아파트 실거래 OpenAPI 기반 · 아파트 데이터랩
       </footer>
     </div>

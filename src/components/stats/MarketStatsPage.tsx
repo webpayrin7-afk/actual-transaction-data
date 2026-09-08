@@ -723,7 +723,7 @@ export function MarketStatsPage() {
           href="/regions"
           className="inline-flex items-center gap-1 font-medium text-slate-600 hover:underline"
         >
-          지역별 조회
+          지역 조회
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
