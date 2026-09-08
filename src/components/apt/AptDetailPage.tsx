@@ -105,15 +105,23 @@ function AptLoadProgressBar({
   active: boolean;
   label?: string;
 }) {
-  const [top, setTop] = useState(56);
+  /** null = 아직 헤더 미측정. 모바일 헤더(~87px)보다 작은 top-14를 쓰지 않음 */
+  const [top, setTop] = useState<number | null>(null);
 
   useLayoutEffect(() => {
-    if (!active) return;
+    if (!active) {
+      setTop(null);
+      return;
+    }
+
     const header = document.querySelector<HTMLElement>("[data-site-header]");
-    if (!header) return;
+    if (!header) {
+      setTop(88);
+      return;
+    }
 
     const sync = () => {
-      setTop(Math.round(header.getBoundingClientRect().height));
+      setTop(Math.max(48, Math.round(header.getBoundingClientRect().height)));
     };
     sync();
 
@@ -129,7 +137,12 @@ function AptLoadProgressBar({
   if (!active) return null;
 
   return (
-    <div className="fixed inset-x-0 z-40" style={{ top }} role="status" aria-live="polite">
+    <div
+      className="fixed inset-x-0 z-40"
+      style={{ top: top ?? 88 }}
+      role="status"
+      aria-live="polite"
+    >
       <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
         <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
       </div>
