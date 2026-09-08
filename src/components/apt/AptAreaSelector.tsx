@@ -95,7 +95,6 @@ export function AptAreaSelector({
   function openSheet() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setPresent(true);
-    // next frame → slide-up transition
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setOpen(true));
     });
@@ -106,7 +105,6 @@ export function AptAreaSelector({
     requestClose();
   }
 
-  // 면적 0~1개: static (chevron/sheet 없음)
   if (sorted.length <= 1) {
     const only = sorted[0];
     return (
@@ -180,37 +178,37 @@ function AreaSheet({
   onPick: (key: string) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none">
-      <button
-        type="button"
-        aria-label="면적 선택 닫기"
-        className="pointer-events-auto absolute inset-0 bg-slate-900/40"
+    <div className="fixed inset-0 z-[60]">
+      {/* dim */}
+      <div
+        role="presentation"
+        className="absolute inset-0 bg-black/50"
         style={{
           opacity: open ? 1 : 0,
           transition: `opacity ${SHEET_MS}ms ease-out`,
         }}
         onClick={onClose}
       />
+
+      {/* 높이 2/3 · 상단 좌우 라운드 · slide-up */}
       <div
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="pointer-events-auto relative z-[61] flex w-full flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md"
+        className="absolute bottom-0 left-0 right-0 z-10 mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
         style={{
-          height: "fit-content",
-          maxHeight: "min(42vh, 20rem)",
+          height: "66.666dvh",
           transform: open ? "translateY(0)" : "translateY(100%)",
           transition: `transform ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
       >
-        {/* drag affordance */}
         <div className="flex shrink-0 justify-center pt-2.5 pb-1" aria-hidden>
           <span className="h-1 w-9 rounded-full bg-slate-200" />
         </div>
 
-        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
+        <div className="relative z-20 flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
           <h2 id={titleId} className="text-sm font-semibold text-slate-900">
             면적 선택
           </h2>
@@ -218,17 +216,18 @@ function AreaSheet({
             type="button"
             data-sheet-close
             aria-label="닫기"
-            onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" pointerEvents="none" />
           </button>
         </div>
 
-        <div
-          className="overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
-          style={{ maxHeight: "min(30vh, 14rem)" }}
-        >
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           <AreaOption
             active={value === "all"}
             onClick={() => onPick("all")}
