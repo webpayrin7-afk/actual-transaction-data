@@ -115,9 +115,10 @@ export async function getDownFromPeakComplexes(): Promise<DownFromPeakResponse> 
 
   const fromDate = addDays(asOfDate, -(DOWN_FROM_PEAK_FRESHNESS_DAYS - 1));
 
-  // 1) 최근 창: 단지+면적별 최신 매매 1건 (동일일 다건 → id DESC로 결정적 선택)
-  const latestRes = await db.execute({
-    sql: `
+  // 최근 창 latest + 전체 peak 집계를 병렬 실행 (캐시 miss 시 ~max(q1,q2))
+  const [latestRes, peakRes] = await Promise.all([
+    db.execute({
+      sql: `
       WITH ranked AS (
         SELECT
           apt_name,
@@ -155,18 +156,9 @@ export async function getDownFromPeakComplexes(): Promise<DownFromPeakResponse> 
       FROM ranked
       WHERE rn = 1
     `,
-    args: [fromDate, asOfDate],
-  });
-
-  const candidateGroups = latestRes.rows.length;
-  if (candidateGroups === 0) {
-    return emptyResponse(
-      "최근 거래 기준으로 고점 대비 10% 이상 내려온 단지가 없습니다.",
-    );
-  }
-
-  // 2) 전체 매매 historical peak (단지+면적) — 1회 집계 후 메모리 join
-  const peakRes = await db.execute(`
+      args: [fromDate, asOfDate],
+    }),
+    db.execute(`
     SELECT
       apt_name_norm,
       lawd_cd,
@@ -179,7 +171,15 @@ export async function getDownFromPeakComplexes(): Promise<DownFromPeakResponse> 
       AND exclusive_area > 0
       AND deal_amount > 0
     GROUP BY apt_name_norm, lawd_cd, IFNULL(dong, ''), ROUND(exclusive_area * 100)
-  `);
+  `),
+  ]);
+
+  const candidateGroups = latestRes.rows.length;
+  if (candidateGroups === 0) {
+    return emptyResponse(
+      "최근 거래 기준으로 고점 대비 10% 이상 내려온 단지가 없습니다.",
+    );
+  }
 
   const peakMap = new Map<string, number>();
   for (const row of peakRes.rows) {
