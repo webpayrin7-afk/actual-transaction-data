@@ -308,7 +308,7 @@ function AreaSheet({
 
           <div
             className="relative flex items-center justify-center px-12"
-            style={{ paddingTop: 12, paddingBottom: 16 }}
+            style={{ paddingTop: 12, paddingBottom: 22 }}
           >
             <h2
               id={titleId}
