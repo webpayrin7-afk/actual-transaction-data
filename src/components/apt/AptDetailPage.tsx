@@ -9,7 +9,7 @@ import {
   Flame,
   LoaderCircle,
 } from "lucide-react";
-import type { AptDetailResponse } from "@/lib/molit/apt";
+import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt";
 import {
   AptPriceChart,
   PeriodRangeSlider,
@@ -37,6 +37,59 @@ import {
 const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
 const RECENT_YEARS = 3;
+
+/**
+ * Compact 2-line trade row.
+ * Line 1: date (left) · price (right, never truncated)
+ * Line 2: area · floor · meta (no ellipsis on core fields)
+ */
+function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
+  const dateFull = formatDealDate(tx.dealDate);
+  const dateShort =
+    dateFull.length >= 10 ? dateFull.slice(5) : dateFull;
+  const priceLabel =
+    tx.dealType === "trade"
+      ? `매매 ${formatEok(tx.dealAmount)}`
+      : formatRentAmount(tx.dealAmount, tx.monthlyRent);
+
+  return (
+    <li className="px-3.5 py-2.5 sm:px-4 sm:py-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <time
+          dateTime={tx.dealDate}
+          className="shrink-0 text-sm font-medium tabular-nums text-slate-900"
+        >
+          <span className="sm:hidden">{dateShort}</span>
+          <span className="hidden sm:inline">{dateFull}</span>
+        </time>
+        <div className="flex min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2">
+          {tx.isSingoga ? (
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
+              <Flame className="h-3 w-3" aria-hidden />
+              신고가
+            </span>
+          ) : null}
+          <p
+            className={`whitespace-nowrap text-sm font-semibold tabular-nums sm:text-base ${
+              tx.dealType === "trade" ? "text-teal-800" : "text-orange-700"
+            }`}
+          >
+            {priceLabel}
+          </p>
+        </div>
+      </div>
+      <p className="mt-1 text-xs leading-snug text-slate-500 sm:text-[13px]">
+        <span className="tabular-nums">{formatArea(tx.exclusiveArea)}</span>
+        <span className="text-slate-300"> · </span>
+        <span className="tabular-nums">{tx.floor}층</span>
+        <span className="text-slate-300"> · </span>
+        <span>
+          {tx.dong} · {tx.dealingGbn || "중개거래"}
+        </span>
+      </p>
+    </li>
+  );
+}
 
 function AptLoadProgressBar({
   active,
@@ -601,41 +654,7 @@ export function AptDetailPage({
                 </h3>
                 <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
                   {items.map((tx, idx) => (
-                    <li
-                      key={`${tx.id}-${idx}`}
-                      className="flex items-center justify-between gap-3 px-3.5 py-3 sm:px-4"
-                    >
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <p className="truncate text-sm font-medium text-slate-900">
-                          {formatDealDate(tx.dealDate).slice(5)}{" "}
-                          <span className="font-normal text-slate-500">
-                            {formatArea(tx.exclusiveArea)} · {tx.floor}층
-                          </span>
-                        </p>
-                        <p className="mt-0.5 truncate text-xs text-slate-500">
-                          {tx.dong} · {tx.dealingGbn || "중개거래"}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                        {tx.isSingoga ? (
-                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
-                            <Flame className="h-3 w-3" />
-                            신고가
-                          </span>
-                        ) : null}
-                        <p
-                          className={`whitespace-nowrap text-[13px] font-semibold tabular-nums leading-none sm:text-base ${
-                            tx.dealType === "trade"
-                              ? "text-teal-800"
-                              : "text-orange-700"
-                          }`}
-                        >
-                          {tx.dealType === "trade"
-                            ? `매매 ${formatEok(tx.dealAmount)}`
-                            : formatRentAmount(tx.dealAmount, tx.monthlyRent)}
-                        </p>
-                      </div>
-                    </li>
+                    <TradeHistoryRow key={`${tx.id}-${idx}`} tx={tx} />
                   ))}
                 </ul>
               </div>
