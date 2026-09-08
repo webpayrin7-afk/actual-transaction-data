@@ -43,7 +43,7 @@ export function useLoadProgress() {
   if (!ctx) {
     return {
       label: null as string | null,
-      show: (_: string) => {},
+      show: (() => {}) as (label: string) => void,
       hide: () => {},
     };
   }
