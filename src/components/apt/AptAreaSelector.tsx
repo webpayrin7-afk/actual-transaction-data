@@ -5,15 +5,14 @@ import {
   useId,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
 import {
   formatAreaTriggerLabel,
-  formatExclusiveArea,
   formatPyeong,
+  formatSqm,
 } from "@/lib/utils/format";
 
 type AptAreaSelectorProps = {
@@ -222,20 +221,25 @@ function AreaSheet({
         </div>
 
         <div className="min-h-0 overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-          <AreaOption
-            active={value === "all"}
-            onClick={() => onPick("all")}
-            primary="전체 면적"
-          />
-          {areas.map((area) => (
-            <AreaOption
-              key={area.key}
-              active={area.key === value}
-              onClick={() => onPick(area.key)}
-              primary={formatPyeong(area.exclusiveArea)}
-              secondary={formatExclusiveArea(area.exclusiveArea)}
-            />
-          ))}
+          <ul className="divide-y divide-slate-100">
+            <li>
+              <AreaOption
+                active={value === "all"}
+                onClick={() => onPick("all")}
+                label="전체 면적"
+              />
+            </li>
+            {areas.map((area) => (
+              <li key={area.key}>
+                <AreaOption
+                  active={area.key === value}
+                  onClick={() => onPick(area.key)}
+                  label={`${formatPyeong(area.exclusiveArea)} (${formatSqm(area.exclusiveArea)})`}
+                  meta={`${area.count.toLocaleString("ko-KR")}건`}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
@@ -245,38 +249,37 @@ function AreaSheet({
 function AreaOption({
   active,
   onClick,
-  primary,
-  secondary,
+  label,
+  meta,
 }: {
   active: boolean;
   onClick: () => void;
-  primary: string;
-  secondary?: ReactNode;
+  label: string;
+  /** 우측 보조 수치 (거래 건수 등) */
+  meta?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
+      className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition ${
         active ? "bg-slate-100" : "hover:bg-slate-50"
       }`}
     >
-      <span className="min-w-0 flex-1">
-        <span
-          className={`block text-sm ${
-            active
-              ? "font-semibold text-slate-900"
-              : "font-medium text-slate-800"
-          }`}
-        >
-          {primary}
-        </span>
-        {secondary ? (
-          <span className="mt-0.5 block text-xs tabular-nums text-slate-500">
-            {secondary}
-          </span>
-        ) : null}
+      <span
+        className={`min-w-0 flex-1 truncate text-[15px] tabular-nums sm:text-base ${
+          active
+            ? "font-semibold text-slate-900"
+            : "font-medium text-slate-800"
+        }`}
+      >
+        {label}
       </span>
+      {meta ? (
+        <span className="shrink-0 text-sm tabular-nums text-slate-400">
+          {meta}
+        </span>
+      ) : null}
       {active ? (
         <Check className="h-4 w-4 shrink-0 text-teal-700" aria-hidden />
       ) : (
