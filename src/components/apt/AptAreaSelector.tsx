@@ -1,10 +1,11 @@
 "use client";
 
 import {
-  useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
+  useEffect,
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
@@ -85,8 +86,11 @@ export function AptAreaSelector({
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setPresent(true);
     setOpen(false);
+    // mount → layout scroll(선택 평수) → 그다음 slide-up
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => setOpen(true));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setOpen(true));
+      });
     });
   }
 
@@ -169,7 +173,6 @@ function AreaSheet({
 }) {
   const listRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
-  const didScroll = useRef(false);
   const startY = useRef(0);
   const dragYRef = useRef(0);
   const draggingRef = useRef(false);
@@ -184,22 +187,15 @@ function AreaSheet({
     })),
   ];
 
-  useEffect(() => {
-    if (!open) {
-      didScroll.current = false;
-      return;
-    }
-    if (didScroll.current) return;
-    didScroll.current = true;
-    const id = window.setTimeout(() => {
-      activeRef.current?.scrollIntoView({
-        block: "center",
-        inline: "nearest",
-        behavior: "auto",
-      });
-    }, SHEET_MS);
-    return () => window.clearTimeout(id);
-  }, [open]);
+  // 시트 마운트 직후(올라오기 전) 선택 항목으로 스크롤 고정
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    const el = activeRef.current;
+    if (!list || !el) return;
+    const target =
+      el.offsetTop - list.clientHeight / 2 + el.offsetHeight / 2;
+    list.scrollTop = Math.max(0, target);
+  }, []);
 
   function onDragStart(clientY: number) {
     draggingRef.current = true;
@@ -263,7 +259,7 @@ function AreaSheet({
         }}
       >
         <div
-          className="flex shrink-0 touch-none flex-col bg-white"
+          className="relative flex shrink-0 touch-none flex-col bg-white"
           onTouchStart={(e) => onDragStart(e.touches[0].clientY)}
           onTouchMove={(e) => onDragMove(e.touches[0].clientY)}
           onTouchEnd={onDragEnd}
@@ -277,16 +273,14 @@ function AreaSheet({
             if (draggingRef.current) onDragEnd();
           }}
         >
-          {/* 스와이프 핸들 (바만) */}
-          <div className="flex justify-center pt-3 pb-1" aria-hidden>
+          <div className="flex justify-center pt-2.5 pb-0.5" aria-hidden>
             <span className="h-1.5 w-11 rounded-full bg-slate-300" />
           </div>
 
-          <div className="grid shrink-0 grid-cols-[2.75rem_1fr_2.75rem] items-center px-2 pt-4 pb-8">
-            <span aria-hidden />
+          <div className="relative flex items-center justify-center px-12 pt-2.5 pb-4">
             <h2
               id={titleId}
-              className="text-center text-[24px] font-extrabold leading-tight tracking-tight text-slate-900"
+              className="text-center text-[26px] font-extrabold leading-none tracking-tight text-slate-900"
               style={{ fontWeight: 800 }}
             >
               면적 선택
@@ -297,7 +291,13 @@ function AreaSheet({
               onClick={onClose}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
-              className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              style={{
+                position: "absolute",
+                right: 10,
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
             >
               <X
                 className="pointer-events-none h-6 w-6"
@@ -308,23 +308,31 @@ function AreaSheet({
           </div>
         </div>
 
-        <div
-          ref={listRef}
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]"
-        >
-          {rows.map((row, index) => (
-            <div key={row.key}>
-              <AreaOption
-                active={value === row.key}
-                buttonRef={value === row.key ? activeRef : undefined}
-                onClick={() => onPick(row.key)}
-                label={row.label}
-              />
-              {index < rows.length - 1 ? (
-                <div className="mx-4 border-b border-slate-100" aria-hidden />
-              ) : null}
-            </div>
-          ))}
+        <div className="relative min-h-0 flex-1">
+          <div
+            ref={listRef}
+            className="h-full overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 22px), transparent 100%)",
+              maskImage:
+                "linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 22px), transparent 100%)",
+            }}
+          >
+            {rows.map((row, index) => (
+              <div key={row.key}>
+                <AreaOption
+                  active={value === row.key}
+                  buttonRef={value === row.key ? activeRef : undefined}
+                  onClick={() => onPick(row.key)}
+                  label={row.label}
+                />
+                {index < rows.length - 1 ? (
+                  <div className="mx-4 border-b border-slate-100" aria-hidden />
+                ) : null}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
