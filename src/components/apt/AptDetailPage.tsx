@@ -41,7 +41,8 @@ const RECENT_YEARS = 3;
 /**
  * Compact 2-line trade row.
  * Line 1: date (left) · price (right, never truncated)
- * Line 2: area · floor · meta (no ellipsis on core fields)
+ * Line 2: 전용 ㎡ (평) · 층  — core fields never ellipsis
+ * Desktop(sm+): full date + dong/dealingGbn on line 2
  */
 function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
   const dateFull = formatDealDate(tx.dealDate);
@@ -51,18 +52,21 @@ function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
     tx.dealType === "trade"
       ? `매매 ${formatEok(tx.dealAmount)}`
       : formatRentAmount(tx.dealAmount, tx.monthlyRent);
+  const dealingLabel = tx.dealingGbn || "중개거래";
 
   return (
     <li className="px-3.5 py-2.5 sm:px-4 sm:py-3">
       <div className="flex items-baseline justify-between gap-3">
         <time
           dateTime={tx.dealDate}
+          title={dateFull}
+          aria-label={dateFull}
           className="shrink-0 text-sm font-medium tabular-nums text-slate-900"
         >
           <span className="sm:hidden">{dateShort}</span>
           <span className="hidden sm:inline">{dateFull}</span>
         </time>
-        <div className="flex min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2">
+        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
           {tx.isSingoga ? (
             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
               <Flame className="h-3 w-3" aria-hidden />
@@ -80,11 +84,19 @@ function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
       </div>
       <p className="mt-1 text-xs leading-snug text-slate-500 sm:text-[13px]">
         <span className="tabular-nums">{formatArea(tx.exclusiveArea)}</span>
-        <span className="text-slate-300"> · </span>
+        <span className="text-slate-300" aria-hidden>
+          {" "}
+          ·{" "}
+        </span>
         <span className="tabular-nums">{tx.floor}층</span>
-        <span className="text-slate-300"> · </span>
-        <span>
-          {tx.dong} · {tx.dealingGbn || "중개거래"}
+        <span className="hidden sm:inline">
+          <span className="text-slate-300" aria-hidden>
+            {" "}
+            ·{" "}
+          </span>
+          <span>
+            {tx.dong} · {dealingLabel}
+          </span>
         </span>
       </p>
     </li>
