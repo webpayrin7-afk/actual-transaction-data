@@ -42,7 +42,7 @@ export default function AboutPage() {
           items={[
             <>
               <Link href="/complexes" className="font-medium text-teal-700 hover:underline">
-                단지 조회
+                단지별 조회
               </Link>
               {" — "}
               아파트 단지 검색, 최근 본 단지, 거래가 활발한 단지 확인
@@ -53,7 +53,7 @@ export default function AboutPage() {
             </>,
             <>
               <Link href="/regions" className="font-medium text-teal-700 hover:underline">
-                지역 조회
+                지역별 조회
               </Link>
               {" — "}
               서울·경기 시·군·구 단위로 지역 시장 이동

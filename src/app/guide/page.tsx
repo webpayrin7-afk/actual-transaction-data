@@ -6,19 +6,19 @@ import { SITE_BRAND } from "@/lib/site";
 export const metadata: Metadata = {
   title: `이용 가이드 | ${SITE_BRAND}`,
   description:
-    "단지 조회부터 시장동향까지 주요 기능과 실거래 데이터를 확인하는 방법을 안내합니다.",
+    "단지별 조회부터 시장동향까지 주요 기능과 실거래 데이터를 확인하는 방법을 안내합니다.",
 };
 
 export default function GuidePage() {
   return (
     <InfoPage
       title="이용 가이드"
-      description="단지 조회부터 시장동향까지 주요 기능과 실거래 데이터를 확인하는 방법을 안내합니다."
+      description="단지별 조회부터 시장동향까지 주요 기능과 실거래 데이터를 확인하는 방법을 안내합니다."
     >
-      <InfoSection title="아파트 단지 조회">
+      <InfoSection title="아파트 단지별 조회">
         <p>
           <Link href="/complexes" className="font-medium text-teal-700 hover:underline">
-            단지 조회
+            단지별 조회
           </Link>
           에서는 아파트 단지명을 검색해 상세 페이지로 이동할 수 있습니다. 동명이
           있으면 지역·동 정보로 구분되며, 선택 시 해당 단지 상세로 이동합니다.
@@ -62,10 +62,10 @@ export default function GuidePage() {
         </p>
       </InfoSection>
 
-      <InfoSection title="지역 조회">
+      <InfoSection title="지역별 조회">
         <p>
           <Link href="/regions" className="font-medium text-teal-700 hover:underline">
-            지역 조회
+            지역별 조회
           </Link>
           에서 서울·경기 시·군·구를 선택하면 해당 지역 상세로 이동합니다. 지역명
           검색으로 원하는 구·시를 빠르게 찾을 수 있으며, 지역 상세에서는 단지
