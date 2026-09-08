@@ -312,12 +312,11 @@ export function MarketStatsPage() {
 
   const data = query.data;
 
-  // API가 정규화한 anchor를 URL에 반영
-  useEffect(() => {
-    if (data?.selectedDate && data.selectedDate !== date) {
-      setDate(data.selectedDate);
-    }
-  }, [data?.selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
+  // API가 정규화한 anchor를 URL/state에 반영 (effect setState 금지 패턴)
+  const apiDate = data?.selectedDate;
+  if (apiDate && apiDate !== date) {
+    setDate(apiDate);
+  }
 
   const chartData = useMemo(
     () =>

@@ -61,26 +61,23 @@ function navClass(active: boolean) {
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const [toolsOpen, setToolsOpen] = useState(false);
+  const [toolsOpenPath, setToolsOpenPath] = useState<string | null>(null);
   const toolsRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const toolsActive = TOOL_NAV.some((item) => item.match(pathname));
-
-  useEffect(() => {
-    setToolsOpen(false);
-  }, [pathname]);
+  const toolsOpen = toolsOpenPath === pathname;
 
   useEffect(() => {
     if (!toolsOpen) return;
 
     function onPointerDown(event: MouseEvent) {
       if (!toolsRef.current?.contains(event.target as Node)) {
-        setToolsOpen(false);
+        setToolsOpenPath(null);
       }
     }
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setToolsOpen(false);
+      if (event.key === "Escape") setToolsOpenPath(null);
     }
 
     document.addEventListener("mousedown", onPointerDown);
@@ -130,7 +127,9 @@ export function SiteHeader() {
               aria-expanded={toolsOpen}
               aria-controls={menuId}
               aria-haspopup="menu"
-              onClick={() => setToolsOpen((open) => !open)}
+              onClick={() =>
+                setToolsOpenPath((prev) => (prev === pathname ? null : pathname))
+              }
               className={`inline-flex items-center gap-0.5 ${navClass(toolsActive || toolsOpen)}`}
             >
               도구
