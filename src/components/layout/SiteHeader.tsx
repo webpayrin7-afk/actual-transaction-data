@@ -19,13 +19,13 @@ const PRIMARY_NAV = [
   },
   {
     href: "/regions",
-    label: "지역별 조회",
+    label: "지역 조회",
     match: (pathname: string) =>
       pathname === "/regions" || pathname.startsWith("/region/"),
   },
   {
     href: "/stats",
-    label: "시장동향",
+    label: "시장 동향",
     match: (pathname: string) => pathname.startsWith("/stats"),
   },
 ] as const;
@@ -110,8 +110,9 @@ export function SiteHeader() {
             </span>
           </Link>
 
+          {/* 핵심 4개 — 도구와 시각적으로 분리 */}
           <nav
-            className="ml-auto hidden min-w-0 items-center gap-0.5 md:flex"
+            className="hidden min-w-0 items-center gap-0.5 md:flex"
             aria-label="주요 메뉴"
           >
             {PRIMARY_NAV.map((item) => {
@@ -126,54 +127,62 @@ export function SiteHeader() {
                 </Link>
               );
             })}
-
-            <div className="relative shrink-0" ref={toolsRef}>
-              <button
-                type="button"
-                aria-expanded={toolsOpen}
-                aria-controls={menuId}
-                aria-haspopup="menu"
-                onClick={() => setToolsOpen((open) => !open)}
-                className={`inline-flex items-center gap-0.5 ${navClass(toolsActive || toolsOpen)}`}
-              >
-                도구
-                <ChevronDown
-                  className={`h-3.5 w-3.5 transition ${toolsOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-
-              {toolsOpen ? (
-                <div
-                  id={menuId}
-                  role="menu"
-                  className="absolute top-full right-0 z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-md shadow-slate-200/60"
-                >
-                  {TOOL_NAV.map((item) => {
-                    const active = item.match(pathname);
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        role="menuitem"
-                        className={`block rounded-lg px-3 py-2.5 transition ${
-                          active
-                            ? "bg-teal-50 text-teal-900"
-                            : "text-slate-800 hover:bg-slate-50"
-                        }`}
-                      >
-                        <span className="block text-sm font-medium">
-                          {item.label}
-                        </span>
-                        <span className="mt-0.5 block text-xs text-slate-500">
-                          {item.description}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </div>
           </nav>
+
+          {/* secondary: 도구 */}
+          <div
+            className="relative ml-auto hidden shrink-0 items-center gap-3 md:flex"
+            ref={toolsRef}
+          >
+            <span
+              className="hidden h-5 w-px bg-slate-200 lg:block"
+              aria-hidden
+            />
+            <button
+              type="button"
+              aria-expanded={toolsOpen}
+              aria-controls={menuId}
+              aria-haspopup="menu"
+              onClick={() => setToolsOpen((open) => !open)}
+              className={`inline-flex items-center gap-0.5 ${navClass(toolsActive || toolsOpen)}`}
+            >
+              도구
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition ${toolsOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {toolsOpen ? (
+              <div
+                id={menuId}
+                role="menu"
+                className="absolute top-full right-0 z-50 mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 shadow-md shadow-slate-200/60"
+              >
+                {TOOL_NAV.map((item) => {
+                  const active = item.match(pathname);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      className={`block rounded-lg px-3 py-2.5 transition ${
+                        active
+                          ? "bg-teal-50 text-teal-900"
+                          : "text-slate-800 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span className="block text-sm font-medium">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-slate-500">
+                        {item.description}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
 
           <button
             type="button"
@@ -213,7 +222,8 @@ export function SiteHeader() {
                 </Link>
               );
             })}
-            <p className="mt-1 px-3 pt-2 pb-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
+            <div className="my-1.5 border-t border-slate-100" />
+            <p className="px-3 pt-1 pb-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
               도구
             </p>
             {TOOL_NAV.map((item) => {
