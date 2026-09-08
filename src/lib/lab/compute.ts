@@ -373,7 +373,7 @@ export async function getLabHome(): Promise<LabHomeResponse> {
 
   const areaTop = areaRanks[0];
   const areaInsight = areaTop
-    ? `최근 30일 전용 84㎡(84㎡ 이상~85㎡ 미만) 매매 ${area84Total.toLocaleString("ko-KR")}건 중 ${areaTop.label}이(가) ${areaTop.recentCount.toLocaleString("ko-KR")}건(${areaTop.sharePct}%)으로 가장 많았습니다.`
+    ? `최근 30일 전용 84㎡(84㎡ 이상~85㎡ 미만) 매매 ${area84Total.toLocaleString("ko-KR")}건 중 ${areaTop.label}가 ${areaTop.recentCount.toLocaleString("ko-KR")}건(${areaTop.sharePct}%)으로 가장 많았습니다.`
     : "해당 기간 84㎡대 매매 거래가 부족합니다.";
 
   const areaResult: LabExperimentResult = {
