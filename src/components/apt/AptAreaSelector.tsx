@@ -171,6 +171,7 @@ function AreaSheet({
   const activeRef = useRef<HTMLButtonElement>(null);
   const didScroll = useRef(false);
   const startY = useRef(0);
+  const dragYRef = useRef(0);
   const dragging = useRef(false);
   const [dragY, setDragY] = useState(0);
 
@@ -203,17 +204,22 @@ function AreaSheet({
   function onDragStart(clientY: number) {
     dragging.current = true;
     startY.current = clientY;
+    dragYRef.current = 0;
   }
 
   function onDragMove(clientY: number) {
     if (!dragging.current) return;
-    setDragY(Math.max(0, clientY - startY.current));
+    const next = Math.max(0, clientY - startY.current);
+    dragYRef.current = next;
+    setDragY(next);
   }
 
   function onDragEnd() {
     if (!dragging.current) return;
     dragging.current = false;
-    if (dragY > 88) {
+    const finalY = dragYRef.current;
+    dragYRef.current = 0;
+    if (finalY > 88) {
       setDragY(0);
       onClose();
       return;
