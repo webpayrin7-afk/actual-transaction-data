@@ -404,7 +404,7 @@ export function AptDetailPage({
         </div>
       </div>
 
-      <header ref={heroRef} className="-mb-3">
+      <header ref={heroRef}>
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
