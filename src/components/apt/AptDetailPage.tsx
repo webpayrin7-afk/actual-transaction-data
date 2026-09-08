@@ -41,8 +41,7 @@ const RECENT_YEARS = 3;
 /**
  * Compact 2-line trade row.
  * Line 1: date (left) · price (right, never truncated)
- * Line 2: 전용 ㎡ (평) · 층  — core fields never ellipsis
- * Desktop(sm+): full date + dong/dealingGbn on line 2
+ * Line 2: 전용 ㎡ (평) · 층 · 동 · 신규/갱신 등 거래구분
  */
 function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
   const dateFull = formatDealDate(tx.dealDate);
@@ -89,14 +88,12 @@ function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
           ·{" "}
         </span>
         <span className="tabular-nums">{tx.floor}층</span>
-        <span className="hidden sm:inline">
-          <span className="text-slate-300" aria-hidden>
-            {" "}
-            ·{" "}
-          </span>
-          <span>
-            {tx.dong} · {dealingLabel}
-          </span>
+        <span className="text-slate-300" aria-hidden>
+          {" "}
+          ·{" "}
+        </span>
+        <span>
+          {tx.dong} · {dealingLabel}
         </span>
       </p>
     </li>
