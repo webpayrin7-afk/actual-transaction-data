@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Calculator, Percent, School } from "lucide-react";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 export const metadata: Metadata = {
   title: "부동산 계산 도구 - 아파트 데이터랩",
   description:
-    "아파트 매수와 자금 계획에 필요한 부동산 계산 도구를 한곳에서 이용하세요.",
+    "아파트 매수와 자금 계획에 필요한 계산 기능을 이용하세요.",
 };
 
 const READY_TOOLS = [
@@ -44,17 +45,11 @@ const PLANNED = [
 export default function Page() {
   return (
     <main className="flex-1">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <p className="text-xs font-medium tracking-wide text-teal-700">도구</p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-            부동산 계산 도구
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
-            아파트 매수와 자금 계획에 필요한 부동산 계산 도구를 한곳에서
-            이용하세요.
-          </p>
-        </div>
+      <div className={PAGE_SHELL}>
+        <PageHeader
+          title="부동산 계산 도구"
+          description="아파트 매수와 자금 계획에 필요한 계산 기능을 이용하세요."
+        />
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {READY_TOOLS.map((tool) => {

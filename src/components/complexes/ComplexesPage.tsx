@@ -22,6 +22,7 @@ import {
   formatEok,
   yearMonthLabel,
 } from "@/lib/utils/format";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 async function fetchRankings(): Promise<RankingsResponse> {
   const res = await fetch("/api/rankings");
@@ -218,118 +219,107 @@ export function ComplexesPage() {
   const wolseItems = data?.wolseTop ?? [];
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <section className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-8 text-white shadow-lg sm:px-8 sm:py-10">
-        <div
-          className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl opacity-35"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 15% 20%, rgba(45,212,191,0.35), transparent 42%), radial-gradient(circle at 85% 0%, rgba(56,189,248,0.22), transparent 38%)",
-          }}
-        />
-        <div className="relative">
-          <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            단지별 조회
-          </h1>
-          <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
-            아파트 단지명을 검색해 실거래가와 거래 이력을 확인하세요.
-          </p>
-
-          <form onSubmit={onSubmit} className="mt-6 max-w-2xl">
-            <label className="sr-only" htmlFor="home-search">
-              단지명 검색
-            </label>
-            <div ref={searchWrapRef} className="relative z-30">
-              <div className="flex overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                  <input
-                    id="home-search"
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      setOpenSuggest(true);
+    <div className={PAGE_SHELL}>
+      <PageHeader
+        title="단지별 조회"
+        description="아파트 단지명을 검색해 실거래가와 거래 이력을 확인하세요."
+      >
+        <form onSubmit={onSubmit} className="max-w-2xl">
+          <label className="sr-only" htmlFor="home-search">
+            단지명 검색
+          </label>
+          <div ref={searchWrapRef} className="relative z-30">
+            <div className="flex overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="home-search"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setOpenSuggest(true);
+                    setActiveIndex(-1);
+                  }}
+                  onFocus={() => setOpenSuggest(true)}
+                  onKeyDown={(e) => {
+                    if (!openSuggest || suggestions.length === 0) return;
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setActiveIndex((i) =>
+                        i < suggestions.length - 1 ? i + 1 : 0,
+                      );
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setActiveIndex((i) =>
+                        i > 0 ? i - 1 : suggestions.length - 1,
+                      );
+                    } else if (e.key === "Escape") {
+                      setOpenSuggest(false);
                       setActiveIndex(-1);
-                    }}
-                    onFocus={() => setOpenSuggest(true)}
-                    onKeyDown={(e) => {
-                      if (!openSuggest || suggestions.length === 0) return;
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        setActiveIndex((i) =>
-                          i < suggestions.length - 1 ? i + 1 : 0,
-                        );
-                      } else if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        setActiveIndex((i) =>
-                          i > 0 ? i - 1 : suggestions.length - 1,
-                        );
-                      } else if (e.key === "Escape") {
-                        setOpenSuggest(false);
-                        setActiveIndex(-1);
-                      }
-                    }}
-                    placeholder="예) 래미안, 헬리오시티, 자이"
-                    className="w-full border-0 bg-transparent py-3.5 pr-3 pl-12 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                    autoComplete="off"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="bg-teal-600 px-5 text-sm font-semibold text-white transition hover:bg-teal-700"
-                >
-                  조회
-                </button>
+                    }
+                  }}
+                  placeholder="예) 래미안, 헬리오시티, 자이"
+                  className="w-full border-0 bg-transparent py-2.5 pr-3 pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                  autoComplete="off"
+                />
               </div>
-
-              {openSuggest && debouncedQuery.length >= 1 && (
-                <div className="absolute top-full left-0 z-50 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-xl">
-                  {suggestQuery.isFetching ? (
-                    <p className="px-4 py-3 text-sm text-slate-500">검색 중…</p>
-                  ) : suggestions.length === 0 ? (
-                    <p className="px-4 py-3 text-sm text-slate-500">
-                      일치하는 단지가 없습니다. 지역을 골라 조회해 보세요.
-                    </p>
-                  ) : (
-                    <ul className="max-h-80 overflow-y-auto py-1">
-                      {suggestions.map((item, index) => (
-                        <li key={`${item.regionSlug}-${item.aptName}`}>
-                          <button
-                            type="button"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => goApt(item.aptName, item.regionSlug, item.gu)}
-                            className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
-                              index === activeIndex
-                                ? "bg-teal-50"
-                                : "hover:bg-slate-50"
-                            }`}
-                          >
-                            <span>
-                              <span className="block text-sm font-semibold text-slate-900">
-                                {item.aptName}
-                              </span>
-                              <span className="mt-0.5 block text-xs text-slate-500">
-                                {item.regionName} · {item.dong} · 거래{" "}
-                                {item.dealCount}건
-                              </span>
-                            </span>
-                            <span className="shrink-0 text-sm font-semibold text-rose-600">
-                              {formatEok(item.maxDealAmount)}
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
+              <button
+                type="submit"
+                className="bg-teal-600 px-4 text-sm font-semibold text-white transition hover:bg-teal-700"
+              >
+                조회
+              </button>
             </div>
-            <p className="mt-2 text-xs text-teal-100/70">
-              예) 래미안, 헬리오시티 — 선택 시 단지 상세로 이동합니다
-            </p>
-          </form>
-        </div>
-      </section>
+
+            {openSuggest && debouncedQuery.length >= 1 && (
+              <div className="absolute top-full left-0 z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900 shadow-lg">
+                {suggestQuery.isFetching ? (
+                  <p className="px-4 py-3 text-sm text-slate-500">검색 중…</p>
+                ) : suggestions.length === 0 ? (
+                  <p className="px-4 py-3 text-sm text-slate-500">
+                    일치하는 단지가 없습니다. 지역을 골라 조회해 보세요.
+                  </p>
+                ) : (
+                  <ul className="max-h-80 overflow-y-auto py-1">
+                    {suggestions.map((item, index) => (
+                      <li key={`${item.regionSlug}-${item.aptName}`}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() =>
+                            goApt(item.aptName, item.regionSlug, item.gu)
+                          }
+                          className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
+                            index === activeIndex
+                              ? "bg-teal-50"
+                              : "hover:bg-slate-50"
+                          }`}
+                        >
+                          <span>
+                            <span className="block text-sm font-semibold text-slate-900">
+                              {item.aptName}
+                            </span>
+                            <span className="mt-0.5 block text-xs text-slate-500">
+                              {item.regionName} · {item.dong} · 거래{" "}
+                              {item.dealCount}건
+                            </span>
+                          </span>
+                          <span className="shrink-0 text-sm font-semibold text-rose-600">
+                            {formatEok(item.maxDealAmount)}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+          <p className="mt-1.5 text-xs text-slate-500">
+            예) 래미안, 헬리오시티 — 선택 시 단지 상세로 이동합니다
+          </p>
+        </form>
+      </PageHeader>
 
       {data?.headline && (
         <p className="rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm leading-relaxed text-slate-700 shadow-sm">
