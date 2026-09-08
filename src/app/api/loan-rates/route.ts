@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { fetchDreamMoneyRates } from "@/lib/seoul/dream-money";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   try {
     const data = await fetchDreamMoneyRates();
+    const cacheControl = data.usingSampleKey
+      ? "no-store"
+      : "public, s-maxage=3600, stale-while-revalidate=86400";
     return NextResponse.json(data, {
       headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        "Cache-Control": cacheControl,
       },
     });
   } catch (error) {
