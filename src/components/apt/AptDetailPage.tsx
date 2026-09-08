@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -105,41 +105,12 @@ function AptLoadProgressBar({
   active: boolean;
   label?: string;
 }) {
-  /** null = 아직 헤더 미측정. 모바일 헤더(~87px)보다 작은 top-14를 쓰지 않음 */
-  const [top, setTop] = useState<number | null>(null);
-
-  useLayoutEffect(() => {
-    if (!active) {
-      setTop(null);
-      return;
-    }
-
-    const header = document.querySelector<HTMLElement>("[data-site-header]");
-    if (!header) {
-      setTop(88);
-      return;
-    }
-
-    const sync = () => {
-      setTop(Math.max(48, Math.round(header.getBoundingClientRect().height)));
-    };
-    sync();
-
-    const ro = new ResizeObserver(sync);
-    ro.observe(header);
-    window.addEventListener("resize", sync);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", sync);
-    };
-  }, [active]);
-
   if (!active) return null;
 
+  // fixed+top-14는 모바일 2단 헤더(~87px)와 겹침 → 문서 흐름으로 헤더 바로 아래 배치
   return (
     <div
-      className="fixed inset-x-0 z-40"
-      style={{ top: top ?? 88 }}
+      className="relative z-40 -mx-4 -mt-5 sm:-mx-6 sm:-mt-6 lg:-mx-8"
       role="status"
       aria-live="polite"
     >
