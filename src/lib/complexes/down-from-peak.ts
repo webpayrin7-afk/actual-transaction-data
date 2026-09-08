@@ -11,6 +11,13 @@ export const DOWN_FROM_PEAK_FRESHNESS_DAYS = 90;
 export const DOWN_FROM_PEAK_RATIO = 0.9;
 export const DOWN_FROM_PEAK_LIMIT = 10;
 
+/**
+ * historical peak를 deal_date 구간으로 나눠 병렬 MAX 집계.
+ * 단일 full GROUP BY(~25s) 대비 wall-clock을 수초대로 낮춘다.
+ * (신규 index/table 없이 idx_tx_type_deal_date 활용)
+ */
+export const DOWN_FROM_PEAK_DATE_SHARDS = 8;
+
 export type DownFromPeakItem = {
   rank: number;
   aptName: string;
@@ -80,16 +87,43 @@ function groupKey(
   return `${aptNameNorm}|${lawdCd}|${dong}|${area100}`;
 }
 
+/** [minDate, maxDate] inclusive 구간을 겹치지 않는 N개로 분할 */
+export function buildDealDateShards(
+  minDate: string,
+  maxDate: string,
+  parts: number,
+): Array<[string, string]> {
+  if (!minDate || !maxDate || parts < 1) return [[minDate, maxDate]];
+  const a = Date.parse(`${minDate}T00:00:00Z`);
+  const b = Date.parse(`${maxDate}T00:00:00Z`);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a > b) {
+    return [[minDate, maxDate]];
+  }
+
+  const shards: Array<[string, string]> = [];
+  for (let i = 0; i < parts; i += 1) {
+    const startMs = a + Math.floor(((b - a) * i) / parts);
+    const start = new Date(startMs).toISOString().slice(0, 10);
+    const end =
+      i === parts - 1
+        ? maxDate
+        : new Date(
+            a + Math.floor(((b - a) * (i + 1)) / parts) - 86_400_000,
+          ).toISOString().slice(0, 10);
+    if (start <= end) shards.push([start, end]);
+  }
+  return shards.length > 0 ? shards : [[minDate, maxDate]];
+}
+
 /**
  * 고점 대비 내려온 단지 (단지+전용면적 단위).
  *
- * - peak: 전체 과거 매매 MAX(deal_amount)
+ * - peak: 전체 과거 매매 MAX(deal_amount) — date shard 병렬 후 JS merge
  * - latest: 최근 N일 내 동일 identity의 최신 매매 (deal_date DESC, id DESC)
  * - 조건: latest <= peak * 0.9
  * - 정렬: dropPct ASC(하락 큰 순), latestDealDate DESC, latestAmount DESC
  *
- * idx_tx_type_deal_date로 최근 창만 읽고, peak는 deal_type='trade' 집계 1회.
- * 모듈 캐시 5분 — request마다 전체 테이블을 JS로 스캔하지 않음.
+ * idx_tx_type_deal_date 활용. 신규 index/table 없음. 모듈 캐시 5분은 보조.
  */
 export async function getDownFromPeakComplexes(): Promise<DownFromPeakResponse> {
   if (readCache && readCache.expiresAt > Date.now()) {
@@ -103,20 +137,43 @@ export async function getDownFromPeakComplexes(): Promise<DownFromPeakResponse> 
   }
 
   const db = getDb()!;
-  const asOfRes = await db.execute(
-    `SELECT MAX(deal_date) AS d
+  const boundsRes = await db.execute(
+    `SELECT MIN(deal_date) AS mn, MAX(deal_date) AS mx
      FROM transactions
      WHERE deal_type = 'trade' AND deal_date IS NOT NULL AND deal_date != ''`,
   );
-  const asOfDate = String(asOfRes.rows[0]?.d ?? "");
-  if (!asOfDate) {
+  const asOfDate = String(boundsRes.rows[0]?.mx ?? "");
+  const minDealDate = String(boundsRes.rows[0]?.mn ?? "");
+  if (!asOfDate || !minDealDate) {
     return emptyResponse("매매 거래 데이터가 없습니다.");
   }
 
   const fromDate = addDays(asOfDate, -(DOWN_FROM_PEAK_FRESHNESS_DAYS - 1));
+  const shards = buildDealDateShards(
+    minDealDate,
+    asOfDate,
+    DOWN_FROM_PEAK_DATE_SHARDS,
+  );
 
-  // 최근 창 latest + 전체 peak 집계를 병렬 실행 (캐시 miss 시 ~max(q1,q2))
-  const [latestRes, peakRes] = await Promise.all([
+  const peakSql = `
+    SELECT
+      apt_name_norm,
+      lawd_cd,
+      IFNULL(dong, '') AS dong,
+      ROUND(exclusive_area * 100) AS area100,
+      MAX(deal_amount) AS peak_amount
+    FROM transactions
+    WHERE deal_type = 'trade'
+      AND deal_date >= ?
+      AND deal_date <= ?
+      AND exclusive_area IS NOT NULL
+      AND exclusive_area > 0
+      AND deal_amount > 0
+    GROUP BY apt_name_norm, lawd_cd, IFNULL(dong, ''), ROUND(exclusive_area * 100)
+  `;
+
+  // latest(90d) + peak shards 병렬 — wall clock ≈ max(shard)
+  const [latestRes, ...peakShardResults] = await Promise.all([
     db.execute({
       sql: `
       WITH ranked AS (
@@ -158,20 +215,9 @@ export async function getDownFromPeakComplexes(): Promise<DownFromPeakResponse> 
     `,
       args: [fromDate, asOfDate],
     }),
-    db.execute(`
-    SELECT
-      apt_name_norm,
-      lawd_cd,
-      IFNULL(dong, '') AS dong,
-      ROUND(exclusive_area * 100) AS area100,
-      MAX(deal_amount) AS peak_amount
-    FROM transactions
-    WHERE deal_type = 'trade'
-      AND exclusive_area IS NOT NULL
-      AND exclusive_area > 0
-      AND deal_amount > 0
-    GROUP BY apt_name_norm, lawd_cd, IFNULL(dong, ''), ROUND(exclusive_area * 100)
-  `),
+    ...shards.map(([start, end]) =>
+      db.execute({ sql: peakSql, args: [start, end] }),
+    ),
   ]);
 
   const candidateGroups = latestRes.rows.length;
@@ -182,16 +228,18 @@ export async function getDownFromPeakComplexes(): Promise<DownFromPeakResponse> 
   }
 
   const peakMap = new Map<string, number>();
-  for (const row of peakRes.rows) {
-    peakMap.set(
-      groupKey(
+  for (const peakRes of peakShardResults) {
+    for (const row of peakRes.rows) {
+      const key = groupKey(
         String(row.apt_name_norm ?? ""),
         String(row.lawd_cd ?? ""),
         String(row.dong ?? ""),
         Number(row.area100) || 0,
-      ),
-      Number(row.peak_amount) || 0,
-    );
+      );
+      const amount = Number(row.peak_amount) || 0;
+      const prev = peakMap.get(key) ?? 0;
+      if (amount > prev) peakMap.set(key, amount);
+    }
   }
 
   type Cand = {
