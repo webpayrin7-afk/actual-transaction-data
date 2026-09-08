@@ -55,20 +55,21 @@ export function AptAreaSelector({
     if (!present) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const triggerEl = triggerRef.current;
 
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        close();
-      }
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setOpen(false);
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+      closeTimer.current = setTimeout(() => {
+        setPresent(false);
+        triggerRef.current?.focus({ preventScroll: true });
+      }, SHEET_MS);
     }
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
       document.removeEventListener("keydown", onKey);
-      // silence unused in cleanup path
-      void triggerEl;
     };
   }, [present]);
 
@@ -167,6 +168,14 @@ function AreaSheet({
   onClose: () => void;
   onPick: (key: string) => void;
 }) {
+  const rows: { key: string; label: string }[] = [
+    { key: "all", label: "전체 면적" },
+    ...areas.map((area) => ({
+      key: area.key,
+      label: `${formatPyeong(area.exclusiveArea)} (${formatExclusiveArea(area.exclusiveArea)})`,
+    })),
+  ];
+
   return (
     <div className="fixed inset-0 z-[60]">
       <div
@@ -196,34 +205,35 @@ function AreaSheet({
           <span className="h-1 w-9 rounded-full bg-slate-200" />
         </div>
 
-        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
-          <h2 id={titleId} className="text-sm font-semibold text-slate-900">
+        <div className="relative flex shrink-0 items-center justify-center px-12 pb-3 pt-1">
+          <h2
+            id={titleId}
+            className="text-center text-base font-bold text-slate-900 sm:text-[17px]"
+          >
             면적 선택
           </h2>
           <button
             type="button"
             aria-label="닫기"
             onClick={onClose}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
           >
             <X className="pointer-events-none h-4 w-4" aria-hidden />
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-          <AreaOption
-            active={value === "all"}
-            onClick={() => onPick("all")}
-            primary="전체 면적"
-          />
-          {areas.map((area) => (
-            <AreaOption
-              key={area.key}
-              active={area.key === value}
-              onClick={() => onPick(area.key)}
-              primary={formatPyeong(area.exclusiveArea)}
-              secondary={formatExclusiveArea(area.exclusiveArea)}
-            />
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          {rows.map((row, index) => (
+            <div key={row.key} className="px-4">
+              <AreaOption
+                active={value === row.key}
+                onClick={() => onPick(row.key)}
+                label={row.label}
+              />
+              {index < rows.length - 1 ? (
+                <div className="mx-1 border-b border-slate-100" aria-hidden />
+              ) : null}
+            </div>
           ))}
         </div>
       </div>
@@ -234,37 +244,28 @@ function AreaSheet({
 function AreaOption({
   active,
   onClick,
-  primary,
-  secondary,
+  label,
 }: {
   active: boolean;
   onClick: () => void;
-  primary: string;
-  secondary?: ReactNode;
+  label: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
-        active ? "bg-slate-100" : "hover:bg-slate-50"
+      className={`flex w-full items-center gap-3 py-3.5 text-left transition ${
+        active ? "bg-slate-50" : "hover:bg-slate-50/80"
       }`}
     >
-      <span className="min-w-0 flex-1">
-        <span
-          className={`block text-sm ${
-            active
-              ? "font-semibold text-slate-900"
-              : "font-medium text-slate-800"
-          }`}
-        >
-          {primary}
-        </span>
-        {secondary ? (
-          <span className="mt-0.5 block text-xs tabular-nums text-slate-500">
-            {secondary}
-          </span>
-        ) : null}
+      <span
+        className={`min-w-0 flex-1 truncate text-[15px] tabular-nums ${
+          active
+            ? "font-semibold text-slate-900"
+            : "font-medium text-slate-800"
+        }`}
+      >
+        {label}
       </span>
       {active ? (
         <Check className="h-4 w-4 shrink-0 text-teal-700" aria-hidden />
