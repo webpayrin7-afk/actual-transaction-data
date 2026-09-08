@@ -60,41 +60,31 @@ export function AptAreaSelector({
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.preventDefault();
-        setOpen(false);
-        if (closeTimer.current) clearTimeout(closeTimer.current);
-        closeTimer.current = setTimeout(() => {
-          setPresent(false);
-          triggerEl?.focus();
-        }, SHEET_MS);
+        close();
       }
     }
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
       document.removeEventListener("keydown", onKey);
+      // silence unused in cleanup path
+      void triggerEl;
     };
   }, [present]);
 
-  useEffect(() => {
-    if (!open) return;
-    const focusTarget =
-      sheetRef.current?.querySelector<HTMLElement>("[data-sheet-close]") ??
-      sheetRef.current;
-    focusTarget?.focus();
-  }, [open]);
-
-  function requestClose() {
+  function close() {
     setOpen(false);
     if (closeTimer.current) clearTimeout(closeTimer.current);
     closeTimer.current = setTimeout(() => {
       setPresent(false);
-      triggerRef.current?.focus();
+      triggerRef.current?.focus({ preventScroll: true });
     }, SHEET_MS);
   }
 
   function openSheet() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setPresent(true);
+    setOpen(false);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setOpen(true));
     });
@@ -102,7 +92,7 @@ export function AptAreaSelector({
 
   function pick(key: string) {
     onChange(key);
-    requestClose();
+    close();
   }
 
   if (sorted.length <= 1) {
@@ -150,7 +140,7 @@ export function AptAreaSelector({
               value={value}
               areas={sorted}
               open={open}
-              onClose={requestClose}
+              onClose={close}
               onPick={pick}
             />,
             document.body,
@@ -179,7 +169,6 @@ function AreaSheet({
 }) {
   return (
     <div className="fixed inset-0 z-[60]">
-      {/* dim */}
       <div
         role="presentation"
         className="absolute inset-0 bg-black/50"
@@ -190,40 +179,34 @@ function AreaSheet({
         onClick={onClose}
       />
 
-      {/* 높이 2/3 · 상단 좌우 라운드 · slide-up */}
       <div
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="absolute bottom-0 left-0 right-0 z-10 mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
+        className="absolute left-0 right-0 z-10 mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
         style={{
           height: "66.666dvh",
-          transform: open ? "translateY(0)" : "translateY(100%)",
-          transition: `transform ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
+          bottom: open ? 0 : "-66.666dvh",
+          transition: `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
       >
         <div className="flex shrink-0 justify-center pt-2.5 pb-1" aria-hidden>
           <span className="h-1 w-9 rounded-full bg-slate-200" />
         </div>
 
-        <div className="relative z-20 flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
+        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
           <h2 id={titleId} className="text-sm font-semibold text-slate-900">
             면적 선택
           </h2>
           <button
             type="button"
-            data-sheet-close
             aria-label="닫기"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onClose();
-            }}
+            onClick={onClose}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
           >
-            <X className="h-4 w-4" pointerEvents="none" />
+            <X className="pointer-events-none h-4 w-4" aria-hidden />
           </button>
         </div>
 
