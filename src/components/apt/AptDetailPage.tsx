@@ -25,7 +25,11 @@ import {
   normalizeAreaKey,
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import {
+  PAGE_HEADER_WITH_BACK,
+  PAGE_SHELL,
+  PageHeader,
+} from "@/components/layout/PageHeader";
 import { useLoadProgress } from "@/components/layout/LoadProgress";
 import {
   formatArea,
@@ -485,10 +489,8 @@ export function AptDetailPage({
         </div>
       </div>
 
-      <header ref={heroRef}>
-        <div className="mb-2">
-          <BackLink fallback="/complexes" />
-        </div>
+      <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
+        <BackLink fallback="/complexes" />
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}

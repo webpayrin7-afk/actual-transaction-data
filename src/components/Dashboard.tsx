@@ -15,7 +15,11 @@ import { RegionDailyStatus } from "@/components/RegionDailyStatus";
 import { RegionDongBrowse } from "@/components/RegionDongBrowse";
 import { TransactionTable } from "@/components/TransactionTable";
 import { BackLink } from "@/components/layout/BackLink";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import {
+  PAGE_HEADER_WITH_BACK,
+  PAGE_SHELL,
+  PageHeader,
+} from "@/components/layout/PageHeader";
 import { PAGE_SIZE, type RegionDef } from "@/lib/constants/regions";
 import { recentYearMonths } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -167,13 +171,13 @@ export function Dashboard({
 
   return (
     <div className={PAGE_SHELL}>
-      <div className="mb-2">
+      <header className={PAGE_HEADER_WITH_BACK}>
         <BackLink fallback="/regions" />
-      </div>
-      <PageHeader
-        title={`${region.name} 아파트 시장`}
-        description={`${region.fullName} 실거래·신고가·단지 현황을 확인하세요.`}
-      />
+        <PageHeader
+          title={`${region.name} 아파트 시장`}
+          description={`${region.fullName} 실거래·신고가·단지 현황을 확인하세요.`}
+        />
+      </header>
 
       <nav
         className="inline-flex w-full gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto"

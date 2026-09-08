@@ -43,10 +43,16 @@ export function BackLink({
       className={
         compact
           ? `inline-flex h-9 items-center gap-1 rounded-lg px-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 ${className}`.trim()
-          : `inline-flex min-h-9 items-center gap-1 rounded-md text-sm font-medium text-slate-600 transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 ${className}`.trim()
+          : // Layout height stays compact (contextual to title); ::before expands the
+            // hit target to ~36px without adding visual section gap.
+            `relative inline-flex w-fit max-w-full shrink-0 items-center gap-1 self-start rounded-md text-[13px] font-medium leading-none text-slate-600 transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 before:absolute before:-inset-x-1.5 before:-inset-y-2.5 before:content-[''] ${className}`.trim()
       }
     >
-      <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+      <ArrowLeft
+        className={compact ? "h-4 w-4 shrink-0" : "h-3.5 w-3.5 shrink-0"}
+        strokeWidth={2}
+        aria-hidden
+      />
       <span>돌아가기</span>
     </button>
   );
