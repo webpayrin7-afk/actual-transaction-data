@@ -5,14 +5,15 @@ import {
   useId,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, RefreshCw, X } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
 import {
   formatAreaTriggerLabel,
+  formatExclusiveArea,
   formatPyeong,
-  formatSqm,
 } from "@/lib/utils/format";
 
 type AptAreaSelectorProps = {
@@ -24,7 +25,7 @@ type AptAreaSelectorProps = {
 const SHEET_MS = 280;
 
 /**
- * 단일 버튼 + bottom sheet 면적 선택 (네이버 부동산 스타일).
+ * 단일 버튼 + bottom sheet 면적 선택.
  * areaKey / onChange / default-area 로직과 독립 — UI만.
  */
 export function AptAreaSelector({
@@ -94,6 +95,7 @@ export function AptAreaSelector({
   function openSheet() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setPresent(true);
+    // next frame → slide-up transition
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setOpen(true));
     });
@@ -104,6 +106,7 @@ export function AptAreaSelector({
     requestClose();
   }
 
+  // 면적 0~1개: static (chevron/sheet 없음)
   if (sorted.length <= 1) {
     const only = sorted[0];
     return (
@@ -130,7 +133,7 @@ export function AptAreaSelector({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={openSheet}
-        className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-[13px] text-slate-800 hover:bg-slate-50"
+        className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-800 hover:bg-slate-50"
       >
         <span className="truncate tabular-nums">{triggerLabel}</span>
         <ChevronDown
@@ -159,13 +162,6 @@ export function AptAreaSelector({
   );
 }
 
-function areaRowLabel(sqm: number, unit: "sqm" | "py"): string {
-  if (unit === "py") {
-    return `${formatPyeong(sqm)} (${formatSqm(sqm)})`;
-  }
-  return `${formatSqm(sqm)} (${formatPyeong(sqm)})`;
-}
-
 function AreaSheet({
   titleId,
   sheetRef,
@@ -183,14 +179,12 @@ function AreaSheet({
   onClose: () => void;
   onPick: (key: string) => void;
 }) {
-  const [unit, setUnit] = useState<"sqm" | "py">("sqm");
-
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center">
       <button
         type="button"
         aria-label="면적 선택 닫기"
-        className={`absolute inset-0 bg-black/40 transition-opacity ease-out ${
+        className={`absolute inset-0 bg-slate-900/40 transition-opacity duration-280 ease-out ${
           open ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDuration: `${SHEET_MS}ms` }}
@@ -202,17 +196,18 @@ function AreaSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative z-[61] flex max-h-[min(88dvh,40rem)] w-full flex-col overflow-hidden rounded-t-[20px] bg-white outline-none sm:max-w-md transition-transform ease-out ${
+        className={`relative z-[61] flex w-full max-h-[min(65vh,26rem)] flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md transition-transform ease-out ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ transitionDuration: `${SHEET_MS}ms` }}
       >
-        {/* 네이버형: 제목 중앙 + 우측 X */}
-        <div className="relative flex shrink-0 items-center justify-center px-12 pb-3 pt-5">
-          <h2
-            id={titleId}
-            className="text-[17px] font-bold tracking-tight text-slate-900"
-          >
+        {/* drag affordance */}
+        <div className="flex shrink-0 justify-center pt-2.5 pb-1" aria-hidden>
+          <span className="h-1 w-9 rounded-full bg-slate-200" />
+        </div>
+
+        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
+          <h2 id={titleId} className="text-sm font-semibold text-slate-900">
             면적 선택
           </h2>
           <button
@@ -220,49 +215,27 @@ function AreaSheet({
             data-sheet-close
             aria-label="닫기"
             onClick={onClose}
-            className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
           >
-            <X className="h-5 w-5" strokeWidth={1.75} />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* 평 전환 토글 */}
-        <div className="flex shrink-0 items-center justify-between px-4 pb-3">
-          <button
-            type="button"
-            aria-pressed={unit === "py"}
-            onClick={() => setUnit((u) => (u === "py" ? "sqm" : "py"))}
-            className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[13px] font-medium transition ${
-              unit === "py"
-                ? "border-slate-800 bg-slate-900 text-white"
-                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <RefreshCw className="h-3.5 w-3.5" aria-hidden />
-            평
-          </button>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <ul>
-            <li className="border-b border-slate-100">
-              <AreaOption
-                active={value === "all"}
-                onClick={() => onPick("all")}
-                label="전체 면적"
-              />
-            </li>
-            {areas.map((area) => (
-              <li key={area.key} className="border-b border-slate-100 last:border-b-0">
-                <AreaOption
-                  active={area.key === value}
-                  onClick={() => onPick(area.key)}
-                  label={areaRowLabel(area.exclusiveArea, unit)}
-                  meta={`${area.count.toLocaleString("ko-KR")}건`}
-                />
-              </li>
-            ))}
-          </ul>
+        <div className="min-h-0 overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          <AreaOption
+            active={value === "all"}
+            onClick={() => onPick("all")}
+            primary="전체 면적"
+          />
+          {areas.map((area) => (
+            <AreaOption
+              key={area.key}
+              active={area.key === value}
+              onClick={() => onPick(area.key)}
+              primary={formatPyeong(area.exclusiveArea)}
+              secondary={formatExclusiveArea(area.exclusiveArea)}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -272,32 +245,43 @@ function AreaSheet({
 function AreaOption({
   active,
   onClick,
-  label,
-  meta,
+  primary,
+  secondary,
 }: {
   active: boolean;
   onClick: () => void;
-  label: string;
-  /** 괄호 바로 오른쪽 회색 보조 수치 */
-  meta?: string;
+  primary: string;
+  secondary?: ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`block w-full px-4 py-[14px] text-left transition ${
-        active ? "bg-slate-50" : "active:bg-slate-50"
+      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
+        active ? "bg-slate-100" : "hover:bg-slate-50"
       }`}
     >
-      <span className="inline tabular-nums text-[15px] leading-snug text-slate-900">
-        {label}
-        {meta ? (
-          <span className="text-[15px] font-normal text-slate-400">
-            {" "}
-            {meta}
+      <span className="min-w-0 flex-1">
+        <span
+          className={`block text-sm ${
+            active
+              ? "font-semibold text-slate-900"
+              : "font-medium text-slate-800"
+          }`}
+        >
+          {primary}
+        </span>
+        {secondary ? (
+          <span className="mt-0.5 block text-xs tabular-nums text-slate-500">
+            {secondary}
           </span>
         ) : null}
       </span>
+      {active ? (
+        <Check className="h-4 w-4 shrink-0 text-teal-700" aria-hidden />
+      ) : (
+        <span className="h-4 w-4 shrink-0" aria-hidden />
+      )}
     </button>
   );
 }
