@@ -19,6 +19,10 @@ import {
   formatComplexLocationLabel,
   recordRecentComplex,
 } from "@/lib/complexes/recent-views";
+import {
+  isValidAreaKey,
+  resolveDefaultAreaKey,
+} from "@/lib/apt/default-area";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import {
   formatDealDate,
@@ -99,18 +103,26 @@ export function AptDetailPage({
   aptName,
   regionSlug,
   gu,
+  initialAreaKey,
 }: {
   aptName: string;
   regionSlug: string;
   gu?: string;
+  /** URL ?area= — 명시 시 자동 기본값보다 우선 */
+  initialAreaKey?: string;
 }) {
-  const [areaKey, setAreaKey] = useState("all");
+  const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
+  /** 사용자/수동 선택. aptIdentity가 바뀌면 자동 기본값으로 복귀 */
+  const [areaOverride, setAreaOverride] = useState<{
+    forId: string;
+    key: string;
+  } | null>(null);
   const [dealFilter, setDealFilter] = useState<"all" | "trade" | "rent">("all");
   const [rangeOverride, setRangeOverride] = useState<{
     start: number;
     end: number;
   } | null>(null);
-  const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}|${gu ?? ""}`);
+  const [boundKey, setBoundKey] = useState(aptIdentity);
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
   const [stickyVisible, setStickyVisible] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
@@ -129,6 +141,32 @@ export function AptDetailPage({
   });
 
   const data = fullQuery.data ?? quickQuery.data;
+
+  /** URL > 84㎡대/거래량 자동 > all */
+  const resolvedAreaKey = useMemo(() => {
+    if (!data?.areas) return initialAreaKey ?? "all";
+    if (initialAreaKey && isValidAreaKey(initialAreaKey, data.areas)) {
+      return initialAreaKey;
+    }
+    return resolveDefaultAreaKey(data.areas, data.items);
+  }, [data, initialAreaKey]);
+
+  /** 단지당 최초 확정값 (quick→full 재계산으로 선택값이 바뀌지 않게) */
+  const [frozenDefault, setFrozenDefault] = useState<{
+    forId: string;
+    key: string;
+  } | null>(null);
+  if (data?.areas && frozenDefault?.forId !== aptIdentity) {
+    setFrozenDefault({ forId: aptIdentity, key: resolvedAreaKey });
+  }
+
+  const defaultAreaKey =
+    frozenDefault?.forId === aptIdentity
+      ? frozenDefault.key
+      : resolvedAreaKey;
+
+  const areaKey =
+    areaOverride?.forId === aptIdentity ? areaOverride.key : defaultAreaKey;
 
   // 단지 상세 진입 시 최근 조회 기록 (localStorage MVP)
   useEffect(() => {
@@ -393,7 +431,9 @@ export function AptDetailPage({
           <AptAreaSelect
             areas={data.areas}
             value={areaKey}
-            onChange={setAreaKey}
+            onChange={(key) => {
+              setAreaOverride({ forId: aptIdentity, key });
+            }}
           />
         </PageHeader>
       </header>
