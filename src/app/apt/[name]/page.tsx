@@ -4,7 +4,7 @@ import { getRegion } from "@/lib/constants/regions";
 
 type PageProps = {
   params: Promise<{ name: string }>;
-  searchParams: Promise<{ region?: string; gu?: string }>;
+  searchParams: Promise<{ region?: string; gu?: string; area?: string }>;
 };
 
 export async function generateMetadata({
@@ -27,10 +27,16 @@ export default async function AptPage({ params, searchParams }: PageProps) {
   const aptName = decodeURIComponent(name);
   const regionSlug = sp.region?.trim() || "seoul-gangnam";
   const gu = sp.gu?.trim() || undefined;
+  const initialAreaKey = sp.area?.trim() || undefined;
 
   return (
     <main className="flex-1">
-      <AptDetailPage aptName={aptName} regionSlug={regionSlug} gu={gu} />
+      <AptDetailPage
+        aptName={aptName}
+        regionSlug={regionSlug}
+        gu={gu}
+        initialAreaKey={initialAreaKey}
+      />
     </main>
   );
 }

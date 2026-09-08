@@ -14,16 +14,24 @@ import {
   AptPriceChart,
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
+import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
   formatComplexLocationLabel,
   recordRecentComplex,
 } from "@/lib/complexes/recent-views";
+import {
+  isValidAreaKey,
+  normalizeAreaKey,
+  resolveDefaultAreaKey,
+} from "@/lib/apt/default-area";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import {
+  formatArea,
   formatDealDate,
   formatEok,
+  formatExclusiveArea,
+  formatPyeong,
   formatRentAmount,
-  toPyeong,
 } from "@/lib/utils/format";
 
 const QUICK_MONTHS = 36;
@@ -98,18 +106,26 @@ export function AptDetailPage({
   aptName,
   regionSlug,
   gu,
+  initialAreaKey,
 }: {
   aptName: string;
   regionSlug: string;
   gu?: string;
+  /** URL ?area= — 명시 시 자동 기본값보다 우선 */
+  initialAreaKey?: string;
 }) {
-  const [areaKey, setAreaKey] = useState("all");
+  const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
+  /** 사용자/수동 선택. aptIdentity가 바뀌면 자동 기본값으로 복귀 */
+  const [areaOverride, setAreaOverride] = useState<{
+    forId: string;
+    key: string;
+  } | null>(null);
   const [dealFilter, setDealFilter] = useState<"all" | "trade" | "rent">("all");
   const [rangeOverride, setRangeOverride] = useState<{
     start: number;
     end: number;
   } | null>(null);
-  const [boundKey, setBoundKey] = useState(`${aptName}|${regionSlug}|${gu ?? ""}`);
+  const [boundKey, setBoundKey] = useState(aptIdentity);
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
   const [stickyVisible, setStickyVisible] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
@@ -128,6 +144,32 @@ export function AptDetailPage({
   });
 
   const data = fullQuery.data ?? quickQuery.data;
+
+  /** URL > 84㎡대/거래량 자동 > all */
+  const resolvedAreaKey = useMemo(() => {
+    if (!data?.areas) return initialAreaKey ?? "all";
+    if (initialAreaKey && isValidAreaKey(initialAreaKey, data.areas)) {
+      return initialAreaKey;
+    }
+    return resolveDefaultAreaKey(data.areas, data.items);
+  }, [data, initialAreaKey]);
+
+  /** 단지당 최초 확정값 (quick→full 재계산으로 선택값이 바뀌지 않게) */
+  const [frozenDefault, setFrozenDefault] = useState<{
+    forId: string;
+    key: string;
+  } | null>(null);
+  if (data?.areas && frozenDefault?.forId !== aptIdentity) {
+    setFrozenDefault({ forId: aptIdentity, key: resolvedAreaKey });
+  }
+
+  const defaultAreaKey =
+    frozenDefault?.forId === aptIdentity
+      ? frozenDefault.key
+      : resolvedAreaKey;
+
+  const areaKey =
+    areaOverride?.forId === aptIdentity ? areaOverride.key : defaultAreaKey;
 
   // 단지 상세 진입 시 최근 조회 기록 (localStorage MVP)
   useEffect(() => {
@@ -199,10 +241,20 @@ export function AptDetailPage({
   const areaFiltered = useMemo(() => {
     if (!data) return [];
     if (areaKey === "all") return data.items;
+    // areas.key 와 item 면적을 동일 normalize로 맞춰 거래이력·차트에 반영
+    const selected = data.areas.find((a) => a.key === areaKey);
+    const matchKey = selected
+      ? normalizeAreaKey(selected.exclusiveArea)
+      : areaKey;
     return data.items.filter(
-      (item) => String(Math.round(item.exclusiveArea * 100) / 100) === areaKey,
+      (item) => normalizeAreaKey(Number(item.exclusiveArea)) === matchKey,
     );
   }, [data, areaKey]);
+
+  const selectedArea = useMemo(
+    () => data?.areas.find((a) => a.key === areaKey) ?? null,
+    [data, areaKey],
+  );
 
   const periodItems = useMemo(() => {
     if (!startYm || !endYm) return areaFiltered;
@@ -335,7 +387,7 @@ export function AptDetailPage({
   const locationLabel = `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl gap-5`}>
+    <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} max-w-5xl`}>
       <AptLoadProgressBar
         active={isExtendingHistory}
         label="과거 시세 추가로 불러오는 중…"
@@ -389,33 +441,13 @@ export function AptDetailPage({
             </div>
           }
         >
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => setAreaKey("all")}
-              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-                areaKey === "all"
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
-            >
-              전체 면적
-            </button>
-            {data.areas.map((area) => (
-              <button
-                key={area.key}
-                type="button"
-                onClick={() => setAreaKey(area.key)}
-                className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-                  areaKey === area.key
-                    ? "bg-teal-700 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {area.label}
-              </button>
-            ))}
-          </div>
+          <AptAreaSelector
+            areas={data.areas}
+            value={areaKey}
+            onChange={(key) => {
+              setAreaOverride({ forId: aptIdentity, key });
+            }}
+          />
         </PageHeader>
       </header>
 
@@ -437,7 +469,7 @@ export function AptDetailPage({
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">
             {latestTrade
-              ? `${formatDealDate(latestTrade.dealDate)} · ${Math.round(toPyeong(latestTrade.exclusiveArea))}평`
+              ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
               : "선택 기간 거래 없음"}
           </p>
         </div>
@@ -512,11 +544,23 @@ export function AptDetailPage({
         />
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section
+        key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
+        className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
+      >
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold text-slate-900 sm:text-base">거래이력</h2>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+              거래이력
+            </h2>
+            <p className="mt-0.5 truncate text-xs text-slate-500">
+              {areaKey === "all" || !selectedArea
+                ? `전체 면적 · ${filtered.length.toLocaleString("ko-KR")}건`
+                : `${formatPyeong(selectedArea.exclusiveArea)} (${formatExclusiveArea(selectedArea.exclusiveArea)}) · ${filtered.length.toLocaleString("ko-KR")}건`}
+            </p>
+          </div>
 
-          <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+          <div className="flex shrink-0 gap-1 rounded-lg bg-slate-100 p-1">
             {(
               [
                 ["all", "전체"],
@@ -551,35 +595,36 @@ export function AptDetailPage({
                 <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800">
                   <CalendarDays className="h-4 w-4 text-teal-700" />
                   {year}년
+                  <span className="font-normal text-slate-400">
+                    {items.length.toLocaleString("ko-KR")}건
+                  </span>
                 </h3>
                 <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
-                  {items.map((tx) => (
+                  {items.map((tx, idx) => (
                     <li
-                      key={tx.id}
-                      className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-3 sm:px-4"
+                      key={`${tx.id}-${idx}`}
+                      className="flex items-center justify-between gap-3 px-3.5 py-3 sm:px-4"
                     >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-slate-900">
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <p className="truncate text-sm font-medium text-slate-900">
                           {formatDealDate(tx.dealDate).slice(5)}{" "}
                           <span className="font-normal text-slate-500">
-                            {tx.exclusiveArea.toFixed(2)}㎡ (
-                            {Math.round(toPyeong(tx.exclusiveArea))}평) ·{" "}
-                            {tx.floor}층
+                            {formatArea(tx.exclusiveArea)} · {tx.floor}층
                           </span>
                         </p>
-                        <p className="mt-0.5 text-xs text-slate-500">
+                        <p className="mt-0.5 truncate text-xs text-slate-500">
                           {tx.dong} · {tx.dealingGbn || "중개거래"}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                         {tx.isSingoga ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[11px] font-semibold text-white">
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
                             <Flame className="h-3 w-3" />
                             신고가
                           </span>
                         ) : null}
                         <p
-                          className={`text-base font-semibold ${
+                          className={`whitespace-nowrap text-[13px] font-semibold tabular-nums leading-none sm:text-base ${
                             tx.dealType === "trade"
                               ? "text-teal-800"
                               : "text-orange-700"
