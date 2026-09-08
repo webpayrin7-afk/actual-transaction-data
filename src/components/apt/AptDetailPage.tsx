@@ -25,6 +25,7 @@ import {
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { useLoadProgress } from "@/components/layout/LoadProgress";
 import {
   formatArea,
   formatDealDate,
@@ -95,33 +96,6 @@ function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
         <span>{dealingLabel}</span>
       </p>
     </li>
-  );
-}
-
-function AptLoadProgressBar({
-  active,
-  label = "시세 불러오는 중…",
-}: {
-  active: boolean;
-  label?: string;
-}) {
-  if (!active) return null;
-
-  // 사이트 헤더(--site-header-height) 바로 아래에 붙여 자연스럽게 이어지게 함
-  return (
-    <div
-      className="fixed inset-x-0 z-40"
-      style={{ top: "var(--site-header-height, 5.5rem)" }}
-      role="status"
-      aria-live="polite"
-    >
-      <div className="relative h-0.5 w-full overflow-hidden bg-teal-100/90">
-        <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
-      </div>
-      <div className="border-b border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 shadow-sm backdrop-blur sm:px-6">
-        {label}
-      </div>
-    </div>
   );
 }
 
@@ -284,6 +258,20 @@ export function AptDetailPage({
   }, [data]);
   const isExtendingHistory =
     quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
+  const { show: showLoadProgress, hide: hideLoadProgress } = useLoadProgress();
+  const loadProgressLabel =
+    quickQuery.isLoading && !data
+      ? "시세 불러오는 중…"
+      : isExtendingHistory
+        ? "과거 시세 추가로 불러오는 중…"
+        : null;
+
+  useEffect(() => {
+    if (loadProgressLabel) showLoadProgress(loadProgressLabel);
+    else hideLoadProgress();
+    return () => hideLoadProgress();
+  }, [loadProgressLabel, showLoadProgress, hideLoadProgress]);
+
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
   if (boundKey !== dataKey) {
@@ -425,7 +413,6 @@ export function AptDetailPage({
   if (quickQuery.isLoading && !data) {
     return (
       <div className={`${PAGE_SHELL} max-w-5xl`}>
-        <AptLoadProgressBar active label="시세 불러오는 중…" />
         <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -454,10 +441,6 @@ export function AptDetailPage({
 
   return (
     <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} max-w-5xl`}>
-      <AptLoadProgressBar
-        active={isExtendingHistory}
-        label="과거 시세 추가로 불러오는 중…"
-      />
       <div
         className={`fixed inset-x-0 top-12 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 sm:top-14 ${
           stickyVisible
