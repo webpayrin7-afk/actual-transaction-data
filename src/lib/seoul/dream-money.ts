@@ -86,11 +86,21 @@ function isFirstTierBank(name: string): boolean {
   return FIRST_TIER_KEYWORDS.some((kw) => name.includes(kw));
 }
 
+/**
+ * 금리비교용 서울 OpenAPI 인증키.
+ * 발급 전이면 빈 문자열로 두고, 발급 후 값을 넣거나
+ * `SEOUL_OPENAPI_KEY` 환경변수를 설정하세요. 둘 다 비면 sample(최대 5건)로 동작합니다.
+ * https://data.seoul.go.kr/together/mypage/actkeyMain.do
+ */
+const INLINE_SEOUL_OPENAPI_KEY = "";
+
 function resolveApiKey(): { key: string; usingSampleKey: boolean } {
+  const fromInline = INLINE_SEOUL_OPENAPI_KEY.trim();
   const fromEnv = process.env.SEOUL_OPENAPI_KEY?.trim();
-  if (fromEnv) {
-    const usingSampleKey = fromEnv.toLowerCase() === "sample";
-    return { key: fromEnv, usingSampleKey };
+  const resolved = fromInline || fromEnv;
+  if (resolved) {
+    const usingSampleKey = resolved.toLowerCase() === "sample";
+    return { key: resolved, usingSampleKey };
   }
   return { key: "sample", usingSampleKey: true };
 }
