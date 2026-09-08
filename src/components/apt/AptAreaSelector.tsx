@@ -102,9 +102,8 @@ export function AptAreaSelector({
   if (sorted.length <= 1) {
     const only = sorted[0];
     return (
-      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="shrink-0 text-xs text-slate-500">면적</span>
-        <span className="text-sm tabular-nums text-slate-800">
+      <div className="flex w-full min-w-0 justify-end">
+        <span className="text-[15px] tabular-nums text-slate-800">
           {only ? formatAreaTriggerLabel(only.exclusiveArea) : "전체 면적"}
         </span>
       </div>
@@ -117,19 +116,18 @@ export function AptAreaSelector({
       : formatAreaTriggerLabel(selected.exclusiveArea);
 
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="shrink-0 text-xs text-slate-500">면적</span>
+    <div className="flex w-full min-w-0 justify-end">
       <button
         ref={triggerRef}
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={openSheet}
-        className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-800 hover:bg-slate-50"
+        className="inline-flex h-10 max-w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-[15px] font-medium text-slate-800 hover:bg-slate-50"
       >
         <span className="truncate tabular-nums">{triggerLabel}</span>
         <ChevronDown
-          className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition ${
+          className={`h-4 w-4 shrink-0 text-slate-400 transition ${
             open ? "rotate-180" : ""
           }`}
           aria-hidden
