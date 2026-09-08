@@ -25,10 +25,11 @@ import {
 } from "@/lib/apt/default-area";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import {
+  formatArea,
   formatDealDate,
   formatEok,
+  formatPyeong,
   formatRentAmount,
-  toPyeong,
 } from "@/lib/utils/format";
 
 const QUICK_MONTHS = 36;
@@ -456,7 +457,7 @@ export function AptDetailPage({
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">
             {latestTrade
-              ? `${formatDealDate(latestTrade.dealDate)} · ${Math.round(toPyeong(latestTrade.exclusiveArea))}평`
+              ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
               : "선택 기간 거래 없음"}
           </p>
         </div>
@@ -581,9 +582,7 @@ export function AptDetailPage({
                         <p className="text-sm font-medium text-slate-900">
                           {formatDealDate(tx.dealDate).slice(5)}{" "}
                           <span className="font-normal text-slate-500">
-                            {tx.exclusiveArea.toFixed(2)}㎡ (
-                            {Math.round(toPyeong(tx.exclusiveArea))}평) ·{" "}
-                            {tx.floor}층
+                            {formatArea(tx.exclusiveArea)} · {tx.floor}층
                           </span>
                         </p>
                         <p className="mt-0.5 text-xs text-slate-500">

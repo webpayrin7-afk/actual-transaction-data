@@ -3,14 +3,18 @@
 import {
   useEffect,
   useId,
-  useLayoutEffect,
-  useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
-import { ChevronDown } from "lucide-react";
+import { createPortal } from "react-dom";
+import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
-import { toPyeong } from "@/lib/utils/format";
+import {
+  formatAreaTriggerLabel,
+  formatExclusiveArea,
+  formatPyeong,
+} from "@/lib/utils/format";
 
 type AptAreaSelectorProps = {
   areas: AptAreaOption[];
@@ -18,306 +22,219 @@ type AptAreaSelectorProps = {
   onChange: (key: string) => void;
 };
 
-type AreaNavItem = {
-  key: string;
-  label: string;
-  exclusiveArea: number | null;
-};
-
-function buildAreaNavItems(areas: AptAreaOption[]): AreaNavItem[] {
-  const sorted = [...areas].sort(
-    (a, b) => a.exclusiveArea - b.exclusiveArea,
-  );
-  const pyeongCount = new Map<number, number>();
-  for (const area of sorted) {
-    const p = Math.round(toPyeong(area.exclusiveArea));
-    pyeongCount.set(p, (pyeongCount.get(p) ?? 0) + 1);
-  }
-
-  return sorted.map((area) => {
-    const pyeong = Math.round(toPyeong(area.exclusiveArea));
-    const collision = (pyeongCount.get(pyeong) ?? 0) > 1;
-    return {
-      key: area.key,
-      // 동일 평 환산·서로 다른 areaKey → ㎡로 구분 (합치지 않음)
-      label: collision
-        ? `${area.exclusiveArea.toFixed(2)}㎡`
-        : `${pyeong}평`,
-      exclusiveArea: area.exclusiveArea,
-    };
-  });
-}
-
-function itemClass(active: boolean) {
-  return `shrink-0 whitespace-nowrap px-1.5 py-1 text-sm transition ${
-    active
-      ? "border-b-2 border-teal-600 font-semibold text-slate-900"
-      : "border-b-2 border-transparent font-medium text-slate-500 hover:text-slate-800"
-  }`;
-}
-
 /**
- * Horizontal area selector.
- * areaKey / onChange 계약은 기존 AptAreaSelect와 동일. dropdown trigger 없음.
+ * 단일 버튼 + bottom sheet 면적 선택.
+ * areaKey / onChange / default-area 로직과 독립 — UI만.
  */
 export function AptAreaSelector({
   areas,
   value,
   onChange,
 }: AptAreaSelectorProps) {
-  const items = useMemo<AreaNavItem[]>(
-    () => [
-      { key: "all", label: "전체", exclusiveArea: null },
-      ...buildAreaNavItems(areas),
-    ],
-    [areas],
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+
+  const sorted = [...areas].sort(
+    (a, b) => a.exclusiveArea - b.exclusiveArea,
   );
-
-  const selected = items.find((item) => item.key === value) ?? items[0];
-  const moreId = useId();
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
-
-  const measureRef = useRef<HTMLDivElement>(null);
-  const desktopRowRef = useRef<HTMLDivElement>(null);
-  const mobileRowRef = useRef<HTMLDivElement>(null);
-  const [desktopVisible, setDesktopVisible] = useState(items.length);
-
-  useLayoutEffect(() => {
-    const measureEl = measureRef.current;
-    const rowEl = desktopRowRef.current;
-    if (!measureEl || !rowEl) return;
-
-    function measure() {
-      if (!measureEl || !rowEl) return;
-      const available = rowEl.clientWidth;
-      const kids = [
-        ...measureEl.querySelectorAll<HTMLElement>("[data-measure-item]"),
-      ];
-      if (kids.length === 0) {
-        setDesktopVisible(items.length);
-        return;
-      }
-      const moreBtn =
-        measureEl.querySelector<HTMLElement>("[data-measure-more]");
-      const moreW = moreBtn?.offsetWidth ?? 52;
-      const gap = 4;
-      const widths = kids.map((el) => el.offsetWidth);
-      const total =
-        widths.reduce((a, b) => a + b, 0) + gap * Math.max(0, widths.length - 1);
-
-      if (total <= available) {
-        setDesktopVisible(items.length);
-        return;
-      }
-
-      let used = 0;
-      let fit = 0;
-      for (let i = 0; i < widths.length; i++) {
-        const w = widths[i]!;
-        const next = used + (fit > 0 ? gap : 0) + w;
-        if (next + gap + moreW > available && fit > 0) break;
-        used = next;
-        fit += 1;
-      }
-      setDesktopVisible(Math.max(1, Math.min(fit, items.length)));
-    }
-
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(rowEl);
-    return () => ro.disconnect();
-  }, [items]);
+  const selected = sorted.find((a) => a.key === value) ?? null;
 
   useEffect(() => {
-    if (!moreOpen) return;
-    function onPointer(e: MouseEvent) {
-      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
-    }
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const triggerEl = triggerRef.current;
+
+    const focusTarget =
+      sheetRef.current?.querySelector<HTMLElement>("[data-sheet-close]") ??
+      sheetRef.current;
+    focusTarget?.focus();
+
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMoreOpen(false);
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+      }
     }
-    document.addEventListener("mousedown", onPointer);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("mousedown", onPointer);
+      document.body.style.overflow = prevOverflow;
       document.removeEventListener("keydown", onKey);
+      triggerEl?.focus();
     };
-  }, [moreOpen]);
+  }, [open]);
 
-  useEffect(() => {
-    const row = mobileRowRef.current;
-    if (!row) return;
-    const active = row.querySelector<HTMLElement>(
-      `[data-area-key="${CSS.escape(value)}"]`,
-    );
-    if (!active) return;
-    const rowRect = row.getBoundingClientRect();
-    const itemRect = active.getBoundingClientRect();
-    if (itemRect.left < rowRect.left) {
-      row.scrollLeft -= rowRect.left - itemRect.left + 12;
-    } else if (itemRect.right > rowRect.right) {
-      row.scrollLeft += itemRect.right - rowRect.right + 12;
-    }
-  }, [value, items]);
-
-  const fitCount = Math.max(1, Math.min(desktopVisible, items.length));
-  const selectedIdx = items.findIndex((item) => item.key === value);
-  let visibleDesktop = items.slice(0, fitCount);
-  let hiddenDesktop = items.slice(fitCount);
-  // 선택 item이 더보기에만 있으면 visible 마지막 슬롯으로 끌어와 바로 보이게
-  if (
-    selectedIdx >= fitCount &&
-    selectedIdx < items.length &&
-    fitCount < items.length
-  ) {
-    const selectedItem = items[selectedIdx]!;
-    visibleDesktop = [...items.slice(0, fitCount - 1), selectedItem];
-    const visibleKeys = new Set(visibleDesktop.map((i) => i.key));
-    hiddenDesktop = items.filter((i) => !visibleKeys.has(i.key));
+  function close() {
+    setOpen(false);
   }
-  const selectedHidden = hiddenDesktop.some((item) => item.key === value);
 
-  if (areas.length === 0) {
+  function pick(key: string) {
+    onChange(key);
+    setOpen(false);
+  }
+
+  // 면적 0~1개: static (chevron/sheet 없음)
+  if (sorted.length <= 1) {
+    const only = sorted[0];
     return (
-      <div className="flex items-baseline gap-2">
-        <span className="text-xs text-slate-500">면적</span>
-        <span className="text-sm text-slate-800">전체</span>
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="shrink-0 text-xs text-slate-500">면적</span>
+        <span className="text-sm tabular-nums text-slate-800">
+          {only ? formatAreaTriggerLabel(only.exclusiveArea) : "전체 면적"}
+        </span>
       </div>
     );
   }
+
+  const triggerLabel =
+    value === "all" || !selected
+      ? "전체 면적"
+      : formatAreaTriggerLabel(selected.exclusiveArea);
 
   return (
-    <div className="min-w-0 max-w-full space-y-1 overflow-x-clip">
-      <div
-        className="pointer-events-none fixed top-0 left-0 -z-10 h-0 w-0 overflow-hidden"
-        aria-hidden
+    <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+      <span className="shrink-0 text-xs text-slate-500">면적</span>
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-800 hover:bg-slate-50"
       >
-        <div ref={measureRef} className="flex gap-1 whitespace-nowrap">
-          {items.map((item) => (
-            <span key={item.key} data-measure-item className={itemClass(false)}>
-              {item.label}
-            </span>
+        <span className="truncate tabular-nums">{triggerLabel}</span>
+        <ChevronDown
+          className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden
+        />
+      </button>
+
+      {open
+        ? createPortal(
+            <AreaSheet
+              titleId={titleId}
+              sheetRef={sheetRef}
+              value={value}
+              areas={sorted}
+              onClose={close}
+              onPick={pick}
+            />,
+            document.body,
+          )
+        : null}
+    </div>
+  );
+}
+
+function AreaSheet({
+  titleId,
+  sheetRef,
+  value,
+  areas,
+  onClose,
+  onPick,
+}: {
+  titleId: string;
+  sheetRef: React.RefObject<HTMLDivElement | null>;
+  value: string;
+  areas: AptAreaOption[];
+  onClose: () => void;
+  onPick: (key: string) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-end">
+      <button
+        type="button"
+        aria-label="면적 선택 닫기"
+        className="absolute inset-0 bg-slate-900/40"
+        onClick={onClose}
+      />
+      <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="relative z-[61] flex w-full max-h-[min(72vh,32rem)] flex-col rounded-t-2xl border border-slate-200 bg-white shadow-lg sm:max-w-md outline-none"
+      >
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+          <h2 id={titleId} className="text-sm font-semibold text-slate-900">
+            면적 선택
+          </h2>
+          <button
+            type="button"
+            data-sheet-close
+            aria-label="닫기"
+            onClick={onClose}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
+          <AreaOption
+            active={value === "all"}
+            onClick={() => onPick("all")}
+            primary="전체 면적"
+          />
+          {areas.map((area) => (
+            <AreaOption
+              key={area.key}
+              active={area.key === value}
+              onClick={() => onPick(area.key)}
+              primary={formatPyeong(area.exclusiveArea)}
+              secondary={formatExclusiveArea(area.exclusiveArea)}
+            />
           ))}
-          <span data-measure-more className={itemClass(false)}>
-            더보기
-          </span>
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="flex min-w-0 items-end gap-2.5">
-        <span className="mb-1 shrink-0 text-xs text-slate-500">면적</span>
-
-        <div
-          ref={mobileRowRef}
-          className="flex min-w-0 flex-1 gap-1 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
-          role="tablist"
-          aria-label="면적 선택"
+function AreaOption({
+  active,
+  onClick,
+  primary,
+  secondary,
+}: {
+  active: boolean;
+  onClick: () => void;
+  primary: string;
+  secondary?: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
+        active ? "bg-slate-100" : "hover:bg-slate-50"
+      }`}
+    >
+      <span className="min-w-0 flex-1">
+        <span
+          className={`block text-sm ${
+            active ? "font-semibold text-slate-900" : "font-medium text-slate-800"
+          }`}
         >
-          {items.map((item) => {
-            const active = item.key === value;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                data-area-key={item.key}
-                onClick={() => onChange(item.key)}
-                className={itemClass(active)}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div
-          ref={desktopRowRef}
-          className="relative hidden min-w-0 flex-1 items-end gap-1 md:flex"
-          role="tablist"
-          aria-label="면적 선택"
-        >
-          {visibleDesktop.map((item) => {
-            const active = item.key === value;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => onChange(item.key)}
-                className={itemClass(active)}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-
-          {hiddenDesktop.length > 0 ? (
-            <div ref={moreRef} className="relative shrink-0">
-              <button
-                type="button"
-                aria-expanded={moreOpen}
-                aria-controls={moreId}
-                onClick={() => setMoreOpen((v) => !v)}
-                className={`inline-flex items-center gap-0.5 ${itemClass(
-                  selectedHidden || moreOpen,
-                )}`}
-              >
-                더보기
-                <ChevronDown
-                  className={`h-3 w-3 text-slate-400 transition ${
-                    moreOpen ? "rotate-180" : ""
-                  }`}
-                  aria-hidden
-                />
-              </button>
-              {moreOpen ? (
-                <ul
-                  id={moreId}
-                  role="listbox"
-                  className="absolute top-full right-0 z-40 mt-1 max-h-64 min-w-[7.5rem] overflow-y-auto rounded-md border border-slate-200 bg-white py-0.5 shadow-sm"
-                >
-                  {hiddenDesktop.map((item) => {
-                    const active = item.key === value;
-                    return (
-                      <li key={item.key} role="option" aria-selected={active}>
-                        <button
-                          type="button"
-                          className={`w-full px-2.5 py-1.5 text-left text-sm tabular-nums ${
-                            active
-                              ? "bg-slate-100 font-medium text-slate-900"
-                              : "text-slate-700 hover:bg-slate-50"
-                          }`}
-                          onClick={() => {
-                            onChange(item.key);
-                            setMoreOpen(false);
-                          }}
-                        >
-                          {item.label}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-
-        {selected?.exclusiveArea != null ? (
-          <span className="mb-1 hidden shrink-0 text-xs tabular-nums text-slate-400 lg:inline">
-            전용 {selected.exclusiveArea.toFixed(2)}㎡
+          {primary}
+        </span>
+        {secondary ? (
+          <span className="mt-0.5 block text-xs tabular-nums text-slate-500">
+            {secondary}
           </span>
         ) : null}
-      </div>
-
-      {selected?.exclusiveArea != null ? (
-        <p className="text-[11px] tabular-nums text-slate-400 lg:hidden">
-          전용 {selected.exclusiveArea.toFixed(2)}㎡
-        </p>
-      ) : null}
-    </div>
+      </span>
+      {active ? (
+        <Check className="h-4 w-4 shrink-0 text-teal-700" aria-hidden />
+      ) : (
+        <span className="h-4 w-4 shrink-0" aria-hidden />
+      )}
+    </button>
   );
 }
