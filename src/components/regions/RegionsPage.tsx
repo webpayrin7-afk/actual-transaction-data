@@ -11,12 +11,15 @@ import {
 } from "react";
 import {
   ALL_REGIONS,
-  GYEONGGI_REGIONS,
-  SEOUL_REGIONS,
+  METRO_LABELS,
   type Metro,
   type RegionDef,
 } from "@/lib/constants/regions";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+
+const METRO_OPTIONS = (
+  Object.entries(METRO_LABELS) as [Metro, string][]
+).filter(([k]) => k !== "other");
 
 type RegionSuggestion = {
   slug: string;
@@ -54,7 +57,7 @@ function scoreRegion(query: string, region: RegionDef): RegionSuggestion | null 
       slug: region.slug,
       name: region.name,
       fullName: region.fullName,
-      metroLabel: region.metro === "seoul" ? "서울" : "경기",
+      metroLabel: METRO_LABELS[region.metro] ?? region.metro,
       matchLabel:
         candidate.label === region.name ? region.fullName : candidate.label,
       score,
@@ -92,15 +95,18 @@ export function RegionsPage() {
   const router = useRouter();
   const [metro, setMetro] = useState<Metro>(() => {
     if (typeof window === "undefined") return "seoul";
-    const hash = window.location.hash.replace("#", "");
-    return hash === "gyeonggi" ? "gyeonggi" : "seoul";
+    const hash = window.location.hash.replace("#", "") as Metro;
+    return METRO_OPTIONS.some(([k]) => k === hash) ? hash : "seoul";
   });
   const [regionQuery, setRegionQuery] = useState("");
   const [openSuggest, setOpenSuggest] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const searchWrapRef = useRef<HTMLDivElement>(null);
 
-  const regions = metro === "seoul" ? SEOUL_REGIONS : GYEONGGI_REGIONS;
+  const regions = useMemo(
+    () => ALL_REGIONS.filter((r) => r.metro === metro),
+    [metro],
+  );
 
   useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
@@ -227,27 +233,22 @@ export function RegionsPage() {
           </p>
         </div>
 
-        {/* 시·도 — 향후 전국 시도 확장 시 options만 추가 */}
-        <div className="inline-flex w-fit gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-          {(
-            [
-              { value: "seoul" as const, label: "서울" },
-              { value: "gyeonggi" as const, label: "경기" },
-            ] as const
-          ).map((opt) => {
-            const active = metro === opt.value;
+        {/* 시·도 — nationwide METRO_OPTIONS */}
+        <div className="flex flex-wrap gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+          {METRO_OPTIONS.map(([value, label]) => {
+            const active = metro === value;
             return (
               <button
-                key={opt.value}
+                key={value}
                 type="button"
-                onClick={() => setMetro(opt.value)}
-                className={`min-h-8 rounded-md px-3 text-xs font-medium transition sm:text-[13px] ${
+                onClick={() => setMetro(value)}
+                className={`min-h-8 rounded-md px-2.5 text-xs font-medium transition sm:px-3 sm:text-[13px] ${
                   active
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                {opt.label}
+                {label}
               </button>
             );
           })}

@@ -1,4 +1,13 @@
-export type Metro = "seoul" | "gyeonggi";
+import { NATIONWIDE_EXTRA_REGIONS } from "./nationwide-extra-regions";
+import {
+  NATIONWIDE_LAWD_CODES,
+  type NationwideMetro,
+} from "./nationwide-lawd";
+
+export { NATIONWIDE_EXTRA_REGIONS };
+
+/** 전국 시·도 키 (서울·경기 + 확대분) */
+export type Metro = NationwideMetro;
 
 export interface DistrictUnit {
   code: string;
@@ -76,7 +85,24 @@ export const GYEONGGI_REGIONS: RegionDef[] = [
   { slug: "gyeonggi-yangpyeong", metro: "gyeonggi", name: "양평군", fullName: "경기도 양평군", lawdCodes: ["41830"], districts: [{ code: "41830", name: "양평군" }] },
 ];
 
-export const ALL_REGIONS: RegionDef[] = [...SEOUL_REGIONS, ...GYEONGGI_REGIONS];
+/** 기존 UI/카탈로그 기본 세트 (서울·경기) — 하위 호환 */
+export const CAPITAL_REGIONS: RegionDef[] = [
+  ...SEOUL_REGIONS,
+  ...GYEONGGI_REGIONS,
+];
+
+/**
+ * 서비스에 등록된 전체 지역 (전국 leaf LAWD).
+ * 데이터 coverage와 별개 — sync/검색/slug 해석용.
+ * 실제 적재 범위는 sync_months / REGION_DETAIL 문구를 본다.
+ */
+export const ALL_REGIONS: RegionDef[] = [
+  ...CAPITAL_REGIONS,
+  ...NATIONWIDE_EXTRA_REGIONS,
+];
+
+/** @deprecated 이름 호환 — CAPITAL_REGIONS와 동일 취지였음. 이제는 전국 포함. */
+export const NATIONWIDE_REGIONS: RegionDef[] = ALL_REGIONS;
 
 export const REGION_BY_SLUG: Record<string, RegionDef> = Object.fromEntries(
   ALL_REGIONS.map((r) => [r.slug, r]),
@@ -87,6 +113,15 @@ for (const region of ALL_REGIONS) {
   for (const code of region.lawdCodes) {
     LAWD_TO_REGION[code] = region;
   }
+}
+
+/** sync --scope=nationwide 용 unique LAWD */
+export function allNationwideLawdCodes(): string[] {
+  return [...new Set(NATIONWIDE_LAWD_CODES)];
+}
+
+export function allCapitalLawdCodes(): string[] {
+  return [...new Set(CAPITAL_REGIONS.flatMap((r) => r.lawdCodes))];
 }
 
 export function getRegion(slug: string): RegionDef | undefined {

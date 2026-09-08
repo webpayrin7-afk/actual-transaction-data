@@ -63,6 +63,12 @@ export async function replaceMonthTransactions(params: {
   yearMonth: string;
   dealKind: DealType;
   items: Transaction[];
+  /**
+   * true(기본): INSERT 시 first_seen_at=now → 오늘의 시장 discovery 대상.
+   * false: INSERT 시 first_seen_at=NULL (의도적 historical backfill).
+   *         의미: discovery feed에 올리지 않음. legacy NULL과 동일 취급.
+   */
+  setFirstSeenOnInsert?: boolean;
 }): Promise<ReplaceMonthResult> {
   const empty: ReplaceMonthResult = {
     rowCount: 0,
@@ -76,7 +82,9 @@ export async function replaceMonthTransactions(params: {
   if (!db) return empty;
 
   const { lawdCd, yearMonth, dealKind, items } = params;
+  const setFirstSeenOnInsert = params.setFirstSeenOnInsert !== false;
   const syncedAt = new Date().toISOString();
+  const insertFirstSeen: string | null = setFirstSeenOnInsert ? syncedAt : null;
 
   const existingResult = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, jibun, floor,
@@ -236,7 +244,7 @@ export async function replaceMonthTransactions(params: {
           u.tx.buildYear,
           u.tx.jibun,
           u.tx.dealingGbn,
-          syncedAt,
+          insertFirstSeen,
           syncedAt,
         ],
       });
