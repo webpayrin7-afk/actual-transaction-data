@@ -290,31 +290,30 @@ function AreaSheet({
               flexShrink: 0,
               alignItems: "center",
               justifyContent: "center",
-              paddingTop: 14,
+              paddingTop: 10,
               paddingBottom: 2,
-              minHeight: 28,
+              minHeight: 18,
             }}
           >
             <span
               style={{
                 display: "block",
-                width: 56,
-                height: 6,
+                width: 36,
+                height: 4,
                 borderRadius: 999,
-                backgroundColor: "#94a3b8",
-                boxShadow: "inset 0 0 0 1px rgba(15,23,42,0.06)",
+                backgroundColor: "#e2e8f0",
               }}
             />
           </div>
 
           <div
             className="relative flex items-center justify-center px-12"
-            style={{ paddingTop: 18, paddingBottom: 24 }}
+            style={{ paddingTop: 12, paddingBottom: 16 }}
           >
             <h2
               id={titleId}
               className="text-center leading-none tracking-tight text-slate-900"
-              style={{ fontSize: 26, fontWeight: 800 }}
+              style={{ fontSize: 20, fontWeight: 700 }}
             >
               면적 선택
             </h2>
