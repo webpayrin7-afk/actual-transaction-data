@@ -289,6 +289,8 @@ export async function queryAptTransactions(params: {
   const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
   const kindPlaceholders = dealKinds.map(() => "?").join(",");
 
+  // exact apt_name_norm = ? → idx_tx_lawd_apt_ym 사용.
+  // LIKE '%…%' 는 idx_tx_type_deal_date 풀스캔에 가깝게 타서 수십 초까지 늘어난다.
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
                  deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
@@ -296,13 +298,13 @@ export async function queryAptTransactions(params: {
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
             AND deal_type IN (${kindPlaceholders})
-            AND apt_name_norm LIKE ?
+            AND apt_name_norm = ?
           ORDER BY deal_date DESC`,
     args: [
       ...params.lawdCodes,
       ...params.yearMonths,
       ...dealKinds,
-      `%${aptKey}%`,
+      aptKey,
     ],
   });
 
