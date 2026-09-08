@@ -22,6 +22,8 @@ type AptAreaSelectorProps = {
   onChange: (key: string) => void;
 };
 
+const SHEET_MS = 280;
+
 /**
  * 단일 버튼 + bottom sheet 면적 선택.
  * areaKey / onChange / default-area 로직과 독립 — UI만.
@@ -32,9 +34,11 @@ export function AptAreaSelector({
   onChange,
 }: AptAreaSelectorProps) {
   const [open, setOpen] = useState(false);
+  const [present, setPresent] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sorted = [...areas].sort(
     (a, b) => a.exclusiveArea - b.exclusiveArea,
@@ -42,37 +46,64 @@ export function AptAreaSelector({
   const selected = sorted.find((a) => a.key === value) ?? null;
 
   useEffect(() => {
-    if (!open) return;
+    return () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!present) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const triggerEl = triggerRef.current;
-
-    const focusTarget =
-      sheetRef.current?.querySelector<HTMLElement>("[data-sheet-close]") ??
-      sheetRef.current;
-    focusTarget?.focus();
 
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.preventDefault();
         setOpen(false);
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        closeTimer.current = setTimeout(() => {
+          setPresent(false);
+          triggerEl?.focus();
+        }, SHEET_MS);
       }
     }
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
       document.removeEventListener("keydown", onKey);
-      triggerEl?.focus();
     };
+  }, [present]);
+
+  useEffect(() => {
+    if (!open) return;
+    const focusTarget =
+      sheetRef.current?.querySelector<HTMLElement>("[data-sheet-close]") ??
+      sheetRef.current;
+    focusTarget?.focus();
   }, [open]);
 
-  function close() {
+  function requestClose() {
     setOpen(false);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => {
+      setPresent(false);
+      triggerRef.current?.focus();
+    }, SHEET_MS);
+  }
+
+  function openSheet() {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setPresent(true);
+    // next frame → slide-up transition
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setOpen(true));
+    });
   }
 
   function pick(key: string) {
     onChange(key);
-    setOpen(false);
+    requestClose();
   }
 
   // 면적 0~1개: static (chevron/sheet 없음)
@@ -101,7 +132,7 @@ export function AptAreaSelector({
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={openSheet}
         className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-sm text-slate-800 hover:bg-slate-50"
       >
         <span className="truncate tabular-nums">{triggerLabel}</span>
@@ -113,14 +144,15 @@ export function AptAreaSelector({
         />
       </button>
 
-      {open
+      {present
         ? createPortal(
             <AreaSheet
               titleId={titleId}
               sheetRef={sheetRef}
               value={value}
               areas={sorted}
-              onClose={close}
+              open={open}
+              onClose={requestClose}
               onPick={pick}
             />,
             document.body,
@@ -135,6 +167,7 @@ function AreaSheet({
   sheetRef,
   value,
   areas,
+  open,
   onClose,
   onPick,
 }: {
@@ -142,15 +175,19 @@ function AreaSheet({
   sheetRef: React.RefObject<HTMLDivElement | null>;
   value: string;
   areas: AptAreaOption[];
+  open: boolean;
   onClose: () => void;
   onPick: (key: string) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-end">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center">
       <button
         type="button"
         aria-label="면적 선택 닫기"
-        className="absolute inset-0 bg-slate-900/40"
+        className={`absolute inset-0 bg-slate-900/40 transition-opacity duration-280 ease-out ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ transitionDuration: `${SHEET_MS}ms` }}
         onClick={onClose}
       />
       <div
@@ -159,9 +196,17 @@ function AreaSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="relative z-[61] flex w-full max-h-[min(72vh,32rem)] flex-col rounded-t-2xl border border-slate-200 bg-white shadow-lg sm:max-w-md outline-none"
+        className={`relative z-[61] flex w-full max-h-[min(65vh,26rem)] flex-col overflow-hidden rounded-t-3xl border border-slate-200/90 bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.12)] outline-none sm:max-w-md transition-transform ease-out ${
+          open ? "translate-y-0" : "translate-y-full"
+        }`}
+        style={{ transitionDuration: `${SHEET_MS}ms` }}
       >
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+        {/* drag affordance */}
+        <div className="flex shrink-0 justify-center pt-2.5 pb-1" aria-hidden>
+          <span className="h-1 w-9 rounded-full bg-slate-200" />
+        </div>
+
+        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2.5">
           <h2 id={titleId} className="text-sm font-semibold text-slate-900">
             면적 선택
           </h2>
@@ -176,7 +221,7 @@ function AreaSheet({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
+        <div className="min-h-0 overflow-y-auto overscroll-contain border-t border-slate-100 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           <AreaOption
             active={value === "all"}
             onClick={() => onPick("all")}
@@ -219,7 +264,9 @@ function AreaOption({
       <span className="min-w-0 flex-1">
         <span
           className={`block text-sm ${
-            active ? "font-semibold text-slate-900" : "font-medium text-slate-800"
+            active
+              ? "font-semibold text-slate-900"
+              : "font-medium text-slate-800"
           }`}
         >
           {primary}
