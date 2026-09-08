@@ -55,7 +55,47 @@ function canUseStorage(): boolean {
 
 function notifyChanged(): void {
   if (typeof window === "undefined") return;
+  snapshotCacheKey = null;
   window.dispatchEvent(new Event(RECENT_COMPLEXES_EVENT));
+}
+
+/** useSyncExternalStore용 — 변경 시에만 새 배열 참조 */
+let snapshotCacheKey: string | null = null;
+let snapshotCache: RecentComplex[] = [];
+const EMPTY_RECENT: RecentComplex[] = [];
+
+export function subscribeRecentComplexes(onStoreChange: () => void): () => void {
+  const handler = () => {
+    snapshotCacheKey = null;
+    onStoreChange();
+  };
+  window.addEventListener(RECENT_COMPLEXES_EVENT, handler);
+  window.addEventListener("storage", handler);
+  window.addEventListener("focus", handler);
+  return () => {
+    window.removeEventListener(RECENT_COMPLEXES_EVENT, handler);
+    window.removeEventListener("storage", handler);
+    window.removeEventListener("focus", handler);
+  };
+}
+
+export function getRecentComplexesSnapshot(): RecentComplex[] {
+  if (!canUseStorage()) return EMPTY_RECENT;
+  let raw: string | null = null;
+  try {
+    raw = window.localStorage.getItem(RECENT_COMPLEXES_KEY);
+  } catch {
+    return EMPTY_RECENT;
+  }
+  const key = raw ?? "";
+  if (snapshotCacheKey === key) return snapshotCache;
+  snapshotCacheKey = key;
+  snapshotCache = readRecentComplexes();
+  return snapshotCache;
+}
+
+export function getRecentComplexesServerSnapshot(): RecentComplex[] {
+  return EMPTY_RECENT;
 }
 
 export function readRecentComplexes(): RecentComplex[] {

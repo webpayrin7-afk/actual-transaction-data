@@ -1,37 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Clock3, X } from "lucide-react";
 import {
-  RECENT_COMPLEXES_EVENT,
   clearRecentComplexes,
-  readRecentComplexes,
+  getRecentComplexesServerSnapshot,
+  getRecentComplexesSnapshot,
   recentComplexHref,
-  type RecentComplex,
+  subscribeRecentComplexes,
 } from "@/lib/complexes/recent-views";
 
 export function RecentComplexList() {
-  const [items, setItems] = useState<RecentComplex[]>([]);
-  const [ready, setReady] = useState(false);
-
-  const refresh = useCallback(() => {
-    setItems(readRecentComplexes());
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    const onChange = () => refresh();
-    window.addEventListener(RECENT_COMPLEXES_EVENT, onChange);
-    window.addEventListener("storage", onChange);
-    window.addEventListener("focus", onChange);
-    return () => {
-      window.removeEventListener(RECENT_COMPLEXES_EVENT, onChange);
-      window.removeEventListener("storage", onChange);
-      window.removeEventListener("focus", onChange);
-    };
-  }, [refresh]);
+  const items = useSyncExternalStore(
+    subscribeRecentComplexes,
+    getRecentComplexesSnapshot,
+    getRecentComplexesServerSnapshot,
+  );
 
   return (
     <section className="flex flex-col gap-3">
@@ -44,13 +29,10 @@ export function RecentComplexList() {
             이전에 본 단지를 바로 다시 열어보세요
           </p>
         </div>
-        {ready && items.length > 0 ? (
+        {items.length > 0 ? (
           <button
             type="button"
-            onClick={() => {
-              clearRecentComplexes();
-              setItems([]);
-            }}
+            onClick={() => clearRecentComplexes()}
             className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 transition hover:text-slate-800"
           >
             <X className="h-3.5 w-3.5" />
@@ -59,9 +41,7 @@ export function RecentComplexList() {
         ) : null}
       </div>
 
-      {!ready ? (
-        <div className="h-16 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
-      ) : items.length === 0 ? (
+      {items.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-center text-sm text-slate-500">
           아직 조회한 단지가 없습니다. 위 검색에서 궁금한 아파트를 찾아보세요.
         </p>
