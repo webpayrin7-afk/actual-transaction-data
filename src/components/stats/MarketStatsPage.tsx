@@ -30,7 +30,9 @@ import {
   StatsDealExplorer,
   type DealExplorerTab,
 } from "@/components/stats/StatsDealExplorer";
+import { StatsRegionSelect } from "@/components/stats/StatsRegionSelect";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { isStatsScope } from "@/lib/market/region-scope";
 
 async function fetchStats(
   period: StatsPeriod,
@@ -52,7 +54,7 @@ function parsePeriod(v: string | null): StatsPeriod {
 }
 
 function parseScope(v: string | null): StatsScope {
-  if (v === "all" || v === "seoul" || v === "gyeonggi") return v;
+  if (isStatsScope(v)) return v;
   return "all";
 }
 
@@ -358,7 +360,7 @@ export function MarketStatsPage() {
         description="실제 계약일 기준으로 거래량·신고가·하락거래와 주요 거래를 확인하세요."
       />
 
-      {/* Market control bar — period / date / scope */}
+      {/* Market control bar — period / date / region filter */}
       <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2 sm:gap-2.5 lg:flex-row lg:items-center lg:justify-between lg:gap-3 lg:px-2.5 lg:py-1.5">
         <Segmented
           value={period}
@@ -371,7 +373,7 @@ export function MarketStatsPage() {
           ]}
         />
 
-        <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-center lg:justify-center">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:justify-center lg:justify-end">
           <div className="inline-flex min-w-0 items-center gap-0.5 rounded-lg border border-slate-200 bg-white px-0.5 py-0.5">
             <button
               type="button"
@@ -396,29 +398,10 @@ export function MarketStatsPage() {
             </button>
           </div>
 
-          <div className="shrink-0 lg:hidden">
-            <Segmented
-              value={scope}
-              onChange={setScope}
-              options={[
-                { value: "all", label: "전체" },
-                { value: "seoul", label: "서울" },
-                { value: "gyeonggi", label: "경기" },
-              ]}
-            />
+          {/* 시·도 filter — 추후 시·군·구 filter를 옆에 추가 가능 */}
+          <div className="flex shrink-0 items-center gap-1.5">
+            <StatsRegionSelect value={scope} onChange={setScope} />
           </div>
-        </div>
-
-        <div className="hidden lg:block">
-          <Segmented
-            value={scope}
-            onChange={setScope}
-            options={[
-              { value: "all", label: "전체" },
-              { value: "seoul", label: "서울" },
-              { value: "gyeonggi", label: "경기" },
-            ]}
-          />
         </div>
       </div>
 
