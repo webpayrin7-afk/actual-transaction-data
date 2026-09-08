@@ -170,6 +170,9 @@ function AreaSheet({
   const listRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
   const didScroll = useRef(false);
+  const startY = useRef(0);
+  const dragging = useRef(false);
+  const [dragY, setDragY] = useState(0);
 
   const rows: { key: string; label: string }[] = [
     { key: "all", label: "전체 면적" },
@@ -182,6 +185,7 @@ function AreaSheet({
   useEffect(() => {
     if (!open) {
       didScroll.current = false;
+      setDragY(0);
       return;
     }
     if (didScroll.current) return;
@@ -196,6 +200,27 @@ function AreaSheet({
     return () => window.clearTimeout(id);
   }, [open]);
 
+  function onDragStart(clientY: number) {
+    dragging.current = true;
+    startY.current = clientY;
+  }
+
+  function onDragMove(clientY: number) {
+    if (!dragging.current) return;
+    setDragY(Math.max(0, clientY - startY.current));
+  }
+
+  function onDragEnd() {
+    if (!dragging.current) return;
+    dragging.current = false;
+    if (dragY > 88) {
+      setDragY(0);
+      onClose();
+      return;
+    }
+    setDragY(0);
+  }
+
   return (
     <div className="fixed inset-0 z-[60]">
       <div
@@ -203,8 +228,10 @@ function AreaSheet({
         className="absolute inset-0"
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.55)",
-          opacity: open ? 1 : 0,
-          transition: `opacity ${SHEET_MS}ms ease-out`,
+          opacity: open ? Math.max(0, 1 - dragY / 280) : 0,
+          transition: dragging.current
+            ? "none"
+            : `opacity ${SHEET_MS}ms ease-out`,
         }}
         onClick={onClose}
       />
@@ -218,32 +245,53 @@ function AreaSheet({
         className="absolute left-0 right-0 z-10 mx-auto flex w-full max-w-md flex-col bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
         style={{
           height: "66.666dvh",
-          bottom: open ? 0 : "-66.666dvh",
+          bottom: open ? -dragY : "-66.666dvh",
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           overflow: "hidden",
-          transition: `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
+          transition:
+            dragging.current || dragY > 0
+              ? "none"
+              : `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
       >
-        <div className="flex shrink-0 justify-center pt-3 pb-1" aria-hidden>
-          <span className="h-1 w-9 rounded-full bg-slate-200" />
-        </div>
+        <div
+          className="flex shrink-0 touch-none flex-col"
+          onTouchStart={(e) => onDragStart(e.touches[0].clientY)}
+          onTouchMove={(e) => onDragMove(e.touches[0].clientY)}
+          onTouchEnd={onDragEnd}
+          onTouchCancel={onDragEnd}
+          onMouseDown={(e) => onDragStart(e.clientY)}
+          onMouseMove={(e) => {
+            if (e.buttons === 1) onDragMove(e.clientY);
+          }}
+          onMouseUp={onDragEnd}
+          onMouseLeave={() => {
+            if (dragging.current) onDragEnd();
+          }}
+        >
+          <div className="flex justify-center pt-3 pb-1" aria-hidden>
+            <span className="h-1 w-10 rounded-full bg-slate-300" />
+          </div>
 
-        <div className="relative flex shrink-0 items-center justify-center px-12 py-4">
-          <h2
-            id={titleId}
-            className="text-center text-[19px] font-extrabold leading-none tracking-tight text-slate-900"
-          >
-            면적 선택
-          </h2>
-          <button
-            type="button"
-            aria-label="닫기"
-            onClick={onClose}
-            className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-          >
-            <X className="pointer-events-none h-4 w-4" aria-hidden />
-          </button>
+          <div className="relative flex items-center justify-center px-12 pb-6 pt-3">
+            <h2
+              id={titleId}
+              className="text-center text-[22px] font-extrabold leading-none tracking-tight text-slate-900"
+            >
+              면적 선택
+            </h2>
+            <button
+              type="button"
+              aria-label="닫기"
+              onClick={onClose}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            >
+              <X className="pointer-events-none h-4 w-4" aria-hidden />
+            </button>
+          </div>
         </div>
 
         <div
@@ -251,7 +299,7 @@ function AreaSheet({
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]"
         >
           {rows.map((row, index) => (
-            <div key={row.key} className="px-4">
+            <div key={row.key}>
               <AreaOption
                 active={value === row.key}
                 buttonRef={value === row.key ? activeRef : undefined}
@@ -259,7 +307,7 @@ function AreaSheet({
                 label={row.label}
               />
               {index < rows.length - 1 ? (
-                <div className="mx-1 border-b border-slate-100" aria-hidden />
+                <div className="mx-4 border-b border-slate-100" aria-hidden />
               ) : null}
             </div>
           ))}
@@ -285,8 +333,8 @@ function AreaOption({
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 py-3 text-left transition ${
-        active ? "bg-slate-50" : "hover:bg-slate-50/80"
+      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
+        active ? "bg-slate-100" : "hover:bg-slate-50"
       }`}
     >
       <span
