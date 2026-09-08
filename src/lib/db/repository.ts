@@ -1,5 +1,10 @@
 import type { Client } from "@libsql/client";
 import { getDb, ensureSchema } from "@/lib/db/client";
+import {
+  isSameTransactionContent,
+  snapshotFromTx,
+} from "@/lib/db/sync-diff";
+import type { TxContentSnapshot } from "@/lib/db/sync-diff";
 import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
 import type { DealType, Transaction } from "@/types/transaction";
 
@@ -30,29 +35,53 @@ type ExistingRow = {
   id: string;
   naturalKey: string;
   firstSeenAt: string | null;
+  content: TxContentSnapshot;
+};
+
+export type ReplaceMonthResult = {
+  rowCount: number;
+  inserted: number;
+  /** 본문이 실제로 달라서 UPDATE 한 건수 */
+  updated: number;
+  /** 본문 동일 → DB write 없음 */
+  unchanged: number;
+  deleted: number;
+  /** transaction INSERT/UPDATE/DELETE 가 있었는지 */
+  wrote: boolean;
 };
 
 /**
  * 월 단위 upsert.
  * - 신규 INSERT: first_seen_at / last_seen_at = now
- * - 기존 UPDATE: first_seen_at 보존 (NULL legacy도 유지), last_seen_at 갱신
- * - DELETE+INSERT 금지 (discovery 시간축 파괴 방지)
+ * - 기존 + 본문 변경: first_seen_at 보존 (NULL legacy도 유지), 필드+last_seen_at 갱신
+ * - 기존 + 본문 동일: NO-OP (last_seen_at도 갱신하지 않음 — 코드베이스에서 미사용)
+ * - orphan: id 단위 DELETE
+ * - 월 전체 DELETE+INSERT 금지 (discovery 시간축 파괴 방지)
  */
 export async function replaceMonthTransactions(params: {
   lawdCd: string;
   yearMonth: string;
   dealKind: DealType;
   items: Transaction[];
-}): Promise<{ rowCount: number; inserted: number; updated: number }> {
+}): Promise<ReplaceMonthResult> {
+  const empty: ReplaceMonthResult = {
+    rowCount: 0,
+    inserted: 0,
+    updated: 0,
+    unchanged: 0,
+    deleted: 0,
+    wrote: false,
+  };
   const db = await readyDb();
-  if (!db) return { rowCount: 0, inserted: 0, updated: 0 };
+  if (!db) return empty;
 
   const { lawdCd, yearMonth, dealKind, items } = params;
   const syncedAt = new Date().toISOString();
 
   const existingResult = await db.execute({
-    sql: `SELECT id, deal_type, deal_date, apt_name, dong, jibun, floor,
-                 exclusive_area, deal_amount, monthly_rent, first_seen_at
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, jibun, floor,
+                 exclusive_area, deal_amount, monthly_rent, build_year,
+                 dealing_gbn, first_seen_at
           FROM transactions
           WHERE lawd_cd = ? AND year_month = ? AND deal_type = ?`,
     args: [lawdCd, yearMonth, dealKind],
@@ -62,21 +91,37 @@ export async function replaceMonthTransactions(params: {
   const byNatural = new Map<string, ExistingRow>();
   for (const row of existingResult.rows) {
     const id = String(row.id);
+    const content: TxContentSnapshot = {
+      dealDate: String(row.deal_date).slice(0, 10),
+      aptName: String(row.apt_name),
+      gu: String(row.gu ?? ""),
+      dong: String(row.dong ?? ""),
+      exclusiveArea: Number(row.exclusive_area) || 0,
+      dealAmount: Number(row.deal_amount) || 0,
+      monthlyRent: Number(row.monthly_rent) || 0,
+      floor: Number(row.floor) || 0,
+      buildYear:
+        row.build_year == null || row.build_year === ""
+          ? null
+          : Number(row.build_year),
+      jibun: String(row.jibun ?? ""),
+      dealingGbn: String(row.dealing_gbn ?? ""),
+    };
     const nk = naturalKeyFromTx(
       {
         id,
         dealType: dealKind,
-        dealDate: String(row.deal_date),
-        aptName: String(row.apt_name),
-        gu: "",
-        dong: String(row.dong ?? ""),
-        exclusiveArea: Number(row.exclusive_area) || 0,
-        dealAmount: Number(row.deal_amount) || 0,
-        monthlyRent: Number(row.monthly_rent) || 0,
-        floor: Number(row.floor) || 0,
-        buildYear: null,
-        jibun: String(row.jibun ?? ""),
-        dealingGbn: "",
+        dealDate: content.dealDate,
+        aptName: content.aptName,
+        gu: content.gu,
+        dong: content.dong,
+        exclusiveArea: content.exclusiveArea,
+        dealAmount: content.dealAmount,
+        monthlyRent: content.monthlyRent,
+        floor: content.floor,
+        buildYear: content.buildYear,
+        jibun: content.jibun,
+        dealingGbn: content.dealingGbn,
         lawdCd,
       },
       lawdCd,
@@ -88,6 +133,7 @@ export async function replaceMonthTransactions(params: {
         row.first_seen_at == null || row.first_seen_at === ""
           ? null
           : String(row.first_seen_at),
+      content,
     };
     byId.set(id, er);
     // 자연키 충돌 시 기존 id 유지(첫 매칭)
@@ -102,6 +148,7 @@ export async function replaceMonthTransactions(params: {
     tx: Transaction;
     firstSeen: string | null; // null → INSERT with now; string|keep → UPDATE preserve
     isInsert: boolean;
+    dirty: boolean;
   }> = [];
 
   for (const raw of items) {
@@ -118,11 +165,16 @@ export async function replaceMonthTransactions(params: {
     const matched = byNatural.get(nk) ?? byId.get(raw.id) ?? byId.get(candidateId);
 
     if (matched) {
+      const dirty = !isSameTransactionContent(
+        matched.content,
+        snapshotFromTx(raw),
+      );
       upserts.push({
         id: matched.id,
         tx: raw,
         firstSeen: matched.firstSeenAt,
         isInsert: false,
+        dirty,
       });
       usedIds.add(matched.id);
       continue;
@@ -138,6 +190,7 @@ export async function replaceMonthTransactions(params: {
       tx: raw,
       firstSeen: null,
       isInsert: true,
+      dirty: true,
     });
   }
 
@@ -147,34 +200,18 @@ export async function replaceMonthTransactions(params: {
   const statements: Array<{
     sql: string;
     args: Array<string | number | null>;
-  }> = [
-    {
-      sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
-              synced_at = excluded.synced_at,
-              row_count = excluded.row_count`,
-      args: [lawdCd, yearMonth, dealKind, syncedAt, upserts.length],
-    },
-  ];
+  }> = [];
 
-  // orphan 삭제 (취소/누락 반영 — first_seen은 해당 row와 함께 제거)
-  for (const id of deleteIds) {
-    statements.push({
-      sql: `DELETE FROM transactions WHERE id = ?`,
-      args: [id],
-    });
-  }
+  // first_seen_at은 UPDATE에서 절대 덮어쓰지 않음 (legacy NULL 유지)
+  let inserted = 0;
+  let updated = 0;
+  let unchanged = 0;
 
   const insertSql = `INSERT INTO transactions (
     id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
     gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
     jibun, dealing_gbn, first_seen_at, last_seen_at
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-  // first_seen_at은 UPDATE에서 절대 덮어쓰지 않음 (legacy NULL 유지)
-  let inserted = 0;
-  let updated = 0;
 
   for (const u of upserts) {
     const aptNorm = normalizeAptName(u.tx.aptName);
@@ -203,7 +240,7 @@ export async function replaceMonthTransactions(params: {
           syncedAt,
         ],
       });
-    } else {
+    } else if (u.dirty) {
       updated += 1;
       statements.push({
         sql: `UPDATE transactions SET
@@ -233,15 +270,49 @@ export async function replaceMonthTransactions(params: {
           u.id,
         ],
       });
+    } else {
+      unchanged += 1;
     }
   }
 
-  const CHUNK = 80;
-  for (let i = 0; i < statements.length; i += CHUNK) {
-    await db.batch(statements.slice(i, i + CHUNK), "write");
+  // orphan 삭제 (취소/누락 반영 — first_seen은 해당 row와 함께 제거)
+  for (const id of deleteIds) {
+    statements.push({
+      sql: `DELETE FROM transactions WHERE id = ?`,
+      args: [id],
+    });
   }
 
-  return { rowCount: upserts.length, inserted, updated };
+  const deleted = deleteIds.length;
+  const wroteTx = inserted + updated + deleted > 0;
+
+  // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert)
+  if (wroteTx) {
+    statements.unshift({
+      sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
+              synced_at = excluded.synced_at,
+              row_count = excluded.row_count`,
+      args: [lawdCd, yearMonth, dealKind, syncedAt, upserts.length],
+    });
+  }
+
+  if (statements.length > 0) {
+    const CHUNK = 80;
+    for (let i = 0; i < statements.length; i += CHUNK) {
+      await db.batch(statements.slice(i, i + CHUNK), "write");
+    }
+  }
+
+  return {
+    rowCount: upserts.length,
+    inserted,
+    updated,
+    unchanged,
+    deleted,
+    wrote: wroteTx,
+  };
 }
 
 export async function isMonthCoverageComplete(params: {

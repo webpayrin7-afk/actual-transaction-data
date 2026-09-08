@@ -26,9 +26,11 @@ CREATE TABLE IF NOT EXISTS transactions (
   build_year INTEGER,
   jibun TEXT NOT NULL DEFAULT '',
   dealing_gbn TEXT NOT NULL DEFAULT '',
-  -- 시스템 최초/마지막 확인 시각 (UTC ISO). legacy는 NULL.
-  -- 신고일/공개일이 아님.
+  -- 시스템 최초 확인 시각 (UTC ISO). legacy는 NULL. 신고일/공개일 아님.
+  -- INSERT 시 설정 후 절대 덮어쓰지 않음.
   first_seen_at TEXT,
+  -- 본문이 실제로 INSERT/UPDATE 된 마지막 시각 (UTC ISO).
+  -- 동일 본문 재수집 시에는 갱신하지 않음. 현재 조회 경로에서는 미사용.
   last_seen_at TEXT
 );
 

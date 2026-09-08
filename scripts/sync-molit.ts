@@ -213,14 +213,20 @@ async function main() {
         if (onlyChanged && isUnchanged(snapshots?.get(key), items)) {
           unchanged += 1;
         } else {
-          await replaceMonthTransactions({
+          const result = await replaceMonthTransactions({
             lawdCd: job.lawdCd,
             yearMonth: job.yearMonth,
             dealKind: job.kind,
             items,
           });
-          written += 1;
-          rows += items.length;
+          // written = 실제 transaction INSERT/UPDATE/DELETE 가 있는 cell만
+          // (동일 본문 NO-OP cell은 catalog/market rebuild 트리거에서 제외)
+          if (result.wrote) {
+            written += 1;
+            rows += result.inserted + result.updated + result.deleted;
+          } else {
+            unchanged += 1;
+          }
           if (snapshots) {
             snapshots.set(key, {
               rowCount: items.length,
