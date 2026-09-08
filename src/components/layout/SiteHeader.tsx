@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Building2, ChevronDown } from "lucide-react";
-import { HeaderAptSearch } from "@/components/layout/HeaderAptSearch";
 
 const PRIMARY_NAV = [
   {
@@ -14,13 +13,13 @@ const PRIMARY_NAV = [
   },
   {
     href: "/complexes",
-    label: "단지 조회",
+    label: "단지별 조회",
     match: (pathname: string) =>
       pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
   },
   {
     href: "/regions",
-    label: "지역 조회",
+    label: "지역별 조회",
     match: (pathname: string) =>
       pathname === "/regions" || pathname.startsWith("/region/"),
   },
@@ -53,7 +52,7 @@ const TOOL_NAV = [
 ] as const;
 
 function navClass(active: boolean) {
-  return `whitespace-nowrap rounded-md px-2 py-1.5 text-[13px] font-medium transition sm:px-2.5 sm:text-sm ${
+  return `whitespace-nowrap rounded-md px-2 py-1.5 text-sm font-medium transition sm:px-2.5 sm:text-[0.9375rem] ${
     active
       ? "bg-teal-50 text-teal-800"
       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -126,12 +125,7 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:ml-0">
-              <HeaderAptSearch />
-              <span
-                className="mx-1 hidden h-5 w-px bg-slate-200 sm:block"
-                aria-hidden
-              />
+            <div className="ml-auto flex shrink-0 items-center sm:ml-0">
               <div className="relative shrink-0" ref={toolsRef}>
                 <button
                   type="button"
