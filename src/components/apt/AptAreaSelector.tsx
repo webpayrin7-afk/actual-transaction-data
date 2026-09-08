@@ -283,17 +283,29 @@ function AreaSheet({
         >
           {/* 상단 중앙 스와이프 핸들 */}
           <div
-            className="flex w-full items-center justify-center pt-3 pb-1"
+            className="flex w-full shrink-0 items-center justify-center"
+            style={{ paddingTop: 14, paddingBottom: 6 }}
             aria-hidden
           >
-            <span className="block h-1.5 w-12 rounded-full bg-slate-300" />
+            <span
+              style={{
+                display: "block",
+                width: 48,
+                height: 5,
+                borderRadius: 999,
+                backgroundColor: "#cbd5e1",
+              }}
+            />
           </div>
 
-          <div className="relative flex items-center justify-center px-12 pt-3 pb-5">
+          <div
+            className="relative flex items-center justify-center px-12"
+            style={{ paddingTop: 18, paddingBottom: 28 }}
+          >
             <h2
               id={titleId}
-              className="text-center text-[26px] font-extrabold leading-none tracking-tight text-slate-900"
-              style={{ fontWeight: 800 }}
+              className="text-center leading-none tracking-tight text-slate-900"
+              style={{ fontSize: 28, fontWeight: 800 }}
             >
               면적 선택
             </h2>
