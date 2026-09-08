@@ -46,13 +46,19 @@ export function AptPriceChart({
     [points],
   );
 
-  const axisInterval = useMemo(() => {
+  /** Evenly spaced labels including first & last (Recharts interval alone drops the end). */
+  const xTicks = useMemo(() => {
     const n = data.length;
-    if (n <= 1) return 0;
-    const maxTicks = 6;
-    if (n <= maxTicks) return 0;
-    return Math.ceil(n / maxTicks) - 1;
-  }, [data.length]);
+    if (n === 0) return [] as string[];
+    if (n <= 6) return data.map((d) => d.axisLabel);
+    const idxs = new Set<number>([0, n - 1]);
+    for (let i = 1; i <= 4; i += 1) {
+      idxs.add(Math.round((i * (n - 1)) / 5));
+    }
+    return [...idxs]
+      .sort((a, b) => a - b)
+      .map((i) => data[i]!.axisLabel);
+  }, [data]);
 
   if (data.length === 0) {
     return (
@@ -73,7 +79,8 @@ export function AptPriceChart({
           <XAxis
             type="category"
             dataKey="axisLabel"
-            interval={axisInterval}
+            ticks={xTicks}
+            interval={0}
             tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
