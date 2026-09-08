@@ -395,11 +395,12 @@ function AreaOption({
       }`}
     >
       <span
-        className={`min-w-0 flex-1 truncate text-sm tabular-nums ${
+        className={`min-w-0 flex-1 truncate tabular-nums ${
           active
             ? "font-semibold text-slate-900"
             : "font-medium text-slate-800"
         }`}
+        style={{ fontSize: 15 }}
       >
         {label}
       </span>
