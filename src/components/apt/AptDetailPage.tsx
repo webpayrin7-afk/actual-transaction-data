@@ -107,17 +107,18 @@ function AptLoadProgressBar({
 }) {
   if (!active) return null;
 
-  // fixed+top-14는 모바일 2단 헤더(~87px)와 겹침 → 문서 흐름으로 헤더 바로 아래 배치
+  // 사이트 헤더(--site-header-height) 바로 아래에 붙여 자연스럽게 이어지게 함
   return (
     <div
-      className="relative z-40 -mx-4 -mt-5 sm:-mx-6 sm:-mt-6 lg:-mx-8"
+      className="fixed inset-x-0 z-40"
+      style={{ top: "var(--site-header-height, 5.5rem)" }}
       role="status"
       aria-live="polite"
     >
-      <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
+      <div className="relative h-0.5 w-full overflow-hidden bg-teal-100/90">
         <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
       </div>
-      <div className="border-b border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 backdrop-blur sm:px-6">
+      <div className="border-b border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 shadow-sm backdrop-blur sm:px-6">
         {label}
       </div>
     </div>
