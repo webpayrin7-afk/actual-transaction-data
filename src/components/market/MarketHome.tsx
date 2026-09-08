@@ -279,7 +279,7 @@ export function MarketHome() {
             href="/complexes"
             className="shrink-0 text-xs font-medium text-teal-700 hover:underline"
           >
-            단지 조회
+            단지별 조회
           </Link>
         </div>
         <AptQuickSearch compact inputId="market-home-search" />
