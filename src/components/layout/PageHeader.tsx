@@ -1,0 +1,49 @@
+import type { ReactNode } from "react";
+
+/** 페이지 본문 공통 shell — max-width / padding 정렬 */
+export const PAGE_SHELL =
+  "mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-5 pb-8 sm:px-6 sm:pt-6 sm:pb-10 lg:px-8";
+
+/**
+ * 주요 페이지 상단 타이틀 영역.
+ * hero/banner 없이 제목·설명·옵션 컨트롤만 통일.
+ * - action: 제목 오른쪽 (면적 선택 등 compact control)
+ * - children: 제목 아래 (검색 폼 등)
+ */
+export function PageHeader({
+  title,
+  description,
+  meta,
+  action,
+  children,
+  className = "",
+}: {
+  title: string;
+  description: string;
+  meta?: ReactNode;
+  action?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <header className={`max-w-3xl ${className}`.trim()}>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-[1.875rem] sm:leading-tight">
+          {title}
+        </h1>
+        {action ? (
+          <div className="shrink-0 pt-0.5 sm:pt-1">{action}</div>
+        ) : null}
+      </div>
+      <p className="mt-1.5 text-sm leading-6 text-slate-600 sm:text-[0.9375rem]">
+        {description}
+      </p>
+      {meta ? (
+        <div className="mt-2 space-y-0.5 text-xs leading-5 text-slate-500">
+          {meta}
+        </div>
+      ) : null}
+      {children ? <div className="mt-4">{children}</div> : null}
+    </header>
+  );
+}

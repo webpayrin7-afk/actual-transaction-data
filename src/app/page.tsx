@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { HomePage } from "@/components/home/HomePage";
+import { MarketHome } from "@/components/market/MarketHome";
 
 export const metadata: Metadata = {
-  title: "단지별 조회 - 아파트 실거래",
+  title: "오늘의 아파트 시장 - 아파트 데이터랩",
   description:
-    "단지명으로 서울·경기 아파트 매매·전월세 실거래 이력과 시세를 조회합니다.",
+    "오늘의 아파트 실거래와 신고가, 하락거래, 거래량 변화를 한눈에 확인하세요.",
 };
 
 export default function Page() {
   return (
     <main className="flex-1">
-      <HomePage />
+      <MarketHome />
     </main>
   );
 }

@@ -5,6 +5,26 @@ export function toPyeong(sqm: number): number {
   return Math.round((sqm / 3.3058) * 10) / 10;
 }
 
+/** 정확한 전용면적 표기 — 84.97㎡ */
+export function formatSqm(sqm: number): string {
+  return `${Number(sqm).toFixed(2)}㎡`;
+}
+
+/** 사용자 보조 평 표기 — 26평 (약 제거, 반올림) */
+export function formatPyeong(sqm: number): string {
+  return `${Math.round(toPyeong(sqm))}평`;
+}
+
+/** 전용 84.97㎡ */
+export function formatExclusiveArea(sqm: number): string {
+  return `전용 ${formatSqm(sqm)}`;
+}
+
+/** selector trigger — 26평 · 전용 84.97㎡ */
+export function formatAreaTriggerLabel(sqm: number): string {
+  return `${formatPyeong(sqm)} · ${formatExclusiveArea(sqm)}`;
+}
+
 /** 만원 단위 → 억 원 표기 (예: 85000 → 8.5억) */
 export function formatEok(manwon: number): string {
   if (!Number.isFinite(manwon) || manwon <= 0) return "-";
@@ -37,8 +57,9 @@ export function formatDealDate(date: string): string {
   return date.replaceAll("-", ".");
 }
 
+/** canonical — 전용 84.97㎡ (26평) */
 export function formatArea(sqm: number): string {
-  return `${sqm.toFixed(2)}㎡ (${toPyeong(sqm)}평)`;
+  return `${formatExclusiveArea(sqm)} (${formatPyeong(sqm)})`;
 }
 
 export function matchesAreaFilter(sqm: number, area: AreaFilter): boolean {

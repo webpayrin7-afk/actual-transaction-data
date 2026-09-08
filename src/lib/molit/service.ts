@@ -5,7 +5,15 @@ import {
   getRegion,
   type RegionDef,
 } from "@/lib/constants/regions";
-import { listAptCatalog } from "@/lib/db/repository";
+import { hasDb } from "@/lib/db/client";
+import {
+  listAptCatalog,
+  normalizeAptName,
+  queryRegionBrowseApts,
+  queryRegionMonthPool,
+  queryRentPool,
+  queryTradePool,
+} from "@/lib/db/repository";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import { filterTransactions, sortByDealDateDesc } from "@/lib/molit/parse";
 import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
@@ -13,6 +21,7 @@ import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
 import {
   matchesAreaFilter,
   recentYearMonths,
+  toPyeong,
 } from "@/lib/utils/format";
 import type {
   AreaFilter,
@@ -21,6 +30,25 @@ import type {
   TransactionStats,
   TransactionsResponse,
 } from "@/types/transaction";
+
+const REGION_DAILY_HISTORY_MONTHS = 24;
+
+function areaKey(sqm: number): string {
+  return String(Math.round(sqm * 100) / 100);
+}
+
+function pyeongBucket(sqm: number): number {
+  return Math.round(toPyeong(sqm));
+}
+
+function monthsBefore(dateStr: string, months: number): string {
+  const d = new Date(`${dateStr.slice(0, 10)}T00:00:00`);
+  d.setMonth(d.getMonth() - months);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
 
 function buildStats(items: Transaction[]): TransactionStats {
   const today = new Date().toISOString().slice(0, 10);
@@ -106,6 +134,7 @@ export async function loadRawTransactions(
   dealType: DealType | "all" = "all",
   lawdCodes: string[] = [...FEATURED_LAWD_CODES],
   regionSlug?: string,
+  options?: { maxMonthTries?: number },
 ): Promise<{
   items: Transaction[];
   source: "api" | "mock";
@@ -113,10 +142,11 @@ export async function loadRawTransactions(
   resolvedYearMonth: string;
 }> {
   if (hasApiKey()) {
+    const maxTries = Math.max(1, options?.maxMonthTries ?? 4);
     const monthsToTry = [
       yearMonth,
       ...recentYearMonths(6).filter((ym) => ym !== yearMonth),
-    ].slice(0, 4);
+    ].slice(0, maxTries);
 
     let lastError = "";
     // dealType=all 일 때: 전월세만 있는 당월에 멈추면 매매가 비어 보임 → 매매가 있는 월 우선
@@ -211,19 +241,58 @@ export async function getTransactions(params: {
     ? params.lawdCodes
     : [...FEATURED_LAWD_CODES];
 
-  const loaded = await loadRawTransactions(
-    yearMonth,
-    dealType,
-    lawdCodes,
-    params.regionSlug,
-  );
+  let items: Transaction[] = [];
+  let source: "api" | "mock" = "api";
+  let warning: string | undefined;
+  let resolvedYearMonth = yearMonth;
+  let usedDb = false;
+
+  if (hasDb()) {
+    try {
+      const dealKinds: DealType[] =
+        dealType === "all" ? ["trade", "rent"] : [dealType];
+      const fromDb = await queryRegionMonthPool({
+        lawdCodes,
+        yearMonths: [yearMonth],
+        dealKinds,
+      });
+      if (fromDb) {
+        items = fromDb;
+        usedDb = true;
+        resolvedYearMonth = yearMonth;
+      }
+    } catch (error) {
+      console.warn("[transactions] db read failed:", error);
+    }
+  }
+
+  if (!usedDb) {
+    try {
+      const loaded = await loadRawTransactions(
+        yearMonth,
+        dealType,
+        lawdCodes,
+        params.regionSlug,
+        { maxMonthTries: 1 },
+      );
+      items = loaded.items;
+      source = loaded.source;
+      warning = loaded.warning;
+      resolvedYearMonth = loaded.resolvedYearMonth;
+    } catch (error) {
+      console.warn("[transactions] api read failed:", error);
+      items = [];
+      source = "api";
+      warning = "실거래 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+    }
+  }
 
   const filtered = sortByDealDateDesc(
-    filterTransactions(loaded.items, {
+    filterTransactions(items, {
       aptName: params.aptName,
       gu: params.gu,
       dong: params.dong,
-      dealType: loaded.source === "api" ? "all" : dealType,
+      dealType,
       areaMatcher: (sqm) => matchesAreaFilter(sqm, params.area ?? "all"),
     }),
   );
@@ -239,9 +308,9 @@ export async function getTransactions(params: {
     pageSize,
     totalPages,
     stats: buildStats(filtered),
-    source: loaded.source,
-    yearMonth: loaded.resolvedYearMonth,
-    warning: loaded.warning,
+    source,
+    yearMonth: resolvedYearMonth,
+    warning,
     lawdCodes,
     apiConfigured: hasApiKey(),
   };
@@ -268,7 +337,7 @@ export interface RegionDongApt {
 export interface RegionBrowseResponse {
   regionSlug: string;
   yearMonth: string;
-  source: "api" | "mock" | "catalog";
+  source: "api" | "mock" | "catalog" | "db";
   warning?: string;
   selectedDong: string | null;
   dongs: RegionDongSummary[];
@@ -384,6 +453,30 @@ export async function getRegionBrowse(params: {
 
   const selectedDong = params.dong?.trim() || null;
   const selectedGu = params.gu?.trim() || undefined;
+
+  // 거래 테이블(법정동코드) 기준으로 동/단지 목록 구성 — apt_catalog는 지역별 누락이 있을 수 있음
+  if (hasDb()) {
+    try {
+      const fromDb = await queryRegionBrowseApts([...region.lawdCodes]);
+      if (fromDb && fromDb.length > 0) {
+        const { dongs, apts } = buildBrowseFromRows(
+          fromDb,
+          selectedDong,
+          selectedGu,
+        );
+        return {
+          regionSlug: region.slug,
+          yearMonth: "",
+          source: "db",
+          selectedDong,
+          dongs,
+          apts,
+        };
+      }
+    } catch (error) {
+      console.warn("[region-browse] db aggregate failed:", error);
+    }
+  }
 
   const catalog = await listAptCatalog();
   if (catalog && catalog.length > 0) {
@@ -501,3 +594,348 @@ export async function getRegionBrowse(params: {
     apts,
   };
 }
+
+export interface RegionDailyDaySummary {
+  date: string; // YYYY-MM-DD
+  dealCount: number;
+  tradeCount: number;
+  maxDealAmount: number;
+}
+
+export type RegionDailySingogaKind = "type" | "pyeong";
+
+export interface RegionDailyDeal {
+  id: string;
+  aptName: string;
+  gu: string;
+  dong: string;
+  exclusiveArea: number;
+  floor: number;
+  dealAmount: number;
+  dealDate: string;
+  buildYear: number | null;
+  dealingGbn: string;
+  singogaKind: RegionDailySingogaKind | null;
+  increaseAmount: number;
+  vsHighPct: number | null;
+  recent3mCount: number;
+  typeMaxAmount: number;
+  pyeongMaxAmount: number;
+  complexMaxAmount: number;
+  jeonseAmount: number | null;
+}
+
+export interface RegionDailyResponse {
+  regionSlug: string;
+  yearMonth: string;
+  source: "api" | "mock" | "db";
+  warning?: string;
+  selectedDate: string | null;
+  days: RegionDailyDaySummary[];
+  /** 해당 월의 신고가 전체 (클라이언트에서 날짜 필터) */
+  monthDeals: RegionDailyDeal[];
+  deals: RegionDailyDeal[];
+  maxDeal: RegionDailyDeal | null;
+  avgDealAmount: number;
+  tradeCount: number;
+}
+
+function enrichDailyDeal(
+  tx: Transaction,
+  aptTrades: Transaction[],
+  aptRents: Transaction[],
+): RegionDailyDeal {
+  const typeKey = areaKey(tx.exclusiveArea);
+  const pyeongKey = pyeongBucket(tx.exclusiveArea);
+  const dealDate = tx.dealDate.slice(0, 10);
+
+  const prior = aptTrades.filter(
+    (h) =>
+      h.id !== tx.id &&
+      (h.dealDate.slice(0, 10) < dealDate ||
+        (h.dealDate.slice(0, 10) === dealDate && h.id < tx.id)),
+  );
+
+  let priorTypeMax = 0;
+  let priorPyeongMax = 0;
+  let typeMax = tx.dealAmount;
+  let pyeongMax = tx.dealAmount;
+  let complexMax = tx.dealAmount;
+
+  for (const h of aptTrades) {
+    complexMax = Math.max(complexMax, h.dealAmount);
+    if (areaKey(h.exclusiveArea) === typeKey) {
+      typeMax = Math.max(typeMax, h.dealAmount);
+    }
+    if (pyeongBucket(h.exclusiveArea) === pyeongKey) {
+      pyeongMax = Math.max(pyeongMax, h.dealAmount);
+    }
+  }
+
+  for (const h of prior) {
+    if (areaKey(h.exclusiveArea) === typeKey) {
+      priorTypeMax = Math.max(priorTypeMax, h.dealAmount);
+    }
+    if (pyeongBucket(h.exclusiveArea) === pyeongKey) {
+      priorPyeongMax = Math.max(priorPyeongMax, h.dealAmount);
+    }
+  }
+
+  const isTypeSingoga = tx.dealAmount > priorTypeMax;
+  const isPyeongSingoga = tx.dealAmount > priorPyeongMax;
+  const singogaKind: RegionDailySingogaKind | null = isTypeSingoga
+    ? "type"
+    : isPyeongSingoga
+      ? "pyeong"
+      : null;
+
+  const baseline =
+    singogaKind === "type"
+      ? priorTypeMax
+      : singogaKind === "pyeong"
+        ? priorPyeongMax
+        : Math.max(priorTypeMax, priorPyeongMax);
+  const increaseAmount =
+    singogaKind && baseline > 0 ? Math.max(0, tx.dealAmount - baseline) : 0;
+
+  const since3m = monthsBefore(dealDate, 3);
+  const recent3mCount = aptTrades.filter(
+    (h) =>
+      h.dealDate.slice(0, 10) >= since3m && h.dealDate.slice(0, 10) <= dealDate,
+  ).length;
+
+  const vsHighPct =
+    complexMax > 0 ? Math.round((tx.dealAmount / complexMax) * 1000) / 10 : null;
+
+  const matchedRents = aptRents.filter(
+    (h) =>
+      areaKey(h.exclusiveArea) === typeKey &&
+      h.dealDate.slice(0, 10) <= dealDate,
+  );
+  const jeonseAmount =
+    matchedRents.length > 0
+      ? matchedRents.reduce((max, cur) =>
+          cur.dealDate > max.dealDate ||
+          (cur.dealDate === max.dealDate && cur.dealAmount > max.dealAmount)
+            ? cur
+            : max,
+        ).dealAmount
+      : null;
+
+  return {
+    id: tx.id,
+    aptName: tx.aptName,
+    gu: tx.gu,
+    dong: tx.dong,
+    exclusiveArea: tx.exclusiveArea,
+    floor: tx.floor,
+    dealAmount: tx.dealAmount,
+    dealDate: tx.dealDate,
+    buildYear: tx.buildYear,
+    dealingGbn: tx.dealingGbn || "중개거래",
+    singogaKind,
+    increaseAmount,
+    vsHighPct,
+    recent3mCount,
+    typeMaxAmount: typeMax,
+    pyeongMaxAmount: pyeongMax,
+    complexMaxAmount: complexMax,
+    jeonseAmount,
+  };
+}
+
+function groupByAptName(items: Transaction[]): Map<string, Transaction[]> {
+  const map = new Map<string, Transaction[]>();
+  for (const tx of items) {
+    const key = normalizeAptName(tx.aptName);
+    const prev = map.get(key);
+    if (prev) prev.push(tx);
+    else map.set(key, [tx]);
+  }
+  return map;
+}
+
+export async function getRegionDaily(params: {
+  regionSlug: string;
+  yearMonth?: string;
+  date?: string;
+}): Promise<RegionDailyResponse> {
+  const region = getRegion(params.regionSlug);
+  if (!region) {
+    throw new Error(`Unknown region: ${params.regionSlug}`);
+  }
+
+  const preferredYm = params.yearMonth || recentYearMonths(1)[0];
+  const lawdCodes = [...region.lawdCodes];
+
+  let items: Transaction[] = [];
+  let source: "api" | "mock" | "db" = "api";
+  let warning: string | undefined;
+  let resolvedYearMonth = preferredYm;
+
+  // DB 우선 — MOLIT 429/타임아웃을 피한다
+  if (hasDb()) {
+    try {
+      const fromDb = await queryTradePool({
+        lawdCodes,
+        yearMonths: [preferredYm],
+      });
+      if (fromDb) {
+        items = fromDb.filter((tx) => tx.dealType === "trade");
+        source = "db";
+        resolvedYearMonth = preferredYm;
+      }
+    } catch (error) {
+      console.warn("[region-daily] month db read failed:", error);
+    }
+  }
+
+  if (items.length === 0 && source !== "db") {
+    try {
+      const loaded = await loadRawTransactions(
+        preferredYm,
+        "trade",
+        lawdCodes,
+        region.slug,
+      );
+      // 신고가 현황에서는 데모/목 데이터를 쓰지 않는다
+      if (loaded.source !== "mock") {
+        items = loaded.items.filter((tx) => tx.dealType === "trade");
+        source = loaded.source;
+        warning = loaded.warning;
+        resolvedYearMonth = loaded.resolvedYearMonth;
+      } else {
+        source = "api";
+        resolvedYearMonth = preferredYm;
+      }
+    } catch (error) {
+      console.warn("[region-daily] month api read failed:", error);
+      warning = "실거래 조회 중 오류가 발생했습니다.";
+    }
+  }
+
+  // 해당 월 실데이터가 없으면 빈 결과 (데모 표시 안 함)
+  if (items.length === 0) {
+    return {
+      regionSlug: region.slug,
+      yearMonth: preferredYm,
+      source: source === "db" ? "db" : "api",
+      warning: undefined,
+      selectedDate: null,
+      days: [],
+      monthDeals: [],
+      deals: [],
+      maxDeal: null,
+      avgDealAmount: 0,
+      tradeCount: 0,
+    };
+  }
+
+  const historyMonths = recentYearMonths(REGION_DAILY_HISTORY_MONTHS);
+  let historyTrades: Transaction[] = items;
+  let historyRents: Transaction[] = [];
+
+  if (hasDb()) {
+    try {
+      const [tradePool, rentPool] = await Promise.all([
+        queryTradePool({ lawdCodes, yearMonths: historyMonths }),
+        queryRentPool({ lawdCodes, yearMonths: historyMonths }),
+      ]);
+      if (tradePool && tradePool.length > 0) {
+        const byId = new Map<string, Transaction>();
+        for (const tx of tradePool) byId.set(tx.id, tx);
+        for (const tx of items) byId.set(tx.id, tx);
+        historyTrades = [...byId.values()];
+        source = "db";
+      }
+      if (rentPool && rentPool.length > 0) {
+        historyRents = rentPool;
+      }
+    } catch (error) {
+      console.warn("[region-daily] history pool failed:", error);
+    }
+  }
+
+  const tradesByApt = groupByAptName(historyTrades);
+  const rentsByApt = groupByAptName(historyRents);
+
+  const enrichedMonth = items
+    .map((tx) =>
+      enrichDailyDeal(
+        tx,
+        tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
+        rentsByApt.get(normalizeAptName(tx.aptName)) ?? [],
+      ),
+    )
+    .filter((deal) => deal.singogaKind != null)
+    .sort(
+      (a, b) =>
+        b.dealAmount - a.dealAmount ||
+        a.aptName.localeCompare(b.aptName, "ko"),
+    );
+
+  const dayMap = new Map<
+    string,
+    { dealCount: number; tradeCount: number; maxDealAmount: number }
+  >();
+
+  // 달력에는 신고가가 있는 날짜만 선택 가능
+  for (const deal of enrichedMonth) {
+    const date = deal.dealDate.slice(0, 10);
+    if (!date) continue;
+    const prev = dayMap.get(date);
+    if (!prev) {
+      dayMap.set(date, {
+        dealCount: 1,
+        tradeCount: 1,
+        maxDealAmount: deal.dealAmount,
+      });
+      continue;
+    }
+    prev.dealCount += 1;
+    prev.tradeCount += 1;
+    prev.maxDealAmount = Math.max(prev.maxDealAmount, deal.dealAmount);
+  }
+
+  const days: RegionDailyDaySummary[] = [...dayMap.entries()]
+    .map(([date, value]) => ({ date, ...value }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const today = new Date();
+  const todayYm = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
+  const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  const requestedDate = params.date?.trim() || null;
+  const selectedDate =
+    (requestedDate && dayMap.has(requestedDate) ? requestedDate : null) ??
+    (resolvedYearMonth === todayYm ? todayDate : null) ??
+    days[0]?.date ??
+    null;
+
+  const deals = selectedDate
+    ? enrichedMonth.filter((deal) => deal.dealDate.slice(0, 10) === selectedDate)
+    : [];
+
+  const maxDeal = deals[0] ?? null;
+  const avgDealAmount =
+    deals.length > 0
+      ? Math.round(
+          deals.reduce((sum, d) => sum + d.dealAmount, 0) / deals.length,
+        )
+      : 0;
+
+  return {
+    regionSlug: region.slug,
+    yearMonth: resolvedYearMonth,
+    source,
+    warning,
+    selectedDate,
+    days,
+    monthDeals: enrichedMonth,
+    deals,
+    maxDeal,
+    avgDealAmount,
+    tradeCount: deals.length,
+  };
+}
+

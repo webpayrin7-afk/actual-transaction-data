@@ -4,13 +4,14 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ChevronRight, MapPinned } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { aptDetailHref } from "@/lib/molit/apt";
 import type {
   RegionBrowseResponse,
   RegionDongApt,
 } from "@/lib/molit/service";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 async function fetchRegionDongApts(params: {
   region: string;
@@ -37,7 +38,7 @@ function AptCard({
   return (
     <Link
       href={aptDetailHref(item.aptName, regionSlug, item.gu)}
-      className="group flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:bg-teal-50/40"
+      className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-3 transition hover:border-teal-300 hover:bg-teal-50/40"
     >
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-slate-900 group-hover:text-teal-900">
@@ -90,24 +91,19 @@ export function RegionDongAptList({
   const backHref = `/region/${regionSlug}?tab=dong`;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-      <div>
-        <Link
-          href={backHref}
-          className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-teal-700"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          동 목록으로
-        </Link>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          <MapPinned className="h-6 w-6 text-teal-600" />
-          {dong} 단지 목록
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          {regionName}
-          {gu ? ` · ${gu}` : ""}
-        </p>
-      </div>
+    <div className={PAGE_SHELL}>
+      <PageHeader
+        title={`${dong} 단지 목록`}
+        description={`${regionName}${gu ? ` · ${gu}` : ""} — 거래 이력이 있는 단지`}
+        meta={
+          <Link
+            href={backHref}
+            className="font-medium text-teal-700 underline-offset-2 hover:underline"
+          >
+            ← 단지 탐색으로
+          </Link>
+        }
+      />
 
       {query.isError && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -116,11 +112,11 @@ export function RegionDongAptList({
       )}
 
       {query.isLoading && !data ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-24 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"
+              className="h-20 animate-pulse rounded-xl border border-slate-200 bg-slate-50"
             />
           ))}
         </div>
@@ -130,10 +126,10 @@ export function RegionDongAptList({
         </p>
       ) : (
         <>
-          <p className="text-sm text-slate-500">
-            단지 {data!.apts.length.toLocaleString("ko-KR")}곳
+          <p className="text-xs text-slate-500">
+            단지 {data!.apts.length.toLocaleString("ko-KR")}곳 · 거래량 많은 순
           </p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {data!.apts.map((apt) => (
               <AptCard
                 key={`${apt.gu}-${apt.aptName}`}

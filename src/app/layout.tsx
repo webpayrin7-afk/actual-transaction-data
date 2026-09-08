@@ -17,9 +17,27 @@ const notoSansKr = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "아파트 실거래 | 서울·경기 아파트 실거래가",
+  title: "아파트 데이터랩 | 오늘의 아파트 시장",
   description:
-    "서울 25개 구, 경기 31개 시·군 아파트 매매·전월세 실거래가 TOP 및 지역별 조회",
+    "서울·경기 아파트 실거래·신고가·하락거래·거래량 변화를 한눈에 보는 아파트 데이터랩",
+  openGraph: {
+    title: "아파트 데이터랩",
+    description: "오늘의 아파트 시장 · 실거래·신고가·지역별 조회",
+    images: [
+      {
+        url: "/og-thumbnail.png",
+        width: 1536,
+        height: 1024,
+        alt: "아파트 데이터랩 썸네일",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "아파트 데이터랩",
+    description: "오늘의 아파트 시장 · 실거래·신고가·지역별 조회",
+    images: ["/og-thumbnail.png"],
+  },
 };
 
 export default function RootLayout({

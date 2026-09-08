@@ -8,9 +8,16 @@
     "start": "next start",
     "lint": "eslint",
     "db:sync": "tsx scripts/sync-molit.ts",
-    "db:sync:anyang": "tsx scripts/sync-molit.ts --scope=anyang --trade-months=120 --rent-months=48",
-    "db:sync:featured": "tsx scripts/sync-molit.ts --scope=featured --trade-months=120 --rent-months=48",
-    "db:catalog": "tsx scripts/rebuild-apt-catalog.ts"
+    "db:sync:anyang": "tsx scripts/sync-molit.ts --scope=anyang --trade-months=240 --rent-months=48",
+    "db:sync:featured": "tsx scripts/sync-molit.ts --scope=featured --trade-months=240 --rent-months=48",
+    "db:sync:fresh": "tsx scripts/sync-molit.ts --scope=all --trade-months=2 --rent-months=2 --skip-existing=0 --only-changed=1",
+    "db:sync:backfill": "tsx scripts/sync-molit.ts --scope=all --trade-months=120 --rent-months=48 --concurrency=1 --skip-existing=1 --only-changed=0",
+    "db:probe": "tsx scripts/probe-molit-freshness.ts",
+    "db:catalog": "tsx scripts/rebuild-apt-catalog.ts",
+    "db:market": "tsx scripts/rebuild-market-home.ts",
+    "db:stats": "tsx scripts/rebuild-market-stats.ts",
+    "db:feeds": "tsx scripts/rebuild-market-stats-feeds.ts",
+    "test:sync-dirty": "tsx scripts/test-sync-dirty-check.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

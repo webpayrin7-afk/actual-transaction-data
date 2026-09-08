@@ -25,7 +25,13 @@ CREATE TABLE IF NOT EXISTS transactions (
   floor INTEGER NOT NULL DEFAULT 0,
   build_year INTEGER,
   jibun TEXT NOT NULL DEFAULT '',
-  dealing_gbn TEXT NOT NULL DEFAULT ''
+  dealing_gbn TEXT NOT NULL DEFAULT '',
+  -- 시스템 최초 확인 시각 (UTC ISO). legacy는 NULL. 신고일/공개일 아님.
+  -- INSERT 시 설정 후 절대 덮어쓰지 않음.
+  first_seen_at TEXT,
+  -- 본문이 실제로 INSERT/UPDATE 된 마지막 시각 (UTC ISO).
+  -- 동일 본문 재수집 시에는 갱신하지 않음. 현재 조회 경로에서는 미사용.
+  last_seen_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_tx_lawd_apt_ym
@@ -51,3 +57,55 @@ CREATE TABLE IF NOT EXISTS apt_catalog (
 
 CREATE INDEX IF NOT EXISTS idx_apt_catalog_norm
   ON apt_catalog (apt_name_norm);
+
+-- 시장 홈 사전 집계 스냅샷 (sync/db:market 후 갱신)
+CREATE TABLE IF NOT EXISTS market_home_snapshots (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  computed_at TEXT NOT NULL,
+  as_of_date TEXT NOT NULL DEFAULT '',
+  payload TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tx_type_deal_date
+  ON transactions (deal_type, deal_date);
+
+CREATE INDEX IF NOT EXISTS idx_tx_type_first_seen
+  ON transactions (deal_type, first_seen_at);
+
+CREATE TABLE IF NOT EXISTS market_stats_daily (
+  day TEXT NOT NULL,
+  scope TEXT NOT NULL,
+  trade_count INTEGER NOT NULL DEFAULT 0,
+  singoga_count INTEGER NOT NULL DEFAULT 0,
+  drop_count INTEGER NOT NULL DEFAULT 0,
+  median_amount INTEGER,
+  avg_amount INTEGER,
+  median_ppsqm REAL,
+  PRIMARY KEY (day, scope)
+);
+
+CREATE INDEX IF NOT EXISTS idx_stats_daily_scope_day
+  ON market_stats_daily (scope, day);
+
+CREATE TABLE IF NOT EXISTS market_stats_daily_region (
+  day TEXT NOT NULL,
+  lawd_cd TEXT NOT NULL,
+  metro TEXT NOT NULL,
+  region_slug TEXT NOT NULL DEFAULT '',
+  region_name TEXT NOT NULL DEFAULT '',
+  trade_count INTEGER NOT NULL DEFAULT 0,
+  singoga_count INTEGER NOT NULL DEFAULT 0,
+  drop_count INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, lawd_cd)
+);
+
+CREATE INDEX IF NOT EXISTS idx_stats_region_day_metro
+  ON market_stats_daily_region (metro, day);
+
+CREATE TABLE IF NOT EXISTS market_stats_meta (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  as_of_date TEXT NOT NULL DEFAULT '',
+  computed_at TEXT NOT NULL DEFAULT '',
+  hist_from TEXT NOT NULL DEFAULT '',
+  stats_from TEXT NOT NULL DEFAULT ''
+);

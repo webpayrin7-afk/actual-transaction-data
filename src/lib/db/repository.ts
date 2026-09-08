@@ -1,5 +1,11 @@
 import type { Client } from "@libsql/client";
 import { getDb, ensureSchema } from "@/lib/db/client";
+import {
+  isSameTransactionContent,
+  snapshotFromTx,
+} from "@/lib/db/sync-diff";
+import type { TxContentSnapshot } from "@/lib/db/sync-diff";
+import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
 import type { DealType, Transaction } from "@/types/transaction";
 
 export function normalizeAptName(name: string): string {
@@ -25,73 +31,288 @@ async function readyDb(): Promise<Client | null> {
   return db;
 }
 
+type ExistingRow = {
+  id: string;
+  naturalKey: string;
+  firstSeenAt: string | null;
+  content: TxContentSnapshot;
+};
+
+export type ReplaceMonthResult = {
+  rowCount: number;
+  inserted: number;
+  /** 본문이 실제로 달라서 UPDATE 한 건수 */
+  updated: number;
+  /** 본문 동일 → DB write 없음 */
+  unchanged: number;
+  deleted: number;
+  /** transaction INSERT/UPDATE/DELETE 가 있었는지 */
+  wrote: boolean;
+};
+
+/**
+ * 월 단위 upsert.
+ * - 신규 INSERT: first_seen_at / last_seen_at = now
+ * - 기존 + 본문 변경: first_seen_at 보존 (NULL legacy도 유지), 필드+last_seen_at 갱신
+ * - 기존 + 본문 동일: NO-OP (last_seen_at도 갱신하지 않음 — 코드베이스에서 미사용)
+ * - orphan: id 단위 DELETE
+ * - 월 전체 DELETE+INSERT 금지 (discovery 시간축 파괴 방지)
+ */
 export async function replaceMonthTransactions(params: {
   lawdCd: string;
   yearMonth: string;
   dealKind: DealType;
   items: Transaction[];
-}): Promise<number> {
+}): Promise<ReplaceMonthResult> {
+  const empty: ReplaceMonthResult = {
+    rowCount: 0,
+    inserted: 0,
+    updated: 0,
+    unchanged: 0,
+    deleted: 0,
+    wrote: false,
+  };
   const db = await readyDb();
-  if (!db) return 0;
+  if (!db) return empty;
 
   const { lawdCd, yearMonth, dealKind, items } = params;
   const syncedAt = new Date().toISOString();
 
+  const existingResult = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, jibun, floor,
+                 exclusive_area, deal_amount, monthly_rent, build_year,
+                 dealing_gbn, first_seen_at
+          FROM transactions
+          WHERE lawd_cd = ? AND year_month = ? AND deal_type = ?`,
+    args: [lawdCd, yearMonth, dealKind],
+  });
+
+  const byId = new Map<string, ExistingRow>();
+  const byNatural = new Map<string, ExistingRow>();
+  for (const row of existingResult.rows) {
+    const id = String(row.id);
+    const content: TxContentSnapshot = {
+      dealDate: String(row.deal_date).slice(0, 10),
+      aptName: String(row.apt_name),
+      gu: String(row.gu ?? ""),
+      dong: String(row.dong ?? ""),
+      exclusiveArea: Number(row.exclusive_area) || 0,
+      dealAmount: Number(row.deal_amount) || 0,
+      monthlyRent: Number(row.monthly_rent) || 0,
+      floor: Number(row.floor) || 0,
+      buildYear:
+        row.build_year == null || row.build_year === ""
+          ? null
+          : Number(row.build_year),
+      jibun: String(row.jibun ?? ""),
+      dealingGbn: String(row.dealing_gbn ?? ""),
+    };
+    const nk = naturalKeyFromTx(
+      {
+        id,
+        dealType: dealKind,
+        dealDate: content.dealDate,
+        aptName: content.aptName,
+        gu: content.gu,
+        dong: content.dong,
+        exclusiveArea: content.exclusiveArea,
+        dealAmount: content.dealAmount,
+        monthlyRent: content.monthlyRent,
+        floor: content.floor,
+        buildYear: content.buildYear,
+        jibun: content.jibun,
+        dealingGbn: content.dealingGbn,
+        lawdCd,
+      },
+      lawdCd,
+    );
+    const er: ExistingRow = {
+      id,
+      naturalKey: nk,
+      firstSeenAt:
+        row.first_seen_at == null || row.first_seen_at === ""
+          ? null
+          : String(row.first_seen_at),
+      content,
+    };
+    byId.set(id, er);
+    // 자연키 충돌 시 기존 id 유지(첫 매칭)
+    if (!byNatural.has(nk)) byNatural.set(nk, er);
+  }
+
+  // 배치 내 안정 ID 충돌 방지
+  const usedIds = new Set<string>();
+  const seenNatural = new Set<string>();
+  const upserts: Array<{
+    id: string;
+    tx: Transaction;
+    firstSeen: string | null; // null → INSERT with now; string|keep → UPDATE preserve
+    isInsert: boolean;
+    dirty: boolean;
+  }> = [];
+
+  for (const raw of items) {
+    const nk = naturalKeyFromTx(raw, lawdCd);
+    if (seenNatural.has(nk)) continue; // 동일 배치 중복 스킵
+    seenNatural.add(nk);
+
+    let collision = 0;
+    let candidateId = stableTransactionId(
+      { ...raw, lawdCd },
+      collision,
+    );
+    // 레거시 index ID와 새 안정 ID가 다를 수 있음 — 자연키 우선
+    const matched = byNatural.get(nk) ?? byId.get(raw.id) ?? byId.get(candidateId);
+
+    if (matched) {
+      const dirty = !isSameTransactionContent(
+        matched.content,
+        snapshotFromTx(raw),
+      );
+      upserts.push({
+        id: matched.id,
+        tx: raw,
+        firstSeen: matched.firstSeenAt,
+        isInsert: false,
+        dirty,
+      });
+      usedIds.add(matched.id);
+      continue;
+    }
+
+    while (usedIds.has(candidateId) || byId.has(candidateId)) {
+      collision += 1;
+      candidateId = stableTransactionId({ ...raw, lawdCd }, collision);
+    }
+    usedIds.add(candidateId);
+    upserts.push({
+      id: candidateId,
+      tx: raw,
+      firstSeen: null,
+      isInsert: true,
+      dirty: true,
+    });
+  }
+
+  const keepIds = new Set(upserts.map((u) => u.id));
+  const deleteIds = [...byId.keys()].filter((id) => !keepIds.has(id));
+
   const statements: Array<{
     sql: string;
     args: Array<string | number | null>;
-  }> = [
-    {
-      sql: `DELETE FROM transactions WHERE lawd_cd = ? AND year_month = ? AND deal_type = ?`,
-      args: [lawdCd, yearMonth, dealKind],
-    },
-    {
+  }> = [];
+
+  // first_seen_at은 UPDATE에서 절대 덮어쓰지 않음 (legacy NULL 유지)
+  let inserted = 0;
+  let updated = 0;
+  let unchanged = 0;
+
+  const insertSql = `INSERT INTO transactions (
+    id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
+    gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
+    jibun, dealing_gbn, first_seen_at, last_seen_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  for (const u of upserts) {
+    const aptNorm = normalizeAptName(u.tx.aptName);
+    if (u.isInsert) {
+      inserted += 1;
+      statements.push({
+        sql: insertSql,
+        args: [
+          u.id,
+          lawdCd,
+          yearMonth,
+          u.tx.dealType,
+          u.tx.dealDate,
+          u.tx.aptName,
+          aptNorm,
+          u.tx.gu,
+          u.tx.dong,
+          u.tx.exclusiveArea,
+          u.tx.dealAmount,
+          u.tx.monthlyRent,
+          u.tx.floor,
+          u.tx.buildYear,
+          u.tx.jibun,
+          u.tx.dealingGbn,
+          syncedAt,
+          syncedAt,
+        ],
+      });
+    } else if (u.dirty) {
+      updated += 1;
+      statements.push({
+        sql: `UPDATE transactions SET
+          lawd_cd = ?, year_month = ?, deal_type = ?, deal_date = ?,
+          apt_name = ?, apt_name_norm = ?, gu = ?, dong = ?,
+          exclusive_area = ?, deal_amount = ?, monthly_rent = ?, floor = ?,
+          build_year = ?, jibun = ?, dealing_gbn = ?,
+          last_seen_at = ?
+        WHERE id = ?`,
+        args: [
+          lawdCd,
+          yearMonth,
+          u.tx.dealType,
+          u.tx.dealDate,
+          u.tx.aptName,
+          aptNorm,
+          u.tx.gu,
+          u.tx.dong,
+          u.tx.exclusiveArea,
+          u.tx.dealAmount,
+          u.tx.monthlyRent,
+          u.tx.floor,
+          u.tx.buildYear,
+          u.tx.jibun,
+          u.tx.dealingGbn,
+          syncedAt,
+          u.id,
+        ],
+      });
+    } else {
+      unchanged += 1;
+    }
+  }
+
+  // orphan 삭제 (취소/누락 반영 — first_seen은 해당 row와 함께 제거)
+  for (const id of deleteIds) {
+    statements.push({
+      sql: `DELETE FROM transactions WHERE id = ?`,
+      args: [id],
+    });
+  }
+
+  const deleted = deleteIds.length;
+  const wroteTx = inserted + updated + deleted > 0;
+
+  // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert)
+  if (wroteTx) {
+    statements.unshift({
       sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
               synced_at = excluded.synced_at,
               row_count = excluded.row_count`,
-      args: [lawdCd, yearMonth, dealKind, syncedAt, items.length],
-    },
-  ];
-
-  // libSQL batch limit — chunk inserts
-  const insertSql = `INSERT OR REPLACE INTO transactions (
-    id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
-    gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-  for (const tx of items) {
-    statements.push({
-      sql: insertSql,
-      args: [
-        tx.id,
-        lawdCd,
-        yearMonth,
-        tx.dealType,
-        tx.dealDate,
-        tx.aptName,
-        normalizeAptName(tx.aptName),
-        tx.gu,
-        tx.dong,
-        tx.exclusiveArea,
-        tx.dealAmount,
-        tx.monthlyRent,
-        tx.floor,
-        tx.buildYear,
-        tx.jibun,
-        tx.dealingGbn,
-      ],
+      args: [lawdCd, yearMonth, dealKind, syncedAt, upserts.length],
     });
   }
 
-  // batch in chunks of 100 statements to stay under limits
-  const CHUNK = 80;
-  for (let i = 0; i < statements.length; i += CHUNK) {
-    await db.batch(statements.slice(i, i + CHUNK), "write");
+  if (statements.length > 0) {
+    const CHUNK = 80;
+    for (let i = 0; i < statements.length; i += CHUNK) {
+      await db.batch(statements.slice(i, i + CHUNK), "write");
+    }
   }
 
-  return items.length;
+  return {
+    rowCount: upserts.length,
+    inserted,
+    updated,
+    unchanged,
+    deleted,
+    wrote: wroteTx,
+  };
 }
 
 export async function isMonthCoverageComplete(params: {
@@ -139,6 +360,8 @@ export async function queryAptTransactions(params: {
   const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
   const kindPlaceholders = dealKinds.map(() => "?").join(",");
 
+  // exact apt_name_norm = ? → idx_tx_lawd_apt_ym 사용.
+  // LIKE '%…%' 는 idx_tx_type_deal_date 풀스캔에 가깝게 타서 수십 초까지 늘어난다.
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
                  deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
@@ -146,13 +369,13 @@ export async function queryAptTransactions(params: {
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
             AND deal_type IN (${kindPlaceholders})
-            AND apt_name_norm LIKE ?
+            AND apt_name_norm = ?
           ORDER BY deal_date DESC`,
     args: [
       ...params.lawdCodes,
       ...params.yearMonths,
       ...dealKinds,
-      `%${aptKey}%`,
+      aptKey,
     ],
   });
 
@@ -214,6 +437,107 @@ export async function queryTradePool(params: {
     exclusiveArea: Number(row.exclusive_area) || 0,
     dealAmount: Number(row.deal_amount) || 0,
     monthlyRent: 0,
+    floor: Number(row.floor) || 0,
+    buildYear: row.build_year == null ? null : Number(row.build_year),
+    jibun: String(row.jibun ?? ""),
+    dealingGbn: String(row.dealing_gbn ?? ""),
+  }));
+}
+
+/** 지역 다개월 전세(월세 0) 풀 — 커버리지가 전혀 없으면 null */
+export async function queryRentPool(params: {
+  lawdCodes: string[];
+  yearMonths: string[];
+}): Promise<Transaction[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  if (!params.lawdCodes.length || !params.yearMonths.length) return null;
+
+  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
+  const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
+
+  const coverage = await db.execute({
+    sql: `SELECT COUNT(*) AS cnt FROM sync_months
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_kind = 'rent'`,
+    args: [...params.lawdCodes, ...params.yearMonths],
+  });
+  if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
+
+  const result = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+          FROM transactions
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_type = 'rent'
+            AND monthly_rent = 0`,
+    args: [...params.lawdCodes, ...params.yearMonths],
+  });
+
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    dealType: "rent" as const,
+    dealDate: String(row.deal_date),
+    aptName: String(row.apt_name),
+    gu: String(row.gu ?? ""),
+    dong: String(row.dong ?? ""),
+    exclusiveArea: Number(row.exclusive_area) || 0,
+    dealAmount: Number(row.deal_amount) || 0,
+    monthlyRent: Number(row.monthly_rent) || 0,
+    floor: Number(row.floor) || 0,
+    buildYear: row.build_year == null ? null : Number(row.build_year),
+    jibun: String(row.jibun ?? ""),
+    dealingGbn: String(row.dealing_gbn ?? ""),
+  }));
+}
+
+/** 지역 검색용: 해당 월(들) 매매/전월세 (적재된 것만, 커버리지 없으면 null) */
+export async function queryRegionMonthPool(params: {
+  lawdCodes: string[];
+  yearMonths: string[];
+  dealKinds?: DealType[];
+}): Promise<Transaction[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  if (!params.lawdCodes.length || !params.yearMonths.length) return null;
+
+  const dealKinds = params.dealKinds ?? ["trade", "rent"];
+  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
+  const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
+  const kindPlaceholders = dealKinds.map(() => "?").join(",");
+
+  const coverage = await db.execute({
+    sql: `SELECT COUNT(*) AS cnt FROM sync_months
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_kind IN (${kindPlaceholders})`,
+    args: [...params.lawdCodes, ...params.yearMonths, ...dealKinds],
+  });
+  if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
+
+  const result = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+          FROM transactions
+          WHERE lawd_cd IN (${lawdPlaceholders})
+            AND year_month IN (${ymPlaceholders})
+            AND deal_type IN (${kindPlaceholders})
+          ORDER BY deal_date DESC`,
+    args: [...params.lawdCodes, ...params.yearMonths, ...dealKinds],
+  });
+
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    dealType: row.deal_type as DealType,
+    dealDate: String(row.deal_date),
+    aptName: String(row.apt_name),
+    gu: String(row.gu ?? ""),
+    dong: String(row.dong ?? ""),
+    exclusiveArea: Number(row.exclusive_area) || 0,
+    dealAmount: Number(row.deal_amount) || 0,
+    monthlyRent: Number(row.monthly_rent) || 0,
     floor: Number(row.floor) || 0,
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
@@ -349,6 +673,61 @@ export async function listAptCatalog(): Promise<CatalogRow[] | null> {
   return loadAptCatalogRows();
 }
 
+export type RegionBrowseAptRow = {
+  aptName: string;
+  gu: string;
+  dong: string;
+  dealCount: number;
+  tradeCount: number;
+  maxDealAmount: number;
+  latestDealDate: string;
+  buildYear: number | null;
+};
+
+/** 지역(법정동코드) 매매 거래 기준 단지 집계 — 동별 상세용 */
+export async function queryRegionBrowseApts(
+  lawdCodes: string[],
+): Promise<RegionBrowseAptRow[] | null> {
+  const db = await readyDb();
+  if (!db || !lawdCodes.length) return null;
+
+  const placeholders = lawdCodes.map(() => "?").join(",");
+  const result = await db.execute({
+    sql: `SELECT MAX(apt_name) AS apt_name,
+                 MAX(gu) AS gu,
+                 MAX(dong) AS dong,
+                 COUNT(*) AS deal_count,
+                 MAX(deal_amount) AS max_deal_amount,
+                 MAX(deal_date) AS latest_deal_date,
+                 MAX(build_year) AS build_year
+          FROM transactions
+          WHERE lawd_cd IN (${placeholders})
+            AND deal_type = 'trade'
+            AND TRIM(dong) != ''
+          GROUP BY apt_name_norm, gu, dong`,
+    args: [...lawdCodes],
+  });
+
+  if (!result.rows.length) return null;
+
+  return result.rows.map((row) => {
+    const dealCount = Number(row.deal_count) || 0;
+    return {
+      aptName: String(row.apt_name ?? ""),
+      gu: String(row.gu ?? ""),
+      dong: String(row.dong ?? ""),
+      dealCount,
+      tradeCount: dealCount,
+      maxDealAmount: Number(row.max_deal_amount) || 0,
+      latestDealDate: String(row.latest_deal_date ?? ""),
+      buildYear:
+        row.build_year == null || row.build_year === ""
+          ? null
+          : Number(row.build_year) || null,
+    };
+  });
+}
+
 /** transactions → apt_catalog 전체 재구축 (적재 후 1회/주기) */
 export async function rebuildAptCatalog(): Promise<number> {
   const db = await readyDb();
@@ -391,6 +770,28 @@ export async function getSyncStats(): Promise<{
     months: Number(m.rows[0]?.cnt ?? 0),
     transactions: Number(t.rows[0]?.cnt ?? 0),
   };
+}
+
+/** 지역(법정동코드)에 적재된 계약년월 목록 (최신순) */
+export async function listSyncedYearMonths(
+  lawdCodes: string[],
+): Promise<string[]> {
+  const db = await readyDb();
+  if (!db || !lawdCodes.length) return [];
+
+  const placeholders = lawdCodes.map(() => "?").join(",");
+  const result = await db.execute({
+    sql: `SELECT DISTINCT year_month AS ym
+          FROM sync_months
+          WHERE lawd_cd IN (${placeholders})
+            AND row_count > 0
+          ORDER BY year_month DESC`,
+    args: [...lawdCodes],
+  });
+
+  return result.rows
+    .map((row) => String(row.ym ?? ""))
+    .filter((ym) => /^\d{6}$/.test(ym));
 }
 
 export { yearMonthFromDealDate };

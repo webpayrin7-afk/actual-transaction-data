@@ -1,8 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Building2,
-  CalendarDays,
   Search,
   TrendingUp,
 } from "lucide-react";
@@ -11,7 +11,6 @@ import {
   DEAL_TYPE_OPTIONS,
   type DistrictUnit,
 } from "@/lib/constants/regions";
-import { yearMonthLabel } from "@/lib/utils/format";
 import type { AreaFilter, DealType } from "@/types/transaction";
 
 interface FilterBarProps {
@@ -21,7 +20,7 @@ interface FilterBarProps {
   dealType: DealType | "all";
   area: AreaFilter;
   yearMonth: string;
-  yearMonths: string[];
+  availableYearMonths: string[];
   districts: DistrictUnit[];
   onAptNameChange: (value: string) => void;
   onGuChange: (value: string) => void;
@@ -42,7 +41,7 @@ export function FilterBar({
   dealType,
   area,
   yearMonth,
-  yearMonths,
+  availableYearMonths,
   districts,
   onAptNameChange,
   onGuChange,
@@ -53,6 +52,42 @@ export function FilterBar({
   onSearch,
 }: FilterBarProps) {
   const showDistrict = districts.length > 1;
+  const selectedYear = yearMonth.slice(0, 4);
+  const selectedMonth = yearMonth.slice(4, 6);
+
+  const years = useMemo(() => {
+    const set = new Set(
+      availableYearMonths
+        .filter((ym) => /^\d{6}$/.test(ym))
+        .map((ym) => ym.slice(0, 4)),
+    );
+    if (selectedYear) set.add(selectedYear);
+    return [...set].sort((a, b) => b.localeCompare(a));
+  }, [availableYearMonths, selectedYear]);
+
+  const monthsForYear = useMemo(() => {
+    const months = availableYearMonths
+      .filter((ym) => ym.startsWith(selectedYear))
+      .map((ym) => ym.slice(4, 6));
+    const set = new Set(months);
+    if (selectedMonth) set.add(selectedMonth);
+    return [...set].sort((a, b) => a.localeCompare(b));
+  }, [availableYearMonths, selectedYear, selectedMonth]);
+
+  function handleYearChange(nextYear: string) {
+    const months = availableYearMonths
+      .filter((ym) => ym.startsWith(nextYear))
+      .map((ym) => ym.slice(4, 6))
+      .sort((a, b) => a.localeCompare(b));
+    const nextMonth = months.includes(selectedMonth)
+      ? selectedMonth
+      : (months[months.length - 1] ?? months[0] ?? "01");
+    onYearMonthChange(`${nextYear}${nextMonth}`);
+  }
+
+  function handleMonthChange(nextMonth: string) {
+    onYearMonthChange(`${selectedYear}${nextMonth}`);
+  }
 
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-sm backdrop-blur sm:p-5">
@@ -62,7 +97,9 @@ export function FilterBar({
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
-        <label className={`flex flex-col gap-1.5 ${showDistrict ? "xl:col-span-1" : "xl:col-span-2"}`}>
+        <label
+          className={`flex flex-col gap-1.5 ${showDistrict ? "xl:col-span-1" : "xl:col-span-2"}`}
+        >
           <span className="text-xs font-medium text-slate-500">단지명</span>
           <div className="relative">
             <Building2 className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -140,23 +177,41 @@ export function FilterBar({
           </select>
         </label>
 
-        <label className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-slate-500">계약년월</span>
-          <div className="relative">
-            <CalendarDays className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <div className="grid grid-cols-2 gap-2">
+            <label className="sr-only" htmlFor="filter-contract-year">
+              계약년
+            </label>
             <select
-              value={yearMonth}
-              onChange={(e) => onYearMonthChange(e.target.value)}
-              className={`${selectClass} pl-10`}
+              id="filter-contract-year"
+              value={selectedYear}
+              onChange={(e) => handleYearChange(e.target.value)}
+              className={selectClass}
             >
-              {yearMonths.map((ym) => (
-                <option key={ym} value={ym}>
-                  {yearMonthLabel(ym)}
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}년
+                </option>
+              ))}
+            </select>
+            <label className="sr-only" htmlFor="filter-contract-month">
+              계약월
+            </label>
+            <select
+              id="filter-contract-month"
+              value={selectedMonth}
+              onChange={(e) => handleMonthChange(e.target.value)}
+              className={selectClass}
+            >
+              {monthsForYear.map((month) => (
+                <option key={month} value={month}>
+                  {Number(month)}월
                 </option>
               ))}
             </select>
           </div>
-        </label>
+        </div>
       </div>
 
       <div className="mt-4 flex justify-end">

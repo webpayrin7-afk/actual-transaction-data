@@ -32,7 +32,8 @@ export function hasDb(): boolean {
 }
 
 export async function ensureSchema(db: Client = getDb()!): Promise<void> {
-  await db.executeMultiple(`
+  try {
+    await db.executeMultiple(`
 CREATE TABLE IF NOT EXISTS sync_months (
   lawd_cd TEXT NOT NULL,
   year_month TEXT NOT NULL,
@@ -83,5 +84,92 @@ CREATE TABLE IF NOT EXISTS apt_catalog (
 
 CREATE INDEX IF NOT EXISTS idx_apt_catalog_norm
   ON apt_catalog (apt_name_norm);
+
+CREATE TABLE IF NOT EXISTS market_home_snapshots (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  computed_at TEXT NOT NULL,
+  as_of_date TEXT NOT NULL DEFAULT '',
+  payload TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tx_type_deal_date
+  ON transactions (deal_type, deal_date);
+
+CREATE TABLE IF NOT EXISTS market_stats_daily (
+  day TEXT NOT NULL,
+  scope TEXT NOT NULL,
+  trade_count INTEGER NOT NULL DEFAULT 0,
+  singoga_count INTEGER NOT NULL DEFAULT 0,
+  drop_count INTEGER NOT NULL DEFAULT 0,
+  median_amount INTEGER,
+  avg_amount INTEGER,
+  median_ppsqm REAL,
+  PRIMARY KEY (day, scope)
+);
+
+CREATE INDEX IF NOT EXISTS idx_stats_daily_scope_day
+  ON market_stats_daily (scope, day);
+
+CREATE TABLE IF NOT EXISTS market_stats_daily_region (
+  day TEXT NOT NULL,
+  lawd_cd TEXT NOT NULL,
+  metro TEXT NOT NULL,
+  region_slug TEXT NOT NULL DEFAULT '',
+  region_name TEXT NOT NULL DEFAULT '',
+  trade_count INTEGER NOT NULL DEFAULT 0,
+  singoga_count INTEGER NOT NULL DEFAULT 0,
+  drop_count INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, lawd_cd)
+);
+
+CREATE INDEX IF NOT EXISTS idx_stats_region_day_metro
+  ON market_stats_daily_region (metro, day);
+
+CREATE TABLE IF NOT EXISTS market_stats_meta (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  as_of_date TEXT NOT NULL DEFAULT '',
+  computed_at TEXT NOT NULL DEFAULT '',
+  hist_from TEXT NOT NULL DEFAULT '',
+  stats_from TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS market_stats_feeds (
+  period TEXT NOT NULL,
+  scope TEXT NOT NULL,
+  as_of_date TEXT NOT NULL DEFAULT '',
+  computed_at TEXT NOT NULL DEFAULT '',
+  complex_key_version TEXT NOT NULL DEFAULT '',
+  payload TEXT NOT NULL,
+  PRIMARY KEY (period, scope)
+);
 `);
+
+    // 기존 DB에 discovery 시간축 컬럼 추가 (legacy는 NULL 유지 — migration 시각으로 채우지 않음)
+    await ensureColumn(db, "transactions", "first_seen_at", "TEXT");
+    await ensureColumn(db, "transactions", "last_seen_at", "TEXT");
+    await db.execute(
+      `CREATE INDEX IF NOT EXISTS idx_tx_type_first_seen
+       ON transactions (deal_type, first_seen_at)`,
+    );
+  } catch (err) {
+    // Turso write 차단 시에도 기존 테이블 조회는 가능해야 함
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/BLOCKED|write operations are forbidden|READONLY/i.test(msg)) {
+      console.warn("[db] ensureSchema skipped (writes blocked):", msg);
+      return;
+    }
+    throw err;
+  }
+}
+
+async function ensureColumn(
+  db: Client,
+  table: string,
+  column: string,
+  sqlType: string,
+): Promise<void> {
+  const info = await db.execute(`PRAGMA table_info(${table})`);
+  const exists = info.rows.some((row) => String(row.name) === column);
+  if (exists) return;
+  await db.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${sqlType}`);
 }
