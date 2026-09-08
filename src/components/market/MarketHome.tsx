@@ -11,6 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import type {
   MarketDealItem,
   MarketHomeResponse,
@@ -181,35 +182,26 @@ export function MarketHome() {
   const data = query.data;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-teal-50/60 px-5 py-7 sm:px-8 sm:py-9">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 90% 10%, rgba(13,148,136,0.12), transparent 40%)",
-          }}
-        />
-        <div className="relative max-w-2xl">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-            오늘의 아파트 시장
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-            오늘 새로 확인된 실거래·신고가·하락거래를 한눈에 확인하세요.
-          </p>
-          {data?.lastUpdatedLabel || data?.computedAt ? (
-            <p className="mt-3 text-xs text-slate-500">
-              최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
-              {data.discoveryDate ? ` · 확인일 ${data.discoveryDate}` : null}
-            </p>
-          ) : null}
-          {data?.dateBasisNote ? (
-            <p className="mt-1 text-[11px] leading-4 text-slate-400">
-              {data.dateBasisNote}
-            </p>
-          ) : null}
-        </div>
-      </section>
+    <div className={`${PAGE_SHELL}`}>
+      <PageHeader
+        title="오늘의 아파트 시장"
+        description="오늘 새로 확인된 실거래·신고가·하락거래를 한눈에 확인하세요."
+        meta={
+          <>
+            {data?.lastUpdatedLabel || data?.computedAt ? (
+              <p>
+                최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
+                {data.discoveryDate ? ` · 확인일 ${data.discoveryDate}` : null}
+              </p>
+            ) : null}
+            {data?.dateBasisNote ? (
+              <p className="text-[11px] leading-4 text-slate-400">
+                {data.dateBasisNote}
+              </p>
+            ) : null}
+          </>
+        }
+      />
 
       {query.isLoading ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

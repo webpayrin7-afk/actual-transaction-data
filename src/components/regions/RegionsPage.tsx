@@ -15,6 +15,7 @@ import {
   SEOUL_REGIONS,
   type RegionDef,
 } from "@/lib/constants/regions";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 type RegionSuggestion = {
   slug: string;
@@ -160,101 +161,88 @@ export function RegionsPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <section className="relative rounded-3xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 px-5 py-7 text-white shadow-lg sm:px-8">
-        <div
-          className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl opacity-35"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 15% 20%, rgba(45,212,191,0.35), transparent 42%), radial-gradient(circle at 85% 0%, rgba(56,189,248,0.22), transparent 38%)",
-          }}
-        />
-        <div className="relative">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            지역별 조회
-          </h1>
-          <p className="mt-2 max-w-xl text-sm text-teal-50/85 sm:text-base">
-            지역명을 검색하거나 아래에서 시·군·구를 선택하세요.
-          </p>
-
-          <form onSubmit={onSubmit} className="relative z-30 mt-6 max-w-xl">
-            <label className="sr-only" htmlFor="region-search">
-              지역명 검색
-            </label>
-            <div ref={searchWrapRef} className="relative z-30">
-              <input
-                id="region-search"
-                value={regionQuery}
-                onChange={(e) => {
-                  setRegionQuery(e.target.value);
-                  setOpenSuggest(true);
+    <div className={PAGE_SHELL}>
+      <PageHeader
+        title="지역별 조회"
+        description="지역별 아파트 실거래와 시장 현황을 확인하세요."
+      >
+        <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
+          <label className="sr-only" htmlFor="region-search">
+            지역명 검색
+          </label>
+          <div ref={searchWrapRef} className="relative z-30">
+            <input
+              id="region-search"
+              value={regionQuery}
+              onChange={(e) => {
+                setRegionQuery(e.target.value);
+                setOpenSuggest(true);
+                setActiveIndex(-1);
+              }}
+              onFocus={() => setOpenSuggest(true)}
+              onKeyDown={(e) => {
+                if (!openSuggest || suggestions.length === 0) return;
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setActiveIndex((i) =>
+                    i < suggestions.length - 1 ? i + 1 : 0,
+                  );
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setActiveIndex((i) =>
+                    i > 0 ? i - 1 : suggestions.length - 1,
+                  );
+                } else if (e.key === "Escape") {
+                  setOpenSuggest(false);
                   setActiveIndex(-1);
-                }}
-                onFocus={() => setOpenSuggest(true)}
-                onKeyDown={(e) => {
-                  if (!openSuggest || suggestions.length === 0) return;
-                  if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    setActiveIndex((i) =>
-                      i < suggestions.length - 1 ? i + 1 : 0,
-                    );
-                  } else if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    setActiveIndex((i) =>
-                      i > 0 ? i - 1 : suggestions.length - 1,
-                    );
-                  } else if (e.key === "Escape") {
-                    setOpenSuggest(false);
-                    setActiveIndex(-1);
-                  }
-                }}
-                placeholder="지역명 검색 (예: 강남, 분당, 수원)"
-                className="w-full rounded-2xl border-0 bg-white px-4 py-3.5 text-sm text-slate-900 shadow-lg outline-none ring-1 ring-black/5 placeholder:text-slate-400 focus:ring-2 focus:ring-teal-300"
-                autoComplete="off"
-              />
+                }
+              }}
+              placeholder="지역명 검색 (예: 강남, 분당, 수원)"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+              autoComplete="off"
+            />
 
-              {openSuggest && regionQuery.trim().length >= 1 && (
-                <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-xl">
-                  {suggestions.length === 0 ? (
-                    <p className="px-4 py-3 text-sm text-slate-500">
-                      일치하는 지역이 없습니다.
-                    </p>
-                  ) : (
-                    <ul className="max-h-72 overflow-y-auto py-1">
-                      {suggestions.map((item, index) => (
-                        <li key={item.slug}>
-                          <button
-                            type="button"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => goRegion(item.slug)}
-                            className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
-                              index === activeIndex
-                                ? "bg-teal-50"
-                                : "hover:bg-slate-50"
-                            }`}
-                          >
-                            <span>
-                              <span className="block text-sm font-semibold text-slate-900">
-                                {item.name}
-                              </span>
-                              <span className="mt-0.5 block text-xs text-slate-500">
-                                {item.metroLabel} · {item.matchLabel}
-                              </span>
+            {openSuggest && regionQuery.trim().length >= 1 && (
+              <div className="absolute top-full right-0 left-0 z-50 mt-1.5 overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900 shadow-lg">
+                {suggestions.length === 0 ? (
+                  <p className="px-4 py-3 text-sm text-slate-500">
+                    일치하는 지역이 없습니다.
+                  </p>
+                ) : (
+                  <ul className="max-h-72 overflow-y-auto py-1">
+                    {suggestions.map((item, index) => (
+                      <li key={item.slug}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => goRegion(item.slug)}
+                          className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
+                            index === activeIndex
+                              ? "bg-teal-50"
+                              : "hover:bg-slate-50"
+                          }`}
+                        >
+                          <span>
+                            <span className="block text-sm font-semibold text-slate-900">
+                              {item.name}
                             </span>
-                            <span className="shrink-0 text-xs font-medium text-teal-700">
-                              이동
+                            <span className="mt-0.5 block text-xs text-slate-500">
+                              {item.metroLabel} · {item.matchLabel}
                             </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          </form>
-        </div>
-      </section>
+                          </span>
+                          <span className="shrink-0 text-xs font-medium text-teal-700">
+                            이동
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        </form>
+      </PageHeader>
 
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-8">

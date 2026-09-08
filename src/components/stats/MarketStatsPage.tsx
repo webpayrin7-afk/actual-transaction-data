@@ -30,6 +30,7 @@ import {
   StatsDealExplorer,
   type DealExplorerTab,
 } from "@/components/stats/StatsDealExplorer";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 async function fetchStats(
   period: StatsPeriod,
@@ -55,17 +56,26 @@ function parseScope(v: string | null): StatsScope {
   return "all";
 }
 
+/** Compact segmented control for market filters */
 function Segmented<T extends string>({
   value,
   onChange,
   options,
+  fullWidth = false,
 }: {
   value: T;
   onChange: (v: T) => void;
   options: { value: T; label: string }[];
+  fullWidth?: boolean;
 }) {
   return (
-    <div className="flex w-full gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+    <div
+      className={`gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 ${
+        fullWidth
+          ? "flex w-full lg:inline-flex lg:w-auto"
+          : "inline-flex"
+      }`}
+    >
       {options.map((opt) => {
         const active = value === opt.value;
         return (
@@ -73,7 +83,9 @@ function Segmented<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 text-center text-sm font-medium transition sm:px-3 ${
+            className={`min-h-8 min-w-0 rounded-md px-2.5 py-1 text-center text-xs font-medium transition sm:px-3 sm:text-[13px] ${
+              fullWidth ? "flex-1 lg:flex-none" : ""
+            } ${
               active
                 ? "bg-white text-slate-900 shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
@@ -342,76 +354,91 @@ export function MarketStatsPage() {
   }, [chartData.length, period]);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <div className="max-w-3xl">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          아파트 시장동향
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          실제 계약일 기준으로 거래량·신고가·하락거래와 주요 거래를 확인하세요.
-        </p>
-        {data?.asOfDate ? (
-          <p className="mt-2 text-xs text-slate-500">
-            데이터 기준(최신 계약일) {formatDealDate(data.asOfDate)}
-            {data.kpi
-              ? ` · 선택 ${data.kpi.windowLabel} (${formatDealDate(data.kpi.windowFrom)} ~ ${formatDealDate(data.kpi.windowTo)})`
-              : null}
-          </p>
-        ) : null}
-        {data?.dateBasisNote ? (
-          <p className="mt-1 text-[11px] text-slate-400">{data.dateBasisNote}</p>
-        ) : null}
-      </div>
+    <div className={PAGE_SHELL}>
+      <PageHeader
+        title="아파트 시장동향"
+        description="실제 계약일 기준으로 거래량·신고가·하락거래와 주요 거래를 확인하세요."
+      />
 
-      <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+      {/* Market control bar — period / date / scope */}
+      <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2 sm:gap-2.5 lg:flex-row lg:items-center lg:justify-between lg:gap-3 lg:px-2.5 lg:py-1.5">
         <Segmented
           value={period}
-          onChange={(v) => {
-            setPeriod(v);
-            // period 변경 시 date(anchor)는 유지 — scope도 유지
-          }}
+          onChange={setPeriod}
+          fullWidth
           options={[
             { value: "daily", label: "일간" },
             { value: "weekly", label: "주간" },
             { value: "monthly", label: "월간" },
           ]}
         />
-        <Segmented
-          value={scope}
-          onChange={setScope}
-          options={[
-            { value: "all", label: "전체" },
-            { value: "seoul", label: "서울" },
-            { value: "gyeonggi", label: "경기" },
-          ]}
-        />
+
+        <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-center lg:justify-center">
+          <div className="inline-flex min-w-0 items-center gap-0.5 rounded-lg border border-slate-200 bg-white px-0.5 py-0.5">
+            <button
+              type="button"
+              disabled={!data?.kpi?.canGoPrev}
+              onClick={() => data?.kpi && setDate(data.kpi.prevAnchor)}
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-base text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35"
+              aria-label="이전 기간"
+            >
+              ‹
+            </button>
+            <p className="min-w-0 truncate px-1.5 text-center text-xs font-semibold tabular-nums text-slate-900 sm:min-w-[11rem] sm:px-2 sm:text-[13px]">
+              {data?.kpi?.windowLabel ?? "—"}
+            </p>
+            <button
+              type="button"
+              disabled={!data?.kpi?.canGoNext}
+              onClick={() => data?.kpi && setDate(data.kpi.nextAnchor)}
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-base text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35"
+              aria-label="다음 기간"
+            >
+              ›
+            </button>
+          </div>
+
+          <div className="shrink-0 lg:hidden">
+            <Segmented
+              value={scope}
+              onChange={setScope}
+              options={[
+                { value: "all", label: "전체" },
+                { value: "seoul", label: "서울" },
+                { value: "gyeonggi", label: "경기" },
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className="hidden lg:block">
+          <Segmented
+            value={scope}
+            onChange={setScope}
+            options={[
+              { value: "all", label: "전체" },
+              { value: "seoul", label: "서울" },
+              { value: "gyeonggi", label: "경기" },
+            ]}
+          />
+        </div>
       </div>
 
-      {data?.kpi ? (
-        <div className="flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2">
-          <button
-            type="button"
-            disabled={!data.kpi.canGoPrev}
-            onClick={() => setDate(data.kpi!.prevAnchor)}
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="이전 기간"
-          >
-            ‹
-          </button>
-          <p className="min-w-[10rem] text-center text-sm font-semibold tabular-nums text-slate-900 sm:min-w-[14rem]">
-            {data.kpi.windowLabel}
-          </p>
-          <button
-            type="button"
-            disabled={!data.kpi.canGoNext}
-            onClick={() => setDate(data.kpi!.nextAnchor)}
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="다음 기간"
-          >
-            ›
-          </button>
+      {(data?.asOfDate || data?.dateBasisNote) && (
+        <div className="-mt-3 space-y-0.5 text-xs text-slate-500">
+          {data?.asOfDate ? (
+            <p>
+              데이터 기준(최신 계약일) {formatDealDate(data.asOfDate)}
+              {data.kpi
+                ? ` · 선택 ${data.kpi.windowLabel} (${formatDealDate(data.kpi.windowFrom)} ~ ${formatDealDate(data.kpi.windowTo)})`
+                : null}
+            </p>
+          ) : null}
+          {data?.dateBasisNote ? (
+            <p className="text-[11px] text-slate-400">{data.dateBasisNote}</p>
+          ) : null}
         </div>
-      ) : null}
+      )}
 
       {query.isLoading ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
