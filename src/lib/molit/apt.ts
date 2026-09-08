@@ -782,9 +782,13 @@ export function aptDetailHref(
   aptName: string,
   regionSlug: string,
   gu?: string,
+  areaKey?: string,
 ): string {
   const qs = new URLSearchParams({ region: regionSlug });
   if (gu?.trim()) qs.set("gu", gu.trim());
+  if (areaKey?.trim() && areaKey.trim() !== "all") {
+    qs.set("area", areaKey.trim());
+  }
   return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
 }
 
