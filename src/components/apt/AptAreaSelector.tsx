@@ -196,11 +196,17 @@ function AreaSheet({
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  const rows: { key: string; label: string }[] = [
-    { key: "all", label: "전체 면적" },
+  const totalDeals = areas.reduce((sum, a) => sum + a.count, 0);
+  const rows: { key: string; label: string; meta?: string }[] = [
+    {
+      key: "all",
+      label: "전체 면적",
+      meta: `거래 ${totalDeals.toLocaleString("ko-KR")}건`,
+    },
     ...areas.map((area) => ({
       key: area.key,
       label: `${formatPyeong(area.exclusiveArea)} (${formatExclusiveArea(area.exclusiveArea)})`,
+      meta: `거래 ${area.count.toLocaleString("ko-KR")}건`,
     })),
   ];
 
@@ -369,6 +375,7 @@ function AreaSheet({
                   buttonRef={value === row.key ? activeRef : undefined}
                   onClick={() => onPick(row.key)}
                   label={row.label}
+                  meta={row.meta}
                 />
                 {index < rows.length - 1 ? (
                   <div className="mx-4 border-b border-slate-100" aria-hidden />
@@ -395,11 +402,13 @@ function AreaOption({
   buttonRef,
   onClick,
   label,
+  meta,
 }: {
   active: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
   onClick: () => void;
   label: string;
+  meta?: string;
 }) {
   return (
     <button
@@ -420,6 +429,11 @@ function AreaOption({
       >
         {label}
       </span>
+      {meta ? (
+        <span className="shrink-0 text-[13px] tabular-nums text-slate-400">
+          {meta}
+        </span>
+      ) : null}
       {active ? (
         <Check className="h-4 w-4 shrink-0 text-teal-700" aria-hidden />
       ) : (

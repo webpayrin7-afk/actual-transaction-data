@@ -375,7 +375,7 @@ export function AptDetailPage({
   const locationLabel = `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl gap-5`}>
+    <div className={`${PAGE_SHELL} max-w-5xl gap-3`}>
       <AptLoadProgressBar
         active={isExtendingHistory}
         label="과거 시세 추가로 불러오는 중…"
