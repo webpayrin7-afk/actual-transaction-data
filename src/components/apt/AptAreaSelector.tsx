@@ -8,7 +8,7 @@ import {
   useEffect,
 } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, GripHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
 import {
   formatAreaTriggerLabel,
@@ -290,15 +290,20 @@ function AreaSheet({
               flexShrink: 0,
               alignItems: "center",
               justifyContent: "center",
-              paddingTop: 12,
-              paddingBottom: 4,
+              paddingTop: 14,
+              paddingBottom: 2,
+              minHeight: 28,
             }}
           >
-            <GripHorizontal
-              size={32}
-              color="#94a3b8"
-              strokeWidth={2}
-              aria-hidden
+            <span
+              style={{
+                display: "block",
+                width: 56,
+                height: 6,
+                borderRadius: 999,
+                backgroundColor: "#94a3b8",
+                boxShadow: "inset 0 0 0 1px rgba(15,23,42,0.06)",
+              }}
             />
           </div>
 
