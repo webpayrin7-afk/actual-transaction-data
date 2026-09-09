@@ -283,11 +283,18 @@ export function RegionDailyStatus({
 
   function selectRecordDate(date: string) {
     setSelectedDate(date);
-    const reduce = prefersReducedMotion();
     const el = document.getElementById(recordDateDomId(date));
-    el?.scrollIntoView({
+    if (!el) return;
+    const reduce = prefersReducedMotion();
+    const headerRaw = getComputedStyle(document.documentElement)
+      .getPropertyValue("--site-header-height")
+      .trim();
+    const headerPx = Number.parseFloat(headerRaw) || 56;
+    const top =
+      window.scrollY + el.getBoundingClientRect().top - headerPx - 12;
+    window.scrollTo({
+      top: Math.max(0, top),
       behavior: reduce ? "auto" : "smooth",
-      block: "start",
     });
     if (!reduce) {
       setHighlightDate(date);
@@ -303,7 +310,7 @@ export function RegionDailyStatus({
   const latestSingogaDate = grouped[0]?.date ?? null;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
           <span className="font-medium text-slate-800">
