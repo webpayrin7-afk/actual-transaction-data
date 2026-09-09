@@ -482,7 +482,8 @@ function dealYearMonth(dealDate: string): string {
 
 /**
  * 후보 거래별 all-time prior MAX. 행을 Node로 가져오지 않는다.
- * idx_tx_type_deal_date 전국 스캔을 피하기 위해 idx_tx_lawd_apt_ym 을 강제한다.
+ * deal_date 전국 스캔(idx_tx_type_deal_date)을 피하고 idx_tx_lawd_apt_ym 을 쓴다.
+ * 같은 계약일 후보는 한 번의 GROUP BY MAX 로 묶는다.
  * 신규 index 없음.
  */
 export async function queryAptTypePriorMaxes(params: {
@@ -497,38 +498,54 @@ export async function queryAptTypePriorMaxes(params: {
   if (candidates.length === 0) return out;
 
   const lawdPlaceholders = lawdCodes.map(() => "?").join(",");
-  for (let i = 0; i < candidates.length; i += APT_PRIOR_MAX_CHUNK) {
-    const chunk = candidates.slice(i, i + APT_PRIOR_MAX_CHUNK);
-    const parts: string[] = [];
-    const args: Array<string | number> = [];
-    chunk.forEach((candidate, offset) => {
-      const day = candidate.dealDate.slice(0, 10);
-      parts.push(
-        `SELECT ${offset} AS i, MAX(deal_amount) AS prior_max
-         FROM transactions INDEXED BY idx_tx_lawd_apt_ym
-         WHERE lawd_cd IN (${lawdPlaceholders})
-           AND apt_name_norm = ?
-           AND year_month <= ?
-           AND deal_type = 'trade'
-           AND deal_date < ?
-           AND CAST(ROUND(exclusive_area * 100) AS INTEGER) = ?`,
-      );
-      args.push(
-        ...lawdCodes,
-        candidate.aptNameNorm,
-        dealYearMonth(day),
-        day,
-        Math.round(candidate.exclusiveArea * 100),
-      );
-    });
-    const result = await db.execute({
-      sql: parts.join("\nUNION ALL\n"),
-      args,
-    });
-    for (const row of result.rows) {
-      const offset = Number(row.i) || 0;
-      out[i + offset] = Number(row.prior_max) || 0;
+  const byDate = new Map<string, number[]>();
+  candidates.forEach((candidate, index) => {
+    const day = candidate.dealDate.slice(0, 10);
+    const prev = byDate.get(day);
+    if (prev) prev.push(index);
+    else byDate.set(day, [index]);
+  });
+
+  const dateJobs = [...byDate.entries()].map(([day, indexes]) => async () => {
+    const norms = [
+      ...new Set(indexes.map((i) => candidates[i]!.aptNameNorm)),
+    ];
+    for (let i = 0; i < norms.length; i += APT_PRIOR_MAX_CHUNK) {
+      const chunk = norms.slice(i, i + APT_PRIOR_MAX_CHUNK);
+      const namePlaceholders = chunk.map(() => "?").join(",");
+      const result = await db.execute({
+        sql: `SELECT apt_name_norm,
+                     CAST(ROUND(exclusive_area * 100) AS INTEGER) AS area_cents,
+                     MAX(deal_amount) AS prior_max
+              FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+              WHERE lawd_cd IN (${lawdPlaceholders})
+                AND apt_name_norm IN (${namePlaceholders})
+                AND year_month <= ?
+                AND deal_type = 'trade'
+                AND deal_date < ?
+              GROUP BY apt_name_norm, CAST(ROUND(exclusive_area * 100) AS INTEGER)`,
+        args: [...lawdCodes, ...chunk, dealYearMonth(day), day],
+      });
+      const maxByKey = new Map<string, number>();
+      for (const row of result.rows) {
+        maxByKey.set(
+          `${String(row.apt_name_norm)}|${Number(row.area_cents) || 0}`,
+          Number(row.prior_max) || 0,
+        );
+      }
+      for (const index of indexes) {
+        const candidate = candidates[index]!;
+        if (!chunk.includes(candidate.aptNameNorm)) continue;
+        const key = `${candidate.aptNameNorm}|${Math.round(candidate.exclusiveArea * 100)}`;
+        const sqlMax = maxByKey.get(key) ?? 0;
+        if (sqlMax > out[index]!) out[index] = sqlMax;
+      }
     }
+  });
+
+  const DATE_CONCURRENCY = 3;
+  for (let i = 0; i < dateJobs.length; i += DATE_CONCURRENCY) {
+    await Promise.all(dateJobs.slice(i, i + DATE_CONCURRENCY).map((job) => job()));
   }
   return out;
 }
