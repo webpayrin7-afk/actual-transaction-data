@@ -7,6 +7,7 @@ import {
 import type { TxContentSnapshot } from "@/lib/db/sync-diff";
 import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
 import type { DealType, Transaction } from "@/types/transaction";
+import { noteDbQuery } from "@/lib/db/query-stats";
 
 export function normalizeAptName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
@@ -416,6 +417,7 @@ export async function queryTradePool(params: {
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
   const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
 
+  noteDbQuery();
   const coverage = await db.execute({
     sql: `SELECT COUNT(*) AS cnt FROM sync_months
           WHERE lawd_cd IN (${lawdPlaceholders})
@@ -425,6 +427,7 @@ export async function queryTradePool(params: {
   });
   if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
 
+  noteDbQuery();
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
                  deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
@@ -483,8 +486,8 @@ function dealYearMonth(dealDate: string): string {
 /**
  * 후보 거래별 all-time prior MAX. 행을 Node로 가져오지 않는다.
  * deal_date 전국 스캔(idx_tx_type_deal_date)을 피하고 idx_tx_lawd_apt_ym 을 쓴다.
- * 같은 계약일 후보는 한 번의 GROUP BY MAX 로 묶는다.
- * 신규 index 없음.
+ * 같은 (apt, areaKey, contract date) 후보는 한 번만 조회한다.
+ * 다른 cutoff는 합치지 않는다. 신규 index 없음.
  */
 export async function queryAptTypePriorMaxes(params: {
   lawdCodes: string[];
@@ -498,8 +501,21 @@ export async function queryAptTypePriorMaxes(params: {
   if (candidates.length === 0) return out;
 
   const lawdPlaceholders = lawdCodes.map(() => "?").join(",");
+  const unique: AptTypePriorCandidate[] = [];
+  const uniqueIndexByKey = new Map<string, number>();
+  const sourceToUnique = candidates.map((candidate) => {
+    const key = `${candidate.aptNameNorm}|${Math.round(candidate.exclusiveArea * 100)}|${candidate.dealDate.slice(0, 10)}`;
+    const existing = uniqueIndexByKey.get(key);
+    if (existing != null) return existing;
+    const next = unique.length;
+    uniqueIndexByKey.set(key, next);
+    unique.push(candidate);
+    return next;
+  });
+
+  const uniqueMaxes = unique.map(() => 0);
   const byDate = new Map<string, number[]>();
-  candidates.forEach((candidate, index) => {
+  unique.forEach((candidate, index) => {
     const day = candidate.dealDate.slice(0, 10);
     const prev = byDate.get(day);
     if (prev) prev.push(index);
@@ -507,12 +523,15 @@ export async function queryAptTypePriorMaxes(params: {
   });
 
   const dateJobs = [...byDate.entries()].map(([day, indexes]) => async () => {
-    const norms = [
-      ...new Set(indexes.map((i) => candidates[i]!.aptNameNorm)),
+    const norms = [...new Set(indexes.map((i) => unique[i]!.aptNameNorm))];
+    const areaCents = [
+      ...new Set(indexes.map((i) => Math.round(unique[i]!.exclusiveArea * 100))),
     ];
     for (let i = 0; i < norms.length; i += APT_PRIOR_MAX_CHUNK) {
       const chunk = norms.slice(i, i + APT_PRIOR_MAX_CHUNK);
       const namePlaceholders = chunk.map(() => "?").join(",");
+      const areaPlaceholders = areaCents.map(() => "?").join(",");
+      noteDbQuery();
       const result = await db.execute({
         sql: `SELECT apt_name_norm,
                      CAST(ROUND(exclusive_area * 100) AS INTEGER) AS area_cents,
@@ -523,8 +542,15 @@ export async function queryAptTypePriorMaxes(params: {
                 AND year_month <= ?
                 AND deal_type = 'trade'
                 AND deal_date < ?
+                AND CAST(ROUND(exclusive_area * 100) AS INTEGER) IN (${areaPlaceholders})
               GROUP BY apt_name_norm, CAST(ROUND(exclusive_area * 100) AS INTEGER)`,
-        args: [...lawdCodes, ...chunk, dealYearMonth(day), day],
+        args: [
+          ...lawdCodes,
+          ...chunk,
+          dealYearMonth(day),
+          day,
+          ...areaCents,
+        ],
       });
       const maxByKey = new Map<string, number>();
       for (const row of result.rows) {
@@ -534,11 +560,11 @@ export async function queryAptTypePriorMaxes(params: {
         );
       }
       for (const index of indexes) {
-        const candidate = candidates[index]!;
+        const candidate = unique[index]!;
         if (!chunk.includes(candidate.aptNameNorm)) continue;
         const key = `${candidate.aptNameNorm}|${Math.round(candidate.exclusiveArea * 100)}`;
         const sqlMax = maxByKey.get(key) ?? 0;
-        if (sqlMax > out[index]!) out[index] = sqlMax;
+        if (sqlMax > uniqueMaxes[index]!) uniqueMaxes[index] = sqlMax;
       }
     }
   });
@@ -546,6 +572,10 @@ export async function queryAptTypePriorMaxes(params: {
   const DATE_CONCURRENCY = 3;
   for (let i = 0; i < dateJobs.length; i += DATE_CONCURRENCY) {
     await Promise.all(dateJobs.slice(i, i + DATE_CONCURRENCY).map((job) => job()));
+  }
+
+  for (let i = 0; i < candidates.length; i++) {
+    out[i] = uniqueMaxes[sourceToUnique[i]!] ?? 0;
   }
   return out;
 }

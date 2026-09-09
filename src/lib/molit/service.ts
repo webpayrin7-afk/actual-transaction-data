@@ -16,6 +16,10 @@ import {
   type AptTypePriorCandidate,
 } from "@/lib/db/repository";
 import {
+  beginDbQueryCount,
+  takeDbQueryCount,
+} from "@/lib/db/query-stats";
+import {
   seoulDateOf,
   seoulToday,
   yearMonthFromSeoulDate,
@@ -807,8 +811,17 @@ async function typePriorMaxesForDeals(params: {
     }
   });
   if (candidates.length === 0) return priorMaxes;
+  if (activeProfile) {
+    const unique = new Set(candidates.map(priorCandidateKey));
+    activeProfile.priorCandidates += candidates.length;
+    activeProfile.priorUniqueCandidates += unique.size;
+  }
   try {
+    const tPrior = performance.now();
     const lookedUp = await queryAptTypePriorMaxes({ lawdCodes, candidates });
+    if (activeProfile) {
+      activeProfile.priorMaxMs += Math.round(performance.now() - tPrior);
+    }
     if (lookedUp) {
       lookedUp.forEach((sqlMax, i) => {
         const dealIndex = sqlIndexes[i]!;
@@ -851,6 +864,59 @@ const regionDailyCache = new Map<
   string,
   { expires: number; payload: RegionDailyResponse }
 >();
+
+export type RegionDailyProfile = {
+  poolMs: number;
+  poolRows: number;
+  kpiMs: number;
+  kpiDeals: number;
+  priorMaxMs: number;
+  priorCandidates: number;
+  priorUniqueCandidates: number;
+  heroMs: number;
+  heroDeals: number;
+  calendarMs: number;
+  sparklineMs: number;
+  sqlQueries: number;
+  totalMs: number;
+};
+
+let activeProfile: RegionDailyProfile | null = null;
+
+function emptyProfile(): RegionDailyProfile {
+  return {
+    poolMs: 0,
+    poolRows: 0,
+    kpiMs: 0,
+    kpiDeals: 0,
+    priorMaxMs: 0,
+    priorCandidates: 0,
+    priorUniqueCandidates: 0,
+    heroMs: 0,
+    heroDeals: 0,
+    calendarMs: 0,
+    sparklineMs: 0,
+    sqlQueries: 0,
+    totalMs: 0,
+  };
+}
+
+export function startRegionDailyProfile(): void {
+  activeProfile = emptyProfile();
+  beginDbQueryCount();
+}
+
+export function takeRegionDailyProfile(): RegionDailyProfile | null {
+  if (!activeProfile) return null;
+  activeProfile.sqlQueries = takeDbQueryCount();
+  const out = activeProfile;
+  activeProfile = null;
+  return out;
+}
+
+function priorCandidateKey(candidate: AptTypePriorCandidate): string {
+  return `${candidate.aptNameNorm}|${Math.round(candidate.exclusiveArea * 100)}|${candidate.dealDate.slice(0, 10)}`;
+}
 
 function cachePayload(
   key: string,
@@ -949,6 +1015,7 @@ export async function getRegionDaily(params: {
     return cached.payload;
   }
 
+  const t0 = performance.now();
   const payload = await computeRegionDaily({
     region,
     part,
@@ -958,6 +1025,9 @@ export async function getRegionDaily(params: {
     offset,
     today,
   });
+  if (activeProfile) {
+    activeProfile.totalMs += Math.round(performance.now() - t0);
+  }
   return cachePayload(cacheKey, payload);
 }
 
@@ -972,6 +1042,12 @@ const regionTradePoolInflight = new Map<
   string,
   Promise<{ trades: Transaction[]; source: "db" | "api" }>
 >();
+
+export function clearRegionDailyCaches(): void {
+  regionDailyCache.clear();
+  regionTradePoolCache.clear();
+  regionTradePoolInflight.clear();
+}
 
 async function loadRegionTradePool(
   region: RegionDef,
@@ -993,6 +1069,7 @@ async function loadRegionTradePool(
 
     if (hasDb()) {
       try {
+        const tPool = performance.now();
         const tradePool = await queryTradePool({
           lawdCodes: [...region.lawdCodes],
           yearMonths: historyMonths,
@@ -1000,6 +1077,10 @@ async function loadRegionTradePool(
         if (tradePool) {
           historyTrades = tradePool.filter((tx) => tx.dealType === "trade");
           source = "db";
+        }
+        if (activeProfile) {
+          activeProfile.poolMs += Math.round(performance.now() - tPool);
+          activeProfile.poolRows = historyTrades.length;
         }
       } catch (error) {
         console.warn("[region-daily] trade pool db read failed:", error);
@@ -1047,6 +1128,7 @@ async function computeMarketKpis(
   lawdCodes: string[],
   source: "db" | "api",
 ) {
+  const tKpi = performance.now();
   const currentYm = yearMonthFromSeoulDate(today);
   const comparePartial = contractYearMonth === currentYm;
   const dayCap = comparePartial ? today.slice(8, 10) : null;
@@ -1081,6 +1163,10 @@ async function computeMarketKpis(
       monthSingogaCount += 1;
     }
   });
+  if (activeProfile) {
+    activeProfile.kpiMs += Math.round(performance.now() - tKpi);
+    activeProfile.kpiDeals += current.length;
+  }
   return {
     contractYearMonth,
     monthTradeCount: current.length,
@@ -1175,6 +1261,7 @@ async function enrichSeenDay(params: {
   );
   const deals = sortNewlySeenDeals(enriched);
   if (withSparkline) {
+    const tSpark = performance.now();
     for (const deal of deals) {
       if (deal.singogaKind == null) continue;
       const aptTrades = tradesByApt.get(normalizeAptName(deal.aptName)) ?? [];
@@ -1185,6 +1272,9 @@ async function enrichSeenDay(params: {
       });
       deal.priceTrend =
         points.length >= TYPE_TREND_MIN_POINTS ? points : null;
+    }
+    if (activeProfile) {
+      activeProfile.sparklineMs += Math.round(performance.now() - tSpark);
     }
   }
   const singogaCount = deals.filter((d) => d.singogaKind != null).length;
@@ -1223,13 +1313,24 @@ async function computeRegionDaily(params: {
     oldestYearMonthFromDates(historyTrades.map((tx) => tx.dealDate)),
     REGION_DAILY_HISTORY_MONTHS,
   );
-  const kpis = await computeMarketKpis(
-    historyTrades,
-    contractMonth,
-    today,
-    lawdCodes,
-    src,
-  );
+  const needsKpis = part === "market" || part === "all";
+  const kpis = needsKpis
+    ? await computeMarketKpis(
+        historyTrades,
+        contractMonth,
+        today,
+        lawdCodes,
+        src,
+      )
+    : {
+        contractYearMonth: contractMonth,
+        monthTradeCount: 0,
+        prevMonthTradeCount: 0,
+        yearAgoMonthTradeCount: null as number | null,
+        comparePartial: false,
+        medianPyeongPrice: null as number | null,
+        monthSingogaCount: null as number | null,
+      };
   const hero = pickHeroSeenDate(
     seen.map((row) => row.firstSeenDate),
     today,
@@ -1248,11 +1349,15 @@ async function computeRegionDaily(params: {
     return base;
   }
 
+  const tCal = performance.now();
   const monthSeen = seen.filter(
     (row) => yearMonthFromSeoulDate(row.firstSeenDate) === seenMonth,
   );
   const days = buildCalendarDays(monthSeen);
   const historyTotalCount = monthSeen.length;
+  if (activeProfile) {
+    activeProfile.calendarMs += Math.round(performance.now() - tCal);
+  }
 
   if (part === "history") {
     return {
@@ -1295,6 +1400,7 @@ async function computeRegionDaily(params: {
 
   if (part === "latest") {
     const daySeen = hero.date ? (byDate.get(hero.date) ?? []) : [];
+    const tHero = performance.now();
     const section = daySeen.length
       ? await enrichSeenDay({
           lawdCodes,
@@ -1305,6 +1411,10 @@ async function computeRegionDaily(params: {
           withSparkline: true,
         })
       : null;
+    if (activeProfile) {
+      activeProfile.heroMs += Math.round(performance.now() - tHero);
+      activeProfile.heroDeals += daySeen.length;
+    }
     const deals = section?.deals ?? [];
     return {
       ...base,
