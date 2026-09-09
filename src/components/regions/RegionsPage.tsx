@@ -144,6 +144,11 @@ export function RegionsPage() {
       <PageHeader
         title="지역 조회"
         description="지역별 아파트 실거래와 시장 현황을 확인하세요."
+        meta={
+          <Link href="/map" className="font-medium text-teal-700 hover:underline">
+            서울 대장 아파트 지도 보기
+          </Link>
+        }
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
           <label className="sr-only" htmlFor="region-search">

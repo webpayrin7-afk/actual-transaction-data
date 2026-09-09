@@ -76,3 +76,69 @@ h3 {
     background-color: rgb(240 253 250);
   }
 }
+
+.pixel-seoul-map {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  shape-rendering: crispEdges;
+}
+
+.pixel-gu {
+  animation: pixel-marker-in 0.45s ease both;
+}
+
+.pixel-gu-label {
+  font-size: 8px;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pixel-gu-label.is-on {
+  opacity: 1;
+}
+
+.pixel-gu-hit {
+  cursor: pointer;
+}
+
+.pixel-han-river {
+  animation: pixel-han-shimmer 2.8s ease-in-out infinite;
+}
+
+@keyframes pixel-marker-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pixel-han-shimmer {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 640px) {
+  .pixel-gu-label {
+    opacity: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-gu,
+  .pixel-han-river {
+    animation: none;
+  }
+}

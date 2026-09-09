@@ -25,7 +25,8 @@
     "test:trade-resolve": "tsx scripts/test-trade-resolve.ts",
     "test:discovery-at": "tsx scripts/test-discovery-at.ts",
     "test:discovery-compat": "tsx scripts/test-discovery-compat.ts",
-    "test:ingestion": "tsx scripts/test-sync-dirty-check.ts && tsx scripts/test-first-seen-guard.ts && tsx scripts/test-late-report-ingestion.ts && tsx scripts/test-trade-resolve.ts && tsx scripts/test-discovery-at.ts && tsx scripts/test-discovery-compat.ts"
+    "test:leader-map": "tsx scripts/test-leader-map.ts",
+    "test:ingestion": "tsx scripts/test-sync-dirty-check.ts && tsx scripts/test-first-seen-guard.ts && tsx scripts/test-late-report-ingestion.ts && tsx scripts/test-trade-resolve.ts && tsx scripts/test-discovery-at.ts && tsx scripts/test-discovery-compat.ts && tsx scripts/test-leader-map.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
