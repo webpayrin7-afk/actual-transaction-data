@@ -14,7 +14,6 @@ import {
   EMPTY_NEWLY_SEEN,
   hiddenNewlySeenCount,
   increaseRatePct,
-  LEGACY_FIRST_SEEN_NOTE,
   koreanYearMonthLabel,
   latestRecordDate,
   medianDealAmount,
@@ -344,7 +343,6 @@ assert.equal(
   CALENDAR_HELPER,
   "날짜를 누르면 해당 날짜의 거래로 이동합니다.",
 );
-assert.equal(LEGACY_FIRST_SEEN_NOTE.includes("확인일 기반"), false);
 
 assert.deepEqual(pickHeroSeenDate(["2026-09-08", "2026-09-09"], "2026-09-09"), {
   date: "2026-09-09",

@@ -29,7 +29,6 @@ import {
   increaseRatePct,
   koreanMonthDayLabel,
   koreanYearMonthLabel,
-  LEGACY_FIRST_SEEN_NOTE,
   priorPeakAmount,
   recordDateDomId,
   SEEN_DATE_BASIS_HELP,
@@ -962,13 +961,8 @@ export function RegionDailyStatus({
             ) : null}
           </>
         ) : (
-          <div className="px-1 py-6 text-sm text-slate-500">
-            <p>{EMPTY_NEWLY_SEEN}</p>
-            {latest && !latest.firstSeenReady ? (
-              <p className="mt-1 text-[11px] leading-4 text-slate-400">
-                {LEGACY_FIRST_SEEN_NOTE}
-              </p>
-            ) : null}
+          <div className="px-1 py-6 text-center text-sm text-slate-500">
+            {EMPTY_NEWLY_SEEN}
           </div>
         )}
       </section>
@@ -1007,15 +1001,8 @@ export function RegionDailyStatus({
               건
             </p>
           ) : null}
-          {!latest?.firstSeenReady &&
-          historyQuery.data &&
-          historyDays.length === 0 ? (
-            <p className="text-[11px] leading-4 text-slate-400">
-              {LEGACY_FIRST_SEEN_NOTE}
-            </p>
-          ) : null}
           {activeDates.length === 0 && historyQuery.data ? (
-            <div className="px-1 py-6 text-sm text-slate-500">
+            <div className="px-1 py-6 text-center text-sm text-slate-500">
               {EMPTY_MONTH_HISTORY}
             </div>
           ) : null}

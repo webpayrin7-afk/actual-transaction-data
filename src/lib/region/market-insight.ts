@@ -273,8 +273,6 @@ export const HISTORY_DATE_BASIS_HELP =
 export const EMPTY_NEWLY_SEEN = "아직 새로 확인된 거래가 없습니다.";
 export const EMPTY_MONTH_HISTORY = "이 달에 새로 확인된 거래가 없습니다.";
 export const CALENDAR_HELPER = "날짜를 누르면 해당 날짜의 거래로 이동합니다.";
-/** empty state 보조. 주 문장으로 쓰지 않음. */
-export const LEGACY_FIRST_SEEN_NOTE = "거래가 확인되면 이곳에 표시됩니다.";
 
 export function newlySeenSectionTitle(isToday: boolean): string {
   return isToday ? "오늘 새로 확인된 거래" : "최근 새로 확인된 거래";
