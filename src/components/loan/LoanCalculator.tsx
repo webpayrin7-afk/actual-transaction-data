@@ -4,7 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoanLimitCalculator } from "@/components/loan/LoanLimitCalculator";
 import { Field, Segmented, inputClass } from "@/components/loan/loan-ui";
-import { loanPageModeFromSearchParams, type LoanPageMode } from "@/lib/loan/mode";
+import { LoanRatesPanel } from "@/components/rates/LoanRatesPanel";
+import {
+  LOAN_PAGE_MODES,
+  loanPageModeFromSearchParams,
+  type LoanPageMode,
+} from "@/lib/loan/mode";
 import {
   MAX_PRINCIPAL_MAN,
   MAX_RATE_PCT,
@@ -27,7 +32,7 @@ import {
 const YEAR_PRESETS = [10, 15, 20, 25, 30, 35, 40] as const;
 
 const DISCLAIMER =
-  "본 계산 결과는 참고용이며 실제 대출금리와 상환액은 금융기관, 신용도, 담보조건, 계산 방식 등에 따라 달라질 수 있습니다.";
+  "계산 결과는 입력값을 기준으로 한 참고용이며, 실제 대출 가능 금액과 조건은 금융기관 심사에 따라 달라질 수 있습니다.";
 
 const PANEL_SCROLL =
   "scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)]";
@@ -189,51 +194,51 @@ export function LoanCalculator() {
     current.lastMonthWon !== current.monthlyPaymentWon;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 overflow-x-hidden px-4 py-6 sm:px-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 overflow-x-hidden px-4 py-6 sm:px-6">
       <div>
         <p className="text-xs font-medium tracking-wide text-teal-700">도구</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          주택담보대출 계산기
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+          대출 계산기
         </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          대출 가능 한도부터 월 상환액과 금리 변화에 따른 부담까지 계산해보세요.
-        </p>
       </div>
 
       <div
         role="tablist"
         aria-label="계산 종류"
-        className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2"
+        className="grid grid-cols-3 gap-0.5 rounded-lg border border-slate-200 bg-slate-100 p-0.5"
         onKeyDown={(event) => {
-          if (event.key !== "ArrowRight" && event.key !== "ArrowLeft" && event.key !== "ArrowDown" && event.key !== "ArrowUp") {
+          if (
+            event.key !== "ArrowRight" &&
+            event.key !== "ArrowLeft" &&
+            event.key !== "ArrowDown" &&
+            event.key !== "ArrowUp"
+          ) {
             return;
           }
           event.preventDefault();
-          const next = mode === "limit" ? "repayment" : "limit";
-          replaceMode(next);
+          const idx = LOAN_PAGE_MODES.findIndex((item) => item.id === mode);
+          const delta =
+            event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+          const next =
+            LOAN_PAGE_MODES[
+              (idx + delta + LOAN_PAGE_MODES.length) % LOAN_PAGE_MODES.length
+            ];
+          replaceMode(next.id);
           window.requestAnimationFrame(() => {
-            document
-              .getElementById(
-                next === "limit" ? "loan-mode-limit" : "loan-mode-repayment",
-              )
-              ?.focus();
+            document.getElementById(`loan-mode-${next.id}`)?.focus();
           });
         }}
       >
-        <ModeTab
-          selected={mode === "limit"}
-          controls="loan-limit-panel"
-          title="대출 한도 계산"
-          description="이 집을 사려면 얼마까지 나올까"
-          onSelect={() => replaceMode("limit")}
-        />
-        <ModeTab
-          selected={mode === "repayment"}
-          controls="loan-repay-panel"
-          title="상환액 · 금리 비교"
-          description="빌리면 한 달에 얼마 내지"
-          onSelect={() => replaceMode("repayment")}
-        />
+        {LOAN_PAGE_MODES.map((item) => (
+          <ModeTab
+            key={item.id}
+            id={`loan-mode-${item.id}`}
+            selected={mode === item.id}
+            controls={item.panelId}
+            title={item.label}
+            onSelect={() => replaceMode(item.id)}
+          />
+        ))}
       </div>
 
       <div
@@ -270,8 +275,8 @@ export function LoanCalculator() {
                     label="대출금액 (만원)"
                     hint={
                       principalMan && principalMan > 0
-                        ? `${formatManHuman(principalMan)} · 최대 ${formatManHuman(MAX_PRINCIPAL_MAN)}`
-                        : "숫자만 입력 · 예: 30000 = 3억"
+                        ? formatManHuman(principalMan)
+                        : "예: 30000 = 3억"
                     }
                     error={principalError}
                   >
@@ -295,9 +300,6 @@ export function LoanCalculator() {
                   <div className="flex flex-col gap-1.5">
                     <p id={yearsLabelId} className="text-xs font-medium text-slate-500">
                       대출기간
-                    </p>
-                    <p className="text-[11px] leading-4 text-slate-400">
-                      자주 쓰는 기간을 고르거나 1–50년을 직접 입력하세요.
                     </p>
                     <div
                       role="radiogroup"
@@ -353,7 +355,7 @@ export function LoanCalculator() {
                   <Field
                     id={rateId}
                     label="금리 (%)"
-                    hint="소수점 입력 가능 · 0% 허용 · 최대 20%"
+                    hint="0–20% · 소수점 가능"
                     error={rateRaw !== "" && rateError ? rateError : undefined}
                   >
                     <input
@@ -401,7 +403,14 @@ export function LoanCalculator() {
                   />
                   <RateDeltaSection comparison={comparison} method={method} />
                   <ScenarioList scenarios={comparison.scenarios} method={method} />
-                  <RepayDetails summary={current} />
+                  <details className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                    <summary className="cursor-pointer text-sm font-medium text-slate-700">
+                      계산 기준 보기
+                    </summary>
+                    <div className="mt-3">
+                      <RepayDetails summary={current} />
+                    </div>
+                  </details>
                 </>
               ) : (
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500">
@@ -411,41 +420,36 @@ export function LoanCalculator() {
             </div>
 
             <p className="text-xs leading-5 text-slate-500">{DISCLAIMER}</p>
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="text-sm text-slate-600">
-                내 소득과 주택가격 기준으로 대출 한도도 확인해보세요.
-              </p>
-              <button
-                type="button"
-                onClick={() => replaceMode("limit")}
-                className="mt-3 text-sm font-medium text-teal-800 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
-              >
-                대출 한도 계산하기
-              </button>
-            </div>
           </div>
         ) : null}
+      </div>
+
+      <div
+        id="loan-rates-panel"
+        role="tabpanel"
+        aria-labelledby="loan-mode-rates"
+        hidden={mode !== "rates"}
+        className={PANEL_SCROLL}
+      >
+        {mode === "rates" ? <LoanRatesPanel /> : null}
       </div>
     </div>
   );
 }
 
 function ModeTab({
+  id,
   selected,
   controls,
   title,
-  description,
   onSelect,
 }: {
+  id: string;
   selected: boolean;
   controls: string;
   title: string;
-  description: string;
   onSelect: () => void;
 }) {
-  const id =
-    controls === "loan-limit-panel" ? "loan-mode-limit" : "loan-mode-repayment";
   return (
     <button
       id={id}
@@ -455,18 +459,13 @@ function ModeTab({
       aria-controls={controls}
       tabIndex={selected ? 0 : -1}
       onClick={onSelect}
-      className={`min-w-0 rounded-2xl border px-4 py-3.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${
+      className={`min-w-0 whitespace-nowrap rounded-md px-0.5 py-2 text-center text-[11px] font-medium leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 sm:px-2 sm:text-sm ${
         selected
-          ? "border-teal-700 bg-teal-50 shadow-sm"
-          : "border-slate-200 bg-white hover:border-teal-200 hover:bg-slate-50"
+          ? "bg-white text-slate-900 shadow-sm"
+          : "text-slate-600 hover:text-slate-900"
       }`}
     >
-      <span className="block text-sm font-semibold text-slate-900 sm:text-base">
-        {title}
-      </span>
-      <span className="mt-1 block text-xs leading-5 text-slate-500">
-        {description}
-      </span>
+      {title}
     </button>
   );
 }
@@ -482,21 +481,21 @@ function CurrentResult({
 }) {
   const equalPayment = summary.method === "equal_payment";
   return (
-    <section className="rounded-2xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 p-5 text-white shadow-sm">
-      <p className="text-xs font-medium text-teal-100/90">현재 조건 결과</p>
-      <p className="mt-1 text-sm text-teal-100/75">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <p className="text-xs font-medium text-slate-500">현재 조건 결과</p>
+      <p className="mt-1 text-sm text-slate-500">
         {formatManHuman(principalMan)}원 · {summary.years}년 ·{" "}
         {formatRatePct(summary.annualRatePct)} ·{" "}
         {equalPayment ? "원리금균등" : "원금균등"}
       </p>
       {equalPayment && summary.monthlyPaymentWon != null ? (
         <>
-          <p className="mt-4 text-sm text-teal-100/80">월 상환액</p>
-          <p className="mt-1 break-words text-3xl font-semibold tracking-tight tabular-nums">
+          <p className="mt-4 text-sm text-slate-600">월 상환액</p>
+          <p className="mt-1 break-words text-3xl font-semibold tracking-tight tabular-nums text-slate-900">
             {formatWon(summary.monthlyPaymentWon)}
           </p>
           {lastDiffers ? (
-            <p className="mt-2 text-xs leading-5 text-teal-100/70">
+            <p className="mt-2 text-xs leading-5 text-slate-500">
               마지막 달은 잔액 정산으로 {formatWon(summary.lastMonthWon)}
             </p>
           ) : null}
@@ -507,16 +506,16 @@ function CurrentResult({
           <HeroStat label="마지막 달 납입액" value={formatWon(summary.lastMonthWon)} />
         </div>
       )}
-      <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-white/10 pt-4 sm:grid-cols-2">
+      <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
         <div>
-          <dt className="text-xs text-teal-100/70">총 이자</dt>
-          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums">
+          <dt className="text-xs text-slate-500">총 이자</dt>
+          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums text-slate-900">
             {formatWon(summary.totalInterestWon)}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-teal-100/70">총 상환액</dt>
-          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums">
+          <dt className="text-xs text-slate-500">총 상환액</dt>
+          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums text-slate-900">
             {formatWon(summary.totalPaymentWon)}
           </dd>
         </div>
@@ -528,8 +527,8 @@ function CurrentResult({
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <p className="text-sm text-teal-100/80">{label}</p>
-      <p className="mt-1 break-words text-2xl font-semibold tracking-tight tabular-nums">
+      <p className="text-sm text-slate-600">{label}</p>
+      <p className="mt-1 break-words text-2xl font-semibold tracking-tight tabular-nums text-slate-900">
         {value}
       </p>
     </div>
@@ -638,9 +637,6 @@ function ScenarioList({
   return (
     <section>
       <h2 className="text-sm font-semibold text-slate-900">금리별 비교</h2>
-      <p className="mt-1 text-sm text-slate-500">
-        현재 금리와 ±{RATE_COMPARE_DELTA_PCT}%p 시나리오입니다.
-      </p>
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {scenarios.map((scenario) => (
           <article
@@ -713,9 +709,8 @@ function CompactStat({ label, value }: { label: string; value: string }) {
 
 function RepayDetails({ summary }: { summary: RepaySummary }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-      <h2 className="text-sm font-semibold text-slate-900">상환 상세</h2>
-      <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div>
+      <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <CompactStat
           label="상환 횟수"
           value={`${summary.months.toLocaleString("ko-KR")}회`}
@@ -726,8 +721,9 @@ function RepayDetails({ summary }: { summary: RepaySummary }) {
         />
       </dl>
       <p className="mt-3 text-[11px] leading-4 text-slate-400">
-        금액은 원 단위 반올림입니다. 원리금균등 마지막 달은 잔액 정산이 반영됩니다.
+        원리금균등·원금균등, 원 단위 반올림. 마지막 달은 잔액 정산이 반영됩니다.
+        금리 ±{RATE_COMPARE_DELTA_PCT}%p 시나리오를 함께 표시합니다.
       </p>
-    </section>
+    </div>
   );
 }

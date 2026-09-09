@@ -85,5 +85,13 @@ assert.equal(
   loanPageModeFromSearchParams(new URLSearchParams("mode=limit&rate=4.2")),
   "limit",
 );
+assert.equal(
+  loanPageModeFromSearchParams(new URLSearchParams("mode=rates")),
+  "rates",
+);
+assert.equal(
+  loanPageModeFromSearchParams(new URLSearchParams("mode=rates&rate=4.2")),
+  "rates",
+);
 
 console.log("test-loan-limit: PASS");

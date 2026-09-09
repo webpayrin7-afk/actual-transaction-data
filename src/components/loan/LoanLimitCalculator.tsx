@@ -109,20 +109,12 @@ export function LoanLimitCalculator({
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-sm leading-6 text-slate-600">
-        내 조건에서 주택담보대출이 얼마까지 가능한지 LTV·DSR·DTI 기준으로
-        계산합니다. 실제 한도는 금융기관 심사에 따라 달라집니다.
-      </p>
-
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-slate-900">대출 조건</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <p id="limit-metro-label" className="text-xs font-medium text-slate-500">
               지역 구분
-            </p>
-            <p className="text-[11px] leading-4 text-slate-400">
-              서울·인천·경기는 수도권, 그 외는 지방입니다.
             </p>
             <Segmented
               labelledBy="limit-metro-label"
@@ -138,9 +130,6 @@ export function LoanLimitCalculator({
           <div className="flex flex-col gap-1.5">
             <p id="limit-reg-label" className="text-xs font-medium text-slate-500">
               규제지역
-            </p>
-            <p className="text-[11px] leading-4 text-slate-400">
-              규제지역은 LTV·DTI가 강화되고 시가 절대한도가 적용됩니다.
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <Segmented
@@ -195,9 +184,6 @@ export function LoanLimitCalculator({
               <p id="limit-first-label" className="text-xs font-medium text-slate-500">
                 생애최초 여부
               </p>
-              <p className="text-[11px] leading-4 text-slate-400">
-                본인·배우자 모두 주택 구입 이력이 없으면 규제지역에서도 LTV 70%.
-              </p>
               <Segmented
                 labelledBy="limit-first-label"
                 value={firstHome ? "yes" : "no"}
@@ -214,9 +200,6 @@ export function LoanLimitCalculator({
             <div className="flex flex-col gap-1.5">
               <p id="limit-dispose-label" className="text-xs font-medium text-slate-500">
                 처분조건부 여부
-              </p>
-              <p className="text-[11px] leading-4 text-slate-400">
-                기존 주택을 6개월 내 처분 조건으로 구입하는 1주택자.
               </p>
               <Segmented
                 labelledBy="limit-dispose-label"
@@ -238,7 +221,7 @@ export function LoanLimitCalculator({
           <Field
             id="limit-collateral"
             label="담보 가액 (만원)"
-            hint="KB·부동산원 시세(일반가) 기준 권장"
+            hint="KB·부동산원 시세"
           >
             <input
               id="limit-collateral"
@@ -249,7 +232,7 @@ export function LoanLimitCalculator({
               placeholder="예: 100000"
             />
           </Field>
-          <Field id="limit-income" label="연 소득 (만원)" hint="부부합산 가능 · 세전">
+          <Field id="limit-income" label="연 소득 (만원)" hint="부부합산 · 세전">
             <input
               id="limit-income"
               className={inputClass}
@@ -262,7 +245,7 @@ export function LoanLimitCalculator({
           <Field
             id="limit-existing"
             label="기존대출 월상환액 (만원)"
-            hint="신용·자동차·전세대출 이자 등 월 원리금 합계"
+            hint="주담대 외 월 원리금"
           >
             <input
               id="limit-existing"
@@ -275,7 +258,7 @@ export function LoanLimitCalculator({
           <Field
             id="limit-other"
             label="기타대출 연이자 (만원)"
-            hint="DTI 계산용 · 주담대 외 연간 이자"
+            hint="DTI용 · 주담대 외 연이자"
           >
             <input
               id="limit-other"
@@ -294,9 +277,6 @@ export function LoanLimitCalculator({
           <div className="flex flex-col gap-1.5">
             <p id="limit-years-label" className="text-xs font-medium text-slate-500">
               희망 만기
-            </p>
-            <p className="text-[11px] leading-4 text-slate-400">
-              수도권 규제지역은 최대 30년으로 자동 조정됩니다.
             </p>
             <div
               role="radiogroup"
@@ -324,7 +304,7 @@ export function LoanLimitCalculator({
           <Field
             id="limit-rate"
             label="계산용 금리 (%)"
-            hint="DSR은 스트레스 가산금리를 더해 보수적으로 계산합니다."
+            hint="DSR은 스트레스 가산금리를 더합니다."
           >
             <input
               id="limit-rate"
@@ -345,10 +325,10 @@ export function LoanLimitCalculator({
         </button>
       </section>
 
-      <section className="rounded-2xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 p-5 text-white shadow-sm">
-        <p className="text-xs font-medium text-teal-100/90">한도 계산 결과</p>
-        <p className="mt-3 text-sm text-teal-100/80">예상 대출 가능 한도</p>
-        <p className="mt-1 break-words text-3xl font-semibold tracking-tight">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+        <p className="text-xs font-medium text-slate-500">한도 계산 결과</p>
+        <p className="mt-3 text-sm text-slate-600">예상 대출 가능 한도</p>
+        <p className="mt-1 break-words text-3xl font-semibold tracking-tight text-slate-900">
           {submitted
             ? result.blocked
               ? "대출 불가"
@@ -360,15 +340,15 @@ export function LoanLimitCalculator({
         {submitted && !result.blocked ? (
           <>
             {limiterLabel ? (
-              <p className="mt-2 text-sm text-teal-100/90">
+              <p className="mt-2 text-sm text-slate-700">
                 한도를 결정한 기준{" "}
                 <span className="font-semibold">{limiterLabel}</span>
               </p>
             ) : null}
-            <p className="mt-2 text-sm text-teal-100/80">
+            <p className="mt-2 text-sm text-slate-600">
               {formatMan(result.finalLimitMan)} · 월 상환 약{" "}
               {result.monthlyPaymentMan.toLocaleString("ko-KR")}만
-              <span className="text-teal-100/60">
+              <span className="text-slate-400">
                 {" "}
                 (만기 {result.effectiveYears}년 · 금리 {input.baseRatePct}% ·
                 원리금균등)
@@ -377,7 +357,7 @@ export function LoanLimitCalculator({
           </>
         ) : null}
         {submitted && result.blocked ? (
-          <p className="mt-3 text-sm leading-6 text-amber-100">
+          <p className="mt-3 text-sm leading-6 text-amber-800">
             {result.blockedReason}
           </p>
         ) : null}
@@ -385,9 +365,9 @@ export function LoanLimitCalculator({
           <button
             type="button"
             onClick={goToRepayment}
-            className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto"
+            className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 sm:w-auto"
           >
-            이 한도로 월 상환액 계산하기
+            이 한도로 이자 계산
           </button>
         ) : null}
       </section>
@@ -439,17 +419,22 @@ export function LoanLimitCalculator({
         </div>
 
         {submitted && result.notes.length > 0 ? (
-          <ul className="mt-4 space-y-1.5 border-t border-slate-100 pt-4 text-xs leading-5 text-slate-500">
-            {result.notes.map((note) => (
-              <li key={note}>· {note}</li>
-            ))}
-          </ul>
+          <details className="mt-4 border-t border-slate-100 pt-4">
+            <summary className="cursor-pointer text-sm font-medium text-slate-700">
+              계산 기준 보기
+            </summary>
+            <ul className="mt-3 space-y-1.5 text-xs leading-5 text-slate-500">
+              {result.notes.map((note) => (
+                <li key={note}>· {note}</li>
+              ))}
+            </ul>
+          </details>
         ) : null}
       </section>
 
       <p className="text-xs leading-5 text-slate-500">
-        본 계산 결과는 참고용이며 실제 대출금리와 상환액은 금융기관, 신용도,
-        담보조건, 계산 방식 등에 따라 달라질 수 있습니다.
+        계산 결과는 입력값을 기준으로 한 참고용이며, 실제 대출 가능 금액과 조건은
+        금융기관 심사에 따라 달라질 수 있습니다.
       </p>
     </div>
   );
