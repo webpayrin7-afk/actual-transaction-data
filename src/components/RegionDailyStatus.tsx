@@ -604,12 +604,12 @@ function Kpi({
   const sideCompact = typeof side === "string" ? side : side?.compact;
   return (
     <div
-      className={`overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-3 sm:py-2.5 ${className ?? ""}`}
+      className={`overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-4 sm:py-3.5 ${className ?? ""}`}
     >
       <p className="whitespace-nowrap text-[11px] leading-4 text-slate-600">
         {label}
       </p>
-      <div className="mt-0.5 flex min-w-0 items-baseline gap-x-1 sm:gap-x-1.5">
+      <div className="mt-1.5 flex min-w-0 items-baseline gap-x-1 sm:mt-2 sm:gap-x-2">
         <p
           className={`whitespace-nowrap text-base font-semibold leading-none tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
         >
