@@ -254,6 +254,81 @@ export function koreanMonthDayLabel(date: string): string {
   return `${Number(d.slice(5, 7))}월 ${Number(d.slice(8, 10))}일`;
 }
 
+export function koreanYearMonthLabel(ym: string): string {
+  if (ym.length !== 6) return ym;
+  return `${ym.slice(0, 4)}년 ${Number(ym.slice(4, 6))}월`;
+}
+
+export const CONTRACT_DATE_BASIS_LABEL = "계약일 기준";
+export const CONTRACT_DATE_BASIS_HELP =
+  "실제 매매계약이 체결된 날짜를 기준으로 집계한 시장 통계입니다. 최근 월은 신고 시차로 거래량이 추가될 수 있습니다.";
+
+export const SEEN_DATE_BASIS_LABEL = "확인일 기준";
+export const SEEN_DATE_BASIS_HELP =
+  "아파트 데이터랩이 해당 거래를 처음 확인한 날짜입니다. 실제 계약일과 다를 수 있습니다.";
+
+export const HISTORY_DATE_BASIS_HELP =
+  "이 달 새로 확인된 매매 전체입니다. 계약월과 다를 수 있습니다.";
+
+export const LEGACY_FIRST_SEEN_NOTE =
+  "확인일 기반 내역은 시스템이 확인 시각을 기록한 거래부터 볼 수 있습니다.";
+
+export function newlySeenSectionTitle(isToday: boolean): string {
+  return isToday ? "오늘 새로 확인된 거래" : "최근 새로 확인된 거래";
+}
+
+/** 오늘 확인분이 있으면 오늘, 없으면 가장 최근 확인일. */
+export function pickHeroSeenDate(
+  dates: string[],
+  today: string,
+): { date: string | null; isToday: boolean } {
+  const day = today.slice(0, 10);
+  for (const raw of dates) {
+    if (raw.slice(0, 10) === day) return { date: day, isToday: true };
+  }
+  let latest = "";
+  for (const raw of dates) {
+    const d = raw.slice(0, 10);
+    if (d > latest) latest = d;
+  }
+  return { date: latest || null, isToday: false };
+}
+
+export function medianDealAmount(amounts: number[]): number | null {
+  if (amounts.length === 0) return null;
+  const sorted = [...amounts].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) return sorted[mid]!;
+  return Math.round((sorted[mid - 1]! + sorted[mid]!) / 2);
+}
+
+export function groupDealsBySeenDate<
+  T extends { firstSeenDate: string; dealAmount: number; aptName: string },
+>(deals: T[]): { date: string; deals: T[] }[] {
+  const map = new Map<string, T[]>();
+  for (const deal of deals) {
+    const date = deal.firstSeenDate.slice(0, 10);
+    const prev = map.get(date);
+    if (prev) prev.push(deal);
+    else map.set(date, [deal]);
+  }
+  return [...map.entries()]
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([date, group]) => ({
+      date,
+      deals: [...group].sort(
+        (a, b) =>
+          b.dealAmount - a.dealAmount ||
+          a.aptName.localeCompare(b.aptName, "ko"),
+      ),
+    }));
+}
+
+/** SECTION 3: 처음 펼치는 최근 확인일 수 */
+export const HISTORY_INITIAL_DAY_COUNT = 5;
+/** 한 요청에서 신고가를 계산할 최대 날짜 수 */
+export const HISTORY_DAY_FETCH_CAP = 8;
+
 /** 표시 순서. 시간 순서가 아님. */
 export function sortNewlySeenDeals<
   T extends {

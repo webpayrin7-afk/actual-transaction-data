@@ -8,10 +8,15 @@ import {
   compactSingogaDeals,
   featuredSingogaGroup,
   groupDealsByDate,
+  groupDealsBySeenDate,
   hiddenNewlySeenCount,
   increaseRatePct,
+  koreanYearMonthLabel,
   latestRecordDate,
+  medianDealAmount,
+  newlySeenSectionTitle,
   pickFeaturedSingogaDeal,
+  pickHeroSeenDate,
   priorPeakAmount,
   priorTypeMaxAmount,
   recentSingogaDeals,
@@ -322,9 +327,53 @@ const vis = visibleNewlySeenDeals(many, false, 16);
 assert.equal(vis.length, 16);
 assert.equal(vis.filter((d) => d.singogaKind).length, 3);
 assert.equal(hiddenNewlySeenCount(many, false, 16), 7);
-assert.equal(
-  visibleNewlySeenDeals(many, false, 2).filter((d) => d.singogaKind).length,
-  3,
+assert.equal(visibleNewlySeenDeals(many, false, 2).filter((d) => d.singogaKind).length, 3);
+
+assert.equal(koreanYearMonthLabel("202609"), "2026년 9월");
+assert.equal(newlySeenSectionTitle(true), "오늘 새로 확인된 거래");
+assert.equal(newlySeenSectionTitle(false), "최근 새로 확인된 거래");
+
+assert.deepEqual(pickHeroSeenDate(["2026-09-08", "2026-09-09"], "2026-09-09"), {
+  date: "2026-09-09",
+  isToday: true,
+});
+assert.deepEqual(pickHeroSeenDate(["2026-09-08", "2026-09-07"], "2026-09-09"), {
+  date: "2026-09-08",
+  isToday: false,
+});
+assert.deepEqual(pickHeroSeenDate([], "2026-09-09"), {
+  date: null,
+  isToday: false,
+});
+
+assert.equal(medianDealAmount([]), null);
+assert.equal(medianDealAmount([10]), 10);
+assert.equal(medianDealAmount([10, 30, 20]), 20);
+assert.equal(medianDealAmount([10, 20]), 15);
+
+const seenGrouped = groupDealsBySeenDate([
+  {
+    firstSeenDate: "2026-09-09",
+    dealAmount: 100,
+    aptName: "가",
+  },
+  {
+    firstSeenDate: "2026-09-08",
+    dealAmount: 300,
+    aptName: "나",
+  },
+  {
+    firstSeenDate: "2026-09-09",
+    dealAmount: 200,
+    aptName: "다",
+  },
+]);
+assert.deepEqual(
+  seenGrouped.map((g) => [g.date, g.deals.map((d) => d.aptName)]),
+  [
+    ["2026-09-09", ["다", "가"]],
+    ["2026-09-08", ["나"]],
+  ],
 );
 
 console.log("test-region-market-insight: ok");

@@ -467,6 +467,72 @@ export type AptTradeHistoryRow = {
 
 const APT_HISTORY_IN_CHUNK = 80;
 
+export type AptTypePriorCandidate = {
+  aptNameNorm: string;
+  exclusiveArea: number;
+  dealDate: string;
+};
+
+const APT_PRIOR_MAX_CHUNK = 16;
+
+function dealYearMonth(dealDate: string): string {
+  const d = dealDate.slice(0, 10);
+  return `${d.slice(0, 4)}${d.slice(5, 7)}`;
+}
+
+/**
+ * 후보 거래별 all-time prior MAX. 행을 Node로 가져오지 않는다.
+ * idx_tx_type_deal_date 전국 스캔을 피하기 위해 idx_tx_lawd_apt_ym 을 강제한다.
+ * 신규 index 없음.
+ */
+export async function queryAptTypePriorMaxes(params: {
+  lawdCodes: string[];
+  candidates: AptTypePriorCandidate[];
+}): Promise<number[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  const { lawdCodes, candidates } = params;
+  if (!lawdCodes.length) return candidates.map(() => 0);
+  const out = candidates.map(() => 0);
+  if (candidates.length === 0) return out;
+
+  const lawdPlaceholders = lawdCodes.map(() => "?").join(",");
+  for (let i = 0; i < candidates.length; i += APT_PRIOR_MAX_CHUNK) {
+    const chunk = candidates.slice(i, i + APT_PRIOR_MAX_CHUNK);
+    const parts: string[] = [];
+    const args: Array<string | number> = [];
+    chunk.forEach((candidate, offset) => {
+      const day = candidate.dealDate.slice(0, 10);
+      parts.push(
+        `SELECT ${offset} AS i, MAX(deal_amount) AS prior_max
+         FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+         WHERE lawd_cd IN (${lawdPlaceholders})
+           AND apt_name_norm = ?
+           AND year_month <= ?
+           AND deal_type = 'trade'
+           AND deal_date < ?
+           AND CAST(ROUND(exclusive_area * 100) AS INTEGER) = ?`,
+      );
+      args.push(
+        ...lawdCodes,
+        candidate.aptNameNorm,
+        dealYearMonth(day),
+        day,
+        Math.round(candidate.exclusiveArea * 100),
+      );
+    });
+    const result = await db.execute({
+      sql: parts.join("\nUNION ALL\n"),
+      args,
+    });
+    for (const row of result.rows) {
+      const offset = Number(row.i) || 0;
+      out[i + offset] = Number(row.prior_max) || 0;
+    }
+  }
+  return out;
+}
+
 /**
  * 동일 지역·후보 단지 all-time 매매 (신고가 prior).
  * 요청마다 지역 전체 scan 금지 — apt_name_norm IN 으로 한정.

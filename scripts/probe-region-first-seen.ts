@@ -65,32 +65,73 @@ async function main() {
 
   for (const slug of SLUGS) {
     console.log(`\n=== ${slug} ===`);
-    const cold = await time("cold", () =>
-      getRegionDaily({ regionSlug: slug, yearMonth: "202609" }),
+    const latestCold = await time("latest cold", () =>
+      getRegionDaily({ regionSlug: slug, part: "latest" }),
     );
-    const warm = await time("warm", () =>
-      getRegionDaily({ regionSlug: slug, yearMonth: "202609" }),
+    const latestWarm = await time("latest warm", () =>
+      getRegionDaily({ regionSlug: slug, part: "latest" }),
     );
-    const json = Buffer.byteLength(JSON.stringify(cold));
+    const market = await time("market", () =>
+      getRegionDaily({
+        regionSlug: slug,
+        part: "market",
+        contractMonth: "202609",
+      }),
+    );
+    const history = await time("history", () =>
+      getRegionDaily({
+        regionSlug: slug,
+        part: "history",
+        yearMonth: "202609",
+      }),
+    );
+    const dayDates = history.days
+      .filter((d) => d.dealCount > 0 && !d.bulkIngestDay)
+      .slice(0, 2)
+      .map((d) => d.date);
+    const days = dayDates.length
+      ? await time("days", () =>
+          getRegionDaily({
+            regionSlug: slug,
+            part: "days",
+            yearMonth: "202609",
+            dates: dayDates,
+          }),
+        )
+      : null;
+    const json = Buffer.byteLength(
+      JSON.stringify({ latestCold, market, history, days }),
+    );
     console.log(
       JSON.stringify({
-        selected: cold.selectedDate,
-        n: cold.tradeCount,
-        singoga: cold.selectedDaySingogaCount,
-        days: cold.days.map((d) => ({
+        selected: latestCold.selectedDate,
+        isToday: latestCold.latestIsToday,
+        n: latestCold.tradeCount,
+        singoga: latestCold.selectedDaySingogaCount,
+        bulk: latestCold.bulkIngestDay,
+        median: market.medianDealAmount,
+        monthN: market.monthTradeCount,
+        historyDays: history.days.map((d) => ({
           date: d.date,
           n: d.dealCount,
-          s: d.singogaCount,
+          bulk: d.bulkIngestDay,
         })),
-        bulk: cold.bulkIngestDay,
+        historyTotal: history.historyTotalCount,
+        daySections: days?.historySections.map((s) => ({
+          date: s.date,
+          n: s.totalCount,
+          singoga: s.singogaCount,
+          known: s.singogaKnown,
+          bulk: s.bulkIngestDay,
+        })),
         json,
-        names: cold.deals.slice(0, 12).map((d) => ({
+        names: latestCold.deals.slice(0, 8).map((d) => ({
           name: d.aptName,
           singoga: d.singogaKind,
           dealDate: d.dealDate,
           amt: d.dealAmount,
         })),
-        warmSelected: warm.selectedDate,
+        warmSelected: latestWarm.selectedDate,
       }),
     );
   }

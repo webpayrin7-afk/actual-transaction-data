@@ -74,7 +74,6 @@ export function Dashboard({
   const [dealType, setDealType] = useState<DealType | "all">(initialDealType);
   const [area, setArea] = useState<AreaFilter>("all");
   const [searchYearMonth, setSearchYearMonth] = useState(() => currentYearMonth);
-  const [statsYearMonth, setStatsYearMonth] = useState(() => currentYearMonth);
   const [page, setPage] = useState(1);
   const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
@@ -119,7 +118,6 @@ export function Dashboard({
     setDealType(initialDealType);
     setArea("all");
     setSearchYearMonth(currentYearMonth);
-    setStatsYearMonth(currentYearMonth);
     setPage(1);
   };
 
@@ -155,10 +153,6 @@ export function Dashboard({
   const handleSearchYearMonthChange = (value: string) => {
     setSearchYearMonth(value);
     resetPage();
-  };
-
-  const handleStatsYearMonthChange = (value: string) => {
-    setStatsYearMonth(value);
   };
 
   const handleSearch = () => {
@@ -208,9 +202,6 @@ export function Dashboard({
         <RegionDailyStatus
           regionSlug={region.slug}
           regionName={region.name}
-          yearMonth={statsYearMonth}
-          yearMonths={yearMonths}
-          onYearMonthChange={handleStatsYearMonthChange}
         />
       )}
 
