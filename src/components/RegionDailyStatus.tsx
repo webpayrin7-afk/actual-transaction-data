@@ -1023,7 +1023,7 @@ export function RegionDailyStatus({
 
       <section
         aria-label={`${regionName} 지역 거래 내역`}
-        className={`${SECTION_SURFACE} flex flex-col gap-3`}
+        className={`${SECTION_SURFACE} flex min-h-0 flex-1 flex-col gap-3`}
       >
         <SectionHeading
           title="지역 거래 내역"
@@ -1045,9 +1045,9 @@ export function RegionDailyStatus({
           </p>
         </div>
 
-        <div className="mt-2 flex flex-col gap-5 border-t border-slate-200/70 pt-5">
+        <div className="mt-2 flex min-h-0 flex-1 flex-col gap-5 border-t border-slate-200/70 pt-5">
           {historyQuery.data ? (
-            <p className="text-xs tabular-nums text-slate-500">
+            <p className="shrink-0 text-xs tabular-nums text-slate-500">
               이 달 총{" "}
               {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
                 "ko-KR",
@@ -1056,8 +1056,8 @@ export function RegionDailyStatus({
             </p>
           ) : null}
           {activeDates.length === 0 && historyQuery.data ? (
-            <div className="px-1 py-6 text-center text-sm text-slate-500">
-              {EMPTY_MONTH_HISTORY}
+            <div className="flex min-h-[12rem] flex-1 items-center justify-center px-1 text-center text-sm text-slate-500 sm:min-h-[14rem]">
+              <p className="break-keep">{EMPTY_MONTH_HISTORY}</p>
             </div>
           ) : null}
           {activeDates.slice(0, visibleDayCount).map((date) => {
