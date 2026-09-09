@@ -427,7 +427,8 @@ export function RegionDailyStatus({
 
   return (
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-5 sm:gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <p className="text-sm text-slate-600">
           <span className="font-medium text-slate-800">
             {yearMonthLabel(yearMonth)}
@@ -448,7 +449,7 @@ export function RegionDailyStatus({
           <select
             value={yearMonth}
             onChange={(e) => changeMonth(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
           >
             {yearMonths.map((ym) => (
               <option key={ym} value={ym}>
@@ -536,7 +537,12 @@ export function RegionDailyStatus({
               </p>
             ) : null}
           </section>
+        </>
+      ) : null}
+      </div>
 
+      {data ? (
+        <>
           <section>
             <h2 className="text-sm font-semibold text-slate-900">
               {regionName} 최근 신고가

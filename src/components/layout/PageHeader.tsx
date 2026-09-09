@@ -24,28 +24,38 @@ export function PageHeader({
   meta,
   action,
   children,
+  compact = false,
   className = "",
 }: {
   title: string;
-  description: string;
+  description?: string;
   meta?: ReactNode;
   action?: ReactNode;
   children?: ReactNode;
+  compact?: boolean;
   className?: string;
 }) {
   return (
     <header className={`max-w-3xl ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
-        <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-[1.875rem] sm:leading-tight">
+        <h1
+          className={`min-w-0 flex-1 font-semibold tracking-tight text-slate-900 ${
+            compact
+              ? "text-xl leading-7 sm:text-2xl sm:leading-8"
+              : "text-2xl sm:text-[1.875rem] sm:leading-tight"
+          }`}
+        >
           {title}
         </h1>
         {action ? (
           <div className="shrink-0 pt-0.5 sm:pt-1">{action}</div>
         ) : null}
       </div>
-      <p className="mt-1.5 text-pretty text-sm leading-6 text-slate-600 sm:text-[0.9375rem]">
-        {description}
-      </p>
+      {description ? (
+        <p className="mt-1.5 text-pretty text-sm leading-6 text-slate-600 sm:text-[0.9375rem]">
+          {description}
+        </p>
+      ) : null}
       {meta ? (
         <div className="mt-2 space-y-0.5 text-xs leading-5 text-slate-500">
           {meta}
