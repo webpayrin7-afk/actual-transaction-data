@@ -147,7 +147,7 @@ function prevDealDelta(
 
 function prevDealDeltaClass(tone: "up" | "down" | "same"): string {
   if (tone === "up") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-rose-600";
-  if (tone === "down") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-slate-600";
+  if (tone === "down") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-blue-600";
   return "whitespace-nowrap text-[12px] tabular-nums text-slate-500";
 }
 
