@@ -161,6 +161,15 @@ CREATE TABLE IF NOT EXISTS market_stats_feeds (
       await ensureColumn(db, "transactions", "discovery_at", "TEXT");
       resetDiscoveryAtColumnCache();
     }
+    // Home discovery range. IF NOT EXISTS is a no-op once D3 built it on Turso.
+    const txCols = await db.execute("PRAGMA table_info(transactions)");
+    if (txCols.rows.some((row) => String(row.name) === "discovery_at")) {
+      await db.execute(`
+CREATE INDEX IF NOT EXISTS idx_tx_type_discovery
+  ON transactions (deal_type, discovery_at)
+  WHERE discovery_at IS NOT NULL;
+`);
+    }
   } catch (err) {
     // Turso write 차단 시에도 기존 테이블 조회는 가능해야 함
     const msg = err instanceof Error ? err.message : String(err);

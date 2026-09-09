@@ -76,6 +76,11 @@ CREATE INDEX IF NOT EXISTS idx_tx_type_deal_date
 CREATE INDEX IF NOT EXISTS idx_tx_type_first_seen
   ON transactions (deal_type, first_seen_at);
 
+-- Product discovery feed (Home). Partial: NULL discovery_at rows stay out of the index.
+CREATE INDEX IF NOT EXISTS idx_tx_type_discovery
+  ON transactions (deal_type, discovery_at)
+  WHERE discovery_at IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS market_stats_daily (
   day TEXT NOT NULL,
   scope TEXT NOT NULL,
