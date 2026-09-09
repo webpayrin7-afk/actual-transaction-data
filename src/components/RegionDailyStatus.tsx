@@ -134,6 +134,17 @@ function SingogaBadge({
   return <span className={cls}>{children}</span>;
 }
 
+function prevDealDeltaText(
+  current: number,
+  previous: number | null,
+): string | null {
+  const vs = vsPreviousTypeDeal(current, previous);
+  if (!vs) return null;
+  if (vs.kind === "same") return "직전 대비 동일";
+  const arrow = vs.kind === "up" ? "▲" : "▼";
+  return `직전 대비 ${arrow} ${formatEok(vs.amount)}`;
+}
+
 function FeaturedDealCard({
   deal,
   regionSlug,
@@ -144,6 +155,7 @@ function FeaturedDealCard({
   const prior = priorPeakAmount(deal);
   const rate = increaseRatePct(deal);
   const trend = deal.priceTrend;
+  const prevDelta = prevDealDeltaText(deal.dealAmount, deal.prevTypeDealAmount);
   const titleMeta = [
     deal.dong || null,
     deal.buildYear ? `${deal.buildYear}년 준공` : null,
@@ -165,7 +177,7 @@ function FeaturedDealCard({
           {titleMeta.join(" · ")}
         </p>
       ) : null}
-      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+      <div className="mt-2 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
         <span className="whitespace-nowrap text-[22px] font-semibold leading-none tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
@@ -173,6 +185,11 @@ function FeaturedDealCard({
           <span className="whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
             ▲ {formatEok(deal.increaseAmount)}
             {rate != null ? ` (+${rate}%)` : ""}
+          </span>
+        ) : null}
+        {prevDelta ? (
+          <span className="whitespace-nowrap text-[12px] tabular-nums text-slate-500">
+            {prevDelta}
           </span>
         ) : null}
       </div>
@@ -200,6 +217,7 @@ function RegularDealCard({
   deal: RegionDailyDeal;
   regionSlug: string;
 }) {
+  const delta = prevDealDeltaText(deal.dealAmount, deal.prevTypeDealAmount);
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
@@ -208,23 +226,19 @@ function RegularDealCard({
       <p className="break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
         {deal.aptName}
       </p>
-      <p className="mt-1.5 whitespace-nowrap text-lg font-semibold tabular-nums leading-none text-slate-900">
-        {formatEok(deal.dealAmount)}
-      </p>
+      <div className="mt-1.5 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
+        <span className="whitespace-nowrap text-lg font-semibold tabular-nums leading-none text-slate-900">
+          {formatEok(deal.dealAmount)}
+        </span>
+        {delta ? (
+          <span className="whitespace-nowrap text-[12px] tabular-nums text-slate-500">
+            {delta}
+          </span>
+        ) : null}
+      </div>
       <DealMetaLine deal={deal} emphasizeSpec />
     </Link>
   );
-}
-
-function prevDealDeltaText(
-  current: number,
-  previous: number | null,
-): string | null {
-  const vs = vsPreviousTypeDeal(current, previous);
-  if (!vs) return null;
-  if (vs.kind === "same") return "직전 대비 동일";
-  const arrow = vs.kind === "up" ? "▲" : "▼";
-  return `직전 대비 ${arrow} ${formatEok(vs.amount)}`;
 }
 
 function HistoryDealCard({
