@@ -77,7 +77,7 @@ function DealCard({
     deal.complexMaxAmount > 0 && deal.dealAmount === deal.complexMaxAmount;
   const comparison =
     deal.increaseAmount > 0
-      ? `종전 최고가 대비 +${formatEok(deal.increaseAmount)}원`
+      ? `종전 최고 +${formatEok(deal.increaseAmount)}원`
       : isComplexHigh
         ? "단지 최고가"
         : null;
