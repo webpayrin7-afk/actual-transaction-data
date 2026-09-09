@@ -28,5 +28,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Ingestion policy tests
+        run: npm run test:ingestion
+
       - name: Build
         run: npm run build

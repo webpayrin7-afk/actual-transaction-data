@@ -19,7 +19,10 @@ import { resolve } from "node:path";
 import { FEATURED_LAWD_CODES } from "../src/lib/constants/regions-registry";
 import { ensureSchema, getDb } from "../src/lib/db/client";
 import { fetchTradeMonthProbe } from "../src/lib/molit/client";
-import { recentYearMonths } from "../src/lib/utils/format";
+import {
+  rollingYearMonths,
+  shouldRunWarehouseSync,
+} from "../src/lib/molit/sync-policy";
 
 function argValue(name: string, fallback: string): string {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -84,7 +87,7 @@ function writeGithubOutput(values: Record<string, string>) {
 async function main() {
   const force = argValue("force", "0") === "1" || hasFlag("force");
   const githubOutput = hasFlag("github-output");
-  const yearMonth = argValue("year-month", recentYearMonths(1)[0]);
+  const yearMonth = argValue("year-month", rollingYearMonths(1)[0]);
   const codesArg = argValue("codes", "");
   const sentinels = codesArg
     ? codesArg.split(",").map((s) => s.trim()).filter(Boolean)
@@ -167,7 +170,10 @@ async function main() {
     await new Promise((r) => setTimeout(r, 400));
   }
 
-  const shouldSync = force || reasons.length > 0;
+  const shouldSync = shouldRunWarehouseSync({
+    force,
+    probeStale: reasons.length > 0,
+  });
 
   console.log(
     JSON.stringify(
@@ -202,7 +208,7 @@ main().catch((err) => {
     // 개별 probe 실패와 달리 스크립트 붕괴 시에만 보수적으로 sync
     writeGithubOutput({
       should_sync: "true",
-      year_month: recentYearMonths(1)[0],
+      year_month: rollingYearMonths(1)[0],
       reason_count: "1",
       summary: "probe crashed — force sync",
     });
