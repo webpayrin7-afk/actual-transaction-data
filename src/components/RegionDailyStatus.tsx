@@ -21,6 +21,9 @@ import { seoulToday, yearMonthFromSeoulDate } from "@/lib/market/time";
 import {
   CONTRACT_DATE_BASIS_HELP,
   CONTRACT_DATE_BASIS_LABEL,
+  CALENDAR_HELPER,
+  EMPTY_MONTH_HISTORY,
+  EMPTY_NEWLY_SEEN,
   HISTORY_INITIAL_DAY_COUNT,
   hiddenNewlySeenCount,
   increaseRatePct,
@@ -117,6 +120,20 @@ function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
   return "신고가";
 }
 
+function SingogaBadge({
+  variant,
+  children,
+}: {
+  variant: "featured" | "compact";
+  children: ReactNode;
+}) {
+  const cls =
+    variant === "featured"
+      ? "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-teal-600 px-2.5 py-1 text-[11px] font-bold leading-none text-white"
+      : "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-300 bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-teal-800";
+  return <span className={cls}>{children}</span>;
+}
+
 function FeaturedDealCard({
   deal,
   regionSlug,
@@ -137,14 +154,12 @@ function FeaturedDealCard({
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
       className="block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50"
     >
-      <div className="flex items-start justify-between gap-2">
-        <strong className="block min-w-0 flex-1 break-keep text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
-          {deal.aptName}
-        </strong>
-        <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-300 bg-teal-100 px-2 py-0.5 text-[10px] font-semibold text-teal-800">
-          {singogaLabel(deal.singogaKind)}
-        </span>
-      </div>
+      <SingogaBadge variant="featured">
+        {singogaLabel(deal.singogaKind)}
+      </SingogaBadge>
+      <strong className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
+        {deal.aptName}
+      </strong>
       {titleMeta.length > 0 ? (
         <p className="mt-1.5 truncate text-xs font-normal text-slate-500">
           {titleMeta.join(" · ")}
@@ -230,19 +245,19 @@ function HistoryDealCard({
           {deal.aptName}
         </p>
         {deal.singogaKind ? (
-          <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-200/80 px-1.5 py-0.5 text-[10px] font-medium text-teal-700">
-            신고가
+          <SingogaBadge variant="compact">신고가</SingogaBadge>
+        ) : null}
+      </div>
+      <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+        <span className="whitespace-nowrap text-base font-semibold tabular-nums leading-none text-slate-900">
+          {formatEok(deal.dealAmount)}
+        </span>
+        {delta ? (
+          <span className="whitespace-nowrap text-[11px] text-slate-500">
+            {delta}
           </span>
         ) : null}
       </div>
-      <p className="mt-1 whitespace-nowrap text-base font-semibold tabular-nums leading-none text-slate-900">
-        {formatEok(deal.dealAmount)}
-      </p>
-      {delta ? (
-        <p className="mt-0.5 whitespace-nowrap text-[11px] text-slate-500">
-          {delta}
-        </p>
-      ) : null}
       <DealMetaLine deal={deal} />
     </Link>
   );
@@ -882,13 +897,6 @@ export function RegionDailyStatus({
           title="새로 확인된 거래"
           basisLabel={SEEN_DATE_BASIS_LABEL}
           basisHelp={SEEN_DATE_BASIS_HELP}
-          aside={
-            heroIsToday ? (
-              <span className="shrink-0 whitespace-nowrap rounded-full bg-teal-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-teal-700">
-                오늘
-              </span>
-            ) : null
-          }
         />
         {latestQuery.isError ? (
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -940,10 +948,13 @@ export function RegionDailyStatus({
             ) : null}
           </>
         ) : (
-          <div className="px-1 py-6 text-pretty text-sm text-slate-500">
-            {latest?.firstSeenReady
-              ? "새로 확인된 매매가 없습니다."
-              : LEGACY_FIRST_SEEN_NOTE}
+          <div className="px-1 py-6 text-sm text-slate-500">
+            <p>{EMPTY_NEWLY_SEEN}</p>
+            {latest && !latest.firstSeenReady ? (
+              <p className="mt-1 text-[11px] leading-4 text-slate-400">
+                {LEGACY_FIRST_SEEN_NOTE}
+              </p>
+            ) : null}
           </div>
         )}
       </section>
@@ -968,8 +979,7 @@ export function RegionDailyStatus({
             onChangeMonth={changeActivityMonth}
           />
           <p className="mt-2 max-w-md text-[11px] leading-4 text-slate-400">
-            숫자는 그날 새로 확인된 매매 건수입니다. 작은 점은 신고가가 확인된
-            날짜입니다.
+            {CALENDAR_HELPER}
           </p>
         </div>
 
@@ -986,13 +996,13 @@ export function RegionDailyStatus({
           {!latest?.firstSeenReady &&
           historyQuery.data &&
           historyDays.length === 0 ? (
-            <p className="text-pretty text-xs leading-5 text-slate-500">
+            <p className="text-[11px] leading-4 text-slate-400">
               {LEGACY_FIRST_SEEN_NOTE}
             </p>
           ) : null}
           {activeDates.length === 0 && historyQuery.data ? (
-            <div className="px-1 py-6 text-pretty text-sm text-slate-500">
-              이 달에 새로 확인된 매매가 없습니다.
+            <div className="px-1 py-6 text-sm text-slate-500">
+              {EMPTY_MONTH_HISTORY}
             </div>
           ) : null}
           {activeDates.slice(0, visibleDayCount).map((date) => {
