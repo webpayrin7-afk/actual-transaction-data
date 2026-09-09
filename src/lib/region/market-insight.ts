@@ -63,7 +63,7 @@ export function oldestYearMonthFromDates(dealDates: string[]): string | null {
   return oldest;
 }
 
-/** SECTION 3 activityMonth. discovery_at KST 월만. 빈 달을 fake로 채우지 않음. */
+/** Distinct YYYYMM from YYYY-MM-DD strings. Empty months are not filled. */
 export function activityYearMonthsFromSeenDates(dates: string[]): string[] {
   const set = new Set<string>();
   for (const raw of dates) {
@@ -353,14 +353,24 @@ export const SEEN_DATE_BASIS_HELP =
   "아파트 데이터랩이 거래를 처음 확인한 날짜입니다. 실제 계약일과 다를 수 있습니다.";
 
 export const HISTORY_DATE_BASIS_HELP =
-  "이 달 새로 확인된 매매 전체입니다. 계약월과 다를 수 있습니다.";
+  "실제 매매계약이 체결된 날짜입니다. 확인일과 다를 수 있습니다.";
 
-export const EMPTY_NEWLY_SEEN = "아직 새로 확인된 거래가 없습니다.";
-export const EMPTY_MONTH_HISTORY = "이 달에 새로 확인된 거래가 없습니다.";
+export const EMPTY_NEWLY_SEEN = "아직 새로 확인된 거래가 없습니다";
+export const EMPTY_MONTH_HISTORY = "이 달에 매매 실거래가 없습니다";
 export const CALENDAR_HELPER = "날짜를 누르면 해당 날짜의 거래로 이동합니다.";
 
 export function newlySeenSectionTitle(isToday: boolean): string {
   return isToday ? "오늘 새로 확인된 거래" : "최근 새로 확인된 거래";
+}
+
+/** Section 2 compact status. Today with deals → null (no empty copy). */
+export function newlySeenCompactStatus(params: {
+  isToday: boolean;
+  heroDate: string | null;
+}): string | null {
+  if (!params.heroDate) return EMPTY_NEWLY_SEEN;
+  if (params.isToday) return null;
+  return `오늘 새 거래 없음 · 최근 확인 ${koreanMonthDayLabel(params.heroDate)}`;
 }
 
 /** 오늘 확인분이 있으면 오늘, 없으면 가장 최근 확인일. */

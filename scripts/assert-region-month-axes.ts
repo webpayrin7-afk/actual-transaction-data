@@ -89,7 +89,7 @@ async function main() {
     tradeCount: latest.tradeCount,
     activityYearMonths: latest.activityYearMonths,
   });
-  console.log("API history 202608 first_seen", {
+  console.log("API history 202608 deal_date", {
     historyTotalCount: historyAug.historyTotalCount,
     days: historyAug.days.length,
   });
@@ -119,10 +119,15 @@ async function main() {
 
   const s3 = latest.activityYearMonths;
   assert.ok(Array.isArray(s3), "SECTION 3 options missing");
-  assert.notDeepEqual(
-    market.contractMonthOptions,
-    s3,
-    "contractMonth options must not equal activityMonth options",
+  consecutiveDesc(s3);
+  assert.ok(s3.includes("202608"), "SECTION 3 activityMonth must offer 202608");
+  assert.ok(
+    historyAug.historyTotalCount === dbTotal,
+    `SECTION 3 202608 historyTotalCount ${historyAug.historyTotalCount} != DB ${dbTotal}`,
+  );
+  assert.ok(
+    (historyAug.days?.length ?? 0) > 0,
+    "SECTION 3 202608 calendar must have deal_date days",
   );
 
   const latestAfterAugMarket = await getRegionDaily({

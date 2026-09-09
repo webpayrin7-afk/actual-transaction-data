@@ -31,6 +31,7 @@ import {
   increaseRatePct,
   koreanMonthDayLabel,
   koreanYearMonthLabel,
+  newlySeenCompactStatus,
   priorPeakAmount,
   recordDateDomId,
   SEEN_DATE_BASIS_HELP,
@@ -1028,20 +1029,12 @@ export function RegionDailyStatus({
                 items={[koreanMonthDayLabel(heroDate), ...heroCountPhrases]}
               />
             ) : (
-              <div className="text-sm leading-5">
-                <p className="break-keep text-slate-600">
-                  오늘 새로 확인된 거래는 아직 없습니다
-                </p>
-                <PhraseRow
-                  className="mt-0.5 text-sm"
-                  leadingClassName="text-slate-500"
-                  restClassName="tabular-nums text-slate-500"
-                  items={[
-                    `최근 확인 ${koreanMonthDayLabel(heroDate)}`,
-                    ...heroCountPhrases,
-                  ]}
-                />
-              </div>
+              <p className="break-keep text-sm text-slate-600">
+                {newlySeenCompactStatus({
+                  isToday: false,
+                  heroDate,
+                })}
+              </p>
             )}
             {latest?.bulkIngestDay ? (
               <p className="text-pretty text-xs leading-5 text-slate-500">
@@ -1061,7 +1054,7 @@ export function RegionDailyStatus({
             ) : null}
           </>
         ) : (
-          <div className="px-1 py-6 text-center text-sm text-slate-500">
+          <div className="px-1 py-2 text-sm text-slate-500">
             {EMPTY_NEWLY_SEEN}
           </div>
         )}
@@ -1073,8 +1066,8 @@ export function RegionDailyStatus({
       >
         <SectionHeading
           title="지역 거래 내역"
-          basisLabel={SEEN_DATE_BASIS_LABEL}
-          basisHelp={SEEN_DATE_BASIS_HELP}
+          basisLabel={CONTRACT_DATE_BASIS_LABEL}
+          basisHelp={CONTRACT_DATE_BASIS_HELP}
         />
 
         <div>
@@ -1139,8 +1132,8 @@ export function RegionDailyStatus({
                 </h4>
                 {section?.bulkIngestDay ? (
                   <p className="mt-1 text-pretty text-xs leading-5 text-slate-500">
-                    확인 건수가 많아 신고가 강조는 생략했습니다. 초기 적재로
-                    하루에 많은 거래가 확인된 날일 수 있습니다.
+                    이날 거래 건수가 많아 신고가 강조는 생략했습니다. 신고가가
+                    0건이라는 뜻은 아닙니다.
                   </p>
                 ) : null}
                 {section ? (
@@ -1174,7 +1167,7 @@ export function RegionDailyStatus({
                 setVisibleDayCount((n) => n + HISTORY_INITIAL_DAY_COUNT)
               }
             >
-              더 이전 확인일 보기 {remainingDates.toLocaleString("ko-KR")}일
+              더 이전 거래일 보기 {remainingDates.toLocaleString("ko-KR")}일
             </MoreControl>
           ) : null}
         </div>

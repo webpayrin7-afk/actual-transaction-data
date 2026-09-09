@@ -276,12 +276,13 @@ async function runWorker() {
   assert.ok(section2Names.includes("발견A"), "Section2 keeps discovery=1");
   assert.equal(section2Names.includes("백필B"), false, "Section2 excludes discovery=0");
   const calendarCount = region.days.find((d) => d.date === today)?.dealCount ?? 0;
-  assert.equal(calendarCount, 1, "calendar excludes discovery=0");
+  assert.equal(calendarCount, 2, "calendar includes discovery=0 on deal_date");
   const historyNames = region.historySections.flatMap((s) =>
     s.deals.map((d) => d.aptName),
   );
-  assert.equal(historyNames.includes("백필B"), false);
-  assert.ok(region.activityYearMonths.includes(ym), "activityMonth from seen dates");
+  assert.ok(historyNames.includes("백필B"), "Section3 includes discovery=0");
+  assert.ok(region.activityYearMonths.includes(ym), "activityMonth from deal_date");
+  assert.equal(region.historyDateAxis, "deal_date");
 
   console.log(
     JSON.stringify({

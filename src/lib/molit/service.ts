@@ -35,7 +35,6 @@ import {
   HISTORY_DATE_BASIS_HELP,
   HISTORY_DAY_FETCH_CAP,
   HISTORY_INITIAL_DAY_COUNT,
-  activityYearMonthsFromSeenDates,
   contractMonthOptions,
   contractMonthOptionsFromCoverage,
   medianPyeongPrice,
@@ -621,7 +620,7 @@ export async function getRegionBrowse(params: {
 }
 
 export interface RegionDailyDaySummary {
-  date: string; // KST YYYY-MM-DD of discovery_at (fallback: first_seen_at)
+  date: string; // YYYY-MM-DD of deal_date (Section 3 calendar)
   dealCount: number;
   tradeCount: number;
   singogaCount: number;
@@ -705,7 +704,10 @@ export interface RegionDailyResponse {
   monthSingogaCount: number | null;
   /** 12개월 전 같은 계약월 거래량. pool coverage 없으면 null */
   yearAgoMonthTradeCount: number | null;
+  /** Section 2 hero axis */
   dateAxis: "first_seen_kst";
+  /** Section 3 calendar / history axis */
+  historyDateAxis: "deal_date";
   dateBasisNote: string;
   contractDateBasisNote: string;
   seenDateBasisNote: string;
@@ -715,7 +717,7 @@ export interface RegionDailyResponse {
   bulkIngestDay: boolean;
   /** SECTION 1: deal_date 최근 24개월 연속(coverage가 더 짧으면 그 범위). */
   contractMonthOptions: string[];
-  /** SECTION 3: discovery_at KST 월. SECTION 1과 공유하지 않음. */
+  /** SECTION 3: deal_date 월. 24m coverage (Section 1과 동일 축, 확인일로 제한하지 않음). */
   activityYearMonths: string[];
 }
 
@@ -969,6 +971,7 @@ function emptyRegionDaily(
     monthSingogaCount: extras?.monthSingogaCount ?? null,
     yearAgoMonthTradeCount: extras?.yearAgoMonthTradeCount ?? null,
     dateAxis: "first_seen_kst",
+    historyDateAxis: "deal_date",
     dateBasisNote: extras?.dateBasisNote ?? REGION_DAILY_DATE_NOTE,
     contractDateBasisNote:
       extras?.contractDateBasisNote ?? CONTRACT_DATE_BASIS_HELP,
@@ -1110,16 +1113,36 @@ async function loadRegionTradePool(
   }
 }
 
-type SeenRow = { tx: Transaction; firstSeenDate: string };
+type AxisRow = {
+  tx: Transaction;
+  /** Grouping date: discovery KST (Section 2) or deal_date (Section 3). */
+  axisDate: string;
+  /** Product confirmation day; empty when discovery_at is null. */
+  firstSeenDate: string;
+};
 
-function collectSeen(historyTrades: Transaction[]): SeenRow[] {
-  const seen: SeenRow[] = [];
+function collectSeen(historyTrades: Transaction[]): AxisRow[] {
+  const seen: AxisRow[] = [];
   for (const tx of historyTrades) {
     const day = firstSeenKstDate(tx);
     if (!day) continue;
-    seen.push({ tx, firstSeenDate: day });
+    seen.push({ tx, axisDate: day, firstSeenDate: day });
   }
   return seen;
+}
+
+function collectDealRows(historyTrades: Transaction[]): AxisRow[] {
+  const rows: AxisRow[] = [];
+  for (const tx of historyTrades) {
+    const dealDate = tx.dealDate.slice(0, 10);
+    if (dealDate.length < 10) continue;
+    rows.push({
+      tx,
+      axisDate: dealDate,
+      firstSeenDate: firstSeenKstDate(tx) ?? "",
+    });
+  }
+  return rows;
 }
 
 async function computeMarketKpis(
@@ -1179,15 +1202,15 @@ async function computeMarketKpis(
   };
 }
 
-function buildCalendarDays(monthSeen: SeenRow[]): RegionDailyDaySummary[] {
+function buildCalendarDays(monthRows: AxisRow[]): RegionDailyDaySummary[] {
   const dayMap = new Map<
     string,
     { dealCount: number; maxDealAmount: number }
   >();
-  for (const { tx, firstSeenDate } of monthSeen) {
-    const prev = dayMap.get(firstSeenDate);
+  for (const { tx, axisDate } of monthRows) {
+    const prev = dayMap.get(axisDate);
     if (!prev) {
-      dayMap.set(firstSeenDate, {
+      dayMap.set(axisDate, {
         dealCount: 1,
         maxDealAmount: tx.dealAmount,
       });
@@ -1213,25 +1236,25 @@ async function enrichSeenDay(params: {
   lawdCodes: string[];
   source: "db" | "api";
   historyTrades: Transaction[];
-  daySeen: SeenRow[];
+  daySeen: AxisRow[];
   offset: number;
   withSparkline: boolean;
 }): Promise<RegionDailyDaySection> {
   const { lawdCodes, source, historyTrades, daySeen, offset, withSparkline } =
     params;
-  const date = daySeen[0]?.firstSeenDate ?? "";
+  const date = daySeen[0]?.axisDate ?? "";
   const totalCount = daySeen.length;
   const bulkIngestDay = totalCount > REGION_DAILY_SINGOGA_DAY_CAP;
   const tradesByApt = groupByAptName(historyTrades);
 
   if (bulkIngestDay) {
     const page = daySeen.slice(offset, offset + BULK_DAY_PAGE_SIZE);
-    const deals = page.map(({ tx, firstSeenDate }) =>
+    const deals = page.map(({ tx, firstSeenDate, axisDate }) =>
       enrichDailyDeal(
         tx,
         0,
         tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
-        firstSeenDate,
+        firstSeenDate || axisDate,
       ),
     );
     return {
@@ -1252,12 +1275,12 @@ async function enrichSeenDay(params: {
     source,
   });
 
-  const enriched = daySeen.map(({ tx, firstSeenDate }, index) =>
+  const enriched = daySeen.map(({ tx, firstSeenDate, axisDate }, index) =>
     enrichDailyDeal(
       tx,
       priorMaxes[index] ?? 0,
       tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
-      firstSeenDate,
+      firstSeenDate || axisDate,
     ),
   );
   const deals = sortNewlySeenDeals(enriched);
@@ -1305,15 +1328,14 @@ async function computeRegionDaily(params: {
   const { trades: historyTrades, source } = await loadRegionTradePool(region);
   const src = source === "db" ? "db" : "api";
   const seen = collectSeen(historyTrades);
+  const dealRows = collectDealRows(historyTrades);
   const firstSeenReady = seen.length > 0;
-  const activityYearMonths = activityYearMonthsFromSeenDates(
-    seen.map((row) => row.firstSeenDate),
-  );
   const contractMonthOptionList = contractMonthOptionsFromCoverage(
     yearMonthFromSeoulDate(today),
     oldestYearMonthFromDates(historyTrades.map((tx) => tx.dealDate)),
     REGION_DAILY_HISTORY_MONTHS,
   );
+  const activityYearMonths = contractMonthOptionList;
   const needsKpis = part === "market" || part === "all";
   const kpis = needsKpis
     ? await computeMarketKpis(
@@ -1351,11 +1373,11 @@ async function computeRegionDaily(params: {
   }
 
   const tCal = performance.now();
-  const monthSeen = seen.filter(
-    (row) => yearMonthFromSeoulDate(row.firstSeenDate) === seenMonth,
+  const monthDealRows = dealRows.filter(
+    (row) => yearMonthFromDealDate(row.axisDate) === seenMonth,
   );
-  const days = buildCalendarDays(monthSeen);
-  const historyTotalCount = monthSeen.length;
+  const days = buildCalendarDays(monthDealRows);
+  const historyTotalCount = monthDealRows.length;
   if (activeProfile) {
     activeProfile.calendarMs += Math.round(performance.now() - tCal);
   }
@@ -1369,11 +1391,17 @@ async function computeRegionDaily(params: {
     };
   }
 
-  const byDate = new Map<string, SeenRow[]>();
+  const seenByDate = new Map<string, AxisRow[]>();
   for (const row of seen) {
-    const prev = byDate.get(row.firstSeenDate);
+    const prev = seenByDate.get(row.axisDate);
     if (prev) prev.push(row);
-    else byDate.set(row.firstSeenDate, [row]);
+    else seenByDate.set(row.axisDate, [row]);
+  }
+  const dealByDate = new Map<string, AxisRow[]>();
+  for (const row of dealRows) {
+    const prev = dealByDate.get(row.axisDate);
+    if (prev) prev.push(row);
+    else dealByDate.set(row.axisDate, [row]);
   }
 
   async function sectionsFor(
@@ -1383,14 +1411,14 @@ async function computeRegionDaily(params: {
   ): Promise<RegionDailyDaySection[]> {
     const out: RegionDailyDaySection[] = [];
     for (const date of wanted) {
-      const daySeen = byDate.get(date);
-      if (!daySeen?.length) continue;
+      const dayRows = dealByDate.get(date);
+      if (!dayRows?.length) continue;
       out.push(
         await enrichSeenDay({
           lawdCodes,
           source,
           historyTrades,
-          daySeen,
+          daySeen: dayRows,
           offset: dayOffset,
           withSparkline,
         }),
@@ -1400,7 +1428,7 @@ async function computeRegionDaily(params: {
   }
 
   if (part === "latest") {
-    const daySeen = hero.date ? (byDate.get(hero.date) ?? []) : [];
+    const daySeen = hero.date ? (seenByDate.get(hero.date) ?? []) : [];
     const tHero = performance.now();
     const section = daySeen.length
       ? await enrichSeenDay({
@@ -1461,7 +1489,7 @@ async function computeRegionDaily(params: {
     .filter((d) => d.dealCount > 0)
     .slice(0, HISTORY_INITIAL_DAY_COUNT)
     .map((d) => d.date);
-  const heroRows = hero.date ? (byDate.get(hero.date) ?? []) : [];
+  const heroRows = hero.date ? (seenByDate.get(hero.date) ?? []) : [];
   const heroSection = heroRows.length
     ? await enrichSeenDay({
         lawdCodes,
@@ -1475,9 +1503,7 @@ async function computeRegionDaily(params: {
   const historySections = await sectionsFor(initialDates, false, 0);
   const deals = heroSection?.deals ?? [];
   const patchedDays = days.map((day) => {
-    const section =
-      historySections.find((s) => s.date === day.date) ??
-      (heroSection?.date === day.date ? heroSection : null);
+    const section = historySections.find((s) => s.date === day.date);
     if (!section) return day;
     return {
       ...day,

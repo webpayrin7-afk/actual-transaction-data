@@ -234,7 +234,7 @@ async function main() {
   assert.ok(homeNames.includes("발견A"));
   assert.equal(homeNames.includes("백필B"), false);
 
-  // Region Section2 / Section3 exclude discovery NULL; Section1 deal_date includes both
+  // Region Section2 excludes discovery NULL; Section3 deal_date includes both
   clearRegionDailyCaches();
   const region = await getRegionDaily({
     regionSlug: "seoul-yongsan",
@@ -249,11 +249,14 @@ async function main() {
   assert.ok(section2Names.includes("발견A"), "Section2 keeps discovery rows");
   const calendarCount =
     region.days.find((d) => d.date === today)?.dealCount ?? 0;
-  assert.equal(calendarCount, 1, "Section3 calendar excludes discovery NULL");
+  assert.equal(calendarCount, 2, "Section3 calendar includes discovery NULL");
   const historyNames = region.historySections.flatMap((s) =>
     s.deals.map((d) => d.aptName),
   );
-  assert.equal(historyNames.includes("백필B"), false);
+  assert.ok(historyNames.includes("백필B"), "Section3 history includes discovery NULL");
+  assert.ok(historyNames.includes("발견A"), "Section3 history keeps discovery rows");
+  assert.equal(region.historyTotalCount, 2);
+  assert.equal(region.historyDateAxis, "deal_date");
 
   // cancellation resolver unchanged: cancel+live → 1 INSERT, discovery set
   const live: Transaction = tx({
@@ -311,7 +314,7 @@ async function main() {
           "unchanged-write-0",
           "home-excludes-discovery-null",
           "region-section2-excludes-discovery-null",
-          "region-section3-excludes-discovery-null",
+          "region-section3-includes-discovery-null",
           "deal-date-paths-unchanged",
           "cancellation-resolver-unchanged",
         ],

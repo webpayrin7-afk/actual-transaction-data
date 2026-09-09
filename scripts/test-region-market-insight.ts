@@ -17,6 +17,7 @@ import {
   koreanYearMonthLabel,
   latestRecordDate,
   medianDealAmount,
+  newlySeenCompactStatus,
   newlySeenSectionTitle,
   pickFeaturedSingogaDeal,
   pickHeroSeenDate,
@@ -401,8 +402,20 @@ assert.equal(visibleNewlySeenDeals(many, false, 2).filter((d) => d.singogaKind).
 assert.equal(koreanYearMonthLabel("202609"), "2026년 9월");
 assert.equal(newlySeenSectionTitle(true), "오늘 새로 확인된 거래");
 assert.equal(newlySeenSectionTitle(false), "최근 새로 확인된 거래");
-assert.equal(EMPTY_NEWLY_SEEN, "아직 새로 확인된 거래가 없습니다.");
-assert.equal(EMPTY_MONTH_HISTORY, "이 달에 새로 확인된 거래가 없습니다.");
+assert.equal(
+  newlySeenCompactStatus({ isToday: true, heroDate: "2026-09-09" }),
+  null,
+);
+assert.equal(
+  newlySeenCompactStatus({ isToday: false, heroDate: "2026-09-09" }),
+  "오늘 새 거래 없음 · 최근 확인 9월 9일",
+);
+assert.equal(
+  newlySeenCompactStatus({ isToday: false, heroDate: null }),
+  "아직 새로 확인된 거래가 없습니다",
+);
+assert.equal(EMPTY_NEWLY_SEEN, "아직 새로 확인된 거래가 없습니다");
+assert.equal(EMPTY_MONTH_HISTORY, "이 달에 매매 실거래가 없습니다");
 assert.equal(
   CALENDAR_HELPER,
   "날짜를 누르면 해당 날짜의 거래로 이동합니다.",
