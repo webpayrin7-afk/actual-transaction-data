@@ -539,13 +539,28 @@ export async function queryAvailableTradeMonths(params: {
   const ph = params.lawdCodes.map(() => "?").join(",");
   noteDbQuery();
   const result = await db.execute({
+    sql: `SELECT year_month AS ym
+          FROM sync_months
+          WHERE lawd_cd IN (${ph}) AND deal_kind = 'trade'
+          GROUP BY year_month
+          HAVING SUM(row_count) > 0
+          ORDER BY year_month DESC`,
+    args: [...params.lawdCodes],
+  });
+  const fromSync = result.rows
+    .map((row) => String(row.ym))
+    .filter((ym) => ym.length === 6);
+  if (fromSync.length > 0) return fromSync;
+
+  noteDbQuery();
+  const fallback = await db.execute({
     sql: `SELECT DISTINCT year_month AS ym
           FROM transactions
           WHERE lawd_cd IN (${ph}) AND deal_type = 'trade'
           ORDER BY year_month DESC`,
     args: [...params.lawdCodes],
   });
-  return result.rows.map((row) => String(row.ym)).filter((ym) => ym.length === 6);
+  return fallback.rows.map((row) => String(row.ym)).filter((ym) => ym.length === 6);
 }
 
 /**
