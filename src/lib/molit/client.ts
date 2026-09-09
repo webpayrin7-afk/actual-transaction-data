@@ -215,14 +215,9 @@ async function fetchOneTrade(
   const promise = fetchOneTradeUncached(lawdCd, yearMonth)
     .then((items) => {
       setCachedMonth(key, items);
-      void import("@/lib/db/persist").then(({ persistMonthInBackground }) => {
-        persistMonthInBackground({
-          lawdCd,
-          yearMonth,
-          dealKind: "trade",
-          items,
-        });
-      });
+      // Request path is read-only: warehouse writes belong to scripts/sync-molit.ts.
+      // Background persist here used replaceMonthTransactions() default
+      // setFirstSeenOnInsert=true and polluted 오늘의 시장 (LAWD 26350, 2026-09-08).
       return items;
     })
     .finally(() => {
@@ -247,14 +242,7 @@ async function fetchOneRent(
   const promise = fetchOneRentUncached(lawdCd, yearMonth)
     .then((items) => {
       setCachedMonth(key, items);
-      void import("@/lib/db/persist").then(({ persistMonthInBackground }) => {
-        persistMonthInBackground({
-          lawdCd,
-          yearMonth,
-          dealKind: "rent",
-          items,
-        });
-      });
+      // Request path is read-only: warehouse writes belong to scripts/sync-molit.ts.
       return items;
     })
     .finally(() => {
