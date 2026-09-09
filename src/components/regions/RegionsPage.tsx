@@ -17,9 +17,19 @@ import {
 } from "@/lib/constants/regions";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
+const METRO_PRIORITY: Metro[] = ["seoul", "gyeonggi"];
+
 const METRO_OPTIONS = (
   Object.entries(METRO_LABELS) as [Metro, string][]
-).filter(([k]) => k !== "other");
+)
+  .filter(([k]) => k !== "other")
+  .sort((a, b) => {
+    const ai = METRO_PRIORITY.indexOf(a[0]);
+    const bi = METRO_PRIORITY.indexOf(b[0]);
+    const ap = ai === -1 ? METRO_PRIORITY.length : ai;
+    const bp = bi === -1 ? METRO_PRIORITY.length : bi;
+    return ap - bp;
+  });
 
 type RegionSuggestion = {
   slug: string;

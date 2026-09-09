@@ -10,6 +10,8 @@ type BackLinkProps = {
   className?: string;
   /** Compact sticky-bar style */
   compact?: boolean;
+  /** Icon only; visible "돌아가기" label hidden (aria-label kept) */
+  hideLabel?: boolean;
 };
 
 /**
@@ -20,6 +22,7 @@ export function BackLink({
   fallback,
   className = "",
   compact = false,
+  hideLabel = false,
 }: BackLinkProps) {
   const router = useRouter();
 
@@ -53,7 +56,7 @@ export function BackLink({
         strokeWidth={2}
         aria-hidden
       />
-      <span>돌아가기</span>
+      {hideLabel ? null : <span>돌아가기</span>}
     </button>
   );
 }

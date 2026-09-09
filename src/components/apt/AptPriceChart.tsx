@@ -24,6 +24,12 @@ function formatYmLabel(ym: string): string {
   return `${ym.slice(2, 4)}년 ${Number(ym.slice(4, 6))}월`;
 }
 
+/** Recharts category tick — "24.01" 숫자 파싱을 피하기 위해 slash 라벨 사용 */
+function axisLabelFromYm(ym: string): string {
+  if (ym.length !== 6) return ym;
+  return `${ym.slice(2, 4)}/${ym.slice(4, 6)}`;
+}
+
 export function AptPriceChart({
   points,
 }: {
@@ -33,11 +39,26 @@ export function AptPriceChart({
     () =>
       points.map((p) => ({
         ...p,
+        axisLabel: axisLabelFromYm(p.yearMonth),
         tradeEok: toEok(p.tradeAvg),
         jeonseEok: toEok(p.jeonseAvg),
       })),
     [points],
   );
+
+  /** 약 6개 눈금 + 시작·끝 월 항상 표시 (interval만 쓰면 끝 라벨이 빠짐) */
+  const xTicks = useMemo(() => {
+    const n = data.length;
+    if (n === 0) return [] as string[];
+    if (n <= 6) return data.map((d) => d.axisLabel);
+    const idxs = new Set<number>([0, n - 1]);
+    for (let i = 1; i <= 4; i += 1) {
+      idxs.add(Math.round((i * (n - 1)) / 5));
+    }
+    return [...idxs]
+      .sort((a, b) => a - b)
+      .map((i) => data[i]!.axisLabel);
+  }, [data]);
 
   if (data.length === 0) {
     return (
@@ -52,19 +73,19 @@ export function AptPriceChart({
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
           <XAxis
-            dataKey="yearMonth"
-            tickFormatter={(ym: string) =>
-              ym.endsWith("01") ? `${ym.slice(2, 4)}년` : ""
-            }
-            interval="preserveStartEnd"
-            minTickGap={28}
+            type="category"
+            dataKey="axisLabel"
+            ticks={xTicks}
+            interval={0}
             tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
+            allowDuplicatedCategory={false}
+            height={28}
           />
           <YAxis
             yAxisId="price"
@@ -78,7 +99,7 @@ export function AptPriceChart({
             yAxisId="volume"
             orientation="right"
             tickFormatter={(v: number) => `${v}건`}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#0f766e", fontSize: 11, fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
             width={40}
@@ -90,7 +111,10 @@ export function AptPriceChart({
               border: "1px solid #e2e8f0",
               boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
             }}
-            labelFormatter={(ym) => formatYmLabel(String(ym))}
+            labelFormatter={(_label, payload) => {
+              const ym = payload?.[0]?.payload?.yearMonth;
+              return ym ? formatYmLabel(String(ym)) : String(_label ?? "");
+            }}
             formatter={(value: number | string, name: string) => {
               if (name === "거래량") return [`${value}건`, name];
               if (value == null || value === "") return ["-", name];
@@ -101,14 +125,24 @@ export function AptPriceChart({
             verticalAlign="top"
             height={28}
             iconType="circle"
-            wrapperStyle={{ fontSize: 12, color: "#475569" }}
+            wrapperStyle={{ fontSize: 12, color: "#334155" }}
+            formatter={(value) => (
+              <span
+                style={{
+                  color: value === "거래량" ? "#0f766e" : "#334155",
+                  fontWeight: value === "거래량" ? 600 : 500,
+                }}
+              >
+                {value}
+              </span>
+            )}
           />
           <Bar
             yAxisId="volume"
             dataKey="volume"
             name="거래량"
-            fill="#99f6e4"
-            opacity={0.85}
+            fill="#2dd4bf"
+            opacity={0.9}
             barSize={6}
             radius={[2, 2, 0, 0]}
           />
