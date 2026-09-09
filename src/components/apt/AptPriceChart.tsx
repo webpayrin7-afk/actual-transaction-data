@@ -81,7 +81,7 @@ export function AptPriceChart({
             dataKey="axisLabel"
             ticks={xTicks}
             interval={0}
-            tick={{ fill: "#64748b", fontSize: 11 }}
+            tick={{ fill: "#475569", fontSize: 11 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
             allowDuplicatedCategory={false}
