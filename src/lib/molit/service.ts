@@ -26,10 +26,15 @@ import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
 import {
   CONTRACT_DATE_BASIS_HELP,
+  CONTRACT_MONTH_LOOKBACK,
   HISTORY_DATE_BASIS_HELP,
   HISTORY_DAY_FETCH_CAP,
   HISTORY_INITIAL_DAY_COUNT,
+  activityYearMonthsFromSeenDates,
+  contractMonthOptions,
+  contractMonthOptionsFromCoverage,
   medianPyeongPrice,
+  oldestYearMonthFromDates,
   pickHeroSeenDate,
   priorTypeMaxAmount,
   yearMonthInLookback,
@@ -54,7 +59,7 @@ import type {
   TransactionsResponse,
 } from "@/types/transaction";
 
-const REGION_DAILY_HISTORY_MONTHS = 24;
+const REGION_DAILY_HISTORY_MONTHS = CONTRACT_MONTH_LOOKBACK;
 
 function monthsBefore(dateStr: string, months: number): string {
   const d = new Date(`${dateStr.slice(0, 10)}T00:00:00`);
@@ -703,6 +708,10 @@ export interface RegionDailyResponse {
   firstSeenReady: boolean;
   /** 히어로 확인 건수가 비정상적으로 커 all-time 신고가 lookup을 생략 */
   bulkIngestDay: boolean;
+  /** SECTION 1: deal_date 최근 24개월 연속(coverage가 더 짧으면 그 범위). */
+  contractMonthOptions: string[];
+  /** SECTION 3: first_seen KST 월. SECTION 1과 공유하지 않음. */
+  activityYearMonths: string[];
 }
 
 const REGION_DAILY_DATE_NOTE = SEEN_DATE_BASIS_HELP;
@@ -902,6 +911,8 @@ function emptyRegionDaily(
     firstSeenReady: extras?.firstSeenReady ?? false,
     warning: extras?.warning,
     bulkIngestDay: extras?.bulkIngestDay ?? false,
+    contractMonthOptions: extras?.contractMonthOptions ?? [],
+    activityYearMonths: extras?.activityYearMonths ?? [],
   };
 }
 
@@ -975,7 +986,10 @@ async function loadRegionTradePool(
   const job = (async () => {
     let source: "db" | "api" = "api";
     let historyTrades: Transaction[] = [];
-    const historyMonths = recentYearMonths(REGION_DAILY_HISTORY_MONTHS);
+    const historyMonths = contractMonthOptions(
+      yearMonthFromSeoulDate(seoulToday()),
+      REGION_DAILY_HISTORY_MONTHS,
+    );
 
     if (hasDb()) {
       try {
@@ -1201,6 +1215,14 @@ async function computeRegionDaily(params: {
   const src = source === "db" ? "db" : "api";
   const seen = collectSeen(historyTrades);
   const firstSeenReady = seen.length > 0;
+  const activityYearMonths = activityYearMonthsFromSeenDates(
+    seen.map((row) => row.firstSeenDate),
+  );
+  const contractMonthOptionList = contractMonthOptionsFromCoverage(
+    yearMonthFromSeoulDate(today),
+    oldestYearMonthFromDates(historyTrades.map((tx) => tx.dealDate)),
+    REGION_DAILY_HISTORY_MONTHS,
+  );
   const kpis = await computeMarketKpis(
     historyTrades,
     contractMonth,
@@ -1218,6 +1240,8 @@ async function computeRegionDaily(params: {
     firstSeenReady,
     selectedDate: hero.date,
     latestIsToday: hero.isToday,
+    contractMonthOptions: contractMonthOptionList,
+    activityYearMonths,
   });
 
   if (part === "market") {

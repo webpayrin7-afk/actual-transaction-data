@@ -26,6 +26,54 @@ export function yearMonthInLookback(
   return ym >= oldest && ym <= todayYm;
 }
 
+/** SECTION 1 계약월 selector / 24m pool 기본 길이. deal_date 축. */
+export const CONTRACT_MONTH_LOOKBACK = 24;
+
+/** 최신 계약월부터 `months`개월 연속 캘린더. 거래 0건 월도 포함. */
+export function contractMonthOptions(
+  endYm: string,
+  months = CONTRACT_MONTH_LOOKBACK,
+): string[] {
+  if (!endYm || months <= 0) return [];
+  return Array.from({ length: months }, (_, i) => shiftYearMonth(endYm, -i));
+}
+
+/**
+ * 최근 `months`개월 연속 범위이되, pool에 실제 deal_date가 있는
+ * 가장 오래된 월보다 더 과거는 자르지 않는다(짧은 coverage).
+ * 구간 안 0건 월은 숨기지 않는다.
+ */
+export function contractMonthOptionsFromCoverage(
+  endYm: string,
+  oldestDealYm: string | null,
+  months = CONTRACT_MONTH_LOOKBACK,
+): string[] {
+  const window = contractMonthOptions(endYm, months);
+  if (!oldestDealYm) return window;
+  return window.filter((ym) => ym >= oldestDealYm);
+}
+
+export function oldestYearMonthFromDates(dealDates: string[]): string | null {
+  let oldest: string | null = null;
+  for (const raw of dealDates) {
+    const ym = yearMonthFromDealDate(raw);
+    if (ym.length !== 6) continue;
+    if (!oldest || ym < oldest) oldest = ym;
+  }
+  return oldest;
+}
+
+/** SECTION 3 activityMonth. first_seen KST 월만. 빈 달을 fake로 채우지 않음. */
+export function activityYearMonthsFromSeenDates(dates: string[]): string[] {
+  const set = new Set<string>();
+  for (const raw of dates) {
+    const day = raw.slice(0, 10);
+    if (day.length < 10) continue;
+    set.add(`${day.slice(0, 4)}${day.slice(5, 7)}`);
+  }
+  return [...set].sort((a, b) => b.localeCompare(a));
+}
+
 /** 신고가 건수 / 동일 universe 거래량. 분모가 없으면 null. */
 export function singogaSharePct(
   singogaCount: number,

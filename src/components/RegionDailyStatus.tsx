@@ -22,9 +22,11 @@ import {
   CONTRACT_DATE_BASIS_HELP,
   CONTRACT_DATE_BASIS_LABEL,
   CALENDAR_HELPER,
+  CONTRACT_MONTH_LOOKBACK,
   EMPTY_MONTH_HISTORY,
   EMPTY_NEWLY_SEEN,
   HISTORY_INITIAL_DAY_COUNT,
+  contractMonthOptions,
   hiddenNewlySeenCount,
   increaseRatePct,
   koreanMonthDayLabel,
@@ -111,9 +113,11 @@ function DealMetaLine({
   );
 }
 
-function monthOptions(): string[] {
-  const current = yearMonthFromSeoulDate(seoulToday());
-  return Array.from({ length: 6 }, (_, i) => shiftYearMonth(current, -i));
+function fallbackContractMonths(): string[] {
+  return contractMonthOptions(
+    yearMonthFromSeoulDate(seoulToday()),
+    CONTRACT_MONTH_LOOKBACK,
+  );
 }
 
 function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
@@ -704,7 +708,7 @@ export function RegionDailyStatus({
   regionSlug: string;
   regionName: string;
 }) {
-  const yearMonths = useMemo(() => monthOptions(), []);
+  const contractMonthFallback = useMemo(() => fallbackContractMonths(), []);
   const [contractMonth, setContractMonth] = useState(
     () => yearMonthFromSeoulDate(seoulToday()),
   );
@@ -765,6 +769,17 @@ export function RegionDailyStatus({
     staleTime: 60_000,
     retry: 1,
   });
+
+  const section1Months =
+    marketQuery.data?.contractMonthOptions?.length
+      ? marketQuery.data.contractMonthOptions
+      : contractMonthFallback;
+  const section3Months =
+    latest?.activityYearMonths?.length
+      ? latest.activityYearMonths
+      : historyQuery.data?.activityYearMonths?.length
+        ? historyQuery.data.activityYearMonths
+        : [activityMonth];
 
   const historyDays = historyQuery.data?.days ?? [];
   const activeDates = historyDays
@@ -905,7 +920,7 @@ export function RegionDailyStatus({
         <div className="flex flex-col gap-2">
         <MonthNav
           value={contractMonth}
-          options={yearMonths}
+          options={section1Months}
           onChange={setContractMonth}
         />
         {marketQuery.isError ? (
@@ -1068,7 +1083,7 @@ export function RegionDailyStatus({
             days={calendarDays}
             selectedDate={calendarSelected}
             onSelectDate={selectCalendarDate}
-            monthOptions={yearMonths}
+            monthOptions={section3Months}
             onChangeMonth={changeActivityMonth}
           />
           <p className="mt-2 max-w-md text-[11px] leading-4 text-slate-400">

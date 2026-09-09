@@ -38,9 +38,13 @@ import {
   formatMomChangeValue,
   medianPyeongPrice,
   momChangePct,
+  oldestYearMonthFromDates,
   pyeongPriceManwon,
   singogaSharePct,
   yearMonthInLookback,
+  activityYearMonthsFromSeenDates,
+  contractMonthOptions,
+  contractMonthOptionsFromCoverage,
 } from "../src/lib/region/market-insight";
 import { formatSqmApproxPyeong } from "../src/lib/utils/format";
 import { seoulDateOf } from "../src/lib/market/time";
@@ -51,6 +55,32 @@ assert.equal(shiftYearMonth("202601", -1), "202512");
 assert.equal(shiftYearMonth("202609", -12), "202509");
 assert.equal(yearMonthInLookback("202509", "202609", 24), true);
 assert.equal(yearMonthInLookback("202409", "202609", 24), false);
+
+{
+  const opts = contractMonthOptions("202609", 24);
+  assert.equal(opts.length, 24);
+  assert.equal(opts[0], "202609");
+  assert.equal(opts[1], "202608");
+  assert.equal(opts[11], "202510");
+  assert.equal(opts[23], "202410");
+  for (let i = 1; i < opts.length; i++) {
+    assert.equal(opts[i], shiftYearMonth(opts[i - 1]!, -1));
+  }
+  assert.ok(opts.includes("202608"));
+  const covered = contractMonthOptionsFromCoverage("202609", "202506", 24);
+  assert.equal(covered[0], "202609");
+  assert.equal(covered.at(-1), "202506");
+  assert.ok(covered.includes("202508"));
+  assert.equal(oldestYearMonthFromDates(["2026-08-01", "2026-06-15"]), "202606");
+  const activity = activityYearMonthsFromSeenDates([
+    "2026-09-08",
+    "2026-09-01",
+    "2026-07-30",
+  ]);
+  assert.deepEqual(activity, ["202609", "202607"]);
+  assert.ok(!activity.includes("202608"));
+  assert.notDeepEqual(opts, activity);
+}
 assert.equal(singogaSharePct(7, 127), 5.5);
 assert.equal(singogaSharePct(0, 19), 0);
 assert.equal(singogaSharePct(8, 0), null);
