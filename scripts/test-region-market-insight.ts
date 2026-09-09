@@ -21,6 +21,7 @@ import {
   volumeChangePct,
   yearMonthFromDealDate,
 } from "../src/lib/region/market-insight";
+import { formatSqmApproxPyeong } from "../src/lib/utils/format";
 
 assert.equal(yearMonthFromDealDate("2026-09-05"), "202609");
 assert.equal(shiftYearMonth("202609", -1), "202608");
@@ -132,6 +133,7 @@ assert.equal(recordDateDomId("2026-09-05"), "record-date-2026-09-05");
 assert.equal(priorPeakAmount({ dealAmount: 106000, increaseAmount: 18000 }), 88000);
 assert.equal(increaseRatePct({ dealAmount: 106000, increaseAmount: 18000 }), 20.5);
 assert.equal(increaseRatePct({ dealAmount: 100, increaseAmount: 0 }), null);
+assert.equal(increaseRatePct({ dealAmount: 100, increaseAmount: 100 }), null);
 
 const featured = pickFeaturedSingogaDeal([
   {
@@ -217,5 +219,9 @@ assert.deepEqual(
     ["2026-09-05", 149000],
   ],
 );
+
+assert.equal(formatSqmApproxPyeong(59.98), "59.98㎡ (약 18평)");
+assert.equal(formatSqmApproxPyeong(84.97), "84.97㎡ (약 26평)");
+assert.equal(formatSqmApproxPyeong(114.8), "114.80㎡ (약 35평)");
 
 console.log("test-region-market-insight: ok");

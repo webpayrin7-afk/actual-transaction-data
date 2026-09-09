@@ -31,6 +31,7 @@ import {
   formatArea,
   formatDealDate,
   formatEok,
+  formatSqmApproxPyeong,
   yearMonthLabel,
 } from "@/lib/utils/format";
 
@@ -108,9 +109,8 @@ function FeaturedDealCard({
     deal.dong || null,
     deal.buildYear ? `${deal.buildYear}년 준공` : null,
   ].filter(Boolean);
-  const dealMeta = [
-    `${Number(deal.exclusiveArea).toFixed(2)}㎡`,
-    `${deal.floor}층`,
+  const specLabel = `${formatSqmApproxPyeong(deal.exclusiveArea)} · ${deal.floor}층`;
+  const secondaryMeta = [
     deal.dealingGbn || null,
     showContractDate ? contractDayLabel(deal.dealDate).replace(" 계약", "") : null,
     deal.recent3mCount > 0 ? `최근 3개월 ${deal.recent3mCount}건` : null,
@@ -122,25 +122,25 @@ function FeaturedDealCard({
       className="block rounded-xl border border-slate-200 border-l-[3px] border-l-teal-600 bg-white px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 text-base font-semibold leading-snug text-pretty text-slate-900 line-clamp-2">
+        <p className="min-w-0 text-[17px] font-bold leading-snug tracking-tight text-pretty text-slate-900 line-clamp-2">
           {deal.aptName}
         </p>
         <DealBadges deal={deal} />
       </div>
       {titleMeta.length > 0 ? (
-        <p className="mt-0.5 truncate text-xs text-slate-500">
+        <p className="mt-0.5 truncate text-xs font-normal text-slate-500">
           {titleMeta.join(" · ")}
         </p>
       ) : null}
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <p className="text-[22px] font-semibold leading-none tabular-nums text-slate-900">
+        <span className="text-[22px] font-semibold leading-none tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
-        </p>
+        </span>
         {deal.increaseAmount > 0 ? (
-          <p className="whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
+          <span className="inline-flex items-baseline whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
             ▲ {formatEok(deal.increaseAmount)}
-            {rate != null ? ` (+${rate}%)` : ""}
-          </p>
+            {rate != null ? <span className="ml-0.5">(+{rate}%)</span> : null}
+          </span>
         ) : null}
       </div>
       {prior != null ? (
@@ -148,11 +148,19 @@ function FeaturedDealCard({
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
-      {dealMeta.length > 0 ? (
-        <p className="mt-1.5 truncate text-[12px] text-slate-600">
-          {dealMeta.join(" · ")}
-        </p>
-      ) : null}
+      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-[12px] leading-4">
+        <span className="whitespace-nowrap font-medium text-slate-700">
+          {specLabel}
+        </span>
+        {secondaryMeta.length > 0 ? (
+          <>
+            <span className="select-none text-slate-300" aria-hidden>
+              ·
+            </span>
+            <span className="text-slate-500">{secondaryMeta.join(" · ")}</span>
+          </>
+        ) : null}
+      </div>
       {trend && trend.length >= 3 ? (
         <TypePriceSparkline
           points={trend}
@@ -426,8 +434,8 @@ export function RegionDailyStatus({
   const latestSingogaDate = grouped[0]?.date ?? null;
 
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-5 sm:gap-6">
-      <div className="flex flex-col gap-3 sm:gap-4">
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-6">
+      <div className="flex flex-col gap-2.5 sm:gap-4">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <p className="text-sm text-slate-600">
           <span className="font-medium text-slate-800">
