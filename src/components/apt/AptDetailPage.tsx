@@ -453,7 +453,7 @@ export function AptDetailPage({
           단지 정보를 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
-          <BackLink fallback="/complexes" hideLabel />
+          <BackLink fallback="/complexes" />
         </div>
       </div>
     );
@@ -490,7 +490,7 @@ export function AptDetailPage({
       </div>
 
       <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/complexes" hideLabel />
+        <BackLink fallback="/complexes" />
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
