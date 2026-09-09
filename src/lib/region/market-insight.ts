@@ -261,11 +261,11 @@ export function koreanYearMonthLabel(ym: string): string {
 
 export const CONTRACT_DATE_BASIS_LABEL = "계약일 기준";
 export const CONTRACT_DATE_BASIS_HELP =
-  "실제 매매계약이 체결된 날짜를 기준으로 집계한 시장 통계입니다. 최근 월은 신고 시차로 거래량이 추가될 수 있습니다.";
+  "실제 매매계약이 체결된 날짜를 기준으로 집계합니다. 최근 월은 신고 시차로 거래량이 추가될 수 있습니다.";
 
 export const SEEN_DATE_BASIS_LABEL = "확인일 기준";
 export const SEEN_DATE_BASIS_HELP =
-  "아파트 데이터랩이 해당 거래를 처음 확인한 날짜입니다. 실제 계약일과 다를 수 있습니다.";
+  "아파트 데이터랩이 거래를 처음 확인한 날짜입니다. 실제 계약일과 다를 수 있습니다.";
 
 export const HISTORY_DATE_BASIS_HELP =
   "이 달 새로 확인된 매매 전체입니다. 계약월과 다를 수 있습니다.";

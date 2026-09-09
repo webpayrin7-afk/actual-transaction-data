@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { aptDetailHref } from "@/lib/molit/apt";
 import type {
   RegionDailyDaySection,
@@ -19,17 +21,14 @@ import { seoulToday, yearMonthFromSeoulDate } from "@/lib/market/time";
 import {
   CONTRACT_DATE_BASIS_HELP,
   CONTRACT_DATE_BASIS_LABEL,
-  HISTORY_DATE_BASIS_HELP,
   HISTORY_INITIAL_DAY_COUNT,
   hiddenNewlySeenCount,
   increaseRatePct,
   koreanMonthDayLabel,
   koreanYearMonthLabel,
   LEGACY_FIRST_SEEN_NOTE,
-  newlySeenSectionTitle,
   priorPeakAmount,
   recordDateDomId,
-  regionMarketInsight,
   SEEN_DATE_BASIS_HELP,
   SEEN_DATE_BASIS_LABEL,
   shiftYearMonth,
@@ -214,7 +213,7 @@ function DealGrid({
   );
 }
 
-function DateBasisNote({
+function DateBasisChip({
   label,
   help,
 }: {
@@ -222,61 +221,104 @@ function DateBasisNote({
   help: string;
 }) {
   return (
-    <details className="text-xs text-slate-500">
-      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-slate-600 marker:content-none">
+    <details className="region-basis-chip relative min-w-0">
+      <summary className="inline-flex cursor-pointer items-center gap-0.5 rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400">
         {label}
-        <span className="text-[10px] text-slate-400" aria-hidden="true">
+        <span className="text-[10px] font-normal text-slate-400" aria-hidden="true">
           ⓘ
         </span>
       </summary>
-      <p className="mt-1 max-w-xl text-pretty leading-5">{help}</p>
+      <p className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-72 max-w-[calc(100vw-2.5rem)] rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
+        {help}
+      </p>
     </details>
   );
 }
 
-function MonthPager({
+function SectionHeading({
+  title,
+  basisLabel,
+  basisHelp,
+  aside,
+}: {
+  title: string;
+  basisLabel: string;
+  basisHelp: string;
+  aside?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <h2 className="text-[15px] font-semibold tracking-tight text-slate-900 sm:text-base">
+        {title}
+      </h2>
+      <DateBasisChip label={basisLabel} help={basisHelp} />
+      {aside}
+    </div>
+  );
+}
+
+function MonthNav({
   value,
   options,
   onChange,
+  spread = false,
 }: {
   value: string;
   options: string[];
   onChange: (next: string) => void;
+  spread?: boolean;
 }) {
   const canPrev = options.includes(shiftYearMonth(value, -1));
   const canNext = options.includes(shiftYearMonth(value, 1));
+  const btn =
+    "inline-flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-30";
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center ${spread ? "w-full" : ""}`}>
       <button
         type="button"
         disabled={!canPrev}
         onClick={() => onChange(shiftYearMonth(value, -1))}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+        className={btn}
         aria-label="이전 달"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-5 w-5" />
       </button>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+      <p
+        className={`text-center text-sm font-medium tabular-nums text-slate-800 ${
+          spread ? "flex-1" : "min-w-[8.25rem]"
+        }`}
+        aria-live="polite"
       >
-        {options.map((ym) => (
-          <option key={ym} value={ym}>
-            {koreanYearMonthLabel(ym)}
-          </option>
-        ))}
-      </select>
+        {koreanYearMonthLabel(value)}
+      </p>
       <button
         type="button"
         disabled={!canNext}
         onClick={() => onChange(shiftYearMonth(value, 1))}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+        className={btn}
         aria-label="다음 달"
       >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-5 w-5" />
       </button>
     </div>
+  );
+}
+
+function MoreControl({
+  children,
+  onClick,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mt-1 inline-flex min-h-9 items-center self-start px-0.5 text-sm font-medium text-slate-600 underline-offset-2 transition hover:text-slate-900 hover:underline"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -285,11 +327,15 @@ function MonthCalendar({
   days,
   selectedDate,
   onSelectDate,
+  monthOptions,
+  onChangeMonth,
 }: {
   yearMonth: string;
   days: RegionDailyDaySummary[];
   selectedDate: string | null;
   onSelectDate: (date: string) => void;
+  monthOptions: string[];
+  onChangeMonth: (next: string) => void;
 }) {
   const byDate = useMemo(() => {
     const map = new Map<string, RegionDailyDaySummary>();
@@ -310,8 +356,14 @@ function MonthCalendar({
   const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="max-w-md rounded-xl border border-slate-200 bg-white p-2 sm:p-2.5">
-      <div className="mb-1 grid grid-cols-7 text-center text-[10px] font-medium text-slate-400">
+    <div className="max-w-md">
+      <MonthNav
+        value={yearMonth}
+        options={monthOptions}
+        onChange={onChangeMonth}
+        spread
+      />
+      <div className="mt-1 grid grid-cols-7 text-center text-[10px] font-medium text-slate-400">
         {weekLabels.map((label) => (
           <div key={label} className="py-0.5">
             {label}
@@ -348,14 +400,14 @@ function MonthCalendar({
               aria-pressed={active}
               className={`relative flex min-h-10 flex-col items-center justify-center rounded-md text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:min-h-11 ${
                 active
-                  ? "bg-slate-800 text-white"
-                  : "bg-slate-50 text-slate-800 hover:bg-slate-100"
+                  ? "bg-slate-200 text-slate-900"
+                  : "text-slate-800 hover:bg-slate-100/80"
               }`}
             >
               <span className="font-medium leading-none">{day}</span>
               <span
-                className={`mt-0.5 text-[10px] leading-none ${
-                  active ? "text-slate-200" : "text-slate-500"
+                className={`mt-0.5 text-[10px] leading-none tabular-nums ${
+                  active ? "text-slate-600" : "text-slate-500"
                 }`}
               >
                 {dealCount}
@@ -363,9 +415,7 @@ function MonthCalendar({
               </span>
               {hasSingoga ? (
                 <span
-                  className={`mt-0.5 h-1 w-1 rounded-full ${
-                    active ? "bg-teal-200" : "bg-teal-600"
-                  }`}
+                  className="mt-0.5 h-1 w-1 rounded-full bg-teal-600"
                   aria-hidden="true"
                 />
               ) : (
@@ -383,19 +433,25 @@ function Kpi({
   label,
   value,
   hint,
+  valueClassName = "text-slate-900",
 }: {
   label: string;
   value: string;
   hint?: string;
+  valueClassName?: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-2">
-      <p className="text-[11px] text-slate-500">{label}</p>
-      <p className="mt-0.5 text-[15px] font-semibold tabular-nums text-slate-900 sm:text-base">
+    <div className="min-w-0 px-2.5 py-2 sm:px-3 sm:py-2.5">
+      <p className="text-[11px] leading-4 text-slate-500">{label}</p>
+      <p
+        className={`mt-0.5 text-lg font-semibold leading-tight tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
+      >
         {value}
       </p>
       {hint ? (
-        <p className="mt-0.5 text-[11px] tabular-nums text-slate-500">{hint}</p>
+        <p className="mt-0.5 text-[11px] leading-4 tabular-nums text-slate-500">
+          {hint}
+        </p>
       ) : null}
     </div>
   );
@@ -407,6 +463,16 @@ function dayCountLine(section: RegionDailyDaySection): string {
     return `${n}건`;
   }
   return `${n}건 · 신고가 ${section.singogaCount.toLocaleString("ko-KR")}건`;
+}
+
+function seenCountLine(opts: {
+  total: number;
+  singogaCount: number;
+  bulk: boolean;
+}): string {
+  const n = opts.total.toLocaleString("ko-KR");
+  if (opts.bulk) return `총 ${n}건 · 신고가 계산 생략`;
+  return `총 ${n}건 · 신고가 ${opts.singogaCount.toLocaleString("ko-KR")}건`;
 }
 
 function scrollToDateHeading(date: string) {
@@ -535,14 +601,6 @@ export function RegionDailyStatus({
   }, [daysQuery.data, visibleDayCount, clickedDates]);
 
   const market = marketQuery.data;
-  const insight = market
-    ? regionMarketInsight({
-        monthTradeCount: market.monthTradeCount,
-        prevMonthTradeCount: market.prevMonthTradeCount,
-        singogaCount: null,
-        comparePartial: market.comparePartial,
-      })
-    : null;
   const volumePct =
     market != null
       ? volumeChangePct(market.monthTradeCount, market.prevMonthTradeCount)
@@ -610,39 +668,41 @@ export function RegionDailyStatus({
     };
   });
 
+  const heroCount = seenCountLine({
+    total: latest?.tradeCount ?? heroDeals.length,
+    singogaCount: latest?.selectedDaySingogaCount ?? 0,
+    bulk: Boolean(latest?.bulkIngestDay),
+  });
+
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-8 sm:gap-10">
-      <section aria-label={`${regionName} 아파트 시장 현황`} className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-          <h2 className="text-sm font-semibold text-slate-900">
-            {regionName} 아파트 시장 현황
-          </h2>
-          <MonthPager
-            value={contractMonth}
-            options={yearMonths}
-            onChange={setContractMonth}
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
-          <span>{koreanYearMonthLabel(contractMonth)}</span>
-          <span className="text-slate-300">·</span>
-          <DateBasisNote
-            label={CONTRACT_DATE_BASIS_LABEL}
-            help={CONTRACT_DATE_BASIS_HELP}
-          />
-        </div>
+    <div className="flex min-h-[min(70vh,42rem)] flex-col">
+      <section
+        aria-label={`${regionName} 지역 시장 현황`}
+        className="flex flex-col gap-3 pb-8 sm:pb-10"
+      >
+        <SectionHeading
+          title="지역 시장 현황"
+          basisLabel={CONTRACT_DATE_BASIS_LABEL}
+          basisHelp={CONTRACT_DATE_BASIS_HELP}
+        />
+        <MonthNav
+          value={contractMonth}
+          options={yearMonths}
+          onChange={setContractMonth}
+        />
         {marketQuery.isError ? (
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
             시장 현황을 불러오지 못했습니다.
           </p>
         ) : null}
         {marketQuery.isLoading && !market ? (
-          <div className="h-24 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
+          <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
         ) : market ? (
           <>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div className="border-y border-slate-200/70">
+            <div className="grid grid-cols-2 lg:grid-cols-4">
               <Kpi
-                label="거래"
+                label="거래량"
                 value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
                 hint={market.comparePartial ? "오늘까지" : undefined}
               />
@@ -655,24 +715,46 @@ export function RegionDailyStatus({
                 }
               />
               <Kpi
-                label="전월 같은 기간"
+                label="전월 동기간"
                 value={
                   volumePct == null
                     ? "—"
                     : `${volumePct > 0 ? "+" : ""}${volumePct}%`
                 }
-                hint={
+                valueClassName={
+                  volumePct == null
+                    ? "text-slate-900"
+                    : volumePct > 0
+                      ? "text-teal-700"
+                      : volumePct < 0
+                        ? "text-rose-600"
+                        : "text-slate-900"
+                }
+              />
+              <Kpi
+                label="전월 거래량"
+                value={
                   market.prevMonthTradeCount > 0
                     ? `${market.prevMonthTradeCount.toLocaleString("ko-KR")}건`
+                    : "—"
+                }
+                hint={
+                  market.prevMonthTradeCount > 0
+                    ? market.comparePartial
+                      ? "같은 기간"
+                      : undefined
                     : "비교할 전월 거래 없음"
                 }
               />
             </div>
-            {insight ? (
-              <p className="text-sm leading-6 text-pretty text-slate-600">
-                {insight}
-              </p>
-            ) : null}
+            </div>
+            <Link
+              href="/stats"
+              className="inline-flex items-center gap-1 self-start text-sm font-medium text-slate-600 transition hover:text-slate-900"
+            >
+              시장 동향 자세히 보기
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </>
         ) : null}
       </section>
@@ -680,16 +762,19 @@ export function RegionDailyStatus({
       <section
         id="newly-seen-deals"
         aria-label={`${regionName} 새로 확인된 거래`}
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-2.5 border-t border-slate-200/80 pt-8 pb-8 sm:pt-10 sm:pb-10"
       >
-        <h2 className="text-sm font-semibold text-slate-900">
-          {heroDate
-            ? newlySeenSectionTitle(heroIsToday)
-            : "새로 확인된 거래"}
-        </h2>
-        <DateBasisNote
-          label={SEEN_DATE_BASIS_LABEL}
-          help={SEEN_DATE_BASIS_HELP}
+        <SectionHeading
+          title="새로 확인된 거래"
+          basisLabel={SEEN_DATE_BASIS_LABEL}
+          basisHelp={SEEN_DATE_BASIS_HELP}
+          aside={
+            heroIsToday ? (
+              <span className="rounded-full bg-teal-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-teal-700">
+                오늘
+              </span>
+            ) : null
+          }
         />
         {latestQuery.isError ? (
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -697,47 +782,51 @@ export function RegionDailyStatus({
           </p>
         ) : null}
         {latestQuery.isLoading && !latest ? (
-          <div className="h-40 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
+          <div className="h-40 animate-pulse rounded-lg bg-slate-200/50" />
         ) : heroDate && heroDeals.length > 0 ? (
           <>
             {heroIsToday ? (
-              <p className="text-xs tabular-nums text-slate-500">
-                {koreanMonthDayLabel(heroDate)} · 총{" "}
-                {(latest?.tradeCount ?? heroDeals.length).toLocaleString("ko-KR")}건
-                {latest?.bulkIngestDay
-                  ? " · 신고가 계산 생략"
-                  : ` · 신고가 ${(latest?.selectedDaySingogaCount ?? 0).toLocaleString("ko-KR")}건`}
+              <p className="text-sm leading-5">
+                <span className="font-medium text-slate-900">
+                  {koreanMonthDayLabel(heroDate)}
+                </span>
+                <span className="tabular-nums text-slate-500">
+                  {" "}
+                  · {heroCount}
+                </span>
               </p>
             ) : (
-              <div className="text-xs leading-5 text-slate-500">
-                <p>오늘 새로 확인된 거래는 아직 없습니다</p>
-                <p className="mt-0.5 tabular-nums">
-                  최근 확인 {koreanMonthDayLabel(heroDate)} · 총{" "}
-                  {(latest?.tradeCount ?? heroDeals.length).toLocaleString("ko-KR")}건
-                  {latest?.bulkIngestDay
-                    ? " · 신고가 계산 생략"
-                    : ` · 신고가 ${(latest?.selectedDaySingogaCount ?? 0).toLocaleString("ko-KR")}건`}
+              <div className="text-sm leading-5">
+                <p className="text-slate-600">
+                  오늘 새로 확인된 거래는 아직 없습니다
+                </p>
+                <p className="mt-0.5">
+                  <span className="text-slate-500">최근 확인 </span>
+                  <span className="font-medium text-slate-900">
+                    {koreanMonthDayLabel(heroDate)}
+                  </span>
+                  <span className="tabular-nums text-slate-500">
+                    {" "}
+                    · {heroCount}
+                  </span>
                 </p>
               </div>
             )}
             {latest?.bulkIngestDay ? (
               <p className="text-pretty text-xs leading-5 text-slate-500">
-                이날 확인 건수가 많아 신고가 강조는 생략했습니다. 신고가가 0건이라는 뜻은 아닙니다.
+                이날 확인 건수가 많아 신고가 강조는 생략했습니다. 신고가가
+                0건이라는 뜻은 아닙니다.
               </p>
             ) : null}
             <DealGrid deals={heroVisible} regionSlug={regionSlug} />
             {heroHidden > 0 ? (
-              <button
-                type="button"
-                onClick={() => setHeroExpanded(true)}
-                className="mt-1 inline-flex min-h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              >
+              <MoreControl onClick={() => setHeroExpanded(true)}>
                 더보기 {heroHidden.toLocaleString("ko-KR")}건
-              </button>
+              </MoreControl>
             ) : null}
           </>
         ) : (
-          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-pretty text-sm text-slate-500">
+          <div className="px-1 py-6 text-pretty text-sm text-slate-500">
             {latest?.firstSeenReady
               ? "새로 확인된 매매가 없습니다."
               : LEGACY_FIRST_SEEN_NOTE}
@@ -745,58 +834,50 @@ export function RegionDailyStatus({
         )}
       </section>
 
-      <section aria-label={`${regionName} 거래 내역`} className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-          <h2 className="text-sm font-semibold text-slate-900">거래 내역</h2>
-          <MonthPager
-            value={activityMonth}
-            options={yearMonths}
-            onChange={changeActivityMonth}
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
-          <span>{koreanYearMonthLabel(activityMonth)}</span>
-          <span className="text-slate-300">·</span>
-          <DateBasisNote
-            label={SEEN_DATE_BASIS_LABEL}
-            help={HISTORY_DATE_BASIS_HELP}
-          />
-        </div>
+      <section
+        aria-label={`${regionName} 거래 내역`}
+        className="flex flex-col gap-3 border-t border-slate-200/80 pt-8 sm:pt-10"
+      >
+        <SectionHeading
+          title="거래 내역"
+          basisLabel={SEEN_DATE_BASIS_LABEL}
+          basisHelp={SEEN_DATE_BASIS_HELP}
+        />
 
         <div>
-          <div className="mb-2 inline-flex items-center gap-1.5 text-sm text-slate-600">
-            <CalendarDays className="h-4 w-4 text-teal-700" />
-            <h3 className="text-sm font-semibold text-slate-900">
-              새로 확인된 거래 달력
-            </h3>
-          </div>
-          <p className="mb-2 text-pretty text-xs leading-5 text-slate-500">
-            숫자는 그날 새로 확인된 매매 건수입니다. 작은 점은 신고가가 확인된 날짜입니다.
-          </p>
           <MonthCalendar
             yearMonth={activityMonth}
             days={calendarDays}
             selectedDate={calendarSelected}
             onSelectDate={selectCalendarDate}
+            monthOptions={yearMonths}
+            onChangeMonth={changeActivityMonth}
           />
+          <p className="mt-2 max-w-md text-pretty text-[11px] leading-4 text-slate-400">
+            숫자는 그날 새로 확인된 매매 건수입니다. 작은 점은 신고가가 확인된
+            날짜입니다.
+          </p>
         </div>
 
-        <div className="flex flex-col gap-5">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900">
-              {koreanYearMonthLabel(activityMonth)} 새로 확인된 거래
-            </h3>
-            <p className="mt-0.5 text-xs tabular-nums text-slate-500">
-              총 {(historyQuery.data?.historyTotalCount ?? 0).toLocaleString("ko-KR")}건
+        <div className="mt-2 flex flex-col gap-5 border-t border-slate-200/70 pt-5">
+          {historyQuery.data ? (
+            <p className="text-xs tabular-nums text-slate-500">
+              이 달 총{" "}
+              {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
+                "ko-KR",
+              )}
+              건
             </p>
-          </div>
-          {!latest?.firstSeenReady && historyQuery.data && historyDays.length === 0 ? (
+          ) : null}
+          {!latest?.firstSeenReady &&
+          historyQuery.data &&
+          historyDays.length === 0 ? (
             <p className="text-pretty text-xs leading-5 text-slate-500">
               {LEGACY_FIRST_SEEN_NOTE}
             </p>
           ) : null}
           {activeDates.length === 0 && historyQuery.data ? (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-pretty text-sm text-slate-500">
+            <div className="px-1 py-6 text-pretty text-sm text-slate-500">
               이 달에 새로 확인된 매매가 없습니다.
             </div>
           ) : null}
@@ -804,13 +885,17 @@ export function RegionDailyStatus({
             const section = sectionByDate.get(date);
             const summary = calendarDays.find((d) => d.date === date);
             const headingClass =
-              flashDate === date ? "region-date-flash rounded-md px-1 -mx-1" : "px-1 -mx-1";
+              flashDate === date
+                ? "region-date-flash rounded-md px-1 -mx-1"
+                : "px-1 -mx-1";
             return (
               <div key={date}>
                 <h4
-                  key={flashDate === date ? `${date}-flash-${flashNonce}` : date}
+                  key={
+                    flashDate === date ? `${date}-flash-${flashNonce}` : date
+                  }
                   id={recordDateDomId(date)}
-                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)] text-sm font-semibold text-slate-900 ${headingClass}`}
+                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)] text-sm font-medium text-slate-900 ${headingClass}`}
                 >
                   {koreanMonthDayLabel(date)}
                 </h4>
@@ -821,7 +906,8 @@ export function RegionDailyStatus({
                 </p>
                 {section?.bulkIngestDay ? (
                   <p className="mt-1 text-pretty text-xs leading-5 text-slate-500">
-                    확인 건수가 많아 신고가 강조는 생략했습니다. 초기 적재로 하루에 많은 거래가 확인된 날일 수 있습니다.
+                    확인 건수가 많아 신고가 강조는 생략했습니다. 초기 적재로
+                    하루에 많은 거래가 확인된 날일 수 있습니다.
                   </p>
                 ) : null}
                 {section ? (
@@ -830,35 +916,29 @@ export function RegionDailyStatus({
                     {section.hasMore ||
                     (section.bulkIngestDay &&
                       section.deals.length < section.totalCount) ? (
-                      <button
-                        type="button"
-                        onClick={() => loadMoreBulk(section)}
-                        className="mt-2 inline-flex min-h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                      >
+                      <MoreControl onClick={() => loadMoreBulk(section)}>
                         더보기{" "}
-                        {(section.totalCount - section.deals.length).toLocaleString(
-                          "ko-KR",
-                        )}
+                        {(
+                          section.totalCount - section.deals.length
+                        ).toLocaleString("ko-KR")}
                         건
-                      </button>
+                      </MoreControl>
                     ) : null}
                   </>
                 ) : daysQuery.isFetching ? (
-                  <div className="mt-2 h-16 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
+                  <div className="mt-2 h-16 animate-pulse rounded-lg bg-slate-200/50" />
                 ) : null}
               </div>
             );
           })}
           {remainingDates > 0 ? (
-            <button
-              type="button"
+            <MoreControl
               onClick={() =>
                 setVisibleDayCount((n) => n + HISTORY_INITIAL_DAY_COUNT)
               }
-              className="inline-flex min-h-9 items-center self-start rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               더 이전 확인일 보기 {remainingDates.toLocaleString("ko-KR")}일
-            </button>
+            </MoreControl>
           ) : null}
         </div>
       </section>

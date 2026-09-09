@@ -57,6 +57,14 @@ h3 {
   animation: region-date-flash 1.1s ease-out;
 }
 
+.region-basis-chip > summary {
+  list-style: none;
+}
+
+.region-basis-chip > summary::-webkit-details-marker {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .region-date-flash {
     animation: none;
