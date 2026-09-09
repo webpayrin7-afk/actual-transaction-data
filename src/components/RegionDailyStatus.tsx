@@ -67,6 +67,9 @@ function weekdayOfFirst(ym: string): number {
   return new Date(year, month - 1, 1).getDay();
 }
 
+const SECTION_SURFACE =
+  "rounded-2xl border border-slate-200/80 bg-white px-3.5 py-4 sm:px-5 sm:py-5";
+
 function contractLine(date: string): string {
   return `계약 ${formatDealDate(date)}`;
 }
@@ -78,6 +81,11 @@ function specLine(deal: RegionDailyDeal): string {
 function monthOptions(): string[] {
   const current = yearMonthFromSeoulDate(seoulToday());
   return Array.from({ length: 6 }, (_, i) => shiftYearMonth(current, -i));
+}
+
+function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
+  if (kind === "type") return "타입 신고가";
+  return "신고가";
 }
 
 function FeaturedDealCard({
@@ -98,14 +106,14 @@ function FeaturedDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-slate-200 border-l-[3px] border-l-teal-600 bg-white px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
+      className="block rounded-xl border border-teal-200/80 bg-teal-50/40 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50/70"
     >
       <div className="flex items-start justify-between gap-2">
         <strong className="block min-w-0 flex-1 text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
           {deal.aptName}
         </strong>
-        <span className="inline-flex shrink-0 items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-700">
-          신고가
+        <span className="inline-flex shrink-0 items-center rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 text-[10px] font-semibold text-teal-800">
+          {singogaLabel(deal.singogaKind)}
         </span>
       </div>
       {titleMeta.length > 0 ? (
@@ -158,7 +166,7 @@ function RegularDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-slate-200 bg-white px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
+      className="block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
     >
       <p className="truncate text-sm font-semibold text-slate-900">
         {deal.aptName}
@@ -178,12 +186,46 @@ function RegularDealCard({
   );
 }
 
+function HistoryDealCard({
+  deal,
+  regionSlug,
+}: {
+  deal: RegionDailyDeal;
+  regionSlug: string;
+}) {
+  return (
+    <Link
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      className="block rounded-lg border border-slate-200/70 px-3 py-2 transition hover:bg-slate-50/80"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="min-w-0 truncate text-sm font-semibold text-slate-900">
+          {deal.aptName}
+        </p>
+        {deal.singogaKind ? (
+          <span className="inline-flex shrink-0 items-center rounded-full border border-teal-200/80 px-1.5 py-0.5 text-[10px] font-medium text-teal-700">
+            신고가
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-1 text-base font-semibold tabular-nums leading-none text-slate-900">
+        {formatEok(deal.dealAmount)}
+      </p>
+      <p className="mt-1 truncate text-[12px] leading-4 text-slate-500">
+        {specLine(deal)} · {contractLine(deal.dealDate)}
+      </p>
+    </Link>
+  );
+}
+
 function DealGrid({
   deals,
   regionSlug,
+  variant,
 }: {
   deals: RegionDailyDeal[];
   regionSlug: string;
+  variant: "featured" | "history";
 }) {
   const sorted = sortNewlySeenDeals(deals);
   return (
@@ -195,7 +237,13 @@ function DealGrid({
       }
     >
       {sorted.map((deal) =>
-        deal.singogaKind ? (
+        variant === "history" ? (
+          <HistoryDealCard
+            key={deal.id}
+            deal={deal}
+            regionSlug={regionSlug}
+          />
+        ) : deal.singogaKind ? (
           <FeaturedDealCard
             key={deal.id}
             deal={deal}
@@ -271,22 +319,24 @@ function MonthNav({
   const canPrev = options.includes(shiftYearMonth(value, -1));
   const canNext = options.includes(shiftYearMonth(value, 1));
   const btn =
-    "inline-flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-30";
+    "inline-flex h-10 w-10 shrink-0 items-center justify-center text-slate-600 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-30";
   return (
-    <div className={`flex items-center ${spread ? "w-full" : ""}`}>
+    <div
+      className={`inline-flex items-center rounded-xl border border-slate-200 bg-white ${
+        spread ? "w-full" : "w-full max-w-xs"
+      }`}
+    >
       <button
         type="button"
         disabled={!canPrev}
         onClick={() => onChange(shiftYearMonth(value, -1))}
-        className={btn}
+        className={`${btn} rounded-l-xl`}
         aria-label="이전 달"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <p
-        className={`text-center text-sm font-medium tabular-nums text-slate-800 ${
-          spread ? "flex-1" : "min-w-[8.25rem]"
-        }`}
+        className="min-w-0 flex-1 text-center text-sm font-semibold tabular-nums text-slate-800"
         aria-live="polite"
       >
         {koreanYearMonthLabel(value)}
@@ -295,7 +345,7 @@ function MonthNav({
         type="button"
         disabled={!canNext}
         onClick={() => onChange(shiftYearMonth(value, 1))}
-        className={btn}
+        className={`${btn} rounded-r-xl`}
         aria-label="다음 달"
       >
         <ChevronRight className="h-5 w-5" />
@@ -675,10 +725,10 @@ export function RegionDailyStatus({
   });
 
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col">
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
       <section
         aria-label={`${regionName} 지역 시장 현황`}
-        className="flex flex-col gap-3 pb-8 sm:pb-10"
+        className={`${SECTION_SURFACE} flex flex-col gap-3`}
       >
         <SectionHeading
           title="지역 시장 현황"
@@ -699,7 +749,7 @@ export function RegionDailyStatus({
           <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
         ) : market ? (
           <>
-            <div className="border-y border-slate-200/70">
+            <div className="rounded-lg bg-slate-50/80">
             <div className="grid grid-cols-2 lg:grid-cols-4">
               <Kpi
                 label="거래량"
@@ -722,13 +772,11 @@ export function RegionDailyStatus({
                     : `${volumePct > 0 ? "+" : ""}${volumePct}%`
                 }
                 valueClassName={
-                  volumePct == null
+                  volumePct == null || volumePct === 0
                     ? "text-slate-900"
-                    : volumePct > 0
-                      ? "text-teal-700"
-                      : volumePct < 0
-                        ? "text-rose-600"
-                        : "text-slate-900"
+                    : volumePct < 0
+                      ? "text-rose-600"
+                      : "text-slate-900"
                 }
               />
               <Kpi
@@ -762,7 +810,7 @@ export function RegionDailyStatus({
       <section
         id="newly-seen-deals"
         aria-label={`${regionName} 새로 확인된 거래`}
-        className="flex flex-col gap-2.5 border-t border-slate-200/80 pt-8 pb-8 sm:pt-10 sm:pb-10"
+        className={`${SECTION_SURFACE} flex flex-col gap-2.5`}
       >
         <SectionHeading
           title="새로 확인된 거래"
@@ -818,7 +866,11 @@ export function RegionDailyStatus({
                 0건이라는 뜻은 아닙니다.
               </p>
             ) : null}
-            <DealGrid deals={heroVisible} regionSlug={regionSlug} />
+            <DealGrid
+              deals={heroVisible}
+              regionSlug={regionSlug}
+              variant="featured"
+            />
             {heroHidden > 0 ? (
               <MoreControl onClick={() => setHeroExpanded(true)}>
                 더보기 {heroHidden.toLocaleString("ko-KR")}건
@@ -836,7 +888,7 @@ export function RegionDailyStatus({
 
       <section
         aria-label={`${regionName} 거래 내역`}
-        className="flex flex-col gap-3 border-t border-slate-200/80 pt-8 sm:pt-10"
+        className={`${SECTION_SURFACE} flex flex-col gap-3`}
       >
         <SectionHeading
           title="거래 내역"
@@ -912,7 +964,11 @@ export function RegionDailyStatus({
                 ) : null}
                 {section ? (
                   <>
-                    <DealGrid deals={section.deals} regionSlug={regionSlug} />
+                    <DealGrid
+                      deals={section.deals}
+                      regionSlug={regionSlug}
+                      variant="history"
+                    />
                     {section.hasMore ||
                     (section.bulkIngestDay &&
                       section.deals.length < section.totalCount) ? (
