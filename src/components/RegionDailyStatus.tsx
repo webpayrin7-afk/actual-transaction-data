@@ -79,6 +79,34 @@ function specLine(deal: RegionDailyDeal): string {
   return `${formatSqmApproxPyeong(deal.exclusiveArea)} · ${deal.floor}층`;
 }
 
+function DealMetaLine({
+  deal,
+  emphasizeSpec = false,
+}: {
+  deal: RegionDailyDeal;
+  emphasizeSpec?: boolean;
+}) {
+  return (
+    <div className="mt-1.5 flex flex-wrap items-baseline text-[12px] leading-4">
+      <span
+        className={`whitespace-nowrap ${
+          emphasizeSpec ? "font-medium text-slate-800" : "text-slate-500"
+        }`}
+      >
+        {specLine(deal)}
+      </span>
+      <span className="whitespace-nowrap text-slate-500">
+        {" · "}
+        {contractLine(deal.dealDate)}
+      </span>
+      <span className="whitespace-nowrap text-slate-500">
+        {" · "}
+        {deal.dealingGbn || "중개거래"}
+      </span>
+    </div>
+  );
+}
+
 function monthOptions(): string[] {
   const current = yearMonthFromSeoulDate(seoulToday());
   return Array.from({ length: 6 }, (_, i) => shiftYearMonth(current, -i));
@@ -138,14 +166,7 @@ function FeaturedDealCard({
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
-      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] leading-4">
-        <span className="whitespace-nowrap font-medium text-slate-800">
-          {specLine(deal)}
-        </span>
-        <span className="text-slate-500">
-          {contractLine(deal.dealDate)} · {deal.dealingGbn || "중개거래"}
-        </span>
-      </div>
+      <DealMetaLine deal={deal} emphasizeSpec />
       {trend && trend.length >= 3 ? (
         <TypePriceSparkline
           points={trend}
@@ -175,14 +196,7 @@ function RegularDealCard({
       <p className="mt-1.5 whitespace-nowrap text-lg font-semibold tabular-nums leading-none text-slate-900">
         {formatEok(deal.dealAmount)}
       </p>
-      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] leading-4">
-        <span className="whitespace-nowrap font-medium text-slate-800">
-          {specLine(deal)}
-        </span>
-        <span className="text-slate-500">
-          {contractLine(deal.dealDate)} · {deal.dealingGbn || "중개거래"}
-        </span>
-      </div>
+      <DealMetaLine deal={deal} emphasizeSpec />
     </Link>
   );
 }
@@ -229,9 +243,7 @@ function HistoryDealCard({
           {delta}
         </p>
       ) : null}
-      <p className="mt-1 text-[12px] leading-4 text-slate-500">
-        {specLine(deal)} · {contractLine(deal.dealDate)}
-      </p>
+      <DealMetaLine deal={deal} />
     </Link>
   );
 }
