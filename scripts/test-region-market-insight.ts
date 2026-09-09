@@ -220,8 +220,8 @@ assert.deepEqual(
   ],
 );
 
-assert.equal(formatSqmApproxPyeong(59.98), "59.98㎡ (약 18평)");
-assert.equal(formatSqmApproxPyeong(84.97), "84.97㎡ (약 26평)");
-assert.equal(formatSqmApproxPyeong(114.8), "114.80㎡ (약 35평)");
+assert.equal(formatSqmApproxPyeong(59.98), "59.98㎡ (18평)");
+assert.equal(formatSqmApproxPyeong(84.97), "84.97㎡ (26평)");
+assert.equal(formatSqmApproxPyeong(114.8), "114.80㎡ (35평)");
 
 console.log("test-region-market-insight: ok");

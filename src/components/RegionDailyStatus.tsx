@@ -122,13 +122,13 @@ function FeaturedDealCard({
       className="block rounded-xl border border-slate-200 border-l-[3px] border-l-teal-600 bg-white px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 text-[17px] font-bold leading-snug tracking-tight text-pretty text-slate-900 line-clamp-2">
+        <strong className="block min-w-0 flex-1 text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
           {deal.aptName}
-        </p>
+        </strong>
         <DealBadges deal={deal} />
       </div>
       {titleMeta.length > 0 ? (
-        <p className="mt-0.5 truncate text-xs font-normal text-slate-500">
+        <p className="mt-1.5 truncate text-xs font-normal text-slate-500">
           {titleMeta.join(" · ")}
         </p>
       ) : null}

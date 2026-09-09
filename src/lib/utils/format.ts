@@ -16,11 +16,11 @@ export function formatPyeong(sqm: number): string {
 }
 
 /**
- * 전용면적 + 단순 평 환산 — 84.97㎡ (약 26평).
+ * 전용면적 + 단순 평 환산 — 84.97㎡ (26평).
  * 공급면적 기준 ‘평형’이 아님. 별도 필드 추정 없음.
  */
 export function formatSqmApproxPyeong(sqm: number): string {
-  return `${formatSqm(sqm)} (약 ${Math.round(sqm / 3.3058)}평)`;
+  return `${formatSqm(sqm)} (${Math.round(sqm / 3.3058)}평)`;
 }
 
 /** 전용 84.97㎡ */
