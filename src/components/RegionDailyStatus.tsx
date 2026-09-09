@@ -36,11 +36,13 @@ import {
 async function fetchRegionDaily(params: {
   region: string;
   yearMonth: string;
+  date?: string | null;
 }): Promise<RegionDailyResponse> {
   const qs = new URLSearchParams({
     region: params.region,
     yearMonth: params.yearMonth,
   });
+  if (params.date) qs.set("date", params.date);
   const res = await fetch(`/api/region-daily?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   return res.json();
@@ -301,18 +303,20 @@ export function RegionDailyStatus({
   yearMonths: string[];
   onYearMonthChange: (value: string) => void;
 }) {
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [userDate, setUserDate] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
 
   const query = useQuery({
-    queryKey: ["region-daily", regionSlug, yearMonth],
+    queryKey: ["region-daily", regionSlug, yearMonth, userDate],
     queryFn: () =>
       fetchRegionDaily({
         region: regionSlug,
         yearMonth,
+        date: userDate,
       }),
     staleTime: 60_000,
     retry: 1,
+    placeholderData: (previous) => previous,
   });
 
   const data = query.data;
@@ -326,30 +330,22 @@ export function RegionDailyStatus({
 
   useEffect(() => {
     setExpanded(false);
-  }, [selectedDate, regionSlug, yearMonth]);
+  }, [userDate, regionSlug, yearMonth]);
 
-  useEffect(() => {
-    if (!data) return;
-    setSelectedDate((prev) => {
-      if (prev && data.days.some((d) => d.date === prev)) return prev;
-      return data.selectedDate;
-    });
-  }, [data]);
-
-  const monthDeals = useMemo(() => data?.monthDeals ?? [], [data]);
-  const dayDeals = useMemo(() => {
-    if (!selectedDate) return [];
-    return sortNewlySeenDeals(
-      monthDeals.filter((deal) => deal.firstSeenDate === selectedDate),
-    );
-  }, [monthDeals, selectedDate]);
+  const selectedDate = userDate ?? data?.selectedDate ?? null;
+  const dayDeals = useMemo(
+    () => sortNewlySeenDeals(data?.deals ?? []),
+    [data],
+  );
 
   const visibleDeals = useMemo(
     () => visibleNewlySeenDeals(dayDeals, expanded),
     [dayDeals, expanded],
   );
   const hiddenCount = hiddenNewlySeenCount(dayDeals, expanded);
-  const daySingoga = dayDeals.filter((d) => d.singogaKind != null).length;
+  const daySingoga =
+    data?.selectedDaySingogaCount ??
+    dayDeals.filter((d) => d.singogaKind != null).length;
 
   const insight = data
     ? regionMarketInsight({
@@ -369,13 +365,13 @@ export function RegionDailyStatus({
   const canNext = yearMonths.includes(shiftYearMonth(yearMonth, 1));
 
   function changeMonth(nextYm: string) {
-    setSelectedDate(null);
+    setUserDate(null);
     setExpanded(false);
     onYearMonthChange(nextYm);
   }
 
   function selectSeenDate(date: string) {
-    setSelectedDate(date);
+    setUserDate(date);
     setExpanded(false);
     const el = document.getElementById("newly-seen-deals");
     if (!el) return;
@@ -470,6 +466,11 @@ export function RegionDailyStatus({
                   총 {dayDeals.length.toLocaleString("ko-KR")}건 · 신고가{" "}
                   {daySingoga.toLocaleString("ko-KR")}건
                 </p>
+                {data.bulkIngestDay ? (
+                  <p className="mt-1 text-pretty text-xs leading-5 text-slate-500">
+                    이날 확인 건수가 많아 신고가 강조는 생략했습니다.
+                  </p>
+                ) : null}
                 <div
                   className={
                     visibleDeals.length > 1
