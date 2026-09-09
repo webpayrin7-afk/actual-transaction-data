@@ -72,7 +72,7 @@ async function optionalApiSample(): Promise<Record<string, unknown> | null> {
   };
 }
 
-async function optionalLagSample(): Promise<Record<string, number> | null> {
+async function optionalLagSample(): Promise<Record<string, unknown> | null> {
   if (argValue("lag-sample", "0") !== "1" && !hasFlag("lag-sample")) {
     return null;
   }
