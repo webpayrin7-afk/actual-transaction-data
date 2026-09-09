@@ -256,7 +256,14 @@ export function MarketHome() {
             />
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
+            <Link
+              href="/map"
+              className="inline-flex items-center gap-1 text-sm font-medium text-teal-700 hover:underline"
+            >
+              서울 대장 아파트 지도
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
             <Link
               href="/stats"
               className="inline-flex items-center gap-1 text-sm font-medium text-teal-700 hover:underline"
