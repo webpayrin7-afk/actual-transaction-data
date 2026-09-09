@@ -63,7 +63,7 @@ export function oldestYearMonthFromDates(dealDates: string[]): string | null {
   return oldest;
 }
 
-/** SECTION 3 activityMonth. first_seen KST 월만. 빈 달을 fake로 채우지 않음. */
+/** SECTION 3 activityMonth. discovery_at KST 월만. 빈 달을 fake로 채우지 않음. */
 export function activityYearMonthsFromSeenDates(dates: string[]): string[] {
   const set = new Set<string>();
   for (const raw of dates) {

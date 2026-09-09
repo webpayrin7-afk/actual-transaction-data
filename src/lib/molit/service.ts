@@ -6,6 +6,7 @@ import {
   type RegionDef,
 } from "@/lib/constants/regions";
 import { hasDb } from "@/lib/db/client";
+import { productDiscoveryIso } from "@/lib/db/discovery-axis";
 import {
   listAptCatalog,
   normalizeAptName,
@@ -620,7 +621,7 @@ export async function getRegionBrowse(params: {
 }
 
 export interface RegionDailyDaySummary {
-  date: string; // KST YYYY-MM-DD of first_seen_at
+  date: string; // KST YYYY-MM-DD of discovery_at (fallback: first_seen_at)
   dealCount: number;
   tradeCount: number;
   singogaCount: number;
@@ -714,7 +715,7 @@ export interface RegionDailyResponse {
   bulkIngestDay: boolean;
   /** SECTION 1: deal_date 최근 24개월 연속(coverage가 더 짧으면 그 범위). */
   contractMonthOptions: string[];
-  /** SECTION 3: first_seen KST 월. SECTION 1과 공유하지 않음. */
+  /** SECTION 3: discovery_at KST 월. SECTION 1과 공유하지 않음. */
   activityYearMonths: string[];
 }
 
@@ -850,7 +851,7 @@ function tradesInContractMonth(
 }
 
 function firstSeenKstDate(tx: Transaction): string | null {
-  const raw = tx.firstSeenAt?.trim();
+  const raw = productDiscoveryIso(tx);
   if (!raw) return null;
   const day = seoulDateOf(raw);
   return day || null;

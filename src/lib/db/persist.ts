@@ -10,6 +10,8 @@ import type { DealType, Transaction } from "@/types/transaction";
  *
  * Scheduled ingestion (`scripts/sync-molit.ts`) is the only writer.
  * `--discovery=1` (daily) vs `--discovery=0` (historical) is explicit there.
+ * With discovery_at present: discovery=0 still records first_seen_at (audit)
+ * and leaves discovery_at NULL (product feed).
  */
 export function persistMonthInBackground(params: {
   lawdCd: string;
