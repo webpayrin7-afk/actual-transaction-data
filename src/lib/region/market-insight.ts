@@ -16,6 +16,25 @@ export function shiftYearMonth(ym: string, delta: number): string {
   return `${y}${m}`;
 }
 
+export function yearMonthInLookback(
+  ym: string,
+  todayYm: string,
+  months: number,
+): boolean {
+  if (months <= 0) return false;
+  const oldest = shiftYearMonth(todayYm, -(months - 1));
+  return ym >= oldest && ym <= todayYm;
+}
+
+/** 신고가 건수 / 동일 universe 거래량. 분모가 없으면 null. */
+export function singogaSharePct(
+  singogaCount: number,
+  tradeCount: number,
+): number | null {
+  if (!(tradeCount > 0)) return null;
+  return Math.round((singogaCount / tradeCount) * 1000) / 10;
+}
+
 export function countTradesInYearMonth(
   dates: string[],
   yearMonth: string,

@@ -29,10 +29,10 @@ import {
   HISTORY_DATE_BASIS_HELP,
   HISTORY_DAY_FETCH_CAP,
   HISTORY_INITIAL_DAY_COUNT,
-  medianDealAmount,
   medianPyeongPrice,
   pickHeroSeenDate,
   priorTypeMaxAmount,
+  yearMonthInLookback,
   SEEN_DATE_BASIS_HELP,
   shiftYearMonth,
   sortNewlySeenDeals,
@@ -693,6 +693,8 @@ export interface RegionDailyResponse {
   medianPyeongPrice: number | null;
   /** 선택 계약월 타입 신고가 건수. 계산 불가면 null */
   monthSingogaCount: number | null;
+  /** 12개월 전 같은 계약월 거래량. pool coverage 없으면 null */
+  yearAgoMonthTradeCount: number | null;
   dateAxis: "first_seen_kst";
   dateBasisNote: string;
   contractDateBasisNote: string;
@@ -889,6 +891,7 @@ function emptyRegionDaily(
     prevMonthMedianDealAmount: extras?.prevMonthMedianDealAmount ?? null,
     medianPyeongPrice: extras?.medianPyeongPrice ?? null,
     monthSingogaCount: extras?.monthSingogaCount ?? null,
+    yearAgoMonthTradeCount: extras?.yearAgoMonthTradeCount ?? null,
     dateAxis: "first_seen_kst",
     dateBasisNote: extras?.dateBasisNote ?? REGION_DAILY_DATE_NOTE,
     contractDateBasisNote:
@@ -1043,6 +1046,15 @@ async function computeMarketKpis(
     shiftYearMonth(contractYearMonth, -1),
     dayCap,
   );
+  const yearAgoYm = shiftYearMonth(contractYearMonth, -12);
+  const yearAgoCovered = yearMonthInLookback(
+    yearAgoYm,
+    currentYm,
+    REGION_DAILY_HISTORY_MONTHS,
+  );
+  const yearAgo = yearAgoCovered
+    ? tradesInContractMonth(historyTrades, yearAgoYm, dayCap)
+    : null;
   const priorMaxes = await typePriorMaxesForDeals({
     deals: current,
     historyTrades,
@@ -1059,11 +1071,8 @@ async function computeMarketKpis(
     contractYearMonth,
     monthTradeCount: current.length,
     prevMonthTradeCount: previous.length,
+    yearAgoMonthTradeCount: yearAgo ? yearAgo.length : yearAgoCovered ? 0 : null,
     comparePartial,
-    medianDealAmount: medianDealAmount(current.map((tx) => tx.dealAmount)),
-    prevMonthMedianDealAmount: medianDealAmount(
-      previous.map((tx) => tx.dealAmount),
-    ),
     medianPyeongPrice: medianPyeongPrice(current),
     monthSingogaCount,
   };

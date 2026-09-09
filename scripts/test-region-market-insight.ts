@@ -39,6 +39,8 @@ import {
   medianPyeongPrice,
   momChangePct,
   pyeongPriceManwon,
+  singogaSharePct,
+  yearMonthInLookback,
 } from "../src/lib/region/market-insight";
 import { formatSqmApproxPyeong } from "../src/lib/utils/format";
 import { seoulDateOf } from "../src/lib/market/time";
@@ -46,6 +48,12 @@ import { seoulDateOf } from "../src/lib/market/time";
 assert.equal(yearMonthFromDealDate("2026-09-05"), "202609");
 assert.equal(shiftYearMonth("202609", -1), "202608");
 assert.equal(shiftYearMonth("202601", -1), "202512");
+assert.equal(shiftYearMonth("202609", -12), "202509");
+assert.equal(yearMonthInLookback("202509", "202609", 24), true);
+assert.equal(yearMonthInLookback("202409", "202609", 24), false);
+assert.equal(singogaSharePct(7, 127), 5.5);
+assert.equal(singogaSharePct(0, 19), 0);
+assert.equal(singogaSharePct(8, 0), null);
 
 assert.equal(
   countTradesInYearMonth(
