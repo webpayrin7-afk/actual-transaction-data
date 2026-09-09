@@ -1015,7 +1015,7 @@ export function RegionDailyStatus({
 
       <section
         aria-label={`${regionName} 지역 거래 내역`}
-        className={`${SECTION_SURFACE} flex min-h-0 flex-1 flex-col gap-3`}
+        className={`${SECTION_SURFACE} flex flex-col gap-3`}
       >
         <SectionHeading
           title="지역 거래 내역"
@@ -1037,32 +1037,24 @@ export function RegionDailyStatus({
           </p>
         </div>
 
-        <div className="mt-2 flex min-h-0 flex-1 flex-col gap-5 border-t border-slate-200/70 pt-5">
+        <div className="mt-2 flex flex-col gap-5 border-t border-slate-200/70 pt-5">
+          {historyQuery.data ? (
+            <p className="shrink-0 text-left text-xs tabular-nums text-slate-500">
+              이 달 총{" "}
+              {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
+                "ko-KR",
+              )}
+              건
+            </p>
+          ) : null}
           {activeDates.length === 0 && historyQuery.data ? (
-            <div className="flex min-h-[12rem] flex-1 flex-col items-center justify-center gap-1.5 px-1 text-center sm:min-h-[14rem]">
-              <p className="text-xs tabular-nums text-slate-500">
-                이 달 총{" "}
-                {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
-                  "ko-KR",
-                )}
-                건
-              </p>
+            <div className="flex min-h-[12rem] shrink-0 items-center justify-center px-1 py-8 text-center sm:min-h-[14rem]">
               <p className="break-keep text-sm text-slate-500">
                 {EMPTY_MONTH_HISTORY}
               </p>
             </div>
-          ) : (
-            <>
-              {historyQuery.data ? (
-                <p className="shrink-0 text-xs tabular-nums text-slate-500">
-                  이 달 총{" "}
-                  {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
-                    "ko-KR",
-                  )}
-                  건
-                </p>
-              ) : null}
-              {activeDates.slice(0, visibleDayCount).map((date) => {
+          ) : null}
+          {activeDates.slice(0, visibleDayCount).map((date) => {
             const section = sectionByDate.get(date);
             const summary = calendarDays.find((d) => d.date === date);
             const headingClass =
@@ -1131,8 +1123,6 @@ export function RegionDailyStatus({
               더 이전 확인일 보기 {remainingDates.toLocaleString("ko-KR")}일
             </MoreControl>
           ) : null}
-            </>
-          )}
         </div>
       </section>
     </div>
