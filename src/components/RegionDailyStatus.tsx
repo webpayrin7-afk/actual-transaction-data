@@ -548,6 +548,15 @@ function formatPyeongMedian(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만원`;
 }
 
+function volumeChangeSide(
+  current: number,
+  previous: number,
+  pct: number | null,
+): string | undefined {
+  if (pct == null || previous <= 0) return undefined;
+  return `${previous.toLocaleString("ko-KR")}건 → ${current.toLocaleString("ko-KR")}건`;
+}
+
 function volumeChangeClass(pct: number | null): string {
   if (pct == null || pct === 0) return "text-slate-900";
   return "text-slate-800";
@@ -561,11 +570,13 @@ function formatSharePct(pct: number | null): string {
 function Kpi({
   label,
   value,
+  side,
   className,
   valueClassName = "text-slate-900",
 }: {
   label: string;
   value: string;
+  side?: string;
   className?: string;
   valueClassName?: string;
 }) {
@@ -576,11 +587,18 @@ function Kpi({
       <p className="whitespace-nowrap text-[11px] leading-4 text-slate-500">
         {label}
       </p>
-      <p
-        className={`mt-0.5 whitespace-nowrap text-lg font-semibold leading-tight tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
-      >
-        {value}
-      </p>
+      <div className="mt-0.5 flex min-w-0 items-baseline gap-x-1.5">
+        <p
+          className={`whitespace-nowrap text-lg font-semibold leading-tight tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
+        >
+          {value}
+        </p>
+        {side ? (
+          <p className="whitespace-nowrap text-[11px] leading-4 tabular-nums text-slate-500">
+            {side}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -872,15 +890,30 @@ export function RegionDailyStatus({
               <Kpi
                 label="거래량"
                 value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
+                side={market.comparePartial ? "오늘까지" : undefined}
               />
               <Kpi
                 label="전월 대비"
                 value={formatMomChangeValue(volumePct)}
+                side={volumeChangeSide(
+                  market.monthTradeCount,
+                  market.prevMonthTradeCount,
+                  volumePct,
+                )}
                 valueClassName={volumeChangeClass(volumePct)}
               />
               <Kpi
                 label="전년 동월 대비"
                 value={formatMomChangeValue(yearAgoPct)}
+                side={
+                  market.yearAgoMonthTradeCount != null
+                    ? volumeChangeSide(
+                        market.monthTradeCount,
+                        market.yearAgoMonthTradeCount,
+                        yearAgoPct,
+                      )
+                    : undefined
+                }
                 valueClassName={volumeChangeClass(yearAgoPct)}
               />
               <Kpi
