@@ -122,22 +122,22 @@ function FeaturedDealCard({
       className="block rounded-xl border border-slate-200 border-l-[3px] border-l-teal-600 bg-white px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 text-[15px] font-bold leading-snug text-pretty text-slate-900 line-clamp-2">
+        <p className="min-w-0 text-base font-semibold leading-snug text-pretty text-slate-900 line-clamp-2">
           {deal.aptName}
         </p>
         <DealBadges deal={deal} />
       </div>
       {titleMeta.length > 0 ? (
-        <p className="mt-0.5 truncate text-[11px] text-slate-500">
+        <p className="mt-0.5 truncate text-xs text-slate-500">
           {titleMeta.join(" · ")}
         </p>
       ) : null}
-      <div className="mt-2 flex max-w-md flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <p className="text-[22px] font-semibold leading-none tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
         </p>
         {deal.increaseAmount > 0 ? (
-          <p className="text-sm font-medium tabular-nums text-rose-600">
+          <p className="whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
             ▲ {formatEok(deal.increaseAmount)}
             {rate != null ? ` (+${rate}%)` : ""}
           </p>
