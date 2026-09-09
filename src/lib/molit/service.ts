@@ -21,7 +21,6 @@ import {
   countTradesInYearMonth,
   featuredSingogaGroup,
   shiftYearMonth,
-  splitFeaturedSingoga,
   TYPE_TREND_MIN_POINTS,
   typePriceTrend,
   yearMonthFromDealDate,
@@ -1006,9 +1005,7 @@ async function computeRegionDaily(
     .map(([date, value]) => ({ date, ...value }))
     .sort((a, b) => b.date.localeCompare(a.date));
 
-  const { expanded: sparklineDeals } = splitFeaturedSingoga(
-    featuredSingogaGroup(enrichedMonth),
-  );
+  const sparklineDeals = featuredSingogaGroup(enrichedMonth);
   for (const deal of sparklineDeals) {
     const aptTrades = tradesByApt.get(normalizeAptName(deal.aptName)) ?? [];
     const points = typePriceTrend({
