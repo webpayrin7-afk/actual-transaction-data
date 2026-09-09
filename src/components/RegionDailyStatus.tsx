@@ -139,10 +139,9 @@ function prevDealDeltaText(
   previous: number | null,
 ): string | null {
   const vs = vsPreviousTypeDeal(current, previous);
-  if (!vs) return null;
+  if (!vs || vs.kind === "up") return null;
   if (vs.kind === "same") return "직전 대비 동일";
-  const arrow = vs.kind === "up" ? "▲" : "▼";
-  return `직전 대비 ${arrow} ${formatEok(vs.amount)}`;
+  return `직전 대비 ▼ ${formatEok(vs.amount)}`;
 }
 
 function FeaturedDealCard({
