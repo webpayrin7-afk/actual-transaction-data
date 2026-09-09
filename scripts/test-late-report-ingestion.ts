@@ -24,6 +24,7 @@ import {
   DAILY_TRADE_MONTHS,
   FORCE_ROLLING_CRON_UTC,
   FORCED_ROLLING_RUNS_PER_DAY,
+  EVENING_PROBE_CRON_UTC,
   YONGSAN_LAWD_CD,
   applySkipExisting,
   buildRollingSyncJobs,
@@ -132,20 +133,21 @@ function mainPolicy() {
   assert.equal(
     isForcedRollingSchedule({
       eventName: "schedule",
-      schedule: FORCE_ROLLING_CRON_UTC.kst2300,
-      utcHour: 14,
-      utcMinute: 4,
-    }),
-    true,
-  );
-  assert.equal(
-    isForcedRollingSchedule({
-      eventName: "schedule",
       utcHour: 21,
       utcMinute: 8,
     }),
     true,
     "06:00 KST 15-min grace",
+  );
+  assert.equal(
+    isForcedRollingSchedule({
+      eventName: "schedule",
+      schedule: EVENING_PROBE_CRON_UTC,
+      utcHour: 14,
+      utcMinute: 0,
+    }),
+    false,
+    "23:00 KST is probe-based, not forced",
   );
 
   // D. normal probe run keeps skip semantics
@@ -183,7 +185,8 @@ function mainPolicy() {
   const cost = estimateRollingFetchCost(lawds.length);
   assert.equal(cost.tradeFetchesPerRun, lawds.length * 4);
   assert.equal(cost.rentFetchesPerRun, lawds.length * 2);
-  assert.equal(cost.forcedRunsPerDay, FORCED_ROLLING_RUNS_PER_DAY);
+  assert.equal(cost.forcedRunsPerDay, 2);
+  assert.equal(FORCED_ROLLING_RUNS_PER_DAY, 2);
 
   const workflow = readFileSync(
     resolve(".github/workflows/sync-molit.yml"),
@@ -195,6 +198,7 @@ function mainPolicy() {
   assert.match(workflow, /0 9 \* \* \*/);
   assert.match(workflow, /0 14 \* \* \*/);
   assert.match(workflow, /UTC_MIN" -lt 15/);
+  assert.equal(workflow.includes('github.event.schedule }}" = "0 14 * * *"'), false);
 }
 
 async function mainDirtyPaths() {
@@ -308,6 +312,40 @@ async function mainDirtyPaths() {
   assert.equal(String(correctedRow!.first_seen_at), keepFirst);
   assert.notEqual(String(correctedRow!.last_seen_at), keepLast);
   assert.equal(String(correctedRow!.dealing_gbn), "직거래");
+
+  const cancelPair = [
+    tx({
+      id: "live",
+      dealAmount: 178000,
+      dealDate: "2026-06-30",
+      floor: 4,
+      exclusiveArea: 149.09,
+      jibun: "302-48",
+      dong: "이촌동",
+    }),
+    tx({
+      id: "cancel",
+      dealAmount: 178000,
+      dealDate: "2026-06-30",
+      floor: 4,
+      exclusiveArea: 149.09,
+      jibun: "302-48",
+      dong: "이촌동",
+    }),
+  ];
+  const dup = await replaceMonthTransactions({
+    lawdCd: YONGSAN_LAWD_CD,
+    yearMonth: "202605",
+    dealKind: "trade",
+    items: cancelPair,
+    setFirstSeenOnInsert: true,
+  });
+  assert.equal(dup.inserted, 1);
+  assert.equal(dup.updated, 0);
+  const dupCount = await db.execute(
+    `SELECT COUNT(*) AS n FROM transactions WHERE year_month='202605'`,
+  );
+  assert.equal(Number(dupCount.rows[0]?.n), 1);
 }
 
 async function main() {
@@ -328,6 +366,10 @@ async function main() {
           "G-late-insert",
           "H-correction-update",
           "skip-existing-0-keeps-complete-month",
+          "cancel-pair-dedupes-to-1",
+          "06:00-forced",
+          "18:00-forced",
+          "23:00-non-forced",
         ],
       },
       null,

@@ -21,7 +21,8 @@ GitHub Actions `sync-molit.yml` + `src/lib/molit/sync-policy.ts`:
 - 매매 rolling **4개월** (당월+직전 3) — 늦게 공개된 과거 계약 커버
 - 전월세 rolling **2개월** 유지
 - `--skip-existing=0 --only-changed=1` (API는 다시 읽되 unchanged transaction WRITE=0)
-- 15분 sentinel probe는 당월만. 하루 3회(06:00/18:00/23:00 KST)는 probe 결과와 관계없이 rolling sync 강제.
+- 15분 sentinel probe는 당월만. 하루 **2회**(06:00/18:00 KST)는 probe와 관계없이 rolling sync 강제.
+- 23:00 KST cron은 유지하되 강제하지 않음(당월 sentinel 변화가 있을 때만 rolling).
 
 ```bash
 npx tsx scripts/sync-molit.ts \

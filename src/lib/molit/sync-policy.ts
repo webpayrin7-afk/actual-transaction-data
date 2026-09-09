@@ -16,11 +16,13 @@ export const DAILY_RENT_MONTHS = 2;
 
 export const YONGSAN_LAWD_CD = "11170";
 
-/** Dedicated evening crons (UTC). GitHub `github.event.schedule` must match exactly. */
+/** Dedicated evening force cron (UTC). GitHub `github.event.schedule` must match exactly. */
 export const FORCE_ROLLING_CRON_UTC = {
   kst1800: "0 9 * * *",
-  kst2300: "0 14 * * *",
 } as const;
+
+/** 23:00 KST evening probe slot — not forced. Current-month sentinel may still trigger rolling sync. */
+export const EVENING_PROBE_CRON_UTC = "0 14 * * *";
 
 /**
  * 06:00 KST sits inside the 15-minute probe cron (21-23 UTC).
@@ -28,7 +30,7 @@ export const FORCE_ROLLING_CRON_UTC = {
  */
 export const MORNING_FORCE_UTC = { hour: 21, minuteMaxExclusive: 15 } as const;
 
-export const FORCED_ROLLING_RUNS_PER_DAY = 3;
+export const FORCED_ROLLING_RUNS_PER_DAY = 2;
 
 export type RollingSyncJob = {
   lawdCd: string;
@@ -149,10 +151,7 @@ export function isForcedRollingSchedule(params: {
   if (params.eventName === "workflow_dispatch" && params.dispatchForce !== false) {
     return true;
   }
-  if (
-    params.schedule === FORCE_ROLLING_CRON_UTC.kst1800 ||
-    params.schedule === FORCE_ROLLING_CRON_UTC.kst2300
-  ) {
+  if (params.schedule === FORCE_ROLLING_CRON_UTC.kst1800) {
     return true;
   }
   if (

@@ -3,15 +3,16 @@ name: Sync MOLIT warehouse
 on:
   schedule:
     # 국토부 OpenAPI는 일 1회 갱신(시각 비공시).
-    # 06:00~14:45 KST 15분 sentinel probe + 하루 3회 rolling 강제 sync
-    # (06:00 / 18:00 / 23:00 KST). 당월 probe만으로는 과거 계약월 late-report
-    # 를 놓친다. 정책: src/lib/molit/sync-policy.ts
+    # 06:00~14:45 KST 15분 sentinel probe + 하루 2회 rolling 강제 sync
+    # (06:00 / 18:00 KST). 23:00 KST는 probe 기반(당월 변화 시에만 full sync).
+    # 당월 probe만으로는 과거 계약월 late-report를 놓친다.
+    # 정책: src/lib/molit/sync-policy.ts
     # KST = UTC+9
     - cron: "*/15 21-23 * * *" # 06:00~08:45 KST
     - cron: "*/15 0-5 * * *" # 09:00~14:45 KST
-    # 오후·야간 추가 유입 대비 강제 갱신
-    - cron: "0 9 * * *" # 18:00 KST
-    - cron: "0 14 * * *" # 23:00 KST
+    # 오후 추가 유입: 18:00 강제 rolling, 23:00는 probe only
+    - cron: "0 9 * * *" # 18:00 KST forced
+    - cron: "0 14 * * *" # 23:00 KST probe (not forced)
   workflow_dispatch:
     inputs:
       scope:
@@ -54,9 +55,9 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force || 'true' }}" != "false" ]; then
             FORCE=true
           fi
-          # Dedicated evening crons — match the schedule string so runner delay cannot drop force
-          if [ "${{ github.event.schedule }}" = "0 9 * * *" ]; then FORCE=true; fi   # 18:00 KST
-          if [ "${{ github.event.schedule }}" = "0 14 * * *" ]; then FORCE=true; fi  # 23:00 KST
+          # Dedicated 18:00 KST cron — match the schedule string so runner delay cannot drop force
+          if [ "${{ github.event.schedule }}" = "0 9 * * *" ]; then FORCE=true; fi
+          # 23:00 KST (0 14 * * *) stays probe-based — do not force
           # 06:00 KST = 21:00 UTC tick of the 15-min probe cron (grace: first 15 min)
           if [ "$UTC_HOUR" = "21" ] && [ "$UTC_MIN" -lt 15 ]; then FORCE=true; fi
           echo "force=$FORCE" >> "$GITHUB_OUTPUT"

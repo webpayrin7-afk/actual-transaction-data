@@ -2,7 +2,8 @@
  * 국토부 OpenAPI 당월 데이터 vs DB 적재분 비교 → 재적재 필요 여부 판단
  *
  * 당월 sentinel만 보면 과거 계약월 late-report가 안 잡힌다.
- * workflow는 아침 06:00 KST + 18:00/23:00 KST에 force sync로 rolling window를 돌린다.
+ * workflow는 아침 06:00 KST + 18:00 KST에 force sync로 rolling window를 돌린다.
+ * 23:00 KST는 당월 probe만 보고, 변화 없으면 skip.
  * 이 스크립트의 기본은 여전히 당월 probe (15분 주기 비용 제한).
  *
  * 사용 예:
