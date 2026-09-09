@@ -6,7 +6,9 @@ import {
 } from "@/lib/db/sync-diff";
 import type { TxContentSnapshot } from "@/lib/db/sync-diff";
 import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
+import { isUnsafeMonthShrink } from "@/lib/molit/trade-resolve";
 import type { DealType, Transaction } from "@/types/transaction";
+import { noteDbQuery } from "@/lib/db/query-stats";
 
 export function normalizeAptName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
@@ -294,6 +296,17 @@ export async function replaceMonthTransactions(params: {
   const deleted = deleteIds.length;
   const wroteTx = inserted + updated + deleted > 0;
 
+  if (
+    isUnsafeMonthShrink({
+      previousRowCount: byId.size,
+      nextRowCount: upserts.length,
+    })
+  ) {
+    throw new Error(
+      `refusing destructive month replace ${lawdCd} ${yearMonth} ${dealKind}: warehouse=${byId.size} incomingUnique=${upserts.length}`,
+    );
+  }
+
   // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert)
   if (wroteTx) {
     statements.unshift({
@@ -416,6 +429,7 @@ export async function queryTradePool(params: {
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
   const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
 
+  noteDbQuery();
   const coverage = await db.execute({
     sql: `SELECT COUNT(*) AS cnt FROM sync_months
           WHERE lawd_cd IN (${lawdPlaceholders})
@@ -425,9 +439,11 @@ export async function queryTradePool(params: {
   });
   if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
 
+  noteDbQuery();
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 first_seen_at
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -449,7 +465,175 @@ export async function queryTradePool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    firstSeenAt:
+      row.first_seen_at == null || row.first_seen_at === ""
+        ? null
+        : String(row.first_seen_at),
   }));
+}
+
+export type AptTradeHistoryRow = {
+  id: string;
+  aptNameNorm: string;
+  exclusiveArea: number;
+  dealDate: string;
+  dealAmount: number;
+};
+
+const APT_HISTORY_IN_CHUNK = 80;
+
+export type AptTypePriorCandidate = {
+  aptNameNorm: string;
+  exclusiveArea: number;
+  dealDate: string;
+};
+
+const APT_PRIOR_MAX_CHUNK = 16;
+
+function dealYearMonth(dealDate: string): string {
+  const d = dealDate.slice(0, 10);
+  return `${d.slice(0, 4)}${d.slice(5, 7)}`;
+}
+
+/**
+ * 후보 거래별 all-time prior MAX. 행을 Node로 가져오지 않는다.
+ * deal_date 전국 스캔(idx_tx_type_deal_date)을 피하고 idx_tx_lawd_apt_ym 을 쓴다.
+ * 같은 (apt, areaKey, contract date) 후보는 한 번만 조회한다.
+ * 다른 cutoff는 합치지 않는다. 신규 index 없음.
+ */
+export async function queryAptTypePriorMaxes(params: {
+  lawdCodes: string[];
+  candidates: AptTypePriorCandidate[];
+}): Promise<number[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  const { lawdCodes, candidates } = params;
+  if (!lawdCodes.length) return candidates.map(() => 0);
+  const out = candidates.map(() => 0);
+  if (candidates.length === 0) return out;
+
+  const lawdPlaceholders = lawdCodes.map(() => "?").join(",");
+  const unique: AptTypePriorCandidate[] = [];
+  const uniqueIndexByKey = new Map<string, number>();
+  const sourceToUnique = candidates.map((candidate) => {
+    const key = `${candidate.aptNameNorm}|${Math.round(candidate.exclusiveArea * 100)}|${candidate.dealDate.slice(0, 10)}`;
+    const existing = uniqueIndexByKey.get(key);
+    if (existing != null) return existing;
+    const next = unique.length;
+    uniqueIndexByKey.set(key, next);
+    unique.push(candidate);
+    return next;
+  });
+
+  const uniqueMaxes = unique.map(() => 0);
+  const byDate = new Map<string, number[]>();
+  unique.forEach((candidate, index) => {
+    const day = candidate.dealDate.slice(0, 10);
+    const prev = byDate.get(day);
+    if (prev) prev.push(index);
+    else byDate.set(day, [index]);
+  });
+
+  const dateJobs = [...byDate.entries()].map(([day, indexes]) => async () => {
+    const norms = [...new Set(indexes.map((i) => unique[i]!.aptNameNorm))];
+    const areaCents = [
+      ...new Set(indexes.map((i) => Math.round(unique[i]!.exclusiveArea * 100))),
+    ];
+    for (let i = 0; i < norms.length; i += APT_PRIOR_MAX_CHUNK) {
+      const chunk = norms.slice(i, i + APT_PRIOR_MAX_CHUNK);
+      const namePlaceholders = chunk.map(() => "?").join(",");
+      const areaPlaceholders = areaCents.map(() => "?").join(",");
+      noteDbQuery();
+      const result = await db.execute({
+        sql: `SELECT apt_name_norm,
+                     CAST(ROUND(exclusive_area * 100) AS INTEGER) AS area_cents,
+                     MAX(deal_amount) AS prior_max
+              FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+              WHERE lawd_cd IN (${lawdPlaceholders})
+                AND apt_name_norm IN (${namePlaceholders})
+                AND year_month <= ?
+                AND deal_type = 'trade'
+                AND deal_date < ?
+                AND CAST(ROUND(exclusive_area * 100) AS INTEGER) IN (${areaPlaceholders})
+              GROUP BY apt_name_norm, CAST(ROUND(exclusive_area * 100) AS INTEGER)`,
+        args: [
+          ...lawdCodes,
+          ...chunk,
+          dealYearMonth(day),
+          day,
+          ...areaCents,
+        ],
+      });
+      const maxByKey = new Map<string, number>();
+      for (const row of result.rows) {
+        maxByKey.set(
+          `${String(row.apt_name_norm)}|${Number(row.area_cents) || 0}`,
+          Number(row.prior_max) || 0,
+        );
+      }
+      for (const index of indexes) {
+        const candidate = unique[index]!;
+        if (!chunk.includes(candidate.aptNameNorm)) continue;
+        const key = `${candidate.aptNameNorm}|${Math.round(candidate.exclusiveArea * 100)}`;
+        const sqlMax = maxByKey.get(key) ?? 0;
+        if (sqlMax > uniqueMaxes[index]!) uniqueMaxes[index] = sqlMax;
+      }
+    }
+  });
+
+  const DATE_CONCURRENCY = 3;
+  for (let i = 0; i < dateJobs.length; i += DATE_CONCURRENCY) {
+    await Promise.all(dateJobs.slice(i, i + DATE_CONCURRENCY).map((job) => job()));
+  }
+
+  for (let i = 0; i < candidates.length; i++) {
+    out[i] = uniqueMaxes[sourceToUnique[i]!] ?? 0;
+  }
+  return out;
+}
+
+/**
+ * 동일 지역·후보 단지 all-time 매매 (신고가 prior).
+ * 요청마다 지역 전체 scan 금지 — apt_name_norm IN 으로 한정.
+ * 신규 index/backfill 없음. 기존 idx_tx_lawd_apt_ym 활용.
+ */
+export async function queryAptTradeHistory(params: {
+  lawdCodes: string[];
+  aptNameNorms: string[];
+}): Promise<AptTradeHistoryRow[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  const norms = [
+    ...new Set(params.aptNameNorms.map((n) => n.trim()).filter(Boolean)),
+  ];
+  if (!params.lawdCodes.length || norms.length === 0) return [];
+
+  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
+  const out: AptTradeHistoryRow[] = [];
+
+  for (let i = 0; i < norms.length; i += APT_HISTORY_IN_CHUNK) {
+    const chunk = norms.slice(i, i + APT_HISTORY_IN_CHUNK);
+    const namePlaceholders = chunk.map(() => "?").join(",");
+    const result = await db.execute({
+      sql: `SELECT id, apt_name_norm, exclusive_area, deal_date, deal_amount
+            FROM transactions
+            WHERE lawd_cd IN (${lawdPlaceholders})
+              AND deal_type = 'trade'
+              AND apt_name_norm IN (${namePlaceholders})`,
+      args: [...params.lawdCodes, ...chunk],
+    });
+    for (const row of result.rows) {
+      out.push({
+        id: String(row.id),
+        aptNameNorm: String(row.apt_name_norm),
+        exclusiveArea: Number(row.exclusive_area) || 0,
+        dealDate: String(row.deal_date),
+        dealAmount: Number(row.deal_amount) || 0,
+      });
+    }
+  }
+
+  return out;
 }
 
 /** 지역 다개월 전세(월세 0) 풀 — 커버리지가 전혀 없으면 null */

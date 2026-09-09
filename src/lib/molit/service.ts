@@ -9,19 +9,51 @@ import { hasDb } from "@/lib/db/client";
 import {
   listAptCatalog,
   normalizeAptName,
+  queryAptTypePriorMaxes,
   queryRegionBrowseApts,
   queryRegionMonthPool,
-  queryRentPool,
   queryTradePool,
+  type AptTypePriorCandidate,
 } from "@/lib/db/repository";
+import {
+  beginDbQueryCount,
+  takeDbQueryCount,
+} from "@/lib/db/query-stats";
+import {
+  seoulDateOf,
+  seoulToday,
+  yearMonthFromSeoulDate,
+} from "@/lib/market/time";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import { filterTransactions, sortByDealDateDesc } from "@/lib/molit/parse";
 import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
 import {
+  CONTRACT_DATE_BASIS_HELP,
+  CONTRACT_MONTH_LOOKBACK,
+  HISTORY_DATE_BASIS_HELP,
+  HISTORY_DAY_FETCH_CAP,
+  HISTORY_INITIAL_DAY_COUNT,
+  activityYearMonthsFromSeenDates,
+  contractMonthOptions,
+  contractMonthOptionsFromCoverage,
+  medianPyeongPrice,
+  oldestYearMonthFromDates,
+  pickHeroSeenDate,
+  priorTypeMaxAmount,
+  yearMonthInLookback,
+  SEEN_DATE_BASIS_HELP,
+  shiftYearMonth,
+  sortNewlySeenDeals,
+  TYPE_TREND_MIN_POINTS,
+  previousTypeDealAmount,
+  typePriceTrend,
+  typeRecordHigh,
+  yearMonthFromDealDate,
+} from "@/lib/region/market-insight";
+import {
   matchesAreaFilter,
   recentYearMonths,
-  toPyeong,
 } from "@/lib/utils/format";
 import type {
   AreaFilter,
@@ -31,15 +63,7 @@ import type {
   TransactionsResponse,
 } from "@/types/transaction";
 
-const REGION_DAILY_HISTORY_MONTHS = 24;
-
-function areaKey(sqm: number): string {
-  return String(Math.round(sqm * 100) / 100);
-}
-
-function pyeongBucket(sqm: number): number {
-  return Math.round(toPyeong(sqm));
-}
+const REGION_DAILY_HISTORY_MONTHS = CONTRACT_MONTH_LOOKBACK;
 
 function monthsBefore(dateStr: string, months: number): string {
   const d = new Date(`${dateStr.slice(0, 10)}T00:00:00`);
@@ -596,13 +620,28 @@ export async function getRegionBrowse(params: {
 }
 
 export interface RegionDailyDaySummary {
-  date: string; // YYYY-MM-DD
+  date: string; // KST YYYY-MM-DD of first_seen_at
   dealCount: number;
   tradeCount: number;
+  singogaCount: number;
+  /** false면 신고가를 아직 계산하지 않음. 0건과 구분 */
+  singogaKnown: boolean;
+  bulkIngestDay: boolean;
   maxDealAmount: number;
 }
 
-export type RegionDailySingogaKind = "type" | "pyeong";
+export interface RegionDailyDaySection {
+  date: string;
+  deals: RegionDailyDeal[];
+  bulkIngestDay: boolean;
+  singogaKnown: boolean;
+  totalCount: number;
+  singogaCount: number;
+  hasMore: boolean;
+}
+
+/** 타입 신고가 = 동일 단지 + 동일 areaKey all-time prior max 초과 */
+export type RegionDailySingogaKind = "type";
 
 export interface RegionDailyDeal {
   id: string;
@@ -613,6 +652,8 @@ export interface RegionDailyDeal {
   floor: number;
   dealAmount: number;
   dealDate: string;
+  /** KST 달력일. 시스템이 처음 확인한 날. 공식 신고일 아님. */
+  firstSeenDate: string;
   buildYear: number | null;
   dealingGbn: string;
   singogaKind: RegionDailySingogaKind | null;
@@ -623,7 +664,16 @@ export interface RegionDailyDeal {
   pyeongMaxAmount: number;
   complexMaxAmount: number;
   jeonseAmount: number | null;
+  /**
+   * 동일 단지·areaKey, 현재 계약일 이전 24개월 풀에서
+   * 가장 가까운 매매 금액. 없으면 null.
+   */
+  prevTypeDealAmount: number | null;
+  /** 신고가 카드만. 동일 단지·areaKey, deal_date 순, 24개월 풀 */
+  priceTrend?: { date: string; amount: number }[] | null;
 }
+
+export type RegionDailyPart = "market" | "latest" | "history" | "days" | "all";
 
 export interface RegionDailyResponse {
   regionSlug: string;
@@ -631,96 +681,69 @@ export interface RegionDailyResponse {
   source: "api" | "mock" | "db";
   warning?: string;
   selectedDate: string | null;
+  latestIsToday: boolean;
   days: RegionDailyDaySummary[];
-  /** 해당 월의 신고가 전체 (클라이언트에서 날짜 필터) */
+  historySections: RegionDailyDaySection[];
+  historyTotalCount: number;
+  /** @deprecated 히어로는 deals. 월 목록은 historySections. */
   monthDeals: RegionDailyDeal[];
   deals: RegionDailyDeal[];
   maxDeal: RegionDailyDeal | null;
   avgDealAmount: number;
   tradeCount: number;
+  selectedDaySingogaCount: number;
+  /** 계약월(deal_date) 매매 건수 — 확인일과 축이 다름 */
+  monthTradeCount: number;
+  prevMonthTradeCount: number;
+  comparePartial: boolean;
+  contractYearMonth: string;
+  medianDealAmount: number | null;
+  prevMonthMedianDealAmount: number | null;
+  medianPyeongPrice: number | null;
+  /** 선택 계약월 타입 신고가 건수. 계산 불가면 null */
+  monthSingogaCount: number | null;
+  /** 12개월 전 같은 계약월 거래량. pool coverage 없으면 null */
+  yearAgoMonthTradeCount: number | null;
+  dateAxis: "first_seen_kst";
+  dateBasisNote: string;
+  contractDateBasisNote: string;
+  seenDateBasisNote: string;
+  historyDateBasisNote: string;
+  firstSeenReady: boolean;
+  /** 히어로 확인 건수가 비정상적으로 커 all-time 신고가 lookup을 생략 */
+  bulkIngestDay: boolean;
+  /** SECTION 1: deal_date 최근 24개월 연속(coverage가 더 짧으면 그 범위). */
+  contractMonthOptions: string[];
+  /** SECTION 3: first_seen KST 월. SECTION 1과 공유하지 않음. */
+  activityYearMonths: string[];
 }
+
+const REGION_DAILY_DATE_NOTE = SEEN_DATE_BASIS_HELP;
 
 function enrichDailyDeal(
   tx: Transaction,
-  aptTrades: Transaction[],
-  aptRents: Transaction[],
+  priorTypeMax: number,
+  aptTrades24m: Transaction[],
+  firstSeenDate: string,
 ): RegionDailyDeal {
-  const typeKey = areaKey(tx.exclusiveArea);
-  const pyeongKey = pyeongBucket(tx.exclusiveArea);
   const dealDate = tx.dealDate.slice(0, 10);
-
-  const prior = aptTrades.filter(
-    (h) =>
-      h.id !== tx.id &&
-      (h.dealDate.slice(0, 10) < dealDate ||
-        (h.dealDate.slice(0, 10) === dealDate && h.id < tx.id)),
-  );
-
-  let priorTypeMax = 0;
-  let priorPyeongMax = 0;
-  let typeMax = tx.dealAmount;
-  let pyeongMax = tx.dealAmount;
-  let complexMax = tx.dealAmount;
-
-  for (const h of aptTrades) {
-    complexMax = Math.max(complexMax, h.dealAmount);
-    if (areaKey(h.exclusiveArea) === typeKey) {
-      typeMax = Math.max(typeMax, h.dealAmount);
-    }
-    if (pyeongBucket(h.exclusiveArea) === pyeongKey) {
-      pyeongMax = Math.max(pyeongMax, h.dealAmount);
-    }
-  }
-
-  for (const h of prior) {
-    if (areaKey(h.exclusiveArea) === typeKey) {
-      priorTypeMax = Math.max(priorTypeMax, h.dealAmount);
-    }
-    if (pyeongBucket(h.exclusiveArea) === pyeongKey) {
-      priorPyeongMax = Math.max(priorPyeongMax, h.dealAmount);
-    }
-  }
-
-  const isTypeSingoga = tx.dealAmount > priorTypeMax;
-  const isPyeongSingoga = tx.dealAmount > priorPyeongMax;
-  const singogaKind: RegionDailySingogaKind | null = isTypeSingoga
+  const judged = typeRecordHigh(tx.dealAmount, priorTypeMax);
+  const singogaKind: RegionDailySingogaKind | null = judged.isSingoga
     ? "type"
-    : isPyeongSingoga
-      ? "pyeong"
-      : null;
-
-  const baseline =
-    singogaKind === "type"
-      ? priorTypeMax
-      : singogaKind === "pyeong"
-        ? priorPyeongMax
-        : Math.max(priorTypeMax, priorPyeongMax);
-  const increaseAmount =
-    singogaKind && baseline > 0 ? Math.max(0, tx.dealAmount - baseline) : 0;
+    : null;
 
   const since3m = monthsBefore(dealDate, 3);
-  const recent3mCount = aptTrades.filter(
+  const recent3mCount = aptTrades24m.filter(
     (h) =>
       h.dealDate.slice(0, 10) >= since3m && h.dealDate.slice(0, 10) <= dealDate,
   ).length;
 
-  const vsHighPct =
-    complexMax > 0 ? Math.round((tx.dealAmount / complexMax) * 1000) / 10 : null;
-
-  const matchedRents = aptRents.filter(
-    (h) =>
-      areaKey(h.exclusiveArea) === typeKey &&
-      h.dealDate.slice(0, 10) <= dealDate,
-  );
-  const jeonseAmount =
-    matchedRents.length > 0
-      ? matchedRents.reduce((max, cur) =>
-          cur.dealDate > max.dealDate ||
-          (cur.dealDate === max.dealDate && cur.dealAmount > max.dealAmount)
-            ? cur
-            : max,
-        ).dealAmount
-      : null;
+  const typeMax = Math.max(tx.dealAmount, priorTypeMax);
+  const prevTypeDealAmount = previousTypeDealAmount({
+    exclusiveArea: tx.exclusiveArea,
+    dealDate: tx.dealDate,
+    history: aptTrades24m,
+  });
 
   return {
     id: tx.id,
@@ -731,16 +754,18 @@ function enrichDailyDeal(
     floor: tx.floor,
     dealAmount: tx.dealAmount,
     dealDate: tx.dealDate,
+    firstSeenDate,
     buildYear: tx.buildYear,
     dealingGbn: tx.dealingGbn || "중개거래",
     singogaKind,
-    increaseAmount,
-    vsHighPct,
+    increaseAmount: judged.increaseAmount,
+    vsHighPct: null,
     recent3mCount,
     typeMaxAmount: typeMax,
-    pyeongMaxAmount: pyeongMax,
-    complexMaxAmount: complexMax,
-    jeonseAmount,
+    pyeongMaxAmount: typeMax,
+    complexMaxAmount: typeMax,
+    jeonseAmount: null,
+    prevTypeDealAmount,
   };
 }
 
@@ -755,187 +780,731 @@ function groupByAptName(items: Transaction[]): Map<string, Transaction[]> {
   return map;
 }
 
+/** 기존 type 신고가 classifier용 prior max. 24m pool 후 필요 시 all-time SQL. */
+async function typePriorMaxesForDeals(params: {
+  deals: Transaction[];
+  historyTrades: Transaction[];
+  lawdCodes: string[];
+  source: "db" | "api";
+}): Promise<number[]> {
+  const { deals, historyTrades, lawdCodes, source } = params;
+  const tradesByApt = groupByAptName(historyTrades);
+  const priorMaxes = deals.map((tx) =>
+    priorTypeMaxAmount({
+      exclusiveArea: tx.exclusiveArea,
+      dealDate: tx.dealDate,
+      history: tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
+    }),
+  );
+  if (source !== "db" || deals.length === 0) return priorMaxes;
+
+  const sqlIndexes: number[] = [];
+  const candidates: AptTypePriorCandidate[] = [];
+  deals.forEach((tx, index) => {
+    if (tx.dealAmount > (priorMaxes[index] ?? 0)) {
+      sqlIndexes.push(index);
+      candidates.push({
+        aptNameNorm: normalizeAptName(tx.aptName),
+        exclusiveArea: tx.exclusiveArea,
+        dealDate: tx.dealDate,
+      });
+    }
+  });
+  if (candidates.length === 0) return priorMaxes;
+  if (activeProfile) {
+    const unique = new Set(candidates.map(priorCandidateKey));
+    activeProfile.priorCandidates += candidates.length;
+    activeProfile.priorUniqueCandidates += unique.size;
+  }
+  try {
+    const tPrior = performance.now();
+    const lookedUp = await queryAptTypePriorMaxes({ lawdCodes, candidates });
+    if (activeProfile) {
+      activeProfile.priorMaxMs += Math.round(performance.now() - tPrior);
+    }
+    if (lookedUp) {
+      lookedUp.forEach((sqlMax, i) => {
+        const dealIndex = sqlIndexes[i]!;
+        priorMaxes[dealIndex] = Math.max(priorMaxes[dealIndex] ?? 0, sqlMax);
+      });
+    }
+  } catch (error) {
+    console.warn("[region-daily] apt prior max db read failed:", error);
+  }
+  return priorMaxes;
+}
+
+function tradesInContractMonth(
+  historyTrades: Transaction[],
+  yearMonth: string,
+  dayCap: string | null,
+): Transaction[] {
+  const out: Transaction[] = [];
+  for (const tx of historyTrades) {
+    const d = tx.dealDate.slice(0, 10);
+    if (yearMonthFromDealDate(d) !== yearMonth) continue;
+    if (dayCap && d.slice(8, 10) > dayCap) continue;
+    out.push(tx);
+  }
+  return out;
+}
+
+function firstSeenKstDate(tx: Transaction): string | null {
+  const raw = tx.firstSeenAt?.trim();
+  if (!raw) return null;
+  const day = seoulDateOf(raw);
+  return day || null;
+}
+
+const REGION_DAILY_CACHE_TTL_MS = 60_000;
+const REGION_DAILY_SINGOGA_DAY_CAP = 100;
+const BULK_DAY_PAGE_SIZE = 24;
+
+const regionDailyCache = new Map<
+  string,
+  { expires: number; payload: RegionDailyResponse }
+>();
+
+export type RegionDailyProfile = {
+  poolMs: number;
+  poolRows: number;
+  kpiMs: number;
+  kpiDeals: number;
+  priorMaxMs: number;
+  priorCandidates: number;
+  priorUniqueCandidates: number;
+  heroMs: number;
+  heroDeals: number;
+  calendarMs: number;
+  sparklineMs: number;
+  sqlQueries: number;
+  totalMs: number;
+};
+
+let activeProfile: RegionDailyProfile | null = null;
+
+function emptyProfile(): RegionDailyProfile {
+  return {
+    poolMs: 0,
+    poolRows: 0,
+    kpiMs: 0,
+    kpiDeals: 0,
+    priorMaxMs: 0,
+    priorCandidates: 0,
+    priorUniqueCandidates: 0,
+    heroMs: 0,
+    heroDeals: 0,
+    calendarMs: 0,
+    sparklineMs: 0,
+    sqlQueries: 0,
+    totalMs: 0,
+  };
+}
+
+export function startRegionDailyProfile(): void {
+  activeProfile = emptyProfile();
+  beginDbQueryCount();
+}
+
+export function takeRegionDailyProfile(): RegionDailyProfile | null {
+  if (!activeProfile) return null;
+  activeProfile.sqlQueries = takeDbQueryCount();
+  const out = activeProfile;
+  activeProfile = null;
+  return out;
+}
+
+function priorCandidateKey(candidate: AptTypePriorCandidate): string {
+  return `${candidate.aptNameNorm}|${Math.round(candidate.exclusiveArea * 100)}|${candidate.dealDate.slice(0, 10)}`;
+}
+
+function cachePayload(
+  key: string,
+  payload: RegionDailyResponse,
+): RegionDailyResponse {
+  regionDailyCache.set(key, {
+    expires: Date.now() + REGION_DAILY_CACHE_TTL_MS,
+    payload,
+  });
+  if (regionDailyCache.size > 120) {
+    const now = Date.now();
+    for (const [k, entry] of regionDailyCache) {
+      if (entry.expires <= now) regionDailyCache.delete(k);
+    }
+  }
+  return payload;
+}
+
+function emptyRegionDaily(
+  regionSlug: string,
+  yearMonth: string,
+  source: "api" | "mock" | "db",
+  extras?: Partial<RegionDailyResponse>,
+): RegionDailyResponse {
+  const contractYearMonth =
+    extras?.contractYearMonth ?? yearMonthFromSeoulDate(seoulToday());
+  return {
+    regionSlug,
+    yearMonth,
+    source,
+    selectedDate: extras?.selectedDate ?? null,
+    latestIsToday: extras?.latestIsToday ?? false,
+    days: extras?.days ?? [],
+    historySections: extras?.historySections ?? [],
+    historyTotalCount: extras?.historyTotalCount ?? 0,
+    monthDeals: extras?.monthDeals ?? extras?.deals ?? [],
+    deals: extras?.deals ?? [],
+    maxDeal: extras?.maxDeal ?? extras?.deals?.[0] ?? null,
+    avgDealAmount: extras?.avgDealAmount ?? 0,
+    tradeCount: extras?.tradeCount ?? extras?.deals?.length ?? 0,
+    selectedDaySingogaCount: extras?.selectedDaySingogaCount ?? 0,
+    monthTradeCount: extras?.monthTradeCount ?? 0,
+    prevMonthTradeCount: extras?.prevMonthTradeCount ?? 0,
+    comparePartial: extras?.comparePartial ?? false,
+    contractYearMonth,
+    medianDealAmount: extras?.medianDealAmount ?? null,
+    prevMonthMedianDealAmount: extras?.prevMonthMedianDealAmount ?? null,
+    medianPyeongPrice: extras?.medianPyeongPrice ?? null,
+    monthSingogaCount: extras?.monthSingogaCount ?? null,
+    yearAgoMonthTradeCount: extras?.yearAgoMonthTradeCount ?? null,
+    dateAxis: "first_seen_kst",
+    dateBasisNote: extras?.dateBasisNote ?? REGION_DAILY_DATE_NOTE,
+    contractDateBasisNote:
+      extras?.contractDateBasisNote ?? CONTRACT_DATE_BASIS_HELP,
+    seenDateBasisNote: extras?.seenDateBasisNote ?? SEEN_DATE_BASIS_HELP,
+    historyDateBasisNote:
+      extras?.historyDateBasisNote ?? HISTORY_DATE_BASIS_HELP,
+    firstSeenReady: extras?.firstSeenReady ?? false,
+    warning: extras?.warning,
+    bulkIngestDay: extras?.bulkIngestDay ?? false,
+    contractMonthOptions: extras?.contractMonthOptions ?? [],
+    activityYearMonths: extras?.activityYearMonths ?? [],
+  };
+}
+
 export async function getRegionDaily(params: {
   regionSlug: string;
   yearMonth?: string;
+  contractMonth?: string;
   date?: string;
+  dates?: string[];
+  offset?: number;
+  part?: RegionDailyPart;
 }): Promise<RegionDailyResponse> {
   const region = getRegion(params.regionSlug);
   if (!region) {
     throw new Error(`Unknown region: ${params.regionSlug}`);
   }
 
-  const preferredYm = params.yearMonth || recentYearMonths(1)[0];
-  const lawdCodes = [...region.lawdCodes];
-
-  let items: Transaction[] = [];
-  let source: "api" | "mock" | "db" = "api";
-  let warning: string | undefined;
-  let resolvedYearMonth = preferredYm;
-
-  // DB 우선 — MOLIT 429/타임아웃을 피한다
-  if (hasDb()) {
-    try {
-      const fromDb = await queryTradePool({
-        lawdCodes,
-        yearMonths: [preferredYm],
-      });
-      if (fromDb) {
-        items = fromDb.filter((tx) => tx.dealType === "trade");
-        source = "db";
-        resolvedYearMonth = preferredYm;
-      }
-    } catch (error) {
-      console.warn("[region-daily] month db read failed:", error);
-    }
+  const part: RegionDailyPart = params.part ?? "all";
+  const today = seoulToday();
+  const contractMonth =
+    params.contractMonth || yearMonthFromSeoulDate(today);
+  const seenMonth = params.yearMonth || yearMonthFromSeoulDate(today);
+  const dateList = (
+    params.dates?.length
+      ? params.dates
+      : params.date
+        ? params.date.split(",").map((d) => d.trim()).filter(Boolean)
+        : []
+  ).slice(0, HISTORY_DAY_FETCH_CAP);
+  const offset = Math.max(0, params.offset ?? 0);
+  const cacheKey = `${region.slug}:${part}:${contractMonth}:${seenMonth}:${dateList.join(",")}:${offset}`;
+  const cached = regionDailyCache.get(cacheKey);
+  if (cached && cached.expires > Date.now()) {
+    return cached.payload;
   }
 
-  if (items.length === 0 && source !== "db") {
-    try {
-      const loaded = await loadRawTransactions(
-        preferredYm,
-        "trade",
-        lawdCodes,
-        region.slug,
-      );
-      // 신고가 현황에서는 데모/목 데이터를 쓰지 않는다
-      if (loaded.source !== "mock") {
-        items = loaded.items.filter((tx) => tx.dealType === "trade");
-        source = loaded.source;
-        warning = loaded.warning;
-        resolvedYearMonth = loaded.resolvedYearMonth;
-      } else {
-        source = "api";
-        resolvedYearMonth = preferredYm;
-      }
-    } catch (error) {
-      console.warn("[region-daily] month api read failed:", error);
-      warning = "실거래 조회 중 오류가 발생했습니다.";
-    }
+  const t0 = performance.now();
+  const payload = await computeRegionDaily({
+    region,
+    part,
+    contractMonth,
+    seenMonth,
+    dates: dateList,
+    offset,
+    today,
+  });
+  if (activeProfile) {
+    activeProfile.totalMs += Math.round(performance.now() - t0);
   }
+  return cachePayload(cacheKey, payload);
+}
 
-  // 해당 월 실데이터가 없으면 빈 결과 (데모 표시 안 함)
-  if (items.length === 0) {
-    return {
-      regionSlug: region.slug,
-      yearMonth: preferredYm,
-      source: source === "db" ? "db" : "api",
-      warning: undefined,
-      selectedDate: null,
-      days: [],
-      monthDeals: [],
-      deals: [],
-      maxDeal: null,
-      avgDealAmount: 0,
-      tradeCount: 0,
-    };
+type PoolCacheEntry = {
+  expires: number;
+  trades: Transaction[];
+  source: "db" | "api";
+};
+
+const regionTradePoolCache = new Map<string, PoolCacheEntry>();
+const regionTradePoolInflight = new Map<
+  string,
+  Promise<{ trades: Transaction[]; source: "db" | "api" }>
+>();
+
+export function clearRegionDailyCaches(): void {
+  regionDailyCache.clear();
+  regionTradePoolCache.clear();
+  regionTradePoolInflight.clear();
+}
+
+async function loadRegionTradePool(
+  region: RegionDef,
+): Promise<{ trades: Transaction[]; source: "db" | "api" }> {
+  const cached = regionTradePoolCache.get(region.slug);
+  if (cached && cached.expires > Date.now()) {
+    return { trades: cached.trades, source: cached.source };
   }
+  const pending = regionTradePoolInflight.get(region.slug);
+  if (pending) return pending;
 
-  const historyMonths = recentYearMonths(REGION_DAILY_HISTORY_MONTHS);
-  let historyTrades: Transaction[] = items;
-  let historyRents: Transaction[] = [];
-
-  if (hasDb()) {
-    try {
-      const [tradePool, rentPool] = await Promise.all([
-        queryTradePool({ lawdCodes, yearMonths: historyMonths }),
-        queryRentPool({ lawdCodes, yearMonths: historyMonths }),
-      ]);
-      if (tradePool && tradePool.length > 0) {
-        const byId = new Map<string, Transaction>();
-        for (const tx of tradePool) byId.set(tx.id, tx);
-        for (const tx of items) byId.set(tx.id, tx);
-        historyTrades = [...byId.values()];
-        source = "db";
-      }
-      if (rentPool && rentPool.length > 0) {
-        historyRents = rentPool;
-      }
-    } catch (error) {
-      console.warn("[region-daily] history pool failed:", error);
-    }
-  }
-
-  const tradesByApt = groupByAptName(historyTrades);
-  const rentsByApt = groupByAptName(historyRents);
-
-  const enrichedMonth = items
-    .map((tx) =>
-      enrichDailyDeal(
-        tx,
-        tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
-        rentsByApt.get(normalizeAptName(tx.aptName)) ?? [],
-      ),
-    )
-    .filter((deal) => deal.singogaKind != null)
-    .sort(
-      (a, b) =>
-        b.dealAmount - a.dealAmount ||
-        a.aptName.localeCompare(b.aptName, "ko"),
+  const job = (async () => {
+    let source: "db" | "api" = "api";
+    let historyTrades: Transaction[] = [];
+    const historyMonths = contractMonthOptions(
+      yearMonthFromSeoulDate(seoulToday()),
+      REGION_DAILY_HISTORY_MONTHS,
     );
 
+    if (hasDb()) {
+      try {
+        const tPool = performance.now();
+        const tradePool = await queryTradePool({
+          lawdCodes: [...region.lawdCodes],
+          yearMonths: historyMonths,
+        });
+        if (tradePool) {
+          historyTrades = tradePool.filter((tx) => tx.dealType === "trade");
+          source = "db";
+        }
+        if (activeProfile) {
+          activeProfile.poolMs += Math.round(performance.now() - tPool);
+          activeProfile.poolRows = historyTrades.length;
+        }
+      } catch (error) {
+        console.warn("[region-daily] trade pool db read failed:", error);
+      }
+    }
+
+    regionTradePoolCache.set(region.slug, {
+      expires: Date.now() + REGION_DAILY_CACHE_TTL_MS,
+      trades: historyTrades,
+      source,
+    });
+    if (regionTradePoolCache.size > 24) {
+      const now = Date.now();
+      for (const [key, entry] of regionTradePoolCache) {
+        if (entry.expires <= now) regionTradePoolCache.delete(key);
+      }
+    }
+    return { trades: historyTrades, source };
+  })();
+
+  regionTradePoolInflight.set(region.slug, job);
+  try {
+    return await job;
+  } finally {
+    regionTradePoolInflight.delete(region.slug);
+  }
+}
+
+type SeenRow = { tx: Transaction; firstSeenDate: string };
+
+function collectSeen(historyTrades: Transaction[]): SeenRow[] {
+  const seen: SeenRow[] = [];
+  for (const tx of historyTrades) {
+    const day = firstSeenKstDate(tx);
+    if (!day) continue;
+    seen.push({ tx, firstSeenDate: day });
+  }
+  return seen;
+}
+
+async function computeMarketKpis(
+  historyTrades: Transaction[],
+  contractYearMonth: string,
+  today: string,
+  lawdCodes: string[],
+  source: "db" | "api",
+) {
+  const tKpi = performance.now();
+  const currentYm = yearMonthFromSeoulDate(today);
+  const comparePartial = contractYearMonth === currentYm;
+  const dayCap = comparePartial ? today.slice(8, 10) : null;
+  const current = tradesInContractMonth(
+    historyTrades,
+    contractYearMonth,
+    dayCap,
+  );
+  const previous = tradesInContractMonth(
+    historyTrades,
+    shiftYearMonth(contractYearMonth, -1),
+    dayCap,
+  );
+  const yearAgoYm = shiftYearMonth(contractYearMonth, -12);
+  const yearAgoCovered = yearMonthInLookback(
+    yearAgoYm,
+    currentYm,
+    REGION_DAILY_HISTORY_MONTHS,
+  );
+  const yearAgo = yearAgoCovered
+    ? tradesInContractMonth(historyTrades, yearAgoYm, dayCap)
+    : null;
+  const priorMaxes = await typePriorMaxesForDeals({
+    deals: current,
+    historyTrades,
+    lawdCodes,
+    source,
+  });
+  let monthSingogaCount = 0;
+  current.forEach((tx, index) => {
+    if (typeRecordHigh(tx.dealAmount, priorMaxes[index] ?? 0).isSingoga) {
+      monthSingogaCount += 1;
+    }
+  });
+  if (activeProfile) {
+    activeProfile.kpiMs += Math.round(performance.now() - tKpi);
+    activeProfile.kpiDeals += current.length;
+  }
+  return {
+    contractYearMonth,
+    monthTradeCount: current.length,
+    prevMonthTradeCount: previous.length,
+    yearAgoMonthTradeCount: yearAgo ? yearAgo.length : yearAgoCovered ? 0 : null,
+    comparePartial,
+    medianPyeongPrice: medianPyeongPrice(current),
+    monthSingogaCount,
+  };
+}
+
+function buildCalendarDays(monthSeen: SeenRow[]): RegionDailyDaySummary[] {
   const dayMap = new Map<
     string,
-    { dealCount: number; tradeCount: number; maxDealAmount: number }
+    { dealCount: number; maxDealAmount: number }
   >();
-
-  // 달력에는 신고가가 있는 날짜만 선택 가능
-  for (const deal of enrichedMonth) {
-    const date = deal.dealDate.slice(0, 10);
-    if (!date) continue;
-    const prev = dayMap.get(date);
+  for (const { tx, firstSeenDate } of monthSeen) {
+    const prev = dayMap.get(firstSeenDate);
     if (!prev) {
-      dayMap.set(date, {
+      dayMap.set(firstSeenDate, {
         dealCount: 1,
-        tradeCount: 1,
-        maxDealAmount: deal.dealAmount,
+        maxDealAmount: tx.dealAmount,
       });
       continue;
     }
     prev.dealCount += 1;
-    prev.tradeCount += 1;
-    prev.maxDealAmount = Math.max(prev.maxDealAmount, deal.dealAmount);
+    prev.maxDealAmount = Math.max(prev.maxDealAmount, tx.dealAmount);
+  }
+  return [...dayMap.entries()]
+    .map(([date, value]) => ({
+      date,
+      dealCount: value.dealCount,
+      tradeCount: value.dealCount,
+      singogaCount: 0,
+      singogaKnown: false,
+      bulkIngestDay: value.dealCount > REGION_DAILY_SINGOGA_DAY_CAP,
+      maxDealAmount: value.maxDealAmount,
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+async function enrichSeenDay(params: {
+  lawdCodes: string[];
+  source: "db" | "api";
+  historyTrades: Transaction[];
+  daySeen: SeenRow[];
+  offset: number;
+  withSparkline: boolean;
+}): Promise<RegionDailyDaySection> {
+  const { lawdCodes, source, historyTrades, daySeen, offset, withSparkline } =
+    params;
+  const date = daySeen[0]?.firstSeenDate ?? "";
+  const totalCount = daySeen.length;
+  const bulkIngestDay = totalCount > REGION_DAILY_SINGOGA_DAY_CAP;
+  const tradesByApt = groupByAptName(historyTrades);
+
+  if (bulkIngestDay) {
+    const page = daySeen.slice(offset, offset + BULK_DAY_PAGE_SIZE);
+    const deals = page.map(({ tx, firstSeenDate }) =>
+      enrichDailyDeal(
+        tx,
+        0,
+        tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
+        firstSeenDate,
+      ),
+    );
+    return {
+      date,
+      deals: sortNewlySeenDeals(deals),
+      bulkIngestDay: true,
+      singogaKnown: false,
+      totalCount,
+      singogaCount: 0,
+      hasMore: offset + page.length < totalCount,
+    };
   }
 
-  const days: RegionDailyDaySummary[] = [...dayMap.entries()]
-    .map(([date, value]) => ({ date, ...value }))
-    .sort((a, b) => b.date.localeCompare(a.date));
-
-  const today = new Date();
-  const todayYm = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
-  const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-  const requestedDate = params.date?.trim() || null;
-  const selectedDate =
-    (requestedDate && dayMap.has(requestedDate) ? requestedDate : null) ??
-    (resolvedYearMonth === todayYm ? todayDate : null) ??
-    days[0]?.date ??
-    null;
-
-  const deals = selectedDate
-    ? enrichedMonth.filter((deal) => deal.dealDate.slice(0, 10) === selectedDate)
-    : [];
-
-  const maxDeal = deals[0] ?? null;
-  const avgDealAmount =
-    deals.length > 0
-      ? Math.round(
-          deals.reduce((sum, d) => sum + d.dealAmount, 0) / deals.length,
-        )
-      : 0;
-
-  return {
-    regionSlug: region.slug,
-    yearMonth: resolvedYearMonth,
+  const priorMaxes = await typePriorMaxesForDeals({
+    deals: daySeen.map(({ tx }) => tx),
+    historyTrades,
+    lawdCodes,
     source,
-    warning,
-    selectedDate,
-    days,
-    monthDeals: enrichedMonth,
+  });
+
+  const enriched = daySeen.map(({ tx, firstSeenDate }, index) =>
+    enrichDailyDeal(
+      tx,
+      priorMaxes[index] ?? 0,
+      tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
+      firstSeenDate,
+    ),
+  );
+  const deals = sortNewlySeenDeals(enriched);
+  if (withSparkline) {
+    const tSpark = performance.now();
+    for (const deal of deals) {
+      if (deal.singogaKind == null) continue;
+      const aptTrades = tradesByApt.get(normalizeAptName(deal.aptName)) ?? [];
+      const points = typePriceTrend({
+        trades: aptTrades,
+        exclusiveArea: deal.exclusiveArea,
+        throughDate: deal.dealDate,
+      });
+      deal.priceTrend =
+        points.length >= TYPE_TREND_MIN_POINTS ? points : null;
+    }
+    if (activeProfile) {
+      activeProfile.sparklineMs += Math.round(performance.now() - tSpark);
+    }
+  }
+  const singogaCount = deals.filter((d) => d.singogaKind != null).length;
+  return {
+    date,
     deals,
-    maxDeal,
-    avgDealAmount,
-    tradeCount: deals.length,
+    bulkIngestDay: false,
+    singogaKnown: true,
+    totalCount,
+    singogaCount,
+    hasMore: false,
   };
 }
 
+async function computeRegionDaily(params: {
+  region: RegionDef;
+  part: RegionDailyPart;
+  contractMonth: string;
+  seenMonth: string;
+  dates: string[];
+  offset: number;
+  today: string;
+}): Promise<RegionDailyResponse> {
+  const { region, part, contractMonth, seenMonth, dates, offset, today } =
+    params;
+  const lawdCodes = [...region.lawdCodes];
+  const { trades: historyTrades, source } = await loadRegionTradePool(region);
+  const src = source === "db" ? "db" : "api";
+  const seen = collectSeen(historyTrades);
+  const firstSeenReady = seen.length > 0;
+  const activityYearMonths = activityYearMonthsFromSeenDates(
+    seen.map((row) => row.firstSeenDate),
+  );
+  const contractMonthOptionList = contractMonthOptionsFromCoverage(
+    yearMonthFromSeoulDate(today),
+    oldestYearMonthFromDates(historyTrades.map((tx) => tx.dealDate)),
+    REGION_DAILY_HISTORY_MONTHS,
+  );
+  const needsKpis = part === "market" || part === "all";
+  const kpis = needsKpis
+    ? await computeMarketKpis(
+        historyTrades,
+        contractMonth,
+        today,
+        lawdCodes,
+        src,
+      )
+    : {
+        contractYearMonth: contractMonth,
+        monthTradeCount: 0,
+        prevMonthTradeCount: 0,
+        yearAgoMonthTradeCount: null as number | null,
+        comparePartial: false,
+        medianPyeongPrice: null as number | null,
+        monthSingogaCount: null as number | null,
+      };
+  const hero = pickHeroSeenDate(
+    seen.map((row) => row.firstSeenDate),
+    today,
+  );
+
+  const base = emptyRegionDaily(region.slug, seenMonth, src, {
+    ...kpis,
+    firstSeenReady,
+    selectedDate: hero.date,
+    latestIsToday: hero.isToday,
+    contractMonthOptions: contractMonthOptionList,
+    activityYearMonths,
+  });
+
+  if (part === "market") {
+    return base;
+  }
+
+  const tCal = performance.now();
+  const monthSeen = seen.filter(
+    (row) => yearMonthFromSeoulDate(row.firstSeenDate) === seenMonth,
+  );
+  const days = buildCalendarDays(monthSeen);
+  const historyTotalCount = monthSeen.length;
+  if (activeProfile) {
+    activeProfile.calendarMs += Math.round(performance.now() - tCal);
+  }
+
+  if (part === "history") {
+    return {
+      ...base,
+      yearMonth: seenMonth,
+      days,
+      historyTotalCount,
+    };
+  }
+
+  const byDate = new Map<string, SeenRow[]>();
+  for (const row of seen) {
+    const prev = byDate.get(row.firstSeenDate);
+    if (prev) prev.push(row);
+    else byDate.set(row.firstSeenDate, [row]);
+  }
+
+  async function sectionsFor(
+    wanted: string[],
+    withSparkline: boolean,
+    dayOffset: number,
+  ): Promise<RegionDailyDaySection[]> {
+    const out: RegionDailyDaySection[] = [];
+    for (const date of wanted) {
+      const daySeen = byDate.get(date);
+      if (!daySeen?.length) continue;
+      out.push(
+        await enrichSeenDay({
+          lawdCodes,
+          source,
+          historyTrades,
+          daySeen,
+          offset: dayOffset,
+          withSparkline,
+        }),
+      );
+    }
+    return out;
+  }
+
+  if (part === "latest") {
+    const daySeen = hero.date ? (byDate.get(hero.date) ?? []) : [];
+    const tHero = performance.now();
+    const section = daySeen.length
+      ? await enrichSeenDay({
+          lawdCodes,
+          source,
+          historyTrades,
+          daySeen,
+          offset: 0,
+          withSparkline: true,
+        })
+      : null;
+    if (activeProfile) {
+      activeProfile.heroMs += Math.round(performance.now() - tHero);
+      activeProfile.heroDeals += daySeen.length;
+    }
+    const deals = section?.deals ?? [];
+    return {
+      ...base,
+      selectedDate: hero.date,
+      latestIsToday: hero.isToday,
+      deals,
+      monthDeals: deals,
+      maxDeal: deals[0] ?? null,
+      avgDealAmount:
+        deals.length > 0
+          ? Math.round(
+              deals.reduce((sum, d) => sum + d.dealAmount, 0) / deals.length,
+            )
+          : 0,
+      tradeCount: section?.totalCount ?? 0,
+      selectedDaySingogaCount: section?.singogaCount ?? 0,
+      bulkIngestDay: section?.bulkIngestDay ?? false,
+    };
+  }
+
+  if (part === "days") {
+    const sections = await sectionsFor(dates, false, offset);
+    const patchedDays = days.map((day) => {
+      const section = sections.find((s) => s.date === day.date);
+      if (!section) return day;
+      return {
+        ...day,
+        singogaCount: section.singogaCount,
+        singogaKnown: section.singogaKnown,
+        bulkIngestDay: section.bulkIngestDay,
+      };
+    });
+    return {
+      ...base,
+      yearMonth: seenMonth,
+      days: patchedDays,
+      historySections: sections,
+      historyTotalCount,
+    };
+  }
+
+  const initialDates = days
+    .filter((d) => d.dealCount > 0)
+    .slice(0, HISTORY_INITIAL_DAY_COUNT)
+    .map((d) => d.date);
+  const heroRows = hero.date ? (byDate.get(hero.date) ?? []) : [];
+  const heroSection = heroRows.length
+    ? await enrichSeenDay({
+        lawdCodes,
+        source,
+        historyTrades,
+        daySeen: heroRows,
+        offset: 0,
+        withSparkline: true,
+      })
+    : null;
+  const historySections = await sectionsFor(initialDates, false, 0);
+  const deals = heroSection?.deals ?? [];
+  const patchedDays = days.map((day) => {
+    const section =
+      historySections.find((s) => s.date === day.date) ??
+      (heroSection?.date === day.date ? heroSection : null);
+    if (!section) return day;
+    return {
+      ...day,
+      singogaCount: section.singogaCount,
+      singogaKnown: section.singogaKnown,
+      bulkIngestDay: section.bulkIngestDay,
+    };
+  });
+
+  return {
+    ...base,
+    yearMonth: seenMonth,
+    selectedDate: hero.date,
+    latestIsToday: hero.isToday,
+    days: patchedDays,
+    historySections,
+    historyTotalCount,
+    deals,
+    monthDeals: deals,
+    maxDeal: deals[0] ?? null,
+    avgDealAmount:
+      deals.length > 0
+        ? Math.round(
+            deals.reduce((sum, d) => sum + d.dealAmount, 0) / deals.length,
+          )
+        : 0,
+    tradeCount: heroSection?.totalCount ?? 0,
+    selectedDaySingogaCount: heroSection?.singogaCount ?? 0,
+    bulkIngestDay: heroSection?.bulkIngestDay ?? false,
+  };
+}

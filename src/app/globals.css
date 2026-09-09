@@ -43,3 +43,36 @@ h3 {
     transform: translateX(400%);
   }
 }
+
+@keyframes region-date-flash {
+  0% {
+    background-color: rgb(240 253 250);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.region-date-flash {
+  animation: region-date-flash 1.1s ease-out;
+}
+
+.region-basis-chip {
+  flex-shrink: 0;
+}
+
+.region-basis-chip > summary {
+  list-style: none;
+  white-space: nowrap;
+}
+
+.region-basis-chip > summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .region-date-flash {
+    animation: none;
+    background-color: rgb(240 253 250);
+  }
+}

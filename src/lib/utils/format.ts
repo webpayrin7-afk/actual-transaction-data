@@ -10,9 +10,17 @@ export function formatSqm(sqm: number): string {
   return `${Number(sqm).toFixed(2)}㎡`;
 }
 
-/** 사용자 보조 평 표기 — 26평 (약 제거, 반올림) */
+/** 사용자 보조 평 표기 — 26평 (정수 반올림). 공급 ‘평형’ 아님. */
 export function formatPyeong(sqm: number): string {
   return `${Math.round(toPyeong(sqm))}평`;
+}
+
+/**
+ * 전용면적 + 단순 평 환산 — 84.97㎡ (약 26평).
+ * 공급면적 기준 ‘평형’이 아님. 별도 필드 추정 없음.
+ */
+export function formatSqmApproxPyeong(sqm: number): string {
+  return `${formatSqm(sqm)} (약 ${Math.round(sqm / 3.3058)}평)`;
 }
 
 /** 전용 84.97㎡ */

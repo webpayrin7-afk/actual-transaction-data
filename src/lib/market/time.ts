@@ -42,6 +42,13 @@ export function seoulDayBoundsUtc(seoulDay: string): {
   };
 }
 
+/** KST 달력일 YYYY-MM-DD → YYYYMM */
+export function yearMonthFromSeoulDate(seoulDay: string): string {
+  const d = seoulDay.slice(0, 10);
+  if (d.length < 10) return "";
+  return `${d.slice(0, 4)}${d.slice(5, 7)}`;
+}
+
 export function formatSeoulDateTime(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);

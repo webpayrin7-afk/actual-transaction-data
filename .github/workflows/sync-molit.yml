@@ -2,14 +2,17 @@ name: Sync MOLIT warehouse
 
 on:
   schedule:
-    # 국토부 OpenAPI는 일 1회 갱신(시각 비공시). 전일 신고분 공개 직후를 노려
-    # 06:00~14:45 KST 동안 15분마다 신선도 probe → 변경 시에만 재적재.
+    # 국토부 OpenAPI는 일 1회 갱신(시각 비공시).
+    # 06:00~14:45 KST 15분 sentinel probe + 하루 2회 rolling 강제 sync
+    # (06:00 / 18:00 KST). 23:00 KST는 probe 기반(당월 변화 시에만 full sync).
+    # 당월 probe만으로는 과거 계약월 late-report를 놓친다.
+    # 정책: src/lib/molit/sync-policy.ts
     # KST = UTC+9
     - cron: "*/15 21-23 * * *" # 06:00~08:45 KST
     - cron: "*/15 0-5 * * *" # 09:00~14:45 KST
-    # 오후·야간 추가 유입 대비 강제 갱신
-    - cron: "0 9 * * *" # 18:00 KST
-    - cron: "0 14 * * *" # 23:00 KST
+    # 오후 추가 유입: 18:00 강제 rolling, 23:00는 probe only
+    - cron: "0 9 * * *" # 18:00 KST forced
+    - cron: "0 14 * * *" # 23:00 KST probe (not forced)
   workflow_dispatch:
     inputs:
       scope:
@@ -17,11 +20,11 @@ on:
         required: false
         default: "all"
       trade_months:
-        description: "매매 적재 개월 수"
+        description: "매매 적재 개월 수 (late-report 커버, 기본 4)"
         required: false
-        default: "2"
+        default: "4"
       rent_months:
-        description: "전월세 적재 개월 수"
+        description: "전월세 적재 개월 수 (매매와 달리 2 유지)"
         required: false
         default: "2"
       force:
@@ -47,13 +50,16 @@ jobs:
           UTC_HOUR=$(date -u +%H)
           UTC_MIN=$(date -u +%M)
           FORCE=false
+          # Keep in sync with src/lib/molit/sync-policy.ts isForcedRollingSchedule
           # workflow_dispatch force 입력
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force || 'true' }}" != "false" ]; then
             FORCE=true
           fi
-          # 18:00 KST(09 UTC) · 23:00 KST(14 UTC) 정각은 강제
-          if [ "$UTC_HOUR" = "09" ] && [ "$UTC_MIN" = "00" ]; then FORCE=true; fi
-          if [ "$UTC_HOUR" = "14" ] && [ "$UTC_MIN" = "00" ]; then FORCE=true; fi
+          # Dedicated 18:00 KST cron — match the schedule string so runner delay cannot drop force
+          if [ "${{ github.event.schedule }}" = "0 9 * * *" ]; then FORCE=true; fi
+          # 23:00 KST (0 14 * * *) stays probe-based — do not force
+          # 06:00 KST = 21:00 UTC tick of the 15-min probe cron (grace: first 15 min)
+          if [ "$UTC_HOUR" = "21" ] && [ "$UTC_MIN" -lt 15 ]; then FORCE=true; fi
           echo "force=$FORCE" >> "$GITHUB_OUTPUT"
           echo "utc=${UTC_HOUR}:${UTC_MIN} force=$FORCE"
 
@@ -79,12 +85,13 @@ jobs:
           MOLIT_SYNCING: "1"
         run: |
           SCOPE="${{ github.event.inputs.scope || 'all' }}"
-          TRADE="${{ github.event.inputs.trade_months || '2' }}"
+          TRADE="${{ github.event.inputs.trade_months || '4' }}"
           RENT="${{ github.event.inputs.rent_months || '2' }}"
-          # 스케줄: 최근 2개월만 대상, 실제 write는 변경분
+          # 스케줄: 매매 4개월(당월+직전 3) rolling. 전월세는 2개월 유지.
+          # 실제 transaction WRITE는 dirty-check 변경분만.
           if [ "${{ github.event_name }}" = "schedule" ]; then
             SCOPE=all
-            TRADE=2
+            TRADE=4
             RENT=2
           fi
           echo "probe summary: ${{ steps.probe.outputs.summary }}"

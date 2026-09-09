@@ -5,8 +5,9 @@
  *   # 미적재분만 (서울·경기 백필) — scope=all 은 수도권만
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=120 --rent-months=48 --skip-existing=1
  *
- *   # 최근 개월 변경분만 (기본 daily)
- *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=2 --rent-months=2 --skip-existing=0 --only-changed=1
+ *   # 최근 개월 변경분만 (기본 daily: 매매 4개월 late-report, 전월세 2)
+ *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --rent-months=2 --skip-existing=0 --only-changed=1 --discovery=1
+ *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --rent-months=2 --plan=1 --as-of=2026-09-09
  *
  *   # 전국 plan (WRITE 0)
  *   npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
@@ -37,8 +38,15 @@ import {
   fetchOneTradeForSync,
   fetchOneRentForSync,
 } from "../src/lib/molit/client";
-import { recentYearMonths } from "../src/lib/utils/format";
-import type { DealType, Transaction } from "../src/types/transaction";
+import {
+  applySkipExisting,
+  buildRollingSyncJobs,
+  isCellUnchanged,
+  jobKey,
+  maxDealDateOf,
+  type DbCellSnap,
+  type RollingSyncJob,
+} from "../src/lib/molit/sync-policy";
 
 function argValue(name: string, fallback: string): string {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -57,21 +65,11 @@ function expandFeatured(): string[] {
   return [...codes];
 }
 
-function maxDealDate(items: Transaction[]): string {
-  let max = "";
-  for (const tx of items) {
-    if (tx.dealDate > max) max = tx.dealDate;
-  }
-  return max;
-}
-
-type DbSnap = { rowCount: number; maxDealDate: string };
-
 async function loadDbSnapshots(
   db: NonNullable<ReturnType<typeof getDb>>,
   yearMonths: string[],
-): Promise<Map<string, DbSnap>> {
-  const map = new Map<string, DbSnap>();
+): Promise<Map<string, DbCellSnap>> {
+  const map = new Map<string, DbCellSnap>();
   if (!yearMonths.length) return map;
 
   const ymPlaceholders = yearMonths.map(() => "?").join(",");
@@ -102,15 +100,6 @@ async function loadDbSnapshots(
     map.set(key, prev);
   }
   return map;
-}
-
-function isUnchanged(
-  snap: DbSnap | undefined,
-  items: Transaction[],
-): boolean {
-  if (!snap) return false;
-  const apiMax = maxDealDate(items);
-  return snap.rowCount === items.length && snap.maxDealDate === apiMax;
 }
 
 function yearMonthsBetween(fromYm: string, toYm: string): string[] {
@@ -151,6 +140,14 @@ async function main() {
   const maxMonths = Number(argValue("max-months", "0"));
   const fromMonth = argValue("from-month", "");
   const toMonth = argValue("to-month", "");
+  const asOfArg = argValue("as-of", "");
+  const asOf = asOfArg
+    ? new Date(`${asOfArg}T12:00:00+09:00`)
+    : new Date();
+  if (Number.isNaN(asOf.getTime())) {
+    console.error(`Invalid --as-of=${asOfArg} (use YYYY-MM-DD)`);
+    process.exit(1);
+  }
 
   if (!process.env.TURSO_DATABASE_URL) {
     process.env.TURSO_DATABASE_URL = `file:${resolve("data/molit.db")}`;
@@ -184,32 +181,39 @@ async function main() {
 
   let tradeYms: string[];
   let rentYms: string[];
+  let jobs: RollingSyncJob[];
   if (fromMonth && toMonth) {
     const span = yearMonthsBetween(fromMonth, toMonth);
     tradeYms = span;
     rentYms = rentMonths > 0 ? span : [];
+    jobs = [];
+    for (const lawdCd of lawdCodes) {
+      for (const yearMonth of tradeYms) {
+        jobs.push({ lawdCd, yearMonth, kind: "trade" });
+      }
+      for (const yearMonth of rentYms) {
+        jobs.push({ lawdCd, yearMonth, kind: "rent" });
+      }
+    }
   } else {
-    tradeYms = recentYearMonths(Math.min(Math.max(tradeMonths, 1), 240));
-    rentYms = recentYearMonths(Math.min(Math.max(rentMonths, 0), 240));
+    const planned = buildRollingSyncJobs({
+      lawdCodes,
+      tradeMonths,
+      rentMonths,
+      asOf,
+    });
+    tradeYms = planned.tradeYms;
+    rentYms = planned.rentYms;
+    jobs = planned.jobs;
   }
   if (maxMonths > 0) {
     tradeYms = tradeYms.slice(0, maxMonths);
     rentYms = rentYms.slice(0, maxMonths);
-  }
-
-  type Job = {
-    lawdCd: string;
-    yearMonth: string;
-    kind: DealType;
-  };
-  let jobs: Job[] = [];
-  for (const lawdCd of lawdCodes) {
-    for (const yearMonth of tradeYms) {
-      jobs.push({ lawdCd, yearMonth, kind: "trade" });
-    }
-    for (const yearMonth of rentYms) {
-      jobs.push({ lawdCd, yearMonth, kind: "rent" });
-    }
+    const tradeKeep = new Set(tradeYms);
+    const rentKeep = new Set(rentYms);
+    jobs = jobs.filter((j) =>
+      j.kind === "trade" ? tradeKeep.has(j.yearMonth) : rentKeep.has(j.yearMonth),
+    );
   }
 
   let skippedExisting = 0;
@@ -222,11 +226,9 @@ async function main() {
         (r) => `${r.lawd_cd}|${r.year_month}|${r.deal_kind}`,
       ),
     );
-    const before = jobs.length;
-    jobs = jobs.filter(
-      (j) => !have.has(`${j.lawdCd}|${j.yearMonth}|${j.kind}`),
-    );
-    skippedExisting = before - jobs.length;
+    const filtered = applySkipExisting(jobs, have, true);
+    jobs = filtered.jobs;
+    skippedExisting = filtered.skipped;
   }
 
   const snapshots = onlyChanged
@@ -275,14 +277,14 @@ async function main() {
       const index = next;
       next += 1;
       const job = jobs[index];
-      const key = `${job.lawdCd}|${job.yearMonth}|${job.kind}`;
+      const key = jobKey(job);
       try {
         const items =
           job.kind === "trade"
             ? await fetchOneTradeForSync(job.lawdCd, job.yearMonth)
             : await fetchOneRentForSync(job.lawdCd, job.yearMonth);
 
-        if (onlyChanged && isUnchanged(snapshots?.get(key), items)) {
+        if (onlyChanged && isCellUnchanged(snapshots?.get(key), items)) {
           unchanged += 1;
         } else {
           const result = await replaceMonthTransactions({
@@ -302,7 +304,7 @@ async function main() {
           if (snapshots) {
             snapshots.set(key, {
               rowCount: items.length,
-              maxDealDate: maxDealDate(items),
+              maxDealDate: maxDealDateOf(items),
             });
           }
         }

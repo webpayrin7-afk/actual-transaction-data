@@ -16,7 +16,6 @@ import { RegionDongBrowse } from "@/components/RegionDongBrowse";
 import { TransactionTable } from "@/components/TransactionTable";
 import { BackLink } from "@/components/layout/BackLink";
 import {
-  PAGE_HEADER_WITH_BACK,
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
@@ -27,10 +26,10 @@ import type { AreaFilter, DealType } from "@/types/transaction";
 
 type RegionTab = "dong" | "stats" | "search";
 
-/** 지역 요약 → 실거래 → 단지 탐색 */
+/** 지역 요약 → 실거래 검색 → 단지 탐색 */
 const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
   { id: "stats", label: "시장 현황", icon: BarChart3 },
-  { id: "search", label: "실거래", icon: Search },
+  { id: "search", label: "실거래 검색", icon: Search },
   { id: "dong", label: "단지 탐색", icon: Building2 },
 ];
 
@@ -75,7 +74,6 @@ export function Dashboard({
   const [dealType, setDealType] = useState<DealType | "all">(initialDealType);
   const [area, setArea] = useState<AreaFilter>("all");
   const [searchYearMonth, setSearchYearMonth] = useState(() => currentYearMonth);
-  const [statsYearMonth, setStatsYearMonth] = useState(() => currentYearMonth);
   const [page, setPage] = useState(1);
   const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
@@ -120,7 +118,6 @@ export function Dashboard({
     setDealType(initialDealType);
     setArea("all");
     setSearchYearMonth(currentYearMonth);
-    setStatsYearMonth(currentYearMonth);
     setPage(1);
   };
 
@@ -158,10 +155,6 @@ export function Dashboard({
     resetPage();
   };
 
-  const handleStatsYearMonthChange = (value: string) => {
-    setStatsYearMonth(value);
-  };
-
   const handleSearch = () => {
     startTransition(() => {
       setAppliedAptName(aptNameInput.trim());
@@ -170,12 +163,11 @@ export function Dashboard({
   };
 
   return (
-    <div className={PAGE_SHELL}>
-      <header className={PAGE_HEADER_WITH_BACK}>
+    <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} sm:gap-5`}>
+      <header className="-mt-2 mb-2 flex flex-col gap-5 sm:mb-0 sm:gap-5">
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
-          description={`${region.fullName} 실거래·신고가·단지 현황을 확인하세요.`}
         />
       </header>
 
@@ -209,9 +201,7 @@ export function Dashboard({
       {tab === "stats" && (
         <RegionDailyStatus
           regionSlug={region.slug}
-          yearMonth={statsYearMonth}
-          yearMonths={yearMonths}
-          onYearMonthChange={handleStatsYearMonthChange}
+          regionName={region.name}
         />
       )}
 

@@ -14,14 +14,29 @@
 - `src/lib/constants/nationwide-extra-regions.ts` — 서울·경기 외 RegionDef
 - `src/lib/constants/regions-registry.ts` — SEOUL/GYEONGGI + EXTRA → `ALL_REGIONS`
 
-## 정상 daily sync (기존)
+## 정상 daily sync
 
-GitHub Actions `sync-molit.yml`:
+GitHub Actions `sync-molit.yml` + `src/lib/molit/sync-policy.ts`:
+
+- 매매 rolling **4개월** (당월+직전 3) — 늦게 공개된 과거 계약 커버
+- 전월세 rolling **2개월** 유지
+- `--skip-existing=0 --only-changed=1` (API는 다시 읽되 unchanged transaction WRITE=0)
+- 매매는 `cdealType=O` 해제 row를 active에서 제외하고, 동일 identity의 정상 row를 XML 순서와 무관하게 선택
+- 15분 sentinel probe는 당월만. 하루 **2회**(06:00/18:00 KST)는 probe와 관계없이 rolling sync 강제.
+- 15분 sentinel probe는 당월만. 하루 **2회**(06:00/18:00 KST)는 probe와 관계없이 rolling sync 강제.
+- 23:00 KST cron은 유지하되 강제하지 않음(당월 sentinel 변화가 있을 때만 rolling).
 
 ```bash
 npx tsx scripts/sync-molit.ts \
-  --scope=all --trade-months=2 --rent-months=2 \
+  --scope=all --trade-months=4 --rent-months=2 \
   --concurrency=2 --skip-existing=0 --only-changed=1
+```
+
+READ ONLY 검증:
+
+```bash
+npx tsx scripts/test-late-report-ingestion.ts
+npx tsx scripts/simulate-late-report-coverage.ts
 ```
 
 ## Plan (write 없음)
