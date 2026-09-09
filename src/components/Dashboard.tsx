@@ -173,7 +173,6 @@ export function Dashboard({
       <header className="-mt-2 mb-2 flex flex-col gap-5 sm:mb-0 sm:gap-5">
         <BackLink fallback="/regions" />
         <PageHeader
-          compact
           title={`${region.name} 아파트 시장`}
         />
       </header>
