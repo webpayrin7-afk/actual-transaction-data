@@ -26,10 +26,10 @@ import type { AreaFilter, DealType } from "@/types/transaction";
 
 type RegionTab = "dong" | "stats" | "search";
 
-/** 지역 요약 → 실거래 → 단지 탐색 */
+/** 지역 요약 → 실거래 검색 → 단지 탐색 */
 const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
   { id: "stats", label: "시장 현황", icon: BarChart3 },
-  { id: "search", label: "실거래", icon: Search },
+  { id: "search", label: "실거래 검색", icon: Search },
   { id: "dong", label: "단지 탐색", icon: Building2 },
 ];
 
