@@ -90,7 +90,7 @@ export function LoanLimitCalculator({
       </p>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-slate-900">대출 조건</h3>
+        <h3 className="text-sm font-semibold text-slate-900">한도 계산 조건</h3>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <p id="limit-metro-label" className="text-xs font-medium text-slate-500">
@@ -208,7 +208,7 @@ export function LoanLimitCalculator({
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-slate-900">담보 및 소득</h3>
+        <h3 className="text-sm font-semibold text-slate-900">한도용 담보 및 소득</h3>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             id="limit-collateral"
@@ -264,7 +264,7 @@ export function LoanLimitCalculator({
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-slate-900">대출 상환 조건</h3>
+        <h3 className="text-sm font-semibold text-slate-900">한도용 만기·금리</h3>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <p id="limit-years-label" className="text-xs font-medium text-slate-500">
@@ -298,7 +298,7 @@ export function LoanLimitCalculator({
           </div>
           <Field
             id="limit-rate"
-            label="기준 금리 (%)"
+            label="한도 계산용 금리 (%)"
             hint="DSR은 스트레스 가산금리를 더해 보수적으로 계산합니다."
           >
             <input

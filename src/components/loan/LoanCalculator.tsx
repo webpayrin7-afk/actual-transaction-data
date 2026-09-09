@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { LoanLimitCalculator } from "@/components/loan/LoanLimitCalculator";
 import { Field, Segmented, inputClass } from "@/components/loan/loan-ui";
@@ -50,12 +50,11 @@ function formatRatePct(pct: number): string {
 
 export function LoanCalculator() {
   const searchParams = useSearchParams();
-  const formId = useId();
-  const principalId = `${formId}-principal`;
-  const yearsId = `${formId}-years`;
-  const rateId = `${formId}-rate`;
-  const methodLabelId = `${formId}-method`;
-  const yearsLabelId = `${formId}-years-label`;
+  const principalId = "loan-principal";
+  const yearsId = "loan-years";
+  const rateId = "loan-rate";
+  const methodLabelId = "loan-method-label";
+  const yearsLabelId = "loan-years-label";
 
   const [principalRaw, setPrincipalRaw] = useState("30000");
   const [years, setYears] = useState(30);
@@ -293,7 +292,7 @@ export function LoanCalculator() {
               method={method}
             />
             <ScenarioList scenarios={comparison.scenarios} method={method} />
-            <RepayDetails summary={current} lastDiffers={Boolean(lastDiffers)} />
+            <RepayDetails summary={current} />
           </>
         ) : (
           <section className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500">
@@ -539,10 +538,8 @@ function CompactStat({ label, value }: { label: string; value: string }) {
 
 function RepayDetails({
   summary,
-  lastDiffers,
 }: {
   summary: RepaySummary;
-  lastDiffers: boolean;
 }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
@@ -553,9 +550,6 @@ function RepayDetails({
           label="첫 해 납입액"
           value={formatWon(summary.firstYearPaymentWon)}
         />
-        {summary.method === "equal_payment" && lastDiffers ? (
-          <CompactStat label="마지막 달 정산" value={formatWon(summary.lastMonthWon)} />
-        ) : null}
       </dl>
       <p className="mt-3 text-[11px] leading-4 text-slate-400">
         금액은 원 단위 반올림입니다. 원리금균등 마지막 달은 잔액 정산이 반영됩니다.
