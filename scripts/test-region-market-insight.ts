@@ -17,6 +17,7 @@ import {
   newlySeenSectionTitle,
   pickFeaturedSingogaDeal,
   pickHeroSeenDate,
+  previousTypeDealAmount,
   priorPeakAmount,
   priorTypeMaxAmount,
   recentSingogaDeals,
@@ -29,6 +30,7 @@ import {
   typeRecordHigh,
   visibleNewlySeenDeals,
   volumeChangePct,
+  vsPreviousTypeDeal,
   yearMonthFromDealDate,
 } from "../src/lib/region/market-insight";
 import { formatSqmApproxPyeong } from "../src/lib/utils/format";
@@ -375,5 +377,39 @@ assert.deepEqual(
     ["2026-09-08", ["나"]],
   ],
 );
+
+assert.equal(
+  previousTypeDealAmount({
+    exclusiveArea: 84.97,
+    dealDate: "2026-09-01",
+    history: [
+      { exclusiveArea: 84.97, dealDate: "2026-05-10", dealAmount: 100000 },
+      { exclusiveArea: 84.97, dealDate: "2026-08-20", dealAmount: 110000 },
+      { exclusiveArea: 59.9, dealDate: "2026-08-28", dealAmount: 90000 },
+      { exclusiveArea: 84.97, dealDate: "2026-09-01", dealAmount: 120000 },
+    ],
+  }),
+  110000,
+);
+
+assert.equal(
+  previousTypeDealAmount({
+    exclusiveArea: 84.97,
+    dealDate: "2026-09-01",
+    history: [{ exclusiveArea: 84.97, dealDate: "2026-09-01", dealAmount: 120000 }],
+  }),
+  null,
+);
+
+assert.deepEqual(vsPreviousTypeDeal(185000, 180000), {
+  kind: "up",
+  amount: 5000,
+});
+assert.deepEqual(vsPreviousTypeDeal(170000, 180000), {
+  kind: "down",
+  amount: 10000,
+});
+assert.deepEqual(vsPreviousTypeDeal(180000, 180000), { kind: "same" });
+assert.equal(vsPreviousTypeDeal(180000, null), null);
 
 console.log("test-region-market-insight: ok");

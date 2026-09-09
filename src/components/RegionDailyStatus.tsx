@@ -35,6 +35,7 @@ import {
   sortNewlySeenDeals,
   visibleNewlySeenDeals,
   volumeChangePct,
+  vsPreviousTypeDeal,
 } from "@/lib/region/market-insight";
 import { TypePriceSparkline } from "@/components/region/TypePriceSparkline";
 import {
@@ -106,13 +107,13 @@ function FeaturedDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-teal-200/80 bg-teal-50/40 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50/70"
+      className="block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50"
     >
       <div className="flex items-start justify-between gap-2">
-        <strong className="block min-w-0 flex-1 text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
+        <strong className="block min-w-0 flex-1 break-keep text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
           {deal.aptName}
         </strong>
-        <span className="inline-flex shrink-0 items-center rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 text-[10px] font-semibold text-teal-800">
+        <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-300 bg-teal-100 px-2 py-0.5 text-[10px] font-semibold text-teal-800">
           {singogaLabel(deal.singogaKind)}
         </span>
       </div>
@@ -122,7 +123,7 @@ function FeaturedDealCard({
         </p>
       ) : null}
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="text-[22px] font-semibold leading-none tabular-nums text-slate-900">
+        <span className="whitespace-nowrap text-[22px] font-semibold leading-none tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
         {deal.increaseAmount > 0 ? (
@@ -133,7 +134,7 @@ function FeaturedDealCard({
         ) : null}
       </div>
       {prior != null ? (
-        <p className="mt-1 text-[12px] tabular-nums text-slate-500">
+        <p className="mt-1 whitespace-nowrap text-[12px] tabular-nums text-slate-500">
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
@@ -168,10 +169,10 @@ function RegularDealCard({
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
       className="block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
     >
-      <p className="truncate text-sm font-semibold text-slate-900">
+      <p className="break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
         {deal.aptName}
       </p>
-      <p className="mt-1.5 text-lg font-semibold tabular-nums leading-none text-slate-900">
+      <p className="mt-1.5 whitespace-nowrap text-lg font-semibold tabular-nums leading-none text-slate-900">
         {formatEok(deal.dealAmount)}
       </p>
       <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] leading-4">
@@ -186,6 +187,17 @@ function RegularDealCard({
   );
 }
 
+function prevDealDeltaText(
+  current: number,
+  previous: number | null,
+): string | null {
+  const vs = vsPreviousTypeDeal(current, previous);
+  if (!vs) return null;
+  if (vs.kind === "same") return "직전 대비 동일";
+  const arrow = vs.kind === "up" ? "▲" : "▼";
+  return `직전 대비 ${arrow} ${formatEok(vs.amount)}`;
+}
+
 function HistoryDealCard({
   deal,
   regionSlug,
@@ -193,25 +205,31 @@ function HistoryDealCard({
   deal: RegionDailyDeal;
   regionSlug: string;
 }) {
+  const delta = prevDealDeltaText(deal.dealAmount, deal.prevTypeDealAmount);
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-lg border border-slate-200/70 px-3 py-2 transition hover:bg-slate-50/80"
+      className="block rounded-lg border border-slate-200/60 px-3 py-2 transition hover:bg-slate-50/80"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 truncate text-sm font-semibold text-slate-900">
+        <p className="min-w-0 flex-1 break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
           {deal.aptName}
         </p>
         {deal.singogaKind ? (
-          <span className="inline-flex shrink-0 items-center rounded-full border border-teal-200/80 px-1.5 py-0.5 text-[10px] font-medium text-teal-700">
+          <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-200/80 px-1.5 py-0.5 text-[10px] font-medium text-teal-700">
             신고가
           </span>
         ) : null}
       </div>
-      <p className="mt-1 text-base font-semibold tabular-nums leading-none text-slate-900">
+      <p className="mt-1 whitespace-nowrap text-base font-semibold tabular-nums leading-none text-slate-900">
         {formatEok(deal.dealAmount)}
       </p>
-      <p className="mt-1 truncate text-[12px] leading-4 text-slate-500">
+      {delta ? (
+        <p className="mt-0.5 whitespace-nowrap text-[11px] text-slate-500">
+          {delta}
+        </p>
+      ) : null}
+      <p className="mt-1 text-[12px] leading-4 text-slate-500">
         {specLine(deal)} · {contractLine(deal.dealDate)}
       </p>
     </Link>
@@ -269,8 +287,8 @@ function DateBasisChip({
   help: string;
 }) {
   return (
-    <details className="region-basis-chip relative min-w-0">
-      <summary className="inline-flex cursor-pointer items-center gap-0.5 rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400">
+    <details className="region-basis-chip relative shrink-0">
+      <summary className="inline-flex cursor-pointer items-center gap-0.5 whitespace-nowrap rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400">
         {label}
         <span className="text-[10px] font-normal text-slate-400" aria-hidden="true">
           ⓘ
@@ -296,11 +314,13 @@ function SectionHeading({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <h2 className="text-[15px] font-semibold tracking-tight text-slate-900 sm:text-base">
+      <h2 className="shrink-0 text-[15px] font-semibold tracking-tight text-slate-900 sm:text-base">
         {title}
       </h2>
-      <DateBasisChip label={basisLabel} help={basisHelp} />
-      {aside}
+      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+        <DateBasisChip label={basisLabel} help={basisHelp} />
+        {aside}
+      </div>
     </div>
   );
 }
@@ -336,7 +356,7 @@ function MonthNav({
         <ChevronLeft className="h-5 w-5" />
       </button>
       <p
-        className="min-w-0 flex-1 text-center text-sm font-semibold tabular-nums text-slate-800"
+        className="min-w-0 flex-1 whitespace-nowrap px-1 text-center text-sm font-semibold tabular-nums text-slate-800"
         aria-live="polite"
       >
         {koreanYearMonthLabel(value)}
@@ -365,7 +385,7 @@ function MoreControl({
     <button
       type="button"
       onClick={onClick}
-      className="mt-1 inline-flex min-h-9 items-center self-start px-0.5 text-sm font-medium text-slate-600 underline-offset-2 transition hover:text-slate-900 hover:underline"
+      className="mt-1 inline-flex min-h-9 items-center self-start whitespace-nowrap px-0.5 text-sm font-medium text-slate-600 underline-offset-2 transition hover:text-slate-900 hover:underline"
     >
       {children}
     </button>
@@ -413,67 +433,69 @@ function MonthCalendar({
         onChange={onChangeMonth}
         spread
       />
-      <div className="mt-1 grid grid-cols-7 text-center text-[10px] font-medium text-slate-400">
-        {weekLabels.map((label) => (
-          <div key={label} className="py-0.5">
-            {label}
-          </div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7 gap-0.5">
-        {cells.map((day, idx) => {
-          if (!day) return <div key={`e-${idx}`} className="min-h-10" />;
-          const date = `${year}-${month}-${String(day).padStart(2, "0")}`;
-          const summary = byDate.get(date);
-          const dealCount = summary?.dealCount ?? 0;
-          const hasDeals = dealCount > 0;
-          const hasSingoga =
-            Boolean(summary?.singogaKnown) && (summary?.singogaCount ?? 0) > 0;
-          const active = selectedDate === date;
-          if (!hasDeals) {
+      <div className="mt-1.5 rounded-xl border border-slate-200 bg-slate-50/70 p-1.5 sm:p-2">
+        <div className="mb-1 grid grid-cols-7 border-b border-slate-200/80 text-center text-[10px] font-medium text-slate-400">
+          {weekLabels.map((label) => (
+            <div key={label} className="py-1">
+              {label}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-0.5">
+          {cells.map((day, idx) => {
+            if (!day) return <div key={`e-${idx}`} className="min-h-10" />;
+            const date = `${year}-${month}-${String(day).padStart(2, "0")}`;
+            const summary = byDate.get(date);
+            const dealCount = summary?.dealCount ?? 0;
+            const hasDeals = dealCount > 0;
+            const hasSingoga =
+              Boolean(summary?.singogaKnown) && (summary?.singogaCount ?? 0) > 0;
+            const active = selectedDate === date;
+            if (!hasDeals) {
+              return (
+                <div
+                  key={date}
+                  className="flex min-h-10 flex-col items-center justify-center rounded-md text-sm text-slate-300 sm:min-h-11"
+                  aria-hidden="true"
+                >
+                  <span>{day}</span>
+                </div>
+              );
+            }
             return (
-              <div
+              <button
                 key={date}
-                className="flex min-h-10 flex-col items-center justify-center rounded-md text-sm text-slate-300 sm:min-h-11"
-                aria-hidden="true"
-              >
-                <span>{day}</span>
-              </div>
-            );
-          }
-          return (
-            <button
-              key={date}
-              type="button"
-              onClick={() => onSelectDate(date)}
-              aria-label={`${monthNum}월 ${day}일 새로 확인된 거래 ${dealCount}건${hasSingoga ? ", 신고가 있음" : ""}`}
-              aria-pressed={active}
-              className={`relative flex min-h-10 flex-col items-center justify-center rounded-md text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:min-h-11 ${
-                active
-                  ? "bg-slate-200 text-slate-900"
-                  : "text-slate-800 hover:bg-slate-100/80"
-              }`}
-            >
-              <span className="font-medium leading-none">{day}</span>
-              <span
-                className={`mt-0.5 text-[10px] leading-none tabular-nums ${
-                  active ? "text-slate-600" : "text-slate-500"
+                type="button"
+                onClick={() => onSelectDate(date)}
+                aria-label={`${monthNum}월 ${day}일 새로 확인된 거래 ${dealCount}건${hasSingoga ? ", 신고가 있음" : ""}`}
+                aria-pressed={active}
+                className={`relative flex min-h-10 flex-col items-center justify-center rounded-md px-0.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:min-h-11 ${
+                  active
+                    ? "bg-slate-200 text-slate-900"
+                    : "text-slate-800 hover:bg-slate-100/80"
                 }`}
               >
-                {dealCount}
-                <span className="sr-only">건</span>
-              </span>
-              {hasSingoga ? (
+                <span className="font-medium leading-none">{day}</span>
                 <span
-                  className="mt-0.5 h-1 w-1 rounded-full bg-teal-600"
-                  aria-hidden="true"
-                />
-              ) : (
-                <span className="mt-0.5 h-1 w-1" aria-hidden="true" />
-              )}
-            </button>
-          );
-        })}
+                  className={`mt-0.5 text-[10px] leading-none tabular-nums ${
+                    active ? "text-slate-600" : "text-slate-500"
+                  }`}
+                >
+                  {dealCount}
+                  <span className="sr-only">건</span>
+                </span>
+                {hasSingoga ? (
+                  <span
+                    className="mt-0.5 h-1 w-1 rounded-full bg-teal-600"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <span className="mt-0.5 h-1 w-1" aria-hidden="true" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -491,15 +513,17 @@ function Kpi({
   valueClassName?: string;
 }) {
   return (
-    <div className="min-w-0 px-2.5 py-2 sm:px-3 sm:py-2.5">
-      <p className="text-[11px] leading-4 text-slate-500">{label}</p>
+    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 sm:px-3 sm:py-2.5">
+      <p className="whitespace-nowrap text-[11px] leading-4 text-slate-500">
+        {label}
+      </p>
       <p
-        className={`mt-0.5 text-lg font-semibold leading-tight tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
+        className={`mt-0.5 whitespace-nowrap text-lg font-semibold leading-tight tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
       >
         {value}
       </p>
       {hint ? (
-        <p className="mt-0.5 text-[11px] leading-4 tabular-nums text-slate-500">
+        <p className="mt-0.5 break-keep text-[11px] leading-4 tabular-nums text-slate-500">
           {hint}
         </p>
       ) : null}
@@ -507,22 +531,54 @@ function Kpi({
   );
 }
 
-function dayCountLine(section: RegionDailyDaySection): string {
-  const n = section.totalCount.toLocaleString("ko-KR");
-  if (section.bulkIngestDay || !section.singogaKnown) {
-    return `${n}건`;
-  }
-  return `${n}건 · 신고가 ${section.singogaCount.toLocaleString("ko-KR")}건`;
+function PhraseRow({
+  items,
+  className,
+  leadingClassName,
+  restClassName,
+}: {
+  items: Array<string | null | undefined>;
+  className?: string;
+  leadingClassName?: string;
+  restClassName?: string;
+}) {
+  const parts = items.filter((item): item is string => Boolean(item));
+  if (parts.length === 0) return null;
+  return (
+    <div
+      className={`flex flex-wrap items-baseline gap-y-0.5 ${className ?? ""}`}
+    >
+      {parts.map((part, index) => (
+        <span
+          key={`${part}-${index}`}
+          className={`whitespace-nowrap ${
+            index === 0 ? (leadingClassName ?? "") : (restClassName ?? "")
+          }`}
+        >
+          {index > 0 ? <span className="text-slate-300"> · </span> : null}
+          {part}
+        </span>
+      ))}
+    </div>
+  );
 }
 
-function seenCountLine(opts: {
+function dayCountPhrases(section: RegionDailyDaySection): string[] {
+  const n = section.totalCount.toLocaleString("ko-KR");
+  if (section.bulkIngestDay || !section.singogaKnown) {
+    return [`총 ${n}건`];
+  }
+  return [`총 ${n}건`, `신고가 ${section.singogaCount.toLocaleString("ko-KR")}건`];
+}
+
+function seenCountPhrases(opts: {
   total: number;
   singogaCount: number;
   bulk: boolean;
-}): string {
+}): string[] {
   const n = opts.total.toLocaleString("ko-KR");
-  if (opts.bulk) return `총 ${n}건 · 신고가 계산 생략`;
-  return `총 ${n}건 · 신고가 ${opts.singogaCount.toLocaleString("ko-KR")}건`;
+  if (opts.bulk) return [`총 ${n}건`, "신고가 계산 생략"];
+  return [`총 ${n}건`, `신고가 ${opts.singogaCount.toLocaleString("ko-KR")}건`];
 }
 
 function scrollToDateHeading(date: string) {
@@ -718,7 +774,7 @@ export function RegionDailyStatus({
     };
   });
 
-  const heroCount = seenCountLine({
+  const heroCountPhrases = seenCountPhrases({
     total: latest?.tradeCount ?? heroDeals.length,
     singogaCount: latest?.selectedDaySingogaCount ?? 0,
     bulk: Boolean(latest?.bulkIngestDay),
@@ -749,8 +805,7 @@ export function RegionDailyStatus({
           <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
         ) : market ? (
           <>
-            <div className="rounded-lg bg-slate-50/80">
-            <div className="grid grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
               <Kpi
                 label="거래량"
                 value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
@@ -795,7 +850,6 @@ export function RegionDailyStatus({
                 }
               />
             </div>
-            </div>
             <Link
               href="/stats"
               className="inline-flex items-center gap-1 self-start text-sm font-medium text-slate-600 transition hover:text-slate-900"
@@ -818,7 +872,7 @@ export function RegionDailyStatus({
           basisHelp={SEEN_DATE_BASIS_HELP}
           aside={
             heroIsToday ? (
-              <span className="rounded-full bg-teal-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-teal-700">
+              <span className="shrink-0 whitespace-nowrap rounded-full bg-teal-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-teal-700">
                 오늘
               </span>
             ) : null
@@ -834,30 +888,26 @@ export function RegionDailyStatus({
         ) : heroDate && heroDeals.length > 0 ? (
           <>
             {heroIsToday ? (
-              <p className="text-sm leading-5">
-                <span className="font-medium text-slate-900">
-                  {koreanMonthDayLabel(heroDate)}
-                </span>
-                <span className="tabular-nums text-slate-500">
-                  {" "}
-                  · {heroCount}
-                </span>
-              </p>
+              <PhraseRow
+                className="text-sm leading-5"
+                leadingClassName="font-medium text-slate-900"
+                restClassName="tabular-nums text-slate-500"
+                items={[koreanMonthDayLabel(heroDate), ...heroCountPhrases]}
+              />
             ) : (
               <div className="text-sm leading-5">
-                <p className="text-slate-600">
+                <p className="break-keep text-slate-600">
                   오늘 새로 확인된 거래는 아직 없습니다
                 </p>
-                <p className="mt-0.5">
-                  <span className="text-slate-500">최근 확인 </span>
-                  <span className="font-medium text-slate-900">
-                    {koreanMonthDayLabel(heroDate)}
-                  </span>
-                  <span className="tabular-nums text-slate-500">
-                    {" "}
-                    · {heroCount}
-                  </span>
-                </p>
+                <PhraseRow
+                  className="mt-0.5 text-sm"
+                  leadingClassName="text-slate-500"
+                  restClassName="tabular-nums text-slate-500"
+                  items={[
+                    `최근 확인 ${koreanMonthDayLabel(heroDate)}`,
+                    ...heroCountPhrases,
+                  ]}
+                />
               </div>
             )}
             {latest?.bulkIngestDay ? (
@@ -905,7 +955,7 @@ export function RegionDailyStatus({
             monthOptions={yearMonths}
             onChangeMonth={changeActivityMonth}
           />
-          <p className="mt-2 max-w-md text-pretty text-[11px] leading-4 text-slate-400">
+          <p className="mt-2 max-w-md text-[11px] leading-4 text-slate-400">
             숫자는 그날 새로 확인된 매매 건수입니다. 작은 점은 신고가가 확인된
             날짜입니다.
           </p>
@@ -947,15 +997,21 @@ export function RegionDailyStatus({
                     flashDate === date ? `${date}-flash-${flashNonce}` : date
                   }
                   id={recordDateDomId(date)}
-                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)] text-sm font-medium text-slate-900 ${headingClass}`}
+                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)] ${headingClass}`}
                 >
-                  {koreanMonthDayLabel(date)}
+                  <PhraseRow
+                    className="text-sm font-medium text-slate-900"
+                    restClassName="text-xs font-normal tabular-nums text-slate-500"
+                    items={[
+                      koreanMonthDayLabel(date),
+                      ...(section
+                        ? dayCountPhrases(section)
+                        : [
+                            `총 ${(summary?.dealCount ?? 0).toLocaleString("ko-KR")}건`,
+                          ]),
+                    ]}
+                  />
                 </h4>
-                <p className="mt-0.5 text-xs tabular-nums text-slate-500">
-                  {section
-                    ? dayCountLine(section)
-                    : `${(summary?.dealCount ?? 0).toLocaleString("ko-KR")}건`}
-                </p>
                 {section?.bulkIngestDay ? (
                   <p className="mt-1 text-pretty text-xs leading-5 text-slate-500">
                     확인 건수가 많아 신고가 강조는 생략했습니다. 초기 적재로

@@ -36,6 +36,7 @@ import {
   shiftYearMonth,
   sortNewlySeenDeals,
   TYPE_TREND_MIN_POINTS,
+  previousTypeDealAmount,
   typePriceTrend,
   typeRecordHigh,
   yearMonthFromDealDate,
@@ -653,6 +654,11 @@ export interface RegionDailyDeal {
   pyeongMaxAmount: number;
   complexMaxAmount: number;
   jeonseAmount: number | null;
+  /**
+   * 동일 단지·areaKey, 현재 계약일 이전 24개월 풀에서
+   * 가장 가까운 매매 금액. 없으면 null.
+   */
+  prevTypeDealAmount: number | null;
   /** 신고가 카드만. 동일 단지·areaKey, deal_date 순, 24개월 풀 */
   priceTrend?: { date: string; amount: number }[] | null;
 }
@@ -713,6 +719,11 @@ function enrichDailyDeal(
   ).length;
 
   const typeMax = Math.max(tx.dealAmount, priorTypeMax);
+  const prevTypeDealAmount = previousTypeDealAmount({
+    exclusiveArea: tx.exclusiveArea,
+    dealDate: tx.dealDate,
+    history: aptTrades24m,
+  });
 
   return {
     id: tx.id,
@@ -734,6 +745,7 @@ function enrichDailyDeal(
     pyeongMaxAmount: typeMax,
     complexMaxAmount: typeMax,
     jeonseAmount: null,
+    prevTypeDealAmount,
   };
 }
 
@@ -1024,7 +1036,12 @@ async function enrichSeenDay(params: {
   if (bulkIngestDay) {
     const page = daySeen.slice(offset, offset + BULK_DAY_PAGE_SIZE);
     const deals = page.map(({ tx, firstSeenDate }) =>
-      enrichDailyDeal(tx, 0, [], firstSeenDate),
+      enrichDailyDeal(
+        tx,
+        0,
+        tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
+        firstSeenDate,
+      ),
     );
     return {
       date,

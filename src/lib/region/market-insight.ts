@@ -407,6 +407,48 @@ export function priorTypeMaxAmount(params: {
   return max;
 }
 
+/**
+ * 동일 단지·areaKey에서 현재 계약일 이전, 가장 가까운 매매 금액.
+ * 같은 계약일의 다른 건은 넣지 않는다. history가 비면 null.
+ */
+export function previousTypeDealAmount(params: {
+  exclusiveArea: number;
+  dealDate: string;
+  history: { exclusiveArea: number; dealDate: string; dealAmount: number }[];
+}): number | null {
+  const key = areaTypeKey(params.exclusiveArea);
+  const day = params.dealDate.slice(0, 10);
+  let bestDate = "";
+  let bestAmount: number | null = null;
+  for (const h of params.history) {
+    if (areaTypeKey(h.exclusiveArea) !== key) continue;
+    const d = h.dealDate.slice(0, 10);
+    if (d >= day) continue;
+    if (d >= bestDate) {
+      bestDate = d;
+      bestAmount = h.dealAmount;
+    }
+  }
+  return bestAmount;
+}
+
+export type VsPreviousDeal =
+  | { kind: "up" | "down"; amount: number }
+  | { kind: "same" };
+
+export function vsPreviousTypeDeal(
+  current: number,
+  previous: number | null | undefined,
+): VsPreviousDeal | null {
+  if (previous == null || previous <= 0) return null;
+  const delta = current - previous;
+  if (delta === 0) return { kind: "same" };
+  return {
+    kind: delta > 0 ? "up" : "down",
+    amount: Math.abs(delta),
+  };
+}
+
 /** 역대 prior max 초과만 타입 신고가. 해당 타입 첫 거래는 신고가가 아님. */
 export function typeRecordHigh(
   dealAmount: number,
