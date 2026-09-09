@@ -1,4 +1,5 @@
 import { getDb, hasDb, ensureSchema } from "@/lib/db/client";
+import { hasDiscoveryAtColumn } from "@/lib/db/discovery-axis";
 import { LAWD_TO_REGION } from "@/lib/constants/regions";
 import { aptDetailHref } from "@/lib/molit/apt";
 import {
@@ -122,7 +123,7 @@ function emptyResponse(warning?: string): MarketHomeResponse {
     recentFrom: null,
     recentTo: null,
     dateBasisNote:
-      "홈의 신규 거래는 시스템 최초 확인(first_seen_at) 기준입니다. 계약일과 다릅니다.",
+      "홈의 신규 거래는 확인일(discovery_at) 기준입니다. 계약일과 다릅니다.",
     computedAt: null,
     lastUpdatedLabel: null,
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
@@ -206,8 +207,8 @@ export async function getMarketHome(): Promise<MarketHomeResponse> {
 
 /**
  * 홈 = 발견 시간축.
- * first_seen_at이 한국시간 ‘오늘’인 매매만 신규 피드에 포함.
- * legacy(NULL)는 포함하지 않음 — migration 당일 대량 노출 방지.
+ * discovery_at(있으면) 또는 first_seen_at이 한국시간 ‘오늘’인 매매만 신규 피드에 포함.
+ * NULL 행은 포함하지 않음 — bulk/backfill 대량 노출 방지.
  */
 export async function computeMarketHome(): Promise<MarketHomeResponse> {
   if (!hasDb()) {
@@ -232,9 +233,12 @@ export async function computeMarketHome(): Promise<MarketHomeResponse> {
     return emptyResponse("적재된 매매 실거래가 없습니다.");
   }
 
+  const useDiscoveryAt = await hasDiscoveryAtColumn(db);
+  const activityCol = useDiscoveryAt ? "discovery_at" : "first_seen_at";
+
   const coverage = await db.execute({
     sql: `SELECT COUNT(*) AS cnt FROM transactions
-          WHERE deal_type = ? AND first_seen_at IS NOT NULL AND first_seen_at != ''`,
+          WHERE deal_type = ? AND ${activityCol} IS NOT NULL AND ${activityCol} != ''`,
     args: ["trade"],
   });
   const discoveryReady = Number(coverage.rows[0]?.cnt ?? 0) > 0;
@@ -242,12 +246,13 @@ export async function computeMarketHome(): Promise<MarketHomeResponse> {
   const newResult = await db.execute({
     sql: `SELECT id, lawd_cd, deal_date, apt_name, apt_name_norm, gu, dong,
                  exclusive_area, deal_amount, first_seen_at
+                 ${useDiscoveryAt ? ", discovery_at" : ""}
           FROM transactions
           WHERE deal_type = ?
-            AND first_seen_at IS NOT NULL
-            AND first_seen_at != ''
-            AND first_seen_at >= ?
-            AND first_seen_at < ?
+            AND ${activityCol} IS NOT NULL
+            AND ${activityCol} != ''
+            AND ${activityCol} >= ?
+            AND ${activityCol} < ?
           ORDER BY deal_date ASC, id ASC`,
     args: ["trade", startIso, endIso],
   });
@@ -272,7 +277,7 @@ export async function computeMarketHome(): Promise<MarketHomeResponse> {
     recentFrom: discoveryDate,
     recentTo: discoveryDate,
     dateBasisNote:
-      "홈의 ‘새로 확인’은 시스템 최초 확인 시각 기준입니다(신고일 아님). 계약일은 각 카드에 표시됩니다. 시장동향(/stats)은 계약일 기준입니다.",
+      "홈의 ‘새로 확인’은 확인일(discovery_at) 기준입니다(신고일·계약일 아님). 계약일은 각 카드에 표시됩니다. 시장동향(/stats)은 계약일 기준입니다.",
     computedAt,
     lastUpdatedLabel: formatSeoulDateTime(computedAt),
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
@@ -282,7 +287,7 @@ export async function computeMarketHome(): Promise<MarketHomeResponse> {
   if (!discoveryReady) {
     return {
       ...emptyResponse(
-        "신규 확인 시각(first_seen_at) 축적이 시작되기 전입니다. 다음 sync부터 오늘 새로 확인된 거래가 표시됩니다.",
+        "신규 확인 시각 축적이 시작되기 전입니다. 다음 daily discovery sync부터 오늘 새로 확인된 거래가 표시됩니다.",
       ),
       ...baseMeta,
       source: "db",

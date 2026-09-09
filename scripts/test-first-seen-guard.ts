@@ -176,7 +176,7 @@ async function main() {
   const seenDiscover = await firstSeen("발견");
   assert.ok(seenDiscover, "discovery=1 sets first_seen");
 
-  // --- Case 3: historical discovery=0 → first_seen NULL ---
+  // --- Case 3: historical discovery=0 → first_seen audit set, discovery NULL ---
   const d0 = await replaceMonthTransactions({
     lawdCd: "41171",
     yearMonth: "202608",
@@ -194,7 +194,14 @@ async function main() {
     setFirstSeenOnInsert: false,
   });
   assert.equal(d0.inserted, 1);
-  assert.equal(await firstSeen("백필"), null);
+  assert.ok(await firstSeen("백필"), "discovery=0 still records first_seen audit");
+  const backfillDiscovery = (
+    await db.execute(`SELECT discovery_at FROM transactions WHERE apt_name='백필'`)
+  ).rows[0];
+  assert.equal(
+    backfillDiscovery?.discovery_at == null || backfillDiscovery?.discovery_at === "",
+    true,
+  );
 
   // --- Case 4: existing row no-op → first_seen + last_seen + write 없음 ---
   const before = (

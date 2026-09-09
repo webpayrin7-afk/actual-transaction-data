@@ -55,7 +55,7 @@ npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
 | `--max-months=N` | 최근 N개월만 |
 | `--from-month=202601 --to-month=202603` | 월 범위 |
 | `--plan=1` | dry plan, no write |
-| `--discovery=0` | INSERT 시 `first_seen_at=NULL` (오늘의 시장 오염 방지) |
+| `--discovery=0` | INSERT 시 `discovery_at=NULL` (확인일 피드 제외). `first_seen_at`는 audit로 기록 |
 | `--skip-existing=1` | sync_months 있는 cell skip (resume) |
 | `--only-changed=1` | row_count+maxDealDate 동일 시 write skip |
 | `--concurrency=2` | bounded (max 8) |
@@ -68,11 +68,20 @@ npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
 4. 전국 **최근 1~3개월**만, `--discovery=0 --skip-existing=1`
 5. quota 여유 시 과거로 progressive (`--from-month/--to-month`)
 
-## first_seen / 오늘의 시장
+## first_seen / discovery_at / 오늘의 시장
 
-- 정상 daily: `--discovery=1` (기본) → 신규 INSERT에 first_seen 설정
-- 의도적 backfill: `--discovery=0` → first_seen NULL → home discovery feed 제외
-- first_seen 의미를 계약일로 위조하지 않음
+날짜 축을 섞지 않는다.
+
+- `deal_date`: 실제 계약일
+- `first_seen_at`: warehouse가 identity를 처음 확보한 시각 (internal audit)
+- `discovery_at`: 사용자가 "새로 확인된 거래"로 보는 시각 (Home / Region Section2–3)
+
+- 정상 daily: `--discovery=1` (기본) → INSERT `first_seen_at=now`, `discovery_at=now`
+- 의도적 backfill/correction: `--discovery=0` → INSERT `first_seen_at=now`, `discovery_at=NULL`
+- existing UPDATE: 두 timestamp 모두 보존. unchanged WRITE 0
+- `discovery_at` 컬럼이 아직 없는 production: `--discovery=0`은 legacy대로 `first_seen_at=NULL`
+- first_seen / discovery 의미를 계약일로 위조하지 않음
+- 기존 bulk `first_seen` history를 확인일로 복사하지 않음 (가짜 history 금지)
 
 ## Checkpoint / resume
 

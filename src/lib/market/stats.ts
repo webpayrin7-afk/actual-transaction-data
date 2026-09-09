@@ -867,7 +867,7 @@ export async function getMarketStats(params: {
     scope: params.scope,
     dateBasisNote: window.reportingLagRisk
       ? "계약일 기준입니다. 최신 계약 기간은 신고 지연으로 거래량이 과소 보일 수 있어, 단순 급락으로 해석하지 마세요."
-      : "계약일(deal_date) 기준입니다. 홈의 ‘새로 확인’(first_seen_at)과 다른 시간축입니다.",
+      : "계약일(deal_date) 기준입니다. 홈의 ‘새로 확인’(discovery_at)과 다른 시간축입니다.",
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
     series,
     kpi,

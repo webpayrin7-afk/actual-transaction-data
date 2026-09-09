@@ -26,9 +26,13 @@ CREATE TABLE IF NOT EXISTS transactions (
   build_year INTEGER,
   jibun TEXT NOT NULL DEFAULT '',
   dealing_gbn TEXT NOT NULL DEFAULT '',
-  -- 시스템 최초 확인 시각 (UTC ISO). legacy는 NULL. 신고일/공개일 아님.
-  -- INSERT 시 설정 후 절대 덮어쓰지 않음.
+  -- warehouse가 transaction identity를 처음 확보한 시각 (UTC ISO). internal audit.
+  -- 삭제/rename 금지. INSERT 시 설정 후 절대 덮어쓰지 않음.
   first_seen_at TEXT,
+  -- 사용자가 "새로 확인된 거래"로 볼 수 있는 시각 (UTC ISO). product activity.
+  -- daily INSERT = syncedAt, backfill/correction INSERT = NULL. UPDATE 시 보존.
+  -- 기존 first_seen bulk/backfill 행은 NULL이 정직한 기본값.
+  discovery_at TEXT,
   -- 본문이 실제로 INSERT/UPDATE 된 마지막 시각 (UTC ISO).
   -- 동일 본문 재수집 시에는 갱신하지 않음. 현재 조회 경로에서는 미사용.
   last_seen_at TEXT

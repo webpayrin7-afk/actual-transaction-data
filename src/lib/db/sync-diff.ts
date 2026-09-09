@@ -37,7 +37,7 @@ export function snapshotFromTx(tx: Transaction): TxContentSnapshot {
 
 /**
  * 기존 DB row와 API row 본문이 같은지 비교.
- * id / first_seen_at / last_seen_at / XML index는 비교하지 않는다.
+ * id / first_seen_at / last_seen_at / discovery_at / XML index는 비교하지 않는다.
  */
 export function isSameTransactionContent(
   existing: TxContentSnapshot,

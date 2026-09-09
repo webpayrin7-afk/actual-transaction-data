@@ -9,6 +9,10 @@ import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
 import { isUnsafeMonthShrink } from "@/lib/molit/trade-resolve";
 import type { DealType, Transaction } from "@/types/transaction";
 import { noteDbQuery } from "@/lib/db/query-stats";
+import {
+  hasDiscoveryAtColumn,
+  isoOrNull,
+} from "@/lib/db/discovery-axis";
 
 export function normalizeAptName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
@@ -54,8 +58,10 @@ export type ReplaceMonthResult = {
 
 /**
  * 월 단위 upsert.
- * - 신규 INSERT: first_seen_at / last_seen_at = now
- * - 기존 + 본문 변경: first_seen_at 보존 (NULL legacy도 유지), 필드+last_seen_at 갱신
+ * - 신규 INSERT (discovery=1): first_seen_at = last_seen_at = discovery_at = now
+ * - 신규 INSERT (discovery=0): first_seen_at = last_seen_at = now, discovery_at = NULL
+ *   (discovery_at 컬럼이 없으면 legacy: first_seen_at = NULL)
+ * - 기존 + 본문 변경: first_seen_at / discovery_at 보존, 필드+last_seen_at 갱신
  * - 기존 + 본문 동일: NO-OP (last_seen_at도 갱신하지 않음 — 코드베이스에서 미사용)
  * - orphan: id 단위 DELETE
  * - 월 전체 DELETE+INSERT 금지 (discovery 시간축 파괴 방지)
@@ -66,9 +72,12 @@ export async function replaceMonthTransactions(params: {
   dealKind: DealType;
   items: Transaction[];
   /**
-   * true(기본): INSERT 시 first_seen_at=now → 오늘의 시장 discovery 대상.
-   * false: INSERT 시 first_seen_at=NULL (의도적 historical backfill).
-   *         의미: discovery feed에 올리지 않음. legacy NULL과 동일 취급.
+   * true(기본): daily discovery INSERT.
+   *   discovery_at 컬럼 있음 → first_seen_at=now, discovery_at=now
+   *   컬럼 없음(legacy) → first_seen_at=now
+   * false: backfill/correction INSERT.
+   *   discovery_at 컬럼 있음 → first_seen_at=now, discovery_at=NULL
+   *   컬럼 없음(legacy) → first_seen_at=NULL
    */
   setFirstSeenOnInsert?: boolean;
 }): Promise<ReplaceMonthResult> {
@@ -86,7 +95,16 @@ export async function replaceMonthTransactions(params: {
   const { lawdCd, yearMonth, dealKind, items } = params;
   const setFirstSeenOnInsert = params.setFirstSeenOnInsert !== false;
   const syncedAt = new Date().toISOString();
-  const insertFirstSeen: string | null = setFirstSeenOnInsert ? syncedAt : null;
+  const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
+  // Future ingest: audit first_seen always; product discovery only when flagged.
+  // Legacy (no column): keep first_seen as the product switch so prod feeds
+  // are not suddenly filled by discovery=0 warehouse INSERTs.
+  const insertFirstSeen: string | null = writeDiscoveryCol
+    ? syncedAt
+    : setFirstSeenOnInsert
+      ? syncedAt
+      : null;
+  const insertDiscoveryAt: string | null = setFirstSeenOnInsert ? syncedAt : null;
 
   const existingResult = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, jibun, floor,
@@ -212,12 +230,18 @@ export async function replaceMonthTransactions(params: {
     args: Array<string | number | null>;
   }> = [];
 
-  // first_seen_at은 UPDATE에서 절대 덮어쓰지 않음 (legacy NULL 유지)
+  // first_seen_at / discovery_at은 UPDATE에서 절대 덮어쓰지 않음
   let inserted = 0;
   let updated = 0;
   let unchanged = 0;
 
-  const insertSql = `INSERT INTO transactions (
+  const insertSql = writeDiscoveryCol
+    ? `INSERT INTO transactions (
+    id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
+    gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
+    jibun, dealing_gbn, first_seen_at, last_seen_at, discovery_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    : `INSERT INTO transactions (
     id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
     gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
     jibun, dealing_gbn, first_seen_at, last_seen_at
@@ -248,6 +272,7 @@ export async function replaceMonthTransactions(params: {
           u.tx.dealingGbn,
           insertFirstSeen,
           syncedAt,
+          ...(writeDiscoveryCol ? [insertDiscoveryAt] : []),
         ],
       });
     } else if (u.dirty) {
@@ -440,10 +465,11 @@ export async function queryTradePool(params: {
   if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
 
   noteDbQuery();
+  const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
                  deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
-                 first_seen_at
+                 first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -465,10 +491,10 @@ export async function queryTradePool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
-    firstSeenAt:
-      row.first_seen_at == null || row.first_seen_at === ""
-        ? null
-        : String(row.first_seen_at),
+    firstSeenAt: isoOrNull(row.first_seen_at),
+    ...(writeDiscoveryCol
+      ? { discoveryAt: isoOrNull(row.discovery_at) }
+      : {}),
   }));
 }
 
