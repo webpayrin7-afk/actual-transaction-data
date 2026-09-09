@@ -73,6 +73,15 @@ function DealCard({
   deal: RegionDailyDeal;
   regionSlug: string;
 }) {
+  const isComplexHigh =
+    deal.complexMaxAmount > 0 && deal.dealAmount === deal.complexMaxAmount;
+  const comparison =
+    deal.increaseAmount > 0
+      ? `종전 최고가 대비 +${formatEok(deal.increaseAmount)}원`
+      : isComplexHigh
+        ? "단지 최고가"
+        : null;
+
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
@@ -91,21 +100,22 @@ function DealCard({
           <p className="text-base font-semibold tabular-nums text-slate-900">
             {formatEok(deal.dealAmount)}
           </p>
-          {deal.increaseAmount > 0 ? (
-            <p className="text-[11px] font-medium tabular-nums text-rose-600">
-              ▲ {formatEok(deal.increaseAmount)}
-            </p>
-          ) : null}
         </div>
       </div>
       <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500">
         <span>{formatDealDate(deal.dealDate)}</span>
         <span className="text-slate-300">·</span>
         <span>{singogaLabel(deal.singogaKind)}</span>
-        {deal.vsHighPct != null ? (
+        {comparison ? (
           <>
             <span className="text-slate-300">·</span>
-            <span>단지최고 대비 {deal.vsHighPct}%</span>
+            <span
+              className={
+                deal.increaseAmount > 0 ? "font-medium text-rose-600" : undefined
+              }
+            >
+              {comparison}
+            </span>
           </>
         ) : null}
       </div>
@@ -314,14 +324,14 @@ export function RegionDailyStatus({
   const latestSingogaDate = grouped[0]?.date ?? null;
 
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-3 sm:gap-4">
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-5 sm:gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
           <span className="font-medium text-slate-800">
             {yearMonthLabel(yearMonth)}
           </span>
           <span className="text-slate-400"> · </span>
-          매매 기준
+          매매 계약일 기준
         </p>
         <div className="flex items-center gap-2">
           <button
@@ -369,7 +379,7 @@ export function RegionDailyStatus({
       ) : null}
 
       {query.isLoading && !data ? (
-        <div className="flex flex-col gap-3" aria-hidden="true">
+        <div className="flex flex-col gap-5 sm:gap-6" aria-hidden="true">
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
@@ -389,7 +399,7 @@ export function RegionDailyStatus({
                 label={data.comparePartial ? "이번 달 거래량" : "거래량"}
                 value={`${data.monthTradeCount.toLocaleString("ko-KR")}건`}
                 hint={
-                  data.comparePartial ? "오늘까지 확인된 매매" : undefined
+                  data.comparePartial ? "오늘까지" : undefined
                 }
               />
               <Kpi
@@ -401,7 +411,7 @@ export function RegionDailyStatus({
                 }
                 hint={
                   data.prevMonthTradeCount > 0
-                    ? `전월 ${data.prevMonthTradeCount.toLocaleString("ko-KR")}건`
+                    ? `${data.prevMonthTradeCount.toLocaleString("ko-KR")}건`
                     : "비교할 전월 거래 없음"
                 }
               />
@@ -419,7 +429,9 @@ export function RegionDailyStatus({
               />
             </div>
             {insight ? (
-              <p className="mt-2 text-sm leading-6 text-slate-600">{insight}</p>
+              <p className="mt-2 text-sm leading-6 text-pretty text-slate-600">
+                {insight}
+              </p>
             ) : null}
           </section>
 
@@ -427,13 +439,12 @@ export function RegionDailyStatus({
             <h2 className="text-sm font-semibold text-slate-900">
               {regionName} 최근 신고가
             </h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              단지명 클릭 시 상세로 이동합니다. 공시 신고가 기준이며 실제 최고가
-              여부는 단지 상세에서 확인하세요.
+            <p className="mt-0.5 text-pretty text-xs leading-5 text-slate-500">
+              단지명을 누르면 상세로 이동합니다.
             </p>
             {recentDeals.length === 0 ? (
-              <div className="mt-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-                해당 월에 신고가 데이터가 없습니다
+              <div className="mt-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-pretty text-sm text-slate-500">
+                이 달 신고가가 없습니다.
               </div>
             ) : (
               <div className="mt-2 flex flex-col gap-2">
@@ -456,8 +467,8 @@ export function RegionDailyStatus({
                   신고가 달력
                 </h2>
               </div>
-              <p className="mb-2 text-xs text-slate-500">
-                숫자가 있는 날짜를 누르면 해당 신고가로 이동합니다.
+              <p className="mb-2 text-pretty text-xs leading-5 text-slate-500">
+                숫자 있는 날짜를 누르면 해당 일로 이동합니다.
               </p>
               <MonthCalendar
                 yearMonth={data.yearMonth ?? yearMonth}

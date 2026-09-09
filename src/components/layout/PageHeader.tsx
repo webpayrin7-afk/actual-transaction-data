@@ -43,7 +43,7 @@ export function PageHeader({
           <div className="shrink-0 pt-0.5 sm:pt-1">{action}</div>
         ) : null}
       </div>
-      <p className="mt-1.5 text-sm leading-6 text-slate-600 sm:text-[0.9375rem]">
+      <p className="mt-1.5 text-pretty text-sm leading-6 text-slate-600 sm:text-[0.9375rem]">
         {description}
       </p>
       {meta ? (

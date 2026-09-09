@@ -38,7 +38,7 @@ assert.equal(
     singogaCount: 8,
     comparePartial: true,
   }),
-  "이번 달 현재까지 거래량이 전월 같은 기간보다 12% 증가했습니다.",
+  "전월 같은 기간 대비 거래량이 12% 늘었습니다.",
 );
 
 assert.equal(
@@ -48,7 +48,7 @@ assert.equal(
     singogaCount: 3,
     comparePartial: false,
   }),
-  "이번 달 거래량이 전월보다 20% 감소했습니다.",
+  "전월 대비 거래량이 20% 줄었습니다.",
 );
 
 assert.equal(
@@ -58,7 +58,7 @@ assert.equal(
     singogaCount: 8,
     comparePartial: false,
   }),
-  "이번 달 현재 신고가 거래가 8건 확인됐습니다.",
+  "이번 달 신고가 8건",
 );
 
 assert.equal(
@@ -68,7 +68,7 @@ assert.equal(
     singogaCount: 0,
     comparePartial: true,
   }),
-  "이번 달 매매 4건이 확인됐고, 신고가는 없습니다.",
+  "이번 달 매매 4건 · 신고가 없음",
 );
 
 assert.equal(
@@ -78,7 +78,7 @@ assert.equal(
     singogaCount: 0,
     comparePartial: true,
   }),
-  "이번 달 매매 실거래가 아직 없습니다.",
+  "이번 달 매매 실거래 없음",
 );
 
 const grouped = groupDealsByDate([

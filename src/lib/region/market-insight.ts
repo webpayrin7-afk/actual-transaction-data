@@ -44,26 +44,25 @@ export function regionMarketInsight(input: {
   comparePartial: boolean;
 }): string | null {
   const pct = volumeChangePct(input.monthTradeCount, input.prevMonthTradeCount);
-  const period = input.comparePartial ? "이번 달 현재까지 거래량" : "이번 달 거래량";
-  const vs = input.comparePartial ? "전월 같은 기간" : "전월";
+  const vs = input.comparePartial ? "전월 같은 기간 대비" : "전월 대비";
 
   if (pct != null && pct !== 0) {
     const abs = Math.abs(pct).toLocaleString("ko-KR");
     if (pct > 0) {
-      return `${period}이 ${vs}보다 ${abs}% 증가했습니다.`;
+      return `${vs} 거래량이 ${abs}% 늘었습니다.`;
     }
-    return `${period}이 ${vs}보다 ${abs}% 감소했습니다.`;
+    return `${vs} 거래량이 ${abs}% 줄었습니다.`;
   }
 
   if (input.singogaCount > 0) {
-    return `이번 달 현재 신고가 거래가 ${input.singogaCount.toLocaleString("ko-KR")}건 확인됐습니다.`;
+    return `이번 달 신고가 ${input.singogaCount.toLocaleString("ko-KR")}건`;
   }
 
   if (input.monthTradeCount > 0) {
-    return `이번 달 매매 ${input.monthTradeCount.toLocaleString("ko-KR")}건이 확인됐고, 신고가는 없습니다.`;
+    return `이번 달 매매 ${input.monthTradeCount.toLocaleString("ko-KR")}건 · 신고가 없음`;
   }
 
-  return "이번 달 매매 실거래가 아직 없습니다.";
+  return "이번 달 매매 실거래 없음";
 }
 
 export function groupDealsByDate<

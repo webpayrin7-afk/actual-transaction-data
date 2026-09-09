@@ -175,7 +175,7 @@ export function Dashboard({
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
-          description={`${region.fullName} 아파트 시장 현황과 최근 신고가를 확인하세요.`}
+          description={`${region.fullName} 아파트 시장 현황`}
         />
       </header>
 
