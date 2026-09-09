@@ -89,6 +89,7 @@ export function groupDealsByDate<
 
 export const RECENT_SINGOGA_LIMIT = 4;
 export const COMPACT_SINGOGA_LIMIT = 3;
+export const FEATURED_EXPANDED_MAX = 2;
 export const TYPE_TREND_MIN_POINTS = 2;
 export const TYPE_TREND_MONTHS = 24;
 
@@ -156,6 +157,20 @@ export function compactSingogaDeals<
         a.aptName.localeCompare(b.aptName, "ko"),
     )
     .slice(0, limit);
+}
+
+/** 최신일 2건까지는 모두 expanded. 3건 이상은 앞 2건만 큰 카드(멤버십 강등 아님). */
+export function splitFeaturedSingoga<T>(featured: T[]): {
+  expanded: T[];
+  sameDayMore: T[];
+} {
+  if (featured.length <= FEATURED_EXPANDED_MAX) {
+    return { expanded: featured, sameDayMore: [] };
+  }
+  return {
+    expanded: featured.slice(0, FEATURED_EXPANDED_MAX),
+    sameDayMore: featured.slice(FEATURED_EXPANDED_MAX),
+  };
 }
 
 export type TypeTrendPoint = { date: string; amount: number };

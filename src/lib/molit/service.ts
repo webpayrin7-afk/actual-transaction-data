@@ -19,8 +19,9 @@ import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
 import {
   countTradesInYearMonth,
-  latestRecordDate,
+  featuredSingogaGroup,
   shiftYearMonth,
+  splitFeaturedSingoga,
   TYPE_TREND_MIN_POINTS,
   typePriceTrend,
   yearMonthFromDealDate,
@@ -1005,20 +1006,18 @@ async function computeRegionDaily(
     .map(([date, value]) => ({ date, ...value }))
     .sort((a, b) => b.date.localeCompare(a.date));
 
-  const featuredDate = latestRecordDate(enrichedMonth);
-  if (featuredDate) {
-    for (const deal of enrichedMonth) {
-      if (deal.dealDate.slice(0, 10) !== featuredDate) continue;
-      const aptTrades =
-        tradesByApt.get(normalizeAptName(deal.aptName)) ?? [];
-      const points = typePriceTrend({
-        trades: aptTrades,
-        exclusiveArea: deal.exclusiveArea,
-        throughDate: deal.dealDate,
-      });
-      deal.priceTrend =
-        points.length >= TYPE_TREND_MIN_POINTS ? points : null;
-    }
+  const { expanded: sparklineDeals } = splitFeaturedSingoga(
+    featuredSingogaGroup(enrichedMonth),
+  );
+  for (const deal of sparklineDeals) {
+    const aptTrades = tradesByApt.get(normalizeAptName(deal.aptName)) ?? [];
+    const points = typePriceTrend({
+      trades: aptTrades,
+      exclusiveArea: deal.exclusiveArea,
+      throughDate: deal.dealDate,
+    });
+    deal.priceTrend =
+      points.length >= TYPE_TREND_MIN_POINTS ? points : null;
   }
 
   return {

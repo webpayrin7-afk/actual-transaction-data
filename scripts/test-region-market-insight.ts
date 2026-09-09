@@ -15,6 +15,7 @@ import {
   recentSingogaDeals,
   recordDateDomId,
   regionMarketInsight,
+  splitFeaturedSingoga,
   shiftYearMonth,
   typePriceTrend,
   volumeChangePct,
@@ -188,6 +189,27 @@ assert.deepEqual(
 assert.deepEqual(
   compactSingogaDeals(sample, "2026-09-05", 3).map((d) => d.aptName),
   ["탑마을(벽산)", "판교푸르지오그랑블"],
+);
+
+const split2 = splitFeaturedSingoga(featuredSingogaGroup(sample));
+assert.equal(split2.expanded.length, 2);
+assert.equal(split2.sameDayMore.length, 0);
+const split3 = splitFeaturedSingoga([
+  ...featuredSingogaGroup(sample),
+  {
+    dealDate: "2026-09-05",
+    increaseAmount: 100,
+    dealAmount: 90000,
+    aptName: "세 번째",
+  },
+]);
+assert.deepEqual(
+  split3.expanded.map((d) => d.aptName),
+  ["신세계쉐덴", "매화마을공무원1"],
+);
+assert.deepEqual(
+  split3.sameDayMore.map((d) => d.aptName),
+  ["세 번째"],
 );
 
 const trend = typePriceTrend({

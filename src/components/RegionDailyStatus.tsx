@@ -23,6 +23,7 @@ import {
   priorPeakAmount,
   recordDateDomId,
   regionMarketInsight,
+  splitFeaturedSingoga,
   COMPACT_SINGOGA_LIMIT,
   shiftYearMonth,
   volumeChangePct,
@@ -61,8 +62,8 @@ function weekdayOfFirst(ym: string): number {
 }
 
 function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
-  if (kind === "type") return "타입신고가";
-  if (kind === "pyeong") return "평형신고가";
+  if (kind === "type") return "타입 신고가";
+  if (kind === "pyeong") return "평형 신고가";
   return "신고가";
 }
 
@@ -394,6 +395,10 @@ export function RegionDailyStatus({
     () => featuredSingogaGroup(monthDeals),
     [monthDeals],
   );
+  const { expanded: expandedFeatured, sameDayMore } = useMemo(
+    () => splitFeaturedSingoga(featuredDeals),
+    [featuredDeals],
+  );
   const compactDeals = useMemo(
     () =>
       compactSingogaDeals(monthDeals, featuredDate, COMPACT_SINGOGA_LIMIT),
@@ -580,12 +585,12 @@ export function RegionDailyStatus({
               <div className="mt-2 flex flex-col gap-2">
                 <div
                   className={
-                    featuredDeals.length > 1
+                    expandedFeatured.length > 1
                       ? "grid grid-cols-1 gap-2 lg:grid-cols-2"
                       : "flex flex-col gap-2"
                   }
                 >
-                  {featuredDeals.map((deal) => (
+                  {expandedFeatured.map((deal) => (
                     <FeaturedDealCard
                       key={`featured-${deal.id}`}
                       deal={deal}
@@ -593,6 +598,20 @@ export function RegionDailyStatus({
                     />
                   ))}
                 </div>
+                {sameDayMore.length > 0 ? (
+                  <div className="rounded-xl border border-teal-100 bg-teal-50/30 px-2">
+                    <p className="px-1 pt-2 text-[11px] text-slate-500">
+                      같은 날 신고가 {sameDayMore.length.toLocaleString("ko-KR")}건 더
+                    </p>
+                    {sameDayMore.map((deal) => (
+                      <CompactDealRow
+                        key={`featured-more-${deal.id}`}
+                        deal={deal}
+                        regionSlug={regionSlug}
+                      />
+                    ))}
+                  </div>
+                ) : null}
                 {compactDeals.length > 0 ? (
                   <div className="rounded-xl border border-slate-100 bg-white px-2">
                     {compactDeals.map((deal) => (
