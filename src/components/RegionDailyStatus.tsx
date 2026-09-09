@@ -238,7 +238,7 @@ function HistoryDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-lg border border-slate-200/60 px-3 py-2 transition hover:bg-slate-50/80"
+      className="block rounded-lg border border-solid border-slate-100 px-3 py-2 transition hover:bg-slate-50/80"
     >
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 flex-1 break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
@@ -248,7 +248,7 @@ function HistoryDealCard({
           <SingogaBadge variant="compact">신고가</SingogaBadge>
         ) : null}
       </div>
-      <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+      <div className="mt-1 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
         <span className="whitespace-nowrap text-base font-semibold tabular-nums leading-none text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
@@ -540,7 +540,7 @@ function Kpi({
   valueClassName?: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 sm:px-3 sm:py-2.5">
+    <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-3 sm:py-2.5">
       <p className="whitespace-nowrap text-[11px] leading-4 text-slate-500">
         {label}
       </p>
@@ -960,11 +960,11 @@ export function RegionDailyStatus({
       </section>
 
       <section
-        aria-label={`${regionName} 거래 내역`}
+        aria-label={`${regionName} 지역 거래 내역`}
         className={`${SECTION_SURFACE} flex flex-col gap-3`}
       >
         <SectionHeading
-          title="거래 내역"
+          title="지역 거래 내역"
           basisLabel={SEEN_DATE_BASIS_LABEL}
           basisHelp={SEEN_DATE_BASIS_HELP}
         />
