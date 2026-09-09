@@ -548,15 +548,6 @@ function formatPyeongMedian(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만원`;
 }
 
-function volumeChangeHint(
-  current: number,
-  previous: number,
-  pct: number | null,
-): string | undefined {
-  if (pct == null || previous <= 0) return undefined;
-  return `${previous.toLocaleString("ko-KR")}건 → ${current.toLocaleString("ko-KR")}건`;
-}
-
 function volumeChangeClass(pct: number | null): string {
   if (pct == null || pct === 0) return "text-slate-900";
   return "text-slate-800";
@@ -570,13 +561,11 @@ function formatSharePct(pct: number | null): string {
 function Kpi({
   label,
   value,
-  hint,
   className,
   valueClassName = "text-slate-900",
 }: {
   label: string;
   value: string;
-  hint?: string;
   className?: string;
   valueClassName?: string;
 }) {
@@ -592,11 +581,6 @@ function Kpi({
       >
         {value}
       </p>
-      {hint ? (
-        <p className="mt-0.5 break-keep text-[11px] leading-4 tabular-nums text-slate-500">
-          {hint}
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -888,30 +872,15 @@ export function RegionDailyStatus({
               <Kpi
                 label="거래량"
                 value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
-                hint={market.comparePartial ? "오늘까지" : undefined}
               />
               <Kpi
                 label="전월 대비"
                 value={formatMomChangeValue(volumePct)}
-                hint={volumeChangeHint(
-                  market.monthTradeCount,
-                  market.prevMonthTradeCount,
-                  volumePct,
-                )}
                 valueClassName={volumeChangeClass(volumePct)}
               />
               <Kpi
                 label="전년 동월 대비"
                 value={formatMomChangeValue(yearAgoPct)}
-                hint={
-                  market.yearAgoMonthTradeCount != null
-                    ? volumeChangeHint(
-                        market.monthTradeCount,
-                        market.yearAgoMonthTradeCount,
-                        yearAgoPct,
-                      )
-                    : undefined
-                }
                 valueClassName={volumeChangeClass(yearAgoPct)}
               />
               <Kpi
