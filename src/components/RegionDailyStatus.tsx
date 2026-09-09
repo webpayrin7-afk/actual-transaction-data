@@ -134,14 +134,21 @@ function SingogaBadge({
   return <span className={cls}>{children}</span>;
 }
 
-function prevDealDeltaText(
+function prevDealDelta(
   current: number,
   previous: number | null,
-): string | null {
+): { text: string; tone: "up" | "down" | "same" } | null {
   const vs = vsPreviousTypeDeal(current, previous);
-  if (!vs || vs.kind === "up") return null;
-  if (vs.kind === "same") return "직전 대비 동일";
-  return `직전 대비 ▼ ${formatEok(vs.amount)}`;
+  if (!vs) return null;
+  if (vs.kind === "same") return { text: "직전 대비 동일", tone: "same" };
+  const arrow = vs.kind === "up" ? "▲" : "▼";
+  return { text: `${arrow} ${formatEok(vs.amount)}`, tone: vs.kind };
+}
+
+function prevDealDeltaClass(tone: "up" | "down" | "same"): string {
+  if (tone === "up") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-rose-600";
+  if (tone === "down") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-slate-600";
+  return "whitespace-nowrap text-[12px] tabular-nums text-slate-500";
 }
 
 function FeaturedDealCard({
@@ -154,7 +161,6 @@ function FeaturedDealCard({
   const prior = priorPeakAmount(deal);
   const rate = increaseRatePct(deal);
   const trend = deal.priceTrend;
-  const prevDelta = prevDealDeltaText(deal.dealAmount, deal.prevTypeDealAmount);
   const titleMeta = [
     deal.dong || null,
     deal.buildYear ? `${deal.buildYear}년 준공` : null,
@@ -186,11 +192,6 @@ function FeaturedDealCard({
             {rate != null ? ` (+${rate}%)` : ""}
           </span>
         ) : null}
-        {prevDelta ? (
-          <span className="whitespace-nowrap text-[12px] tabular-nums text-slate-500">
-            {prevDelta}
-          </span>
-        ) : null}
       </div>
       {prior != null ? (
         <p className="mt-1 whitespace-nowrap text-[12px] tabular-nums text-slate-500">
@@ -216,7 +217,7 @@ function RegularDealCard({
   deal: RegionDailyDeal;
   regionSlug: string;
 }) {
-  const delta = prevDealDeltaText(deal.dealAmount, deal.prevTypeDealAmount);
+  const delta = prevDealDelta(deal.dealAmount, deal.prevTypeDealAmount);
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
@@ -230,8 +231,8 @@ function RegularDealCard({
           {formatEok(deal.dealAmount)}
         </span>
         {delta ? (
-          <span className="whitespace-nowrap text-[12px] tabular-nums text-slate-500">
-            {delta}
+          <span className={prevDealDeltaClass(delta.tone)}>
+            {delta.text}
           </span>
         ) : null}
       </div>
@@ -247,7 +248,7 @@ function HistoryDealCard({
   deal: RegionDailyDeal;
   regionSlug: string;
 }) {
-  const delta = prevDealDeltaText(deal.dealAmount, deal.prevTypeDealAmount);
+  const delta = prevDealDelta(deal.dealAmount, deal.prevTypeDealAmount);
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
@@ -266,8 +267,8 @@ function HistoryDealCard({
           {formatEok(deal.dealAmount)}
         </span>
         {delta ? (
-          <span className="whitespace-nowrap text-[11px] text-slate-500">
-            {delta}
+          <span className={prevDealDeltaClass(delta.tone)}>
+            {delta.text}
           </span>
         ) : null}
       </div>
