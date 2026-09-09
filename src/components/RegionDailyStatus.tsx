@@ -36,7 +36,6 @@ import {
   recordDateDomId,
   SEEN_DATE_BASIS_HELP,
   SEEN_DATE_BASIS_LABEL,
-  shiftYearMonth,
   sortNewlySeenDeals,
   visibleNewlySeenDeals,
   formatMomChangeValue,
@@ -383,8 +382,11 @@ function MonthNav({
   onChange: (next: string) => void;
   spread?: boolean;
 }) {
-  const canPrev = options.includes(shiftYearMonth(value, -1));
-  const canNext = options.includes(shiftYearMonth(value, 1));
+  const idx = options.indexOf(value);
+  const olderYm = idx >= 0 ? options[idx + 1] : undefined;
+  const newerYm = idx > 0 ? options[idx - 1] : undefined;
+  const canPrev = Boolean(olderYm);
+  const canNext = Boolean(newerYm);
   const btn =
     "inline-flex h-10 w-10 shrink-0 items-center justify-center text-slate-600 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-30";
   return (
@@ -396,7 +398,7 @@ function MonthNav({
       <button
         type="button"
         disabled={!canPrev}
-        onClick={() => onChange(shiftYearMonth(value, -1))}
+        onClick={() => olderYm && onChange(olderYm)}
         className={`${btn} rounded-l-xl`}
         aria-label="이전 달"
       >
@@ -411,7 +413,7 @@ function MonthNav({
       <button
         type="button"
         disabled={!canNext}
-        onClick={() => onChange(shiftYearMonth(value, 1))}
+        onClick={() => newerYm && onChange(newerYm)}
         className={`${btn} rounded-r-xl`}
         aria-label="다음 달"
       >

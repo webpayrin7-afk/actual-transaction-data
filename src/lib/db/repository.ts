@@ -80,6 +80,8 @@ export async function replaceMonthTransactions(params: {
    *   컬럼 없음(legacy) → first_seen_at=NULL
    */
   setFirstSeenOnInsert?: boolean;
+  /** Classify diffs but execute no SQL. UNCHANGED/INSERT/UPDATE/DELETE counts only. */
+  dryRun?: boolean;
 }): Promise<ReplaceMonthResult> {
   const empty: ReplaceMonthResult = {
     rowCount: 0,
@@ -94,6 +96,7 @@ export async function replaceMonthTransactions(params: {
 
   const { lawdCd, yearMonth, dealKind, items } = params;
   const setFirstSeenOnInsert = params.setFirstSeenOnInsert !== false;
+  const dryRun = params.dryRun === true;
   const syncedAt = new Date().toISOString();
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   // Future ingest: audit first_seen always; product discovery only when flagged.
@@ -344,6 +347,17 @@ export async function replaceMonthTransactions(params: {
     });
   }
 
+  if (dryRun) {
+    return {
+      rowCount: upserts.length,
+      inserted,
+      updated,
+      unchanged,
+      deleted,
+      wrote: false,
+    };
+  }
+
   if (statements.length > 0) {
     const CHUNK = 80;
     for (let i = 0; i < statements.length; i += CHUNK) {
@@ -399,27 +413,30 @@ export async function queryAptTransactions(params: {
   if (!db) return [];
 
   const aptKey = normalizeAptName(params.aptName);
-  if (!aptKey || !params.lawdCodes.length || !params.yearMonths.length) return [];
+  if (!aptKey || !params.lawdCodes.length) return [];
 
   const dealKinds = params.dealKinds ?? ["trade", "rent"];
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
-  const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
   const kindPlaceholders = dealKinds.map(() => "?").join(",");
+  const yearMonths = params.yearMonths ?? [];
+  const ymClause =
+    yearMonths.length > 0
+      ? `AND year_month IN (${yearMonths.map(() => "?").join(",")})`
+      : "";
 
   // exact apt_name_norm = ? → idx_tx_lawd_apt_ym 사용.
-  // LIKE '%…%' 는 idx_tx_type_deal_date 풀스캔에 가깝게 타서 수십 초까지 늘어난다.
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
                  deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
-            AND year_month IN (${ymPlaceholders})
+            ${ymClause}
             AND deal_type IN (${kindPlaceholders})
             AND apt_name_norm = ?
           ORDER BY deal_date DESC`,
     args: [
       ...params.lawdCodes,
-      ...params.yearMonths,
+      ...yearMonths,
       ...dealKinds,
       aptKey,
     ],
@@ -442,27 +459,17 @@ export async function queryAptTransactions(params: {
   }));
 }
 
-/** 자동완성용: 여러 법정동의 최근 N개월 매매 풀 (부분 적재도 사용) */
+/** 자동완성용: 여러 법정동의 매매 풀. sync_months 게이트 없음 — warehouse rows 그대로. */
 export async function queryTradePool(params: {
   lawdCodes: string[];
   yearMonths: string[];
 }): Promise<Transaction[] | null> {
   const db = await readyDb();
   if (!db) return null;
-  if (!params.lawdCodes.length || !params.yearMonths.length) return null;
+  if (!params.lawdCodes.length || !params.yearMonths.length) return [];
 
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
   const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
-
-  noteDbQuery();
-  const coverage = await db.execute({
-    sql: `SELECT COUNT(*) AS cnt FROM sync_months
-          WHERE lawd_cd IN (${lawdPlaceholders})
-            AND year_month IN (${ymPlaceholders})
-            AND deal_kind = 'trade'`,
-    args: [...params.lawdCodes, ...params.yearMonths],
-  });
-  if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
 
   noteDbQuery();
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
@@ -496,6 +503,106 @@ export async function queryTradePool(params: {
       ? { discoveryAt: isoOrNull(row.discovery_at) }
       : {}),
   }));
+}
+
+function mapTradeQueryRow(
+  row: Record<string, unknown>,
+  writeDiscoveryCol: boolean,
+): Transaction {
+  return {
+    id: String(row.id),
+    dealType: "trade",
+    dealDate: String(row.deal_date),
+    aptName: String(row.apt_name),
+    gu: String(row.gu ?? ""),
+    dong: String(row.dong ?? ""),
+    exclusiveArea: Number(row.exclusive_area) || 0,
+    dealAmount: Number(row.deal_amount) || 0,
+    monthlyRent: 0,
+    floor: Number(row.floor) || 0,
+    buildYear: row.build_year == null ? null : Number(row.build_year),
+    jibun: String(row.jibun ?? ""),
+    dealingGbn: String(row.dealing_gbn ?? ""),
+    firstSeenAt: isoOrNull(row.first_seen_at),
+    ...(writeDiscoveryCol
+      ? { discoveryAt: isoOrNull(row.discovery_at) }
+      : {}),
+  };
+}
+
+/** Distinct trade year_month values that actually exist in the warehouse. */
+export async function queryAvailableTradeMonths(params: {
+  lawdCodes: string[];
+}): Promise<string[]> {
+  const db = await readyDb();
+  if (!db || !params.lawdCodes.length) return [];
+  const ph = params.lawdCodes.map(() => "?").join(",");
+  noteDbQuery();
+  const result = await db.execute({
+    sql: `SELECT DISTINCT year_month AS ym
+          FROM transactions
+          WHERE lawd_cd IN (${ph}) AND deal_type = 'trade'
+          ORDER BY year_month DESC`,
+    args: [...params.lawdCodes],
+  });
+  return result.rows.map((row) => String(row.ym)).filter((ym) => ym.length === 6);
+}
+
+/**
+ * Month-scoped trade read. Does not require sync_months coverage —
+ * warehouse rows are served even if metadata is missing.
+ */
+export async function queryRegionTrades(params: {
+  lawdCodes: string[];
+  yearMonths: string[];
+}): Promise<Transaction[]> {
+  const db = await readyDb();
+  if (!db) return [];
+  if (!params.lawdCodes.length || !params.yearMonths.length) return [];
+  const lawdPh = params.lawdCodes.map(() => "?").join(",");
+  const ymPh = params.yearMonths.map(() => "?").join(",");
+  noteDbQuery();
+  const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
+  const result = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
+          FROM transactions
+          WHERE lawd_cd IN (${lawdPh})
+            AND year_month IN (${ymPh})
+            AND deal_type = 'trade'`,
+    args: [...params.lawdCodes, ...params.yearMonths],
+  });
+  return result.rows.map((row) =>
+    mapTradeQueryRow(row as Record<string, unknown>, writeDiscoveryCol),
+  );
+}
+
+/** Section 2 / Home-style product discoveries for a region. */
+export async function queryRegionDiscoveries(params: {
+  lawdCodes: string[];
+}): Promise<Transaction[]> {
+  const db = await readyDb();
+  if (!db || !params.lawdCodes.length) return [];
+  const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
+  const lawdPh = params.lawdCodes.map(() => "?").join(",");
+  noteDbQuery();
+  const activityClause = writeDiscoveryCol
+    ? "AND discovery_at IS NOT NULL AND discovery_at != ''"
+    : "AND first_seen_at IS NOT NULL AND first_seen_at != ''";
+  const result = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
+          FROM transactions
+          WHERE lawd_cd IN (${lawdPh})
+            AND deal_type = 'trade'
+            ${activityClause}`,
+    args: [...params.lawdCodes],
+  });
+  return result.rows.map((row) =>
+    mapTradeQueryRow(row as Record<string, unknown>, writeDiscoveryCol),
+  );
 }
 
 export type AptTradeHistoryRow = {
@@ -662,26 +769,17 @@ export async function queryAptTradeHistory(params: {
   return out;
 }
 
-/** 지역 다개월 전세(월세 0) 풀 — 커버리지가 전혀 없으면 null */
+/** 지역 다개월 전세(월세 0) 풀. sync_months 게이트 없음. */
 export async function queryRentPool(params: {
   lawdCodes: string[];
   yearMonths: string[];
 }): Promise<Transaction[] | null> {
   const db = await readyDb();
   if (!db) return null;
-  if (!params.lawdCodes.length || !params.yearMonths.length) return null;
+  if (!params.lawdCodes.length || !params.yearMonths.length) return [];
 
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
   const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
-
-  const coverage = await db.execute({
-    sql: `SELECT COUNT(*) AS cnt FROM sync_months
-          WHERE lawd_cd IN (${lawdPlaceholders})
-            AND year_month IN (${ymPlaceholders})
-            AND deal_kind = 'rent'`,
-    args: [...params.lawdCodes, ...params.yearMonths],
-  });
-  if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
 
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
@@ -711,7 +809,7 @@ export async function queryRentPool(params: {
   }));
 }
 
-/** 지역 검색용: 해당 월(들) 매매/전월세 (적재된 것만, 커버리지 없으면 null) */
+/** 지역 검색용: 해당 월(들) 매매/전월세. sync_months 게이트 없음. */
 export async function queryRegionMonthPool(params: {
   lawdCodes: string[];
   yearMonths: string[];
@@ -719,21 +817,12 @@ export async function queryRegionMonthPool(params: {
 }): Promise<Transaction[] | null> {
   const db = await readyDb();
   if (!db) return null;
-  if (!params.lawdCodes.length || !params.yearMonths.length) return null;
+  if (!params.lawdCodes.length || !params.yearMonths.length) return [];
 
   const dealKinds = params.dealKinds ?? ["trade", "rent"];
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
   const ymPlaceholders = params.yearMonths.map(() => "?").join(",");
   const kindPlaceholders = dealKinds.map(() => "?").join(",");
-
-  const coverage = await db.execute({
-    sql: `SELECT COUNT(*) AS cnt FROM sync_months
-          WHERE lawd_cd IN (${lawdPlaceholders})
-            AND year_month IN (${ymPlaceholders})
-            AND deal_kind IN (${kindPlaceholders})`,
-    args: [...params.lawdCodes, ...params.yearMonths, ...dealKinds],
-  });
-  if (Number(coverage.rows[0]?.cnt ?? 0) === 0) return null;
 
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,

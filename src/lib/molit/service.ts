@@ -10,10 +10,13 @@ import { productDiscoveryIso } from "@/lib/db/discovery-axis";
 import {
   listAptCatalog,
   normalizeAptName,
+  queryAptTradeHistory,
   queryAptTypePriorMaxes,
+  queryAvailableTradeMonths,
   queryRegionBrowseApts,
+  queryRegionDiscoveries,
   queryRegionMonthPool,
-  queryTradePool,
+  queryRegionTrades,
   type AptTypePriorCandidate,
 } from "@/lib/db/repository";
 import {
@@ -36,12 +39,10 @@ import {
   HISTORY_DAY_FETCH_CAP,
   HISTORY_INITIAL_DAY_COUNT,
   contractMonthOptions,
-  contractMonthOptionsFromCoverage,
   medianPyeongPrice,
-  oldestYearMonthFromDates,
+  monthSelectorOptions,
   pickHeroSeenDate,
   priorTypeMaxAmount,
-  yearMonthInLookback,
   SEEN_DATE_BASIS_HELP,
   shiftYearMonth,
   sortNewlySeenDeals,
@@ -63,7 +64,7 @@ import type {
   TransactionsResponse,
 } from "@/types/transaction";
 
-const REGION_DAILY_HISTORY_MONTHS = CONTRACT_MONTH_LOOKBACK;
+const REGION_DAILY_FALLBACK_MONTHS = CONTRACT_MONTH_LOOKBACK;
 
 function monthsBefore(dateStr: string, months: number): string {
   const d = new Date(`${dateStr.slice(0, 10)}T00:00:00`);
@@ -266,7 +267,7 @@ export async function getTransactions(params: {
     : [...FEATURED_LAWD_CODES];
 
   let items: Transaction[] = [];
-  let source: "api" | "mock" = "api";
+  let source: "api" | "mock" | "db" = "api";
   let warning: string | undefined;
   let resolvedYearMonth = yearMonth;
   let usedDb = false;
@@ -275,18 +276,21 @@ export async function getTransactions(params: {
     try {
       const dealKinds: DealType[] =
         dealType === "all" ? ["trade", "rent"] : [dealType];
-      const fromDb = await queryRegionMonthPool({
-        lawdCodes,
-        yearMonths: [yearMonth],
-        dealKinds,
-      });
-      if (fromDb) {
-        items = fromDb;
-        usedDb = true;
-        resolvedYearMonth = yearMonth;
-      }
+      items =
+        (await queryRegionMonthPool({
+          lawdCodes,
+          yearMonths: [yearMonth],
+          dealKinds,
+        })) ?? [];
+      usedDb = true;
+      source = "db";
+      resolvedYearMonth = yearMonth;
     } catch (error) {
       console.warn("[transactions] db read failed:", error);
+      items = [];
+      usedDb = true;
+      source = "db";
+      warning = "실거래 DB 조회 중 오류가 발생했습니다.";
     }
   }
 
@@ -500,6 +504,34 @@ export async function getRegionBrowse(params: {
     } catch (error) {
       console.warn("[region-browse] db aggregate failed:", error);
     }
+
+    const catalog = await listAptCatalog();
+    if (catalog && catalog.length > 0) {
+      const regionRows = catalog.filter((row) =>
+        guMatchesRegion(row.gu, region),
+      );
+      const dongs = buildBrowseFromRows(regionRows, null).dongs;
+      const apts = selectedDong
+        ? buildBrowseFromRows(regionRows, selectedDong, selectedGu).apts
+        : [];
+      return {
+        regionSlug: region.slug,
+        yearMonth: "",
+        source: "catalog",
+        selectedDong,
+        dongs,
+        apts,
+      };
+    }
+
+    return {
+      regionSlug: region.slug,
+      yearMonth: "",
+      source: "db",
+      selectedDong,
+      dongs: [],
+      apts: [],
+    };
   }
 
   const catalog = await listAptCatalog();
@@ -665,11 +697,10 @@ export interface RegionDailyDeal {
   complexMaxAmount: number;
   jeonseAmount: number | null;
   /**
-   * 동일 단지·areaKey, 현재 계약일 이전 24개월 풀에서
-   * 가장 가까운 매매 금액. 없으면 null.
+   * 동일 단지·areaKey, 현재 계약일 이전 가장 가까운 매매 금액. 없으면 null.
    */
   prevTypeDealAmount: number | null;
-  /** 신고가 카드만. 동일 단지·areaKey, deal_date 순, 24개월 풀 */
+  /** 신고가 카드만. 동일 단지·areaKey, deal_date 순 */
   priceTrend?: { date: string; amount: number }[] | null;
 }
 
@@ -717,7 +748,7 @@ export interface RegionDailyResponse {
   bulkIngestDay: boolean;
   /** SECTION 1: deal_date 최근 24개월 연속(coverage가 더 짧으면 그 범위). */
   contractMonthOptions: string[];
-  /** SECTION 3: deal_date 월. 24m coverage (Section 1과 동일 축, 확인일로 제한하지 않음). */
+  /** SECTION 3: deal_date available months in the warehouse (plus current KST month). */
   activityYearMonths: string[];
 }
 
@@ -1035,82 +1066,180 @@ export async function getRegionDaily(params: {
   return cachePayload(cacheKey, payload);
 }
 
-type PoolCacheEntry = {
+type MonthCacheEntry = {
   expires: number;
   trades: Transaction[];
   source: "db" | "api";
 };
 
-const regionTradePoolCache = new Map<string, PoolCacheEntry>();
-const regionTradePoolInflight = new Map<
+const regionMonthCache = new Map<string, MonthCacheEntry>();
+const regionDiscoveryCache = new Map<string, MonthCacheEntry>();
+const regionAvailableMonthsCache = new Map<
   string,
-  Promise<{ trades: Transaction[]; source: "db" | "api" }>
+  { expires: number; months: string[] }
 >();
 
 export function clearRegionDailyCaches(): void {
   regionDailyCache.clear();
-  regionTradePoolCache.clear();
-  regionTradePoolInflight.clear();
+  regionMonthCache.clear();
+  regionDiscoveryCache.clear();
+  regionAvailableMonthsCache.clear();
 }
 
-async function loadRegionTradePool(
+function pruneExpired(
+  map: Map<string, { expires: number }>,
+  maxSize: number,
+): void {
+  if (map.size <= maxSize) return;
+  const now = Date.now();
+  for (const [key, entry] of map) {
+    if (entry.expires <= now) map.delete(key);
+  }
+}
+
+async function loadAvailableMonths(region: RegionDef): Promise<string[]> {
+  const cached = regionAvailableMonthsCache.get(region.slug);
+  if (cached && cached.expires > Date.now()) return cached.months;
+  const todayYm = yearMonthFromSeoulDate(seoulToday());
+  let months: string[] = [];
+  if (hasDb()) {
+    try {
+      months = await queryAvailableTradeMonths({
+        lawdCodes: [...region.lawdCodes],
+      });
+    } catch (error) {
+      console.warn("[region-daily] available months db read failed:", error);
+    }
+  }
+  if (months.length === 0) {
+    months = contractMonthOptions(todayYm, REGION_DAILY_FALLBACK_MONTHS);
+  }
+  regionAvailableMonthsCache.set(region.slug, {
+    expires: Date.now() + REGION_DAILY_CACHE_TTL_MS,
+    months,
+  });
+  pruneExpired(regionAvailableMonthsCache, 48);
+  return months;
+}
+
+async function loadRegionMonthTrades(
+  region: RegionDef,
+  yearMonths: string[],
+): Promise<{ trades: Transaction[]; source: "db" | "api" }> {
+  const unique = [...new Set(yearMonths.filter((ym) => ym.length === 6))];
+  if (unique.length === 0) {
+    return { trades: [], source: hasDb() ? "db" : "api" };
+  }
+  const trades: Transaction[] = [];
+  const missing: string[] = [];
+  let source: "db" | "api" = hasDb() ? "db" : "api";
+  for (const ym of unique) {
+    const key = `${region.slug}:${ym}`;
+    const cached = regionMonthCache.get(key);
+    if (cached && cached.expires > Date.now()) {
+      trades.push(...cached.trades);
+      continue;
+    }
+    missing.push(ym);
+  }
+  if (missing.length > 0 && hasDb()) {
+    try {
+      const tPool = performance.now();
+      const fetched = await queryRegionTrades({
+        lawdCodes: [...region.lawdCodes],
+        yearMonths: missing,
+      });
+      if (activeProfile) {
+        activeProfile.poolMs += Math.round(performance.now() - tPool);
+      }
+      const byYm = new Map<string, Transaction[]>();
+      for (const ym of missing) byYm.set(ym, []);
+      for (const tx of fetched) {
+        const ym = yearMonthFromDealDate(tx.dealDate);
+        const bucket = byYm.get(ym);
+        if (bucket) bucket.push(tx);
+        else {
+          byYm.set(ym, [tx]);
+        }
+      }
+      const expires = Date.now() + REGION_DAILY_CACHE_TTL_MS;
+      for (const ym of missing) {
+        const monthTrades = byYm.get(ym) ?? [];
+        regionMonthCache.set(`${region.slug}:${ym}`, {
+          expires,
+          trades: monthTrades,
+          source: "db",
+        });
+        trades.push(...monthTrades);
+      }
+      pruneExpired(regionMonthCache, 240);
+    } catch (error) {
+      console.warn("[region-daily] month trades db read failed:", error);
+    }
+  } else if (missing.length > 0) {
+    source = "api";
+  }
+  if (activeProfile) {
+    activeProfile.poolRows += trades.length;
+  }
+  return { trades, source };
+}
+
+async function loadRegionDiscoveries(
   region: RegionDef,
 ): Promise<{ trades: Transaction[]; source: "db" | "api" }> {
-  const cached = regionTradePoolCache.get(region.slug);
+  const cached = regionDiscoveryCache.get(region.slug);
   if (cached && cached.expires > Date.now()) {
     return { trades: cached.trades, source: cached.source };
   }
-  const pending = regionTradePoolInflight.get(region.slug);
-  if (pending) return pending;
-
-  const job = (async () => {
-    let source: "db" | "api" = "api";
-    let historyTrades: Transaction[] = [];
-    const historyMonths = contractMonthOptions(
-      yearMonthFromSeoulDate(seoulToday()),
-      REGION_DAILY_HISTORY_MONTHS,
-    );
-
-    if (hasDb()) {
-      try {
-        const tPool = performance.now();
-        const tradePool = await queryTradePool({
-          lawdCodes: [...region.lawdCodes],
-          yearMonths: historyMonths,
-        });
-        if (tradePool) {
-          historyTrades = tradePool.filter((tx) => tx.dealType === "trade");
-          source = "db";
-        }
-        if (activeProfile) {
-          activeProfile.poolMs += Math.round(performance.now() - tPool);
-          activeProfile.poolRows = historyTrades.length;
-        }
-      } catch (error) {
-        console.warn("[region-daily] trade pool db read failed:", error);
-      }
+  let trades: Transaction[] = [];
+  const source: "db" | "api" = hasDb() ? "db" : "api";
+  if (hasDb()) {
+    try {
+      trades = await queryRegionDiscoveries({
+        lawdCodes: [...region.lawdCodes],
+      });
+    } catch (error) {
+      console.warn("[region-daily] discoveries db read failed:", error);
     }
-
-    regionTradePoolCache.set(region.slug, {
-      expires: Date.now() + REGION_DAILY_CACHE_TTL_MS,
-      trades: historyTrades,
-      source,
-    });
-    if (regionTradePoolCache.size > 24) {
-      const now = Date.now();
-      for (const [key, entry] of regionTradePoolCache) {
-        if (entry.expires <= now) regionTradePoolCache.delete(key);
-      }
-    }
-    return { trades: historyTrades, source };
-  })();
-
-  regionTradePoolInflight.set(region.slug, job);
-  try {
-    return await job;
-  } finally {
-    regionTradePoolInflight.delete(region.slug);
   }
+  regionDiscoveryCache.set(region.slug, {
+    expires: Date.now() + REGION_DAILY_CACHE_TTL_MS,
+    trades,
+    source,
+  });
+  pruneExpired(regionDiscoveryCache, 48);
+  return { trades, source };
+}
+
+async function loadAptHistoryForDeals(
+  lawdCodes: string[],
+  deals: Transaction[],
+): Promise<Transaction[]> {
+  const norms = [
+    ...new Set(deals.map((tx) => normalizeAptName(tx.aptName)).filter(Boolean)),
+  ];
+  if (norms.length === 0) return [];
+  const rows = await queryAptTradeHistory({
+    lawdCodes,
+    aptNameNorms: norms,
+  });
+  if (!rows) return [];
+  return rows.map((row) => ({
+    id: row.id,
+    dealType: "trade" as const,
+    dealDate: row.dealDate,
+    aptName: row.aptNameNorm,
+    gu: "",
+    dong: "",
+    exclusiveArea: row.exclusiveArea,
+    dealAmount: row.dealAmount,
+    monthlyRent: 0,
+    floor: 0,
+    buildYear: null,
+    jibun: "",
+    dealingGbn: "",
+  }));
 }
 
 type AxisRow = {
@@ -1151,6 +1280,7 @@ async function computeMarketKpis(
   today: string,
   lawdCodes: string[],
   source: "db" | "api",
+  oldestYm: string | null,
 ) {
   const tKpi = performance.now();
   const currentYm = yearMonthFromSeoulDate(today);
@@ -1167,11 +1297,7 @@ async function computeMarketKpis(
     dayCap,
   );
   const yearAgoYm = shiftYearMonth(contractYearMonth, -12);
-  const yearAgoCovered = yearMonthInLookback(
-    yearAgoYm,
-    currentYm,
-    REGION_DAILY_HISTORY_MONTHS,
-  );
+  const yearAgoCovered = !oldestYm || yearAgoYm >= oldestYm;
   const yearAgo = yearAgoCovered
     ? tradesInContractMonth(historyTrades, yearAgoYm, dayCap)
     : null;
@@ -1240,11 +1366,23 @@ async function enrichSeenDay(params: {
   offset: number;
   withSparkline: boolean;
 }): Promise<RegionDailyDaySection> {
-  const { lawdCodes, source, historyTrades, daySeen, offset, withSparkline } =
-    params;
+  const { lawdCodes, source, daySeen, offset, withSparkline } = params;
+  let historyTrades = params.historyTrades;
   const date = daySeen[0]?.axisDate ?? "";
   const totalCount = daySeen.length;
   const bulkIngestDay = totalCount > REGION_DAILY_SINGOGA_DAY_CAP;
+
+  if (source === "db" && !bulkIngestDay && daySeen.length > 0) {
+    try {
+      historyTrades = await loadAptHistoryForDeals(
+        lawdCodes,
+        daySeen.map(({ tx }) => tx),
+      );
+    } catch (error) {
+      console.warn("[region-daily] apt history db read failed:", error);
+    }
+  }
+
   const tradesByApt = groupByAptName(historyTrades);
 
   if (bulkIngestDay) {
@@ -1325,25 +1463,54 @@ async function computeRegionDaily(params: {
   const { region, part, contractMonth, seenMonth, dates, offset, today } =
     params;
   const lawdCodes = [...region.lawdCodes];
-  const { trades: historyTrades, source } = await loadRegionTradePool(region);
-  const src = source === "db" ? "db" : "api";
-  const seen = collectSeen(historyTrades);
-  const dealRows = collectDealRows(historyTrades);
-  const firstSeenReady = seen.length > 0;
-  const contractMonthOptionList = contractMonthOptionsFromCoverage(
-    yearMonthFromSeoulDate(today),
-    oldestYearMonthFromDates(historyTrades.map((tx) => tx.dealDate)),
-    REGION_DAILY_HISTORY_MONTHS,
+  const todayYm = yearMonthFromSeoulDate(today);
+  const availableMonths = await loadAvailableMonths(region);
+  const oldestYm = availableMonths.at(-1) ?? null;
+  const contractMonthOptionList = monthSelectorOptions(
+    availableMonths,
+    todayYm,
   );
   const activityYearMonths = contractMonthOptionList;
+
   const needsKpis = part === "market" || part === "all";
+  const needsHistory =
+    part === "history" || part === "days" || part === "all";
+  const needsLatest = part === "latest" || part === "all";
+
+  const kpiMonths = needsKpis
+    ? [
+        contractMonth,
+        shiftYearMonth(contractMonth, -1),
+        shiftYearMonth(contractMonth, -12),
+      ]
+    : [];
+  const historyMonths = needsHistory ? [seenMonth] : [];
+
+  const [{ trades: monthScopedTrades, source: monthSource }] = await Promise.all([
+    loadRegionMonthTrades(region, [...kpiMonths, ...historyMonths]),
+  ]);
+  const discovered = needsLatest
+    ? await loadRegionDiscoveries(region)
+    : { trades: [] as Transaction[], source: monthSource };
+  const source = hasDb() ? "db" : monthSource;
+  const src = source === "db" ? "db" : "api";
+
+  const historyTrades = monthScopedTrades;
+  const seen = collectSeen(discovered.trades);
+  const dealRows = collectDealRows(
+    monthScopedTrades.filter(
+      (tx) => yearMonthFromDealDate(tx.dealDate) === seenMonth,
+    ),
+  );
+  const firstSeenReady = seen.length > 0;
   const kpis = needsKpis
     ? await computeMarketKpis(
-        historyTrades,
+        monthScopedTrades,
         contractMonth,
         today,
         lawdCodes,
         src,
+        oldestYm,
       )
     : {
         contractYearMonth: contractMonth,

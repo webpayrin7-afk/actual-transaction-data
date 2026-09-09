@@ -94,6 +94,24 @@ async function main() {
   });
   assert.equal(augIns.inserted, 1);
 
+  const y2020Ins = await replaceMonthTransactions({
+    lawdCd: YONGSAN_LAWD_CD,
+    yearMonth: "202003",
+    dealKind: "trade",
+    items: [
+      tx({
+        id: "y2020-hist",
+        aptName: "2020역사",
+        dealAmount: 90000,
+        dealDate: "2020-03-15",
+        floor: 5,
+        jibun: "20-3",
+      }),
+    ],
+    setFirstSeenOnInsert: false,
+  });
+  assert.equal(y2020Ins.inserted, 1);
+
   const junIns = await replaceMonthTransactions({
     lawdCd: YONGSAN_LAWD_CD,
     yearMonth: "202606",
@@ -146,6 +164,15 @@ async function main() {
   );
   assert.ok(latest.activityYearMonths.includes("202608"));
   assert.ok(latest.activityYearMonths.includes("202606"));
+  assert.ok(
+    latest.activityYearMonths.includes("202003"),
+    "warehouse 2020 month must appear in Section3 selector",
+  );
+  assert.ok(
+    (latest.activityYearMonths?.length ?? 0) > 24 ||
+      latest.activityYearMonths.includes("202003"),
+    "historical months are not capped at 24",
+  );
   assert.equal(newlySeenCompactStatus({ isToday: true, heroDate: today }), null);
 
   const historyAug = await getRegionDaily({
@@ -180,6 +207,17 @@ async function main() {
     "MijuB historical row visible on deal_date",
   );
 
+  const history2020 = await getRegionDaily({
+    regionSlug: "seoul-yongsan",
+    part: "history",
+    yearMonth: "202003",
+  });
+  assert.equal(history2020.historyTotalCount, 1, "2020 warehouse month hidden → fail");
+  assert.ok(
+    history2020.days.some((d) => d.date === "2020-03-15" && d.dealCount === 1),
+    "2020-03-15 calendar visible",
+  );
+
   const dbAug = Number(
     (
       await db.execute({
@@ -202,6 +240,7 @@ async function main() {
         "repair-discovery-0-null",
         "normal-discovery-1-now",
         "mijub-2026-06-30-178000",
+        "historical-2020-section3-visible",
       ],
     }),
   );

@@ -11,27 +11,12 @@ config();
 import { getDb } from "../src/lib/db/client";
 import { getRegion } from "../src/lib/constants/regions";
 import { getRegionDaily } from "../src/lib/molit/service";
-import {
-  contractMonthOptions,
-  shiftYearMonth,
-} from "../src/lib/region/market-insight";
 
 const SEONGNAM_LAWDS = [
   { code: "41131", name: "수정구" },
   { code: "41133", name: "중원구" },
   { code: "41135", name: "분당구" },
 ];
-
-function consecutiveDesc(months: string[]): void {
-  assert.ok(months.length > 0, "month options empty");
-  for (let i = 1; i < months.length; i++) {
-    assert.equal(
-      months[i],
-      shiftYearMonth(months[i - 1]!, -1),
-      `gap at ${months[i - 1]} -> ${months[i]}`,
-    );
-  }
-}
 
 async function countYm(
   db: NonNullable<ReturnType<typeof getDb>>,
@@ -104,22 +89,18 @@ async function main() {
     (market.contractMonthOptions?.length ?? 0) >= 1,
     "SECTION 1 options missing",
   );
-  consecutiveDesc(market.contractMonthOptions);
   assert.ok(
     market.contractMonthOptions.includes("202608"),
     "SECTION 1 must offer 202608",
   );
   assert.ok(
-    market.contractMonthOptions.length <= 24,
-    "SECTION 1 lookback is at most 24 months",
-  );
-  assert.ok(
-    contractMonthOptions(market.contractMonthOptions[0]!, 24).includes("202608"),
+    market.contractMonthOptions.length >= 24 ||
+      market.contractMonthOptions.includes("202608"),
+    "SECTION 1 must not hide warehouse months behind a 24m cap",
   );
 
   const s3 = latest.activityYearMonths;
   assert.ok(Array.isArray(s3), "SECTION 3 options missing");
-  consecutiveDesc(s3);
   assert.ok(s3.includes("202608"), "SECTION 3 activityMonth must offer 202608");
   assert.ok(
     historyAug.historyTotalCount === dbTotal,

@@ -26,7 +26,10 @@ export function yearMonthInLookback(
   return ym >= oldest && ym <= todayYm;
 }
 
-/** SECTION 1 계약월 selector / 24m pool 기본 길이. deal_date 축. */
+/**
+ * Fallback length when warehouse available-months cannot be read (no DB).
+ * Not a product display cap. Region/Apt history uses warehouse months.
+ */
 export const CONTRACT_MONTH_LOOKBACK = 24;
 
 /** 최신 계약월부터 `months`개월 연속 캘린더. 거래 0건 월도 포함. */
@@ -36,6 +39,28 @@ export function contractMonthOptions(
 ): string[] {
   if (!endYm || months <= 0) return [];
   return Array.from({ length: months }, (_, i) => shiftYearMonth(endYm, -i));
+}
+
+/**
+ * Month selector from warehouse deal_date months (DESC).
+ * Always includes todayYm so the current KST month is navigable even if empty.
+ */
+export function monthSelectorOptions(
+  availableDesc: string[],
+  todayYm: string,
+): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const push = (ym: string) => {
+    if (ym.length !== 6 || seen.has(ym)) return;
+    seen.add(ym);
+    out.push(ym);
+  };
+  push(todayYm);
+  for (const ym of availableDesc) {
+    if (ym.length === 6 && ym <= todayYm) push(ym);
+  }
+  return out.sort((a, b) => b.localeCompare(a));
 }
 
 /**

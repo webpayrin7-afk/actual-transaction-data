@@ -225,6 +225,21 @@ async function main() {
   assert.equal(r7.wrote, false);
   assert.equal(r7.unchanged, 2);
 
+  const beforeDry = await countTx();
+  const dry = await replaceMonthTransactions({
+    lawdCd,
+    yearMonth,
+    dealKind: "trade",
+    items: [
+      ...withoutFirst,
+      tx({ id: "dry-new", dealAmount: 12345, dealDate: "2026-01-20", floor: 2, jibun: "9-9" }),
+    ],
+    dryRun: true,
+  });
+  assert.equal(dry.inserted, 1);
+  assert.equal(dry.wrote, false);
+  assert.equal(await countTx(), beforeDry, "dry-run must not write");
+
   console.log(
     JSON.stringify(
       {
@@ -236,6 +251,7 @@ async function main() {
           "orphan-delete",
           "same-date-multi",
           "first_seen-preserved",
+          "dry-run-write-0",
         ],
       },
       null,

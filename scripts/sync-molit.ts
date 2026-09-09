@@ -8,6 +8,8 @@
  *   # 최근 개월 변경분만 (기본 daily: 매매 4개월 late-report, 전월세 2)
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --rent-months=2 --skip-existing=0 --only-changed=1 --discovery=1
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --rent-months=2 --plan=1 --as-of=2026-09-09
+ *   npx tsx scripts/sync-molit.ts --scope=all --from-month=202001 --to-month=202001 --dry-run=1 --discovery=0
+ *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --max-writes=50000
  *
  *   # 전국 plan (WRITE 0)
  *   npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
@@ -134,6 +136,9 @@ async function main() {
   const onlyChanged = argValue("only-changed", skipExisting ? "0" : "1") !== "0";
   const rebuildCatalog = argValue("rebuild-catalog", "1") !== "0";
   const planOnly = argValue("plan", "0") === "1" || process.argv.includes("--plan");
+  const dryRun =
+    argValue("dry-run", "0") === "1" || process.argv.includes("--dry-run");
+  const maxWrites = Math.max(0, Number(argValue("max-writes", "0")) || 0);
   /** historical backfill: first_seen_at=NULL → 오늘의 시장 발견 feed 오염 방지 */
   const discovery = argValue("discovery", "1") !== "0";
   const maxRegions = Number(argValue("max-regions", "0"));
@@ -236,7 +241,7 @@ async function main() {
     : null;
 
   console.log(
-    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} plan=${planOnly ? 1 : 0} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
+    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
   );
   if (lawdCodes.length <= 20) {
     console.log(`[sync] lawds: ${lawdCodes.join(",")}`);
@@ -269,13 +274,15 @@ async function main() {
   let unchanged = 0;
   let failures = 0;
   let next = 0;
+  let stop = false;
   const failedKeys: string[] = [];
   const startedAt = Date.now();
 
   async function worker() {
-    while (next < jobs.length) {
+    while (!stop) {
       const index = next;
       next += 1;
+      if (index >= jobs.length) return;
       const job = jobs[index];
       const key = jobKey(job);
       try {
@@ -293,6 +300,7 @@ async function main() {
             dealKind: job.kind,
             items,
             setFirstSeenOnInsert: discovery,
+            dryRun,
           });
           inserted += result.inserted;
           updated += result.updated;
@@ -307,6 +315,13 @@ async function main() {
               maxDealDate: maxDealDateOf(items),
             });
           }
+          const sqlWrites = inserted + updated + deleted;
+          if (maxWrites > 0 && sqlWrites >= maxWrites) {
+            stop = true;
+            console.error(
+              `[sync] WRITE KILL SWITCH max-writes=${maxWrites} reached at ${key} ins=${inserted} upd=${updated} del=${deleted}`,
+            );
+          }
         }
       } catch (err) {
         failures += 1;
@@ -317,7 +332,7 @@ async function main() {
         );
       } finally {
         done += 1;
-        if (done % 25 === 0 || done === jobs.length) {
+        if (done % 25 === 0 || done === jobs.length || stop) {
           const elapsedMin = ((Date.now() - startedAt) / 60000).toFixed(1);
           const rate = done / Math.max((Date.now() - startedAt) / 1000, 1);
           const etaMin = (
@@ -326,7 +341,7 @@ async function main() {
             60
           ).toFixed(0);
           console.log(
-            `[sync] progress ${done}/${jobs.length} writtenCells=${written} ins=${inserted} upd=${updated} del=${deleted} unchanged=${unchanged} failures=${failures} elapsed=${elapsedMin}m eta~${etaMin}m`,
+            `[sync] progress ${done}/${jobs.length} writtenCells=${written} ins=${inserted} upd=${updated} del=${deleted} unchanged=${unchanged} failures=${failures} elapsed=${elapsedMin}m eta~${etaMin}m${dryRun ? " DRY-RUN" : ""}`,
           );
         }
       }
@@ -339,7 +354,7 @@ async function main() {
 
   const durationSec = Math.round((Date.now() - startedAt) / 1000);
   console.log(
-    `[sync] SUMMARY regions=${lawdCodes.length} jobs=${done} writtenCells=${written} inserted=${inserted} updated=${updated} deleted=${deleted} unchanged=${unchanged} failures=${failures} skippedExisting=${skippedExisting} durationSec=${durationSec} discovery=${discovery ? 1 : 0}`,
+    `[sync] SUMMARY regions=${lawdCodes.length} jobs=${done} writtenCells=${written} inserted=${inserted} updated=${updated} deleted=${deleted} unchanged=${unchanged} failures=${failures} skippedExisting=${skippedExisting} durationSec=${durationSec} discovery=${discovery ? 1 : 0} dryRun=${dryRun ? 1 : 0} sqlWrites=${inserted + updated + deleted}`,
   );
   if (failedKeys.length) {
     console.log(
@@ -347,7 +362,7 @@ async function main() {
     );
   }
 
-  if (rebuildCatalog && written > 0) {
+  if (rebuildCatalog && written > 0 && !dryRun) {
     try {
       const catalogSize = await rebuildAptCatalog();
       console.log(`[sync] apt_catalog rebuilt entries=${catalogSize}`);
@@ -360,9 +375,10 @@ async function main() {
 
   // 시장 홈 스냅샷 — 쓰기가 있거나 강제 플래그일 때 갱신
   const rebuildMarket =
-    process.env.REBUILD_MARKET_HOME === "1" ||
-    process.argv.includes("--rebuild-market=1") ||
-    written > 0;
+    !dryRun &&
+    (process.env.REBUILD_MARKET_HOME === "1" ||
+      process.argv.includes("--rebuild-market=1") ||
+      written > 0);
   if (rebuildMarket) {
     try {
       const { rebuildMarketHomeSnapshot } = await import(
@@ -385,6 +401,10 @@ async function main() {
     } catch (err) {
       console.warn("[sync] market_stats rebuild failed:", err);
     }
+  }
+
+  if (stop) {
+    process.exit(2);
   }
 }
 

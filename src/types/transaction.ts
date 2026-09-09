@@ -72,7 +72,7 @@ export interface TransactionsResponse {
   pageSize: number;
   totalPages: number;
   stats: TransactionStats;
-  source: "api" | "mock";
+  source: "api" | "mock" | "db";
   yearMonth: string;
   warning?: string;
   apiConfigured?: boolean;
