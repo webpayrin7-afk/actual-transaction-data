@@ -8,6 +8,7 @@ import {
   parseRentXml,
   parseTradeXml,
 } from "@/lib/molit/parse";
+import { resolveActiveTrades } from "@/lib/molit/trade-resolve";
 import type { DealType, Transaction } from "@/types/transaction";
 
 const FETCH_CONCURRENCY = 10;
@@ -191,7 +192,13 @@ async function fetchOneTradeUncached(
   lawdCd: string,
   yearMonth: string,
 ): Promise<Transaction[]> {
-  return fetchAllPages(TRADE_API_URL, lawdCd, yearMonth, parseTradeXml);
+  const parsed = await fetchAllPages(
+    TRADE_API_URL,
+    lawdCd,
+    yearMonth,
+    parseTradeXml,
+  );
+  return resolveActiveTrades(parsed, lawdCd).active;
 }
 
 async function fetchOneRentUncached(

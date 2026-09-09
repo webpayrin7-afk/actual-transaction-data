@@ -22,7 +22,8 @@
     "test:sync-dirty": "tsx scripts/test-sync-dirty-check.ts",
     "test:first-seen": "tsx scripts/test-first-seen-guard.ts",
     "test:late-report": "tsx scripts/test-late-report-ingestion.ts",
-    "test:ingestion": "tsx scripts/test-sync-dirty-check.ts && tsx scripts/test-first-seen-guard.ts && tsx scripts/test-late-report-ingestion.ts"
+    "test:trade-resolve": "tsx scripts/test-trade-resolve.ts",
+    "test:ingestion": "tsx scripts/test-sync-dirty-check.ts && tsx scripts/test-first-seen-guard.ts && tsx scripts/test-late-report-ingestion.ts && tsx scripts/test-trade-resolve.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

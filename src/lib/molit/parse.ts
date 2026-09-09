@@ -42,6 +42,10 @@ interface RawTradeItem {
   jibun?: string;
   dealingGbn?: string;
   sggCd?: string;
+  aptDong?: string;
+  cdealType?: string;
+  cdealDay?: string;
+  rgstDate?: string;
 }
 
 interface RawRentItem {
@@ -95,6 +99,12 @@ export function parseTradeXml(xml: string, lawdCd: string): Transaction[] {
         jibun,
         dealingGbn: text(item.dealingGbn) || "중개거래",
         lawdCd,
+        ingestMeta: {
+          cdealType: text(item.cdealType),
+          cdealDay: text(item.cdealDay),
+          rgstDate: text(item.rgstDate),
+          aptDong: text(item.aptDong),
+        },
       };
       return tx;
     })

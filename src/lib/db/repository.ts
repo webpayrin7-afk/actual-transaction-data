@@ -6,6 +6,7 @@ import {
 } from "@/lib/db/sync-diff";
 import type { TxContentSnapshot } from "@/lib/db/sync-diff";
 import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
+import { isUnsafeMonthShrink } from "@/lib/molit/trade-resolve";
 import type { DealType, Transaction } from "@/types/transaction";
 import { noteDbQuery } from "@/lib/db/query-stats";
 
@@ -294,6 +295,17 @@ export async function replaceMonthTransactions(params: {
 
   const deleted = deleteIds.length;
   const wroteTx = inserted + updated + deleted > 0;
+
+  if (
+    isUnsafeMonthShrink({
+      previousRowCount: byId.size,
+      nextRowCount: upserts.length,
+    })
+  ) {
+    throw new Error(
+      `refusing destructive month replace ${lawdCd} ${yearMonth} ${dealKind}: warehouse=${byId.size} incomingUnique=${upserts.length}`,
+    );
+  }
 
   // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert)
   if (wroteTx) {

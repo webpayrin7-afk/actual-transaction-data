@@ -12,6 +12,7 @@ import { XMLParser } from "fast-xml-parser";
 import { TRADE_API_URL } from "../src/lib/constants/regions";
 import { parseTradeXml, getApiTotalCount } from "../src/lib/molit/parse";
 import { naturalKeyFromTx } from "../src/lib/market/identity";
+import { resolveActiveTrades } from "../src/lib/molit/trade-resolve";
 import { isSameTransactionContent, snapshotFromTx } from "../src/lib/db/sync-diff";
 import { YONGSAN_LAWD_CD } from "../src/lib/molit/sync-policy";
 
@@ -88,6 +89,7 @@ async function main() {
     json?.response?.body?.items?.item,
   );
   const parsed = parseTradeXml(xml, YONGSAN_LAWD_CD);
+  const resolved = resolveActiveTrades(parsed, YONGSAN_LAWD_CD);
   const rawKeys = [...new Set(rawItems.flatMap((r) => Object.keys(r)))].sort();
 
   const mijubRaw = rawItems.filter(isMijubCandidate);
@@ -177,7 +179,7 @@ async function main() {
       let wouldUnchanged = 0;
       let batchDupSkip = 0;
       const keepIds = new Set<string>();
-      for (const tx of parsed) {
+      for (const tx of resolved.active) {
         const nk = naturalKeyFromTx(tx, YONGSAN_LAWD_CD);
         if (seen.has(nk)) {
           batchDupSkip += 1;
@@ -242,6 +244,8 @@ async function main() {
             apiTotalCount: getApiTotalCount(xml),
             parsedRows: parsed.length,
             uniqueIdentityRows: uniqueAll.size,
+            resolvedActive: resolved.active.length,
+            cancelledExcluded: resolved.cancelledExcluded,
             batchDupSkipWould: parsed.length - uniqueAll.size,
             warehouseTxCount: warehouse.txCount,
             syncMonthsRowCount: warehouse.syncRowCount,
