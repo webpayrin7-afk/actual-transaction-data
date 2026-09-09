@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -16,6 +17,9 @@ import type {
 } from "@/lib/molit/service";
 import {
   groupDealsByDate,
+  increaseRatePct,
+  pickFeaturedSingogaDeal,
+  priorPeakAmount,
   recentSingogaDeals,
   recordDateDomId,
   regionMarketInsight,
@@ -64,6 +68,114 @@ function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
 function prefersReducedMotion(): boolean {
   if (typeof window === "undefined") return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function contractDayLabel(date: string): string {
+  const d = date.slice(0, 10);
+  return `${Number(d.slice(5, 7))}월 ${Number(d.slice(8, 10))}일 계약`;
+}
+
+function DealBadges({ deal }: { deal: RegionDailyDeal }) {
+  const isComplexHigh =
+    deal.complexMaxAmount > 0 && deal.dealAmount === deal.complexMaxAmount;
+  return (
+    <div className="flex shrink-0 flex-wrap justify-end gap-1">
+      <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-700">
+        {singogaLabel(deal.singogaKind)}
+      </span>
+      {isComplexHigh ? (
+        <span className="inline-flex items-center rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-medium text-teal-800">
+          단지 최고가
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function FeaturedDealCard({
+  deal,
+  regionSlug,
+}: {
+  deal: RegionDailyDeal;
+  regionSlug: string;
+}) {
+  const prior = priorPeakAmount(deal);
+  const rate = increaseRatePct(deal);
+  const extras = [
+    deal.recent3mCount > 0 ? `최근 3개월 ${deal.recent3mCount}건` : null,
+    deal.buildYear ? `${deal.buildYear}년 준공` : null,
+  ].filter(Boolean);
+
+  return (
+    <Link
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      className="block rounded-xl border border-teal-200/80 bg-teal-50/40 px-3.5 py-3.5 transition hover:border-teal-300 hover:bg-teal-50/70"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="min-w-0 truncate text-sm font-semibold text-slate-900">
+          {deal.aptName}
+        </p>
+        <DealBadges deal={deal} />
+      </div>
+      <p className="mt-1.5 text-[26px] font-semibold leading-none tabular-nums text-slate-900">
+        {formatEok(deal.dealAmount)}
+      </p>
+      {deal.increaseAmount > 0 ? (
+        <p className="mt-1.5 text-sm font-medium tabular-nums text-rose-600">
+          ▲ {formatEok(deal.increaseAmount)}
+          {rate != null ? ` (+${rate}%)` : ""}
+        </p>
+      ) : null}
+      {prior != null ? (
+        <p className="mt-0.5 text-[12px] tabular-nums text-slate-500">
+          종전 최고 {formatEok(prior)}
+        </p>
+      ) : null}
+      <p className="mt-2 text-[12px] text-slate-600">
+        {Number(deal.exclusiveArea).toFixed(2)}㎡ · {deal.floor}층 ·{" "}
+        {contractDayLabel(deal.dealDate)}
+      </p>
+      {extras.length > 0 ? (
+        <p className="mt-1 text-[11px] text-slate-500">{extras.join(" · ")}</p>
+      ) : null}
+    </Link>
+  );
+}
+
+function CompactDealRow({
+  deal,
+  regionSlug,
+}: {
+  deal: RegionDailyDeal;
+  regionSlug: string;
+}) {
+  const md = Number(deal.dealDate.slice(5, 7));
+  const dd = Number(deal.dealDate.slice(8, 10));
+  return (
+    <Link
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      className="flex items-center justify-between gap-3 border-b border-slate-100 px-1 py-2 last:border-b-0 transition hover:bg-slate-50"
+    >
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium text-slate-800">
+          {deal.aptName}
+        </p>
+        <p className="text-[11px] text-slate-500">
+          {Math.round(deal.exclusiveArea)}㎡ · {md}월 {dd}일
+        </p>
+      </div>
+      <div className="shrink-0 text-right">
+        <p className="text-sm font-semibold tabular-nums text-slate-900">
+          {formatEok(deal.dealAmount)}
+        </p>
+        {deal.increaseAmount > 0 ? (
+          <p className="text-[11px] font-medium tabular-nums text-rose-600">
+            ▲ {formatEok(deal.increaseAmount)}
+          </p>
+        ) : null}
+      </div>
+    </Link>
+  );
 }
 
 function DealCard({
@@ -249,6 +361,8 @@ export function RegionDailyStatus({
   yearMonths: string[];
   onYearMonthChange: (value: string) => void;
 }) {
+  const searchParams = useSearchParams();
+  const featuredPreview = searchParams.get("card") === "b";
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [highlightDate, setHighlightDate] = useState<string | null>(null);
 
@@ -269,6 +383,14 @@ export function RegionDailyStatus({
     () => recentSingogaDeals(monthDeals, RECENT_SINGOGA_LIMIT),
     [monthDeals],
   );
+  const featuredDeal = useMemo(
+    () => (featuredPreview ? pickFeaturedSingogaDeal(monthDeals) : null),
+    [featuredPreview, monthDeals],
+  );
+  const compactDeals = useMemo(() => {
+    if (!featuredDeal) return [];
+    return recentDeals.filter((deal) => deal.id !== featuredDeal.id);
+  }, [featuredDeal, recentDeals]);
   const grouped = useMemo(() => groupDealsByDate(monthDeals), [monthDeals]);
 
   const insight = data
@@ -445,6 +567,21 @@ export function RegionDailyStatus({
             {recentDeals.length === 0 ? (
               <div className="mt-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-pretty text-sm text-slate-500">
                 이 달 신고가가 없습니다.
+              </div>
+            ) : featuredPreview && featuredDeal ? (
+              <div className="mt-2 flex flex-col gap-1">
+                <FeaturedDealCard deal={featuredDeal} regionSlug={regionSlug} />
+                {compactDeals.length > 0 ? (
+                  <div className="mt-1">
+                    {compactDeals.map((deal) => (
+                      <CompactDealRow
+                        key={`recent-${deal.id}`}
+                        deal={deal}
+                        regionSlug={regionSlug}
+                      />
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ) : (
               <div className="mt-2 flex flex-col gap-2">

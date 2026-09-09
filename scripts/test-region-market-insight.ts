@@ -6,6 +6,9 @@ import assert from "node:assert/strict";
 import {
   countTradesInYearMonth,
   groupDealsByDate,
+  increaseRatePct,
+  pickFeaturedSingogaDeal,
+  priorPeakAmount,
   recentSingogaDeals,
   recordDateDomId,
   regionMarketInsight,
@@ -120,5 +123,31 @@ assert.deepEqual(
 );
 
 assert.equal(recordDateDomId("2026-09-05"), "record-date-2026-09-05");
+
+assert.equal(priorPeakAmount({ dealAmount: 106000, increaseAmount: 18000 }), 88000);
+assert.equal(increaseRatePct({ dealAmount: 106000, increaseAmount: 18000 }), 20.5);
+assert.equal(increaseRatePct({ dealAmount: 100, increaseAmount: 0 }), null);
+
+const featured = pickFeaturedSingogaDeal([
+  {
+    dealDate: "2026-09-05",
+    increaseAmount: 1700,
+    dealAmount: 115000,
+    aptName: "매화마을공무원1",
+  },
+  {
+    dealDate: "2026-09-05",
+    increaseAmount: 18000,
+    dealAmount: 106000,
+    aptName: "신세계쉐덴",
+  },
+  {
+    dealDate: "2026-09-01",
+    increaseAmount: 11000,
+    dealAmount: 429000,
+    aptName: "판교푸르지오그랑블",
+  },
+]);
+assert.equal(featured?.aptName, "신세계쉐덴");
 
 console.log("test-region-market-insight: ok");

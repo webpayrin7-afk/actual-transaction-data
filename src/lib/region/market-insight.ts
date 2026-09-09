@@ -103,6 +103,47 @@ export function recentSingogaDeals<T extends { dealDate: string; dealAmount: num
     .slice(0, limit);
 }
 
+/** 종전 최고가(만원). 상승액이 없으면 첫 신고가라 null. */
+export function priorPeakAmount(deal: {
+  dealAmount: number;
+  increaseAmount: number;
+}): number | null {
+  if (deal.increaseAmount <= 0) return null;
+  return deal.dealAmount - deal.increaseAmount;
+}
+
+/** 종전 최고 대비 상승률(%). 소수 1자리. */
+export function increaseRatePct(deal: {
+  dealAmount: number;
+  increaseAmount: number;
+}): number | null {
+  const prior = priorPeakAmount(deal);
+  if (prior == null || prior <= 0) return null;
+  return Math.round((deal.increaseAmount / prior) * 1000) / 10;
+}
+
+/**
+ * Option B Featured: 가장 최근 계약일.
+ * 같은 날은 상승액 → 거래가 → 단지명. first_seen_at / row order 사용 안 함.
+ */
+export function pickFeaturedSingogaDeal<
+  T extends {
+    dealDate: string;
+    increaseAmount: number;
+    dealAmount: number;
+    aptName: string;
+  },
+>(deals: T[]): T | null {
+  if (deals.length === 0) return null;
+  return [...deals].sort(
+    (a, b) =>
+      b.dealDate.slice(0, 10).localeCompare(a.dealDate.slice(0, 10)) ||
+      b.increaseAmount - a.increaseAmount ||
+      b.dealAmount - a.dealAmount ||
+      a.aptName.localeCompare(b.aptName, "ko"),
+  )[0] ?? null;
+}
+
 export function recordDateDomId(date: string): string {
   return `record-date-${date.slice(0, 10)}`;
 }
