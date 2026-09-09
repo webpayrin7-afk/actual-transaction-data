@@ -1,5 +1,7 @@
 /** 지역 시장 요약용 deterministic 한 줄. LLM/외부 API 없음. */
 
+import { toPyeong } from "../utils/format";
+
 export function yearMonthFromDealDate(dealDate: string): string {
   const d = dealDate.slice(0, 10);
   return `${d.slice(0, 4)}${d.slice(5, 7)}`;
@@ -35,6 +37,22 @@ export function volumeChangePct(
 ): number | null {
   if (previous <= 0) return null;
   return Math.round(((current - previous) / previous) * 100);
+}
+
+/** 전월 대비 변화율. 소수 1자리. 비교 분모가 없으면 null. */
+export function momChangePct(
+  current: number,
+  previous: number,
+): number | null {
+  if (!(previous > 0)) return null;
+  return Math.round(((current - previous) / previous) * 1000) / 10;
+}
+
+export function formatMomChangeValue(pct: number | null): string {
+  if (pct == null) return "—";
+  if (pct === 0) return "-";
+  const abs = Math.abs(pct).toFixed(1);
+  return pct > 0 ? `▲ ${abs}%` : `▼ ${abs}%`;
 }
 
 export function regionMarketInsight(input: {
@@ -301,6 +319,28 @@ export function medianDealAmount(amounts: number[]): number | null {
   const mid = Math.floor(sorted.length / 2);
   if (sorted.length % 2 === 1) return sorted[mid]!;
   return Math.round((sorted[mid - 1]! + sorted[mid]!) / 2);
+}
+
+/** 거래금액(만원) / 전용면적 평. 면적·금액 비정상이면 null. */
+export function pyeongPriceManwon(
+  dealAmount: number,
+  exclusiveArea: number,
+): number | null {
+  if (!(dealAmount > 0) || !(exclusiveArea > 0)) return null;
+  const pyeong = toPyeong(exclusiveArea);
+  if (!(pyeong > 0)) return null;
+  return Math.round(dealAmount / pyeong);
+}
+
+export function medianPyeongPrice(
+  trades: { dealAmount: number; exclusiveArea: number }[],
+): number | null {
+  const prices: number[] = [];
+  for (const trade of trades) {
+    const price = pyeongPriceManwon(trade.dealAmount, trade.exclusiveArea);
+    if (price != null) prices.push(price);
+  }
+  return medianDealAmount(prices);
 }
 
 export function groupDealsBySeenDate<

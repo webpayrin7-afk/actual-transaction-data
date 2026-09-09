@@ -13,6 +13,7 @@ import {
   queryRegionBrowseApts,
   queryRegionMonthPool,
   queryTradePool,
+  type AptTypePriorCandidate,
 } from "@/lib/db/repository";
 import {
   seoulDateOf,
@@ -25,11 +26,11 @@ import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
 import {
   CONTRACT_DATE_BASIS_HELP,
-  countTradesInYearMonth,
   HISTORY_DATE_BASIS_HELP,
   HISTORY_DAY_FETCH_CAP,
   HISTORY_INITIAL_DAY_COUNT,
   medianDealAmount,
+  medianPyeongPrice,
   pickHeroSeenDate,
   priorTypeMaxAmount,
   SEEN_DATE_BASIS_HELP,
@@ -688,6 +689,10 @@ export interface RegionDailyResponse {
   comparePartial: boolean;
   contractYearMonth: string;
   medianDealAmount: number | null;
+  prevMonthMedianDealAmount: number | null;
+  medianPyeongPrice: number | null;
+  /** 선택 계약월 타입 신고가 건수. 계산 불가면 null */
+  monthSingogaCount: number | null;
   dateAxis: "first_seen_kst";
   dateBasisNote: string;
   contractDateBasisNote: string;
@@ -760,6 +765,66 @@ function groupByAptName(items: Transaction[]): Map<string, Transaction[]> {
   return map;
 }
 
+/** 기존 type 신고가 classifier용 prior max. 24m pool 후 필요 시 all-time SQL. */
+async function typePriorMaxesForDeals(params: {
+  deals: Transaction[];
+  historyTrades: Transaction[];
+  lawdCodes: string[];
+  source: "db" | "api";
+}): Promise<number[]> {
+  const { deals, historyTrades, lawdCodes, source } = params;
+  const tradesByApt = groupByAptName(historyTrades);
+  const priorMaxes = deals.map((tx) =>
+    priorTypeMaxAmount({
+      exclusiveArea: tx.exclusiveArea,
+      dealDate: tx.dealDate,
+      history: tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
+    }),
+  );
+  if (source !== "db" || deals.length === 0) return priorMaxes;
+
+  const sqlIndexes: number[] = [];
+  const candidates: AptTypePriorCandidate[] = [];
+  deals.forEach((tx, index) => {
+    if (tx.dealAmount > (priorMaxes[index] ?? 0)) {
+      sqlIndexes.push(index);
+      candidates.push({
+        aptNameNorm: normalizeAptName(tx.aptName),
+        exclusiveArea: tx.exclusiveArea,
+        dealDate: tx.dealDate,
+      });
+    }
+  });
+  if (candidates.length === 0) return priorMaxes;
+  try {
+    const lookedUp = await queryAptTypePriorMaxes({ lawdCodes, candidates });
+    if (lookedUp) {
+      lookedUp.forEach((sqlMax, i) => {
+        const dealIndex = sqlIndexes[i]!;
+        priorMaxes[dealIndex] = Math.max(priorMaxes[dealIndex] ?? 0, sqlMax);
+      });
+    }
+  } catch (error) {
+    console.warn("[region-daily] apt prior max db read failed:", error);
+  }
+  return priorMaxes;
+}
+
+function tradesInContractMonth(
+  historyTrades: Transaction[],
+  yearMonth: string,
+  dayCap: string | null,
+): Transaction[] {
+  const out: Transaction[] = [];
+  for (const tx of historyTrades) {
+    const d = tx.dealDate.slice(0, 10);
+    if (yearMonthFromDealDate(d) !== yearMonth) continue;
+    if (dayCap && d.slice(8, 10) > dayCap) continue;
+    out.push(tx);
+  }
+  return out;
+}
+
 function firstSeenKstDate(tx: Transaction): string | null {
   const raw = tx.firstSeenAt?.trim();
   if (!raw) return null;
@@ -821,6 +886,9 @@ function emptyRegionDaily(
     comparePartial: extras?.comparePartial ?? false,
     contractYearMonth,
     medianDealAmount: extras?.medianDealAmount ?? null,
+    prevMonthMedianDealAmount: extras?.prevMonthMedianDealAmount ?? null,
+    medianPyeongPrice: extras?.medianPyeongPrice ?? null,
+    monthSingogaCount: extras?.monthSingogaCount ?? null,
     dateAxis: "first_seen_kst",
     dateBasisNote: extras?.dateBasisNote ?? REGION_DAILY_DATE_NOTE,
     contractDateBasisNote:
@@ -955,36 +1023,49 @@ function collectSeen(historyTrades: Transaction[]): SeenRow[] {
   return seen;
 }
 
-function computeMarketKpis(
+async function computeMarketKpis(
   historyTrades: Transaction[],
   contractYearMonth: string,
   today: string,
+  lawdCodes: string[],
+  source: "db" | "api",
 ) {
   const currentYm = yearMonthFromSeoulDate(today);
   const comparePartial = contractYearMonth === currentYm;
   const dayCap = comparePartial ? today.slice(8, 10) : null;
-  const tradeDates = historyTrades.map((tx) => tx.dealDate);
-  const amounts: number[] = [];
-  for (const tx of historyTrades) {
-    const d = tx.dealDate.slice(0, 10);
-    if (yearMonthFromDealDate(d) !== contractYearMonth) continue;
-    if (dayCap && d.slice(8, 10) > dayCap) continue;
-    amounts.push(tx.dealAmount);
-  }
+  const current = tradesInContractMonth(
+    historyTrades,
+    contractYearMonth,
+    dayCap,
+  );
+  const previous = tradesInContractMonth(
+    historyTrades,
+    shiftYearMonth(contractYearMonth, -1),
+    dayCap,
+  );
+  const priorMaxes = await typePriorMaxesForDeals({
+    deals: current,
+    historyTrades,
+    lawdCodes,
+    source,
+  });
+  let monthSingogaCount = 0;
+  current.forEach((tx, index) => {
+    if (typeRecordHigh(tx.dealAmount, priorMaxes[index] ?? 0).isSingoga) {
+      monthSingogaCount += 1;
+    }
+  });
   return {
     contractYearMonth,
-    monthTradeCount: countTradesInYearMonth(
-      tradeDates,
-      contractYearMonth,
-      dayCap,
-    ),
-    prevMonthTradeCount: countTradesInYearMonth(
-      tradeDates,
-      shiftYearMonth(contractYearMonth, -1),
-      dayCap,
-    ),
+    monthTradeCount: current.length,
+    prevMonthTradeCount: previous.length,
     comparePartial,
-    medianDealAmount: medianDealAmount(amounts),
+    medianDealAmount: medianDealAmount(current.map((tx) => tx.dealAmount)),
+    prevMonthMedianDealAmount: medianDealAmount(
+      previous.map((tx) => tx.dealAmount),
+    ),
+    medianPyeongPrice: medianPyeongPrice(current),
+    monthSingogaCount,
   };
 }
 
@@ -1054,51 +1135,12 @@ async function enrichSeenDay(params: {
     };
   }
 
-  const poolPriors = daySeen.map(({ tx }) =>
-    priorTypeMaxAmount({
-      exclusiveArea: tx.exclusiveArea,
-      dealDate: tx.dealDate,
-      history: tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
-    }),
-  );
-  const priorMaxes = [...poolPriors];
-  if (source === "db" && daySeen.length > 0) {
-    const sqlIndexes: number[] = [];
-    const candidates: Array<{
-      aptNameNorm: string;
-      exclusiveArea: number;
-      dealDate: string;
-    }> = [];
-    daySeen.forEach(({ tx }, index) => {
-      if (tx.dealAmount > (poolPriors[index] ?? 0)) {
-        sqlIndexes.push(index);
-        candidates.push({
-          aptNameNorm: normalizeAptName(tx.aptName),
-          exclusiveArea: tx.exclusiveArea,
-          dealDate: tx.dealDate,
-        });
-      }
-    });
-    if (candidates.length > 0) {
-      try {
-        const lookedUp = await queryAptTypePriorMaxes({
-          lawdCodes,
-          candidates,
-        });
-        if (lookedUp) {
-          lookedUp.forEach((sqlMax, i) => {
-            const dealIndex = sqlIndexes[i]!;
-            priorMaxes[dealIndex] = Math.max(
-              priorMaxes[dealIndex] ?? 0,
-              sqlMax,
-            );
-          });
-        }
-      } catch (error) {
-        console.warn("[region-daily] apt prior max db read failed:", error);
-      }
-    }
-  }
+  const priorMaxes = await typePriorMaxesForDeals({
+    deals: daySeen.map(({ tx }) => tx),
+    historyTrades,
+    lawdCodes,
+    source,
+  });
 
   const enriched = daySeen.map(({ tx, firstSeenDate }, index) =>
     enrichDailyDeal(
@@ -1150,7 +1192,13 @@ async function computeRegionDaily(params: {
   const src = source === "db" ? "db" : "api";
   const seen = collectSeen(historyTrades);
   const firstSeenReady = seen.length > 0;
-  const kpis = computeMarketKpis(historyTrades, contractMonth, today);
+  const kpis = await computeMarketKpis(
+    historyTrades,
+    contractMonth,
+    today,
+    lawdCodes,
+    src,
+  );
   const hero = pickHeroSeenDate(
     seen.map((row) => row.firstSeenDate),
     today,

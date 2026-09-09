@@ -35,6 +35,10 @@ import {
   volumeChangePct,
   vsPreviousTypeDeal,
   yearMonthFromDealDate,
+  formatMomChangeValue,
+  medianPyeongPrice,
+  momChangePct,
+  pyeongPriceManwon,
 } from "../src/lib/region/market-insight";
 import { formatSqmApproxPyeong } from "../src/lib/utils/format";
 import { seoulDateOf } from "../src/lib/market/time";
@@ -55,6 +59,28 @@ assert.equal(
 assert.equal(volumeChangePct(112, 100), 12);
 assert.equal(volumeChangePct(88, 100), -12);
 assert.equal(volumeChangePct(10, 0), null);
+
+assert.equal(momChangePct(127, 107), 18.7);
+assert.equal(momChangePct(100, 100), 0);
+assert.equal(momChangePct(10, 0), null);
+assert.equal(formatMomChangeValue(18.7), "▲ 18.7%");
+assert.equal(formatMomChangeValue(-7.2), "▼ 7.2%");
+assert.equal(formatMomChangeValue(0), "-");
+assert.equal(formatMomChangeValue(null), "—");
+
+assert.equal(pyeongPriceManwon(64200, 33.058), 6420);
+assert.equal(pyeongPriceManwon(10000, 0), null);
+assert.equal(pyeongPriceManwon(0, 84.97), null);
+assert.equal(
+  medianPyeongPrice([
+    { dealAmount: 30000, exclusiveArea: 33.058 },
+    { dealAmount: 64200, exclusiveArea: 33.058 },
+    { dealAmount: 0, exclusiveArea: 84.97 },
+    { dealAmount: 10000, exclusiveArea: 33.058 },
+  ]),
+  3000,
+);
+assert.equal(medianPyeongPrice([{ dealAmount: 10000, exclusiveArea: 0 }]), null);
 
 assert.equal(
   regionMarketInsight({

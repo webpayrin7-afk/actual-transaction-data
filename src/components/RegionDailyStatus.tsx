@@ -36,7 +36,8 @@ import {
   shiftYearMonth,
   sortNewlySeenDeals,
   visibleNewlySeenDeals,
-  volumeChangePct,
+  formatMomChangeValue,
+  momChangePct,
   vsPreviousTypeDeal,
 } from "@/lib/region/market-insight";
 import { TypePriceSparkline } from "@/components/region/TypePriceSparkline";
@@ -541,19 +542,49 @@ function MonthCalendar({
   );
 }
 
+function formatPyeongMedian(manwon: number): string {
+  if (manwon >= 10000) return formatEok(manwon);
+  return `${manwon.toLocaleString("ko-KR")}만원`;
+}
+
+function singogaShareHint(count: number, total: number): string | undefined {
+  if (!(count > 0) || !(total > 0)) return undefined;
+  const pct = Math.round((count / total) * 1000) / 10;
+  return `전체 거래의 ${pct}%`;
+}
+
+function volumeChangeHint(
+  current: number,
+  previous: number,
+  pct: number | null,
+): string | undefined {
+  if (pct == null || previous <= 0) return undefined;
+  return `${previous.toLocaleString("ko-KR")}건 → ${current.toLocaleString("ko-KR")}건`;
+}
+
+function momValueClass(kind: "volume" | "price", pct: number | null): string {
+  if (pct == null || pct === 0) return "text-slate-900";
+  if (kind === "volume") return "text-slate-800";
+  return pct > 0 ? "text-rose-600" : "text-blue-600";
+}
+
 function Kpi({
   label,
   value,
   hint,
+  className,
   valueClassName = "text-slate-900",
 }: {
   label: string;
   value: string;
   hint?: string;
+  className?: string;
   valueClassName?: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-3 sm:py-2.5">
+    <div
+      className={`rounded-lg border border-slate-200 bg-white px-2.5 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-3 sm:py-2.5 ${className ?? ""}`}
+    >
       <p className="whitespace-nowrap text-[11px] leading-4 text-slate-500">
         {label}
       </p>
@@ -749,7 +780,15 @@ export function RegionDailyStatus({
   const market = marketQuery.data;
   const volumePct =
     market != null
-      ? volumeChangePct(market.monthTradeCount, market.prevMonthTradeCount)
+      ? momChangePct(market.monthTradeCount, market.prevMonthTradeCount)
+      : null;
+  const medianPct =
+    market?.medianDealAmount != null &&
+    market.prevMonthMedianDealAmount != null
+      ? momChangePct(
+          market.medianDealAmount,
+          market.prevMonthMedianDealAmount,
+        )
       : null;
 
   const heroDeals = useMemo(
@@ -845,13 +884,15 @@ export function RegionDailyStatus({
           <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
         ) : market ? (
           <>
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
               <Kpi
+                className="order-1"
                 label="거래량"
                 value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
                 hint={market.comparePartial ? "오늘까지" : undefined}
               />
               <Kpi
+                className="order-2"
                 label="중위 거래가"
                 value={
                   market.medianDealAmount
@@ -860,33 +901,46 @@ export function RegionDailyStatus({
                 }
               />
               <Kpi
-                label="전월 동기간"
+                className="order-3"
+                label="평당 중위가"
                 value={
-                  volumePct == null
-                    ? "—"
-                    : `${volumePct > 0 ? "+" : ""}${volumePct}%`
-                }
-                valueClassName={
-                  volumePct == null || volumePct === 0
-                    ? "text-slate-900"
-                    : volumePct < 0
-                      ? "text-rose-600"
-                      : "text-slate-900"
+                  market.medianPyeongPrice != null
+                    ? formatPyeongMedian(market.medianPyeongPrice)
+                    : "—"
                 }
               />
               <Kpi
-                label="전월 거래량"
+                className="order-5 lg:order-4"
+                label="전월 대비 거래량"
+                value={formatMomChangeValue(volumePct)}
+                hint={volumeChangeHint(
+                  market.monthTradeCount,
+                  market.prevMonthTradeCount,
+                  volumePct,
+                )}
+                valueClassName={momValueClass("volume", volumePct)}
+              />
+              <Kpi
+                className="order-6 lg:order-5"
+                label="전월 대비 중위가"
+                value={formatMomChangeValue(medianPct)}
+                valueClassName={momValueClass("price", medianPct)}
+              />
+              <Kpi
+                className="order-4 lg:order-6"
+                label="신고가"
                 value={
-                  market.prevMonthTradeCount > 0
-                    ? `${market.prevMonthTradeCount.toLocaleString("ko-KR")}건`
+                  market.monthSingogaCount != null
+                    ? `${market.monthSingogaCount.toLocaleString("ko-KR")}건`
                     : "—"
                 }
                 hint={
-                  market.prevMonthTradeCount > 0
-                    ? market.comparePartial
-                      ? "같은 기간"
-                      : undefined
-                    : "비교할 전월 거래 없음"
+                  market.monthSingogaCount != null
+                    ? singogaShareHint(
+                        market.monthSingogaCount,
+                        market.monthTradeCount,
+                      )
+                    : undefined
                 }
               />
             </div>
