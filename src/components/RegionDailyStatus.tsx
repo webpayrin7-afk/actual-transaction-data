@@ -175,7 +175,10 @@ function MonthCalendar({
             <button
               key={date}
               type="button"
-              onClick={() => onSelectDate(date)}
+              onClick={(e) => {
+                e.currentTarget.blur();
+                onSelectDate(date);
+              }}
               aria-label={`${monthNum}월 ${day}일 신고가 ${dealCount}건 보기`}
               aria-pressed={active}
               className={`relative flex min-h-10 flex-col items-center justify-center rounded-md text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 sm:min-h-11 ${
