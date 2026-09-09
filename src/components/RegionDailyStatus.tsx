@@ -214,9 +214,9 @@ function Kpi({
   hint?: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+    <div className="rounded-xl border border-slate-200 bg-white px-2.5 py-2">
       <p className="text-[11px] text-slate-500">{label}</p>
-      <p className="mt-0.5 text-base font-semibold tabular-nums text-slate-900">
+      <p className="mt-0.5 text-[15px] font-semibold tabular-nums text-slate-900 sm:text-base">
         {value}
       </p>
       {hint ? (
@@ -295,9 +295,10 @@ export function RegionDailyStatus({
     const headerPx = Number.parseFloat(headerRaw) || 56;
     const top =
       window.scrollY + el.getBoundingClientRect().top - headerPx - 12;
+    const distance = Math.abs(top - window.scrollY);
     window.scrollTo({
       top: Math.max(0, top),
-      behavior: reduce ? "auto" : "smooth",
+      behavior: reduce || distance > 800 ? "auto" : "smooth",
     });
     if (!reduce) {
       setHighlightDate(date);
@@ -313,7 +314,7 @@ export function RegionDailyStatus({
   const latestSingogaDate = grouped[0]?.date ?? null;
 
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4">
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-3 sm:gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
           <span className="font-medium text-slate-800">
