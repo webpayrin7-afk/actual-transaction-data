@@ -24,13 +24,24 @@ export interface LoanCalcInput {
   baseRatePct: number;
 }
 
+export type LimitConstraintKey = "ltv" | "dsr" | "dti" | "absolute_cap";
+
+export const LIMIT_CONSTRAINT_LABEL: Record<LimitConstraintKey, string> = {
+  ltv: "LTV",
+  dsr: "DSR",
+  dti: "DTI",
+  absolute_cap: "시가 절대한도",
+};
+
 export interface LoanCalcBreakdown {
   ltvRate: number;
   ltvLimitMan: number;
   dsrLimitMan: number;
   dtiLimitMan: number;
+  dtiApplied: boolean;
   absoluteCapMan: number | null;
   finalLimitMan: number;
+  limitingConstraints: LimitConstraintKey[];
   stressAddPct: number;
   stressRatePct: number;
   effectiveYears: number;
@@ -194,8 +205,10 @@ export function calculateLoanLimit(input: LoanCalcInput): LoanCalcBreakdown {
       ltvLimitMan: 0,
       dsrLimitMan: 0,
       dtiLimitMan: 0,
+      dtiApplied: false,
       absoluteCapMan: absoluteCapMan(input.collateralMan, input.regulated),
       finalLimitMan: 0,
+      limitingConstraints: [],
       stressAddPct,
       stressRatePct,
       effectiveYears,
@@ -249,8 +262,9 @@ export function calculateLoanLimit(input: LoanCalcInput): LoanCalcBreakdown {
     notes.push("지방·해당 없음: DTI 한도 미적용");
   }
 
+  const dtiApplied = Number.isFinite(dtiLimitMan);
   const candidates = [ltvLimitMan, dsrLimitMan];
-  if (Number.isFinite(dtiLimitMan)) candidates.push(dtiLimitMan);
+  if (dtiApplied) candidates.push(dtiLimitMan);
   if (cap != null) candidates.push(cap);
 
   const finalLimitMan = Math.max(0, Math.floor(Math.min(...candidates)));
@@ -269,9 +283,18 @@ export function calculateLoanLimit(input: LoanCalcInput): LoanCalcBreakdown {
     ltvRate: ltv.rate,
     ltvLimitMan,
     dsrLimitMan,
-    dtiLimitMan: Number.isFinite(dtiLimitMan) ? dtiLimitMan : finalLimitMan,
+    dtiLimitMan: dtiApplied ? dtiLimitMan : finalLimitMan,
+    dtiApplied,
     absoluteCapMan: cap,
     finalLimitMan,
+    limitingConstraints: pickLimitingConstraints(
+      ltvLimitMan,
+      dsrLimitMan,
+      dtiLimitMan,
+      cap,
+      dtiApplied,
+      finalLimitMan,
+    ),
     stressAddPct,
     stressRatePct,
     effectiveYears,
@@ -279,6 +302,26 @@ export function calculateLoanLimit(input: LoanCalcInput): LoanCalcBreakdown {
     blocked: false,
     notes,
   };
+}
+
+/** 최종 한도와 같은 값인 제약만 반환. 숫자 계산은 calculateLoanLimit과 동일. */
+export function pickLimitingConstraints(
+  ltvLimitMan: number,
+  dsrLimitMan: number,
+  dtiLimitMan: number,
+  cap: number | null,
+  dtiApplied: boolean,
+  finalLimitMan: number,
+): LimitConstraintKey[] {
+  const items: { key: LimitConstraintKey; value: number }[] = [
+    { key: "ltv", value: Math.floor(ltvLimitMan) },
+    { key: "dsr", value: Math.floor(dsrLimitMan) },
+  ];
+  if (dtiApplied) items.push({ key: "dti", value: Math.floor(dtiLimitMan) });
+  if (cap != null) items.push({ key: "absolute_cap", value: Math.floor(cap) });
+  return items
+    .filter((item) => item.value === finalLimitMan)
+    .map((item) => item.key);
 }
 
 export function formatMan(man: number): string {
@@ -295,11 +338,3 @@ export function formatEokFromMan(man: number): string {
   }
   return `${Math.round(man).toLocaleString("ko-KR")}만`;
 }
-
-export const SAMPLE_PRODUCTS = [
-  { org: "A은행", name: "아파트담보대출", rate: 3.85 },
-  { org: "B은행", name: "주택담보대출", rate: 3.92 },
-  { org: "C은행", name: "주담대(변동)", rate: 4.05 },
-  { org: "D은행", name: "아파트론", rate: 4.12 },
-  { org: "E보험", name: "보험사 주담대", rate: 4.28 },
-] as const;

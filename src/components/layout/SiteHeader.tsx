@@ -33,22 +33,10 @@ const PRIMARY_NAV = [
 
 const TOOL_NAV = [
   {
-    href: "/school",
-    label: "학군 정보",
-    description: "단지·지역 주변 학군 살펴보기",
-    match: (pathname: string) => pathname.startsWith("/school"),
-  },
-  {
     href: "/loan",
-    label: "대출계산기",
-    description: "LTV·DSR·DTI 대출 한도 계산",
+    label: "대출 계산기",
+    description: "대출 한도, 이자 계산, 서울시 협력자금 금리 정보",
     match: (pathname: string) => pathname.startsWith("/loan"),
-  },
-  {
-    href: "/rates",
-    label: "금리비교",
-    description: "은행별 대출·보전 금리 비교",
-    match: (pathname: string) => pathname.startsWith("/rates"),
   },
 ] as const;
 
