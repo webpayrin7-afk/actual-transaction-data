@@ -445,7 +445,6 @@ function ResultRow({
   value,
   hint,
   emphasized,
-  constraintKey,
 }: {
   label: string;
   value: string;
