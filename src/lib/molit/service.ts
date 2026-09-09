@@ -19,7 +19,10 @@ import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
 import {
   countTradesInYearMonth,
+  latestRecordDate,
   shiftYearMonth,
+  TYPE_TREND_MIN_POINTS,
+  typePriceTrend,
   yearMonthFromDealDate,
 } from "@/lib/region/market-insight";
 import {
@@ -627,6 +630,8 @@ export interface RegionDailyDeal {
   pyeongMaxAmount: number;
   complexMaxAmount: number;
   jeonseAmount: number | null;
+  /** Featured 동일 타입 추이. 비Featured는 생략 */
+  priceTrend?: { date: string; amount: number }[] | null;
 }
 
 export interface RegionDailyResponse {
@@ -808,7 +813,14 @@ function withSelectedDate(
     payload.days[0]?.date ??
     null;
   const deals = selectedDate
-    ? payload.monthDeals.filter((deal) => deal.dealDate.slice(0, 10) === selectedDate)
+    ? payload.monthDeals
+        .filter((deal) => deal.dealDate.slice(0, 10) === selectedDate)
+        .map((deal) => {
+          if (deal.priceTrend == null) return deal;
+          const copy = { ...deal };
+          delete copy.priceTrend;
+          return copy;
+        })
     : [];
   const maxDeal = deals[0] ?? null;
   const avgDealAmount =
@@ -992,6 +1004,22 @@ async function computeRegionDaily(
   const days: RegionDailyDaySummary[] = [...dayMap.entries()]
     .map(([date, value]) => ({ date, ...value }))
     .sort((a, b) => b.date.localeCompare(a.date));
+
+  const featuredDate = latestRecordDate(enrichedMonth);
+  if (featuredDate) {
+    for (const deal of enrichedMonth) {
+      if (deal.dealDate.slice(0, 10) !== featuredDate) continue;
+      const aptTrades =
+        tradesByApt.get(normalizeAptName(deal.aptName)) ?? [];
+      const points = typePriceTrend({
+        trades: aptTrades,
+        exclusiveArea: deal.exclusiveArea,
+        throughDate: deal.dealDate,
+      });
+      deal.priceTrend =
+        points.length >= TYPE_TREND_MIN_POINTS ? points : null;
+    }
+  }
 
   return {
     regionSlug: region.slug,

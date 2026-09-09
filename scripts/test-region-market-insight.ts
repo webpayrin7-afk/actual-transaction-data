@@ -5,14 +5,18 @@
 import assert from "node:assert/strict";
 import {
   countTradesInYearMonth,
+  compactSingogaDeals,
+  featuredSingogaGroup,
   groupDealsByDate,
   increaseRatePct,
+  latestRecordDate,
   pickFeaturedSingogaDeal,
   priorPeakAmount,
   recentSingogaDeals,
   recordDateDomId,
   regionMarketInsight,
   shiftYearMonth,
+  typePriceTrend,
   volumeChangePct,
   yearMonthFromDealDate,
 } from "../src/lib/region/market-insight";
@@ -149,5 +153,64 @@ const featured = pickFeaturedSingogaDeal([
   },
 ]);
 assert.equal(featured?.aptName, "신세계쉐덴");
+
+const sample = [
+  {
+    dealDate: "2026-09-05",
+    increaseAmount: 1700,
+    dealAmount: 115000,
+    aptName: "매화마을공무원1",
+  },
+  {
+    dealDate: "2026-09-05",
+    increaseAmount: 18000,
+    dealAmount: 106000,
+    aptName: "신세계쉐덴",
+  },
+  {
+    dealDate: "2026-09-04",
+    increaseAmount: 7500,
+    dealAmount: 153000,
+    aptName: "탑마을(벽산)",
+  },
+  {
+    dealDate: "2026-09-01",
+    increaseAmount: 11000,
+    dealAmount: 429000,
+    aptName: "판교푸르지오그랑블",
+  },
+];
+assert.equal(latestRecordDate(sample), "2026-09-05");
+assert.deepEqual(
+  featuredSingogaGroup(sample).map((d) => d.aptName),
+  ["신세계쉐덴", "매화마을공무원1"],
+);
+assert.deepEqual(
+  compactSingogaDeals(sample, "2026-09-05", 3).map((d) => d.aptName),
+  ["탑마을(벽산)", "판교푸르지오그랑블"],
+);
+
+const trend = typePriceTrend({
+  exclusiveArea: 84.3,
+  throughDate: "2026-09-05",
+  months: 24,
+  trades: [
+    { dealDate: "2025-01-01", exclusiveArea: 84.3, dealAmount: 100000 },
+    { dealDate: "2025-06-01", exclusiveArea: 59.9, dealAmount: 50000 },
+    { dealDate: "2026-03-10", exclusiveArea: 84.3, dealAmount: 110000 },
+    { dealDate: "2026-03-20", exclusiveArea: 84.3, dealAmount: 108000 },
+    { dealDate: "2026-09-05", exclusiveArea: 84.3, dealAmount: 149000 },
+    { dealDate: "2026-09-20", exclusiveArea: 84.3, dealAmount: 200000 },
+  ],
+});
+assert.deepEqual(
+  trend.map((p) => [p.date, p.amount]),
+  [
+    ["2025-01-01", 100000],
+    ["2026-03-10", 110000],
+    ["2026-03-20", 108000],
+    ["2026-09-05", 149000],
+  ],
+);
 
 console.log("test-region-market-insight: ok");
