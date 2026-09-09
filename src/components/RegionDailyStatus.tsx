@@ -590,8 +590,8 @@ function Kpi({
   value,
   side,
   className,
-  valueClassName = "text-slate-900",
-  sideClassName = "text-slate-500",
+  valueClassName = "text-teal-700",
+  sideClassName = "text-teal-600/80",
 }: {
   label: string;
   value: string;
