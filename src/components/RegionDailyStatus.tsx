@@ -113,6 +113,7 @@ function FeaturedDealCard({
     `${deal.floor}층`,
     deal.dealingGbn || null,
     showContractDate ? contractDayLabel(deal.dealDate).replace(" 계약", "") : null,
+    deal.recent3mCount > 0 ? `최근 3개월 ${deal.recent3mCount}건` : null,
   ].filter(Boolean);
 
   return (
@@ -150,11 +151,6 @@ function FeaturedDealCard({
       {dealMeta.length > 0 ? (
         <p className="mt-1.5 truncate text-[12px] text-slate-600">
           {dealMeta.join(" · ")}
-        </p>
-      ) : null}
-      {deal.recent3mCount > 0 ? (
-        <p className="mt-0.5 text-[11px] text-slate-500">
-          최근 3개월 {deal.recent3mCount}건
         </p>
       ) : null}
       {trend && trend.length >= 3 ? (
