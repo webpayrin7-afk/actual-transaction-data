@@ -6,7 +6,7 @@ import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 export const metadata: Metadata = {
   title: "부동산 계산 도구 | 아파트 데이터랩",
   description:
-    "대출 상환액과 금리 차이에 따른 부담을 비교하는 대출·금리 계산기를 이용하세요.",
+    "대출 가능 한도와 월 상환액을 계산하고, 금리 변화에 따른 부담을 비교하는 대출·금리 계산기를 이용하세요.",
 };
 
 export default function Page() {
@@ -15,7 +15,7 @@ export default function Page() {
       <div className={PAGE_SHELL}>
         <PageHeader
           title="부동산 계산 도구"
-          description="완성된 계산 기능을 이용하세요. 대출 상환액과 금리 변화에 따른 부담 차이를 한 화면에서 비교할 수 있습니다."
+          description="완성된 계산 기능을 이용하세요. 대출 가능 한도와 월 상환액, 금리 변화에 따른 부담 차이를 한 화면에서 확인할 수 있습니다."
         />
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -30,10 +30,11 @@ export default function Page() {
               대출·금리 계산기
             </h2>
             <p className="mt-1 flex-1 text-sm leading-6 text-slate-500">
-              대출 상환액과 금리 차이에 따른 부담을 비교해보세요.
+              대출 가능 한도와 월 상환액을 계산하고, 금리 변화에 따른 부담을
+              비교해보세요.
             </p>
             <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teal-700">
-              이용하기
+              계산하기
               <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>

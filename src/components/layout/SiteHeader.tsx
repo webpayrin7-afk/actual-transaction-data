@@ -35,7 +35,7 @@ const TOOL_NAV = [
   {
     href: "/loan",
     label: "대출·금리 계산기",
-    description: "대출 상환액과 금리 차이에 따른 부담을 비교해보세요.",
+    description: "대출 가능 한도와 월 상환액, 금리 변화에 따른 부담을 비교해보세요.",
     match: (pathname: string) => pathname.startsWith("/loan"),
   },
 ] as const;

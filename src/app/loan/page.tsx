@@ -3,9 +3,9 @@ import { Suspense } from "react";
 import { LoanCalculator } from "@/components/loan/LoanCalculator";
 
 export const metadata: Metadata = {
-  title: "주택담보대출 계산기 · 금리 비교 | 아파트 데이터랩",
+  title: "주택담보대출 한도·이자 계산기 | 금리 비교 | 아파트 데이터랩",
   description:
-    "대출금액, 금리, 기간과 상환방식을 입력해 월 상환액과 총이자를 계산하고 금리 변화에 따른 부담 차이를 비교합니다.",
+    "주택가격과 소득으로 LTV·DSR 기반 대출 가능 한도를 확인하고, 대출금액·기간·금리에 따른 월 상환액과 총이자, 금리 변화에 따른 부담 차이를 계산해보세요.",
 };
 
 export default function Page() {

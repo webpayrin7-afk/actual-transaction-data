@@ -110,11 +110,12 @@ export function LoanRateCompare() {
       <div className="max-w-3xl">
         <p className="text-xs font-medium tracking-wide text-teal-700">도구</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          금리비교
+          서울시 협력자금 실행금리
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          서울시 시중은행협력자금 취급 은행별 최근 3개월 실행 금리(대출·보전)를
-          비교합니다. 최저금리 순으로 정렬해 한눈에 볼 수 있습니다.
+          서울시 시중은행협력자금(OA-21098) 취급 은행별 최근 3개월 실행
+          금리(대출·보전)입니다. 주택담보대출 공시금리나 은행 상품 비교가
+          아닙니다.
         </p>
       </div>
 

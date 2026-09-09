@@ -2,14 +2,17 @@
 
 import { useMemo, useState } from "react";
 import {
+  LIMIT_CONSTRAINT_LABEL,
   calculateLoanLimit,
   formatEokFromMan,
   formatMan,
   type HomeCount,
+  type LimitConstraintKey,
   type LoanCalcInput,
   type MetroType,
   type RegType,
 } from "@/lib/loan/calc";
+import { formatManHuman } from "@/lib/loan/repay";
 import { Field, Segmented, inputClass } from "@/components/loan/loan-ui";
 
 const YEARS = [10, 15, 20, 25, 30, 35, 40] as const;
@@ -31,11 +34,21 @@ function parseMan(raw: string): number {
 }
 
 export function LoanLimitCalculator({
-  defaultRate,
-  onApplyLimitMan,
+  years,
+  onYearsChange,
+  rate,
+  onRateChange,
+  onGoToRepayment,
 }: {
-  defaultRate: string;
-  onApplyLimitMan?: (man: number) => void;
+  years: number;
+  onYearsChange: (years: number) => void;
+  rate: string;
+  onRateChange: (rate: string) => void;
+  onGoToRepayment: (payload: {
+    principalMan: number;
+    years: number;
+    rate: string;
+  }) => void;
 }) {
   const [metro, setMetro] = useState<MetroType>("capital");
   const [regulated, setRegulated] = useState<RegType>("regulated");
@@ -46,8 +59,6 @@ export function LoanLimitCalculator({
   const [income, setIncome] = useState("8000");
   const [existingMonthly, setExistingMonthly] = useState("0");
   const [otherInterest, setOtherInterest] = useState("0");
-  const [years, setYears] = useState(30);
-  const [rate, setRate] = useState(defaultRate);
   const [showRegions, setShowRegions] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -81,16 +92,30 @@ export function LoanLimitCalculator({
   );
 
   const result = useMemo(() => calculateLoanLimit(input), [input]);
+  const limiterLabel = result.limitingConstraints
+    .map((key) => LIMIT_CONSTRAINT_LABEL[key])
+    .join(" · ");
+
+  function goToRepayment() {
+    if (result.blocked || result.finalLimitMan <= 0) return;
+    onGoToRepayment({
+      principalMan: result.finalLimitMan,
+      years: result.effectiveYears,
+      rate: Number.isFinite(input.baseRatePct)
+        ? String(Number(input.baseRatePct.toFixed(2)))
+        : rate,
+    });
+  }
 
   return (
     <div className="flex flex-col gap-5">
       <p className="text-sm leading-6 text-slate-600">
-        LTV·DSR·DTI 규제를 반영한 예상 한도입니다. 상환액·금리 비교와는 별도
-        참고 기능이며, 실제 한도는 금융기관 심사에 따라 달라집니다.
+        내 조건에서 주택담보대출이 얼마까지 가능한지 LTV·DSR·DTI 기준으로
+        계산합니다. 실제 한도는 금융기관 심사에 따라 달라집니다.
       </p>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-slate-900">한도 계산 조건</h3>
+        <h2 className="text-sm font-semibold text-slate-900">대출 조건</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <p id="limit-metro-label" className="text-xs font-medium text-slate-500">
@@ -208,7 +233,7 @@ export function LoanLimitCalculator({
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-slate-900">한도용 담보 및 소득</h3>
+        <h2 className="text-sm font-semibold text-slate-900">담보 및 소득</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             id="limit-collateral"
@@ -264,7 +289,7 @@ export function LoanLimitCalculator({
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-slate-900">한도용 만기·금리</h3>
+        <h2 className="text-sm font-semibold text-slate-900">만기 · 금리</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <p id="limit-years-label" className="text-xs font-medium text-slate-500">
@@ -284,7 +309,7 @@ export function LoanLimitCalculator({
                   type="button"
                   role="radio"
                   aria-checked={years === y}
-                  onClick={() => setYears(y)}
+                  onClick={() => onYearsChange(y)}
                   className={`rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${
                     years === y
                       ? "bg-teal-700 text-white"
@@ -298,7 +323,7 @@ export function LoanLimitCalculator({
           </div>
           <Field
             id="limit-rate"
-            label="한도 계산용 금리 (%)"
+            label="계산용 금리 (%)"
             hint="DSR은 스트레스 가산금리를 더해 보수적으로 계산합니다."
           >
             <input
@@ -306,7 +331,7 @@ export function LoanLimitCalculator({
               className={inputClass}
               inputMode="decimal"
               value={rate}
-              onChange={(e) => setRate(e.target.value)}
+              onChange={(e) => onRateChange(e.target.value)}
             />
           </Field>
         </div>
@@ -322,37 +347,47 @@ export function LoanLimitCalculator({
 
       <section className="rounded-2xl border border-teal-900/10 bg-gradient-to-br from-slate-900 via-teal-900 to-slate-800 p-5 text-white shadow-sm">
         <p className="text-xs font-medium text-teal-100/90">한도 계산 결과</p>
-        <p className="mt-3 text-sm text-teal-100/80">최종 대출 가능 한도</p>
+        <p className="mt-3 text-sm text-teal-100/80">예상 대출 가능 한도</p>
         <p className="mt-1 break-words text-3xl font-semibold tracking-tight">
           {submitted
             ? result.blocked
               ? "대출 불가"
-              : formatEokFromMan(result.finalLimitMan)
+              : result.finalLimitMan > 0
+              ? `${formatManHuman(result.finalLimitMan)}원`
+              : "0원"
             : "—"}
         </p>
         {submitted && !result.blocked ? (
-          <p className="mt-2 text-sm text-teal-100/80">
-            {formatMan(result.finalLimitMan)} · 월 상환 약{" "}
-            {result.monthlyPaymentMan.toLocaleString("ko-KR")}만
-            <span className="text-teal-100/60">
-              {" "}
-              (만기 {result.effectiveYears}년 · 금리 {input.baseRatePct}% ·
-              원리금균등)
-            </span>
-          </p>
+          <>
+            {limiterLabel ? (
+              <p className="mt-2 text-sm text-teal-100/90">
+                한도를 결정한 기준{" "}
+                <span className="font-semibold">{limiterLabel}</span>
+              </p>
+            ) : null}
+            <p className="mt-2 text-sm text-teal-100/80">
+              {formatMan(result.finalLimitMan)} · 월 상환 약{" "}
+              {result.monthlyPaymentMan.toLocaleString("ko-KR")}만
+              <span className="text-teal-100/60">
+                {" "}
+                (만기 {result.effectiveYears}년 · 금리 {input.baseRatePct}% ·
+                원리금균등)
+              </span>
+            </p>
+          </>
         ) : null}
         {submitted && result.blocked ? (
           <p className="mt-3 text-sm leading-6 text-amber-100">
             {result.blockedReason}
           </p>
         ) : null}
-        {submitted && !result.blocked && result.finalLimitMan > 0 && onApplyLimitMan ? (
+        {submitted && !result.blocked && result.finalLimitMan > 0 ? (
           <button
             type="button"
-            onClick={() => onApplyLimitMan(result.finalLimitMan)}
-            className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-white/15 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto"
+            onClick={goToRepayment}
+            className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:w-auto"
           >
-            이 한도를 대출금액에 넣기
+            이 한도로 월 상환액 계산하기
           </button>
         ) : null}
       </section>
@@ -367,22 +402,38 @@ export function LoanLimitCalculator({
                 : "—"
             }
             hint="담보가액 × LTV율"
+            emphasized={submitted && result.limitingConstraints.includes("ltv")}
+            constraintKey="ltv"
           />
           <ResultRow
             label="DSR 한도"
             value={submitted ? formatEokFromMan(result.dsrLimitMan) : "—"}
             hint={`스트레스 ${result.stressRatePct.toFixed(2)}% 기준 · 은행 40%`}
+            emphasized={submitted && result.limitingConstraints.includes("dsr")}
+            constraintKey="dsr"
           />
           <ResultRow
             label="DTI 한도"
-            value={submitted ? formatEokFromMan(result.dtiLimitMan) : "—"}
+            value={
+              submitted
+                ? result.dtiApplied
+                  ? formatEokFromMan(result.dtiLimitMan)
+                  : "미적용"
+                : "—"
+            }
             hint="주담대 원리금 + 기타대출 이자"
+            emphasized={submitted && result.limitingConstraints.includes("dti")}
+            constraintKey="dti"
           />
           {result.absoluteCapMan != null ? (
             <ResultRow
               label="시가 절대한도"
               value={submitted ? formatEokFromMan(result.absoluteCapMan) : "—"}
               hint="규제지역 15억↓6억 · 15~25억 4억 · 25억↑2억"
+              emphasized={
+                submitted && result.limitingConstraints.includes("absolute_cap")
+              }
+              constraintKey="absolute_cap"
             />
           ) : null}
         </div>
@@ -395,6 +446,11 @@ export function LoanLimitCalculator({
           </ul>
         ) : null}
       </section>
+
+      <p className="text-xs leading-5 text-slate-500">
+        본 계산 결과는 참고용이며 실제 대출금리와 상환액은 금융기관, 신용도,
+        담보조건, 계산 방식 등에 따라 달라질 수 있습니다.
+      </p>
     </div>
   );
 }
@@ -403,14 +459,31 @@ function ResultRow({
   label,
   value,
   hint,
+  emphasized,
+  constraintKey,
 }: {
   label: string;
   value: string;
   hint: string;
+  emphasized?: boolean;
+  constraintKey: LimitConstraintKey;
 }) {
   return (
-    <div className="min-w-0 rounded-xl bg-slate-50 px-3 py-3">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
+    <div
+      className={`min-w-0 rounded-xl px-3 py-3 ${
+        emphasized
+          ? "bg-teal-50 ring-2 ring-teal-600/30"
+          : "bg-slate-50"
+      }`}
+    >
+      <p className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+        <span>{label}</span>
+        {emphasized ? (
+          <span className="rounded-full bg-teal-700 px-2 py-0.5 text-[10px] font-semibold text-white">
+            한도 결정
+          </span>
+        ) : null}
+      </p>
       <p className="mt-1 break-words text-base font-semibold text-slate-900">
         {value}
       </p>
