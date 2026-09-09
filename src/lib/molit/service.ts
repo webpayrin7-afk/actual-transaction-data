@@ -974,7 +974,7 @@ async function computeRegionDaily(
     }),
   );
 
-  let priorMaxes = [...poolPriors];
+  const priorMaxes = [...poolPriors];
   if (source === "db" && !bulkIngestDay && daySeen.length > 0) {
     const sqlIndexes: number[] = [];
     const candidateNorms = new Set<string>();

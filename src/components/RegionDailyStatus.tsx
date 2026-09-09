@@ -304,7 +304,9 @@ export function RegionDailyStatus({
   onYearMonthChange: (value: string) => void;
 }) {
   const [userDate, setUserDate] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
+  const listScope = `${regionSlug}:${yearMonth}:${userDate ?? ""}`;
+  const [expandedScope, setExpandedScope] = useState<string | null>(null);
+  const expanded = expandedScope === listScope;
 
   const query = useQuery({
     queryKey: ["region-daily", regionSlug, yearMonth, userDate],
@@ -327,10 +329,6 @@ export function RegionDailyStatus({
       onYearMonthChange(data.yearMonth);
     }
   }, [data, yearMonth, onYearMonthChange]);
-
-  useEffect(() => {
-    setExpanded(false);
-  }, [userDate, regionSlug, yearMonth]);
 
   const selectedDate = userDate ?? data?.selectedDate ?? null;
   const dayDeals = useMemo(
@@ -366,13 +364,11 @@ export function RegionDailyStatus({
 
   function changeMonth(nextYm: string) {
     setUserDate(null);
-    setExpanded(false);
     onYearMonthChange(nextYm);
   }
 
   function selectSeenDate(date: string) {
     setUserDate(date);
-    setExpanded(false);
     const el = document.getElementById("newly-seen-deals");
     if (!el) return;
     const headerRaw = getComputedStyle(document.documentElement)
@@ -497,7 +493,7 @@ export function RegionDailyStatus({
                 {hiddenCount > 0 ? (
                   <button
                     type="button"
-                    onClick={() => setExpanded(true)}
+                    onClick={() => setExpandedScope(listScope)}
                     className="mt-2 inline-flex min-h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                   >
                     더보기 {hiddenCount.toLocaleString("ko-KR")}건
