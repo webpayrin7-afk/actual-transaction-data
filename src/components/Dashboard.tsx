@@ -175,7 +175,7 @@ export function Dashboard({
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
-          description={`${region.fullName} 실거래·신고가·단지 현황을 확인하세요.`}
+          description={`${region.fullName} 아파트 시장 현황과 최근 신고가를 확인하세요.`}
         />
       </header>
 
@@ -209,6 +209,7 @@ export function Dashboard({
       {tab === "stats" && (
         <RegionDailyStatus
           regionSlug={region.slug}
+          regionName={region.name}
           yearMonth={statsYearMonth}
           yearMonths={yearMonths}
           onYearMonthChange={handleStatsYearMonthChange}

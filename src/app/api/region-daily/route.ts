@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getRegion } from "@/lib/constants/regions";
 import { getRegionDaily } from "@/lib/molit/service";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
@@ -20,7 +20,11 @@ export async function GET(request: NextRequest) {
       yearMonth: yearMonth || undefined,
       date: date || undefined,
     });
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

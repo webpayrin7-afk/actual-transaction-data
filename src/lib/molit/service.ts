@@ -11,13 +11,17 @@ import {
   normalizeAptName,
   queryRegionBrowseApts,
   queryRegionMonthPool,
-  queryRentPool,
   queryTradePool,
 } from "@/lib/db/repository";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import { filterTransactions, sortByDealDateDesc } from "@/lib/molit/parse";
 import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
+import {
+  countTradesInYearMonth,
+  shiftYearMonth,
+  yearMonthFromDealDate,
+} from "@/lib/region/market-insight";
 import {
   matchesAreaFilter,
   recentYearMonths,
@@ -638,6 +642,12 @@ export interface RegionDailyResponse {
   maxDeal: RegionDailyDeal | null;
   avgDealAmount: number;
   tradeCount: number;
+  /** 해당 월 매매 건수 (신고가 여부와 무관) */
+  monthTradeCount: number;
+  /** 비교용 직전 월 매매 건수 (당월이면 동일 경과일까지) */
+  prevMonthTradeCount: number;
+  /** 당월이라 전월을 같은 일수까지만 비교했는지 */
+  comparePartial: boolean;
 }
 
 function enrichDailyDeal(
@@ -755,6 +765,68 @@ function groupByAptName(items: Transaction[]): Map<string, Transaction[]> {
   return map;
 }
 
+const REGION_DAILY_CACHE_TTL_MS = 60_000;
+const regionDailyCache = new Map<
+  string,
+  { expires: number; payload: RegionDailyResponse }
+>();
+
+function emptyRegionDaily(
+  regionSlug: string,
+  yearMonth: string,
+  source: "api" | "mock" | "db",
+): RegionDailyResponse {
+  return {
+    regionSlug,
+    yearMonth,
+    source,
+    selectedDate: null,
+    days: [],
+    monthDeals: [],
+    deals: [],
+    maxDeal: null,
+    avgDealAmount: 0,
+    tradeCount: 0,
+    monthTradeCount: 0,
+    prevMonthTradeCount: 0,
+    comparePartial: false,
+  };
+}
+
+function withSelectedDate(
+  payload: RegionDailyResponse,
+  dateParam: string | null,
+): RegionDailyResponse {
+  const daySet = new Set(payload.days.map((d) => d.date));
+  const today = new Date();
+  const todayYm = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
+  const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const requestedDate = dateParam?.trim() || null;
+  const selectedDate =
+    (requestedDate && daySet.has(requestedDate) ? requestedDate : null) ??
+    (payload.yearMonth === todayYm && daySet.has(todayDate) ? todayDate : null) ??
+    payload.days[0]?.date ??
+    null;
+  const deals = selectedDate
+    ? payload.monthDeals.filter((deal) => deal.dealDate.slice(0, 10) === selectedDate)
+    : [];
+  const maxDeal = deals[0] ?? null;
+  const avgDealAmount =
+    deals.length > 0
+      ? Math.round(
+          deals.reduce((sum, d) => sum + d.dealAmount, 0) / deals.length,
+        )
+      : 0;
+  return {
+    ...payload,
+    selectedDate,
+    deals,
+    maxDeal,
+    avgDealAmount,
+    tradeCount: deals.length,
+  };
+}
+
 export async function getRegionDaily(params: {
   regionSlug: string;
   yearMonth?: string;
@@ -766,31 +838,61 @@ export async function getRegionDaily(params: {
   }
 
   const preferredYm = params.yearMonth || recentYearMonths(1)[0];
+  const cacheKey = `${region.slug}:${preferredYm}`;
+  const cached = regionDailyCache.get(cacheKey);
+  if (cached && cached.expires > Date.now()) {
+    return withSelectedDate(cached.payload, params.date ?? null);
+  }
+
+  const payload = await computeRegionDaily(region, preferredYm);
+  regionDailyCache.set(cacheKey, {
+    expires: Date.now() + REGION_DAILY_CACHE_TTL_MS,
+    payload,
+  });
+  if (regionDailyCache.size > 80) {
+    const now = Date.now();
+    for (const [key, entry] of regionDailyCache) {
+      if (entry.expires <= now) regionDailyCache.delete(key);
+    }
+  }
+  return withSelectedDate(payload, params.date ?? null);
+}
+
+async function computeRegionDaily(
+  region: RegionDef,
+  preferredYm: string,
+): Promise<RegionDailyResponse> {
   const lawdCodes = [...region.lawdCodes];
 
   let items: Transaction[] = [];
   let source: "api" | "mock" | "db" = "api";
   let warning: string | undefined;
   let resolvedYearMonth = preferredYm;
+  let historyTrades: Transaction[] = [];
 
-  // DB 우선 — MOLIT 429/타임아웃을 피한다
+  const historyMonths = recentYearMonths(REGION_DAILY_HISTORY_MONTHS);
+
+  // DB 우선 — 24개월 매매 1회. 전세 풀은 신고가 판정에 쓰이지 않아 조회하지 않음.
   if (hasDb()) {
     try {
-      const fromDb = await queryTradePool({
+      const tradePool = await queryTradePool({
         lawdCodes,
-        yearMonths: [preferredYm],
+        yearMonths: historyMonths,
       });
-      if (fromDb) {
-        items = fromDb.filter((tx) => tx.dealType === "trade");
+      if (tradePool) {
+        historyTrades = tradePool.filter((tx) => tx.dealType === "trade");
+        items = historyTrades.filter(
+          (tx) => yearMonthFromDealDate(tx.dealDate) === preferredYm,
+        );
         source = "db";
         resolvedYearMonth = preferredYm;
       }
     } catch (error) {
-      console.warn("[region-daily] month db read failed:", error);
+      console.warn("[region-daily] trade pool db read failed:", error);
     }
   }
 
-  if (items.length === 0 && source !== "db") {
+  if (!historyTrades.length && source !== "db") {
     try {
       const loaded = await loadRawTransactions(
         preferredYm,
@@ -798,9 +900,9 @@ export async function getRegionDaily(params: {
         lawdCodes,
         region.slug,
       );
-      // 신고가 현황에서는 데모/목 데이터를 쓰지 않는다
       if (loaded.source !== "mock") {
         items = loaded.items.filter((tx) => tx.dealType === "trade");
+        historyTrades = items;
         source = loaded.source;
         warning = loaded.warning;
         resolvedYearMonth = loaded.resolvedYearMonth;
@@ -814,57 +916,48 @@ export async function getRegionDaily(params: {
     }
   }
 
-  // 해당 월 실데이터가 없으면 빈 결과 (데모 표시 안 함)
+  const today = new Date();
+  const todayYm = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
+  const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const comparePartial = resolvedYearMonth === todayYm;
+  const dayCap = comparePartial ? todayDate.slice(8, 10) : null;
+  const prevYm = shiftYearMonth(resolvedYearMonth, -1);
+  const tradeDates = (historyTrades.length ? historyTrades : items).map(
+    (tx) => tx.dealDate,
+  );
+  const monthTradeCount = countTradesInYearMonth(
+    tradeDates,
+    resolvedYearMonth,
+    dayCap,
+  );
+  const prevMonthTradeCount = countTradesInYearMonth(
+    tradeDates,
+    prevYm,
+    dayCap,
+  );
+
   if (items.length === 0) {
     return {
-      regionSlug: region.slug,
-      yearMonth: preferredYm,
-      source: source === "db" ? "db" : "api",
-      warning: undefined,
-      selectedDate: null,
-      days: [],
-      monthDeals: [],
-      deals: [],
-      maxDeal: null,
-      avgDealAmount: 0,
-      tradeCount: 0,
+      ...emptyRegionDaily(
+        region.slug,
+        preferredYm,
+        source === "db" ? "db" : "api",
+      ),
+      warning,
+      monthTradeCount,
+      prevMonthTradeCount,
+      comparePartial,
     };
   }
 
-  const historyMonths = recentYearMonths(REGION_DAILY_HISTORY_MONTHS);
-  let historyTrades: Transaction[] = items;
-  let historyRents: Transaction[] = [];
-
-  if (hasDb()) {
-    try {
-      const [tradePool, rentPool] = await Promise.all([
-        queryTradePool({ lawdCodes, yearMonths: historyMonths }),
-        queryRentPool({ lawdCodes, yearMonths: historyMonths }),
-      ]);
-      if (tradePool && tradePool.length > 0) {
-        const byId = new Map<string, Transaction>();
-        for (const tx of tradePool) byId.set(tx.id, tx);
-        for (const tx of items) byId.set(tx.id, tx);
-        historyTrades = [...byId.values()];
-        source = "db";
-      }
-      if (rentPool && rentPool.length > 0) {
-        historyRents = rentPool;
-      }
-    } catch (error) {
-      console.warn("[region-daily] history pool failed:", error);
-    }
-  }
-
-  const tradesByApt = groupByAptName(historyTrades);
-  const rentsByApt = groupByAptName(historyRents);
+  const tradesByApt = groupByAptName(historyTrades.length ? historyTrades : items);
 
   const enrichedMonth = items
     .map((tx) =>
       enrichDailyDeal(
         tx,
         tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
-        rentsByApt.get(normalizeAptName(tx.aptName)) ?? [],
+        [],
       ),
     )
     .filter((deal) => deal.singogaKind != null)
@@ -879,7 +972,6 @@ export async function getRegionDaily(params: {
     { dealCount: number; tradeCount: number; maxDealAmount: number }
   >();
 
-  // 달력에는 신고가가 있는 날짜만 선택 가능
   for (const deal of enrichedMonth) {
     const date = deal.dealDate.slice(0, 10);
     if (!date) continue;
@@ -901,41 +993,21 @@ export async function getRegionDaily(params: {
     .map(([date, value]) => ({ date, ...value }))
     .sort((a, b) => b.date.localeCompare(a.date));
 
-  const today = new Date();
-  const todayYm = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
-  const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-  const requestedDate = params.date?.trim() || null;
-  const selectedDate =
-    (requestedDate && dayMap.has(requestedDate) ? requestedDate : null) ??
-    (resolvedYearMonth === todayYm ? todayDate : null) ??
-    days[0]?.date ??
-    null;
-
-  const deals = selectedDate
-    ? enrichedMonth.filter((deal) => deal.dealDate.slice(0, 10) === selectedDate)
-    : [];
-
-  const maxDeal = deals[0] ?? null;
-  const avgDealAmount =
-    deals.length > 0
-      ? Math.round(
-          deals.reduce((sum, d) => sum + d.dealAmount, 0) / deals.length,
-        )
-      : 0;
-
   return {
     regionSlug: region.slug,
     yearMonth: resolvedYearMonth,
     source,
     warning,
-    selectedDate,
+    selectedDate: null,
     days,
     monthDeals: enrichedMonth,
-    deals,
-    maxDeal,
-    avgDealAmount,
-    tradeCount: deals.length,
+    deals: [],
+    maxDeal: null,
+    avgDealAmount: 0,
+    tradeCount: 0,
+    monthTradeCount,
+    prevMonthTradeCount,
+    comparePartial,
   };
 }
 
