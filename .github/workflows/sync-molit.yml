@@ -2,8 +2,10 @@ name: Sync MOLIT warehouse
 
 on:
   schedule:
-    # 국토부 OpenAPI는 일 1회 갱신(시각 비공시). 전일 신고분 공개 직후를 노려
-    # 06:00~14:45 KST 동안 15분마다 신선도 probe → 변경 시에만 재적재.
+    # 국토부 OpenAPI는 일 1회 갱신(시각 비공시). 08:00 고정 적재가 아니라
+    # 06:00~14:45 KST 15분 probe + 하루 수회 rolling 강제 sync.
+    # late-report(수개월 전 계약의 당일 공개)를 놓치지 않으려면
+    # 당월 sentinel만으로 skip하면 안 되므로 아침 1회는 강제한다.
     # KST = UTC+9
     - cron: "*/15 21-23 * * *" # 06:00~08:45 KST
     - cron: "*/15 0-5 * * *" # 09:00~14:45 KST
@@ -17,11 +19,11 @@ on:
         required: false
         default: "all"
       trade_months:
-        description: "매매 적재 개월 수"
+        description: "매매 적재 개월 수 (late-report 커버, 기본 4)"
         required: false
-        default: "2"
+        default: "4"
       rent_months:
-        description: "전월세 적재 개월 수"
+        description: "전월세 적재 개월 수 (매매와 달리 2 유지)"
         required: false
         default: "2"
       force:
@@ -51,7 +53,9 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force || 'true' }}" != "false" ]; then
             FORCE=true
           fi
-          # 18:00 KST(09 UTC) · 23:00 KST(14 UTC) 정각은 강제
+          # 06:00 KST(21 UTC) 아침 rolling 1회 강제 — late-report는 당월 probe에 안 잡힘
+          if [ "$UTC_HOUR" = "21" ] && [ "$UTC_MIN" = "00" ]; then FORCE=true; fi
+          # 18:00 KST(09 UTC) · 23:00 KST(14 UTC) 정각도 강제
           if [ "$UTC_HOUR" = "09" ] && [ "$UTC_MIN" = "00" ]; then FORCE=true; fi
           if [ "$UTC_HOUR" = "14" ] && [ "$UTC_MIN" = "00" ]; then FORCE=true; fi
           echo "force=$FORCE" >> "$GITHUB_OUTPUT"
@@ -79,12 +83,13 @@ jobs:
           MOLIT_SYNCING: "1"
         run: |
           SCOPE="${{ github.event.inputs.scope || 'all' }}"
-          TRADE="${{ github.event.inputs.trade_months || '2' }}"
+          TRADE="${{ github.event.inputs.trade_months || '4' }}"
           RENT="${{ github.event.inputs.rent_months || '2' }}"
-          # 스케줄: 최근 2개월만 대상, 실제 write는 변경분
+          # 스케줄: 매매 4개월(당월+직전 3) rolling. 전월세는 2개월 유지.
+          # 실제 transaction WRITE는 dirty-check 변경분만.
           if [ "${{ github.event_name }}" = "schedule" ]; then
             SCOPE=all
-            TRADE=2
+            TRADE=4
             RENT=2
           fi
           echo "probe summary: ${{ steps.probe.outputs.summary }}"

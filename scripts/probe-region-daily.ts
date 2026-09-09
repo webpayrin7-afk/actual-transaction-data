@@ -14,7 +14,14 @@ config();
 
 const SLUGS = process.argv.slice(2).length
   ? process.argv.slice(2)
-  : ["seoul-gangnam", "seoul-songpa", "gyeonggi-anyang"];
+  : [
+      "seoul-gangnam",
+      "seoul-songpa",
+      "gyeonggi-seongnam",
+      "gyeonggi-suwon",
+      "gyeonggi-gwangju",
+      "seoul-yongsan",
+    ];
 
 function now() {
   return performance.now();
@@ -71,7 +78,7 @@ async function probeSlug(slug: string, ym: string) {
     getRegionDaily({ regionSlug: slug, yearMonth: ym }),
   );
   console.log(
-    `    source=${daily.source} monthDeals=${daily.monthDeals.length} days=${daily.days.length} tradeCount(selectedDay)=${daily.tradeCount}`,
+    `    source=${daily.source} axis=${daily.dateAxis} monthDeals=${daily.monthDeals.length} days=${daily.days.length} selected=${daily.selectedDate} tradeCount=${daily.tradeCount} singoga=${daily.selectedDaySingogaCount} json=${Buffer.byteLength(JSON.stringify(daily))}B`,
   );
 
   await time("getRegionDaily (repeat, same process)", () =>

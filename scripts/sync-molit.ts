@@ -5,8 +5,8 @@
  *   # 미적재분만 (서울·경기 백필) — scope=all 은 수도권만
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=120 --rent-months=48 --skip-existing=1
  *
- *   # 최근 개월 변경분만 (기본 daily)
- *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=2 --rent-months=2 --skip-existing=0 --only-changed=1
+ *   # 최근 개월 변경분만 (기본 daily: 매매 4개월 late-report, 전월세 2)
+ *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --rent-months=2 --skip-existing=0 --only-changed=1 --discovery=1
  *
  *   # 전국 plan (WRITE 0)
  *   npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1

@@ -40,7 +40,7 @@ export function volumeChangePct(
 export function regionMarketInsight(input: {
   monthTradeCount: number;
   prevMonthTradeCount: number;
-  singogaCount: number;
+  singogaCount: number | null;
   comparePartial: boolean;
 }): string | null {
   const pct = volumeChangePct(input.monthTradeCount, input.prevMonthTradeCount);
@@ -54,11 +54,14 @@ export function regionMarketInsight(input: {
     return `${vs} 거래량이 ${abs}% 줄었습니다.`;
   }
 
-  if (input.singogaCount > 0) {
+  if (input.singogaCount != null && input.singogaCount > 0) {
     return `이번 달 신고가 ${input.singogaCount.toLocaleString("ko-KR")}건`;
   }
 
   if (input.monthTradeCount > 0) {
+    if (input.singogaCount == null) {
+      return `이번 달 매매 ${input.monthTradeCount.toLocaleString("ko-KR")}건`;
+    }
     return `이번 달 매매 ${input.monthTradeCount.toLocaleString("ko-KR")}건 · 신고가 없음`;
   }
 
@@ -242,4 +245,101 @@ export function pickFeaturedSingogaDeal<
 
 export function recordDateDomId(date: string): string {
   return `record-date-${date.slice(0, 10)}`;
+}
+
+export const NEWLY_SEEN_INITIAL_LIMIT = 16;
+
+export function koreanMonthDayLabel(date: string): string {
+  const d = date.slice(0, 10);
+  return `${Number(d.slice(5, 7))}월 ${Number(d.slice(8, 10))}일`;
+}
+
+/** 표시 순서. 시간 순서가 아님. */
+export function sortNewlySeenDeals<
+  T extends {
+    id: string;
+    singogaKind: string | null;
+    increaseAmount: number;
+    dealAmount: number;
+    aptName: string;
+    exclusiveArea: number;
+  },
+>(deals: T[]): T[] {
+  const records = deals.filter((d) => d.singogaKind != null);
+  const rest = deals.filter((d) => d.singogaKind == null);
+  records.sort(
+    (a, b) =>
+      b.increaseAmount - a.increaseAmount ||
+      b.dealAmount - a.dealAmount ||
+      a.aptName.localeCompare(b.aptName, "ko") ||
+      a.id.localeCompare(b.id),
+  );
+  rest.sort(
+    (a, b) =>
+      b.dealAmount - a.dealAmount ||
+      a.aptName.localeCompare(b.aptName, "ko") ||
+      b.exclusiveArea - a.exclusiveArea ||
+      a.id.localeCompare(b.id),
+  );
+  return [...records, ...rest];
+}
+
+/**
+ * 신고가는 항상 포함. 나머지는 한도까지.
+ * 더보기 때문에 신고가가 숨지 않는다.
+ */
+export function visibleNewlySeenDeals<
+  T extends { singogaKind: string | null },
+>(
+  deals: T[],
+  expanded: boolean,
+  limit = NEWLY_SEEN_INITIAL_LIMIT,
+): T[] {
+  if (expanded || deals.length <= limit) return deals;
+  const records = deals.filter((d) => d.singogaKind != null);
+  const rest = deals.filter((d) => d.singogaKind == null);
+  if (records.length >= limit) return records;
+  return [...records, ...rest.slice(0, limit - records.length)];
+}
+
+export function hiddenNewlySeenCount<
+  T extends { singogaKind: string | null },
+>(
+  deals: T[],
+  expanded: boolean,
+  limit = NEWLY_SEEN_INITIAL_LIMIT,
+): number {
+  return Math.max(0, deals.length - visibleNewlySeenDeals(deals, expanded, limit).length);
+}
+
+/**
+ * 동일 단지·동일 전용면적(areaKey)의 deal_date 이전 최고가.
+ * 같은 계약일의 다른 건은 prior에 넣지 않는다.
+ */
+export function priorTypeMaxAmount(params: {
+  exclusiveArea: number;
+  dealDate: string;
+  history: { exclusiveArea: number; dealDate: string; dealAmount: number }[];
+}): number {
+  const key = areaTypeKey(params.exclusiveArea);
+  const day = params.dealDate.slice(0, 10);
+  let max = 0;
+  for (const h of params.history) {
+    if (areaTypeKey(h.exclusiveArea) !== key) continue;
+    if (h.dealDate.slice(0, 10) >= day) continue;
+    if (h.dealAmount > max) max = h.dealAmount;
+  }
+  return max;
+}
+
+/** 역대 prior max 초과만 타입 신고가. 해당 타입 첫 거래는 신고가가 아님. */
+export function typeRecordHigh(
+  dealAmount: number,
+  priorMax: number,
+): { isSingoga: boolean; increaseAmount: number } {
+  const isSingoga = priorMax > 0 && dealAmount > priorMax;
+  return {
+    isSingoga,
+    increaseAmount: isSingoga ? Math.max(0, dealAmount - priorMax) : 0,
+  };
 }

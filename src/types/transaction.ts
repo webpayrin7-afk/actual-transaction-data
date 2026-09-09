@@ -23,6 +23,11 @@ export interface Transaction {
   dealingGbn: string;
   /** 법정동코드 (웨어하우스 적재용) */
   lawdCd?: string;
+  /**
+   * 시스템이 이 거래를 처음 저장한 시각 (ISO).
+   * 공식 신고일/국토부 공개일이 아니다. legacy 행은 null.
+   */
+  firstSeenAt?: string | null;
 }
 
 export interface TransactionFilters {

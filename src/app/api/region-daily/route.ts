@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "일별 신고가를 불러오지 못했습니다." },
+      { error: "새로 확인된 거래를 불러오지 못했습니다." },
       { status: 500 },
     );
   }

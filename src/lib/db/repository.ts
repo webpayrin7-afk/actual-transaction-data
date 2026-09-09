@@ -427,7 +427,8 @@ export async function queryTradePool(params: {
 
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 first_seen_at
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -449,7 +450,65 @@ export async function queryTradePool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    firstSeenAt:
+      row.first_seen_at == null || row.first_seen_at === ""
+        ? null
+        : String(row.first_seen_at),
   }));
+}
+
+export type AptTradeHistoryRow = {
+  id: string;
+  aptNameNorm: string;
+  exclusiveArea: number;
+  dealDate: string;
+  dealAmount: number;
+};
+
+const APT_HISTORY_IN_CHUNK = 80;
+
+/**
+ * 동일 지역·후보 단지 all-time 매매 (신고가 prior).
+ * 요청마다 지역 전체 scan 금지 — apt_name_norm IN 으로 한정.
+ * 신규 index/backfill 없음. 기존 idx_tx_lawd_apt_ym 활용.
+ */
+export async function queryAptTradeHistory(params: {
+  lawdCodes: string[];
+  aptNameNorms: string[];
+}): Promise<AptTradeHistoryRow[] | null> {
+  const db = await readyDb();
+  if (!db) return null;
+  const norms = [
+    ...new Set(params.aptNameNorms.map((n) => n.trim()).filter(Boolean)),
+  ];
+  if (!params.lawdCodes.length || norms.length === 0) return [];
+
+  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
+  const out: AptTradeHistoryRow[] = [];
+
+  for (let i = 0; i < norms.length; i += APT_HISTORY_IN_CHUNK) {
+    const chunk = norms.slice(i, i + APT_HISTORY_IN_CHUNK);
+    const namePlaceholders = chunk.map(() => "?").join(",");
+    const result = await db.execute({
+      sql: `SELECT id, apt_name_norm, exclusive_area, deal_date, deal_amount
+            FROM transactions
+            WHERE lawd_cd IN (${lawdPlaceholders})
+              AND deal_type = 'trade'
+              AND apt_name_norm IN (${namePlaceholders})`,
+      args: [...params.lawdCodes, ...chunk],
+    });
+    for (const row of result.rows) {
+      out.push({
+        id: String(row.id),
+        aptNameNorm: String(row.apt_name_norm),
+        exclusiveArea: Number(row.exclusive_area) || 0,
+        dealDate: String(row.deal_date),
+        dealAmount: Number(row.deal_amount) || 0,
+      });
+    }
+  }
+
+  return out;
 }
 
 /** 지역 다개월 전세(월세 0) 풀 — 커버리지가 전혀 없으면 null */

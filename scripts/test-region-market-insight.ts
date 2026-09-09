@@ -8,20 +8,26 @@ import {
   compactSingogaDeals,
   featuredSingogaGroup,
   groupDealsByDate,
+  hiddenNewlySeenCount,
   increaseRatePct,
   latestRecordDate,
   pickFeaturedSingogaDeal,
   priorPeakAmount,
+  priorTypeMaxAmount,
   recentSingogaDeals,
   recordDateDomId,
   regionMarketInsight,
   latestRecordSectionCue,
   shiftYearMonth,
+  sortNewlySeenDeals,
   typePriceTrend,
+  typeRecordHigh,
+  visibleNewlySeenDeals,
   volumeChangePct,
   yearMonthFromDealDate,
 } from "../src/lib/region/market-insight";
 import { formatSqmApproxPyeong } from "../src/lib/utils/format";
+import { seoulDateOf } from "../src/lib/market/time";
 
 assert.equal(yearMonthFromDealDate("2026-09-05"), "202609");
 assert.equal(shiftYearMonth("202609", -1), "202608");
@@ -78,6 +84,16 @@ assert.equal(
     comparePartial: true,
   }),
   "이번 달 매매 4건 · 신고가 없음",
+);
+
+assert.equal(
+  regionMarketInsight({
+    monthTradeCount: 4,
+    prevMonthTradeCount: 4,
+    singogaCount: null,
+    comparePartial: true,
+  }),
+  "이번 달 매매 4건",
 );
 
 assert.equal(
@@ -220,8 +236,95 @@ assert.deepEqual(
   ],
 );
 
-assert.equal(formatSqmApproxPyeong(59.98), "59.98㎡ (18평)");
-assert.equal(formatSqmApproxPyeong(84.97), "84.97㎡ (26평)");
-assert.equal(formatSqmApproxPyeong(114.8), "114.80㎡ (35평)");
+assert.equal(formatSqmApproxPyeong(59.98), "59.98㎡ (약 18평)");
+assert.equal(formatSqmApproxPyeong(84.97), "84.97㎡ (약 26평)");
+assert.equal(formatSqmApproxPyeong(114.8), "114.80㎡ (약 35평)");
+
+assert.equal(seoulDateOf("2026-09-08T21:04:44.000Z"), "2026-09-09");
+assert.equal(seoulDateOf("2026-09-09T00:00:00+09:00"), "2026-09-09");
+
+assert.deepEqual(typeRecordHigh(185000, 171000), {
+  isSingoga: true,
+  increaseAmount: 14000,
+});
+assert.deepEqual(typeRecordHigh(185000, 0), {
+  isSingoga: false,
+  increaseAmount: 0,
+});
+assert.deepEqual(typeRecordHigh(171000, 171000), {
+  isSingoga: false,
+  increaseAmount: 0,
+});
+
+assert.equal(
+  priorTypeMaxAmount({
+    exclusiveArea: 59.47,
+    dealDate: "2026-08-28",
+    history: [
+      { exclusiveArea: 59.47, dealDate: "2025-09-16", dealAmount: 171000 },
+      { exclusiveArea: 59.47, dealDate: "2026-08-28", dealAmount: 185000 },
+      { exclusiveArea: 84.9, dealDate: "2024-01-01", dealAmount: 999999 },
+    ],
+  }),
+  171000,
+);
+
+const sorted = sortNewlySeenDeals([
+  {
+    id: "b",
+    singogaKind: null,
+    increaseAmount: 0,
+    dealAmount: 100,
+    aptName: "가아파트",
+    exclusiveArea: 80,
+  },
+  {
+    id: "a",
+    singogaKind: "type",
+    increaseAmount: 10,
+    dealAmount: 200,
+    aptName: "나아파트",
+    exclusiveArea: 50,
+  },
+  {
+    id: "c",
+    singogaKind: null,
+    increaseAmount: 0,
+    dealAmount: 300,
+    aptName: "다아파트",
+    exclusiveArea: 60,
+  },
+  {
+    id: "d",
+    singogaKind: "type",
+    increaseAmount: 50,
+    dealAmount: 150,
+    aptName: "라아파트",
+    exclusiveArea: 40,
+  },
+]);
+assert.deepEqual(
+  sorted.map((d) => d.id),
+  ["d", "a", "c", "b"],
+);
+
+const many = [
+  ...Array.from({ length: 3 }, (_, i) => ({
+    id: `s${i}`,
+    singogaKind: "type" as const,
+  })),
+  ...Array.from({ length: 20 }, (_, i) => ({
+    id: `n${i}`,
+    singogaKind: null,
+  })),
+];
+const vis = visibleNewlySeenDeals(many, false, 16);
+assert.equal(vis.length, 16);
+assert.equal(vis.filter((d) => d.singogaKind).length, 3);
+assert.equal(hiddenNewlySeenCount(many, false, 16), 7);
+assert.equal(
+  visibleNewlySeenDeals(many, false, 2).filter((d) => d.singogaKind).length,
+  3,
+);
 
 console.log("test-region-market-insight: ok");

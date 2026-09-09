@@ -25,7 +25,7 @@ export async function generateMetadata({
   if (!region) return { title: "아파트 데이터랩" };
   return {
     title: `${region.name} 아파트 시장 | 아파트 데이터랩`,
-    description: `${region.fullName} 아파트 시장 현황, 최근 신고가, 매매 실거래를 확인하세요.`,
+    description: `${region.fullName} 아파트 시장 현황, 새로 확인된 거래, 매매 실거래를 확인하세요.`,
   };
 }
 
