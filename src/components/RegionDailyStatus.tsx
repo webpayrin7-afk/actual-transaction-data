@@ -137,9 +137,9 @@ function FeaturedDealCard({
           {formatEok(deal.dealAmount)}
         </span>
         {deal.increaseAmount > 0 ? (
-          <span className="inline-flex items-baseline whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
+          <span className="whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
             ▲ {formatEok(deal.increaseAmount)}
-            {rate != null ? <span className="ml-0.5">(+{rate}%)</span> : null}
+            {rate != null ? ` (+${rate}%)` : ""}
           </span>
         ) : null}
       </div>
@@ -148,17 +148,12 @@ function FeaturedDealCard({
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
-      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-[12px] leading-4">
-        <span className="whitespace-nowrap font-medium text-slate-700">
+      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] leading-4">
+        <span className="whitespace-nowrap font-medium text-slate-800">
           {specLabel}
         </span>
         {secondaryMeta.length > 0 ? (
-          <>
-            <span className="select-none text-slate-300" aria-hidden>
-              ·
-            </span>
-            <span className="text-slate-500">{secondaryMeta.join(" · ")}</span>
-          </>
+          <span className="text-slate-500">{secondaryMeta.join(" · ")}</span>
         ) : null}
       </div>
       {trend && trend.length >= 3 ? (
