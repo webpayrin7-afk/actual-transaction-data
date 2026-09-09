@@ -552,9 +552,14 @@ function volumeChangeSide(
   current: number,
   previous: number,
   pct: number | null,
-): string | undefined {
+): { full: string; compact: string } | undefined {
   if (pct == null || previous <= 0) return undefined;
-  return `${previous.toLocaleString("ko-KR")}건 → ${current.toLocaleString("ko-KR")}건`;
+  const from = previous.toLocaleString("ko-KR");
+  const to = current.toLocaleString("ko-KR");
+  return {
+    full: `${from}건 → ${to}건`,
+    compact: `${from}→${to}건`,
+  };
 }
 
 function volumeChangeClass(pct: number | null): string {
@@ -576,27 +581,34 @@ function Kpi({
 }: {
   label: string;
   value: string;
-  side?: string;
+  side?: string | { full: string; compact: string };
   className?: string;
   valueClassName?: string;
 }) {
+  const sideFull = typeof side === "string" ? side : side?.full;
+  const sideCompact = typeof side === "string" ? side : side?.compact;
   return (
     <div
-      className={`rounded-lg border border-slate-200 bg-white px-2.5 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-3 sm:py-2.5 ${className ?? ""}`}
+      className={`overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-3 sm:py-2.5 ${className ?? ""}`}
     >
       <p className="whitespace-nowrap text-[11px] leading-4 text-slate-500">
         {label}
       </p>
-      <div className="mt-0.5 flex min-w-0 items-baseline gap-x-1.5">
+      <div className="mt-0.5 flex min-w-0 items-baseline gap-x-1 sm:gap-x-1.5">
         <p
-          className={`whitespace-nowrap text-lg font-semibold leading-tight tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
+          className={`whitespace-nowrap text-base font-semibold leading-none tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
         >
           {value}
         </p>
-        {side ? (
-          <p className="whitespace-nowrap text-[11px] leading-4 tabular-nums text-slate-500">
-            {side}
-          </p>
+        {sideFull ? (
+          <>
+            <p className="whitespace-nowrap text-[10px] leading-none tabular-nums text-slate-500 sm:hidden">
+              {sideCompact}
+            </p>
+            <p className="hidden whitespace-nowrap text-[11px] leading-none tabular-nums text-slate-500 sm:inline">
+              {sideFull}
+            </p>
+          </>
         ) : null}
       </div>
     </div>
