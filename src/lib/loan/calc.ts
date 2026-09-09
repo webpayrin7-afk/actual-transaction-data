@@ -295,11 +295,3 @@ export function formatEokFromMan(man: number): string {
   }
   return `${Math.round(man).toLocaleString("ko-KR")}만`;
 }
-
-export const SAMPLE_PRODUCTS = [
-  { org: "A은행", name: "아파트담보대출", rate: 3.85 },
-  { org: "B은행", name: "주택담보대출", rate: 3.92 },
-  { org: "C은행", name: "주담대(변동)", rate: 4.05 },
-  { org: "D은행", name: "아파트론", rate: 4.12 },
-  { org: "E보험", name: "보험사 주담대", rate: 4.28 },
-] as const;

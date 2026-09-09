@@ -20,7 +20,8 @@
     "db:stats": "tsx scripts/rebuild-market-stats.ts",
     "db:feeds": "tsx scripts/rebuild-market-stats-feeds.ts",
     "test:sync-dirty": "tsx scripts/test-sync-dirty-check.ts",
-    "test:first-seen": "tsx scripts/test-first-seen-guard.ts"
+    "test:first-seen": "tsx scripts/test-first-seen-guard.ts",
+    "test:loan-repay": "tsx scripts/test-loan-repay.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

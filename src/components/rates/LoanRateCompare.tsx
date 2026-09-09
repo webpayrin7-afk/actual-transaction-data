@@ -161,7 +161,7 @@ export function LoanRateCompare() {
             href="/loan"
             className="inline-flex items-center gap-1 font-medium text-teal-700 hover:underline"
           >
-            대출계산기
+            대출·금리 계산기
           </Link>
         </div>
       </div>
@@ -354,7 +354,7 @@ function RateRow({ row, rank }: { row: BankLoanRate; rank: number }) {
           href={`/loan?rate=${encodeURIComponent(String(row.minRate))}`}
           className="text-xs font-semibold text-teal-700 hover:underline"
         >
-          한도계산
+          계산하기
         </Link>
       </td>
     </tr>
