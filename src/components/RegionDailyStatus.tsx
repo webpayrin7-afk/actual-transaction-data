@@ -563,8 +563,21 @@ function volumeChangeSide(
 }
 
 function volumeChangeClass(pct: number | null): string {
-  if (pct == null || pct === 0) return "text-slate-900";
-  return "text-slate-800";
+  if (pct == null) return "text-slate-400";
+  if (pct === 0) return "text-slate-500";
+  if (pct > 0) return "text-rose-600";
+  return "text-blue-600";
+}
+
+function volumeChangeSideClass(pct: number | null): string {
+  if (pct == null || pct === 0) return "text-slate-400";
+  if (pct > 0) return "text-rose-500";
+  return "text-blue-500";
+}
+
+function singogaValueClass(count: number | null): string {
+  if (count == null || count === 0) return "text-slate-400";
+  return "text-teal-700";
 }
 
 function formatSharePct(pct: number | null): string {
@@ -578,12 +591,14 @@ function Kpi({
   side,
   className,
   valueClassName = "text-slate-900",
+  sideClassName = "text-slate-500",
 }: {
   label: string;
   value: string;
   side?: string | { full: string; compact: string };
   className?: string;
   valueClassName?: string;
+  sideClassName?: string;
 }) {
   const sideFull = typeof side === "string" ? side : side?.full;
   const sideCompact = typeof side === "string" ? side : side?.compact;
@@ -591,7 +606,7 @@ function Kpi({
     <div
       className={`overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-3 sm:py-2.5 ${className ?? ""}`}
     >
-      <p className="whitespace-nowrap text-[11px] leading-4 text-slate-500">
+      <p className="whitespace-nowrap text-[11px] leading-4 text-slate-600">
         {label}
       </p>
       <div className="mt-0.5 flex min-w-0 items-baseline gap-x-1 sm:gap-x-1.5">
@@ -602,10 +617,14 @@ function Kpi({
         </p>
         {sideFull ? (
           <>
-            <p className="whitespace-nowrap text-[10px] leading-none tabular-nums text-slate-500 sm:hidden">
+            <p
+              className={`whitespace-nowrap text-[10px] leading-none tabular-nums sm:hidden ${sideClassName}`}
+            >
               {sideCompact}
             </p>
-            <p className="hidden whitespace-nowrap text-[11px] leading-none tabular-nums text-slate-500 sm:inline">
+            <p
+              className={`hidden whitespace-nowrap text-[11px] leading-none tabular-nums sm:inline ${sideClassName}`}
+            >
               {sideFull}
             </p>
           </>
@@ -913,6 +932,7 @@ export function RegionDailyStatus({
                   volumePct,
                 )}
                 valueClassName={volumeChangeClass(volumePct)}
+                sideClassName={volumeChangeSideClass(volumePct)}
               />
               <Kpi
                 label="전년 동월 대비"
@@ -927,6 +947,7 @@ export function RegionDailyStatus({
                     : undefined
                 }
                 valueClassName={volumeChangeClass(yearAgoPct)}
+                sideClassName={volumeChangeSideClass(yearAgoPct)}
               />
               <Kpi
                 label="신고가"
@@ -935,10 +956,14 @@ export function RegionDailyStatus({
                     ? `${market.monthSingogaCount.toLocaleString("ko-KR")}건`
                     : "—"
                 }
+                valueClassName={singogaValueClass(market.monthSingogaCount)}
               />
               <Kpi
                 label="신고가 비율"
                 value={formatSharePct(singogaPct)}
+                valueClassName={singogaValueClass(
+                  market.monthSingogaCount,
+                )}
               />
               <Kpi
                 label="평당 중위가"
