@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-slate-200 bg-white lg:flex lg:flex-col">
-        <Link href="/" className="flex h-20 items-center border-b border-slate-100 px-5" aria-label="집랩 홈">
+        <Link href="/" className="flex min-h-24 items-center border-b border-slate-100 px-5 py-2" aria-label="집랩 홈">
           <BrandLogo priority />
         </Link>
         <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="주요 메뉴">

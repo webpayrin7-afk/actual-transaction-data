@@ -89,7 +89,7 @@ function Segmented<T extends string>({
               fullWidth ? "flex-1 lg:flex-none" : ""
             } ${
               active
-                ? "bg-white text-slate-900 shadow-sm"
+                ? "bg-teal-700 text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >

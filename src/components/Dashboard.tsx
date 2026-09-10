@@ -185,7 +185,7 @@ export function Dashboard({
               aria-pressed={active}
               className={`flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition sm:flex-none sm:text-[13px] ${
                 active
-                  ? "bg-slate-900 text-white"
+                  ? "bg-teal-700 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >

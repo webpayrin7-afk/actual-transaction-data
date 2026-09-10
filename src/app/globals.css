@@ -59,7 +59,7 @@ button, [role="button"], a { touch-action: manipulation; }
 .lab-button:disabled { cursor: not-allowed; opacity: .45; }
 .lab-input { min-height: 44px; width: 100%; border: 1px solid var(--lab-border); border-radius: 10px; background: white; color: var(--lab-navy-950); }
 .lab-tab { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; border-radius: 9px; padding: 0 13px; color: #526579; font-size: .875rem; font-weight: 600; }
-.lab-tab[aria-selected="true"], .lab-tab-active { background: var(--lab-navy-900); color: white; }
+.lab-tab[aria-selected="true"], .lab-tab-active { background: var(--lab-teal-700); color: white; }
 .lab-badge { display: inline-flex; align-items: center; border: 1px solid #cfe1e5; border-radius: 999px; background: var(--lab-teal-50); padding: 3px 8px; color: var(--lab-teal-700); font-size: .6875rem; font-weight: 650; }
 .lab-state { display: flex; min-height: 120px; align-items: center; justify-content: center; border: 1px dashed var(--lab-border); border-radius: 12px; padding: 20px; color: var(--lab-muted); font-size: .875rem; text-align: center; }
 .lab-state-error { border-style: solid; border-color: #fecdd3; background: #fff1f2; color: #9f1239; }

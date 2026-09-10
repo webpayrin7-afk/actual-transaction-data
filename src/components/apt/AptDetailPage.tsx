@@ -642,7 +642,7 @@ export function AptDetailPage({
                 onClick={() => setDealFilter(value)}
                 className={`rounded-md px-3 py-1 text-xs font-medium transition ${
                   dealFilter === value
-                    ? "bg-white text-slate-900 shadow-sm"
+                    ? "bg-teal-700 text-white shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
