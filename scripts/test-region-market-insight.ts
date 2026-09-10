@@ -512,7 +512,7 @@ assert.equal(vsPreviousTypeDeal(180000, null), null);
     selectedDate: monthStart,
     extraDates: [monthStart],
   });
-  assert.equal(listed[0], monthStart);
+  assert.equal(listed.at(-1), monthStart);
   assert.equal(listed.length, HISTORY_INITIAL_DAY_COUNT + 1);
   assert.equal(listed.includes("2026-08-02"), false);
   assert.ok(listed.includes(active[0]!));

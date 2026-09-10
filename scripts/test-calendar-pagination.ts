@@ -139,7 +139,7 @@ async function main() {
     selectedDate: "2026-08-01",
     extraDates: ["2026-08-01"],
   });
-  assert.equal(listed[0], "2026-08-01");
+  assert.equal(listed.at(-1), "2026-08-01");
   assert.equal(listed.length, HISTORY_INITIAL_DAY_COUNT + 1);
 
   console.log(
@@ -150,7 +150,7 @@ async function main() {
         "days-default-initial-page",
         "month-start-explicit-fetch",
         "cap-does-not-include-month-start",
-        "listed-dates-pin-selected",
+        "listed-dates-merge-selected-desc",
       ],
     }),
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -38,6 +39,7 @@ import {
   recordDateDomId,
   SEEN_DATE_BASIS_HELP,
   SEEN_DATE_BASIS_LABEL,
+  shiftYearMonth,
   sortNewlySeenDeals,
   visibleNewlySeenDeals,
   formatMomChangeValue,
@@ -384,11 +386,22 @@ function MonthNav({
   onChange: (next: string) => void;
   spread?: boolean;
 }) {
-  const idx = options.indexOf(value);
-  const olderYm = idx >= 0 ? options[idx + 1] : undefined;
-  const newerYm = idx > 0 ? options[idx - 1] : undefined;
-  const canPrev = Boolean(olderYm);
-  const canNext = Boolean(newerYm);
+  const bounds = [...new Set([...options, value])].sort();
+  const oldestYm = bounds[0] ?? value;
+  const newestYm = bounds.at(-1) ?? value;
+  const olderYm = shiftYearMonth(value, -1);
+  const newerYm = shiftYearMonth(value, 1);
+  const canPrev = olderYm >= oldestYm;
+  const canNext = newerYm <= newestYm;
+  const years = [...new Set(bounds.map((ym) => ym.slice(0, 4)))].sort(
+    (a, b) => Number(b) - Number(a),
+  );
+  const selectedYear = value.slice(0, 4);
+  const selectedMonth = value.slice(4, 6);
+  const changePart = (year: string, month: string) => {
+    const next = `${year}${month}`;
+    if (next >= oldestYm && next <= newestYm) onChange(next);
+  };
   const btn =
     "inline-flex h-10 w-10 shrink-0 items-center justify-center text-slate-600 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-30";
   return (
@@ -400,22 +413,37 @@ function MonthNav({
       <button
         type="button"
         disabled={!canPrev}
-        onClick={() => olderYm && onChange(olderYm)}
+        onClick={() => canPrev && onChange(olderYm)}
         className={`${btn} rounded-l-xl`}
         aria-label="이전 달"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
-      <p
-        className="min-w-0 flex-1 whitespace-nowrap px-1 text-center text-sm font-semibold tabular-nums text-slate-800"
-        aria-live="polite"
-      >
-        {koreanYearMonthLabel(value)}
-      </p>
+      <div className="flex min-w-0 flex-1 items-center justify-center gap-1 px-1" aria-label={koreanYearMonthLabel(value)}>
+        <select
+          value={selectedYear}
+          onChange={(event) => changePart(event.target.value, selectedMonth)}
+          className="bg-transparent text-sm font-semibold tabular-nums text-slate-800 focus-visible:outline-2 focus-visible:outline-slate-400"
+          aria-label="연도 선택"
+        >
+          {years.map((year) => <option key={year} value={year}>{year}년</option>)}
+        </select>
+        <select
+          value={selectedMonth}
+          onChange={(event) => changePart(selectedYear, event.target.value)}
+          className="bg-transparent text-sm font-semibold tabular-nums text-slate-800 focus-visible:outline-2 focus-visible:outline-slate-400"
+          aria-label="월 선택"
+        >
+          {Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0")).map((month) => {
+            const ym = `${selectedYear}${month}`;
+            return <option key={month} value={month} disabled={ym < oldestYm || ym > newestYm}>{Number(month)}월</option>;
+          })}
+        </select>
+      </div>
       <button
         type="button"
         disabled={!canNext}
-        onClick={() => newerYm && onChange(newerYm)}
+        onClick={() => canNext && onChange(newerYm)}
         className={`${btn} rounded-r-xl`}
         aria-label="다음 달"
       >
@@ -502,39 +530,30 @@ function MonthCalendar({
             const hasSingoga =
               Boolean(summary?.singogaKnown) && (summary?.singogaCount ?? 0) > 0;
             const active = selectedDate === date;
-            if (!hasDeals) {
-              return (
-                <div
-                  key={date}
-                  className="flex min-h-10 flex-col items-center justify-center rounded-md text-sm text-slate-300 sm:min-h-11"
-                  aria-hidden="true"
-                >
-                  <span>{day}</span>
-                </div>
-              );
-            }
             return (
               <button
                 key={date}
                 type="button"
                 onClick={() => onSelectDate(date)}
-                aria-label={`${monthNum}월 ${day}일 새로 확인된 거래 ${dealCount}건${hasSingoga ? ", 신고가 있음" : ""}`}
+                aria-label={`${monthNum}월 ${day}일 거래${hasDeals ? ` ${dealCount}건` : " 없음"}${hasSingoga ? ", 신고가 있음" : ""}`}
                 aria-pressed={active}
                 className={`relative flex min-h-10 flex-col items-center justify-center rounded-md px-0.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:min-h-11 ${
                   active
                     ? "bg-slate-200 text-slate-900"
-                    : "text-slate-800 hover:bg-slate-100/80"
+                    : hasDeals
+                      ? "text-slate-800 hover:bg-slate-100/80"
+                      : "text-slate-400 hover:bg-slate-100/80"
                 }`}
               >
                 <span className="font-medium leading-none">{day}</span>
-                <span
+                {hasDeals ? <span
                   className={`mt-0.5 text-[10px] leading-none tabular-nums ${
                     active ? "text-slate-600" : "text-slate-500"
                   }`}
                 >
                   {dealCount}
                   <span className="sr-only">건</span>
-                </span>
+                </span> : null}
                 {hasSingoga ? (
                   <span
                     className="mt-0.5 h-1 w-1 rounded-full bg-teal-600"
@@ -724,6 +743,7 @@ export function RegionDailyStatus({
   const [visibleDayCount, setVisibleDayCount] = useState(
     HISTORY_INITIAL_DAY_COUNT,
   );
+  const [visibleDealCount, setVisibleDealCount] = useState(15);
   const [clickedDates, setClickedDates] = useState<string[]>([]);
   const [calendarSelected, setCalendarSelected] = useState<string | null>(null);
   const [flashDate, setFlashDate] = useState<string | null>(null);
@@ -736,6 +756,11 @@ export function RegionDailyStatus({
   );
   const [pendingDates, setPendingDates] = useState<string[]>([]);
   const pendingScroll = useRef<string | null>(null);
+  const historySentinel = useRef<HTMLDivElement | null>(null);
+  const requestEpoch = useRef(0);
+  const activityMonthRef = useRef(activityMonthUser ?? yearMonthFromSeoulDate(seoulToday()));
+  const inFlightDates = useRef(new Set<string>());
+  const inFlightPages = useRef(new Set<string>());
 
   const marketQuery = useQuery({
     queryKey: ["region-market", regionSlug, contractMonth],
@@ -799,16 +824,23 @@ export function RegionDailyStatus({
         ? latest.activityYearMonths
         : [activityMonth];
 
-  const historyDays = historyQuery.data?.days ?? [];
-  const activeDates = historyDays
-    .filter((d) => d.dealCount > 0)
-    .map((d) => d.date);
-  const listedDates = listedHistoryDates({
-    activeDates,
-    visibleDayCount,
-    selectedDate: calendarSelected,
-    extraDates: clickedDates,
-  });
+  const activeDates = useMemo(
+    () =>
+      (historyQuery.data?.days ?? [])
+        .filter((d) => d.dealCount > 0)
+        .map((d) => d.date),
+    [historyQuery.data?.days],
+  );
+  const listedDates = useMemo(
+    () =>
+      listedHistoryDates({
+        activeDates,
+        visibleDayCount,
+        selectedDate: calendarSelected,
+        extraDates: clickedDates,
+      }),
+    [activeDates, calendarSelected, clickedDates, visibleDayCount],
+  );
 
   const sectionByDate = useMemo(() => {
     const map = new Map<string, RegionDailyDaySection>();
@@ -817,9 +849,12 @@ export function RegionDailyStatus({
       ...extraSections,
     ]) {
       const extra = bulkExtra[section.date] ?? [];
+      const deals = [...section.deals, ...extra];
+      const uniqueDeals = [...new Map(deals.map((deal) => [deal.id, deal])).values()];
       map.set(section.date, {
         ...section,
-        deals: extra.length ? [...section.deals, ...extra] : section.deals,
+        deals: uniqueDeals,
+        hasMore: uniqueDeals.length < section.totalCount,
       });
     }
     return map;
@@ -829,10 +864,19 @@ export function RegionDailyStatus({
     async (dates: string[]) => {
       const missing = [
         ...new Set(
-          dates.filter((date) => activeDates.includes(date) && !sectionByDate.has(date)),
+          dates.filter(
+            (date) =>
+              !sectionByDate.has(date) &&
+              !inFlightDates.current.has(`${activityMonth}:${date}`),
+          ),
         ),
       ];
       if (missing.length === 0) return;
+      const epoch = requestEpoch.current;
+      const requestedMonth = activityMonth;
+      missing.forEach((date) =>
+        inFlightDates.current.add(`${requestedMonth}:${date}`),
+      );
       setPendingDates((prev) => [...new Set([...prev, ...missing])]);
       try {
         const data = await fetchRegionPart({
@@ -841,23 +885,45 @@ export function RegionDailyStatus({
           yearMonth: activityMonth,
           dates: missing.join(","),
         });
+        if (epoch !== requestEpoch.current || requestedMonth !== activityMonthRef.current) return;
         setExtraSections((prev) => {
           const map = new Map(prev.map((section) => [section.date, section]));
           for (const section of data.historySections) {
             map.set(section.date, section);
           }
+          for (const date of missing) {
+            if (!map.has(date)) {
+              map.set(date, {
+                date,
+                deals: [],
+                bulkIngestDay: false,
+                singogaKnown: true,
+                totalCount: 0,
+                singogaCount: 0,
+                hasMore: false,
+              });
+            }
+          }
           return [...map.values()];
         });
       } finally {
-        setPendingDates((prev) => prev.filter((date) => !missing.includes(date)));
+        missing.forEach((date) =>
+          inFlightDates.current.delete(`${requestedMonth}:${date}`),
+        );
+        if (epoch === requestEpoch.current) {
+          setPendingDates((prev) =>
+            prev.filter((date) => !missing.includes(date)),
+          );
+        }
       }
     },
-    [activeDates, activityMonth, regionSlug, sectionByDate],
+    [activityMonth, regionSlug, sectionByDate],
   );
 
   useLayoutEffect(() => {
     const date = pendingScroll.current;
     if (!date) return;
+    if (!sectionByDate.has(date)) return;
     if (!document.getElementById(recordDateDomId(date))) return;
     pendingScroll.current = null;
     scrollToDateHeading(date);
@@ -887,8 +953,13 @@ export function RegionDailyStatus({
   const heroIsToday = Boolean(latest?.latestIsToday);
 
   function changeActivityMonth(next: string) {
+    requestEpoch.current += 1;
+    activityMonthRef.current = next;
+    inFlightDates.current.clear();
+    inFlightPages.current.clear();
     setActivityMonthUser(next);
     setVisibleDayCount(HISTORY_INITIAL_DAY_COUNT);
+    setVisibleDealCount(15);
     setClickedDates([]);
     setCalendarSelected(null);
     setBulkExtra({});
@@ -909,24 +980,76 @@ export function RegionDailyStatus({
     void fetchDaySections([date]);
   }
 
-  async function loadMoreBulk(section: RegionDailyDaySection) {
+  const loadMoreBulk = useCallback(async (section: RegionDailyDaySection) => {
     const offset = section.deals.length;
-    const data = await fetchRegionPart({
-      region: regionSlug,
-      part: "days",
-      yearMonth: activityMonth,
-      dates: section.date,
-      offset: String(offset),
-    });
-    const next = data.historySections.find((s) => s.date === section.date);
-    if (!next) return;
-    setBulkExtra((prev) => ({
-      ...prev,
-      [section.date]: [...(prev[section.date] ?? []), ...next.deals],
-    }));
-  }
+    const requestKey = `${activityMonth}:${section.date}:${offset}`;
+    if (inFlightPages.current.has(requestKey)) return;
+    const epoch = requestEpoch.current;
+    inFlightPages.current.add(requestKey);
+    try {
+      const data = await fetchRegionPart({
+        region: regionSlug,
+        part: "days",
+        yearMonth: activityMonth,
+        dates: section.date,
+        offset: String(offset),
+      });
+      if (epoch !== requestEpoch.current || activityMonth !== activityMonthRef.current) return;
+      const next = data.historySections.find((s) => s.date === section.date);
+      if (!next) return;
+      setBulkExtra((prev) => ({
+        ...prev,
+        [section.date]: [
+          ...new Map([...(prev[section.date] ?? []), ...next.deals].map((deal) => [deal.id, deal])).values(),
+        ],
+      }));
+    } finally {
+      inFlightPages.current.delete(requestKey);
+    }
+  }, [activityMonth, regionSlug]);
 
   const remainingDates = Math.max(0, activeDates.length - visibleDayCount);
+  const listedSections = listedDates.map((date) => sectionByDate.get(date));
+  const loadedDealCount = listedSections.reduce(
+    (sum, section) => sum + (section?.deals.length ?? 0),
+    0,
+  );
+  const hasMoreHistory =
+    remainingDates > 0 ||
+    visibleDealCount < loadedDealCount ||
+    listedSections.some((section) => section?.hasMore);
+
+  const loadNextHistory = useCallback(() => {
+    setVisibleDealCount((count) => count + 15);
+    const paged = listedDates
+      .map((date) => sectionByDate.get(date))
+      .find((section) => section?.hasMore);
+    if (paged) {
+      void loadMoreBulk(paged);
+      return;
+    }
+    const nextDates = activeDates.slice(
+      visibleDayCount,
+      visibleDayCount + HISTORY_INITIAL_DAY_COUNT,
+    );
+    if (nextDates.length > 0) {
+      setVisibleDayCount((count) => count + HISTORY_INITIAL_DAY_COUNT);
+      void fetchDaySections(nextDates);
+    }
+  }, [activeDates, fetchDaySections, listedDates, loadMoreBulk, sectionByDate, visibleDayCount]);
+
+  useEffect(() => {
+    const target = historySentinel.current;
+    if (!target || !hasMoreHistory) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) loadNextHistory();
+      },
+      { rootMargin: "320px 0px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMoreHistory, loadNextHistory]);
   const calendarDays = (historyQuery.data?.days ?? []).map((day) => {
     const section = sectionByDate.get(day.date);
     if (!section) return day;
@@ -943,6 +1066,19 @@ export function RegionDailyStatus({
     singogaCount: latest?.selectedDaySingogaCount ?? 0,
     bulk: Boolean(latest?.bulkIngestDay),
   });
+  const visibleDealsByDate = useMemo(() => {
+    const map = new Map<string, RegionDailyDeal[]>();
+    let remaining = visibleDealCount;
+    for (const date of listedDates) {
+      const section = sectionByDate.get(date);
+      if (!section) continue;
+      const limit = date === calendarSelected ? section.deals.length : remaining;
+      const deals = section.deals.slice(0, Math.max(0, limit));
+      map.set(date, deals);
+      if (date !== calendarSelected) remaining -= deals.length;
+    }
+    return map;
+  }, [calendarSelected, listedDates, sectionByDate, visibleDealCount]);
 
   return (
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
@@ -1138,16 +1274,19 @@ export function RegionDailyStatus({
               </p>
             </div>
           ) : null}
+          {(historyQuery.isLoading || initialDaysQuery.isLoading) &&
+          !historyQuery.data &&
+          !initialDaysQuery.data ? (
+            <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
+          ) : null}
           {listedDates.map((date) => {
             const section = sectionByDate.get(date);
             const summary = calendarDays.find((d) => d.date === date);
+            const visibleDeals = visibleDealsByDate.get(date) ?? [];
             const headingClass =
               flashDate === date
                 ? "region-date-flash rounded-md px-1 -mx-1"
                 : "px-1 -mx-1";
-            const waiting =
-              pendingDates.includes(date) ||
-              (initialDaysQuery.isFetching && !section);
             return (
               <div key={date}>
                 <h4
@@ -1178,43 +1317,26 @@ export function RegionDailyStatus({
                 ) : null}
                 {section ? (
                   <>
-                    <DealGrid
-                      deals={section.deals}
-                      regionSlug={regionSlug}
-                      variant="history"
-                    />
-                    {section.hasMore ||
-                    (section.bulkIngestDay &&
-                      section.deals.length < section.totalCount) ? (
-                      <MoreControl onClick={() => loadMoreBulk(section)}>
-                        더보기{" "}
-                        {(
-                          section.totalCount - section.deals.length
-                        ).toLocaleString("ko-KR")}
-                        건
-                      </MoreControl>
+                    {visibleDeals.length > 0 ? (
+                      <DealGrid
+                        deals={visibleDeals}
+                        regionSlug={regionSlug}
+                        variant="history"
+                      />
+                    ) : section.totalCount === 0 ? (
+                      <p className="mt-2 text-sm text-slate-500">
+                        해당 날짜 거래가 없습니다.
+                      </p>
                     ) : null}
                   </>
-                ) : waiting ? (
-                  <div className="mt-2 h-16 animate-pulse rounded-lg bg-slate-200/50" />
                 ) : null}
               </div>
             );
           })}
-          {remainingDates > 0 ? (
-            <MoreControl
-              onClick={() => {
-                const next = activeDates.slice(
-                  visibleDayCount,
-                  visibleDayCount + HISTORY_INITIAL_DAY_COUNT,
-                );
-                setVisibleDayCount((n) => n + HISTORY_INITIAL_DAY_COUNT);
-                void fetchDaySections(next);
-              }}
-            >
-              더 이전 거래일 보기 {remainingDates.toLocaleString("ko-KR")}일
-            </MoreControl>
+          {pendingDates.length > 0 ? (
+            <div className="h-16 animate-pulse rounded-lg bg-slate-200/50" />
           ) : null}
+          <div ref={historySentinel} className="h-px" aria-hidden="true" />
         </div>
       </section>
     </div>
