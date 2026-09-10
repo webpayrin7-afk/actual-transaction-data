@@ -13,7 +13,7 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config();
 
-import { writeFileSync } from "node:fs";
+import { appendFileSync, writeFileSync } from "node:fs";
 import {
   allCapitalLawdCodes,
   districtNameFromCode,
@@ -107,6 +107,19 @@ async function discoverySnapshot(db: NonNullable<ReturnType<typeof getDb>>) {
   };
 }
 
+async function withRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i < tries; i += 1) {
+    try {
+      return await fn();
+    } catch (err) {
+      last = err;
+      await new Promise((r) => setTimeout(r, 400 * 2 ** i));
+    }
+  }
+  throw last;
+}
+
 async function mapPool<T>(
   items: T[],
   concurrency: number,
@@ -187,7 +200,7 @@ async function main() {
       })
     : { rows: [] };
 
-  const jobs: Job[] = [];
+  let jobs: Job[] = [];
 
   if (wantRent) {
     for (const lawdCd of capital) {
@@ -232,6 +245,29 @@ async function main() {
         }
       }
     }
+  }
+
+  const jobsArg = argValue("jobs", "");
+  if (jobsArg) {
+    jobs = jobsArg
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s) => {
+        const [lawdCd, yearMonth, kind] = s.split("|");
+        if (
+          !lawdCd ||
+          !yearMonth ||
+          (kind !== "trade" && kind !== "rent")
+        ) {
+          throw new Error(`invalid --jobs entry: ${s}`);
+        }
+        return { lawdCd, yearMonth, kind };
+      });
+  }
+  const kindArg = argValue("kind", "");
+  if (kindArg === "trade" || kindArg === "rent") {
+    jobs = jobs.filter((j) => j.kind === kindArg);
   }
 
   console.log(
@@ -286,8 +322,22 @@ async function main() {
     const key = `${job.lawdCd}|${job.yearMonth}|${job.kind}`;
     try {
       const warehouseRows = await warehouseCount(db, job);
-      const meta = await fetchMonthMeta(job.kind, job.lawdCd, job.yearMonth);
+      const meta = await withRetry(() =>
+        fetchMonthMeta(job.kind, job.lawdCd, job.yearMonth),
+      );
       totals.http += 1;
+      if (
+        execute &&
+        warehouseRows > 0 &&
+        meta.pagesNeeded <= 1 &&
+        meta.totalCount <= warehouseRows
+      ) {
+        totals.cells += 1;
+        totals.warehouseRows += warehouseRows;
+        totals.sourceRows += meta.page1Count;
+        totals.unchanged += warehouseRows;
+        return;
+      }
       const needFull =
         job.kind === "rent" ||
         meta.pagesNeeded > 1 ||
@@ -295,9 +345,11 @@ async function main() {
         (warehouseRows === 0 && meta.totalCount > 0) ||
         warehouseRows >= 850;
       const items = needFull
-        ? job.kind === "rent"
-          ? await fetchOneRentForSync(job.lawdCd, job.yearMonth)
-          : await fetchOneTradeForSync(job.lawdCd, job.yearMonth)
+        ? await withRetry(() =>
+            job.kind === "rent"
+              ? fetchOneRentForSync(job.lawdCd, job.yearMonth)
+              : fetchOneTradeForSync(job.lawdCd, job.yearMonth),
+          )
         : [];
       if (needFull) {
         totals.http += Math.max(0, meta.pagesNeeded - 1);
@@ -337,7 +389,7 @@ async function main() {
         preview.inserted > 0;
 
       if (preview.inserted + preview.updated + preview.deleted > 0 || truncatedLikely) {
-        affected.push({
+        const row = {
           key,
           lawdCd: job.lawdCd,
           name: districtNameFromCode(job.lawdCd),
@@ -352,7 +404,12 @@ async function main() {
           unchanged: preview.unchanged,
           extras: preview.deleted,
           truncatedLikely,
-        });
+        };
+        affected.push(row);
+        appendFileSync(
+          `/tmp/repair-${target}-${execute ? "exec" : "dry"}.jsonl`,
+          `${JSON.stringify(row)}\n`,
+        );
       }
 
       if (execute && cellWrites > 0) {
@@ -407,7 +464,7 @@ async function main() {
     extrasNotDeleted: totals.extras,
     unchanged: totals.unchanged,
     failures: totals.failures,
-    failed: failed.slice(0, 40),
+    failed: failed,
     writtenCells: totals.writtenCells,
     affectedCells: affected.length,
     affectedLawds: [...new Set(affected.map((a) => a.lawdCd))].length,
@@ -426,7 +483,7 @@ async function main() {
   const outPath = `/tmp/repair-${target}-${execute ? "exec" : "dry"}.json`;
   writeFileSync(
     outPath,
-    JSON.stringify({ summary, affected: affected.slice(0, 2000) }, null, 2),
+    JSON.stringify({ summary, affected }, null, 2),
   );
   console.log(JSON.stringify({ summary, report: outPath }, null, 2));
 

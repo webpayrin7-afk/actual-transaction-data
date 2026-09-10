@@ -277,6 +277,7 @@ async function main() {
   let next = 0;
   let stop = false;
   const failedKeys: string[] = [];
+  const insertByYearMonth = new Map<string, number>();
   const startedAt = Date.now();
 
   async function worker() {
@@ -330,6 +331,12 @@ async function main() {
           updated += result.updated;
           deleted += result.deleted;
           unchanged += result.unchanged;
+          if (result.inserted > 0) {
+            insertByYearMonth.set(
+              job.yearMonth,
+              (insertByYearMonth.get(job.yearMonth) ?? 0) + result.inserted,
+            );
+          }
           if (result.wrote) {
             written += 1;
           }
@@ -373,6 +380,14 @@ async function main() {
   console.log(
     `[sync] SUMMARY regions=${lawdCodes.length} jobs=${done} writtenCells=${written} inserted=${inserted} updated=${updated} deleted=${deleted} unchanged=${unchanged} failures=${failures} skippedExisting=${skippedExisting} durationSec=${durationSec} discovery=${discovery ? 1 : 0} dryRun=${dryRun ? 1 : 0} sqlWrites=${inserted + updated + deleted}`,
   );
+  if (insertByYearMonth.size > 0) {
+    const insertYm = [...insertByYearMonth.entries()].sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    );
+    console.log(
+      `[sync] INSERT yearMonth distribution: ${JSON.stringify(Object.fromEntries(insertYm))}`,
+    );
+  }
   if (failedKeys.length) {
     console.log(
       `[sync] failed keys (${failedKeys.length}): ${failedKeys.slice(0, 30).join(", ")}${failedKeys.length > 30 ? " …" : ""}`,

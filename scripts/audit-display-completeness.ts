@@ -14,11 +14,13 @@ import { getAptDetail } from "../src/lib/molit/apt";
 import { clearRegionDailyCaches, getRegionDaily } from "../src/lib/molit/service";
 
 const SAMPLES: { slug: string; lawds: string[]; months: string[] }[] = [
-  { slug: "seoul-gangnam", lawds: ["11680"], months: ["202609", "202606", "202501", "202401", "202301", "202201", "202101", "202003", "201610"] },
-  { slug: "seoul-songpa", lawds: ["11710"], months: ["202609", "202606", "202501", "202401", "202301", "202201", "202003"] },
-  { slug: "seoul-yongsan", lawds: ["11170"], months: ["202609", "202606", "202501", "202401", "202301", "202003"] },
+  { slug: "seoul-gangnam", lawds: ["11680"], months: ["202609", "202608", "202501", "202401", "202301", "202003", "201610"] },
+  { slug: "seoul-songpa", lawds: ["11710"], months: ["202609", "202608", "202501", "202401", "202301", "202003"] },
+  { slug: "seoul-yongsan", lawds: ["11170"], months: ["202609", "202608", "202501", "202401", "202301", "202003"] },
   { slug: "gyeonggi-seongnam", lawds: ["41131", "41133", "41135"], months: ["202609", "202608", "202501", "202401", "202301", "202003"] },
-  { slug: "gyeonggi-suwon", lawds: ["41111", "41113", "41115", "41117"], months: ["202609", "202606", "202501", "202401", "202301", "202003"] },
+  { slug: "gyeonggi-suwon", lawds: ["41111", "41113", "41115", "41117"], months: ["202609", "202608", "202501", "202401", "202301", "202003"] },
+  { slug: "gyeonggi-bucheon", lawds: ["41192", "41194", "41196"], months: ["202609", "202508", "202409", "202309", "202001"] },
+  { slug: "gyeonggi-hwaseong", lawds: ["41591", "41593", "41595", "41597"], months: ["202609", "202508", "202409", "202309", "202001", "201610"] },
 ];
 
 async function warehouseCount(
