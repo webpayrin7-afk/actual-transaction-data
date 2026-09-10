@@ -16,7 +16,7 @@ import {
 import type { AptChartPoint } from "@/lib/molit/apt";
 
 const CHART_COLORS = {
-  trade: "#0b2745",
+  trade: "#2563eb",
   jeonse: "#ea580c",
   volume: "#0f766e",
   volumeBar: "#2dd4bf",

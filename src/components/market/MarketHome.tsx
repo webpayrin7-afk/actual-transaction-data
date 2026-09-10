@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { LabSection } from "@/components/lab/LabSection";
+import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import type {
   MarketDealItem,
@@ -44,15 +45,7 @@ function KpiCard({
     neutral: "text-slate-900",
   } as const;
 
-  return (
-    <div className={`lab-card px-4 py-4 sm:px-5 ${tones[tone]}`}>
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="lab-kpi-value mt-1.5 text-2xl font-semibold sm:text-[1.7rem]">
-        {value}
-      </p>
-      <p className="mt-1 text-[11px] leading-4 text-slate-500">{hint}</p>
-    </div>
-  );
+  return <LabKpiCard label={label} value={value} hint={hint} className={tones[tone]} />;
 }
 
 function DealRow({ item }: { item: MarketDealItem }) {

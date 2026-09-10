@@ -121,10 +121,10 @@ export function SiteHeader() {
       data-site-header
       className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur lg:hidden"
     >
-      <div className="mx-auto w-full max-w-7xl px-2 sm:px-4 lg:px-6">
+      <div className="mx-auto w-full max-w-7xl pr-2 pl-0.5 sm:pr-4 sm:pl-2 lg:pr-6 lg:pl-4">
         <div className="flex flex-col gap-0.5 py-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
           <div className="flex min-w-0 items-center gap-2 sm:gap-5">
-            <Link href="/" className="-ml-1 inline-flex shrink-0 items-center gap-2">
+            <Link href="/" className="inline-flex shrink-0 items-center gap-2">
               <BrandLogo compact priority />
             </Link>
 
@@ -198,7 +198,7 @@ export function SiteHeader() {
 
           {/* 모바일: PC와 동일한 primary 메뉴를 두 번째 줄에 항상 노출 (햄버거 없음) */}
           <nav
-            className="-mx-1 flex items-center gap-0.5 overflow-x-auto px-1 pb-0.5 sm:hidden"
+            className="ml-1.5 flex items-center gap-0.5 overflow-x-auto px-1 pb-0.5 sm:hidden"
             aria-label="주요 메뉴"
           >
             {PRIMARY_NAV.map((item) => {

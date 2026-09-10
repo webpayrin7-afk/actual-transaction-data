@@ -32,6 +32,7 @@ import {
 } from "@/components/stats/StatsDealExplorer";
 import { StatsRegionSelect } from "@/components/stats/StatsRegionSelect";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { isStatsScope } from "@/lib/market/region-scope";
 
 async function fetchStats(
@@ -154,19 +155,17 @@ function KpiCard({
   share?: string | null;
 }) {
   return (
-    <div className="lab-card px-4 py-4">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="lab-kpi-value mt-1 text-2xl font-semibold">
-        {value}
-      </p>
-      {share ? (
-        <p className="mt-0.5 text-[11px] text-slate-500">{share}</p>
-      ) : null}
-      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
-        <ChangeText pct={change} compareLabel={compareLabel} />
-        {sub ? <span>{sub}</span> : null}
-      </div>
-    </div>
+    <LabKpiCard
+      label={label}
+      value={value}
+      hint={share}
+      footer={
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
+          <ChangeText pct={change} compareLabel={compareLabel} />
+          {sub ? <span>{sub}</span> : null}
+        </div>
+      }
+    />
   );
 }
 
