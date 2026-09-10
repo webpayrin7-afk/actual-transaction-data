@@ -67,7 +67,8 @@ button, [role="button"], a { touch-action: manipulation; }
 .lab-side-link { display: flex; min-height: 44px; align-items: center; gap: 11px; border-radius: 10px; padding: 0 12px; color: #526579; font-size: .9rem; font-weight: 600; transition: background-color .15s, color .15s; }
 .lab-side-link:hover { background: #f5f8fa; color: var(--lab-navy-950); }
 .lab-side-link-active { background: var(--lab-teal-50); color: var(--lab-teal-700); }
-.lab-kpi-value { color: var(--lab-navy-950); font-family: var(--font-outfit), var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+.lab-kpi-value { color: var(--lab-navy-950); }
+.lab-kpi-value, .lab-kpi-figure { font-family: var(--font-outfit), var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
 
 @media (max-width: 639px) {
   .lab-button, .lab-tab { min-height: 44px; }

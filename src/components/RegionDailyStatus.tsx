@@ -639,7 +639,7 @@ function Kpi({
       </p>
       <div className="mt-1.5 flex min-w-0 items-baseline gap-x-1 sm:mt-2 sm:gap-x-2">
         <p
-          className={`whitespace-nowrap text-base font-semibold leading-none tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
+          className={`lab-kpi-figure whitespace-nowrap text-base font-semibold leading-none sm:text-xl ${valueClassName}`}
         >
           {value}
         </p>
