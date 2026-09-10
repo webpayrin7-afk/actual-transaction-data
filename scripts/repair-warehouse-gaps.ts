@@ -84,19 +84,26 @@ async function warehouseCount(
 }
 
 async function discoverySnapshot(db: NonNullable<ReturnType<typeof getDb>>) {
-  const r = await db.execute(`
-    SELECT
-      SUM(CASE WHEN discovery_at IS NOT NULL AND discovery_at != '' THEN 1 ELSE 0 END) AS nn,
-      SUM(CASE WHEN discovery_at >= '${TRUSTED_DISCOVERY_COPY.fromInclusive}'
-                AND discovery_at <  '${TRUSTED_DISCOVERY_COPY.toExclusive}' THEN 1 ELSE 0 END) AS trusted,
-      SUM(CASE WHEN discovery_at >= '2026-09-08T15:00:00.000Z'
-                AND discovery_at <  '2026-09-09T15:00:00.000Z' THEN 1 ELSE 0 END) AS kst_today_window
-    FROM transactions
-  `);
+  const nn = await db.execute(
+    `SELECT COUNT(*) AS n FROM transactions WHERE discovery_at IS NOT NULL AND discovery_at != ''`,
+  );
+  const trusted = await db.execute({
+    sql: `SELECT COUNT(*) AS n FROM transactions
+          WHERE discovery_at >= ? AND discovery_at < ?`,
+    args: [
+      TRUSTED_DISCOVERY_COPY.fromInclusive,
+      TRUSTED_DISCOVERY_COPY.toExclusive,
+    ],
+  });
+  const kst = await db.execute(
+    `SELECT COUNT(*) AS n FROM transactions
+     WHERE discovery_at >= '2026-09-08T15:00:00.000Z'
+       AND discovery_at <  '2026-09-09T15:00:00.000Z'`,
+  );
   return {
-    nonNull: Number(r.rows[0]?.nn) || 0,
-    trusted: Number(r.rows[0]?.trusted) || 0,
-    kstTodayWindow: Number(r.rows[0]?.kst_today_window) || 0,
+    nonNull: Number(nn.rows[0]?.n) || 0,
+    trusted: Number(trusted.rows[0]?.n) || 0,
+    kstTodayWindow: Number(kst.rows[0]?.n) || 0,
   };
 }
 
@@ -136,36 +143,51 @@ async function main() {
   const capital = allCapitalLawdCodes();
   const tradeYms = yearMonthsBetween("201610", "202609");
   const rentYms = yearMonthsBetween("202210", "202609");
-
-  const warehouseLawds = await db.execute(
-    `SELECT lawd_cd, SUM(CASE WHEN deal_type='trade' THEN 1 ELSE 0 END) AS trade_n,
-            SUM(CASE WHEN deal_type='rent' THEN 1 ELSE 0 END) AS rent_n
-     FROM transactions GROUP BY lawd_cd`,
-  );
-  const whLawd = new Map<string, { trade: number; rent: number }>();
-  for (const row of warehouseLawds.rows) {
-    whLawd.set(String(row.lawd_cd), {
-      trade: Number(row.trade_n) || 0,
-      rent: Number(row.rent_n) || 0,
-    });
-  }
-  const missingLawds = capital.filter((c) => {
-    const hit = whLawd.get(c);
-    return !hit || hit.trade + hit.rent === 0;
-  });
-
-  const tradeRiskRows = await db.execute(`
-    SELECT lawd_cd, year_month, COUNT(*) AS n
-    FROM transactions
-    WHERE deal_type='trade' AND year_month >= '201610' AND year_month <= '202609'
-    GROUP BY lawd_cd, year_month
-    HAVING n >= 850
-  `);
-
-  const jobs: Job[] = [];
   const wantRent = target === "rent" || target === "all";
   const wantTrade = target === "trade-risk" || target === "all";
   const wantMissing = target === "missing" || target === "all";
+  const knownNewLawds = [
+    "41192",
+    "41194",
+    "41196",
+    "41591",
+    "41593",
+    "41595",
+    "41597",
+  ];
+
+  let missingLawds = knownNewLawds.filter((c) => capital.includes(c));
+  if (wantMissing) {
+    const warehouseLawds = await db.execute(
+      `SELECT lawd_cd, SUM(CASE WHEN deal_type='trade' THEN 1 ELSE 0 END) AS trade_n,
+              SUM(CASE WHEN deal_type='rent' THEN 1 ELSE 0 END) AS rent_n
+       FROM transactions GROUP BY lawd_cd`,
+    );
+    const whLawd = new Map<string, { trade: number; rent: number }>();
+    for (const row of warehouseLawds.rows) {
+      whLawd.set(String(row.lawd_cd), {
+        trade: Number(row.trade_n) || 0,
+        rent: Number(row.rent_n) || 0,
+      });
+    }
+    missingLawds = capital.filter((c) => {
+      const hit = whLawd.get(c);
+      return !hit || hit.trade + hit.rent === 0;
+    });
+  }
+
+  const tradeRiskRows = wantTrade
+    ? await db.execute({
+        sql: `SELECT lawd_cd, year_month, COUNT(*) AS n
+              FROM transactions
+              WHERE deal_type='trade' AND year_month >= '201610' AND year_month <= '202609'
+              GROUP BY lawd_cd, year_month
+              HAVING n >= 850`,
+        args: [],
+      })
+    : { rows: [] };
+
+  const jobs: Job[] = [];
 
   if (wantRent) {
     for (const lawdCd of capital) {
@@ -212,6 +234,16 @@ async function main() {
     }
   }
 
+  console.log(
+    JSON.stringify({
+      phase: "jobs-ready",
+      target,
+      execute,
+      capitalLawds: capital.length,
+      jobs: jobs.length,
+      missingLawds,
+    }),
+  );
   const discBefore = await discoverySnapshot(db);
   console.log(
     JSON.stringify({
