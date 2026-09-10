@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownUp, ArrowUpDown, ExternalLink, RefreshCw } from "lucide-react";
 import type { BankLoanRate, DreamMoneyResult } from "@/lib/seoul/dream-money";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 type FilterMode = "all" | "first";
 type SortKey =
@@ -105,69 +106,68 @@ export function LoanRateCompare() {
     return `${first.periodStart} ~ ${first.periodEnd}`;
   }, [query.data?.items]);
 
+  const lowest = rows[0] ?? null;
+
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="max-w-3xl">
-        <p className="text-xs font-medium tracking-wide text-teal-700">도구</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          금리비교
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          서울시 시중은행협력자금 취급 은행별 최근 3개월 실행 금리(대출·보전)를
-          비교합니다. 최저금리 순으로 정렬해 한눈에 볼 수 있습니다.
-        </p>
-      </div>
+    <div className={PAGE_SHELL}>
+      <PageHeader
+        title="금리비교"
+        description="서울시 시중은행협력자금 취급 은행별 최근 3개월 실행 금리(대출·보전)를 비교합니다. 최저금리 순으로 한눈에 볼 수 있습니다."
+        meta={
+          periodLabel ? (
+            <span>기준기간 {periodLabel}</span>
+          ) : undefined
+        }
+        action={
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void query.refetch()}
+              disabled={query.isFetching}
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-3.5 w-3.5 ${query.isFetching ? "animate-spin" : ""}`}
+              />
+              새로고침
+            </button>
+            <Link
+              href="/loan"
+              className="text-xs font-medium text-teal-700 hover:underline"
+            >
+              대출계산기
+            </Link>
+          </div>
+        }
+      />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              { value: "all", label: "전체" },
-              { value: "first", label: "1금융만" },
-            ] as const
-          ).map((opt) => {
-            const active = filter === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setFilter(opt.value)}
-                className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-                  active
-                    ? "bg-teal-700 text-white"
-                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-          {periodLabel ? <span>기준기간 {periodLabel}</span> : null}
-          <button
-            type="button"
-            onClick={() => void query.refetch()}
-            disabled={query.isFetching}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
-          >
-            <RefreshCw
-              className={`h-3.5 w-3.5 ${query.isFetching ? "animate-spin" : ""}`}
-            />
-            새로고침
-          </button>
-          <Link
-            href="/loan"
-            className="inline-flex items-center gap-1 font-medium text-teal-700 hover:underline"
-          >
-            대출계산기
-          </Link>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {(
+          [
+            { value: "all", label: "전체" },
+            { value: "first", label: "1금융만" },
+          ] as const
+        ).map((opt) => {
+          const active = filter === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setFilter(opt.value)}
+              className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+                active
+                  ? "bg-teal-700 text-white"
+                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
 
       {query.isLoading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white px-5 py-16 text-center text-sm text-slate-500">
+        <div className="border-y border-slate-200 bg-white px-1 py-16 text-center text-sm text-slate-500 sm:border sm:rounded-2xl sm:px-5">
           금리 정보를 불러오는 중…
         </div>
       ) : null}
@@ -176,34 +176,72 @@ export function LoanRateCompare() {
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-8 text-sm text-rose-800">
           {(query.error as Error).message}
           <p className="mt-2 text-rose-600">
-            서울 열린데이터광장에서 OpenAPI 키를 발급받아{" "}
-            <code className="rounded bg-white/70 px-1">SEOUL_OPENAPI_KEY</code> 에
-            설정해 주세요.
+            서울 열린데이터광장에서 발급한{" "}
+            <strong className="font-semibold">일반 인증키</strong>를 Vercel 환경변수{" "}
+            <code className="rounded bg-white/70 px-1">SEOUL_OPENAPI_KEY</code>에
+            넣어 주세요. (Vercel 토큰이 아닙니다)
+            {" "}
+            <a
+              href="https://data.seoul.go.kr/together/mypage/actkeyMain.do"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium underline"
+            >
+              인증키 확인
+            </a>
           </p>
         </div>
       ) : null}
 
       {query.data ? (
         <>
-          {query.data.partial || query.data.usingSampleKey ? (
+          {query.data.usingSampleKey || query.data.partial ? (
             <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
               현재 샘플 키로 {query.data.items.length}건만 표시 중입니다 (전체{" "}
-              {query.data.totalCount}건). 전체 은행을 보려면{" "}
-              <a
-                href="https://data.seoul.go.kr/dataList/OA-21098/A/1/datasetView.do"
-                target="_blank"
-                rel="noreferrer"
-                className="font-medium underline"
-              >
-                서울 열린데이터광장
-              </a>
-              에서 인증키를 발급해{" "}
-              <code className="rounded bg-white/70 px-1">SEOUL_OPENAPI_KEY</code>{" "}
-              를 설정하세요.
+              {query.data.totalCount}건). Vercel 환경변수{" "}
+              <code className="rounded bg-white/70 px-1">SEOUL_OPENAPI_KEY</code>
+              를 저장한 뒤 재배포하면 전체 은행이 표시됩니다.
             </p>
           ) : null}
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+          {lowest ? (
+            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-slate-200 pb-4 text-sm text-slate-600">
+              <span>
+                <span className="text-slate-500">비교 </span>
+                <span className="font-semibold text-slate-900">
+                  {rows.length}
+                </span>
+                개 기관
+              </span>
+              <span>
+                <span className="text-slate-500">최저 </span>
+                <span className="font-semibold tabular-nums text-teal-800">
+                  {formatRate(lowest.minRate)}%
+                </span>
+                <span className="text-slate-500"> · {lowest.orgName}</span>
+              </span>
+            </div>
+          ) : null}
+
+          {/* Mobile list */}
+          <ul className="flex flex-col divide-y divide-slate-100 border-y border-slate-200 bg-white sm:hidden">
+            {rows.length === 0 ? (
+              <li className="px-1 py-12 text-center text-sm text-slate-500">
+                표시할 금리 데이터가 없습니다.
+              </li>
+            ) : (
+              rows.map((row, index) => (
+                <MobileRateRow
+                  key={row.orgCode || row.orgName}
+                  row={row}
+                  rank={index + 1}
+                />
+              ))
+            )}
+          </ul>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white sm:block">
             <table className="min-w-full text-left text-sm">
               <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
@@ -281,7 +319,11 @@ export function LoanRateCompare() {
                   </tr>
                 ) : (
                   rows.map((row, index) => (
-                    <RateRow key={row.orgCode || row.orgName} row={row} rank={index + 1} />
+                    <DesktopRateRow
+                      key={row.orgCode || row.orgName}
+                      row={row}
+                      rank={index + 1}
+                    />
                   ))
                 )}
               </tbody>
@@ -311,7 +353,51 @@ export function LoanRateCompare() {
   );
 }
 
-function RateRow({ row, rank }: { row: BankLoanRate; rank: number }) {
+function MobileRateRow({ row, rank }: { row: BankLoanRate; rank: number }) {
+  const lowest = rank === 1;
+  return (
+    <li className={`px-1 py-3.5 ${lowest ? "bg-teal-50/50" : ""}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            {lowest ? (
+              <span className="rounded bg-teal-700 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                최저
+              </span>
+            ) : (
+              <span className="text-xs text-slate-400">{rank}</span>
+            )}
+            <span className="font-medium text-slate-900">{row.orgName}</span>
+            <span className="text-xs text-slate-500">
+              {row.isFirstTier ? "1금융" : "기타"}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            취급 {formatCount(row.loanCount)}건 · 보전평균{" "}
+            {formatRate(row.avgSubsidyRate)}%
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="text-lg font-semibold tabular-nums text-teal-800">
+            {formatRate(row.minRate)}
+            <span className="text-sm font-medium">%</span>
+          </p>
+          <p className="text-[11px] tabular-nums text-slate-500">
+            평균 {formatRate(row.avgRate)}% · 최고 {formatRate(row.maxRate)}%
+          </p>
+          <Link
+            href={`/loan?rate=${encodeURIComponent(String(row.minRate))}`}
+            className="mt-1 inline-block text-xs font-semibold text-teal-700 hover:underline"
+          >
+            한도계산
+          </Link>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function DesktopRateRow({ row, rank }: { row: BankLoanRate; rank: number }) {
   const lowest = rank === 1;
   return (
     <tr

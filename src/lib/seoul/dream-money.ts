@@ -86,13 +86,25 @@ function isFirstTierBank(name: string): boolean {
   return FIRST_TIER_KEYWORDS.some((kw) => name.includes(kw));
 }
 
+/**
+ * 서울 열린데이터광장 인증키.
+ * Vercel/로컬 `SEOUL_OPENAPI_KEY` 사용. 없으면 sample(최대 5건).
+ * https://data.seoul.go.kr/together/mypage/actkeyMain.do
+ */
 function resolveApiKey(): { key: string; usingSampleKey: boolean } {
-  const fromEnv = process.env.SEOUL_OPENAPI_KEY?.trim();
+  // 정적 치환 회피 — 런타임에 Vercel env를 읽음
+  const fromEnv = (process.env["SEOUL_OPENAPI_KEY"] ?? "").trim();
   if (fromEnv) {
     const usingSampleKey = fromEnv.toLowerCase() === "sample";
     return { key: fromEnv, usingSampleKey };
   }
   return { key: "sample", usingSampleKey: true };
+}
+
+/** INFO-000 정상, INFO-200 데이터 없음. INFO-100 등은 인증/요청 오류. */
+function assertSeoulOk(code: string, message: string): void {
+  if (code === "INFO-000" || code === "INFO-200") return;
+  throw new Error(message || `서울 OpenAPI 오류: ${code}`);
 }
 
 interface RawRow {
@@ -159,7 +171,7 @@ async function fetchPage(
 ): Promise<string> {
   const url = `${SEOUL_OPENAPI_BASE}/${encodeURIComponent(key)}/xml/${SERVICE_NAME}/${start}/${end}/`;
   const res = await fetch(url, {
-    next: { revalidate: 3600 },
+    cache: "no-store",
     headers: { Accept: "application/xml" },
   });
   if (!res.ok) {
@@ -178,10 +190,7 @@ export async function fetchDreamMoneyRates(): Promise<DreamMoneyResult> {
 
   const firstXml = await fetchPage(key, 1, maxEnd);
   const first = parseDreamMoneyXml(firstXml);
-
-  if (!first.code.startsWith("INFO-")) {
-    throw new Error(first.message || `서울 OpenAPI 오류: ${first.code}`);
-  }
+  assertSeoulOk(first.code, first.message);
 
   const items = [...first.rows];
   const totalCount = first.totalCount || items.length;
@@ -191,9 +200,7 @@ export async function fetchDreamMoneyRates(): Promise<DreamMoneyResult> {
       const end = Math.min(start + PAGE_SIZE - 1, totalCount);
       const xml = await fetchPage(key, start, end);
       const page = parseDreamMoneyXml(xml);
-      if (!page.code.startsWith("INFO-")) {
-        throw new Error(page.message || `서울 OpenAPI 오류: ${page.code}`);
-      }
+      assertSeoulOk(page.code, page.message);
       items.push(...page.rows);
     }
   }
