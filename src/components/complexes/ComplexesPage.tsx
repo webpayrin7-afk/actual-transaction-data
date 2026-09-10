@@ -3,6 +3,7 @@
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { RecentComplexList } from "@/components/complexes/RecentComplexList";
 import { ActiveComplexList } from "@/components/complexes/ActiveComplexList";
+import { DownFromPeakList } from "@/components/complexes/DownFromPeakList";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 /**
@@ -28,6 +29,8 @@ export function ComplexesPage() {
       <RecentComplexList />
 
       <ActiveComplexList />
+
+      <DownFromPeakList />
 
       <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-400">
         국토교통부 아파트 실거래 OpenAPI 기반 · 아파트 데이터랩
