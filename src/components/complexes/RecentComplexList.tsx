@@ -46,12 +46,12 @@ export function RecentComplexList() {
           아직 조회한 단지가 없습니다. 위 검색에서 궁금한 아파트를 찾아보세요.
         </p>
       ) : (
-        <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <ul className="lab-card divide-y divide-slate-100 overflow-hidden">
           {items.map((item) => (
             <li key={`${item.regionSlug}-${item.aptName}-${item.gu ?? ""}`}>
               <Link
                 href={recentComplexHref(item)}
-                className="flex items-center gap-3 px-3.5 py-2.5 transition hover:bg-slate-50 sm:px-4"
+                className="flex min-h-14 items-center gap-3 px-3.5 py-3 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-teal-600 sm:px-4"
               >
                 <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
                   <Clock3 className="h-3.5 w-3.5" />

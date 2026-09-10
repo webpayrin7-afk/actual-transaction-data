@@ -38,19 +38,19 @@ function KpiCard({
   tone: "up" | "down" | "neutral" | "hot";
 }) {
   const tones = {
-    up: "border-teal-200 bg-teal-50/80 text-teal-900",
-    down: "border-rose-200 bg-rose-50/80 text-rose-900",
-    hot: "border-amber-200 bg-amber-50/80 text-amber-950",
-    neutral: "border-slate-200 bg-white text-slate-900",
+    up: "text-teal-800",
+    down: "text-rose-700",
+    hot: "text-slate-900",
+    neutral: "text-slate-900",
   } as const;
 
   return (
-    <div className={`rounded-2xl border px-4 py-3.5 ${tones[tone]}`}>
-      <p className="text-xs font-medium opacity-80">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
+    <div className={`lab-card px-4 py-4 sm:px-5 ${tones[tone]}`}>
+      <p className="text-xs font-medium text-slate-500">{label}</p>
+      <p className="lab-kpi-value mt-1.5 text-2xl font-semibold sm:text-[1.7rem]">
         {value}
       </p>
-      <p className="mt-1 text-[11px] leading-4 opacity-70">{hint}</p>
+      <p className="mt-1 text-[11px] leading-4 text-slate-500">{hint}</p>
     </div>
   );
 }
@@ -153,7 +153,7 @@ function Section({
   empty?: boolean;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white">
+    <section className="lab-card overflow-hidden">
       <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
         {icon}
         <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
@@ -205,14 +205,7 @@ export function MarketHome() {
       />
 
       {query.isLoading ? (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-24 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"
-            />
-          ))}
-        </div>
+        <div className="lab-skeleton" />
       ) : null}
 
       {query.isError ? (
@@ -268,7 +261,7 @@ export function MarketHome() {
         </>
       ) : null}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section className="lab-card p-4 sm:p-5">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-slate-900">빠른 단지 검색</h2>
@@ -337,7 +330,7 @@ export function MarketHome() {
       <LabSection />
 
       <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 기반 · 아파트 데이터랩
+        국토교통부 아파트 실거래 기반 · 집랩
       </footer>
     </div>
   );

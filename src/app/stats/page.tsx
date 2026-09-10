@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { MarketStatsPage } from "@/components/stats/MarketStatsPage";
 
 export const metadata: Metadata = {
-  title: "아파트 시장동향 - 아파트 데이터랩",
+  title: "아파트 시장동향 - 집랩",
   description:
     "일간·주간·월간 아파트 실거래와 거래량, 신고가, 하락거래를 함께 확인하세요. 서울·경기 시장 흐름과 주요 단지를 탐색합니다.",
 };

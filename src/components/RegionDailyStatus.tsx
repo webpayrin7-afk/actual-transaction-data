@@ -79,7 +79,7 @@ function weekdayOfFirst(ym: string): number {
 }
 
 const SECTION_SURFACE =
-  "rounded-2xl border border-slate-200/80 bg-white px-3.5 py-4 sm:px-5 sm:py-5";
+  "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
 
 function contractLine(date: string): string {
   return `계약 ${formatDealDate(date)}`;

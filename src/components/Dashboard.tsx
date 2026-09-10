@@ -172,7 +172,7 @@ export function Dashboard({
       </header>
 
       <nav
-        className="inline-flex w-full gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto"
+        className="inline-flex w-full gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:w-auto"
         aria-label="지역 상세 탭"
       >
         {TABS.map(({ id, label, icon: Icon }) => {
@@ -183,9 +183,9 @@ export function Dashboard({
               type="button"
               onClick={() => selectTab(id)}
               aria-pressed={active}
-              className={`flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-md px-3 text-xs font-medium transition sm:flex-none sm:text-[13px] ${
+              className={`flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition sm:flex-none sm:text-[13px] ${
                 active
-                  ? "bg-white text-slate-900 shadow-sm"
+                  ? "bg-slate-900 text-white"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >

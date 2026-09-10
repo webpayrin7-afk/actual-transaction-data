@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /** 페이지 본문 공통 shell — max-width / padding 정렬 */
 export const PAGE_SHELL =
-  "mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 pt-5 pb-8 sm:px-6 sm:pt-6 sm:pb-10 lg:px-8";
+  "mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 pt-5 pb-8 sm:px-6 sm:pt-7 sm:pb-10 lg:px-8 xl:px-10";
 
 /**
  * BackLink + PageHeader 묶음.
@@ -36,13 +36,13 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={`max-w-3xl ${className}`.trim()}>
+    <header className={`max-w-4xl border-b border-slate-200/80 pb-5 sm:pb-6 ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
         <h1
           className={`min-w-0 flex-1 font-semibold tracking-tight text-slate-900 ${
             compact
               ? "text-xl leading-7 sm:text-2xl sm:leading-8"
-              : "text-2xl sm:text-[1.875rem] sm:leading-tight"
+              : "text-[1.65rem] leading-tight sm:text-[2rem] sm:leading-tight"
           }`}
         >
           {title}

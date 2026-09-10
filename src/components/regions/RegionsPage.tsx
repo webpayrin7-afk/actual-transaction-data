@@ -177,7 +177,7 @@ export function RegionsPage() {
                 }
               }}
               placeholder="지역명 검색 (예: 강남, 분당, 수원)"
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+              className="lab-input px-3.5 text-sm outline-none placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
               autoComplete="off"
             />
 
@@ -234,7 +234,7 @@ export function RegionsPage() {
         </div>
 
         {/* 시·도 — nationwide METRO_OPTIONS */}
-        <div className="flex flex-wrap gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+        <div className="flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-white p-1">
           {METRO_OPTIONS.map(([value, label]) => {
             const active = metro === value;
             return (
@@ -242,9 +242,9 @@ export function RegionsPage() {
                 key={value}
                 type="button"
                 onClick={() => setMetro(value)}
-                className={`min-h-8 rounded-md px-2.5 text-xs font-medium transition sm:px-3 sm:text-[13px] ${
+                className={`min-h-10 rounded-lg px-3 text-xs font-semibold transition sm:text-[13px] ${
                   active
-                    ? "bg-white text-slate-900 shadow-sm"
+                    ? "bg-slate-900 text-white"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -260,7 +260,7 @@ export function RegionsPage() {
             <Link
               key={region.slug}
               href={`/region/${region.slug}`}
-              className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-center text-xs font-medium text-slate-800 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 sm:text-sm"
+              className="flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-center text-xs font-semibold text-slate-800 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 sm:text-sm"
             >
               {region.name}
             </Link>
@@ -269,7 +269,7 @@ export function RegionsPage() {
       </section>
 
       <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 OpenAPI 기반 · 아파트 데이터랩
+        국토교통부 아파트 실거래 OpenAPI 기반 · 집랩
       </footer>
     </div>
   );

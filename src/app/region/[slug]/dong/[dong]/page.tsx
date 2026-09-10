@@ -14,9 +14,9 @@ export async function generateMetadata({
   const { slug, dong } = await params;
   const region = getRegion(slug);
   const dongName = decodeURIComponent(dong);
-  if (!region) return { title: "아파트 데이터랩" };
+  if (!region) return { title: "집랩" };
   return {
-    title: `${dongName} 단지 목록 | ${region.name} | 아파트 데이터랩`,
+    title: `${dongName} 단지 목록 | ${region.name} | 집랩`,
     description: `${region.fullName} ${dongName} 아파트 단지 목록`,
   };
 }

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { SiteHeaderLoadProgress } from "@/components/layout/LoadProgress";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 
 const PRIMARY_NAV = [
   {
@@ -118,18 +119,13 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur"
+      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur lg:hidden"
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-1 py-2 sm:h-14 sm:flex-row sm:items-center sm:gap-5 sm:py-0">
           <div className="flex min-w-0 items-center gap-2 sm:gap-5">
             <Link href="/" className="inline-flex shrink-0 items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-teal-600 text-white sm:h-8 sm:w-8 sm:rounded-lg">
-                <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </span>
-              <span className="text-[0.9375rem] font-semibold tracking-tight text-slate-900 sm:text-base">
-                아파트 데이터랩
-              </span>
+              <BrandLogo compact priority />
             </Link>
 
             <nav

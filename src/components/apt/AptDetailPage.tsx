@@ -530,9 +530,9 @@ export function AptDetailPage({
       )}
 
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+        <div className="lab-card px-3.5 py-3.5">
           <p className="text-[11px] font-medium text-slate-500">최근 매매</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-900 sm:text-xl">
+          <p className="lab-kpi-value mt-1 text-lg font-semibold sm:text-xl">
             {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">
@@ -541,14 +541,14 @@ export function AptDetailPage({
               : "선택 기간 거래 없음"}
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+        <div className="lab-card px-3.5 py-3.5">
           <p className="text-[11px] font-medium text-slate-500">기간 최고가</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-900 sm:text-xl">
+          <p className="lab-kpi-value mt-1 text-lg font-semibold sm:text-xl">
             {periodMax > 0 ? formatEok(periodMax) : "—"}
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">선택 기간·면적 기준</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+        <div className="lab-card px-3.5 py-3.5">
           <p className="text-[11px] font-medium text-slate-500">최고가 대비</p>
           <p
             className={`mt-1 text-lg font-semibold tabular-nums tracking-tight sm:text-xl ${
@@ -567,9 +567,9 @@ export function AptDetailPage({
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">최근 매매 기준</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+        <div className="lab-card px-3.5 py-3.5">
           <p className="text-[11px] font-medium text-slate-500">기간 거래량</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-900 sm:text-xl">
+          <p className="lab-kpi-value mt-1 text-lg font-semibold sm:text-xl">
             매매 {periodTradeCount}
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">
@@ -578,7 +578,7 @@ export function AptDetailPage({
         </div>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section className="lab-card p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
@@ -614,7 +614,7 @@ export function AptDetailPage({
 
       <section
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
-        className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
+        className="lab-card p-4 sm:p-5"
       >
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">

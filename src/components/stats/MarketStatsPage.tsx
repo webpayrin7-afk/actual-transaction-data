@@ -154,9 +154,9 @@ function KpiCard({
   share?: string | null;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3.5">
+    <div className="lab-card px-4 py-4">
       <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-slate-900">
+      <p className="lab-kpi-value mt-1 text-2xl font-semibold">
         {value}
       </p>
       {share ? (
@@ -257,7 +257,7 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+    <section className="lab-card p-4 sm:p-5">
       <div className="mb-3">
         <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
           {title}
@@ -422,14 +422,7 @@ export function MarketStatsPage() {
       )}
 
       {query.isLoading ? (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-24 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"
-            />
-          ))}
-        </div>
+        <div className="lab-skeleton" />
       ) : null}
 
       {query.isError ? (
@@ -645,7 +638,7 @@ export function MarketStatsPage() {
             />
           ) : null}
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+          <section className="lab-card p-4 sm:p-5">
             <div className="mb-3 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-teal-700" />
               <div>

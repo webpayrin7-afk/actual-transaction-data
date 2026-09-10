@@ -32,7 +32,7 @@ export function ActiveComplexList() {
       </div>
 
       {query.isLoading ? (
-        <div className="h-40 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
+        <div className="lab-skeleton" />
       ) : query.isError ? (
         <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           {(query.error as Error).message}
@@ -43,12 +43,12 @@ export function ActiveComplexList() {
         </p>
       ) : (
         <>
-          <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <ul className="lab-card divide-y divide-slate-100 overflow-hidden">
             {data.items.map((item) => (
               <li key={`${item.aptNameNorm}|${item.lawdCd}|${item.dong}`}>
                 <Link
                   href={item.href}
-                  className="flex items-center gap-3 px-3.5 py-2.5 transition hover:bg-slate-50 sm:px-4"
+                  className="flex min-h-14 items-center gap-3 px-3.5 py-3 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-teal-600 sm:px-4"
                 >
                   <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-semibold tabular-nums text-slate-600">
                     {item.rank}

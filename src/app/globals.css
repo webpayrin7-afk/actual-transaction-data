@@ -1,12 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f1f5f9;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --accent: #0d9488;
-  --accent-dark: #0f766e;
-  --muted: #64748b;
+  --lab-bg: #f4f7fa;
+  --lab-surface: #ffffff;
+  --lab-navy-950: #061b33;
+  --lab-navy-900: #0b2745;
+  --lab-navy-700: #244663;
+  --lab-teal-700: #087f83;
+  --lab-teal-600: #07969a;
+  --lab-teal-50: #eefafa;
+  --lab-border: #dce4eb;
+  --lab-muted: #64748b;
+  --lab-radius-sm: 8px;
+  --lab-radius-md: 12px;
+  --lab-radius-lg: 16px;
+  --lab-shadow: 0 1px 2px rgb(15 23 42 / 0.035);
+  --background: var(--lab-bg);
+  --foreground: var(--lab-navy-950);
+  --surface: var(--lab-surface);
+  --accent: var(--lab-teal-600);
+  --accent-dark: var(--lab-teal-700);
+  --muted: var(--lab-muted);
 }
 
 @theme inline {
@@ -17,16 +31,47 @@
 }
 
 body {
-  /* Solid base avoids iOS Safari tiling a viewport-sized gradient on long pages */
-  background-color: #f1f5f9;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(13, 148, 136, 0.12), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 90% 0%, rgba(14, 165, 233, 0.1), transparent 45%);
-  background-repeat: no-repeat;
-  background-size: 100% 100vh;
+  background-color: var(--lab-bg);
   color: var(--foreground);
   font-family: var(--font-sans);
   min-height: 100vh;
+}
+
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button, [role="button"], a { touch-action: manipulation; }
+
+.lab-card {
+  border: 1px solid var(--lab-border);
+  border-radius: var(--lab-radius-lg);
+  background: var(--lab-surface);
+  box-shadow: var(--lab-shadow);
+}
+
+.lab-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.lab-section-heading h2 { color: var(--lab-navy-950); font-size: 1rem; font-weight: 700; letter-spacing: -.015em; }
+.lab-section-heading p { margin-top: 3px; color: var(--lab-muted); font-size: .75rem; line-height: 1.25rem; }
+.lab-button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; padding: 0 14px; font-size: .875rem; font-weight: 650; transition: background-color .15s, border-color .15s, color .15s; }
+.lab-button:focus-visible, .lab-input:focus-visible, .lab-tab:focus-visible, .lab-side-link:focus-visible { outline: 2px solid var(--lab-teal-600); outline-offset: 2px; }
+.lab-button-primary { background: var(--lab-teal-600); color: white; }
+.lab-button-primary:hover { background: var(--lab-teal-700); }
+.lab-button-secondary { border: 1px solid var(--lab-border); background: white; color: var(--lab-navy-900); }
+.lab-button-secondary:hover { background: #f8fafc; }
+.lab-button:disabled { cursor: not-allowed; opacity: .45; }
+.lab-input { min-height: 44px; width: 100%; border: 1px solid var(--lab-border); border-radius: 10px; background: white; color: var(--lab-navy-950); }
+.lab-tab { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; border-radius: 9px; padding: 0 13px; color: #526579; font-size: .875rem; font-weight: 600; }
+.lab-tab[aria-selected="true"], .lab-tab-active { background: var(--lab-navy-900); color: white; }
+.lab-badge { display: inline-flex; align-items: center; border: 1px solid #cfe1e5; border-radius: 999px; background: var(--lab-teal-50); padding: 3px 8px; color: var(--lab-teal-700); font-size: .6875rem; font-weight: 650; }
+.lab-state { display: flex; min-height: 120px; align-items: center; justify-content: center; border: 1px dashed var(--lab-border); border-radius: 12px; padding: 20px; color: var(--lab-muted); font-size: .875rem; text-align: center; }
+.lab-state-error { border-style: solid; border-color: #fecdd3; background: #fff1f2; color: #9f1239; }
+.lab-skeleton { height: 112px; border: 1px solid var(--lab-border); border-radius: 14px; background: #e9eef3; animation: pulse 1.7s cubic-bezier(.4,0,.6,1) infinite; }
+.lab-side-link { display: flex; min-height: 44px; align-items: center; gap: 11px; border-radius: 10px; padding: 0 12px; color: #526579; font-size: .9rem; font-weight: 600; transition: background-color .15s, color .15s; }
+.lab-side-link:hover { background: #f5f8fa; color: var(--lab-navy-950); }
+.lab-side-link-active { background: var(--lab-teal-50); color: var(--lab-teal-700); }
+.lab-kpi-value { color: var(--lab-navy-950); font-family: var(--font-outfit), var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+
+@media (max-width: 639px) {
+  .lab-button, .lab-tab { min-height: 44px; }
+  .lab-card { border-radius: 14px; }
 }
 
 h1,
