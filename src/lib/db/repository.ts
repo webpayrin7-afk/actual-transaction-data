@@ -82,6 +82,11 @@ export async function replaceMonthTransactions(params: {
   setFirstSeenOnInsert?: boolean;
   /** Classify diffs but execute no SQL. UNCHANGED/INSERT/UPDATE/DELETE counts only. */
   dryRun?: boolean;
+  /**
+   * Historical repair: classify warehouse extras but do not DELETE them.
+   * `deleted` still reports the extra-candidate count; SQL DELETE is 0.
+   */
+  skipDelete?: boolean;
 }): Promise<ReplaceMonthResult> {
   const empty: ReplaceMonthResult = {
     rowCount: 0,
@@ -97,6 +102,7 @@ export async function replaceMonthTransactions(params: {
   const { lawdCd, yearMonth, dealKind, items } = params;
   const setFirstSeenOnInsert = params.setFirstSeenOnInsert !== false;
   const dryRun = params.dryRun === true;
+  const skipDelete = params.skipDelete === true;
   const syncedAt = new Date().toISOString();
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   // Future ingest: audit first_seen always; product discovery only when flagged.
@@ -314,17 +320,22 @@ export async function replaceMonthTransactions(params: {
   }
 
   // orphan 삭제 (취소/누락 반영 — first_seen은 해당 row와 함께 제거)
-  for (const id of deleteIds) {
-    statements.push({
-      sql: `DELETE FROM transactions WHERE id = ?`,
-      args: [id],
-    });
+  // skipDelete: extras는 보고만 하고 자동 DELETE 하지 않음 (historical repair)
+  if (!skipDelete) {
+    for (const id of deleteIds) {
+      statements.push({
+        sql: `DELETE FROM transactions WHERE id = ?`,
+        args: [id],
+      });
+    }
   }
 
   const deleted = deleteIds.length;
-  const wroteTx = inserted + updated + deleted > 0;
+  const executedDeletes = skipDelete ? 0 : deleted;
+  const wroteTx = inserted + updated + executedDeletes > 0;
 
   if (
+    !skipDelete &&
     isUnsafeMonthShrink({
       previousRowCount: byId.size,
       nextRowCount: upserts.length,
@@ -370,7 +381,7 @@ export async function replaceMonthTransactions(params: {
     inserted,
     updated,
     unchanged,
-    deleted,
+    deleted: executedDeletes,
     wrote: wroteTx,
   };
 }

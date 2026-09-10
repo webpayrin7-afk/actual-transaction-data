@@ -141,6 +141,7 @@ async function main() {
   const maxWrites = Math.max(0, Number(argValue("max-writes", "0")) || 0);
   /** historical backfill: first_seen_at=NULL → 오늘의 시장 발견 feed 오염 방지 */
   const discovery = argValue("discovery", "1") !== "0";
+  const skipDelete = argValue("skip-delete", "0") === "1";
   const maxRegions = Number(argValue("max-regions", "0"));
   const maxMonths = Number(argValue("max-months", "0"));
   const fromMonth = argValue("from-month", "");
@@ -241,7 +242,7 @@ async function main() {
     : null;
 
   console.log(
-    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
+    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} skipDelete=${skipDelete ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
   );
   if (lawdCodes.length <= 20) {
     console.log(`[sync] lawds: ${lawdCodes.join(",")}`);
@@ -294,14 +295,37 @@ async function main() {
         if (onlyChanged && isCellUnchanged(snapshots?.get(key), items)) {
           unchanged += 1;
         } else {
-          const result = await replaceMonthTransactions({
+          const preview = await replaceMonthTransactions({
             lawdCd: job.lawdCd,
             yearMonth: job.yearMonth,
             dealKind: job.kind,
             items,
             setFirstSeenOnInsert: discovery,
-            dryRun,
+            dryRun: true,
+            skipDelete,
           });
+          const previewWrites =
+            preview.inserted + preview.updated + (skipDelete ? 0 : preview.deleted);
+          const sqlWritesSoFar = inserted + updated + (skipDelete ? 0 : deleted);
+          if (!dryRun && maxWrites > 0 && sqlWritesSoFar + previewWrites > maxWrites) {
+            stop = true;
+            console.error(
+              `[sync] WRITE KILL SWITCH max-writes=${maxWrites} would exceed at ${key} pendingIns=${preview.inserted} pendingUpd=${preview.updated} pendingDel=${preview.deleted} soFarIns=${inserted} soFarUpd=${updated}`,
+            );
+            unchanged += preview.unchanged;
+            continue;
+          }
+          const result = dryRun
+            ? preview
+            : await replaceMonthTransactions({
+                lawdCd: job.lawdCd,
+                yearMonth: job.yearMonth,
+                dealKind: job.kind,
+                items,
+                setFirstSeenOnInsert: discovery,
+                dryRun: false,
+                skipDelete,
+              });
           inserted += result.inserted;
           updated += result.updated;
           deleted += result.deleted;
@@ -314,13 +338,6 @@ async function main() {
               rowCount: items.length,
               maxDealDate: maxDealDateOf(items),
             });
-          }
-          const sqlWrites = inserted + updated + deleted;
-          if (maxWrites > 0 && sqlWrites >= maxWrites) {
-            stop = true;
-            console.error(
-              `[sync] WRITE KILL SWITCH max-writes=${maxWrites} reached at ${key} ins=${inserted} upd=${updated} del=${deleted}`,
-            );
           }
         }
       } catch (err) {

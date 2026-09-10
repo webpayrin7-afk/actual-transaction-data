@@ -109,7 +109,7 @@ export interface StatsRegionRank {
 }
 
 export interface MarketStatsResponse {
-  source: "preagg" | "empty";
+  source: "preagg" | "warehouse" | "empty";
   asOfDate: string | null;
   selectedDate: string | null;
   computedAt: string | null;
@@ -538,6 +538,120 @@ async function loadRegionRange(
   }));
 }
 
+function scopeLawdSql(scope: StatsScope): string {
+  if (scope === "seoul") return `AND substr(lawd_cd, 1, 2) = '11'`;
+  if (scope === "gyeonggi") return `AND substr(lawd_cd, 1, 2) = '41'`;
+  return `AND substr(lawd_cd, 1, 2) IN ('11', '41')`;
+}
+
+async function warehouseMinTradeDate(): Promise<string | null> {
+  const db = getDb();
+  if (!db) return null;
+  const r = await db.execute({
+    sql: `SELECT MIN(deal_date) AS m FROM transactions WHERE deal_type = ?`,
+    args: ["trade"],
+  });
+  const v = r.rows[0]?.m;
+  return v ? String(v).slice(0, 10) : null;
+}
+
+async function preaggMinDay(): Promise<string | null> {
+  const db = getDb();
+  if (!db) return null;
+  const r = await db.execute({
+    sql: `SELECT MIN(day) AS m FROM market_stats_daily`,
+    args: [],
+  });
+  const v = r.rows[0]?.m;
+  return v ? String(v).slice(0, 10) : null;
+}
+
+/** DB-only volume/median for windows outside the 24-month preagg snapshot. */
+async function loadDailyScopeFromWarehouse(
+  scope: StatsScope,
+  from: string,
+  to: string,
+): Promise<StatsDayRow[]> {
+  const db = getDb();
+  if (!db) return [];
+  const r = await db.execute({
+    sql: `SELECT deal_date AS day, deal_amount, exclusive_area
+          FROM transactions
+          WHERE deal_type = ?
+            AND deal_date >= ?
+            AND deal_date <= ?
+            ${scopeLawdSql(scope)}`,
+    args: ["trade", from, to],
+  });
+  type Acc = { amounts: number[]; ppsqm: number[] };
+  const byDay = new Map<string, Acc>();
+  for (const row of r.rows) {
+    const day = String(row.day).slice(0, 10);
+    const amount = Number(row.deal_amount) || 0;
+    const area = Number(row.exclusive_area) || 0;
+    if (amount <= 0) continue;
+    let acc = byDay.get(day);
+    if (!acc) {
+      acc = { amounts: [], ppsqm: [] };
+      byDay.set(day, acc);
+    }
+    acc.amounts.push(amount);
+    if (area > 0) acc.ppsqm.push(amount / area);
+  }
+  return [...byDay.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([day, acc]) => ({
+      day,
+      scope,
+      tradeCount: acc.amounts.length,
+      singogaCount: 0,
+      dropCount: 0,
+      medianAmount: medianOf(acc.amounts),
+      avgAmount:
+        acc.amounts.length > 0
+          ? Math.round(acc.amounts.reduce((s, v) => s + v, 0) / acc.amounts.length)
+          : null,
+      medianPpsqm: medianOf(acc.ppsqm),
+    }));
+}
+
+async function loadRegionRangeFromWarehouse(
+  scope: StatsScope,
+  from: string,
+  to: string,
+): Promise<StatsRegionDayRow[]> {
+  const db = getDb();
+  if (!db) return [];
+  const r = await db.execute({
+    sql: `SELECT deal_date AS day, lawd_cd, COUNT(*) AS n
+          FROM transactions
+          WHERE deal_type = ?
+            AND deal_date >= ?
+            AND deal_date <= ?
+            ${scopeLawdSql(scope)}
+          GROUP BY deal_date, lawd_cd`,
+    args: ["trade", from, to],
+  });
+  const out: StatsRegionDayRow[] = [];
+  for (const row of r.rows) {
+    const lawdCd = String(row.lawd_cd);
+    const meta = lawdMeta(lawdCd);
+    if (!meta) continue;
+    if (scope !== "all" && meta.metro !== scope) continue;
+    out.push({
+      day: String(row.day).slice(0, 10),
+      lawdCd,
+      metro: meta.metro,
+      regionSlug: meta.regionSlug,
+      regionName: meta.regionName,
+      tradeCount: Number(row.n) || 0,
+      singogaCount: 0,
+      dropCount: 0,
+    });
+  }
+  return out;
+}
+
 function rollupSeries(
   days: StatsDayRow[],
   period: StatsPeriod,
@@ -812,8 +926,14 @@ export async function getMarketStats(params: {
   const selectedDate = rawDate > asOf ? asOf : rawDate;
   const window = resolvePeriodWindow(selectedDate, params.period, asOf);
   const anchor = window.anchorDate;
+  const [preaggMin, warehouseMin] = await Promise.all([
+    preaggMinDay(),
+    warehouseMinTradeDate(),
+  ]);
+  const needsWarehouse =
+    !preaggMin || window.chartFrom < preaggMin || window.curFrom < preaggMin;
 
-  const [days, regionsFull] = await Promise.all([
+  const [preaggDays, preaggRegions] = await Promise.all([
     loadDailyScope(params.scope, window.chartFrom, window.chartTo),
     loadRegionRange(
       params.scope,
@@ -821,6 +941,39 @@ export async function getMarketStats(params: {
       window.curTo,
     ),
   ]);
+
+  let days = preaggDays;
+  let regionsFull = preaggRegions;
+  let source: MarketStatsResponse["source"] = "preagg";
+  if (needsWarehouse) {
+    const [whDays, whRegions] = await Promise.all([
+      loadDailyScopeFromWarehouse(params.scope, window.chartFrom, window.chartTo),
+      loadRegionRangeFromWarehouse(
+        params.scope,
+        window.prevFrom < window.curFrom ? window.prevFrom : window.curFrom,
+        window.curTo,
+      ),
+    ]);
+    if (preaggDays.length === 0) {
+      days = whDays;
+      regionsFull = whRegions;
+      source = "warehouse";
+    } else {
+      const preaggDaySet = new Set(preaggDays.map((d) => d.day));
+      days = [
+        ...whDays.filter((d) => !preaggDaySet.has(d.day)),
+        ...preaggDays,
+      ].sort((a, b) => a.day.localeCompare(b.day));
+      const preaggRegionKey = new Set(
+        preaggRegions.map((r) => `${r.day}|${r.lawdCd}`),
+      );
+      regionsFull = [
+        ...whRegions.filter((r) => !preaggRegionKey.has(`${r.day}|${r.lawdCd}`)),
+        ...preaggRegions,
+      ];
+      source = "warehouse";
+    }
+  }
 
   if (days.length === 0) {
     return {
@@ -833,6 +986,9 @@ export async function getMarketStats(params: {
 
   const series = rollupSeries(days, params.period);
   const kpi = buildKpi(days, anchor, asOf, params.period);
+  if (warehouseMin) {
+    kpi.canGoPrev = kpi.prevAnchor >= warehouseMin;
+  }
   const rankings = buildRankings(regionsFull, anchor, asOf, params.period);
 
   // 기본 as-of 스냅샷이 선택 기간과 같으면 캐시 피드, 아니면 on-demand
@@ -859,7 +1015,7 @@ export async function getMarketStats(params: {
   }
 
   const data: MarketStatsResponse = {
-    source: "preagg",
+    source,
     asOfDate: asOf,
     selectedDate: anchor,
     computedAt: meta.computedAt,
@@ -867,7 +1023,9 @@ export async function getMarketStats(params: {
     scope: params.scope,
     dateBasisNote: window.reportingLagRisk
       ? "계약일 기준입니다. 최신 계약 기간은 신고 지연으로 거래량이 과소 보일 수 있어, 단순 급락으로 해석하지 마세요."
-      : "계약일(deal_date) 기준입니다. 홈의 ‘새로 확인’(discovery_at)과 다른 시간축입니다.",
+      : source === "warehouse"
+        ? "계약일(deal_date) 기준입니다. 24개월 이전 구간은 웨어하우스에서 거래량·중위를 읽습니다. 신고가/하락은 최근 24개월 사전집계 구간에만 제공됩니다."
+        : "계약일(deal_date) 기준입니다. 홈의 ‘새로 확인’(discovery_at)과 다른 시간축입니다.",
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
     series,
     kpi,
