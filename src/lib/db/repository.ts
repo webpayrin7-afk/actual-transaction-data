@@ -762,6 +762,7 @@ export async function queryAptTradeHistory(params: {
 }): Promise<AptTradeHistoryRow[] | null> {
   const db = await readyDb();
   if (!db) return null;
+  const client = db;
   const norms = [
     ...new Set(params.aptNameNorms.map((n) => n.trim()).filter(Boolean)),
   ];
@@ -774,7 +775,7 @@ export async function queryAptTradeHistory(params: {
   async function fetchChunk(chunk: string[]): Promise<AptTradeHistoryRow[]> {
     const namePlaceholders = chunk.map(() => "?").join(",");
     noteDbQuery();
-    const result = await db.execute({
+    const result = await client.execute({
       sql: `SELECT id, apt_name_norm, exclusive_area, deal_date, deal_amount
             FROM transactions INDEXED BY idx_tx_lawd_apt_ym
             WHERE lawd_cd IN (${lawdPlaceholders})
