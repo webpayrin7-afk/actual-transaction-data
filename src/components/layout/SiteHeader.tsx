@@ -124,7 +124,7 @@ export function SiteHeader() {
       <div className="mx-auto w-full max-w-7xl px-2 sm:px-4 lg:px-6">
         <div className="flex flex-col gap-0.5 py-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
           <div className="flex min-w-0 items-center gap-2 sm:gap-5">
-            <Link href="/" className="inline-flex shrink-0 items-center gap-2">
+            <Link href="/" className="-ml-1 inline-flex shrink-0 items-center gap-2">
               <BrandLogo compact priority />
             </Link>
 

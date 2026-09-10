@@ -163,8 +163,10 @@ export function Dashboard({
   };
 
   return (
-    <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} sm:gap-5`}>
-      <header className="-mt-2 mb-2 flex flex-col gap-5 sm:mb-0 sm:gap-5">
+    <div
+      className={`${PAGE_SHELL.replace("gap-6", "gap-3").replace("pt-5", "pt-3").replace("sm:pt-7", "sm:pt-4")} sm:gap-5`}
+    >
+      <header className="flex flex-col gap-3 sm:gap-4">
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
