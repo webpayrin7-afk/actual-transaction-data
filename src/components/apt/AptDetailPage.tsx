@@ -525,7 +525,7 @@ export function AptDetailPage({
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
             {data.warning ??
-              "데모 데이터로 표시 중입니다. MOLIT_API_KEY 설정 시 실거래가 반영됩니다."}
+              "실거래 데이터 연동이 없어 데모 데이터로 표시 중입니다."}
           </p>
         </div>
       )}

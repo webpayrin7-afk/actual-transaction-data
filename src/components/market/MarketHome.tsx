@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDownRight,
@@ -167,6 +168,7 @@ function Section({
 }
 
 export function MarketHome() {
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const query = useQuery({
     queryKey: ["market-home"],
     queryFn: fetchMarketHome,
@@ -176,23 +178,44 @@ export function MarketHome() {
   const data = query.data;
 
   return (
-    <div className={`${PAGE_SHELL}`}>
+    <div className={PAGE_SHELL.replace("gap-6", "gap-4")}>
       <PageHeader
         title="오늘의 아파트 시장"
-        description="오늘 새로 확인된 실거래·신고가·하락거래를 한눈에 확인하세요."
+        description="오늘 새로 확인된 시장 변화를 한눈에 보세요."
+        className="pb-3 sm:pb-4"
         meta={
           <>
             {data?.lastUpdatedLabel || data?.computedAt ? (
               <p>
                 최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
-                {data.discoveryDate ? ` · 확인일 ${data.discoveryDate}` : null}
+                {data.discoveryDate
+                  ? ` · 새 거래 확인 기준 ${data.discoveryDate}`
+                  : null}
               </p>
             ) : null}
-            {data?.dateBasisNote ? (
-              <p className="text-[11px] leading-4 text-slate-400">
-                {data.dateBasisNote}
-              </p>
-            ) : null}
+            <div className="pt-0.5 text-xs text-slate-500">
+              <button
+                type="button"
+                aria-expanded={detailsOpen}
+                onClick={() => setDetailsOpen((open) => !open)}
+                className="font-medium text-teal-700 underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+              >
+                {detailsOpen ? "접기" : "자세히"}
+              </button>
+              {detailsOpen ? (
+                <div className="mt-2 max-w-3xl space-y-1 leading-5 text-slate-500">
+                  <p>
+                    ‘새로 확인’은 집랩이 거래를 처음 확인한 날짜 기준이며,
+                    공식 신고일이나 공개일을 뜻하지 않습니다.
+                  </p>
+                  <p>
+                    각 거래 카드의 날짜와 시장동향 통계는 실제 계약일
+                    기준입니다. 신고와 데이터 반영 시차로 오늘 체결된 거래와
+                    차이가 날 수 있습니다.
+                  </p>
+                </div>
+              ) : null}
+            </div>
           </>
         }
       />
@@ -219,7 +242,7 @@ export function MarketHome() {
             <KpiCard
               label="오늘 새로 확인"
               value={`${data.kpis.newDealCount ?? 0}건`}
-              hint="시스템 최초 확인 기준"
+              hint="집랩에서 처음 확인한 날 기준"
               tone="neutral"
             />
             <KpiCard

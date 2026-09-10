@@ -660,10 +660,10 @@ async function buildAptDetail(params: {
     });
     mark("apiPoolMs", tApi);
     if (collected.length > 0) source = "api";
-    else warning = "선택한 단지·기간에 API 실거래 데이터가 없습니다.";
+    else warning = "선택한 단지·기간에 확인된 실거래 데이터가 없습니다.";
   } else {
     warning =
-      "MOLIT_API_KEY가 없어 지역별 데모 데이터로 표시 중입니다. Vercel/로컬 환경변수에 키를 설정하세요.";
+      "실거래 데이터 연동이 없어 지역별 데모 데이터로 표시 중입니다.";
     for (const ym of months.slice(0, Math.min(12, months.length))) {
       collected.push(...buildRegionDemoTransactions(region, ym));
     }
