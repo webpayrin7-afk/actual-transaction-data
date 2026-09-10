@@ -20,7 +20,11 @@ export async function GET(request: NextRequest) {
       dong: dong || undefined,
       gu: gu && gu !== "all" ? gu : undefined,
     });
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800",
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

@@ -14,6 +14,8 @@ async function fetchRegionDongs(region: string): Promise<RegionBrowseResponse> {
   return res.json();
 }
 
+const REGION_BROWSE_STALE_TIME_MS = 10 * 60 * 1000;
+
 function DongCard({
   item,
   regionSlug,
@@ -38,6 +40,9 @@ export function RegionDongBrowse({ regionSlug }: { regionSlug: string }) {
   const query = useQuery({
     queryKey: ["region-browse", regionSlug],
     queryFn: () => fetchRegionDongs(regionSlug),
+    staleTime: REGION_BROWSE_STALE_TIME_MS,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const data = query.data;
@@ -51,14 +56,7 @@ export function RegionDongBrowse({ regionSlug }: { regionSlug: string }) {
       )}
 
       {query.isLoading && !data ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-20 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"
-            />
-          ))}
-        </div>
+        <div className="h-20 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

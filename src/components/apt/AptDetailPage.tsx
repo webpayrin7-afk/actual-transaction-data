@@ -570,7 +570,7 @@ export function AptDetailPage({
         <div className="lab-card px-3.5 py-3.5">
           <p className="text-[11px] font-medium text-slate-500">기간 거래량</p>
           <p className="lab-kpi-value mt-1 text-lg font-semibold sm:text-xl">
-            매매 {periodTradeCount}
+            매매 {periodTradeCount}건
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">
             전월세 {periodRentCount}건

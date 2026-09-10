@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function BrandLogo({ compact = false, priority = false }: { compact?: boolean; priority?: boolean }) {
   return (
-    <span className={`flex shrink-0 items-center justify-center bg-white ${compact ? "h-[46px] w-[112px]" : "h-[66px] w-[162px]"}`}>
+    <span className={`flex shrink-0 items-center justify-center bg-white ${compact ? "h-[56px] w-[138px]" : "h-[84px] w-[205px]"}`}>
       <Image
         src="/jiplab-logo.jpg"
         width={1280}

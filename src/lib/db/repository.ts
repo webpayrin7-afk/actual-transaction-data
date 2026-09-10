@@ -1028,12 +1028,50 @@ export type RegionBrowseAptRow = {
   buildYear: number | null;
 };
 
+const REGION_BROWSE_CACHE_TTL_MS = 10 * 60 * 1000;
+const regionBrowseCache = new Map<
+  string,
+  { builtAt: number; rows: RegionBrowseAptRow[] }
+>();
+const regionBrowseInflight = new Map<
+  string,
+  Promise<RegionBrowseAptRow[] | null>
+>();
+
 /** 지역(법정동코드) 매매 거래 기준 단지 집계 — 동별 상세용 */
 export async function queryRegionBrowseApts(
   lawdCodes: string[],
 ): Promise<RegionBrowseAptRow[] | null> {
+  if (!lawdCodes.length) return null;
+
+  const cacheKey = [...lawdCodes].sort().join(",");
+  const cached = regionBrowseCache.get(cacheKey);
+  if (cached && Date.now() - cached.builtAt < REGION_BROWSE_CACHE_TTL_MS) {
+    return cached.rows;
+  }
+
+  const inflight = regionBrowseInflight.get(cacheKey);
+  if (inflight) return inflight;
+
+  const request = queryRegionBrowseAptsUncached(lawdCodes)
+    .then((rows) => {
+      if (rows) {
+        regionBrowseCache.set(cacheKey, { builtAt: Date.now(), rows });
+      }
+      return rows;
+    })
+    .finally(() => {
+      regionBrowseInflight.delete(cacheKey);
+    });
+  regionBrowseInflight.set(cacheKey, request);
+  return request;
+}
+
+async function queryRegionBrowseAptsUncached(
+  lawdCodes: string[],
+): Promise<RegionBrowseAptRow[] | null> {
   const db = await readyDb();
-  if (!db || !lawdCodes.length) return null;
+  if (!db) return null;
 
   const placeholders = lawdCodes.map(() => "?").join(",");
   const result = await db.execute({
