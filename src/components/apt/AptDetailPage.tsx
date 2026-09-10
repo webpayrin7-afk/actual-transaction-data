@@ -473,7 +473,7 @@ export function AptDetailPage({
         aria-hidden={!stickyVisible}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
-          <BackLink fallback="/complexes" compact />
+          <BackLink fallback="/complexes" compact hideLabel />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-slate-900">
               {data.aptName}
