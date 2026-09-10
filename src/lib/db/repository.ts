@@ -762,6 +762,7 @@ export async function queryAptTradeHistory(params: {
 }): Promise<AptTradeHistoryRow[] | null> {
   const db = await readyDb();
   if (!db) return null;
+  const client = db;
   const norms = [
     ...new Set(params.aptNameNorms.map((n) => n.trim()).filter(Boolean)),
   ];
@@ -769,27 +770,37 @@ export async function queryAptTradeHistory(params: {
 
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
   const out: AptTradeHistoryRow[] = [];
+  const HISTORY_CHUNK_CONCURRENCY = 3;
 
-  for (let i = 0; i < norms.length; i += APT_HISTORY_IN_CHUNK) {
-    const chunk = norms.slice(i, i + APT_HISTORY_IN_CHUNK);
+  async function fetchChunk(chunk: string[]): Promise<AptTradeHistoryRow[]> {
     const namePlaceholders = chunk.map(() => "?").join(",");
-    const result = await db.execute({
+    noteDbQuery();
+    const result = await client.execute({
       sql: `SELECT id, apt_name_norm, exclusive_area, deal_date, deal_amount
-            FROM transactions
+            FROM transactions INDEXED BY idx_tx_lawd_apt_ym
             WHERE lawd_cd IN (${lawdPlaceholders})
-              AND deal_type = 'trade'
-              AND apt_name_norm IN (${namePlaceholders})`,
+              AND apt_name_norm IN (${namePlaceholders})
+              AND deal_type = 'trade'`,
       args: [...params.lawdCodes, ...chunk],
     });
-    for (const row of result.rows) {
-      out.push({
-        id: String(row.id),
-        aptNameNorm: String(row.apt_name_norm),
-        exclusiveArea: Number(row.exclusive_area) || 0,
-        dealDate: String(row.deal_date),
-        dealAmount: Number(row.deal_amount) || 0,
-      });
-    }
+    return result.rows.map((row) => ({
+      id: String(row.id),
+      aptNameNorm: String(row.apt_name_norm),
+      exclusiveArea: Number(row.exclusive_area) || 0,
+      dealDate: String(row.deal_date),
+      dealAmount: Number(row.deal_amount) || 0,
+    }));
+  }
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < norms.length; i += APT_HISTORY_IN_CHUNK) {
+    chunks.push(norms.slice(i, i + APT_HISTORY_IN_CHUNK));
+  }
+  for (let i = 0; i < chunks.length; i += HISTORY_CHUNK_CONCURRENCY) {
+    const parts = await Promise.all(
+      chunks.slice(i, i + HISTORY_CHUNK_CONCURRENCY).map((chunk) => fetchChunk(chunk)),
+    );
+    for (const part of parts) out.push(...part);
   }
 
   return out;

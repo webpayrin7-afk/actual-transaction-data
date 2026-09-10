@@ -1365,6 +1365,7 @@ async function enrichSeenDay(params: {
   daySeen: AxisRow[];
   offset: number;
   withSparkline: boolean;
+  skipHistoryReload?: boolean;
 }): Promise<RegionDailyDaySection> {
   const { lawdCodes, source, daySeen, offset, withSparkline } = params;
   let historyTrades = params.historyTrades;
@@ -1372,7 +1373,12 @@ async function enrichSeenDay(params: {
   const totalCount = daySeen.length;
   const bulkIngestDay = totalCount > REGION_DAILY_SINGOGA_DAY_CAP;
 
-  if (source === "db" && !bulkIngestDay && daySeen.length > 0) {
+  if (
+    source === "db" &&
+    !bulkIngestDay &&
+    daySeen.length > 0 &&
+    !params.skipHistoryReload
+  ) {
     try {
       historyTrades = await loadAptHistoryForDeals(
         lawdCodes,
@@ -1464,18 +1470,11 @@ async function computeRegionDaily(params: {
     params;
   const lawdCodes = [...region.lawdCodes];
   const todayYm = yearMonthFromSeoulDate(today);
-  const availableMonths = await loadAvailableMonths(region);
-  const oldestYm = availableMonths.at(-1) ?? null;
-  const contractMonthOptionList = monthSelectorOptions(
-    availableMonths,
-    todayYm,
-  );
-  const activityYearMonths = contractMonthOptionList;
-
   const needsKpis = part === "market" || part === "all";
   const needsHistory =
     part === "history" || part === "days" || part === "all";
   const needsLatest = part === "latest" || part === "all";
+  const needsMonths = needsKpis || needsHistory || needsLatest;
 
   const kpiMonths = needsKpis
     ? [
@@ -1485,13 +1484,26 @@ async function computeRegionDaily(params: {
       ]
     : [];
   const historyMonths = needsHistory ? [seenMonth] : [];
+  const emptyTradeLoad = {
+    trades: [] as Transaction[],
+    source: (hasDb() ? "db" : "api") as "db" | "api",
+  };
 
-  const [{ trades: monthScopedTrades, source: monthSource }] = await Promise.all([
-    loadRegionMonthTrades(region, [...kpiMonths, ...historyMonths]),
+  const [availableMonths, discovered, monthLoad] = await Promise.all([
+    needsMonths ? loadAvailableMonths(region) : Promise.resolve([] as string[]),
+    needsLatest ? loadRegionDiscoveries(region) : Promise.resolve(emptyTradeLoad),
+    needsKpis || needsHistory
+      ? loadRegionMonthTrades(region, [...kpiMonths, ...historyMonths])
+      : Promise.resolve(emptyTradeLoad),
   ]);
-  const discovered = needsLatest
-    ? await loadRegionDiscoveries(region)
-    : { trades: [] as Transaction[], source: monthSource };
+  const monthScopedTrades = monthLoad.trades;
+  const monthSource = monthLoad.source;
+  const oldestYm = availableMonths.at(-1) ?? null;
+  const contractMonthOptionList = monthSelectorOptions(
+    availableMonths,
+    todayYm,
+  );
+  const activityYearMonths = contractMonthOptionList;
   const source = hasDb() ? "db" : monthSource;
   const src = source === "db" ? "db" : "api";
 
@@ -1576,35 +1588,64 @@ async function computeRegionDaily(params: {
     withSparkline: boolean,
     dayOffset: number,
   ): Promise<RegionDailyDaySection[]> {
-    const out: RegionDailyDaySection[] = [];
-    for (const date of wanted) {
-      const dayRows = dealByDate.get(date);
-      if (!dayRows?.length) continue;
-      out.push(
-        await enrichSeenDay({
+    const rows = wanted.flatMap((date) => dealByDate.get(date) ?? []);
+    let sharedHistory = historyTrades;
+    const historyRows = rows.filter(
+      (row) =>
+        (dealByDate.get(row.axisDate)?.length ?? 0) <=
+        REGION_DAILY_SINGOGA_DAY_CAP,
+    );
+    if (source === "db" && historyRows.length > 0) {
+      try {
+        sharedHistory = await loadAptHistoryForDeals(
+          lawdCodes,
+          historyRows.map(({ tx }) => tx),
+        );
+      } catch (error) {
+        console.warn("[region-daily] apt history db read failed:", error);
+      }
+    }
+    const sections = await Promise.all(
+      wanted.map(async (date) => {
+        const dayRows = dealByDate.get(date);
+        if (!dayRows?.length) return null;
+        return enrichSeenDay({
           lawdCodes,
           source,
-          historyTrades,
+          historyTrades: sharedHistory,
           daySeen: dayRows,
           offset: dayOffset,
           withSparkline,
-        }),
-      );
-    }
-    return out;
+          skipHistoryReload: true,
+        });
+      }),
+    );
+    return sections.filter((section): section is RegionDailyDaySection => section != null);
   }
 
   if (part === "latest") {
     const daySeen = hero.date ? (seenByDate.get(hero.date) ?? []) : [];
     const tHero = performance.now();
+    let heroHistory = historyTrades;
+    if (source === "db" && daySeen.length > 0) {
+      try {
+        heroHistory = await loadAptHistoryForDeals(
+          lawdCodes,
+          daySeen.map(({ tx }) => tx),
+        );
+      } catch (error) {
+        console.warn("[region-daily] apt history db read failed:", error);
+      }
+    }
     const section = daySeen.length
       ? await enrichSeenDay({
           lawdCodes,
           source,
-          historyTrades,
+          historyTrades: heroHistory,
           daySeen,
           offset: 0,
           withSparkline: true,
+          skipHistoryReload: true,
         })
       : null;
     if (activeProfile) {
@@ -1632,7 +1673,13 @@ async function computeRegionDaily(params: {
   }
 
   if (part === "days") {
-    const sections = await sectionsFor(dates, false, offset);
+    const wanted = dates.length
+      ? dates.slice(0, HISTORY_DAY_FETCH_CAP)
+      : days
+          .filter((d) => d.dealCount > 0)
+          .slice(0, HISTORY_INITIAL_DAY_COUNT)
+          .map((d) => d.date);
+    const sections = await sectionsFor(wanted, false, offset);
     const patchedDays = days.map((day) => {
       const section = sections.find((s) => s.date === day.date);
       if (!section) return day;

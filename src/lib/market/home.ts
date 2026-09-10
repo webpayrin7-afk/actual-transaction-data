@@ -5,16 +5,22 @@ import { aptDetailHref } from "@/lib/molit/apt";
 import {
   MARKET_COMPLEX_KEY_VERSION,
   DROP_THRESHOLD,
+  addDays,
   typeKey,
 } from "@/lib/market/keys";
 import {
   formatSeoulDateTime,
+  seoulDateOf,
   seoulDayBoundsUtc,
   seoulToday,
 } from "@/lib/market/time";
 
 const LIST_LIMIT = 8;
 const HIGH_PRICE_MAN = 200_000; // 20억
+const VOLUME_WINDOW_DAYS = 30;
+const MIN_RECENT_VOLUME = 3;
+const MIN_PRIOR_VOLUME = 1;
+const MIN_VOLUME_GROWTH_RATIO = 1.5;
 /** 스냅샷 메모리 캐시 (DB 스냅샷 읽기용) */
 const READ_CACHE_TTL_MS = 60 * 1000;
 
@@ -95,6 +101,8 @@ interface RawTrade {
 }
 
 let readCache: { expiresAt: number; data: MarketHomeResponse } | null = null;
+let volumeCache: { expiresAt: number; asOf: string; items: MarketVolumeItem[] } | null =
+  null;
 
 function regionSlugFor(lawdCd: string, gu: string): string {
   const byLawd = LAWD_TO_REGION[lawdCd];
@@ -199,10 +207,121 @@ export async function saveMarketHomeSnapshot(
   };
 }
 
+async function computeVolumeSurges(asOfDate: string): Promise<MarketVolumeItem[]> {
+  if (!asOfDate) return [];
+  if (
+    volumeCache &&
+    volumeCache.asOf === asOfDate &&
+    volumeCache.expiresAt > Date.now()
+  ) {
+    return volumeCache.items;
+  }
+  if (!hasDb()) return [];
+  const db = getDb();
+  if (!db) return [];
+  const recentTo = asOfDate;
+  const volumeMid = addDays(asOfDate, -VOLUME_WINDOW_DAYS);
+  const volumeFrom = addDays(asOfDate, -(VOLUME_WINDOW_DAYS * 2 - 1));
+  try {
+    const result = await db.execute({
+      sql: `SELECT
+              apt_name_norm,
+              lawd_cd,
+              dong,
+              MAX(apt_name) AS apt_name,
+              MAX(gu) AS gu,
+              SUM(CASE WHEN deal_date >= ? AND deal_date <= ? THEN 1 ELSE 0 END) AS recent_count,
+              SUM(CASE WHEN deal_date >= ? AND deal_date < ? THEN 1 ELSE 0 END) AS prior_count
+            FROM transactions
+            WHERE deal_type = ?
+              AND deal_date >= ?
+              AND deal_date <= ?
+            GROUP BY apt_name_norm, lawd_cd, dong
+            HAVING recent_count >= ?
+               AND prior_count >= ?
+               AND recent_count * 1.0 / prior_count >= ?
+            ORDER BY (recent_count - prior_count) DESC, recent_count DESC
+            LIMIT ?`,
+      args: [
+        volumeMid,
+        recentTo,
+        volumeFrom,
+        volumeMid,
+        "trade",
+        volumeFrom,
+        recentTo,
+        MIN_RECENT_VOLUME,
+        MIN_PRIOR_VOLUME,
+        MIN_VOLUME_GROWTH_RATIO,
+        LIST_LIMIT,
+      ],
+    });
+    const items: MarketVolumeItem[] = result.rows.map((row) => {
+      const recentCount = Number(row.recent_count) || 0;
+      const priorCount = Number(row.prior_count) || 0;
+      const aptName = String(row.apt_name ?? "");
+      const gu = String(row.gu ?? "");
+      const lawdCd = String(row.lawd_cd ?? "");
+      return {
+        aptName,
+        gu,
+        dong: String(row.dong ?? ""),
+        href: hrefFor({ aptName, lawdCd, gu }),
+        recentCount,
+        priorCount,
+        increaseCount: recentCount - priorCount,
+        growthPct:
+          priorCount > 0
+            ? Math.round(((recentCount - priorCount) / priorCount) * 1000) / 10
+            : null,
+      };
+    });
+    volumeCache = {
+      expiresAt: Date.now() + READ_CACHE_TTL_MS,
+      asOf: asOfDate,
+      items,
+    };
+    return items;
+  } catch (error) {
+    console.warn("[market-home] volume surge read failed:", error);
+    return [];
+  }
+}
+
+function withVolumeSurges(
+  payload: MarketHomeResponse,
+  volumeSurges: MarketVolumeItem[],
+): MarketHomeResponse {
+  if (payload.volumeSurges.length > 0 && volumeSurges.length === 0) {
+    return payload;
+  }
+  return {
+    ...payload,
+    volumeSurges,
+    kpis: {
+      ...payload.kpis,
+      volumeSurgeCount: volumeSurges.length,
+    },
+  };
+}
+
 export async function getMarketHome(): Promise<MarketHomeResponse> {
   const snap = await readMarketHomeSnapshot();
-  if (snap) return snap;
-  return computeMarketHome();
+  const asOfDate = snap?.asOfDate ?? null;
+  let resolvedAsOf = asOfDate;
+  if (!resolvedAsOf && hasDb()) {
+    const db = getDb();
+    if (db) {
+      const maxRow = await db.execute({
+        sql: `SELECT MAX(deal_date) AS max_d FROM transactions WHERE deal_type = ?`,
+        args: ["trade"],
+      });
+      resolvedAsOf = String(maxRow.rows[0]?.max_d ?? "") || null;
+    }
+  }
+  const volumeSurges = await computeVolumeSurges(resolvedAsOf ?? "");
+  const payload = snap ?? (await computeMarketHome({ discoveryDay: "today" }));
+  return withVolumeSurges(payload, volumeSurges);
 }
 
 /**
@@ -210,7 +329,9 @@ export async function getMarketHome(): Promise<MarketHomeResponse> {
  * discovery_at(있으면) 또는 first_seen_at이 한국시간 ‘오늘’인 매매만 신규 피드에 포함.
  * NULL 행은 포함하지 않음 — bulk/backfill 대량 노출 방지.
  */
-export async function computeMarketHome(): Promise<MarketHomeResponse> {
+export async function computeMarketHome(opts?: {
+  discoveryDay?: "today" | "latest";
+}): Promise<MarketHomeResponse> {
   if (!hasDb()) {
     return emptyResponse("실거래 DB가 연결되지 않았습니다.");
   }
@@ -226,15 +347,26 @@ export async function computeMarketHome(): Promise<MarketHomeResponse> {
     args: ["trade"],
   });
   const asOfDate = String(maxRow.rows[0]?.max_d ?? "");
-  const discoveryDate = seoulToday();
+  let discoveryDate = seoulToday();
+  const useDiscoveryAt = await hasDiscoveryAtColumn(db);
+  const activityCol = useDiscoveryAt ? "discovery_at" : "first_seen_at";
+  if (opts?.discoveryDay === "latest") {
+    const maxDisc = await db.execute({
+      sql: `SELECT MAX(${activityCol}) AS max_d FROM transactions
+            WHERE deal_type = ?
+              AND ${activityCol} IS NOT NULL
+              AND ${activityCol} != ''`,
+      args: ["trade"],
+    });
+    const maxIso = String(maxDisc.rows[0]?.max_d ?? "");
+    const latestDay = maxIso ? seoulDateOf(maxIso) : "";
+    if (latestDay) discoveryDate = latestDay;
+  }
   const { startIso, endIso } = seoulDayBoundsUtc(discoveryDate);
 
   if (!asOfDate) {
     return emptyResponse("적재된 매매 실거래가 없습니다.");
   }
-
-  const useDiscoveryAt = await hasDiscoveryAtColumn(db);
-  const activityCol = useDiscoveryAt ? "discovery_at" : "first_seen_at";
 
   const coverage = await db.execute({
     sql: `SELECT COUNT(*) AS cnt FROM transactions
@@ -326,37 +458,43 @@ export async function computeMarketHome(): Promise<MarketHomeResponse> {
   }
 
   const priorByTxId = new Map<string, number>();
-  for (const [dealDate, dayTrades] of byDealDate) {
-    const norms = [...new Set(dayTrades.map((t) => t.aptNameNorm))];
-    const peak = new Map<string, number>();
-    const CHUNK = 100;
-    for (let i = 0; i < norms.length; i += CHUNK) {
-      const slice = norms.slice(i, i + CHUNK);
-      const placeholders = slice.map(() => "?").join(",");
-      const hist = await db.execute({
-        sql: `SELECT apt_name_norm, lawd_cd, dong, exclusive_area,
-                     MAX(deal_amount) AS max_amt
-              FROM transactions
-              WHERE deal_type = ?
-                AND deal_date < ?
-                AND apt_name_norm IN (${placeholders})
-              GROUP BY apt_name_norm, lawd_cd, dong, ROUND(exclusive_area * 100)`,
-        args: ["trade", dealDate, ...slice],
-      });
-      for (const row of hist.rows) {
-        const key = typeKey(
-          String(row.apt_name_norm),
-          String(row.lawd_cd),
-          String(row.dong ?? ""),
-          Number(row.exclusive_area) || 0,
-        );
-        peak.set(key, Number(row.max_amt) || 0);
-      }
-    }
-    for (const tx of dayTrades) {
-      const key = typeKey(tx.aptNameNorm, tx.lawdCd, tx.dong, tx.exclusiveArea);
-      priorByTxId.set(tx.id, peak.get(key) ?? 0);
-    }
+  const dayEntries = [...byDealDate.entries()];
+  const DAY_CONCURRENCY = 3;
+  for (let i = 0; i < dayEntries.length; i += DAY_CONCURRENCY) {
+    await Promise.all(
+      dayEntries.slice(i, i + DAY_CONCURRENCY).map(async ([dealDate, dayTrades]) => {
+        const norms = [...new Set(dayTrades.map((t) => t.aptNameNorm))];
+        const peak = new Map<string, number>();
+        const CHUNK = 100;
+        for (let n = 0; n < norms.length; n += CHUNK) {
+          const slice = norms.slice(n, n + CHUNK);
+          const placeholders = slice.map(() => "?").join(",");
+          const hist = await db.execute({
+            sql: `SELECT apt_name_norm, lawd_cd, dong, exclusive_area,
+                         MAX(deal_amount) AS max_amt
+                  FROM transactions
+                  WHERE deal_type = ?
+                    AND deal_date < ?
+                    AND apt_name_norm IN (${placeholders})
+                  GROUP BY apt_name_norm, lawd_cd, dong, ROUND(exclusive_area * 100)`,
+            args: ["trade", dealDate, ...slice],
+          });
+          for (const row of hist.rows) {
+            const key = typeKey(
+              String(row.apt_name_norm),
+              String(row.lawd_cd),
+              String(row.dong ?? ""),
+              Number(row.exclusive_area) || 0,
+            );
+            peak.set(key, Number(row.max_amt) || 0);
+          }
+        }
+        for (const tx of dayTrades) {
+          const key = typeKey(tx.aptNameNorm, tx.lawdCd, tx.dong, tx.exclusiveArea);
+          priorByTxId.set(tx.id, peak.get(key) ?? 0);
+        }
+      }),
+    );
   }
 
   const singoga: MarketDealItem[] = [];
@@ -480,6 +618,7 @@ export async function rebuildMarketHome(): Promise<MarketHomeResponse> {
     }
   }
   readCache = null;
+  volumeCache = null;
   return data;
 }
 

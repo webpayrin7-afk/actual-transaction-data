@@ -467,10 +467,29 @@ export function groupDealsBySeenDate<
     }));
 }
 
-/** SECTION 3: 처음 펼치는 최근 확인일 수 */
+/** SECTION 3: 처음 가져오는 최근 계약일 수 */
 export const HISTORY_INITIAL_DAY_COUNT = 5;
 /** 한 요청에서 신고가를 계산할 최대 날짜 수 */
 export const HISTORY_DAY_FETCH_CAP = 8;
+
+/**
+ * Paginated history dates plus any calendar-selected dates.
+ * Calendar clicks must not expand the window through every in-between day.
+ */
+export function listedHistoryDates(params: {
+  activeDates: string[];
+  visibleDayCount: number;
+  selectedDate: string | null;
+  extraDates: string[];
+}): string[] {
+  const windowDates = params.activeDates.slice(0, Math.max(0, params.visibleDayCount));
+  const dates = new Set(windowDates);
+  for (const date of [params.selectedDate, ...params.extraDates]) {
+    if (!date) continue;
+    dates.add(date);
+  }
+  return [...dates].sort((a, b) => b.localeCompare(a));
+}
 
 /** 표시 순서. 시간 순서가 아님. */
 export function sortNewlySeenDeals<

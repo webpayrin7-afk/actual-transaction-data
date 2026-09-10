@@ -163,7 +163,7 @@ function Section({
       <div className="px-3 py-1 sm:px-4">
         {empty ? (
           <p className="px-1 py-10 text-center text-sm text-slate-500">
-            해당 조건의 새로 확인된 거래가 없습니다.
+            해당 조건의 항목이 없습니다.
           </p>
         ) : (
           children
@@ -249,9 +249,9 @@ export function MarketHome() {
               tone="down"
             />
             <KpiCard
-              label="20억 이상 신규"
-              value={`${data.kpis.highCount ?? 0}건`}
-              hint="오늘 새로 확인된 고가"
+              label="거래량 급증"
+              value={`${data.kpis.volumeSurgeCount ?? 0}곳`}
+              hint="최근 30일 vs 직전 30일"
               tone="hot"
             />
           </div>
@@ -309,12 +309,15 @@ export function MarketHome() {
           </Section>
 
           <Section
-            title="신규 고가거래"
+            title="거래량 급증"
             icon={<Activity className="h-4 w-4 text-amber-700" />}
-            empty={(data.highDeals ?? []).length === 0}
+            empty={(data.volumeSurges ?? []).length === 0}
           >
-            {(data.highDeals ?? []).map((item) => (
-              <DealRow key={`h-${item.id}`} item={item} />
+            {(data.volumeSurges ?? []).map((item) => (
+              <VolumeRow
+                key={`${item.aptName}|${item.gu}|${item.dong}`}
+                item={item}
+              />
             ))}
           </Section>
 
