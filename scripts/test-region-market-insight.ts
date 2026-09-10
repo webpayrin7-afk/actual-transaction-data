@@ -28,6 +28,8 @@ import {
   recordDateDomId,
   regionMarketInsight,
   latestRecordSectionCue,
+  listedHistoryDates,
+  HISTORY_INITIAL_DAY_COUNT,
   shiftYearMonth,
   sortNewlySeenDeals,
   typePriceTrend,
@@ -497,5 +499,30 @@ assert.deepEqual(vsPreviousTypeDeal(170000, 180000), {
 });
 assert.deepEqual(vsPreviousTypeDeal(180000, 180000), { kind: "same" });
 assert.equal(vsPreviousTypeDeal(180000, null), null);
+
+{
+  const active = Array.from({ length: 20 }, (_, i) => {
+    const day = String(20 - i).padStart(2, "0");
+    return `2026-08-${day}`;
+  });
+  const monthStart = "2026-08-01";
+  const listed = listedHistoryDates({
+    activeDates: active,
+    visibleDayCount: HISTORY_INITIAL_DAY_COUNT,
+    selectedDate: monthStart,
+    extraDates: [monthStart],
+  });
+  assert.equal(listed[0], monthStart);
+  assert.equal(listed.length, HISTORY_INITIAL_DAY_COUNT + 1);
+  assert.equal(listed.includes("2026-08-02"), false);
+  assert.ok(listed.includes(active[0]!));
+  const pageOnly = listedHistoryDates({
+    activeDates: active,
+    visibleDayCount: HISTORY_INITIAL_DAY_COUNT,
+    selectedDate: active[0]!,
+    extraDates: [],
+  });
+  assert.deepEqual(pageOnly, active.slice(0, HISTORY_INITIAL_DAY_COUNT));
+}
 
 console.log("test-region-market-insight: ok");

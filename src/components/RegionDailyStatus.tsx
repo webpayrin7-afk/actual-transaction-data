@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  useCallback,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -31,6 +32,7 @@ import {
   increaseRatePct,
   koreanMonthDayLabel,
   koreanYearMonthLabel,
+  listedHistoryDates,
   newlySeenCompactStatus,
   priorPeakAmount,
   recordDateDomId,
@@ -729,6 +731,10 @@ export function RegionDailyStatus({
   const [bulkExtra, setBulkExtra] = useState<Record<string, RegionDailyDeal[]>>(
     {},
   );
+  const [extraSections, setExtraSections] = useState<RegionDailyDaySection[]>(
+    [],
+  );
+  const [pendingDates, setPendingDates] = useState<string[]>([]);
   const pendingScroll = useRef<string | null>(null);
 
   const marketQuery = useQuery({
@@ -756,10 +762,7 @@ export function RegionDailyStatus({
 
   const latest = latestQuery.data;
   const activityMonth =
-    activityMonthUser ??
-    (latest?.selectedDate
-      ? yearMonthFromSeoulDate(latest.selectedDate)
-      : yearMonthFromSeoulDate(seoulToday()));
+    activityMonthUser ?? yearMonthFromSeoulDate(seoulToday());
 
   const historyQuery = useQuery({
     queryKey: ["region-history", regionSlug, activityMonth],
@@ -773,43 +776,46 @@ export function RegionDailyStatus({
     retry: 1,
   });
 
+  const initialDaysQuery = useQuery({
+    queryKey: ["region-history-days-initial", regionSlug, activityMonth],
+    queryFn: () =>
+      fetchRegionPart({
+        region: regionSlug,
+        part: "days",
+        yearMonth: activityMonth,
+      }),
+    staleTime: 60_000,
+    retry: 1,
+  });
+
   const section1Months =
     marketQuery.data?.contractMonthOptions?.length
       ? marketQuery.data.contractMonthOptions
       : contractMonthFallback;
   const section3Months =
-    latest?.activityYearMonths?.length
-      ? latest.activityYearMonths
-      : historyQuery.data?.activityYearMonths?.length
-        ? historyQuery.data.activityYearMonths
+    historyQuery.data?.activityYearMonths?.length
+      ? historyQuery.data.activityYearMonths
+      : latest?.activityYearMonths?.length
+        ? latest.activityYearMonths
         : [activityMonth];
 
   const historyDays = historyQuery.data?.days ?? [];
   const activeDates = historyDays
     .filter((d) => d.dealCount > 0)
     .map((d) => d.date);
-  const windowDates = activeDates.slice(0, visibleDayCount);
-  const fetchDates = [
-    ...new Set([...windowDates, ...clickedDates.filter((d) => activeDates.includes(d))]),
-  ];
-
-  const daysQuery = useQuery({
-    queryKey: ["region-history-days", regionSlug, activityMonth, fetchDates.join(",")],
-    queryFn: () =>
-      fetchRegionPart({
-        region: regionSlug,
-        part: "days",
-        yearMonth: activityMonth,
-        dates: fetchDates.join(","),
-      }),
-    enabled: fetchDates.length > 0,
-    staleTime: 60_000,
-    retry: 1,
+  const listedDates = listedHistoryDates({
+    activeDates,
+    visibleDayCount,
+    selectedDate: calendarSelected,
+    extraDates: clickedDates,
   });
 
   const sectionByDate = useMemo(() => {
     const map = new Map<string, RegionDailyDaySection>();
-    for (const section of daysQuery.data?.historySections ?? []) {
+    for (const section of [
+      ...(initialDaysQuery.data?.historySections ?? []),
+      ...extraSections,
+    ]) {
       const extra = bulkExtra[section.date] ?? [];
       map.set(section.date, {
         ...section,
@@ -817,7 +823,37 @@ export function RegionDailyStatus({
       });
     }
     return map;
-  }, [daysQuery.data, bulkExtra]);
+  }, [initialDaysQuery.data, extraSections, bulkExtra]);
+
+  const fetchDaySections = useCallback(
+    async (dates: string[]) => {
+      const missing = [
+        ...new Set(
+          dates.filter((date) => activeDates.includes(date) && !sectionByDate.has(date)),
+        ),
+      ];
+      if (missing.length === 0) return;
+      setPendingDates((prev) => [...new Set([...prev, ...missing])]);
+      try {
+        const data = await fetchRegionPart({
+          region: regionSlug,
+          part: "days",
+          yearMonth: activityMonth,
+          dates: missing.join(","),
+        });
+        setExtraSections((prev) => {
+          const map = new Map(prev.map((section) => [section.date, section]));
+          for (const section of data.historySections) {
+            map.set(section.date, section);
+          }
+          return [...map.values()];
+        });
+      } finally {
+        setPendingDates((prev) => prev.filter((date) => !missing.includes(date)));
+      }
+    },
+    [activeDates, activityMonth, regionSlug, sectionByDate],
+  );
 
   useLayoutEffect(() => {
     const date = pendingScroll.current;
@@ -825,7 +861,7 @@ export function RegionDailyStatus({
     if (!document.getElementById(recordDateDomId(date))) return;
     pendingScroll.current = null;
     scrollToDateHeading(date);
-  }, [daysQuery.data, visibleDayCount, clickedDates]);
+  }, [listedDates, sectionByDate, visibleDayCount, clickedDates]);
 
   const market = marketQuery.data;
   const volumePct =
@@ -856,6 +892,8 @@ export function RegionDailyStatus({
     setClickedDates([]);
     setCalendarSelected(null);
     setBulkExtra({});
+    setExtraSections([]);
+    setPendingDates([]);
   }
 
   function selectCalendarDate(date: string) {
@@ -863,15 +901,12 @@ export function RegionDailyStatus({
     setFlashDate(date);
     setFlashNonce((n) => n + 1);
     pendingScroll.current = date;
-    const idx = activeDates.indexOf(date);
-    if (idx >= visibleDayCount) {
-      setVisibleDayCount(idx + 1);
+    setClickedDates((prev) => (prev.includes(date) ? prev : [...prev, date]));
+    if (sectionByDate.has(date)) {
+      if (scrollToDateHeading(date)) pendingScroll.current = null;
+      return;
     }
-    if (scrollToDateHeading(date)) {
-      pendingScroll.current = null;
-    } else {
-      setClickedDates((prev) => (prev.includes(date) ? prev : [...prev, date]));
-    }
+    void fetchDaySections([date]);
   }
 
   async function loadMoreBulk(section: RegionDailyDaySection) {
@@ -892,7 +927,7 @@ export function RegionDailyStatus({
   }
 
   const remainingDates = Math.max(0, activeDates.length - visibleDayCount);
-  const calendarDays = (daysQuery.data?.days ?? historyDays).map((day) => {
+  const calendarDays = (historyQuery.data?.days ?? []).map((day) => {
     const section = sectionByDate.get(day.date);
     if (!section) return day;
     return {
@@ -1103,13 +1138,16 @@ export function RegionDailyStatus({
               </p>
             </div>
           ) : null}
-          {activeDates.slice(0, visibleDayCount).map((date) => {
+          {listedDates.map((date) => {
             const section = sectionByDate.get(date);
             const summary = calendarDays.find((d) => d.date === date);
             const headingClass =
               flashDate === date
                 ? "region-date-flash rounded-md px-1 -mx-1"
                 : "px-1 -mx-1";
+            const waiting =
+              pendingDates.includes(date) ||
+              (initialDaysQuery.isFetching && !section);
             return (
               <div key={date}>
                 <h4
@@ -1157,7 +1195,7 @@ export function RegionDailyStatus({
                       </MoreControl>
                     ) : null}
                   </>
-                ) : daysQuery.isFetching ? (
+                ) : waiting ? (
                   <div className="mt-2 h-16 animate-pulse rounded-lg bg-slate-200/50" />
                 ) : null}
               </div>
@@ -1165,9 +1203,14 @@ export function RegionDailyStatus({
           })}
           {remainingDates > 0 ? (
             <MoreControl
-              onClick={() =>
-                setVisibleDayCount((n) => n + HISTORY_INITIAL_DAY_COUNT)
-              }
+              onClick={() => {
+                const next = activeDates.slice(
+                  visibleDayCount,
+                  visibleDayCount + HISTORY_INITIAL_DAY_COUNT,
+                );
+                setVisibleDayCount((n) => n + HISTORY_INITIAL_DAY_COUNT);
+                void fetchDaySections(next);
+              }}
             >
               더 이전 거래일 보기 {remainingDates.toLocaleString("ko-KR")}일
             </MoreControl>

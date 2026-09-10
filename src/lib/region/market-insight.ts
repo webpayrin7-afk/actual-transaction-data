@@ -472,6 +472,31 @@ export const HISTORY_INITIAL_DAY_COUNT = 5;
 /** 한 요청에서 신고가를 계산할 최대 날짜 수 */
 export const HISTORY_DAY_FETCH_CAP = 8;
 
+/**
+ * Paginated history dates plus any calendar-selected dates.
+ * Calendar clicks must not expand the window through every in-between day.
+ */
+export function listedHistoryDates(params: {
+  activeDates: string[];
+  visibleDayCount: number;
+  selectedDate: string | null;
+  extraDates: string[];
+}): string[] {
+  const windowDates = params.activeDates.slice(0, Math.max(0, params.visibleDayCount));
+  const windowSet = new Set(windowDates);
+  const extras: string[] = [];
+  for (const date of [params.selectedDate, ...params.extraDates]) {
+    if (!date) continue;
+    if (!params.activeDates.includes(date)) continue;
+    if (windowSet.has(date)) continue;
+    if (extras.includes(date)) continue;
+    extras.push(date);
+  }
+  const pinned = extras.filter((d) => d === params.selectedDate);
+  const rest = extras.filter((d) => d !== params.selectedDate);
+  return [...pinned, ...windowDates, ...rest];
+}
+
 /** 표시 순서. 시간 순서가 아님. */
 export function sortNewlySeenDeals<
   T extends {
