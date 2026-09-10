@@ -103,8 +103,6 @@ interface RawTrade {
 let readCache: { expiresAt: number; data: MarketHomeResponse } | null = null;
 let volumeCache: { expiresAt: number; asOf: string; items: MarketVolumeItem[] } | null =
   null;
-let liveDiscoveryCache: { expiresAt: number; data: MarketHomeResponse } | null =
-  null;
 
 function regionSlugFor(lawdCd: string, gu: string): string {
   const byLawd = LAWD_TO_REGION[lawdCd];
@@ -307,16 +305,6 @@ function withVolumeSurges(
   };
 }
 
-function listsAreEmpty(payload: MarketHomeResponse): boolean {
-  return (
-    payload.singoga.length === 0 &&
-    payload.drops.length === 0 &&
-    (payload.highDeals ?? []).length === 0 &&
-    payload.notables.length === 0 &&
-    (payload.kpis.newDealCount ?? 0) === 0
-  );
-}
-
 export async function getMarketHome(): Promise<MarketHomeResponse> {
   const snap = await readMarketHomeSnapshot();
   const asOfDate = snap?.asOfDate ?? null;
@@ -332,19 +320,7 @@ export async function getMarketHome(): Promise<MarketHomeResponse> {
     }
   }
   const volumeSurges = await computeVolumeSurges(resolvedAsOf ?? "");
-  let payload = snap ?? (await computeMarketHome({ discoveryDay: "today" }));
-  if (listsAreEmpty(payload)) {
-    if (liveDiscoveryCache && liveDiscoveryCache.expiresAt > Date.now()) {
-      payload = liveDiscoveryCache.data;
-    } else {
-      const live = await computeMarketHome({ discoveryDay: "latest" });
-      liveDiscoveryCache = {
-        expiresAt: Date.now() + READ_CACHE_TTL_MS,
-        data: live,
-      };
-      if (!listsAreEmpty(live)) payload = live;
-    }
-  }
+  const payload = snap ?? (await computeMarketHome({ discoveryDay: "today" }));
   return withVolumeSurges(payload, volumeSurges);
 }
 
@@ -643,7 +619,6 @@ export async function rebuildMarketHome(): Promise<MarketHomeResponse> {
   }
   readCache = null;
   volumeCache = null;
-  liveDiscoveryCache = null;
   return data;
 }
 
