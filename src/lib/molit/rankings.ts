@@ -1,4 +1,8 @@
-import { FEATURED_LAWD_CODES } from "@/lib/constants/regions";
+import {
+  FEATURED_LAWD_CODES,
+} from "@/lib/constants/regions";
+import { hasDb } from "@/lib/db/client";
+import { queryRegionMonthPool } from "@/lib/db/repository";
 import { loadRawTransactions } from "@/lib/molit/service";
 import { recentYearMonths, toPyeong } from "@/lib/utils/format";
 import type { Transaction } from "@/types/transaction";
@@ -12,7 +16,7 @@ export interface RankItem {
 
 export interface RankingsResponse {
   yearMonth: string;
-  source: "api" | "mock";
+  source: "api" | "mock" | "db";
   headline: string;
   /** 아파트 신고가 TOP — 단지별 최고 매매가 */
   singogaTop: RankItem[];
@@ -154,20 +158,46 @@ export async function getRankings(
 ): Promise<RankingsResponse> {
   const ym = yearMonth || recentYearMonths(1)[0];
 
-  const [tradeLoaded, rentLoaded] = await Promise.all([
-    loadRawTransactions(ym, "trade", [...FEATURED_LAWD_CODES]),
-    loadRawTransactions(ym, "rent", [...FEATURED_LAWD_CODES]),
-  ]);
+  let tradeItems: Transaction[] = [];
+  let rentItems: Transaction[] = [];
+  let source: "api" | "mock" | "db" = "mock";
+  let displayYm = ym;
 
-  const displayYm =
-    tradeLoaded.resolvedYearMonth || rentLoaded.resolvedYearMonth || ym;
-  const source =
-    tradeLoaded.source === "api" || rentLoaded.source === "api" ? "api" : "mock";
+  if (hasDb()) {
+    const [tradeLoaded, rentLoaded] = await Promise.all([
+      queryRegionMonthPool({
+        lawdCodes: [...FEATURED_LAWD_CODES],
+        yearMonths: [ym],
+        dealKinds: ["trade"],
+      }),
+      queryRegionMonthPool({
+        lawdCodes: [...FEATURED_LAWD_CODES],
+        yearMonths: [ym],
+        dealKinds: ["rent"],
+      }),
+    ]);
+    tradeItems = tradeLoaded ?? [];
+    rentItems = rentLoaded ?? [];
+    source = "db";
+  } else {
+    const [tradeLoaded, rentLoaded] = await Promise.all([
+      loadRawTransactions(ym, "trade", [...FEATURED_LAWD_CODES]),
+      loadRawTransactions(ym, "rent", [...FEATURED_LAWD_CODES]),
+    ]);
+    tradeItems = tradeLoaded.items;
+    rentItems = rentLoaded.items;
+    displayYm =
+      tradeLoaded.resolvedYearMonth || rentLoaded.resolvedYearMonth || ym;
+    source =
+      tradeLoaded.source === "api" || rentLoaded.source === "api"
+        ? "api"
+        : "mock";
+  }
 
-  const singogaTop = toSingogaRank(tradeLoaded.items);
-  const jeonseTop = toJeonseRank(rentLoaded.items);
-  const wolseTop = toWolseRank(rentLoaded.items);
-  const largeArea = toLargeAreaRank(tradeLoaded.items);
+  const singogaTop = toSingogaRank(tradeItems);
+  const jeonseTop = toJeonseRank(rentItems);
+  const wolseTop = toWolseRank(rentItems);
+  const largeArea = toLargeAreaRank(tradeItems);
 
   const top = singogaTop[0];
   const jeonseFirst = jeonseTop[0];

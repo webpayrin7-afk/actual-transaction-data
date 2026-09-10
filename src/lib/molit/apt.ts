@@ -219,9 +219,10 @@ async function loadTradePool(
     const fromDb = hasDb()
       ? await queryTradePool({ lawdCodes, yearMonths: months })
       : null;
-    if (fromDb) {
-      suggestPoolCache.set(key, { builtAt: Date.now(), items: fromDb });
-      return fromDb;
+    if (hasDb()) {
+      const items = fromDb ?? [];
+      suggestPoolCache.set(key, { builtAt: Date.now(), items });
+      return items;
     }
 
     const items: Transaction[] = [];
@@ -397,6 +398,41 @@ export async function searchAptSuggestions(
 
 function yearMonthFromDealDate(dealDate: string): string {
   return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
+}
+
+function yearMonthsInclusive(fromYm: string, toYm: string): string[] {
+  if (fromYm.length !== 6 || toYm.length !== 6 || fromYm > toYm) return [];
+  const out: string[] = [];
+  let y = Number(fromYm.slice(0, 4));
+  let m = Number(fromYm.slice(4, 6));
+  const ty = Number(toYm.slice(0, 4));
+  const tm = Number(toYm.slice(4, 6));
+  while (y < ty || (y === ty && m <= tm)) {
+    out.push(`${y}${String(m).padStart(2, "0")}`);
+    m += 1;
+    if (m > 12) {
+      m = 1;
+      y += 1;
+    }
+    if (out.length > 240) break;
+  }
+  return out;
+}
+
+function chartMonthsFromDeals(
+  items: Transaction[],
+  fallbackMonths: string[],
+): string[] {
+  let minYm = "";
+  let maxYm = "";
+  for (const tx of items) {
+    const ym = yearMonthFromDealDate(tx.dealDate);
+    if (ym.length !== 6) continue;
+    if (!minYm || ym < minYm) minYm = ym;
+    if (!maxYm || ym > maxYm) maxYm = ym;
+  }
+  if (!minYm || !maxYm) return fallbackMonths;
+  return yearMonthsInclusive(minYm, maxYm);
 }
 
 function chartLabel(ym: string): string {
@@ -607,13 +643,13 @@ async function buildAptDetail(params: {
     collected = await queryAptTransactions({
       lawdCodes,
       aptName,
-      yearMonths: months,
+      yearMonths: [],
       dealKinds: ["trade", "rent"],
     });
     mark("dbQueryMs", tDb);
     source = "db";
     if (collected.length === 0) {
-      warning = "선택한 단지·기간에 실거래 데이터가 없습니다.";
+      warning = "선택한 단지에 실거래 데이터가 없습니다.";
     }
   } else if (hasApiKey()) {
     // DB 미설정 환경(로컬 데모)만 API. 운영(hasDb)에서는 도달하지 않음.
@@ -647,7 +683,10 @@ async function buildAptDetail(params: {
   const deals = exact.length > 0 ? exact : matched;
   const trades = deals.filter((tx) => tx.dealType === "trade");
   const rents = deals.filter((tx) => tx.dealType === "rent");
-  const partial = monthCount < 120;
+  const chartMonths =
+    source === "db" ? chartMonthsFromDeals(deals, months) : months;
+  const loadedMonths = source === "db" ? chartMonths.length : monthCount;
+  const partial = source === "db" ? false : monthCount < 120;
 
   const emptyResponse = (
     extraWarning?: string,
@@ -663,7 +702,7 @@ async function buildAptDetail(params: {
     yearMonth,
     warning: extraWarning ?? warning ?? "해당 단지의 실거래를 찾지 못했습니다.",
     partial,
-    loadedMonths: monthCount,
+    loadedMonths,
     stats: {
       recent3mCount: 0,
       maxDealAmount: 0,
@@ -672,7 +711,7 @@ async function buildAptDetail(params: {
       totalRentCount: 0,
     },
     areas: [],
-    chart: trimChartToActivity(buildChartPoints([], months)),
+    chart: trimChartToActivity(buildChartPoints([], chartMonths)),
     items: [],
   });
 
@@ -736,7 +775,7 @@ async function buildAptDetail(params: {
   }));
 
   const chart = trimChartToActivity(
-    buildChartPoints(deals, months).sort((a, b) =>
+    buildChartPoints(deals, chartMonths).sort((a, b) =>
       a.yearMonth < b.yearMonth ? -1 : 1,
     ),
   );
@@ -764,7 +803,7 @@ async function buildAptDetail(params: {
     yearMonth,
     warning,
     partial,
-    loadedMonths: monthCount,
+    loadedMonths,
     stats: {
       recent3mCount: recent3m.length,
       maxDealAmount,

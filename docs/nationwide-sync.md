@@ -74,7 +74,7 @@ npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
 
 - `deal_date`: 실제 계약일
 - `first_seen_at`: warehouse가 identity를 처음 확보한 시각 (internal audit)
-- `discovery_at`: 사용자가 "새로 확인된 거래"로 보는 시각 (Home / Region Section2–3)
+- `discovery_at`: 사용자가 "새로 확인된 거래"로 보는 시각 (Home / Region Section2)
 
 - 정상 daily: `--discovery=1` (기본) → INSERT `first_seen_at=now`, `discovery_at=now`
 - 의도적 backfill/correction: `--discovery=0` → INSERT `first_seen_at=now`, `discovery_at=NULL`

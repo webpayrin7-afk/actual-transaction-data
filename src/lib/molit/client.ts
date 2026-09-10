@@ -146,7 +146,7 @@ async function fetchAllPages(
 
   const first = parse(firstXml, lawdCd);
   const total = getApiTotalCount(firstXml);
-  if (!total || total <= first.length || first.length === 0) {
+  if (!total || total <= first.length) {
     return first;
   }
 
@@ -277,6 +277,53 @@ export async function fetchTradeMonthProbe(
   if (status.empty) return { count: 0, maxDealDate: "" };
   const count = getApiTotalCount(xml);
   const items = parseTradeXml(xml, lawdCd);
+  let maxDealDate = "";
+  for (const tx of items) {
+    if (tx.dealDate > maxDealDate) maxDealDate = tx.dealDate;
+  }
+  return { count, maxDealDate };
+}
+
+/** Page-1 metadata: totalCount without following remaining pages. */
+export async function fetchMonthMeta(
+  kind: "trade" | "rent",
+  lawdCd: string,
+  yearMonth: string,
+): Promise<{
+  totalCount: number;
+  page1Count: number;
+  pagesNeeded: number;
+  empty: boolean;
+}> {
+  const baseUrl = kind === "trade" ? TRADE_API_URL : RENT_API_URL;
+  const xml = await fetchMolitXml(baseUrl, lawdCd, yearMonth, 1, 1000);
+  const status = isOkOrEmpty(xml);
+  if (!status.ok) {
+    throw new Error(`${kind} API ${lawdCd} ${yearMonth}: ${status.message}`);
+  }
+  if (status.empty) {
+    return { totalCount: 0, page1Count: 0, pagesNeeded: 0, empty: true };
+  }
+  const items =
+    kind === "trade" ? parseTradeXml(xml, lawdCd) : parseRentXml(xml, lawdCd);
+  const totalCount = getApiTotalCount(xml);
+  const page1Count = items.length;
+  const pagesNeeded = Math.max(1, Math.min(100, Math.ceil(totalCount / 1000)));
+  return { totalCount, page1Count, pagesNeeded, empty: false };
+}
+
+export async function fetchRentMonthProbe(
+  lawdCd: string,
+  yearMonth: string,
+): Promise<{ count: number; maxDealDate: string }> {
+  const xml = await fetchMolitXml(RENT_API_URL, lawdCd, yearMonth);
+  const status = isOkOrEmpty(xml);
+  if (!status.ok) {
+    throw new Error(`Rent API ${lawdCd}: ${status.message}`);
+  }
+  if (status.empty) return { count: 0, maxDealDate: "" };
+  const count = getApiTotalCount(xml);
+  const items = parseRentXml(xml, lawdCd);
   let maxDealDate = "";
   for (const tx of items) {
     if (tx.dealDate > maxDealDate) maxDealDate = tx.dealDate;

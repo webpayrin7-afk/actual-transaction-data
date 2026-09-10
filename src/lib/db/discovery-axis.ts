@@ -4,9 +4,9 @@ import type { Transaction } from "@/types/transaction";
 /**
  * Date-axis freeze (do not mix):
  *
- * deal_date      = actual contract date (stats / Section1 / apt history / KPI)
+ * deal_date      = actual contract date (stats / Section1 / Section3 / calendar / activityMonth / apt history / KPI)
  * first_seen_at  = warehouse first obtained the identity (internal audit)
- * discovery_at   = product "newly confirmed deal" timestamp (Home / Section2–3)
+ * discovery_at   = product "newly confirmed deal" timestamp (Home / Section2 only)
  *
  * Production ALTER of discovery_at is opt-in. This process must not add the
  * column to remote Turso unless ENABLE_DISCOVERY_AT_COLUMN=1.

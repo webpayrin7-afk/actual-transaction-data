@@ -56,7 +56,7 @@ export const GYEONGGI_REGIONS: RegionDef[] = [
   { slug: "gyeonggi-seongnam", metro: "gyeonggi", name: "성남시", fullName: "경기도 성남시", lawdCodes: ["41131", "41133", "41135"], districts: [{ code: "41131", name: "수정구" }, { code: "41133", name: "중원구" }, { code: "41135", name: "분당구" }] },
   { slug: "gyeonggi-uijeongbu", metro: "gyeonggi", name: "의정부시", fullName: "경기도 의정부시", lawdCodes: ["41150"], districts: [{ code: "41150", name: "의정부시" }] },
   { slug: "gyeonggi-anyang", metro: "gyeonggi", name: "안양시", fullName: "경기도 안양시", lawdCodes: ["41171", "41173"], districts: [{ code: "41171", name: "만안구" }, { code: "41173", name: "동안구" }] },
-  { slug: "gyeonggi-bucheon", metro: "gyeonggi", name: "부천시", fullName: "경기도 부천시", lawdCodes: ["41190"], districts: [{ code: "41190", name: "부천시" }] },
+  { slug: "gyeonggi-bucheon", metro: "gyeonggi", name: "부천시", fullName: "경기도 부천시", lawdCodes: ["41192", "41194", "41196"], districts: [{ code: "41192", name: "원미구" }, { code: "41194", name: "소사구" }, { code: "41196", name: "오정구" }] },
   { slug: "gyeonggi-gwangmyeong", metro: "gyeonggi", name: "광명시", fullName: "경기도 광명시", lawdCodes: ["41210"], districts: [{ code: "41210", name: "광명시" }] },
   { slug: "gyeonggi-pyeongtaek", metro: "gyeonggi", name: "평택시", fullName: "경기도 평택시", lawdCodes: ["41220"], districts: [{ code: "41220", name: "평택시" }] },
   { slug: "gyeonggi-dongducheon", metro: "gyeonggi", name: "동두천시", fullName: "경기도 동두천시", lawdCodes: ["41250"], districts: [{ code: "41250", name: "동두천시" }] },
@@ -75,7 +75,7 @@ export const GYEONGGI_REGIONS: RegionDef[] = [
   { slug: "gyeonggi-icheon", metro: "gyeonggi", name: "이천시", fullName: "경기도 이천시", lawdCodes: ["41500"], districts: [{ code: "41500", name: "이천시" }] },
   { slug: "gyeonggi-anseong", metro: "gyeonggi", name: "안성시", fullName: "경기도 안성시", lawdCodes: ["41550"], districts: [{ code: "41550", name: "안성시" }] },
   { slug: "gyeonggi-gimpo", metro: "gyeonggi", name: "김포시", fullName: "경기도 김포시", lawdCodes: ["41570"], districts: [{ code: "41570", name: "김포시" }] },
-  { slug: "gyeonggi-hwaseong", metro: "gyeonggi", name: "화성시", fullName: "경기도 화성시", lawdCodes: ["41590"], districts: [{ code: "41590", name: "화성시" }] },
+  { slug: "gyeonggi-hwaseong", metro: "gyeonggi", name: "화성시", fullName: "경기도 화성시", lawdCodes: ["41591", "41593", "41595", "41597"], districts: [{ code: "41591", name: "만세구" }, { code: "41593", name: "효행구" }, { code: "41595", name: "병점구" }, { code: "41597", name: "동탄구" }] },
   { slug: "gyeonggi-gwangju", metro: "gyeonggi", name: "광주시", fullName: "경기도 광주시", lawdCodes: ["41610"], districts: [{ code: "41610", name: "광주시" }] },
   { slug: "gyeonggi-yangju", metro: "gyeonggi", name: "양주시", fullName: "경기도 양주시", lawdCodes: ["41630"], districts: [{ code: "41630", name: "양주시" }] },
   { slug: "gyeonggi-pocheon", metro: "gyeonggi", name: "포천시", fullName: "경기도 포천시", lawdCodes: ["41650"], districts: [{ code: "41650", name: "포천시" }] },
@@ -152,7 +152,7 @@ export const FEATURED_LAWD_CODES = [
   "41173", // 동안
   "41285", // 일산동
   "41463", // 기흥
-  "41590", // 화성
+  "41597", // 동탄 (화성 분구 — featured 확장이 화성 4구 전부 포함)
   "41480", // 파주
 ] as const;
 

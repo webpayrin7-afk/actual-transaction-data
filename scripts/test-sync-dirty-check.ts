@@ -225,6 +225,50 @@ async function main() {
   assert.equal(r7.wrote, false);
   assert.equal(r7.unchanged, 2);
 
+  const beforeDry = await countTx();
+  const dry = await replaceMonthTransactions({
+    lawdCd,
+    yearMonth,
+    dealKind: "trade",
+    items: [
+      ...withoutFirst,
+      tx({ id: "dry-new", dealAmount: 12345, dealDate: "2026-01-20", floor: 2, jibun: "9-9" }),
+    ],
+    dryRun: true,
+  });
+  assert.equal(dry.inserted, 1);
+  assert.equal(dry.wrote, false);
+  assert.equal(await countTx(), beforeDry, "dry-run must not write");
+
+  // skipDelete: extras classified but not removed; INSERT still applied
+  const skipIns = await replaceMonthTransactions({
+    lawdCd,
+    yearMonth,
+    dealKind: "trade",
+    items: [
+      withoutFirst[0]!,
+      tx({ id: "skip-new", dealAmount: 88888, dealDate: "2026-01-22", floor: 4, jibun: "8-8" }),
+    ],
+    setFirstSeenOnInsert: false,
+    skipDelete: true,
+  });
+  assert.equal(skipIns.inserted, 1);
+  assert.equal(skipIns.deleted, 0, "skipDelete must not execute DELETE");
+  assert.equal(skipIns.wrote, true);
+  assert.equal(await countTx(), beforeDry + 1);
+
+  const skipDry = await replaceMonthTransactions({
+    lawdCd,
+    yearMonth,
+    dealKind: "trade",
+    items: [withoutFirst[0]!],
+    dryRun: true,
+    skipDelete: true,
+  });
+  assert.ok(skipDry.deleted >= 1, "dry-run still reports extra candidates");
+  assert.equal(skipDry.wrote, false);
+  assert.equal(await countTx(), beforeDry + 1, "skipDelete dry-run WRITE 0");
+
   console.log(
     JSON.stringify(
       {
@@ -236,6 +280,8 @@ async function main() {
           "orphan-delete",
           "same-date-multi",
           "first_seen-preserved",
+          "dry-run-write-0",
+          "skip-delete-keeps-extras",
         ],
       },
       null,
