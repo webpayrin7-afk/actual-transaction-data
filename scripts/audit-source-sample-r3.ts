@@ -123,7 +123,7 @@ async function main() {
         let missing = 0;
         let changed = 0;
         let cancelled = 0;
-        let ambiguous = 0;
+        const ambiguous = 0;
         for (const [key, src] of srcByKey) {
           const wh = whByKey.get(key);
           if (!wh) {
