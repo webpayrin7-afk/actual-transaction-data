@@ -168,6 +168,7 @@ export function Dashboard({
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
+          className="border-b-0 pb-0 sm:pb-0"
         />
       </header>
 

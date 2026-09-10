@@ -121,8 +121,8 @@ export function SiteHeader() {
       data-site-header
       className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur lg:hidden"
     >
-      <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-1 py-2 sm:h-14 sm:flex-row sm:items-center sm:gap-5 sm:py-0">
+      <div className="mx-auto w-full max-w-7xl px-2 sm:px-4 lg:px-6">
+        <div className="flex flex-col gap-0.5 py-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
           <div className="flex min-w-0 items-center gap-2 sm:gap-5">
             <Link href="/" className="inline-flex shrink-0 items-center gap-2">
               <BrandLogo compact priority />

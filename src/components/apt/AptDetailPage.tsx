@@ -453,7 +453,7 @@ export function AptDetailPage({
           단지 정보를 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
-          <BackLink fallback="/complexes" />
+          <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
         </div>
       </div>
     );
@@ -473,7 +473,7 @@ export function AptDetailPage({
         aria-hidden={!stickyVisible}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
-          <BackLink fallback="/complexes" compact />
+          <BackLink fallback="/complexes" compact className="hidden sm:inline-flex" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-slate-900">
               {data.aptName}
@@ -490,7 +490,7 @@ export function AptDetailPage({
       </div>
 
       <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/complexes" />
+        <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
@@ -530,28 +530,28 @@ export function AptDetailPage({
       )}
 
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <div className="lab-card px-3.5 py-3.5">
-          <p className="text-[11px] font-medium text-slate-500">최근 매매</p>
-          <p className="lab-kpi-value mt-1 text-lg font-semibold sm:text-xl">
+        <div className="lab-card px-4 py-4">
+          <p className="text-xs font-medium text-slate-500">최근 매매</p>
+          <p className="lab-kpi-value mt-1 text-2xl font-semibold">
             {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">
+          <p className="mt-1 text-[11px] leading-4 text-slate-500">
             {latestTrade
               ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
               : "선택 기간 거래 없음"}
           </p>
         </div>
-        <div className="lab-card px-3.5 py-3.5">
-          <p className="text-[11px] font-medium text-slate-500">기간 최고가</p>
-          <p className="lab-kpi-value mt-1 text-lg font-semibold sm:text-xl">
+        <div className="lab-card px-4 py-4">
+          <p className="text-xs font-medium text-slate-500">기간 최고가</p>
+          <p className="lab-kpi-value mt-1 text-2xl font-semibold">
             {periodMax > 0 ? formatEok(periodMax) : "—"}
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">선택 기간·면적 기준</p>
+          <p className="mt-1 text-[11px] leading-4 text-slate-500">선택 기간·면적 기준</p>
         </div>
-        <div className="lab-card px-3.5 py-3.5">
-          <p className="text-[11px] font-medium text-slate-500">최고가 대비</p>
+        <div className="lab-card px-4 py-4">
+          <p className="text-xs font-medium text-slate-500">최고가 대비</p>
           <p
-            className={`mt-1 text-lg font-semibold tabular-nums tracking-tight sm:text-xl ${
+            className={`mt-1 font-[family-name:var(--font-outfit)] text-2xl font-semibold tabular-nums tracking-[-0.025em] ${
               vsMaxPct == null
                 ? "text-slate-400"
                 : vsMaxPct < 0
@@ -565,14 +565,14 @@ export function AptDetailPage({
               ? "—"
               : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`}
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">최근 매매 기준</p>
+          <p className="mt-1 text-[11px] leading-4 text-slate-500">최근 매매 기준</p>
         </div>
-        <div className="lab-card px-3.5 py-3.5">
-          <p className="text-[11px] font-medium text-slate-500">기간 거래량</p>
-          <p className="lab-kpi-value mt-1 text-lg font-semibold sm:text-xl">
+        <div className="lab-card px-4 py-4">
+          <p className="text-xs font-medium text-slate-500">기간 거래량</p>
+          <p className="lab-kpi-value mt-1 text-2xl font-semibold">
             매매 {periodTradeCount}건
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">
+          <p className="mt-1 text-[11px] leading-4 text-slate-500">
             전월세 {periodRentCount}건
           </p>
         </div>

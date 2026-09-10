@@ -11,8 +11,48 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type TooltipProps,
 } from "recharts";
 import type { AptChartPoint } from "@/lib/molit/apt";
+
+const VOLUME_TICK_COLOR = "#0f766e";
+
+function ChartTooltip({
+  active,
+  payload,
+}: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null;
+  const ym = payload[0]?.payload?.yearMonth as string | undefined;
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
+      <p className="mb-1.5 font-medium text-slate-800">
+        {ym ? formatYmLabel(ym) : ""}
+      </p>
+      <ul className="space-y-0.5">
+        {payload.map((item) => {
+          const name = String(item.name ?? "");
+          const isVolume = name === "거래량";
+          const value = item.value;
+          return (
+            <li
+              key={name}
+              className="flex items-center justify-between gap-4 font-medium"
+              style={{
+                color: isVolume ? VOLUME_TICK_COLOR : String(item.color),
+              }}
+            >
+              <span>{name}</span>
+              <span className="tabular-nums">
+                {value == null ? "—" : isVolume ? `${value}건` : `${value}억`}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 function toEok(manwon: number | null | undefined): number | null {
   if (manwon == null || !Number.isFinite(manwon) || manwon <= 0) return null;
@@ -62,7 +102,7 @@ export function AptPriceChart({
             }
             interval="preserveStartEnd"
             minTickGap={28}
-            tick={{ fill: "#64748b", fontSize: 11 }}
+            tick={{ fill: "#475569", fontSize: 11 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
           />
@@ -78,37 +118,35 @@ export function AptPriceChart({
             yAxisId="volume"
             orientation="right"
             tickFormatter={(v: number) => `${v}건`}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: VOLUME_TICK_COLOR, fontSize: 11, fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
             width={40}
             allowDecimals={false}
           />
-          <Tooltip
-            contentStyle={{
-              borderRadius: 12,
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
-            }}
-            labelFormatter={(ym) => formatYmLabel(String(ym))}
-            formatter={(value: number | string, name: string) => {
-              if (name === "거래량") return [`${value}건`, name];
-              if (value == null || value === "") return ["-", name];
-              return [`${value}억`, name];
-            }}
-          />
+          <Tooltip content={<ChartTooltip />} />
           <Legend
             verticalAlign="top"
             height={28}
             iconType="circle"
-            wrapperStyle={{ fontSize: 12, color: "#475569" }}
+            wrapperStyle={{ fontSize: 12, color: "#334155" }}
+            formatter={(value) => (
+              <span
+                style={{
+                  color: value === "거래량" ? VOLUME_TICK_COLOR : "#334155",
+                  fontWeight: value === "거래량" ? 600 : 500,
+                }}
+              >
+                {value}
+              </span>
+            )}
           />
           <Bar
             yAxisId="volume"
             dataKey="volume"
             name="거래량"
-            fill="#99f6e4"
-            opacity={0.85}
+            fill="#2dd4bf"
+            opacity={0.9}
             barSize={6}
             radius={[2, 2, 0, 0]}
           />
