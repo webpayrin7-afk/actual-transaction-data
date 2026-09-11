@@ -95,7 +95,7 @@ export function InfoChip({
           id={panelId}
           ref={panelRef}
           role="note"
-          className="fixed z-50 max-w-[calc(100vw-1rem)] space-y-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-left text-[12px] font-normal leading-5 text-slate-600 shadow-sm"
+          className="fixed z-[60] max-w-[calc(100vw-1rem)] space-y-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-left text-[12px] font-normal leading-5 text-slate-600 shadow-sm"
         >
           {children}
         </div>
