@@ -68,8 +68,9 @@ export function SiteHeader() {
 
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
+    const mq = window.matchMedia("(max-width: 767px)");
     const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (mq.matches) document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
