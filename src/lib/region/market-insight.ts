@@ -611,14 +611,14 @@ export function vsPreviousTypeDeal(
   };
 }
 
-/** 역대 prior max 초과만 타입 신고가. 해당 타입 첫 거래는 신고가가 아님. */
+/** 이전 계약일 최고가를 초과한 매매. 첫 양수 거래는 최초 기록이다. */
 export function typeRecordHigh(
   dealAmount: number,
   priorMax: number,
 ): { isSingoga: boolean; increaseAmount: number } {
-  const isSingoga = priorMax > 0 && dealAmount > priorMax;
+  const isSingoga = dealAmount > 0 && dealAmount > priorMax;
   return {
     isSingoga,
-    increaseAmount: isSingoga ? Math.max(0, dealAmount - priorMax) : 0,
+    increaseAmount: isSingoga && priorMax > 0 ? dealAmount - priorMax : 0,
   };
 }

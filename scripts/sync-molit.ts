@@ -43,10 +43,7 @@ import {
 import {
   applySkipExisting,
   buildRollingSyncJobs,
-  isCellUnchanged,
   jobKey,
-  maxDealDateOf,
-  type DbCellSnap,
   type RollingSyncJob,
 } from "../src/lib/molit/sync-policy";
 
@@ -65,43 +62,6 @@ function expandFeatured(): string[] {
     }
   }
   return [...codes];
-}
-
-async function loadDbSnapshots(
-  db: NonNullable<ReturnType<typeof getDb>>,
-  yearMonths: string[],
-): Promise<Map<string, DbCellSnap>> {
-  const map = new Map<string, DbCellSnap>();
-  if (!yearMonths.length) return map;
-
-  const ymPlaceholders = yearMonths.map(() => "?").join(",");
-  const sync = await db.execute({
-    sql: `SELECT lawd_cd, year_month, deal_kind, row_count
-          FROM sync_months
-          WHERE year_month IN (${ymPlaceholders})`,
-    args: [...yearMonths],
-  });
-  for (const row of sync.rows) {
-    map.set(`${row.lawd_cd}|${row.year_month}|${row.deal_kind}`, {
-      rowCount: Number(row.row_count) || 0,
-      maxDealDate: "",
-    });
-  }
-
-  const maxes = await db.execute({
-    sql: `SELECT lawd_cd, year_month, deal_type AS deal_kind, MAX(deal_date) AS max_deal_date
-          FROM transactions
-          WHERE year_month IN (${ymPlaceholders})
-          GROUP BY lawd_cd, year_month, deal_type`,
-    args: [...yearMonths],
-  });
-  for (const row of maxes.rows) {
-    const key = `${row.lawd_cd}|${row.year_month}|${row.deal_kind}`;
-    const prev = map.get(key) ?? { rowCount: 0, maxDealDate: "" };
-    prev.maxDealDate = String(row.max_deal_date ?? "");
-    map.set(key, prev);
-  }
-  return map;
 }
 
 function yearMonthsBetween(fromYm: string, toYm: string): string[] {
@@ -237,10 +197,6 @@ async function main() {
     skippedExisting = filtered.skipped;
   }
 
-  const snapshots = onlyChanged
-    ? await loadDbSnapshots(db, [...new Set([...tradeYms, ...rentYms])])
-    : null;
-
   console.log(
     `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} skipDelete=${skipDelete ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
   );
@@ -293,9 +249,7 @@ async function main() {
             ? await fetchOneTradeForSync(job.lawdCd, job.yearMonth)
             : await fetchOneRentForSync(job.lawdCd, job.yearMonth);
 
-        if (onlyChanged && isCellUnchanged(snapshots?.get(key), items)) {
-          unchanged += 1;
-        } else {
+        {
           const preview = await replaceMonthTransactions({
             lawdCd: job.lawdCd,
             yearMonth: job.yearMonth,
@@ -307,6 +261,12 @@ async function main() {
           });
           const previewWrites =
             preview.inserted + preview.updated + (skipDelete ? 0 : preview.deleted);
+          // Counts and latest dates cannot prove content equality or complete
+          // ingestion. Reuse the row-level identity/content diff before skipping.
+          if (onlyChanged && previewWrites === 0) {
+            unchanged += preview.unchanged;
+            continue;
+          }
           const sqlWritesSoFar = inserted + updated + (skipDelete ? 0 : deleted);
           if (!dryRun && maxWrites > 0 && sqlWritesSoFar + previewWrites > maxWrites) {
             stop = true;
@@ -339,12 +299,6 @@ async function main() {
           }
           if (result.wrote) {
             written += 1;
-          }
-          if (snapshots) {
-            snapshots.set(key, {
-              rowCount: items.length,
-              maxDealDate: maxDealDateOf(items),
-            });
           }
         }
       } catch (err) {
