@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDownRight,
@@ -104,6 +103,32 @@ function DealRow({ item }: { item: MarketDealItem }) {
   );
 }
 
+function HomeBasisChip() {
+  return (
+    <details className="region-basis-chip relative shrink-0">
+      <summary
+        className="inline-flex cursor-pointer items-center gap-0.5 whitespace-nowrap rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+        aria-label="오늘의 시장 데이터 기준 안내"
+      >
+        데이터 기준
+        <span className="text-[10px] font-normal text-slate-400" aria-hidden="true">
+          ⓘ
+        </span>
+      </summary>
+      <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-80 max-w-[calc(100vw-2.5rem)] space-y-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
+        <p>
+          ‘새로 확인’은 집랩이 거래를 처음 확인한 날짜 기준이며, 공식 신고일이나
+          공개일을 뜻하지 않습니다.
+        </p>
+        <p>
+          각 거래 카드의 날짜와 시장동향 통계는 실제 계약일 기준입니다. 신고와
+          데이터 반영 시차로 오늘 체결된 거래와 차이가 날 수 있습니다.
+        </p>
+      </div>
+    </details>
+  );
+}
+
 function VolumeRow({ item }: { item: MarketVolumeItem }) {
   return (
     <Link
@@ -168,7 +193,6 @@ function Section({
 }
 
 export function MarketHome() {
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const query = useQuery({
     queryKey: ["market-home"],
     queryFn: fetchMarketHome,
@@ -181,42 +205,18 @@ export function MarketHome() {
     <div className={PAGE_SHELL.replace("gap-6", "gap-4")}>
       <PageHeader
         title="오늘의 아파트 시장"
+        titleAside={<HomeBasisChip />}
         description="오늘 새로 확인된 시장 변화를 한눈에 보세요."
         className="pb-3 sm:pb-4"
         meta={
-          <>
-            {data?.lastUpdatedLabel || data?.computedAt ? (
-              <p>
-                최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
-                {data.discoveryDate
-                  ? ` · 새 거래 확인 기준 ${data.discoveryDate}`
-                  : null}
-              </p>
-            ) : null}
-            <div className="pt-0.5 text-xs text-slate-500">
-              <button
-                type="button"
-                aria-expanded={detailsOpen}
-                onClick={() => setDetailsOpen((open) => !open)}
-                className="font-medium text-teal-700 underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
-              >
-                {detailsOpen ? "접기" : "자세히"}
-              </button>
-              {detailsOpen ? (
-                <div className="mt-2 max-w-3xl space-y-1 leading-5 text-slate-500">
-                  <p>
-                    ‘새로 확인’은 집랩이 거래를 처음 확인한 날짜 기준이며,
-                    공식 신고일이나 공개일을 뜻하지 않습니다.
-                  </p>
-                  <p>
-                    각 거래 카드의 날짜와 시장동향 통계는 실제 계약일
-                    기준입니다. 신고와 데이터 반영 시차로 오늘 체결된 거래와
-                    차이가 날 수 있습니다.
-                  </p>
-                </div>
-              ) : null}
-            </div>
-          </>
+          data?.lastUpdatedLabel || data?.computedAt ? (
+            <p>
+              최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
+              {data.discoveryDate
+                ? ` · 새 거래 확인 기준 ${data.discoveryDate}`
+                : null}
+            </p>
+          ) : null
         }
       />
 
