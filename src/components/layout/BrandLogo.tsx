@@ -9,7 +9,7 @@ export function BrandLogo({
   priority?: boolean;
 }) {
   return (
-    <span className="flex shrink-0 items-center gap-1 bg-white sm:gap-1.5">
+    <span className="flex shrink-0 items-center gap-0.5 bg-white">
       <span
         className={`flex shrink-0 items-center justify-center ${
           compact ? "h-[56px] w-[138px]" : "h-[84px] w-[205px]"
@@ -26,7 +26,7 @@ export function BrandLogo({
       </span>
       <span
         aria-hidden
-        className={`shrink-0 self-center bg-slate-300 ${
+        className={`-ml-1.5 shrink-0 self-center bg-slate-300 sm:-ml-2 ${
           compact ? "h-8 w-px" : "h-11 w-px"
         }`}
       />
