@@ -18,10 +18,11 @@ export function ComplexesPage() {
       >
         <AptQuickSearch
           inputId="complexes-search"
-          placeholder="아파트 단지명을 검색하세요"
+          placeholder="아파트 단지 또는 지역을 검색하세요."
           emptySubmitHref="/complexes"
           showPrice={false}
-          hint="동명이 있으면 지역·동으로 구분됩니다. 선택 시 단지 상세로 이동합니다."
+          includeRegions
+          hint="단지는 상세로, 지역은 지역 상세로 이동합니다. 동명이 있으면 지역·동으로 구분됩니다."
         />
       </PageHeader>
 
