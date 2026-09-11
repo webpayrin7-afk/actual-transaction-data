@@ -263,19 +263,11 @@ export function MarketHome() {
       ) : null}
 
       <section className="lab-card p-4 sm:p-5">
-        <div className="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-semibold text-slate-900">빠른 검색</h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              단지 또는 지역을 검색해 바로 이동하세요.
-            </p>
-          </div>
-          <Link
-            href="/complexes"
-            className="shrink-0 text-xs font-medium text-teal-700 hover:underline"
-          >
-            단지 조회
-          </Link>
+        <div className="mb-3">
+          <h2 className="text-sm font-semibold text-slate-900">빠른 검색</h2>
+          <p className="mt-0.5 text-xs text-slate-500">
+            단지 또는 지역을 검색해 바로 이동하세요.
+          </p>
         </div>
         <AptQuickSearch
           compact
