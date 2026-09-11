@@ -183,7 +183,7 @@ export function MarketHome() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="오늘의 아파트 시장"
-        description="한눈에 확인하세요."
+        description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
         className="mt-1.5 sm:mt-2"
         meta={
           data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
