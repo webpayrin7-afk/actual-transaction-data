@@ -1,9 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { LAB_INPUT, LAB_TAB } from "@/components/ui/lab";
 
-export const inputClass =
-  "w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
+/** LAB 입력 — globals `.lab-input` + 패딩/타이포 */
+export const inputClass = `${LAB_INPUT} px-3 text-sm outline-none placeholder:text-slate-400`;
 
 export function Field({
   id,
@@ -23,11 +24,16 @@ export function Field({
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       {id ? (
-        <label htmlFor={id} className="text-xs font-medium text-slate-500">
+        <label
+          htmlFor={id}
+          className="text-xs font-medium text-[color:var(--lab-muted)]"
+        >
           {label}
         </label>
       ) : (
-        <p className="text-xs font-medium text-slate-500">{label}</p>
+        <p className="text-xs font-medium text-[color:var(--lab-muted)]">
+          {label}
+        </p>
       )}
       {hint ? (
         <p id={hintId} className="text-[11px] leading-4 text-slate-400">
@@ -44,6 +50,7 @@ export function Field({
   );
 }
 
+/** 선택형 control — selected = light teal + dark teal */
 export function Segmented<T extends string>({
   value,
   onChange,
@@ -74,10 +81,10 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(opt.value)}
-            className={`min-w-0 rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${
+            className={`min-h-10 min-w-0 rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
               active
-                ? "bg-teal-700 text-white"
-                : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+                : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
             }`}
           >
             {opt.label}
@@ -85,5 +92,53 @@ export function Segmented<T extends string>({
         );
       })}
     </div>
+  );
+}
+
+/** 연수 등 compact chip — Segmented와 동일 selected 톤 */
+export function ChoiceChip({
+  selected,
+  onClick,
+  children,
+  ...rest
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: ReactNode;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "children">) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
+        selected
+          ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+          : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
+      }`}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function ModeTabButton({
+  selected,
+  children,
+  ...rest
+}: {
+  selected: boolean;
+  children: ReactNode;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children">) {
+  return (
+    <button
+      type="button"
+      className={`${LAB_TAB} min-w-0 flex-1 px-1 text-[11px] leading-tight sm:px-3 sm:text-sm ${
+        selected ? "lab-tab-active" : ""
+      }`}
+      {...rest}
+    >
+      {children}
+    </button>
   );
 }

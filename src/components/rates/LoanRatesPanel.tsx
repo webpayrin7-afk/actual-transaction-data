@@ -27,10 +27,10 @@ function formatPct(n: number | null | undefined) {
 
 function RateCard({ row }: { row: BankLoanRate }) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-3.5">
+    <article className="lab-card p-3.5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="truncate text-sm font-semibold text-slate-900">
+          <h3 className="truncate text-sm font-semibold text-[color:var(--lab-navy-950)]">
             {row.orgName}
           </h3>
           <p className="mt-0.5 text-[11px] text-slate-500">
@@ -47,19 +47,19 @@ function RateCard({ row }: { row: BankLoanRate }) {
       <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
         <div className="rounded-lg bg-slate-50 px-1 py-2">
           <dt className="text-[10px] text-slate-500">최저</dt>
-          <dd className="mt-0.5 text-sm font-semibold tabular-nums text-slate-900">
+          <dd className="mt-0.5 text-sm font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
             {formatPct(row.minRate)}
           </dd>
         </div>
         <div className="rounded-lg bg-slate-50 px-1 py-2">
           <dt className="text-[10px] text-slate-500">평균</dt>
-          <dd className="mt-0.5 text-sm font-semibold tabular-nums text-slate-900">
+          <dd className="mt-0.5 text-sm font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
             {formatPct(row.avgRate)}
           </dd>
         </div>
         <div className="rounded-lg bg-slate-50 px-1 py-2">
           <dt className="text-[10px] text-slate-500">최고</dt>
-          <dd className="mt-0.5 text-sm font-semibold tabular-nums text-slate-900">
+          <dd className="mt-0.5 text-sm font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
             {formatPct(row.maxRate)}
           </dd>
         </div>
@@ -120,8 +120,8 @@ export function LoanRatesPanel({
         <HeadingTag
           className={
             heading === "h1"
-              ? "text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl"
-              : "text-base font-semibold text-slate-900"
+              ? "text-2xl font-semibold tracking-tight text-[color:var(--lab-navy-950)] sm:text-3xl"
+              : "text-base font-semibold text-[color:var(--lab-navy-950)]"
           }
         >
           서울시 시중은행 협력자금 실행금리
@@ -137,7 +137,7 @@ export function LoanRatesPanel({
 
       {q.isLoading ? (
         <div
-          className="h-32 animate-pulse rounded-xl border border-slate-200 bg-slate-100/70"
+          className="h-32 animate-pulse lab-skeleton"
           aria-hidden
         />
       ) : q.isError ? (
@@ -158,12 +158,12 @@ export function LoanRatesPanel({
           ) : null}
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
+            <div className="inline-flex inline-flex gap-0.5 rounded-[10px] border border-[color:var(--lab-border)] bg-white p-0.5 text-xs">
               <button
                 type="button"
                 onClick={() => setFilter("all")}
                 className={`rounded-md px-2.5 py-1 font-medium ${
-                  filter === "all" ? "bg-slate-900 text-white" : "text-slate-600"
+                  filter === "all" ? "bg-[color:var(--lab-teal-700)] text-white" : "text-slate-600"
                 }`}
               >
                 전체
@@ -172,7 +172,7 @@ export function LoanRatesPanel({
                 type="button"
                 onClick={() => setFilter("first")}
                 className={`rounded-md px-2.5 py-1 font-medium ${
-                  filter === "first" ? "bg-slate-900 text-white" : "text-slate-600"
+                  filter === "first" ? "bg-[color:var(--lab-teal-700)] text-white" : "text-slate-600"
                 }`}
               >
                 1금융
@@ -183,7 +183,7 @@ export function LoanRatesPanel({
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-800"
+                className="rounded-md border border-[color:var(--lab-border)] bg-white px-2 py-1 text-xs text-slate-800"
               >
                 <option value="min">최저금리</option>
                 <option value="avg">평균금리</option>
@@ -194,7 +194,7 @@ export function LoanRatesPanel({
           </div>
 
           {rows.length === 0 ? (
-            <p className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500">
+            <p className="lab-card px-4 py-8 text-center text-sm text-slate-500">
               표시할 금리 정보가 없습니다.
             </p>
           ) : (
@@ -205,7 +205,7 @@ export function LoanRatesPanel({
                 ))}
               </div>
 
-              <div className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white md:block">
+              <div className="hidden overflow-x-auto lab-card md:block">
                 <table className="w-full min-w-[640px] border-collapse text-sm">
                   <thead className="bg-slate-50 text-left text-xs text-slate-500">
                     <tr>
@@ -226,7 +226,7 @@ export function LoanRatesPanel({
                           index === 0 && sort === "min" ? "bg-slate-50" : ""
                         }`}
                       >
-                        <td className="px-3 py-2.5 font-medium text-slate-900">
+                        <td className="px-3 py-2.5 font-medium text-[color:var(--lab-navy-950)]">
                           {row.orgName}
                           <span className="ml-1.5 text-[10px] font-normal text-slate-400">
                             {row.isFirstTier ? "1금융" : "기타"}
@@ -238,7 +238,7 @@ export function LoanRatesPanel({
                         <td className="px-3 py-2.5 tabular-nums text-slate-700">
                           {row.loanCount.toLocaleString("ko-KR")}
                         </td>
-                        <td className="px-3 py-2.5 tabular-nums font-semibold text-slate-900">
+                        <td className="px-3 py-2.5 tabular-nums font-semibold text-[color:var(--lab-navy-950)]">
                           {formatPct(row.minRate)}
                         </td>
                         <td className="px-3 py-2.5 tabular-nums text-slate-700">

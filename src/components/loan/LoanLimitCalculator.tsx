@@ -14,6 +14,7 @@ import {
 } from "@/lib/loan/calc";
 import { formatManHuman } from "@/lib/loan/repay";
 import { Field, Segmented, inputClass } from "@/components/loan/loan-ui";
+import { LabCard } from "@/components/ui/lab";
 
 const YEARS = [10, 15, 20, 25, 30, 35, 40] as const;
 
@@ -109,11 +110,11 @@ export function LoanLimitCalculator({
 
   return (
     <div className="flex flex-col gap-5">
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-slate-900">대출 조건</h2>
+      <LabCard className="p-4 sm:p-5">
+        <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">대출 조건</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <p id="limit-metro-label" className="text-xs font-medium text-slate-500">
+            <p id="limit-metro-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
               지역 구분
             </p>
             <Segmented
@@ -128,7 +129,7 @@ export function LoanLimitCalculator({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <p id="limit-reg-label" className="text-xs font-medium text-slate-500">
+            <p id="limit-reg-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
               규제지역
             </p>
             <div className="flex flex-wrap items-center gap-2">
@@ -152,7 +153,7 @@ export function LoanLimitCalculator({
           </div>
 
           {showRegions ? (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-600">
+            <div className="rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-600">
               <p className="font-semibold text-slate-800">투기과열지구</p>
               <p className="mt-1">{REGULATED_REGIONS.투기과열지구.join(" · ")}</p>
               <p className="mt-3 font-semibold text-slate-800">조정대상지역</p>
@@ -164,7 +165,7 @@ export function LoanLimitCalculator({
           ) : null}
 
           <div className="flex flex-col gap-1.5">
-            <p id="limit-homes-label" className="text-xs font-medium text-slate-500">
+            <p id="limit-homes-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
               보유 주택 수
             </p>
             <Segmented
@@ -181,7 +182,7 @@ export function LoanLimitCalculator({
 
           {homes === "0" ? (
             <div className="flex flex-col gap-1.5">
-              <p id="limit-first-label" className="text-xs font-medium text-slate-500">
+              <p id="limit-first-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
                 생애최초 여부
               </p>
               <Segmented
@@ -198,7 +199,7 @@ export function LoanLimitCalculator({
 
           {homes === "1" ? (
             <div className="flex flex-col gap-1.5">
-              <p id="limit-dispose-label" className="text-xs font-medium text-slate-500">
+              <p id="limit-dispose-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
                 처분조건부 여부
               </p>
               <Segmented
@@ -213,10 +214,10 @@ export function LoanLimitCalculator({
             </div>
           ) : null}
         </div>
-      </section>
+      </LabCard>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-slate-900">담보 및 소득</h2>
+      <LabCard className="p-4 sm:p-5">
+        <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">담보 및 소득</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             id="limit-collateral"
@@ -269,13 +270,13 @@ export function LoanLimitCalculator({
             />
           </Field>
         </div>
-      </section>
+      </LabCard>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-slate-900">만기 · 금리</h2>
+      <LabCard className="p-4 sm:p-5">
+        <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">만기 · 금리</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <p id="limit-years-label" className="text-xs font-medium text-slate-500">
+            <p id="limit-years-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
               희망 만기
             </p>
             <div
@@ -290,10 +291,10 @@ export function LoanLimitCalculator({
                   role="radio"
                   aria-checked={years === y}
                   onClick={() => onYearsChange(y)}
-                  className={`rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${
+                  className={`rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
                     years === y
-                      ? "bg-teal-700 text-white"
-                      : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+                      : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
                   }`}
                 >
                   {y}년
@@ -319,16 +320,16 @@ export function LoanLimitCalculator({
         <button
           type="button"
           onClick={() => setSubmitted(true)}
-          className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-teal-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 sm:w-auto"
+          className="lab-button lab-button-primary mt-5 w-full sm:w-auto"
         >
           대출 한도 계산
         </button>
-      </section>
+      </LabCard>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
-        <p className="text-xs font-medium text-slate-500">한도 계산 결과</p>
+      <LabCard className="p-5">
+        <p className="text-xs font-medium text-[color:var(--lab-muted)]">한도 계산 결과</p>
         <p className="mt-3 text-sm text-slate-600">예상 대출 가능 한도</p>
-        <p className="mt-1 break-words text-3xl font-semibold tracking-tight text-slate-900">
+        <p className="mt-1 lab-kpi-value break-words text-3xl font-semibold tracking-tight text-[color:var(--lab-navy-950)]">
           {submitted
             ? result.blocked
               ? "대출 불가"
@@ -365,14 +366,14 @@ export function LoanLimitCalculator({
           <button
             type="button"
             onClick={goToRepayment}
-            className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 sm:w-auto"
+            className="lab-button lab-button-primary mt-4 w-full sm:w-auto"
           >
             이 한도로 이자 계산
           </button>
         ) : null}
-      </section>
+      </LabCard>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+      <LabCard className="p-4 sm:p-5">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <ResultRow
             label="LTV 한도"
@@ -430,7 +431,7 @@ export function LoanLimitCalculator({
             </ul>
           </details>
         ) : null}
-      </section>
+      </LabCard>
 
       <p className="text-xs leading-5 text-slate-500">
         계산 결과는 입력값을 기준으로 한 참고용이며, 실제 대출 가능 금액과 조건은
@@ -454,21 +455,19 @@ function ResultRow({
 }) {
   return (
     <div
-      className={`min-w-0 rounded-xl px-3 py-3 ${
+      className={`min-w-0 rounded-[var(--lab-radius-md)] px-3 py-3 ${
         emphasized
-          ? "bg-teal-50 ring-2 ring-teal-600/30"
-          : "bg-slate-50"
+          ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)]"
+          : "border border-[color:var(--lab-border)] bg-slate-50/80"
       }`}
     >
-      <p className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+      <p className="flex flex-wrap items-center gap-2 text-xs font-medium text-[color:var(--lab-muted)]">
         <span>{label}</span>
         {emphasized ? (
-          <span className="rounded-full bg-teal-700 px-2 py-0.5 text-[10px] font-semibold text-white">
-            한도 결정
-          </span>
+          <span className="lab-badge">한도 결정</span>
         ) : null}
       </p>
-      <p className="mt-1 break-words text-base font-semibold text-slate-900">
+      <p className="mt-1 break-words text-base font-semibold text-[color:var(--lab-navy-950)]">
         {value}
       </p>
       <p className="mt-1 text-[11px] leading-4 text-slate-400">{hint}</p>

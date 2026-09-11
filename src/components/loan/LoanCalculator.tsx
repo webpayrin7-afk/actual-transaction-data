@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoanLimitCalculator } from "@/components/loan/LoanLimitCalculator";
-import { Field, Segmented, inputClass } from "@/components/loan/loan-ui";
+import {
+  Field,
+  ModeTabButton,
+  Segmented,
+  inputClass,
+} from "@/components/loan/loan-ui";
+import { LabCard } from "@/components/ui/lab";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LoanRatesPanel } from "@/components/rates/LoanRatesPanel";
 import {
   LOAN_PAGE_MODES,
@@ -194,18 +201,16 @@ export function LoanCalculator() {
     current.lastMonthWon !== current.monthlyPaymentWon;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 overflow-x-hidden px-4 py-6 sm:px-6">
-      <div>
-        <p className="text-xs font-medium tracking-wide text-teal-700">도구</p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          대출 계산기
-        </h1>
-      </div>
+    <div className={`${PAGE_SHELL} max-w-3xl overflow-x-hidden`}>
+      <PageHeader
+        title="대출 계산기"
+        description="LTV·DSR·DTI 한도와 월 상환액·총이자를 계산하고, 서울시 협력자금 실행금리를 확인하세요."
+      />
 
       <div
         role="tablist"
         aria-label="계산 종류"
-        className="grid grid-cols-3 gap-0.5 rounded-lg border border-slate-200 bg-slate-100 p-0.5"
+        className="grid grid-cols-3 gap-1 rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-white p-1"
         onKeyDown={(event) => {
           if (
             event.key !== "ArrowRight" &&
@@ -267,8 +272,8 @@ export function LoanCalculator() {
         {mode === "repayment" ? (
           <div className="flex flex-col gap-5">
             <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-                <h2 className="text-sm font-semibold text-slate-900">대출 조건</h2>
+              <LabCard className="p-4 sm:p-5">
+                <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">대출 조건</h2>
                 <div className="mt-4 flex flex-col gap-4">
                   <Field
                     id={principalId}
@@ -298,7 +303,7 @@ export function LoanCalculator() {
                   </Field>
 
                   <div className="flex flex-col gap-1.5">
-                    <p id={yearsLabelId} className="text-xs font-medium text-slate-500">
+                    <p id={yearsLabelId} className="text-xs font-medium text-[color:var(--lab-muted)]">
                       대출기간
                     </p>
                     <div
@@ -313,10 +318,10 @@ export function LoanCalculator() {
                           role="radio"
                           aria-checked={years === y}
                           onClick={() => onYearsChange(y)}
-                          className={`rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 ${
+                          className={`rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
                             years === y
-                              ? "bg-teal-700 text-white"
-                              : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+                              : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
                           }`}
                         >
                           {y}년
@@ -376,7 +381,7 @@ export function LoanCalculator() {
                   ) : null}
 
                   <div className="flex flex-col gap-1.5">
-                    <p id={methodLabelId} className="text-xs font-medium text-slate-500">
+                    <p id={methodLabelId} className="text-xs font-medium text-[color:var(--lab-muted)]">
                       상환방식
                     </p>
                     <Segmented
@@ -390,7 +395,7 @@ export function LoanCalculator() {
                     />
                   </div>
                 </div>
-              </section>
+              </LabCard>
             </form>
 
             <div aria-live="polite" className="flex flex-col gap-5">
@@ -403,7 +408,7 @@ export function LoanCalculator() {
                   />
                   <RateDeltaSection comparison={comparison} method={method} />
                   <ScenarioList scenarios={comparison.scenarios} method={method} />
-                  <details className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                  <details className="lab-card px-4 py-3">
                     <summary className="cursor-pointer text-sm font-medium text-slate-700">
                       계산 기준 보기
                     </summary>
@@ -413,7 +418,7 @@ export function LoanCalculator() {
                   </details>
                 </>
               ) : (
-                <section className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500">
+                <section className="lab-card p-5 text-sm text-[color:var(--lab-muted)]">
                   대출금액, 기간, 금리를 확인하면 상환액과 금리 비교가 표시됩니다.
                 </section>
               )}
@@ -451,22 +456,17 @@ function ModeTab({
   onSelect: () => void;
 }) {
   return (
-    <button
+    <ModeTabButton
       id={id}
-      type="button"
       role="tab"
       aria-selected={selected}
       aria-controls={controls}
       tabIndex={selected ? 0 : -1}
       onClick={onSelect}
-      className={`min-w-0 whitespace-nowrap rounded-md px-0.5 py-2 text-center text-[11px] font-medium leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 sm:px-2 sm:text-sm ${
-        selected
-          ? "bg-white text-slate-900 shadow-sm"
-          : "text-slate-600 hover:text-slate-900"
-      }`}
+      selected={selected}
     >
       {title}
-    </button>
+    </ModeTabButton>
   );
 }
 
@@ -481,8 +481,8 @@ function CurrentResult({
 }) {
   const equalPayment = summary.method === "equal_payment";
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
-      <p className="text-xs font-medium text-slate-500">현재 조건 결과</p>
+    <LabCard className="p-5">
+      <p className="text-xs font-medium text-[color:var(--lab-muted)]">현재 조건 결과</p>
       <p className="mt-1 text-sm text-slate-500">
         {formatManHuman(principalMan)}원 · {summary.years}년 ·{" "}
         {formatRatePct(summary.annualRatePct)} ·{" "}
@@ -491,7 +491,7 @@ function CurrentResult({
       {equalPayment && summary.monthlyPaymentWon != null ? (
         <>
           <p className="mt-4 text-sm text-slate-600">월 상환액</p>
-          <p className="mt-1 break-words text-3xl font-semibold tracking-tight tabular-nums text-slate-900">
+          <p className="mt-1 lab-kpi-value break-words text-3xl font-semibold tracking-tight tabular-nums text-[color:var(--lab-navy-950)]">
             {formatWon(summary.monthlyPaymentWon)}
           </p>
           {lastDiffers ? (
@@ -506,21 +506,21 @@ function CurrentResult({
           <HeroStat label="마지막 달 납입액" value={formatWon(summary.lastMonthWon)} />
         </div>
       )}
-      <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
+      <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-[color:var(--lab-border)] pt-4 sm:grid-cols-2">
         <div>
           <dt className="text-xs text-slate-500">총 이자</dt>
-          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums text-slate-900">
+          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
             {formatWon(summary.totalInterestWon)}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-slate-500">총 상환액</dt>
-          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums text-slate-900">
+          <dd className="mt-0.5 break-words text-base font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
             {formatWon(summary.totalPaymentWon)}
           </dd>
         </div>
       </dl>
-    </section>
+    </LabCard>
   );
 }
 
@@ -528,7 +528,7 @@ function HeroStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
       <p className="text-sm text-slate-600">{label}</p>
-      <p className="mt-1 break-words text-2xl font-semibold tracking-tight tabular-nums text-slate-900">
+      <p className="mt-1 lab-kpi-value break-words text-2xl font-semibold tracking-tight tabular-nums text-[color:var(--lab-navy-950)]">
         {value}
       </p>
     </div>
@@ -546,8 +546,8 @@ function RateDeltaSection({
   const delta = comparison.vsHigher;
   if (!higher || !delta) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-slate-900">금리 변화 시 부담 차이</h2>
+      <section className="lab-card p-4 sm:p-5">
+        <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">금리 변화 시 부담 차이</h2>
         <p className="mt-2 text-sm text-slate-500">
           기준 금리가 0%라 더 낮은 금리는 비교하지 않습니다. +
           {RATE_COMPARE_DELTA_PCT}%p 시나리오가 없으면 금리를 낮춰 입력해 보세요.
@@ -564,8 +564,8 @@ function RateDeltaSection({
   );
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-      <h2 className="text-sm font-semibold text-slate-900">금리 변화 시 부담 차이</h2>
+    <section className="lab-card p-4 sm:p-5">
+      <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">금리 변화 시 부담 차이</h2>
       <p className="mt-1 text-sm leading-6 text-slate-600">
         금리가 {from}에서 {to}로 {step} 오르면
       </p>
@@ -613,11 +613,11 @@ function DeltaRow({ label, value }: { label: string; value: string }) {
   const up = value.startsWith("+");
   const down = value.startsWith("-");
   return (
-    <div className="flex min-w-0 items-baseline justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3">
+    <div className="flex min-w-0 items-baseline justify-between gap-3 rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-slate-50/80 px-3 py-3">
       <dt className="shrink-0 text-sm text-slate-600">{label}</dt>
       <dd
         className={`min-w-0 break-words text-right text-base font-semibold tabular-nums ${
-          up ? "text-rose-700" : down ? "text-teal-800" : "text-slate-900"
+          up ? "text-rose-700" : down ? "text-[color:var(--lab-teal-700)]" : "text-slate-900"
         }`}
       >
         <span className="sr-only">{up ? "증가 " : down ? "감소 " : ""}</span>
@@ -636,14 +636,14 @@ function ScenarioList({
 }) {
   return (
     <section>
-      <h2 className="text-sm font-semibold text-slate-900">금리별 비교</h2>
+      <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">금리별 비교</h2>
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {scenarios.map((scenario) => (
           <article
             key={`${scenario.kind}-${scenario.ratePct}`}
-            className={`min-w-0 rounded-2xl border p-4 ${
+            className={`lab-card min-w-0 p-4 ${
               scenario.kind === "base"
-                ? "border-teal-600 bg-teal-50/60 ring-2 ring-teal-600/20"
+                ? "border-[color:var(--lab-teal-600)] bg-[color:var(--lab-teal-50)]"
                 : "border-slate-200 bg-white"
             }`}
           >
@@ -654,8 +654,8 @@ function ScenarioList({
               <span
                 className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
                   scenario.kind === "base"
-                    ? "bg-teal-700 text-white"
-                    : "bg-slate-100 text-slate-600"
+                    ? "lab-badge"
+                    : "rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
                 }`}
               >
                 {scenario.kind === "base" ? "기준" : scenario.label}
