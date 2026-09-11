@@ -32,6 +32,7 @@ import {
 } from "@/components/stats/StatsDealExplorer";
 import { StatsRegionSelect } from "@/components/stats/StatsRegionSelect";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { isStatsScope } from "@/lib/market/region-scope";
 
 async function fetchStats(
@@ -89,7 +90,7 @@ function Segmented<T extends string>({
               fullWidth ? "flex-1 lg:flex-none" : ""
             } ${
               active
-                ? "bg-white text-slate-900 shadow-sm"
+                ? "bg-teal-700 text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
@@ -154,19 +155,17 @@ function KpiCard({
   share?: string | null;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3.5">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-slate-900">
-        {value}
-      </p>
-      {share ? (
-        <p className="mt-0.5 text-[11px] text-slate-500">{share}</p>
-      ) : null}
-      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
-        <ChangeText pct={change} compareLabel={compareLabel} />
-        {sub ? <span>{sub}</span> : null}
-      </div>
-    </div>
+    <LabKpiCard
+      label={label}
+      value={value}
+      hint={share}
+      footer={
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
+          <ChangeText pct={change} compareLabel={compareLabel} />
+          {sub ? <span>{sub}</span> : null}
+        </div>
+      }
+    />
   );
 }
 
@@ -257,7 +256,7 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+    <section className="lab-card p-4 sm:p-5">
       <div className="mb-3">
         <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
           {title}
@@ -422,14 +421,7 @@ export function MarketStatsPage() {
       )}
 
       {query.isLoading ? (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-24 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"
-            />
-          ))}
-        </div>
+        <div className="lab-skeleton" />
       ) : null}
 
       {query.isError ? (
@@ -645,7 +637,7 @@ export function MarketStatsPage() {
             />
           ) : null}
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+          <section className="lab-card p-4 sm:p-5">
             <div className="mb-3 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-teal-700" />
               <div>

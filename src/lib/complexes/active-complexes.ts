@@ -83,7 +83,7 @@ export async function getActiveComplexes(): Promise<ActiveComplexesResponse> {
   }
 
   if (!hasDb()) {
-    return emptyResponse("DB가 설정되지 않아 거래 활발 단지를 표시할 수 없습니다.");
+    return emptyResponse("거래 데이터를 불러올 수 없어 거래 활발 단지를 표시할 수 없습니다.");
   }
 
   const db = getDb()!;

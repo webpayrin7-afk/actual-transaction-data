@@ -48,6 +48,7 @@ import {
   vsPreviousTypeDeal,
 } from "@/lib/region/market-insight";
 import { TypePriceSparkline } from "@/components/region/TypePriceSparkline";
+import { InfoChip } from "@/components/ui/InfoChip";
 import {
   formatDealDate,
   formatEok,
@@ -79,7 +80,7 @@ function weekdayOfFirst(ym: string): number {
 }
 
 const SECTION_SURFACE =
-  "rounded-2xl border border-slate-200/80 bg-white px-3.5 py-4 sm:px-5 sm:py-5";
+  "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
 
 function contractLine(date: string): string {
   return `계약 ${formatDealDate(date)}`;
@@ -336,19 +337,7 @@ function DateBasisChip({
   label: string;
   help: string;
 }) {
-  return (
-    <details className="region-basis-chip relative shrink-0">
-      <summary className="inline-flex cursor-pointer items-center gap-0.5 whitespace-nowrap rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400">
-        {label}
-        <span className="text-[10px] font-normal text-slate-400" aria-hidden="true">
-          ⓘ
-        </span>
-      </summary>
-      <p className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-72 max-w-[calc(100vw-2.5rem)] rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
-        {help}
-      </p>
-    </details>
-  );
+  return <InfoChip label={label}>{help}</InfoChip>;
 }
 
 function SectionHeading({
@@ -539,7 +528,7 @@ function MonthCalendar({
                 aria-pressed={active}
                 className={`relative flex min-h-10 flex-col items-center justify-center rounded-md px-0.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:min-h-11 ${
                   active
-                    ? "bg-slate-200 text-slate-900"
+                    ? "bg-teal-700 text-white"
                     : hasDeals
                       ? "text-slate-800 hover:bg-slate-100/80"
                       : "text-slate-400 hover:bg-slate-100/80"
@@ -548,7 +537,7 @@ function MonthCalendar({
                 <span className="font-medium leading-none">{day}</span>
                 {hasDeals ? <span
                   className={`mt-0.5 text-[10px] leading-none tabular-nums ${
-                    active ? "text-slate-600" : "text-slate-500"
+                    active ? "text-teal-50" : "text-slate-500"
                   }`}
                 >
                   {dealCount}
@@ -556,7 +545,7 @@ function MonthCalendar({
                 </span> : null}
                 {hasSingoga ? (
                   <span
-                    className="mt-0.5 h-1 w-1 rounded-full bg-teal-600"
+                    className={`mt-0.5 h-1 w-1 rounded-full ${active ? "bg-white" : "bg-teal-600"}`}
                     aria-hidden="true"
                   />
                 ) : (
@@ -639,7 +628,7 @@ function Kpi({
       </p>
       <div className="mt-1.5 flex min-w-0 items-baseline gap-x-1 sm:mt-2 sm:gap-x-2">
         <p
-          className={`whitespace-nowrap text-base font-semibold leading-none tracking-tight tabular-nums sm:text-xl ${valueClassName}`}
+          className={`lab-kpi-figure whitespace-nowrap text-base font-semibold leading-none sm:text-xl ${valueClassName}`}
         >
           {value}
         </p>

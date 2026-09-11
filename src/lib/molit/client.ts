@@ -93,7 +93,7 @@ async function fetchMolitXml(
 ): Promise<string> {
   const serviceKey = getServiceKey();
   if (!serviceKey) {
-    throw new Error("MOLIT_API_KEY is not configured");
+    throw new Error("실거래 데이터 연동이 설정되지 않았습니다.");
   }
 
   const params = new URLSearchParams({

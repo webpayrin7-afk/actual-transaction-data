@@ -131,7 +131,7 @@ function emptyResponse(warning?: string): MarketHomeResponse {
     recentFrom: null,
     recentTo: null,
     dateBasisNote:
-      "홈의 신규 거래는 확인일(discovery_at) 기준입니다. 계약일과 다릅니다.",
+      "새로 확인된 거래는 집랩이 처음 확인한 날짜 기준이며 실제 계약일과 다릅니다.",
     computedAt: null,
     lastUpdatedLabel: null,
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
@@ -333,13 +333,13 @@ export async function computeMarketHome(opts?: {
   discoveryDay?: "today" | "latest";
 }): Promise<MarketHomeResponse> {
   if (!hasDb()) {
-    return emptyResponse("실거래 DB가 연결되지 않았습니다.");
+    return emptyResponse("실거래 데이터를 불러올 수 없습니다.");
   }
 
   await ensureSchema();
   const db = getDb();
   if (!db) {
-    return emptyResponse("실거래 DB가 연결되지 않았습니다.");
+    return emptyResponse("실거래 데이터를 불러올 수 없습니다.");
   }
 
   const maxRow = await db.execute({
@@ -409,7 +409,7 @@ export async function computeMarketHome(opts?: {
     recentFrom: discoveryDate,
     recentTo: discoveryDate,
     dateBasisNote:
-      "홈의 ‘새로 확인’은 확인일(discovery_at) 기준입니다(신고일·계약일 아님). 계약일은 각 카드에 표시됩니다. 시장동향(/stats)은 계약일 기준입니다.",
+      "새로 확인된 거래는 집랩이 처음 확인한 날짜 기준이며 공식 신고일이나 계약일을 뜻하지 않습니다. 각 카드의 날짜와 시장동향은 계약일 기준입니다.",
     computedAt,
     lastUpdatedLabel: formatSeoulDateTime(computedAt),
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
@@ -419,7 +419,7 @@ export async function computeMarketHome(opts?: {
   if (!discoveryReady) {
     return {
       ...emptyResponse(
-        "신규 확인 시각 축적이 시작되기 전입니다. 다음 daily discovery sync부터 오늘 새로 확인된 거래가 표시됩니다.",
+        "새 거래 확인 기록이 아직 준비되지 않았습니다. 다음 데이터 갱신부터 새로 확인된 거래가 표시됩니다.",
       ),
       ...baseMeta,
       source: "db",
@@ -445,7 +445,7 @@ export async function computeMarketHome(opts?: {
       volumeSurges: [],
       notables: [],
       warning:
-        "오늘(한국시간) 새로 확인된 매매가 아직 없습니다. sync 이후 다시 확인해 주세요.",
+        "오늘(한국시간) 새로 확인된 매매가 아직 없습니다. 데이터 갱신 후 다시 확인해 주세요.",
     };
   }
 

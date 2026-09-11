@@ -375,7 +375,7 @@ export const CONTRACT_DATE_BASIS_HELP =
 
 export const SEEN_DATE_BASIS_LABEL = "확인일 기준";
 export const SEEN_DATE_BASIS_HELP =
-  "아파트 데이터랩이 거래를 처음 확인한 날짜입니다. 실제 계약일과 다를 수 있습니다.";
+  "집랩이 거래를 처음 확인한 날짜입니다. 실제 계약일과 다를 수 있습니다.";
 
 export const HISTORY_DATE_BASIS_HELP =
   "실제 매매계약이 체결된 날짜입니다. 확인일과 다를 수 있습니다.";

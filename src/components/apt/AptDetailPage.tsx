@@ -10,6 +10,7 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
+import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt";
 import {
   AptPriceChart,
@@ -453,7 +454,7 @@ export function AptDetailPage({
           단지 정보를 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
-          <BackLink fallback="/complexes" />
+          <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
         </div>
       </div>
     );
@@ -473,7 +474,7 @@ export function AptDetailPage({
         aria-hidden={!stickyVisible}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
-          <BackLink fallback="/complexes" compact />
+          <BackLink fallback="/complexes" compact hideLabelOnMobile />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-slate-900">
               {data.aptName}
@@ -490,7 +491,7 @@ export function AptDetailPage({
       </div>
 
       <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/complexes" />
+        <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
@@ -524,61 +525,48 @@ export function AptDetailPage({
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
             {data.warning ??
-              "데모 데이터로 표시 중입니다. MOLIT_API_KEY 설정 시 실거래가 반영됩니다."}
+              "실거래 데이터 연동이 없어 데모 데이터로 표시 중입니다."}
           </p>
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
-          <p className="text-[11px] font-medium text-slate-500">최근 매매</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-900 sm:text-xl">
-            {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
-          </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">
-            {latestTrade
+        <LabKpiCard
+          label="최근 매매"
+          value={latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
+          hint={latestTrade
               ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
               : "선택 기간 거래 없음"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
-          <p className="text-[11px] font-medium text-slate-500">기간 최고가</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-900 sm:text-xl">
-            {periodMax > 0 ? formatEok(periodMax) : "—"}
-          </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">선택 기간·면적 기준</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
-          <p className="text-[11px] font-medium text-slate-500">최고가 대비</p>
-          <p
-            className={`mt-1 text-lg font-semibold tabular-nums tracking-tight sm:text-xl ${
+        />
+        <LabKpiCard
+          label="기간 최고가"
+          value={periodMax > 0 ? formatEok(periodMax) : "—"}
+          hint="선택 기간·면적 기준"
+        />
+        <LabKpiCard
+          label="최고가 대비"
+          value={vsMaxPct == null
+            ? "—"
+            : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`}
+          valueClassName={
               vsMaxPct == null
-                ? "text-slate-400"
+                ? "!text-slate-400"
                 : vsMaxPct < 0
-                  ? "text-rose-600"
+                  ? "!text-rose-600"
                   : vsMaxPct > 0
-                    ? "text-teal-700"
-                    : "text-slate-700"
-            }`}
-          >
-            {vsMaxPct == null
-              ? "—"
-              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`}
-          </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">최근 매매 기준</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
-          <p className="text-[11px] font-medium text-slate-500">기간 거래량</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-900 sm:text-xl">
-            매매 {periodTradeCount}
-          </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">
-            전월세 {periodRentCount}건
-          </p>
-        </div>
+                    ? "!text-teal-700"
+                    : "!text-slate-700"
+          }
+          hint="최근 매매 기준"
+        />
+        <LabKpiCard
+          label="기간 거래량"
+          value={`매매 ${periodTradeCount}건`}
+          hint={`전월세 ${periodRentCount}건`}
+        />
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section className="lab-card p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
@@ -614,7 +602,7 @@ export function AptDetailPage({
 
       <section
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
-        className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
+        className="lab-card p-4 sm:p-5"
       >
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
@@ -642,7 +630,7 @@ export function AptDetailPage({
                 onClick={() => setDealFilter(value)}
                 className={`rounded-md px-3 py-1 text-xs font-medium transition ${
                   dealFilter === value
-                    ? "bg-white text-slate-900 shadow-sm"
+                    ? "bg-teal-700 text-white shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >

@@ -163,16 +163,19 @@ export function Dashboard({
   };
 
   return (
-    <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} sm:gap-5`}>
-      <header className="-mt-2 mb-2 flex flex-col gap-5 sm:mb-0 sm:gap-5">
+    <div
+      className={`${PAGE_SHELL.replace("gap-6", "gap-3").replace("pt-5", "pt-3").replace("sm:pt-7", "sm:pt-4")} sm:gap-5`}
+    >
+      <header className="flex flex-col gap-3 sm:gap-4">
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
+          className="border-b-0 pb-0 sm:pb-0"
         />
       </header>
 
       <nav
-        className="inline-flex w-full gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:w-auto"
+        className="inline-flex w-full gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:w-auto"
         aria-label="지역 상세 탭"
       >
         {TABS.map(({ id, label, icon: Icon }) => {
@@ -183,9 +186,9 @@ export function Dashboard({
               type="button"
               onClick={() => selectTab(id)}
               aria-pressed={active}
-              className={`flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-md px-3 text-xs font-medium transition sm:flex-none sm:text-[13px] ${
+              className={`flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition sm:flex-none sm:text-[13px] ${
                 active
-                  ? "bg-white text-slate-900 shadow-sm"
+                  ? "bg-teal-700 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >

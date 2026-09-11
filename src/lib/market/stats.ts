@@ -198,7 +198,7 @@ function emptyStats(
     period,
     scope,
     dateBasisNote:
-      "계약일(deal_date) 기준입니다. 국토부 신고·적재 시차로 ‘오늘’과 다를 수 있습니다.",
+      "실제 계약일 기준입니다. 신고와 데이터 반영 시차로 ‘오늘’과 다를 수 있습니다.",
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
     series: [],
     kpi: null,
@@ -908,7 +908,7 @@ export async function getMarketStats(params: {
   }
 
   if (!hasDb()) {
-    return emptyStats(params.period, params.scope, "실거래 DB가 연결되지 않았습니다.");
+    return emptyStats(params.period, params.scope, "실거래 데이터를 불러올 수 없습니다.");
   }
   await ensureSchema();
 
@@ -1024,8 +1024,8 @@ export async function getMarketStats(params: {
     dateBasisNote: window.reportingLagRisk
       ? "계약일 기준입니다. 최신 계약 기간은 신고 지연으로 거래량이 과소 보일 수 있어, 단순 급락으로 해석하지 마세요."
       : source === "warehouse"
-        ? "계약일(deal_date) 기준입니다. 24개월 이전 구간은 웨어하우스에서 거래량·중위를 읽습니다. 신고가/하락은 최근 24개월 사전집계 구간에만 제공됩니다."
-        : "계약일(deal_date) 기준입니다. 홈의 ‘새로 확인’(discovery_at)과 다른 시간축입니다.",
+        ? "계약일 기준입니다. 24개월 이전 구간은 장기 거래 기록의 거래량과 중윗값을 사용합니다. 신고가와 하락거래는 최근 24개월 구간에 제공됩니다."
+        : "계약일 기준입니다. 홈의 ‘새로 확인’과는 날짜 기준이 다릅니다.",
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
     series,
     kpi,

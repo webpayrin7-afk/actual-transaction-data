@@ -227,7 +227,7 @@ export async function loadRawTransactions(
       resolvedYearMonth: yearMonth,
       warning: lastError
         ? `API 오류로 데모 데이터 표시: ${lastError}`
-        : "선택한 기간에 API 데이터가 없어 데모 데이터를 표시합니다.",
+        : "선택한 기간에 확인된 실거래가 없어 데모 데이터를 표시합니다.",
     };
   }
 
@@ -236,7 +236,7 @@ export async function loadRawTransactions(
     source: "mock",
     resolvedYearMonth: yearMonth,
     warning:
-      "MOLIT_API_KEY가 없어 지역별 데모 데이터로 표시 중입니다. Vercel/로컬 환경변수에 키를 설정하세요.",
+      "실거래 데이터 연동이 없어 지역별 데모 데이터로 표시 중입니다.",
   };
 }
 
@@ -290,7 +290,7 @@ export async function getTransactions(params: {
       items = [];
       usedDb = true;
       source = "db";
-      warning = "실거래 DB 조회 중 오류가 발생했습니다.";
+      warning = "실거래 조회 중 오류가 발생했습니다.";
     }
   }
 

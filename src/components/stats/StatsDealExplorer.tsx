@@ -181,7 +181,7 @@ export function StatsDealExplorer({
           : null;
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+    <section className="lab-card p-4 sm:p-5">
       <div className="mb-3">
         <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
           실거래 탐색
@@ -208,7 +208,7 @@ export function StatsDealExplorer({
               onClick={() => onTabChange(t.id)}
               className={`shrink-0 flex-1 rounded-lg px-2 py-1.5 text-center text-xs font-medium transition sm:text-sm ${
                 active
-                  ? "bg-white text-slate-900 shadow-sm"
+                  ? "bg-teal-700 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >

@@ -11,8 +11,60 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type TooltipProps,
 } from "recharts";
 import type { AptChartPoint } from "@/lib/molit/apt";
+
+const CHART_COLORS = {
+  trade: "#2563eb",
+  jeonse: "#ea580c",
+  volume: "#0f766e",
+  volumeBar: "#2dd4bf",
+} as const;
+
+function seriesTextColor(name: string): string {
+  if (name === "거래량") return CHART_COLORS.volume;
+  if (name === "매매 평균") return CHART_COLORS.trade;
+  if (name === "전세 평균") return CHART_COLORS.jeonse;
+  return "#334155";
+}
+
+function ChartTooltip({
+  active,
+  payload,
+}: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null;
+  const ym = payload[0]?.payload?.yearMonth as string | undefined;
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
+      <p className="mb-1.5 font-medium text-slate-800">
+        {ym ? formatYmLabel(ym) : ""}
+      </p>
+      <ul className="space-y-0.5">
+        {payload.map((item) => {
+          const name = String(item.name ?? "");
+          const isVolume = name === "거래량";
+          const value = item.value;
+          return (
+            <li
+              key={name}
+              className="flex items-center justify-between gap-4 font-medium"
+              style={{
+                color: seriesTextColor(name),
+              }}
+            >
+              <span>{name}</span>
+              <span className="tabular-nums">
+                {value == null ? "—" : isVolume ? `${value}건` : `${value}억`}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
 
 function toEok(manwon: number | null | undefined): number | null {
   if (manwon == null || !Number.isFinite(manwon) || manwon <= 0) return null;
@@ -62,7 +114,7 @@ export function AptPriceChart({
             }
             interval="preserveStartEnd"
             minTickGap={28}
-            tick={{ fill: "#64748b", fontSize: 11 }}
+            tick={{ fill: "#475569", fontSize: 11 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
           />
@@ -78,37 +130,35 @@ export function AptPriceChart({
             yAxisId="volume"
             orientation="right"
             tickFormatter={(v: number) => `${v}건`}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: CHART_COLORS.volume, fontSize: 11, fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
             width={40}
             allowDecimals={false}
           />
-          <Tooltip
-            contentStyle={{
-              borderRadius: 12,
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 8px 24px rgba(15,23,42,0.08)",
-            }}
-            labelFormatter={(ym) => formatYmLabel(String(ym))}
-            formatter={(value: number | string, name: string) => {
-              if (name === "거래량") return [`${value}건`, name];
-              if (value == null || value === "") return ["-", name];
-              return [`${value}억`, name];
-            }}
-          />
+          <Tooltip content={<ChartTooltip />} />
           <Legend
             verticalAlign="top"
             height={28}
             iconType="circle"
-            wrapperStyle={{ fontSize: 12, color: "#475569" }}
+            wrapperStyle={{ fontSize: 12, color: "#334155" }}
+            formatter={(value) => (
+              <span
+                style={{
+                  color: seriesTextColor(String(value)),
+                  fontWeight: 600,
+                }}
+              >
+                {value}
+              </span>
+            )}
           />
           <Bar
             yAxisId="volume"
             dataKey="volume"
             name="거래량"
-            fill="#99f6e4"
-            opacity={0.85}
+            fill={CHART_COLORS.volumeBar}
+            opacity={0.9}
             barSize={6}
             radius={[2, 2, 0, 0]}
           />
@@ -117,9 +167,9 @@ export function AptPriceChart({
             type="monotone"
             dataKey="tradeEok"
             name="매매 평균"
-            stroke="#0f766e"
+            stroke={CHART_COLORS.trade}
             strokeWidth={2.4}
-            dot={{ r: 2.5, fill: "#0f766e", strokeWidth: 0 }}
+            dot={{ r: 2.5, fill: CHART_COLORS.trade, strokeWidth: 0 }}
             activeDot={{ r: 4 }}
             connectNulls
           />
@@ -128,9 +178,9 @@ export function AptPriceChart({
             type="monotone"
             dataKey="jeonseEok"
             name="전세 평균"
-            stroke="#ea580c"
+            stroke={CHART_COLORS.jeonse}
             strokeWidth={2}
-            dot={{ r: 2, fill: "#ea580c", strokeWidth: 0 }}
+            dot={{ r: 2, fill: CHART_COLORS.jeonse, strokeWidth: 0 }}
             activeDot={{ r: 4 }}
             connectNulls
           />

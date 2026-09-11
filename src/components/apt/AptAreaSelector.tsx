@@ -416,13 +416,13 @@ function AreaOption({
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
-        active ? "bg-slate-100" : "hover:bg-slate-50"
+        active ? "bg-teal-50" : "hover:bg-slate-50"
       }`}
     >
       <span
         className={`min-w-0 flex-1 truncate tabular-nums ${
           active
-            ? "font-semibold text-slate-900"
+            ? "font-semibold text-teal-900"
             : "font-medium text-slate-800"
         }`}
         style={{ fontSize: 15 }}

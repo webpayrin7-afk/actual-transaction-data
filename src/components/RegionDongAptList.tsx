@@ -33,6 +33,8 @@ async function fetchRegionDongApts(params: {
   return res.json();
 }
 
+const REGION_BROWSE_STALE_TIME_MS = 10 * 60 * 1000;
+
 function AptCard({
   item,
   regionSlug,
@@ -90,6 +92,9 @@ export function RegionDongAptList({
         dong,
         gu,
       }),
+    staleTime: REGION_BROWSE_STALE_TIME_MS,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const data = query.data;
@@ -111,14 +116,7 @@ export function RegionDongAptList({
       )}
 
       {query.isLoading && !data ? (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-20 animate-pulse rounded-xl border border-slate-200 bg-slate-50"
-            />
-          ))}
-        </div>
+        <div className="h-20 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
       ) : (data?.apts.length ?? 0) === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
           이 동에서 찾은 단지가 없습니다.

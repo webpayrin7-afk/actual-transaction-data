@@ -12,7 +12,15 @@ import {
 } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { LabSection } from "@/components/lab/LabSection";
+import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { InfoChip } from "@/components/ui/InfoChip";
+import {
+  CONTRACT_DATE_BASIS_HELP,
+  CONTRACT_DATE_BASIS_LABEL,
+  SEEN_DATE_BASIS_HELP,
+  SEEN_DATE_BASIS_LABEL,
+} from "@/lib/region/market-insight";
 import type {
   MarketDealItem,
   MarketHomeResponse,
@@ -38,21 +46,13 @@ function KpiCard({
   tone: "up" | "down" | "neutral" | "hot";
 }) {
   const tones = {
-    up: "border-teal-200 bg-teal-50/80 text-teal-900",
-    down: "border-rose-200 bg-rose-50/80 text-rose-900",
-    hot: "border-amber-200 bg-amber-50/80 text-amber-950",
-    neutral: "border-slate-200 bg-white text-slate-900",
+    up: "text-teal-800",
+    down: "text-rose-700",
+    hot: "text-slate-900",
+    neutral: "text-slate-900",
   } as const;
 
-  return (
-    <div className={`rounded-2xl border px-4 py-3.5 ${tones[tone]}`}>
-      <p className="text-xs font-medium opacity-80">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
-        {value}
-      </p>
-      <p className="mt-1 text-[11px] leading-4 opacity-70">{hint}</p>
-    </div>
-  );
+  return <LabKpiCard label={label} value={value} hint={hint} className={tones[tone]} />;
 }
 
 function DealRow({ item }: { item: MarketDealItem }) {
@@ -110,6 +110,20 @@ function DealRow({ item }: { item: MarketDealItem }) {
   );
 }
 
+function HomeBasisChips() {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <InfoChip label={SEEN_DATE_BASIS_LABEL}>
+        {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
+      </InfoChip>
+      <InfoChip label={CONTRACT_DATE_BASIS_LABEL}>
+        각 거래 카드의 날짜와 시장동향 통계는 실제 계약일 기준입니다.{" "}
+        {CONTRACT_DATE_BASIS_HELP}
+      </InfoChip>
+    </div>
+  );
+}
+
 function VolumeRow({ item }: { item: MarketVolumeItem }) {
   return (
     <Link
@@ -153,7 +167,7 @@ function Section({
   empty?: boolean;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white">
+    <section className="lab-card overflow-hidden">
       <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
         {icon}
         <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
@@ -183,36 +197,30 @@ export function MarketHome() {
   const data = query.data;
 
   return (
-    <div className={`${PAGE_SHELL}`}>
+    <div className={PAGE_SHELL.replace("gap-6", "gap-4")}>
       <PageHeader
         title="오늘의 아파트 시장"
-        description="오늘 새로 확인된 실거래·신고가·하락거래를 한눈에 확인하세요."
+        description={
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            <span>오늘 새로 확인된 시장 변화를 한눈에 보세요.</span>
+            <HomeBasisChips />
+          </span>
+        }
+        className="pb-3 sm:pb-4"
         meta={
-          <>
-            {data?.lastUpdatedLabel || data?.computedAt ? (
-              <p>
-                최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
-                {data.discoveryDate ? ` · 확인일 ${data.discoveryDate}` : null}
-              </p>
-            ) : null}
-            {data?.dateBasisNote ? (
-              <p className="text-[11px] leading-4 text-slate-400">
-                {data.dateBasisNote}
-              </p>
-            ) : null}
-          </>
+          data?.lastUpdatedLabel || data?.computedAt ? (
+            <p>
+              최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
+              {data.discoveryDate
+                ? ` · 새 거래 확인 기준 ${data.discoveryDate}`
+                : null}
+            </p>
+          ) : null
         }
       />
 
       {query.isLoading ? (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-24 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"
-            />
-          ))}
-        </div>
+        <div className="lab-skeleton" />
       ) : null}
 
       {query.isError ? (
@@ -233,7 +241,7 @@ export function MarketHome() {
             <KpiCard
               label="오늘 새로 확인"
               value={`${data.kpis.newDealCount ?? 0}건`}
-              hint="시스템 최초 확인 기준"
+              hint="집랩에서 처음 확인한 날 기준"
               tone="neutral"
             />
             <KpiCard
@@ -268,7 +276,7 @@ export function MarketHome() {
         </>
       ) : null}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+      <section className="lab-card p-4 sm:p-5">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-slate-900">빠른 단지 검색</h2>
@@ -337,7 +345,7 @@ export function MarketHome() {
       <LabSection />
 
       <footer className="border-t border-slate-200 pt-4 pb-8 text-center text-xs text-slate-400">
-        국토교통부 아파트 실거래 기반 · 아파트 데이터랩
+        국토교통부 아파트 실거래 기반 · 집랩
       </footer>
     </div>
   );
