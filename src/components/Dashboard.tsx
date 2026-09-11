@@ -16,6 +16,7 @@ import { RegionDongBrowse } from "@/components/RegionDongBrowse";
 import { TransactionTable } from "@/components/TransactionTable";
 import { BackLink } from "@/components/layout/BackLink";
 import {
+  PAGE_HEADER_WITH_BACK,
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
@@ -163,14 +164,12 @@ export function Dashboard({
   };
 
   return (
-    <div
-      className={`${PAGE_SHELL.replace("gap-6", "gap-3").replace("pt-5", "pt-3").replace("sm:pt-7", "sm:pt-4")} sm:gap-5`}
-    >
-      <header className="flex flex-col gap-3 sm:gap-4">
+    <div className={PAGE_SHELL}>
+      <header className={PAGE_HEADER_WITH_BACK}>
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
-          className="border-b-0 pb-0 sm:pb-0"
+          className="border-b-0 pb-0"
         />
       </header>
 

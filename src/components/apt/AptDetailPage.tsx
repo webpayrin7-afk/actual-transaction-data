@@ -462,7 +462,7 @@ export function AptDetailPage({
   const locationLabel = `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
-    <div className={`${PAGE_SHELL.replace("gap-6", "gap-3")} max-w-5xl`}>
+    <div className={`${PAGE_SHELL} max-w-5xl`}>
       <div
         className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
           stickyVisible

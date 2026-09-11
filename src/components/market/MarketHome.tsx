@@ -177,11 +177,10 @@ export function MarketHome() {
   const data = query.data;
 
   return (
-    <div className={PAGE_SHELL.replace("gap-6", "gap-4")}>
+    <div className={PAGE_SHELL}>
       <PageHeader
         title="오늘의 아파트 시장"
         description="오늘 새로 확인된 시장 변화를 한눈에 보세요."
-        className="pb-3 sm:pb-4"
         meta={
           data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
             <div className="flex flex-wrap items-center gap-1.5">

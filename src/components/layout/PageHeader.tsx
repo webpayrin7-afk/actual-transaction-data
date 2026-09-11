@@ -2,19 +2,19 @@ import type { ReactNode } from "react";
 
 /** 페이지 본문 공통 shell — max-width / padding 정렬 */
 export const PAGE_SHELL =
-  "mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 pt-5 pb-8 sm:px-6 sm:pt-7 sm:pb-10 lg:px-8 xl:px-10";
+  "mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-4 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10";
 
 /**
  * BackLink + PageHeader 묶음.
- * shell의 gap-6과 분리해 돌아가기가 별도 section처럼 벌어지지 않게 함.
+ * shell의 gap과 분리해 돌아가기가 별도 section처럼 벌어지지 않게 함.
  * -mt: SiteHeader에 조금 더 붙이고, gap으로 title과 여유를 둠.
  */
 export const PAGE_HEADER_WITH_BACK =
-  "-mt-2 flex flex-col gap-4 sm:-mt-2.5 sm:gap-5";
+  "-mt-1 flex flex-col gap-2.5 sm:-mt-1.5 sm:gap-3";
 
 /**
- * 주요 페이지 상단 타이틀 영역.
- * hero/banner 없이 제목·설명·옵션 컨트롤만 통일.
+ * 주요 페이지 상단 타이틀 영역 (LAB).
+ * hero/banner 없이 제목·설명·옵션 컨트롤만 컴팩트하게 통일.
  * - action: 제목 오른쪽 (면적 선택 등 compact control)
  * - children: 제목 아래 (검색 폼 등)
  */
@@ -36,32 +36,34 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={`max-w-4xl border-b border-slate-200/80 pb-5 sm:pb-6 ${className}`.trim()}>
+    <header
+      className={`max-w-4xl border-b border-slate-200/70 pb-3.5 sm:pb-4 ${className}`.trim()}
+    >
       <div className="flex items-start justify-between gap-3">
         <h1
           className={`min-w-0 flex-1 font-semibold tracking-tight text-slate-900 ${
             compact
-              ? "text-xl leading-7 sm:text-2xl sm:leading-8"
-              : "text-[1.65rem] leading-tight sm:text-[2rem] sm:leading-tight"
+              ? "text-lg leading-6 sm:text-xl sm:leading-7"
+              : "text-xl leading-7 sm:text-[1.375rem] sm:leading-8"
           }`}
         >
           {title}
         </h1>
         {action ? (
-          <div className="shrink-0 pt-0.5 sm:pt-1">{action}</div>
+          <div className="shrink-0 pt-0.5">{action}</div>
         ) : null}
       </div>
       {description ? (
-        <p className="mt-1.5 text-pretty text-sm leading-6 text-slate-600 sm:text-[0.9375rem]">
+        <p className="mt-1 text-pretty text-[13px] leading-5 text-slate-500 sm:text-sm sm:leading-5">
           {description}
         </p>
       ) : null}
       {meta ? (
-        <div className="mt-2 space-y-0.5 text-xs leading-5 text-slate-500">
+        <div className="mt-1.5 space-y-0.5 text-xs leading-5 text-slate-500">
           {meta}
         </div>
       ) : null}
-      {children ? <div className="mt-4">{children}</div> : null}
+      {children ? <div className="mt-3">{children}</div> : null}
     </header>
   );
 }
