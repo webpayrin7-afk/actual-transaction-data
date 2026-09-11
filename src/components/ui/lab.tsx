@@ -54,3 +54,11 @@ export const LAB_TAB_ACTIVE = "lab-tab-active";
 export const LAB_CHOICE = "lab-choice";
 export const LAB_CHOICE_SELECTED = "lab-choice-selected";
 export const LAB_BADGE = "lab-badge";
+
+/** Inline selected/idle helpers for existing tab/chip buttons */
+export function labTabClass(active: boolean, extra = "") {
+  return `${LAB_TAB} ${active ? LAB_TAB_ACTIVE : ""} ${extra}`.trim();
+}
+export function labChoiceClass(active: boolean, extra = "") {
+  return `${LAB_CHOICE} ${active ? LAB_CHOICE_SELECTED : ""} ${extra}`.trim();
+}

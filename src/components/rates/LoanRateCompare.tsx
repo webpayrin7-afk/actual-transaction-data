@@ -132,11 +132,7 @@ export function LoanRateCompare() {
                 key={opt.value}
                 type="button"
                 onClick={() => setFilter(opt.value)}
-                className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-                  active
-                    ? "bg-teal-700 text-white"
-                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
+                className={`lab-choice ${active ? "lab-choice-selected" : ""}`}
               >
                 {opt.label}
               </button>

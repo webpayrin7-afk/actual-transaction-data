@@ -146,7 +146,8 @@ export function AptQuickSearch({
           </div>
           <button
             type="submit"
-            className="bg-teal-600 px-4 text-sm font-semibold text-white transition hover:bg-teal-700"
+            className="lab-button lab-button-primary px-4 text-sm"
+
           >
             검색
           </button>

@@ -613,10 +613,8 @@ export function AptDetailPage({
                 key={value}
                 type="button"
                 onClick={() => setDealFilter(value)}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition ${
-                  dealFilter === value
-                    ? "bg-teal-700 text-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
+                className={`lab-tab px-3 py-1 text-xs ${
+                  dealFilter === value ? "lab-tab-active" : ""
                 }`}
               >
                 {label}

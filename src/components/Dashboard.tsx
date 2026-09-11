@@ -190,10 +190,8 @@ export function Dashboard({
               type="button"
               onClick={() => selectTab(id)}
               aria-pressed={active}
-              className={`flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition sm:flex-none sm:text-[13px] ${
-                active
-                  ? "bg-teal-700 text-white shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
+              className={`lab-tab flex min-h-10 flex-1 items-center justify-center gap-1.5 px-3 text-xs sm:flex-none sm:text-[13px] ${
+                active ? "lab-tab-active" : ""
               }`}
             >
               <Icon className="h-3.5 w-3.5 shrink-0" />

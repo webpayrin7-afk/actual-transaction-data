@@ -529,7 +529,7 @@ function MonthCalendar({
                 aria-pressed={active}
                 className={`relative flex min-h-10 flex-col items-center justify-center rounded-md px-0.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:min-h-11 ${
                   active
-                    ? "bg-teal-700 text-white"
+                    ? "bg-[color:var(--lab-teal-50)] font-semibold text-[color:var(--lab-teal-700)]"
                     : hasDeals
                       ? "text-slate-800 hover:bg-slate-100/80"
                       : "text-slate-400 hover:bg-slate-100/80"
@@ -538,7 +538,7 @@ function MonthCalendar({
                 <span className="font-medium leading-none">{day}</span>
                 {hasDeals ? <span
                   className={`mt-0.5 text-[10px] leading-none tabular-nums ${
-                    active ? "text-teal-50" : "text-slate-500"
+                    active ? "text-[color:var(--lab-teal-700)]" : "text-slate-500"
                   }`}
                 >
                   {dealCount}
@@ -546,7 +546,7 @@ function MonthCalendar({
                 </span> : null}
                 {hasSingoga ? (
                   <span
-                    className={`mt-0.5 h-1 w-1 rounded-full ${active ? "bg-white" : "bg-teal-600"}`}
+                    className={`mt-0.5 h-1 w-1 rounded-full ${active ? "bg-[color:var(--lab-teal-700)]" : "bg-teal-600"}`}
                     aria-hidden="true"
                   />
                 ) : (

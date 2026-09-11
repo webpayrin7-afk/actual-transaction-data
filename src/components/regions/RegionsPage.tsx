@@ -263,10 +263,8 @@ export function RegionsPage() {
                 key={value}
                 type="button"
                 onClick={() => setMetro(value)}
-                className={`min-h-10 rounded-lg px-3 text-xs font-semibold transition sm:text-[13px] ${
-                  active
-                    ? "bg-teal-700 text-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
+                className={`lab-tab min-h-10 px-3 text-xs sm:text-[13px] ${
+                  active ? "lab-tab-active" : ""
                 }`}
               >
                 {label}

@@ -218,7 +218,8 @@ export function FilterBar({
         <button
           type="button"
           onClick={onSearch}
-          className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
+          className="lab-button lab-button-primary gap-2 px-4"
+
         >
           <TrendingUp className="h-4 w-4" />
           조회

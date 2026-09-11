@@ -51,10 +51,8 @@ export function Pagination({
               key={p}
               type="button"
               onClick={() => onPageChange(p)}
-              className={`inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium transition ${
-                p === page
-                  ? "bg-teal-600 text-white"
-                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              className={`lab-choice inline-flex h-9 min-w-9 px-2 text-sm ${
+                p === page ? "lab-choice-selected" : ""
               }`}
             >
               {p}

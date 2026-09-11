@@ -87,13 +87,9 @@ function Segmented<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`min-h-8 min-w-0 rounded-md px-2.5 py-1 text-center text-xs font-medium transition sm:px-3 sm:text-[13px] ${
+            className={`lab-tab min-h-8 min-w-0 px-2.5 py-1 text-center text-xs sm:px-3 sm:text-[13px] ${
               fullWidth ? "flex-1 lg:flex-none" : ""
-            } ${
-              active
-                ? "bg-teal-700 text-white shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            } ${active ? "lab-tab-active" : ""}`}
           >
             {opt.label}
           </button>
