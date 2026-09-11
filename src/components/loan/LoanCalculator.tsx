@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoanLimitCalculator } from "@/components/loan/LoanLimitCalculator";
 import {
+  ChoiceChip,
   Field,
   ModeTabButton,
   Segmented,
@@ -312,21 +313,14 @@ export function LoanCalculator() {
                       className="flex flex-wrap gap-2"
                     >
                       {YEAR_PRESETS.map((y) => (
-                        <button
-                          key={y}
-                          type="button"
-                          role="radio"
-                          aria-checked={years === y}
-                          onClick={() => onYearsChange(y)}
-                          className={`rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
-                            years === y
-                              ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-                              : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
-                          }`}
-                        >
-                          {y}년
-                        </button>
-                      ))}
+                      <ChoiceChip
+                        key={y}
+                        selected={years === y}
+                        onClick={() => onYearsChange(y)}
+                      >
+                        {y}년
+                      </ChoiceChip>
+                    ))}
                     </div>
                     <label htmlFor={yearsId} className="sr-only">
                       대출기간 (년)

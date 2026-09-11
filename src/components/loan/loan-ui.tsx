@@ -1,7 +1,13 @@
 "use client";
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { LAB_INPUT, LAB_TAB } from "@/components/ui/lab";
+import {
+  LAB_CHOICE,
+  LAB_CHOICE_SELECTED,
+  LAB_INPUT,
+  LAB_TAB,
+  LAB_TAB_ACTIVE,
+} from "@/components/ui/lab";
 
 /** LAB 입력 — globals `.lab-input` + 패딩/타이포 */
 export const inputClass = `${LAB_INPUT} px-3 text-sm outline-none placeholder:text-slate-400`;
@@ -50,7 +56,7 @@ export function Field({
   );
 }
 
-/** 선택형 control — selected = light teal + dark teal */
+/** 선택형 control — selected = light teal + dark teal (CTA solid teal 아님) */
 export function Segmented<T extends string>({
   value,
   onChange,
@@ -81,11 +87,7 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(opt.value)}
-            className={`min-h-10 min-w-0 rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
-              active
-                ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-                : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
-            }`}
+            className={`${LAB_CHOICE} min-w-0 ${active ? LAB_CHOICE_SELECTED : ""}`}
           >
             {opt.label}
           </button>
@@ -109,19 +111,18 @@ export function ChoiceChip({
   return (
     <button
       type="button"
-      onClick={onClick}
-      className={`rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
-        selected
-          ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-          : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
-      }`}
+      role="radio"
       {...rest}
+      onClick={onClick}
+      aria-checked={selected}
+      className={`${LAB_CHOICE} ${selected ? LAB_CHOICE_SELECTED : ""} ${rest.className ?? ""}`.trim()}
     >
       {children}
     </button>
   );
 }
 
+/** 모드 탭 — selected = light teal (lab-tab-active), solid teal 금지 */
 export function ModeTabButton({
   selected,
   children,
@@ -133,10 +134,12 @@ export function ModeTabButton({
   return (
     <button
       type="button"
-      className={`${LAB_TAB} min-w-0 flex-1 px-1 text-[11px] leading-tight sm:px-3 sm:text-sm ${
-        selected ? "lab-tab-active" : ""
-      }`}
+      role="tab"
       {...rest}
+      aria-selected={selected}
+      className={`${LAB_TAB} min-w-0 flex-1 px-1 text-[11px] leading-tight sm:px-3 sm:text-sm ${
+        selected ? LAB_TAB_ACTIVE : ""
+      } ${rest.className ?? ""}`.trim()}
     >
       {children}
     </button>

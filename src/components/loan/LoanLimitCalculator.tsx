@@ -13,7 +13,7 @@ import {
   type RegType,
 } from "@/lib/loan/calc";
 import { formatManHuman } from "@/lib/loan/repay";
-import { Field, Segmented, inputClass } from "@/components/loan/loan-ui";
+import { ChoiceChip, Field, Segmented, inputClass } from "@/components/loan/loan-ui";
 import { LabCard } from "@/components/ui/lab";
 
 const YEARS = [10, 15, 20, 25, 30, 35, 40] as const;
@@ -285,20 +285,13 @@ export function LoanLimitCalculator({
               className="flex flex-wrap gap-2"
             >
               {YEARS.map((y) => (
-                <button
+                <ChoiceChip
                   key={y}
-                  type="button"
-                  role="radio"
-                  aria-checked={years === y}
+                  selected={years === y}
                   onClick={() => onYearsChange(y)}
-                  className={`rounded-[10px] px-3 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
-                    years === y
-                      ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-                      : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-900)] hover:bg-slate-50"
-                  }`}
                 >
                   {y}년
-                </button>
+                </ChoiceChip>
               ))}
             </div>
           </div>
