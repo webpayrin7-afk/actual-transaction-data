@@ -17,10 +17,9 @@ import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { InfoChip } from "@/components/ui/InfoChip";
 import {
   CONTRACT_DATE_BASIS_HELP,
-  CONTRACT_DATE_BASIS_LABEL,
   SEEN_DATE_BASIS_HELP,
-  SEEN_DATE_BASIS_LABEL,
-} from "@/lib/region/market-insight";import type {
+} from "@/lib/region/market-insight";
+import type {
   MarketDealItem,
   MarketHomeResponse,
   MarketVolumeItem,
@@ -105,20 +104,6 @@ function DealRow({ item }: { item: MarketDealItem }) {
   );
 }
 
-function HomeBasisChips() {
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <InfoChip label={SEEN_DATE_BASIS_LABEL}>
-        {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
-      </InfoChip>
-      <InfoChip label={CONTRACT_DATE_BASIS_LABEL}>
-        각 거래 카드의 날짜와 시장동향 통계는 실제 계약일 기준입니다.{" "}
-        {CONTRACT_DATE_BASIS_HELP}
-      </InfoChip>
-    </div>
-  );
-}
-
 function VolumeRow({ item }: { item: MarketVolumeItem }) {
   return (
     <Link
@@ -195,24 +180,23 @@ export function MarketHome() {
     <div className={PAGE_SHELL.replace("gap-6", "gap-4")}>
       <PageHeader
         title="오늘의 아파트 시장"
-        description={
-          <span className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-            <span>오늘 새로 확인된 시장 변화를 한눈에 보세요.</span>
-            <HomeBasisChips />
-          </span>
-        }
+        description="오늘 새로 확인된 시장 변화를 한눈에 보세요."
         className="pb-3 sm:pb-4"
         meta={
           data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
             <div className="flex flex-wrap items-center gap-1.5">
               {data?.lastUpdatedLabel || data?.computedAt ? (
-                <InfoChip label={`최종 업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}>
-                  집랩 데이터가 마지막으로 갱신된 시점입니다.
+                <InfoChip
+                  label={`최종 업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
+                >
+                  집랩 데이터가 마지막으로 갱신된 시점입니다. 각 거래 카드의
+                  날짜와 시장동향은 계약일 기준입니다. {CONTRACT_DATE_BASIS_HELP}
                 </InfoChip>
               ) : null}
               {data?.discoveryDate ? (
                 <InfoChip label={`확인일 ${data.discoveryDate}`}>
-                  집랩이 해당 거래를 처음 확인한 날짜입니다. 계약일과 다를 수 있습니다.
+                  {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
+                  않습니다.
                 </InfoChip>
               ) : null}
             </div>
