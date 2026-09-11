@@ -47,12 +47,18 @@
 ## Write path (blocked until approval)
 
 ```bash
+# Per-lawd starts (avoid pre-occupancy months for 11650/11710):
+# 11170: 200601 | 11650: 200903 | 11710: 200808
 npx tsx scripts/sync-molit.ts \
-  --codes=11170,11650,11710 \
-  --from-month=200601 --to-month=202609 \
-  --rent-months=0 --discovery=0 \
-  --skip-existing=0 --only-changed=0 \
-  --dry-run=1   # keep until explicit write approval
+  --codes=11170 --from-month=200601 --to-month=202609 \
+  --rent-months=0 --discovery=0 --skip-existing=0 --only-changed=0 --dry-run=1
+npx tsx scripts/sync-molit.ts \
+  --codes=11650 --from-month=200903 --to-month=202609 \
+  --rent-months=0 --discovery=0 --skip-existing=0 --only-changed=0 --dry-run=1
+npx tsx scripts/sync-molit.ts \
+  --codes=11710 --from-month=200808 --to-month=202609 \
+  --rent-months=0 --discovery=0 --skip-existing=0 --only-changed=0 --dry-run=1
+# Remove --dry-run=1 only after explicit write approval.
 ```
 
 Unchanged cells: no unnecessary write (row-level diff).
