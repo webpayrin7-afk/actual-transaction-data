@@ -3,8 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
-
-const UNIFIED_PLACEHOLDER = "아파트 단지 또는 지역을 검색하세요.";
+import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 
 /** Header utility — 통합(단지+지역) 검색. 모바일은 sheet, PC는 dropdown */
 export function HeaderAptSearch({ className = "" }: { className?: string }) {
@@ -80,8 +79,7 @@ export function HeaderAptSearch({ className = "" }: { className?: string }) {
               compact
               autoFocus={open}
               inputId="header-unified-search"
-              placeholder={UNIFIED_PLACEHOLDER}
-              emptySubmitHref="/complexes"
+              placeholder={UNIFIED_SEARCH_PLACEHOLDER}
               showPrice={false}
               includeRegions
               onNavigate={() => setOpen(false)}

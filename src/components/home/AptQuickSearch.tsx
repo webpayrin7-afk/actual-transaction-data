@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { aptDetailHref, type AptSuggestion } from "@/lib/molit/apt";
 import { formatComplexLocationLabel } from "@/lib/complexes/recent-views";
@@ -20,8 +20,7 @@ type FlatHit =
 export function AptQuickSearch({
   compact = false,
   inputId = "apt-quick-search",
-  placeholder = "아파트 단지명을 검색하세요",
-  emptySubmitHref = "/complexes",
+  placeholder = "아파트 단지 또는 지역을 검색하세요.",
   /** false면 가격 대신 동명 구분용 지역만 강조 */
   showPrice = true,
   /** true면 기존 apt-suggest + 지역 suggestRegions를 함께 표시 */
@@ -33,7 +32,6 @@ export function AptQuickSearch({
   compact?: boolean;
   inputId?: string;
   placeholder?: string;
-  emptySubmitHref?: string;
   showPrice?: boolean;
   includeRegions?: boolean;
   autoFocus?: boolean;
@@ -128,59 +126,26 @@ export function AptQuickSearch({
     }
   };
 
-  const onSubmit = async (e: FormEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const q = query.trim();
-    if (!q) {
-      finish(emptySubmitHref);
-      return;
-    }
-
     if (activeIndex >= 0 && flatHits[activeIndex]) {
       activateHit(flatHits[activeIndex]);
       return;
     }
+    if (flatHits[0]) activateHit(flatHits[0]);
+  };
 
-    if (aptSuggestions[0]) {
-      goApt(
-        aptSuggestions[0].aptName,
-        aptSuggestions[0].regionSlug,
-        aptSuggestions[0].gu,
-      );
-      return;
-    }
-
-    if (regionSuggestions[0]) {
-      goRegion(regionSuggestions[0].slug);
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/apt-suggest?q=${encodeURIComponent(q)}`);
-      const json = (await res.json()) as { suggestions?: AptSuggestion[] };
-      const hit = json.suggestions?.[0];
-      if (hit) {
-        goApt(hit.aptName, hit.regionSlug, hit.gu);
-        return;
-      }
-    } catch {
-      // fall through
-    }
-
-    if (includeRegions) {
-      const regions = suggestRegions(q, 1);
-      if (regions[0]) {
-        goRegion(regions[0].slug);
-        return;
-      }
-    }
-
-    finish(emptySubmitHref);
+  const clearQuery = () => {
+    setQuery("");
+    setDebouncedQuery("");
+    setActiveIndex(-1);
+    setOpenSuggest(false);
+    inputRef.current?.focus();
   };
 
   const emptyMessage = includeRegions
     ? "일치하는 단지·지역이 없습니다."
-    : "일치하는 단지가 없습니다. 아래에서 지역으로 찾아보세요.";
+    : "일치하는 단지가 없습니다.";
 
   return (
     <form onSubmit={onSubmit} className={compact ? "w-full" : "max-w-2xl"}>
@@ -188,46 +153,53 @@ export function AptQuickSearch({
         {includeRegions ? "단지 또는 지역 검색" : "단지명 검색"}
       </label>
       <div ref={searchWrapRef} className="relative z-30">
-        <div className="flex min-h-12 overflow-hidden rounded-xl border border-slate-200 bg-white focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-100">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              ref={inputRef}
-              id={inputId}
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setOpenSuggest(true);
+        <div className="relative flex min-h-12 items-center overflow-hidden rounded-xl border border-slate-200 bg-white focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-100">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            ref={inputRef}
+            id={inputId}
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setOpenSuggest(true);
+              setActiveIndex(-1);
+            }}
+            onFocus={() => setOpenSuggest(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setOpenSuggest(false);
                 setActiveIndex(-1);
-              }}
-              onFocus={() => setOpenSuggest(true)}
-              onKeyDown={(e) => {
-                if (!openSuggest || flatHits.length === 0) return;
-                if (e.key === "ArrowDown") {
-                  e.preventDefault();
-                  setActiveIndex((i) =>
-                    i < flatHits.length - 1 ? i + 1 : 0,
-                  );
-                } else if (e.key === "ArrowUp") {
-                  e.preventDefault();
-                  setActiveIndex((i) =>
-                    i > 0 ? i - 1 : flatHits.length - 1,
-                  );
-                } else if (e.key === "Escape") {
-                  setOpenSuggest(false);
-                  setActiveIndex(-1);
-                }
-              }}
-              placeholder={placeholder}
-              className={`w-full border-0 bg-transparent pr-3 pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400 ${
-                compact ? "py-2.5" : "py-2.5 sm:py-3"
-              }`}
-              autoComplete="off"
-            />
-          </div>
-          <button type="submit" className="lab-button lab-button-primary px-4 text-sm">
-            검색
-          </button>
+                return;
+              }
+              if (!openSuggest || flatHits.length === 0) return;
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setActiveIndex((i) =>
+                  i < flatHits.length - 1 ? i + 1 : 0,
+                );
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setActiveIndex((i) =>
+                  i > 0 ? i - 1 : flatHits.length - 1,
+                );
+              }
+            }}
+            placeholder={placeholder}
+            className={`w-full border-0 bg-transparent pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400 ${
+              query.length > 0 ? "pr-10" : "pr-3"
+            } ${compact ? "py-2.5" : "py-2.5 sm:py-3"}`}
+            autoComplete="off"
+          />
+          {query.length > 0 ? (
+            <button
+              type="button"
+              aria-label="입력 지우기"
+              onClick={clearQuery}
+              className="absolute top-1/2 right-2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
         </div>
 
         {openSuggest && debouncedQuery.length >= 1 && (

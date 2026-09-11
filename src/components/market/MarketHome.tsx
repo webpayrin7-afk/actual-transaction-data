@@ -265,9 +265,9 @@ export function MarketHome() {
       <section className="lab-card p-4 sm:p-5">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900">빠른 단지 검색</h2>
+            <h2 className="text-sm font-semibold text-slate-900">빠른 검색</h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              시장을 보다가 관심 단지로 바로 이동하세요.
+              단지 또는 지역을 검색해 바로 이동하세요.
             </p>
           </div>
           <Link
@@ -277,7 +277,12 @@ export function MarketHome() {
             단지 조회
           </Link>
         </div>
-        <AptQuickSearch compact inputId="market-home-search" />
+        <AptQuickSearch
+          compact
+          inputId="market-home-search"
+          showPrice={false}
+          includeRegions
+        />
       </section>
 
       {data ? (
