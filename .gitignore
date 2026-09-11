@@ -30,6 +30,8 @@
 
 # unit-type PoC bulky API cache / bytecode
 /data/poc/*-bld-expos-cache.json
+/data/poc/phase3/*-bld-expos-cache.json
+/data/poc/phase3/_export_*.mts
 /scripts/__pycache__/
 
 # debug

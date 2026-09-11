@@ -1,0 +1,1382 @@
+{
+  "complex": {
+    "key": "eunma",
+    "lawd_cd": "11680",
+    "apt_name_norm": "은마",
+    "kapt_code": null,
+    "profile": "구축 대단지·전형 76/84"
+  },
+  "ledger": {
+    "fetched_items": 24066,
+    "unit_households": 4424,
+    "unit_type_count": 27,
+    "pyeong_group_count": 6
+  },
+  "hangang_117_audit": null,
+  "unit_types": [
+    {
+      "unit_type_key": "eunma:95.18:95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 95.18,
+      "exclusive_area_min": 95.18,
+      "exclusive_area_max": 95.18,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 972,
+      "type_label": "95.18/95.18",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.965850+00:00",
+      "sample_units": [
+        {
+          "dong": "1",
+          "ho": "1001호"
+        },
+        {
+          "dong": "1",
+          "ho": "1002호"
+        },
+        {
+          "dong": "1",
+          "ho": "1003호"
+        },
+        {
+          "dong": "1",
+          "ho": "1004호"
+        },
+        {
+          "dong": "1",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 972,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:94.76:94.76",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 94.76,
+      "exclusive_area_min": 94.76,
+      "exclusive_area_max": 94.76,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 836,
+      "type_label": "94.76/94.76",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.965899+00:00",
+      "sample_units": [
+        {
+          "dong": "19",
+          "ho": "1001호"
+        },
+        {
+          "dong": "19",
+          "ho": "1002호"
+        },
+        {
+          "dong": "19",
+          "ho": "1003호"
+        },
+        {
+          "dong": "19",
+          "ho": "1004호"
+        },
+        {
+          "dong": "19",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 836,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:104.71:104.71",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 104.71,
+      "exclusive_area_min": 104.71,
+      "exclusive_area_max": 104.71,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 557,
+      "type_label": "104.71/104.71",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.965931+00:00",
+      "sample_units": [
+        {
+          "dong": "10",
+          "ho": "1001호"
+        },
+        {
+          "dong": "10",
+          "ho": "1002호"
+        },
+        {
+          "dong": "10",
+          "ho": "1003호"
+        },
+        {
+          "dong": "10",
+          "ho": "1004호"
+        },
+        {
+          "dong": "10",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 557,
+      "pyeong_group_key": "eunma:G5:ex104.37-105.46",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:105.46:105.46",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 105.46,
+      "exclusive_area_min": 105.46,
+      "exclusive_area_max": 105.46,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 557,
+      "type_label": "105.46/105.46",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.965958+00:00",
+      "sample_units": [
+        {
+          "dong": "21",
+          "ho": "1001호"
+        },
+        {
+          "dong": "21",
+          "ho": "1002호"
+        },
+        {
+          "dong": "21",
+          "ho": "1003호"
+        },
+        {
+          "dong": "21",
+          "ho": "1004호"
+        },
+        {
+          "dong": "21",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 557,
+      "pyeong_group_key": "eunma:G5:ex104.37-105.46",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:93.43:93.43",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 93.43,
+      "exclusive_area_min": 93.43,
+      "exclusive_area_max": 93.43,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 236,
+      "type_label": "93.43/93.43",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.965977+00:00",
+      "sample_units": [
+        {
+          "dong": "17",
+          "ho": "1001호"
+        },
+        {
+          "dong": "17",
+          "ho": "1002호"
+        },
+        {
+          "dong": "17",
+          "ho": "1003호"
+        },
+        {
+          "dong": "17",
+          "ho": "1004호"
+        },
+        {
+          "dong": "17",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 236,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:94.42:94.42",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 94.42,
+      "exclusive_area_min": 94.42,
+      "exclusive_area_max": 94.42,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 194,
+      "type_label": "94.42/94.42",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.965990+00:00",
+      "sample_units": [
+        {
+          "dong": "11",
+          "ho": "1001호"
+        },
+        {
+          "dong": "11",
+          "ho": "1002호"
+        },
+        {
+          "dong": "11",
+          "ho": "1003호"
+        },
+        {
+          "dong": "11",
+          "ho": "1004호"
+        },
+        {
+          "dong": "11",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 194,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:91.94:91.94",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 91.94,
+      "exclusive_area_min": 91.94,
+      "exclusive_area_max": 91.94,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 167,
+      "type_label": "91.94/91.94",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966001+00:00",
+      "sample_units": [
+        {
+          "dong": "20",
+          "ho": "1001호"
+        },
+        {
+          "dong": "20",
+          "ho": "1002호"
+        },
+        {
+          "dong": "20",
+          "ho": "1003호"
+        },
+        {
+          "dong": "20",
+          "ho": "1004호"
+        },
+        {
+          "dong": "20",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 167,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:107.24:107.24",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 107.24,
+      "exclusive_area_min": 107.24,
+      "exclusive_area_max": 107.24,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 167,
+      "type_label": "107.24/107.24",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966012+00:00",
+      "sample_units": [
+        {
+          "dong": "23",
+          "ho": "1001호"
+        },
+        {
+          "dong": "23",
+          "ho": "1002호"
+        },
+        {
+          "dong": "23",
+          "ho": "1003호"
+        },
+        {
+          "dong": "23",
+          "ho": "1004호"
+        },
+        {
+          "dong": "23",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 167,
+      "pyeong_group_key": "eunma:G6:ex107.24-107.89",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:107.41:107.41",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 107.41,
+      "exclusive_area_min": 107.41,
+      "exclusive_area_max": 107.41,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 167,
+      "type_label": "107.41/107.41",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966023+00:00",
+      "sample_units": [
+        {
+          "dong": "15",
+          "ho": "1001호"
+        },
+        {
+          "dong": "15",
+          "ho": "1002호"
+        },
+        {
+          "dong": "15",
+          "ho": "1003호"
+        },
+        {
+          "dong": "15",
+          "ho": "1004호"
+        },
+        {
+          "dong": "15",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 167,
+      "pyeong_group_key": "eunma:G6:ex107.24-107.89",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:107.89:107.89",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 107.89,
+      "exclusive_area_min": 107.89,
+      "exclusive_area_max": 107.89,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 153,
+      "type_label": "107.89/107.89",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966034+00:00",
+      "sample_units": [
+        {
+          "dong": "28",
+          "ho": "1001호"
+        },
+        {
+          "dong": "28",
+          "ho": "1002호"
+        },
+        {
+          "dong": "28",
+          "ho": "1003호"
+        },
+        {
+          "dong": "28",
+          "ho": "1004호"
+        },
+        {
+          "dong": "28",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 153,
+      "pyeong_group_key": "eunma:G6:ex107.24-107.89",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:92.57:92.57",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 92.57,
+      "exclusive_area_min": 92.57,
+      "exclusive_area_max": 92.57,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 140,
+      "type_label": "92.57/92.57",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966044+00:00",
+      "sample_units": [
+        {
+          "dong": "16",
+          "ho": "1001호"
+        },
+        {
+          "dong": "16",
+          "ho": "1002호"
+        },
+        {
+          "dong": "16",
+          "ho": "1003호"
+        },
+        {
+          "dong": "16",
+          "ho": "1004호"
+        },
+        {
+          "dong": "16",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 140,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:104.37:104.37",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 104.37,
+      "exclusive_area_min": 104.37,
+      "exclusive_area_max": 104.37,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 138,
+      "type_label": "104.37/104.37",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966054+00:00",
+      "sample_units": [
+        {
+          "dong": "22",
+          "ho": "1001호"
+        },
+        {
+          "dong": "22",
+          "ho": "1002호"
+        },
+        {
+          "dong": "22",
+          "ho": "1003호"
+        },
+        {
+          "dong": "22",
+          "ho": "1004호"
+        },
+        {
+          "dong": "22",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 138,
+      "pyeong_group_key": "eunma:G5:ex104.37-105.46",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:93.46:93.46",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 93.46,
+      "exclusive_area_min": 93.46,
+      "exclusive_area_max": 93.46,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 112,
+      "type_label": "93.46/93.46",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966063+00:00",
+      "sample_units": [
+        {
+          "dong": "12",
+          "ho": "1001호"
+        },
+        {
+          "dong": "12",
+          "ho": "1002호"
+        },
+        {
+          "dong": "12",
+          "ho": "1003호"
+        },
+        {
+          "dong": "12",
+          "ho": "1004호"
+        },
+        {
+          "dong": "12",
+          "ho": "1005호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 112,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:76.79:76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 76.79,
+      "exclusive_area_min": 76.79,
+      "exclusive_area_max": 76.79,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 8,
+      "type_label": "76.79/76.79",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966069+00:00",
+      "sample_units": [
+        {
+          "dong": "1",
+          "ho": "702호"
+        },
+        {
+          "dong": "1",
+          "ho": "902호"
+        },
+        {
+          "dong": "17",
+          "ho": "1101호"
+        },
+        {
+          "dong": "18",
+          "ho": "808호"
+        },
+        {
+          "dong": "3",
+          "ho": "1106호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 6,
+      "pyeong_group_key": "eunma:G1:ex76.76-76.79",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:84.43:84.43",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 84.43,
+      "exclusive_area_min": 84.43,
+      "exclusive_area_max": 84.43,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 4,
+      "type_label": "84.43/84.43",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966074+00:00",
+      "sample_units": [
+        {
+          "dong": "15",
+          "ho": "307호"
+        },
+        {
+          "dong": "28",
+          "ho": "810호"
+        },
+        {
+          "dong": "7",
+          "ho": "308호"
+        },
+        {
+          "dong": "9",
+          "ho": "604호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 4,
+      "pyeong_group_key": "eunma:G2:ex84.43-84.43",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:84.43:91.32",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 91.32,
+      "exclusive_area_min": 84.43,
+      "exclusive_area_max": 84.43,
+      "residential_common_area_sqm": 6.89,
+      "household_count": 3,
+      "type_label": "84.43/91.32",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966078+00:00",
+      "sample_units": [
+        {
+          "dong": "25",
+          "ho": "803호"
+        },
+        {
+          "dong": "26",
+          "ho": "706호"
+        },
+        {
+          "dong": "26",
+          "ho": "808호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G2:ex84.43-84.43",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:76.79:83.13",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 83.13,
+      "exclusive_area_min": 76.79,
+      "exclusive_area_max": 76.79,
+      "residential_common_area_sqm": 6.34,
+      "household_count": 2,
+      "type_label": "76.79/83.13",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966081+00:00",
+      "sample_units": [
+        {
+          "dong": "1",
+          "ho": "406호"
+        },
+        {
+          "dong": "11",
+          "ho": "503호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G1:ex76.76-76.79",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:84.43:91.16",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 91.16,
+      "exclusive_area_min": 84.43,
+      "exclusive_area_max": 84.43,
+      "residential_common_area_sqm": 6.73,
+      "household_count": 2,
+      "type_label": "84.43/91.16",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966085+00:00",
+      "sample_units": [
+        {
+          "dong": "22",
+          "ho": "404호"
+        },
+        {
+          "dong": "22",
+          "ho": "801호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G2:ex84.43-84.43",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:76.76:83.10",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 83.1,
+      "exclusive_area_min": 76.76,
+      "exclusive_area_max": 76.76,
+      "residential_common_area_sqm": 6.34,
+      "household_count": 1,
+      "type_label": "76.76/83.10",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966088+00:00",
+      "sample_units": [
+        {
+          "dong": "18",
+          "ho": "111호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G1:ex76.76-76.79",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:76.79:101.52",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 101.52,
+      "exclusive_area_min": 76.79,
+      "exclusive_area_max": 76.79,
+      "residential_common_area_sqm": 24.73,
+      "household_count": 1,
+      "type_label": "76.79/101.52",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966092+00:00",
+      "sample_units": [
+        {
+          "dong": "2",
+          "ho": "1014호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G1:ex76.76-76.79",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:76.79:82.76",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 82.76,
+      "exclusive_area_min": 76.79,
+      "exclusive_area_max": 76.79,
+      "residential_common_area_sqm": 5.97,
+      "household_count": 1,
+      "type_label": "76.79/82.76",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966095+00:00",
+      "sample_units": [
+        {
+          "dong": "20",
+          "ho": "310호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G1:ex76.76-76.79",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:76.79:83.07",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 83.07,
+      "exclusive_area_min": 76.79,
+      "exclusive_area_max": 76.79,
+      "residential_common_area_sqm": 6.28,
+      "household_count": 1,
+      "type_label": "76.79/83.07",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966098+00:00",
+      "sample_units": [
+        {
+          "dong": "8",
+          "ho": "609호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G1:ex76.76-76.79",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:84.43:85.81",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 85.81,
+      "exclusive_area_min": 84.43,
+      "exclusive_area_max": 84.43,
+      "residential_common_area_sqm": 1.38,
+      "household_count": 1,
+      "type_label": "84.43/85.81",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966101+00:00",
+      "sample_units": [
+        {
+          "dong": "23",
+          "ho": "1404호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G2:ex84.43-84.43",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:94.42:100.76",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 100.76,
+      "exclusive_area_min": 94.42,
+      "exclusive_area_max": 94.42,
+      "residential_common_area_sqm": 6.34,
+      "household_count": 1,
+      "type_label": "94.42/100.76",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966104+00:00",
+      "sample_units": [
+        {
+          "dong": "11",
+          "ho": "810호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:94.76:101.04",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 101.04,
+      "exclusive_area_min": 94.76,
+      "exclusive_area_max": 94.76,
+      "residential_common_area_sqm": 6.28,
+      "household_count": 1,
+      "type_label": "94.76/101.04",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966107+00:00",
+      "sample_units": [
+        {
+          "dong": "31",
+          "ho": "1401호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G3:ex91.94-95.18",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:99.12:99.12",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 99.12,
+      "exclusive_area_min": 99.12,
+      "exclusive_area_max": 99.12,
+      "residential_common_area_sqm": 0.0,
+      "household_count": 1,
+      "type_label": "99.12/99.12",
+      "mapping_confidence": "ambiguous",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966110+00:00",
+      "sample_units": [
+        {
+          "dong": "17",
+          "ho": "1103호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": true,
+      "partial_common_households": 1,
+      "pyeong_group_key": "eunma:G4:ex99.12-99.12",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "eunma:104.71:111.50",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "supply_area_sqm": 111.5,
+      "exclusive_area_min": 104.71,
+      "exclusive_area_max": 104.71,
+      "residential_common_area_sqm": 6.79,
+      "household_count": 1,
+      "type_label": "104.71/111.50",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:56.966113+00:00",
+      "sample_units": [
+        {
+          "dong": "13",
+          "ho": "1307호"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "eunma:G5:ex104.37-105.46",
+      "market_label_inferred": null
+    }
+  ],
+  "pyeong_groups": [
+    {
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 76.76~76.79㎡ · 공급 76.79~101.52㎡",
+      "supply_area_min": 76.79,
+      "supply_area_max": 101.52,
+      "exclusive_area_min": 76.76,
+      "exclusive_area_max": 76.79,
+      "household_count": 14,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:56.966154+00:00",
+      "unit_type_keys": [
+        "eunma:76.76:83.10",
+        "eunma:76.79:76.79",
+        "eunma:76.79:83.13",
+        "eunma:76.79:101.52",
+        "eunma:76.79:82.76",
+        "eunma:76.79:83.07"
+      ],
+      "unit_type_count": 6,
+      "naive_vote": {
+        "25": 5,
+        "23": 8,
+        "31": 1
+      },
+      "weighted_supply": 80.79,
+      "label_null_reason": "exclusive_includes_partial_common",
+      "partial_common_households": 8
+    },
+    {
+      "group_key": "eunma:G2:ex84.43-84.43",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 84.43㎡ · 공급 84.43~91.32㎡",
+      "supply_area_min": 84.43,
+      "supply_area_max": 91.32,
+      "exclusive_area_min": 84.43,
+      "exclusive_area_max": 84.43,
+      "household_count": 10,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:56.966171+00:00",
+      "unit_type_keys": [
+        "eunma:84.43:84.43",
+        "eunma:84.43:91.32",
+        "eunma:84.43:91.16",
+        "eunma:84.43:85.81"
+      ],
+      "unit_type_count": 4,
+      "naive_vote": {
+        "26": 5,
+        "28": 5
+      },
+      "weighted_supply": 87.98,
+      "label_null_reason": "vote_conflict",
+      "partial_common_households": 4
+    },
+    {
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 91.94~95.18㎡ · 공급 91.94~101.04㎡",
+      "supply_area_min": 91.94,
+      "supply_area_max": 101.04,
+      "exclusive_area_min": 91.94,
+      "exclusive_area_max": 95.18,
+      "household_count": 2659,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:56.966186+00:00",
+      "unit_type_keys": [
+        "eunma:91.94:91.94",
+        "eunma:92.57:92.57",
+        "eunma:93.43:93.43",
+        "eunma:93.46:93.46",
+        "eunma:94.42:94.42",
+        "eunma:94.42:100.76",
+        "eunma:94.76:94.76",
+        "eunma:94.76:101.04",
+        "eunma:95.18:95.18"
+      ],
+      "unit_type_count": 9,
+      "naive_vote": {
+        "28": 655,
+        "29": 2002,
+        "30": 1,
+        "31": 1
+      },
+      "weighted_supply": 94.43,
+      "label_null_reason": "exclusive_includes_partial_common",
+      "partial_common_households": 2657
+    },
+    {
+      "group_key": "eunma:G4:ex99.12-99.12",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 99.12㎡",
+      "supply_area_min": 99.12,
+      "supply_area_max": 99.12,
+      "exclusive_area_min": 99.12,
+      "exclusive_area_max": 99.12,
+      "household_count": 1,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:56.966197+00:00",
+      "unit_type_keys": [
+        "eunma:99.12:99.12"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "30": 1
+      },
+      "weighted_supply": 99.12,
+      "label_null_reason": "exclusive_includes_partial_common",
+      "partial_common_households": 1
+    },
+    {
+      "group_key": "eunma:G5:ex104.37-105.46",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 104.37~105.46㎡ · 공급 104.37~111.50㎡",
+      "supply_area_min": 104.37,
+      "supply_area_max": 111.5,
+      "exclusive_area_min": 104.37,
+      "exclusive_area_max": 105.46,
+      "household_count": 1253,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:56.966206+00:00",
+      "unit_type_keys": [
+        "eunma:104.37:104.37",
+        "eunma:104.71:104.71",
+        "eunma:104.71:111.50",
+        "eunma:105.46:105.46"
+      ],
+      "unit_type_count": 4,
+      "naive_vote": {
+        "32": 1252,
+        "34": 1
+      },
+      "weighted_supply": 105.01,
+      "label_null_reason": "exclusive_includes_partial_common",
+      "partial_common_households": 1252
+    },
+    {
+      "group_key": "eunma:G6:ex107.24-107.89",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 107.24~107.89㎡ · 공급 107.24~107.89㎡",
+      "supply_area_min": 107.24,
+      "supply_area_max": 107.89,
+      "exclusive_area_min": 107.24,
+      "exclusive_area_max": 107.89,
+      "household_count": 487,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:56.966215+00:00",
+      "unit_type_keys": [
+        "eunma:107.24:107.24",
+        "eunma:107.41:107.41",
+        "eunma:107.89:107.89"
+      ],
+      "unit_type_count": 3,
+      "naive_vote": {
+        "32": 334,
+        "33": 153
+      },
+      "weighted_supply": 107.5,
+      "label_null_reason": "exclusive_includes_partial_common",
+      "partial_common_households": 487
+    }
+  ],
+  "unit_type_group_links": [
+    {
+      "unit_type_key": "eunma:76.76:83.10",
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:76.79:76.79",
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:76.79:83.13",
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:76.79:101.52",
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:76.79:82.76",
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:76.79:83.07",
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:84.43:84.43",
+      "group_key": "eunma:G2:ex84.43-84.43",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:84.43:91.32",
+      "group_key": "eunma:G2:ex84.43-84.43",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:84.43:91.16",
+      "group_key": "eunma:G2:ex84.43-84.43",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:84.43:85.81",
+      "group_key": "eunma:G2:ex84.43-84.43",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:91.94:91.94",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:92.57:92.57",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:93.43:93.43",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:93.46:93.46",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:94.42:94.42",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:94.42:100.76",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:94.76:94.76",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:94.76:101.04",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:95.18:95.18",
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:99.12:99.12",
+      "group_key": "eunma:G4:ex99.12-99.12",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:104.37:104.37",
+      "group_key": "eunma:G5:ex104.37-105.46",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:104.71:104.71",
+      "group_key": "eunma:G5:ex104.37-105.46",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:104.71:111.50",
+      "group_key": "eunma:G5:ex104.37-105.46",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:105.46:105.46",
+      "group_key": "eunma:G5:ex104.37-105.46",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:107.24:107.24",
+      "group_key": "eunma:G6:ex107.24-107.89",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:107.41:107.41",
+      "group_key": "eunma:G6:ex107.24-107.89",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    },
+    {
+      "unit_type_key": "eunma:107.89:107.89",
+      "group_key": "eunma:G6:ex107.24-107.89",
+      "lawd_cd": "11680",
+      "apt_name_norm": "은마"
+    }
+  ],
+  "trade_mapping": {
+    "trade_count": 1124,
+    "type_level": {
+      "multi": 1124
+    },
+    "group_level": {
+      "exact": 1124
+    },
+    "label_level": {
+      "none": 1124
+    }
+  },
+  "singoga": {
+    "exclusive_only": 125,
+    "market_group": 125,
+    "only_exclusive_examples": [],
+    "only_group_examples": []
+  },
+  "anomalies": {
+    "units_with_dup_common": 0,
+    "units_partial_common_in_exclusive": 4407,
+    "types_ambiguous": 16,
+    "types_zero_common": 16,
+    "types_partial_common": 16,
+    "groups_ambiguous": 6,
+    "groups_label_null": 6,
+    "ledger_vs_trade_exclusive_mismatch": false,
+    "trade_exclusive_values": [
+      76.79,
+      84.43
+    ],
+    "ledger_exclusive_top": [
+      76.76,
+      76.79,
+      84.43,
+      91.94,
+      92.57,
+      93.43,
+      93.46,
+      94.42,
+      94.76,
+      95.18,
+      99.12,
+      104.37,
+      104.71,
+      105.46,
+      107.24,
+      107.41,
+      107.89
+    ]
+  },
+  "metrics": {
+    "unit_type_exact_rate": 0.0,
+    "unit_type_multi_rate": 1.0,
+    "group_exact_map_rate": 1.0,
+    "group_auto_map_rate": 1.0,
+    "ambiguous_group_ratio": 1.0,
+    "market_label_auto_rate": 0.0
+  }
+}

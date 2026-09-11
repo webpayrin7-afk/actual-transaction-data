@@ -1,0 +1,1408 @@
+{
+  "complex": {
+    "key": "raemian-hill-godeok",
+    "lawd_cd": "11740",
+    "apt_name_norm": "래미안힐스테이트고덕",
+    "kapt_code": null,
+    "profile": "신축 대단지·다타입"
+  },
+  "ledger": {
+    "fetched_items": 37087,
+    "unit_households": 3658,
+    "unit_type_count": 21,
+    "pyeong_group_count": 10
+  },
+  "hangang_117_audit": null,
+  "unit_types": [
+    {
+      "unit_type_key": "raemian-hill-godeok:59.35:82.55",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 82.55,
+      "exclusive_area_min": 59.35,
+      "exclusive_area_max": 59.35,
+      "residential_common_area_sqm": 23.2,
+      "household_count": 666,
+      "type_label": "59.35/82.55",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778239+00:00",
+      "sample_units": [
+        {
+          "dong": "123동",
+          "ho": "205"
+        },
+        {
+          "dong": "123동",
+          "ho": "206"
+        },
+        {
+          "dong": "123동",
+          "ho": "207"
+        },
+        {
+          "dong": "123동",
+          "ho": "208"
+        },
+        {
+          "dong": "123동",
+          "ho": "305"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.88:115.47",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 115.47,
+      "exclusive_area_min": 84.88,
+      "exclusive_area_max": 84.88,
+      "residential_common_area_sqm": 30.59,
+      "household_count": 490,
+      "type_label": "84.88/115.47",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778274+00:00",
+      "sample_units": [
+        {
+          "dong": "120동",
+          "ho": "1001"
+        },
+        {
+          "dong": "120동",
+          "ho": "1002"
+        },
+        {
+          "dong": "120동",
+          "ho": "1101"
+        },
+        {
+          "dong": "120동",
+          "ho": "1102"
+        },
+        {
+          "dong": "120동",
+          "ho": "1201"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.90:115.54",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 115.54,
+      "exclusive_area_min": 84.9,
+      "exclusive_area_max": 84.9,
+      "residential_common_area_sqm": 30.64,
+      "household_count": 468,
+      "type_label": "84.90/115.54",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778298+00:00",
+      "sample_units": [
+        {
+          "dong": "123동",
+          "ho": "1001"
+        },
+        {
+          "dong": "123동",
+          "ho": "1002"
+        },
+        {
+          "dong": "123동",
+          "ho": "1003"
+        },
+        {
+          "dong": "123동",
+          "ho": "1004"
+        },
+        {
+          "dong": "123동",
+          "ho": "1009"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.83:115.36",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 115.36,
+      "exclusive_area_min": 84.83,
+      "exclusive_area_max": 84.83,
+      "residential_common_area_sqm": 30.53,
+      "household_count": 386,
+      "type_label": "84.83/115.36",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778318+00:00",
+      "sample_units": [
+        {
+          "dong": "111동",
+          "ho": "1002"
+        },
+        {
+          "dong": "111동",
+          "ho": "1003"
+        },
+        {
+          "dong": "111동",
+          "ho": "1102"
+        },
+        {
+          "dong": "111동",
+          "ho": "1103"
+        },
+        {
+          "dong": "111동",
+          "ho": "1202"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.94:115.64",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 115.64,
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 84.94,
+      "residential_common_area_sqm": 30.7,
+      "household_count": 386,
+      "type_label": "84.94/115.64",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778335+00:00",
+      "sample_units": [
+        {
+          "dong": "111동",
+          "ho": "1001"
+        },
+        {
+          "dong": "111동",
+          "ho": "1004"
+        },
+        {
+          "dong": "111동",
+          "ho": "1101"
+        },
+        {
+          "dong": "111동",
+          "ho": "1104"
+        },
+        {
+          "dong": "111동",
+          "ho": "1201"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:97.26:132.08",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 132.08,
+      "exclusive_area_min": 97.26,
+      "exclusive_area_max": 97.26,
+      "residential_common_area_sqm": 34.82,
+      "household_count": 317,
+      "type_label": "97.26/132.08",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778352+00:00",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "1001"
+        },
+        {
+          "dong": "102동",
+          "ho": "1002"
+        },
+        {
+          "dong": "102동",
+          "ho": "1101"
+        },
+        {
+          "dong": "102동",
+          "ho": "1102"
+        },
+        {
+          "dong": "102동",
+          "ho": "1201"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G4:ex97.00-97.26",
+      "market_label_inferred": 40
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:59.23:82.57",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 82.57,
+      "exclusive_area_min": 59.23,
+      "exclusive_area_max": 59.23,
+      "residential_common_area_sqm": 23.34,
+      "household_count": 192,
+      "type_label": "59.23/82.57",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778365+00:00",
+      "sample_units": [
+        {
+          "dong": "115동",
+          "ho": "1002"
+        },
+        {
+          "dong": "115동",
+          "ho": "1003"
+        },
+        {
+          "dong": "115동",
+          "ho": "1102"
+        },
+        {
+          "dong": "115동",
+          "ho": "1103"
+        },
+        {
+          "dong": "115동",
+          "ho": "1202"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:59.96:82.55",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 82.55,
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "residential_common_area_sqm": 22.59,
+      "household_count": 192,
+      "type_label": "59.96/82.55",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778376+00:00",
+      "sample_units": [
+        {
+          "dong": "115동",
+          "ho": "1001"
+        },
+        {
+          "dong": "115동",
+          "ho": "1004"
+        },
+        {
+          "dong": "115동",
+          "ho": "1101"
+        },
+        {
+          "dong": "115동",
+          "ho": "1104"
+        },
+        {
+          "dong": "115동",
+          "ho": "1201"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.90:115.05",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 115.05,
+      "exclusive_area_min": 84.9,
+      "exclusive_area_max": 84.9,
+      "residential_common_area_sqm": 30.15,
+      "household_count": 144,
+      "type_label": "84.90/115.05",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778387+00:00",
+      "sample_units": [
+        {
+          "dong": "120동",
+          "ho": "1003"
+        },
+        {
+          "dong": "120동",
+          "ho": "1004"
+        },
+        {
+          "dong": "120동",
+          "ho": "1103"
+        },
+        {
+          "dong": "120동",
+          "ho": "1104"
+        },
+        {
+          "dong": "120동",
+          "ho": "1203"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.74:115.57",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 115.57,
+      "exclusive_area_min": 84.74,
+      "exclusive_area_max": 84.74,
+      "residential_common_area_sqm": 30.83,
+      "household_count": 129,
+      "type_label": "84.74/115.57",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778397+00:00",
+      "sample_units": [
+        {
+          "dong": "116동",
+          "ho": "1001"
+        },
+        {
+          "dong": "116동",
+          "ho": "1002"
+        },
+        {
+          "dong": "116동",
+          "ho": "1003"
+        },
+        {
+          "dong": "116동",
+          "ho": "1101"
+        },
+        {
+          "dong": "116동",
+          "ho": "1102"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:72.02:99.01",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 99.01,
+      "exclusive_area_min": 72.02,
+      "exclusive_area_max": 72.02,
+      "residential_common_area_sqm": 26.99,
+      "household_count": 96,
+      "type_label": "72.02/99.01",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778404+00:00",
+      "sample_units": [
+        {
+          "dong": "202동",
+          "ho": "1001"
+        },
+        {
+          "dong": "202동",
+          "ho": "1002"
+        },
+        {
+          "dong": "202동",
+          "ho": "1003"
+        },
+        {
+          "dong": "202동",
+          "ho": "1004"
+        },
+        {
+          "dong": "202동",
+          "ho": "1101"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G2:ex72.02-72.02",
+      "market_label_inferred": 30
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:109.81:148.63",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 148.63,
+      "exclusive_area_min": 109.81,
+      "exclusive_area_max": 109.81,
+      "residential_common_area_sqm": 38.82,
+      "household_count": 64,
+      "type_label": "109.81/148.63",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778411+00:00",
+      "sample_units": [
+        {
+          "dong": "110동",
+          "ho": "1001"
+        },
+        {
+          "dong": "110동",
+          "ho": "1002"
+        },
+        {
+          "dong": "110동",
+          "ho": "1101"
+        },
+        {
+          "dong": "110동",
+          "ho": "1102"
+        },
+        {
+          "dong": "110동",
+          "ho": "1201"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G6:ex109.81-109.81",
+      "market_label_inferred": 45
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:97.00:132.18",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 132.18,
+      "exclusive_area_min": 97.0,
+      "exclusive_area_max": 97.0,
+      "residential_common_area_sqm": 35.18,
+      "household_count": 55,
+      "type_label": "97.00/132.18",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778417+00:00",
+      "sample_units": [
+        {
+          "dong": "118동",
+          "ho": "1003"
+        },
+        {
+          "dong": "118동",
+          "ho": "1103"
+        },
+        {
+          "dong": "118동",
+          "ho": "1203"
+        },
+        {
+          "dong": "118동",
+          "ho": "1303"
+        },
+        {
+          "dong": "118동",
+          "ho": "1403"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G4:ex97.00-97.26",
+      "market_label_inferred": 40
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:120.01:161.96",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 161.96,
+      "exclusive_area_min": 120.01,
+      "exclusive_area_max": 120.01,
+      "residential_common_area_sqm": 41.95,
+      "household_count": 32,
+      "type_label": "120.01/161.96",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778422+00:00",
+      "sample_units": [
+        {
+          "dong": "211동",
+          "ho": "1003"
+        },
+        {
+          "dong": "211동",
+          "ho": "1004"
+        },
+        {
+          "dong": "211동",
+          "ho": "1103"
+        },
+        {
+          "dong": "211동",
+          "ho": "1104"
+        },
+        {
+          "dong": "211동",
+          "ho": "1203"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G7:ex120.01-120.01",
+      "market_label_inferred": 49
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:59.92:94.20",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 94.2,
+      "exclusive_area_min": 59.92,
+      "exclusive_area_max": 59.92,
+      "residential_common_area_sqm": 34.28,
+      "household_count": 24,
+      "type_label": "59.92/94.20",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778427+00:00",
+      "sample_units": [
+        {
+          "dong": "103동",
+          "ho": "101"
+        },
+        {
+          "dong": "103동",
+          "ho": "102"
+        },
+        {
+          "dong": "103동",
+          "ho": "201"
+        },
+        {
+          "dong": "103동",
+          "ho": "202"
+        },
+        {
+          "dong": "103동",
+          "ho": "301"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.93:140.47",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 140.47,
+      "exclusive_area_min": 84.93,
+      "exclusive_area_max": 84.93,
+      "residential_common_area_sqm": 55.54,
+      "household_count": 6,
+      "type_label": "84.93/140.47",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778432+00:00",
+      "sample_units": [
+        {
+          "dong": "101동",
+          "ho": "101"
+        },
+        {
+          "dong": "101동",
+          "ho": "102"
+        },
+        {
+          "dong": "101동",
+          "ho": "103"
+        },
+        {
+          "dong": "101동",
+          "ho": "201"
+        },
+        {
+          "dong": "101동",
+          "ho": "202"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:101.14:138.54",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 138.54,
+      "exclusive_area_min": 101.14,
+      "exclusive_area_max": 101.14,
+      "residential_common_area_sqm": 37.4,
+      "household_count": 4,
+      "type_label": "101.14/138.54",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778436+00:00",
+      "sample_units": [
+        {
+          "dong": "110동",
+          "ho": "1801"
+        },
+        {
+          "dong": "110동",
+          "ho": "1802"
+        },
+        {
+          "dong": "211동",
+          "ho": "1801"
+        },
+        {
+          "dong": "211동",
+          "ho": "1802"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G5:ex101.14-101.14",
+      "market_label_inferred": 42
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:141.64:194.06",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 194.06,
+      "exclusive_area_min": 141.64,
+      "exclusive_area_max": 141.64,
+      "residential_common_area_sqm": 52.42,
+      "household_count": 4,
+      "type_label": "141.64/194.06",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778440+00:00",
+      "sample_units": [
+        {
+          "dong": "123동",
+          "ho": "1501"
+        },
+        {
+          "dong": "123동",
+          "ho": "1503"
+        },
+        {
+          "dong": "201동",
+          "ho": "1801"
+        },
+        {
+          "dong": "201동",
+          "ho": "1803"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G8:ex141.64-141.64",
+      "market_label_inferred": 59
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:161.69:221.73",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 221.73,
+      "exclusive_area_min": 161.69,
+      "exclusive_area_max": 161.69,
+      "residential_common_area_sqm": 60.04,
+      "household_count": 1,
+      "type_label": "161.69/221.73",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778444+00:00",
+      "sample_units": [
+        {
+          "dong": "119동",
+          "ho": "2903"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G9:ex161.69-161.93",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:161.93:223.15",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 223.15,
+      "exclusive_area_min": 161.93,
+      "exclusive_area_max": 161.93,
+      "residential_common_area_sqm": 61.22,
+      "household_count": 1,
+      "type_label": "161.93/223.15",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778447+00:00",
+      "sample_units": [
+        {
+          "dong": "119동",
+          "ho": "2901"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G9:ex161.69-161.93",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:192.58:263.29",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "supply_area_sqm": 263.29,
+      "exclusive_area_min": 192.58,
+      "exclusive_area_max": 192.58,
+      "residential_common_area_sqm": 70.71,
+      "household_count": 1,
+      "type_label": "192.58/263.29",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.778451+00:00",
+      "sample_units": [
+        {
+          "dong": "211동",
+          "ho": "1803"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "raemian-hill-godeok:G10:ex192.58-192.58",
+      "market_label_inferred": 80
+    }
+  ],
+  "pyeong_groups": [
+    {
+      "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 59.23~59.96㎡ · 공급 82.55~94.20㎡",
+      "supply_area_min": 82.55,
+      "supply_area_max": 94.2,
+      "exclusive_area_min": 59.23,
+      "exclusive_area_max": 59.96,
+      "household_count": 1074,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778489+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:59.23:82.57",
+        "raemian-hill-godeok:59.35:82.55",
+        "raemian-hill-godeok:59.92:94.20",
+        "raemian-hill-godeok:59.96:82.55"
+      ],
+      "unit_type_count": 4,
+      "naive_vote": {
+        "25": 1050,
+        "28": 24
+      },
+      "weighted_supply": 82.81,
+      "label_null_reason": "small_24_25_zone",
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G2:ex72.02-72.02",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 30,
+      "display_fallback": "30평형",
+      "supply_area_min": 99.01,
+      "supply_area_max": 99.01,
+      "exclusive_area_min": 72.02,
+      "exclusive_area_max": 72.02,
+      "household_count": 96,
+      "confidence": "exact",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778502+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:72.02:99.01"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "30": 96
+      },
+      "weighted_supply": 99.01,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 35,
+      "display_fallback": "35평형",
+      "supply_area_min": 115.05,
+      "supply_area_max": 140.47,
+      "exclusive_area_min": 84.74,
+      "exclusive_area_max": 84.94,
+      "household_count": 2009,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778514+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:84.74:115.57",
+        "raemian-hill-godeok:84.83:115.36",
+        "raemian-hill-godeok:84.88:115.47",
+        "raemian-hill-godeok:84.90:115.54",
+        "raemian-hill-godeok:84.90:115.05",
+        "raemian-hill-godeok:84.93:140.47",
+        "raemian-hill-godeok:84.94:115.64"
+      ],
+      "unit_type_count": 7,
+      "naive_vote": {
+        "35": 2003,
+        "42": 6
+      },
+      "weighted_supply": 115.55,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G4:ex97.00-97.26",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 40,
+      "display_fallback": "40평형",
+      "supply_area_min": 132.08,
+      "supply_area_max": 132.18,
+      "exclusive_area_min": 97.0,
+      "exclusive_area_max": 97.26,
+      "household_count": 372,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778522+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:97.00:132.18",
+        "raemian-hill-godeok:97.26:132.08"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "40": 372
+      },
+      "weighted_supply": 132.09,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G5:ex101.14-101.14",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 42,
+      "display_fallback": "42평형",
+      "supply_area_min": 138.54,
+      "supply_area_max": 138.54,
+      "exclusive_area_min": 101.14,
+      "exclusive_area_max": 101.14,
+      "household_count": 4,
+      "confidence": "exact",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778530+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:101.14:138.54"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "42": 4
+      },
+      "weighted_supply": 138.54,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G6:ex109.81-109.81",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 45,
+      "display_fallback": "45평형",
+      "supply_area_min": 148.63,
+      "supply_area_max": 148.63,
+      "exclusive_area_min": 109.81,
+      "exclusive_area_max": 109.81,
+      "household_count": 64,
+      "confidence": "exact",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778536+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:109.81:148.63"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "45": 64
+      },
+      "weighted_supply": 148.63,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G7:ex120.01-120.01",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 49,
+      "display_fallback": "49평형",
+      "supply_area_min": 161.96,
+      "supply_area_max": 161.96,
+      "exclusive_area_min": 120.01,
+      "exclusive_area_max": 120.01,
+      "household_count": 32,
+      "confidence": "exact",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778542+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:120.01:161.96"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "49": 32
+      },
+      "weighted_supply": 161.96,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G8:ex141.64-141.64",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 59,
+      "display_fallback": "59평형",
+      "supply_area_min": 194.06,
+      "supply_area_max": 194.06,
+      "exclusive_area_min": 141.64,
+      "exclusive_area_max": 141.64,
+      "household_count": 4,
+      "confidence": "exact",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778547+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:141.64:194.06"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "59": 4
+      },
+      "weighted_supply": 194.06,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G9:ex161.69-161.93",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 161.69~161.93㎡ · 공급 221.73~223.15㎡",
+      "supply_area_min": 221.73,
+      "supply_area_max": 223.15,
+      "exclusive_area_min": 161.69,
+      "exclusive_area_max": 161.93,
+      "household_count": 2,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778555+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:161.69:221.73",
+        "raemian-hill-godeok:161.93:223.15"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "67": 1,
+        "68": 1
+      },
+      "weighted_supply": 222.44,
+      "label_null_reason": "vote_conflict",
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "raemian-hill-godeok:G10:ex192.58-192.58",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "kapt_code": null,
+      "market_label": 80,
+      "display_fallback": "80평형",
+      "supply_area_min": 263.29,
+      "supply_area_max": 263.29,
+      "exclusive_area_min": 192.58,
+      "exclusive_area_max": 192.58,
+      "household_count": 1,
+      "confidence": "exact",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.778561+00:00",
+      "unit_type_keys": [
+        "raemian-hill-godeok:192.58:263.29"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "80": 1
+      },
+      "weighted_supply": 263.29,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    }
+  ],
+  "unit_type_group_links": [
+    {
+      "unit_type_key": "raemian-hill-godeok:59.23:82.57",
+      "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:59.35:82.55",
+      "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:59.92:94.20",
+      "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:59.96:82.55",
+      "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:72.02:99.01",
+      "group_key": "raemian-hill-godeok:G2:ex72.02-72.02",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.74:115.57",
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.83:115.36",
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.88:115.47",
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.90:115.54",
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.90:115.05",
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.93:140.47",
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:84.94:115.64",
+      "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:97.00:132.18",
+      "group_key": "raemian-hill-godeok:G4:ex97.00-97.26",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:97.26:132.08",
+      "group_key": "raemian-hill-godeok:G4:ex97.00-97.26",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:101.14:138.54",
+      "group_key": "raemian-hill-godeok:G5:ex101.14-101.14",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:109.81:148.63",
+      "group_key": "raemian-hill-godeok:G6:ex109.81-109.81",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:120.01:161.96",
+      "group_key": "raemian-hill-godeok:G7:ex120.01-120.01",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:141.64:194.06",
+      "group_key": "raemian-hill-godeok:G8:ex141.64-141.64",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:161.69:221.73",
+      "group_key": "raemian-hill-godeok:G9:ex161.69-161.93",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:161.93:223.15",
+      "group_key": "raemian-hill-godeok:G9:ex161.69-161.93",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    },
+    {
+      "unit_type_key": "raemian-hill-godeok:192.58:263.29",
+      "group_key": "raemian-hill-godeok:G10:ex192.58-192.58",
+      "lawd_cd": "11740",
+      "apt_name_norm": "래미안힐스테이트고덕"
+    }
+  ],
+  "trade_mapping": {
+    "trade_count": 1502,
+    "type_level": {
+      "exact": 1259,
+      "multi": 243
+    },
+    "group_level": {
+      "exact": 1502
+    },
+    "label_level": {
+      "exact": 1025,
+      "none": 477
+    }
+  },
+  "singoga": {
+    "exclusive_only": 370,
+    "market_group": 185,
+    "only_exclusive_examples": [
+      {
+        "id": "trade-11740-2017-02-10-래미안힐스테이트고덕-고덕동-13-60000-59.35-112",
+        "deal_date": "2017-02-10",
+        "exclusive_area": 59.35,
+        "deal_amount": 60000,
+        "group_key": "ex:5935",
+        "prev_high": 59800.0
+      },
+      {
+        "id": "trade-11740-2017-03-03-래미안힐스테이트고덕-고덕동-27-81500-97-430",
+        "deal_date": "2017-03-03",
+        "exclusive_area": 97,
+        "deal_amount": 81500,
+        "group_key": "ex:9700",
+        "prev_high": 80100.0
+      },
+      {
+        "id": "trade-11740-2017-03-06-래미안힐스테이트고덕-고덕동-9-60800-59.35-100",
+        "deal_date": "2017-03-06",
+        "exclusive_area": 59.35,
+        "deal_amount": 60800,
+        "group_key": "ex:5935",
+        "prev_high": 60000.0
+      },
+      {
+        "id": "trade-11740-2017-03-11-래미안힐스테이트고덕-고덕동-12-61000-59.35-258",
+        "deal_date": "2017-03-11",
+        "exclusive_area": 59.35,
+        "deal_amount": 61000,
+        "group_key": "ex:5935",
+        "prev_high": 60800.0
+      },
+      {
+        "id": "trade-11740-2017-03-15-래미안힐스테이트고덕-고덕동-9-61500-59.35-138",
+        "deal_date": "2017-03-15",
+        "exclusive_area": 59.35,
+        "deal_amount": 61500,
+        "group_key": "ex:5935",
+        "prev_high": 61000.0
+      }
+    ],
+    "only_group_examples": [
+      {
+        "id": "trade-11740-2016-11-18-래미안힐스테이트고덕-고덕동-18-78000-84.94-34",
+        "deal_date": "2016-11-18",
+        "exclusive_area": 84.94,
+        "deal_amount": 78000,
+        "group_key": "grp:raemian-hill-godeok:G3:ex84.74-84.94",
+        "prev_high": 76500.0
+      },
+      {
+        "id": "trade-11740-2016-12-09-래미안힐스테이트고덕-고덕동-14-59500-59.96-49",
+        "deal_date": "2016-12-09",
+        "exclusive_area": 59.96,
+        "deal_amount": 59500,
+        "group_key": "grp:raemian-hill-godeok:G1:ex59.23-59.96",
+        "prev_high": 59000.0
+      },
+      {
+        "id": "trade-11740-2017-01-12-래미안힐스테이트고덕-고덕동-11-62500-59.23-83",
+        "deal_date": "2017-01-12",
+        "exclusive_area": 59.23,
+        "deal_amount": 62500,
+        "group_key": "grp:raemian-hill-godeok:G1:ex59.23-59.96",
+        "prev_high": 59800.0
+      },
+      {
+        "id": "trade-11740-2017-02-05-래미안힐스테이트고덕-고덕동-4-82000-97.26-215",
+        "deal_date": "2017-02-05",
+        "exclusive_area": 97.26,
+        "deal_amount": 82000,
+        "group_key": "grp:raemian-hill-godeok:G4:ex97.00-97.26",
+        "prev_high": 80100.0
+      },
+      {
+        "id": "trade-11740-2020-08-19-래미안힐스테이트고덕-고덕동-1-155000-84.93-44",
+        "deal_date": "2020-08-19",
+        "exclusive_area": 84.93,
+        "deal_amount": 155000,
+        "group_key": "grp:raemian-hill-godeok:G3:ex84.74-84.94",
+        "prev_high": 153000.0
+      }
+    ]
+  },
+  "anomalies": {
+    "units_with_dup_common": 0,
+    "units_partial_common_in_exclusive": 0,
+    "types_ambiguous": 0,
+    "types_zero_common": 0,
+    "types_partial_common": 0,
+    "groups_ambiguous": 1,
+    "groups_label_null": 2,
+    "ledger_vs_trade_exclusive_mismatch": false,
+    "trade_exclusive_values": [
+      59.23,
+      59.35,
+      59.92,
+      59.96,
+      72.02,
+      84.74,
+      84.83,
+      84.88,
+      84.9,
+      84.93,
+      84.94,
+      97.0,
+      97.26,
+      109.81,
+      120.01,
+      141.64
+    ],
+    "ledger_exclusive_top": [
+      59.23,
+      59.35,
+      59.92,
+      59.96,
+      72.02,
+      84.74,
+      84.83,
+      84.88,
+      84.9,
+      84.93,
+      84.94,
+      97.0,
+      97.26,
+      101.14,
+      109.81,
+      120.01,
+      141.64,
+      161.69,
+      161.93,
+      192.58
+    ]
+  },
+  "metrics": {
+    "unit_type_exact_rate": 0.8382157123834887,
+    "unit_type_multi_rate": 0.1617842876165113,
+    "group_exact_map_rate": 1.0,
+    "group_auto_map_rate": 1.0,
+    "ambiguous_group_ratio": 0.1,
+    "market_label_auto_rate": 0.8
+  }
+}
