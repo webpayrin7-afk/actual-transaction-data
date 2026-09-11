@@ -13,6 +13,8 @@ import {
   TOOL_NAV,
 } from "@/lib/nav/site-menu";
 
+const MENU_EXIT_MS = 160;
+
 function navLinkClass(active: boolean) {
   return `whitespace-nowrap rounded-md px-2 py-1.5 text-sm font-medium transition sm:px-2.5 sm:text-[0.9375rem] ${
     active
@@ -21,25 +23,70 @@ function navLinkClass(active: boolean) {
   }`;
 }
 
-function menuItemClass(active: boolean) {
-  return `block rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+function toolItemClass(active: boolean) {
+  return `block rounded-md px-3 py-2 text-sm font-medium transition ${
     active
       ? "bg-teal-50 text-teal-800"
-      : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+      : "text-slate-800 hover:bg-slate-50 hover:text-slate-900"
+  }`;
+}
+
+function serviceItemClass(active: boolean) {
+  return `block rounded-md px-3 py-1 text-xs transition ${
+    active
+      ? "bg-teal-50 text-teal-800"
+      : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
   }`;
 }
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuMounted, setMenuMounted] = useState(false);
+  const [menuShown, setMenuShown] = useState(false);
   const [navPath, setNavPath] = useState(pathname);
-  const menuRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
   const menuId = useId();
+
+  function clearCloseTimer() {
+    if (closeTimerRef.current != null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }
+
+  function openMenu() {
+    clearCloseTimer();
+    setMenuOpen(true);
+    setMenuMounted(true);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setMenuShown(true));
+    });
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
+    setMenuShown(false);
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => {
+      setMenuMounted(false);
+      closeTimerRef.current = null;
+    }, MENU_EXIT_MS);
+  }
+
+  function toggleMenu() {
+    if (menuOpen) closeMenu();
+    else openMenu();
+  }
 
   if (navPath !== pathname) {
     setNavPath(pathname);
-    if (menuOpen) setMenuOpen(false);
+    if (menuOpen || menuMounted) {
+      setMenuOpen(false);
+      setMenuShown(false);
+      setMenuMounted(false);
+    }
   }
 
   useEffect(() => {
@@ -62,35 +109,32 @@ export function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
-
-    function onPointerDown(event: MouseEvent) {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
+    if (!menuMounted) return;
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") closeMenu();
     }
 
-    document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
-    const mq = window.matchMedia("(max-width: 767px)");
     const prev = document.body.style.overflow;
-    if (mq.matches) document.body.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = prev;
     };
-  }, [menuOpen]);
+    // closeMenu is stable enough for ESC; menuMounted gates subscription
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuMounted]);
+
+  useEffect(() => {
+    return () => clearCloseTimer();
+  }, []);
 
   return (
     <header
       ref={headerRef}
       data-site-header
-      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur"
+      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white"
     >
       <div className="mx-auto w-full max-w-7xl pr-2 pl-0 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div className="flex flex-col gap-0.5 py-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
@@ -123,87 +167,34 @@ export function SiteHeader() {
             <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:ml-0">
               <HeaderAptSearch />
 
-              <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
-                  aria-expanded={menuOpen}
-                  aria-controls={menuId}
-                  aria-haspopup="dialog"
-                  aria-label={menuOpen ? "더보기 닫기" : "더보기"}
-                  onClick={() => setMenuOpen((open) => !open)}
-                  className={`inline-flex h-9 w-9 items-center justify-center rounded-md transition ${
-                    menuOpen
-                      ? "bg-teal-50 text-teal-800"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  {menuOpen ? (
-                    <X className="h-[18px] w-[18px]" />
-                  ) : (
-                    <Menu className="h-[18px] w-[18px]" />
-                  )}
-                </button>
-
-                {menuOpen ? (
-                  <>
-                    <div
-                      className="fixed inset-0 z-[55] bg-slate-900/25 md:hidden"
-                      aria-hidden
-                      onClick={() => setMenuOpen(false)}
-                    />
-                    <div
-                      id={menuId}
-                      role="dialog"
-                      aria-label="더보기"
-                      className="fixed inset-x-0 top-[var(--site-header-height,3rem)] z-[60] max-h-[min(70vh,calc(100dvh-var(--site-header-height,3rem)))] overflow-y-auto border-b border-slate-200 bg-white p-3 md:absolute md:inset-x-auto md:top-full md:right-0 md:mt-1.5 md:max-h-[min(70vh,32rem)] md:w-64 md:rounded-xl md:border md:border-slate-200 md:p-2"
-                    >
-                      <p className="px-3 pb-1 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase">
-                        도구
-                      </p>
-                      <nav aria-label="도구" className="flex flex-col gap-0.5">
-                        {TOOL_NAV.map((item) => {
-                          const active = item.match(pathname);
-                          return (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              className={menuItemClass(active)}
-                              onClick={() => setMenuOpen(false)}
-                            >
-                              {item.label}
-                            </Link>
-                          );
-                        })}
-                      </nav>
-
-                      <div className="mt-3 border-t border-slate-100 pt-3">
-                        <p className="px-3 pb-1 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase">
-                          서비스
-                        </p>
-                        <div className="flex flex-col gap-0.5">
-                          {MORE_SERVICE_LINKS.map((item) => {
-                            const active = pathname === item.href;
-                            return (
-                              <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setMenuOpen(false)}
-                                className={`rounded-md px-3 py-1.5 text-xs transition ${
-                                  active
-                                    ? "bg-teal-50 text-teal-800"
-                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
-                                }`}
-                              >
-                                {item.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : null}
-              </div>
+              <button
+                type="button"
+                aria-expanded={menuOpen}
+                aria-controls={menuId}
+                aria-haspopup="dialog"
+                aria-label={menuOpen ? "더보기 닫기" : "더보기"}
+                onClick={toggleMenu}
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
+                  menuOpen
+                    ? "text-teal-800 hover:bg-teal-50/70"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`}
+              >
+                <span className="relative inline-flex h-[18px] w-[18px]">
+                  <Menu
+                    className={`absolute inset-0 h-[18px] w-[18px] transition duration-200 ease-out ${
+                      menuOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
+                    }`}
+                    aria-hidden
+                  />
+                  <X
+                    className={`absolute inset-0 h-[18px] w-[18px] transition duration-200 ease-out ${
+                      menuOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
+                    }`}
+                    aria-hidden
+                  />
+                </span>
+              </button>
             </div>
           </div>
 
@@ -227,6 +218,74 @@ export function SiteHeader() {
         </div>
       </div>
       <SiteHeaderLoadProgress />
+
+      {menuMounted ? (
+        <>
+          {/* 본문 backdrop — 헤더는 밝게 유지 */}
+          <div
+            className={`fixed inset-x-0 bottom-0 z-[45] bg-black/15 transition-opacity ease-out md:bg-black/10 ${
+              menuShown
+                ? "opacity-100 duration-[200ms]"
+                : "opacity-0 duration-[160ms]"
+            }`}
+            style={{ top: "var(--site-header-height, 3.5rem)" }}
+            aria-hidden
+            onClick={closeMenu}
+          />
+
+          <div
+            id={menuId}
+            role="dialog"
+            aria-label="더보기"
+            className={`fixed inset-x-0 z-[48] origin-top rounded-b-xl border-b border-slate-200 bg-white px-3 py-2.5 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition ease-out md:inset-x-auto md:right-2 md:w-64 lg:right-[max(0.5rem,calc((100vw-80rem)/2+0.5rem))] ${
+              menuShown
+                ? "translate-y-0 opacity-100 duration-[200ms]"
+                : "-translate-y-2 opacity-0 duration-[160ms]"
+            }`}
+            style={{ top: "var(--site-header-height, 3.5rem)" }}
+          >
+            <p className="px-3 pb-0.5 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase">
+              도구
+            </p>
+            <nav aria-label="도구" className="flex flex-col">
+              {TOOL_NAV.map((item) => {
+                const active = item.match(pathname);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={toolItemClass(active)}
+                    onClick={closeMenu}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-1.5 border-t border-slate-100 pt-1.5">
+              <p className="px-3 pb-0.5 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase">
+                서비스
+              </p>
+              <div className="flex flex-col">
+                {MORE_SERVICE_LINKS.map((item) => {
+                  const active = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={closeMenu}
+                      className={serviceItemClass(active)}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : null}
     </header>
   );
 }
