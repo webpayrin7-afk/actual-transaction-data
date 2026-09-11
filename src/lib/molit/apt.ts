@@ -37,6 +37,12 @@ export interface AptAreaOption {
   label: string;
   exclusiveArea: number;
   count: number;
+  /** Phase 5 pilot: market-group selector for A/B complexes */
+  selectorKind?: "exclusive" | "market_group";
+  exclusiveAreaMin?: number;
+  exclusiveAreaMax?: number;
+  secondaryLabel?: string | null;
+  marketLabel?: number | null;
 }
 
 export interface AptHistoryItem extends Transaction {
@@ -80,6 +86,13 @@ export interface AptDetailResponse {
   areas: AptAreaOption[];
   chart: AptChartPoint[];
   items: AptHistoryItem[];
+  /** Phase 5 pilot metadata; absent for non-pilot complexes */
+  unitTypePilot?: {
+    complexKey: string;
+    classification: string;
+    singogaMode: string;
+    selectorMode: "market_group" | "exclusive";
+  } | null;
 }
 
 const SUGGEST_MONTHS = 4;
@@ -731,11 +744,15 @@ async function buildAptDetail(params: {
         )
       : 0;
 
-  const maxByArea = new Map<string, number>();
-  for (const tx of trades) {
-    const key = areaKey(tx.exclusiveArea);
-    maxByArea.set(key, Math.max(maxByArea.get(key) ?? 0, tx.dealAmount));
-  }
+  const {
+    applyPilotSingoga,
+    buildMarketGroupAreas,
+    loadPilotMasterForApt,
+    pilotMetaFromBundle,
+  } = await import("@/lib/unit-type/apply-pilot");
+  const pilotBundle = await loadPilotMasterForApt(canonicalName);
+  const pilotMeta = pilotMetaFromBundle(pilotBundle);
+  const useMarketGroups = pilotMeta?.selectorMode === "market_group";
 
   const areaCount = new Map<string, { sqm: number; count: number }>();
   for (const tx of deals) {
@@ -745,14 +762,20 @@ async function buildAptDetail(params: {
     else prev.count += 1;
   }
 
-  const areas: AptAreaOption[] = [...areaCount.entries()]
+  const exclusiveAreas: AptAreaOption[] = [...areaCount.entries()]
     .map(([key, value]) => ({
       key,
       exclusiveArea: value.sqm,
       count: value.count,
       label: areaLabel(value.sqm),
+      selectorKind: "exclusive" as const,
     }))
     .sort((a, b) => a.exclusiveArea - b.exclusiveArea);
+
+  const areas: AptAreaOption[] =
+    useMarketGroups && pilotBundle
+      ? buildMarketGroupAreas(pilotBundle, deals)
+      : exclusiveAreas;
 
   const buildYears = deals
     .map((t) => t.buildYear)
@@ -766,14 +789,23 @@ async function buildAptDetail(params: {
         )[0]
       : null;
 
+  const singogaFlags = applyPilotSingoga({
+    bundle: pilotBundle,
+    deals: deals.map((tx) => ({
+      id: tx.id,
+      dealType: tx.dealType,
+      dealDate: tx.dealDate,
+      dealAmount: tx.dealAmount,
+      exclusiveArea: tx.exclusiveArea,
+    })),
+  });
+
   const items: AptHistoryItem[] = deals.map((tx) => ({
     ...tx,
     pyeong: toPyeong(tx.exclusiveArea),
     isSingoga:
-      tx.dealType === "trade" &&
-      tx.dealAmount === (maxByArea.get(areaKey(tx.exclusiveArea)) ?? -1),
+      tx.dealType === "trade" && (singogaFlags.get(tx.id) ?? false),
   }));
-
   const chart = trimChartToActivity(
     buildChartPoints(deals, chartMonths).sort((a, b) =>
       a.yearMonth < b.yearMonth ? -1 : 1,
@@ -814,6 +846,7 @@ async function buildAptDetail(params: {
     areas,
     chart,
     items,
+    unitTypePilot: pilotMeta,
   };
 }
 

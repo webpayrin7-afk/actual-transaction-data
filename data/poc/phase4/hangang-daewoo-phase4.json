@@ -1,0 +1,277 @@
+{
+  "complex": {
+    "key": "hangang-daewoo",
+    "lawd_cd": "11170",
+    "apt_name_norm": "한강(대우)",
+    "era": "2000s",
+    "profile": "2000s·동일전용 다타입·공급차이"
+  },
+  "ledger": {
+    "fetched_items": 7506,
+    "unit_households": 834,
+    "unit_type_count": 11,
+    "pyeong_group_count": 4
+  },
+  "common_area_stats": {
+    "etc_purps_top": [
+      [
+        "계단실,엘리베이터",
+        834
+      ],
+      [
+        "지하대피소",
+        834
+      ]
+    ],
+    "etc_class_counts": {
+      "residential": 1668
+    },
+    "unknown_common_area_ratio": 0.0,
+    "residential_common_ratio": 1.0,
+    "non_residential_common_ratio": 0.0
+  },
+  "gate": {
+    "classification": "auto-safe",
+    "reasons": [
+      "passed_all_gates"
+    ],
+    "metrics": {
+      "partial_common_ratio": 0.0,
+      "trade_exclusive_coverage": 1.0,
+      "ledger_trade_hh_coverage": 1.0,
+      "group_exact_map_rate": 1.0,
+      "group_ambiguity_rate": 0.0,
+      "label_confidence": 0.75,
+      "unknown_common_area_ratio": 0.0,
+      "supply_outlier_ratio": 0.0,
+      "singoga_market_group_eligible_rate": 1.0
+    },
+    "singoga_gate": {
+      "mode": "market_group",
+      "eligible_trade_rate": 1.0,
+      "rule": "group_confidence_high && not ambiguous; label may be null"
+    },
+    "ui_fallback_examples": [
+      {
+        "group_key": "hangang-daewoo:G1:ex59.98-60.00",
+        "mode": "range_only",
+        "lines": [
+          "공급 81.60~82.31㎡ · 전용 59.98~60.00㎡"
+        ]
+      },
+      {
+        "group_key": "hangang-daewoo:G2:ex84.94-84.98",
+        "mode": "label+range",
+        "lines": [
+          "33평형",
+          "공급 109~117㎡ · 전용 85~85㎡"
+        ]
+      },
+      {
+        "group_key": "hangang-daewoo:G3:ex134.13-134.13",
+        "mode": "label+range",
+        "lines": [
+          "49평형",
+          "공급 163~163㎡ · 전용 134~134㎡"
+        ]
+      },
+      {
+        "group_key": "hangang-daewoo:G4:ex135.27-135.87",
+        "mode": "label+range",
+        "lines": [
+          "50평형",
+          "공급 165~167㎡ · 전용 135~136㎡"
+        ]
+      }
+    ],
+    "trade_mapping": {
+      "exact": 266
+    },
+    "trade_count": 266
+  },
+  "candidate_pyeong_groups": [
+    {
+      "group_key": "hangang-daewoo:G1:ex59.98-60.00",
+      "market_label": null,
+      "supply_area_min": 81.6,
+      "supply_area_max": 82.31,
+      "exclusive_area_min": 59.98,
+      "exclusive_area_max": 60.0,
+      "household_count": 206,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "small_24_25_zone",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 4,
+      "naive_vote": {
+        "25": 206
+      },
+      "weighted_supply": 81.8,
+      "candidate_only": true
+    },
+    {
+      "group_key": "hangang-daewoo:G2:ex84.94-84.98",
+      "market_label": 33,
+      "supply_area_min": 109.26,
+      "supply_area_max": 117.13,
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 84.98,
+      "household_count": 357,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "33": 317,
+        "35": 40
+      },
+      "weighted_supply": 110.16,
+      "candidate_only": true
+    },
+    {
+      "group_key": "hangang-daewoo:G3:ex134.13-134.13",
+      "market_label": 49,
+      "supply_area_min": 163.34,
+      "supply_area_max": 163.34,
+      "exclusive_area_min": 134.13,
+      "exclusive_area_max": 134.13,
+      "household_count": 156,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "49": 156
+      },
+      "weighted_supply": 163.34,
+      "candidate_only": true
+    },
+    {
+      "group_key": "hangang-daewoo:G4:ex135.27-135.87",
+      "market_label": 50,
+      "supply_area_min": 164.89,
+      "supply_area_max": 166.73,
+      "exclusive_area_min": 135.27,
+      "exclusive_area_max": 135.87,
+      "household_count": 115,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "50": 115
+      },
+      "weighted_supply": 165.71,
+      "candidate_only": true
+    }
+  ],
+  "unit_types": [
+    {
+      "unit_type_key": "hangang-daewoo:84.98:109.26",
+      "supply_area_sqm": 109.26,
+      "exclusive_area_min": 84.98,
+      "exclusive_area_max": 84.98,
+      "household_count": 293,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:60.00:81.81",
+      "supply_area_sqm": 81.81,
+      "exclusive_area_min": 60.0,
+      "exclusive_area_max": 60.0,
+      "household_count": 184,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:134.13:163.34",
+      "supply_area_sqm": 163.34,
+      "exclusive_area_min": 134.13,
+      "exclusive_area_max": 134.13,
+      "household_count": 156,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:135.50:166.73",
+      "supply_area_sqm": 166.73,
+      "exclusive_area_min": 135.5,
+      "exclusive_area_max": 135.5,
+      "household_count": 47,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:135.87:165.08",
+      "supply_area_sqm": 165.08,
+      "exclusive_area_min": 135.87,
+      "exclusive_area_max": 135.87,
+      "household_count": 44,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:84.98:117.13",
+      "supply_area_sqm": 117.13,
+      "exclusive_area_min": 84.98,
+      "exclusive_area_max": 84.98,
+      "household_count": 40,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:84.94:109.56",
+      "supply_area_sqm": 109.56,
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 84.94,
+      "household_count": 24,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:135.27:164.89",
+      "supply_area_sqm": 164.89,
+      "exclusive_area_min": 135.27,
+      "exclusive_area_max": 135.27,
+      "household_count": 24,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:59.98:81.60",
+      "supply_area_sqm": 81.6,
+      "exclusive_area_min": 59.98,
+      "exclusive_area_max": 59.98,
+      "household_count": 19,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:60.00:82.31",
+      "supply_area_sqm": 82.31,
+      "exclusive_area_min": 60.0,
+      "exclusive_area_max": 60.0,
+      "household_count": 2,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "hangang-daewoo:60.00:82.28",
+      "supply_area_sqm": 82.28,
+      "exclusive_area_min": 60.0,
+      "exclusive_area_max": 60.0,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    }
+  ],
+  "note": "exclusive<=1㎡ clusters are candidates only; production use requires gate pass"
+}

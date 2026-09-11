@@ -1,0 +1,296 @@
+{
+  "complex": {
+    "key": "parkrio",
+    "lawd_cd": "11710",
+    "apt_name_norm": "파크리오",
+    "era": "2000s",
+    "profile": "2000s 대단지·표준형"
+  },
+  "ledger": {
+    "fetched_items": 61776,
+    "unit_households": 6864,
+    "unit_type_count": 10,
+    "pyeong_group_count": 5
+  },
+  "common_area_stats": {
+    "etc_purps_top": [
+      [
+        "벽체",
+        6864
+      ],
+      [
+        "계단실,승강기",
+        6864
+      ]
+    ],
+    "etc_class_counts": {
+      "residential": 13728
+    },
+    "unknown_common_area_ratio": 0.0,
+    "residential_common_ratio": 1.0,
+    "non_residential_common_ratio": 0.0
+  },
+  "gate": {
+    "classification": "auto-safe",
+    "reasons": [
+      "passed_all_gates"
+    ],
+    "metrics": {
+      "partial_common_ratio": 0.0,
+      "trade_exclusive_coverage": 1.0,
+      "ledger_trade_hh_coverage": 1.0,
+      "group_exact_map_rate": 1.0,
+      "group_ambiguity_rate": 0.0,
+      "label_confidence": 1.0,
+      "unknown_common_area_ratio": 0.0,
+      "supply_outlier_ratio": 0.0,
+      "singoga_market_group_eligible_rate": 1.0
+    },
+    "singoga_gate": {
+      "mode": "market_group",
+      "eligible_trade_rate": 1.0,
+      "rule": "group_confidence_high && not ambiguous; label may be null"
+    },
+    "ui_fallback_examples": [
+      {
+        "group_key": "parkrio:G1:ex35.24-35.24",
+        "mode": "label+range",
+        "lines": [
+          "16평형",
+          "공급 53~53㎡ · 전용 35~35㎡"
+        ]
+      },
+      {
+        "group_key": "parkrio:G2:ex59.64-59.95",
+        "mode": "label+range",
+        "lines": [
+          "26평형",
+          "공급 87~87㎡ · 전용 60~60㎡"
+        ]
+      },
+      {
+        "group_key": "parkrio:G3:ex84.79-84.97",
+        "mode": "label+range",
+        "lines": [
+          "33평형",
+          "공급 108~110㎡ · 전용 85~85㎡"
+        ]
+      },
+      {
+        "group_key": "parkrio:G4:ex121.63-121.63",
+        "mode": "label+range",
+        "lines": [
+          "45평형",
+          "공급 150~150㎡ · 전용 122~122㎡"
+        ]
+      },
+      {
+        "group_key": "parkrio:G5:ex144.77-144.77",
+        "mode": "label+range",
+        "lines": [
+          "53평형",
+          "공급 174~174㎡ · 전용 145~145㎡"
+        ]
+      }
+    ],
+    "trade_mapping": {
+      "exact": 2661
+    },
+    "trade_count": 2661
+  },
+  "candidate_pyeong_groups": [
+    {
+      "group_key": "parkrio:G1:ex35.24-35.24",
+      "market_label": 16,
+      "supply_area_min": 52.99,
+      "supply_area_max": 52.99,
+      "exclusive_area_min": 35.24,
+      "exclusive_area_max": 35.24,
+      "household_count": 344,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "16": 344
+      },
+      "weighted_supply": 52.99,
+      "candidate_only": true
+    },
+    {
+      "group_key": "parkrio:G2:ex59.64-59.95",
+      "market_label": 26,
+      "supply_area_min": 86.74,
+      "supply_area_max": 87.14,
+      "exclusive_area_min": 59.64,
+      "exclusive_area_max": 59.95,
+      "household_count": 1044,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 4,
+      "naive_vote": {
+        "26": 1044
+      },
+      "weighted_supply": 86.86,
+      "candidate_only": true
+    },
+    {
+      "group_key": "parkrio:G3:ex84.79-84.97",
+      "market_label": 33,
+      "supply_area_min": 108.23,
+      "supply_area_max": 109.62,
+      "exclusive_area_min": 84.79,
+      "exclusive_area_max": 84.97,
+      "household_count": 4260,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "33": 4260
+      },
+      "weighted_supply": 109.15,
+      "candidate_only": true
+    },
+    {
+      "group_key": "parkrio:G4:ex121.63-121.63",
+      "market_label": 45,
+      "supply_area_min": 149.93,
+      "supply_area_max": 149.93,
+      "exclusive_area_min": 121.63,
+      "exclusive_area_max": 121.63,
+      "household_count": 642,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "45": 642
+      },
+      "weighted_supply": 149.93,
+      "candidate_only": true
+    },
+    {
+      "group_key": "parkrio:G5:ex144.77-144.77",
+      "market_label": 53,
+      "supply_area_min": 174.08,
+      "supply_area_max": 174.08,
+      "exclusive_area_min": 144.77,
+      "exclusive_area_max": 144.77,
+      "household_count": 574,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "53": 574
+      },
+      "weighted_supply": 174.08,
+      "candidate_only": true
+    }
+  ],
+  "unit_types": [
+    {
+      "unit_type_key": "parkrio:84.79:108.82",
+      "supply_area_sqm": 108.82,
+      "exclusive_area_min": 84.79,
+      "exclusive_area_max": 84.79,
+      "household_count": 1978,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:84.90:109.62",
+      "supply_area_sqm": 109.62,
+      "exclusive_area_min": 84.9,
+      "exclusive_area_max": 84.9,
+      "household_count": 1978,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:121.63:149.93",
+      "supply_area_sqm": 149.93,
+      "exclusive_area_min": 121.63,
+      "exclusive_area_max": 121.63,
+      "household_count": 642,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:59.95:86.85",
+      "supply_area_sqm": 86.85,
+      "exclusive_area_min": 59.95,
+      "exclusive_area_max": 59.95,
+      "household_count": 600,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:144.77:174.08",
+      "supply_area_sqm": 174.08,
+      "exclusive_area_min": 144.77,
+      "exclusive_area_max": 144.77,
+      "household_count": 574,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:35.24:52.99",
+      "supply_area_sqm": 52.99,
+      "exclusive_area_min": 35.24,
+      "exclusive_area_max": 35.24,
+      "household_count": 344,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:84.97:108.23",
+      "supply_area_sqm": 108.23,
+      "exclusive_area_min": 84.97,
+      "exclusive_area_max": 84.97,
+      "household_count": 304,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:59.86:86.74",
+      "supply_area_sqm": 86.74,
+      "exclusive_area_min": 59.86,
+      "exclusive_area_max": 59.86,
+      "household_count": 287,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:59.64:87.14",
+      "supply_area_sqm": 87.14,
+      "exclusive_area_min": 59.64,
+      "exclusive_area_max": 59.64,
+      "household_count": 156,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "parkrio:59.86:87.02",
+      "supply_area_sqm": 87.02,
+      "exclusive_area_min": 59.86,
+      "exclusive_area_max": 59.86,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    }
+  ],
+  "note": "exclusive<=1㎡ clusters are candidates only; production use requires gate pass"
+}

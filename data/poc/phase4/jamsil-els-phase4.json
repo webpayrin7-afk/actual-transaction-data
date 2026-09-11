@@ -1,0 +1,211 @@
+{
+  "complex": {
+    "key": "jamsil-els",
+    "lawd_cd": "11710",
+    "apt_name_norm": "잠실엘스",
+    "era": "2000s",
+    "profile": "2000s 대단지·59/84/114 표준형"
+  },
+  "ledger": {
+    "fetched_items": 39746,
+    "unit_households": 5678,
+    "unit_type_count": 7,
+    "pyeong_group_count": 3
+  },
+  "common_area_stats": {
+    "etc_purps_top": [
+      [
+        "벽체",
+        5678
+      ],
+      [
+        "계단실,승강기",
+        5678
+      ]
+    ],
+    "etc_class_counts": {
+      "residential": 11356
+    },
+    "unknown_common_area_ratio": 0.0,
+    "residential_common_ratio": 1.0,
+    "non_residential_common_ratio": 0.0
+  },
+  "gate": {
+    "classification": "group-safe-label-unknown",
+    "reasons": [
+      "label_confidence=0.09"
+    ],
+    "metrics": {
+      "partial_common_ratio": 0.0,
+      "trade_exclusive_coverage": 1.0,
+      "ledger_trade_hh_coverage": 1.0,
+      "group_exact_map_rate": 1.0,
+      "group_ambiguity_rate": 0.0,
+      "label_confidence": 0.09,
+      "unknown_common_area_ratio": 0.0,
+      "supply_outlier_ratio": 0.0,
+      "singoga_market_group_eligible_rate": 1.0
+    },
+    "singoga_gate": {
+      "mode": "market_group",
+      "eligible_trade_rate": 1.0,
+      "rule": "group_confidence_high && not ambiguous; label may be null"
+    },
+    "ui_fallback_examples": [
+      {
+        "group_key": "jamsil-els:G1:ex59.96-59.96",
+        "mode": "range_only",
+        "lines": [
+          "공급 84.75~84.77㎡ · 전용 59.96~59.96㎡"
+        ]
+      },
+      {
+        "group_key": "jamsil-els:G2:ex84.80-84.97",
+        "mode": "range_only",
+        "lines": [
+          "공급 109.29~111.52㎡ · 전용 84.80~84.97㎡"
+        ]
+      },
+      {
+        "group_key": "jamsil-els:G3:ex119.93-119.93",
+        "mode": "range_only",
+        "lines": [
+          "공급 149.88~149.89㎡ · 전용 119.93~119.93㎡"
+        ]
+      }
+    ],
+    "trade_mapping": {
+      "exact": 1647
+    },
+    "trade_count": 1647
+  },
+  "candidate_pyeong_groups": [
+    {
+      "group_key": "jamsil-els:G1:ex59.96-59.96",
+      "market_label": null,
+      "supply_area_min": 84.75,
+      "supply_area_max": 84.77,
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "household_count": 1150,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "small_24_25_zone",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "26": 1150
+      },
+      "weighted_supply": 84.76,
+      "candidate_only": true
+    },
+    {
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "market_label": null,
+      "supply_area_min": 109.29,
+      "supply_area_max": 111.52,
+      "exclusive_area_min": 84.8,
+      "exclusive_area_max": 84.97,
+      "household_count": 4042,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "34": 2938,
+        "33": 1104
+      },
+      "weighted_supply": 110.94,
+      "candidate_only": true
+    },
+    {
+      "group_key": "jamsil-els:G3:ex119.93-119.93",
+      "market_label": 45,
+      "supply_area_min": 149.88,
+      "supply_area_max": 149.89,
+      "exclusive_area_min": 119.93,
+      "exclusive_area_max": 119.93,
+      "household_count": 486,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "45": 486
+      },
+      "weighted_supply": 149.88,
+      "candidate_only": true
+    }
+  ],
+  "unit_types": [
+    {
+      "unit_type_key": "jamsil-els:84.80:111.52",
+      "supply_area_sqm": 111.52,
+      "exclusive_area_min": 84.8,
+      "exclusive_area_max": 84.8,
+      "household_count": 2938,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "jamsil-els:59.96:84.75",
+      "supply_area_sqm": 84.75,
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "household_count": 860,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "jamsil-els:84.97:109.47",
+      "supply_area_sqm": 109.47,
+      "exclusive_area_min": 84.97,
+      "exclusive_area_max": 84.97,
+      "household_count": 556,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "jamsil-els:84.88:109.29",
+      "supply_area_sqm": 109.29,
+      "exclusive_area_min": 84.88,
+      "exclusive_area_max": 84.88,
+      "household_count": 548,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "jamsil-els:119.93:149.88",
+      "supply_area_sqm": 149.88,
+      "exclusive_area_min": 119.93,
+      "exclusive_area_max": 119.93,
+      "household_count": 383,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "jamsil-els:59.96:84.77",
+      "supply_area_sqm": 84.77,
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "household_count": 290,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "jamsil-els:119.93:149.89",
+      "supply_area_sqm": 149.89,
+      "exclusive_area_min": 119.93,
+      "exclusive_area_max": 119.93,
+      "household_count": 103,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    }
+  ],
+  "note": "exclusive<=1㎡ clusters are candidates only; production use requires gate pass"
+}
