@@ -589,7 +589,7 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card p-4 sm:p-5"
       >
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-3 flex items-center justify-between gap-2">
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
               거래이력
@@ -601,25 +601,36 @@ export function AptDetailPage({
             </p>
           </div>
 
-          <div className="flex shrink-0 gap-1 rounded-lg bg-slate-100 p-1">
+          <div
+            className="flex shrink-0 gap-0.5 rounded-md bg-slate-100 p-0.5"
+            role="radiogroup"
+            aria-label="거래 유형"
+          >
             {(
               [
                 ["all", "전체"],
                 ["trade", "매매"],
                 ["rent", "전월세"],
               ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setDealFilter(value)}
-                className={`lab-tab px-3 py-1 text-xs ${
-                  dealFilter === value ? "lab-tab-active" : ""
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+            ).map(([value, label]) => {
+              const active = dealFilter === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setDealFilter(value)}
+                  className={`rounded px-2.5 py-1 text-xs font-semibold transition ${
+                    active
+                      ? "bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
