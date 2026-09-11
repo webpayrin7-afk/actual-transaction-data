@@ -1,5 +1,5 @@
 /**
- * 한강(대우) 주택형 마스터 PoC
+ * 한강(대우) 주택형 마스터 PoC (phase2 assertions)
  * - production DB write 없음 (Turso read-only)
  * - 신고가 production 로직 변경 없음 (그룹 소속만 산출)
  *
@@ -30,15 +30,22 @@ function assert(cond: unknown, msg: string): asserts cond {
 }
 
 async function main() {
-  // 자동 round(supply/3.3)는 81.8→25. 마스터 명시 평형(24)과 다를 수 있음.
+  // 자동 round(supply/3.3)는 81.8→25. 시장 표기는 24/25 혼재 → 마스터는 null.
   assert(pyeongFromSupplyArea(81.8) === 25, "auto formula 81.8→25 (not 24)");
   assert(pyeongFromSupplyArea(109.3) === 33, "109.3 → 33평");
   assert(pyeongFromSupplyArea(163.3) === 49, "163.3 → 49평");
   assert(pyeongFromSupplyArea(165.1) === 50, "165.1 → 50평");
   assert(
-    HANGANG_DAEWOO_UNIT_TYPES.find((t) => t.typeName === "81A")?.pyeongGroup ===
-      24,
-    "master explicit pyeongGroup for 81A is 24",
+    HANGANG_DAEWOO_UNIT_TYPES.find((t) => t.typeName === "81A")
+      ?.marketPyeongLabel === null,
+    "81A market pyeong left null (24/25 dispute)",
+  );
+  assert(
+    HANGANG_DAEWOO_UNIT_TYPES.reduce(
+      (s, t) => s + (t.householdCount ?? 0),
+      0,
+    ) === 834,
+    "household sum 834",
   );
 
   const aliases = buildExclusiveAliases(
@@ -51,23 +58,29 @@ async function main() {
     aliases.map((a) => [a.exclusiveAreaCents, a]),
   );
 
-  assert(aliasByCents[6000]?.pyeongGroup === 24, "60㎡ → 24");
-  assert(aliasByCents[8498]?.pyeongGroup === 33, "84.98 → 33");
+  assert(aliasByCents[6000]?.mappingStatus === "ambiguous", "60 type multi");
+  assert(aliasByCents[6000]?.pyeongGroup === null, "60 pyeong unresolved");
+  assert(aliasByCents[8498]?.mappingStatus === "ambiguous", "84.98 type multi");
+  assert(aliasByCents[8498]?.pyeongGroup === 33, "84.98 → 33 pyeong group");
+  assert(aliasByCents[13413]?.mappingStatus === "unique", "134.13 unique");
   assert(aliasByCents[13413]?.pyeongGroup === 49, "134.13 → 49");
+  assert(aliasByCents[13527]?.pyeongGroup === 50, "135.27 → 50 not 49");
   assert(aliasByCents[13550]?.pyeongGroup === 50, "135.5 → 50");
-  assert(aliasByCents[13527]?.pyeongGroup === 50, "135.27 stays 50 not 49");
-  assert(
-    aliasByCents[6000]?.mappingStatus === "ambiguous",
-    "60 type ambiguous",
+  assert(aliasByCents[13587]?.pyeongGroup === 50, "135.87 → 50");
+
+  const label81 = formatUnitTypeLabel(
+    HANGANG_DAEWOO_UNIT_TYPES.find((t) => t.typeName === "81A")!,
   );
+  assert(label81.primary.startsWith("공급"), "official supply label without fake pyeong");
   assert(
-    aliasByCents[13413]?.mappingStatus === "unique",
-    "134.13 unique type",
+    label81.secondary?.includes("시장평형 미확정") === true,
+    "81A secondary notes unresolved market pyeong",
   );
 
-  const label24 = formatUnitTypeLabel(HANGANG_DAEWOO_UNIT_TYPES[0]!);
-  assert(label24.primary.startsWith("전용"), "no fake 24평형 until official");
-  assert(label24.secondary === null, "no supply secondary until official");
+  const label49 = formatUnitTypeLabel(
+    HANGANG_DAEWOO_UNIT_TYPES.find((t) => t.typeName === "163")!,
+  );
+  assert(label49.primary === "49평형", "official 49 label");
 
   const url = process.env.TURSO_DATABASE_URL;
   const authToken = process.env.TURSO_AUTH_TOKEN;
@@ -90,92 +103,66 @@ async function main() {
   const trades = await db.execute({
     sql: `SELECT id, deal_date, exclusive_area, deal_amount, floor
           FROM transactions
-          WHERE apt_name_norm = ? AND lawd_cd = ? AND deal_type = 'trade'
-          ORDER BY deal_date ASC, id ASC`,
+          WHERE deal_type='trade'
+            AND apt_name_norm = ? AND lawd_cd = ?
+            AND (dealing_gbn IS NULL OR dealing_gbn NOT LIKE '%취소%')
+          ORDER BY deal_date, id`,
     args: [HANGANG_DAEWOO_COMPLEX.aptNameNorm, HANGANG_DAEWOO_COMPLEX.lawdCd],
   });
 
-  const tradeRows = trades.rows as unknown as TradeRow[];
+  const tradeRows: TradeRow[] = trades.rows.map((r) => ({
+    id: String(r.id),
+    deal_date: String(r.deal_date),
+    exclusive_area: Number(r.exclusive_area),
+    deal_amount: Number(r.deal_amount),
+    floor: Number(r.floor ?? 0),
+  }));
 
-  type GroupState = { maxAmount: number; members: number; singoga: number };
-  const groups = new Map<string, GroupState>();
-  const singogaSamples: Array<{
-    id: string;
-    dealDate: string;
-    exclusiveArea: number;
-    amount: number;
-    groupKey: string;
-  }> = [];
-
+  const hist = new Map<string, number>();
+  let singoga = 0;
+  let skipped = 0;
   for (const row of tradeRows) {
     const groupKey = resolveSingogaGroupKey(row.exclusive_area, aliases);
-    let state = groups.get(groupKey);
-    if (!state) {
-      state = { maxAmount: 0, members: 0, singoga: 0 };
-      groups.set(groupKey, state);
+    if (groupKey == null) {
+      skipped += 1;
+      continue;
     }
-    state.members += 1;
-    if (state.maxAmount === 0) {
-      state.maxAmount = row.deal_amount;
-    } else if (row.deal_amount > state.maxAmount) {
-      state.singoga += 1;
-      state.maxAmount = row.deal_amount;
-      if (singogaSamples.length < 15) {
-        singogaSamples.push({
-          id: row.id,
-          dealDate: row.deal_date,
-          exclusiveArea: row.exclusive_area,
-          amount: row.deal_amount,
-          groupKey,
-        });
-      }
-    }
+    const prev = hist.get(groupKey);
+    if (prev != null && row.deal_amount > prev) singoga += 1;
+    hist.set(groupKey, Math.max(prev ?? 0, row.deal_amount));
   }
 
-  const payload = {
+  const out = {
     complex: HANGANG_DAEWOO_COMPLEX,
     unitTypes: HANGANG_DAEWOO_UNIT_TYPES,
     aliases,
     observedExclusiveFromFixture: HANGANG_OBSERVED_EXCLUSIVE_AREAS,
-    dbExclusiveDistribution: areaDist.rows,
-    singogaGroupMembership: [...groups.entries()].map(([key, s]) => ({
-      groupKey: key,
-      tradeCount: s.members,
-      singogaCountPoc: s.singoga,
-      latestMaxAmount: s.maxAmount,
-    })),
-    singogaSamples,
-    notes: [
-      "supply areas verification=commercial_crosscheck (not official API)",
-      "UI must not show N평형 until verification=official",
-      "49 (excl 134.13) and 50 (excl 135.x) stay separated",
-      "production singoga logic unchanged; membership preview only",
-    ],
+    tursoExclusiveDistribution: areaDist.rows,
+    tradeCount: tradeRows.length,
+    supplyPyeongSingoga: {
+      count: singoga,
+      skippedUnmappedOrUnresolvedPyeong: skipped,
+      note: "81.x excluded (market pyeong null); ties not singoga; cancels excluded",
+    },
   };
 
   mkdirSync("data/poc", { recursive: true });
   writeFileSync(
     "data/poc/hangang-daewoo-unit-type-poc-result.json",
-    JSON.stringify(payload, null, 2),
-    "utf8",
+    JSON.stringify(out, null, 2),
   );
-
   console.log(
     JSON.stringify(
       {
         ok: true,
-        aliases: aliases.map((a) => ({
-          ea: a.exclusiveAreaCents / 100,
-          status: a.mappingStatus,
-          pyeong: a.pyeongGroup,
-          typeId: a.typeId,
-        })),
-        singogaGroups: payload.singogaGroupMembership,
-        labelsDemo: [24, 33, 49, 50].map((p) => {
-          const t = HANGANG_DAEWOO_UNIT_TYPES.find((x) => x.pyeongGroup === p)!;
-          return { pyeongGroup: p, label: formatUnitTypeLabel(t) };
-        }),
-        out: "data/poc/hangang-daewoo-unit-type-poc-result.json",
+        types: HANGANG_DAEWOO_UNIT_TYPES.length,
+        households: HANGANG_DAEWOO_UNIT_TYPES.reduce(
+          (s, t) => s + (t.householdCount ?? 0),
+          0,
+        ),
+        trades: tradeRows.length,
+        supplyPyeongSingoga: singoga,
+        skipped: skipped,
       },
       null,
       2,
@@ -183,7 +170,7 @@ async function main() {
   );
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((e) => {
+  console.error(e);
   process.exit(1);
 });

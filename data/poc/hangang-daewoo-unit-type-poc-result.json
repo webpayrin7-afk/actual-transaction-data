@@ -7,134 +7,195 @@
     "kaptCode": "A14003105",
     "jibun": "415",
     "roadAddress": "서울특별시 용산구 이촌로 181",
-    "source": "k-apt:getKaptInfo_detail",
+    "source": "building_register_expos_pubuse+k-apt",
     "sourceUpdatedAt": "2026-09-11"
   },
   "unitTypes": [
     {
-      "typeId": "hangang-daewoo-24-81a",
+      "typeId": "A14003105:60.00:81.81",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "81A",
-      "supplyAreaSqm": 81.8,
+      "supplyAreaSqm": 81.81,
       "exclusiveAreaSqm": 60,
-      "exclusiveAreaMin": 59.98,
+      "exclusiveAreaMin": 60,
       "exclusiveAreaMax": 60,
-      "pyeongGroup": 24,
-      "householdCount": 187,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "residentialCommonAreaSqm": 21.81,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
+      "householdCount": 184,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-24-81b",
+      "typeId": "A14003105:59.98:81.60",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "81B",
       "supplyAreaSqm": 81.6,
-      "exclusiveAreaSqm": 60,
+      "exclusiveAreaSqm": 59.98,
       "exclusiveAreaMin": 59.98,
-      "exclusiveAreaMax": 60,
-      "pyeongGroup": 24,
+      "exclusiveAreaMax": 59.98,
+      "residentialCommonAreaSqm": 21.62,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
       "householdCount": 19,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-33-109a",
+      "typeId": "A14003105:60.00:82.28",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "82-rare-a",
+      "supplyAreaSqm": 82.28,
+      "exclusiveAreaSqm": 60,
+      "exclusiveAreaMin": 60,
+      "exclusiveAreaMax": 60,
+      "residentialCommonAreaSqm": 22.28,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
+      "householdCount": 1,
+      "mappingConfidence": "grouped",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:60.00:82.31",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "82-rare-b",
+      "supplyAreaSqm": 82.31,
+      "exclusiveAreaSqm": 60,
+      "exclusiveAreaMin": 60,
+      "exclusiveAreaMax": 60,
+      "residentialCommonAreaSqm": 22.31,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
+      "householdCount": 2,
+      "mappingConfidence": "grouped",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:84.98:109.26",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "109A",
-      "supplyAreaSqm": 109.3,
+      "supplyAreaSqm": 109.26,
       "exclusiveAreaSqm": 84.98,
-      "exclusiveAreaMin": 84.94,
+      "exclusiveAreaMin": 84.98,
       "exclusiveAreaMax": 84.98,
+      "residentialCommonAreaSqm": 24.28,
+      "marketPyeongLabel": 33,
       "pyeongGroup": 33,
       "householdCount": 293,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-33-109b",
+      "typeId": "A14003105:84.94:109.56",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "109B",
-      "supplyAreaSqm": 109.6,
-      "exclusiveAreaSqm": 84.98,
+      "supplyAreaSqm": 109.56,
+      "exclusiveAreaSqm": 84.94,
       "exclusiveAreaMin": 84.94,
-      "exclusiveAreaMax": 84.98,
+      "exclusiveAreaMax": 84.94,
+      "residentialCommonAreaSqm": 24.62,
+      "marketPyeongLabel": 33,
       "pyeongGroup": 33,
       "householdCount": 24,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-33-117",
+      "typeId": "A14003105:84.98:117.13",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "117",
-      "supplyAreaSqm": 117.1,
+      "supplyAreaSqm": 117.13,
       "exclusiveAreaSqm": 84.98,
-      "exclusiveAreaMin": 84.94,
+      "exclusiveAreaMin": 84.98,
       "exclusiveAreaMax": 84.98,
+      "residentialCommonAreaSqm": 32.15,
+      "marketPyeongLabel": 33,
       "pyeongGroup": 33,
       "householdCount": 40,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-49-163",
+      "typeId": "A14003105:134.13:163.34",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "163",
-      "supplyAreaSqm": 163.3,
+      "supplyAreaSqm": 163.34,
       "exclusiveAreaSqm": 134.13,
       "exclusiveAreaMin": 134.13,
       "exclusiveAreaMax": 134.13,
+      "residentialCommonAreaSqm": 29.21,
+      "marketPyeongLabel": 49,
       "pyeongGroup": 49,
       "householdCount": 156,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-50-164b",
+      "typeId": "A14003105:135.27:164.89",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "164B",
-      "supplyAreaSqm": 164.9,
-      "exclusiveAreaSqm": 135.5,
+      "supplyAreaSqm": 164.89,
+      "exclusiveAreaSqm": 135.27,
       "exclusiveAreaMin": 135.27,
-      "exclusiveAreaMax": 135.87,
+      "exclusiveAreaMax": 135.27,
+      "residentialCommonAreaSqm": 29.62,
+      "marketPyeongLabel": 50,
       "pyeongGroup": 50,
       "householdCount": 24,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-50-165a",
+      "typeId": "A14003105:135.87:165.08",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "165A",
-      "supplyAreaSqm": 165.1,
-      "exclusiveAreaSqm": 135.5,
-      "exclusiveAreaMin": 135.27,
+      "supplyAreaSqm": 165.08,
+      "exclusiveAreaSqm": 135.87,
+      "exclusiveAreaMin": 135.87,
       "exclusiveAreaMax": 135.87,
+      "residentialCommonAreaSqm": 29.21,
+      "marketPyeongLabel": 50,
       "pyeongGroup": 50,
       "householdCount": 44,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     },
     {
-      "typeId": "hangang-daewoo-50-166c",
+      "typeId": "A14003105:135.50:166.73",
       "complexId": "kr-11170-hangang-daewoo",
       "typeName": "166C",
-      "supplyAreaSqm": 166.7,
-      "exclusiveAreaSqm": 135.87,
-      "exclusiveAreaMin": 135.27,
-      "exclusiveAreaMax": 135.87,
+      "supplyAreaSqm": 166.73,
+      "exclusiveAreaSqm": 135.5,
+      "exclusiveAreaMin": 135.5,
+      "exclusiveAreaMax": 135.5,
+      "residentialCommonAreaSqm": 31.23,
+      "marketPyeongLabel": 50,
       "pyeongGroup": 50,
       "householdCount": 47,
-      "verification": "commercial_crosscheck",
-      "source": "commercial_listing_crosscheck+kapt_band",
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
       "sourceUpdatedAt": "2026-09-11"
     }
   ],
@@ -142,23 +203,23 @@
     {
       "complexId": "kr-11170-hangang-daewoo",
       "exclusiveAreaCents": 5998,
-      "typeId": null,
-      "pyeongGroup": 24,
-      "mappingStatus": "ambiguous"
+      "typeId": "A14003105:59.98:81.60",
+      "pyeongGroup": null,
+      "mappingStatus": "unique"
     },
     {
       "complexId": "kr-11170-hangang-daewoo",
       "exclusiveAreaCents": 6000,
       "typeId": null,
-      "pyeongGroup": 24,
+      "pyeongGroup": null,
       "mappingStatus": "ambiguous"
     },
     {
       "complexId": "kr-11170-hangang-daewoo",
       "exclusiveAreaCents": 8494,
-      "typeId": null,
+      "typeId": "A14003105:84.94:109.56",
       "pyeongGroup": 33,
-      "mappingStatus": "ambiguous"
+      "mappingStatus": "unique"
     },
     {
       "complexId": "kr-11170-hangang-daewoo",
@@ -170,30 +231,30 @@
     {
       "complexId": "kr-11170-hangang-daewoo",
       "exclusiveAreaCents": 13413,
-      "typeId": "hangang-daewoo-49-163",
+      "typeId": "A14003105:134.13:163.34",
       "pyeongGroup": 49,
       "mappingStatus": "unique"
     },
     {
       "complexId": "kr-11170-hangang-daewoo",
       "exclusiveAreaCents": 13527,
-      "typeId": null,
+      "typeId": "A14003105:135.27:164.89",
       "pyeongGroup": 50,
-      "mappingStatus": "ambiguous"
+      "mappingStatus": "unique"
     },
     {
       "complexId": "kr-11170-hangang-daewoo",
       "exclusiveAreaCents": 13550,
-      "typeId": null,
+      "typeId": "A14003105:135.50:166.73",
       "pyeongGroup": 50,
-      "mappingStatus": "ambiguous"
+      "mappingStatus": "unique"
     },
     {
       "complexId": "kr-11170-hangang-daewoo",
       "exclusiveAreaCents": 13587,
-      "typeId": null,
+      "typeId": "A14003105:135.87:165.08",
       "pyeongGroup": 50,
-      "mappingStatus": "ambiguous"
+      "mappingStatus": "unique"
     }
   ],
   "observedExclusiveFromFixture": [
@@ -206,7 +267,7 @@
     135.5,
     135.87
   ],
-  "dbExclusiveDistribution": [
+  "tursoExclusiveDistribution": [
     {
       "ea": 59.98,
       "cnt": 27,
@@ -248,143 +309,10 @@
       "trades": 9
     }
   ],
-  "singogaGroupMembership": [
-    {
-      "groupKey": "pyeong:24",
-      "tradeCount": 86,
-      "singogaCountPoc": 24,
-      "latestMaxAmount": 242000
-    },
-    {
-      "groupKey": "pyeong:49",
-      "tradeCount": 38,
-      "singogaCountPoc": 19,
-      "latestMaxAmount": 330000
-    },
-    {
-      "groupKey": "pyeong:50",
-      "tradeCount": 24,
-      "singogaCountPoc": 11,
-      "latestMaxAmount": 337400
-    },
-    {
-      "groupKey": "pyeong:33",
-      "tradeCount": 118,
-      "singogaCountPoc": 26,
-      "latestMaxAmount": 288000
-    }
-  ],
-  "singogaSamples": [
-    {
-      "id": "trade-11170-2017-03-06-한강(대우)-이촌동-15-116000-135.87-143",
-      "dealDate": "2017-03-06",
-      "exclusiveArea": 135.87,
-      "amount": 116000,
-      "groupKey": "pyeong:50"
-    },
-    {
-      "id": "trade-11170-2017-04-04-한강(대우)-이촌동-14-90000-84.98-83",
-      "dealDate": "2017-04-04",
-      "exclusiveArea": 84.98,
-      "amount": 90000,
-      "groupKey": "pyeong:33"
-    },
-    {
-      "id": "trade-11170-2017-04-16-한강(대우)-이촌동-22-96000-84.98-150",
-      "dealDate": "2017-04-16",
-      "exclusiveArea": 84.98,
-      "amount": 96000,
-      "groupKey": "pyeong:33"
-    },
-    {
-      "id": "trade-11170-2017-04-22-한강(대우)-이촌동-14-102300-84.98-182",
-      "dealDate": "2017-04-22",
-      "exclusiveArea": 84.98,
-      "amount": 102300,
-      "groupKey": "pyeong:33"
-    },
-    {
-      "id": "trade-11170-2017-04-29-한강(대우)-이촌동-19-81500-60-120",
-      "dealDate": "2017-04-29",
-      "exclusiveArea": 60,
-      "amount": 81500,
-      "groupKey": "pyeong:24"
-    },
-    {
-      "id": "trade-11170-2017-05-19-한강(대우)-이촌동-21-125000-134.13-148",
-      "dealDate": "2017-05-19",
-      "exclusiveArea": 134.13,
-      "amount": 125000,
-      "groupKey": "pyeong:49"
-    },
-    {
-      "id": "trade-11170-2017-05-20-한강(대우)-이촌동-2-128000-134.13-1",
-      "dealDate": "2017-05-20",
-      "exclusiveArea": 134.13,
-      "amount": 128000,
-      "groupKey": "pyeong:49"
-    },
-    {
-      "id": "trade-11170-2017-05-27-한강(대우)-이촌동-4-83500-60-187",
-      "dealDate": "2017-05-27",
-      "exclusiveArea": 60,
-      "amount": 83500,
-      "groupKey": "pyeong:24"
-    },
-    {
-      "id": "trade-11170-2017-06-03-한강(대우)-이촌동-18-130000-134.13-275",
-      "dealDate": "2017-06-03",
-      "exclusiveArea": 134.13,
-      "amount": 130000,
-      "groupKey": "pyeong:49"
-    },
-    {
-      "id": "trade-11170-2017-06-10-한강(대우)-이촌동-17-135000-134.13-211",
-      "dealDate": "2017-06-10",
-      "exclusiveArea": 134.13,
-      "amount": 135000,
-      "groupKey": "pyeong:49"
-    },
-    {
-      "id": "trade-11170-2017-06-27-한강(대우)-이촌동-8-84500-60-67",
-      "dealDate": "2017-06-27",
-      "exclusiveArea": 60,
-      "amount": 84500,
-      "groupKey": "pyeong:24"
-    },
-    {
-      "id": "trade-11170-2017-07-06-한강(대우)-이촌동-7-135000-135.87-122",
-      "dealDate": "2017-07-06",
-      "exclusiveArea": 135.87,
-      "amount": 135000,
-      "groupKey": "pyeong:50"
-    },
-    {
-      "id": "trade-11170-2017-07-21-한강(대우)-이촌동-18-115000-84.98-145",
-      "dealDate": "2017-07-21",
-      "exclusiveArea": 84.98,
-      "amount": 115000,
-      "groupKey": "pyeong:33"
-    },
-    {
-      "id": "trade-11170-2017-11-06-한강(대우)-이촌동-22-120000-84.98-139",
-      "dealDate": "2017-11-06",
-      "exclusiveArea": 84.98,
-      "amount": 120000,
-      "groupKey": "pyeong:33"
-    },
-    {
-      "id": "trade-11170-2017-11-20-한강(대우)-이촌동-18-90000-60-112",
-      "dealDate": "2017-11-20",
-      "exclusiveArea": 60,
-      "amount": 90000,
-      "groupKey": "pyeong:24"
-    }
-  ],
-  "notes": [
-    "supply areas verification=commercial_crosscheck (not official API)",
-    "UI must not show N평형 until verification=official",
-    "49 (excl 134.13) and 50 (excl 135.x) stay separated",
-    "production singoga logic unchanged; membership preview only"
-  ]
+  "tradeCount": 266,
+  "supplyPyeongSingoga": {
+    "count": 59,
+    "skippedUnmappedOrUnresolvedPyeong": 80,
+    "note": "81.x excluded (market pyeong null); ties not singoga; cancels excluded"
+  }
 }
