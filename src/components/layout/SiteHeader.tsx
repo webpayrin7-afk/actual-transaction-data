@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type TouchEvent as ReactTouchEvent,
+} from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { SiteHeaderLoadProgress } from "@/components/layout/LoadProgress";
@@ -13,7 +19,7 @@ import {
   TOOL_NAV,
 } from "@/lib/nav/site-menu";
 
-const MENU_EXIT_MS = 160;
+const DRAWER_CLOSE_MS = 160;
 
 function navLinkClass(active: boolean) {
   return `whitespace-nowrap rounded-md px-2 py-1.5 text-sm font-medium transition sm:px-2.5 sm:text-[0.9375rem] ${
@@ -24,24 +30,14 @@ function navLinkClass(active: boolean) {
 }
 
 function sectionHeadingClass() {
-  return "px-2.5 pb-0.5 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase";
+  return "px-3 pb-1 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase";
 }
 
-/** 도구 — primary utility */
-function toolItemClass(active: boolean) {
-  return `block rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+function drawerItemClass(active: boolean) {
+  return `flex h-[50px] items-center rounded-md px-3 text-sm transition-colors ${
     active
-      ? "bg-teal-50 text-teal-800"
-      : "text-slate-800 hover:bg-teal-50/70 active:bg-teal-50/80"
-  }`;
-}
-
-/** 서비스 — secondary (same size, softer color) */
-function serviceItemClass(active: boolean) {
-  return `block rounded-md px-2.5 py-1.5 text-sm transition-colors ${
-    active
-      ? "bg-teal-50 text-teal-800"
-      : "text-slate-600 hover:bg-teal-50/70 active:bg-teal-50/80"
+      ? "bg-teal-50 font-medium text-teal-800"
+      : "text-slate-700 hover:bg-teal-50/70 active:bg-teal-50/80"
   }`;
 }
 
@@ -53,7 +49,9 @@ export function SiteHeader() {
   const [navPath, setNavPath] = useState(pathname);
   const headerRef = useRef<HTMLElement>(null);
   const closeTimerRef = useRef<number | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
   const menuId = useId();
+  const titleId = useId();
 
   function clearCloseTimer() {
     if (closeTimerRef.current != null) {
@@ -78,12 +76,7 @@ export function SiteHeader() {
     closeTimerRef.current = window.setTimeout(() => {
       setMenuMounted(false);
       closeTimerRef.current = null;
-    }, MENU_EXIT_MS);
-  }
-
-  function toggleMenu() {
-    if (menuOpen) closeMenu();
-    else openMenu();
+    }, DRAWER_CLOSE_MS);
   }
 
   if (navPath !== pathname) {
@@ -133,6 +126,19 @@ export function SiteHeader() {
 
   useEffect(() => () => clearCloseTimer(), []);
 
+  function onDrawerTouchStart(event: ReactTouchEvent) {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null;
+  }
+
+  function onDrawerTouchEnd(event: ReactTouchEvent) {
+    const startX = touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (startX == null) return;
+    const endX = event.changedTouches[0]?.clientX;
+    if (endX == null) return;
+    if (endX - startX > 72) closeMenu();
+  }
+
   return (
     <header
       ref={headerRef}
@@ -175,28 +181,11 @@ export function SiteHeader() {
                 aria-expanded={menuOpen}
                 aria-controls={menuId}
                 aria-haspopup="dialog"
-                aria-label={menuOpen ? "더보기 닫기" : "더보기"}
-                onClick={toggleMenu}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
-                  menuOpen
-                    ? "text-teal-800 hover:bg-teal-50/70"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                }`}
+                aria-label="더보기"
+                onClick={openMenu}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900"
               >
-                <span className="relative inline-flex h-[18px] w-[18px]">
-                  <Menu
-                    className={`absolute inset-0 h-[18px] w-[18px] transition duration-200 ease-out ${
-                      menuOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
-                    }`}
-                    aria-hidden
-                  />
-                  <X
-                    className={`absolute inset-0 h-[18px] w-[18px] transition duration-200 ease-out ${
-                      menuOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
-                    }`}
-                    aria-hidden
-                  />
-                </span>
+                <Menu className="h-[18px] w-[18px]" aria-hidden />
               </button>
             </div>
           </div>
@@ -225,61 +214,80 @@ export function SiteHeader() {
       {menuMounted ? (
         <>
           <div
-            className={`fixed inset-x-0 bottom-0 z-[45] bg-black/15 transition-opacity ease-out md:bg-black/10 ${
+            className={`fixed inset-0 z-[45] bg-black/12 transition-opacity ease-out ${
               menuShown
                 ? "opacity-100 duration-[200ms]"
                 : "opacity-0 duration-[160ms]"
             }`}
-            style={{ top: "var(--site-header-height, 3.5rem)" }}
             aria-hidden
             onClick={closeMenu}
           />
 
-          {/* compact dropdown card — 햄버거 우측 정렬, 모바일도 full-width 아님 */}
           <div
             id={menuId}
             role="dialog"
-            aria-label="더보기"
-            className={`fixed right-3 z-[48] w-[calc(100%-1.5rem)] max-w-[22.5rem] origin-top rounded-xl border border-slate-200 bg-white px-1.5 py-1.5 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition ease-out sm:right-4 md:right-2 md:w-72 lg:right-[max(0.5rem,calc((100vw-80rem)/2+0.5rem))] ${
+            aria-modal="true"
+            aria-labelledby={titleId}
+            className={`fixed inset-y-0 right-0 z-[48] flex w-[min(300px,85vw)] flex-col border-l border-slate-200 bg-white shadow-[-2px_0_8px_rgba(15,23,42,0.04)] transition-transform ease-out ${
               menuShown
-                ? "translate-y-0 opacity-100 duration-[200ms]"
-                : "-translate-y-2 opacity-0 duration-[160ms]"
+                ? "translate-x-0 duration-[200ms]"
+                : "translate-x-full duration-[160ms]"
             }`}
-            style={{ top: "calc(var(--site-header-height, 3.5rem) + 0.35rem)" }}
+            onTouchStart={onDrawerTouchStart}
+            onTouchEnd={onDrawerTouchEnd}
           >
-            <p className={sectionHeadingClass()}>도구</p>
-            <nav aria-label="도구" className="flex flex-col">
-              {TOOL_NAV.map((item) => {
-                const active = item.match(pathname);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={toolItemClass(active)}
-                    onClick={closeMenu}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+            <div className="flex h-12 shrink-0 items-center justify-between border-b border-slate-100 pr-2 pl-4">
+              <h2
+                id={titleId}
+                className="text-sm font-semibold text-slate-900"
+              >
+                더보기
+              </h2>
+              <button
+                type="button"
+                aria-label="닫기"
+                onClick={closeMenu}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+              >
+                <X className="h-[18px] w-[18px]" aria-hidden />
+              </button>
+            </div>
 
-            <div className="mt-1 border-t border-slate-100 pt-1">
-              <p className={sectionHeadingClass()}>서비스</p>
-              <div className="flex flex-col">
-                {MORE_SERVICE_LINKS.map((item) => {
-                  const active = pathname === item.href;
+            <div className="flex-1 overflow-y-auto px-2 py-3">
+              <p className={sectionHeadingClass()}>도구</p>
+              <nav aria-label="도구" className="flex flex-col">
+                {TOOL_NAV.map((item) => {
+                  const active = item.match(pathname);
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
+                      className={drawerItemClass(active)}
                       onClick={closeMenu}
-                      className={serviceItemClass(active)}
                     >
                       {item.label}
                     </Link>
                   );
                 })}
+              </nav>
+
+              <div className="mt-3">
+                <p className={sectionHeadingClass()}>서비스</p>
+                <nav aria-label="서비스" className="flex flex-col">
+                  {MORE_SERVICE_LINKS.map((item) => {
+                    const active = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={closeMenu}
+                        className={drawerItemClass(active)}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
               </div>
             </div>
           </div>
