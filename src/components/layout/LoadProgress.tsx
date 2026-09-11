@@ -96,6 +96,7 @@ export function useLoadProgress() {
 /**
  * Header progress while `active` (e.g. first query load).
  * Message changes only update the label — they must not hide/remount the bar.
+ * Pass an empty message for a bar-only indicator (no status text).
  */
 export function useLoadProgressWhen(
   active: boolean,
@@ -105,7 +106,7 @@ export function useLoadProgressWhen(
   const { show, hide } = useLoadProgress();
 
   useEffect(() => {
-    if (active) show(message, source);
+    if (active) show(message.length > 0 ? message : null, source);
     else hide(source);
   }, [active, message, source, show, hide]);
 
@@ -113,6 +114,11 @@ export function useLoadProgressWhen(
   useEffect(() => {
     return () => hide(source);
   }, [source, hide]);
+}
+
+/** Bar-only header progress (no status copy). */
+export function useBarOnlyProgressWhen(active: boolean, source = "query") {
+  useLoadProgressWhen(active, "", source);
 }
 
 /** SiteHeader 하단에 붙여 렌더 — fixed top 계산 없이 헤더와 한 덩어리 */
@@ -162,7 +168,9 @@ export function NavigationLoadProgress() {
   const { show, hide } = useLoadProgress();
 
   useEffect(() => {
-    const t = window.setTimeout(() => hide("nav"), 80);
+    // Keep soft-nav bar up briefly so RegionsPage can take over on entry.
+    const delay = pathname.replace(/\/$/, "") === "/regions" ? 500 : 80;
+    const t = window.setTimeout(() => hide("nav"), delay);
     return () => window.clearTimeout(t);
   }, [pathname, searchParams, hide]);
 
@@ -191,14 +199,16 @@ export function NavigationLoadProgress() {
       }
       if (url.origin !== window.location.origin) return;
 
+      const dest = url.pathname.replace(/\/$/, "") || "/";
       // Only 지역 조회 index — bar only, no status text.
-      if (url.pathname !== "/regions") return;
+      if (dest !== "/regions") return;
 
       const nextSearch = url.search.startsWith("?")
         ? url.search.slice(1)
         : url.search;
       const curSearch = searchParams.toString();
-      if (url.pathname === pathname && nextSearch === curSearch) return;
+      const here = pathname.replace(/\/$/, "") || "/";
+      if (dest === here && nextSearch === curSearch) return;
 
       show(null, "nav");
     };
