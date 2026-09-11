@@ -40,18 +40,16 @@ export function PageHeader({
   return (
     <header className={`max-w-4xl border-b border-slate-200/80 pb-5 sm:pb-6 ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
-          <h1
-            className={`min-w-0 font-semibold tracking-tight text-slate-900 ${
-              compact
-                ? "text-xl leading-7 sm:text-2xl sm:leading-8"
-                : "text-[1.65rem] leading-tight sm:text-[2rem] sm:leading-tight"
-            }`}
-          >
-            {title}
-          </h1>
+        <h1
+          className={`min-w-0 flex-1 font-semibold tracking-tight text-slate-900 ${
+            compact
+              ? "text-xl leading-7 sm:text-2xl sm:leading-8"
+              : "text-[1.65rem] leading-tight sm:text-[2rem] sm:leading-tight"
+          }`}
+        >
+          {title}
           {titleAside}
-        </div>
+        </h1>
         {action ? (
           <div className="shrink-0 pt-0.5 sm:pt-1">{action}</div>
         ) : null}

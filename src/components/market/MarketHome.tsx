@@ -106,7 +106,11 @@ function DealRow({ item }: { item: MarketDealItem }) {
 
 function HomeBasisChip() {
   return (
-    <InfoChip label="데이터 기준" aria-label="오늘의 시장 데이터 기준 안내">
+    <InfoChip
+      variant="icon"
+      label="데이터 기준"
+      aria-label="오늘의 시장 데이터 기준 안내"
+    >
       <p>
         ‘새로 확인’은 집랩이 거래를 처음 확인한 날짜 기준이며, 공식 신고일이나
         공개일을 뜻하지 않습니다.
