@@ -12,7 +12,6 @@ import {
 } from "@/components/loan/loan-ui";
 import { LabCard } from "@/components/ui/lab";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import { LoanRatesPanel } from "@/components/rates/LoanRatesPanel";
 import {
   LOAN_PAGE_MODES,
   loanPageModeFromSearchParams,
@@ -82,6 +81,13 @@ export function LoanCalculator() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const mode = loanPageModeFromSearchParams(searchParams);
+
+  // 금리 정보 탭은 /rates로 이전 — 구 URL 호환
+  useEffect(() => {
+    if (searchParams.get("mode") === "rates") {
+      router.replace("/rates");
+    }
+  }, [router, searchParams]);
   const principalId = "loan-principal";
   const yearsId = "loan-years";
   const rateId = "loan-rate";
@@ -205,13 +211,13 @@ export function LoanCalculator() {
     <div className={`${PAGE_SHELL} max-w-3xl overflow-x-hidden`}>
       <PageHeader
         title="대출 계산기"
-        description="LTV·DSR·DTI 한도와 월 상환액·총이자를 계산하고, 서울시 협력자금 실행금리를 확인하세요."
+        description="LTV·DSR·DTI 한도와 월 상환액·총이자를 계산합니다. 금리 정보는 메뉴의 금리정보에서 확인하세요."
       />
 
       <div
         role="tablist"
         aria-label="계산 종류"
-        className="grid grid-cols-3 gap-1 rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-white p-1"
+        className="grid grid-cols-2 gap-1 rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-white p-1"
         onKeyDown={(event) => {
           if (
             event.key !== "ArrowRight" &&
@@ -421,16 +427,6 @@ export function LoanCalculator() {
             <p className="text-xs leading-5 text-slate-500">{DISCLAIMER}</p>
           </div>
         ) : null}
-      </div>
-
-      <div
-        id="loan-rates-panel"
-        role="tabpanel"
-        aria-labelledby="loan-mode-rates"
-        hidden={mode !== "rates"}
-        className={PANEL_SCROLL}
-      >
-        {mode === "rates" ? <LoanRatesPanel /> : null}
       </div>
     </div>
   );

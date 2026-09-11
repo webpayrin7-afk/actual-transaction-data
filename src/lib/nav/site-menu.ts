@@ -43,5 +43,4 @@ export const MORE_SERVICE_LINKS = [
   { href: "/contact", label: "문의하기" },
 ] as const;
 
-export const UNIFIED_SEARCH_PLACEHOLDER =
-  "아파트 단지 또는 지역을 검색하세요.";
+export const UNIFIED_SEARCH_PLACEHOLDER = "통합 검색";

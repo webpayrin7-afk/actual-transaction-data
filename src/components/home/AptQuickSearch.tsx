@@ -20,7 +20,7 @@ type FlatHit =
 export function AptQuickSearch({
   compact = false,
   inputId = "apt-quick-search",
-  placeholder = "아파트 단지 또는 지역을 검색하세요.",
+  placeholder = "통합 검색",
   /** false면 가격 대신 동명 구분용 지역만 강조 */
   showPrice = true,
   /** true면 기존 apt-suggest + 지역 suggestRegions를 함께 표시 */
@@ -153,7 +153,7 @@ export function AptQuickSearch({
         {includeRegions ? "단지 또는 지역 검색" : "단지명 검색"}
       </label>
       <div ref={searchWrapRef} className="relative z-30">
-        <div className="relative flex min-h-12 items-center overflow-hidden rounded-xl border border-slate-200 bg-white focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-100">
+        <div className="relative flex min-h-12 items-center overflow-hidden rounded-xl border border-slate-200 bg-white">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             ref={inputRef}

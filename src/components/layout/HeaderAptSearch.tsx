@@ -40,7 +40,7 @@ export function HeaderAptSearch({ className = "" }: { className?: string }) {
         aria-expanded={open}
         aria-controls={panelId}
         aria-haspopup="dialog"
-        aria-label="단지·지역 검색"
+        aria-label="통합 검색"
         onClick={() => setOpen((v) => !v)}
         className={`inline-flex h-9 w-9 items-center justify-center rounded-md transition ${
           open
@@ -61,14 +61,14 @@ export function HeaderAptSearch({ className = "" }: { className?: string }) {
           <div
             id={panelId}
             role="dialog"
-            aria-label="단지·지역 검색"
+            aria-label="통합 검색"
             className="fixed inset-x-0 top-0 z-[70] border-b border-slate-200 bg-white p-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:absolute md:inset-x-auto md:top-full md:right-0 md:mt-1.5 md:w-[min(24rem,calc(100vw-2rem))] md:rounded-xl md:border md:border-slate-200 md:p-2.5 md:pt-2.5"
           >
             <div className="mb-2 flex items-center justify-between gap-2 md:hidden">
-              <p className="text-sm font-semibold text-slate-900">검색</p>
+              <p className="text-sm font-semibold text-slate-900">통합 검색</p>
               <button
                 type="button"
-                aria-label="검색 닫기"
+                aria-label="통합 검색 닫기"
                 onClick={() => setOpen(false)}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100"
               >
