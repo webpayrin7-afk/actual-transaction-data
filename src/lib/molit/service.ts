@@ -759,10 +759,11 @@ function enrichDailyDeal(
   priorTypeMax: number,
   aptTrades24m: Transaction[],
   firstSeenDate: string,
+  priorKnown = true,
 ): RegionDailyDeal {
   const dealDate = tx.dealDate.slice(0, 10);
   const judged = typeRecordHigh(tx.dealAmount, priorTypeMax);
-  const singogaKind: RegionDailySingogaKind | null = judged.isSingoga
+  const singogaKind: RegionDailySingogaKind | null = priorKnown && judged.isSingoga
     ? "type"
     : null;
 
@@ -1399,6 +1400,7 @@ async function enrichSeenDay(params: {
         0,
         tradesByApt.get(normalizeAptName(tx.aptName)) ?? [],
         firstSeenDate || axisDate,
+        false,
       ),
     );
     return {

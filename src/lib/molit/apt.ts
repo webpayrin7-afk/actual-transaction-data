@@ -20,6 +20,7 @@ import {
 } from "@/lib/utils/format";
 import type { Transaction } from "@/types/transaction";
 import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
+import { priorTypeMaxAmount, typeRecordHigh } from "@/lib/region/market-insight";
 
 export interface AptSuggestion {
   aptName: string;
@@ -731,12 +732,6 @@ async function buildAptDetail(params: {
         )
       : 0;
 
-  const maxByArea = new Map<string, number>();
-  for (const tx of trades) {
-    const key = areaKey(tx.exclusiveArea);
-    maxByArea.set(key, Math.max(maxByArea.get(key) ?? 0, tx.dealAmount));
-  }
-
   const areaCount = new Map<string, { sqm: number; count: number }>();
   for (const tx of deals) {
     const key = areaKey(tx.exclusiveArea);
@@ -771,7 +766,11 @@ async function buildAptDetail(params: {
     pyeong: toPyeong(tx.exclusiveArea),
     isSingoga:
       tx.dealType === "trade" &&
-      tx.dealAmount === (maxByArea.get(areaKey(tx.exclusiveArea)) ?? -1),
+      typeRecordHigh(tx.dealAmount, priorTypeMaxAmount({
+        exclusiveArea: tx.exclusiveArea,
+        dealDate: tx.dealDate,
+        history: trades,
+      })).isSingoga,
   }));
 
   const chart = trimChartToActivity(
@@ -821,9 +820,13 @@ export function aptDetailHref(
   aptName: string,
   regionSlug: string,
   gu?: string,
+  exclusiveArea?: number,
 ): string {
   const qs = new URLSearchParams({ region: regionSlug });
   if (gu?.trim()) qs.set("gu", gu.trim());
+  if (exclusiveArea != null && exclusiveArea > 0) {
+    qs.set("area", areaKey(exclusiveArea));
+  }
   return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
 }
 
