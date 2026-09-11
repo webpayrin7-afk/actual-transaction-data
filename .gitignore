@@ -51,3 +51,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Phase4 PoC bulky API caches
+/data/poc/phase4/*-bld-expos-cache.json
+/data/poc/phase4/_export_*.mts

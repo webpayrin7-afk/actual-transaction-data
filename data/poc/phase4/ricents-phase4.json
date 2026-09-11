@@ -1,0 +1,394 @@
+{
+  "complex": {
+    "key": "ricents",
+    "lawd_cd": "11710",
+    "apt_name_norm": "리센츠",
+    "era": "2000s",
+    "profile": "2000s 대단지·표준형"
+  },
+  "ledger": {
+    "fetched_items": 44505,
+    "unit_households": 5563,
+    "unit_type_count": 21,
+    "pyeong_group_count": 5
+  },
+  "common_area_stats": {
+    "etc_purps_top": [
+      [
+        "벽체",
+        5563
+      ],
+      [
+        "계단실,승강기",
+        5563
+      ]
+    ],
+    "etc_class_counts": {
+      "residential": 11126
+    },
+    "unknown_common_area_ratio": 0.0,
+    "residential_common_ratio": 1.0,
+    "non_residential_common_ratio": 0.0
+  },
+  "gate": {
+    "classification": "auto-safe",
+    "reasons": [
+      "passed_all_gates"
+    ],
+    "metrics": {
+      "partial_common_ratio": 0.0,
+      "trade_exclusive_coverage": 1.0,
+      "ledger_trade_hh_coverage": 1.0,
+      "group_exact_map_rate": 1.0,
+      "group_ambiguity_rate": 0.0,
+      "label_confidence": 0.96,
+      "unknown_common_area_ratio": 0.0,
+      "supply_outlier_ratio": 0.0,
+      "singoga_market_group_eligible_rate": 1.0
+    },
+    "singoga_gate": {
+      "mode": "market_group",
+      "eligible_trade_rate": 1.0,
+      "rule": "group_confidence_high && not ambiguous; label may be null"
+    },
+    "ui_fallback_examples": [
+      {
+        "group_key": "ricents:G1:ex27.68-27.68",
+        "mode": "label+range",
+        "lines": [
+          "13평형",
+          "공급 42~43㎡ · 전용 28~28㎡"
+        ]
+      },
+      {
+        "group_key": "ricents:G2:ex59.99-59.99",
+        "mode": "range_only",
+        "lines": [
+          "공급 82.10~82.47㎡ · 전용 59.99~59.99㎡"
+        ]
+      },
+      {
+        "group_key": "ricents:G3:ex84.99-84.99",
+        "mode": "label+range",
+        "lines": [
+          "33평형",
+          "공급 109~110㎡ · 전용 85~85㎡"
+        ]
+      },
+      {
+        "group_key": "ricents:G4:ex98.55-98.55",
+        "mode": "label+range",
+        "lines": [
+          "38평형",
+          "공급 127~127㎡ · 전용 99~99㎡"
+        ]
+      },
+      {
+        "group_key": "ricents:G5:ex124.22-124.22",
+        "mode": "label+range",
+        "lines": [
+          "48평형",
+          "공급 159~159㎡ · 전용 124~124㎡"
+        ]
+      }
+    ],
+    "trade_mapping": {
+      "exact": 1800
+    },
+    "trade_count": 1800
+  },
+  "candidate_pyeong_groups": [
+    {
+      "group_key": "ricents:G1:ex27.68-27.68",
+      "market_label": 13,
+      "supply_area_min": 42.28,
+      "supply_area_max": 42.6,
+      "exclusive_area_min": 27.68,
+      "exclusive_area_max": 27.68,
+      "household_count": 868,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "13": 868
+      },
+      "weighted_supply": 42.4,
+      "candidate_only": true
+    },
+    {
+      "group_key": "ricents:G2:ex59.99-59.99",
+      "market_label": null,
+      "supply_area_min": 82.1,
+      "supply_area_max": 82.47,
+      "exclusive_area_min": 59.99,
+      "exclusive_area_max": 59.99,
+      "household_count": 245,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "small_24_25_zone",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 5,
+      "naive_vote": {
+        "25": 245
+      },
+      "weighted_supply": 82.25,
+      "candidate_only": true
+    },
+    {
+      "group_key": "ricents:G3:ex84.99-84.99",
+      "market_label": 33,
+      "supply_area_min": 109.2,
+      "supply_area_max": 110.3,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 3590,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 9,
+      "naive_vote": {
+        "33": 3590
+      },
+      "weighted_supply": 109.38,
+      "candidate_only": true
+    },
+    {
+      "group_key": "ricents:G4:ex98.55-98.55",
+      "market_label": 38,
+      "supply_area_min": 126.59,
+      "supply_area_max": 126.59,
+      "exclusive_area_min": 98.55,
+      "exclusive_area_max": 98.55,
+      "household_count": 130,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "38": 130
+      },
+      "weighted_supply": 126.59,
+      "candidate_only": true
+    },
+    {
+      "group_key": "ricents:G5:ex124.22-124.22",
+      "market_label": 48,
+      "supply_area_min": 158.6,
+      "supply_area_max": 158.87,
+      "exclusive_area_min": 124.22,
+      "exclusive_area_max": 124.22,
+      "household_count": 730,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "48": 730
+      },
+      "weighted_supply": 158.82,
+      "candidate_only": true
+    }
+  ],
+  "unit_types": [
+    {
+      "unit_type_key": "ricents:84.99:109.20",
+      "supply_area_sqm": 109.2,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 1289,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:109.35",
+      "supply_area_sqm": 109.35,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 828,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:124.22:158.87",
+      "supply_area_sqm": 158.87,
+      "exclusive_area_min": 124.22,
+      "exclusive_area_max": 124.22,
+      "household_count": 520,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:27.68:42.28",
+      "supply_area_sqm": 42.28,
+      "exclusive_area_min": 27.68,
+      "exclusive_area_max": 27.68,
+      "household_count": 500,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:109.34",
+      "supply_area_sqm": 109.34,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 436,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:110.30",
+      "supply_area_sqm": 110.3,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 350,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:109.31",
+      "supply_area_sqm": 109.31,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 262,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:27.68:42.60",
+      "supply_area_sqm": 42.6,
+      "exclusive_area_min": 27.68,
+      "exclusive_area_max": 27.68,
+      "household_count": 244,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:124.22:158.69",
+      "supply_area_sqm": 158.69,
+      "exclusive_area_min": 124.22,
+      "exclusive_area_max": 124.22,
+      "household_count": 209,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:109.26",
+      "supply_area_sqm": 109.26,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 201,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:109.40",
+      "supply_area_sqm": 109.4,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 149,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:98.55:126.59",
+      "supply_area_sqm": 126.59,
+      "exclusive_area_min": 98.55,
+      "exclusive_area_max": 98.55,
+      "household_count": 130,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:27.68:42.52",
+      "supply_area_sqm": 42.52,
+      "exclusive_area_min": 27.68,
+      "exclusive_area_max": 27.68,
+      "household_count": 124,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:59.99:82.32",
+      "supply_area_sqm": 82.32,
+      "exclusive_area_min": 59.99,
+      "exclusive_area_max": 59.99,
+      "household_count": 104,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:59.99:82.10",
+      "supply_area_sqm": 82.1,
+      "exclusive_area_min": 59.99,
+      "exclusive_area_max": 59.99,
+      "household_count": 54,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:109.47",
+      "supply_area_sqm": 109.47,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 46,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:59.99:82.16",
+      "supply_area_sqm": 82.16,
+      "exclusive_area_min": 59.99,
+      "exclusive_area_max": 59.99,
+      "household_count": 29,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:59.99:82.47",
+      "supply_area_sqm": 82.47,
+      "exclusive_area_min": 59.99,
+      "exclusive_area_max": 59.99,
+      "household_count": 29,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:59.99:82.13",
+      "supply_area_sqm": 82.13,
+      "exclusive_area_min": 59.99,
+      "exclusive_area_max": 59.99,
+      "household_count": 29,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:84.99:109.51",
+      "supply_area_sqm": 109.51,
+      "exclusive_area_min": 84.99,
+      "exclusive_area_max": 84.99,
+      "household_count": 29,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "ricents:124.22:158.60",
+      "supply_area_sqm": 158.6,
+      "exclusive_area_min": 124.22,
+      "exclusive_area_max": 124.22,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    }
+  ],
+  "note": "exclusive<=1㎡ clusters are candidates only; production use requires gate pass"
+}

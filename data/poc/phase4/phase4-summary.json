@@ -1,0 +1,352 @@
+{
+  "generated_at": "2026-09-11T13:49:45.992441+00:00",
+  "phase": 4,
+  "principle": {
+    "exclusive_le_1sqm": "candidate generation only",
+    "production_requires": "confidence gate pass",
+    "no_invented_pyeong_labels": true,
+    "forbidden": [
+      "production DB write",
+      "nationwide backfill",
+      "selector/singoga production change"
+    ]
+  },
+  "classification_rubric": {
+    "auto-safe": "registry normal + stable trade mapping + low ambiguity/outlier + label mostly known",
+    "group-safe-label-unknown": "group high-confidence but label null (24/25, 33/34, vote conflict)",
+    "ambiguous": "group conflict / weak mapping / unknown commons / heavy outliers",
+    "registry-abnormal": "partial-common-in-exclusive or ledger≠trade exclusive structure"
+  },
+  "totals": {
+    "complexes": 2,
+    "auto-safe": 1,
+    "group-safe-label-unknown": 0,
+    "ambiguous": 1,
+    "registry-abnormal": 0,
+    "auto-safe_pct": 0.5,
+    "group-safe-label-unknown_pct": 0.0,
+    "ambiguous_pct": 0.5,
+    "registry-abnormal_pct": 0.0,
+    "singoga_market_group_applicable_pct": 0.5
+  },
+  "nationwide_backfill": {
+    "allowed": false,
+    "reason": "Allowlist only after Phase4 gate; start with auto-safe, then B for group-only analytics"
+  },
+  "complexes": [
+    {
+      "key": "ricents",
+      "apt_name_norm": "리센츠",
+      "era": "2000s",
+      "profile": "2000s 대단지·표준형",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.96,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "ricents:G1:ex27.68-27.68",
+          "mode": "label+range",
+          "lines": [
+            "13평형",
+            "공급 42~43㎡ · 전용 28~28㎡"
+          ]
+        },
+        {
+          "group_key": "ricents:G2:ex59.99-59.99",
+          "mode": "range_only",
+          "lines": [
+            "공급 82.10~82.47㎡ · 전용 59.99~59.99㎡"
+          ]
+        },
+        {
+          "group_key": "ricents:G3:ex84.99-84.99",
+          "mode": "label+range",
+          "lines": [
+            "33평형",
+            "공급 109~110㎡ · 전용 85~85㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 1.0,
+        "top_etc": [
+          [
+            "벽체",
+            5563
+          ],
+          [
+            "계단실,승강기",
+            5563
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "ricents:G1:ex27.68-27.68",
+          "market_label": 13,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 868,
+          "exclusive": [
+            27.68,
+            27.68
+          ],
+          "supply": [
+            42.28,
+            42.6
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G2:ex59.99-59.99",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 245,
+          "exclusive": [
+            59.99,
+            59.99
+          ],
+          "supply": [
+            82.1,
+            82.47
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G3:ex84.99-84.99",
+          "market_label": 33,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 3590,
+          "exclusive": [
+            84.99,
+            84.99
+          ],
+          "supply": [
+            109.2,
+            110.3
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G4:ex98.55-98.55",
+          "market_label": 38,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 130,
+          "exclusive": [
+            98.55,
+            98.55
+          ],
+          "supply": [
+            126.59,
+            126.59
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G5:ex124.22-124.22",
+          "market_label": 48,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 730,
+          "exclusive": [
+            124.22,
+            124.22
+          ],
+          "supply": [
+            158.6,
+            158.87
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "olympic-family",
+      "apt_name_norm": "올림픽훼밀리타운",
+      "era": "1980s",
+      "profile": "1980s 구축 대단지·비표준 대형 포함",
+      "classification": "ambiguous",
+      "reasons": [
+        "unknown_common_area_ratio=0.54"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.13,
+        "label_confidence": 0.53,
+        "unknown_common_area_ratio": 0.54,
+        "supply_outlier_ratio": 0.02,
+        "singoga_market_group_eligible_rate": 0.0
+      },
+      "singoga_gate": {
+        "mode": "exclusive_area_fallback",
+        "eligible_trade_rate": 0.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "olympic-family:G1:ex84.71-84.75",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 84.71~84.75㎡형"
+          ]
+        },
+        {
+          "group_key": "olympic-family:G2:ex117.59-117.59",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 117.59㎡형"
+          ]
+        },
+        {
+          "group_key": "olympic-family:G3:ex136.33-136.33",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 136.33㎡형"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.5360120701977289,
+        "residential_ratio": 0.39823711585801636,
+        "top_etc": [
+          [
+            "계단",
+            4492
+          ],
+          [
+            "지하층",
+            4413
+          ],
+          [
+            "기계실",
+            414
+          ],
+          [
+            "계단실",
+            412
+          ],
+          [
+            "화장실",
+            411
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "olympic-family:G1:ex84.71-84.75",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 1499,
+          "exclusive": [
+            84.71,
+            84.75
+          ],
+          "supply": [
+            84.71,
+            84.75
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "olympic-family:G2:ex117.59-117.59",
+          "market_label": 36,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 822,
+          "exclusive": [
+            117.59,
+            117.59
+          ],
+          "supply": [
+            117.59,
+            117.59
+          ],
+          "outlier_hh_ratio": 0.09
+        },
+        {
+          "group_key": "olympic-family:G3:ex136.33-136.33",
+          "market_label": 41,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1416,
+          "exclusive": [
+            136.33,
+            136.33
+          ],
+          "supply": [
+            136.33,
+            136.33
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "olympic-family:G4:ex158.71-158.71",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "supply_span_conflict",
+          "households": 558,
+          "exclusive": [
+            158.71,
+            158.71
+          ],
+          "supply": [
+            158.71,
+            182.81
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "olympic-family:G5:ex192.24-192.24",
+          "market_label": 58,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 120,
+          "exclusive": [
+            192.24,
+            192.24
+          ],
+          "supply": [
+            192.24,
+            192.24
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    }
+  ]
+}
