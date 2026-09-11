@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -79,23 +79,6 @@ export function Dashboard({
   const [page, setPage] = useState(1);
   const [appliedAptName, setAppliedAptName] = useState(initialAptName);
   const [, startTransition] = useTransition();
-
-  // 시장 현황 탭 진입 시 헤더 프로그레스 (선택 화면이 아닌 지역 상세에서만)
-  const [statsHold, setStatsHold] = useState(tab === "stats");
-  useEffect(() => {
-    if (tab !== "stats") {
-      setStatsHold(false);
-      return;
-    }
-    setStatsHold(true);
-    const t = window.setTimeout(() => setStatsHold(false), 600);
-    return () => window.clearTimeout(t);
-  }, [tab, region.slug]);
-  useLoadProgressWhen(
-    tab === "stats" && statsHold,
-    "시장 현황 불러오는 중…",
-    "stats-tab",
-  );
 
   const coverageQuery = useQuery({
     queryKey: ["region-coverage", region.slug],

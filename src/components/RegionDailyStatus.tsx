@@ -803,24 +803,6 @@ export function RegionDailyStatus({
     retry: 1,
   });
 
-  const queriesSettled =
-    (marketQuery.isSuccess || marketQuery.isError) &&
-    (latestQuery.isSuccess || latestQuery.isError) &&
-    (historyQuery.isSuccess || historyQuery.isError) &&
-    (initialDaysQuery.isSuccess || initialDaysQuery.isError);
-
-  // Keep the bar visible briefly on tab/page entry so fast responses still show feedback.
-  const [entryHold, setEntryHold] = useState(true);
-  useEffect(() => {
-    setEntryHold(true);
-    const t = window.setTimeout(() => setEntryHold(false), 450);
-    return () => window.clearTimeout(t);
-  }, [regionSlug]);
-
-  useLoadProgressWhen(
-    entryHold || !queriesSettled,
-    "시장 현황 불러오는 중…",
-  );
 
   const section1Months =
     marketQuery.data?.contractMonthOptions?.length
@@ -868,6 +850,18 @@ export function RegionDailyStatus({
     }
     return map;
   }, [initialDaysQuery.data, extraSections, bulkExtra]);
+
+  const historyShellLoading =
+    (historyQuery.isFetching || initialDaysQuery.isFetching) &&
+    !historyQuery.data &&
+    !initialDaysQuery.data;
+  const marketStatusLoading =
+    (marketQuery.isFetching && !marketQuery.data) ||
+    (latestQuery.isFetching && !latestQuery.data) ||
+    historyShellLoading ||
+    pendingDates.length > 0;
+
+  useLoadProgressWhen(marketStatusLoading, "시장 현황 불러오는 중…");
 
   const fetchDaySections = useCallback(
     async (dates: string[]) => {
