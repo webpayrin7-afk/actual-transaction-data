@@ -30,16 +30,14 @@ function navLinkClass(active: boolean) {
 }
 
 function sectionHeadingClass() {
-  return "pb-1 text-[13px] font-semibold text-slate-500";
+  return "pb-0.5 text-[13px] font-semibold text-slate-500";
 }
 
-function drawerItemClass(active: boolean, tone: "tool" | "service" = "tool") {
-  const idle =
-    tone === "service" ? "text-slate-600" : "text-slate-800";
-  return `flex h-[48px] items-center text-[17px] font-medium transition-colors ${
+function drawerItemClass(active: boolean) {
+  return `flex h-11 items-center text-[17px] font-medium transition-colors ${
     active
       ? "bg-teal-50 text-teal-800"
-      : `${idle} hover:bg-teal-50/70 active:bg-teal-50/80`
+      : "text-slate-800 hover:bg-teal-50/70 active:bg-teal-50/80"
   }`;
 }
 
@@ -243,7 +241,7 @@ export function SiteHeader() {
                 id={titleId}
                 className="text-[18px] font-semibold leading-none text-slate-900"
               >
-                더보기
+                메뉴
               </h2>
               <button
                 type="button"
@@ -257,14 +255,14 @@ export function SiteHeader() {
 
             <div className="flex-1 overflow-y-auto px-5 pt-3 pb-4">
               <p className={sectionHeadingClass()}>도구</p>
-              <nav aria-label="도구" className="flex flex-col">
+              <nav aria-label="도구" className="flex flex-col gap-0.5">
                 {TOOL_NAV.map((item) => {
                   const active = item.match(pathname);
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={drawerItemClass(active, "tool")}
+                      className={drawerItemClass(active)}
                       onClick={closeMenu}
                     >
                       {item.label}
@@ -273,9 +271,9 @@ export function SiteHeader() {
                 })}
               </nav>
 
-              <div className="mt-5 border-t border-slate-100 pt-5">
+              <div className="mt-3.5 border-t border-slate-100/80 pt-3.5">
                 <p className={sectionHeadingClass()}>서비스</p>
-                <nav aria-label="서비스" className="flex flex-col">
+                <nav aria-label="서비스" className="flex flex-col gap-0.5">
                   {MORE_SERVICE_LINKS.map((item) => {
                     const active = pathname === item.href;
                     return (
@@ -283,7 +281,7 @@ export function SiteHeader() {
                         key={item.href}
                         href={item.href}
                         onClick={closeMenu}
-                        className={drawerItemClass(active, "service")}
+                        className={drawerItemClass(active)}
                       >
                         {item.label}
                       </Link>
