@@ -253,7 +253,7 @@ export function SiteHeader() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 pt-2.5 pb-4">
+            <div className="flex-1 overflow-y-auto pt-2.5 pr-2.5 pb-4 pl-5">
               <p className={sectionHeadingClass()}>도구</p>
               <nav aria-label="도구" className="flex flex-col">
                 {TOOL_NAV.map((item) => {
