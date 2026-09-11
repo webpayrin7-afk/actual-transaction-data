@@ -126,9 +126,11 @@ export function SiteHeaderLoadProgress() {
 
   useEffect(() => {
     if (active) {
-      setOpen(true);
-      setDisplayLabel(label);
-      return;
+      const frame = window.requestAnimationFrame(() => {
+        setOpen(true);
+        setDisplayLabel(label);
+      });
+      return () => window.cancelAnimationFrame(frame);
     }
     const t = window.setTimeout(() => {
       setOpen(false);
