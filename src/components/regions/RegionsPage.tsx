@@ -15,7 +15,7 @@ import {
   type Metro,
   type RegionDef,
 } from "@/lib/constants/regions";
-import { useBarOnlyProgressWhen } from "@/components/layout/LoadProgress";
+import { useLoadProgress } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 /** 지역별 조회 시·도 탭 — 서울 다음 경기(수도권)를 우선 배치 */
@@ -115,14 +115,7 @@ function suggestRegions(query: string, limit = 8): RegionSuggestion[] {
  */
 export function RegionsPage() {
   const router = useRouter();
-  // Static page has no query — keep a short bar-only indicator on entry.
-  const [booting, setBooting] = useState(true);
-  useBarOnlyProgressWhen(booting, "query");
-  useEffect(() => {
-    const t = window.setTimeout(() => setBooting(false), 450);
-    return () => window.clearTimeout(t);
-  }, []);
-
+  const { show: showLoadProgress } = useLoadProgress();
   const [metro, setMetro] = useState<Metro>(() => {
     if (typeof window === "undefined") return "seoul";
     const hash = window.location.hash.replace("#", "") as Metro;
@@ -157,6 +150,7 @@ export function RegionsPage() {
   const goRegion = (slug: string) => {
     setOpenSuggest(false);
     setActiveIndex(-1);
+    showLoadProgress("시장 현황 불러오는 중…", "nav");
     router.push(`/region/${slug}`);
   };
 

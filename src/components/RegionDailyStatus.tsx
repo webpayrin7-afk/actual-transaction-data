@@ -804,11 +804,13 @@ export function RegionDailyStatus({
   });
 
   useLoadProgressWhen(
-    (marketQuery.isLoading && !marketQuery.data) ||
-      (latestQuery.isLoading && !latestQuery.data) ||
-      (historyQuery.isLoading && !historyQuery.data) ||
-      (initialDaysQuery.isLoading && !initialDaysQuery.data),
-    "지역 현황 불러오는 중…",
+    !(
+      (marketQuery.isSuccess || marketQuery.isError) &&
+      (latestQuery.isSuccess || latestQuery.isError) &&
+      (historyQuery.isSuccess || historyQuery.isError) &&
+      (initialDaysQuery.isSuccess || initialDaysQuery.isError)
+    ),
+    "시장 현황 불러오는 중…",
   );
 
   const section1Months =

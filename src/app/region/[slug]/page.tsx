@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Dashboard } from "@/components/Dashboard";
+import { RegionPageLoadFallback } from "@/components/RegionPageLoadFallback";
 import { ALL_REGIONS, getRegion } from "@/lib/constants/regions";
 import type { DealType } from "@/types/transaction";
 
@@ -52,13 +53,7 @@ export default async function RegionPage({
 
   return (
     <main className="flex-1">
-      <Suspense
-        fallback={
-          <div className="mx-auto max-w-7xl px-4 py-8" aria-hidden>
-            <div className="lab-skeleton" />
-          </div>
-        }
-      >
+      <Suspense fallback={<RegionPageLoadFallback />}>
         <Dashboard
           region={region}
           initialAptName={sp.aptName ?? ""}

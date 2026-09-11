@@ -116,10 +116,6 @@ export function useLoadProgressWhen(
   }, [source, hide]);
 }
 
-/** Bar-only header progress (no status copy). */
-export function useBarOnlyProgressWhen(active: boolean, source = "query") {
-  useLoadProgressWhen(active, "", source);
-}
 
 /** SiteHeader 하단에 붙여 렌더 — fixed top 계산 없이 헤더와 한 덩어리 */
 export function SiteHeaderLoadProgress() {
@@ -159,8 +155,9 @@ export function SiteHeaderLoadProgress() {
 }
 
 /**
- * Soft-nav for `/regions` only: bar without copy.
- * Other routes stay quiet until their data-fetch progress kicks in.
+ * Soft-nav when entering a region detail (`/region/...`) — shows labeled
+ * progress through Suspense until RegionDailyStatus query progress takes over.
+ * `/regions` index stays quiet (no progress).
  */
 export function NavigationLoadProgress() {
   const pathname = usePathname();
@@ -168,8 +165,9 @@ export function NavigationLoadProgress() {
   const { show, hide } = useLoadProgress();
 
   useEffect(() => {
-    // Keep soft-nav bar up briefly so RegionsPage can take over on entry.
-    const delay = pathname.replace(/\/$/, "") === "/regions" ? 500 : 80;
+    const dest = pathname.replace(/\/$/, "") || "/";
+    // Keep bar up briefly on region detail so query progress can take over.
+    const delay = dest.startsWith("/region/") ? 500 : 80;
     const t = window.setTimeout(() => hide("nav"), delay);
     return () => window.clearTimeout(t);
   }, [pathname, searchParams, hide]);
@@ -200,8 +198,8 @@ export function NavigationLoadProgress() {
       if (url.origin !== window.location.origin) return;
 
       const dest = url.pathname.replace(/\/$/, "") || "/";
-      // Only 지역 조회 index — bar only, no status text.
-      if (dest !== "/regions") return;
+      // Region detail only (not /regions index).
+      if (!dest.startsWith("/region/")) return;
 
       const nextSearch = url.search.startsWith("?")
         ? url.search.slice(1)
@@ -210,7 +208,7 @@ export function NavigationLoadProgress() {
       const here = pathname.replace(/\/$/, "") || "/";
       if (dest === here && nextSearch === curSearch) return;
 
-      show(null, "nav");
+      show("시장 현황 불러오는 중…", "nav");
     };
 
     document.addEventListener("click", onClick, true);
