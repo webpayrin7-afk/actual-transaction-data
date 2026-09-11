@@ -104,10 +104,7 @@ export function RegionDongAptList({
   return (
     <div className={PAGE_SHELL}>
       <header className={PAGE_HEADER_WITH_BACK}>
-        <BackLink
-          fallback={`/region/${regionSlug}?tab=dong`}
-          label={regionName}
-        />
+        <BackLink fallback={`/region/${regionSlug}?tab=dong`} />
         <PageHeader
           title={`${dong} 단지 목록`}
           description={`${regionName}${gu ? ` · ${gu}` : ""} — 거래 이력이 있는 단지`}

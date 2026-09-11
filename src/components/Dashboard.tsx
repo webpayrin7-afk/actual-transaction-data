@@ -171,7 +171,7 @@ export function Dashboard({
   return (
     <div className={PAGE_SHELL}>
       <header className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/regions" label="지역별 조회" />
+        <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
           showDivider={false}

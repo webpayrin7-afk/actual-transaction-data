@@ -125,7 +125,7 @@ export default function GuidePage() {
       </InfoSection>
 
       <div className="pt-2">
-        <BackLink fallback="/" label="오늘의 시장" />
+        <BackLink fallback="/" />
       </div>
     </InfoPage>
   );
