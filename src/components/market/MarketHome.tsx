@@ -13,6 +13,7 @@ import {
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { LabSection } from "@/components/lab/LabSection";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { DateBasisChip } from "@/components/ui/DateBasisChip";
 import type {
   MarketDealItem,
   MarketHomeResponse,
@@ -37,9 +38,10 @@ function KpiCard({
   hint: string;
   tone: "up" | "down" | "neutral" | "hot";
 }) {
+  // 신고가/상승 = 빨강, 하락 = 파랑 (한국 시세 관례)
   const tones = {
-    up: "border-teal-200 bg-teal-50/80 text-teal-900",
-    down: "border-rose-200 bg-rose-50/80 text-rose-900",
+    up: "border-rose-200 bg-rose-50/80 text-rose-900",
+    down: "border-blue-200 bg-blue-50/80 text-blue-900",
     hot: "border-amber-200 bg-amber-50/80 text-amber-950",
     neutral: "border-slate-200 bg-white text-slate-900",
   } as const;
@@ -53,6 +55,12 @@ function KpiCard({
       <p className="mt-1 text-[11px] leading-4 opacity-70">{hint}</p>
     </div>
   );
+}
+
+function kindBadgeClass(kind: MarketDealItem["kind"]): string {
+  if (kind === "singoga") return "bg-rose-100 text-rose-700";
+  if (kind === "drop") return "bg-blue-100 text-blue-700";
+  return "bg-slate-100 text-slate-600";
 }
 
 function DealRow({ item }: { item: MarketDealItem }) {
@@ -69,7 +77,9 @@ function DealRow({ item }: { item: MarketDealItem }) {
           <span className="truncate text-sm font-semibold text-slate-900">
             {item.aptName}
           </span>
-          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+          <span
+            className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${kindBadgeClass(item.kind)}`}
+          >
             {item.kindLabel}
           </span>
         </div>
@@ -93,7 +103,7 @@ function DealRow({ item }: { item: MarketDealItem }) {
         {item.changePct != null ? (
           <p
             className={`mt-0.5 inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums ${
-              up ? "text-teal-700" : down ? "text-rose-600" : "text-slate-500"
+              up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
             }`}
           >
             {up ? (
@@ -128,7 +138,7 @@ function VolumeRow({ item }: { item: MarketVolumeItem }) {
         </p>
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-sm font-semibold text-teal-700">
+        <p className="text-sm font-semibold text-rose-600">
           +{item.increaseCount}건
         </p>
         {item.growthPct != null ? (
@@ -188,19 +198,22 @@ export function MarketHome() {
         title="오늘의 아파트 시장"
         description="오늘 새로 확인된 실거래·신고가·하락거래를 한눈에 확인하세요."
         meta={
-          <>
-            {data?.lastUpdatedLabel || data?.computedAt ? (
-              <p>
-                최종 업데이트 {data.lastUpdatedLabel ?? data.computedAt}
-                {data.discoveryDate ? ` · 확인일 ${data.discoveryDate}` : null}
-              </p>
-            ) : null}
-            {data?.dateBasisNote ? (
-              <p className="text-[11px] leading-4 text-slate-400">
-                {data.dateBasisNote}
-              </p>
-            ) : null}
-          </>
+          data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {data?.lastUpdatedLabel || data?.computedAt ? (
+                <DateBasisChip
+                  label={`최종 업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
+                  help="집랩 데이터가 마지막으로 갱신된 시점입니다."
+                />
+              ) : null}
+              {data?.discoveryDate ? (
+                <DateBasisChip
+                  label={`확인일 ${data.discoveryDate}`}
+                  help="집랩이 해당 거래를 처음 확인한 날짜입니다. 계약일과 다를 수 있습니다."
+                />
+              ) : null}
+            </div>
+          ) : null
         }
       />
 
@@ -233,7 +246,7 @@ export function MarketHome() {
             <KpiCard
               label="오늘 새로 확인"
               value={`${data.kpis.newDealCount ?? 0}건`}
-              hint="시스템 최초 확인 기준"
+              hint="집랩이 처음 확인한 기준"
               tone="neutral"
             />
             <KpiCard
@@ -290,7 +303,7 @@ export function MarketHome() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Section
             title="신규 신고가"
-            icon={<TrendingUp className="h-4 w-4 text-teal-700" />}
+            icon={<TrendingUp className="h-4 w-4 text-rose-600" />}
             empty={data.singoga.length === 0}
           >
             {data.singoga.map((item) => (
@@ -300,7 +313,7 @@ export function MarketHome() {
 
           <Section
             title="신규 하락거래"
-            icon={<TrendingDown className="h-4 w-4 text-rose-600" />}
+            icon={<TrendingDown className="h-4 w-4 text-blue-600" />}
             empty={data.drops.length === 0}
           >
             {data.drops.map((item) => (

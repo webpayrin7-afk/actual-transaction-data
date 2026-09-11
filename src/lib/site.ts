@@ -1,5 +1,5 @@
 /** Site-wide brand & ops contact — keep consistent across info pages / footer */
-export const SITE_BRAND = "아파트 데이터랩";
+export const SITE_BRAND = "집랩";
 
 export const SITE_CONTACT_EMAIL = "financialfreedomlabs@gmail.com";
 

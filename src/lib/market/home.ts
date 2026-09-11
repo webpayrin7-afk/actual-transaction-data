@@ -131,7 +131,7 @@ function emptyResponse(warning?: string): MarketHomeResponse {
     recentFrom: null,
     recentTo: null,
     dateBasisNote:
-      "홈의 신규 거래는 확인일(discovery_at) 기준입니다. 계약일과 다릅니다.",
+      "홈의 신규 거래는 집랩 확인일 기준입니다. 계약일과 다릅니다.",
     computedAt: null,
     lastUpdatedLabel: null,
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
@@ -409,7 +409,7 @@ export async function computeMarketHome(opts?: {
     recentFrom: discoveryDate,
     recentTo: discoveryDate,
     dateBasisNote:
-      "홈의 ‘새로 확인’은 확인일(discovery_at) 기준입니다(신고일·계약일 아님). 계약일은 각 카드에 표시됩니다. 시장동향(/stats)은 계약일 기준입니다.",
+      "홈의 ‘새로 확인’은 집랩 확인일 기준입니다(계약일과 다름). 계약일은 각 카드에 표시됩니다. 시장동향(/stats)은 계약일 기준입니다.",
     computedAt,
     lastUpdatedLabel: formatSeoulDateTime(computedAt),
     complexKeyVersion: MARKET_COMPLEX_KEY_VERSION,
