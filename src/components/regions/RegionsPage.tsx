@@ -17,9 +17,30 @@ import {
 } from "@/lib/constants/regions";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
-const METRO_OPTIONS = (
-  Object.entries(METRO_LABELS) as [Metro, string][]
-).filter(([k]) => k !== "other");
+/** 지역별 조회 시·도 탭 — 서울 다음 경기(수도권)를 우선 배치 */
+const METRO_TAB_ORDER: Metro[] = [
+  "seoul",
+  "gyeonggi",
+  "incheon",
+  "busan",
+  "daegu",
+  "gwangju",
+  "daejeon",
+  "ulsan",
+  "sejong",
+  "gangwon",
+  "chungbuk",
+  "chungnam",
+  "jeonbuk",
+  "jeonnam",
+  "gyeongbuk",
+  "gyeongnam",
+  "jeju",
+];
+
+const METRO_OPTIONS = METRO_TAB_ORDER.filter(
+  (key) => key !== "other" && key in METRO_LABELS,
+).map((key) => [key, METRO_LABELS[key]] as [Metro, string]);
 
 type RegionSuggestion = {
   slug: string;
