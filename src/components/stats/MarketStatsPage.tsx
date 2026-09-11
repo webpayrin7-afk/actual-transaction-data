@@ -74,7 +74,7 @@ function Segmented<T extends string>({
 }) {
   return (
     <div
-      className={`gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 ${
+      className={`gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5 ${
         fullWidth
           ? "flex w-full lg:inline-flex lg:w-auto"
           : "inline-flex"
