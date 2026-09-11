@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -496,18 +495,10 @@ export function AptDetailPage({
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
           meta={
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>
-                매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
-                {data.stats.totalRentCount.toLocaleString("ko-KR")}건
-              </span>
-              <Link
-                href={`/region/${data.regionSlug}`}
-                className="font-medium text-teal-700 underline-offset-2 hover:underline"
-              >
-                {data.regionName} 지역
-              </Link>
-            </div>
+            <span>
+              매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
+              {data.stats.totalRentCount.toLocaleString("ko-KR")}건
+            </span>
           }
         >
           <AptAreaSelector
