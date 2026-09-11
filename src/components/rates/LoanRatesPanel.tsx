@@ -136,9 +136,10 @@ export function LoanRatesPanel({
       </div>
 
       {q.isLoading ? (
-        <p className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500">
-          금리 정보를 불러오는 중…
-        </p>
+        <div
+          className="h-32 animate-pulse rounded-xl border border-slate-200 bg-slate-100/70"
+          aria-hidden
+        />
       ) : q.isError ? (
         <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           {(q.error as Error).message}
