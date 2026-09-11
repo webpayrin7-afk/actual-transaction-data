@@ -183,28 +183,30 @@ export function MarketHome() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="오늘의 아파트 시장"
+        titleAside={
+          <InfoChip label="데이터 기준일">
+            {data?.discoveryDate ? (
+              <p>
+                확인일 {data.discoveryDate}. {SEEN_DATE_BASIS_HELP} 공식
+                신고일이나 공개일을 뜻하지 않습니다.
+              </p>
+            ) : (
+              <p>
+                {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
+                않습니다.
+              </p>
+            )}
+            <p>
+              거래 카드와 시장동향은 계약일 기준입니다.{" "}
+              {CONTRACT_DATE_BASIS_HELP}
+            </p>
+            {data?.lastUpdatedLabel || data?.computedAt ? (
+              <p>갱신 {data.lastUpdatedLabel ?? data.computedAt}</p>
+            ) : null}
+          </InfoChip>
+        }
         description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
         className="mt-1.5 sm:mt-2"
-        meta={
-          data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
-            <div className="flex flex-wrap items-center gap-1.5">
-              {data?.lastUpdatedLabel || data?.computedAt ? (
-                <InfoChip
-                  label={`최종 업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
-                >
-                  집랩 데이터가 마지막으로 갱신된 시점입니다. 각 거래 카드의
-                  날짜와 시장동향은 계약일 기준입니다. {CONTRACT_DATE_BASIS_HELP}
-                </InfoChip>
-              ) : null}
-              {data?.discoveryDate ? (
-                <InfoChip label={`확인일 ${data.discoveryDate}`}>
-                  {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
-                  않습니다.
-                </InfoChip>
-              ) : null}
-            </div>
-          ) : null
-        }
       />
 
       {query.isLoading ? (
