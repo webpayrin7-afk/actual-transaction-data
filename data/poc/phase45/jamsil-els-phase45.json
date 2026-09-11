@@ -1,0 +1,239 @@
+{
+  "complex": {
+    "key": "jamsil-els",
+    "name": "잠실엘스",
+    "role": "B",
+    "kapt_code": "A13822004"
+  },
+  "sources": {
+    "housing_permit_mgm_type_count": 160,
+    "kapt": {
+      "ok": true,
+      "kaptCode": "A13822004",
+      "kaptName": "잠실엘스아파트",
+      "households": 5678.0,
+      "dong_cnt": 72.0,
+      "use_date": "2008-09-30",
+      "area_bands": [
+        {
+          "areaGbn": "2",
+          "cnt": 1150.0
+        },
+        {
+          "areaGbn": "3",
+          "cnt": 4042.0
+        },
+        {
+          "areaGbn": "4",
+          "cnt": 486.0
+        }
+      ],
+      "fetchedAt": "2026-09-11T16:02:34.919424+00:00"
+    },
+    "notes": {
+      "ho_expos": "행위호 전유공용은 대체로 부대시설만 있거나 dong/ho 키 없음",
+      "mgm_coop_type": "관리공동형별개요가 전용면적·세대수·타입코드의 핵심 교차검증 소스",
+      "complex_id_api": "current MOLIT key: not registered",
+      "cheongyak": "401 without dedicated key; no fields used"
+    }
+  },
+  "housing_permit_analysis": {
+    "mgm_coop_type": {
+      "type_count": 11,
+      "households_sum": 9252.0,
+      "exclusive_coverage": 1.0,
+      "label_confidence": 0.0,
+      "group_count": 3,
+      "multi_type_same_exclusive_groups": 2,
+      "types": [
+        {
+          "typeGb": "84C",
+          "exclusive": 84.8,
+          "households": 2938.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "84C2",
+          "exclusive": 84.8,
+          "households": 2074.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "59",
+          "exclusive": 59.96,
+          "households": 1150.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "59b",
+          "exclusive": 59.96,
+          "households": 683.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "84C1",
+          "exclusive": 84.8,
+          "households": 640.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "84B",
+          "exclusive": 84.97,
+          "households": 556.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "84A",
+          "exclusive": 84.88,
+          "households": 548.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "119",
+          "exclusive": 119.93,
+          "households": 486.0,
+          "market_label": null,
+          "label_reason": "non_pyeong_code",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "59a",
+          "exclusive": 59.96,
+          "households": 122.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "59c",
+          "exclusive": 59.96,
+          "households": 53.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        },
+        {
+          "typeGb": "59d",
+          "exclusive": 59.96,
+          "households": 2.0,
+          "market_label": null,
+          "label_reason": "looks_like_exclusive",
+          "cmplxNm": "잠실엘스"
+        }
+      ],
+      "groups": [
+        {
+          "exclusive": [
+            84.8,
+            84.97
+          ],
+          "households": 6756.0,
+          "type_variants": 5,
+          "labels": [],
+          "typeGbs": [
+            "84C",
+            "84C2",
+            "84C1",
+            "84B",
+            "84A"
+          ]
+        },
+        {
+          "exclusive": [
+            59.96,
+            59.96
+          ],
+          "households": 2010.0,
+          "type_variants": 5,
+          "labels": [],
+          "typeGbs": [
+            "59",
+            "59b",
+            "59a",
+            "59c",
+            "59d"
+          ]
+        },
+        {
+          "exclusive": [
+            119.93,
+            119.93
+          ],
+          "households": 486.0,
+          "type_variants": 1,
+          "labels": [],
+          "typeGbs": [
+            "119"
+          ]
+        }
+      ]
+    }
+  },
+  "phase4_ref": {
+    "classification": "group-safe-label-unknown",
+    "metrics": {
+      "partial_common_ratio": 0.0,
+      "trade_exclusive_coverage": 1.0,
+      "ledger_trade_hh_coverage": 1.0,
+      "group_exact_map_rate": 1.0,
+      "group_ambiguity_rate": 0.0,
+      "label_confidence": 0.09,
+      "unknown_common_area_ratio": 0.0,
+      "supply_outlier_ratio": 0.0,
+      "singoga_market_group_eligible_rate": 1.0
+    },
+    "reasons": [
+      "label_confidence=0.09"
+    ]
+  },
+  "gate": {
+    "phase4_class": "group-safe-label-unknown",
+    "new_class": "group-safe-label-unknown",
+    "changed": false,
+    "rescued": false,
+    "rescue_reason": "전용면적 그룹은 확실, 평형 label은 타입코드로 미확정",
+    "reasons": [
+      "mgm_label_confidence=0.00"
+    ],
+    "supply_confidence": "high",
+    "market_group_confidence": "high",
+    "label_confidence": 0.0,
+    "metrics": {
+      "mgm_households_sum": 9252.0,
+      "mgm_exclusive_coverage": 1.0,
+      "mgm_type_count": 11,
+      "mgm_group_count": 3,
+      "multi_type_same_exclusive_groups": 2,
+      "kapt_households": 5678.0,
+      "kapt_dong_cnt": 72.0,
+      "household_delta_vs_kapt": 0.63,
+      "hs_counts": {
+        "basis": 1447,
+        "dong": 118,
+        "ho": 5831,
+        "expos": 342,
+        "ho_expos": 0,
+        "mgm_type": 160,
+        "act": 1442,
+        "plat": 1450
+      },
+      "phase4_unknown_common": 0.0,
+      "phase4_label_confidence": 0.09
+    }
+  },
+  "fetchedAt": "2026-09-11T16:08:13.832810+00:00"
+}

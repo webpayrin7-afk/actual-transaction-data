@@ -45,3 +45,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Phase 4.5 API caches (large)
+/data/poc/phase45/cache/
+
