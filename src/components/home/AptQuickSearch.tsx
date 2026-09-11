@@ -83,12 +83,12 @@ export function AptQuickSearch({
   );
 
   const flatHits = useMemo<FlatHit[]>(() => {
-    const hits: FlatHit[] = aptSuggestions.map((item) => ({
-      kind: "apt" as const,
-      item,
-    }));
+    const hits: FlatHit[] = [];
     for (const item of regionSuggestions) {
       hits.push({ kind: "region", item });
+    }
+    for (const item of aptSuggestions) {
+      hits.push({ kind: "apt", item });
     }
     return hits;
   }, [aptSuggestions, regionSuggestions]);
@@ -204,19 +204,58 @@ export function AptQuickSearch({
 
         {openSuggest && debouncedQuery.length >= 1 && (
           <div className="absolute top-full left-0 z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900">
-            {suggestQuery.isFetching && aptSuggestions.length === 0 ? (
+            {suggestQuery.isFetching && flatHits.length === 0 ? (
               <p className="px-4 py-3 text-sm text-slate-500">검색 중…</p>
             ) : flatHits.length === 0 ? (
               <p className="px-4 py-3 text-sm text-slate-500">{emptyMessage}</p>
             ) : includeRegions ? (
               <div className="max-h-80 overflow-y-auto py-1">
+                {regionSuggestions.length > 0 ? (
+                  <div>
+                    <p className="px-4 pt-2 pb-1 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
+                      지역
+                    </p>
+                    <ul>
+                      {regionSuggestions.map((item, rIndex) => {
+                        const index = rIndex;
+                        return (
+                          <li key={`region-${item.slug}`}>
+                            <button
+                              type="button"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => goRegion(item.slug)}
+                              className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
+                                index === activeIndex
+                                  ? "bg-teal-50 text-teal-900"
+                                  : "hover:bg-slate-50"
+                              }`}
+                            >
+                              <span className="min-w-0">
+                                <span className="block truncate text-sm font-semibold text-slate-900">
+                                  {item.name}
+                                </span>
+                                <span className="mt-0.5 block truncate text-xs text-slate-500">
+                                  {item.metroLabel} · {item.matchLabel}
+                                </span>
+                              </span>
+                              <span className="shrink-0 text-xs font-medium text-teal-700">
+                                이동
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ) : null}
                 {aptSuggestions.length > 0 ? (
                   <div>
                     <p className="px-4 pt-2 pb-1 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
                       단지
                     </p>
                     <ul>
-                      {aptSuggestions.map((item, index) => {
+                      {aptSuggestions.map((item, aIndex) => {
+                        const index = regionSuggestions.length + aIndex;
                         const location = formatComplexLocationLabel({
                           regionSlug: item.regionSlug,
                           regionName: item.regionName,
@@ -252,44 +291,6 @@ export function AptQuickSearch({
                                   {formatEok(item.maxDealAmount)}
                                 </span>
                               ) : null}
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                ) : null}
-                {regionSuggestions.length > 0 ? (
-                  <div>
-                    <p className="px-4 pt-2 pb-1 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
-                      지역
-                    </p>
-                    <ul>
-                      {regionSuggestions.map((item, rIndex) => {
-                        const index = aptSuggestions.length + rIndex;
-                        return (
-                          <li key={`region-${item.slug}`}>
-                            <button
-                              type="button"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => goRegion(item.slug)}
-                              className={`flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left transition ${
-                                index === activeIndex
-                                  ? "bg-teal-50 text-teal-900"
-                                  : "hover:bg-slate-50"
-                              }`}
-                            >
-                              <span className="min-w-0">
-                                <span className="block truncate text-sm font-semibold text-slate-900">
-                                  {item.name}
-                                </span>
-                                <span className="mt-0.5 block truncate text-xs text-slate-500">
-                                  {item.metroLabel} · {item.matchLabel}
-                                </span>
-                              </span>
-                              <span className="shrink-0 text-xs font-medium text-teal-700">
-                                이동
-                              </span>
                             </button>
                           </li>
                         );

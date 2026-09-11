@@ -20,7 +20,6 @@ export function ComplexesPage() {
           inputId="complexes-search"
           placeholder="아파트 단지명을 검색하세요."
           showPrice={false}
-          hint="동명이 있으면 지역·동으로 구분됩니다."
         />
       </PageHeader>
 
