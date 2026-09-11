@@ -1,11 +1,11 @@
 import type { AptAreaOption } from "@/lib/molit/apt";
 
-/** 기존 areaKey normalization과 동일 */
+/** Exact areaKey normalization — 0.01㎡ (기존과 동일) */
 export function normalizeAreaKey(sqm: number): string {
   return String(Math.round(sqm * 100) / 100);
 }
 
-/** 84㎡대: 84 이상 ~ 85 미만 (실제 areaKey는 합치지 않음) */
+/** 84㎡대: 84 이상 ~ 85 미만 (exact areaKey는 합치지 않음) */
 export function isArea84Band(sqm: number): boolean {
   return sqm >= 84 && sqm < 85;
 }
@@ -24,7 +24,7 @@ type TradeLike = {
 };
 
 /**
- * 이미 로드된 단지 상세 items(매매)로 면적별 거래 통계를 만든다.
+ * 이미 로드된 단지 상세 items(매매)로 exact areaKey별 거래 통계를 만든다.
  * 추가 DB full scan 없음.
  */
 export function buildAreaTradeStats(
@@ -64,7 +64,9 @@ export function buildAreaTradeStats(
   return [...map.values()];
 }
 
-function pickByTradeThenRecency(candidates: AreaTradeStat[]): AreaTradeStat | null {
+function pickByTradeThenRecency(
+  candidates: AreaTradeStat[],
+): AreaTradeStat | null {
   if (candidates.length === 0) return null;
   return [...candidates].sort((a, b) => {
     if (b.tradeCount !== a.tradeCount) return b.tradeCount - a.tradeCount;
@@ -76,12 +78,10 @@ function pickByTradeThenRecency(candidates: AreaTradeStat[]): AreaTradeStat | nu
 }
 
 /**
- * 단지 상세 최초 진입 기본 면적.
- * 1) 84㎡대 존재 → 그중 매매 건수 최다 (동률 시 최근 매매)
- * 2) 없으면 전체 면적 중 매매 건수 최다 (동률 시 최근 매매)
- * 3) 매매 데이터로 판단 불가 → "all"
- *
- * areaKey를 합치지 않음. 반환값은 기존 areaKey 문자열.
+ * @deprecated Prefer resolveDefaultAreaGroupKey — exact areaKey 기본값 (레거시).
+ * 1) 84㎡대 존재 → 그중 매매 건수 최다
+ * 2) 없으면 전체 exact 면적 중 매매 건수 최다
+ * 3) 불가 → "all"
  */
 export function resolveDefaultAreaKey(
   areas: AptAreaOption[],
@@ -98,18 +98,16 @@ export function resolveDefaultAreaKey(
     .filter(Boolean);
 
   if (band84.length > 0) {
-    const picked = pickByTradeThenRecency(band84);
-    return picked?.key ?? "all";
+    return pickByTradeThenRecency(band84)?.key ?? "all";
   }
 
   const withTrades = stats.filter((s) => s.tradeCount > 0);
   if (withTrades.length === 0) return "all";
 
-  const picked = pickByTradeThenRecency(withTrades);
-  return picked?.key ?? "all";
+  return pickByTradeThenRecency(withTrades)?.key ?? "all";
 }
 
-/** URL/query로 넘어온 area가 유효한지 */
+/** URL/query로 넘어온 exact areaKey가 유효한지 (레거시) */
 export function isValidAreaKey(
   areaKey: string,
   areas: AptAreaOption[],
