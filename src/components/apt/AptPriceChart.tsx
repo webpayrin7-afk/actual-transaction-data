@@ -270,11 +270,12 @@ export function PeriodRangeSlider({
     window.addEventListener("pointercancel", onUp);
   };
 
+  /** Apt-detail secondary chips: compact; selection = light teal (not gray rail / solid CTA) */
   const presetBtn = (active: boolean) =>
-    `rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+    `inline-flex h-7 w-fit items-center rounded-md border px-2 text-xs font-semibold transition ${
       active
-        ? "bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-        : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+        ? "border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+        : "border-[color:var(--lab-border)] bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
     }`;
 
   return (
@@ -285,7 +286,7 @@ export function PeriodRangeSlider({
           <span className="mx-1.5 text-slate-400">~</span>
           {formatYmLabel(endYm)}
         </p>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-fit flex-wrap items-center gap-1">
           {onRecentYears ? (
             <button
               type="button"

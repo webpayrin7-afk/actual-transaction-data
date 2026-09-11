@@ -602,7 +602,7 @@ export function AptDetailPage({
           </div>
 
           <div
-            className="flex shrink-0 gap-0.5 rounded-md bg-slate-100 p-0.5"
+            className="flex w-fit shrink-0 gap-1"
             role="radiogroup"
             aria-label="거래 유형"
           >
@@ -621,10 +621,10 @@ export function AptDetailPage({
                   role="radio"
                   aria-checked={active}
                   onClick={() => setDealFilter(value)}
-                  className={`rounded px-2.5 py-1 text-xs font-semibold transition ${
+                  className={`inline-flex h-7 items-center rounded-md border px-2 text-xs font-semibold transition ${
                     active
-                      ? "bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+                      : "border-[color:var(--lab-border)] bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
                   {label}
