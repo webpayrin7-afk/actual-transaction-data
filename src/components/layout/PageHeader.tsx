@@ -20,7 +20,6 @@ export const PAGE_HEADER_WITH_BACK =
  */
 export function PageHeader({
   title,
-  titleAside,
   description,
   meta,
   action,
@@ -29,8 +28,7 @@ export function PageHeader({
   className = "",
 }: {
   title: string;
-  titleAside?: ReactNode;
-  description?: string;
+  description?: ReactNode;
   meta?: ReactNode;
   action?: ReactNode;
   children?: ReactNode;
@@ -48,7 +46,6 @@ export function PageHeader({
           }`}
         >
           {title}
-          {titleAside}
         </h1>
         {action ? (
           <div className="shrink-0 pt-0.5 sm:pt-1">{action}</div>

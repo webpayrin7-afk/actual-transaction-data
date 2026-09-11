@@ -7,19 +7,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Info } from "lucide-react";
 
 const PANEL_WIDTH = 320;
 const VIEWPORT_PAD = 8;
 
 export function InfoChip({
   label,
-  variant = "chip",
   "aria-label": ariaLabel,
   children,
 }: {
   label: string;
-  variant?: "chip" | "icon";
   "aria-label"?: string;
   children: ReactNode;
 }) {
@@ -28,7 +25,6 @@ export function InfoChip({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
-  const iconOnly = variant === "icon";
 
   useEffect(() => {
     if (!open) return;
@@ -79,14 +75,7 @@ export function InfoChip({
   }, [open]);
 
   return (
-    <span
-      ref={rootRef}
-      className={
-        iconOnly
-          ? "relative ml-[0.22em] inline-flex align-middle"
-          : "relative inline-flex shrink-0 align-middle"
-      }
-    >
+    <span ref={rootRef} className="relative inline-flex shrink-0 align-middle">
       <button
         ref={buttonRef}
         type="button"
@@ -94,24 +83,12 @@ export function InfoChip({
         aria-controls={open ? panelId : undefined}
         aria-label={ariaLabel ?? `${label} 안내`}
         onClick={() => setOpen((value) => !value)}
-        className={
-          iconOnly
-            ? `-m-1.5 inline-flex size-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:-m-1 sm:size-8 ${
-                open ? "bg-slate-100 text-slate-600" : ""
-              }`
-            : "inline-flex cursor-pointer items-center gap-0.5 whitespace-nowrap rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-        }
+        className="inline-flex cursor-pointer items-center gap-0.5 whitespace-nowrap rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
       >
-        {iconOnly ? (
-          <Info className="size-4" strokeWidth={2} aria-hidden="true" />
-        ) : (
-          <>
-            {label}
-            <span className="text-[10px] font-normal text-slate-400" aria-hidden="true">
-              ⓘ
-            </span>
-          </>
-        )}
+        {label}
+        <span className="text-[10px] font-normal text-slate-400" aria-hidden="true">
+          ⓘ
+        </span>
       </button>
       {open ? (
         <div

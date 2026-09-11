@@ -15,6 +15,12 @@ import { LabSection } from "@/components/lab/LabSection";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { InfoChip } from "@/components/ui/InfoChip";
+import {
+  CONTRACT_DATE_BASIS_HELP,
+  CONTRACT_DATE_BASIS_LABEL,
+  SEEN_DATE_BASIS_HELP,
+  SEEN_DATE_BASIS_LABEL,
+} from "@/lib/region/market-insight";
 import type {
   MarketDealItem,
   MarketHomeResponse,
@@ -104,22 +110,17 @@ function DealRow({ item }: { item: MarketDealItem }) {
   );
 }
 
-function HomeBasisChip() {
+function HomeBasisChips() {
   return (
-    <InfoChip
-      variant="icon"
-      label="데이터 기준"
-      aria-label="오늘의 시장 데이터 기준 안내"
-    >
-      <p>
-        ‘새로 확인’은 집랩이 거래를 처음 확인한 날짜 기준이며, 공식 신고일이나
-        공개일을 뜻하지 않습니다.
-      </p>
-      <p>
-        각 거래 카드의 날짜와 시장동향 통계는 실제 계약일 기준입니다. 신고와
-        데이터 반영 시차로 오늘 체결된 거래와 차이가 날 수 있습니다.
-      </p>
-    </InfoChip>
+    <div className="flex flex-wrap items-center gap-1.5">
+      <InfoChip label={SEEN_DATE_BASIS_LABEL}>
+        {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
+      </InfoChip>
+      <InfoChip label={CONTRACT_DATE_BASIS_LABEL}>
+        각 거래 카드의 날짜와 시장동향 통계는 실제 계약일 기준입니다.{" "}
+        {CONTRACT_DATE_BASIS_HELP}
+      </InfoChip>
+    </div>
   );
 }
 
@@ -199,8 +200,12 @@ export function MarketHome() {
     <div className={PAGE_SHELL.replace("gap-6", "gap-4")}>
       <PageHeader
         title="오늘의 아파트 시장"
-        titleAside={<HomeBasisChip />}
-        description="오늘 새로 확인된 시장 변화를 한눈에 보세요."
+        description={
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            <span>오늘 새로 확인된 시장 변화를 한눈에 보세요.</span>
+            <HomeBasisChips />
+          </span>
+        }
         className="pb-3 sm:pb-4"
         meta={
           data?.lastUpdatedLabel || data?.computedAt ? (
