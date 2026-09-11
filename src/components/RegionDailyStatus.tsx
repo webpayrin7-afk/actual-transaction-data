@@ -179,7 +179,7 @@ function FeaturedDealCard({
 
   return (
     <Link
-      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu, deal.exclusiveArea)}
       className="block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50"
     >
       <SingogaBadge variant="featured">
@@ -231,7 +231,7 @@ function RegularDealCard({
   const delta = prevDealDelta(deal.dealAmount, deal.prevTypeDealAmount);
   return (
     <Link
-      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu, deal.exclusiveArea)}
       className="block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
     >
       <p className="break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
@@ -262,7 +262,7 @@ function HistoryDealCard({
   const delta = prevDealDelta(deal.dealAmount, deal.prevTypeDealAmount);
   return (
     <Link
-      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu, deal.exclusiveArea)}
       className="block rounded-lg border border-solid border-slate-100 px-3 py-2 transition hover:bg-slate-50/80"
     >
       <div className="flex items-start justify-between gap-2">

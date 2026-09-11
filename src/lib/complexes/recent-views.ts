@@ -1,5 +1,5 @@
 import { aptDetailHref } from "@/lib/molit/apt";
-import { getRegion } from "@/lib/constants/regions";
+import { getRegion, METRO_LABELS } from "@/lib/constants/regions";
 
 /** localStorage key — 스키마 변경 시 버전 bump */
 export const RECENT_COMPLEXES_KEY = "apt-datalab:recent-complexes:v1";
@@ -33,12 +33,7 @@ export function formatComplexLocationLabel(opts: {
   dong?: string;
 }): string {
   const region = getRegion(opts.regionSlug);
-  const metro =
-    region?.metro === "seoul"
-      ? "서울"
-      : region?.metro === "gyeonggi"
-        ? "경기"
-        : "";
+  const metro = region ? METRO_LABELS[region.metro] : "";
   const district =
     opts.gu?.trim() || opts.regionName?.trim() || region?.name || "";
   const dong = opts.dong?.trim() || "";
@@ -118,7 +113,9 @@ export function readRecentComplexes(): RecentComplex[] {
         dong:
           typeof r.dong === "string" && r.dong.trim() ? r.dong.trim() : undefined,
         regionLabel:
-          typeof r.regionLabel === "string" && r.regionLabel.trim()
+          !getRegion(r.regionSlug.trim()) &&
+          typeof r.regionLabel === "string" &&
+          r.regionLabel.trim()
             ? r.regionLabel.trim()
             : formatComplexLocationLabel({
                 regionSlug: r.regionSlug.trim(),
@@ -149,7 +146,7 @@ export function recordRecentComplex(
     gu: input.gu?.trim() || undefined,
     dong: input.dong?.trim() || undefined,
     regionLabel:
-      input.regionLabel?.trim() ||
+      (!getRegion(input.regionSlug.trim()) && input.regionLabel?.trim()) ||
       formatComplexLocationLabel({
         regionSlug: input.regionSlug,
         gu: input.gu,

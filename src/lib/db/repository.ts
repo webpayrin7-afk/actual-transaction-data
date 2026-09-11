@@ -22,11 +22,14 @@ function yearMonthFromDealDate(dealDate: string): string {
   return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
 }
 
-/** 로컬/원격 DB 스키마 준비 (한 번만) */
+/** 로컬 DB만 자동 준비. 원격 schema migration은 관리 스크립트에서 실행한다. */
 let schemaReady: Promise<void> | null = null;
 async function readyDb(): Promise<Client | null> {
   const db = getDb();
   if (!db) return null;
+  // Repository reads must never issue production DDL. Sync scripts explicitly
+  // call ensureSchema; local test/demo databases still initialize on demand.
+  if (!process.env.TURSO_DATABASE_URL?.trim().startsWith("file:")) return db;
   if (!schemaReady) {
     schemaReady = ensureSchema(db).catch((err) => {
       schemaReady = null;
@@ -348,7 +351,7 @@ export async function replaceMonthTransactions(params: {
 
   // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert)
   if (wroteTx) {
-    statements.unshift({
+    statements.push({
       sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
@@ -371,8 +374,19 @@ export async function replaceMonthTransactions(params: {
 
   if (statements.length > 0) {
     const CHUNK = 80;
-    for (let i = 0; i < statements.length; i += CHUNK) {
-      await db.batch(statements.slice(i, i + CHUNK), "write");
+    // A month and its completeness marker must commit together. Independent
+    // batches left a partial month marked complete when a later batch failed.
+    const transaction = await db.transaction("write");
+    try {
+      for (let i = 0; i < statements.length; i += CHUNK) {
+        await transaction.batch(statements.slice(i, i + CHUNK));
+      }
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    } finally {
+      transaction.close();
     }
   }
 

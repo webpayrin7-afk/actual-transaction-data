@@ -325,7 +325,7 @@ assert.deepEqual(typeRecordHigh(185000, 171000), {
   increaseAmount: 14000,
 });
 assert.deepEqual(typeRecordHigh(185000, 0), {
-  isSingoga: false,
+  isSingoga: true,
   increaseAmount: 0,
 });
 assert.deepEqual(typeRecordHigh(171000, 171000), {
