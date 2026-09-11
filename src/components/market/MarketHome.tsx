@@ -183,29 +183,30 @@ export function MarketHome() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="오늘의 아파트 시장"
-        titleAside={
+        description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
+        descriptionAside={
           <InfoChip label="데이터 기준일">
-            {data?.discoveryDate ? (
-              <p>
-                확인일 {data.discoveryDate}. {SEEN_DATE_BASIS_HELP} 공식
-                신고일이나 공개일을 뜻하지 않습니다.
-              </p>
-            ) : (
-              <p>
+            <p>
+              <span className="font-medium text-slate-700">확인일</span>
+              {data?.discoveryDate ? ` ${data.discoveryDate}` : null}
+              <span className="mt-0.5 block">
                 {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
                 않습니다.
-              </p>
-            )}
+              </span>
+            </p>
             <p>
-              거래 카드와 시장동향은 계약일 기준입니다.{" "}
-              {CONTRACT_DATE_BASIS_HELP}
+              <span className="font-medium text-slate-700">계약일</span>
+              <span className="mt-0.5 block">
+                거래 카드와 시장동향에 적용됩니다. {CONTRACT_DATE_BASIS_HELP}
+              </span>
             </p>
             {data?.lastUpdatedLabel || data?.computedAt ? (
-              <p>갱신 {data.lastUpdatedLabel ?? data.computedAt}</p>
+              <p className="text-slate-500">
+                마지막 갱신 {data.lastUpdatedLabel ?? data.computedAt}
+              </p>
             ) : null}
           </InfoChip>
         }
-        description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
         className="mt-1.5 sm:mt-2"
       />
 

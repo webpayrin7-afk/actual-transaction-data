@@ -15,14 +15,14 @@ export const PAGE_HEADER_WITH_BACK =
 /**
  * 주요 페이지 상단 타이틀 영역 (LAB).
  * 별도 배경/카드 없이 페이지 기본 배경 위에 H1·설명·보조정보만 둔다.
- * - titleAside: 제목 옆 compact chip (데이터 기준일 등)
+ * - descriptionAside: 설명 문장 옆 compact chip (데이터 기준일 등)
  * - action: 제목 오른쪽 (면적 선택 등 compact control)
  * - children: 제목 아래 (검색 폼 등)
  */
 export function PageHeader({
   title,
-  titleAside,
   description,
+  descriptionAside,
   meta,
   action,
   children,
@@ -31,8 +31,8 @@ export function PageHeader({
   className = "",
 }: {
   title: string;
-  titleAside?: ReactNode;
   description?: ReactNode;
+  descriptionAside?: ReactNode;
   meta?: ReactNode;
   action?: ReactNode;
   children?: ReactNode;
@@ -44,24 +44,32 @@ export function PageHeader({
   return (
     <header className={`max-w-4xl ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
-          <h1
-            className={`min-w-0 font-semibold tracking-tight text-[color:var(--lab-navy-950)] ${
-              compact
-                ? "text-lg leading-6 sm:text-xl sm:leading-7"
-                : "text-xl leading-7 sm:text-[1.375rem] sm:leading-8"
-            }`}
-          >
-            {title}
-          </h1>
-          {titleAside}
-        </div>
+        <h1
+          className={`min-w-0 flex-1 font-semibold tracking-tight text-[color:var(--lab-navy-950)] ${
+            compact
+              ? "text-lg leading-6 sm:text-xl sm:leading-7"
+              : "text-xl leading-7 sm:text-[1.375rem] sm:leading-8"
+          }`}
+        >
+          {title}
+        </h1>
         {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
       </div>
-      {description ? (
-        <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">
-          {description}
-        </p>
+      {description || descriptionAside ? (
+        descriptionAside ? (
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+            {description ? (
+              <p className="text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">
+                {description}
+              </p>
+            ) : null}
+            {descriptionAside}
+          </div>
+        ) : (
+          <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">
+            {description}
+          </p>
+        )
       ) : null}
       {meta ? (
         <div className="mt-1.5 space-y-0.5 text-xs leading-5 text-[color:var(--lab-muted)]">
