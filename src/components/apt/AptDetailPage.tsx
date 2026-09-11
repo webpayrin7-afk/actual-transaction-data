@@ -31,6 +31,7 @@ import {
   PageHeader,
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import { labSecondaryTabClass } from "@/components/ui/lab";
 import {
   formatArea,
   formatDealDate,
@@ -621,11 +622,7 @@ export function AptDetailPage({
                   role="radio"
                   aria-checked={active}
                   onClick={() => setDealFilter(value)}
-                  className={`inline-flex h-7 items-center rounded-md border px-2 text-xs font-semibold transition ${
-                    active
-                      ? "border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-                      : "border-[color:var(--lab-border)] bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
+                  className={labSecondaryTabClass(active)}
                 >
                   {label}
                 </button>

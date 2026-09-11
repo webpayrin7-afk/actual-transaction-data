@@ -2,10 +2,14 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 /**
  * LAB interaction color rules (existing tokens only):
- * - Solid teal (`.lab-button-primary`) = execution CTA only (검색/계산/확인/저장)
- * - Light teal bg + dark teal text (`.lab-tab-active` / `.lab-choice-selected`) = selection
- * - White + neutral border (`.lab-choice` idle / secondary button) = unselected
- * - No gradients
+ * - Solid teal (`.lab-button-primary`) = execution CTA only
+ * - Light teal bg + dark teal text = selection (tabs/filters)
+ * - White/transparent + neutral border/text = unselected
+ * - No gray selected state, no gradients
+ *
+ * Tab hierarchy (same colors; size/spacing differ):
+ * - Primary (`.lab-tab` + `.lab-tab-primary`): page section switcher
+ * - Secondary (`.lab-tab-secondary`): in-view data filter/range chips
  */
 export function LabCard({ className = "", ...props }: HTMLAttributes<HTMLElement>) {
   return <section className={`lab-card ${className}`.trim()} {...props} />;
@@ -50,15 +54,28 @@ export const LAB_INPUT = "lab-input";
 /** Selection tab — light teal when active */
 export const LAB_TAB = "lab-tab";
 export const LAB_TAB_ACTIVE = "lab-tab-active";
+export const LAB_TAB_PRIMARY = "lab-tab lab-tab-primary";
+export const LAB_TAB_SECONDARY = "lab-tab-secondary";
+export const LAB_TAB_SECONDARY_ACTIVE = "lab-tab-secondary-active";
 /** Selection option/chip — light teal when selected */
 export const LAB_CHOICE = "lab-choice";
 export const LAB_CHOICE_SELECTED = "lab-choice-selected";
 export const LAB_BADGE = "lab-badge";
 
-/** Inline selected/idle helpers for existing tab/chip buttons */
 export function labTabClass(active: boolean, extra = "") {
   return `${LAB_TAB} ${active ? LAB_TAB_ACTIVE : ""} ${extra}`.trim();
 }
+
+/** Region-detail style section tabs */
+export function labPrimaryTabClass(active: boolean, extra = "") {
+  return `${LAB_TAB_PRIMARY} ${active ? LAB_TAB_ACTIVE : ""} ${extra}`.trim();
+}
+
+/** Apt-detail style compact filter chips */
+export function labSecondaryTabClass(active: boolean, extra = "") {
+  return `${LAB_TAB_SECONDARY} ${active ? LAB_TAB_SECONDARY_ACTIVE : ""} ${extra}`.trim();
+}
+
 export function labChoiceClass(active: boolean, extra = "") {
   return `${LAB_CHOICE} ${active ? LAB_CHOICE_SELECTED : ""} ${extra}`.trim();
 }

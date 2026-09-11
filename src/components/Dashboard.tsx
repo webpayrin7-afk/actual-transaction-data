@@ -21,6 +21,7 @@ import {
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
+import { labPrimaryTabClass } from "@/components/ui/lab";
 import { PAGE_SIZE, type RegionDef } from "@/lib/constants/regions";
 import { recentYearMonths } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -179,7 +180,7 @@ export function Dashboard({
       </header>
 
       <nav
-        className="inline-flex w-full gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:w-auto"
+        className="inline-flex w-full gap-1 rounded-xl border border-slate-200 bg-white p-1 sm:w-auto"
         aria-label="지역 상세 탭"
       >
         {TABS.map(({ id, label, icon: Icon }) => {
@@ -190,9 +191,10 @@ export function Dashboard({
               type="button"
               onClick={() => selectTab(id)}
               aria-pressed={active}
-              className={`lab-tab flex min-h-10 flex-1 items-center justify-center gap-1.5 px-3 text-xs sm:flex-none sm:text-[13px] ${
-                active ? "lab-tab-active" : ""
-              }`}
+              className={labPrimaryTabClass(
+                active,
+                "flex flex-1 items-center justify-center gap-1.5 sm:flex-none",
+              )}
             >
               <Icon className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{label}</span>

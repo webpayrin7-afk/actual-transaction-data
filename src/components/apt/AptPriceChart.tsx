@@ -14,6 +14,7 @@ import {
   type TooltipProps,
 } from "recharts";
 import type { AptChartPoint } from "@/lib/molit/apt";
+import { labSecondaryTabClass } from "@/components/ui/lab";
 
 const CHART_COLORS = {
   trade: "#2563eb",
@@ -270,13 +271,7 @@ export function PeriodRangeSlider({
     window.addEventListener("pointercancel", onUp);
   };
 
-  /** Apt-detail secondary chips: compact; selection = light teal (not gray rail / solid CTA) */
-  const presetBtn = (active: boolean) =>
-    `inline-flex h-7 w-fit items-center rounded-md border px-2 text-xs font-semibold transition ${
-      active
-        ? "border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-        : "border-[color:var(--lab-border)] bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-    }`;
+  const presetBtn = (active: boolean) => labSecondaryTabClass(active);
 
   return (
     <div className="mt-4 space-y-3">
