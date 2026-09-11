@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoList, InfoPage, InfoSection } from "@/components/info/InfoPage";
+import { BackLink } from "@/components/layout/BackLink";
 import { SITE_BRAND } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -122,6 +123,10 @@ export default function GuidePage() {
           에도 정리되어 있습니다.
         </p>
       </InfoSection>
+
+      <div className="pt-2">
+        <BackLink fallback="/" />
+      </div>
     </InfoPage>
   );
 }
