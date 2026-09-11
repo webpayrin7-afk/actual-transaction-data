@@ -153,8 +153,8 @@ export function SiteHeaderLoadProgress() {
 }
 
 /**
- * Soft-nav: thin bar only (no "페이지 불러오는 중" copy) while a
- * same-origin <Link> navigation is in flight.
+ * Soft-nav for `/regions` only: bar without copy.
+ * Other routes stay quiet until their data-fetch progress kicks in.
  */
 export function NavigationLoadProgress() {
   const pathname = usePathname();
@@ -190,6 +190,9 @@ export function NavigationLoadProgress() {
         return;
       }
       if (url.origin !== window.location.origin) return;
+
+      // Only 지역 조회 index — bar only, no status text.
+      if (url.pathname !== "/regions") return;
 
       const nextSearch = url.search.startsWith("?")
         ? url.search.slice(1)
