@@ -594,7 +594,7 @@ function volumeChangeSideClass(pct: number | null): string {
 
 function singogaValueClass(count: number | null): string {
   if (count == null || count === 0) return "text-slate-400";
-  return "text-teal-700";
+  return "text-rose-600";
 }
 
 function formatSharePct(pct: number | null): string {

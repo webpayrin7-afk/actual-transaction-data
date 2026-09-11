@@ -46,13 +46,20 @@ function KpiCard({
   tone: "up" | "down" | "neutral" | "hot";
 }) {
   const tones = {
-    up: "text-teal-800",
-    down: "text-rose-700",
-    hot: "text-slate-900",
-    neutral: "text-slate-900",
+    up: "!text-rose-700",
+    down: "!text-blue-700",
+    hot: "!text-slate-900",
+    neutral: "!text-slate-900",
   } as const;
 
-  return <LabKpiCard label={label} value={value} hint={hint} className={tones[tone]} />;
+  return (
+    <LabKpiCard
+      label={label}
+      value={value}
+      hint={hint}
+      valueClassName={tones[tone]}
+    />
+  );
 }
 
 function DealRow({ item }: { item: MarketDealItem }) {
@@ -93,7 +100,7 @@ function DealRow({ item }: { item: MarketDealItem }) {
         {item.changePct != null ? (
           <p
             className={`mt-0.5 inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums ${
-              up ? "text-teal-700" : down ? "text-rose-600" : "text-slate-500"
+              up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
             }`}
           >
             {up ? (
@@ -142,7 +149,7 @@ function VolumeRow({ item }: { item: MarketVolumeItem }) {
         </p>
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-sm font-semibold text-teal-700">
+        <p className="text-sm font-semibold text-rose-600">
           +{item.increaseCount}건
         </p>
         {item.growthPct != null ? (
@@ -298,7 +305,7 @@ export function MarketHome() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Section
             title="신규 신고가"
-            icon={<TrendingUp className="h-4 w-4 text-teal-700" />}
+            icon={<TrendingUp className="h-4 w-4 text-rose-600" />}
             empty={data.singoga.length === 0}
           >
             {data.singoga.map((item) => (
@@ -308,7 +315,7 @@ export function MarketHome() {
 
           <Section
             title="신규 하락거래"
-            icon={<TrendingDown className="h-4 w-4 text-rose-600" />}
+            icon={<TrendingDown className="h-4 w-4 text-blue-600" />}
             empty={data.drops.length === 0}
           >
             {data.drops.map((item) => (

@@ -552,9 +552,9 @@ export function AptDetailPage({
               vsMaxPct == null
                 ? "!text-slate-400"
                 : vsMaxPct < 0
-                  ? "!text-rose-600"
+                  ? "!text-blue-600"
                   : vsMaxPct > 0
-                    ? "!text-teal-700"
+                    ? "!text-rose-600"
                     : "!text-slate-700"
           }
           hint="최근 매매 기준"

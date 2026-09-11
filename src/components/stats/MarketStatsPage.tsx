@@ -120,7 +120,7 @@ function ChangeText({
   return (
     <span
       className={`inline-flex flex-wrap items-center gap-x-1 gap-y-0.5 tabular-nums ${
-        up ? "text-teal-700" : down ? "text-rose-600" : "text-slate-500"
+        up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
       }`}
     >
       <span className="inline-flex items-center gap-0.5">
@@ -217,7 +217,7 @@ function RankList({
                     </>
                   ) : mode === "singoga" ? (
                     <>
-                      <p className="text-sm font-semibold tabular-nums text-teal-800">
+                      <p className="text-sm font-semibold tabular-nums text-rose-700">
                         신고가 {item.singogaCount.toLocaleString("ko-KR")}
                       </p>
                       <p className="mt-0.5 text-xs text-slate-500">
@@ -227,7 +227,7 @@ function RankList({
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-semibold tabular-nums text-rose-700">
+                      <p className="text-sm font-semibold tabular-nums text-blue-700">
                         하락 {item.dropCount.toLocaleString("ko-KR")}
                       </p>
                       <p className="mt-0.5 text-xs text-slate-500">
@@ -607,13 +607,13 @@ export function MarketStatsPage() {
                     <Bar
                       dataKey="singogaCount"
                       name="신고가"
-                      fill="#0d9488"
+                      fill="#e11d48"
                       radius={[4, 4, 0, 0]}
                     />
                     <Bar
                       dataKey="dropCount"
                       name="하락"
-                      fill="#e11d48"
+                      fill="#2563eb"
                       radius={[4, 4, 0, 0]}
                     />
                   </ComposedChart>
@@ -639,7 +639,7 @@ export function MarketStatsPage() {
 
           <section className="lab-card p-4 sm:p-5">
             <div className="mb-3 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-teal-700" />
+              <TrendingUp className="h-4 w-4 text-rose-600" />
               <div>
                 <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
                   지역별 시장

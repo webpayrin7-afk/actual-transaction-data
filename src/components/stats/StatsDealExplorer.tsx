@@ -66,7 +66,7 @@ export function StatsDealRow({ item }: { item: MarketDealItem }) {
         {compare ? (
           <p
             className={`mt-1 text-[11px] font-medium ${
-              up ? "text-teal-700" : down ? "text-rose-600" : "text-slate-500"
+              up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
             }`}
           >
             {compare}
@@ -83,7 +83,7 @@ export function StatsDealRow({ item }: { item: MarketDealItem }) {
         {item.changePct != null ? (
           <p
             className={`mt-0.5 inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums ${
-              up ? "text-teal-700" : down ? "text-rose-600" : "text-slate-500"
+              up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
             }`}
           >
             {up ? (
@@ -133,7 +133,7 @@ function ActiveRow({
         {item.increaseCount !== 0 ? (
           <p
             className={`mt-0.5 text-xs tabular-nums ${
-              item.increaseCount > 0 ? "text-teal-700" : "text-rose-600"
+              item.increaseCount > 0 ? "text-rose-600" : "text-blue-600"
             }`}
           >
             {item.increaseCount > 0 ? "+" : ""}
