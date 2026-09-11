@@ -13,6 +13,7 @@ import {
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { LabSection } from "@/components/lab/LabSection";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { InfoChip } from "@/components/ui/InfoChip";
 import {
@@ -175,6 +176,7 @@ export function MarketHome() {
   });
 
   const data = query.data;
+  useLoadProgressWhen(query.isLoading && !data, "시장 불러오는 중…");
 
   return (
     <div className={PAGE_SHELL}>

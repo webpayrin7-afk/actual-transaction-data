@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { ActiveComplexesResponse } from "@/lib/complexes/active-complexes";
 import { formatDealDate } from "@/lib/utils/format";
 
@@ -19,6 +20,7 @@ export function ActiveComplexList() {
   });
 
   const data = query.data;
+  useLoadProgressWhen(query.isLoading && !data, "단지 목록 불러오는 중…");
 
   return (
     <section className="flex flex-col gap-3">

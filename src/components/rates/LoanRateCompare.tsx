@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownUp, ArrowUpDown, ExternalLink, RefreshCw } from "lucide-react";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { BankLoanRate, DreamMoneyResult } from "@/lib/seoul/dream-money";
 
 type FilterMode = "all" | "first";
@@ -71,6 +72,10 @@ export function LoanRateCompare() {
     queryFn: loadRates,
     staleTime: 60 * 60 * 1000,
   });
+  useLoadProgressWhen(
+    query.isLoading && !query.data,
+    "금리 정보 불러오는 중…",
+  );
 
   const rows = useMemo(() => {
     const items = query.data?.items ?? [];

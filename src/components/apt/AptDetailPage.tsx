@@ -30,7 +30,7 @@ import {
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
-import { useLoadProgress } from "@/components/layout/LoadProgress";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   formatArea,
   formatDealDate,
@@ -280,19 +280,13 @@ export function AptDetailPage({
   }, [data]);
   const isExtendingHistory =
     quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
-  const { show: showLoadProgress, hide: hideLoadProgress } = useLoadProgress();
   const loadProgressLabel =
     quickQuery.isLoading && !data
       ? "시세 불러오는 중…"
       : isExtendingHistory
         ? "과거 시세 추가로 불러오는 중…"
         : null;
-
-  useEffect(() => {
-    if (loadProgressLabel) showLoadProgress(loadProgressLabel);
-    else hideLoadProgress();
-    return () => hideLoadProgress();
-  }, [loadProgressLabel, showLoadProgress, hideLoadProgress]);
+  useLoadProgressWhen(Boolean(loadProgressLabel), loadProgressLabel ?? "");
 
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;

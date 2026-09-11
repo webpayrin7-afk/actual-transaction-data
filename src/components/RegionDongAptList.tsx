@@ -12,6 +12,7 @@ import type {
 } from "@/lib/molit/service";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
 import { BackLink } from "@/components/layout/BackLink";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   PAGE_HEADER_WITH_BACK,
   PAGE_SHELL,
@@ -98,6 +99,7 @@ export function RegionDongAptList({
   });
 
   const data = query.data;
+  useLoadProgressWhen(query.isLoading && !data, "단지 목록 불러오는 중…");
 
   return (
     <div className={PAGE_SHELL}>

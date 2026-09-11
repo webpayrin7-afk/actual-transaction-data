@@ -12,6 +12,7 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { aptDetailHref } from "@/lib/molit/apt";
 import type {
   RegionDailyDaySection,
@@ -801,6 +802,14 @@ export function RegionDailyStatus({
     staleTime: 60_000,
     retry: 1,
   });
+
+  useLoadProgressWhen(
+    (marketQuery.isLoading && !marketQuery.data) ||
+      (latestQuery.isLoading && !latestQuery.data) ||
+      (historyQuery.isLoading && !historyQuery.data) ||
+      (initialDaysQuery.isLoading && !initialDaysQuery.data),
+    "지역 현황 불러오는 중…",
+  );
 
   const section1Months =
     marketQuery.data?.contractMonthOptions?.length

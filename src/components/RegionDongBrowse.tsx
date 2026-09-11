@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { RegionBrowseResponse, RegionDongSummary } from "@/lib/molit/service";
 import { regionDongHref } from "@/lib/molit/region-paths";
 
@@ -46,6 +47,7 @@ export function RegionDongBrowse({ regionSlug }: { regionSlug: string }) {
   });
 
   const data = query.data;
+  useLoadProgressWhen(query.isLoading && !data, "동 목록 불러오는 중…");
 
   return (
     <div className="flex flex-col gap-4">

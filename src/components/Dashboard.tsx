@@ -15,6 +15,7 @@ import { RegionDailyStatus } from "@/components/RegionDailyStatus";
 import { RegionDongBrowse } from "@/components/RegionDongBrowse";
 import { TransactionTable } from "@/components/TransactionTable";
 import { BackLink } from "@/components/layout/BackLink";
+import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   PAGE_HEADER_WITH_BACK,
   PAGE_SHELL,
@@ -108,6 +109,10 @@ export function Dashboard({
 
   const data = query.data;
   const resolvedYearMonth = data?.yearMonth ?? searchYearMonth;
+  useLoadProgressWhen(
+    tab === "search" && query.isLoading && !data,
+    "거래 내역 불러오는 중…",
+  );
 
   const resetPage = () => setPage(1);
 
