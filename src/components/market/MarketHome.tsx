@@ -184,27 +184,30 @@ export function MarketHome() {
       <PageHeader
         title="오늘의 아파트 시장"
         description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
-        className="mt-1.5 sm:mt-2"
-        meta={
-          data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
-            <div className="flex flex-wrap items-center gap-1.5">
-              {data?.lastUpdatedLabel || data?.computedAt ? (
-                <InfoChip
-                  label={`최종 업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
-                >
-                  집랩 데이터가 마지막으로 갱신된 시점입니다. 각 거래 카드의
-                  날짜와 시장동향은 계약일 기준입니다. {CONTRACT_DATE_BASIS_HELP}
-                </InfoChip>
-              ) : null}
-              {data?.discoveryDate ? (
-                <InfoChip label={`확인일 ${data.discoveryDate}`}>
-                  {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
-                  않습니다.
-                </InfoChip>
-              ) : null}
-            </div>
-          ) : null
+        descriptionAside={
+          <InfoChip label="데이터 기준일">
+            <p>
+              <span className="font-medium text-slate-700">확인일</span>
+              {data?.discoveryDate ? ` ${data.discoveryDate}` : null}
+              <span className="mt-0.5 block">
+                {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
+                않습니다.
+              </span>
+            </p>
+            <p>
+              <span className="font-medium text-slate-700">계약일</span>
+              <span className="mt-0.5 block">
+                거래 카드와 시장동향에 적용됩니다. {CONTRACT_DATE_BASIS_HELP}
+              </span>
+            </p>
+            {data?.lastUpdatedLabel || data?.computedAt ? (
+              <p className="text-slate-500">
+                마지막 갱신 {data.lastUpdatedLabel ?? data.computedAt}
+              </p>
+            ) : null}
+          </InfoChip>
         }
+        className="mt-1.5 sm:mt-2"
       />
 
       {query.isLoading ? (
