@@ -11,9 +11,11 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
 import {
-  formatExclusiveArea,
-  formatPyeong,
-} from "@/lib/utils/format";
+  buildAreaGroups,
+  findAreaGroup,
+  formatAreaGroupLabel,
+  type AreaGroup,
+} from "@/lib/apt/area-groups";
 
 type AptAreaSelectorProps = {
   areas: AptAreaOption[];
@@ -25,7 +27,8 @@ const SHEET_MS = 280;
 
 /**
  * 단일 버튼 + bottom sheet 면적 선택.
- * areaKey / onChange / default-area 로직과 독립 — UI만.
+ * 유사 전용면적을 그룹(g:N)으로 묶어 "전용 N㎡형"으로 표시.
+ * 공급면적 없음 → 평형 추정 라벨 사용 안 함.
  */
 export function AptAreaSelector({
   areas,
@@ -39,10 +42,8 @@ export function AptAreaSelector({
   const titleId = useId();
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const sorted = [...areas].sort(
-    (a, b) => a.exclusiveArea - b.exclusiveArea,
-  );
-  const selected = sorted.find((a) => a.key === value) ?? null;
+  const groups = buildAreaGroups(areas);
+  const selected = findAreaGroup(value, groups);
 
   useEffect(() => {
     return () => {
@@ -98,8 +99,8 @@ export function AptAreaSelector({
     close();
   }
 
-  if (sorted.length <= 1) {
-    const only = sorted[0];
+  if (groups.length <= 1) {
+    const only = groups[0];
     if (!only) {
       return (
         <div className="flex h-10 w-full items-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-700">
@@ -110,7 +111,7 @@ export function AptAreaSelector({
     return (
       <div className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-sm">
         <span className="min-w-0 truncate font-medium tabular-nums text-slate-800">
-          {formatPyeong(only.exclusiveArea)} ({formatExclusiveArea(only.exclusiveArea)})
+          {formatAreaGroupLabel(only)}
         </span>
         <span className="shrink-0 tabular-nums text-slate-500">
           거래 {only.count.toLocaleString("ko-KR")}건
@@ -119,13 +120,13 @@ export function AptAreaSelector({
     );
   }
 
-  const totalDeals = sorted.reduce((sum, a) => sum + a.count, 0);
+  const totalDeals = groups.reduce((sum, g) => sum + g.count, 0);
   const isAll = value === "all" || !selected;
   const triggerMain = isAll
     ? "전체 면적"
-    : `${formatPyeong(selected.exclusiveArea)} (${formatExclusiveArea(selected.exclusiveArea)})`;
+    : formatAreaGroupLabel(selected);
   const triggerMeta = isAll
-    ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · 거래 ${totalDeals.toLocaleString("ko-KR")}건`
+    ? `타입 ${groups.length.toLocaleString("ko-KR")}개 · 거래 ${totalDeals.toLocaleString("ko-KR")}건`
     : `거래 ${selected.count.toLocaleString("ko-KR")}건`;
 
   return (
@@ -159,7 +160,7 @@ export function AptAreaSelector({
               titleId={titleId}
               sheetRef={sheetRef}
               value={value}
-              areas={sorted}
+              groups={groups}
               open={open}
               onClose={close}
               onPick={pick}
@@ -175,7 +176,7 @@ function AreaSheet({
   titleId,
   sheetRef,
   value,
-  areas,
+  groups,
   open,
   onClose,
   onPick,
@@ -183,7 +184,7 @@ function AreaSheet({
   titleId: string;
   sheetRef: React.RefObject<HTMLDivElement | null>;
   value: string;
-  areas: AptAreaOption[];
+  groups: AreaGroup[];
   open: boolean;
   onClose: () => void;
   onPick: (key: string) => void;
@@ -196,17 +197,17 @@ function AreaSheet({
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  const totalDeals = areas.reduce((sum, a) => sum + a.count, 0);
+  const totalDeals = groups.reduce((sum, g) => sum + g.count, 0);
   const rows: { key: string; label: string; meta?: string }[] = [
     {
       key: "all",
       label: "전체 면적",
       meta: `거래 ${totalDeals.toLocaleString("ko-KR")}건`,
     },
-    ...areas.map((area) => ({
-      key: area.key,
-      label: `${formatPyeong(area.exclusiveArea)} (${formatExclusiveArea(area.exclusiveArea)})`,
-      meta: `거래 ${area.count.toLocaleString("ko-KR")}건`,
+    ...groups.map((group) => ({
+      key: group.key,
+      label: formatAreaGroupLabel(group),
+      meta: `거래 ${group.count.toLocaleString("ko-KR")}건`,
     })),
   ];
 
@@ -371,8 +372,18 @@ function AreaSheet({
             {rows.map((row, index) => (
               <div key={row.key}>
                 <AreaOption
-                  active={value === row.key}
-                  buttonRef={value === row.key ? activeRef : undefined}
+                  active={
+                    value === row.key ||
+                    (row.key !== "all" &&
+                      findAreaGroup(value, groups)?.key === row.key)
+                  }
+                  buttonRef={
+                    value === row.key ||
+                    (row.key !== "all" &&
+                      findAreaGroup(value, groups)?.key === row.key)
+                      ? activeRef
+                      : undefined
+                  }
                   onClick={() => onPick(row.key)}
                   label={row.label}
                   meta={row.meta}
