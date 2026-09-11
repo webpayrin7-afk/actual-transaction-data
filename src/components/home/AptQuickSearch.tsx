@@ -20,7 +20,7 @@ type FlatHit =
 export function AptQuickSearch({
   compact = false,
   inputId = "apt-quick-search",
-  placeholder = "통합 검색",
+  placeholder = "아파트 단지 또는 지역을 검색하세요.",
   /** false면 가격 대신 동명 구분용 지역만 강조 */
   showPrice = true,
   /** true면 기존 apt-suggest + 지역 suggestRegions를 함께 표시 */
