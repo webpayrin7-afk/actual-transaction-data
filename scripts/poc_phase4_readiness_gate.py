@@ -33,11 +33,21 @@ OUT.mkdir(parents=True, exist_ok=True)
 PAGE_SIZE = 100
 EXCLUSIVE_GAP = 1.0
 
-RES_RE = re.compile(r"계단|엘리베이터|승강기|복도|현관|홀|대피소|벽체|발코니초과")
-NONRES_RE = re.compile(
-    r"주차|주차장|관리사무|관리실|경로당|노인정|주민공동|주민운동|보육|문고|"
-    r"기계실|전기실|발전기|펌프|방재|경비|보일러|옥탑|지하실|기타|엠디에프|MDF"
+# Supply formula: only these residential commons are added to exclusive.
+SUPPLY_RES_RE = re.compile(r"계단|엘리베이터|승강기|복도|현관|홀|대피소|벽체|발코니초과")
+# Classification taxonomy (confidence) — broader than supply allowlist.
+# Observed Phase4 etcPurps: 출입구/피난; 쓰레기·매장·탕비 are non-supply.
+CLASS_RES_RE = re.compile(
+    r"계단|엘리베이터|승강기|복도|현관|홀|대피소|벽체|발코니초과|출입구|피난|대피"
 )
+CLASS_NONRES_RE = re.compile(
+    r"주차|주차장|관리사무|관리실|경로당|노인정|주민공동|주민운동|보육|문고|"
+    r"기계실|전기실|발전기|펌프|방재|경비|보일러|옥탑|지하실|기타|엠디에프|MDF|"
+    r"쓰레기|매장|탕비|휴게|화장실|상가|점포"
+)
+# Back-compat aliases used by supply path.
+RES_RE = SUPPLY_RES_RE
+NONRES_RE = CLASS_NONRES_RE
 PARTIAL_RE = re.compile(r"공유면적|일부공유")
 
 COMPLEXES: list[dict[str, Any]] = [
@@ -312,11 +322,12 @@ def has_partial_common(row: dict) -> bool:
 
 
 def classify_etc(etc: str) -> str:
+    """Taxonomy for confidence only — does not decide supply addends."""
     etc = etc or ""
     if not etc.strip():
         return "unknown"
-    has_res = bool(RES_RE.search(etc))
-    has_non = bool(NONRES_RE.search(etc))
+    has_res = bool(CLASS_RES_RE.search(etc))
+    has_non = bool(CLASS_NONRES_RE.search(etc))
     if has_res:
         return "residential"
     if has_non:
@@ -428,15 +439,16 @@ def load_or_fetch_items(service_key: str, c: dict) -> list[dict]:
     assert total is not None
     pages = max(1, math.ceil(total / PAGE_SIZE))
     for page in range(max(2, start_page), pages + 1):
-        time.sleep(0.22)
+        time.sleep(0.28)
         chunk, _ = fetch_page(service_key, c, page)
         expected = (page - 1) * PAGE_SIZE
         if len(items) > expected:
             items = items[:expected]
         items.extend(chunk)
+        if page % 5 == 0 or page == pages:
+            write_cache(cache_path, c, items, total)
         if page % 25 == 0 or page == pages:
             print(f"[{c['key']}] page {page}/{pages} have={len(items)}", flush=True)
-            write_cache(cache_path, c, items, total)
     write_cache(cache_path, c, items, total)
     return items
 
@@ -754,9 +766,16 @@ def classify(
     elif group_exact < 0.80:
         classification = "ambiguous"
         reasons.append(f"group_exact_map_rate={group_exact:.2f}")
-    elif unknown_common >= 0.40 and common_stats["residential_common_ratio"] < 0.40:
+    elif unknown_common >= 0.38:
+        # High unknown etcPurps (e.g. 1980s 지하층-heavy ledgers) blocks auto use.
         classification = "ambiguous"
         reasons.append(f"unknown_common_area_ratio={unknown_common:.2f}")
+    elif unknown_common >= 0.30 and common_stats["residential_common_ratio"] < 0.40:
+        classification = "ambiguous"
+        reasons.append(
+            f"unknown_common_area_ratio={unknown_common:.2f}"
+            f"+residential={common_stats['residential_common_ratio']:.2f}"
+        )
     elif outlier_ratio >= 0.20:
         classification = "ambiguous"
         reasons.append(f"supply_outlier_ratio={outlier_ratio:.2f}")
@@ -949,15 +968,27 @@ def main() -> int:
         if only and c["key"] not in only:
             continue
         print(f"=== {c['key']} ===", flush=True)
-        results.append(analyze_complex(service_key, c))
+        try:
+            results.append(analyze_complex(service_key, c))
+        except Exception as exc:  # noqa: BLE001
+            print(f"[{c['key']}] SKIP after error: {exc}", flush=True)
+            continue
 
-    if not only:
-        done = {r["complex"]["key"] for r in results}
-        for path in OUT.glob("*-phase4.json"):
-            key = path.name.replace("-phase4.json", "")
-            if key in done:
-                continue
+    # Always merge already-finished phase4 json so partial --only runs
+    # still rebuild a full summary.
+    done = {r["complex"]["key"] for r in results}
+    for path in OUT.glob("*-phase4.json"):
+        key = path.name.replace("-phase4.json", "")
+        if key in done:
+            continue
+        try:
             results.append(json.loads(path.read_text()))
+        except Exception as exc:  # noqa: BLE001
+            print(f"[summary] skip {path.name}: {exc}", flush=True)
+
+    if not results:
+        print("no results", file=sys.stderr)
+        return 1
 
     order = {c["key"]: i for i, c in enumerate(COMPLEXES)}
     results.sort(key=lambda r: order.get(r["complex"]["key"], 999))

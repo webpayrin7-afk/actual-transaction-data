@@ -1,0 +1,1590 @@
+{
+  "complex": {
+    "key": "anyang-samsung-raemian",
+    "lawd_cd": "41173",
+    "apt_name_norm": "삼성래미안",
+    "era": "2000s",
+    "profile": "2000s 경기 대단지"
+  },
+  "ledger": {
+    "fetched_items": 27240,
+    "unit_households": 3887,
+    "unit_type_count": 68,
+    "pyeong_group_count": 41
+  },
+  "common_area_stats": {
+    "etc_purps_top": [
+      [
+        "계단실",
+        3806
+      ],
+      [
+        "벽체,닥트",
+        3806
+      ],
+      [
+        "화장실",
+        69
+      ],
+      [
+        "계단",
+        64
+      ],
+      [
+        "지하주차장",
+        18
+      ],
+      [
+        "기계, 전기실",
+        18
+      ],
+      [
+        "홀",
+        5
+      ],
+      [
+        "계단실,홀,현관",
+        1
+      ],
+      [
+        "계단실,보일러실,홀",
+        1
+      ],
+      [
+        "계단실,홀,화장실",
+        1
+      ]
+    ],
+    "etc_class_counts": {
+      "residential": 7684,
+      "non-residential": 105
+    },
+    "unknown_common_area_ratio": 0.0,
+    "residential_common_ratio": 0.9865194505071254,
+    "non_residential_common_ratio": 0.013480549492874567
+  },
+  "gate": {
+    "classification": "auto-safe",
+    "reasons": [
+      "passed_all_gates"
+    ],
+    "metrics": {
+      "partial_common_ratio": 0.0,
+      "trade_exclusive_coverage": 1.0,
+      "ledger_trade_hh_coverage": 0.98,
+      "group_exact_map_rate": 1.0,
+      "group_ambiguity_rate": 0.0,
+      "label_confidence": 0.85,
+      "unknown_common_area_ratio": 0.0,
+      "supply_outlier_ratio": 0.0,
+      "singoga_market_group_eligible_rate": 1.0
+    },
+    "singoga_gate": {
+      "mode": "market_group",
+      "eligible_trade_rate": 1.0,
+      "rule": "group_confidence_high && not ambiguous; label may be null"
+    },
+    "ui_fallback_examples": [
+      {
+        "group_key": "anyang-samsung-raemian:G1:ex9.52-9.56",
+        "mode": "label+range",
+        "lines": [
+          "4평형",
+          "공급 14~14㎡ · 전용 10~10㎡"
+        ]
+      },
+      {
+        "group_key": "anyang-samsung-raemian:G2:ex11.59-11.59",
+        "mode": "label+range",
+        "lines": [
+          "8평형",
+          "공급 26~26㎡ · 전용 12~12㎡"
+        ]
+      },
+      {
+        "group_key": "anyang-samsung-raemian:G3:ex12.60-13.68",
+        "mode": "range_only",
+        "lines": [
+          "공급 17.30~29.94㎡ · 전용 12.60~13.68㎡"
+        ]
+      },
+      {
+        "group_key": "anyang-samsung-raemian:G4:ex14.90-14.90",
+        "mode": "label+range",
+        "lines": [
+          "7평형",
+          "공급 24~24㎡ · 전용 15~15㎡"
+        ]
+      },
+      {
+        "group_key": "anyang-samsung-raemian:G5:ex16.46-16.87",
+        "mode": "range_only",
+        "lines": [
+          "공급 31.31~32.10㎡ · 전용 16.46~16.87㎡"
+        ]
+      },
+      {
+        "group_key": "anyang-samsung-raemian:G6:ex18.61-18.61",
+        "mode": "label+range",
+        "lines": [
+          "11평형",
+          "공급 35~35㎡ · 전용 19~19㎡"
+        ]
+      }
+    ],
+    "trade_mapping": {
+      "exact": 1837
+    },
+    "trade_count": 1837
+  },
+  "candidate_pyeong_groups": [
+    {
+      "group_key": "anyang-samsung-raemian:G1:ex9.52-9.56",
+      "market_label": 4,
+      "supply_area_min": 13.53,
+      "supply_area_max": 13.59,
+      "exclusive_area_min": 9.52,
+      "exclusive_area_max": 9.56,
+      "household_count": 2,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "4": 2
+      },
+      "weighted_supply": 13.56,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G2:ex11.59-11.59",
+      "market_label": 8,
+      "supply_area_min": 25.88,
+      "supply_area_max": 25.88,
+      "exclusive_area_min": 11.59,
+      "exclusive_area_max": 11.59,
+      "household_count": 3,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "8": 3
+      },
+      "weighted_supply": 25.88,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G3:ex12.60-13.68",
+      "market_label": null,
+      "supply_area_min": 17.3,
+      "supply_area_max": 29.94,
+      "exclusive_area_min": 12.6,
+      "exclusive_area_max": 13.68,
+      "household_count": 4,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 4,
+      "naive_vote": {
+        "5": 1,
+        "9": 2,
+        "6": 1
+      },
+      "weighted_supply": 23.87,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G4:ex14.90-14.90",
+      "market_label": 7,
+      "supply_area_min": 24.29,
+      "supply_area_max": 24.29,
+      "exclusive_area_min": 14.9,
+      "exclusive_area_max": 14.9,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "7": 1
+      },
+      "weighted_supply": 24.29,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G5:ex16.46-16.87",
+      "market_label": null,
+      "supply_area_min": 31.31,
+      "supply_area_max": 32.1,
+      "exclusive_area_min": 16.46,
+      "exclusive_area_max": 16.87,
+      "household_count": 2,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "9": 1,
+        "10": 1
+      },
+      "weighted_supply": 31.71,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G6:ex18.61-18.61",
+      "market_label": 11,
+      "supply_area_min": 35.41,
+      "supply_area_max": 35.41,
+      "exclusive_area_min": 18.61,
+      "exclusive_area_max": 18.61,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "11": 1
+      },
+      "weighted_supply": 35.41,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G7:ex21.07-21.07",
+      "market_label": 12,
+      "supply_area_min": 40.1,
+      "supply_area_max": 40.1,
+      "exclusive_area_min": 21.07,
+      "exclusive_area_max": 21.07,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "12": 1
+      },
+      "weighted_supply": 40.1,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G8:ex30.33-30.33",
+      "market_label": 15,
+      "supply_area_min": 49.51,
+      "supply_area_max": 49.51,
+      "exclusive_area_min": 30.33,
+      "exclusive_area_max": 30.33,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "15": 1
+      },
+      "weighted_supply": 49.51,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G9:ex34.78-34.78",
+      "market_label": 11,
+      "supply_area_min": 37.22,
+      "supply_area_max": 37.22,
+      "exclusive_area_min": 34.78,
+      "exclusive_area_max": 34.78,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "11": 1
+      },
+      "weighted_supply": 37.22,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G10:ex40.16-40.25",
+      "market_label": 13,
+      "supply_area_min": 40.25,
+      "supply_area_max": 43.6,
+      "exclusive_area_min": 40.16,
+      "exclusive_area_max": 40.25,
+      "household_count": 10,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "13": 9,
+        "12": 1
+      },
+      "weighted_supply": 43.27,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G11:ex41.46-42.46",
+      "market_label": null,
+      "supply_area_min": 44.37,
+      "supply_area_max": 45.44,
+      "exclusive_area_min": 41.46,
+      "exclusive_area_max": 42.46,
+      "household_count": 4,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "13": 1,
+        "14": 3
+      },
+      "weighted_supply": 45.17,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G12:ex44.67-45.29",
+      "market_label": 15,
+      "supply_area_min": 48.49,
+      "supply_area_max": 49.17,
+      "exclusive_area_min": 44.67,
+      "exclusive_area_max": 45.29,
+      "household_count": 9,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 4,
+      "naive_vote": {
+        "15": 9
+      },
+      "weighted_supply": 49.03,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G13:ex46.63-47.68",
+      "market_label": null,
+      "supply_area_min": 46.94,
+      "supply_area_max": 54.56,
+      "exclusive_area_min": 46.63,
+      "exclusive_area_max": 47.68,
+      "household_count": 3,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "15": 1,
+        "14": 1,
+        "17": 1
+      },
+      "weighted_supply": 50.71,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G14:ex48.95-48.95",
+      "market_label": 15,
+      "supply_area_min": 48.95,
+      "supply_area_max": 48.95,
+      "exclusive_area_min": 48.95,
+      "exclusive_area_max": 48.95,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "15": 1
+      },
+      "weighted_supply": 48.95,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G15:ex50.43-50.43",
+      "market_label": 15,
+      "supply_area_min": 50.43,
+      "supply_area_max": 50.43,
+      "exclusive_area_min": 50.43,
+      "exclusive_area_max": 50.43,
+      "household_count": 3,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "15": 3
+      },
+      "weighted_supply": 50.43,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G16:ex51.67-51.68",
+      "market_label": 17,
+      "supply_area_min": 55.29,
+      "supply_area_max": 55.3,
+      "exclusive_area_min": 51.67,
+      "exclusive_area_max": 51.68,
+      "household_count": 3,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "17": 3
+      },
+      "weighted_supply": 55.3,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G17:ex52.76-52.76",
+      "market_label": 16,
+      "supply_area_min": 52.76,
+      "supply_area_max": 52.76,
+      "exclusive_area_min": 52.76,
+      "exclusive_area_max": 52.76,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "16": 1
+      },
+      "weighted_supply": 52.76,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G18:ex54.12-54.84",
+      "market_label": null,
+      "supply_area_min": 54.12,
+      "supply_area_max": 54.84,
+      "exclusive_area_min": 54.12,
+      "exclusive_area_max": 54.84,
+      "household_count": 2,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "16": 1,
+        "17": 1
+      },
+      "weighted_supply": 54.48,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G19:ex56.62-56.62",
+      "market_label": 20,
+      "supply_area_min": 64.79,
+      "supply_area_max": 64.79,
+      "exclusive_area_min": 56.62,
+      "exclusive_area_max": 56.62,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "20": 1
+      },
+      "weighted_supply": 64.79,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G20:ex59.87-59.88",
+      "market_label": null,
+      "supply_area_min": 79.46,
+      "supply_area_max": 83.22,
+      "exclusive_area_min": 59.87,
+      "exclusive_area_max": 59.88,
+      "household_count": 574,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "small_24_25_zone",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 4,
+      "naive_vote": {
+        "25": 454,
+        "24": 120
+      },
+      "weighted_supply": 81.18,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G21:ex61.49-61.49",
+      "market_label": 20,
+      "supply_area_min": 66.77,
+      "supply_area_max": 66.77,
+      "exclusive_area_min": 61.49,
+      "exclusive_area_max": 61.49,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "20": 1
+      },
+      "weighted_supply": 66.77,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G22:ex64.60-65.72",
+      "market_label": null,
+      "supply_area_min": 64.6,
+      "supply_area_max": 69.46,
+      "exclusive_area_min": 64.6,
+      "exclusive_area_max": 65.72,
+      "household_count": 3,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 3,
+      "naive_vote": {
+        "20": 2,
+        "21": 1
+      },
+      "weighted_supply": 66.59,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G23:ex67.05-67.05",
+      "market_label": 22,
+      "supply_area_min": 72.81,
+      "supply_area_max": 72.81,
+      "exclusive_area_min": 67.05,
+      "exclusive_area_max": 67.05,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "22": 1
+      },
+      "weighted_supply": 72.81,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G24:ex68.43-69.12",
+      "market_label": null,
+      "supply_area_min": 74.02,
+      "supply_area_max": 74.78,
+      "exclusive_area_min": 68.43,
+      "exclusive_area_max": 69.12,
+      "household_count": 4,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 4,
+      "naive_vote": {
+        "22": 2,
+        "23": 2
+      },
+      "weighted_supply": 74.45,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G25:ex71.86-71.86",
+      "market_label": 22,
+      "supply_area_min": 71.86,
+      "supply_area_max": 71.86,
+      "exclusive_area_min": 71.86,
+      "exclusive_area_max": 71.86,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "22": 1
+      },
+      "weighted_supply": 71.86,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G26:ex84.92-84.92",
+      "market_label": 33,
+      "supply_area_min": 106.71,
+      "supply_area_max": 108.26,
+      "exclusive_area_min": 84.92,
+      "exclusive_area_max": 84.92,
+      "household_count": 2000,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "33": 1994,
+        "32": 6
+      },
+      "weighted_supply": 108.26,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G27:ex97.21-97.21",
+      "market_label": 32,
+      "supply_area_min": 105.16,
+      "supply_area_max": 105.16,
+      "exclusive_area_min": 97.21,
+      "exclusive_area_max": 97.21,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "32": 1
+      },
+      "weighted_supply": 105.16,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G28:ex99.71-99.71",
+      "market_label": 33,
+      "supply_area_min": 107.9,
+      "supply_area_max": 107.9,
+      "exclusive_area_min": 99.71,
+      "exclusive_area_max": 99.71,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "33": 1
+      },
+      "weighted_supply": 107.9,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G29:ex111.51-112.45",
+      "market_label": null,
+      "supply_area_min": 111.51,
+      "supply_area_max": 127.3,
+      "exclusive_area_min": 111.51,
+      "exclusive_area_max": 112.45,
+      "household_count": 6,
+      "confidence": "ambiguous",
+      "group_confidence_high": false,
+      "label_null_reason": "vote_conflict",
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "34": 4,
+        "39": 2
+      },
+      "weighted_supply": 116.77,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G30:ex114.61-114.61",
+      "market_label": 42,
+      "supply_area_min": 137.95,
+      "supply_area_max": 138.43,
+      "exclusive_area_min": 114.61,
+      "exclusive_area_max": 114.61,
+      "household_count": 820,
+      "confidence": "grouped",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 1,
+      "unit_type_count": 2,
+      "naive_vote": {
+        "42": 820
+      },
+      "weighted_supply": 138.4,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G31:ex126.46-126.46",
+      "market_label": 38,
+      "supply_area_min": 126.46,
+      "supply_area_max": 126.46,
+      "exclusive_area_min": 126.46,
+      "exclusive_area_max": 126.46,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "38": 1
+      },
+      "weighted_supply": 126.46,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G32:ex129.52-129.52",
+      "market_label": 42,
+      "supply_area_min": 140.12,
+      "supply_area_max": 140.12,
+      "exclusive_area_min": 129.52,
+      "exclusive_area_max": 129.52,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "42": 1
+      },
+      "weighted_supply": 140.12,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G33:ex132.76-132.76",
+      "market_label": 48,
+      "supply_area_min": 159.67,
+      "supply_area_max": 159.67,
+      "exclusive_area_min": 132.76,
+      "exclusive_area_max": 132.76,
+      "household_count": 108,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.01,
+      "outlier_unit_type_count": 1,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "48": 108
+      },
+      "weighted_supply": 159.67,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G34:ex164.38-164.38",
+      "market_label": 59,
+      "supply_area_min": 194.07,
+      "supply_area_max": 194.07,
+      "exclusive_area_min": 164.38,
+      "exclusive_area_max": 164.38,
+      "household_count": 142,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "59": 142
+      },
+      "weighted_supply": 194.07,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G35:ex182.49-182.49",
+      "market_label": 65,
+      "supply_area_min": 213.8,
+      "supply_area_max": 213.8,
+      "exclusive_area_min": 182.49,
+      "exclusive_area_max": 182.49,
+      "household_count": 162,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "65": 162
+      },
+      "weighted_supply": 213.8,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G36:ex217.40-217.40",
+      "market_label": 80,
+      "supply_area_min": 264.5,
+      "supply_area_max": 264.5,
+      "exclusive_area_min": 217.4,
+      "exclusive_area_max": 217.4,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "80": 1
+      },
+      "weighted_supply": 264.5,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G37:ex219.50-219.50",
+      "market_label": 73,
+      "supply_area_min": 241.4,
+      "supply_area_max": 241.4,
+      "exclusive_area_min": 219.5,
+      "exclusive_area_max": 219.5,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "73": 1
+      },
+      "weighted_supply": 241.4,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G38:ex224.96-224.96",
+      "market_label": 78,
+      "supply_area_min": 257.3,
+      "supply_area_max": 257.3,
+      "exclusive_area_min": 224.96,
+      "exclusive_area_max": 224.96,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "78": 1
+      },
+      "weighted_supply": 257.3,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G39:ex266.63-266.63",
+      "market_label": 87,
+      "supply_area_min": 288.46,
+      "supply_area_max": 288.46,
+      "exclusive_area_min": 266.63,
+      "exclusive_area_max": 266.63,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "87": 1
+      },
+      "weighted_supply": 288.46,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G40:ex467.06-467.06",
+      "market_label": 151,
+      "supply_area_min": 499.86,
+      "supply_area_max": 499.86,
+      "exclusive_area_min": 467.06,
+      "exclusive_area_max": 467.06,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "151": 1
+      },
+      "weighted_supply": 499.86,
+      "candidate_only": true
+    },
+    {
+      "group_key": "anyang-samsung-raemian:G41:ex470.44-470.44",
+      "market_label": 152,
+      "supply_area_min": 503.47,
+      "supply_area_max": 503.47,
+      "exclusive_area_min": 470.44,
+      "exclusive_area_max": 470.44,
+      "household_count": 1,
+      "confidence": "exact",
+      "group_confidence_high": true,
+      "label_null_reason": null,
+      "outlier_household_ratio": 0.0,
+      "outlier_unit_type_count": 0,
+      "unit_type_count": 1,
+      "naive_vote": {
+        "152": 1
+      },
+      "weighted_supply": 503.47,
+      "candidate_only": true
+    }
+  ],
+  "unit_types": [
+    {
+      "unit_type_key": "anyang-samsung-raemian:84.92:108.26",
+      "supply_area_sqm": 108.26,
+      "exclusive_area_min": 84.92,
+      "exclusive_area_max": 84.92,
+      "household_count": 1994,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:114.61:138.43",
+      "supply_area_sqm": 138.43,
+      "exclusive_area_min": 114.61,
+      "exclusive_area_max": 114.61,
+      "household_count": 764,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:59.87:81.67",
+      "supply_area_sqm": 81.67,
+      "exclusive_area_min": 59.87,
+      "exclusive_area_max": 59.87,
+      "household_count": 208,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:59.87:81.26",
+      "supply_area_sqm": 81.26,
+      "exclusive_area_min": 59.87,
+      "exclusive_area_max": 59.87,
+      "household_count": 204,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:182.49:213.80",
+      "supply_area_sqm": 213.8,
+      "exclusive_area_min": 182.49,
+      "exclusive_area_max": 182.49,
+      "household_count": 162,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:164.38:194.07",
+      "supply_area_sqm": 194.07,
+      "exclusive_area_min": 164.38,
+      "exclusive_area_max": 164.38,
+      "household_count": 142,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:59.88:79.46",
+      "supply_area_sqm": 79.46,
+      "exclusive_area_min": 59.88,
+      "exclusive_area_max": 59.88,
+      "household_count": 120,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:132.76:159.67",
+      "supply_area_sqm": 159.67,
+      "exclusive_area_min": 132.76,
+      "exclusive_area_max": 132.76,
+      "household_count": 108,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:114.61:137.95",
+      "supply_area_sqm": 137.95,
+      "exclusive_area_min": 114.61,
+      "exclusive_area_max": 114.61,
+      "household_count": 56,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:59.87:83.22",
+      "supply_area_sqm": 83.22,
+      "exclusive_area_min": 59.87,
+      "exclusive_area_max": 59.87,
+      "household_count": 42,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:40.16:43.60",
+      "supply_area_sqm": 43.6,
+      "exclusive_area_min": 40.16,
+      "exclusive_area_max": 40.16,
+      "household_count": 9,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:45.29:49.17",
+      "supply_area_sqm": 49.17,
+      "exclusive_area_min": 45.29,
+      "exclusive_area_max": 45.29,
+      "household_count": 6,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:84.92:106.71",
+      "supply_area_sqm": 106.71,
+      "exclusive_area_min": 84.92,
+      "exclusive_area_max": 84.92,
+      "household_count": 6,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:111.51:111.51",
+      "supply_area_sqm": 111.51,
+      "exclusive_area_min": 111.51,
+      "exclusive_area_max": 111.51,
+      "household_count": 4,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:11.59:25.88",
+      "supply_area_sqm": 25.88,
+      "exclusive_area_min": 11.59,
+      "exclusive_area_max": 11.59,
+      "household_count": 3,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:42.46:45.44",
+      "supply_area_sqm": 45.44,
+      "exclusive_area_min": 42.46,
+      "exclusive_area_max": 42.46,
+      "household_count": 3,
+      "mapping_confidence": "exact",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:50.43:50.43",
+      "supply_area_sqm": 50.43,
+      "exclusive_area_min": 50.43,
+      "exclusive_area_max": 50.43,
+      "household_count": 3,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:51.68:55.30",
+      "supply_area_sqm": 55.3,
+      "exclusive_area_min": 51.68,
+      "exclusive_area_max": 51.68,
+      "household_count": 2,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:112.45:127.30",
+      "supply_area_sqm": 127.3,
+      "exclusive_area_min": 112.45,
+      "exclusive_area_max": 112.45,
+      "household_count": 2,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:9.52:13.53",
+      "supply_area_sqm": 13.53,
+      "exclusive_area_min": 9.52,
+      "exclusive_area_max": 9.52,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:9.56:13.59",
+      "supply_area_sqm": 13.59,
+      "exclusive_area_min": 9.56,
+      "exclusive_area_max": 9.56,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:12.60:17.30",
+      "supply_area_sqm": 17.3,
+      "exclusive_area_min": 12.6,
+      "exclusive_area_max": 12.6,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:13.10:29.10",
+      "supply_area_sqm": 29.1,
+      "exclusive_area_min": 13.1,
+      "exclusive_area_max": 13.1,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:13.45:19.12",
+      "supply_area_sqm": 19.12,
+      "exclusive_area_min": 13.45,
+      "exclusive_area_max": 13.45,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:13.68:29.94",
+      "supply_area_sqm": 29.94,
+      "exclusive_area_min": 13.68,
+      "exclusive_area_max": 13.68,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:14.90:24.29",
+      "supply_area_sqm": 24.29,
+      "exclusive_area_min": 14.9,
+      "exclusive_area_max": 14.9,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:16.46:31.31",
+      "supply_area_sqm": 31.31,
+      "exclusive_area_min": 16.46,
+      "exclusive_area_max": 16.46,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:16.87:32.10",
+      "supply_area_sqm": 32.1,
+      "exclusive_area_min": 16.87,
+      "exclusive_area_max": 16.87,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:18.61:35.41",
+      "supply_area_sqm": 35.41,
+      "exclusive_area_min": 18.61,
+      "exclusive_area_max": 18.61,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:21.07:40.10",
+      "supply_area_sqm": 40.1,
+      "exclusive_area_min": 21.07,
+      "exclusive_area_max": 21.07,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:30.33:49.51",
+      "supply_area_sqm": 49.51,
+      "exclusive_area_min": 30.33,
+      "exclusive_area_max": 30.33,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:34.78:37.22",
+      "supply_area_sqm": 37.22,
+      "exclusive_area_min": 34.78,
+      "exclusive_area_max": 34.78,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:40.25:40.25",
+      "supply_area_sqm": 40.25,
+      "exclusive_area_min": 40.25,
+      "exclusive_area_max": 40.25,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:41.46:44.37",
+      "supply_area_sqm": 44.37,
+      "exclusive_area_min": 41.46,
+      "exclusive_area_max": 41.46,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:44.67:48.49",
+      "supply_area_sqm": 48.49,
+      "exclusive_area_min": 44.67,
+      "exclusive_area_max": 44.67,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:45.01:48.86",
+      "supply_area_sqm": 48.86,
+      "exclusive_area_min": 45.01,
+      "exclusive_area_max": 45.01,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:45.01:48.87",
+      "supply_area_sqm": 48.87,
+      "exclusive_area_min": 45.01,
+      "exclusive_area_max": 45.01,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:46.63:50.62",
+      "supply_area_sqm": 50.62,
+      "exclusive_area_min": 46.63,
+      "exclusive_area_max": 46.63,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:46.94:46.94",
+      "supply_area_sqm": 46.94,
+      "exclusive_area_min": 46.94,
+      "exclusive_area_max": 46.94,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:47.68:54.56",
+      "supply_area_sqm": 54.56,
+      "exclusive_area_min": 47.68,
+      "exclusive_area_max": 47.68,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:48.95:48.95",
+      "supply_area_sqm": 48.95,
+      "exclusive_area_min": 48.95,
+      "exclusive_area_max": 48.95,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:51.67:55.29",
+      "supply_area_sqm": 55.29,
+      "exclusive_area_min": 51.67,
+      "exclusive_area_max": 51.67,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:52.76:52.76",
+      "supply_area_sqm": 52.76,
+      "exclusive_area_min": 52.76,
+      "exclusive_area_max": 52.76,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:54.12:54.12",
+      "supply_area_sqm": 54.12,
+      "exclusive_area_min": 54.12,
+      "exclusive_area_max": 54.12,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:54.84:54.84",
+      "supply_area_sqm": 54.84,
+      "exclusive_area_min": 54.84,
+      "exclusive_area_max": 54.84,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:56.62:64.79",
+      "supply_area_sqm": 64.79,
+      "exclusive_area_min": 56.62,
+      "exclusive_area_max": 56.62,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:61.49:66.77",
+      "supply_area_sqm": 66.77,
+      "exclusive_area_min": 61.49,
+      "exclusive_area_max": 61.49,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:64.60:64.60",
+      "supply_area_sqm": 64.6,
+      "exclusive_area_min": 64.6,
+      "exclusive_area_max": 64.6,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:64.91:69.46",
+      "supply_area_sqm": 69.46,
+      "exclusive_area_min": 64.91,
+      "exclusive_area_max": 64.91,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:65.72:65.72",
+      "supply_area_sqm": 65.72,
+      "exclusive_area_min": 65.72,
+      "exclusive_area_max": 65.72,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:67.05:72.81",
+      "supply_area_sqm": 72.81,
+      "exclusive_area_min": 67.05,
+      "exclusive_area_max": 67.05,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:68.43:74.31",
+      "supply_area_sqm": 74.31,
+      "exclusive_area_min": 68.43,
+      "exclusive_area_max": 68.43,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:68.78:74.69",
+      "supply_area_sqm": 74.69,
+      "exclusive_area_min": 68.78,
+      "exclusive_area_max": 68.78,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:68.86:74.78",
+      "supply_area_sqm": 74.78,
+      "exclusive_area_min": 68.86,
+      "exclusive_area_max": 68.86,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:69.12:74.02",
+      "supply_area_sqm": 74.02,
+      "exclusive_area_min": 69.12,
+      "exclusive_area_max": 69.12,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:71.86:71.86",
+      "supply_area_sqm": 71.86,
+      "exclusive_area_min": 71.86,
+      "exclusive_area_max": 71.86,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:97.21:105.16",
+      "supply_area_sqm": 105.16,
+      "exclusive_area_min": 97.21,
+      "exclusive_area_max": 97.21,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:99.71:107.90",
+      "supply_area_sqm": 107.9,
+      "exclusive_area_min": 99.71,
+      "exclusive_area_max": 99.71,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:114.30:114.30",
+      "supply_area_sqm": 114.3,
+      "exclusive_area_min": 114.3,
+      "exclusive_area_max": 114.3,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:126.46:126.46",
+      "supply_area_sqm": 126.46,
+      "exclusive_area_min": 126.46,
+      "exclusive_area_max": 126.46,
+      "household_count": 1,
+      "mapping_confidence": "ambiguous",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:129.52:140.12",
+      "supply_area_sqm": 140.12,
+      "exclusive_area_min": 129.52,
+      "exclusive_area_max": 129.52,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:133.70:144.64",
+      "supply_area_sqm": 144.64,
+      "exclusive_area_min": 133.7,
+      "exclusive_area_max": 133.7,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:217.40:264.50",
+      "supply_area_sqm": 264.5,
+      "exclusive_area_min": 217.4,
+      "exclusive_area_max": 217.4,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:219.50:241.40",
+      "supply_area_sqm": 241.4,
+      "exclusive_area_min": 219.5,
+      "exclusive_area_max": 219.5,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:224.96:257.30",
+      "supply_area_sqm": 257.3,
+      "exclusive_area_min": 224.96,
+      "exclusive_area_max": 224.96,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:266.63:288.46",
+      "supply_area_sqm": 288.46,
+      "exclusive_area_min": 266.63,
+      "exclusive_area_max": 266.63,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:467.06:499.86",
+      "supply_area_sqm": 499.86,
+      "exclusive_area_min": 467.06,
+      "exclusive_area_max": 467.06,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    },
+    {
+      "unit_type_key": "anyang-samsung-raemian:470.44:503.47",
+      "supply_area_sqm": 503.47,
+      "exclusive_area_min": 470.44,
+      "exclusive_area_max": 470.44,
+      "household_count": 1,
+      "mapping_confidence": "grouped",
+      "exclusive_includes_partial_common": false
+    }
+  ],
+  "note": "exclusive<=1㎡ clusters are candidates only; production use requires gate pass"
+}

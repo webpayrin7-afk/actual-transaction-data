@@ -64,18 +64,18 @@
       ]
     ],
     "etc_class_counts": {
-      "unknown": 6750,
-      "residential": 5015,
-      "non-residential": 828
+      "unknown": 5015,
+      "residential": 5325,
+      "non-residential": 2253
     },
-    "unknown_common_area_ratio": 0.5360120701977289,
-    "residential_common_ratio": 0.39823711585801636,
-    "non_residential_common_ratio": 0.06575081394425475
+    "unknown_common_area_ratio": 0.39823711585801636,
+    "residential_common_ratio": 0.42285396648931944,
+    "non_residential_common_ratio": 0.17890891765266417
   },
   "gate": {
     "classification": "ambiguous",
     "reasons": [
-      "unknown_common_area_ratio=0.54"
+      "unknown_common_area_ratio=0.40"
     ],
     "metrics": {
       "partial_common_ratio": 0.0,
@@ -84,7 +84,7 @@
       "group_exact_map_rate": 1.0,
       "group_ambiguity_rate": 0.13,
       "label_confidence": 0.53,
-      "unknown_common_area_ratio": 0.54,
+      "unknown_common_area_ratio": 0.4,
       "supply_outlier_ratio": 0.02,
       "singoga_market_group_eligible_rate": 0.0
     },

@@ -61,12 +61,12 @@
     ],
     "etc_class_counts": {
       "residential": 4838,
-      "unknown": 3465,
-      "non-residential": 6924
+      "unknown": 1730,
+      "non-residential": 8659
     },
-    "unknown_common_area_ratio": 0.2275563144414527,
+    "unknown_common_area_ratio": 0.11361397517567479,
     "residential_common_ratio": 0.31772509358376566,
-    "non_residential_common_ratio": 0.45471859197478165
+    "non_residential_common_ratio": 0.5686609312405595
   },
   "gate": {
     "classification": "auto-safe",
@@ -80,7 +80,7 @@
       "group_exact_map_rate": 1.0,
       "group_ambiguity_rate": 0.0,
       "label_confidence": 0.89,
-      "unknown_common_area_ratio": 0.23,
+      "unknown_common_area_ratio": 0.11,
       "supply_outlier_ratio": 0.0,
       "singoga_market_group_eligible_rate": 1.0
     },
