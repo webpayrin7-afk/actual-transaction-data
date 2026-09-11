@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-/** 집랩 브랜드 로고 + 슬로건 */
+/** 집랩 브랜드 로고 + 슬로건 (로고 크기는 기존과 동일) */
 export function BrandLogo({
   compact = false,
   priority = false,
@@ -9,14 +9,10 @@ export function BrandLogo({
   priority?: boolean;
 }) {
   return (
-    <span
-      className={`flex shrink-0 items-center bg-white ${
-        compact ? "h-10 gap-2 sm:h-11 sm:gap-2.5" : "h-[4.5rem] gap-3"
-      }`}
-    >
+    <span className="flex shrink-0 items-center gap-2 bg-white sm:gap-2.5">
       <span
-        className={`relative block shrink-0 overflow-hidden ${
-          compact ? "h-10 w-[5.75rem] sm:h-11 sm:w-[6.25rem]" : "h-14 w-[8.5rem]"
+        className={`flex shrink-0 items-center justify-center ${
+          compact ? "h-[56px] w-[138px]" : "h-[84px] w-[205px]"
         }`}
       >
         <Image
@@ -25,13 +21,13 @@ export function BrandLogo({
           height={524}
           alt="집랩"
           priority={priority}
-          className="h-full w-full object-contain object-left"
+          className="h-auto w-full object-contain"
         />
       </span>
       <span
         aria-hidden
         className={`shrink-0 self-center bg-slate-300 ${
-          compact ? "h-7 w-px sm:h-8" : "h-10 w-px"
+          compact ? "h-8 w-px" : "h-11 w-px"
         }`}
       />
       <span
