@@ -238,9 +238,6 @@ export function AptQuickSearch({
                                   {item.metroLabel} · {item.matchLabel}
                                 </span>
                               </span>
-                              <span className="shrink-0 text-xs font-medium text-teal-700">
-                                이동
-                              </span>
                             </button>
                           </li>
                         );
