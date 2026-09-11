@@ -803,13 +803,22 @@ export function RegionDailyStatus({
     retry: 1,
   });
 
+  const queriesSettled =
+    (marketQuery.isSuccess || marketQuery.isError) &&
+    (latestQuery.isSuccess || latestQuery.isError) &&
+    (historyQuery.isSuccess || historyQuery.isError) &&
+    (initialDaysQuery.isSuccess || initialDaysQuery.isError);
+
+  // Keep the bar visible briefly on tab/page entry so fast responses still show feedback.
+  const [entryHold, setEntryHold] = useState(true);
+  useEffect(() => {
+    setEntryHold(true);
+    const t = window.setTimeout(() => setEntryHold(false), 450);
+    return () => window.clearTimeout(t);
+  }, [regionSlug]);
+
   useLoadProgressWhen(
-    !(
-      (marketQuery.isSuccess || marketQuery.isError) &&
-      (latestQuery.isSuccess || latestQuery.isError) &&
-      (historyQuery.isSuccess || historyQuery.isError) &&
-      (initialDaysQuery.isSuccess || initialDaysQuery.isError)
-    ),
+    entryHold || !queriesSettled,
     "시장 현황 불러오는 중…",
   );
 

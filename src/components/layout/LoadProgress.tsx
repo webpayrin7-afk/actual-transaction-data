@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
@@ -96,6 +97,7 @@ export function useLoadProgress() {
  * Header progress while `active` (e.g. first query load).
  * Message changes only update the label — they must not hide/remount the bar.
  * Pass an empty message for a bar-only indicator (no status text).
+ * Uses layout effect so the bar appears before paint on page entry.
  */
 export function useLoadProgressWhen(
   active: boolean,
@@ -104,13 +106,13 @@ export function useLoadProgressWhen(
 ) {
   const { show, hide } = useLoadProgress();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (active) show(message.length > 0 ? message : null, source);
     else hide(source);
   }, [active, message, source, show, hide]);
 
   // Unmount only — do not hide when `message` changes (that remounts the bar).
-  useEffect(() => {
+  useLayoutEffect(() => {
     return () => hide(source);
   }, [source, hide]);
 }
