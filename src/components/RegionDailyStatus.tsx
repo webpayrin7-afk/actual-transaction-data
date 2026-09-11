@@ -413,7 +413,7 @@ function MonthNav({
         <select
           value={selectedYear}
           onChange={(event) => changePart(event.target.value, selectedMonth)}
-          className="bg-transparent px-1.5 py-1 text-sm font-semibold tabular-nums text-slate-800 focus-visible:outline-2 focus-visible:outline-slate-400"
+          className="bg-transparent px-1.5 py-1 text-sm font-semibold tabular-nums text-slate-800 outline-none focus:outline-none focus-visible:outline-none"
           aria-label="연도 선택"
         >
           {years.map((year) => <option key={year} value={year}>{year}년</option>)}
@@ -421,7 +421,7 @@ function MonthNav({
         <select
           value={selectedMonth}
           onChange={(event) => changePart(selectedYear, event.target.value)}
-          className="bg-transparent px-1.5 py-1 text-sm font-semibold tabular-nums text-slate-800 focus-visible:outline-2 focus-visible:outline-slate-400"
+          className="bg-transparent px-1.5 py-1 text-sm font-semibold tabular-nums text-slate-800 outline-none focus:outline-none focus-visible:outline-none"
           aria-label="월 선택"
         >
           {Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0")).map((month) => {
