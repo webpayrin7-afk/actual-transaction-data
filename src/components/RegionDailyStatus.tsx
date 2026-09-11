@@ -1268,7 +1268,7 @@ export function RegionDailyStatus({
             </p>
           ) : null}
           {activeDates.length === 0 && historyQuery.data ? (
-            <div className="flex min-h-[12rem] shrink-0 items-center justify-center px-1 py-8 text-center sm:min-h-[14rem]">
+            <div className="flex min-h-[7rem] shrink-0 items-center justify-center px-1 py-4 text-center sm:min-h-[8rem]">
               <p className="break-keep text-sm text-slate-500">
                 {EMPTY_MONTH_HISTORY}
               </p>
