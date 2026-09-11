@@ -55,12 +55,6 @@ function KpiCard({
   return <LabKpiCard label={label} value={value} hint={hint} valueClassName={tones[tone]} />;
 }
 
-function kindBadgeClass(kind: MarketDealItem["kind"]): string {
-  if (kind === "singoga") return "bg-rose-100 text-rose-700";
-  if (kind === "drop") return "bg-blue-100 text-blue-700";
-  return "bg-slate-100 text-slate-600";
-}
-
 function DealRow({ item }: { item: MarketDealItem }) {
   const up = (item.changePct ?? 0) > 0;
   const down = (item.changePct ?? 0) < 0;
@@ -71,16 +65,9 @@ function DealRow({ item }: { item: MarketDealItem }) {
       className="flex items-start justify-between gap-3 border-b border-slate-100 px-1 py-3.5 last:border-0 hover:bg-slate-50/80 sm:px-2"
     >
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="truncate text-sm font-semibold text-slate-900">
-            {item.aptName}
-          </span>
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${kindBadgeClass(item.kind)}`}
-          >
-            {item.kindLabel}
-          </span>
-        </div>
+        <p className="truncate text-sm font-semibold text-slate-900">
+          {item.aptName}
+        </p>
         <p className="mt-0.5 text-xs text-slate-500">
           계약일 {formatDealDate(item.dealDate)} · {item.gu} {item.dong} ·{" "}
           {formatArea(item.exclusiveArea)}
