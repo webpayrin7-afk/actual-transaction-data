@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, Building2, Calculator, GraduationCap, MapPinned, Percent, Search } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 
 const NAV = [
@@ -43,9 +44,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         <p className="px-5 pb-5 text-[11px] leading-5 text-slate-400">국토교통부 실거래 기반<br />LAB Series · Real estate research</p>
       </aside>
-      <div className="min-w-0 lg:col-start-2">
+      <div className="flex min-h-dvh min-w-0 flex-col lg:col-start-2">
         <SiteHeader />
-        <main>{children}</main>
+        <main className="flex-1">{children}</main>
+        <SiteFooter />
       </div>
     </div>
   );
