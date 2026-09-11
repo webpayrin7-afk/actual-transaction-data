@@ -447,7 +447,7 @@ export function AptDetailPage({
           단지 정보를 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
-          <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
+          <BackLink fallback="/complexes" label="단지별 조회" />
         </div>
       </div>
     );
@@ -467,7 +467,12 @@ export function AptDetailPage({
         aria-hidden={!stickyVisible}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
-          <BackLink fallback="/complexes" compact hideLabelOnMobile />
+          <BackLink
+            fallback="/complexes"
+            label="단지별 조회"
+            compact
+            hideLabelOnMobile
+          />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-slate-900">
               {data.aptName}
@@ -484,7 +489,7 @@ export function AptDetailPage({
       </div>
 
       <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
+        <BackLink fallback="/complexes" label="단지별 조회" />
         <PageHeader
           title={data.aptName}
           description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
@@ -494,15 +499,16 @@ export function AptDetailPage({
               {data.stats.totalRentCount.toLocaleString("ko-KR")}건
             </span>
           }
-        >
-          <AptAreaSelector
-            areas={data.areas}
-            value={areaKey}
-            onChange={(key) => {
-              setAreaOverride({ forId: aptIdentity, key });
-            }}
-          />
-        </PageHeader>
+          action={
+            <AptAreaSelector
+              areas={data.areas}
+              value={areaKey}
+              onChange={(key) => {
+                setAreaOverride({ forId: aptIdentity, key });
+              }}
+            />
+          }
+        />
       </header>
 
       {(data.warning || data.source === "mock") && (

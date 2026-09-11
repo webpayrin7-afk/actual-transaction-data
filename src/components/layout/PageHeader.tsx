@@ -6,16 +6,16 @@ export const PAGE_SHELL =
 
 /**
  * BackLink + PageHeader 묶음.
- * shell의 gap과 분리해 돌아가기가 별도 section처럼 벌어지지 않게 함.
+ * shell의 gap과 분리해 back control이 별도 section처럼 벌어지지 않게 함.
  * -mt: SiteHeader에 조금 더 붙이고, gap으로 title과 여유를 둠.
  */
 export const PAGE_HEADER_WITH_BACK =
-  "-mt-1 flex flex-col gap-2.5 sm:-mt-1.5 sm:gap-3";
+  "-mt-1 flex flex-col gap-2 sm:-mt-1.5 sm:gap-2.5";
 
 /**
  * 주요 페이지 상단 타이틀 영역 (LAB).
  * 별도 배경/카드 없이 페이지 기본 배경 위에 H1·설명·보조정보만 둔다.
- * - action: 제목 오른쪽 (면적 선택 등 compact control)
+ * - action: 제목 오른쪽 같은 행 (필터·면적 선택 등 compact control)
  * - children: 제목 아래 (검색 폼 등)
  */
 export function PageHeader({
@@ -39,7 +39,9 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={`max-w-4xl ${className}`.trim()}>
+    <header
+      className={`${action ? "w-full max-w-none" : "max-w-4xl"} ${className}`.trim()}
+    >
       <div className="flex items-start justify-between gap-3">
         <h1
           className={`min-w-0 flex-1 font-semibold tracking-tight text-[color:var(--lab-navy-950)] ${
@@ -50,7 +52,9 @@ export function PageHeader({
         >
           {title}
         </h1>
-        {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
+        {action ? (
+          <div className="flex shrink-0 items-center pt-0.5">{action}</div>
+        ) : null}
       </div>
       {description ? (
         <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">
@@ -62,11 +66,11 @@ export function PageHeader({
           {meta}
         </div>
       ) : null}
-      {children ? <div className="mt-3">{children}</div> : null}
+      {children ? <div className="mt-2.5 sm:mt-3">{children}</div> : null}
       {showDivider ? (
         <div
           aria-hidden
-          className="mt-3 h-px w-full bg-[color:var(--lab-border)] sm:mt-3.5"
+          className="mt-2.5 h-px w-full bg-[color:var(--lab-border)] sm:mt-3"
         />
       ) : null}
     </header>

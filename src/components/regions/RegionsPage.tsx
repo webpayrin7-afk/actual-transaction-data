@@ -163,7 +163,7 @@ export function RegionsPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="지역 조회"
+        title="지역별 조회"
         description="지역별 아파트 실거래와 시장 현황을 확인하세요."
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">

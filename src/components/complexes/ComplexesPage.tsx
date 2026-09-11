@@ -13,7 +13,7 @@ export function ComplexesPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="단지 조회"
+        title="단지별 조회"
         description="궁금한 아파트를 검색하고 실거래가와 거래 이력을 확인하세요."
       >
         <AptQuickSearch
