@@ -8,10 +8,15 @@ import {
   useMemo,
   useState,
 } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type LoadProgressContextValue = {
+  /** Non-empty status text under the bar; null = bar only / hidden text */
   label: string | null;
-  show: (label: string, source?: string) => void;
+  /** Whether any progress source is active */
+  active: boolean;
+  /** Pass null/empty label for bar-only (e.g. soft navigation). */
+  show: (label: string | null, source?: string) => void;
   hide: (source?: string) => void;
 };
 
@@ -21,16 +26,33 @@ const LoadProgressContext = createContext<LoadProgressContextValue | null>(
   null,
 );
 
+function resolveLabel(bySource: Record<string, string | null>): string | null {
+  const order = ["query", "default", "nav"] as const;
+  for (const key of order) {
+    if (key in bySource) {
+      const value = bySource[key];
+      return value && value.length > 0 ? value : null;
+    }
+  }
+  const keys = Object.keys(bySource);
+  if (keys.length === 0) return null;
+  const value = bySource[keys[keys.length - 1]];
+  return value && value.length > 0 ? value : null;
+}
+
 export function LoadProgressProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [bySource, setBySource] = useState<Record<string, string>>({});
+  const [bySource, setBySource] = useState<Record<string, string | null>>({});
 
-  const show = useCallback((label: string, source = DEFAULT_SOURCE) => {
+  const show = useCallback((label: string | null, source = DEFAULT_SOURCE) => {
+    const nextLabel = label && label.length > 0 ? label : null;
     setBySource((prev) =>
-      prev[source] === label ? prev : { ...prev, [source]: label },
+      source in prev && prev[source] === nextLabel
+        ? prev
+        : { ...prev, [source]: nextLabel },
     );
   }, []);
 
@@ -43,17 +65,12 @@ export function LoadProgressProvider({
     });
   }, []);
 
-  const label = useMemo(() => {
-    if (bySource.query) return bySource.query;
-    if (bySource.default) return bySource.default;
-    const keys = Object.keys(bySource);
-    if (keys.length === 0) return null;
-    return bySource[keys[keys.length - 1]] ?? null;
-  }, [bySource]);
+  const active = Object.keys(bySource).length > 0;
+  const label = useMemo(() => resolveLabel(bySource), [bySource]);
 
   const value = useMemo(
-    () => ({ label, show, hide }),
-    [label, show, hide],
+    () => ({ label, active, show, hide }),
+    [label, active, show, hide],
   );
 
   return (
@@ -68,7 +85,8 @@ export function useLoadProgress() {
   if (!ctx) {
     return {
       label: null as string | null,
-      show: (() => {}) as (label: string, source?: string) => void,
+      active: false,
+      show: (() => {}) as (label: string | null, source?: string) => void,
       hide: (() => {}) as (source?: string) => void,
     };
   }
@@ -99,15 +117,14 @@ export function useLoadProgressWhen(
 
 /** SiteHeader 하단에 붙여 렌더 — fixed top 계산 없이 헤더와 한 덩어리 */
 export function SiteHeaderLoadProgress() {
-  const { label } = useLoadProgress();
-  // Keep the bar mounted across brief source handoffs; only swap the text.
+  const { label, active } = useLoadProgress();
   const [displayLabel, setDisplayLabel] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (label) {
-      setDisplayLabel(label);
+    if (active) {
       setOpen(true);
+      setDisplayLabel(label);
       return;
     }
     const t = window.setTimeout(() => {
@@ -115,18 +132,77 @@ export function SiteHeaderLoadProgress() {
       setDisplayLabel(null);
     }, 80);
     return () => window.clearTimeout(t);
-  }, [label]);
+  }, [active, label]);
 
-  if (!open || !displayLabel) return null;
+  if (!open) return null;
+
+  const text = label ?? displayLabel;
 
   return (
     <div role="status" aria-live="polite">
       <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
         <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
       </div>
-      <div className="border-t border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 sm:px-6">
-        {label ?? displayLabel}
-      </div>
+      {text ? (
+        <div className="border-t border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 sm:px-6">
+          {text}
+        </div>
+      ) : null}
     </div>
   );
+}
+
+/**
+ * Soft-nav: thin bar only (no "페이지 불러오는 중" copy) while a
+ * same-origin <Link> navigation is in flight.
+ */
+export function NavigationLoadProgress() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { show, hide } = useLoadProgress();
+
+  useEffect(() => {
+    const t = window.setTimeout(() => hide("nav"), 80);
+    return () => window.clearTimeout(t);
+  }, [pathname, searchParams, hide]);
+
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target as Element | null;
+      const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!anchor) return;
+      if (anchor.target && anchor.target !== "_self") return;
+      if (anchor.hasAttribute("download")) return;
+
+      const hrefAttr = anchor.getAttribute("href");
+      if (!hrefAttr || hrefAttr.startsWith("#")) return;
+
+      let url: URL;
+      try {
+        url = new URL(anchor.href, window.location.href);
+      } catch {
+        return;
+      }
+      if (url.origin !== window.location.origin) return;
+
+      const nextSearch = url.search.startsWith("?")
+        ? url.search.slice(1)
+        : url.search;
+      const curSearch = searchParams.toString();
+      if (url.pathname === pathname && nextSearch === curSearch) return;
+
+      show(null, "nav");
+    };
+
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [pathname, searchParams, show]);
+
+  return null;
 }
