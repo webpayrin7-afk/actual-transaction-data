@@ -2,10 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
-import {
-  LoadProgressProvider,
-  NavigationLoadProgress,
-} from "@/components/layout/LoadProgress";
+import { LoadProgressProvider } from "@/components/layout/LoadProgress";
 import { InternalNavTracker } from "@/components/layout/InternalNavTracker";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -27,7 +24,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <LoadProgressProvider>
         <Suspense fallback={null}>
           <InternalNavTracker />
-          <NavigationLoadProgress />
         </Suspense>
         {children}
       </LoadProgressProvider>
