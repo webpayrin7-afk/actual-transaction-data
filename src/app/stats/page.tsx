@@ -13,8 +13,8 @@ export default function Page() {
     <main className="flex-1">
       <Suspense
         fallback={
-          <div className="mx-auto max-w-7xl px-4 py-10 text-sm text-slate-500">
-            시장동향을 불러오는 중…
+          <div className="mx-auto max-w-7xl px-4 py-10" aria-hidden>
+            <div className="lab-skeleton" />
           </div>
         }
       >
