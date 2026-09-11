@@ -49,9 +49,10 @@
 ```bash
 npx tsx scripts/sync-molit.ts \
   --codes=11170,11650,11710 \
-  --from-month=<per-lawd start> --to-month=<end> \
+  --from-month=200601 --to-month=202609 \
   --rent-months=0 --discovery=0 \
-  --skip-existing=0 --only-changed=0
+  --skip-existing=0 --only-changed=0 \
+  --dry-run=1   # keep until explicit write approval
 ```
 
 Unchanged cells: no unnecessary write (row-level diff).
