@@ -9,7 +9,7 @@ export function BrandLogo({
   priority?: boolean;
 }) {
   return (
-    <span className="flex shrink-0 items-center gap-2 bg-white sm:gap-2.5">
+    <span className="flex shrink-0 items-center gap-1 bg-white sm:gap-1.5">
       <span
         className={`flex shrink-0 items-center justify-center ${
           compact ? "h-[56px] w-[138px]" : "h-[84px] w-[205px]"
