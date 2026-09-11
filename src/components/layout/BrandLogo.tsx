@@ -12,7 +12,9 @@ export function BrandLogo({
     <span className="flex shrink-0 items-center bg-white">
       <span
         className={`flex shrink-0 items-center justify-center ${
-          compact ? "h-[56px] w-[138px]" : "h-[84px] w-[205px]"
+          compact
+            ? "-mr-5 h-[56px] w-[138px] sm:-mr-6"
+            : "-mr-6 h-[84px] w-[205px] sm:-mr-7"
         }`}
       >
         <Image
@@ -26,12 +28,12 @@ export function BrandLogo({
       </span>
       <span
         aria-hidden
-        className={`-ml-4 shrink-0 self-center bg-slate-300 sm:-ml-5 ${
+        className={`mx-1.5 shrink-0 self-center bg-slate-300 sm:mx-2 ${
           compact ? "h-8 w-px" : "h-11 w-px"
         }`}
       />
       <span
-        className={`ml-2 flex min-w-0 flex-col justify-center leading-tight text-slate-600 sm:ml-2.5 ${
+        className={`flex min-w-0 flex-col justify-center leading-tight text-slate-600 ${
           compact
             ? "text-[10px] font-medium tracking-tight sm:text-[11px]"
             : "text-xs font-medium tracking-tight sm:text-[13px]"
