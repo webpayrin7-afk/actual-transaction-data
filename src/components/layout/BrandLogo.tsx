@@ -28,7 +28,7 @@ export function BrandLogo({
       </span>
       <span
         aria-hidden
-        className={`mx-1.5 shrink-0 self-center bg-slate-300 sm:mx-2 ${
+        className={`mx-1.5 -translate-x-px shrink-0 self-center bg-slate-300 sm:mx-2 ${
           compact ? "h-8 w-px" : "h-11 w-px"
         }`}
       />
