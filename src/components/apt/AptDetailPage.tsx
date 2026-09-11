@@ -21,10 +21,14 @@ import {
   recordRecentComplex,
 } from "@/lib/complexes/recent-views";
 import {
-  isValidAreaKey,
-  normalizeAreaKey,
-  resolveDefaultAreaKey,
-} from "@/lib/apt/default-area";
+  buildAreaGroups,
+  findAreaGroup,
+  formatAreaGroupLabel,
+  isValidAreaSelectionKey,
+  itemMatchesAreaGroup,
+  resolveDefaultAreaGroupKey,
+  resolveToAreaGroupKey,
+} from "@/lib/apt/area-groups";
 import {
   PAGE_HEADER_WITH_BACK,
   PAGE_SHELL,
@@ -36,7 +40,6 @@ import {
   formatArea,
   formatDealDate,
   formatEok,
-  formatExclusiveArea,
   formatPyeong,
   formatRentAmount,
 } from "@/lib/utils/format";
@@ -191,13 +194,13 @@ export function AptDetailPage({
 
   const data = fullQuery.data ?? quickQuery.data;
 
-  /** URL > 84㎡대/거래량 자동 > all */
+  /** URL > 84㎡대 그룹/거래량 그룹 자동 > all */
   const resolvedAreaKey = useMemo(() => {
     if (!data?.areas) return initialAreaKey ?? "all";
-    if (initialAreaKey && isValidAreaKey(initialAreaKey, data.areas)) {
-      return initialAreaKey;
+    if (initialAreaKey && isValidAreaSelectionKey(initialAreaKey, data.areas)) {
+      return resolveToAreaGroupKey(initialAreaKey, data.areas);
     }
-    return resolveDefaultAreaKey(data.areas, data.items);
+    return resolveDefaultAreaGroupKey(data.areas, data.items);
   }, [data, initialAreaKey]);
 
   /** 단지당 최초 확정값 (quick→full 재계산으로 선택값이 바뀌지 않게) */
@@ -309,22 +312,23 @@ export function AptDetailPage({
   const startYm = chartMonths[startIndex] ?? "";
   const endYm = chartMonths[endIndex] ?? "";
 
+  const areaGroups = useMemo(
+    () => (data?.areas ? buildAreaGroups(data.areas) : []),
+    [data],
+  );
+
   const areaFiltered = useMemo(() => {
     if (!data) return [];
     if (areaKey === "all") return data.items;
-    // areas.key 와 item 면적을 동일 normalize로 맞춰 거래이력·차트에 반영
-    const selected = data.areas.find((a) => a.key === areaKey);
-    const matchKey = selected
-      ? normalizeAreaKey(selected.exclusiveArea)
-      : areaKey;
-    return data.items.filter(
-      (item) => normalizeAreaKey(Number(item.exclusiveArea)) === matchKey,
+    // 그룹에 속한 모든 exact 전용면적 거래 포함. 신고가 플래그는 exact areaKey 기준 유지.
+    return data.items.filter((item) =>
+      itemMatchesAreaGroup(Number(item.exclusiveArea), areaKey, areaGroups),
     );
-  }, [data, areaKey]);
+  }, [data, areaKey, areaGroups]);
 
-  const selectedArea = useMemo(
-    () => data?.areas.find((a) => a.key === areaKey) ?? null,
-    [data, areaKey],
+  const selectedAreaGroup = useMemo(
+    () => findAreaGroup(areaKey, areaGroups),
+    [areaKey, areaGroups],
   );
 
   const periodItems = useMemo(() => {
@@ -596,9 +600,9 @@ export function AptDetailPage({
               거래이력
             </h2>
             <p className="mt-0.5 truncate text-xs text-slate-500">
-              {areaKey === "all" || !selectedArea
+              {areaKey === "all" || !selectedAreaGroup
                 ? `전체 면적 · ${filtered.length.toLocaleString("ko-KR")}건`
-                : `${formatPyeong(selectedArea.exclusiveArea)} (${formatExclusiveArea(selectedArea.exclusiveArea)}) · ${filtered.length.toLocaleString("ko-KR")}건`}
+                : `${formatAreaGroupLabel(selectedAreaGroup)} · ${filtered.length.toLocaleString("ko-KR")}건`}
             </p>
           </div>
 

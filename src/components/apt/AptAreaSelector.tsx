@@ -11,9 +11,12 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt";
 import {
-  formatExclusiveArea,
-  formatPyeong,
-} from "@/lib/utils/format";
+  buildAreaGroups,
+  findAreaGroup,
+  formatAreaGroupPrimaryLabel,
+  formatAreaGroupSecondaryLabel,
+  type AreaGroup,
+} from "@/lib/apt/area-groups";
 
 type AptAreaSelectorProps = {
   areas: AptAreaOption[];
@@ -25,7 +28,7 @@ const SHEET_MS = 280;
 
 /**
  * 단일 버튼 + bottom sheet 면적 선택.
- * areaKey / onChange / default-area 로직과 독립 — UI만.
+ * 공급면적 있으면 평형 중심, 없으면 전용 근접 그룹(전용 N~M㎡형).
  */
 export function AptAreaSelector({
   areas,
@@ -39,10 +42,8 @@ export function AptAreaSelector({
   const titleId = useId();
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const sorted = [...areas].sort(
-    (a, b) => a.exclusiveArea - b.exclusiveArea,
-  );
-  const selected = sorted.find((a) => a.key === value) ?? null;
+  const groups = buildAreaGroups(areas);
+  const selected = findAreaGroup(value, groups);
 
   useEffect(() => {
     return () => {
@@ -98,8 +99,8 @@ export function AptAreaSelector({
     close();
   }
 
-  if (sorted.length <= 1) {
-    const only = sorted[0];
+  if (groups.length <= 1) {
+    const only = groups[0];
     if (!only) {
       return (
         <div className="flex h-10 w-full items-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-700">
@@ -107,10 +108,14 @@ export function AptAreaSelector({
         </div>
       );
     }
+    const secondary = formatAreaGroupSecondaryLabel(only);
     return (
       <div className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-sm">
         <span className="min-w-0 truncate font-medium tabular-nums text-slate-800">
-          {formatPyeong(only.exclusiveArea)} ({formatExclusiveArea(only.exclusiveArea)})
+          {formatAreaGroupPrimaryLabel(only)}
+          {secondary ? (
+            <span className="font-normal text-slate-500"> · {secondary}</span>
+          ) : null}
         </span>
         <span className="shrink-0 tabular-nums text-slate-500">
           거래 {only.count.toLocaleString("ko-KR")}건
@@ -119,14 +124,19 @@ export function AptAreaSelector({
     );
   }
 
-  const totalDeals = sorted.reduce((sum, a) => sum + a.count, 0);
+  const totalDeals = groups.reduce((sum, g) => sum + g.count, 0);
   const isAll = value === "all" || !selected;
+  const triggerSecondary = selected
+    ? formatAreaGroupSecondaryLabel(selected)
+    : null;
   const triggerMain = isAll
     ? "전체 면적"
-    : `${formatPyeong(selected.exclusiveArea)} (${formatExclusiveArea(selected.exclusiveArea)})`;
+    : formatAreaGroupPrimaryLabel(selected);
   const triggerMeta = isAll
-    ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · 거래 ${totalDeals.toLocaleString("ko-KR")}건`
-    : `거래 ${selected.count.toLocaleString("ko-KR")}건`;
+    ? `타입 ${groups.length.toLocaleString("ko-KR")}개 · 거래 ${totalDeals.toLocaleString("ko-KR")}건`
+    : triggerSecondary
+      ? `${triggerSecondary} · 거래 ${selected.count.toLocaleString("ko-KR")}건`
+      : `거래 ${selected.count.toLocaleString("ko-KR")}건`;
 
   return (
     <>
@@ -159,7 +169,7 @@ export function AptAreaSelector({
               titleId={titleId}
               sheetRef={sheetRef}
               value={value}
-              areas={sorted}
+              groups={groups}
               open={open}
               onClose={close}
               onPick={pick}
@@ -175,7 +185,7 @@ function AreaSheet({
   titleId,
   sheetRef,
   value,
-  areas,
+  groups,
   open,
   onClose,
   onPick,
@@ -183,7 +193,7 @@ function AreaSheet({
   titleId: string;
   sheetRef: React.RefObject<HTMLDivElement | null>;
   value: string;
-  areas: AptAreaOption[];
+  groups: AreaGroup[];
   open: boolean;
   onClose: () => void;
   onPick: (key: string) => void;
@@ -196,17 +206,23 @@ function AreaSheet({
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  const totalDeals = areas.reduce((sum, a) => sum + a.count, 0);
-  const rows: { key: string; label: string; meta?: string }[] = [
+  const totalDeals = groups.reduce((sum, g) => sum + g.count, 0);
+  const rows: {
+    key: string;
+    label: string;
+    secondary?: string | null;
+    meta?: string;
+  }[] = [
     {
       key: "all",
       label: "전체 면적",
       meta: `거래 ${totalDeals.toLocaleString("ko-KR")}건`,
     },
-    ...areas.map((area) => ({
-      key: area.key,
-      label: `${formatPyeong(area.exclusiveArea)} (${formatExclusiveArea(area.exclusiveArea)})`,
-      meta: `거래 ${area.count.toLocaleString("ko-KR")}건`,
+    ...groups.map((group) => ({
+      key: group.key,
+      label: formatAreaGroupPrimaryLabel(group),
+      secondary: formatAreaGroupSecondaryLabel(group),
+      meta: `거래 ${group.count.toLocaleString("ko-KR")}건`,
     })),
   ];
 
@@ -368,20 +384,27 @@ function AreaSheet({
             ref={listRef}
             className="absolute inset-0 overflow-y-auto overscroll-contain touch-pan-y pb-[max(0.5rem,env(safe-area-inset-bottom))]"
           >
-            {rows.map((row, index) => (
+            {rows.map((row, index) => {
+              const active =
+                value === row.key ||
+                (row.key !== "all" &&
+                  findAreaGroup(value, groups)?.key === row.key);
+              return (
               <div key={row.key}>
                 <AreaOption
-                  active={value === row.key}
-                  buttonRef={value === row.key ? activeRef : undefined}
+                  active={active}
+                  buttonRef={active ? activeRef : undefined}
                   onClick={() => onPick(row.key)}
                   label={row.label}
+                  secondary={row.secondary}
                   meta={row.meta}
                 />
                 {index < rows.length - 1 ? (
                   <div className="mx-4 border-b border-slate-100" aria-hidden />
                 ) : null}
               </div>
-            ))}
+              );
+            })}
           </div>
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white to-transparent"
@@ -402,12 +425,14 @@ function AreaOption({
   buttonRef,
   onClick,
   label,
+  secondary,
   meta,
 }: {
   active: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
   onClick: () => void;
   label: string;
+  secondary?: string | null;
   meta?: string;
 }) {
   return (
@@ -419,15 +444,27 @@ function AreaOption({
         active ? "bg-teal-50" : "hover:bg-slate-50"
       }`}
     >
-      <span
-        className={`min-w-0 flex-1 truncate tabular-nums ${
-          active
-            ? "font-semibold text-teal-900"
-            : "font-medium text-slate-800"
-        }`}
-        style={{ fontSize: 15 }}
-      >
-        {label}
+      <span className="min-w-0 flex-1">
+        <span
+          className={`block truncate tabular-nums ${
+            active
+              ? "font-semibold text-teal-900"
+              : "font-medium text-slate-800"
+          }`}
+          style={{ fontSize: 15 }}
+        >
+          {label}
+        </span>
+        {secondary ? (
+          <span
+            className={`mt-0.5 block truncate tabular-nums ${
+              active ? "text-teal-800/80" : "text-slate-500"
+            }`}
+            style={{ fontSize: 12 }}
+          >
+            {secondary}
+          </span>
+        ) : null}
       </span>
       {meta ? (
         <span className="shrink-0 text-[13px] tabular-nums text-slate-400">
