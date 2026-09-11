@@ -30,14 +30,16 @@ function navLinkClass(active: boolean) {
 }
 
 function sectionHeadingClass() {
-  return "px-3 pb-1 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase";
+  return "pb-1 text-[13px] font-semibold text-slate-500";
 }
 
-function drawerItemClass(active: boolean) {
-  return `flex h-[50px] items-center rounded-md px-3 text-sm transition-colors ${
+function drawerItemClass(active: boolean, tone: "tool" | "service" = "tool") {
+  const idle =
+    tone === "service" ? "text-slate-600" : "text-slate-800";
+  return `flex h-[48px] items-center text-[17px] font-medium transition-colors ${
     active
-      ? "bg-teal-50 font-medium text-teal-800"
-      : "text-slate-700 hover:bg-teal-50/70 active:bg-teal-50/80"
+      ? "bg-teal-50 text-teal-800"
+      : `${idle} hover:bg-teal-50/70 active:bg-teal-50/80`
   }`;
 }
 
@@ -228,7 +230,7 @@ export function SiteHeader() {
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className={`fixed inset-y-0 right-0 z-[48] flex w-[min(300px,85vw)] flex-col border-l border-slate-200 bg-white shadow-[-2px_0_8px_rgba(15,23,42,0.04)] transition-transform ease-out ${
+            className={`fixed inset-y-0 right-0 z-[48] flex w-[min(280px,78vw)] flex-col border-l border-slate-200 bg-white shadow-[-2px_0_8px_rgba(15,23,42,0.04)] transition-transform ease-out ${
               menuShown
                 ? "translate-x-0 duration-[200ms]"
                 : "translate-x-full duration-[160ms]"
@@ -236,10 +238,10 @@ export function SiteHeader() {
             onTouchStart={onDrawerTouchStart}
             onTouchEnd={onDrawerTouchEnd}
           >
-            <div className="flex h-12 shrink-0 items-center justify-between border-b border-slate-100 pr-2 pl-4">
+            <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-100 pr-2.5 pl-5">
               <h2
                 id={titleId}
-                className="text-sm font-semibold text-slate-900"
+                className="text-[18px] font-semibold leading-none text-slate-900"
               >
                 더보기
               </h2>
@@ -253,7 +255,7 @@ export function SiteHeader() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-2 py-3">
+            <div className="flex-1 overflow-y-auto px-5 pt-3 pb-4">
               <p className={sectionHeadingClass()}>도구</p>
               <nav aria-label="도구" className="flex flex-col">
                 {TOOL_NAV.map((item) => {
@@ -262,7 +264,7 @@ export function SiteHeader() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={drawerItemClass(active)}
+                      className={drawerItemClass(active, "tool")}
                       onClick={closeMenu}
                     >
                       {item.label}
@@ -271,7 +273,7 @@ export function SiteHeader() {
                 })}
               </nav>
 
-              <div className="mt-3">
+              <div className="mt-5 border-t border-slate-100 pt-5">
                 <p className={sectionHeadingClass()}>서비스</p>
                 <nav aria-label="서비스" className="flex flex-col">
                   {MORE_SERVICE_LINKS.map((item) => {
@@ -281,7 +283,7 @@ export function SiteHeader() {
                         key={item.href}
                         href={item.href}
                         onClick={closeMenu}
-                        className={drawerItemClass(active)}
+                        className={drawerItemClass(active, "service")}
                       >
                         {item.label}
                       </Link>
