@@ -4,6 +4,10 @@ import { ComingSoonPage } from "@/components/ComingSoonPage";
 export const metadata: Metadata = {
   title: "학군 정보 - 아파트 데이터랩",
   description: "단지·지역 주변 학군 정보",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function Page() {

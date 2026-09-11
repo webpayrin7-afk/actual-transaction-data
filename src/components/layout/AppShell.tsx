@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Building2, Calculator, GraduationCap, MapPinned, Percent, Search } from "lucide-react";
+import { BarChart3, Building2, Calculator, MapPinned, Search } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
@@ -15,9 +15,7 @@ const NAV = [
 ] as const;
 
 const TOOLS = [
-  { href: "/school", label: "학군 정보", icon: GraduationCap },
-  { href: "/loan", label: "대출계산기", icon: Calculator },
-  { href: "/rates", label: "금리비교", icon: Percent },
+  { href: "/loan", label: "대출 계산기", icon: Calculator },
 ] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
