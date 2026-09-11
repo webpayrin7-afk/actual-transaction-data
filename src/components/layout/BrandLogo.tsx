@@ -24,23 +24,21 @@ export function BrandLogo({
           className="h-auto w-full object-contain"
         />
       </span>
-      <span className="-ml-2 flex shrink-0 items-center gap-1 sm:-ml-2.5">
-        <span
-          aria-hidden
-          className={`shrink-0 self-center bg-slate-300 ${
-            compact ? "h-8 w-px" : "h-11 w-px"
-          }`}
-        />
-        <span
-          className={`flex min-w-0 flex-col justify-center leading-tight text-slate-600 ${
-            compact
-              ? "text-[10px] font-medium tracking-tight sm:text-[11px]"
-              : "text-xs font-medium tracking-tight sm:text-[13px]"
-          }`}
-        >
-          <span className="whitespace-nowrap">데이터로 만드는</span>
-          <span className="whitespace-nowrap">더 나은 주거의 내일</span>
-        </span>
+      <span
+        aria-hidden
+        className={`-ml-2.5 shrink-0 self-center bg-slate-300 sm:-ml-3 ${
+          compact ? "h-8 w-px" : "h-11 w-px"
+        }`}
+      />
+      <span
+        className={`ml-2 flex min-w-0 flex-col justify-center leading-tight text-slate-600 sm:ml-2.5 ${
+          compact
+            ? "text-[10px] font-medium tracking-tight sm:text-[11px]"
+            : "text-xs font-medium tracking-tight sm:text-[13px]"
+        }`}
+      >
+        <span className="whitespace-nowrap">데이터로 만드는</span>
+        <span className="whitespace-nowrap">더 나은 주거의 내일</span>
       </span>
     </span>
   );
