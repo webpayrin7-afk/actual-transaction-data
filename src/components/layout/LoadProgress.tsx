@@ -8,7 +8,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
 
 type LoadProgressContextValue = {
   label: string | null;
@@ -45,10 +44,8 @@ export function LoadProgressProvider({
   }, []);
 
   const label = useMemo(() => {
-    // Prefer data-fetch labels over route navigation
     if (bySource.query) return bySource.query;
     if (bySource.default) return bySource.default;
-    if (bySource.nav) return bySource.nav;
     const keys = Object.keys(bySource);
     if (keys.length === 0) return null;
     return bySource[keys[keys.length - 1]] ?? null;
@@ -132,60 +129,4 @@ export function SiteHeaderLoadProgress() {
       </div>
     </div>
   );
-}
-
-/**
- * Soft-nav feedback: show the same header bar while a same-origin
- * <Link> navigation is in flight, then clear on route change.
- */
-export function NavigationLoadProgress() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const { show, hide } = useLoadProgress();
-
-  // Delay clearing nav so page query progress can take over without remounting.
-  useEffect(() => {
-    const t = window.setTimeout(() => hide("nav"), 80);
-    return () => window.clearTimeout(t);
-  }, [pathname, searchParams, hide]);
-
-  useEffect(() => {
-    const onClick = (event: MouseEvent) => {
-      if (event.defaultPrevented) return;
-      if (event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-        return;
-      }
-
-      const target = event.target as Element | null;
-      const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
-      if (!anchor) return;
-      if (anchor.target && anchor.target !== "_self") return;
-      if (anchor.hasAttribute("download")) return;
-
-      const hrefAttr = anchor.getAttribute("href");
-      if (!hrefAttr || hrefAttr.startsWith("#")) return;
-
-      let url: URL;
-      try {
-        url = new URL(anchor.href, window.location.href);
-      } catch {
-        return;
-      }
-      if (url.origin !== window.location.origin) return;
-
-      const nextSearch = url.search.startsWith("?")
-        ? url.search.slice(1)
-        : url.search;
-      const curSearch = searchParams.toString();
-      if (url.pathname === pathname && nextSearch === curSearch) return;
-
-      show("페이지 불러오는 중…", "nav");
-    };
-
-    document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
-  }, [pathname, searchParams, show]);
-
-  return null;
 }
