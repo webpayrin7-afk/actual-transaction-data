@@ -271,7 +271,11 @@ export function PeriodRangeSlider({
   };
 
   const presetBtn = (active: boolean) =>
-    `lab-choice ${active ? "lab-choice-selected" : ""}`;
+    `rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+      active
+        ? "bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+        : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+    }`;
 
   return (
     <div className="mt-4 space-y-3">
