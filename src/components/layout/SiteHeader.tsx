@@ -23,19 +23,25 @@ function navLinkClass(active: boolean) {
   }`;
 }
 
+function sectionHeadingClass() {
+  return "px-2.5 pb-0.5 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase";
+}
+
+/** 도구 — primary utility */
 function toolItemClass(active: boolean) {
-  return `block rounded-md px-3 py-2 text-sm font-medium transition ${
+  return `block rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
     active
       ? "bg-teal-50 text-teal-800"
-      : "text-slate-800 hover:bg-slate-50 hover:text-slate-900"
+      : "text-slate-800 hover:bg-teal-50/70 active:bg-teal-50/80"
   }`;
 }
 
+/** 서비스 — secondary (same size, softer color) */
 function serviceItemClass(active: boolean) {
-  return `block rounded-md px-3 py-1 text-xs transition ${
+  return `block rounded-md px-2.5 py-1.5 text-sm transition-colors ${
     active
       ? "bg-teal-50 text-teal-800"
-      : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+      : "text-slate-600 hover:bg-teal-50/70 active:bg-teal-50/80"
   }`;
 }
 
@@ -122,13 +128,10 @@ export function SiteHeader() {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = prev;
     };
-    // closeMenu is stable enough for ESC; menuMounted gates subscription
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menuMounted]);
 
-  useEffect(() => {
-    return () => clearCloseTimer();
-  }, []);
+  useEffect(() => () => clearCloseTimer(), []);
 
   return (
     <header
@@ -221,7 +224,6 @@ export function SiteHeader() {
 
       {menuMounted ? (
         <>
-          {/* 본문 backdrop — 헤더는 밝게 유지 */}
           <div
             className={`fixed inset-x-0 bottom-0 z-[45] bg-black/15 transition-opacity ease-out md:bg-black/10 ${
               menuShown
@@ -233,20 +235,19 @@ export function SiteHeader() {
             onClick={closeMenu}
           />
 
+          {/* compact dropdown card — 햄버거 우측 정렬, 모바일도 full-width 아님 */}
           <div
             id={menuId}
             role="dialog"
             aria-label="더보기"
-            className={`fixed inset-x-0 z-[48] origin-top rounded-b-xl border-b border-slate-200 bg-white px-3 py-2.5 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition ease-out md:inset-x-auto md:right-2 md:w-64 lg:right-[max(0.5rem,calc((100vw-80rem)/2+0.5rem))] ${
+            className={`fixed right-3 z-[48] w-[calc(100%-1.5rem)] max-w-[22.5rem] origin-top rounded-xl border border-slate-200 bg-white px-1.5 py-1.5 shadow-[0_8px_20px_rgba(15,23,42,0.06)] transition ease-out sm:right-4 md:right-2 md:w-72 lg:right-[max(0.5rem,calc((100vw-80rem)/2+0.5rem))] ${
               menuShown
                 ? "translate-y-0 opacity-100 duration-[200ms]"
                 : "-translate-y-2 opacity-0 duration-[160ms]"
             }`}
-            style={{ top: "var(--site-header-height, 3.5rem)" }}
+            style={{ top: "calc(var(--site-header-height, 3.5rem) + 0.35rem)" }}
           >
-            <p className="px-3 pb-0.5 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase">
-              도구
-            </p>
+            <p className={sectionHeadingClass()}>도구</p>
             <nav aria-label="도구" className="flex flex-col">
               {TOOL_NAV.map((item) => {
                 const active = item.match(pathname);
@@ -263,10 +264,8 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <div className="mt-1.5 border-t border-slate-100 pt-1.5">
-              <p className="px-3 pb-0.5 text-[10px] font-bold tracking-[0.14em] text-slate-400 uppercase">
-                서비스
-              </p>
+            <div className="mt-1 border-t border-slate-100 pt-1">
+              <p className={sectionHeadingClass()}>서비스</p>
               <div className="flex flex-col">
                 {MORE_SERVICE_LINKS.map((item) => {
                   const active = pathname === item.href;

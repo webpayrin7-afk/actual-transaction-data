@@ -11,6 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
+import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 import { LabSection } from "@/components/lab/LabSection";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
@@ -268,6 +269,7 @@ export function MarketHome() {
         <AptQuickSearch
           compact
           inputId="market-home-search"
+          placeholder={UNIFIED_SEARCH_PLACEHOLDER}
           showPrice={false}
           includeRegions
         />
