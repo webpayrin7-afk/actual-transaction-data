@@ -76,7 +76,8 @@ function pickByTradeThenRecency(candidates: AreaTradeStat[]): AreaTradeStat | nu
 }
 
 /**
- * 단지 상세 최초 진입 기본 면적.
+ * 단지 상세 최초 진입 기본 면적 (exact areaKey — 레거시).
+ * 그룹 단위 기본값은 resolveDefaultAreaGroupKey 사용.
  * 1) 84㎡대 존재 → 그중 매매 건수 최다 (동률 시 최근 매매)
  * 2) 없으면 전체 면적 중 매매 건수 최다 (동률 시 최근 매매)
  * 3) 매매 데이터로 판단 불가 → "all"
