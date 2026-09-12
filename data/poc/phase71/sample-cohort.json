@@ -1,0 +1,66 @@
+{
+  "phase": "7.1",
+  "max": 10,
+  "complexes": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "role": "mega / Phase5 / Seoul Songpa",
+      "kapt_code": "A13822004"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "role": "mega / Phase5 / Seoul Songpa",
+      "kapt_code": null
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "role": "large premium / Phase5 / Seoul Seocho",
+      "kapt_code": "A13704104"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "role": "old mass-market / Phase5 / Seoul Gangnam",
+      "kapt_code": "A13583507"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "role": "new premium / Phase5 / Seoul Seocho",
+      "kapt_code": null
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "role": "premium / Phase5 / Seoul Yongsan",
+      "kapt_code": null
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "role": "newer mass-premium / Phase5 / Seoul Gangdong",
+      "kapt_code": null
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "role": "premium / Phase5 / Seoul Gangnam",
+      "kapt_code": null
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "role": "small / Phase5 / Seoul Yongsan",
+      "kapt_code": "A14003105"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "role": "old mass-market / Gyeonggi Bundang",
+      "kapt_code": null
+    }
+  ]
+}
