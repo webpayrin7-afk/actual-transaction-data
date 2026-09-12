@@ -1,5 +1,9 @@
 import type { Client } from "@libsql/client";
 import { getDb, ensureSchema } from "@/lib/db/client";
+import {
+  dualKeyWhere,
+  resolveComplexIdFromMolit,
+} from "@/lib/unit-type/complex-id";
 import type {
   AptComplexClassification,
   AptPyeongGroupRow,
@@ -85,11 +89,29 @@ CREATE INDEX IF NOT EXISTS idx_apt_pyeong_group_baselines_complex
   ON apt_pyeong_group_baselines (complex_key);
 `;
 
+async function ensureComplexIdColumns(db: Client): Promise<void> {
+  for (const table of [
+    "apt_complex_classifications",
+    "apt_pyeong_groups",
+    "apt_pyeong_group_baselines",
+  ] as const) {
+    const info = await db.execute(`PRAGMA table_info(${table})`);
+    const has = info.rows.some((row) => String(row.name) === "complex_id");
+    if (!has) {
+      await db.execute(`ALTER TABLE ${table} ADD COLUMN complex_id TEXT`);
+    }
+    await db.execute(
+      `CREATE INDEX IF NOT EXISTS idx_${table}_complex_id ON ${table} (complex_id)`,
+    );
+  }
+}
+
 export async function ensureUnitTypeSchema(
   db: Client = getDb()!,
 ): Promise<void> {
   await ensureSchema(db);
   await db.executeMultiple(UNIT_TYPE_DDL);
+  await ensureComplexIdColumns(db);
 }
 
 export async function replacePilotMasterBundles(
@@ -127,13 +149,17 @@ export async function replacePilotMasterBundles(
   let links = 0;
   for (const bundle of bundles) {
     const c = bundle.classification;
+    const complexId =
+      c.complexId ??
+      (await resolveComplexIdFromMolit(db, c.lawdCd, c.aptNameNorm));
     await db.execute({
       sql: `INSERT INTO apt_complex_classifications (
-        complex_key, apt_name_norm, lawd_cd, gu, classification, singoga_mode,
+        complex_key, complex_id, apt_name_norm, lawd_cd, gu, classification, singoga_mode,
         label_confidence, group_confidence_high, source_phase, provenance_json, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         c.complexKey,
+        complexId,
         c.aptNameNorm,
         c.lawdCd,
         c.gu,
@@ -169,14 +195,15 @@ export async function replacePilotMasterBundles(
     for (const g of bundle.groups) {
       await db.execute({
         sql: `INSERT INTO apt_pyeong_groups (
-          group_key, complex_key, market_label, display_mode,
+          group_key, complex_key, complex_id, market_label, display_mode,
           supply_area_min, supply_area_max, exclusive_area_min, exclusive_area_max,
           household_count, confidence, group_confidence_high, label_null_reason,
           sort_order, source
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         args: [
           g.groupKey,
           g.complexKey,
+          g.complexId ?? complexId,
           g.marketLabel,
           g.displayMode,
           g.supplyAreaMin,
@@ -219,6 +246,10 @@ export async function replacePilotMasterBundles(
 function mapClassification(row: Record<string, unknown>): AptComplexClassification {
   return {
     complexKey: String(row.complex_key),
+    complexId:
+      row.complex_id == null || row.complex_id === ""
+        ? null
+        : String(row.complex_id),
     aptNameNorm: String(row.apt_name_norm),
     lawdCd: String(row.lawd_cd),
     gu: String(row.gu ?? ""),
@@ -237,6 +268,10 @@ function mapGroup(row: Record<string, unknown>): AptPyeongGroupRow {
   return {
     groupKey: String(row.group_key),
     complexKey: String(row.complex_key),
+    complexId:
+      row.complex_id == null || row.complex_id === ""
+        ? null
+        : String(row.complex_id),
     marketLabel: row.market_label == null ? null : Number(row.market_label),
     displayMode: String(row.display_mode) as AptPyeongGroupRow["displayMode"],
     supplyAreaMin: row.supply_area_min == null ? null : Number(row.supply_area_min),
@@ -273,14 +308,19 @@ export async function loadUnitTypeMasterByAptName(
     classRes.rows[0] as Record<string, unknown>,
   );
   const complexKey = classification.complexKey;
+  const complexId = classification.complexId ?? null;
+
+  // Dual-read: prefer complex_id when available; fallback complex_key for
+  // unmigrated rows. Unit types / links still keyed by legacy complex_key only.
+  const groupPred = dualKeyWhere("g", complexId, complexKey);
   const [utRes, gRes, linkRes] = await Promise.all([
     db.execute({
       sql: `SELECT * FROM apt_unit_types WHERE complex_key = ?`,
       args: [complexKey],
     }),
     db.execute({
-      sql: `SELECT * FROM apt_pyeong_groups WHERE complex_key = ? ORDER BY sort_order`,
-      args: [complexKey],
+      sql: `SELECT g.* FROM apt_pyeong_groups g WHERE ${groupPred.sql} ORDER BY g.sort_order`,
+      args: groupPred.args,
     }),
     db.execute({
       sql: `SELECT * FROM apt_unit_type_group_links WHERE complex_key = ?`,
