@@ -1,0 +1,483 @@
+{
+  "mode": "APPLY",
+  "blockers": [
+    "KAPT / management-fee OpenAPI unavailable with current MOLIT_API_KEY (NO_OPENAPI_SERVICE_ERROR)"
+  ],
+  "expected": {
+    "profile_upserts": 10,
+    "source_link_upserts": 14,
+    "enrichment_upserts": 20,
+    "mgmt_fee_upserts": 0
+  },
+  "api_requests": {
+    "building_hub": 10,
+    "kapt_live": 0,
+    "mgmt_live": 0
+  },
+  "complexes": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "role": "mega / Phase5 / Seoul Songpa",
+      "kapt_code": "A13822004",
+      "sources": [
+        "KAPT_POC_CACHE",
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-08-21",
+          "deal_amount": 341000,
+          "exclusive_area": 84.97,
+          "floor": 21
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-11",
+          "deal_amount": 138000,
+          "exclusive_area": 84.8,
+          "floor": 19
+        },
+        "jeonse_ratio": 0.4047,
+        "sale_jeonse_gap": 203000
+      },
+      "profile": {
+        "complex_id": "cx_4c63d9a100973c60",
+        "household_count": 5678,
+        "building_count": 72,
+        "approval_date": "2008-09-30",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 34,
+        "land_area_sqm": null,
+        "total_area_sqm": 935380.3600000002,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":95,\"parcel\":\"11710|10100|0019|0000\"}",
+        "updated_at": "2026-09-12T09:52:04.597Z"
+      }
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "role": "mega / Phase5 / Seoul Songpa",
+      "kapt_code": null,
+      "sources": [
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-08-20",
+          "deal_amount": 280000,
+          "exclusive_area": 59.95,
+          "floor": 28
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-11",
+          "deal_amount": 94500,
+          "exclusive_area": 84.9,
+          "floor": 1
+        },
+        "jeonse_ratio": 0.3375,
+        "sale_jeonse_gap": 185500
+      },
+      "profile": {
+        "complex_id": "cx_ed52bf895d064c11",
+        "household_count": 6864,
+        "building_count": 86,
+        "approval_date": "2008-08-29",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 36,
+        "land_area_sqm": null,
+        "total_area_sqm": 1141336.8899999992,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":86,\"parcel\":\"11710|10200|0017|0000\"}",
+        "updated_at": "2026-09-12T09:52:06.822Z"
+      }
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "role": "large premium / Phase5 / Seoul Seocho",
+      "kapt_code": "A13704104",
+      "sources": [
+        "KAPT_POC_CACHE",
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-09-08",
+          "deal_amount": 505000,
+          "exclusive_area": 84.943,
+          "floor": 8
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-08",
+          "deal_amount": 73368,
+          "exclusive_area": 59.98,
+          "floor": 4
+        },
+        "jeonse_ratio": 0.1453,
+        "sale_jeonse_gap": 431632
+      },
+      "profile": {
+        "complex_id": "cx_1c244e7305d12c44",
+        "household_count": 3410,
+        "building_count": 44,
+        "approval_date": "2009-03-13",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 29,
+        "land_area_sqm": null,
+        "total_area_sqm": 813262.8420000001,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":64,\"parcel\":\"11650|10700|0020|0043\"}",
+        "updated_at": "2026-09-12T09:52:09.266Z"
+      }
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "role": "old mass-market / Phase5 / Seoul Gangnam",
+      "kapt_code": "A13583507",
+      "sources": [
+        "KAPT_POC_CACHE",
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-08-29",
+          "deal_amount": 333000,
+          "exclusive_area": 76.79,
+          "floor": 9
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-10",
+          "deal_amount": 70000,
+          "exclusive_area": 84.43,
+          "floor": 5
+        },
+        "jeonse_ratio": 0.2102,
+        "sale_jeonse_gap": 263000
+      },
+      "profile": {
+        "complex_id": "cx_0320fd9e007e1f8c",
+        "household_count": 4424,
+        "building_count": 28,
+        "approval_date": "1979-08-30",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 14,
+        "land_area_sqm": null,
+        "total_area_sqm": 528772,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "판매시설",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":31,\"parcel\":\"11680|10600|0316|0000\"}",
+        "updated_at": "2026-09-12T09:52:11.497Z"
+      }
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "role": "new premium / Phase5 / Seoul Seocho",
+      "kapt_code": null,
+      "sources": [
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-08-06",
+          "deal_amount": 539000,
+          "exclusive_area": 84.97,
+          "floor": 13
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-05",
+          "deal_amount": 367500,
+          "exclusive_area": 129.97,
+          "floor": 22
+        },
+        "jeonse_ratio": 0.6818,
+        "sale_jeonse_gap": 171500
+      },
+      "profile": {
+        "complex_id": "cx_ba770c1e608ed88f",
+        "household_count": 1612,
+        "building_count": 40,
+        "approval_date": "2016-08-30",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 38,
+        "land_area_sqm": null,
+        "total_area_sqm": 346883.1399999999,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":40,\"parcel\":\"11650|10700|0002|0012\"}",
+        "updated_at": "2026-09-12T09:52:13.472Z"
+      }
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "role": "premium / Phase5 / Seoul Yongsan",
+      "kapt_code": null,
+      "sources": [
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-07-25",
+          "deal_amount": 1100000,
+          "exclusive_area": 208.478,
+          "floor": 3
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-08-27",
+          "deal_amount": 540000,
+          "exclusive_area": 233.062,
+          "floor": 5
+        },
+        "jeonse_ratio": 0.4909,
+        "sale_jeonse_gap": 560000
+      },
+      "profile": {
+        "complex_id": "cx_e47102400fbc8ec6",
+        "household_count": 600,
+        "building_count": 43,
+        "approval_date": "2011-01-07",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 12,
+        "land_area_sqm": null,
+        "total_area_sqm": 211772.1520000001,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":43,\"parcel\":\"11170|13100|0810|0000\"}",
+        "updated_at": "2026-09-12T09:52:15.480Z"
+      }
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "role": "newer mass-premium / Phase5 / Seoul Gangdong",
+      "kapt_code": null,
+      "sources": [
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-08-15",
+          "deal_amount": 195000,
+          "exclusive_area": 59.35,
+          "floor": 11
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-09",
+          "deal_amount": 105000,
+          "exclusive_area": 84.9,
+          "floor": 18
+        },
+        "jeonse_ratio": 0.5385,
+        "sale_jeonse_gap": 90000
+      },
+      "profile": {
+        "complex_id": "cx_f39813c026bb2817",
+        "household_count": 3658,
+        "building_count": 75,
+        "approval_date": "2016-12-29",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 35,
+        "land_area_sqm": null,
+        "total_area_sqm": 688558.4500000003,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":75,\"parcel\":\"11740|10200|0688|0000\"}",
+        "updated_at": "2026-09-12T09:52:16.996Z"
+      }
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "role": "premium / Phase5 / Seoul Gangnam",
+      "kapt_code": null,
+      "sources": [
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-07-22",
+          "deal_amount": 638000,
+          "exclusive_area": 114.15,
+          "floor": 15
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-08-29",
+          "deal_amount": 202500,
+          "exclusive_area": 84.97,
+          "floor": 16
+        },
+        "jeonse_ratio": 0.3174,
+        "sale_jeonse_gap": 435500
+      },
+      "profile": {
+        "complex_id": "cx_adb7193c5c99abd6",
+        "household_count": 1608,
+        "building_count": 44,
+        "approval_date": "2015-09-22",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 35,
+        "land_area_sqm": null,
+        "total_area_sqm": 349568.37,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":44,\"parcel\":\"11680|10600|1027|0000\"}",
+        "updated_at": "2026-09-12T09:52:18.835Z"
+      }
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "role": "small / Phase5 / Seoul Yongsan",
+      "kapt_code": "A14003105",
+      "sources": [
+        "KAPT_POC_CACHE",
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-08-05",
+          "deal_amount": 320000,
+          "exclusive_area": 134.13,
+          "floor": 13
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-04",
+          "deal_amount": 132000,
+          "exclusive_area": 135.87,
+          "floor": 10
+        },
+        "jeonse_ratio": 0.4125,
+        "sale_jeonse_gap": 188000
+      },
+      "profile": {
+        "complex_id": "cx_ec9a204afeaadf1b",
+        "household_count": 834,
+        "building_count": 10,
+        "approval_date": "2000-03-31",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 24,
+        "land_area_sqm": null,
+        "total_area_sqm": 135574.51,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":16,\"parcel\":\"11170|12900|0415|0000\"}",
+        "updated_at": "2026-09-12T09:52:20.414Z"
+      }
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "role": "old mass-market / Gyeonggi Bundang",
+      "kapt_code": null,
+      "sources": [
+        "BUILDING_HUB"
+      ],
+      "market_probe": {
+        "latest_sale": {
+          "deal_date": "2026-08-24",
+          "deal_amount": 130500,
+          "exclusive_area": 35.1,
+          "floor": 5
+        },
+        "latest_jeonse": {
+          "deal_date": "2026-09-09",
+          "deal_amount": 31500,
+          "exclusive_area": 35.1,
+          "floor": 7
+        },
+        "jeonse_ratio": 0.2414,
+        "sale_jeonse_gap": 99000
+      },
+      "profile": {
+        "complex_id": "cx_d6b07e832d194cf9",
+        "household_count": 2419,
+        "building_count": 43,
+        "approval_date": "1992-07-15",
+        "heating_type": null,
+        "management_type": null,
+        "parking_total": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "max_floor": 30,
+        "land_area_sqm": null,
+        "total_area_sqm": 288286.3670000001,
+        "structure_type": "철근콘크리트구조",
+        "main_purpose": "공동주택",
+        "source": "COMPOSITE",
+        "source_version": "phase71-v1",
+        "raw_meta_json": "{\"hub_title_rows\":43,\"parcel\":\"41135|10500|0091|0000\"}",
+        "updated_at": "2026-09-12T09:52:21.792Z"
+      }
+    }
+  ]
+}
