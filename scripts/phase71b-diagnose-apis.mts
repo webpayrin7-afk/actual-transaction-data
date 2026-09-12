@@ -37,11 +37,29 @@ function extractOpenApiError(text: string) {
   return { errMsg, returnAuthMsg, returnReasonCode, resultCode, resultMsg };
 }
 
+type ProbeResult = {
+  label: string;
+  http_status: number | null;
+  url_logged: string;
+  host?: string;
+  path?: string;
+  body_prefix?: string;
+  errMsg?: string | null;
+  returnAuthMsg?: string | null;
+  returnReasonCode?: string | null;
+  resultCode?: string | null;
+  resultMsg?: string | null;
+  error?: string;
+  ok_like: boolean;
+  product?: string;
+  keyMode?: string;
+};
+
 async function probe(
   label: string,
   urlBuilder: (serviceKeyForQuery: string) => string,
   serviceKeyForQuery: string,
-) {
+): Promise<ProbeResult> {
   const url = urlBuilder(serviceKeyForQuery);
   const loggedUrl = url.replaceAll(serviceKeyForQuery, "***MASKED***");
   const ac = new AbortController();
@@ -230,7 +248,7 @@ async function main() {
     },
   ];
 
-  const results: Record<string, unknown>[] = [];
+  const results: ProbeResult[] = [];
 
   for (const c of cases) {
     const r = await probe(c.label, c.build, c.key);
@@ -238,7 +256,7 @@ async function main() {
   }
 
   // One encoding alternate for basic info if blocked
-  const basic = results.find((r) => r.label === "A_BASIC_getAphusBassInfo") as any;
+  const basic = results.find((r) => r.label === "A_BASIC_getAphusBassInfo");
   if (basic && !basic.ok_like) {
     const alt = await probe(
       "A_BASIC_encoding_alt_manualEncoded",
@@ -271,10 +289,10 @@ async function main() {
   }
 
   const controlOk = results.filter(
-    (r: any) => String(r.label).startsWith("CONTROL_") && r.ok_like,
+    (r) => String(r.label).startsWith("CONTROL_") && r.ok_like,
   );
   const blockedPrimary = results.filter(
-    (r: any) =>
+    (r) =>
       /^[A-F]_/.test(String(r.label)) &&
       !String(r.label).includes("_alt") &&
       !r.ok_like,
@@ -282,7 +300,7 @@ async function main() {
 
   let root_cause = "UNKNOWN";
   const allNoOpen = blockedPrimary.every(
-    (r: any) =>
+    (r) =>
       r.errMsg === "NO_OPENAPI_SERVICE_ERROR" ||
       String(r.returnAuthMsg || "").includes("오픈API"),
   );
@@ -295,12 +313,8 @@ async function main() {
   // Detect wrong-endpoint if encoding alt differs meaningfully
   const encodingAlt = results.find(
     (r) => r.label === "A_BASIC_encoding_alt_manualEncoded",
-  ) as any;
-  if (
-    encodingAlt?.ok_like &&
-    basic &&
-    !basic.ok_like
-  ) {
+  );
+  if (encodingAlt?.ok_like && basic && !basic.ok_like) {
     root_cause = "KEY-PROBLEM"; // encoding mishandling
   }
 
@@ -323,7 +337,7 @@ async function main() {
         root_cause_hypothesis: root_cause,
         code_fixable: report.code_fixable,
         manual_action_required: report.manual_action_required,
-        summary: results.map((r: any) => ({
+        summary: results.map((r) => ({
           label: r.label,
           http_status: r.http_status,
           errMsg: r.errMsg,
