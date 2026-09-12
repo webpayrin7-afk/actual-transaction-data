@@ -1,0 +1,24 @@
+{
+  "phase": "5.5b-tierA1",
+  "expected": {
+    "classificationInserts": 3,
+    "groupInserts": 25,
+    "baselineInserts": 12,
+    "total": 40
+  },
+  "written": {
+    "classifications": 3,
+    "groups": 25,
+    "baselines": 12,
+    "updates": 0,
+    "deletes": 0
+  },
+  "mismatches": [],
+  "mappingOk": true,
+  "hannamUntouched": {
+    "c": 0,
+    "g": 0,
+    "b": 0
+  },
+  "pass": true
+}

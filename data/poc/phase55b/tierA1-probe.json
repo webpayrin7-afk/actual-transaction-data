@@ -1,0 +1,69 @@
+{
+  "phase": "5.5b-tierA1-probe",
+  "capturedAt": "2026-09-12T03:46:08.077Z",
+  "prod": "https://actual-transaction-data.vercel.app",
+  "results": {
+    "daechi-palace": {
+      "http": 200,
+      "latencySec": 2.195,
+      "itemCount": 1493,
+      "singogaCount": 156,
+      "areaKeyCount": 9,
+      "unitTypePilot": {
+        "complexKey": "daechi-palace",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineMissingHigh": 2,
+      "highGroupCount": 9,
+      "baselineRowCount": 7,
+      "error": null
+    },
+    "mapo-raemian-prugio": {
+      "http": 200,
+      "latencySec": 1.253,
+      "itemCount": 1570,
+      "singogaCount": 114,
+      "areaKeyCount": 6,
+      "unitTypePilot": {
+        "complexKey": "mapo-raemian-prugio",
+        "classification": "group-safe-label-unknown",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineMissingHigh": 3,
+      "highGroupCount": 6,
+      "baselineRowCount": 3,
+      "error": null
+    },
+    "acro-riverpark": {
+      "http": 200,
+      "latencySec": 1.195,
+      "itemCount": 1709,
+      "singogaCount": 128,
+      "areaKeyCount": 10,
+      "unitTypePilot": {
+        "complexKey": "acro-riverpark",
+        "classification": "group-safe-label-unknown",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineMissingHigh": 8,
+      "highGroupCount": 10,
+      "baselineRowCount": 2,
+      "error": null
+    }
+  },
+  "baselineMissing": 13,
+  "errors": 0,
+  "latencyMaxSec": 2.195,
+  "latencyOk": true,
+  "pass": false
+}

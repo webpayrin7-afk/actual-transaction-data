@@ -44,7 +44,7 @@ async function main() {
   for (const c of COMPLEXES) {
     const master = await loadUnitTypeMasterByAptName(c.aptName.replace(/\s+/g, ""), db);
     const baselines = master
-      ? await loadBaselinePriorMaxByComplex(master.classification.complexKey, db)
+      ? await loadBaselinePriorMaxByComplex(db, master.classification.complexKey)
       : new Map();
     const highGroups = (master?.groups ?? []).filter((g) => g.groupConfidenceHigh);
     const missingHigh = highGroups.filter((g) => !baselines.has(g.groupKey)).length;

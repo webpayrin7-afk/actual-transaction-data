@@ -1,0 +1,110 @@
+{
+  "phase": "5.5b-tierA1",
+  "capturedAt": "2026-09-12T03:47:21.291Z",
+  "complexesLoaded": [
+    "daechi-palace",
+    "mapo-raemian-prugio",
+    "acro-riverpark"
+  ],
+  "held": [
+    {
+      "complex": "hannam-thehill",
+      "reason": "classification unresolved"
+    }
+  ],
+  "writes": {
+    "classifications": {
+      "expected": 3,
+      "written": 3
+    },
+    "groups": {
+      "expected": 25,
+      "written": 25
+    },
+    "baselines": {
+      "expected": 12,
+      "written": 12
+    },
+    "updates": 0,
+    "deletes": 0,
+    "total": 40
+  },
+  "readBack": {
+    "classificationMatch": true,
+    "groupMatch": true,
+    "baselineMatch": true,
+    "groupKeyMapping": "100%",
+    "plannedBaselineMissing": 0,
+    "intentionalNoPriorHighGroups": 13
+  },
+  "runtime": {
+    "daechi-palace": {
+      "http": 200,
+      "latencySec": 2.195,
+      "itemCount": 1493,
+      "singogaCount": 156,
+      "areaKeyCount": 9,
+      "unitTypePilot": {
+        "complexKey": "daechi-palace",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineMissingHigh": 2,
+      "highGroupCount": 9,
+      "baselineRowCount": 7,
+      "error": null
+    },
+    "mapo-raemian-prugio": {
+      "http": 200,
+      "latencySec": 1.253,
+      "itemCount": 1570,
+      "singogaCount": 114,
+      "areaKeyCount": 6,
+      "unitTypePilot": {
+        "complexKey": "mapo-raemian-prugio",
+        "classification": "group-safe-label-unknown",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineMissingHigh": 3,
+      "highGroupCount": 6,
+      "baselineRowCount": 3,
+      "error": null
+    },
+    "acro-riverpark": {
+      "http": 200,
+      "latencySec": 1.195,
+      "itemCount": 1709,
+      "singogaCount": 128,
+      "areaKeyCount": 10,
+      "unitTypePilot": {
+        "complexKey": "acro-riverpark",
+        "classification": "group-safe-label-unknown",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineMissingHigh": 8,
+      "highGroupCount": 10,
+      "baselineRowCount": 2,
+      "error": null
+    }
+  },
+  "baselineMissingPlanned": 0,
+  "baselineMissingIntentionalNoPrior": 13,
+  "errors": 0,
+  "latencyMaxSec": 2.195,
+  "flags": {
+    "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "1",
+    "POST_WH_SINGOGA_GAPS_CLEARED": "unset/0"
+  },
+  "pr69": "contains reusable unit-type production code — do NOT auto-close/merge; report only",
+  "decision": "PASS",
+  "nextTierB": "YES (recommendation only; do not run)"
+}
