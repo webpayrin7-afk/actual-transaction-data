@@ -879,35 +879,52 @@ async function main(): Promise<void> {
     });
   }
 
+  type ComplexReport = {
+    complexKey: string;
+    displayName?: string;
+    comparedTrades?: number;
+    exact?: number;
+    explainable?: number;
+    unexplained?: number;
+    judgmentCriticalUnexplained?: number;
+    molitPostWhPlusBaselineVsFullDiff?: number;
+    special?: {
+      hangang49_50?: { separate?: boolean };
+      banpoPriorRepair?: Array<{ inWarehouse: boolean; inFullHistory: boolean }>;
+      parkrio84?: unknown[];
+      jamsil84?: unknown[];
+    };
+  };
+
   const hangang = complexReports.find(
-    (c) => (c as { complexKey: string }).complexKey === "hangang-daewoo",
-  ) as Record<string, unknown>;
+    (c) => (c as ComplexReport).complexKey === "hangang-daewoo",
+  ) as ComplexReport | undefined;
   const banpo = complexReports.find(
-    (c) => (c as { complexKey: string }).complexKey === "banpo-xi",
-  ) as Record<string, unknown>;
+    (c) => (c as ComplexReport).complexKey === "banpo-xi",
+  ) as ComplexReport | undefined;
   const parkrio = complexReports.find(
-    (c) => (c as { complexKey: string }).complexKey === "parkrio",
-  ) as Record<string, unknown>;
+    (c) => (c as ComplexReport).complexKey === "parkrio",
+  ) as ComplexReport | undefined;
   const jamsil = complexReports.find(
-    (c) => (c as { complexKey: string }).complexKey === "jamsil-els",
-  ) as Record<string, unknown>;
+    (c) => (c as ComplexReport).complexKey === "jamsil-els",
+  ) as ComplexReport | undefined;
 
   const judgmentCriticalUnexplained = (
-    complexReports as Array<{ judgmentCriticalUnexplained: number }>
-  ).reduce((n, c) => n + c.judgmentCriticalUnexplained, 0);
+    complexReports as ComplexReport[]
+  ).reduce((n, c) => n + (c.judgmentCriticalUnexplained ?? 0), 0);
 
   const hangangOk = hangang?.special?.hangang49_50?.separate === true;
   const banpoOk = (banpo?.special?.banpoPriorRepair ?? []).every(
-    (r: { inWarehouse: boolean; inFullHistory: boolean }) =>
-      r.inWarehouse && r.inFullHistory,
+    (r) => r.inWarehouse && r.inFullHistory,
   );
   const parkrioOk = (parkrio?.special?.parkrio84 ?? []).length === 1;
   const jamsilOk = (jamsil?.special?.jamsil84 ?? []).length === 1;
 
   // Any unexplained judgment-field diff → HOLD. Meta-only diffs are not unexplained.
-  const molitAlgorithmDiffTotal = (
-    complexReports as Array<{ molitPostWhPlusBaselineVsFullDiff?: number }>
-  ).reduce((n, c) => n + Number(c.molitPostWhPlusBaselineVsFullDiff ?? 0), 0);
+  const molitAlgorithmDiffTotal = (complexReports as ComplexReport[]).reduce(
+    (n, c) => n + Number(c.molitPostWhPlusBaselineVsFullDiff ?? 0),
+    0,
+  );
 
   const decision =
 
@@ -991,7 +1008,7 @@ async function main(): Promise<void> {
           parkrio84_groups: parkrio?.special?.parkrio84?.length ?? 0,
           jamsil84_groups: jamsil?.special?.jamsil84?.length ?? 0,
         },
-        perComplex: (complexReports as Array<Record<string, unknown>>).map((c) => ({
+        perComplex: (complexReports as ComplexReport[]).map((c) => ({
           apt: c.displayName,
           compared: c.comparedTrades,
           exact: c.exact,
