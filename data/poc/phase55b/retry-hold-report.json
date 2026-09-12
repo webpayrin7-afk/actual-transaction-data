@@ -1,0 +1,76 @@
+{
+  "phase": "5.5b-retry",
+  "decision": "HOLD",
+  "capturedAt": "2026-09-12T03:28:16.578655+00:00",
+  "dependencyPreflight": {
+    "loader": "loadUnitTypeMasterByAptName",
+    "tablesRead": [
+      "apt_complex_classifications (required; null bundle if missing)",
+      "apt_unit_types (optional empty)",
+      "apt_pyeong_groups (required for market_group areas/singoga)",
+      "apt_unit_type_group_links (optional empty)",
+      "apt_pyeong_group_baselines (via separate baseline load when ENABLE=1)"
+    ],
+    "missingForTierA": {
+      "apt_complex_classifications": {
+        "expectedInserts": 4,
+        "present": 0
+      },
+      "apt_pyeong_groups": {
+        "expectedInserts": 34,
+        "present": 0
+      },
+      "apt_pyeong_group_baselines": {
+        "expectedInserts": 20,
+        "present": 0
+      },
+      "apt_unit_types": {
+        "expectedInserts": 0,
+        "present": 0,
+        "required": false
+      },
+      "apt_unit_type_group_links": {
+        "expectedInserts": 0,
+        "present": 0,
+        "required": false
+      }
+    },
+    "classificationDeterminism": {
+      "daechi-palace": {
+        "ok": true,
+        "value": "auto-safe",
+        "source": "phase4"
+      },
+      "mapo-raemian-prugio": {
+        "ok": true,
+        "value": "group-safe-label-unknown",
+        "source": "phase4"
+      },
+      "acro-riverpark": {
+        "ok": true,
+        "value": "group-safe-label-unknown",
+        "source": "phase4"
+      },
+      "hannam-thehill": {
+        "ok": false,
+        "value": null,
+        "source": "no phase4 json; not in phase4-summary; 5.5a used warehouse-cluster only"
+      }
+    },
+    "autoProceed": false,
+    "autoProceedBlocker": "hannam-thehill classification not deterministically known from validated Phase4/5 classification artifacts"
+  },
+  "writeResult": {
+    "classifications": 0,
+    "groups": 0,
+    "baselines": 0,
+    "updates": 0,
+    "deletes": 0,
+    "total": 0
+  },
+  "flagsUnchanged": {
+    "ENABLE": "1",
+    "POST_WH": "unset/0"
+  },
+  "next": "Tier B NO; supply deterministic classification for hannam-thehill (or drop it from Tier A) then retry"
+}
