@@ -1,0 +1,90 @@
+{
+  "phase": "5.5c-tierB",
+  "capturedAt": "2026-09-12T04:19:49.748Z",
+  "approved": [
+    "raemian-hill-godeok",
+    "helio-city",
+    "raemian-anyang-megatria",
+    "e-pyeonhansesang-osan"
+  ],
+  "artifactScope": {
+    "unexplainedAll0": true,
+    "groupInsertsIfClassOk": 24,
+    "breakdown": {
+      "raemian-hill-godeok": {
+        "groups": 7,
+        "baselines": 0
+      },
+      "helio-city": {
+        "groups": 8,
+        "baselines": 0
+      },
+      "raemian-anyang-megatria": {
+        "groups": 6,
+        "baselines": 0
+      },
+      "e-pyeonhansesang-osan": {
+        "groups": 3,
+        "baselines": 0
+      }
+    },
+    "baselinesRequired": 0,
+    "note": "Phase5.5a group-master-first; no synthetic baselines"
+  },
+  "classificationDeterminism": {
+    "raemian-hill-godeok": {
+      "ok": false,
+      "source": "no phase4 json / not in phase4-summary"
+    },
+    "helio-city": {
+      "ok": false,
+      "source": "no phase4 json / not in phase4-summary"
+    },
+    "raemian-anyang-megatria": {
+      "ok": false,
+      "source": "no phase4 json / not in phase4-summary"
+    },
+    "e-pyeonhansesang-osan": {
+      "ok": false,
+      "source": "no phase4 json / not in phase4-summary"
+    }
+  },
+  "productionConflicts": {
+    "classifications": 0,
+    "groups": 0,
+    "baselines": 0
+  },
+  "loaded": [],
+  "held": [
+    {
+      "complex": "raemian-hill-godeok",
+      "reason": "classification unresolved"
+    },
+    {
+      "complex": "helio-city",
+      "reason": "classification unresolved"
+    },
+    {
+      "complex": "raemian-anyang-megatria",
+      "reason": "classification unresolved"
+    },
+    {
+      "complex": "e-pyeonhansesang-osan",
+      "reason": "classification unresolved"
+    }
+  ],
+  "writes": {
+    "classifications": 0,
+    "groups": 0,
+    "baselines": 0,
+    "updates": 0,
+    "deletes": 0,
+    "total": 0
+  },
+  "flagsUnchanged": {
+    "ENABLE": "1",
+    "POST_WH": "unset/0"
+  },
+  "decision": "HOLD",
+  "next": "A) resolve classification (hannam-thehill + Tier B 4 share same gap)"
+}
