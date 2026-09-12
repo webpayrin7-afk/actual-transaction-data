@@ -1,0 +1,48 @@
+{
+  "phase": "5.4b",
+  "decision": "HOLD",
+  "reason": "Production deploy includes #66, but agent cannot set Vercel Production env (no VERCEL_TOKEN). ENABLE left unchanged.",
+  "PR66": {
+    "state": "MERGED",
+    "mergeCommit": "d51716197d6233be5c1a971519ba4225264802eb",
+    "mergedAt": "2026-09-12T02:26:45Z"
+  },
+  "mainSHA": "d51716197d6233be5c1a971519ba4225264802eb",
+  "productionSHA": "d51716197d6233be5c1a971519ba4225264802eb",
+  "productionIncludes66": true,
+  "baselineCodePresentOnMain": {
+    "baseline-gate.ts": true,
+    "baselines.ts": true,
+    "apt.ts baseline read path": true,
+    "apt-client.ts": true
+  },
+  "flags": {
+    "before": {
+      "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "unset/0 (inferred: prod singoga counts match ENABLE=0 Turso path)",
+      "POST_WH_SINGOGA_GAPS_CLEARED": "unset/0 (not changed; gate still blocks fallback retirement)"
+    },
+    "after": {
+      "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "unchanged — activation blocked",
+      "POST_WH_SINGOGA_GAPS_CLEARED": "unset/0 (never touched)"
+    }
+  },
+  "productionPath": {
+    "baselineCodePresent": true,
+    "baselinePathActive": false,
+    "fallbackRetained": true
+  },
+  "preflight": {
+    "tursoBaselineMissing": 0,
+    "ENABLE1_turnsPathOn": true,
+    "POST_WH_staysFalseWhenEnable1": true,
+    "fallbackRetirementStillBlocked": true,
+    "dbWrites": 0
+  },
+  "prCleanup": {
+    "64": "already MERGED (cannot close-only; closed via merge earlier)",
+    "65": "CLOSED (close-only, not merged)"
+  },
+  "blocker": "VERCEL_TOKEN missing / vercel CLI logged out — cannot set Production ENABLE=1",
+  "next": "Human sets ENABLE_MARKET_GROUP_BASELINE_SINGOGA=1 on Vercel Production (POST_WH untouched), redeploys, then re-run agent verification.",
+  "capturedAt": "2026-09-12T02:36:55.358693+00:00"
+}

@@ -1,0 +1,304 @@
+{
+  "capturedAt": "2026-09-12T02:36:31.482Z",
+  "mode": "turso-readonly-preflight",
+  "writes": 0,
+  "gateUnset": {
+    "ENABLE": "(unset)",
+    "POST_WH": "(unset)",
+    "isEnabled": false,
+    "postWh": false,
+    "blockReason": "ENABLE_MARKET_GROUP_BASELINE_SINGOGA is not 1",
+    "fallbackRetirementBlock": "POST_WH_SINGOGA_GAPS_CLEARED is not 1 (5 Banpo/Jamsil warehouse gaps still open); legacy/full-history fallback must be retained"
+  },
+  "gateEnableOnlyExpected": {
+    "isEnabled": true,
+    "postWh": false,
+    "blockReason": null,
+    "fallbackRetirementBlock": "POST_WH_SINGOGA_GAPS_CLEARED is not 1 (5 Banpo/Jamsil warehouse gaps still open); legacy/full-history fallback must be retained",
+    "note": "ENABLE=1 alone turns baseline path ON; POST_WH stays false; fallback retirement still blocked"
+  },
+  "expectations": {
+    "baselineReadPathOnWhenEnable1": true,
+    "legacyFallbackRetained": true,
+    "dbWrite": 0,
+    "postWhMustRemainUnset": true
+  },
+  "pilots": [
+    {
+      "complexKey": "hangang-daewoo",
+      "aptName": "한강(대우)",
+      "special": "G3 ex134.13 vs G4 ex135.27-135.87",
+      "tradeCount": 266,
+      "groupCount": 4,
+      "baselineRowCount": 4,
+      "priorMapSize": 4,
+      "baselineMissingGroups": [],
+      "singogaOff": 81,
+      "singogaOn": 75,
+      "flipDiff": 8,
+      "onOnly": 1,
+      "offOnly": 7,
+      "specialGroups": [
+        "hangang-daewoo:G3:ex134.13-134.13",
+        "hangang-daewoo:G4:ex135.27-135.87"
+      ],
+      "banpoFlipCheck": null,
+      "sampleBaselines": [
+        {
+          "groupKey": "hangang-daewoo:G1:ex59.98-60.00",
+          "priorMaxAmount": 75000,
+          "priorMaxDealDate": "2016-08-23",
+          "baselineUntil": "2016-10-29",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "priorMaxAmount": 99500,
+          "priorMaxDealDate": "2016-09-28",
+          "baselineUntil": "2016-10-29",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "hangang-daewoo:G3:ex134.13-134.13",
+          "priorMaxAmount": 135000,
+          "priorMaxDealDate": "2006-10-25",
+          "baselineUntil": "2016-10-29",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "priorMaxAmount": 128000,
+          "priorMaxDealDate": "2006-05-17",
+          "baselineUntil": "2016-10-29",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "complexKey": "parkrio",
+      "aptName": "파크리오",
+      "special": "G3 ex84.79-84.97",
+      "tradeCount": 2661,
+      "groupCount": 5,
+      "baselineRowCount": 5,
+      "priorMapSize": 5,
+      "baselineMissingGroups": [],
+      "singogaOff": 227,
+      "singogaOn": 204,
+      "flipDiff": 23,
+      "onOnly": 0,
+      "offOnly": 23,
+      "specialGroups": [
+        "parkrio:G3:ex84.79-84.97"
+      ],
+      "banpoFlipCheck": null,
+      "sampleBaselines": [
+        {
+          "groupKey": "parkrio:G1:ex35.24-35.24",
+          "priorMaxAmount": 55000,
+          "priorMaxDealDate": "2016-08-25",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "priorMaxAmount": 87000,
+          "priorMaxDealDate": "2016-09-06",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "priorMaxAmount": 109500,
+          "priorMaxDealDate": "2016-09-20",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "priorMaxAmount": 155000,
+          "priorMaxDealDate": "2009-06-12",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "parkrio:G5:ex144.77-144.77",
+          "priorMaxAmount": 200000,
+          "priorMaxDealDate": "2010-04-09",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "complexKey": "banpo-xi",
+      "aptName": "반포자이",
+      "special": "prior repair / Banpo flips",
+      "tradeCount": 1072,
+      "groupCount": 7,
+      "baselineRowCount": 7,
+      "priorMapSize": 7,
+      "baselineMissingGroups": [],
+      "singogaOff": 192,
+      "singogaOn": 171,
+      "flipDiff": 21,
+      "onOnly": 0,
+      "offOnly": 21,
+      "specialGroups": [
+        "banpo-xi:G1:ex59.97-59.98",
+        "banpo-xi:G2:ex84.94-85.00"
+      ],
+      "banpoFlipCheck": [
+        {
+          "dealDate": "2025-02-18",
+          "dealAmount": 415000,
+          "found": true,
+          "exclusiveArea": 84.982,
+          "off": false,
+          "on": false
+        },
+        {
+          "dealDate": "2025-07-10",
+          "dealAmount": 475000,
+          "found": true,
+          "exclusiveArea": 84.943,
+          "off": false,
+          "on": false
+        },
+        {
+          "dealDate": "2026-06-20",
+          "dealAmount": 615000,
+          "found": true,
+          "exclusiveArea": 132.439,
+          "off": false,
+          "on": false
+        },
+        {
+          "dealDate": "2026-07-20",
+          "dealAmount": 373000,
+          "found": true,
+          "exclusiveArea": 59.971,
+          "off": false,
+          "on": false
+        }
+      ],
+      "sampleBaselines": [
+        {
+          "groupKey": "banpo-xi:G1:ex59.97-59.98",
+          "priorMaxAmount": 120000,
+          "priorMaxDealDate": "2016-08-20",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "priorMaxAmount": 169000,
+          "priorMaxDealDate": "2016-09-30",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "banpo-xi:G3:ex132.18-132.44",
+          "priorMaxAmount": 220000,
+          "priorMaxDealDate": "2010-01-05",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "banpo-xi:G4:ex165.05-165.45",
+          "priorMaxAmount": 254000,
+          "priorMaxDealDate": "2009-09-24",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "banpo-xi:G5:ex194.52-194.69",
+          "priorMaxAmount": 280000,
+          "priorMaxDealDate": "2010-01-16",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "banpo-xi:G6:ex216.49-216.49",
+          "priorMaxAmount": 317000,
+          "priorMaxDealDate": "2009-10-14",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "banpo-xi:G7:ex244.54-244.97",
+          "priorMaxAmount": 339000,
+          "priorMaxDealDate": "2009-06-16",
+          "baselineUntil": "2016-10-01",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "complexKey": "jamsil-els",
+      "aptName": "잠실엘스",
+      "special": "G2 ex84.80-84.97",
+      "tradeCount": 1646,
+      "groupCount": 3,
+      "baselineRowCount": 3,
+      "priorMapSize": 3,
+      "baselineMissingGroups": [],
+      "singogaOff": 162,
+      "singogaOn": 154,
+      "flipDiff": 8,
+      "onOnly": 0,
+      "offOnly": 8,
+      "specialGroups": [
+        "jamsil-els:G2:ex84.80-84.97"
+      ],
+      "banpoFlipCheck": null,
+      "sampleBaselines": [
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "priorMaxAmount": 98000,
+          "priorMaxDealDate": "2016-09-29",
+          "baselineUntil": "2016-10-03",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "priorMaxAmount": 118000,
+          "priorMaxDealDate": "2009-08-14",
+          "baselineUntil": "2016-10-03",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        },
+        {
+          "groupKey": "jamsil-els:G3:ex119.93-119.93",
+          "priorMaxAmount": 176000,
+          "priorMaxDealDate": "2010-11-01",
+          "baselineUntil": "2016-10-03",
+          "completeness": "pre-warehouse-molit-max",
+          "confidence": "high"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "baselineMissingTotal": 0,
+    "anyMasterError": false,
+    "totalFlipDiffOffVsOn": 60
+  }
+}
