@@ -1,0 +1,120 @@
+{
+  "phase": "6.3",
+  "enrichment_framework": {
+    "missing_only": "YES",
+    "version_refresh": "YES",
+    "full_rescan": "YES",
+    "batched_resumable": "YES",
+    "high_frequency_queue_required": "NO",
+    "domains": [
+      "GEO",
+      "BUILDING_REGISTRY",
+      "UNIT_GROUP",
+      "SINGOGA_BASELINE",
+      "SCHOOL",
+      "FLOORPLAN"
+    ],
+    "lazy_rows": true
+  },
+  "geo_source": {
+    "selected_source": "NONE",
+    "existing_configured": false,
+    "external_requests_required": false,
+    "cache_store_coordinates_allowed": "NO — no provider configured; do not invent/cache",
+    "estimated_full_universe_request_count_if_eventually_run": 14946,
+    "local_coords_in_repo": 0,
+    "road_address_coverage": 0,
+    "existing_lat_lng_in_master": 0
+  },
+  "geo_input": {
+    "canonical_master": 14966,
+    "GEO-INPUT-READY": 14946,
+    "AMBIGUOUS": 20,
+    "UNRESOLVED": 0
+  },
+  "coverage": {
+    "master": 14966,
+    "bjdong_cd": 14966,
+    "jibun": 14966,
+    "road_address": 0,
+    "latitude": 0,
+    "longitude": 0,
+    "enrichment_rows": 0
+  },
+  "future_candidates_demo": {
+    "A_geo_missing_v1": {
+      "candidate_count": 5000,
+      "params": {
+        "domain": "GEO",
+        "dataVersion": 1,
+        "mode": "missing-only",
+        "limit": 5000
+      }
+    },
+    "B_geo_version_lt_2": {
+      "candidate_count": 5000,
+      "params": {
+        "domain": "GEO",
+        "dataVersion": 2,
+        "mode": "version-refresh",
+        "limit": 5000
+      }
+    },
+    "C_unit_group_v3": {
+      "candidate_count": 5000,
+      "params": {
+        "domain": "UNIT_GROUP",
+        "dataVersion": 3,
+        "mode": "version-refresh",
+        "limit": 5000
+      }
+    },
+    "D_geo_full_rescan_v1": {
+      "candidate_count": 5000,
+      "params": {
+        "domain": "GEO",
+        "dataVersion": 1,
+        "mode": "full-rescan",
+        "forceAll": true,
+        "limit": 5000
+      }
+    }
+  },
+  "geo_sample": {
+    "provider": null,
+    "write": false,
+    "dataVersion": 1,
+    "mode": "missing-only",
+    "candidates": 36,
+    "attempted": 0,
+    "resolved": 0,
+    "unresolved": 0,
+    "failed": 0,
+    "skippedNoProvider": 36,
+    "skippedAlreadyHaveCoords": 0,
+    "inputReady": 36,
+    "inputAmbiguous": 0,
+    "inputUnresolved": 0,
+    "sanityIssues": 0,
+    "duplicateCoordPairs": 0,
+    "writesMaster": 0,
+    "writesState": 0,
+    "sample_size": 36,
+    "write_blocked_reason": null
+  },
+  "storage": {
+    "lat_lng_in_apt_complex_master": "YES (columns exist; currently empty)",
+    "geo_state_rows": 0,
+    "data_version": 1
+  },
+  "production_compatibility": {
+    "flags_changed": "NO",
+    "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "1",
+    "POST_WH_SINGOGA_GAPS_CLEARED": "unset"
+  },
+  "canonical_exceptions": {
+    "mapo-raemian-prugio": "unchanged / legacy fallback (not in master)"
+  },
+  "decision": "HOLD",
+  "next_recommendation": "B) improve GEO source/input coverage — configure VWORLD_API_KEY or KAKAO_REST_API_KEY, then re-run ≤50 sample with --write"
+}

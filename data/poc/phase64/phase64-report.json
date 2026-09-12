@@ -1,0 +1,89 @@
+{
+  "phase": "6.4",
+  "dataset": {
+    "source": "국토교통부 GIS건물통합정보 (data.go.kr 15083092 → VWorld dsId=18)",
+    "version_date": "20260809",
+    "license": "공공누리 제1유형 (출처표시)",
+    "original_crs_expected": "EPSG:5179 (typical; read from .prj when present)",
+    "geometry_type_expected": "Polygon / MultiPolygon (building footprints)",
+    "identity_fields_expected": [
+      "PNU (19-digit)",
+      "optional building attrs"
+    ],
+    "acquisition_status": "BLOCKED_VWORLD_502",
+    "gis_available": false,
+    "gis_cache": {
+      "shapefiles": 0,
+      "features_read": 0,
+      "features_with_pnu": 0,
+      "crs_seen": {},
+      "pnu_fields": {},
+      "errors": []
+    }
+  },
+  "parcel_key": {
+    "READY": 14966,
+    "AMBIGUOUS": 0,
+    "INVALID": 0,
+    "reasons": {},
+    "note": "산* jibun → land=2 (PNU-ready). Distinct from Phase 6.3 GEO-INPUT AMBIGUOUS (20 mountain parcels rejected by jibun regex without 산)."
+  },
+  "sample": {
+    "sample": 200,
+    "EXACT-PARCEL": 0,
+    "MULTI-BUILDING": 0,
+    "NO-MATCH": 0,
+    "AMBIGUOUS": 0,
+    "coordinates_generated": 0,
+    "sanity_failures": {},
+    "notes": {
+      "SKIP_NO_GIS": 200
+    }
+  },
+  "full_local_dry_run": {
+    "eligible": 14966,
+    "matched": 0,
+    "unmatched": 14966,
+    "ambiguous": 0,
+    "coverage_pct": 0.0,
+    "stats": {
+      "SKIP_NO_GIS": 14966
+    },
+    "unmatched_reasons": {
+      "GIS_CACHE_EMPTY": 14966
+    }
+  },
+  "geo_method": {
+    "representative_point": "largest-ring centroid if on-surface, else ring vertex0",
+    "output_crs": "EPSG:4326",
+    "source_constant": "MOLIT_GIS_BUILDING"
+  },
+  "provenance": {
+    "master_coordinates": "apt_complex_master.latitude/longitude",
+    "source_link": "source=MOLIT_GIS_BUILDING, source_key=PNU",
+    "enrichment_state": "domain=GEO, data_version=1 (lazy rows only on write)"
+  },
+  "expected_production_mutations": {
+    "master_coordinate_updates": 0,
+    "source_link_inserts": 0,
+    "geo_state_inserts": 0,
+    "total": 0,
+    "executed": 0
+  },
+  "fallback_requirement": {
+    "VWorld_candidates": 14966,
+    "note": "Fallback not executed in 6.4"
+  },
+  "production_writes": 0,
+  "decision": "HOLD",
+  "next": "Acquire MOLIT GIS건물통합정보 SHP (Seoul+Gyeonggi) into data/cache/gis-building/ (VWorld dsId=18 currently 502), then re-run this proof",
+  "safety": {
+    "naver_calls": 0,
+    "kakao_calls": 0,
+    "vworld_calls": 0,
+    "building_registry_api": 0,
+    "flags_changed": false,
+    "identity_master_changed": false,
+    "complex_id_regenerated": false
+  }
+}
