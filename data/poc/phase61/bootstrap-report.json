@@ -1,0 +1,86 @@
+{
+  "phase": "6.1",
+  "execute": true,
+  "schema": {
+    "apt_complex_master": "created YES",
+    "apt_complex_source_links": "created YES",
+    "apt_complex_enrichment_state": "created YES"
+  },
+  "preflight": {
+    "READY_candidates": 14966,
+    "duplicate_complex_ids": 0,
+    "duplicate_source_keys": 0,
+    "missing_required_fields": 0,
+    "source_mapping": "100%",
+    "before_master": 14966,
+    "before_links": 14966,
+    "before_status": 0,
+    "missing_master": 0,
+    "missing_links": 0
+  },
+  "held": {
+    "AMBIGUOUS": 736,
+    "UNRESOLVED": 49,
+    "canonical_ids_assigned_to_held": 0
+  },
+  "canonical_bootstrap": {
+    "READY_candidates": 14966,
+    "master_written": 0,
+    "master_total": 14966,
+    "source_links_written": 0,
+    "source_links_total": 14966,
+    "status_rows": 0,
+    "total_row_writes": 0
+  },
+  "integrity": {
+    "duplicate_complex_ids": 0,
+    "duplicate_source_keys": 0,
+    "source_mapping": "100%",
+    "missing_required_fields": 0
+  },
+  "spot_checks": {
+    "seoul": 8437,
+    "gyeonggi": 6529,
+    "bun_ji": 8343
+  },
+  "phase5_compatibility": {
+    "existing_loaded_complexes": 11,
+    "pilots": 6,
+    "resolved_to_complex_id": 6,
+    "unresolved": 0,
+    "pilot_results": [
+      {
+        "complexKey": "hangang-daewoo",
+        "complex_id": "cx_ec9a204afeaadf1b"
+      },
+      {
+        "complexKey": "parkrio",
+        "complex_id": "cx_ed52bf895d064c11"
+      },
+      {
+        "complexKey": "banpo-xi",
+        "complex_id": "cx_1c244e7305d12c44"
+      },
+      {
+        "complexKey": "jamsil-els",
+        "complex_id": "cx_4c63d9a100973c60"
+      },
+      {
+        "complexKey": "mokdong-7",
+        "complex_id": "cx_55a0252cbc2225e9"
+      },
+      {
+        "complexKey": "eunma",
+        "complex_id": "cx_0320fd9e007e1f8c"
+      }
+    ]
+  },
+  "production": {
+    "runtime_errors": 0,
+    "flags_changed": "none",
+    "updates": 0,
+    "deletes": 0
+  },
+  "decision": "PASS",
+  "next": "Phase 6.2 — dual-key integration for existing child tables"
+}
