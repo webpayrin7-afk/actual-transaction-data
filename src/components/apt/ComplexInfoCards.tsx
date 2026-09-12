@@ -23,20 +23,7 @@ function basicRows(
   const basic = detail.basic;
   if (!basic) return [];
   const rows: Array<{ label: string; value: string }> = [];
-  if (basic.householdCount != null && basic.householdCount > 0) {
-    rows.push({
-      label: "세대수",
-      value: `${basic.householdCount.toLocaleString("ko-KR")}세대`,
-    });
-  }
-  if (basic.buildingCount != null && basic.buildingCount > 0) {
-    rows.push({
-      label: "동수",
-      value: `${basic.buildingCount.toLocaleString("ko-KR")}개동`,
-    });
-  }
-  const yearLabel = formatApprovalYearLabel(basic.approvalDate);
-  if (yearLabel) rows.push({ label: "준공", value: yearLabel });
+  // 세대수·동수·준공은 헤더 chips에 두고, 단지 정보는 생활 유용 필드만.
   if (basic.heatingType) rows.push({ label: "난방", value: basic.heatingType });
   if (basic.managementType) {
     rows.push({ label: "관리방식", value: basic.managementType });
@@ -112,12 +99,11 @@ export function ComplexBuildingInfoCard({
   );
 }
 
-/** Header meta chips — omit empty values. */
+/** Header identity chips — omit empty values. Heating lives in 단지 정보. */
 export function complexHeaderChips(detail: ComplexDetailV1 | null): string[] {
   if (!detail?.basic) return [];
   const chips: string[] = [];
-  const { householdCount, buildingCount, approvalDate, heatingType } =
-    detail.basic;
+  const { householdCount, buildingCount, approvalDate } = detail.basic;
   if (householdCount != null && householdCount > 0) {
     chips.push(`${householdCount.toLocaleString("ko-KR")}세대`);
   }
@@ -126,6 +112,5 @@ export function complexHeaderChips(detail: ComplexDetailV1 | null): string[] {
   }
   const year = formatApprovalYearLabel(approvalDate);
   if (year) chips.push(year);
-  if (heatingType) chips.push(heatingType);
   return chips;
 }

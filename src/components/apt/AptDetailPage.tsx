@@ -24,6 +24,10 @@ import {
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
+  areaSelectorExclusiveLabel,
+  areaSelectorPyeongLabel,
+} from "@/lib/apt/area-selector-label";
+import {
   formatComplexLocationLabel,
   recordRecentComplex,
 } from "@/lib/complexes/recent-views";
@@ -43,7 +47,6 @@ import {
   formatArea,
   formatDealDate,
   formatEok,
-  formatExclusiveArea,
   formatPyeong,
   formatRentAmount,
 } from "@/lib/utils/format";
@@ -291,13 +294,14 @@ export function AptDetailPage({
   }, [data]);
   const isExtendingHistory =
     quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
+  // Historical extend: bar-only (empty label) to avoid a sticky shouty banner;
+  // chart section keeps a compact inline hint.
   const loadProgressLabel =
-    quickQuery.isLoading && !data
-      ? "시세 불러오는 중…"
-      : isExtendingHistory
-        ? "과거 시세 추가로 불러오는 중…"
-        : null;
-  useLoadProgressWhen(Boolean(loadProgressLabel), loadProgressLabel ?? "");
+    quickQuery.isLoading && !data ? "시세 불러오는 중…" : "";
+  useLoadProgressWhen(
+    (quickQuery.isLoading && !data) || isExtendingHistory,
+    loadProgressLabel,
+  );
 
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
@@ -700,7 +704,7 @@ export function AptDetailPage({
             <p className="mt-0.5 truncate text-xs text-slate-500">
               {areaKey === "all" || !selectedArea
                 ? `전체 면적 · ${filtered.length.toLocaleString("ko-KR")}건`
-                : `${formatPyeong(selectedArea.exclusiveArea)} (${formatExclusiveArea(selectedArea.exclusiveArea)}) · ${filtered.length.toLocaleString("ko-KR")}건`}
+                : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · ${filtered.length.toLocaleString("ko-KR")}건`}
             </p>
           </div>
 

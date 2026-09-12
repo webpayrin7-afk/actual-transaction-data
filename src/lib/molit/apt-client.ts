@@ -26,6 +26,9 @@ export interface AptAreaOption {
   selectorKind?: "exclusive" | "market_group";
   exclusiveAreaMin?: number;
   exclusiveAreaMax?: number;
+  /** Phase 5 supply-area range (㎡); used for representative 평형 label */
+  supplyAreaMin?: number | null;
+  supplyAreaMax?: number | null;
   secondaryLabel?: string | null;
   marketLabel?: number | null;
 }

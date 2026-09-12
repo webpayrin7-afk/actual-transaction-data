@@ -1,19 +1,21 @@
 "use client";
 
 import {
+  useEffect,
   useId,
   useLayoutEffect,
   useRef,
   useState,
-  useEffect,
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
-  formatExclusiveArea,
-  formatPyeong,
-} from "@/lib/utils/format";
+  areaSelectorDealCountLabel,
+  areaSelectorExclusiveLabel,
+  areaSelectorPyeongLabel,
+  areaSelectorSupplyLabel,
+} from "@/lib/apt/area-selector-label";
 
 type AptAreaSelectorProps = {
   areas: AptAreaOption[];
@@ -24,8 +26,9 @@ type AptAreaSelectorProps = {
 const SHEET_MS = 280;
 
 /**
- * 단일 버튼 + bottom sheet 면적 선택.
- * areaKey / onChange / default-area 로직과 독립 — UI만.
+ * Single trigger + bottom sheet area picker.
+ * Hierarchy: 평형 → 전용면적 → (optional 공급 on sm+) · 거래건수
+ * Sheet height is content-aware (fit small lists; max ~75vh + scroll).
  */
 export function AptAreaSelector({
   areas,
@@ -85,7 +88,6 @@ export function AptAreaSelector({
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setPresent(true);
     setOpen(false);
-    // mount → layout scroll(선택 평수) → 그다음 slide-up
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setOpen(true));
@@ -109,13 +111,14 @@ export function AptAreaSelector({
     }
     return (
       <div className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-sm">
-        <span className="min-w-0 truncate font-medium tabular-nums text-slate-800">
-          {only.selectorKind === "market_group"
-            ? only.label
-            : `${formatPyeong(only.exclusiveArea)} (${formatExclusiveArea(only.exclusiveArea)})`}
+        <span className="min-w-0 truncate font-semibold tabular-nums text-slate-800">
+          {areaSelectorPyeongLabel(only)}
+          <span className="ml-1.5 font-normal text-slate-500">
+            {areaSelectorExclusiveLabel(only)}
+          </span>
         </span>
         <span className="shrink-0 tabular-nums text-slate-500">
-          거래 {only.count.toLocaleString("ko-KR")}건
+          {areaSelectorDealCountLabel(only.count)}
         </span>
       </div>
     );
@@ -125,12 +128,11 @@ export function AptAreaSelector({
   const isAll = value === "all" || !selected;
   const triggerMain = isAll
     ? "전체 면적"
-    : selected.selectorKind === "market_group"
-      ? selected.label
-      : `${formatPyeong(selected.exclusiveArea)} (${formatExclusiveArea(selected.exclusiveArea)})`;
+    : areaSelectorPyeongLabel(selected);
+  const triggerSub = isAll ? null : areaSelectorExclusiveLabel(selected);
   const triggerMeta = isAll
-    ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · 거래 ${totalDeals.toLocaleString("ko-KR")}건`
-    : `거래 ${selected.count.toLocaleString("ko-KR")}건`;
+    ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · ${areaSelectorDealCountLabel(totalDeals)}`
+    : areaSelectorDealCountLabel(selected.count);
 
   return (
     <>
@@ -139,12 +141,17 @@ export function AptAreaSelector({
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={`면적 선택, 현재 ${triggerMain}, ${triggerMeta}`}
+        aria-label={`면적 선택, 현재 ${triggerMain}${triggerSub ? `, ${triggerSub}` : ""}, ${triggerMeta}`}
         onClick={openSheet}
-        className="flex h-10 w-full items-center gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-left hover:bg-slate-50"
+        className="flex h-10 w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-left hover:bg-slate-50 sm:gap-3"
       >
-        <span className="min-w-0 flex-1 truncate text-sm font-medium tabular-nums text-slate-800">
-          {triggerMain}
+        <span className="min-w-0 flex-1 truncate text-sm tabular-nums text-slate-800">
+          <span className="font-semibold">{triggerMain}</span>
+          {triggerSub ? (
+            <span className="ml-1.5 font-normal text-slate-500">
+              {triggerSub}
+            </span>
+          ) : null}
         </span>
         <span className="shrink-0 text-xs tabular-nums text-slate-500 sm:text-[13px]">
           {triggerMeta}
@@ -201,23 +208,7 @@ function AreaSheet({
   const [isDragging, setIsDragging] = useState(false);
 
   const totalDeals = areas.reduce((sum, a) => sum + a.count, 0);
-  const rows: { key: string; label: string; meta?: string }[] = [
-    {
-      key: "all",
-      label: "전체 면적",
-      meta: `거래 ${totalDeals.toLocaleString("ko-KR")}건`,
-    },
-    ...areas.map((area) => ({
-      key: area.key,
-      label:
-        area.selectorKind === "market_group"
-          ? area.label
-          : `${formatPyeong(area.exclusiveArea)} (${formatExclusiveArea(area.exclusiveArea)})`,
-      meta: `거래 ${area.count.toLocaleString("ko-KR")}건`,
-    })),
-  ];
 
-  // 시트 마운트 직후(올라오기 전) 선택 항목으로 스크롤 고정
   useLayoutEffect(() => {
     const run = () => {
       const list = listRef.current;
@@ -281,16 +272,19 @@ function AreaSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="absolute left-0 right-0 z-10 mx-auto flex w-full max-w-md flex-col bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
+        className="absolute inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-md flex-col bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] outline-none"
         style={{
-          height: "66.666dvh",
-          bottom: open ? -dragY : "-66.666dvh",
+          maxHeight: "min(75dvh, 100%)",
+          transform: open
+            ? `translateY(${dragY}px)`
+            : "translateY(110%)",
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           overflow: "hidden",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
           transition: isDragging
             ? "none"
-            : `bottom ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
+            : `transform ${SHEET_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
         }}
       >
         <div
@@ -311,39 +305,18 @@ function AreaSheet({
             if (draggingRef.current) onDragEnd();
           }}
         >
-          {/* 상단 중앙 스와이프 핸들 */}
           <div
             role="presentation"
-            style={{
-              display: "flex",
-              width: "100%",
-              flexShrink: 0,
-              alignItems: "center",
-              justifyContent: "center",
-              paddingTop: 10,
-              paddingBottom: 2,
-              minHeight: 18,
-            }}
+            className="flex w-full shrink-0 items-center justify-center pb-0.5 pt-2.5"
+            style={{ minHeight: 18 }}
           >
-            <span
-              style={{
-                display: "block",
-                width: 36,
-                height: 4,
-                borderRadius: 999,
-                backgroundColor: "#e2e8f0",
-              }}
-            />
+            <span className="block h-1 w-9 rounded-full bg-slate-200" />
           </div>
 
-          <div
-            className="relative flex items-center justify-center px-12"
-            style={{ paddingTop: 12, paddingBottom: 22 }}
-          >
+          <div className="relative flex items-center justify-center px-12 pb-3.5 pt-2.5">
             <h2
               id={titleId}
-              className="text-center leading-none tracking-tight text-slate-900"
-              style={{ fontSize: 20, fontWeight: 700 }}
+              className="text-center text-lg font-bold leading-none tracking-tight text-slate-900 sm:text-xl"
             >
               면적 선택
             </h2>
@@ -353,13 +326,7 @@ function AreaSheet({
               onClick={onClose}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-              style={{
-                position: "absolute",
-                right: 10,
-                top: "50%",
-                transform: "translateY(-50%)",
-              }}
+              className="absolute right-2.5 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
             >
               <X
                 className="pointer-events-none h-6 w-6"
@@ -370,82 +337,98 @@ function AreaSheet({
           </div>
         </div>
 
-        <div className="relative min-h-0 flex-1">
-          <div
-            ref={listRef}
-            className="absolute inset-0 overflow-y-auto overscroll-contain touch-pan-y pb-[max(0.5rem,env(safe-area-inset-bottom))]"
-          >
-            {rows.map((row, index) => (
-              <div key={row.key}>
-                <AreaOption
-                  active={value === row.key}
-                  buttonRef={value === row.key ? activeRef : undefined}
-                  onClick={() => onPick(row.key)}
-                  label={row.label}
-                  meta={row.meta}
+        <div
+          ref={listRef}
+          className="min-h-0 overflow-y-auto overscroll-contain touch-pan-y pb-2"
+        >
+          <AreaOptionRow
+            active={value === "all"}
+            buttonRef={value === "all" ? activeRef : undefined}
+            onClick={() => onPick("all")}
+            pyeongLabel="전체 면적"
+            exclusiveLabel={`타입 ${areas.length.toLocaleString("ko-KR")}개`}
+            supplyLabel={null}
+            dealLabel={areaSelectorDealCountLabel(totalDeals)}
+          />
+          <div className="mx-4 border-b border-slate-100" aria-hidden />
+          {areas.map((area, index) => (
+            <div key={area.key}>
+              <AreaOptionRow
+                active={value === area.key}
+                buttonRef={value === area.key ? activeRef : undefined}
+                onClick={() => onPick(area.key)}
+                pyeongLabel={areaSelectorPyeongLabel(area)}
+                exclusiveLabel={areaSelectorExclusiveLabel(area)}
+                supplyLabel={areaSelectorSupplyLabel(area)}
+                dealLabel={areaSelectorDealCountLabel(area.count)}
+              />
+              {index < areas.length - 1 ? (
+                <div
+                  className="mx-4 border-b border-slate-100"
+                  aria-hidden
                 />
-                {index < rows.length - 1 ? (
-                  <div className="mx-4 border-b border-slate-100" aria-hidden />
-                ) : null}
-              </div>
-            ))}
-          </div>
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white to-transparent"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-white to-transparent"
-            aria-hidden
-          />
+              ) : null}
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-function AreaOption({
+function AreaOptionRow({
   active,
   buttonRef,
   onClick,
-  label,
-  meta,
+  pyeongLabel,
+  exclusiveLabel,
+  supplyLabel,
+  dealLabel,
 }: {
   active: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
   onClick: () => void;
-  label: string;
-  meta?: string;
+  pyeongLabel: string;
+  exclusiveLabel: string;
+  supplyLabel: string | null;
+  dealLabel: string;
 }) {
   return (
     <button
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
+      className={`flex w-full items-start gap-3 px-4 py-3.5 text-left transition ${
         active ? "bg-teal-50" : "hover:bg-slate-50"
       }`}
     >
-      <span
-        className={`min-w-0 flex-1 truncate tabular-nums ${
-          active
-            ? "font-semibold text-teal-900"
-            : "font-medium text-slate-800"
-        }`}
-        style={{ fontSize: 15 }}
-      >
-        {label}
-      </span>
-      {meta ? (
-        <span className="shrink-0 text-[13px] tabular-nums text-slate-400">
-          {meta}
+      <span className="min-w-0 flex-1">
+        <span
+          className={`block text-[15px] font-semibold tabular-nums leading-snug sm:text-base ${
+            active ? "text-teal-900" : "text-slate-900"
+          }`}
+        >
+          {pyeongLabel}
         </span>
-      ) : null}
-      {active ? (
-        <Check className="h-4 w-4 shrink-0 text-teal-700" aria-hidden />
-      ) : (
-        <span className="h-4 w-4 shrink-0" aria-hidden />
-      )}
+        <span className="mt-0.5 block text-[13px] tabular-nums leading-snug text-slate-500">
+          {exclusiveLabel}
+        </span>
+        {supplyLabel ? (
+          <span className="mt-0.5 hidden text-[12px] tabular-nums text-slate-400 sm:block">
+            {supplyLabel}
+          </span>
+        ) : null}
+      </span>
+      <span className="flex shrink-0 flex-col items-end gap-1 pt-0.5">
+        <span className="text-[13px] tabular-nums text-slate-400">
+          {dealLabel}
+        </span>
+        {active ? (
+          <Check className="h-4 w-4 text-teal-700" aria-hidden />
+        ) : (
+          <span className="h-4 w-4" aria-hidden />
+        )}
+      </span>
     </button>
   );
 }
