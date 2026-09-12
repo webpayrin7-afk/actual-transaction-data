@@ -194,7 +194,7 @@ async function main() {
   let beforeCount = 0;
   if (beforeExists) {
     const c = await db.execute(`SELECT COUNT(*) AS n FROM ${TABLE}`);
-    beforeCount = Number((c.rows[0] as { n: number }).n);
+    beforeCount = Number((c.rows[0] as unknown as { n: number }).n);
   }
   console.log(JSON.stringify({ tableExists: beforeExists, beforeCount }));
 

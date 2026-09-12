@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
-import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt";
+import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt-client";
 import {
   AptPriceChart,
   PeriodRangeSlider,

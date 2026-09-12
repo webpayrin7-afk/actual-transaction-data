@@ -15,86 +15,27 @@ import {
   searchAptAggregatesFromDb,
 } from "@/lib/db/repository";
 import {
-  formatEok,
   recentYearMonths,
   toPyeong,
 } from "@/lib/utils/format";
 import type { Transaction } from "@/types/transaction";
 import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 
-export interface AptSuggestion {
-  aptName: string;
-  regionSlug: string;
-  regionName: string;
-  gu: string;
-  dong: string;
-  dealCount: number;
-  maxDealAmount: number;
-  latestDealDate: string;
-}
-
-export interface AptAreaOption {
-  key: string;
-  label: string;
-  exclusiveArea: number;
-  count: number;
-  /** Phase 5 pilot: market-group selector for A/B complexes */
-  selectorKind?: "exclusive" | "market_group";
-  exclusiveAreaMin?: number;
-  exclusiveAreaMax?: number;
-  secondaryLabel?: string | null;
-  marketLabel?: number | null;
-}
-
-export interface AptHistoryItem extends Transaction {
-  isSingoga: boolean;
-  pyeong: number;
-}
-
-export interface AptChartPoint {
-  yearMonth: string; // YYYYMM
-  label: string; // YY.MM
-  tradeAvg: number | null;
-  tradeMax: number | null;
-  tradeCount: number;
-  jeonseAvg: number | null;
-  jeonseCount: number;
-  wolseCount: number;
-  volume: number;
-}
-
-export interface AptDetailResponse {
-  aptName: string;
-  regionSlug: string;
-  regionName: string;
-  fullName: string;
-  gu: string;
-  dong: string;
-  buildYear: number | null;
-  source: "api" | "mock" | "db";
-  yearMonth: string;
-  warning?: string;
-  /** 최근 N개월만 먼저 내려준 부분 응답 */
-  partial?: boolean;
-  loadedMonths: number;
-  stats: {
-    recent3mCount: number;
-    maxDealAmount: number;
-    avgDealAmount: number;
-    totalTradeCount: number;
-    totalRentCount: number;
-  };
-  areas: AptAreaOption[];
-  chart: AptChartPoint[];
-  items: AptHistoryItem[];
-  /** Phase 5 pilot metadata; absent for non-pilot complexes */
-  unitTypePilot?: {
-    complexKey: string;
-    classification: string;
-    singogaMode: string;
-    selectorMode: "market_group" | "exclusive";
-  } | null;
-}
+import type {
+  AptSuggestion,
+  AptAreaOption,
+  AptHistoryItem,
+  AptChartPoint,
+  AptDetailResponse,
+} from "@/lib/molit/apt-client";
+export type {
+  AptSuggestion,
+  AptAreaOption,
+  AptHistoryItem,
+  AptChartPoint,
+  AptDetailResponse,
+} from "@/lib/molit/apt-client";
+export { aptDetailHref, formatAptPriceLabel } from "@/lib/molit/apt-client";
 
 const SUGGEST_MONTHS = 4;
 const SUGGEST_CACHE_TTL_MS = 45 * 60 * 1000;
@@ -871,16 +812,3 @@ async function buildAptDetail(params: {
   };
 }
 
-export function aptDetailHref(
-  aptName: string,
-  regionSlug: string,
-  gu?: string,
-): string {
-  const qs = new URLSearchParams({ region: regionSlug });
-  if (gu?.trim()) qs.set("gu", gu.trim());
-  return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
-}
-
-export function formatAptPriceLabel(manwon: number): string {
-  return formatEok(manwon);
-}

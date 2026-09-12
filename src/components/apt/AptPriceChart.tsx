@@ -13,7 +13,7 @@ import {
   YAxis,
   type TooltipProps,
 } from "recharts";
-import type { AptChartPoint } from "@/lib/molit/apt";
+import type { AptChartPoint } from "@/lib/molit/apt-client";
 import { labSecondaryTabClass } from "@/components/ui/lab";
 
 const CHART_COLORS = {

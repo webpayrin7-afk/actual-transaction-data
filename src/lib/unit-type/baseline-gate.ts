@@ -1,9 +1,18 @@
 /**
- * Phase 5.3b — production activation gate for baseline-backed market-group 신고가.
+ * Phase 5.3b / 5.4a — production gates for baseline-backed market-group 신고가.
  *
- * Defaults OFF. Even with ENABLE_MARKET_GROUP_BASELINE_SINGOGA=1, activation
- * stays blocked until Codex confirms Banpo 4 + Jamsil 1 post-warehouse gaps
- * are repaired in the warehouse (POST_WH_SINGOGA_GAPS_CLEARED=1).
+ * Two independent switches (Phase 5.4a separation):
+ *
+ * - ENABLE_MARKET_GROUP_BASELINE_SINGOGA
+ *   Rollout switch. When "1", the baseline 신고가 path may load DB prior-max
+ *   and apply it. Defaults OFF. Existing legacy/full-history safety fallback
+ *   remains in code regardless of this flag.
+ *
+ * - POST_WH_SINGOGA_GAPS_CLEARED
+ *   Migration-completion switch. When "1", post-warehouse Banpo/Jamsil gaps
+ *   are considered cleared enough that *future* removal of legacy/full-history
+ *   fallback may be considered. This flag does NOT enable the baseline path
+ *   and must not be treated as a rollout switch.
  *
  * No UI / selector coupling — read-path only.
  */
@@ -61,6 +70,10 @@ export const POST_WH_SINGOGA_GAP_BLOCKERS: readonly PostWarehouseSingogaGap[] = 
   },
 ] as const;
 
+/**
+ * Migration-completion signal only.
+ * Does not enable or disable the baseline 신고가 path.
+ */
 export function arePostWarehouseSingogaGapsCleared(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
@@ -68,30 +81,47 @@ export function arePostWarehouseSingogaGapsCleared(
 }
 
 /**
- * True only when both:
- * - ENABLE_MARKET_GROUP_BASELINE_SINGOGA=1
- * - POST_WH_SINGOGA_GAPS_CLEARED=1
+ * True when ENABLE_MARKET_GROUP_BASELINE_SINGOGA=1.
  *
- * Historical baseline math is proven (Phase 5.3); warehouse completeness is not.
+ * Independent of POST_WH_SINGOGA_GAPS_CLEARED so staged pilot activation
+ * is possible while legacy/full-history safety fallback stays in code.
  */
 export function isMarketGroupBaselineSingogaEnabled(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  if (env.ENABLE_MARKET_GROUP_BASELINE_SINGOGA !== "1") return false;
-  return arePostWarehouseSingogaGapsCleared(env);
+  return env.ENABLE_MARKET_GROUP_BASELINE_SINGOGA === "1";
 }
 
+/** Why the baseline rollout path is blocked (ENABLE only). */
 export function marketGroupBaselineSingogaBlockReason(
   env: NodeJS.ProcessEnv = process.env,
 ): string | null {
   if (env.ENABLE_MARKET_GROUP_BASELINE_SINGOGA !== "1") {
     return "ENABLE_MARKET_GROUP_BASELINE_SINGOGA is not 1";
   }
+  return null;
+}
+
+/**
+ * Why legacy/full-history fallback must not be removed yet.
+ * POST_WH remains meaningful; this phase never deletes fallback code.
+ */
+export function legacySingogaFallbackRetirementBlockReason(
+  env: NodeJS.ProcessEnv = process.env,
+): string | null {
   if (!arePostWarehouseSingogaGapsCleared(env)) {
     return (
       "POST_WH_SINGOGA_GAPS_CLEARED is not 1 " +
-      `(${POST_WH_SINGOGA_GAP_BLOCKERS.length} Banpo/Jamsil warehouse gaps still open)`
+      `(${POST_WH_SINGOGA_GAP_BLOCKERS.length} Banpo/Jamsil warehouse gaps still open); ` +
+      "legacy/full-history fallback must be retained"
     );
   }
   return null;
+}
+
+/** True only when POST_WH says gaps are cleared — does not remove fallback by itself. */
+export function isLegacySingogaFallbackRetirementAllowed(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return legacySingogaFallbackRetirementBlockReason(env) == null;
 }

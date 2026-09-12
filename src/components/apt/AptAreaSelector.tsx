@@ -9,7 +9,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
-import type { AptAreaOption } from "@/lib/molit/apt";
+import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
   formatExclusiveArea,
   formatPyeong,

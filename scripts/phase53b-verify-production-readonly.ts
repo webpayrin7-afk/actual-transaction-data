@@ -217,41 +217,6 @@ function markMarketGroupPriorExceed(
   return { flags, priorAt };
 }
 
-function computeBaselines(
-  preWarehouseTrades: TradeRow[],
-  groups: Group[],
-): Baseline[] {
-  const acc = new Map<
-    string,
-    { amount: number; date: string | null; count: number }
-  >();
-  for (const g of groups) {
-    if (!g.groupConfidenceHigh) continue;
-    acc.set(g.groupKey, { amount: 0, date: null, count: 0 });
-  }
-  for (const tx of preWarehouseTrades) {
-    const g = matchGroup(tx.exclusiveArea, groups);
-    if (!g) continue;
-    const cur = acc.get(g.groupKey)!;
-    cur.count += 1;
-    if (tx.dealAmount > cur.amount) {
-      cur.amount = tx.dealAmount;
-      cur.date = tx.dealDate;
-    }
-  }
-  return groups
-    .filter((g) => g.groupConfidenceHigh)
-    .map((g) => {
-      const cur = acc.get(g.groupKey)!;
-      return {
-        groupKey: g.groupKey,
-        label: g.label,
-        priorMaxAmount: cur.amount,
-        priorMaxDealDate: cur.date,
-        preWarehouseTradeCount: cur.count,
-      };
-    });
-}
 
 async function mapPool<T>(
   items: T[],
@@ -678,7 +643,9 @@ async function main() {
 
   const historicalIdentical = totalDiffs === 0;
   const warehousePathDiffTotal = (
-    complexReports as Array<Record<string, any>>
+    complexReports as Array<{
+      warehousePathVsFullHistory?: { baselineDiffCount?: number };
+    }>
   ).reduce(
     (n, c) => n + Number(c.warehousePathVsFullHistory?.baselineDiffCount ?? 0),
     0,
@@ -741,8 +708,8 @@ async function main() {
       fullVsBaselineIdentical: historicalIdentical,
       warehousePathBaselineDiffCount: warehousePathDiffTotal,
       warehousePathIdentical,
-      banpo2020FlipsCorrected: banpoFlipsCorrected,
-      banpo2020FlipsTarget: BANPO_TARGET_FLIPS.length,
+      banpoTargetFlipsCorrected: banpoFlipsCorrected,
+      banpoTargetFlipsTarget: BANPO_TARGET_FLIPS.length,
     },
     banpoFlipRootCause: {
       summary:
@@ -782,7 +749,16 @@ async function main() {
         fetch: out.fetch,
         totals: out.totals,
         verdict: out.verdict,
-        summary: (complexReports as Array<Record<string, any>>).map((c) => ({
+        summary: (
+          complexReports as Array<{
+            displayName: string;
+            warehouseStartDate: string;
+            baselines: Baseline[];
+            fullVsBaselineOnPostWarehouseMolit: { diffCount: number };
+            warehousePathVsFullHistory: { baselineDiffCount: number };
+            banpoTargetFlips: Array<{ corrected: boolean }> | null;
+          }>
+        ).map((c) => ({
           apt: c.displayName,
           warehouseStart: c.warehouseStartDate,
           baselines: c.baselines.map((b: Baseline) => ({
@@ -796,9 +772,7 @@ async function main() {
           banpoCorrected:
             c.banpoTargetFlips == null
               ? null
-              : (c.banpoTargetFlips as Array<{ corrected: boolean }>).filter(
-                  (x) => x.corrected,
-                ).length,
+              : c.banpoTargetFlips.filter((x) => x.corrected).length,
         })),
       },
       null,

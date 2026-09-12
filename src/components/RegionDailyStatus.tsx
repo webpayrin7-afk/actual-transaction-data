@@ -13,7 +13,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import { aptDetailHref } from "@/lib/molit/apt";
+import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
   RegionDailyDaySummary,

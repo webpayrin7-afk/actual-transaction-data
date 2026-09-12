@@ -43,16 +43,16 @@ Hangang / Parkrio / Banpo-Xi / Jamsil-Els — Phase 5.3 baselines.
 - C/D still use `markSingogaExclusiveAllTimeMax` (baselines ignored)
 - `src/lib/molit/apt.ts` loads baselines from DB only when gate open
 
-## Production activation gate
+## Production activation gate (Phase 5.4a separation)
 
-Both required:
+Independent switches:
 
-1. `ENABLE_MARKET_GROUP_BASELINE_SINGOGA=1`
-2. `POST_WH_SINGOGA_GAPS_CLEARED=1`
+1. `ENABLE_MARKET_GROUP_BASELINE_SINGOGA=1` — **rollout**: baseline 신고가 path ON
+2. `POST_WH_SINGOGA_GAPS_CLEARED=1` — **migration-completion only**: allows *future* consideration of removing legacy/full-history fallback. Does **not** enable baseline path.
 
-Until Codex confirms Banpo 4 + Jamsil 1 warehouse repairs, (2) stays unset → baseline singoga stays OFF.
+Defaults: both unset → baseline path OFF. Legacy fallback code retained regardless of ENABLE.
 
-Blocker list: `POST_WH_SINGOGA_GAP_BLOCKERS` in `baseline-gate.ts`.
+Blocker list for POST_WH: `POST_WH_SINGOGA_GAP_BLOCKERS` in `baseline-gate.ts`.
 
 ## Tests
 

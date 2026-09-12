@@ -1,4 +1,4 @@
-import type { AptAreaOption } from "@/lib/molit/apt";
+import type { AptAreaOption } from "@/lib/molit/apt-client";
 import type { UnitTypeMasterBundle } from "@/lib/unit-type/types";
 import { isMarketGroupClass } from "@/lib/unit-type/pilot";
 import {

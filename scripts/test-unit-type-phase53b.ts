@@ -8,7 +8,9 @@ import assert from "node:assert/strict";
 import { createClient } from "@libsql/client";
 import {
   arePostWarehouseSingogaGapsCleared,
+  isLegacySingogaFallbackRetirementAllowed,
   isMarketGroupBaselineSingogaEnabled,
+  legacySingogaFallbackRetirementBlockReason,
   marketGroupBaselineSingogaBlockReason,
   POST_WH_SINGOGA_GAP_BLOCKERS,
 } from "../src/lib/unit-type/baseline-gate";
@@ -29,7 +31,9 @@ function env(vars: Record<string, string | undefined>): NodeJS.ProcessEnv {
   return { ...process.env, ...vars };
 }
 
+/** Phase 5.4a flag matrix: ENABLE rolls out baseline; POST_WH is migration-only. */
 {
+  // ENABLE=0 POST_WH=0 → baseline OFF
   assert.equal(
     isMarketGroupBaselineSingogaEnabled(
       env({
@@ -39,6 +43,17 @@ function env(vars: Record<string, string | undefined>): NodeJS.ProcessEnv {
     ),
     false,
   );
+  // ENABLE=0 POST_WH=1 → baseline still OFF
+  assert.equal(
+    isMarketGroupBaselineSingogaEnabled(
+      env({
+        ENABLE_MARKET_GROUP_BASELINE_SINGOGA: undefined,
+        POST_WH_SINGOGA_GAPS_CLEARED: "1",
+      }),
+    ),
+    false,
+  );
+  // ENABLE=1 POST_WH=0 → baseline ON (staged rollout), fallback retained
   assert.equal(
     isMarketGroupBaselineSingogaEnabled(
       env({
@@ -46,12 +61,52 @@ function env(vars: Record<string, string | undefined>): NodeJS.ProcessEnv {
         POST_WH_SINGOGA_GAPS_CLEARED: undefined,
       }),
     ),
-    false,
+    true,
+  );
+  assert.equal(
+    marketGroupBaselineSingogaBlockReason(
+      env({
+        ENABLE_MARKET_GROUP_BASELINE_SINGOGA: "1",
+        POST_WH_SINGOGA_GAPS_CLEARED: undefined,
+      }),
+    ),
+    null,
   );
   assert.ok(
-    marketGroupBaselineSingogaBlockReason(
-      env({ ENABLE_MARKET_GROUP_BASELINE_SINGOGA: "1" }),
+    legacySingogaFallbackRetirementBlockReason(
+      env({
+        ENABLE_MARKET_GROUP_BASELINE_SINGOGA: "1",
+        POST_WH_SINGOGA_GAPS_CLEARED: undefined,
+      }),
     )?.includes("POST_WH_SINGOGA_GAPS_CLEARED"),
+  );
+  assert.equal(
+    isLegacySingogaFallbackRetirementAllowed(
+      env({
+        ENABLE_MARKET_GROUP_BASELINE_SINGOGA: "1",
+        POST_WH_SINGOGA_GAPS_CLEARED: undefined,
+      }),
+    ),
+    false,
+  );
+  // ENABLE=1 POST_WH=1 → baseline ON; retirement *allowed* but not performed here
+  assert.equal(
+    isMarketGroupBaselineSingogaEnabled(
+      env({
+        ENABLE_MARKET_GROUP_BASELINE_SINGOGA: "1",
+        POST_WH_SINGOGA_GAPS_CLEARED: "1",
+      }),
+    ),
+    true,
+  );
+  assert.equal(
+    isLegacySingogaFallbackRetirementAllowed(
+      env({
+        ENABLE_MARKET_GROUP_BASELINE_SINGOGA: "1",
+        POST_WH_SINGOGA_GAPS_CLEARED: "1",
+      }),
+    ),
+    true,
   );
   assert.equal(arePostWarehouseSingogaGapsCleared(env({})), false);
   assert.equal(POST_WH_SINGOGA_GAP_BLOCKERS.length, 5);
@@ -64,15 +119,6 @@ function env(vars: Record<string, string | undefined>): NodeJS.ProcessEnv {
     POST_WH_SINGOGA_GAP_BLOCKERS.filter((g) => g.complexKey === "jamsil-els")
       .length,
     1,
-  );
-  assert.equal(
-    isMarketGroupBaselineSingogaEnabled(
-      env({
-        ENABLE_MARKET_GROUP_BASELINE_SINGOGA: "1",
-        POST_WH_SINGOGA_GAPS_CLEARED: "1",
-      }),
-    ),
-    true,
   );
 }
 
@@ -268,7 +314,22 @@ function env(vars: Record<string, string | undefined>): NodeJS.ProcessEnv {
   ];
   const baselines = new Map([["hangang-daewoo:G2:ex84.94-84.98", 99_500]]);
 
-  const gatedOff = applyPilotSingoga({
+  // ENABLE=0 → baseline path OFF (legacy prior-from-warehouse only)
+  const enableOff = applyPilotSingoga({
+    bundle: abBundle,
+    deals,
+    baselinePriorMax: baselines,
+    env: env({
+      ENABLE_MARKET_GROUP_BASELINE_SINGOGA: undefined,
+      POST_WH_SINGOGA_GAPS_CLEARED: "1",
+    }),
+  });
+  assert.equal(enableOff.get("t1"), false); // first obs, prior=0
+  assert.equal(enableOff.get("t2"), true); // 100000 > 90000
+  assert.equal(enableOff.get("t3"), false); // tie
+
+  // ENABLE=1 POST_WH=0 → baseline ON, fallback retained
+  const enableOnPostOff = applyPilotSingoga({
     bundle: abBundle,
     deals,
     baselinePriorMax: baselines,
@@ -277,11 +338,12 @@ function env(vars: Record<string, string | undefined>): NodeJS.ProcessEnv {
       POST_WH_SINGOGA_GAPS_CLEARED: undefined,
     }),
   });
-  assert.equal(gatedOff.get("t1"), false);
-  assert.equal(gatedOff.get("t2"), true);
-  assert.equal(gatedOff.get("t3"), false);
+  assert.equal(enableOnPostOff.get("t1"), false); // 90000 <= baseline 99500
+  assert.equal(enableOnPostOff.get("t2"), true); // 100000 > 99500
+  assert.equal(enableOnPostOff.get("t3"), false);
 
-  const gatedOn = applyPilotSingoga({
+  // ENABLE=1 POST_WH=1 → baseline ON (fallback still not deleted in code)
+  const enableOnPostOn = applyPilotSingoga({
     bundle: abBundle,
     deals,
     baselinePriorMax: baselines,
@@ -290,9 +352,9 @@ function env(vars: Record<string, string | undefined>): NodeJS.ProcessEnv {
       POST_WH_SINGOGA_GAPS_CLEARED: "1",
     }),
   });
-  assert.equal(gatedOn.get("t1"), false);
-  assert.equal(gatedOn.get("t2"), true);
-  assert.equal(gatedOn.get("t3"), false);
+  assert.equal(enableOnPostOn.get("t1"), false);
+  assert.equal(enableOnPostOn.get("t2"), true);
+  assert.equal(enableOnPostOn.get("t3"), false);
 
   const cdBundle: UnitTypeMasterBundle = {
     ...abBundle,

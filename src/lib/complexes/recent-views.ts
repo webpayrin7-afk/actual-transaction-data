@@ -1,4 +1,4 @@
-import { aptDetailHref } from "@/lib/molit/apt";
+import { aptDetailHref } from "@/lib/molit/apt-client";
 import { getRegion } from "@/lib/constants/regions";
 
 /** localStorage key — 스키마 변경 시 버전 bump */
