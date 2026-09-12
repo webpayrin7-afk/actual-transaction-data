@@ -1,0 +1,114 @@
+[phase55a] WRITE=0 candidates=25 molitCells=3592 lawds=18
+[phase55a] molit 100/3592 errors=0 0.1m
+[phase55a] molit 200/3592 errors=0 0.2m
+[phase55a] molit 300/3592 errors=0 0.3m
+[phase55a] molit 400/3592 errors=0 0.4m
+[phase55a] molit 500/3592 errors=0 0.5m
+[phase55a] molit 600/3592 errors=0 0.6m
+[phase55a] molit 700/3592 errors=0 0.7m
+[phase55a] molit 800/3592 errors=0 0.8m
+[phase55a] molit 900/3592 errors=0 0.9m
+[phase55a] molit 1000/3592 errors=0 1.0m
+[phase55a] molit 1100/3592 errors=0 1.1m
+[phase55a] molit 1200/3592 errors=0 1.2m
+[phase55a] molit 1300/3592 errors=0 1.3m
+[phase55a] molit 1400/3592 errors=0 1.4m
+[phase55a] molit 1500/3592 errors=0 1.5m
+[phase55a] molit 1600/3592 errors=0 1.6m
+[phase55a] molit 1700/3592 errors=0 1.7m
+[phase55a] molit 1800/3592 errors=0 1.8m
+[phase55a] molit 1900/3592 errors=0 2.0m
+[phase55a] molit 2000/3592 errors=0 2.1m
+[phase55a] molit 2100/3592 errors=0 2.3m
+[phase55a] molit 2200/3592 errors=0 2.4m
+[phase55a] molit 2300/3592 errors=0 2.6m
+[phase55a] molit 2400/3592 errors=0 2.7m
+[phase55a] molit 2500/3592 errors=0 2.8m
+[phase55a] molit 2600/3592 errors=0 2.9m
+[phase55a] molit 2700/3592 errors=0 3.1m
+[phase55a] molit 2800/3592 errors=0 3.1m
+[phase55a] molit 2900/3592 errors=0 3.2m
+[phase55a] molit 3000/3592 errors=0 3.3m
+[phase55a] molit 3100/3592 errors=0 3.3m
+[phase55a] molit 3200/3592 errors=0 3.4m
+[phase55a] molit 3300/3592 errors=0 3.5m
+[phase55a] molit 3400/3592 errors=0 3.6m
+[phase55a] molit 3500/3592 errors=0 3.7m
+[phase55a] molit 3592/3592 errors=0 3.8m
+[phase55a] daechi-palace wh=456 full=526 pre=71 groups=9 base=7 exact=300 expl=156 unex=0 safe=false
+[phase55a] mapo-raemian-prugio wh=580 full=667 pre=112 groups=6 base=3 exact=466 expl=114 unex=0 safe=false
+[phase55a] acro-riverpark wh=547 full=554 pre=4 groups=10 base=2 exact=419 expl=128 unex=0 safe=false
+[phase55a] olympic-family wh=1510 full=3114 pre=1612 groups=4 base=2 exact=1450 expl=60 unex=0 safe=false
+[phase55a] mokdong-7 wh=672 full=1726 pre=1076 groups=7 base=7 exact=503 expl=0 unex=169 safe=false
+[phase55a] eunma wh=1124 full=2901 pre=1782 groups=1 base=1 exact=1066 expl=0 unex=58 safe=false
+[phase55a] gaepo-jugong6 wh=281 full=717 pre=440 groups=0 base=0 exact=281 expl=0 unex=0 safe=false
+[phase55a] ricents wh=1800 full=3671 pre=1877 groups=5 base=5 exact=1628 expl=0 unex=172 safe=false
+[phase55a] raemian-hill-godeok wh=1502 full=1449 pre=0 groups=7 base=0 exact=1309 expl=193 unex=0 safe=false
+[phase55a] raemian-weve wh=1234 full=1321 pre=130 groups=4 base=4 exact=1078 expl=0 unex=156 safe=false
+[phase55a] gwanak-prugio wh=1194 full=2345 pre=1184 groups=3 base=3 exact=1088 expl=0 unex=106 safe=false
+[phase55a] sangye-jugong9 wh=1234 full=3120 pre=1923 groups=7 base=7 exact=1064 expl=0 unex=170 safe=false
+[phase55a] sibom-hanyang wh=1226 full=2697 pre=1498 groups=10 base=10 exact=994 expl=0 unex=232 safe=false
+[phase55a] anyang-samsung-raemian wh=1837 full=3819 pre=1996 groups=6 base=6 exact=1775 expl=0 unex=62 safe=false
+[phase55a] ilsan-zenith wh=3037 full=4207 pre=1294 groups=7 base=7 exact=3000 expl=0 unex=37 safe=false
+[phase55a] hannam-thehill wh=504 full=755 pre=265 groups=9 base=8 exact=387 expl=117 unex=0 safe=false
+[phase55a] helio-city wh=1370 full=1347 pre=0 groups=8 base=0 exact=1258 expl=112 unex=0 safe=false
+[phase55a] dmc-raemian wh=1275 full=1773 pre=535 groups=5 base=5 exact=1150 expl=0 unex=125 safe=false
+[phase55a] lotte-castle-first wh=1595 full=2975 pre=1423 groups=6 base=6 exact=1413 expl=0 unex=182 safe=false
+[phase55a] sk-bukhansan-city wh=2272 full=5104 pre=2874 groups=3 base=3 exact=2174 expl=0 unex=98 safe=false
+[phase55a] e-pyeonhansesang-osan wh=1558 full=1524 pre=0 groups=3 base=0 exact=1469 expl=89 unex=0 safe=false
+[phase55a] hillstate-unjeong wh=1286 full=1247 pre=0 groups=4 base=0 exact=1216 expl=70 unex=0 safe=false
+[phase55a] junggye-green1 wh=1588 full=4263 pre=2708 groups=4 base=4 exact=1453 expl=0 unex=135 safe=false
+[phase55a] raemian-prestige wh=751 full=1675 pre=909 groups=8 base=8 exact=572 expl=0 unex=179 safe=false
+[phase55a] raemian-anyang-megatria wh=2401 full=2231 pre=0 groups=6 base=0 exact=2244 expl=157 unex=0 safe=false
+{
+  "decision": "HOLD",
+  "dryRunTotals": {
+    "exact": 29757,
+    "explainable": 1196,
+    "unexplained": 1881
+  },
+  "cohort": [],
+  "cohortWrites": {
+    "groupInserts": 0,
+    "baselineInserts": 0,
+    "updates": 0,
+    "deletes": 0,
+    "total": 0
+  },
+  "hold": [
+    "daechi-palace",
+    "mapo-raemian-prugio",
+    "acro-riverpark",
+    "olympic-family",
+    "mokdong-7",
+    "eunma",
+    "gaepo-jugong6",
+    "ricents",
+    "raemian-hill-godeok",
+    "raemian-weve",
+    "gwanak-prugio",
+    "sangye-jugong9",
+    "sibom-hanyang",
+    "anyang-samsung-raemian",
+    "ilsan-zenith",
+    "hannam-thehill",
+    "helio-city",
+    "dmc-raemian",
+    "lotte-castle-first",
+    "sk-bukhansan-city",
+    "e-pyeonhansesang-osan",
+    "hillstate-unjeong",
+    "junggye-green1",
+    "raemian-prestige",
+    "raemian-anyang-megatria"
+  ],
+  "safety": {
+    "productionWrites": 0,
+    "flagsChanged": false,
+    "enableLeftAsIs": true,
+    "postWhLeftUnset": true,
+    "fallbackRetained": true,
+    "nationwideLoad": false,
+    "historicalBackfillWrite": false
+  }
+}

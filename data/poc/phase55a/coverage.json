@@ -1,0 +1,101 @@
+{
+  "groupComplexCount": 6,
+  "groupRows": 32,
+  "baselineComplexCount": 4,
+  "baselineRows": 19,
+  "groupsByComplex": [
+    {
+      "complex_key": "banpo-xi",
+      "n": 7,
+      "high_n": 7
+    },
+    {
+      "complex_key": "eunma",
+      "n": 6,
+      "high_n": 1
+    },
+    {
+      "complex_key": "hangang-daewoo",
+      "n": 4,
+      "high_n": 4
+    },
+    {
+      "complex_key": "jamsil-els",
+      "n": 3,
+      "high_n": 3
+    },
+    {
+      "complex_key": "mokdong-7",
+      "n": 7,
+      "high_n": 7
+    },
+    {
+      "complex_key": "parkrio",
+      "n": 5,
+      "high_n": 5
+    }
+  ],
+  "baselinesByComplex": [
+    {
+      "complex_key": "banpo-xi",
+      "n": 7
+    },
+    {
+      "complex_key": "hangang-daewoo",
+      "n": 4
+    },
+    {
+      "complex_key": "jamsil-els",
+      "n": 3
+    },
+    {
+      "complex_key": "parkrio",
+      "n": 5
+    }
+  ],
+  "missingBaselines": [
+    {
+      "complex_key": "banpo-xi",
+      "groups": 7,
+      "high_groups": 7,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    },
+    {
+      "complex_key": "eunma",
+      "groups": 6,
+      "high_groups": 1,
+      "missing_baselines": 6,
+      "missing_high_baselines": 1
+    },
+    {
+      "complex_key": "hangang-daewoo",
+      "groups": 4,
+      "high_groups": 4,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    },
+    {
+      "complex_key": "jamsil-els",
+      "groups": 3,
+      "high_groups": 3,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    },
+    {
+      "complex_key": "mokdong-7",
+      "groups": 7,
+      "high_groups": 7,
+      "missing_baselines": 7,
+      "missing_high_baselines": 7
+    },
+    {
+      "complex_key": "parkrio",
+      "groups": 5,
+      "high_groups": 5,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    }
+  ],
+  "fallbackStatus": "ENABLE=1 + empty/missing baselinePriorMax → warehouse-only market-group priors (legacy fallback retained; POST_WH unset)"
+}

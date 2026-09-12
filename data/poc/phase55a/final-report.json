@@ -1,0 +1,1134 @@
+{
+  "phase": "5.5a",
+  "capturedAt": "2026-09-12T03:20:38.895615+00:00",
+  "decision": "PASS",
+  "safety": {
+    "productionWrites": 0,
+    "flagsChanged": false,
+    "enableLeftAsIs": true,
+    "postWhLeftUnset": true,
+    "fallbackRetained": true,
+    "nationwideLoad": false,
+    "historicalBackfillWrite": false
+  },
+  "coverage": {
+    "complexesWithGroupMaster": 6,
+    "groupRows": 32,
+    "complexesWithBaseline": 4,
+    "baselineRows": 19,
+    "missingBaseline": [
+      {
+        "complex_key": "banpo-xi",
+        "groups": 7,
+        "high_groups": 7,
+        "missing_baselines": 0,
+        "missing_high_baselines": 0
+      },
+      {
+        "complex_key": "eunma",
+        "groups": 6,
+        "high_groups": 1,
+        "missing_baselines": 6,
+        "missing_high_baselines": 1
+      },
+      {
+        "complex_key": "hangang-daewoo",
+        "groups": 4,
+        "high_groups": 4,
+        "missing_baselines": 0,
+        "missing_high_baselines": 0
+      },
+      {
+        "complex_key": "jamsil-els",
+        "groups": 3,
+        "high_groups": 3,
+        "missing_baselines": 0,
+        "missing_high_baselines": 0
+      },
+      {
+        "complex_key": "mokdong-7",
+        "groups": 7,
+        "high_groups": 7,
+        "missing_baselines": 7,
+        "missing_high_baselines": 7
+      },
+      {
+        "complex_key": "parkrio",
+        "groups": 5,
+        "high_groups": 5,
+        "missing_baselines": 0,
+        "missing_high_baselines": 0
+      }
+    ],
+    "fallbackStatus": "When ENABLE=1 but baseline map empty/missing for a group, runtime keeps warehouse-only market-group prior (legacy fallback). POST_WH unset → fallback retirement blocked."
+  },
+  "candidateSet": {
+    "count": 25,
+    "excludedPilots": [
+      "hangang-daewoo",
+      "parkrio",
+      "banpo-xi",
+      "jamsil-els"
+    ],
+    "candidates": [
+      {
+        "complexKey": "daechi-palace",
+        "aptNameNorm": "래미안대치팰리스",
+        "region": "seoul",
+        "why": "phase4 auto-safe; many exclusive variants; Gangnam premium; clear grouping",
+        "riskHint": "auto-safe"
+      },
+      {
+        "complexKey": "mapo-raemian-prugio",
+        "aptNameNorm": "마포래미안푸르지오4단지",
+        "region": "seoul",
+        "why": "phase4 group-safe; 2010s mid-rise; Mapo; label-unknown stress with high group confidence",
+        "riskHint": "group-safe"
+      },
+      {
+        "complexKey": "acro-riverpark",
+        "aptNameNorm": "아크로리버파크",
+        "region": "seoul",
+        "why": "phase4 group-safe; Seocho premium; dense exclusive-area ladder",
+        "riskHint": "group-safe"
+      },
+      {
+        "complexKey": "olympic-family",
+        "aptNameNorm": "올림픽훼밀리타운",
+        "region": "seoul",
+        "why": "phase4 ambiguous; 1980s large complex; stresses grouping/labels",
+        "riskHint": "ambiguous"
+      },
+      {
+        "complexKey": "mokdong-7",
+        "aptNameNorm": "목동신시가지7",
+        "region": "seoul",
+        "why": "phase4 ambiguous; groups already in prod without baselines; reconstruction-era stock",
+        "riskHint": "ambiguous"
+      },
+      {
+        "complexKey": "eunma",
+        "aptNameNorm": "은마",
+        "region": "seoul",
+        "why": "phase4 registry-abnormal; groups in prod, exclusive fallback; known risk",
+        "riskHint": "registry-abnormal"
+      },
+      {
+        "complexKey": "gaepo-jugong6",
+        "aptNameNorm": "개포주공6단지",
+        "region": "seoul",
+        "why": "phase4 registry-abnormal; reconstruction stock; low group confidence",
+        "riskHint": "registry-abnormal"
+      },
+      {
+        "complexKey": "ricents",
+        "aptNameNorm": "리센츠",
+        "region": "seoul",
+        "why": "Jamsil high volume; 59/84 family near-area stress; sibling of pilots",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "raemian-hill-godeok",
+        "aptNameNorm": "래미안힐스테이트고덕",
+        "region": "seoul",
+        "why": "high volume; 16 exclusive variants; newer reconstruction-adjacent Gangdong",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "raemian-weve",
+        "aptNameNorm": "래미안위브",
+        "region": "seoul",
+        "why": "Dongdaemun mid volume; mixed exclusive ladder",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "gwanak-prugio",
+        "aptNameNorm": "관악푸르지오",
+        "region": "seoul",
+        "why": "59/84 family; stable 2000s stock; grouping clarity test",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "sangye-jugong9",
+        "aptNameNorm": "상계주공9(고층)",
+        "region": "seoul",
+        "why": "1980s reconstruction candidate; small exclusive bands",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "sibom-hanyang",
+        "aptNameNorm": "시범한양",
+        "region": "gyeonggi",
+        "why": "Gyeonggi mix; older stock; high trade count",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "anyang-samsung-raemian",
+        "aptNameNorm": "삼성래미안",
+        "region": "gyeonggi",
+        "why": "Gyeonggi high volume; many area variants (Anyang Dongan)",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "ilsan-zenith",
+        "aptNameNorm": "일산두산위브더제니스",
+        "region": "gyeonggi",
+        "why": "highest Gyeonggi volume in scan; tower; area ladder stress",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "hannam-thehill",
+        "aptNameNorm": "한남더힐",
+        "region": "seoul",
+        "why": "premium; many exclusive variants; Yongsan peer of hangang pilot",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "helio-city",
+        "aptNameNorm": "헬리오시티",
+        "region": "seoul",
+        "why": "mega complex; many unit-area variants; Songpa volume stress",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "dmc-raemian",
+        "aptNameNorm": "dmc래미안e편한세상",
+        "region": "seoul",
+        "why": "high volume; multi-label family; Seodaemun",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "lotte-castle-first",
+        "aptNameNorm": "롯데캐슬퍼스트",
+        "region": "seoul",
+        "why": "high volume; 59–160㎡ span; Gangdong",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "sk-bukhansan-city",
+        "aptNameNorm": "에스케이북한산시티",
+        "region": "seoul",
+        "why": "very high volume; Gangbuk; multi-area",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "e-pyeonhansesang-osan",
+        "aptNameNorm": "e편한세상오산세교",
+        "region": "gyeonggi",
+        "why": "Gyeonggi 59/84 close-family; new town",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "hillstate-unjeong",
+        "aptNameNorm": "산내마을9단지힐스테이트운정",
+        "region": "gyeonggi",
+        "why": "Gyeonggi 59/84 near bands; Unjeong new town",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "junggye-green1",
+        "aptNameNorm": "중계그린1단지",
+        "region": "seoul",
+        "why": "small exclusive band cluster (39–59); Nowon reconstruction-era",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "raemian-prestige",
+        "aptNameNorm": "래미안퍼스티지",
+        "region": "seoul",
+        "why": "Banpo peer; premium; clear market; expansion quality bar",
+        "riskHint": "volume-stress"
+      },
+      {
+        "complexKey": "raemian-anyang-megatria",
+        "aptNameNorm": "래미안안양메가트리아",
+        "region": "gyeonggi",
+        "why": "Gyeonggi; 16 variants; high volume from scan",
+        "riskHint": "volume-stress"
+      }
+    ]
+  },
+  "dryRunTotals": {
+    "exact": 29757,
+    "explainable": 1196,
+    "unexplained": 1881
+  },
+  "rescoredSafeCount": 9,
+  "recommendedFirstExpansionCohort": {
+    "complexes": [
+      "daechi-palace",
+      "mapo-raemian-prugio",
+      "acro-riverpark",
+      "hannam-thehill",
+      "raemian-hill-godeok",
+      "helio-city",
+      "raemian-anyang-megatria",
+      "e-pyeonhansesang-osan"
+    ],
+    "details": [
+      {
+        "complexKey": "daechi-palace",
+        "why": "phase4 auto-safe; many exclusive variants; Gangnam premium; clear grouping",
+        "region": "seoul",
+        "unexplained": 0,
+        "highGroups": 9,
+        "baselinesWithPrior": 7,
+        "writes": {
+          "groupInserts": 9,
+          "baselineInserts": 7,
+          "updates": 0,
+          "deletes": 0,
+          "total": 16
+        },
+        "tier": "baseline-ready"
+      },
+      {
+        "complexKey": "mapo-raemian-prugio",
+        "why": "phase4 group-safe; 2010s mid-rise; Mapo; label-unknown stress with high group confidence",
+        "region": "seoul",
+        "unexplained": 0,
+        "highGroups": 6,
+        "baselinesWithPrior": 3,
+        "writes": {
+          "groupInserts": 6,
+          "baselineInserts": 3,
+          "updates": 0,
+          "deletes": 0,
+          "total": 9
+        },
+        "tier": "baseline-ready"
+      },
+      {
+        "complexKey": "acro-riverpark",
+        "why": "phase4 group-safe; Seocho premium; dense exclusive-area ladder",
+        "region": "seoul",
+        "unexplained": 0,
+        "highGroups": 10,
+        "baselinesWithPrior": 2,
+        "writes": {
+          "groupInserts": 10,
+          "baselineInserts": 2,
+          "updates": 0,
+          "deletes": 0,
+          "total": 12
+        },
+        "tier": "baseline-ready"
+      },
+      {
+        "complexKey": "hannam-thehill",
+        "why": "premium; many exclusive variants; Yongsan peer of hangang pilot",
+        "region": "seoul",
+        "unexplained": 0,
+        "highGroups": 9,
+        "baselinesWithPrior": 8,
+        "writes": {
+          "groupInserts": 9,
+          "baselineInserts": 8,
+          "updates": 0,
+          "deletes": 0,
+          "total": 17
+        },
+        "tier": "baseline-ready"
+      },
+      {
+        "complexKey": "raemian-hill-godeok",
+        "why": "high volume; 16 exclusive variants; newer reconstruction-adjacent Gangdong",
+        "region": "seoul",
+        "unexplained": 0,
+        "highGroups": 7,
+        "baselinesWithPrior": 0,
+        "writes": {
+          "groupInserts": 7,
+          "baselineInserts": 0,
+          "updates": 0,
+          "deletes": 0,
+          "total": 7
+        },
+        "tier": "group-master-first"
+      },
+      {
+        "complexKey": "helio-city",
+        "why": "mega complex; many unit-area variants; Songpa volume stress",
+        "region": "seoul",
+        "unexplained": 0,
+        "highGroups": 8,
+        "baselinesWithPrior": 0,
+        "writes": {
+          "groupInserts": 8,
+          "baselineInserts": 0,
+          "updates": 0,
+          "deletes": 0,
+          "total": 8
+        },
+        "tier": "group-master-first"
+      },
+      {
+        "complexKey": "raemian-anyang-megatria",
+        "why": "Gyeonggi; 16 variants; high volume from scan",
+        "region": "gyeonggi",
+        "unexplained": 0,
+        "highGroups": 6,
+        "baselinesWithPrior": 0,
+        "writes": {
+          "groupInserts": 6,
+          "baselineInserts": 0,
+          "updates": 0,
+          "deletes": 0,
+          "total": 6
+        },
+        "tier": "group-master-first"
+      },
+      {
+        "complexKey": "e-pyeonhansesang-osan",
+        "why": "Gyeonggi 59/84 close-family; new town",
+        "region": "gyeonggi",
+        "unexplained": 0,
+        "highGroups": 3,
+        "baselinesWithPrior": 0,
+        "writes": {
+          "groupInserts": 3,
+          "baselineInserts": 0,
+          "updates": 0,
+          "deletes": 0,
+          "total": 3
+        },
+        "tier": "group-master-first"
+      }
+    ],
+    "expectedWrites": {
+      "groupInserts": 58,
+      "baselineInserts": 20,
+      "updates": 0,
+      "deletes": 0,
+      "total": 78
+    },
+    "reason": "8 complexes with unexplained=0. Tier A (4) have non-empty pre-WH baselines: daechi-palace, mapo-raemian-prugio, acro-riverpark, hannam-thehill. Tier B (4) are group-master-first (new construction / no pre-WH prior needed): raemian-hill-godeok, helio-city, raemian-anyang-megatria, e-pyeonhansesang-osan. Excludes ambiguous/registry-abnormal and all unexplained>0."
+  },
+  "holdCohort": {
+    "complexes": [
+      "olympic-family",
+      "mokdong-7",
+      "eunma",
+      "gaepo-jugong6",
+      "ricents",
+      "raemian-weve",
+      "gwanak-prugio",
+      "sangye-jugong9",
+      "sibom-hanyang",
+      "anyang-samsung-raemian",
+      "ilsan-zenith",
+      "dmc-raemian",
+      "lotte-castle-first",
+      "sk-bukhansan-city",
+      "hillstate-unjeong",
+      "junggye-green1",
+      "raemian-prestige"
+    ],
+    "details": [
+      {
+        "complexKey": "olympic-family",
+        "risks": [
+          "phase4-ambiguous-class"
+        ],
+        "unexplained": 0
+      },
+      {
+        "complexKey": "mokdong-7",
+        "risks": [
+          "phase4-ambiguous-class",
+          "unexplained-diff=169"
+        ],
+        "unexplained": 169
+      },
+      {
+        "complexKey": "eunma",
+        "risks": [
+          "registry-abnormal-class",
+          "unexplained-diff=58"
+        ],
+        "unexplained": 58
+      },
+      {
+        "complexKey": "gaepo-jugong6",
+        "risks": [
+          "ambiguous-grouping",
+          "registry-abnormal-class",
+          "no-high-confidence-groups"
+        ],
+        "unexplained": 0
+      },
+      {
+        "complexKey": "ricents",
+        "risks": [
+          "unexplained-diff=172"
+        ],
+        "unexplained": 172
+      },
+      {
+        "complexKey": "raemian-weve",
+        "risks": [
+          "unexplained-diff=156"
+        ],
+        "unexplained": 156
+      },
+      {
+        "complexKey": "gwanak-prugio",
+        "risks": [
+          "unexplained-diff=106"
+        ],
+        "unexplained": 106
+      },
+      {
+        "complexKey": "sangye-jugong9",
+        "risks": [
+          "unexplained-diff=170"
+        ],
+        "unexplained": 170
+      },
+      {
+        "complexKey": "sibom-hanyang",
+        "risks": [
+          "unexplained-diff=232"
+        ],
+        "unexplained": 232
+      },
+      {
+        "complexKey": "anyang-samsung-raemian",
+        "risks": [
+          "unexplained-diff=62"
+        ],
+        "unexplained": 62
+      },
+      {
+        "complexKey": "ilsan-zenith",
+        "risks": [
+          "unexplained-diff=37"
+        ],
+        "unexplained": 37
+      },
+      {
+        "complexKey": "dmc-raemian",
+        "risks": [
+          "unexplained-diff=125"
+        ],
+        "unexplained": 125
+      },
+      {
+        "complexKey": "lotte-castle-first",
+        "risks": [
+          "unexplained-diff=182"
+        ],
+        "unexplained": 182
+      },
+      {
+        "complexKey": "sk-bukhansan-city",
+        "risks": [
+          "unexplained-diff=98"
+        ],
+        "unexplained": 98
+      },
+      {
+        "complexKey": "hillstate-unjeong",
+        "risks": [],
+        "unexplained": 0
+      },
+      {
+        "complexKey": "junggye-green1",
+        "risks": [
+          "unexplained-diff=135"
+        ],
+        "unexplained": 135
+      },
+      {
+        "complexKey": "raemian-prestige",
+        "risks": [
+          "unexplained-diff=179"
+        ],
+        "unexplained": 179
+      }
+    ],
+    "reason": "unexplained diffs, phase4 ambiguous/registry-abnormal, or deferred behind first cohort"
+  },
+  "expectedWrites": {
+    "ifAllCandidatesApproved": {
+      "groupInserts": 134,
+      "baselineInserts": 98,
+      "updates": 0,
+      "deletes": 0,
+      "total": 232
+    },
+    "ifAllRescoredSafeApproved": {
+      "groupInserts": 62,
+      "baselineInserts": 20,
+      "updates": 0,
+      "deletes": 0,
+      "total": 82
+    },
+    "firstCohort": {
+      "groupInserts": 58,
+      "baselineInserts": 20,
+      "updates": 0,
+      "deletes": 0,
+      "total": 78
+    }
+  },
+  "riskCases": {
+    "ambiguousGrouping": [
+      "gaepo-jugong6"
+    ],
+    "historicalGaps": [
+      "gaepo-jugong6",
+      "raemian-hill-godeok",
+      "helio-city",
+      "e-pyeonhansesang-osan",
+      "hillstate-unjeong",
+      "raemian-anyang-megatria"
+    ],
+    "incompleteBaseline": [],
+    "unexplainedDiff": [
+      "mokdong-7",
+      "eunma",
+      "ricents",
+      "raemian-weve",
+      "gwanak-prugio",
+      "sangye-jugong9",
+      "sibom-hanyang",
+      "anyang-samsung-raemian",
+      "ilsan-zenith",
+      "dmc-raemian",
+      "lotte-castle-first",
+      "sk-bukhansan-city",
+      "junggye-green1",
+      "raemian-prestige"
+    ],
+    "other": [
+      "olympic-family",
+      "gaepo-jugong6"
+    ]
+  },
+  "pr67": {
+    "contents": "Phase 5.4b artifacts under data/poc/phase54b/* plus two verification scripts (preflight-turso, post-activation-verify). No production runtime code changes.",
+    "recommendation": "CLOSE_WITHOUT_MERGE",
+    "reason": "Not required for production (ENABLE=1 already live via #66). No reusable CI regression tests; scripts are one-off verification tooling. Artifacts/docs-only PR should not land on main unless tooling promotion is explicitly desired later."
+  },
+  "perComplexBrief": [
+    {
+      "complexKey": "daechi-palace",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 156,
+      "exact": 300,
+      "highGroups": 9,
+      "baselinesWithPrior": 7,
+      "writes": {
+        "groupInserts": 9,
+        "baselineInserts": 7,
+        "updates": 0,
+        "deletes": 0,
+        "total": 16
+      },
+      "risks": [],
+      "why": "phase4 auto-safe; many exclusive variants; Gangnam premium; clear grouping",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "mapo-raemian-prugio",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 114,
+      "exact": 466,
+      "highGroups": 6,
+      "baselinesWithPrior": 3,
+      "writes": {
+        "groupInserts": 6,
+        "baselineInserts": 3,
+        "updates": 0,
+        "deletes": 0,
+        "total": 9
+      },
+      "risks": [],
+      "why": "phase4 group-safe; 2010s mid-rise; Mapo; label-unknown stress with high group confidence",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "acro-riverpark",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 128,
+      "exact": 419,
+      "highGroups": 10,
+      "baselinesWithPrior": 2,
+      "writes": {
+        "groupInserts": 10,
+        "baselineInserts": 2,
+        "updates": 0,
+        "deletes": 0,
+        "total": 12
+      },
+      "risks": [],
+      "why": "phase4 group-safe; Seocho premium; dense exclusive-area ladder",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "olympic-family",
+      "safe": false,
+      "unexplained": 0,
+      "explainable": 60,
+      "exact": 1450,
+      "highGroups": 4,
+      "baselinesWithPrior": 2,
+      "writes": {
+        "groupInserts": 4,
+        "baselineInserts": 2,
+        "updates": 0,
+        "deletes": 0,
+        "total": 6
+      },
+      "risks": [
+        "phase4-ambiguous-class"
+      ],
+      "why": "phase4 ambiguous; 1980s large complex; stresses grouping/labels",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "mokdong-7",
+      "safe": false,
+      "unexplained": 169,
+      "explainable": 0,
+      "exact": 503,
+      "highGroups": 7,
+      "baselinesWithPrior": 7,
+      "writes": {
+        "groupInserts": 0,
+        "baselineInserts": 7,
+        "updates": 0,
+        "deletes": 0,
+        "total": 7
+      },
+      "risks": [
+        "phase4-ambiguous-class",
+        "unexplained-diff=169"
+      ],
+      "why": "phase4 ambiguous; groups already in prod without baselines; reconstruction-era stock",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "eunma",
+      "safe": false,
+      "unexplained": 58,
+      "explainable": 0,
+      "exact": 1066,
+      "highGroups": 1,
+      "baselinesWithPrior": 1,
+      "writes": {
+        "groupInserts": 0,
+        "baselineInserts": 1,
+        "updates": 0,
+        "deletes": 0,
+        "total": 1
+      },
+      "risks": [
+        "registry-abnormal-class",
+        "unexplained-diff=58"
+      ],
+      "why": "phase4 registry-abnormal; groups in prod, exclusive fallback; known risk",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "gaepo-jugong6",
+      "safe": false,
+      "unexplained": 0,
+      "explainable": 0,
+      "exact": 281,
+      "highGroups": 0,
+      "baselinesWithPrior": 0,
+      "writes": {
+        "groupInserts": 0,
+        "baselineInserts": 0,
+        "updates": 0,
+        "deletes": 0,
+        "total": 0
+      },
+      "risks": [
+        "ambiguous-grouping",
+        "registry-abnormal-class",
+        "no-high-confidence-groups"
+      ],
+      "why": "phase4 registry-abnormal; reconstruction stock; low group confidence",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "ricents",
+      "safe": false,
+      "unexplained": 172,
+      "explainable": 0,
+      "exact": 1628,
+      "highGroups": 5,
+      "baselinesWithPrior": 5,
+      "writes": {
+        "groupInserts": 5,
+        "baselineInserts": 5,
+        "updates": 0,
+        "deletes": 0,
+        "total": 10
+      },
+      "risks": [
+        "unexplained-diff=172"
+      ],
+      "why": "Jamsil high volume; 59/84 family near-area stress; sibling of pilots",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "raemian-hill-godeok",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 193,
+      "exact": 1309,
+      "highGroups": 7,
+      "baselinesWithPrior": 0,
+      "writes": {
+        "groupInserts": 7,
+        "baselineInserts": 0,
+        "updates": 0,
+        "deletes": 0,
+        "total": 7
+      },
+      "risks": [],
+      "why": "high volume; 16 exclusive variants; newer reconstruction-adjacent Gangdong",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "raemian-weve",
+      "safe": false,
+      "unexplained": 156,
+      "explainable": 0,
+      "exact": 1078,
+      "highGroups": 4,
+      "baselinesWithPrior": 4,
+      "writes": {
+        "groupInserts": 4,
+        "baselineInserts": 4,
+        "updates": 0,
+        "deletes": 0,
+        "total": 8
+      },
+      "risks": [
+        "unexplained-diff=156"
+      ],
+      "why": "Dongdaemun mid volume; mixed exclusive ladder",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "gwanak-prugio",
+      "safe": false,
+      "unexplained": 106,
+      "explainable": 0,
+      "exact": 1088,
+      "highGroups": 3,
+      "baselinesWithPrior": 3,
+      "writes": {
+        "groupInserts": 3,
+        "baselineInserts": 3,
+        "updates": 0,
+        "deletes": 0,
+        "total": 6
+      },
+      "risks": [
+        "unexplained-diff=106"
+      ],
+      "why": "59/84 family; stable 2000s stock; grouping clarity test",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "sangye-jugong9",
+      "safe": false,
+      "unexplained": 170,
+      "explainable": 0,
+      "exact": 1064,
+      "highGroups": 7,
+      "baselinesWithPrior": 7,
+      "writes": {
+        "groupInserts": 7,
+        "baselineInserts": 7,
+        "updates": 0,
+        "deletes": 0,
+        "total": 14
+      },
+      "risks": [
+        "unexplained-diff=170"
+      ],
+      "why": "1980s reconstruction candidate; small exclusive bands",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "sibom-hanyang",
+      "safe": false,
+      "unexplained": 232,
+      "explainable": 0,
+      "exact": 994,
+      "highGroups": 10,
+      "baselinesWithPrior": 10,
+      "writes": {
+        "groupInserts": 10,
+        "baselineInserts": 10,
+        "updates": 0,
+        "deletes": 0,
+        "total": 20
+      },
+      "risks": [
+        "unexplained-diff=232"
+      ],
+      "why": "Gyeonggi mix; older stock; high trade count",
+      "region": "gyeonggi"
+    },
+    {
+      "complexKey": "anyang-samsung-raemian",
+      "safe": false,
+      "unexplained": 62,
+      "explainable": 0,
+      "exact": 1775,
+      "highGroups": 6,
+      "baselinesWithPrior": 6,
+      "writes": {
+        "groupInserts": 6,
+        "baselineInserts": 6,
+        "updates": 0,
+        "deletes": 0,
+        "total": 12
+      },
+      "risks": [
+        "unexplained-diff=62"
+      ],
+      "why": "Gyeonggi high volume; many area variants (Anyang Dongan)",
+      "region": "gyeonggi"
+    },
+    {
+      "complexKey": "ilsan-zenith",
+      "safe": false,
+      "unexplained": 37,
+      "explainable": 0,
+      "exact": 3000,
+      "highGroups": 7,
+      "baselinesWithPrior": 7,
+      "writes": {
+        "groupInserts": 7,
+        "baselineInserts": 7,
+        "updates": 0,
+        "deletes": 0,
+        "total": 14
+      },
+      "risks": [
+        "unexplained-diff=37"
+      ],
+      "why": "highest Gyeonggi volume in scan; tower; area ladder stress",
+      "region": "gyeonggi"
+    },
+    {
+      "complexKey": "hannam-thehill",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 117,
+      "exact": 387,
+      "highGroups": 9,
+      "baselinesWithPrior": 8,
+      "writes": {
+        "groupInserts": 9,
+        "baselineInserts": 8,
+        "updates": 0,
+        "deletes": 0,
+        "total": 17
+      },
+      "risks": [],
+      "why": "premium; many exclusive variants; Yongsan peer of hangang pilot",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "helio-city",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 112,
+      "exact": 1258,
+      "highGroups": 8,
+      "baselinesWithPrior": 0,
+      "writes": {
+        "groupInserts": 8,
+        "baselineInserts": 0,
+        "updates": 0,
+        "deletes": 0,
+        "total": 8
+      },
+      "risks": [],
+      "why": "mega complex; many unit-area variants; Songpa volume stress",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "dmc-raemian",
+      "safe": false,
+      "unexplained": 125,
+      "explainable": 0,
+      "exact": 1150,
+      "highGroups": 5,
+      "baselinesWithPrior": 5,
+      "writes": {
+        "groupInserts": 5,
+        "baselineInserts": 5,
+        "updates": 0,
+        "deletes": 0,
+        "total": 10
+      },
+      "risks": [
+        "unexplained-diff=125"
+      ],
+      "why": "high volume; multi-label family; Seodaemun",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "lotte-castle-first",
+      "safe": false,
+      "unexplained": 182,
+      "explainable": 0,
+      "exact": 1413,
+      "highGroups": 6,
+      "baselinesWithPrior": 6,
+      "writes": {
+        "groupInserts": 6,
+        "baselineInserts": 6,
+        "updates": 0,
+        "deletes": 0,
+        "total": 12
+      },
+      "risks": [
+        "unexplained-diff=182"
+      ],
+      "why": "high volume; 59–160㎡ span; Gangdong",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "sk-bukhansan-city",
+      "safe": false,
+      "unexplained": 98,
+      "explainable": 0,
+      "exact": 2174,
+      "highGroups": 3,
+      "baselinesWithPrior": 3,
+      "writes": {
+        "groupInserts": 3,
+        "baselineInserts": 3,
+        "updates": 0,
+        "deletes": 0,
+        "total": 6
+      },
+      "risks": [
+        "unexplained-diff=98"
+      ],
+      "why": "very high volume; Gangbuk; multi-area",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "e-pyeonhansesang-osan",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 89,
+      "exact": 1469,
+      "highGroups": 3,
+      "baselinesWithPrior": 0,
+      "writes": {
+        "groupInserts": 3,
+        "baselineInserts": 0,
+        "updates": 0,
+        "deletes": 0,
+        "total": 3
+      },
+      "risks": [],
+      "why": "Gyeonggi 59/84 close-family; new town",
+      "region": "gyeonggi"
+    },
+    {
+      "complexKey": "hillstate-unjeong",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 70,
+      "exact": 1216,
+      "highGroups": 4,
+      "baselinesWithPrior": 0,
+      "writes": {
+        "groupInserts": 4,
+        "baselineInserts": 0,
+        "updates": 0,
+        "deletes": 0,
+        "total": 4
+      },
+      "risks": [],
+      "why": "Gyeonggi 59/84 near bands; Unjeong new town",
+      "region": "gyeonggi"
+    },
+    {
+      "complexKey": "junggye-green1",
+      "safe": false,
+      "unexplained": 135,
+      "explainable": 0,
+      "exact": 1453,
+      "highGroups": 4,
+      "baselinesWithPrior": 4,
+      "writes": {
+        "groupInserts": 4,
+        "baselineInserts": 4,
+        "updates": 0,
+        "deletes": 0,
+        "total": 8
+      },
+      "risks": [
+        "unexplained-diff=135"
+      ],
+      "why": "small exclusive band cluster (39–59); Nowon reconstruction-era",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "raemian-prestige",
+      "safe": false,
+      "unexplained": 179,
+      "explainable": 0,
+      "exact": 572,
+      "highGroups": 8,
+      "baselinesWithPrior": 8,
+      "writes": {
+        "groupInserts": 8,
+        "baselineInserts": 8,
+        "updates": 0,
+        "deletes": 0,
+        "total": 16
+      },
+      "risks": [
+        "unexplained-diff=179"
+      ],
+      "why": "Banpo peer; premium; clear market; expansion quality bar",
+      "region": "seoul"
+    },
+    {
+      "complexKey": "raemian-anyang-megatria",
+      "safe": true,
+      "unexplained": 0,
+      "explainable": 157,
+      "exact": 2244,
+      "highGroups": 6,
+      "baselinesWithPrior": 0,
+      "writes": {
+        "groupInserts": 6,
+        "baselineInserts": 0,
+        "updates": 0,
+        "deletes": 0,
+        "total": 6
+      },
+      "risks": [],
+      "why": "Gyeonggi; 16 variants; high volume from scan",
+      "region": "gyeonggi"
+    }
+  ],
+  "passCriteria": {
+    "safeInitialCohortIdentified": true,
+    "cohortUnexplainedDiff": 0,
+    "expectedProductionWriteCountKnown": true,
+    "flagChanges": false,
+    "productionWrites": 0
+  }
+}

@@ -1,0 +1,1424 @@
+{
+  "capturedAt": "2026-09-12T03:03:47.731Z",
+  "writes": 0,
+  "groupComplexCount": 6,
+  "groupRows": 32,
+  "baselineComplexCount": 4,
+  "baselineRows": 19,
+  "groupsByComplex": [
+    {
+      "complex_key": "banpo-xi",
+      "n": 7,
+      "high_n": 7
+    },
+    {
+      "complex_key": "eunma",
+      "n": 6,
+      "high_n": 1
+    },
+    {
+      "complex_key": "hangang-daewoo",
+      "n": 4,
+      "high_n": 4
+    },
+    {
+      "complex_key": "jamsil-els",
+      "n": 3,
+      "high_n": 3
+    },
+    {
+      "complex_key": "mokdong-7",
+      "n": 7,
+      "high_n": 7
+    },
+    {
+      "complex_key": "parkrio",
+      "n": 5,
+      "high_n": 5
+    }
+  ],
+  "baselinesByComplex": [
+    {
+      "complex_key": "banpo-xi",
+      "n": 7
+    },
+    {
+      "complex_key": "hangang-daewoo",
+      "n": 4
+    },
+    {
+      "complex_key": "jamsil-els",
+      "n": 3
+    },
+    {
+      "complex_key": "parkrio",
+      "n": 5
+    }
+  ],
+  "missingBaselines": [
+    {
+      "complex_key": "banpo-xi",
+      "groups": 7,
+      "high_groups": 7,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    },
+    {
+      "complex_key": "eunma",
+      "groups": 6,
+      "high_groups": 1,
+      "missing_baselines": 6,
+      "missing_high_baselines": 1
+    },
+    {
+      "complex_key": "hangang-daewoo",
+      "groups": 4,
+      "high_groups": 4,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    },
+    {
+      "complex_key": "jamsil-els",
+      "groups": 3,
+      "high_groups": 3,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    },
+    {
+      "complex_key": "mokdong-7",
+      "groups": 7,
+      "high_groups": 7,
+      "missing_baselines": 7,
+      "missing_high_baselines": 7
+    },
+    {
+      "complex_key": "parkrio",
+      "groups": 5,
+      "high_groups": 5,
+      "missing_baselines": 0,
+      "missing_high_baselines": 0
+    }
+  ],
+  "classifications": [
+    {
+      "complex_key": "banpo-xi",
+      "apt_name_norm": "반포자이",
+      "classification": "auto-safe",
+      "singoga_mode": "market_group"
+    },
+    {
+      "complex_key": "eunma",
+      "apt_name_norm": "은마",
+      "classification": "registry-abnormal",
+      "singoga_mode": "exclusive_area_fallback"
+    },
+    {
+      "complex_key": "hangang-daewoo",
+      "apt_name_norm": "한강(대우)",
+      "classification": "auto-safe",
+      "singoga_mode": "market_group"
+    },
+    {
+      "complex_key": "jamsil-els",
+      "apt_name_norm": "잠실엘스",
+      "classification": "group-safe-label-unknown",
+      "singoga_mode": "market_group"
+    },
+    {
+      "complex_key": "mokdong-7",
+      "apt_name_norm": "목동신시가지7",
+      "classification": "ambiguous",
+      "singoga_mode": "exclusive_area_fallback"
+    },
+    {
+      "complex_key": "parkrio",
+      "apt_name_norm": "파크리오",
+      "classification": "auto-safe",
+      "singoga_mode": "market_group"
+    }
+  ],
+  "sampleGroups": [
+    {
+      "group_key": "banpo-xi:G1:ex59.97-59.98",
+      "complex_key": "banpo-xi",
+      "exclusive_area_min": 59.97,
+      "exclusive_area_max": 59.98,
+      "group_confidence_high": 1,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "complex_key": "banpo-xi",
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 85,
+      "group_confidence_high": 1,
+      "market_label": 35,
+      "source": "phase4"
+    },
+    {
+      "group_key": "banpo-xi:G3:ex132.18-132.44",
+      "complex_key": "banpo-xi",
+      "exclusive_area_min": 132.18,
+      "exclusive_area_max": 132.44,
+      "group_confidence_high": 1,
+      "market_label": 50,
+      "source": "phase4"
+    },
+    {
+      "group_key": "banpo-xi:G4:ex165.05-165.45",
+      "complex_key": "banpo-xi",
+      "exclusive_area_min": 165.05,
+      "exclusive_area_max": 165.45,
+      "group_confidence_high": 1,
+      "market_label": 60,
+      "source": "phase4"
+    },
+    {
+      "group_key": "banpo-xi:G5:ex194.52-194.69",
+      "complex_key": "banpo-xi",
+      "exclusive_area_min": 194.52,
+      "exclusive_area_max": 194.69,
+      "group_confidence_high": 1,
+      "market_label": 70,
+      "source": "phase4"
+    },
+    {
+      "group_key": "banpo-xi:G6:ex216.49-216.49",
+      "complex_key": "banpo-xi",
+      "exclusive_area_min": 216.49,
+      "exclusive_area_max": 216.49,
+      "group_confidence_high": 1,
+      "market_label": 80,
+      "source": "phase4"
+    },
+    {
+      "group_key": "banpo-xi:G7:ex244.54-244.97",
+      "complex_key": "banpo-xi",
+      "exclusive_area_min": 244.54,
+      "exclusive_area_max": 244.97,
+      "group_confidence_high": 1,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "eunma:G1:ex76.76-76.79",
+      "complex_key": "eunma",
+      "exclusive_area_min": 76.76,
+      "exclusive_area_max": 76.79,
+      "group_confidence_high": 0,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "eunma:G2:ex84.43-84.43",
+      "complex_key": "eunma",
+      "exclusive_area_min": 84.43,
+      "exclusive_area_max": 84.43,
+      "group_confidence_high": 1,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "eunma:G3:ex91.94-95.18",
+      "complex_key": "eunma",
+      "exclusive_area_min": 91.94,
+      "exclusive_area_max": 95.18,
+      "group_confidence_high": 0,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "eunma:G4:ex99.12-99.12",
+      "complex_key": "eunma",
+      "exclusive_area_min": 99.12,
+      "exclusive_area_max": 99.12,
+      "group_confidence_high": 0,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "eunma:G5:ex104.37-105.46",
+      "complex_key": "eunma",
+      "exclusive_area_min": 104.37,
+      "exclusive_area_max": 105.46,
+      "group_confidence_high": 0,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "eunma:G6:ex107.24-107.89",
+      "complex_key": "eunma",
+      "exclusive_area_min": 107.24,
+      "exclusive_area_max": 107.89,
+      "group_confidence_high": 0,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "hangang-daewoo:G1:ex59.98-60.00",
+      "complex_key": "hangang-daewoo",
+      "exclusive_area_min": 59.98,
+      "exclusive_area_max": 60,
+      "group_confidence_high": 1,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "hangang-daewoo:G2:ex84.94-84.98",
+      "complex_key": "hangang-daewoo",
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 84.98,
+      "group_confidence_high": 1,
+      "market_label": 33,
+      "source": "phase4"
+    },
+    {
+      "group_key": "hangang-daewoo:G3:ex134.13-134.13",
+      "complex_key": "hangang-daewoo",
+      "exclusive_area_min": 134.13,
+      "exclusive_area_max": 134.13,
+      "group_confidence_high": 1,
+      "market_label": 49,
+      "source": "phase4"
+    },
+    {
+      "group_key": "hangang-daewoo:G4:ex135.27-135.87",
+      "complex_key": "hangang-daewoo",
+      "exclusive_area_min": 135.27,
+      "exclusive_area_max": 135.87,
+      "group_confidence_high": 1,
+      "market_label": 50,
+      "source": "phase4"
+    },
+    {
+      "group_key": "jamsil-els:G1:ex59.96-59.96",
+      "complex_key": "jamsil-els",
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "group_confidence_high": 1,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "complex_key": "jamsil-els",
+      "exclusive_area_min": 84.8,
+      "exclusive_area_max": 84.97,
+      "group_confidence_high": 1,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "jamsil-els:G3:ex119.93-119.93",
+      "complex_key": "jamsil-els",
+      "exclusive_area_min": 119.93,
+      "exclusive_area_max": 119.93,
+      "group_confidence_high": 1,
+      "market_label": 45,
+      "source": "phase4"
+    },
+    {
+      "group_key": "mokdong-7:G1:ex53.88-53.88",
+      "complex_key": "mokdong-7",
+      "exclusive_area_min": 53.88,
+      "exclusive_area_max": 53.88,
+      "group_confidence_high": 1,
+      "market_label": null,
+      "source": "phase4"
+    },
+    {
+      "group_key": "mokdong-7:G2:ex59.39-59.39",
+      "complex_key": "mokdong-7",
+      "exclusive_area_min": 59.39,
+      "exclusive_area_max": 59.39,
+      "group_confidence_high": 1,
+      "market_label": 22,
+      "source": "phase4"
+    },
+    {
+      "group_key": "mokdong-7:G3:ex64.40-64.40",
+      "complex_key": "mokdong-7",
+      "exclusive_area_min": 64.4,
+      "exclusive_area_max": 64.4,
+      "group_confidence_high": 1,
+      "market_label": 24,
+      "source": "phase4"
+    },
+    {
+      "group_key": "mokdong-7:G4:ex66.60-66.68",
+      "complex_key": "mokdong-7",
+      "exclusive_area_min": 66.6,
+      "exclusive_area_max": 66.68,
+      "group_confidence_high": 1,
+      "market_label": 27,
+      "source": "phase4"
+    },
+    {
+      "group_key": "mokdong-7:G5:ex74.12-74.12",
+      "complex_key": "mokdong-7",
+      "exclusive_area_min": 74.12,
+      "exclusive_area_max": 74.12,
+      "group_confidence_high": 1,
+      "market_label": 27,
+      "source": "phase4"
+    },
+    {
+      "group_key": "mokdong-7:G6:ex89.05-89.05",
+      "complex_key": "mokdong-7",
+      "exclusive_area_min": 89.05,
+      "exclusive_area_max": 89.05,
+      "group_confidence_high": 1,
+      "market_label": 32,
+      "source": "phase4"
+    },
+    {
+      "group_key": "mokdong-7:G7:ex101.20-101.20",
+      "complex_key": "mokdong-7",
+      "exclusive_area_min": 101.2,
+      "exclusive_area_max": 101.2,
+      "group_confidence_high": 1,
+      "market_label": 37,
+      "source": "phase4"
+    },
+    {
+      "group_key": "parkrio:G1:ex35.24-35.24",
+      "complex_key": "parkrio",
+      "exclusive_area_min": 35.24,
+      "exclusive_area_max": 35.24,
+      "group_confidence_high": 1,
+      "market_label": 16,
+      "source": "phase4"
+    },
+    {
+      "group_key": "parkrio:G2:ex59.64-59.95",
+      "complex_key": "parkrio",
+      "exclusive_area_min": 59.64,
+      "exclusive_area_max": 59.95,
+      "group_confidence_high": 1,
+      "market_label": 26,
+      "source": "phase4"
+    },
+    {
+      "group_key": "parkrio:G3:ex84.79-84.97",
+      "complex_key": "parkrio",
+      "exclusive_area_min": 84.79,
+      "exclusive_area_max": 84.97,
+      "group_confidence_high": 1,
+      "market_label": 33,
+      "source": "phase4"
+    },
+    {
+      "group_key": "parkrio:G4:ex121.63-121.63",
+      "complex_key": "parkrio",
+      "exclusive_area_min": 121.63,
+      "exclusive_area_max": 121.63,
+      "group_confidence_high": 1,
+      "market_label": 45,
+      "source": "phase4"
+    },
+    {
+      "group_key": "parkrio:G5:ex144.77-144.77",
+      "complex_key": "parkrio",
+      "exclusive_area_min": 144.77,
+      "exclusive_area_max": 144.77,
+      "group_confidence_high": 1,
+      "market_label": 53,
+      "source": "phase4"
+    }
+  ],
+  "sampleBaselines": [
+    {
+      "group_key": "banpo-xi:G1:ex59.97-59.98",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 120000,
+      "prior_max_deal_date": "2016-08-20",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 456
+    },
+    {
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 169000,
+      "prior_max_deal_date": "2016-09-30",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 577
+    },
+    {
+      "group_key": "banpo-xi:G3:ex132.18-132.44",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 220000,
+      "prior_max_deal_date": "2010-01-05",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 111
+    },
+    {
+      "group_key": "banpo-xi:G4:ex165.05-165.45",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 254000,
+      "prior_max_deal_date": "2009-09-24",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 117
+    },
+    {
+      "group_key": "banpo-xi:G5:ex194.52-194.69",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 280000,
+      "prior_max_deal_date": "2010-01-16",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 31
+    },
+    {
+      "group_key": "banpo-xi:G6:ex216.49-216.49",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 317000,
+      "prior_max_deal_date": "2009-10-14",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 64
+    },
+    {
+      "group_key": "banpo-xi:G7:ex244.54-244.97",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 339000,
+      "prior_max_deal_date": "2009-06-16",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 120
+    },
+    {
+      "group_key": "hangang-daewoo:G1:ex59.98-60.00",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 75000,
+      "prior_max_deal_date": "2016-08-23",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 113
+    },
+    {
+      "group_key": "hangang-daewoo:G2:ex84.94-84.98",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 99500,
+      "prior_max_deal_date": "2016-09-28",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 147
+    },
+    {
+      "group_key": "hangang-daewoo:G3:ex134.13-134.13",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 135000,
+      "prior_max_deal_date": "2006-10-25",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 56
+    },
+    {
+      "group_key": "hangang-daewoo:G4:ex135.27-135.87",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 128000,
+      "prior_max_deal_date": "2006-05-17",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 42
+    },
+    {
+      "group_key": "jamsil-els:G1:ex59.96-59.96",
+      "complex_key": "jamsil-els",
+      "baseline_until": "2016-10-03",
+      "prior_max_amount": 98000,
+      "prior_max_deal_date": "2016-09-29",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 559
+    },
+    {
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "complex_key": "jamsil-els",
+      "baseline_until": "2016-10-03",
+      "prior_max_amount": 118000,
+      "prior_max_deal_date": "2009-08-14",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 1211
+    },
+    {
+      "group_key": "jamsil-els:G3:ex119.93-119.93",
+      "complex_key": "jamsil-els",
+      "baseline_until": "2016-10-03",
+      "prior_max_amount": 176000,
+      "prior_max_deal_date": "2010-11-01",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 138
+    },
+    {
+      "group_key": "parkrio:G1:ex35.24-35.24",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 55000,
+      "prior_max_deal_date": "2016-08-25",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 192
+    },
+    {
+      "group_key": "parkrio:G2:ex59.64-59.95",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 87000,
+      "prior_max_deal_date": "2016-09-06",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 533
+    },
+    {
+      "group_key": "parkrio:G3:ex84.79-84.97",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 109500,
+      "prior_max_deal_date": "2016-09-20",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 1465
+    },
+    {
+      "group_key": "parkrio:G4:ex121.63-121.63",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 155000,
+      "prior_max_deal_date": "2009-06-12",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 187
+    },
+    {
+      "group_key": "parkrio:G5:ex144.77-144.77",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 200000,
+      "prior_max_deal_date": "2010-04-09",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 162
+    }
+  ],
+  "topVolumeCandidates": [
+    {
+      "apt_name_norm": "일산두산위브더제니스",
+      "lawd_cd": "41287",
+      "trade_n": 3037,
+      "area_variants": 10,
+      "ex_min": 59.9065,
+      "ex_max": 170.721,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-11"
+    },
+    {
+      "apt_name_norm": "황골마을주공1",
+      "lawd_cd": "41117",
+      "trade_n": 2461,
+      "area_variants": 5,
+      "ex_min": 49.44,
+      "ex_max": 59.99,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "래미안안양메가트리아",
+      "lawd_cd": "41171",
+      "trade_n": 2401,
+      "area_variants": 16,
+      "ex_min": 39.5,
+      "ex_max": 139.69,
+      "first_deal": "2016-10-11",
+      "last_deal": "2026-09-04"
+    },
+    {
+      "apt_name_norm": "매탄위브하늘채",
+      "lawd_cd": "41117",
+      "trade_n": 2368,
+      "area_variants": 9,
+      "ex_min": 59.9845,
+      "ex_max": 128.821,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-10"
+    },
+    {
+      "apt_name_norm": "에스케이북한산시티",
+      "lawd_cd": "11305",
+      "trade_n": 2272,
+      "area_variants": 6,
+      "ex_min": 59.98,
+      "ex_max": 114.85,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "삼성래미안",
+      "lawd_cd": "41173",
+      "trade_n": 1837,
+      "area_variants": 7,
+      "ex_min": 59.871,
+      "ex_max": 182.487,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-09-01"
+    },
+    {
+      "apt_name_norm": "리센츠",
+      "lawd_cd": "11710",
+      "trade_n": 1800,
+      "area_variants": 5,
+      "ex_min": 27.68,
+      "ex_max": 124.22,
+      "first_deal": "2016-10-02",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "주공2",
+      "lawd_cd": "11350",
+      "trade_n": 1732,
+      "area_variants": 6,
+      "ex_min": 38.64,
+      "ex_max": 84.815,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "팜스프링(283-0)",
+      "lawd_cd": "41480",
+      "trade_n": 1655,
+      "area_variants": 6,
+      "ex_min": 51.412,
+      "ex_max": 170.484,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-04"
+    },
+    {
+      "apt_name_norm": "수원skskyview",
+      "lawd_cd": "41111",
+      "trade_n": 1637,
+      "area_variants": 18,
+      "ex_min": 59.929,
+      "ex_max": 141.563,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "선사현대아파트",
+      "lawd_cd": "11740",
+      "trade_n": 1600,
+      "area_variants": 8,
+      "ex_min": 58.68,
+      "ex_max": 114.42,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-07-25"
+    },
+    {
+      "apt_name_norm": "롯데캐슬퍼스트",
+      "lawd_cd": "11740",
+      "trade_n": 1595,
+      "area_variants": 9,
+      "ex_min": 59.99,
+      "ex_max": 160.63,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-02"
+    },
+    {
+      "apt_name_norm": "팰리스카운티",
+      "lawd_cd": "41192",
+      "trade_n": 1591,
+      "area_variants": 4,
+      "ex_min": 59.9798,
+      "ex_max": 132.6054,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "중계그린1단지",
+      "lawd_cd": "11350",
+      "trade_n": 1588,
+      "area_variants": 10,
+      "ex_min": 39.78,
+      "ex_max": 59.87,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-18"
+    },
+    {
+      "apt_name_norm": "e편한세상오산세교",
+      "lawd_cd": "41370",
+      "trade_n": 1558,
+      "area_variants": 3,
+      "ex_min": 59.9841,
+      "ex_max": 84.9828,
+      "first_deal": "2018-02-27",
+      "last_deal": "2026-09-07"
+    },
+    {
+      "apt_name_norm": "올림픽훼밀리타운",
+      "lawd_cd": "11710",
+      "trade_n": 1510,
+      "area_variants": 6,
+      "ex_min": 84.705,
+      "ex_max": 192.235,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-20"
+    },
+    {
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "lawd_cd": "11740",
+      "trade_n": 1502,
+      "area_variants": 16,
+      "ex_min": 59.23,
+      "ex_max": 141.64,
+      "first_deal": "2016-11-08",
+      "last_deal": "2026-08-15"
+    },
+    {
+      "apt_name_norm": "권선자이e편한세상",
+      "lawd_cd": "41113",
+      "trade_n": 1499,
+      "area_variants": 11,
+      "ex_min": 59.963,
+      "ex_max": 195.4861,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "큰마을대림,현대아파트",
+      "lawd_cd": "41287",
+      "trade_n": 1479,
+      "area_variants": 7,
+      "ex_min": 59.82,
+      "ex_max": 163.43,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-10"
+    },
+    {
+      "apt_name_norm": "샘터마을2",
+      "lawd_cd": "41281",
+      "trade_n": 1477,
+      "area_variants": 7,
+      "ex_min": 39.99,
+      "ex_max": 59.98,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-11"
+    },
+    {
+      "apt_name_norm": "율곡",
+      "lawd_cd": "41410",
+      "trade_n": 1477,
+      "area_variants": 4,
+      "ex_min": 51.66,
+      "ex_max": 59.97,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-09"
+    },
+    {
+      "apt_name_norm": "광교호반베르디움",
+      "lawd_cd": "41117",
+      "trade_n": 1456,
+      "area_variants": 12,
+      "ex_min": 59.9306,
+      "ex_max": 124.721,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "신동아아파트1",
+      "lawd_cd": "11320",
+      "trade_n": 1448,
+      "area_variants": 8,
+      "ex_min": 43.35,
+      "ex_max": 126.89,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-04"
+    },
+    {
+      "apt_name_norm": "충무주공(872)",
+      "lawd_cd": "41410",
+      "trade_n": 1445,
+      "area_variants": 7,
+      "ex_min": 35.28,
+      "ex_max": 51.66,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "관악산벽산타운5",
+      "lawd_cd": "11545",
+      "trade_n": 1427,
+      "area_variants": 3,
+      "ex_min": 59.34,
+      "ex_max": 114.84,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-31"
+    },
+    {
+      "apt_name_norm": "남산타운",
+      "lawd_cd": "11140",
+      "trade_n": 1400,
+      "area_variants": 3,
+      "ex_min": 59.94,
+      "ex_max": 114.88,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-16"
+    },
+    {
+      "apt_name_norm": "화서역푸르지오더에듀포레",
+      "lawd_cd": "41111",
+      "trade_n": 1399,
+      "area_variants": 13,
+      "ex_min": 59.98,
+      "ex_max": 148.75,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "헬리오시티",
+      "lawd_cd": "11710",
+      "trade_n": 1370,
+      "area_variants": 21,
+      "ex_min": 39.1,
+      "ex_max": 150.09,
+      "first_deal": "2019-07-30",
+      "last_deal": "2026-08-15"
+    },
+    {
+      "apt_name_norm": "더포레스트힐",
+      "lawd_cd": "41173",
+      "trade_n": 1359,
+      "area_variants": 10,
+      "ex_min": 39.69,
+      "ex_max": 114.96,
+      "first_deal": "2016-10-02",
+      "last_deal": "2026-08-25"
+    },
+    {
+      "apt_name_norm": "신나무실휴먼시아5단지",
+      "lawd_cd": "41117",
+      "trade_n": 1342,
+      "area_variants": 4,
+      "ex_min": 49.59,
+      "ex_max": 59.99,
+      "first_deal": "2016-10-04",
+      "last_deal": "2026-09-04"
+    },
+    {
+      "apt_name_norm": "벽적골주공휴먼시아8단지",
+      "lawd_cd": "41117",
+      "trade_n": 1340,
+      "area_variants": 3,
+      "ex_min": 49.59,
+      "ex_max": 59.99,
+      "first_deal": "2016-10-05",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "쇠재마을5단지뜨란채주공",
+      "lawd_cd": "41480",
+      "trade_n": 1337,
+      "area_variants": 5,
+      "ex_min": 48.63,
+      "ex_max": 59.94,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "현대힐스테이트",
+      "lawd_cd": "41117",
+      "trade_n": 1330,
+      "area_variants": 4,
+      "ex_min": 59.648,
+      "ex_max": 127.908,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-09"
+    },
+    {
+      "apt_name_norm": "중계무지개",
+      "lawd_cd": "11350",
+      "trade_n": 1305,
+      "area_variants": 5,
+      "ex_min": 39.82,
+      "ex_max": 59.26,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-29"
+    },
+    {
+      "apt_name_norm": "한진한화그랑빌",
+      "lawd_cd": "11350",
+      "trade_n": 1292,
+      "area_variants": 5,
+      "ex_min": 59.94,
+      "ex_max": 139.08,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-21"
+    },
+    {
+      "apt_name_norm": "산내마을9단지힐스테이트운정",
+      "lawd_cd": "41480",
+      "trade_n": 1286,
+      "area_variants": 9,
+      "ex_min": 59.8674,
+      "ex_max": 84.9757,
+      "first_deal": "2018-08-04",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "dmc래미안e편한세상",
+      "lawd_cd": "11410",
+      "trade_n": 1275,
+      "area_variants": 12,
+      "ex_min": 59.97,
+      "ex_max": 201.71,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-09-07"
+    },
+    {
+      "apt_name_norm": "벽적골9단지주공",
+      "lawd_cd": "41117",
+      "trade_n": 1270,
+      "area_variants": 5,
+      "ex_min": 49.26,
+      "ex_max": 59.39,
+      "first_deal": "2016-10-04",
+      "last_deal": "2026-09-01"
+    },
+    {
+      "apt_name_norm": "동탄시범다은마을월드메르디앙반도유보라",
+      "lawd_cd": "41597",
+      "trade_n": 1252,
+      "area_variants": 5,
+      "ex_min": 59.07,
+      "ex_max": 84.68,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-01"
+    },
+    {
+      "apt_name_norm": "금강마을(주공)",
+      "lawd_cd": "41192",
+      "trade_n": 1250,
+      "area_variants": 6,
+      "ex_min": 41.85,
+      "ex_max": 84.81,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-09-04"
+    },
+    {
+      "apt_name_norm": "새꽃마을1단지뜨란채(972-0)",
+      "lawd_cd": "41480",
+      "trade_n": 1248,
+      "area_variants": 3,
+      "ex_min": 59.98,
+      "ex_max": 84.98,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-10"
+    },
+    {
+      "apt_name_norm": "일산요진와이시티",
+      "lawd_cd": "41285",
+      "trade_n": 1246,
+      "area_variants": 13,
+      "ex_min": 59.89,
+      "ex_max": 244.36,
+      "first_deal": "2016-10-05",
+      "last_deal": "2026-09-07"
+    },
+    {
+      "apt_name_norm": "한신",
+      "lawd_cd": "11320",
+      "trade_n": 1242,
+      "area_variants": 2,
+      "ex_min": 77.46,
+      "ex_max": 84.94,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-08-25"
+    },
+    {
+      "apt_name_norm": "공작아파트",
+      "lawd_cd": "41173",
+      "trade_n": 1237,
+      "area_variants": 3,
+      "ex_min": 37.85,
+      "ex_max": 60,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-08-30"
+    },
+    {
+      "apt_name_norm": "래미안위브",
+      "lawd_cd": "11230",
+      "trade_n": 1234,
+      "area_variants": 9,
+      "ex_min": 59.96,
+      "ex_max": 140.62,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-29"
+    },
+    {
+      "apt_name_norm": "상계주공9(고층)",
+      "lawd_cd": "11350",
+      "trade_n": 1234,
+      "area_variants": 8,
+      "ex_min": 41.3,
+      "ex_max": 79.07,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-19"
+    },
+    {
+      "apt_name_norm": "시범한양",
+      "lawd_cd": "41135",
+      "trade_n": 1226,
+      "area_variants": 13,
+      "ex_min": 28.71,
+      "ex_max": 220.83,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-24"
+    },
+    {
+      "apt_name_norm": "동탄역센트럴푸르지오",
+      "lawd_cd": "41597",
+      "trade_n": 1220,
+      "area_variants": 7,
+      "ex_min": 59.3401,
+      "ex_max": 84.9834,
+      "first_deal": "2016-11-29",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "선경2차",
+      "lawd_cd": "41133",
+      "trade_n": 1212,
+      "area_variants": 1,
+      "ex_min": 49.98,
+      "ex_max": 49.98,
+      "first_deal": "2016-10-05",
+      "last_deal": "2026-08-30"
+    },
+    {
+      "apt_name_norm": "정릉풍림아이원",
+      "lawd_cd": "11290",
+      "trade_n": 1199,
+      "area_variants": 5,
+      "ex_min": 59.88,
+      "ex_max": 114.75,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "관악푸르지오",
+      "lawd_cd": "11620",
+      "trade_n": 1194,
+      "area_variants": 5,
+      "ex_min": 59.58,
+      "ex_max": 114.69,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "한빛마을5단지캐슬앤칸타빌",
+      "lawd_cd": "41480",
+      "trade_n": 1191,
+      "area_variants": 11,
+      "ex_min": 59.3315,
+      "ex_max": 133.8871,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-27"
+    },
+    {
+      "apt_name_norm": "세종",
+      "lawd_cd": "41410",
+      "trade_n": 1190,
+      "area_variants": 3,
+      "ex_min": 58.46,
+      "ex_max": 84.9,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-01"
+    },
+    {
+      "apt_name_norm": "벽산블루밍",
+      "lawd_cd": "11620",
+      "trade_n": 1187,
+      "area_variants": 9,
+      "ex_min": 59.96,
+      "ex_max": 114.99,
+      "first_deal": "2016-10-04",
+      "last_deal": "2026-08-28"
+    },
+    {
+      "apt_name_norm": "태강아파트(아이파크)",
+      "lawd_cd": "11350",
+      "trade_n": 1187,
+      "area_variants": 3,
+      "ex_min": 49.6,
+      "ex_max": 59.38,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-08-15"
+    },
+    {
+      "apt_name_norm": "동신2단지",
+      "lawd_cd": "41111",
+      "trade_n": 1186,
+      "area_variants": 6,
+      "ex_min": 43.02,
+      "ex_max": 84.98,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-24"
+    },
+    {
+      "apt_name_norm": "대광파인밸리",
+      "lawd_cd": "41591",
+      "trade_n": 1182,
+      "area_variants": 2,
+      "ex_min": 59.65,
+      "ex_max": 84.96,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-09"
+    },
+    {
+      "apt_name_norm": "한진(609-1)",
+      "lawd_cd": "11290",
+      "trade_n": 1175,
+      "area_variants": 5,
+      "ex_min": 59.58,
+      "ex_max": 152.25,
+      "first_deal": "2016-10-04",
+      "last_deal": "2026-08-27"
+    },
+    {
+      "apt_name_norm": "벽산",
+      "lawd_cd": "11200",
+      "trade_n": 1171,
+      "area_variants": 9,
+      "ex_min": 59.84,
+      "ex_max": 114.57,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-25"
+    },
+    {
+      "apt_name_norm": "가락(1차)쌍용아파트",
+      "lawd_cd": "11710",
+      "trade_n": 1168,
+      "area_variants": 2,
+      "ex_min": 59.92,
+      "ex_max": 84.69,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-18"
+    },
+    {
+      "apt_name_norm": "도곡렉슬",
+      "lawd_cd": "11680",
+      "trade_n": 1167,
+      "area_variants": 11,
+      "ex_min": 59.9203,
+      "ex_max": 176.9924,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-09-01"
+    },
+    {
+      "apt_name_norm": "주공아파트5단지",
+      "lawd_cd": "11710",
+      "trade_n": 1165,
+      "area_variants": 4,
+      "ex_min": 76.5,
+      "ex_max": 82.61,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-18"
+    },
+    {
+      "apt_name_norm": "동탄2하우스디더레이크",
+      "lawd_cd": "41597",
+      "trade_n": 1160,
+      "area_variants": 7,
+      "ex_min": 59.9,
+      "ex_max": 84.96,
+      "first_deal": "2017-09-02",
+      "last_deal": "2026-09-03"
+    },
+    {
+      "apt_name_norm": "래미안하이어스",
+      "lawd_cd": "41410",
+      "trade_n": 1159,
+      "area_variants": 9,
+      "ex_min": 59.94,
+      "ex_max": 178.76,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-07"
+    },
+    {
+      "apt_name_norm": "트리지움",
+      "lawd_cd": "11710",
+      "trade_n": 1159,
+      "area_variants": 6,
+      "ex_min": 59.88,
+      "ex_max": 149.45,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-18"
+    },
+    {
+      "apt_name_norm": "주공1",
+      "lawd_cd": "41370",
+      "trade_n": 1157,
+      "area_variants": 6,
+      "ex_min": 49.44,
+      "ex_max": 84.79,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-04"
+    },
+    {
+      "apt_name_norm": "주공5",
+      "lawd_cd": "11350",
+      "trade_n": 1157,
+      "area_variants": 6,
+      "ex_min": 38.64,
+      "ex_max": 84.79,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-22"
+    },
+    {
+      "apt_name_norm": "호매실gs아파트",
+      "lawd_cd": "41113",
+      "trade_n": 1154,
+      "area_variants": 4,
+      "ex_min": 59.775,
+      "ex_max": 127.204,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-08"
+    },
+    {
+      "apt_name_norm": "삼익그린2차",
+      "lawd_cd": "11740",
+      "trade_n": 1141,
+      "area_variants": 7,
+      "ex_min": 42.93,
+      "ex_max": 128.16,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-25"
+    },
+    {
+      "apt_name_norm": "원천레이크파크",
+      "lawd_cd": "41117",
+      "trade_n": 1140,
+      "area_variants": 6,
+      "ex_min": 49.95,
+      "ex_max": 84.79,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "산성역포레스티아",
+      "lawd_cd": "41131",
+      "trade_n": 1133,
+      "area_variants": 10,
+      "ex_min": 59.84,
+      "ex_max": 98.68,
+      "first_deal": "2020-05-08",
+      "last_deal": "2026-09-05"
+    },
+    {
+      "apt_name_norm": "인덕원대우",
+      "lawd_cd": "41173",
+      "trade_n": 1133,
+      "area_variants": 3,
+      "ex_min": 59.92,
+      "ex_max": 84.96,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-21"
+    },
+    {
+      "apt_name_norm": "강서힐스테이트",
+      "lawd_cd": "11500",
+      "trade_n": 1124,
+      "area_variants": 5,
+      "ex_min": 59.99,
+      "ex_max": 152.1,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-21"
+    },
+    {
+      "apt_name_norm": "은마",
+      "lawd_cd": "11680",
+      "trade_n": 1124,
+      "area_variants": 2,
+      "ex_min": 76.79,
+      "ex_max": 84.43,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-29"
+    },
+    {
+      "apt_name_norm": "관악산휴먼시아2단지",
+      "lawd_cd": "11620",
+      "trade_n": 1113,
+      "area_variants": 8,
+      "ex_min": 59.96,
+      "ex_max": 114.7,
+      "first_deal": "2016-10-05",
+      "last_deal": "2026-09-07"
+    },
+    {
+      "apt_name_norm": "월곡두산위브",
+      "lawd_cd": "11290",
+      "trade_n": 1109,
+      "area_variants": 6,
+      "ex_min": 59.855,
+      "ex_max": 114.752,
+      "first_deal": "2016-10-06",
+      "last_deal": "2026-09-11"
+    },
+    {
+      "apt_name_norm": "상계주공6(고층)",
+      "lawd_cd": "11350",
+      "trade_n": 1108,
+      "area_variants": 9,
+      "ex_min": 32.39,
+      "ex_max": 59.39,
+      "first_deal": "2016-10-03",
+      "last_deal": "2026-08-29"
+    },
+    {
+      "apt_name_norm": "힐스테이트영통",
+      "lawd_cd": "41117",
+      "trade_n": 1107,
+      "area_variants": 7,
+      "ex_min": 62.5963,
+      "ex_max": 107.7242,
+      "first_deal": "2018-02-07",
+      "last_deal": "2026-09-04"
+    },
+    {
+      "apt_name_norm": "삼성래미안",
+      "lawd_cd": "41171",
+      "trade_n": 1104,
+      "area_variants": 4,
+      "ex_min": 55.1685,
+      "ex_max": 79.3188,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-08-19"
+    },
+    {
+      "apt_name_norm": "현대",
+      "lawd_cd": "11530",
+      "trade_n": 1104,
+      "area_variants": 8,
+      "ex_min": 56.49,
+      "ex_max": 114.99,
+      "first_deal": "2016-10-01",
+      "last_deal": "2026-09-01"
+    }
+  ]
+}

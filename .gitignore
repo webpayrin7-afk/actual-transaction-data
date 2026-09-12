@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Phase 5.5a MOLIT month cache (regenerable)
+data/poc/phase55a/molit-month-cache/
