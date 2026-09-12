@@ -519,7 +519,7 @@ export function AptDetailPage({
       : `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl`}>
+    <div className={`${PAGE_SHELL} max-w-5xl overflow-x-clip`}>
       <div
         className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
           stickyVisible
