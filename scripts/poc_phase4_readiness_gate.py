@@ -50,6 +50,41 @@ RES_RE = SUPPLY_RES_RE
 NONRES_RE = CLASS_NONRES_RE
 PARTIAL_RE = re.compile(r"공유면적|일부공유")
 
+
+def config_for_candidate(
+    key: str,
+    *,
+    apt_name_norm: str | None = None,
+    lawd_cd: str | None = None,
+    era: str = "unknown",
+    profile: str = "dynamic-candidate",
+) -> dict[str, Any]:
+    """Resolve a gate config dynamically.
+
+    Prefer parcel metadata from COMPLEXES when present; otherwise build a
+    cache-oriented config from apt_name_norm + lawd_cd. Does not invent parcel
+    (bjdong/bun/ji) — callers must supply caches or parcel fields to fetch.
+    """
+    known = {c["key"]: dict(c) for c in COMPLEXES}
+    if key in known:
+        return known[key]
+    if not apt_name_norm or not lawd_cd:
+        raise ValueError(f"dynamic candidate {key} needs apt_name_norm and lawd_cd")
+    return {
+        "key": key,
+        "lawd_cd": str(lawd_cd),
+        "apt_name_norm": apt_name_norm,
+        "sigungu_cd": str(lawd_cd),
+        "bjdong_cd": None,
+        "bun": None,
+        "ji": None,
+        "era": era,
+        "profile": profile,
+        "cache": OUT / f"{key}-bld-expos-cache.json",
+        "trades_cache": OUT / f"{key}-trades-readonly.json",
+    }
+
+
 COMPLEXES: list[dict[str, Any]] = [
     {
         "key": "hangang-daewoo",
