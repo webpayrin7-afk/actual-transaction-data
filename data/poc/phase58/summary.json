@@ -1,0 +1,84 @@
+{
+  "phase": "5.8",
+  "universe": {
+    "seoul": 8774,
+    "gyeonggi": 6977,
+    "total": 15751,
+    "alreadyLoaded": 11,
+    "newCandidates": 15740
+  },
+  "classification": {
+    "AUTO_SAFE": 4,
+    "GROUP_SAFE": 3,
+    "AMBIGUOUS": 1,
+    "REGISTRY_ABNORMAL": 1,
+    "UNRESOLVED": 15731,
+    "deterministicRate": 0.1
+  },
+  "eligibility": {
+    "classificationSafe": 7,
+    "readinessPass": 7,
+    "LOAD_ELIGIBLE": 0,
+    "diffFailed": 7,
+    "totalHOLD": 15740,
+    "loadEligibleRate": 0
+  },
+  "holdReasons": {
+    "missing_gate_inputs": 15731,
+    "ambiguous": 1,
+    "registry_abnormal": 1,
+    "diff_failed": 7,
+    "other": 0
+  },
+  "allLoadEligibleWrites": {
+    "classifications": 0,
+    "groups": 0,
+    "baselines": 0,
+    "total": 0
+  },
+  "recommendedFirstBatch": {
+    "complexes": [],
+    "complexCount": 0,
+    "classifications": 0,
+    "groups": 0,
+    "baselines": 0,
+    "total": 0,
+    "selectionRule": "write-budget<=40; prefer baselineRequired; ascending write cost"
+  },
+  "sanity": {
+    "duplicateComplexIds": 0,
+    "duplicateGroupKeys": 0,
+    "baselineGroupMappingFails": 0,
+    "conflicts": 0,
+    "updatesRequired": 0,
+    "deletesRequired": 0
+  },
+  "pipelineHealthy": true,
+  "productionWrites": 0,
+  "examples": {
+    "missing_gate_inputs": [
+      "11110:(1-102)",
+      "11110:(204-11)",
+      "11110:(60-1)",
+      "11110:(627-120)",
+      "11110:cs타워",
+      "11110:mid그린(1동)",
+      "11110:mid그린(2동)",
+      "11110:mid그린(3동)",
+      "11110:mid그린(4동)",
+      "11110:mid그린(5동)"
+    ],
+    "diff_failed": [
+      "raemian-weve",
+      "sangye-jugong9",
+      "gwanak-prugio",
+      "ricents",
+      "sibom-hanyang",
+      "anyang-samsung-raemian",
+      "ilsan-zenith"
+    ],
+    "load_eligible": []
+  },
+  "decision": "PASS",
+  "next": "scale gate-input acquisition (99.9% UNRESOLVED); then re-scan before load"
+}
