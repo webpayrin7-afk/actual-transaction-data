@@ -1,0 +1,268 @@
+{
+  "phase": "7.1c",
+  "decision": "PASS",
+  "approval_status": {
+    "basic_info": "APPROVED_CALLABLE (AptBasisInfoServiceV5)",
+    "complex_list": "APPROVED_CALLABLE (AptListService4)",
+    "complex_identity": "APPROVED_CALLABLE (odcloud AptIdInfoSvc) — probe only; not required for fee persist",
+    "management_common": "APPROVED_CALLABLE (AptCmnuseManageCostServiceV3)",
+    "management_individual": "APPROVED_CALLABLE (AptIndvdlzManageCostServiceV3)",
+    "long_term_reserve": "APPROVED_CALLABLE (AptRepairsCostServiceV3)"
+  },
+  "contract_correction": {
+    "root_cause": "WRONG_SERVICE_VERSION / WRONG_PRODUCT_ENDPOINT",
+    "not": "SERVICE-NOT-ACTIVATED",
+    "previous_endpoints": [
+      "AptCmnuseManageCostServiceV2",
+      "AptRepairsCostServiceV2",
+      "AptBasisInfoService / V1 guesses"
+    ],
+    "actual_endpoints": [
+      "https://apis.data.go.kr/1613000/AptCmnuseManageCostServiceV3",
+      "https://apis.data.go.kr/1613000/AptIndvdlzManageCostServiceV3",
+      "https://apis.data.go.kr/1613000/AptRepairsCostServiceV3",
+      "https://apis.data.go.kr/1613000/AptBasisInfoServiceV5",
+      "https://apis.data.go.kr/1613000/AptListService4"
+    ],
+    "previous_operations": [
+      "V2 / guessed V1 ops"
+    ],
+    "actual_operations": [
+      "getHsmpCleaningCostInfoV3 (+ other common line items)",
+      "getHsmpElectricityCostInfoV3 (+ other individual utilities)",
+      "getHsmpMonthFeeInfoV3 (sLevy)",
+      "getAphusBassInfoV5 / getAphusDtlInfoV5",
+      "getSidoAptList4 / getLegaldongAptList4"
+    ]
+  },
+  "live_probe": {
+    "common": "OK resultCode 00",
+    "list": "OK (AptListService4)",
+    "identity": "OK (odcloud probe in minimal-probe.json)",
+    "individual": "OK resultCode 00",
+    "reserve": "OK resultCode 00 (sLevy)",
+    "basic": "OK resultCode 00 (V5)"
+  },
+  "management_semantics": {
+    "unit": "KRW",
+    "monthly_basis": "per complex-month (단지 월 합계)",
+    "common_basis": "sum of AptCmnuseManageCostServiceV3 line-item ops (청소/경비/소독/승강기/…)",
+    "individual_basis": "sum of AptIndvdlzManageCostServiceV3 utility ops (전기/수도/난방/급탕/가스 P+C)",
+    "reserve_basis": "getHsmpMonthFeeInfoV3.sLevy (월부과액)",
+    "summable": "LABEL-ONLY composite = common + individual + reserve; not an official single field",
+    "per_m2": "DERIVABLE-WITH-CONDITION (needs official exclusive area basis; not invented)",
+    "per_household": "DERIVABLE-WITH-CONDITION (divide by kaptdaCnt / household_count when present)",
+    "selected_pyeong": "UNSAFE — no official selected-pyeong fee; do not invent from area groups"
+  },
+  "sample_persist": {
+    "complexes_with_fees": 6,
+    "months_total": 59,
+    "writes": {
+      "source_links": 2,
+      "profile": 6,
+      "management_rows": 59,
+      "state_rows": 12
+    },
+    "unresolved_kapt": [
+      "파크리오",
+      "아크로리버파크",
+      "래미안힐스테이트고덕",
+      "래미안대치팰리스"
+    ]
+  },
+  "state_after": [
+    {
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "n": 4
+    },
+    {
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "n": 6
+    },
+    {
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "n": 10
+    },
+    {
+      "domain": "MANAGEMENT_FEE",
+      "status": "READY",
+      "n": 6
+    }
+  ],
+  "fee_by_complex": [
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "n": 9,
+      "mn": "202510",
+      "mx": "202606",
+      "sum_common": 4742929770,
+      "sum_indiv": 3536117570,
+      "sum_reserve": 124173000
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "n": 10,
+      "mn": "202510",
+      "mx": "202607",
+      "sum_common": 4723041131,
+      "sum_indiv": 6430902868,
+      "sum_reserve": 2192146269
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "n": 10,
+      "mn": "202510",
+      "mx": "202607",
+      "sum_common": 5379917602,
+      "sum_indiv": 7663416769,
+      "sum_reserve": 2227196800
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "n": 10,
+      "mn": "202510",
+      "mx": "202607",
+      "sum_common": 2031771275,
+      "sum_indiv": 1611573920,
+      "sum_reserve": 589564500
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "n": 10,
+      "mn": "202510",
+      "mx": "202607",
+      "sum_common": 4023548331,
+      "sum_indiv": 1779691717,
+      "sum_reserve": 297911900
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "n": 10,
+      "mn": "202510",
+      "mx": "202607",
+      "sum_common": 857087660,
+      "sum_indiv": 1039181590,
+      "sum_reserve": 427169700
+    }
+  ],
+  "sample_rows": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "period_yyyymm": "202607",
+      "common_fee": 554204830,
+      "individual_fee": 892030205,
+      "long_term_repair_reserve": 222719680,
+      "total_fee": 1668954715,
+      "amount_basis": "complex_month_total_krw",
+      "household_basis": 5678,
+      "source": "MOLIT_KAPT_FEE_V3"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "period_yyyymm": "202606",
+      "common_fee": 544908570,
+      "individual_fee": 705686976,
+      "long_term_repair_reserve": 222719680,
+      "total_fee": 1473315226,
+      "amount_basis": "complex_month_total_krw",
+      "household_basis": 5678,
+      "source": "MOLIT_KAPT_FEE_V3"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "period_yyyymm": "202605",
+      "common_fee": 541179180,
+      "individual_fee": 689948498,
+      "long_term_repair_reserve": 222719680,
+      "total_fee": 1453847358,
+      "amount_basis": "complex_month_total_krw",
+      "household_basis": 5678,
+      "source": "MOLIT_KAPT_FEE_V3"
+    }
+  ],
+  "profiles": [
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "household_count": 4424,
+      "heating_type": "지역난방",
+      "management_type": "위탁관리",
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "household_count": 3410,
+      "heating_type": "지역난방",
+      "management_type": "위탁관리",
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "household_count": 5678,
+      "heating_type": "지역난방",
+      "management_type": "위탁관리",
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "household_count": 1608,
+      "heating_type": null,
+      "management_type": null,
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "household_count": 1612,
+      "heating_type": null,
+      "management_type": null,
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "household_count": 2419,
+      "heating_type": "지역난방",
+      "management_type": "위탁관리",
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "household_count": 600,
+      "heating_type": "개별난방",
+      "management_type": "위탁관리",
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "household_count": 834,
+      "heating_type": "지역난방",
+      "management_type": "위탁관리",
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "household_count": 6864,
+      "heating_type": null,
+      "management_type": null,
+      "source": "COMPOSITE"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "household_count": 3658,
+      "heating_type": null,
+      "management_type": null,
+      "source": "COMPOSITE"
+    }
+  ],
+  "notes": [
+    "Do not re-apply portal products; they are already approved.",
+    "Do not change MOLIT_API_KEY.",
+    "per-㎡ / selected-pyeong fees not invented.",
+    "total_fee is LABEL-ONLY composite.",
+    "Phase 7.2 not started; no bulk-load."
+  ]
+}
