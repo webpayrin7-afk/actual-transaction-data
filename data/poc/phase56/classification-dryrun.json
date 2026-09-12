@@ -1,0 +1,279 @@
+{
+  "examined": 20,
+  "examine_keys": [
+    "anyang-samsung-raemian",
+    "dmc-raemian",
+    "e-pyeonhansesang-osan",
+    "gaepo-jugong6",
+    "gwanak-prugio",
+    "hannam-thehill",
+    "helio-city",
+    "hillstate-unjeong",
+    "ilsan-zenith",
+    "junggye-green1",
+    "lotte-castle-first",
+    "olympic-family",
+    "raemian-anyang-megatria",
+    "raemian-hill-godeok",
+    "raemian-prestige",
+    "raemian-weve",
+    "ricents",
+    "sangye-jugong9",
+    "sibom-hanyang",
+    "sk-bukhansan-city"
+  ],
+  "deterministic": 11,
+  "unresolved": 9,
+  "coverage_pct": 55.0,
+  "AUTO_SAFE": [
+    "anyang-samsung-raemian",
+    "hannam-thehill",
+    "ilsan-zenith",
+    "raemian-hill-godeok",
+    "ricents",
+    "sibom-hanyang"
+  ],
+  "FALLBACK_GROUP_SAFE": [
+    "gwanak-prugio",
+    "raemian-weve",
+    "sangye-jugong9"
+  ],
+  "HOLD_class": [
+    "gaepo-jugong6",
+    "olympic-family"
+  ],
+  "unresolved_keys": [
+    "dmc-raemian",
+    "e-pyeonhansesang-osan",
+    "helio-city",
+    "hillstate-unjeong",
+    "junggye-green1",
+    "lotte-castle-first",
+    "raemian-anyang-megatria",
+    "raemian-prestige",
+    "sk-bukhansan-city"
+  ],
+  "failure_patterns": {
+    "missing_registry_or_gate_config": 9
+  },
+  "results": {
+    "anyang-samsung-raemian": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.85,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "dmc-raemian": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "e-pyeonhansesang-osan": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "gaepo-jugong6": {
+      "classification": "registry-abnormal",
+      "deterministic": true,
+      "reason": "partial_common_ratio=1.00",
+      "source": "phase4-json"
+    },
+    "gwanak-prugio": {
+      "classification": "group-safe-label-unknown",
+      "deterministic": true,
+      "reason": "label_confidence=0.04",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.04,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "hannam-thehill": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 0.93,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 1.0,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "helio-city": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "hillstate-unjeong": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "ilsan-zenith": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.79,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "junggye-green1": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "lotte-castle-first": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "olympic-family": {
+      "classification": "ambiguous",
+      "deterministic": true,
+      "reason": "unknown_common_area_ratio=0.40",
+      "source": "phase4-json"
+    },
+    "raemian-anyang-megatria": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "raemian-hill-godeok": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.71,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "raemian-prestige": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "raemian-weve": {
+      "classification": "group-safe-label-unknown",
+      "deterministic": true,
+      "reason": "label_confidence=0.20",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.2,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "ricents": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.96,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "sangye-jugong9": {
+      "classification": "group-safe-label-unknown",
+      "deterministic": true,
+      "reason": "label_confidence=0.37",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.37,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "sibom-hanyang": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.89,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "sk-bukhansan-city": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    }
+  },
+  "unresolved5": {
+    "hannam-thehill": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 0.93,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 1.0,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "raemian-hill-godeok": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates",
+      "source": "gate-dryrun",
+      "metrics": {
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.71,
+        "partial_common_ratio": 0.0
+      }
+    },
+    "helio-city": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "raemian-anyang-megatria": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    },
+    "e-pyeonhansesang-osan": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs",
+      "source": "none"
+    }
+  }
+}
