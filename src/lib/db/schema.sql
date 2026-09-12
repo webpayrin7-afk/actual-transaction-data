@@ -255,3 +255,5 @@ CREATE TABLE IF NOT EXISTS apt_complex_enrichment_state (
   updated_at TEXT NOT NULL,
   PRIMARY KEY (complex_id, domain)
 );
+CREATE INDEX IF NOT EXISTS idx_aces_domain ON apt_complex_enrichment_state (domain);
+CREATE INDEX IF NOT EXISTS idx_aces_status ON apt_complex_enrichment_state (status, data_version);
