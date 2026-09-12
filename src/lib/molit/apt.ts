@@ -6,6 +6,7 @@ import {
 } from "@/lib/constants/regions";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import {
+  getDb,
   hasDb,
 } from "@/lib/db/client";
 import {
@@ -789,6 +790,25 @@ async function buildAptDetail(params: {
         )[0]
       : null;
 
+  let baselinePriorMax: Map<string, number> | undefined;
+  if (useMarketGroups && pilotBundle) {
+    const { isMarketGroupBaselineSingogaEnabled } = await import(
+      "@/lib/unit-type/baseline-gate"
+    );
+    if (isMarketGroupBaselineSingogaEnabled()) {
+      const { loadBaselinePriorMaxByComplex } = await import(
+        "@/lib/unit-type/baselines"
+      );
+      const db = getDb();
+      if (db) {
+        baselinePriorMax = await loadBaselinePriorMaxByComplex(
+          db,
+          pilotBundle.classification.complexKey,
+        );
+      }
+    }
+  }
+
   const singogaFlags = applyPilotSingoga({
     bundle: pilotBundle,
     deals: deals.map((tx) => ({
@@ -798,6 +818,7 @@ async function buildAptDetail(params: {
       dealAmount: tx.dealAmount,
       exclusiveArea: tx.exclusiveArea,
     })),
+    baselinePriorMax,
   });
 
   const items: AptHistoryItem[] = deals.map((tx) => ({

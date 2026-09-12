@@ -1,0 +1,293 @@
+{
+  "phase": "5.3b",
+  "description": "Phase 5.3 prior-max baselines for 4 A/B pilot complexes (fixture only; no production write)",
+  "productionWrite": false,
+  "rowCount": 19,
+  "rows": [
+    {
+      "group_key": "hangang-daewoo:G1:ex59.98-60.00",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 75000,
+      "prior_max_deal_date": "2016-08-23",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 113,
+      "label": "전용 59.98~60㎡"
+    },
+    {
+      "group_key": "hangang-daewoo:G2:ex84.94-84.98",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 99500,
+      "prior_max_deal_date": "2016-09-28",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 147,
+      "label": "33평형 (전용 84.94~84.98㎡)"
+    },
+    {
+      "group_key": "hangang-daewoo:G3:ex134.13-134.13",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 135000,
+      "prior_max_deal_date": "2006-10-25",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 56,
+      "label": "49평형 (전용 134.13㎡)"
+    },
+    {
+      "group_key": "hangang-daewoo:G4:ex135.27-135.87",
+      "complex_key": "hangang-daewoo",
+      "baseline_until": "2016-10-29",
+      "prior_max_amount": 128000,
+      "prior_max_deal_date": "2006-05-17",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 42,
+      "label": "50평형 (전용 135.27~135.87㎡)"
+    },
+    {
+      "group_key": "parkrio:G1:ex35.24-35.24",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 55000,
+      "prior_max_deal_date": "2016-08-25",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 192,
+      "label": "16평형 (전용 35.24㎡)"
+    },
+    {
+      "group_key": "parkrio:G2:ex59.64-59.95",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 87000,
+      "prior_max_deal_date": "2016-09-06",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 533,
+      "label": "26평형 (전용 59.64~59.95㎡)"
+    },
+    {
+      "group_key": "parkrio:G3:ex84.79-84.97",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 109500,
+      "prior_max_deal_date": "2016-09-20",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 1465,
+      "label": "33평형 (전용 84.79~84.97㎡)"
+    },
+    {
+      "group_key": "parkrio:G4:ex121.63-121.63",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 155000,
+      "prior_max_deal_date": "2009-06-12",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 187,
+      "label": "45평형 (전용 121.63㎡)"
+    },
+    {
+      "group_key": "parkrio:G5:ex144.77-144.77",
+      "complex_key": "parkrio",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 200000,
+      "prior_max_deal_date": "2010-04-09",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 162,
+      "label": "53평형 (전용 144.77㎡)"
+    },
+    {
+      "group_key": "banpo-xi:G1:ex59.97-59.98",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 120000,
+      "prior_max_deal_date": "2016-08-20",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 456,
+      "label": "전용 59.97~59.98㎡"
+    },
+    {
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 169000,
+      "prior_max_deal_date": "2016-09-30",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 577,
+      "label": "35평형 (전용 84.94~85㎡)"
+    },
+    {
+      "group_key": "banpo-xi:G3:ex132.18-132.44",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 220000,
+      "prior_max_deal_date": "2010-01-05",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 111,
+      "label": "50평형 (전용 132.18~132.44㎡)"
+    },
+    {
+      "group_key": "banpo-xi:G4:ex165.05-165.45",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 254000,
+      "prior_max_deal_date": "2009-09-24",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 117,
+      "label": "60평형 (전용 165.05~165.45㎡)"
+    },
+    {
+      "group_key": "banpo-xi:G5:ex194.52-194.69",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 280000,
+      "prior_max_deal_date": "2010-01-16",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 31,
+      "label": "70평형 (전용 194.52~194.69㎡)"
+    },
+    {
+      "group_key": "banpo-xi:G6:ex216.49-216.49",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 317000,
+      "prior_max_deal_date": "2009-10-14",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 64,
+      "label": "80평형 (전용 216.49㎡)"
+    },
+    {
+      "group_key": "banpo-xi:G7:ex244.54-244.97",
+      "complex_key": "banpo-xi",
+      "baseline_until": "2016-10-01",
+      "prior_max_amount": 339000,
+      "prior_max_deal_date": "2009-06-16",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 120,
+      "label": "전용 244.54~244.97㎡"
+    },
+    {
+      "group_key": "jamsil-els:G1:ex59.96-59.96",
+      "complex_key": "jamsil-els",
+      "baseline_until": "2016-10-03",
+      "prior_max_amount": 98000,
+      "prior_max_deal_date": "2016-09-29",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 559,
+      "label": "전용 59.96㎡"
+    },
+    {
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "complex_key": "jamsil-els",
+      "baseline_until": "2016-10-03",
+      "prior_max_amount": 118000,
+      "prior_max_deal_date": "2009-08-14",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 1211,
+      "label": "전용 84.8~84.97㎡"
+    },
+    {
+      "group_key": "jamsil-els:G3:ex119.93-119.93",
+      "complex_key": "jamsil-els",
+      "baseline_until": "2016-10-03",
+      "prior_max_amount": 176000,
+      "prior_max_deal_date": "2010-11-01",
+      "source": "phase53-poc",
+      "computed_at": "2026-09-11T23:56:34.965Z",
+      "confidence": "high",
+      "completeness": "pre-warehouse-molit-max",
+      "pre_warehouse_trade_count": 138,
+      "label": "45평형 (전용 119.93㎡)"
+    }
+  ],
+  "postWarehouseGapBlockers": {
+    "status": "open",
+    "note": "Codex verifying Banpo 4 + Jamsil 1 warehouse repairs; baseline singoga activation blocked until cleared",
+    "banpoMissingPriors": [
+      {
+        "dealDate": "2025-01-25",
+        "dealAmount": 415000,
+        "exclusiveArea": 84.943,
+        "affects": "2025-02-18/415000"
+      },
+      {
+        "dealDate": "2025-06-14",
+        "dealAmount": 480000,
+        "exclusiveArea": 84.943,
+        "affects": "2025-07-10/475000"
+      },
+      {
+        "dealDate": "2026-03-09",
+        "dealAmount": 620000,
+        "exclusiveArea": 132.439,
+        "affects": "2026-06-20/615000"
+      },
+      {
+        "dealDate": "2025-07-10",
+        "dealAmount": 380000,
+        "exclusiveArea": 59.98,
+        "affects": "2026-07-20/373000"
+      }
+    ],
+    "jamsilWarehouseOnlyAnomaly": [
+      {
+        "dealDate": "2025-06-27",
+        "dealAmount": 300000,
+        "exclusiveArea": 59.96,
+        "note": "warehouse-only prior above MOLIT active max"
+      }
+    ]
+  }
+}

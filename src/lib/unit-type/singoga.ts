@@ -65,10 +65,15 @@ export function markSingogaExclusiveAllTimeMax(
  * A/B market-group singoga:
  * same complex + market group + exceed prior contract-date max.
  * Ties = false. Cancelled trades must already be absent from input.
+ *
+ * priorMax for a deal =
+ *   max(optional baseline prior-max, max of same-group warehouse deals on earlier dates).
+ * When priorMax === 0 (no baseline + no earlier deal), the observation is not 신고가.
  */
 export function markSingogaMarketGroupPriorExceed(
   trades: SingogaTradeLike[],
   groups: MarketGroupLike[],
+  initialPriorMax?: ReadonlyMap<string, number>,
 ): Map<string, boolean> {
   const out = new Map<string, boolean>();
   const eligibleGroups = groups.filter((g) => g.groupConfidenceHigh);
@@ -77,7 +82,7 @@ export function markSingogaMarketGroupPriorExceed(
     return a.id.localeCompare(b.id);
   });
 
-  const priorMax = new Map<string, number>();
+  const priorMax = new Map<string, number>(initialPriorMax ?? []);
   let i = 0;
   while (i < sorted.length) {
     const day = sorted[i]!.dealDate;

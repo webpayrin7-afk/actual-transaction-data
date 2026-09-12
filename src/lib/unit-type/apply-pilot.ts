@@ -10,6 +10,7 @@ import {
   markSingogaMarketGroupPriorExceed,
 } from "@/lib/unit-type/singoga";
 import { loadUnitTypeMasterByAptName } from "@/lib/unit-type/repository";
+import { isMarketGroupBaselineSingogaEnabled } from "@/lib/unit-type/baseline-gate";
 
 export type UnitTypePilotMeta = {
   complexKey: string;
@@ -86,9 +87,14 @@ export function applyPilotSingoga(params: {
     dealAmount: number;
     exclusiveArea: number;
   }>;
+  /** Pre-warehouse prior-max by groupKey. Applied only when baseline gate is open. */
+  baselinePriorMax?: ReadonlyMap<string, number>;
+  /** Optional env override for tests. */
+  env?: NodeJS.ProcessEnv;
 }): Map<string, boolean> {
-  const { bundle, deals } = params;
+  const { bundle, deals, baselinePriorMax, env = process.env } = params;
   if (!bundle || !isMarketGroupClass(bundle.classification.classification)) {
+    // C/D exclusive fallback — unchanged; baselines never apply.
     return markSingogaExclusiveAllTimeMax(deals);
   }
   const groups = bundle.groups
@@ -99,5 +105,13 @@ export function applyPilotSingoga(params: {
       exclusiveAreaMax: g.exclusiveAreaMax,
       groupConfidenceHigh: true,
     }));
-  return markSingogaMarketGroupPriorExceed(deals, groups);
+  const useBaseline =
+    isMarketGroupBaselineSingogaEnabled(env) &&
+    baselinePriorMax != null &&
+    baselinePriorMax.size > 0;
+  return markSingogaMarketGroupPriorExceed(
+    deals,
+    groups,
+    useBaseline ? baselinePriorMax : undefined,
+  );
 }

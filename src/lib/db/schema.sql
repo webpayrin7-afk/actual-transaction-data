@@ -179,3 +179,21 @@ CREATE TABLE IF NOT EXISTS apt_unit_type_group_links (
 );
 CREATE INDEX IF NOT EXISTS idx_apt_unit_type_links_complex
   ON apt_unit_type_group_links (complex_key);
+
+-- Phase 5.3b: pre-warehouse prior-max baselines (soft FK → apt_pyeong_groups.group_key).
+-- Fixture/seed only until post-WH gap gate clears; no nationwide backfill.
+CREATE TABLE IF NOT EXISTS apt_pyeong_group_baselines (
+  group_key TEXT PRIMARY KEY,
+  complex_key TEXT NOT NULL,
+  baseline_until TEXT NOT NULL,
+  prior_max_amount INTEGER NOT NULL,
+  prior_max_deal_date TEXT,
+  source TEXT NOT NULL,
+  computed_at TEXT NOT NULL,
+  confidence TEXT NOT NULL DEFAULT 'high',
+  completeness TEXT NOT NULL DEFAULT 'pre-warehouse-molit-max',
+  pre_warehouse_trade_count INTEGER,
+  label TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_apt_pyeong_group_baselines_complex
+  ON apt_pyeong_group_baselines (complex_key);
