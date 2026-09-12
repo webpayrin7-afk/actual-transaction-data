@@ -1,0 +1,385 @@
+{
+  "capturedAt": "2026-09-12T02:49:23.321031+00:00",
+  "prod": "https://actual-transaction-data.vercel.app",
+  "pilots": {
+    "hangang-daewoo": {
+      "aptName": "한강(대우)",
+      "latencySec": 1.843,
+      "http": 200,
+      "itemCount": 772,
+      "singogaCount": 75,
+      "areaKeys": [
+        "hangang-daewoo:G1:ex59.98-60.00",
+        "hangang-daewoo:G2:ex84.94-84.98",
+        "hangang-daewoo:G3:ex134.13-134.13",
+        "hangang-daewoo:G4:ex135.27-135.87"
+      ],
+      "unitTypePilot": {
+        "complexKey": "hangang-daewoo",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "sampleRecentSingoga": [
+        {
+          "dealDate": "2026-01-09",
+          "dealAmount": 242000,
+          "exclusiveArea": 60
+        },
+        {
+          "dealDate": "2026-01-06",
+          "dealAmount": 337400,
+          "exclusiveArea": 135.5
+        },
+        {
+          "dealDate": "2025-12-05",
+          "dealAmount": 330000,
+          "exclusiveArea": 134.13
+        },
+        {
+          "dealDate": "2025-10-09",
+          "dealAmount": 239500,
+          "exclusiveArea": 60
+        },
+        {
+          "dealDate": "2025-07-12",
+          "dealAmount": 288000,
+          "exclusiveArea": 84.98
+        },
+        {
+          "dealDate": "2025-07-08",
+          "dealAmount": 271000,
+          "exclusiveArea": 84.98
+        },
+        {
+          "dealDate": "2025-07-08",
+          "dealAmount": 271000,
+          "exclusiveArea": 84.98
+        },
+        {
+          "dealDate": "2025-06-25",
+          "dealAmount": 220000,
+          "exclusiveArea": 60
+        },
+        {
+          "dealDate": "2025-04-25",
+          "dealAmount": 203700,
+          "exclusiveArea": 60
+        },
+        {
+          "dealDate": "2025-03-21",
+          "dealAmount": 250000,
+          "exclusiveArea": 84.98
+        }
+      ],
+      "xVercelCache": "MISS",
+      "error": null,
+      "expectOff": 81,
+      "expectOn": 75,
+      "matchesOn": true,
+      "matchesOff": false,
+      "beforeSingoga": 81,
+      "singogaDeltaVsBefore": -6,
+      "latencyBefore": 1.671,
+      "special": {
+        "g134_count": 118,
+        "g134_sg": 15,
+        "g135_count": 68,
+        "g135_sg": 10,
+        "areaKeysHas134": true,
+        "areaKeysHas135": true
+      }
+    },
+    "parkrio": {
+      "aptName": "파크리오",
+      "latencySec": 4.435,
+      "http": 200,
+      "itemCount": 7361,
+      "singogaCount": 204,
+      "areaKeys": [
+        "parkrio:G1:ex35.24-35.24",
+        "parkrio:G2:ex59.64-59.95",
+        "parkrio:G3:ex84.79-84.97",
+        "parkrio:G4:ex121.63-121.63",
+        "parkrio:G5:ex144.77-144.77"
+      ],
+      "unitTypePilot": {
+        "complexKey": "parkrio",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "sampleRecentSingoga": [
+        {
+          "dealDate": "2026-03-19",
+          "dealAmount": 155000,
+          "exclusiveArea": 35.24
+        },
+        {
+          "dealDate": "2026-02-05",
+          "dealAmount": 372000,
+          "exclusiveArea": 121.63
+        },
+        {
+          "dealDate": "2026-01-26",
+          "dealAmount": 322000,
+          "exclusiveArea": 84.97
+        },
+        {
+          "dealDate": "2026-01-21",
+          "dealAmount": 371500,
+          "exclusiveArea": 121.63
+        },
+        {
+          "dealDate": "2026-01-20",
+          "dealAmount": 140000,
+          "exclusiveArea": 35.24
+        },
+        {
+          "dealDate": "2025-11-17",
+          "dealAmount": 315000,
+          "exclusiveArea": 84.79
+        },
+        {
+          "dealDate": "2025-10-31",
+          "dealAmount": 280000,
+          "exclusiveArea": 59.95
+        },
+        {
+          "dealDate": "2025-10-30",
+          "dealAmount": 358000,
+          "exclusiveArea": 121.63
+        },
+        {
+          "dealDate": "2025-10-28",
+          "dealAmount": 310000,
+          "exclusiveArea": 84.79
+        },
+        {
+          "dealDate": "2025-10-28",
+          "dealAmount": 275000,
+          "exclusiveArea": 59.64
+        }
+      ],
+      "xVercelCache": "MISS",
+      "error": null,
+      "expectOff": 227,
+      "expectOn": 204,
+      "matchesOn": true,
+      "matchesOff": false,
+      "beforeSingoga": 227,
+      "singogaDeltaVsBefore": -23,
+      "latencyBefore": 6.751,
+      "special": {
+        "g84_count": 4251,
+        "g84_sg": 52,
+        "areaKeysHas84": true
+      }
+    },
+    "banpo-xi": {
+      "aptName": "반포자이",
+      "latencySec": 1.954,
+      "http": 200,
+      "itemCount": 3122,
+      "singogaCount": 171,
+      "areaKeys": [
+        "banpo-xi:G1:ex59.97-59.98",
+        "banpo-xi:G2:ex84.94-85.00",
+        "banpo-xi:G3:ex132.18-132.44",
+        "banpo-xi:G4:ex165.05-165.45",
+        "banpo-xi:G5:ex194.52-194.69",
+        "banpo-xi:G6:ex216.49-216.49",
+        "banpo-xi:G7:ex244.54-244.97"
+      ],
+      "unitTypePilot": {
+        "complexKey": "banpo-xi",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "sampleRecentSingoga": [
+        {
+          "dealDate": "2026-03-09",
+          "dealAmount": 620000,
+          "exclusiveArea": 132.439
+        },
+        {
+          "dealDate": "2026-01-19",
+          "dealAmount": 520000,
+          "exclusiveArea": 84.943
+        },
+        {
+          "dealDate": "2025-12-29",
+          "dealAmount": 501000,
+          "exclusiveArea": 84.943
+        },
+        {
+          "dealDate": "2025-11-18",
+          "dealAmount": 803000,
+          "exclusiveArea": 244.972
+        },
+        {
+          "dealDate": "2025-11-06",
+          "dealAmount": 650000,
+          "exclusiveArea": 165.446
+        },
+        {
+          "dealDate": "2025-10-29",
+          "dealAmount": 605000,
+          "exclusiveArea": 132.179
+        },
+        {
+          "dealDate": "2025-07-10",
+          "dealAmount": 500000,
+          "exclusiveArea": 84.943
+        },
+        {
+          "dealDate": "2025-07-10",
+          "dealAmount": 380000,
+          "exclusiveArea": 59.98
+        },
+        {
+          "dealDate": "2025-06-25",
+          "dealAmount": 370000,
+          "exclusiveArea": 59.98
+        },
+        {
+          "dealDate": "2025-06-21",
+          "dealAmount": 580000,
+          "exclusiveArea": 132.439
+        }
+      ],
+      "xVercelCache": "MISS",
+      "error": null,
+      "expectOff": 192,
+      "expectOn": 171,
+      "matchesOn": true,
+      "matchesOff": false,
+      "beforeSingoga": 192,
+      "singogaDeltaVsBefore": -21,
+      "latencyBefore": 2.586,
+      "special": {
+        "banpoFlips": [
+          {
+            "dealDate": "2025-02-18",
+            "dealAmount": 415000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 84.982
+          },
+          {
+            "dealDate": "2025-07-10",
+            "dealAmount": 475000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 84.943
+          },
+          {
+            "dealDate": "2026-06-20",
+            "dealAmount": 615000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 132.439
+          },
+          {
+            "dealDate": "2026-07-20",
+            "dealAmount": 373000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 59.971
+          }
+        ]
+      }
+    },
+    "jamsil-els": {
+      "aptName": "잠실엘스",
+      "latencySec": 3.016,
+      "http": 200,
+      "itemCount": 5820,
+      "singogaCount": 154,
+      "areaKeys": [
+        "jamsil-els:G1:ex59.96-59.96",
+        "jamsil-els:G2:ex84.80-84.97",
+        "jamsil-els:G3:ex119.93-119.93"
+      ],
+      "unitTypePilot": {
+        "complexKey": "jamsil-els",
+        "classification": "group-safe-label-unknown",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "sampleRecentSingoga": [
+        {
+          "dealDate": "2026-02-20",
+          "dealAmount": 370000,
+          "exclusiveArea": 84.88
+        },
+        {
+          "dealDate": "2026-01-16",
+          "dealAmount": 460000,
+          "exclusiveArea": 119.93
+        },
+        {
+          "dealDate": "2025-11-01",
+          "dealAmount": 310000,
+          "exclusiveArea": 59.96
+        },
+        {
+          "dealDate": "2025-10-31",
+          "dealAmount": 350000,
+          "exclusiveArea": 84.8
+        },
+        {
+          "dealDate": "2025-10-30",
+          "dealAmount": 302000,
+          "exclusiveArea": 59.96
+        },
+        {
+          "dealDate": "2025-10-28",
+          "dealAmount": 348000,
+          "exclusiveArea": 84.8
+        },
+        {
+          "dealDate": "2025-07-12",
+          "dealAmount": 343000,
+          "exclusiveArea": 84.8
+        },
+        {
+          "dealDate": "2025-07-10",
+          "dealAmount": 300000,
+          "exclusiveArea": 59.96
+        },
+        {
+          "dealDate": "2025-07-03",
+          "dealAmount": 450000,
+          "exclusiveArea": 119.93
+        },
+        {
+          "dealDate": "2025-06-27",
+          "dealAmount": 295000,
+          "exclusiveArea": 59.96
+        }
+      ],
+      "xVercelCache": "MISS",
+      "error": null,
+      "expectOff": 162,
+      "expectOn": 154,
+      "matchesOn": true,
+      "matchesOff": false,
+      "beforeSingoga": 162,
+      "singogaDeltaVsBefore": -8,
+      "latencyBefore": 2.857,
+      "special": {
+        "g84_count": 3855,
+        "g84_sg": 71,
+        "areaKeysHas84": true
+      }
+    }
+  },
+  "inference": {
+    "allMatchEnableOn": true,
+    "allMatchEnableOff": false,
+    "anyError": false,
+    "baselinePathActive": true
+  }
+}

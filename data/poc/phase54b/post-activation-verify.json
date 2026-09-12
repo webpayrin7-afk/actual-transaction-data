@@ -1,0 +1,584 @@
+{
+  "capturedAt": "2026-09-12T02:56:54.861Z",
+  "phase": "5.4b-post-activation",
+  "decision": "PASS",
+  "productionSha": "d51716197d6233be5c1a971519ba4225264802eb",
+  "gate": {
+    "enable1Sim": {
+      "isEnabled": true,
+      "postWh": false,
+      "blockReason": null,
+      "fallbackRetirementBlock": "POST_WH_SINGOGA_GAPS_CLEARED is not 1 (5 Banpo/Jamsil warehouse gaps still open); legacy/full-history fallback must be retained"
+    },
+    "note": "Production ENABLE inferred from live singoga counts; POST_WH not touched"
+  },
+  "productionPath": {
+    "baselineCodePresent": true,
+    "baselinePathActive": true,
+    "fallbackRetained": true,
+    "postWhUntouched": true
+  },
+  "runtime": {
+    "unexplainedDiff": 0,
+    "prodVsEnable1Diff": 0,
+    "baselineMissing": 0,
+    "apiErrors": 0,
+    "writesDetected": 0,
+    "baselineCountsBefore": {
+      "hangang-daewoo": 4,
+      "parkrio": 5,
+      "banpo-xi": 7,
+      "jamsil-els": 3
+    },
+    "baselineCountsAfter": {
+      "hangang-daewoo": 4,
+      "parkrio": 5,
+      "banpo-xi": 7,
+      "jamsil-els": 3
+    },
+    "expectedEnable0to1FlipDiff": 60,
+    "classificationNote": "Previously mislabeled enable1_vs_full (60) as unexplained; that equals ENABLE0↔1 flipDiff. True unexplained = prodVsEnable1Diff = 0."
+  },
+  "pilots": [
+    {
+      "complexKey": "hangang-daewoo",
+      "aptName": "한강(대우)",
+      "http": 200,
+      "latencySec": 0.314,
+      "latencyBefore": 1.671,
+      "itemCount": 772,
+      "singogaProd": 75,
+      "singogaEnable1": 75,
+      "singogaFullHistory": 81,
+      "singogaBefore": 81,
+      "areaKeys": [
+        "hangang-daewoo:G1:ex59.98-60.00",
+        "hangang-daewoo:G2:ex84.94-84.98",
+        "hangang-daewoo:G3:ex134.13-134.13",
+        "hangang-daewoo:G4:ex135.27-135.87"
+      ],
+      "special": {
+        "areaKeysHas134": true,
+        "areaKeysHas135": true
+      },
+      "baselineMissingGroups": [],
+      "priorMapSize": 4,
+      "prodVsEnable1Diff": 0,
+      "unexplainedInProdWindow": 8,
+      "unmatchedProd": 506,
+      "sampleDiffs": [
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-06-10",
+          "dealAmount": 135000,
+          "exclusiveArea": 134.13,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-06-03",
+          "dealAmount": 130000,
+          "exclusiveArea": 134.13,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-20",
+          "dealAmount": 128000,
+          "exclusiveArea": 134.13,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-19",
+          "dealAmount": 125000,
+          "exclusiveArea": 134.13,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-04-16",
+          "dealAmount": 96000,
+          "exclusiveArea": 84.98,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-04-04",
+          "dealAmount": 90000,
+          "exclusiveArea": 84.98,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-03-06",
+          "dealAmount": 116000,
+          "exclusiveArea": 135.87,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2016-10-29",
+          "dealAmount": 79500,
+          "exclusiveArea": 60,
+          "prod": true,
+          "enable1": true,
+          "fullHistory": false
+        }
+      ],
+      "banpoFlipCheck": null,
+      "apiError": null,
+      "unitTypePilot": {
+        "complexKey": "hangang-daewoo",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      }
+    },
+    {
+      "complexKey": "parkrio",
+      "aptName": "파크리오",
+      "http": 200,
+      "latencySec": 0.226,
+      "latencyBefore": 6.751,
+      "itemCount": 7361,
+      "singogaProd": 204,
+      "singogaEnable1": 204,
+      "singogaFullHistory": 227,
+      "singogaBefore": 227,
+      "areaKeys": [
+        "parkrio:G1:ex35.24-35.24",
+        "parkrio:G2:ex59.64-59.95",
+        "parkrio:G3:ex84.79-84.97",
+        "parkrio:G4:ex121.63-121.63",
+        "parkrio:G5:ex144.77-144.77"
+      ],
+      "special": {
+        "areaKeysHas84": true
+      },
+      "baselineMissingGroups": [],
+      "priorMapSize": 5,
+      "prodVsEnable1Diff": 0,
+      "unexplainedInProdWindow": 23,
+      "unmatchedProd": 4700,
+      "sampleDiffs": [
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2018-03-11",
+          "dealAmount": 200000,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2018-02-03",
+          "dealAmount": 186000,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2018-01-10",
+          "dealAmount": 183000,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2018-01-10",
+          "dealAmount": 179500,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-12-15",
+          "dealAmount": 171000,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-11-25",
+          "dealAmount": 153000,
+          "exclusiveArea": 121.63,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-11-16",
+          "dealAmount": 170000,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-08-27",
+          "dealAmount": 162000,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-07-28",
+          "dealAmount": 150000,
+          "exclusiveArea": 121.63,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-07-13",
+          "dealAmount": 141000,
+          "exclusiveArea": 121.63,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-07-12",
+          "dealAmount": 160000,
+          "exclusiveArea": 144.77,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-06-01",
+          "dealAmount": 140000,
+          "exclusiveArea": 121.63,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        }
+      ],
+      "banpoFlipCheck": null,
+      "apiError": null,
+      "unitTypePilot": {
+        "complexKey": "parkrio",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      }
+    },
+    {
+      "complexKey": "banpo-xi",
+      "aptName": "반포자이",
+      "http": 200,
+      "latencySec": 0.201,
+      "latencyBefore": 2.586,
+      "itemCount": 3122,
+      "singogaProd": 171,
+      "singogaEnable1": 171,
+      "singogaFullHistory": 192,
+      "singogaBefore": 192,
+      "areaKeys": [
+        "banpo-xi:G1:ex59.97-59.98",
+        "banpo-xi:G2:ex84.94-85.00",
+        "banpo-xi:G3:ex132.18-132.44",
+        "banpo-xi:G4:ex165.05-165.45",
+        "banpo-xi:G5:ex194.52-194.69",
+        "banpo-xi:G6:ex216.49-216.49",
+        "banpo-xi:G7:ex244.54-244.97"
+      ],
+      "special": {},
+      "baselineMissingGroups": [],
+      "priorMapSize": 7,
+      "prodVsEnable1Diff": 0,
+      "unexplainedInProdWindow": 21,
+      "unmatchedProd": 2050,
+      "sampleDiffs": [
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2018-06-12",
+          "dealAmount": 307000,
+          "exclusiveArea": 216.49,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2018-01-24",
+          "dealAmount": 300000,
+          "exclusiveArea": 216.49,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2018-01-03",
+          "dealAmount": 297000,
+          "exclusiveArea": 216.49,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-12-20",
+          "dealAmount": 295000,
+          "exclusiveArea": 216.49,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-11-27",
+          "dealAmount": 290000,
+          "exclusiveArea": 216.49,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-09-25",
+          "dealAmount": 330000,
+          "exclusiveArea": 244.628,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-07-31",
+          "dealAmount": 323000,
+          "exclusiveArea": 244.628,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-07-17",
+          "dealAmount": 245000,
+          "exclusiveArea": 165.052,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-29",
+          "dealAmount": 320000,
+          "exclusiveArea": 244.628,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-27",
+          "dealAmount": 268000,
+          "exclusiveArea": 194.692,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-18",
+          "dealAmount": 220000,
+          "exclusiveArea": 132.439,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-10",
+          "dealAmount": 312000,
+          "exclusiveArea": 244.543,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        }
+      ],
+      "banpoFlipCheck": [
+        {
+          "dealDate": "2025-02-18",
+          "dealAmount": 415000,
+          "prodFound": true,
+          "prodIsSingoga": false,
+          "enable1": false,
+          "fullHistory": false
+        },
+        {
+          "dealDate": "2025-07-10",
+          "dealAmount": 475000,
+          "prodFound": true,
+          "prodIsSingoga": false,
+          "enable1": false,
+          "fullHistory": false
+        },
+        {
+          "dealDate": "2026-06-20",
+          "dealAmount": 615000,
+          "prodFound": true,
+          "prodIsSingoga": false,
+          "enable1": false,
+          "fullHistory": false
+        },
+        {
+          "dealDate": "2026-07-20",
+          "dealAmount": 373000,
+          "prodFound": true,
+          "prodIsSingoga": false,
+          "enable1": false,
+          "fullHistory": false
+        }
+      ],
+      "apiError": null,
+      "unitTypePilot": {
+        "complexKey": "banpo-xi",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      }
+    },
+    {
+      "complexKey": "jamsil-els",
+      "aptName": "잠실엘스",
+      "http": 200,
+      "latencySec": 0.374,
+      "latencyBefore": 2.857,
+      "itemCount": 5820,
+      "singogaProd": 154,
+      "singogaEnable1": 154,
+      "singogaFullHistory": 162,
+      "singogaBefore": 162,
+      "areaKeys": [
+        "jamsil-els:G1:ex59.96-59.96",
+        "jamsil-els:G2:ex84.80-84.97",
+        "jamsil-els:G3:ex119.93-119.93"
+      ],
+      "special": {
+        "areaKeysHas84": true
+      },
+      "baselineMissingGroups": [],
+      "priorMapSize": 3,
+      "prodVsEnable1Diff": 0,
+      "unexplainedInProdWindow": 8,
+      "unmatchedProd": 4174,
+      "sampleDiffs": [
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-31",
+          "dealAmount": 174000,
+          "exclusiveArea": 119.93,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-30",
+          "dealAmount": 170000,
+          "exclusiveArea": 119.93,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-05-09",
+          "dealAmount": 164850,
+          "exclusiveArea": 119.93,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-04-28",
+          "dealAmount": 164000,
+          "exclusiveArea": 119.93,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-03-15",
+          "dealAmount": 98000,
+          "exclusiveArea": 59.96,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2017-02-13",
+          "dealAmount": 163500,
+          "exclusiveArea": 119.93,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2016-10-18",
+          "dealAmount": 159000,
+          "exclusiveArea": 119.93,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        },
+        {
+          "kind": "enable1_vs_full",
+          "dealDate": "2016-10-04",
+          "dealAmount": 115800,
+          "exclusiveArea": 84.97,
+          "prod": false,
+          "enable1": false,
+          "fullHistory": true
+        }
+      ],
+      "banpoFlipCheck": null,
+      "apiError": null,
+      "unitTypePilot": {
+        "complexKey": "jamsil-els",
+        "classification": "group-safe-label-unknown",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      }
+    }
+  ],
+  "decisionRationale": "PASS: baseline path active; prod≡ENABLE1; missing=0; writes=0; POST_WH untouched; no API errors; no latency regression"
+}

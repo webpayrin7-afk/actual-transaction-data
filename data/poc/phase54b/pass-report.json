@@ -1,0 +1,162 @@
+{
+  "phase": "5.4b",
+  "decision": "PASS",
+  "capturedAt": "2026-09-12T02:57:51.746578+00:00",
+  "PR66": "MERGED",
+  "mainSHA": "d51716197d6233be5c1a971519ba4225264802eb",
+  "productionSHA": "d51716197d6233be5c1a971519ba4225264802eb",
+  "productionIncludes66": true,
+  "redeployNote": "Same SHA redeployed ~2026-09-12T02:48Z after ENABLE env set (status updated)",
+  "flags": {
+    "before": {
+      "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "unset/0",
+      "POST_WH_SINGOGA_GAPS_CLEARED": "unset/0"
+    },
+    "after": {
+      "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "1 (inferred: prod singoga counts match Turso ENABLE=1 path exactly)",
+      "POST_WH_SINGOGA_GAPS_CLEARED": "unset/0 (untouched)"
+    }
+  },
+  "productionPath": {
+    "baselineCodePresent": true,
+    "baselinePathActive": true,
+    "fallbackRetained": true
+  },
+  "runtime": {
+    "unexplainedDiff": 0,
+    "noteUnexplained": "prod vs ENABLE=1 path diffs = 0. enable1_vs_full count 60 equals expected ENABLE0↔1 flipDiff (not unexplained).",
+    "expectedEnable0to1FlipDiff": 60,
+    "baselineMissing": 0,
+    "fallback": "retained (POST_WH unset; retirement blocked)",
+    "apiErrors": 0,
+    "writesDetected": 0,
+    "latency": "no regression (after equal or faster than before)"
+  },
+  "pilots": {
+    "hangang-daewoo": {
+      "aptName": "한강(대우)",
+      "http": 200,
+      "itemCount": 772,
+      "singogaBefore": 81,
+      "singogaAfter": 75,
+      "singogaEnable1Expected": 75,
+      "matchesEnable1": true,
+      "prodVsEnable1Diff": 0,
+      "baselineMissing": [],
+      "latencyBeforeSec": 1.671,
+      "latencyAfterSec": 1.843,
+      "special": {
+        "g134_count": 118,
+        "g134_sg": 15,
+        "g135_count": 68,
+        "g135_sg": 10,
+        "areaKeysHas134": true,
+        "areaKeysHas135": true
+      },
+      "error": null
+    },
+    "parkrio": {
+      "aptName": "파크리오",
+      "http": 200,
+      "itemCount": 7361,
+      "singogaBefore": 227,
+      "singogaAfter": 204,
+      "singogaEnable1Expected": 204,
+      "matchesEnable1": true,
+      "prodVsEnable1Diff": 0,
+      "baselineMissing": [],
+      "latencyBeforeSec": 6.751,
+      "latencyAfterSec": 4.435,
+      "special": {
+        "g84_count": 4251,
+        "g84_sg": 52,
+        "areaKeysHas84": true
+      },
+      "error": null
+    },
+    "banpo-xi": {
+      "aptName": "반포자이",
+      "http": 200,
+      "itemCount": 3122,
+      "singogaBefore": 192,
+      "singogaAfter": 171,
+      "singogaEnable1Expected": 171,
+      "matchesEnable1": true,
+      "prodVsEnable1Diff": 0,
+      "baselineMissing": [],
+      "latencyBeforeSec": 2.586,
+      "latencyAfterSec": 1.954,
+      "special": {
+        "banpoFlips": [
+          {
+            "dealDate": "2025-02-18",
+            "dealAmount": 415000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 84.982
+          },
+          {
+            "dealDate": "2025-07-10",
+            "dealAmount": 475000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 84.943
+          },
+          {
+            "dealDate": "2026-06-20",
+            "dealAmount": 615000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 132.439
+          },
+          {
+            "dealDate": "2026-07-20",
+            "dealAmount": 373000,
+            "found": true,
+            "isSingoga": false,
+            "exclusiveArea": 59.971
+          }
+        ]
+      },
+      "error": null
+    },
+    "jamsil-els": {
+      "aptName": "잠실엘스",
+      "http": 200,
+      "itemCount": 5820,
+      "singogaBefore": 162,
+      "singogaAfter": 154,
+      "singogaEnable1Expected": 154,
+      "matchesEnable1": true,
+      "prodVsEnable1Diff": 0,
+      "baselineMissing": [],
+      "latencyBeforeSec": 2.857,
+      "latencyAfterSec": 3.016,
+      "special": {
+        "g84_count": 3855,
+        "g84_sg": 71,
+        "areaKeysHas84": true
+      },
+      "error": null
+    }
+  },
+  "decisionCriteria": {
+    "prodShaIncludes66": true,
+    "enable1BaselinePathOn": true,
+    "postWhUnset": true,
+    "unexplainedDiff0": true,
+    "baselineMissing0": true,
+    "newRuntimeApiErrors0": true,
+    "productionDbWrites0": true,
+    "noLatencyRegression": true
+  },
+  "prCleanup": {
+    "64": "already MERGED",
+    "65": "CLOSED (not merged)"
+  },
+  "nextRecommendation": {
+    "widerProductionScope": "YES",
+    "postWhChange": "NO",
+    "rationale": "4-pilot ENABLE=1 path matches expected baseline judgments with 0 prod↔ENABLE1 diffs, 0 baseline missing, 0 writes, fallback retained. Safe to expand scope gradually; do not set POST_WH yet."
+  }
+}
