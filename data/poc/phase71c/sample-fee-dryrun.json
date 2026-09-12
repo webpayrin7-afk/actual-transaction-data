@@ -1,0 +1,687 @@
+{
+  "phase": "7.1c-sample-fee",
+  "mode": "dry-run",
+  "generated_at": "2026-09-12T13:24:54.160Z",
+  "months_requested": [
+    "202609",
+    "202608",
+    "202607",
+    "202606",
+    "202605",
+    "202604",
+    "202603",
+    "202602",
+    "202601",
+    "202512",
+    "202511",
+    "202510"
+  ],
+  "semantics": {
+    "unit": "KRW",
+    "monthly_basis": "per complex-month (단지 월 합계)",
+    "common_basis": "sum of AptCmnuseManageCostServiceV3 line-item ops (청소/경비/소독/승강기/…)",
+    "individual_basis": "sum of AptIndvdlzManageCostServiceV3 utility ops (전기/수도/난방/급탕/가스 P+C)",
+    "reserve_basis": "getHsmpMonthFeeInfoV3.sLevy (월부과액)",
+    "summable": "LABEL-ONLY composite = common + individual + reserve; not an official single field",
+    "per_m2": "DERIVABLE-WITH-CONDITION (needs official exclusive area basis; not invented)",
+    "per_household": "DERIVABLE-WITH-CONDITION (divide by kaptdaCnt / household_count when present)",
+    "selected_pyeong": "UNSAFE — no official selected-pyeong fee; do not invent from area groups"
+  },
+  "summary": {
+    "complexes": 10,
+    "with_kapt": 6,
+    "basic_ok": 6,
+    "fee_complexes": 6,
+    "fee_months": 59
+  },
+  "writes": {
+    "source_links": 0,
+    "profile": 0,
+    "management_rows": 0,
+    "state_rows": 0
+  },
+  "results": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "kaptCode": "A13822004",
+      "resolve_method": "cohort",
+      "basic_ok": true,
+      "fee_months": 10,
+      "months": [
+        {
+          "year_month": "202609",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202608",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202607",
+          "common_fee": 554204830,
+          "individual_fee": 892030205,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1668954715,
+          "per_household_label": 293934
+        },
+        {
+          "year_month": "202606",
+          "common_fee": 544908570,
+          "individual_fee": 705686976,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1473315226,
+          "per_household_label": 259478
+        },
+        {
+          "year_month": "202605",
+          "common_fee": 541179180,
+          "individual_fee": 689948498,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1453847358,
+          "per_household_label": 256049
+        },
+        {
+          "year_month": "202604",
+          "common_fee": 535876870,
+          "individual_fee": 711650128,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1470246678,
+          "per_household_label": 258937
+        },
+        {
+          "year_month": "202603",
+          "common_fee": 539188140,
+          "individual_fee": 779132340,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1541040160,
+          "per_household_label": 271405
+        },
+        {
+          "year_month": "202602",
+          "common_fee": 544848460,
+          "individual_fee": 737303011,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1504871151,
+          "per_household_label": 265035
+        },
+        {
+          "year_month": "202601",
+          "common_fee": 536656212,
+          "individual_fee": 901055084,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1660430976,
+          "per_household_label": 292432
+        },
+        {
+          "year_month": "202512",
+          "common_fee": 526475860,
+          "individual_fee": 851206036,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1600401576,
+          "per_household_label": 281860
+        },
+        {
+          "year_month": "202511",
+          "common_fee": 526069660,
+          "individual_fee": 725039166,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1473828506,
+          "per_household_label": 259568
+        },
+        {
+          "year_month": "202510",
+          "common_fee": 530509820,
+          "individual_fee": 670365325,
+          "long_term_repair_reserve": 222719680,
+          "label_total": 1423594825,
+          "per_household_label": 250721
+        }
+      ],
+      "basic_result": "00",
+      "detail_ok": true,
+      "household_count": 5678
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "kaptCode": null,
+      "resolve_method": "unresolved",
+      "basic_ok": false,
+      "fee_months": 0,
+      "months": [],
+      "skip": "NO_KAPT"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "kaptCode": "A13704104",
+      "resolve_method": "cohort",
+      "basic_ok": true,
+      "fee_months": 10,
+      "months": [
+        {
+          "year_month": "202609",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202608",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202607",
+          "common_fee": 489192822,
+          "individual_fee": 949778363,
+          "long_term_repair_reserve": 236988297,
+          "label_total": 1675959482,
+          "per_household_label": 491484
+        },
+        {
+          "year_month": "202606",
+          "common_fee": 488183639,
+          "individual_fee": 702243426,
+          "long_term_repair_reserve": 236988297,
+          "label_total": 1427415362,
+          "per_household_label": 418597
+        },
+        {
+          "year_month": "202605",
+          "common_fee": 496216835,
+          "individual_fee": 584718899,
+          "long_term_repair_reserve": 236988297,
+          "label_total": 1317924031,
+          "per_household_label": 386488
+        },
+        {
+          "year_month": "202604",
+          "common_fee": 497094143,
+          "individual_fee": 567220976,
+          "long_term_repair_reserve": 236988297,
+          "label_total": 1301303416,
+          "per_household_label": 381614
+        },
+        {
+          "year_month": "202603",
+          "common_fee": 486519705,
+          "individual_fee": 613336281,
+          "long_term_repair_reserve": 236988297,
+          "label_total": 1336844283,
+          "per_household_label": 392036
+        },
+        {
+          "year_month": "202602",
+          "common_fee": 486729657,
+          "individual_fee": 574375964,
+          "long_term_repair_reserve": 236988297,
+          "label_total": 1298093918,
+          "per_household_label": 380673
+        },
+        {
+          "year_month": "202601",
+          "common_fee": 484004729,
+          "individual_fee": 673454212,
+          "long_term_repair_reserve": 236988297,
+          "label_total": 1394447238,
+          "per_household_label": 408929
+        },
+        {
+          "year_month": "202512",
+          "common_fee": 430642984,
+          "individual_fee": 649049210,
+          "long_term_repair_reserve": 177742730,
+          "label_total": 1257434924,
+          "per_household_label": 368749
+        },
+        {
+          "year_month": "202511",
+          "common_fee": 432323266,
+          "individual_fee": 570831399,
+          "long_term_repair_reserve": 177742730,
+          "label_total": 1180897395,
+          "per_household_label": 346304
+        },
+        {
+          "year_month": "202510",
+          "common_fee": 432133351,
+          "individual_fee": 545894138,
+          "long_term_repair_reserve": 177742730,
+          "label_total": 1155770219,
+          "per_household_label": 338936
+        }
+      ],
+      "basic_result": "00",
+      "detail_ok": true,
+      "household_count": 3410
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "kaptCode": "A13583507",
+      "resolve_method": "cohort",
+      "basic_ok": true,
+      "fee_months": 9,
+      "months": [
+        {
+          "year_month": "202609",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202608",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202607",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202606",
+          "common_fee": 529868920,
+          "individual_fee": 398167148,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 941833068,
+          "per_household_label": 212892
+        },
+        {
+          "year_month": "202605",
+          "common_fee": 526399770,
+          "individual_fee": 367434043,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 907630813,
+          "per_household_label": 205161
+        },
+        {
+          "year_month": "202604",
+          "common_fee": 542928150,
+          "individual_fee": 356459217,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 913184367,
+          "per_household_label": 206416
+        },
+        {
+          "year_month": "202603",
+          "common_fee": 538394870,
+          "individual_fee": 420438003,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 972629873,
+          "per_household_label": 219853
+        },
+        {
+          "year_month": "202602",
+          "common_fee": 550965660,
+          "individual_fee": 383482796,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 948245456,
+          "per_household_label": 214341
+        },
+        {
+          "year_month": "202601",
+          "common_fee": 534624000,
+          "individual_fee": 444236157,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 992657157,
+          "per_household_label": 224380
+        },
+        {
+          "year_month": "202512",
+          "common_fee": 505567970,
+          "individual_fee": 411296396,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 930661366,
+          "per_household_label": 210366
+        },
+        {
+          "year_month": "202511",
+          "common_fee": 502700190,
+          "individual_fee": 381348110,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 897845300,
+          "per_household_label": 202949
+        },
+        {
+          "year_month": "202510",
+          "common_fee": 511480240,
+          "individual_fee": 373255700,
+          "long_term_repair_reserve": 13797000,
+          "label_total": 898532940,
+          "per_household_label": 203104
+        }
+      ],
+      "basic_result": "00",
+      "detail_ok": true,
+      "household_count": 4424
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "kaptCode": null,
+      "resolve_method": "unresolved",
+      "basic_ok": false,
+      "fee_months": 0,
+      "months": [],
+      "skip": "NO_KAPT"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "kaptCode": "A14077902",
+      "resolve_method": "sido_list",
+      "basic_ok": true,
+      "fee_months": 10,
+      "months": [
+        {
+          "year_month": "202609",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202608",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202607",
+          "common_fee": 405587345,
+          "individual_fee": 340298845,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 775677380,
+          "per_household_label": 1292796
+        },
+        {
+          "year_month": "202606",
+          "common_fee": 405114040,
+          "individual_fee": 207140639,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 642045869,
+          "per_household_label": 1070076
+        },
+        {
+          "year_month": "202605",
+          "common_fee": 409856604,
+          "individual_fee": 145606659,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 585254453,
+          "per_household_label": 975424
+        },
+        {
+          "year_month": "202604",
+          "common_fee": 407578015,
+          "individual_fee": 148501882,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 585871087,
+          "per_household_label": 976452
+        },
+        {
+          "year_month": "202603",
+          "common_fee": 404830621,
+          "individual_fee": 135004339,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 569626150,
+          "per_household_label": 949377
+        },
+        {
+          "year_month": "202602",
+          "common_fee": 409274072,
+          "individual_fee": 168876624,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 607941886,
+          "per_household_label": 1013236
+        },
+        {
+          "year_month": "202601",
+          "common_fee": 405148300,
+          "individual_fee": 174392826,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 609332316,
+          "per_household_label": 1015554
+        },
+        {
+          "year_month": "202512",
+          "common_fee": 394701283,
+          "individual_fee": 161316712,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 585809185,
+          "per_household_label": 976349
+        },
+        {
+          "year_month": "202511",
+          "common_fee": 391906537,
+          "individual_fee": 149625353,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 571323080,
+          "per_household_label": 952205
+        },
+        {
+          "year_month": "202510",
+          "common_fee": 389551514,
+          "individual_fee": 148927838,
+          "long_term_repair_reserve": 29791190,
+          "label_total": 568270542,
+          "per_household_label": 947118
+        }
+      ],
+      "basic_result": "00",
+      "detail_ok": true,
+      "household_count": 600
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "kaptCode": null,
+      "resolve_method": "unresolved",
+      "basic_ok": false,
+      "fee_months": 0,
+      "months": [],
+      "skip": "NO_KAPT"
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "kaptCode": null,
+      "resolve_method": "unresolved",
+      "basic_ok": false,
+      "fee_months": 0,
+      "months": [],
+      "skip": "NO_KAPT"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "kaptCode": "A14003105",
+      "resolve_method": "cohort",
+      "basic_ok": true,
+      "fee_months": 10,
+      "months": [
+        {
+          "year_month": "202609",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202608",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202607",
+          "common_fee": 86352080,
+          "individual_fee": 111749320,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 240818370,
+          "per_household_label": 288751
+        },
+        {
+          "year_month": "202606",
+          "common_fee": 85861320,
+          "individual_fee": 97855560,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 226433850,
+          "per_household_label": 271503
+        },
+        {
+          "year_month": "202605",
+          "common_fee": 86701100,
+          "individual_fee": 92520800,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 221938870,
+          "per_household_label": 266114
+        },
+        {
+          "year_month": "202604",
+          "common_fee": 86500150,
+          "individual_fee": 97000380,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 226217500,
+          "per_household_label": 271244
+        },
+        {
+          "year_month": "202603",
+          "common_fee": 86331140,
+          "individual_fee": 100823840,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 229871950,
+          "per_household_label": 275626
+        },
+        {
+          "year_month": "202602",
+          "common_fee": 86650200,
+          "individual_fee": 115902700,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 245269870,
+          "per_household_label": 294089
+        },
+        {
+          "year_month": "202601",
+          "common_fee": 86665710,
+          "individual_fee": 121051740,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 250434420,
+          "per_household_label": 300281
+        },
+        {
+          "year_month": "202512",
+          "common_fee": 84243910,
+          "individual_fee": 110723310,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 237684190,
+          "per_household_label": 284993
+        },
+        {
+          "year_month": "202511",
+          "common_fee": 83836750,
+          "individual_fee": 100042450,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 226596170,
+          "per_household_label": 271698
+        },
+        {
+          "year_month": "202510",
+          "common_fee": 83945300,
+          "individual_fee": 91511490,
+          "long_term_repair_reserve": 42716970,
+          "label_total": 218173760,
+          "per_household_label": 261599
+        }
+      ],
+      "basic_result": "00",
+      "detail_ok": true,
+      "household_count": 834
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "kaptCode": "A46377610",
+      "resolve_method": "sido_list",
+      "basic_ok": true,
+      "fee_months": 10,
+      "months": [
+        {
+          "year_month": "202609",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202608",
+          "skipped": "empty_probe"
+        },
+        {
+          "year_month": "202607",
+          "common_fee": 200241570,
+          "individual_fee": 192676650,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 451874670,
+          "per_household_label": 186802
+        },
+        {
+          "year_month": "202606",
+          "common_fee": 204144240,
+          "individual_fee": 163459610,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 426560300,
+          "per_household_label": 176337
+        },
+        {
+          "year_month": "202605",
+          "common_fee": 204086695,
+          "individual_fee": 146295020,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 409338165,
+          "per_household_label": 169218
+        },
+        {
+          "year_month": "202604",
+          "common_fee": 207701640,
+          "individual_fee": 150584350,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 417242440,
+          "per_household_label": 172486
+        },
+        {
+          "year_month": "202603",
+          "common_fee": 200618080,
+          "individual_fee": 142097890,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 401672420,
+          "per_household_label": 166049
+        },
+        {
+          "year_month": "202602",
+          "common_fee": 209956180,
+          "individual_fee": 172007200,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 440919830,
+          "per_household_label": 182274
+        },
+        {
+          "year_month": "202601",
+          "common_fee": 196612300,
+          "individual_fee": 175203810,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 430772560,
+          "per_household_label": 178079
+        },
+        {
+          "year_month": "202512",
+          "common_fee": 198372460,
+          "individual_fee": 162507990,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 419836900,
+          "per_household_label": 173558
+        },
+        {
+          "year_month": "202511",
+          "common_fee": 200766640,
+          "individual_fee": 156740450,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 416463540,
+          "per_household_label": 172164
+        },
+        {
+          "year_month": "202510",
+          "common_fee": 209271470,
+          "individual_fee": 150000950,
+          "long_term_repair_reserve": 58956450,
+          "label_total": 418228870,
+          "per_household_label": 172893
+        }
+      ],
+      "basic_result": "00",
+      "detail_ok": true,
+      "household_count": 2419
+    }
+  ]
+}

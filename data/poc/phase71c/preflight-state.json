@@ -80,17 +80,22 @@
     {
       "domain": "BASIC_INFO",
       "status": "PENDING",
-      "n": 6
+      "n": 4
     },
     {
       "domain": "BASIC_INFO",
       "status": "READY",
-      "n": 4
+      "n": 6
     },
     {
       "domain": "BUILDING_INFO",
       "status": "READY",
       "n": 10
+    },
+    {
+      "domain": "MANAGEMENT_FEE",
+      "status": "READY",
+      "n": 6
     }
   ],
   "masters": [
@@ -248,6 +253,11 @@
     },
     {
       "complex_id": "cx_d6b07e832d194cf9",
+      "source": "KAPT",
+      "source_key": "A46377610"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
       "source": "MOLIT",
       "source_key": "41135|시범한양"
     },
@@ -255,6 +265,11 @@
       "complex_id": "cx_e47102400fbc8ec6",
       "source": "BUILDING_HUB_PARCEL",
       "source_key": "1117013100008100000"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "source": "KAPT",
+      "source_key": "A14077902"
     },
     {
       "complex_id": "cx_e47102400fbc8ec6",
@@ -298,29 +313,29 @@
     }
   ],
   "fee_rows": {
-    "n": 0
+    "n": 59
   },
   "profiles": [
     {
       "complex_id": "cx_0320fd9e007e1f8c",
       "source": "COMPOSITE",
       "household_count": 4424,
-      "heating_type": null,
-      "management_type": null
+      "heating_type": "지역난방",
+      "management_type": "위탁관리"
     },
     {
       "complex_id": "cx_1c244e7305d12c44",
       "source": "COMPOSITE",
       "household_count": 3410,
-      "heating_type": null,
-      "management_type": null
+      "heating_type": "지역난방",
+      "management_type": "위탁관리"
     },
     {
       "complex_id": "cx_4c63d9a100973c60",
       "source": "COMPOSITE",
       "household_count": 5678,
-      "heating_type": null,
-      "management_type": null
+      "heating_type": "지역난방",
+      "management_type": "위탁관리"
     },
     {
       "complex_id": "cx_adb7193c5c99abd6",
@@ -340,22 +355,22 @@
       "complex_id": "cx_d6b07e832d194cf9",
       "source": "COMPOSITE",
       "household_count": 2419,
-      "heating_type": null,
-      "management_type": null
+      "heating_type": "지역난방",
+      "management_type": "위탁관리"
     },
     {
       "complex_id": "cx_e47102400fbc8ec6",
       "source": "COMPOSITE",
       "household_count": 600,
-      "heating_type": null,
-      "management_type": null
+      "heating_type": "개별난방",
+      "management_type": "위탁관리"
     },
     {
       "complex_id": "cx_ec9a204afeaadf1b",
       "source": "COMPOSITE",
       "household_count": 834,
-      "heating_type": null,
-      "management_type": null
+      "heating_type": "지역난방",
+      "management_type": "위탁관리"
     },
     {
       "complex_id": "cx_ed52bf895d064c11",
