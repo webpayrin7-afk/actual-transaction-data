@@ -118,3 +118,82 @@ CREATE TABLE IF NOT EXISTS market_stats_meta (
   hist_from TEXT NOT NULL DEFAULT '',
   stats_from TEXT NOT NULL DEFAULT ''
 );
+
+
+-- Phase 5 unit-type master (pilot write only; no nationwide backfill)
+CREATE TABLE IF NOT EXISTS apt_complex_classifications (
+  complex_key TEXT PRIMARY KEY,
+  apt_name_norm TEXT NOT NULL,
+  lawd_cd TEXT NOT NULL,
+  gu TEXT NOT NULL DEFAULT '',
+  classification TEXT NOT NULL,
+  singoga_mode TEXT NOT NULL,
+  label_confidence REAL,
+  group_confidence_high INTEGER NOT NULL DEFAULT 0,
+  source_phase TEXT NOT NULL DEFAULT '',
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_apt_complex_class_name
+  ON apt_complex_classifications (apt_name_norm);
+
+CREATE TABLE IF NOT EXISTS apt_unit_types (
+  unit_type_key TEXT PRIMARY KEY,
+  complex_key TEXT NOT NULL,
+  supply_area_sqm REAL,
+  exclusive_area_min REAL NOT NULL,
+  exclusive_area_max REAL NOT NULL,
+  household_count INTEGER,
+  mapping_confidence TEXT,
+  exclusive_includes_partial_common INTEGER NOT NULL DEFAULT 0,
+  source TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS idx_apt_unit_types_complex
+  ON apt_unit_types (complex_key);
+
+CREATE TABLE IF NOT EXISTS apt_pyeong_groups (
+  group_key TEXT PRIMARY KEY,
+  complex_key TEXT NOT NULL,
+  market_label INTEGER,
+  display_mode TEXT NOT NULL,
+  supply_area_min REAL,
+  supply_area_max REAL,
+  exclusive_area_min REAL NOT NULL,
+  exclusive_area_max REAL NOT NULL,
+  household_count INTEGER,
+  confidence TEXT,
+  group_confidence_high INTEGER NOT NULL DEFAULT 0,
+  label_null_reason TEXT,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  source TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS idx_apt_pyeong_groups_complex
+  ON apt_pyeong_groups (complex_key);
+
+CREATE TABLE IF NOT EXISTS apt_unit_type_group_links (
+  unit_type_key TEXT NOT NULL,
+  group_key TEXT NOT NULL,
+  complex_key TEXT NOT NULL,
+  is_outlier INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (unit_type_key, group_key)
+);
+CREATE INDEX IF NOT EXISTS idx_apt_unit_type_links_complex
+  ON apt_unit_type_group_links (complex_key);
+
+-- Phase 5.3b: pre-warehouse prior-max baselines (soft FK → apt_pyeong_groups.group_key).
+-- Fixture/seed only until post-WH gap gate clears; no nationwide backfill.
+CREATE TABLE IF NOT EXISTS apt_pyeong_group_baselines (
+  group_key TEXT PRIMARY KEY,
+  complex_key TEXT NOT NULL,
+  baseline_until TEXT NOT NULL,
+  prior_max_amount INTEGER NOT NULL,
+  prior_max_deal_date TEXT,
+  source TEXT NOT NULL,
+  computed_at TEXT NOT NULL,
+  confidence TEXT NOT NULL DEFAULT 'high',
+  completeness TEXT NOT NULL DEFAULT 'pre-warehouse-molit-max',
+  pre_warehouse_trade_count INTEGER,
+  label TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_apt_pyeong_group_baselines_complex
+  ON apt_pyeong_group_baselines (complex_key);

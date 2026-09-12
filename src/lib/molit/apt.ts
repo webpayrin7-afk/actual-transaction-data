@@ -6,6 +6,7 @@ import {
 } from "@/lib/constants/regions";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import {
+  getDb,
   hasDb,
 } from "@/lib/db/client";
 import {
@@ -14,73 +15,27 @@ import {
   searchAptAggregatesFromDb,
 } from "@/lib/db/repository";
 import {
-  formatEok,
   recentYearMonths,
   toPyeong,
 } from "@/lib/utils/format";
 import type { Transaction } from "@/types/transaction";
 import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 
-export interface AptSuggestion {
-  aptName: string;
-  regionSlug: string;
-  regionName: string;
-  gu: string;
-  dong: string;
-  dealCount: number;
-  maxDealAmount: number;
-  latestDealDate: string;
-}
-
-export interface AptAreaOption {
-  key: string;
-  label: string;
-  exclusiveArea: number;
-  count: number;
-}
-
-export interface AptHistoryItem extends Transaction {
-  isSingoga: boolean;
-  pyeong: number;
-}
-
-export interface AptChartPoint {
-  yearMonth: string; // YYYYMM
-  label: string; // YY.MM
-  tradeAvg: number | null;
-  tradeMax: number | null;
-  tradeCount: number;
-  jeonseAvg: number | null;
-  jeonseCount: number;
-  wolseCount: number;
-  volume: number;
-}
-
-export interface AptDetailResponse {
-  aptName: string;
-  regionSlug: string;
-  regionName: string;
-  fullName: string;
-  gu: string;
-  dong: string;
-  buildYear: number | null;
-  source: "api" | "mock" | "db";
-  yearMonth: string;
-  warning?: string;
-  /** 최근 N개월만 먼저 내려준 부분 응답 */
-  partial?: boolean;
-  loadedMonths: number;
-  stats: {
-    recent3mCount: number;
-    maxDealAmount: number;
-    avgDealAmount: number;
-    totalTradeCount: number;
-    totalRentCount: number;
-  };
-  areas: AptAreaOption[];
-  chart: AptChartPoint[];
-  items: AptHistoryItem[];
-}
+import type {
+  AptSuggestion,
+  AptAreaOption,
+  AptHistoryItem,
+  AptChartPoint,
+  AptDetailResponse,
+} from "@/lib/molit/apt-client";
+export type {
+  AptSuggestion,
+  AptAreaOption,
+  AptHistoryItem,
+  AptChartPoint,
+  AptDetailResponse,
+} from "@/lib/molit/apt-client";
+export { aptDetailHref, formatAptPriceLabel } from "@/lib/molit/apt-client";
 
 const SUGGEST_MONTHS = 4;
 const SUGGEST_CACHE_TTL_MS = 45 * 60 * 1000;
@@ -731,11 +686,15 @@ async function buildAptDetail(params: {
         )
       : 0;
 
-  const maxByArea = new Map<string, number>();
-  for (const tx of trades) {
-    const key = areaKey(tx.exclusiveArea);
-    maxByArea.set(key, Math.max(maxByArea.get(key) ?? 0, tx.dealAmount));
-  }
+  const {
+    applyPilotSingoga,
+    buildMarketGroupAreas,
+    loadPilotMasterForApt,
+    pilotMetaFromBundle,
+  } = await import("@/lib/unit-type/apply-pilot");
+  const pilotBundle = await loadPilotMasterForApt(canonicalName);
+  const pilotMeta = pilotMetaFromBundle(pilotBundle);
+  const useMarketGroups = pilotMeta?.selectorMode === "market_group";
 
   const areaCount = new Map<string, { sqm: number; count: number }>();
   for (const tx of deals) {
@@ -745,14 +704,20 @@ async function buildAptDetail(params: {
     else prev.count += 1;
   }
 
-  const areas: AptAreaOption[] = [...areaCount.entries()]
+  const exclusiveAreas: AptAreaOption[] = [...areaCount.entries()]
     .map(([key, value]) => ({
       key,
       exclusiveArea: value.sqm,
       count: value.count,
       label: areaLabel(value.sqm),
+      selectorKind: "exclusive" as const,
     }))
     .sort((a, b) => a.exclusiveArea - b.exclusiveArea);
+
+  const areas: AptAreaOption[] =
+    useMarketGroups && pilotBundle
+      ? buildMarketGroupAreas(pilotBundle, deals)
+      : exclusiveAreas;
 
   const buildYears = deals
     .map((t) => t.buildYear)
@@ -766,14 +731,43 @@ async function buildAptDetail(params: {
         )[0]
       : null;
 
+  let baselinePriorMax: Map<string, number> | undefined;
+  if (useMarketGroups && pilotBundle) {
+    const { isMarketGroupBaselineSingogaEnabled } = await import(
+      "@/lib/unit-type/baseline-gate"
+    );
+    if (isMarketGroupBaselineSingogaEnabled()) {
+      const { loadBaselinePriorMaxByComplex } = await import(
+        "@/lib/unit-type/baselines"
+      );
+      const db = getDb();
+      if (db) {
+        baselinePriorMax = await loadBaselinePriorMaxByComplex(
+          db,
+          pilotBundle.classification.complexKey,
+        );
+      }
+    }
+  }
+
+  const singogaFlags = applyPilotSingoga({
+    bundle: pilotBundle,
+    deals: deals.map((tx) => ({
+      id: tx.id,
+      dealType: tx.dealType,
+      dealDate: tx.dealDate,
+      dealAmount: tx.dealAmount,
+      exclusiveArea: tx.exclusiveArea,
+    })),
+    baselinePriorMax,
+  });
+
   const items: AptHistoryItem[] = deals.map((tx) => ({
     ...tx,
     pyeong: toPyeong(tx.exclusiveArea),
     isSingoga:
-      tx.dealType === "trade" &&
-      tx.dealAmount === (maxByArea.get(areaKey(tx.exclusiveArea)) ?? -1),
+      tx.dealType === "trade" && (singogaFlags.get(tx.id) ?? false),
   }));
-
   const chart = trimChartToActivity(
     buildChartPoints(deals, chartMonths).sort((a, b) =>
       a.yearMonth < b.yearMonth ? -1 : 1,
@@ -814,19 +808,7 @@ async function buildAptDetail(params: {
     areas,
     chart,
     items,
+    unitTypePilot: pilotMeta,
   };
 }
 
-export function aptDetailHref(
-  aptName: string,
-  regionSlug: string,
-  gu?: string,
-): string {
-  const qs = new URLSearchParams({ region: regionSlug });
-  if (gu?.trim()) qs.set("gu", gu.trim());
-  return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
-}
-
-export function formatAptPriceLabel(manwon: number): string {
-  return formatEok(manwon);
-}

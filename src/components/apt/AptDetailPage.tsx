@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
-import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt";
+import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt-client";
 import {
   AptPriceChart,
   PeriodRangeSlider,
@@ -312,8 +312,19 @@ export function AptDetailPage({
   const areaFiltered = useMemo(() => {
     if (!data) return [];
     if (areaKey === "all") return data.items;
-    // areas.key 와 item 면적을 동일 normalize로 맞춰 거래이력·차트에 반영
     const selected = data.areas.find((a) => a.key === areaKey);
+    if (
+      selected?.selectorKind === "market_group" &&
+      selected.exclusiveAreaMin != null &&
+      selected.exclusiveAreaMax != null
+    ) {
+      const min = selected.exclusiveAreaMin - 0.005;
+      const max = selected.exclusiveAreaMax + 0.005;
+      return data.items.filter((item) => {
+        const area = Number(item.exclusiveArea);
+        return area >= min && area <= max;
+      });
+    }
     const matchKey = selected
       ? normalizeAreaKey(selected.exclusiveArea)
       : areaKey;

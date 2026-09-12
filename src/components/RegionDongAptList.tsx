@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
-import { aptDetailHref } from "@/lib/molit/apt";
+import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionBrowseResponse,
   RegionDongApt,

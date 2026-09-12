@@ -1,4 +1,4 @@
-import type { AptAreaOption } from "@/lib/molit/apt";
+import type { AptAreaOption } from "@/lib/molit/apt-client";
 
 /** 기존 areaKey normalization과 동일 */
 export function normalizeAreaKey(sqm: number): string {

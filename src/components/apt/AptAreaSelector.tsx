@@ -9,7 +9,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
-import type { AptAreaOption } from "@/lib/molit/apt";
+import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
   formatExclusiveArea,
   formatPyeong,
@@ -110,7 +110,9 @@ export function AptAreaSelector({
     return (
       <div className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-sm">
         <span className="min-w-0 truncate font-medium tabular-nums text-slate-800">
-          {formatPyeong(only.exclusiveArea)} ({formatExclusiveArea(only.exclusiveArea)})
+          {only.selectorKind === "market_group"
+            ? only.label
+            : `${formatPyeong(only.exclusiveArea)} (${formatExclusiveArea(only.exclusiveArea)})`}
         </span>
         <span className="shrink-0 tabular-nums text-slate-500">
           거래 {only.count.toLocaleString("ko-KR")}건
@@ -123,7 +125,9 @@ export function AptAreaSelector({
   const isAll = value === "all" || !selected;
   const triggerMain = isAll
     ? "전체 면적"
-    : `${formatPyeong(selected.exclusiveArea)} (${formatExclusiveArea(selected.exclusiveArea)})`;
+    : selected.selectorKind === "market_group"
+      ? selected.label
+      : `${formatPyeong(selected.exclusiveArea)} (${formatExclusiveArea(selected.exclusiveArea)})`;
   const triggerMeta = isAll
     ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · 거래 ${totalDeals.toLocaleString("ko-KR")}건`
     : `거래 ${selected.count.toLocaleString("ko-KR")}건`;
@@ -205,7 +209,10 @@ function AreaSheet({
     },
     ...areas.map((area) => ({
       key: area.key,
-      label: `${formatPyeong(area.exclusiveArea)} (${formatExclusiveArea(area.exclusiveArea)})`,
+      label:
+        area.selectorKind === "market_group"
+          ? area.label
+          : `${formatPyeong(area.exclusiveArea)} (${formatExclusiveArea(area.exclusiveArea)})`,
       meta: `거래 ${area.count.toLocaleString("ko-KR")}건`,
     })),
   ];

@@ -30,7 +30,9 @@
     "test:calendar-pagination": "tsx scripts/test-calendar-pagination.ts",
     "test:ingestion": "tsx scripts/test-sync-dirty-check.ts && tsx scripts/test-first-seen-guard.ts && tsx scripts/test-late-report-ingestion.ts && tsx scripts/test-trade-resolve.ts && tsx scripts/test-discovery-at.ts && tsx scripts/test-discovery-compat.ts && tsx scripts/test-region-visibility-r2.ts && tsx scripts/test-full-history-serving.ts && tsx scripts/test-calendar-pagination.ts",
     "test:loan-repay": "tsx scripts/test-loan-repay.ts",
-    "test:loan-limit": "tsx scripts/test-loan-limit.ts"
+    "test:loan-limit": "tsx scripts/test-loan-limit.ts",
+    "test:unit-type-phase5": "tsx scripts/test-unit-type-phase5.ts",
+    "test:unit-type-phase53b": "tsx scripts/test-unit-type-phase53b.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

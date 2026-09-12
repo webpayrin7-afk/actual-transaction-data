@@ -1,0 +1,299 @@
+{
+  "generatedAt": "2026-09-11T22:47:15.525Z",
+  "report": [
+    {
+      "complexKey": "hangang-daewoo",
+      "aptNameNorm": "한강(대우)",
+      "role": "A",
+      "classification": "auto-safe",
+      "singogaMode": "market_group",
+      "totalTradeCountPreserved": 266,
+      "selectorGroupTradeCounts": [
+        {
+          "groupKey": "hangang-daewoo:G1:ex59.98-60.00",
+          "label": "공급 81.6~82.31㎡ · 전용 59.98~60㎡",
+          "marketLabel": null,
+          "tradeCount": 86,
+          "maxAmount": 242000,
+          "recentDate": "2026-04-13",
+          "recentAmount": 240000
+        },
+        {
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "label": "33평형",
+          "marketLabel": 33,
+          "tradeCount": 118,
+          "maxAmount": 288000,
+          "recentDate": "2026-05-21",
+          "recentAmount": 258000
+        },
+        {
+          "groupKey": "hangang-daewoo:G3:ex134.13-134.13",
+          "label": "49평형",
+          "marketLabel": 49,
+          "tradeCount": 38,
+          "maxAmount": 330000,
+          "recentDate": "2026-08-05",
+          "recentAmount": 320000
+        },
+        {
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "label": "50평형",
+          "marketLabel": 50,
+          "tradeCount": 24,
+          "maxAmount": 337400,
+          "recentDate": "2026-06-13",
+          "recentAmount": 327000
+        }
+      ],
+      "oldSingogaCount": 9,
+      "newSingogaCount": 81,
+      "singogaDiff": 72,
+      "hangang4950": {
+        "separated": true,
+        "g49": {
+          "exclusive": [
+            134.13,
+            134.13
+          ]
+        },
+        "g50": {
+          "exclusive": [
+            135.27,
+            135.87
+          ]
+        }
+      },
+      "jamsilLabelNullUi": null,
+      "fallbackExclusive": null
+    },
+    {
+      "complexKey": "parkrio",
+      "aptNameNorm": "파크리오",
+      "role": "A",
+      "classification": "auto-safe",
+      "singogaMode": "market_group",
+      "totalTradeCountPreserved": 2661,
+      "selectorGroupTradeCounts": [
+        {
+          "groupKey": "parkrio:G1:ex35.24-35.24",
+          "label": "16평형",
+          "marketLabel": 16,
+          "tradeCount": 201,
+          "maxAmount": 155000,
+          "recentDate": "2026-07-13",
+          "recentAmount": 138000
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "label": "26평형",
+          "marketLabel": 26,
+          "tradeCount": 505,
+          "maxAmount": 280000,
+          "recentDate": "2026-08-20",
+          "recentAmount": 280000
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "label": "33평형",
+          "marketLabel": 33,
+          "tradeCount": 1496,
+          "maxAmount": 322000,
+          "recentDate": "2026-07-28",
+          "recentAmount": 299000
+        },
+        {
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "label": "45평형",
+          "marketLabel": 45,
+          "tradeCount": 240,
+          "maxAmount": 372000,
+          "recentDate": "2026-05-18",
+          "recentAmount": 350000
+        },
+        {
+          "groupKey": "parkrio:G5:ex144.77-144.77",
+          "label": "53평형",
+          "marketLabel": 53,
+          "tradeCount": 219,
+          "maxAmount": 385000,
+          "recentDate": "2026-07-11",
+          "recentAmount": 339000
+        }
+      ],
+      "oldSingogaCount": 11,
+      "newSingogaCount": 227,
+      "singogaDiff": 216,
+      "hangang4950": null,
+      "jamsilLabelNullUi": null,
+      "fallbackExclusive": null
+    },
+    {
+      "complexKey": "banpo-xi",
+      "aptNameNorm": "반포자이",
+      "role": "A",
+      "classification": "auto-safe",
+      "singogaMode": "market_group",
+      "totalTradeCountPreserved": 1056,
+      "selectorGroupTradeCounts": [
+        {
+          "groupKey": "banpo-xi:G1:ex59.97-59.98",
+          "label": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+          "marketLabel": null,
+          "tradeCount": 174,
+          "maxAmount": 373000,
+          "recentDate": "2026-07-20",
+          "recentAmount": 373000
+        },
+        {
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "label": "35평형",
+          "marketLabel": 35,
+          "tradeCount": 437,
+          "maxAmount": 520000,
+          "recentDate": "2026-09-08",
+          "recentAmount": 505000
+        },
+        {
+          "groupKey": "banpo-xi:G3:ex132.18-132.44",
+          "label": "50평형",
+          "marketLabel": 50,
+          "tradeCount": 113,
+          "maxAmount": 615000,
+          "recentDate": "2026-06-20",
+          "recentAmount": 615000
+        },
+        {
+          "groupKey": "banpo-xi:G4:ex165.05-165.45",
+          "label": "60평형",
+          "marketLabel": 60,
+          "tradeCount": 126,
+          "maxAmount": 650000,
+          "recentDate": "2026-07-21",
+          "recentAmount": 635000
+        },
+        {
+          "groupKey": "banpo-xi:G5:ex194.52-194.69",
+          "label": "70평형",
+          "marketLabel": 70,
+          "tradeCount": 19,
+          "maxAmount": 610000,
+          "recentDate": "2023-07-15",
+          "recentAmount": 610000
+        },
+        {
+          "groupKey": "banpo-xi:G6:ex216.49-216.49",
+          "label": "80평형",
+          "marketLabel": 80,
+          "tradeCount": 50,
+          "maxAmount": 720000,
+          "recentDate": "2026-09-03",
+          "recentAmount": 670000
+        },
+        {
+          "groupKey": "banpo-xi:G7:ex244.54-244.97",
+          "label": "공급 297.54~301.39㎡ · 전용 244.54~244.97㎡",
+          "marketLabel": null,
+          "tradeCount": 78,
+          "maxAmount": 803000,
+          "recentDate": "2026-06-13",
+          "recentAmount": 760000
+        }
+      ],
+      "oldSingogaCount": 17,
+      "newSingogaCount": 191,
+      "singogaDiff": 174,
+      "hangang4950": null,
+      "jamsilLabelNullUi": null,
+      "fallbackExclusive": null
+    },
+    {
+      "complexKey": "jamsil-els",
+      "aptNameNorm": "잠실엘스",
+      "role": "B",
+      "classification": "group-safe-label-unknown",
+      "singogaMode": "market_group",
+      "totalTradeCountPreserved": 1647,
+      "selectorGroupTradeCounts": [
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "label": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "marketLabel": null,
+          "tradeCount": 440,
+          "maxAmount": 310000,
+          "recentDate": "2026-08-11",
+          "recentAmount": 287000
+        },
+        {
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "label": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "marketLabel": null,
+          "tradeCount": 1064,
+          "maxAmount": 370000,
+          "recentDate": "2026-08-21",
+          "recentAmount": 341000
+        },
+        {
+          "groupKey": "jamsil-els:G3:ex119.93-119.93",
+          "label": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+          "marketLabel": 45,
+          "tradeCount": 143,
+          "maxAmount": 460000,
+          "recentDate": "2026-07-21",
+          "recentAmount": 415000
+        }
+      ],
+      "oldSingogaCount": 9,
+      "newSingogaCount": 162,
+      "singogaDiff": 153,
+      "hangang4950": null,
+      "jamsilLabelNullUi": {
+        "classification": "group-safe-label-unknown",
+        "numericLabelForbidden": true,
+        "selectorLabels": [
+          "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "공급 149.88~149.89㎡ · 전용 119.93㎡"
+        ],
+        "allRangeOnly": true
+      },
+      "fallbackExclusive": null
+    },
+    {
+      "complexKey": "mokdong-7",
+      "aptNameNorm": "목동신시가지7",
+      "role": "C",
+      "classification": "ambiguous",
+      "singogaMode": "exclusive_area_fallback",
+      "totalTradeCountPreserved": 672,
+      "selectorGroupTradeCounts": null,
+      "oldSingogaCount": 8,
+      "newSingogaCount": 8,
+      "singogaDiff": 0,
+      "hangang4950": null,
+      "jamsilLabelNullUi": null,
+      "fallbackExclusive": {
+        "ok": true,
+        "note": "C/D exclusive selector + exclusive singoga"
+      }
+    },
+    {
+      "complexKey": "eunma",
+      "aptNameNorm": "은마",
+      "role": "D",
+      "classification": "registry-abnormal",
+      "singogaMode": "exclusive_area_fallback",
+      "totalTradeCountPreserved": 1124,
+      "selectorGroupTradeCounts": null,
+      "oldSingogaCount": 2,
+      "newSingogaCount": 2,
+      "singogaDiff": 0,
+      "hangang4950": null,
+      "jamsilLabelNullUi": null,
+      "fallbackExclusive": {
+        "ok": true,
+        "note": "C/D exclusive selector + exclusive singoga"
+      }
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { aptDetailHref, type AptSuggestion } from "@/lib/molit/apt";
+import { aptDetailHref, type AptSuggestion } from "@/lib/molit/apt-client";
 import { formatComplexLocationLabel } from "@/lib/complexes/recent-views";
 import { formatEok } from "@/lib/utils/format";
 import {
