@@ -1,0 +1,45 @@
+{
+  "phase": "5.5b",
+  "decision": "HOLD",
+  "capturedAt": "2026-09-12T03:25:05.129926+00:00",
+  "writePlan": {
+    "complexes": [
+      "daechi-palace",
+      "mapo-raemian-prugio",
+      "acro-riverpark",
+      "hannam-thehill"
+    ],
+    "groupInserts": 34,
+    "baselineInserts": 20,
+    "total": 54
+  },
+  "preflight": {
+    "expectedGroupInserts": 34,
+    "expectedBaselineInserts": 20,
+    "expectedTotal": 54,
+    "existingGroupRowsForComplexes": [],
+    "existingBaselineRowsForComplexes": [],
+    "conflictGroups": [],
+    "conflictBases": [],
+    "unexplainedAllZero": true,
+    "baselineKeysSubsetOfGroups": true,
+    "pass": true
+  },
+  "blocker": {
+    "reason": "apt_complex_classifications missing for all 4 Tier A complexes",
+    "impact": "INSERT of groups+baselines alone cannot activate production baseline path (loadUnitTypeMasterByAptName requires classification)",
+    "writesPerformed": 0,
+    "flagsUnchanged": true
+  },
+  "writeResult": {
+    "groupsWritten": 0,
+    "baselinesWritten": 0,
+    "updates": 0,
+    "deletes": 0
+  },
+  "prCleanup": {
+    "67": "CLOSED_WITHOUT_MERGE",
+    "68": "CLOSED_WITHOUT_MERGE"
+  },
+  "next": "Approve classification(+minimal master) seed for Tier A, then retry 5.5b writes; Tier B still NO"
+}

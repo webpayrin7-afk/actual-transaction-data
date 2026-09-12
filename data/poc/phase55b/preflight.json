@@ -1,0 +1,12 @@
+{
+  "expectedGroupInserts": 34,
+  "expectedBaselineInserts": 20,
+  "expectedTotal": 54,
+  "existingGroupRowsForComplexes": [],
+  "existingBaselineRowsForComplexes": [],
+  "conflictGroups": [],
+  "conflictBases": [],
+  "unexplainedAllZero": true,
+  "baselineKeysSubsetOfGroups": true,
+  "pass": true
+}
