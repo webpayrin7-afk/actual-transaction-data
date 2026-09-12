@@ -1,0 +1,145 @@
+{
+  "phase": "7.1b",
+  "decision": "HOLD",
+  "code_fixable": "NO",
+  "manual_action_required": "YES",
+  "root_cause": "SERVICE-NOT-ACTIVATED",
+  "state_audit": {
+    "BASIC_INFO_READY": 4,
+    "BASIC_INFO_PENDING": 6,
+    "BUILDING_INFO_READY": 10,
+    "MANAGEMENT_FEE_READY": 0,
+    "incorrect_before": [
+      "6× BASIC_INFO READY without KAPT/basic source (building-hub/COMPOSITE profile only)"
+    ],
+    "incorrect_after": [],
+    "corrective_writes": 6,
+    "corrective_detail": "BASIC_INFO READY→PENDING reason_code=BASIC_SOURCE_MISSING for 6 sample complexes lacking KAPT source link"
+  },
+  "env_routing": {
+    "MOLIT_API_KEY": "present (decoded form, len=64) — shared data.go.kr key",
+    "DATA_GO_KR_API_KEY": "absent",
+    "KAPT_API_KEY": "absent",
+    "encoding_issue": false,
+    "wrong_env_var": false,
+    "recommend_new_env_var": "Do not rename MOLIT_API_KEY. Optional later DATA_GO_KR_KAPT_API_KEY only if isolation desired after portal activation."
+  },
+  "controls_same_key": [
+    {
+      "name": "Building Hub getBrTitleInfo",
+      "path": "/1613000/BldRgstHubService/getBrTitleInfo",
+      "result": "HTTP 200 resultCode 00"
+    },
+    {
+      "name": "RTMS Apt Trade",
+      "path": "/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade",
+      "result": "HTTP 200 resultCode 000"
+    },
+    {
+      "name": "K-apt Energy V2",
+      "path": "/1613000/ApHusEnergyUseInfoOfferServiceV2/getHsmpApHusUsgQtyInfoSearchV2",
+      "result": "HTTP 200 NORMAL SERVICE — proves key works for approved K-apt-family products"
+    }
+  ],
+  "blocked_sources": {
+    "basic_info": {
+      "product": "국토교통부_공동주택 기본 정보제공 서비스",
+      "portal_pk": "15058453",
+      "endpoint": "/1613000/AptBasisInfoService1/getAphusBassInfo",
+      "http_status": 400,
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnReasonCode": "12",
+      "classification": "SERVICE-NOT-ACTIVATED or gateway-unavailable for this account (documented path; encoding alts identical)"
+    },
+    "complex_list": {
+      "product": "국토교통부_공동주택 단지 목록제공 서비스",
+      "portal_pk": "15057332",
+      "endpoint": "/1613000/AptListService2/getSidoAptList",
+      "http_status": 400,
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnReasonCode": "12",
+      "classification": "SERVICE-NOT-ACTIVATED or gateway-unavailable"
+    },
+    "complex_identity": {
+      "product": "공동주택 단지 식별/상세 (AptBasisInfoService1/getAphusDtlInfo)",
+      "endpoint": "/1613000/AptBasisInfoService1/getAphusDtlInfo",
+      "http_status": 400,
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnReasonCode": "12",
+      "classification": "SERVICE-NOT-ACTIVATED or gateway-unavailable"
+    },
+    "management_common": {
+      "product": "국토교통부_공동주택관리비(공용관리비)정보제공서비스",
+      "portal_pk": "15057937",
+      "endpoint_v1_wrong": "/1613000/AptCmnuseManageCostService/getHsmpCleaningCostInfo → code 12",
+      "endpoint_v2_exists": "/1613000/AptCmnuseManageCostServiceV2/getHsmpCleaningCostInfoV2",
+      "http_status": 403,
+      "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR",
+      "returnReasonCode": "30",
+      "classification": "SERVICE-NOT-ACTIVATED (endpoint exists; key not registered)"
+    },
+    "management_individual": {
+      "product": "국토교통부_공동주택관리비(개별사용료)정보제공서비스",
+      "portal_pk": "15059469",
+      "endpoint": "AptIndiv* / ApHusIndiv* V1/V2 candidates all returned code 12",
+      "classification": "SERVICE-NOT-ACTIVATED likely; exact current V2 operation path not confirmed without portal access"
+    },
+    "long_term_reserve": {
+      "product": "국토교통부_공동주택관리비(장기수선충당금)정보서비스",
+      "portal_pk": "15059160",
+      "endpoint_v2_exists": "/1613000/AptRepairsCostServiceV2/getHsmpMonthFeeInfoV2",
+      "http_status": 403,
+      "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR",
+      "returnReasonCode": "30",
+      "classification": "SERVICE-NOT-ACTIVATED"
+    }
+  },
+  "kapt_identity": {
+    "sample_mapped": 4,
+    "new_source_links": 0,
+    "unresolved": 6
+  },
+  "management_fee_proof": {
+    "complexes_retrieved": 0,
+    "months": 0,
+    "common_unit_basis": "UNPROVEN",
+    "individual_unit_basis": "UNPROVEN",
+    "reserve_unit_basis": "UNPROVEN",
+    "summable": "UNPROVEN",
+    "per_area_valid": "UNPROVEN",
+    "per_household_valid": "UNPROVEN",
+    "selected_pyeong_estimate_valid": "UNPROVEN"
+  },
+  "safe_phase72_metrics": {
+    "SAFE-NOW": [],
+    "DERIVABLE-WITH-CONDITION": [],
+    "UNSAFE": [
+      "recent month common management fee",
+      "recent month individual usage fee",
+      "recent month long-term repair reserve",
+      "recent 12m average",
+      "monthly trend",
+      "total supported management cost",
+      "per-㎡ fee",
+      "estimated fee for selected pyeong",
+      "per-household fee"
+    ]
+  },
+  "persistence": {
+    "management_rows_inserted": 0,
+    "updated": 0,
+    "state_rows_changed": 6,
+    "total_writes": 6
+  },
+  "manual_action": {
+    "where": "https://www.data.go.kr — account that owns MOLIT_API_KEY",
+    "action": "Apply or re-apply OpenAPI utilization for the products below; wait until status is 승인/활용가능. Then re-run phase71b diagnose scripts (expect resultCode 00, not 12/30).",
+    "products": [
+      "공동주택 기본 정보제공 서비스 (15058453) — AptBasisInfoService1",
+      "공동주택 단지 목록제공 서비스 (15057332) — AptListService2",
+      "공동주택관리비(공용관리비) (15057937) — AptCmnuseManageCostServiceV2 (path confirmed via code 30)",
+      "공동주택관리비(개별사용료) (15059469) — confirm exact V2 op from portal after approval",
+      "공동주택관리비(장기수선충당금) (15059160) — AptRepairsCostServiceV2 (path confirmed via code 30)"
+    ]
+  }
+}

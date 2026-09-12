@@ -1,0 +1,498 @@
+{
+  "phase": "7.1b-audit",
+  "cohort_size": 10,
+  "counts": [
+    {
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "n": 6
+    },
+    {
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "n": 4
+    },
+    {
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "n": 10
+    }
+  ],
+  "incorrect_count": 0,
+  "incorrect": [],
+  "enrich": [
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "reason_code": "BASIC_SOURCE_MISSING",
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:19.803Z"
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:19.944Z"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "reason_code": "BASIC_SOURCE_MISSING",
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:18.202Z"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:18.322Z"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:10.754Z"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:10.873Z"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "reason_code": "BASIC_SOURCE_MISSING",
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:22.693Z"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:22.816Z"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "reason_code": "BASIC_SOURCE_MISSING",
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:14.370Z"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:14.492Z"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:12.471Z"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:12.604Z"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:06.269Z"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:06.389Z"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "reason_code": "BASIC_SOURCE_MISSING",
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:08.257Z"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:08.660Z"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:21.227Z"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:21.353Z"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "reason_code": "BASIC_SOURCE_MISSING",
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:16.418Z"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "reason_code": null,
+      "data_version": 1,
+      "processed_at": "2026-09-12T09:52:16.545Z"
+    }
+  ],
+  "links": [
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1168010600010270000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "source": "MOLIT",
+      "source_key": "11680|래미안대치팰리스",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1174010200006880000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "source": "MOLIT",
+      "source_key": "11740|래미안힐스테이트고덕",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1165010700000200043",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "source": "KAPT",
+      "source_key": "A13704104",
+      "source_version": "poc-phase45"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "source": "MOLIT",
+      "source_key": "11650|반포자이",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "4113510500000910000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "source": "MOLIT",
+      "source_key": "41135|시범한양",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1165010700000020012",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "source": "MOLIT",
+      "source_key": "11650|아크로리버파크",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1168010600003160000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "source": "KAPT",
+      "source_key": "A13583507",
+      "source_version": "poc-phase45"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "source": "MOLIT",
+      "source_key": "11680|은마",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1171010100000190000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "source": "KAPT",
+      "source_key": "A13822004",
+      "source_version": "poc-phase45"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "source": "MOLIT",
+      "source_key": "11710|잠실엘스",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1171010200000170000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "source": "MOLIT",
+      "source_key": "11710|파크리오",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1117012900004150000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "source": "KAPT",
+      "source_key": "A14003105",
+      "source_version": "poc-phase45"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "source": "MOLIT",
+      "source_key": "11170|한강(대우)",
+      "source_version": "v1"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1117013100008100000",
+      "source_version": "getBrTitleInfo"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "source": "MOLIT",
+      "source_key": "11170|한남더힐",
+      "source_version": "v1"
+    }
+  ],
+  "profiles": [
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 4424,
+      "building_count": 28,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "1979-08-30",
+      "max_floor": 14
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 3410,
+      "building_count": 44,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2009-03-13",
+      "max_floor": 29
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 5678,
+      "building_count": 72,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2008-09-30",
+      "max_floor": 34
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 1608,
+      "building_count": 44,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2015-09-22",
+      "max_floor": 35
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 1612,
+      "building_count": 40,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2016-08-30",
+      "max_floor": 38
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 2419,
+      "building_count": 43,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "1992-07-15",
+      "max_floor": 30
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 600,
+      "building_count": 43,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2011-01-07",
+      "max_floor": 12
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 834,
+      "building_count": 10,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2000-03-31",
+      "max_floor": 24
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 6864,
+      "building_count": 86,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2008-08-29",
+      "max_floor": 36
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "source": "COMPOSITE",
+      "source_version": "phase71-v1",
+      "household_count": 3658,
+      "building_count": 75,
+      "heating_type": null,
+      "management_type": null,
+      "approval_date": "2016-12-29",
+      "max_floor": 35
+    }
+  ],
+  "fees": []
+}
