@@ -1,0 +1,519 @@
+{
+  "generatedAt": "2026-09-11T23:56:34.965Z",
+  "phase": "5.3-prior-max-baseline-poc",
+  "safety": {
+    "productionWrite": false,
+    "schemaChange": false,
+    "pilotMasterMutation": false,
+    "screenshots": 0
+  },
+  "method": {
+    "fetch": "fetchOneTradeForSync → resolveActiveTrades",
+    "groups": "apt_pyeong_groups (Phase5, read-only)",
+    "baseline": "per market-group max(amount) where dealDate < warehouseStartDate",
+    "postWarehousePrior": "max(baseline, max of same-group trades on prior calendar dates)",
+    "rules": [
+      "first observation not 신고가 when priorMax===0",
+      "current > priorMax",
+      "ties false",
+      "same-day shares prior-day max only",
+      "cancelled excluded via resolveActiveTrades"
+    ],
+    "comparisonAxes": [
+      "fullVsBaselineOnPostWarehouseMolit — Phase5.3 claim (MOLIT 2016+ + baseline vs full history)",
+      "warehousePathVsFullHistory — production warehouse stream + baseline vs full history"
+    ]
+  },
+  "fetch": {
+    "uniqueLawdMonthCells": 678,
+    "concurrency": 5,
+    "fetchErrors": 0,
+    "elapsedSec": 262
+  },
+  "totals": {
+    "baselineStorageRows": 19,
+    "preWarehouseMolitTradesAvoided": 6352,
+    "citedHistoricalBackfillTrades": 6414,
+    "writeReductionVsFullBackfill": {
+      "baselineRows": 19,
+      "measuredFullBackfillRows": 6352,
+      "citedFullBackfillRows": 6414,
+      "rowsSavedVsMeasured": 6333,
+      "rowsSavedVsCited": 6395,
+      "reductionRatioVsMeasured": 0.997
+    },
+    "postWarehouseMolitTradesCompared": 5648,
+    "fullVsBaselineDiffCount": 0,
+    "fullVsBaselineIdentical": true,
+    "banpo2020FlipsCorrected": 0,
+    "banpo2020FlipsTarget": 4,
+    "warehousePathBaselineDiffCount": 5,
+    "warehousePathIdentical": false
+  },
+  "verdict": {
+    "historicalBaselineReplacesFullHistoryBackfill": true,
+    "identicalToFullHistoryOnPostWarehouseMolit": true,
+    "banpoFlipsAllCorrected": false,
+    "warehousePathMatchesFullHistory": false,
+    "productionApplicable": false,
+    "productionApplicableForHistoricalBaselineOnly": true,
+    "note": "PASS: pre-warehouse prior-max baseline reproduces full-history market-group 신고가 on the MOLIT 2016+ stream (0 diffs). FAIL: Banpo 2020+ flips are NOT corrected by baseline — root cause is missing post-warehouse MOLIT trades in warehouse (sync gap). Historical backfill replacement is valid; Banpo HOLD remains until warehouse completeness is fixed."
+  },
+  "complexes": [
+    {
+      "complexKey": "hangang-daewoo",
+      "displayName": "한강(대우)",
+      "aptNameNorm": "한강(대우)",
+      "lawdCd": "11170",
+      "warehouseStartDate": "2016-10-29",
+      "counts": {
+        "fullHistoryTrades": 625,
+        "preWarehouseTrades": 358,
+        "postWarehouseFullTrades": 267,
+        "warehouseTrades": 263,
+        "marketGroupCount": 4
+      },
+      "baselines": [
+        {
+          "groupKey": "hangang-daewoo:G1:ex59.98-60.00",
+          "label": "전용 59.98~60㎡",
+          "priorMaxAmount": 75000,
+          "priorMaxDealDate": "2016-08-23",
+          "preWarehouseTradeCount": 113
+        },
+        {
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "label": "33평형 (전용 84.94~84.98㎡)",
+          "priorMaxAmount": 99500,
+          "priorMaxDealDate": "2016-09-28",
+          "preWarehouseTradeCount": 147
+        },
+        {
+          "groupKey": "hangang-daewoo:G3:ex134.13-134.13",
+          "label": "49평형 (전용 134.13㎡)",
+          "priorMaxAmount": 135000,
+          "priorMaxDealDate": "2006-10-25",
+          "preWarehouseTradeCount": 56
+        },
+        {
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "label": "50평형 (전용 135.27~135.87㎡)",
+          "priorMaxAmount": 128000,
+          "priorMaxDealDate": "2006-05-17",
+          "preWarehouseTradeCount": 42
+        }
+      ],
+      "singogaCounts": {
+        "fullHistoryTrueOnPostWarehouse": 75,
+        "baselineMethodTrue": 75,
+        "warehouseNaiveTrue": 80,
+        "warehouseBaselineTrue": 74
+      },
+      "fullVsBaselineOnPostWarehouseMolit": {
+        "comparedTrades": 267,
+        "diffCount": 0,
+        "identical": true,
+        "sampleDiffs": []
+      },
+      "warehousePathVsFullHistory": {
+        "matchedTrades": 262,
+        "baselineMatchCount": 262,
+        "naiveMatchCount": 254,
+        "baselineDiffCount": 0,
+        "identical": true,
+        "sampleDiffs": []
+      },
+      "banpoTargetFlips": null
+    },
+    {
+      "complexKey": "parkrio",
+      "displayName": "파크리오",
+      "aptNameNorm": "파크리오",
+      "lawdCd": "11710",
+      "warehouseStartDate": "2016-10-01",
+      "counts": {
+        "fullHistoryTrades": 5190,
+        "preWarehouseTrades": 2539,
+        "postWarehouseFullTrades": 2651,
+        "warehouseTrades": 2661,
+        "marketGroupCount": 5
+      },
+      "baselines": [
+        {
+          "groupKey": "parkrio:G1:ex35.24-35.24",
+          "label": "16평형 (전용 35.24㎡)",
+          "priorMaxAmount": 55000,
+          "priorMaxDealDate": "2016-08-25",
+          "preWarehouseTradeCount": 192
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "label": "26평형 (전용 59.64~59.95㎡)",
+          "priorMaxAmount": 87000,
+          "priorMaxDealDate": "2016-09-06",
+          "preWarehouseTradeCount": 533
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "label": "33평형 (전용 84.79~84.97㎡)",
+          "priorMaxAmount": 109500,
+          "priorMaxDealDate": "2016-09-20",
+          "preWarehouseTradeCount": 1465
+        },
+        {
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "label": "45평형 (전용 121.63㎡)",
+          "priorMaxAmount": 155000,
+          "priorMaxDealDate": "2009-06-12",
+          "preWarehouseTradeCount": 187
+        },
+        {
+          "groupKey": "parkrio:G5:ex144.77-144.77",
+          "label": "53평형 (전용 144.77㎡)",
+          "priorMaxAmount": 200000,
+          "priorMaxDealDate": "2010-04-09",
+          "preWarehouseTradeCount": 162
+        }
+      ],
+      "singogaCounts": {
+        "fullHistoryTrueOnPostWarehouse": 204,
+        "baselineMethodTrue": 204,
+        "warehouseNaiveTrue": 227,
+        "warehouseBaselineTrue": 204
+      },
+      "fullVsBaselineOnPostWarehouseMolit": {
+        "comparedTrades": 2651,
+        "diffCount": 0,
+        "identical": true,
+        "sampleDiffs": []
+      },
+      "warehousePathVsFullHistory": {
+        "matchedTrades": 2651,
+        "baselineMatchCount": 2651,
+        "naiveMatchCount": 2628,
+        "baselineDiffCount": 0,
+        "identical": true,
+        "sampleDiffs": []
+      },
+      "banpoTargetFlips": null
+    },
+    {
+      "complexKey": "banpo-xi",
+      "displayName": "반포자이",
+      "aptNameNorm": "반포자이",
+      "lawdCd": "11650",
+      "warehouseStartDate": "2016-10-01",
+      "counts": {
+        "fullHistoryTrades": 2638,
+        "preWarehouseTrades": 1547,
+        "postWarehouseFullTrades": 1091,
+        "warehouseTrades": 1044,
+        "marketGroupCount": 7
+      },
+      "baselines": [
+        {
+          "groupKey": "banpo-xi:G1:ex59.97-59.98",
+          "label": "전용 59.97~59.98㎡",
+          "priorMaxAmount": 120000,
+          "priorMaxDealDate": "2016-08-20",
+          "preWarehouseTradeCount": 456
+        },
+        {
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "label": "35평형 (전용 84.94~85㎡)",
+          "priorMaxAmount": 169000,
+          "priorMaxDealDate": "2016-09-30",
+          "preWarehouseTradeCount": 577
+        },
+        {
+          "groupKey": "banpo-xi:G3:ex132.18-132.44",
+          "label": "50평형 (전용 132.18~132.44㎡)",
+          "priorMaxAmount": 220000,
+          "priorMaxDealDate": "2010-01-05",
+          "preWarehouseTradeCount": 111
+        },
+        {
+          "groupKey": "banpo-xi:G4:ex165.05-165.45",
+          "label": "60평형 (전용 165.05~165.45㎡)",
+          "priorMaxAmount": 254000,
+          "priorMaxDealDate": "2009-09-24",
+          "preWarehouseTradeCount": 117
+        },
+        {
+          "groupKey": "banpo-xi:G5:ex194.52-194.69",
+          "label": "70평형 (전용 194.52~194.69㎡)",
+          "priorMaxAmount": 280000,
+          "priorMaxDealDate": "2010-01-16",
+          "preWarehouseTradeCount": 31
+        },
+        {
+          "groupKey": "banpo-xi:G6:ex216.49-216.49",
+          "label": "80평형 (전용 216.49㎡)",
+          "priorMaxAmount": 317000,
+          "priorMaxDealDate": "2009-10-14",
+          "preWarehouseTradeCount": 64
+        },
+        {
+          "groupKey": "banpo-xi:G7:ex244.54-244.97",
+          "label": "전용 244.54~244.97㎡",
+          "priorMaxAmount": 339000,
+          "priorMaxDealDate": "2009-06-16",
+          "preWarehouseTradeCount": 120
+        }
+      ],
+      "singogaCounts": {
+        "fullHistoryTrueOnPostWarehouse": 182,
+        "baselineMethodTrue": 182,
+        "warehouseNaiveTrue": 190,
+        "warehouseBaselineTrue": 169
+      },
+      "fullVsBaselineOnPostWarehouseMolit": {
+        "comparedTrades": 1091,
+        "diffCount": 0,
+        "identical": true,
+        "sampleDiffs": []
+      },
+      "warehousePathVsFullHistory": {
+        "matchedTrades": 1034,
+        "baselineMatchCount": 1030,
+        "naiveMatchCount": 1009,
+        "baselineDiffCount": 4,
+        "identical": false,
+        "sampleDiffs": [
+          {
+            "dealDate": "2025-02-18",
+            "dealAmount": 415000,
+            "exclusiveArea": 84.982,
+            "groupLabel": "35평형 (전용 84.94~85㎡)",
+            "fullSingoga": false,
+            "baselineSingoga": true,
+            "naiveSingoga": true
+          },
+          {
+            "dealDate": "2025-07-10",
+            "dealAmount": 475000,
+            "exclusiveArea": 84.943,
+            "groupLabel": "35평형 (전용 84.94~85㎡)",
+            "fullSingoga": false,
+            "baselineSingoga": true,
+            "naiveSingoga": true
+          },
+          {
+            "dealDate": "2026-06-20",
+            "dealAmount": 615000,
+            "exclusiveArea": 132.439,
+            "groupLabel": "50평형 (전용 132.18~132.44㎡)",
+            "fullSingoga": false,
+            "baselineSingoga": true,
+            "naiveSingoga": true
+          },
+          {
+            "dealDate": "2026-07-20",
+            "dealAmount": 373000,
+            "exclusiveArea": 59.971,
+            "groupLabel": "전용 59.97~59.98㎡",
+            "fullSingoga": false,
+            "baselineSingoga": true,
+            "naiveSingoga": true
+          }
+        ]
+      },
+      "banpoTargetFlips": [
+        {
+          "dealDate": "2025-02-18",
+          "dealAmount": 415000,
+          "exclusiveArea": 84.982,
+          "foundInWarehouse": true,
+          "warehouseNaiveSingoga": true,
+          "warehouseBaselineSingoga": true,
+          "fullHistorySingoga": false,
+          "warehouseNaivePrior": 410000,
+          "warehouseBaselinePrior": 410000,
+          "fullPrior": 415000,
+          "corrected": false,
+          "rootCause": "post-warehouse-molit-trade-missing-from-warehouse",
+          "missingPriorTrades": [
+            {
+              "dealDate": "2025-01-25",
+              "dealAmount": 415000,
+              "exclusiveArea": 84.943,
+              "affectsFlip": "2025-02-18/415000",
+              "inWarehouse": false,
+              "inMolitActive": true
+            }
+          ]
+        },
+        {
+          "dealDate": "2025-07-10",
+          "dealAmount": 475000,
+          "exclusiveArea": 84.943,
+          "foundInWarehouse": true,
+          "warehouseNaiveSingoga": true,
+          "warehouseBaselineSingoga": true,
+          "fullHistorySingoga": false,
+          "warehouseNaivePrior": 460000,
+          "warehouseBaselinePrior": 460000,
+          "fullPrior": 480000,
+          "corrected": false,
+          "rootCause": "post-warehouse-molit-trade-missing-from-warehouse",
+          "missingPriorTrades": [
+            {
+              "dealDate": "2025-06-14",
+              "dealAmount": 480000,
+              "exclusiveArea": 84.943,
+              "affectsFlip": "2025-07-10/475000",
+              "inWarehouse": false,
+              "inMolitActive": true
+            }
+          ]
+        },
+        {
+          "dealDate": "2026-06-20",
+          "dealAmount": 615000,
+          "exclusiveArea": 132.439,
+          "foundInWarehouse": true,
+          "warehouseNaiveSingoga": true,
+          "warehouseBaselineSingoga": true,
+          "fullHistorySingoga": false,
+          "warehouseNaivePrior": 605000,
+          "warehouseBaselinePrior": 605000,
+          "fullPrior": 620000,
+          "corrected": false,
+          "rootCause": "post-warehouse-molit-trade-missing-from-warehouse",
+          "missingPriorTrades": [
+            {
+              "dealDate": "2026-03-09",
+              "dealAmount": 620000,
+              "exclusiveArea": 132.439,
+              "affectsFlip": "2026-06-20/615000",
+              "inWarehouse": false,
+              "inMolitActive": true
+            }
+          ]
+        },
+        {
+          "dealDate": "2026-07-20",
+          "dealAmount": 373000,
+          "exclusiveArea": 59.971,
+          "foundInWarehouse": true,
+          "warehouseNaiveSingoga": true,
+          "warehouseBaselineSingoga": true,
+          "fullHistorySingoga": false,
+          "warehouseNaivePrior": 370000,
+          "warehouseBaselinePrior": 370000,
+          "fullPrior": 380000,
+          "corrected": false,
+          "rootCause": "post-warehouse-molit-trade-missing-from-warehouse",
+          "missingPriorTrades": [
+            {
+              "dealDate": "2025-07-10",
+              "dealAmount": 380000,
+              "exclusiveArea": 59.98,
+              "affectsFlip": "2026-07-20/373000",
+              "inWarehouse": false,
+              "inMolitActive": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "complexKey": "jamsil-els",
+      "displayName": "잠실엘스",
+      "aptNameNorm": "잠실엘스",
+      "lawdCd": "11710",
+      "warehouseStartDate": "2016-10-03",
+      "counts": {
+        "fullHistoryTrades": 3547,
+        "preWarehouseTrades": 1908,
+        "postWarehouseFullTrades": 1639,
+        "warehouseTrades": 1647,
+        "marketGroupCount": 3
+      },
+      "baselines": [
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "label": "전용 59.96㎡",
+          "priorMaxAmount": 98000,
+          "priorMaxDealDate": "2016-09-29",
+          "preWarehouseTradeCount": 559
+        },
+        {
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "label": "전용 84.8~84.97㎡",
+          "priorMaxAmount": 118000,
+          "priorMaxDealDate": "2009-08-14",
+          "preWarehouseTradeCount": 1211
+        },
+        {
+          "groupKey": "jamsil-els:G3:ex119.93-119.93",
+          "label": "45평형 (전용 119.93㎡)",
+          "priorMaxAmount": 176000,
+          "priorMaxDealDate": "2010-11-01",
+          "preWarehouseTradeCount": 138
+        }
+      ],
+      "singogaCounts": {
+        "fullHistoryTrueOnPostWarehouse": 154,
+        "baselineMethodTrue": 154,
+        "warehouseNaiveTrue": 162,
+        "warehouseBaselineTrue": 154
+      },
+      "fullVsBaselineOnPostWarehouseMolit": {
+        "comparedTrades": 1639,
+        "diffCount": 0,
+        "identical": true,
+        "sampleDiffs": []
+      },
+      "warehousePathVsFullHistory": {
+        "matchedTrades": 1639,
+        "baselineMatchCount": 1638,
+        "naiveMatchCount": 1630,
+        "baselineDiffCount": 1,
+        "identical": false,
+        "sampleDiffs": [
+          {
+            "dealDate": "2025-07-10",
+            "dealAmount": 300000,
+            "exclusiveArea": 59.96,
+            "groupLabel": "전용 59.96㎡",
+            "fullSingoga": true,
+            "baselineSingoga": false,
+            "naiveSingoga": false
+          }
+        ]
+      },
+      "banpoTargetFlips": null
+    }
+  ],
+  "banpoFlipRootCause": {
+    "summary": "반포자이 2020+ flip 4건은 pre-warehouse baseline이 아니라 warehouse에 없는 post-2016 MOLIT 거래가 prior를 올린 경우",
+    "missingPriorTrades": [
+      {
+        "dealDate": "2025-01-25",
+        "dealAmount": 415000,
+        "exclusiveArea": 84.943,
+        "affectsFlip": "2025-02-18/415000"
+      },
+      {
+        "dealDate": "2025-06-14",
+        "dealAmount": 480000,
+        "exclusiveArea": 84.943,
+        "affectsFlip": "2025-07-10/475000"
+      },
+      {
+        "dealDate": "2026-03-09",
+        "dealAmount": 620000,
+        "exclusiveArea": 132.439,
+        "affectsFlip": "2026-06-20/615000"
+      },
+      {
+        "dealDate": "2025-07-10",
+        "dealAmount": 380000,
+        "exclusiveArea": 59.98,
+        "affectsFlip": "2026-07-20/373000"
+      }
+    ]
+  },
+  "enrichedAt": "2026-09-12T00:02:47.457Z"
+}
