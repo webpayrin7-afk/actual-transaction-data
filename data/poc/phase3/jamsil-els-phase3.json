@@ -1,0 +1,543 @@
+{
+  "complex": {
+    "key": "jamsil-els",
+    "lawd_cd": "11710",
+    "apt_name_norm": "잠실엘스",
+    "kapt_code": null,
+    "profile": "구축 대단지·59/84/114"
+  },
+  "ledger": {
+    "fetched_items": 39746,
+    "unit_households": 5678,
+    "unit_type_count": 7,
+    "pyeong_group_count": 3
+  },
+  "hangang_117_audit": null,
+  "unit_types": [
+    {
+      "unit_type_key": "jamsil-els:84.80:111.52",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "supply_area_sqm": 111.52,
+      "exclusive_area_min": 84.8,
+      "exclusive_area_max": 84.8,
+      "residential_common_area_sqm": 26.72,
+      "household_count": 2938,
+      "type_label": "84.80/111.52",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.274485+00:00",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "1003"
+        },
+        {
+          "dong": "102동",
+          "ho": "1004"
+        },
+        {
+          "dong": "102동",
+          "ho": "103"
+        },
+        {
+          "dong": "102동",
+          "ho": "104"
+        },
+        {
+          "dong": "102동",
+          "ho": "1103"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "jamsil-els:G2:ex84.80-84.97",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "jamsil-els:59.96:84.75",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "supply_area_sqm": 84.75,
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "residential_common_area_sqm": 24.79,
+      "household_count": 860,
+      "type_label": "59.96/84.75",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.274564+00:00",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "1001"
+        },
+        {
+          "dong": "102동",
+          "ho": "1002"
+        },
+        {
+          "dong": "102동",
+          "ho": "1101"
+        },
+        {
+          "dong": "102동",
+          "ho": "1102"
+        },
+        {
+          "dong": "102동",
+          "ho": "1201"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "jamsil-els:G1:ex59.96-59.96",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "jamsil-els:84.97:109.47",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "supply_area_sqm": 109.47,
+      "exclusive_area_min": 84.97,
+      "exclusive_area_max": 84.97,
+      "residential_common_area_sqm": 24.5,
+      "household_count": 556,
+      "type_label": "84.97/109.47",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.274598+00:00",
+      "sample_units": [
+        {
+          "dong": "101동",
+          "ho": "1001"
+        },
+        {
+          "dong": "101동",
+          "ho": "1004"
+        },
+        {
+          "dong": "101동",
+          "ho": "101"
+        },
+        {
+          "dong": "101동",
+          "ho": "104"
+        },
+        {
+          "dong": "101동",
+          "ho": "1101"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "jamsil-els:G2:ex84.80-84.97",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "jamsil-els:84.88:109.29",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "supply_area_sqm": 109.29,
+      "exclusive_area_min": 84.88,
+      "exclusive_area_max": 84.88,
+      "residential_common_area_sqm": 24.41,
+      "household_count": 548,
+      "type_label": "84.88/109.29",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.274623+00:00",
+      "sample_units": [
+        {
+          "dong": "101동",
+          "ho": "1002"
+        },
+        {
+          "dong": "101동",
+          "ho": "1003"
+        },
+        {
+          "dong": "101동",
+          "ho": "102"
+        },
+        {
+          "dong": "101동",
+          "ho": "103"
+        },
+        {
+          "dong": "101동",
+          "ho": "1102"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "jamsil-els:G2:ex84.80-84.97",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "jamsil-els:119.93:149.88",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "supply_area_sqm": 149.88,
+      "exclusive_area_min": 119.93,
+      "exclusive_area_max": 119.93,
+      "residential_common_area_sqm": 29.95,
+      "household_count": 383,
+      "type_label": "119.93/149.88",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.274644+00:00",
+      "sample_units": [
+        {
+          "dong": "104동",
+          "ho": "1001"
+        },
+        {
+          "dong": "104동",
+          "ho": "1002"
+        },
+        {
+          "dong": "104동",
+          "ho": "101"
+        },
+        {
+          "dong": "104동",
+          "ho": "102"
+        },
+        {
+          "dong": "104동",
+          "ho": "1101"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "jamsil-els:G3:ex119.93-119.93",
+      "market_label_inferred": 45
+    },
+    {
+      "unit_type_key": "jamsil-els:59.96:84.77",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "supply_area_sqm": 84.77,
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "residential_common_area_sqm": 24.81,
+      "household_count": 290,
+      "type_label": "59.96/84.77",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.274661+00:00",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "101"
+        },
+        {
+          "dong": "102동",
+          "ho": "102"
+        },
+        {
+          "dong": "102동",
+          "ho": "201"
+        },
+        {
+          "dong": "102동",
+          "ho": "202"
+        },
+        {
+          "dong": "102동",
+          "ho": "301"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "jamsil-els:G1:ex59.96-59.96",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "jamsil-els:119.93:149.89",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "supply_area_sqm": 149.89,
+      "exclusive_area_min": 119.93,
+      "exclusive_area_max": 119.93,
+      "residential_common_area_sqm": 29.96,
+      "household_count": 103,
+      "type_label": "119.93/149.89",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.274673+00:00",
+      "sample_units": [
+        {
+          "dong": "142동",
+          "ho": "1002"
+        },
+        {
+          "dong": "142동",
+          "ho": "1101"
+        },
+        {
+          "dong": "142동",
+          "ho": "1102"
+        },
+        {
+          "dong": "142동",
+          "ho": "1201"
+        },
+        {
+          "dong": "142동",
+          "ho": "1202"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "jamsil-els:G3:ex119.93-119.93",
+      "market_label_inferred": 45
+    }
+  ],
+  "pyeong_groups": [
+    {
+      "group_key": "jamsil-els:G1:ex59.96-59.96",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 59.96㎡ · 공급 84.75~84.77㎡",
+      "supply_area_min": 84.75,
+      "supply_area_max": 84.77,
+      "exclusive_area_min": 59.96,
+      "exclusive_area_max": 59.96,
+      "household_count": 1150,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.274710+00:00",
+      "unit_type_keys": [
+        "jamsil-els:59.96:84.75",
+        "jamsil-els:59.96:84.77"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "26": 1150
+      },
+      "weighted_supply": 84.76,
+      "label_null_reason": "small_24_25_zone",
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 84.80~84.97㎡ · 공급 109.29~111.52㎡",
+      "supply_area_min": 109.29,
+      "supply_area_max": 111.52,
+      "exclusive_area_min": 84.8,
+      "exclusive_area_max": 84.97,
+      "household_count": 4042,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.274725+00:00",
+      "unit_type_keys": [
+        "jamsil-els:84.80:111.52",
+        "jamsil-els:84.88:109.29",
+        "jamsil-els:84.97:109.47"
+      ],
+      "unit_type_count": 3,
+      "naive_vote": {
+        "34": 2938,
+        "33": 1104
+      },
+      "weighted_supply": 110.94,
+      "label_null_reason": "vote_conflict",
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "jamsil-els:G3:ex119.93-119.93",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스",
+      "kapt_code": null,
+      "market_label": 45,
+      "display_fallback": "45평형",
+      "supply_area_min": 149.88,
+      "supply_area_max": 149.89,
+      "exclusive_area_min": 119.93,
+      "exclusive_area_max": 119.93,
+      "household_count": 486,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.274735+00:00",
+      "unit_type_keys": [
+        "jamsil-els:119.93:149.88",
+        "jamsil-els:119.93:149.89"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "45": 486
+      },
+      "weighted_supply": 149.88,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    }
+  ],
+  "unit_type_group_links": [
+    {
+      "unit_type_key": "jamsil-els:59.96:84.75",
+      "group_key": "jamsil-els:G1:ex59.96-59.96",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스"
+    },
+    {
+      "unit_type_key": "jamsil-els:59.96:84.77",
+      "group_key": "jamsil-els:G1:ex59.96-59.96",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스"
+    },
+    {
+      "unit_type_key": "jamsil-els:84.80:111.52",
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스"
+    },
+    {
+      "unit_type_key": "jamsil-els:84.88:109.29",
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스"
+    },
+    {
+      "unit_type_key": "jamsil-els:84.97:109.47",
+      "group_key": "jamsil-els:G2:ex84.80-84.97",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스"
+    },
+    {
+      "unit_type_key": "jamsil-els:119.93:149.88",
+      "group_key": "jamsil-els:G3:ex119.93-119.93",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스"
+    },
+    {
+      "unit_type_key": "jamsil-els:119.93:149.89",
+      "group_key": "jamsil-els:G3:ex119.93-119.93",
+      "lawd_cd": "11710",
+      "apt_name_norm": "잠실엘스"
+    }
+  ],
+  "trade_mapping": {
+    "trade_count": 1647,
+    "type_level": {
+      "exact": 1064,
+      "multi": 583
+    },
+    "group_level": {
+      "exact": 1647
+    },
+    "label_level": {
+      "none": 1504,
+      "exact": 143
+    }
+  },
+  "singoga": {
+    "exclusive_only": 213,
+    "market_group": 156,
+    "only_exclusive_examples": [
+      {
+        "id": "trade-11710-2016-10-05-잠실엘스-잠실동-11-113000-84.8-170",
+        "deal_date": "2016-10-05",
+        "exclusive_area": 84.8,
+        "deal_amount": 113000,
+        "group_key": "ex:8480",
+        "prev_high": 112500.0
+      },
+      {
+        "id": "trade-11710-2016-10-21-잠실엘스-잠실동-22-122000-84.97-280",
+        "deal_date": "2016-10-21",
+        "exclusive_area": 84.97,
+        "deal_amount": 122000,
+        "group_key": "ex:8497",
+        "prev_high": 115800.0
+      },
+      {
+        "id": "trade-11710-2017-04-24-잠실엘스-잠실동-12-118000-84.88-25",
+        "deal_date": "2017-04-24",
+        "exclusive_area": 84.88,
+        "deal_amount": 118000,
+        "group_key": "ex:8488",
+        "prev_high": 112500.0
+      },
+      {
+        "id": "trade-11710-2017-05-09-잠실엘스-잠실동-19-123000-84.88-280",
+        "deal_date": "2017-05-09",
+        "exclusive_area": 84.88,
+        "deal_amount": 123000,
+        "group_key": "ex:8488",
+        "prev_high": 118000.0
+      },
+      {
+        "id": "trade-11710-2017-05-24-잠실엘스-잠실동-13-124500-84.88-513",
+        "deal_date": "2017-05-24",
+        "exclusive_area": 84.88,
+        "deal_amount": 124500,
+        "group_key": "ex:8488",
+        "prev_high": 123000.0
+      }
+    ],
+    "only_group_examples": [
+      {
+        "id": "trade-11710-2016-10-04-잠실엘스-잠실동-10-115800-84.97-872",
+        "deal_date": "2016-10-04",
+        "exclusive_area": 84.97,
+        "deal_amount": 115800,
+        "group_key": "grp:jamsil-els:G2:ex84.80-84.97",
+        "prev_high": 112500.0
+      }
+    ]
+  },
+  "anomalies": {
+    "units_with_dup_common": 0,
+    "units_partial_common_in_exclusive": 0,
+    "types_ambiguous": 0,
+    "types_zero_common": 0,
+    "types_partial_common": 0,
+    "groups_ambiguous": 1,
+    "groups_label_null": 2,
+    "ledger_vs_trade_exclusive_mismatch": false,
+    "trade_exclusive_values": [
+      59.96,
+      84.8,
+      84.88,
+      84.97,
+      119.93
+    ],
+    "ledger_exclusive_top": [
+      59.96,
+      84.8,
+      84.88,
+      84.97,
+      119.93
+    ]
+  },
+  "metrics": {
+    "unit_type_exact_rate": 0.6460230722525805,
+    "unit_type_multi_rate": 0.35397692774741957,
+    "group_exact_map_rate": 1.0,
+    "group_auto_map_rate": 1.0,
+    "ambiguous_group_ratio": 0.3333333333333333,
+    "market_label_auto_rate": 0.3333333333333333
+  }
+}

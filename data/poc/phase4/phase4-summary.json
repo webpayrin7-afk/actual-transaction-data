@@ -1,0 +1,3470 @@
+{
+  "generated_at": "2026-09-11T15:08:30.180395+00:00",
+  "phase": 4,
+  "principle": {
+    "exclusive_le_1sqm": "candidate generation only",
+    "production_requires": "confidence gate pass",
+    "no_invented_pyeong_labels": true,
+    "forbidden": [
+      "production DB write",
+      "nationwide backfill",
+      "selector/singoga production change"
+    ]
+  },
+  "classification_rubric": {
+    "auto-safe": "registry normal + stable trade mapping + low ambiguity/outlier + label mostly known",
+    "group-safe-label-unknown": "group high-confidence but label null (24/25, 33/34, vote conflict)",
+    "ambiguous": "group conflict / weak mapping / unknown commons / heavy outliers",
+    "registry-abnormal": "partial-common-in-exclusive or ledger≠trade exclusive structure"
+  },
+  "totals": {
+    "complexes": 16,
+    "auto-safe": 8,
+    "group-safe-label-unknown": 5,
+    "ambiguous": 2,
+    "registry-abnormal": 1,
+    "auto-safe_pct": 0.5,
+    "group-safe-label-unknown_pct": 0.31,
+    "ambiguous_pct": 0.13,
+    "registry-abnormal_pct": 0.06,
+    "singoga_market_group_applicable_pct": 0.81
+  },
+  "nationwide_backfill": {
+    "allowed": false,
+    "reason": "Allowlist only after Phase4 gate; start with auto-safe, then B for group-only analytics"
+  },
+  "complexes": [
+    {
+      "key": "hangang-daewoo",
+      "apt_name_norm": "한강(대우)",
+      "era": "2000s",
+      "profile": "2000s·동일전용 다타입·공급차이",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.75,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "hangang-daewoo:G1:ex59.98-60.00",
+          "mode": "range_only",
+          "lines": [
+            "공급 81.60~82.31㎡ · 전용 59.98~60.00㎡"
+          ]
+        },
+        {
+          "group_key": "hangang-daewoo:G2:ex84.94-84.98",
+          "mode": "label+range",
+          "lines": [
+            "33평형",
+            "공급 109~117㎡ · 전용 85~85㎡"
+          ]
+        },
+        {
+          "group_key": "hangang-daewoo:G3:ex134.13-134.13",
+          "mode": "label+range",
+          "lines": [
+            "49평형",
+            "공급 163~163㎡ · 전용 134~134㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 1.0,
+        "top_etc": [
+          [
+            "계단실,엘리베이터",
+            834
+          ],
+          [
+            "지하대피소",
+            834
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "hangang-daewoo:G1:ex59.98-60.00",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 206,
+          "exclusive": [
+            59.98,
+            60.0
+          ],
+          "supply": [
+            81.6,
+            82.31
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hangang-daewoo:G2:ex84.94-84.98",
+          "market_label": 33,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 357,
+          "exclusive": [
+            84.94,
+            84.98
+          ],
+          "supply": [
+            109.26,
+            117.13
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hangang-daewoo:G3:ex134.13-134.13",
+          "market_label": 49,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 156,
+          "exclusive": [
+            134.13,
+            134.13
+          ],
+          "supply": [
+            163.34,
+            163.34
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hangang-daewoo:G4:ex135.27-135.87",
+          "market_label": 50,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 115,
+          "exclusive": [
+            135.27,
+            135.87
+          ],
+          "supply": [
+            164.89,
+            166.73
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "eunma",
+      "apt_name_norm": "은마",
+      "era": "1970s",
+      "profile": "1970s 구축·재건축예정·일부공유면적포함",
+      "classification": "registry-abnormal",
+      "reasons": [
+        "partial_common_ratio=1.00"
+      ],
+      "metrics": {
+        "partial_common_ratio": 1.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 0.01,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 1.0,
+        "label_confidence": 0.0,
+        "unknown_common_area_ratio": 0.98,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 0.0
+      },
+      "singoga_gate": {
+        "mode": "exclusive_area_fallback",
+        "eligible_trade_rate": 0.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "eunma:G1:ex76.76-76.79",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 76.76~76.79㎡형"
+          ]
+        },
+        {
+          "group_key": "eunma:G2:ex84.43-84.43",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 84.43㎡형"
+          ]
+        },
+        {
+          "group_key": "eunma:G3:ex91.94-95.18",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 91.94~95.18㎡형"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.9804460416446464,
+        "residential_ratio": 0.0,
+        "top_etc": [
+          [
+            "(blank)",
+            9275
+          ],
+          [
+            "기계실",
+            80
+          ],
+          [
+            "보일러실",
+            77
+          ],
+          [
+            "기타",
+            18
+          ],
+          [
+            "옥탑층",
+            5
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "eunma:G1:ex76.76-76.79",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "exclusive_includes_partial_common",
+          "households": 13,
+          "exclusive": [
+            76.76,
+            76.79
+          ],
+          "supply": [
+            76.79,
+            83.13
+          ],
+          "outlier_hh_ratio": 0.07
+        },
+        {
+          "group_key": "eunma:G2:ex84.43-84.43",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 10,
+          "exclusive": [
+            84.43,
+            84.43
+          ],
+          "supply": [
+            84.43,
+            91.32
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "eunma:G3:ex91.94-95.18",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "exclusive_includes_partial_common",
+          "households": 2659,
+          "exclusive": [
+            91.94,
+            95.18
+          ],
+          "supply": [
+            91.94,
+            101.04
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "eunma:G4:ex99.12-99.12",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "exclusive_includes_partial_common",
+          "households": 1,
+          "exclusive": [
+            99.12,
+            99.12
+          ],
+          "supply": [
+            99.12,
+            99.12
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "eunma:G5:ex104.37-105.46",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "exclusive_includes_partial_common",
+          "households": 1253,
+          "exclusive": [
+            104.37,
+            105.46
+          ],
+          "supply": [
+            104.37,
+            111.5
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "eunma:G6:ex107.24-107.89",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "exclusive_includes_partial_common",
+          "households": 487,
+          "exclusive": [
+            107.24,
+            107.89
+          ],
+          "supply": [
+            107.24,
+            107.89
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "jamsil-els",
+      "apt_name_norm": "잠실엘스",
+      "era": "2000s",
+      "profile": "2000s 대단지·59/84/114 표준형",
+      "classification": "group-safe-label-unknown",
+      "reasons": [
+        "label_confidence=0.09"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.09,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "jamsil-els:G1:ex59.96-59.96",
+          "mode": "range_only",
+          "lines": [
+            "공급 84.75~84.77㎡ · 전용 59.96~59.96㎡"
+          ]
+        },
+        {
+          "group_key": "jamsil-els:G2:ex84.80-84.97",
+          "mode": "range_only",
+          "lines": [
+            "공급 109.29~111.52㎡ · 전용 84.80~84.97㎡"
+          ]
+        },
+        {
+          "group_key": "jamsil-els:G3:ex119.93-119.93",
+          "mode": "range_only",
+          "lines": [
+            "공급 149.88~149.89㎡ · 전용 119.93~119.93㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 1.0,
+        "top_etc": [
+          [
+            "벽체",
+            5678
+          ],
+          [
+            "계단실,승강기",
+            5678
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "jamsil-els:G1:ex59.96-59.96",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 1150,
+          "exclusive": [
+            59.96,
+            59.96
+          ],
+          "supply": [
+            84.75,
+            84.77
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "jamsil-els:G2:ex84.80-84.97",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 4042,
+          "exclusive": [
+            84.8,
+            84.97
+          ],
+          "supply": [
+            109.29,
+            111.52
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "jamsil-els:G3:ex119.93-119.93",
+          "market_label": 45,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 486,
+          "exclusive": [
+            119.93,
+            119.93
+          ],
+          "supply": [
+            149.88,
+            149.89
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "banpo-xi",
+      "apt_name_norm": "반포자이",
+      "era": "2000s",
+      "profile": "2000s·광범위·다타입",
+      "classification": "group-safe-label-unknown",
+      "reasons": [
+        "label_confidence=0.63"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.63,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "banpo-xi:G1:ex59.97-59.98",
+          "mode": "range_only",
+          "lines": [
+            "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡"
+          ]
+        },
+        {
+          "group_key": "banpo-xi:G2:ex84.94-85.00",
+          "mode": "range_only",
+          "lines": [
+            "공급 116.12~117.08㎡ · 전용 84.94~85.00㎡"
+          ]
+        },
+        {
+          "group_key": "banpo-xi:G3:ex132.18-132.44",
+          "mode": "range_only",
+          "lines": [
+            "공급 165.53~166.05㎡ · 전용 132.18~132.44㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 1.0,
+        "top_etc": [
+          [
+            "계단실,승강기,홀",
+            3410
+          ],
+          [
+            "벽체",
+            2047
+          ],
+          [
+            "벽체,발코니초과",
+            1363
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "banpo-xi:G1:ex59.97-59.98",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 683,
+          "exclusive": [
+            59.97,
+            59.98
+          ],
+          "supply": [
+            84.24,
+            84.74
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "banpo-xi:G2:ex84.94-85.00",
+          "market_label": 35,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1363,
+          "exclusive": [
+            84.94,
+            85.0
+          ],
+          "supply": [
+            116.12,
+            117.08
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "banpo-xi:G3:ex132.18-132.44",
+          "market_label": 50,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 340,
+          "exclusive": [
+            132.18,
+            132.44
+          ],
+          "supply": [
+            165.53,
+            166.05
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "banpo-xi:G4:ex165.05-165.45",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 340,
+          "exclusive": [
+            165.05,
+            165.45
+          ],
+          "supply": [
+            199.81,
+            200.13
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "banpo-xi:G5:ex194.52-194.69",
+          "market_label": 70,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 296,
+          "exclusive": [
+            194.52,
+            194.69
+          ],
+          "supply": [
+            232.68,
+            232.69
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "banpo-xi:G6:ex216.49-216.49",
+          "market_label": 80,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 162,
+          "exclusive": [
+            216.49,
+            216.49
+          ],
+          "supply": [
+            264.8,
+            264.8
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "banpo-xi:G7:ex244.54-244.97",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 226,
+          "exclusive": [
+            244.54,
+            244.97
+          ],
+          "supply": [
+            297.54,
+            301.39
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "raemian-hill-godeok",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "era": "2010s",
+      "profile": "2010s 신축 대단지·공급 outlier",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.71,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.01,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+          "mode": "range_only",
+          "lines": [
+            "공급 82.55~82.57㎡ · 전용 59.23~59.96㎡"
+          ]
+        },
+        {
+          "group_key": "raemian-hill-godeok:G2:ex72.02-72.02",
+          "mode": "label+range",
+          "lines": [
+            "30평형",
+            "공급 99~99㎡ · 전용 72~72㎡"
+          ]
+        },
+        {
+          "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+          "mode": "label+range",
+          "lines": [
+            "35평형",
+            "공급 115~116㎡ · 전용 85~85㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 0.9779200418082049,
+        "top_etc": [
+          [
+            "벽체",
+            3658
+          ],
+          [
+            "계단실",
+            3658
+          ],
+          [
+            "기계실,주차장(지2~지3)",
+            169
+          ],
+          [
+            "계단,복도,화장실",
+            169
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 1050,
+          "exclusive": [
+            59.23,
+            59.96
+          ],
+          "supply": [
+            82.55,
+            82.57
+          ],
+          "outlier_hh_ratio": 0.02
+        },
+        {
+          "group_key": "raemian-hill-godeok:G2:ex72.02-72.02",
+          "market_label": 30,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 96,
+          "exclusive": [
+            72.02,
+            72.02
+          ],
+          "supply": [
+            99.01,
+            99.01
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+          "market_label": 35,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 2003,
+          "exclusive": [
+            84.74,
+            84.94
+          ],
+          "supply": [
+            115.05,
+            115.64
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G4:ex97.00-97.26",
+          "market_label": 40,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 372,
+          "exclusive": [
+            97.0,
+            97.26
+          ],
+          "supply": [
+            132.08,
+            132.18
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G5:ex101.14-101.14",
+          "market_label": 42,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 4,
+          "exclusive": [
+            101.14,
+            101.14
+          ],
+          "supply": [
+            138.54,
+            138.54
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G6:ex109.81-109.81",
+          "market_label": 45,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 64,
+          "exclusive": [
+            109.81,
+            109.81
+          ],
+          "supply": [
+            148.63,
+            148.63
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G7:ex120.01-120.01",
+          "market_label": 49,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 32,
+          "exclusive": [
+            120.01,
+            120.01
+          ],
+          "supply": [
+            161.96,
+            161.96
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G8:ex141.64-141.64",
+          "market_label": 59,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 4,
+          "exclusive": [
+            141.64,
+            141.64
+          ],
+          "supply": [
+            194.06,
+            194.06
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G9:ex161.69-161.93",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 2,
+          "exclusive": [
+            161.69,
+            161.93
+          ],
+          "supply": [
+            221.73,
+            223.15
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-hill-godeok:G10:ex192.58-192.58",
+          "market_label": 80,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            192.58,
+            192.58
+          ],
+          "supply": [
+            263.29,
+            263.29
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "parkrio",
+      "apt_name_norm": "파크리오",
+      "era": "2000s",
+      "profile": "2000s 대단지·표준형",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 1.0,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "parkrio:G1:ex35.24-35.24",
+          "mode": "label+range",
+          "lines": [
+            "16평형",
+            "공급 53~53㎡ · 전용 35~35㎡"
+          ]
+        },
+        {
+          "group_key": "parkrio:G2:ex59.64-59.95",
+          "mode": "label+range",
+          "lines": [
+            "26평형",
+            "공급 87~87㎡ · 전용 60~60㎡"
+          ]
+        },
+        {
+          "group_key": "parkrio:G3:ex84.79-84.97",
+          "mode": "label+range",
+          "lines": [
+            "33평형",
+            "공급 108~110㎡ · 전용 85~85㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 1.0,
+        "top_etc": [
+          [
+            "벽체",
+            6864
+          ],
+          [
+            "계단실,승강기",
+            6864
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "parkrio:G1:ex35.24-35.24",
+          "market_label": 16,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 344,
+          "exclusive": [
+            35.24,
+            35.24
+          ],
+          "supply": [
+            52.99,
+            52.99
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "parkrio:G2:ex59.64-59.95",
+          "market_label": 26,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1044,
+          "exclusive": [
+            59.64,
+            59.95
+          ],
+          "supply": [
+            86.74,
+            87.14
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "parkrio:G3:ex84.79-84.97",
+          "market_label": 33,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 4260,
+          "exclusive": [
+            84.79,
+            84.97
+          ],
+          "supply": [
+            108.23,
+            109.62
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "parkrio:G4:ex121.63-121.63",
+          "market_label": 45,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 642,
+          "exclusive": [
+            121.63,
+            121.63
+          ],
+          "supply": [
+            149.93,
+            149.93
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "parkrio:G5:ex144.77-144.77",
+          "market_label": 53,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 574,
+          "exclusive": [
+            144.77,
+            144.77
+          ],
+          "supply": [
+            174.08,
+            174.08
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "ricents",
+      "apt_name_norm": "리센츠",
+      "era": "2000s",
+      "profile": "2000s 대단지·표준형",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.96,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "ricents:G1:ex27.68-27.68",
+          "mode": "label+range",
+          "lines": [
+            "13평형",
+            "공급 42~43㎡ · 전용 28~28㎡"
+          ]
+        },
+        {
+          "group_key": "ricents:G2:ex59.99-59.99",
+          "mode": "range_only",
+          "lines": [
+            "공급 82.10~82.47㎡ · 전용 59.99~59.99㎡"
+          ]
+        },
+        {
+          "group_key": "ricents:G3:ex84.99-84.99",
+          "mode": "label+range",
+          "lines": [
+            "33평형",
+            "공급 109~110㎡ · 전용 85~85㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 1.0,
+        "top_etc": [
+          [
+            "벽체",
+            5563
+          ],
+          [
+            "계단실,승강기",
+            5563
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "ricents:G1:ex27.68-27.68",
+          "market_label": 13,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 868,
+          "exclusive": [
+            27.68,
+            27.68
+          ],
+          "supply": [
+            42.28,
+            42.6
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G2:ex59.99-59.99",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 245,
+          "exclusive": [
+            59.99,
+            59.99
+          ],
+          "supply": [
+            82.1,
+            82.47
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G3:ex84.99-84.99",
+          "market_label": 33,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 3590,
+          "exclusive": [
+            84.99,
+            84.99
+          ],
+          "supply": [
+            109.2,
+            110.3
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G4:ex98.55-98.55",
+          "market_label": 38,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 130,
+          "exclusive": [
+            98.55,
+            98.55
+          ],
+          "supply": [
+            126.59,
+            126.59
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ricents:G5:ex124.22-124.22",
+          "market_label": 48,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 730,
+          "exclusive": [
+            124.22,
+            124.22
+          ],
+          "supply": [
+            158.6,
+            158.87
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "olympic-family",
+      "apt_name_norm": "올림픽훼밀리타운",
+      "era": "1980s",
+      "profile": "1980s 구축 대단지·비표준 대형 포함",
+      "classification": "ambiguous",
+      "reasons": [
+        "unknown_common_area_ratio=0.40"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.13,
+        "label_confidence": 0.53,
+        "unknown_common_area_ratio": 0.4,
+        "supply_outlier_ratio": 0.02,
+        "singoga_market_group_eligible_rate": 0.0
+      },
+      "singoga_gate": {
+        "mode": "exclusive_area_fallback",
+        "eligible_trade_rate": 0.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "olympic-family:G1:ex84.71-84.75",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 84.71~84.75㎡형"
+          ]
+        },
+        {
+          "group_key": "olympic-family:G2:ex117.59-117.59",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 117.59㎡형"
+          ]
+        },
+        {
+          "group_key": "olympic-family:G3:ex136.33-136.33",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 136.33㎡형"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.39823711585801636,
+        "residential_ratio": 0.42285396648931944,
+        "top_etc": [
+          [
+            "계단",
+            4492
+          ],
+          [
+            "지하층",
+            4413
+          ],
+          [
+            "기계실",
+            414
+          ],
+          [
+            "계단실",
+            412
+          ],
+          [
+            "화장실",
+            411
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "olympic-family:G1:ex84.71-84.75",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 1499,
+          "exclusive": [
+            84.71,
+            84.75
+          ],
+          "supply": [
+            84.71,
+            84.75
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "olympic-family:G2:ex117.59-117.59",
+          "market_label": 36,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 822,
+          "exclusive": [
+            117.59,
+            117.59
+          ],
+          "supply": [
+            117.59,
+            117.59
+          ],
+          "outlier_hh_ratio": 0.09
+        },
+        {
+          "group_key": "olympic-family:G3:ex136.33-136.33",
+          "market_label": 41,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1416,
+          "exclusive": [
+            136.33,
+            136.33
+          ],
+          "supply": [
+            136.33,
+            136.33
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "olympic-family:G4:ex158.71-158.71",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "supply_span_conflict",
+          "households": 558,
+          "exclusive": [
+            158.71,
+            158.71
+          ],
+          "supply": [
+            158.71,
+            182.81
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "olympic-family:G5:ex192.24-192.24",
+          "market_label": 58,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 120,
+          "exclusive": [
+            192.24,
+            192.24
+          ],
+          "supply": [
+            192.24,
+            192.24
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "sangye-jugong9",
+      "apt_name_norm": "상계주공9(고층)",
+      "era": "1980s",
+      "profile": "1980s 구축·재건축권·소형 위주",
+      "classification": "group-safe-label-unknown",
+      "reasons": [
+        "label_confidence=0.37"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.37,
+        "unknown_common_area_ratio": 0.01,
+        "supply_outlier_ratio": 0.01,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "sangye-jugong9:G1:ex41.30-41.30",
+          "mode": "range_only",
+          "lines": [
+            "공급 54.74~60.56㎡ · 전용 41.30~41.30㎡"
+          ]
+        },
+        {
+          "group_key": "sangye-jugong9:G2:ex45.55-45.90",
+          "mode": "range_only",
+          "lines": [
+            "공급 60.26~64.82㎡ · 전용 45.55~45.90㎡"
+          ]
+        },
+        {
+          "group_key": "sangye-jugong9:G3:ex49.94-49.94",
+          "mode": "range_only",
+          "lines": [
+            "공급 70.52~73.22㎡ · 전용 49.94~49.94㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.009717314487632508,
+        "residential_ratio": 0.9902826855123675,
+        "top_etc": [
+          [
+            "대피소",
+            2800
+          ],
+          [
+            "계단,복도등",
+            2797
+          ],
+          [
+            "부대복리시설",
+            26
+          ],
+          [
+            "(blank)",
+            26
+          ],
+          [
+            "계다,복도등",
+            2
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "sangye-jugong9:G1:ex41.30-41.30",
+          "market_label": 18,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 207,
+          "exclusive": [
+            41.3,
+            41.3
+          ],
+          "supply": [
+            54.74,
+            60.56
+          ],
+          "outlier_hh_ratio": 0.01
+        },
+        {
+          "group_key": "sangye-jugong9:G2:ex45.55-45.90",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 615,
+          "exclusive": [
+            45.55,
+            45.9
+          ],
+          "supply": [
+            60.26,
+            64.82
+          ],
+          "outlier_hh_ratio": 0.02
+        },
+        {
+          "group_key": "sangye-jugong9:G3:ex49.94-49.94",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 863,
+          "exclusive": [
+            49.94,
+            49.94
+          ],
+          "supply": [
+            70.52,
+            73.22
+          ],
+          "outlier_hh_ratio": 0.01
+        },
+        {
+          "group_key": "sangye-jugong9:G4:ex58.01-58.01",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 280,
+          "exclusive": [
+            58.01,
+            58.01
+          ],
+          "supply": [
+            75.29,
+            81.73
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sangye-jugong9:G5:ex61.52-61.52",
+          "market_label": 26,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 239,
+          "exclusive": [
+            61.52,
+            61.52
+          ],
+          "supply": [
+            85.72,
+            85.72
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sangye-jugong9:G6:ex66.56-66.56",
+          "market_label": 28,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 240,
+          "exclusive": [
+            66.56,
+            66.56
+          ],
+          "supply": [
+            92.74,
+            92.74
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sangye-jugong9:G7:ex79.07-79.07",
+          "market_label": 32,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 360,
+          "exclusive": [
+            79.07,
+            79.07
+          ],
+          "supply": [
+            105.54,
+            105.54
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "gwanak-prugio",
+      "apt_name_norm": "관악푸르지오",
+      "era": "2000s",
+      "profile": "2000s·59/84/114",
+      "classification": "group-safe-label-unknown",
+      "reasons": [
+        "label_confidence=0.04"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.04,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "gwanak-prugio:G1:ex59.58-59.58",
+          "mode": "range_only",
+          "lines": [
+            "공급 79.89~86.45㎡ · 전용 59.58~59.58㎡"
+          ]
+        },
+        {
+          "group_key": "gwanak-prugio:G2:ex84.20-84.90",
+          "mode": "range_only",
+          "lines": [
+            "공급 106.88~112.93㎡ · 전용 84.20~84.90㎡"
+          ]
+        },
+        {
+          "group_key": "gwanak-prugio:G3:ex114.69-114.69",
+          "mode": "range_only",
+          "lines": [
+            "공급 139.22~139.22㎡ · 전용 114.69~114.69㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 1.0,
+        "top_etc": [
+          [
+            "계단실",
+            2064
+          ],
+          [
+            "지하대피소",
+            2064
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "gwanak-prugio:G1:ex59.58-59.58",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 1158,
+          "exclusive": [
+            59.58,
+            59.58
+          ],
+          "supply": [
+            79.89,
+            86.45
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "gwanak-prugio:G2:ex84.20-84.90",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 828,
+          "exclusive": [
+            84.2,
+            84.9
+          ],
+          "supply": [
+            106.88,
+            112.93
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "gwanak-prugio:G3:ex114.69-114.69",
+          "market_label": 42,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 78,
+          "exclusive": [
+            114.69,
+            114.69
+          ],
+          "supply": [
+            139.22,
+            139.22
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "raemian-weve",
+      "apt_name_norm": "래미안위브",
+      "era": "2010s",
+      "profile": "2010s·다타입",
+      "classification": "group-safe-label-unknown",
+      "reasons": [
+        "label_confidence=0.20"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 0.83,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.2,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "raemian-weve:G1:ex36.14-36.14",
+          "mode": "range_only",
+          "lines": [
+            "공급 51.89~51.89㎡ · 전용 36.14~36.14㎡"
+          ]
+        },
+        {
+          "group_key": "raemian-weve:G2:ex50.70-50.70",
+          "mode": "range_only",
+          "lines": [
+            "공급 72.06~72.06㎡ · 전용 50.70~50.70㎡"
+          ]
+        },
+        {
+          "group_key": "raemian-weve:G3:ex59.96-59.99",
+          "mode": "range_only",
+          "lines": [
+            "공급 82.92~85.28㎡ · 전용 59.96~59.99㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.003692762186115214,
+        "residential_ratio": 0.9896602658788775,
+        "top_etc": [
+          [
+            "벽체,계단실,복도",
+            2652
+          ],
+          [
+            "홀,복도,화장실,계단실",
+            28
+          ],
+          [
+            "팬룸,지하주차장,정화조관리층,기전실(지2~지1)",
+            18
+          ],
+          [
+            "정화조관리층",
+            10
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "raemian-weve:G1:ex36.14-36.14",
+          "market_label": 16,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 308,
+          "exclusive": [
+            36.14,
+            36.14
+          ],
+          "supply": [
+            51.89,
+            51.89
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-weve:G2:ex50.70-50.70",
+          "market_label": 22,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 145,
+          "exclusive": [
+            50.7,
+            50.7
+          ],
+          "supply": [
+            72.06,
+            72.06
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-weve:G3:ex59.96-59.99",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 540,
+          "exclusive": [
+            59.96,
+            59.99
+          ],
+          "supply": [
+            82.92,
+            85.28
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-weve:G4:ex84.98-84.99",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 1232,
+          "exclusive": [
+            84.98,
+            84.99
+          ],
+          "supply": [
+            109.21,
+            111.47
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-weve:G5:ex121.64-121.94",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 339,
+          "exclusive": [
+            121.64,
+            121.94
+          ],
+          "supply": [
+            150.18,
+            151.53
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "raemian-weve:G6:ex140.62-140.62",
+          "market_label": 51,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 88,
+          "exclusive": [
+            140.62,
+            140.62
+          ],
+          "supply": [
+            170.08,
+            170.08
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "mokdong-7",
+      "apt_name_norm": "목동신시가지7",
+      "era": "1980s",
+      "profile": "1980s 목동 구축·대단지",
+      "classification": "ambiguous",
+      "reasons": [
+        "unknown_common_area_ratio=0.49"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.81,
+        "unknown_common_area_ratio": 0.49,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 0.0
+      },
+      "singoga_gate": {
+        "mode": "exclusive_area_fallback",
+        "eligible_trade_rate": 0.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "mokdong-7:G1:ex53.88-53.88",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 53.88㎡형"
+          ]
+        },
+        {
+          "group_key": "mokdong-7:G2:ex59.39-59.39",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 59.39㎡형"
+          ]
+        },
+        {
+          "group_key": "mokdong-7:G3:ex64.40-64.40",
+          "mode": "exclusive_only",
+          "lines": [
+            "전용 64.40㎡형"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.4858068203467327,
+        "residential_ratio": 0.49666603162507145,
+        "top_etc": [
+          [
+            "(blank)",
+            2550
+          ],
+          [
+            "계단실",
+            2550
+          ],
+          [
+            "기계실",
+            89
+          ],
+          [
+            "복도.변소 및 계단",
+            44
+          ],
+          [
+            "복도, 변소 및 계단",
+            9
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "mokdong-7:G1:ex53.88-53.88",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 480,
+          "exclusive": [
+            53.88,
+            53.88
+          ],
+          "supply": [
+            73.88,
+            74.74
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "mokdong-7:G2:ex59.39-59.39",
+          "market_label": 22,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 240,
+          "exclusive": [
+            59.39,
+            59.39
+          ],
+          "supply": [
+            71.9,
+            72.19
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "mokdong-7:G3:ex64.40-64.40",
+          "market_label": 24,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 48,
+          "exclusive": [
+            64.4,
+            64.4
+          ],
+          "supply": [
+            77.93,
+            78.27
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "mokdong-7:G4:ex66.60-66.68",
+          "market_label": 27,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 959,
+          "exclusive": [
+            66.6,
+            66.68
+          ],
+          "supply": [
+            89.88,
+            91.33
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "mokdong-7:G5:ex74.12-74.12",
+          "market_label": 27,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 192,
+          "exclusive": [
+            74.12,
+            74.12
+          ],
+          "supply": [
+            89.73,
+            90.09
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "mokdong-7:G6:ex89.05-89.05",
+          "market_label": 32,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 21,
+          "exclusive": [
+            89.05,
+            89.05
+          ],
+          "supply": [
+            106.66,
+            106.67
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "mokdong-7:G7:ex101.20-101.20",
+          "market_label": 37,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 609,
+          "exclusive": [
+            101.2,
+            101.2
+          ],
+          "supply": [
+            121.19,
+            121.19
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "sibom-hanyang",
+      "apt_name_norm": "시범한양",
+      "era": "1990s",
+      "profile": "1990s 분당 1기신도시",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.89,
+        "unknown_common_area_ratio": 0.11,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "sibom-hanyang:G1:ex28.71-28.71",
+          "mode": "label+range",
+          "lines": [
+            "11평형",
+            "공급 38~38㎡ · 전용 29~29㎡"
+          ]
+        },
+        {
+          "group_key": "sibom-hanyang:G2:ex35.10-35.10",
+          "mode": "label+range",
+          "lines": [
+            "14평형",
+            "공급 46~46㎡ · 전용 35~35㎡"
+          ]
+        },
+        {
+          "group_key": "sibom-hanyang:G3:ex59.13-59.37",
+          "mode": "label+range",
+          "lines": [
+            "23평형",
+            "공급 69~76㎡ · 전용 59~59㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.11361397517567479,
+        "residential_ratio": 0.31772509358376566,
+        "top_etc": [
+          [
+            "화장실",
+            1735
+          ],
+          [
+            "복도.계단",
+            1731
+          ],
+          [
+            "법정초과주차장",
+            1731
+          ],
+          [
+            "관리사무소.노인정",
+            1731
+          ],
+          [
+            "변전실.열교환실.펌프실",
+            1731
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "sibom-hanyang:G1:ex28.71-28.71",
+          "market_label": 11,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 360,
+          "exclusive": [
+            28.71,
+            28.71
+          ],
+          "supply": [
+            37.72,
+            37.72
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G2:ex35.10-35.10",
+          "market_label": 14,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 414,
+          "exclusive": [
+            35.1,
+            35.1
+          ],
+          "supply": [
+            46.12,
+            46.12
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G3:ex59.13-59.37",
+          "market_label": 23,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 249,
+          "exclusive": [
+            59.13,
+            59.37
+          ],
+          "supply": [
+            69.2,
+            76.04
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G4:ex84.93-84.99",
+          "market_label": 34,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 351,
+          "exclusive": [
+            84.93,
+            84.99
+          ],
+          "supply": [
+            110.99,
+            111.07
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G5:ex101.66-101.66",
+          "market_label": 35,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 20,
+          "exclusive": [
+            101.66,
+            101.66
+          ],
+          "supply": [
+            114.54,
+            114.54
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G6:ex134.87-134.87",
+          "market_label": 47,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 562,
+          "exclusive": [
+            134.87,
+            134.87
+          ],
+          "supply": [
+            148.53,
+            155.5
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G7:ex148.94-148.94",
+          "market_label": 55,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 160,
+          "exclusive": [
+            148.94,
+            148.94
+          ],
+          "supply": [
+            181.28,
+            181.28
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G8:ex164.18-164.59",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 267,
+          "exclusive": [
+            164.18,
+            164.59
+          ],
+          "supply": [
+            188.08,
+            198.79
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G9:ex193.68-193.68",
+          "market_label": 65,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            193.68,
+            193.68
+          ],
+          "supply": [
+            215.68,
+            215.68
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G10:ex215.40-215.40",
+          "market_label": 75,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 4,
+          "exclusive": [
+            215.4,
+            215.4
+          ],
+          "supply": [
+            246.72,
+            246.85
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "sibom-hanyang:G11:ex220.83-220.83",
+          "market_label": 74,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 31,
+          "exclusive": [
+            220.83,
+            220.83
+          ],
+          "supply": [
+            245.91,
+            245.91
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "anyang-samsung-raemian",
+      "apt_name_norm": "삼성래미안",
+      "era": "2000s",
+      "profile": "2000s 경기 대단지",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 0.98,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.85,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "anyang-samsung-raemian:G1:ex9.52-9.56",
+          "mode": "label+range",
+          "lines": [
+            "4평형",
+            "공급 14~14㎡ · 전용 10~10㎡"
+          ]
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G2:ex11.59-11.59",
+          "mode": "label+range",
+          "lines": [
+            "8평형",
+            "공급 26~26㎡ · 전용 12~12㎡"
+          ]
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G3:ex12.60-13.68",
+          "mode": "range_only",
+          "lines": [
+            "공급 17.30~29.94㎡ · 전용 12.60~13.68㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 0.9865194505071254,
+        "top_etc": [
+          [
+            "계단실",
+            3806
+          ],
+          [
+            "벽체,닥트",
+            3806
+          ],
+          [
+            "화장실",
+            69
+          ],
+          [
+            "계단",
+            64
+          ],
+          [
+            "지하주차장",
+            18
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "anyang-samsung-raemian:G1:ex9.52-9.56",
+          "market_label": 4,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 2,
+          "exclusive": [
+            9.52,
+            9.56
+          ],
+          "supply": [
+            13.53,
+            13.59
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G2:ex11.59-11.59",
+          "market_label": 8,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 3,
+          "exclusive": [
+            11.59,
+            11.59
+          ],
+          "supply": [
+            25.88,
+            25.88
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G3:ex12.60-13.68",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 4,
+          "exclusive": [
+            12.6,
+            13.68
+          ],
+          "supply": [
+            17.3,
+            29.94
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G4:ex14.90-14.90",
+          "market_label": 7,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            14.9,
+            14.9
+          ],
+          "supply": [
+            24.29,
+            24.29
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G5:ex16.46-16.87",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 2,
+          "exclusive": [
+            16.46,
+            16.87
+          ],
+          "supply": [
+            31.31,
+            32.1
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G6:ex18.61-18.61",
+          "market_label": 11,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            18.61,
+            18.61
+          ],
+          "supply": [
+            35.41,
+            35.41
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G7:ex21.07-21.07",
+          "market_label": 12,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            21.07,
+            21.07
+          ],
+          "supply": [
+            40.1,
+            40.1
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G8:ex30.33-30.33",
+          "market_label": 15,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            30.33,
+            30.33
+          ],
+          "supply": [
+            49.51,
+            49.51
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G9:ex34.78-34.78",
+          "market_label": 11,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            34.78,
+            34.78
+          ],
+          "supply": [
+            37.22,
+            37.22
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G10:ex40.16-40.25",
+          "market_label": 13,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 10,
+          "exclusive": [
+            40.16,
+            40.25
+          ],
+          "supply": [
+            40.25,
+            43.6
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G11:ex41.46-42.46",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 4,
+          "exclusive": [
+            41.46,
+            42.46
+          ],
+          "supply": [
+            44.37,
+            45.44
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G12:ex44.67-45.29",
+          "market_label": 15,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 9,
+          "exclusive": [
+            44.67,
+            45.29
+          ],
+          "supply": [
+            48.49,
+            49.17
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G13:ex46.63-47.68",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 3,
+          "exclusive": [
+            46.63,
+            47.68
+          ],
+          "supply": [
+            46.94,
+            54.56
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G14:ex48.95-48.95",
+          "market_label": 15,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            48.95,
+            48.95
+          ],
+          "supply": [
+            48.95,
+            48.95
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G15:ex50.43-50.43",
+          "market_label": 15,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 3,
+          "exclusive": [
+            50.43,
+            50.43
+          ],
+          "supply": [
+            50.43,
+            50.43
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G16:ex51.67-51.68",
+          "market_label": 17,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 3,
+          "exclusive": [
+            51.67,
+            51.68
+          ],
+          "supply": [
+            55.29,
+            55.3
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G17:ex52.76-52.76",
+          "market_label": 16,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            52.76,
+            52.76
+          ],
+          "supply": [
+            52.76,
+            52.76
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G18:ex54.12-54.84",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 2,
+          "exclusive": [
+            54.12,
+            54.84
+          ],
+          "supply": [
+            54.12,
+            54.84
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G19:ex56.62-56.62",
+          "market_label": 20,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            56.62,
+            56.62
+          ],
+          "supply": [
+            64.79,
+            64.79
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G20:ex59.87-59.88",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 574,
+          "exclusive": [
+            59.87,
+            59.88
+          ],
+          "supply": [
+            79.46,
+            83.22
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G21:ex61.49-61.49",
+          "market_label": 20,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            61.49,
+            61.49
+          ],
+          "supply": [
+            66.77,
+            66.77
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G22:ex64.60-65.72",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 3,
+          "exclusive": [
+            64.6,
+            65.72
+          ],
+          "supply": [
+            64.6,
+            69.46
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G23:ex67.05-67.05",
+          "market_label": 22,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            67.05,
+            67.05
+          ],
+          "supply": [
+            72.81,
+            72.81
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G24:ex68.43-69.12",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "vote_conflict",
+          "households": 4,
+          "exclusive": [
+            68.43,
+            69.12
+          ],
+          "supply": [
+            74.02,
+            74.78
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G25:ex71.86-71.86",
+          "market_label": 22,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            71.86,
+            71.86
+          ],
+          "supply": [
+            71.86,
+            71.86
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G26:ex84.92-84.92",
+          "market_label": 33,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 2000,
+          "exclusive": [
+            84.92,
+            84.92
+          ],
+          "supply": [
+            106.71,
+            108.26
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G27:ex97.21-97.21",
+          "market_label": 32,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            97.21,
+            97.21
+          ],
+          "supply": [
+            105.16,
+            105.16
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G28:ex99.71-99.71",
+          "market_label": 33,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            99.71,
+            99.71
+          ],
+          "supply": [
+            107.9,
+            107.9
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G29:ex111.51-112.45",
+          "market_label": null,
+          "confidence": "ambiguous",
+          "group_confidence_high": false,
+          "label_null_reason": "vote_conflict",
+          "households": 6,
+          "exclusive": [
+            111.51,
+            112.45
+          ],
+          "supply": [
+            111.51,
+            127.3
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G30:ex114.61-114.61",
+          "market_label": 42,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 820,
+          "exclusive": [
+            114.61,
+            114.61
+          ],
+          "supply": [
+            137.95,
+            138.43
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G31:ex126.46-126.46",
+          "market_label": 38,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            126.46,
+            126.46
+          ],
+          "supply": [
+            126.46,
+            126.46
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G32:ex129.52-129.52",
+          "market_label": 42,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            129.52,
+            129.52
+          ],
+          "supply": [
+            140.12,
+            140.12
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G33:ex132.76-132.76",
+          "market_label": 48,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 108,
+          "exclusive": [
+            132.76,
+            132.76
+          ],
+          "supply": [
+            159.67,
+            159.67
+          ],
+          "outlier_hh_ratio": 0.01
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G34:ex164.38-164.38",
+          "market_label": 59,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 142,
+          "exclusive": [
+            164.38,
+            164.38
+          ],
+          "supply": [
+            194.07,
+            194.07
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G35:ex182.49-182.49",
+          "market_label": 65,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 162,
+          "exclusive": [
+            182.49,
+            182.49
+          ],
+          "supply": [
+            213.8,
+            213.8
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G36:ex217.40-217.40",
+          "market_label": 80,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            217.4,
+            217.4
+          ],
+          "supply": [
+            264.5,
+            264.5
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G37:ex219.50-219.50",
+          "market_label": 73,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            219.5,
+            219.5
+          ],
+          "supply": [
+            241.4,
+            241.4
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G38:ex224.96-224.96",
+          "market_label": 78,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            224.96,
+            224.96
+          ],
+          "supply": [
+            257.3,
+            257.3
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G39:ex266.63-266.63",
+          "market_label": 87,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            266.63,
+            266.63
+          ],
+          "supply": [
+            288.46,
+            288.46
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G40:ex467.06-467.06",
+          "market_label": 151,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            467.06,
+            467.06
+          ],
+          "supply": [
+            499.86,
+            499.86
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "anyang-samsung-raemian:G41:ex470.44-470.44",
+          "market_label": 152,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 1,
+          "exclusive": [
+            470.44,
+            470.44
+          ],
+          "supply": [
+            503.47,
+            503.47
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "ilsan-zenith",
+      "apt_name_norm": "일산두산위브더제니스",
+      "era": "2010s",
+      "profile": "2010s 주상복합·초고층",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 1.0,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 0.79,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 1.0
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 1.0,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "ilsan-zenith:G1:ex59.91-59.93",
+          "mode": "range_only",
+          "lines": [
+            "공급 80.72~81.59㎡ · 전용 59.91~59.93㎡"
+          ]
+        },
+        {
+          "group_key": "ilsan-zenith:G2:ex94.44-94.44",
+          "mode": "label+range",
+          "lines": [
+            "40평형",
+            "공급 131~131㎡ · 전용 94~94㎡"
+          ]
+        },
+        {
+          "group_key": "ilsan-zenith:G3:ex95.50-95.50",
+          "mode": "label+range",
+          "lines": [
+            "40평형",
+            "공급 131~131㎡ · 전용 96~96㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 0.9971331302633937,
+        "top_etc": [
+          [
+            "계단실,복도,ELEV",
+            2700
+          ],
+          [
+            "벽체",
+            2700
+          ],
+          [
+            "계단,홀,복도",
+            163
+          ],
+          [
+            "기계/전기실",
+            6
+          ],
+          [
+            "주차장",
+            4
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "ilsan-zenith:G1:ex59.91-59.93",
+          "market_label": null,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": "small_24_25_zone",
+          "households": 564,
+          "exclusive": [
+            59.91,
+            59.93
+          ],
+          "supply": [
+            80.72,
+            81.59
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ilsan-zenith:G2:ex94.44-94.44",
+          "market_label": 40,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 306,
+          "exclusive": [
+            94.44,
+            94.44
+          ],
+          "supply": [
+            130.6,
+            130.6
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ilsan-zenith:G3:ex95.50-95.50",
+          "market_label": 40,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 414,
+          "exclusive": [
+            95.5,
+            95.5
+          ],
+          "supply": [
+            130.7,
+            130.7
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ilsan-zenith:G4:ex119.18-119.18",
+          "market_label": 49,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 100,
+          "exclusive": [
+            119.18,
+            119.18
+          ],
+          "supply": [
+            162.32,
+            162.32
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ilsan-zenith:G5:ex120.48-120.78",
+          "market_label": 49,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 708,
+          "exclusive": [
+            120.48,
+            120.78
+          ],
+          "supply": [
+            162.63,
+            162.67
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ilsan-zenith:G6:ex145.83-145.92",
+          "market_label": 59,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 412,
+          "exclusive": [
+            145.83,
+            145.92
+          ],
+          "supply": [
+            195.31,
+            195.52
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "ilsan-zenith:G7:ex170.72-170.72",
+          "market_label": 69,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 196,
+          "exclusive": [
+            170.72,
+            170.72
+          ],
+          "supply": [
+            228.66,
+            228.66
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    },
+    {
+      "key": "hannam-thehill",
+      "apt_name_norm": "한남더힐",
+      "era": "2010s",
+      "profile": "2010s 고급·비표준 대형·소규모 동수",
+      "classification": "auto-safe",
+      "reasons": [
+        "passed_all_gates"
+      ],
+      "metrics": {
+        "partial_common_ratio": 0.0,
+        "trade_exclusive_coverage": 0.57,
+        "ledger_trade_hh_coverage": 1.0,
+        "group_exact_map_rate": 0.93,
+        "group_ambiguity_rate": 0.0,
+        "label_confidence": 1.0,
+        "unknown_common_area_ratio": 0.0,
+        "supply_outlier_ratio": 0.0,
+        "singoga_market_group_eligible_rate": 0.93
+      },
+      "singoga_gate": {
+        "mode": "market_group",
+        "eligible_trade_rate": 0.93,
+        "rule": "group_confidence_high && not ambiguous; label may be null"
+      },
+      "ui_fallback_examples": [
+        {
+          "group_key": "hannam-thehill:G1:ex59.69-59.70",
+          "mode": "label+range",
+          "lines": [
+            "26평형",
+            "공급 87~88㎡ · 전용 60~60㎡"
+          ]
+        },
+        {
+          "group_key": "hannam-thehill:G2:ex177.76-177.76",
+          "mode": "label+range",
+          "lines": [
+            "65평형",
+            "공급 215~215㎡ · 전용 178~178㎡"
+          ]
+        },
+        {
+          "group_key": "hannam-thehill:G3:ex208.48-208.48",
+          "mode": "label+range",
+          "lines": [
+            "75평형",
+            "공급 246~246㎡ · 전용 208~208㎡"
+          ]
+        }
+      ],
+      "common_area": {
+        "unknown_ratio": 0.0,
+        "residential_ratio": 0.9901477832512315,
+        "top_etc": [
+          [
+            "계단실,ELEV",
+            606
+          ],
+          [
+            "벽체",
+            600
+          ],
+          [
+            "전기,펌프실",
+            6
+          ],
+          [
+            "지하주차장",
+            6
+          ]
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "hannam-thehill:G1:ex59.69-59.70",
+          "market_label": 26,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 133,
+          "exclusive": [
+            59.69,
+            59.7
+          ],
+          "supply": [
+            87.05,
+            87.56
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hannam-thehill:G2:ex177.76-177.76",
+          "market_label": 65,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 36,
+          "exclusive": [
+            177.76,
+            177.76
+          ],
+          "supply": [
+            215.25,
+            215.25
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hannam-thehill:G3:ex208.48-208.48",
+          "market_label": 75,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 131,
+          "exclusive": [
+            208.48,
+            208.48
+          ],
+          "supply": [
+            246.39,
+            246.39
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hannam-thehill:G4:ex233.06-233.06",
+          "market_label": 85,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 59,
+          "exclusive": [
+            233.06,
+            233.06
+          ],
+          "supply": [
+            281.59,
+            281.59
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hannam-thehill:G5:ex235.31-235.31",
+          "market_label": 86,
+          "confidence": "exact",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 145,
+          "exclusive": [
+            235.31,
+            235.31
+          ],
+          "supply": [
+            284.21,
+            284.21
+          ],
+          "outlier_hh_ratio": 0.0
+        },
+        {
+          "group_key": "hannam-thehill:G6:ex240.23-240.31",
+          "market_label": 92,
+          "confidence": "grouped",
+          "group_confidence_high": true,
+          "label_null_reason": null,
+          "households": 13,
+          "exclusive": [
+            240.23,
+            240.31
+          ],
+          "supply": [
+            302.53,
+            303.21
+          ],
+          "outlier_hh_ratio": 0.0
+        }
+      ]
+    }
+  ]
+}

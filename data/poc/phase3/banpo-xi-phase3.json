@@ -1,0 +1,1188 @@
+{
+  "complex": {
+    "key": "banpo-xi",
+    "lawd_cd": "11650",
+    "apt_name_norm": "반포자이",
+    "kapt_code": null,
+    "profile": "신축급·광범위 면적·다타입"
+  },
+  "ledger": {
+    "fetched_items": 30695,
+    "unit_households": 3410,
+    "unit_type_count": 18,
+    "pyeong_group_count": 7
+  },
+  "hangang_117_audit": null,
+  "unit_types": [
+    {
+      "unit_type_key": "banpo-xi:84.94:116.88",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 116.88,
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 84.94,
+      "residential_common_area_sqm": 31.94,
+      "household_count": 724,
+      "type_label": "84.94/116.88",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510145+00:00",
+      "sample_units": [
+        {
+          "dong": "101동",
+          "ho": "1001"
+        },
+        {
+          "dong": "101동",
+          "ho": "1003"
+        },
+        {
+          "dong": "101동",
+          "ho": "101"
+        },
+        {
+          "dong": "101동",
+          "ho": "103"
+        },
+        {
+          "dong": "101동",
+          "ho": "1101"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G2:ex84.94-85.00",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "banpo-xi:59.98:84.74",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 84.74,
+      "exclusive_area_min": 59.98,
+      "exclusive_area_max": 59.98,
+      "residential_common_area_sqm": 24.76,
+      "household_count": 525,
+      "type_label": "59.98/84.74",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510179+00:00",
+      "sample_units": [
+        {
+          "dong": "131동",
+          "ho": "1001"
+        },
+        {
+          "dong": "131동",
+          "ho": "1002"
+        },
+        {
+          "dong": "131동",
+          "ho": "101"
+        },
+        {
+          "dong": "131동",
+          "ho": "1101"
+        },
+        {
+          "dong": "131동",
+          "ho": "1102"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G1:ex59.97-59.98",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "banpo-xi:132.44:165.53",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 165.53,
+      "exclusive_area_min": 132.44,
+      "exclusive_area_max": 132.44,
+      "residential_common_area_sqm": 33.09,
+      "household_count": 224,
+      "type_label": "132.44/165.53",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510197+00:00",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "1001"
+        },
+        {
+          "dong": "102동",
+          "ho": "1003"
+        },
+        {
+          "dong": "102동",
+          "ho": "103"
+        },
+        {
+          "dong": "102동",
+          "ho": "1101"
+        },
+        {
+          "dong": "102동",
+          "ho": "1103"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G3:ex132.18-132.44",
+      "market_label_inferred": 50
+    },
+    {
+      "unit_type_key": "banpo-xi:165.45:200.13",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 200.13,
+      "exclusive_area_min": 165.45,
+      "exclusive_area_max": 165.45,
+      "residential_common_area_sqm": 34.68,
+      "household_count": 224,
+      "type_label": "165.45/200.13",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510209+00:00",
+      "sample_units": [
+        {
+          "dong": "119동",
+          "ho": "1001"
+        },
+        {
+          "dong": "119동",
+          "ho": "1003"
+        },
+        {
+          "dong": "119동",
+          "ho": "103"
+        },
+        {
+          "dong": "119동",
+          "ho": "1101"
+        },
+        {
+          "dong": "119동",
+          "ho": "1103"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G4:ex165.05-165.45",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "banpo-xi:84.98:116.12",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 116.12,
+      "exclusive_area_min": 84.98,
+      "exclusive_area_max": 84.98,
+      "residential_common_area_sqm": 31.14,
+      "household_count": 222,
+      "type_label": "84.98/116.12",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510221+00:00",
+      "sample_units": [
+        {
+          "dong": "109동",
+          "ho": "1002"
+        },
+        {
+          "dong": "109동",
+          "ho": "1003"
+        },
+        {
+          "dong": "109동",
+          "ho": "102"
+        },
+        {
+          "dong": "109동",
+          "ho": "103"
+        },
+        {
+          "dong": "109동",
+          "ho": "1102"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G2:ex84.94-85.00",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "banpo-xi:84.98:116.71",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 116.71,
+      "exclusive_area_min": 84.98,
+      "exclusive_area_max": 84.98,
+      "residential_common_area_sqm": 31.73,
+      "household_count": 220,
+      "type_label": "84.98/116.71",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510232+00:00",
+      "sample_units": [
+        {
+          "dong": "109동",
+          "ho": "1001"
+        },
+        {
+          "dong": "109동",
+          "ho": "1004"
+        },
+        {
+          "dong": "109동",
+          "ho": "101"
+        },
+        {
+          "dong": "109동",
+          "ho": "104"
+        },
+        {
+          "dong": "109동",
+          "ho": "1101"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G2:ex84.94-85.00",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "banpo-xi:194.52:232.68",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 232.68,
+      "exclusive_area_min": 194.52,
+      "exclusive_area_max": 194.52,
+      "residential_common_area_sqm": 38.16,
+      "household_count": 194,
+      "type_label": "194.52/232.68",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510243+00:00",
+      "sample_units": [
+        {
+          "dong": "111동",
+          "ho": "1001"
+        },
+        {
+          "dong": "111동",
+          "ho": "1003"
+        },
+        {
+          "dong": "111동",
+          "ho": "103"
+        },
+        {
+          "dong": "111동",
+          "ho": "1101"
+        },
+        {
+          "dong": "111동",
+          "ho": "1103"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G5:ex194.52-194.69",
+      "market_label_inferred": 70
+    },
+    {
+      "unit_type_key": "banpo-xi:85.00:116.72",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 116.72,
+      "exclusive_area_min": 85.0,
+      "exclusive_area_max": 85.0,
+      "residential_common_area_sqm": 31.72,
+      "household_count": 190,
+      "type_label": "85.00/116.72",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510255+00:00",
+      "sample_units": [
+        {
+          "dong": "101동",
+          "ho": "1002"
+        },
+        {
+          "dong": "101동",
+          "ho": "102"
+        },
+        {
+          "dong": "101동",
+          "ho": "1102"
+        },
+        {
+          "dong": "101동",
+          "ho": "1202"
+        },
+        {
+          "dong": "101동",
+          "ho": "1302"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G2:ex84.94-85.00",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "banpo-xi:216.49:264.80",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 264.8,
+      "exclusive_area_min": 216.49,
+      "exclusive_area_max": 216.49,
+      "residential_common_area_sqm": 48.31,
+      "household_count": 162,
+      "type_label": "216.49/264.80",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510267+00:00",
+      "sample_units": [
+        {
+          "dong": "115동",
+          "ho": "1001"
+        },
+        {
+          "dong": "115동",
+          "ho": "1002"
+        },
+        {
+          "dong": "115동",
+          "ho": "102"
+        },
+        {
+          "dong": "115동",
+          "ho": "1101"
+        },
+        {
+          "dong": "115동",
+          "ho": "1102"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G6:ex216.49-216.49",
+      "market_label_inferred": 80
+    },
+    {
+      "unit_type_key": "banpo-xi:59.97:84.24",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 84.24,
+      "exclusive_area_min": 59.97,
+      "exclusive_area_max": 59.97,
+      "residential_common_area_sqm": 24.27,
+      "household_count": 158,
+      "type_label": "59.97/84.24",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510277+00:00",
+      "sample_units": [
+        {
+          "dong": "131동",
+          "ho": "1003"
+        },
+        {
+          "dong": "131동",
+          "ho": "1004"
+        },
+        {
+          "dong": "131동",
+          "ho": "103"
+        },
+        {
+          "dong": "131동",
+          "ho": "104"
+        },
+        {
+          "dong": "131동",
+          "ho": "1103"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G1:ex59.97-59.98",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "banpo-xi:244.54:297.54",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 297.54,
+      "exclusive_area_min": 244.54,
+      "exclusive_area_max": 244.54,
+      "residential_common_area_sqm": 53.0,
+      "household_count": 156,
+      "type_label": "244.54/297.54",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510287+00:00",
+      "sample_units": [
+        {
+          "dong": "113동",
+          "ho": "1001"
+        },
+        {
+          "dong": "113동",
+          "ho": "1002"
+        },
+        {
+          "dong": "113동",
+          "ho": "102"
+        },
+        {
+          "dong": "113동",
+          "ho": "1101"
+        },
+        {
+          "dong": "113동",
+          "ho": "1102"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G7:ex244.54-244.97",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "banpo-xi:132.18:166.05",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 166.05,
+      "exclusive_area_min": 132.18,
+      "exclusive_area_max": 132.18,
+      "residential_common_area_sqm": 33.87,
+      "household_count": 116,
+      "type_label": "132.18/166.05",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510297+00:00",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "1002"
+        },
+        {
+          "dong": "102동",
+          "ho": "102"
+        },
+        {
+          "dong": "102동",
+          "ho": "1102"
+        },
+        {
+          "dong": "102동",
+          "ho": "1202"
+        },
+        {
+          "dong": "102동",
+          "ho": "1302"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G3:ex132.18-132.44",
+      "market_label_inferred": 50
+    },
+    {
+      "unit_type_key": "banpo-xi:165.05:199.81",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 199.81,
+      "exclusive_area_min": 165.05,
+      "exclusive_area_max": 165.05,
+      "residential_common_area_sqm": 34.76,
+      "household_count": 116,
+      "type_label": "165.05/199.81",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510304+00:00",
+      "sample_units": [
+        {
+          "dong": "119동",
+          "ho": "1002"
+        },
+        {
+          "dong": "119동",
+          "ho": "102"
+        },
+        {
+          "dong": "119동",
+          "ho": "1102"
+        },
+        {
+          "dong": "119동",
+          "ho": "1202"
+        },
+        {
+          "dong": "119동",
+          "ho": "1302"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G4:ex165.05-165.45",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "banpo-xi:194.69:232.69",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 232.69,
+      "exclusive_area_min": 194.69,
+      "exclusive_area_max": 194.69,
+      "residential_common_area_sqm": 38.0,
+      "household_count": 102,
+      "type_label": "194.69/232.69",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510312+00:00",
+      "sample_units": [
+        {
+          "dong": "111동",
+          "ho": "1002"
+        },
+        {
+          "dong": "111동",
+          "ho": "102"
+        },
+        {
+          "dong": "111동",
+          "ho": "1102"
+        },
+        {
+          "dong": "111동",
+          "ho": "1202"
+        },
+        {
+          "dong": "111동",
+          "ho": "1302"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G5:ex194.52-194.69",
+      "market_label_inferred": 70
+    },
+    {
+      "unit_type_key": "banpo-xi:244.63:301.06",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 301.06,
+      "exclusive_area_min": 244.63,
+      "exclusive_area_max": 244.63,
+      "residential_common_area_sqm": 56.43,
+      "household_count": 35,
+      "type_label": "244.63/301.06",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510319+00:00",
+      "sample_units": [
+        {
+          "dong": "111동",
+          "ho": "2202"
+        },
+        {
+          "dong": "111동",
+          "ho": "2302"
+        },
+        {
+          "dong": "111동",
+          "ho": "2402"
+        },
+        {
+          "dong": "111동",
+          "ho": "2502"
+        },
+        {
+          "dong": "111동",
+          "ho": "2602"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G7:ex244.54-244.97",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "banpo-xi:244.97:301.39",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 301.39,
+      "exclusive_area_min": 244.97,
+      "exclusive_area_max": 244.97,
+      "residential_common_area_sqm": 56.42,
+      "household_count": 35,
+      "type_label": "244.97/301.39",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510324+00:00",
+      "sample_units": [
+        {
+          "dong": "111동",
+          "ho": "2201"
+        },
+        {
+          "dong": "111동",
+          "ho": "2301"
+        },
+        {
+          "dong": "111동",
+          "ho": "2401"
+        },
+        {
+          "dong": "111동",
+          "ho": "2501"
+        },
+        {
+          "dong": "111동",
+          "ho": "2601"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G7:ex244.54-244.97",
+      "market_label_inferred": null
+    },
+    {
+      "unit_type_key": "banpo-xi:85.00:117.08",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 117.08,
+      "exclusive_area_min": 85.0,
+      "exclusive_area_max": 85.0,
+      "residential_common_area_sqm": 32.08,
+      "household_count": 6,
+      "type_label": "85.00/117.08",
+      "mapping_confidence": "exact",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510329+00:00",
+      "sample_units": [
+        {
+          "dong": "106동",
+          "ho": "102"
+        },
+        {
+          "dong": "123동",
+          "ho": "102"
+        },
+        {
+          "dong": "124동",
+          "ho": "302"
+        },
+        {
+          "dong": "124동",
+          "ho": "402"
+        },
+        {
+          "dong": "125동",
+          "ho": "102"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G2:ex84.94-85.00",
+      "market_label_inferred": 35
+    },
+    {
+      "unit_type_key": "banpo-xi:85.00:117.07",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "supply_area_sqm": 117.07,
+      "exclusive_area_min": 85.0,
+      "exclusive_area_max": 85.0,
+      "residential_common_area_sqm": 32.07,
+      "household_count": 1,
+      "type_label": "85.00/117.07",
+      "mapping_confidence": "grouped",
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T11:52:57.510333+00:00",
+      "sample_units": [
+        {
+          "dong": "130동",
+          "ho": "302"
+        }
+      ],
+      "anomaly_dup_common": 0,
+      "exclusive_includes_partial_common": false,
+      "partial_common_households": 0,
+      "pyeong_group_key": "banpo-xi:G2:ex84.94-85.00",
+      "market_label_inferred": 35
+    }
+  ],
+  "pyeong_groups": [
+    {
+      "group_key": "banpo-xi:G1:ex59.97-59.98",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 59.97~59.98㎡ · 공급 84.24~84.74㎡",
+      "supply_area_min": 84.24,
+      "supply_area_max": 84.74,
+      "exclusive_area_min": 59.97,
+      "exclusive_area_max": 59.98,
+      "household_count": 683,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.510366+00:00",
+      "unit_type_keys": [
+        "banpo-xi:59.97:84.24",
+        "banpo-xi:59.98:84.74"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "25": 158,
+        "26": 525
+      },
+      "weighted_supply": 84.62,
+      "label_null_reason": "small_24_25_zone",
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "market_label": 35,
+      "display_fallback": "35평형",
+      "supply_area_min": 116.12,
+      "supply_area_max": 117.08,
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 85.0,
+      "household_count": 1363,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.510382+00:00",
+      "unit_type_keys": [
+        "banpo-xi:84.94:116.88",
+        "banpo-xi:84.98:116.12",
+        "banpo-xi:84.98:116.71",
+        "banpo-xi:85.00:116.72",
+        "banpo-xi:85.00:117.08",
+        "banpo-xi:85.00:117.07"
+      ],
+      "unit_type_count": 6,
+      "naive_vote": {
+        "35": 1363
+      },
+      "weighted_supply": 116.71,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "banpo-xi:G3:ex132.18-132.44",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "market_label": 50,
+      "display_fallback": "50평형",
+      "supply_area_min": 165.53,
+      "supply_area_max": 166.05,
+      "exclusive_area_min": 132.18,
+      "exclusive_area_max": 132.44,
+      "household_count": 340,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.510393+00:00",
+      "unit_type_keys": [
+        "banpo-xi:132.18:166.05",
+        "banpo-xi:132.44:165.53"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "50": 340
+      },
+      "weighted_supply": 165.71,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "banpo-xi:G4:ex165.05-165.45",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 165.05~165.45㎡ · 공급 199.81~200.13㎡",
+      "supply_area_min": 199.81,
+      "supply_area_max": 200.13,
+      "exclusive_area_min": 165.05,
+      "exclusive_area_max": 165.45,
+      "household_count": 340,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.510403+00:00",
+      "unit_type_keys": [
+        "banpo-xi:165.05:199.81",
+        "banpo-xi:165.45:200.13"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "60": 116,
+        "61": 224
+      },
+      "weighted_supply": 200.02,
+      "label_null_reason": "vote_conflict",
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "banpo-xi:G5:ex194.52-194.69",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "market_label": 70,
+      "display_fallback": "70평형",
+      "supply_area_min": 232.68,
+      "supply_area_max": 232.69,
+      "exclusive_area_min": 194.52,
+      "exclusive_area_max": 194.69,
+      "household_count": 296,
+      "confidence": "grouped",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.510413+00:00",
+      "unit_type_keys": [
+        "banpo-xi:194.52:232.68",
+        "banpo-xi:194.69:232.69"
+      ],
+      "unit_type_count": 2,
+      "naive_vote": {
+        "70": 296
+      },
+      "weighted_supply": 232.68,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "banpo-xi:G6:ex216.49-216.49",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "market_label": 80,
+      "display_fallback": "80평형",
+      "supply_area_min": 264.8,
+      "supply_area_max": 264.8,
+      "exclusive_area_min": 216.49,
+      "exclusive_area_max": 216.49,
+      "household_count": 162,
+      "confidence": "exact",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.510420+00:00",
+      "unit_type_keys": [
+        "banpo-xi:216.49:264.80"
+      ],
+      "unit_type_count": 1,
+      "naive_vote": {
+        "80": 162
+      },
+      "weighted_supply": 264.8,
+      "label_null_reason": null,
+      "partial_common_households": 0
+    },
+    {
+      "group_key": "banpo-xi:G7:ex244.54-244.97",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이",
+      "kapt_code": null,
+      "market_label": null,
+      "display_fallback": "전용 244.54~244.97㎡ · 공급 297.54~301.39㎡",
+      "supply_area_min": 297.54,
+      "supply_area_max": 301.39,
+      "exclusive_area_min": 244.54,
+      "exclusive_area_max": 244.97,
+      "household_count": 226,
+      "confidence": "ambiguous",
+      "source": "unit_types_clustered_by_exclusive<=1.0",
+      "source_updated_at": "2026-09-11T11:52:57.510429+00:00",
+      "unit_type_keys": [
+        "banpo-xi:244.54:297.54",
+        "banpo-xi:244.63:301.06",
+        "banpo-xi:244.97:301.39"
+      ],
+      "unit_type_count": 3,
+      "naive_vote": {
+        "90": 156,
+        "91": 70
+      },
+      "weighted_supply": 298.68,
+      "label_null_reason": "vote_conflict",
+      "partial_common_households": 0
+    }
+  ],
+  "unit_type_group_links": [
+    {
+      "unit_type_key": "banpo-xi:59.97:84.24",
+      "group_key": "banpo-xi:G1:ex59.97-59.98",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:59.98:84.74",
+      "group_key": "banpo-xi:G1:ex59.97-59.98",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:84.94:116.88",
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:84.98:116.12",
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:84.98:116.71",
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:85.00:116.72",
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:85.00:117.08",
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:85.00:117.07",
+      "group_key": "banpo-xi:G2:ex84.94-85.00",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:132.18:166.05",
+      "group_key": "banpo-xi:G3:ex132.18-132.44",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:132.44:165.53",
+      "group_key": "banpo-xi:G3:ex132.18-132.44",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:165.05:199.81",
+      "group_key": "banpo-xi:G4:ex165.05-165.45",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:165.45:200.13",
+      "group_key": "banpo-xi:G4:ex165.05-165.45",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:194.52:232.68",
+      "group_key": "banpo-xi:G5:ex194.52-194.69",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:194.69:232.69",
+      "group_key": "banpo-xi:G5:ex194.52-194.69",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:216.49:264.80",
+      "group_key": "banpo-xi:G6:ex216.49-216.49",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:244.54:297.54",
+      "group_key": "banpo-xi:G7:ex244.54-244.97",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:244.63:301.06",
+      "group_key": "banpo-xi:G7:ex244.54-244.97",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    },
+    {
+      "unit_type_key": "banpo-xi:244.97:301.39",
+      "group_key": "banpo-xi:G7:ex244.54-244.97",
+      "lawd_cd": "11650",
+      "apt_name_norm": "반포자이"
+    }
+  ],
+  "trade_mapping": {
+    "trade_count": 1055,
+    "type_level": {
+      "exact": 854,
+      "multi": 201
+    },
+    "group_level": {
+      "exact": 1055
+    },
+    "label_level": {
+      "exact": 677,
+      "none": 378
+    }
+  },
+  "singoga": {
+    "exclusive_only": 302,
+    "market_group": 205,
+    "only_exclusive_examples": [
+      {
+        "id": "trade-11650-2016-10-18-반포자이-반포동-5-163000-84.998-188",
+        "deal_date": "2016-10-18",
+        "exclusive_area": 84.998,
+        "deal_amount": 163000,
+        "group_key": "ex:8500",
+        "prev_high": 152000.0
+      },
+      {
+        "id": "trade-11650-2017-01-31-반포자이-반포동-26-219000-132.439-82",
+        "deal_date": "2017-01-31",
+        "exclusive_area": 132.439,
+        "deal_amount": 219000,
+        "group_key": "ex:13244",
+        "prev_high": 215000.0
+      },
+      {
+        "id": "trade-11650-2017-04-06-반포자이-반포동-12-167000-84.998-317",
+        "deal_date": "2017-04-06",
+        "exclusive_area": 84.998,
+        "deal_amount": 167000,
+        "group_key": "ex:8500",
+        "prev_high": 163000.0
+      },
+      {
+        "id": "trade-11650-2017-04-11-반포자이-반포동-21-168000-84.998-322",
+        "deal_date": "2017-04-11",
+        "exclusive_area": 84.998,
+        "deal_amount": 168000,
+        "group_key": "ex:8500",
+        "prev_high": 167000.0
+      },
+      {
+        "id": "trade-11650-2017-04-15-반포자이-반포동-21-166000-84.984-316",
+        "deal_date": "2017-04-15",
+        "exclusive_area": 84.984,
+        "deal_amount": 166000,
+        "group_key": "ex:8498",
+        "prev_high": 155000.0
+      }
+    ],
+    "only_group_examples": [
+      {
+        "id": "trade-11650-2017-05-29-반포자이-반포동-28-320000-244.628-27",
+        "deal_date": "2017-05-29",
+        "exclusive_area": 244.628,
+        "deal_amount": 320000,
+        "group_key": "grp:banpo-xi:G7:ex244.54-244.97",
+        "prev_high": 312000.0
+      }
+    ]
+  },
+  "anomalies": {
+    "units_with_dup_common": 0,
+    "units_partial_common_in_exclusive": 0,
+    "types_ambiguous": 0,
+    "types_zero_common": 0,
+    "types_partial_common": 0,
+    "groups_ambiguous": 2,
+    "groups_label_null": 3,
+    "ledger_vs_trade_exclusive_mismatch": false,
+    "trade_exclusive_values": [
+      59.97,
+      59.98,
+      84.94,
+      84.98,
+      85.0,
+      132.18,
+      132.44,
+      165.05,
+      165.45,
+      194.52,
+      194.69,
+      216.49,
+      244.54,
+      244.63,
+      244.97
+    ],
+    "ledger_exclusive_top": [
+      59.97,
+      59.98,
+      84.94,
+      84.98,
+      85.0,
+      132.18,
+      132.44,
+      165.05,
+      165.45,
+      194.52,
+      194.69,
+      216.49,
+      244.54,
+      244.63,
+      244.97
+    ]
+  },
+  "metrics": {
+    "unit_type_exact_rate": 0.809478672985782,
+    "unit_type_multi_rate": 0.190521327014218,
+    "group_exact_map_rate": 1.0,
+    "group_auto_map_rate": 1.0,
+    "ambiguous_group_ratio": 0.2857142857142857,
+    "market_label_auto_rate": 0.5714285714285714
+  }
+}
