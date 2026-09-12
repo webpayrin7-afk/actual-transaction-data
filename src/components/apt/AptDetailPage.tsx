@@ -10,6 +10,13 @@ import {
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
+import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
+import {
+  ComplexBasicInfoCard,
+  ComplexBuildingInfoCard,
+  complexHeaderChips,
+} from "@/components/apt/ComplexInfoCards";
+import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt-client";
 import {
   AptPriceChart,
@@ -146,19 +153,22 @@ function recentYearsRange(length: number, years = RECENT_YEARS) {
   };
 }
 
-type PeriodPreset = "recent3" | "full" | "custom";
+type PeriodPreset = "recent1" | "recent3" | "recent5" | "full" | "custom";
 
 export function AptDetailPage({
   aptName,
   regionSlug,
   gu,
   initialAreaKey,
+  complexDetail = null,
 }: {
   aptName: string;
   regionSlug: string;
   gu?: string;
   /** URL ?area= — 명시 시 자동 기본값보다 우선 */
   initialAreaKey?: string;
+  /** Phase 7.2 enrichment (nullable; market must render without it) */
+  complexDetail?: ComplexDetailV1 | null;
 }) {
   const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
   /** 사용자/수동 선택. aptIdentity가 바뀌면 자동 기본값으로 복귀 */
@@ -348,7 +358,12 @@ export function AptDetailPage({
 
   const filtered = useMemo(() => {
     if (dealFilter === "all") return periodItems;
-    return periodItems.filter((item) => item.dealType === dealFilter);
+    if (dealFilter === "trade") {
+      return periodItems.filter((item) => item.dealType === "trade");
+    }
+    return periodItems.filter(
+      (item) => item.dealType === "rent" && Number(item.monthlyRent ?? 0) === 0,
+    );
   }, [periodItems, dealFilter]);
 
   const chartPoints = useMemo(() => {
@@ -406,7 +421,6 @@ export function AptDetailPage({
   const periodTradeCount = periodItems.filter(
     (i) => i.dealType === "trade",
   ).length;
-  const periodRentCount = periodItems.filter((i) => i.dealType === "rent").length;
   const periodMax =
     periodItems
       .filter((i) => i.dealType === "trade")
@@ -424,11 +438,42 @@ export function AptDetailPage({
       ? Math.round((latestTrade.dealAmount / periodMax - 1) * 1000) / 10
       : null;
 
+  const latestJeonse = useMemo(() => {
+    const rows = periodItems
+      .filter((i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0)
+      .sort((a, b) => (a.dealDate < b.dealDate ? 1 : -1));
+    return rows[0] ?? null;
+  }, [periodItems]);
+
+  const periodJeonseCount = periodItems.filter(
+    (i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0,
+  ).length;
+
+  const jeonseRatio =
+    latestTrade && latestJeonse && latestTrade.dealAmount > 0
+      ? Math.round((latestJeonse.dealAmount / latestTrade.dealAmount) * 1000) /
+        10
+      : null;
+  const saleJeonseGap =
+    latestTrade && latestJeonse
+      ? latestTrade.dealAmount - latestJeonse.dealAmount
+      : null;
+
+  const headerChips = complexHeaderChips(complexDetail);
+
   const grouped = useMemo(() => groupByYear(filtered), [filtered]);
 
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
-    setPeriodPreset(years === 3 ? "recent3" : "custom");
+    const preset =
+      years === 1
+        ? "recent1"
+        : years === 3
+          ? "recent3"
+          : years === 5
+            ? "recent5"
+            : "custom";
+    setPeriodPreset(preset);
     setRangeOverride(recentYearsRange(chartMonths.length, years));
   };
 
@@ -465,7 +510,13 @@ export function AptDetailPage({
     );
   }
 
-  const locationLabel = `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
+  const identity = complexDetail?.identity;
+  const locationLabel =
+    identity?.sigungu || identity?.legalDongName
+      ? [identity.sido, identity.sigungu, identity.legalDongName]
+          .filter(Boolean)
+          .join(" ")
+      : `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
     <div className={`${PAGE_SHELL} max-w-5xl`}>
@@ -486,10 +537,7 @@ export function AptDetailPage({
             </p>
             <p className="truncate text-[11px] text-slate-500">
               {locationLabel}
-              {data.buildYear ? ` · ${data.buildYear}년 입주` : ""}
-              {" · "}
-              매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
-              {data.stats.totalRentCount.toLocaleString("ko-KR")}건
+              {headerChips.length ? ` · ${headerChips.join(" · ")}` : ""}
             </p>
           </div>
         </div>
@@ -499,12 +547,23 @@ export function AptDetailPage({
         <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
         <PageHeader
           title={data.aptName}
-          description={`${locationLabel}${data.buildYear ? ` · ${data.buildYear}년 입주` : ""}`}
+          description={locationLabel}
           meta={
-            <span>
-              매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전월세{" "}
-              {data.stats.totalRentCount.toLocaleString("ko-KR")}건
-            </span>
+            <>
+              {headerChips.length > 0 ? (
+                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
+                  {headerChips.join(" · ")}
+                </p>
+              ) : data.buildYear ? (
+                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
+                  {data.buildYear}년 입주
+                </p>
+              ) : null}
+              <span>
+                매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전세{" "}
+                {data.stats.totalRentCount.toLocaleString("ko-KR")}건
+              </span>
+            </>
           }
         >
           <AptAreaSelector
@@ -531,37 +590,69 @@ export function AptDetailPage({
         <LabKpiCard
           label="최근 매매"
           value={latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
-          hint={latestTrade
+          hint={
+            latestTrade
               ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
-              : "선택 기간 거래 없음"}
+              : "선택 기간 거래 없음"
+          }
         />
         <LabKpiCard
-          label="기간 최고가"
-          value={periodMax > 0 ? formatEok(periodMax) : "—"}
-          hint="선택 기간·면적 기준"
+          label="최근 전세"
+          value={latestJeonse ? formatEok(latestJeonse.dealAmount) : "—"}
+          hint={
+            latestJeonse
+              ? `${formatDealDate(latestJeonse.dealDate)} · ${formatPyeong(latestJeonse.exclusiveArea)}`
+              : "선택 기간 전세 없음"
+          }
         />
         <LabKpiCard
           label="최고가 대비"
-          value={vsMaxPct == null
-            ? "—"
-            : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`}
+          value={
+            vsMaxPct == null
+              ? "—"
+              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`
+          }
           valueClassName={
-              vsMaxPct == null
-                ? "!text-slate-400"
-                : vsMaxPct < 0
-                  ? "!text-rose-600"
-                  : vsMaxPct > 0
-                    ? "!text-teal-700"
-                    : "!text-slate-700"
+            vsMaxPct == null
+              ? "!text-slate-400"
+              : vsMaxPct < 0
+                ? "!text-rose-600"
+                : vsMaxPct > 0
+                  ? "!text-teal-700"
+                  : "!text-slate-700"
           }
           hint="최근 매매 기준"
         />
         <LabKpiCard
           label="기간 거래량"
           value={`매매 ${periodTradeCount}건`}
-          hint={`전월세 ${periodRentCount}건`}
+          hint={`전세 ${periodJeonseCount}건`}
         />
       </div>
+
+      {jeonseRatio != null || saleJeonseGap != null ? (
+        <p className="text-xs text-slate-600 sm:text-[13px]">
+          {jeonseRatio != null ? (
+            <span>
+              전세가율{" "}
+              <span className="font-semibold tabular-nums text-slate-800">
+                {jeonseRatio}%
+              </span>
+            </span>
+          ) : null}
+          {jeonseRatio != null && saleJeonseGap != null ? (
+            <span className="text-slate-300"> · </span>
+          ) : null}
+          {saleJeonseGap != null ? (
+            <span>
+              매매-전세 갭{" "}
+              <span className="font-semibold tabular-nums text-slate-800">
+                {formatEok(saleJeonseGap)}
+              </span>
+            </span>
+          ) : null}
+        </p>
+      ) : null}
 
       <section className="lab-card p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
@@ -622,7 +713,7 @@ export function AptDetailPage({
               [
                 ["all", "전체"],
                 ["trade", "매매"],
-                ["rent", "전월세"],
+                ["rent", "전세"],
               ] as const
             ).map(([value, label]) => {
               const active = dealFilter === value;
@@ -667,6 +758,21 @@ export function AptDetailPage({
           </div>
         )}
       </section>
+
+      {complexDetail?.management ? (
+        <ComplexMgmtFeeCard management={complexDetail.management} />
+      ) : null}
+
+      {complexDetail?.basic || complexDetail?.building ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {complexDetail ? (
+            <ComplexBasicInfoCard detail={complexDetail} />
+          ) : null}
+          {complexDetail ? (
+            <ComplexBuildingInfoCard detail={complexDetail} />
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

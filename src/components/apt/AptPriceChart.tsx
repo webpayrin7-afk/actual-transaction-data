@@ -35,10 +35,11 @@ function ChartTooltip({
   payload,
 }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
-  const ym = payload[0]?.payload?.yearMonth as string | undefined;
+  const row = payload[0]?.payload as AptChartPoint | undefined;
+  const ym = row?.yearMonth;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
+    <div className="max-w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
       <p className="mb-1.5 font-medium text-slate-800">
         {ym ? formatYmLabel(ym) : ""}
       </p>
@@ -50,12 +51,12 @@ function ChartTooltip({
           return (
             <li
               key={name}
-              className="flex items-center justify-between gap-4 font-medium"
+              className="flex items-center justify-between gap-3 font-medium sm:gap-4"
               style={{
                 color: seriesTextColor(name),
               }}
             >
-              <span>{name}</span>
+              <span className="shrink-0">{name}</span>
               <span className="tabular-nums">
                 {value == null ? "—" : isVolume ? `${value}건` : `${value}억`}
               </span>
@@ -63,6 +64,14 @@ function ChartTooltip({
           );
         })}
       </ul>
+      {row?.tradeMax != null && row.tradeMax > 0 ? (
+        <p className="mt-1.5 border-t border-slate-100 pt-1.5 text-[11px] text-slate-500">
+          당월 매매 최고{" "}
+          <span className="font-semibold tabular-nums text-slate-700">
+            {toEok(row.tradeMax)}억
+          </span>
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -137,7 +146,12 @@ export function AptPriceChart({
             width={40}
             allowDecimals={false}
           />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip
+            content={<ChartTooltip />}
+            allowEscapeViewBox={{ x: true, y: true }}
+            wrapperStyle={{ zIndex: 40, outline: "none" }}
+            offset={12}
+          />
           <Legend
             verticalAlign="top"
             height={28}
@@ -208,7 +222,7 @@ export function PeriodRangeSlider({
   onChange: (start: number, end: number) => void;
   onRecentYears?: (years: number) => void;
   onFullRange?: () => void;
-  activePreset?: "recent3" | "full" | null;
+  activePreset?: "recent1" | "recent3" | "recent5" | "full" | null;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef({ startIndex, endIndex });
@@ -282,16 +296,24 @@ export function PeriodRangeSlider({
           {formatYmLabel(endYm)}
         </p>
         <div className="flex w-fit flex-wrap items-center gap-1">
-          {onRecentYears ? (
-            <button
-              type="button"
-              onClick={() => onRecentYears(3)}
-              aria-pressed={activePreset === "recent3"}
-              className={presetBtn(activePreset === "recent3")}
-            >
-              최근 3년
-            </button>
-          ) : null}
+          {onRecentYears
+            ? ([1, 3, 5] as const).map((years) => {
+                const key =
+                  years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
+                const pressed = activePreset === key;
+                return (
+                  <button
+                    key={years}
+                    type="button"
+                    onClick={() => onRecentYears(years)}
+                    aria-pressed={pressed}
+                    className={presetBtn(pressed)}
+                  >
+                    {years}년
+                  </button>
+                );
+              })
+            : null}
           {onFullRange ? (
             <button
               type="button"
@@ -299,7 +321,7 @@ export function PeriodRangeSlider({
               aria-pressed={activePreset === "full"}
               className={presetBtn(activePreset === "full")}
             >
-              전체 기간
+              전체
             </button>
           ) : null}
         </div>
