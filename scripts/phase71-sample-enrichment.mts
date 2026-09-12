@@ -259,7 +259,7 @@ async function main() {
             FROM apt_complex_master WHERE complex_id = ?`,
       args: [c.complex_id],
     });
-    const master = m.rows[0] as
+    const master = m.rows[0] as unknown as
       | {
           complex_id: string;
           apt_name: string;
@@ -302,10 +302,10 @@ async function main() {
             ORDER BY deal_date DESC LIMIT 1`,
       args: [master.lawd_cd, master.apt_name_norm],
     });
-    const saleRow = sale.rows[0] as
+    const saleRow = sale.rows[0] as unknown as
       | { deal_date: string; deal_amount: number; exclusive_area: number; floor: number }
       | undefined;
-    const jeonseRow = jeonse.rows[0] as
+    const jeonseRow = jeonse.rows[0] as unknown as
       | { deal_date: string; deal_amount: number; exclusive_area: number; floor: number }
       | undefined;
     entry.market_probe = {
@@ -448,7 +448,7 @@ async function main() {
           profile.source_version,
           profile.raw_meta_json,
           profile.updated_at,
-        ],
+        ] as Array<string | number | null>,
       });
       await upsertEnrichment(db, master.complex_id, "BASIC_INFO");
       await upsertEnrichment(db, master.complex_id, "BUILDING_INFO");
