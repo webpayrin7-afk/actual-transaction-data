@@ -1,0 +1,1095 @@
+{
+  "generated_at": "2026-09-11T11:53:58.361726+00:00",
+  "model_split": {
+    "apt_unit_types": "공식 건축물 타입 (전유+주거공용)",
+    "apt_pyeong_groups": "사용자 분석용 시장 그룹 (unit type 클러스터)"
+  },
+  "complexes": [
+    {
+      "key": "banpo-xi",
+      "profile": "신축급·광범위 면적·다타입",
+      "ledger": {
+        "fetched_items": 30695,
+        "unit_households": 3410,
+        "unit_type_count": 18,
+        "pyeong_group_count": 7
+      },
+      "trade_mapping": {
+        "trade_count": 1055,
+        "type_level": {
+          "exact": 854,
+          "multi": 201
+        },
+        "group_level": {
+          "exact": 1055
+        },
+        "label_level": {
+          "exact": 677,
+          "none": 378
+        }
+      },
+      "singoga": {
+        "exclusive_only": 302,
+        "market_group": 205
+      },
+      "metrics": {
+        "unit_type_exact_rate": 0.809478672985782,
+        "unit_type_multi_rate": 0.190521327014218,
+        "group_exact_map_rate": 1.0,
+        "group_auto_map_rate": 1.0,
+        "ambiguous_group_ratio": 0.2857142857142857,
+        "market_label_auto_rate": 0.5714285714285714
+      },
+      "anomalies": {
+        "units_with_dup_common": 0,
+        "units_partial_common_in_exclusive": 0,
+        "types_ambiguous": 0,
+        "types_zero_common": 0,
+        "types_partial_common": 0,
+        "groups_ambiguous": 2,
+        "groups_label_null": 3,
+        "ledger_vs_trade_exclusive_mismatch": false,
+        "trade_exclusive_values": [
+          59.97,
+          59.98,
+          84.94,
+          84.98,
+          85.0,
+          132.18,
+          132.44,
+          165.05,
+          165.45,
+          194.52,
+          194.69,
+          216.49,
+          244.54,
+          244.63,
+          244.97
+        ],
+        "ledger_exclusive_top": [
+          59.97,
+          59.98,
+          84.94,
+          84.98,
+          85.0,
+          132.18,
+          132.44,
+          165.05,
+          165.45,
+          194.52,
+          194.69,
+          216.49,
+          244.54,
+          244.63,
+          244.97
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "banpo-xi:G1:ex59.97-59.98",
+          "market_label": null,
+          "display_fallback": "전용 59.97~59.98㎡ · 공급 84.24~84.74㎡",
+          "supply": [
+            84.24,
+            84.74
+          ],
+          "exclusive": [
+            59.97,
+            59.98
+          ],
+          "households": 683,
+          "confidence": "grouped",
+          "unit_types": 2,
+          "label_null_reason": "small_24_25_zone"
+        },
+        {
+          "group_key": "banpo-xi:G2:ex84.94-85.00",
+          "market_label": 35,
+          "display_fallback": "35평형",
+          "supply": [
+            116.12,
+            117.08
+          ],
+          "exclusive": [
+            84.94,
+            85.0
+          ],
+          "households": 1363,
+          "confidence": "grouped",
+          "unit_types": 6,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "banpo-xi:G3:ex132.18-132.44",
+          "market_label": 50,
+          "display_fallback": "50평형",
+          "supply": [
+            165.53,
+            166.05
+          ],
+          "exclusive": [
+            132.18,
+            132.44
+          ],
+          "households": 340,
+          "confidence": "grouped",
+          "unit_types": 2,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "banpo-xi:G4:ex165.05-165.45",
+          "market_label": null,
+          "display_fallback": "전용 165.05~165.45㎡ · 공급 199.81~200.13㎡",
+          "supply": [
+            199.81,
+            200.13
+          ],
+          "exclusive": [
+            165.05,
+            165.45
+          ],
+          "households": 340,
+          "confidence": "ambiguous",
+          "unit_types": 2,
+          "label_null_reason": "vote_conflict"
+        },
+        {
+          "group_key": "banpo-xi:G5:ex194.52-194.69",
+          "market_label": 70,
+          "display_fallback": "70평형",
+          "supply": [
+            232.68,
+            232.69
+          ],
+          "exclusive": [
+            194.52,
+            194.69
+          ],
+          "households": 296,
+          "confidence": "grouped",
+          "unit_types": 2,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "banpo-xi:G6:ex216.49-216.49",
+          "market_label": 80,
+          "display_fallback": "80평형",
+          "supply": [
+            264.8,
+            264.8
+          ],
+          "exclusive": [
+            216.49,
+            216.49
+          ],
+          "households": 162,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "banpo-xi:G7:ex244.54-244.97",
+          "market_label": null,
+          "display_fallback": "전용 244.54~244.97㎡ · 공급 297.54~301.39㎡",
+          "supply": [
+            297.54,
+            301.39
+          ],
+          "exclusive": [
+            244.54,
+            244.97
+          ],
+          "households": 226,
+          "confidence": "ambiguous",
+          "unit_types": 3,
+          "label_null_reason": "vote_conflict"
+        }
+      ],
+      "hangang_117_audit": null,
+      "false_singoga_examples": [
+        {
+          "id": "trade-11650-2016-10-18-반포자이-반포동-5-163000-84.998-188",
+          "deal_date": "2016-10-18",
+          "exclusive_area": 84.998,
+          "deal_amount": 163000,
+          "group_key": "ex:8500",
+          "prev_high": 152000.0
+        },
+        {
+          "id": "trade-11650-2017-01-31-반포자이-반포동-26-219000-132.439-82",
+          "deal_date": "2017-01-31",
+          "exclusive_area": 132.439,
+          "deal_amount": 219000,
+          "group_key": "ex:13244",
+          "prev_high": 215000.0
+        },
+        {
+          "id": "trade-11650-2017-04-06-반포자이-반포동-12-167000-84.998-317",
+          "deal_date": "2017-04-06",
+          "exclusive_area": 84.998,
+          "deal_amount": 167000,
+          "group_key": "ex:8500",
+          "prev_high": 163000.0
+        },
+        {
+          "id": "trade-11650-2017-04-11-반포자이-반포동-21-168000-84.998-322",
+          "deal_date": "2017-04-11",
+          "exclusive_area": 84.998,
+          "deal_amount": 168000,
+          "group_key": "ex:8500",
+          "prev_high": 167000.0
+        },
+        {
+          "id": "trade-11650-2017-04-15-반포자이-반포동-21-166000-84.984-316",
+          "deal_date": "2017-04-15",
+          "exclusive_area": 84.984,
+          "deal_amount": 166000,
+          "group_key": "ex:8498",
+          "prev_high": 155000.0
+        }
+      ]
+    },
+    {
+      "key": "eunma",
+      "profile": "구축 대단지·전형 76/84",
+      "ledger": {
+        "fetched_items": 24066,
+        "unit_households": 4424,
+        "unit_type_count": 27,
+        "pyeong_group_count": 6
+      },
+      "trade_mapping": {
+        "trade_count": 1124,
+        "type_level": {
+          "multi": 1124
+        },
+        "group_level": {
+          "exact": 1124
+        },
+        "label_level": {
+          "none": 1124
+        }
+      },
+      "singoga": {
+        "exclusive_only": 125,
+        "market_group": 125
+      },
+      "metrics": {
+        "unit_type_exact_rate": 0.0,
+        "unit_type_multi_rate": 1.0,
+        "group_exact_map_rate": 1.0,
+        "group_auto_map_rate": 1.0,
+        "ambiguous_group_ratio": 1.0,
+        "market_label_auto_rate": 0.0
+      },
+      "anomalies": {
+        "units_with_dup_common": 0,
+        "units_partial_common_in_exclusive": 4407,
+        "types_ambiguous": 16,
+        "types_zero_common": 16,
+        "types_partial_common": 16,
+        "groups_ambiguous": 6,
+        "groups_label_null": 6,
+        "ledger_vs_trade_exclusive_mismatch": false,
+        "trade_exclusive_values": [
+          76.79,
+          84.43
+        ],
+        "ledger_exclusive_top": [
+          76.76,
+          76.79,
+          84.43,
+          91.94,
+          92.57,
+          93.43,
+          93.46,
+          94.42,
+          94.76,
+          95.18,
+          99.12,
+          104.37,
+          104.71,
+          105.46,
+          107.24,
+          107.41,
+          107.89
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "eunma:G1:ex76.76-76.79",
+          "market_label": null,
+          "display_fallback": "전용 76.76~76.79㎡ · 공급 76.79~101.52㎡",
+          "supply": [
+            76.79,
+            101.52
+          ],
+          "exclusive": [
+            76.76,
+            76.79
+          ],
+          "households": 14,
+          "confidence": "ambiguous",
+          "unit_types": 6,
+          "label_null_reason": "exclusive_includes_partial_common"
+        },
+        {
+          "group_key": "eunma:G2:ex84.43-84.43",
+          "market_label": null,
+          "display_fallback": "전용 84.43㎡ · 공급 84.43~91.32㎡",
+          "supply": [
+            84.43,
+            91.32
+          ],
+          "exclusive": [
+            84.43,
+            84.43
+          ],
+          "households": 10,
+          "confidence": "ambiguous",
+          "unit_types": 4,
+          "label_null_reason": "vote_conflict"
+        },
+        {
+          "group_key": "eunma:G3:ex91.94-95.18",
+          "market_label": null,
+          "display_fallback": "전용 91.94~95.18㎡ · 공급 91.94~101.04㎡",
+          "supply": [
+            91.94,
+            101.04
+          ],
+          "exclusive": [
+            91.94,
+            95.18
+          ],
+          "households": 2659,
+          "confidence": "ambiguous",
+          "unit_types": 9,
+          "label_null_reason": "exclusive_includes_partial_common"
+        },
+        {
+          "group_key": "eunma:G4:ex99.12-99.12",
+          "market_label": null,
+          "display_fallback": "전용 99.12㎡",
+          "supply": [
+            99.12,
+            99.12
+          ],
+          "exclusive": [
+            99.12,
+            99.12
+          ],
+          "households": 1,
+          "confidence": "ambiguous",
+          "unit_types": 1,
+          "label_null_reason": "exclusive_includes_partial_common"
+        },
+        {
+          "group_key": "eunma:G5:ex104.37-105.46",
+          "market_label": null,
+          "display_fallback": "전용 104.37~105.46㎡ · 공급 104.37~111.50㎡",
+          "supply": [
+            104.37,
+            111.5
+          ],
+          "exclusive": [
+            104.37,
+            105.46
+          ],
+          "households": 1253,
+          "confidence": "ambiguous",
+          "unit_types": 4,
+          "label_null_reason": "exclusive_includes_partial_common"
+        },
+        {
+          "group_key": "eunma:G6:ex107.24-107.89",
+          "market_label": null,
+          "display_fallback": "전용 107.24~107.89㎡ · 공급 107.24~107.89㎡",
+          "supply": [
+            107.24,
+            107.89
+          ],
+          "exclusive": [
+            107.24,
+            107.89
+          ],
+          "households": 487,
+          "confidence": "ambiguous",
+          "unit_types": 3,
+          "label_null_reason": "exclusive_includes_partial_common"
+        }
+      ],
+      "hangang_117_audit": null,
+      "false_singoga_examples": []
+    },
+    {
+      "key": "hangang-daewoo",
+      "profile": "구축·동일전용 A/B/C·공급차이",
+      "ledger": {
+        "fetched_items": 7506,
+        "unit_households": 834,
+        "unit_type_count": 11,
+        "pyeong_group_count": 4
+      },
+      "trade_mapping": {
+        "trade_count": 266,
+        "type_level": {
+          "multi": 194,
+          "exact": 72
+        },
+        "group_level": {
+          "exact": 266
+        },
+        "label_level": {
+          "none": 86,
+          "exact": 180
+        }
+      },
+      "singoga": {
+        "exclusive_only": 85,
+        "market_group": 80
+      },
+      "metrics": {
+        "unit_type_exact_rate": 0.2706766917293233,
+        "unit_type_multi_rate": 0.7293233082706767,
+        "group_exact_map_rate": 1.0,
+        "group_auto_map_rate": 1.0,
+        "ambiguous_group_ratio": 0.0,
+        "market_label_auto_rate": 0.75
+      },
+      "anomalies": {
+        "units_with_dup_common": 0,
+        "units_partial_common_in_exclusive": 0,
+        "types_ambiguous": 0,
+        "types_zero_common": 0,
+        "types_partial_common": 0,
+        "groups_ambiguous": 0,
+        "groups_label_null": 1,
+        "ledger_vs_trade_exclusive_mismatch": false,
+        "trade_exclusive_values": [
+          59.98,
+          60.0,
+          84.94,
+          84.98,
+          134.13,
+          135.27,
+          135.5,
+          135.87
+        ],
+        "ledger_exclusive_top": [
+          59.98,
+          60.0,
+          84.94,
+          84.98,
+          134.13,
+          135.27,
+          135.5,
+          135.87
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "A14003105:G1:ex59.98-60.00",
+          "market_label": null,
+          "display_fallback": "전용 59.98~60.00㎡ · 공급 81.60~82.31㎡",
+          "supply": [
+            81.6,
+            82.31
+          ],
+          "exclusive": [
+            59.98,
+            60.0
+          ],
+          "households": 206,
+          "confidence": "grouped",
+          "unit_types": 4,
+          "label_null_reason": "small_24_25_zone"
+        },
+        {
+          "group_key": "A14003105:G2:ex84.94-84.98",
+          "market_label": 33,
+          "display_fallback": "33평형",
+          "supply": [
+            109.26,
+            117.13
+          ],
+          "exclusive": [
+            84.94,
+            84.98
+          ],
+          "households": 357,
+          "confidence": "grouped",
+          "unit_types": 3,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "A14003105:G3:ex134.13-134.13",
+          "market_label": 49,
+          "display_fallback": "49평형",
+          "supply": [
+            163.34,
+            163.34
+          ],
+          "exclusive": [
+            134.13,
+            134.13
+          ],
+          "households": 156,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "A14003105:G4:ex135.27-135.87",
+          "market_label": 50,
+          "display_fallback": "50평형",
+          "supply": [
+            164.89,
+            166.73
+          ],
+          "exclusive": [
+            135.27,
+            135.87
+          ],
+          "households": 115,
+          "confidence": "grouped",
+          "unit_types": 3,
+          "label_null_reason": null
+        }
+      ],
+      "hangang_117_audit": {
+        "households": 40,
+        "dongs": [
+          "108동"
+        ],
+        "common_parts_unique": [
+          [
+            [
+              "계단실,엘리베이터",
+              23.14
+            ],
+            [
+              "지하대피소",
+              9.01
+            ]
+          ]
+        ],
+        "dup_common_any": false,
+        "all_same_structure": true,
+        "exclusive": [
+          84.98
+        ],
+        "note": "108동 40세대 동일구조. 공용=계단실/엘리베이터+지하대피소. 중복합산 없음.",
+        "public_crosscheck": [
+          {
+            "source": "hwik.kr",
+            "finding": "33평형 공급 109.3~117.1; 타입117=117.1㎡ 40세대. 109A/B와 동일 33평 그룹."
+          },
+          {
+            "source": "hogangnono.com",
+            "finding": "33평 그룹 존재. 81계열은 24평 표기(휘익은 25평) → 라벨만 충돌."
+          }
+        ]
+      },
+      "false_singoga_examples": [
+        {
+          "id": "trade-11170-2020-07-11-한강(대우)-이촌동-19-143500-60-162",
+          "deal_date": "2020-07-11",
+          "exclusive_area": 60,
+          "deal_amount": 143500,
+          "group_key": "ex:6000",
+          "prev_high": 140000.0
+        },
+        {
+          "id": "trade-11170-2021-03-04-한강(대우)-이촌동-19-160000-59.98-54",
+          "deal_date": "2021-03-04",
+          "exclusive_area": 59.98,
+          "deal_amount": 160000,
+          "group_key": "ex:5998",
+          "prev_high": 144000.0
+        },
+        {
+          "id": "trade-11170-2021-06-21-한강(대우)-이촌동-3-197000-84.94-25",
+          "deal_date": "2021-06-21",
+          "exclusive_area": 84.94,
+          "deal_amount": 197000,
+          "group_key": "ex:8494",
+          "prev_high": 151000.0
+        },
+        {
+          "id": "trade-11170-2025-03-20-한강(대우)-이촌동-415-19-241000-0-135.27",
+          "deal_date": "2025-03-20",
+          "exclusive_area": 135.27,
+          "deal_amount": 241000,
+          "group_key": "ex:13527",
+          "prev_high": 165000.0
+        },
+        {
+          "id": "trade-11170-2025-06-12-한강(대우)-이촌동-17-201000-59.98-146",
+          "deal_date": "2025-06-12",
+          "exclusive_area": 59.98,
+          "deal_amount": 201000,
+          "group_key": "ex:5998",
+          "prev_high": 160000.0
+        }
+      ]
+    },
+    {
+      "key": "jamsil-els",
+      "profile": "구축 대단지·59/84/114",
+      "ledger": {
+        "fetched_items": 39746,
+        "unit_households": 5678,
+        "unit_type_count": 7,
+        "pyeong_group_count": 3
+      },
+      "trade_mapping": {
+        "trade_count": 1647,
+        "type_level": {
+          "exact": 1064,
+          "multi": 583
+        },
+        "group_level": {
+          "exact": 1647
+        },
+        "label_level": {
+          "none": 1504,
+          "exact": 143
+        }
+      },
+      "singoga": {
+        "exclusive_only": 213,
+        "market_group": 156
+      },
+      "metrics": {
+        "unit_type_exact_rate": 0.6460230722525805,
+        "unit_type_multi_rate": 0.35397692774741957,
+        "group_exact_map_rate": 1.0,
+        "group_auto_map_rate": 1.0,
+        "ambiguous_group_ratio": 0.3333333333333333,
+        "market_label_auto_rate": 0.3333333333333333
+      },
+      "anomalies": {
+        "units_with_dup_common": 0,
+        "units_partial_common_in_exclusive": 0,
+        "types_ambiguous": 0,
+        "types_zero_common": 0,
+        "types_partial_common": 0,
+        "groups_ambiguous": 1,
+        "groups_label_null": 2,
+        "ledger_vs_trade_exclusive_mismatch": false,
+        "trade_exclusive_values": [
+          59.96,
+          84.8,
+          84.88,
+          84.97,
+          119.93
+        ],
+        "ledger_exclusive_top": [
+          59.96,
+          84.8,
+          84.88,
+          84.97,
+          119.93
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "jamsil-els:G1:ex59.96-59.96",
+          "market_label": null,
+          "display_fallback": "전용 59.96㎡ · 공급 84.75~84.77㎡",
+          "supply": [
+            84.75,
+            84.77
+          ],
+          "exclusive": [
+            59.96,
+            59.96
+          ],
+          "households": 1150,
+          "confidence": "grouped",
+          "unit_types": 2,
+          "label_null_reason": "small_24_25_zone"
+        },
+        {
+          "group_key": "jamsil-els:G2:ex84.80-84.97",
+          "market_label": null,
+          "display_fallback": "전용 84.80~84.97㎡ · 공급 109.29~111.52㎡",
+          "supply": [
+            109.29,
+            111.52
+          ],
+          "exclusive": [
+            84.8,
+            84.97
+          ],
+          "households": 4042,
+          "confidence": "ambiguous",
+          "unit_types": 3,
+          "label_null_reason": "vote_conflict"
+        },
+        {
+          "group_key": "jamsil-els:G3:ex119.93-119.93",
+          "market_label": 45,
+          "display_fallback": "45평형",
+          "supply": [
+            149.88,
+            149.89
+          ],
+          "exclusive": [
+            119.93,
+            119.93
+          ],
+          "households": 486,
+          "confidence": "grouped",
+          "unit_types": 2,
+          "label_null_reason": null
+        }
+      ],
+      "hangang_117_audit": null,
+      "false_singoga_examples": [
+        {
+          "id": "trade-11710-2016-10-05-잠실엘스-잠실동-11-113000-84.8-170",
+          "deal_date": "2016-10-05",
+          "exclusive_area": 84.8,
+          "deal_amount": 113000,
+          "group_key": "ex:8480",
+          "prev_high": 112500.0
+        },
+        {
+          "id": "trade-11710-2016-10-21-잠실엘스-잠실동-22-122000-84.97-280",
+          "deal_date": "2016-10-21",
+          "exclusive_area": 84.97,
+          "deal_amount": 122000,
+          "group_key": "ex:8497",
+          "prev_high": 115800.0
+        },
+        {
+          "id": "trade-11710-2017-04-24-잠실엘스-잠실동-12-118000-84.88-25",
+          "deal_date": "2017-04-24",
+          "exclusive_area": 84.88,
+          "deal_amount": 118000,
+          "group_key": "ex:8488",
+          "prev_high": 112500.0
+        },
+        {
+          "id": "trade-11710-2017-05-09-잠실엘스-잠실동-19-123000-84.88-280",
+          "deal_date": "2017-05-09",
+          "exclusive_area": 84.88,
+          "deal_amount": 123000,
+          "group_key": "ex:8488",
+          "prev_high": 118000.0
+        },
+        {
+          "id": "trade-11710-2017-05-24-잠실엘스-잠실동-13-124500-84.88-513",
+          "deal_date": "2017-05-24",
+          "exclusive_area": 84.88,
+          "deal_amount": 124500,
+          "group_key": "ex:8488",
+          "prev_high": 123000.0
+        }
+      ]
+    },
+    {
+      "key": "raemian-hill-godeok",
+      "profile": "신축 대단지·다타입",
+      "ledger": {
+        "fetched_items": 37087,
+        "unit_households": 3658,
+        "unit_type_count": 21,
+        "pyeong_group_count": 10
+      },
+      "trade_mapping": {
+        "trade_count": 1502,
+        "type_level": {
+          "exact": 1259,
+          "multi": 243
+        },
+        "group_level": {
+          "exact": 1502
+        },
+        "label_level": {
+          "exact": 1025,
+          "none": 477
+        }
+      },
+      "singoga": {
+        "exclusive_only": 370,
+        "market_group": 185
+      },
+      "metrics": {
+        "unit_type_exact_rate": 0.8382157123834887,
+        "unit_type_multi_rate": 0.1617842876165113,
+        "group_exact_map_rate": 1.0,
+        "group_auto_map_rate": 1.0,
+        "ambiguous_group_ratio": 0.1,
+        "market_label_auto_rate": 0.8
+      },
+      "anomalies": {
+        "units_with_dup_common": 0,
+        "units_partial_common_in_exclusive": 0,
+        "types_ambiguous": 0,
+        "types_zero_common": 0,
+        "types_partial_common": 0,
+        "groups_ambiguous": 1,
+        "groups_label_null": 2,
+        "ledger_vs_trade_exclusive_mismatch": false,
+        "trade_exclusive_values": [
+          59.23,
+          59.35,
+          59.92,
+          59.96,
+          72.02,
+          84.74,
+          84.83,
+          84.88,
+          84.9,
+          84.93,
+          84.94,
+          97.0,
+          97.26,
+          109.81,
+          120.01,
+          141.64
+        ],
+        "ledger_exclusive_top": [
+          59.23,
+          59.35,
+          59.92,
+          59.96,
+          72.02,
+          84.74,
+          84.83,
+          84.88,
+          84.9,
+          84.93,
+          84.94,
+          97.0,
+          97.26,
+          101.14,
+          109.81,
+          120.01,
+          141.64,
+          161.69,
+          161.93,
+          192.58
+        ]
+      },
+      "groups": [
+        {
+          "group_key": "raemian-hill-godeok:G1:ex59.23-59.96",
+          "market_label": null,
+          "display_fallback": "전용 59.23~59.96㎡ · 공급 82.55~94.20㎡",
+          "supply": [
+            82.55,
+            94.2
+          ],
+          "exclusive": [
+            59.23,
+            59.96
+          ],
+          "households": 1074,
+          "confidence": "grouped",
+          "unit_types": 4,
+          "label_null_reason": "small_24_25_zone"
+        },
+        {
+          "group_key": "raemian-hill-godeok:G2:ex72.02-72.02",
+          "market_label": 30,
+          "display_fallback": "30평형",
+          "supply": [
+            99.01,
+            99.01
+          ],
+          "exclusive": [
+            72.02,
+            72.02
+          ],
+          "households": 96,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "raemian-hill-godeok:G3:ex84.74-84.94",
+          "market_label": 35,
+          "display_fallback": "35평형",
+          "supply": [
+            115.05,
+            140.47
+          ],
+          "exclusive": [
+            84.74,
+            84.94
+          ],
+          "households": 2009,
+          "confidence": "grouped",
+          "unit_types": 7,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "raemian-hill-godeok:G4:ex97.00-97.26",
+          "market_label": 40,
+          "display_fallback": "40평형",
+          "supply": [
+            132.08,
+            132.18
+          ],
+          "exclusive": [
+            97.0,
+            97.26
+          ],
+          "households": 372,
+          "confidence": "grouped",
+          "unit_types": 2,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "raemian-hill-godeok:G5:ex101.14-101.14",
+          "market_label": 42,
+          "display_fallback": "42평형",
+          "supply": [
+            138.54,
+            138.54
+          ],
+          "exclusive": [
+            101.14,
+            101.14
+          ],
+          "households": 4,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "raemian-hill-godeok:G6:ex109.81-109.81",
+          "market_label": 45,
+          "display_fallback": "45평형",
+          "supply": [
+            148.63,
+            148.63
+          ],
+          "exclusive": [
+            109.81,
+            109.81
+          ],
+          "households": 64,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "raemian-hill-godeok:G7:ex120.01-120.01",
+          "market_label": 49,
+          "display_fallback": "49평형",
+          "supply": [
+            161.96,
+            161.96
+          ],
+          "exclusive": [
+            120.01,
+            120.01
+          ],
+          "households": 32,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "raemian-hill-godeok:G8:ex141.64-141.64",
+          "market_label": 59,
+          "display_fallback": "59평형",
+          "supply": [
+            194.06,
+            194.06
+          ],
+          "exclusive": [
+            141.64,
+            141.64
+          ],
+          "households": 4,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        },
+        {
+          "group_key": "raemian-hill-godeok:G9:ex161.69-161.93",
+          "market_label": null,
+          "display_fallback": "전용 161.69~161.93㎡ · 공급 221.73~223.15㎡",
+          "supply": [
+            221.73,
+            223.15
+          ],
+          "exclusive": [
+            161.69,
+            161.93
+          ],
+          "households": 2,
+          "confidence": "ambiguous",
+          "unit_types": 2,
+          "label_null_reason": "vote_conflict"
+        },
+        {
+          "group_key": "raemian-hill-godeok:G10:ex192.58-192.58",
+          "market_label": 80,
+          "display_fallback": "80평형",
+          "supply": [
+            263.29,
+            263.29
+          ],
+          "exclusive": [
+            192.58,
+            192.58
+          ],
+          "households": 1,
+          "confidence": "exact",
+          "unit_types": 1,
+          "label_null_reason": null
+        }
+      ],
+      "hangang_117_audit": null,
+      "false_singoga_examples": [
+        {
+          "id": "trade-11740-2017-02-10-래미안힐스테이트고덕-고덕동-13-60000-59.35-112",
+          "deal_date": "2017-02-10",
+          "exclusive_area": 59.35,
+          "deal_amount": 60000,
+          "group_key": "ex:5935",
+          "prev_high": 59800.0
+        },
+        {
+          "id": "trade-11740-2017-03-03-래미안힐스테이트고덕-고덕동-27-81500-97-430",
+          "deal_date": "2017-03-03",
+          "exclusive_area": 97,
+          "deal_amount": 81500,
+          "group_key": "ex:9700",
+          "prev_high": 80100.0
+        },
+        {
+          "id": "trade-11740-2017-03-06-래미안힐스테이트고덕-고덕동-9-60800-59.35-100",
+          "deal_date": "2017-03-06",
+          "exclusive_area": 59.35,
+          "deal_amount": 60800,
+          "group_key": "ex:5935",
+          "prev_high": 60000.0
+        },
+        {
+          "id": "trade-11740-2017-03-11-래미안힐스테이트고덕-고덕동-12-61000-59.35-258",
+          "deal_date": "2017-03-11",
+          "exclusive_area": 59.35,
+          "deal_amount": 61000,
+          "group_key": "ex:5935",
+          "prev_high": 60800.0
+        },
+        {
+          "id": "trade-11740-2017-03-15-래미안힐스테이트고덕-고덕동-9-61500-59.35-138",
+          "deal_date": "2017-03-15",
+          "exclusive_area": 59.35,
+          "deal_amount": 61500,
+          "group_key": "ex:5935",
+          "prev_high": 61000.0
+        }
+      ]
+    }
+  ]
+}

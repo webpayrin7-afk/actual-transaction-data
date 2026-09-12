@@ -1,0 +1,1867 @@
+{
+  "count": 266,
+  "trades": [
+    {
+      "id": "trade-11170-2016-10-29-한강(대우)-이촌동-15-79500-60-35",
+      "deal_date": "2016-10-29",
+      "exclusive_area": 60,
+      "deal_amount": 79500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2016-10-30-한강(대우)-이촌동-7-122000-134.13-107",
+      "deal_date": "2016-10-30",
+      "exclusive_area": 134.13,
+      "deal_amount": 122000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2016-12-06-한강(대우)-이촌동-11-115000-135.87-62",
+      "deal_date": "2016-12-06",
+      "exclusive_area": 135.87,
+      "deal_amount": 115000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-02-08-한강(대우)-이촌동-2-103000-134.13-101",
+      "deal_date": "2017-02-08",
+      "exclusive_area": 134.13,
+      "deal_amount": 103000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-03-06-한강(대우)-이촌동-15-116000-135.87-143",
+      "deal_date": "2017-03-06",
+      "exclusive_area": 135.87,
+      "deal_amount": 116000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-03-30-한강(대우)-이촌동-13-89500-84.98-132",
+      "deal_date": "2017-03-30",
+      "exclusive_area": 84.98,
+      "deal_amount": 89500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-04-한강(대우)-이촌동-14-90000-84.98-83",
+      "deal_date": "2017-04-04",
+      "exclusive_area": 84.98,
+      "deal_amount": 90000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-08-한강(대우)-이촌동-4-89800-84.98-112",
+      "deal_date": "2017-04-08",
+      "exclusive_area": 84.98,
+      "deal_amount": 89800,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-10-한강(대우)-이촌동-22-90000-84.98-210",
+      "deal_date": "2017-04-10",
+      "exclusive_area": 84.98,
+      "deal_amount": 90000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-13-한강(대우)-이촌동-13-90000-84.98-151",
+      "deal_date": "2017-04-13",
+      "exclusive_area": 84.98,
+      "deal_amount": 90000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-16-한강(대우)-이촌동-22-96000-84.98-150",
+      "deal_date": "2017-04-16",
+      "exclusive_area": 84.98,
+      "deal_amount": 96000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-22-한강(대우)-이촌동-14-102300-84.98-182",
+      "deal_date": "2017-04-22",
+      "exclusive_area": 84.98,
+      "deal_amount": 102300,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-26-한강(대우)-이촌동-17-75500-60-26",
+      "deal_date": "2017-04-26",
+      "exclusive_area": 60,
+      "deal_amount": 75500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-04-29-한강(대우)-이촌동-19-81500-60-120",
+      "deal_date": "2017-04-29",
+      "exclusive_area": 60,
+      "deal_amount": 81500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-06-한강(대우)-이촌동-13-76800-60-227",
+      "deal_date": "2017-05-06",
+      "exclusive_area": 60,
+      "deal_amount": 76800,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-09-한강(대우)-이촌동-1-69000-60-347",
+      "deal_date": "2017-05-09",
+      "exclusive_area": 60,
+      "deal_amount": 69000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-13-한강(대우)-이촌동-5-94500-84.98-124",
+      "deal_date": "2017-05-13",
+      "exclusive_area": 84.98,
+      "deal_amount": 94500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-19-한강(대우)-이촌동-21-125000-134.13-148",
+      "deal_date": "2017-05-19",
+      "exclusive_area": 134.13,
+      "deal_amount": 125000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-20-한강(대우)-이촌동-2-128000-134.13-1",
+      "deal_date": "2017-05-20",
+      "exclusive_area": 134.13,
+      "deal_amount": 128000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-22-한강(대우)-이촌동-5-120000-134.13-194",
+      "deal_date": "2017-05-22",
+      "exclusive_area": 134.13,
+      "deal_amount": 120000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-23-한강(대우)-이촌동-1-72000-60-281",
+      "deal_date": "2017-05-23",
+      "exclusive_area": 60,
+      "deal_amount": 72000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-23-한강(대우)-이촌동-2-95000-84.98-395",
+      "deal_date": "2017-05-23",
+      "exclusive_area": 84.98,
+      "deal_amount": 95000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-27-한강(대우)-이촌동-4-83500-60-187",
+      "deal_date": "2017-05-27",
+      "exclusive_area": 60,
+      "deal_amount": 83500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-28-한강(대우)-이촌동-15-97000-84.98-96",
+      "deal_date": "2017-05-28",
+      "exclusive_area": 84.98,
+      "deal_amount": 97000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-05-30-한강(대우)-이촌동-2-80000-60-215",
+      "deal_date": "2017-05-30",
+      "exclusive_area": 60,
+      "deal_amount": 80000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-06-03-한강(대우)-이촌동-18-130000-134.13-275",
+      "deal_date": "2017-06-03",
+      "exclusive_area": 134.13,
+      "deal_amount": 130000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-06-10-한강(대우)-이촌동-17-135000-134.13-211",
+      "deal_date": "2017-06-10",
+      "exclusive_area": 134.13,
+      "deal_amount": 135000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-06-27-한강(대우)-이촌동-8-84500-60-67",
+      "deal_date": "2017-06-27",
+      "exclusive_area": 60,
+      "deal_amount": 84500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-07-06-한강(대우)-이촌동-7-135000-135.87-122",
+      "deal_date": "2017-07-06",
+      "exclusive_area": 135.87,
+      "deal_amount": 135000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-07-13-한강(대우)-이촌동-1-79500-60-302",
+      "deal_date": "2017-07-13",
+      "exclusive_area": 60,
+      "deal_amount": 79500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-07-19-한강(대우)-이촌동-20-135000-135.87-80",
+      "deal_date": "2017-07-19",
+      "exclusive_area": 135.87,
+      "deal_amount": 135000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-07-21-한강(대우)-이촌동-18-115000-84.98-145",
+      "deal_date": "2017-07-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 115000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-09-20-한강(대우)-이촌동-20-100000-84.98-70",
+      "deal_date": "2017-09-20",
+      "exclusive_area": 84.98,
+      "deal_amount": 100000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-11-04-한강(대우)-이촌동-4-113000-84.98-64",
+      "deal_date": "2017-11-04",
+      "exclusive_area": 84.98,
+      "deal_amount": 113000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-11-06-한강(대우)-이촌동-22-120000-84.98-139",
+      "deal_date": "2017-11-06",
+      "exclusive_area": 84.98,
+      "deal_amount": 120000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-11-18-한강(대우)-이촌동-10-115500-84.98-18",
+      "deal_date": "2017-11-18",
+      "exclusive_area": 84.98,
+      "deal_amount": 115500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-11-20-한강(대우)-이촌동-18-90000-60-112",
+      "deal_date": "2017-11-20",
+      "exclusive_area": 60,
+      "deal_amount": 90000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-11-25-한강(대우)-이촌동-13-141700-134.13-7",
+      "deal_date": "2017-11-25",
+      "exclusive_area": 134.13,
+      "deal_amount": 141700,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-11-29-한강(대우)-이촌동-12-114000-84.98-21",
+      "deal_date": "2017-11-29",
+      "exclusive_area": 84.98,
+      "deal_amount": 114000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-04-한강(대우)-이촌동-18-116000-84.98-163",
+      "deal_date": "2017-12-04",
+      "exclusive_area": 84.98,
+      "deal_amount": 116000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-07-한강(대우)-이촌동-16-134000-135.87-176",
+      "deal_date": "2017-12-07",
+      "exclusive_area": 135.87,
+      "deal_amount": 134000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-08-한강(대우)-이촌동-18-90000-60-262",
+      "deal_date": "2017-12-08",
+      "exclusive_area": 60,
+      "deal_amount": 90000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-13-한강(대우)-이촌동-16-95000-60-220",
+      "deal_date": "2017-12-13",
+      "exclusive_area": 60,
+      "deal_amount": 95000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-16-한강(대우)-이촌동-17-140000-135.87-31",
+      "deal_date": "2017-12-16",
+      "exclusive_area": 135.87,
+      "deal_amount": 140000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-17-한강(대우)-이촌동-18-104000-84.98-141",
+      "deal_date": "2017-12-17",
+      "exclusive_area": 84.98,
+      "deal_amount": 104000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-18-한강(대우)-이촌동-20-125000-84.98-83",
+      "deal_date": "2017-12-18",
+      "exclusive_area": 84.98,
+      "deal_amount": 125000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-22-한강(대우)-이촌동-7-143000-135.27-65",
+      "deal_date": "2017-12-22",
+      "exclusive_area": 135.27,
+      "deal_amount": 143000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-26-한강(대우)-이촌동-17-118500-84.98-212",
+      "deal_date": "2017-12-26",
+      "exclusive_area": 84.98,
+      "deal_amount": 118500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-28-한강(대우)-이촌동-12-95000-60-9",
+      "deal_date": "2017-12-28",
+      "exclusive_area": 60,
+      "deal_amount": 95000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2017-12-28-한강(대우)-이촌동-14-93000-60-205",
+      "deal_date": "2017-12-28",
+      "exclusive_area": 60,
+      "deal_amount": 93000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-03-한강(대우)-이촌동-2-110000-84.98-3",
+      "deal_date": "2018-01-03",
+      "exclusive_area": 84.98,
+      "deal_amount": 110000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-06-한강(대우)-이촌동-22-143000-134.13-176",
+      "deal_date": "2018-01-06",
+      "exclusive_area": 134.13,
+      "deal_amount": 143000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-06-한강(대우)-이촌동-3-98000-60-381",
+      "deal_date": "2018-01-06",
+      "exclusive_area": 60,
+      "deal_amount": 98000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-06-한강(대우)-이촌동-9-95000-60-208",
+      "deal_date": "2018-01-06",
+      "exclusive_area": 60,
+      "deal_amount": 95000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-08-한강(대우)-이촌동-1-130000-134.13-159",
+      "deal_date": "2018-01-08",
+      "exclusive_area": 134.13,
+      "deal_amount": 130000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-08-한강(대우)-이촌동-13-120000-84.98-362",
+      "deal_date": "2018-01-08",
+      "exclusive_area": 84.98,
+      "deal_amount": 120000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-15-한강(대우)-이촌동-19-150000-135.5-259",
+      "deal_date": "2018-01-15",
+      "exclusive_area": 135.5,
+      "deal_amount": 150000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-19-한강(대우)-이촌동-18-98000-60-126",
+      "deal_date": "2018-01-19",
+      "exclusive_area": 60,
+      "deal_amount": 98000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-19-한강(대우)-이촌동-4-134000-84.98-68",
+      "deal_date": "2018-01-19",
+      "exclusive_area": 84.98,
+      "deal_amount": 134000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-01-26-한강(대우)-이촌동-19-100000-60-227",
+      "deal_date": "2018-01-26",
+      "exclusive_area": 60,
+      "deal_amount": 100000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-02-28-한강(대우)-이촌동-17-88000-60-106",
+      "deal_date": "2018-02-28",
+      "exclusive_area": 60,
+      "deal_amount": 88000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-03-05-한강(대우)-이촌동-13-135000-84.98-139",
+      "deal_date": "2018-03-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 135000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-03-26-한강(대우)-이촌동-20-130000-134.13-114",
+      "deal_date": "2018-03-26",
+      "exclusive_area": 134.13,
+      "deal_amount": 130000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-04-10-한강(대우)-이촌동-6-135000-84.98-36",
+      "deal_date": "2018-04-10",
+      "exclusive_area": 84.98,
+      "deal_amount": 135000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-04-11-한강(대우)-이촌동-5-125000-84.98-83",
+      "deal_date": "2018-04-11",
+      "exclusive_area": 84.98,
+      "deal_amount": 125000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-05-16-한강(대우)-이촌동-8-135000-84.98-22",
+      "deal_date": "2018-05-16",
+      "exclusive_area": 84.98,
+      "deal_amount": 135000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-05-19-한강(대우)-이촌동-13-110000-60-95",
+      "deal_date": "2018-05-19",
+      "exclusive_area": 60,
+      "deal_amount": 110000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-06-05-한강(대우)-이촌동-2-127000-84.98-91",
+      "deal_date": "2018-06-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 127000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-07-11-한강(대우)-이촌동-18-131000-84.98-133",
+      "deal_date": "2018-07-11",
+      "exclusive_area": 84.98,
+      "deal_amount": 131000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-07-21-한강(대우)-이촌동-20-142500-84.98-40",
+      "deal_date": "2018-07-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 142500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-07-31-한강(대우)-이촌동-10-165000-135.27-12",
+      "deal_date": "2018-07-31",
+      "exclusive_area": 135.27,
+      "deal_amount": 165000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-07-31-한강(대우)-이촌동-2-145000-135.5-37",
+      "deal_date": "2018-07-31",
+      "exclusive_area": 135.5,
+      "deal_amount": 145000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-08-08-한강(대우)-이촌동-19-167000-135.87-122",
+      "deal_date": "2018-08-08",
+      "exclusive_area": 135.87,
+      "deal_amount": 167000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-08-10-한강(대우)-이촌동-7-123000-60-151",
+      "deal_date": "2018-08-10",
+      "exclusive_area": 60,
+      "deal_amount": 123000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-08-22-한강(대우)-이촌동-6-130000-60-84",
+      "deal_date": "2018-08-22",
+      "exclusive_area": 60,
+      "deal_amount": 130000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-08-25-한강(대우)-이촌동-11-150000-84.98-13",
+      "deal_date": "2018-08-25",
+      "exclusive_area": 84.98,
+      "deal_amount": 150000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-09-01-한강(대우)-이촌동-7-161500-135.87-63",
+      "deal_date": "2018-09-01",
+      "exclusive_area": 135.87,
+      "deal_amount": 161500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2018-11-07-한강(대우)-이촌동-7-175000-134.13-21",
+      "deal_date": "2018-11-07",
+      "exclusive_area": 134.13,
+      "deal_amount": 175000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-04-05-한강(대우)-이촌동-12-115000-60-26",
+      "deal_date": "2019-04-05",
+      "exclusive_area": 60,
+      "deal_amount": 115000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-04-12-한강(대우)-이촌동-12-120000-84.98-68",
+      "deal_date": "2019-04-12",
+      "exclusive_area": 84.98,
+      "deal_amount": 120000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-05-07-한강(대우)-이촌동-7-144000-84.98-38",
+      "deal_date": "2019-05-07",
+      "exclusive_area": 84.98,
+      "deal_amount": 144000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-05-08-한강(대우)-이촌동-11-120500-60-40",
+      "deal_date": "2019-05-08",
+      "exclusive_area": 60,
+      "deal_amount": 120500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-05-13-한강(대우)-이촌동-16-140000-84.98-29",
+      "deal_date": "2019-05-13",
+      "exclusive_area": 84.98,
+      "deal_amount": 140000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-05-15-한강(대우)-이촌동-14-119500-60-32",
+      "deal_date": "2019-05-15",
+      "exclusive_area": 60,
+      "deal_amount": 119500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-06-19-한강(대우)-이촌동-9-137500-84.98-116",
+      "deal_date": "2019-06-19",
+      "exclusive_area": 84.98,
+      "deal_amount": 137500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-06-25-한강(대우)-이촌동-16-149000-84.98-12",
+      "deal_date": "2019-06-25",
+      "exclusive_area": 84.98,
+      "deal_amount": 149000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-06-29-한강(대우)-이촌동-17-122000-60-18",
+      "deal_date": "2019-06-29",
+      "exclusive_area": 60,
+      "deal_amount": 122000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-06-29-한강(대우)-이촌동-21-153500-84.98-16",
+      "deal_date": "2019-06-29",
+      "exclusive_area": 84.98,
+      "deal_amount": 153500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-07-06-한강(대우)-이촌동-13-119800-60-126",
+      "deal_date": "2019-07-06",
+      "exclusive_area": 60,
+      "deal_amount": 119800,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-07-08-한강(대우)-이촌동-19-119500-60-52",
+      "deal_date": "2019-07-08",
+      "exclusive_area": 60,
+      "deal_amount": 119500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-07-15-한강(대우)-이촌동-18-145000-84.98-41",
+      "deal_date": "2019-07-15",
+      "exclusive_area": 84.98,
+      "deal_amount": 145000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-08-06-한강(대우)-이촌동-13-154000-84.98-49",
+      "deal_date": "2019-08-06",
+      "exclusive_area": 84.98,
+      "deal_amount": 154000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-08-20-한강(대우)-이촌동-4-120000-60-18",
+      "deal_date": "2019-08-20",
+      "exclusive_area": 60,
+      "deal_amount": 120000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-09-03-한강(대우)-이촌동-2-140000-84.98-106",
+      "deal_date": "2019-09-03",
+      "exclusive_area": 84.98,
+      "deal_amount": 140000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-09-20-한강(대우)-이촌동-5-151000-84.94-117",
+      "deal_date": "2019-09-20",
+      "exclusive_area": 84.94,
+      "deal_amount": 151000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-09-28-한강(대우)-이촌동-5-130000-59.98-128",
+      "deal_date": "2019-09-28",
+      "exclusive_area": 59.98,
+      "deal_amount": 130000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-10-01-한강(대우)-이촌동-3-156000-84.98-180",
+      "deal_date": "2019-10-01",
+      "exclusive_area": 84.98,
+      "deal_amount": 156000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-10-04-한강(대우)-이촌동-2-124000-60-175",
+      "deal_date": "2019-10-04",
+      "exclusive_area": 60,
+      "deal_amount": 124000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-10-08-한강(대우)-이촌동-4-125000-60-66",
+      "deal_date": "2019-10-08",
+      "exclusive_area": 60,
+      "deal_amount": 125000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-10-24-한강(대우)-이촌동-9-183000-134.13-102",
+      "deal_date": "2019-10-24",
+      "exclusive_area": 134.13,
+      "deal_amount": 183000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-11-09-한강(대우)-이촌동-8-136500-60-56",
+      "deal_date": "2019-11-09",
+      "exclusive_area": 60,
+      "deal_amount": 136500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-11-16-한강(대우)-이촌동-15-134500-60-188",
+      "deal_date": "2019-11-16",
+      "exclusive_area": 60,
+      "deal_amount": 134500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-11-16-한강(대우)-이촌동-24-157500-84.98-135",
+      "deal_date": "2019-11-16",
+      "exclusive_area": 84.98,
+      "deal_amount": 157500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-11-25-한강(대우)-이촌동-16-189200-134.13-31",
+      "deal_date": "2019-11-25",
+      "exclusive_area": 134.13,
+      "deal_amount": 189200,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-11-30-한강(대우)-이촌동-21-156500-84.98-58",
+      "deal_date": "2019-11-30",
+      "exclusive_area": 84.98,
+      "deal_amount": 156500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-11-30-한강(대우)-이촌동-9-163000-84.98-134",
+      "deal_date": "2019-11-30",
+      "exclusive_area": 84.98,
+      "deal_amount": 163000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-12-12-한강(대우)-이촌동-15-135000-60-158",
+      "deal_date": "2019-12-12",
+      "exclusive_area": 60,
+      "deal_amount": 135000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2019-12-16-한강(대우)-이촌동-18-128000-60-144",
+      "deal_date": "2019-12-16",
+      "exclusive_area": 60,
+      "deal_amount": 128000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-02-01-한강(대우)-이촌동-3-185000-134.13-72",
+      "deal_date": "2020-02-01",
+      "exclusive_area": 134.13,
+      "deal_amount": 185000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-04-11-한강(대우)-이촌동-6-125000-60-26",
+      "deal_date": "2020-04-11",
+      "exclusive_area": 60,
+      "deal_amount": 125000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-04-22-한강(대우)-이촌동-8-167000-134.13-15",
+      "deal_date": "2020-04-22",
+      "exclusive_area": 134.13,
+      "deal_amount": 167000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-04-28-한강(대우)-이촌동-21-170000-134.13-12",
+      "deal_date": "2020-04-28",
+      "exclusive_area": 134.13,
+      "deal_amount": 170000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-05-12-한강(대우)-이촌동-15-140000-60-131",
+      "deal_date": "2020-05-12",
+      "exclusive_area": 60,
+      "deal_amount": 140000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-05-16-한강(대우)-이촌동-4-125000-60-60",
+      "deal_date": "2020-05-16",
+      "exclusive_area": 60,
+      "deal_amount": 125000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-06-02-한강(대우)-이촌동-4-150000-84.94-275",
+      "deal_date": "2020-06-02",
+      "exclusive_area": 84.94,
+      "deal_amount": 150000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-06-04-한강(대우)-이촌동-10-130000-59.98-241",
+      "deal_date": "2020-06-04",
+      "exclusive_area": 59.98,
+      "deal_amount": 130000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-06-12-한강(대우)-이촌동-11-148000-84.98-226",
+      "deal_date": "2020-06-12",
+      "exclusive_area": 84.98,
+      "deal_amount": 148000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-06-26-한강(대우)-이촌동-14-173000-84.98-46",
+      "deal_date": "2020-06-26",
+      "exclusive_area": 84.98,
+      "deal_amount": 173000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-06-29-한강(대우)-이촌동-20-190000-134.13-9",
+      "deal_date": "2020-06-29",
+      "exclusive_area": 134.13,
+      "deal_amount": 190000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-06-29-한강(대우)-이촌동-6-170000-84.98-15",
+      "deal_date": "2020-06-29",
+      "exclusive_area": 84.98,
+      "deal_amount": 170000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-06-30-한강(대우)-이촌동-22-180000-135.5-23",
+      "deal_date": "2020-06-30",
+      "exclusive_area": 135.5,
+      "deal_amount": 180000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-07-05-한강(대우)-이촌동-15-144000-59.98-167",
+      "deal_date": "2020-07-05",
+      "exclusive_area": 59.98,
+      "deal_amount": 144000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-07-06-한강(대우)-이촌동-14-190000-134.13-101",
+      "deal_date": "2020-07-06",
+      "exclusive_area": 134.13,
+      "deal_amount": 190000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-07-06-한강(대우)-이촌동-4-167000-84.98-120",
+      "deal_date": "2020-07-06",
+      "exclusive_area": 84.98,
+      "deal_amount": 167000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-07-10-한강(대우)-이촌동-2-157000-84.98-158",
+      "deal_date": "2020-07-10",
+      "exclusive_area": 84.98,
+      "deal_amount": 157000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-07-11-한강(대우)-이촌동-19-143500-60-162",
+      "deal_date": "2020-07-11",
+      "exclusive_area": 60,
+      "deal_amount": 143500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-07-16-한강(대우)-이촌동-23-175000-84.98-46",
+      "deal_date": "2020-07-16",
+      "exclusive_area": 84.98,
+      "deal_amount": 175000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-07-22-한강(대우)-이촌동-11-144750-60-71",
+      "deal_date": "2020-07-22",
+      "exclusive_area": 60,
+      "deal_amount": 144750,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-08-07-한강(대우)-이촌동-5-169500-84.98-59",
+      "deal_date": "2020-08-07",
+      "exclusive_area": 84.98,
+      "deal_amount": 169500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-08-13-한강(대우)-이촌동-19-178000-84.98-61",
+      "deal_date": "2020-08-13",
+      "exclusive_area": 84.98,
+      "deal_amount": 178000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-08-15-한강(대우)-이촌동-15-150000-60-33",
+      "deal_date": "2020-08-15",
+      "exclusive_area": 60,
+      "deal_amount": 150000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-08-27-한강(대우)-이촌동-19-149500-60-32",
+      "deal_date": "2020-08-27",
+      "exclusive_area": 60,
+      "deal_amount": 149500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-09-09-한강(대우)-이촌동-10-158000-60-43",
+      "deal_date": "2020-09-09",
+      "exclusive_area": 60,
+      "deal_amount": 158000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-09-12-한강(대우)-이촌동-23-200000-134.13-58",
+      "deal_date": "2020-09-12",
+      "exclusive_area": 134.13,
+      "deal_amount": 200000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-09-12-한강(대우)-이촌동-8-175000-84.98-39",
+      "deal_date": "2020-09-12",
+      "exclusive_area": 84.98,
+      "deal_amount": 175000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-09-19-한강(대우)-이촌동-23-173500-84.98-78",
+      "deal_date": "2020-09-19",
+      "exclusive_area": 84.98,
+      "deal_amount": 173500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-10-10-한강(대우)-이촌동-1-157000-84.98-92",
+      "deal_date": "2020-10-10",
+      "exclusive_area": 84.98,
+      "deal_amount": 157000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-11-05-한강(대우)-이촌동-22-171000-84.98-148",
+      "deal_date": "2020-11-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 171000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-11-13-한강(대우)-이촌동-22-175000-84.98-101",
+      "deal_date": "2020-11-13",
+      "exclusive_area": 84.98,
+      "deal_amount": 175000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-11-13-한강(대우)-이촌동-22-175000-84.98-98",
+      "deal_date": "2020-11-13",
+      "exclusive_area": 84.98,
+      "deal_amount": 175000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-11-28-한강(대우)-이촌동-8-210000-134.13-29",
+      "deal_date": "2020-11-28",
+      "exclusive_area": 134.13,
+      "deal_amount": 210000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-12-16-한강(대우)-이촌동-10-208000-134.13-90",
+      "deal_date": "2020-12-16",
+      "exclusive_area": 134.13,
+      "deal_amount": 208000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2020-12-28-한강(대우)-이촌동-3-174000-84.98-47",
+      "deal_date": "2020-12-28",
+      "exclusive_area": 84.98,
+      "deal_amount": 174000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-01-25-한강(대우)-이촌동-12-212000-134.13-13",
+      "deal_date": "2021-01-25",
+      "exclusive_area": 134.13,
+      "deal_amount": 212000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-01-30-한강(대우)-이촌동-15-162000-60-26",
+      "deal_date": "2021-01-30",
+      "exclusive_area": 60,
+      "deal_amount": 162000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-03-04-한강(대우)-이촌동-19-160000-59.98-54",
+      "deal_date": "2021-03-04",
+      "exclusive_area": 59.98,
+      "deal_amount": 160000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-05-02-한강(대우)-이촌동-8-168000-60-118",
+      "deal_date": "2021-05-02",
+      "exclusive_area": 60,
+      "deal_amount": 168000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-05-24-한강(대우)-이촌동-16-230000-134.13-82",
+      "deal_date": "2021-05-24",
+      "exclusive_area": 134.13,
+      "deal_amount": 230000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-06-05-한강(대우)-이촌동-20-200000-84.98-74",
+      "deal_date": "2021-06-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 200000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-06-12-한강(대우)-이촌동-18-168000-60-46",
+      "deal_date": "2021-06-12",
+      "exclusive_area": 60,
+      "deal_amount": 168000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-06-17-한강(대우)-이촌동-17-195000-84.98-47",
+      "deal_date": "2021-06-17",
+      "exclusive_area": 84.98,
+      "deal_amount": 195000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-06-21-한강(대우)-이촌동-3-197000-84.94-25",
+      "deal_date": "2021-06-21",
+      "exclusive_area": 84.94,
+      "deal_amount": 197000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-06-26-한강(대우)-이촌동-24-250000-134.13-7",
+      "deal_date": "2021-06-26",
+      "exclusive_area": 134.13,
+      "deal_amount": 250000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-06-28-한강(대우)-이촌동-7-208000-84.98-55",
+      "deal_date": "2021-06-28",
+      "exclusive_area": 84.98,
+      "deal_amount": 208000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-07-03-한강(대우)-이촌동-1-195000-84.98-61",
+      "deal_date": "2021-07-03",
+      "exclusive_area": 84.98,
+      "deal_amount": 195000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-07-08-한강(대우)-이촌동-24-243000-135.5-58",
+      "deal_date": "2021-07-08",
+      "exclusive_area": 135.5,
+      "deal_amount": 243000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-07-09-한강(대우)-이촌동-17-249000-134.13-43",
+      "deal_date": "2021-07-09",
+      "exclusive_area": 134.13,
+      "deal_amount": 249000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-08-21-한강(대우)-이촌동-16-235000-84.98-13",
+      "deal_date": "2021-08-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 235000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-09-06-한강(대우)-이촌동-10-269000-134.13-2",
+      "deal_date": "2021-09-06",
+      "exclusive_area": 134.13,
+      "deal_amount": 269000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2021-09-07-한강(대우)-이촌동-10-269000-134.13-33",
+      "deal_date": "2021-09-07",
+      "exclusive_area": 134.13,
+      "deal_amount": 269000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2022-04-15-한강(대우)-이촌동-11-210000-84.98-23",
+      "deal_date": "2022-04-15",
+      "exclusive_area": 84.98,
+      "deal_amount": 210000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2022-04-15-한강(대우)-이촌동-19-238000-84.94-25",
+      "deal_date": "2022-04-15",
+      "exclusive_area": 84.94,
+      "deal_amount": 238000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2022-05-26-한강(대우)-이촌동-7-187000-60-13",
+      "deal_date": "2022-05-26",
+      "exclusive_area": 60,
+      "deal_amount": 187000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2022-06-20-한강(대우)-이촌동-3-277000-134.13-7",
+      "deal_date": "2022-06-20",
+      "exclusive_area": 134.13,
+      "deal_amount": 277000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2022-06-28-한강(대우)-이촌동-12-180000-60-13",
+      "deal_date": "2022-06-28",
+      "exclusive_area": 60,
+      "deal_amount": 180000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2022-10-29-한강(대우)-이촌동-8-180000-84.98-1",
+      "deal_date": "2022-10-29",
+      "exclusive_area": 84.98,
+      "deal_amount": 180000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-03-21-한강(대우)-이촌동-1-172500-84.98-21",
+      "deal_date": "2023-03-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 172500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-04-06-한강(대우)-이촌동-22-183000-84.98-31",
+      "deal_date": "2023-04-06",
+      "exclusive_area": 84.98,
+      "deal_amount": 183000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-05-30-한강(대우)-이촌동-10-181000-84.98-4",
+      "deal_date": "2023-05-30",
+      "exclusive_area": 84.98,
+      "deal_amount": 181000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-06-09-한강(대우)-이촌동-8-187000-84.98-47",
+      "deal_date": "2023-06-09",
+      "exclusive_area": 84.98,
+      "deal_amount": 187000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-06-10-한강(대우)-이촌동-20-180000-84.98-57",
+      "deal_date": "2023-06-10",
+      "exclusive_area": 84.98,
+      "deal_amount": 180000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-06-10-한강(대우)-이촌동-8-153000-60-58",
+      "deal_date": "2023-06-10",
+      "exclusive_area": 60,
+      "deal_amount": 153000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-06-24-한강(대우)-이촌동-10-185000-84.98-4",
+      "deal_date": "2023-06-24",
+      "exclusive_area": 84.98,
+      "deal_amount": 185000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-06-29-한강(대우)-이촌동-11-152000-59.98-2",
+      "deal_date": "2023-06-29",
+      "exclusive_area": 59.98,
+      "deal_amount": 152000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-07-05-한강(대우)-이촌동-17-157000-60-34",
+      "deal_date": "2023-07-05",
+      "exclusive_area": 60,
+      "deal_amount": 157000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-07-21-한강(대우)-이촌동-11-182000-84.98-2",
+      "deal_date": "2023-07-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 182000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-07-26-한강(대우)-이촌동-7-158500-60-20",
+      "deal_date": "2023-07-26",
+      "exclusive_area": 60,
+      "deal_amount": 158500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-08-05-한강(대우)-이촌동-13-198000-84.98-35",
+      "deal_date": "2023-08-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 198000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-09-01-한강(대우)-이촌동-13-198000-84.98-60",
+      "deal_date": "2023-09-01",
+      "exclusive_area": 84.98,
+      "deal_amount": 198000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-09-06-한강(대우)-이촌동-16-195000-84.98-65",
+      "deal_date": "2023-09-06",
+      "exclusive_area": 84.98,
+      "deal_amount": 195000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-10-14-한강(대우)-이촌동-11-197000-84.98-32",
+      "deal_date": "2023-10-14",
+      "exclusive_area": 84.98,
+      "deal_amount": 197000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-10-19-한강(대우)-이촌동-14-225000-135.5-18",
+      "deal_date": "2023-10-19",
+      "exclusive_area": 135.5,
+      "deal_amount": 225000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2023-12-22-한강(대우)-이촌동-8-232000-135.5-14",
+      "deal_date": "2023-12-22",
+      "exclusive_area": 135.5,
+      "deal_amount": 232000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-02-19-한강(대우)-이촌동-21-186000-84.98-47",
+      "deal_date": "2024-02-19",
+      "exclusive_area": 84.98,
+      "deal_amount": 186000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-04-25-한강(대우)-이촌동-8-238000-135.5-2",
+      "deal_date": "2024-04-25",
+      "exclusive_area": 135.5,
+      "deal_amount": 238000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-05-20-한강(대우)-이촌동-4-185000-84.98-60",
+      "deal_date": "2024-05-20",
+      "exclusive_area": 84.98,
+      "deal_amount": 185000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-05-25-한강(대우)-이촌동-4-193000-84.98-47",
+      "deal_date": "2024-05-25",
+      "exclusive_area": 84.98,
+      "deal_amount": 193000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-05-31-한강(대우)-이촌동-1-174000-84.98-43",
+      "deal_date": "2024-05-31",
+      "exclusive_area": 84.98,
+      "deal_amount": 174000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-05-31-한강(대우)-이촌동-6-199500-84.98-6",
+      "deal_date": "2024-05-31",
+      "exclusive_area": 84.98,
+      "deal_amount": 199500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-06-12-한강(대우)-이촌동-18-164000-60-65",
+      "deal_date": "2024-06-12",
+      "exclusive_area": 60,
+      "deal_amount": 164000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-06-20-한강(대우)-이촌동-3-157500-60-47",
+      "deal_date": "2024-06-20",
+      "exclusive_area": 60,
+      "deal_amount": 157500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-06-23-한강(대우)-이촌동-13-164500-60-31",
+      "deal_date": "2024-06-23",
+      "exclusive_area": 60,
+      "deal_amount": 164500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-05-한강(대우)-이촌동-1-152500-60-110",
+      "deal_date": "2024-07-05",
+      "exclusive_area": 60,
+      "deal_amount": 152500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-05-한강(대우)-이촌동-1-189000-84.98-161",
+      "deal_date": "2024-07-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 189000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-05-한강(대우)-이촌동-10-193000-84.98-92",
+      "deal_date": "2024-07-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 193000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-05-한강(대우)-이촌동-5-162000-60-135",
+      "deal_date": "2024-07-05",
+      "exclusive_area": 60,
+      "deal_amount": 162000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-10-한강(대우)-이촌동-12-220000-84.98-151",
+      "deal_date": "2024-07-10",
+      "exclusive_area": 84.98,
+      "deal_amount": 220000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-13-한강(대우)-이촌동-13-169800-60-152",
+      "deal_date": "2024-07-13",
+      "exclusive_area": 60,
+      "deal_amount": 169800,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-16-한강(대우)-이촌동-11-207500-84.98-117",
+      "deal_date": "2024-07-16",
+      "exclusive_area": 84.98,
+      "deal_amount": 207500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-16-한강(대우)-이촌동-19-170000-60-136",
+      "deal_date": "2024-07-16",
+      "exclusive_area": 60,
+      "deal_amount": 170000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-19-한강(대우)-이촌동-14-170000-60-77",
+      "deal_date": "2024-07-19",
+      "exclusive_area": 60,
+      "deal_amount": 170000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-20-한강(대우)-이촌동-10-170000-60-33",
+      "deal_date": "2024-07-20",
+      "exclusive_area": 60,
+      "deal_amount": 170000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-20-한강(대우)-이촌동-12-168000-60-122",
+      "deal_date": "2024-07-20",
+      "exclusive_area": 60,
+      "deal_amount": 168000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-24-한강(대우)-이촌동-5-167000-60-119",
+      "deal_date": "2024-07-24",
+      "exclusive_area": 60,
+      "deal_amount": 167000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-07-31-한강(대우)-이촌동-20-170000-60-13",
+      "deal_date": "2024-07-31",
+      "exclusive_area": 60,
+      "deal_amount": 170000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-08-07-한강(대우)-이촌동-23-275000-135.5-89",
+      "deal_date": "2024-08-07",
+      "exclusive_area": 135.5,
+      "deal_amount": 275000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-08-10-한강(대우)-이촌동-2-160000-60-94",
+      "deal_date": "2024-08-10",
+      "exclusive_area": 60,
+      "deal_amount": 160000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-08-12-한강(대우)-이촌동-10-213500-84.98-50",
+      "deal_date": "2024-08-12",
+      "exclusive_area": 84.98,
+      "deal_amount": 213500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-08-13-한강(대우)-이촌동-9-265000-134.13-46",
+      "deal_date": "2024-08-13",
+      "exclusive_area": 134.13,
+      "deal_amount": 265000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-08-28-한강(대우)-이촌동-19-180000-60-35",
+      "deal_date": "2024-08-28",
+      "exclusive_area": 60,
+      "deal_amount": 180000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-09-05-한강(대우)-이촌동-15-270000-135.5-46",
+      "deal_date": "2024-09-05",
+      "exclusive_area": 135.5,
+      "deal_amount": 270000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-09-28-한강(대우)-이촌동-18-178000-60-18",
+      "deal_date": "2024-09-28",
+      "exclusive_area": 60,
+      "deal_amount": 178000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-10-01-한강(대우)-이촌동-2-197000-84.98-64",
+      "deal_date": "2024-10-01",
+      "exclusive_area": 84.98,
+      "deal_amount": 197000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-10-16-한강(대우)-이촌동-1-190000-84.98-24",
+      "deal_date": "2024-10-16",
+      "exclusive_area": 84.98,
+      "deal_amount": 190000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-10-19-한강(대우)-이촌동-9-210000-84.98-23",
+      "deal_date": "2024-10-19",
+      "exclusive_area": 84.98,
+      "deal_amount": 210000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-11-09-한강(대우)-이촌동-18-178000-60-45",
+      "deal_date": "2024-11-09",
+      "exclusive_area": 60,
+      "deal_amount": 178000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-11-12-한강(대우)-이촌동-17-210000-84.98-20",
+      "deal_date": "2024-11-12",
+      "exclusive_area": 84.98,
+      "deal_amount": 210000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2024-12-06-한강(대우)-이촌동-2-251000-134.13-41",
+      "deal_date": "2024-12-06",
+      "exclusive_area": 134.13,
+      "deal_amount": 251000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-01-21-한강(대우)-이촌동-4-213000-84.98-17",
+      "deal_date": "2025-01-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 213000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-08-한강(대우)-이촌동-7-177000-60-129",
+      "deal_date": "2025-02-08",
+      "exclusive_area": 60,
+      "deal_amount": 177000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-09-한강(대우)-이촌동-15-168000-60-94",
+      "deal_date": "2025-02-09",
+      "exclusive_area": 60,
+      "deal_amount": 168000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-10-한강(대우)-이촌동-14-260000-134.13-90",
+      "deal_date": "2025-02-10",
+      "exclusive_area": 134.13,
+      "deal_amount": 260000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-11-한강(대우)-이촌동-10-206500-84.98-128",
+      "deal_date": "2025-02-11",
+      "exclusive_area": 84.98,
+      "deal_amount": 206500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-17-한강(대우)-이촌동-5-178700-60-88",
+      "deal_date": "2025-02-17",
+      "exclusive_area": 60,
+      "deal_amount": 178700,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-22-한강(대우)-이촌동-12-180000-60-100",
+      "deal_date": "2025-02-22",
+      "exclusive_area": 60,
+      "deal_amount": 180000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-22-한강(대우)-이촌동-7-181000-60-19",
+      "deal_date": "2025-02-22",
+      "exclusive_area": 60,
+      "deal_amount": 181000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-02-26-한강(대우)-이촌동-15-243300-134.13-49",
+      "deal_date": "2025-02-26",
+      "exclusive_area": 134.13,
+      "deal_amount": 243300,
+      "dealing_gbn": "직거래"
+    },
+    {
+      "id": "trade-11170-2025-03-03-한강(대우)-이촌동-415-6-235000-0-84.98",
+      "deal_date": "2025-03-03",
+      "exclusive_area": 84.98,
+      "deal_amount": 235000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-03-08-한강(대우)-이촌동-415-19-185000-0-60",
+      "deal_date": "2025-03-08",
+      "exclusive_area": 60,
+      "deal_amount": 185000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-03-14-한강(대우)-이촌동-415-11-240000-0-84.98",
+      "deal_date": "2025-03-14",
+      "exclusive_area": 84.98,
+      "deal_amount": 240000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-03-15-한강(대우)-이촌동-415-19-193000-0-60",
+      "deal_date": "2025-03-15",
+      "exclusive_area": 60,
+      "deal_amount": 193000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-03-18-한강(대우)-이촌동-18-300000-134.13-7",
+      "deal_date": "2025-03-18",
+      "exclusive_area": 134.13,
+      "deal_amount": 300000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-03-20-한강(대우)-이촌동-415-19-241000-0-135.27",
+      "deal_date": "2025-03-20",
+      "exclusive_area": 135.27,
+      "deal_amount": 241000,
+      "dealing_gbn": "직거래"
+    },
+    {
+      "id": "trade-11170-2025-03-21-한강(대우)-이촌동-10-250000-84.98-26",
+      "deal_date": "2025-03-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 250000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-03-21-한강(대우)-이촌동-415-12-225000-0-84.98",
+      "deal_date": "2025-03-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 225000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-03-22-한강(대우)-이촌동-9-275000-134.13-49",
+      "deal_date": "2025-03-22",
+      "exclusive_area": 134.13,
+      "deal_amount": 275000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-04-25-한강(대우)-이촌동-22-203700-60-26",
+      "deal_date": "2025-04-25",
+      "exclusive_area": 60,
+      "deal_amount": 203700,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-04-26-한강(대우)-이촌동-7-230000-84.98-11",
+      "deal_date": "2025-04-26",
+      "exclusive_area": 84.98,
+      "deal_amount": 230000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-05-24-한강(대우)-이촌동-19-230000-84.98-8",
+      "deal_date": "2025-05-24",
+      "exclusive_area": 84.98,
+      "deal_amount": 230000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-06-12-한강(대우)-이촌동-17-201000-59.98-146",
+      "deal_date": "2025-06-12",
+      "exclusive_area": 59.98,
+      "deal_amount": 201000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-06-25-한강(대우)-이촌동-16-220000-60-35",
+      "deal_date": "2025-06-25",
+      "exclusive_area": 60,
+      "deal_amount": 220000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-07-08-한강(대우)-이촌동-19-271000-84.98-117",
+      "deal_date": "2025-07-08",
+      "exclusive_area": 84.98,
+      "deal_amount": 271000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-07-08-한강(대우)-이촌동-19-271000-84.98-132",
+      "deal_date": "2025-07-08",
+      "exclusive_area": 84.98,
+      "deal_amount": 271000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-07-12-한강(대우)-이촌동-10-288000-84.98-106",
+      "deal_date": "2025-07-12",
+      "exclusive_area": 84.98,
+      "deal_amount": 288000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-08-05-한강(대우)-이촌동-9-271000-84.98-145",
+      "deal_date": "2025-08-05",
+      "exclusive_area": 84.98,
+      "deal_amount": 271000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-10-09-한강(대우)-이촌동-20-239500-60-81",
+      "deal_date": "2025-10-09",
+      "exclusive_area": 60,
+      "deal_amount": 239500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-10-22-한강(대우)-이촌동-7-273000-84.98-84",
+      "deal_date": "2025-10-22",
+      "exclusive_area": 84.98,
+      "deal_amount": 273000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-10-25-한강(대우)-이촌동-19-286500-84.98-32",
+      "deal_date": "2025-10-25",
+      "exclusive_area": 84.98,
+      "deal_amount": 286500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-10-29-한강(대우)-이촌동-5-273000-84.98-19",
+      "deal_date": "2025-10-29",
+      "exclusive_area": 84.98,
+      "deal_amount": 273000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-10-30-한강(대우)-이촌동-10-270000-84.98-29",
+      "deal_date": "2025-10-30",
+      "exclusive_area": 84.98,
+      "deal_amount": 270000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-11-06-한강(대우)-이촌동-9-287500-84.98-101",
+      "deal_date": "2025-11-06",
+      "exclusive_area": 84.98,
+      "deal_amount": 287500,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2025-12-05-한강(대우)-이촌동-12-330000-134.13-59",
+      "deal_date": "2025-12-05",
+      "exclusive_area": 134.13,
+      "deal_amount": 330000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-01-06-한강(대우)-이촌동-11-337400-135.5-50",
+      "deal_date": "2026-01-06",
+      "exclusive_area": 135.5,
+      "deal_amount": 337400,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-01-09-한강(대우)-이촌동-7-242000-60-81",
+      "deal_date": "2026-01-09",
+      "exclusive_area": 60,
+      "deal_amount": 242000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-01-12-한강(대우)-이촌동-19-275000-84.98-39",
+      "deal_date": "2026-01-12",
+      "exclusive_area": 84.98,
+      "deal_amount": 275000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-01-17-한강(대우)-이촌동-20-330000-135.27-0",
+      "deal_date": "2026-01-17",
+      "exclusive_area": 135.27,
+      "deal_amount": 330000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-01-17-한강(대우)-이촌동-20-330000-135.27-66",
+      "deal_date": "2026-01-17",
+      "exclusive_area": 135.27,
+      "deal_amount": 330000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-02-04-한강(대우)-이촌동-8-275000-84.98-91",
+      "deal_date": "2026-02-04",
+      "exclusive_area": 84.98,
+      "deal_amount": 275000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-02-21-한강(대우)-이촌동-8-275000-84.98-16",
+      "deal_date": "2026-02-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 275000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-04-13-한강(대우)-이촌동-9-240000-60-28",
+      "deal_date": "2026-04-13",
+      "exclusive_area": 60,
+      "deal_amount": 240000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-04-22-한강(대우)-이촌동-11-263000-84.98-94",
+      "deal_date": "2026-04-22",
+      "exclusive_area": 84.98,
+      "deal_amount": 263000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-05-07-한강(대우)-이촌동-7-300000-134.13-114",
+      "deal_date": "2026-05-07",
+      "exclusive_area": 134.13,
+      "deal_amount": 300000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-05-13-한강(대우)-이촌동-7-260000-84.98-111",
+      "deal_date": "2026-05-13",
+      "exclusive_area": 84.98,
+      "deal_amount": 260000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-05-21-한강(대우)-이촌동-12-258000-84.98-99",
+      "deal_date": "2026-05-21",
+      "exclusive_area": 84.98,
+      "deal_amount": 258000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-06-13-한강(대우)-이촌동-5-327000-135.87-14",
+      "deal_date": "2026-06-13",
+      "exclusive_area": 135.87,
+      "deal_amount": 327000,
+      "dealing_gbn": "중개거래"
+    },
+    {
+      "id": "trade-11170-2026-08-05-한강(대우)-이촌동-13-320000-134.13-21",
+      "deal_date": "2026-08-05",
+      "exclusive_area": 134.13,
+      "deal_amount": 320000,
+      "dealing_gbn": "중개거래"
+    }
+  ]
+}
