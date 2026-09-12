@@ -1,0 +1,39 @@
+{
+  "complex_id": {
+    "usable_with_current_key": false,
+    "probes": [
+      {
+        "name": "total",
+        "ok": false,
+        "error": "GET failed: HTTP Error 400: Bad Request"
+      },
+      {
+        "name": "basis",
+        "ok": false,
+        "error": "GET failed: HTTP Error 400: Bad Request"
+      },
+      {
+        "name": "legal",
+        "ok": false,
+        "error": "GET failed: HTTP Error 400: Bad Request"
+      }
+    ],
+    "note": "AptList/Basis not registered on MOLIT_API_KEY. REB identity files not wired. No VWorld key."
+  },
+  "cheongyak": {
+    "usable": false,
+    "probes": [
+      {
+        "url": "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail",
+        "ok": false,
+        "error": "GET failed: HTTP Error 401: Unauthorized"
+      },
+      {
+        "url": "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancMdl",
+        "ok": false,
+        "error": "GET failed: HTTP Error 401: Unauthorized"
+      }
+    ],
+    "note": "No housing-type fields consumed — unauthorized or empty."
+  }
+}

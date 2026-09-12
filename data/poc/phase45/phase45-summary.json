@@ -1,0 +1,239 @@
+{
+  "generatedAt": "2026-09-11T16:08:13.834199+00:00",
+  "scope": {
+    "production_db_write": false,
+    "selector_change": false,
+    "singoga_production_change": false,
+    "nationwide_backfill": false
+  },
+  "sample_size": 6,
+  "rescued_count": 1,
+  "sample_singoga_applicable": {
+    "phase4": 0.5,
+    "phase45": 0.5,
+    "delta_pp": 0.0
+  },
+  "nationwide_estimate_from_phase4_base": {
+    "method": "Apply observed C/D/B rescue rates onto Phase4 16-complex base rates",
+    "phase4_singoga_applicable": 0.81,
+    "phase45_singoga_applicable_est": 0.81,
+    "delta_pp_est": 0.0,
+    "phase4_auto_safe": 0.5,
+    "phase45_auto_safe_est": 0.655,
+    "c_rescue_rate": 0.0,
+    "d_rescue_rate": 0.0,
+    "b_to_a_rate": 0.5
+  },
+  "complexes": [
+    {
+      "key": "eunma",
+      "name": "은마",
+      "role": "D",
+      "phase4": "registry-abnormal",
+      "phase45": "registry-abnormal",
+      "changed": false,
+      "rescued": false,
+      "rescue_reason": "형별개요에 전용면적 0 — 은마형 구조 유지",
+      "supply_confidence": "blocked",
+      "market_group_confidence": "blocked",
+      "label_confidence": 0.6,
+      "metrics": {
+        "mgm_households_sum": 4424.0,
+        "mgm_exclusive_coverage": 0.0,
+        "mgm_type_count": 2,
+        "mgm_group_count": 0,
+        "multi_type_same_exclusive_groups": 0,
+        "kapt_households": 4424.0,
+        "kapt_dong_cnt": 28.0,
+        "household_delta_vs_kapt": 0.0,
+        "hs_counts": {
+          "basis": 167,
+          "dong": 9,
+          "ho": 8,
+          "expos": 0,
+          "ho_expos": 28,
+          "mgm_type": 2,
+          "act": 167,
+          "plat": 167
+        },
+        "phase4_unknown_common": 0.98,
+        "phase4_label_confidence": 0.0
+      }
+    },
+    {
+      "key": "mokdong-7",
+      "name": "목동신시가지7",
+      "role": "C",
+      "phase4": "ambiguous",
+      "phase45": "ambiguous",
+      "changed": false,
+      "rescued": false,
+      "rescue_reason": "형별개요 세대수/타입코드만 있고 전용·공급면적 없음",
+      "supply_confidence": "low",
+      "market_group_confidence": "medium",
+      "label_confidence": 1.0,
+      "metrics": {
+        "mgm_households_sum": 2550.0,
+        "mgm_exclusive_coverage": 0.0,
+        "mgm_type_count": 3,
+        "mgm_group_count": 0,
+        "multi_type_same_exclusive_groups": 0,
+        "kapt_households": null,
+        "kapt_dong_cnt": null,
+        "household_delta_vs_kapt": null,
+        "hs_counts": {
+          "basis": 606,
+          "dong": 0,
+          "ho": 0,
+          "expos": 0,
+          "ho_expos": 0,
+          "mgm_type": 3,
+          "act": 606,
+          "plat": 607
+        },
+        "phase4_unknown_common": 0.49,
+        "phase4_label_confidence": 0.81
+      }
+    },
+    {
+      "key": "olympic-family",
+      "name": "올림픽훼밀리타운",
+      "role": "C",
+      "phase4": "ambiguous",
+      "phase45": "ambiguous",
+      "changed": false,
+      "rescued": false,
+      "rescue_reason": "주택인허가 형별/행위호 면적 유용정보 부족 — Phase4 유지",
+      "supply_confidence": "none",
+      "market_group_confidence": "unchanged",
+      "label_confidence": 0.0,
+      "metrics": {
+        "mgm_households_sum": 0,
+        "mgm_exclusive_coverage": 0.0,
+        "mgm_type_count": 0,
+        "mgm_group_count": 0,
+        "multi_type_same_exclusive_groups": 0,
+        "kapt_households": 4494.0,
+        "kapt_dong_cnt": 56.0,
+        "household_delta_vs_kapt": null,
+        "hs_counts": {
+          "basis": 994,
+          "dong": 89,
+          "ho": 25,
+          "expos": 0,
+          "ho_expos": 291,
+          "mgm_type": 2,
+          "act": 996,
+          "plat": 996
+        },
+        "phase4_unknown_common": 0.4,
+        "phase4_label_confidence": 0.53
+      }
+    },
+    {
+      "key": "jamsil-els",
+      "name": "잠실엘스",
+      "role": "B",
+      "phase4": "group-safe-label-unknown",
+      "phase45": "group-safe-label-unknown",
+      "changed": false,
+      "rescued": false,
+      "rescue_reason": "전용면적 그룹은 확실, 평형 label은 타입코드로 미확정",
+      "supply_confidence": "high",
+      "market_group_confidence": "high",
+      "label_confidence": 0.0,
+      "metrics": {
+        "mgm_households_sum": 9252.0,
+        "mgm_exclusive_coverage": 1.0,
+        "mgm_type_count": 11,
+        "mgm_group_count": 3,
+        "multi_type_same_exclusive_groups": 2,
+        "kapt_households": 5678.0,
+        "kapt_dong_cnt": 72.0,
+        "household_delta_vs_kapt": 0.63,
+        "hs_counts": {
+          "basis": 1447,
+          "dong": 118,
+          "ho": 5831,
+          "expos": 342,
+          "ho_expos": 0,
+          "mgm_type": 160,
+          "act": 1442,
+          "plat": 1450
+        },
+        "phase4_unknown_common": 0.0,
+        "phase4_label_confidence": 0.09
+      }
+    },
+    {
+      "key": "banpo-xi",
+      "name": "반포자이",
+      "role": "B",
+      "phase4": "group-safe-label-unknown",
+      "phase45": "auto-safe",
+      "changed": true,
+      "rescued": true,
+      "rescue_reason": "형별개요 typeGb로 label 확정",
+      "supply_confidence": "high",
+      "market_group_confidence": "high",
+      "label_confidence": 0.78,
+      "metrics": {
+        "mgm_households_sum": 3410.0,
+        "mgm_exclusive_coverage": 1.0,
+        "mgm_type_count": 18,
+        "mgm_group_count": 7,
+        "multi_type_same_exclusive_groups": 6,
+        "kapt_households": 3410.0,
+        "kapt_dong_cnt": 44.0,
+        "household_delta_vs_kapt": 0.0,
+        "hs_counts": {
+          "basis": 529,
+          "dong": 64,
+          "ho": 3411,
+          "expos": 167,
+          "ho_expos": 0,
+          "mgm_type": 19,
+          "act": 527,
+          "plat": 528
+        },
+        "phase4_unknown_common": 0.0,
+        "phase4_label_confidence": 0.63
+      }
+    },
+    {
+      "key": "hangang-daewoo",
+      "name": "한강대우",
+      "role": "A-control",
+      "phase4": "auto-safe",
+      "phase45": "auto-safe",
+      "changed": false,
+      "rescued": false,
+      "rescue_reason": "주택인허가 형별/행위호 면적 유용정보 부족 — Phase4 유지",
+      "supply_confidence": "none",
+      "market_group_confidence": "unchanged",
+      "label_confidence": 0.0,
+      "metrics": {
+        "mgm_households_sum": 0,
+        "mgm_exclusive_coverage": 0.0,
+        "mgm_type_count": 0,
+        "mgm_group_count": 0,
+        "multi_type_same_exclusive_groups": 0,
+        "kapt_households": 834.0,
+        "kapt_dong_cnt": 10.0,
+        "household_delta_vs_kapt": null,
+        "hs_counts": {
+          "basis": 105,
+          "dong": 19,
+          "ho": 0,
+          "expos": 0,
+          "ho_expos": 0,
+          "mgm_type": 0,
+          "act": 104,
+          "plat": 105
+        },
+        "phase4_unknown_common": 0.0,
+        "phase4_label_confidence": 0.75
+      }
+    }
+  ]
+}
