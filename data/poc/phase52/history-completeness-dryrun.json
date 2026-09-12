@@ -1,0 +1,562 @@
+{
+  "generatedAt": "2026-09-11T23:16:16.330Z",
+  "phase": "5.2-history-completeness-dryrun",
+  "safety": {
+    "productionWrite": false,
+    "pilotMasterMutation": false,
+    "screenshots": 0,
+    "writeRequiresSeparateApproval": true
+  },
+  "policy": {
+    "historyStart": "max(2006-01, occupancy/trade-available)",
+    "historyFloorYm": "200601",
+    "pre2006ExternalSupplement": "forbidden",
+    "reuse": [
+      "fetchOneTradeForSync → resolveActiveTrades",
+      "naturalKeyFromTx + isSameTransactionContent (replaceMonthTransactions semantics)"
+    ],
+    "writePathIfApproved": "scripts/sync-molit.ts --codes=11170,11650,11710 --from-month=… --to-month=… --rent-months=0 --discovery=0 --skip-existing=0 --only-changed=0 (full lawd-month atomic replace; not apt-only)",
+    "pilotScopeOnly": true,
+    "noteFullCellSideEffect": "Existing monthly replace is lawd-scoped. Approving write for these lawd×months will also upsert other apts in 용산/서초/송파 for those months. No other lawds. No C/D pilots."
+  },
+  "fetch": {
+    "uniqueLawdMonthCells": 678,
+    "concurrency": 5,
+    "fetchErrors": 0,
+    "metaHttpCalls": null,
+    "estimatedFullFetchPages": null,
+    "apiCallEstimate": {
+      "lowerBoundCells": 678,
+      "estimatedPagesIncludingPagination": 682,
+      "dryRunFetchElapsedSec": 59,
+      "note": "Dry-run used fetchOneTradeForSync (resolveActiveTrades). Write path would re-fetch same cells unless cached."
+    },
+    "lawdMonthCounts": {
+      "11170": 249,
+      "11650": 211,
+      "11710": 218
+    },
+    "elapsedSec": 59,
+    "metaPageProbe": {
+      "cells": 678,
+      "metaHttp": 678,
+      "empty": 0,
+      "errors": 247,
+      "estimatedFullFetchPages": 682,
+      "note": "Separate meta probe after successful dry-run fetch (0 errors). Meta errors likely rate-limit; actual sync fetch completed with 0 errors in ~59s. Lower bound API calls ≈ 678; with pagination ≈ 682."
+    }
+  },
+  "complexes": [
+    {
+      "complexKey": "hangang-daewoo",
+      "displayName": "한강(대우)",
+      "aptNameNorm": "한강(대우)",
+      "lawdCd": "11170",
+      "gu": "용산구",
+      "occupancyYm": "200003",
+      "occupancyNote": "준공 2000-03 → floor 2006-01",
+      "requiredStartYm": "200601",
+      "windowFrom": "200601",
+      "windowTo": "202609",
+      "warehouse": {
+        "complexKey": "hangang-daewoo",
+        "warehouseCount": 266,
+        "warehouseFirstYm": "201610",
+        "warehouseLastYm": "202608",
+        "warehouseFirstDealDate": "2016-10-29",
+        "warehouseLastDealDate": "2026-08-05"
+      },
+      "monthsRequired": 249,
+      "monthsWithSourceHits": 190,
+      "sourceActiveCount": 625,
+      "warehouseExistingInWindow": 263,
+      "expected": {
+        "insert": 363,
+        "update": 0,
+        "unchanged": 262,
+        "delete": 1
+      },
+      "gapAnalysis": {
+        "warehouseFirstYm": "201610",
+        "preWarehouseMonths": 129,
+        "sourceActiveBeforeWarehouseFirst": 358,
+        "sourceActiveFromWarehouseFirstOnward": 267
+      },
+      "samples": {
+        "insert": [
+          {
+            "dealDate": "2006-01-24",
+            "amount": 54000,
+            "exclusiveArea": 60,
+            "floor": 13,
+            "yearMonth": "200601"
+          },
+          {
+            "dealDate": "2006-01-27",
+            "amount": 55000,
+            "exclusiveArea": 60,
+            "floor": 24,
+            "yearMonth": "200601"
+          },
+          {
+            "dealDate": "2006-01-17",
+            "amount": 48000,
+            "exclusiveArea": 60,
+            "floor": 5,
+            "yearMonth": "200601"
+          },
+          {
+            "dealDate": "2006-01-06",
+            "amount": 52500,
+            "exclusiveArea": 60,
+            "floor": 13,
+            "yearMonth": "200601"
+          },
+          {
+            "dealDate": "2006-02-06",
+            "amount": 64000,
+            "exclusiveArea": 84.98,
+            "floor": 17,
+            "yearMonth": "200602"
+          },
+          {
+            "dealDate": "2006-07-05",
+            "amount": 54250,
+            "exclusiveArea": 60,
+            "floor": 7,
+            "yearMonth": "200607"
+          },
+          {
+            "dealDate": "2006-04-14",
+            "amount": 53750,
+            "exclusiveArea": 60,
+            "floor": 8,
+            "yearMonth": "200604"
+          },
+          {
+            "dealDate": "2006-04-12",
+            "amount": 80000,
+            "exclusiveArea": 84.98,
+            "floor": 7,
+            "yearMonth": "200604"
+          }
+        ],
+        "update": [],
+        "delete": [
+          {
+            "dealDate": "2021-09-07",
+            "amount": 269000,
+            "exclusiveArea": 134.13,
+            "yearMonth": "202109"
+          }
+        ]
+      }
+    },
+    {
+      "complexKey": "parkrio",
+      "displayName": "파크리오",
+      "aptNameNorm": "파크리오",
+      "lawdCd": "11710",
+      "gu": "송파구",
+      "occupancyYm": "200808",
+      "occupancyNote": "사용승인 2008-08-29",
+      "requiredStartYm": "200808",
+      "windowFrom": "200808",
+      "windowTo": "202609",
+      "warehouse": {
+        "complexKey": "parkrio",
+        "warehouseCount": 2661,
+        "warehouseFirstYm": "201610",
+        "warehouseLastYm": "202608",
+        "warehouseFirstDealDate": "2016-10-01",
+        "warehouseLastDealDate": "2026-08-20"
+      },
+      "monthsRequired": 218,
+      "monthsWithSourceHits": 214,
+      "sourceActiveCount": 5190,
+      "warehouseExistingInWindow": 2661,
+      "expected": {
+        "insert": 2539,
+        "update": 0,
+        "unchanged": 2651,
+        "delete": 10
+      },
+      "gapAnalysis": {
+        "warehouseFirstYm": "201610",
+        "preWarehouseMonths": 98,
+        "sourceActiveBeforeWarehouseFirst": 2539,
+        "sourceActiveFromWarehouseFirstOnward": 2651
+      },
+      "samples": {
+        "insert": [
+          {
+            "dealDate": "2008-09-06",
+            "amount": 57000,
+            "exclusiveArea": 59.95,
+            "floor": 10,
+            "yearMonth": "200809"
+          },
+          {
+            "dealDate": "2008-09-10",
+            "amount": 83000,
+            "exclusiveArea": 84.79,
+            "floor": 26,
+            "yearMonth": "200809"
+          },
+          {
+            "dealDate": "2008-09-22",
+            "amount": 90000,
+            "exclusiveArea": 84.79,
+            "floor": 26,
+            "yearMonth": "200809"
+          },
+          {
+            "dealDate": "2008-10-10",
+            "amount": 51000,
+            "exclusiveArea": 59.95,
+            "floor": 3,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-29",
+            "amount": 56000,
+            "exclusiveArea": 59.95,
+            "floor": 6,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-30",
+            "amount": 53000,
+            "exclusiveArea": 59.95,
+            "floor": 25,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-17",
+            "amount": 71500,
+            "exclusiveArea": 84.79,
+            "floor": 3,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-27",
+            "amount": 71500,
+            "exclusiveArea": 84.79,
+            "floor": 3,
+            "yearMonth": "200810"
+          }
+        ],
+        "update": [],
+        "delete": [
+          {
+            "dealDate": "2020-05-27",
+            "amount": 190000,
+            "exclusiveArea": 144.77,
+            "yearMonth": "202005"
+          },
+          {
+            "dealDate": "2020-12-12",
+            "amount": 201500,
+            "exclusiveArea": 84.9,
+            "yearMonth": "202012"
+          },
+          {
+            "dealDate": "2021-08-25",
+            "amount": 215000,
+            "exclusiveArea": 84.9,
+            "yearMonth": "202108"
+          },
+          {
+            "dealDate": "2022-06-15",
+            "amount": 211500,
+            "exclusiveArea": 84.9,
+            "yearMonth": "202206"
+          },
+          {
+            "dealDate": "2023-04-11",
+            "amount": 85000,
+            "exclusiveArea": 35.24,
+            "yearMonth": "202304"
+          }
+        ]
+      }
+    },
+    {
+      "complexKey": "banpo-xi",
+      "displayName": "반포자이",
+      "aptNameNorm": "반포자이",
+      "lawdCd": "11650",
+      "gu": "서초구",
+      "occupancyYm": "200903",
+      "occupancyNote": "사용승인 2009-03",
+      "requiredStartYm": "200903",
+      "windowFrom": "200903",
+      "windowTo": "202609",
+      "warehouse": {
+        "complexKey": "banpo-xi",
+        "warehouseCount": 1056,
+        "warehouseFirstYm": "201610",
+        "warehouseLastYm": "202609",
+        "warehouseFirstDealDate": "2016-10-01",
+        "warehouseLastDealDate": "2026-09-08"
+      },
+      "monthsRequired": 211,
+      "monthsWithSourceHits": 203,
+      "sourceActiveCount": 2638,
+      "warehouseExistingInWindow": 1044,
+      "expected": {
+        "insert": 1604,
+        "update": 0,
+        "unchanged": 1034,
+        "delete": 10
+      },
+      "gapAnalysis": {
+        "warehouseFirstYm": "201610",
+        "preWarehouseMonths": 91,
+        "sourceActiveBeforeWarehouseFirst": 1547,
+        "sourceActiveFromWarehouseFirstOnward": 1091
+      },
+      "samples": {
+        "insert": [
+          {
+            "dealDate": "2009-03-28",
+            "amount": 254000,
+            "exclusiveArea": 244.543,
+            "floor": 10,
+            "yearMonth": "200903"
+          },
+          {
+            "dealDate": "2009-03-16",
+            "amount": 212000,
+            "exclusiveArea": 194.515,
+            "floor": 10,
+            "yearMonth": "200903"
+          },
+          {
+            "dealDate": "2009-03-22",
+            "amount": 109000,
+            "exclusiveArea": 84.943,
+            "floor": 26,
+            "yearMonth": "200903"
+          },
+          {
+            "dealDate": "2009-03-19",
+            "amount": 77145,
+            "exclusiveArea": 59.98,
+            "floor": 13,
+            "yearMonth": "200903"
+          },
+          {
+            "dealDate": "2009-03-18",
+            "amount": 77145,
+            "exclusiveArea": 59.98,
+            "floor": 14,
+            "yearMonth": "200903"
+          },
+          {
+            "dealDate": "2009-03-17",
+            "amount": 286172,
+            "exclusiveArea": 244.543,
+            "floor": 3,
+            "yearMonth": "200903"
+          },
+          {
+            "dealDate": "2009-03-17",
+            "amount": 288360,
+            "exclusiveArea": 244.543,
+            "floor": 7,
+            "yearMonth": "200903"
+          },
+          {
+            "dealDate": "2009-03-17",
+            "amount": 285639,
+            "exclusiveArea": 244.543,
+            "floor": 5,
+            "yearMonth": "200903"
+          }
+        ],
+        "update": [],
+        "delete": [
+          {
+            "dealDate": "2020-06-26",
+            "amount": 362000,
+            "exclusiveArea": 165.052,
+            "yearMonth": "202006"
+          },
+          {
+            "dealDate": "2020-08-05",
+            "amount": 400000,
+            "exclusiveArea": 194.515,
+            "yearMonth": "202008"
+          },
+          {
+            "dealDate": "2021-01-19",
+            "amount": 300000,
+            "exclusiveArea": 84.998,
+            "yearMonth": "202101"
+          },
+          {
+            "dealDate": "2022-11-03",
+            "amount": 530000,
+            "exclusiveArea": 194.515,
+            "yearMonth": "202211"
+          },
+          {
+            "dealDate": "2023-11-30",
+            "amount": 340000,
+            "exclusiveArea": 84.984,
+            "yearMonth": "202311"
+          }
+        ]
+      }
+    },
+    {
+      "complexKey": "jamsil-els",
+      "displayName": "잠실엘스",
+      "aptNameNorm": "잠실엘스",
+      "lawdCd": "11710",
+      "gu": "송파구",
+      "occupancyYm": "200809",
+      "occupancyNote": "사용승인 2008-09",
+      "requiredStartYm": "200809",
+      "windowFrom": "200809",
+      "windowTo": "202609",
+      "warehouse": {
+        "complexKey": "jamsil-els",
+        "warehouseCount": 1647,
+        "warehouseFirstYm": "201610",
+        "warehouseLastYm": "202608",
+        "warehouseFirstDealDate": "2016-10-03",
+        "warehouseLastDealDate": "2026-08-21"
+      },
+      "monthsRequired": 217,
+      "monthsWithSourceHits": 212,
+      "sourceActiveCount": 3547,
+      "warehouseExistingInWindow": 1647,
+      "expected": {
+        "insert": 1908,
+        "update": 0,
+        "unchanged": 1639,
+        "delete": 8
+      },
+      "gapAnalysis": {
+        "warehouseFirstYm": "201610",
+        "preWarehouseMonths": 97,
+        "sourceActiveBeforeWarehouseFirst": 1908,
+        "sourceActiveFromWarehouseFirstOnward": 1639
+      },
+      "samples": {
+        "insert": [
+          {
+            "dealDate": "2008-10-10",
+            "amount": 93000,
+            "exclusiveArea": 84.8,
+            "floor": 9,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-25",
+            "amount": 60000,
+            "exclusiveArea": 59.96,
+            "floor": 12,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-10",
+            "amount": 70000,
+            "exclusiveArea": 59.96,
+            "floor": 20,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-17",
+            "amount": 62000,
+            "exclusiveArea": 59.96,
+            "floor": 2,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-01",
+            "amount": 108000,
+            "exclusiveArea": 84.8,
+            "floor": 18,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-10-02",
+            "amount": 94000,
+            "exclusiveArea": 84.8,
+            "floor": 8,
+            "yearMonth": "200810"
+          },
+          {
+            "dealDate": "2008-11-06",
+            "amount": 85000,
+            "exclusiveArea": 84.8,
+            "floor": 15,
+            "yearMonth": "200811"
+          },
+          {
+            "dealDate": "2008-11-08",
+            "amount": 85700,
+            "exclusiveArea": 84.88,
+            "floor": 9,
+            "yearMonth": "200811"
+          }
+        ],
+        "update": [],
+        "delete": [
+          {
+            "dealDate": "2020-09-04",
+            "amount": 224000,
+            "exclusiveArea": 84.97,
+            "yearMonth": "202009"
+          },
+          {
+            "dealDate": "2023-05-17",
+            "amount": 220000,
+            "exclusiveArea": 84.8,
+            "yearMonth": "202305"
+          },
+          {
+            "dealDate": "2023-06-07",
+            "amount": 194000,
+            "exclusiveArea": 84.8,
+            "yearMonth": "202306"
+          },
+          {
+            "dealDate": "2023-08-23",
+            "amount": 191000,
+            "exclusiveArea": 59.96,
+            "yearMonth": "202308"
+          },
+          {
+            "dealDate": "2023-08-04",
+            "amount": 184000,
+            "exclusiveArea": 59.96,
+            "yearMonth": "202308"
+          }
+        ]
+      }
+    }
+  ],
+  "totals": {
+    "sourceActive": 12000,
+    "warehouseInWindow": 5615,
+    "expectedInsert": 6414,
+    "expectedUpdate": 0,
+    "expectedDelete": 29,
+    "expectedUnchanged": 5586,
+    "sourceActiveBeforeWarehouseFirst": 6352
+  },
+  "nextGate": {
+    "actualWrite": "BLOCKED — awaiting separate approval after this dry-run",
+    "afterWriteRevalidate": [
+      "history first deal date per complex",
+      "market-group prior-exceed 신고가 recount",
+      "exclusive prior-exceed compare",
+      "early-window false 신고가 cleared?",
+      "A/B allowlist HOLD lift decision"
+    ]
+  }
+}
