@@ -46,3 +46,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 data/poc/phase59/*.sqlite
+data/poc/phase510/bld-cache/

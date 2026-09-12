@@ -1,0 +1,52 @@
+{
+  "phase": "5.10",
+  "identity_coverage": {
+    "lawd_dong": 15751,
+    "bjdong_in_transactions": 0,
+    "jibun": 15751,
+    "road_address": 0,
+    "canonical_lawd_apt": 15751,
+    "total_complexes": 15751,
+    "unique_lawd_dong_pairs_needed": 939,
+    "legal_dong_seed_mappings": 16
+  },
+  "resolver": {
+    "legal_dong_resolved": 875,
+    "PARCEL_EXACT": 874,
+    "BJDONG_ONLY": 1,
+    "AMBIGUOUS": 0,
+    "UNRESOLVED": 14538,
+    "seed_only": true,
+    "note": "No full legal-dong code table in-repo; seed from existing building caches only"
+  },
+  "trade_prefilter": {
+    "PASS": 15413,
+    "HOLD": 327,
+    "already_loaded_skipped": 11,
+    "reasons": {
+      "identity_ambiguous_multi_dong_or_jibun": 327
+    }
+  },
+  "external_estimate": {
+    "before_complexes": 15740,
+    "after_prefilter_complexes": 15413,
+    "parcel_exact_complexes": 874,
+    "old_estimated_requests": 3680012,
+    "optimized_estimated_requests_if_only_parcel_exact": 204341,
+    "estimated_runtime_hours_parcel_exact": 15.9,
+    "optimization_finding": "Gate already queries sigungu+bjdong+bun+ji. ~245 pages/complex is unit-level 전유부 cardinality, not missing parcel filters. Cannot reduce pages/complex without semantic change."
+  },
+  "production_writes": 0,
+  "proof20": {
+    "sample": 20,
+    "registry_success": 20,
+    "registry_nonempty": 17,
+    "avg_requests_per_complex": 1.6,
+    "avg_runtime_sec": 12.52,
+    "gate_completion_note": "building cache acquired; classify not re-run (no equivalence/load). nonempty registry rate below",
+    "nonempty_registry_rate_pct": 85.0
+  },
+  "decision": "HOLD",
+  "decision_reason": "legal-dong resolver seed covers only 16/939 lawd+dong pairs; 92%+ still UNRESOLVED; cannot claim scale. Exact-parcel API path works (20/20 fetch) and small complexes are cheap (~1.6 req), but full legal-dong table is still required before scaled acquisition.",
+  "next": "ingest local legal-dong code table (lawd+dong_name→bjdong) then re-resolve; do not scale BldRgstHub yet"
+}
