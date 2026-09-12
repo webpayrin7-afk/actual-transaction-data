@@ -30,11 +30,11 @@ function navLinkClass(active: boolean) {
 }
 
 function sectionHeadingClass() {
-  return "pb-0.5 text-[13px] font-semibold text-slate-500";
+  return "pb-0.5 text-[12px] font-semibold text-slate-500";
 }
 
 function drawerItemClass(active: boolean) {
-  return `flex h-11 items-center text-[17px] font-medium transition-colors ${
+  return `flex h-[44px] items-center text-[15px] font-medium transition-colors ${
     active
       ? "bg-teal-50 text-teal-800"
       : "text-slate-800 hover:bg-teal-50/70 active:bg-teal-50/80"
@@ -228,7 +228,7 @@ export function SiteHeader() {
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className={`fixed inset-y-0 right-0 z-[48] flex w-[min(280px,78vw)] flex-col border-l border-slate-200 bg-white shadow-[-2px_0_8px_rgba(15,23,42,0.04)] transition-transform ease-out ${
+            className={`fixed inset-y-0 right-0 z-[48] flex w-[min(260px,72vw)] flex-col border-l border-slate-200 bg-white shadow-[-2px_0_8px_rgba(15,23,42,0.04)] transition-transform ease-out ${
               menuShown
                 ? "translate-x-0 duration-[200ms]"
                 : "translate-x-full duration-[160ms]"
@@ -239,7 +239,7 @@ export function SiteHeader() {
             <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-100 pr-2.5 pl-5">
               <h2
                 id={titleId}
-                className="text-[18px] font-semibold leading-none text-slate-900"
+                className="text-[16px] font-semibold leading-none text-slate-900"
               >
                 메뉴
               </h2>
@@ -253,9 +253,9 @@ export function SiteHeader() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 pt-3 pb-4">
+            <div className="flex-1 overflow-y-auto pt-2.5 pr-2.5 pb-4 pl-5">
               <p className={sectionHeadingClass()}>도구</p>
-              <nav aria-label="도구" className="flex flex-col gap-0.5">
+              <nav aria-label="도구" className="flex flex-col">
                 {TOOL_NAV.map((item) => {
                   const active = item.match(pathname);
                   return (
@@ -271,9 +271,9 @@ export function SiteHeader() {
                 })}
               </nav>
 
-              <div className="mt-3.5 border-t border-slate-100/80 pt-3.5">
+              <div className="mt-2 border-t border-slate-100/60 pt-2">
                 <p className={sectionHeadingClass()}>서비스</p>
-                <nav aria-label="서비스" className="flex flex-col gap-0.5">
+                <nav aria-label="서비스" className="flex flex-col">
                   {MORE_SERVICE_LINKS.map((item) => {
                     const active = pathname === item.href;
                     return (
