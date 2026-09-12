@@ -1,0 +1,112 @@
+{
+  "results": [
+    {
+      "label": "basic_1613000_getAphusBassInfo",
+      "status": 400,
+      "path": "/1613000/AptBasisInfoService1/getAphusBassInfo",
+      "host": "apis.data.go.kr",
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12",
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <OpenAPI_ServiceResponse> <cmmMsgHeader> <errMsg>NO_OPENAPI_SERVICE_ERROR</errMsg> <returnAuthMsg>해당 오픈API 서비스가 없거나 폐기됨</returnAuthMsg> <returnReasonCode>1"
+    },
+    {
+      "label": "basic_1611000_legacy",
+      "status": 400,
+      "path": "/1611000/AptBasisInfoService/getAphusBassInfo",
+      "host": "apis.data.go.kr",
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12",
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <OpenAPI_ServiceResponse> <cmmMsgHeader> <errMsg>NO_OPENAPI_SERVICE_ERROR</errMsg> <returnAuthMsg>해당 오픈API 서비스가 없거나 폐기됨</returnAuthMsg> <returnReasonCode>1"
+    },
+    {
+      "label": "basic_http_1613000",
+      "status": 400,
+      "path": "/1613000/AptBasisInfoService1/getAphusBassInfo",
+      "host": "apis.data.go.kr",
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12",
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <OpenAPI_ServiceResponse> <cmmMsgHeader> <errMsg>NO_OPENAPI_SERVICE_ERROR</errMsg> <returnAuthMsg>해당 오픈API 서비스가 없거나 폐기됨</returnAuthMsg> <returnReasonCode>1"
+    },
+    {
+      "label": "list_getTotalAptList",
+      "status": 400,
+      "path": "/1613000/AptListService2/getTotalAptList",
+      "host": "apis.data.go.kr",
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12",
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <OpenAPI_ServiceResponse> <cmmMsgHeader> <errMsg>NO_OPENAPI_SERVICE_ERROR</errMsg> <returnAuthMsg>해당 오픈API 서비스가 없거나 폐기됨</returnAuthMsg> <returnReasonCode>1"
+    },
+    {
+      "label": "list_1611000_legacy_getSidoAptList",
+      "status": 400,
+      "path": "/1611000/AptListService/getSidoAptList",
+      "host": "apis.data.go.kr",
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12",
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <OpenAPI_ServiceResponse> <cmmMsgHeader> <errMsg>NO_OPENAPI_SERVICE_ERROR</errMsg> <returnAuthMsg>해당 오픈API 서비스가 없거나 폐기됨</returnAuthMsg> <returnReasonCode>1"
+    },
+    {
+      "label": "common_AptCmnuseManageCostService",
+      "status": 400,
+      "path": "/1613000/AptCmnuseManageCostService/getHsmpCleaningCostInfo",
+      "host": "apis.data.go.kr",
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12",
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <OpenAPI_ServiceResponse> <cmmMsgHeader> <errMsg>NO_OPENAPI_SERVICE_ERROR</errMsg> <returnAuthMsg>해당 오픈API 서비스가 없거나 폐기됨</returnAuthMsg> <returnReasonCode>1"
+    },
+    {
+      "label": "indiv_AptIndivUseFeeService",
+      "status": 400,
+      "path": "/1613000/AptIndivUseFeeService/getHsmpElectricityCostInfo",
+      "host": "apis.data.go.kr",
+      "errMsg": "NO_OPENAPI_SERVICE_ERROR",
+      "returnAuthMsg": "해당 오픈API 서비스가 없거나 폐기됨",
+      "returnReasonCode": "12",
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <OpenAPI_ServiceResponse> <cmmMsgHeader> <errMsg>NO_OPENAPI_SERVICE_ERROR</errMsg> <returnAuthMsg>해당 오픈API 서비스가 없거나 폐기됨</returnAuthMsg> <returnReasonCode>1"
+    },
+    {
+      "label": "reserve_monthRetal_V2",
+      "status": 403,
+      "path": "/1613000/AptRepairsCostServiceV2/getHsmpMonthRetalFeeInfoV2",
+      "host": "apis.data.go.kr",
+      "errMsg": null,
+      "returnAuthMsg": null,
+      "returnReasonCode": null,
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "{ \"OpenAPI_ServiceResponse\": { \"cmmMsgHeader\": { \"errMsg\": \"SERVICE_KEY_IS_NOT_REGISTERED_ERROR\", \"returnAuthMsg\": \"등록되지 않은 서비스키\", \"returnReasonCode\": \"30\" } } } "
+    },
+    {
+      "label": "energy_V2_related_family",
+      "status": 200,
+      "path": "/1613000/ApHusEnergyUseInfoOfferServiceV2/getHsmpApHusUsgQtyInfoSearchV2",
+      "host": "apis.data.go.kr",
+      "errMsg": null,
+      "returnAuthMsg": null,
+      "returnReasonCode": null,
+      "resultCode": null,
+      "resultMsg": null,
+      "body_prefix": "{\"response\":{\"body\":{\"item\":{\"kaptCode\":\"A13822004\",\"heat\":877749420,\"hheat\":459947,\"waterHot\":236351500,\"hwaterHot\":42973,\"gas\":0,\"hgas\":0,\"elect\":491857204,\"helect\":1785462,\"waterCool\":133867350,\"hw"
+    }
+  ]
+}

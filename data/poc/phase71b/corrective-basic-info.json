@@ -1,0 +1,78 @@
+{
+  "mode": "APPLY",
+  "expected_updates": 6,
+  "targets": [
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "from": {
+        "status": "READY",
+        "reason_code": null
+      },
+      "to": {
+        "status": "PENDING",
+        "reason_code": "BASIC_SOURCE_MISSING"
+      }
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "from": {
+        "status": "READY",
+        "reason_code": null
+      },
+      "to": {
+        "status": "PENDING",
+        "reason_code": "BASIC_SOURCE_MISSING"
+      }
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "from": {
+        "status": "READY",
+        "reason_code": null
+      },
+      "to": {
+        "status": "PENDING",
+        "reason_code": "BASIC_SOURCE_MISSING"
+      }
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "from": {
+        "status": "READY",
+        "reason_code": null
+      },
+      "to": {
+        "status": "PENDING",
+        "reason_code": "BASIC_SOURCE_MISSING"
+      }
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "from": {
+        "status": "READY",
+        "reason_code": null
+      },
+      "to": {
+        "status": "PENDING",
+        "reason_code": "BASIC_SOURCE_MISSING"
+      }
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "from": {
+        "status": "READY",
+        "reason_code": null
+      },
+      "to": {
+        "status": "PENDING",
+        "reason_code": "BASIC_SOURCE_MISSING"
+      }
+    }
+  ]
+}
