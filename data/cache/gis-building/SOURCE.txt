@@ -1,0 +1,76 @@
+GIS Building Integrated Information Dataset (GIS건물통합정보)
+========================================================================
+
+DATASET INFORMATION:
+-------------------
+Name: 국토교통부_GIS건물통합정보_20260809
+English: Ministry of Land, Infrastructure and Transport (MOLIT) - GIS Building Integrated Information
+Provider: 국토교통부 (Ministry of Land, Infrastructure and Transport)
+Managing Department: 국가공간정보센터 (National Spatial Information Center)
+Contact: 166-1-0115
+
+SOURCE URLS:
+-----------
+Primary Portal: https://www.data.go.kr/data/15083092/fileData.do
+VWorld Download: https://www.vworld.kr/dtmk/dtmk_ntads_s002.do?svcCde=NA&dsId=18
+
+VERSION/DATE:
+------------
+Dataset Version: 20260809
+Registration Date: 2025-07-01
+Modification Date: 2026-08-31
+Download Attempt Date: 2026-09-12
+
+LICENSE:
+--------
+License Type: 공공누리 제1유형 (Korea Open Government License Type 1)
+English: KOGL Type 1 - Attribution Required
+License Form: 공공저작물 : 출처표시 (제 1유형)
+Cost: 무료 (Free)
+Usage: Free to use with attribution to source
+
+TECHNICAL SPECIFICATIONS:
+------------------------
+Format: SHP (Shapefile - Vector spatial data)
+Total Records: 6,656,497 buildings
+CRS: Not specified on portal (typically EPSG:5179 or EPSG:5186 for Korean spatial data)
+Recommended Software: ArcGIS, QGIS
+Coverage: National (전국)
+Filter for this phase: Seoul + Gyeonggi only (do not ingest nationwide into production DB)
+
+DESCRIPTION:
+-----------
+This dataset integrates building spatial information based on continuous cadastral maps
+with building attribute information from the building administration system (Seumter/세움터).
+Building-level integrated information combining spatial and registry data.
+
+Usable identity fields (expected in SHP attrs):
+- PNU / 고유번호 (19-digit parcel number)
+- Geometry: Polygon / MultiPolygon building footprints
+
+DOWNLOAD STATUS:
+---------------
+Status: FAILED - VWorld server unavailable (reconfirmed 2026-09-12)
+Blocker: VWorld (www.vworld.kr) returning 502 Bad Gateway / empty reply
+Alternative portals attempted:
+- data.nsdi.go.kr: DNS / connectivity failure
+- www.nsdi.go.kr: DNS / connectivity failure
+- data.go.kr: metadata only; download redirects to VWorld dsId=18
+- data.seoul.go.kr / data.gg.go.kr: no usable direct MOLIT GIS건물통합정보 SHP drop-in
+
+FILES DOWNLOADED:
+----------------
+None - Server unavailable
+
+LOCAL CACHE LAYOUT (when acquired):
+----------------------------------
+data/cache/gis-building/
+  SOURCE.txt          (this file)
+  DOWNLOAD_REPORT.md
+  <region>/*.shp|.dbf|.shx|.prj   OR *.zip extracts
+  optional: pnu-index.json        (prebuilt PNU → rings4326 index)
+
+ATTRIBUTION REQUIREMENT:
+-----------------------
+"Source: Ministry of Land, Infrastructure and Transport (MOLIT) - GIS Building Integrated Information (GIS건물통합정보)"
+"출처: 국토교통부 GIS건물통합정보"
