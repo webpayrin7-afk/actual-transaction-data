@@ -63,10 +63,22 @@ npx tsx scripts/test-unit-type-phase53b.ts
 
 Covers: Phase 5.3 equivalence, baseline diff=0, Hangang 49/50 split, A/B rules, C/D exclusive unchanged, gate default OFF, local seed only.
 
+## Production load (approved 5.3b)
+
+- Wrote **19/19** rows to `apt_pyeong_group_baselines` only
+- Read-back: group_key / prior_max_amount / prior_max_deal_date / baseline_until / confidence / completeness = **19/19 match**
+- Feature flags **unchanged / OFF**:
+  - `ENABLE_MARKET_GROUP_BASELINE_SINGOGA` unset/0
+  - `POST_WH_SINGOGA_GAPS_CLEARED` unset
+- Post-write production read-only verify (`scripts/phase53b-verify-production-readonly.ts`):
+  - warehouse+baseline vs full-history **diff=0** on all 4 pilots
+  - MOLIT 2016+ + baseline vs full-history **diff=0**
+
 ## Safety
 
-- no production DB write
+- baselines table write only (19 rows)
 - no historical transaction backfill
 - no transactions mutation
 - no nationwide rollout
 - no UI / selector changes
+- flags not activated
