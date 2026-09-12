@@ -1,0 +1,84 @@
+{
+  "phase": "5.6",
+  "classificationImplementation": {
+    "schema": "apt_complex_classifications",
+    "allowed": [
+      "auto-safe",
+      "group-safe-label-unknown",
+      "ambiguous",
+      "registry-abnormal"
+    ],
+    "generator": "scripts/poc_phase4_readiness_gate.py::classify",
+    "reusable": true,
+    "rules": [
+      "registry-abnormal: partial_common_ratio>=0.50 OR ledger_trade_hh_coverage<0.20",
+      "ambiguous: ambiguous_group_ratio>=0.30 OR group_exact<0.80 OR unknown_common>=0.38 OR (unknown_common>=0.30 & residential_common<0.40) OR outlier>=0.20",
+      "group-safe-label-unknown: label_confidence<0.70 (else gates passed)",
+      "auto-safe: passed_all_gates"
+    ],
+    "note": "Phase4 one-off COMPLEXES allowlist + caches; classify() itself reusable"
+  },
+  "examined": 20,
+  "deterministic": 11,
+  "unresolved": 9,
+  "coveragePct": 55,
+  "AUTO_SAFE": [
+    "anyang-samsung-raemian",
+    "hannam-thehill",
+    "ilsan-zenith",
+    "raemian-hill-godeok",
+    "ricents",
+    "sibom-hanyang"
+  ],
+  "FALLBACK_GROUP_SAFE": [
+    "gwanak-prugio",
+    "raemian-weve",
+    "sangye-jugong9"
+  ],
+  "HOLD": [
+    "gaepo-jugong6",
+    "olympic-family"
+  ],
+  "unresolved5": {
+    "hannam-thehill": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates"
+    },
+    "raemian-hill-godeok": {
+      "classification": "auto-safe",
+      "deterministic": true,
+      "reason": "passed_all_gates"
+    },
+    "helio-city": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs"
+    },
+    "raemian-anyang-megatria": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs"
+    },
+    "e-pyeonhansesang-osan": {
+      "classification": null,
+      "deterministic": false,
+      "reason": "missing_gate_inputs"
+    }
+  },
+  "failurePatterns": {
+    "missing_registry_or_gate_config": 9
+  },
+  "loadReadyIfClassPlusUnexplained0": [
+    "hannam-thehill",
+    "raemian-hill-godeok"
+  ],
+  "roughFirstBulkBatch": {
+    "classificationOnlySafe": 9,
+    "alsoUnexplained0": 2,
+    "note": "Do not bulk-load class-SAFE with unexplained>0"
+  },
+  "bulkAutomationFeasible": true,
+  "recommendedNext": "A",
+  "productionWrites": 0
+}

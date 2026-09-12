@@ -1,0 +1,231 @@
+{
+  "sample": 20,
+  "registry_success_full": 20,
+  "page1_ok": 20,
+  "avg_requests_per_complex_full": 1.6,
+  "avg_runtime_sec_full": 12.52,
+  "skipped_too_many_pages": 0,
+  "errors": 0,
+  "results": [
+    {
+      "complex_id": "11170:유엔맨숀",
+      "apt": "유엔맨숀",
+      "trades": 1,
+      "total": 30,
+      "pages": 1,
+      "fetched": 30,
+      "status": "ok_full",
+      "seconds": 1.44,
+      "requests": 1
+    },
+    {
+      "complex_id": "11230:답십리대우(임대)",
+      "apt": "답십리대우(임대)",
+      "trades": 1,
+      "total": 864,
+      "pages": 9,
+      "fetched": 864,
+      "status": "ok_full",
+      "seconds": 65.86,
+      "requests": 9
+    },
+    {
+      "complex_id": "11230:래미안엘파인(임대)",
+      "apt": "래미안엘파인(임대)",
+      "trades": 1,
+      "total": 312,
+      "pages": 4,
+      "fetched": 312,
+      "status": "ok_full",
+      "seconds": 4.48,
+      "requests": 4
+    },
+    {
+      "complex_id": "11470:다온숲",
+      "apt": "다온숲",
+      "trades": 1,
+      "total": 50,
+      "pages": 1,
+      "fetched": 50,
+      "status": "ok_full",
+      "seconds": 50.48,
+      "requests": 1
+    },
+    {
+      "complex_id": "11470:청포도아파트",
+      "apt": "청포도아파트",
+      "trades": 1,
+      "total": 57,
+      "pages": 1,
+      "fetched": 57,
+      "status": "ok_full",
+      "seconds": 0.93,
+      "requests": 1
+    },
+    {
+      "complex_id": "11470:태청",
+      "apt": "태청",
+      "trades": 1,
+      "total": 28,
+      "pages": 1,
+      "fetched": 28,
+      "status": "ok_full",
+      "seconds": 0.68,
+      "requests": 1
+    },
+    {
+      "complex_id": "11620:관악교수",
+      "apt": "관악교수",
+      "trades": 1,
+      "total": 36,
+      "pages": 1,
+      "fetched": 36,
+      "status": "ok_full",
+      "seconds": 0.8,
+      "requests": 1
+    },
+    {
+      "complex_id": "11620:푸르빌2차",
+      "apt": "푸르빌2차",
+      "trades": 1,
+      "total": 72,
+      "pages": 1,
+      "fetched": 72,
+      "status": "ok_full",
+      "seconds": 0.97,
+      "requests": 1
+    },
+    {
+      "complex_id": "11620:푸르빌5차",
+      "apt": "푸르빌5차",
+      "trades": 1,
+      "total": 48,
+      "pages": 1,
+      "fetched": 48,
+      "status": "ok_full",
+      "seconds": 11.43,
+      "requests": 1
+    },
+    {
+      "complex_id": "11650:골드넷멤버스빌리지",
+      "apt": "골드넷멤버스빌리지",
+      "trades": 1,
+      "total": 16,
+      "pages": 1,
+      "fetched": 16,
+      "status": "ok_full",
+      "seconds": 50.18,
+      "requests": 1
+    },
+    {
+      "complex_id": "11650:반포빌라트(71-1)",
+      "apt": "반포빌라트(71-1)",
+      "trades": 1,
+      "total": 98,
+      "pages": 1,
+      "fetched": 98,
+      "status": "ok_full",
+      "seconds": 0.87,
+      "requests": 1
+    },
+    {
+      "complex_id": "11650:비버리힐즈",
+      "apt": "비버리힐즈",
+      "trades": 1,
+      "total": 72,
+      "pages": 1,
+      "fetched": 72,
+      "status": "ok_full",
+      "seconds": 0.84,
+      "requests": 1
+    },
+    {
+      "complex_id": "11680:그린빌리지",
+      "apt": "그린빌리지",
+      "trades": 1,
+      "total": 95,
+      "pages": 1,
+      "fetched": 95,
+      "status": "ok_full",
+      "seconds": 0.94,
+      "requests": 1
+    },
+    {
+      "complex_id": "11680:대치주성",
+      "apt": "대치주성",
+      "trades": 1,
+      "total": 70,
+      "pages": 1,
+      "fetched": 70,
+      "status": "ok_full",
+      "seconds": 7.81,
+      "requests": 1
+    },
+    {
+      "complex_id": "11680:월드빌",
+      "apt": "월드빌",
+      "trades": 1,
+      "total": 44,
+      "pages": 1,
+      "fetched": 44,
+      "status": "ok_full",
+      "seconds": 0.65,
+      "requests": 1
+    },
+    {
+      "complex_id": "11350:불암신기102동",
+      "apt": "불암신기102동",
+      "trades": 2,
+      "total": 0,
+      "pages": 1,
+      "fetched": 0,
+      "status": "ok_full",
+      "seconds": 0.66,
+      "requests": 1
+    },
+    {
+      "complex_id": "11710:보라뷰",
+      "apt": "보라뷰",
+      "trades": 2,
+      "total": 36,
+      "pages": 1,
+      "fetched": 36,
+      "status": "ok_full",
+      "seconds": 0.71,
+      "requests": 1
+    },
+    {
+      "complex_id": "11710:크로바맨션",
+      "apt": "크로바맨션",
+      "trades": 2,
+      "total": 70,
+      "pages": 1,
+      "fetched": 70,
+      "status": "ok_full",
+      "seconds": 2.9,
+      "requests": 1
+    },
+    {
+      "complex_id": "41173:삼호빌1동",
+      "apt": "삼호빌1동",
+      "trades": 2,
+      "total": 0,
+      "pages": 1,
+      "fetched": 0,
+      "status": "ok_full",
+      "seconds": 47.17,
+      "requests": 1
+    },
+    {
+      "complex_id": "41173:크리스챤",
+      "apt": "크리스챤",
+      "trades": 2,
+      "total": 0,
+      "pages": 1,
+      "fetched": 0,
+      "status": "ok_full",
+      "seconds": 0.58,
+      "requests": 1
+    }
+  ]
+}
