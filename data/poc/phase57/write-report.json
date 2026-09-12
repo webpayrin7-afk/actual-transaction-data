@@ -1,0 +1,26 @@
+{
+  "phase": "5.7",
+  "written": {
+    "classifications": 2,
+    "groups": 16,
+    "baselines": 8,
+    "updates": 0,
+    "deletes": 0,
+    "total": 26
+  },
+  "counts": {
+    "hannam-thehill": {
+      "c": 1,
+      "g": 9,
+      "b": 8
+    },
+    "raemian-hill-godeok": {
+      "c": 1,
+      "g": 7,
+      "b": 0
+    }
+  },
+  "mismatches": [],
+  "mappingOk": true,
+  "pass": true
+}

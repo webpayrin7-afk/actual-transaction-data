@@ -1,0 +1,42 @@
+{
+  "phase": "5.7-probe",
+  "results": {
+    "hannam-thehill": {
+      "http": 200,
+      "latencySec": 1.299,
+      "itemCount": 736,
+      "singogaCount": 117,
+      "unitTypePilot": {
+        "complexKey": "hannam-thehill",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineRows": 8,
+      "baselineMissingExpected": 0,
+      "error": null
+    },
+    "raemian-hill-godeok": {
+      "http": 200,
+      "latencySec": 2.626,
+      "itemCount": 4122,
+      "singogaCount": 193,
+      "unitTypePilot": {
+        "complexKey": "raemian-hill-godeok",
+        "classification": "auto-safe",
+        "singogaMode": "market_group",
+        "selectorMode": "market_group"
+      },
+      "masterLoads": true,
+      "baselinePathActive": true,
+      "baselineRows": 0,
+      "baselineMissingExpected": 0,
+      "error": null
+    }
+  },
+  "errors": 0,
+  "latencyMaxSec": 2.626,
+  "pass": true
+}
