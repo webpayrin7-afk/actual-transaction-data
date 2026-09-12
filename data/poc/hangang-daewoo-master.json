@@ -1,0 +1,22 @@
+{
+  "complex": {
+    "complexId": "kr-11170-hangang-daewoo",
+    "lawdCd": "11170",
+    "aptNameNorm": "한강(대우)",
+    "kaptCode": "A14003105",
+    "jibun": "415",
+    "roadAddress": "서울특별시 용산구 이촌로 181",
+    "kaptName": "한강대우",
+    "householdTotal": 834,
+    "dongCount": 10,
+    "useDate": "2000-03-31",
+    "kaptAreaBands": [
+      { "areaGbn": "2", "households": 206, "meaning": "exclusive <=60 band" },
+      { "areaGbn": "3", "households": 357, "meaning": "exclusive 60~85 band" },
+      { "areaGbn": "4", "households": 271, "meaning": "exclusive >85 band" }
+    ],
+    "source": "https://www.k-apt.go.kr/kaptinfo/getKaptInfo_detail.do?kaptCode=A14003105"
+  },
+  "unitTypes": "see src/lib/apt/unit-type-master.ts HANGANG_DAEWOO_UNIT_TYPES",
+  "warning": "supply_area_sqm values are commercial_crosscheck only until official ledger/API confirmation"
+}

@@ -1,0 +1,405 @@
+{
+  "types": [
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:84.98:109.26",
+      "supply_area_sqm": 109.26,
+      "exclusive_area_min": 84.98,
+      "exclusive_area_max": 84.98,
+      "residential_common_area_sqm": 24.28,
+      "household_count": 293,
+      "type_label": "84.98/109.26",
+      "market_pyeong_label": "33평형",
+      "naïve_round_pyeong": 33,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031233+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "105동",
+          "ho": "1001호"
+        },
+        {
+          "dong": "105동",
+          "ho": "1002호"
+        },
+        {
+          "dong": "105동",
+          "ho": "1003호"
+        },
+        {
+          "dong": "105동",
+          "ho": "1004호"
+        },
+        {
+          "dong": "105동",
+          "ho": "101호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:60.00:81.81",
+      "supply_area_sqm": 81.81,
+      "exclusive_area_min": 60.0,
+      "exclusive_area_max": 60.0,
+      "residential_common_area_sqm": 21.81,
+      "household_count": 184,
+      "type_label": "60.00/81.81",
+      "market_pyeong_label": null,
+      "naïve_round_pyeong": 25,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031249+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "101동",
+          "ho": "1001호"
+        },
+        {
+          "dong": "101동",
+          "ho": "1002호"
+        },
+        {
+          "dong": "101동",
+          "ho": "1004호"
+        },
+        {
+          "dong": "101동",
+          "ho": "1005호"
+        },
+        {
+          "dong": "101동",
+          "ho": "1006호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:134.13:163.34",
+      "supply_area_sqm": 163.34,
+      "exclusive_area_min": 134.13,
+      "exclusive_area_max": 134.13,
+      "residential_common_area_sqm": 29.21,
+      "household_count": 156,
+      "type_label": "134.13/163.34",
+      "market_pyeong_label": "49평형",
+      "naïve_round_pyeong": 49,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031255+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "104동",
+          "ho": "1001호"
+        },
+        {
+          "dong": "104동",
+          "ho": "1002호"
+        },
+        {
+          "dong": "104동",
+          "ho": "101호"
+        },
+        {
+          "dong": "104동",
+          "ho": "102호"
+        },
+        {
+          "dong": "104동",
+          "ho": "1101호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:135.50:166.73",
+      "supply_area_sqm": 166.73,
+      "exclusive_area_min": 135.5,
+      "exclusive_area_max": 135.5,
+      "residential_common_area_sqm": 31.23,
+      "household_count": 47,
+      "type_label": "135.50/166.73",
+      "market_pyeong_label": "50평형",
+      "naïve_round_pyeong": 50,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031259+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "103동",
+          "ho": "1001호"
+        },
+        {
+          "dong": "103동",
+          "ho": "1002호"
+        },
+        {
+          "dong": "103동",
+          "ho": "101호"
+        },
+        {
+          "dong": "103동",
+          "ho": "102호"
+        },
+        {
+          "dong": "103동",
+          "ho": "1101호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:135.87:165.08",
+      "supply_area_sqm": 165.08,
+      "exclusive_area_min": 135.87,
+      "exclusive_area_max": 135.87,
+      "residential_common_area_sqm": 29.21,
+      "household_count": 44,
+      "type_label": "135.87/165.08",
+      "market_pyeong_label": "50평형",
+      "naïve_round_pyeong": 50,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031263+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "108동",
+          "ho": "1001호"
+        },
+        {
+          "dong": "108동",
+          "ho": "1002호"
+        },
+        {
+          "dong": "108동",
+          "ho": "101호"
+        },
+        {
+          "dong": "108동",
+          "ho": "102호"
+        },
+        {
+          "dong": "108동",
+          "ho": "1101호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:84.98:117.13",
+      "supply_area_sqm": 117.13,
+      "exclusive_area_min": 84.98,
+      "exclusive_area_max": 84.98,
+      "residential_common_area_sqm": 32.15,
+      "household_count": 40,
+      "type_label": "84.98/117.13",
+      "market_pyeong_label": "33평형",
+      "naïve_round_pyeong": 35,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031266+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "108동",
+          "ho": "1003호"
+        },
+        {
+          "dong": "108동",
+          "ho": "1004호"
+        },
+        {
+          "dong": "108동",
+          "ho": "103호"
+        },
+        {
+          "dong": "108동",
+          "ho": "104호"
+        },
+        {
+          "dong": "108동",
+          "ho": "1103호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:84.94:109.56",
+      "supply_area_sqm": 109.56,
+      "exclusive_area_min": 84.94,
+      "exclusive_area_max": 84.94,
+      "residential_common_area_sqm": 24.62,
+      "household_count": 24,
+      "type_label": "84.94/109.56",
+      "market_pyeong_label": "33평형",
+      "naïve_round_pyeong": 33,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031269+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "106동",
+          "ho": "1002호"
+        },
+        {
+          "dong": "106동",
+          "ho": "102호"
+        },
+        {
+          "dong": "106동",
+          "ho": "1102호"
+        },
+        {
+          "dong": "106동",
+          "ho": "1202호"
+        },
+        {
+          "dong": "106동",
+          "ho": "1302호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:135.27:164.89",
+      "supply_area_sqm": 164.89,
+      "exclusive_area_min": 135.27,
+      "exclusive_area_max": 135.27,
+      "residential_common_area_sqm": 29.62,
+      "household_count": 24,
+      "type_label": "135.27/164.89",
+      "market_pyeong_label": "50평형",
+      "naïve_round_pyeong": 50,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031272+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "110동",
+          "ho": "1004호"
+        },
+        {
+          "dong": "110동",
+          "ho": "104호"
+        },
+        {
+          "dong": "110동",
+          "ho": "1104호"
+        },
+        {
+          "dong": "110동",
+          "ho": "1204호"
+        },
+        {
+          "dong": "110동",
+          "ho": "1304호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:59.98:81.60",
+      "supply_area_sqm": 81.6,
+      "exclusive_area_min": 59.98,
+      "exclusive_area_max": 59.98,
+      "residential_common_area_sqm": 21.62,
+      "household_count": 19,
+      "type_label": "59.98/81.60",
+      "market_pyeong_label": null,
+      "naïve_round_pyeong": 25,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031275+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "101동",
+          "ho": "1003호"
+        },
+        {
+          "dong": "101동",
+          "ho": "103호"
+        },
+        {
+          "dong": "101동",
+          "ho": "1103호"
+        },
+        {
+          "dong": "101동",
+          "ho": "1203호"
+        },
+        {
+          "dong": "101동",
+          "ho": "1303호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:60.00:82.31",
+      "supply_area_sqm": 82.31,
+      "exclusive_area_min": 60.0,
+      "exclusive_area_max": 60.0,
+      "residential_common_area_sqm": 22.31,
+      "household_count": 2,
+      "type_label": "60.00/82.31",
+      "market_pyeong_label": null,
+      "naïve_round_pyeong": 25,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031278+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "2102호"
+        },
+        {
+          "dong": "102동",
+          "ho": "2104호"
+        }
+      ]
+    },
+    {
+      "lawd_cd": "11170",
+      "apt_name_norm": "한강(대우)",
+      "kapt_code": "A14003105",
+      "unit_type_key": "A14003105:60.00:82.28",
+      "supply_area_sqm": 82.28,
+      "exclusive_area_min": 60.0,
+      "exclusive_area_max": 60.0,
+      "residential_common_area_sqm": 22.28,
+      "household_count": 1,
+      "type_label": "60.00/82.28",
+      "market_pyeong_label": null,
+      "naïve_round_pyeong": 25,
+      "source": "building_register_expos_pubuse",
+      "source_updated_at": "2026-09-11T10:43:23.031281+00:00",
+      "mapping_confidence": "exact",
+      "sample_units": [
+        {
+          "dong": "102동",
+          "ho": "2004호"
+        }
+      ]
+    }
+  ]
+}

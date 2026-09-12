@@ -1,0 +1,318 @@
+{
+  "complex": {
+    "complexId": "kr-11170-hangang-daewoo",
+    "lawdCd": "11170",
+    "aptNameNorm": "한강(대우)",
+    "aptNameDisplay": "한강(대우)",
+    "kaptCode": "A14003105",
+    "jibun": "415",
+    "roadAddress": "서울특별시 용산구 이촌로 181",
+    "source": "building_register_expos_pubuse+k-apt",
+    "sourceUpdatedAt": "2026-09-11"
+  },
+  "unitTypes": [
+    {
+      "typeId": "A14003105:60.00:81.81",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "81A",
+      "supplyAreaSqm": 81.81,
+      "exclusiveAreaSqm": 60,
+      "exclusiveAreaMin": 60,
+      "exclusiveAreaMax": 60,
+      "residentialCommonAreaSqm": 21.81,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
+      "householdCount": 184,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:59.98:81.60",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "81B",
+      "supplyAreaSqm": 81.6,
+      "exclusiveAreaSqm": 59.98,
+      "exclusiveAreaMin": 59.98,
+      "exclusiveAreaMax": 59.98,
+      "residentialCommonAreaSqm": 21.62,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
+      "householdCount": 19,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:60.00:82.28",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "82-rare-a",
+      "supplyAreaSqm": 82.28,
+      "exclusiveAreaSqm": 60,
+      "exclusiveAreaMin": 60,
+      "exclusiveAreaMax": 60,
+      "residentialCommonAreaSqm": 22.28,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
+      "householdCount": 1,
+      "mappingConfidence": "grouped",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:60.00:82.31",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "82-rare-b",
+      "supplyAreaSqm": 82.31,
+      "exclusiveAreaSqm": 60,
+      "exclusiveAreaMin": 60,
+      "exclusiveAreaMax": 60,
+      "residentialCommonAreaSqm": 22.31,
+      "marketPyeongLabel": null,
+      "pyeongGroup": null,
+      "householdCount": 2,
+      "mappingConfidence": "grouped",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:84.98:109.26",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "109A",
+      "supplyAreaSqm": 109.26,
+      "exclusiveAreaSqm": 84.98,
+      "exclusiveAreaMin": 84.98,
+      "exclusiveAreaMax": 84.98,
+      "residentialCommonAreaSqm": 24.28,
+      "marketPyeongLabel": 33,
+      "pyeongGroup": 33,
+      "householdCount": 293,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:84.94:109.56",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "109B",
+      "supplyAreaSqm": 109.56,
+      "exclusiveAreaSqm": 84.94,
+      "exclusiveAreaMin": 84.94,
+      "exclusiveAreaMax": 84.94,
+      "residentialCommonAreaSqm": 24.62,
+      "marketPyeongLabel": 33,
+      "pyeongGroup": 33,
+      "householdCount": 24,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:84.98:117.13",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "117",
+      "supplyAreaSqm": 117.13,
+      "exclusiveAreaSqm": 84.98,
+      "exclusiveAreaMin": 84.98,
+      "exclusiveAreaMax": 84.98,
+      "residentialCommonAreaSqm": 32.15,
+      "marketPyeongLabel": 33,
+      "pyeongGroup": 33,
+      "householdCount": 40,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:134.13:163.34",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "163",
+      "supplyAreaSqm": 163.34,
+      "exclusiveAreaSqm": 134.13,
+      "exclusiveAreaMin": 134.13,
+      "exclusiveAreaMax": 134.13,
+      "residentialCommonAreaSqm": 29.21,
+      "marketPyeongLabel": 49,
+      "pyeongGroup": 49,
+      "householdCount": 156,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:135.27:164.89",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "164B",
+      "supplyAreaSqm": 164.89,
+      "exclusiveAreaSqm": 135.27,
+      "exclusiveAreaMin": 135.27,
+      "exclusiveAreaMax": 135.27,
+      "residentialCommonAreaSqm": 29.62,
+      "marketPyeongLabel": 50,
+      "pyeongGroup": 50,
+      "householdCount": 24,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:135.87:165.08",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "165A",
+      "supplyAreaSqm": 165.08,
+      "exclusiveAreaSqm": 135.87,
+      "exclusiveAreaMin": 135.87,
+      "exclusiveAreaMax": 135.87,
+      "residentialCommonAreaSqm": 29.21,
+      "marketPyeongLabel": 50,
+      "pyeongGroup": 50,
+      "householdCount": 44,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    },
+    {
+      "typeId": "A14003105:135.50:166.73",
+      "complexId": "kr-11170-hangang-daewoo",
+      "typeName": "166C",
+      "supplyAreaSqm": 166.73,
+      "exclusiveAreaSqm": 135.5,
+      "exclusiveAreaMin": 135.5,
+      "exclusiveAreaMax": 135.5,
+      "residentialCommonAreaSqm": 31.23,
+      "marketPyeongLabel": 50,
+      "pyeongGroup": 50,
+      "householdCount": 47,
+      "mappingConfidence": "exact",
+      "verification": "official",
+      "source": "building_register_expos_pubuse",
+      "sourceUpdatedAt": "2026-09-11"
+    }
+  ],
+  "aliases": [
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 5998,
+      "typeId": "A14003105:59.98:81.60",
+      "pyeongGroup": null,
+      "mappingStatus": "unique"
+    },
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 6000,
+      "typeId": null,
+      "pyeongGroup": null,
+      "mappingStatus": "ambiguous"
+    },
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 8494,
+      "typeId": "A14003105:84.94:109.56",
+      "pyeongGroup": 33,
+      "mappingStatus": "unique"
+    },
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 8498,
+      "typeId": null,
+      "pyeongGroup": 33,
+      "mappingStatus": "ambiguous"
+    },
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 13413,
+      "typeId": "A14003105:134.13:163.34",
+      "pyeongGroup": 49,
+      "mappingStatus": "unique"
+    },
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 13527,
+      "typeId": "A14003105:135.27:164.89",
+      "pyeongGroup": 50,
+      "mappingStatus": "unique"
+    },
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 13550,
+      "typeId": "A14003105:135.50:166.73",
+      "pyeongGroup": 50,
+      "mappingStatus": "unique"
+    },
+    {
+      "complexId": "kr-11170-hangang-daewoo",
+      "exclusiveAreaCents": 13587,
+      "typeId": "A14003105:135.87:165.08",
+      "pyeongGroup": 50,
+      "mappingStatus": "unique"
+    }
+  ],
+  "observedExclusiveFromFixture": [
+    59.98,
+    60,
+    84.94,
+    84.98,
+    134.13,
+    135.27,
+    135.5,
+    135.87
+  ],
+  "tursoExclusiveDistribution": [
+    {
+      "ea": 59.98,
+      "cnt": 27,
+      "trades": 6
+    },
+    {
+      "ea": 60,
+      "cnt": 240,
+      "trades": 80
+    },
+    {
+      "ea": 84.94,
+      "cnt": 19,
+      "trades": 4
+    },
+    {
+      "ea": 84.98,
+      "cnt": 300,
+      "trades": 114
+    },
+    {
+      "ea": 134.13,
+      "cnt": 117,
+      "trades": 38
+    },
+    {
+      "ea": 135.27,
+      "cnt": 24,
+      "trades": 5
+    },
+    {
+      "ea": 135.5,
+      "cnt": 25,
+      "trades": 10
+    },
+    {
+      "ea": 135.87,
+      "cnt": 19,
+      "trades": 9
+    }
+  ],
+  "tradeCount": 266,
+  "supplyPyeongSingoga": {
+    "count": 59,
+    "skippedUnmappedOrUnresolvedPyeong": 80,
+    "note": "81.x excluded (market pyeong null); ties not singoga; cancels excluded"
+  }
+}

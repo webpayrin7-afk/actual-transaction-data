@@ -1,0 +1,1287 @@
+{
+  "meta": {
+    "kapt_code": "A14003105",
+    "apt_name_norm": "한강(대우)",
+    "fetched_items": 7506,
+    "unit_households": 834,
+    "unit_type_count": 11,
+    "trade_count": 266,
+    "formula": "supply = exclusive(전유) + residential_common(주건축물 공용: 계단/엘리베이터/복도/현관/대피소)",
+    "exclude": "부속건축물 주차장·노인정·관리실·주민공동시설 등"
+  },
+  "types": [
+    {
+      "unit_type_key": "A14003105:84.98:109.26",
+      "exclusive": 84.98,
+      "common": 24.28,
+      "supply": 109.26,
+      "households": 293,
+      "market_label": "33평형",
+      "naive_round": 33,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:60.00:81.81",
+      "exclusive": 60.0,
+      "common": 21.81,
+      "supply": 81.81,
+      "households": 184,
+      "market_label": null,
+      "naive_round": 25,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:134.13:163.34",
+      "exclusive": 134.13,
+      "common": 29.21,
+      "supply": 163.34,
+      "households": 156,
+      "market_label": "49평형",
+      "naive_round": 49,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:135.50:166.73",
+      "exclusive": 135.5,
+      "common": 31.23,
+      "supply": 166.73,
+      "households": 47,
+      "market_label": "50평형",
+      "naive_round": 50,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:135.87:165.08",
+      "exclusive": 135.87,
+      "common": 29.21,
+      "supply": 165.08,
+      "households": 44,
+      "market_label": "50평형",
+      "naive_round": 50,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:84.98:117.13",
+      "exclusive": 84.98,
+      "common": 32.15,
+      "supply": 117.13,
+      "households": 40,
+      "market_label": "33평형",
+      "naive_round": 35,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:84.94:109.56",
+      "exclusive": 84.94,
+      "common": 24.62,
+      "supply": 109.56,
+      "households": 24,
+      "market_label": "33평형",
+      "naive_round": 33,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:135.27:164.89",
+      "exclusive": 135.27,
+      "common": 29.62,
+      "supply": 164.89,
+      "households": 24,
+      "market_label": "50평형",
+      "naive_round": 50,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:59.98:81.60",
+      "exclusive": 59.98,
+      "common": 21.62,
+      "supply": 81.6,
+      "households": 19,
+      "market_label": null,
+      "naive_round": 25,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:60.00:82.31",
+      "exclusive": 60.0,
+      "common": 22.31,
+      "supply": 82.31,
+      "households": 2,
+      "market_label": null,
+      "naive_round": 25,
+      "confidence": "exact"
+    },
+    {
+      "unit_type_key": "A14003105:60.00:82.28",
+      "exclusive": 60.0,
+      "common": 22.28,
+      "supply": 82.28,
+      "households": 1,
+      "market_label": null,
+      "naive_round": 25,
+      "confidence": "exact"
+    }
+  ],
+  "label_rule": {
+    "note": "round(supply/3.3)만으로 확정 불가. 81.x는 공개 표기 24/25 혼재(naive=25) → market_pyeong_label NULL.",
+    "observed": [
+      {
+        "supply": "81.x",
+        "market": "24/25 혼재(미확정)",
+        "naive": 25
+      },
+      {
+        "supply": "109~117",
+        "market": "33평형",
+        "naive": "33~35"
+      },
+      {
+        "supply": "163.x",
+        "market": "49평형",
+        "naive": 49
+      },
+      {
+        "supply": "164.8~166.7",
+        "market": "50평형",
+        "naive": "50"
+      }
+    ],
+    "rule": "market_pyeong_label 별도 컬럼 필요. 자동 round 금지."
+  },
+  "trade_mapping": {
+    "exact": 72,
+    "multi": 194,
+    "none": 0,
+    "pyeong_exact": 180,
+    "pyeong_multi": 0,
+    "pyeong_none": 86
+  },
+  "by_exclusive": {
+    "60": {
+      "n": 80,
+      "status": "multi",
+      "labels": [],
+      "pyeong_status": "none",
+      "candidates": [
+        "A14003105:60.00:81.81",
+        "A14003105:60.00:82.31",
+        "A14003105:60.00:82.28"
+      ]
+    },
+    "134.13": {
+      "n": 38,
+      "status": "exact",
+      "labels": [
+        "49평형"
+      ],
+      "pyeong_status": "exact",
+      "candidates": [
+        "A14003105:134.13:163.34"
+      ]
+    },
+    "135.87": {
+      "n": 9,
+      "status": "exact",
+      "labels": [
+        "50평형"
+      ],
+      "pyeong_status": "exact",
+      "candidates": [
+        "A14003105:135.87:165.08"
+      ]
+    },
+    "84.98": {
+      "n": 114,
+      "status": "multi",
+      "labels": [
+        "33평형"
+      ],
+      "pyeong_status": "exact",
+      "candidates": [
+        "A14003105:84.98:109.26",
+        "A14003105:84.98:117.13"
+      ]
+    },
+    "135.27": {
+      "n": 5,
+      "status": "exact",
+      "labels": [
+        "50평형"
+      ],
+      "pyeong_status": "exact",
+      "candidates": [
+        "A14003105:135.27:164.89"
+      ]
+    },
+    "135.5": {
+      "n": 10,
+      "status": "exact",
+      "labels": [
+        "50평형"
+      ],
+      "pyeong_status": "exact",
+      "candidates": [
+        "A14003105:135.50:166.73"
+      ]
+    },
+    "84.94": {
+      "n": 4,
+      "status": "exact",
+      "labels": [
+        "33평형"
+      ],
+      "pyeong_status": "exact",
+      "candidates": [
+        "A14003105:84.94:109.56"
+      ]
+    },
+    "59.98": {
+      "n": 6,
+      "status": "exact",
+      "labels": [],
+      "pyeong_status": "none",
+      "candidates": [
+        "A14003105:59.98:81.60"
+      ]
+    }
+  },
+  "singoga": {
+    "exclusive_only": {
+      "singoga_count": 85,
+      "items": [
+        {
+          "deal_date": "2017-03-06",
+          "exclusive_area": 135.87,
+          "deal_amount": 116000,
+          "group_key": "ex:13587",
+          "prev_high": 115000.0
+        },
+        {
+          "deal_date": "2017-04-04",
+          "exclusive_area": 84.98,
+          "deal_amount": 90000,
+          "group_key": "ex:8498",
+          "prev_high": 89500.0
+        },
+        {
+          "deal_date": "2017-04-16",
+          "exclusive_area": 84.98,
+          "deal_amount": 96000,
+          "group_key": "ex:8498",
+          "prev_high": 90000.0
+        },
+        {
+          "deal_date": "2017-04-22",
+          "exclusive_area": 84.98,
+          "deal_amount": 102300,
+          "group_key": "ex:8498",
+          "prev_high": 96000.0
+        },
+        {
+          "deal_date": "2017-04-29",
+          "exclusive_area": 60,
+          "deal_amount": 81500,
+          "group_key": "ex:6000",
+          "prev_high": 79500.0
+        },
+        {
+          "deal_date": "2017-05-19",
+          "exclusive_area": 134.13,
+          "deal_amount": 125000,
+          "group_key": "ex:13413",
+          "prev_high": 122000.0
+        },
+        {
+          "deal_date": "2017-05-20",
+          "exclusive_area": 134.13,
+          "deal_amount": 128000,
+          "group_key": "ex:13413",
+          "prev_high": 125000.0
+        },
+        {
+          "deal_date": "2017-05-27",
+          "exclusive_area": 60,
+          "deal_amount": 83500,
+          "group_key": "ex:6000",
+          "prev_high": 81500.0
+        },
+        {
+          "deal_date": "2017-06-03",
+          "exclusive_area": 134.13,
+          "deal_amount": 130000,
+          "group_key": "ex:13413",
+          "prev_high": 128000.0
+        },
+        {
+          "deal_date": "2017-06-10",
+          "exclusive_area": 134.13,
+          "deal_amount": 135000,
+          "group_key": "ex:13413",
+          "prev_high": 130000.0
+        },
+        {
+          "deal_date": "2017-06-27",
+          "exclusive_area": 60,
+          "deal_amount": 84500,
+          "group_key": "ex:6000",
+          "prev_high": 83500.0
+        },
+        {
+          "deal_date": "2017-07-06",
+          "exclusive_area": 135.87,
+          "deal_amount": 135000,
+          "group_key": "ex:13587",
+          "prev_high": 116000.0
+        },
+        {
+          "deal_date": "2017-07-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 115000,
+          "group_key": "ex:8498",
+          "prev_high": 102300.0
+        },
+        {
+          "deal_date": "2017-11-06",
+          "exclusive_area": 84.98,
+          "deal_amount": 120000,
+          "group_key": "ex:8498",
+          "prev_high": 115000.0
+        },
+        {
+          "deal_date": "2017-11-20",
+          "exclusive_area": 60,
+          "deal_amount": 90000,
+          "group_key": "ex:6000",
+          "prev_high": 84500.0
+        },
+        {
+          "deal_date": "2017-11-25",
+          "exclusive_area": 134.13,
+          "deal_amount": 141700,
+          "group_key": "ex:13413",
+          "prev_high": 135000.0
+        },
+        {
+          "deal_date": "2017-12-13",
+          "exclusive_area": 60,
+          "deal_amount": 95000,
+          "group_key": "ex:6000",
+          "prev_high": 90000.0
+        },
+        {
+          "deal_date": "2017-12-16",
+          "exclusive_area": 135.87,
+          "deal_amount": 140000,
+          "group_key": "ex:13587",
+          "prev_high": 135000.0
+        },
+        {
+          "deal_date": "2017-12-18",
+          "exclusive_area": 84.98,
+          "deal_amount": 125000,
+          "group_key": "ex:8498",
+          "prev_high": 120000.0
+        },
+        {
+          "deal_date": "2018-01-06",
+          "exclusive_area": 134.13,
+          "deal_amount": 143000,
+          "group_key": "ex:13413",
+          "prev_high": 141700.0
+        },
+        {
+          "deal_date": "2018-01-06",
+          "exclusive_area": 60,
+          "deal_amount": 98000,
+          "group_key": "ex:6000",
+          "prev_high": 95000.0
+        },
+        {
+          "deal_date": "2018-01-19",
+          "exclusive_area": 84.98,
+          "deal_amount": 134000,
+          "group_key": "ex:8498",
+          "prev_high": 125000.0
+        },
+        {
+          "deal_date": "2018-01-26",
+          "exclusive_area": 60,
+          "deal_amount": 100000,
+          "group_key": "ex:6000",
+          "prev_high": 98000.0
+        },
+        {
+          "deal_date": "2018-03-05",
+          "exclusive_area": 84.98,
+          "deal_amount": 135000,
+          "group_key": "ex:8498",
+          "prev_high": 134000.0
+        },
+        {
+          "deal_date": "2018-05-19",
+          "exclusive_area": 60,
+          "deal_amount": 110000,
+          "group_key": "ex:6000",
+          "prev_high": 100000.0
+        },
+        {
+          "deal_date": "2018-07-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 142500,
+          "group_key": "ex:8498",
+          "prev_high": 135000.0
+        },
+        {
+          "deal_date": "2018-07-31",
+          "exclusive_area": 135.27,
+          "deal_amount": 165000,
+          "group_key": "ex:13527",
+          "prev_high": 143000.0
+        },
+        {
+          "deal_date": "2018-08-08",
+          "exclusive_area": 135.87,
+          "deal_amount": 167000,
+          "group_key": "ex:13587",
+          "prev_high": 140000.0
+        },
+        {
+          "deal_date": "2018-08-10",
+          "exclusive_area": 60,
+          "deal_amount": 123000,
+          "group_key": "ex:6000",
+          "prev_high": 110000.0
+        },
+        {
+          "deal_date": "2018-08-22",
+          "exclusive_area": 60,
+          "deal_amount": 130000,
+          "group_key": "ex:6000",
+          "prev_high": 123000.0
+        },
+        {
+          "deal_date": "2018-08-25",
+          "exclusive_area": 84.98,
+          "deal_amount": 150000,
+          "group_key": "ex:8498",
+          "prev_high": 142500.0
+        },
+        {
+          "deal_date": "2018-11-07",
+          "exclusive_area": 134.13,
+          "deal_amount": 175000,
+          "group_key": "ex:13413",
+          "prev_high": 143000.0
+        },
+        {
+          "deal_date": "2019-06-29",
+          "exclusive_area": 84.98,
+          "deal_amount": 153500,
+          "group_key": "ex:8498",
+          "prev_high": 150000.0
+        },
+        {
+          "deal_date": "2019-08-06",
+          "exclusive_area": 84.98,
+          "deal_amount": 154000,
+          "group_key": "ex:8498",
+          "prev_high": 153500.0
+        },
+        {
+          "deal_date": "2019-10-01",
+          "exclusive_area": 84.98,
+          "deal_amount": 156000,
+          "group_key": "ex:8498",
+          "prev_high": 154000.0
+        },
+        {
+          "deal_date": "2019-10-24",
+          "exclusive_area": 134.13,
+          "deal_amount": 183000,
+          "group_key": "ex:13413",
+          "prev_high": 175000.0
+        },
+        {
+          "deal_date": "2019-11-09",
+          "exclusive_area": 60,
+          "deal_amount": 136500,
+          "group_key": "ex:6000",
+          "prev_high": 130000.0
+        },
+        {
+          "deal_date": "2019-11-16",
+          "exclusive_area": 84.98,
+          "deal_amount": 157500,
+          "group_key": "ex:8498",
+          "prev_high": 156000.0
+        },
+        {
+          "deal_date": "2019-11-25",
+          "exclusive_area": 134.13,
+          "deal_amount": 189200,
+          "group_key": "ex:13413",
+          "prev_high": 183000.0
+        },
+        {
+          "deal_date": "2019-11-30",
+          "exclusive_area": 84.98,
+          "deal_amount": 163000,
+          "group_key": "ex:8498",
+          "prev_high": 157500.0
+        },
+        {
+          "deal_date": "2020-05-12",
+          "exclusive_area": 60,
+          "deal_amount": 140000,
+          "group_key": "ex:6000",
+          "prev_high": 136500.0
+        },
+        {
+          "deal_date": "2020-06-26",
+          "exclusive_area": 84.98,
+          "deal_amount": 173000,
+          "group_key": "ex:8498",
+          "prev_high": 163000.0
+        },
+        {
+          "deal_date": "2020-06-29",
+          "exclusive_area": 134.13,
+          "deal_amount": 190000,
+          "group_key": "ex:13413",
+          "prev_high": 189200.0
+        },
+        {
+          "deal_date": "2020-06-30",
+          "exclusive_area": 135.5,
+          "deal_amount": 180000,
+          "group_key": "ex:13550",
+          "prev_high": 150000.0
+        },
+        {
+          "deal_date": "2020-07-05",
+          "exclusive_area": 59.98,
+          "deal_amount": 144000,
+          "group_key": "ex:5998",
+          "prev_high": 130000.0
+        },
+        {
+          "deal_date": "2020-07-11",
+          "exclusive_area": 60,
+          "deal_amount": 143500,
+          "group_key": "ex:6000",
+          "prev_high": 140000.0
+        },
+        {
+          "deal_date": "2020-07-16",
+          "exclusive_area": 84.98,
+          "deal_amount": 175000,
+          "group_key": "ex:8498",
+          "prev_high": 173000.0
+        },
+        {
+          "deal_date": "2020-07-22",
+          "exclusive_area": 60,
+          "deal_amount": 144750,
+          "group_key": "ex:6000",
+          "prev_high": 143500.0
+        },
+        {
+          "deal_date": "2020-08-13",
+          "exclusive_area": 84.98,
+          "deal_amount": 178000,
+          "group_key": "ex:8498",
+          "prev_high": 175000.0
+        },
+        {
+          "deal_date": "2020-08-15",
+          "exclusive_area": 60,
+          "deal_amount": 150000,
+          "group_key": "ex:6000",
+          "prev_high": 144750.0
+        },
+        {
+          "deal_date": "2020-09-09",
+          "exclusive_area": 60,
+          "deal_amount": 158000,
+          "group_key": "ex:6000",
+          "prev_high": 150000.0
+        },
+        {
+          "deal_date": "2020-09-12",
+          "exclusive_area": 134.13,
+          "deal_amount": 200000,
+          "group_key": "ex:13413",
+          "prev_high": 190000.0
+        },
+        {
+          "deal_date": "2020-11-28",
+          "exclusive_area": 134.13,
+          "deal_amount": 210000,
+          "group_key": "ex:13413",
+          "prev_high": 200000.0
+        },
+        {
+          "deal_date": "2021-01-25",
+          "exclusive_area": 134.13,
+          "deal_amount": 212000,
+          "group_key": "ex:13413",
+          "prev_high": 210000.0
+        },
+        {
+          "deal_date": "2021-01-30",
+          "exclusive_area": 60,
+          "deal_amount": 162000,
+          "group_key": "ex:6000",
+          "prev_high": 158000.0
+        },
+        {
+          "deal_date": "2021-03-04",
+          "exclusive_area": 59.98,
+          "deal_amount": 160000,
+          "group_key": "ex:5998",
+          "prev_high": 144000.0
+        },
+        {
+          "deal_date": "2021-05-02",
+          "exclusive_area": 60,
+          "deal_amount": 168000,
+          "group_key": "ex:6000",
+          "prev_high": 162000.0
+        },
+        {
+          "deal_date": "2021-05-24",
+          "exclusive_area": 134.13,
+          "deal_amount": 230000,
+          "group_key": "ex:13413",
+          "prev_high": 212000.0
+        },
+        {
+          "deal_date": "2021-06-05",
+          "exclusive_area": 84.98,
+          "deal_amount": 200000,
+          "group_key": "ex:8498",
+          "prev_high": 178000.0
+        },
+        {
+          "deal_date": "2021-06-21",
+          "exclusive_area": 84.94,
+          "deal_amount": 197000,
+          "group_key": "ex:8494",
+          "prev_high": 151000.0
+        },
+        {
+          "deal_date": "2021-06-26",
+          "exclusive_area": 134.13,
+          "deal_amount": 250000,
+          "group_key": "ex:13413",
+          "prev_high": 230000.0
+        },
+        {
+          "deal_date": "2021-06-28",
+          "exclusive_area": 84.98,
+          "deal_amount": 208000,
+          "group_key": "ex:8498",
+          "prev_high": 200000.0
+        },
+        {
+          "deal_date": "2021-07-08",
+          "exclusive_area": 135.5,
+          "deal_amount": 243000,
+          "group_key": "ex:13550",
+          "prev_high": 180000.0
+        },
+        {
+          "deal_date": "2021-08-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 235000,
+          "group_key": "ex:8498",
+          "prev_high": 208000.0
+        },
+        {
+          "deal_date": "2021-09-06",
+          "exclusive_area": 134.13,
+          "deal_amount": 269000,
+          "group_key": "ex:13413",
+          "prev_high": 250000.0
+        },
+        {
+          "deal_date": "2022-04-15",
+          "exclusive_area": 84.94,
+          "deal_amount": 238000,
+          "group_key": "ex:8494",
+          "prev_high": 197000.0
+        },
+        {
+          "deal_date": "2022-05-26",
+          "exclusive_area": 60,
+          "deal_amount": 187000,
+          "group_key": "ex:6000",
+          "prev_high": 168000.0
+        },
+        {
+          "deal_date": "2022-06-20",
+          "exclusive_area": 134.13,
+          "deal_amount": 277000,
+          "group_key": "ex:13413",
+          "prev_high": 269000.0
+        },
+        {
+          "deal_date": "2024-08-07",
+          "exclusive_area": 135.5,
+          "deal_amount": 275000,
+          "group_key": "ex:13550",
+          "prev_high": 243000.0
+        },
+        {
+          "deal_date": "2025-03-14",
+          "exclusive_area": 84.98,
+          "deal_amount": 240000,
+          "group_key": "ex:8498",
+          "prev_high": 235000.0
+        },
+        {
+          "deal_date": "2025-03-15",
+          "exclusive_area": 60,
+          "deal_amount": 193000,
+          "group_key": "ex:6000",
+          "prev_high": 187000.0
+        },
+        {
+          "deal_date": "2025-03-18",
+          "exclusive_area": 134.13,
+          "deal_amount": 300000,
+          "group_key": "ex:13413",
+          "prev_high": 277000.0
+        },
+        {
+          "deal_date": "2025-03-20",
+          "exclusive_area": 135.27,
+          "deal_amount": 241000,
+          "group_key": "ex:13527",
+          "prev_high": 165000.0
+        },
+        {
+          "deal_date": "2025-03-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 250000,
+          "group_key": "ex:8498",
+          "prev_high": 240000.0
+        },
+        {
+          "deal_date": "2025-04-25",
+          "exclusive_area": 60,
+          "deal_amount": 203700,
+          "group_key": "ex:6000",
+          "prev_high": 193000.0
+        },
+        {
+          "deal_date": "2025-06-12",
+          "exclusive_area": 59.98,
+          "deal_amount": 201000,
+          "group_key": "ex:5998",
+          "prev_high": 160000.0
+        },
+        {
+          "deal_date": "2025-06-25",
+          "exclusive_area": 60,
+          "deal_amount": 220000,
+          "group_key": "ex:6000",
+          "prev_high": 203700.0
+        },
+        {
+          "deal_date": "2025-07-08",
+          "exclusive_area": 84.98,
+          "deal_amount": 271000,
+          "group_key": "ex:8498",
+          "prev_high": 250000.0
+        },
+        {
+          "deal_date": "2025-07-12",
+          "exclusive_area": 84.98,
+          "deal_amount": 288000,
+          "group_key": "ex:8498",
+          "prev_high": 271000.0
+        },
+        {
+          "deal_date": "2025-10-09",
+          "exclusive_area": 60,
+          "deal_amount": 239500,
+          "group_key": "ex:6000",
+          "prev_high": 220000.0
+        },
+        {
+          "deal_date": "2025-12-05",
+          "exclusive_area": 134.13,
+          "deal_amount": 330000,
+          "group_key": "ex:13413",
+          "prev_high": 300000.0
+        },
+        {
+          "deal_date": "2026-01-06",
+          "exclusive_area": 135.5,
+          "deal_amount": 337400,
+          "group_key": "ex:13550",
+          "prev_high": 275000.0
+        },
+        {
+          "deal_date": "2026-01-09",
+          "exclusive_area": 60,
+          "deal_amount": 242000,
+          "group_key": "ex:6000",
+          "prev_high": 239500.0
+        },
+        {
+          "deal_date": "2026-01-17",
+          "exclusive_area": 135.27,
+          "deal_amount": 330000,
+          "group_key": "ex:13527",
+          "prev_high": 241000.0
+        },
+        {
+          "deal_date": "2026-06-13",
+          "exclusive_area": 135.87,
+          "deal_amount": 327000,
+          "group_key": "ex:13587",
+          "prev_high": 167000.0
+        }
+      ]
+    },
+    "supply_pyeong_group": {
+      "singoga_count": 56,
+      "items": [
+        {
+          "deal_date": "2017-03-06",
+          "exclusive_area": 135.87,
+          "deal_amount": 116000,
+          "group_key": "py:50평형",
+          "prev_high": 115000.0
+        },
+        {
+          "deal_date": "2017-04-04",
+          "exclusive_area": 84.98,
+          "deal_amount": 90000,
+          "group_key": "py:33평형",
+          "prev_high": 89500.0
+        },
+        {
+          "deal_date": "2017-04-16",
+          "exclusive_area": 84.98,
+          "deal_amount": 96000,
+          "group_key": "py:33평형",
+          "prev_high": 90000.0
+        },
+        {
+          "deal_date": "2017-04-22",
+          "exclusive_area": 84.98,
+          "deal_amount": 102300,
+          "group_key": "py:33평형",
+          "prev_high": 96000.0
+        },
+        {
+          "deal_date": "2017-05-19",
+          "exclusive_area": 134.13,
+          "deal_amount": 125000,
+          "group_key": "py:49평형",
+          "prev_high": 122000.0
+        },
+        {
+          "deal_date": "2017-05-20",
+          "exclusive_area": 134.13,
+          "deal_amount": 128000,
+          "group_key": "py:49평형",
+          "prev_high": 125000.0
+        },
+        {
+          "deal_date": "2017-06-03",
+          "exclusive_area": 134.13,
+          "deal_amount": 130000,
+          "group_key": "py:49평형",
+          "prev_high": 128000.0
+        },
+        {
+          "deal_date": "2017-06-10",
+          "exclusive_area": 134.13,
+          "deal_amount": 135000,
+          "group_key": "py:49평형",
+          "prev_high": 130000.0
+        },
+        {
+          "deal_date": "2017-07-06",
+          "exclusive_area": 135.87,
+          "deal_amount": 135000,
+          "group_key": "py:50평형",
+          "prev_high": 116000.0
+        },
+        {
+          "deal_date": "2017-07-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 115000,
+          "group_key": "py:33평형",
+          "prev_high": 102300.0
+        },
+        {
+          "deal_date": "2017-11-06",
+          "exclusive_area": 84.98,
+          "deal_amount": 120000,
+          "group_key": "py:33평형",
+          "prev_high": 115000.0
+        },
+        {
+          "deal_date": "2017-11-25",
+          "exclusive_area": 134.13,
+          "deal_amount": 141700,
+          "group_key": "py:49평형",
+          "prev_high": 135000.0
+        },
+        {
+          "deal_date": "2017-12-16",
+          "exclusive_area": 135.87,
+          "deal_amount": 140000,
+          "group_key": "py:50평형",
+          "prev_high": 135000.0
+        },
+        {
+          "deal_date": "2017-12-18",
+          "exclusive_area": 84.98,
+          "deal_amount": 125000,
+          "group_key": "py:33평형",
+          "prev_high": 120000.0
+        },
+        {
+          "deal_date": "2017-12-22",
+          "exclusive_area": 135.27,
+          "deal_amount": 143000,
+          "group_key": "py:50평형",
+          "prev_high": 140000.0
+        },
+        {
+          "deal_date": "2018-01-06",
+          "exclusive_area": 134.13,
+          "deal_amount": 143000,
+          "group_key": "py:49평형",
+          "prev_high": 141700.0
+        },
+        {
+          "deal_date": "2018-01-15",
+          "exclusive_area": 135.5,
+          "deal_amount": 150000,
+          "group_key": "py:50평형",
+          "prev_high": 143000.0
+        },
+        {
+          "deal_date": "2018-01-19",
+          "exclusive_area": 84.98,
+          "deal_amount": 134000,
+          "group_key": "py:33평형",
+          "prev_high": 125000.0
+        },
+        {
+          "deal_date": "2018-03-05",
+          "exclusive_area": 84.98,
+          "deal_amount": 135000,
+          "group_key": "py:33평형",
+          "prev_high": 134000.0
+        },
+        {
+          "deal_date": "2018-07-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 142500,
+          "group_key": "py:33평형",
+          "prev_high": 135000.0
+        },
+        {
+          "deal_date": "2018-07-31",
+          "exclusive_area": 135.27,
+          "deal_amount": 165000,
+          "group_key": "py:50평형",
+          "prev_high": 150000.0
+        },
+        {
+          "deal_date": "2018-08-08",
+          "exclusive_area": 135.87,
+          "deal_amount": 167000,
+          "group_key": "py:50평형",
+          "prev_high": 165000.0
+        },
+        {
+          "deal_date": "2018-08-25",
+          "exclusive_area": 84.98,
+          "deal_amount": 150000,
+          "group_key": "py:33평형",
+          "prev_high": 142500.0
+        },
+        {
+          "deal_date": "2018-11-07",
+          "exclusive_area": 134.13,
+          "deal_amount": 175000,
+          "group_key": "py:49평형",
+          "prev_high": 143000.0
+        },
+        {
+          "deal_date": "2019-06-29",
+          "exclusive_area": 84.98,
+          "deal_amount": 153500,
+          "group_key": "py:33평형",
+          "prev_high": 150000.0
+        },
+        {
+          "deal_date": "2019-08-06",
+          "exclusive_area": 84.98,
+          "deal_amount": 154000,
+          "group_key": "py:33평형",
+          "prev_high": 153500.0
+        },
+        {
+          "deal_date": "2019-10-01",
+          "exclusive_area": 84.98,
+          "deal_amount": 156000,
+          "group_key": "py:33평형",
+          "prev_high": 154000.0
+        },
+        {
+          "deal_date": "2019-10-24",
+          "exclusive_area": 134.13,
+          "deal_amount": 183000,
+          "group_key": "py:49평형",
+          "prev_high": 175000.0
+        },
+        {
+          "deal_date": "2019-11-16",
+          "exclusive_area": 84.98,
+          "deal_amount": 157500,
+          "group_key": "py:33평형",
+          "prev_high": 156000.0
+        },
+        {
+          "deal_date": "2019-11-25",
+          "exclusive_area": 134.13,
+          "deal_amount": 189200,
+          "group_key": "py:49평형",
+          "prev_high": 183000.0
+        },
+        {
+          "deal_date": "2019-11-30",
+          "exclusive_area": 84.98,
+          "deal_amount": 163000,
+          "group_key": "py:33평형",
+          "prev_high": 157500.0
+        },
+        {
+          "deal_date": "2020-06-26",
+          "exclusive_area": 84.98,
+          "deal_amount": 173000,
+          "group_key": "py:33평형",
+          "prev_high": 163000.0
+        },
+        {
+          "deal_date": "2020-06-29",
+          "exclusive_area": 134.13,
+          "deal_amount": 190000,
+          "group_key": "py:49평형",
+          "prev_high": 189200.0
+        },
+        {
+          "deal_date": "2020-06-30",
+          "exclusive_area": 135.5,
+          "deal_amount": 180000,
+          "group_key": "py:50평형",
+          "prev_high": 167000.0
+        },
+        {
+          "deal_date": "2020-07-16",
+          "exclusive_area": 84.98,
+          "deal_amount": 175000,
+          "group_key": "py:33평형",
+          "prev_high": 173000.0
+        },
+        {
+          "deal_date": "2020-08-13",
+          "exclusive_area": 84.98,
+          "deal_amount": 178000,
+          "group_key": "py:33평형",
+          "prev_high": 175000.0
+        },
+        {
+          "deal_date": "2020-09-12",
+          "exclusive_area": 134.13,
+          "deal_amount": 200000,
+          "group_key": "py:49평형",
+          "prev_high": 190000.0
+        },
+        {
+          "deal_date": "2020-11-28",
+          "exclusive_area": 134.13,
+          "deal_amount": 210000,
+          "group_key": "py:49평형",
+          "prev_high": 200000.0
+        },
+        {
+          "deal_date": "2021-01-25",
+          "exclusive_area": 134.13,
+          "deal_amount": 212000,
+          "group_key": "py:49평형",
+          "prev_high": 210000.0
+        },
+        {
+          "deal_date": "2021-05-24",
+          "exclusive_area": 134.13,
+          "deal_amount": 230000,
+          "group_key": "py:49평형",
+          "prev_high": 212000.0
+        },
+        {
+          "deal_date": "2021-06-05",
+          "exclusive_area": 84.98,
+          "deal_amount": 200000,
+          "group_key": "py:33평형",
+          "prev_high": 178000.0
+        },
+        {
+          "deal_date": "2021-06-26",
+          "exclusive_area": 134.13,
+          "deal_amount": 250000,
+          "group_key": "py:49평형",
+          "prev_high": 230000.0
+        },
+        {
+          "deal_date": "2021-06-28",
+          "exclusive_area": 84.98,
+          "deal_amount": 208000,
+          "group_key": "py:33평형",
+          "prev_high": 200000.0
+        },
+        {
+          "deal_date": "2021-07-08",
+          "exclusive_area": 135.5,
+          "deal_amount": 243000,
+          "group_key": "py:50평형",
+          "prev_high": 180000.0
+        },
+        {
+          "deal_date": "2021-08-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 235000,
+          "group_key": "py:33평형",
+          "prev_high": 208000.0
+        },
+        {
+          "deal_date": "2021-09-06",
+          "exclusive_area": 134.13,
+          "deal_amount": 269000,
+          "group_key": "py:49평형",
+          "prev_high": 250000.0
+        },
+        {
+          "deal_date": "2022-04-15",
+          "exclusive_area": 84.94,
+          "deal_amount": 238000,
+          "group_key": "py:33평형",
+          "prev_high": 235000.0
+        },
+        {
+          "deal_date": "2022-06-20",
+          "exclusive_area": 134.13,
+          "deal_amount": 277000,
+          "group_key": "py:49평형",
+          "prev_high": 269000.0
+        },
+        {
+          "deal_date": "2024-08-07",
+          "exclusive_area": 135.5,
+          "deal_amount": 275000,
+          "group_key": "py:50평형",
+          "prev_high": 243000.0
+        },
+        {
+          "deal_date": "2025-03-14",
+          "exclusive_area": 84.98,
+          "deal_amount": 240000,
+          "group_key": "py:33평형",
+          "prev_high": 238000.0
+        },
+        {
+          "deal_date": "2025-03-18",
+          "exclusive_area": 134.13,
+          "deal_amount": 300000,
+          "group_key": "py:49평형",
+          "prev_high": 277000.0
+        },
+        {
+          "deal_date": "2025-03-21",
+          "exclusive_area": 84.98,
+          "deal_amount": 250000,
+          "group_key": "py:33평형",
+          "prev_high": 240000.0
+        },
+        {
+          "deal_date": "2025-07-08",
+          "exclusive_area": 84.98,
+          "deal_amount": 271000,
+          "group_key": "py:33평형",
+          "prev_high": 250000.0
+        },
+        {
+          "deal_date": "2025-07-12",
+          "exclusive_area": 84.98,
+          "deal_amount": 288000,
+          "group_key": "py:33평형",
+          "prev_high": 271000.0
+        },
+        {
+          "deal_date": "2025-12-05",
+          "exclusive_area": 134.13,
+          "deal_amount": 330000,
+          "group_key": "py:49평형",
+          "prev_high": 300000.0
+        },
+        {
+          "deal_date": "2026-01-06",
+          "exclusive_area": 135.5,
+          "deal_amount": 337400,
+          "group_key": "py:50평형",
+          "prev_high": 275000.0
+        }
+      ]
+    },
+    "only_in_exclusive": [
+      "trade-11170-2017-04-29-한강(대우)-이촌동-19-81500-60-120",
+      "trade-11170-2017-05-27-한강(대우)-이촌동-4-83500-60-187",
+      "trade-11170-2017-06-27-한강(대우)-이촌동-8-84500-60-67",
+      "trade-11170-2017-11-20-한강(대우)-이촌동-18-90000-60-112",
+      "trade-11170-2017-12-13-한강(대우)-이촌동-16-95000-60-220",
+      "trade-11170-2018-01-06-한강(대우)-이촌동-3-98000-60-381",
+      "trade-11170-2018-01-26-한강(대우)-이촌동-19-100000-60-227",
+      "trade-11170-2018-05-19-한강(대우)-이촌동-13-110000-60-95",
+      "trade-11170-2018-08-10-한강(대우)-이촌동-7-123000-60-151",
+      "trade-11170-2018-08-22-한강(대우)-이촌동-6-130000-60-84",
+      "trade-11170-2019-11-09-한강(대우)-이촌동-8-136500-60-56",
+      "trade-11170-2020-05-12-한강(대우)-이촌동-15-140000-60-131",
+      "trade-11170-2020-07-05-한강(대우)-이촌동-15-144000-59.98-167",
+      "trade-11170-2020-07-11-한강(대우)-이촌동-19-143500-60-162",
+      "trade-11170-2020-07-22-한강(대우)-이촌동-11-144750-60-71",
+      "trade-11170-2020-08-15-한강(대우)-이촌동-15-150000-60-33",
+      "trade-11170-2020-09-09-한강(대우)-이촌동-10-158000-60-43",
+      "trade-11170-2021-01-30-한강(대우)-이촌동-15-162000-60-26",
+      "trade-11170-2021-03-04-한강(대우)-이촌동-19-160000-59.98-54",
+      "trade-11170-2021-05-02-한강(대우)-이촌동-8-168000-60-118",
+      "trade-11170-2021-06-21-한강(대우)-이촌동-3-197000-84.94-25",
+      "trade-11170-2022-05-26-한강(대우)-이촌동-7-187000-60-13",
+      "trade-11170-2025-03-15-한강(대우)-이촌동-415-19-193000-0-60",
+      "trade-11170-2025-03-20-한강(대우)-이촌동-415-19-241000-0-135.27",
+      "trade-11170-2025-04-25-한강(대우)-이촌동-22-203700-60-26",
+      "trade-11170-2025-06-12-한강(대우)-이촌동-17-201000-59.98-146",
+      "trade-11170-2025-06-25-한강(대우)-이촌동-16-220000-60-35",
+      "trade-11170-2025-10-09-한강(대우)-이촌동-20-239500-60-81",
+      "trade-11170-2026-01-09-한강(대우)-이촌동-7-242000-60-81",
+      "trade-11170-2026-01-17-한강(대우)-이촌동-20-330000-135.27-0",
+      "trade-11170-2026-06-13-한강(대우)-이촌동-5-327000-135.87-14"
+    ],
+    "only_in_supply_pyeong": [
+      "trade-11170-2017-12-22-한강(대우)-이촌동-7-143000-135.27-65",
+      "trade-11170-2018-01-15-한강(대우)-이촌동-19-150000-135.5-259"
+    ]
+  },
+  "separation_49_50": {
+    "possible": true,
+    "rule": "exclusive 134.13 → 49평(supply 163.34); exclusive 135.27/135.5/135.87 → 50평"
+  }
+}
