@@ -745,6 +745,7 @@ async function buildAptDetail(params: {
         baselinePriorMax = await loadBaselinePriorMaxByComplex(
           db,
           pilotBundle.classification.complexKey,
+          pilotBundle.classification.complexId,
         );
       }
     }

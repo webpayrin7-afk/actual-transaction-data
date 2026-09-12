@@ -1,0 +1,69 @@
+{
+  "phase": "6.2",
+  "decision": "PASS",
+  "preflight": {
+    "apt_complex_classifications": {
+      "rows": 11,
+      "complexes": 11,
+      "with_id": 10,
+      "null_id": 1,
+      "distinct_ids": 10
+    },
+    "apt_pyeong_groups": {
+      "rows": 73,
+      "complexes": 11,
+      "with_id": 67,
+      "null_id": 6,
+      "distinct_ids": 10
+    },
+    "apt_pyeong_group_baselines": {
+      "rows": 39,
+      "complexes": 8,
+      "with_id": 36,
+      "null_id": 3,
+      "distinct_ids": 7
+    }
+  },
+  "unresolved": [
+    {
+      "complex_key": "mapo-raemian-prugio",
+      "apt_name_norm": "마포래미안푸르지오4단지",
+      "lawd_cd": "11440"
+    }
+  ],
+  "orphans": {
+    "class": 0,
+    "groups": 0,
+    "baselines": 0
+  },
+  "baseline_group_complex_id_mismatch": 0,
+  "flags": {
+    "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "1",
+    "POST_WH_SINGOGA_GAPS_CLEARED": null,
+    "changed": false
+  },
+  "api_smoke": {
+    "hangang_daewoo": {
+      "code": 200,
+      "items": 772,
+      "singoga": 81
+    },
+    "parkrio": {
+      "code": 200,
+      "items": 7361,
+      "singoga": 227
+    },
+    "banpo_xi": {
+      "code": 200,
+      "items": 3122,
+      "singoga": 192
+    },
+    "jamsil_els": {
+      "code": 200,
+      "items": 5820,
+      "singoga": 162
+    }
+  },
+  "eleven_vs_six": "11 = all loaded Phase5 child complexes; 6 = original pilot allowlist only. 5 extra loaded beyond pilots.",
+  "next": "Phase 6.3 — Apartment Master enrichment framework + GEO foundation"
+}

@@ -1,10 +1,15 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Client } from "@libsql/client";
+import {
+  dualKeyWhere,
+  resolveComplexIdFromMolit,
+} from "@/lib/unit-type/complex-id";
 
 export type AptPyeongGroupBaselineRow = {
   groupKey: string;
   complexKey: string;
+  complexId?: string | null;
   baselineUntil: string;
   priorMaxAmount: number;
   priorMaxDealDate: string | null;
@@ -56,6 +61,7 @@ export function loadPhase53bBaselineFixture(
   return raw.rows.map((r) => ({
     groupKey: r.group_key,
     complexKey: r.complex_key,
+    complexId: null,
     baselineUntil: r.baseline_until,
     priorMaxAmount: r.prior_max_amount,
     priorMaxDealDate: r.prior_max_deal_date,
@@ -105,16 +111,26 @@ export async function seedBaselinesFromFixtureLocalOnly(params: {
     "baseline seed",
   );
   const rows = loadPhase53bBaselineFixture(params.rootDir);
+  const info = await params.db.execute(
+    `PRAGMA table_info(apt_pyeong_group_baselines)`,
+  );
+  const hasComplexId = info.rows.some((row) => String(row.name) === "complex_id");
+  if (!hasComplexId) {
+    await params.db.execute(
+      `ALTER TABLE apt_pyeong_group_baselines ADD COLUMN complex_id TEXT`,
+    );
+  }
   await params.db.execute(`DELETE FROM apt_pyeong_group_baselines`);
   for (const r of rows) {
     await params.db.execute({
       sql: `INSERT INTO apt_pyeong_group_baselines (
-        group_key, complex_key, baseline_until, prior_max_amount, prior_max_deal_date,
+        group_key, complex_key, complex_id, baseline_until, prior_max_amount, prior_max_deal_date,
         source, computed_at, confidence, completeness, pre_warehouse_trade_count, label
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         r.groupKey,
         r.complexKey,
+        r.complexId ?? null,
         r.baselineUntil,
         r.priorMaxAmount,
         r.priorMaxDealDate,
@@ -130,14 +146,93 @@ export async function seedBaselinesFromFixtureLocalOnly(params: {
   return rows.length;
 }
 
+/**
+ * Upsert a baseline row with dual-write (complex_id + complex_key).
+ * Resolves complex_id from MOLIT source link when lawdCd/aptNameNorm provided;
+ * does not invent canonical identities.
+ */
+export async function upsertBaselineDualKey(params: {
+  db: Client;
+  row: AptPyeongGroupBaselineRow;
+  lawdCd?: string;
+  aptNameNorm?: string;
+}): Promise<void> {
+  const { db, row } = params;
+  let complexId = row.complexId ?? null;
+  if (
+    complexId == null &&
+    params.lawdCd &&
+    params.aptNameNorm
+  ) {
+    complexId = await resolveComplexIdFromMolit(
+      db,
+      params.lawdCd,
+      params.aptNameNorm,
+    );
+  }
+  if (complexId == null) {
+    // Try via classification row for this complex_key
+    const cls = await db.execute({
+      sql: `SELECT complex_id, lawd_cd, apt_name_norm FROM apt_complex_classifications
+            WHERE complex_key = ? LIMIT 1`,
+      args: [row.complexKey],
+    });
+    if (cls.rows.length > 0) {
+      const r = cls.rows[0] as Record<string, unknown>;
+      if (r.complex_id) complexId = String(r.complex_id);
+      else if (r.lawd_cd && r.apt_name_norm) {
+        complexId = await resolveComplexIdFromMolit(
+          db,
+          String(r.lawd_cd),
+          String(r.apt_name_norm),
+        );
+      }
+    }
+  }
+  await db.execute({
+    sql: `INSERT INTO apt_pyeong_group_baselines (
+      group_key, complex_key, complex_id, baseline_until, prior_max_amount, prior_max_deal_date,
+      source, computed_at, confidence, completeness, pre_warehouse_trade_count, label
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(group_key) DO UPDATE SET
+      complex_key=excluded.complex_key,
+      complex_id=COALESCE(excluded.complex_id, apt_pyeong_group_baselines.complex_id),
+      baseline_until=excluded.baseline_until,
+      prior_max_amount=excluded.prior_max_amount,
+      prior_max_deal_date=excluded.prior_max_deal_date,
+      source=excluded.source,
+      computed_at=excluded.computed_at,
+      confidence=excluded.confidence,
+      completeness=excluded.completeness,
+      pre_warehouse_trade_count=excluded.pre_warehouse_trade_count,
+      label=excluded.label`,
+    args: [
+      row.groupKey,
+      row.complexKey,
+      complexId,
+      row.baselineUntil,
+      row.priorMaxAmount,
+      row.priorMaxDealDate,
+      row.source,
+      row.computedAt,
+      row.confidence,
+      row.completeness,
+      row.preWarehouseTradeCount,
+      row.label,
+    ],
+  });
+}
+
 export async function loadBaselinePriorMaxByComplex(
   db: Client,
   complexKey: string,
+  complexId?: string | null,
 ): Promise<Map<string, number>> {
+  const pred = dualKeyWhere("b", complexId, complexKey);
   const res = await db.execute({
-    sql: `SELECT group_key, prior_max_amount FROM apt_pyeong_group_baselines
-          WHERE complex_key = ?`,
-    args: [complexKey],
+    sql: `SELECT b.group_key, b.prior_max_amount FROM apt_pyeong_group_baselines b
+          WHERE ${pred.sql}`,
+    args: pred.args,
   });
   const out = new Map<string, number>();
   for (const row of res.rows) {

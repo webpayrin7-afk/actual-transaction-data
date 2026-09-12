@@ -1,0 +1,113 @@
+{
+  "phase": "6.2",
+  "execute": false,
+  "preflight": {
+    "apt_complex_classifications": {
+      "rows": 11,
+      "complexes": 11,
+      "has_complex_id": true,
+      "columns": [
+        "complex_key",
+        "apt_name_norm",
+        "lawd_cd",
+        "gu",
+        "classification",
+        "singoga_mode",
+        "label_confidence",
+        "group_confidence_high",
+        "source_phase",
+        "provenance_json",
+        "updated_at",
+        "complex_id"
+      ],
+      "resolvable_rows": 10,
+      "unresolvable_rows": 1,
+      "unresolvable_keys": [
+        "mapo-raemian-prugio"
+      ],
+      "expected_updates": 10
+    },
+    "apt_pyeong_groups": {
+      "rows": 73,
+      "complexes": 11,
+      "has_complex_id": true,
+      "columns": [
+        "group_key",
+        "complex_key",
+        "market_label",
+        "display_mode",
+        "supply_area_min",
+        "supply_area_max",
+        "exclusive_area_min",
+        "exclusive_area_max",
+        "household_count",
+        "confidence",
+        "group_confidence_high",
+        "label_null_reason",
+        "sort_order",
+        "source",
+        "complex_id"
+      ],
+      "resolvable_rows": 67,
+      "unresolvable_rows": 6,
+      "unresolvable_keys": [
+        "mapo-raemian-prugio"
+      ],
+      "expected_updates": 67
+    },
+    "apt_pyeong_group_baselines": {
+      "rows": 39,
+      "complexes": 8,
+      "has_complex_id": true,
+      "columns": [
+        "group_key",
+        "complex_key",
+        "baseline_until",
+        "prior_max_amount",
+        "prior_max_deal_date",
+        "source",
+        "computed_at",
+        "confidence",
+        "completeness",
+        "pre_warehouse_trade_count",
+        "label",
+        "complex_id"
+      ],
+      "resolvable_rows": 36,
+      "unresolvable_rows": 3,
+      "unresolvable_keys": [
+        "mapo-raemian-prugio"
+      ],
+      "expected_updates": 36
+    }
+  },
+  "eleven_vs_six": {
+    "child_table_distinct_complexes": 11,
+    "phase5_pilot_allowlist": 6,
+    "explanation": "Phase 6.1 'existing loaded complexes: 11' counted distinct complex_key in apt_complex_classifications. 'resolved 6/6 pilots' checked only PHASE5_PILOT_COMPLEXES allowlist. 5 additional loaded complexes exist beyond the original 6 pilots.",
+    "classification_keys": [
+      "acro-riverpark",
+      "banpo-xi",
+      "daechi-palace",
+      "eunma",
+      "hangang-daewoo",
+      "hannam-thehill",
+      "jamsil-els",
+      "mapo-raemian-prugio",
+      "mokdong-7",
+      "parkrio",
+      "raemian-hill-godeok"
+    ]
+  },
+  "mapping": {
+    "resolvable_complexes": 10,
+    "unresolved_complexes": [
+      {
+        "complex_key": "mapo-raemian-prugio",
+        "source_key": "11440|마포래미안푸르지오4단지"
+      }
+    ],
+    "conflicts": 0
+  },
+  "decision": "PREFLIGHT-PASS"
+}

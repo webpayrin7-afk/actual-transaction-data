@@ -123,6 +123,7 @@ CREATE TABLE IF NOT EXISTS market_stats_meta (
 -- Phase 5 unit-type master (pilot write only; no nationwide backfill)
 CREATE TABLE IF NOT EXISTS apt_complex_classifications (
   complex_key TEXT PRIMARY KEY,
+  complex_id TEXT,
   apt_name_norm TEXT NOT NULL,
   lawd_cd TEXT NOT NULL,
   gu TEXT NOT NULL DEFAULT '',
@@ -136,6 +137,8 @@ CREATE TABLE IF NOT EXISTS apt_complex_classifications (
 );
 CREATE INDEX IF NOT EXISTS idx_apt_complex_class_name
   ON apt_complex_classifications (apt_name_norm);
+CREATE INDEX IF NOT EXISTS idx_apt_complex_classifications_complex_id
+  ON apt_complex_classifications (complex_id);
 
 CREATE TABLE IF NOT EXISTS apt_unit_types (
   unit_type_key TEXT PRIMARY KEY,
@@ -154,6 +157,7 @@ CREATE INDEX IF NOT EXISTS idx_apt_unit_types_complex
 CREATE TABLE IF NOT EXISTS apt_pyeong_groups (
   group_key TEXT PRIMARY KEY,
   complex_key TEXT NOT NULL,
+  complex_id TEXT,
   market_label INTEGER,
   display_mode TEXT NOT NULL,
   supply_area_min REAL,
@@ -169,6 +173,8 @@ CREATE TABLE IF NOT EXISTS apt_pyeong_groups (
 );
 CREATE INDEX IF NOT EXISTS idx_apt_pyeong_groups_complex
   ON apt_pyeong_groups (complex_key);
+CREATE INDEX IF NOT EXISTS idx_apt_pyeong_groups_complex_id
+  ON apt_pyeong_groups (complex_id);
 
 CREATE TABLE IF NOT EXISTS apt_unit_type_group_links (
   unit_type_key TEXT NOT NULL,
@@ -185,6 +191,7 @@ CREATE INDEX IF NOT EXISTS idx_apt_unit_type_links_complex
 CREATE TABLE IF NOT EXISTS apt_pyeong_group_baselines (
   group_key TEXT PRIMARY KEY,
   complex_key TEXT NOT NULL,
+  complex_id TEXT,
   baseline_until TEXT NOT NULL,
   prior_max_amount INTEGER NOT NULL,
   prior_max_deal_date TEXT,
@@ -197,3 +204,54 @@ CREATE TABLE IF NOT EXISTS apt_pyeong_group_baselines (
 );
 CREATE INDEX IF NOT EXISTS idx_apt_pyeong_group_baselines_complex
   ON apt_pyeong_group_baselines (complex_key);
+CREATE INDEX IF NOT EXISTS idx_apt_pyeong_group_baselines_complex_id
+  ON apt_pyeong_group_baselines (complex_id);
+
+-- Phase 6.1: Apartment Master v1 (canonical identity; enrichment lazy)
+CREATE TABLE IF NOT EXISTS apt_complex_master (
+  complex_id TEXT PRIMARY KEY,
+  apt_name TEXT NOT NULL,
+  apt_name_norm TEXT NOT NULL,
+  sido TEXT,
+  sido_code TEXT,
+  sigungu TEXT,
+  lawd_cd TEXT NOT NULL,
+  legal_dong_name TEXT,
+  bjdong_cd TEXT,
+  jibun TEXT,
+  road_address TEXT,
+  latitude REAL,
+  longitude REAL,
+  identity_status TEXT NOT NULL,
+  identity_reason_codes TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_acm_name_norm ON apt_complex_master (apt_name_norm);
+CREATE INDEX IF NOT EXISTS idx_acm_lawd ON apt_complex_master (lawd_cd);
+CREATE INDEX IF NOT EXISTS idx_acm_bjdong ON apt_complex_master (bjdong_cd);
+CREATE INDEX IF NOT EXISTS idx_acm_lawd_norm ON apt_complex_master (lawd_cd, apt_name_norm);
+
+CREATE TABLE IF NOT EXISTS apt_complex_source_links (
+  source TEXT NOT NULL,
+  source_key TEXT NOT NULL,
+  complex_id TEXT NOT NULL REFERENCES apt_complex_master(complex_id),
+  source_meta_json TEXT,
+  source_version TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (source, source_key)
+);
+CREATE INDEX IF NOT EXISTS idx_acsl_complex ON apt_complex_source_links (complex_id);
+
+CREATE TABLE IF NOT EXISTS apt_complex_enrichment_state (
+  complex_id TEXT NOT NULL,
+  domain TEXT NOT NULL,
+  status TEXT NOT NULL,
+  reason_code TEXT,
+  data_version INTEGER,
+  processed_at TEXT,
+  source_updated_at TEXT,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, domain)
+);
