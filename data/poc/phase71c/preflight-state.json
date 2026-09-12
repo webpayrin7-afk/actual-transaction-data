@@ -1,0 +1,441 @@
+{
+  "colNames": {
+    "master": [
+      "complex_id",
+      "apt_name",
+      "apt_name_norm",
+      "sido",
+      "sido_code",
+      "sigungu",
+      "lawd_cd",
+      "legal_dong_name",
+      "bjdong_cd",
+      "jibun",
+      "road_address",
+      "latitude",
+      "longitude",
+      "identity_status",
+      "identity_reason_codes",
+      "created_at",
+      "updated_at"
+    ],
+    "enrich": [
+      "complex_id",
+      "domain",
+      "status",
+      "reason_code",
+      "data_version",
+      "processed_at",
+      "source_updated_at",
+      "updated_at"
+    ],
+    "link": [
+      "source",
+      "source_key",
+      "complex_id",
+      "source_meta_json",
+      "source_version",
+      "created_at",
+      "updated_at"
+    ],
+    "fee": [
+      "complex_id",
+      "period_yyyymm",
+      "common_fee",
+      "individual_fee",
+      "long_term_repair_reserve",
+      "total_fee",
+      "per_area_common_fee",
+      "per_area_total_fee",
+      "area_basis_sqm",
+      "household_basis",
+      "amount_basis",
+      "source",
+      "source_version",
+      "updated_at"
+    ],
+    "profile": [
+      "complex_id",
+      "household_count",
+      "building_count",
+      "approval_date",
+      "heating_type",
+      "management_type",
+      "parking_total",
+      "parking_per_household",
+      "far_ratio",
+      "bcr_ratio",
+      "max_floor",
+      "land_area_sqm",
+      "total_area_sqm",
+      "structure_type",
+      "main_purpose",
+      "source",
+      "source_version",
+      "raw_meta_json",
+      "updated_at"
+    ]
+  },
+  "counts": [
+    {
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "n": 6
+    },
+    {
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "n": 4
+    },
+    {
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "n": 10
+    }
+  ],
+  "masters": [
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "apt_name_norm": "은마",
+      "lawd_cd": "11680",
+      "bjdong_cd": "10600",
+      "jibun": "316"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "apt_name_norm": "반포자이",
+      "lawd_cd": "11650",
+      "bjdong_cd": "10700",
+      "jibun": "20-43"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "apt_name_norm": "잠실엘스",
+      "lawd_cd": "11710",
+      "bjdong_cd": "10100",
+      "jibun": "19"
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "apt_name": "래미안대치팰리스",
+      "apt_name_norm": "래미안대치팰리스",
+      "lawd_cd": "11680",
+      "bjdong_cd": "10600",
+      "jibun": "1027"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "apt_name": "아크로리버파크",
+      "apt_name_norm": "아크로리버파크",
+      "lawd_cd": "11650",
+      "bjdong_cd": "10700",
+      "jibun": "2-12"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "apt_name_norm": "시범한양",
+      "lawd_cd": "41135",
+      "bjdong_cd": "10500",
+      "jibun": "91"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "apt_name_norm": "한남더힐",
+      "lawd_cd": "11170",
+      "bjdong_cd": "13100",
+      "jibun": "810"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "apt_name": "한강(대우)",
+      "apt_name_norm": "한강(대우)",
+      "lawd_cd": "11170",
+      "bjdong_cd": "12900",
+      "jibun": "415"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "apt_name_norm": "파크리오",
+      "lawd_cd": "11710",
+      "bjdong_cd": "10200",
+      "jibun": "17"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "apt_name": "래미안힐스테이트고덕",
+      "apt_name_norm": "래미안힐스테이트고덕",
+      "lawd_cd": "11740",
+      "bjdong_cd": "10200",
+      "jibun": "688"
+    }
+  ],
+  "links": [
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1168010600003160000"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "source": "KAPT",
+      "source_key": "A13583507"
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "source": "MOLIT",
+      "source_key": "11680|은마"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1165010700000200043"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "source": "KAPT",
+      "source_key": "A13704104"
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "source": "MOLIT",
+      "source_key": "11650|반포자이"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1171010100000190000"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "source": "KAPT",
+      "source_key": "A13822004"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "source": "MOLIT",
+      "source_key": "11710|잠실엘스"
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1168010600010270000"
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "source": "MOLIT",
+      "source_key": "11680|래미안대치팰리스"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1165010700000020012"
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "source": "MOLIT",
+      "source_key": "11650|아크로리버파크"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "4113510500000910000"
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "source": "MOLIT",
+      "source_key": "41135|시범한양"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1117013100008100000"
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "source": "MOLIT",
+      "source_key": "11170|한남더힐"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1117012900004150000"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "source": "KAPT",
+      "source_key": "A14003105"
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "source": "MOLIT",
+      "source_key": "11170|한강(대우)"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1171010200000170000"
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "source": "MOLIT",
+      "source_key": "11710|파크리오"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "source": "BUILDING_HUB_PARCEL",
+      "source_key": "1174010200006880000"
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "source": "MOLIT",
+      "source_key": "11740|래미안힐스테이트고덕"
+    }
+  ],
+  "fee_rows": {
+    "n": 0
+  },
+  "profiles": [
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "source": "COMPOSITE",
+      "household_count": 4424,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "source": "COMPOSITE",
+      "household_count": 3410,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "source": "COMPOSITE",
+      "household_count": 5678,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_adb7193c5c99abd6",
+      "source": "COMPOSITE",
+      "household_count": 1608,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_ba770c1e608ed88f",
+      "source": "COMPOSITE",
+      "household_count": 1612,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "source": "COMPOSITE",
+      "household_count": 2419,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "source": "COMPOSITE",
+      "household_count": 600,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_ec9a204afeaadf1b",
+      "source": "COMPOSITE",
+      "household_count": 834,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "source": "COMPOSITE",
+      "household_count": 6864,
+      "heating_type": null,
+      "management_type": null
+    },
+    {
+      "complex_id": "cx_f39813c026bb2817",
+      "source": "COMPOSITE",
+      "household_count": 3658,
+      "heating_type": null,
+      "management_type": null
+    }
+  ],
+  "cohort": {
+    "phase": "7.1",
+    "max": 10,
+    "complexes": [
+      {
+        "complex_id": "cx_4c63d9a100973c60",
+        "apt_name": "잠실엘스",
+        "role": "mega / Phase5 / Seoul Songpa",
+        "kapt_code": "A13822004"
+      },
+      {
+        "complex_id": "cx_ed52bf895d064c11",
+        "apt_name": "파크리오",
+        "role": "mega / Phase5 / Seoul Songpa",
+        "kapt_code": null
+      },
+      {
+        "complex_id": "cx_1c244e7305d12c44",
+        "apt_name": "반포자이",
+        "role": "large premium / Phase5 / Seoul Seocho",
+        "kapt_code": "A13704104"
+      },
+      {
+        "complex_id": "cx_0320fd9e007e1f8c",
+        "apt_name": "은마",
+        "role": "old mass-market / Phase5 / Seoul Gangnam",
+        "kapt_code": "A13583507"
+      },
+      {
+        "complex_id": "cx_ba770c1e608ed88f",
+        "apt_name": "아크로리버파크",
+        "role": "new premium / Phase5 / Seoul Seocho",
+        "kapt_code": null
+      },
+      {
+        "complex_id": "cx_e47102400fbc8ec6",
+        "apt_name": "한남더힐",
+        "role": "premium / Phase5 / Seoul Yongsan",
+        "kapt_code": null
+      },
+      {
+        "complex_id": "cx_f39813c026bb2817",
+        "apt_name": "래미안힐스테이트고덕",
+        "role": "newer mass-premium / Phase5 / Seoul Gangdong",
+        "kapt_code": null
+      },
+      {
+        "complex_id": "cx_adb7193c5c99abd6",
+        "apt_name": "래미안대치팰리스",
+        "role": "premium / Phase5 / Seoul Gangnam",
+        "kapt_code": null
+      },
+      {
+        "complex_id": "cx_ec9a204afeaadf1b",
+        "apt_name": "한강(대우)",
+        "role": "small / Phase5 / Seoul Yongsan",
+        "kapt_code": "A14003105"
+      },
+      {
+        "complex_id": "cx_d6b07e832d194cf9",
+        "apt_name": "시범한양",
+        "role": "old mass-market / Gyeonggi Bundang",
+        "kapt_code": null
+      }
+    ]
+  }
+}
