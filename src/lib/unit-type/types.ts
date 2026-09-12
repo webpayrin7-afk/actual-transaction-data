@@ -12,6 +12,8 @@ export type GroupDisplayMode = "label+range" | "range_only" | "exclusive_only";
 
 export type AptComplexClassification = {
   complexKey: string;
+  /** Canonical master id when resolved; null/undefined if unmigrated or unresolved. */
+  complexId?: string | null;
   aptNameNorm: string;
   lawdCd: string;
   gu: string;
@@ -39,6 +41,7 @@ export type AptUnitTypeRow = {
 export type AptPyeongGroupRow = {
   groupKey: string;
   complexKey: string;
+  complexId?: string | null;
   marketLabel: number | null;
   displayMode: GroupDisplayMode;
   supplyAreaMin: number | null;
