@@ -1,0 +1,191 @@
+{
+  "phase": "6.0",
+  "production_writes": 0,
+  "identity_audit": {
+    "current_key": "fragmented: transactions(lawd_cd,apt_name_norm); apt_catalog(apt_name_norm,gu); pilot complex_key slug; PoC complex_id=lawd:apt_name_norm; market typeKey apt_norm|lawd|dong|area100",
+    "problems": [
+      "apt_name_norm alone is not unique across regions",
+      "pilot complex_key is hand slug, not warehouse-linked",
+      "catalog PK ignores lawd_cd",
+      "rename/re-norm would split history if used as PK",
+      "Phase5 child tables soft-join on complex_key without FK"
+    ],
+    "recommended_canonical_identity": "opaque immutable complex_id; map MOLIT (lawd_cd, apt_name_norm) and parcel/registry/map keys via apt_complex_source_links"
+  },
+  "bootstrap": {
+    "total": 15751,
+    "IDENTITY-READY": 14966,
+    "AMBIGUOUS": 736,
+    "UNRESOLVED": 49,
+    "legal_dong": {
+      "EXACT": 15730,
+      "UNRESOLVED": 21
+    },
+    "jibun_kind": {
+      "bun-ji": 8616,
+      "normal": 7084,
+      "mountain": 22,
+      "malformed": 29
+    },
+    "reason_codes": {
+      "parcel_collision": 409,
+      "multi_dong": 300,
+      "multi_jibun": 327,
+      "legal_dong_unresolved": 21,
+      "malformed_jibun": 29
+    },
+    "duplicates_conflicts": {
+      "duplicate_complex_id": 0,
+      "same_name_different_lawd_count": 888,
+      "parcel_key_shared_by_multiple_complexes": 186,
+      "complexes_touched_by_parcel_collision": 414,
+      "same_address_multiple_norm_names": 186,
+      "malformed_jibun": 29,
+      "legal_dong_unresolved": 21,
+      "multi_dong": 300,
+      "multi_jibun": 327
+    },
+    "parcel_conflict_samples": {
+      "11110|17500|0204|0011": [
+        "11110:(204-11)",
+        "11110:숭인상가"
+      ],
+      "11215|10400|0218|0001": [
+        "11215:극동1",
+        "11215:극동2"
+      ],
+      "11230|10900|0057|0000": [
+        "11230:휘경리오포레아파트(1단지)",
+        "11230:휘경리오포레아파트(2단지)"
+      ],
+      "11260|10400|0020|0000": [
+        "11260:신내대림아파트",
+        "11260:신내두산아파트"
+      ],
+      "11290|13800|0062|0001": [
+        "11290:장위자이레디언트(3단지)",
+        "11290:장위자이레디언트(4단지)"
+      ],
+      "11290|10300|0609|0001": [
+        "11290:한신",
+        "11290:한진(609-1)"
+      ],
+      "11305|10100|0812|0000": [
+        "11305:래미안트리베라2단지(임대)",
+        "11305:삼성래미안트리베라2단지"
+      ],
+      "11305|10100|0461|0000": [
+        "11305:송천센트레빌",
+        "11305:송천센트레빌(임대)"
+      ],
+      "11320|10500|0730|0000": [
+        "11320:극동아파트",
+        "11320:대우파크힐(쌍문동이안)"
+      ],
+      "11350|10400|0271|0003": [
+        "11350:건영",
+        "11350:벽산"
+      ],
+      "11350|10600|0505|0000": [
+        "11350:경남",
+        "11350:롯데(505)",
+        "11350:상아"
+      ],
+      "11350|10600|0366|0000": [
+        "11350:라이프",
+        "11350:신동아(366)",
+        "11350:청구(366)"
+      ],
+      "11350|10200|0013|0000": [
+        "11350:미륭",
+        "11350:삼호3"
+      ],
+      "11350|10500|0639|0000": [
+        "11350:보람2단지",
+        "11350:보람아파트"
+      ],
+      "11350|10500|0765|0000": [
+        "11350:상계주공1(고층)",
+        "11350:상계주공1(저층)"
+      ]
+    },
+    "same_addr_multi_name_samples": {
+      "11110|17500|0204|0011": [
+        "(204-11)",
+        "숭인상가"
+      ],
+      "11215|10400|0218|0001": [
+        "극동1",
+        "극동2"
+      ],
+      "11230|10900|0057|0000": [
+        "휘경리오포레아파트(1단지)",
+        "휘경리오포레아파트(2단지)"
+      ],
+      "11260|10400|0020|0000": [
+        "신내대림아파트",
+        "신내두산아파트"
+      ],
+      "11290|13800|0062|0001": [
+        "장위자이레디언트(3단지)",
+        "장위자이레디언트(4단지)"
+      ],
+      "11290|10300|0609|0001": [
+        "한신",
+        "한진(609-1)"
+      ],
+      "11305|10100|0812|0000": [
+        "래미안트리베라2단지(임대)",
+        "삼성래미안트리베라2단지"
+      ],
+      "11305|10100|0461|0000": [
+        "송천센트레빌",
+        "송천센트레빌(임대)"
+      ],
+      "11320|10500|0730|0000": [
+        "극동아파트",
+        "대우파크힐(쌍문동이안)"
+      ],
+      "11350|10400|0271|0003": [
+        "건영",
+        "벽산"
+      ],
+      "11350|10600|0505|0000": [
+        "경남",
+        "롯데(505)",
+        "상아"
+      ],
+      "11350|10600|0366|0000": [
+        "라이프",
+        "신동아(366)",
+        "청구(366)"
+      ],
+      "11350|10200|0013|0000": [
+        "미륭",
+        "삼호3"
+      ],
+      "11350|10500|0639|0000": [
+        "보람2단지",
+        "보람아파트"
+      ],
+      "11350|10500|0765|0000": [
+        "상계주공1(고층)",
+        "상계주공1(저층)"
+      ]
+    }
+  },
+  "production_bootstrap_estimate": {
+    "master_rows": 15751,
+    "source_link_rows_molit": 15751,
+    "status_rows_eager_6_domains": 94506,
+    "status_rows_lazy_preferred": 0,
+    "total_rows_lazy": 31502,
+    "total_rows_eager_status": 126008,
+    "estimated_write_operations_lazy_batch80": 394,
+    "estimated_write_operations_eager_batch80": 1576,
+    "note": "Turso billed write units depend on statement shape; estimate assumes multi-row INSERT packed ~80 rows/statement (current sync batch style). Exact units unknown without metering."
+  },
+  "decision": "PASS",
+  "decision_reason": "canonical complex_id strategy is clear; bootstrap READY is high (14966/15751); building registry stays enrichment; no production writes in this phase",
+  "recommended_next": "A"
+}
