@@ -1,0 +1,4591 @@
+{
+  "generatedAt": "2026-09-11T22:55:56.198Z",
+  "scope": [
+    "한강(대우)",
+    "파크리오",
+    "반포자이",
+    "잠실엘스"
+  ],
+  "safety": {
+    "productionWrite": false,
+    "pilotDataMutation": false,
+    "screenshots": 0
+  },
+  "algorithmNotes": {
+    "productionRule": "markSingogaMarketGroupPriorExceed + typeRecordHigh: current > priorMax; priorMax===0 → false (first trade excluded); ties false; same calendar date shares prior-day max only",
+    "firstTrade": {
+      "includeCountField": "marketGroupFirstInclude",
+      "excludeCountField": "marketGroupFirstExclude",
+      "productionPolicy": "exclude",
+      "recommendation": "exclude",
+      "rationale": [
+        "이전 최고가가 없으면 '갱신'이 성립하지 않음",
+        "아파트미/호갱노노 등 공개 서비스도 통상 첫 거래를 신고가로 세지 않음",
+        "include는 group 수만큼 기계적 신고가를 추가해 비율을 왜곡"
+      ]
+    },
+    "sameDay": {
+      "policy": "prior = max(amount) where deal_date < D; no synthetic intra-day order",
+      "multiExceed": "each trade with amount > priorMax counts as 신고가"
+    },
+    "exclusiveVsMarketGroup": {
+      "exclusiveAllTimeMaxEquality": "legacy apt-detail UI (ties at current max all true)",
+      "exclusivePriorExceed": "apples-to-apples prior-exceed per exact exclusive area",
+      "marketGroupPriorExceed": "A/B pilot production rule"
+    },
+    "externalPractice": [
+      "공개 서비스는 면적(또는 유사면적) 시계열의 이전 최고가 갱신을 신고가로 표시",
+      "첫 거래 제외가 일반적",
+      "동일일 다건 처리는 서비스마다 상이 — 재현 가능한 prior-date-only 규칙이 감사에 유리",
+      "외부 사이트는 authoritative source 아님. 최종 기준은 MOLIT 거래 history"
+    ]
+  },
+  "decision": {
+    "allowlistExpansion": "HOLD",
+    "reasons": [
+      "한강(대우): warehouse starts 2016-10-29 vs occupancy 2000 (gap 16y) → early false 신고가 risk",
+      "파크리오: warehouse starts 2016-10-01 vs occupancy 2008 (gap 8y) → early false 신고가 risk",
+      "반포자이: warehouse starts 2016-10-01 vs occupancy 2009 (gap 7y) → early false 신고가 risk",
+      "잠실엘스: warehouse starts 2016-10-03 vs occupancy 2008 (gap 8y) → early false 신고가 risk"
+    ],
+    "algorithmVerdict": "정상 (코드·재계산 일치). 확대 HOLD 이유는 history incompleteness.",
+    "note": "Same-day multi-exceed is intentional under current policy (no intra-day ordering). Not a HOLD by itself. History start gap is the blocking risk for allowlist expansion."
+  },
+  "complexes": [
+    {
+      "complexKey": "hangang-daewoo",
+      "aptNameNorm": "한강(대우)",
+      "displayName": "한강(대우)",
+      "classification": "auto-safe",
+      "singogaMode": "market_group",
+      "occupancyYear": 2000,
+      "warehouseFirstDealDate": "2016-10-29",
+      "warehouseLastDealDate": "2026-08-05",
+      "historyGapYears": 16,
+      "historyCompleteness": "low_confidence_early_window",
+      "totalTrades": 266,
+      "marketGroupCount": 4,
+      "exclusiveAreaCount": 8,
+      "recordHigh": {
+        "marketGroupFirstInclude": 85,
+        "marketGroupFirstExclude": 81,
+        "productionMarkSingogaMarketGroupPriorExceed": 81,
+        "exclusivePriorExceed": 87,
+        "exclusiveAllTimeMaxEquality": 9,
+        "phase5ReportedFirstExclude": 81,
+        "matchesProductionCode": true,
+        "matchesPhase5Report": true,
+        "inflationVsExclusivePrior": -6,
+        "inflationVsExclusiveAllTime": 72,
+        "firstIncludeRate": 32,
+        "firstExcludeRate": 30.5
+      },
+      "inflationDecompositionNote": "Market-group prior-exceed counts every exceed of the group's shared max. Exclusive prior-exceed requires exceed within each exact area — merging areas multiplies 신고가 events because a mid-size trade can beat a smaller sibling area's history without beating its own area max.",
+      "sameDayMultiExceedCaseCount": 1,
+      "sameDayMultiExceedCases": [
+        {
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "groupLabel": "33평형",
+          "dealDate": "2025-07-08",
+          "priorMax": 250000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11170-2025-07-08-한강(대우)-이촌동-19-271000-84.98-117",
+              "amount": 271000,
+              "exclusiveArea": 84.98
+            },
+            {
+              "id": "trade-11170-2025-07-08-한강(대우)-이촌동-19-271000-84.98-132",
+              "amount": 271000,
+              "exclusiveArea": 84.98
+            }
+          ]
+        }
+      ],
+      "earlyWindowRecordHighsFirstMonth": [],
+      "groups": [
+        {
+          "groupKey": "hangang-daewoo:G1:ex59.98-60.00",
+          "label": "공급 81.6~82.31㎡ · 전용 59.98~60㎡",
+          "exclusiveAreaMin": 59.98,
+          "exclusiveAreaMax": 60,
+          "exclusiveAreaCount": 2,
+          "exclusiveAreas": [
+            59.98,
+            60
+          ],
+          "tradeCount": 86,
+          "marketGroupFirstInclude": 25,
+          "marketGroupFirstExclude": 24,
+          "exclusivePriorExceedInGroup": 27,
+          "exclusiveAllTimeMaxInGroup": 2,
+          "inflationVsExclusivePrior": -3,
+          "recordHighRateFirstExclude": 27.9,
+          "sameDayMultiExceedCases": 0,
+          "firstDealDate": "2016-10-29",
+          "lastDealDate": "2026-04-13",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-03-15",
+              "amount": 193000,
+              "exclusiveArea": 60,
+              "priorMax": 187000,
+              "previousRhAmount": 187000,
+              "previousRhDate": "2022-05-26"
+            },
+            {
+              "dealDate": "2025-04-25",
+              "amount": 203700,
+              "exclusiveArea": 60,
+              "priorMax": 193000,
+              "previousRhAmount": 193000,
+              "previousRhDate": "2025-03-15"
+            },
+            {
+              "dealDate": "2025-06-25",
+              "amount": 220000,
+              "exclusiveArea": 60,
+              "priorMax": 203700,
+              "previousRhAmount": 203700,
+              "previousRhDate": "2025-04-25"
+            },
+            {
+              "dealDate": "2025-10-09",
+              "amount": 239500,
+              "exclusiveArea": 60,
+              "priorMax": 220000,
+              "previousRhAmount": 220000,
+              "previousRhDate": "2025-06-25"
+            },
+            {
+              "dealDate": "2026-01-09",
+              "amount": 242000,
+              "exclusiveArea": 60,
+              "priorMax": 239500,
+              "previousRhAmount": 239500,
+              "previousRhDate": "2025-10-09"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11170-2016-10-29-한강(대우)-이촌동-15-79500-60-35",
+              "dealDate": "2016-10-29",
+              "amount": 79500,
+              "exclusiveArea": 60,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11170-2017-04-26-한강(대우)-이촌동-17-75500-60-26",
+              "dealDate": "2017-04-26",
+              "amount": 75500,
+              "exclusiveArea": 60,
+              "priorMax": 79500,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 79500,
+              "previousRecordHighDate": "2016-10-29"
+            },
+            {
+              "id": "trade-11170-2025-06-25-한강(대우)-이촌동-16-220000-60-35",
+              "dealDate": "2025-06-25",
+              "amount": 220000,
+              "exclusiveArea": 60,
+              "priorMax": 203700,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 203700,
+              "previousRecordHighDate": "2025-04-25"
+            },
+            {
+              "id": "trade-11170-2025-10-09-한강(대우)-이촌동-20-239500-60-81",
+              "dealDate": "2025-10-09",
+              "amount": 239500,
+              "exclusiveArea": 60,
+              "priorMax": 220000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 220000,
+              "previousRecordHighDate": "2025-06-25"
+            },
+            {
+              "id": "trade-11170-2026-01-09-한강(대우)-이촌동-7-242000-60-81",
+              "dealDate": "2026-01-09",
+              "amount": 242000,
+              "exclusiveArea": 60,
+              "priorMax": 239500,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 239500,
+              "previousRecordHighDate": "2025-10-09"
+            }
+          ]
+        },
+        {
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "label": "33평형",
+          "exclusiveAreaMin": 84.94,
+          "exclusiveAreaMax": 84.98,
+          "exclusiveAreaCount": 2,
+          "exclusiveAreas": [
+            84.94,
+            84.98
+          ],
+          "tradeCount": 118,
+          "marketGroupFirstInclude": 28,
+          "marketGroupFirstExclude": 27,
+          "exclusivePriorExceedInGroup": 28,
+          "exclusiveAllTimeMaxInGroup": 2,
+          "inflationVsExclusivePrior": -1,
+          "recordHighRateFirstExclude": 22.9,
+          "sameDayMultiExceedCases": 1,
+          "firstDealDate": "2017-03-30",
+          "lastDealDate": "2026-05-21",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-03-14",
+              "amount": 240000,
+              "exclusiveArea": 84.98,
+              "priorMax": 238000,
+              "previousRhAmount": 238000,
+              "previousRhDate": "2022-04-15"
+            },
+            {
+              "dealDate": "2025-03-21",
+              "amount": 250000,
+              "exclusiveArea": 84.98,
+              "priorMax": 240000,
+              "previousRhAmount": 240000,
+              "previousRhDate": "2025-03-14"
+            },
+            {
+              "dealDate": "2025-07-08",
+              "amount": 271000,
+              "exclusiveArea": 84.98,
+              "priorMax": 250000,
+              "previousRhAmount": 250000,
+              "previousRhDate": "2025-03-21"
+            },
+            {
+              "dealDate": "2025-07-08",
+              "amount": 271000,
+              "exclusiveArea": 84.98,
+              "priorMax": 250000,
+              "previousRhAmount": 250000,
+              "previousRhDate": "2025-03-21"
+            },
+            {
+              "dealDate": "2025-07-12",
+              "amount": 288000,
+              "exclusiveArea": 84.98,
+              "priorMax": 271000,
+              "previousRhAmount": 271000,
+              "previousRhDate": "2025-07-08"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11170-2017-03-30-한강(대우)-이촌동-13-89500-84.98-132",
+              "dealDate": "2017-03-30",
+              "amount": 89500,
+              "exclusiveArea": 84.98,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11170-2017-04-04-한강(대우)-이촌동-14-90000-84.98-83",
+              "dealDate": "2017-04-04",
+              "amount": 90000,
+              "exclusiveArea": 84.98,
+              "priorMax": 89500,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 89500,
+              "previousRecordHighDate": "2017-03-30"
+            },
+            {
+              "id": "trade-11170-2025-07-08-한강(대우)-이촌동-19-271000-84.98-117",
+              "dealDate": "2025-07-08",
+              "amount": 271000,
+              "exclusiveArea": 84.98,
+              "priorMax": 250000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 250000,
+              "previousRecordHighDate": "2025-03-21"
+            },
+            {
+              "id": "trade-11170-2025-07-08-한강(대우)-이촌동-19-271000-84.98-132",
+              "dealDate": "2025-07-08",
+              "amount": 271000,
+              "exclusiveArea": 84.98,
+              "priorMax": 250000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 250000,
+              "previousRecordHighDate": "2025-03-21"
+            },
+            {
+              "id": "trade-11170-2025-07-12-한강(대우)-이촌동-10-288000-84.98-106",
+              "dealDate": "2025-07-12",
+              "amount": 288000,
+              "exclusiveArea": 84.98,
+              "priorMax": 271000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 271000,
+              "previousRecordHighDate": "2025-07-08"
+            }
+          ]
+        },
+        {
+          "groupKey": "hangang-daewoo:G3:ex134.13-134.13",
+          "label": "49평형",
+          "exclusiveAreaMin": 134.13,
+          "exclusiveAreaMax": 134.13,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            134.13
+          ],
+          "tradeCount": 38,
+          "marketGroupFirstInclude": 20,
+          "marketGroupFirstExclude": 19,
+          "exclusivePriorExceedInGroup": 19,
+          "exclusiveAllTimeMaxInGroup": 1,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 50,
+          "sameDayMultiExceedCases": 0,
+          "firstDealDate": "2016-10-30",
+          "lastDealDate": "2026-08-05",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2021-06-26",
+              "amount": 250000,
+              "exclusiveArea": 134.13,
+              "priorMax": 230000,
+              "previousRhAmount": 230000,
+              "previousRhDate": "2021-05-24"
+            },
+            {
+              "dealDate": "2021-09-06",
+              "amount": 269000,
+              "exclusiveArea": 134.13,
+              "priorMax": 250000,
+              "previousRhAmount": 250000,
+              "previousRhDate": "2021-06-26"
+            },
+            {
+              "dealDate": "2022-06-20",
+              "amount": 277000,
+              "exclusiveArea": 134.13,
+              "priorMax": 269000,
+              "previousRhAmount": 269000,
+              "previousRhDate": "2021-09-06"
+            },
+            {
+              "dealDate": "2025-03-18",
+              "amount": 300000,
+              "exclusiveArea": 134.13,
+              "priorMax": 277000,
+              "previousRhAmount": 277000,
+              "previousRhDate": "2022-06-20"
+            },
+            {
+              "dealDate": "2025-12-05",
+              "amount": 330000,
+              "exclusiveArea": 134.13,
+              "priorMax": 300000,
+              "previousRhAmount": 300000,
+              "previousRhDate": "2025-03-18"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11170-2016-10-30-한강(대우)-이촌동-7-122000-134.13-107",
+              "dealDate": "2016-10-30",
+              "amount": 122000,
+              "exclusiveArea": 134.13,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11170-2017-02-08-한강(대우)-이촌동-2-103000-134.13-101",
+              "dealDate": "2017-02-08",
+              "amount": 103000,
+              "exclusiveArea": 134.13,
+              "priorMax": 122000,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 122000,
+              "previousRecordHighDate": "2016-10-30"
+            },
+            {
+              "id": "trade-11170-2022-06-20-한강(대우)-이촌동-3-277000-134.13-7",
+              "dealDate": "2022-06-20",
+              "amount": 277000,
+              "exclusiveArea": 134.13,
+              "priorMax": 269000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 269000,
+              "previousRecordHighDate": "2021-09-06"
+            },
+            {
+              "id": "trade-11170-2025-03-18-한강(대우)-이촌동-18-300000-134.13-7",
+              "dealDate": "2025-03-18",
+              "amount": 300000,
+              "exclusiveArea": 134.13,
+              "priorMax": 277000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 277000,
+              "previousRecordHighDate": "2022-06-20"
+            },
+            {
+              "id": "trade-11170-2025-12-05-한강(대우)-이촌동-12-330000-134.13-59",
+              "dealDate": "2025-12-05",
+              "amount": 330000,
+              "exclusiveArea": 134.13,
+              "priorMax": 300000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 300000,
+              "previousRecordHighDate": "2025-03-18"
+            }
+          ]
+        },
+        {
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "label": "50평형",
+          "exclusiveAreaMin": 135.27,
+          "exclusiveAreaMax": 135.87,
+          "exclusiveAreaCount": 3,
+          "exclusiveAreas": [
+            135.27,
+            135.5,
+            135.87
+          ],
+          "tradeCount": 24,
+          "marketGroupFirstInclude": 12,
+          "marketGroupFirstExclude": 11,
+          "exclusivePriorExceedInGroup": 13,
+          "exclusiveAllTimeMaxInGroup": 4,
+          "inflationVsExclusivePrior": -2,
+          "recordHighRateFirstExclude": 45.8,
+          "sameDayMultiExceedCases": 0,
+          "firstDealDate": "2016-12-06",
+          "lastDealDate": "2026-06-13",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2018-08-08",
+              "amount": 167000,
+              "exclusiveArea": 135.87,
+              "priorMax": 165000,
+              "previousRhAmount": 165000,
+              "previousRhDate": "2018-07-31"
+            },
+            {
+              "dealDate": "2020-06-30",
+              "amount": 180000,
+              "exclusiveArea": 135.5,
+              "priorMax": 167000,
+              "previousRhAmount": 167000,
+              "previousRhDate": "2018-08-08"
+            },
+            {
+              "dealDate": "2021-07-08",
+              "amount": 243000,
+              "exclusiveArea": 135.5,
+              "priorMax": 180000,
+              "previousRhAmount": 180000,
+              "previousRhDate": "2020-06-30"
+            },
+            {
+              "dealDate": "2024-08-07",
+              "amount": 275000,
+              "exclusiveArea": 135.5,
+              "priorMax": 243000,
+              "previousRhAmount": 243000,
+              "previousRhDate": "2021-07-08"
+            },
+            {
+              "dealDate": "2026-01-06",
+              "amount": 337400,
+              "exclusiveArea": 135.5,
+              "priorMax": 275000,
+              "previousRhAmount": 275000,
+              "previousRhDate": "2024-08-07"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11170-2016-12-06-한강(대우)-이촌동-11-115000-135.87-62",
+              "dealDate": "2016-12-06",
+              "amount": 115000,
+              "exclusiveArea": 135.87,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11170-2017-03-06-한강(대우)-이촌동-15-116000-135.87-143",
+              "dealDate": "2017-03-06",
+              "amount": 116000,
+              "exclusiveArea": 135.87,
+              "priorMax": 115000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 115000,
+              "previousRecordHighDate": "2016-12-06"
+            },
+            {
+              "id": "trade-11170-2021-07-08-한강(대우)-이촌동-24-243000-135.5-58",
+              "dealDate": "2021-07-08",
+              "amount": 243000,
+              "exclusiveArea": 135.5,
+              "priorMax": 180000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 180000,
+              "previousRecordHighDate": "2020-06-30"
+            },
+            {
+              "id": "trade-11170-2024-08-07-한강(대우)-이촌동-23-275000-135.5-89",
+              "dealDate": "2024-08-07",
+              "amount": 275000,
+              "exclusiveArea": 135.5,
+              "priorMax": 243000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 243000,
+              "previousRecordHighDate": "2021-07-08"
+            },
+            {
+              "id": "trade-11170-2026-01-06-한강(대우)-이촌동-11-337400-135.5-50",
+              "dealDate": "2026-01-06",
+              "amount": 337400,
+              "exclusiveArea": 135.5,
+              "priorMax": 275000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 275000,
+              "previousRecordHighDate": "2024-08-07"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "complexKey": "parkrio",
+      "aptNameNorm": "파크리오",
+      "displayName": "파크리오",
+      "classification": "auto-safe",
+      "singogaMode": "market_group",
+      "occupancyYear": 2008,
+      "warehouseFirstDealDate": "2016-10-01",
+      "warehouseLastDealDate": "2026-08-20",
+      "historyGapYears": 8,
+      "historyCompleteness": "low_confidence_early_window",
+      "totalTrades": 2661,
+      "marketGroupCount": 5,
+      "exclusiveAreaCount": 9,
+      "recordHigh": {
+        "marketGroupFirstInclude": 234,
+        "marketGroupFirstExclude": 227,
+        "productionMarkSingogaMarketGroupPriorExceed": 227,
+        "exclusivePriorExceed": 361,
+        "exclusiveAllTimeMaxEquality": 11,
+        "phase5ReportedFirstExclude": 227,
+        "matchesProductionCode": true,
+        "matchesPhase5Report": true,
+        "inflationVsExclusivePrior": -134,
+        "inflationVsExclusiveAllTime": 216,
+        "firstIncludeRate": 8.8,
+        "firstExcludeRate": 8.5
+      },
+      "inflationDecompositionNote": "Market-group prior-exceed counts every exceed of the group's shared max. Exclusive prior-exceed requires exceed within each exact area — merging areas multiplies 신고가 events because a mid-size trade can beat a smaller sibling area's history without beating its own area max.",
+      "sameDayMultiExceedCaseCount": 15,
+      "sameDayMultiExceedCases": [
+        {
+          "groupKey": "parkrio:G1:ex35.24-35.24",
+          "groupLabel": "16평형",
+          "dealDate": "2017-10-23",
+          "priorMax": 61900,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2017-10-23-파크리오-신천동-21-64000-35.24-274",
+              "amount": 64000,
+              "exclusiveArea": 35.24
+            },
+            {
+              "id": "trade-11710-2017-10-23-파크리오-신천동-8-62000-35.24-310",
+              "amount": 62000,
+              "exclusiveArea": 35.24
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "groupLabel": "26평형",
+          "dealDate": "2016-10-06",
+          "priorMax": 82000,
+          "exceedCount": 3,
+          "trades": [
+            {
+              "id": "trade-11710-2016-10-06-파크리오-신천동-14-86500-59.95-344",
+              "amount": 86500,
+              "exclusiveArea": 59.95
+            },
+            {
+              "id": "trade-11710-2016-10-06-파크리오-신천동-14-88800-59.86-345",
+              "amount": 88800,
+              "exclusiveArea": 59.86
+            },
+            {
+              "id": "trade-11710-2016-10-06-파크리오-신천동-3-82750-59.86-590",
+              "amount": 82750,
+              "exclusiveArea": 59.86
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "groupLabel": "26평형",
+          "dealDate": "2018-01-08",
+          "priorMax": 112000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2018-01-08-파크리오-신천동-13-114500-59.95-791",
+              "amount": 114500,
+              "exclusiveArea": 59.95
+            },
+            {
+              "id": "trade-11710-2018-01-08-파크리오-신천동-22-115000-59.95-742",
+              "amount": 115000,
+              "exclusiveArea": 59.95
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "groupLabel": "26평형",
+          "dealDate": "2019-12-14",
+          "priorMax": 155000,
+          "exceedCount": 5,
+          "trades": [
+            {
+              "id": "trade-11710-2019-12-14-파크리오-신천동-11-160000-59.86-430",
+              "amount": 160000,
+              "exclusiveArea": 59.86
+            },
+            {
+              "id": "trade-11710-2019-12-14-파크리오-신천동-11-162000-59.86-64",
+              "amount": 162000,
+              "exclusiveArea": 59.86
+            },
+            {
+              "id": "trade-11710-2019-12-14-파크리오-신천동-16-160200-59.95-189",
+              "amount": 160200,
+              "exclusiveArea": 59.95
+            },
+            {
+              "id": "trade-11710-2019-12-14-파크리오-신천동-6-157000-59.95-87",
+              "amount": 157000,
+              "exclusiveArea": 59.95
+            },
+            {
+              "id": "trade-11710-2019-12-14-파크리오-신천동-8-158000-59.95-84",
+              "amount": 158000,
+              "exclusiveArea": 59.95
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "groupLabel": "26평형",
+          "dealDate": "2025-02-22",
+          "priorMax": 212000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2025-02-22-파크리오-신천동-15-220000-59.95-157",
+              "amount": 220000,
+              "exclusiveArea": 59.95
+            },
+            {
+              "id": "trade-11710-2025-02-22-파크리오-신천동-21-213800-59.95-446",
+              "amount": 213800,
+              "exclusiveArea": 59.95
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "groupLabel": "26평형",
+          "dealDate": "2025-03-08",
+          "priorMax": 220000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2025-03-08-파크리오-신천동-15-229000-59.86-400",
+              "amount": 229000,
+              "exclusiveArea": 59.86
+            },
+            {
+              "id": "trade-11710-2025-03-08-파크리오-신천동-16-227000-59.95-22",
+              "amount": 227000,
+              "exclusiveArea": 59.95
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "groupLabel": "26평형",
+          "dealDate": "2025-06-27",
+          "priorMax": 244000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2025-06-27-파크리오-신천동-4-250000-59.95-194",
+              "amount": 250000,
+              "exclusiveArea": 59.95
+            },
+            {
+              "id": "trade-11710-2025-06-27-파크리오-신천동-9-264000-59.95-244",
+              "amount": 264000,
+              "exclusiveArea": 59.95
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "groupLabel": "33평형",
+          "dealDate": "2016-10-04",
+          "priorMax": 96000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2016-10-04-파크리오-신천동-17-99000-84.79-567",
+              "amount": 99000,
+              "exclusiveArea": 84.79
+            },
+            {
+              "id": "trade-11710-2016-10-04-파크리오-신천동-19-100000-84.79-836",
+              "amount": 100000,
+              "exclusiveArea": 84.79
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "groupLabel": "33평형",
+          "dealDate": "2018-01-13",
+          "priorMax": 140000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2018-01-13-파크리오-신천동-11-141000-84.97-809",
+              "amount": 141000,
+              "exclusiveArea": 84.97
+            },
+            {
+              "id": "trade-11710-2018-01-13-파크리오-신천동-31-142400-84.79-213",
+              "amount": 142400,
+              "exclusiveArea": 84.79
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "groupLabel": "33평형",
+          "dealDate": "2019-07-06",
+          "priorMax": 160000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2019-07-06-파크리오-신천동-25-164000-84.97-462",
+              "amount": 164000,
+              "exclusiveArea": 84.97
+            },
+            {
+              "id": "trade-11710-2019-07-06-파크리오-신천동-29-161000-84.79-282",
+              "amount": 161000,
+              "exclusiveArea": 84.79
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "groupLabel": "33평형",
+          "dealDate": "2025-02-28",
+          "priorMax": 260000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2025-02-28-파크리오-신천동-21-270500-84.97-42",
+              "amount": 270500,
+              "exclusiveArea": 84.97
+            },
+            {
+              "id": "trade-11710-2025-02-28-파크리오-신천동-26-267000-84.79-57",
+              "amount": 267000,
+              "exclusiveArea": 84.79
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "groupLabel": "45평형",
+          "dealDate": "2018-01-24",
+          "priorMax": 163000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2018-01-24-파크리오-신천동-27-165000-121.63-246",
+              "amount": 165000,
+              "exclusiveArea": 121.63
+            },
+            {
+              "id": "trade-11710-2018-01-24-파크리오-신천동-27-167000-121.63-464",
+              "amount": 167000,
+              "exclusiveArea": 121.63
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "groupLabel": "45평형",
+          "dealDate": "2025-03-22",
+          "priorMax": 300000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2025-03-22-파크리오-신천동-14-303000-121.63-96",
+              "amount": 303000,
+              "exclusiveArea": 121.63
+            },
+            {
+              "id": "trade-11710-2025-03-22-파크리오-신천동-17-304000-121.63-34",
+              "amount": 304000,
+              "exclusiveArea": 121.63
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G5:ex144.77-144.77",
+          "groupLabel": "53평형",
+          "dealDate": "2018-01-10",
+          "priorMax": 171000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2018-01-10-파크리오-신천동-10-179500-144.77-199",
+              "amount": 179500,
+              "exclusiveArea": 144.77
+            },
+            {
+              "id": "trade-11710-2018-01-10-파크리오-신천동-18-183000-144.77-625",
+              "amount": 183000,
+              "exclusiveArea": 144.77
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G5:ex144.77-144.77",
+          "groupLabel": "53평형",
+          "dealDate": "2019-10-05",
+          "priorMax": 215000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2019-10-05-파크리오-신천동-25-220000-144.77-474",
+              "amount": 220000,
+              "exclusiveArea": 144.77
+            },
+            {
+              "id": "trade-11710-2019-10-05-파크리오-신천동-26-224000-144.77-653",
+              "amount": 224000,
+              "exclusiveArea": 144.77
+            }
+          ]
+        }
+      ],
+      "earlyWindowRecordHighsFirstMonth": [
+        {
+          "groupLabel": "16평형",
+          "dealDate": "2017-02-24",
+          "amount": 54000,
+          "priorMax": 53500
+        },
+        {
+          "groupLabel": "26평형",
+          "dealDate": "2016-10-06",
+          "amount": 86500,
+          "priorMax": 82000
+        },
+        {
+          "groupLabel": "26평형",
+          "dealDate": "2016-10-06",
+          "amount": 88800,
+          "priorMax": 82000
+        },
+        {
+          "groupLabel": "26평형",
+          "dealDate": "2016-10-06",
+          "amount": 82750,
+          "priorMax": 82000
+        },
+        {
+          "groupLabel": "26평형",
+          "dealDate": "2016-10-21",
+          "amount": 89000,
+          "priorMax": 88800
+        },
+        {
+          "groupLabel": "33평형",
+          "dealDate": "2016-10-04",
+          "amount": 99000,
+          "priorMax": 96000
+        },
+        {
+          "groupLabel": "33평형",
+          "dealDate": "2016-10-04",
+          "amount": 100000,
+          "priorMax": 96000
+        },
+        {
+          "groupLabel": "33평형",
+          "dealDate": "2016-10-08",
+          "amount": 104000,
+          "priorMax": 100000
+        },
+        {
+          "groupLabel": "33평형",
+          "dealDate": "2016-10-09",
+          "amount": 110000,
+          "priorMax": 104000
+        },
+        {
+          "groupLabel": "53평형",
+          "dealDate": "2016-10-06",
+          "amount": 140000,
+          "priorMax": 139800
+        },
+        {
+          "groupLabel": "53평형",
+          "dealDate": "2016-10-17",
+          "amount": 159500,
+          "priorMax": 140000
+        }
+      ],
+      "groups": [
+        {
+          "groupKey": "parkrio:G1:ex35.24-35.24",
+          "label": "16평형",
+          "exclusiveAreaMin": 35.24,
+          "exclusiveAreaMax": 35.24,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            35.24
+          ],
+          "tradeCount": 201,
+          "marketGroupFirstInclude": 32,
+          "marketGroupFirstExclude": 31,
+          "exclusivePriorExceedInGroup": 31,
+          "exclusiveAllTimeMaxInGroup": 1,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 15.4,
+          "sameDayMultiExceedCases": 1,
+          "firstDealDate": "2017-02-06",
+          "lastDealDate": "2026-07-13",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-05-17",
+              "amount": 108000,
+              "exclusiveArea": 35.24,
+              "priorMax": 106000,
+              "previousRhAmount": 106000,
+              "previousRhDate": "2025-03-23"
+            },
+            {
+              "dealDate": "2025-09-22",
+              "amount": 110000,
+              "exclusiveArea": 35.24,
+              "priorMax": 108000,
+              "previousRhAmount": 108000,
+              "previousRhDate": "2025-05-17"
+            },
+            {
+              "dealDate": "2025-09-27",
+              "amount": 112500,
+              "exclusiveArea": 35.24,
+              "priorMax": 110000,
+              "previousRhAmount": 110000,
+              "previousRhDate": "2025-09-22"
+            },
+            {
+              "dealDate": "2026-01-20",
+              "amount": 140000,
+              "exclusiveArea": 35.24,
+              "priorMax": 112500,
+              "previousRhAmount": 112500,
+              "previousRhDate": "2025-09-27"
+            },
+            {
+              "dealDate": "2026-03-19",
+              "amount": 155000,
+              "exclusiveArea": 35.24,
+              "priorMax": 140000,
+              "previousRhAmount": 140000,
+              "previousRhDate": "2026-01-20"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2017-02-06-파크리오-신천동-18-53500-35.24-393",
+              "dealDate": "2017-02-06",
+              "amount": 53500,
+              "exclusiveArea": 35.24,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2017-02-24-파크리오-신천동-6-54000-35.24-355",
+              "dealDate": "2017-02-24",
+              "amount": 54000,
+              "exclusiveArea": 35.24,
+              "priorMax": 53500,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 53500,
+              "previousRecordHighDate": "2017-02-06"
+            },
+            {
+              "id": "trade-11710-2025-09-27-파크리오-신천동-10-112500-35.24-149",
+              "dealDate": "2025-09-27",
+              "amount": 112500,
+              "exclusiveArea": 35.24,
+              "priorMax": 110000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 110000,
+              "previousRecordHighDate": "2025-09-22"
+            },
+            {
+              "id": "trade-11710-2026-01-20-파크리오-신천동-17-9-140000-0-35.24",
+              "dealDate": "2026-01-20",
+              "amount": 140000,
+              "exclusiveArea": 35.24,
+              "priorMax": 112500,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 112500,
+              "previousRecordHighDate": "2025-09-27"
+            },
+            {
+              "id": "trade-11710-2026-03-19-파크리오-신천동-17-16-155000-0-35.24",
+              "dealDate": "2026-03-19",
+              "amount": 155000,
+              "exclusiveArea": 35.24,
+              "priorMax": 140000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 140000,
+              "previousRecordHighDate": "2026-01-20"
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "label": "26평형",
+          "exclusiveAreaMin": 59.64,
+          "exclusiveAreaMax": 59.95,
+          "exclusiveAreaCount": 3,
+          "exclusiveAreas": [
+            59.64,
+            59.86,
+            59.95
+          ],
+          "tradeCount": 505,
+          "marketGroupFirstInclude": 70,
+          "marketGroupFirstExclude": 69,
+          "exclusivePriorExceedInGroup": 115,
+          "exclusiveAllTimeMaxInGroup": 5,
+          "inflationVsExclusivePrior": -46,
+          "recordHighRateFirstExclude": 13.7,
+          "sameDayMultiExceedCases": 6,
+          "firstDealDate": "2016-10-01",
+          "lastDealDate": "2026-08-20",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-06-27",
+              "amount": 264000,
+              "exclusiveArea": 59.95,
+              "priorMax": 244000,
+              "previousRhAmount": 244000,
+              "previousRhDate": "2025-06-10"
+            },
+            {
+              "dealDate": "2025-10-13",
+              "amount": 266000,
+              "exclusiveArea": 59.86,
+              "priorMax": 264000,
+              "previousRhAmount": 264000,
+              "previousRhDate": "2025-06-27"
+            },
+            {
+              "dealDate": "2025-10-20",
+              "amount": 270000,
+              "exclusiveArea": 59.95,
+              "priorMax": 266000,
+              "previousRhAmount": 266000,
+              "previousRhDate": "2025-10-13"
+            },
+            {
+              "dealDate": "2025-10-28",
+              "amount": 275000,
+              "exclusiveArea": 59.64,
+              "priorMax": 270000,
+              "previousRhAmount": 270000,
+              "previousRhDate": "2025-10-20"
+            },
+            {
+              "dealDate": "2025-10-31",
+              "amount": 280000,
+              "exclusiveArea": 59.95,
+              "priorMax": 275000,
+              "previousRhAmount": 275000,
+              "previousRhDate": "2025-10-28"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2016-10-01-파크리오-신천동-3-82000-59.86-757",
+              "dealDate": "2016-10-01",
+              "amount": 82000,
+              "exclusiveArea": 59.86,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2016-10-06-파크리오-신천동-14-86500-59.95-344",
+              "dealDate": "2016-10-06",
+              "amount": 86500,
+              "exclusiveArea": 59.95,
+              "priorMax": 82000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 82000,
+              "previousRecordHighDate": "2016-10-01"
+            },
+            {
+              "id": "trade-11710-2025-10-20-파크리오-신천동-17-5-270000-0-59.95",
+              "dealDate": "2025-10-20",
+              "amount": 270000,
+              "exclusiveArea": 59.95,
+              "priorMax": 266000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 266000,
+              "previousRecordHighDate": "2025-10-13"
+            },
+            {
+              "id": "trade-11710-2025-10-28-파크리오-신천동-17-11-275000-0-59.64",
+              "dealDate": "2025-10-28",
+              "amount": 275000,
+              "exclusiveArea": 59.64,
+              "priorMax": 270000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 270000,
+              "previousRecordHighDate": "2025-10-20"
+            },
+            {
+              "id": "trade-11710-2025-10-31-파크리오-신천동-17-8-280000-0-59.95",
+              "dealDate": "2025-10-31",
+              "amount": 280000,
+              "exclusiveArea": 59.95,
+              "priorMax": 275000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 275000,
+              "previousRecordHighDate": "2025-10-28"
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "label": "33평형",
+          "exclusiveAreaMin": 84.79,
+          "exclusiveAreaMax": 84.97,
+          "exclusiveAreaCount": 3,
+          "exclusiveAreas": [
+            84.79,
+            84.9,
+            84.97
+          ],
+          "tradeCount": 1496,
+          "marketGroupFirstInclude": 57,
+          "marketGroupFirstExclude": 55,
+          "exclusivePriorExceedInGroup": 143,
+          "exclusiveAllTimeMaxInGroup": 3,
+          "inflationVsExclusivePrior": -88,
+          "recordHighRateFirstExclude": 3.7,
+          "sameDayMultiExceedCases": 4,
+          "firstDealDate": "2016-10-01",
+          "lastDealDate": "2026-07-28",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-07-16",
+              "amount": 300000,
+              "exclusiveArea": 84.79,
+              "priorMax": 298000,
+              "previousRhAmount": 298000,
+              "previousRhDate": "2025-07-11"
+            },
+            {
+              "dealDate": "2025-09-25",
+              "amount": 309000,
+              "exclusiveArea": 84.97,
+              "priorMax": 300000,
+              "previousRhAmount": 300000,
+              "previousRhDate": "2025-07-16"
+            },
+            {
+              "dealDate": "2025-10-28",
+              "amount": 310000,
+              "exclusiveArea": 84.79,
+              "priorMax": 309000,
+              "previousRhAmount": 309000,
+              "previousRhDate": "2025-09-25"
+            },
+            {
+              "dealDate": "2025-11-17",
+              "amount": 315000,
+              "exclusiveArea": 84.79,
+              "priorMax": 310000,
+              "previousRhAmount": 310000,
+              "previousRhDate": "2025-10-28"
+            },
+            {
+              "dealDate": "2026-01-26",
+              "amount": 322000,
+              "exclusiveArea": 84.97,
+              "priorMax": 315000,
+              "previousRhAmount": 315000,
+              "previousRhDate": "2025-11-17"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2016-10-01-파크리오-신천동-4-96000-84.9-327",
+              "dealDate": "2016-10-01",
+              "amount": 96000,
+              "exclusiveArea": 84.9,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2016-10-01-파크리오-신천동-5-90000-84.9-848",
+              "dealDate": "2016-10-01",
+              "amount": 90000,
+              "exclusiveArea": 84.9,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2025-10-28-파크리오-신천동-17-16-310000-0-84.79",
+              "dealDate": "2025-10-28",
+              "amount": 310000,
+              "exclusiveArea": 84.79,
+              "priorMax": 309000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 309000,
+              "previousRecordHighDate": "2025-09-25"
+            },
+            {
+              "id": "trade-11710-2025-11-17-파크리오-신천동-17-16-315000-0-84.79",
+              "dealDate": "2025-11-17",
+              "amount": 315000,
+              "exclusiveArea": 84.79,
+              "priorMax": 310000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 310000,
+              "previousRecordHighDate": "2025-10-28"
+            },
+            {
+              "id": "trade-11710-2026-01-26-파크리오-신천동-17-20-322000-0-84.97",
+              "dealDate": "2026-01-26",
+              "amount": 322000,
+              "exclusiveArea": 84.97,
+              "priorMax": 315000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 315000,
+              "previousRecordHighDate": "2025-11-17"
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "label": "45평형",
+          "exclusiveAreaMin": 121.63,
+          "exclusiveAreaMax": 121.63,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            121.63
+          ],
+          "tradeCount": 240,
+          "marketGroupFirstInclude": 44,
+          "marketGroupFirstExclude": 42,
+          "exclusivePriorExceedInGroup": 42,
+          "exclusiveAllTimeMaxInGroup": 1,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 17.5,
+          "sameDayMultiExceedCases": 2,
+          "firstDealDate": "2016-10-07",
+          "lastDealDate": "2026-05-18",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-09-12",
+              "amount": 333000,
+              "exclusiveArea": 121.63,
+              "priorMax": 328000,
+              "previousRhAmount": 328000,
+              "previousRhDate": "2025-06-27"
+            },
+            {
+              "dealDate": "2025-10-13",
+              "amount": 336000,
+              "exclusiveArea": 121.63,
+              "priorMax": 333000,
+              "previousRhAmount": 333000,
+              "previousRhDate": "2025-09-12"
+            },
+            {
+              "dealDate": "2025-10-30",
+              "amount": 358000,
+              "exclusiveArea": 121.63,
+              "priorMax": 336000,
+              "previousRhAmount": 336000,
+              "previousRhDate": "2025-10-13"
+            },
+            {
+              "dealDate": "2026-01-21",
+              "amount": 371500,
+              "exclusiveArea": 121.63,
+              "priorMax": 358000,
+              "previousRhAmount": 358000,
+              "previousRhDate": "2025-10-30"
+            },
+            {
+              "dealDate": "2026-02-05",
+              "amount": 372000,
+              "exclusiveArea": 121.63,
+              "priorMax": 371500,
+              "previousRhAmount": 371500,
+              "previousRhDate": "2026-01-21"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2016-10-07-파크리오-신천동-27-131000-121.63-96",
+              "dealDate": "2016-10-07",
+              "amount": 131000,
+              "exclusiveArea": 121.63,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2016-10-07-파크리오-신천동-28-135000-121.63-369",
+              "dealDate": "2016-10-07",
+              "amount": 135000,
+              "exclusiveArea": 121.63,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2025-10-30-파크리오-신천동-17-23-358000-0-121.63",
+              "dealDate": "2025-10-30",
+              "amount": 358000,
+              "exclusiveArea": 121.63,
+              "priorMax": 336000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 336000,
+              "previousRecordHighDate": "2025-10-13"
+            },
+            {
+              "id": "trade-11710-2026-01-21-파크리오-신천동-17-14-371500-0-121.63",
+              "dealDate": "2026-01-21",
+              "amount": 371500,
+              "exclusiveArea": 121.63,
+              "priorMax": 358000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 358000,
+              "previousRecordHighDate": "2025-10-30"
+            },
+            {
+              "id": "trade-11710-2026-02-05-파크리오-신천동-17-17-372000-0-121.63",
+              "dealDate": "2026-02-05",
+              "amount": 372000,
+              "exclusiveArea": 121.63,
+              "priorMax": 371500,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 371500,
+              "previousRecordHighDate": "2026-01-21"
+            }
+          ]
+        },
+        {
+          "groupKey": "parkrio:G5:ex144.77-144.77",
+          "label": "53평형",
+          "exclusiveAreaMin": 144.77,
+          "exclusiveAreaMax": 144.77,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            144.77
+          ],
+          "tradeCount": 219,
+          "marketGroupFirstInclude": 31,
+          "marketGroupFirstExclude": 30,
+          "exclusivePriorExceedInGroup": 30,
+          "exclusiveAllTimeMaxInGroup": 1,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 13.7,
+          "sameDayMultiExceedCases": 2,
+          "firstDealDate": "2016-10-01",
+          "lastDealDate": "2026-07-11",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2021-09-04",
+              "amount": 310000,
+              "exclusiveArea": 144.77,
+              "priorMax": 302000,
+              "previousRhAmount": 302000,
+              "previousRhDate": "2021-08-14"
+            },
+            {
+              "dealDate": "2021-10-01",
+              "amount": 320000,
+              "exclusiveArea": 144.77,
+              "priorMax": 310000,
+              "previousRhAmount": 310000,
+              "previousRhDate": "2021-09-04"
+            },
+            {
+              "dealDate": "2021-10-10",
+              "amount": 330000,
+              "exclusiveArea": 144.77,
+              "priorMax": 320000,
+              "previousRhAmount": 320000,
+              "previousRhDate": "2021-10-01"
+            },
+            {
+              "dealDate": "2025-06-27",
+              "amount": 341000,
+              "exclusiveArea": 144.77,
+              "priorMax": 330000,
+              "previousRhAmount": 330000,
+              "previousRhDate": "2021-10-10"
+            },
+            {
+              "dealDate": "2025-07-14",
+              "amount": 385000,
+              "exclusiveArea": 144.77,
+              "priorMax": 341000,
+              "previousRhAmount": 341000,
+              "previousRhDate": "2025-06-27"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2016-10-01-파크리오-신천동-7-139800-144.77-645",
+              "dealDate": "2016-10-01",
+              "amount": 139800,
+              "exclusiveArea": 144.77,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2016-10-06-파크리오-신천동-11-140000-144.77-313",
+              "dealDate": "2016-10-06",
+              "amount": 140000,
+              "exclusiveArea": 144.77,
+              "priorMax": 139800,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 139800,
+              "previousRecordHighDate": "2016-10-01"
+            },
+            {
+              "id": "trade-11710-2021-10-10-파크리오-신천동-22-330000-144.77-73",
+              "dealDate": "2021-10-10",
+              "amount": 330000,
+              "exclusiveArea": 144.77,
+              "priorMax": 320000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 320000,
+              "previousRecordHighDate": "2021-10-01"
+            },
+            {
+              "id": "trade-11710-2025-06-27-파크리오-신천동-16-341000-144.77-570",
+              "dealDate": "2025-06-27",
+              "amount": 341000,
+              "exclusiveArea": 144.77,
+              "priorMax": 330000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 330000,
+              "previousRecordHighDate": "2021-10-10"
+            },
+            {
+              "id": "trade-11710-2025-07-14-파크리오-신천동-17-31-385000-0-144.77",
+              "dealDate": "2025-07-14",
+              "amount": 385000,
+              "exclusiveArea": 144.77,
+              "priorMax": 341000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 341000,
+              "previousRecordHighDate": "2025-06-27"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "complexKey": "banpo-xi",
+      "aptNameNorm": "반포자이",
+      "displayName": "반포자이",
+      "classification": "auto-safe",
+      "singogaMode": "market_group",
+      "occupancyYear": 2009,
+      "warehouseFirstDealDate": "2016-10-01",
+      "warehouseLastDealDate": "2026-09-08",
+      "historyGapYears": 7,
+      "historyCompleteness": "low_confidence_early_window",
+      "totalTrades": 1056,
+      "marketGroupCount": 7,
+      "exclusiveAreaCount": 15,
+      "recordHigh": {
+        "marketGroupFirstInclude": 199,
+        "marketGroupFirstExclude": 191,
+        "productionMarkSingogaMarketGroupPriorExceed": 191,
+        "exclusivePriorExceed": 306,
+        "exclusiveAllTimeMaxEquality": 17,
+        "phase5ReportedFirstExclude": 191,
+        "matchesProductionCode": true,
+        "matchesPhase5Report": true,
+        "inflationVsExclusivePrior": -115,
+        "inflationVsExclusiveAllTime": 174,
+        "firstIncludeRate": 18.8,
+        "firstExcludeRate": 18.1
+      },
+      "inflationDecompositionNote": "Market-group prior-exceed counts every exceed of the group's shared max. Exclusive prior-exceed requires exceed within each exact area — merging areas multiplies 신고가 events because a mid-size trade can beat a smaller sibling area's history without beating its own area max.",
+      "sameDayMultiExceedCaseCount": 3,
+      "sameDayMultiExceedCases": [
+        {
+          "groupKey": "banpo-xi:G1:ex59.97-59.98",
+          "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+          "dealDate": "2017-07-30",
+          "priorMax": 130000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11650-2017-07-30-반포자이-반포동-20-136000-59.98-68",
+              "amount": 136000,
+              "exclusiveArea": 59.98
+            },
+            {
+              "id": "trade-11650-2017-07-30-반포자이-반포동-27-134500-59.98-158",
+              "amount": 134500,
+              "exclusiveArea": 59.98
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "groupLabel": "35평형",
+          "dealDate": "2025-07-10",
+          "priorMax": 460000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11650-2025-07-10-반포자이-반포동-19-500000-84.943-33",
+              "amount": 500000,
+              "exclusiveArea": 84.943
+            },
+            {
+              "id": "trade-11650-2025-07-10-반포자이-반포동-4-475000-84.943-48",
+              "amount": 475000,
+              "exclusiveArea": 84.943
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G3:ex132.18-132.44",
+          "groupLabel": "50평형",
+          "dealDate": "2025-02-27",
+          "priorMax": 534000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11650-2025-02-27-반포자이-반포동-7-542000-132.439-124",
+              "amount": 542000,
+              "exclusiveArea": 132.439
+            },
+            {
+              "id": "trade-11650-2025-02-27-반포자이-반포동-7-542000-132.439-19",
+              "amount": 542000,
+              "exclusiveArea": 132.439
+            }
+          ]
+        }
+      ],
+      "earlyWindowRecordHighsFirstMonth": [
+        {
+          "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+          "dealDate": "2016-10-11",
+          "amount": 118000,
+          "priorMax": 108000
+        },
+        {
+          "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+          "dealDate": "2016-10-29",
+          "amount": 120000,
+          "priorMax": 118000
+        },
+        {
+          "groupLabel": "35평형",
+          "dealDate": "2016-10-14",
+          "amount": 168800,
+          "priorMax": 160000
+        },
+        {
+          "groupLabel": "60평형",
+          "dealDate": "2016-10-23",
+          "amount": 240000,
+          "priorMax": 227000
+        }
+      ],
+      "groups": [
+        {
+          "groupKey": "banpo-xi:G1:ex59.97-59.98",
+          "label": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+          "exclusiveAreaMin": 59.97,
+          "exclusiveAreaMax": 59.98,
+          "exclusiveAreaCount": 2,
+          "exclusiveAreas": [
+            59.97,
+            59.98
+          ],
+          "tradeCount": 174,
+          "marketGroupFirstInclude": 39,
+          "marketGroupFirstExclude": 38,
+          "exclusivePriorExceedInGroup": 50,
+          "exclusiveAllTimeMaxInGroup": 2,
+          "inflationVsExclusivePrior": -12,
+          "recordHighRateFirstExclude": 21.8,
+          "sameDayMultiExceedCases": 1,
+          "firstDealDate": "2016-10-09",
+          "lastDealDate": "2026-07-20",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2024-11-23",
+              "amount": 306000,
+              "exclusiveArea": 59.98,
+              "priorMax": 305000,
+              "previousRhAmount": 305000,
+              "previousRhDate": "2024-09-30"
+            },
+            {
+              "dealDate": "2025-02-16",
+              "amount": 325000,
+              "exclusiveArea": 59.98,
+              "priorMax": 306000,
+              "previousRhAmount": 306000,
+              "previousRhDate": "2024-11-23"
+            },
+            {
+              "dealDate": "2025-02-19",
+              "amount": 330000,
+              "exclusiveArea": 59.98,
+              "priorMax": 325000,
+              "previousRhAmount": 325000,
+              "previousRhDate": "2025-02-16"
+            },
+            {
+              "dealDate": "2025-06-25",
+              "amount": 370000,
+              "exclusiveArea": 59.98,
+              "priorMax": 330000,
+              "previousRhAmount": 330000,
+              "previousRhDate": "2025-02-19"
+            },
+            {
+              "dealDate": "2026-07-20",
+              "amount": 373000,
+              "exclusiveArea": 59.971,
+              "priorMax": 370000,
+              "previousRhAmount": 370000,
+              "previousRhDate": "2025-06-25"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11650-2016-10-09-반포자이-반포동-1-108000-59.98-271",
+              "dealDate": "2016-10-09",
+              "amount": 108000,
+              "exclusiveArea": 59.98,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2016-10-11-반포자이-반포동-23-118000-59.98-14",
+              "dealDate": "2016-10-11",
+              "amount": 118000,
+              "exclusiveArea": 59.98,
+              "priorMax": 108000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 108000,
+              "previousRecordHighDate": "2016-10-09"
+            },
+            {
+              "id": "trade-11650-2025-02-19-반포자이-반포동-6-330000-59.98-97",
+              "dealDate": "2025-02-19",
+              "amount": 330000,
+              "exclusiveArea": 59.98,
+              "priorMax": 325000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 325000,
+              "previousRecordHighDate": "2025-02-16"
+            },
+            {
+              "id": "trade-11650-2025-06-25-반포자이-반포동-10-370000-59.98-23",
+              "dealDate": "2025-06-25",
+              "amount": 370000,
+              "exclusiveArea": 59.98,
+              "priorMax": 330000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 330000,
+              "previousRecordHighDate": "2025-02-19"
+            },
+            {
+              "id": "trade-11650-2026-07-20-반포자이-반포동-11-373000-59.971-61",
+              "dealDate": "2026-07-20",
+              "amount": 373000,
+              "exclusiveArea": 59.971,
+              "priorMax": 370000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 370000,
+              "previousRecordHighDate": "2025-06-25"
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "label": "35평형",
+          "exclusiveAreaMin": 84.94,
+          "exclusiveAreaMax": 85,
+          "exclusiveAreaCount": 3,
+          "exclusiveAreas": [
+            84.94,
+            84.98,
+            85
+          ],
+          "tradeCount": 437,
+          "marketGroupFirstInclude": 48,
+          "marketGroupFirstExclude": 47,
+          "exclusivePriorExceedInGroup": 89,
+          "exclusiveAllTimeMaxInGroup": 5,
+          "inflationVsExclusivePrior": -42,
+          "recordHighRateFirstExclude": 10.8,
+          "sameDayMultiExceedCases": 1,
+          "firstDealDate": "2016-10-01",
+          "lastDealDate": "2026-09-08",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-03-21",
+              "amount": 460000,
+              "exclusiveArea": 84.984,
+              "priorMax": 438000,
+              "previousRhAmount": 438000,
+              "previousRhDate": "2025-02-26"
+            },
+            {
+              "dealDate": "2025-07-10",
+              "amount": 500000,
+              "exclusiveArea": 84.943,
+              "priorMax": 460000,
+              "previousRhAmount": 460000,
+              "previousRhDate": "2025-03-21"
+            },
+            {
+              "dealDate": "2025-07-10",
+              "amount": 475000,
+              "exclusiveArea": 84.943,
+              "priorMax": 460000,
+              "previousRhAmount": 460000,
+              "previousRhDate": "2025-03-21"
+            },
+            {
+              "dealDate": "2025-12-29",
+              "amount": 501000,
+              "exclusiveArea": 84.943,
+              "priorMax": 500000,
+              "previousRhAmount": 500000,
+              "previousRhDate": "2025-07-10"
+            },
+            {
+              "dealDate": "2026-01-19",
+              "amount": 520000,
+              "exclusiveArea": 84.943,
+              "priorMax": 501000,
+              "previousRhAmount": 501000,
+              "previousRhDate": "2025-12-29"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11650-2016-10-01-반포자이-반포동-14-160000-84.943-470",
+              "dealDate": "2016-10-01",
+              "amount": 160000,
+              "exclusiveArea": 84.943,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2016-10-10-반포자이-반포동-21-157000-84.943-208",
+              "dealDate": "2016-10-10",
+              "amount": 157000,
+              "exclusiveArea": 84.943,
+              "priorMax": 160000,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 160000,
+              "previousRecordHighDate": "2016-10-01"
+            },
+            {
+              "id": "trade-11650-2025-07-10-반포자이-반포동-4-475000-84.943-48",
+              "dealDate": "2025-07-10",
+              "amount": 475000,
+              "exclusiveArea": 84.943,
+              "priorMax": 460000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 460000,
+              "previousRecordHighDate": "2025-03-21"
+            },
+            {
+              "id": "trade-11650-2025-12-29-반포자이-반포동-3-501000-84.943-2",
+              "dealDate": "2025-12-29",
+              "amount": 501000,
+              "exclusiveArea": 84.943,
+              "priorMax": 500000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 500000,
+              "previousRecordHighDate": "2025-07-10"
+            },
+            {
+              "id": "trade-11650-2026-01-19-반포자이-반포동-18-520000-84.943-61",
+              "dealDate": "2026-01-19",
+              "amount": 520000,
+              "exclusiveArea": 84.943,
+              "priorMax": 501000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 501000,
+              "previousRecordHighDate": "2025-12-29"
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G3:ex132.18-132.44",
+          "label": "50평형",
+          "exclusiveAreaMin": 132.18,
+          "exclusiveAreaMax": 132.44,
+          "exclusiveAreaCount": 2,
+          "exclusiveAreas": [
+            132.18,
+            132.44
+          ],
+          "tradeCount": 113,
+          "marketGroupFirstInclude": 35,
+          "marketGroupFirstExclude": 34,
+          "exclusivePriorExceedInGroup": 46,
+          "exclusiveAllTimeMaxInGroup": 2,
+          "inflationVsExclusivePrior": -12,
+          "recordHighRateFirstExclude": 30.1,
+          "sameDayMultiExceedCases": 1,
+          "firstDealDate": "2016-10-07",
+          "lastDealDate": "2026-06-20",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-02-27",
+              "amount": 542000,
+              "exclusiveArea": 132.439,
+              "priorMax": 534000,
+              "previousRhAmount": 534000,
+              "previousRhDate": "2024-08-17"
+            },
+            {
+              "dealDate": "2025-02-27",
+              "amount": 542000,
+              "exclusiveArea": 132.439,
+              "priorMax": 534000,
+              "previousRhAmount": 534000,
+              "previousRhDate": "2024-08-17"
+            },
+            {
+              "dealDate": "2025-05-29",
+              "amount": 573000,
+              "exclusiveArea": 132.439,
+              "priorMax": 542000,
+              "previousRhAmount": 542000,
+              "previousRhDate": "2025-02-27"
+            },
+            {
+              "dealDate": "2025-10-29",
+              "amount": 605000,
+              "exclusiveArea": 132.179,
+              "priorMax": 573000,
+              "previousRhAmount": 573000,
+              "previousRhDate": "2025-05-29"
+            },
+            {
+              "dealDate": "2026-06-20",
+              "amount": 615000,
+              "exclusiveArea": 132.439,
+              "priorMax": 605000,
+              "previousRhAmount": 605000,
+              "previousRhDate": "2025-10-29"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11650-2016-10-07-반포자이-반포동-26-215000-132.439-314",
+              "dealDate": "2016-10-07",
+              "amount": 215000,
+              "exclusiveArea": 132.439,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2016-10-22-반포자이-반포동-7-213000-132.439-184",
+              "dealDate": "2016-10-22",
+              "amount": 213000,
+              "exclusiveArea": 132.439,
+              "priorMax": 215000,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 215000,
+              "previousRecordHighDate": "2016-10-07"
+            },
+            {
+              "id": "trade-11650-2025-05-29-반포자이-반포동-8-573000-132.439-26",
+              "dealDate": "2025-05-29",
+              "amount": 573000,
+              "exclusiveArea": 132.439,
+              "priorMax": 542000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 542000,
+              "previousRecordHighDate": "2025-02-27"
+            },
+            {
+              "id": "trade-11650-2025-10-29-반포자이-반포동-25-605000-132.179-0",
+              "dealDate": "2025-10-29",
+              "amount": 605000,
+              "exclusiveArea": 132.179,
+              "priorMax": 573000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 573000,
+              "previousRecordHighDate": "2025-05-29"
+            },
+            {
+              "id": "trade-11650-2026-06-20-반포자이-반포동-24-615000-132.439-46",
+              "dealDate": "2026-06-20",
+              "amount": 615000,
+              "exclusiveArea": 132.439,
+              "priorMax": 605000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 605000,
+              "previousRecordHighDate": "2025-10-29"
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G4:ex165.05-165.45",
+          "label": "60평형",
+          "exclusiveAreaMin": 165.05,
+          "exclusiveAreaMax": 165.45,
+          "exclusiveAreaCount": 2,
+          "exclusiveAreas": [
+            165.05,
+            165.45
+          ],
+          "tradeCount": 126,
+          "marketGroupFirstInclude": 29,
+          "marketGroupFirstExclude": 28,
+          "exclusivePriorExceedInGroup": 45,
+          "exclusiveAllTimeMaxInGroup": 2,
+          "inflationVsExclusivePrior": -17,
+          "recordHighRateFirstExclude": 22.2,
+          "sameDayMultiExceedCases": 0,
+          "firstDealDate": "2016-10-10",
+          "lastDealDate": "2026-07-21",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2021-12-21",
+              "amount": 520000,
+              "exclusiveArea": 165.446,
+              "priorMax": 450000,
+              "previousRhAmount": 450000,
+              "previousRhDate": "2021-07-04"
+            },
+            {
+              "dealDate": "2022-04-08",
+              "amount": 570000,
+              "exclusiveArea": 165.052,
+              "priorMax": 520000,
+              "previousRhAmount": 520000,
+              "previousRhDate": "2021-12-21"
+            },
+            {
+              "dealDate": "2023-08-10",
+              "amount": 580000,
+              "exclusiveArea": 165.446,
+              "priorMax": 570000,
+              "previousRhAmount": 570000,
+              "previousRhDate": "2022-04-08"
+            },
+            {
+              "dealDate": "2024-11-26",
+              "amount": 590000,
+              "exclusiveArea": 165.446,
+              "priorMax": 580000,
+              "previousRhAmount": 580000,
+              "previousRhDate": "2023-08-10"
+            },
+            {
+              "dealDate": "2025-11-06",
+              "amount": 650000,
+              "exclusiveArea": 165.446,
+              "priorMax": 590000,
+              "previousRhAmount": 590000,
+              "previousRhDate": "2024-11-26"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11650-2016-10-10-반포자이-반포동-11-227000-165.446-79",
+              "dealDate": "2016-10-10",
+              "amount": 227000,
+              "exclusiveArea": 165.446,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2016-10-17-반포자이-반포동-20-224000-165.446-99",
+              "dealDate": "2016-10-17",
+              "amount": 224000,
+              "exclusiveArea": 165.446,
+              "priorMax": 227000,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 227000,
+              "previousRecordHighDate": "2016-10-10"
+            },
+            {
+              "id": "trade-11650-2023-08-10-반포자이-반포동-21-580000-165.446-114",
+              "dealDate": "2023-08-10",
+              "amount": 580000,
+              "exclusiveArea": 165.446,
+              "priorMax": 570000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 570000,
+              "previousRecordHighDate": "2022-04-08"
+            },
+            {
+              "id": "trade-11650-2024-11-26-반포자이-반포동-9-590000-165.446-56",
+              "dealDate": "2024-11-26",
+              "amount": 590000,
+              "exclusiveArea": 165.446,
+              "priorMax": 580000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 580000,
+              "previousRecordHighDate": "2023-08-10"
+            },
+            {
+              "id": "trade-11650-2025-11-06-반포자이-반포동-20-650000-165.446-65",
+              "dealDate": "2025-11-06",
+              "amount": 650000,
+              "exclusiveArea": 165.446,
+              "priorMax": 590000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 590000,
+              "previousRecordHighDate": "2024-11-26"
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G5:ex194.52-194.69",
+          "label": "70평형",
+          "exclusiveAreaMin": 194.52,
+          "exclusiveAreaMax": 194.69,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            194.69
+          ],
+          "tradeCount": 19,
+          "marketGroupFirstInclude": 7,
+          "marketGroupFirstExclude": 5,
+          "exclusivePriorExceedInGroup": 5,
+          "exclusiveAllTimeMaxInGroup": 1,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 26.3,
+          "sameDayMultiExceedCases": 0,
+          "firstDealDate": "2016-10-10",
+          "lastDealDate": "2023-07-15",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2017-05-27",
+              "amount": 268000,
+              "exclusiveArea": 194.692,
+              "priorMax": 249000,
+              "previousRhAmount": 249000,
+              "previousRhDate": "2016-10-10"
+            },
+            {
+              "dealDate": "2018-08-15",
+              "amount": 308000,
+              "exclusiveArea": 194.692,
+              "priorMax": 268000,
+              "previousRhAmount": 268000,
+              "previousRhDate": "2017-05-27"
+            },
+            {
+              "dealDate": "2020-08-15",
+              "amount": 395000,
+              "exclusiveArea": 194.692,
+              "priorMax": 308000,
+              "previousRhAmount": 308000,
+              "previousRhDate": "2018-08-15"
+            },
+            {
+              "dealDate": "2021-04-29",
+              "amount": 484000,
+              "exclusiveArea": 194.692,
+              "priorMax": 395000,
+              "previousRhAmount": 395000,
+              "previousRhDate": "2020-08-15"
+            },
+            {
+              "dealDate": "2023-07-15",
+              "amount": 610000,
+              "exclusiveArea": 194.692,
+              "priorMax": 484000,
+              "previousRhAmount": 484000,
+              "previousRhDate": "2021-04-29"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11650-2016-10-10-반포자이-반포동-1-225000-194.692-399",
+              "dealDate": "2016-10-10",
+              "amount": 225000,
+              "exclusiveArea": 194.692,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2016-10-10-반포자이-반포동-7-249000-194.692-145",
+              "dealDate": "2016-10-10",
+              "amount": 249000,
+              "exclusiveArea": 194.692,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2020-08-15-반포자이-반포동-20-395000-194.692-245",
+              "dealDate": "2020-08-15",
+              "amount": 395000,
+              "exclusiveArea": 194.692,
+              "priorMax": 308000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 308000,
+              "previousRecordHighDate": "2018-08-15"
+            },
+            {
+              "id": "trade-11650-2021-04-29-반포자이-반포동-19-484000-194.692-6",
+              "dealDate": "2021-04-29",
+              "amount": 484000,
+              "exclusiveArea": 194.692,
+              "priorMax": 395000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 395000,
+              "previousRecordHighDate": "2020-08-15"
+            },
+            {
+              "id": "trade-11650-2023-07-15-반포자이-반포동-11-610000-194.692-66",
+              "dealDate": "2023-07-15",
+              "amount": 610000,
+              "exclusiveArea": 194.692,
+              "priorMax": 484000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 484000,
+              "previousRecordHighDate": "2021-04-29"
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G6:ex216.49-216.49",
+          "label": "80평형",
+          "exclusiveAreaMin": 216.49,
+          "exclusiveAreaMax": 216.49,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            216.49
+          ],
+          "tradeCount": 50,
+          "marketGroupFirstInclude": 25,
+          "marketGroupFirstExclude": 24,
+          "exclusivePriorExceedInGroup": 24,
+          "exclusiveAllTimeMaxInGroup": 1,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 48,
+          "sameDayMultiExceedCases": 0,
+          "firstDealDate": "2016-10-14",
+          "lastDealDate": "2026-09-03",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2021-05-01",
+              "amount": 460000,
+              "exclusiveArea": 216.49,
+              "priorMax": 449500,
+              "previousRhAmount": 449500,
+              "previousRhDate": "2021-03-13"
+            },
+            {
+              "dealDate": "2021-09-19",
+              "amount": 550000,
+              "exclusiveArea": 216.49,
+              "priorMax": 460000,
+              "previousRhAmount": 460000,
+              "previousRhDate": "2021-05-01"
+            },
+            {
+              "dealDate": "2021-12-26",
+              "amount": 595000,
+              "exclusiveArea": 216.49,
+              "priorMax": 550000,
+              "previousRhAmount": 550000,
+              "previousRhDate": "2021-09-19"
+            },
+            {
+              "dealDate": "2022-03-28",
+              "amount": 690000,
+              "exclusiveArea": 216.49,
+              "priorMax": 595000,
+              "previousRhAmount": 595000,
+              "previousRhDate": "2021-12-26"
+            },
+            {
+              "dealDate": "2022-06-21",
+              "amount": 720000,
+              "exclusiveArea": 216.49,
+              "priorMax": 690000,
+              "previousRhAmount": 690000,
+              "previousRhDate": "2022-03-28"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11650-2016-10-14-반포자이-반포동-9-247000-216.49-107",
+              "dealDate": "2016-10-14",
+              "amount": 247000,
+              "exclusiveArea": 216.49,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2016-10-23-반포자이-반포동-15-237000-216.49-140",
+              "dealDate": "2016-10-23",
+              "amount": 237000,
+              "exclusiveArea": 216.49,
+              "priorMax": 247000,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 247000,
+              "previousRecordHighDate": "2016-10-14"
+            },
+            {
+              "id": "trade-11650-2021-12-26-반포자이-반포동-17-595000-216.49-9",
+              "dealDate": "2021-12-26",
+              "amount": 595000,
+              "exclusiveArea": 216.49,
+              "priorMax": 550000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 550000,
+              "previousRecordHighDate": "2021-09-19"
+            },
+            {
+              "id": "trade-11650-2022-03-28-반포자이-반포동-27-690000-216.49-9",
+              "dealDate": "2022-03-28",
+              "amount": 690000,
+              "exclusiveArea": 216.49,
+              "priorMax": 595000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 595000,
+              "previousRecordHighDate": "2021-12-26"
+            },
+            {
+              "id": "trade-11650-2022-06-21-반포자이-반포동-24-720000-216.49-2",
+              "dealDate": "2022-06-21",
+              "amount": 720000,
+              "exclusiveArea": 216.49,
+              "priorMax": 690000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 690000,
+              "previousRecordHighDate": "2022-03-28"
+            }
+          ]
+        },
+        {
+          "groupKey": "banpo-xi:G7:ex244.54-244.97",
+          "label": "공급 297.54~301.39㎡ · 전용 244.54~244.97㎡",
+          "exclusiveAreaMin": 244.54,
+          "exclusiveAreaMax": 244.97,
+          "exclusiveAreaCount": 3,
+          "exclusiveAreas": [
+            244.54,
+            244.63,
+            244.97
+          ],
+          "tradeCount": 78,
+          "marketGroupFirstInclude": 16,
+          "marketGroupFirstExclude": 15,
+          "exclusivePriorExceedInGroup": 28,
+          "exclusiveAllTimeMaxInGroup": 3,
+          "inflationVsExclusivePrior": -13,
+          "recordHighRateFirstExclude": 19.2,
+          "sameDayMultiExceedCases": 0,
+          "firstDealDate": "2016-10-05",
+          "lastDealDate": "2026-06-13",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2021-02-25",
+              "amount": 520000,
+              "exclusiveArea": 244.543,
+              "priorMax": 485000,
+              "previousRhAmount": 485000,
+              "previousRhDate": "2020-09-04"
+            },
+            {
+              "dealDate": "2021-08-11",
+              "amount": 650000,
+              "exclusiveArea": 244.628,
+              "priorMax": 520000,
+              "previousRhAmount": 520000,
+              "previousRhDate": "2021-02-25"
+            },
+            {
+              "dealDate": "2021-11-18",
+              "amount": 728000,
+              "exclusiveArea": 244.972,
+              "priorMax": 650000,
+              "previousRhAmount": 650000,
+              "previousRhDate": "2021-08-11"
+            },
+            {
+              "dealDate": "2022-03-18",
+              "amount": 750000,
+              "exclusiveArea": 244.543,
+              "priorMax": 728000,
+              "previousRhAmount": 728000,
+              "previousRhDate": "2021-11-18"
+            },
+            {
+              "dealDate": "2025-11-18",
+              "amount": 803000,
+              "exclusiveArea": 244.972,
+              "priorMax": 750000,
+              "previousRhAmount": 750000,
+              "previousRhDate": "2022-03-18"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11650-2016-10-05-반포자이-반포동-21-300000-244.543-417",
+              "dealDate": "2016-10-05",
+              "amount": 300000,
+              "exclusiveArea": 244.543,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11650-2016-10-20-반포자이-반포동-3-290000-244.543-35",
+              "dealDate": "2016-10-20",
+              "amount": 290000,
+              "exclusiveArea": 244.543,
+              "priorMax": 300000,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 300000,
+              "previousRecordHighDate": "2016-10-05"
+            },
+            {
+              "id": "trade-11650-2021-11-18-반포자이-반포동-22-728000-244.972-11",
+              "dealDate": "2021-11-18",
+              "amount": 728000,
+              "exclusiveArea": 244.972,
+              "priorMax": 650000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 650000,
+              "previousRecordHighDate": "2021-08-11"
+            },
+            {
+              "id": "trade-11650-2022-03-18-반포자이-반포동-20-750000-244.543-30",
+              "dealDate": "2022-03-18",
+              "amount": 750000,
+              "exclusiveArea": 244.543,
+              "priorMax": 728000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 728000,
+              "previousRecordHighDate": "2021-11-18"
+            },
+            {
+              "id": "trade-11650-2025-11-18-반포자이-반포동-26-803000-244.972-42",
+              "dealDate": "2025-11-18",
+              "amount": 803000,
+              "exclusiveArea": 244.972,
+              "priorMax": 750000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 750000,
+              "previousRecordHighDate": "2022-03-18"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "complexKey": "jamsil-els",
+      "aptNameNorm": "잠실엘스",
+      "displayName": "잠실엘스",
+      "classification": "group-safe-label-unknown",
+      "singogaMode": "market_group",
+      "occupancyYear": 2008,
+      "warehouseFirstDealDate": "2016-10-03",
+      "warehouseLastDealDate": "2026-08-21",
+      "historyGapYears": 8,
+      "historyCompleteness": "low_confidence_early_window",
+      "totalTrades": 1647,
+      "marketGroupCount": 3,
+      "exclusiveAreaCount": 5,
+      "recordHigh": {
+        "marketGroupFirstInclude": 167,
+        "marketGroupFirstExclude": 162,
+        "productionMarkSingogaMarketGroupPriorExceed": 162,
+        "exclusivePriorExceed": 219,
+        "exclusiveAllTimeMaxEquality": 9,
+        "phase5ReportedFirstExclude": 162,
+        "matchesProductionCode": true,
+        "matchesPhase5Report": true,
+        "inflationVsExclusivePrior": -57,
+        "inflationVsExclusiveAllTime": 153,
+        "firstIncludeRate": 10.1,
+        "firstExcludeRate": 9.8
+      },
+      "inflationDecompositionNote": "Market-group prior-exceed counts every exceed of the group's shared max. Exclusive prior-exceed requires exceed within each exact area — merging areas multiplies 신고가 events because a mid-size trade can beat a smaller sibling area's history without beating its own area max.",
+      "sameDayMultiExceedCaseCount": 8,
+      "sameDayMultiExceedCases": [
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "dealDate": "2017-05-20",
+          "priorMax": 102500,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2017-05-20-잠실엘스-잠실동-16-103000-59.96-315",
+              "amount": 103000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2017-05-20-잠실엘스-잠실동-8-103000-59.96-148",
+              "amount": 103000,
+              "exclusiveArea": 59.96
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "dealDate": "2019-11-06",
+          "priorMax": 165000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2019-11-06-잠실엘스-잠실동-20-168000-59.96-801",
+              "amount": 168000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2019-11-06-잠실엘스-잠실동-9-167000-59.96-567",
+              "amount": 167000,
+              "exclusiveArea": 59.96
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "dealDate": "2019-11-23",
+          "priorMax": 168000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2019-11-23-잠실엘스-잠실동-20-169000-59.96-273",
+              "amount": 169000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2019-11-23-잠실엘스-잠실동-25-168500-59.96-44",
+              "amount": 168500,
+              "exclusiveArea": 59.96
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "dealDate": "2020-06-20",
+          "priorMax": 179500,
+          "exceedCount": 4,
+          "trades": [
+            {
+              "id": "trade-11710-2020-06-20-잠실엘스-잠실동-23-180000-59.96-770",
+              "amount": 180000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2020-06-20-잠실엘스-잠실동-27-185000-59.96-178",
+              "amount": 185000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2020-06-20-잠실엘스-잠실동-3-180000-59.96-291",
+              "amount": 180000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2020-06-20-잠실엘스-잠실동-9-188000-59.96-748",
+              "amount": 188000,
+              "exclusiveArea": 59.96
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "dealDate": "2025-06-27",
+          "priorMax": 274000,
+          "exceedCount": 3,
+          "trades": [
+            {
+              "id": "trade-11710-2025-06-27-잠실엘스-잠실동-11-300000-59.96-20",
+              "amount": 300000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2025-06-27-잠실엘스-잠실동-16-295000-59.96-283",
+              "amount": 295000,
+              "exclusiveArea": 59.96
+            },
+            {
+              "id": "trade-11710-2025-06-27-잠실엘스-잠실동-8-274500-59.96-229",
+              "amount": 274500,
+              "exclusiveArea": 59.96
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "dealDate": "2018-09-12",
+          "priorMax": 183000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2018-09-12-잠실엘스-잠실동-18-185000-84.97-52",
+              "amount": 185000,
+              "exclusiveArea": 84.97
+            },
+            {
+              "id": "trade-11710-2018-09-12-잠실엘스-잠실동-25-184000-84.8-59",
+              "amount": 184000,
+              "exclusiveArea": 84.8
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "dealDate": "2025-02-14",
+          "priorMax": 284000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2025-02-14-잠실엘스-잠실동-11-284250-84.8-565",
+              "amount": 284250,
+              "exclusiveArea": 84.8
+            },
+            {
+              "id": "trade-11710-2025-02-14-잠실엘스-잠실동-26-288000-84.8-407",
+              "amount": 288000,
+              "exclusiveArea": 84.8
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G3:ex119.93-119.93",
+          "groupLabel": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+          "dealDate": "2019-06-22",
+          "priorMax": 220000,
+          "exceedCount": 2,
+          "trades": [
+            {
+              "id": "trade-11710-2019-06-22-잠실엘스-잠실동-26-245000-119.93-413",
+              "amount": 245000,
+              "exclusiveArea": 119.93
+            },
+            {
+              "id": "trade-11710-2019-06-22-잠실엘스-잠실동-9-229000-119.93-102",
+              "amount": 229000,
+              "exclusiveArea": 119.93
+            }
+          ]
+        }
+      ],
+      "earlyWindowRecordHighsFirstMonth": [
+        {
+          "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "dealDate": "2016-10-04",
+          "amount": 115800,
+          "priorMax": 112500
+        },
+        {
+          "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "dealDate": "2016-10-05",
+          "amount": 120000,
+          "priorMax": 115800
+        },
+        {
+          "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "dealDate": "2016-10-10",
+          "amount": 125500,
+          "priorMax": 120000
+        },
+        {
+          "groupLabel": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+          "dealDate": "2016-10-18",
+          "amount": 159000,
+          "priorMax": 154500
+        }
+      ],
+      "groups": [
+        {
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "label": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+          "exclusiveAreaMin": 59.96,
+          "exclusiveAreaMax": 59.96,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            59.96
+          ],
+          "tradeCount": 440,
+          "marketGroupFirstInclude": 62,
+          "marketGroupFirstExclude": 61,
+          "exclusivePriorExceedInGroup": 61,
+          "exclusiveAllTimeMaxInGroup": 2,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 13.9,
+          "sameDayMultiExceedCases": 5,
+          "firstDealDate": "2016-10-06",
+          "lastDealDate": "2026-08-11",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-06-27",
+              "amount": 300000,
+              "exclusiveArea": 59.96,
+              "priorMax": 274000,
+              "previousRhAmount": 274000,
+              "previousRhDate": "2025-06-11"
+            },
+            {
+              "dealDate": "2025-06-27",
+              "amount": 295000,
+              "exclusiveArea": 59.96,
+              "priorMax": 274000,
+              "previousRhAmount": 274000,
+              "previousRhDate": "2025-06-11"
+            },
+            {
+              "dealDate": "2025-06-27",
+              "amount": 274500,
+              "exclusiveArea": 59.96,
+              "priorMax": 274000,
+              "previousRhAmount": 274000,
+              "previousRhDate": "2025-06-11"
+            },
+            {
+              "dealDate": "2025-10-30",
+              "amount": 302000,
+              "exclusiveArea": 59.96,
+              "priorMax": 300000,
+              "previousRhAmount": 300000,
+              "previousRhDate": "2025-06-27"
+            },
+            {
+              "dealDate": "2025-11-01",
+              "amount": 310000,
+              "exclusiveArea": 59.96,
+              "priorMax": 302000,
+              "previousRhAmount": 302000,
+              "previousRhDate": "2025-10-30"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2016-10-06-잠실엘스-잠실동-11-97800-59.96-276",
+              "dealDate": "2016-10-06",
+              "amount": 97800,
+              "exclusiveArea": 59.96,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2016-10-08-잠실엘스-잠실동-11-97400-59.96-512",
+              "dealDate": "2016-10-08",
+              "amount": 97400,
+              "exclusiveArea": 59.96,
+              "priorMax": 97800,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": false,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 97800,
+              "previousRecordHighDate": "2016-10-06"
+            },
+            {
+              "id": "trade-11710-2025-06-27-잠실엘스-잠실동-8-274500-59.96-229",
+              "dealDate": "2025-06-27",
+              "amount": 274500,
+              "exclusiveArea": 59.96,
+              "priorMax": 274000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 274000,
+              "previousRecordHighDate": "2025-06-11"
+            },
+            {
+              "id": "trade-11710-2025-10-30-잠실엘스-잠실동-19-8-302000-0-59.96",
+              "dealDate": "2025-10-30",
+              "amount": 302000,
+              "exclusiveArea": 59.96,
+              "priorMax": 300000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 300000,
+              "previousRecordHighDate": "2025-06-27"
+            },
+            {
+              "id": "trade-11710-2025-11-01-잠실엘스-잠실동-19-16-310000-0-59.96",
+              "dealDate": "2025-11-01",
+              "amount": 310000,
+              "exclusiveArea": 59.96,
+              "priorMax": 302000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 302000,
+              "previousRecordHighDate": "2025-10-30"
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "label": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+          "exclusiveAreaMin": 84.8,
+          "exclusiveAreaMax": 84.97,
+          "exclusiveAreaCount": 3,
+          "exclusiveAreas": [
+            84.8,
+            84.88,
+            84.97
+          ],
+          "tradeCount": 1064,
+          "marketGroupFirstInclude": 74,
+          "marketGroupFirstExclude": 72,
+          "exclusivePriorExceedInGroup": 129,
+          "exclusiveAllTimeMaxInGroup": 5,
+          "inflationVsExclusivePrior": -57,
+          "recordHighRateFirstExclude": 6.8,
+          "sameDayMultiExceedCases": 2,
+          "firstDealDate": "2016-10-03",
+          "lastDealDate": "2026-08-21",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2025-06-23",
+              "amount": 340000,
+              "exclusiveArea": 84.8,
+              "priorMax": 339000,
+              "previousRhAmount": 339000,
+              "previousRhDate": "2025-06-17"
+            },
+            {
+              "dealDate": "2025-07-12",
+              "amount": 343000,
+              "exclusiveArea": 84.8,
+              "priorMax": 340000,
+              "previousRhAmount": 340000,
+              "previousRhDate": "2025-06-23"
+            },
+            {
+              "dealDate": "2025-10-28",
+              "amount": 348000,
+              "exclusiveArea": 84.8,
+              "priorMax": 343000,
+              "previousRhAmount": 343000,
+              "previousRhDate": "2025-07-12"
+            },
+            {
+              "dealDate": "2025-10-31",
+              "amount": 350000,
+              "exclusiveArea": 84.8,
+              "priorMax": 348000,
+              "previousRhAmount": 348000,
+              "previousRhDate": "2025-10-28"
+            },
+            {
+              "dealDate": "2026-02-20",
+              "amount": 370000,
+              "exclusiveArea": 84.88,
+              "priorMax": 350000,
+              "previousRhAmount": 350000,
+              "previousRhDate": "2025-10-31"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2016-10-03-잠실엘스-잠실동-13-112000-84.8-871",
+              "dealDate": "2016-10-03",
+              "amount": 112000,
+              "exclusiveArea": 84.8,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2016-10-03-잠실엘스-잠실동-22-112500-84.8-417",
+              "dealDate": "2016-10-03",
+              "amount": 112500,
+              "exclusiveArea": 84.8,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2025-10-28-잠실엘스-잠실동-19-27-348000-0-84.8",
+              "dealDate": "2025-10-28",
+              "amount": 348000,
+              "exclusiveArea": 84.8,
+              "priorMax": 343000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 343000,
+              "previousRecordHighDate": "2025-07-12"
+            },
+            {
+              "id": "trade-11710-2025-10-31-잠실엘스-잠실동-21-350000-84.8-25",
+              "dealDate": "2025-10-31",
+              "amount": 350000,
+              "exclusiveArea": 84.8,
+              "priorMax": 348000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 348000,
+              "previousRecordHighDate": "2025-10-28"
+            },
+            {
+              "id": "trade-11710-2026-02-20-잠실엘스-잠실동-21-370000-84.88-61",
+              "dealDate": "2026-02-20",
+              "amount": 370000,
+              "exclusiveArea": 84.88,
+              "priorMax": 350000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 350000,
+              "previousRecordHighDate": "2025-10-31"
+            }
+          ]
+        },
+        {
+          "groupKey": "jamsil-els:G3:ex119.93-119.93",
+          "label": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+          "exclusiveAreaMin": 119.93,
+          "exclusiveAreaMax": 119.93,
+          "exclusiveAreaCount": 1,
+          "exclusiveAreas": [
+            119.93
+          ],
+          "tradeCount": 143,
+          "marketGroupFirstInclude": 31,
+          "marketGroupFirstExclude": 29,
+          "exclusivePriorExceedInGroup": 29,
+          "exclusiveAllTimeMaxInGroup": 2,
+          "inflationVsExclusivePrior": 0,
+          "recordHighRateFirstExclude": 20.3,
+          "sameDayMultiExceedCases": 1,
+          "firstDealDate": "2016-10-17",
+          "lastDealDate": "2026-07-21",
+          "productionMismatchCount": 0,
+          "recentRecordHighs": [
+            {
+              "dealDate": "2024-08-24",
+              "amount": 379000,
+              "exclusiveArea": 119.93,
+              "priorMax": 372000,
+              "previousRhAmount": 372000,
+              "previousRhDate": "2024-07-24"
+            },
+            {
+              "dealDate": "2025-03-05",
+              "amount": 399000,
+              "exclusiveArea": 119.93,
+              "priorMax": 379000,
+              "previousRhAmount": 379000,
+              "previousRhDate": "2024-08-24"
+            },
+            {
+              "dealDate": "2025-03-08",
+              "amount": 400000,
+              "exclusiveArea": 119.93,
+              "priorMax": 399000,
+              "previousRhAmount": 399000,
+              "previousRhDate": "2025-03-05"
+            },
+            {
+              "dealDate": "2025-07-03",
+              "amount": 450000,
+              "exclusiveArea": 119.93,
+              "priorMax": 400000,
+              "previousRhAmount": 400000,
+              "previousRhDate": "2025-03-08"
+            },
+            {
+              "dealDate": "2026-01-16",
+              "amount": 460000,
+              "exclusiveArea": 119.93,
+              "priorMax": 450000,
+              "previousRhAmount": 450000,
+              "previousRhDate": "2025-07-03"
+            }
+          ],
+          "sampleTrades": [
+            {
+              "id": "trade-11710-2016-10-17-잠실엘스-잠실동-15-153000-119.93-114",
+              "dealDate": "2016-10-17",
+              "amount": 153000,
+              "exclusiveArea": 119.93,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2016-10-17-잠실엘스-잠실동-19-154500-119.93-247",
+              "dealDate": "2016-10-17",
+              "amount": 154500,
+              "exclusiveArea": 119.93,
+              "priorMax": 0,
+              "isRecordHighFirstExclude": false,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": true,
+              "previousRecordHighAmount": null,
+              "previousRecordHighDate": null
+            },
+            {
+              "id": "trade-11710-2025-03-08-잠실엘스-잠실동-21-400000-119.93-295",
+              "dealDate": "2025-03-08",
+              "amount": 400000,
+              "exclusiveArea": 119.93,
+              "priorMax": 399000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 399000,
+              "previousRecordHighDate": "2025-03-05"
+            },
+            {
+              "id": "trade-11710-2025-07-03-잠실엘스-잠실동-19-24-450000-0-119.93",
+              "dealDate": "2025-07-03",
+              "amount": 450000,
+              "exclusiveArea": 119.93,
+              "priorMax": 400000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 400000,
+              "previousRecordHighDate": "2025-03-08"
+            },
+            {
+              "id": "trade-11710-2026-01-16-잠실엘스-잠실동-13-460000-119.93-70",
+              "dealDate": "2026-01-16",
+              "amount": 460000,
+              "exclusiveArea": 119.93,
+              "priorMax": 450000,
+              "isRecordHighFirstExclude": true,
+              "isRecordHighFirstInclude": true,
+              "isFirstTradeInGroup": false,
+              "previousRecordHighAmount": 450000,
+              "previousRecordHighDate": "2025-07-03"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "externalCrossCheckPack": {
+    "instruction": "Compare samples to 아파트미/호갱노노. Classify our/external as TT / TF / FT. MOLIT warehouse remains authoritative; external used only for discrepancy taxonomy.",
+    "sampleCount": 95,
+    "samples": [
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "공급 81.6~82.31㎡ · 전용 59.98~60㎡",
+        "exclusiveAreasInGroup": [
+          59.98,
+          60
+        ],
+        "dealDate": "2025-03-15",
+        "amount": 193000,
+        "exclusiveArea": 60,
+        "priorMax": 187000,
+        "previousRhAmount": 187000,
+        "previousRhDate": "2022-05-26"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "공급 81.6~82.31㎡ · 전용 59.98~60㎡",
+        "exclusiveAreasInGroup": [
+          59.98,
+          60
+        ],
+        "dealDate": "2025-04-25",
+        "amount": 203700,
+        "exclusiveArea": 60,
+        "priorMax": 193000,
+        "previousRhAmount": 193000,
+        "previousRhDate": "2025-03-15"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "공급 81.6~82.31㎡ · 전용 59.98~60㎡",
+        "exclusiveAreasInGroup": [
+          59.98,
+          60
+        ],
+        "dealDate": "2025-06-25",
+        "amount": 220000,
+        "exclusiveArea": 60,
+        "priorMax": 203700,
+        "previousRhAmount": 203700,
+        "previousRhDate": "2025-04-25"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "공급 81.6~82.31㎡ · 전용 59.98~60㎡",
+        "exclusiveAreasInGroup": [
+          59.98,
+          60
+        ],
+        "dealDate": "2025-10-09",
+        "amount": 239500,
+        "exclusiveArea": 60,
+        "priorMax": 220000,
+        "previousRhAmount": 220000,
+        "previousRhDate": "2025-06-25"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "공급 81.6~82.31㎡ · 전용 59.98~60㎡",
+        "exclusiveAreasInGroup": [
+          59.98,
+          60
+        ],
+        "dealDate": "2026-01-09",
+        "amount": 242000,
+        "exclusiveArea": 60,
+        "priorMax": 239500,
+        "previousRhAmount": 239500,
+        "previousRhDate": "2025-10-09"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98
+        ],
+        "dealDate": "2025-03-14",
+        "amount": 240000,
+        "exclusiveArea": 84.98,
+        "priorMax": 238000,
+        "previousRhAmount": 238000,
+        "previousRhDate": "2022-04-15"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98
+        ],
+        "dealDate": "2025-03-21",
+        "amount": 250000,
+        "exclusiveArea": 84.98,
+        "priorMax": 240000,
+        "previousRhAmount": 240000,
+        "previousRhDate": "2025-03-14"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98
+        ],
+        "dealDate": "2025-07-08",
+        "amount": 271000,
+        "exclusiveArea": 84.98,
+        "priorMax": 250000,
+        "previousRhAmount": 250000,
+        "previousRhDate": "2025-03-21"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98
+        ],
+        "dealDate": "2025-07-08",
+        "amount": 271000,
+        "exclusiveArea": 84.98,
+        "priorMax": 250000,
+        "previousRhAmount": 250000,
+        "previousRhDate": "2025-03-21"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98
+        ],
+        "dealDate": "2025-07-12",
+        "amount": 288000,
+        "exclusiveArea": 84.98,
+        "priorMax": 271000,
+        "previousRhAmount": 271000,
+        "previousRhDate": "2025-07-08"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "49평형",
+        "exclusiveAreasInGroup": [
+          134.13
+        ],
+        "dealDate": "2021-06-26",
+        "amount": 250000,
+        "exclusiveArea": 134.13,
+        "priorMax": 230000,
+        "previousRhAmount": 230000,
+        "previousRhDate": "2021-05-24"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "49평형",
+        "exclusiveAreasInGroup": [
+          134.13
+        ],
+        "dealDate": "2021-09-06",
+        "amount": 269000,
+        "exclusiveArea": 134.13,
+        "priorMax": 250000,
+        "previousRhAmount": 250000,
+        "previousRhDate": "2021-06-26"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "49평형",
+        "exclusiveAreasInGroup": [
+          134.13
+        ],
+        "dealDate": "2022-06-20",
+        "amount": 277000,
+        "exclusiveArea": 134.13,
+        "priorMax": 269000,
+        "previousRhAmount": 269000,
+        "previousRhDate": "2021-09-06"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "49평형",
+        "exclusiveAreasInGroup": [
+          134.13
+        ],
+        "dealDate": "2025-03-18",
+        "amount": 300000,
+        "exclusiveArea": 134.13,
+        "priorMax": 277000,
+        "previousRhAmount": 277000,
+        "previousRhDate": "2022-06-20"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "49평형",
+        "exclusiveAreasInGroup": [
+          134.13
+        ],
+        "dealDate": "2025-12-05",
+        "amount": 330000,
+        "exclusiveArea": 134.13,
+        "priorMax": 300000,
+        "previousRhAmount": 300000,
+        "previousRhDate": "2025-03-18"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          135.27,
+          135.5,
+          135.87
+        ],
+        "dealDate": "2018-08-08",
+        "amount": 167000,
+        "exclusiveArea": 135.87,
+        "priorMax": 165000,
+        "previousRhAmount": 165000,
+        "previousRhDate": "2018-07-31"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          135.27,
+          135.5,
+          135.87
+        ],
+        "dealDate": "2020-06-30",
+        "amount": 180000,
+        "exclusiveArea": 135.5,
+        "priorMax": 167000,
+        "previousRhAmount": 167000,
+        "previousRhDate": "2018-08-08"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          135.27,
+          135.5,
+          135.87
+        ],
+        "dealDate": "2021-07-08",
+        "amount": 243000,
+        "exclusiveArea": 135.5,
+        "priorMax": 180000,
+        "previousRhAmount": 180000,
+        "previousRhDate": "2020-06-30"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          135.27,
+          135.5,
+          135.87
+        ],
+        "dealDate": "2024-08-07",
+        "amount": 275000,
+        "exclusiveArea": 135.5,
+        "priorMax": 243000,
+        "previousRhAmount": 243000,
+        "previousRhDate": "2021-07-08"
+      },
+      {
+        "aptNameNorm": "한강(대우)",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          135.27,
+          135.5,
+          135.87
+        ],
+        "dealDate": "2026-01-06",
+        "amount": 337400,
+        "exclusiveArea": 135.5,
+        "priorMax": 275000,
+        "previousRhAmount": 275000,
+        "previousRhDate": "2024-08-07"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "16평형",
+        "exclusiveAreasInGroup": [
+          35.24
+        ],
+        "dealDate": "2025-05-17",
+        "amount": 108000,
+        "exclusiveArea": 35.24,
+        "priorMax": 106000,
+        "previousRhAmount": 106000,
+        "previousRhDate": "2025-03-23"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "16평형",
+        "exclusiveAreasInGroup": [
+          35.24
+        ],
+        "dealDate": "2025-09-22",
+        "amount": 110000,
+        "exclusiveArea": 35.24,
+        "priorMax": 108000,
+        "previousRhAmount": 108000,
+        "previousRhDate": "2025-05-17"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "16평형",
+        "exclusiveAreasInGroup": [
+          35.24
+        ],
+        "dealDate": "2025-09-27",
+        "amount": 112500,
+        "exclusiveArea": 35.24,
+        "priorMax": 110000,
+        "previousRhAmount": 110000,
+        "previousRhDate": "2025-09-22"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "16평형",
+        "exclusiveAreasInGroup": [
+          35.24
+        ],
+        "dealDate": "2026-01-20",
+        "amount": 140000,
+        "exclusiveArea": 35.24,
+        "priorMax": 112500,
+        "previousRhAmount": 112500,
+        "previousRhDate": "2025-09-27"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "16평형",
+        "exclusiveAreasInGroup": [
+          35.24
+        ],
+        "dealDate": "2026-03-19",
+        "amount": 155000,
+        "exclusiveArea": 35.24,
+        "priorMax": 140000,
+        "previousRhAmount": 140000,
+        "previousRhDate": "2026-01-20"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "26평형",
+        "exclusiveAreasInGroup": [
+          59.64,
+          59.86,
+          59.95
+        ],
+        "dealDate": "2025-06-27",
+        "amount": 264000,
+        "exclusiveArea": 59.95,
+        "priorMax": 244000,
+        "previousRhAmount": 244000,
+        "previousRhDate": "2025-06-10"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "26평형",
+        "exclusiveAreasInGroup": [
+          59.64,
+          59.86,
+          59.95
+        ],
+        "dealDate": "2025-10-13",
+        "amount": 266000,
+        "exclusiveArea": 59.86,
+        "priorMax": 264000,
+        "previousRhAmount": 264000,
+        "previousRhDate": "2025-06-27"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "26평형",
+        "exclusiveAreasInGroup": [
+          59.64,
+          59.86,
+          59.95
+        ],
+        "dealDate": "2025-10-20",
+        "amount": 270000,
+        "exclusiveArea": 59.95,
+        "priorMax": 266000,
+        "previousRhAmount": 266000,
+        "previousRhDate": "2025-10-13"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "26평형",
+        "exclusiveAreasInGroup": [
+          59.64,
+          59.86,
+          59.95
+        ],
+        "dealDate": "2025-10-28",
+        "amount": 275000,
+        "exclusiveArea": 59.64,
+        "priorMax": 270000,
+        "previousRhAmount": 270000,
+        "previousRhDate": "2025-10-20"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "26평형",
+        "exclusiveAreasInGroup": [
+          59.64,
+          59.86,
+          59.95
+        ],
+        "dealDate": "2025-10-31",
+        "amount": 280000,
+        "exclusiveArea": 59.95,
+        "priorMax": 275000,
+        "previousRhAmount": 275000,
+        "previousRhDate": "2025-10-28"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.79,
+          84.9,
+          84.97
+        ],
+        "dealDate": "2025-07-16",
+        "amount": 300000,
+        "exclusiveArea": 84.79,
+        "priorMax": 298000,
+        "previousRhAmount": 298000,
+        "previousRhDate": "2025-07-11"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.79,
+          84.9,
+          84.97
+        ],
+        "dealDate": "2025-09-25",
+        "amount": 309000,
+        "exclusiveArea": 84.97,
+        "priorMax": 300000,
+        "previousRhAmount": 300000,
+        "previousRhDate": "2025-07-16"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.79,
+          84.9,
+          84.97
+        ],
+        "dealDate": "2025-10-28",
+        "amount": 310000,
+        "exclusiveArea": 84.79,
+        "priorMax": 309000,
+        "previousRhAmount": 309000,
+        "previousRhDate": "2025-09-25"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.79,
+          84.9,
+          84.97
+        ],
+        "dealDate": "2025-11-17",
+        "amount": 315000,
+        "exclusiveArea": 84.79,
+        "priorMax": 310000,
+        "previousRhAmount": 310000,
+        "previousRhDate": "2025-10-28"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "33평형",
+        "exclusiveAreasInGroup": [
+          84.79,
+          84.9,
+          84.97
+        ],
+        "dealDate": "2026-01-26",
+        "amount": 322000,
+        "exclusiveArea": 84.97,
+        "priorMax": 315000,
+        "previousRhAmount": 315000,
+        "previousRhDate": "2025-11-17"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "45평형",
+        "exclusiveAreasInGroup": [
+          121.63
+        ],
+        "dealDate": "2025-09-12",
+        "amount": 333000,
+        "exclusiveArea": 121.63,
+        "priorMax": 328000,
+        "previousRhAmount": 328000,
+        "previousRhDate": "2025-06-27"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "45평형",
+        "exclusiveAreasInGroup": [
+          121.63
+        ],
+        "dealDate": "2025-10-13",
+        "amount": 336000,
+        "exclusiveArea": 121.63,
+        "priorMax": 333000,
+        "previousRhAmount": 333000,
+        "previousRhDate": "2025-09-12"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "45평형",
+        "exclusiveAreasInGroup": [
+          121.63
+        ],
+        "dealDate": "2025-10-30",
+        "amount": 358000,
+        "exclusiveArea": 121.63,
+        "priorMax": 336000,
+        "previousRhAmount": 336000,
+        "previousRhDate": "2025-10-13"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "45평형",
+        "exclusiveAreasInGroup": [
+          121.63
+        ],
+        "dealDate": "2026-01-21",
+        "amount": 371500,
+        "exclusiveArea": 121.63,
+        "priorMax": 358000,
+        "previousRhAmount": 358000,
+        "previousRhDate": "2025-10-30"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "45평형",
+        "exclusiveAreasInGroup": [
+          121.63
+        ],
+        "dealDate": "2026-02-05",
+        "amount": 372000,
+        "exclusiveArea": 121.63,
+        "priorMax": 371500,
+        "previousRhAmount": 371500,
+        "previousRhDate": "2026-01-21"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "53평형",
+        "exclusiveAreasInGroup": [
+          144.77
+        ],
+        "dealDate": "2021-09-04",
+        "amount": 310000,
+        "exclusiveArea": 144.77,
+        "priorMax": 302000,
+        "previousRhAmount": 302000,
+        "previousRhDate": "2021-08-14"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "53평형",
+        "exclusiveAreasInGroup": [
+          144.77
+        ],
+        "dealDate": "2021-10-01",
+        "amount": 320000,
+        "exclusiveArea": 144.77,
+        "priorMax": 310000,
+        "previousRhAmount": 310000,
+        "previousRhDate": "2021-09-04"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "53평형",
+        "exclusiveAreasInGroup": [
+          144.77
+        ],
+        "dealDate": "2021-10-10",
+        "amount": 330000,
+        "exclusiveArea": 144.77,
+        "priorMax": 320000,
+        "previousRhAmount": 320000,
+        "previousRhDate": "2021-10-01"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "53평형",
+        "exclusiveAreasInGroup": [
+          144.77
+        ],
+        "dealDate": "2025-06-27",
+        "amount": 341000,
+        "exclusiveArea": 144.77,
+        "priorMax": 330000,
+        "previousRhAmount": 330000,
+        "previousRhDate": "2021-10-10"
+      },
+      {
+        "aptNameNorm": "파크리오",
+        "groupLabel": "53평형",
+        "exclusiveAreasInGroup": [
+          144.77
+        ],
+        "dealDate": "2025-07-14",
+        "amount": 385000,
+        "exclusiveArea": 144.77,
+        "priorMax": 341000,
+        "previousRhAmount": 341000,
+        "previousRhDate": "2025-06-27"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+        "exclusiveAreasInGroup": [
+          59.97,
+          59.98
+        ],
+        "dealDate": "2024-11-23",
+        "amount": 306000,
+        "exclusiveArea": 59.98,
+        "priorMax": 305000,
+        "previousRhAmount": 305000,
+        "previousRhDate": "2024-09-30"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+        "exclusiveAreasInGroup": [
+          59.97,
+          59.98
+        ],
+        "dealDate": "2025-02-16",
+        "amount": 325000,
+        "exclusiveArea": 59.98,
+        "priorMax": 306000,
+        "previousRhAmount": 306000,
+        "previousRhDate": "2024-11-23"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+        "exclusiveAreasInGroup": [
+          59.97,
+          59.98
+        ],
+        "dealDate": "2025-02-19",
+        "amount": 330000,
+        "exclusiveArea": 59.98,
+        "priorMax": 325000,
+        "previousRhAmount": 325000,
+        "previousRhDate": "2025-02-16"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+        "exclusiveAreasInGroup": [
+          59.97,
+          59.98
+        ],
+        "dealDate": "2025-06-25",
+        "amount": 370000,
+        "exclusiveArea": 59.98,
+        "priorMax": 330000,
+        "previousRhAmount": 330000,
+        "previousRhDate": "2025-02-19"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 84.24~84.74㎡ · 전용 59.97~59.98㎡",
+        "exclusiveAreasInGroup": [
+          59.97,
+          59.98
+        ],
+        "dealDate": "2026-07-20",
+        "amount": 373000,
+        "exclusiveArea": 59.971,
+        "priorMax": 370000,
+        "previousRhAmount": 370000,
+        "previousRhDate": "2025-06-25"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "35평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98,
+          85
+        ],
+        "dealDate": "2025-03-21",
+        "amount": 460000,
+        "exclusiveArea": 84.984,
+        "priorMax": 438000,
+        "previousRhAmount": 438000,
+        "previousRhDate": "2025-02-26"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "35평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98,
+          85
+        ],
+        "dealDate": "2025-07-10",
+        "amount": 500000,
+        "exclusiveArea": 84.943,
+        "priorMax": 460000,
+        "previousRhAmount": 460000,
+        "previousRhDate": "2025-03-21"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "35평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98,
+          85
+        ],
+        "dealDate": "2025-07-10",
+        "amount": 475000,
+        "exclusiveArea": 84.943,
+        "priorMax": 460000,
+        "previousRhAmount": 460000,
+        "previousRhDate": "2025-03-21"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "35평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98,
+          85
+        ],
+        "dealDate": "2025-12-29",
+        "amount": 501000,
+        "exclusiveArea": 84.943,
+        "priorMax": 500000,
+        "previousRhAmount": 500000,
+        "previousRhDate": "2025-07-10"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "35평형",
+        "exclusiveAreasInGroup": [
+          84.94,
+          84.98,
+          85
+        ],
+        "dealDate": "2026-01-19",
+        "amount": 520000,
+        "exclusiveArea": 84.943,
+        "priorMax": 501000,
+        "previousRhAmount": 501000,
+        "previousRhDate": "2025-12-29"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          132.18,
+          132.44
+        ],
+        "dealDate": "2025-02-27",
+        "amount": 542000,
+        "exclusiveArea": 132.439,
+        "priorMax": 534000,
+        "previousRhAmount": 534000,
+        "previousRhDate": "2024-08-17"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          132.18,
+          132.44
+        ],
+        "dealDate": "2025-02-27",
+        "amount": 542000,
+        "exclusiveArea": 132.439,
+        "priorMax": 534000,
+        "previousRhAmount": 534000,
+        "previousRhDate": "2024-08-17"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          132.18,
+          132.44
+        ],
+        "dealDate": "2025-05-29",
+        "amount": 573000,
+        "exclusiveArea": 132.439,
+        "priorMax": 542000,
+        "previousRhAmount": 542000,
+        "previousRhDate": "2025-02-27"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          132.18,
+          132.44
+        ],
+        "dealDate": "2025-10-29",
+        "amount": 605000,
+        "exclusiveArea": 132.179,
+        "priorMax": 573000,
+        "previousRhAmount": 573000,
+        "previousRhDate": "2025-05-29"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "50평형",
+        "exclusiveAreasInGroup": [
+          132.18,
+          132.44
+        ],
+        "dealDate": "2026-06-20",
+        "amount": 615000,
+        "exclusiveArea": 132.439,
+        "priorMax": 605000,
+        "previousRhAmount": 605000,
+        "previousRhDate": "2025-10-29"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "60평형",
+        "exclusiveAreasInGroup": [
+          165.05,
+          165.45
+        ],
+        "dealDate": "2021-12-21",
+        "amount": 520000,
+        "exclusiveArea": 165.446,
+        "priorMax": 450000,
+        "previousRhAmount": 450000,
+        "previousRhDate": "2021-07-04"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "60평형",
+        "exclusiveAreasInGroup": [
+          165.05,
+          165.45
+        ],
+        "dealDate": "2022-04-08",
+        "amount": 570000,
+        "exclusiveArea": 165.052,
+        "priorMax": 520000,
+        "previousRhAmount": 520000,
+        "previousRhDate": "2021-12-21"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "60평형",
+        "exclusiveAreasInGroup": [
+          165.05,
+          165.45
+        ],
+        "dealDate": "2023-08-10",
+        "amount": 580000,
+        "exclusiveArea": 165.446,
+        "priorMax": 570000,
+        "previousRhAmount": 570000,
+        "previousRhDate": "2022-04-08"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "60평형",
+        "exclusiveAreasInGroup": [
+          165.05,
+          165.45
+        ],
+        "dealDate": "2024-11-26",
+        "amount": 590000,
+        "exclusiveArea": 165.446,
+        "priorMax": 580000,
+        "previousRhAmount": 580000,
+        "previousRhDate": "2023-08-10"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "60평형",
+        "exclusiveAreasInGroup": [
+          165.05,
+          165.45
+        ],
+        "dealDate": "2025-11-06",
+        "amount": 650000,
+        "exclusiveArea": 165.446,
+        "priorMax": 590000,
+        "previousRhAmount": 590000,
+        "previousRhDate": "2024-11-26"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "70평형",
+        "exclusiveAreasInGroup": [
+          194.69
+        ],
+        "dealDate": "2017-05-27",
+        "amount": 268000,
+        "exclusiveArea": 194.692,
+        "priorMax": 249000,
+        "previousRhAmount": 249000,
+        "previousRhDate": "2016-10-10"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "70평형",
+        "exclusiveAreasInGroup": [
+          194.69
+        ],
+        "dealDate": "2018-08-15",
+        "amount": 308000,
+        "exclusiveArea": 194.692,
+        "priorMax": 268000,
+        "previousRhAmount": 268000,
+        "previousRhDate": "2017-05-27"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "70평형",
+        "exclusiveAreasInGroup": [
+          194.69
+        ],
+        "dealDate": "2020-08-15",
+        "amount": 395000,
+        "exclusiveArea": 194.692,
+        "priorMax": 308000,
+        "previousRhAmount": 308000,
+        "previousRhDate": "2018-08-15"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "70평형",
+        "exclusiveAreasInGroup": [
+          194.69
+        ],
+        "dealDate": "2021-04-29",
+        "amount": 484000,
+        "exclusiveArea": 194.692,
+        "priorMax": 395000,
+        "previousRhAmount": 395000,
+        "previousRhDate": "2020-08-15"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "70평형",
+        "exclusiveAreasInGroup": [
+          194.69
+        ],
+        "dealDate": "2023-07-15",
+        "amount": 610000,
+        "exclusiveArea": 194.692,
+        "priorMax": 484000,
+        "previousRhAmount": 484000,
+        "previousRhDate": "2021-04-29"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "80평형",
+        "exclusiveAreasInGroup": [
+          216.49
+        ],
+        "dealDate": "2021-05-01",
+        "amount": 460000,
+        "exclusiveArea": 216.49,
+        "priorMax": 449500,
+        "previousRhAmount": 449500,
+        "previousRhDate": "2021-03-13"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "80평형",
+        "exclusiveAreasInGroup": [
+          216.49
+        ],
+        "dealDate": "2021-09-19",
+        "amount": 550000,
+        "exclusiveArea": 216.49,
+        "priorMax": 460000,
+        "previousRhAmount": 460000,
+        "previousRhDate": "2021-05-01"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "80평형",
+        "exclusiveAreasInGroup": [
+          216.49
+        ],
+        "dealDate": "2021-12-26",
+        "amount": 595000,
+        "exclusiveArea": 216.49,
+        "priorMax": 550000,
+        "previousRhAmount": 550000,
+        "previousRhDate": "2021-09-19"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "80평형",
+        "exclusiveAreasInGroup": [
+          216.49
+        ],
+        "dealDate": "2022-03-28",
+        "amount": 690000,
+        "exclusiveArea": 216.49,
+        "priorMax": 595000,
+        "previousRhAmount": 595000,
+        "previousRhDate": "2021-12-26"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "80평형",
+        "exclusiveAreasInGroup": [
+          216.49
+        ],
+        "dealDate": "2022-06-21",
+        "amount": 720000,
+        "exclusiveArea": 216.49,
+        "priorMax": 690000,
+        "previousRhAmount": 690000,
+        "previousRhDate": "2022-03-28"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 297.54~301.39㎡ · 전용 244.54~244.97㎡",
+        "exclusiveAreasInGroup": [
+          244.54,
+          244.63,
+          244.97
+        ],
+        "dealDate": "2021-02-25",
+        "amount": 520000,
+        "exclusiveArea": 244.543,
+        "priorMax": 485000,
+        "previousRhAmount": 485000,
+        "previousRhDate": "2020-09-04"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 297.54~301.39㎡ · 전용 244.54~244.97㎡",
+        "exclusiveAreasInGroup": [
+          244.54,
+          244.63,
+          244.97
+        ],
+        "dealDate": "2021-08-11",
+        "amount": 650000,
+        "exclusiveArea": 244.628,
+        "priorMax": 520000,
+        "previousRhAmount": 520000,
+        "previousRhDate": "2021-02-25"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 297.54~301.39㎡ · 전용 244.54~244.97㎡",
+        "exclusiveAreasInGroup": [
+          244.54,
+          244.63,
+          244.97
+        ],
+        "dealDate": "2021-11-18",
+        "amount": 728000,
+        "exclusiveArea": 244.972,
+        "priorMax": 650000,
+        "previousRhAmount": 650000,
+        "previousRhDate": "2021-08-11"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 297.54~301.39㎡ · 전용 244.54~244.97㎡",
+        "exclusiveAreasInGroup": [
+          244.54,
+          244.63,
+          244.97
+        ],
+        "dealDate": "2022-03-18",
+        "amount": 750000,
+        "exclusiveArea": 244.543,
+        "priorMax": 728000,
+        "previousRhAmount": 728000,
+        "previousRhDate": "2021-11-18"
+      },
+      {
+        "aptNameNorm": "반포자이",
+        "groupLabel": "공급 297.54~301.39㎡ · 전용 244.54~244.97㎡",
+        "exclusiveAreasInGroup": [
+          244.54,
+          244.63,
+          244.97
+        ],
+        "dealDate": "2025-11-18",
+        "amount": 803000,
+        "exclusiveArea": 244.972,
+        "priorMax": 750000,
+        "previousRhAmount": 750000,
+        "previousRhDate": "2022-03-18"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+        "exclusiveAreasInGroup": [
+          59.96
+        ],
+        "dealDate": "2025-06-27",
+        "amount": 300000,
+        "exclusiveArea": 59.96,
+        "priorMax": 274000,
+        "previousRhAmount": 274000,
+        "previousRhDate": "2025-06-11"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+        "exclusiveAreasInGroup": [
+          59.96
+        ],
+        "dealDate": "2025-06-27",
+        "amount": 295000,
+        "exclusiveArea": 59.96,
+        "priorMax": 274000,
+        "previousRhAmount": 274000,
+        "previousRhDate": "2025-06-11"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+        "exclusiveAreasInGroup": [
+          59.96
+        ],
+        "dealDate": "2025-06-27",
+        "amount": 274500,
+        "exclusiveArea": 59.96,
+        "priorMax": 274000,
+        "previousRhAmount": 274000,
+        "previousRhDate": "2025-06-11"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+        "exclusiveAreasInGroup": [
+          59.96
+        ],
+        "dealDate": "2025-10-30",
+        "amount": 302000,
+        "exclusiveArea": 59.96,
+        "priorMax": 300000,
+        "previousRhAmount": 300000,
+        "previousRhDate": "2025-06-27"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 84.75~84.77㎡ · 전용 59.96㎡",
+        "exclusiveAreasInGroup": [
+          59.96
+        ],
+        "dealDate": "2025-11-01",
+        "amount": 310000,
+        "exclusiveArea": 59.96,
+        "priorMax": 302000,
+        "previousRhAmount": 302000,
+        "previousRhDate": "2025-10-30"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+        "exclusiveAreasInGroup": [
+          84.8,
+          84.88,
+          84.97
+        ],
+        "dealDate": "2025-06-23",
+        "amount": 340000,
+        "exclusiveArea": 84.8,
+        "priorMax": 339000,
+        "previousRhAmount": 339000,
+        "previousRhDate": "2025-06-17"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+        "exclusiveAreasInGroup": [
+          84.8,
+          84.88,
+          84.97
+        ],
+        "dealDate": "2025-07-12",
+        "amount": 343000,
+        "exclusiveArea": 84.8,
+        "priorMax": 340000,
+        "previousRhAmount": 340000,
+        "previousRhDate": "2025-06-23"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+        "exclusiveAreasInGroup": [
+          84.8,
+          84.88,
+          84.97
+        ],
+        "dealDate": "2025-10-28",
+        "amount": 348000,
+        "exclusiveArea": 84.8,
+        "priorMax": 343000,
+        "previousRhAmount": 343000,
+        "previousRhDate": "2025-07-12"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+        "exclusiveAreasInGroup": [
+          84.8,
+          84.88,
+          84.97
+        ],
+        "dealDate": "2025-10-31",
+        "amount": 350000,
+        "exclusiveArea": 84.8,
+        "priorMax": 348000,
+        "previousRhAmount": 348000,
+        "previousRhDate": "2025-10-28"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 109.29~111.52㎡ · 전용 84.8~84.97㎡",
+        "exclusiveAreasInGroup": [
+          84.8,
+          84.88,
+          84.97
+        ],
+        "dealDate": "2026-02-20",
+        "amount": 370000,
+        "exclusiveArea": 84.88,
+        "priorMax": 350000,
+        "previousRhAmount": 350000,
+        "previousRhDate": "2025-10-31"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+        "exclusiveAreasInGroup": [
+          119.93
+        ],
+        "dealDate": "2024-08-24",
+        "amount": 379000,
+        "exclusiveArea": 119.93,
+        "priorMax": 372000,
+        "previousRhAmount": 372000,
+        "previousRhDate": "2024-07-24"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+        "exclusiveAreasInGroup": [
+          119.93
+        ],
+        "dealDate": "2025-03-05",
+        "amount": 399000,
+        "exclusiveArea": 119.93,
+        "priorMax": 379000,
+        "previousRhAmount": 379000,
+        "previousRhDate": "2024-08-24"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+        "exclusiveAreasInGroup": [
+          119.93
+        ],
+        "dealDate": "2025-03-08",
+        "amount": 400000,
+        "exclusiveArea": 119.93,
+        "priorMax": 399000,
+        "previousRhAmount": 399000,
+        "previousRhDate": "2025-03-05"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+        "exclusiveAreasInGroup": [
+          119.93
+        ],
+        "dealDate": "2025-07-03",
+        "amount": 450000,
+        "exclusiveArea": 119.93,
+        "priorMax": 400000,
+        "previousRhAmount": 400000,
+        "previousRhDate": "2025-03-08"
+      },
+      {
+        "aptNameNorm": "잠실엘스",
+        "groupLabel": "공급 149.88~149.89㎡ · 전용 119.93㎡",
+        "exclusiveAreasInGroup": [
+          119.93
+        ],
+        "dealDate": "2026-01-16",
+        "amount": 460000,
+        "exclusiveArea": 119.93,
+        "priorMax": 450000,
+        "previousRhAmount": 450000,
+        "previousRhDate": "2025-07-03"
+      }
+    ],
+    "mismatchTaxonomy": [
+      "history_start_gap",
+      "grouping_diff_exact_vs_market_group",
+      "first_trade_policy",
+      "same_day_policy",
+      "amount_or_date_display",
+      "jeonse_or_cancelled_mix"
+    ]
+  }
+}

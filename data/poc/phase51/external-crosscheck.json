@@ -1,0 +1,620 @@
+{
+  "generatedAt": "2026-09-11T22:57:52.916Z",
+  "methodology": {
+    "externalProxy": "exclusive-area prior-exceed (typeRecordHigh) ≈ 아파트미 타입 신고가 / 호갱노노 평형 신고가",
+    "authoritative": "MOLIT warehouse transactions",
+    "liveUiScrape": false,
+    "firstTradePractice": "Public UIs describe 신고가 as beating prior max → first trade excluded. Recommend exclude."
+  },
+  "publicSpotChecks": [
+    {
+      "aptNameNorm": "한강(대우)",
+      "dealDate": "2025-07-12",
+      "exclusiveArea": 84.98,
+      "amount": 288000,
+      "source": "디아파트/내집나침반 실거래 목록 — 84.98㎡ 28.8억 신고가 서술",
+      "expectedExternalSingoga": true,
+      "foundInWarehouse": true,
+      "ourMarketGroup": true,
+      "exclusiveTypeProxy": true,
+      "cell": "TT"
+    },
+    {
+      "aptNameNorm": "한강(대우)",
+      "dealDate": "2025-07-08",
+      "exclusiveArea": 84.98,
+      "amount": 271000,
+      "source": "warehouse same-day pair; public lists emphasize 7/12 peak",
+      "expectedExternalSingoga": true,
+      "foundInWarehouse": true,
+      "ourMarketGroup": true,
+      "exclusiveTypeProxy": true,
+      "cell": "TT"
+    },
+    {
+      "aptNameNorm": "반포자이",
+      "dealDate": "2025-07-10",
+      "exclusiveArea": 84.943,
+      "amount": 500000,
+      "source": "audit same-day multi; silgga/news track 84㎡ peaks around 50억대",
+      "expectedExternalSingoga": true,
+      "foundInWarehouse": true,
+      "ourMarketGroup": true,
+      "exclusiveTypeProxy": true,
+      "cell": "TT"
+    },
+    {
+      "aptNameNorm": "반포자이",
+      "dealDate": "2025-07-10",
+      "exclusiveArea": 84.943,
+      "amount": 475000,
+      "source": "same-day second exceed; external may still mark as 신고가 or only day-high",
+      "expectedExternalSingoga": true,
+      "foundInWarehouse": true,
+      "ourMarketGroup": true,
+      "exclusiveTypeProxy": true,
+      "cell": "TT"
+    }
+  ],
+  "complexes": [
+    {
+      "aptNameNorm": "한강(대우)",
+      "complexKey": "hangang-daewoo",
+      "window": "deal_date >= 2020-01-01",
+      "confusionVsExclusiveTypeProxy": {
+        "TT": 39,
+        "TF": 0,
+        "FT": 8,
+        "FF": 111
+      },
+      "matchRateAll": 0.9493670886075949,
+      "matchRateAmongEitherTrue": 0.8297872340425532,
+      "sampleCount": 12,
+      "samples": [
+        {
+          "dealDate": "2025-07-08",
+          "amount": 271000,
+          "exclusiveArea": 84.98,
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-07-12",
+          "amount": 288000,
+          "exclusiveArea": 84.98,
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-10-09",
+          "amount": 239500,
+          "exclusiveArea": 60,
+          "groupKey": "hangang-daewoo:G1:ex59.98-60.00",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-12-05",
+          "amount": 330000,
+          "exclusiveArea": 134.13,
+          "groupKey": "hangang-daewoo:G3:ex134.13-134.13",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-01-06",
+          "amount": 337400,
+          "exclusiveArea": 135.5,
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-01-09",
+          "amount": 242000,
+          "exclusiveArea": 60,
+          "groupKey": "hangang-daewoo:G1:ex59.98-60.00",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-06-12",
+          "amount": 201000,
+          "exclusiveArea": 59.98,
+          "groupKey": "hangang-daewoo:G1:ex59.98-60.00",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-01-17",
+          "amount": 330000,
+          "exclusiveArea": 135.27,
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-01-17",
+          "amount": 330000,
+          "exclusiveArea": 135.27,
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-06-13",
+          "amount": 327000,
+          "exclusiveArea": 135.87,
+          "groupKey": "hangang-daewoo:G4:ex135.27-135.87",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-05-21",
+          "amount": 258000,
+          "exclusiveArea": 84.98,
+          "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        },
+        {
+          "dealDate": "2026-08-05",
+          "amount": 320000,
+          "exclusiveArea": 134.13,
+          "groupKey": "hangang-daewoo:G3:ex134.13-134.13",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        }
+      ],
+      "note": "externalTypeProxy = exclusive-area prior-exceed approximating 아파트미 타입 신고가. Live UI scrape unavailable (apt2.me Tomcat errors). MOLIT warehouse remains authoritative."
+    },
+    {
+      "aptNameNorm": "파크리오",
+      "complexKey": "parkrio",
+      "window": "deal_date >= 2020-01-01",
+      "confusionVsExclusiveTypeProxy": {
+        "TT": 102,
+        "TF": 0,
+        "FT": 62,
+        "FF": 1244
+      },
+      "matchRateAll": 0.9559659090909091,
+      "matchRateAmongEitherTrue": 0.6219512195121951,
+      "sampleCount": 12,
+      "samples": [
+        {
+          "dealDate": "2025-11-17",
+          "amount": 315000,
+          "exclusiveArea": 84.79,
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-01-20",
+          "amount": 140000,
+          "exclusiveArea": 35.24,
+          "groupKey": "parkrio:G1:ex35.24-35.24",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-01-21",
+          "amount": 371500,
+          "exclusiveArea": 121.63,
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-01-26",
+          "amount": 322000,
+          "exclusiveArea": 84.97,
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-02-05",
+          "amount": 372000,
+          "exclusiveArea": 121.63,
+          "groupKey": "parkrio:G4:ex121.63-121.63",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-03-19",
+          "amount": 155000,
+          "exclusiveArea": 35.24,
+          "groupKey": "parkrio:G1:ex35.24-35.24",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-11-03",
+          "amount": 304000,
+          "exclusiveArea": 84.9,
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2025-11-17",
+          "amount": 280000,
+          "exclusiveArea": 59.86,
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2025-12-23",
+          "amount": 305000,
+          "exclusiveArea": 84.9,
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-02-26",
+          "amount": 306000,
+          "exclusiveArea": 84.9,
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-07-28",
+          "amount": 299000,
+          "exclusiveArea": 84.9,
+          "groupKey": "parkrio:G3:ex84.79-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        },
+        {
+          "dealDate": "2026-08-20",
+          "amount": 280000,
+          "exclusiveArea": 59.95,
+          "groupKey": "parkrio:G2:ex59.64-59.95",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        }
+      ],
+      "note": "externalTypeProxy = exclusive-area prior-exceed approximating 아파트미 타입 신고가. Live UI scrape unavailable (apt2.me Tomcat errors). MOLIT warehouse remains authoritative."
+    },
+    {
+      "aptNameNorm": "반포자이",
+      "complexKey": "banpo-xi",
+      "window": "deal_date >= 2020-01-01",
+      "confusionVsExclusiveTypeProxy": {
+        "TT": 88,
+        "TF": 0,
+        "FT": 53,
+        "FF": 356
+      },
+      "matchRateAll": 0.8933601609657947,
+      "matchRateAmongEitherTrue": 0.624113475177305,
+      "sampleCount": 12,
+      "samples": [
+        {
+          "dealDate": "2025-11-06",
+          "amount": 650000,
+          "exclusiveArea": 165.446,
+          "groupKey": "banpo-xi:G4:ex165.05-165.45",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-11-18",
+          "amount": 803000,
+          "exclusiveArea": 244.972,
+          "groupKey": "banpo-xi:G7:ex244.54-244.97",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-12-29",
+          "amount": 501000,
+          "exclusiveArea": 84.943,
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-01-19",
+          "amount": 520000,
+          "exclusiveArea": 84.943,
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-06-20",
+          "amount": 615000,
+          "exclusiveArea": 132.439,
+          "groupKey": "banpo-xi:G3:ex132.18-132.44",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-07-20",
+          "amount": 373000,
+          "exclusiveArea": 59.971,
+          "groupKey": "banpo-xi:G1:ex59.97-59.98",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-03-30",
+          "amount": 650000,
+          "exclusiveArea": 165.052,
+          "groupKey": "banpo-xi:G4:ex165.05-165.45",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-03-31",
+          "amount": 510000,
+          "exclusiveArea": 84.998,
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-06-13",
+          "amount": 760000,
+          "exclusiveArea": 244.543,
+          "groupKey": "banpo-xi:G7:ex244.54-244.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-06-18",
+          "amount": 580000,
+          "exclusiveArea": 132.439,
+          "groupKey": "banpo-xi:G3:ex132.18-132.44",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-09-03",
+          "amount": 670000,
+          "exclusiveArea": 216.49,
+          "groupKey": "banpo-xi:G6:ex216.49-216.49",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        },
+        {
+          "dealDate": "2026-09-08",
+          "amount": 505000,
+          "exclusiveArea": 84.943,
+          "groupKey": "banpo-xi:G2:ex84.94-85.00",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        }
+      ],
+      "note": "externalTypeProxy = exclusive-area prior-exceed approximating 아파트미 타입 신고가. Live UI scrape unavailable (apt2.me Tomcat errors). MOLIT warehouse remains authoritative."
+    },
+    {
+      "aptNameNorm": "잠실엘스",
+      "complexKey": "jamsil-els",
+      "window": "deal_date >= 2020-01-01",
+      "confusionVsExclusiveTypeProxy": {
+        "TT": 70,
+        "TF": 0,
+        "FT": 29,
+        "FF": 714
+      },
+      "matchRateAll": 0.964329643296433,
+      "matchRateAmongEitherTrue": 0.7070707070707071,
+      "sampleCount": 12,
+      "samples": [
+        {
+          "dealDate": "2025-10-28",
+          "amount": 348000,
+          "exclusiveArea": 84.8,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-10-30",
+          "amount": 302000,
+          "exclusiveArea": 59.96,
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-10-31",
+          "amount": 350000,
+          "exclusiveArea": 84.8,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-11-01",
+          "amount": 310000,
+          "exclusiveArea": 59.96,
+          "groupKey": "jamsil-els:G1:ex59.96-59.96",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-01-16",
+          "amount": 460000,
+          "exclusiveArea": 119.93,
+          "groupKey": "jamsil-els:G3:ex119.93-119.93",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2026-02-20",
+          "amount": 370000,
+          "exclusiveArea": 84.88,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": true,
+          "externalTypeProxy": true,
+          "cell": "TT",
+          "cause": "agree_prior_exceed"
+        },
+        {
+          "dealDate": "2025-11-04",
+          "amount": 339500,
+          "exclusiveArea": 84.97,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2025-11-07",
+          "amount": 340000,
+          "exclusiveArea": 84.97,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-01-31",
+          "amount": 348000,
+          "exclusiveArea": 84.88,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-07-16",
+          "amount": 345000,
+          "exclusiveArea": 84.97,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": true,
+          "cell": "FT",
+          "cause": "grouping_diff_exact_true_market_group_false"
+        },
+        {
+          "dealDate": "2026-08-20",
+          "amount": 325000,
+          "exclusiveArea": 84.8,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        },
+        {
+          "dealDate": "2026-08-21",
+          "amount": 341000,
+          "exclusiveArea": 84.97,
+          "groupKey": "jamsil-els:G2:ex84.80-84.97",
+          "ourMarketGroup": false,
+          "externalTypeProxy": false,
+          "cell": "FF",
+          "cause": null
+        }
+      ],
+      "note": "externalTypeProxy = exclusive-area prior-exceed approximating 아파트미 타입 신고가. Live UI scrape unavailable (apt2.me Tomcat errors). MOLIT warehouse remains authoritative."
+    }
+  ],
+  "priorAuditDecision": {
+    "allowlistExpansion": "HOLD",
+    "reasons": [
+      "한강(대우): warehouse starts 2016-10-29 vs occupancy 2000 (gap 16y) → early false 신고가 risk",
+      "파크리오: warehouse starts 2016-10-01 vs occupancy 2008 (gap 8y) → early false 신고가 risk",
+      "반포자이: warehouse starts 2016-10-01 vs occupancy 2009 (gap 7y) → early false 신고가 risk",
+      "잠실엘스: warehouse starts 2016-10-03 vs occupancy 2008 (gap 8y) → early false 신고가 risk"
+    ],
+    "algorithmVerdict": "정상 (코드·재계산 일치). 확대 HOLD 이유는 history incompleteness.",
+    "note": "Same-day multi-exceed is intentional under current policy (no intra-day ordering). Not a HOLD by itself. History start gap is the blocking risk for allowlist expansion."
+  }
+}
