@@ -1,0 +1,90 @@
+{
+  "phase": "5.11",
+  "legal_dong_source": {
+    "source": "PublicDataReader/raw/code_bdong.json (MOLIT 법정동코드 static mirror)",
+    "source_url": "https://raw.githubusercontent.com/WooilJeong/code/main/code/code_dong/code_bdong.json",
+    "unique_mapping_rows": 2628,
+    "scope": "서울특별시+경기도",
+    "filter": "active leaf rows (말소일자 empty; not *00000 placeholders)"
+  },
+  "mapping": {
+    "lawd_dong_pairs_total": 946,
+    "resolved": 939,
+    "ambiguous": 0,
+    "unresolved": 7,
+    "coverage": 0.9926
+  },
+  "universe_resolution": {
+    "total_complexes": 15751,
+    "legal_dong_resolved": 15730,
+    "PARCEL_EXACT": 15702,
+    "BJDONG_ONLY": 28,
+    "AMBIGUOUS": 0,
+    "UNRESOLVED": 21
+  },
+  "trade_prefilter": {
+    "PASS": 15424,
+    "HOLD": 327
+  },
+  "jibun_quality": {
+    "normal": 7084,
+    "bun_ji": 8616,
+    "mountain": 22,
+    "malformed": 29,
+    "conflicts": 182
+  },
+  "registry_candidate_universe": {
+    "trade_prefilter_pass": 15424,
+    "parcel_exact_eligible": 15375
+  },
+  "stratified_sample": {
+    "sample": 0,
+    "success": 0,
+    "nonempty": 0,
+    "avg_requests": 0.0,
+    "p50": 0.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "max": 0.0,
+    "avg_runtime_sec": 0.0,
+    "note": "sample skipped (PHASE511_SKIP_SAMPLE=1)",
+    "by_strata": {
+      "mega": {
+        "n": 0,
+        "avg_requests": 0.0,
+        "universe_n": 768
+      },
+      "large": {
+        "n": 0,
+        "avg_requests": 0.0,
+        "universe_n": 2307
+      },
+      "medium": {
+        "n": 0,
+        "avg_requests": 0.0,
+        "universe_n": 4612
+      },
+      "small": {
+        "n": 0,
+        "avg_requests": 0.0,
+        "universe_n": 7688
+      }
+    }
+  },
+  "full_cost_estimate": {
+    "likely_requests": 0,
+    "conservative_upper_requests": 0,
+    "likely_runtime_hours": 0.0,
+    "upper_runtime_hours": 0.0,
+    "method": "strata-weighted mean (likely) and strata p95 (conservative)"
+  },
+  "optimization": {
+    "can_reduce_safely": "NO",
+    "reason": "classify()/build_units requires unit-level 전유부 rows (dongNm, hoNm, exposPubuseGbCdNm, mainAtchGbCdNm, mainPurpsCdNm, area, etcPurps). Header/summary endpoints do not supply per-ho exclusive+residential-common areas. Pagination is cardinality of 전유/공용 rows at exact parcel, not missing filters. Reducing pages would drop units and change classifier semantics."
+  },
+  "production_writes": 0,
+  "decision": "PASS",
+  "decision_reason": "mapping/resolution only (sample pending)",
+  "next": "run cached/scaled building-registry acquisition in controlled batches",
+  "sample_results": []
+}
