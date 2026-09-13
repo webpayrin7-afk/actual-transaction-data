@@ -65,7 +65,7 @@ export function ComplexBasicInfoCard({ detail }: { detail: ComplexDetailV1 }) {
   return (
     <LabCard className="p-4 sm:p-5">
       <LabSectionHeading title="단지 정보" />
-      <dl className="mt-2">
+      <dl className="mt-3">
         {rows.map((r) => (
           <InfoRow key={r.label} label={r.label} value={r.value} />
         ))}
@@ -84,7 +84,7 @@ export function ComplexBuildingInfoCard({
   return (
     <LabCard className="p-4 sm:p-5">
       <LabSectionHeading title="건축 정보" />
-      <dl className="mt-2">
+      <dl className="mt-3">
         {rows.map((r) => (
           <InfoRow key={r.label} label={r.label} value={r.value} />
         ))}

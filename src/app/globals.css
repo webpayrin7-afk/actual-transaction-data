@@ -47,9 +47,10 @@ button, [role="button"], a { touch-action: manipulation; }
   box-shadow: var(--lab-shadow);
 }
 
-.lab-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.lab-section-heading h2 { color: var(--lab-navy-950); font-size: 1rem; font-weight: 700; letter-spacing: -.015em; }
-.lab-section-heading p { margin-top: 3px; color: var(--lab-muted); font-size: .75rem; line-height: 1.25rem; }
+.lab-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 0; }
+/* Match Complex Detail section titles (시세 추이 / 거래 내역) */
+.lab-section-heading h2 { color: var(--lab-navy-950); font-size: 1.25rem; font-weight: 600; letter-spacing: -.025em; line-height: 1; }
+.lab-section-heading p { margin-top: 4px; color: var(--lab-muted); font-size: .75rem; line-height: 1.25rem; }
 .lab-button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; padding: 0 14px; font-size: .875rem; font-weight: 650; transition: background-color .15s, border-color .15s, color .15s; }
 .lab-button:focus-visible, .lab-input:focus-visible, .lab-tab:focus-visible, .lab-side-link:focus-visible { outline: 2px solid var(--lab-teal-600); outline-offset: 2px; }
 .lab-button-primary { background: var(--lab-teal-600); color: white; }

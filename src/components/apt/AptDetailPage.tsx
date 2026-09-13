@@ -683,7 +683,7 @@ export function AptDetailPage({
 
       {/* Market: one white section — period + KPI row + context + chart */}
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
-        <div className="mb-3">
+        <div className="mb-4">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               시세 추이
@@ -781,12 +781,12 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
-        <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="mb-4 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
-              최근 거래
+            <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+              거래 내역
             </h2>
-            <p className="mt-0.5 truncate text-xs text-slate-500">
+            <p className="mt-1 truncate text-xs text-slate-500">
               {areaKey === "all" || !selectedArea
                 ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
                 : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
@@ -806,7 +806,7 @@ export function AptDetailPage({
             href={transactionsHref}
             className="lab-button lab-button-secondary min-h-10 px-4 text-sm"
           >
-            거래내역 전체보기
+            거래 내역 전체보기
             {filteredByType.length > 5
               ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
               : ""}
