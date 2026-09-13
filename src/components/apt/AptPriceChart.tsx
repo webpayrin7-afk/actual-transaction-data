@@ -114,17 +114,18 @@ export function AptPriceChart({
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
           <XAxis
             dataKey="yearMonth"
+            height={16}
             tickFormatter={(ym: string) =>
               ym.endsWith("01") ? `${ym.slice(2, 4)}년` : ""
             }
             interval="preserveStartEnd"
             minTickGap={28}
-            tick={{ fill: "#475569", fontSize: 11 }}
+            tick={{ fill: "#475569", fontSize: 10 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
           />

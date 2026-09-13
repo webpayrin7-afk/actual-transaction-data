@@ -537,7 +537,7 @@ export function AptDetailPage({
     hint: ReactNode,
     valueClassName = "",
   ) => (
-    <div className="min-w-0 px-1.5 py-1.5 text-center sm:px-3 sm:py-2 sm:text-left">
+    <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
       <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
         {label}
       </p>
@@ -684,7 +684,7 @@ export function AptDetailPage({
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
         <div className="mb-3">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="text-lg font-semibold leading-none text-slate-900 sm:text-xl">
+            <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               시세 추이
             </h2>
             <div className="flex flex-wrap items-center gap-2">
