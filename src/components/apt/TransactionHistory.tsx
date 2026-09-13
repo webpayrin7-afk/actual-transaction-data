@@ -44,7 +44,7 @@ export function TransactionTypeTabs({
   if (variant === "pills" || variant === "segmented") {
     return (
       <div
-        className="flex min-w-0 max-w-full flex-1 flex-wrap items-center gap-1.5"
+        className="flex min-w-0 max-w-full flex-1 flex-wrap items-center gap-0.5"
         role="radiogroup"
         aria-label="거래 유형"
       >
@@ -58,7 +58,7 @@ export function TransactionTypeTabs({
               aria-checked={active}
               onClick={() => onChange(tab.value)}
               className={[
-                "inline-flex h-8 shrink-0 items-center rounded-lg border px-2.5 text-[12px] font-semibold transition sm:h-9 sm:px-3 sm:text-[13px]",
+                "inline-flex h-8 min-w-[4.5rem] shrink-0 items-center justify-center rounded-lg border px-5 text-[12px] font-semibold transition sm:h-9 sm:min-w-[5rem] sm:px-6 sm:text-[13px]",
                 active
                   ? "border-[color:var(--lab-teal-600)] bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
                   : "border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-700)] hover:bg-[color:var(--lab-bg)]",
@@ -383,13 +383,13 @@ export function GroupedTransactionList({
   const groups = groupTransactionsByMonth(items);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {groups.map((group) => (
         <section
           key={group.key}
           className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white shadow-[var(--lab-shadow)]"
         >
-          <div className="flex items-center justify-between gap-2 border-b border-[color:var(--lab-border)] bg-[color:var(--lab-bg)] px-2.5 py-2 sm:px-3">
+          <div className="flex items-center justify-between gap-2 border-b border-[color:var(--lab-border)] bg-white px-2.5 py-2.5 sm:px-3">
             <h3 className="text-[13px] font-bold text-[color:var(--lab-navy-950)] sm:text-sm">
               {group.label}
             </h3>
@@ -407,7 +407,7 @@ export function GroupedTransactionList({
               return (
                 <li
                   key={`${tx.id}-${idx}`}
-                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-1.5 text-[11px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2 sm:text-[12px]"
+                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2 text-[11px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2.5 sm:text-[12px]"
                   style={{ gridTemplateColumns: ARCHIVE_GRID }}
                 >
                   <span className="tabular-nums text-[color:var(--lab-navy-900)]">
