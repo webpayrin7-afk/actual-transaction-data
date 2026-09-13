@@ -24,44 +24,126 @@ function BreakdownRow({
   );
 }
 
+function shortManwon(won: number): string {
+  const man = Math.round(won / 10000);
+  if (man >= 10000) return `${(man / 10000).toFixed(1)}억`;
+  return `${man.toLocaleString("ko-KR")}만`;
+}
+
 function MgmtSparkline({
   series,
 }: {
   series: ComplexManagementV1["monthlySeries"];
 }) {
-  const values = series
-    .map((m) => m.perHouseholdComponentSum)
-    .filter((v): v is number => v != null && v > 0);
-  if (values.length < 2) return null;
+  const points = series.filter(
+    (m): m is ComplexManagementV1["monthlySeries"][number] & {
+      perHouseholdComponentSum: number;
+    } =>
+      m.perHouseholdComponentSum != null && m.perHouseholdComponentSum > 0,
+  );
+  if (points.length < 2) return null;
+
+  const values = points.map((m) => m.perHouseholdComponentSum);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = Math.max(max - min, 1);
-  const w = 240;
-  const h = 48;
+
+  const w = 280;
+  const h = 88;
+  const padL = 34;
+  const padR = 8;
+  const padT = 10;
+  const padB = 18;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+
   const pts = values
     .map((v, i) => {
-      const x = (i / (values.length - 1)) * w;
-      const y = h - ((v - min) / span) * (h - 6) - 3;
+      const x = padL + (i / (values.length - 1)) * plotW;
+      const y = padT + plotH - ((v - min) / span) * plotH;
       return `${x},${y}`;
     })
     .join(" ");
 
+  const firstLabel = formatYyyymmLabel(points[0]!.periodYyyymm);
+  const lastLabel = formatYyyymmLabel(points[points.length - 1]!.periodYyyymm);
+
   return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      className="mt-3 h-12 w-full text-teal-700"
-      role="img"
-      aria-label="세대당 환산 관리비 추이"
-    >
-      <polyline
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        points={pts}
-      />
-    </svg>
+    <div className="mt-4 rounded-xl border border-slate-200/90 bg-slate-50/70 px-2.5 py-2.5">
+      <p className="mb-1.5 text-[11px] font-medium text-slate-500">
+        세대당 환산 추이
+      </p>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        className="h-[4.75rem] w-full text-teal-700"
+        role="img"
+        aria-label="세대당 환산 관리비 추이"
+      >
+        <rect
+          x={padL}
+          y={padT}
+          width={plotW}
+          height={plotH}
+          rx={6}
+          className="fill-white stroke-slate-200"
+          strokeWidth={1}
+        />
+        <line
+          x1={padL}
+          y1={padT + plotH / 2}
+          x2={padL + plotW}
+          y2={padT + plotH / 2}
+          className="stroke-slate-100"
+          strokeWidth={1}
+        />
+        <text
+          x={padL - 4}
+          y={padT + 3}
+          textAnchor="end"
+          dominantBaseline="hanging"
+          className="fill-slate-400"
+          fontSize={8}
+        >
+          {shortManwon(max)}
+        </text>
+        <text
+          x={padL - 4}
+          y={padT + plotH}
+          textAnchor="end"
+          dominantBaseline="auto"
+          className="fill-slate-400"
+          fontSize={8}
+        >
+          {shortManwon(min)}
+        </text>
+        <text
+          x={padL}
+          y={h - 3}
+          textAnchor="start"
+          className="fill-slate-400"
+          fontSize={8}
+        >
+          {firstLabel}
+        </text>
+        <text
+          x={padL + plotW}
+          y={h - 3}
+          textAnchor="end"
+          className="fill-slate-400"
+          fontSize={8}
+        >
+          {lastLabel}
+        </text>
+        <polyline
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          points={pts}
+        />
+      </svg>
+    </div>
   );
 }
 
