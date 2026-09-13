@@ -766,7 +766,6 @@ export function AptDetailPage({
               거래 내역
             </h2>
             <TransactionTypeTabs
-              variant="pills"
               value={dealFilter}
               onChange={setDealFilter}
             />
@@ -779,14 +778,14 @@ export function AptDetailPage({
           <div style={{ height: 16 }} className="w-full" aria-hidden />
         </div>
 
-        <TransactionList items={filtered} mode={dealFilter} layout="inline" />
+        <TransactionList items={filtered} mode={dealFilter} />
 
         <div className="mt-4">
           <Link
             href={transactionsHref}
             className="lab-button lab-button-primary w-full min-h-10 text-sm"
           >
-            거래 내역 자세히 보기
+            거래 내역 전체보기
             {filteredByType.length > 5
               ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
               : ""}
