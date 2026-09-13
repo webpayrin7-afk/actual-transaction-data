@@ -684,7 +684,7 @@ export function AptDetailPage({
             {periodButtons}
           </div>
         </div>
-        <div className="h-8 shrink-0" aria-hidden />
+        <div className="h-4 shrink-0" aria-hidden />
 
         <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
           {kpiCell(
@@ -778,7 +778,7 @@ export function AptDetailPage({
               ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
               : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
           </p>
-          <div className="h-8 shrink-0" aria-hidden />
+          <div className="h-4 shrink-0" aria-hidden />
         </div>
 
         <TransactionList items={filtered} mode={dealFilter} />
