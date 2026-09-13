@@ -20,6 +20,9 @@ import {
   complexHeaderChips,
   hasComplexInfoSection,
 } from "@/components/apt/ComplexInfoCards";
+import { ComplexSchoolsSection } from "@/components/apt/ComplexSchoolsSection";
+import { ComplexSurroundingsSection } from "@/components/apt/ComplexSurroundingsSection";
+import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
 import {
@@ -257,7 +260,10 @@ export function AptDetailPage({
       "trades",
       "calculator",
       "management",
-      "complex",
+      "complex-info",
+      "schools",
+      "surroundings",
+      "comparison",
     ] as const;
     const nodes = ids
       .map((id) => document.getElementById(`section-${id}`))
@@ -271,7 +277,13 @@ export function AptDetailPage({
         const top = visible[0]?.target.getAttribute("id");
         if (top?.startsWith("section-")) {
           const id = top.replace("section-", "");
-          setActiveSection(id === "trades" ? "market" : id);
+          setActiveSection(
+            id === "trades"
+              ? "market"
+              : id === "surroundings"
+                ? "schools"
+                : id,
+          );
         }
       },
       { rootMargin: "-30% 0px -55% 0px", threshold: [0.1, 0.25, 0.5] },
@@ -542,10 +554,12 @@ export function AptDetailPage({
       show: !!complexDetail?.management,
     },
     {
-      id: "complex",
+      id: "complex-info",
       label: "단지 정보",
       show: hasComplexInfoSection(complexDetail),
     },
+    { id: "schools", label: "학군 · 주변", show: true },
+    { id: "comparison", label: "단지 비교", show: true },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
 
@@ -851,8 +865,29 @@ export function AptDetailPage({
       ) : null}
 
       {hasComplexInfoSection(complexDetail) && complexDetail ? (
-        <div id="section-complex" className="scroll-mt-28">
+        <div id="section-complex-info" className="scroll-mt-28">
           <ComplexInfoCard detail={complexDetail} />
+        </div>
+      ) : null}
+
+      <div id="section-schools" className="scroll-mt-28">
+        <ComplexSchoolsSection aptName={aptName} />
+      </div>
+
+      <div id="section-surroundings" className="scroll-mt-28">
+        <ComplexSurroundingsSection aptName={aptName} />
+      </div>
+
+      {data ? (
+        <div id="section-comparison" className="scroll-mt-28">
+          <ComplexCompareSection
+            aptName={aptName}
+            regionSlug={regionSlug}
+            gu={gu}
+            detail={data}
+            selectedArea={selectedArea}
+            areaKey={areaKey}
+          />
         </div>
       ) : null}
     </div>

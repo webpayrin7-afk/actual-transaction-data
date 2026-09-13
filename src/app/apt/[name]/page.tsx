@@ -18,7 +18,7 @@ export async function generateMetadata({
   const region = sp.region ? getRegion(sp.region) : undefined;
   return {
     title: `${aptName} 단지 상세${region ? ` - ${region.name}` : ""}`,
-    description: `${aptName} 시세·거래·관리비·단지정보`,
+    description: `${aptName} 시세·거래·대출세금·관리비·단지정보·학군·주변·비교`,
   };
 }
 

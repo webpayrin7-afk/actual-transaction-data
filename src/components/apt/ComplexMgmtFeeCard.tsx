@@ -9,6 +9,7 @@ import {
   formatYyyymmBasisLabel,
   type ComplexManagementV1,
 } from "@/lib/complex-detail/get-complex-detail-v1";
+import { MANAGEMENT_AREA_FEE_NOTE } from "@/lib/complex-detail/source-status";
 
 function SummaryCell({
   label,
@@ -132,6 +133,10 @@ export function ComplexMgmtFeeCard({
           <SummaryCell label="장기수선충당금" valueWon={reservePerHh} />
         </div>
       </div>
+
+      <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+        {MANAGEMENT_AREA_FEE_NOTE}
+      </p>
     </LabCard>
   );
 }
