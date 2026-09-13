@@ -63,7 +63,7 @@ function AreaTriggerLabel({
 /**
  * Single trigger + bottom sheet area picker.
  * Closed: "33평 · 전용 84.80~84.97㎡ ˅" (no icon / no "면적 선택" label).
- * Sheet: 평형+거래건수 → 전용 → (공급); 선택 체크는 맨 오른쪽. Phase5 boundaries unchanged.
+ * Sheet: 평형 → 전용+거래건수 → (공급); 선택 체크는 맨 오른쪽 세로 가운데. Phase5 boundaries unchanged.
  */
 export function AptAreaSelector({
   areas,
@@ -442,21 +442,21 @@ function AreaOptionRow({
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      className={`flex w-full items-start gap-3 px-4 py-3.5 text-left transition ${
+      className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition ${
         active ? "bg-teal-50" : "hover:bg-slate-50"
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
-            {pyeongLabel}
+        <span className="block text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
+          {pyeongLabel}
+        </span>
+        <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="text-[13px] tabular-nums leading-snug text-slate-500">
+            {exclusiveLabel}
           </span>
           <span className="text-[13px] tabular-nums leading-snug text-slate-400">
             {dealLabel}
           </span>
-        </span>
-        <span className="mt-0.5 block text-[13px] tabular-nums leading-snug text-slate-500">
-          {exclusiveLabel}
         </span>
         {supplyLabel ? (
           <span className="mt-0.5 hidden text-[12px] tabular-nums text-slate-400 sm:block">
@@ -464,11 +464,11 @@ function AreaOptionRow({
           </span>
         ) : null}
       </span>
-      <span className="flex h-[1.375rem] w-4 shrink-0 items-center justify-center sm:h-6">
+      <span className="flex w-5 shrink-0 items-center justify-center">
         {active ? (
-          <Check className="h-4 w-4 text-teal-700" aria-hidden />
+          <Check className="h-5 w-5 text-teal-700" strokeWidth={2.5} aria-hidden />
         ) : (
-          <span className="h-4 w-4" aria-hidden />
+          <span className="h-5 w-5" aria-hidden />
         )}
       </span>
     </button>
