@@ -343,20 +343,18 @@ function FloorCell({ floor }: { floor: number | null | undefined }) {
 
 function ArchiveColHeader() {
   return (
-    <div className="bg-white px-2 py-1.5 sm:px-2.5">
-      <div
-        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 text-[10px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5 sm:text-[11px]"
-        style={{ gridTemplateColumns: ARCHIVE_GRID }}
-        role="row"
-      >
-        <span>계약일</span>
-        <span>상태</span>
-        <span>가격</span>
-        <span className="hidden sm:inline">면적(㎡)</span>
-        <span className="sm:hidden">면적</span>
-        <span>거래동</span>
-        <span>층</span>
-      </div>
+    <div
+      className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)] bg-[color:var(--lab-bg)] px-2 py-1.5 text-[10px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:px-3 sm:text-[11px]"
+      style={{ gridTemplateColumns: ARCHIVE_GRID }}
+      role="row"
+    >
+      <span>계약일</span>
+      <span>상태</span>
+      <span>가격</span>
+      <span className="hidden sm:inline">면적(㎡)</span>
+      <span className="sm:hidden">면적</span>
+      <span>거래동</span>
+      <span>층</span>
     </div>
   );
 }
@@ -385,13 +383,13 @@ export function GroupedTransactionList({
   const groups = groupTransactionsByMonth(items);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       {groups.map((group) => (
         <section
           key={group.key}
           className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white shadow-[var(--lab-shadow)]"
         >
-          <div className="flex items-center justify-between gap-2 border-b border-[color:var(--lab-border)] bg-white px-2.5 py-3 sm:px-3">
+          <div className="flex items-center justify-between gap-2 border-b border-[color:var(--lab-border)] bg-[color:var(--lab-bg)] px-2.5 py-2 sm:px-3">
             <h3 className="text-[13px] font-bold text-[color:var(--lab-navy-950)] sm:text-sm">
               {group.label}
             </h3>
@@ -409,7 +407,7 @@ export function GroupedTransactionList({
               return (
                 <li
                   key={`${tx.id}-${idx}`}
-                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2.5 text-[11px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-3 sm:text-[12px]"
+                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-1.5 text-[11px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2 sm:text-[12px]"
                   style={{ gridTemplateColumns: ARCHIVE_GRID }}
                 >
                   <span className="tabular-nums text-[color:var(--lab-navy-900)]">
