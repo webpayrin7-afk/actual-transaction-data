@@ -49,7 +49,6 @@ import {
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
 import {
-  PAGE_HEADER_WITH_BACK,
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
@@ -600,7 +599,7 @@ export function AptDetailPage({
         aria-hidden={!stickyVisible}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-1.5 sm:gap-3 sm:px-6">
-          <BackLink fallback="/complexes" compact hideLabelOnMobile />
+          <BackLink fallback="/complexes" compact hideLabel />
           <p className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
             {data.aptName}
           </p>
@@ -617,9 +616,11 @@ export function AptDetailPage({
         </div>
       </div>
 
-      <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/complexes" hideLabelOnMobile />
+      <header ref={heroRef} className="-mt-1 sm:-mt-1.5">
         <PageHeader
+          leading={
+            <BackLink fallback="/complexes" compact hideLabel />
+          }
           title={data.aptName}
           description={locationLabel}
           meta={

@@ -12,6 +12,8 @@ type BackLinkProps = {
   compact?: boolean;
   /** Keep the back button but hide its text below the sm breakpoint. */
   hideLabelOnMobile?: boolean;
+  /** Icon-only (e.g. beside a page title). */
+  hideLabel?: boolean;
 };
 
 /**
@@ -23,6 +25,7 @@ export function BackLink({
   className = "",
   compact = false,
   hideLabelOnMobile = false,
+  hideLabel = false,
 }: BackLinkProps) {
   const router = useRouter();
 
@@ -56,9 +59,11 @@ export function BackLink({
         strokeWidth={2}
         aria-hidden
       />
-      <span className={hideLabelOnMobile ? "hidden sm:inline" : undefined}>
-        돌아가기
-      </span>
+      {hideLabel ? null : (
+        <span className={hideLabelOnMobile ? "hidden sm:inline" : undefined}>
+          돌아가기
+        </span>
+      )}
     </button>
   );
 }

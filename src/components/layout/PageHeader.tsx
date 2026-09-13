@@ -23,6 +23,7 @@ export function PageHeader({
   description,
   meta,
   action,
+  leading,
   children,
   compact = false,
   showDivider = true,
@@ -32,6 +33,8 @@ export function PageHeader({
   description?: ReactNode;
   meta?: ReactNode;
   action?: ReactNode;
+  /** 제목 왼쪽 (뒤로가기 등). 단지명과 같은 줄에 배치 */
+  leading?: ReactNode;
   children?: ReactNode;
   compact?: boolean;
   /** 첫 콘텐츠와 구분하는 얇은 선. 탭이 바로 이어지는 페이지는 false */
@@ -41,15 +44,18 @@ export function PageHeader({
   return (
     <header className={`max-w-4xl ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
-        <h1
-          className={`min-w-0 flex-1 font-semibold tracking-tight text-[color:var(--lab-navy-950)] ${
-            compact
-              ? "text-lg leading-6 sm:text-xl sm:leading-7"
-              : "text-xl leading-7 sm:text-[1.375rem] sm:leading-8"
-          }`}
-        >
-          {title}
-        </h1>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {leading ? <div className="shrink-0">{leading}</div> : null}
+          <h1
+            className={`min-w-0 flex-1 font-semibold tracking-tight text-[color:var(--lab-navy-950)] ${
+              compact
+                ? "text-lg leading-6 sm:text-xl sm:leading-7"
+                : "text-xl leading-7 sm:text-[1.375rem] sm:leading-8"
+            }`}
+          >
+            {title}
+          </h1>
+        </div>
         {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
       </div>
       {description ? (
