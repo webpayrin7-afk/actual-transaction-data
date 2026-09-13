@@ -670,24 +670,19 @@ export function AptDetailPage({
 
       {/* Market: one white section — period + KPI row + context + chart */}
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
-        <div className="mb-4">
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-              시세 추이
-            </h2>
-            <div className="flex flex-wrap items-center gap-2">
-              {isExtendingHistory ? (
-                <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
-                  <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                  과거 시세 추가 중…
-                </p>
-              ) : null}
-              {periodButtons}
-            </div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+          <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+            시세 추이
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {isExtendingHistory ? (
+              <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
+                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                과거 시세 추가 중…
+              </p>
+            ) : null}
+            {periodButtons}
           </div>
-          <p className="mt-1 text-xs text-slate-500">
-            매매·전세 평균가와 월별 거래량
-          </p>
         </div>
 
         <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
@@ -717,7 +712,7 @@ export function AptDetailPage({
           )}
           {kpiCell(
             "거래량",
-            `매매 ${periodTradeCount.toLocaleString("ko-KR")}`,
+            `매매 ${periodTradeCount.toLocaleString("ko-KR")}건`,
             `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
           )}
         </div>
@@ -764,7 +759,7 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
-        <div className="mb-4">
+        <div className="mb-6">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               거래 내역
@@ -783,10 +778,10 @@ export function AptDetailPage({
 
         <TransactionList items={filtered} mode={dealFilter} />
 
-        <div className="mt-4 flex justify-center">
+        <div className="mt-4">
           <Link
             href={transactionsHref}
-            className="lab-button lab-button-secondary min-h-10 px-4 text-sm"
+            className="lab-button lab-button-primary w-full min-h-10 text-sm"
           >
             거래 내역 전체보기
             {filteredByType.length > 5
