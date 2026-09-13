@@ -112,22 +112,13 @@ function KpiCell({
   label,
   value,
   hint,
-  showDivider = false,
 }: {
   label: string;
   value: string;
   hint: string;
-  showDivider?: boolean;
 }) {
   return (
-    <div
-      className={[
-        "relative min-w-0 flex-1 overflow-hidden px-2 py-2.5 text-center sm:px-3 sm:py-3",
-        showDivider
-          ? "before:absolute before:left-0 before:top-1/2 before:h-8 before:w-px before:-translate-y-1/2 before:bg-[color:var(--lab-border)] sm:before:h-9"
-          : "",
-      ].join(" ")}
-    >
+    <div className="min-w-0 flex-1 px-2 py-2.5 text-center sm:px-3 sm:py-3">
       <p className="text-[10px] font-medium leading-tight text-[color:var(--lab-muted)] sm:text-[11px]">
         {label}
       </p>
@@ -138,6 +129,16 @@ function KpiCell({
         {hint}
       </p>
     </div>
+  );
+}
+
+/** Short centered rule — shorter than full cell height, not a full-bleed divide-x. */
+function KpiDivider() {
+  return (
+    <div
+      className="my-auto h-7 w-px shrink-0 self-center bg-[color:var(--lab-border)] sm:h-8"
+      aria-hidden
+    />
   );
 }
 
@@ -399,8 +400,8 @@ export function AptTransactionsPage({
                     : "—"
                 }
               />
+              <KpiDivider />
               <KpiCell
-                showDivider
                 label="최고 월세"
                 value={
                   kpi?.monthlyRentHigh
@@ -413,8 +414,8 @@ export function AptTransactionsPage({
                     : "—"
                 }
               />
+              <KpiDivider />
               <KpiCell
-                showDivider
                 label="월세 거래"
                 value={`${activeCount.toLocaleString("ko-KR")}건`}
                 hint={yearHint}
@@ -429,8 +430,8 @@ export function AptTransactionsPage({
                 }
                 hint={kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"}
               />
+              <KpiDivider />
               <KpiCell
-                showDivider
                 label="전세 최고"
                 value={
                   kpi?.jeonseHigh
@@ -441,8 +442,8 @@ export function AptTransactionsPage({
                   kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
                 }
               />
+              <KpiDivider />
               <KpiCell
-                showDivider
                 label={dealType === "jeonse" ? "전세 거래" : "매매 거래"}
                 value={`${activeCount.toLocaleString("ko-KR")}건`}
                 hint={yearHint}
