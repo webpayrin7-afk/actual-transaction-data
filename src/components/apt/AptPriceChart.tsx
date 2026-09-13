@@ -110,7 +110,7 @@ export function AptPriceChart({
   }
 
   return (
-    <div className="h-64 w-full sm:h-72">
+    <div className="h-56 w-full sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
@@ -291,11 +291,11 @@ export function PeriodRangeSlider({
   const presetBtn = (active: boolean) => labSecondaryTabClass(active);
 
   return (
-    <div className="mt-4 space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <p className="font-medium text-slate-800">
+    <div className="mt-2 space-y-1">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
+        <p className="font-medium tabular-nums text-slate-700">
           {formatYmLabel(startYm)}
-          <span className="mx-1.5 text-slate-400">~</span>
+          <span className="mx-1 text-slate-400">~</span>
           {formatYmLabel(endYm)}
         </p>
         {showPresets ? (
@@ -332,7 +332,7 @@ export function PeriodRangeSlider({
         ) : null}
       </div>
 
-      <div className="relative h-10 touch-none select-none">
+      <div className="relative h-7 touch-none select-none">
         <div
           ref={trackRef}
           className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 cursor-pointer rounded-full bg-slate-200"
@@ -354,7 +354,7 @@ export function PeriodRangeSlider({
           aria-valuemin={0}
           aria-valuemax={max}
           aria-valuenow={startIndex}
-          className="absolute top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
           style={{ left: `${startPct}%` }}
           onPointerDown={(e) => beginDrag(e, "start")}
         />
@@ -365,13 +365,13 @@ export function PeriodRangeSlider({
           aria-valuemin={0}
           aria-valuemax={max}
           aria-valuenow={endIndex}
-          className="absolute top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
           style={{ left: `${endPct}%` }}
           onPointerDown={(e) => beginDrag(e, "end")}
         />
       </div>
 
-      <div className="flex justify-between text-[11px] text-slate-500">
+      <div className="flex justify-between text-[10px] leading-none text-slate-500">
         <span>{formatYmLabel(months[0])}</span>
         <span>{formatYmLabel(months[months.length - 1])}</span>
       </div>

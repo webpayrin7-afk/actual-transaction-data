@@ -537,14 +537,16 @@ export function AptDetailPage({
     hint: ReactNode,
     valueClassName = "",
   ) => (
-    <div className="min-w-0 px-2 py-2 text-center sm:px-3 sm:py-2.5 sm:text-left">
-      <p className="text-[10px] font-medium text-slate-500 sm:text-[11px]">{label}</p>
+    <div className="min-w-0 px-1.5 py-1.5 text-center sm:px-3 sm:py-2 sm:text-left">
+      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
+        {label}
+      </p>
       <p
-        className={`lab-kpi-value mt-0.5 text-base font-semibold leading-tight tabular-nums sm:text-lg ${valueClassName}`.trim()}
+        className={`lab-kpi-value mt-0.5 text-[13px] font-semibold leading-tight tabular-nums sm:text-base ${valueClassName}`.trim()}
       >
         {value}
       </p>
-      <p className="mt-0.5 truncate text-[10px] leading-snug text-slate-500 sm:text-[11px]">
+      <p className="mt-0.5 break-keep text-[9px] leading-snug text-slate-500 sm:text-[11px]">
         {hint}
       </p>
     </div>
@@ -680,24 +682,24 @@ export function AptDetailPage({
 
       {/* Market: one white section — period + KPI row + context + chart */}
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
-        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+        <div className="mb-3">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+            <h2 className="text-base font-semibold leading-none text-slate-900 sm:text-lg">
               시세 추이
             </h2>
-            <p className="mt-0.5 text-xs text-slate-500">
-              매매·전세 평균가와 월별 거래량
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              {isExtendingHistory ? (
+                <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
+                  <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                  과거 시세 추가 중…
+                </p>
+              ) : null}
+              {periodButtons}
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {isExtendingHistory ? (
-              <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
-                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                과거 시세 추가 중…
-              </p>
-            ) : null}
-            {periodButtons}
-          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            매매·전세 평균가와 월별 거래량
+          </p>
         </div>
 
         <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
@@ -731,8 +733,8 @@ export function AptDetailPage({
           )}
           {kpiCell(
             "거래량",
-            `매매 ${periodTradeCount}건`,
-            `전세 ${periodJeonseCount}건`,
+            `매매 ${periodTradeCount.toLocaleString("ko-KR")}`,
+            `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
           )}
         </div>
 
@@ -754,7 +756,7 @@ export function AptDetailPage({
           </span>
         </p>
 
-        <div className="mt-3">
+        <div className="mt-2">
           <AptPriceChart points={chartPoints} />
         </div>
 
