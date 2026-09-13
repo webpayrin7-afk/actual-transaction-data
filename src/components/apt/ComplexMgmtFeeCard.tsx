@@ -30,119 +30,110 @@ function shortManwon(won: number): string {
   return `${man.toLocaleString("ko-KR")}만`;
 }
 
+/** Keep months within the trailing 24-month window ending at the latest point. */
+function lastTwoYears(
+  points: Array<
+    ComplexManagementV1["monthlySeries"][number] & {
+      perHouseholdComponentSum: number;
+    }
+  >,
+) {
+  if (points.length === 0) return points;
+  const end = points[points.length - 1]!.periodYyyymm;
+  const endY = Number(end.slice(0, 4));
+  const endM = Number(end.slice(4, 6));
+  let startY = endY - 2;
+  let startM = endM + 1;
+  if (startM > 12) {
+    startY += 1;
+    startM -= 12;
+  }
+  const startKey = `${startY}${String(startM).padStart(2, "0")}`;
+  const filtered = points.filter((p) => p.periodYyyymm >= startKey);
+  return filtered.length >= 2 ? filtered : points.slice(-Math.min(24, points.length));
+}
+
+/**
+ * Region-browse style mini chart: compact card, value row, path + dots,
+ * footer range labeled as the recent 2-year window.
+ */
 function MgmtSparkline({
   series,
 }: {
   series: ComplexManagementV1["monthlySeries"];
 }) {
-  const points = series.filter(
+  const allPoints = series.filter(
     (m): m is ComplexManagementV1["monthlySeries"][number] & {
       perHouseholdComponentSum: number;
     } =>
       m.perHouseholdComponentSum != null && m.perHouseholdComponentSum > 0,
   );
+  const points = lastTwoYears(allPoints);
   if (points.length < 2) return null;
 
   const values = points.map((m) => m.perHouseholdComponentSum);
   const min = Math.min(...values);
   const max = Math.max(...values);
-  const span = Math.max(max - min, 1);
+  const range = Math.max(max - min, 1);
+  const latest = points[points.length - 1]!;
+  const first = points[0]!;
 
-  const w = 280;
-  const h = 88;
-  const padL = 34;
-  const padR = 8;
-  const padT = 10;
-  const padB = 18;
-  const plotW = w - padL - padR;
-  const plotH = h - padT - padB;
-
-  const pts = values
-    .map((v, i) => {
-      const x = padL + (i / (values.length - 1)) * plotW;
-      const y = padT + plotH - ((v - min) / span) * plotH;
-      return `${x},${y}`;
-    })
+  const width = 320;
+  const height = 48;
+  const padX = 8;
+  const padY = 8;
+  const coords = values.map((v, i) => {
+    const x = padX + (i / (values.length - 1)) * (width - padX * 2);
+    const y = padY + (1 - (v - min) / range) * (height - padY * 2);
+    return { x, y };
+  });
+  const path = coords
+    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
     .join(" ");
-
-  const firstLabel = formatYyyymmLabel(points[0]!.periodYyyymm);
-  const lastLabel = formatYyyymmLabel(points[points.length - 1]!.periodYyyymm);
+  const firstCoord = coords[0]!;
+  const lastCoord = coords[coords.length - 1]!;
 
   return (
-    <div className="mt-4 rounded-xl border border-slate-200/90 bg-slate-50/70 px-2.5 py-2.5">
-      <p className="mb-1.5 text-[11px] font-medium text-slate-500">
-        세대당 환산 추이
-      </p>
+    <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 px-2 py-1.5">
+      <div className="flex items-baseline justify-between gap-2 text-[10px] tabular-nums text-slate-500">
+        <span>{shortManwon(first.perHouseholdComponentSum)}</span>
+        <span className="font-medium text-slate-700">
+          최근 {shortManwon(latest.perHouseholdComponentSum)}
+        </span>
+      </div>
       <svg
-        viewBox={`0 0 ${w} ${h}`}
-        className="h-[4.75rem] w-full text-teal-700"
+        viewBox={`0 0 ${width} ${height}`}
+        className="mt-0.5 h-12 w-full text-teal-700"
         role="img"
-        aria-label="세대당 환산 관리비 추이"
+        aria-label="세대당 환산 관리비 최근 2년 추이"
       >
-        <rect
-          x={padL}
-          y={padT}
-          width={plotW}
-          height={plotH}
-          rx={6}
-          className="fill-white stroke-slate-200"
-          strokeWidth={1}
-        />
-        <line
-          x1={padL}
-          y1={padT + plotH / 2}
-          x2={padL + plotW}
-          y2={padT + plotH / 2}
-          className="stroke-slate-100"
-          strokeWidth={1}
-        />
-        <text
-          x={padL - 4}
-          y={padT + 3}
-          textAnchor="end"
-          dominantBaseline="hanging"
-          className="fill-slate-400"
-          fontSize={8}
-        >
-          {shortManwon(max)}
-        </text>
-        <text
-          x={padL - 4}
-          y={padT + plotH}
-          textAnchor="end"
-          dominantBaseline="auto"
-          className="fill-slate-400"
-          fontSize={8}
-        >
-          {shortManwon(min)}
-        </text>
-        <text
-          x={padL}
-          y={h - 3}
-          textAnchor="start"
-          className="fill-slate-400"
-          fontSize={8}
-        >
-          {firstLabel}
-        </text>
-        <text
-          x={padL + plotW}
-          y={h - 3}
-          textAnchor="end"
-          className="fill-slate-400"
-          fontSize={8}
-        >
-          {lastLabel}
-        </text>
-        <polyline
+        <path
+          d={path}
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.75"
           strokeLinejoin="round"
           strokeLinecap="round"
-          points={pts}
+        />
+        <circle
+          cx={firstCoord.x}
+          cy={firstCoord.y}
+          r="2.2"
+          fill="currentColor"
+        />
+        <circle
+          cx={lastCoord.x}
+          cy={lastCoord.y}
+          r="3.2"
+          fill="currentColor"
         />
       </svg>
+      {/* Horizontal labels: recent 2-year window endpoints */}
+      <div className="mt-0.5 flex items-center justify-between gap-2 text-[10px] tabular-nums leading-4 text-slate-500">
+        <span>{formatYyyymmLabel(first.periodYyyymm)}</span>
+        <span className="text-slate-400">최근 2년 · 세대당 환산</span>
+        <span>{formatYyyymmLabel(latest.periodYyyymm)}</span>
+      </div>
     </div>
   );
 }
