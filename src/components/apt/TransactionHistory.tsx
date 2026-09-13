@@ -321,8 +321,8 @@ function StatusBadge({ label }: { label: "신규" | "갱신" }) {
     <span
       className={
         renewal
-          ? "inline-flex items-center rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-50)]"
-          : "inline-flex items-center rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-[color:var(--lab-navy-900)] bg-[color-mix(in_srgb,var(--lab-navy-900)_8%,white)]"
+          ? "inline-flex items-center rounded px-1 py-0.5 text-[11px] font-semibold leading-none text-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-50)]"
+          : "inline-flex items-center rounded px-1 py-0.5 text-[11px] font-semibold leading-none text-[color:var(--lab-navy-900)] bg-[color-mix(in_srgb,var(--lab-navy-900)_8%,white)]"
       }
     >
       {label}
