@@ -70,6 +70,30 @@ button, [role="button"], a { touch-action: manipulation; }
 .lab-tab-secondary:hover:not([aria-checked="true"]):not([aria-pressed="true"]):not(.lab-tab-secondary-active):not(:disabled) { background: #f8fafc; color: var(--lab-navy-950); }
 .lab-tab-secondary[aria-checked="true"], .lab-tab-secondary[aria-pressed="true"], .lab-tab-secondary-active { border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent); background: var(--lab-teal-50); color: var(--lab-teal-700); }
 .lab-tab-secondary:disabled { cursor: not-allowed; opacity: .45; }
+/* Official LAB section navigation — text + underline (no filled pill) */
+.lab-tab-underline {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  padding: 0 2px 8px;
+  color: #64748b;
+  font-size: .875rem;
+  font-weight: 600;
+  transition: color .15s, border-color .15s;
+}
+.lab-tab-underline:hover:not([aria-selected="true"]):not(.lab-tab-underline-active):not(:disabled) {
+  color: var(--lab-navy-950);
+}
+.lab-tab-underline[aria-selected="true"],
+.lab-tab-underline-active {
+  border-bottom-color: var(--lab-teal-600);
+  background: transparent;
+  color: var(--lab-teal-700);
+}
+.lab-tab-underline:disabled { cursor: not-allowed; opacity: .45; }
 .lab-choice { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; border: 1px solid var(--lab-border); border-radius: 10px; background: white; padding: 8px 12px; color: var(--lab-navy-900); font-size: .875rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
 .lab-choice:hover:not([aria-checked="true"]):not(.lab-choice-selected):not(:disabled) { background: #f8fafc; }
 .lab-choice[aria-checked="true"], .lab-choice-selected { border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent); background: var(--lab-teal-50); color: var(--lab-teal-700); }

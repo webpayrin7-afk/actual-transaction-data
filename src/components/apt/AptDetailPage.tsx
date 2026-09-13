@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -8,7 +14,6 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
 import {
   ComplexBasicInfoCard,
@@ -49,6 +54,10 @@ import {
   PageHeader,
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import {
+  labSecondaryTabClass,
+  labUnderlineTabClass,
+} from "@/components/ui/lab";
 import {
   formatDealDate,
   formatEok,
@@ -120,6 +129,7 @@ export function AptDetailPage({
   const [boundKey, setBoundKey] = useState(aptIdentity);
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
   const [stickyVisible, setStickyVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState("market");
   const heroRef = useRef<HTMLElement | null>(null);
 
   const quickQuery = useQuery({
@@ -225,6 +235,30 @@ export function AptDetailPage({
       setStickyVisible(false);
     };
   }, [data]);
+
+  useEffect(() => {
+    if (!data) return;
+    const ids = ["market", "trades", "management", "basic", "building"] as const;
+    const nodes = ids
+      .map((id) => document.getElementById(`section-${id}`))
+      .filter((el): el is HTMLElement => !!el);
+    if (nodes.length === 0) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        const top = visible[0]?.target.getAttribute("id");
+        if (top?.startsWith("section-")) {
+          const id = top.replace("section-", "");
+          setActiveSection(id === "trades" ? "market" : id);
+        }
+      },
+      { rootMargin: "-30% 0px -55% 0px", threshold: [0.1, 0.25, 0.5] },
+    );
+    nodes.forEach((n) => io.observe(n));
+    return () => io.disconnect();
+  }, [data, complexDetail]);
   const isExtendingHistory =
     quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
   // Historical extend: bar-only (empty label) to avoid a sticky shouty banner;
@@ -249,7 +283,11 @@ export function AptDetailPage({
   const defaultRange =
     periodPreset === "full"
       ? { start: 0, end: Math.max(chartMonths.length - 1, 0) }
-      : recentYearsRange(chartMonths.length, RECENT_YEARS);
+      : periodPreset === "recent1"
+        ? recentYearsRange(chartMonths.length, 1)
+        : periodPreset === "recent5"
+          ? recentYearsRange(chartMonths.length, 5)
+          : recentYearsRange(chartMonths.length, RECENT_YEARS);
 
   const startIndex = rangeOverride?.start ?? defaultRange.start;
   const endIndex = rangeOverride?.end ?? defaultRange.end;
@@ -437,6 +475,81 @@ export function AptDetailPage({
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
+
+  function scrollToSection(id: string) {
+    const el = document.getElementById(`section-${id}`);
+    if (!el) return;
+    setActiveSection(id);
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const periodButtons = (
+    <div className="flex w-fit flex-wrap items-center gap-1" role="group" aria-label="시세 기간">
+      {([1, 3, 5] as const).map((years) => {
+        const key = years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
+        const pressed = periodPreset === key;
+        return (
+          <button
+            key={years}
+            type="button"
+            onClick={() => setRecentYears(years)}
+            aria-pressed={pressed}
+            className={labSecondaryTabClass(pressed)}
+          >
+            {years}년
+          </button>
+        );
+      })}
+      <button
+        type="button"
+        onClick={setFullRange}
+        aria-pressed={periodPreset === "full"}
+        className={labSecondaryTabClass(periodPreset === "full")}
+      >
+        전체
+      </button>
+    </div>
+  );
+
+  const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
+    { id: "market", label: "시세 · 거래", show: true },
+    {
+      id: "basic",
+      label: "단지 정보",
+      show: !!complexDetail?.basic,
+    },
+    {
+      id: "building",
+      label: "건축 정보",
+      show: !!complexDetail?.building,
+    },
+    {
+      id: "management",
+      label: "관리비",
+      show: !!complexDetail?.management,
+    },
+  ];
+  const desktopNav = desktopNavItems.filter((i) => i.show);
+
+  const kpiCell = (
+    label: string,
+    value: ReactNode,
+    hint: ReactNode,
+    valueClassName = "",
+  ) => (
+    <div className="min-w-0 px-2 py-2 text-center sm:px-3 sm:py-2.5 sm:text-left">
+      <p className="text-[10px] font-medium text-slate-500 sm:text-[11px]">{label}</p>
+      <p
+        className={`lab-kpi-value mt-0.5 text-base font-semibold leading-tight tabular-nums sm:text-lg ${valueClassName}`.trim()}
+      >
+        {value}
+      </p>
+      <p className="mt-0.5 truncate text-[10px] leading-snug text-slate-500 sm:text-[11px]">
+        {hint}
+      </p>
+    </div>
+  );
+
   if (quickQuery.isLoading && !data) {
     return (
       <div className={`${PAGE_SHELL} max-w-5xl`}>
@@ -474,6 +587,7 @@ export function AptDetailPage({
 
   return (
     <div className={`${PAGE_SHELL} max-w-5xl overflow-x-clip`}>
+      {/* Sticky compact header — name + shared area selector */}
       <div
         className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
           stickyVisible
@@ -483,29 +597,33 @@ export function AptDetailPage({
         style={{ top: "var(--site-header-height, 5.5rem)" }}
         aria-hidden={!stickyVisible}
       >
-        <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
+        <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-1.5 sm:gap-3 sm:px-6">
           <BackLink fallback="/complexes" compact hideLabelOnMobile />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-slate-900">
-              {data.aptName}
-            </p>
-            <p className="truncate text-[11px] text-slate-500">
-              {locationLabel}
-              {headerChips.length ? ` · ${headerChips.join(" · ")}` : ""}
-            </p>
+          <p className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
+            {data.aptName}
+          </p>
+          <div className="shrink-0">
+            <AptAreaSelector
+              areas={data.areas}
+              value={areaKey}
+              variant="compact"
+              onChange={(key) => {
+                setAreaOverride({ forId: aptIdentity, key });
+              }}
+            />
           </div>
         </div>
       </div>
 
       <header ref={heroRef} className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/complexes" className="hidden sm:inline-flex" />
+        <BackLink fallback="/complexes" hideLabelOnMobile />
         <PageHeader
           title={data.aptName}
           description={locationLabel}
           meta={
             <>
               {headerChips.length > 0 ? (
-                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
+                <p className="text-[13px] font-medium leading-5 text-slate-700 sm:text-sm">
                   {headerChips.join(" · ")}
                 </p>
               ) : data.buildYear ? (
@@ -530,6 +648,26 @@ export function AptDetailPage({
         </PageHeader>
       </header>
 
+      {/* Desktop section nav — underline LAB tabs; scroll only, no page swap */}
+      {desktopNav.length > 1 ? (
+        <nav
+          className="sticky top-[calc(var(--site-header-height,5.5rem)+0.25rem)] z-30 -mx-1 hidden gap-5 overflow-x-auto border-b border-slate-200/80 bg-[var(--lab-bg)]/95 px-1 backdrop-blur md:flex"
+          aria-label="단지 상세 섹션"
+        >
+          {desktopNav.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-selected={activeSection === item.id}
+              onClick={() => scrollToSection(item.id)}
+              className={labUnderlineTabClass(activeSection === item.id, "shrink-0")}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      ) : null}
+
       {(data.warning || data.source === "mock") && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -540,76 +678,9 @@ export function AptDetailPage({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <LabKpiCard
-          label="최근 매매"
-          value={latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
-          hint={
-            latestTrade
-              ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
-              : "선택 기간 거래 없음"
-          }
-        />
-        <LabKpiCard
-          label="최근 전세"
-          value={latestJeonse ? formatEok(latestJeonse.dealAmount) : "—"}
-          hint={
-            latestJeonse
-              ? `${formatDealDate(latestJeonse.dealDate)} · ${formatPyeong(latestJeonse.exclusiveArea)}`
-              : "선택 기간 전세 없음"
-          }
-        />
-        <LabKpiCard
-          label="최고가 대비"
-          value={
-            vsMaxPct == null
-              ? "—"
-              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`
-          }
-          valueClassName={
-            vsMaxPct == null
-              ? "!text-slate-400"
-              : vsMaxPct < 0
-                ? "!text-rose-600"
-                : vsMaxPct > 0
-                  ? "!text-teal-700"
-                  : "!text-slate-700"
-          }
-          hint="최근 매매 기준"
-        />
-        <LabKpiCard
-          label="기간 거래량"
-          value={`매매 ${periodTradeCount}건`}
-          hint={`전세 ${periodJeonseCount}건`}
-        />
-      </div>
-
-      {jeonseRatio != null || saleJeonseGap != null ? (
-        <p className="text-xs text-slate-600 sm:text-[13px]">
-          {jeonseRatio != null ? (
-            <span>
-              전세가율{" "}
-              <span className="font-semibold tabular-nums text-slate-800">
-                {jeonseRatio}%
-              </span>
-            </span>
-          ) : null}
-          {jeonseRatio != null && saleJeonseGap != null ? (
-            <span className="text-slate-300"> · </span>
-          ) : null}
-          {saleJeonseGap != null ? (
-            <span>
-              매매-전세 갭{" "}
-              <span className="font-semibold tabular-nums text-slate-800">
-                {formatEok(saleJeonseGap)}
-              </span>
-            </span>
-          ) : null}
-        </p>
-      ) : null}
-
-      <section className="lab-card p-4 sm:p-5">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+      {/* Market: one white section — period + KPI row + context + chart */}
+      <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div>
             <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
               시세 추이
@@ -618,21 +689,81 @@ export function AptDetailPage({
               매매·전세 평균가와 월별 거래량
             </p>
           </div>
-          {isExtendingHistory ? (
-            <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
-              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              과거 시세 추가 중…
-            </p>
-          ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            {isExtendingHistory ? (
+              <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
+                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                과거 시세 추가 중…
+              </p>
+            ) : null}
+            {periodButtons}
+          </div>
         </div>
 
-        <AptPriceChart points={chartPoints} />
+        <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
+          {kpiCell(
+            "최근 매매",
+            latestTrade ? formatEok(latestTrade.dealAmount) : "—",
+            latestTrade
+              ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
+              : "—",
+          )}
+          {kpiCell(
+            "최근 전세",
+            latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
+            latestJeonse
+              ? `${formatDealDate(latestJeonse.dealDate)} · ${formatPyeong(latestJeonse.exclusiveArea)}`
+              : "—",
+          )}
+          {kpiCell(
+            "최고가 대비",
+            vsMaxPct == null
+              ? "—"
+              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`,
+            "최근 매매 기준",
+            vsMaxPct == null
+              ? "!text-slate-400"
+              : vsMaxPct < 0
+                ? "!text-rose-600"
+                : vsMaxPct > 0
+                  ? "!text-teal-700"
+                  : "",
+          )}
+          {kpiCell(
+            "거래량",
+            `매매 ${periodTradeCount}건`,
+            `전세 ${periodJeonseCount}건`,
+          )}
+        </div>
+
+        <p className="mt-2.5 rounded-lg bg-[var(--lab-teal-50)] px-2.5 py-1.5 text-xs text-slate-600 sm:text-[13px]">
+          <span>
+            전세가율{" "}
+            <span className="font-semibold tabular-nums text-slate-800">
+              {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
+            </span>
+          </span>
+          <span className="text-slate-300"> · </span>
+          <span>
+            매매-전세 갭{" "}
+            <span className="font-semibold tabular-nums text-slate-800">
+              {saleJeonseGap != null && saleJeonseGap !== 0
+                ? formatEok(Math.abs(saleJeonseGap))
+                : "—"}
+            </span>
+          </span>
+        </p>
+
+        <div className="mt-3">
+          <AptPriceChart points={chartPoints} />
+        </div>
 
         <PeriodRangeSlider
           months={chartMonths}
           startIndex={startIndex}
           endIndex={endIndex}
           activePreset={periodPreset === "custom" ? null : periodPreset}
+          showPresets={false}
           onChange={(start, end) => {
             setPeriodPreset("custom");
             setRangeOverride({ start, end });
@@ -643,13 +774,14 @@ export function AptDetailPage({
       </section>
 
       <section
+        id="section-trades"
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
-        className="lab-card p-4 sm:p-5"
+        className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
-              거래이력
+              최근 거래
             </h2>
             <p className="mt-0.5 truncate text-xs text-slate-500">
               {areaKey === "all" || !selectedArea
@@ -675,21 +807,30 @@ export function AptDetailPage({
             {filteredByType.length > 5
               ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
               : ""}
+            <span aria-hidden className="ml-1">
+              →
+            </span>
           </Link>
         </div>
       </section>
 
       {complexDetail?.management ? (
-        <ComplexMgmtFeeCard management={complexDetail.management} />
+        <div id="section-management" className="scroll-mt-28">
+          <ComplexMgmtFeeCard management={complexDetail.management} />
+        </div>
       ) : null}
 
       {complexDetail?.basic || complexDetail?.building ? (
         <div className="grid gap-3 sm:grid-cols-2">
-          {complexDetail ? (
-            <ComplexBasicInfoCard detail={complexDetail} />
+          {complexDetail?.basic ? (
+            <div id="section-basic" className="scroll-mt-28">
+              <ComplexBasicInfoCard detail={complexDetail} />
+            </div>
           ) : null}
-          {complexDetail ? (
-            <ComplexBuildingInfoCard detail={complexDetail} />
+          {complexDetail?.building ? (
+            <div id="section-building" className="scroll-mt-28">
+              <ComplexBuildingInfoCard detail={complexDetail} />
+            </div>
           ) : null}
         </div>
       ) : null}

@@ -215,6 +215,7 @@ export function PeriodRangeSlider({
   onRecentYears,
   onFullRange,
   activePreset = null,
+  showPresets = true,
 }: {
   months: string[];
   startIndex: number;
@@ -223,6 +224,8 @@ export function PeriodRangeSlider({
   onRecentYears?: (years: number) => void;
   onFullRange?: () => void;
   activePreset?: "recent1" | "recent3" | "recent5" | "full" | null;
+  /** When false, presets are expected in the parent section header. */
+  showPresets?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef({ startIndex, endIndex });
@@ -295,36 +298,38 @@ export function PeriodRangeSlider({
           <span className="mx-1.5 text-slate-400">~</span>
           {formatYmLabel(endYm)}
         </p>
-        <div className="flex w-fit flex-wrap items-center gap-1">
-          {onRecentYears
-            ? ([1, 3, 5] as const).map((years) => {
-                const key =
-                  years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
-                const pressed = activePreset === key;
-                return (
-                  <button
-                    key={years}
-                    type="button"
-                    onClick={() => onRecentYears(years)}
-                    aria-pressed={pressed}
-                    className={presetBtn(pressed)}
-                  >
-                    {years}년
-                  </button>
-                );
-              })
-            : null}
-          {onFullRange ? (
-            <button
-              type="button"
-              onClick={onFullRange}
-              aria-pressed={activePreset === "full"}
-              className={presetBtn(activePreset === "full")}
-            >
-              전체
-            </button>
-          ) : null}
-        </div>
+        {showPresets ? (
+          <div className="flex w-fit flex-wrap items-center gap-1">
+            {onRecentYears
+              ? ([1, 3, 5] as const).map((years) => {
+                  const key =
+                    years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
+                  const pressed = activePreset === key;
+                  return (
+                    <button
+                      key={years}
+                      type="button"
+                      onClick={() => onRecentYears(years)}
+                      aria-pressed={pressed}
+                      className={presetBtn(pressed)}
+                    >
+                      {years}년
+                    </button>
+                  );
+                })
+              : null}
+            {onFullRange ? (
+              <button
+                type="button"
+                onClick={onFullRange}
+                aria-pressed={activePreset === "full"}
+                className={presetBtn(activePreset === "full")}
+              >
+                전체
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="relative h-10 touch-none select-none">

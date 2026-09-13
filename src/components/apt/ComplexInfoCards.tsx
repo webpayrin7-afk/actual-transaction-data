@@ -24,7 +24,7 @@ function basicRows(
   if (!basic) return [];
   const rows: Array<{ label: string; value: string }> = [];
   // 세대수·동수·준공은 헤더 chips에 두고, 단지 정보는 생활 유용 필드만.
-  if (basic.heatingType) rows.push({ label: "난방", value: basic.heatingType });
+  if (basic.heatingType) rows.push({ label: "난방방식", value: basic.heatingType });
   if (basic.managementType) {
     rows.push({ label: "관리방식", value: basic.managementType });
   }
@@ -55,12 +55,6 @@ function buildingRows(
   }
   if (building.mainPurpose) {
     rows.push({ label: "주용도", value: building.mainPurpose });
-  }
-  if (building.farRatio != null && building.farRatio > 0) {
-    rows.push({ label: "용적률", value: `${building.farRatio}%` });
-  }
-  if (building.bcrRatio != null && building.bcrRatio > 0) {
-    rows.push({ label: "건폐율", value: `${building.bcrRatio}%` });
   }
   return rows;
 }
@@ -99,18 +93,26 @@ export function ComplexBuildingInfoCard({
   );
 }
 
-/** Header identity chips — omit empty values. Heating lives in 단지 정보. */
+/** Plain header metadata — omit empty values. FAR/BCR here; heating in 단지 정보. */
 export function complexHeaderChips(detail: ComplexDetailV1 | null): string[] {
-  if (!detail?.basic) return [];
+  if (!detail) return [];
   const chips: string[] = [];
-  const { householdCount, buildingCount, approvalDate } = detail.basic;
-  if (householdCount != null && householdCount > 0) {
-    chips.push(`${householdCount.toLocaleString("ko-KR")}세대`);
+  const basic = detail.basic;
+  const building = detail.building;
+  if (basic?.householdCount != null && basic.householdCount > 0) {
+    chips.push(`${basic.householdCount.toLocaleString("ko-KR")}세대`);
   }
-  if (buildingCount != null && buildingCount > 0) {
-    chips.push(`${buildingCount.toLocaleString("ko-KR")}개동`);
+  if (basic?.buildingCount != null && basic.buildingCount > 0) {
+    chips.push(`${basic.buildingCount.toLocaleString("ko-KR")}개동`);
   }
-  const year = formatApprovalYearLabel(approvalDate);
+  const year = formatApprovalYearLabel(basic?.approvalDate ?? null);
   if (year) chips.push(year);
+  if (building?.farRatio != null && building.farRatio > 0) {
+    chips.push(`용적률 ${building.farRatio}%`);
+  }
+  if (building?.bcrRatio != null && building.bcrRatio > 0) {
+    chips.push(`건폐율 ${building.bcrRatio}%`);
+  }
   return chips;
 }
+

@@ -63,6 +63,20 @@ export function areaSelectorExclusiveLabel(area: AptAreaOption): string {
   return `전용 ${rangeText(min, max)}`;
 }
 
+/** Closed trigger: "33평 · 전용 84.80~84.97㎡" */
+export function areaSelectorClosedLabel(area: AptAreaOption): string {
+  return `${areaSelectorPyeongLabel(area)} · ${areaSelectorExclusiveLabel(area)}`;
+}
+
+/** Sticky compact: "33평 · 84.8㎡" (mid exclusive, 1 decimal). */
+export function areaSelectorStickyLabel(area: AptAreaOption): string {
+  const min = area.exclusiveAreaMin ?? area.exclusiveArea;
+  const max = area.exclusiveAreaMax ?? area.exclusiveArea;
+  const mid = (min + max) / 2;
+  const sqm = mid.toFixed(1).replace(/\.0$/, "");
+  return `${areaSelectorPyeongLabel(area)} · ${sqm}㎡`;
+}
+
 /** Tertiary / optional — "공급 109.29~111.52㎡". Null when unavailable. */
 export function areaSelectorSupplyLabel(area: AptAreaOption): string | null {
   const sMin = area.supplyAreaMin;

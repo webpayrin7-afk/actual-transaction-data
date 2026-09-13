@@ -11,9 +11,11 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
+  areaSelectorClosedLabel,
   areaSelectorDealCountLabel,
   areaSelectorExclusiveLabel,
   areaSelectorPyeongLabel,
+  areaSelectorStickyLabel,
   areaSelectorSupplyLabel,
 } from "@/lib/apt/area-selector-label";
 
@@ -21,19 +23,22 @@ type AptAreaSelectorProps = {
   areas: AptAreaOption[];
   value: string;
   onChange: (key: string) => void;
+  /** Compact trigger for sticky header — same sheet + shared value. */
+  variant?: "default" | "compact";
 };
 
 const SHEET_MS = 280;
 
 /**
  * Single trigger + bottom sheet area picker.
- * Hierarchy: 평형 → 전용면적 → (optional 공급 on sm+) · 거래건수
- * Sheet height is content-aware (fit small lists; max ~75vh + scroll).
+ * Closed: "33평 · 전용 84.80~84.97㎡ ˅" (no icon / no "면적 선택" label).
+ * Sheet: 평형 → 전용 → (공급) · 거래건수. Phase5 boundaries unchanged.
  */
 export function AptAreaSelector({
   areas,
   value,
   onChange,
+  variant = "default",
 }: AptAreaSelectorProps) {
   const [open, setOpen] = useState(false);
   const [present, setPresent] = useState(false);
@@ -100,37 +105,45 @@ export function AptAreaSelector({
     close();
   }
 
+  const compact = variant === "compact";
+
   if (sorted.length <= 1) {
     const only = sorted[0];
     if (!only) {
       return (
-        <div className="flex h-10 w-full items-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-700">
+        <div
+          className={`flex items-center rounded-lg border border-slate-200 bg-white text-slate-700 ${
+            compact ? "h-8 px-2.5 text-xs" : "h-10 w-full px-3.5 text-sm"
+          }`}
+        >
           전체 면적
         </div>
       );
     }
+    const onlyLabel = compact
+      ? areaSelectorStickyLabel(only)
+      : areaSelectorClosedLabel(only);
     return (
-      <div className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3.5 text-sm">
-        <span className="min-w-0 truncate font-semibold tabular-nums text-slate-800">
-          {areaSelectorPyeongLabel(only)}
-          <span className="ml-1.5 font-normal text-slate-500">
-            {areaSelectorExclusiveLabel(only)}
-          </span>
-        </span>
-        <span className="shrink-0 tabular-nums text-slate-500">
-          {areaSelectorDealCountLabel(only.count)}
-        </span>
+      <div
+        className={`flex items-center rounded-lg border border-slate-200 bg-white tabular-nums text-slate-800 ${
+          compact
+            ? "h-8 max-w-[11.5rem] px-2.5 text-xs font-semibold"
+            : "h-10 w-full px-3.5 text-sm font-semibold"
+        }`}
+      >
+        <span className="min-w-0 truncate">{onlyLabel}</span>
       </div>
     );
   }
 
   const totalDeals = sorted.reduce((sum, a) => sum + a.count, 0);
   const isAll = value === "all" || !selected;
-  const triggerMain = isAll
+  const triggerLabel = isAll
     ? "전체 면적"
-    : areaSelectorPyeongLabel(selected);
-  const triggerSub = isAll ? null : areaSelectorExclusiveLabel(selected);
-  const triggerMeta = isAll
+    : compact
+      ? areaSelectorStickyLabel(selected)
+      : areaSelectorClosedLabel(selected);
+  const a11yExtra = isAll
     ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · ${areaSelectorDealCountLabel(totalDeals)}`
     : areaSelectorDealCountLabel(selected.count);
 
@@ -141,25 +154,25 @@ export function AptAreaSelector({
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={`면적 선택, 현재 ${triggerMain}${triggerSub ? `, ${triggerSub}` : ""}, ${triggerMeta}`}
+        aria-label={`현재 ${triggerLabel}, ${a11yExtra}`}
         onClick={openSheet}
-        className="flex h-10 w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-left hover:bg-slate-50 sm:gap-3"
+        className={`flex items-center gap-1.5 border border-slate-200 bg-white text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
+          compact
+            ? "h-8 max-w-[13rem] rounded-md px-2.5 text-xs font-semibold"
+            : "h-10 w-full gap-2 rounded-lg px-3.5 text-sm sm:gap-3"
+        }`}
       >
-        <span className="min-w-0 flex-1 truncate text-sm tabular-nums text-slate-800">
-          <span className="font-semibold">{triggerMain}</span>
-          {triggerSub ? (
-            <span className="ml-1.5 font-normal text-slate-500">
-              {triggerSub}
-            </span>
-          ) : null}
-        </span>
-        <span className="shrink-0 text-xs tabular-nums text-slate-500 sm:text-[13px]">
-          {triggerMeta}
+        <span
+          className={`min-w-0 flex-1 truncate ${
+            compact ? "font-semibold" : "font-semibold"
+          }`}
+        >
+          {triggerLabel}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-400 transition ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`shrink-0 text-slate-400 transition ${
+            compact ? "h-3.5 w-3.5" : "h-4 w-4"
+          } ${open ? "rotate-180" : ""}`}
           aria-hidden
         />
       </button>
@@ -318,7 +331,7 @@ function AreaSheet({
               id={titleId}
               className="text-center text-lg font-bold leading-none tracking-tight text-slate-900 sm:text-xl"
             >
-              면적 선택
+              평형
             </h2>
             <button
               type="button"
