@@ -738,7 +738,7 @@ export function AptDetailPage({
           <AptPriceChart points={chartPoints} />
         </div>
 
-        <div className="pl-[42px] pr-[44px]">
+        <div className="pl-0 pr-1">
           <PeriodRangeSlider
             months={chartMonths}
             startIndex={startIndex}
