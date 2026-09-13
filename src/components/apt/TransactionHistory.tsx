@@ -34,7 +34,7 @@ export function TransactionTypeTabs({
 }) {
   return (
     <div
-      className="flex w-fit shrink-0 gap-1"
+      className="flex w-fit max-w-full shrink-0 flex-wrap gap-1"
       role="radiogroup"
       aria-label="거래 유형"
     >

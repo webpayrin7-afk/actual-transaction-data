@@ -44,6 +44,13 @@ export function formatEok(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만`;
 }
 
+/** Compact KPI monthly-rent amount — 680만원, never 억+만원. */
+export function formatKpiMonthlyRent(manwon: number): string {
+  if (!Number.isFinite(manwon) || manwon <= 0) return "—";
+  if (manwon >= 10000) return formatEok(manwon);
+  return `${manwon.toLocaleString("ko-KR")}만원`;
+}
+
 /** 전월세 금액 표기 */
 export function formatRentAmount(deposit: number, monthly: number): string {
   const depositLabel = formatEok(deposit);

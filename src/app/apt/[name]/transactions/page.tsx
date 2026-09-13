@@ -10,6 +10,7 @@ type PageProps = {
     area?: string;
     type?: string;
     period?: string;
+    year?: string;
   }>;
 };
 
@@ -38,7 +39,9 @@ export default async function AptTransactionsRoute({
   const gu = sp.gu?.trim() || undefined;
   const initialAreaKey = sp.area?.trim() || undefined;
   const initialType = sp.type?.trim() || undefined;
-  const initialPeriod = sp.period?.trim() || undefined;
+  // Canonical filter is `year`. Legacy `period=1y|3y|5y|all` is ignored
+  // (not remapped to a rolling window) so 전체년도 remains unbounded history.
+  const initialYear = sp.year?.trim() || undefined;
 
   return (
     <main className="flex-1">
@@ -48,7 +51,7 @@ export default async function AptTransactionsRoute({
         gu={gu}
         initialAreaKey={initialAreaKey}
         initialType={initialType}
-        initialPeriod={initialPeriod}
+        initialYear={initialYear}
       />
     </main>
   );

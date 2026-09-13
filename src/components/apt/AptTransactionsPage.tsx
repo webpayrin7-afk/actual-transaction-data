@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, LoaderCircle } from "lucide-react";
+import { ChevronDown, LoaderCircle } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import { PAGE_SHELL } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
@@ -13,125 +12,120 @@ import {
   TransactionTypeTabs,
 } from "@/components/apt/TransactionHistory";
 import {
-  filterTransactionsByType,
   parseTransactionTabType,
-  transactionTypeLabel,
   transactionTypeToParam,
   type TransactionTabType,
 } from "@/lib/apt/transaction-type";
 import {
-  DEFAULT_TRANSACTION_PERIOD,
-  parseTransactionPeriod,
-  TRANSACTION_PERIODS,
-  transactionPeriodLabel,
-  transactionPeriodMonths,
-  type TransactionPeriod,
-} from "@/lib/apt/transaction-period";
-import {
-  areaSelectorExclusiveLabel,
-  areaSelectorPyeongLabel,
-} from "@/lib/apt/area-selector-label";
-import {
-  isValidAreaKey,
-  normalizeAreaKey,
-  resolveDefaultAreaKey,
-} from "@/lib/apt/default-area";
-import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt-client";
-import { formatDealDate, formatEok } from "@/lib/utils/format";
-import { labSecondaryTabClass } from "@/components/ui/lab";
+  kpiDateShort,
+  kpiHintForYear,
+  parseTransactionYear,
+  type TransactionYear,
+} from "@/lib/apt/transaction-year";
+import type { AptTransactionArchiveResponse } from "@/lib/apt/transaction-archive-types";
+import { formatEok, formatKpiMonthlyRent } from "@/lib/utils/format";
 
 const PAGE_SIZE = 20;
 
-async function fetchAptDetail(
-  aptName: string,
-  region: string,
-  months: number,
-  gu?: string,
-): Promise<AptDetailResponse> {
+const PAGE_WRAP =
+  "mx-auto flex w-full max-w-5xl flex-col overflow-x-clip px-4 pt-3 pb-8 sm:px-6 sm:pt-4 sm:pb-10 lg:px-8";
+
+async function fetchArchive(params: {
+  aptName: string;
+  region: string;
+  gu?: string;
+  area?: string;
+  type: TransactionTabType;
+  year: TransactionYear;
+  offset: number;
+}): Promise<AptTransactionArchiveResponse> {
   const qs = new URLSearchParams({
-    aptName,
-    region,
-    months: String(months),
-    // Period-bounded archive fetch — does not change Complex Detail full-history path.
-    bound: "1",
+    aptName: params.aptName,
+    region: params.region,
+    type: transactionTypeToParam(params.type),
+    year: params.year,
+    offset: String(params.offset),
+    limit: String(PAGE_SIZE),
   });
-  if (gu?.trim()) qs.set("gu", gu.trim());
+  if (params.gu?.trim()) qs.set("gu", params.gu.trim());
+  if (params.area) qs.set("area", params.area);
   const started = performance.now();
-  const res = await fetch(`/api/apt-detail?${qs.toString()}`);
+  const res = await fetch(`/api/apt-transactions?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
-  const data = (await res.json()) as AptDetailResponse;
+  const data = (await res.json()) as AptTransactionArchiveResponse;
   if (typeof window !== "undefined") {
     const ms = Math.round(performance.now() - started);
     console.info(
-      `[transactions] apt-detail months=${months} bound=1 latency=${ms}ms items=${data.items?.length ?? 0}`,
+      `[transactions] year=${params.year} type=${params.type} offset=${params.offset} latency=${ms}ms items=${data.items?.length ?? 0} total=${data.total} kpiMs=${data.timingMs?.kpiMs ?? "-"} pageMs=${data.timingMs?.pageMs ?? "-"}`,
     );
   }
   return data;
 }
 
-function filterByArea(
-  data: AptDetailResponse,
-  areaKey: string,
-): AptDetailResponse["items"] {
-  if (areaKey === "all") return data.items;
-  const selected = data.areas.find((a) => a.key === areaKey);
-  if (
-    selected?.selectorKind === "market_group" &&
-    selected.exclusiveAreaMin != null &&
-    selected.exclusiveAreaMax != null
-  ) {
-    const min = selected.exclusiveAreaMin - 0.005;
-    const max = selected.exclusiveAreaMax + 0.005;
-    return data.items.filter((item) => {
-      const area = Number(item.exclusiveArea);
-      return area >= min && area <= max;
-    });
-  }
-  const matchKey = selected
-    ? normalizeAreaKey(selected.exclusiveArea)
-    : areaKey;
-  return data.items.filter(
-    (item) => normalizeAreaKey(Number(item.exclusiveArea)) === matchKey,
+function YearSelect({
+  value,
+  years,
+  onChange,
+}: {
+  value: TransactionYear;
+  years: number[];
+  onChange: (next: TransactionYear) => void;
+}) {
+  const options = useMemo(() => {
+    const set = new Set(years);
+    if (value !== "all") {
+      const n = Number(value);
+      if (Number.isFinite(n)) set.add(n);
+    }
+    return [...set].sort((a, b) => b - a);
+  }, [years, value]);
+
+  return (
+    <label className="relative inline-flex min-w-0 max-w-full items-center">
+      <span className="sr-only">년도</span>
+      <select
+        value={value}
+        aria-label="조회 연도"
+        onChange={(e) => onChange(parseTransactionYear(e.target.value))}
+        className="h-9 max-w-full appearance-none rounded-lg border border-slate-200 bg-white py-0 pl-2.5 pr-8 text-sm font-medium text-slate-800"
+      >
+        <option value="all">전체년도</option>
+        {options.map((y) => (
+          <option key={y} value={String(y)}>
+            {y}년
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        className="pointer-events-none absolute right-2 h-3.5 w-3.5 text-slate-500"
+        aria-hidden
+      />
+    </label>
   );
 }
 
-function summaryDateLabel(dealDate: string): string {
-  const full = formatDealDate(dealDate);
-  return full.length >= 7 ? full.slice(0, 7) : full;
-}
-
-function findPeriodHigh(
-  items: AptHistoryItem[],
-  mode: TransactionTabType,
-): { amount: number; date: string } | null {
-  if (mode === "monthly" || items.length === 0) return null;
-  let best = items[0]!;
-  for (const tx of items) {
-    if (tx.dealAmount > best.dealAmount) best = tx;
-  }
-  return { amount: best.dealAmount, date: best.dealDate };
-}
-
-function findMonthlyHighs(items: AptHistoryItem[]): {
-  deposit: { amount: number; date: string } | null;
-  rent: { amount: number; date: string } | null;
-} {
-  if (items.length === 0) return { deposit: null, rent: null };
-  let bestDeposit = items[0]!;
-  let bestRent = items[0]!;
-  for (const tx of items) {
-    if (tx.dealAmount > bestDeposit.dealAmount) bestDeposit = tx;
-    if (Number(tx.monthlyRent ?? 0) > Number(bestRent.monthlyRent ?? 0)) {
-      bestRent = tx;
-    }
-  }
-  return {
-    deposit: { amount: bestDeposit.dealAmount, date: bestDeposit.dealDate },
-    rent: {
-      amount: Number(bestRent.monthlyRent ?? 0),
-      date: bestRent.dealDate,
-    },
-  };
+function KpiCell({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+}) {
+  return (
+    <div className="min-w-0 overflow-hidden px-1 py-1.5 text-center sm:px-3 sm:py-2 sm:text-left">
+      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
+        {label}
+      </p>
+      <p className="lab-kpi-value mt-0.5 truncate text-[13px] font-semibold leading-tight tabular-nums text-slate-900 sm:text-base">
+        {value}
+      </p>
+      <p className="mt-0.5 truncate text-[9px] leading-snug text-slate-500 sm:text-[11px]">
+        {hint}
+      </p>
+    </div>
+  );
 }
 
 export function AptTransactionsPage({
@@ -140,14 +134,14 @@ export function AptTransactionsPage({
   gu,
   initialAreaKey,
   initialType,
-  initialPeriod,
+  initialYear,
 }: {
   aptName: string;
   regionSlug: string;
   gu?: string;
   initialAreaKey?: string;
   initialType?: string;
-  initialPeriod?: string;
+  initialYear?: string;
 }) {
   const router = useRouter();
   const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
@@ -158,75 +152,103 @@ export function AptTransactionsPage({
   const [dealType, setDealType] = useState<TransactionTabType>(
     parseTransactionTabType(initialType),
   );
-  const [period, setPeriod] = useState<TransactionPeriod>(
-    parseTransactionPeriod(initialPeriod ?? DEFAULT_TRANSACTION_PERIOD),
+  const [year, setYear] = useState<TransactionYear>(
+    parseTransactionYear(initialYear),
   );
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [offset, setOffset] = useState(0);
+  const [listMeta, setListMeta] =
+    useState<AptTransactionArchiveResponse | null>(null);
 
-  const months = transactionPeriodMonths(period);
+  const areaKey =
+    areaOverride?.forId === aptIdentity
+      ? areaOverride.key
+      : (initialAreaKey ?? "");
+  const requestArea = areaKey || listMeta?.areaKey || undefined;
 
-  const detailQuery = useQuery({
+  const query = useQuery({
     queryKey: [
-      "apt-detail",
+      "apt-transactions",
       aptName,
       regionSlug,
       gu ?? "",
-      "transactions",
-      months,
+      areaKey,
+      dealType,
+      year,
+      offset,
     ],
-    queryFn: () => fetchAptDetail(aptName, regionSlug, months, gu),
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (prev) => prev,
+    queryFn: () =>
+      fetchArchive({
+        aptName,
+        region: regionSlug,
+        gu,
+        area: requestArea,
+        type: dealType,
+        year,
+        offset,
+      }),
+    staleTime: 2 * 60 * 1000,
+    placeholderData: (previousData, previousQuery) => {
+      if (!previousData || !previousQuery) return undefined;
+      const pk = previousQuery.queryKey;
+      const sameFilter =
+        pk[1] === aptName &&
+        pk[2] === regionSlug &&
+        pk[3] === (gu ?? "") &&
+        pk[4] === areaKey &&
+        pk[5] === dealType &&
+        pk[6] === year;
+      return sameFilter ? previousData : undefined;
+    },
   });
 
-  const data = detailQuery.data;
+  const data = query.data;
+  const [items, setItems] = useState(data?.items ?? []);
+
+  useEffect(() => {
+    if (!data) return;
+    if (data.metaIncluded !== false) {
+      setListMeta(data);
+    }
+    if (offset === 0) {
+      setItems(data.items);
+      return;
+    }
+    if (query.isPlaceholderData) return;
+    setItems((prev) => {
+      const seen = new Set(prev.map((i) => i.id));
+      const next = [...prev];
+      for (const tx of data.items) {
+        if (!seen.has(tx.id)) next.push(tx);
+      }
+      return next;
+    });
+  }, [data, offset, query.isPlaceholderData]);
 
   useLoadProgressWhen(
-    detailQuery.isLoading && !data,
-    detailQuery.isLoading && !data ? "거래내역 불러오는 중…" : "",
+    query.isLoading && offset === 0 && items.length === 0,
+    query.isLoading ? "거래내역 불러오는 중…" : "",
   );
 
-  const resolvedAreaKey = useMemo(() => {
-    if (!data?.areas) return initialAreaKey ?? "all";
-    if (initialAreaKey && isValidAreaKey(initialAreaKey, data.areas)) {
-      return initialAreaKey;
-    }
-    return resolveDefaultAreaKey(data.areas, data.items);
-  }, [data, initialAreaKey]);
-
-  const [frozenDefault, setFrozenDefault] = useState<{
-    forId: string;
-    key: string;
-  } | null>(null);
-  if (data?.areas && frozenDefault?.forId !== aptIdentity) {
-    setFrozenDefault({ forId: aptIdentity, key: resolvedAreaKey });
-  }
-
-  const defaultAreaKey =
-    frozenDefault?.forId === aptIdentity
-      ? frozenDefault.key
-      : resolvedAreaKey;
-
-  const areaKey =
-    areaOverride?.forId === aptIdentity ? areaOverride.key : defaultAreaKey;
+  const meta = listMeta && listMeta.metaIncluded !== false ? listMeta : data;
+  const resolvedAreaKey = meta?.areaKey || areaKey;
 
   const detailHref = useMemo(() => {
     const qs = new URLSearchParams({ region: regionSlug });
     if (gu?.trim()) qs.set("gu", gu.trim());
-    if (areaKey) qs.set("area", areaKey);
+    if (resolvedAreaKey) qs.set("area", resolvedAreaKey);
     return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
-  }, [aptName, regionSlug, gu, areaKey]);
+  }, [aptName, regionSlug, gu, resolvedAreaKey]);
 
   function syncUrl(
     nextArea: string,
     nextType: TransactionTabType,
-    nextPeriod: TransactionPeriod,
+    nextYear: TransactionYear,
   ) {
     const qs = new URLSearchParams({
       region: regionSlug,
       area: nextArea,
       type: transactionTypeToParam(nextType),
-      period: nextPeriod,
+      year: nextYear,
     });
     if (gu?.trim()) qs.set("gu", gu.trim());
     router.replace(
@@ -235,71 +257,43 @@ export function AptTransactionsPage({
     );
   }
 
-  const areaFiltered = useMemo(() => {
-    if (!data) return [];
-    return filterByArea(data, areaKey);
-  }, [data, areaKey]);
+  function resetAnd(next: () => void) {
+    setOffset(0);
+    setItems([]);
+    setListMeta(null);
+    next();
+  }
 
-  const filtered = useMemo(
-    () => filterTransactionsByType(areaFiltered, dealType),
-    [areaFiltered, dealType],
-  );
+  useEffect(() => {
+    if (areaKey) return;
+    if (!data?.areaKey || data.metaIncluded === false) return;
+    syncUrl(data.areaKey, dealType, year);
+  }, [areaKey, data?.areaKey, data?.metaIncluded, dealType, year]);
 
-  const visible = useMemo(
-    () => filtered.slice(0, visibleCount),
-    [filtered, visibleCount],
-  );
+  const kpi = meta?.kpi;
+  const yearHint = kpiHintForYear(year);
+  const activeCount =
+    dealType === "trade"
+      ? (kpi?.tradeCount ?? 0)
+      : dealType === "jeonse"
+        ? (kpi?.jeonseCount ?? 0)
+        : (kpi?.monthlyCount ?? 0);
 
-  const tabCounts = useMemo(
-    () => ({
-      trade: filterTransactionsByType(areaFiltered, "trade").length,
-      jeonse: filterTransactionsByType(areaFiltered, "jeonse").length,
-      monthly: filterTransactionsByType(areaFiltered, "monthly").length,
-    }),
-    [areaFiltered],
-  );
+  const total = meta?.total ?? 0;
+  const hasMore = items.length < total;
+  const loadingMore = query.isFetching && offset > 0;
 
-  const selectedArea = useMemo(
-    () => data?.areas.find((a) => a.key === areaKey) ?? null,
-    [data, areaKey],
-  );
-
-  const periodHigh = useMemo(
-    () => findPeriodHigh(filtered, dealType),
-    [filtered, dealType],
-  );
-  const monthlyHighs = useMemo(
-    () => (dealType === "monthly" ? findMonthlyHighs(filtered) : null),
-    [filtered, dealType],
-  );
-
-  const hasMore = visibleCount < filtered.length;
-  const exhausted = !hasMore && filtered.length > 0;
-
-  const areaSummary =
-    selectedArea && areaKey !== "all"
-      ? `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)}`
-      : "전체 면적";
-
-  if (detailQuery.isLoading && !data) {
+  if (query.isLoading && items.length === 0 && !meta) {
     return (
-      <div className={`${PAGE_SHELL} max-w-5xl`}>
-        <div className="h-9 animate-pulse rounded-lg bg-slate-200/70" />
-        <div className="space-y-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-14 animate-pulse rounded-xl bg-slate-200/50"
-            />
-          ))}
-        </div>
+      <div className={PAGE_WRAP}>
+        <div className="h-48 animate-pulse rounded-xl bg-slate-200/70" />
       </div>
     );
   }
 
-  if ((detailQuery.isError && !data) || !data) {
+  if ((query.isError && !meta) || (!query.isLoading && !meta && !data)) {
     return (
-      <div className={`${PAGE_SHELL} max-w-5xl text-center`}>
+      <div className={`${PAGE_WRAP} text-center`}>
         <p className="text-sm font-medium text-slate-700">
           거래내역을 불러오지 못했습니다.
         </p>
@@ -310,174 +304,145 @@ export function AptTransactionsPage({
     );
   }
 
+  const displayName = meta?.aptName || aptName;
+  const years = meta?.years ?? [];
+  const areas = meta?.areas ?? [];
+
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl gap-3 overflow-x-clip sm:gap-4`}>
-      {/* Compact context only — list-first; no PageHeader hero */}
-      <div className="-mt-1 flex min-h-9 items-center gap-1 sm:-mt-1.5">
-        <BackLink fallback={detailHref} compact hideLabel />
-        <p className="min-w-0 truncate text-sm font-semibold tracking-tight text-slate-900">
-          {data.aptName}
-        </p>
-      </div>
-
-      {(data.warning || data.source === "mock") && (
-        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>
-            {data.warning ??
-              "실거래 데이터 연동이 없어 데모 데이터로 표시 중입니다."}
+    <div className={PAGE_WRAP}>
+      <section className="lab-card overflow-hidden">
+        <div className="flex min-h-9 items-center gap-1 px-3 pt-2 sm:px-4 sm:pt-2.5">
+          <BackLink fallback={detailHref} compact hideLabel />
+          <p className="min-w-0 truncate text-sm font-semibold tracking-tight text-slate-900">
+            {displayName}
           </p>
         </div>
-      )}
 
-      <section className="lab-card space-y-3 p-3.5 sm:space-y-4 sm:p-5">
-        {/* 1. Transaction type */}
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-            거래유형
-          </p>
-          <TransactionTypeTabs
-            value={dealType}
-            onChange={(next) => {
-              setDealType(next);
-              setVisibleCount(PAGE_SIZE);
-              syncUrl(areaKey, next, period);
-            }}
-            counts={tabCounts}
-          />
-        </div>
-
-        {/* 2. Period */}
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-            기간
-          </p>
-          <div
-            className="flex w-fit flex-wrap items-center gap-1"
-            role="group"
-            aria-label="조회 기간"
-          >
-            {TRANSACTION_PERIODS.map((p) => {
-              const pressed = period === p.value;
-              return (
-                <button
-                  key={p.value}
-                  type="button"
-                  aria-pressed={pressed}
-                  className={labSecondaryTabClass(pressed)}
-                  onClick={() => {
-                    setPeriod(p.value);
-                    setVisibleCount(PAGE_SIZE);
-                    syncUrl(areaKey, dealType, p.value);
+        <div className="space-y-2 px-3 pb-2.5 sm:px-4 sm:pb-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <TransactionTypeTabs
+              value={dealType}
+              onChange={(next) => {
+                resetAnd(() => {
+                  setDealType(next);
+                  syncUrl(resolvedAreaKey || areaKey, next, year);
+                });
+              }}
+              counts={{
+                trade: kpi?.tradeCount,
+                jeonse: kpi?.jeonseCount,
+                monthly: kpi?.monthlyCount,
+              }}
+            />
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <YearSelect
+                value={year}
+                years={years}
+                onChange={(next) => {
+                  resetAnd(() => {
+                    setYear(next);
+                    syncUrl(resolvedAreaKey || areaKey, dealType, next);
+                  });
+                }}
+              />
+              {areas.length > 0 ? (
+                <AptAreaSelector
+                  areas={areas}
+                  value={resolvedAreaKey || areas[0]!.key}
+                  onChange={(key) => {
+                    resetAnd(() => {
+                      setAreaOverride({ forId: aptIdentity, key });
+                      syncUrl(key, dealType, year);
+                    });
                   }}
-                >
-                  {p.label}
-                </button>
-              );
-            })}
+                />
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 divide-x divide-slate-100 overflow-hidden rounded-xl border border-slate-100 bg-slate-50/40">
+            {dealType === "monthly" ? (
+              <>
+                <KpiCell
+                  label="최고 보증금"
+                  value={
+                    kpi?.monthlyDepositHigh
+                      ? formatEok(kpi.monthlyDepositHigh.amount)
+                      : "—"
+                  }
+                  hint={
+                    kpi?.monthlyDepositHigh
+                      ? kpiDateShort(kpi.monthlyDepositHigh.date)
+                      : "—"
+                  }
+                />
+                <KpiCell
+                  label="최고 월세"
+                  value={
+                    kpi?.monthlyRentHigh
+                      ? formatKpiMonthlyRent(kpi.monthlyRentHigh.amount)
+                      : "—"
+                  }
+                  hint={
+                    kpi?.monthlyRentHigh
+                      ? kpiDateShort(kpi.monthlyRentHigh.date)
+                      : "—"
+                  }
+                />
+                <KpiCell
+                  label="월세 거래"
+                  value={`${activeCount.toLocaleString("ko-KR")}건`}
+                  hint={yearHint}
+                />
+              </>
+            ) : (
+              <>
+                <KpiCell
+                  label="매매 최고"
+                  value={kpi?.saleHigh ? formatEok(kpi.saleHigh.amount) : "—"}
+                  hint={
+                    kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"
+                  }
+                />
+                <KpiCell
+                  label="전세 최고"
+                  value={
+                    kpi?.jeonseHigh ? formatEok(kpi.jeonseHigh.amount) : "—"
+                  }
+                  hint={
+                    kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
+                  }
+                />
+                <KpiCell
+                  label={dealType === "jeonse" ? "전세 거래" : "매매 거래"}
+                  value={`${activeCount.toLocaleString("ko-KR")}건`}
+                  hint={yearHint}
+                />
+              </>
+            )}
           </div>
         </div>
 
-        {/* 3. Area / pyeong (Phase5 AptAreaSelector) */}
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-            평형
-          </p>
-          <AptAreaSelector
-            areas={data.areas}
-            value={areaKey}
-            onChange={(key) => {
-              setAreaOverride({ forId: aptIdentity, key });
-              setVisibleCount(PAGE_SIZE);
-              syncUrl(key, dealType, period);
-            }}
-          />
-        </div>
-
-        {/* 4. Filter summary */}
-        <div className="rounded-lg border border-slate-200/80 bg-slate-50/70 px-3 py-2.5 sm:px-3.5">
-          <p className="text-xs text-slate-500">
-            <span className="font-medium text-slate-700">
-              {transactionTypeLabel(dealType)}
-            </span>
-            <span className="text-slate-300"> · </span>
-            <span>{transactionPeriodLabel(period)}</span>
-            <span className="text-slate-300"> · </span>
-            <span>{areaSummary}</span>
-            <span className="text-slate-300"> · </span>
-            <span className="tabular-nums">
-              총 {filtered.length.toLocaleString("ko-KR")}건
-            </span>
-          </p>
-
-          {dealType !== "monthly" && periodHigh ? (
-            <p className="mt-1.5 text-sm text-slate-800">
-              <span className="text-xs text-slate-500">
-                기간 최고 {transactionTypeLabel(dealType)}
-              </span>
-              <span className="ml-2 font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
-                {formatEok(periodHigh.amount)}
-              </span>
-              <span className="ml-1.5 text-xs tabular-nums text-slate-500">
-                {summaryDateLabel(periodHigh.date)}
-              </span>
-            </p>
-          ) : null}
-
-          {dealType === "monthly" && monthlyHighs ? (
-            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-800">
-              {monthlyHighs.deposit ? (
-                <p>
-                  <span className="text-xs text-slate-500">최고 보증금</span>
-                  <span className="ml-2 font-semibold tabular-nums">
-                    {formatEok(monthlyHighs.deposit.amount)}
-                  </span>
-                  <span className="ml-1.5 text-xs tabular-nums text-slate-500">
-                    {summaryDateLabel(monthlyHighs.deposit.date)}
-                  </span>
-                </p>
-              ) : null}
-              {monthlyHighs.rent && monthlyHighs.rent.amount > 0 ? (
-                <p>
-                  <span className="text-xs text-slate-500">최고 월세</span>
-                  <span className="ml-2 font-semibold tabular-nums">
-                    {monthlyHighs.rent.amount.toLocaleString("ko-KR")}만원
-                  </span>
-                  <span className="ml-1.5 text-xs tabular-nums text-slate-500">
-                    {summaryDateLabel(monthlyHighs.rent.date)}
-                  </span>
-                </p>
-              ) : null}
-            </div>
+        <div className="border-t border-slate-100 px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
+          <GroupedTransactionList items={items} mode={dealType} />
+          {hasMore ? (
+            <button
+              type="button"
+              onClick={() => setOffset((o) => o + PAGE_SIZE)}
+              disabled={loadingMore}
+              className="lab-button lab-button-secondary mt-3 flex w-full min-h-10 items-center justify-center gap-1.5 text-sm disabled:opacity-60"
+            >
+              {loadingMore ? (
+                <>
+                  <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                  불러오는 중…
+                </>
+              ) : (
+                "더보기"
+              )}
+            </button>
           ) : null}
         </div>
-
-        {/* 5. Transaction list */}
-        <div className="space-y-3">
-          <p className="text-xs text-slate-500">최신순 · 계약일</p>
-          <GroupedTransactionList items={visible} mode={dealType} />
-        </div>
-
-        {hasMore ? (
-          <button
-            type="button"
-            onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-            className="lab-button lab-button-secondary flex w-full min-h-10 items-center justify-center gap-1.5 text-sm"
-          >
-            더보기
-          </button>
-        ) : null}
-
-        {exhausted ? (
-          <p className="text-center text-xs text-slate-500">
-            {transactionPeriodLabel(period)} 기간 내 거래를 모두 표시했습니다
-            {detailQuery.isFetching ? (
-              <span className="ml-1 inline-flex items-center gap-1">
-                <LoaderCircle className="h-3 w-3 animate-spin" />
-              </span>
-            ) : null}
-          </p>
-        ) : null}
       </section>
     </div>
   );

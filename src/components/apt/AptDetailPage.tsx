@@ -440,8 +440,7 @@ export function AptDetailPage({
       region: regionSlug,
       area: areaKey,
       type: dealFilter === "trade" ? "sale" : dealFilter,
-      // Match Complex Detail market default (recent3).
-      period: "3y",
+      year: "all",
     });
     if (gu?.trim()) qs.set("gu", gu.trim());
     return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
