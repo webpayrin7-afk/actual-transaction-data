@@ -33,24 +33,15 @@ const SHEET_MS = 280;
 const PYEONG_TEXT =
   "font-semibold text-[color:var(--lab-teal-700)]";
 
-function AreaTriggerLabel({
-  area,
-  dealCount,
-}: {
-  area: AptAreaOption;
-  dealCount: number;
-}) {
+function AreaTriggerLabel({ area }: { area: AptAreaOption }) {
   const pyeong = areaSelectorPyeongLabel(area);
-  // Sticky + closed both show exclusive + deal count so the trigger grows with
-  // real text (max-width alone does not widen short labels).
+  // Sticky + closed both show exclusive so the trigger can grow with real text
+  // (max-width alone does not widen short labels).
   return (
     <>
       <span className={PYEONG_TEXT}>{pyeong}</span>
       <span className="font-semibold text-slate-800">
         {` · ${areaSelectorExclusiveLabel(area)}`}
-      </span>
-      <span className="font-medium text-slate-400">
-        {` · ${areaSelectorDealCountLabel(dealCount)}`}
       </span>
     </>
   );
@@ -58,7 +49,7 @@ function AreaTriggerLabel({
 
 /**
  * Single trigger + bottom sheet area picker.
- * Closed: "33평 · 전용 84.80~84.97㎡ · 거래 N건 ˅"
+ * Closed: "33평 · 전용 84.80~84.97㎡ ˅"
  * Sheet: 평형 → 전용+거래건수 → (공급); 선택 체크는 맨 오른쪽 세로 가운데. Phase5 boundaries unchanged.
  */
 export function AptAreaSelector({
@@ -152,12 +143,12 @@ export function AptAreaSelector({
       <div
         className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
           compact
-            ? "h-8 w-full max-w-full px-2.5 text-xs font-semibold"
+            ? "h-8 max-w-full px-2.5 text-xs font-semibold"
             : "h-10 w-full px-3.5 text-sm font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 truncate">
-          <AreaTriggerLabel area={only} dealCount={only.count} />
+          <AreaTriggerLabel area={only} />
         </span>
       </div>
     );
@@ -183,20 +174,15 @@ export function AptAreaSelector({
         onClick={openSheet}
         className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
           compact
-            ? "h-8 w-full max-w-full rounded-md px-2.5 text-xs font-semibold"
+            ? "h-8 max-w-full rounded-md px-2.5 text-xs font-semibold"
             : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 flex-1 truncate">
           {isAll || !selected ? (
-            <>
-              <span className="font-semibold">전체 면적</span>
-              <span className="font-medium text-slate-400">
-                {` · ${areaSelectorDealCountLabel(totalDeals)}`}
-              </span>
-            </>
+            <span className="font-semibold">전체 면적</span>
           ) : (
-            <AreaTriggerLabel area={selected} dealCount={selected.count} />
+            <AreaTriggerLabel area={selected} />
           )}
         </span>
         <ChevronDown
