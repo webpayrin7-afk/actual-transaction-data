@@ -714,6 +714,7 @@ export function AptDetailPage({
             "거래량",
             `매매 ${periodTradeCount.toLocaleString("ko-KR")}건`,
             `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
+            "!font-sans !tracking-normal !text-[13px] sm:!text-[13px]",
           )}
         </div>
 
@@ -739,19 +740,21 @@ export function AptDetailPage({
           <AptPriceChart points={chartPoints} />
         </div>
 
-        <PeriodRangeSlider
-          months={chartMonths}
-          startIndex={startIndex}
-          endIndex={endIndex}
-          activePreset={periodPreset === "custom" ? null : periodPreset}
-          showPresets={false}
-          onChange={(start, end) => {
-            setPeriodPreset("custom");
-            setRangeOverride({ start, end });
-          }}
-          onRecentYears={setRecentYears}
-          onFullRange={setFullRange}
-        />
+        <div className="pl-[42px] pr-[44px]">
+          <PeriodRangeSlider
+            months={chartMonths}
+            startIndex={startIndex}
+            endIndex={endIndex}
+            activePreset={periodPreset === "custom" ? null : periodPreset}
+            showPresets={false}
+            onChange={(start, end) => {
+              setPeriodPreset("custom");
+              setRangeOverride({ start, end });
+            }}
+            onRecentYears={setRecentYears}
+            onFullRange={setFullRange}
+          />
+        </div>
       </section>
 
       <section
@@ -759,7 +762,7 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
-        <div className="mb-6">
+        <div className="mb-5">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               거래 내역

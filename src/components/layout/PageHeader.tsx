@@ -68,11 +68,11 @@ export function PageHeader({
           {meta}
         </div>
       ) : null}
-      {children ? <div className="mt-3">{children}</div> : null}
+      {children ? <div className="mt-2.5">{children}</div> : null}
       {showDivider ? (
         <div
           aria-hidden
-          className="mt-3 h-px w-full bg-[color:var(--lab-border)] sm:mt-3.5"
+          className="mt-1.5 h-px w-full bg-[color:var(--lab-border)] sm:mt-2"
         />
       ) : null}
     </header>
