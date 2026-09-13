@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
@@ -120,6 +121,7 @@ export function AptCalculatorPage({
   initialPriceMan?: number;
   initialTab?: TabId;
 }) {
+  const router = useRouter();
   const detailQ = useQuery({
     queryKey: ["apt-detail-calc", aptName, regionSlug, gu ?? ""],
     queryFn: () => fetchAptDetail(aptName, regionSlug, gu),
@@ -357,7 +359,7 @@ export function AptCalculatorPage({
       </section>
 
       <div
-        className="mt-3 flex w-full gap-1 overflow-x-auto"
+        className="relative z-10 mt-3 flex w-full gap-1 overflow-x-auto"
         role="tablist"
         aria-label="계산 메뉴"
       >
@@ -367,8 +369,22 @@ export function AptCalculatorPage({
             type="button"
             role="tab"
             aria-selected={tab === t.id}
-            className={labPrimaryTabClass(tab === t.id, "min-w-0 flex-1")}
-            onClick={() => setTab(t.id)}
+            className={labPrimaryTabClass(
+              tab === t.id,
+              "relative z-10 min-w-0 flex-1 cursor-pointer",
+            )}
+            onClick={() => {
+              setTab(t.id);
+              try {
+                const url = new URL(window.location.href);
+                url.searchParams.set("tab", t.id);
+                router.replace(`${url.pathname}?${url.searchParams.toString()}`, {
+                  scroll: false,
+                });
+              } catch {
+                /* ignore */
+              }
+            }}
           >
             {t.label}
           </button>
