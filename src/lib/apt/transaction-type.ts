@@ -22,6 +22,16 @@ export function parseTransactionTabType(
   return "trade";
 }
 
+/** Stable URL identity — sale | jeonse | monthly (not display strings). */
+export function transactionTypeToParam(type: TransactionTabType): string {
+  if (type === "trade") return "sale";
+  return type;
+}
+
+export function transactionTypeLabel(type: TransactionTabType): string {
+  return TRANSACTION_TABS.find((t) => t.value === type)?.label ?? "매매";
+}
+
 export function matchesTransactionTab(
   tx: AptHistoryItem,
   type: TransactionTabType,

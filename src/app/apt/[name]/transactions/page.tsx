@@ -9,6 +9,7 @@ type PageProps = {
     gu?: string;
     area?: string;
     type?: string;
+    period?: string;
   }>;
 };
 
@@ -37,6 +38,7 @@ export default async function AptTransactionsRoute({
   const gu = sp.gu?.trim() || undefined;
   const initialAreaKey = sp.area?.trim() || undefined;
   const initialType = sp.type?.trim() || undefined;
+  const initialPeriod = sp.period?.trim() || undefined;
 
   return (
     <main className="flex-1">
@@ -46,6 +48,7 @@ export default async function AptTransactionsRoute({
         gu={gu}
         initialAreaKey={initialAreaKey}
         initialType={initialType}
+        initialPeriod={initialPeriod}
       />
     </main>
   );

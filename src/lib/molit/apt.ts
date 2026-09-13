@@ -592,13 +592,13 @@ async function buildAptDetail(params: {
   };
 
   // DB가 있으면 사용자 경로에서는 항상 DB만 사용 (coverage 미완이어도 MOLIT 실시간 호출 금지).
-  // 매매+전월세를 함께 읽어 quick(36m)에서도 전월세 KPI가 비지 않게 한다.
+  // monthCount 윈도우로 조회를 제한한다 — 거래내역 아카이브 period / Detail quick·full 공통.
   if (hasDb()) {
     const tDb = performance.now();
     collected = await queryAptTransactions({
       lawdCodes,
       aptName,
-      yearMonths: [],
+      yearMonths: months,
       dealKinds: ["trade", "rent"],
     });
     mark("dbQueryMs", tDb);
@@ -640,8 +640,9 @@ async function buildAptDetail(params: {
   const rents = deals.filter((tx) => tx.dealType === "rent");
   const chartMonths =
     source === "db" ? chartMonthsFromDeals(deals, months) : months;
-  const loadedMonths = source === "db" ? chartMonths.length : monthCount;
-  const partial = source === "db" ? false : monthCount < 120;
+  // Bound window length (requested), not sparse activity count.
+  const loadedMonths = monthCount;
+  const partial = monthCount < 120;
 
   const emptyResponse = (
     extraWarning?: string,
