@@ -16,9 +16,9 @@ import {
 import { BackLink } from "@/components/layout/BackLink";
 import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
 import {
-  ComplexBasicInfoCard,
-  ComplexBuildingInfoCard,
+  ComplexInfoCard,
   complexHeaderChips,
+  hasComplexInfoSection,
 } from "@/components/apt/ComplexInfoCards";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
@@ -236,7 +236,7 @@ export function AptDetailPage({
 
   useEffect(() => {
     if (!data) return;
-    const ids = ["market", "trades", "management", "basic", "building"] as const;
+    const ids = ["market", "trades", "management", "complex"] as const;
     const nodes = ids
       .map((id) => document.getElementById(`section-${id}`))
       .filter((el): el is HTMLElement => !!el);
@@ -506,19 +506,14 @@ export function AptDetailPage({
   const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
     { id: "market", label: "시세 · 거래", show: true },
     {
-      id: "basic",
-      label: "단지 정보",
-      show: !!complexDetail?.basic,
-    },
-    {
-      id: "building",
-      label: "건축 정보",
-      show: !!complexDetail?.building,
-    },
-    {
       id: "management",
       label: "관리비",
       show: !!complexDetail?.management,
+    },
+    {
+      id: "complex",
+      label: "단지 정보",
+      show: hasComplexInfoSection(complexDetail),
     },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
@@ -808,18 +803,9 @@ export function AptDetailPage({
         </div>
       ) : null}
 
-      {complexDetail?.basic || complexDetail?.building ? (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {complexDetail?.basic ? (
-            <div id="section-basic" className="scroll-mt-28">
-              <ComplexBasicInfoCard detail={complexDetail} />
-            </div>
-          ) : null}
-          {complexDetail?.building ? (
-            <div id="section-building" className="scroll-mt-28">
-              <ComplexBuildingInfoCard detail={complexDetail} />
-            </div>
-          ) : null}
+      {hasComplexInfoSection(complexDetail) && complexDetail ? (
+        <div id="section-complex" className="scroll-mt-28">
+          <ComplexInfoCard detail={complexDetail} />
         </div>
       ) : null}
     </div>

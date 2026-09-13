@@ -259,10 +259,13 @@ export async function getComplexDetailV1(params: {
       landAreaSqm: asNum(profile.land_area_sqm),
       totalAreaSqm: asNum(profile.total_area_sqm),
     };
+    // Include FAR/BCR so header metadata can surface them even without floor/structure.
     const hasBuilding =
       candidate.maxFloor != null ||
       candidate.structureType != null ||
-      candidate.mainPurpose != null;
+      candidate.mainPurpose != null ||
+      candidate.farRatio != null ||
+      candidate.bcrRatio != null;
     building = hasBuilding ? candidate : null;
   }
 
