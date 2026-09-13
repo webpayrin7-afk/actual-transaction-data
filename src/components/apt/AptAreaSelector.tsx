@@ -25,6 +25,8 @@ type AptAreaSelectorProps = {
   onChange: (key: string) => void;
   /** Compact trigger for sticky header — same sheet + shared value. */
   variant?: "default" | "compact";
+  /** Extra classes on the closed trigger (archive top uses muted surface). */
+  triggerClassName?: string;
 };
 
 const SHEET_MS = 280;
@@ -39,6 +41,7 @@ export function AptAreaSelector({
   value,
   onChange,
   variant = "default",
+  triggerClassName = "",
 }: AptAreaSelectorProps) {
   const [open, setOpen] = useState(false);
   const [present, setPresent] = useState(false);
@@ -112,9 +115,9 @@ export function AptAreaSelector({
     if (!only) {
       return (
         <div
-          className={`flex items-center rounded-lg border border-slate-200 bg-white text-slate-700 ${
+          className={`flex items-center rounded-lg border border-slate-200 text-slate-700 ${
             compact ? "h-8 px-2.5 text-xs" : "h-10 w-full px-3.5 text-sm"
-          }`}
+          } ${triggerClassName || "bg-white"}`}
         >
           전체 면적
         </div>
@@ -125,11 +128,11 @@ export function AptAreaSelector({
       : areaSelectorClosedLabel(only);
     return (
       <div
-        className={`flex items-center rounded-lg border border-slate-200 bg-white tabular-nums text-slate-800 ${
+        className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
           compact
             ? "h-8 max-w-[11.5rem] px-2.5 text-xs font-semibold"
             : "h-10 w-full px-3.5 text-sm font-semibold"
-        }`}
+        } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 truncate">{onlyLabel}</span>
       </div>
@@ -156,11 +159,11 @@ export function AptAreaSelector({
         aria-expanded={open}
         aria-label={`현재 ${triggerLabel}, ${a11yExtra}`}
         onClick={openSheet}
-        className={`flex items-center gap-1.5 border border-slate-200 bg-white text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
+        className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
           compact
             ? "h-8 max-w-[13rem] rounded-md px-2.5 text-xs font-semibold"
-            : "h-10 w-full gap-2 rounded-lg px-3.5 text-sm sm:gap-3"
-        }`}
+            : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
+        } ${triggerClassName || "bg-white"}`}
       >
         <span
           className={`min-w-0 flex-1 truncate ${

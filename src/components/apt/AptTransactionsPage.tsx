@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, LoaderCircle } from "lucide-react";
+import { ChevronDown, ChevronsUpDown, LoaderCircle } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
@@ -91,7 +91,7 @@ function YearSelect({
         value={value}
         aria-label="조회 연도"
         onChange={(e) => onChange(parseTransactionYear(e.target.value))}
-        className="h-9 min-w-[6.5rem] appearance-none rounded-lg border border-[color:var(--lab-border)] bg-white py-0 pl-2.5 pr-8 text-sm font-medium text-[color:var(--lab-navy-900)]"
+        className="h-8 min-w-[5.75rem] appearance-none rounded-lg border border-[color:var(--lab-border)] bg-white py-0 pl-2 pr-7 text-[12px] font-semibold text-[color:var(--lab-navy-900)] sm:h-9 sm:min-w-[6.5rem] sm:pl-2.5 sm:pr-8 sm:text-sm"
       >
         <option value="all">전체년도</option>
         {options.map((y) => (
@@ -100,8 +100,8 @@ function YearSelect({
           </option>
         ))}
       </select>
-      <ChevronDown
-        className="pointer-events-none absolute right-2 h-3.5 w-3.5 text-[color:var(--lab-muted)]"
+      <ChevronsUpDown
+        className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-[color:var(--lab-muted)] sm:right-2"
         aria-hidden
       />
     </label>
@@ -118,14 +118,14 @@ function KpiCell({
   hint: string;
 }) {
   return (
-    <div className="min-w-0 overflow-hidden px-1.5 py-1.5 text-center sm:px-3 sm:py-2">
-      <p className="text-[9px] font-medium leading-tight text-[color:var(--lab-muted)] sm:text-[11px]">
+    <div className="min-w-0 overflow-hidden px-2 py-2 text-center sm:px-3 sm:py-2.5">
+      <p className="text-[10px] font-medium leading-tight text-[color:var(--lab-muted)] sm:text-[11px]">
         {label}
       </p>
-      <p className="lab-kpi-value mt-0.5 truncate text-[13px] font-bold leading-tight tabular-nums text-[color:var(--lab-navy-950)] sm:text-base">
+      <p className="lab-kpi-value mt-0.5 truncate text-[15px] font-bold leading-tight tabular-nums text-[color:var(--lab-navy-950)] sm:text-base">
         {value}
       </p>
-      <p className="mt-0.5 truncate text-[9px] leading-snug text-[color:var(--lab-muted)] sm:text-[11px]">
+      <p className="mt-0.5 truncate text-[10px] leading-snug text-[color:var(--lab-muted)] sm:text-[11px]">
         {hint}
       </p>
     </div>
@@ -322,9 +322,9 @@ export function AptTransactionsPage({
   return (
     <div className={PAGE_WRAP}>
       <section className="lab-card overflow-hidden">
-        <div className="flex min-h-9 items-center gap-1 px-3 pt-2 sm:px-4 sm:pt-2.5">
+        <div className="flex min-h-9 items-center gap-1 px-3 pt-2.5 sm:px-4 sm:pt-3">
           <BackLink fallback={detailHref} compact hideLabel />
-          <p className="min-w-0 flex-1 truncate text-sm font-semibold tracking-tight text-[color:var(--lab-navy-950)]">
+          <p className="min-w-0 flex-1 truncate text-[15px] font-bold tracking-tight text-[color:var(--lab-navy-950)] sm:text-base">
             {displayName}
           </p>
           <Link
@@ -335,52 +335,49 @@ export function AptTransactionsPage({
           </Link>
         </div>
 
-        <div className="space-y-2 px-3 pb-2.5 sm:px-4 sm:pb-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              <TransactionTypeTabs
-                variant="segmented"
-                value={dealType}
+        <div className="space-y-2 px-3 pb-3 pt-2 sm:px-4 sm:pb-3.5">
+          <div className="flex items-center gap-2">
+            <TransactionTypeTabs
+              variant="pills"
+              value={dealType}
+              onChange={(next) => {
+                resetAnd(() => {
+                  setDealType(next);
+                  syncUrl(resolvedAreaKey || areaKey, next, year);
+                });
+              }}
+              counts={{
+                trade: kpi?.tradeCount,
+                jeonse: kpi?.jeonseCount,
+                monthly: kpi?.monthlyCount,
+              }}
+            />
+            <div className="ml-auto shrink-0">
+              <YearSelect
+                value={year}
+                years={years}
                 onChange={(next) => {
                   resetAnd(() => {
-                    setDealType(next);
-                    syncUrl(resolvedAreaKey || areaKey, next, year);
+                    setYear(next);
+                    syncUrl(resolvedAreaKey || areaKey, dealType, next);
                   });
                 }}
-                counts={{
-                  trade: kpi?.tradeCount,
-                  jeonse: kpi?.jeonseCount,
-                  monthly: kpi?.monthlyCount,
-                }}
               />
-              <div className="ml-auto shrink-0 sm:ml-0">
-                <YearSelect
-                  value={year}
-                  years={years}
-                  onChange={(next) => {
-                    resetAnd(() => {
-                      setYear(next);
-                      syncUrl(resolvedAreaKey || areaKey, dealType, next);
-                    });
-                  }}
-                />
-              </div>
             </div>
-            {areas.length > 0 ? (
-              <div className="w-full min-w-0 sm:max-w-md sm:flex-1">
-                <AptAreaSelector
-                  areas={areas}
-                  value={resolvedAreaKey || areas[0]!.key}
-                  onChange={(key) => {
-                    resetAnd(() => {
-                      setAreaOverride({ forId: aptIdentity, key });
-                      syncUrl(key, dealType, year);
-                    });
-                  }}
-                />
-              </div>
-            ) : null}
           </div>
+          {areas.length > 0 ? (
+            <AptAreaSelector
+              areas={areas}
+              value={resolvedAreaKey || areas[0]!.key}
+              triggerClassName="bg-[color:var(--lab-bg)]"
+              onChange={(key) => {
+                resetAnd(() => {
+                  setAreaOverride({ forId: aptIdentity, key });
+                  syncUrl(key, dealType, year);
+                });
+              }}
+            />
+          ) : null}
 
           <div className="grid grid-cols-3 divide-x divide-[color:var(--lab-border)] overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
             {dealType === "monthly" ? (

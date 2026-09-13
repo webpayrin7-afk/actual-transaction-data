@@ -38,17 +38,17 @@ export function TransactionTypeTabs({
   value: TransactionTabType;
   onChange: (next: TransactionTabType) => void;
   counts?: Partial<Record<TransactionTabType, number>>;
-  /** chips = Complex Detail; segmented = archive page connected control */
-  variant?: "chips" | "segmented";
+  /** chips = Complex Detail; pills = archive top (reference) */
+  variant?: "chips" | "pills" | "segmented";
 }) {
-  if (variant === "segmented") {
+  if (variant === "pills" || variant === "segmented") {
     return (
       <div
-        className="inline-flex max-w-full shrink-0 overflow-hidden rounded-lg border border-[color:var(--lab-border)] bg-white"
+        className="flex min-w-0 max-w-full flex-1 flex-wrap items-center gap-1.5"
         role="radiogroup"
         aria-label="거래 유형"
       >
-        {TRANSACTION_TABS.map((tab, i) => {
+        {TRANSACTION_TABS.map((tab) => {
           const active = value === tab.value;
           const count = counts?.[tab.value];
           return (
@@ -59,20 +59,15 @@ export function TransactionTypeTabs({
               aria-checked={active}
               onClick={() => onChange(tab.value)}
               className={[
-                "h-9 px-2.5 text-[12px] font-semibold transition sm:px-3 sm:text-[13px]",
-                i > 0 ? "border-l border-[color:var(--lab-border)]" : "",
+                "inline-flex h-8 shrink-0 items-center rounded-lg border px-2.5 text-[12px] font-semibold tabular-nums transition sm:h-9 sm:px-3 sm:text-[13px]",
                 active
-                  ? "bg-[color:var(--lab-teal-600)] text-white"
-                  : "bg-white text-[color:var(--lab-navy-900)] hover:bg-[color:var(--lab-bg)]",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+                  ? "border-[color:var(--lab-teal-600)] bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
+                  : "border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-700)] hover:bg-[color:var(--lab-bg)]",
+              ].join(" ")}
             >
               {tab.label}
               {count != null ? (
-                <span
-                  className={`ml-1 tabular-nums ${active ? "text-white/80" : "opacity-60"}`}
-                >
+                <span className={`ml-1 tabular-nums ${active ? "text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"}`}>
                   {count.toLocaleString("ko-KR")}
                 </span>
               ) : null}
@@ -113,7 +108,6 @@ export function TransactionTypeTabs({
     </div>
   );
 }
-
 
 function monthKeyFromDealDate(dealDate: string): string {
   if (!dealDate || dealDate.length < 7) return "";
