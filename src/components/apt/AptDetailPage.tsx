@@ -340,15 +340,6 @@ export function AptDetailPage({
     () => filteredByType.slice(0, 5),
     [filteredByType],
   );
-  const tabCounts = useMemo(
-    () => ({
-      trade: filterTransactionsByType(areaFiltered, "trade").length,
-      jeonse: filterTransactionsByType(areaFiltered, "jeonse").length,
-      monthly: filterTransactionsByType(areaFiltered, "monthly").length,
-    }),
-    [areaFiltered],
-  );
-
   const chartPoints = (() => {
     if (!data) return [];
     const base = data.chart.slice(startIndex, endIndex + 1);
@@ -409,12 +400,13 @@ export function AptDetailPage({
       .filter((i) => i.dealType === "trade")
       .reduce((m, i) => Math.max(m, i.dealAmount), 0) || 0;
 
+  // 최근 매매·전세: 선택 평수(area) 기준 최신건. 기간 슬라이더와 독립.
   const latestTrade = useMemo(() => {
-    const trades = periodItems
+    const trades = areaFiltered
       .filter((i) => i.dealType === "trade")
       .sort((a, b) => (a.dealDate < b.dealDate ? 1 : -1));
     return trades[0] ?? null;
-  }, [periodItems]);
+  }, [areaFiltered]);
 
   const vsMaxPct =
     latestTrade && periodMax > 0
@@ -422,11 +414,11 @@ export function AptDetailPage({
       : null;
 
   const latestJeonse = useMemo(() => {
-    const rows = periodItems
+    const rows = areaFiltered
       .filter((i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0)
       .sort((a, b) => (a.dealDate < b.dealDate ? 1 : -1));
     return rows[0] ?? null;
-  }, [periodItems]);
+  }, [areaFiltered]);
 
   const periodJeonseCount = periodItems.filter(
     (i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0,
@@ -443,6 +435,11 @@ export function AptDetailPage({
       : null;
 
   const headerChips = complexHeaderChips(complexDetail);
+
+  /** KPI subline: selected 평수 (market/supply label), not exclusive→법정평. */
+  const selectedPyeongHint = selectedArea
+    ? areaSelectorPyeongLabel(selectedArea)
+    : null;
 
   const transactionsHref = useMemo(() => {
     const qs = new URLSearchParams({
@@ -634,10 +631,6 @@ export function AptDetailPage({
                   {data.buildYear}년 입주
                 </p>
               ) : null}
-              <span>
-                매매 {data.stats.totalTradeCount.toLocaleString("ko-KR")}건 · 전세{" "}
-                {data.stats.totalRentCount.toLocaleString("ko-KR")}건
-              </span>
             </>
           }
         >
@@ -708,14 +701,20 @@ export function AptDetailPage({
             "최근 매매",
             latestTrade ? formatEok(latestTrade.dealAmount) : "—",
             latestTrade
-              ? `${formatDealDate(latestTrade.dealDate)} · ${formatPyeong(latestTrade.exclusiveArea)}`
+              ? `${formatDealDate(latestTrade.dealDate)} · ${
+                  selectedPyeongHint ??
+                  formatPyeong(latestTrade.exclusiveArea)
+                }`
               : "—",
           )}
           {kpiCell(
             "최근 전세",
             latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
             latestJeonse
-              ? `${formatDealDate(latestJeonse.dealDate)} · ${formatPyeong(latestJeonse.exclusiveArea)}`
+              ? `${formatDealDate(latestJeonse.dealDate)} · ${
+                  selectedPyeongHint ??
+                  formatPyeong(latestJeonse.exclusiveArea)
+                }`
               : "—",
           )}
           {kpiCell(
@@ -781,22 +780,21 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
-        <div className="mb-4 flex items-center justify-between gap-2">
-          <div className="min-w-0">
+        <div className="mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               거래 내역
             </h2>
-            <p className="mt-1 truncate text-xs text-slate-500">
-              {areaKey === "all" || !selectedArea
-                ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
-                : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
-            </p>
+            <TransactionTypeTabs
+              value={dealFilter}
+              onChange={setDealFilter}
+            />
           </div>
-          <TransactionTypeTabs
-            value={dealFilter}
-            onChange={setDealFilter}
-            counts={tabCounts}
-          />
+          <p className="mt-1 truncate text-xs text-slate-500">
+            {areaKey === "all" || !selectedArea
+              ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
+              : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
+          </p>
         </div>
 
         <TransactionList items={filtered} mode={dealFilter} />
