@@ -1,16 +1,22 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { Flame } from "lucide-react";
 import type { AptHistoryItem } from "@/lib/molit/apt-client";
 import {
   formatDealDate,
   formatEok,
+  formatEokDetail,
   formatExclusiveArea,
+  formatMonthlyPriceCell,
 } from "@/lib/utils/format";
 import type { TransactionTabType } from "@/lib/apt/transaction-type";
 import { labSecondaryTabClass } from "@/components/ui/lab";
 import { TRANSACTION_TABS } from "@/lib/apt/transaction-type";
+import {
+  archiveBuildingDongLabel,
+  archiveStatusLabel,
+} from "@/lib/apt/transaction-row-display";
+
 
 /** Compact monthly-rent money line — deposit strongest, monthly secondary. */
 export function formatMonthlyRentDisplay(
@@ -260,72 +266,56 @@ export function TransactionList({
   );
 }
 
-function DesktopTableRow({
-  tx,
-  mode,
-}: {
-  tx: AptHistoryItem;
-  mode: TransactionTabType;
-}) {
-  const dateFull = formatDealDate(tx.dealDate);
-  let amountCell: ReactNode;
-  if (mode === "monthly") {
-    const m = formatMonthlyRentDisplay(
-      tx.dealAmount,
-      Number(tx.monthlyRent ?? 0),
-    );
-    amountCell = (
-      <span className="tabular-nums text-slate-900">
-        {m.primary}
-        <span className="text-slate-400"> · </span>
-        {m.secondary}
-      </span>
-    );
-  } else {
-    amountCell = (
-      <span className="inline-flex items-center gap-1.5 tabular-nums text-slate-900">
-        {mode === "trade" && tx.isSingoga ? (
-          <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-            <Flame className="h-3 w-3" aria-hidden />
-            신고가
-          </span>
-        ) : null}
-        <span
-          className={
-            mode === "trade"
-              ? "font-semibold text-[color:var(--lab-teal-700)]"
-              : "font-semibold"
-          }
-        >
-          {formatEok(tx.dealAmount)}
-        </span>
-      </span>
-    );
-  }
 
+const ARCHIVE_GRID =
+  "minmax(2.35rem,0.65fr) minmax(2.1rem,0.6fr) minmax(4.2rem,1.55fr) minmax(2.2rem,0.7fr) minmax(2rem,0.65fr) minmax(1.85rem,0.5fr)";
+
+function contractDay(dealDate: string): string {
+  if (dealDate.length < 10) return dealDate;
+  return `${dealDate.slice(5, 7)}.${dealDate.slice(8, 10)}`;
+}
+
+function archivePriceLabel(tx: AptHistoryItem, mode: TransactionTabType): string {
+  if (mode === "monthly") {
+    return formatMonthlyPriceCell(tx.dealAmount, Number(tx.monthlyRent ?? 0));
+  }
+  return formatEokDetail(tx.dealAmount);
+}
+
+function StatusBadge({ label }: { label: "신규" | "갱신" }) {
+  const isRenewal = label === "갱신";
   return (
-    <tr className="border-t border-slate-100 text-sm">
-      <td className="whitespace-nowrap px-3 py-2 tabular-nums text-slate-800">
-        {dateFull}
-      </td>
-      <td className="px-3 py-2 text-right">{amountCell}</td>
-      <td className="whitespace-nowrap px-3 py-2 text-slate-600">
-        {dealTypeLabel(mode)}
-      </td>
-      <td className="whitespace-nowrap px-3 py-2 tabular-nums text-slate-600">
-        {formatExclusiveArea(tx.exclusiveArea)}
-      </td>
-      <td className="whitespace-nowrap px-3 py-2 tabular-nums text-slate-600">
-        {tx.floor}층
-      </td>
-      <td className="whitespace-nowrap px-3 py-2 text-slate-500">
-        {tx.dealingGbn || "—"}
-      </td>
-    </tr>
+    <span
+      className={
+        isRenewal
+          ? "inline-flex items-center rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-50)]"
+          : "inline-flex items-center rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-[color:var(--lab-navy-900)] bg-[color-mix(in_srgb,var(--lab-navy-900)_8%,white)]"
+      }
+    >
+      {label}
+    </span>
   );
 }
 
-/** Archive list: month headings + dense mobile rows + desktop table. */
+function AreaCell({ exclusiveArea }: { exclusiveArea: number }) {
+  const display =
+    exclusiveArea % 1 === 0
+      ? `${exclusiveArea}`
+      : exclusiveArea.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  return <span className="tabular-nums">{display}</span>;
+}
+
+function FloorCell({ floor }: { floor: number | null | undefined }) {
+  if (floor == null || !Number.isFinite(floor)) {
+    return <span className="text-[color:var(--lab-muted)]">—</span>;
+  }
+  return <span className="tabular-nums">{floor}층</span>;
+}
+
+/**
+ * Archive list — same 6-column information structure on desktop and mobile.
+ * 계약일 | 상태 | 가격 | 면적 | 거래동 | 층
+ */
 export function GroupedTransactionList({
   items,
   mode,
@@ -337,7 +327,7 @@ export function GroupedTransactionList({
 }) {
   if (items.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500">
+      <p className="rounded-xl border border-dashed border-[color:var(--lab-border)] px-4 py-8 text-center text-sm text-[color:var(--lab-muted)]">
         {emptyLabel}
       </p>
     );
@@ -346,78 +336,74 @@ export function GroupedTransactionList({
   const groups = groupTransactionsByMonth(items);
 
   return (
-    <div className="space-y-4">
-      {/* Mobile / narrow: dense month-grouped list */}
-      <div className="space-y-4 md:hidden">
-        {groups.map((g) => (
-          <section key={g.key} className="overflow-hidden rounded-xl border border-slate-200/80 bg-white">
-            <header className="flex items-baseline justify-between gap-2 border-b border-slate-100 bg-slate-50/80 px-3 py-2">
-              <h3 className="text-sm font-semibold text-slate-800">{g.label}</h3>
-              <p className="text-xs tabular-nums text-slate-500">
-                {g.count.toLocaleString("ko-KR")}건
-              </p>
-            </header>
-            <ul className="divide-y divide-slate-100">
-              {g.items.map((tx, idx) => (
-                <TransactionRow
-                  key={`${tx.id}-${idx}`}
-                  tx={tx}
-                  mode={mode}
-                  dense
-                />
-              ))}
-            </ul>
-          </section>
-        ))}
+    <div className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
+      <div
+        className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)] bg-[color:var(--lab-bg)] px-2 py-2 text-[10px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:px-3 sm:text-[11px]"
+        style={{ gridTemplateColumns: ARCHIVE_GRID }}
+        role="row"
+      >
+        <span>계약일</span>
+        <span>상태</span>
+        <span>가격</span>
+        <span className="hidden sm:inline">면적(㎡)</span>
+        <span className="sm:hidden">면적</span>
+        <span>거래동</span>
+        <span>층</span>
       </div>
 
-      {/* Desktop: compact table with month separators */}
-      <div className="hidden overflow-hidden rounded-xl border border-slate-200/80 bg-white md:block">
-        <table className="w-full border-collapse text-left">
-          <thead>
-            <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-medium text-slate-500">
-              <th className="px-3 py-2.5 font-medium">계약일</th>
-              <th className="px-3 py-2.5 text-right font-medium">거래금액</th>
-              <th className="px-3 py-2.5 font-medium">거래유형</th>
-              <th className="px-3 py-2.5 font-medium">전용면적</th>
-              <th className="px-3 py-2.5 font-medium">층</th>
-              <th className="px-3 py-2.5 font-medium">비고</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groups.map((g) => (
-              <MonthTableBlock key={g.key} group={g} mode={mode} />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function MonthTableBlock({
-  group,
-  mode,
-}: {
-  group: MonthGroup;
-  mode: TransactionTabType;
-}) {
-  return (
-    <>
-      <tr className="bg-slate-50/60">
-        <td
-          colSpan={6}
-          className="px-3 py-2 text-xs font-semibold text-slate-700"
+      {groups.map((group) => (
+        <section
+          key={group.key}
+          className="border-b border-[color:var(--lab-border)] last:border-b-0"
         >
-          <span>{group.label}</span>
-          <span className="ml-2 font-normal tabular-nums text-slate-500">
-            {group.count.toLocaleString("ko-KR")}건
-          </span>
-        </td>
-      </tr>
-      {group.items.map((tx, idx) => (
-        <DesktopTableRow key={`${tx.id}-${idx}`} tx={tx} mode={mode} />
+          <div className="flex items-center justify-between gap-2 bg-[color-mix(in_srgb,var(--lab-bg)_80%,white)] px-2 py-2 sm:px-3">
+            <h3 className="text-[13px] font-bold text-[color:var(--lab-navy-950)] sm:text-sm">
+              {group.label}
+            </h3>
+            <span className="text-[11px] tabular-nums text-[color:var(--lab-muted)] sm:text-xs">
+              {group.count.toLocaleString("ko-KR")}건
+            </span>
+          </div>
+
+          <ul className="divide-y divide-[color:var(--lab-border)]">
+            {group.items.map((tx, idx) => {
+              const status = archiveStatusLabel(mode, tx.dealingGbn);
+              const dong = archiveBuildingDongLabel(tx);
+              return (
+                <li
+                  key={`${tx.id}-${idx}`}
+                  className="grid items-center gap-x-1 px-2 py-2 text-[11px] leading-snug text-[color:var(--lab-navy-950)] sm:gap-x-2 sm:px-3 sm:py-2.5 sm:text-[12px]"
+                  style={{ gridTemplateColumns: ARCHIVE_GRID }}
+                >
+                  <span className="tabular-nums">{contractDay(tx.dealDate)}</span>
+                  <span className="min-w-0">
+                    {status ? <StatusBadge label={status} /> : null}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="inline-flex max-w-full flex-wrap items-center gap-1">
+                      <span className="text-[12px] font-bold tabular-nums text-[color:var(--lab-navy-950)] sm:text-[13px]">
+                        {archivePriceLabel(tx, mode)}
+                      </span>
+                      {mode === "trade" && tx.isSingoga ? (
+                        <span className="shrink-0 rounded border border-rose-400 px-1 py-px text-[9px] font-bold leading-none text-rose-600">
+                          신고가
+                        </span>
+                      ) : null}
+                    </span>
+                  </span>
+                  <span className="min-w-0">
+                    <AreaCell exclusiveArea={tx.exclusiveArea} />
+                  </span>
+                  <span className="min-w-0 truncate">{dong ?? ""}</span>
+                  <span className="min-w-0">
+                    <FloorCell floor={tx.floor} />
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       ))}
-    </>
+    </div>
   );
 }

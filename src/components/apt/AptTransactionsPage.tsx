@@ -23,7 +23,11 @@ import {
   type TransactionYear,
 } from "@/lib/apt/transaction-year";
 import type { AptTransactionArchiveResponse } from "@/lib/apt/transaction-archive-types";
-import { formatEok, formatKpiMonthlyRent } from "@/lib/utils/format";
+import {
+  formatEokDetail,
+  formatKpiMonthlyRent,
+} from "@/lib/utils/format";
+import Link from "next/link";
 
 const PAGE_SIZE = 20;
 
@@ -81,13 +85,13 @@ function YearSelect({
   }, [years, value]);
 
   return (
-    <label className="relative inline-flex min-w-0 max-w-full items-center">
+    <label className="relative inline-flex shrink-0 items-center">
       <span className="sr-only">년도</span>
       <select
         value={value}
         aria-label="조회 연도"
         onChange={(e) => onChange(parseTransactionYear(e.target.value))}
-        className="h-9 max-w-full appearance-none rounded-lg border border-slate-200 bg-white py-0 pl-2.5 pr-8 text-sm font-medium text-slate-800"
+        className="h-9 min-w-[6.5rem] appearance-none rounded-lg border border-[color:var(--lab-border)] bg-white py-0 pl-2.5 pr-8 text-sm font-medium text-[color:var(--lab-navy-900)]"
       >
         <option value="all">전체년도</option>
         {options.map((y) => (
@@ -97,7 +101,7 @@ function YearSelect({
         ))}
       </select>
       <ChevronDown
-        className="pointer-events-none absolute right-2 h-3.5 w-3.5 text-slate-500"
+        className="pointer-events-none absolute right-2 h-3.5 w-3.5 text-[color:var(--lab-muted)]"
         aria-hidden
       />
     </label>
@@ -114,14 +118,14 @@ function KpiCell({
   hint: string;
 }) {
   return (
-    <div className="min-w-0 overflow-hidden px-1 py-1.5 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
+    <div className="min-w-0 overflow-hidden px-1.5 py-1.5 text-center sm:px-3 sm:py-2">
+      <p className="text-[9px] font-medium leading-tight text-[color:var(--lab-muted)] sm:text-[11px]">
         {label}
       </p>
-      <p className="lab-kpi-value mt-0.5 truncate text-[13px] font-semibold leading-tight tabular-nums text-slate-900 sm:text-base">
+      <p className="lab-kpi-value mt-0.5 truncate text-[13px] font-bold leading-tight tabular-nums text-[color:var(--lab-navy-950)] sm:text-base">
         {value}
       </p>
-      <p className="mt-0.5 truncate text-[9px] leading-snug text-slate-500 sm:text-[11px]">
+      <p className="mt-0.5 truncate text-[9px] leading-snug text-[color:var(--lab-muted)] sm:text-[11px]">
         {hint}
       </p>
     </div>
@@ -320,39 +324,49 @@ export function AptTransactionsPage({
       <section className="lab-card overflow-hidden">
         <div className="flex min-h-9 items-center gap-1 px-3 pt-2 sm:px-4 sm:pt-2.5">
           <BackLink fallback={detailHref} compact hideLabel />
-          <p className="min-w-0 truncate text-sm font-semibold tracking-tight text-slate-900">
+          <p className="min-w-0 flex-1 truncate text-sm font-semibold tracking-tight text-[color:var(--lab-navy-950)]">
             {displayName}
           </p>
+          <Link
+            href={detailHref}
+            className="hidden shrink-0 text-[11px] font-medium text-[color:var(--lab-muted)] hover:text-[color:var(--lab-teal-700)] sm:inline"
+          >
+            단지상세로 돌아가기 &gt;
+          </Link>
         </div>
 
         <div className="space-y-2 px-3 pb-2.5 sm:px-4 sm:pb-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <TransactionTypeTabs
-              value={dealType}
-              onChange={(next) => {
-                resetAnd(() => {
-                  setDealType(next);
-                  syncUrl(resolvedAreaKey || areaKey, next, year);
-                });
-              }}
-              counts={{
-                trade: kpi?.tradeCount,
-                jeonse: kpi?.jeonseCount,
-                monthly: kpi?.monthlyCount,
-              }}
-            />
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <YearSelect
-                value={year}
-                years={years}
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <TransactionTypeTabs
+                value={dealType}
                 onChange={(next) => {
                   resetAnd(() => {
-                    setYear(next);
-                    syncUrl(resolvedAreaKey || areaKey, dealType, next);
+                    setDealType(next);
+                    syncUrl(resolvedAreaKey || areaKey, next, year);
                   });
                 }}
+                counts={{
+                  trade: kpi?.tradeCount,
+                  jeonse: kpi?.jeonseCount,
+                  monthly: kpi?.monthlyCount,
+                }}
               />
-              {areas.length > 0 ? (
+              <div className="ml-auto shrink-0 sm:ml-0">
+                <YearSelect
+                  value={year}
+                  years={years}
+                  onChange={(next) => {
+                    resetAnd(() => {
+                      setYear(next);
+                      syncUrl(resolvedAreaKey || areaKey, dealType, next);
+                    });
+                  }}
+                />
+              </div>
+            </div>
+            {areas.length > 0 ? (
+              <div className="w-full min-w-0 sm:max-w-md sm:flex-1">
                 <AptAreaSelector
                   areas={areas}
                   value={resolvedAreaKey || areas[0]!.key}
@@ -363,18 +377,18 @@ export function AptTransactionsPage({
                     });
                   }}
                 />
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </div>
 
-          <div className="grid grid-cols-3 divide-x divide-slate-100 overflow-hidden rounded-xl border border-slate-100 bg-slate-50/40">
+          <div className="grid grid-cols-3 divide-x divide-[color:var(--lab-border)] overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-bg)]/50">
             {dealType === "monthly" ? (
               <>
                 <KpiCell
                   label="최고 보증금"
                   value={
                     kpi?.monthlyDepositHigh
-                      ? formatEok(kpi.monthlyDepositHigh.amount)
+                      ? formatEokDetail(kpi.monthlyDepositHigh.amount)
                       : "—"
                   }
                   hint={
@@ -406,7 +420,11 @@ export function AptTransactionsPage({
               <>
                 <KpiCell
                   label="매매 최고"
-                  value={kpi?.saleHigh ? formatEok(kpi.saleHigh.amount) : "—"}
+                  value={
+                    kpi?.saleHigh
+                      ? formatEokDetail(kpi.saleHigh.amount)
+                      : "—"
+                  }
                   hint={
                     kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"
                   }
@@ -414,7 +432,9 @@ export function AptTransactionsPage({
                 <KpiCell
                   label="전세 최고"
                   value={
-                    kpi?.jeonseHigh ? formatEok(kpi.jeonseHigh.amount) : "—"
+                    kpi?.jeonseHigh
+                      ? formatEokDetail(kpi.jeonseHigh.amount)
+                      : "—"
                   }
                   hint={
                     kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
@@ -430,7 +450,7 @@ export function AptTransactionsPage({
           </div>
         </div>
 
-        <div className="border-t border-slate-100 px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
+        <div className="border-t border-[color:var(--lab-border)] px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
           <GroupedTransactionList items={items} mode={dealType} />
           {hasMore ? (
             <button
@@ -445,10 +465,16 @@ export function AptTransactionsPage({
                   불러오는 중…
                 </>
               ) : (
-                "더보기"
+                <>
+                  더보기 ({PAGE_SIZE}건)
+                  <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                </>
               )}
             </button>
           ) : null}
+          <p className="mt-2 text-center text-[10px] text-[color:var(--lab-muted)] sm:text-[11px]">
+            최근 계약일 순으로 정렬됩니다.
+          </p>
         </div>
       </section>
     </div>

@@ -53,10 +53,12 @@ export function transactionYearLabel(year: TransactionYear): string {
 }
 
 export function kpiHintForYear(year: TransactionYear): string {
-  return transactionYearLabel(year);
+  if (year === "all") return "전체년도";
+  return `${year}년 기준`;
 }
 
+/** Compact KPI date under highs — YY.MM */
 export function kpiDateShort(dealDate: string): string {
   if (!dealDate || dealDate.length < 7) return dealDate;
-  return `${dealDate.slice(0, 4)}.${dealDate.slice(5, 7)}`;
+  return `${dealDate.slice(2, 4)}.${dealDate.slice(5, 7)}`;
 }
