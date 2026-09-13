@@ -762,7 +762,7 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
-        <div className="mb-6">
+        <div className="mb-7">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               거래 내역
