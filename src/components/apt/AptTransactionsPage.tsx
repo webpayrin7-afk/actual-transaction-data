@@ -453,7 +453,7 @@ export function AptTransactionsPage({
         </div>
       </div>
 
-      <div className="mt-3 space-y-3">
+      <div className="mt-5 space-y-4 pt-1">
         <GroupedTransactionList items={items} mode={dealType} />
         {hasMore ? (
           <button
