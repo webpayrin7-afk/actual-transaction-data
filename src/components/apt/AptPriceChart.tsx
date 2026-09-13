@@ -132,7 +132,7 @@ export function AptPriceChart({
           <YAxis
             yAxisId="price"
             tickFormatter={(v: number) => `${v}억`}
-            tick={{ fill: "#64748b", fontSize: 11 }}
+            tick={{ fill: "#94a3b8", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={42}
@@ -141,7 +141,7 @@ export function AptPriceChart({
             yAxisId="volume"
             orientation="right"
             tickFormatter={(v: number) => `${v}건`}
-            tick={{ fill: CHART_COLORS.volume, fontSize: 11, fontWeight: 600 }}
+            tick={{ fill: "#94a3b8", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={40}
