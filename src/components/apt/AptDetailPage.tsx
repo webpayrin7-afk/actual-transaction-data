@@ -670,7 +670,7 @@ export function AptDetailPage({
 
       {/* Market: one white section — period + KPI row + context + chart */}
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
           <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
             시세 추이
           </h2>
@@ -712,9 +712,9 @@ export function AptDetailPage({
           )}
           {kpiCell(
             "거래량",
-            `매매 ${periodTradeCount.toLocaleString("ko-KR")}건`,
-            `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
-            "!font-sans !tracking-normal !text-[13px] sm:!text-[13px] whitespace-nowrap",
+            <span className="whitespace-nowrap">{`매매 ${periodTradeCount.toLocaleString("ko-KR")}건`}</span>,
+            <span className="whitespace-nowrap">{`전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`}</span>,
+            "!font-sans !tracking-normal !text-[12px] sm:!text-[13px] !whitespace-nowrap",
           )}
         </div>
 
