@@ -349,7 +349,7 @@ function ArchiveColHeader() {
   return (
     <div className="bg-white px-1 pb-1.5 pt-0.5 sm:px-1.5">
       <div
-        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 text-[10px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5 sm:text-[11px]"
+        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 text-[11px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5 sm:text-[12px]"
         style={{ gridTemplateColumns: ARCHIVE_GRID }}
         role="row"
       >
@@ -396,10 +396,10 @@ export function GroupedTransactionList({
           className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white shadow-[var(--lab-shadow)]"
         >
           <div className="flex items-center justify-between gap-2 bg-white px-2.5 pt-2.5 pb-1 sm:px-3">
-            <h3 className="text-[13px] font-bold text-[color:var(--lab-navy-950)] sm:text-sm">
+            <h3 className="text-sm font-bold text-[color:var(--lab-navy-950)] sm:text-[15px]">
               {group.label}
             </h3>
-            <span className="text-[11px] tabular-nums text-[color:var(--lab-muted)] sm:text-xs">
+            <span className="text-[12px] tabular-nums text-[color:var(--lab-muted)] sm:text-[13px]">
               {group.count.toLocaleString("ko-KR")}건
             </span>
           </div>
@@ -413,7 +413,7 @@ export function GroupedTransactionList({
               return (
                 <li
                   key={`${tx.id}-${idx}`}
-                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2 text-[11px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2.5 sm:text-[12px]"
+                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2 text-[12px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2.5 sm:text-[13px]"
                   style={{ gridTemplateColumns: ARCHIVE_GRID }}
                 >
                   <span className="tabular-nums text-[color:var(--lab-navy-900)]">
@@ -429,12 +429,12 @@ export function GroupedTransactionList({
                   <span className="min-w-0">
                     <span className="inline-flex max-w-full flex-nowrap items-center gap-1 overflow-hidden">
                       <span
-                        className={`whitespace-nowrap text-[12px] font-bold tabular-nums sm:text-[13px] ${dealTypePriceTextClass(mode)}`}
+                        className={`whitespace-nowrap text-[13px] font-bold tabular-nums sm:text-[14px] ${dealTypePriceTextClass(mode)}`}
                       >
                         {archivePriceLabel(tx, mode)}
                       </span>
                       {mode === "trade" && tx.isSingoga ? (
-                        <span className="shrink-0 whitespace-nowrap rounded border border-rose-400 px-1 py-px text-[9px] font-bold leading-none text-rose-600">
+                        <span className="shrink-0 whitespace-nowrap rounded border border-rose-400 px-1 py-px text-[10px] font-bold leading-none text-rose-600">
                           신고가
                         </span>
                       ) : null}
