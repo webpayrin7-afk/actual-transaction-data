@@ -447,8 +447,13 @@ function AreaOptionRow({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
-          {pyeongLabel}
+        <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
+            {pyeongLabel}
+          </span>
+          <span className="text-[13px] tabular-nums leading-snug text-slate-400">
+            {dealLabel}
+          </span>
         </span>
         <span className="mt-0.5 block text-[13px] tabular-nums leading-snug text-slate-500">
           {exclusiveLabel}
@@ -459,10 +464,7 @@ function AreaOptionRow({
           </span>
         ) : null}
       </span>
-      <span className="flex shrink-0 flex-col items-end gap-1 pt-0.5">
-        <span className="text-[13px] tabular-nums text-slate-400">
-          {dealLabel}
-        </span>
+      <span className="flex h-[1.375rem] w-4 shrink-0 items-center justify-center sm:h-6">
         {active ? (
           <Check className="h-4 w-4 text-teal-700" aria-hidden />
         ) : (
