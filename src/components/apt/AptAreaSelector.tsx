@@ -15,7 +15,6 @@ import {
   areaSelectorDealCountLabel,
   areaSelectorExclusiveLabel,
   areaSelectorPyeongLabel,
-  areaSelectorStickyLabel,
   areaSelectorSupplyLabel,
 } from "@/lib/apt/area-selector-label";
 
@@ -34,24 +33,11 @@ const SHEET_MS = 280;
 const PYEONG_TEXT =
   "font-semibold text-[color:var(--lab-teal-700)]";
 
-function AreaTriggerLabel({
-  area,
-  compact,
-}: {
-  area: AptAreaOption;
-  compact: boolean;
-}) {
+function AreaTriggerLabel({ area }: { area: AptAreaOption }) {
   const pyeong = areaSelectorPyeongLabel(area);
-  let suffix: string;
-  if (compact) {
-    const min = area.exclusiveAreaMin ?? area.exclusiveArea;
-    const max = area.exclusiveAreaMax ?? area.exclusiveArea;
-    const mid = (min + max) / 2;
-    const sqm = mid.toFixed(1).replace(/\.0$/, "");
-    suffix = ` · ${sqm}㎡`;
-  } else {
-    suffix = ` · ${areaSelectorExclusiveLabel(area)}`;
-  }
+  // Sticky + closed both show exclusive so the sticky trigger can grow left
+  // with real text (max-width alone does not widen short labels).
+  const suffix = ` · ${areaSelectorExclusiveLabel(area)}`;
   return (
     <>
       <span className={PYEONG_TEXT}>{pyeong}</span>
@@ -156,12 +142,12 @@ export function AptAreaSelector({
       <div
         className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
           compact
-            ? "h-8 max-w-[13.5rem] px-2.5 text-xs font-semibold"
+            ? "h-8 max-w-[16.5rem] px-2.5 text-xs font-semibold sm:max-w-[18rem]"
             : "h-10 w-full px-3.5 text-sm font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 truncate">
-          <AreaTriggerLabel area={only} compact={compact} />
+          <AreaTriggerLabel area={only} />
         </span>
       </div>
     );
@@ -171,9 +157,7 @@ export function AptAreaSelector({
   const isAll = value === "all" || !selected;
   const triggerLabel = isAll
     ? "전체 면적"
-    : compact
-      ? areaSelectorStickyLabel(selected)
-      : areaSelectorClosedLabel(selected);
+    : areaSelectorClosedLabel(selected);
   const a11yExtra = isAll
     ? `타입 ${sorted.length.toLocaleString("ko-KR")}개 · ${areaSelectorDealCountLabel(totalDeals)}`
     : areaSelectorDealCountLabel(selected.count);
@@ -189,7 +173,7 @@ export function AptAreaSelector({
         onClick={openSheet}
         className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
           compact
-            ? "h-8 max-w-[15rem] rounded-md px-2.5 text-xs font-semibold"
+            ? "h-8 max-w-[17.5rem] rounded-md px-2.5 text-xs font-semibold sm:max-w-[19.5rem]"
             : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
         } ${triggerClassName || "bg-white"}`}
       >
@@ -197,7 +181,7 @@ export function AptAreaSelector({
           {isAll || !selected ? (
             <span className="font-semibold">전체 면적</span>
           ) : (
-            <AreaTriggerLabel area={selected} compact={compact} />
+            <AreaTriggerLabel area={selected} />
           )}
         </span>
         <ChevronDown
