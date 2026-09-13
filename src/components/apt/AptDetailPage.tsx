@@ -785,7 +785,7 @@ export function AptDetailPage({
             href={transactionsHref}
             className="lab-button lab-button-primary w-full min-h-10 text-sm"
           >
-            거래 내역 전체보기
+            거래 내역 자세히 보기
             {filteredByType.length > 5
               ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
               : ""}
