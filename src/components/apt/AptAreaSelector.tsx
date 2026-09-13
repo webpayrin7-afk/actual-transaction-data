@@ -33,22 +33,32 @@ const SHEET_MS = 280;
 const PYEONG_TEXT =
   "font-semibold text-[color:var(--lab-teal-700)]";
 
-function AreaTriggerLabel({ area }: { area: AptAreaOption }) {
+function AreaTriggerLabel({
+  area,
+  dealCount,
+}: {
+  area: AptAreaOption;
+  dealCount: number;
+}) {
   const pyeong = areaSelectorPyeongLabel(area);
-  // Sticky + closed both show exclusive so the sticky trigger can grow left
-  // with real text (max-width alone does not widen short labels).
-  const suffix = ` · ${areaSelectorExclusiveLabel(area)}`;
+  // Sticky + closed both show exclusive + deal count so the trigger grows with
+  // real text (max-width alone does not widen short labels).
   return (
     <>
       <span className={PYEONG_TEXT}>{pyeong}</span>
-      <span className="font-semibold text-slate-800">{suffix}</span>
+      <span className="font-semibold text-slate-800">
+        {` · ${areaSelectorExclusiveLabel(area)}`}
+      </span>
+      <span className="font-medium text-slate-400">
+        {` · ${areaSelectorDealCountLabel(dealCount)}`}
+      </span>
     </>
   );
 }
 
 /**
  * Single trigger + bottom sheet area picker.
- * Closed: "33평 · 전용 84.80~84.97㎡ ˅" (no icon / no "면적 선택" label).
+ * Closed: "33평 · 전용 84.80~84.97㎡ · 거래 N건 ˅"
  * Sheet: 평형 → 전용+거래건수 → (공급); 선택 체크는 맨 오른쪽 세로 가운데. Phase5 boundaries unchanged.
  */
 export function AptAreaSelector({
@@ -142,12 +152,12 @@ export function AptAreaSelector({
       <div
         className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
           compact
-            ? "h-8 max-w-[16.5rem] px-2.5 text-xs font-semibold sm:max-w-[18rem]"
+            ? "h-8 max-w-[20rem] px-2.5 text-xs font-semibold sm:max-w-[22rem]"
             : "h-10 w-full px-3.5 text-sm font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 truncate">
-          <AreaTriggerLabel area={only} />
+          <AreaTriggerLabel area={only} dealCount={only.count} />
         </span>
       </div>
     );
@@ -173,15 +183,20 @@ export function AptAreaSelector({
         onClick={openSheet}
         className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
           compact
-            ? "h-8 max-w-[17.5rem] rounded-md px-2.5 text-xs font-semibold sm:max-w-[19.5rem]"
+            ? "h-8 max-w-[21rem] rounded-md px-2.5 text-xs font-semibold sm:max-w-[24rem]"
             : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 flex-1 truncate">
           {isAll || !selected ? (
-            <span className="font-semibold">전체 면적</span>
+            <>
+              <span className="font-semibold">전체 면적</span>
+              <span className="font-medium text-slate-400">
+                {` · ${areaSelectorDealCountLabel(totalDeals)}`}
+              </span>
+            </>
           ) : (
-            <AreaTriggerLabel area={selected} />
+            <AreaTriggerLabel area={selected} dealCount={selected.count} />
           )}
         </span>
         <ChevronDown
