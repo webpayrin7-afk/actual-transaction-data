@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, LoaderCircle } from "lucide-react";
@@ -203,26 +203,30 @@ export function AptTransactionsPage({
 
   const data = query.data;
   const [items, setItems] = useState(data?.items ?? []);
+  const [seenData, setSeenData] = useState(data);
 
-  useEffect(() => {
-    if (!data) return;
-    if (data.metaIncluded !== false) {
-      setListMeta(data);
-    }
-    if (offset === 0) {
-      setItems(data.items);
-      return;
-    }
-    if (query.isPlaceholderData) return;
-    setItems((prev) => {
-      const seen = new Set(prev.map((i) => i.id));
-      const next = [...prev];
-      for (const tx of data.items) {
-        if (!seen.has(tx.id)) next.push(tx);
+  // Adjust list state when the query result identity changes (React-recommended;
+  // avoids cascading renders from synchronizing in an effect).
+  if (data !== seenData) {
+    setSeenData(data);
+    if (data) {
+      if (data.metaIncluded !== false) {
+        setListMeta(data);
       }
-      return next;
-    });
-  }, [data, offset, query.isPlaceholderData]);
+      if (offset === 0) {
+        setItems(data.items);
+      } else if (!query.isPlaceholderData) {
+        setItems((prev) => {
+          const seen = new Set(prev.map((i) => i.id));
+          const next = [...prev];
+          for (const tx of data.items) {
+            if (!seen.has(tx.id)) next.push(tx);
+          }
+          return next;
+        });
+      }
+    }
+  }
 
   useLoadProgressWhen(
     query.isLoading && offset === 0 && items.length === 0,
@@ -239,23 +243,26 @@ export function AptTransactionsPage({
     return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
   }, [aptName, regionSlug, gu, resolvedAreaKey]);
 
-  function syncUrl(
-    nextArea: string,
-    nextType: TransactionTabType,
-    nextYear: TransactionYear,
-  ) {
-    const qs = new URLSearchParams({
-      region: regionSlug,
-      area: nextArea,
-      type: transactionTypeToParam(nextType),
-      year: nextYear,
-    });
-    if (gu?.trim()) qs.set("gu", gu.trim());
-    router.replace(
-      `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`,
-      { scroll: false },
-    );
-  }
+  const syncUrl = useCallback(
+    (
+      nextArea: string,
+      nextType: TransactionTabType,
+      nextYear: TransactionYear,
+    ) => {
+      const qs = new URLSearchParams({
+        region: regionSlug,
+        area: nextArea,
+        type: transactionTypeToParam(nextType),
+        year: nextYear,
+      });
+      if (gu?.trim()) qs.set("gu", gu.trim());
+      router.replace(
+        `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`,
+        { scroll: false },
+      );
+    },
+    [aptName, regionSlug, gu, router],
+  );
 
   function resetAnd(next: () => void) {
     setOffset(0);
@@ -268,7 +275,7 @@ export function AptTransactionsPage({
     if (areaKey) return;
     if (!data?.areaKey || data.metaIncluded === false) return;
     syncUrl(data.areaKey, dealType, year);
-  }, [areaKey, data?.areaKey, data?.metaIncluded, dealType, year]);
+  }, [areaKey, data?.areaKey, data?.metaIncluded, dealType, year, syncUrl]);
 
   const kpi = meta?.kpi;
   const yearHint = kpiHintForYear(year);

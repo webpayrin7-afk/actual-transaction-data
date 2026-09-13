@@ -65,7 +65,99 @@ export type ComplexDetailV1 = {
 };
 
 const MGMT_DISCLAIMER =
-  "단지 총액을 세대수로 나눈 환산값으로, 실제 세대별 청구액은 면적·사용량 등에 따라 다를 수 있습니다.";
+  "단지 총액을 세대수로 나눈 단순 환산값으로, 실제 세대별 청구액은 면적·사용량 등에 따라 다를 수 있습니다.";
+
+/** Previous calendar month as YYYYMM. */
+export function prevYyyymm(yyyymm: string): string {
+  const y = Number(yyyymm.slice(0, 4));
+  const m = Number(yyyymm.slice(4, 6));
+  if (m <= 1) return `${y - 1}12`;
+  return `${y}${String(m - 1).padStart(2, "0")}`;
+}
+
+/**
+ * From newest→oldest rows, keep a contiguous streak ending at latest (max `limit`).
+ * Gaps stop the window — missing months are not invented.
+ */
+export function continuousMonthsFromLatest<T extends { periodYyyymm: string }>(
+  monthsDesc: T[],
+  limit = 12,
+): T[] {
+  if (monthsDesc.length === 0) return [];
+  const out: T[] = [monthsDesc[0]!];
+  for (let i = 1; i < monthsDesc.length && out.length < limit; i++) {
+    const newer = out[out.length - 1]!;
+    const older = monthsDesc[i]!;
+    if (prevYyyymm(newer.periodYyyymm) !== older.periodYyyymm) break;
+    out.push(older);
+  }
+  return out;
+}
+
+/** Season month numbers. Winter spans Dec of prior calendar year. */
+export const MGMT_WINTER_MONTHS = [12, 1, 2] as const;
+export const MGMT_SUMMER_MONTHS = [6, 7, 8] as const;
+/** Prefer ≥2 valid months in-season; do not fabricate. */
+export const MGMT_SEASON_MIN_MONTHS = 2;
+
+export type MgmtSeasonMetric = {
+  valueWon: number | null;
+  monthsAvailable: string[];
+  monthsUsed: string[];
+  /** Winter: year of Jan/Feb. Summer: calendar year of Jun–Aug. */
+  seasonYear: number | null;
+};
+
+function yyyymm(year: number, month: number): string {
+  return `${year}${String(month).padStart(2, "0")}`;
+}
+
+/**
+ * Most recent winter (Dec Y-1, Jan Y, Feb Y) or summer (Jun–Aug Y)
+ * with at least MGMT_SEASON_MIN_MONTHS valid per-household values ≤ latestYm.
+ */
+export function computeSeasonMetric(
+  seriesAsc: ComplexMgmtMonthV1[],
+  latestYm: string,
+  kind: "winter" | "summer",
+): MgmtSeasonMetric {
+  const byYm = new Map<string, number>();
+  for (const m of seriesAsc) {
+    if (m.perHouseholdComponentSum != null && m.perHouseholdComponentSum > 0) {
+      byYm.set(m.periodYyyymm, m.perHouseholdComponentSum);
+    }
+  }
+  const latestY = Number(latestYm.slice(0, 4));
+  const empty: MgmtSeasonMetric = {
+    valueWon: null,
+    monthsAvailable: [],
+    monthsUsed: [],
+    seasonYear: null,
+  };
+  if (!Number.isFinite(latestY)) return empty;
+
+  for (let y = latestY; y >= latestY - 3; y--) {
+    const keys =
+      kind === "summer"
+        ? MGMT_SUMMER_MONTHS.map((mo) => yyyymm(y, mo))
+        : [
+            yyyymm(y - 1, 12),
+            yyyymm(y, 1),
+            yyyymm(y, 2),
+          ];
+    const onOrBefore = keys.filter((k) => k <= latestYm);
+    const available = onOrBefore.filter((k) => byYm.has(k));
+    if (available.length < MGMT_SEASON_MIN_MONTHS) continue;
+    const vals = available.map((k) => byYm.get(k)!);
+    return {
+      valueWon: Math.round(vals.reduce((a, b) => a + b, 0) / vals.length),
+      monthsAvailable: available,
+      monthsUsed: available,
+      seasonYear: y,
+    };
+  }
+  return empty;
+}
 
 function asStr(v: unknown): string | null {
   if (v == null) return null;
@@ -137,6 +229,12 @@ export function formatWonAsManwon(won: number | null | undefined): string {
 export function formatYyyymmLabel(yyyymm: string): string {
   if (yyyymm.length !== 6) return yyyymm;
   return `${yyyymm.slice(0, 4)}.${yyyymm.slice(4, 6)}`;
+}
+
+/** e.g. 202609 → "2026년 09월 기준" */
+export function formatYyyymmBasisLabel(yyyymm: string): string {
+  if (yyyymm.length !== 6) return yyyymm;
+  return `${yyyymm.slice(0, 4)}년 ${yyyymm.slice(4, 6)}월 기준`;
 }
 
 export async function getComplexDetailV1(params: {
@@ -270,13 +368,14 @@ export async function getComplexDetailV1(params: {
   }
 
   const tFees = performance.now();
+  // Read up to 24 months for season windows; averages still use ≤12 continuous.
   const feeRes = await db.execute({
     sql: `SELECT period_yyyymm, common_fee, individual_fee, long_term_repair_reserve,
                  household_basis
           FROM apt_complex_mgmt_fee_monthly
           WHERE complex_id = ?
           ORDER BY period_yyyymm DESC
-          LIMIT 12`,
+          LIMIT 24`,
     args: [complexId],
   });
   const feesMs = Math.round(performance.now() - tFees);
@@ -312,7 +411,8 @@ export async function getComplexDetailV1(params: {
 
     const seriesAsc = [...monthsDesc].reverse();
     const latest = monthsDesc[0]!;
-    const n = monthsDesc.length;
+    const continuous = continuousMonthsFromLatest(monthsDesc, 12);
+    const n = continuous.length;
 
     management = {
       available: true,
@@ -322,27 +422,27 @@ export async function getComplexDetailV1(params: {
       averageLabel: n >= 12 ? "최근 12개월 평균" : `최근 ${n}개월 평균`,
       average: {
         commonFee: avg(
-          monthsDesc
+          continuous
             .map((m) => m.commonFee)
             .filter((v): v is number => v != null),
         ),
         individualFee: avg(
-          monthsDesc
+          continuous
             .map((m) => m.individualFee)
             .filter((v): v is number => v != null),
         ),
         longTermRepairReserve: avg(
-          monthsDesc
+          continuous
             .map((m) => m.longTermRepairReserve)
             .filter((v): v is number => v != null),
         ),
         componentSum: avg(
-          monthsDesc
+          continuous
             .map((m) => m.componentSum)
             .filter((v): v is number => v != null),
         ),
         perHouseholdComponentSum: avg(
-          monthsDesc
+          continuous
             .map((m) => m.perHouseholdComponentSum)
             .filter((v): v is number => v != null),
         ),
