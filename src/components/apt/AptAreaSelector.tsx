@@ -63,7 +63,7 @@ function AreaTriggerLabel({
 /**
  * Single trigger + bottom sheet area picker.
  * Closed: "33평 · 전용 84.80~84.97㎡ ˅" (no icon / no "면적 선택" label).
- * Sheet: 평형 → 전용 → (공급) · 거래건수. Phase5 boundaries unchanged.
+ * Sheet: 평형+거래건수 → 전용 → (공급); 선택 체크는 맨 오른쪽. Phase5 boundaries unchanged.
  */
 export function AptAreaSelector({
   areas,
@@ -156,7 +156,7 @@ export function AptAreaSelector({
       <div
         className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
           compact
-            ? "h-8 max-w-[11.5rem] px-2.5 text-xs font-semibold"
+            ? "h-8 max-w-[13.5rem] px-2.5 text-xs font-semibold"
             : "h-10 w-full px-3.5 text-sm font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
@@ -189,7 +189,7 @@ export function AptAreaSelector({
         onClick={openSheet}
         className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
           compact
-            ? "h-8 max-w-[13rem] rounded-md px-2.5 text-xs font-semibold"
+            ? "h-8 max-w-[15rem] rounded-md px-2.5 text-xs font-semibold"
             : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
         } ${triggerClassName || "bg-white"}`}
       >
