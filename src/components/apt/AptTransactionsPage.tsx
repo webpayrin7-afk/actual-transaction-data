@@ -30,7 +30,7 @@ import {
 } from "@/lib/utils/format";
 import Link from "next/link";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 30;
 
 const PAGE_WRAP =
   "mx-auto flex w-full max-w-5xl flex-col overflow-x-clip px-4 pt-3 pb-8 sm:px-6 sm:pt-4 sm:pb-10 lg:px-8";

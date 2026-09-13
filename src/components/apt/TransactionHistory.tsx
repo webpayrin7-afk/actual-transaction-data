@@ -185,14 +185,58 @@ export function TransactionRow({
   tx,
   mode,
   dense = false,
+  layout = "stack",
 }: {
   tx: AptHistoryItem;
   mode: TransactionTabType;
   /** Archive page: date left, price right, compact meta under price. */
   dense?: boolean;
+  /** Complex detail preview: single-line date · price · area · floor. */
+  layout?: "stack" | "inline";
 }) {
   const dateFull = formatDealDate(tx.dealDate);
   const dateShort = dayShort(tx.dealDate);
+  const moneyClass = dealTypePriceTextClass(mode);
+  const metaBits = [
+    formatExclusiveArea(tx.exclusiveArea),
+    `${tx.floor}층`,
+  ].join(" · ");
+
+  if (layout === "inline") {
+    const priceLabel =
+      mode === "monthly"
+        ? formatMonthlyPriceCell(tx.dealAmount, Number(tx.monthlyRent ?? 0))
+        : formatEok(tx.dealAmount);
+    return (
+      <li className="flex items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-3.5 sm:py-3">
+        <time
+          dateTime={tx.dealDate}
+          title={dateFull}
+          aria-label={dateFull}
+          className="shrink-0 text-[13px] font-medium tabular-nums text-slate-900 sm:text-sm"
+        >
+          <span className="sm:hidden">{dateShort}</span>
+          <span className="hidden sm:inline">{dateFull}</span>
+        </time>
+        <div className="ml-auto flex min-w-0 items-center justify-end gap-1.5 sm:gap-2">
+          {mode === "trade" && tx.isSingoga ? (
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+              <Flame className="h-3 w-3" aria-hidden />
+              신고가
+            </span>
+          ) : null}
+          <span
+            className={`shrink-0 whitespace-nowrap text-[13px] font-semibold tabular-nums sm:text-sm ${moneyClass}`}
+          >
+            {priceLabel}
+          </span>
+          <span className="hidden min-w-0 truncate text-[12px] tabular-nums text-slate-500 sm:inline sm:text-[13px]">
+            {metaBits}
+          </span>
+        </div>
+      </li>
+    );
+  }
 
   if (mode === "monthly") {
     const m = formatMonthlyRentDisplay(
@@ -213,7 +257,7 @@ export function TransactionRow({
           </time>
           <div className="min-w-0 flex-1 text-right">
             <p
-              className={`text-sm font-semibold tabular-nums sm:text-base ${dealTypePriceTextClass(mode)}`}
+              className={`text-sm font-semibold tabular-nums sm:text-base ${moneyClass}`}
             >
               {m.primary}
             </p>
@@ -232,7 +276,6 @@ export function TransactionRow({
   }
 
   const primaryMoney = formatEok(tx.dealAmount);
-  const moneyClass = dealTypePriceTextClass(mode);
 
   return (
     <li className={dense ? "px-3 py-2 sm:px-3.5 sm:py-2.5" : "px-3.5 py-2.5 sm:px-4 sm:py-3"}>
@@ -276,10 +319,12 @@ export function TransactionList({
   items,
   mode,
   emptyLabel = "선택한 조건의 거래가 없습니다.",
+  layout = "stack",
 }: {
   items: AptHistoryItem[];
   mode: TransactionTabType;
   emptyLabel?: string;
+  layout?: "stack" | "inline";
 }) {
   if (items.length === 0) {
     return (
@@ -292,7 +337,12 @@ export function TransactionList({
   return (
     <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
       {items.map((tx, idx) => (
-        <TransactionRow key={`${tx.id}-${idx}`} tx={tx} mode={mode} />
+        <TransactionRow
+          key={`${tx.id}-${idx}`}
+          tx={tx}
+          mode={mode}
+          layout={layout}
+        />
       ))}
     </ul>
   );
