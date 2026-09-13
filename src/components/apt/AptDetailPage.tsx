@@ -436,11 +436,6 @@ export function AptDetailPage({
 
   const headerChips = complexHeaderChips(complexDetail);
 
-  /** KPI subline: selected 평수 (market/supply label), not exclusive→법정평. */
-  const selectedPyeongHint = selectedArea
-    ? areaSelectorPyeongLabel(selectedArea)
-    : null;
-
   const transactionsHref = useMemo(() => {
     const qs = new URLSearchParams({
       region: regionSlug,
@@ -700,22 +695,12 @@ export function AptDetailPage({
           {kpiCell(
             "최근 매매",
             latestTrade ? formatEok(latestTrade.dealAmount) : "—",
-            latestTrade
-              ? `${formatDealDate(latestTrade.dealDate)} · ${
-                  selectedPyeongHint ??
-                  formatPyeong(latestTrade.exclusiveArea)
-                }`
-              : "—",
+            latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
           )}
           {kpiCell(
             "최근 전세",
             latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
-            latestJeonse
-              ? `${formatDealDate(latestJeonse.dealDate)} · ${
-                  selectedPyeongHint ??
-                  formatPyeong(latestJeonse.exclusiveArea)
-                }`
-              : "—",
+            latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
           )}
           {kpiCell(
             "최고가 대비",
