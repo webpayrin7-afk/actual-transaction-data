@@ -293,9 +293,10 @@ export function AptDetailPage({
     });
   }, [areaFiltered, startYm, endYm]);
 
+  // Summary list is independent of chart period: latest N for selected area group.
   const filteredByType = useMemo(
-    () => filterTransactionsByType(periodItems, dealFilter),
-    [periodItems, dealFilter],
+    () => filterTransactionsByType(areaFiltered, dealFilter),
+    [areaFiltered, dealFilter],
   );
   /** Detail summary: latest 5 only for the active tab. */
   const filtered = useMemo(
@@ -304,11 +305,11 @@ export function AptDetailPage({
   );
   const tabCounts = useMemo(
     () => ({
-      trade: filterTransactionsByType(periodItems, "trade").length,
-      jeonse: filterTransactionsByType(periodItems, "jeonse").length,
-      monthly: filterTransactionsByType(periodItems, "monthly").length,
+      trade: filterTransactionsByType(areaFiltered, "trade").length,
+      jeonse: filterTransactionsByType(areaFiltered, "jeonse").length,
+      monthly: filterTransactionsByType(areaFiltered, "monthly").length,
     }),
-    [periodItems],
+    [areaFiltered],
   );
 
   const chartPoints = useMemo(() => {

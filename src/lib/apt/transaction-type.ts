@@ -15,6 +15,10 @@ export function parseTransactionTabType(
   raw: string | null | undefined,
 ): TransactionTabType {
   if (raw === "jeonse" || raw === "monthly" || raw === "trade") return raw;
+  // URL aliases from product docs / external links
+  if (raw === "sale") return "trade";
+  if (raw === "wolse" || raw === "rent-monthly") return "monthly";
+  if (raw === "rent" || raw === "jeonse-only") return "jeonse";
   return "trade";
 }
 
