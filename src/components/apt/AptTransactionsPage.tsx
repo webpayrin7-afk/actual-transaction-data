@@ -339,6 +339,7 @@ export function AptTransactionsPage({
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="flex min-w-0 flex-1 items-center gap-2">
               <TransactionTypeTabs
+                variant="segmented"
                 value={dealType}
                 onChange={(next) => {
                   resetAnd(() => {
@@ -381,7 +382,7 @@ export function AptTransactionsPage({
             ) : null}
           </div>
 
-          <div className="grid grid-cols-3 divide-x divide-[color:var(--lab-border)] overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-bg)]/50">
+          <div className="grid grid-cols-3 divide-x divide-[color:var(--lab-border)] overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
             {dealType === "monthly" ? (
               <>
                 <KpiCell
@@ -450,14 +451,16 @@ export function AptTransactionsPage({
           </div>
         </div>
 
-        <div className="border-t border-[color:var(--lab-border)] px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
+      </section>
+
+        <div className="mt-3 space-y-3">
           <GroupedTransactionList items={items} mode={dealType} />
           {hasMore ? (
             <button
               type="button"
               onClick={() => setOffset((o) => o + PAGE_SIZE)}
               disabled={loadingMore}
-              className="lab-button lab-button-secondary mt-3 flex w-full min-h-10 items-center justify-center gap-1.5 text-sm disabled:opacity-60"
+              className="lab-button lab-button-secondary flex w-full min-h-10 items-center justify-center gap-1.5 text-sm disabled:opacity-60"
             >
               {loadingMore ? (
                 <>
@@ -472,11 +475,10 @@ export function AptTransactionsPage({
               )}
             </button>
           ) : null}
-          <p className="mt-2 text-center text-[10px] text-[color:var(--lab-muted)] sm:text-[11px]">
+          <p className="text-center text-[10px] text-[color:var(--lab-muted)] sm:text-right sm:text-[11px]">
             최근 계약일 순으로 정렬됩니다.
           </p>
         </div>
-      </section>
     </div>
   );
 }

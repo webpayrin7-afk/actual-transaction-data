@@ -33,11 +33,56 @@ export function TransactionTypeTabs({
   value,
   onChange,
   counts,
+  variant = "chips",
 }: {
   value: TransactionTabType;
   onChange: (next: TransactionTabType) => void;
   counts?: Partial<Record<TransactionTabType, number>>;
+  /** chips = Complex Detail; segmented = archive page connected control */
+  variant?: "chips" | "segmented";
 }) {
+  if (variant === "segmented") {
+    return (
+      <div
+        className="inline-flex max-w-full shrink-0 overflow-hidden rounded-lg border border-[color:var(--lab-border)] bg-white"
+        role="radiogroup"
+        aria-label="거래 유형"
+      >
+        {TRANSACTION_TABS.map((tab, i) => {
+          const active = value === tab.value;
+          const count = counts?.[tab.value];
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => onChange(tab.value)}
+              className={[
+                "h-9 px-2.5 text-[12px] font-semibold transition sm:px-3 sm:text-[13px]",
+                i > 0 ? "border-l border-[color:var(--lab-border)]" : "",
+                active
+                  ? "bg-[color:var(--lab-teal-600)] text-white"
+                  : "bg-white text-[color:var(--lab-navy-900)] hover:bg-[color:var(--lab-bg)]",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {tab.label}
+              {count != null ? (
+                <span
+                  className={`ml-1 tabular-nums ${active ? "text-white/80" : "opacity-60"}`}
+                >
+                  {count.toLocaleString("ko-KR")}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div
       className="flex w-fit max-w-full shrink-0 flex-wrap gap-1"
@@ -69,11 +114,6 @@ export function TransactionTypeTabs({
   );
 }
 
-function dealTypeLabel(mode: TransactionTabType): string {
-  if (mode === "trade") return "매매";
-  if (mode === "jeonse") return "전세";
-  return "월세";
-}
 
 function monthKeyFromDealDate(dealDate: string): string {
   if (!dealDate || dealDate.length < 7) return "";
@@ -265,17 +305,18 @@ export function TransactionList({
     </ul>
   );
 }
-
-
 const ARCHIVE_GRID =
-  "minmax(2.35rem,0.65fr) minmax(2.1rem,0.6fr) minmax(4.2rem,1.55fr) minmax(2.2rem,0.7fr) minmax(2rem,0.65fr) minmax(1.85rem,0.5fr)";
+  "minmax(2.2rem,0.55fr) minmax(2rem,0.55fr) minmax(5.2rem,1.85fr) minmax(2rem,0.65fr) minmax(1.9rem,0.55fr) minmax(1.7rem,0.45fr)";
 
 function contractDay(dealDate: string): string {
   if (dealDate.length < 10) return dealDate;
   return `${dealDate.slice(5, 7)}.${dealDate.slice(8, 10)}`;
 }
 
-function archivePriceLabel(tx: AptHistoryItem, mode: TransactionTabType): string {
+function archivePriceLabel(
+  tx: AptHistoryItem,
+  mode: TransactionTabType,
+): string {
   if (mode === "monthly") {
     return formatMonthlyPriceCell(tx.dealAmount, Number(tx.monthlyRent ?? 0));
   }
@@ -283,11 +324,11 @@ function archivePriceLabel(tx: AptHistoryItem, mode: TransactionTabType): string
 }
 
 function StatusBadge({ label }: { label: "신규" | "갱신" }) {
-  const isRenewal = label === "갱신";
+  const renewal = label === "갱신";
   return (
     <span
       className={
-        isRenewal
+        renewal
           ? "inline-flex items-center rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-50)]"
           : "inline-flex items-center rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-[color:var(--lab-navy-900)] bg-[color-mix(in_srgb,var(--lab-navy-900)_8%,white)]"
       }
@@ -302,18 +343,36 @@ function AreaCell({ exclusiveArea }: { exclusiveArea: number }) {
     exclusiveArea % 1 === 0
       ? `${exclusiveArea}`
       : exclusiveArea.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
-  return <span className="tabular-nums">{display}</span>;
+  return <span className="tabular-nums text-[color:var(--lab-navy-700)]">{display}</span>;
 }
 
 function FloorCell({ floor }: { floor: number | null | undefined }) {
   if (floor == null || !Number.isFinite(floor)) {
     return <span className="text-[color:var(--lab-muted)]">—</span>;
   }
-  return <span className="tabular-nums">{floor}층</span>;
+  return <span className="tabular-nums text-[color:var(--lab-navy-700)]">{floor}층</span>;
+}
+
+function ArchiveColHeader() {
+  return (
+    <div
+      className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)] bg-[color:var(--lab-bg)] px-2 py-1.5 text-[10px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:px-3 sm:text-[11px]"
+      style={{ gridTemplateColumns: ARCHIVE_GRID }}
+      role="row"
+    >
+      <span>계약일</span>
+      <span>상태</span>
+      <span>가격</span>
+      <span className="hidden sm:inline">면적(㎡)</span>
+      <span className="sm:hidden">면적</span>
+      <span>거래동</span>
+      <span>층</span>
+    </div>
+  );
 }
 
 /**
- * Archive list — same 6-column information structure on desktop and mobile.
+ * Archive list — month cards + dense 6-column rows (desktop = mobile IA).
  * 계약일 | 상태 | 가격 | 면적 | 거래동 | 층
  */
 export function GroupedTransactionList({
@@ -327,7 +386,7 @@ export function GroupedTransactionList({
 }) {
   if (items.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-[color:var(--lab-border)] px-4 py-8 text-center text-sm text-[color:var(--lab-muted)]">
+      <p className="rounded-xl border border-dashed border-[color:var(--lab-border)] bg-white px-4 py-8 text-center text-sm text-[color:var(--lab-muted)]">
         {emptyLabel}
       </p>
     );
@@ -336,27 +395,13 @@ export function GroupedTransactionList({
   const groups = groupTransactionsByMonth(items);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
-      <div
-        className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)] bg-[color:var(--lab-bg)] px-2 py-2 text-[10px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:px-3 sm:text-[11px]"
-        style={{ gridTemplateColumns: ARCHIVE_GRID }}
-        role="row"
-      >
-        <span>계약일</span>
-        <span>상태</span>
-        <span>가격</span>
-        <span className="hidden sm:inline">면적(㎡)</span>
-        <span className="sm:hidden">면적</span>
-        <span>거래동</span>
-        <span>층</span>
-      </div>
-
+    <div className="space-y-3">
       {groups.map((group) => (
         <section
           key={group.key}
-          className="border-b border-[color:var(--lab-border)] last:border-b-0"
+          className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white shadow-[var(--lab-shadow)]"
         >
-          <div className="flex items-center justify-between gap-2 bg-[color-mix(in_srgb,var(--lab-bg)_80%,white)] px-2 py-2 sm:px-3">
+          <div className="flex items-center justify-between gap-2 border-b border-[color:var(--lab-border)] bg-[color:var(--lab-bg)] px-2.5 py-2 sm:px-3">
             <h3 className="text-[13px] font-bold text-[color:var(--lab-navy-950)] sm:text-sm">
               {group.label}
             </h3>
@@ -365,27 +410,35 @@ export function GroupedTransactionList({
             </span>
           </div>
 
-          <ul className="divide-y divide-[color:var(--lab-border)]">
+          <ArchiveColHeader />
+
+          <ul>
             {group.items.map((tx, idx) => {
               const status = archiveStatusLabel(mode, tx.dealingGbn);
               const dong = archiveBuildingDongLabel(tx);
               return (
                 <li
                   key={`${tx.id}-${idx}`}
-                  className="grid items-center gap-x-1 px-2 py-2 text-[11px] leading-snug text-[color:var(--lab-navy-950)] sm:gap-x-2 sm:px-3 sm:py-2.5 sm:text-[12px]"
+                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-1.5 text-[11px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2 sm:text-[12px]"
                   style={{ gridTemplateColumns: ARCHIVE_GRID }}
                 >
-                  <span className="tabular-nums">{contractDay(tx.dealDate)}</span>
-                  <span className="min-w-0">
-                    {status ? <StatusBadge label={status} /> : null}
+                  <span className="tabular-nums text-[color:var(--lab-navy-900)]">
+                    {contractDay(tx.dealDate)}
                   </span>
                   <span className="min-w-0">
-                    <span className="inline-flex max-w-full flex-wrap items-center gap-1">
-                      <span className="text-[12px] font-bold tabular-nums text-[color:var(--lab-navy-950)] sm:text-[13px]">
+                    {status ? (
+                      <StatusBadge label={status} />
+                    ) : (
+                      <span className="text-[color:var(--lab-muted)]">—</span>
+                    )}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="inline-flex max-w-full flex-nowrap items-center gap-1 overflow-hidden">
+                      <span className="whitespace-nowrap text-[12px] font-bold tabular-nums text-[color:var(--lab-navy-950)] sm:text-[13px]">
                         {archivePriceLabel(tx, mode)}
                       </span>
                       {mode === "trade" && tx.isSingoga ? (
-                        <span className="shrink-0 rounded border border-rose-400 px-1 py-px text-[9px] font-bold leading-none text-rose-600">
+                        <span className="shrink-0 whitespace-nowrap rounded border border-rose-400 px-1 py-px text-[9px] font-bold leading-none text-rose-600">
                           신고가
                         </span>
                       ) : null}
@@ -394,7 +447,9 @@ export function GroupedTransactionList({
                   <span className="min-w-0">
                     <AreaCell exclusiveArea={tx.exclusiveArea} />
                   </span>
-                  <span className="min-w-0 truncate">{dong ?? ""}</span>
+                  <span className="min-w-0 truncate text-[color:var(--lab-navy-700)]">
+                    {dong ?? "—"}
+                  </span>
                   <span className="min-w-0">
                     <FloorCell floor={tx.floor} />
                   </span>

@@ -59,14 +59,17 @@ export function formatEokDetail(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만`;
 }
 
-/** Archive monthly price cell — "5억 / 월 350만". */
+/**
+ * Archive monthly price cell — one line only.
+ * Preferred: "5억 / 350만" (no line break, no fake jeonse-equivalent).
+ */
 export function formatMonthlyPriceCell(
   depositManwon: number,
   monthlyManwon: number,
 ): string {
   const deposit = formatEokDetail(depositManwon);
   if (!Number.isFinite(monthlyManwon) || monthlyManwon <= 0) return deposit;
-  return `${deposit} / 월 ${monthlyManwon.toLocaleString("ko-KR")}만`;
+  return `${deposit} / ${Math.round(monthlyManwon).toLocaleString("ko-KR")}만`;
 }
 
 /** Compact KPI monthly-rent amount — 680만원, never 억+만원. */
