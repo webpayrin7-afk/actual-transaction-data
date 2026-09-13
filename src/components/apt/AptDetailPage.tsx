@@ -831,16 +831,6 @@ export function AptDetailPage({
               →
             </span>
           </Link>
-          <button
-            type="button"
-            className="lab-button lab-button-secondary w-full min-h-10 text-sm"
-            onClick={() => scrollToSection("calculator")}
-          >
-            이 집 살 때 비용 계산
-            <span aria-hidden className="ml-1">
-              ↓
-            </span>
-          </button>
         </div>
       </section>
 

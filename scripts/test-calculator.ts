@@ -150,7 +150,35 @@ import {
 }
 
 {
+  // Phase 1.1 tax-component audit: 34.1억 · 1주택
+  // 본세 3% + 지방교육세 10% + 농어촌특별세 20% = 총 13,299만원
+  const audit = calculateAcquisitionTax({
+    priceMan: 341_000,
+    homeStatus: "one_home",
+  });
+  assert.equal(Math.round(audit.baseTaxMan), 10_230);
+  assert.equal(Math.round(audit.localEducationTaxMan), 1_023);
+  assert.equal(Math.round(audit.ruralSpecialTaxMan), 2_046);
+  assert.equal(Math.round(audit.totalTaxMan), 13_299);
+  assert.ok(audit.appliedRateLabel.includes("3%"));
+  const purchaseAudit = calculatePurchaseCost({
+    priceMan: 341_000,
+    homeStatus: "one_home",
+  });
+  assert.equal(Math.round(purchaseAudit.extraCostMan), Math.round(13_299 + purchaseAudit.brokerage.feeMan));
+  assert.equal(
+    Math.round(purchaseAudit.totalCostMan),
+    Math.round(341_000 + purchaseAudit.extraCostMan),
+  );
+}
+
+{
   assert.equal(parseEokInputToMan("34.1"), 341_000);
+  assert.equal(parseEokInputToMan("34.1억"), 341_000);
+  assert.equal(parseEokInputToMan("34억1000"), 341_000);
+  assert.equal(parseEokInputToMan("34억1000만"), 341_000);
+  assert.equal(parseEokInputToMan("341000만원"), 341_000);
+  assert.equal(parseEokInputToMan("34억 1,000만원"), 341_000);
   assert.ok(formatEokMan(341_000).includes("34억"));
 }
 
