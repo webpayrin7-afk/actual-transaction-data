@@ -446,6 +446,18 @@ export function AptDetailPage({
     return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
   }, [aptName, regionSlug, gu, areaKey, dealFilter]);
 
+  const calculatorHref = useMemo(() => {
+    const qs = new URLSearchParams({
+      region: regionSlug,
+      area: areaKey,
+    });
+    if (gu?.trim()) qs.set("gu", gu.trim());
+    if (latestTrade?.dealAmount) {
+      qs.set("price", String(latestTrade.dealAmount));
+    }
+    return `/apt/${encodeURIComponent(aptName)}/calculator?${qs.toString()}`;
+  }, [aptName, regionSlug, gu, areaKey, latestTrade]);
+
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
     const preset =
@@ -785,7 +797,7 @@ export function AptDetailPage({
 
         <TransactionList items={filtered} mode={dealFilter} />
 
-        <div className="mt-4">
+        <div className="mt-4 space-y-2">
           <Link
             href={transactionsHref}
             className="lab-button lab-button-primary w-full min-h-10 text-sm"
@@ -794,6 +806,15 @@ export function AptDetailPage({
             {filteredByType.length > 5
               ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
               : ""}
+            <span aria-hidden className="ml-1">
+              →
+            </span>
+          </Link>
+          <Link
+            href={calculatorHref}
+            className="lab-button lab-button-secondary w-full min-h-10 text-sm"
+          >
+            이 집 살 때 비용 계산
             <span aria-hidden className="ml-1">
               →
             </span>
