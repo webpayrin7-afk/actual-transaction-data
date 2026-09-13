@@ -50,7 +50,6 @@ export function TransactionTypeTabs({
       >
         {TRANSACTION_TABS.map((tab) => {
           const active = value === tab.value;
-          const count = counts?.[tab.value];
           return (
             <button
               key={tab.value}
@@ -59,18 +58,13 @@ export function TransactionTypeTabs({
               aria-checked={active}
               onClick={() => onChange(tab.value)}
               className={[
-                "inline-flex h-8 shrink-0 items-center rounded-lg border px-2.5 text-[12px] font-semibold tabular-nums transition sm:h-9 sm:px-3 sm:text-[13px]",
+                "inline-flex h-8 shrink-0 items-center rounded-lg border px-2.5 text-[12px] font-semibold transition sm:h-9 sm:px-3 sm:text-[13px]",
                 active
                   ? "border-[color:var(--lab-teal-600)] bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
                   : "border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-700)] hover:bg-[color:var(--lab-bg)]",
               ].join(" ")}
             >
               {tab.label}
-              {count != null ? (
-                <span className={`ml-1 tabular-nums ${active ? "text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"}`}>
-                  {count.toLocaleString("ko-KR")}
-                </span>
-              ) : null}
             </button>
           );
         })}

@@ -321,10 +321,10 @@ export function AptTransactionsPage({
 
   return (
     <div className={PAGE_WRAP}>
-      <section className="lab-card overflow-hidden">
-        <div className="flex min-h-9 items-center gap-1 px-3 pt-2.5 sm:px-4 sm:pt-3">
+      <div className="space-y-2">
+        <div className="flex min-h-10 items-center gap-1.5">
           <BackLink fallback={detailHref} compact hideLabel />
-          <p className="min-w-0 flex-1 truncate text-[15px] font-bold tracking-tight text-[color:var(--lab-navy-950)] sm:text-base">
+          <p className="min-w-0 flex-1 truncate text-xl font-semibold leading-7 tracking-tight text-[color:var(--lab-navy-950)] sm:text-[1.375rem] sm:leading-8">
             {displayName}
           </p>
           <Link
@@ -335,147 +335,136 @@ export function AptTransactionsPage({
           </Link>
         </div>
 
-        <div className="space-y-2 px-3 pb-3 pt-2 sm:px-4 sm:pb-3.5">
-          <div className="flex items-center gap-2">
-            <TransactionTypeTabs
-              variant="pills"
-              value={dealType}
+        <div className="flex items-center gap-2">
+          <TransactionTypeTabs
+            variant="pills"
+            value={dealType}
+            onChange={(next) => {
+              resetAnd(() => {
+                setDealType(next);
+                syncUrl(resolvedAreaKey || areaKey, next, year);
+              });
+            }}
+          />
+          <div className="ml-auto shrink-0">
+            <YearSelect
+              value={year}
+              years={years}
               onChange={(next) => {
                 resetAnd(() => {
-                  setDealType(next);
-                  syncUrl(resolvedAreaKey || areaKey, next, year);
+                  setYear(next);
+                  syncUrl(resolvedAreaKey || areaKey, dealType, next);
                 });
               }}
-              counts={{
-                trade: kpi?.tradeCount,
-                jeonse: kpi?.jeonseCount,
-                monthly: kpi?.monthlyCount,
-              }}
             />
-            <div className="ml-auto shrink-0">
-              <YearSelect
-                value={year}
-                years={years}
-                onChange={(next) => {
-                  resetAnd(() => {
-                    setYear(next);
-                    syncUrl(resolvedAreaKey || areaKey, dealType, next);
-                  });
-                }}
-              />
-            </div>
           </div>
-          {areas.length > 0 ? (
-            <AptAreaSelector
-              areas={areas}
-              value={resolvedAreaKey || areas[0]!.key}
-              triggerClassName="bg-[color:var(--lab-bg)]"
-              onChange={(key) => {
-                resetAnd(() => {
-                  setAreaOverride({ forId: aptIdentity, key });
-                  syncUrl(key, dealType, year);
-                });
-              }}
-            />
-          ) : null}
+        </div>
 
-          <div className="grid grid-cols-3 divide-x divide-[color:var(--lab-border)] overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
-            {dealType === "monthly" ? (
+        {areas.length > 0 ? (
+          <AptAreaSelector
+            areas={areas}
+            value={resolvedAreaKey || areas[0]!.key}
+            triggerClassName="bg-white"
+            onChange={(key) => {
+              resetAnd(() => {
+                setAreaOverride({ forId: aptIdentity, key });
+                syncUrl(key, dealType, year);
+              });
+            }}
+          />
+        ) : null}
+
+        <div className="grid grid-cols-3 divide-x divide-[color:var(--lab-border)] overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
+          {dealType === "monthly" ? (
+            <>
+              <KpiCell
+                label="최고 보증금"
+                value={
+                  kpi?.monthlyDepositHigh
+                    ? formatEokDetail(kpi.monthlyDepositHigh.amount)
+                    : "—"
+                }
+                hint={
+                  kpi?.monthlyDepositHigh
+                    ? kpiDateShort(kpi.monthlyDepositHigh.date)
+                    : "—"
+                }
+              />
+              <KpiCell
+                label="최고 월세"
+                value={
+                  kpi?.monthlyRentHigh
+                    ? formatKpiMonthlyRent(kpi.monthlyRentHigh.amount)
+                    : "—"
+                }
+                hint={
+                  kpi?.monthlyRentHigh
+                    ? kpiDateShort(kpi.monthlyRentHigh.date)
+                    : "—"
+                }
+              />
+              <KpiCell
+                label="월세 거래"
+                value={`${activeCount.toLocaleString("ko-KR")}건`}
+                hint={yearHint}
+              />
+            </>
+          ) : (
+            <>
+              <KpiCell
+                label="매매 최고"
+                value={
+                  kpi?.saleHigh ? formatEokDetail(kpi.saleHigh.amount) : "—"
+                }
+                hint={kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"}
+              />
+              <KpiCell
+                label="전세 최고"
+                value={
+                  kpi?.jeonseHigh
+                    ? formatEokDetail(kpi.jeonseHigh.amount)
+                    : "—"
+                }
+                hint={
+                  kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
+                }
+              />
+              <KpiCell
+                label={dealType === "jeonse" ? "전세 거래" : "매매 거래"}
+                value={`${activeCount.toLocaleString("ko-KR")}건`}
+                hint={yearHint}
+              />
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3 space-y-3">
+        <GroupedTransactionList items={items} mode={dealType} />
+        {hasMore ? (
+          <button
+            type="button"
+            onClick={() => setOffset((o) => o + PAGE_SIZE)}
+            disabled={loadingMore}
+            className="lab-button lab-button-secondary flex w-full min-h-10 items-center justify-center gap-1.5 text-sm disabled:opacity-60"
+          >
+            {loadingMore ? (
               <>
-                <KpiCell
-                  label="최고 보증금"
-                  value={
-                    kpi?.monthlyDepositHigh
-                      ? formatEokDetail(kpi.monthlyDepositHigh.amount)
-                      : "—"
-                  }
-                  hint={
-                    kpi?.monthlyDepositHigh
-                      ? kpiDateShort(kpi.monthlyDepositHigh.date)
-                      : "—"
-                  }
-                />
-                <KpiCell
-                  label="최고 월세"
-                  value={
-                    kpi?.monthlyRentHigh
-                      ? formatKpiMonthlyRent(kpi.monthlyRentHigh.amount)
-                      : "—"
-                  }
-                  hint={
-                    kpi?.monthlyRentHigh
-                      ? kpiDateShort(kpi.monthlyRentHigh.date)
-                      : "—"
-                  }
-                />
-                <KpiCell
-                  label="월세 거래"
-                  value={`${activeCount.toLocaleString("ko-KR")}건`}
-                  hint={yearHint}
-                />
+                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                불러오는 중…
               </>
             ) : (
               <>
-                <KpiCell
-                  label="매매 최고"
-                  value={
-                    kpi?.saleHigh
-                      ? formatEokDetail(kpi.saleHigh.amount)
-                      : "—"
-                  }
-                  hint={
-                    kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"
-                  }
-                />
-                <KpiCell
-                  label="전세 최고"
-                  value={
-                    kpi?.jeonseHigh
-                      ? formatEokDetail(kpi.jeonseHigh.amount)
-                      : "—"
-                  }
-                  hint={
-                    kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
-                  }
-                />
-                <KpiCell
-                  label={dealType === "jeonse" ? "전세 거래" : "매매 거래"}
-                  value={`${activeCount.toLocaleString("ko-KR")}건`}
-                  hint={yearHint}
-                />
+                더보기 ({PAGE_SIZE}건)
+                <ChevronDown className="h-3.5 w-3.5" aria-hidden />
               </>
             )}
-          </div>
-        </div>
-
-      </section>
-
-        <div className="mt-3 space-y-3">
-          <GroupedTransactionList items={items} mode={dealType} />
-          {hasMore ? (
-            <button
-              type="button"
-              onClick={() => setOffset((o) => o + PAGE_SIZE)}
-              disabled={loadingMore}
-              className="lab-button lab-button-secondary flex w-full min-h-10 items-center justify-center gap-1.5 text-sm disabled:opacity-60"
-            >
-              {loadingMore ? (
-                <>
-                  <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                  불러오는 중…
-                </>
-              ) : (
-                <>
-                  더보기 ({PAGE_SIZE}건)
-                  <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-                </>
-              )}
-            </button>
-          ) : null}
-          <p className="text-center text-[10px] text-[color:var(--lab-muted)] sm:text-right sm:text-[11px]">
-            최근 계약일 순으로 정렬됩니다.
-          </p>
-        </div>
+          </button>
+        ) : null}
+        <p className="text-center text-[10px] text-[color:var(--lab-muted)] sm:text-right sm:text-[11px]">
+          최근 계약일 순으로 정렬됩니다.
+        </p>
+      </div>
     </div>
   );
 }
