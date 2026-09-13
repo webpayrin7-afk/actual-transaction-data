@@ -156,7 +156,7 @@ export function AptAreaSelector({
       <div
         className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
           compact
-            ? "h-8 max-w-[15.5rem] px-2.5 text-xs font-semibold"
+            ? "h-8 max-w-[11.5rem] px-2.5 text-xs font-semibold"
             : "h-10 w-full px-3.5 text-sm font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
@@ -189,7 +189,7 @@ export function AptAreaSelector({
         onClick={openSheet}
         className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
           compact
-            ? "h-8 max-w-[17rem] rounded-md px-2.5 text-xs font-semibold sm:max-w-[18.5rem]"
+            ? "h-8 max-w-[13rem] rounded-md px-2.5 text-xs font-semibold"
             : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
         } ${triggerClassName || "bg-white"}`}
       >
