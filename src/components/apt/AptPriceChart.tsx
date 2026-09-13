@@ -110,7 +110,7 @@ export function AptPriceChart({
   }
 
   return (
-    <div className="h-56 w-full sm:h-64">
+    <div className="h-52 w-full sm:h-60">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
@@ -299,7 +299,7 @@ export function PeriodRangeSlider({
   );
 
   return (
-    <div className={showPresets ? "mt-2 space-y-1" : "mt-1.5 space-y-0.5"}>
+    <div className={showPresets ? "mt-2 space-y-1" : "mt-1 space-y-0.5"}>
       {showPresets ? (
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
           <p className="font-medium tabular-nums text-slate-700">{rangeLabel}</p>
@@ -334,11 +334,7 @@ export function PeriodRangeSlider({
             ) : null}
           </div>
         </div>
-      ) : (
-        <p className="text-center text-[11px] font-medium leading-none tabular-nums text-slate-600">
-          {rangeLabel}
-        </p>
-      )}
+      ) : null}
 
       <div className="relative h-6 touch-none select-none">
         <div
@@ -379,9 +375,20 @@ export function PeriodRangeSlider({
         />
       </div>
 
-      <div className="flex justify-between text-[10px] leading-none text-slate-500">
-        <span>{formatYmLabel(months[0])}</span>
-        <span>{formatYmLabel(months[months.length - 1])}</span>
+      <div className="flex items-center justify-between gap-2 text-[10px] leading-none text-slate-500">
+        <span className="min-w-0 shrink tabular-nums">
+          {formatYmLabel(months[0])}
+        </span>
+        {!showPresets ? (
+          <span className="min-w-0 truncate text-center font-medium tabular-nums text-slate-600">
+            {rangeLabel}
+          </span>
+        ) : (
+          <span />
+        )}
+        <span className="min-w-0 shrink text-right tabular-nums">
+          {formatYmLabel(months[months.length - 1])}
+        </span>
       </div>
     </div>
   );
