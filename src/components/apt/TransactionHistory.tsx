@@ -347,7 +347,7 @@ function FloorCell({ floor }: { floor: number | null | undefined }) {
 
 function ArchiveColHeader() {
   return (
-    <div className="bg-white px-1.5 pb-1.5 pt-0.5 sm:px-2">
+    <div className="bg-white px-1 pb-1.5 pt-0.5 sm:px-1.5">
       <div
         className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 text-[10px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5 sm:text-[11px]"
         style={{ gridTemplateColumns: ARCHIVE_GRID }}
