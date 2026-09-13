@@ -585,12 +585,17 @@ export function AptDetailPage({
         style={{ top: "var(--site-header-height, 5.5rem)" }}
         aria-hidden={!stickyVisible}
       >
-        <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-3 py-1.5 sm:gap-3 sm:px-6">
-          <BackLink fallback="/complexes" compact hideLabel />
-          <p className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
+        <div className="mx-auto flex w-full max-w-5xl items-center gap-2 overflow-hidden px-3 py-1.5 sm:gap-3 sm:px-6">
+          <div className="shrink-0">
+            <BackLink fallback="/complexes" compact hideLabel />
+          </div>
+          <p
+            className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900"
+            title={data.aptName}
+          >
             {data.aptName}
           </p>
-          <div className="shrink-0">
+          <div className="min-w-0 max-w-[min(21rem,58%)] shrink-0">
             <AptAreaSelector
               areas={data.areas}
               value={areaKey}
