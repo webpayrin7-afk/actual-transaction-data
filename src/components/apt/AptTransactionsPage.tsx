@@ -5,11 +5,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import {
-  PAGE_HEADER_WITH_BACK,
-  PAGE_SHELL,
-  PageHeader,
-} from "@/components/layout/PageHeader";
+import { PAGE_SHELL } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
@@ -280,10 +276,6 @@ export function AptTransactionsPage({
   const hasMore = visibleCount < filtered.length;
   const exhausted = !hasMore && filtered.length > 0;
 
-  const locationLabel = data
-    ? `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`.trim()
-    : "";
-
   const areaSummary =
     selectedArea && areaKey !== "all"
       ? `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)}`
@@ -292,7 +284,7 @@ export function AptTransactionsPage({
   if (detailQuery.isLoading && !data) {
     return (
       <div className={`${PAGE_SHELL} max-w-5xl`}>
-        <div className="h-20 animate-pulse rounded-xl bg-slate-200/70" />
+        <div className="h-9 animate-pulse rounded-lg bg-slate-200/70" />
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
@@ -312,23 +304,21 @@ export function AptTransactionsPage({
           거래내역을 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
-          <BackLink fallback={detailHref} className="hidden sm:inline-flex" />
+          <BackLink fallback={detailHref} compact />
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl overflow-x-clip`}>
-      <header className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback={detailHref} className="hidden sm:inline-flex" />
-        <PageHeader
-          title={data.aptName}
-          description="거래내역"
-          meta={locationLabel ? <span>{locationLabel}</span> : undefined}
-          showDivider
-        />
-      </header>
+    <div className={`${PAGE_SHELL} max-w-5xl gap-3 overflow-x-clip sm:gap-4`}>
+      {/* Compact context only — list-first; no PageHeader hero */}
+      <div className="-mt-1 flex min-h-9 items-center gap-1 sm:-mt-1.5">
+        <BackLink fallback={detailHref} compact hideLabel />
+        <p className="min-w-0 truncate text-sm font-semibold tracking-tight text-slate-900">
+          {data.aptName}
+        </p>
+      </div>
 
       {(data.warning || data.source === "mock") && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -340,9 +330,9 @@ export function AptTransactionsPage({
         </div>
       )}
 
-      <section className="lab-card space-y-4 p-4 sm:p-5">
+      <section className="lab-card space-y-3 p-3.5 sm:space-y-4 sm:p-5">
         {/* 1. Transaction type */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
             거래유형
           </p>
@@ -358,7 +348,7 @@ export function AptTransactionsPage({
         </div>
 
         {/* 2. Period */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
             기간
           </p>
@@ -389,7 +379,7 @@ export function AptTransactionsPage({
         </div>
 
         {/* 3. Area / pyeong (Phase5 AptAreaSelector) */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
             평형
           </p>
