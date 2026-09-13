@@ -670,7 +670,7 @@ export function AptDetailPage({
 
       {/* Market: one white section — period + KPI row + context + chart */}
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
           <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
             시세 추이
           </h2>
@@ -684,6 +684,8 @@ export function AptDetailPage({
             {periodButtons}
           </div>
         </div>
+        {/* Match 거래 내역 helper→list gap */}
+        <div style={{ height: 16 }} className="w-full" aria-hidden />
 
         <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
           {kpiCell(
@@ -762,7 +764,7 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
-        <div className="mb-4">
+        <div>
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               거래 내역
@@ -777,6 +779,7 @@ export function AptDetailPage({
               ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
               : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
           </p>
+          <div style={{ height: 16 }} className="w-full" aria-hidden />
         </div>
 
         <TransactionList items={filtered} mode={dealFilter} />
