@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
-  CalendarDays,
-  Flame,
   LoaderCircle,
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
@@ -17,12 +16,20 @@ import {
   complexHeaderChips,
 } from "@/components/apt/ComplexInfoCards";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
-import type { AptDetailResponse, AptHistoryItem } from "@/lib/molit/apt-client";
+import type { AptDetailResponse } from "@/lib/molit/apt-client";
 import {
   AptPriceChart,
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
+import {
+  TransactionList,
+  TransactionTypeTabs,
+} from "@/components/apt/TransactionHistory";
+import {
+  filterTransactionsByType,
+  type TransactionTabType,
+} from "@/lib/apt/transaction-type";
 import {
   areaSelectorExclusiveLabel,
   areaSelectorPyeongLabel,
@@ -42,78 +49,15 @@ import {
   PageHeader,
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import { labSecondaryTabClass } from "@/components/ui/lab";
 import {
-  formatArea,
   formatDealDate,
   formatEok,
   formatPyeong,
-  formatRentAmount,
 } from "@/lib/utils/format";
 
 const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
 const RECENT_YEARS = 3;
-
-/**
- * Compact 2-line trade row.
- * Line 1: date (left) · price (right, never truncated)
- * Line 2: 전용 ㎡ (평) · 층 · 신규/갱신 등 거래구분
- */
-function TradeHistoryRow({ tx }: { tx: AptHistoryItem }) {
-  const dateFull = formatDealDate(tx.dealDate);
-  const dateShort =
-    dateFull.length >= 10 ? dateFull.slice(5) : dateFull;
-  const priceLabel =
-    tx.dealType === "trade"
-      ? `매매 ${formatEok(tx.dealAmount)}`
-      : formatRentAmount(tx.dealAmount, tx.monthlyRent);
-  const dealingLabel = tx.dealingGbn || "중개거래";
-
-  return (
-    <li className="px-3.5 py-2.5 sm:px-4 sm:py-3">
-      <div className="flex items-baseline justify-between gap-3">
-        <time
-          dateTime={tx.dealDate}
-          title={dateFull}
-          aria-label={dateFull}
-          className="shrink-0 text-sm font-medium tabular-nums text-slate-900"
-        >
-          <span className="sm:hidden">{dateShort}</span>
-          <span className="hidden sm:inline">{dateFull}</span>
-        </time>
-        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
-          {tx.isSingoga ? (
-            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
-              <Flame className="h-3 w-3" aria-hidden />
-              신고가
-            </span>
-          ) : null}
-          <p
-            className={`whitespace-nowrap text-sm font-semibold tabular-nums sm:text-base ${
-              tx.dealType === "trade" ? "text-teal-800" : "text-orange-700"
-            }`}
-          >
-            {priceLabel}
-          </p>
-        </div>
-      </div>
-      <p className="mt-1 text-xs leading-snug text-slate-500 sm:text-[13px]">
-        <span className="tabular-nums">{formatArea(tx.exclusiveArea)}</span>
-        <span className="text-slate-300" aria-hidden>
-          {" "}
-          ·{" "}
-        </span>
-        <span className="tabular-nums">{tx.floor}층</span>
-        <span className="text-slate-300" aria-hidden>
-          {" "}
-          ·{" "}
-        </span>
-        <span>{dealingLabel}</span>
-      </p>
-    </li>
-  );
-}
 
 async function fetchAptDetail(
   aptName: string,
@@ -130,17 +74,6 @@ async function fetchAptDetail(
   const res = await fetch(`/api/apt-detail?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   return res.json();
-}
-
-function groupByYear(items: AptDetailResponse["items"]) {
-  const map = new Map<string, AptDetailResponse["items"]>();
-  for (const item of items) {
-    const year = item.dealDate.slice(0, 4);
-    const list = map.get(year) ?? [];
-    list.push(item);
-    map.set(year, list);
-  }
-  return [...map.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
 }
 
 function ymFromDealDate(dealDate: string): string {
@@ -179,7 +112,7 @@ export function AptDetailPage({
     forId: string;
     key: string;
   } | null>(null);
-  const [dealFilter, setDealFilter] = useState<"all" | "trade" | "rent">("all");
+  const [dealFilter, setDealFilter] = useState<TransactionTabType>("trade");
   const [rangeOverride, setRangeOverride] = useState<{
     start: number;
     end: number;
@@ -360,15 +293,23 @@ export function AptDetailPage({
     });
   }, [areaFiltered, startYm, endYm]);
 
-  const filtered = useMemo(() => {
-    if (dealFilter === "all") return periodItems;
-    if (dealFilter === "trade") {
-      return periodItems.filter((item) => item.dealType === "trade");
-    }
-    return periodItems.filter(
-      (item) => item.dealType === "rent" && Number(item.monthlyRent ?? 0) === 0,
-    );
-  }, [periodItems, dealFilter]);
+  const filteredByType = useMemo(
+    () => filterTransactionsByType(periodItems, dealFilter),
+    [periodItems, dealFilter],
+  );
+  /** Detail summary: latest 5 only for the active tab. */
+  const filtered = useMemo(
+    () => filteredByType.slice(0, 5),
+    [filteredByType],
+  );
+  const tabCounts = useMemo(
+    () => ({
+      trade: filterTransactionsByType(periodItems, "trade").length,
+      jeonse: filterTransactionsByType(periodItems, "jeonse").length,
+      monthly: filterTransactionsByType(periodItems, "monthly").length,
+    }),
+    [periodItems],
+  );
 
   const chartPoints = useMemo(() => {
     if (!data) return [];
@@ -465,7 +406,15 @@ export function AptDetailPage({
 
   const headerChips = complexHeaderChips(complexDetail);
 
-  const grouped = useMemo(() => groupByYear(filtered), [filtered]);
+  const transactionsHref = useMemo(() => {
+    const qs = new URLSearchParams({
+      region: regionSlug,
+      area: areaKey,
+      type: dealFilter,
+    });
+    if (gu?.trim()) qs.set("gu", gu.trim());
+    return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
+  }, [aptName, regionSlug, gu, areaKey, dealFilter]);
 
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
@@ -703,64 +652,30 @@ export function AptDetailPage({
             </h2>
             <p className="mt-0.5 truncate text-xs text-slate-500">
               {areaKey === "all" || !selectedArea
-                ? `전체 면적 · ${filtered.length.toLocaleString("ko-KR")}건`
-                : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · ${filtered.length.toLocaleString("ko-KR")}건`}
+                ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
+                : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
             </p>
           </div>
-
-          <div
-            className="flex w-fit shrink-0 gap-1"
-            role="radiogroup"
-            aria-label="거래 유형"
-          >
-            {(
-              [
-                ["all", "전체"],
-                ["trade", "매매"],
-                ["rent", "전세"],
-              ] as const
-            ).map(([value, label]) => {
-              const active = dealFilter === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  onClick={() => setDealFilter(value)}
-                  className={labSecondaryTabClass(active)}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
+          <TransactionTypeTabs
+            value={dealFilter}
+            onChange={setDealFilter}
+            counts={tabCounts}
+          />
         </div>
 
-        {grouped.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500">
-            선택한 조건의 거래가 없습니다.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-6">
-            {grouped.map(([year, items]) => (
-              <div key={year}>
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800">
-                  <CalendarDays className="h-4 w-4 text-teal-700" />
-                  {year}년
-                  <span className="font-normal text-slate-400">
-                    {items.length.toLocaleString("ko-KR")}건
-                  </span>
-                </h3>
-                <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
-                  {items.map((tx, idx) => (
-                    <TradeHistoryRow key={`${tx.id}-${idx}`} tx={tx} />
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
+        <TransactionList items={filtered} mode={dealFilter} />
+
+        <div className="mt-4 flex justify-center">
+          <Link
+            href={transactionsHref}
+            className="lab-button lab-button-secondary min-h-10 px-4 text-sm"
+          >
+            거래내역 전체보기
+            {filteredByType.length > 5
+              ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
+              : ""}
+          </Link>
+        </div>
       </section>
 
       {complexDetail?.management ? (
