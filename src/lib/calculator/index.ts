@@ -2,19 +2,28 @@ export type { RuleMeta, MoneyMan } from "@/lib/calculator/rules/types";
 export {
   calculateAcquisitionTax,
   ACQUISITION_TAX_RULE,
+  classifyNationalHousingSize,
+  oneHomeProgressiveRate,
   type AcquisitionHomeStatus,
+  type ExclusiveAreaInput,
+  type NationalHousingSizeClass,
+  type RuralSpecialTaxStatus,
 } from "@/lib/calculator/rules/acquisition-tax";
 export {
   calculateBrokerageFeeCap,
   BROKERAGE_FEE_RULE,
+  BROKERAGE_RATE_PCT_OPTIONS,
+  brokerageRatePctOptionsForPrice,
 } from "@/lib/calculator/rules/brokerage-fee";
 export {
   calculatePropertyTax,
   PROPERTY_TAX_RULE,
+  fairMarketRatio2026,
 } from "@/lib/calculator/rules/property-tax";
 export {
   calculateComprehensiveRealEstateTax,
   COMPREHENSIVE_TAX_RULE,
+  COMPREHENSIVE_FAIR_MARKET_RATIO,
 } from "@/lib/calculator/rules/comprehensive-tax";
 export {
   calculatePurchaseCost,

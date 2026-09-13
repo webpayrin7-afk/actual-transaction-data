@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { labUnderlineTabClass } from "@/components/ui/lab";
 import {
+  brokerageRatePctOptionsForPrice,
   calculateHoldingTax,
   calculateLoanEstimate,
   calculatePurchaseCost,
@@ -10,6 +11,7 @@ import {
   formatManWon,
   parseEokInputToMan,
   type AcquisitionHomeStatus,
+  type ExclusiveAreaInput,
 } from "@/lib/calculator";
 import type { HomeCount, MetroType, RegType } from "@/lib/loan/calc";
 
@@ -122,11 +124,16 @@ export function ComplexPurchaseCalculatorSection({
   areaKey,
   areaLabel,
   latestTradeMan,
+  exclusiveAreaMinSqm = null,
+  exclusiveAreaMaxSqm = null,
 }: {
   areaKey: string;
   areaLabel: string;
   /** Latest sale for selected area (만원). */
   latestTradeMan: number;
+  /** Selected Phase5 exclusive-area bounds (㎡). */
+  exclusiveAreaMinSqm?: number | null;
+  exclusiveAreaMaxSqm?: number | null;
 }) {
   const [tab, setTab] = useState<TabId>("purchase");
   const [priceMan, setPriceMan] = useState(0);
@@ -137,6 +144,9 @@ export function ComplexPurchaseCalculatorSection({
 
   const [homeStatus, setHomeStatus] =
     useState<AcquisitionHomeStatus>("one_home");
+  /** null = use legal cap */
+  const [brokerageRatePct, setBrokerageRatePct] = useState<number | null>(null);
+  const [brokeragePickerOpen, setBrokeragePickerOpen] = useState(false);
 
   const [officialPriceMan, setOfficialPriceMan] = useState(0);
   const [officialDraft, setOfficialDraft] = useState("");
@@ -163,6 +173,8 @@ export function ComplexPurchaseCalculatorSection({
     setPriceMan(0);
     setPriceFocused(false);
     setPriceDraft("");
+    setBrokerageRatePct(null);
+    setBrokeragePickerOpen(false);
   }, [areaKey]);
 
   const effectivePriceMan = priceTouched
@@ -177,12 +189,37 @@ export function ComplexPurchaseCalculatorSection({
       ? formatEokMan(effectivePriceMan)
       : "";
 
+  const exclusiveArea: ExclusiveAreaInput = useMemo(() => {
+    if (areaKey === "all") return { mode: "unknown" };
+    const min = exclusiveAreaMinSqm;
+    const max = exclusiveAreaMaxSqm;
+    if (min == null && max == null) return { mode: "unknown" };
+    if (min != null && max != null && Math.abs(min - max) > 0.0005) {
+      return { mode: "range", minSqm: min, maxSqm: max };
+    }
+    const sqm = (max ?? min) as number;
+    return { mode: "exact", sqm };
+  }, [areaKey, exclusiveAreaMinSqm, exclusiveAreaMaxSqm]);
+
+  const brokerageOptions = useMemo(
+    () =>
+      effectivePriceMan > 0
+        ? brokerageRatePctOptionsForPrice(effectivePriceMan)
+        : [],
+    [effectivePriceMan],
+  );
+
   const purchase = useMemo(
     () =>
       effectivePriceMan > 0
-        ? calculatePurchaseCost({ priceMan: effectivePriceMan, homeStatus })
+        ? calculatePurchaseCost({
+            priceMan: effectivePriceMan,
+            homeStatus,
+            exclusiveArea,
+            brokerageRatePct,
+          })
         : null,
-    [effectivePriceMan, homeStatus],
+    [effectivePriceMan, homeStatus, exclusiveArea, brokerageRatePct],
   );
 
   const holding = useMemo(
@@ -388,19 +425,93 @@ export function ComplexPurchaseCalculatorSection({
                 <div className="space-y-2 border-t border-slate-100 pt-2.5">
                   <Row label="매매가" value={formatEokMan(purchase.priceMan)} />
                   <Row
-                    label="추가 비용"
-                    value={`+${formatEokMan(purchase.extraCostMan)}`}
-                  />
-                  <Row
                     label="취득 관련 세금"
                     value={formatEokMan(purchase.acquisition.totalTaxMan)}
-                    hint="취득세·지방교육세·농어촌특별세 포함"
+                    hint="취득세·지방교육세·농어촌특별세"
                   />
-                  <Row
-                    label="중개보수 상한"
-                    value={formatEokMan(purchase.brokerage.feeMan)}
-                    hint="실제 보수는 협의에 따라 달라질 수 있음"
-                  />
+                  <div className="space-y-1.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm text-slate-500">중개보수율</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">
+                          {purchase.brokerage.userSelected
+                            ? `${purchase.brokerage.ratePct.toFixed(2)}% · 직접 선택`
+                            : `${purchase.brokerage.ratePct.toFixed(2)}% · 상한`}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="shrink-0 text-xs font-medium text-teal-700"
+                        onClick={() => setBrokeragePickerOpen((v) => !v)}
+                      >
+                        {brokeragePickerOpen ? "접기" : "변경 ›"}
+                      </button>
+                    </div>
+                    {brokeragePickerOpen ? (
+                      <div className="flex flex-wrap gap-1.5 rounded-lg border border-slate-200 bg-white p-2">
+                        {brokerageOptions.map((pct) => (
+                          <button
+                            key={pct}
+                            type="button"
+                            className={choiceClass(
+                              Math.abs(purchase.brokerage.ratePct - pct) < 1e-9,
+                            )}
+                            onClick={() => {
+                              setBrokerageRatePct(pct);
+                              setBrokeragePickerOpen(false);
+                            }}
+                          >
+                            {pct.toFixed(2)}%
+                            {Math.abs(pct - purchase.brokerage.legalCapRatePct) <
+                            1e-9
+                              ? " · 상한"
+                              : ""}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                    <Row
+                      label="중개보수"
+                      value={formatEokMan(purchase.brokerage.feeMan)}
+                      hint="부가가치세는 별도 발생할 수 있습니다."
+                    />
+                  </div>
+                  <div className="space-y-1 border-t border-slate-100 pt-2 text-[11px] text-slate-500">
+                    <div className="flex justify-between gap-2">
+                      <span>취득세</span>
+                      <span className="tabular-nums text-slate-700">
+                        {formatManWon(purchase.acquisition.baseTaxMan)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span>지방교육세</span>
+                      <span className="tabular-nums text-slate-700">
+                        {formatManWon(purchase.acquisition.localEducationTaxMan)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span>농어촌특별세</span>
+                      <span className="tabular-nums text-slate-700">
+                        {formatManWon(purchase.acquisition.ruralSpecialTaxMan)}
+                      </span>
+                    </div>
+                    {purchase.acquisition.ruralSpecialTaxStatus ===
+                    "exempt_national_housing" ? (
+                      <p className="text-slate-400">전용 85㎡ 이하 비과세</p>
+                    ) : null}
+                    {purchase.acquisition.ruralSpecialTaxStatus ===
+                    "needs_exact_area" ? (
+                      <p className="text-amber-700">
+                        전용면적이 85㎡를 걸칩니다. 정확한 면적 확인이 필요합니다.
+                      </p>
+                    ) : null}
+                    {purchase.acquisition.ruralSpecialTaxStatus ===
+                    "unknown_area" ? (
+                      <p className="text-amber-700">
+                        전용면적 정보가 없어 농어촌특별세를 확정하지 않았습니다.
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               </dl>
             ) : (
@@ -446,7 +557,11 @@ export function ComplexPurchaseCalculatorSection({
                   ? `농어촌특별세: ${formatManWon(purchase.acquisition.ruralSpecialTaxMan)}`
                   : "",
                 purchase
-                  ? `중개보수 상한 요율 ${purchase.brokerage.ratePct.toFixed(1)}%`
+                  ? `중개보수율 ${purchase.brokerage.ratePct.toFixed(2)}% (${purchase.brokerage.userSelected ? "직접 선택" : "법정 상한"})`
+                  : "",
+                purchase?.acquisition.ruralSpecialTaxStatus ===
+                "exempt_national_housing"
+                  ? "농어촌특별세: 전용 85㎡ 이하 비과세"
                   : "",
                 ...(purchase?.acquisition.notes ?? []),
                 ...(purchase?.brokerage.notes ?? []),
@@ -497,6 +612,7 @@ export function ComplexPurchaseCalculatorSection({
                       label="올해 예상 보유세"
                       value={formatEokMan(y.totalMan)}
                       emph
+                      hint="확정 고지세액이 아닌 예상세액"
                     />
                     <div className="space-y-2 border-t border-slate-100 pt-2.5">
                       <Row
@@ -510,6 +626,9 @@ export function ComplexPurchaseCalculatorSection({
                     </div>
                   </div>
                 ))}
+                <p className="text-[11px] text-amber-800">
+                  {holding.estimateDisclaimer}
+                </p>
                 {holding.projectionDisclaimer ? (
                   <p className="text-[11px] text-amber-800">
                     {holding.projectionDisclaimer}

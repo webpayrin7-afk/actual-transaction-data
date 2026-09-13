@@ -856,6 +856,16 @@ export function AptDetailPage({
             : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)}`
         }
         latestTradeMan={latestTrade?.dealAmount ?? 0}
+        exclusiveAreaMinSqm={
+          selectedArea
+            ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
+            : null
+        }
+        exclusiveAreaMaxSqm={
+          selectedArea
+            ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
+            : null
+        }
       />
 
       {complexDetail?.management ? (

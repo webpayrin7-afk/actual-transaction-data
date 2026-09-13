@@ -30,6 +30,8 @@ export type HoldingTaxYearResult = {
 export type HoldingTaxResult = {
   years: HoldingTaxYearResult[];
   projectionDisclaimer: string | null;
+  /** 보유세 v1 공통 고지 */
+  estimateDisclaimer: string;
 };
 
 export function calculateHoldingTax(input: HoldingTaxInput): HoldingTaxResult {
@@ -44,6 +46,7 @@ export function calculateHoldingTax(input: HoldingTaxInput): HoldingTaxResult {
         : input.officialPriceMan * Math.pow(1 + growth, y);
     const property = calculatePropertyTax({
       officialPriceMan,
+      singleHomeHousehold: input.singleHomeHousehold,
       includeUrbanShare: input.includeUrbanShare,
     });
     const comprehensive = calculateComprehensiveRealEstateTax({
@@ -64,5 +67,10 @@ export function calculateHoldingTax(input: HoldingTaxInput): HoldingTaxResult {
       ? `공시가격 연 ${(growth * 100).toFixed(1)}% 상승 및 현행 제도 유지 가정`
       : null;
 
-  return { years: out, projectionDisclaimer };
+  return {
+    years: out,
+    projectionDisclaimer,
+    estimateDisclaimer:
+      "보유세는 예상세액입니다. 세부담상한·세액공제·특례세율·감면은 미반영입니다.",
+  };
 }
