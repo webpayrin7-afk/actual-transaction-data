@@ -119,14 +119,9 @@ export function ComplexMgmtFeeCard({
 
       <div className="mt-4">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <h3 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-              관리비 구성
-            </h3>
-            <InfoChip label="안내" aria-label="관리비 구성 환산 안내">
-              <p>{management.disclaimer}</p>
-            </InfoChip>
-          </div>
+          <h3 className="text-[11px] font-medium text-slate-500 sm:text-xs">
+            관리비 구성
+          </h3>
           <p className="shrink-0 text-[11px] text-slate-500 sm:text-xs">
             {averageLabel}
           </p>
