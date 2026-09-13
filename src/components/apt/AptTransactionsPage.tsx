@@ -341,9 +341,9 @@ export function AptTransactionsPage({
       <div className="space-y-2">
         <div className="flex min-h-10 items-center gap-1.5">
           <BackLink fallback={detailHref} compact hideLabel />
-          <p className="min-w-0 flex-1 truncate text-xl font-semibold leading-7 tracking-tight text-[color:var(--lab-navy-950)] sm:text-[1.375rem] sm:leading-8">
+          <h1 className="min-w-0 flex-1 truncate font-semibold tracking-tight text-[color:var(--lab-navy-950)] text-xl leading-7 sm:text-[1.375rem] sm:leading-8">
             {displayName}
-          </p>
+          </h1>
           <Link
             href={detailHref}
             className="hidden shrink-0 text-[11px] font-medium text-[color:var(--lab-muted)] hover:text-[color:var(--lab-teal-700)] sm:inline"
