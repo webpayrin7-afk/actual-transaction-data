@@ -200,35 +200,50 @@ export function AptDetailPage({
     const hero = heroRef.current;
     if (!hero) return;
 
-    let observer: IntersectionObserver | null = null;
+    // Hysteresis avoids boundary thrash when site-header height changes
+    // (load progress) or subpixel scroll toggles isIntersecting.
+    const SHOW_SLACK_PX = 4;
+    const HIDE_SLACK_PX = 32;
+    let visible = false;
+    let raf = 0;
 
-    const bind = () => {
-      observer?.disconnect();
+    const headerH = () => {
       const header = document.querySelector<HTMLElement>("[data-site-header]");
-      const headerH = Math.max(
+      return Math.max(
         56,
         Math.round(header?.getBoundingClientRect().height ?? 56),
       );
-      observer = new IntersectionObserver(
-        ([entry]) => {
-          setStickyVisible(!entry.isIntersecting);
-        },
-        {
-          // 사이트 헤더 아래에서 히어로가 사라질 때 고정 타이틀 표시
-          rootMargin: `-${headerH}px 0px 0px 0px`,
-          threshold: 0,
-        },
-      );
-      observer.observe(hero);
     };
 
-    bind();
+    const update = () => {
+      raf = 0;
+      const top = headerH();
+      const heroBottom = hero.getBoundingClientRect().bottom;
+      if (!visible && heroBottom <= top - SHOW_SLACK_PX) {
+        visible = true;
+        setStickyVisible(true);
+      } else if (visible && heroBottom >= top + HIDE_SLACK_PX) {
+        visible = false;
+        setStickyVisible(false);
+      }
+    };
+
+    const onScrollOrResize = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
     const header = document.querySelector<HTMLElement>("[data-site-header]");
-    const ro = header ? new ResizeObserver(bind) : null;
+    const ro = header ? new ResizeObserver(onScrollOrResize) : null;
     if (header && ro) ro.observe(header);
 
     return () => {
-      observer?.disconnect();
+      if (raf) window.cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
       ro?.disconnect();
       setStickyVisible(false);
     };
@@ -589,13 +604,14 @@ export function AptDetailPage({
     <div className={`${PAGE_SHELL} max-w-5xl overflow-x-clip`}>
       {/* Sticky compact header — name + shared area selector */}
       <div
-        className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition duration-200 ${
+        className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
           stickyVisible
             ? "translate-y-0 opacity-100"
-            : "pointer-events-none invisible -translate-y-2 opacity-0"
+            : "pointer-events-none -translate-y-2 opacity-0"
         }`}
         style={{ top: "var(--site-header-height, 5.5rem)" }}
         aria-hidden={!stickyVisible}
+        {...(!stickyVisible ? { inert: true } : {})}
       >
         <div className="mx-auto flex w-full max-w-5xl items-center gap-2 overflow-hidden px-3 py-1.5 sm:gap-3 sm:px-6">
           <div className="shrink-0">
