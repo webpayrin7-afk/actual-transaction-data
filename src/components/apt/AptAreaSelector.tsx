@@ -31,6 +31,35 @@ type AptAreaSelectorProps = {
 
 const SHEET_MS = 280;
 
+const PYEONG_TEXT =
+  "font-semibold text-[color:var(--lab-teal-700)]";
+
+function AreaTriggerLabel({
+  area,
+  compact,
+}: {
+  area: AptAreaOption;
+  compact: boolean;
+}) {
+  const pyeong = areaSelectorPyeongLabel(area);
+  let suffix: string;
+  if (compact) {
+    const min = area.exclusiveAreaMin ?? area.exclusiveArea;
+    const max = area.exclusiveAreaMax ?? area.exclusiveArea;
+    const mid = (min + max) / 2;
+    const sqm = mid.toFixed(1).replace(/\.0$/, "");
+    suffix = ` · ${sqm}㎡`;
+  } else {
+    suffix = ` · ${areaSelectorExclusiveLabel(area)}`;
+  }
+  return (
+    <>
+      <span className={PYEONG_TEXT}>{pyeong}</span>
+      <span className="font-semibold text-slate-800">{suffix}</span>
+    </>
+  );
+}
+
 /**
  * Single trigger + bottom sheet area picker.
  * Closed: "33평 · 전용 84.80~84.97㎡ ˅" (no icon / no "면적 선택" label).
@@ -123,9 +152,6 @@ export function AptAreaSelector({
         </div>
       );
     }
-    const onlyLabel = compact
-      ? areaSelectorStickyLabel(only)
-      : areaSelectorClosedLabel(only);
     return (
       <div
         className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
@@ -134,7 +160,9 @@ export function AptAreaSelector({
             : "h-10 w-full px-3.5 text-sm font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
-        <span className="min-w-0 truncate">{onlyLabel}</span>
+        <span className="min-w-0 truncate">
+          <AreaTriggerLabel area={only} compact={compact} />
+        </span>
       </div>
     );
   }
@@ -165,12 +193,12 @@ export function AptAreaSelector({
             : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
         } ${triggerClassName || "bg-white"}`}
       >
-        <span
-          className={`min-w-0 flex-1 truncate ${
-            compact ? "font-semibold" : "font-semibold"
-          }`}
-        >
-          {triggerLabel}
+        <span className="min-w-0 flex-1 truncate">
+          {isAll || !selected ? (
+            <span className="font-semibold">전체 면적</span>
+          ) : (
+            <AreaTriggerLabel area={selected} compact={compact} />
+          )}
         </span>
         <ChevronDown
           className={`shrink-0 text-slate-400 transition ${
@@ -419,11 +447,7 @@ function AreaOptionRow({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span
-          className={`block text-[15px] font-semibold tabular-nums leading-snug sm:text-base ${
-            active ? "text-teal-900" : "text-slate-900"
-          }`}
-        >
+        <span className="block text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
           {pyeongLabel}
         </span>
         <span className="mt-0.5 block text-[13px] tabular-nums leading-snug text-slate-500">
