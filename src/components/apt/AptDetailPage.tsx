@@ -27,6 +27,7 @@ import {
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
+import { ComplexPurchaseCalculatorSection } from "@/components/apt/calculator/ComplexPurchaseCalculatorSection";
 import {
   TransactionList,
   TransactionTypeTabs,
@@ -251,7 +252,13 @@ export function AptDetailPage({
 
   useEffect(() => {
     if (!data) return;
-    const ids = ["market", "trades", "management", "complex"] as const;
+    const ids = [
+      "market",
+      "trades",
+      "calculator",
+      "management",
+      "complex",
+    ] as const;
     const nodes = ids
       .map((id) => document.getElementById(`section-${id}`))
       .filter((el): el is HTMLElement => !!el);
@@ -461,17 +468,6 @@ export function AptDetailPage({
     return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
   }, [aptName, regionSlug, gu, areaKey, dealFilter]);
 
-  const calculatorHref = useMemo(() => {
-    const qs = new URLSearchParams({
-      region: regionSlug,
-      area: areaKey,
-    });
-    if (gu?.trim()) qs.set("gu", gu.trim());
-    if (latestTrade?.dealAmount) {
-      qs.set("price", String(latestTrade.dealAmount));
-    }
-    return `/apt/${encodeURIComponent(aptName)}/calculator?${qs.toString()}`;
-  }, [aptName, regionSlug, gu, areaKey, latestTrade]);
 
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
@@ -493,6 +489,14 @@ export function AptDetailPage({
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
+
+  useEffect(() => {
+    if (!data) return;
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#calculator") return;
+    const t = window.setTimeout(() => scrollToSection("calculator"), 0);
+    return () => window.clearTimeout(t);
+  }, [data]);
 
   function scrollToSection(id: string) {
     const el = document.getElementById(`section-${id}`);
@@ -531,6 +535,7 @@ export function AptDetailPage({
 
   const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
     { id: "market", label: "시세 · 거래", show: true },
+    { id: "calculator", label: "대출 · 세금", show: true },
     {
       id: "management",
       label: "관리비",
@@ -826,17 +831,28 @@ export function AptDetailPage({
               →
             </span>
           </Link>
-          <Link
-            href={calculatorHref}
+          <button
+            type="button"
             className="lab-button lab-button-secondary w-full min-h-10 text-sm"
+            onClick={() => scrollToSection("calculator")}
           >
             이 집 살 때 비용 계산
             <span aria-hidden className="ml-1">
-              →
+              ↓
             </span>
-          </Link>
+          </button>
         </div>
       </section>
+
+      <ComplexPurchaseCalculatorSection
+        areaKey={areaKey}
+        areaLabel={
+          areaKey === "all" || !selectedArea
+            ? "전체 면적"
+            : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)}`
+        }
+        latestTradeMan={latestTrade?.dealAmount ?? 0}
+      />
 
       {complexDetail?.management ? (
         <div id="section-management" className="scroll-mt-28">

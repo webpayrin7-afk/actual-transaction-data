@@ -1,6 +1,4 @@
-import type { Metadata } from "next";
-import { AptCalculatorPage } from "@/components/apt/calculator/AptCalculatorPage";
-import { getRegion } from "@/lib/constants/regions";
+import { redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ name: string }>;
@@ -13,51 +11,23 @@ type PageProps = {
   }>;
 };
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { name } = await params;
-  const aptName = decodeURIComponent(name);
-  return {
-    title: `${aptName} 대출·세금 계산`,
-    description: `${aptName} 매수비용·보유세·대출 추정 계산기`,
-  };
-}
-
-export default async function AptCalculatorRoute({
+/**
+ * Legacy calculator route — keep for old links, but send users to the
+ * inline calculator section on Complex Detail (single source of truth).
+ */
+export default async function AptCalculatorRedirectPage({
   params,
   searchParams,
 }: PageProps) {
   const { name } = await params;
   const sp = await searchParams;
-  const aptName = decodeURIComponent(name);
-  const regionSlug = sp.region?.trim() || "seoul-gangnam";
-  const gu = sp.gu?.trim() || undefined;
-  const initialAreaKey = sp.area?.trim() || undefined;
-  const priceRaw = sp.price ? Number(sp.price) : undefined;
-  const initialPriceMan =
-    priceRaw != null && Number.isFinite(priceRaw) && priceRaw > 0
-      ? priceRaw
-      : undefined;
-  const tabRaw = sp.tab?.trim();
-  const initialTab =
-    tabRaw === "holding" || tabRaw === "loan" || tabRaw === "purchase"
-      ? tabRaw
-      : undefined;
-
-  // Validate region exists (soft — page still renders with slug).
-  void getRegion(regionSlug);
-
-  return (
-    <main className="flex-1">
-      <AptCalculatorPage
-        aptName={aptName}
-        regionSlug={regionSlug}
-        gu={gu}
-        initialAreaKey={initialAreaKey}
-        initialPriceMan={initialPriceMan}
-        initialTab={initialTab}
-      />
-    </main>
+  const qs = new URLSearchParams();
+  if (sp.region?.trim()) qs.set("region", sp.region.trim());
+  if (sp.gu?.trim()) qs.set("gu", sp.gu.trim());
+  if (sp.area?.trim()) qs.set("area", sp.area.trim());
+  // price/tab intentionally dropped from URL (no sensitive inputs in query).
+  const q = qs.toString();
+  redirect(
+    `/apt/${encodeURIComponent(decodeURIComponent(name))}${q ? `?${q}` : ""}#calculator`,
   );
 }
