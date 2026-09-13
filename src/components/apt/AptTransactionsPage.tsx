@@ -56,6 +56,8 @@ async function fetchAptDetail(
     aptName,
     region,
     months: String(months),
+    // Period-bounded archive fetch — does not change Complex Detail full-history path.
+    bound: "1",
   });
   if (gu?.trim()) qs.set("gu", gu.trim());
   const started = performance.now();
@@ -65,7 +67,7 @@ async function fetchAptDetail(
   if (typeof window !== "undefined") {
     const ms = Math.round(performance.now() - started);
     console.info(
-      `[transactions] apt-detail months=${months} latency=${ms}ms items=${data.items?.length ?? 0}`,
+      `[transactions] apt-detail months=${months} bound=1 latency=${ms}ms items=${data.items?.length ?? 0}`,
     );
   }
   return data;
