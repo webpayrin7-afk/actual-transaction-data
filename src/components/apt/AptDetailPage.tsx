@@ -670,7 +670,7 @@ export function AptDetailPage({
 
       {/* Market: one white section — period + KPI row + context + chart */}
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
           <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
             시세 추이
           </h2>
@@ -762,7 +762,7 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card scroll-mt-28 p-4 sm:p-5"
       >
-        <div className="mb-8">
+        <div className="mb-10">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
               거래 내역
