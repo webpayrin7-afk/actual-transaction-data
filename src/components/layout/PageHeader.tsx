@@ -72,7 +72,7 @@ export function PageHeader({
       {showDivider ? (
         <div
           aria-hidden
-          className="mt-1.5 h-px w-full bg-[color:var(--lab-border)] sm:mt-2"
+          className="mt-0.5 h-px w-full bg-[color:var(--lab-border)] sm:mt-1"
         />
       ) : null}
     </header>
