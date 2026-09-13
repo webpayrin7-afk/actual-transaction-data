@@ -323,13 +323,13 @@ export function AptDetailPage({
     [data, areaKey],
   );
 
-  const periodItems = useMemo(() => {
+  const periodItems = (() => {
     if (!startYm || !endYm) return areaFiltered;
     return areaFiltered.filter((item) => {
       const ym = ymFromDealDate(item.dealDate);
       return ym >= startYm && ym <= endYm;
     });
-  }, [areaFiltered, startYm, endYm]);
+  })();
 
   // Summary list is independent of chart period: latest N for selected area group.
   const filteredByType = useMemo(
@@ -350,7 +350,7 @@ export function AptDetailPage({
     [areaFiltered],
   );
 
-  const chartPoints = useMemo(() => {
+  const chartPoints = (() => {
     if (!data) return [];
     const base = data.chart.slice(startIndex, endIndex + 1);
     if (areaKey === "all") return base;
@@ -400,7 +400,7 @@ export function AptDetailPage({
         volume: tradeCount + jeonseCount + b.wolseCount,
       };
     });
-  }, [data, startIndex, endIndex, areaKey, areaFiltered]);
+  })();
 
   const periodTradeCount = periodItems.filter(
     (i) => i.dealType === "trade",
@@ -658,7 +658,7 @@ export function AptDetailPage({
             <button
               key={item.id}
               type="button"
-              aria-selected={activeSection === item.id}
+              aria-current={activeSection === item.id ? "true" : undefined}
               onClick={() => scrollToSection(item.id)}
               className={labUnderlineTabClass(activeSection === item.id, "shrink-0")}
             >
