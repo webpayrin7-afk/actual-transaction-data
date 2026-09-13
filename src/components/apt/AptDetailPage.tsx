@@ -60,7 +60,6 @@ import {
 import {
   formatDealDate,
   formatEok,
-  formatPyeong,
 } from "@/lib/utils/format";
 
 const QUICK_MONTHS = 36;
