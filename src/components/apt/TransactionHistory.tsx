@@ -395,7 +395,7 @@ export function GroupedTransactionList({
           key={group.key}
           className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white shadow-[var(--lab-shadow)]"
         >
-          <div className="flex items-center justify-between gap-2 border-b border-[color:var(--lab-border)] bg-white px-2.5 py-2.5 sm:px-3">
+          <div className="flex items-center justify-between gap-2 bg-white px-2.5 py-2.5 sm:px-3">
             <h3 className="text-[13px] font-bold text-[color:var(--lab-navy-950)] sm:text-sm">
               {group.label}
             </h3>
