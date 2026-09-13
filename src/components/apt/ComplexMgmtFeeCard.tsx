@@ -36,25 +36,6 @@ function SummaryCell({
   );
 }
 
-function BreakdownCell({
-  label,
-  valueWon,
-}: {
-  label: string;
-  valueWon: number | null;
-}) {
-  return (
-    <div className="min-w-0 px-1 py-0.5 text-center sm:px-2 sm:text-left">
-      <p className="text-[10px] font-medium leading-tight text-slate-500 sm:text-[11px]">
-        {label}
-      </p>
-      <p className="mt-0.5 truncate text-[12px] font-semibold leading-tight tabular-nums text-slate-800 sm:text-sm">
-        {formatWonAsManwon(valueWon)}
-      </p>
-    </div>
-  );
-}
-
 /**
  * Compact management-fee summary for Complex Detail.
  * Chart removed — numeric winter / summer / average + component breakdown only.
@@ -136,15 +117,24 @@ export function ComplexMgmtFeeCard({
         <SummaryCell label="평균" valueWon={avgPerHh} hint={averageLabel} />
       </div>
 
-      <div className="mt-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <p className="text-[11px] font-medium text-slate-500">관리비 구성</p>
-          <p className="text-[10px] text-slate-400">{averageLabel}</p>
+      <div className="mt-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h3 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+              관리비 구성
+            </h3>
+            <InfoChip label="안내" aria-label="관리비 구성 환산 안내">
+              <p>{management.disclaimer}</p>
+            </InfoChip>
+          </div>
+          <p className="shrink-0 text-[11px] text-slate-500 sm:text-xs">
+            {averageLabel}
+          </p>
         </div>
-        <div className="mt-1.5 grid grid-cols-3 divide-x divide-slate-100 rounded-xl border border-slate-100">
-          <BreakdownCell label="공용관리비" valueWon={commonPerHh} />
-          <BreakdownCell label="개별사용료" valueWon={individualPerHh} />
-          <BreakdownCell label="장기수선충당금" valueWon={reservePerHh} />
+        <div className="mt-2.5 grid grid-cols-3 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
+          <SummaryCell label="공용관리비" valueWon={commonPerHh} />
+          <SummaryCell label="개별사용료" valueWon={individualPerHh} />
+          <SummaryCell label="장기수선충당금" valueWon={reservePerHh} />
         </div>
       </div>
     </LabCard>
