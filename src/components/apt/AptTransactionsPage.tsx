@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, LoaderCircle } from "lucide-react";
@@ -208,15 +208,6 @@ export function AptTransactionsPage({
   const exhausted =
     fullQuery.isSuccess && !canShowMoreFromLoaded && filtered.length > 0;
 
-  // When full history lands and user already asked for more, keep reveal progressive.
-  useEffect(() => {
-    if (!extendingReveal) return;
-    if (fullQuery.isSuccess || fullQuery.isError) {
-      setVisibleCount((c) => Math.min(c + PAGE_SIZE, filtered.length || c));
-      setExtendingReveal(false);
-    }
-  }, [extendingReveal, fullQuery.isSuccess, fullQuery.isError, filtered.length]);
-
   async function onLoadMore() {
     if (canShowMoreFromLoaded) {
       setVisibleCount((c) => c + PAGE_SIZE);
@@ -224,8 +215,15 @@ export function AptTransactionsPage({
     }
     if (fullQuery.isSuccess) return;
     setExtendingReveal(true);
-    if (!fullQuery.isFetching) {
-      await fullQuery.refetch();
+    try {
+      const result = await fullQuery.refetch();
+      const nextItems = result.data ? filterByArea(result.data, areaKey) : [];
+      const nextFiltered = filterTransactionsByType(nextItems, dealType);
+      setVisibleCount((c) =>
+        Math.min(c + PAGE_SIZE, Math.max(nextFiltered.length, c)),
+      );
+    } finally {
+      setExtendingReveal(false);
     }
   }
 
