@@ -684,7 +684,7 @@ export function AptDetailPage({
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
         <div className="mb-3">
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="text-base font-semibold leading-none text-slate-900 sm:text-lg">
+            <h2 className="text-lg font-semibold leading-none text-slate-900 sm:text-xl">
               시세 추이
             </h2>
             <div className="flex flex-wrap items-center gap-2">

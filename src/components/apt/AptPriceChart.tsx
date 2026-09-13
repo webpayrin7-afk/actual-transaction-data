@@ -290,15 +290,19 @@ export function PeriodRangeSlider({
 
   const presetBtn = (active: boolean) => labSecondaryTabClass(active);
 
+  const rangeLabel = (
+    <>
+      {formatYmLabel(startYm)}
+      <span className="mx-1 text-slate-400">~</span>
+      {formatYmLabel(endYm)}
+    </>
+  );
+
   return (
-    <div className="mt-2 space-y-1">
-      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
-        <p className="font-medium tabular-nums text-slate-700">
-          {formatYmLabel(startYm)}
-          <span className="mx-1 text-slate-400">~</span>
-          {formatYmLabel(endYm)}
-        </p>
-        {showPresets ? (
+    <div className={showPresets ? "mt-2 space-y-1" : "mt-1.5 space-y-0.5"}>
+      {showPresets ? (
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
+          <p className="font-medium tabular-nums text-slate-700">{rangeLabel}</p>
           <div className="flex w-fit flex-wrap items-center gap-1">
             {onRecentYears
               ? ([1, 3, 5] as const).map((years) => {
@@ -329,10 +333,14 @@ export function PeriodRangeSlider({
               </button>
             ) : null}
           </div>
-        ) : null}
-      </div>
+        </div>
+      ) : (
+        <p className="text-center text-[11px] font-medium leading-none tabular-nums text-slate-600">
+          {rangeLabel}
+        </p>
+      )}
 
-      <div className="relative h-7 touch-none select-none">
+      <div className="relative h-6 touch-none select-none">
         <div
           ref={trackRef}
           className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 cursor-pointer rounded-full bg-slate-200"
