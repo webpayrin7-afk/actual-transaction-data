@@ -9,6 +9,10 @@
   --lab-teal-700: #087f83;
   --lab-teal-600: #07969a;
   --lab-teal-50: #eefafa;
+  /* Deal-type price ink — unique per 매매/전세/월세 */
+  --lab-price-trade: #087f83;
+  --lab-price-jeonse: #c2410c;
+  --lab-price-monthly: #4338ca;
   --lab-border: #dce4eb;
   --lab-muted: #64748b;
   --lab-radius-sm: 8px;

@@ -12,6 +12,7 @@ import {
   TransactionTypeTabs,
 } from "@/components/apt/TransactionHistory";
 import {
+  dealTypePriceTextClass,
   parseTransactionTabType,
   transactionTypeToParam,
   type TransactionTabType,
@@ -112,17 +113,23 @@ function KpiCell({
   label,
   value,
   hint,
+  valueClassName,
 }: {
   label: string;
   value: string;
   hint: string;
+  valueClassName?: string;
 }) {
   return (
     <div className="min-w-0 flex-1 px-2 py-2.5 text-center sm:px-3 sm:py-3">
       <p className="text-[10px] font-medium leading-tight text-[color:var(--lab-muted)] sm:text-[11px]">
         {label}
       </p>
-      <p className="lab-kpi-value mt-0.5 truncate text-[15px] font-bold leading-tight tabular-nums text-[color:var(--lab-navy-950)] sm:text-base">
+      <p
+        className={`lab-kpi-value mt-0.5 truncate text-[15px] font-bold leading-tight tabular-nums sm:text-base ${
+          valueClassName ?? "text-[color:var(--lab-navy-950)]"
+        }`}
+      >
         {value}
       </p>
       <p className="mt-0.5 truncate text-[10px] leading-snug text-[color:var(--lab-muted)] sm:text-[11px]">
@@ -399,6 +406,7 @@ export function AptTransactionsPage({
                     ? kpiDateShort(kpi.monthlyDepositHigh.date)
                     : "—"
                 }
+                valueClassName={dealTypePriceTextClass("monthly")}
               />
               <KpiDivider />
               <KpiCell
@@ -413,6 +421,7 @@ export function AptTransactionsPage({
                     ? kpiDateShort(kpi.monthlyRentHigh.date)
                     : "—"
                 }
+                valueClassName={dealTypePriceTextClass("monthly")}
               />
               <KpiDivider />
               <KpiCell
@@ -429,6 +438,7 @@ export function AptTransactionsPage({
                   kpi?.saleHigh ? formatEokDetail(kpi.saleHigh.amount) : "—"
                 }
                 hint={kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"}
+                valueClassName={dealTypePriceTextClass("trade")}
               />
               <KpiDivider />
               <KpiCell
@@ -441,6 +451,7 @@ export function AptTransactionsPage({
                 hint={
                   kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
                 }
+                valueClassName={dealTypePriceTextClass("jeonse")}
               />
               <KpiDivider />
               <KpiCell

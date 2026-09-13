@@ -11,7 +11,10 @@ import {
 } from "@/lib/utils/format";
 import type { TransactionTabType } from "@/lib/apt/transaction-type";
 import { labSecondaryTabClass } from "@/components/ui/lab";
-import { TRANSACTION_TABS } from "@/lib/apt/transaction-type";
+import {
+  dealTypePriceTextClass,
+  TRANSACTION_TABS,
+} from "@/lib/apt/transaction-type";
 import {
   archiveBuildingDongLabel,
   archiveStatusLabel,
@@ -209,7 +212,9 @@ export function TransactionRow({
             <span className="hidden sm:inline">{dateFull}</span>
           </time>
           <div className="min-w-0 flex-1 text-right">
-            <p className="text-sm font-semibold tabular-nums text-slate-900 sm:text-base">
+            <p
+              className={`text-sm font-semibold tabular-nums sm:text-base ${dealTypePriceTextClass(mode)}`}
+            >
               {m.primary}
             </p>
             <p className="mt-0.5 text-xs font-medium tabular-nums text-slate-600 sm:text-[13px]">
@@ -227,8 +232,7 @@ export function TransactionRow({
   }
 
   const primaryMoney = formatEok(tx.dealAmount);
-  const moneyClass =
-    mode === "trade" ? "text-[color:var(--lab-teal-700)]" : "text-slate-900";
+  const moneyClass = dealTypePriceTextClass(mode);
 
   return (
     <li className={dense ? "px-3 py-2 sm:px-3.5 sm:py-2.5" : "px-3.5 py-2.5 sm:px-4 sm:py-3"}>
@@ -424,7 +428,9 @@ export function GroupedTransactionList({
                   </span>
                   <span className="min-w-0">
                     <span className="inline-flex max-w-full flex-nowrap items-center gap-1 overflow-hidden">
-                      <span className="whitespace-nowrap text-[12px] font-bold tabular-nums text-[color:var(--lab-navy-950)] sm:text-[13px]">
+                      <span
+                        className={`whitespace-nowrap text-[12px] font-bold tabular-nums sm:text-[13px] ${dealTypePriceTextClass(mode)}`}
+                      >
                         {archivePriceLabel(tx, mode)}
                       </span>
                       {mode === "trade" && tx.isSingoga ? (
