@@ -146,7 +146,6 @@ export function ComplexPurchaseCalculatorSection({
     useState<AcquisitionHomeStatus>("one_home");
   /** null = use legal cap */
   const [brokerageRatePct, setBrokerageRatePct] = useState<number | null>(null);
-  const [brokeragePickerOpen, setBrokeragePickerOpen] = useState(false);
 
   const [officialPriceMan, setOfficialPriceMan] = useState(0);
   const [officialDraft, setOfficialDraft] = useState("");
@@ -174,7 +173,6 @@ export function ComplexPurchaseCalculatorSection({
     setPriceFocused(false);
     setPriceDraft("");
     setBrokerageRatePct(null);
-    setBrokeragePickerOpen(false);
   }, [areaKey]);
 
   const effectivePriceMan = priceTouched
@@ -430,7 +428,7 @@ export function ComplexPurchaseCalculatorSection({
                     hint="취득세·지방교육세·농어촌특별세"
                   />
                   <div className="space-y-1.5">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm text-slate-500">중개보수율</p>
                         <p className="mt-0.5 text-[11px] text-slate-400">
@@ -439,37 +437,31 @@ export function ComplexPurchaseCalculatorSection({
                             : `${purchase.brokerage.ratePct.toFixed(2)}% · 상한`}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        className="shrink-0 text-xs font-medium text-teal-700"
-                        onClick={() => setBrokeragePickerOpen((v) => !v)}
+                      <label className="sr-only" htmlFor="calc-brokerage-rate">
+                        중개보수율 선택
+                      </label>
+                      <select
+                        id="calc-brokerage-rate"
+                        className="h-8 max-w-[9.5rem] rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-teal-800"
+                        value={purchase.brokerage.ratePct}
+                        onChange={(e) => {
+                          const next = Number(e.target.value);
+                          setBrokerageRatePct(
+                            Number.isFinite(next) ? next : null,
+                          );
+                        }}
                       >
-                        {brokeragePickerOpen ? "접기" : "변경 ›"}
-                      </button>
-                    </div>
-                    {brokeragePickerOpen ? (
-                      <div className="flex flex-wrap gap-1.5 rounded-lg border border-slate-200 bg-white p-2">
                         {brokerageOptions.map((pct) => (
-                          <button
-                            key={pct}
-                            type="button"
-                            className={choiceClass(
-                              Math.abs(purchase.brokerage.ratePct - pct) < 1e-9,
-                            )}
-                            onClick={() => {
-                              setBrokerageRatePct(pct);
-                              setBrokeragePickerOpen(false);
-                            }}
-                          >
+                          <option key={pct} value={pct}>
                             {pct.toFixed(2)}%
                             {Math.abs(pct - purchase.brokerage.legalCapRatePct) <
                             1e-9
                               ? " · 상한"
                               : ""}
-                          </button>
+                          </option>
                         ))}
-                      </div>
-                    ) : null}
+                      </select>
+                    </div>
                     <Row
                       label="중개보수"
                       value={formatEokMan(purchase.brokerage.feeMan)}
