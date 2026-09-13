@@ -35,10 +35,11 @@ function ChartTooltip({
   payload,
 }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
-  const ym = payload[0]?.payload?.yearMonth as string | undefined;
+  const row = payload[0]?.payload as AptChartPoint | undefined;
+  const ym = row?.yearMonth;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
+    <div className="max-w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
       <p className="mb-1.5 font-medium text-slate-800">
         {ym ? formatYmLabel(ym) : ""}
       </p>
@@ -50,12 +51,12 @@ function ChartTooltip({
           return (
             <li
               key={name}
-              className="flex items-center justify-between gap-4 font-medium"
+              className="flex items-center justify-between gap-3 font-medium sm:gap-4"
               style={{
                 color: seriesTextColor(name),
               }}
             >
-              <span>{name}</span>
+              <span className="shrink-0">{name}</span>
               <span className="tabular-nums">
                 {value == null ? "—" : isVolume ? `${value}건` : `${value}억`}
               </span>
@@ -63,6 +64,14 @@ function ChartTooltip({
           );
         })}
       </ul>
+      {row?.tradeMax != null && row.tradeMax > 0 ? (
+        <p className="mt-1.5 border-t border-slate-100 pt-1.5 text-[11px] text-slate-500">
+          당월 매매 최고{" "}
+          <span className="font-semibold tabular-nums text-slate-700">
+            {toEok(row.tradeMax)}억
+          </span>
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -101,28 +110,29 @@ export function AptPriceChart({
   }
 
   return (
-    <div className="h-64 w-full sm:h-72">
+    <div className="h-52 w-full sm:h-60">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
           <XAxis
             dataKey="yearMonth"
+            height={16}
             tickFormatter={(ym: string) =>
               ym.endsWith("01") ? `${ym.slice(2, 4)}년` : ""
             }
             interval="preserveStartEnd"
             minTickGap={28}
-            tick={{ fill: "#475569", fontSize: 11 }}
+            tick={{ fill: "#475569", fontSize: 10 }}
             axisLine={{ stroke: "#cbd5e1" }}
             tickLine={false}
           />
           <YAxis
             yAxisId="price"
             tickFormatter={(v: number) => `${v}억`}
-            tick={{ fill: "#64748b", fontSize: 11 }}
+            tick={{ fill: "#94a3b8", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={42}
@@ -131,13 +141,18 @@ export function AptPriceChart({
             yAxisId="volume"
             orientation="right"
             tickFormatter={(v: number) => `${v}건`}
-            tick={{ fill: CHART_COLORS.volume, fontSize: 11, fontWeight: 600 }}
+            tick={{ fill: "#94a3b8", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={40}
             allowDecimals={false}
           />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip
+            content={<ChartTooltip />}
+            allowEscapeViewBox={{ x: true, y: true }}
+            wrapperStyle={{ zIndex: 40, outline: "none" }}
+            offset={12}
+          />
           <Legend
             verticalAlign="top"
             height={28}
@@ -201,6 +216,7 @@ export function PeriodRangeSlider({
   onRecentYears,
   onFullRange,
   activePreset = null,
+  showPresets = true,
 }: {
   months: string[];
   startIndex: number;
@@ -208,7 +224,9 @@ export function PeriodRangeSlider({
   onChange: (start: number, end: number) => void;
   onRecentYears?: (years: number) => void;
   onFullRange?: () => void;
-  activePreset?: "recent3" | "full" | null;
+  activePreset?: "recent1" | "recent3" | "recent5" | "full" | null;
+  /** When false, presets are expected in the parent section header. */
+  showPresets?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef({ startIndex, endIndex });
@@ -273,39 +291,53 @@ export function PeriodRangeSlider({
 
   const presetBtn = (active: boolean) => labSecondaryTabClass(active);
 
-  return (
-    <div className="mt-4 space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <p className="font-medium text-slate-800">
-          {formatYmLabel(startYm)}
-          <span className="mx-1.5 text-slate-400">~</span>
-          {formatYmLabel(endYm)}
-        </p>
-        <div className="flex w-fit flex-wrap items-center gap-1">
-          {onRecentYears ? (
-            <button
-              type="button"
-              onClick={() => onRecentYears(3)}
-              aria-pressed={activePreset === "recent3"}
-              className={presetBtn(activePreset === "recent3")}
-            >
-              최근 3년
-            </button>
-          ) : null}
-          {onFullRange ? (
-            <button
-              type="button"
-              onClick={onFullRange}
-              aria-pressed={activePreset === "full"}
-              className={presetBtn(activePreset === "full")}
-            >
-              전체 기간
-            </button>
-          ) : null}
-        </div>
-      </div>
+  const rangeLabel = (
+    <>
+      {formatYmLabel(startYm)}
+      <span className="mx-1 text-slate-400">~</span>
+      {formatYmLabel(endYm)}
+    </>
+  );
 
-      <div className="relative h-10 touch-none select-none">
+  return (
+    <div className={showPresets ? "mt-2 space-y-1" : "mt-1 space-y-0.5"}>
+      {showPresets ? (
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
+          <p className="font-medium tabular-nums text-slate-700">{rangeLabel}</p>
+          <div className="flex w-fit flex-wrap items-center gap-1">
+            {onRecentYears
+              ? ([1, 3, 5] as const).map((years) => {
+                  const key =
+                    years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
+                  const pressed = activePreset === key;
+                  return (
+                    <button
+                      key={years}
+                      type="button"
+                      onClick={() => onRecentYears(years)}
+                      aria-pressed={pressed}
+                      className={presetBtn(pressed)}
+                    >
+                      {years}년
+                    </button>
+                  );
+                })
+              : null}
+            {onFullRange ? (
+              <button
+                type="button"
+                onClick={onFullRange}
+                aria-pressed={activePreset === "full"}
+                className={presetBtn(activePreset === "full")}
+              >
+                전체
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="relative h-6 touch-none select-none">
         <div
           ref={trackRef}
           className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 cursor-pointer rounded-full bg-slate-200"
@@ -327,7 +359,7 @@ export function PeriodRangeSlider({
           aria-valuemin={0}
           aria-valuemax={max}
           aria-valuenow={startIndex}
-          className="absolute top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
           style={{ left: `${startPct}%` }}
           onPointerDown={(e) => beginDrag(e, "start")}
         />
@@ -338,15 +370,26 @@ export function PeriodRangeSlider({
           aria-valuemin={0}
           aria-valuemax={max}
           aria-valuenow={endIndex}
-          className="absolute top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
           style={{ left: `${endPct}%` }}
           onPointerDown={(e) => beginDrag(e, "end")}
         />
       </div>
 
-      <div className="flex justify-between text-[11px] text-slate-500">
-        <span>{formatYmLabel(months[0])}</span>
-        <span>{formatYmLabel(months[months.length - 1])}</span>
+      <div className="flex items-center justify-between gap-2 text-[10px] leading-none text-slate-500">
+        <span className="min-w-0 shrink tabular-nums">
+          {formatYmLabel(months[0])}
+        </span>
+        {!showPresets ? (
+          <span className="min-w-0 truncate text-center font-medium tabular-nums text-slate-600">
+            {rangeLabel}
+          </span>
+        ) : (
+          <span />
+        )}
+        <span className="min-w-0 shrink text-right tabular-nums">
+          {formatYmLabel(months[months.length - 1])}
+        </span>
       </div>
     </div>
   );

@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
   const regionSlug = request.nextUrl.searchParams.get("region")?.trim() ?? "";
   const gu = request.nextUrl.searchParams.get("gu")?.trim() ?? "";
   const monthsRaw = Number(request.nextUrl.searchParams.get("months") ?? "36");
+  const boundRaw = request.nextUrl.searchParams.get("bound")?.trim() ?? "";
+  const boundMonths = boundRaw === "1" || boundRaw === "true";
 
   if (!aptName || !regionSlug) {
     return NextResponse.json(
@@ -26,6 +28,7 @@ export async function GET(request: NextRequest) {
       regionSlug,
       months,
       gu: gu || undefined,
+      boundMonths,
     });
     if (!detail) {
       return NextResponse.json(

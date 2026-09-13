@@ -65,6 +65,8 @@ export function buildMarketGroupAreas(
         selectorKind: "market_group" as const,
         exclusiveAreaMin: g.exclusiveAreaMin,
         exclusiveAreaMax: g.exclusiveAreaMax,
+        supplyAreaMin: g.supplyAreaMin,
+        supplyAreaMax: g.supplyAreaMax,
         secondaryLabel: formatMarketGroupSecondary({
           displayMode: g.displayMode,
           supplyAreaMin: g.supplyAreaMin,

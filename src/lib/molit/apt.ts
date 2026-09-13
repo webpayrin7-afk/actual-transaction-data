@@ -528,8 +528,9 @@ function detailCacheKey(
   aptName: string,
   monthCount: number,
   lawdScope: string,
+  boundMonths: boolean,
 ): string {
-  return `v2|${regionSlug}|${normalizeName(aptName)}|${monthCount}|${lawdScope}`;
+  return `v2|${regionSlug}|${normalizeName(aptName)}|${monthCount}|${lawdScope}|bound=${boundMonths ? 1 : 0}`;
 }
 
 /** 단지 실거래 이력 (매매·전월세 + 시세 차트용 월별 집계) */
@@ -538,6 +539,12 @@ export async function getAptDetail(params: {
   regionSlug: string;
   months?: number;
   gu?: string;
+  /**
+   * When true, DB/API reads are clipped to `months` (transaction archive).
+   * Default false: DB returns full warehouse history for Complex Detail
+   * (full-history serving invariant; months still sizes non-DB/API windows).
+   */
+  boundMonths?: boolean;
 }): Promise<AptDetailResponse | null> {
   const region = getRegion(params.regionSlug);
   if (!region) return null;
@@ -546,9 +553,16 @@ export async function getAptDetail(params: {
   if (!aptName) return null;
 
   const monthCount = Math.min(Math.max(params.months ?? 120, 6), 120);
+  const boundMonths = params.boundMonths === true;
   const lawdCodes = resolveDetailLawdCodes(region, params.gu);
   const lawdScope = lawdCodes.slice().sort().join(",");
-  const cacheKey = detailCacheKey(region.slug, aptName, monthCount, lawdScope);
+  const cacheKey = detailCacheKey(
+    region.slug,
+    aptName,
+    monthCount,
+    lawdScope,
+    boundMonths,
+  );
   const cached = detailCache.get(cacheKey);
   if (cached && Date.now() - cached.builtAt < DETAIL_CACHE_TTL_MS) {
     return cached.data;
@@ -562,6 +576,7 @@ export async function getAptDetail(params: {
     aptName,
     monthCount,
     lawdCodes,
+    boundMonths,
   }).then((data) => {
     if (data) {
       detailCache.set(cacheKey, { builtAt: Date.now(), data });
@@ -580,8 +595,9 @@ async function buildAptDetail(params: {
   aptName: string;
   monthCount: number;
   lawdCodes: string[];
+  boundMonths: boolean;
 }): Promise<AptDetailResponse | null> {
-  const { region, aptName, monthCount, lawdCodes } = params;
+  const { region, aptName, monthCount, lawdCodes, boundMonths } = params;
   const months = recentYearMonths(monthCount);
   let source: "api" | "mock" | "db" = "mock";
   let warning: string | undefined;
@@ -592,13 +608,14 @@ async function buildAptDetail(params: {
   };
 
   // DB가 있으면 사용자 경로에서는 항상 DB만 사용 (coverage 미완이어도 MOLIT 실시간 호출 금지).
-  // 매매+전월세를 함께 읽어 quick(36m)에서도 전월세 KPI가 비지 않게 한다.
+  // Default: full warehouse history (Complex Detail / full-history serving).
+  // boundMonths=true: clip to monthCount window (transaction archive periods).
   if (hasDb()) {
     const tDb = performance.now();
     collected = await queryAptTransactions({
       lawdCodes,
       aptName,
-      yearMonths: [],
+      yearMonths: boundMonths ? months : [],
       dealKinds: ["trade", "rent"],
     });
     mark("dbQueryMs", tDb);
@@ -640,8 +657,13 @@ async function buildAptDetail(params: {
   const rents = deals.filter((tx) => tx.dealType === "rent");
   const chartMonths =
     source === "db" ? chartMonthsFromDeals(deals, months) : months;
-  const loadedMonths = source === "db" ? chartMonths.length : monthCount;
-  const partial = source === "db" ? false : monthCount < 120;
+  // Unbounded DB = full warehouse (partial false). Bound mode reports window size.
+  const loadedMonths =
+    source === "db" && !boundMonths
+      ? chartMonths.length
+      : monthCount;
+  const partial =
+    source === "db" && !boundMonths ? false : monthCount < 120;
 
   const emptyResponse = (
     extraWarning?: string,

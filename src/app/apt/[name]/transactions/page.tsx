@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { AptDetailPage } from "@/components/apt/AptDetailPage";
+import { AptTransactionsPage } from "@/components/apt/AptTransactionsPage";
 import { getRegion } from "@/lib/constants/regions";
-import { getComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 
 type PageProps = {
   params: Promise<{ name: string }>;
-  searchParams: Promise<{ region?: string; gu?: string; area?: string }>;
+  searchParams: Promise<{
+    region?: string;
+    gu?: string;
+    area?: string;
+    type?: string;
+    period?: string;
+    year?: string;
+  }>;
 };
 
 export async function generateMetadata({
@@ -17,40 +23,35 @@ export async function generateMetadata({
   const aptName = decodeURIComponent(name);
   const region = sp.region ? getRegion(sp.region) : undefined;
   return {
-    title: `${aptName} 단지 상세${region ? ` - ${region.name}` : ""}`,
-    description: `${aptName} 시세·거래·관리비·단지정보`,
+    title: `${aptName} 거래내역${region ? ` - ${region.name}` : ""}`,
+    description: `${aptName} 매매·전세·월세 거래내역`,
   };
 }
 
-export default async function AptPage({ params, searchParams }: PageProps) {
+export default async function AptTransactionsRoute({
+  params,
+  searchParams,
+}: PageProps) {
   const { name } = await params;
   const sp = await searchParams;
   const aptName = decodeURIComponent(name);
   const regionSlug = sp.region?.trim() || "seoul-gangnam";
   const gu = sp.gu?.trim() || undefined;
   const initialAreaKey = sp.area?.trim() || undefined;
-
-  // Enrichment is optional and must not block market rendering.
-  const region = getRegion(regionSlug);
-  const lawdCd = region?.lawdCodes?.[0];
-  let complexDetail = null;
-  try {
-    complexDetail = await getComplexDetailV1({
-      aptName,
-      lawdCd,
-    });
-  } catch (err) {
-    console.error("[apt-page] complex detail enrichment failed", err);
-  }
+  const initialType = sp.type?.trim() || undefined;
+  // Canonical filter is `year`. Legacy `period=1y|3y|5y|all` is ignored
+  // (not remapped to a rolling window) so 전체년도 remains unbounded history.
+  const initialYear = sp.year?.trim() || undefined;
 
   return (
     <main className="flex-1">
-      <AptDetailPage
+      <AptTransactionsPage
         aptName={aptName}
         regionSlug={regionSlug}
         gu={gu}
         initialAreaKey={initialAreaKey}
-        complexDetail={complexDetail}
+        initialType={initialType}
+        initialYear={initialYear}
       />
     </main>
   );
