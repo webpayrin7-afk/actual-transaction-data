@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { LabCard } from "@/components/ui/lab";
+import { InfoChip } from "@/components/ui/InfoChip";
 import {
   computeSeasonMetric,
   formatWonAsManwon,
@@ -107,10 +108,15 @@ export function ComplexMgmtFeeCard({
 
   return (
     <LabCard className="p-3.5 sm:p-4">
-      <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-          관리비
-        </h2>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+            관리비
+          </h2>
+          <InfoChip label="안내" aria-label="관리비 환산 안내">
+            <p>{management.disclaimer}</p>
+          </InfoChip>
+        </div>
         <p className="shrink-0 text-[11px] text-slate-500 sm:text-xs">
           {formatYyyymmBasisLabel(latest.periodYyyymm)}
         </p>
@@ -141,10 +147,6 @@ export function ComplexMgmtFeeCard({
           <BreakdownCell label="장기수선충당금" valueWon={reservePerHh} />
         </div>
       </div>
-
-      <p className="mt-2.5 text-[10px] leading-relaxed text-slate-400 sm:text-[11px]">
-        {management.disclaimer}
-      </p>
     </LabCard>
   );
 }
