@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isValidLatLng } from "@/lib/complex-detail/geo";
-import { fetchNearbySchools } from "@/lib/complex-detail/neis";
+import { isJamsilElsSchoolPilot } from "@/lib/complex-detail/jamsil-els-school-pilot";
+import {
+  fetchJamsilElsPilotSchools,
+  type SchoolPilotStatus,
+} from "@/lib/complex-detail/neis";
 import { resolveComplexCoordinates } from "@/lib/complex-detail/resolve-coords";
-import { neisReadiness } from "@/lib/complex-detail/source-status";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 20;
 
-/** Optional school enrichment — failure never affects apt detail rendering. */
+/**
+ * Optional school enrichment — failure never affects apt detail rendering.
+ * Phase 8.1: real NEIS for 잠실엘스 only; catchment HOLD unless officially verified.
+ */
 export async function GET(request: NextRequest) {
   const aptName = request.nextUrl.searchParams.get("aptName")?.trim() ?? "";
   const lawdCd = request.nextUrl.searchParams.get("lawdCd")?.trim() || null;
@@ -23,45 +29,57 @@ export async function GET(request: NextRequest) {
       ? { lat, lng }
       : await resolveComplexCoordinates({ aptName, lawdCd });
 
-    const readiness = neisReadiness(!!coords);
-    if (readiness.status !== "READY") {
+    if (!isJamsilElsSchoolPilot(aptName)) {
       return NextResponse.json({
-        status: readiness.status,
-        reason: readiness.reason,
+        status: "PILOT_ONLY" satisfies SchoolPilotStatus,
+        reason: "학군 실데이터 연결은 잠실엘스 pilot만 지원합니다.",
         assignmentSupported: false,
         schools: [],
+        catchment: null,
         attribution: null,
+        distanceBasis: null,
+        dataAsOf: null,
+        complexHasCoords: !!coords,
       });
     }
 
-    const schools = await fetchNearbySchools({ coords: coords! });
-    if (schools.length === 0) {
-      return NextResponse.json({
-        status: "DATA_SOURCE_NOT_READY",
-        reason:
-          "NEIS 키가 있어도 좌표 기반 인근학교 조회에 필요한 교육청 코드 매핑이 아직 없어 보류합니다.",
-        assignmentSupported: false,
-        schools: [],
-        attribution: "NEIS 교육정보개방포털",
-      });
-    }
+    const result = await fetchJamsilElsPilotSchools({
+      aptName,
+      coords,
+    });
 
     return NextResponse.json({
-      status: "READY",
-      reason: "",
+      status: result.status,
+      reason: result.reason,
       assignmentSupported: false,
-      schools,
-      attribution: "NEIS 교육정보개방포털",
+      schools: result.schools,
+      catchment: {
+        decision: result.catchment.decision,
+        candidateSchoolName: result.catchment.candidateSchoolName,
+        evidence: result.catchment.evidence,
+        neededSources: result.catchment.neededSources,
+      },
+      attribution: result.attribution,
+      distanceBasis: result.distanceBasis,
+      dataAsOf: result.dataAsOf,
+      complexHasCoords: !!coords,
       distanceType: "straight_line",
     });
   } catch (err) {
-    console.error("[complex-schools]", err);
+    console.error(
+      "[complex-schools]",
+      err instanceof Error ? err.message : "error",
+    );
     return NextResponse.json({
-      status: "ERROR",
+      status: "API_ERROR" satisfies SchoolPilotStatus,
       reason: "학군 정보를 불러오지 못했습니다.",
       assignmentSupported: false,
       schools: [],
+      catchment: null,
       attribution: null,
+      distanceBasis: null,
+      dataAsOf: null,
+      complexHasCoords: false,
     });
   }
 }
