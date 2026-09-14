@@ -223,12 +223,12 @@ function FieldSelect({
           <p className="mt-0.5 truncate text-[11px] text-slate-500">{status}</p>
         ) : null}
       </div>
-      <div className="relative ml-auto flex h-8 min-w-[10.5rem] shrink-0 items-center rounded-md border border-slate-200 bg-white pl-2.5 pr-7 text-xs font-semibold text-slate-800">
-        <span className="pointer-events-none whitespace-nowrap" aria-hidden>
+      <div className="relative ml-auto flex h-8 w-fit shrink-0 items-center justify-end rounded-md border border-slate-200 bg-white py-0 pl-3 pr-7 text-xs font-semibold text-slate-800">
+        <span className="pointer-events-none whitespace-nowrap text-right" aria-hidden>
           <FieldSelectDisplay value={String(value)} options={children} />
         </span>
         <ChevronsUpDown
-          className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-slate-400"
+          className="pointer-events-none absolute right-1.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
           aria-hidden
         />
         <select
@@ -760,15 +760,16 @@ export function ComplexPurchaseCalculatorSection({
                   setBrokerageRatePct(Number.isFinite(next) ? next : null);
                 }}
               >
-                {brokerageOptions.map((pct) => (
-                  <option key={pct} value={pct}>
-                    {pct.toFixed(2)}%
-                    {purchase &&
-                    Math.abs(pct - purchase.brokerage.legalCapRatePct) < 1e-9
-                      ? " · 상한"
-                      : ""}
-                  </option>
-                ))}
+                {brokerageOptions.map((pct, i) => {
+                  const isCap = purchase
+                    ? Math.abs(pct - purchase.brokerage.legalCapRatePct) < 1e-9
+                    : i === brokerageOptions.length - 1;
+                  return (
+                    <option key={pct} value={pct}>
+                      {pct.toFixed(2)}%{isCap ? " · 상한" : ""}
+                    </option>
+                  );
+                })}
               </FieldSelect>
             </div>
 
