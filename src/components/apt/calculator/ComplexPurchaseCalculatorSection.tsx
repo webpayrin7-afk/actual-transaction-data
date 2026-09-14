@@ -220,7 +220,7 @@ function FieldSelect({
       </div>
       <select
         id={id}
-        className="h-9 min-w-[10.5rem] max-w-[58%] rounded-md border border-slate-200 bg-white px-2.5 text-sm font-medium text-slate-800"
+        className="h-8 min-w-[9.5rem] max-w-[58%] rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-800"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
