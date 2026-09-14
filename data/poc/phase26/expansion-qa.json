@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T08:27:51.941Z",
+  "generatedAt": "2026-09-14T08:42:25.546Z",
   "complexes": [
     {
       "aptName": "파크리오",
@@ -13,15 +13,18 @@
       "latestMonth": "202606",
       "latest": "27만원",
       "winter": "43만원",
-      "summer": null,
+      "summer": "27만원",
       "average": "32만원",
-      "summerHint": null,
+      "summerHint": "2개월 평균",
       "winterMonths": [
         "202512",
         "202601",
         "202602"
       ],
-      "summerMonths": [],
+      "summerMonths": [
+        "202507",
+        "202508"
+      ],
       "latestWon": {
         "min": 268397,
         "max": 268967,
@@ -78,15 +81,18 @@
       "latestMonth": "202606",
       "latest": "29~30만원",
       "winter": "60~61만원",
-      "summer": null,
+      "summer": "33만원",
       "average": "41만원",
-      "summerHint": null,
+      "summerHint": "2개월 평균",
       "winterMonths": [
         "202512",
         "202601",
         "202602"
       ],
-      "summerMonths": [],
+      "summerMonths": [
+        "202507",
+        "202508"
+      ],
       "latestWon": {
         "min": 292972,
         "max": 295331,

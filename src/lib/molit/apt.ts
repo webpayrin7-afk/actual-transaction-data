@@ -710,6 +710,7 @@ async function buildAptDetail(params: {
 
   const {
     applyPilotSingoga,
+    attachCanonicalPyeongLabelSource,
     buildMarketGroupAreas,
     loadPilotMasterForApt,
     pilotMetaFromBundle,
@@ -727,13 +728,18 @@ async function buildAptDetail(params: {
   }
 
   const exclusiveAreas: AptAreaOption[] = [...areaCount.entries()]
-    .map(([key, value]) => ({
-      key,
-      exclusiveArea: value.sqm,
-      count: value.count,
-      label: areaLabel(value.sqm),
-      selectorKind: "exclusive" as const,
-    }))
+    .map(([key, value]) =>
+      attachCanonicalPyeongLabelSource(
+        {
+          key,
+          exclusiveArea: value.sqm,
+          count: value.count,
+          label: areaLabel(value.sqm),
+          selectorKind: "exclusive" as const,
+        },
+        pilotBundle,
+      ),
+    )
     .sort((a, b) => a.exclusiveArea - b.exclusiveArea);
 
   const areas: AptAreaOption[] =

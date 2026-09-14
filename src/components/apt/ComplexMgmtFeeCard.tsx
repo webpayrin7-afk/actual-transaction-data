@@ -94,7 +94,7 @@ export function ComplexMgmtFeeCard({
     });
   }, [hasPortalData, management.portalAreaFees, areaMin, areaMax]);
 
-  const showSelectedEstimate = estimate != null && pyeongTitle != null;
+  const showSelectedEstimate = estimate != null;
 
   return (
     <LabCard className="p-4 sm:p-5">
@@ -104,7 +104,9 @@ export function ComplexMgmtFeeCard({
         </h2>
         <p className="shrink-0 text-xs font-medium text-slate-500 sm:text-sm">
           {showSelectedEstimate
-            ? `${pyeongTitle} 기준`
+            ? pyeongTitle
+              ? `${pyeongTitle} 기준`
+              : "선택 면적 기준"
             : pyeongTitle
               ? `${pyeongTitle} · 데이터 준비 중`
               : "선택 평형 · 데이터 준비 중"}
@@ -116,7 +118,6 @@ export function ComplexMgmtFeeCard({
           <div className="mt-3">
             <p className="text-sm text-slate-600">최근 예상 관리비</p>
             <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-900">
-              약{" "}
               {formatWonRangeAsManwon(
                 estimate.latest.wonMin,
                 estimate.latest.wonMax,
@@ -137,10 +138,10 @@ export function ComplexMgmtFeeCard({
               label="겨울 평균"
               valueLabel={
                 estimate.winter
-                  ? `약 ${formatWonRangeAsManwon(
+                  ? formatWonRangeAsManwon(
                       estimate.winter.wonMin,
                       estimate.winter.wonMax,
-                    )}`
+                    )
                   : "—"
               }
               hint={estimate.winter?.hint}
@@ -149,10 +150,10 @@ export function ComplexMgmtFeeCard({
               label="여름 평균"
               valueLabel={
                 estimate.summer
-                  ? `약 ${formatWonRangeAsManwon(
+                  ? formatWonRangeAsManwon(
                       estimate.summer.wonMin,
                       estimate.summer.wonMax,
-                    )}`
+                    )
                   : "—"
               }
               hint={estimate.summer?.hint}
@@ -161,10 +162,10 @@ export function ComplexMgmtFeeCard({
               label="최근 12개월 평균"
               valueLabel={
                 estimate.trailingAverage
-                  ? `약 ${formatWonRangeAsManwon(
+                  ? formatWonRangeAsManwon(
                       estimate.trailingAverage.wonMin,
                       estimate.trailingAverage.wonMax,
-                    )}`
+                    )
                   : "—"
               }
               hint={estimate.trailingAverage?.hint}

@@ -249,6 +249,16 @@ async function main() {
           (latestRow.portalTotal ?? 0),
       ) < 1;
 
+    const summerYears = new Set(
+      (estimate?.summer?.monthsUsed ?? []).map((ym) => ym.slice(0, 4)),
+    );
+    const winterYearsOk = (() => {
+      const used = estimate?.winter?.monthsUsed ?? [];
+      if (used.length === 0) return true;
+      const months = used.map((ym) => ym.slice(4, 6)).sort().join(",");
+      return months === "01,02,12" || months === "01,12" || months === "02,12" || months === "01,02";
+    })();
+
     let status: "PASS" | "HOLD" = "HOLD";
     let reason = "";
     if (!latest) {
@@ -259,6 +269,10 @@ async function main() {
       reason = "estimate_null";
     } else if (!rec?.ok || !componentOk) {
       reason = "reconcile_fail";
+    } else if (summerYears.size > 1) {
+      reason = "summer_cross_season";
+    } else if (!winterYearsOk) {
+      reason = "winter_cross_season";
     } else {
       status = "PASS";
     }

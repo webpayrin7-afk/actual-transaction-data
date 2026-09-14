@@ -126,6 +126,7 @@ export async function getAptTransactionArchive(params: {
 
   const {
     applyPilotSingoga,
+    attachCanonicalPyeongLabelSource,
     buildMarketGroupAreas,
     loadPilotMasterForApt,
   } = await import("@/lib/unit-type/apply-pilot");
@@ -182,9 +183,13 @@ export async function getAptTransactionArchive(params: {
         return { ...g, count };
       });
     } else {
-      areas = exclusiveAreasFromBuckets(yearBuckets);
+      areas = exclusiveAreasFromBuckets(yearBuckets).map((area) =>
+        attachCanonicalPyeongLabelSource(area, pilotBundle),
+      );
       if (areas.length === 0) {
-        areas = exclusiveAreasFromBuckets(lifetimeBuckets);
+        areas = exclusiveAreasFromBuckets(lifetimeBuckets).map((area) =>
+          attachCanonicalPyeongLabelSource(area, pilotBundle),
+        );
       }
     }
   } else if (useMarketGroups && pilotBundle) {

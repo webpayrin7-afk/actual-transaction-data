@@ -40,7 +40,7 @@ import {
   type TransactionTabType,
 } from "@/lib/apt/transaction-type";
 import {
-  areaSelectorExclusiveLabel,
+  areaSelectorClosedLabel,
   areaSelectorPyeongLabel,
 } from "@/lib/apt/area-selector-label";
 import {
@@ -825,7 +825,7 @@ export function AptDetailPage({
           <p className="mt-1 truncate text-xs text-slate-500">
             {areaKey === "all" || !selectedArea
               ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
-              : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
+              : `${areaSelectorClosedLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
           </p>
           <div style={{ height: 16 }} className="w-full" aria-hidden />
         </div>
@@ -855,7 +855,7 @@ export function AptDetailPage({
         areaLabel={
           areaKey === "all" || !selectedArea
             ? "전체 면적"
-            : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)}`
+            : areaSelectorClosedLabel(selectedArea)
         }
         latestTradeMan={latestTrade?.dealAmount ?? 0}
         exclusiveAreaMinSqm={

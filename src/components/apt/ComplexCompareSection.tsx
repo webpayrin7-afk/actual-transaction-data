@@ -15,10 +15,7 @@ import {
   type CompareComplexMetrics,
 } from "@/lib/complex-detail/compare-metrics";
 import { formatEok } from "@/lib/utils/format";
-import {
-  areaSelectorExclusiveLabel,
-  areaSelectorPyeongLabel,
-} from "@/lib/apt/area-selector-label";
+import { areaSelectorClosedLabel } from "@/lib/apt/area-selector-label";
 
 type Props = {
   aptName: string;
@@ -112,7 +109,7 @@ export function ComplexCompareSection({
   const areaLabel =
     areaKey === "all" || !selectedArea
       ? "전체 면적"
-      : `${areaSelectorPyeongLabel(selectedArea)} · ${areaSelectorExclusiveLabel(selectedArea)}`;
+      : areaSelectorClosedLabel(selectedArea);
 
   const targetArea = useMemo(
     () => compareAreaRefFromOption(selectedArea, areaLabel),

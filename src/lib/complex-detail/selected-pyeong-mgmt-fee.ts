@@ -100,26 +100,32 @@ function avg(nums: number[]): number | null {
 }
 
 /**
- * Same-calendar-year summer (6·7·8) ≤ latestMonth.
- * Uses only COMPLETE portal months — does not mix prior-year August.
+ * Most recent same-calendar-year summer (6·7·8) with ≥2 COMPLETE months.
+ * If the latest year's season has <2 months, walk back prior summers.
+ * Never mixes years (e.g. 2025-08 + 2026-06).
  */
 export function computeSameYearSummerPerM2(
   monthsDesc: PortalAreaFeeMonthV1[],
   latestMonth: string,
 ): { avgTotalPerM2: number; monthsUsed: string[] } | null {
-  const y = yearNum(latestMonth);
+  const latestY = yearNum(latestMonth);
   const byYm = new Map(monthsDesc.map((m) => [m.periodYyyymm, m]));
-  const candidates = [6, 7, 8]
-    .map((mo) => `${y}${String(mo).padStart(2, "0")}`)
-    .filter((ym) => ym <= latestMonth && byYm.has(ym));
-  if (candidates.length < 2) return null;
-  const rates = candidates
-    .map((ym) => byYm.get(ym)!.perAreaTotal)
-    .filter((v): v is number => v != null && Number.isFinite(v));
-  if (rates.length < 2) return null;
-  const a = avg(rates);
-  if (a == null) return null;
-  return { avgTotalPerM2: a, monthsUsed: candidates };
+
+  for (let y = latestY; y >= latestY - 3; y -= 1) {
+    const monthsUsed = [6, 7, 8]
+      .map((mo) => `${y}${String(mo).padStart(2, "0")}`)
+      .filter((ym) => {
+        if (ym > latestMonth) return false;
+        const row = byYm.get(ym);
+        return row?.perAreaTotal != null && Number.isFinite(row.perAreaTotal);
+      });
+    if (monthsUsed.length < 2) continue;
+    const rates = monthsUsed.map((ym) => byYm.get(ym)!.perAreaTotal as number);
+    const a = avg(rates);
+    if (a == null) continue;
+    return { avgTotalPerM2: a, monthsUsed };
+  }
+  return null;
 }
 
 /**

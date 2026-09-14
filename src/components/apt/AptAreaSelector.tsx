@@ -35,13 +35,17 @@ const PYEONG_TEXT =
 
 function AreaTriggerLabel({ area }: { area: AptAreaOption }) {
   const pyeong = areaSelectorPyeongLabel(area);
+  const exclusive = areaSelectorExclusiveLabel(area);
   // Sticky + closed both show exclusive so the trigger can grow with real text
   // (max-width alone does not widen short labels).
+  if (!pyeong) {
+    return <span className={PYEONG_TEXT}>{exclusive}</span>;
+  }
   return (
     <>
       <span className={PYEONG_TEXT}>{pyeong}</span>
       <span className="font-semibold text-slate-800">
-        {` · ${areaSelectorExclusiveLabel(area)}`}
+        {` · ${exclusive}`}
       </span>
     </>
   );
@@ -386,8 +390,15 @@ function AreaSheet({
                 active={value === area.key}
                 buttonRef={value === area.key ? activeRef : undefined}
                 onClick={() => onPick(area.key)}
-                pyeongLabel={areaSelectorPyeongLabel(area)}
-                exclusiveLabel={areaSelectorExclusiveLabel(area)}
+                pyeongLabel={
+                  areaSelectorPyeongLabel(area) ??
+                  areaSelectorExclusiveLabel(area)
+                }
+                exclusiveLabel={
+                  areaSelectorPyeongLabel(area)
+                    ? areaSelectorExclusiveLabel(area)
+                    : ""
+                }
                 supplyLabel={areaSelectorSupplyLabel(area)}
                 dealLabel={areaSelectorDealCountLabel(area.count)}
               />
@@ -436,9 +447,11 @@ function AreaOptionRow({
           {pyeongLabel}
         </span>
         <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-[13px] tabular-nums leading-snug text-slate-500">
-            {exclusiveLabel}
-          </span>
+          {exclusiveLabel ? (
+            <span className="text-[13px] tabular-nums leading-snug text-slate-500">
+              {exclusiveLabel}
+            </span>
+          ) : null}
           <span className="text-[13px] tabular-nums leading-snug text-slate-400">
             {dealLabel}
           </span>
