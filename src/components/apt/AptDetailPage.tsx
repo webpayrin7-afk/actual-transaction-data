@@ -868,6 +868,8 @@ export function AptDetailPage({
             ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
             : null
         }
+        regionSlug={regionSlug}
+        locationLabel={locationLabel}
       />
 
       {complexDetail?.management ? (

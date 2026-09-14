@@ -19,7 +19,8 @@ import {
   type AcquisitionHomeStatus,
   type ExclusiveAreaInput,
 } from "@/lib/calculator";
-import type { HomeCount, MetroType, RegType } from "@/lib/loan/calc";
+import type { HomeCount } from "@/lib/loan/calc";
+import { resolveLoanPropertyConditions } from "@/lib/loan/property-conditions";
 
 type TabId = "purchase" | "holding" | "loan";
 
@@ -360,6 +361,9 @@ export function ComplexPurchaseCalculatorSection({
   latestTradeMan,
   exclusiveAreaMinSqm = null,
   exclusiveAreaMaxSqm = null,
+  regionSlug = null,
+  locationLabel = null,
+  lawdCd = null,
 }: {
   /** Stable complex id when complex-detail identity is available. */
   complexId?: string | null;
@@ -372,6 +376,12 @@ export function ComplexPurchaseCalculatorSection({
   /** Selected Phase5 exclusive-area bounds (㎡). */
   exclusiveAreaMinSqm?: number | null;
   exclusiveAreaMaxSqm?: number | null;
+  /** Page region slug — drives metro / regulated auto conditions. */
+  regionSlug?: string | null;
+  /** Optional sido·sigungu label for disclosure. */
+  locationLabel?: string | null;
+  /** Optional LAWD for partial-city regulation. */
+  lawdCd?: string | null;
 }) {
   const [tab, setTab] = useState<TabId>("purchase");
   const [priceMan, setPriceMan] = useState(0);
@@ -398,7 +408,7 @@ export function ComplexPurchaseCalculatorSection({
   const [cashMan, setCashMan] = useState(0);
   const [cashFocused, setCashFocused] = useState(false);
   const [cashDraft, setCashDraft] = useState("");
-  const [annualIncomeMan, setAnnualIncomeMan] = useState(8000);
+  const [annualIncomeMan, setAnnualIncomeMan] = useState(0);
   const [incomeFocused, setIncomeFocused] = useState(false);
   const [incomeDraft, setIncomeDraft] = useState("");
   const [existingMonthlyMan, setExistingMonthlyMan] = useState(0);
@@ -406,8 +416,6 @@ export function ComplexPurchaseCalculatorSection({
   const [existingDraft, setExistingDraft] = useState("");
   const [years, setYears] = useState(30);
   const [baseRatePct, setBaseRatePct] = useState(4);
-  const [metro, setMetro] = useState<MetroType>("capital");
-  const [regulated, setRegulated] = useState<RegType>("regulated");
   const [homes, setHomes] = useState<HomeCount>("0");
   const [firstHome, setFirstHome] = useState(true);
   const [disposeCondition, setDisposeCondition] = useState(false);
@@ -538,6 +546,16 @@ export function ComplexPurchaseCalculatorSection({
 
   const holding = projectedHolding;
 
+  const propertyConditions = useMemo(
+    () =>
+      resolveLoanPropertyConditions({
+        regionSlug,
+        lawdCd,
+        locationLabel,
+      }),
+    [regionSlug, lawdCd, locationLabel],
+  );
+
   const loan = useMemo(
     () =>
       effectivePriceMan > 0
@@ -548,8 +566,8 @@ export function ComplexPurchaseCalculatorSection({
             existingMonthlyMan,
             years,
             baseRatePct,
-            metro,
-            regulated,
+            metro: propertyConditions.metro,
+            regulated: propertyConditions.regulated,
             homes,
             firstHome,
             disposeCondition,
@@ -563,8 +581,8 @@ export function ComplexPurchaseCalculatorSection({
       existingMonthlyMan,
       years,
       baseRatePct,
-      metro,
-      regulated,
+      propertyConditions.metro,
+      propertyConditions.regulated,
       homes,
       firstHome,
       disposeCondition,
@@ -623,9 +641,8 @@ export function ComplexPurchaseCalculatorSection({
       ? `기존 월상환 ${formatManWon(existingMonthlyMan)}`
       : "기존대출 없음",
     homes === "0" ? "무주택" : homes === "1" ? "1주택" : "2주택+",
-    metro === "capital" ? "수도권" : "지방",
-    regulated === "regulated" ? "규제지역" : "비규제",
-    firstHome ? "생애최초" : null,
+    homes === "0" && firstHome ? "생애최초" : null,
+    homes === "1" && disposeCondition ? "처분조건부" : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -1556,6 +1573,22 @@ export function ComplexPurchaseCalculatorSection({
                   }
                   emph
                 />
+                {!fundingPlan.provisional ? (
+                  <Row
+                    label="제한 요인"
+                    value={loan.limitingLabels.join(", ") || "—"}
+                  />
+                ) : (
+                  <Row
+                    label="제한 요인"
+                    value={
+                      loan.limitingLabels.length
+                        ? `${loan.limitingLabels.join(", ")} (잠정)`
+                        : "잠정"
+                    }
+                    hint="DSR은 연소득 입력 후 반영됩니다."
+                  />
+                )}
                 <Row
                   label="집값 기준 필요 대출"
                   value={formatEokManOrZero(loan.requiredLoanMan)}
@@ -1568,7 +1601,7 @@ export function ComplexPurchaseCalculatorSection({
                       value={formatEokManOrZero(fundingPlan.cashShortageMan)}
                       hint={
                         purchaseExtraMan > 0
-                          ? `총 필요자금 ${formatEokMan(fundingPlan.totalRequiredFundsMan)} 기준 (취득·중개 포함)`
+                          ? `총 필요자금 ${formatEokMan(fundingPlan.totalRequiredFundsMan)} 기준 · 취득세·중개보수 등 매수비용 포함`
                           : "총 필요자금 − 예상 실행 대출"
                       }
                       emph
@@ -1591,49 +1624,6 @@ export function ComplexPurchaseCalculatorSection({
                     있습니다.
                   </p>
                 )}
-
-                <div className="space-y-2 border-t border-slate-100 pt-3">
-                  <Row
-                    label="LTV 기준"
-                    value={formatEokManOrZero(loan.breakdown.ltvLimitMan)}
-                  />
-                  <Row
-                    label="DSR 기준"
-                    value={
-                      loan.dsrAvailable
-                        ? formatEokManOrZero(loan.breakdown.dsrLimitMan)
-                        : "연소득 입력 필요"
-                    }
-                  />
-                  {loan.breakdown.absoluteCapMan != null ? (
-                    <Row
-                      label="시가 절대한도"
-                      value={formatEokManOrZero(loan.breakdown.absoluteCapMan)}
-                    />
-                  ) : null}
-                  {loan.breakdown.dtiApplied ? (
-                    <Row
-                      label="DTI 기준"
-                      value={formatEokManOrZero(loan.breakdown.dtiLimitMan)}
-                    />
-                  ) : null}
-                  {!fundingPlan.provisional ? (
-                    <Row
-                      label="제한 요인"
-                      value={loan.limitingLabels.join(", ") || "—"}
-                    />
-                  ) : (
-                    <Row
-                      label="제한 요인"
-                      value={
-                        loan.limitingLabels.length
-                          ? `${loan.limitingLabels.join(", ")} (잠정)`
-                          : "잠정"
-                      }
-                      hint="DSR은 연소득 입력 후 반영됩니다."
-                    />
-                  )}
-                </div>
 
                 <div className="space-y-2 border-t border-slate-100 pt-3">
                   <Row
@@ -1742,6 +1732,31 @@ export function ComplexPurchaseCalculatorSection({
                     commitCashDraft(cashDraft);
                   }}
                 />
+                {effectivePriceMan > 0 ? (
+                  <div className="pt-1">
+                    <input
+                      type="range"
+                      min={0}
+                      max={Math.max(effectivePriceMan, cashMan, 1)}
+                      step={1000}
+                      value={Math.min(
+                        cashMan,
+                        Math.max(effectivePriceMan, cashMan, 1),
+                      )}
+                      onChange={(e) => {
+                        const next = Number(e.target.value) || 0;
+                        setCashMan(next);
+                        if (cashFocused) setCashDraft(formatManInput(next));
+                      }}
+                      className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-teal-600"
+                      aria-label="보유 자기자금 빠른 조절"
+                    />
+                    <div className="mt-1 flex justify-between text-[10px] tabular-nums text-slate-400">
+                      <span>0</span>
+                      <span>{formatEokMan(effectivePriceMan)}</span>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -1857,28 +1872,7 @@ export function ComplexPurchaseCalculatorSection({
                     }}
                   />
                 </div>
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">지역</span>
-                  <select
-                    className={inputClass}
-                    value={metro}
-                    onChange={(e) => setMetro(e.target.value as MetroType)}
-                  >
-                    <option value="capital">수도권</option>
-                    <option value="local">지방</option>
-                  </select>
-                </label>
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">규제지역</span>
-                  <select
-                    className={inputClass}
-                    value={regulated}
-                    onChange={(e) => setRegulated(e.target.value as RegType)}
-                  >
-                    <option value="regulated">규제</option>
-                    <option value="unregulated">비규제</option>
-                  </select>
-                </label>
+
                 <label className="block space-y-1 sm:col-span-2">
                   <span className="text-xs text-slate-500">보유 주택 수</span>
                   <select
@@ -1891,8 +1885,8 @@ export function ComplexPurchaseCalculatorSection({
                     <option value="2plus">2주택+</option>
                   </select>
                 </label>
-                <div className="flex flex-wrap items-end gap-3 text-xs sm:col-span-2">
-                  <label className="inline-flex items-center gap-1.5">
+                {homes === "0" ? (
+                  <label className="inline-flex items-center gap-1.5 text-xs sm:col-span-2">
                     <input
                       type="checkbox"
                       checked={firstHome}
@@ -1900,7 +1894,9 @@ export function ComplexPurchaseCalculatorSection({
                     />
                     생애최초
                   </label>
-                  <label className="inline-flex items-center gap-1.5">
+                ) : null}
+                {homes === "1" ? (
+                  <label className="inline-flex items-center gap-1.5 text-xs sm:col-span-2">
                     <input
                       type="checkbox"
                       checked={disposeCondition}
@@ -1908,26 +1904,59 @@ export function ComplexPurchaseCalculatorSection({
                     />
                     처분조건부
                   </label>
-                </div>
+                ) : null}
               </div>
             </LabBottomSheet>
 
             <BasisDetails
               lines={[
+                "자동 적용 조건",
+                `지역 ${propertyConditions.regionLabel}`,
+                `권역 ${propertyConditions.metroLabel}`,
+                `규제지역 ${propertyConditions.regulatedLabel}${
+                  propertyConditions.regulatedUnresolved
+                    ? " (세부 법정동 미확정 · 보수 적용)"
+                    : ""
+                }`,
+                `주택 ${complexName}${compactArea ? ` · ${compactArea}` : ""}`,
+                propertyConditions.sourceNote,
+                "",
+                "개인 조건",
+                annualIncomeMan > 0
+                  ? `연소득 ${formatEokMan(annualIncomeMan)}`
+                  : "연소득 미입력",
+                existingMonthlyMan > 0
+                  ? `기존 월상환 ${formatManWon(existingMonthlyMan)}`
+                  : "기존대출 없음",
+                homes === "0"
+                  ? "무주택"
+                  : homes === "1"
+                    ? "1주택"
+                    : "2주택+",
+                homes === "0" && firstHome ? "생애최초" : "",
+                homes === "1" && disposeCondition ? "처분조건부" : "",
+                "",
+                "한도·상환",
                 loan?.disclaimer ?? "",
                 loan
                   ? `상환방식 ${loan.repayMethodLabel} · 금리 ${baseRatePct}% · 기간 ${years}년`
                   : "",
-                loan?.dsrAvailable
-                  ? `DSR 기준 한도 ${formatEokMan(loan.breakdown.dsrLimitMan)}`
-                  : "DSR: 연소득 미입력으로 한도 미산출",
                 loan
-                  ? `LTV 기준 한도 ${formatEokMan(loan.breakdown.ltvLimitMan)}`
+                  ? `LTV 기준 ${formatEokMan(loan.breakdown.ltvLimitMan)}`
+                  : "",
+                loan?.dsrAvailable
+                  ? `DSR 기준 ${formatEokMan(loan.breakdown.dsrLimitMan)}`
+                  : "DSR: 연소득 미입력으로 한도 미산출",
+                loan?.breakdown.absoluteCapMan != null
+                  ? `시가 절대한도 ${formatEokMan(loan.breakdown.absoluteCapMan)}`
+                  : "",
+                loan?.breakdown.dtiApplied
+                  ? `DTI 기준 ${formatEokMan(loan.breakdown.dtiLimitMan)}`
                   : "",
                 fundingPlan
                   ? `예상 총 필요자금 ${formatEokMan(fundingPlan.totalRequiredFundsMan)} (매수가 + 취득·중개 ${formatEokMan(purchaseExtraMan)})`
                   : "",
-                "대출 한도(LTV)와 총 필요자금(부대비용 포함)은 별도 개념입니다.",
+                "집값 기준 필요 대출과 추가 필요 자기자금(매수비용 포함)은 다른 개념입니다.",
                 ...(loan?.breakdown.notes ?? []),
                 loan?.meta
                   ? `${loan.meta.ruleVersion} · ${loan.meta.source}`
