@@ -140,9 +140,14 @@ export function ComplexMgmtFeeCard({
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-        관리비
-      </h2>
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+          관리비
+        </h2>
+        <p className="shrink-0 text-xs font-medium text-slate-500 sm:text-sm">
+          단지 세대당 평균
+        </p>
+      </div>
 
       <div className="mt-3">
         <p className="text-sm text-slate-600">최근 관리비</p>
@@ -150,7 +155,8 @@ export function ComplexMgmtFeeCard({
           {formatWonAsManwon(latestPerHh)}
         </p>
         <p className="mt-1 text-sm leading-relaxed text-slate-600">
-          세대당 단순 환산 · {formatYyyymmBasisLabel(latest.periodYyyymm)}
+          단지 총액÷전체 세대수 단순 환산 ·{" "}
+          {formatYyyymmBasisLabel(latest.periodYyyymm)}
         </p>
         {comparisons.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
