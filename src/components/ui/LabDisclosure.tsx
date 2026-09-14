@@ -44,7 +44,7 @@ export function LabDisclosure({
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen(!open)}
-        className="flex min-h-11 w-full items-center justify-between gap-3 py-2.5 text-left transition hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+        className="flex min-h-11 w-full items-center justify-between gap-3 py-2 text-left transition hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
       >
         <span className="min-w-0 text-sm font-semibold text-slate-900">
           {title}
@@ -70,7 +70,7 @@ export function LabDisclosure({
           id={panelId}
           role="region"
           aria-labelledby={buttonId}
-          className="border-t border-slate-100 pb-1 pt-3"
+          className="border-t border-slate-100 pt-2.5"
         >
           {children}
         </div>
