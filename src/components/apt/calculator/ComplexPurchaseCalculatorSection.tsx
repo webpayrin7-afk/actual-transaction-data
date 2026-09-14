@@ -291,6 +291,9 @@ export function ComplexPurchaseCalculatorSection({
     setPriceFocused(false);
     setPriceDraft("");
     setBrokerageRatePct(null);
+    setOfficialManualOverride(false);
+    setOfficialPriceMan(0);
+    setOfficialDraft("");
   }, [areaKey]);
 
   const effectivePriceMan = priceTouched
@@ -344,18 +347,46 @@ export function ComplexPurchaseCalculatorSection({
     [effectivePriceMan, homeStatus, exclusiveArea, brokerageRatePct],
   );
 
+  const publicPrice = useMemo(
+    () =>
+      getComplexPublicPrices({
+        complexId,
+        complexName,
+        areaKey: areaKey === "all" ? null : areaKey,
+        exclusiveAreaMinSqm,
+        exclusiveAreaMaxSqm,
+        year: new Date().getFullYear(),
+      }),
+    [complexId, complexName, areaKey, exclusiveAreaMinSqm, exclusiveAreaMaxSqm],
+  );
+
+  const autoOfficialPriceMan =
+    publicPrice.matchType === "UNIT_EXACT" && publicPrice.priceMan != null
+      ? publicPrice.priceMan
+      : null;
+
+  const effectiveOfficialPriceMan = officialManualOverride
+    ? officialPriceMan
+    : (autoOfficialPriceMan ?? 0);
+
+  const officialFieldValue = officialManualOverride
+    ? officialDraft
+    : autoOfficialPriceMan != null
+      ? formatManInput(autoOfficialPriceMan)
+      : officialDraft;
+
   const holding = useMemo(
     () =>
-      officialPriceMan > 0
+      effectiveOfficialPriceMan > 0
         ? calculateHoldingTax({
-            officialPriceMan,
+            officialPriceMan: effectiveOfficialPriceMan,
             singleHomeHousehold,
             includeUrbanShare: true,
             projectionYears,
             officialPriceGrowthRate: growthPct / 100,
           })
         : null,
-    [officialPriceMan, singleHomeHousehold, projectionYears, growthPct],
+    [effectiveOfficialPriceMan, singleHomeHousehold, projectionYears, growthPct],
   );
 
   const loan = useMemo(
@@ -402,32 +433,6 @@ export function ComplexPurchaseCalculatorSection({
     projectionYears > 0 ? `전망 +${projectionYears}년 · 연 ${growthPct}%` : "당해 기준",
   ].join(" · ");
 
-  const publicPrice = useMemo(
-    () =>
-      getComplexPublicPrices({
-        complexId,
-        complexName,
-        areaKey: areaKey === "all" ? null : areaKey,
-        exclusiveAreaMinSqm,
-        exclusiveAreaMaxSqm,
-        year: new Date().getFullYear(),
-      }),
-    [complexId, complexName, areaKey, exclusiveAreaMinSqm, exclusiveAreaMaxSqm],
-  );
-
-  useEffect(() => {
-    if (officialManualOverride) return;
-    if (publicPrice.matchType !== "UNIT_EXACT" || publicPrice.priceMan == null) {
-      return;
-    }
-    setOfficialPriceMan(publicPrice.priceMan);
-    setOfficialDraft(formatManInput(publicPrice.priceMan));
-  }, [publicPrice, officialManualOverride]);
-
-  useEffect(() => {
-    setOfficialManualOverride(false);
-  }, [areaKey]);
-
   const holdingBaseYear = new Date().getFullYear();
   const loanConditionSummary = [
     homes === "0" ? "무주택" : homes === "1" ? "1주택" : "2주택+",
@@ -460,7 +465,9 @@ export function ComplexPurchaseCalculatorSection({
     const parsed = parseEokInputToMan(raw);
     if (parsed == null) {
       setOfficialDraft(
-        officialPriceMan > 0 ? formatManInput(officialPriceMan) : "",
+        effectiveOfficialPriceMan > 0
+          ? formatManInput(effectiveOfficialPriceMan)
+          : "",
       );
       return;
     }
@@ -780,20 +787,23 @@ export function ComplexPurchaseCalculatorSection({
               </div>
               <ManWonField
                 id="calc-official-price"
-                value={officialDraft}
+                value={officialFieldValue}
                 placeholder="예: 168000"
                 liveMan={
                   parseEokInputToMan(officialDraft) ??
-                  (officialPriceMan > 0 ? officialPriceMan : null)
+                  (effectiveOfficialPriceMan > 0
+                    ? effectiveOfficialPriceMan
+                    : null)
                 }
                 onFocus={() => {
-                  if (officialPriceMan > 0 && !officialDraft.trim()) {
-                    setOfficialDraft(formatManInput(officialPriceMan));
-                  } else if (
-                    officialPriceMan > 0 &&
-                    /억/.test(officialDraft)
-                  ) {
-                    setOfficialDraft(formatManInput(officialPriceMan));
+                  const seed =
+                    officialManualOverride
+                      ? officialPriceMan
+                      : (autoOfficialPriceMan ?? officialPriceMan);
+                  if (seed > 0 && !officialDraft.trim()) {
+                    setOfficialDraft(formatManInput(seed));
+                  } else if (seed > 0 && /억/.test(officialDraft)) {
+                    setOfficialDraft(formatManInput(seed));
                   }
                 }}
                 onChange={setOfficialDraft}
@@ -822,7 +832,7 @@ export function ComplexPurchaseCalculatorSection({
                     "공식 공시가격을 연결할 수 없어 직접 입력합니다. 실거래가 비율로 추정하지 않습니다."}
                 </p>
               )}
-              {officialPriceMan > 0 ? (
+              {effectiveOfficialPriceMan > 0 ? (
                 <p className="text-xs text-slate-500">
                   {officialManualOverride
                     ? "입력값 · 사용자 입력"
