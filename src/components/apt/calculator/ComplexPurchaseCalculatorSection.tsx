@@ -8,6 +8,7 @@ import {
   calculateLoanEstimate,
   calculatePurchaseCost,
   formatEokMan,
+  formatManInput,
   formatManWon,
   parseEokInputToMan,
   type AcquisitionHomeStatus,
@@ -252,8 +253,14 @@ export function ComplexPurchaseCalculatorSection({
   const priceInputValue = priceFocused
     ? priceDraft
     : effectivePriceMan > 0
-      ? formatEokMan(effectivePriceMan)
+      ? formatManInput(effectivePriceMan)
       : "";
+
+  const livePriceMan = priceFocused
+    ? parseEokInputToMan(priceDraft)
+    : effectivePriceMan > 0
+      ? effectivePriceMan
+      : null;
 
   const exclusiveArea: ExclusiveAreaInput = useMemo(() => {
     if (areaKey === "all") return { mode: "unknown" };
@@ -353,13 +360,13 @@ export function ComplexPurchaseCalculatorSection({
     const parsed = parseEokInputToMan(raw);
     if (parsed == null) {
       setPriceDraft(
-        effectivePriceMan > 0 ? formatEokMan(effectivePriceMan) : "",
+        effectivePriceMan > 0 ? formatManInput(effectivePriceMan) : "",
       );
       return;
     }
     setPriceTouched(true);
     setPriceMan(parsed);
-    setPriceDraft(formatEokMan(parsed));
+    setPriceDraft(formatManInput(parsed));
   }
 
   function resetToLatestTrade() {
@@ -374,12 +381,12 @@ export function ComplexPurchaseCalculatorSection({
     const parsed = parseEokInputToMan(raw);
     if (parsed == null) {
       setOfficialDraft(
-        officialPriceMan > 0 ? formatEokMan(officialPriceMan) : "",
+        officialPriceMan > 0 ? formatManInput(officialPriceMan) : "",
       );
       return;
     }
     setOfficialPriceMan(parsed);
-    setOfficialDraft(formatEokMan(parsed));
+    setOfficialDraft(formatManInput(parsed));
   }
 
   return (
@@ -439,6 +446,7 @@ export function ComplexPurchaseCalculatorSection({
                 className="text-xs font-medium text-slate-600"
               >
                 예상 매수가
+                <span className="ml-1 font-normal text-slate-400">(만원)</span>
               </label>
               {latestTradeMan > 0 ? (
                 <button
@@ -453,13 +461,15 @@ export function ComplexPurchaseCalculatorSection({
             <input
               id="calc-purchase-price"
               className={inputClass}
-              inputMode="decimal"
+              inputMode="numeric"
               value={priceInputValue}
-              placeholder="예: 34.1억 / 34억1000"
+              placeholder="예: 341000"
               onFocus={() => {
                 setPriceFocused(true);
                 setPriceDraft(
-                  effectivePriceMan > 0 ? formatEokMan(effectivePriceMan) : "",
+                  effectivePriceMan > 0
+                    ? formatManInput(effectivePriceMan)
+                    : "",
                 );
               }}
               onChange={(e) => {
@@ -474,6 +484,11 @@ export function ComplexPurchaseCalculatorSection({
                 if (e.key === "Enter") e.currentTarget.blur();
               }}
             />
+            <p className="text-sm tabular-nums text-slate-700">
+              {livePriceMan != null && livePriceMan > 0
+                ? formatEokMan(livePriceMan)
+                : "만원 단위로 입력하면 억·만원으로 표시됩니다"}
+            </p>
           </div>
         ) : null}
 
@@ -648,20 +663,39 @@ export function ComplexPurchaseCalculatorSection({
                 className="text-xs font-medium text-slate-600"
               >
                 공시가격
+                <span className="ml-1 font-normal text-slate-400">(만원)</span>
               </label>
               <input
                 id="calc-official-price"
                 className={inputClass}
-                inputMode="decimal"
+                inputMode="numeric"
                 value={officialDraft}
-                placeholder="예: 18억 (직접 입력)"
+                placeholder="예: 180000"
+                onFocus={() => {
+                  if (officialPriceMan > 0 && !officialDraft.trim()) {
+                    setOfficialDraft(formatManInput(officialPriceMan));
+                  } else if (
+                    officialPriceMan > 0 &&
+                    /억/.test(officialDraft)
+                  ) {
+                    setOfficialDraft(formatManInput(officialPriceMan));
+                  }
+                }}
                 onChange={(e) => setOfficialDraft(e.target.value)}
                 onBlur={() => commitOfficialDraft(officialDraft)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") e.currentTarget.blur();
                 }}
               />
-              <p className="text-[11px] text-slate-400">
+              <p className="text-sm tabular-nums text-slate-700">
+                {(() => {
+                  const live = parseEokInputToMan(officialDraft);
+                  if (live != null && live > 0) return formatEokMan(live);
+                  if (officialPriceMan > 0) return formatEokMan(officialPriceMan);
+                  return "만원 단위로 입력하면 억·만원으로 표시됩니다";
+                })()}
+              </p>
+              <p className="text-xs text-slate-500">
                 공식 공시가가 없으면 직접 입력하세요. 실거래가 비율로 추정하지
                 않습니다.
               </p>

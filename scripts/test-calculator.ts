@@ -321,12 +321,15 @@ import {
 }
 
 {
-  assert.equal(parseEokInputToMan("34.1"), 341_000);
+  assert.equal(parseEokInputToMan("354000"), 354_000);
+  assert.equal(parseEokInputToMan("341000"), 341_000);
   assert.equal(parseEokInputToMan("34.1억"), 341_000);
   assert.equal(parseEokInputToMan("34억1000"), 341_000);
   assert.equal(parseEokInputToMan("34억1000만"), 341_000);
   assert.equal(parseEokInputToMan("341000만원"), 341_000);
   assert.equal(parseEokInputToMan("34억 1,000만원"), 341_000);
+  assert.equal(parseEokInputToMan("354,000"), 354_000);
+  assert.equal(formatEokMan(354_000), "35억 4,000만원");
   assert.ok(formatEokMan(341_000).includes("34억"));
 }
 

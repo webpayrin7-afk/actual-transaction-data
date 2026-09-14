@@ -6,6 +6,12 @@ export function formatManWon(man: number): string {
   return `${rounded.toLocaleString("ko-KR")}만원`;
 }
 
+/** Input field value in 만원 (no unit suffix). 341000 → "341,000" */
+export function formatManInput(man: number): string {
+  if (!Number.isFinite(man) || man <= 0) return "";
+  return Math.round(man).toLocaleString("ko-KR");
+}
+
 /** 340000 → 34억, 341000 → 34억 1,000만원 */
 export function formatEokMan(man: number): string {
   if (!Number.isFinite(man) || man <= 0) return "—";
@@ -18,19 +24,21 @@ export function formatEokMan(man: number): string {
 
 /**
  * Parse practical Korean money strings into 만원.
- * Accepts: 34.1 | 34.1억 | 34억1000 | 34억1000만 | 341000만원
+ * Bare numbers are 만원 (354000 → 354,000만원 = 35억 4,000만원).
+ * Still accepts: 34.1억 | 34억1000 | 34억1000만 | 341000만원
  */
 export function parseEokInputToMan(text: string): number | null {
   const cleaned = text.replace(/,/g, "").replace(/\s+/g, "").trim();
   if (!cleaned) return null;
 
+  // Bare number = 만원 unit (not 억)
   if (/^\d+(\.\d+)?$/.test(cleaned)) {
-    const eok = Number(cleaned);
-    if (!Number.isFinite(eok) || eok < 0) return null;
-    return Math.round(eok * 10_000);
+    const man = Number(cleaned);
+    if (!Number.isFinite(man) || man < 0) return null;
+    return Math.round(man);
   }
 
-  // 34.1억 | 34억1000 | 34억1000만 | 34억 1,000만원 (spaces/commas already stripped)
+  // 34.1억 | 34억1000 | 34억1000만 | 34억1,000만원 (spaces/commas already stripped)
   const eokMatch = cleaned.match(
     /^(\d+(?:\.\d+)?)억(?:(\d+)(?:만(?:원)?)?)?$/,
   );

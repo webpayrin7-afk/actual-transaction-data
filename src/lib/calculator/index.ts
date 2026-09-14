@@ -43,6 +43,7 @@ export {
 } from "@/lib/calculator/loan-estimate";
 export {
   formatManWon,
+  formatManInput,
   formatEokMan,
   parseEokInputToMan,
 } from "@/lib/calculator/format";
