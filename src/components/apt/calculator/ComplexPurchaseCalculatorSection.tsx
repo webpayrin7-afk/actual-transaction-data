@@ -29,6 +29,12 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "loan", label: "대출" },
 ];
 
+function formatEokManOrZero(man: number): string {
+  if (!Number.isFinite(man)) return "—";
+  if (man <= 0) return "0원";
+  return formatEokMan(man);
+}
+
 function formatPct(rate: number, digits = 0): string {
   const n = rate * 100;
   const fixed = n.toFixed(digits);
@@ -390,8 +396,14 @@ export function ComplexPurchaseCalculatorSection({
   const [growthPct, setGrowthPct] = useState(0);
 
   const [cashMan, setCashMan] = useState(0);
+  const [cashFocused, setCashFocused] = useState(false);
+  const [cashDraft, setCashDraft] = useState("");
   const [annualIncomeMan, setAnnualIncomeMan] = useState(8000);
+  const [incomeFocused, setIncomeFocused] = useState(false);
+  const [incomeDraft, setIncomeDraft] = useState("");
   const [existingMonthlyMan, setExistingMonthlyMan] = useState(0);
+  const [existingFocused, setExistingFocused] = useState(false);
+  const [existingDraft, setExistingDraft] = useState("");
   const [years, setYears] = useState(30);
   const [baseRatePct, setBaseRatePct] = useState(4);
   const [metro, setMetro] = useState<MetroType>("capital");
@@ -604,6 +616,12 @@ export function ComplexPurchaseCalculatorSection({
   const growthLabel =
     growthPct > 0 ? `+${growthPct}%` : growthPct < 0 ? `${growthPct}%` : "0%";
   const loanConditionSummary = [
+    annualIncomeMan > 0
+      ? `연소득 ${formatEokMan(annualIncomeMan)}`
+      : "연소득 미입력",
+    existingMonthlyMan > 0
+      ? `기존 월상환 ${formatManWon(existingMonthlyMan)}`
+      : "기존대출 없음",
     homes === "0" ? "무주택" : homes === "1" ? "1주택" : "2주택+",
     metro === "capital" ? "수도권" : "지방",
     regulated === "regulated" ? "규제지역" : "비규제",
@@ -611,6 +629,71 @@ export function ComplexPurchaseCalculatorSection({
   ]
     .filter(Boolean)
     .join(" · ");
+
+  const cashInputValue = cashFocused
+    ? cashDraft
+    : cashMan > 0
+      ? formatManInput(cashMan)
+      : "";
+  const liveCashMan = cashFocused
+    ? parseEokInputToMan(cashDraft)
+    : cashMan > 0
+      ? cashMan
+      : null;
+
+  const incomeInputValue = incomeFocused
+    ? incomeDraft
+    : annualIncomeMan > 0
+      ? formatManInput(annualIncomeMan)
+      : "";
+  const liveIncomeMan = incomeFocused
+    ? parseEokInputToMan(incomeDraft)
+    : annualIncomeMan > 0
+      ? annualIncomeMan
+      : null;
+
+  const existingInputValue = existingFocused
+    ? existingDraft
+    : existingMonthlyMan > 0
+      ? formatManInput(existingMonthlyMan)
+      : "";
+  const liveExistingMan = existingFocused
+    ? parseEokInputToMan(existingDraft)
+    : existingMonthlyMan > 0
+      ? existingMonthlyMan
+      : null;
+
+  /** 총 필요자금 = 매수가 + 매수비용(취득·중개). LTV 분모와 분리. */
+  const purchaseExtraMan = purchase?.extraCostMan ?? 0;
+  const totalRequiredFundsMan =
+    effectivePriceMan > 0
+      ? (purchase?.totalCostMan ?? effectivePriceMan)
+      : 0;
+
+  const fundingPlan = useMemo(() => {
+    if (!loan || effectivePriceMan <= 0) return null;
+    const expectedLoanMan = loan.expectedLoanMan;
+    const minRequiredCashMan = Math.max(
+      0,
+      totalRequiredFundsMan - expectedLoanMan,
+    );
+    const cashDeltaMan = cashMan - minRequiredCashMan;
+    return {
+      purchaseExtraMan,
+      totalRequiredFundsMan,
+      expectedLoanMan,
+      minRequiredCashMan,
+      cashShortageMan: cashDeltaMan < 0 ? Math.abs(cashDeltaMan) : 0,
+      cashSurplusMan: cashDeltaMan >= 0 ? cashDeltaMan : 0,
+      provisional: loan.maxLoanProvisional,
+    };
+  }, [
+    loan,
+    effectivePriceMan,
+    totalRequiredFundsMan,
+    purchaseExtraMan,
+    cashMan,
+  ]);
 
   function commitPriceDraft(raw: string) {
     const parsed = parseEokInputToMan(raw);
@@ -623,6 +706,58 @@ export function ComplexPurchaseCalculatorSection({
     setPriceTouched(true);
     setPriceMan(parsed);
     setPriceDraft(formatManInput(parsed));
+  }
+
+  function commitCashDraft(raw: string) {
+    const cleaned = raw.replace(/,/g, "").replace(/\s+/g, "").trim();
+    if (!cleaned) {
+      setCashMan(0);
+      setCashDraft("");
+      return;
+    }
+    const parsed = parseEokInputToMan(raw);
+    if (parsed == null) {
+      setCashDraft(cashMan > 0 ? formatManInput(cashMan) : "");
+      return;
+    }
+    setCashMan(parsed);
+    setCashDraft(formatManInput(parsed));
+  }
+
+  function commitIncomeDraft(raw: string) {
+    const cleaned = raw.replace(/,/g, "").replace(/\s+/g, "").trim();
+    if (!cleaned) {
+      setAnnualIncomeMan(0);
+      setIncomeDraft("");
+      return;
+    }
+    const parsed = parseEokInputToMan(raw);
+    if (parsed == null) {
+      setIncomeDraft(
+        annualIncomeMan > 0 ? formatManInput(annualIncomeMan) : "",
+      );
+      return;
+    }
+    setAnnualIncomeMan(parsed);
+    setIncomeDraft(formatManInput(parsed));
+  }
+
+  function commitExistingDraft(raw: string) {
+    const cleaned = raw.replace(/,/g, "").replace(/\s+/g, "").trim();
+    if (!cleaned) {
+      setExistingMonthlyMan(0);
+      setExistingDraft("");
+      return;
+    }
+    const parsed = parseEokInputToMan(raw);
+    if (parsed == null) {
+      setExistingDraft(
+        existingMonthlyMan > 0 ? formatManInput(existingMonthlyMan) : "",
+      );
+      return;
+    }
+    setExistingMonthlyMan(parsed);
+    setExistingDraft(formatManInput(parsed));
   }
 
   function resetToLatestTrade() {
@@ -685,7 +820,7 @@ export function ComplexPurchaseCalculatorSection({
       />
 
       <div className="mt-3 space-y-3">
-        {tab === "purchase" || tab === "loan" ? (
+        {tab === "purchase" ? (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
               <label
@@ -1389,39 +1524,140 @@ export function ComplexPurchaseCalculatorSection({
 
         {tab === "loan" ? (
           <div className="space-y-3">
-            {loan ? (
-              <dl className="space-y-2.5">
+            <p className="text-sm font-medium text-slate-800">
+              대출
+              {compactArea ? (
+                <span className="font-normal text-slate-500">
+                  {" "}
+                  · {compactArea} 기준
+                </span>
+              ) : null}
+            </p>
+
+            {loan && fundingPlan ? (
+              <dl className="space-y-3">
                 {loan.breakdown.blocked ? (
                   <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
                     {loan.breakdown.blockedReason ?? "대출 불가 가정"}
                   </p>
                 ) : null}
+
                 <Row
-                  label="예상 대출 가능액"
-                  value={formatEokMan(loan.estimatedLoanMan)}
+                  label={
+                    fundingPlan.provisional
+                      ? "잠정 최대 한도"
+                      : "예상 최대 대출 가능액"
+                  }
+                  value={formatEokManOrZero(loan.maxLoanMan)}
+                  hint={
+                    fundingPlan.provisional
+                      ? "DSR 입력 완료 후 최종 한도가 달라질 수 있습니다."
+                      : undefined
+                  }
                   emph
                 />
-                <div className="space-y-2 border-t border-slate-100 pt-2.5">
-                  <Row
-                    label="필요 자기자금"
-                    value={formatEokMan(loan.requiredCashMan)}
-                  />
-                  <Row
-                    label="월 예상 상환액"
-                    value={formatManWon(loan.monthlyPaymentMan)}
-                  />
+                <Row
+                  label="집값 기준 필요 대출"
+                  value={formatEokManOrZero(loan.requiredLoanMan)}
+                  hint="매수가 − 보유 자기자금 (규제 한도 아님)"
+                />
+                {!fundingPlan.provisional ? (
+                  fundingPlan.cashShortageMan > 0 ? (
+                    <Row
+                      label="추가로 필요한 자기자금"
+                      value={formatEokManOrZero(fundingPlan.cashShortageMan)}
+                      hint={
+                        purchaseExtraMan > 0
+                          ? `총 필요자금 ${formatEokMan(fundingPlan.totalRequiredFundsMan)} 기준 (취득·중개 포함)`
+                          : "총 필요자금 − 예상 실행 대출"
+                      }
+                      emph
+                    />
+                  ) : (
+                    <Row
+                      label="자기자금 여유"
+                      value={formatEokManOrZero(fundingPlan.cashSurplusMan)}
+                      hint={
+                        loan.requiredLoanMan <= 0
+                          ? "집값 기준 필요 대출 0원 · 부대비용은 별도"
+                          : undefined
+                      }
+                      emph
+                    />
+                  )
+                ) : (
+                  <p className="text-sm leading-relaxed text-slate-600">
+                    연소득을 입력하면 최종 자금계획(추가 필요/여유)을 확인할 수
+                    있습니다.
+                  </p>
+                )}
+
+                <div className="space-y-2 border-t border-slate-100 pt-3">
                   <Row
                     label="LTV 기준"
-                    value={formatEokMan(loan.breakdown.ltvLimitMan)}
+                    value={formatEokManOrZero(loan.breakdown.ltvLimitMan)}
                   />
                   <Row
                     label="DSR 기준"
-                    value={formatEokMan(loan.breakdown.dsrLimitMan)}
+                    value={
+                      loan.dsrAvailable
+                        ? formatEokManOrZero(loan.breakdown.dsrLimitMan)
+                        : "연소득 입력 필요"
+                    }
+                  />
+                  {loan.breakdown.absoluteCapMan != null ? (
+                    <Row
+                      label="시가 절대한도"
+                      value={formatEokManOrZero(loan.breakdown.absoluteCapMan)}
+                    />
+                  ) : null}
+                  {loan.breakdown.dtiApplied ? (
+                    <Row
+                      label="DTI 기준"
+                      value={formatEokManOrZero(loan.breakdown.dtiLimitMan)}
+                    />
+                  ) : null}
+                  {!fundingPlan.provisional ? (
+                    <Row
+                      label="제한 요인"
+                      value={loan.limitingLabels.join(", ") || "—"}
+                    />
+                  ) : (
+                    <Row
+                      label="제한 요인"
+                      value={
+                        loan.limitingLabels.length
+                          ? `${loan.limitingLabels.join(", ")} (잠정)`
+                          : "잠정"
+                      }
+                      hint="DSR은 연소득 입력 후 반영됩니다."
+                    />
+                  )}
+                </div>
+
+                <div className="space-y-2 border-t border-slate-100 pt-3">
+                  <Row
+                    label={
+                      fundingPlan.provisional
+                        ? "잠정 실행 대출액"
+                        : "예상 실행 대출액"
+                    }
+                    value={formatEokManOrZero(fundingPlan.expectedLoanMan)}
+                    hint="min(필요 대출, 최대 한도)"
                   />
                   <Row
-                    label="제한 요인"
-                    value={loan.limitingLabels.join(", ") || "—"}
+                    label="월 예상 상환액"
+                    value={
+                      fundingPlan.expectedLoanMan > 0
+                        ? formatManWon(loan.monthlyPaymentMan)
+                        : "0만원"
+                    }
+                    emph={fundingPlan.expectedLoanMan > 0}
                   />
+                  <p className="text-xs text-slate-500">
+                    {loan.repayMethodLabel} · {baseRatePct}% · {years}년
+                    {fundingPlan.provisional ? " · 잠정 기준" : ""}
+                  </p>
                 </div>
               </dl>
             ) : (
@@ -1430,45 +1666,108 @@ export function ComplexPurchaseCalculatorSection({
               </p>
             )}
 
-            <div className="grid gap-2.5 sm:grid-cols-3">
-              <label className="block space-y-1">
-                <span className="text-xs text-slate-500">보유 자금 (억)</span>
-                <input
-                  className={inputClass}
-                  inputMode="decimal"
-                  value={cashMan > 0 ? String(cashMan / 10_000) : ""}
-                  onChange={(e) => {
-                    const v = Number(e.target.value.replace(/,/g, ""));
-                    setCashMan(
-                      Number.isFinite(v) && v >= 0
-                        ? Math.round(v * 10_000)
-                        : 0,
+            <div className="space-y-2.5 border-t border-slate-200/80 pt-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <label
+                    htmlFor="calc-loan-price"
+                    className="text-xs font-medium text-slate-600"
+                  >
+                    예상 매수가
+                    <span className="ml-1 font-normal text-slate-400">
+                      (만원)
+                    </span>
+                  </label>
+                  {latestTradeMan > 0 ? (
+                    <button
+                      type="button"
+                      className="text-[11px] font-medium text-teal-700 hover:underline"
+                      onClick={resetToLatestTrade}
+                    >
+                      최근 거래가 ↺
+                    </button>
+                  ) : null}
+                </div>
+                <ManWonField
+                  id="calc-loan-price"
+                  value={priceInputValue}
+                  placeholder="예: 341000"
+                  liveMan={livePriceMan}
+                  onFocus={() => {
+                    setPriceFocused(true);
+                    setPriceDraft(
+                      effectivePriceMan > 0
+                        ? formatManInput(effectivePriceMan)
+                        : "",
                     );
                   }}
+                  onChange={(v) => {
+                    setPriceTouched(true);
+                    setPriceDraft(v);
+                  }}
+                  onBlur={() => {
+                    setPriceFocused(false);
+                    commitPriceDraft(priceDraft);
+                  }}
                 />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs text-slate-500">금리 (%)</span>
-                <input
-                  className={inputClass}
-                  inputMode="decimal"
-                  value={baseRatePct}
-                  onChange={(e) =>
-                    setBaseRatePct(Number(e.target.value) || 0)
-                  }
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="calc-loan-cash"
+                  className="text-xs font-medium text-slate-600"
+                >
+                  보유 자기자금
+                  <span className="ml-1 font-normal text-slate-400">
+                    (만원)
+                  </span>
+                </label>
+                <p className="text-[11px] leading-snug text-slate-500">
+                  이번 매수에 사용할 수 있는 자금
+                </p>
+                <ManWonField
+                  id="calc-loan-cash"
+                  value={cashInputValue}
+                  placeholder="예: 150000"
+                  liveMan={liveCashMan}
+                  onFocus={() => {
+                    setCashFocused(true);
+                    setCashDraft(
+                      cashMan > 0 ? formatManInput(cashMan) : "",
+                    );
+                  }}
+                  onChange={(v) => setCashDraft(v)}
+                  onBlur={() => {
+                    setCashFocused(false);
+                    commitCashDraft(cashDraft);
+                  }}
                 />
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs text-slate-500">기간 (년)</span>
-                <input
-                  className={inputClass}
-                  type="number"
-                  min={1}
-                  max={40}
-                  value={years}
-                  onChange={(e) => setYears(Number(e.target.value) || 30)}
-                />
-              </label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <label className="block space-y-1">
+                  <span className="text-xs text-slate-500">금리 (%)</span>
+                  <input
+                    className={inputClass}
+                    inputMode="decimal"
+                    value={baseRatePct}
+                    onChange={(e) =>
+                      setBaseRatePct(Number(e.target.value) || 0)
+                    }
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-xs text-slate-500">기간 (년)</span>
+                  <input
+                    className={inputClass}
+                    type="number"
+                    min={1}
+                    max={40}
+                    value={years}
+                    onChange={(e) => setYears(Number(e.target.value) || 30)}
+                  />
+                </label>
+              </div>
             </div>
 
             <div className="space-y-2 border-t border-slate-200/80 pt-3">
@@ -1495,30 +1794,69 @@ export function ComplexPurchaseCalculatorSection({
               title="대출 계산 조건"
             >
               <div className="grid gap-2.5 sm:grid-cols-2">
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">연소득 (만원)</span>
-                  <input
-                    className={inputClass}
-                    inputMode="numeric"
-                    value={annualIncomeMan || ""}
-                    onChange={(e) =>
-                      setAnnualIncomeMan(Number(e.target.value) || 0)
-                    }
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label
+                    htmlFor="calc-loan-income"
+                    className="text-xs font-medium text-slate-600"
+                  >
+                    연소득
+                    <span className="ml-1 font-normal text-slate-400">
+                      (만원)
+                    </span>
+                  </label>
+                  <p className="text-[11px] text-slate-500">
+                    DSR 한도 계산에 필요합니다.
+                  </p>
+                  <ManWonField
+                    id="calc-loan-income"
+                    value={incomeInputValue}
+                    placeholder="예: 15000"
+                    liveMan={liveIncomeMan}
+                    onFocus={() => {
+                      setIncomeFocused(true);
+                      setIncomeDraft(
+                        annualIncomeMan > 0
+                          ? formatManInput(annualIncomeMan)
+                          : "",
+                      );
+                    }}
+                    onChange={(v) => setIncomeDraft(v)}
+                    onBlur={() => {
+                      setIncomeFocused(false);
+                      commitIncomeDraft(incomeDraft);
+                    }}
                   />
-                </label>
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">
-                    기존 월상환 (만원)
-                  </span>
-                  <input
-                    className={inputClass}
-                    inputMode="numeric"
-                    value={existingMonthlyMan || ""}
-                    onChange={(e) =>
-                      setExistingMonthlyMan(Number(e.target.value) || 0)
-                    }
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label
+                    htmlFor="calc-loan-existing"
+                    className="text-xs font-medium text-slate-600"
+                  >
+                    기존 월 원리금 상환
+                    <span className="ml-1 font-normal text-slate-400">
+                      (만원)
+                    </span>
+                  </label>
+                  <ManWonField
+                    id="calc-loan-existing"
+                    value={existingInputValue}
+                    placeholder="없으면 비워두세요"
+                    liveMan={liveExistingMan}
+                    onFocus={() => {
+                      setExistingFocused(true);
+                      setExistingDraft(
+                        existingMonthlyMan > 0
+                          ? formatManInput(existingMonthlyMan)
+                          : "",
+                      );
+                    }}
+                    onChange={(v) => setExistingDraft(v)}
+                    onBlur={() => {
+                      setExistingFocused(false);
+                      commitExistingDraft(existingDraft);
+                    }}
                   />
-                </label>
+                </div>
                 <label className="block space-y-1">
                   <span className="text-xs text-slate-500">지역</span>
                   <select
@@ -1577,8 +1915,23 @@ export function ComplexPurchaseCalculatorSection({
             <BasisDetails
               lines={[
                 loan?.disclaimer ?? "",
+                loan
+                  ? `상환방식 ${loan.repayMethodLabel} · 금리 ${baseRatePct}% · 기간 ${years}년`
+                  : "",
+                loan?.dsrAvailable
+                  ? `DSR 기준 한도 ${formatEokMan(loan.breakdown.dsrLimitMan)}`
+                  : "DSR: 연소득 미입력으로 한도 미산출",
+                loan
+                  ? `LTV 기준 한도 ${formatEokMan(loan.breakdown.ltvLimitMan)}`
+                  : "",
+                fundingPlan
+                  ? `예상 총 필요자금 ${formatEokMan(fundingPlan.totalRequiredFundsMan)} (매수가 + 취득·중개 ${formatEokMan(purchaseExtraMan)})`
+                  : "",
+                "대출 한도(LTV)와 총 필요자금(부대비용 포함)은 별도 개념입니다.",
                 ...(loan?.breakdown.notes ?? []),
-                "LTV만으로 승인액을 단정하지 마세요.",
+                loan?.meta
+                  ? `${loan.meta.ruleVersion} · ${loan.meta.source}`
+                  : "",
               ]}
             />
           </div>
