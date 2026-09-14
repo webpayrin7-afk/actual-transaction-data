@@ -182,11 +182,7 @@ export function ComplexMgmtFeeCard({
             </div>
           ) : null}
 
-          <LabDisclosure title="산정 근거 보기" className="mt-3">
-            <p className="pb-2 text-sm font-medium text-slate-800">
-              관리비 산정 근거
-              {pyeongTitle ? ` · ${pyeongTitle}` : ""}
-            </p>
+          <LabDisclosure title="관리비 산정근거 보기" className="mt-3">
             <dl>
               <InfoRow
                 label="계산 방식"
@@ -278,10 +274,7 @@ export function ComplexMgmtFeeCard({
             </p>
           </div>
 
-          <LabDisclosure title="산정 근거 보기" className="mt-3">
-            <p className="pb-2 text-sm font-medium text-slate-800">
-              관리비 산정 근거
-            </p>
+          <LabDisclosure title="관리비 산정근거 보기" className="mt-3">
             <dl>
               <InfoRow
                 label="계산 방식"
