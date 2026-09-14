@@ -208,26 +208,79 @@ function FieldSelect({
   onChange: (value: string) => void;
   children: ReactNode;
 }) {
+  // Visible chip matches AptAreaSelector compact trigger (h-8 / text-xs).
+  // Native <select> stays transparent on top — global 16px !important would
+  // otherwise force these controls larger than the area picker button.
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="min-w-0">
-        <label htmlFor={id} className="text-sm text-slate-500">
+        <label htmlFor={id} className="text-xs text-slate-500">
           {label}
         </label>
         {status ? (
-          <p className="mt-0.5 truncate text-xs text-slate-500">{status}</p>
+          <p className="mt-0.5 truncate text-[11px] text-slate-500">{status}</p>
         ) : null}
       </div>
-      <select
-        id={id}
-        className="h-8 min-w-[9.5rem] max-w-[58%] rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-800"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {children}
-      </select>
+      <div className="relative inline-flex h-8 max-w-[58%] min-w-[7.5rem] items-center rounded-md border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-800">
+        <span className="pointer-events-none min-w-0 flex-1 truncate pr-4" aria-hidden>
+          <FieldSelectDisplay value={String(value)} options={children} />
+        </span>
+        <span
+          className="pointer-events-none absolute right-2 text-[10px] text-slate-400"
+          aria-hidden
+        >
+          ▾
+        </span>
+        <select
+          id={id}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {children}
+        </select>
+      </div>
     </div>
   );
+}
+
+function optionLabelText(node: ReactNode): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(optionLabelText).join("");
+  return "";
+}
+
+/** Resolve the selected <option> label for the compact chip face. */
+function FieldSelectDisplay({
+  value,
+  options,
+}: {
+  value: string;
+  options: ReactNode;
+}) {
+  const labels: string[] = [];
+  const values: string[] = [];
+  const walk = (node: ReactNode) => {
+    if (node == null || typeof node === "boolean") return;
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+    if (typeof node === "object" && node !== null && "props" in node) {
+      const el = node as {
+        props?: { value?: string | number; children?: ReactNode };
+      };
+      if (el.props && el.props.value != null) {
+        values.push(String(el.props.value));
+        const text = optionLabelText(el.props.children).trim();
+        labels.push(text || String(el.props.value));
+      }
+    }
+  };
+  walk(options);
+  const idx = values.indexOf(value);
+  return <>{idx >= 0 ? labels[idx] : value}</>;
 }
 
 function DetailItem({
