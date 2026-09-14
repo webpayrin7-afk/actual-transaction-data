@@ -51,7 +51,7 @@ function ManWonField({
     <div className="lab-input flex h-10 w-full min-w-0 items-center gap-2 px-3 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
       <input
         id={id}
-        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-sm tabular-nums text-slate-900 outline-none placeholder:text-slate-400"
+        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-base tabular-nums text-slate-900 outline-none placeholder:text-slate-400"
         inputMode="numeric"
         value={value}
         placeholder={placeholder}

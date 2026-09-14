@@ -45,16 +45,23 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, [role="button"], a { touch-action: manipulation; }
 
 /*
- * Mobile browsers (esp. iOS Safari) zoom the page when focusing a form
- * control whose computed font-size is under 16px. Force 16px site-wide on
- * small screens so text-sm / text-xs inputs do not trigger zoom.
+ * Prevent focus zoom on mobile browsers (esp. iOS Safari).
+ * Controls under 16px trigger automatic page zoom; keep form text at 16px
+ * site-wide. Also pin text-size-adjust so WebKit does not inflate type.
  */
-@media (max-width: 767px) {
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
+select,
+textarea,
+.lab-input,
+.lab-input input,
+.lab-input select,
+.lab-input textarea {
+  font-size: 16px !important;
 }
 
 .lab-card {
