@@ -44,26 +44,35 @@ export function LabBottomSheet({
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  // Mount / unmount + enter/exit animation. State updates are scheduled
+  // (rAF / timeout) so we do not call setState synchronously inside the effect.
   useEffect(() => {
     if (open) {
-      setMounted(true);
       const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
-      const id = window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => setVisible(true));
+      let raf2 = 0;
+      const raf1 = window.requestAnimationFrame(() => {
+        setMounted(true);
+        raf2 = window.requestAnimationFrame(() => setVisible(true));
       });
       return () => {
-        window.cancelAnimationFrame(id);
+        window.cancelAnimationFrame(raf1);
+        window.cancelAnimationFrame(raf2);
         document.body.style.overflow = prev;
       };
     }
 
-    setVisible(false);
-    if (!mounted) return;
-    const ms = reducedMotion ? 0 : CLOSE_MS;
-    const t = window.setTimeout(() => setMounted(false), ms);
-    return () => window.clearTimeout(t);
-  }, [open, mounted, reducedMotion]);
+    let timeoutId = 0;
+    const raf = window.requestAnimationFrame(() => {
+      setVisible(false);
+      const ms = reducedMotion ? 0 : CLOSE_MS;
+      timeoutId = window.setTimeout(() => setMounted(false), ms);
+    });
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(timeoutId);
+    };
+  }, [open, reducedMotion]);
 
   if (!mounted || typeof document === "undefined") return null;
 
