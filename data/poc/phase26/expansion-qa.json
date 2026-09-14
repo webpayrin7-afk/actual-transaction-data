@@ -1,0 +1,169 @@
+{
+  "generatedAt": "2026-09-14T08:27:51.941Z",
+  "complexes": [
+    {
+      "aptName": "파크리오",
+      "sigungu": "송파구",
+      "complexId": "cx_ed52bf895d064c11",
+      "kaptCode": "A13824006",
+      "privArea": 597298.22,
+      "monthsComplete": 12,
+      "monthsIncomplete": 0,
+      "selectedArea": "84.79~84.97",
+      "latestMonth": "202606",
+      "latest": "27만원",
+      "winter": "43만원",
+      "summer": null,
+      "average": "32만원",
+      "summerHint": null,
+      "winterMonths": [
+        "202512",
+        "202601",
+        "202602"
+      ],
+      "summerMonths": [],
+      "latestWon": {
+        "min": 268397,
+        "max": 268967,
+        "perM2": 3165.43132
+      },
+      "reconcile": true,
+      "componentOk": true,
+      "status": "PASS",
+      "reason": ""
+    },
+    {
+      "aptName": "반포자이",
+      "sigungu": "서초구",
+      "complexId": "cx_1c244e7305d12c44",
+      "kaptCode": "A13704104",
+      "privArea": 405926.358,
+      "monthsComplete": 12,
+      "monthsIncomplete": 0,
+      "selectedArea": "84.94~85",
+      "latestMonth": "202607",
+      "latest": "40만원",
+      "winter": "45만원",
+      "summer": "37만원",
+      "average": "38만원",
+      "summerHint": "2개월 평균",
+      "winterMonths": [
+        "202512",
+        "202601",
+        "202602"
+      ],
+      "summerMonths": [
+        "202606",
+        "202607"
+      ],
+      "latestWon": {
+        "min": 399753,
+        "max": 400035,
+        "perM2": 4706.29543
+      },
+      "reconcile": true,
+      "componentOk": true,
+      "status": "PASS",
+      "reason": ""
+    },
+    {
+      "aptName": "은마",
+      "sigungu": "강남구",
+      "complexId": "cx_0320fd9e007e1f8c",
+      "kaptCode": "A13583507",
+      "privArea": 353088.96,
+      "monthsComplete": 12,
+      "monthsIncomplete": 0,
+      "selectedArea": "94.42~95.18",
+      "latestMonth": "202606",
+      "latest": "29~30만원",
+      "winter": "60~61만원",
+      "summer": null,
+      "average": "41만원",
+      "summerHint": null,
+      "winterMonths": [
+        "202512",
+        "202601",
+        "202602"
+      ],
+      "summerMonths": [],
+      "latestWon": {
+        "min": 292972,
+        "max": 295331,
+        "perM2": 3102.86425
+      },
+      "reconcile": true,
+      "componentOk": true,
+      "status": "PASS",
+      "reason": ""
+    },
+    {
+      "aptName": "헬리오시티",
+      "sigungu": "송파구",
+      "complexId": "cx_30d7eea6da810b52",
+      "kaptCode": "A10025850",
+      "privArea": 734780.75,
+      "monthsComplete": 12,
+      "monthsIncomplete": 0,
+      "selectedArea": "84.94~84.99",
+      "latestMonth": "202607",
+      "latest": "31만원",
+      "winter": "39만원",
+      "summer": "30만원",
+      "average": "32만원",
+      "summerHint": "2개월 평균",
+      "winterMonths": [
+        "202512",
+        "202601",
+        "202602"
+      ],
+      "summerMonths": [
+        "202606",
+        "202607"
+      ],
+      "latestWon": {
+        "min": 310906,
+        "max": 311089,
+        "perM2": 3660.29575
+      },
+      "reconcile": true,
+      "componentOk": true,
+      "status": "PASS",
+      "reason": ""
+    },
+    {
+      "aptName": "래미안안양메가트리아",
+      "sigungu": "안양시 만안구",
+      "complexId": "cx_e474ded8adea26e6",
+      "kaptCode": "A10027336",
+      "privArea": 317673.07,
+      "monthsComplete": 12,
+      "monthsIncomplete": 0,
+      "selectedArea": "59.65~59.94",
+      "latestMonth": "202607",
+      "latest": "22만원",
+      "winter": "27만원",
+      "summer": "20만원",
+      "average": "21~22만원",
+      "summerHint": "2개월 평균",
+      "winterMonths": [
+        "202512",
+        "202601",
+        "202602"
+      ],
+      "summerMonths": [
+        "202606",
+        "202607"
+      ],
+      "latestWon": {
+        "min": 217107,
+        "max": 218162,
+        "perM2": 3639.67335
+      },
+      "reconcile": true,
+      "componentOk": true,
+      "status": "PASS",
+      "reason": ""
+    }
+  ]
+}

@@ -17,11 +17,20 @@ export const PORTAL_BASS_OP = "getAphusBassInfoV5";
 export const PORTAL_FEE_SOURCE = "MOLIT_PORTAL_OPENAPI";
 export const PORTAL_FEE_SOURCE_VERSION = "commonV3+indivV3+reserveV3+bassV5/phase26";
 
-/** Pilot: 잠실엘스 only */
+/** Legacy 잠실엘스 constants (Phase 2.6). Expansion pilots resolve kapt/privArea at ingest. */
 export const PILOT_KAPT_CODE = "A13822004";
 export const PILOT_COMPLEX_ID = "cx_4c63d9a100973c60";
-/** getAphusBassInfoV5.privArea */
+/** getAphusBassInfoV5.privArea — 잠실엘스 verified */
 export const PILOT_PRIV_AREA_M2 = 470_139.94;
+
+/** Expansion allowlist by exact apt_name_norm. No nationwide scan. */
+export const EXPANSION_PILOT_APT_NAMES = [
+  "파크리오",
+  "반포자이",
+  "은마",
+  "헬리오시티",
+  "래미안안양메가트리아",
+] as const;
 
 /**
  * 공용관리비 V3 — 17 operations.

@@ -412,7 +412,9 @@ export async function getComplexDetailV1(params: {
       : asNum(feeRes.rows[0]?.household_basis);
 
   let management: ComplexManagementV1 | null = null;
-  if (feeRes.rows.length > 0 && householdCount != null && householdCount > 0) {
+  if (feeRes.rows.length > 0) {
+    const hh =
+      householdCount != null && householdCount > 0 ? householdCount : 0;
     const monthsDesc: ComplexMgmtMonthV1[] = feeRes.rows.map((row) => {
       const commonFee = asNum(row.common_fee);
       const individualFee = asNum(row.individual_fee);
@@ -429,8 +431,8 @@ export async function getComplexDetailV1(params: {
         longTermRepairReserve,
         componentSum,
         perHouseholdComponentSum:
-          componentSum != null
-            ? Math.round(componentSum / householdCount)
+          componentSum != null && hh > 0
+            ? Math.round(componentSum / hh)
             : null,
       };
     });
@@ -476,7 +478,7 @@ export async function getComplexDetailV1(params: {
 
     management = {
       available: true,
-      householdCount,
+      householdCount: hh,
       latest,
       averageMonthCount: n,
       averageLabel: n >= 12 ? "최근 12개월 평균" : `최근 ${n}개월 평균`,
