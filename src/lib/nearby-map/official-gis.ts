@@ -1,18 +1,21 @@
 /**
- * Official-GIS-derived complex representative point (Phase 8.1a).
+ * Official-GIS-derived complex representative point (Phase 8.1b).
  *
  * Coordinate priority (see geocode.ts):
  *   1. apt_complex_master validated lat/lng
  *   2. official GIS-derived representative point  ← this module
+ *      a) experiments/nearby-map/pilot-complex-coordinates.json (tiny pre-derived)
+ *      b) live derive from Phase2 GeoJSON if present in checkout
  *   3. VWorld geocode fallback
  *   4. UNAVAILABLE
  *
- * Preferred artifacts (experiments/3d-city-map / Phase 2 linkage):
- *   - public/data/phase2-visible.geojson
- *   - public/data/complex-building-linkage.json
+ * Phase2 source (do NOT commit full polygon set to app public/data):
+ *   experiments/3d-city-map/public/data/phase2-visible.geojson
+ * Regenerator:
+ *   scripts/build-pilot-complex-coordinate.mjs
  *
  * Method (deterministic, vendor-independent):
- *   verified residential/building polygons for complex_id
+ *   verified residential/DONG-EXACT building polygons for complex_id
  *   → largest exterior ring
  *   → centroid if on-surface, else ring vertex0
  *
@@ -64,13 +67,30 @@ type LinkageDoc = {
   [key: string]: unknown;
 };
 
+const PILOT_COORDINATE_ARTIFACT =
+  "experiments/nearby-map/pilot-complex-coordinates.json";
+
 const ARTIFACT_CANDIDATES = [
+  "experiments/3d-city-map/public/data/phase2-visible.geojson",
+  "experiments/3d-city-map/public/data/phase2-visible.geojson",
+  "experiments/3d-city-map/public/data/complex-building-linkage.json",
   "public/data/phase2-visible.geojson",
   "public/data/complex-building-linkage.json",
-  "public/data/jamsil-els-official-gis.geojson",
   "data/gis/jamsil-els-buildings.geojson",
   "data/gis/complex-building-linkage.json",
 ] as const;
+
+type PilotCoordinateRow = {
+  complex_id?: string;
+  apt_name?: string;
+  lat?: number;
+  lng?: number;
+  coordinate_source?: string;
+  source_dataset?: string;
+  source_artifact?: string;
+  method?: string;
+  polygon_count?: number;
+};
 
 function pointInRing(lng: number, lat: number, ring: Ring): boolean {
   let inside = false;
@@ -313,9 +333,48 @@ function collectRings(
   return rings;
 }
 
+async function fromPilotCoordinateArtifact(
+  complexId: string
+): Promise<OfficialGisCoordinateResult | null> {
+  const data = await readJsonIfExists(PILOT_COORDINATE_ARTIFACT);
+  if (data == null) return null;
+  const rows = Array.isArray(data) ? data : [data];
+  for (const raw of rows) {
+    const row = raw as PilotCoordinateRow;
+    if (String(row.complex_id ?? "") !== complexId) continue;
+    const lat = Number(row.lat);
+    const lng = Number(row.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) < 1) {
+      continue;
+    }
+    if (row.coordinate_source && row.coordinate_source !== "OFFICIAL-GIS-DERIVED") {
+      continue;
+    }
+    return {
+      ok: true,
+      coordinate: { lat, lng },
+      source: "official_gis_derived",
+      classification: "OFFICIAL-GIS-DERIVED",
+      accuracy: "building",
+      method:
+        row.method ??
+        "pilot artifact from Phase2 official GIS (see scripts/build-pilot-complex-coordinate.mjs)",
+      sourceArtifact: PILOT_COORDINATE_ARTIFACT,
+      polygonCount: Number(row.polygon_count) || 0,
+      note: `Pilot OFFICIAL-GIS-DERIVED artifact ${PILOT_COORDINATE_ARTIFACT} (source_dataset=${row.source_dataset ?? "n/a"}; source_artifact=${row.source_artifact ?? "n/a"})`,
+      complexId,
+    };
+  }
+  return null;
+}
+
 /** Derive 잠실엘스 point from official GIS artifacts — never invents. */
 export async function deriveJamsilElsOfficialGisCoordinate(): Promise<OfficialGisCoordinateResult> {
   const complexId = JAMSIL_ELS_MAP_PILOT.complexId;
+
+  const pilot = await fromPilotCoordinateArtifact(complexId);
+  if (pilot?.ok && pilot.coordinate) return pilot;
+
   const foundArtifacts: string[] = [];
   let linkageIds: Set<string> | null = null;
   let geojson: GjCollection | null = null;
@@ -356,7 +415,7 @@ export async function deriveJamsilElsOfficialGisCoordinate(): Promise<OfficialGi
       polygonCount: 0,
       note:
         foundArtifacts.length === 0
-          ? `Official GIS artifacts missing (looked for ${ARTIFACT_CANDIDATES.join(", ")}). experiments/3d-city-map / Phase2 visible+linkage not in this checkout or remotes. VWorld GIS건물통합정보 (dsId=18) HTTP 502 — refusing to invent coordinates.`
+          ? `Official GIS artifacts missing. Looked for pilot JSON (${PILOT_COORDINATE_ARTIFACT}) and Phase2 GeoJSON (${ARTIFACT_CANDIDATES.join(", ")}). Run: PHASE2_VISIBLE_GEOJSON=<path-to-phase2-visible.geojson> node scripts/build-pilot-complex-coordinate.mjs — then commit only the tiny pilot JSON. VWorld GIS건물통합정보 (dsId=18) HTTP 502. Refusing to invent coordinates.`
           : `Found non-geometry artifact(s): ${foundArtifacts.join(", ")} but no FeatureCollection with building polygons for ${complexId}`,
       complexId,
     };
