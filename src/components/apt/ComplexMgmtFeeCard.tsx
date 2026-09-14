@@ -10,7 +10,10 @@ import {
   formatYyyymmLabel,
   type ComplexManagementV1,
 } from "@/lib/complex-detail/get-complex-detail-v1";
-import { MANAGEMENT_AREA_FEE_NOTE } from "@/lib/complex-detail/source-status";
+import {
+  MANAGEMENT_AREA_FEE_CLASSIFICATION,
+  MANAGEMENT_AREA_FEE_NOTE,
+} from "@/lib/complex-detail/source-status";
 
 function MetricRow({
   label,
@@ -52,28 +55,20 @@ function MetricRow({
   );
 }
 
-function prevYyyymm(yyyymm: string): string {
-  const y = Number(yyyymm.slice(0, 4));
-  const m = Number(yyyymm.slice(4, 6));
-  if (m <= 1) return `${y - 1}12`;
-  return `${y}${String(m - 1).padStart(2, "0")}`;
-}
-
-function yoyYyyymm(yyyymm: string): string {
-  const y = Number(yyyymm.slice(0, 4));
-  const m = yyyymm.slice(4, 6);
-  return `${y - 1}${m}`;
-}
-
 /**
  * Management-fee summary for Complex Detail.
- * Values are per-household simple conversions (단지총액 ÷ 세대수).
- * No chart; no area/pyeong inventing.
+ *
+ * Selected-pyeong fees require an official area unit price (AREA_FEE_SAFE).
+ * Until then, do not present complex-total ÷ households as the selected 평형 bill.
+ * Complex average is demoted to a labeled reference only.
  */
 export function ComplexMgmtFeeCard({
   management,
+  selectedPyeongLabel,
 }: {
   management: ComplexManagementV1;
+  /** e.g. "33평" when an area group is selected; omit/"전체" when none. */
+  selectedPyeongLabel?: string | null;
 }) {
   const { latest, average, householdCount, monthlySeries, averageLabel } =
     management;
@@ -115,28 +110,22 @@ export function ComplexMgmtFeeCard({
         ? `${summer.monthsUsed.length}개월 평균`
         : undefined;
 
-  const comparisons = useMemo(() => {
-    if (latestPerHh == null || latestPerHh <= 0) return [];
-    const byYm = new Map<string, number>();
-    for (const m of monthlySeries) {
-      if (
-        m.perHouseholdComponentSum != null &&
-        m.perHouseholdComponentSum > 0
-      ) {
-        byYm.set(m.periodYyyymm, m.perHouseholdComponentSum);
-      }
-    }
-    const out: { label: string; deltaWon: number }[] = [];
-    const prev = byYm.get(prevYyyymm(latest.periodYyyymm));
-    if (prev != null) {
-      out.push({ label: "전월 대비", deltaWon: latestPerHh - prev });
-    }
-    const yoy = byYm.get(yoyYyyymm(latest.periodYyyymm));
-    if (yoy != null) {
-      out.push({ label: "전년동월 대비", deltaWon: latestPerHh - yoy });
-    }
-    return out;
-  }, [monthlySeries, latest.periodYyyymm, latestPerHh]);
+  const areaFeeSafe =
+    MANAGEMENT_AREA_FEE_CLASSIFICATION === "AREA_FEE_OFFICIAL" ||
+    MANAGEMENT_AREA_FEE_CLASSIFICATION === "AREA_FEE_DERIVABLE_SAFE";
+
+  const pyeongTitle =
+    selectedPyeongLabel && selectedPyeongLabel !== "전체"
+      ? selectedPyeongLabel
+      : null;
+
+  const subtitle = areaFeeSafe
+    ? pyeongTitle
+      ? `${pyeongTitle} 기준`
+      : "선택 평형 기준"
+    : pyeongTitle
+      ? `${pyeongTitle} · 면적단가 확인 중`
+      : "선택 평형 · 면적단가 확인 중";
 
   return (
     <LabCard className="p-4 sm:p-5">
@@ -145,53 +134,88 @@ export function ComplexMgmtFeeCard({
           관리비
         </h2>
         <p className="shrink-0 text-xs font-medium text-slate-500 sm:text-sm">
-          단지 세대당 평균
+          {subtitle}
         </p>
       </div>
 
-      <div className="mt-3">
-        <p className="text-sm text-slate-600">최근 관리비</p>
-        <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-900">
+      {!areaFeeSafe ? (
+        <div className="mt-3">
+          <p className="text-sm text-slate-600">선택 평형 예상 관리비</p>
+          <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+            평형별 관리비 데이터 확인 중
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-slate-600">
+            공동주택관리정보(K-apt) 승인 API는 단지·월 총액만 제공하며, 공식
+            면적단가(원/㎡) 및 기준면적이 확정되지 않아 선택 평형 금액을
+            계산하지 않습니다.
+          </p>
+        </div>
+      ) : null}
+
+      <div
+        className={
+          areaFeeSafe
+            ? "mt-3"
+            : "mt-4 rounded-md border border-slate-200/90 bg-slate-50/80 px-3 py-3"
+        }
+      >
+        {!areaFeeSafe ? (
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            단지 참고값 · 세대당 평균
+          </p>
+        ) : null}
+        <p
+          className={
+            areaFeeSafe
+              ? "text-sm text-slate-600"
+              : "mt-1 text-sm text-slate-600"
+          }
+        >
+          {areaFeeSafe ? "최근 예상 관리비" : "최근 단지 세대당 평균"}
+        </p>
+        <p
+          className={
+            areaFeeSafe
+              ? "mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-900"
+              : "mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-800"
+          }
+        >
           {formatWonAsManwon(latestPerHh)}
         </p>
         <p className="mt-1 text-sm leading-relaxed text-slate-600">
           단지 총액÷전체 세대수 단순 환산 ·{" "}
           {formatYyyymmBasisLabel(latest.periodYyyymm)}
+          {!areaFeeSafe
+            ? " · 선택 평형 관리비로 사용하지 않습니다"
+            : null}
         </p>
-        {comparisons.length > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-            {comparisons.map((c) => {
-              const sign = c.deltaWon > 0 ? "+" : c.deltaWon < 0 ? "-" : "";
-              const abs = formatWonAsManwon(Math.abs(c.deltaWon));
-              return (
-                <span key={c.label} className="tabular-nums">
-                  {c.label} {sign}
-                  {abs === "—" ? "0만원" : abs}
-                </span>
-              );
-            })}
-          </div>
-        ) : null}
       </div>
 
       <div className="mt-4 border-t border-slate-200/80 pt-1">
         <MetricRow
-          label="겨울 평균"
+          label={areaFeeSafe ? "겨울 평균" : "겨울 평균 (단지 참고)"}
           valueWon={winter.valueWon}
           hint={winterHint}
         />
         <MetricRow
-          label="여름 평균"
+          label={areaFeeSafe ? "여름 평균" : "여름 평균 (단지 참고)"}
           valueWon={summer.valueWon}
           hint={summerHint}
         />
-        <MetricRow label="최근 평균" valueWon={avgPerHh} hint={averageLabel} />
+        <MetricRow
+          label={areaFeeSafe ? "최근 평균" : "최근 평균 (단지 참고)"}
+          valueWon={avgPerHh}
+          hint={averageLabel}
+        />
       </div>
 
       <div className="mt-2 border-t border-slate-200/80 pt-1">
-        <p className="pt-2 text-sm font-medium text-slate-800">관리비 구성</p>
+        <p className="pt-2 text-sm font-medium text-slate-800">
+          {areaFeeSafe ? "관리비 구성" : "관리비 구성 (단지 참고)"}
+        </p>
         <p className="mt-0.5 text-xs text-slate-500">
           {averageLabel} · 세대당 단순 환산
+          {!areaFeeSafe ? " · 선택 평형 구성 아님" : ""}
         </p>
         <div className="mt-1">
           <MetricRow label="공용관리비" valueWon={commonPerHh} />
@@ -201,8 +225,9 @@ export function ComplexMgmtFeeCard({
       </div>
 
       <p className="mt-4 text-sm leading-relaxed text-slate-600">
-        단지 전체 관리비를 세대수로 나눈 단순 환산값입니다. 선택 평형의 실제
-        관리비와는 다를 수 있습니다.
+        {!areaFeeSafe
+          ? "선택 평형 관리비는 공식 면적단가가 확인된 뒤에만 표시합니다. 아래 단지 참고값은 단지 전체 관리비를 세대수로 나눈 단순 환산이며, 선택 평형의 예상·실제 부과액이 아닙니다."
+          : "공동주택관리정보의 공식 면적단가를 선택 평형에 적용한 예상값입니다. 실제 세대별 부과액은 사용량 등에 따라 달라질 수 있습니다."}
       </p>
 
       <LabDisclosure title="계산 기준 및 세부내역" className="mt-3">

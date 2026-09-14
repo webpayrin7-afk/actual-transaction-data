@@ -874,7 +874,14 @@ export function AptDetailPage({
 
       {complexDetail?.management ? (
         <div id="section-management" className="scroll-mt-28">
-          <ComplexMgmtFeeCard management={complexDetail.management} />
+          <ComplexMgmtFeeCard
+            management={complexDetail.management}
+            selectedPyeongLabel={
+              areaKey === "all" || !selectedArea
+                ? null
+                : areaSelectorPyeongLabel(selectedArea)
+            }
+          />
         </div>
       ) : null}
 

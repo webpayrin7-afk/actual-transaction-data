@@ -71,11 +71,13 @@ export type AreaFeeClassification =
 
 /**
  * Current warehouse stores complex totals + household_basis only.
- * per_area_* columns exist but are not reliably populated from an official
- * ㎡ charge schedule → treat area-specific fee as UNSAFE for product labels.
+ * Approved K-apt fee APIs return complex-month KRW totals (line items + sLevy).
+ * per_area_* / area_basis_sqm columns exist in schema but apply path inserts NULL —
+ * no official 원/㎡ schedule or confirmed area basis → AREA_FEE_UNSAFE.
+ * Do not invent selected-pyeong fees by dividing totals by privArea / supply 평.
  */
 export const MANAGEMENT_AREA_FEE_CLASSIFICATION: AreaFeeClassification =
   "AREA_FEE_UNSAFE";
 
 export const MANAGEMENT_AREA_FEE_NOTE =
-  "면적(㎡·평형) 기준 공식 단가가 검증되지 않아, 선택 평형 관리비는 표시하지 않습니다. 단지 총액÷세대수 단순 환산만 제공합니다.";
+  "공식 면적단가(원/㎡)와 기준면적(전용·공급·부과 등)이 승인 API에서 확인되지 않아 선택 평형 관리비는 표시하지 않습니다. 단지 총액÷세대수 값은 참고용이며 선택 평형 부과액이 아닙니다.";
