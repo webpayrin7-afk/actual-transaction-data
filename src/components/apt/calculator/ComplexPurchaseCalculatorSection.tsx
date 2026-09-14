@@ -212,7 +212,7 @@ function FieldSelect({
   // Visible chip matches AptAreaSelector compact trigger (h-8 / text-xs).
   // Native <select> stays transparent on top — global 16px !important would
   // otherwise force these controls larger than the area picker button.
-  // Avoid w-max + truncate (circular width → right edge clipping).
+  // Width follows label text (w-fit) with comfortable pl/pr; text right-aligned.
   return (
     <div className="flex items-center justify-between gap-2">
       <div className="min-w-0 shrink">
@@ -223,7 +223,7 @@ function FieldSelect({
           <p className="mt-0.5 truncate text-[11px] text-slate-500">{status}</p>
         ) : null}
       </div>
-      <div className="relative ml-auto flex h-8 w-fit shrink-0 items-center justify-end rounded-md border border-slate-200 bg-white py-0 pl-3 pr-7 text-xs font-semibold text-slate-800">
+      <div className="relative ml-auto flex h-8 w-fit shrink-0 items-center justify-end rounded-md border border-slate-200 bg-white py-0 pl-4 pr-7 text-xs font-semibold text-slate-800">
         <span className="pointer-events-none whitespace-nowrap text-right" aria-hidden>
           <FieldSelectDisplay value={String(value)} options={children} />
         </span>
