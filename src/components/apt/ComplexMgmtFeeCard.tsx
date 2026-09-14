@@ -8,9 +8,8 @@ import {
   formatYyyymmLabel,
   type ComplexManagementV1,
 } from "@/lib/complex-detail/get-complex-detail-v1";
-import { findKaptAreaFeeFixture } from "@/lib/complex-detail/kapt-area-fee-fixture";
 import {
-  estimateSelectedPyeongMgmtFee,
+  estimateSelectedPyeongFromPortal,
   formatWonRangeAsManwon,
   reconcileLatestComponents,
 } from "@/lib/complex-detail/selected-pyeong-mgmt-fee";
@@ -48,17 +47,14 @@ function formatMonthKo(yyyymm: string): string {
 /**
  * Management-fee summary for Complex Detail.
  *
- * Pilot (잠실엘스): selected-pyeong estimate from verified K-apt 원/㎡ fixture.
- * Non-pilot: pending copy only — never fall back to complex÷households as
- * the selected-pyeong bill.
+ * Pilot (잠실엘스): selected-pyeong estimate from portal OpenAPI derived 원/㎡.
+ * Non-pilot: pending copy only — never fall back to complex÷households.
  */
 export function ComplexMgmtFeeCard({
   management,
   selectedPyeongLabel,
   exclusiveAreaMinSqm,
   exclusiveAreaMaxSqm,
-  aptName,
-  complexId,
 }: {
   management: ComplexManagementV1;
   /** e.g. "33평" when an area group is selected; omit/"전체" when none. */
@@ -68,15 +64,6 @@ export function ComplexMgmtFeeCard({
   aptName?: string | null;
   complexId?: string | null;
 }) {
-  const fixture = useMemo(
-    () =>
-      findKaptAreaFeeFixture({
-        aptName,
-        complexId,
-      }),
-    [aptName, complexId],
-  );
-
   const pyeongTitle =
     selectedPyeongLabel && selectedPyeongLabel !== "전체"
       ? selectedPyeongLabel
@@ -84,15 +71,17 @@ export function ComplexMgmtFeeCard({
 
   const areaMin = exclusiveAreaMinSqm ?? null;
   const areaMax = exclusiveAreaMaxSqm ?? exclusiveAreaMinSqm ?? null;
+  const hasPortalData = management.portalAreaFees.length > 0;
 
   const estimate = useMemo(() => {
-    if (!fixture || areaMin == null || areaMax == null) return null;
-    return estimateSelectedPyeongMgmtFee({
-      fixture,
+    if (!hasPortalData || areaMin == null || areaMax == null) return null;
+    return estimateSelectedPyeongFromPortal({
+      monthsDesc: management.portalAreaFees,
       exclusiveAreaMin: areaMin,
       exclusiveAreaMax: areaMax,
+      kaptCode: "A13822004",
     });
-  }, [fixture, areaMin, areaMax]);
+  }, [hasPortalData, management.portalAreaFees, areaMin, areaMax]);
 
   const reconcile = useMemo(
     () => (estimate ? reconcileLatestComponents(estimate) : null),
@@ -121,13 +110,14 @@ export function ComplexMgmtFeeCard({
           <div className="mt-3">
             <p className="text-sm text-slate-600">최근 예상 관리비</p>
             <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-900">
+              약{" "}
               {formatWonRangeAsManwon(
                 estimate.latest.wonMin,
                 estimate.latest.wonMax,
               )}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-slate-600">
-              {formatMonthKo(estimate.latestMonth)} · K-apt{" "}
+              {formatMonthKo(estimate.latestMonth)} ·{" "}
               {estimate.areaBasisLabelKo} 기준
             </p>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -141,21 +131,22 @@ export function ComplexMgmtFeeCard({
               label="겨울 평균"
               valueLabel={
                 estimate.winter
-                  ? formatWonRangeAsManwon(
+                  ? `약 ${formatWonRangeAsManwon(
                       estimate.winter.wonMin,
                       estimate.winter.wonMax,
-                    )
+                    )}`
                   : "—"
               }
+              hint={estimate.winter?.hint}
             />
             <MetricRow
               label="여름 평균"
               valueLabel={
                 estimate.summer
-                  ? formatWonRangeAsManwon(
+                  ? `약 ${formatWonRangeAsManwon(
                       estimate.summer.wonMin,
                       estimate.summer.wonMax,
-                    )
+                    )}`
                   : "—"
               }
               hint={estimate.summer?.hint}
@@ -164,12 +155,13 @@ export function ComplexMgmtFeeCard({
               label="최근 12개월 평균"
               valueLabel={
                 estimate.trailingAverage
-                  ? formatWonRangeAsManwon(
+                  ? `약 ${formatWonRangeAsManwon(
                       estimate.trailingAverage.wonMin,
                       estimate.trailingAverage.wonMax,
-                    )
+                    )}`
                   : "—"
               }
+              hint={estimate.trailingAverage?.hint}
             />
           </div>
 
@@ -216,18 +208,22 @@ export function ComplexMgmtFeeCard({
           <LabDisclosure title="계산 기준 및 세부내역" className="mt-3">
             <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
               <li>
-                출처: {estimate.source} ({estimate.kaptCode}) ·{" "}
+                출처: {estimate.sourceLabelKo}
+                {estimate.kaptCode ? ` (${estimate.kaptCode})` : null} ·{" "}
                 {estimate.areaBasisLabelKo} 원/㎡ × 선택 전용면적
               </li>
               <li>
-                최근월 단가 {estimate.latest.perM2.toLocaleString("ko-KR")}원/㎡
+                최근월 단가{" "}
+                {estimate.latest.perM2.toLocaleString("ko-KR", {
+                  maximumFractionDigits: 2,
+                })}
+                원/㎡
                 {estimate.components.common
-                  ? ` (공용 ${estimate.components.common.perM2.toLocaleString("ko-KR")} · 개별 ${estimate.components.individual!.perM2.toLocaleString("ko-KR")} · 충당금 ${estimate.components.reserve!.perM2.toLocaleString("ko-KR")})`
+                  ? ` (공용 ${estimate.components.common.perM2.toLocaleString("ko-KR", { maximumFractionDigits: 2 })} · 개별 ${estimate.components.individual!.perM2.toLocaleString("ko-KR", { maximumFractionDigits: 2 })} · 충당금 ${estimate.components.reserve!.perM2.toLocaleString("ko-KR", { maximumFractionDigits: 2 })})`
                   : null}
               </li>
               <li>
-                겨울은 연속 12·1·2월 검증 평균 단가, 여름은 동일 연도 6·7·8월만
-                사용합니다.
+                겨울은 연속 12·1·2월, 여름은 동일 연도 6·7·8월만 사용합니다.
                 {estimate.winter?.monthsUsed.length
                   ? ` 겨울 표본: ${estimate.winter.monthsUsed.map(formatYyyymmLabel).join(", ")}.`
                   : ""}
@@ -236,9 +232,13 @@ export function ComplexMgmtFeeCard({
                   : ""}
               </li>
               <li>
-                최근 12개월 평균은 검증된 trailing 원/㎡ 평균을 선택 면적에
+                최근 평균은 연속 COMPLETE 월(최대 12)의 원/㎡ 평균을 선택 면적에
                 적용한 값입니다.
+                {estimate.trailingAverage
+                  ? ` (${estimate.trailingAverage.monthCount}개월)`
+                  : ""}
               </li>
+              <li>{estimate.knownMissingNote}</li>
               {reconcile ? (
                 <li>
                   구성 합계 검증:{" "}
@@ -249,10 +249,6 @@ export function ComplexMgmtFeeCard({
               ) : null}
               <li>
                 단지 총액÷세대수 평균은 선택 평형 예상값으로 사용하지 않습니다.
-              </li>
-              <li>
-                Pilot fixture만 사용합니다. K-apt 자동수집·상업적 재표시는 별도
-                이용조건 HOLD입니다.
               </li>
             </ul>
           </LabDisclosure>
@@ -265,11 +261,11 @@ export function ComplexMgmtFeeCard({
               평형별 관리비 데이터 준비 중
             </p>
             <p className="mt-1 text-sm leading-relaxed text-slate-600">
-              {fixture && !pyeongTitle
+              {hasPortalData && !pyeongTitle
                 ? "평형을 선택하면 주거전용면적 기준 예상 관리비를 표시합니다."
-                : fixture && (areaMin == null || areaMax == null)
+                : hasPortalData && (areaMin == null || areaMax == null)
                   ? "선택 평형의 전용면적 정보가 없어 예상 관리비를 계산할 수 없습니다."
-                  : "이 단지의 공식 면적단가(원/㎡) 검증 fixture가 아직 없어 선택 평형 금액을 표시하지 않습니다."}
+                  : "이 단지의 공공데이터 OpenAPI 기반 면적단가(원/㎡)가 아직 없어 선택 평형 금액을 표시하지 않습니다."}
             </p>
           </div>
 

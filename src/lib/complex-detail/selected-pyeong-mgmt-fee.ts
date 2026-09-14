@@ -1,14 +1,14 @@
 /**
- * Selected-pyeong management fee estimates from K-apt area-unit fixtures.
- * amount = perM2 × exclusive residential area (min/max range).
- * No DB writes. No runtime fetch.
+ * Selected-pyeong management fee estimates from portal OpenAPI derived 원/㎡.
+ * expectedFee = per_area_total_fee × exclusive residential area (min/max range).
+ * Do not invent TV방송수신료. Do not fall back to complex÷households.
  */
 
 import {
-  type KaptAreaFeeFixture,
-  type KaptAreaFeeMonth,
-} from "@/lib/complex-detail/kapt-area-fee-fixture";
-import { formatWonAsManwon } from "@/lib/complex-detail/get-complex-detail-v1";
+  continuousMonthsFromLatest,
+  formatWonAsManwon,
+  type PortalAreaFeeMonthV1,
+} from "@/lib/complex-detail/get-complex-detail-v1";
 
 export type WonRange = {
   wonMin: number;
@@ -28,8 +28,9 @@ export type PeriodEstimate = WonRange & {
 };
 
 export type SelectedPyeongMgmtFeeEstimate = {
-  source: "K-apt";
-  kaptCode: string;
+  source: "portal_openapi";
+  sourceLabelKo: string;
+  kaptCode: string | null;
   areaBasis: "residential_exclusive";
   areaBasisLabelKo: string;
   exclusiveAreaMin: number;
@@ -45,14 +46,16 @@ export type SelectedPyeongMgmtFeeEstimate = {
   summer: PeriodEstimate | null;
   trailingAverage: PeriodEstimate | null;
   disclaimer: string;
+  knownMissingNote: string;
 };
 
 const DISCLAIMER =
-  "K-apt 단지 관리비를 주거전용면적 기준으로 환산해 선택 평형에 적용한 예상값입니다. 실제 세대별 관리비는 사용량과 부과 기준에 따라 달라질 수 있습니다.";
+  "공공데이터 OpenAPI 제공항목을 주거전용면적 기준으로 환산한 예상값입니다. 실제 세대별 사용량과 일부 부과항목에 따라 청구액과 차이가 있을 수 있습니다.";
 
-function sortMonthsDesc(months: KaptAreaFeeMonth[]): KaptAreaFeeMonth[] {
-  return [...months].sort((a, b) => b.month.localeCompare(a.month));
-}
+const SOURCE_LABEL_KO = "국토교통부 공동주택관리정보 공공데이터";
+
+const KNOWN_MISSING_NOTE =
+  "개별사용료 OpenAPI에는 TV방송수신료가 포함되지 않습니다(잠실엘스 2026-07 기준 K-apt 완성값 대비 약 -0.68%). 보정하지 않고 예상 관리비로 사용합니다.";
 
 function wonRange(perM2: number, areaMin: number, areaMax: number): WonRange {
   const lo = Math.min(areaMin, areaMax);
@@ -87,34 +90,83 @@ function yearNum(ym: string): number {
   return Number(ym.slice(0, 4));
 }
 
+function monthNum(ym: string): number {
+  return Number(ym.slice(4, 6));
+}
+
+function avg(nums: number[]): number | null {
+  if (nums.length === 0) return null;
+  return nums.reduce((s, n) => s + n, 0) / nums.length;
+}
+
 /**
  * Same-calendar-year summer (6·7·8) ≤ latestMonth.
- * Uses only fixture month rows — does not mix prior-year August.
+ * Uses only COMPLETE portal months — does not mix prior-year August.
  */
 export function computeSameYearSummerPerM2(
-  fixture: KaptAreaFeeFixture,
+  monthsDesc: PortalAreaFeeMonthV1[],
   latestMonth: string,
 ): { avgTotalPerM2: number; monthsUsed: string[] } | null {
   const y = yearNum(latestMonth);
-  const byYm = new Map(fixture.months.map((m) => [m.month, m]));
+  const byYm = new Map(monthsDesc.map((m) => [m.periodYyyymm, m]));
   const candidates = [6, 7, 8]
     .map((mo) => `${y}${String(mo).padStart(2, "0")}`)
     .filter((ym) => ym <= latestMonth && byYm.has(ym));
   if (candidates.length < 2) return null;
-  const rates = candidates.map((ym) => byYm.get(ym)!.totalPerM2);
-  const avg = rates.reduce((s, r) => s + r, 0) / rates.length;
-  return { avgTotalPerM2: avg, monthsUsed: candidates };
+  const rates = candidates
+    .map((ym) => byYm.get(ym)!.perAreaTotal)
+    .filter((v): v is number => v != null && Number.isFinite(v));
+  if (rates.length < 2) return null;
+  const a = avg(rates);
+  if (a == null) return null;
+  return { avgTotalPerM2: a, monthsUsed: candidates };
 }
 
 /**
- * Build selected-pyeong estimate from a verified fixture + exclusive area range.
+ * Contiguous winter 12/1/2 ending at or before latestMonth.
+ * Prefer the season whose Feb year matches latest when possible.
  */
-export function estimateSelectedPyeongMgmtFee(params: {
-  fixture: KaptAreaFeeFixture;
+export function computeWinterPerM2(
+  monthsDesc: PortalAreaFeeMonthV1[],
+  latestMonth: string,
+): { avgTotalPerM2: number; monthsUsed: string[] } | null {
+  const byYm = new Map(monthsDesc.map((m) => [m.periodYyyymm, m]));
+  const latestY = yearNum(latestMonth);
+  const latestM = monthNum(latestMonth);
+
+  // Candidate season years: if latest is Jan/Feb, that winter year; else latest year
+  // and prior year (most recent first).
+  const seasonYears: number[] = [];
+  if (latestM >= 1) seasonYears.push(latestY);
+  seasonYears.push(latestY - 1);
+
+  for (const y of seasonYears) {
+    const candidates = [
+      `${y - 1}12`,
+      `${y}01`,
+      `${y}02`,
+    ].filter((ym) => ym <= latestMonth && byYm.has(ym));
+    if (candidates.length < 2) continue;
+    const rates = candidates
+      .map((ym) => byYm.get(ym)!.perAreaTotal)
+      .filter((v): v is number => v != null && Number.isFinite(v));
+    if (rates.length < 2) continue;
+    const a = avg(rates);
+    if (a == null) continue;
+    return { avgTotalPerM2: a, monthsUsed: candidates };
+  }
+  return null;
+}
+
+/**
+ * Build selected-pyeong estimate from COMPLETE portal per-area months.
+ */
+export function estimateSelectedPyeongFromPortal(params: {
+  monthsDesc: PortalAreaFeeMonthV1[];
   exclusiveAreaMin: number;
   exclusiveAreaMax: number;
+  kaptCode?: string | null;
 }): SelectedPyeongMgmtFeeEstimate | null {
-  const { fixture } = params;
   const areaMin = params.exclusiveAreaMin;
   const areaMax = params.exclusiveAreaMax;
   if (
@@ -126,52 +178,81 @@ export function estimateSelectedPyeongMgmtFee(params: {
     return null;
   }
 
-  const monthsDesc = sortMonthsDesc(fixture.months);
-  const latestRow = monthsDesc[0];
-  if (!latestRow) return null;
+  const complete = params.monthsDesc.filter(
+    (m) =>
+      m.feeStatus === "COMPLETE" &&
+      m.perAreaTotal != null &&
+      Number.isFinite(m.perAreaTotal) &&
+      m.privArea > 0 &&
+      // Unpublished months can return all-zero success payloads — exclude.
+      (m.portalTotal == null || m.portalTotal > 0),
+  );
+  if (complete.length === 0) return null;
+
+  const monthsDesc = [...complete].sort((a, b) =>
+    b.periodYyyymm.localeCompare(a.periodYyyymm),
+  );
+  const continuous = continuousMonthsFromLatest(
+    monthsDesc.map((m) => ({ periodYyyymm: m.periodYyyymm })),
+    12,
+  );
+  const continuousSet = new Set(continuous.map((m) => m.periodYyyymm));
+  const continuousRows = monthsDesc.filter((m) =>
+    continuousSet.has(m.periodYyyymm),
+  );
+  const latestRow = continuousRows[0] ?? monthsDesc[0];
+  if (!latestRow || latestRow.perAreaTotal == null) return null;
 
   const latest: PeriodEstimate = {
-    ...wonRange(latestRow.totalPerM2, areaMin, areaMax),
-    monthsUsed: [latestRow.month],
+    ...wonRange(latestRow.perAreaTotal, areaMin, areaMax),
+    monthsUsed: [latestRow.periodYyyymm],
     monthCount: 1,
   };
 
   const components = {
     common:
-      latestRow.commonPerM2 != null
+      latestRow.perAreaCommon != null
         ? {
             label: "공용관리비",
-            ...wonRange(latestRow.commonPerM2, areaMin, areaMax),
+            ...wonRange(latestRow.perAreaCommon, areaMin, areaMax),
           }
         : null,
     individual:
-      latestRow.individualPerM2 != null
+      latestRow.perAreaIndividual != null
         ? {
             label: "개별사용료",
-            ...wonRange(latestRow.individualPerM2, areaMin, areaMax),
+            ...wonRange(latestRow.perAreaIndividual, areaMin, areaMax),
           }
         : null,
     reserve:
-      latestRow.reservePerM2 != null
+      latestRow.perAreaReserve != null
         ? {
             label: "장기수선충당금",
-            ...wonRange(latestRow.reservePerM2, areaMin, areaMax),
+            ...wonRange(latestRow.perAreaReserve, areaMin, areaMax),
           }
         : null,
   };
 
-  const winterAvg = fixture.verifiedPeriodAverages.find(
-    (p) => p.kind === "winter",
+  const winterComputed = computeWinterPerM2(
+    continuousRows.length >= 2 ? monthsDesc : monthsDesc,
+    latestRow.periodYyyymm,
   );
-  const winter: PeriodEstimate | null = winterAvg
+  const winter: PeriodEstimate | null = winterComputed
     ? {
-        ...wonRange(winterAvg.avgTotalPerM2, areaMin, areaMax),
-        monthsUsed: winterAvg.months,
-        monthCount: winterAvg.monthCount,
+        ...wonRange(winterComputed.avgTotalPerM2, areaMin, areaMax),
+        monthsUsed: winterComputed.monthsUsed,
+        monthCount: winterComputed.monthsUsed.length,
+        hint:
+          winterComputed.monthsUsed.length < 3
+            ? `${winterComputed.monthsUsed.length}개월 평균`
+            : undefined,
       }
     : null;
 
-  const summerComputed = computeSameYearSummerPerM2(fixture, latestRow.month);
+  const summerComputed = computeSameYearSummerPerM2(
+    monthsDesc,
+    latestRow.periodYyyymm,
+  );
   const summer: PeriodEstimate | null = summerComputed
     ? {
         ...wonRange(summerComputed.avgTotalPerM2, areaMin, areaMax),
@@ -184,36 +265,41 @@ export function estimateSelectedPyeongMgmtFee(params: {
       }
     : null;
 
-  const trailing = fixture.verifiedPeriodAverages.find(
-    (p) =>
-      p.kind === "trailing_average" &&
-      (p.endMonth == null || p.endMonth === latestRow.month),
-  );
-  const trailingAverage: PeriodEstimate | null = trailing
-    ? {
-        ...wonRange(trailing.avgTotalPerM2, areaMin, areaMax),
-        monthsUsed: trailing.months,
-        monthCount: trailing.monthCount,
-        hint: `최근 ${trailing.monthCount}개월 평균`,
-      }
-    : null;
+  const trailingRates = continuousRows
+    .map((m) => m.perAreaTotal)
+    .filter((v): v is number => v != null);
+  const trailingAvg = avg(trailingRates);
+  const trailingAverage: PeriodEstimate | null =
+    trailingAvg != null && trailingRates.length >= 2
+      ? {
+          ...wonRange(trailingAvg, areaMin, areaMax),
+          monthsUsed: continuousRows.map((m) => m.periodYyyymm),
+          monthCount: continuousRows.length,
+          hint: `최근 ${continuousRows.length}개월 평균`,
+        }
+      : null;
 
   return {
-    source: fixture.source,
-    kaptCode: fixture.kaptCode,
-    areaBasis: fixture.areaBasis,
-    areaBasisLabelKo: fixture.areaBasisLabelKo,
+    source: "portal_openapi",
+    sourceLabelKo: SOURCE_LABEL_KO,
+    kaptCode: params.kaptCode ?? null,
+    areaBasis: "residential_exclusive",
+    areaBasisLabelKo: "주거전용면적",
     exclusiveAreaMin: Math.min(areaMin, areaMax),
     exclusiveAreaMax: Math.max(areaMin, areaMax),
-    latestMonth: latestRow.month,
+    latestMonth: latestRow.periodYyyymm,
     latest,
     components,
     winter,
     summer,
     trailingAverage,
     disclaimer: DISCLAIMER,
+    knownMissingNote: KNOWN_MISSING_NOTE,
   };
 }
+
+/** @deprecated fixture path — prefer estimateSelectedPyeongFromPortal */
+export { estimateSelectedPyeongFromPortal as estimateSelectedPyeongMgmtFee };
 
 /** Component KRW sum vs latest total — should match within float noise. */
 export function reconcileLatestComponents(

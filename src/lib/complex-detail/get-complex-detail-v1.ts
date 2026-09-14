@@ -25,6 +25,24 @@ export type ComplexMgmtMonthV1 = {
   perHouseholdComponentSum: number | null;
 };
 
+/** Portal OpenAPI derived 원/㎡ (COMPLETE months only for selected-pyeong calc). */
+export type PortalAreaFeeMonthV1 = {
+  periodYyyymm: string;
+  privArea: number;
+  commonTotal: number | null;
+  individualTotal: number | null;
+  reserveTotal: number | null;
+  portalTotal: number | null;
+  perAreaCommon: number | null;
+  perAreaIndividual: number | null;
+  perAreaReserve: number | null;
+  perAreaTotal: number | null;
+  areaBasis: "residential_exclusive" | string | null;
+  feeStatus: "COMPLETE" | "INCOMPLETE" | string | null;
+  source: string | null;
+  sourceVersion: string | null;
+};
+
 export type ComplexManagementV1 = {
   available: true;
   householdCount: number;
@@ -41,6 +59,11 @@ export type ComplexManagementV1 = {
   };
   /** Chronological oldest → newest for charts. */
   monthlySeries: ComplexMgmtMonthV1[];
+  /**
+   * Portal-derived per-area months (COMPLETE only), newest first.
+   * Empty when pilot derived data is absent — never invent from household avg.
+   */
+  portalAreaFees: PortalAreaFeeMonthV1[];
   disclaimer: string;
 };
 
@@ -371,7 +394,10 @@ export async function getComplexDetailV1(params: {
   // Read up to 24 months for season windows; averages still use ≤12 continuous.
   const feeRes = await db.execute({
     sql: `SELECT period_yyyymm, common_fee, individual_fee, long_term_repair_reserve,
-                 household_basis
+                 household_basis,
+                 per_area_common_fee, per_area_individual_fee, per_area_reserve_fee,
+                 per_area_total_fee, area_basis_sqm, area_basis, fee_status,
+                 total_fee, source, source_version
           FROM apt_complex_mgmt_fee_monthly
           WHERE complex_id = ?
           ORDER BY period_yyyymm DESC
@@ -408,6 +434,40 @@ export async function getComplexDetailV1(params: {
             : null,
       };
     });
+
+    const portalAreaFees = feeRes.rows
+      .map((row) => {
+        const feeStatus = asStr(row.fee_status);
+        const perAreaTotal = asNum(row.per_area_total_fee);
+        const privArea = asNum(row.area_basis_sqm);
+        if (
+          feeStatus !== "COMPLETE" ||
+          perAreaTotal == null ||
+          !(privArea != null && privArea > 0) ||
+          // Unpublished all-zero payloads must not drive selected-pyeong calc.
+          (asNum(row.total_fee) ?? 0) <= 0
+        ) {
+          return null;
+        }
+        const month: PortalAreaFeeMonthV1 = {
+          periodYyyymm: String(row.period_yyyymm),
+          privArea,
+          commonTotal: asNum(row.common_fee),
+          individualTotal: asNum(row.individual_fee),
+          reserveTotal: asNum(row.long_term_repair_reserve),
+          portalTotal: asNum(row.total_fee),
+          perAreaCommon: asNum(row.per_area_common_fee),
+          perAreaIndividual: asNum(row.per_area_individual_fee),
+          perAreaReserve: asNum(row.per_area_reserve_fee),
+          perAreaTotal,
+          areaBasis: asStr(row.area_basis) ?? "residential_exclusive",
+          feeStatus,
+          source: asStr(row.source),
+          sourceVersion: asStr(row.source_version),
+        };
+        return month;
+      })
+      .filter((r): r is PortalAreaFeeMonthV1 => r != null);
 
     const seriesAsc = [...monthsDesc].reverse();
     const latest = monthsDesc[0]!;
@@ -448,6 +508,7 @@ export async function getComplexDetailV1(params: {
         ),
       },
       monthlySeries: seriesAsc,
+      portalAreaFees,
       disclaimer: MGMT_DISCLAIMER,
     };
   }
