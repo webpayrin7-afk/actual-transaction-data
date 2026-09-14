@@ -167,7 +167,7 @@ function BasisToggle({
         <span>{open ? "계산 기준 접기" : "계산 기준 보기"}</span>
         <span
           aria-hidden
-          className={`shrink-0 text-xs text-slate-400 transition-transform duration-200 ${
+          className={`shrink-0 text-lg leading-none text-slate-500 transition-transform duration-200 ${
             open ? "rotate-180" : ""
           }`}
         >
