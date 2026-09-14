@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { ChevronsUpDown } from "lucide-react";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { LabTabs } from "@/components/ui/LabTabs";
@@ -222,16 +223,14 @@ function FieldSelect({
           <p className="mt-0.5 truncate text-[11px] text-slate-500">{status}</p>
         ) : null}
       </div>
-      <div className="relative ml-auto flex h-8 min-w-[10.5rem] shrink-0 items-center rounded-md border border-slate-200 bg-white pl-2.5 pr-6 text-xs font-semibold text-slate-800">
+      <div className="relative ml-auto flex h-8 min-w-[10.5rem] shrink-0 items-center rounded-md border border-slate-200 bg-white pl-2.5 pr-7 text-xs font-semibold text-slate-800">
         <span className="pointer-events-none whitespace-nowrap" aria-hidden>
           <FieldSelectDisplay value={String(value)} options={children} />
         </span>
-        <span
-          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] leading-none text-slate-400"
+        <ChevronsUpDown
+          className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-slate-400"
           aria-hidden
-        >
-          ▾
-        </span>
+        />
         <select
           id={id}
           className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
@@ -764,6 +763,10 @@ export function ComplexPurchaseCalculatorSection({
                 {brokerageOptions.map((pct) => (
                   <option key={pct} value={pct}>
                     {pct.toFixed(2)}%
+                    {purchase &&
+                    Math.abs(pct - purchase.brokerage.legalCapRatePct) < 1e-9
+                      ? " · 상한"
+                      : ""}
                   </option>
                 ))}
               </FieldSelect>
