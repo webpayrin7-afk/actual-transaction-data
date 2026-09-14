@@ -22,8 +22,10 @@ import {
 } from "@/components/apt/ComplexInfoCards";
 import { ComplexSchoolsSection } from "@/components/apt/ComplexSchoolsSection";
 import { ComplexSurroundingsSection } from "@/components/apt/ComplexSurroundingsSection";
+import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
 import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
+import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
 import {
   AptPriceChart,
@@ -559,6 +561,7 @@ export function AptDetailPage({
       show: hasComplexInfoSection(complexDetail),
     },
     { id: "schools", label: "학군 · 주변", show: true },
+    { id: "nearby-sales", label: "주변 분양", show: true },
     { id: "comparison", label: "단지 비교", show: true },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
@@ -612,6 +615,13 @@ export function AptDetailPage({
   }
 
   const identity = complexDetail?.identity;
+  const region = getRegion(regionSlug);
+  /** Prefer master identity; fall back to ?gu= then region display name (e.g. 송파구). */
+  const nearbySigungu =
+    identity?.sigungu?.trim() ||
+    gu?.trim() ||
+    region?.name?.trim() ||
+    null;
   const locationLabel =
     identity?.sigungu || identity?.legalDongName
       ? [identity.sido, identity.sigungu, identity.legalDongName]
@@ -913,6 +923,13 @@ export function AptDetailPage({
 
       <div id="section-surroundings" className="scroll-mt-28">
         <ComplexSurroundingsSection aptName={aptName} />
+      </div>
+
+      <div id="section-nearby-sales" className="scroll-mt-28">
+        <ComplexNearbySalesSection
+          aptName={aptName}
+          sigungu={nearbySigungu}
+        />
       </div>
 
       {data ? (
