@@ -91,7 +91,10 @@ export async function GET() {
       kaptCode: JAMSIL_ELS_MAP_PILOT.kaptCode,
       coords: coord.coordinate,
       coordSource: coord.source,
+      coordClassification: coord.classification,
       coordAccuracy: coord.accuracy,
+      coordMethod: coord.method,
+      coordArtifact: coord.sourceArtifact,
       coordDetail: coord.note,
     },
     catchment: {

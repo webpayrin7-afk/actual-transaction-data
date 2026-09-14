@@ -33,6 +33,8 @@ function vworldKey(): string | null {
   return (
     process.env.VWORLD_API_KEY?.trim() ||
     process.env.VWORLD_KEY?.trim() ||
+    process.env.VWORLD_2D_DOMAIN_KEY?.trim() ||
+    process.env.VWORLD_DOMAIN_KEY?.trim() ||
     null
   );
 }

@@ -38,7 +38,10 @@ type PilotPayload = {
     complexKey: string;
     coords: LatLng | null;
     coordSource: string;
+    coordClassification: string;
     coordAccuracy: string;
+    coordMethod: string | null;
+    coordArtifact: string | null;
     coordDetail: string;
   };
   catchment: {
@@ -261,8 +264,9 @@ export function NearbySchoolMapPilot() {
             <div className="flex h-[260px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-4 text-center text-sm text-slate-600 sm:h-[360px]">
               단지 좌표를 확보하지 못해 지도를 중심 고정할 수 없습니다.
               <br />
-              (master 좌표 또는 VWORLD_API_KEY 지오코딩 필요 — 임의 좌표 사용 안
-              함)
+              (우선순위: master → official GIS
+              phase2-visible/complex-building-linkage → VWorld — 임의 좌표 사용
+              안 함)
             </div>
           )}
           <p className="text-[11px] text-slate-400">
@@ -395,9 +399,12 @@ export function NearbySchoolMapPilot() {
             <dl className="mt-2 space-y-2 text-[13px]">
               <Row
                 k="단지 좌표"
-                v={`${data.complex.coordSource} · ${data.complex.coordAccuracy} — ${data.complex.coordDetail}`}
+                v={`${data.complex.coordClassification} · ${data.complex.coordSource} · ${data.complex.coordAccuracy}${data.complex.coordMethod ? ` · ${data.complex.coordMethod}` : ""}${data.complex.coordArtifact ? ` · ${data.complex.coordArtifact}` : ""} — ${data.complex.coordDetail}`}
               />
-              <Row k="학교" v="NEIS schoolInfo · 인근(NEARBY_SCHOOL)" />
+              <Row
+                k="학교"
+                v="NEIS schoolInfo · 주변 학교(NEARBY_SCHOOL)만 — 배정/학군 미표시"
+              />
               <Row
                 k="통학구역"
                 v={`${data.catchment.decision} — ${data.catchment.evidence}`}

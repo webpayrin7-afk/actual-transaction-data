@@ -1,16 +1,37 @@
 /**
  * Resolve 잠실엘스 coordinate without inventing.
- * Preference: apt_complex_master lat/lng → VWorld road/jibun geocode → unavailable.
+ *
+ * Priority (architecture for future reuse — no DB write here):
+ *   1. apt_complex_master validated lat/lng
+ *   2. official GIS-derived complex representative point
+ *   3. VWorld geocode fallback
+ *   4. UNAVAILABLE
+ *
+ * Do NOT bind canonical location to NAVER Place ID.
  */
 
 import { createClient } from "@libsql/client";
 import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 import type { LatLng } from "@/lib/nearby-map/geo";
+import { deriveJamsilElsOfficialGisCoordinate } from "@/lib/nearby-map/official-gis";
+
+export type ComplexCoordinateSource =
+  | "apt_complex_master"
+  | "official_gis_derived"
+  | "vworld_geocode"
+  | "unavailable";
+
+export type ComplexCoordinateClassification =
+  | "APT_COMPLEX_MASTER"
+  | "OFFICIAL-GIS-DERIVED"
+  | "VWORLD_GEOCODE"
+  | "UNAVAILABLE";
 
 export type ComplexCoordinateResult = {
   ok: boolean;
   coordinate: LatLng | null;
-  source: "apt_complex_master" | "vworld_geocode" | "unavailable";
+  source: ComplexCoordinateSource;
+  classification: ComplexCoordinateClassification;
   accuracy:
     | "building"
     | "parcel"
@@ -18,6 +39,8 @@ export type ComplexCoordinateResult = {
     | "jibun_address"
     | "unknown"
     | "none";
+  method: string | null;
+  sourceArtifact: string | null;
   note: string;
   complexId: string;
 };
@@ -34,6 +57,8 @@ function vworldKey(): string | null {
   return (
     process.env.VWORLD_API_KEY?.trim() ||
     process.env.VWORLD_KEY?.trim() ||
+    process.env.VWORLD_2D_DOMAIN_KEY?.trim() ||
+    process.env.VWORLD_DOMAIN_KEY?.trim() ||
     null
   );
 }
@@ -64,7 +89,10 @@ async function fromMaster(): Promise<ComplexCoordinateResult | null> {
           ok: true,
           coordinate: { lat, lng },
           source: "apt_complex_master",
+          classification: "APT_COMPLEX_MASTER",
           accuracy: "building",
+          method: "apt_complex_master.latitude/longitude",
+          sourceArtifact: "apt_complex_master",
           note: "apt_complex_master latitude/longitude",
           complexId: String(row.complex_id ?? JAMSIL_ELS_MAP_PILOT.complexId),
         };
@@ -75,7 +103,10 @@ async function fromMaster(): Promise<ComplexCoordinateResult | null> {
         ok: false,
         coordinate: null,
         source: "unavailable",
+        classification: "UNAVAILABLE",
         accuracy: "none",
+        method: null,
+        sourceArtifact: "apt_complex_master",
         note: "apt_complex_master row found but latitude/longitude null",
         complexId: String(
           rs.rows[0].complex_id ?? JAMSIL_ELS_MAP_PILOT.complexId
@@ -88,11 +119,42 @@ async function fromMaster(): Promise<ComplexCoordinateResult | null> {
       ok: false,
       coordinate: null,
       source: "unavailable",
+      classification: "UNAVAILABLE",
       accuracy: "none",
+      method: null,
+      sourceArtifact: null,
       note: `master lookup failed: ${e instanceof Error ? e.message : String(e)}`,
       complexId: JAMSIL_ELS_MAP_PILOT.complexId,
     };
   }
+}
+
+async function fromOfficialGis(): Promise<ComplexCoordinateResult> {
+  const gis = await deriveJamsilElsOfficialGisCoordinate();
+  if (gis.ok && gis.coordinate) {
+    return {
+      ok: true,
+      coordinate: gis.coordinate,
+      source: "official_gis_derived",
+      classification: "OFFICIAL-GIS-DERIVED",
+      accuracy: "building",
+      method: gis.method,
+      sourceArtifact: gis.sourceArtifact,
+      note: gis.note,
+      complexId: gis.complexId,
+    };
+  }
+  return {
+    ok: false,
+    coordinate: null,
+    source: "unavailable",
+    classification: "UNAVAILABLE",
+    accuracy: "none",
+    method: null,
+    sourceArtifact: gis.sourceArtifact,
+    note: gis.note,
+    complexId: gis.complexId,
+  };
 }
 
 async function vworldGetCoord(
@@ -127,7 +189,10 @@ async function fromVworldGeocode(): Promise<ComplexCoordinateResult> {
       ok: false,
       coordinate: null,
       source: "unavailable",
+      classification: "UNAVAILABLE",
       accuracy: "none",
+      method: null,
+      sourceArtifact: null,
       note: "VWORLD_API_KEY not configured; cannot geocode without inventing",
       complexId: JAMSIL_ELS_MAP_PILOT.complexId,
     };
@@ -143,7 +208,10 @@ async function fromVworldGeocode(): Promise<ComplexCoordinateResult> {
         ok: true,
         coordinate: road,
         source: "vworld_geocode",
+        classification: "VWORLD_GEOCODE",
         accuracy: "road_address",
+        method: "VWorld address getcoord (road)",
+        sourceArtifact: null,
         note: `VWorld road geocode of ${JAMSIL_ELS_MAP_PILOT.roadAddress} (road centroid — not building footprint)`,
         complexId: JAMSIL_ELS_MAP_PILOT.complexId,
       };
@@ -158,7 +226,10 @@ async function fromVworldGeocode(): Promise<ComplexCoordinateResult> {
         ok: true,
         coordinate: jibun,
         source: "vworld_geocode",
+        classification: "VWORLD_GEOCODE",
         accuracy: "jibun_address",
+        method: "VWorld address getcoord (parcel)",
+        sourceArtifact: null,
         note: `VWorld parcel geocode of ${JAMSIL_ELS_MAP_PILOT.jibunAddress}`,
         complexId: JAMSIL_ELS_MAP_PILOT.complexId,
       };
@@ -167,7 +238,10 @@ async function fromVworldGeocode(): Promise<ComplexCoordinateResult> {
       ok: false,
       coordinate: null,
       source: "unavailable",
+      classification: "UNAVAILABLE",
       accuracy: "none",
+      method: null,
+      sourceArtifact: null,
       note: "VWorld geocode returned empty for road and jibun addresses",
       complexId: JAMSIL_ELS_MAP_PILOT.complexId,
     };
@@ -176,7 +250,10 @@ async function fromVworldGeocode(): Promise<ComplexCoordinateResult> {
       ok: false,
       coordinate: null,
       source: "unavailable",
+      classification: "UNAVAILABLE",
       accuracy: "none",
+      method: null,
+      sourceArtifact: null,
       note: `VWorld geocode error: ${e instanceof Error ? e.message : String(e)}`,
       complexId: JAMSIL_ELS_MAP_PILOT.complexId,
     };
@@ -186,17 +263,31 @@ async function fromVworldGeocode(): Promise<ComplexCoordinateResult> {
 export async function resolveJamsilElsCoordinate(): Promise<ComplexCoordinateResult> {
   const master = await fromMaster();
   if (master?.ok && master.coordinate) return master;
+
+  const gis = await fromOfficialGis();
+  if (gis.ok && gis.coordinate) return gis;
+
   const geo = await fromVworldGeocode();
   if (geo.ok) return geo;
+
   return {
     ok: false,
     coordinate: null,
     source: "unavailable",
+    classification: "UNAVAILABLE",
     accuracy: "none",
+    method: null,
+    sourceArtifact: gis.sourceArtifact ?? master?.sourceArtifact ?? null,
     note:
-      master?.note ||
-      geo.note ||
+      [
+        master?.note,
+        gis.note,
+        geo.note,
+      ]
+        .filter(Boolean)
+        .join(" | ") ||
       "No verified coordinate — refusing to invent a center",
-    complexId: master?.complexId ?? JAMSIL_ELS_MAP_PILOT.complexId,
+    complexId:
+      master?.complexId ?? gis.complexId ?? JAMSIL_ELS_MAP_PILOT.complexId,
   };
 }

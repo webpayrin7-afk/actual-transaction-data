@@ -33,13 +33,20 @@ export type NearbySchoolsResult = {
 };
 
 function neisKey(): string | null {
-  return process.env.NEIS_API_KEY?.trim() || null;
+  return (
+    process.env.NEIS_API_KEY?.trim() ||
+    process.env.NEIS_KEY?.trim() ||
+    process.env.NEIS_OPEN_API_KEY?.trim() ||
+    null
+  );
 }
 
 function vworldKey(): string | null {
   return (
     process.env.VWORLD_API_KEY?.trim() ||
     process.env.VWORLD_KEY?.trim() ||
+    process.env.VWORLD_2D_DOMAIN_KEY?.trim() ||
+    process.env.VWORLD_DOMAIN_KEY?.trim() ||
     null
   );
 }
