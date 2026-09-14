@@ -881,6 +881,22 @@ export function AptDetailPage({
                 ? null
                 : areaSelectorPyeongLabel(selectedArea)
             }
+            exclusiveAreaMinSqm={
+              selectedArea
+                ? (selectedArea.exclusiveAreaMin ??
+                  selectedArea.exclusiveArea ??
+                  null)
+                : null
+            }
+            exclusiveAreaMaxSqm={
+              selectedArea
+                ? (selectedArea.exclusiveAreaMax ??
+                  selectedArea.exclusiveArea ??
+                  null)
+                : null
+            }
+            aptName={data.aptName}
+            complexId={identity?.complexId ?? null}
           />
         </div>
       ) : null}

@@ -80,4 +80,4 @@ export const MANAGEMENT_AREA_FEE_CLASSIFICATION: AreaFeeClassification =
   "AREA_FEE_UNSAFE";
 
 export const MANAGEMENT_AREA_FEE_NOTE =
-  "공식 면적단가(원/㎡)와 기준면적(전용·공급·부과 등)이 승인 API에서 확인되지 않아 선택 평형 관리비는 표시하지 않습니다. 단지 총액÷세대수 값은 참고용이며 선택 평형 부과액이 아닙니다.";
+  "선택 평형 관리비는 검증된 K-apt 주거전용면적 원/㎡ fixture가 있는 단지(현재 잠실엘스 pilot)에서만 표시합니다. 그 외 단지는 준비 중이며, 단지 총액÷세대수 값은 선택 평형 부과액으로 사용하지 않습니다. K-apt 자동수집·상업적 재표시는 이용조건 HOLD입니다.";
