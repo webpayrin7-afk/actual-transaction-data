@@ -5,15 +5,12 @@ import { LabCard } from "@/components/ui/lab";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
 import {
   formatYyyymmBasisLabel,
-  formatYyyymmLabel,
   type ComplexManagementV1,
 } from "@/lib/complex-detail/get-complex-detail-v1";
 import {
   estimateSelectedPyeongFromPortal,
   formatWonRangeAsManwon,
-  reconcileLatestComponents,
 } from "@/lib/complex-detail/selected-pyeong-mgmt-fee";
-import { MANAGEMENT_AREA_FEE_NOTE } from "@/lib/complex-detail/source-status";
 
 function MetricRow({
   label,
@@ -43,6 +40,24 @@ function formatMonthKo(yyyymm: string): string {
   if (yyyymm.length !== 6) return yyyymm;
   return `${yyyymm.slice(0, 4)}년 ${Number(yyyymm.slice(4, 6))}월`;
 }
+
+function formatWonPerSqm(n: number): string {
+  return `${n.toLocaleString("ko-KR", { maximumFractionDigits: 2 })}원/㎡`;
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-1.5">
+      <dt className="shrink-0 text-sm text-slate-600">{label}</dt>
+      <dd className="min-w-0 text-right text-sm font-medium leading-snug text-slate-800">
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+const OUTER_DISCLAIMER =
+  "주거전용면적 기준 관리비 단가를 선택 평형에 적용한 예상값입니다. 실제 세대별 관리비는 사용량과 일부 부과항목에 따라 달라질 수 있습니다.";
 
 /**
  * Management-fee summary for Complex Detail.
@@ -79,14 +94,8 @@ export function ComplexMgmtFeeCard({
       monthsDesc: management.portalAreaFees,
       exclusiveAreaMin: areaMin,
       exclusiveAreaMax: areaMax,
-      kaptCode: "A13822004",
     });
   }, [hasPortalData, management.portalAreaFees, areaMin, areaMax]);
-
-  const reconcile = useMemo(
-    () => (estimate ? reconcileLatestComponents(estimate) : null),
-    [estimate],
-  );
 
   const showSelectedEstimate = estimate != null && pyeongTitle != null;
 
@@ -202,55 +211,66 @@ export function ComplexMgmtFeeCard({
           ) : null}
 
           <p className="mt-4 text-sm leading-relaxed text-slate-600">
-            {estimate.disclaimer}
+            {OUTER_DISCLAIMER}
           </p>
 
           <LabDisclosure title="계산 기준 및 세부내역" className="mt-3">
-            <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
-              <li>
-                출처: {estimate.sourceLabelKo}
-                {estimate.kaptCode ? ` (${estimate.kaptCode})` : null} ·{" "}
-                {estimate.areaBasisLabelKo} 원/㎡ × 선택 전용면적
-              </li>
-              <li>
-                최근월 단가{" "}
-                {estimate.latest.perM2.toLocaleString("ko-KR", {
-                  maximumFractionDigits: 2,
-                })}
-                원/㎡
-                {estimate.components.common
-                  ? ` (공용 ${estimate.components.common.perM2.toLocaleString("ko-KR", { maximumFractionDigits: 2 })} · 개별 ${estimate.components.individual!.perM2.toLocaleString("ko-KR", { maximumFractionDigits: 2 })} · 충당금 ${estimate.components.reserve!.perM2.toLocaleString("ko-KR", { maximumFractionDigits: 2 })})`
-                  : null}
-              </li>
-              <li>
-                겨울은 연속 12·1·2월, 여름은 동일 연도 6·7·8월만 사용합니다.
-                {estimate.winter?.monthsUsed.length
-                  ? ` 겨울 표본: ${estimate.winter.monthsUsed.map(formatYyyymmLabel).join(", ")}.`
-                  : ""}
-                {estimate.summer?.monthsUsed.length
-                  ? ` 여름 표본: ${estimate.summer.monthsUsed.map(formatYyyymmLabel).join(", ")}.`
-                  : ""}
-              </li>
-              <li>
-                최근 평균은 연속 COMPLETE 월(최대 12)의 원/㎡ 평균을 선택 면적에
-                적용한 값입니다.
-                {estimate.trailingAverage
-                  ? ` (${estimate.trailingAverage.monthCount}개월)`
-                  : ""}
-              </li>
-              <li>{estimate.knownMissingNote}</li>
-              {reconcile ? (
-                <li>
-                  구성 합계 검증:{" "}
-                  {reconcile.ok
-                    ? "공용+개별+충당금 = 최근 총액 (원 단위 일치)"
-                    : "구성 합계와 총액이 불일치 — 표시 보류 검토 필요"}
-                </li>
-              ) : null}
-              <li>
-                단지 총액÷세대수 평균은 선택 평형 예상값으로 사용하지 않습니다.
-              </li>
-            </ul>
+            <dl>
+              <InfoRow
+                label="계산 방식"
+                value="주거전용면적 기준 관리비 단가 × 선택 평형 전용면적"
+              />
+              <InfoRow
+                label="기준월"
+                value={formatMonthKo(estimate.latestMonth)}
+              />
+              <InfoRow
+                label="선택 면적"
+                value={`전용 ${estimate.exclusiveAreaMin.toFixed(2)}~${estimate.exclusiveAreaMax.toFixed(2)}㎡`}
+              />
+              <InfoRow
+                label="평균 기준"
+                value="겨울 12~2월 · 여름 6~8월 · 최근 평균 최대 12개월"
+              />
+              <InfoRow label="출처" value={estimate.sourceLabelKo} />
+            </dl>
+
+            {estimate.components.common &&
+            estimate.components.individual &&
+            estimate.components.reserve ? (
+              <div className="mt-2 border-t border-slate-100 pt-2">
+                <p className="pb-0.5 text-sm font-medium text-slate-800">
+                  최근월 면적단가
+                </p>
+                <dl>
+                  <InfoRow
+                    label="공용관리비"
+                    value={formatWonPerSqm(estimate.components.common.perM2)}
+                  />
+                  <InfoRow
+                    label="개별사용료"
+                    value={formatWonPerSqm(estimate.components.individual.perM2)}
+                  />
+                  <InfoRow
+                    label="장기수선충당금"
+                    value={formatWonPerSqm(estimate.components.reserve.perM2)}
+                  />
+                  <InfoRow
+                    label="합계"
+                    value={formatWonPerSqm(estimate.latest.perM2)}
+                  />
+                </dl>
+              </div>
+            ) : null}
+
+            <div className="mt-2 border-t border-slate-100 pt-2">
+              <p className="text-sm font-medium text-slate-800">안내</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-700">
+                주거전용면적 기준 관리비 단가를 선택 평형에 적용한 예상값입니다.
+                실제 세대별 관리비는 사용량과 일부 부과항목에 따라 달라질 수
+                있습니다.
+              </p>
+            </div>
           </LabDisclosure>
         </>
       ) : (
@@ -265,24 +285,36 @@ export function ComplexMgmtFeeCard({
                 ? "평형을 선택하면 주거전용면적 기준 예상 관리비를 표시합니다."
                 : hasPortalData && (areaMin == null || areaMax == null)
                   ? "선택 평형의 전용면적 정보가 없어 예상 관리비를 계산할 수 없습니다."
-                  : "이 단지의 공공데이터 OpenAPI 기반 면적단가(원/㎡)가 아직 없어 선택 평형 금액을 표시하지 않습니다."}
+                  : "이 단지의 면적단가가 아직 없어 선택 평형 금액을 표시하지 않습니다."}
             </p>
           </div>
 
           <p className="mt-4 text-sm leading-relaxed text-slate-600">
-            단지 전체÷세대수 평균은 선택 평형 관리비로 사용하지 않습니다.
+            평형별 예상 관리비는 주거전용면적 단가가 있는 단지에서만 표시합니다.
           </p>
 
           <LabDisclosure title="계산 기준 및 세부내역" className="mt-3">
-            <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
-              <li>{management.disclaimer}</li>
-              <li>
-                최신 단지 월 자료:{" "}
-                {formatYyyymmBasisLabel(management.latest.periodYyyymm)} (참고용
-                메타 — 선택 평형 금액 아님)
-              </li>
-              <li>{MANAGEMENT_AREA_FEE_NOTE}</li>
-            </ul>
+            <dl>
+              <InfoRow
+                label="계산 방식"
+                value="주거전용면적 기준 관리비 단가 × 선택 평형 전용면적"
+              />
+              <InfoRow
+                label="출처"
+                value="국토교통부 공동주택관리정보 공공데이터"
+              />
+              <InfoRow
+                label="최근 자료"
+                value={formatYyyymmBasisLabel(management.latest.periodYyyymm)}
+              />
+            </dl>
+            <div className="mt-2 border-t border-slate-100 pt-2">
+              <p className="text-sm font-medium text-slate-800">안내</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-700">
+                이 단지는 아직 선택 평형 예상 관리비를 표시할 수 없습니다.
+                단지 전체 평균은 선택 평형 금액으로 쓰지 않습니다.
+              </p>
+            </div>
           </LabDisclosure>
         </>
       )}
