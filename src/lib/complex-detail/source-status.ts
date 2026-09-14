@@ -78,4 +78,4 @@ export const MANAGEMENT_AREA_FEE_CLASSIFICATION: AreaFeeClassification =
   "AREA_FEE_UNSAFE";
 
 export const MANAGEMENT_AREA_FEE_NOTE =
-  "면적(㎡·평형) 기준 공식 단가가 검증되지 않아 세대당 단순 환산만 표시합니다.";
+  "면적(㎡·평형) 기준 공식 단가가 검증되지 않아, 선택 평형 관리비는 표시하지 않습니다. 단지 총액÷세대수 단순 환산만 제공합니다.";

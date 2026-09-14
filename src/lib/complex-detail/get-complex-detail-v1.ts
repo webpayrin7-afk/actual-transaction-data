@@ -65,7 +65,7 @@ export type ComplexDetailV1 = {
 };
 
 const MGMT_DISCLAIMER =
-  "단지 총액을 세대수로 나눈 단순 환산값으로, 실제 세대별 청구액은 면적·사용량 등에 따라 다를 수 있습니다.";
+  "단지 전체 관리비를 세대수로 나눈 단순 환산값입니다. 선택 평형의 실제 관리비·개별 사용량 청구액과는 다를 수 있습니다.";
 
 /** Previous calendar month as YYYYMM. */
 export function prevYyyymm(yyyymm: string): string {
