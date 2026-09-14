@@ -33,6 +33,21 @@ function formatPct(rate: number, digits = 0): string {
   return `${fixed.replace(/\.0+$/, "")}%`;
 }
 
+function formatSignedEokMan(man: number): string {
+  if (!Number.isFinite(man)) return "—";
+  if (Math.abs(man) < 0.5) return "0만원";
+  const abs = formatEokMan(Math.abs(man));
+  return man > 0 ? `+${abs}` : `-${abs}`;
+}
+
+function formatSignedPctPoints(rate: number, digits = 0): string {
+  if (!Number.isFinite(rate)) return "—";
+  const n = rate * 100;
+  if (Math.abs(n) < 1e-9) return "0%";
+  const fixed = Math.abs(n).toFixed(digits).replace(/\.0+$/, "");
+  return `${n > 0 ? "+" : "-"}${fixed}%`;
+}
+
 const inputClass = "lab-input h-10 w-full min-w-0 px-3 text-sm tabular-nums";
 
 /** 만원 숫자 입력 + 입력칸 안 실시간 억·만원 환산 */
@@ -311,8 +326,8 @@ export function ComplexPurchaseCalculatorSection({
   const [officialDraft, setOfficialDraft] = useState("");
   const [officialManualOverride, setOfficialManualOverride] = useState(false);
   const [singleHomeHousehold, setSingleHomeHousehold] = useState(true);
-  const [projectionYears, setProjectionYears] = useState(0);
-  const [growthPct, setGrowthPct] = useState(3);
+  /** 공시가격 예상 증감률(%). 메인 슬라이더. 기본 0 */
+  const [growthPct, setGrowthPct] = useState(0);
 
   const [cashMan, setCashMan] = useState(0);
   const [annualIncomeMan, setAnnualIncomeMan] = useState(8000);
@@ -419,19 +434,37 @@ export function ComplexPurchaseCalculatorSection({
       ? formatManInput(autoOfficialPriceMan)
       : officialDraft;
 
-  const holding = useMemo(
+  const baselinePriceMan = effectiveOfficialPriceMan;
+  const projectedPriceMan =
+    baselinePriceMan > 0 ? baselinePriceMan * (1 + growthPct / 100) : 0;
+
+  const baselineHolding = useMemo(
     () =>
-      effectiveOfficialPriceMan > 0
+      baselinePriceMan > 0
         ? calculateHoldingTax({
-            officialPriceMan: effectiveOfficialPriceMan,
+            officialPriceMan: baselinePriceMan,
             singleHomeHousehold,
             includeUrbanShare: true,
-            projectionYears,
-            officialPriceGrowthRate: growthPct / 100,
+            projectionYears: 0,
           })
         : null,
-    [effectiveOfficialPriceMan, singleHomeHousehold, projectionYears, growthPct],
+    [baselinePriceMan, singleHomeHousehold],
   );
+
+  const projectedHolding = useMemo(
+    () =>
+      projectedPriceMan > 0
+        ? calculateHoldingTax({
+            officialPriceMan: projectedPriceMan,
+            singleHomeHousehold,
+            includeUrbanShare: true,
+            projectionYears: 0,
+          })
+        : null,
+    [projectedPriceMan, singleHomeHousehold],
+  );
+
+  const holding = projectedHolding;
 
   const loan = useMemo(
     () =>
@@ -474,7 +507,6 @@ export function ComplexPurchaseCalculatorSection({
   const holdingConditionSummary = [
     "개인",
     singleHomeHousehold ? "1세대 1주택" : "1세대 1주택 아님",
-    projectionYears > 0 ? `전망 +${projectionYears}년 · 연 ${growthPct}%` : "당해 기준",
   ].join(" · ");
 
   const holdingBaseYear = new Date().getFullYear();
@@ -494,6 +526,23 @@ export function ComplexPurchaseCalculatorSection({
       : null,
   ].filter(Boolean) as string[];
   const holdingYear0 = holding?.years[0] ?? null;
+  const baselineYear0 = baselineHolding?.years[0] ?? null;
+  const taxDeltaMan =
+    holdingYear0 && baselineYear0
+      ? holdingYear0.totalMan - baselineYear0.totalMan
+      : 0;
+  const taxDeltaRate =
+    baselineYear0 && baselineYear0.totalMan > 0
+      ? taxDeltaMan / baselineYear0.totalMan
+      : 0;
+  const growthActive = growthPct !== 0;
+  const officialPriceYear =
+    publicPrice.priceBaseYear ??
+    (publicPrice.officialPriceDate
+      ? Number(publicPrice.officialPriceDate.slice(0, 4))
+      : null);
+  const growthLabel =
+    growthPct > 0 ? `+${growthPct}%` : growthPct < 0 ? `${growthPct}%` : "0%";
   const loanConditionSummary = [
     homes === "0" ? "무주택" : homes === "1" ? "1주택" : "2주택+",
     metro === "capital" ? "수도권" : "지방",
@@ -796,13 +845,14 @@ export function ComplexPurchaseCalculatorSection({
                       </p>
                     )}
                     <p className="text-sm leading-relaxed text-slate-600">
-                      현행 세제 유지 가정
+                      {growthActive
+                        ? `공시가격 ${growthLabel} 가정 · 현행 세제 유지`
+                        : "현행 세제 유지 가정"}
                     </p>
-                    {publicPrice.usedPriorBulkYear &&
-                    publicPrice.priceBaseYear != null ? (
-                      <p className="text-sm leading-relaxed text-slate-600">
-                        {holdingBaseYear}년 공시가격은 공식 자료 공개 후
-                        반영됩니다.
+                    {growthActive ? (
+                      <p className="text-sm font-medium tabular-nums text-slate-800">
+                        기준 대비 {formatSignedEokMan(taxDeltaMan)} ·{" "}
+                        {formatSignedPctPoints(taxDeltaRate, 0)}
                       </p>
                     ) : null}
                   </div>
@@ -827,14 +877,18 @@ export function ComplexPurchaseCalculatorSection({
             <div className="space-y-2 border-t border-slate-200/80 pt-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-medium text-slate-800">공시가격</p>
-                {hasOfficialUnit && !officialManualOverride && !officialEditing ? (
+                {hasOfficialUnit &&
+                !officialManualOverride &&
+                !officialEditing ? (
                   <span className="text-xs text-slate-500">공식값</span>
                 ) : officialManualOverride ? (
                   <span className="text-xs text-slate-500">사용자 입력값</span>
                 ) : null}
               </div>
 
-              {hasOfficialUnit && !officialManualOverride && !officialEditing ? (
+              {hasOfficialUnit &&
+              !officialManualOverride &&
+              !officialEditing ? (
                 <div className="space-y-1.5">
                   <p className="text-lg font-bold tabular-nums tracking-tight text-slate-900">
                     {formatEokMan(autoOfficialPriceMan)}
@@ -847,6 +901,11 @@ export function ComplexPurchaseCalculatorSection({
                   {officialDateLabel ? (
                     <p className="text-xs text-slate-500">
                       {officialDateLabel} · 국토교통부·한국부동산원
+                    </p>
+                  ) : null}
+                  {publicPrice.usedPriorBulkYear ? (
+                    <p className="text-sm leading-relaxed text-slate-600">
+                      {holdingBaseYear}년 공식 공시가격은 자료 공개 후 반영됩니다.
                     </p>
                   ) : null}
                   <button
@@ -921,6 +980,116 @@ export function ComplexPurchaseCalculatorSection({
               )}
             </div>
 
+            {baselinePriceMan > 0 ? (
+              <div className="space-y-2.5 border-t border-slate-200/80 pt-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-slate-800">
+                    공시가격 예상 증감률
+                  </p>
+                  <p className="text-sm font-semibold tabular-nums text-teal-700">
+                    {growthLabel}
+                  </p>
+                </div>
+                <input
+                  type="range"
+                  min={-30}
+                  max={30}
+                  step={1}
+                  value={growthPct}
+                  aria-label="공시가격 예상 증감률"
+                  className="lab-range w-full"
+                  onChange={(e) => setGrowthPct(Number(e.target.value))}
+                />
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>-30%</span>
+                  <span>0%</span>
+                  <span>+30%</span>
+                </div>
+                {holdingYear0 ? (
+                  <div className="space-y-1.5">
+                    <Row
+                      label={`${holdingBaseYear}년 예상 공시가격`}
+                      value={formatEokMan(projectedPriceMan)}
+                    />
+                    <Row
+                      label="예상 보유세"
+                      value={formatEokMan(holdingYear0.totalMan)}
+                    />
+                    {growthActive ? (
+                      <p className="text-sm tabular-nums text-slate-700">
+                        기준 대비 {formatSignedEokMan(taxDeltaMan)} ·{" "}
+                        {formatSignedPctPoints(taxDeltaRate, 0)}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-slate-600">
+                        기준 공시가격과 동일합니다.
+                      </p>
+                    )}
+                    <p className="text-sm leading-relaxed text-slate-600">
+                      {growthActive
+                        ? `공시가격 ${growthLabel} 가정 · 현행 세제 유지`
+                        : "현행 세제 유지 가정"}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {baselinePriceMan > 0 ? (
+              <div className="space-y-2 border-t border-slate-200/80 pt-3">
+                <p className="text-sm font-medium text-slate-800">연도 구분</p>
+                <ul className="space-y-2">
+                  {officialPriceYear ? (
+                    <li className="flex items-start justify-between gap-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-medium text-slate-800">
+                          {officialPriceYear}년 · 공식
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          공시가격만 표시 · 과거 실제 납부세액 아님
+                        </p>
+                      </div>
+                      <p className="shrink-0 font-semibold tabular-nums text-slate-900">
+                        {formatEokMan(baselinePriceMan)}
+                      </p>
+                    </li>
+                  ) : (
+                    <li className="flex items-start justify-between gap-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-medium text-slate-800">기준 공시가격</p>
+                        <p className="text-xs text-slate-500">
+                          {officialManualOverride ? "사용자 입력" : "입력값"}
+                        </p>
+                      </div>
+                      <p className="shrink-0 font-semibold tabular-nums text-slate-900">
+                        {formatEokMan(baselinePriceMan)}
+                      </p>
+                    </li>
+                  )}
+                  {holdingYear0 ? (
+                    <li className="flex items-start justify-between gap-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-medium text-slate-800">
+                          {holdingBaseYear}년 · 예상
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          공시가격 {growthLabel} · 현행 세제 적용 시
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="font-semibold tabular-nums text-slate-900">
+                          {formatEokMan(projectedPriceMan)}
+                        </p>
+                        <p className="text-xs tabular-nums text-slate-500">
+                          보유세 {formatEokMan(holdingYear0.totalMan)}
+                        </p>
+                      </div>
+                    </li>
+                  ) : null}
+                </ul>
+              </div>
+            ) : null}
+
             <div className="space-y-2 border-t border-slate-200/80 pt-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -939,51 +1108,12 @@ export function ComplexPurchaseCalculatorSection({
               </div>
             </div>
 
-            {holding && holding.years.length > 1 ? (
-              <div className="space-y-2 border-t border-slate-200/80 pt-3">
-                <p className="text-sm font-medium text-slate-800">연도별 보유세</p>
-                <ul className="space-y-2">
-                  {holding.years.map((y) => {
-                    const year = holdingBaseYear + y.yearOffset;
-                    const kind =
-                      y.yearOffset === 0 ? "입력 기준" : "예상 · 가정";
-                    return (
-                      <li
-                        key={y.yearOffset}
-                        className="flex items-start justify-between gap-3 text-sm"
-                      >
-                        <div className="min-w-0">
-                          <p className="font-medium text-slate-800">{year}년</p>
-                          <p className="text-xs text-slate-500">{kind}</p>
-                        </div>
-                        <div className="shrink-0 text-right">
-                          <p className="font-semibold tabular-nums text-slate-900">
-                            {formatEokMan(y.totalMan)}
-                          </p>
-                          <p className="text-xs tabular-nums text-slate-500">
-                            재산 {formatManWon(y.property.totalMan)} · 종부{" "}
-                            {formatManWon(y.comprehensive.taxMan)}
-                          </p>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {holding.projectionDisclaimer ? (
-                  <p className="text-sm leading-relaxed text-amber-900">
-                    {holding.projectionDisclaimer}. 미래 연도는 공식 공시가격이
-                    아닌 가정값입니다.
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-
             {holdingYear0 ? (
               <LabDisclosure title="계산 기준 및 세부내역">
-                <div className="space-y-5">
-                  <div className="space-y-2.5">
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
                     <p className="text-sm font-semibold text-slate-900">재산세</p>
-                    <dl className="space-y-2">
+                    <dl className="space-y-1.5">
                       <BreakdownRow
                         label="공시가격"
                         value={formatEokMan(holdingYear0.property.officialPriceMan)}
@@ -992,14 +1122,14 @@ export function ComplexPurchaseCalculatorSection({
                         label="공정시장가액비율"
                         value={formatPct(holdingYear0.property.fairMarketRatio)}
                       />
-                      <div className="space-y-1">
+                      <div className="space-y-0.5">
                         <BreakdownRow
                           label="과세표준"
                           value={formatEokMan(holdingYear0.property.taxBaseMan)}
+                          emph
                         />
-                        <p className="text-sm leading-relaxed text-slate-600">
-                          공시가격 {formatEokMan(holdingYear0.property.officialPriceMan)}{" "}
-                          × 공정시장가액비율{" "}
+                        <p className="text-sm leading-snug text-slate-600">
+                          {formatEokMan(holdingYear0.property.officialPriceMan)} ×{" "}
                           {formatPct(holdingYear0.property.fairMarketRatio)}
                         </p>
                       </div>
@@ -1025,11 +1155,11 @@ export function ComplexPurchaseCalculatorSection({
                     </dl>
                   </div>
 
-                  <div className="space-y-2.5 border-t border-slate-100 pt-4">
+                  <div className="space-y-1.5 border-t border-slate-100 pt-3">
                     <p className="text-sm font-semibold text-slate-900">
                       종합부동산세
                     </p>
-                    <dl className="space-y-2">
+                    <dl className="space-y-1.5">
                       <BreakdownRow
                         label="공시가격 합계"
                         value={formatEokMan(
@@ -1048,23 +1178,23 @@ export function ComplexPurchaseCalculatorSection({
                           holdingYear0.comprehensive.fairMarketRatio,
                         )}
                       />
-                      <div className="space-y-1">
+                      <div className="space-y-0.5">
                         <BreakdownRow
                           label="과세표준"
                           value={formatEokMan(
                             holdingYear0.comprehensive.taxBaseMan,
                           )}
+                          emph
                         />
-                        <p className="text-sm leading-relaxed text-slate-600">
-                          (공시가격{" "}
-                          {formatEokMan(
+                        <p className="text-sm leading-snug text-slate-600">
+                          ({formatEokMan(
                             holdingYear0.comprehensive.officialPriceMan,
                           )}{" "}
-                          − 기본공제{" "}
+                          −{" "}
                           {formatEokMan(
                             holdingYear0.comprehensive.deductionMan,
                           )}
-                          ) × 공정시장가액비율{" "}
+                          ) ×{" "}
                           {formatPct(
                             holdingYear0.comprehensive.fairMarketRatio,
                           )}
@@ -1107,11 +1237,8 @@ export function ComplexPurchaseCalculatorSection({
                         emph
                       />
                     </dl>
-                    <LabDisclosure
-                      title="전체 세율표 보기"
-                      className="border-t-0"
-                    >
-                      <dl className="space-y-2">
+                    <LabDisclosure title="전체 세율표 보기" className="border-t-0">
+                      <dl className="space-y-1.5">
                         {COMPREHENSIVE_GENERAL_RATE_BRACKETS.map((b) => (
                           <BreakdownRow
                             key={b.label}
@@ -1121,13 +1248,12 @@ export function ComplexPurchaseCalculatorSection({
                         ))}
                       </dl>
                       <p className="mt-2 text-xs text-slate-500">
-                        {holdingYear0.comprehensive.meta.ruleVersion} · 시행{" "}
-                        {holdingYear0.comprehensive.meta.effectiveFrom}
+                        2026년 현행 세제 기준
                       </p>
                     </LabDisclosure>
                   </div>
 
-                  <div className="space-y-2 border-t border-slate-200 pt-4">
+                  <div className="space-y-1.5 border-t border-slate-200 pt-3">
                     <BreakdownRow
                       label="예상 총 보유세"
                       value={formatEokMan(holdingYear0.totalMan)}
@@ -1141,10 +1267,7 @@ export function ComplexPurchaseCalculatorSection({
                     <p className="text-sm leading-relaxed text-slate-700">
                       {holding?.estimateDisclaimer}
                     </p>
-                    <p className="text-xs text-slate-500">
-                      {holdingYear0.property.meta.ruleVersion} /{" "}
-                      {holdingYear0.comprehensive.meta.ruleVersion}
-                    </p>
+                    <p className="text-xs text-slate-500">2026년 현행 세제 기준</p>
                   </div>
                 </div>
               </LabDisclosure>
@@ -1162,7 +1285,7 @@ export function ComplexPurchaseCalculatorSection({
                   role="dialog"
                   aria-modal="true"
                   aria-labelledby="holding-settings-title"
-                  className="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
+                  className="relative z-10 flex max-h-[65vh] w-full max-w-md flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
                 >
                   <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
                     <h3
@@ -1202,48 +1325,6 @@ export function ComplexPurchaseCalculatorSection({
                       </div>
                       <p className="text-sm leading-relaxed text-slate-600">
                         공정시장가액비율·종부세 기본공제에 반영됩니다.
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-800">
-                        미래 전망
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <select
-                          className="lab-input h-10 px-2 text-sm"
-                          value={projectionYears}
-                          onChange={(e) =>
-                            setProjectionYears(Number(e.target.value))
-                          }
-                        >
-                          <option value={0}>당해만</option>
-                          <option value={1}>+1년</option>
-                          <option value={3}>+3년</option>
-                          <option value={5}>+5년</option>
-                        </select>
-                        {projectionYears > 0 ? (
-                          <>
-                            <input
-                              className="lab-input h-10 w-20 px-2 text-sm"
-                              type="number"
-                              min={0}
-                              max={20}
-                              step={0.5}
-                              value={growthPct}
-                              onChange={(e) =>
-                                setGrowthPct(Number(e.target.value) || 0)
-                              }
-                            />
-                            <span className="text-sm text-slate-500">
-                              %/년 공시가 가정
-                            </span>
-                          </>
-                        ) : null}
-                      </div>
-                      <p className="text-sm leading-relaxed text-slate-600">
-                        미래 연도는 공식값이 아닌 가정이며, 현행 세제 유지를
-                        전제합니다.
                       </p>
                     </div>
 
