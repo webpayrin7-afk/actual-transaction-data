@@ -146,31 +146,54 @@ function ConditionRow({
   );
 }
 
+function BasisToggle({
+  open,
+  onToggle,
+  title = "계산 기준 및 세부내역",
+  children,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  title?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-lg border border-slate-200/80 bg-slate-50/40">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+      >
+        <span>{title}</span>
+        <span
+          aria-hidden
+          className={`shrink-0 text-base leading-none text-slate-500 transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+        >
+          ∨
+        </span>
+      </button>
+      {open ? (
+        <div className="border-t border-slate-200/70 px-3 py-3">{children}</div>
+      ) : null}
+    </div>
+  );
+}
+
 function BasisDetails({ lines }: { lines: string[] }) {
   const cleaned = lines.map((l) => l.trim()).filter(Boolean);
   const [open, setOpen] = useState(false);
   if (!cleaned.length) return null;
   return (
-    <details
-      className="group rounded-lg border border-slate-200/80 bg-slate-50/40"
-      open={open}
-      onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-    >
-      <summary
-        aria-expanded={open}
-        className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-medium text-slate-800 marker:content-none [&::-webkit-details-marker]:hidden"
-      >
-        <span>계산 기준 및 세부내역</span>
-        <span aria-hidden className="text-slate-500 transition group-open:rotate-180">
-          ∨
-        </span>
-      </summary>
-      <ul className="space-y-2 border-t border-slate-200/70 px-3 py-3 text-sm leading-relaxed text-slate-700">
+    <BasisToggle open={open} onToggle={() => setOpen((v) => !v)}>
+      <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
         {cleaned.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </ul>
-    </details>
+    </BasisToggle>
   );
 }
 
@@ -637,26 +660,11 @@ export function ComplexPurchaseCalculatorSection({
             )}
 
             {purchase ? (
-              <details
-                className="group rounded-lg border border-slate-200/80 bg-slate-50/40"
+              <BasisToggle
                 open={purchaseBasisOpen}
-                onToggle={(e) =>
-                  setPurchaseBasisOpen((e.target as HTMLDetailsElement).open)
-                }
+                onToggle={() => setPurchaseBasisOpen((v) => !v)}
               >
-                <summary
-                  aria-expanded={purchaseBasisOpen}
-                  className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-medium text-slate-800 marker:content-none [&::-webkit-details-marker]:hidden"
-                >
-                  <span>계산 기준 및 세부내역</span>
-                  <span
-                    aria-hidden
-                    className="text-slate-500 transition group-open:rotate-180"
-                  >
-                    ∨
-                  </span>
-                </summary>
-                <div className="space-y-4 border-t border-slate-200/70 px-3 py-3">
+                  <div className="space-y-4">
                   <DetailItem
                     label="취득 관련 세금"
                     value={formatEokMan(purchase.acquisition.totalTaxMan)}
@@ -714,7 +722,7 @@ export function ComplexPurchaseCalculatorSection({
                     </p>
                   </div>
                 </div>
-              </details>
+              </BasisToggle>
             ) : null}
           </div>
         ) : null}
