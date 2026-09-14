@@ -147,14 +147,14 @@ function unitToResult(
     priceMinMan: priceMan,
     priceMaxMan: priceMan,
     priceMeaning: usedPriorBulkYear
-      ? `${unit.officialPriceDate} 공식 공시가격(요청 연도 ${requestYear} bulk 미공개 · 최신 bulk ${unit.year} 사용)`
+      ? `${unit.officialPriceDate} 공식 공시가격 기준(최신 공개분)`
       : `${unit.officialPriceDate} 공식 공시가격`,
     years: [
       {
         year: unit.year,
         priceMan,
         kind: "official",
-        note: `${unit.officialPriceDate} bulk actual`,
+        note: `${unit.officialPriceDate} 공식`,
       },
     ],
     unitLinkage: true,
@@ -229,7 +229,7 @@ export function getComplexPublicPrices(
       years: [],
       unitLinkage: false,
       blocker:
-        "이 단지는 공시가격 공식 source-link 파일럿 대상이 아닙니다. 직접 입력하세요.",
+        "이 단지는 아직 공식 공시가격을 자동 연결할 수 없습니다. 직접 입력하세요.",
       matchType: "SOURCE_LINK_MISSING",
       ...emptyPilotFields(requestYear),
     };
@@ -257,7 +257,7 @@ export function getComplexPublicPrices(
       years: [],
       unitLinkage: false,
       blocker:
-        "면적 조건이 없어 UNIT_EXACT 공시가격을 확정할 수 없습니다. 면적을 선택하거나 직접 입력하세요.",
+        "면적을 선택하면 공식 공시가격을 연결할 수 있습니다. 또는 직접 입력하세요.",
       matchType: "NOT_FOUND",
       ...emptyPilotFields(requestYear),
       source: MOLIT_PUBLIC_PRICE_SOURCE,
@@ -290,7 +290,7 @@ export function getComplexPublicPrices(
       priceMeaning: null,
       years: [],
       unitLinkage: false,
-      blocker: `${requestYear}년 공식 bulk 공시가격은 아직 공개되지 않았습니다. 직접 입력하세요.`,
+      blocker: `${requestYear}년 공식 공시가격은 아직 공개되지 않았습니다. 직접 입력하세요.`,
       matchType: "YEAR_NOT_AVAILABLE",
       ...emptyPilotFields(requestYear),
       source: MOLIT_PUBLIC_PRICE_SOURCE,
@@ -314,7 +314,7 @@ export function getComplexPublicPrices(
     years: [],
     unitLinkage: false,
     blocker:
-      "선택한 면적·동·호에 대한 파일럿 공시가격 fixture가 없습니다. 직접 입력하세요. (평형 집계는 전체 unit bulk 확보 후 제공)",
+      "선택한 면적에 대한 공식 공시가격을 찾지 못했습니다. 직접 입력하세요.",
     matchType: "NOT_FOUND",
     ...emptyPilotFields(requestYear),
     source: MOLIT_PUBLIC_PRICE_SOURCE,
