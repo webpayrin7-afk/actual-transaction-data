@@ -24,6 +24,7 @@ export {
   calculateComprehensiveRealEstateTax,
   COMPREHENSIVE_TAX_RULE,
   COMPREHENSIVE_FAIR_MARKET_RATIO,
+  COMPREHENSIVE_GENERAL_RATE_BRACKETS,
 } from "@/lib/calculator/rules/comprehensive-tax";
 export {
   calculatePurchaseCost,

@@ -98,15 +98,15 @@ textarea,
 /* Official LAB section navigation — text + underline (no filled pill) */
 .lab-tab-underline {
   display: inline-flex;
-  min-height: 40px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2.5px solid transparent;
   background: transparent;
-  padding: 0 2px 8px;
-  color: #64748b;
+  padding: 0 2px 7px;
+  color: #475569;
   font-size: .875rem;
-  font-weight: 600;
+  font-weight: 500;
   transition: color .15s, border-color .15s;
 }
 .lab-tab-underline:hover:not([aria-selected="true"]):not(.lab-tab-underline-active):not(:disabled) {
@@ -117,6 +117,7 @@ textarea,
   border-bottom-color: var(--lab-teal-600);
   background: transparent;
   color: var(--lab-teal-700);
+  font-weight: 600;
 }
 .lab-tab-underline:disabled { cursor: not-allowed; opacity: .45; }
 .lab-choice { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; border: 1px solid var(--lab-border); border-radius: 10px; background: white; padding: 8px 12px; color: var(--lab-navy-900); font-size: .875rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
