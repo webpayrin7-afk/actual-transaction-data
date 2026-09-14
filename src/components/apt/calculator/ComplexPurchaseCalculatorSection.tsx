@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { labUnderlineTabClass } from "@/components/ui/lab";
 import {
   brokerageRatePctOptionsForPrice,
@@ -47,7 +47,7 @@ function Row({
           {label}
         </dt>
         {hint ? (
-          <p className="mt-0.5 text-[11px] leading-snug text-slate-400">
+          <p className="mt-0.5 text-xs leading-snug text-slate-500">
             {hint}
           </p>
         ) : null}
@@ -94,19 +94,86 @@ function ConditionRow({
 
 function BasisDetails({ lines }: { lines: string[] }) {
   const cleaned = lines.map((l) => l.trim()).filter(Boolean);
+  const [open, setOpen] = useState(false);
   if (!cleaned.length) return null;
   return (
-    <details className="group">
-      <summary className="cursor-pointer list-none text-[11px] text-slate-400 marker:content-none [&::-webkit-details-marker]:hidden">
-        계산 기준 펼치기
-        <span className="ml-1 hidden group-open:inline">· 접기</span>
+    <details
+      className="group rounded-lg border border-slate-200/80 bg-slate-50/40"
+      open={open}
+      onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
+    >
+      <summary
+        aria-expanded={open}
+        className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-medium text-slate-800 marker:content-none [&::-webkit-details-marker]:hidden"
+      >
+        <span>계산 기준 및 세부내역</span>
+        <span aria-hidden className="text-slate-500 transition group-open:rotate-180">
+          ∨
+        </span>
       </summary>
-      <ul className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-slate-400">
+      <ul className="space-y-2 border-t border-slate-200/70 px-3 py-3 text-sm leading-relaxed text-slate-700">
         {cleaned.map((line) => (
-          <li key={line}>· {line}</li>
+          <li key={line}>{line}</li>
         ))}
       </ul>
     </details>
+  );
+}
+
+function FieldSelect({
+  id,
+  label,
+  status,
+  value,
+  onChange,
+  children,
+}: {
+  id: string;
+  label: string;
+  status?: string;
+  value: string | number;
+  onChange: (value: string) => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <label htmlFor={id} className="text-sm text-slate-500">
+          {label}
+        </label>
+        {status ? (
+          <p className="mt-0.5 truncate text-xs text-slate-500">{status}</p>
+        ) : null}
+      </div>
+      <select
+        id={id}
+        className="h-9 min-w-[10.5rem] max-w-[58%] rounded-md border border-slate-200 bg-white px-2.5 text-sm font-medium text-slate-800"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
+function DetailItem({
+  label,
+  value,
+  basis,
+}: {
+  label: string;
+  value: string;
+  basis?: string;
+}) {
+  return (
+    <div className="space-y-0.5">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="text-sm font-semibold tabular-nums text-slate-900">{value}</p>
+      {basis ? (
+        <p className="text-sm leading-relaxed text-slate-600">{basis}</p>
+      ) : null}
+    </div>
   );
 }
 
@@ -141,6 +208,7 @@ export function ComplexPurchaseCalculatorSection({
   const [priceFocused, setPriceFocused] = useState(false);
   const [priceDraft, setPriceDraft] = useState("");
   const [conditionsOpen, setConditionsOpen] = useState(false);
+  const [purchaseBasisOpen, setPurchaseBasisOpen] = useState(false);
 
   const [homeStatus, setHomeStatus] =
     useState<AcquisitionHomeStatus>("one_home");
@@ -272,8 +340,6 @@ export function ComplexPurchaseCalculatorSection({
       ? (areaLabel.split("·")[0]?.trim() || areaLabel)
       : "";
 
-  const purchaseConditionSummary =
-    homeStatus === "one_home" ? "1주택 · 일반취득 · 개인" : "다주택 중과 · 단순";
   const holdingConditionSummary = singleHomeHousehold
     ? "1세대 1주택 · 단독명의"
     : "1세대 1주택 아님";
@@ -413,6 +479,55 @@ export function ComplexPurchaseCalculatorSection({
 
         {tab === "purchase" ? (
           <div className="space-y-3">
+            <div className="space-y-2.5">
+              <FieldSelect
+                id="calc-home-status"
+                label="취득 조건"
+                value={homeStatus}
+                onChange={(v) =>
+                  setHomeStatus(v as AcquisitionHomeStatus)
+                }
+              >
+                <option value="one_home">1주택 일반취득</option>
+                <option value="multi_heavy">다주택 중과</option>
+              </FieldSelect>
+
+              <FieldSelect
+                id="calc-brokerage-rate"
+                label="중개보수율"
+                status={
+                  purchase
+                    ? purchase.brokerage.userSelected
+                      ? "직접 선택"
+                      : "법정 상한"
+                    : brokerageOptions.length
+                      ? "법정 상한 기준"
+                      : "매수가 입력 후 선택"
+                }
+                value={
+                  purchase
+                    ? String(purchase.brokerage.ratePct)
+                    : brokerageOptions[brokerageOptions.length - 1]
+                      ? String(brokerageOptions[brokerageOptions.length - 1])
+                      : ""
+                }
+                onChange={(v) => {
+                  const next = Number(v);
+                  setBrokerageRatePct(Number.isFinite(next) ? next : null);
+                }}
+              >
+                {brokerageOptions.map((pct) => (
+                  <option key={pct} value={pct}>
+                    {pct.toFixed(2)}%
+                    {purchase &&
+                    Math.abs(pct - purchase.brokerage.legalCapRatePct) < 1e-9
+                      ? " · 상한"
+                      : ""}
+                  </option>
+                ))}
+              </FieldSelect>
+            </div>
+
             {purchase ? (
               <dl className="space-y-2.5">
                 <Row
@@ -420,90 +535,20 @@ export function ComplexPurchaseCalculatorSection({
                   value={formatEokMan(purchase.totalCostMan)}
                   emph
                 />
-                <div className="space-y-2 border-t border-slate-100 pt-2.5">
+                <div className="space-y-2 border-t border-slate-200/80 pt-2.5">
                   <Row label="매매가" value={formatEokMan(purchase.priceMan)} />
+                  <Row
+                    label="추가 비용"
+                    value={`+${formatEokMan(purchase.extraCostMan)}`}
+                  />
                   <Row
                     label="취득 관련 세금"
                     value={formatEokMan(purchase.acquisition.totalTaxMan)}
-                    hint="취득세·지방교육세·농어촌특별세"
                   />
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm text-slate-500">중개보수율</p>
-                        <p className="mt-0.5 text-[11px] text-slate-400">
-                          {purchase.brokerage.userSelected
-                            ? `${purchase.brokerage.ratePct.toFixed(2)}% · 직접 선택`
-                            : `${purchase.brokerage.ratePct.toFixed(2)}% · 상한`}
-                        </p>
-                      </div>
-                      <label className="sr-only" htmlFor="calc-brokerage-rate">
-                        중개보수율 선택
-                      </label>
-                      <select
-                        id="calc-brokerage-rate"
-                        className="h-8 max-w-[9.5rem] rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-teal-800"
-                        value={purchase.brokerage.ratePct}
-                        onChange={(e) => {
-                          const next = Number(e.target.value);
-                          setBrokerageRatePct(
-                            Number.isFinite(next) ? next : null,
-                          );
-                        }}
-                      >
-                        {brokerageOptions.map((pct) => (
-                          <option key={pct} value={pct}>
-                            {pct.toFixed(2)}%
-                            {Math.abs(pct - purchase.brokerage.legalCapRatePct) <
-                            1e-9
-                              ? " · 상한"
-                              : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <Row
-                      label="중개보수"
-                      value={formatEokMan(purchase.brokerage.feeMan)}
-                      hint="부가가치세는 별도 발생할 수 있습니다."
-                    />
-                  </div>
-                  <div className="space-y-1 border-t border-slate-100 pt-2 text-[11px] text-slate-500">
-                    <div className="flex justify-between gap-2">
-                      <span>취득세</span>
-                      <span className="tabular-nums text-slate-700">
-                        {formatManWon(purchase.acquisition.baseTaxMan)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between gap-2">
-                      <span>지방교육세</span>
-                      <span className="tabular-nums text-slate-700">
-                        {formatManWon(purchase.acquisition.localEducationTaxMan)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between gap-2">
-                      <span>농어촌특별세</span>
-                      <span className="tabular-nums text-slate-700">
-                        {formatManWon(purchase.acquisition.ruralSpecialTaxMan)}
-                      </span>
-                    </div>
-                    {purchase.acquisition.ruralSpecialTaxStatus ===
-                    "exempt_national_housing" ? (
-                      <p className="text-slate-400">전용 85㎡ 이하 비과세</p>
-                    ) : null}
-                    {purchase.acquisition.ruralSpecialTaxStatus ===
-                    "needs_exact_area" ? (
-                      <p className="text-amber-700">
-                        전용면적이 85㎡를 걸칩니다. 정확한 면적 확인이 필요합니다.
-                      </p>
-                    ) : null}
-                    {purchase.acquisition.ruralSpecialTaxStatus ===
-                    "unknown_area" ? (
-                      <p className="text-amber-700">
-                        전용면적 정보가 없어 농어촌특별세를 확정하지 않았습니다.
-                      </p>
-                    ) : null}
-                  </div>
+                  <Row
+                    label="중개보수"
+                    value={formatEokMan(purchase.brokerage.feeMan)}
+                  />
                 </div>
               </dl>
             ) : (
@@ -512,60 +557,86 @@ export function ComplexPurchaseCalculatorSection({
               </p>
             )}
 
-            <ConditionRow
-              summary={purchaseConditionSummary}
-              open={conditionsOpen}
-              onToggle={() => setConditionsOpen((v) => !v)}
-            />
-            {conditionsOpen ? (
-              <div className="flex flex-wrap gap-2">
-                {(
-                  [
-                    ["one_home", "1주택(일반)"],
-                    ["multi_heavy", "다주택 중과(단순)"],
-                  ] as const
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={choiceClass(homeStatus === id)}
-                    onClick={() => setHomeStatus(id)}
+            {purchase ? (
+              <details
+                className="group rounded-lg border border-slate-200/80 bg-slate-50/40"
+                open={purchaseBasisOpen}
+                onToggle={(e) =>
+                  setPurchaseBasisOpen((e.target as HTMLDetailsElement).open)
+                }
+              >
+                <summary
+                  aria-expanded={purchaseBasisOpen}
+                  className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm font-medium text-slate-800 marker:content-none [&::-webkit-details-marker]:hidden"
+                >
+                  <span>계산 기준 및 세부내역</span>
+                  <span
+                    aria-hidden
+                    className="text-slate-500 transition group-open:rotate-180"
                   >
-                    {label}
-                  </button>
-                ))}
-              </div>
+                    ∨
+                  </span>
+                </summary>
+                <div className="space-y-4 border-t border-slate-200/70 px-3 py-3">
+                  <DetailItem
+                    label="취득 관련 세금"
+                    value={formatEokMan(purchase.acquisition.totalTaxMan)}
+                    basis="취득세·지방교육세·농어촌특별세 합계"
+                  />
+                  <DetailItem
+                    label="취득세"
+                    value={formatManWon(purchase.acquisition.baseTaxMan)}
+                    basis={purchase.acquisition.appliedRateLabel}
+                  />
+                  <DetailItem
+                    label="지방교육세"
+                    value={formatManWon(
+                      purchase.acquisition.localEducationTaxMan,
+                    )}
+                  />
+                  <DetailItem
+                    label="농어촌특별세"
+                    value={formatManWon(
+                      purchase.acquisition.ruralSpecialTaxMan,
+                    )}
+                    basis={
+                      purchase.acquisition.ruralSpecialTaxStatus ===
+                      "exempt_national_housing"
+                        ? "전용 85㎡ 이하 서민주택 비과세"
+                        : purchase.acquisition.ruralSpecialTaxStatus ===
+                            "needs_exact_area"
+                          ? "전용면적 범위가 85㎡를 걸칩니다. 정확한 면적 확인이 필요합니다."
+                          : purchase.acquisition.ruralSpecialTaxStatus ===
+                              "unknown_area"
+                            ? "전용면적 정보가 없어 확정하지 않았습니다."
+                            : "전용 85㎡ 초과 · 취득가액 × 0.2%"
+                    }
+                  />
+                  <DetailItem
+                    label="중개보수"
+                    value={formatManWon(purchase.brokerage.feeMan)}
+                    basis={`선택 요율 ${purchase.brokerage.ratePct.toFixed(2)}% · 법정 상한 ${purchase.brokerage.legalCapRatePct.toFixed(2)}%`}
+                  />
+                  <div className="space-y-1.5 border-t border-slate-200/70 pt-3">
+                    <p className="text-sm font-medium text-slate-800">
+                      적용·미반영 안내
+                    </p>
+                    <ul className="space-y-1.5 text-sm leading-relaxed text-slate-700">
+                      {(purchase.acquisition.notes ?? []).map((n) => (
+                        <li key={n}>{n}</li>
+                      ))}
+                      <li>부가가치세는 사업자 유형에 따라 별도 발생할 수 있습니다.</li>
+                      <li>개인별 감면·특례는 반영하지 않은 예상값입니다.</li>
+                    </ul>
+                    <p className="pt-1 text-xs text-slate-500">
+                      {purchase.acquisition.meta.ruleVersion} /{" "}
+                      {purchase.brokerage.meta.ruleVersion} · 시행{" "}
+                      {purchase.acquisition.meta.effectiveFrom}
+                    </p>
+                  </div>
+                </div>
+              </details>
             ) : null}
-
-            <BasisDetails
-              lines={[
-                purchase
-                  ? `취득세 본세: ${formatManWon(purchase.acquisition.baseTaxMan)} (${purchase.acquisition.appliedRateLabel})`
-                  : "",
-                purchase
-                  ? `지방교육세: ${formatManWon(purchase.acquisition.localEducationTaxMan)}`
-                  : "",
-                purchase
-                  ? `농어촌특별세: ${formatManWon(purchase.acquisition.ruralSpecialTaxMan)}`
-                  : "",
-                purchase
-                  ? `중개보수율 ${purchase.brokerage.ratePct.toFixed(2)}% (${purchase.brokerage.userSelected ? "직접 선택" : "법정 상한"})`
-                  : "",
-                purchase?.acquisition.ruralSpecialTaxStatus ===
-                "exempt_national_housing"
-                  ? "농어촌특별세: 전용 85㎡ 이하 비과세"
-                  : "",
-                ...(purchase?.acquisition.notes ?? []),
-                ...(purchase?.brokerage.notes ?? []),
-                purchase
-                  ? `규칙: ${purchase.acquisition.meta.ruleVersion} / ${purchase.brokerage.meta.ruleVersion}`
-                  : "",
-                purchase
-                  ? `시행: ${purchase.acquisition.meta.effectiveFrom}`
-                  : "",
-                purchase ? purchase.acquisition.meta.source : "",
-              ]}
-            />
           </div>
         ) : null}
 
@@ -618,11 +689,11 @@ export function ComplexPurchaseCalculatorSection({
                     </div>
                   </div>
                 ))}
-                <p className="text-[11px] text-amber-800">
+                <p className="text-sm leading-relaxed text-amber-900">
                   {holding.estimateDisclaimer}
                 </p>
                 {holding.projectionDisclaimer ? (
-                  <p className="text-[11px] text-amber-800">
+                  <p className="text-sm leading-relaxed text-amber-900">
                     {holding.projectionDisclaimer}
                   </p>
                 ) : null}
