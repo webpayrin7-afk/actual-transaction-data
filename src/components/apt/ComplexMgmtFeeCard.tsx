@@ -15,20 +15,13 @@ import {
 function MetricRow({
   label,
   valueLabel,
-  hint,
 }: {
   label: string;
   valueLabel: string;
-  hint?: string;
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-2">
-      <div className="min-w-0">
-        <p className="text-sm text-slate-600">{label}</p>
-        {hint ? (
-          <p className="mt-0.5 text-xs leading-snug text-slate-500">{hint}</p>
-        ) : null}
-      </div>
+      <p className="min-w-0 text-sm text-slate-600">{label}</p>
       <p className="shrink-0 text-sm font-semibold tabular-nums text-slate-800">
         {valueLabel}
       </p>
@@ -41,8 +34,16 @@ function formatMonthKo(yyyymm: string): string {
   return `${yyyymm.slice(0, 4)}년 ${Number(yyyymm.slice(4, 6))}월`;
 }
 
+function formatSeasonPeriod(months: string[], season: "winter" | "summer"): string {
+  if (months.length === 0) return "—";
+  const year = months[0]!.slice(0, 4);
+  const seasonKo = season === "winter" ? "겨울" : "여름";
+  if (months.length >= 3) return `${year}년 ${seasonKo}`;
+  return `${year}년 ${seasonKo} · ${months.length}개월 평균`;
+}
+
 function formatWonPerSqm(n: number): string {
-  return `${n.toLocaleString("ko-KR", { maximumFractionDigits: 2 })}원/㎡`;
+  return `${Math.round(n).toLocaleString("ko-KR")}원/㎡`;
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -58,9 +59,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 /**
  * Management-fee summary for Complex Detail.
- *
- * Pilot (잠실엘스): selected-pyeong estimate from portal OpenAPI derived 원/㎡.
- * Non-pilot: pending copy only — never fall back to complex÷households.
+ * Main view stays numeric; calculation basis lives in disclosure.
  */
 export function ComplexMgmtFeeCard({
   management,
@@ -98,20 +97,9 @@ export function ComplexMgmtFeeCard({
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-          관리비
-        </h2>
-        <p className="shrink-0 text-xs font-medium text-slate-500 sm:text-sm">
-          {showSelectedEstimate
-            ? pyeongTitle
-              ? `${pyeongTitle} 기준`
-              : "선택 면적 기준"
-            : pyeongTitle
-              ? `${pyeongTitle} · 데이터 준비 중`
-              : "선택 평형 · 데이터 준비 중"}
-        </p>
-      </div>
+      <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+        관리비
+      </h2>
 
       {showSelectedEstimate && estimate ? (
         <>
@@ -122,14 +110,6 @@ export function ComplexMgmtFeeCard({
                 estimate.latest.wonMin,
                 estimate.latest.wonMax,
               )}
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-slate-600">
-              {formatMonthKo(estimate.latestMonth)} ·{" "}
-              {estimate.areaBasisLabelKo} 기준
-            </p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              전용 {estimate.exclusiveAreaMin.toFixed(2)}~
-              {estimate.exclusiveAreaMax.toFixed(2)}㎡
             </p>
           </div>
 
@@ -144,7 +124,6 @@ export function ComplexMgmtFeeCard({
                     )
                   : "—"
               }
-              hint={estimate.winter?.hint}
             />
             <MetricRow
               label="여름 평균"
@@ -156,7 +135,6 @@ export function ComplexMgmtFeeCard({
                     )
                   : "—"
               }
-              hint={estimate.summer?.hint}
             />
             <MetricRow
               label="최근 12개월 평균"
@@ -168,7 +146,6 @@ export function ComplexMgmtFeeCard({
                     )
                   : "—"
               }
-              hint={estimate.trailingAverage?.hint}
             />
           </div>
 
@@ -178,9 +155,6 @@ export function ComplexMgmtFeeCard({
             <div className="mt-2 border-t border-slate-200/80 pt-1">
               <p className="pt-2 text-sm font-medium text-slate-800">
                 관리비 구성
-              </p>
-              <p className="mt-0.5 text-xs text-slate-500">
-                {formatMonthKo(estimate.latestMonth)} · 선택 평형 면적단가 환산
               </p>
               <div className="mt-1">
                 <MetricRow
@@ -208,7 +182,11 @@ export function ComplexMgmtFeeCard({
             </div>
           ) : null}
 
-          <LabDisclosure title="계산 기준 및 세부내역" className="mt-3">
+          <LabDisclosure title="산정 근거 보기" className="mt-3">
+            <p className="pb-2 text-sm font-medium text-slate-800">
+              관리비 산정 근거
+              {pyeongTitle ? ` · ${pyeongTitle}` : ""}
+            </p>
             <dl>
               <InfoRow
                 label="계산 방식"
@@ -225,6 +203,30 @@ export function ComplexMgmtFeeCard({
               <InfoRow
                 label="평균 기준"
                 value="겨울 12~2월 · 여름 6~8월 · 최근 평균 최대 12개월"
+              />
+              <InfoRow
+                label="겨울"
+                value={
+                  estimate.winter
+                    ? formatSeasonPeriod(estimate.winter.monthsUsed, "winter")
+                    : "—"
+                }
+              />
+              <InfoRow
+                label="여름"
+                value={
+                  estimate.summer
+                    ? formatSeasonPeriod(estimate.summer.monthsUsed, "summer")
+                    : "—"
+                }
+              />
+              <InfoRow
+                label="최근 평균"
+                value={
+                  estimate.trailingAverage
+                    ? `최대 ${estimate.trailingAverage.monthCount}개월`
+                    : "—"
+                }
               />
               <InfoRow label="출처" value={estimate.sourceLabelKo} />
             </dl>
@@ -274,20 +276,12 @@ export function ComplexMgmtFeeCard({
             <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
               평형별 관리비 데이터 준비 중
             </p>
-            <p className="mt-1 text-sm leading-relaxed text-slate-600">
-              {hasPortalData && !pyeongTitle
-                ? "평형을 선택하면 주거전용면적 기준 예상 관리비를 표시합니다."
-                : hasPortalData && (areaMin == null || areaMax == null)
-                  ? "선택 평형의 전용면적 정보가 없어 예상 관리비를 계산할 수 없습니다."
-                  : "이 단지의 면적단가가 아직 없어 선택 평형 금액을 표시하지 않습니다."}
-            </p>
           </div>
 
-          <p className="mt-4 text-sm leading-relaxed text-slate-600">
-            평형별 예상 관리비는 주거전용면적 단가가 있는 단지에서만 표시합니다.
-          </p>
-
-          <LabDisclosure title="계산 기준 및 세부내역" className="mt-3">
+          <LabDisclosure title="산정 근거 보기" className="mt-3">
+            <p className="pb-2 text-sm font-medium text-slate-800">
+              관리비 산정 근거
+            </p>
             <dl>
               <InfoRow
                 label="계산 방식"
