@@ -26,6 +26,58 @@ const TABS: { id: TabId; label: string }[] = [
 
 const inputClass = "lab-input h-10 w-full min-w-0 px-3 text-sm tabular-nums";
 
+/** 만원 숫자 입력 + 입력칸 안 실시간 억·만원 환산 */
+function ManWonField({
+  id,
+  value,
+  placeholder,
+  liveMan,
+  onFocus,
+  onChange,
+  onBlur,
+}: {
+  id: string;
+  value: string;
+  placeholder: string;
+  liveMan: number | null;
+  onFocus: () => void;
+  onChange: (value: string) => void;
+  onBlur: () => void;
+}) {
+  const liveLabel =
+    liveMan != null && liveMan > 0 ? formatEokMan(liveMan) : null;
+
+  return (
+    <div className="lab-input flex h-10 w-full min-w-0 items-center gap-2 px-3 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
+      <input
+        id={id}
+        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-sm tabular-nums text-slate-900 outline-none placeholder:text-slate-400"
+        inputMode="numeric"
+        value={value}
+        placeholder={placeholder}
+        onFocus={onFocus}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
+        aria-describedby={liveLabel ? `${id}-live` : undefined}
+      />
+      {liveLabel ? (
+        <>
+          <span aria-hidden className="h-4 w-px shrink-0 bg-slate-200" />
+          <span
+            id={`${id}-live`}
+            className="max-w-[48%] shrink-0 truncate text-right text-sm font-medium tabular-nums text-slate-700"
+          >
+            {liveLabel}
+          </span>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 function Row({
   label,
   value,
@@ -458,12 +510,11 @@ export function ComplexPurchaseCalculatorSection({
                 </button>
               ) : null}
             </div>
-            <input
+            <ManWonField
               id="calc-purchase-price"
-              className={inputClass}
-              inputMode="numeric"
               value={priceInputValue}
               placeholder="예: 341000"
+              liveMan={livePriceMan}
               onFocus={() => {
                 setPriceFocused(true);
                 setPriceDraft(
@@ -472,23 +523,15 @@ export function ComplexPurchaseCalculatorSection({
                     : "",
                 );
               }}
-              onChange={(e) => {
+              onChange={(v) => {
                 setPriceTouched(true);
-                setPriceDraft(e.target.value);
+                setPriceDraft(v);
               }}
               onBlur={() => {
                 setPriceFocused(false);
                 commitPriceDraft(priceDraft);
               }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") e.currentTarget.blur();
-              }}
             />
-            <p className="text-sm tabular-nums text-slate-700">
-              {livePriceMan != null && livePriceMan > 0
-                ? formatEokMan(livePriceMan)
-                : "만원 단위로 입력하면 억·만원으로 표시됩니다"}
-            </p>
           </div>
         ) : null}
 
@@ -665,12 +708,14 @@ export function ComplexPurchaseCalculatorSection({
                 공시가격
                 <span className="ml-1 font-normal text-slate-400">(만원)</span>
               </label>
-              <input
+              <ManWonField
                 id="calc-official-price"
-                className={inputClass}
-                inputMode="numeric"
                 value={officialDraft}
                 placeholder="예: 180000"
+                liveMan={
+                  parseEokInputToMan(officialDraft) ??
+                  (officialPriceMan > 0 ? officialPriceMan : null)
+                }
                 onFocus={() => {
                   if (officialPriceMan > 0 && !officialDraft.trim()) {
                     setOfficialDraft(formatManInput(officialPriceMan));
@@ -681,20 +726,9 @@ export function ComplexPurchaseCalculatorSection({
                     setOfficialDraft(formatManInput(officialPriceMan));
                   }
                 }}
-                onChange={(e) => setOfficialDraft(e.target.value)}
+                onChange={setOfficialDraft}
                 onBlur={() => commitOfficialDraft(officialDraft)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                }}
               />
-              <p className="text-sm tabular-nums text-slate-700">
-                {(() => {
-                  const live = parseEokInputToMan(officialDraft);
-                  if (live != null && live > 0) return formatEokMan(live);
-                  if (officialPriceMan > 0) return formatEokMan(officialPriceMan);
-                  return "만원 단위로 입력하면 억·만원으로 표시됩니다";
-                })()}
-              </p>
               <p className="text-xs text-slate-500">
                 공식 공시가가 없으면 직접 입력하세요. 실거래가 비율로 추정하지
                 않습니다.
