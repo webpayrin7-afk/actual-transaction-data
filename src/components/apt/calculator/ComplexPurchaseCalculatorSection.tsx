@@ -211,9 +211,10 @@ function FieldSelect({
   // Visible chip matches AptAreaSelector compact trigger (h-8 / text-xs).
   // Native <select> stays transparent on top — global 16px !important would
   // otherwise force these controls larger than the area picker button.
+  // Avoid w-max + truncate (circular width → right edge clipping).
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="min-w-0">
+    <div className="flex items-center justify-between gap-2">
+      <div className="min-w-0 shrink">
         <label htmlFor={id} className="text-xs text-slate-500">
           {label}
         </label>
@@ -221,12 +222,12 @@ function FieldSelect({
           <p className="mt-0.5 truncate text-[11px] text-slate-500">{status}</p>
         ) : null}
       </div>
-      <div className="relative inline-flex h-8 max-w-[58%] min-w-[7.5rem] items-center rounded-md border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-800">
-        <span className="pointer-events-none min-w-0 flex-1 truncate pr-4" aria-hidden>
+      <div className="relative ml-auto flex h-8 min-w-[10.5rem] shrink-0 items-center rounded-md border border-slate-200 bg-white pl-2.5 pr-6 text-xs font-semibold text-slate-800">
+        <span className="pointer-events-none whitespace-nowrap" aria-hidden>
           <FieldSelectDisplay value={String(value)} options={children} />
         </span>
         <span
-          className="pointer-events-none absolute right-2 text-[10px] text-slate-400"
+          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] leading-none text-slate-400"
           aria-hidden
         >
           ▾
@@ -280,7 +281,9 @@ function FieldSelectDisplay({
   };
   walk(options);
   const idx = values.indexOf(value);
-  return <>{idx >= 0 ? labels[idx] : value}</>;
+  if (idx >= 0) return <>{labels[idx]}</>;
+  if (!value) return <>선택</>;
+  return <>{value}</>;
 }
 
 function DetailItem({
@@ -746,15 +749,6 @@ export function ComplexPurchaseCalculatorSection({
               <FieldSelect
                 id="calc-brokerage-rate"
                 label="중개보수율"
-                status={
-                  purchase
-                    ? purchase.brokerage.userSelected
-                      ? "직접 선택"
-                      : "법정 상한"
-                    : brokerageOptions.length
-                      ? "법정 상한 기준"
-                      : "매수가 입력 후 선택"
-                }
                 value={
                   purchase
                     ? String(purchase.brokerage.ratePct)
@@ -770,10 +764,6 @@ export function ComplexPurchaseCalculatorSection({
                 {brokerageOptions.map((pct) => (
                   <option key={pct} value={pct}>
                     {pct.toFixed(2)}%
-                    {purchase &&
-                    Math.abs(pct - purchase.brokerage.legalCapRatePct) < 1e-9
-                      ? " · 상한"
-                      : ""}
                   </option>
                 ))}
               </FieldSelect>
