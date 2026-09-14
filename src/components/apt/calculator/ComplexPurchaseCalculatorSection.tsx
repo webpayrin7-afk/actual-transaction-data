@@ -230,6 +230,7 @@ function choiceClass(active: boolean) {
  * Shares the page area selection; personal inputs stay client-local.
  */
 export function ComplexPurchaseCalculatorSection({
+  complexId = null,
   complexName,
   areaKey,
   areaLabel,
@@ -237,6 +238,8 @@ export function ComplexPurchaseCalculatorSection({
   exclusiveAreaMinSqm = null,
   exclusiveAreaMaxSqm = null,
 }: {
+  /** Stable complex id when complex-detail identity is available. */
+  complexId?: string | null;
   /** Complex display name for holding-tax context. */
   complexName: string;
   areaKey: string;
@@ -263,6 +266,7 @@ export function ComplexPurchaseCalculatorSection({
 
   const [officialPriceMan, setOfficialPriceMan] = useState(0);
   const [officialDraft, setOfficialDraft] = useState("");
+  const [officialManualOverride, setOfficialManualOverride] = useState(false);
   const [singleHomeHousehold, setSingleHomeHousehold] = useState(true);
   const [projectionYears, setProjectionYears] = useState(0);
   const [growthPct, setGrowthPct] = useState(3);
@@ -401,14 +405,28 @@ export function ComplexPurchaseCalculatorSection({
   const publicPrice = useMemo(
     () =>
       getComplexPublicPrices({
+        complexId,
         complexName,
         areaKey: areaKey === "all" ? null : areaKey,
         exclusiveAreaMinSqm,
         exclusiveAreaMaxSqm,
         year: new Date().getFullYear(),
       }),
-    [complexName, areaKey, exclusiveAreaMinSqm, exclusiveAreaMaxSqm],
+    [complexId, complexName, areaKey, exclusiveAreaMinSqm, exclusiveAreaMaxSqm],
   );
+
+  useEffect(() => {
+    if (officialManualOverride) return;
+    if (publicPrice.matchType !== "UNIT_EXACT" || publicPrice.priceMan == null) {
+      return;
+    }
+    setOfficialPriceMan(publicPrice.priceMan);
+    setOfficialDraft(formatManInput(publicPrice.priceMan));
+  }, [publicPrice, officialManualOverride]);
+
+  useEffect(() => {
+    setOfficialManualOverride(false);
+  }, [areaKey]);
 
   const holdingBaseYear = new Date().getFullYear();
   const loanConditionSummary = [
@@ -446,6 +464,7 @@ export function ComplexPurchaseCalculatorSection({
       );
       return;
     }
+    setOfficialManualOverride(true);
     setOfficialPriceMan(parsed);
     setOfficialDraft(formatManInput(parsed));
   }
@@ -746,11 +765,17 @@ export function ComplexPurchaseCalculatorSection({
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-medium text-slate-800">공시가격</p>
                 <span className="text-xs text-slate-500">
-                  {publicPrice.autoLink === "HOLD"
-                    ? "자동연결 보류 · 직접 입력"
-                    : publicPrice.autoLink === "PARTIAL"
-                      ? "부분 연결"
-                      : "공식 공시가격"}
+                  {officialManualOverride
+                    ? "사용자 입력"
+                    : publicPrice.matchType === "UNIT_EXACT"
+                      ? publicPrice.usedPriorBulkYear
+                        ? `최신 자동 공시가격 ${publicPrice.priceBaseYear}.1.1`
+                        : "공식 공시가격"
+                      : publicPrice.autoLink === "HOLD"
+                        ? "자동연결 보류 · 직접 입력"
+                        : publicPrice.autoLink === "PARTIAL"
+                          ? "부분 연결"
+                          : "공식 공시가격"}
                 </span>
               </div>
               <ManWonField
@@ -774,12 +799,43 @@ export function ComplexPurchaseCalculatorSection({
                 onChange={setOfficialDraft}
                 onBlur={() => commitOfficialDraft(officialDraft)}
               />
-              <p className="text-sm leading-relaxed text-slate-600">
-                {publicPrice.blocker ??
-                  "공식 공시가격을 연결할 수 없어 직접 입력합니다. 실거래가 비율로 추정하지 않습니다."}
-              </p>
+              {publicPrice.matchType === "UNIT_EXACT" &&
+              !officialManualOverride ? (
+                <p className="text-sm leading-relaxed text-slate-600">
+                  {(publicPrice.officialPriceDate ?? "").replaceAll("-", ".")}{" "}
+                  공식 공시가격
+                  {publicPrice.dong && publicPrice.ho
+                    ? ` · ${publicPrice.dong}동 ${publicPrice.ho}호`
+                    : ""}
+                  {publicPrice.exclusiveArea != null
+                    ? ` · 전용 ${publicPrice.exclusiveArea}㎡`
+                    : ""}
+                  {" · "}
+                  국토교통부·한국부동산원
+                  {publicPrice.usedPriorBulkYear
+                    ? ` (요청 연도 ${publicPrice.requestYear} bulk 미공개 · 최신 bulk ${publicPrice.priceBaseYear} 사용)`
+                    : ""}
+                </p>
+              ) : (
+                <p className="text-sm leading-relaxed text-slate-600">
+                  {publicPrice.blocker ??
+                    "공식 공시가격을 연결할 수 없어 직접 입력합니다. 실거래가 비율로 추정하지 않습니다."}
+                </p>
+              )}
               {officialPriceMan > 0 ? (
-                <p className="text-xs text-slate-500">입력값 · 사용자 입력</p>
+                <p className="text-xs text-slate-500">
+                  {officialManualOverride
+                    ? "입력값 · 사용자 입력"
+                    : publicPrice.matchType === "UNIT_EXACT"
+                      ? "자동연결 · UNIT_EXACT"
+                      : "입력값 · 사용자 입력"}
+                </p>
+              ) : null}
+              {publicPrice.matchType === "UNIT_EXACT" ? (
+                <p className="text-xs text-slate-500">
+                  동·호 선택 구조 준비(파일럿 fixture: 131동 101호). 전체 호별
+                  공시가격 디렉터리는 공개하지 않습니다.
+                </p>
               ) : null}
             </div>
 

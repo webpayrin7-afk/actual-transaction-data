@@ -52,4 +52,5 @@ export {
   type ComplexPublicPriceQuery,
   type ComplexPublicPriceResult,
   type PublicPriceLookupStatus,
+  type PublicPriceMatchType,
 } from "@/lib/calculator/public-price";

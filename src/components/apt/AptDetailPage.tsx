@@ -849,6 +849,7 @@ export function AptDetailPage({
       </section>
 
       <ComplexPurchaseCalculatorSection
+        complexId={identity?.complexId ?? null}
         complexName={data.aptName}
         areaKey={areaKey}
         areaLabel={
