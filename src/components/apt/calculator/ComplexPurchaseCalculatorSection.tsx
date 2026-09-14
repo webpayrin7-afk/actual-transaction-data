@@ -146,38 +146,35 @@ function ConditionRow({
   );
 }
 
+/** LAB Series disclosure — matches loan calculators' 「계산 기준 보기」. */
 function BasisToggle({
   open,
   onToggle,
-  title = "계산 기준 및 세부내역",
   children,
 }: {
   open: boolean;
   onToggle: () => void;
-  title?: string;
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200/80 bg-slate-50/40">
+    <div className="border-t border-slate-100 pt-3">
       <button
         type="button"
         aria-expanded={open}
         onClick={onToggle}
-        className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+        className="flex w-full items-center justify-between gap-2 py-1 text-left text-sm font-medium text-slate-700 transition hover:text-teal-800"
       >
-        <span>{title}</span>
+        <span>{open ? "계산 기준 접기" : "계산 기준 보기"}</span>
         <span
           aria-hidden
-          className={`shrink-0 text-base leading-none text-slate-500 transition-transform duration-200 ${
+          className={`shrink-0 text-xs text-slate-400 transition-transform duration-200 ${
             open ? "rotate-180" : ""
           }`}
         >
-          ∨
+          ▾
         </span>
       </button>
-      {open ? (
-        <div className="border-t border-slate-200/70 px-3 py-3">{children}</div>
-      ) : null}
+      {open ? <div className="mt-3">{children}</div> : null}
     </div>
   );
 }
