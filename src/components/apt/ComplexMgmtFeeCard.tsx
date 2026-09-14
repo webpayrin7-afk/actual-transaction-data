@@ -56,9 +56,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-const OUTER_DISCLAIMER =
-  "주거전용면적 기준 관리비 단가를 선택 평형에 적용한 예상값입니다. 실제 세대별 관리비는 사용량과 일부 부과항목에 따라 달라질 수 있습니다.";
-
 /**
  * Management-fee summary for Complex Detail.
  *
@@ -209,10 +206,6 @@ export function ComplexMgmtFeeCard({
               </div>
             </div>
           ) : null}
-
-          <p className="mt-4 text-sm leading-relaxed text-slate-600">
-            {OUTER_DISCLAIMER}
-          </p>
 
           <LabDisclosure title="계산 기준 및 세부내역" className="mt-3">
             <dl>
