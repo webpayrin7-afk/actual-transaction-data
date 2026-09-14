@@ -167,6 +167,28 @@ textarea,
   accent-color: var(--lab-teal-600);
 }
 
+/* Semantic price/tax direction on range thumbs (rise=rose, fall=blue) */
+.lab-range-up {
+  accent-color: #e11d48; /* rose-600 */
+}
+.lab-range-down {
+  accent-color: #2563eb; /* blue-600 */
+}
+.lab-range-neutral {
+  accent-color: #64748b; /* slate-500 */
+}
+.lab-range-up::-webkit-slider-runnable-track,
+.lab-range-down::-webkit-slider-runnable-track,
+.lab-range-neutral::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.lab-range-up::-moz-range-track,
+.lab-range-down::-moz-range-track,
+.lab-range-neutral::-moz-range-track {
+  background: transparent;
+}
+
+
 .lab-choice { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; border: 1px solid var(--lab-border); border-radius: 10px; background: white; padding: 8px 12px; color: var(--lab-navy-900); font-size: .875rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
 .lab-choice:hover:not([aria-checked="true"]):not(.lab-choice-selected):not(:disabled) { background: #f8fafc; }
 .lab-choice[aria-checked="true"], .lab-choice-selected { border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent); background: var(--lab-teal-50); color: var(--lab-teal-700); }

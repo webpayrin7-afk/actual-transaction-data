@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
+import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { LabTabs } from "@/components/ui/LabTabs";
 import {
   brokerageRatePctOptionsForPrice,
@@ -142,33 +143,6 @@ function Row({
   );
 }
 
-function ConditionRow({
-  summary,
-  open,
-  onToggle,
-}: {
-  summary: string;
-  open: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-expanded={open}
-      className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-200/80 bg-slate-50/70 px-3 py-2 text-left transition hover:bg-slate-50"
-    >
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-slate-500">계산 조건</p>
-        <p className="truncate text-sm text-slate-800">{summary}</p>
-      </div>
-      <span className="shrink-0 text-sm font-medium text-teal-700">
-        {open ? "접기" : "변경 ›"}
-      </span>
-    </button>
-  );
-}
-
 function BreakdownRow({
   label,
   value,
@@ -280,6 +254,37 @@ function choiceClass(active: boolean) {
   return active
     ? "rounded-md bg-teal-50 px-2.5 py-1.5 text-xs font-semibold text-teal-800"
     : "rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-600";
+}
+
+
+function growthToneClass(pct: number): string {
+  if (pct > 0) return "text-rose-600";
+  if (pct < 0) return "text-blue-600";
+  return "text-slate-700";
+}
+
+function growthTrackStyle(pct: number): CSSProperties {
+  const pos = ((pct + 30) / 60) * 100;
+  const neutral = "#e2e8f0";
+  const up = "#fda4af"; // rose-300
+  const down = "#93c5fd"; // blue-300
+  if (pct > 0) {
+    return {
+      background: `linear-gradient(to right, ${neutral} 0%, ${neutral} 50%, ${up} 50%, ${up} ${pos}%, ${neutral} ${pos}%, ${neutral} 100%)`,
+    };
+  }
+  if (pct < 0) {
+    return {
+      background: `linear-gradient(to right, ${neutral} 0%, ${neutral} ${pos}%, ${down} ${pos}%, ${down} 50%, ${neutral} 50%, ${neutral} 100%)`,
+    };
+  }
+  return { background: neutral };
+}
+
+function growthRangeClass(pct: number): string {
+  if (pct > 0) return "lab-range lab-range-up w-full";
+  if (pct < 0) return "lab-range lab-range-down w-full";
+  return "lab-range lab-range-neutral w-full";
 }
 
 /**
@@ -546,8 +551,11 @@ export function ComplexPurchaseCalculatorSection({
   const loanConditionSummary = [
     homes === "0" ? "무주택" : homes === "1" ? "1주택" : "2주택+",
     metro === "capital" ? "수도권" : "지방",
-    `${baseRatePct}% · ${years}년`,
-  ].join(" · ");
+    regulated === "regulated" ? "규제지역" : "비규제",
+    firstHome ? "생애최초" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   function commitPriceDraft(raw: string) {
     const parsed = parseEokInputToMan(raw);
@@ -595,7 +603,7 @@ export function ComplexPurchaseCalculatorSection({
       <header className="min-w-0">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-            대출·세금 계산
+            세금, 대출 계산
           </h2>
           {compactArea ? (
             <p className="text-[11px] tabular-nums text-slate-400">
@@ -610,12 +618,14 @@ export function ComplexPurchaseCalculatorSection({
 
       <LabTabs
         className="mt-3"
-        ariaLabel="계산 메뉴"
+        ariaLabel="세금, 대출 계산 메뉴"
         items={TABS}
         value={tab}
+        density="compact"
         onChange={(next) => {
           setTab(next);
           setConditionsOpen(false);
+          setHoldingSettingsOpen(false);
         }}
       />
 
@@ -850,7 +860,9 @@ export function ComplexPurchaseCalculatorSection({
                         : "현행 세제 유지 가정"}
                     </p>
                     {growthActive ? (
-                      <p className="text-sm font-medium tabular-nums text-slate-800">
+                      <p
+                        className={`text-sm font-medium tabular-nums ${growthToneClass(taxDeltaMan)}`}
+                      >
                         기준 대비 {formatSignedEokMan(taxDeltaMan)} ·{" "}
                         {formatSignedPctPoints(taxDeltaRate, 0)}
                       </p>
@@ -986,20 +998,29 @@ export function ComplexPurchaseCalculatorSection({
                   <p className="text-sm font-medium text-slate-800">
                     공시가격 예상 증감률
                   </p>
-                  <p className="text-sm font-semibold tabular-nums text-teal-700">
+                  <p
+                    className={`text-sm font-semibold tabular-nums ${growthToneClass(growthPct)}`}
+                  >
                     {growthLabel}
                   </p>
                 </div>
-                <input
-                  type="range"
-                  min={-30}
-                  max={30}
-                  step={1}
-                  value={growthPct}
-                  aria-label="공시가격 예상 증감률"
-                  className="lab-range w-full"
-                  onChange={(e) => setGrowthPct(Number(e.target.value))}
-                />
+                <div className="relative h-7">
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full"
+                    style={growthTrackStyle(growthPct)}
+                  />
+                  <input
+                    type="range"
+                    min={-30}
+                    max={30}
+                    step={1}
+                    value={growthPct}
+                    aria-label="공시가격 예상 증감률"
+                    className={growthRangeClass(growthPct)}
+                    onChange={(e) => setGrowthPct(Number(e.target.value))}
+                  />
+                </div>
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>-30%</span>
                   <span>0%</span>
@@ -1016,7 +1037,9 @@ export function ComplexPurchaseCalculatorSection({
                       value={formatEokMan(holdingYear0.totalMan)}
                     />
                     {growthActive ? (
-                      <p className="text-sm tabular-nums text-slate-700">
+                      <p
+                        className={`text-sm font-medium tabular-nums ${growthToneClass(taxDeltaMan)}`}
+                      >
                         기준 대비 {formatSignedEokMan(taxDeltaMan)} ·{" "}
                         {formatSignedPctPoints(taxDeltaRate, 0)}
                       </p>
@@ -1274,72 +1297,45 @@ export function ComplexPurchaseCalculatorSection({
             ) : null}
 
             {holdingSettingsOpen ? (
-              <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-                <button
-                  type="button"
-                  className="absolute inset-0 bg-slate-900/40"
-                  aria-label="설정 닫기"
-                  onClick={() => setHoldingSettingsOpen(false)}
-                />
-                <div
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="holding-settings-title"
-                  className="relative z-10 flex max-h-[65vh] w-full max-w-md flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
-                >
-                  <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-                    <h3
-                      id="holding-settings-title"
-                      className="text-base font-semibold text-slate-900"
-                    >
-                      보유세 계산 조건
-                    </h3>
-                    <button
-                      type="button"
-                      className="text-sm font-medium text-teal-700"
-                      onClick={() => setHoldingSettingsOpen(false)}
-                    >
-                      완료
-                    </button>
+              <LabBottomSheet
+                open={holdingSettingsOpen}
+                onClose={() => setHoldingSettingsOpen(false)}
+                title="보유세 계산 조건"
+              >
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-slate-800">
+                      1세대 1주택
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className={choiceClass(singleHomeHousehold)}
+                        onClick={() => setSingleHomeHousehold(true)}
+                      >
+                        해당
+                      </button>
+                      <button
+                        type="button"
+                        className={choiceClass(!singleHomeHousehold)}
+                        onClick={() => setSingleHomeHousehold(false)}
+                      >
+                        해당 없음
+                      </button>
+                    </div>
+                    <p className="text-sm leading-relaxed text-slate-600">
+                      공정시장가액비율과 종합부동산세 기본공제 등에 반영됩니다.
+                    </p>
                   </div>
-                  <div className="space-y-4 overflow-y-auto px-4 py-4">
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-800">
-                        1세대 1주택
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          className={choiceClass(singleHomeHousehold)}
-                          onClick={() => setSingleHomeHousehold(true)}
-                        >
-                          해당
-                        </button>
-                        <button
-                          type="button"
-                          className={choiceClass(!singleHomeHousehold)}
-                          onClick={() => setSingleHomeHousehold(false)}
-                        >
-                          해당 없음
-                        </button>
-                      </div>
-                      <p className="text-sm leading-relaxed text-slate-600">
-                        공정시장가액비율·종부세 기본공제에 반영됩니다.
-                      </p>
-                    </div>
 
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm leading-relaxed text-slate-700">
-                      <p className="font-medium text-slate-800">
-                        현재 미반영 항목
-                      </p>
-                      <p className="mt-1">
-                        고령자 공제 · 장기보유 공제 · 공동명의 특례 · 법인 ·
-                        3주택 중과
-                      </p>
-                    </div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm leading-relaxed text-slate-700">
+                    <p className="font-medium text-slate-800">현재 미반영 항목</p>
+                    <p className="mt-1">
+                      고령자 공제 · 장기보유 공제 · 공동명의 특례 등
+                    </p>
                   </div>
                 </div>
-              </div>
+              </LabBottomSheet>
             ) : null}
           </div>
         ) : null}
@@ -1387,29 +1383,71 @@ export function ComplexPurchaseCalculatorSection({
               </p>
             )}
 
-            <ConditionRow
-              summary={loanConditionSummary}
+            <div className="grid gap-2.5 sm:grid-cols-3">
+              <label className="block space-y-1">
+                <span className="text-xs text-slate-500">보유 자금 (억)</span>
+                <input
+                  className={inputClass}
+                  inputMode="decimal"
+                  value={cashMan > 0 ? String(cashMan / 10_000) : ""}
+                  onChange={(e) => {
+                    const v = Number(e.target.value.replace(/,/g, ""));
+                    setCashMan(
+                      Number.isFinite(v) && v >= 0
+                        ? Math.round(v * 10_000)
+                        : 0,
+                    );
+                  }}
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-xs text-slate-500">금리 (%)</span>
+                <input
+                  className={inputClass}
+                  inputMode="decimal"
+                  value={baseRatePct}
+                  onChange={(e) =>
+                    setBaseRatePct(Number(e.target.value) || 0)
+                  }
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-xs text-slate-500">기간 (년)</span>
+                <input
+                  className={inputClass}
+                  type="number"
+                  min={1}
+                  max={40}
+                  value={years}
+                  onChange={(e) => setYears(Number(e.target.value) || 30)}
+                />
+              </label>
+            </div>
+
+            <div className="space-y-2 border-t border-slate-200/80 pt-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800">계산 조건</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-slate-600">
+                    {loanConditionSummary}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="shrink-0 text-sm font-medium text-teal-700 hover:underline"
+                  onClick={() => setConditionsOpen(true)}
+                >
+                  설정 변경 ›
+                </button>
+              </div>
+            </div>
+
+            <LabBottomSheet
               open={conditionsOpen}
-              onToggle={() => setConditionsOpen((v) => !v)}
-            />
-            {conditionsOpen ? (
+              onClose={() => setConditionsOpen(false)}
+              title="대출 계산 조건"
+            >
               <div className="grid gap-2.5 sm:grid-cols-2">
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">보유 자금 (억)</span>
-                  <input
-                    className={inputClass}
-                    inputMode="decimal"
-                    value={cashMan > 0 ? String(cashMan / 10_000) : ""}
-                    onChange={(e) => {
-                      const v = Number(e.target.value.replace(/,/g, ""));
-                      setCashMan(
-                        Number.isFinite(v) && v >= 0
-                          ? Math.round(v * 10_000)
-                          : 0,
-                      );
-                    }}
-                  />
-                </label>
                 <label className="block space-y-1">
                   <span className="text-xs text-slate-500">연소득 (만원)</span>
                   <input
@@ -1435,28 +1473,6 @@ export function ComplexPurchaseCalculatorSection({
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">금리 (%)</span>
-                  <input
-                    className={inputClass}
-                    inputMode="decimal"
-                    value={baseRatePct}
-                    onChange={(e) =>
-                      setBaseRatePct(Number(e.target.value) || 0)
-                    }
-                  />
-                </label>
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">기간 (년)</span>
-                  <input
-                    className={inputClass}
-                    type="number"
-                    min={1}
-                    max={40}
-                    value={years}
-                    onChange={(e) => setYears(Number(e.target.value) || 30)}
-                  />
-                </label>
-                <label className="block space-y-1">
                   <span className="text-xs text-slate-500">지역</span>
                   <select
                     className={inputClass}
@@ -1478,7 +1494,7 @@ export function ComplexPurchaseCalculatorSection({
                     <option value="unregulated">비규제</option>
                   </select>
                 </label>
-                <label className="block space-y-1">
+                <label className="block space-y-1 sm:col-span-2">
                   <span className="text-xs text-slate-500">보유 주택 수</span>
                   <select
                     className={inputClass}
@@ -1509,7 +1525,7 @@ export function ComplexPurchaseCalculatorSection({
                   </label>
                 </div>
               </div>
-            ) : null}
+            </LabBottomSheet>
 
             <BasisDetails
               lines={[

@@ -547,7 +547,7 @@ export function AptDetailPage({
 
   const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
     { id: "market", label: "시세 · 거래", show: true },
-    { id: "calculator", label: "대출 · 세금", show: true },
+    { id: "calculator", label: "세금, 대출 계산", show: true },
     {
       id: "management",
       label: "관리비",
