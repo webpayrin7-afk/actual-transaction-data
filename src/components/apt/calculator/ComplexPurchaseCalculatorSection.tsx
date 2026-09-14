@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { labUnderlineTabClass } from "@/components/ui/lab";
+import { LabDisclosure } from "@/components/ui/LabDisclosure";
 import {
   brokerageRatePctOptionsForPrice,
   calculateHoldingTax,
@@ -147,56 +148,17 @@ function ConditionRow({
 }
 
 /** LAB Series disclosure — secondary button with clear chevron. */
-function BasisToggle({
-  open,
-  onToggle,
-  children,
-}: {
-  open: boolean;
-  onToggle: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div className="space-y-3 border-t border-slate-100 pt-3">
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={onToggle}
-        className="lab-button lab-button-secondary flex w-full items-center justify-between gap-3 px-4 text-sm font-semibold"
-      >
-        <span>{open ? "계산 기준 접기" : "계산 기준 보기"}</span>
-        <svg
-          aria-hidden
-          viewBox="0 0 20 20"
-          className={`h-5 w-5 shrink-0 text-slate-600 transition-transform duration-200 ${
-            open ? "rotate-180" : ""
-          }`}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M5 7.5 10 12.5 15 7.5" />
-        </svg>
-      </button>
-      {open ? <div>{children}</div> : null}
-    </div>
-  );
-}
-
 function BasisDetails({ lines }: { lines: string[] }) {
   const cleaned = lines.map((l) => l.trim()).filter(Boolean);
-  const [open, setOpen] = useState(false);
   if (!cleaned.length) return null;
   return (
-    <BasisToggle open={open} onToggle={() => setOpen((v) => !v)}>
+    <LabDisclosure title="계산 기준 및 세부내역">
       <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
         {cleaned.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </ul>
-    </BasisToggle>
+    </LabDisclosure>
   );
 }
 
@@ -247,8 +209,8 @@ function DetailItem({
   basis?: string;
 }) {
   return (
-    <div className="space-y-0.5">
-      <p className="text-sm text-slate-500">{label}</p>
+    <div className="space-y-1">
+      <p className="text-sm font-medium text-slate-800">{label}</p>
       <p className="text-sm font-semibold tabular-nums text-slate-900">{value}</p>
       {basis ? (
         <p className="text-sm leading-relaxed text-slate-600">{basis}</p>
@@ -663,9 +625,10 @@ export function ComplexPurchaseCalculatorSection({
             )}
 
             {purchase ? (
-              <BasisToggle
+              <LabDisclosure
+                title="계산 기준 및 세부내역"
                 open={purchaseBasisOpen}
-                onToggle={() => setPurchaseBasisOpen((v) => !v)}
+                onOpenChange={setPurchaseBasisOpen}
               >
                   <div className="space-y-4">
                   <DetailItem
@@ -725,7 +688,7 @@ export function ComplexPurchaseCalculatorSection({
                     </p>
                   </div>
                 </div>
-              </BasisToggle>
+              </LabDisclosure>
             ) : null}
           </div>
         ) : null}
