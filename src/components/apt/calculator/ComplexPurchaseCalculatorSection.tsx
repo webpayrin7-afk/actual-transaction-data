@@ -146,7 +146,7 @@ function ConditionRow({
   );
 }
 
-/** LAB Series disclosure — matches loan calculators' 「계산 기준 보기」. */
+/** LAB Series disclosure — secondary button with clear chevron. */
 function BasisToggle({
   open,
   onToggle,
@@ -157,24 +157,30 @@ function BasisToggle({
   children: ReactNode;
 }) {
   return (
-    <div className="border-t border-slate-100 pt-3">
+    <div className="space-y-3 border-t border-slate-100 pt-3">
       <button
         type="button"
         aria-expanded={open}
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-2 py-1 text-left text-sm font-medium text-slate-700 transition hover:text-teal-800"
+        className="lab-button lab-button-secondary flex w-full items-center justify-between gap-3 px-4 text-sm font-semibold"
       >
         <span>{open ? "계산 기준 접기" : "계산 기준 보기"}</span>
-        <span
+        <svg
           aria-hidden
-          className={`shrink-0 text-lg leading-none text-slate-500 transition-transform duration-200 ${
+          viewBox="0 0 20 20"
+          className={`h-5 w-5 shrink-0 text-slate-600 transition-transform duration-200 ${
             open ? "rotate-180" : ""
           }`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
-          ▾
-        </span>
+          <path d="M5 7.5 10 12.5 15 7.5" />
+        </svg>
       </button>
-      {open ? <div className="mt-3">{children}</div> : null}
+      {open ? <div>{children}</div> : null}
     </div>
   );
 }
