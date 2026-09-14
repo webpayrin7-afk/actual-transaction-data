@@ -47,3 +47,9 @@ export {
   formatEokMan,
   parseEokInputToMan,
 } from "@/lib/calculator/format";
+export {
+  getComplexPublicPrices,
+  type ComplexPublicPriceQuery,
+  type ComplexPublicPriceResult,
+  type PublicPriceLookupStatus,
+} from "@/lib/calculator/public-price";

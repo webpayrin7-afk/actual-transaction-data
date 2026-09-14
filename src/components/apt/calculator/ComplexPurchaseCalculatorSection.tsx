@@ -10,6 +10,7 @@ import {
   formatEokMan,
   formatManInput,
   formatManWon,
+  getComplexPublicPrices,
   parseEokInputToMan,
   type AcquisitionHomeStatus,
   type ExclusiveAreaInput,
@@ -241,12 +242,15 @@ function choiceClass(active: boolean) {
  * Shares the page area selection; personal inputs stay client-local.
  */
 export function ComplexPurchaseCalculatorSection({
+  complexName,
   areaKey,
   areaLabel,
   latestTradeMan,
   exclusiveAreaMinSqm = null,
   exclusiveAreaMaxSqm = null,
 }: {
+  /** Complex display name for holding-tax context. */
+  complexName: string;
   areaKey: string;
   areaLabel: string;
   /** Latest sale for selected area (만원). */
@@ -262,6 +266,7 @@ export function ComplexPurchaseCalculatorSection({
   const [priceDraft, setPriceDraft] = useState("");
   const [conditionsOpen, setConditionsOpen] = useState(false);
   const [purchaseBasisOpen, setPurchaseBasisOpen] = useState(false);
+  const [holdingSettingsOpen, setHoldingSettingsOpen] = useState(false);
 
   const [homeStatus, setHomeStatus] =
     useState<AcquisitionHomeStatus>("one_home");
@@ -399,9 +404,25 @@ export function ComplexPurchaseCalculatorSection({
       ? (areaLabel.split("·")[0]?.trim() || areaLabel)
       : "";
 
-  const holdingConditionSummary = singleHomeHousehold
-    ? "1세대 1주택 · 단독명의"
-    : "1세대 1주택 아님";
+  const holdingConditionSummary = [
+    "개인",
+    singleHomeHousehold ? "1세대 1주택" : "1세대 1주택 아님",
+    projectionYears > 0 ? `전망 +${projectionYears}년 · 연 ${growthPct}%` : "당해 기준",
+  ].join(" · ");
+
+  const publicPrice = useMemo(
+    () =>
+      getComplexPublicPrices({
+        complexName,
+        areaKey: areaKey === "all" ? null : areaKey,
+        exclusiveAreaMinSqm,
+        exclusiveAreaMaxSqm,
+        year: new Date().getFullYear(),
+      }),
+    [complexName, areaKey, exclusiveAreaMinSqm, exclusiveAreaMaxSqm],
+  );
+
+  const holdingBaseYear = new Date().getFullYear();
   const loanConditionSummary = [
     homes === "0" ? "무주택" : homes === "1" ? "1주택" : "2주택+",
     metro === "capital" ? "수도권" : "지방",
@@ -700,18 +721,68 @@ export function ComplexPurchaseCalculatorSection({
 
         {tab === "holding" ? (
           <div className="space-y-3">
-            <div className="space-y-1.5">
-              <label
-                htmlFor="calc-official-price"
-                className="text-xs font-medium text-slate-600"
-              >
-                공시가격
-                <span className="ml-1 font-normal text-slate-400">(만원)</span>
-              </label>
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-slate-800">
+                  보유세
+                  {compactArea ? (
+                    <span className="font-normal text-slate-500">
+                      {" "}
+                      · {compactArea} 기준
+                    </span>
+                  ) : null}
+                </p>
+                <p className="mt-0.5 truncate text-xs text-slate-500">
+                  {complexName}
+                  {compactArea ? ` · ${compactArea}` : ""}
+                </p>
+              </div>
+            </div>
+
+            {holding ? (
+              <dl className="space-y-2.5">
+                {holding.years.slice(0, 1).map((y) => (
+                  <div key={y.yearOffset} className="space-y-2.5">
+                    <Row
+                      label={`${holdingBaseYear}년 예상 보유세`}
+                      value={formatEokMan(y.totalMan)}
+                      emph
+                      hint="확정 고지세액이 아닌 예상세액"
+                    />
+                    <div className="space-y-2 border-t border-slate-200/80 pt-2.5">
+                      <Row
+                        label="재산세"
+                        value={formatEokMan(y.property.totalMan)}
+                      />
+                      <Row
+                        label="종합부동산세"
+                        value={formatEokMan(y.comprehensive.taxMan)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="text-sm text-slate-500">
+                공시가격을 입력하면 이 단지·면적 기준 보유세가 표시됩니다.
+              </p>
+            )}
+
+            <div className="space-y-1.5 border-t border-slate-200/80 pt-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium text-slate-800">공시가격</p>
+                <span className="text-xs text-slate-500">
+                  {publicPrice.autoLink === "HOLD"
+                    ? "자동연결 보류 · 직접 입력"
+                    : publicPrice.autoLink === "PARTIAL"
+                      ? "부분 연결"
+                      : "공식 공시가격"}
+                </span>
+              </div>
               <ManWonField
                 id="calc-official-price"
                 value={officialDraft}
-                placeholder="예: 180000"
+                placeholder="예: 168000"
                 liveMan={
                   parseEokInputToMan(officialDraft) ??
                   (officialPriceMan > 0 ? officialPriceMan : null)
@@ -729,123 +800,194 @@ export function ComplexPurchaseCalculatorSection({
                 onChange={setOfficialDraft}
                 onBlur={() => commitOfficialDraft(officialDraft)}
               />
-              <p className="text-xs text-slate-500">
-                공식 공시가가 없으면 직접 입력하세요. 실거래가 비율로 추정하지
-                않습니다.
+              <p className="text-sm leading-relaxed text-slate-600">
+                {publicPrice.blocker ??
+                  "공식 공시가격을 연결할 수 없어 직접 입력합니다. 실거래가 비율로 추정하지 않습니다."}
               </p>
+              {officialPriceMan > 0 ? (
+                <p className="text-xs text-slate-500">입력값 · 사용자 입력</p>
+              ) : null}
             </div>
 
-            {holding ? (
-              <dl className="space-y-2.5">
-                {holding.years.slice(0, 1).map((y) => (
-                  <div key={y.yearOffset} className="space-y-2.5">
-                    <Row
-                      label="올해 예상 보유세"
-                      value={formatEokMan(y.totalMan)}
-                      emph
-                      hint="확정 고지세액이 아닌 예상세액"
-                    />
-                    <div className="space-y-2 border-t border-slate-100 pt-2.5">
-                      <Row
-                        label="재산세"
-                        value={formatEokMan(y.property.totalMan)}
-                      />
-                      <Row
-                        label="종부세"
-                        value={formatEokMan(y.comprehensive.taxMan)}
-                      />
-                    </div>
-                  </div>
-                ))}
-                <p className="text-sm leading-relaxed text-amber-900">
-                  {holding.estimateDisclaimer}
-                </p>
+            <div className="space-y-2 border-t border-slate-200/80 pt-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800">계산 조건</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-slate-600">
+                    {holdingConditionSummary}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="shrink-0 text-sm font-medium text-teal-700 hover:underline"
+                  onClick={() => setHoldingSettingsOpen(true)}
+                >
+                  설정 변경
+                </button>
+              </div>
+            </div>
+
+            {holding && holding.years.length > 1 ? (
+              <div className="space-y-2 border-t border-slate-200/80 pt-3">
+                <p className="text-sm font-medium text-slate-800">연도별 보유세</p>
+                <ul className="space-y-2">
+                  {holding.years.map((y) => {
+                    const year = holdingBaseYear + y.yearOffset;
+                    const kind =
+                      y.yearOffset === 0 ? "입력 기준" : "예상 · 가정";
+                    return (
+                      <li
+                        key={y.yearOffset}
+                        className="flex items-start justify-between gap-3 text-sm"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-medium text-slate-800">{year}년</p>
+                          <p className="text-xs text-slate-500">{kind}</p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="font-semibold tabular-nums text-slate-900">
+                            {formatEokMan(y.totalMan)}
+                          </p>
+                          <p className="text-xs tabular-nums text-slate-500">
+                            재산 {formatManWon(y.property.totalMan)} · 종부{" "}
+                            {formatManWon(y.comprehensive.taxMan)}
+                          </p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
                 {holding.projectionDisclaimer ? (
                   <p className="text-sm leading-relaxed text-amber-900">
-                    {holding.projectionDisclaimer}
+                    {holding.projectionDisclaimer}. 미래 연도는 공식 공시가격이
+                    아닌 가정값입니다.
                   </p>
                 ) : null}
-                {holding.years.length > 1 ? (
-                  <div className="space-y-2 border-t border-slate-100 pt-2">
-                    {holding.years.slice(1).map((y) => (
-                      <Row
-                        key={y.yearOffset}
-                        label={`+${y.yearOffset}년 합계`}
-                        value={formatEokMan(y.totalMan)}
-                      />
-                    ))}
-                  </div>
-                ) : null}
-              </dl>
-            ) : (
-              <p className="text-sm text-slate-500">
-                공시가격을 입력하면 결과가 표시됩니다.
-              </p>
-            )}
-
-            <ConditionRow
-              summary={holdingConditionSummary}
-              open={conditionsOpen}
-              onToggle={() => setConditionsOpen((v) => !v)}
-            />
-            {conditionsOpen ? (
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className={choiceClass(singleHomeHousehold)}
-                    onClick={() => setSingleHomeHousehold(true)}
-                  >
-                    1세대 1주택
-                  </button>
-                  <button
-                    type="button"
-                    className={choiceClass(!singleHomeHousehold)}
-                    onClick={() => setSingleHomeHousehold(false)}
-                  >
-                    해당 없음
-                  </button>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-slate-500">미래 투영</span>
-                  <select
-                    className="lab-input h-9 px-2 text-xs"
-                    value={projectionYears}
-                    onChange={(e) =>
-                      setProjectionYears(Number(e.target.value))
-                    }
-                  >
-                    <option value={0}>당해만</option>
-                    <option value={1}>+1년</option>
-                    <option value={3}>+3년</option>
-                    <option value={5}>+5년</option>
-                  </select>
-                  {projectionYears > 0 ? (
-                    <>
-                      <input
-                        className="lab-input h-9 w-16 px-2 text-xs"
-                        type="number"
-                        min={0}
-                        max={20}
-                        step={0.5}
-                        value={growthPct}
-                        onChange={(e) =>
-                          setGrowthPct(Number(e.target.value) || 0)
-                        }
-                      />
-                      <span className="text-xs text-slate-500">%/년</span>
-                    </>
-                  ) : null}
-                </div>
               </div>
+            ) : null}
+
+            {holding ? (
+              <p className="text-sm leading-relaxed text-slate-700">
+                {holding.estimateDisclaimer}
+              </p>
             ) : null}
 
             <BasisDetails
               lines={[
                 ...(holding?.years[0]?.property.notes ?? []),
                 ...(holding?.years[0]?.comprehensive.notes ?? []),
+                "연령·장기보유 세액공제, 공동명의 특례, 법인 세율은 현재 엔진에서 지원하지 않습니다.",
               ]}
             />
+
+            {holdingSettingsOpen ? (
+              <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+                <button
+                  type="button"
+                  className="absolute inset-0 bg-slate-900/40"
+                  aria-label="설정 닫기"
+                  onClick={() => setHoldingSettingsOpen(false)}
+                />
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="holding-settings-title"
+                  className="relative z-10 flex max-h-[85vh] w-full max-w-md flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                    <h3
+                      id="holding-settings-title"
+                      className="text-base font-semibold text-slate-900"
+                    >
+                      보유세 계산 조건
+                    </h3>
+                    <button
+                      type="button"
+                      className="text-sm font-medium text-teal-700"
+                      onClick={() => setHoldingSettingsOpen(false)}
+                    >
+                      완료
+                    </button>
+                  </div>
+                  <div className="space-y-4 overflow-y-auto px-4 py-4">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-slate-800">
+                        1세대 1주택
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className={choiceClass(singleHomeHousehold)}
+                          onClick={() => setSingleHomeHousehold(true)}
+                        >
+                          해당
+                        </button>
+                        <button
+                          type="button"
+                          className={choiceClass(!singleHomeHousehold)}
+                          onClick={() => setSingleHomeHousehold(false)}
+                        >
+                          해당 없음
+                        </button>
+                      </div>
+                      <p className="text-xs leading-relaxed text-slate-500">
+                        공정시장가액비율·종부세 기본공제에 반영됩니다.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-slate-800">
+                        미래 전망
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <select
+                          className="lab-input h-10 px-2 text-sm"
+                          value={projectionYears}
+                          onChange={(e) =>
+                            setProjectionYears(Number(e.target.value))
+                          }
+                        >
+                          <option value={0}>당해만</option>
+                          <option value={1}>+1년</option>
+                          <option value={3}>+3년</option>
+                          <option value={5}>+5년</option>
+                        </select>
+                        {projectionYears > 0 ? (
+                          <>
+                            <input
+                              className="lab-input h-10 w-20 px-2 text-sm"
+                              type="number"
+                              min={0}
+                              max={20}
+                              step={0.5}
+                              value={growthPct}
+                              onChange={(e) =>
+                                setGrowthPct(Number(e.target.value) || 0)
+                              }
+                            />
+                            <span className="text-sm text-slate-500">
+                              %/년 공시가 가정
+                            </span>
+                          </>
+                        ) : null}
+                      </div>
+                      <p className="text-xs leading-relaxed text-slate-500">
+                        미래 연도는 공식값이 아닌 가정이며, 현행 세제 유지를
+                        전제합니다.
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm leading-relaxed text-slate-700">
+                      <p className="font-medium text-slate-800">현재 미지원</p>
+                      <p className="mt-1">
+                        연령 공제 · 장기보유 공제 · 공동명의 특례 · 법인 세율 ·
+                        3주택 중과
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
 
