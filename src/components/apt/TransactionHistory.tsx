@@ -10,7 +10,7 @@ import {
   formatMonthlyPriceCell,
 } from "@/lib/utils/format";
 import type { TransactionTabType } from "@/lib/apt/transaction-type";
-import { labSecondaryTabClass } from "@/components/ui/lab";
+import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import {
   dealTypePriceTextClass,
   TRANSACTION_TABS,
@@ -47,7 +47,7 @@ export function TransactionTypeTabs({
   if (variant === "pills" || variant === "segmented") {
     return (
       <div
-        className="flex min-w-0 max-w-full flex-1 flex-wrap items-center gap-0.5"
+        className={labSegmentedClass("min-w-0 max-w-full flex-1")}
         role="radiogroup"
         aria-label="거래 유형"
       >
@@ -60,12 +60,7 @@ export function TransactionTypeTabs({
               role="radio"
               aria-checked={active}
               onClick={() => onChange(tab.value)}
-              className={[
-                "inline-flex h-8 min-w-[4.5rem] shrink-0 items-center justify-center rounded-lg border px-5 text-[12px] font-semibold transition sm:h-9 sm:min-w-[5rem] sm:px-6 sm:text-[13px]",
-                active
-                  ? "border-[color:var(--lab-teal-600)] bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-                  : "border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-700)] hover:bg-[color:var(--lab-bg)]",
-              ].join(" ")}
+              className={labSecondaryTabClass(active)}
             >
               {tab.label}
             </button>
@@ -77,7 +72,7 @@ export function TransactionTypeTabs({
 
   return (
     <div
-      className="flex w-fit max-w-full shrink-0 flex-wrap gap-1"
+      className={labSegmentedClass("max-w-full shrink-0")}
       role="radiogroup"
       aria-label="거래 유형"
     >

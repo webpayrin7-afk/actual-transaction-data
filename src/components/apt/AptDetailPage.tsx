@@ -60,6 +60,7 @@ import {
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   labSecondaryTabClass,
+  labSegmentedClass,
   labUnderlineTabClass,
 } from "@/components/ui/lab";
 import {
@@ -514,7 +515,7 @@ export function AptDetailPage({
   }
 
   const periodButtons = (
-    <div className="flex w-fit flex-wrap items-center gap-1" role="group" aria-label="시세 기간">
+    <div className={labSegmentedClass()} role="group" aria-label="시세 기간">
       {([1, 3, 5] as const).map((years) => {
         const key = years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
         const pressed = periodPreset === key;

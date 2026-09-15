@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { NaverMap, type NaverMapMarker } from "@/components/map/NaverMap";
-import { LabCard, labSecondaryTabClass } from "@/components/ui/lab";
+import { LabCard, labSecondaryTabClass , labSegmentedClass } from "@/components/ui/lab";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
 import {
@@ -711,7 +711,7 @@ export function ComplexNearbyLifeSection({
       </p>
 
       <div
-        className="mt-3 flex flex-wrap gap-1.5"
+        className={labSegmentedClass("mt-3")}
         role="tablist"
         aria-label="주변 생활 카테고리"
       >

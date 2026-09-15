@@ -90,11 +90,49 @@ textarea,
 .lab-tab:disabled { cursor: not-allowed; opacity: .45; }
 /* Primary = section switcher (size step up); same selection colors */
 .lab-tab-primary { min-height: 44px; padding: 0 14px; font-size: .8125rem; font-weight: 650; }
-/* Secondary = in-page filter chips; same colors, compact */
-.lab-tab-secondary { display: inline-flex; height: 28px; width: fit-content; align-items: center; justify-content: center; border: 1px solid var(--lab-border); border-radius: 8px; background: white; padding: 0 8px; color: #526579; font-size: .75rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
-.lab-tab-secondary:hover:not([aria-checked="true"]):not([aria-pressed="true"]):not(.lab-tab-secondary-active):not(:disabled) { background: #f8fafc; color: var(--lab-navy-950); }
-.lab-tab-secondary[aria-checked="true"], .lab-tab-secondary[aria-pressed="true"], .lab-tab-secondary-active { border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent); background: var(--lab-teal-50); color: var(--lab-teal-700); }
-.lab-tab-secondary:disabled { cursor: not-allowed; opacity: .45; }
+/* Secondary = in-page filter / segmented chips (기간·거래유형·주변생활 공통 size) */
+.lab-tab-secondary {
+  display: inline-flex;
+  box-sizing: border-box;
+  height: 42px;
+  min-height: 42px;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--lab-border);
+  border-radius: 10px;
+  background: white;
+  padding: 0 14px;
+  color: #526579;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.lab-tab-secondary:hover:not([aria-checked="true"]):not([aria-pressed="true"]):not(.lab-tab-secondary-active):not(:disabled) {
+  background: #f8fafc;
+  color: var(--lab-navy-950);
+}
+.lab-tab-secondary[aria-checked="true"],
+.lab-tab-secondary[aria-pressed="true"],
+.lab-tab-secondary-active {
+  border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
+  background: var(--lab-teal-50);
+  color: var(--lab-teal-700);
+}
+.lab-tab-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+/* Shared row wrapper for secondary segmented controls */
+.lab-segmented {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
 /* Official LAB section navigation — text + underline (no filled pill) */
 .lab-tab-underline {
   display: inline-flex;
