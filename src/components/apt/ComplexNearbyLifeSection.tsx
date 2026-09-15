@@ -489,6 +489,13 @@ export function ComplexNearbyLifeSection({
               <ul className="space-y-1">
                 {busItems.map((p) => {
                   const routes = busRoutesOf(p);
+                  const arsNo = p.subcategory?.startsWith("ARS")
+                    ? p.subcategory.replace(/^ARS\s*/u, "").trim()
+                    : "";
+                  const metaParts = [
+                    arsNo || null,
+                    `${formatMeters(p.distanceMeters)} · 직선거리`,
+                  ].filter(Boolean);
                   return (
                     <li key={p.id}>
                       <button
@@ -501,15 +508,13 @@ export function ComplexNearbyLifeSection({
                           <Bus className="h-3 w-3" aria-hidden />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-medium text-slate-800">
-                            {p.name}
-                          </span>
-                          <span className="mt-0.5 block text-[11px] text-slate-500">
-                            {p.subcategory?.startsWith("ARS")
-                              ? `${p.subcategory} · `
-                              : ""}
-                            {formatMeters(p.distanceMeters)}
-                            {" · 직선거리"}
+                          <span className="flex min-w-0 items-baseline gap-2">
+                            <span className="min-w-0 truncate text-sm font-medium text-slate-800">
+                              {p.name}
+                            </span>
+                            <span className="shrink-0 text-[11px] text-slate-500">
+                              {metaParts.join(" · ")}
+                            </span>
                           </span>
                           {routes.length > 0 ? (
                             <span className="mt-1.5 flex flex-wrap items-center gap-1">
