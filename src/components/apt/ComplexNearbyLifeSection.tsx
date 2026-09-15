@@ -438,7 +438,7 @@ export function ComplexNearbyLifeSection({
         <div className="space-y-4">
           {subwayItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-sm font-semibold text-slate-700">
+              <p className="mb-1.5 text-[12px] font-semibold text-slate-700">
                 지하철
               </p>
               <ul className="space-y-1">
@@ -457,7 +457,7 @@ export function ComplexNearbyLifeSection({
                             lines.map((line) => (
                               <span
                                 key={`${p.id}-${line}`}
-                                className="inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full border border-black/25 px-1 text-[11px] font-bold text-white shadow-sm"
+                                className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-black/25 px-1 text-[10px] font-bold text-white shadow-sm"
                                 style={{
                                   backgroundColor: subwayLineColor(line),
                                 }}
@@ -466,16 +466,16 @@ export function ComplexNearbyLifeSection({
                               </span>
                             ))
                           ) : (
-                            <span className="inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full border border-black/25 bg-amber-700 px-1 text-[11px] font-bold text-white shadow-sm">
+                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-black/25 bg-amber-700 px-1 text-[10px] font-bold text-white shadow-sm">
                               역
                             </span>
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[15px] font-medium text-slate-800">
+                          <span className="block truncate text-sm font-medium text-slate-800">
                             {p.name}
                           </span>
-                          <span className="mt-0.5 block text-[12px] text-slate-500">
+                          <span className="mt-0.5 block text-[11px] text-slate-500">
                             {formatMeters(p.distanceMeters)}
                             {" · 직선거리"}
                           </span>
@@ -493,7 +493,7 @@ export function ComplexNearbyLifeSection({
           ) : null}
           {busItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-sm font-semibold text-slate-700">
+              <p className="mb-1.5 text-[12px] font-semibold text-slate-700">
                 버스
               </p>
               <ul className="space-y-1">
@@ -508,15 +508,15 @@ export function ComplexNearbyLifeSection({
                         aria-label={`${p.name} 지도에서 보기`}
                         className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
                       >
-                        <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
-                          <Bus className="h-3.5 w-3.5" aria-hidden />
+                        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
+                          <Bus className="h-3 w-3" aria-hidden />
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="flex min-w-0 items-baseline gap-2">
-                            <span className="min-w-0 truncate text-[15px] font-medium text-slate-800">
+                            <span className="min-w-0 truncate text-sm font-medium text-slate-800">
                               {p.name}
                             </span>
-                            <span className="shrink-0 text-[12px] text-slate-500">
+                            <span className="shrink-0 text-[11px] text-slate-500">
                               {metaText}
                             </span>
                           </span>
@@ -525,7 +525,7 @@ export function ComplexNearbyLifeSection({
                               {routes.map((route) => (
                                 <span
                                   key={`${p.id}-${route}`}
-                                  className="inline-flex h-5.5 items-center rounded border border-slate-200 bg-slate-50 px-1.5 text-[11px] font-semibold text-slate-700"
+                                  className="inline-flex h-5 items-center rounded border border-slate-200 bg-slate-50 px-1.5 text-[10px] font-semibold text-slate-700"
                                 >
                                   {route}
                                 </span>
