@@ -27,7 +27,12 @@ export type NaverMapsApi = {
     Marker: new (opts: Record<string, unknown>) => NaverMarkerInstance;
     Point: new (x: number, y: number) => unknown;
     Event: {
-      addListener: (target: unknown, event: string, handler: () => void) => void;
+      addListener: (
+        target: unknown,
+        event: string,
+        handler: (...args: unknown[]) => void
+      ) => void;
+      trigger?: (target: unknown, event: string) => void;
     };
     Position?: { TOP_LEFT?: unknown };
     Service?: {

@@ -9,7 +9,11 @@ import {
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { NaverMap, type NaverMapMarker } from "@/components/map/NaverMap";
+import {
+  NaverMap,
+  type NaverMapMarker,
+  type LivingMarkerCategory,
+} from "@/components/map/NaverMap";
 import { LabCard, labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
@@ -18,7 +22,15 @@ import {
   subwayLineColor,
   type ComplexMapAnchorResult,
 } from "@/lib/nearby-map/complex-map-anchor";
-import { Bus, ChevronRight } from "lucide-react";
+import {
+  Bus,
+  ChevronRight,
+  Hospital,
+  Pill,
+  ShoppingCart,
+  Store,
+  Trees,
+} from "lucide-react";
 
 export type NearbyLifeCategory = "transport" | "living" | "commerce" | "school";
 
@@ -90,6 +102,59 @@ const TRANSPORT_BUS_LIST_LIMIT = 4;
 /** Bus map markers — mirror listed stops. */
 const TRANSPORT_BUS_MARKER_LIMIT = 4;
 
+const LIVING_SECTION_ORDER: LivingMarkerCategory[] = [
+  "MART",
+  "HOSPITAL",
+  "PHARMACY",
+  "CONVENIENCE",
+  "PARK",
+];
+
+const LIVING_SECTION_LABEL: Record<LivingMarkerCategory, string> = {
+  MART: "마트",
+  HOSPITAL: "병원",
+  PHARMACY: "약국",
+  CONVENIENCE: "편의점",
+  PARK: "공원",
+};
+
+type LivingPlaceDto = {
+  id: string;
+  name: string;
+  category: LivingMarkerCategory;
+  sourceCategory: string | null;
+  address: string | null;
+  roadAddress: string | null;
+  lat: number;
+  lng: number;
+  distanceM: number;
+  source: "NAVER_LOCAL";
+};
+
+type LivingCategoryDto = {
+  category: LivingMarkerCategory;
+  label: string;
+  primaryQuery: string;
+  fallbackQuery: string | null;
+  usedFallback: boolean;
+  apiCalls: number;
+  places: LivingPlaceDto[];
+  error?: string;
+};
+
+type NearbyLivingResponse = {
+  status: "READY" | "HOLD" | "EMPTY" | "ERROR";
+  reason: string | null;
+  configured?: boolean;
+  requiredEnv?: string[];
+  apiCallCount?: number;
+  duplicatesRemoved?: number;
+  overRadiusRemoved?: number;
+  categories: LivingCategoryDto[];
+  places: LivingPlaceDto[];
+};
+
+
 function isSubwayPoi(p: { name: string; subcategory: string }): boolean {
   const s = `${p.subcategory} ${p.name}`;
   if (/버스|정류|ARS/.test(s)) return false;
@@ -143,6 +208,53 @@ async function fetchNearbyLife(
   }
   return res.json();
 }
+
+
+async function fetchNearbyLiving(
+  aptName: string,
+  coords: LatLng,
+  identity?: {
+    sigungu?: string | null;
+    legalDongName?: string | null;
+  } | null,
+): Promise<NearbyLivingResponse> {
+  const qs = new URLSearchParams({
+    aptName,
+    lat: String(coords.lat),
+    lng: String(coords.lng),
+  });
+  if (identity?.sigungu) qs.set("sigungu", identity.sigungu);
+  if (identity?.legalDongName) qs.set("legalDong", identity.legalDongName);
+  const res = await fetch(`/api/complex-nearby-living?${qs}`);
+  if (!res.ok) {
+    throw new Error("주변 생활시설 정보를 불러오지 못했습니다.");
+  }
+  return res.json();
+}
+
+function LivingCategoryIcon({
+  category,
+  className = "h-2.5 w-2.5",
+}: {
+  category: LivingMarkerCategory;
+  className?: string;
+}) {
+  switch (category) {
+    case "MART":
+      return <ShoppingCart className={className} aria-hidden />;
+    case "HOSPITAL":
+      return <Hospital className={className} aria-hidden />;
+    case "PHARMACY":
+      return <Pill className={className} aria-hidden />;
+    case "CONVENIENCE":
+      return <Store className={className} aria-hidden />;
+    case "PARK":
+      return <Trees className={className} aria-hidden />;
+    default:
+      return <Store className={className} aria-hidden />;
+  }
+}
+
 
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
@@ -254,6 +366,32 @@ export function ComplexNearbyLifeSection({
     retry: 0,
   });
 
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduceMotion(mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
+
+  const livingQuery = useQuery({
+    queryKey: [
+      "complex-nearby-living",
+      aptName,
+      coords?.lat ?? null,
+      coords?.lng ?? null,
+      identity?.sigungu ?? null,
+      identity?.legalDongName ?? null,
+    ],
+    queryFn: () => fetchNearbyLiving(aptName, coords!, identity),
+    enabled: tab === "living" && !!coords && geocodeStatus === "ready",
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: 0,
+  });
+
+
   const selectTab = useCallback((next: NearbyLifeCategory) => {
     setTab(next);
     setSelectedId(null);
@@ -276,9 +414,10 @@ export function ComplexNearbyLifeSection({
   );
 
   const tabMarkers: NaverMapMarker[] = useMemo(() => {
+    if (!coords) return [];
     const data = lifeQuery.data;
-    if (!data || !coords) return [];
     if (tab === "transport") {
+      if (!data) return [];
       const withCoords = data.transport.items.filter(
         (p) => Number.isFinite(p.lat) && Number.isFinite(p.lng),
       );
@@ -322,20 +461,20 @@ export function ComplexNearbyLifeSection({
       ];
     }
     if (tab === "living") {
-      return data.living.items
+      const places = livingQuery.data?.places ?? [];
+      return places
         .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
         .map((p) => ({
           id: p.id,
           position: { lat: p.lat, lng: p.lng },
           title: p.name,
-          kind:
-            p.subcategory === "병원"
-              ? ("MEDICAL" as const)
-              : ("LIVING" as const),
+          kind: "LIVING" as const,
+          livingCategory: p.category,
           selected: selectedId === p.id,
         }));
     }
     if (tab === "school") {
+      if (!data) return [];
       return data.school.items
         .filter(
           (s): s is SchoolItem & { lat: number; lng: number } =>
@@ -353,7 +492,7 @@ export function ComplexNearbyLifeSection({
         }));
     }
     return [];
-  }, [lifeQuery.data, tab, coords, selectedId, expanded]);
+  }, [lifeQuery.data, livingQuery.data, tab, coords, selectedId, expanded]);
 
   const markers = useMemo(() => {
     const list = [...tabMarkers];
@@ -379,9 +518,6 @@ export function ComplexNearbyLifeSection({
     if (tab === "transport" && data.transport.status === "READY") {
       return `교통 · ${data.transport.items.length}곳 · 직선거리`;
     }
-    if (tab === "living" && data.living.status === "READY") {
-      return `생활 · ${data.living.items.length}곳 · 직선거리`;
-    }
     if (tab === "school" && data.school.status === "READY") {
       return `인근 학교 · ${data.school.items.length}곳 · 직선거리`;
     }
@@ -397,11 +533,13 @@ export function ComplexNearbyLifeSection({
         <EmptyBlock>{geocodeReason || "위치 정보를 확인 중입니다"}</EmptyBlock>
       );
     }
-    if (lifeQuery.isLoading) {
-      return <EmptyBlock>주변 생활 정보를 불러오는 중…</EmptyBlock>;
-    }
-    if (lifeQuery.isError || !lifeQuery.data) {
-      return <EmptyBlock>주변 생활 정보를 불러오지 못했습니다.</EmptyBlock>;
+    if (tab !== "living") {
+      if (lifeQuery.isLoading) {
+        return <EmptyBlock>주변 생활 정보를 불러오는 중…</EmptyBlock>;
+      }
+      if (lifeQuery.isError || !lifeQuery.data) {
+        return <EmptyBlock>주변 생활 정보를 불러오지 못했습니다.</EmptyBlock>;
+      }
     }
 
     const data = lifeQuery.data;
@@ -409,13 +547,13 @@ export function ComplexNearbyLifeSection({
     if (tab === "commerce") {
       return (
         <EmptyBlock>
-          {data.commerce.reason || "상권 상세 분석 준비 중"}
+          {data?.commerce.reason || "상권 상세 분석 준비 중"}
         </EmptyBlock>
       );
     }
 
     if (tab === "transport") {
-      if (data.transport.status !== "READY" || !data.transport.items.length) {
+      if (!data || data.transport.status !== "READY" || !data.transport.items.length) {
         return (
           <EmptyBlock>
             현재 확인 가능한 주변 교통 정보가 없습니다.
@@ -549,46 +687,95 @@ export function ComplexNearbyLifeSection({
     }
 
     if (tab === "living") {
-      if (data.living.status !== "READY" || !data.living.items.length) {
+      if (livingQuery.isLoading) {
+        return <EmptyBlock>주변 생활시설을 불러오는 중…</EmptyBlock>;
+      }
+      if (livingQuery.isError) {
         return (
           <EmptyBlock>
-            {data.living.reason || "표시할 생활 시설이 없습니다."}
+            현재 확인 가능한 주변 생활시설 정보가 없습니다.
           </EmptyBlock>
         );
       }
-      const items = expanded
-        ? data.living.items
-        : data.living.items.slice(0, LIST_LIMIT);
+      const living = livingQuery.data;
+      if (!living || living.status === "HOLD") {
+        return (
+          <EmptyBlock>
+            {living?.reason ||
+              "현재 확인 가능한 주변 생활시설 정보가 없습니다."}
+          </EmptyBlock>
+        );
+      }
+      if (living.status === "ERROR" || living.status === "EMPTY") {
+        return (
+          <EmptyBlock>
+            {living.reason ||
+              "현재 확인 가능한 주변 생활시설 정보가 없습니다."}
+          </EmptyBlock>
+        );
+      }
+      const sections = LIVING_SECTION_ORDER.map((cat) => {
+        const fromApi = living.categories?.find((c) => c.category === cat);
+        const places = (
+          fromApi?.places ?? living.places.filter((p) => p.category === cat)
+        )
+          .slice()
+          .sort((a, b) => a.distanceM - b.distanceM);
+        return { cat, places };
+      }).filter((s) => s.places.length > 0);
+
+      if (!sections.length) {
+        return (
+          <EmptyBlock>
+            현재 확인 가능한 주변 생활시설 정보가 없습니다.
+          </EmptyBlock>
+        );
+      }
+
       return (
-        <ul className="space-y-1.5">
-          {items.map((p) => (
-            <li key={p.id}>
-              <button
-                type="button"
-                onClick={() => selectFromList(p.id)}
-                className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-slate-800">
-                    {p.name}
-                  </span>
-                  <span className="mt-0.5 block text-[11px] text-slate-500">
-                    {p.subcategory}
-                  </span>
-                </span>
-                <span className="shrink-0 text-right text-[11px] tabular-nums text-slate-500">
-                  <span className="block">
-                    {p.distanceLabel.replace(/^직선거리\s*/, "")}
-                  </span>
-                  <span className="block text-[10px] text-slate-400">
-                    직선거리
-                  </span>
-                </span>
-              </button>
-            </li>
+        <div className="space-y-4">
+          {sections.map(({ cat, places }) => (
+            <div key={cat}>
+              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+                {LIVING_SECTION_LABEL[cat]}
+              </p>
+              <ul className="space-y-1">
+                {places.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      onClick={() => selectFromList(p.id)}
+                      aria-label={`${p.name} 지도에서 보기`}
+                      className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
+                    >
+                      <span className="mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
+                        <LivingCategoryIcon category={cat} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[13px] font-medium text-slate-800">
+                          {p.name}
+                        </span>
+                        <span className="mt-0.5 block text-[10px] text-slate-500">
+                          {formatMeters(p.distanceM)}
+                          {" · 직선거리"}
+                        </span>
+                      </span>
+                      <ChevronRight
+                        className="h-4 w-4 shrink-0 text-slate-400"
+                        aria-hidden
+                      />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       );
+    }
+
+    if (!data) {
+      return <EmptyBlock>주변 생활 정보를 불러오지 못했습니다.</EmptyBlock>;
     }
 
     if (data.school.status === "PILOT_ONLY") {
@@ -665,7 +852,7 @@ export function ComplexNearbyLifeSection({
       return Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT);
     }
     if (tab === "living") {
-      return Math.max(0, data.living.items.length - LIST_LIMIT);
+      return 0;
     }
     if (tab === "school") {
       return Math.max(0, data.school.items.length - LIST_LIMIT);
@@ -702,7 +889,9 @@ export function ComplexNearbyLifeSection({
                 <br />
                 학교: NEIS schoolInfo (인근 학교)
                 <br />
-                생활: 공개 장소검색 · 직선거리
+                생활시설: NAVER 지역 검색
+                <br />
+                지역 검색 결과 기준이며 전체 시설 수를 의미하지 않습니다.
               </p>
             </InfoTip>
           </h2>
@@ -727,90 +916,78 @@ export function ComplexNearbyLifeSection({
         </div>
       </div>
 
-      {tab === "transport" ? (
-        <div className="mt-3 space-y-3">
-          {/* Full-bleed map — width retained, height reduced so list peeks in */}
-          <div
-            ref={mapSectionRef}
-            className="relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none"
-          >
-            {coords && geocodeStatus === "ready" ? (
+      <div className="mt-3 space-y-3">
+        {/* One NAVER map instance — height animates; never remount on tab change. */}
+        <div
+          ref={mapSectionRef}
+          className="relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none"
+        >
+          {coords && geocodeStatus === "ready" ? (
+            <div
+              className={
+                tab === "living"
+                  ? "h-[324px] w-full sm:h-[350px] lg:h-[400px]"
+                  : "h-[240px] w-full sm:h-[280px] lg:h-[330px]"
+              }
+              style={{
+                transition: reduceMotion ? undefined : "height 280ms ease-out",
+              }}
+            >
               <NaverMap
                 center={mapCenter ?? coords}
                 zoom={15}
                 markers={markers}
                 selectedId={selectedId}
                 onMarkerClick={onMarkerClick}
-                ariaLabel={`${aptName} 주변 교통 지도`}
-                className="h-[240px] w-full sm:h-[280px] lg:h-[330px]"
+                ariaLabel={
+                  tab === "living"
+                    ? `${aptName} 주변 생활시설 지도`
+                    : tab === "transport"
+                      ? `${aptName} 주변 교통 지도`
+                      : `${aptName} 주변 생활 지도`
+                }
+                className="h-full w-full rounded-none"
               />
-            ) : (
-              <div className="flex h-[240px] items-center justify-center px-4 text-center text-sm text-slate-500 sm:h-[280px] lg:h-[330px]">
-                {geocodeStatus === "loading" || geocodeStatus === "idle"
-                  ? "지도를 준비하는 중…"
-                  : geocodeReason || "위치 정보를 확인 중입니다"}
-              </div>
-            )}
-          </div>
-
-          <div className="min-w-0">{listContent}
-            {moreCount > 0 ? (
-              <div className="mt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setExpanded(true)}
-                  className="text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
-                >
-                  버스 정류장 더보기 · {moreCount}곳
-                </button>
-              </div>
-            ) : null}
-          </div>
+            </div>
+          ) : (
+            <div
+              className={`flex items-center justify-center px-4 text-center text-sm text-slate-500 ${
+                tab === "living"
+                  ? "h-[324px] sm:h-[350px] lg:h-[400px]"
+                  : "h-[240px] sm:h-[280px] lg:h-[330px]"
+              }`}
+            >
+              {geocodeStatus === "loading" || geocodeStatus === "idle"
+                ? "지도를 준비하는 중…"
+                : geocodeReason || "위치 정보를 확인 중입니다"}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start">
-          <div
-            ref={mapSectionRef}
-            className="min-w-0 overflow-hidden rounded-xl bg-slate-50/40"
-          >
-            {coords && geocodeStatus === "ready" ? (
-              <NaverMap
-                center={mapCenter ?? coords}
-                zoom={15}
-                markers={markers}
-                selectedId={selectedId}
-                onMarkerClick={onMarkerClick}
-                ariaLabel={`${aptName} 주변 생활 지도`}
-                className="h-[280px] w-full sm:h-[300px] lg:h-[360px]"
-              />
-            ) : (
-              <div className="flex h-[280px] items-center justify-center px-4 text-center text-sm text-slate-500 sm:h-[300px] lg:h-[360px]">
-                {geocodeStatus === "loading" || geocodeStatus === "idle"
-                  ? "지도를 준비하는 중…"
-                  : geocodeReason || "위치 정보를 확인 중입니다"}
-              </div>
-            )}
-          </div>
 
-          <div className="min-w-0">
-            {summaryText ? (
-              <p className="mb-2 text-[12px] font-medium text-slate-500">
-                {summaryText}
-              </p>
-            ) : null}
-            {listContent}
-            {moreCount > 0 ? (
+        <div className="min-w-0">
+          {listContent}
+          {moreCount > 0 && tab === "transport" ? (
+            <div className="mt-2 flex justify-end">
               <button
                 type="button"
                 onClick={() => setExpanded(true)}
-                className="mt-2 text-[12px] font-medium text-[var(--lab-teal-700)] hover:underline"
+                className="text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
               >
-                더보기 · {moreCount}곳
+                버스 정류장 더보기 · {moreCount}곳
               </button>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
+          {moreCount > 0 && tab === "school" ? (
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="mt-2 text-[12px] font-medium text-[var(--lab-teal-700)] hover:underline"
+            >
+              더보기 · {moreCount}곳
+            </button>
+          ) : null}
         </div>
-      )}
-    </LabCard>
+      </div>
+</LabCard>
   );
 }

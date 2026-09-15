@@ -15,6 +15,13 @@ import {
 } from "@/lib/nearby-map/naver-sdk";
 import type { LatLng } from "@/lib/nearby-map/geo";
 
+export type LivingMarkerCategory =
+  | "MART"
+  | "HOSPITAL"
+  | "PHARMACY"
+  | "CONVENIENCE"
+  | "PARK";
+
 export type NaverMapMarker = {
   id: string;
   position: LatLng;
@@ -30,6 +37,8 @@ export type NaverMapMarker = {
   badges?: Array<{ text: string; color: string }>;
   /** OTHER subtype — bus stop pictogram instead of a plain dot. */
   variant?: "bus-stop";
+  /** Living POI category — icon shape distinguishes category (not rainbow colors). */
+  livingCategory?: LivingMarkerCategory;
   selected?: boolean;
 };
 
@@ -65,6 +74,23 @@ function escapeHtml(s: string): string {
 const LUCIDE_BUS_SVG = (stroke: string, size = 12) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>`;
 
+/** Living category glyphs — shape distinguishes category; color stays navy/teal. */
+const LIVING_ICON_SVG: Record<
+  LivingMarkerCategory,
+  (stroke: string, size?: number) => string
+> = {
+  MART: (stroke, size = 12) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`,
+  HOSPITAL: (stroke, size = 12) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg>`,
+  PHARMACY: (stroke, size = 12) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>`,
+  CONVENIENCE: (stroke, size = 12) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/></svg>`,
+  PARK: (stroke, size = 12) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5"/></svg>`,
+};
+
 /**
  * Downward selection arrow that bounces vertically above a marker.
  * Shown when a list row (or marker) is selected.
@@ -74,7 +100,7 @@ function selectionArrowHtml(): string {
 }
 
 /**
- * Marker visual hierarchy: COMPLEX > TRANSIT (subway) > OTHER (bus-stop).
+ * Marker visual hierarchy: COMPLEX > selected living > transit/other.
  * COMPLEX: building icon + always-visible name (not a plain dot).
  * Pixel anchors only — never shift source lat/lng.
  */
@@ -87,7 +113,6 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   if (kind === "COMPLEX") {
     const name = escapeHtml(marker.label || marker.title || "");
     const fill = selected ? "#0f766e" : KIND_COLOR.COMPLEX;
-    // Stack: name above icon, pointer tip on LatLng (pixel anchor only).
     const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:none">
       <span style="font:600 12px/1.2 system-ui,-apple-system,sans-serif;color:#0f172a;background:rgba(255,255,255,.94);padding:3px 7px;border-radius:6px;border:1px solid rgba(15,23,42,.12);box-shadow:0 1px 2px rgba(15,23,42,.12);margin-bottom:4px">${name}</span>
       <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:${fill};border:2px solid #fff;box-shadow:0 1px 3px rgba(15,23,42,.28)">
@@ -124,8 +149,6 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
         return `<div style="min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:${fill};border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.25);display:flex;align-items:center;justify-content:center;font:700 10px/1 system-ui,-apple-system,sans-serif;color:#fff">${text}</div>`;
       })
       .join("");
-    // Centered badge stack on coordinate (subway station point).
-    // Selected (list tap): bouncing downward arrow above marker.
     const html = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none">
       ${selected ? selectionArrowHtml() : ""}
       <div style="display:flex;align-items:center;gap:2px">${badgesHtml}</div>
@@ -139,7 +162,6 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     };
   }
 
-  // Bus stop — list Lucide Bus glyph + stem under icon (same as prior pin).
   if (kind === "OTHER" && marker.variant === "bus-stop") {
     const stroke = selected ? "#0f766e" : "#1e3a5f";
     const border = selected ? "#0f766e" : "#cbd5e1";
@@ -158,7 +180,28 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     };
   }
 
-  // Generic other — small weak dot
+  if (kind === "LIVING" || kind === "MEDICAL") {
+    const cat: LivingMarkerCategory =
+      marker.livingCategory || (kind === "MEDICAL" ? "HOSPITAL" : "MART");
+    const stroke = selected ? "#0f766e" : "#1e3a5f";
+    const border = selected ? "#0f766e" : "#94a3b8";
+    const ring = selected ? "2px solid #0f766e" : `1px solid ${border}`;
+    const iconFn = LIVING_ICON_SVG[cat] || LIVING_ICON_SVG.MART;
+    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none">
+      ${selected ? selectionArrowHtml() : ""}
+      <div style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
+        ${iconFn(stroke, 13)}
+      </div>
+      <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
+    </div>`;
+    return {
+      content: html,
+      anchor: window.naver?.maps
+        ? new window.naver.maps.Point(0, 0)
+        : undefined,
+    };
+  }
+
   const size = selected ? 10 : 7;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size * 2}" height="${size * 2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="${color}" stroke="#fff" stroke-width="2" opacity="0.92"/></svg>`;
   return {
@@ -172,6 +215,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
 /**
  * Reusable NAVER Web Dynamic Map.
  * Client-only, single SDK inject, hydration-safe.
+ * Parent height transitions must not remount this component.
  */
 export function NaverMap({
   center,
@@ -226,7 +270,6 @@ export function NaverMap({
       const map = new maps.Map(hostRef.current, {
         center: new maps.LatLng(center.lat, center.lng),
         zoom,
-        // Official option — hide NAVER default left zoom bar.
         zoomControl: false,
       });
       mapRef.current = map;
@@ -256,6 +299,36 @@ export function NaverMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Keep tiles/layout correct when the parent animates container height.
+  useEffect(() => {
+    if (status !== "ready") return;
+    const host = hostRef.current;
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    if (!host || !map || !maps) return;
+
+    const triggerResize = () => {
+      try {
+        maps.Event.trigger?.(map, "resize");
+      } catch {
+        /* ignore */
+      }
+    };
+
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            triggerResize();
+          })
+        : null;
+    ro?.observe(host);
+    triggerResize();
+
+    return () => {
+      ro?.disconnect();
+    };
+  }, [status]);
+
   useEffect(() => {
     const map = mapRef.current;
     const maps = window.naver?.maps;
@@ -282,13 +355,17 @@ export function NaverMap({
       const zIndex =
         item.kind === "COMPLEX"
           ? 120
-          : item.kind === "TRANSIT"
+          : item.kind === "LIVING" || item.kind === "MEDICAL"
             ? selected
-              ? 90
-              : 60
-            : selected
-              ? 50
-              : 20;
+              ? 95
+              : 55
+            : item.kind === "TRANSIT"
+              ? selected
+                ? 90
+                : 60
+              : selected
+                ? 50
+                : 20;
       const existing = markerMapRef.current.get(item.id);
       if (existing) {
         existing.setPosition(pos);
