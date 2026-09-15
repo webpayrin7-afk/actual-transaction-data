@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { NaverMap, type NaverMapMarker } from "@/components/map/NaverMap";
-import { LabCard, labSecondaryTabClass , labSegmentedClass } from "@/components/ui/lab";
+import { LabCard, labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
 import {
@@ -761,7 +761,7 @@ export function ComplexNearbyLifeSection({
                 <button
                   type="button"
                   onClick={() => setExpanded(true)}
-                  className="text-[14px] font-medium text-[var(--lab-teal-700)] hover:underline"
+                  className="text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
                 >
                   버스 정류장 더보기 · {moreCount}곳
                 </button>
