@@ -675,8 +675,8 @@ export function ComplexNearbyLifeSection({
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <div className="lab-section-heading">
-        <div className="min-w-0">
+      <div className="lab-section-heading flex-wrap items-center gap-x-2 gap-y-2">
+        <div className="min-w-0 shrink">
           <h2 className="flex items-center">
             주변 생활
             <InfoTip aria-label="주변 생활 출처 안내" className="ml-1.5 text-[13px]">
@@ -707,25 +707,24 @@ export function ComplexNearbyLifeSection({
             </InfoTip>
           </h2>
         </div>
-      </div>
-
-      <div
-        className={labSegmentedClass("mt-3")}
-        role="tablist"
-        aria-label="주변 생활 카테고리"
-      >
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => selectTab(t.id)}
-            className={labSecondaryTabClass(tab === t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
+        <div
+          className={labSegmentedClass("ml-auto shrink-0")}
+          role="tablist"
+          aria-label="주변 생활 카테고리"
+        >
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => selectTab(t.id)}
+              className={labSecondaryTabClass(tab === t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {tab === "transport" ? (
