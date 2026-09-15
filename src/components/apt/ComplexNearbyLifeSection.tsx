@@ -859,7 +859,16 @@ export function ComplexNearbyLifeSection({
                             selectFromList(s.id);
                             return;
                           }
-                          const from = `${pathname}${typeof window !== "undefined" ? window.location.search : ""}`;
+                          // Clean apt URL only — nearbyTab/hash are added on back.
+                          let from = pathname;
+                          if (typeof window !== "undefined") {
+                            const params = new URLSearchParams(
+                              window.location.search,
+                            );
+                            params.delete("nearbyTab");
+                            const q = params.toString();
+                            from = `${pathname}${q ? `?${q}` : ""}`;
+                          }
                           const qs = new URLSearchParams({
                             name: s.name,
                             from,

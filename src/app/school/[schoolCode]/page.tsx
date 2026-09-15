@@ -51,7 +51,10 @@ export default async function SchoolDetailPage({
   );
 }
 
-/** Apt detail URL with nearbyTab + scroll target for the school tab. */
+/**
+ * Back from school detail only: restore 학교 탭 + scroll to 주변 생활.
+ * Normal apt entry never includes these markers → initial tab stays 교통.
+ */
 function buildSchoolBackHref(
   from: string | undefined,
   nearbyTab: string,
@@ -65,6 +68,7 @@ function buildSchoolBackHref(
   const path = qIdx >= 0 ? withoutHash.slice(0, qIdx) : withoutHash;
   const qs = qIdx >= 0 ? withoutHash.slice(qIdx + 1) : "";
   const params = new URLSearchParams(qs);
+  params.delete("nearbyTab");
   params.set("nearbyTab", nearbyTab);
   const q = params.toString();
   return `${path}${q ? `?${q}` : ""}#section-nearby-life`;

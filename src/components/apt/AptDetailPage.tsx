@@ -509,11 +509,30 @@ export function AptDetailPage({
     return () => window.clearTimeout(t);
   }, [data]);
 
-  /** Return from school detail: ?nearbyTab=school#section-nearby-life */
+  /**
+   * Only when returning from school detail (?nearbyTab=school#section-nearby-life):
+   * scroll to 주변 생활, then strip restore markers so a later fresh apt entry
+   * defaults to 교통 again.
+   */
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (initialNearbyTab !== "school") return;
     if (window.location.hash !== "#section-nearby-life") return;
-    const t = window.setTimeout(() => scrollToSection("nearby-life"), 0);
+    const t = window.setTimeout(() => {
+      scrollToSection("nearby-life");
+      try {
+        const u = new URL(window.location.href);
+        u.searchParams.delete("nearbyTab");
+        u.hash = "";
+        window.history.replaceState(
+          window.history.state,
+          "",
+          `${u.pathname}${u.search}`,
+        );
+      } catch {
+        /* ignore */
+      }
+    }, 0);
     return () => window.clearTimeout(t);
   }, [initialNearbyTab]);
 
@@ -927,11 +946,9 @@ export function AptDetailPage({
           aptName={aptName}
           identity={identity ?? null}
           initialTab={
-            initialNearbyTab === "school" ||
-            initialNearbyTab === "transport" ||
-            initialNearbyTab === "living" ||
-            initialNearbyTab === "commerce"
-              ? initialNearbyTab
+            // Default apt entry → 교통. School tab only via back-from-detail restore.
+            initialNearbyTab === "school"
+              ? "school"
               : undefined
           }
         />
