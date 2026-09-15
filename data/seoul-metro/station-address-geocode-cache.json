@@ -1,0 +1,23 @@
+{
+  "_comment": "Anomaly-only NAVER Geocode of official Seoul Metro station addresses. Not a full-network batch.",
+  "2:217": {
+    "line": "2",
+    "stationCode": "217",
+    "name": "잠실새내",
+    "officialRoadAddress": "서울특별시 송파구 올림픽로 지하140(잠실동)",
+    "officialJibunAddress": "서울특별시 송파구 잠실동 33 잠실새내역(2호선)",
+    "queryUsed": "서울특별시 송파구 올림픽로 140",
+    "lat": 37.5115672,
+    "lng": 127.0863739
+  },
+  "5:2516": {
+    "line": "5",
+    "stationCode": "2516",
+    "name": "발산",
+    "officialRoadAddress": "서울특별시 강서구 공항대로 지하267(마곡동)",
+    "officialJibunAddress": "서울특별시 강서구 마곡동 727-1496 발산역(5호선)",
+    "queryUsed": "서울특별시 강서구 공항대로 267",
+    "lat": 37.5590293,
+    "lng": 126.8373108
+  }
+}

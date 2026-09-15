@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-09-14T09:30:58.618Z",
+  "apply": true,
+  "summary": [
+    {
+      "aptNameNorm": "헬리오시티",
+      "households": 9510,
+      "unitTypes": 22,
+      "groups": 10,
+      "around85": [
+        {
+          "marketLabel": 33,
+          "exclusive": "84.94~84.99",
+          "supply": "107.66~110.17",
+          "hh": 5132
+        }
+      ]
+    },
+    {
+      "aptNameNorm": "래미안안양메가트리아",
+      "households": 4250,
+      "unitTypes": 16,
+      "groups": 6,
+      "around85": [
+        {
+          "marketLabel": 34,
+          "exclusive": "84.68~84.82",
+          "supply": "112.93~113.12",
+          "hh": 1634
+        }
+      ]
+    }
+  ]
+}

@@ -71,9 +71,23 @@ export function labPrimaryTabClass(active: boolean, extra = "") {
   return `${LAB_TAB_PRIMARY} ${active ? LAB_TAB_ACTIVE : ""} ${extra}`.trim();
 }
 
-/** Apt-detail style compact filter chips */
+/** Apt-detail style filter chips — shared height/padding/radius/font via `.lab-tab-secondary` */
 export function labSecondaryTabClass(active: boolean, extra = "") {
   return `${LAB_TAB_SECONDARY} ${active ? LAB_TAB_SECONDARY_ACTIVE : ""} ${extra}`.trim();
+}
+
+/** Shared row for period / deal-type / nearby-life segmented controls */
+export const LAB_SEGMENTED = "lab-segmented";
+export function labSegmentedClass(extra = "") {
+  return `${LAB_SEGMENTED} ${extra}`.trim();
+}
+
+/**
+ * Official LAB Series section-nav tabs: teal text + thin underline when active.
+ * Transparent background — never a filled pill.
+ */
+export function labUnderlineTabClass(active: boolean, extra = "") {
+  return `lab-tab-underline ${active ? "lab-tab-underline-active" : ""} ${extra}`.trim();
 }
 
 export function labChoiceClass(active: boolean, extra = "") {

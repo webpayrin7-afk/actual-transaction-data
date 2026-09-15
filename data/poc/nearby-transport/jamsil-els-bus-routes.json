@@ -1,0 +1,7673 @@
+{
+  "complexId": "cx_4c63d9a100973c60",
+  "complexName": "잠실엘스",
+  "anchorType": "NAVER_GEOCODE",
+  "centerLat": 37.5133,
+  "centerLng": 127.1028,
+  "source": {
+    "dataset": "서울시 버스 노선 정보 조회",
+    "datasetId": "OA-1095",
+    "provider": "서울특별시",
+    "portal": "서울 열린데이터광장",
+    "file": "서울시버스노선별정류소정보(20260902).xlsx",
+    "fileDate": "2026-09-02",
+    "format": "XLSX",
+    "sourceVersion": "20260902"
+  },
+  "joinKey": "NODE_ID->busStops.id (fallback ARS_ID->arsNo)",
+  "stats": {
+    "routeRowsMatched": 700,
+    "stopsWithRoutes": 171,
+    "candidateStopsWithin2000m": 175
+  },
+  "routesByStopId": {
+    "123000299": [
+      {
+        "routeId": "100100507",
+        "routeNumber": "6009",
+        "routeType": null
+      },
+      {
+        "routeId": "107000002",
+        "routeNumber": "343",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100500",
+        "routeNumber": "4312",
+        "routeType": null
+      }
+    ],
+    "123000689": [
+      {
+        "routeId": "123000021",
+        "routeNumber": "한강버스(동부압구정)",
+        "routeType": null
+      },
+      {
+        "routeId": "123000024",
+        "routeNumber": "한강버스(동부옥수)",
+        "routeType": null
+      }
+    ],
+    "123000440": [
+      {
+        "routeId": "100100506",
+        "routeNumber": "6006",
+        "routeType": null
+      },
+      {
+        "routeId": "103000005",
+        "routeNumber": "한강잠실",
+        "routeType": null
+      }
+    ],
+    "123000700": [
+      {
+        "routeId": "103000005",
+        "routeNumber": "한강잠실",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "123900057": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000080": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "123000094": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      }
+    ],
+    "123900048": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000141": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "123000508": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "123000048": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      }
+    ],
+    "123900049": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000139": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "123000007": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "123900050": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000049": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "123000129": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "123000005": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "123000690": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000050": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "123900012": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000003": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "123000091": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000024": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100218",
+        "routeNumber": "3220",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100213",
+        "routeNumber": "3214",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100212",
+        "routeNumber": "3212",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "124900002",
+        "routeNumber": "강동01",
+        "routeType": null
+      }
+    ],
+    "123000130": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "123900051": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000052": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "123900013": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000135": [
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "123000300": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "123000089": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000034": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000579": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123000694": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000001": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123900014": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000053": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "123000079": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000131": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "123000035": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000507": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123000115": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      }
+    ],
+    "123000041": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000695": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000078": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000125": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123900002": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      }
+    ],
+    "123000492": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      }
+    ],
+    "123000705": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000126": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000071": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123900036": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000046": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      }
+    ],
+    "123000043": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      }
+    ],
+    "123900038": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000044": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000112": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123900053": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000033": [
+      {
+        "routeId": "100100218",
+        "routeNumber": "3220",
+        "routeType": null
+      },
+      {
+        "routeId": "100100213",
+        "routeNumber": "3214",
+        "routeType": null
+      },
+      {
+        "routeId": "100100212",
+        "routeNumber": "3212",
+        "routeType": null
+      },
+      {
+        "routeId": "124900002",
+        "routeNumber": "강동01",
+        "routeType": null
+      }
+    ],
+    "123900054": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000111": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123900037": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123900055": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123000364": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123900001": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      }
+    ],
+    "123000081": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000101": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000114": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      }
+    ],
+    "123000098": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000051": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123900056": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "123900016": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000038": [
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      }
+    ],
+    "123000096": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000563": [
+      {
+        "routeId": "122000006",
+        "routeNumber": "N6703",
+        "routeType": null
+      },
+      {
+        "routeId": "100100570",
+        "routeNumber": "6705A",
+        "routeType": null
+      }
+    ],
+    "123000346": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      }
+    ],
+    "123900017": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000039": [
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      }
+    ],
+    "123000095": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123900018": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "123000696": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      }
+    ],
+    "123000002": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "123000056": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "123000697": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      }
+    ],
+    "123000057": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "123000004": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "123000092": [
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "123000006": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "123000045": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "123000102": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000047": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "123000059": [
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000108": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "123000083": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "123000061": [
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000632": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "123000008": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "123000082": [
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000063": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000113": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "123000366": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000042": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000150": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000117": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "123000040": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000584": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000305": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000151": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000121": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000706": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000069": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "123000123": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000037": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000142": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "123000344": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000064": [
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000106": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "123000345": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000060": [
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "123000104": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "123000070": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      }
+    ],
+    "123000058": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "123000036": [
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000077": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "123000610": [
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000072": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "123000698": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "123000088": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000699": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "123000087": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "123000086": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "123000097": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000701": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "123000099": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000085": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "123000105": [
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000353": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000107": [
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000100": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "123000084": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      }
+    ],
+    "123000342": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000127": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "123000120": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123000026": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000027": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000119": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123000029": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000118": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "123000128": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000522": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000132": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000520": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000133": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "123000518": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000517": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000519": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000521": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "123000504": [
+      {
+        "routeId": "100100506",
+        "routeNumber": "6006",
+        "routeType": null
+      }
+    ],
+    "123000303": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000028": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000338": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000025": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "123000536": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      }
+    ],
+    "123000535": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      }
+    ],
+    "123000090": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "123000124": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000122": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "123000136": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ],
+    "123000137": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ],
+    "123000138": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ],
+    "123000140": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ]
+  },
+  "routesByArsNo": {
+    "24134": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "24132": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      }
+    ],
+    "24565": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24017": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24135": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      }
+    ],
+    "24542": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24002": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "24133": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24553": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24620": [
+      {
+        "routeId": "122000006",
+        "routeNumber": "N6703",
+        "routeType": null
+      },
+      {
+        "routeId": "100100570",
+        "routeNumber": "6705A",
+        "routeType": null
+      }
+    ],
+    "24561": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24137": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      }
+    ],
+    "24136": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "24146": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "24131": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24215": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24486": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24138": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "24001": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24485": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24610": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      }
+    ],
+    "24130": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24562": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24554": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24715": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      }
+    ],
+    "24560": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24129": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24484": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24483": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24216": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "24555": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24128": [
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      }
+    ],
+    "24125": [
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24501": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24559": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24004": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "24566": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24197": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "24003": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "24139": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "24571": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24482": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24569": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24214": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24481": [
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24195": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "24212": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24147": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "24196": [
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24193": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "24213": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24148": [
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24124": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24194": [
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24153": [
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24180": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24199": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "24611": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      }
+    ],
+    "24479": [
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24181": [
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "24126": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24140": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24210": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24480": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "24396": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24145": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "24149": [
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "24220": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "24543": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24127": [
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      }
+    ],
+    "24150": [
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24170": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24540": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24918": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "24171": [
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24211": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24919": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      }
+    ],
+    "24241": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24183": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      }
+    ],
+    "24006": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      }
+    ],
+    "24510": [
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24202": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "24178": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24005": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "24179": [
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "24152": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24923": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "24391": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "24430": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24437": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24123": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24168": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24141": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "24231": [
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "24201": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24159": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      }
+    ],
+    "24172": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "24219": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "24207": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24190": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24225": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ],
+    "24169": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "24189": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24113": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24456": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24200": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24208": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24209": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      }
+    ],
+    "24218": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "24217": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24187": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24556": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24226": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ],
+    "24233": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24188": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24436": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      }
+    ],
+    "24458": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24167": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24177": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24114": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24008": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "24115": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24922": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "24191": [
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24112": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24184": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24185": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24557": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      }
+    ],
+    "24166": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "24920": [
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      }
+    ],
+    "24186": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      }
+    ],
+    "24158": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      }
+    ],
+    "24221": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24921": [
+      {
+        "routeId": "103000005",
+        "routeNumber": "한강잠실",
+        "routeType": null
+      },
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      }
+    ],
+    "24111": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24662": [
+      {
+        "routeId": "100100506",
+        "routeNumber": "6006",
+        "routeType": null
+      },
+      {
+        "routeId": "103000005",
+        "routeNumber": "한강잠실",
+        "routeType": null
+      }
+    ],
+    "24227": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ],
+    "24007": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100564",
+        "routeNumber": "320",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100478",
+        "routeNumber": "3317",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100053",
+        "routeNumber": "303",
+        "routeType": null
+      },
+      {
+        "routeId": "100100052",
+        "routeNumber": "302",
+        "routeType": null
+      },
+      {
+        "routeId": "107000008",
+        "routeNumber": "422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "24434": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24240": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24228": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "24728": [
+      {
+        "routeId": "100100506",
+        "routeNumber": "6006",
+        "routeType": null
+      }
+    ],
+    "00001": [
+      {
+        "routeId": "123000021",
+        "routeNumber": "한강버스(동부압구정)",
+        "routeType": null
+      },
+      {
+        "routeId": "123000024",
+        "routeNumber": "한강버스(동부옥수)",
+        "routeType": null
+      }
+    ],
+    "24508": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      }
+    ],
+    "24505": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      }
+    ],
+    "24142": [
+      {
+        "routeId": "100100211",
+        "routeNumber": "2415",
+        "routeType": null
+      },
+      {
+        "routeId": "100100057",
+        "routeNumber": "360",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "124000036",
+        "routeNumber": "345",
+        "routeType": null
+      },
+      {
+        "routeId": "100100051",
+        "routeNumber": "301",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100216",
+        "routeNumber": "3217",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100232",
+        "routeNumber": "3422",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100427",
+        "routeNumber": "4319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100496",
+        "routeNumber": "333",
+        "routeType": null
+      },
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100593",
+        "routeNumber": "N13",
+        "routeType": null
+      }
+    ],
+    "24438": [
+      {
+        "routeId": "123900003",
+        "routeNumber": "송파03",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      }
+    ],
+    "24173": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100579",
+        "routeNumber": "3420",
+        "routeType": null
+      }
+    ],
+    "24206": [
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      }
+    ],
+    "24517": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24160": [
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      }
+    ],
+    "24516": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24520": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24203": [
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      }
+    ],
+    "24161": [
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100553",
+        "routeNumber": "350",
+        "routeType": null
+      }
+    ],
+    "24521": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24445": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24522": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24518": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      }
+    ],
+    "24176": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "24224": [
+      {
+        "routeId": "124000010",
+        "routeNumber": "8331",
+        "routeType": null
+      },
+      {
+        "routeId": "123000013",
+        "routeNumber": "N73",
+        "routeType": null
+      },
+      {
+        "routeId": "100100219",
+        "routeNumber": "3313",
+        "routeType": null
+      },
+      {
+        "routeId": "100100229",
+        "routeNumber": "3417",
+        "routeType": null
+      },
+      {
+        "routeId": "100100220",
+        "routeNumber": "3314",
+        "routeType": null
+      },
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      },
+      {
+        "routeId": "100100599",
+        "routeNumber": "2311",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      }
+    ],
+    "24121": [
+      {
+        "routeId": "100100218",
+        "routeNumber": "3220",
+        "routeType": null
+      },
+      {
+        "routeId": "100100213",
+        "routeNumber": "3214",
+        "routeType": null
+      },
+      {
+        "routeId": "100100212",
+        "routeNumber": "3212",
+        "routeType": null
+      },
+      {
+        "routeId": "124900002",
+        "routeNumber": "강동01",
+        "routeType": null
+      }
+    ],
+    "24175": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "24230": [
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      },
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      }
+    ],
+    "24394": [
+      {
+        "routeId": "100100237",
+        "routeNumber": "4318",
+        "routeType": null
+      }
+    ],
+    "24229": [
+      {
+        "routeId": "100100226",
+        "routeNumber": "3414",
+        "routeType": null
+      },
+      {
+        "routeId": "100100215",
+        "routeNumber": "3216",
+        "routeType": null
+      }
+    ],
+    "24222": [
+      {
+        "routeId": "124000039",
+        "routeNumber": "3323",
+        "routeType": null
+      },
+      {
+        "routeId": "100100225",
+        "routeNumber": "3413",
+        "routeType": null
+      },
+      {
+        "routeId": "100100224",
+        "routeNumber": "3412",
+        "routeType": null
+      }
+    ],
+    "24174": [
+      {
+        "routeId": "100100221",
+        "routeNumber": "3315",
+        "routeType": null
+      }
+    ],
+    "24204": [
+      {
+        "routeId": "123900001",
+        "routeNumber": "송파01",
+        "routeType": null
+      },
+      {
+        "routeId": "100100613",
+        "routeNumber": "3322",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      }
+    ],
+    "24390": [
+      {
+        "routeId": "100100507",
+        "routeNumber": "6009",
+        "routeType": null
+      },
+      {
+        "routeId": "107000002",
+        "routeNumber": "343",
+        "routeType": null
+      },
+      {
+        "routeId": "122900002",
+        "routeNumber": "강남05",
+        "routeType": null
+      },
+      {
+        "routeId": "100100209",
+        "routeNumber": "2412",
+        "routeType": null
+      },
+      {
+        "routeId": "100100500",
+        "routeNumber": "4312",
+        "routeType": null
+      }
+    ],
+    "24110": [
+      {
+        "routeId": "124000006",
+        "routeNumber": "6200",
+        "routeType": null
+      },
+      {
+        "routeId": "100100218",
+        "routeNumber": "3220",
+        "routeType": null
+      },
+      {
+        "routeId": "100100056",
+        "routeNumber": "341",
+        "routeType": null
+      },
+      {
+        "routeId": "104000011",
+        "routeNumber": "N31",
+        "routeType": null
+      },
+      {
+        "routeId": "100100501",
+        "routeNumber": "3319",
+        "routeType": null
+      },
+      {
+        "routeId": "100100055",
+        "routeNumber": "340",
+        "routeType": null
+      },
+      {
+        "routeId": "100100213",
+        "routeNumber": "3214",
+        "routeType": null
+      },
+      {
+        "routeId": "100100223",
+        "routeNumber": "3411",
+        "routeType": null
+      },
+      {
+        "routeId": "100100212",
+        "routeNumber": "3212",
+        "routeType": null
+      },
+      {
+        "routeId": "124000038",
+        "routeNumber": "342",
+        "routeType": null
+      },
+      {
+        "routeId": "100100498",
+        "routeNumber": "3318",
+        "routeType": null
+      },
+      {
+        "routeId": "124900002",
+        "routeNumber": "강동01",
+        "routeType": null
+      }
+    ]
+  },
+  "generatedAt": "2026-09-15T09:50:00.000Z",
+  "note": "Pilot extract only for 잠실엘스 nearby stops. Full XLSX not committed. Join by official stop id / ARS; no name fuzzy join. No routeType invention."
+}
