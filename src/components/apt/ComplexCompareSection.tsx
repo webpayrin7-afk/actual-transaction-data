@@ -165,7 +165,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
   return (
     <div className="mt-2">
       <div
-        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-2"
+        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-1.5 pt-0.5"
         style={gridStyle}
       >
         <span className="text-[10px] text-slate-400" aria-hidden="true" />
@@ -190,7 +190,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
                   {c.aptName}
                 </Link>
               )}
-              <p className="mt-0.5 mb-1 text-[10px] tabular-nums leading-none text-slate-500">
+              <p className="mt-0.5 mb-0.5 text-[10px] tabular-nums leading-none text-slate-500">
                 {formatAreaShort(c)}
               </p>
             </div>
