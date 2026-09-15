@@ -165,7 +165,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
   return (
     <div className="mt-2">
       <div
-        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-1.5"
+        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-2"
         style={gridStyle}
       >
         <span className="text-[10px] text-slate-400" aria-hidden="true" />
@@ -190,7 +190,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
                   {c.aptName}
                 </Link>
               )}
-              <p className="mt-0.5 text-[10px] tabular-nums leading-none text-slate-500">
+              <p className="mt-0.5 mb-1 text-[10px] tabular-nums leading-none text-slate-500">
                 {formatAreaShort(c)}
               </p>
             </div>
@@ -330,12 +330,12 @@ export function ComplexCompareSection({
 
   return (
     <LabCard className="p-3.5 sm:p-5">
-      <div className="min-w-0">
-        <h2 className="flex items-center text-[1.125rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)] sm:text-[1.25rem]">
+      <div className="flex items-start justify-between gap-2">
+        <h2 className="flex min-w-0 items-center text-[1.125rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)] sm:text-[1.25rem]">
           주변 단지 비교
           <CompareInfoTip />
         </h2>
-        <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+        <p className="shrink-0 pt-1 text-right text-[10px] leading-4 text-slate-500 sm:text-[11px]">
           {areaBandLabel(areaCenter)}
         </p>
       </div>
