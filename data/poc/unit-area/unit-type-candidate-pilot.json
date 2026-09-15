@@ -1,0 +1,255 @@
+{
+  "generatedAt": "2026-09-15T22:51:04.688Z",
+  "stage": "stage5-unit-type-candidate-pilot",
+  "scope": "리센츠 + 트리지움 only",
+  "principles": {
+    "rawUnitTypeMustSurvive": true,
+    "similarAreaGroupIsDerivedLayer": true,
+    "autoGroupSeoulWide": false,
+    "dbWritesToUnitTables": 0,
+    "candidatePolicyNote": "≤0.2㎡ span is a CANDIDATE heuristic only — not approved merge policy"
+  },
+  "complexes": [
+    {
+      "complexId": "cx_caf229b5ac63cfbd",
+      "complexName": "리센츠",
+      "lawdCd": "11710",
+      "existingUnitMasterRows": 0,
+      "rawAreaCount": 5,
+      "rawAreas": [
+        {
+          "exclusiveArea": 27.68,
+          "txCount": 1632,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 8.37
+        },
+        {
+          "exclusiveArea": 59.99,
+          "txCount": 316,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 18.15
+        },
+        {
+          "exclusiveArea": 84.99,
+          "txCount": 3280,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 25.71
+        },
+        {
+          "exclusiveArea": 98.55,
+          "txCount": 122,
+          "latestYearMonth": "202608",
+          "approxPyeongDisplay": 29.81
+        },
+        {
+          "exclusiveArea": 124.22,
+          "txCount": 558,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 37.58
+        }
+      ],
+      "unitTypeCandidates": [
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_caf229b5ac63cfbd:ex27.68",
+          "exclusiveArea": 27.68,
+          "exclusiveAreaMin": 27.68,
+          "exclusiveAreaMax": 27.68,
+          "approxPyeongDisplay": 8.37,
+          "txCount": 1632,
+          "sortOrder": 0,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_caf229b5ac63cfbd:ex59.99",
+          "exclusiveArea": 59.99,
+          "exclusiveAreaMin": 59.99,
+          "exclusiveAreaMax": 59.99,
+          "approxPyeongDisplay": 18.15,
+          "txCount": 316,
+          "sortOrder": 1,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_caf229b5ac63cfbd:ex84.99",
+          "exclusiveArea": 84.99,
+          "exclusiveAreaMin": 84.99,
+          "exclusiveAreaMax": 84.99,
+          "approxPyeongDisplay": 25.71,
+          "txCount": 3280,
+          "sortOrder": 2,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_caf229b5ac63cfbd:ex98.55",
+          "exclusiveArea": 98.55,
+          "exclusiveAreaMin": 98.55,
+          "exclusiveAreaMax": 98.55,
+          "approxPyeongDisplay": 29.81,
+          "txCount": 122,
+          "sortOrder": 3,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_caf229b5ac63cfbd:ex124.22",
+          "exclusiveArea": 124.22,
+          "exclusiveAreaMin": 124.22,
+          "exclusiveAreaMax": 124.22,
+          "approxPyeongDisplay": 37.58,
+          "txCount": 558,
+          "sortOrder": 4,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        }
+      ],
+      "similarAreaGroupCandidates": [],
+      "readiness": {
+        "allRawAreasDisplayableFromTx": true,
+        "unitMasterPresent": false,
+        "groupingLayerPresent": false,
+        "recommendedNext": "Persist CANDIDATE unit types as apt_unit_types (1:1 with raw exclusive_area) before any similar-area grouping"
+      }
+    },
+    {
+      "complexId": "cx_85cd8a4b2d5dc3d0",
+      "complexName": "트리지움",
+      "lawdCd": "11710",
+      "existingUnitMasterRows": 0,
+      "rawAreaCount": 6,
+      "rawAreas": [
+        {
+          "exclusiveArea": 59.88,
+          "txCount": 923,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 18.11
+        },
+        {
+          "exclusiveArea": 84.83,
+          "txCount": 1156,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 25.66
+        },
+        {
+          "exclusiveArea": 84.95,
+          "txCount": 593,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 25.7
+        },
+        {
+          "exclusiveArea": 84.97,
+          "txCount": 303,
+          "latestYearMonth": "202609",
+          "approxPyeongDisplay": 25.7
+        },
+        {
+          "exclusiveArea": 114.7,
+          "txCount": 278,
+          "latestYearMonth": "202608",
+          "approxPyeongDisplay": 34.7
+        },
+        {
+          "exclusiveArea": 149.45,
+          "txCount": 176,
+          "latestYearMonth": "202607",
+          "approxPyeongDisplay": 45.21
+        }
+      ],
+      "unitTypeCandidates": [
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_85cd8a4b2d5dc3d0:ex59.88",
+          "exclusiveArea": 59.88,
+          "exclusiveAreaMin": 59.88,
+          "exclusiveAreaMax": 59.88,
+          "approxPyeongDisplay": 18.11,
+          "txCount": 923,
+          "sortOrder": 0,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_85cd8a4b2d5dc3d0:ex84.83",
+          "exclusiveArea": 84.83,
+          "exclusiveAreaMin": 84.83,
+          "exclusiveAreaMax": 84.83,
+          "approxPyeongDisplay": 25.66,
+          "txCount": 1156,
+          "sortOrder": 1,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_85cd8a4b2d5dc3d0:ex84.95",
+          "exclusiveArea": 84.95,
+          "exclusiveAreaMin": 84.95,
+          "exclusiveAreaMax": 84.95,
+          "approxPyeongDisplay": 25.7,
+          "txCount": 593,
+          "sortOrder": 2,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_85cd8a4b2d5dc3d0:ex84.97",
+          "exclusiveArea": 84.97,
+          "exclusiveAreaMin": 84.97,
+          "exclusiveAreaMax": 84.97,
+          "approxPyeongDisplay": 25.7,
+          "txCount": 303,
+          "sortOrder": 3,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_85cd8a4b2d5dc3d0:ex114.7",
+          "exclusiveArea": 114.7,
+          "exclusiveAreaMin": 114.7,
+          "exclusiveAreaMax": 114.7,
+          "approxPyeongDisplay": 34.7,
+          "txCount": 278,
+          "sortOrder": 4,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        },
+        {
+          "status": "CANDIDATE",
+          "provisionalKey": "cx_85cd8a4b2d5dc3d0:ex149.45",
+          "exclusiveArea": 149.45,
+          "exclusiveAreaMin": 149.45,
+          "exclusiveAreaMax": 149.45,
+          "approxPyeongDisplay": 45.21,
+          "txCount": 176,
+          "sortOrder": 5,
+          "note": "RAW exclusive area identity — must survive any future grouping layer"
+        }
+      ],
+      "similarAreaGroupCandidates": [
+        {
+          "status": "CANDIDATE",
+          "labelHint": "26평대",
+          "exclusiveAreaMin": 84.83,
+          "exclusiveAreaMax": 84.97,
+          "memberAreas": [
+            84.83,
+            84.95,
+            84.97
+          ],
+          "rationale": "CANDIDATE only: exclusive areas within ≤0.2㎡ span. Does not replace raw unit types. Not verified policy."
+        }
+      ],
+      "readiness": {
+        "allRawAreasDisplayableFromTx": true,
+        "unitMasterPresent": false,
+        "groupingLayerPresent": false,
+        "recommendedNext": "Persist CANDIDATE unit types as apt_unit_types (1:1 with raw exclusive_area) before any similar-area grouping"
+      }
+    }
+  ],
+  "decision": {
+    "UNIT_TYPE_CANDIDATE_PILOT": "PASS",
+    "SIMILAR_AREA_GROUP_CANDIDATES": "PASS_AS_CANDIDATE_ONLY",
+    "DB_SAFETY": "PASS"
+  }
+}

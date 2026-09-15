@@ -1,0 +1,208 @@
+{
+  "generatedAt": "2026-09-15T22:47:51.757Z",
+  "mode": "apply",
+  "window": [
+    "202509",
+    "202510",
+    "202511",
+    "202512",
+    "202601",
+    "202602",
+    "202603",
+    "202604",
+    "202605",
+    "202606",
+    "202607",
+    "202608"
+  ],
+  "rateLimitGate": {
+    "status": "PASS",
+    "http": 200,
+    "resultCode": "00",
+    "probe": "리센츠 A13822003 202608 cleaning"
+  },
+  "decision": "PARTIAL_HOLD_429",
+  "writes": {
+    "source_links": 2,
+    "management_rows": 22,
+    "skipped_existing": 0
+  },
+  "targets": [
+    {
+      "name": "리센츠",
+      "complexId": "cx_caf229b5ac63cfbd",
+      "kapt": "A13822003",
+      "link": "inserted",
+      "monthsRequested": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "monthsLoaded": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607"
+      ],
+      "monthsSkippedExisting": [],
+      "monthsEmpty": [
+        "202608"
+      ],
+      "errors": [],
+      "windowCompleteMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607"
+      ],
+      "windowCompleteCount": 11
+    },
+    {
+      "name": "트리지움",
+      "complexId": "cx_85cd8a4b2d5dc3d0",
+      "kapt": "A13822002",
+      "link": "inserted",
+      "monthsRequested": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "monthsLoaded": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607"
+      ],
+      "monthsSkippedExisting": [],
+      "monthsEmpty": [
+        "202608"
+      ],
+      "errors": [],
+      "windowCompleteMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607"
+      ],
+      "windowCompleteCount": 11
+    },
+    {
+      "name": "반포자이",
+      "complexId": "cx_1c244e7305d12c44",
+      "kapt": "A13704104",
+      "link": null,
+      "monthsRequested": [
+        "202608"
+      ],
+      "monthsLoaded": [],
+      "monthsSkippedExisting": [],
+      "monthsEmpty": [
+        "202608"
+      ],
+      "errors": [],
+      "windowCompleteMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607"
+      ],
+      "windowCompleteCount": 11
+    }
+  ],
+  "rateLimitDuringLoad": "HTTP 429 on /AptBasisInfoServiceV5/getAphusBassInfoV5",
+  "postVerify": {
+    "리센츠": {
+      "windowComplete": 11,
+      "missing": [
+        "202608"
+      ],
+      "note": "202608 returned empty from KAPT (not rate-limit)"
+    },
+    "트리지움": {
+      "windowComplete": 11,
+      "missing": [
+        "202608"
+      ],
+      "note": "202608 returned empty from KAPT (not rate-limit)"
+    },
+    "반포자이": {
+      "windowComplete": 11,
+      "missing": [
+        "202608"
+      ],
+      "note": "202608 empty probe before 429 on next target"
+    },
+    "헬리오시티": {
+      "windowComplete": 11,
+      "missing": [
+        "202608"
+      ],
+      "note": "not fetched — 429 on BasisInfo household lookup"
+    },
+    "파크리오": {
+      "windowComplete": 10,
+      "missing": [
+        "202607",
+        "202608"
+      ],
+      "note": "not reached — 429 HOLD"
+    }
+  },
+  "kaptSourceLinksPersisted": [
+    "A13822003→cx_caf229b5ac63cfbd",
+    "A13822002→cx_85cd8a4b2d5dc3d0"
+  ]
+}
