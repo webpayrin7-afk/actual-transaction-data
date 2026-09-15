@@ -184,10 +184,11 @@ export async function GET(request: NextRequest) {
   // ---- TRANSPORT (Seoul Metro CSV + Seoul official bus-stop artifact; never TAGO/VWorld for Seoul) ----
   // Subway + bus distances ALWAYS use the same live request center (client NAVER geocode).
   if (isJamsilElsTransportPilot(aptName)) {
-    // Distinct physical stations after interchange merge; show nearest few only.
+    // Display policy: ≤800m, max 3 distinct physical stations (after merge), distance ASC.
+    // Do not pad with stations beyond 800m to fill the count.
     const subwayItems: PoiItem[] = nearestSeoulMetroStations(coords, {
       limit: 3,
-      maxMeters: 3000,
+      maxMeters: 800,
     }).map((s) => ({
       id: s.id,
       name: s.name,

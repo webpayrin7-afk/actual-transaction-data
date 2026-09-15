@@ -492,7 +492,8 @@ export function nearestSeoulMetroStations(
   opts?: { limit?: number; maxMeters?: number },
 ): NearbyMetroStationGroup[] {
   const limit = opts?.limit ?? 3;
-  const maxMeters = opts?.maxMeters ?? 3000;
+  /** UI display radius: keep ≤800m; never pad with farther stations. */
+  const maxMeters = opts?.maxMeters ?? 800;
   const stations = loadSeoulMetroStations();
   if (!stations.length) return [];
 
