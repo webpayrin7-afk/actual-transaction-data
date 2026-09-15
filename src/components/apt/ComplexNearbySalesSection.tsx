@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabCard } from "@/components/ui/lab";
 import type {
@@ -9,7 +8,7 @@ import type {
   NearbySalesResult,
 } from "@/lib/complex-detail/applyhome-nearby-sales";
 
-const COLLAPSED_TYPES = 2;
+const VISIBLE_TYPES = 3;
 
 const FEED_STATUSES = new Set<NearbySaleStatus>([
   "upcoming",
@@ -56,19 +55,70 @@ function shortPlace(regionLabel: string): string {
   return parts[parts.length - 1] ?? trimmed;
 }
 
-function metaLine(item: NearbySaleCard): string {
+/** Display supply as 세대 (UI label); API 실/세대 semantics unchanged. */
+function supply세대Label(item: NearbySaleCard): string | null {
+  if (item.supplyCount != null) {
+    return `${item.supplyCount.toLocaleString("ko-KR")}세대`;
+  }
+  if (!item.supplyCountLabel) return null;
+  return item.supplyCountLabel.replace(/실$/, "세대");
+}
+
+function metaLeft(item: NearbySaleCard): string {
   const isOfficetel = item.housingCategory === "officetel";
   const kind = isOfficetel ? "오피스텔" : "아파트";
   const place = shortPlace(item.regionLabel);
-  const supply = item.supplyCountLabel;
+  const supply = supply세대Label(item);
   return [kind, place || null, supply].filter(Boolean).join(" · ");
+}
+
+function TypeChips({ item }: { item: NearbySaleCard }) {
+  if (item.types.length === 0) return null;
+  const visible = item.types.slice(0, VISIBLE_TYPES);
+  const extra = Math.max(0, item.types.length - VISIBLE_TYPES);
+  return (
+    <span className="inline-flex min-w-0 flex-wrap items-center gap-1">
+      {visible.map((t) => (
+        <span
+          key={`${item.id}-${t.modelNo}`}
+          className="rounded px-1 py-px text-[10px] font-medium tabular-nums text-slate-600 ring-1 ring-inset ring-slate-200/90"
+        >
+          {t.label}
+        </span>
+      ))}
+      {extra > 0 ? (
+        <span className="text-[10px] font-medium tabular-nums text-slate-400">
+          외 {extra}개
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+function DetailCta({
+  href,
+  label,
+}: {
+  href: string;
+  label: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex shrink-0 items-center rounded-md bg-[var(--lab-teal-600)] px-2 py-1 text-[11px] font-semibold leading-none text-white transition hover:bg-[var(--lab-teal-700)]"
+    >
+      {label}
+    </a>
+  );
 }
 
 function SourceInfoTip() {
   return (
     <details className="relative inline-flex shrink-0 align-middle">
       <summary
-        className="ml-1 inline-flex cursor-pointer list-none items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
+        className="ml-1.5 inline-flex cursor-pointer list-none items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
         aria-label="주변 공급 출처 안내"
       >
         <span aria-hidden="true">ⓘ</span>
@@ -84,14 +134,15 @@ function SourceInfoTip() {
 }
 
 function SaleRow({ item }: { item: NearbySaleCard }) {
-  const [expanded, setExpanded] = useState(false);
   const isMoveIn = item.status === "move_in_upcoming";
-  const visibleTypes = expanded
-    ? item.types
-    : item.types.slice(0, COLLAPSED_TYPES);
-  const hiddenCount = Math.max(0, item.types.length - COLLAPSED_TYPES);
   const detailHref = item.pblancUrl;
   const detailLabel = isMoveIn ? "공고 상세 →" : "청약 상세 →";
+  const priced = !isMoveIn
+    ? item.types.filter((t) => t.topAmountLabel).slice(0, VISIBLE_TYPES)
+    : [];
+  const pricedExtra = !isMoveIn
+    ? Math.max(0, item.types.filter((t) => t.topAmountLabel).length - VISIBLE_TYPES)
+    : 0;
 
   return (
     <li className="py-2.5 first:pt-1.5">
@@ -107,12 +158,15 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
         </span>
       </div>
 
-      {/* ROW 2 — compressed meta */}
-      <p className="mt-0.5 text-[11px] leading-snug text-slate-500">
-        {metaLine(item)}
-      </p>
+      {/* ROW 2 — meta + type chips to the right of 세대 */}
+      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+        <p className="text-[11px] leading-snug text-slate-500">
+          {metaLeft(item)}
+        </p>
+        <TypeChips item={item} />
+      </div>
 
-      {/* Active: schedule + competition */}
+      {/* Active: schedule + competition + price rows */}
       {!isMoveIn && item.scheduleLabel ? (
         <p className="mt-1 text-[12px] font-medium tabular-nums text-slate-800">
           {item.scheduleLabel}
@@ -123,103 +177,42 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
           {item.competition.label}
         </p>
       ) : null}
-
-      {isMoveIn ? (
-        /* ROW 3 — move-in date · type chips · CTA */
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-          {item.moveInLabel ? (
-            <span className="text-[12px] font-semibold tabular-nums text-slate-800">
-              {item.moveInLabel} 입주예정
-            </span>
-          ) : null}
-          {visibleTypes.length > 0 ? (
-            <span className="inline-flex flex-wrap items-center gap-1">
-              {visibleTypes.map((t) => (
-                <span
-                  key={`${item.id}-${t.modelNo}`}
-                  className="rounded px-1 py-px text-[10px] font-medium tabular-nums text-slate-600 ring-1 ring-inset ring-slate-200/90"
-                >
-                  {t.label}
-                </span>
-              ))}
-              {hiddenCount > 0 && !expanded ? (
-                <button
-                  type="button"
-                  onClick={() => setExpanded(true)}
-                  className="rounded px-1 py-px text-[10px] font-medium tabular-nums text-slate-500 ring-1 ring-inset ring-slate-200/90 hover:text-slate-700"
-                >
-                  +{hiddenCount}
-                </button>
-              ) : null}
-              {expanded && hiddenCount > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setExpanded(false)}
-                  className="text-[10px] text-slate-400 underline-offset-2 hover:underline"
-                >
-                  접기
-                </button>
-              ) : null}
-            </span>
-          ) : null}
-          {detailHref ? (
-            <a
-              href={detailHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-auto shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)]"
+      {priced.length > 0 ? (
+        <ul className="mt-1 space-y-0.5">
+          {priced.map((t) => (
+            <li
+              key={`${item.id}-price-${t.modelNo}`}
+              className="flex items-baseline justify-between gap-3 text-[12px] leading-snug"
             >
-              {detailLabel}
-            </a>
+              <span className="font-medium tabular-nums text-slate-800">
+                {t.label}
+              </span>
+              <span className="tabular-nums text-slate-600">
+                최고 {t.topAmountLabel}
+              </span>
+            </li>
+          ))}
+          {pricedExtra > 0 ? (
+            <li className="text-[10px] font-medium tabular-nums text-slate-400">
+              외 {pricedExtra}개
+            </li>
           ) : null}
-        </div>
-      ) : (
-        <>
-          {/* Active: up to 2 type+price rows, then +N */}
-          {visibleTypes.length > 0 ? (
-            <ul className="mt-1 space-y-0.5">
-              {visibleTypes.map((t) => (
-                <li
-                  key={`${item.id}-${t.modelNo}`}
-                  className="flex items-baseline justify-between gap-3 text-[12px] leading-snug"
-                >
-                  <span className="font-medium tabular-nums text-slate-800">
-                    {t.label}
-                  </span>
-                  {t.topAmountLabel ? (
-                    <span className="tabular-nums text-slate-600">
-                      최고 {t.topAmountLabel}
-                    </span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <div className="mt-1 flex items-center justify-between gap-2">
-            {hiddenCount > 0 ? (
-              <button
-                type="button"
-                onClick={() => setExpanded((v) => !v)}
-                className="text-[11px] tabular-nums text-slate-500 underline-offset-2 hover:underline"
-              >
-                {expanded ? "접기" : `+${hiddenCount}`}
-              </button>
-            ) : (
-              <span />
-            )}
-            {detailHref ? (
-              <a
-                href={detailHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)]"
-              >
-                {detailLabel}
-              </a>
-            ) : null}
-          </div>
-        </>
-      )}
+        </ul>
+      ) : null}
+
+      {/* ROW 3 — move-in date + teal CTA */}
+      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+        {isMoveIn && item.moveInLabel ? (
+          <span className="text-[12px] font-semibold tabular-nums text-slate-800">
+            {item.moveInLabel} 입주예정
+          </span>
+        ) : null}
+        {detailHref ? (
+          <span className="ml-auto">
+            <DetailCta href={detailHref} label={detailLabel} />
+          </span>
+        ) : null}
+      </div>
     </li>
   );
 }
@@ -257,12 +250,14 @@ export function ComplexNearbySalesSection({
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <div className="flex flex-col gap-0.5">
-        <h2 className="flex items-center text-[15px] font-semibold tracking-tight text-slate-900">
-          주변 공급
-          <SourceInfoTip />
-        </h2>
-        <p className="text-[11px] leading-snug text-slate-400">{description}</p>
+      <div className="lab-section-heading">
+        <div className="min-w-0">
+          <h2 className="flex items-center">
+            주변 공급
+            <SourceInfoTip />
+          </h2>
+          <p>{description}</p>
+        </div>
       </div>
 
       {!key ? (
