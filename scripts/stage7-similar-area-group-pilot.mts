@@ -11,7 +11,7 @@
  * complex_key = cx_85cd8a4b2d5dc3d0 (Stage6 convention; no slug invent).
  * market_label = NULL / display_mode = range_only (no supply → no 평 canonicalize).
  */
-import { createClient } from "@libsql/client";
+import { createClient, type InArgs } from "@libsql/client";
 import { config } from "dotenv";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -47,7 +47,7 @@ const MEMBER_UNIT_KEYS = MEMBERS.map(
 
 type Db = ReturnType<typeof createClient>;
 
-async function count(db: Db, sql: string, args: unknown[] = []) {
+async function count(db: Db, sql: string, args: InArgs = []) {
   const r = await db.execute({ sql, args });
   return Number(r.rows[0]!.c);
 }
