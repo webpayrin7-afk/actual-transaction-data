@@ -1,19 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { LabCard, LabSectionHeading } from "@/components/ui/lab";
+import { LabCard } from "@/components/ui/lab";
 import type {
   AptAreaOption,
   AptDetailResponse,
-  AptSuggestion,
 } from "@/lib/molit/apt-client";
+import { aptDetailHref } from "@/lib/molit/apt-client";
 import {
-  buildCompareInsights,
   buildCompareMetrics,
   compareAreaRefFromOption,
+  withHouseholdCount,
   type CompareComplexMetrics,
 } from "@/lib/complex-detail/compare-metrics";
+import type { ComparePeerCandidate } from "@/lib/complex-detail/select-compare-peers";
 import { formatEok } from "@/lib/utils/format";
 import { areaSelectorClosedLabel } from "@/lib/apt/area-selector-label";
 
@@ -21,15 +23,11 @@ type Props = {
   aptName: string;
   regionSlug: string;
   gu?: string;
+  dong?: string;
   detail: AptDetailResponse;
   selectedArea: AptAreaOption | null;
   areaKey: string;
-};
-
-type PeerSlot = {
-  aptName: string;
-  regionSlug: string;
-  gu: string;
+  householdCount?: number | null;
 };
 
 function formatMan(man: number | null): string {
@@ -37,20 +35,28 @@ function formatMan(man: number | null): string {
   return formatEok(man);
 }
 
-function MetricRow({ label, values }: { label: string; values: string[] }) {
-  return (
-    <div className="grid grid-cols-[minmax(0,0.9fr)_repeat(3,minmax(0,1fr))] gap-1 border-b border-slate-100 py-2 last:border-0 sm:gap-2">
-      <p className="text-[11px] text-slate-500 sm:text-xs">{label}</p>
-      {values.map((v, i) => (
-        <p
-          key={`${label}-${i}`}
-          className="text-right text-[12px] font-medium tabular-nums text-slate-900 sm:text-sm"
-        >
-          {v}
-        </p>
-      ))}
-    </div>
-  );
+function formatPerSqm(man: number | null): string {
+  if (man == null || !Number.isFinite(man) || man <= 0) return "—";
+  if (man >= 10000) {
+    const eok = man / 10000;
+    return `${eok.toFixed(eok >= 10 ? 1 : 2)}억`;
+  }
+  return `${Math.round(man).toLocaleString("ko-KR")}만`;
+}
+
+function formatArea(m: CompareComplexMetrics): string {
+  if (!m.matchedArea) return "—";
+  const min = m.matchedArea.exclusiveMin;
+  const max = m.matchedArea.exclusiveMax;
+  if (Math.abs(max - min) < 0.05) return `${min.toFixed(2)}㎡`;
+  return `${min.toFixed(2)}~${max.toFixed(2)}㎡`;
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "";
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return iso;
+  return `${m[1].slice(2)}.${m[2]}.${m[3]}`;
 }
 
 async function fetchDetail(
@@ -65,47 +71,236 @@ async function fetchDetail(
   return res.json();
 }
 
-async function searchPeers(q: string): Promise<AptSuggestion[]> {
-  if (q.trim().length < 1) return [];
-  const res = await fetch(`/api/apt-suggest?q=${encodeURIComponent(q.trim())}`);
+async function fetchPeers(params: {
+  aptName: string;
+  gu: string;
+  dong: string;
+  areaCenter: number | null;
+  buildYear: number | null;
+  householdCount: number | null;
+}): Promise<ComparePeerCandidate[]> {
+  const qs = new URLSearchParams({
+    aptName: params.aptName,
+    gu: params.gu,
+  });
+  if (params.dong) qs.set("dong", params.dong);
+  if (params.areaCenter != null) qs.set("areaCenter", String(params.areaCenter));
+  if (params.buildYear != null) qs.set("buildYear", String(params.buildYear));
+  if (params.householdCount != null) {
+    qs.set("householdCount", String(params.householdCount));
+  }
+  const res = await fetch(`/api/complex-compare-peers?${qs}`);
   if (!res.ok) return [];
-  const json = (await res.json()) as { suggestions?: AptSuggestion[] };
-  return json.suggestions ?? [];
+  const json = (await res.json()) as { peers?: ComparePeerCandidate[] };
+  return json.peers ?? [];
 }
 
-function emptyColumn(): CompareComplexMetrics {
-  return {
-    aptName: "—",
-    regionSlug: "",
-    gu: "",
-    dong: "",
-    buildYear: null,
-    matchedArea: null,
-    matchNote: null,
-    latestSaleMan: null,
-    latestSaleDate: null,
-    latestJeonseMan: null,
-    latestJeonseDate: null,
-    jeonseRatioPct: null,
-    saleCount12m: 0,
-    periodHighSaleMan: null,
-    vsPeriodHighPct: null,
-  };
+function CompareInfoTip() {
+  return (
+    <details className="relative inline-flex shrink-0 align-middle">
+      <summary
+        className="ml-1.5 inline-flex cursor-pointer list-none items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
+        aria-label="주변 단지 비교 안내"
+      >
+        <span aria-hidden="true">ⓘ</span>
+      </summary>
+      <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-72 max-w-[calc(100vw-2.5rem)] space-y-1 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
+        <p>
+          같은 동·인근 지역에서 면적, 준공연도, 단지 규모가 유사하고 최근 거래가
+          있는 단지를 자동으로 선정합니다.
+        </p>
+        <p>거리 기반 추천은 아닙니다.</p>
+      </div>
+    </details>
+  );
 }
 
-/** Inline 단지 비교 — current fixed; up to 2 peers via apt-suggest. */
+function MetricLines({ m }: { m: CompareComplexMetrics }) {
+  return (
+    <dl className="mt-1.5 space-y-1 text-[12px] leading-snug">
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-slate-500">매매</dt>
+        <dd className="text-right">
+          <span className="font-semibold tabular-nums text-slate-900">
+            {formatMan(m.latestSaleMan)}
+          </span>
+          {m.latestSaleDate ? (
+            <span className="ml-1.5 text-[10px] tabular-nums text-slate-400">
+              {formatDate(m.latestSaleDate)}
+            </span>
+          ) : null}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-slate-500">전세</dt>
+        <dd className="text-right">
+          <span className="font-medium tabular-nums text-slate-800">
+            {formatMan(m.latestJeonseMan)}
+          </span>
+          {m.latestJeonseDate ? (
+            <span className="ml-1.5 text-[10px] text-slate-400">
+              {formatDate(m.latestJeonseDate)}
+            </span>
+          ) : null}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-slate-500">㎡당</dt>
+        <dd className="font-medium tabular-nums text-slate-800">
+          {formatPerSqm(m.salePerSqmMan)}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-slate-500">준공</dt>
+        <dd className="tabular-nums text-slate-700">
+          {m.buildYear != null ? m.buildYear : "—"}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="text-slate-500">세대</dt>
+        <dd className="tabular-nums text-slate-700">
+          {m.householdCount != null
+            ? m.householdCount.toLocaleString("ko-KR")
+            : "—"}
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+function MobileCard({
+  m,
+  role,
+  href,
+}: {
+  m: CompareComplexMetrics;
+  role: "current" | "peer";
+  href?: string;
+}) {
+  return (
+    <div className="py-2.5">
+      <p className="text-[10px] font-medium text-slate-400">
+        {role === "current" ? "현재 단지" : "비교 단지"}
+      </p>
+      <div className="mt-0.5 flex items-baseline justify-between gap-2">
+        {href ? (
+          <Link
+            href={href}
+            className="min-w-0 truncate text-[13px] font-semibold text-teal-700 hover:text-teal-800"
+          >
+            {m.aptName}
+          </Link>
+        ) : (
+          <p className="truncate text-[13px] font-semibold text-slate-900">
+            {m.aptName}
+          </p>
+        )}
+        <span className="shrink-0 text-[11px] tabular-nums text-slate-500">
+          {formatArea(m)}
+        </span>
+      </div>
+      <MetricLines m={m} />
+    </div>
+  );
+}
+
+function DesktopTable({ columns }: { columns: CompareComplexMetrics[] }) {
+  const colCount = columns.length;
+  const gridStyle = {
+    gridTemplateColumns: `minmax(4.5rem,0.7fr) repeat(${colCount}, minmax(0,1fr))`,
+  } as const;
+
+  const rows: Array<{ label: string; values: string[]; strong?: boolean }> = [
+    { label: "전용면적", values: columns.map(formatArea) },
+    {
+      label: "최근 매매",
+      values: columns.map((c) => formatMan(c.latestSaleMan)),
+      strong: true,
+    },
+    {
+      label: "최근 전세",
+      values: columns.map((c) => formatMan(c.latestJeonseMan)),
+    },
+    {
+      label: "㎡당",
+      values: columns.map((c) => formatPerSqm(c.salePerSqmMan)),
+    },
+    {
+      label: "준공",
+      values: columns.map((c) =>
+        c.buildYear != null ? String(c.buildYear) : "—",
+      ),
+    },
+    {
+      label: "세대수",
+      values: columns.map((c) =>
+        c.householdCount != null
+          ? c.householdCount.toLocaleString("ko-KR")
+          : "—",
+      ),
+    },
+  ];
+
+  return (
+    <div className="hidden md:block">
+      <div className="grid gap-2 border-b border-slate-200 pb-2" style={gridStyle}>
+        <p className="text-[11px] text-slate-400">항목</p>
+        {columns.map((c, i) =>
+          i === 0 ? (
+            <div key={`h-${c.aptName}`} className="min-w-0 text-right">
+              <p className="text-[10px] font-medium text-slate-400">현재 단지</p>
+              <p className="truncate text-[12px] font-semibold text-slate-900 sm:text-sm">
+                {c.aptName}
+              </p>
+            </div>
+          ) : (
+            <div key={`h-${c.aptName}`} className="min-w-0 text-right">
+              <p className="text-[10px] font-medium text-slate-400">비교 단지</p>
+              <Link
+                href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
+                className="block truncate text-[12px] font-semibold text-teal-700 hover:text-teal-800 sm:text-sm"
+              >
+                {c.aptName}
+              </Link>
+            </div>
+          ),
+        )}
+      </div>
+      {rows.map((row) => (
+        <div
+          key={row.label}
+          className="grid gap-2 border-b border-slate-100 py-2 last:border-0"
+          style={gridStyle}
+        >
+          <p className="text-[11px] text-slate-500">{row.label}</p>
+          {row.values.map((v, i) => (
+            <p
+              key={`${row.label}-${i}`}
+              className={`text-right text-[12px] tabular-nums sm:text-sm ${
+                row.strong
+                  ? "font-semibold text-slate-900"
+                  : "font-medium text-slate-800"
+              }`}
+            >
+              {v}
+            </p>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Auto 주변 단지 비교 — no search; up to 2 peers. */
 export function ComplexCompareSection({
   aptName,
+  gu,
+  dong,
   detail,
   selectedArea,
   areaKey,
+  householdCount = null,
 }: Props) {
-
-  const [query, setQuery] = useState("");
-  const [peers, setPeers] = useState<PeerSlot[]>([]);
-  const [hits, setHits] = useState<AptSuggestion[]>([]);
-  const [searching, setSearching] = useState(false);
-
   const areaLabel =
     areaKey === "all" || !selectedArea
       ? "전체 면적"
@@ -116,13 +311,41 @@ export function ComplexCompareSection({
     [selectedArea, areaLabel],
   );
 
-  const baseMetrics = useMemo(
-    () => buildCompareMetrics(detail, targetArea),
-    [detail, targetArea],
-  );
+  const areaCenter = targetArea
+    ? (targetArea.exclusiveMin + targetArea.exclusiveMax) / 2
+    : null;
+
+  const resolvedGu = (gu?.trim() || detail.gu || "").trim();
+  const resolvedDong = (dong?.trim() || detail.dong || "").trim();
+
+  const peersQuery = useQuery({
+    queryKey: [
+      "complex-compare-peers",
+      aptName,
+      resolvedGu,
+      resolvedDong,
+      areaCenter,
+      detail.buildYear,
+      householdCount,
+    ],
+    queryFn: () =>
+      fetchPeers({
+        aptName,
+        gu: resolvedGu,
+        dong: resolvedDong,
+        areaCenter,
+        buildYear: detail.buildYear,
+        householdCount: householdCount ?? null,
+      }),
+    enabled: resolvedGu.length > 0,
+    staleTime: 5 * 60 * 1000,
+    retry: 0,
+  });
+
+  const peers = peersQuery.data ?? [];
 
   const peer0 = useQuery({
-    queryKey: ["compare-peer", peers[0]?.aptName, peers[0]?.regionSlug],
+    queryKey: ["compare-peer-detail", peers[0]?.aptName, peers[0]?.regionSlug],
     queryFn: () =>
       fetchDetail(peers[0]!.aptName, peers[0]!.regionSlug, peers[0]!.gu),
     enabled: !!peers[0],
@@ -130,7 +353,7 @@ export function ComplexCompareSection({
     retry: 0,
   });
   const peer1 = useQuery({
-    queryKey: ["compare-peer", peers[1]?.aptName, peers[1]?.regionSlug],
+    queryKey: ["compare-peer-detail", peers[1]?.aptName, peers[1]?.regionSlug],
     queryFn: () =>
       fetchDetail(peers[1]!.aptName, peers[1]!.regionSlug, peers[1]!.gu),
     enabled: !!peers[1],
@@ -138,190 +361,82 @@ export function ComplexCompareSection({
     retry: 0,
   });
 
+  const baseMetrics = useMemo(
+    () =>
+      withHouseholdCount(
+        buildCompareMetrics(detail, targetArea),
+        householdCount,
+      ),
+    [detail, targetArea, householdCount],
+  );
+
   const peerMetrics = useMemo(() => {
     const out: CompareComplexMetrics[] = [];
-    for (const d of [peer0.data, peer1.data]) {
-      if (d) out.push(buildCompareMetrics(d, targetArea));
-    }
-    return out;
-  }, [peer0.data, peer1.data, targetArea]);
-
-  const columns = [baseMetrics, ...peerMetrics];
-  while (columns.length < 3) columns.push(emptyColumn());
-
-  const insights = buildCompareInsights(baseMetrics, peerMetrics);
-
-  async function onSearch() {
-    setSearching(true);
-    try {
-      const list = await searchPeers(query);
-      setHits(
-        list.filter(
-          (s) =>
-            s.aptName !== aptName &&
-            !peers.some((p) => p.aptName === s.aptName),
+    const details = [peer0.data, peer1.data];
+    details.forEach((d, i) => {
+      if (!d) return;
+      out.push(
+        withHouseholdCount(
+          buildCompareMetrics(d, targetArea),
+          peers[i]?.householdCount,
         ),
       );
-    } finally {
-      setSearching(false);
-    }
-  }
+    });
+    return out;
+  }, [peer0.data, peer1.data, peers, targetArea]);
 
-  function addPeer(s: AptSuggestion) {
-    if (peers.length >= 2) return;
-    setPeers((prev) => [
-      ...prev,
-      { aptName: s.aptName, regionSlug: s.regionSlug, gu: s.gu },
-    ]);
-    setHits([]);
-    setQuery("");
-  }
+  const columns = [baseMetrics, ...peerMetrics];
+  const loadingPeers =
+    peersQuery.isLoading ||
+    (peers.length > 0 &&
+      ((!!peers[0] && peer0.isLoading) || (!!peers[1] && peer1.isLoading)));
+  const empty = !peersQuery.isLoading && !loadingPeers && peers.length === 0;
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <LabSectionHeading
-        title="단지 비교"
-        description={`${areaLabel} 기준 · 최대 2개 단지`}
-      />
-
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <input
-          className="lab-input h-10 min-w-0 flex-1 px-3 text-sm"
-          placeholder="비교할 단지 검색"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") void onSearch();
-          }}
-          disabled={peers.length >= 2}
-        />
-        <button
-          type="button"
-          className="lab-button lab-button-secondary h-10 shrink-0 px-4 text-sm"
-          onClick={() => void onSearch()}
-          disabled={peers.length >= 2 || searching || query.trim().length < 1}
-        >
-          {searching ? "검색 중…" : "검색"}
-        </button>
+      <div className="min-w-0">
+        <h2 className="flex items-center text-[1.25rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)]">
+          주변 단지 비교
+          <CompareInfoTip />
+        </h2>
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          같은 동·인근 지역의 유사 단지 기준
+        </p>
       </div>
 
-      {hits.length > 0 ? (
-        <ul className="mt-2 max-h-40 overflow-auto rounded-xl border border-slate-100">
-          {hits.slice(0, 8).map((s) => (
-            <li key={`${s.regionSlug}-${s.aptName}`}>
-              <button
-                type="button"
-                className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-slate-50"
-                onClick={() => addPeer(s)}
-              >
-                <span className="truncate font-medium text-slate-900">
-                  {s.aptName}
-                </span>
-                <span className="shrink-0 text-[11px] text-slate-400">
-                  {s.gu} {s.dong}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+      {loadingPeers ? (
+        <p className="mt-3 text-[12px] text-slate-500">
+          비교 단지를 불러오는 중…
+        </p>
       ) : null}
 
-      {peers.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {peers.map((p) => (
-            <button
-              key={p.aptName}
-              type="button"
-              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[12px] text-slate-700"
-              onClick={() =>
-                setPeers((prev) => prev.filter((x) => x.aptName !== p.aptName))
-              }
-            >
-              {p.aptName}
-              <span className="text-slate-400">×</span>
-            </button>
-          ))}
-        </div>
-      ) : (
-        <p className="mt-2 text-[12px] text-slate-400">
-          비교할 단지를 검색해 추가하세요. (최대 2개)
+      {empty ? (
+        <p className="mt-3 text-[12px] leading-snug text-slate-500">
+          비교할 수 있는 주변 유사 단지가 아직 없습니다.
         </p>
-      )}
+      ) : null}
 
-      <div className="mt-4 overflow-x-auto">
-        <div className="min-w-[320px]">
-          <div className="grid grid-cols-[minmax(0,0.9fr)_repeat(3,minmax(0,1fr))] gap-1 border-b border-slate-200 pb-2 sm:gap-2">
-            <p className="text-[11px] text-slate-400">항목</p>
-            {columns.map((c, i) => (
-              <p
-                key={`h-${i}`}
-                className="truncate text-right text-[12px] font-semibold text-slate-900 sm:text-sm"
-              >
-                {i === 0 ? aptName : c.aptName}
-              </p>
+      {!loadingPeers && !empty ? (
+        <>
+          <div className="mt-2 divide-y divide-slate-100 md:hidden">
+            <MobileCard m={baseMetrics} role="current" />
+            {peerMetrics.map((m) => (
+              <MobileCard
+                key={m.aptName}
+                m={m}
+                role="peer"
+                href={aptDetailHref(m.aptName, m.regionSlug, m.gu)}
+              />
             ))}
           </div>
-
-          <MetricRow
-            label="비교 면적"
-            values={columns.map((c) =>
-              c.matchedArea
-                ? c.matchedArea.label
-                : c.matchNote === "비교 가능한 유사 면적 없음"
-                  ? "유사 면적 없음"
-                  : "—",
-            )}
-          />
-          <MetricRow
-            label="최근 매매"
-            values={columns.map((c) => formatMan(c.latestSaleMan))}
-          />
-          <MetricRow
-            label="최근 전세"
-            values={columns.map((c) => formatMan(c.latestJeonseMan))}
-          />
-          <MetricRow
-            label="전세가율"
-            values={columns.map((c) =>
-              c.jeonseRatioPct != null ? `${c.jeonseRatioPct}%` : "—",
-            )}
-          />
-          <MetricRow
-            label="12개월 매매"
-            values={columns.map((c) =>
-              c.aptName === "—" ? "—" : `${c.saleCount12m}건`,
-            )}
-          />
-          <MetricRow
-            label="기간 최고 대비"
-            values={columns.map((c) =>
-              c.vsPeriodHighPct != null
-                ? `${c.vsPeriodHighPct > 0 ? "+" : ""}${c.vsPeriodHighPct}%`
-                : "—",
-            )}
-          />
-          <MetricRow
-            label="준공"
-            values={columns.map((c) =>
-              c.buildYear != null ? `${c.buildYear}` : "—",
-            )}
-          />
-        </div>
-      </div>
-
-      {insights.length > 0 ? (
-        <ul className="mt-3 space-y-1.5">
-          {insights.map((text) => (
-            <li key={text} className="text-[12px] leading-relaxed text-slate-600">
-              · {text}
-            </li>
-          ))}
-        </ul>
+          <div className="mt-3">
+            <DesktopTable columns={columns} />
+          </div>
+        </>
       ) : null}
 
       <p className="mt-3 text-[11px] text-slate-400">
-        면적은 전용㎡ 유사 구간으로 맞춥니다. 관리비는 세대당 단순 환산만 동일
-        의미일 때 비교합니다(면적 관리비 아님).
+        {areaLabel} 기준 · 전용㎡가 가까운 유형을 맞춰 비교합니다.
       </p>
     </LabCard>
   );

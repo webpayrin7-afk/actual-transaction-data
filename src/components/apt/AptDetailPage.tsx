@@ -562,7 +562,7 @@ export function AptDetailPage({
     },
     { id: "schools", label: "학군 · 주변", show: true },
     { id: "nearby-sales", label: "주변 공급", show: true },
-    { id: "comparison", label: "단지 비교", show: true },
+    { id: "comparison", label: "주변 단지 비교", show: true },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
 
@@ -938,9 +938,11 @@ export function AptDetailPage({
             aptName={aptName}
             regionSlug={regionSlug}
             gu={gu}
+            dong={data.dong}
             detail={data}
             selectedArea={selectedArea}
             areaKey={areaKey}
+            householdCount={complexDetail?.basic?.householdCount ?? null}
           />
         </div>
       ) : null}

@@ -16,12 +16,15 @@ export type CompareComplexMetrics = {
   gu: string;
   dong: string;
   buildYear: number | null;
+  householdCount: number | null;
   matchedArea: CompareAreaRef | null;
   matchNote: string | null;
   latestSaleMan: number | null;
   latestSaleDate: string | null;
   latestJeonseMan: number | null;
   latestJeonseDate: string | null;
+  /** 만원 / ㎡ from latest sale ÷ matched exclusive center */
+  salePerSqmMan: number | null;
   jeonseRatioPct: number | null;
   saleCount12m: number;
   periodHighSaleMan: number | null;
@@ -157,22 +160,46 @@ export function buildCompareMetrics(
       }
     : null;
 
+  const areaCenterSqm = matchedRef
+    ? (matchedRef.exclusiveMin + matchedRef.exclusiveMax) / 2
+    : null;
+  const salePerSqmMan =
+    latestSaleMan != null &&
+    areaCenterSqm != null &&
+    areaCenterSqm > 0
+      ? Math.round(latestSaleMan / areaCenterSqm)
+      : null;
+
   return {
     aptName: detail.aptName,
     regionSlug: detail.regionSlug,
     gu: detail.gu,
     dong: detail.dong,
     buildYear: detail.buildYear,
+    householdCount: null,
     matchedArea: matchedRef,
     matchNote: matched ? note : "비교 가능한 유사 면적 없음",
     latestSaleMan,
     latestSaleDate: latestSale?.dealDate ?? null,
     latestJeonseMan,
     latestJeonseDate: latestJeonse?.dealDate ?? null,
+    salePerSqmMan,
     jeonseRatioPct,
     saleCount12m,
     periodHighSaleMan: periodHigh > 0 ? periodHigh : null,
     vsPeriodHighPct,
+  };
+}
+
+/** Attach household when known (from complex detail / peer selection). */
+export function withHouseholdCount(
+  metrics: CompareComplexMetrics,
+  householdCount: number | null | undefined,
+): CompareComplexMetrics {
+  return {
+    ...metrics,
+    householdCount:
+      householdCount != null && householdCount > 0 ? householdCount : null,
   };
 }
 
