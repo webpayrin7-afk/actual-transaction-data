@@ -1,0 +1,105 @@
+{
+  "complex": {
+    "name": "잠실엘스",
+    "center": {
+      "lat": 37.5133,
+      "lng": 127.1028,
+      "source": "NAVER_GEOCODE",
+      "accuracy": "ADDRESS_POINT"
+    }
+  },
+  "sources": {
+    "subway": {
+      "file": "서울교통공사_1-8호선 역사 좌표(위경도) 정보_20250814.csv",
+      "origin": "서울 열린데이터광장 OA-22534",
+      "coverage": "서울교통공사 1,2,3,4,5,6,7,8호선",
+      "rowsParsed": 276,
+      "validCoordinates": 276,
+      "status": "PASS",
+      "reason": null
+    },
+    "bus": {
+      "file": null,
+      "status": "HOLD",
+      "reason": "official national bus-stop file not present in workspace",
+      "rowsParsed": 0,
+      "validCoordinates": 0,
+      "routeMetadataAvailable": false
+    }
+  },
+  "subway": [
+    {
+      "id": "metro-2815-잠실",
+      "name": "잠실역",
+      "line": "8",
+      "stationCode": "2815",
+      "lat": 37.514649,
+      "lng": 127.104267,
+      "distanceMeters": 198,
+      "distanceLabel": "직선거리 198m",
+      "source": "SEOUL_METRO_STATION_FILE"
+    },
+    {
+      "id": "metro-216-잠실",
+      "name": "잠실역",
+      "line": "2",
+      "stationCode": "216",
+      "lat": 37.513305,
+      "lng": 127.100129,
+      "distanceMeters": 236,
+      "distanceLabel": "직선거리 236m",
+      "source": "SEOUL_METRO_STATION_FILE"
+    },
+    {
+      "id": "metro-215-잠실나루",
+      "name": "잠실나루역",
+      "line": "2",
+      "stationCode": "215",
+      "lat": 37.520688,
+      "lng": 127.103836,
+      "distanceMeters": 827,
+      "distanceLabel": "직선거리 827m",
+      "source": "SEOUL_METRO_STATION_FILE"
+    },
+    {
+      "id": "metro-217-잠실새내",
+      "name": "잠실새내역",
+      "line": "2",
+      "stationCode": "217",
+      "lat": 37.520731,
+      "lng": 127.103738,
+      "distanceMeters": 830,
+      "distanceLabel": "직선거리 830m",
+      "source": "SEOUL_METRO_STATION_FILE"
+    },
+    {
+      "id": "metro-2816-석촌",
+      "name": "석촌역",
+      "line": "8",
+      "stationCode": "2816",
+      "lat": 37.505396,
+      "lng": 127.106995,
+      "distanceMeters": 954,
+      "distanceLabel": "직선거리 954m",
+      "source": "SEOUL_METRO_STATION_FILE"
+    },
+    {
+      "id": "metro-2814-몽촌토성",
+      "name": "몽촌토성역",
+      "line": "8",
+      "stationCode": "2814",
+      "lat": 37.517692,
+      "lng": 127.11274,
+      "distanceMeters": 1004,
+      "distanceLabel": "직선거리 1.0km",
+      "source": "SEOUL_METRO_STATION_FILE"
+    }
+  ],
+  "bus": [],
+  "radiiMeters": {
+    "subway": 1500,
+    "bus": 700
+  },
+  "generatedAt": "2026-09-15T07:01:07.918Z",
+  "note": "Pilot extract only — not a nationwide transport master. No VWorld. No route invention."
+}

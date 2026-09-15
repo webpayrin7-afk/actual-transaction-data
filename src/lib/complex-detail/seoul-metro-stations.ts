@@ -89,19 +89,18 @@ export function loadSeoulMetroStations(): SeoulMetroStation[] {
 /**
  * Nearest Seoul Metro 1–8 stations by straight-line distance.
  * Caps results — not a metro-wide UI dump.
+ * Do not merge same-name hubs: distinguish by station code / line from file.
  */
 export function nearestSeoulMetroStations(
   center: LatLng,
   opts?: { limit?: number; maxMeters?: number },
 ): NearbyMetroStation[] {
   const limit = opts?.limit ?? 5;
-  const maxMeters = opts?.maxMeters ?? 2000;
+  const maxMeters = opts?.maxMeters ?? 1500;
   const stations = loadSeoulMetroStations();
   if (!stations.length) return [];
 
-  // Deduplicate by name keeping nearest line entry for distance sort,
-  // but expose line on each row; merge lines for same name later in API if needed.
-  const ranked = stations
+  return stations
     .map((s) => {
       const distanceMeters = Math.round(
         haversineMeters(center.lat, center.lng, s.lat, s.lng),
@@ -113,31 +112,6 @@ export function nearestSeoulMetroStations(
       };
     })
     .filter((s) => s.distanceMeters <= maxMeters)
-    .sort((a, b) => a.distanceMeters - b.distanceMeters);
-
-  // Prefer unique station names; merge multi-line hubs (e.g. 잠실 2·8호선).
-  const byName = new Map<string, NearbyMetroStation>();
-  for (const s of ranked) {
-    const prev = byName.get(s.name);
-    if (!prev) {
-      byName.set(s.name, { ...s });
-      continue;
-    }
-    // Keep nearer platform coords; merge line labels.
-    const lines = new Set(
-      `${prev.line},${s.line}`
-        .split(/[,·]/)
-        .map((x) => x.trim())
-        .filter(Boolean),
-    );
-    const line = [...lines].sort().join("·");
-    if (s.distanceMeters < prev.distanceMeters) {
-      byName.set(s.name, { ...s, line });
-    } else {
-      byName.set(s.name, { ...prev, line });
-    }
-  }
-  return [...byName.values()]
     .sort((a, b) => a.distanceMeters - b.distanceMeters)
     .slice(0, limit);
 }

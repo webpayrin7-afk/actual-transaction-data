@@ -553,9 +553,11 @@ export function ComplexNearbyLifeSection({
             <br />
             위치: 단지 주소 기반 NAVER Geocoding
             <br />
+            교통: 공식 지하철·버스정류소 파일 · 직선거리
+            <br />
             학교: NEIS schoolInfo (인근 학교)
             <br />
-            생활·교통: 공개 장소검색 · 직선거리
+            생활: 공개 장소검색 · 직선거리
           </p>
         </InfoTip>
       </div>
@@ -677,6 +679,12 @@ function TransportSummary({ items }: { items: PoiItem[] }) {
   const nearestSubway = ranked.find(isSubwayPoi) ?? null;
   const buses = ranked.filter((p) => !isSubwayPoi(p));
   const busesWithin500 = buses.filter((p) => p.distanceMeters <= 500);
+  const lineLabel =
+    nearestSubway &&
+    nearestSubway.subcategory &&
+    /호선/.test(nearestSubway.subcategory)
+      ? nearestSubway.subcategory
+      : null;
 
   if (!nearestSubway && buses.length === 0) return null;
 
@@ -689,6 +697,12 @@ function TransportSummary({ items }: { items: PoiItem[] }) {
           </p>
           <p className="mt-0.5 text-sm font-medium text-slate-800">
             {nearestSubway.name}
+            {lineLabel ? (
+              <span className="font-normal text-slate-500">
+                {" · "}
+                {lineLabel}
+              </span>
+            ) : null}
             <span className="font-normal text-slate-500">
               {" · "}
               {formatMeters(nearestSubway.distanceMeters)}

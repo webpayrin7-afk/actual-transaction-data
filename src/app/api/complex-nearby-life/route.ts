@@ -6,6 +6,10 @@ import { fetchNearbySurroundings } from "@/lib/complex-detail/vworld";
 import { vworldReadiness } from "@/lib/complex-detail/source-status";
 import { fetchJamsilElsPilotSchools } from "@/lib/complex-detail/neis";
 import { nearestSeoulMetroStations } from "@/lib/complex-detail/seoul-metro-stations";
+import {
+  isJamsilElsTransportPilot,
+  pilotTransportItems,
+} from "@/lib/complex-detail/nearby-transport-pilot";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 25;
@@ -94,9 +98,15 @@ type PoiItem = {
   lng: number;
 };
 
+function subwaySubcategory(line: string | null | undefined): string {
+  if (!line) return "지하철역";
+  return /호선$/.test(line) ? line : `${line}호선`;
+}
+
 /**
  * Complex Detail “주변 생활” payload.
  * Address from master; POI/schools only when client supplies NAVER-geocoded lat/lng.
+ * Transport: official file / pilot artifact only — no VWorld on active transport path.
  * No DB writes.
  */
 export async function GET(request: NextRequest) {
@@ -133,28 +143,101 @@ export async function GET(request: NextRequest) {
   let livingStatus: "READY" | "EMPTY" | "ERROR" = "EMPTY";
   let transportReason = "";
   let livingReason = "";
+  let transportMeta: {
+    subwaySource: string;
+    busSource: string;
+    subwayStatus: string;
+    busStatus: string;
+    vworldTransport: false;
+  } = {
+    subwaySource: "SEOUL_METRO_STATION_FILE",
+    busSource: "NONE",
+    subwayStatus: "HOLD",
+    busStatus: "HOLD",
+    vworldTransport: false,
+  };
 
-  // Official Seoul Metro 1–8 CSV (열린데이터광장) — subway only, no DB write.
-  const metroNearby = nearestSeoulMetroStations(coords, {
-    limit: 5,
-    maxMeters: 2000,
-  });
-  const metroItems: PoiItem[] = metroNearby.map((s, i) => ({
-    id: `metro-${s.stationCode || i}-${s.name}`,
-    name: s.name.endsWith("역") ? s.name : `${s.name}역`,
-    subcategory: s.line ? `${s.line}호선` : "지하철역",
-    distanceMeters: s.distanceMeters,
-    distanceLabel: s.distanceLabel,
-    lat: s.lat,
-    lng: s.lng,
-  }));
+  // ---- TRANSPORT (file / pilot only — never VWorld) ----
+  if (isJamsilElsTransportPilot(aptName)) {
+    const pilot = pilotTransportItems(aptName, {
+      subwayLimit: 3,
+      busLimit: 3,
+    });
+    if (pilot.usedPilot && pilot.items.length > 0) {
+      transportItems = pilot.items.map((p) => ({
+        id: p.id,
+        name: p.name,
+        subcategory:
+          p.kind === "subway"
+            ? subwaySubcategory(p.line)
+            : "버스정류장",
+        distanceMeters: p.distanceMeters,
+        distanceLabel: p.distanceLabel,
+        lat: p.lat,
+        lng: p.lng,
+      }));
+      transportMeta = {
+        subwaySource: "SEOUL_METRO_STATION_FILE",
+        busSource:
+          pilot.meta?.bus?.status === "PASS"
+            ? "NATIONAL_BUS_STOP_STANDARD_FILE"
+            : "NONE",
+        subwayStatus:
+          (pilot.meta?.subway?.status as string) ||
+          (pilot.items.some((i) => i.kind === "subway") ? "PASS" : "HOLD"),
+        busStatus: (pilot.meta?.bus?.status as string) || "HOLD",
+        vworldTransport: false,
+      };
+    } else {
+      // Runtime fallback: official metro CSV only (tiny file).
+      const metroNearby = nearestSeoulMetroStations(coords, {
+        limit: 3,
+        maxMeters: 1500,
+      });
+      transportItems = metroNearby.map((s) => ({
+        id: `metro-${s.stationCode || s.name}-${s.line || "x"}`,
+        name: s.name.endsWith("역") ? s.name : `${s.name}역`,
+        subcategory: subwaySubcategory(s.line || null),
+        distanceMeters: s.distanceMeters,
+        distanceLabel: s.distanceLabel,
+        lat: s.lat,
+        lng: s.lng,
+      }));
+      transportMeta = {
+        subwaySource: "SEOUL_METRO_STATION_FILE",
+        busSource: "NONE",
+        subwayStatus: transportItems.length ? "PASS" : "HOLD",
+        busStatus: "HOLD",
+        vworldTransport: false,
+      };
+    }
+  } else {
+    // Non-pilot complexes: no nationwide transport master yet.
+    transportStatus = "EMPTY";
+    transportReason = "현재 확인 가능한 주변 교통 정보가 없습니다.";
+    transportMeta = {
+      subwaySource: "NONE",
+      busSource: "NONE",
+      subwayStatus: "HOLD",
+      busStatus: "HOLD",
+      vworldTransport: false,
+    };
+  }
 
+  if (transportItems.length > 0) {
+    transportStatus = "READY";
+    transportReason = "";
+  } else if (!transportReason) {
+    transportStatus = "EMPTY";
+    transportReason = "현재 확인 가능한 주변 교통 정보가 없습니다.";
+  }
+
+  // ---- LIVING (VWorld allowed; independent of transport) ----
   try {
     const readiness = vworldReadiness(true);
     if (readiness.status !== "READY") {
       livingStatus = "EMPTY";
       livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
-      // Transport can still be READY from official metro CSV.
     } else {
       const places = await fetchNearbySurroundings({ coords });
       const toItem = (
@@ -174,13 +257,6 @@ export async function GET(request: NextRequest) {
             }
           : null;
 
-      // Prefer official metro CSV for subway; keep VWorld bus stops only.
-      const busItems = places
-        .filter((p) => p.category === "transit")
-        .map((p, i) => toItem(p, "버스정류장", i))
-        .filter((x): x is PoiItem => !!x)
-        .filter((p) => /버스|정류/.test(p.name));
-
       livingItems = places
         .filter((p) =>
           ["living", "medical", "park", "childcare"].includes(p.category),
@@ -198,13 +274,6 @@ export async function GET(request: NextRequest) {
         })
         .filter((x): x is PoiItem => !!x);
 
-      transportItems = [...metroItems, ...busItems].sort((a, b) => {
-        const as = /호선|지하철/.test(a.subcategory) ? 0 : 1;
-        const bs = /호선|지하철/.test(b.subcategory) ? 0 : 1;
-        if (as !== bs) return as - bs;
-        return a.distanceMeters - b.distanceMeters;
-      });
-
       livingStatus = livingItems.length > 0 ? "READY" : "EMPTY";
       livingReason =
         livingStatus === "EMPTY"
@@ -215,18 +284,6 @@ export async function GET(request: NextRequest) {
     livingStatus = "EMPTY";
     livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
   }
-
-  if (transportItems.length === 0 && metroItems.length > 0) {
-    transportItems = metroItems;
-  }
-  transportStatus = transportItems.length > 0 ? "READY" : "EMPTY";
-  transportReason =
-    transportStatus === "EMPTY"
-      ? "현재 확인 가능한 주변 교통 정보가 없습니다."
-      : "";
-
-  // NOTE: living/transport VWorld block above may leave transportItems empty when
-  // readiness failed — metro fallback already applied.
 
   let schoolItems: Array<{
     id: string;
@@ -246,7 +303,6 @@ export async function GET(request: NextRequest) {
       schoolStatus = "PILOT_ONLY";
       schoolNote = "인근 학교 실데이터는 잠실엘스 pilot만 지원합니다.";
     } else {
-      // Reuse verified complex-detail NEIS pilot (list). Coords optional.
       const result = await fetchJamsilElsPilotSchools({
         aptName,
         coords,
@@ -293,6 +349,7 @@ export async function GET(request: NextRequest) {
       status: transportStatus,
       reason: transportReason,
       items: transportItems,
+      meta: transportMeta,
     },
     living: {
       status: livingStatus,
