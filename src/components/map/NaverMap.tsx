@@ -340,12 +340,12 @@ export function NaverMap({
         className="h-full min-h-[220px] w-full"
       />
       {status === "ready" ? (
-        <div className="absolute right-2.5 top-[42%] z-[5] flex -translate-y-1/2 flex-col overflow-hidden rounded-md border border-slate-200/90 bg-white shadow-sm">
+        <div className="absolute right-2.5 top-2.5 z-[5] flex flex-col overflow-hidden rounded-md border border-slate-200/90 bg-white shadow-sm">
           <button
             type="button"
             aria-label="지도 확대"
             onClick={() => zoomBy(1)}
-            className="flex h-10 w-10 items-center justify-center text-[20px] font-medium leading-none text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+            className="flex h-8 w-8 items-center justify-center text-[16px] font-medium leading-none text-slate-700 hover:bg-slate-50 active:bg-slate-100"
           >
             +
           </button>
@@ -354,7 +354,7 @@ export function NaverMap({
             type="button"
             aria-label="지도 축소"
             onClick={() => zoomBy(-1)}
-            className="flex h-10 w-10 items-center justify-center text-[20px] font-medium leading-none text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+            className="flex h-8 w-8 items-center justify-center text-[16px] font-medium leading-none text-slate-700 hover:bg-slate-50 active:bg-slate-100"
           >
             −
           </button>
