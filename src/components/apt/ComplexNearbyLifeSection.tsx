@@ -757,13 +757,15 @@ export function ComplexNearbyLifeSection({
 
           <div className="min-w-0">{listContent}
             {moreCount > 0 ? (
-              <button
-                type="button"
-                onClick={() => setExpanded(true)}
-                className="mt-2 text-[12px] font-medium text-[var(--lab-teal-700)] hover:underline"
-              >
-                버스 더보기 · {moreCount}곳
-              </button>
+              <div className="mt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setExpanded(true)}
+                  className="text-[14px] font-medium text-[var(--lab-teal-700)] hover:underline"
+                >
+                  버스 정류장 더보기 · {moreCount}곳
+                </button>
+              </div>
             ) : null}
           </div>
         </div>
