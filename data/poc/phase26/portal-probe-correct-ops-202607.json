@@ -1,0 +1,371 @@
+{
+  "kaptCode": "A13822004",
+  "searchDate": "202607",
+  "complete": true,
+  "privArea": 470139.94,
+  "common": 690670155,
+  "commonOk": 17,
+  "individual": 957127575,
+  "individualOk": 10,
+  "reserve": 222719680,
+  "portal": 1870517410,
+  "perM2": 3978.6396578006115,
+  "targetPerM2": 3978.64,
+  "gapPerM2": -0.0003421993883421237,
+  "pctVsKaptRef": -0.6800089418402093,
+  "pyeong33": {
+    "min": 337388.64298149187,
+    "max": 338065.01172331796
+  },
+  "commonDetail": [
+    {
+      "op": "getHsmpCleaningCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 164012010,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "cleanCost"
+      ]
+    },
+    {
+      "op": "getHsmpGuardCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 195773550,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "guardCost"
+      ]
+    },
+    {
+      "op": "getHsmpDisinfectionCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 3550000,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "disinfCost"
+      ]
+    },
+    {
+      "op": "getHsmpElevatorMntncCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 35040500,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "elevCost"
+      ]
+    },
+    {
+      "op": "getHsmpRepairsCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 46698970,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "lrefCost1"
+      ]
+    },
+    {
+      "op": "getHsmpFacilityMntncCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 38005820,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "lrefCost2"
+      ]
+    },
+    {
+      "op": "getHsmpSafetyCheckUpCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 0,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "lrefCost3"
+      ]
+    },
+    {
+      "op": "getHsmpDisasterPreventionCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 0,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "lrefCost4"
+      ]
+    },
+    {
+      "op": "getHsmpConsignManageFeeInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 2041595,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "manageCost"
+      ]
+    },
+    {
+      "op": "getHsmpOfcrkCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 5306740,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "officeSupply",
+        "bookSupply",
+        "transportCost"
+      ]
+    },
+    {
+      "op": "getHsmpClothingCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 827570,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "clothesCost"
+      ]
+    },
+    {
+      "op": "getHsmpEduTraingCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 105000,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "eduCost"
+      ]
+    },
+    {
+      "op": "getHsmpVhcleMntncCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 94280,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "fuelCost",
+        "refairCost",
+        "carInsurance",
+        "carEtc"
+      ]
+    },
+    {
+      "op": "getHsmpHomeNetworkMntncCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 2090000,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "hnetwCost"
+      ]
+    },
+    {
+      "op": "getHsmpLaborCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 194419270,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "pay",
+        "sundryCost",
+        "bonus",
+        "pension",
+        "accidentPremium",
+        "employPremium",
+        "nationalPension",
+        "healthPremium",
+        "welfareBenefit"
+      ]
+    },
+    {
+      "op": "getHsmpTaxdueInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 1094950,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "electCost",
+        "telCost",
+        "postageCost",
+        "taxrestCost"
+      ]
+    },
+    {
+      "op": "getHsmpEtcCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 1609900,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "careItemCost",
+        "accountingCost",
+        "hiddenCost"
+      ]
+    }
+  ],
+  "indivDetail": [
+    {
+      "op": "getHsmpElectricityCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 652884025,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "electC",
+        "electP"
+      ]
+    },
+    {
+      "op": "getHsmpWaterCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 140139520,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "waterCoolC",
+        "waterCoolP"
+      ]
+    },
+    {
+      "op": "getHsmpHeatCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 33313270,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "heatC",
+        "heatP"
+      ]
+    },
+    {
+      "op": "getHsmpHotWaterCostInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 99006660,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "waterHotC",
+        "waterHotP"
+      ]
+    },
+    {
+      "op": "getHsmpGasRentalFeeInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 0,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "gasC",
+        "gasP"
+      ]
+    },
+    {
+      "op": "getHsmpWaterPurifierTankFeeInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 0,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "purifi"
+      ]
+    },
+    {
+      "op": "getHsmpDomesticWasteFeeInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 12424360,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "scrap"
+      ]
+    },
+    {
+      "op": "getHsmpBuildingInsuranceFeeInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 9606650,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "buildInsu"
+      ]
+    },
+    {
+      "op": "getHsmpElectionOrpnsInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 3665560,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "electionMng"
+      ]
+    },
+    {
+      "op": "getHsmpMovingInRepresentationMtgInfoV3",
+      "ok": true,
+      "code": "00",
+      "msg": "NORMAL SERVICE.",
+      "part": 6087530,
+      "keys": [
+        "kaptCode",
+        "kaptName",
+        "preMeet"
+      ]
+    }
+  ]
+}
