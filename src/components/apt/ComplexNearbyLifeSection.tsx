@@ -438,7 +438,7 @@ export function ComplexNearbyLifeSection({
         <div className="space-y-4">
           {subwayItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[15px] font-semibold text-slate-800">
+              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
                 지하철
               </p>
               <ul className="space-y-1">
@@ -493,7 +493,7 @@ export function ComplexNearbyLifeSection({
           ) : null}
           {busItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[15px] font-semibold text-slate-800">
+              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
                 버스
               </p>
               <ul className="space-y-1">
