@@ -84,13 +84,10 @@ const LEVEL_LABEL: Record<string, string> = {
 };
 
 const LIST_LIMIT = 5;
-/** Nearest distinct subway stations in the default list. */
-const TRANSPORT_SUBWAY_LIST_LIMIT = 3;
-const TRANSPORT_BUS_LIST_LIMIT = 6;
-/** Bus map markers — mirror listed stops (cap). */
-const TRANSPORT_BUS_MARKER_LIMIT = 6;
-/** Max bus route chips before +N. */
-const BUS_ROUTE_CHIP_LIMIT = 6;
+/** Bus stops shown before “더보기” (subway always fully listed). */
+const TRANSPORT_BUS_LIST_LIMIT = 4;
+/** Bus map markers — mirror listed stops. */
+const TRANSPORT_BUS_MARKER_LIMIT = 4;
 
 function isSubwayPoi(p: { name: string; subcategory: string }): boolean {
   const s = `${p.subcategory} ${p.name}`;
@@ -281,11 +278,10 @@ export function ComplexNearbyLifeSection({
       const buses = withCoords
         .filter((p) => !isSubwayPoi(p))
         .sort((a, b) => a.distanceMeters - b.distanceMeters);
-      const subwayShown = expanded
-        ? subways
-        : subways.slice(0, TRANSPORT_SUBWAY_LIST_LIMIT);
+      // Subway: always show all listed stations on the map.
+      const subwayShown = subways;
       const busShown = expanded
-        ? buses.slice(0, TRANSPORT_BUS_MARKER_LIMIT)
+        ? buses
         : buses.slice(0, Math.min(TRANSPORT_BUS_LIST_LIMIT, TRANSPORT_BUS_MARKER_LIMIT));
       return [
         ...subwayShown.map((p) => {
@@ -422,9 +418,8 @@ export function ComplexNearbyLifeSection({
       const buses = data.transport.items
         .filter((p) => !isSubwayPoi(p))
         .sort((a, b) => a.distanceMeters - b.distanceMeters);
-      const subwayItems = expanded
-        ? subways
-        : subways.slice(0, TRANSPORT_SUBWAY_LIST_LIMIT);
+      // Subway: always list all nearby stations. Bus: 4 default, expand via 더보기.
+      const subwayItems = subways;
       const busItems = expanded
         ? buses
         : buses.slice(0, TRANSPORT_BUS_LIST_LIMIT);
@@ -452,7 +447,7 @@ export function ComplexNearbyLifeSection({
                             lines.map((line) => (
                               <span
                                 key={`${p.id}-${line}`}
-                                className="inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
+                                className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-black/25 px-1 text-[10px] font-bold text-white shadow-sm"
                                 style={{
                                   backgroundColor: subwayLineColor(line),
                                 }}
@@ -461,7 +456,7 @@ export function ComplexNearbyLifeSection({
                               </span>
                             ))
                           ) : (
-                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-700 px-1 text-[10px] font-bold text-white">
+                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-black/25 bg-amber-700 px-1 text-[10px] font-bold text-white shadow-sm">
                               역
                             </span>
                           )}
@@ -494,8 +489,6 @@ export function ComplexNearbyLifeSection({
               <ul className="space-y-1">
                 {busItems.map((p) => {
                   const routes = busRoutesOf(p);
-                  const shown = routes.slice(0, BUS_ROUTE_CHIP_LIMIT);
-                  const extra = routes.length - shown.length;
                   return (
                     <li key={p.id}>
                       <button
@@ -518,9 +511,9 @@ export function ComplexNearbyLifeSection({
                             {formatMeters(p.distanceMeters)}
                             {" · 직선거리"}
                           </span>
-                          {shown.length > 0 ? (
+                          {routes.length > 0 ? (
                             <span className="mt-1.5 flex flex-wrap items-center gap-1">
-                              {shown.map((route) => (
+                              {routes.map((route) => (
                                 <span
                                   key={`${p.id}-${route}`}
                                   className="inline-flex h-5 items-center rounded border border-slate-200 bg-slate-50 px-1.5 text-[10px] font-semibold text-slate-700"
@@ -528,11 +521,6 @@ export function ComplexNearbyLifeSection({
                                   {route}
                                 </span>
                               ))}
-                              {extra > 0 ? (
-                                <span className="text-[10px] font-medium text-slate-500">
-                                  +{extra}
-                                </span>
-                              ) : null}
                             </span>
                           ) : null}
                         </span>
@@ -663,12 +651,9 @@ export function ComplexNearbyLifeSection({
     const data = lifeQuery.data;
     if (!data || expanded) return 0;
     if (tab === "transport") {
-      const subways = data.transport.items.filter(isSubwayPoi).length;
+      // 더보기 expands bus stops only — subway is always fully listed.
       const buses = data.transport.items.filter((p) => !isSubwayPoi(p)).length;
-      return (
-        Math.max(0, subways - TRANSPORT_SUBWAY_LIST_LIMIT) +
-        Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT)
-      );
+      return Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT);
     }
     if (tab === "living") {
       return Math.max(0, data.living.items.length - LIST_LIMIT);
@@ -765,7 +750,7 @@ export function ComplexNearbyLifeSection({
                 onClick={() => setExpanded(true)}
                 className="mt-2 text-[12px] font-medium text-[var(--lab-teal-700)] hover:underline"
               >
-                더보기 · {moreCount}곳
+                버스 더보기 · {moreCount}곳
               </button>
             ) : null}
           </div>

@@ -116,7 +116,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     const label = escapeHtml(
       (marker.label || marker.title || "").replace(/역$/, ""),
     );
-    const ring = selected ? "2px solid #0f766e" : "2px solid #fff";
+    const ring = selected ? "2px solid #0f766e" : "1.5px solid rgba(15,23,42,.28)";
     const badgesHtml = badgeItems
       .map((b) => {
         const text = escapeHtml(b.text.replace(/호선$/, "") || "역");
@@ -139,7 +139,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     };
   }
 
-  // Bus stop — same Lucide Bus glyph as the list row (bordered square).
+  // Bus stop — list Lucide Bus glyph + stem under icon (same as prior pin).
   if (kind === "OTHER" && marker.variant === "bus-stop") {
     const stroke = selected ? "#0f766e" : "#1e3a5f";
     const border = selected ? "#0f766e" : "#cbd5e1";
@@ -148,6 +148,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
       <div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#fff;border:1px solid ${border};box-shadow:0 1px 2px rgba(15,23,42,.18);color:${stroke}">
         ${LUCIDE_BUS_SVG(stroke, 12)}
       </div>
+      <div style="width:2px;height:6px;background:${stroke};opacity:.9"></div>
     </div>`;
     return {
       content: html,
