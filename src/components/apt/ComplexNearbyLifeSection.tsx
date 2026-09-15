@@ -9,9 +9,8 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { NaverMap, type NaverMapMarker } from "@/components/map/NaverMap";
-import { LabCard } from "@/components/ui/lab";
+import { LabCard, labSecondaryTabClass } from "@/components/ui/lab";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { labSecondaryTabClass } from "@/components/ui/lab";
 import { geocodeAddressWithNaver } from "@/lib/nearby-map/naver-sdk";
 import type { LatLng } from "@/lib/nearby-map/geo";
 
@@ -50,7 +49,6 @@ type CategoryPayload<T> = {
   reason?: string;
   note?: string | null;
   items: T[];
-  summary?: unknown;
 };
 
 type NearbyLifeResponse = {
@@ -58,10 +56,7 @@ type NearbyLifeResponse = {
   coords: LatLng | null;
   transport: CategoryPayload<PoiItem>;
   living: CategoryPayload<PoiItem>;
-  commerce: CategoryPayload<PoiItem> & {
-    reason?: string;
-    summary: null | unknown;
-  };
+  commerce: CategoryPayload<PoiItem> & { summary: null | unknown };
   school: CategoryPayload<SchoolItem>;
 };
 
@@ -124,6 +119,12 @@ function EmptyBlock({ children }: { children: ReactNode }) {
   );
 }
 
+function selectedRowClass(active: boolean): string {
+  return active
+    ? "bg-[var(--lab-teal-50)] ring-1 ring-[color-mix(in_srgb,var(--lab-teal-600)_30%,transparent)]"
+    : "hover:bg-slate-50";
+}
+
 /**
  * Complex Detail — “주변 생활”
  * One shared NAVER map + category tabs. Client geocode; no DB write.
@@ -155,10 +156,8 @@ export function ComplexNearbyLifeSection({
     [identity],
   );
 
-  // Geocode once from master address (client NAVER). Fail-closed.
   useEffect(() => {
     let cancelled = false;
-
     const timer = window.setTimeout(() => {
       void (async () => {
         if (cancelled) return;
@@ -219,20 +218,25 @@ export function ComplexNearbyLifeSection({
     retry: 0,
   });
 
-  useEffect(() => {
+  const selectTab = useCallback((next: NearbyLifeCategory) => {
+    setTab(next);
     setSelectedId(null);
     setExpanded(false);
-  }, [tab]);
+  }, []);
 
-  const complexMarker: NaverMapMarker | null = coords
-    ? {
-        id: "complex",
-        position: coords,
-        title: aptName,
-        kind: "COMPLEX",
-        selected: selectedId === "complex",
-      }
-    : null;
+  const complexMarker: NaverMapMarker | null = useMemo(
+    () =>
+      coords
+        ? {
+            id: "complex",
+            position: coords,
+            title: aptName,
+            kind: "COMPLEX",
+            selected: selectedId === "complex",
+          }
+        : null,
+    [coords, aptName, selectedId],
+  );
 
   const tabMarkers: NaverMapMarker[] = useMemo(() => {
     const data = lifeQuery.data;
@@ -303,23 +307,14 @@ export function ComplexNearbyLifeSection({
   const summaryText = useMemo(() => {
     const data = lifeQuery.data;
     if (!data) return null;
-    if (tab === "transport") {
-      if (data.transport.status === "READY") {
-        return `교통 · ${data.transport.items.length}곳 · 직선거리`;
-      }
-      return null;
+    if (tab === "transport" && data.transport.status === "READY") {
+      return `교통 · ${data.transport.items.length}곳 · 직선거리`;
     }
-    if (tab === "living") {
-      if (data.living.status === "READY") {
-        return `생활 · ${data.living.items.length}곳 · 직선거리`;
-      }
-      return null;
+    if (tab === "living" && data.living.status === "READY") {
+      return `생활 · ${data.living.items.length}곳 · 직선거리`;
     }
-    if (tab === "school") {
-      if (data.school.status === "READY") {
-        return `인근 학교 · ${data.school.items.length}곳 · 직선거리`;
-      }
-      return null;
+    if (tab === "school" && data.school.status === "READY") {
+      return `인근 학교 · ${data.school.items.length}곳 · 직선거리`;
     }
     return null;
   }, [lifeQuery.data, tab]);
@@ -368,11 +363,7 @@ export function ComplexNearbyLifeSection({
               <button
                 type="button"
                 onClick={() => setSelectedId(p.id)}
-                className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${
-                  selectedId === p.id
-                    ? "bg-[var(--lab-teal-50)] ring-1 ring-[color-mix(in_srgb,var(--lab-teal-600)_30%,transparent)]"
-                    : "hover:bg-slate-50"
-                }`}
+                className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium text-slate-800">
@@ -383,7 +374,9 @@ export function ComplexNearbyLifeSection({
                   </span>
                 </span>
                 <span className="shrink-0 text-right text-[11px] tabular-nums text-slate-500">
-                  <span className="block">{p.distanceLabel.replace(/^직선거리\s*/, "")}</span>
+                  <span className="block">
+                    {p.distanceLabel.replace(/^직선거리\s*/, "")}
+                  </span>
                   <span className="block text-[10px] text-slate-400">
                     직선거리
                   </span>
@@ -413,11 +406,7 @@ export function ComplexNearbyLifeSection({
               <button
                 type="button"
                 onClick={() => setSelectedId(p.id)}
-                className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${
-                  selectedId === p.id
-                    ? "bg-[var(--lab-teal-50)] ring-1 ring-[color-mix(in_srgb,var(--lab-teal-600)_30%,transparent)]"
-                    : "hover:bg-slate-50"
-                }`}
+                className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium text-slate-800">
@@ -428,7 +417,9 @@ export function ComplexNearbyLifeSection({
                   </span>
                 </span>
                 <span className="shrink-0 text-right text-[11px] tabular-nums text-slate-500">
-                  <span className="block">{p.distanceLabel.replace(/^직선거리\s*/, "")}</span>
+                  <span className="block">
+                    {p.distanceLabel.replace(/^직선거리\s*/, "")}
+                  </span>
                   <span className="block text-[10px] text-slate-400">
                     직선거리
                   </span>
@@ -440,7 +431,6 @@ export function ComplexNearbyLifeSection({
       );
     }
 
-    // school
     if (data.school.status === "PILOT_ONLY") {
       return (
         <EmptyBlock>
@@ -457,7 +447,9 @@ export function ComplexNearbyLifeSection({
     }
     if (data.school.status !== "READY" || !data.school.items.length) {
       return (
-        <EmptyBlock>{data.school.note || "표시할 인근 학교가 없습니다."}</EmptyBlock>
+        <EmptyBlock>
+          {data.school.note || "표시할 인근 학교가 없습니다."}
+        </EmptyBlock>
       );
     }
     const items = expanded
@@ -471,11 +463,7 @@ export function ComplexNearbyLifeSection({
               type="button"
               onClick={() => setSelectedId(s.id)}
               disabled={s.lat == null || s.lng == null}
-              className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition disabled:cursor-default ${
-                selectedId === s.id
-                  ? "bg-[var(--lab-teal-50)] ring-1 ring-[color-mix(in_srgb,var(--lab-teal-600)_30%,transparent)]"
-                  : "hover:bg-slate-50"
-              }`}
+              className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition disabled:cursor-default ${selectedRowClass(selectedId === s.id)}`}
             >
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium text-slate-800">
@@ -511,12 +499,15 @@ export function ComplexNearbyLifeSection({
   const moreCount = (() => {
     const data = lifeQuery.data;
     if (!data || expanded) return 0;
-    if (tab === "transport")
+    if (tab === "transport") {
       return Math.max(0, data.transport.items.length - LIST_LIMIT);
-    if (tab === "living")
+    }
+    if (tab === "living") {
       return Math.max(0, data.living.items.length - LIST_LIMIT);
-    if (tab === "school")
+    }
+    if (tab === "school") {
       return Math.max(0, data.school.items.length - LIST_LIMIT);
+    }
     return 0;
   })();
 
@@ -553,7 +544,7 @@ export function ComplexNearbyLifeSection({
             type="button"
             role="tab"
             aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
+            onClick={() => selectTab(t.id)}
             className={labSecondaryTabClass(tab === t.id)}
           >
             {t.label}
