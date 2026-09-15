@@ -99,8 +99,6 @@ const LEVEL_LABEL: Record<string, string> = {
 const LIST_LIMIT = 5;
 /** Bus stops shown before “더보기” (subway always fully listed). */
 const TRANSPORT_BUS_LIST_LIMIT = 4;
-/** Bus map markers — mirror listed stops. */
-const TRANSPORT_BUS_MARKER_LIMIT = 4;
 
 const LIVING_SECTION_ORDER: LivingMarkerCategory[] = [
   "MART",
@@ -427,13 +425,10 @@ export function ComplexNearbyLifeSection({
       const buses = withCoords
         .filter((p) => !isSubwayPoi(p))
         .sort((a, b) => a.distanceMeters - b.distanceMeters);
-      // Subway: always show all listed stations on the map.
-      const subwayShown = subways;
-      const busShown = expanded
-        ? buses
-        : buses.slice(0, Math.min(TRANSPORT_BUS_LIST_LIMIT, TRANSPORT_BUS_MARKER_LIMIT));
+      // Subway + bus: always show all transport POIs on the map.
+      // List “더보기” only limits the bus list rows, not map markers.
       return [
-        ...subwayShown.map((p) => {
+        ...subways.map((p) => {
           const lines = subwayLinesOf(p);
           return {
             id: p.id,
@@ -450,7 +445,7 @@ export function ComplexNearbyLifeSection({
             selected: selectedId === p.id,
           };
         }),
-        ...busShown.map((p) => ({
+        ...buses.map((p) => ({
           id: p.id,
           position: { lat: p.lat, lng: p.lng },
           title: p.name,
@@ -492,7 +487,7 @@ export function ComplexNearbyLifeSection({
         }));
     }
     return [];
-  }, [lifeQuery.data, livingQuery.data, tab, coords, selectedId, expanded]);
+  }, [lifeQuery.data, livingQuery.data, tab, coords, selectedId]);
 
   const markers = useMemo(() => {
     const list = [...tabMarkers];
