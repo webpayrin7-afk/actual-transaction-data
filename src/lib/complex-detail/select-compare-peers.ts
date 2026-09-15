@@ -194,6 +194,8 @@ export async function selectComparePeers(
   }
 
   // 3) Optional household counts from master/profile (same gu/dong scope).
+  // Profile coverage is sparse — only attach when household_count > 0.
+  // Missing values are omitted from UI and skipped in household-gap scoring.
   const householdByNorm = new Map<string, number>();
   try {
     const masterRes =
@@ -203,6 +205,7 @@ export async function selectComparePeers(
                   FROM apt_complex_master m
                   LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
                   WHERE m.sigungu = ? AND m.legal_dong_name = ?
+                    AND p.household_count IS NOT NULL AND p.household_count > 0
                   LIMIT 60`,
             args: [gu, dong],
           })
@@ -211,6 +214,7 @@ export async function selectComparePeers(
                   FROM apt_complex_master m
                   LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
                   WHERE m.sigungu = ?
+                    AND p.household_count IS NOT NULL AND p.household_count > 0
                   LIMIT 80`,
             args: [gu],
           });
