@@ -829,8 +829,8 @@ export function AptDetailPage({
           </div>
           <p className="mt-[5px] truncate text-xs text-slate-500">
             {areaKey === "all" || !selectedArea
-              ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
-              : `${areaSelectorClosedLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
+              ? "전체 면적"
+              : areaSelectorClosedLabel(selectedArea)}
           </p>
           <div style={{ height: 16 }} className="w-full" aria-hidden />
         </div>
