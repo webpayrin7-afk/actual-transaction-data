@@ -135,15 +135,18 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
     values: string[];
     strong?: boolean;
     muted?: boolean;
+    large?: boolean;
   }> = [
     {
       label: "매매",
       values: columns.map((c) => formatMan(c.latestSaleMan)),
       strong: true,
+      large: true,
     },
     {
       label: "전세",
       values: columns.map((c) => formatMan(c.latestJeonseMan)),
+      large: true,
     },
     {
       label: "㎡당",
@@ -204,13 +207,23 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
           className="grid items-center gap-x-1 border-b border-slate-100 py-1.5 last:border-0"
           style={gridStyle}
         >
-          <p className="text-[11px] leading-none text-slate-500 sm:text-[12px]">
+          <p
+            className={`leading-none text-slate-500 ${
+              row.large
+                ? "text-[12px] sm:text-[13px]"
+                : "text-[11px] sm:text-[12px]"
+            }`}
+          >
             {row.label}
           </p>
           {row.values.map((v, i) => (
             <p
               key={`${row.label}-${i}`}
-              className={`min-w-0 truncate px-0.5 text-center text-[12px] tabular-nums leading-snug sm:text-[13px] ${
+              className={`min-w-0 truncate px-0.5 text-center tabular-nums leading-snug ${
+                row.large
+                  ? "text-[13px] sm:text-[14px]"
+                  : "text-[12px] sm:text-[13px]"
+              } ${
                 row.strong
                   ? "font-semibold text-slate-900"
                   : row.muted
@@ -330,12 +343,14 @@ export function ComplexCompareSection({
 
   return (
     <LabCard className="p-3.5 sm:p-5">
-      <div className="flex items-start justify-between gap-2">
-        <h2 className="flex min-w-0 items-center text-[1.25rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)]">
-          주변 단지 비교
-          <CompareInfoTip />
-        </h2>
-        <p className="shrink-0 pt-1 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">
+      <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h2 className="flex items-center">
+            주변 단지 비교
+            <CompareInfoTip />
+          </h2>
+        </div>
+        <p className="shrink-0 pt-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">
           {areaBandLabel(areaCenter)}
         </p>
       </div>
