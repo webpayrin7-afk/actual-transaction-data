@@ -1,6 +1,6 @@
 /**
  * School detail loader — /school/[schoolCode] only.
- * Do not call from apt detail or nearby school list.
+ * App route id stays NEIS SD_SCHUL_CODE; SchoolInfo fetch uses resolved SCHUL_CODE.
  */
 
 import {
@@ -8,17 +8,18 @@ import {
   hasApiKey,
   isSuccess,
   listOf,
+  REVALIDATE_SECONDS,
   type ApiType,
 } from "@/lib/school-info/client";
 import {
-  codeOf,
   KIND,
-  pickByCode,
-  pickByName,
   SEOUL_SIDO,
   SONGPA_SGG,
+  pickByCode,
+  resolveSchoolInfoCode,
   years,
   type Kind,
+  type ResolveMethod,
 } from "@/lib/school-info/identity";
 import {
   asNumber,
@@ -34,8 +35,10 @@ import {
 import type { Metric, SchoolDetail, SectionStatus } from "@/lib/school-info/types";
 
 export type GetSchoolDetailParams = {
+  /** App school id — currently NEIS SD_SCHUL_CODE (e.g. 7130202). */
   schoolCode: string;
   nameHint?: string | null;
+  addressHint?: string | null;
   kind?: Kind;
   sidoCode?: string;
   sggCode?: string;
@@ -51,10 +54,61 @@ type Sec = {
   called: boolean;
 };
 
-async function fetchSection(p: {
+/** Detail cache keyed by SchoolInfo SCHUL_CODE — not by school name. */
+const detailCache = new Map<
+  string,
+  { expiresAt: number; value: SchoolDetail }
+>();
+
+function schoolInfoDetailCacheKey(
+  schoolInfoCode: string,
+  appSchoolId: string,
+  kind: string,
+  sidoCode: string,
+  sggCode: string,
+): string {
+  return `schoolinfo:${schoolInfoCode}:detail:${appSchoolId}:${kind}:${sidoCode}:${sggCode}`;
+}
+
+function mappingFromMethod(
+  method: ResolveMethod,
+): SchoolDetail["mapping"] {
+  if (method === "same_code") return "same_code";
+  if (method === "known_link" || method === "verified_fields") {
+    return "runtime_source_link";
+  }
+  return "unresolved";
+}
+
+async function fetchList(p: {
   apiType: ApiType;
-  schoolCode: string;
-  nameHint: string | null;
+  kindCode: string;
+  sidoCode: string;
+  sggCode: string;
+  year: number;
+}): Promise<{
+  httpOk: boolean;
+  resultCode: string | null;
+  list: Record<string, unknown>[];
+}> {
+  const res = await fetchApi({
+    apiType: p.apiType,
+    sidoCode: p.sidoCode,
+    sggCode: p.sggCode,
+    schulKndCode: p.kindCode,
+    pbanYr: p.year,
+  });
+  return {
+    httpOk: res.httpOk,
+    resultCode: res.body ? String(res.body.resultCode ?? "") : null,
+    list: res.httpOk && isSuccess(res.body) ? listOf(res.body) : [],
+  };
+}
+
+/** Pick by SchoolInfo SCHUL_CODE only — no name-only fallback. */
+async function fetchSectionBySchoolInfoCode(p: {
+  apiType: ApiType;
+  schoolInfoCode: string;
   kindCode: string;
   sidoCode: string;
   sggCode: string;
@@ -78,22 +132,19 @@ async function fetchSection(p: {
 
   for (const year of p.yearList) {
     try {
-      const res = await fetchApi({
+      const res = await fetchList({
         apiType: p.apiType,
+        kindCode: p.kindCode,
         sidoCode: p.sidoCode,
         sggCode: p.sggCode,
-        schulKndCode: p.kindCode,
-        pbanYr: year,
+        year,
       });
       called = true;
       lastHttp = res.httpOk;
-      lastCode = res.body ? String(res.body.resultCode ?? "") : null;
-      if (!res.httpOk || !isSuccess(res.body)) continue;
+      lastCode = res.resultCode;
+      if (!res.httpOk || res.list.length === 0) continue;
 
-      const list = listOf(res.body);
-      const row =
-        pickByCode(list, p.schoolCode) ??
-        (p.nameHint ? pickByName(list, p.nameHint) : null);
+      const row = pickByCode(res.list, p.schoolInfoCode);
       if (!row) continue;
 
       return {
@@ -167,40 +218,58 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
   };
 }
 
+function unresolvedDetail(
+  schoolCode: string,
+  nameHint: string | null,
+  auth: SchoolDetail["auth"],
+): SchoolDetail {
+  return {
+    ...authHold(schoolCode, nameHint),
+    mapping: "unresolved",
+    auth,
+    sectionStatus: {
+      basic: "missing",
+      students: "missing",
+      teachers: "missing",
+      meal: "missing",
+      afterSchool: "missing",
+      advancement: "missing",
+      scholarship: "missing",
+    },
+  };
+}
+
 function rawNum(m: Metric | null): number | null {
   return m ? asNumber(m.raw) : null;
 }
 
-export async function getSchoolDetail(
-  params: GetSchoolDetailParams,
-): Promise<SchoolDetail> {
-  const schoolCode = params.schoolCode.trim();
-  const nameHint = params.nameHint?.trim() || null;
-  const kind = params.kind ?? "middle";
-  const kindCode = KIND[kind];
-  const sidoCode = params.sidoCode ?? SEOUL_SIDO;
-  const sggCode = params.sggCode ?? SONGPA_SGG;
-  const yearList = years();
-
-  if (!hasApiKey()) return authHold(schoolCode, nameHint);
-
+async function loadSchoolDetailBySchoolInfoCode(p: {
+  appSchoolId: string;
+  schoolInfoCode: string;
+  resolveMethod: ResolveMethod;
+  nameHint: string | null;
+  kind: Kind;
+  kindCode: string;
+  sidoCode: string;
+  sggCode: string;
+  yearList: number[];
+}): Promise<SchoolDetail> {
   const common = {
-    schoolCode,
-    nameHint,
-    kindCode,
-    sidoCode,
-    sggCode,
-    yearList,
+    schoolInfoCode: p.schoolInfoCode,
+    kindCode: p.kindCode,
+    sidoCode: p.sidoCode,
+    sggCode: p.sggCode,
+    yearList: p.yearList,
   };
 
   const [basicSec, studentsSec, teachersSec, mealSec, afterSec, scholarshipSec] =
     await Promise.all([
-      fetchSection({ ...common, apiType: "0" }),
-      fetchSection({ ...common, apiType: "09" }),
-      fetchSection({ ...common, apiType: "22" }),
-      fetchSection({ ...common, apiType: "35" }),
-      fetchSection({ ...common, apiType: "59" }),
-      fetchSection({ ...common, apiType: "55" }),
+      fetchSectionBySchoolInfoCode({ ...common, apiType: "0" }),
+      fetchSectionBySchoolInfoCode({ ...common, apiType: "09" }),
+      fetchSectionBySchoolInfoCode({ ...common, apiType: "22" }),
+      fetchSectionBySchoolInfoCode({ ...common, apiType: "35" }),
+      fetchSectionBySchoolInfoCode({ ...common, apiType: "59" }),
+      fetchSectionBySchoolInfoCode({ ...common, apiType: "55" }),
     ]);
 
   const advStudents = parseAdvancement(studentsSec.row);
@@ -215,14 +284,9 @@ export async function getSchoolDetail(
   const studentCount = rawNum(st.students);
   const scholarship = parseScholarship(scholarshipSec.row, studentCount);
 
-  const schoolInfoCode =
-    basic.schoolInfoCode ?? codeOf(basicSec.row) ?? codeOf(studentsSec.row);
-  const sameCode = !!(schoolInfoCode && schoolInfoCode === schoolCode);
-  const mapping: SchoolDetail["mapping"] = !schoolInfoCode
-    ? "unresolved"
-    : sameCode
-      ? "same_code"
-      : "runtime_name_region";
+  const schoolInfoCode = basic.schoolInfoCode ?? p.schoolInfoCode;
+  const sameCode = schoolInfoCode === p.appSchoolId;
+  const mapping = mappingFromMethod(p.resolveMethod);
 
   const teachers = st.teachers ?? teacherFb.teachers ?? null;
   let studentsPerTeacher = st.studentsPerTeacher;
@@ -271,12 +335,12 @@ export async function getSchoolDetail(
       : null;
 
   return {
-    schoolCode,
-    neisCode: schoolCode,
+    schoolCode: p.appSchoolId,
+    neisCode: p.appSchoolId,
     schoolInfoCode,
     sameCode,
     mapping,
-    name: basic.name || nameHint || schoolCode,
+    name: basic.name || p.nameHint || p.appSchoolId,
     kind: basic.kind,
     foundation: basic.foundation,
     address: basic.address,
@@ -315,4 +379,97 @@ export async function getSchoolDetail(
     },
     attribution: attribution(yearsUsed),
   };
+}
+
+export async function getSchoolDetail(
+  params: GetSchoolDetailParams,
+): Promise<SchoolDetail> {
+  const appSchoolId = params.schoolCode.trim();
+  const nameHint = params.nameHint?.trim() || null;
+  const addressHint = params.addressHint?.trim() || null;
+  const kind = params.kind ?? "middle";
+  const kindCode = KIND[kind];
+  const sidoCode = params.sidoCode ?? SEOUL_SIDO;
+  const sggCode = params.sggCode ?? SONGPA_SGG;
+  const yearList = years();
+
+  if (!hasApiKey()) return authHold(appSchoolId, nameHint);
+
+  // Resolve once from basic list (apiType 0) — never name-only permanent identity.
+  let resolveMethod: ResolveMethod = "unresolved";
+  let schoolInfoCode: string | null = null;
+  let resolveHttpOk: boolean | null = null;
+  let resolveResultCode: string | null = null;
+  let resolveCalled = false;
+
+  for (const year of yearList) {
+    try {
+      const basicList = await fetchList({
+        apiType: "0",
+        kindCode,
+        sidoCode,
+        sggCode,
+        year,
+      });
+      resolveCalled = true;
+      resolveHttpOk = basicList.httpOk;
+      resolveResultCode = basicList.resultCode;
+      if (!basicList.httpOk || basicList.list.length === 0) continue;
+
+      const resolved = resolveSchoolInfoCode({
+        appSchoolId,
+        rows: basicList.list,
+        nameHint,
+        addressHint,
+        kind,
+      });
+      if (resolved.schoolInfoCode) {
+        schoolInfoCode = resolved.schoolInfoCode;
+        resolveMethod = resolved.method;
+        break;
+      }
+    } catch {
+      resolveCalled = true;
+      resolveHttpOk = false;
+    }
+  }
+
+  if (!schoolInfoCode) {
+    return unresolvedDetail(appSchoolId, nameHint, {
+      keyPresent: true,
+      called: resolveCalled,
+      httpOk: resolveHttpOk,
+      resultCode: resolveResultCode,
+    });
+  }
+
+  // Cache by SchoolInfo SCHUL_CODE (official), not by display name.
+  const cacheKey = schoolInfoDetailCacheKey(
+    schoolInfoCode,
+    appSchoolId,
+    kind,
+    sidoCode,
+    sggCode,
+  );
+  const hit = detailCache.get(cacheKey);
+  if (hit && hit.expiresAt > Date.now()) {
+    return hit.value;
+  }
+
+  const value = await loadSchoolDetailBySchoolInfoCode({
+    appSchoolId,
+    schoolInfoCode,
+    resolveMethod,
+    nameHint,
+    kind,
+    kindCode,
+    sidoCode,
+    sggCode,
+    yearList,
+  });
+  detailCache.set(cacheKey, {
+    expiresAt: Date.now() + REVALIDATE_SECONDS * 1000,
+    value,
+  });
+  return value;
 }

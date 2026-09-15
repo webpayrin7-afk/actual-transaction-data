@@ -21,7 +21,7 @@ export type SchoolDetail = {
   neisCode: string | null;
   schoolInfoCode: string | null;
   sameCode: boolean;
-  mapping: "same_code" | "runtime_name_region" | "unresolved";
+  mapping: "same_code" | "runtime_source_link" | "unresolved";
   name: string;
   kind: string | null;
   foundation: string | null;
