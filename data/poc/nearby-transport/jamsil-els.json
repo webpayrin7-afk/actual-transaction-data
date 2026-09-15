@@ -22,11 +22,24 @@
   },
   "sources": {
     "subway": {
-      "file": "서울교통공사_1-8호선 역사 좌표(위경도) 정보_20250814.csv",
-      "origin": "서울 열린데이터광장 OA-22534",
-      "coverage": "서울교통공사 1,2,3,4,5,6,7,8호선",
-      "rowsParsed": 276,
-      "validCoordinates": 276,
+      "files": [
+        {
+          "file": "서울교통공사_1-8호선 역사 좌표(위경도) 정보_20250814.csv",
+          "origin": "서울 열린데이터광장 OA-22534",
+          "coverage": "서울교통공사 1–8호선",
+          "rowsParsed": 276,
+          "validCoordinates": 276
+        },
+        {
+          "file": "서울교통공사_9호선 2_3단계 역사 좌표(위경도) 정보_20260131.csv",
+          "origin": "서울교통공사 / data.go.kr",
+          "coverage": "9호선 2·3단계 (언주~중앙보훈병원)",
+          "rowsParsed": 13,
+          "validCoordinates": 13,
+          "sourceVersion": "20260131"
+        }
+      ],
+      "merge": "normalizedName + coordinate proximity ≤400m",
       "status": "PASS",
       "reason": null
     },
@@ -41,38 +54,40 @@
       "validCoordinates": 11236,
       "nearbyWithin700m": 36,
       "within500m": 25,
-      "routeMetadataAvailable": false,
+      "routeMetadataAvailable": true,
       "artifact": "data/poc/nearby-transport/jamsil-els-bus-stops.json"
+    },
+    "busRoutes": {
+      "dataset": "서울시 버스 노선 정보 조회",
+      "datasetId": "OA-1095",
+      "file": "서울시버스노선별정류소정보(20260902).xlsx",
+      "fileDate": "2026-09-02",
+      "joinKey": "NODE_ID->busStops.id (fallback ARS_ID->arsNo)",
+      "artifact": "data/poc/nearby-transport/jamsil-els-bus-routes.json",
+      "status": "PASS",
+      "note": "Pilot extract only; full XLSX not committed"
     }
   },
   "subway": [
     {
-      "id": "metro-2815-잠실",
+      "id": "metro-잠실",
       "name": "잠실역",
-      "line": "8",
-      "stationCode": "2815",
-      "lat": 37.514649,
-      "lng": 127.104267,
+      "lines": [
+        "2",
+        "8"
+      ],
+      "lat": 37.513305,
+      "lng": 127.100129,
       "distanceMeters": 198,
       "distanceLabel": "직선거리 198m",
       "source": "SEOUL_METRO_STATION_FILE"
     },
     {
-      "id": "metro-216-잠실",
-      "name": "잠실역",
-      "line": "2",
-      "stationCode": "216",
-      "lat": 37.513305,
-      "lng": 127.100129,
-      "distanceMeters": 236,
-      "distanceLabel": "직선거리 236m",
-      "source": "SEOUL_METRO_STATION_FILE"
-    },
-    {
-      "id": "metro-215-잠실나루",
+      "id": "metro-잠실나루",
       "name": "잠실나루역",
-      "line": "2",
-      "stationCode": "215",
+      "lines": [
+        "2"
+      ],
       "lat": 37.520688,
       "lng": 127.103836,
       "distanceMeters": 827,
@@ -80,36 +95,15 @@
       "source": "SEOUL_METRO_STATION_FILE"
     },
     {
-      "id": "metro-217-잠실새내",
+      "id": "metro-잠실새내",
       "name": "잠실새내역",
-      "line": "2",
-      "stationCode": "217",
+      "lines": [
+        "2"
+      ],
       "lat": 37.520731,
       "lng": 127.103738,
       "distanceMeters": 830,
       "distanceLabel": "직선거리 830m",
-      "source": "SEOUL_METRO_STATION_FILE"
-    },
-    {
-      "id": "metro-2816-석촌",
-      "name": "석촌역",
-      "line": "8",
-      "stationCode": "2816",
-      "lat": 37.505396,
-      "lng": 127.106995,
-      "distanceMeters": 954,
-      "distanceLabel": "직선거리 954m",
-      "source": "SEOUL_METRO_STATION_FILE"
-    },
-    {
-      "id": "metro-2814-몽촌토성",
-      "name": "몽촌토성역",
-      "line": "8",
-      "stationCode": "2814",
-      "lat": 37.517692,
-      "lng": 127.11274,
-      "distanceMeters": 1004,
-      "distanceLabel": "직선거리 1.0km",
       "source": "SEOUL_METRO_STATION_FILE"
     }
   ],
@@ -166,10 +160,10 @@
     }
   ],
   "radiiMeters": {
-    "subway": 1500,
+    "subway": 3000,
     "bus": 700
   },
-  "generatedAt": "2026-09-15T09:02:42.000Z",
-  "note": "2D NAVER map anchor: NAVER_POI > NAVER_GEOCODE > none. POI HOLD this run (no Local Search credential). Subway: Seoul Metro CSV (runtime). Bus: Seoul OA-15067 pilot (runtime distance from live center). TAGO not used for Seoul. No VWorld on transport. No routes invented. No canonical GIS overwrite.",
+  "generatedAt": "2026-09-15T09:47:02.000Z",
+  "note": "2D NAVER map anchor: NAVER_POI > NAVER_GEOCODE > none. Subway: Seoul Metro 1–8 + line9 phase2/3 CSV (runtime merge). Bus stops: OA-15067. Bus routes: OA-1095 pilot extract joined by NODE_ID/ARS. TAGO not used for Seoul. No VWorld on transport. No invented routes/lines. No canonical GIS overwrite.",
   "complexId": "cx_4c63d9a100973c60"
 }

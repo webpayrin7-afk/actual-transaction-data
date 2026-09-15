@@ -28,7 +28,7 @@ export type ComplexMapAnchorResult =
       poiLookupReason: string;
     };
 
-/** Official Seoul Metro 1–8 line colors (for 2D markers). */
+/** Official Seoul Metro line colors (1–9) for 2D markers / list badges. */
 export const SEOUL_METRO_LINE_COLORS: Record<string, string> = {
   "1": "#0052A4",
   "2": "#00A84D",
@@ -38,6 +38,7 @@ export const SEOUL_METRO_LINE_COLORS: Record<string, string> = {
   "6": "#CD7C2F",
   "7": "#747F00",
   "8": "#E6186C",
+  "9": "#BDB092",
 };
 
 export function subwayLineColor(lineOrSubcategory: string): string {

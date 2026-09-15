@@ -26,6 +26,8 @@ export type NaverMapMarker = {
   badge?: string;
   /** Override fill color (e.g. subway line color). */
   color?: string;
+  /** Multiple subway line badges (interchange). */
+  badges?: Array<{ text: string; color: string }>;
   /** OTHER subtype — bus stop pictogram instead of a plain dot. */
   variant?: "bus-stop";
   selected?: boolean;
@@ -90,17 +92,29 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   }
 
   if (kind === "TRANSIT") {
-    const badge = escapeHtml(
-      (marker.badge || "").replace(/호선$/, "") || "역",
-    );
+    const badgeItems =
+      marker.badges && marker.badges.length > 0
+        ? marker.badges
+        : [
+            {
+              text: (marker.badge || "").replace(/호선$/, "") || "역",
+              color: marker.color || KIND_COLOR.TRANSIT,
+            },
+          ];
     const label = escapeHtml(
       (marker.label || marker.title || "").replace(/역$/, ""),
     );
-    const fill = marker.color || KIND_COLOR.TRANSIT;
     const ring = selected ? "2px solid #0f766e" : "2px solid #fff";
-    // Centered badge on coordinate (subway station point).
+    const badgesHtml = badgeItems
+      .map((b) => {
+        const text = escapeHtml(b.text.replace(/호선$/, "") || "역");
+        const fill = b.color || KIND_COLOR.TRANSIT;
+        return `<div style="min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:${fill};border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.25);display:flex;align-items:center;justify-content:center;font:700 10px/1 system-ui,-apple-system,sans-serif;color:#fff">${text}</div>`;
+      })
+      .join("");
+    // Centered badge stack on coordinate (subway station point).
     const html = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none">
-      <div style="min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:${fill};border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.25);display:flex;align-items:center;justify-content:center;font:700 11px/1 system-ui,-apple-system,sans-serif;color:#fff">${badge}</div>
+      <div style="display:flex;align-items:center;gap:2px">${badgesHtml}</div>
       <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;background:rgba(255,255,255,.92);padding:1px 4px;border-radius:4px;border:1px solid rgba(15,23,42,.1)">${label}</span>
     </div>`;
     return {
@@ -197,10 +211,8 @@ export function NaverMap({
       const map = new maps.Map(hostRef.current, {
         center: new maps.LatLng(center.lat, center.lng),
         zoom,
-        zoomControl: true,
-        zoomControlOptions: {
-          position: maps.Position?.TOP_LEFT,
-        },
+        // Official option — hide NAVER default left zoom bar.
+        zoomControl: false,
       });
       mapRef.current = map;
       setStatus("ready");
@@ -291,6 +303,15 @@ export function NaverMap({
     }
   }, [markers, selectedId, status]);
 
+  const zoomBy = (delta: number) => {
+    const map = mapRef.current;
+    if (!map || status !== "ready") return;
+    const current =
+      typeof map.getZoom === "function" ? map.getZoom() : undefined;
+    if (typeof current !== "number" || typeof map.setZoom !== "function") return;
+    map.setZoom(Math.max(1, Math.min(21, current + delta)));
+  };
+
   return (
     <div
       className={`relative overflow-hidden rounded-xl bg-slate-50 ${className}`.trim()}
@@ -303,6 +324,27 @@ export function NaverMap({
         aria-label={ariaLabel}
         className="h-full min-h-[220px] w-full"
       />
+      {status === "ready" ? (
+        <div className="absolute right-2.5 top-[42%] z-[5] flex -translate-y-1/2 flex-col overflow-hidden rounded-md border border-slate-200/90 bg-white shadow-sm">
+          <button
+            type="button"
+            aria-label="지도 확대"
+            onClick={() => zoomBy(1)}
+            className="flex h-10 w-10 items-center justify-center text-[20px] font-medium leading-none text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+          >
+            +
+          </button>
+          <div className="h-px bg-slate-200" />
+          <button
+            type="button"
+            aria-label="지도 축소"
+            onClick={() => zoomBy(-1)}
+            className="flex h-10 w-10 items-center justify-center text-[20px] font-medium leading-none text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+          >
+            −
+          </button>
+        </div>
+      ) : null}
       {status === "loading" ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-slate-600">
           지도 불러오는 중…

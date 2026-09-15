@@ -11,6 +11,11 @@ import {
   nearestJamsilElsSeoulBusStops,
   SEOUL_BUS_STOP_SOURCE,
 } from "@/lib/complex-detail/seoul-bus-stops-pilot";
+import {
+  routesForSeoulBusStop,
+  seoulBusRoutePilotMeta,
+} from "@/lib/complex-detail/seoul-bus-routes-pilot";
+import { seoulMetroCsvFileNames } from "@/lib/complex-detail/seoul-metro-stations";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 25;
@@ -97,11 +102,15 @@ type PoiItem = {
   distanceLabel: string;
   lat: number;
   lng: number;
+  /** Subway: official line numbers present in source (e.g. ["2","9"]). */
+  lines?: string[];
+  /** Bus: official route numbers joined by stop id. */
+  routes?: string[];
 };
 
-function subwaySubcategory(line: string | null | undefined): string {
-  if (!line) return "지하철역";
-  return /호선$/.test(line) ? line : `${line}호선`;
+function subwaySubcategory(lines: string[]): string {
+  if (!lines.length) return "지하철역";
+  return lines.map((l) => (/호선$/.test(l) ? l : `${l}호선`)).join("·");
 }
 
 /**
@@ -146,6 +155,7 @@ export async function GET(request: NextRequest) {
   let livingReason = "";
   let transportMeta: {
     subwaySource: string;
+    subwayFiles?: string[];
     busSource: string;
     subwayStatus: string;
     busStatus: string;
@@ -157,7 +167,8 @@ export async function GET(request: NextRequest) {
     busValidCoordinates?: number;
     busNearbyCount?: number;
     busWithin500m?: number;
-    busRouteMetadataAvailable?: false;
+    busRouteMetadataAvailable?: boolean;
+    busRouteSource?: unknown;
     addressUsed?: string | null;
     centerUsed?: { lat: number; lng: number };
   } = {
@@ -173,17 +184,19 @@ export async function GET(request: NextRequest) {
   // ---- TRANSPORT (Seoul Metro CSV + Seoul official bus-stop artifact; never TAGO/VWorld for Seoul) ----
   // Subway + bus distances ALWAYS use the same live request center (client NAVER geocode).
   if (isJamsilElsTransportPilot(aptName)) {
+    // Distinct stations after interchange merge; enough so 잠실새내·종합운동장 stay reachable.
     const subwayItems: PoiItem[] = nearestSeoulMetroStations(coords, {
-      limit: 2,
-      maxMeters: 1500,
+      limit: 12,
+      maxMeters: 3000,
     }).map((s) => ({
-      id: `metro-${s.stationCode || s.name}-${s.line || "x"}`,
-      name: s.name.endsWith("역") ? s.name : `${s.name}역`,
-      subcategory: subwaySubcategory(s.line || null),
+      id: s.id,
+      name: s.name,
+      subcategory: subwaySubcategory(s.lines),
       distanceMeters: s.distanceMeters,
       distanceLabel: s.distanceLabel,
       lat: s.lat,
       lng: s.lng,
+      lines: s.lines,
     }));
 
     // Seoul official bus-stop file pilot; TAGO not called. Distances from live center.
@@ -191,15 +204,22 @@ export async function GET(request: NextRequest) {
       limit: 6,
       maxMeters: 700,
     });
-    const busItems: PoiItem[] = busResult.items.map((b) => ({
-      id: `bus-${b.id}`,
-      name: b.name,
-      subcategory: b.arsNo ? `ARS ${b.arsNo}` : "버스정류장",
-      distanceMeters: b.distanceMeters,
-      distanceLabel: b.distanceLabel,
-      lat: b.lat,
-      lng: b.lng,
-    }));
+    const busItems: PoiItem[] = busResult.items.map((b) => {
+      const routeRows = routesForSeoulBusStop({
+        stopId: b.id,
+        arsNo: b.arsNo,
+      });
+      return {
+        id: `bus-${b.id}`,
+        name: b.name,
+        subcategory: b.arsNo ? `ARS ${b.arsNo}` : "버스정류장",
+        distanceMeters: b.distanceMeters,
+        distanceLabel: b.distanceLabel,
+        lat: b.lat,
+        lng: b.lng,
+        routes: routeRows.map((r) => r.routeNumber),
+      };
+    });
 
     transportItems = [...subwayItems, ...busItems].sort((a, b) => {
       const as = /호선|지하철/.test(a.subcategory) ? 0 : 1;
@@ -208,8 +228,10 @@ export async function GET(request: NextRequest) {
       return a.distanceMeters - b.distanceMeters;
     });
 
+    const routeMeta = seoulBusRoutePilotMeta();
     transportMeta = {
       subwaySource: "SEOUL_METRO_STATION_FILE",
+      subwayFiles: seoulMetroCsvFileNames(),
       busSource: SEOUL_BUS_STOP_SOURCE,
       subwayStatus: subwayItems.length ? "PASS" : "HOLD",
       busStatus: busResult.status,
@@ -221,7 +243,8 @@ export async function GET(request: NextRequest) {
       busValidCoordinates: busResult.validCoordinates,
       busNearbyCount: busResult.nearbyCount,
       busWithin500m: busResult.within500m,
-      busRouteMetadataAvailable: false,
+      busRouteMetadataAvailable: Boolean(routeMeta),
+      busRouteSource: routeMeta ?? null,
       addressUsed: address.address ?? busResult.addressUsed,
       centerUsed: coords,
     };

@@ -17,7 +17,7 @@ import {
   subwayLineColor,
   type ComplexMapAnchorResult,
 } from "@/lib/nearby-map/complex-map-anchor";
-import { Bus } from "lucide-react";
+import { Bus, ChevronRight } from "lucide-react";
 
 export type NearbyLifeCategory = "transport" | "living" | "commerce" | "school";
 
@@ -36,6 +36,10 @@ type PoiItem = {
   distanceLabel: string;
   lat: number;
   lng: number;
+  /** Official subway line numbers when present. */
+  lines?: string[];
+  /** Official bus route numbers joined by stop id. */
+  routes?: string[];
 };
 
 type SchoolItem = {
@@ -80,10 +84,13 @@ const LEVEL_LABEL: Record<string, string> = {
 };
 
 const LIST_LIMIT = 5;
-const TRANSPORT_SUBWAY_LIST_LIMIT = 4;
-const TRANSPORT_BUS_LIST_LIMIT = 5;
-/** Bus map markers only — subway markers always mirror list. */
+/** Nearest distinct subway stations in the default list. */
+const TRANSPORT_SUBWAY_LIST_LIMIT = 3;
+const TRANSPORT_BUS_LIST_LIMIT = 6;
+/** Bus map markers — mirror listed stops (cap). */
 const TRANSPORT_BUS_MARKER_LIMIT = 6;
+/** Max bus route chips before +N. */
+const BUS_ROUTE_CHIP_LIMIT = 6;
 
 function isSubwayPoi(p: { name: string; subcategory: string }): boolean {
   const s = `${p.subcategory} ${p.name}`;
@@ -91,9 +98,29 @@ function isSubwayPoi(p: { name: string; subcategory: string }): boolean {
   return /지하철|전철|\d호선|역/.test(s);
 }
 
-function subwayLineBadge(subcategory: string): string {
-  const m = subcategory.match(/(\d+)\s*호선/);
-  return m ? m[1] : subcategory.replace(/호선$/, "").slice(0, 2) || "역";
+function subwayLinesOf(p: PoiItem): string[] {
+  if (p.lines && p.lines.length > 0) {
+    return p.lines.map((l) => l.replace(/호선$/u, "").trim()).filter(Boolean);
+  }
+  const matches = [...(p.subcategory || "").matchAll(/(\d+)\s*호선/g)].map(
+    (m) => m[1],
+  );
+  if (matches.length) return matches;
+  const m = (p.subcategory || "").match(/(\d+)/);
+  return m ? [m[1]] : [];
+}
+
+function busRoutesOf(p: PoiItem): string[] {
+  if (!p.routes?.length) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const r of p.routes) {
+    const t = String(r || "").trim();
+    if (!t || seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
 }
 
 function formatMeters(meters: number): string {
@@ -253,20 +280,32 @@ export function ComplexNearbyLifeSection({
         .sort((a, b) => a.distanceMeters - b.distanceMeters);
       const buses = withCoords
         .filter((p) => !isSubwayPoi(p))
-        .sort((a, b) => a.distanceMeters - b.distanceMeters)
-        .slice(0, TRANSPORT_BUS_MARKER_LIMIT);
+        .sort((a, b) => a.distanceMeters - b.distanceMeters);
+      const subwayShown = expanded
+        ? subways
+        : subways.slice(0, TRANSPORT_SUBWAY_LIST_LIMIT);
+      const busShown = expanded
+        ? buses.slice(0, TRANSPORT_BUS_MARKER_LIMIT)
+        : buses.slice(0, Math.min(TRANSPORT_BUS_LIST_LIMIT, TRANSPORT_BUS_MARKER_LIMIT));
       return [
-        ...subways.map((p) => ({
-          id: p.id,
-          position: { lat: p.lat, lng: p.lng },
-          title: p.name,
-          label: p.name.replace(/역$/, ""),
-          badge: subwayLineBadge(p.subcategory || ""),
-          color: subwayLineColor(p.subcategory || ""),
-          kind: "TRANSIT" as const,
-          selected: selectedId === p.id,
-        })),
-        ...buses.map((p) => ({
+        ...subwayShown.map((p) => {
+          const lines = subwayLinesOf(p);
+          return {
+            id: p.id,
+            position: { lat: p.lat, lng: p.lng },
+            title: p.name,
+            label: p.name.replace(/역$/, ""),
+            badge: lines[0] || "역",
+            color: subwayLineColor(lines[0] || p.subcategory || ""),
+            badges: lines.map((line) => ({
+              text: line,
+              color: subwayLineColor(line),
+            })),
+            kind: "TRANSIT" as const,
+            selected: selectedId === p.id,
+          };
+        }),
+        ...busShown.map((p) => ({
           id: p.id,
           position: { lat: p.lat, lng: p.lng },
           title: p.name,
@@ -308,7 +347,7 @@ export function ComplexNearbyLifeSection({
         }));
     }
     return [];
-  }, [lifeQuery.data, tab, coords, selectedId]);
+  }, [lifeQuery.data, tab, coords, selectedId, expanded]);
 
   const markers = useMemo(() => {
     const list = [...tabMarkers];
@@ -398,35 +437,52 @@ export function ComplexNearbyLifeSection({
                 지하철
               </p>
               <ul className="space-y-1">
-                {subwayItems.map((p) => (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedId(p.id)}
-                      className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
-                    >
-                      <span
-                        className="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
-                        style={{
-                          backgroundColor: subwayLineColor(
-                            p.subcategory || "",
-                          ),
-                        }}
+                {subwayItems.map((p) => {
+                  const lines = subwayLinesOf(p);
+                  return (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(p.id)}
+                        aria-label={`${p.name} 지도에서 보기`}
+                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
                       >
-                        {subwayLineBadge(p.subcategory || "")}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-slate-800">
-                          {p.name}
+                        <span className="mt-0.5 flex shrink-0 items-center gap-0.5">
+                          {lines.length > 0 ? (
+                            lines.map((line) => (
+                              <span
+                                key={`${p.id}-${line}`}
+                                className="inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
+                                style={{
+                                  backgroundColor: subwayLineColor(line),
+                                }}
+                              >
+                                {line}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-700 px-1 text-[10px] font-bold text-white">
+                              역
+                            </span>
+                          )}
                         </span>
-                        <span className="mt-0.5 block text-[11px] text-slate-500">
-                          {formatMeters(p.distanceMeters)}
-                          {" · 직선거리"}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-slate-800">
+                            {p.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-slate-500">
+                            {formatMeters(p.distanceMeters)}
+                            {" · 직선거리"}
+                          </span>
                         </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
+                        <ChevronRight
+                          className="h-4 w-4 shrink-0 text-slate-400"
+                          aria-hidden
+                        />
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ) : null}
@@ -436,31 +492,58 @@ export function ComplexNearbyLifeSection({
                 버스
               </p>
               <ul className="space-y-1">
-                {busItems.map((p) => (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedId(p.id)}
-                      className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
-                    >
-                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
-                        <Bus className="h-3 w-3" aria-hidden />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-slate-800">
-                          {p.name}
+                {busItems.map((p) => {
+                  const routes = busRoutesOf(p);
+                  const shown = routes.slice(0, BUS_ROUTE_CHIP_LIMIT);
+                  const extra = routes.length - shown.length;
+                  return (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(p.id)}
+                        aria-label={`${p.name} 지도에서 보기`}
+                        className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
+                      >
+                        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
+                          <Bus className="h-3 w-3" aria-hidden />
                         </span>
-                        <span className="mt-0.5 block text-[11px] text-slate-500">
-                          {p.subcategory?.startsWith("ARS")
-                            ? `${p.subcategory} · `
-                            : ""}
-                          {formatMeters(p.distanceMeters)}
-                          {" · 직선거리"}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-slate-800">
+                            {p.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-slate-500">
+                            {p.subcategory?.startsWith("ARS")
+                              ? `${p.subcategory} · `
+                              : ""}
+                            {formatMeters(p.distanceMeters)}
+                            {" · 직선거리"}
+                          </span>
+                          {shown.length > 0 ? (
+                            <span className="mt-1.5 flex flex-wrap items-center gap-1">
+                              {shown.map((route) => (
+                                <span
+                                  key={`${p.id}-${route}`}
+                                  className="inline-flex h-5 items-center rounded border border-slate-200 bg-slate-50 px-1.5 text-[10px] font-semibold text-slate-700"
+                                >
+                                  {route}
+                                </span>
+                              ))}
+                              {extra > 0 ? (
+                                <span className="text-[10px] font-medium text-slate-500">
+                                  +{extra}
+                                </span>
+                              ) : null}
+                            </span>
+                          ) : null}
                         </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
+                        <ChevronRight
+                          className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"
+                          aria-hidden
+                        />
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ) : null}
@@ -615,9 +698,11 @@ export function ComplexNearbyLifeSection({
               ? " (POI HOLD)"
               : ""}
             <br />
-            지하철: 서울교통공사
+            지하철: 서울교통공사 1–8호선 + 9호선 2·3단계
             <br />
             버스정류장: 서울특별시
+            <br />
+            버스노선: 서울시 버스 노선별정류소 (정류소 ID 조인)
             <br />
             거리: 직선거리
             <br />
@@ -662,10 +747,10 @@ export function ComplexNearbyLifeSection({
                 selectedId={selectedId}
                 onMarkerClick={onMarkerClick}
                 ariaLabel={`${aptName} 주변 교통 지도`}
-                className="h-[276px] w-full sm:h-[300px] lg:h-[360px]"
+                className="h-[240px] w-full sm:h-[280px] lg:h-[330px]"
               />
             ) : (
-              <div className="flex h-[276px] items-center justify-center px-4 text-center text-sm text-slate-500 sm:h-[300px] lg:h-[360px]">
+              <div className="flex h-[240px] items-center justify-center px-4 text-center text-sm text-slate-500 sm:h-[280px] lg:h-[330px]">
                 {geocodeStatus === "loading" || geocodeStatus === "idle"
                   ? "지도를 준비하는 중…"
                   : geocodeReason || "위치 정보를 확인 중입니다"}

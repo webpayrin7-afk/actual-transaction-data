@@ -43,6 +43,8 @@ export type NaverMapsApi = {
 export type NaverMapInstance = {
   setCenter: (latlng: unknown) => void;
   panTo: (latlng: unknown) => void;
+  getZoom?: () => number;
+  setZoom?: (zoom: number, opts?: unknown) => void;
   destroy?: () => void;
 };
 
