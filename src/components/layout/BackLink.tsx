@@ -14,6 +14,11 @@ type BackLinkProps = {
   hideLabelOnMobile?: boolean;
   /** Icon-only (e.g. beside a page title). */
   hideLabel?: boolean;
+  /**
+   * Always navigate to fallback (skip history.back).
+   * Use when the parent URL must carry query state (e.g. ?nearbyTab=school).
+   */
+  preferFallback?: boolean;
 };
 
 /**
@@ -26,17 +31,20 @@ export function BackLink({
   compact = false,
   hideLabelOnMobile = false,
   hideLabel = false,
+  preferFallback = false,
 }: BackLinkProps) {
   const router = useRouter();
 
   function goBack() {
-    const cur =
-      typeof window !== "undefined"
-        ? `${window.location.pathname}${window.location.search}`
-        : "";
-    if (canUseInternalHistoryBack(cur)) {
-      router.back();
-      return;
+    if (!preferFallback) {
+      const cur =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}`
+          : "";
+      if (canUseInternalHistoryBack(cur)) {
+        router.back();
+        return;
+      }
     }
     router.push(fallback);
   }

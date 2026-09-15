@@ -42,13 +42,30 @@ export default async function SchoolDetailPage({
 
   const from = sp.from?.trim();
   const nearbyTab = sp.nearbyTab?.trim() || "school";
-  const backHref = from
-    ? `${from}${from.includes("?") ? "&" : "?"}nearbyTab=${encodeURIComponent(nearbyTab)}`
-    : "/complexes";
+  const backHref = buildSchoolBackHref(from, nearbyTab);
 
   return (
     <main className="flex-1 overflow-x-clip">
       <SchoolDetailView detail={detail} backHref={backHref} />
     </main>
   );
+}
+
+/** Apt detail URL with nearbyTab + scroll target for the school tab. */
+function buildSchoolBackHref(
+  from: string | undefined,
+  nearbyTab: string,
+): string {
+  if (!from || !from.startsWith("/") || from.startsWith("//")) {
+    return "/complexes";
+  }
+  const hashIdx = from.indexOf("#");
+  const withoutHash = hashIdx >= 0 ? from.slice(0, hashIdx) : from;
+  const qIdx = withoutHash.indexOf("?");
+  const path = qIdx >= 0 ? withoutHash.slice(0, qIdx) : withoutHash;
+  const qs = qIdx >= 0 ? withoutHash.slice(qIdx + 1) : "";
+  const params = new URLSearchParams(qs);
+  params.set("nearbyTab", nearbyTab);
+  const q = params.toString();
+  return `${path}${q ? `?${q}` : ""}#section-nearby-life`;
 }

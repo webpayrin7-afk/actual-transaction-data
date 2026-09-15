@@ -117,7 +117,9 @@ export function SchoolDetailView({
   return (
     <div className={`${PAGE_SHELL} max-w-3xl`}>
       <PageHeader
-        leading={<BackLink fallback={backHref} compact hideLabel />}
+        leading={
+          <BackLink fallback={backHref} compact hideLabel preferFallback />
+        }
         title={headerTitle}
         description={detail.address ?? undefined}
         compact

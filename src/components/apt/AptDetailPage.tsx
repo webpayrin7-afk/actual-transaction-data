@@ -509,6 +509,14 @@ export function AptDetailPage({
     return () => window.clearTimeout(t);
   }, [data]);
 
+  /** Return from school detail: ?nearbyTab=school#section-nearby-life */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#section-nearby-life") return;
+    const t = window.setTimeout(() => scrollToSection("nearby-life"), 0);
+    return () => window.clearTimeout(t);
+  }, [initialNearbyTab]);
+
   function scrollToSection(id: string) {
     const el = document.getElementById(`section-${id}`);
     if (!el) return;
