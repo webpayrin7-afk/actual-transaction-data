@@ -827,7 +827,7 @@ export function AptDetailPage({
               onChange={setDealFilter}
             />
           </div>
-          <p className="mt-1 truncate text-xs text-slate-500">
+          <p className="mt-[5px] truncate text-xs text-slate-500">
             {areaKey === "all" || !selectedArea
               ? `전체 면적 · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`
               : `${areaSelectorClosedLabel(selectedArea)} · 최근 ${Math.min(5, filteredByType.length).toLocaleString("ko-KR")}건`}
