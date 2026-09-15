@@ -4,7 +4,7 @@ import { isValidLatLng } from "@/lib/complex-detail/geo";
 import { isJamsilElsSchoolPilot } from "@/lib/complex-detail/jamsil-els-school-pilot";
 import { fetchNearbySurroundings } from "@/lib/complex-detail/vworld";
 import { vworldReadiness } from "@/lib/complex-detail/source-status";
-import { loadNearbySchools } from "@/lib/nearby-map/neis-schools";
+import { fetchJamsilElsPilotSchools } from "@/lib/complex-detail/neis";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 25;
@@ -215,39 +215,37 @@ export async function GET(request: NextRequest) {
       schoolStatus = "PILOT_ONLY";
       schoolNote = "인근 학교 실데이터는 잠실엘스 pilot만 지원합니다.";
     } else {
-      // Verified pilot path: NEIS schoolInfo + address geocode → markers.
-      const result = await loadNearbySchools(coords);
-      if (!result.ok && result.schools.length === 0) {
-        schoolStatus = "ERROR";
-        schoolNote =
-          result.note || "인근 학교 정보를 불러오지 못했습니다.";
-      } else {
-        schoolItems = result.schools.map((s) => ({
-          id: s.id,
-          name: s.name,
-          level:
-            s.schoolType === "초등학교"
-              ? "elementary"
-              : s.schoolType === "중학교"
-                ? "middle"
-                : s.schoolType === "고등학교"
-                  ? "high"
-                  : "other",
-          foundation: s.fondType,
-          distanceMeters: Math.round(s.distanceM),
-          distanceLabel: straightDistanceLabel(s.distanceM),
-          lat: s.lat,
-          lng: s.lng,
-        }));
-        // Prefer nearest by straight-line from complex center
-        schoolItems.sort((a, b) => {
-          const da = a.distanceMeters ?? Number.POSITIVE_INFINITY;
-          const db = b.distanceMeters ?? Number.POSITIVE_INFINITY;
-          return da - db;
-        });
+      // Reuse verified complex-detail NEIS pilot (list). Coords optional.
+      const result = await fetchJamsilElsPilotSchools({
+        aptName,
+        coords,
+      });
+      schoolItems = result.schools.map((s, i) => ({
+        id: `school-${s.level}-${i}-${s.name}`,
+        name: s.name,
+        level: s.level,
+        foundation: s.foundation,
+        distanceMeters: s.distanceMeters,
+        distanceLabel: s.distanceLabel,
+        lat: s.lat,
+        lng: s.lng,
+      }));
+      if (
+        result.status === "SUCCESS" ||
+        result.status === "CATCHMENT_UNVERIFIED"
+      ) {
         schoolStatus = schoolItems.length > 0 ? "READY" : "EMPTY";
         schoolNote =
           "인근 학교(NEARBY_SCHOOL) · 배정학교·통학구역 미검증 · NEIS";
+      } else if (result.status === "PILOT_ONLY") {
+        schoolStatus = "PILOT_ONLY";
+        schoolNote = result.reason;
+      } else if (result.status === "NO_RESULTS") {
+        schoolStatus = "EMPTY";
+        schoolNote = result.reason;
+      } else {
+        schoolStatus = "ERROR";
+        schoolNote = result.reason;
       }
     }
   } catch {
