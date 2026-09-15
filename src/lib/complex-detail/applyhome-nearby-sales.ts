@@ -13,7 +13,6 @@ const CMPET_BASE =
   "https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet";
 
 const DAILY_REVALIDATE = 86_400;
-const LOOKBACK_MONTHS = 18;
 const MAX_TYPES = 3;
 const RANK_1 = 1;
 const RESIDE_LOCAL = "01";
@@ -21,7 +20,9 @@ const RESIDE_LOCAL = "01";
 export type NearbySaleStatus =
   | "upcoming"
   | "open"
-  | "post_process"
+  | "receipt_closed"
+  | "winner_announced"
+  | "contracting"
   | "completed";
 
 export type NearbySaleTypeCard = {
@@ -38,6 +39,7 @@ export type NearbySaleCard = {
   houseName: string;
   status: NearbySaleStatus;
   statusLabel: string;
+  scheduleLabel: string | null;
   regionLabel: string;
   supplyHouseholds: number | null;
   moveInYm: string | null;
@@ -106,16 +108,20 @@ type CmpetRow = {
 
 const STATUS_LABEL: Record<NearbySaleStatus, string> = {
   upcoming: "청약 예정",
-  open: "청약 진행",
-  post_process: "접수/당첨/계약 진행",
+  open: "청약 중",
+  receipt_closed: "접수 종료",
+  winner_announced: "당첨자 발표",
+  contracting: "계약 진행",
   completed: "분양 완료",
 };
 
 const STATUS_ORDER: Record<NearbySaleStatus, number> = {
   upcoming: 0,
   open: 1,
-  post_process: 2,
-  completed: 3,
+  receipt_closed: 2,
+  winner_announced: 3,
+  contracting: 4,
+  completed: 5,
 };
 
 function serviceKey(): string | null {
@@ -162,18 +168,6 @@ function todayUtc(): Date {
   );
 }
 
-function monthsAgo(from: Date, months: number): Date {
-  return new Date(
-    Date.UTC(
-      from.getUTCFullYear(),
-      from.getUTCMonth() - months,
-      from.getUTCDate(),
-      12,
-      0,
-      0,
-    ),
-  );
-}
 
 function formatMoveInYm(ym: string | null): string | null {
   if (!ym) return null;
@@ -202,14 +196,63 @@ function classifyStatus(row: DetailRow, today: Date): NearbySaleStatus {
     return "open";
   }
   if (rceptEnd && today > rceptEnd) {
-    if (contractEnd && today <= contractEnd) return "post_process";
-    if (contractStart && today < contractStart) return "post_process";
-    if (!contractEnd && winner && today <= winner) return "post_process";
     if (contractEnd && today > contractEnd) return "completed";
-    if (!contractEnd && winner && today > winner) return "completed";
-    if (!contractEnd && !winner) return "post_process";
+    if (
+      contractStart &&
+      contractEnd &&
+      today >= contractStart &&
+      today <= contractEnd
+    ) {
+      return "contracting";
+    }
+    if (contractStart && today >= contractStart && !contractEnd) {
+      return "contracting";
+    }
+    if (winner && today >= winner) {
+      if (contractStart && today < contractStart) return "winner_announced";
+      if (!contractStart) return "winner_announced";
+    }
+    if (winner && today < winner) return "receipt_closed";
+    if (contractStart && today < contractStart) return "receipt_closed";
+    if (!contractEnd && !winner) return "receipt_closed";
   }
   return "completed";
+}
+
+function formatMd(d: Date | null): string | null {
+  if (!d) return null;
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${m}.${day}`;
+}
+
+function scheduleLabelFor(
+  status: NearbySaleStatus,
+  row: DetailRow,
+): string | null {
+  const rceptStart = formatMd(parseDate(row.RCEPT_BGNDE));
+  const rceptEnd = formatMd(parseDate(row.RCEPT_ENDDE));
+  const winner = formatMd(parseDate(row.PRZWNER_PRESNATN_DE));
+  const cStart = formatMd(parseDate(row.CNTRCT_CNCLS_BGNDE));
+  const cEnd = formatMd(parseDate(row.CNTRCT_CNCLS_ENDDE));
+
+  switch (status) {
+    case "upcoming":
+      return rceptStart ? `1순위 ${rceptStart}` : null;
+    case "open":
+      return rceptEnd ? `접수 ~${rceptEnd}` : null;
+    case "receipt_closed":
+      return winner ? `당첨발표 ${winner}` : null;
+    case "winner_announced":
+      if (cStart && cEnd) return `계약 ${cStart}~${cEnd}`;
+      if (cStart) return `계약 ${cStart}`;
+      if (cEnd) return `계약 ~${cEnd}`;
+      return null;
+    case "contracting":
+      return cEnd ? `계약 ~${cEnd}` : cStart ? `계약 ${cStart}` : null;
+    default:
+      return null;
+  }
 }
 
 async function odcloudGet<T>(
@@ -297,25 +340,30 @@ function pickCompetition(
 
 function regionLabel(row: DetailRow, sigungu: string): string {
   const addr = str(row.HSSPLY_ADRES);
+  const dong = addr.match(/([가-힣0-9]+(?:동|가))(?:\s|$)/)?.[1] ?? "";
   if (addr) {
     const m = addr.match(
       /(서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)[^\s]*\s*([가-힣]+구|[가-힣]+시|[가-힣]+군)/,
     );
-    if (m) return `${m[1]} ${m[2]}`;
+    if (m) {
+      const base = `${m[1]} ${m[2]}`;
+      return dong ? `${base} ${dong}` : base;
+    }
     if (addr.includes(sigungu)) {
       const sido = str(row.SUBSCRPT_AREA_CODE_NM);
-      return sido ? `${sido} ${sigungu}` : sigungu;
+      const base = sido ? `${sido} ${sigungu}` : sigungu;
+      return dong ? `${base} ${dong}` : base;
     }
   }
   const area = str(row.SUBSCRPT_AREA_CODE_NM);
-  return area ? `${area} ${sigungu}` : sigungu;
+  const base = area ? `${area} ${sigungu}` : sigungu;
+  return dong ? `${base} ${dong}` : base;
 }
 
 async function buildCard(
   row: DetailRow,
   sigungu: string,
   today: Date,
-  cutoff: Date,
 ): Promise<NearbySaleCard | null> {
   const houseManageNo = str(row.HOUSE_MANAGE_NO);
   const pblancNo = str(row.PBLANC_NO);
@@ -323,12 +371,7 @@ async function buildCard(
   if (!houseManageNo || !pblancNo || !houseName) return null;
 
   const status = classifyStatus(row, today);
-  const rcrit = parseDate(row.RCRIT_PBLANC_DE);
-  const contractEnd = parseDate(row.CNTRCT_CNCLS_ENDDE);
-  if (status === "completed") {
-    const anchor = contractEnd ?? rcrit;
-    if (!anchor || anchor < cutoff) return null;
-  }
+  if (status === "completed") return null;
 
   const [models, cmpet] = await Promise.all([
     odcloudGet<ModelRow>(MODEL_BASE, {
@@ -350,6 +393,7 @@ async function buildCard(
     houseName,
     status,
     statusLabel: STATUS_LABEL[status],
+    scheduleLabel: scheduleLabelFor(status, row),
     regionLabel: regionLabel(row, sigungu),
     supplyHouseholds: num(row.TOT_SUPLY_HSHLDCO),
     moveInYm,
@@ -392,7 +436,6 @@ export async function fetchNearbySalesBySigungu(
 
   try {
     const today = todayUtc();
-    const cutoff = monthsAgo(today, LOOKBACK_MONTHS);
 
     const details = await odcloudGet<DetailRow>(DETAIL_BASE, {
       "cond[HSSPLY_ADRES::LIKE]": sigungu,
@@ -400,7 +443,7 @@ export async function fetchNearbySalesBySigungu(
 
     const cards = (
       await Promise.all(
-        details.map((row) => buildCard(row, sigungu, today, cutoff)),
+        details.map((row) => buildCard(row, sigungu, today)),
       )
     ).filter(Boolean) as NearbySaleCard[];
 
@@ -415,7 +458,7 @@ export async function fetchNearbySalesBySigungu(
       reason:
         cards.length > 0
           ? ""
-          : `${sigungu} 기준 표시할 분양 공고가 없습니다.`,
+          : `현재 ${sigungu}에 진행 중이거나 예정된 APT 분양·청약 정보가 없습니다.`,
       sigungu,
       items: cards,
       attribution,
