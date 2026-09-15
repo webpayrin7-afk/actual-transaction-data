@@ -81,13 +81,13 @@ function TypeChips({ item }: { item: NearbySaleCard }) {
       {visible.map((t) => (
         <span
           key={`${item.id}-${t.modelNo}`}
-          className="rounded px-1 py-px text-[10px] font-medium tabular-nums text-slate-600 ring-1 ring-inset ring-slate-200/90"
+          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium leading-none tabular-nums text-slate-600"
         >
           {t.label}
         </span>
       ))}
       {extra > 0 ? (
-        <span className="text-[10px] font-medium tabular-nums text-slate-400">
+        <span className="inline-flex items-center rounded-full border border-slate-200/80 bg-white px-1.5 py-0.5 text-[10px] font-medium leading-none tabular-nums text-slate-400">
           외 {extra}개
         </span>
       ) : null}
@@ -147,22 +147,20 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
     : 0;
 
   return (
-    <li className="py-2.5 first:pt-1.5">
-      {/* ROW 1 — name; status pill only when not move-in (입주예정 is on date row) */}
+    <li className="px-3 py-2.5">
+      {/* ROW 1 — name + status / 입주예정 badge */}
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-snug text-slate-900">
           {item.houseName}
         </p>
-        {!isMoveIn ? (
-          <span
-            className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
-          >
-            {item.statusLabel}
-          </span>
-        ) : null}
+        <span
+          className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
+        >
+          {item.statusLabel}
+        </span>
       </div>
 
-      {/* ROW 2 — meta + type chips to the right of 세대 */}
+      {/* ROW 2 — meta + type badges to the right of 세대 */}
       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
         <p className="text-[11px] leading-snug text-slate-500">
           {metaLeft(item)}
@@ -204,11 +202,11 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
         </ul>
       ) : null}
 
-      {/* ROW 3 — move-in date + teal CTA */}
+      {/* ROW 3 — move-in date (no 입주예정 suffix; badge covers it) + CTA */}
       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
         {isMoveIn && item.moveInLabel ? (
           <span className="text-[12px] font-semibold tabular-nums text-slate-800">
-            {item.moveInLabel} 입주예정
+            {item.moveInLabel}
           </span>
         ) : null}
         {detailHref ? (
@@ -283,7 +281,7 @@ export function ComplexNearbySalesSection({
       ) : null}
 
       {ready ? (
-        <ul className="mt-1.5 divide-y divide-slate-100">
+        <ul className="mt-2 overflow-hidden rounded-lg border border-slate-200 divide-y divide-slate-100">
           {items.map((item) => (
             <SaleRow key={item.id} item={item} />
           ))}
