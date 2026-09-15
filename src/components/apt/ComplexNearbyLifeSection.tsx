@@ -499,13 +499,7 @@ export function ComplexNearbyLifeSection({
               <ul className="space-y-1">
                 {busItems.map((p) => {
                   const routes = busRoutesOf(p);
-                  const arsNo = p.subcategory?.startsWith("ARS")
-                    ? p.subcategory.replace(/^ARS\s*/u, "").trim()
-                    : "";
-                  const metaParts = [
-                    arsNo || null,
-                    `${formatMeters(p.distanceMeters)} · 직선거리`,
-                  ].filter(Boolean);
+                  const metaText = `${formatMeters(p.distanceMeters)} · 직선거리`;
                   return (
                     <li key={p.id}>
                       <button
@@ -523,7 +517,7 @@ export function ComplexNearbyLifeSection({
                               {p.name}
                             </span>
                             <span className="shrink-0 text-[11px] text-slate-500">
-                              {metaParts.join(" · ")}
+                              {metaText}
                             </span>
                           </span>
                           {routes.length > 0 ? (
