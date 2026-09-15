@@ -706,7 +706,6 @@ export function ComplexNearbyLifeSection({
               </p>
             </InfoTip>
           </h2>
-          <p>{aptName} 주변 생활환경</p>
         </div>
       </div>
 
