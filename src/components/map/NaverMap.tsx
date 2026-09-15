@@ -205,7 +205,7 @@ export function NaverMap({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${className}`.trim()}
+      className={`relative overflow-hidden rounded-xl bg-slate-50 ${className}`.trim()}
       style={style}
     >
       <div
