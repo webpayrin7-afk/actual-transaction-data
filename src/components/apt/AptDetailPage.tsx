@@ -213,11 +213,10 @@ export function AptDetailPage({
     let raf = 0;
 
     const headerH = () => {
+      // Full-page /apt/[name] hides SiteHeader — treat as 0 (no blank top gap).
       const header = document.querySelector<HTMLElement>("[data-site-header]");
-      return Math.max(
-        56,
-        Math.round(header?.getBoundingClientRect().height ?? 56),
-      );
+      if (!header) return 0;
+      return Math.max(1, Math.round(header.getBoundingClientRect().height));
     };
 
     const update = () => {
@@ -633,7 +632,7 @@ export function AptDetailPage({
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-2 opacity-0"
         }`}
-        style={{ top: "var(--site-header-height, 5.5rem)" }}
+        style={{ top: "var(--site-header-height, 0px)" }}
         aria-hidden={!stickyVisible}
         {...(!stickyVisible ? { inert: true } : {})}
       >
@@ -694,7 +693,7 @@ export function AptDetailPage({
       {/* Desktop section nav — underline LAB tabs; scroll only, no page swap */}
       {desktopNav.length > 1 ? (
         <nav
-          className="sticky top-[calc(var(--site-header-height,5.5rem)+0.25rem)] z-30 -mx-1 hidden gap-5 overflow-x-auto border-b border-slate-200/80 bg-[var(--lab-bg)]/95 px-1 backdrop-blur md:flex"
+          className="sticky top-[calc(var(--site-header-height,0px)+0.25rem)] z-30 -mx-1 hidden gap-5 overflow-x-auto border-b border-slate-200/80 bg-[var(--lab-bg)]/95 px-1 backdrop-blur md:flex"
           aria-label="단지 상세 섹션"
         >
           {desktopNav.map((item) => (
