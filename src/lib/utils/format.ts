@@ -44,6 +44,42 @@ export function formatEok(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만`;
 }
 
+/**
+ * Dense list/KPI money — "34억 1,000" (억 + remaining 만원).
+ * Keeps exact 만원 remainder visible without "0,000만원" noise when rest=0.
+ */
+export function formatEokDetail(manwon: number): string {
+  if (!Number.isFinite(manwon) || manwon <= 0) return "—";
+  const eok = Math.floor(manwon / 10000);
+  const rest = Math.round(manwon % 10000);
+  if (eok >= 1) {
+    if (rest === 0) return `${eok}억`;
+    return `${eok}억 ${rest.toLocaleString("ko-KR")}`;
+  }
+  return `${manwon.toLocaleString("ko-KR")}만`;
+}
+
+/**
+ * Archive monthly price cell — one line only.
+ * Preferred: "5억 / 350만" (no line break, no fake jeonse-equivalent).
+ */
+export function formatMonthlyPriceCell(
+  depositManwon: number,
+  monthlyManwon: number,
+): string {
+  const deposit = formatEokDetail(depositManwon);
+  if (!Number.isFinite(monthlyManwon) || monthlyManwon <= 0) return deposit;
+  return `${deposit} / ${Math.round(monthlyManwon).toLocaleString("ko-KR")}만`;
+}
+
+/** Compact KPI monthly-rent amount — 680만원, never 억+만원. */
+export function formatKpiMonthlyRent(manwon: number): string {
+  if (!Number.isFinite(manwon) || manwon <= 0) return "—";
+  if (manwon >= 10000) return formatEok(manwon);
+  return `${manwon.toLocaleString("ko-KR")}만원`;
+}
+
+
 /** 전월세 금액 표기 */
 export function formatRentAmount(deposit: number, monthly: number): string {
   const depositLabel = formatEok(deposit);
