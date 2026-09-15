@@ -11,8 +11,13 @@ import { useQuery } from "@tanstack/react-query";
 import { NaverMap, type NaverMapMarker } from "@/components/map/NaverMap";
 import { LabCard, labSecondaryTabClass } from "@/components/ui/lab";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { geocodeAddressWithNaver } from "@/lib/nearby-map/naver-sdk";
 import type { LatLng } from "@/lib/nearby-map/geo";
+import {
+  resolveComplexMapAnchor,
+  subwayLineColor,
+  type ComplexMapAnchorResult,
+} from "@/lib/nearby-map/complex-map-anchor";
+import { Bus } from "lucide-react";
 
 export type NearbyLifeCategory = "transport" | "living" | "commerce" | "school";
 
@@ -98,25 +103,6 @@ function formatMeters(meters: number): string {
   return `${km < 10 ? km.toFixed(1) : Math.round(km)}km`;
 }
 
-function buildAddressFromIdentity(identity?: {
-  roadAddress?: string | null;
-  sido?: string | null;
-  sigungu?: string | null;
-  legalDongName?: string | null;
-  jibun?: string | null;
-} | null): string | null {
-  const road = identity?.roadAddress?.trim();
-  if (road) return road;
-  const parts = [
-    identity?.sido?.trim(),
-    identity?.sigungu?.trim(),
-    identity?.legalDongName?.trim(),
-    identity?.jibun?.trim(),
-  ].filter(Boolean);
-  if (parts.length >= 4) return parts.join(" ");
-  return null;
-}
-
 async function fetchNearbyLife(
   aptName: string,
   coords: LatLng,
@@ -166,17 +152,15 @@ export function ComplexNearbyLifeSection({
 }) {
   const [tab, setTab] = useState<NearbyLifeCategory>("transport");
   const [coords, setCoords] = useState<LatLng | null>(null);
+  const [mapAnchor, setMapAnchor] = useState<ComplexMapAnchorResult | null>(
+    null,
+  );
   const [geocodeStatus, setGeocodeStatus] = useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
   const [geocodeReason, setGeocodeReason] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
-
-  const seedAddress = useMemo(
-    () => buildAddressFromIdentity(identity),
-    [identity],
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -185,30 +169,26 @@ export function ComplexNearbyLifeSection({
         if (cancelled) return;
         setGeocodeStatus("loading");
 
-        let address = seedAddress;
-        if (!address) {
-          try {
-            const qs = new URLSearchParams({ aptName });
-            const res = await fetch(`/api/complex-nearby-life?${qs}`);
-            if (res.ok) {
-              const json = (await res.json()) as NearbyLifeResponse;
-              address = json.address?.address?.trim() || null;
-            }
-          } catch {
-            /* fail-closed below */
+        let apiAddress: string | null = null;
+        try {
+          const qs = new URLSearchParams({ aptName });
+          const res = await fetch(`/api/complex-nearby-life?${qs}`);
+          if (res.ok) {
+            const json = (await res.json()) as NearbyLifeResponse;
+            apiAddress = json.address?.address?.trim() || null;
           }
+        } catch {
+          /* optional — identity / pilot addresses still tried */
         }
-
         if (cancelled) return;
-        if (!address) {
-          setGeocodeStatus("error");
-          setGeocodeReason("위치 정보를 확인 중입니다");
-          setCoords(null);
-          return;
-        }
 
-        const result = await geocodeAddressWithNaver(address);
+        const result = await resolveComplexMapAnchor({
+          aptName,
+          identity,
+          apiAddress,
+        });
         if (cancelled) return;
+        setMapAnchor(result);
         if (!result.ok) {
           setGeocodeStatus("error");
           setGeocodeReason("위치 정보를 확인 중입니다");
@@ -225,7 +205,7 @@ export function ComplexNearbyLifeSection({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [seedAddress, aptName]);
+  }, [identity, aptName]);
 
   const lifeQuery = useQuery({
     queryKey: [
@@ -282,6 +262,7 @@ export function ComplexNearbyLifeSection({
           title: p.name,
           label: p.name.replace(/역$/, ""),
           badge: subwayLineBadge(p.subcategory || ""),
+          color: subwayLineColor(p.subcategory || ""),
           kind: "TRANSIT" as const,
           selected: selectedId === p.id,
         })),
@@ -290,6 +271,7 @@ export function ComplexNearbyLifeSection({
           position: { lat: p.lat, lng: p.lng },
           title: p.name,
           kind: "OTHER" as const,
+          variant: "bus-stop" as const,
           selected: selectedId === p.id,
         })),
       ];
@@ -423,7 +405,14 @@ export function ComplexNearbyLifeSection({
                       onClick={() => setSelectedId(p.id)}
                       className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
                     >
-                      <span className="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-amber-700 px-1 text-[10px] font-bold text-white">
+                      <span
+                        className="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
+                        style={{
+                          backgroundColor: subwayLineColor(
+                            p.subcategory || "",
+                          ),
+                        }}
+                      >
                         {subwayLineBadge(p.subcategory || "")}
                       </span>
                       <span className="min-w-0 flex-1">
@@ -452,9 +441,12 @@ export function ComplexNearbyLifeSection({
                     <button
                       type="button"
                       onClick={() => setSelectedId(p.id)}
-                      className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
+                      className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
                     >
-                      <span className="min-w-0">
+                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
+                        <Bus className="h-3 w-3" aria-hidden />
+                      </span>
+                      <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium text-slate-800">
                           {p.name}
                         </span>
@@ -614,11 +606,18 @@ export function ComplexNearbyLifeSection({
           <p className="text-[12px] leading-relaxed text-slate-600">
             지도: NAVER Maps
             <br />
-            위치: 단지 주소 기반 NAVER Geocoding
+            단지 위치:{" "}
+            {mapAnchor?.ok && mapAnchor.anchorType === "NAVER_POI"
+              ? "NAVER POI"
+              : "NAVER Geocode"}
+            {mapAnchor &&
+            (!mapAnchor.ok || mapAnchor.poiLookup === "HOLD")
+              ? " (POI HOLD)"
+              : ""}
             <br />
             지하철: 서울교통공사
             <br />
-            버스정류장: 서울특별시 버스정류소 위치정보
+            버스정류장: 서울특별시
             <br />
             거리: 직선거리
             <br />

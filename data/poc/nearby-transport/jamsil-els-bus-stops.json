@@ -1,8 +1,8 @@
 {
   "complexId": "cx_4c63d9a100973c60",
   "complexName": "잠실엘스",
-  "addressUsed": "서울특별시 송파구 잠실동 19",
-  "addressType": "jibun_composed",
+  "addressUsed": "서울특별시 송파구 올림픽로 99",
+  "addressType": "road_pilot_preferred",
   "addressSource": "apt_complex_master.sido+sigungu+legal_dong_name+jibun",
   "centerLat": 37.5133,
   "centerLng": 127.1028,
@@ -11,7 +11,7 @@
     "lng": 127.1028,
     "source": "NAVER_GEOCODE",
     "accuracy": "ADDRESS_POINT",
-    "note": "Seed used only to extract candidate pool. Runtime distances use live NAVER geocode center from client request."
+    "note": "Seed used only to extract candidate pool. Runtime distances use live complexMapAnchor from client (same center for subway+bus)."
   },
   "source": {
     "dataset": "서울시 버스정류소 위치정보",
@@ -1784,6 +1784,9 @@
       "seedDistanceM": 1994
     }
   ],
-  "generatedAt": "2026-09-15T07:52:41.263286+00:00",
-  "note": "Official Seoul bus-stop locations. No routes. Distances recomputed at request time from live complex center."
+  "generatedAt": "2026-09-15T09:02:42.000Z",
+  "note": "Candidate pool from Seoul OA-15067. Distances ALWAYS recomputed from live NAVER map anchor. No TAGO. No VWorld. No coordinate invention.",
+  "anchorType": "NAVER_GEOCODE",
+  "poiLookup": "HOLD",
+  "poiLookupReason": "NAVER Local/Place Search credential not configured (Maps JS key only)"
 }
