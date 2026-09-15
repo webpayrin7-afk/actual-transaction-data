@@ -45,7 +45,14 @@ const KIND_COLOR: Record<NaverMapMarker["kind"], string> = {
 
 function markerIconHtml(kind: NaverMapMarker["kind"], selected: boolean) {
   const color = selected ? "#0f766e" : KIND_COLOR[kind];
-  const size = selected ? 14 : kind === "COMPLEX" ? 12 : 9;
+  // Subway (TRANSIT) outranks bus/other POIs visually.
+  const size = selected
+    ? 14
+    : kind === "COMPLEX"
+      ? 12
+      : kind === "TRANSIT"
+        ? 11
+        : 9;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size * 2}" height="${size * 2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="${color}" stroke="#fff" stroke-width="2"/></svg>`;
   return {
     content: svg,

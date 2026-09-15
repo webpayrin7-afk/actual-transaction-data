@@ -113,7 +113,7 @@ export async function fetchNearbySurroundings(params: {
         key,
         params.signal,
       );
-      let best: SurroundingPlace | null = null;
+      const found: SurroundingPlace[] = [];
       for (const item of items) {
         const lng = Number(item.point?.x);
         const lat = Number(item.point?.y);
@@ -129,29 +129,35 @@ export async function fetchNearbySurroundings(params: {
           .replace(/<[^>]+>/g, "")
           .trim();
         if (!name) continue;
-        if (!best || meters < best.distanceMeters) {
-          best = {
-            category: q.category,
-            name,
-            distanceMeters: Math.round(meters),
-            distanceLabel: formatStraightDistance(meters),
-            lat,
-            lng,
-          };
-        }
+        found.push({
+          category: q.category,
+          name,
+          distanceMeters: Math.round(meters),
+          distanceLabel: formatStraightDistance(meters),
+          lat,
+          lng,
+        });
       }
-      return best;
+      found.sort((a, b) => a.distanceMeters - b.distanceMeters);
+      // Transit: keep a few nearest subway/bus hits; other categories: nearest only.
+      const keep = q.category === "transit" ? 3 : 1;
+      return found.slice(0, keep);
     }),
   );
 
-  // Keep nearest per category (transit may have subway + bus — keep up to 2).
+  // Dedupe by name; transit keeps up to 6 nearest (subway + bus).
   const byCat = new Map<SurroundingCategory, SurroundingPlace[]>();
-  for (const place of settled) {
-    if (!place) continue;
-    const list = byCat.get(place.category) ?? [];
-    list.push(place);
-    list.sort((a, b) => a.distanceMeters - b.distanceMeters);
-    byCat.set(place.category, list.slice(0, place.category === "transit" ? 2 : 1));
+  for (const places of settled) {
+    for (const place of places) {
+      const list = byCat.get(place.category) ?? [];
+      if (list.some((p) => p.name === place.name)) continue;
+      list.push(place);
+      list.sort((a, b) => a.distanceMeters - b.distanceMeters);
+      byCat.set(
+        place.category,
+        list.slice(0, place.category === "transit" ? 6 : 1),
+      );
+    }
   }
 
   const order: SurroundingCategory[] = [

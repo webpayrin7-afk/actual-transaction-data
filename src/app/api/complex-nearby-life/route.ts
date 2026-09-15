@@ -136,10 +136,11 @@ export async function GET(request: NextRequest) {
   try {
     const readiness = vworldReadiness(true);
     if (readiness.status !== "READY") {
-      transportStatus = "ERROR";
-      livingStatus = "ERROR";
-      transportReason = readiness.reason;
-      livingReason = readiness.reason;
+      // Fail-closed for POI only — never expose internal source names in UI copy.
+      transportStatus = "EMPTY";
+      livingStatus = "EMPTY";
+      transportReason = "현재 확인 가능한 주변 교통 정보가 없습니다.";
+      livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
     } else {
       const places = await fetchNearbySurroundings({ coords });
       const toItem = (
@@ -162,9 +163,15 @@ export async function GET(request: NextRequest) {
       transportItems = places
         .filter((p) => p.category === "transit")
         .map((p, i) =>
-          toItem(p, /버스/.test(p.name) ? "버스정류장" : "지하철역", i),
+          toItem(p, /버스|정류/.test(p.name) ? "버스정류장" : "지하철역", i),
         )
-        .filter((x): x is PoiItem => !!x);
+        .filter((x): x is PoiItem => !!x)
+        .sort((a, b) => {
+          const as = a.subcategory === "지하철역" ? 0 : 1;
+          const bs = b.subcategory === "지하철역" ? 0 : 1;
+          if (as !== bs) return as - bs;
+          return a.distanceMeters - b.distanceMeters;
+        });
 
       livingItems = places
         .filter((p) =>
@@ -186,15 +193,19 @@ export async function GET(request: NextRequest) {
       transportStatus = transportItems.length > 0 ? "READY" : "EMPTY";
       livingStatus = livingItems.length > 0 ? "READY" : "EMPTY";
       transportReason =
-        transportStatus === "EMPTY" ? "표시할 교통 시설이 없습니다." : "";
+        transportStatus === "EMPTY"
+          ? "현재 확인 가능한 주변 교통 정보가 없습니다."
+          : "";
       livingReason =
-        livingStatus === "EMPTY" ? "표시할 생활 시설이 없습니다." : "";
+        livingStatus === "EMPTY"
+          ? "현재 확인 가능한 주변 생활 정보가 없습니다."
+          : "";
     }
   } catch {
-    transportStatus = "ERROR";
-    livingStatus = "ERROR";
-    transportReason = "주변 생활 시설을 불러오지 못했습니다.";
-    livingReason = transportReason;
+    transportStatus = "EMPTY";
+    livingStatus = "EMPTY";
+    transportReason = "현재 확인 가능한 주변 교통 정보가 없습니다.";
+    livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
   }
 
   let schoolItems: Array<{
