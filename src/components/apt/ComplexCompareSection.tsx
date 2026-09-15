@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { LabCard } from "@/components/ui/lab";
+import { InfoTip } from "@/components/ui/InfoTip";
 import type {
   AptAreaOption,
   AptDetailResponse,
@@ -101,44 +102,6 @@ async function fetchPeers(params: {
   if (!res.ok) return [];
   const json = (await res.json()) as { peers?: ComparePeerCandidate[] };
   return json.peers ?? [];
-}
-
-function CompareInfoTip() {
-  const ref = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const closeUnlessSummary = (e: PointerEvent) => {
-      if (!el.open) return;
-      const summary = el.querySelector("summary");
-      if (summary?.contains(e.target as Node)) return;
-      el.open = false;
-    };
-
-    document.addEventListener("pointerdown", closeUnlessSummary);
-    return () => document.removeEventListener("pointerdown", closeUnlessSummary);
-  }, []);
-
-  return (
-    // Not `relative`: panel anchors to the section header so it stays in-card.
-    <details ref={ref} className="inline-flex shrink-0 align-middle">
-      <summary
-        className="ml-1 inline-flex cursor-pointer list-none items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
-        aria-label="주변 단지 비교 안내"
-      >
-        <span aria-hidden="true">ⓘ</span>
-      </summary>
-      <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-[min(18rem,100%)] space-y-1 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
-        <p>
-          같은 동·인근 지역에서 전용면적, 준공연도, 최근 거래와 확인 가능한 단지
-          규모를 기준으로 비교 단지를 자동 선정합니다.
-        </p>
-        <p>거리 기반 추천은 아닙니다.</p>
-      </div>
-    </details>
-  );
 }
 
 /** Compact metric×complex matrix — mobile & desktop; no horizontal scroll. */
@@ -361,11 +324,17 @@ export function ComplexCompareSection({
 
   return (
     <LabCard className="p-3.5 sm:p-5">
-      <div className="lab-section-heading relative !mb-0 flex items-start justify-between gap-2">
+      <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h2 className="flex items-center">
             주변 단지 비교
-            <CompareInfoTip />
+            <InfoTip aria-label="주변 단지 비교 안내" className="ml-1">
+              <p>
+                같은 동·인근 지역에서 전용면적, 준공연도, 최근 거래와 확인 가능한
+                단지 규모를 기준으로 비교 단지를 자동 선정합니다.
+              </p>
+              <p>거리 기반 추천은 아닙니다.</p>
+            </InfoTip>
           </h2>
         </div>
         <p className="shrink-0 pt-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">

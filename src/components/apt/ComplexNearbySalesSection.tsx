@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabCard } from "@/components/ui/lab";
+import { InfoTip } from "@/components/ui/InfoTip";
 import type {
   NearbySaleCard,
   NearbySaleStatus,
@@ -112,42 +112,6 @@ function DetailCta({
     >
       {label}
     </a>
-  );
-}
-
-function SourceInfoTip() {
-  const ref = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const closeUnlessSummary = (e: PointerEvent) => {
-      if (!el.open) return;
-      const summary = el.querySelector("summary");
-      if (summary?.contains(e.target as Node)) return;
-      el.open = false;
-    };
-
-    document.addEventListener("pointerdown", closeUnlessSummary);
-    return () => document.removeEventListener("pointerdown", closeUnlessSummary);
-  }, []);
-
-  return (
-    <details ref={ref} className="relative inline-flex shrink-0 align-middle">
-      <summary
-        className="ml-1.5 inline-flex cursor-pointer list-none items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
-        aria-label="주변 공급 출처 안내"
-      >
-        <span aria-hidden="true">ⓘ</span>
-      </summary>
-      <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-72 max-w-[calc(100vw-2.5rem)] space-y-1 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
-        <p>출처: 청약홈 · 한국부동산원</p>
-        <p>지역 기준: 현재 단지가 속한 시군구</p>
-        <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
-        <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
-      </div>
-    </details>
   );
 }
 
@@ -274,7 +238,12 @@ export function ComplexNearbySalesSection({
         <div className="min-w-0">
           <h2 className="flex items-center">
             주변 공급
-            <SourceInfoTip />
+            <InfoTip aria-label="주변 공급 출처 안내" className="ml-1.5 text-[13px]">
+              <p>출처: 청약홈 · 한국부동산원</p>
+              <p>지역 기준: 현재 단지가 속한 시군구</p>
+              <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
+              <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
+            </InfoTip>
           </h2>
           <p>{description}</p>
         </div>

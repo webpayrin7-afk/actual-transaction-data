@@ -10,18 +10,18 @@ import {
 import { INFO_PANEL_CLASS, placeInfoPanel } from "@/components/ui/info-panel";
 
 /**
- * Site-common labeled ⓘ chip tip (region browse / market home).
+ * Site-common icon-only ⓘ tip.
  * Panel is fixed, centered on the trigger, and clamped to the viewport.
  * Closes on outside click, panel body click, or Escape.
  */
-export function InfoChip({
-  label,
+export function InfoTip({
   "aria-label": ariaLabel,
   children,
+  className = "",
 }: {
-  label: string;
-  "aria-label"?: string;
+  "aria-label": string;
   children: ReactNode;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -68,20 +68,17 @@ export function InfoChip({
   }, [open]);
 
   return (
-    <span className="relative inline-flex shrink-0 align-middle">
+    <span className="inline-flex shrink-0 align-middle">
       <button
         ref={buttonRef}
         type="button"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        aria-label={ariaLabel ?? `${label} 안내`}
+        aria-label={ariaLabel}
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex cursor-pointer items-center gap-0.5 whitespace-nowrap rounded-full border border-slate-200/90 bg-slate-50 px-2 py-[3px] text-[11px] font-medium leading-none text-slate-500 transition hover:border-slate-300 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+        className={`inline-flex cursor-pointer items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${className}`.trim()}
       >
-        {label}
-        <span className="text-[10px] font-normal text-slate-400" aria-hidden="true">
-          ⓘ
-        </span>
+        <span aria-hidden="true">ⓘ</span>
       </button>
       {open ? (
         <div
