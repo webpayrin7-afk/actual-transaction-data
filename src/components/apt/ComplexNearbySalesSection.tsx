@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabCard } from "@/components/ui/lab";
 import type {
@@ -115,8 +116,25 @@ function DetailCta({
 }
 
 function SourceInfoTip() {
+  const ref = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const closeUnlessSummary = (e: PointerEvent) => {
+      if (!el.open) return;
+      const summary = el.querySelector("summary");
+      if (summary?.contains(e.target as Node)) return;
+      el.open = false;
+    };
+
+    document.addEventListener("pointerdown", closeUnlessSummary);
+    return () => document.removeEventListener("pointerdown", closeUnlessSummary);
+  }, []);
+
   return (
-    <details className="relative inline-flex shrink-0 align-middle">
+    <details ref={ref} className="relative inline-flex shrink-0 align-middle">
       <summary
         className="ml-1.5 inline-flex cursor-pointer list-none items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
         aria-label="주변 공급 출처 안내"
