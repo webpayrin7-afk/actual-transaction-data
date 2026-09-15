@@ -8,7 +8,7 @@ import type {
   NearbySalesResult,
 } from "@/lib/complex-detail/applyhome-nearby-sales";
 
-const VISIBLE_TYPES = 3;
+const VISIBLE_TYPES = 2;
 
 const FEED_STATUSES = new Set<NearbySaleStatus>([
   "upcoming",
@@ -107,7 +107,7 @@ function DetailCta({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex shrink-0 items-center rounded-md bg-[var(--lab-teal-600)] px-2 py-1 text-[11px] font-semibold leading-none text-white transition hover:bg-[var(--lab-teal-700)]"
+      className="shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)] transition hover:text-[var(--lab-teal-800)]"
     >
       {label}
     </a>
@@ -136,7 +136,9 @@ function SourceInfoTip() {
 function SaleRow({ item }: { item: NearbySaleCard }) {
   const isMoveIn = item.status === "move_in_upcoming";
   const detailHref = item.pblancUrl;
-  const detailLabel = isMoveIn ? "공고 상세 →" : "청약 상세 →";
+  const detailLabel = isMoveIn
+    ? "공고 상세 바로가기 →"
+    : "청약 상세 바로가기 →";
   const priced = !isMoveIn
     ? item.types.filter((t) => t.topAmountLabel).slice(0, VISIBLE_TYPES)
     : [];
@@ -146,16 +148,18 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
 
   return (
     <li className="py-2.5 first:pt-1.5">
-      {/* ROW 1 — name + status pill */}
+      {/* ROW 1 — name; status pill only when not move-in (입주예정 is on date row) */}
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-snug text-slate-900">
           {item.houseName}
         </p>
-        <span
-          className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
-        >
-          {item.statusLabel}
-        </span>
+        {!isMoveIn ? (
+          <span
+            className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
+          >
+            {item.statusLabel}
+          </span>
+        ) : null}
       </div>
 
       {/* ROW 2 — meta + type chips to the right of 세대 */}
