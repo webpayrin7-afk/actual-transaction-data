@@ -39,6 +39,12 @@ const CSV_9 =
 /** Same-name hubs merge only when coordinates are this close (meters). */
 const MERGE_MAX_METERS = 400;
 
+/**
+ * Official CSV sometimes repeats another station’s coordinates for a different
+ * name (e.g. 잠실새내 ≈ 잠실나루). Treat as invalid and repair via line order.
+ */
+const DUPLICATE_COORD_METERS = 30;
+
 let cache: SeoulMetroStation[] | null = null;
 
 function straightDistanceLabel(meters: number): string {
@@ -152,6 +158,125 @@ function readCsvFile(fileName: string): string | null {
   }
 }
 
+/**
+ * When two differently named stations share nearly the same coordinates,
+ * repair only the row that is out of geographic order for its station-code
+ * neighbors on the same line (interpolate prev/next). No name hardcoding.
+ */
+function repairDuplicateCoordinates(
+  stations: SeoulMetroStation[],
+): SeoulMetroStation[] {
+  if (stations.length < 2) return stations;
+
+  // Clusters of differently named stations that share nearly the same point.
+  const clusters: string[][] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < stations.length; i++) {
+    const a = stations[i];
+    if (seen.has(a.sourceId)) continue;
+    const cluster = [a.sourceId];
+    for (let j = i + 1; j < stations.length; j++) {
+      const b = stations[j];
+      if (normalizeMetroStationName(a.name) === normalizeMetroStationName(b.name)) {
+        continue;
+      }
+      if (haversineMeters(a.lat, a.lng, b.lat, b.lng) <= DUPLICATE_COORD_METERS) {
+        cluster.push(b.sourceId);
+      }
+    }
+    if (cluster.length > 1) {
+      for (const id of cluster) seen.add(id);
+      clusters.push(cluster);
+    }
+  }
+  if (clusters.length === 0) return stations;
+
+  const byLine = new Map<string, SeoulMetroStation[]>();
+  for (const s of stations) {
+    const list = byLine.get(s.line) ?? [];
+    list.push(s);
+    byLine.set(s.line, list);
+  }
+  for (const list of byLine.values()) {
+    list.sort(
+      (a, b) =>
+        Number(a.stationCode || 0) - Number(b.stationCode || 0) ||
+        a.name.localeCompare(b.name, "ko"),
+    );
+  }
+
+  const byId = new Map(stations.map((s) => [s.sourceId, s]));
+
+  const neighborsOf = (
+    s: SeoulMetroStation,
+    excludeIds: Set<string>,
+  ): { prev: SeoulMetroStation | null; next: SeoulMetroStation | null } => {
+    const lineStations = byLine.get(s.line) ?? [];
+    const idx = lineStations.findIndex((x) => x.sourceId === s.sourceId);
+    if (idx < 0) return { prev: null, next: null };
+    let prev: SeoulMetroStation | null = null;
+    let next: SeoulMetroStation | null = null;
+    for (let i = idx - 1; i >= 0; i--) {
+      if (!excludeIds.has(lineStations[i].sourceId)) {
+        prev = lineStations[i];
+        break;
+      }
+    }
+    for (let i = idx + 1; i < lineStations.length; i++) {
+      if (!excludeIds.has(lineStations[i].sourceId)) {
+        next = lineStations[i];
+        break;
+      }
+    }
+    return { prev, next };
+  };
+
+  const orderError = (s: SeoulMetroStation, excludeIds: Set<string>): number => {
+    const { prev, next } = neighborsOf(s, excludeIds);
+    if (!prev || !next) return Number.POSITIVE_INFINITY;
+    const expLat = (prev.lat + next.lat) / 2;
+    const expLng = (prev.lng + next.lng) / 2;
+    return haversineMeters(s.lat, s.lng, expLat, expLng);
+  };
+
+  const repairIds = new Set<string>();
+  for (const cluster of clusters) {
+    const exclude = new Set(cluster);
+    let keepId = cluster[0];
+    let best = Number.POSITIVE_INFINITY;
+    for (const id of cluster) {
+      const s = byId.get(id);
+      if (!s) continue;
+      const err = orderError(s, exclude);
+      if (err < best) {
+        best = err;
+        keepId = id;
+      }
+    }
+    for (const id of cluster) {
+      if (id !== keepId) repairIds.add(id);
+    }
+  }
+
+  return stations.map((s) => {
+    if (!repairIds.has(s.sourceId)) return s;
+    const exclude = new Set<string>([...repairIds, s.sourceId]);
+    // Also exclude other members of s's cluster so neighbors are clean.
+    for (const cluster of clusters) {
+      if (cluster.includes(s.sourceId)) {
+        for (const id of cluster) exclude.add(id);
+      }
+    }
+    const { prev, next } = neighborsOf(s, exclude);
+    if (!prev || !next) return s;
+    return {
+      ...s,
+      lat: (prev.lat + next.lat) / 2,
+      lng: (prev.lng + next.lng) / 2,
+    };
+  });
+}
+
 export function loadSeoulMetroStations(): SeoulMetroStation[] {
   if (cache) return cache;
   const out: SeoulMetroStation[] = [];
@@ -159,7 +284,7 @@ export function loadSeoulMetroStations(): SeoulMetroStation[] {
   if (t18) out.push(...parseCsv1to8(t18));
   const t9 = readCsvFile(CSV_9);
   if (t9) out.push(...parseCsvLine9(t9));
-  cache = out;
+  cache = repairDuplicateCoordinates(out);
   return cache;
 }
 
