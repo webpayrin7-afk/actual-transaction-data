@@ -1,16 +1,20 @@
 /**
- * Nearby APT 분양 announcements by 시군구 (청약홈 Applyhome OpenAPI).
+ * Nearby APT + officetel supply by 시군구 (청약홈 Applyhome OpenAPI).
  * Server-only. No DB writes. Daily fetch cache via next.revalidate.
  */
 
 import { formatEok } from "@/lib/utils/format";
 
-const DETAIL_BASE =
+const APT_DETAIL_BASE =
   "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail";
-const MODEL_BASE =
+const APT_MODEL_BASE =
   "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancMdl";
-const CMPET_BASE =
+const APT_CMPET_BASE =
   "https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet";
+const OFFICETEL_DETAIL_BASE =
+  "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getUrbtyOfctlLttotPblancDetail";
+const OFFICETEL_MODEL_BASE =
+  "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getUrbtyOfctlLttotPblancMdl";
 
 const DAILY_REVALIDATE = 86_400;
 const MAX_TYPES = 3;
@@ -23,17 +27,23 @@ export type NearbySaleStatus =
   | "receipt_closed"
   | "winner_announced"
   | "contracting"
+  | "move_in_upcoming"
   | "completed";
+
+export type NearbyHousingCategory = "apartment" | "officetel";
+export type NearbySaleSource = "applyhome:apt" | "applyhome:officetel";
 
 export type NearbySaleTypeCard = {
   modelNo: string;
   label: string;
-  topAmountManwon: number;
-  topAmountLabel: string;
+  topAmountManwon: number | null;
+  topAmountLabel: string | null;
 };
 
 export type NearbySaleCard = {
   id: string;
+  source: NearbySaleSource;
+  housingCategory: NearbyHousingCategory;
   houseManageNo: string;
   pblancNo: string;
   houseName: string;
@@ -41,7 +51,8 @@ export type NearbySaleCard = {
   statusLabel: string;
   scheduleLabel: string | null;
   regionLabel: string;
-  supplyHouseholds: number | null;
+  supplyCount: number | null;
+  supplyCountLabel: string | null;
   moveInYm: string | null;
   moveInLabel: string | null;
   types: NearbySaleTypeCard[];
@@ -93,6 +104,7 @@ type ModelRow = {
   PBLANC_NO?: string | number;
   MODEL_NO?: string | number;
   HOUSE_TY?: string;
+  TP?: string;
   SUPLY_HSHLDCO?: string | number;
   LTTOT_TOP_AMOUNT?: string | number;
 };
@@ -112,6 +124,7 @@ const STATUS_LABEL: Record<NearbySaleStatus, string> = {
   receipt_closed: "접수 종료",
   winner_announced: "당첨자 발표",
   contracting: "계약 진행",
+  move_in_upcoming: "입주 예정",
   completed: "분양 완료",
 };
 
@@ -121,7 +134,8 @@ const STATUS_ORDER: Record<NearbySaleStatus, number> = {
   receipt_closed: 2,
   winner_announced: 3,
   contracting: 4,
-  completed: 5,
+  move_in_upcoming: 5,
+  completed: 6,
 };
 
 function serviceKey(): string | null {
@@ -168,12 +182,29 @@ function todayUtc(): Date {
   );
 }
 
-
 function formatMoveInYm(ym: string | null): string | null {
   if (!ym) return null;
   const s = ym.replace(/[^0-9]/g, "");
   if (s.length < 6) return null;
   return `${s.slice(0, 4)}.${s.slice(4, 6)}`;
+}
+
+function currentYm(today: Date): string {
+  const y = today.getUTCFullYear();
+  const m = String(today.getUTCMonth() + 1).padStart(2, "0");
+  return `${y}${m}`;
+}
+
+function normalizeYm(ym: string | null | undefined): string | null {
+  if (!ym) return null;
+  const s = ym.replace(/[^0-9]/g, "");
+  return s.length >= 6 ? s.slice(0, 6) : null;
+}
+
+function isFutureMoveIn(ym: string | null, today: Date): boolean {
+  const n = normalizeYm(ym);
+  if (!n) return false;
+  return n >= currentYm(today);
 }
 
 /** "059.8151B" → "59B" */
@@ -291,24 +322,40 @@ async function odcloudGet<T>(
   return all;
 }
 
-function pickTypes(models: ModelRow[]): NearbySaleTypeCard[] {
+function pickTypes(
+  models: ModelRow[],
+  opts: { requirePrice: boolean },
+): NearbySaleTypeCard[] {
   const enriched: Array<NearbySaleTypeCard & { supply: number }> = [];
   for (const m of models) {
-    const top = num(m.LTTOT_TOP_AMOUNT);
-    const label = formatHouseTypeLabel(str(m.HOUSE_TY));
+    const labelRaw = str(m.HOUSE_TY) || str(m.TP);
+    const label = formatHouseTypeLabel(labelRaw);
     const modelNo = str(m.MODEL_NO);
     const supply = num(m.SUPLY_HSHLDCO) ?? 0;
-    if (!label || top == null || top <= 0) continue;
-    enriched.push({
-      modelNo,
-      label,
-      topAmountManwon: top,
-      topAmountLabel: formatEok(top),
-      supply,
-    });
+    if (!label) continue;
+    const top = num(m.LTTOT_TOP_AMOUNT);
+    if (opts.requirePrice) {
+      if (top == null || top <= 0) continue;
+      enriched.push({
+        modelNo,
+        label,
+        topAmountManwon: top,
+        topAmountLabel: formatEok(top),
+        supply,
+      });
+    } else {
+      enriched.push({
+        modelNo,
+        label,
+        topAmountManwon: null,
+        topAmountLabel: null,
+        supply,
+      });
+    }
   }
   enriched.sort(
-    (a, b) => b.supply - a.supply || b.topAmountManwon - a.topAmountManwon,
+    (a, b) =>
+      b.supply - a.supply || (b.topAmountManwon ?? 0) - (a.topAmountManwon ?? 0),
   );
   return enriched.slice(0, MAX_TYPES).map(({ supply: _s, ...rest }) => rest);
 }
@@ -364,42 +411,65 @@ async function buildCard(
   row: DetailRow,
   sigungu: string,
   today: Date,
+  kind: NearbyHousingCategory,
 ): Promise<NearbySaleCard | null> {
   const houseManageNo = str(row.HOUSE_MANAGE_NO);
   const pblancNo = str(row.PBLANC_NO);
   const houseName = str(row.HOUSE_NM);
   if (!houseManageNo || !pblancNo || !houseName) return null;
 
-  const status = classifyStatus(row, today);
-  if (status === "completed") return null;
+  const source: NearbySaleSource =
+    kind === "officetel" ? "applyhome:officetel" : "applyhome:apt";
+  const modelBase =
+    kind === "officetel" ? OFFICETEL_MODEL_BASE : APT_MODEL_BASE;
 
+  const moveInYm = str(row.MVN_PREARNGE_YM) || null;
+  let status = classifyStatus(row, today);
+  if (status === "completed") {
+    if (!isFutureMoveIn(moveInYm, today)) return null;
+    status = "move_in_upcoming";
+  }
+
+  const isMoveIn = status === "move_in_upcoming";
+  const skipCmpet = isMoveIn || kind === "officetel";
   const [models, cmpet] = await Promise.all([
-    odcloudGet<ModelRow>(MODEL_BASE, {
+    odcloudGet<ModelRow>(modelBase, {
       "cond[HOUSE_MANAGE_NO::EQ]": houseManageNo,
       "cond[PBLANC_NO::EQ]": pblancNo,
     }),
-    odcloudGet<CmpetRow>(CMPET_BASE, {
-      "cond[HOUSE_MANAGE_NO::EQ]": houseManageNo,
-      "cond[PBLANC_NO::EQ]": pblancNo,
-    }).catch(() => [] as CmpetRow[]),
+    skipCmpet
+      ? Promise.resolve([] as CmpetRow[])
+      : odcloudGet<CmpetRow>(APT_CMPET_BASE, {
+          "cond[HOUSE_MANAGE_NO::EQ]": houseManageNo,
+          "cond[PBLANC_NO::EQ]": pblancNo,
+        }).catch(() => [] as CmpetRow[]),
   ]);
 
-  const moveInYm = str(row.MVN_PREARNGE_YM) || null;
+  const supplyCount = num(row.TOT_SUPLY_HSHLDCO);
+  const supplyCountLabel =
+    supplyCount == null
+      ? null
+      : kind === "officetel"
+        ? `${supplyCount.toLocaleString("ko-KR")}실`
+        : `${supplyCount.toLocaleString("ko-KR")}세대`;
 
   return {
-    id: `${houseManageNo}:${pblancNo}`,
+    id: `${source}:${houseManageNo}:${pblancNo}`,
+    source,
+    housingCategory: kind,
     houseManageNo,
     pblancNo,
     houseName,
     status,
     statusLabel: STATUS_LABEL[status],
-    scheduleLabel: scheduleLabelFor(status, row),
+    scheduleLabel: isMoveIn ? null : scheduleLabelFor(status, row),
     regionLabel: regionLabel(row, sigungu),
-    supplyHouseholds: num(row.TOT_SUPLY_HSHLDCO),
+    supplyCount,
+    supplyCountLabel,
     moveInYm,
     moveInLabel: formatMoveInYm(moveInYm),
-    types: pickTypes(models),
-    competition: pickCompetition(cmpet),
+    types: pickTypes(models, { requirePrice: kind === "apartment" }),
+    competition: skipCmpet ? null : pickCompetition(cmpet),
     pblancUrl: str(row.PBLANC_URL) || null,
     rcritPblancDe: str(row.RCRIT_PBLANC_DE) || null,
   };
@@ -416,7 +486,7 @@ export async function fetchNearbySalesBySigungu(
   if (!sigungu) {
     return {
       status: "NO_SIGUNGU",
-      reason: "단지 시군구 정보가 없어 주변 분양을 조회할 수 없습니다.",
+      reason: "단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.",
       sigungu: null,
       items: [],
       attribution,
@@ -426,7 +496,7 @@ export async function fetchNearbySalesBySigungu(
   if (!serviceKey()) {
     return {
       status: "NO_API_KEY",
-      reason: "공공데이터 API 키가 없어 주변 분양 조회를 건너뜁니다.",
+      reason: "공공데이터 API 키가 없어 주변 공급 조회를 건너뜁니다.",
       sigungu,
       items: [],
       attribution,
@@ -437,30 +507,55 @@ export async function fetchNearbySalesBySigungu(
   try {
     const today = todayUtc();
 
-    const details = await odcloudGet<DetailRow>(DETAIL_BASE, {
-      "cond[HSSPLY_ADRES::LIKE]": sigungu,
-    });
+    const [aptDetails, officetelDetails] = await Promise.all([
+      odcloudGet<DetailRow>(APT_DETAIL_BASE, {
+        "cond[HSSPLY_ADRES::LIKE]": sigungu,
+      }),
+      odcloudGet<DetailRow>(OFFICETEL_DETAIL_BASE, {
+        "cond[HSSPLY_ADRES::LIKE]": sigungu,
+      }).catch((err) => {
+        console.error(
+          "[nearby-sales:officetel]",
+          err instanceof Error ? err.message : "error",
+        );
+        return [] as DetailRow[];
+      }),
+    ]);
 
     const cards = (
-      await Promise.all(
-        details.map((row) => buildCard(row, sigungu, today)),
-      )
+      await Promise.all([
+        ...aptDetails.map((row) => buildCard(row, sigungu, today, "apartment")),
+        ...officetelDetails.map((row) =>
+          buildCard(row, sigungu, today, "officetel"),
+        ),
+      ])
     ).filter(Boolean) as NearbySaleCard[];
 
-    cards.sort((a, b) => {
+    const deduped: NearbySaleCard[] = [];
+    const seen = new Set<string>();
+    for (const card of cards) {
+      if (seen.has(card.id)) continue;
+      seen.add(card.id);
+      deduped.push(card);
+    }
+
+    deduped.sort((a, b) => {
       const so = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
       if (so !== 0) return so;
+      if (a.status === "move_in_upcoming" && b.status === "move_in_upcoming") {
+        return str(a.moveInYm).localeCompare(str(b.moveInYm));
+      }
       return str(b.rcritPblancDe).localeCompare(str(a.rcritPblancDe));
     });
 
     return {
-      status: cards.length > 0 ? "READY" : "EMPTY",
+      status: deduped.length > 0 ? "READY" : "EMPTY",
       reason:
-        cards.length > 0
+        deduped.length > 0
           ? ""
-          : `현재 ${sigungu}에 진행 중이거나 예정된 APT 분양·청약 정보가 없습니다.`,
+          : `현재 ${sigungu}에 확인된 청약·입주예정 주택이 없습니다.`,
       sigungu,
-      items: cards,
+      items: deduped,
       attribution,
       notice,
     };
@@ -471,7 +566,7 @@ export async function fetchNearbySalesBySigungu(
     );
     return {
       status: "ERROR",
-      reason: "주변 분양 정보를 불러오지 못했습니다.",
+      reason: "주변 공급 정보를 불러오지 못했습니다.",
       sigungu,
       items: [],
       attribution,

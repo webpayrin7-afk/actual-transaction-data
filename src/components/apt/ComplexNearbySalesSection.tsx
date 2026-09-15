@@ -11,12 +11,13 @@ import type {
 
 const COLLAPSED_TYPES = 2;
 
-const ACTIVE_STATUSES = new Set<NearbySaleStatus>([
+const FEED_STATUSES = new Set<NearbySaleStatus>([
   "upcoming",
   "open",
   "receipt_closed",
   "winner_announced",
   "contracting",
+  "move_in_upcoming",
 ]);
 
 async function loadNearbySales(sigungu: string): Promise<NearbySalesResult> {
@@ -25,7 +26,7 @@ async function loadNearbySales(sigungu: string): Promise<NearbySalesResult> {
   if (!res.ok) {
     return {
       status: "ERROR",
-      reason: "주변 분양 정보를 불러오지 못했습니다.",
+      reason: "주변 공급 정보를 불러오지 못했습니다.",
       sigungu,
       items: [],
       attribution: "출처: 청약홈 · 한국부동산원",
@@ -39,11 +40,16 @@ function statusPillClass(status: NearbySaleStatus): string {
   if (status === "upcoming" || status === "open") {
     return "bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]";
   }
+  if (status === "move_in_upcoming") {
+    return "bg-[var(--lab-teal-50)]/70 text-[var(--lab-teal-700)]/80";
+  }
   return "bg-slate-100 text-slate-600";
 }
 
 function SaleRow({ item }: { item: NearbySaleCard }) {
   const [expanded, setExpanded] = useState(false);
+  const isMoveIn = item.status === "move_in_upcoming";
+  const isOfficetel = item.housingCategory === "officetel";
   const visibleTypes = expanded
     ? item.types
     : item.types.slice(0, COLLAPSED_TYPES);
@@ -63,23 +69,29 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
       </div>
 
       <p className="mt-1 text-[11px] leading-snug text-slate-500">
+        {isOfficetel ? "오피스텔 · " : null}
         {item.regionLabel || "—"}
       </p>
       <p className="mt-0.5 text-[11px] leading-snug text-slate-500">
-        공급{" "}
-        {item.supplyHouseholds != null
-          ? `${item.supplyHouseholds.toLocaleString("ko-KR")}세대`
-          : "—"}
-        {item.moveInLabel ? ` · 입주예정 ${item.moveInLabel}` : null}
+        공급 {item.supplyCountLabel ?? "—"}
+        {!isMoveIn && item.moveInLabel
+          ? ` · 입주예정 ${item.moveInLabel}`
+          : null}
       </p>
 
-      {item.scheduleLabel ? (
+      {isMoveIn && item.moveInLabel ? (
+        <p className="mt-1.5 text-[12px] font-medium tabular-nums text-slate-800">
+          {item.moveInLabel} 입주예정
+        </p>
+      ) : null}
+
+      {!isMoveIn && item.scheduleLabel ? (
         <p className="mt-1.5 text-[12px] font-medium tabular-nums text-slate-800">
           {item.scheduleLabel}
         </p>
       ) : null}
 
-      {item.competition ? (
+      {!isMoveIn && item.competition ? (
         <p className="mt-1 text-[11px] leading-snug text-slate-600">
           {item.competition.label}
         </p>
@@ -95,9 +107,11 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
               <span className="font-medium tabular-nums text-slate-800">
                 {t.label}
               </span>
-              <span className="tabular-nums text-slate-600">
-                최고 {t.topAmountLabel}
-              </span>
+              {!isMoveIn && t.topAmountLabel ? (
+                <span className="tabular-nums text-slate-600">
+                  최고 {t.topAmountLabel}
+                </span>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -122,7 +136,7 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
             rel="noopener noreferrer"
             className="shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)]"
           >
-            청약 상세 →
+            {isMoveIn ? "공고 상세 →" : "청약 상세 →"}
           </a>
         ) : null}
       </div>
@@ -130,7 +144,7 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
   );
 }
 
-/** Inline 주변 분양 — sigungu only; no map/coords. Compact list. */
+/** Inline 주변 공급 — sigungu only; no map/coords. Compact list. */
 export function ComplexNearbySalesSection({
   aptName,
   sigungu,
@@ -140,7 +154,7 @@ export function ComplexNearbySalesSection({
 }) {
   const key = sigungu?.trim() || "";
   const q = useQuery({
-    queryKey: ["complex-nearby-sales", key, "active-only"],
+    queryKey: ["complex-nearby-supply", key, "apt+officetel"],
     queryFn: () => loadNearbySales(key),
     enabled: key.length > 0,
     staleTime: 60 * 60 * 1000,
@@ -152,35 +166,38 @@ export function ComplexNearbySalesSection({
     : `${aptName} 주변`;
 
   const items = (q.data?.items ?? []).filter((item) =>
-    ACTIVE_STATUSES.has(item.status),
+    FEED_STATUSES.has(item.status),
   );
   const ready = q.data?.status === "READY" && items.length > 0;
   const emptyReason =
     q.data?.reason ||
     (key
-      ? `현재 ${key}에 진행 중이거나 예정된 APT 분양·청약 정보가 없습니다.`
-      : "표시할 분양 공고가 없습니다.");
+      ? `현재 ${key}에 확인된 청약·입주예정 주택이 없습니다.`
+      : "표시할 공급 정보가 없습니다.");
 
   return (
     <LabCard className="p-4 sm:p-5">
       <div>
         <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">
-          주변 분양
+          주변 공급
         </h2>
         <p className="mt-0.5 text-[11px] leading-snug text-slate-400">
           {description}
+        </p>
+        <p className="mt-0.5 text-[10px] leading-snug text-slate-400">
+          청약 및 입주예정 주택
         </p>
       </div>
 
       {!key ? (
         <p className="mt-2 text-[12px] leading-snug text-slate-500">
-          단지 시군구 정보가 없어 주변 분양을 조회할 수 없습니다.
+          단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.
         </p>
       ) : null}
 
       {key && q.isLoading ? (
         <p className="mt-2 text-[12px] text-slate-500">
-          주변 분양 정보를 불러오는 중…
+          주변 공급 정보를 불러오는 중…
         </p>
       ) : null}
 

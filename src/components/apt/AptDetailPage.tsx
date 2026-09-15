@@ -561,7 +561,7 @@ export function AptDetailPage({
       show: hasComplexInfoSection(complexDetail),
     },
     { id: "schools", label: "학군 · 주변", show: true },
-    { id: "nearby-sales", label: "주변 분양", show: true },
+    { id: "nearby-sales", label: "주변 공급", show: true },
     { id: "comparison", label: "단지 비교", show: true },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
