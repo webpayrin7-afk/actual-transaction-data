@@ -107,7 +107,7 @@ function DetailCta({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)] transition hover:text-[var(--lab-teal-800)]"
+      className="shrink-0 text-[11px] font-medium !text-teal-700 transition hover:!text-teal-800"
     >
       {label}
     </a>
@@ -136,7 +136,7 @@ function SourceInfoTip() {
 function SaleRow({ item }: { item: NearbySaleCard }) {
   const isMoveIn = item.status === "move_in_upcoming";
   const detailHref = item.pblancUrl;
-  const detailLabel = isMoveIn ? "공고상세 가기" : "청약상세 가기";
+  const detailLabel = isMoveIn ? "공고상세 가기 →" : "청약상세 가기 →";
   const priced = !isMoveIn
     ? item.types.filter((t) => t.topAmountLabel).slice(0, VISIBLE_TYPES)
     : [];
@@ -202,18 +202,11 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
         </ul>
       ) : null}
 
-      {/* ROW 3 — move-in date + 입주예정 below; teal text CTA */}
+      {/* ROW 3 — move-in date + 입주예정 (same type size) + teal text CTA */}
       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
         {isMoveIn && item.moveInLabel ? (
-          <span className="inline-flex items-center gap-1.5">
-            <span className="text-[12px] font-semibold tabular-nums text-slate-800">
-              {item.moveInLabel}
-            </span>
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
-            >
-              입주 예정
-            </span>
+          <span className="text-[12px] font-semibold leading-snug tabular-nums text-slate-800">
+            {item.moveInLabel} 입주예정
           </span>
         ) : null}
         {detailHref ? (
