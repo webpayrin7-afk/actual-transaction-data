@@ -1,11 +1,15 @@
 {
   "complex": {
     "name": "잠실엘스",
+    "addressUsed": "서울특별시 송파구 잠실동 19",
+    "addressType": "jibun_composed",
+    "addressSource": "apt_complex_master.sido+sigungu+legal_dong_name+jibun",
     "center": {
       "lat": 37.5133,
       "lng": 127.1028,
       "source": "NAVER_GEOCODE",
-      "accuracy": "ADDRESS_POINT"
+      "accuracy": "ADDRESS_POINT",
+      "note": "Prior pilot / seed center for documentation. Production distances always recompute from live client NAVER geocode of canonical master address. No hardcoded production fallback."
     }
   },
   "sources": {
@@ -28,6 +32,7 @@
       "rowsParsed": 11236,
       "validCoordinates": 11236,
       "nearbyWithin700m": 36,
+      "within500m": 25,
       "routeMetadataAvailable": false,
       "artifact": "data/poc/nearby-transport/jamsil-els-bus-stops.json"
     }
@@ -156,6 +161,6 @@
     "subway": 1500,
     "bus": 700
   },
-  "generatedAt": "2026-09-15T07:33:24.615707+00:00",
-  "note": "Subway: Seoul Metro CSV. Bus: Seoul official bus-stop location file pilot (OA-15067). TAGO not used for Seoul. No VWorld. No routes invented."
+  "generatedAt": "2026-09-15T08:00:00.000Z",
+  "note": "Subway: Seoul Metro CSV (runtime). Bus: Seoul official bus-stop file pilot OA-15067 (runtime distance from live center). TAGO not used for Seoul. No VWorld on transport. No routes invented."
 }

@@ -1,11 +1,14 @@
 /**
- * 잠실엘스 — Seoul official bus-stop pilot artifact loader.
+ * 잠실엘스 — Seoul official bus-stop pilot loader.
  * Source: 서울 열린데이터광장 OA-15067 서울시 버스정류소 위치정보
- * Seoul active path: official file extract only (no TAGO). No VWorld. No routes invented.
+ *
+ * Candidate pool is pre-extracted; distances are ALWAYS recomputed from the
+ * request complex center (live NAVER geocode). No TAGO. No VWorld. No routes.
  */
 
 import { readFileSync } from "fs";
 import path from "path";
+import { haversineMeters, type LatLng } from "@/lib/complex-detail/geo";
 
 export const SEOUL_BUS_STOP_SOURCE = "SEOUL_BUS_STOP_OFFICIAL" as const;
 
@@ -16,13 +19,14 @@ export type SeoulBusStopPilotRow = {
   lat: number;
   lng: number;
   stopType?: string | null;
-  distanceM: number;
   source: typeof SEOUL_BUS_STOP_SOURCE;
+  seedDistanceM?: number;
 };
 
 export type SeoulBusStopPilotArtifact = {
   complexId: string;
   complexName: string;
+  addressUsed?: string;
   center: {
     lat: number;
     lng: number;
@@ -37,11 +41,15 @@ export type SeoulBusStopPilotArtifact = {
     file: string;
     fileDate: string;
     format: string;
+    sourceVersion?: string;
   };
   stats: {
     rowsParsed: number;
     validCoordinates: number;
-    nearbyWithin700m: number;
+    candidatePoolWithin2000m?: number;
+    seedWithin700m?: number;
+    seedWithin500m?: number;
+    nearbyWithin700m?: number;
   };
   radiusM: number;
   busStops: SeoulBusStopPilotRow[];
@@ -54,6 +62,8 @@ const ARTIFACT = path.join(
   "nearby-transport",
   "jamsil-els-bus-stops.json",
 );
+
+const DEFAULT_RADIUS_M = 700;
 
 let cache: SeoulBusStopPilotArtifact | null | undefined;
 
@@ -75,8 +85,14 @@ function straightDistanceLabel(meters: number): string {
   return `직선거리 ${km < 10 ? km.toFixed(1) : Math.round(km)}km`;
 }
 
-/** Nearest Seoul official bus stops from the 잠실엘스 pilot artifact. */
-export function nearestJamsilElsSeoulBusStops(opts?: { limit?: number }): {
+/**
+ * Nearby Seoul official bus stops relative to the live complex center.
+ * Distances are recomputed from `center` — not seed distances in the artifact.
+ */
+export function nearestJamsilElsSeoulBusStops(
+  center: LatLng,
+  opts?: { limit?: number; maxMeters?: number },
+): {
   status: "PASS" | "HOLD";
   reason: string | null;
   items: Array<{
@@ -90,10 +106,12 @@ export function nearestJamsilElsSeoulBusStops(opts?: { limit?: number }): {
     source: typeof SEOUL_BUS_STOP_SOURCE;
   }>;
   meta: SeoulBusStopPilotArtifact["source"] | null;
+  addressUsed: string | null;
   rowsParsed: number;
   validCoordinates: number;
   nearbyCount: number;
   within500m: number;
+  centerUsed: LatLng;
 } {
   const pilot = loadJamsilElsSeoulBusStopPilot();
   if (!pilot?.busStops?.length) {
@@ -102,39 +120,52 @@ export function nearestJamsilElsSeoulBusStops(opts?: { limit?: number }): {
       reason: "Seoul official bus-stop pilot artifact missing or empty",
       items: [],
       meta: pilot?.source ?? null,
+      addressUsed: pilot?.addressUsed ?? null,
       rowsParsed: pilot?.stats?.rowsParsed ?? 0,
       validCoordinates: pilot?.stats?.validCoordinates ?? 0,
       nearbyCount: 0,
       within500m: 0,
+      centerUsed: center,
     };
   }
 
   const limit = opts?.limit ?? 3;
-  const items = pilot.busStops
-    .slice()
-    .sort((a, b) => a.distanceM - b.distanceM)
-    .slice(0, limit)
-    .map((b) => ({
-      id: b.id,
-      name: b.name,
-      arsNo: b.arsNo ?? null,
-      lat: b.lat,
-      lng: b.lng,
-      distanceMeters: b.distanceM,
-      distanceLabel: straightDistanceLabel(b.distanceM),
-      source: SEOUL_BUS_STOP_SOURCE,
-    }));
+  const maxMeters = opts?.maxMeters ?? pilot.radiusM ?? DEFAULT_RADIUS_M;
 
-  const within500m = pilot.busStops.filter((b) => b.distanceM <= 500).length;
+  const ranked = pilot.busStops
+    .map((b) => {
+      const distanceMeters = Math.round(
+        haversineMeters(center.lat, center.lng, b.lat, b.lng),
+      );
+      return {
+        id: b.id,
+        name: b.name,
+        arsNo: b.arsNo ?? null,
+        lat: b.lat,
+        lng: b.lng,
+        distanceMeters,
+        distanceLabel: straightDistanceLabel(distanceMeters),
+        source: SEOUL_BUS_STOP_SOURCE,
+      };
+    })
+    .filter((b) => b.distanceMeters <= maxMeters)
+    .sort((a, b) => a.distanceMeters - b.distanceMeters);
+
+  const within500m = ranked.filter((b) => b.distanceMeters <= 500).length;
+  const items = ranked.slice(0, limit);
 
   return {
     status: items.length ? "PASS" : "HOLD",
-    reason: null,
+    reason: items.length
+      ? null
+      : `No Seoul bus stops within ${maxMeters}m of live complex center`,
     items,
     meta: pilot.source,
+    addressUsed: pilot.addressUsed ?? null,
     rowsParsed: pilot.stats.rowsParsed,
     validCoordinates: pilot.stats.validCoordinates,
-    nearbyCount: pilot.stats.nearbyWithin700m,
+    nearbyCount: ranked.length,
     within500m,
+    centerUsed: center,
   };
 }

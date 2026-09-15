@@ -75,13 +75,20 @@ const LEVEL_LABEL: Record<string, string> = {
 };
 
 const LIST_LIMIT = 5;
-const TRANSPORT_LIST_LIMIT = 5;
-const TRANSPORT_MARKER_LIMIT = 6;
+const TRANSPORT_SUBWAY_LIST_LIMIT = 4;
+const TRANSPORT_BUS_LIST_LIMIT = 5;
+/** Bus map markers only — subway markers always mirror list. */
+const TRANSPORT_BUS_MARKER_LIMIT = 6;
 
 function isSubwayPoi(p: { name: string; subcategory: string }): boolean {
   const s = `${p.subcategory} ${p.name}`;
-  if (/버스|정류/.test(s)) return false;
+  if (/버스|정류|ARS/.test(s)) return false;
   return /지하철|전철|\d호선|역/.test(s);
+}
+
+function subwayLineBadge(subcategory: string): string {
+  const m = subcategory.match(/(\d+)\s*호선/);
+  return m ? m[1] : subcategory.replace(/호선$/, "").slice(0, 2) || "역";
 }
 
 function formatMeters(meters: number): string {
@@ -246,6 +253,7 @@ export function ComplexNearbyLifeSection({
             id: "complex",
             position: coords,
             title: aptName,
+            label: aptName,
             kind: "COMPLEX",
             selected: selectedId === "complex",
           }
@@ -257,23 +265,34 @@ export function ComplexNearbyLifeSection({
     const data = lifeQuery.data;
     if (!data || !coords) return [];
     if (tab === "transport") {
-      const ranked = [...data.transport.items]
-        .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
-        .sort((a, b) => {
-          const as = isSubwayPoi(a) ? 0 : 1;
-          const bs = isSubwayPoi(b) ? 0 : 1;
-          if (as !== bs) return as - bs;
-          return a.distanceMeters - b.distanceMeters;
-        })
-        .slice(0, TRANSPORT_MARKER_LIMIT);
-      return ranked.map((p) => ({
-        id: p.id,
-        position: { lat: p.lat, lng: p.lng },
-        title: p.name,
-        // Subway markers use TRANSIT (larger); bus uses OTHER.
-        kind: (isSubwayPoi(p) ? "TRANSIT" : "OTHER") as NaverMapMarker["kind"],
-        selected: selectedId === p.id,
-      }));
+      const withCoords = data.transport.items.filter(
+        (p) => Number.isFinite(p.lat) && Number.isFinite(p.lng),
+      );
+      const subways = withCoords
+        .filter(isSubwayPoi)
+        .sort((a, b) => a.distanceMeters - b.distanceMeters);
+      const buses = withCoords
+        .filter((p) => !isSubwayPoi(p))
+        .sort((a, b) => a.distanceMeters - b.distanceMeters)
+        .slice(0, TRANSPORT_BUS_MARKER_LIMIT);
+      return [
+        ...subways.map((p) => ({
+          id: p.id,
+          position: { lat: p.lat, lng: p.lng },
+          title: p.name,
+          label: p.name.replace(/역$/, ""),
+          badge: subwayLineBadge(p.subcategory || ""),
+          kind: "TRANSIT" as const,
+          selected: selectedId === p.id,
+        })),
+        ...buses.map((p) => ({
+          id: p.id,
+          position: { lat: p.lat, lng: p.lng },
+          title: p.name,
+          kind: "OTHER" as const,
+          selected: selectedId === p.id,
+        })),
+      ];
     }
     if (tab === "living") {
       return data.living.items
@@ -376,49 +395,84 @@ export function ComplexNearbyLifeSection({
           </EmptyBlock>
         );
       }
-      const ranked = [...data.transport.items].sort((a, b) => {
-        const as = isSubwayPoi(a) ? 0 : 1;
-        const bs = isSubwayPoi(b) ? 0 : 1;
-        if (as !== bs) return as - bs;
-        return a.distanceMeters - b.distanceMeters;
-      });
-      const items = expanded
-        ? ranked
-        : ranked.slice(0, TRANSPORT_LIST_LIMIT);
+      const subways = data.transport.items
+        .filter(isSubwayPoi)
+        .sort((a, b) => a.distanceMeters - b.distanceMeters);
+      const buses = data.transport.items
+        .filter((p) => !isSubwayPoi(p))
+        .sort((a, b) => a.distanceMeters - b.distanceMeters);
+      const subwayItems = expanded
+        ? subways
+        : subways.slice(0, TRANSPORT_SUBWAY_LIST_LIMIT);
+      const busItems = expanded
+        ? buses
+        : buses.slice(0, TRANSPORT_BUS_LIST_LIMIT);
+
       return (
-        <ul className="space-y-1.5">
-          {items.map((p) => (
-            <li key={p.id}>
-              <button
-                type="button"
-                onClick={() => setSelectedId(p.id)}
-                className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-slate-800">
-                    {p.name}
-                  </span>
-                  <span className="mt-0.5 block text-[11px] text-slate-500">
-                    {isSubwayPoi(p)
-                      ? p.subcategory || "지하철"
-                      : p.subcategory?.startsWith("ARS")
-                        ? `버스 · ${p.subcategory}`
-                        : "버스"}
-                    {" · "}
-                    {formatMeters(p.distanceMeters)}
-                    {" · 직선거리"}
-                  </span>
-                </span>
-                <span className="shrink-0 text-right text-[11px] tabular-nums text-slate-500">
-                  <span className="block">{formatMeters(p.distanceMeters)}</span>
-                  <span className="block text-[10px] text-slate-400">
-                    직선거리
-                  </span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-4">
+          {subwayItems.length > 0 ? (
+            <div>
+              <p className="mb-1.5 text-[12px] font-semibold text-slate-700">
+                지하철
+              </p>
+              <ul className="space-y-1">
+                {subwayItems.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(p.id)}
+                      className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
+                    >
+                      <span className="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded bg-amber-700 px-1 text-[10px] font-bold text-white">
+                        {subwayLineBadge(p.subcategory || "")}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium text-slate-800">
+                          {p.name}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-slate-500">
+                          {formatMeters(p.distanceMeters)}
+                          {" · 직선거리"}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {busItems.length > 0 ? (
+            <div>
+              <p className="mb-1.5 text-[12px] font-semibold text-slate-700">
+                버스
+              </p>
+              <ul className="space-y-1">
+                {busItems.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(p.id)}
+                      className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-slate-800">
+                          {p.name}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-slate-500">
+                          {p.subcategory?.startsWith("ARS")
+                            ? `${p.subcategory} · `
+                            : ""}
+                          {formatMeters(p.distanceMeters)}
+                          {" · 직선거리"}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
       );
     }
 
@@ -534,7 +588,12 @@ export function ComplexNearbyLifeSection({
     const data = lifeQuery.data;
     if (!data || expanded) return 0;
     if (tab === "transport") {
-      return Math.max(0, data.transport.items.length - TRANSPORT_LIST_LIMIT);
+      const subways = data.transport.items.filter(isSubwayPoi).length;
+      const buses = data.transport.items.filter((p) => !isSubwayPoi(p)).length;
+      return (
+        Math.max(0, subways - TRANSPORT_SUBWAY_LIST_LIMIT) +
+        Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT)
+      );
     }
     if (tab === "living") {
       return Math.max(0, data.living.items.length - LIST_LIMIT);
@@ -594,7 +653,7 @@ export function ComplexNearbyLifeSection({
 
       {tab === "transport" ? (
         <div className="mt-3 space-y-3">
-          {/* Full-width map — transport hero */}
+          {/* Full-bleed map — width retained, height reduced so list peeks in */}
           <div className="relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none">
             {coords && geocodeStatus === "ready" ? (
               <NaverMap
@@ -604,10 +663,10 @@ export function ComplexNearbyLifeSection({
                 selectedId={selectedId}
                 onMarkerClick={onMarkerClick}
                 ariaLabel={`${aptName} 주변 교통 지도`}
-                className="h-[320px] w-full sm:h-[340px] lg:h-[460px]"
+                className="h-[276px] w-full sm:h-[300px] lg:h-[360px]"
               />
             ) : (
-              <div className="flex h-[320px] items-center justify-center px-4 text-center text-sm text-slate-500 sm:h-[340px] lg:h-[460px]">
+              <div className="flex h-[276px] items-center justify-center px-4 text-center text-sm text-slate-500 sm:h-[300px] lg:h-[360px]">
                 {geocodeStatus === "loading" || geocodeStatus === "idle"
                   ? "지도를 준비하는 중…"
                   : geocodeReason || "위치 정보를 확인 중입니다"}
@@ -615,21 +674,7 @@ export function ComplexNearbyLifeSection({
             )}
           </div>
 
-          <div className="min-w-0">
-            {lifeQuery.data?.transport.status === "READY" &&
-            lifeQuery.data.transport.items.length > 0 ? (
-              <TransportSummary
-                items={lifeQuery.data.transport.items}
-                busWithin500m={
-                  (
-                    lifeQuery.data.transport as {
-                      meta?: { busWithin500m?: number };
-                    }
-                  ).meta?.busWithin500m
-                }
-              />
-            ) : null}
-            {listContent}
+          <div className="min-w-0">{listContent}
             {moreCount > 0 ? (
               <button
                 type="button"
@@ -683,83 +728,5 @@ export function ComplexNearbyLifeSection({
         </div>
       )}
     </LabCard>
-  );
-}
-
-function TransportSummary({
-  items,
-  busWithin500m,
-}: {
-  items: PoiItem[];
-  busWithin500m?: number;
-}) {
-  const ranked = [...items].sort((a, b) => {
-    const as = isSubwayPoi(a) ? 0 : 1;
-    const bs = isSubwayPoi(b) ? 0 : 1;
-    if (as !== bs) return as - bs;
-    return a.distanceMeters - b.distanceMeters;
-  });
-  const nearestSubway = ranked.find(isSubwayPoi) ?? null;
-  const buses = ranked.filter((p) => !isSubwayPoi(p));
-  const busesWithin500FromItems = buses.filter((p) => p.distanceMeters <= 500);
-  const busesWithin500Count =
-    typeof busWithin500m === "number"
-      ? busWithin500m
-      : busesWithin500FromItems.length;
-  const busesWithin500 = busesWithin500FromItems;
-  const lineLabel =
-    nearestSubway &&
-    nearestSubway.subcategory &&
-    /호선/.test(nearestSubway.subcategory)
-      ? nearestSubway.subcategory
-      : null;
-
-  if (!nearestSubway && buses.length === 0) return null;
-
-  return (
-    <div className="mb-3 space-y-2 rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-3">
-      {nearestSubway ? (
-        <div>
-          <p className="text-[11px] font-medium text-slate-500">
-            가장 가까운 지하철
-          </p>
-          <p className="mt-0.5 text-sm font-medium text-slate-800">
-            {nearestSubway.name}
-            {lineLabel ? (
-              <span className="font-normal text-slate-500">
-                {" · "}
-                {lineLabel}
-              </span>
-            ) : null}
-            <span className="font-normal text-slate-500">
-              {" · "}
-              {formatMeters(nearestSubway.distanceMeters)}
-            </span>
-          </p>
-        </div>
-      ) : null}
-      {busesWithin500Count > 0 ? (
-        <div>
-          <p className="text-[11px] font-medium text-slate-500">
-            500m 이내 버스정류장
-          </p>
-          <p className="mt-0.5 text-sm font-medium text-slate-800">
-            {busesWithin500Count}개
-          </p>
-        </div>
-      ) : buses.length > 0 ? (
-        <div>
-          <p className="text-[11px] font-medium text-slate-500">버스정류장</p>
-          <p className="mt-0.5 text-sm font-medium text-slate-800">
-            {buses[0].name}
-            <span className="font-normal text-slate-500">
-              {" · "}
-              {formatMeters(buses[0].distanceMeters)}
-            </span>
-          </p>
-        </div>
-      ) : null}
-      <p className="text-[10px] text-slate-400">거리는 직선거리입니다.</p>
-    </div>
   );
 }

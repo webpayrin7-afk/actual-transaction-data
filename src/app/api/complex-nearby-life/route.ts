@@ -6,10 +6,7 @@ import { fetchNearbySurroundings } from "@/lib/complex-detail/vworld";
 import { vworldReadiness } from "@/lib/complex-detail/source-status";
 import { fetchJamsilElsPilotSchools } from "@/lib/complex-detail/neis";
 import { nearestSeoulMetroStations } from "@/lib/complex-detail/seoul-metro-stations";
-import {
-  isJamsilElsTransportPilot,
-  loadJamsilElsNearbyTransportPilot,
-} from "@/lib/complex-detail/nearby-transport-pilot";
+import { isJamsilElsTransportPilot } from "@/lib/complex-detail/nearby-transport-pilot";
 import {
   nearestJamsilElsSeoulBusStops,
   SEOUL_BUS_STOP_SOURCE,
@@ -110,7 +107,7 @@ function subwaySubcategory(line: string | null | undefined): string {
 /**
  * Complex Detail “주변 생활” payload.
  * Address from master; POI/schools only when client supplies NAVER-geocoded lat/lng.
- * Transport: Seoul Metro CSV + Seoul official bus-stop file pilot — no TAGO for Seoul, no VWorld on transport path.
+ * Transport: Seoul Metro CSV + Seoul official bus-stop file pilot; distances from live NAVER geocode center. No TAGO/VWorld on Seoul transport path.
  * No DB writes.
  */
 export async function GET(request: NextRequest) {
@@ -161,6 +158,8 @@ export async function GET(request: NextRequest) {
     busNearbyCount?: number;
     busWithin500m?: number;
     busRouteMetadataAvailable?: false;
+    addressUsed?: string | null;
+    centerUsed?: { lat: number; lng: number };
   } = {
     subwaySource: "SEOUL_METRO_STATION_FILE",
     busSource: "NONE",
@@ -172,41 +171,26 @@ export async function GET(request: NextRequest) {
   };
 
   // ---- TRANSPORT (Seoul Metro CSV + Seoul official bus-stop artifact; never TAGO/VWorld for Seoul) ----
+  // Subway + bus distances ALWAYS use the same live request center (client NAVER geocode).
   if (isJamsilElsTransportPilot(aptName)) {
-    const pilot = loadJamsilElsNearbyTransportPilot();
-    let subwayItems: PoiItem[] = [];
+    const subwayItems: PoiItem[] = nearestSeoulMetroStations(coords, {
+      limit: 2,
+      maxMeters: 1500,
+    }).map((s) => ({
+      id: `metro-${s.stationCode || s.name}-${s.line || "x"}`,
+      name: s.name.endsWith("역") ? s.name : `${s.name}역`,
+      subcategory: subwaySubcategory(s.line || null),
+      distanceMeters: s.distanceMeters,
+      distanceLabel: s.distanceLabel,
+      lat: s.lat,
+      lng: s.lng,
+    }));
 
-    if (pilot?.subway?.length) {
-      subwayItems = pilot.subway
-        .slice()
-        .sort((a, b) => a.distanceMeters - b.distanceMeters)
-        .slice(0, 2)
-        .map((s) => ({
-          id: s.id,
-          name: s.name,
-          subcategory: subwaySubcategory(s.line),
-          distanceMeters: s.distanceMeters,
-          distanceLabel: s.distanceLabel,
-          lat: s.lat,
-          lng: s.lng,
-        }));
-    } else {
-      subwayItems = nearestSeoulMetroStations(coords, {
-        limit: 2,
-        maxMeters: 1500,
-      }).map((s) => ({
-        id: `metro-${s.stationCode || s.name}-${s.line || "x"}`,
-        name: s.name.endsWith("역") ? s.name : `${s.name}역`,
-        subcategory: subwaySubcategory(s.line || null),
-        distanceMeters: s.distanceMeters,
-        distanceLabel: s.distanceLabel,
-        lat: s.lat,
-        lng: s.lng,
-      }));
-    }
-
-    // Seoul: official bus-stop location file pilot only (TAGO not called).
-    const busResult = nearestJamsilElsSeoulBusStops({ limit: 3 });
+    // Seoul official bus-stop file pilot; TAGO not called. Distances from live center.
+    const busResult = nearestJamsilElsSeoulBusStops(coords, {
+      limit: 6,
+      maxMeters: 700,
+    });
     const busItems: PoiItem[] = busResult.items.map((b) => ({
       id: `bus-${b.id}`,
       name: b.name,
@@ -238,6 +222,8 @@ export async function GET(request: NextRequest) {
       busNearbyCount: busResult.nearbyCount,
       busWithin500m: busResult.within500m,
       busRouteMetadataAvailable: false,
+      addressUsed: address.address ?? busResult.addressUsed,
+      centerUsed: coords,
     };
   } else {
     // Non-pilot complexes: no nationwide transport master yet.
@@ -250,6 +236,7 @@ export async function GET(request: NextRequest) {
       busStatus: "HOLD",
       busReason: "pilot-only",
       vworldTransport: false,
+      tagoForSeoul: false,
     };
   }
 
