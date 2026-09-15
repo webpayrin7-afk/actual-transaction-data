@@ -162,10 +162,12 @@ async function waitForNaverGeocoder(timeoutMs = 10000): Promise<boolean> {
  * Never logs or returns the Client ID.
  */
 export async function geocodeAddressWithNaver(
-  address: string
+  address: string,
+  opts?: { acceptFirst?: boolean },
 ): Promise<NaverGeocodeResult> {
   const query = address.trim();
   if (!query) return { ok: false, reason: "empty address" };
+  const acceptFirst = opts?.acceptFirst === true;
 
   const loaded = await loadNaverMapsSdk();
   if (!loaded.ok) return { ok: false, reason: loaded.reason };
@@ -199,7 +201,7 @@ export async function geocodeAddressWithNaver(
         });
         return;
       }
-      if (addresses.length !== 1) {
+      if (addresses.length !== 1 && !acceptFirst) {
         resolve({
           ok: false,
           reason: `ambiguous NAVER geocode (${addresses.length} results)`,

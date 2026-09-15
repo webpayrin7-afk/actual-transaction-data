@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@libsql/client";
 import { isValidLatLng } from "@/lib/complex-detail/geo";
-import { isJamsilElsSchoolPilot } from "@/lib/complex-detail/jamsil-els-school-pilot";
 import { fetchNearbySurroundings } from "@/lib/complex-detail/vworld";
 import { vworldReadiness } from "@/lib/complex-detail/source-status";
-import { fetchJamsilElsPilotSchools } from "@/lib/complex-detail/neis";
 import { nearestSeoulMetroStations } from "@/lib/complex-detail/seoul-metro-stations";
 import { isJamsilElsTransportPilot } from "@/lib/complex-detail/nearby-transport-pilot";
 import {
@@ -324,7 +322,9 @@ export async function GET(request: NextRequest) {
     livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
   }
 
-  let schoolItems: Array<{
+  // School tab uses lazy /api/complex-nearby-schools (NEIS + client NAVER Geocode).
+  // Keep this payload inert so transport/living are unaffected.
+  const schoolItems: Array<{
     id: string;
     name: string;
     level: string;
@@ -334,50 +334,9 @@ export async function GET(request: NextRequest) {
     lat: number | null;
     lng: number | null;
   }> = [];
-  let schoolStatus: "READY" | "EMPTY" | "ERROR" | "PILOT_ONLY" = "EMPTY";
-  let schoolNote: string | null = null;
-
-  try {
-    if (!isJamsilElsSchoolPilot(aptName)) {
-      schoolStatus = "PILOT_ONLY";
-      schoolNote = "인근 학교 실데이터는 잠실엘스 pilot만 지원합니다.";
-    } else {
-      const result = await fetchJamsilElsPilotSchools({
-        aptName,
-        coords,
-      });
-      schoolItems = result.schools.map((s, i) => ({
-        id: `school-${s.level}-${i}-${s.name}`,
-        name: s.name,
-        level: s.level,
-        foundation: s.foundation,
-        distanceMeters: s.distanceMeters,
-        distanceLabel: s.distanceLabel,
-        lat: s.lat,
-        lng: s.lng,
-      }));
-      if (
-        result.status === "SUCCESS" ||
-        result.status === "CATCHMENT_UNVERIFIED"
-      ) {
-        schoolStatus = schoolItems.length > 0 ? "READY" : "EMPTY";
-        schoolNote =
-          "인근 학교(NEARBY_SCHOOL) · 배정학교·통학구역 미검증 · NEIS";
-      } else if (result.status === "PILOT_ONLY") {
-        schoolStatus = "PILOT_ONLY";
-        schoolNote = result.reason;
-      } else if (result.status === "NO_RESULTS") {
-        schoolStatus = "EMPTY";
-        schoolNote = result.reason;
-      } else {
-        schoolStatus = "ERROR";
-        schoolNote = result.reason;
-      }
-    }
-  } catch {
-    schoolStatus = "ERROR";
-    schoolNote = "인근 학교 정보를 불러오지 못했습니다.";
-  }
+  const schoolStatus = "LAZY" as const;
+  const schoolNote: string | null =
+    "학교 탭 진입 시 NEIS 인근 학교를 불러옵니다.";
 
   return NextResponse.json({
     address,

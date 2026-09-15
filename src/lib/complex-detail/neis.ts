@@ -32,6 +32,8 @@ export type NearbySchool = {
   /** 초등학교 등 (SCHUL_KND_SC_NM). */
   kind: string | null;
   address: string | null;
+  /** Road address only (ORG_RDNMA) — preferred NAVER Geocode query. */
+  roadAddress: string | null;
   /** Null when official school coordinates are unavailable. */
   distanceMeters: number | null;
   /** e.g. "직선거리 420m". Null when distance unknown. */
@@ -135,12 +137,14 @@ function toNearbySchool(
     distanceLabel = formatDistanceLabel(distanceMeters);
   }
 
+  const roadAddress = String(row.ORG_RDNMA ?? "").trim() || null;
   return {
     level,
     name,
     foundation: row.FOND_SC_NM ? String(row.FOND_SC_NM).trim() : null,
     kind: row.SCHUL_KND_SC_NM ? String(row.SCHUL_KND_SC_NM).trim() : null,
     address: rowAddress(row) || null,
+    roadAddress,
     distanceMeters,
     distanceLabel,
     lat: schoolCoords?.lat ?? null,

@@ -39,6 +39,8 @@ export type NaverMapMarker = {
   variant?: "bus-stop";
   /** Living POI category — icon shape distinguishes category (not rainbow colors). */
   livingCategory?: LivingMarkerCategory;
+  /** School level badge (초/중/고) — same family marker, text distinguishes level. */
+  schoolLevel?: "ELEMENTARY" | "MIDDLE" | "HIGH";
   selected?: boolean;
 };
 
@@ -191,6 +193,34 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
       ${selected ? selectionArrowHtml() : ""}
       <div style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
         ${iconFn(stroke, 13)}
+      </div>
+      <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
+    </div>`;
+    return {
+      content: html,
+      anchor: window.naver?.maps
+        ? new window.naver.maps.Point(0, 0)
+        : undefined,
+    };
+  }
+
+
+  if (kind === "SCHOOL") {
+    const stroke = selected ? "#0f766e" : "#1e3a5f";
+    const border = selected ? "#0f766e" : "#94a3b8";
+    const ring = selected ? "2px solid #0f766e" : `1px solid ${border}`;
+    const badge =
+      marker.schoolLevel === "MIDDLE"
+        ? "중"
+        : marker.schoolLevel === "HIGH"
+          ? "고"
+          : "초";
+    const label = escapeHtml((marker.label || marker.title || "").trim());
+    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none;white-space:nowrap">
+      ${selected ? selectionArrowHtml() : ""}
+      <div style="display:flex;align-items:center;gap:3px;padding:2px 5px 2px 2px;border-radius:8px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
+        <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;background:#1e3a5f;color:#fff;font:700 10px/1 system-ui,-apple-system,sans-serif">${badge}</span>
+        <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;max-width:88px;overflow:hidden;text-overflow:ellipsis">${label}</span>
       </div>
       <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
     </div>`;
