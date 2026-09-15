@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-09-15T15:31:41.408Z",
-  "note": "Read-only audit. No apt_unit_types / group link / pyeong group writes.",
-  "groupingPrinciple": "RAW unit types preserved; similar-area group is derived convenience layer only. No auto-group this run.",
+  "generatedAt": "2026-09-15T16:09:40.130Z",
+  "note": "Read-only audit. No apt_unit_types / group link / pyeong group writes. similar-area group is derived convenience layer only.",
+  "groupingPrinciple": "RAW unit types preserved; similar-area group is derived UI/analysis layer. No auto-group this run.",
   "representatives": {
     "리센츠": {
       "complexId": "cx_caf229b5ac63cfbd",

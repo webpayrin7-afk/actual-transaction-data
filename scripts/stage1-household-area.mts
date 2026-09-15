@@ -20,6 +20,8 @@ loadEnv({ path: ".env.local" });
 loadEnv();
 
 const APPLY = process.argv.includes("--apply");
+const AREA_ONLY = process.argv.includes("--area-only");
+const BATCH_ONLY = process.argv.includes("--batch-only");
 const batchArg = process.argv.find((a) => a.startsWith("--batch="));
 const BATCH = Math.min(500, Math.max(50, Number(batchArg?.split("=")[1] ?? 300) || 300));
 const API_BASE = "https://apis.data.go.kr/1613000";
@@ -120,8 +122,15 @@ function namesCompatible(masterName: string, kaptName: string): boolean {
   return a.includes(b) || b.includes(a);
 }
 
-async function fetchJson(url: string): Promise<Json> {
+async function fetchJson(url: string, attempt = 1): Promise<Json> {
   const res = await fetch(url);
+  if (res.status === 429 || res.status === 503) {
+    if (attempt >= 8) throw new Error(`HTTP ${res.status} after ${attempt} attempts ${url}`);
+    const wait = Math.min(60_000, 1500 * 2 ** (attempt - 1));
+    console.warn(`  rate-limit ${res.status}, backoff ${wait}ms (attempt ${attempt})`);
+    await sleep(wait);
+    return fetchJson(url, attempt + 1);
+  }
   if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
   return (await res.json()) as Json;
 }
@@ -182,7 +191,7 @@ async function matchMasterToKapt(
   const sigungu = lawd.slice(0, 5);
   if (!listCache.has(sigungu)) {
     listCache.set(sigungu, await getSigunguAptList(sigungu));
-    await sleep(120);
+    await sleep(250);
   }
   const list = listCache.get(sigungu)!;
   const bjdCands = list.filter((it) => String(it.bjdCode) === fullBjd);
@@ -191,12 +200,18 @@ async function matchMasterToKapt(
   }
 
   const nameCands = bjdCands.filter((it) => namesCompatible(master.apt_name, it.kaptName));
-  const pool = nameCands.length > 0 ? nameCands : bjdCands;
+  if (nameCands.length === 0) {
+    return {
+      status: "unresolved",
+      evidence: `no name-compatible KAPT in bjd=${fullBjd} (bjdCandidates=${bjdCands.length}; name-only match forbidden, jibun verify requires name pool)`,
+    };
+  }
+  const pool = nameCands;
 
   const verified: { item: KaptListItem; bass: BassInfo }[] = [];
   for (const it of pool) {
     const bass = await getBassInfo(it.kaptCode);
-    await sleep(80);
+    await sleep(200);
     if (!bass) continue;
     if (!jibunInAddr(jibun, bass.kaptAddr)) continue;
     if (nameCands.length > 0 && !namesCompatible(master.apt_name, bass.kaptName)) continue;
@@ -641,7 +656,7 @@ async function main() {
   const covBefore = await seoulCoverage(db);
   console.log("Seoul household coverage before:", covBefore);
 
-  const reps = await loadRepMasters(db);
+  const reps = BATCH_ONLY ? [] : await loadRepMasters(db);
   if (reps.length !== 2) {
     console.warn("Expected 2 representative masters, got", reps.length, reps.map((r) => r.apt_name));
   }
@@ -650,17 +665,43 @@ async function main() {
   for (const m of reps) {
     console.log(`\n=== REP ${m.apt_name} ${m.complex_id} ===`);
     const before = await getHousehold(db, m.complex_id);
-    const match = await matchMasterToKapt(m, listCache);
-    externalCalls += 1 + (match.status === "matched" ? 1 : 5);
-    console.log("match:", match);
-
     let after = before;
     let writeOp: string = "none";
     let official: number | null = null;
+    let match: MatchResult | { status: "already_filled"; evidence: string } = {
+      status: "already_filled",
+      evidence: "household already present; skipped external API",
+    };
 
-    if (match.status === "matched" && match.bass.kaptdaCnt != null && match.bass.kaptdaCnt > 0) {
-      official = match.bass.kaptdaCnt;
-      if (before == null) {
+    if (before != null) {
+      official = before;
+      writeOp = "skipped_non_null";
+      // recover evidence from profile meta if present
+      const metaRes = await db.execute({
+        sql: `SELECT raw_meta_json FROM apt_complex_profile WHERE complex_id = ?`,
+        args: [m.complex_id],
+      });
+      const raw = metaRes.rows[0]?.raw_meta_json;
+      if (typeof raw === "string") {
+        try {
+          const parsed = JSON.parse(raw) as Json;
+          match = {
+            status: "already_filled",
+            evidence: String(parsed.evidence ?? "profile household present"),
+            ...(parsed.kaptCode ? { kaptCode: String(parsed.kaptCode) } : {}),
+          } as MatchResult | { status: "already_filled"; evidence: string; kaptCode?: string };
+        } catch {
+          /* ignore */
+        }
+      }
+      console.log("match: skipped (household already filled)", before);
+    } else if (!AREA_ONLY) {
+      match = await matchMasterToKapt(m, listCache);
+      externalCalls += 1 + (match.status === "matched" ? 1 : 5);
+      console.log("match:", match);
+
+      if (match.status === "matched" && match.bass.kaptdaCnt != null && match.bass.kaptdaCnt > 0) {
+        official = match.bass.kaptdaCnt;
         writeOp = await writeHousehold(db, m.complex_id, official, {
           stage: "stage1-rep",
           kaptCode: match.kaptCode,
@@ -668,11 +709,10 @@ async function main() {
           kaptAddr: match.bass.kaptAddr,
           kaptName: match.bass.kaptName,
         });
-        after = APPLY ? official : before;
         if (APPLY) after = await getHousehold(db, m.complex_id);
-      } else {
-        writeOp = "skipped_non_null";
       }
+    } else {
+      match = { status: "unresolved", evidence: "area-only mode; household API skipped" };
     }
 
     const area = await auditComplexArea(db, m, true);
@@ -692,7 +732,7 @@ async function main() {
     console.log("area status:", area.status, "raw:", area.rawAreaCount, "units:", area.unitTypeCount, "groups:", area.groupCount);
   }
 
-  const batch = await loadSeoulMissingBatch(db, BATCH);
+  const batch = AREA_ONLY ? [] : await loadSeoulMissingBatch(db, BATCH);
   console.log(`\nSeoul batch size=${batch.length}`);
   const batchStats = {
     attempted: batch.length,
@@ -706,37 +746,45 @@ async function main() {
   };
 
   for (const m of batch) {
-    const match = await matchMasterToKapt(m, listCache);
-    externalCalls += 2;
-    if (match.status === "ambiguous") {
-      batchStats.ambiguous += 1;
-      batchStats.details.push({ complex_id: m.complex_id, apt_name: m.apt_name, status: "ambiguous", evidence: match.evidence });
-      continue;
-    }
-    if (match.status === "unresolved") {
+    try {
+      const match = await matchMasterToKapt(m, listCache);
+      externalCalls += 2;
+      if (match.status === "ambiguous") {
+        batchStats.ambiguous += 1;
+        batchStats.details.push({ complex_id: m.complex_id, apt_name: m.apt_name, status: "ambiguous", evidence: match.evidence });
+        continue;
+      }
+      if (match.status === "unresolved") {
+        batchStats.unresolved += 1;
+        batchStats.details.push({ complex_id: m.complex_id, apt_name: m.apt_name, status: "unresolved", evidence: match.evidence });
+        continue;
+      }
+      batchStats.matched += 1;
+      const hh = match.bass.kaptdaCnt;
+      if (hh == null || hh <= 0) {
+        batchStats.unresolved += 1;
+        batchStats.details.push({ complex_id: m.complex_id, apt_name: m.apt_name, status: "no_kaptdaCnt", kaptCode: match.kaptCode });
+        continue;
+      }
+      const op = await writeHousehold(db, m.complex_id, hh, {
+        stage: "stage1-batch",
+        kaptCode: match.kaptCode,
+        evidence: match.evidence,
+        kaptAddr: match.bass.kaptAddr,
+        kaptName: match.bass.kaptName,
+      });
+      if (op === "inserted") batchStats.inserted += 1;
+      else if (op === "updated") batchStats.updated += 1;
+      else batchStats.skipped += 1;
+      if (batchStats.matched % 25 === 0) {
+        console.log(`  progress matched=${batchStats.matched} inserted=${batchStats.inserted} unresolved=${batchStats.unresolved}`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`  batch error ${m.apt_name}: ${msg}`);
       batchStats.unresolved += 1;
-      batchStats.details.push({ complex_id: m.complex_id, apt_name: m.apt_name, status: "unresolved", evidence: match.evidence });
-      continue;
-    }
-    batchStats.matched += 1;
-    const hh = match.bass.kaptdaCnt;
-    if (hh == null || hh <= 0) {
-      batchStats.unresolved += 1;
-      batchStats.details.push({ complex_id: m.complex_id, apt_name: m.apt_name, status: "no_kaptdaCnt", kaptCode: match.kaptCode });
-      continue;
-    }
-    const op = await writeHousehold(db, m.complex_id, hh, {
-      stage: "stage1-batch",
-      kaptCode: match.kaptCode,
-      evidence: match.evidence,
-      kaptAddr: match.bass.kaptAddr,
-      kaptName: match.bass.kaptName,
-    });
-    if (op === "inserted") batchStats.inserted += 1;
-    else if (op === "updated") batchStats.updated += 1;
-    else batchStats.skipped += 1;
-    if (batchStats.matched % 25 === 0) {
-      console.log(`  progress matched=${batchStats.matched} inserted=${batchStats.inserted} unresolved=${batchStats.unresolved}`);
+      batchStats.details.push({ complex_id: m.complex_id, apt_name: m.apt_name, status: "error", evidence: msg });
+      await sleep(5000);
     }
   }
 
@@ -799,5 +847,5 @@ async function main() {
 
 main().catch((e) => {
   console.error(e);
-  process.exit(1);
+  process.exitCode = 1;
 });

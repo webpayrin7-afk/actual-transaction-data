@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-09-15T15:31:41.408Z",
-  "mode": "dry-run",
-  "schemaNote": "household_count lives on apt_complex_profile (not apt_complex_master). Writes create/update profile rows for NULL household only.",
-  "coverageBefore": {
+  "generatedAt": "2026-09-15T16:12:16.446Z",
+  "mode": "apply-partial-finalized",
+  "schemaNote": "household_count is on apt_complex_profile (not apt_complex_master). Stage1 allowed INSERT of missing profile rows as the carrier for NULL→verified household_count only. No non-null overwrite. Area tables WRITE=0.",
+  "coverageBeforeFirstApply": {
     "total": 8437,
     "withHousehold": 9,
     "missing": 8428,
@@ -10,9 +10,13 @@
   },
   "coverageAfter": {
     "total": 8437,
-    "withHousehold": 9,
-    "missing": 8428,
-    "identityReadyMissing": 8428
+    "withHousehold": 84,
+    "missing": 8353,
+    "identityReadyMissing": 8353
+  },
+  "stage1Writes": {
+    "profileRowsInsertedOrUpdated": 75,
+    "netHouseholdGain": 75
   },
   "representatives": [
     {
@@ -23,20 +27,14 @@
       "bjdong_cd": "10100",
       "household_before": null,
       "official_household": 5563,
-      "household_after": null,
-      "write_op": "skipped",
+      "household_after": 5563,
+      "write_op": "inserted_profile_null_to_value",
       "match": {
         "status": "matched",
         "kaptCode": "A13822003",
-        "bass": {
-          "kaptCode": "A13822003",
-          "kaptName": "잠실리센츠",
-          "kaptAddr": "서울특별시 송파구 잠실동 22 잠실리센츠",
-          "kaptdaCnt": 5563,
-          "codeSaleNm": "분양",
-          "codeHeatNm": "지역난방"
-        },
-        "evidence": "bjd=1171010100 jibun=22 in kaptAddr=\"서울특별시 송파구 잠실동 22 잠실리센츠\" name~=\"잠실리센츠\""
+        "evidence": "bjd=1171010100 jibun=22 in kaptAddr=\"서울특별시 송파구 잠실동 22 잠실리센츠\" name~=\"잠실리센츠\"",
+        "kaptAddr": "서울특별시 송파구 잠실동 22 잠실리센츠",
+        "kaptName": "잠실리센츠"
       },
       "area": {
         "complexId": "cx_caf229b5ac63cfbd",
@@ -101,7 +99,8 @@
           98.55,
           124.22
         ]
-      }
+      },
+      "updated_at": "2026-09-15T15:32:17.530Z"
     },
     {
       "complex_id": "cx_85cd8a4b2d5dc3d0",
@@ -111,20 +110,14 @@
       "bjdong_cd": "10100",
       "household_before": null,
       "official_household": 3696,
-      "household_after": null,
-      "write_op": "skipped",
+      "household_after": 3696,
+      "write_op": "inserted_profile_null_to_value",
       "match": {
         "status": "matched",
         "kaptCode": "A13822002",
-        "bass": {
-          "kaptCode": "A13822002",
-          "kaptName": "잠실동트리지움",
-          "kaptAddr": "서울특별시 송파구 잠실동 35 잠실동트리지움",
-          "kaptdaCnt": 3696,
-          "codeSaleNm": "분양",
-          "codeHeatNm": "지역난방"
-        },
-        "evidence": "bjd=1171010100 jibun=35 in kaptAddr=\"서울특별시 송파구 잠실동 35 잠실동트리지움\" name~=\"잠실동트리지움\""
+        "evidence": "bjd=1171010100 jibun=35 in kaptAddr=\"서울특별시 송파구 잠실동 35 잠실동트리지움\" name~=\"잠실동트리지움\"",
+        "kaptAddr": "서울특별시 송파구 잠실동 35 잠실동트리지움",
+        "kaptName": "잠실동트리지움"
       },
       "area": {
         "complexId": "cx_85cd8a4b2d5dc3d0",
@@ -199,199 +192,98 @@
           114.7,
           149.45
         ]
-      }
+      },
+      "updated_at": "2026-09-15T15:32:20.680Z"
     }
   ],
-  "batch": {
-    "attempted": 50,
-    "matched": 21,
+  "batchSummary": {
+    "plannedBatch": 300,
+    "firstWaveProgressAt429": {
+      "matched": 75,
+      "inserted": 71,
+      "unresolvedSeen": 177
+    },
+    "resumeAttempts": "blocked by sustained HTTP 429 on AptBasisInfoServiceV5",
     "ambiguous": 0,
-    "unresolved": 30,
-    "updated": 0,
-    "inserted": 0,
-    "skipped": 20,
-    "details": [
-      {
-        "complex_id": "cx_2b40541fb7bd2af4",
-        "apt_name": "(828-21)",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=828-21)"
-      },
-      {
-        "complex_id": "cx_fc09683279b22669",
-        "apt_name": "(828-76)",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=828-76)"
-      },
-      {
-        "complex_id": "cx_6c561c8130363807",
-        "apt_name": "bienestar",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=682-1)"
-      },
-      {
-        "complex_id": "cx_0e5f9a36010cde30",
-        "apt_name": "brunnen청담",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 19 pool (bjd=1168010400 jibun=114-9)"
-      },
-      {
-        "complex_id": "cx_ad6373ec735726bf",
-        "apt_name": "egsoulleader",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=828-28)"
-      },
-      {
-        "complex_id": "cx_dfd6d6670167f5be",
-        "apt_name": "lg선릉에클라트(a)",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168010500 jibun=142-7)"
-      },
-      {
-        "complex_id": "cx_2e9b34674cb3512c",
-        "apt_name": "ph129",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 19 pool (bjd=1168010400 jibun=129)"
-      },
-      {
-        "complex_id": "cx_60ad5d1007ca397a",
-        "apt_name": "plumhills",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 30 pool (bjd=1168011800 jibun=193-67)"
-      },
-      {
-        "complex_id": "cx_feb296507670960c",
-        "apt_name": "rudenhouse",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 5 pool (bjd=1168010700 jibun=524-8)"
-      },
-      {
-        "complex_id": "cx_6d3ce70f281f2595",
-        "apt_name": "sm드림빌",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 28 pool (bjd=1168010500 jibun=29-11)"
-      },
-      {
-        "complex_id": "cx_5343155d764aeb75",
-        "apt_name": "강남더샵포레스트",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168011500 jibun=799)"
-      },
-      {
-        "complex_id": "cx_25434ce364c8025a",
-        "apt_name": "강남데시앙포레",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168011500 jibun=795)"
-      },
-      {
-        "complex_id": "cx_77fd6fe8e93a3d88",
-        "apt_name": "강남상가",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 5 pool (bjd=1168010700 jibun=510-11)"
-      },
-      {
-        "complex_id": "cx_18c3b2cfa1639fab",
-        "apt_name": "강남서해그랑블",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=796-29)"
-      },
-      {
-        "complex_id": "cx_e47c94ecfe91babb",
-        "apt_name": "강남센트럴아이파크",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168010100 jibun=902)"
-      },
-      {
-        "complex_id": "cx_c3f042540e6bcf24",
-        "apt_name": "강남역우정에쉐르",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=823-7)"
-      },
-      {
-        "complex_id": "cx_1b80cc675b526d51",
-        "apt_name": "강남웅진베어스빌",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=838-10)"
-      },
-      {
-        "complex_id": "cx_1dc296a8904c845e",
-        "apt_name": "강남한솔",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 29 pool (bjd=1168010100 jibun=794-19)"
-      },
-      {
-        "complex_id": "cx_1bc393d4290d8d94",
-        "apt_name": "강남한신휴플러스6단지",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168011300 jibun=365)"
-      },
-      {
-        "complex_id": "cx_2159f94543f74a13",
-        "apt_name": "강남한신휴플러스8단지",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168011300 jibun=513)"
-      },
-      {
-        "complex_id": "cx_69c20a90b3e01358",
-        "apt_name": "강남한양수자인(4단지)",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168011200 jibun=686)"
-      },
-      {
-        "complex_id": "cx_977448037417ab29",
-        "apt_name": "강변삼부아파트",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 28 pool (bjd=1168010500 jibun=99-12)"
-      },
-      {
-        "complex_id": "cx_cebe8185f804b7e8",
-        "apt_name": "강변상지리츠빌",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 19 pool (bjd=1168010400 jibun=106-17)"
-      },
-      {
-        "complex_id": "cx_a7e8af1ff5ee4a94",
-        "apt_name": "개포2차현대아파트(220)",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168010300 jibun=655-2)"
-      },
-      {
-        "complex_id": "cx_8d928962d27b9d61",
-        "apt_name": "개포우성1",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 27 pool (bjd=1168010600 jibun=503)"
-      },
-      {
-        "complex_id": "cx_9edd03d8fc13954e",
-        "apt_name": "개포우성2",
-        "status": "no_kaptdaCnt",
-        "kaptCode": "A13528105"
-      },
-      {
-        "complex_id": "cx_cbe86e740efa5eee",
-        "apt_name": "개포자이르네",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 21 pool (bjd=1168010300 jibun=1283)"
-      },
-      {
-        "complex_id": "cx_de547f7aab2e1751",
-        "apt_name": "개포자이프레지던스",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 1 pool (bjd=1168010300 jibun=1284)"
-      },
-      {
-        "complex_id": "cx_0f64ef6eef7e9468",
-        "apt_name": "개포주공1단지",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 21 pool (bjd=1168010300 jibun=141)"
-      },
-      {
-        "complex_id": "cx_29896e1d09ede798",
-        "apt_name": "개포한신",
-        "status": "unresolved",
-        "evidence": "no jibun-verified among 15 pool (bjd=1168011400 jibun=615-1)"
-      }
-    ]
+    "cumulativeStage1Rows": 75,
+    "note": "Deterministic matcher (lawd+bjd+jibun-in-addr + name compatibility) remains. Further Seoul enrichment deferred until API quota recovers."
   },
-  "externalCallsEstimate": 104
+  "areaSeoul": {
+    "complexesChecked": 8437,
+    "byStatus": {
+      "AREA_READY": 5,
+      "PARTIAL_UNIT_MASTER": 1,
+      "GROUP_LINK_MISSING": 0,
+      "RAW_AREA_ONLY": 8431,
+      "AMBIGUOUS": 0
+    },
+    "totals": {
+      "rawDistinctAreas": 34750,
+      "unitTypes": 94,
+      "groupLinked": 33,
+      "unlinked": 34717
+    }
+  },
+  "areaReadyExamples": [
+    {
+      "complexId": "cx_ec9a204afeaadf1b",
+      "complexName": "한강(대우)",
+      "rawAreaCount": 8,
+      "unitTypeCount": 11,
+      "groupCount": 4,
+      "linkedCount": 8
+    },
+    {
+      "complexId": "cx_55a0252cbc2225e9",
+      "complexName": "목동신시가지7",
+      "rawAreaCount": 7,
+      "unitTypeCount": 21,
+      "groupCount": 7,
+      "linkedCount": 7
+    },
+    {
+      "complexId": "cx_0320fd9e007e1f8c",
+      "complexName": "은마",
+      "rawAreaCount": 2,
+      "unitTypeCount": 27,
+      "groupCount": 6,
+      "linkedCount": 2
+    },
+    {
+      "complexId": "cx_4c63d9a100973c60",
+      "complexName": "잠실엘스",
+      "rawAreaCount": 5,
+      "unitTypeCount": 7,
+      "groupCount": 3,
+      "linkedCount": 5
+    },
+    {
+      "complexId": "cx_ed52bf895d064c11",
+      "complexName": "파크리오",
+      "rawAreaCount": 9,
+      "unitTypeCount": 10,
+      "groupCount": 5,
+      "linkedCount": 9
+    }
+  ],
+  "areaPartialExamples": [
+    {
+      "complexId": "cx_1c244e7305d12c44",
+      "complexName": "반포자이",
+      "rawAreaCount": 16,
+      "unitTypeCount": 18,
+      "groupCount": 7,
+      "linkedCount": 2,
+      "unlinkedCount": 14
+    }
+  ],
+  "uiNote": "Complex detail area selector today derives options from transactions.exclusive_area (all raw areas displayable). Market-group selector only for unit-type pilot complexes (not 리센츠/트리지움). UI code not modified.",
+  "decisions": {
+    "HOUSEHOLD_REPRESENTATIVE": "PASS",
+    "HOUSEHOLD_ENRICHMENT": "PARTIAL",
+    "RAW_AREA_COVERAGE": "PASS",
+    "UNIT_TYPE_READINESS": "PARTIAL",
+    "SIMILAR_AREA_GROUP_READINESS": "PARTIAL",
+    "DATA_SAFETY": "PASS"
+  }
 }
