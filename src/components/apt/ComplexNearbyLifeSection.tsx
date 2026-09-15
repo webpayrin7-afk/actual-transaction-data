@@ -585,7 +585,7 @@ export function ComplexNearbyLifeSection({
       {tab === "transport" ? (
         <div className="mt-3 space-y-3">
           {/* Full-width map — transport hero */}
-          <div className="relative -mx-4 overflow-hidden border-y border-slate-100 bg-slate-50/40 sm:-mx-5 sm:rounded-none">
+          <div className="relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none">
             {coords && geocodeStatus === "ready" ? (
               <NaverMap
                 center={mapCenter ?? coords}
@@ -624,7 +624,7 @@ export function ComplexNearbyLifeSection({
         </div>
       ) : (
         <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start">
-          <div className="min-w-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50/40">
+          <div className="min-w-0 overflow-hidden rounded-xl bg-slate-50/40">
             {coords && geocodeStatus === "ready" ? (
               <NaverMap
                 center={mapCenter ?? coords}
