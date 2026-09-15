@@ -20,9 +20,16 @@
     },
     "bus": {
       "file": null,
+      "service": "국토교통부_(TAGO)_버스정류소정보",
+      "dataset": "전국버스정류소표준데이터",
+      "datasetId": "15096280",
+      "operation": "getCrdntPrxmtSttnList",
+      "accessMethod": "OpenAPI",
+      "responseFormat": "JSON",
+      "serviceKeyEnv": "MOLIT_API_KEY",
       "status": "HOLD",
-      "reason": "official national bus-stop file not present in workspace",
-      "rowsParsed": 0,
+      "reason": "TAGO getCrdntPrxmtSttnList returned 0 stops near 잠실엘스 (서울 coverage gap in this service)",
+      "rowsReceived": 0,
       "validCoordinates": 0,
       "routeMetadataAvailable": false
     }
@@ -100,6 +107,6 @@
     "subway": 1500,
     "bus": 700
   },
-  "generatedAt": "2026-09-15T07:01:07.918Z",
-  "note": "Pilot extract only — not a nationwide transport master. No VWorld. No route invention."
+  "generatedAt": "2026-09-15T07:23:06.041Z",
+  "note": "Pilot extract only. Subway=official CSV. Bus=공공데이터포털 TAGO OpenAPI (not local file). No VWorld. No route invention."
 }

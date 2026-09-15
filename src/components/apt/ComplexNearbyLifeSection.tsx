@@ -553,7 +553,7 @@ export function ComplexNearbyLifeSection({
             <br />
             위치: 단지 주소 기반 NAVER Geocoding
             <br />
-            교통: 공식 지하철·버스정류소 파일 · 직선거리
+            교통: 공식 지하철 CSV · 공공데이터포털 버스정류소 · 직선거리
             <br />
             학교: NEIS schoolInfo (인근 학교)
             <br />

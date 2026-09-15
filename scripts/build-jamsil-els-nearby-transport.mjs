@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Build tiny 잠실엘스 nearby-transport pilot artifact from official files.
+ * Build tiny 잠실엘스 nearby-transport pilot artifact.
  *
- * Subway: data/seoul-metro/서울교통공사_1-8호선 역사 좌표(위경도) 정보_*.csv
- * Bus:    data/bus-stops/*전국버스정류소표준데이터* (CSV/XLSX) if present
+ * Subway: official Seoul Metro 1–8 CSV (local file already in repo)
+ * Bus:    공공데이터포털 전국버스정류소표준데이터 → TAGO BusSttnInfoInqireService
+ *         OpenAPI getCrdntPrxmtSttnList (server-side; uses MOLIT_API_KEY)
  *
- * Does NOT commit/copy the full national bus file — only nearby rows.
- * No external API calls. No DB writes.
+ * Does NOT commit national dumps. No VWorld. No DB writes. No route invention.
  */
 
 import {
@@ -33,6 +33,10 @@ const CENTER = {
 
 const SUBWAY_RADIUS_M = 1500;
 const BUS_RADIUS_M = 700;
+
+const TAGO_BASE =
+  "https://apis.data.go.kr/1613000/BusSttnInfoInqireService";
+const TAGO_OP = "getCrdntPrxmtSttnList";
 
 function haversineMeters(lat1, lng1, lat2, lng2) {
   const toRad = (d) => (d * Math.PI) / 180;
@@ -99,36 +103,6 @@ function findSubwayCsv() {
   return preferred ? join(dir, preferred) : files[0] ? join(dir, files[0]) : null;
 }
 
-function findBusFile() {
-  const candidates = [
-    join(ROOT, "data/bus-stops"),
-    join(ROOT, "data/bus"),
-    join(ROOT, "data/national-bus-stops"),
-    join(ROOT, "data"),
-    join(ROOT, "tmp"),
-    "/tmp",
-  ];
-  const patterns = [
-    /전국버스정류소표준데이터/i,
-    /버스정류소표준/i,
-    /national.?bus.?stop/i,
-  ];
-  for (const dir of candidates) {
-    if (!existsSync(dir)) continue;
-    let files = [];
-    try {
-      files = readdirSync(dir);
-    } catch {
-      continue;
-    }
-    for (const f of files) {
-      if (!/\.(csv|tsv|xlsx|xls)$/i.test(f)) continue;
-      if (patterns.some((re) => re.test(f))) return join(dir, f);
-    }
-  }
-  return null;
-}
-
 function parseSubway(filePath) {
   const buf = readFileSync(filePath);
   const text = decodeMaybeKorean(buf).replace(/^\uFEFF/, "");
@@ -188,87 +162,6 @@ function parseSubway(filePath) {
   };
 }
 
-function headerIndex(header, names) {
-  for (const n of names) {
-    const i = header.findIndex((h) => h.replace(/\s/g, "") === n.replace(/\s/g, ""));
-    if (i >= 0) return i;
-  }
-  // fuzzy contains
-  for (const n of names) {
-    const i = header.findIndex((h) => h.includes(n));
-    if (i >= 0) return i;
-  }
-  return -1;
-}
-
-function parseBusCsv(filePath) {
-  const buf = readFileSync(filePath);
-  const text = decodeMaybeKorean(buf).replace(/^\uFEFF/, "");
-  const lines = text.split(/\r?\n/).filter(Boolean);
-  if (lines.length < 2) {
-    return { rowsParsed: 0, valid: [], error: "empty csv", routeMetadataAvailable: false };
-  }
-  const header = splitCsvLine(lines[0]).map((h) => h.trim());
-  const idx = {
-    id: headerIndex(header, [
-      "정류장번호",
-      "정류소번호",
-      "정류장ID",
-      "정류소ID",
-      "NODE_ID",
-      "노드ID",
-      "정류장식별자",
-    ]),
-    name: headerIndex(header, [
-      "정류장명",
-      "정류소명",
-      "정류장이름",
-      "정류소이름",
-      "STOP_NM",
-    ]),
-    lat: headerIndex(header, ["위도", "Y좌표", "GPS_Y", "LAT", "lat"]),
-    lng: headerIndex(header, ["경도", "X좌표", "GPS_X", "LNG", "lng", "LON"]),
-  };
-  if (idx.name < 0 || idx.lat < 0 || idx.lng < 0) {
-    return {
-      rowsParsed: 0,
-      valid: [],
-      error: `missing required columns: ${header.join("|")}`,
-      routeMetadataAvailable: false,
-      header,
-    };
-  }
-
-  const routeCol = headerIndex(header, ["노선", "노선번호", "버스노선"]);
-  const valid = [];
-  for (const line of lines.slice(1)) {
-    const cols = splitCsvLine(line);
-    const name = (cols[idx.name] ?? "").trim();
-    const lat = Number(cols[idx.lat]);
-    const lng = Number(cols[idx.lng]);
-    if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    if (Math.abs(lat) > 90 || Math.abs(lng) > 180) continue;
-    if (lat === 0 && lng === 0) continue;
-    const idRaw =
-      idx.id >= 0 ? (cols[idx.id] ?? "").trim() : `${lat},${lng}`;
-    valid.push({
-      id: `bus-${idRaw}-${name}`,
-      name,
-      lat,
-      lng,
-      source: "NATIONAL_BUS_STOP_STANDARD_FILE",
-    });
-  }
-
-  return {
-    rowsParsed: lines.length - 1,
-    valid,
-    error: null,
-    routeMetadataAvailable: routeCol >= 0,
-    header,
-  };
-}
-
 function nearbyOf(rows, radiusM) {
   return rows
     .map((r) => {
@@ -285,7 +178,159 @@ function nearbyOf(rows, radiusM) {
     .sort((a, b) => a.distanceMeters - b.distanceMeters);
 }
 
-function main() {
+function molitServiceKey() {
+  const raw = (process.env.MOLIT_API_KEY || "").trim();
+  if (!raw) return null;
+  return raw.includes("%") ? raw : encodeURIComponent(raw);
+}
+
+async function fetchTagoBusNearby() {
+  const key = molitServiceKey();
+  const serviceMeta = {
+    service: "국토교통부_(TAGO)_버스정류소정보",
+    dataset: "전국버스정류소표준데이터",
+    datasetId: "15096280",
+    operation: TAGO_OP,
+    accessMethod: "OpenAPI",
+    responseFormat: "JSON",
+    serviceKeyEnv: "MOLIT_API_KEY",
+  };
+
+  if (!key) {
+    return {
+      ...serviceMeta,
+      file: null,
+      status: "HOLD",
+      reason: "MOLIT_API_KEY missing (server-only 공공데이터포털 ServiceKey)",
+      rowsReceived: 0,
+      validCoordinates: 0,
+      routeMetadataAvailable: false,
+      nearby: [],
+    };
+  }
+
+  const qs = new URLSearchParams({
+    pageNo: "1",
+    numOfRows: "100",
+    _type: "json",
+    gpsLati: String(CENTER.lat),
+    gpsLong: String(CENTER.lng),
+  });
+  const url = `${TAGO_BASE}/${TAGO_OP}?serviceKey=${key}&${qs.toString()}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!res.ok) {
+      return {
+        ...serviceMeta,
+        file: null,
+        status: "HOLD",
+        reason: `TAGO HTTP ${res.status}`,
+        rowsReceived: 0,
+        validCoordinates: 0,
+        routeMetadataAvailable: false,
+        nearby: [],
+      };
+    }
+    const json = await res.json();
+    const header = json?.response?.header || {};
+    const code = String(header.resultCode ?? "");
+    if (code && code !== "00" && code !== "0") {
+      return {
+        ...serviceMeta,
+        file: null,
+        status: "HOLD",
+        reason: `TAGO resultCode=${code} ${header.resultMsg || ""}`,
+        rowsReceived: 0,
+        validCoordinates: 0,
+        routeMetadataAvailable: false,
+        nearby: [],
+      };
+    }
+
+    const rawItems = json?.response?.body?.items;
+    let list = [];
+    if (rawItems && rawItems !== "" && typeof rawItems === "object") {
+      const item = rawItems.item;
+      list = Array.isArray(item) ? item : item ? [item] : [];
+    }
+    const rowsReceived =
+      typeof json?.response?.body?.totalCount === "number"
+        ? json.response.body.totalCount
+        : list.length;
+
+    const valid = [];
+    for (const raw of list) {
+      const name = String(raw.nodenm ?? raw.nodeNm ?? "").trim();
+      const id = String(raw.nodeid ?? raw.nodeId ?? "").trim();
+      const lat = Number(raw.gpslati ?? raw.gpsLati);
+      const lng = Number(raw.gpslong ?? raw.gpsLong);
+      if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+      if (Math.abs(lat) > 90 || Math.abs(lng) > 180) continue;
+      if (lat === 0 && lng === 0) continue;
+      valid.push({
+        id: id || `bus-${lat},${lng}-${name}`,
+        name,
+        lat,
+        lng,
+        source: "NATIONAL_BUS_STOP_STANDARD",
+      });
+    }
+
+    const nearby = nearbyOf(valid, BUS_RADIUS_M).map((b) => ({
+      id: b.id,
+      name: b.name,
+      lat: b.lat,
+      lng: b.lng,
+      distanceMeters: b.distanceMeters,
+      distanceLabel: b.distanceLabel,
+      source: b.source,
+    }));
+
+    if (nearby.length > 0) {
+      return {
+        ...serviceMeta,
+        file: null,
+        status: "PASS",
+        reason: null,
+        rowsReceived,
+        validCoordinates: valid.length,
+        routeMetadataAvailable: false,
+        nearby,
+      };
+    }
+
+    return {
+      ...serviceMeta,
+      file: null,
+      status: "HOLD",
+      reason:
+        rowsReceived === 0
+          ? "TAGO getCrdntPrxmtSttnList returned 0 stops near 잠실엘스 (서울 coverage gap in this service)"
+          : `TAGO returned ${rowsReceived} rows but none within ${BUS_RADIUS_M}m`,
+      rowsReceived,
+      validCoordinates: valid.length,
+      routeMetadataAvailable: false,
+      nearby: [],
+    };
+  } catch (e) {
+    return {
+      ...serviceMeta,
+      file: null,
+      status: "HOLD",
+      reason: `TAGO fetch failed: ${e instanceof Error ? e.message : String(e)}`,
+      rowsReceived: 0,
+      validCoordinates: 0,
+      routeMetadataAvailable: false,
+      nearby: [],
+    };
+  }
+}
+
+async function main() {
   const subwayPath = findSubwayCsv();
   let subwayMeta = {
     file: null,
@@ -312,50 +357,7 @@ function main() {
     subwayNearby = nearbyOf(parsed.valid, SUBWAY_RADIUS_M);
   }
 
-  const busPath = findBusFile();
-  let busMeta = {
-    file: null,
-    status: "HOLD",
-    reason: "official national bus-stop file not present in workspace",
-    rowsParsed: 0,
-    validCoordinates: 0,
-    routeMetadataAvailable: false,
-  };
-  let busNearby = [];
-
-  if (busPath) {
-    if (/\.xlsx?$/i.test(busPath)) {
-      busMeta = {
-        file: basename(busPath),
-        status: "HOLD",
-        reason: "xlsx present but parser expects CSV export of 전국버스정류소표준데이터",
-        rowsParsed: 0,
-        validCoordinates: 0,
-        routeMetadataAvailable: false,
-      };
-    } else {
-      const parsed = parseBusCsv(busPath);
-      busMeta = {
-        file: basename(busPath),
-        status: parsed.valid.length ? "PASS" : "HOLD",
-        reason: parsed.error,
-        rowsParsed: parsed.rowsParsed,
-        validCoordinates: parsed.valid.length,
-        routeMetadataAvailable: !!parsed.routeMetadataAvailable,
-      };
-      // IMPORTANT: never invent route counts even if a route column exists in some dumps.
-      // v1 display uses name + 버스정류장 + straight distance only.
-      busNearby = nearbyOf(parsed.valid, BUS_RADIUS_M).map((b) => ({
-        id: b.id,
-        name: b.name,
-        lat: b.lat,
-        lng: b.lng,
-        distanceMeters: b.distanceMeters,
-        distanceLabel: b.distanceLabel,
-        source: b.source,
-      }));
-    }
-  }
+  const bus = await fetchTagoBusNearby();
 
   const artifact = {
     complex: {
@@ -364,7 +366,21 @@ function main() {
     },
     sources: {
       subway: subwayMeta,
-      bus: busMeta,
+      bus: {
+        file: null,
+        service: bus.service,
+        dataset: bus.dataset,
+        datasetId: bus.datasetId,
+        operation: bus.operation,
+        accessMethod: bus.accessMethod,
+        responseFormat: bus.responseFormat,
+        serviceKeyEnv: bus.serviceKeyEnv,
+        status: bus.status,
+        reason: bus.reason,
+        rowsReceived: bus.rowsReceived,
+        validCoordinates: bus.validCoordinates,
+        routeMetadataAvailable: false,
+      },
     },
     subway: subwayNearby.map((s) => ({
       id: s.id,
@@ -377,13 +393,13 @@ function main() {
       distanceLabel: s.distanceLabel,
       source: s.source,
     })),
-    bus: busNearby,
+    bus: bus.nearby,
     radiiMeters: {
       subway: SUBWAY_RADIUS_M,
       bus: BUS_RADIUS_M,
     },
     generatedAt: new Date().toISOString(),
-    note: "Pilot extract only — not a nationwide transport master. No VWorld. No route invention.",
+    note: "Pilot extract only. Subway=official CSV. Bus=공공데이터포털 TAGO OpenAPI (not local file). No VWorld. No route invention.",
   };
 
   mkdirSync(dirname(OUT), { recursive: true });
@@ -398,9 +414,10 @@ function main() {
           coverage: subwayMeta.coverage,
         },
         bus: {
-          status: busMeta.status,
+          status: bus.status,
           nearby: artifact.bus.length,
-          reason: busMeta.reason,
+          reason: bus.reason,
+          rowsReceived: bus.rowsReceived,
         },
       },
       null,
@@ -409,4 +426,7 @@ function main() {
   );
 }
 
-main();
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
