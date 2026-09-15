@@ -20,8 +20,7 @@ import {
   complexHeaderChips,
   hasComplexInfoSection,
 } from "@/components/apt/ComplexInfoCards";
-import { ComplexSchoolsSection } from "@/components/apt/ComplexSchoolsSection";
-import { ComplexSurroundingsSection } from "@/components/apt/ComplexSurroundingsSection";
+import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSection";
 import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
 import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
@@ -263,8 +262,8 @@ export function AptDetailPage({
       "calculator",
       "management",
       "complex-info",
-      "schools",
-      "surroundings",
+      "nearby-life",
+      "nearby-sales",
       "comparison",
     ] as const;
     const nodes = ids
@@ -280,11 +279,7 @@ export function AptDetailPage({
         if (top?.startsWith("section-")) {
           const id = top.replace("section-", "");
           setActiveSection(
-            id === "trades"
-              ? "market"
-              : id === "surroundings"
-                ? "schools"
-                : id,
+            id === "trades" ? "market" : id,
           );
         }
       },
@@ -560,7 +555,7 @@ export function AptDetailPage({
       label: "단지 정보",
       show: hasComplexInfoSection(complexDetail),
     },
-    { id: "schools", label: "학군 · 주변", show: true },
+    { id: "nearby-life", label: "주변 생활", show: true },
     { id: "nearby-sales", label: "주변 공급", show: true },
     { id: "comparison", label: "주변 단지 비교", show: true },
   ];
@@ -917,12 +912,11 @@ export function AptDetailPage({
         </div>
       ) : null}
 
-      <div id="section-schools" className="scroll-mt-28">
-        <ComplexSchoolsSection aptName={aptName} />
-      </div>
-
-      <div id="section-surroundings" className="scroll-mt-28">
-        <ComplexSurroundingsSection aptName={aptName} />
+      <div id="section-nearby-life" className="scroll-mt-28">
+        <ComplexNearbyLifeSection
+          aptName={aptName}
+          identity={identity ?? null}
+        />
       </div>
 
       <div id="section-nearby-sales" className="scroll-mt-28">

@@ -17,6 +17,9 @@ export type SurroundingPlace = {
   name: string;
   distanceMeters: number;
   distanceLabel: string;
+  /** Present when VWorld returned a point — used for map markers. */
+  lat?: number;
+  lng?: number;
 };
 
 export const SURROUNDING_CATEGORY_LABEL: Record<SurroundingCategory, string> = {
@@ -132,6 +135,8 @@ export async function fetchNearbySurroundings(params: {
             name,
             distanceMeters: Math.round(meters),
             distanceLabel: formatStraightDistance(meters),
+            lat,
+            lng,
           };
         }
       }
