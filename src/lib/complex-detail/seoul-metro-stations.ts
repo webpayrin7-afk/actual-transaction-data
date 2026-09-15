@@ -486,12 +486,13 @@ function mergeNearbyStations(
 /**
  * Nearest distinct Seoul Metro stations (1–8 + 9 phase2/3), merged by
  * normalized name + coordinate proximity. Distances from live complex center.
+ * Default: all stations within ≤800m (no count cap). Optional `limit` still
+ * available for callers that need a hard cap.
  */
 export function nearestSeoulMetroStations(
   center: LatLng,
   opts?: { limit?: number; maxMeters?: number },
 ): NearbyMetroStationGroup[] {
-  const limit = opts?.limit ?? 3;
   /** UI display radius: keep ≤800m; never pad with farther stations. */
   const maxMeters = opts?.maxMeters ?? 800;
   const stations = loadSeoulMetroStations();
@@ -507,7 +508,11 @@ export function nearestSeoulMetroStations(
     .filter((s) => s.distanceMeters <= maxMeters)
     .sort((a, b) => a.distanceMeters - b.distanceMeters);
 
-  return mergeNearbyStations(ranked).slice(0, limit);
+  const merged = mergeNearbyStations(ranked);
+  if (opts?.limit != null && opts.limit >= 0) {
+    return merged.slice(0, opts.limit);
+  }
+  return merged;
 }
 
 export function seoulMetroCsvFileNames(): string[] {
