@@ -165,14 +165,14 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
   return (
     <div className="mt-2">
       <div
-        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-1.5 pt-0.5"
+        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-2 pt-1.5"
         style={gridStyle}
       >
         <span className="text-[10px] text-slate-400" aria-hidden="true" />
         {columns.map((c, i) => {
           const isCurrent = i === 0;
           // Current complex name: teal. Peers: black (link).
-          const nameClass = `line-clamp-2 text-[11px] font-semibold leading-snug sm:text-[12px] ${
+          const nameClass = `line-clamp-2 text-[12px] font-semibold leading-snug sm:text-[13px] ${
             isCurrent ? "text-teal-700" : "text-slate-900"
           }`;
           return (
@@ -190,7 +190,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
                   {c.aptName}
                 </Link>
               )}
-              <p className="mt-0.5 mb-0.5 text-[10px] tabular-nums leading-none text-slate-500">
+              <p className="mt-0.5 mb-1 text-[11px] tabular-nums leading-none text-slate-500">
                 {formatAreaShort(c)}
               </p>
             </div>
@@ -204,13 +204,13 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
           className="grid items-center gap-x-1 border-b border-slate-100 py-1.5 last:border-0"
           style={gridStyle}
         >
-          <p className="text-[10px] leading-none text-slate-500 sm:text-[11px]">
+          <p className="text-[11px] leading-none text-slate-500 sm:text-[12px]">
             {row.label}
           </p>
           {row.values.map((v, i) => (
             <p
               key={`${row.label}-${i}`}
-              className={`min-w-0 truncate px-0.5 text-center text-[11px] tabular-nums leading-snug sm:text-[12px] ${
+              className={`min-w-0 truncate px-0.5 text-center text-[12px] tabular-nums leading-snug sm:text-[13px] ${
                 row.strong
                   ? "font-semibold text-slate-900"
                   : row.muted
@@ -331,11 +331,11 @@ export function ComplexCompareSection({
   return (
     <LabCard className="p-3.5 sm:p-5">
       <div className="flex items-start justify-between gap-2">
-        <h2 className="flex min-w-0 items-center text-[1.125rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)] sm:text-[1.25rem]">
+        <h2 className="flex min-w-0 items-center text-[1.25rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)]">
           주변 단지 비교
           <CompareInfoTip />
         </h2>
-        <p className="shrink-0 pt-1 text-right text-[10px] leading-4 text-slate-500 sm:text-[11px]">
+        <p className="shrink-0 pt-1 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">
           {areaBandLabel(areaCenter)}
         </p>
       </div>
