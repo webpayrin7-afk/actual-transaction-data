@@ -210,7 +210,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
           <p
             className={`leading-none text-slate-500 ${
               row.large
-                ? "text-[12px] sm:text-[13px]"
+                ? "text-[14px] font-medium sm:text-[15px]"
                 : "text-[11px] sm:text-[12px]"
             }`}
           >
