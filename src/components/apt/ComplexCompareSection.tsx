@@ -48,8 +48,8 @@ function formatAreaShort(m: CompareComplexMetrics): string {
   if (!m.matchedArea) return "—";
   const min = m.matchedArea.exclusiveMin;
   const max = m.matchedArea.exclusiveMax;
-  if (Math.abs(max - min) < 0.15) return `${((min + max) / 2).toFixed(2)}㎡`;
-  return `${min.toFixed(1)}~${max.toFixed(1)}㎡`;
+  // Header: one representative ㎡ (avoid range that stretches the row).
+  return `${((min + max) / 2).toFixed(2)}㎡`;
 }
 
 /** 준공 · 세대 — omit missing household (no bare "—"). */
