@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AptDetailPage } from "@/components/apt/AptDetailPage";
+import { AptDetailEnterTransition } from "@/components/apt/AptDetailEnterTransition";
 import { getRegion } from "@/lib/constants/regions";
 import { getComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 
@@ -44,14 +45,16 @@ export default async function AptPage({ params, searchParams }: PageProps) {
   }
 
   return (
-    <main className="flex-1">
-      <AptDetailPage
-        aptName={aptName}
-        regionSlug={regionSlug}
-        gu={gu}
-        initialAreaKey={initialAreaKey}
-        complexDetail={complexDetail}
-      />
+    <main className="flex-1 overflow-x-clip">
+      <AptDetailEnterTransition>
+        <AptDetailPage
+          aptName={aptName}
+          regionSlug={regionSlug}
+          gu={gu}
+          initialAreaKey={initialAreaKey}
+          complexDetail={complexDetail}
+        />
+      </AptDetailEnterTransition>
     </main>
   );
 }
