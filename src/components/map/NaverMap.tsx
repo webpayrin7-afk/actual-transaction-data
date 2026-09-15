@@ -27,7 +27,7 @@ export type NaverMapMarker = {
   position: LatLng;
   title: string;
   kind: "COMPLEX" | "SCHOOL" | "TRANSIT" | "LIVING" | "MEDICAL" | "OTHER";
-  /** Compact always-visible label (COMPLEX). */
+  /** Optional compact label (TRANSIT / SCHOOL). COMPLEX does not show a name label. */
   label?: string;
   /** Optional line badge text for TRANSIT (e.g. "2"). */
   badge?: string;
@@ -103,7 +103,7 @@ function selectionArrowHtml(): string {
 
 /**
  * Marker visual hierarchy: COMPLEX > selected living > transit/other.
- * COMPLEX: building icon + always-visible name (not a plain dot).
+ * COMPLEX: building icon only (no apartment-name text label).
  * Pixel anchors only — never shift source lat/lng.
  */
 function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
@@ -113,10 +113,9 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     (selected && kind === "COMPLEX" ? "#0f766e" : KIND_COLOR[kind]);
 
   if (kind === "COMPLEX") {
-    const name = escapeHtml(marker.label || marker.title || "");
+    // Building icon only — no apartment-name text label on the map.
     const fill = selected ? "#0f766e" : KIND_COLOR.COMPLEX;
     const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:none">
-      <span style="font:600 12px/1.2 system-ui,-apple-system,sans-serif;color:#0f172a;background:rgba(255,255,255,.94);padding:3px 7px;border-radius:6px;border:1px solid rgba(15,23,42,.12);box-shadow:0 1px 2px rgba(15,23,42,.12);margin-bottom:4px">${name}</span>
       <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:${fill};border:2px solid #fff;box-shadow:0 1px 3px rgba(15,23,42,.28)">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
       </div>

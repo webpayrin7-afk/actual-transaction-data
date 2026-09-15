@@ -429,7 +429,6 @@ export function ComplexNearbyLifeSection({
             id: "complex",
             position: coords,
             title: aptName,
-            label: aptName,
             kind: "COMPLEX",
             selected: selectedId === "complex",
           }
