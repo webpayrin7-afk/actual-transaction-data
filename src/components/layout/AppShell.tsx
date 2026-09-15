@@ -44,9 +44,20 @@ export function isAptDetailFullPagePath(pathname: string): boolean {
   return /^\/apt\/[^/]+\/?$/.test(pathname);
 }
 
+/** /school/[schoolCode] — school detail own chrome (no global header/nav). */
+export function isSchoolDetailFullPagePath(pathname: string): boolean {
+  return /^\/school\/[^/]+\/?$/.test(pathname);
+}
+
+export function isDetailFullPagePath(pathname: string): boolean {
+  return (
+    isAptDetailFullPagePath(pathname) || isSchoolDetailFullPagePath(pathname)
+  );
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const fullPage = isAptDetailFullPagePath(pathname);
+  const fullPage = isDetailFullPagePath(pathname);
 
   // Sync before paint so sticky offsets don't briefly assume global header height.
   useLayoutEffect(() => {
