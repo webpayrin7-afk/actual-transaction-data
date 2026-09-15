@@ -675,7 +675,7 @@ export function ComplexNearbyLifeSection({
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <div className="lab-section-heading flex-wrap items-center gap-x-2 gap-y-2">
+      <div className="lab-section-heading mb-px flex-wrap items-center gap-x-2 gap-y-2">
         <div className="min-w-0 shrink">
           <h2 className="flex items-center">
             주변 생활
