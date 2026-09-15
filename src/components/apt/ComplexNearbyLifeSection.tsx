@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -185,6 +186,15 @@ export function ComplexNearbyLifeSection({
   const [geocodeReason, setGeocodeReason] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const mapSectionRef = useRef<HTMLDivElement | null>(null);
+
+  const selectFromList = useCallback((id: string) => {
+    setSelectedId(id);
+    mapSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -438,7 +448,7 @@ export function ComplexNearbyLifeSection({
                     <li key={p.id}>
                       <button
                         type="button"
-                        onClick={() => setSelectedId(p.id)}
+                        onClick={() => selectFromList(p.id)}
                         aria-label={`${p.name} 지도에서 보기`}
                         className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
                       >
@@ -500,7 +510,7 @@ export function ComplexNearbyLifeSection({
                     <li key={p.id}>
                       <button
                         type="button"
-                        onClick={() => setSelectedId(p.id)}
+                        onClick={() => selectFromList(p.id)}
                         aria-label={`${p.name} 지도에서 보기`}
                         className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
                       >
@@ -561,7 +571,7 @@ export function ComplexNearbyLifeSection({
             <li key={p.id}>
               <button
                 type="button"
-                onClick={() => setSelectedId(p.id)}
+                onClick={() => selectFromList(p.id)}
                 className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
               >
                 <span className="min-w-0">
@@ -617,7 +627,7 @@ export function ComplexNearbyLifeSection({
           <li key={s.id}>
             <button
               type="button"
-              onClick={() => setSelectedId(s.id)}
+              onClick={() => selectFromList(s.id)}
               disabled={s.lat == null || s.lng == null}
               className={`flex w-full items-start justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition disabled:cursor-default ${selectedRowClass(selectedId === s.id)}`}
             >
@@ -728,7 +738,10 @@ export function ComplexNearbyLifeSection({
       {tab === "transport" ? (
         <div className="mt-3 space-y-3">
           {/* Full-bleed map — width retained, height reduced so list peeks in */}
-          <div className="relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none">
+          <div
+            ref={mapSectionRef}
+            className="relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none"
+          >
             {coords && geocodeStatus === "ready" ? (
               <NaverMap
                 center={mapCenter ?? coords}
@@ -762,7 +775,10 @@ export function ComplexNearbyLifeSection({
         </div>
       ) : (
         <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-start">
-          <div className="min-w-0 overflow-hidden rounded-xl bg-slate-50/40">
+          <div
+            ref={mapSectionRef}
+            className="min-w-0 overflow-hidden rounded-xl bg-slate-50/40"
+          >
             {coords && geocodeStatus === "ready" ? (
               <NaverMap
                 center={mapCenter ?? coords}
