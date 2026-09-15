@@ -1,9 +1,19 @@
 /**
- * Server-only NAVER Local Search (API HUB / legacy OpenAPI).
+ * Server-only NAVER Local Search (API HUB).
  * Never expose Client Secret to the browser.
  *
  * Contract: GET /search/v1/local
- * https://api.ncloud-docs.com/docs/naver-api-hub-search-local
+ * https://naverapihub.apigw.ntruss.com/search/v1/local
+ *
+ * Credentials (only):
+ * - NAVER_API_HUB_CLIENT_ID
+ * - NAVER_API_HUB_CLIENT_SECRET
+ *
+ * Headers:
+ * - X-NCP-APIGW-API-KEY-ID
+ * - X-NCP-APIGW-API-KEY
+ *
+ * Do not use Maps Client ID / legacy Developers credentials.
  */
 
 export type NaverLocalSearchItem = {
@@ -29,43 +39,23 @@ export type NaverLocalSearchResponse = {
 export type NaverLocalCredentials = {
   clientId: string;
   clientSecret: string;
-  /** Which header pair / host to use. */
-  mode: "api-hub" | "legacy";
 };
 
+/** Official NAVER API HUB Local Search endpoint. */
 const API_HUB_BASE = "https://naverapihub.apigw.ntruss.com/search/v1/local";
-const LEGACY_BASE = "https://openapi.naver.com/v1/search/local.json";
 
 /** Cache tag / version for living Local Search payloads. */
 export const NAVER_LOCAL_CACHE_VERSION = "living-v1";
 
 /**
  * Resolve server-only Local Search credentials.
- * Prefers NAVER API HUB names; falls back to legacy OpenAPI env names.
+ * Only NAVER_API_HUB_CLIENT_ID / NAVER_API_HUB_CLIENT_SECRET.
  */
 export function getNaverLocalSearchCredentials(): NaverLocalCredentials | null {
-  const hubId =
-    process.env.NAVER_API_HUB_CLIENT_ID?.trim() ||
-    process.env.NCP_APIGW_API_KEY_ID?.trim() ||
-    process.env.NAVER_SEARCH_CLIENT_ID?.trim() ||
-    "";
-  const hubSecret =
-    process.env.NAVER_API_HUB_CLIENT_SECRET?.trim() ||
-    process.env.NCP_APIGW_API_KEY?.trim() ||
-    process.env.NAVER_SEARCH_CLIENT_SECRET?.trim() ||
-    "";
-  if (hubId && hubSecret) {
-    return { clientId: hubId, clientSecret: hubSecret, mode: "api-hub" };
-  }
-
-  const legacyId = process.env.NAVER_CLIENT_ID?.trim() || "";
-  const legacySecret = process.env.NAVER_CLIENT_SECRET?.trim() || "";
-  if (legacyId && legacySecret) {
-    return {
-      clientId: legacyId,
-      clientSecret: legacySecret,
-      mode: "legacy",
-    };
+  const clientId = process.env.NAVER_API_HUB_CLIENT_ID?.trim() || "";
+  const clientSecret = process.env.NAVER_API_HUB_CLIENT_SECRET?.trim() || "";
+  if (clientId && clientSecret) {
+    return { clientId, clientSecret };
   }
   return null;
 }
@@ -147,21 +137,11 @@ export async function fetchNaverLocalSearch(params: {
     format: "json",
   });
 
-  const url =
-    creds.mode === "api-hub"
-      ? `${API_HUB_BASE}?${qs.toString()}`
-      : `${LEGACY_BASE}?${qs.toString()}`;
-
-  const headers: Record<string, string> =
-    creds.mode === "api-hub"
-      ? {
-          "X-NCP-APIGW-API-KEY-ID": creds.clientId,
-          "X-NCP-APIGW-API-KEY": creds.clientSecret,
-        }
-      : {
-          "X-Naver-Client-Id": creds.clientId,
-          "X-Naver-Client-Secret": creds.clientSecret,
-        };
+  const url = `${API_HUB_BASE}?${qs.toString()}`;
+  const headers: Record<string, string> = {
+    "X-NCP-APIGW-API-KEY-ID": creds.clientId,
+    "X-NCP-APIGW-API-KEY": creds.clientSecret,
+  };
 
   try {
     const res = await fetch(url, {

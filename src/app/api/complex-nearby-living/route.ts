@@ -49,9 +49,6 @@ export async function GET(req: NextRequest) {
       requiredEnv: [
         "NAVER_API_HUB_CLIENT_ID",
         "NAVER_API_HUB_CLIENT_SECRET",
-        "(또는 NCP_APIGW_API_KEY_ID / NCP_APIGW_API_KEY)",
-        "(또는 NAVER_SEARCH_CLIENT_ID / NAVER_SEARCH_CLIENT_SECRET)",
-        "(legacy: NAVER_CLIENT_ID / NAVER_CLIENT_SECRET)",
       ],
       apiCallCount: 0,
       duplicatesRemoved: 0,
