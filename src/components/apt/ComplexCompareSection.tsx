@@ -122,14 +122,15 @@ function CompareInfoTip() {
   }, []);
 
   return (
-    <details ref={ref} className="relative inline-flex shrink-0 align-middle">
+    // Not `relative`: panel anchors to the section header so it stays in-card.
+    <details ref={ref} className="inline-flex shrink-0 align-middle">
       <summary
         className="ml-1 inline-flex cursor-pointer list-none items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
         aria-label="주변 단지 비교 안내"
       >
         <span aria-hidden="true">ⓘ</span>
       </summary>
-      <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-72 max-w-[calc(100vw-2.5rem)] space-y-1 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
+      <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-[min(18rem,100%)] space-y-1 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
         <p>
           같은 동·인근 지역에서 전용면적, 준공연도, 최근 거래와 확인 가능한 단지
           규모를 기준으로 비교 단지를 자동 선정합니다.
@@ -360,7 +361,7 @@ export function ComplexCompareSection({
 
   return (
     <LabCard className="p-3.5 sm:p-5">
-      <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
+      <div className="lab-section-heading relative !mb-0 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h2 className="flex items-center">
             주변 단지 비교
