@@ -136,9 +136,7 @@ function SourceInfoTip() {
 function SaleRow({ item }: { item: NearbySaleCard }) {
   const isMoveIn = item.status === "move_in_upcoming";
   const detailHref = item.pblancUrl;
-  const detailLabel = isMoveIn
-    ? "공고 상세 바로가기 →"
-    : "청약 상세 바로가기 →";
+  const detailLabel = isMoveIn ? "공고상세 가기" : "청약상세 가기";
   const priced = !isMoveIn
     ? item.types.filter((t) => t.topAmountLabel).slice(0, VISIBLE_TYPES)
     : [];
@@ -148,16 +146,18 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
 
   return (
     <li className="px-3 py-2.5">
-      {/* ROW 1 — name + status / 입주예정 badge */}
+      {/* ROW 1 — name; status pill only when not move-in */}
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-snug text-slate-900">
           {item.houseName}
         </p>
-        <span
-          className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
-        >
-          {item.statusLabel}
-        </span>
+        {!isMoveIn ? (
+          <span
+            className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
+          >
+            {item.statusLabel}
+          </span>
+        ) : null}
       </div>
 
       {/* ROW 2 — meta + type badges to the right of 세대 */}
@@ -202,11 +202,18 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
         </ul>
       ) : null}
 
-      {/* ROW 3 — move-in date (no 입주예정 suffix; badge covers it) + CTA */}
+      {/* ROW 3 — move-in date + 입주예정 below; teal text CTA */}
       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
         {isMoveIn && item.moveInLabel ? (
-          <span className="text-[12px] font-semibold tabular-nums text-slate-800">
-            {item.moveInLabel}
+          <span className="inline-flex items-center gap-1.5">
+            <span className="text-[12px] font-semibold tabular-nums text-slate-800">
+              {item.moveInLabel}
+            </span>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
+            >
+              입주 예정
+            </span>
           </span>
         ) : null}
         {detailHref ? (
