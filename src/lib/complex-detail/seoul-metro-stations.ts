@@ -3,12 +3,24 @@
  * Sources:
  * - 서울교통공사_1-8호선 역사 좌표(위경도) 정보_20250814.csv (OA-22534)
  * - 서울교통공사_9호선 2_3단계 역사 좌표(위경도) 정보_20260131.csv
- * Runtime CSV read only. No DB writes. No invented lines.
+ * - 서울교통공사_역주소_및_전화번호 (anomaly address fallback only)
+ *
+ * Coordinate priority:
+ *   1. SEOUL_METRO_OFFICIAL — official CSV when not anomalous
+ *   2. NAVER_GEOCODE_OFFICIAL_STATION_ADDRESS — duplicate-coord anomaly →
+ *      official station address (stationCode + line) → NAVER Geocode
+ *   3. HOLD — omit station (never midpoint / line-order interpolation)
+ *
+ * Runtime file read only. No DB writes. No invented lines / hardcoded lat·lng.
  */
 
 import { readFileSync } from "fs";
 import path from "path";
 import { haversineMeters, type LatLng } from "@/lib/complex-detail/geo";
+
+export type MetroCoordinateSource =
+  | "SEOUL_METRO_OFFICIAL"
+  | "NAVER_GEOCODE_OFFICIAL_STATION_ADDRESS";
 
 export type SeoulMetroStation = {
   sourceId: string;
@@ -18,6 +30,8 @@ export type SeoulMetroStation = {
   lat: number;
   lng: number;
   source: "SEOUL_METRO_1_8" | "SEOUL_METRO_9_PHASE23";
+  /** Provenance of lat/lng. Not shown in UI. */
+  coordinateSource: MetroCoordinateSource;
 };
 
 export type NearbyMetroStationGroup = {
@@ -31,21 +45,44 @@ export type NearbyMetroStationGroup = {
   members: SeoulMetroStation[];
 };
 
+type StationAddressRow = {
+  line: string;
+  stationCode: string;
+  name: string;
+  roadAddress: string;
+  jibunAddress: string;
+};
+
+type GeocodeCacheEntry = {
+  line: string;
+  stationCode: string;
+  name?: string;
+  lat: number;
+  lng: number;
+  queryUsed?: string;
+  officialRoadAddress?: string;
+  officialJibunAddress?: string;
+};
+
 const CSV_1_8 =
   "서울교통공사_1-8호선 역사 좌표(위경도) 정보_20250814.csv";
 const CSV_9 =
   "서울교통공사_9호선 2_3단계 역사 좌표(위경도) 정보_20260131.csv";
+const CSV_ADDRESS = "서울교통공사_역주소_및_전화번호_20260212.csv";
+const GEOCODE_CACHE_FILE = "station-address-geocode-cache.json";
 
 /** Same-name hubs merge only when coordinates are this close (meters). */
 const MERGE_MAX_METERS = 400;
 
 /**
  * Official CSV sometimes repeats another station’s coordinates for a different
- * name (e.g. 잠실새내 ≈ 잠실나루). Treat as invalid and repair via line order.
+ * name (e.g. 잠실새내 ≈ 잠실나루). Detect for address + NAVER geocode fallback.
  */
 const DUPLICATE_COORD_METERS = 30;
 
 let cache: SeoulMetroStation[] | null = null;
+let addressCache: Map<string, StationAddressRow> | null = null;
+let geocodeCache: Map<string, GeocodeCacheEntry> | null = null;
 
 function straightDistanceLabel(meters: number): string {
   if (!Number.isFinite(meters) || meters < 0) return "—";
@@ -73,13 +110,19 @@ function normalizeLineNumber(raw: string): string {
   return m ? m[1] : t.replace(/호선$/u, "");
 }
 
+function identityKey(line: string, stationCode: string): string {
+  return `${normalizeLineNumber(line)}:${stationCode.trim()}`;
+}
+
 function parseCsv1to8(text: string): SeoulMetroStation[] {
   const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return [];
   const header = lines[0].split(",").map((h) => h.trim());
   const idx = {
     line: header.indexOf("호선"),
-    code: header.findIndex((h) => h.includes("고유역번호") || h.includes("외부역코드")),
+    code: header.findIndex(
+      (h) => h.includes("고유역번호") || h.includes("외부역코드"),
+    ),
     name: header.indexOf("역명"),
     lat: header.indexOf("위도"),
     lng: header.indexOf("경도"),
@@ -103,6 +146,7 @@ function parseCsv1to8(text: string): SeoulMetroStation[] {
       lat,
       lng,
       source: "SEOUL_METRO_1_8",
+      coordinateSource: "SEOUL_METRO_OFFICIAL",
     });
   }
   return out;
@@ -139,36 +183,109 @@ function parseCsvLine9(text: string): SeoulMetroStation[] {
       lat,
       lng,
       source: "SEOUL_METRO_9_PHASE23",
+      coordinateSource: "SEOUL_METRO_OFFICIAL",
     });
   }
   return out;
 }
 
-function readCsvFile(fileName: string): string | null {
+function readDataFile(fileName: string): Buffer | null {
   const filePath = path.join(process.cwd(), "data", "seoul-metro", fileName);
   try {
-    const buf = readFileSync(filePath);
-    return new TextDecoder("euc-kr").decode(buf);
+    return readFileSync(filePath);
   } catch {
-    try {
-      return readFileSync(filePath, "utf8");
-    } catch {
-      return null;
-    }
+    return null;
   }
 }
 
+function readCsvFile(fileName: string): string | null {
+  const buf = readDataFile(fileName);
+  if (!buf) return null;
+  try {
+    return new TextDecoder("euc-kr").decode(buf);
+  } catch {
+    return buf.toString("utf8");
+  }
+}
+
+function loadStationAddresses(): Map<string, StationAddressRow> {
+  if (addressCache) return addressCache;
+  const map = new Map<string, StationAddressRow>();
+  const text = readCsvFile(CSV_ADDRESS);
+  if (!text) {
+    addressCache = map;
+    return map;
+  }
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) {
+    addressCache = map;
+    return map;
+  }
+  const header = lines[0].split(",").map((h) => h.trim());
+  const idx = {
+    code: header.indexOf("역번호"),
+    line: header.indexOf("호선"),
+    name: header.indexOf("역명"),
+    road: header.indexOf("도로명주소"),
+    jibun: header.indexOf("지번주소"),
+  };
+  if (idx.code < 0 || idx.line < 0) {
+    addressCache = map;
+    return map;
+  }
+  for (const row of lines.slice(1)) {
+    const cols = row.split(",");
+    const stationCode = (cols[idx.code] ?? "").trim();
+    const line = normalizeLineNumber(cols[idx.line] ?? "");
+    if (!stationCode || !line) continue;
+    map.set(identityKey(line, stationCode), {
+      line,
+      stationCode,
+      name: (cols[idx.name] ?? "").trim(),
+      roadAddress: idx.road >= 0 ? (cols[idx.road] ?? "").trim() : "",
+      jibunAddress: idx.jibun >= 0 ? (cols[idx.jibun] ?? "").trim() : "",
+    });
+  }
+  addressCache = map;
+  return map;
+}
+
+function loadGeocodeCache(): Map<string, GeocodeCacheEntry> {
+  if (geocodeCache) return geocodeCache;
+  const map = new Map<string, GeocodeCacheEntry>();
+  const buf = readDataFile(GEOCODE_CACHE_FILE);
+  if (!buf) {
+    geocodeCache = map;
+    return map;
+  }
+  try {
+    const json = JSON.parse(buf.toString("utf8")) as Record<
+      string,
+      GeocodeCacheEntry | string
+    >;
+    for (const [key, value] of Object.entries(json)) {
+      if (!value || typeof value !== "object") continue;
+      if (!Number.isFinite(value.lat) || !Number.isFinite(value.lng)) continue;
+      map.set(key, value);
+    }
+  } catch {
+    // fail closed — anomalies without cache become HOLD
+  }
+  geocodeCache = map;
+  return map;
+}
+
 /**
- * When two differently named stations share nearly the same coordinates,
- * repair only the row that is out of geographic order for its station-code
- * neighbors on the same line (interpolate prev/next). No name hardcoding.
+ * Resolve duplicate-coordinate anomalies:
+ * detect → keep geographically consistent official row → for others,
+ * official address (code+line) + NAVER geocode. Never midpoint interpolate.
+ * Unresolved anomalies are HOLD (omitted).
  */
-function repairDuplicateCoordinates(
+function resolveAnomalousCoordinates(
   stations: SeoulMetroStation[],
 ): SeoulMetroStation[] {
   if (stations.length < 2) return stations;
 
-  // Clusters of differently named stations that share nearly the same point.
   const clusters: string[][] = [];
   const seen = new Set<string>();
   for (let i = 0; i < stations.length; i++) {
@@ -177,10 +294,15 @@ function repairDuplicateCoordinates(
     const cluster = [a.sourceId];
     for (let j = i + 1; j < stations.length; j++) {
       const b = stations[j];
-      if (normalizeMetroStationName(a.name) === normalizeMetroStationName(b.name)) {
+      if (
+        normalizeMetroStationName(a.name) ===
+        normalizeMetroStationName(b.name)
+      ) {
         continue;
       }
-      if (haversineMeters(a.lat, a.lng, b.lat, b.lng) <= DUPLICATE_COORD_METERS) {
+      if (
+        haversineMeters(a.lat, a.lng, b.lat, b.lng) <= DUPLICATE_COORD_METERS
+      ) {
         cluster.push(b.sourceId);
       }
     }
@@ -206,6 +328,8 @@ function repairDuplicateCoordinates(
   }
 
   const byId = new Map(stations.map((s) => [s.sourceId, s]));
+  const addresses = loadStationAddresses();
+  const geocodes = loadGeocodeCache();
 
   const neighborsOf = (
     s: SeoulMetroStation,
@@ -231,7 +355,11 @@ function repairDuplicateCoordinates(
     return { prev, next };
   };
 
-  const orderError = (s: SeoulMetroStation, excludeIds: Set<string>): number => {
+  /** Chooses which duplicate keeps official CSV — never invents coordinates. */
+  const orderError = (
+    s: SeoulMetroStation,
+    excludeIds: Set<string>,
+  ): number => {
     const { prev, next } = neighborsOf(s, excludeIds);
     if (!prev || !next) return Number.POSITIVE_INFINITY;
     const expLat = (prev.lat + next.lat) / 2;
@@ -258,23 +386,36 @@ function repairDuplicateCoordinates(
     }
   }
 
-  return stations.map((s) => {
-    if (!repairIds.has(s.sourceId)) return s;
-    const exclude = new Set<string>([...repairIds, s.sourceId]);
-    // Also exclude other members of s's cluster so neighbors are clean.
-    for (const cluster of clusters) {
-      if (cluster.includes(s.sourceId)) {
-        for (const id of cluster) exclude.add(id);
-      }
+  const holdIds = new Set<string>();
+  const repaired = new Map<string, SeoulMetroStation>();
+
+  for (const id of repairIds) {
+    const s = byId.get(id);
+    if (!s) continue;
+    const key = identityKey(s.line, s.stationCode);
+    const addr = addresses.get(key);
+    const geo = geocodes.get(key);
+    // Identity join: stationCode + line must exist in official address file.
+    if (
+      !addr ||
+      !geo ||
+      !Number.isFinite(geo.lat) ||
+      !Number.isFinite(geo.lng)
+    ) {
+      holdIds.add(id);
+      continue;
     }
-    const { prev, next } = neighborsOf(s, exclude);
-    if (!prev || !next) return s;
-    return {
+    repaired.set(id, {
       ...s,
-      lat: (prev.lat + next.lat) / 2,
-      lng: (prev.lng + next.lng) / 2,
-    };
-  });
+      lat: geo.lat,
+      lng: geo.lng,
+      coordinateSource: "NAVER_GEOCODE_OFFICIAL_STATION_ADDRESS",
+    });
+  }
+
+  return stations
+    .filter((s) => !holdIds.has(s.sourceId))
+    .map((s) => repaired.get(s.sourceId) ?? s);
 }
 
 export function loadSeoulMetroStations(): SeoulMetroStation[] {
@@ -284,8 +425,15 @@ export function loadSeoulMetroStations(): SeoulMetroStation[] {
   if (t18) out.push(...parseCsv1to8(t18));
   const t9 = readCsvFile(CSV_9);
   if (t9) out.push(...parseCsvLine9(t9));
-  cache = repairDuplicateCoordinates(out);
+  cache = resolveAnomalousCoordinates(out);
   return cache;
+}
+
+/** Test helper — clears module caches between QA runs. */
+export function __resetSeoulMetroStationCacheForTests(): void {
+  cache = null;
+  addressCache = null;
+  geocodeCache = null;
 }
 
 function mergeNearbyStations(
@@ -362,5 +510,5 @@ export function nearestSeoulMetroStations(
 }
 
 export function seoulMetroCsvFileNames(): string[] {
-  return [CSV_1_8, CSV_9];
+  return [CSV_1_8, CSV_9, CSV_ADDRESS];
 }

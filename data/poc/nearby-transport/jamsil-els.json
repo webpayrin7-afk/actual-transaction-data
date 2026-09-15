@@ -100,11 +100,12 @@
       "lines": [
         "2"
       ],
-      "lat": 37.520731,
-      "lng": 127.103738,
-      "distanceMeters": 830,
-      "distanceLabel": "직선거리 830m",
-      "source": "SEOUL_METRO_STATION_FILE"
+      "lat": 37.5115672,
+      "lng": 127.0863739,
+      "distanceMeters": 1462,
+      "distanceLabel": "직선거리 1.5km",
+      "source": "SEOUL_METRO_STATION_FILE",
+      "coordinateSource": "NAVER_GEOCODE_OFFICIAL_STATION_ADDRESS"
     }
   ],
   "bus": [
