@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NaverMap, type NaverMapMarker } from "@/components/map/NaverMap";
 import type { LatLng } from "@/lib/nearby-map/geo";
+import { geocodeAddressWithNaver } from "@/lib/nearby-map/naver-sdk";
 
 type SchoolLevel = "elementary" | "middle" | "high" | "other";
 
@@ -43,6 +44,11 @@ type PilotPayload = {
     coordMethod: string | null;
     coordArtifact: string | null;
     coordDetail: string;
+    address: string | null;
+    addressAvailable: boolean;
+    addressType: string | null;
+    addressSource: string | null;
+    addressDetail: string | null;
   };
   catchment: {
     decision: "VERIFIED" | "HOLD";
@@ -105,6 +111,14 @@ export function NearbySchoolMapPilot() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [filter, setFilter] = useState<CategoryFilter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [runtimeCoords, setRuntimeCoords] = useState<LatLng | null>(null);
+  const [runtimeCoordMeta, setRuntimeCoordMeta] = useState<{
+    source: string;
+    accuracy: string;
+    detail: string;
+  } | null>(null);
+  const [geocodeHold, setGeocodeHold] = useState<string | null>(null);
+  const [geocodeBusy, setGeocodeBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -127,6 +141,46 @@ export function NearbySchoolMapPilot() {
     };
   }, []);
 
+  // DEV-only: when master/GIS coords are null, geocode DB canonical address via NAVER.
+  useEffect(() => {
+    if (!data) return;
+    if (data.complex.coords) {
+      setRuntimeCoords(null);
+      setRuntimeCoordMeta(null);
+      setGeocodeHold(null);
+      return;
+    }
+    const address = data.complex.address?.trim();
+    if (!data.complex.addressAvailable || !address) {
+      setGeocodeHold("ADDRESS HOLD — canonical address unavailable");
+      return;
+    }
+    let cancelled = false;
+    setGeocodeBusy(true);
+    setGeocodeHold(null);
+    (async () => {
+      const result = await geocodeAddressWithNaver(address);
+      if (cancelled) return;
+      setGeocodeBusy(false);
+      if (!result.ok) {
+        setRuntimeCoords(null);
+        setRuntimeCoordMeta(null);
+        setGeocodeHold(`GEOCODE HOLD — ${result.reason}`);
+        return;
+      }
+      setRuntimeCoords(result.coordinate);
+      setRuntimeCoordMeta({
+        source: "NAVER_GEOCODE",
+        accuracy: "ADDRESS_POINT",
+        detail: `NAVER geocode of ${address} → matched ${result.matchedAddress}`,
+      });
+      setGeocodeHold(null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [data]);
+
   const availableFilters = useMemo(() => {
     if (!data) return [] as { id: CategoryFilter; label: string }[];
     const all: { id: CategoryFilter; label: string }[] = [
@@ -144,11 +198,12 @@ export function NearbySchoolMapPilot() {
   }, [data]);
 
   const markers: NaverMapMarker[] = useMemo(() => {
-    if (!data?.complex.coords) return [];
+    const center = data?.complex.coords ?? runtimeCoords;
+    if (!center || !data) return [];
     const out: NaverMapMarker[] = [
       {
         id: "complex:jamsil-els",
-        position: data.complex.coords,
+        position: center,
         title: data.complex.name,
         kind: "COMPLEX",
         selected: selectedId === "complex:jamsil-els",
@@ -177,7 +232,7 @@ export function NearbySchoolMapPilot() {
       });
     }
     return out;
-  }, [data, filter, selectedId]);
+  }, [data, filter, selectedId, runtimeCoords]);
 
   const onSelect = useCallback((id: string) => {
     setSelectedId(id);
@@ -200,7 +255,15 @@ export function NearbySchoolMapPilot() {
     );
   }
 
-  const coords = data.complex.coords;
+  const coords = data.complex.coords ?? runtimeCoords;
+  const activeCoordSource =
+    data.complex.coords != null
+      ? data.complex.coordSource
+      : (runtimeCoordMeta?.source ?? data.complex.coordSource);
+  const activeCoordAccuracy =
+    data.complex.coords != null
+      ? data.complex.coordAccuracy
+      : (runtimeCoordMeta?.accuracy ?? data.complex.coordAccuracy);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 sm:px-6">
@@ -213,6 +276,17 @@ export function NearbySchoolMapPilot() {
         </h1>
         <p className="text-sm text-slate-600">
           {data.complex.name} · NAVER Map(2D 위치) + NEIS(학교 구조 데이터)
+        </p>
+        <p className="text-[11px] text-slate-500">
+          address: {data.complex.addressAvailable ? "yes" : "no"}
+          {data.complex.addressType ? ` · ${data.complex.addressType}` : ""}
+          {data.complex.addressSource
+            ? ` · ${data.complex.addressSource}`
+            : ""}
+          {" · "}
+          coordSource: {activeCoordSource}
+          {" · "}
+          accuracy: {activeCoordAccuracy}
         </p>
       </header>
 
@@ -261,16 +335,23 @@ export function NearbySchoolMapPilot() {
               ariaLabel={`${data.complex.name} 주변 지도`}
             />
           ) : (
-            <div className="flex h-[260px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-4 text-center text-sm text-slate-600 sm:h-[360px]">
-              단지 좌표를 확보하지 못해 지도를 중심 고정할 수 없습니다.
-              <br />
-              (우선순위: master → official GIS
-              phase2-visible/complex-building-linkage → VWorld — 임의 좌표 사용
-              안 함)
+            <div
+              data-map-hold="1"
+              data-geocode-hold={geocodeHold ? "yes" : "no"}
+              className="flex h-[260px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-4 text-center text-sm text-slate-600 sm:h-[360px]"
+            >
+              {geocodeBusy
+                ? "NAVER geocode 진행 중…"
+                : geocodeHold
+                  ? geocodeHold
+                  : "단지 좌표를 확보하지 못해 지도를 중심 고정할 수 없습니다."}
             </div>
           )}
           <p className="text-[11px] text-slate-400">
             지도: NAVER Cloud Platform Web Dynamic Map · 필수 저작권/로고 유지
+            {runtimeCoordMeta
+              ? ` · runtime ${runtimeCoordMeta.source}/${runtimeCoordMeta.accuracy}`
+              : ""}
           </p>
         </div>
 

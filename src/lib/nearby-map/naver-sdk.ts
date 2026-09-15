@@ -3,6 +3,20 @@
  * Uses NEXT_PUBLIC_NAVER_MAP_CLIENT_ID — never Client Secret.
  */
 
+export type LatLngLiteral = { lat: number; lng: number };
+
+export type NaverGeocodeResponse = {
+  v2?: {
+    status?: string;
+    addresses?: Array<{
+      roadAddress?: string;
+      jibunAddress?: string;
+      x?: string;
+      y?: string;
+    }>;
+  };
+};
+
 export type NaverMapsApi = {
   maps: {
     Map: new (
@@ -16,6 +30,13 @@ export type NaverMapsApi = {
       addListener: (target: unknown, event: string, handler: () => void) => void;
     };
     Position?: { TOP_LEFT?: unknown };
+    Service?: {
+      geocode: (
+        opts: { query: string },
+        cb: (status: string, response: NaverGeocodeResponse) => void
+      ) => void;
+      Status?: { OK?: string; ERROR?: string };
+    };
   };
 };
 
@@ -98,7 +119,8 @@ export async function loadNaverMapsSdk(): Promise<
     const script = document.createElement("script");
     script.dataset.ziplabNaverMaps = "1";
     script.async = true;
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(id)}`;
+    // Keep existing Maps loader; add geocoder submodule for address→lat/lng.
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(id)}&submodules=geocoder`;
     script.onload = finishOk;
     script.onerror = () =>
       finishErr(
@@ -108,4 +130,84 @@ export async function loadNaverMapsSdk(): Promise<
   });
 
   return loadPromise;
+}
+
+export type NaverGeocodeResult =
+  | {
+      ok: true;
+      coordinate: LatLngLiteral;
+      matchedAddress: string;
+      resultCount: number;
+    }
+  | { ok: false; reason: string; resultCount?: number };
+
+/**
+ * Browser-only NAVER Maps Geocoder. Fail-closed on 0 / ambiguous / invalid.
+ * Never logs or returns the Client ID.
+ */
+export async function geocodeAddressWithNaver(
+  address: string
+): Promise<NaverGeocodeResult> {
+  const query = address.trim();
+  if (!query) return { ok: false, reason: "empty address" };
+
+  const loaded = await loadNaverMapsSdk();
+  if (!loaded.ok) return { ok: false, reason: loaded.reason };
+
+  const service = loaded.naver.maps.Service;
+  if (!service?.geocode) {
+    return {
+      ok: false,
+      reason: "NAVER geocoder submodule unavailable (Service.geocode missing)",
+    };
+  }
+
+  return new Promise((resolve) => {
+    service.geocode({ query }, (status, response) => {
+      const okStatus = service.Status?.OK ?? "OK";
+      if (status !== okStatus) {
+        resolve({
+          ok: false,
+          reason: `NAVER geocoder status=${String(status)}`,
+        });
+        return;
+      }
+      const addresses = response?.v2?.addresses ?? [];
+      if (addresses.length === 0) {
+        resolve({
+          ok: false,
+          reason: "NAVER geocoder returned 0 results",
+          resultCount: 0,
+        });
+        return;
+      }
+      if (addresses.length !== 1) {
+        resolve({
+          ok: false,
+          reason: `ambiguous NAVER geocode (${addresses.length} results)`,
+          resultCount: addresses.length,
+        });
+        return;
+      }
+      const hit = addresses[0];
+      const lat = Number(hit.y);
+      const lng = Number(hit.x);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        resolve({ ok: false, reason: "invalid NAVER geocode coordinate" });
+        return;
+      }
+      if (lat < 33 || lat > 39 || lng < 124 || lng > 132) {
+        resolve({ ok: false, reason: "NAVER geocode outside Korea bounds" });
+        return;
+      }
+      const matched =
+        hit.roadAddress?.trim() || hit.jibunAddress?.trim() || query;
+      resolve({
+        ok: true,
+        coordinate: { lat, lng },
+        matchedAddress: matched,
+        resultCount: 1,
+      });
+    });
+  });
 }

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { resolveJamsilElsCoordinate } from "@/lib/nearby-map/geocode";
+import {
+  resolveJamsilElsCanonicalAddress,
+  resolveJamsilElsCoordinate,
+} from "@/lib/nearby-map/geocode";
 import {
   JAMSIL_ELS_MAP_PILOT,
   SCHOOL_CATCHMENT_AUDIT,
@@ -17,7 +20,10 @@ export const runtime = "nodejs";
  */
 export async function GET() {
   const t0 = performance.now();
-  const coord = await resolveJamsilElsCoordinate();
+  const [coord, address] = await Promise.all([
+    resolveJamsilElsCoordinate(),
+    resolveJamsilElsCanonicalAddress(),
+  ]);
 
   const schools = coord.coordinate
     ? await loadNearbySchools(coord.coordinate)
@@ -96,6 +102,11 @@ export async function GET() {
       coordMethod: coord.method,
       coordArtifact: coord.sourceArtifact,
       coordDetail: coord.note,
+      address: address.address,
+      addressAvailable: address.available,
+      addressType: address.addressType,
+      addressSource: address.source,
+      addressDetail: address.note,
     },
     catchment: {
       decision: SCHOOL_CATCHMENT_AUDIT.assignedSchoolVerified
@@ -159,9 +170,8 @@ export async function GET() {
         "haversine straight-line (WGS84) · src/lib/nearby-map/geo.ts · labeled 직선거리",
       naverMapsJs:
         "AVAILABLE (Web Dynamic Map SDK via NEXT_PUBLIC_NAVER_MAP_CLIENT_ID)",
-      geocoding: process.env.VWORLD_API_KEY
-        ? "AVAILABLE (VWorld)"
-        : "NOT CONFIGURED (VWORLD_API_KEY)",
+      geocoding:
+        "DEV: NAVER Maps Geocoder fallback when coords null (coordSource=NAVER_GEOCODE); VWorld optional for POI/school only",
       reverseGeocoding: "NOT CONFIGURED",
       naverLocalPlaceSearch: "NOT_AVAILABLE_WITH_MAPS_JS_KEY",
       elapsedMs: Math.round(performance.now() - t0),

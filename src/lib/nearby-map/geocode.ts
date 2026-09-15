@@ -45,6 +45,14 @@ export type ComplexCoordinateResult = {
   complexId: string;
 };
 
+export type CanonicalAddressResult = {
+  available: boolean;
+  address: string | null;
+  addressType: "road" | "jibun_composed" | "pilot_road" | "pilot_jibun" | null;
+  source: string | null;
+  note: string;
+};
+
 function dbUrl(): string | null {
   return process.env.TURSO_DATABASE_URL?.trim() || null;
 }
@@ -258,6 +266,94 @@ async function fromVworldGeocode(): Promise<ComplexCoordinateResult> {
       complexId: JAMSIL_ELS_MAP_PILOT.complexId,
     };
   }
+}
+
+/**
+ * Canonical address for DEV NAVER geocode fallback.
+ * Prefer apt_complex_master road_address, then composed jibun fields.
+ * Falls back to existing pilot identity addresses already in-repo (not web search).
+ */
+export async function resolveJamsilElsCanonicalAddress(): Promise<CanonicalAddressResult> {
+  const url = dbUrl();
+  if (url) {
+    try {
+      const client = createClient({ url, authToken: dbAuth() });
+      const rs = await client.execute({
+        sql: `SELECT complex_id, apt_name, road_address, jibun, sido, sigungu, legal_dong_name
+              FROM apt_complex_master
+              WHERE complex_id = ?
+                 OR apt_name_norm = ?
+                 OR apt_name LIKE ?
+              LIMIT 5`,
+        args: [
+          JAMSIL_ELS_MAP_PILOT.complexId,
+          JAMSIL_ELS_MAP_PILOT.displayName,
+          `%${JAMSIL_ELS_MAP_PILOT.displayName}%`,
+        ],
+      });
+      for (const row of rs.rows) {
+        const road = String(row.road_address ?? "").trim();
+        if (road) {
+          return {
+            available: true,
+            address: road,
+            addressType: "road",
+            source: "apt_complex_master.road_address",
+            note: "DB road_address",
+          };
+        }
+        const sido = String(row.sido ?? "").trim();
+        const sigungu = String(row.sigungu ?? "").trim();
+        const dong = String(row.legal_dong_name ?? "").trim();
+        const jibun = String(row.jibun ?? "").trim();
+        if (sido && sigungu && dong && jibun) {
+          return {
+            available: true,
+            address: `${sido} ${sigungu} ${dong} ${jibun}`,
+            addressType: "jibun_composed",
+            source:
+              "apt_complex_master.sido+sigungu+legal_dong_name+jibun",
+            note: "DB composed jibun address (road_address null)",
+          };
+        }
+      }
+      if (rs.rows.length) {
+        // Row exists but no usable address fields — fall through to pilot constants.
+      }
+    } catch (e) {
+      // Fall through to in-repo pilot addresses.
+      void e;
+    }
+  }
+
+  const pilotRoad = JAMSIL_ELS_MAP_PILOT.roadAddress?.trim();
+  if (pilotRoad) {
+    return {
+      available: true,
+      address: pilotRoad,
+      addressType: "pilot_road",
+      source: "jamsil-els-pilot.roadAddress",
+      note: "In-repo pilot identity road address (DB road_address unavailable)",
+    };
+  }
+  const pilotJibun = JAMSIL_ELS_MAP_PILOT.jibunAddress?.trim();
+  if (pilotJibun) {
+    return {
+      available: true,
+      address: pilotJibun,
+      addressType: "pilot_jibun",
+      source: "jamsil-els-pilot.jibunAddress",
+      note: "In-repo pilot identity jibun address",
+    };
+  }
+
+  return {
+    available: false,
+    address: null,
+    addressType: null,
+    source: null,
+    note: "No canonical address in apt_complex_master or pilot identity",
+  };
 }
 
 export async function resolveJamsilElsCoordinate(): Promise<ComplexCoordinateResult> {
