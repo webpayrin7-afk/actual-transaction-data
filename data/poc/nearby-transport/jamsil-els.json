@@ -19,19 +19,17 @@
       "reason": null
     },
     "bus": {
-      "file": null,
-      "service": "국토교통부_(TAGO)_버스정류소정보",
-      "dataset": "전국버스정류소표준데이터",
-      "datasetId": "15096280",
-      "operation": "getCrdntPrxmtSttnList",
-      "accessMethod": "OpenAPI",
-      "responseFormat": "JSON",
-      "serviceKeyEnv": "MOLIT_API_KEY",
-      "status": "HOLD",
-      "reason": "TAGO getCrdntPrxmtSttnList returned 0 stops near 잠실엘스 (서울 coverage gap in this service)",
-      "rowsReceived": 0,
-      "validCoordinates": 0,
-      "routeMetadataAvailable": false
+      "file": "서울시버스정류소위치정보(20260902).xlsx",
+      "dataset": "서울시 버스정류소 위치정보",
+      "datasetId": "OA-15067",
+      "portal": "서울 열린데이터광장",
+      "status": "PASS",
+      "reason": null,
+      "rowsParsed": 11236,
+      "validCoordinates": 11236,
+      "nearbyWithin700m": 36,
+      "routeMetadataAvailable": false,
+      "artifact": "data/poc/nearby-transport/jamsil-els-bus-stops.json"
     }
   },
   "subway": [
@@ -102,11 +100,62 @@
       "source": "SEOUL_METRO_STATION_FILE"
     }
   ],
-  "bus": [],
+  "bus": [
+    {
+      "id": "123000045",
+      "name": "잠실역1번.11번출구",
+      "arsNo": "24134",
+      "lat": 37.5140635,
+      "lng": 127.1032419,
+      "distanceMeters": 93,
+      "distanceLabel": "직선거리 93m",
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000043",
+      "name": "잠실역8번출구",
+      "arsNo": "24132",
+      "lat": 37.5140132,
+      "lng": 127.1015367,
+      "distanceMeters": 137,
+      "distanceLabel": "직선거리 137m",
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000690",
+      "name": "잠실역2번출구",
+      "arsNo": "24565",
+      "lat": 37.512089,
+      "lng": 127.101458,
+      "distanceMeters": 179,
+      "distanceLabel": "직선거리 179m",
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000579",
+      "name": "잠실역.롯데월드몰",
+      "arsNo": "24017",
+      "lat": 37.5127166,
+      "lng": 127.1005792,
+      "distanceMeters": 206,
+      "distanceLabel": "직선거리 206m",
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000611",
+      "name": "잠실광역환승센터",
+      "arsNo": "24050",
+      "lat": 37.512343,
+      "lng": 127.1007211,
+      "distanceMeters": 212,
+      "distanceLabel": "직선거리 212m",
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    }
+  ],
   "radiiMeters": {
     "subway": 1500,
     "bus": 700
   },
-  "generatedAt": "2026-09-15T07:23:06.041Z",
-  "note": "Pilot extract only. Subway=official CSV. Bus=공공데이터포털 TAGO OpenAPI (not local file). No VWorld. No route invention."
+  "generatedAt": "2026-09-15T07:33:24.615707+00:00",
+  "note": "Subway: Seoul Metro CSV. Bus: Seoul official bus-stop location file pilot (OA-15067). TAGO not used for Seoul. No VWorld. No routes invented."
 }

@@ -11,10 +11,9 @@ import {
   loadJamsilElsNearbyTransportPilot,
 } from "@/lib/complex-detail/nearby-transport-pilot";
 import {
-  BUS_PILOT_RADIUS_M,
-  fetchNearbyNationalBusStops,
-  NATIONAL_BUS_STOP_SOURCE,
-} from "@/lib/complex-detail/national-bus-stops";
+  nearestJamsilElsSeoulBusStops,
+  SEOUL_BUS_STOP_SOURCE,
+} from "@/lib/complex-detail/seoul-bus-stops-pilot";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 25;
@@ -111,7 +110,7 @@ function subwaySubcategory(line: string | null | undefined): string {
 /**
  * Complex Detail “주변 생활” payload.
  * Address from master; POI/schools only when client supplies NAVER-geocoded lat/lng.
- * Transport: Seoul Metro CSV + 공공데이터포털 TAGO bus OpenAPI — no VWorld on active transport path.
+ * Transport: Seoul Metro CSV + Seoul official bus-stop file pilot — no TAGO for Seoul, no VWorld on transport path.
  * No DB writes.
  */
 export async function GET(request: NextRequest) {
@@ -155,9 +154,12 @@ export async function GET(request: NextRequest) {
     busStatus: string;
     busReason?: string | null;
     vworldTransport: false;
+    tagoForSeoul?: false;
     busService?: unknown;
     busRowsReceived?: number;
     busValidCoordinates?: number;
+    busNearbyCount?: number;
+    busWithin500m?: number;
     busRouteMetadataAvailable?: false;
   } = {
     subwaySource: "SEOUL_METRO_STATION_FILE",
@@ -166,9 +168,10 @@ export async function GET(request: NextRequest) {
     busStatus: "HOLD",
     busReason: null,
     vworldTransport: false,
+    tagoForSeoul: false,
   };
 
-  // ---- TRANSPORT (Seoul Metro CSV + 공공데이터포털 TAGO bus; never VWorld) ----
+  // ---- TRANSPORT (Seoul Metro CSV + Seoul official bus-stop artifact; never TAGO/VWorld for Seoul) ----
   if (isJamsilElsTransportPilot(aptName)) {
     const pilot = loadJamsilElsNearbyTransportPilot();
     let subwayItems: PoiItem[] = [];
@@ -177,7 +180,7 @@ export async function GET(request: NextRequest) {
       subwayItems = pilot.subway
         .slice()
         .sort((a, b) => a.distanceMeters - b.distanceMeters)
-        .slice(0, 3)
+        .slice(0, 2)
         .map((s) => ({
           id: s.id,
           name: s.name,
@@ -189,7 +192,7 @@ export async function GET(request: NextRequest) {
         }));
     } else {
       subwayItems = nearestSeoulMetroStations(coords, {
-        limit: 3,
+        limit: 2,
         maxMeters: 1500,
       }).map((s) => ({
         id: `metro-${s.stationCode || s.name}-${s.line || "x"}`,
@@ -202,14 +205,12 @@ export async function GET(request: NextRequest) {
       }));
     }
 
-    const busResult = await fetchNearbyNationalBusStops(coords, {
-      limit: 3,
-      maxMeters: BUS_PILOT_RADIUS_M,
-    });
-    const busItems: PoiItem[] = busResult.nearby.map((b) => ({
+    // Seoul: official bus-stop location file pilot only (TAGO not called).
+    const busResult = nearestJamsilElsSeoulBusStops({ limit: 3 });
+    const busItems: PoiItem[] = busResult.items.map((b) => ({
       id: `bus-${b.id}`,
       name: b.name,
-      subcategory: "버스정류장",
+      subcategory: b.arsNo ? `ARS ${b.arsNo}` : "버스정류장",
       distanceMeters: b.distanceMeters,
       distanceLabel: b.distanceLabel,
       lat: b.lat,
@@ -225,14 +226,17 @@ export async function GET(request: NextRequest) {
 
     transportMeta = {
       subwaySource: "SEOUL_METRO_STATION_FILE",
-      busSource: NATIONAL_BUS_STOP_SOURCE,
+      busSource: SEOUL_BUS_STOP_SOURCE,
       subwayStatus: subwayItems.length ? "PASS" : "HOLD",
       busStatus: busResult.status,
       busReason: busResult.reason,
       vworldTransport: false,
-      busService: busResult.service,
-      busRowsReceived: busResult.rowsReceived,
+      tagoForSeoul: false,
+      busService: busResult.meta,
+      busRowsReceived: busResult.rowsParsed,
       busValidCoordinates: busResult.validCoordinates,
+      busNearbyCount: busResult.nearbyCount,
+      busWithin500m: busResult.within500m,
       busRouteMetadataAvailable: false,
     };
   } else {

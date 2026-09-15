@@ -1,0 +1,398 @@
+{
+  "complexId": "cx_4c63d9a100973c60",
+  "complexName": "잠실엘스",
+  "center": {
+    "lat": 37.5133,
+    "lng": 127.1028,
+    "source": "NAVER_GEOCODE",
+    "accuracy": "ADDRESS_POINT"
+  },
+  "source": {
+    "dataset": "서울시 버스정류소 위치정보",
+    "datasetId": "OA-15067",
+    "provider": "서울특별시",
+    "portal": "서울 열린데이터광장",
+    "file": "서울시버스정류소위치정보(20260902).xlsx",
+    "fileDate": "2026-09-02",
+    "format": "XLSX",
+    "columns": [
+      "NODE_ID",
+      "ARS_ID",
+      "정류소명",
+      "X좌표",
+      "Y좌표",
+      "정류소타입"
+    ],
+    "coordinateSystem": "WGS84"
+  },
+  "stats": {
+    "rowsParsed": 11236,
+    "validCoordinates": 11236,
+    "nearbyWithin700m": 36
+  },
+  "radiusM": 700,
+  "busStops": [
+    {
+      "id": "123000045",
+      "arsNo": "24134",
+      "name": "잠실역1번.11번출구",
+      "lat": 37.5140635,
+      "lng": 127.1032419,
+      "stopType": "일반차로",
+      "distanceM": 93,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000043",
+      "arsNo": "24132",
+      "name": "잠실역8번출구",
+      "lat": 37.5140132,
+      "lng": 127.1015367,
+      "stopType": "일반차로",
+      "distanceM": 137,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000690",
+      "arsNo": "24565",
+      "name": "잠실역2번출구",
+      "lat": 37.512089,
+      "lng": 127.101458,
+      "stopType": "마을버스",
+      "distanceM": 179,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000579",
+      "arsNo": "24017",
+      "name": "잠실역.롯데월드몰",
+      "lat": 37.5127166,
+      "lng": 127.1005792,
+      "stopType": "중앙차로",
+      "distanceM": 206,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000611",
+      "arsNo": "24050",
+      "name": "잠실광역환승센터",
+      "lat": 37.512343,
+      "lng": 127.1007211,
+      "stopType": "중앙차로",
+      "distanceM": 212,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000046",
+      "arsNo": "24135",
+      "name": "잠실역9번출구",
+      "lat": 37.5149141,
+      "lng": 127.1042158,
+      "stopType": "일반차로",
+      "distanceM": 219,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123900038",
+      "arsNo": "24542",
+      "name": "잠실역.롯데호텔",
+      "lat": 37.5117454,
+      "lng": 127.1009964,
+      "stopType": "마을버스",
+      "distanceM": 235,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000002",
+      "arsNo": "24002",
+      "name": "잠실역.잠실대교남단",
+      "lat": 37.5137873,
+      "lng": 127.0996446,
+      "stopType": "중앙차로",
+      "distanceM": 284,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000044",
+      "arsNo": "24133",
+      "name": "잠실역7번출구",
+      "lat": 37.5146065,
+      "lng": 127.0994435,
+      "stopType": "일반차로",
+      "distanceM": 330,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123900053",
+      "arsNo": "24553",
+      "name": "롯데월드.샤롯데",
+      "lat": 37.5108,
+      "lng": 127.1007139,
+      "stopType": "마을버스",
+      "distanceM": 333,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000563",
+      "arsNo": "24620",
+      "name": "잠실롯데월드호텔.롯데타워",
+      "lat": 37.5107355,
+      "lng": 127.1005887,
+      "stopType": "일반차로",
+      "distanceM": 345,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123900050",
+      "arsNo": "24561",
+      "name": "롯데월드.샤롯데",
+      "lat": 37.5105674,
+      "lng": 127.1008817,
+      "stopType": "마을버스",
+      "distanceM": 348,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000048",
+      "arsNo": "24137",
+      "name": "잠실역6번출구",
+      "lat": 37.5143926,
+      "lng": 127.0988018,
+      "stopType": "일반차로",
+      "distanceM": 373,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000511",
+      "arsNo": "24998",
+      "name": "잠실역7번출구(광역)",
+      "lat": 37.5150673,
+      "lng": 127.0991375,
+      "stopType": "일반차로",
+      "distanceM": 378,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000047",
+      "arsNo": "24136",
+      "name": "송파구청.방이맛골",
+      "lat": 37.5139969,
+      "lng": 127.1072177,
+      "stopType": "일반차로",
+      "distanceM": 397,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000057",
+      "arsNo": "24146",
+      "name": "잠실역.롯데월드",
+      "lat": 37.5124116,
+      "lng": 127.0981962,
+      "stopType": "가로변전일",
+      "distanceM": 418,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000042",
+      "arsNo": "24131",
+      "name": "잠실중학교",
+      "lat": 37.516785,
+      "lng": 127.100445,
+      "stopType": "일반차로",
+      "distanceM": 440,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000126",
+      "arsNo": "24215",
+      "name": "송파구청.방이맛골",
+      "lat": 37.5133522,
+      "lng": 127.1077936,
+      "stopType": "일반차로",
+      "distanceM": 440,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000517",
+      "arsNo": "24486",
+      "name": "호수임광아파트",
+      "lat": 37.5113882,
+      "lng": 127.1072025,
+      "stopType": "일반차로",
+      "distanceM": 443,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000049",
+      "arsNo": "24138",
+      "name": "잠실역.롯데월드",
+      "lat": 37.5129509,
+      "lng": 127.0977631,
+      "stopType": "일반차로",
+      "distanceM": 446,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000001",
+      "arsNo": "24001",
+      "name": "잠실역.잠실대교남단",
+      "lat": 37.5155384,
+      "lng": 127.0985639,
+      "stopType": "중앙차로",
+      "distanceM": 449,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000518",
+      "arsNo": "24485",
+      "name": "호수임광아파트",
+      "lat": 37.5106263,
+      "lng": 127.1067264,
+      "stopType": "일반차로",
+      "distanceM": 456,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000536",
+      "arsNo": "24610",
+      "name": "장미아파트",
+      "lat": 37.5173488,
+      "lng": 127.101971,
+      "stopType": "일반차로",
+      "distanceM": 456,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000041",
+      "arsNo": "24130",
+      "name": "잠실중학교.장미종합상가",
+      "lat": 37.51715,
+      "lng": 127.10066,
+      "stopType": "일반차로",
+      "distanceM": 468,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123900051",
+      "arsNo": "24562",
+      "name": "잠실르엘아파트.송파구청",
+      "lat": 37.516533,
+      "lng": 127.106224,
+      "stopType": "마을버스",
+      "distanceM": 470,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123900054",
+      "arsNo": "24554",
+      "name": "잠실롯데월드",
+      "lat": 37.5101323,
+      "lng": 127.0986614,
+      "stopType": "마을버스",
+      "distanceM": 507,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000492",
+      "arsNo": "24715",
+      "name": "잠실역",
+      "lat": 37.5126667,
+      "lng": 127.0969964,
+      "stopType": "가로변전일",
+      "distanceM": 517,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123900049",
+      "arsNo": "24560",
+      "name": "잠실롯데월드",
+      "lat": 37.5098485,
+      "lng": 127.0986441,
+      "stopType": "마을버스",
+      "distanceM": 531,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000040",
+      "arsNo": "24129",
+      "name": "잠실나루역.더샵스타리버",
+      "lat": 37.518236,
+      "lng": 127.104243,
+      "stopType": "일반차로",
+      "distanceM": 563,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000519",
+      "arsNo": "24484",
+      "name": "미켈란호수가아파트",
+      "lat": 37.5081977,
+      "lng": 127.1031125,
+      "stopType": "일반차로",
+      "distanceM": 568,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000520",
+      "arsNo": "24483",
+      "name": "미켈란호수가아파트",
+      "lat": 37.5076563,
+      "lng": 127.1026501,
+      "stopType": "일반차로",
+      "distanceM": 628,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000127",
+      "arsNo": "24216",
+      "name": "잠실래미안아이파크.잠실르엘",
+      "lat": 37.5161754,
+      "lng": 127.109619,
+      "stopType": "가로변전일",
+      "distanceM": 681,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123900055",
+      "arsNo": "24555",
+      "name": "레이크팰리스아파트",
+      "lat": 37.5089193,
+      "lng": 127.0972743,
+      "stopType": "마을버스",
+      "distanceM": 689,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000039",
+      "arsNo": "24128",
+      "name": "잠실래미안아이파크.잠실르엘",
+      "lat": 37.516665,
+      "lng": 127.109397,
+      "stopType": "가로변시간",
+      "distanceM": 692,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000036",
+      "arsNo": "24125",
+      "name": "잠실파크리오.잠실르엘",
+      "lat": 37.519021,
+      "lng": 127.106058,
+      "stopType": "일반차로",
+      "distanceM": 698,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    },
+    {
+      "id": "123000706",
+      "arsNo": "24501",
+      "name": "잠실르엘.잠실파크리오아파트",
+      "lat": 37.518852,
+      "lng": 127.106519,
+      "stopType": "일반차로",
+      "distanceM": 699,
+      "source": "SEOUL_BUS_STOP_OFFICIAL"
+    }
+  ],
+  "generatedAt": "2026-09-15T07:32:25.387833+00:00",
+  "note": "Pilot extract only from official Seoul open-data file. Raw citywide file not committed. No routes invented."
+}

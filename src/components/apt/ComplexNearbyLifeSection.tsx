@@ -399,7 +399,11 @@ export function ComplexNearbyLifeSection({
                     {p.name}
                   </span>
                   <span className="mt-0.5 block text-[11px] text-slate-500">
-                    {isSubwayPoi(p) ? p.subcategory || "지하철" : "버스"}
+                    {isSubwayPoi(p)
+                      ? p.subcategory || "지하철"
+                      : p.subcategory?.startsWith("ARS")
+                        ? `버스 · ${p.subcategory}`
+                        : "버스"}
                     {" · "}
                     {formatMeters(p.distanceMeters)}
                     {" · 직선거리"}
@@ -553,7 +557,11 @@ export function ComplexNearbyLifeSection({
             <br />
             위치: 단지 주소 기반 NAVER Geocoding
             <br />
-            교통: 공식 지하철 CSV · 공공데이터포털 버스정류소 · 직선거리
+            지하철: 서울교통공사
+            <br />
+            버스정류장: 서울특별시 버스정류소 위치정보
+            <br />
+            거리: 직선거리
             <br />
             학교: NEIS schoolInfo (인근 학교)
             <br />
@@ -610,7 +618,16 @@ export function ComplexNearbyLifeSection({
           <div className="min-w-0">
             {lifeQuery.data?.transport.status === "READY" &&
             lifeQuery.data.transport.items.length > 0 ? (
-              <TransportSummary items={lifeQuery.data.transport.items} />
+              <TransportSummary
+                items={lifeQuery.data.transport.items}
+                busWithin500m={
+                  (
+                    lifeQuery.data.transport as {
+                      meta?: { busWithin500m?: number };
+                    }
+                  ).meta?.busWithin500m
+                }
+              />
             ) : null}
             {listContent}
             {moreCount > 0 ? (
@@ -669,7 +686,13 @@ export function ComplexNearbyLifeSection({
   );
 }
 
-function TransportSummary({ items }: { items: PoiItem[] }) {
+function TransportSummary({
+  items,
+  busWithin500m,
+}: {
+  items: PoiItem[];
+  busWithin500m?: number;
+}) {
   const ranked = [...items].sort((a, b) => {
     const as = isSubwayPoi(a) ? 0 : 1;
     const bs = isSubwayPoi(b) ? 0 : 1;
@@ -678,7 +701,12 @@ function TransportSummary({ items }: { items: PoiItem[] }) {
   });
   const nearestSubway = ranked.find(isSubwayPoi) ?? null;
   const buses = ranked.filter((p) => !isSubwayPoi(p));
-  const busesWithin500 = buses.filter((p) => p.distanceMeters <= 500);
+  const busesWithin500FromItems = buses.filter((p) => p.distanceMeters <= 500);
+  const busesWithin500Count =
+    typeof busWithin500m === "number"
+      ? busWithin500m
+      : busesWithin500FromItems.length;
+  const busesWithin500 = busesWithin500FromItems;
   const lineLabel =
     nearestSubway &&
     nearestSubway.subcategory &&
@@ -710,13 +738,13 @@ function TransportSummary({ items }: { items: PoiItem[] }) {
           </p>
         </div>
       ) : null}
-      {busesWithin500.length > 0 ? (
+      {busesWithin500Count > 0 ? (
         <div>
           <p className="text-[11px] font-medium text-slate-500">
             500m 이내 버스정류장
           </p>
           <p className="mt-0.5 text-sm font-medium text-slate-800">
-            {busesWithin500.length}개
+            {busesWithin500Count}개
           </p>
         </div>
       ) : buses.length > 0 ? (
