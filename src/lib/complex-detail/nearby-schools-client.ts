@@ -16,6 +16,7 @@ import {
 
 export type NearbySchoolApiItem = {
   id: string;
+  schoolCode: string | null;
   name: string;
   level: SchoolLevel;
   schoolLevel: "ELEMENTARY" | "MIDDLE" | "HIGH";
@@ -98,6 +99,7 @@ export async function loadNearbySchoolsForMap(params: {
       foundation: s.establishment,
       address: s.address,
       roadAddress: s.roadAddress,
+      schoolCode: s.schoolCode,
     };
 
     if (

@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
 import {
   NaverMap,
   type NaverMapMarker,
@@ -283,6 +284,7 @@ function selectedRowClass(active: boolean): string {
 export function ComplexNearbyLifeSection({
   aptName,
   identity,
+  initialTab,
 }: {
   aptName: string;
   identity?: {
@@ -292,8 +294,19 @@ export function ComplexNearbyLifeSection({
     legalDongName?: string | null;
     jibun?: string | null;
   } | null;
+  /** Restore tab when returning from school detail (?nearbyTab=school). */
+  initialTab?: NearbyLifeCategory;
 }) {
-  const [tab, setTab] = useState<NearbyLifeCategory>("transport");
+  const router = useRouter();
+  const pathname = usePathname();
+  const [tab, setTab] = useState<NearbyLifeCategory>(
+    initialTab === "school" ||
+      initialTab === "transport" ||
+      initialTab === "living" ||
+      initialTab === "commerce"
+      ? initialTab
+      : "transport",
+  );
   const [coords, setCoords] = useState<LatLng | null>(null);
   const [mapAnchor, setMapAnchor] = useState<ComplexMapAnchorResult | null>(
     null,
@@ -840,8 +853,21 @@ export function ComplexNearbyLifeSection({
                     <li key={s.id}>
                       <button
                         type="button"
-                        onClick={() => selectFromList(s.id)}
-                        aria-label={`${s.name} 지도에서 보기`}
+                        onClick={() => {
+                          const code = s.schoolCode?.trim();
+                          if (!code) {
+                            selectFromList(s.id);
+                            return;
+                          }
+                          const from = `${pathname}${typeof window !== "undefined" ? window.location.search : ""}`;
+                          const qs = new URLSearchParams({
+                            name: s.name,
+                            from,
+                            nearbyTab: "school",
+                          });
+                          router.push(`/school/${encodeURIComponent(code)}?${qs}`);
+                        }}
+                        aria-label={`${s.name} 상세 보기`}
                         className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === s.id)}`}
                       >
                         <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white px-0.5 text-[9px] font-bold text-[#1e3a5f]">

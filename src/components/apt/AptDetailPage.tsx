@@ -110,6 +110,7 @@ export function AptDetailPage({
   gu,
   initialAreaKey,
   complexDetail = null,
+  initialNearbyTab,
 }: {
   aptName: string;
   regionSlug: string;
@@ -118,6 +119,7 @@ export function AptDetailPage({
   initialAreaKey?: string;
   /** Phase 7.2 enrichment (nullable; market must render without it) */
   complexDetail?: ComplexDetailV1 | null;
+  initialNearbyTab?: string;
 }) {
   const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
   /** 사용자/수동 선택. aptIdentity가 바뀌면 자동 기본값으로 복귀 */
@@ -916,6 +918,14 @@ export function AptDetailPage({
         <ComplexNearbyLifeSection
           aptName={aptName}
           identity={identity ?? null}
+          initialTab={
+            initialNearbyTab === "school" ||
+            initialNearbyTab === "transport" ||
+            initialNearbyTab === "living" ||
+            initialNearbyTab === "commerce"
+              ? initialNearbyTab
+              : undefined
+          }
         />
       </div>
 

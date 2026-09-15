@@ -25,6 +25,8 @@ export type SchoolPilotStatus =
   | "PILOT_ONLY";
 
 export type NearbySchool = {
+  /** NEIS SD_SCHUL_CODE — stable id for school detail route. */
+  schoolCode: string | null;
   level: SchoolLevel;
   name: string;
   /** 공립 / 사립 (FOND_SC_NM). */
@@ -138,7 +140,9 @@ function toNearbySchool(
   }
 
   const roadAddress = String(row.ORG_RDNMA ?? "").trim() || null;
+  const schoolCode = String(row.SD_SCHUL_CODE ?? "").trim() || null;
   return {
+    schoolCode,
     level,
     name,
     foundation: row.FOND_SC_NM ? String(row.FOND_SC_NM).trim() : null,

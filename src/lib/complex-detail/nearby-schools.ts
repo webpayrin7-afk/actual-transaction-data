@@ -10,6 +10,8 @@ export type SchoolLevelCode = "ELEMENTARY" | "MIDDLE" | "HIGH";
 
 export type NearbySchoolPlace = {
   id: string;
+  /** NEIS SD_SCHUL_CODE when available. */
+  schoolCode: string | null;
   name: string;
   schoolLevel: SchoolLevelCode;
   level: SchoolLevel;
@@ -84,6 +86,7 @@ export type NearbySchoolSeed = {
   foundation: string | null;
   address: string | null;
   roadAddress?: string | null;
+  schoolCode?: string | null;
 };
 
 export function buildNearbySchoolPlace(params: {
@@ -101,6 +104,7 @@ export function buildNearbySchoolPlace(params: {
   const schoolLevel = toSchoolLevelCode(school.level);
   return {
     id: `school-${school.level}-${params.index}-${school.name}-${lat.toFixed(5)}-${lng.toFixed(5)}`,
+    schoolCode: school.schoolCode ?? null,
     name: school.name,
     schoolLevel,
     level: school.level,

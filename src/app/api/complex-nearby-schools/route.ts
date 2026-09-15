@@ -81,6 +81,7 @@ export async function GET(req: NextRequest) {
         Number.isFinite(s.lng);
       return {
         id: `school-${s.level}-${i}-${s.name}`,
+        schoolCode: s.schoolCode ?? null,
         name: s.name,
         level: s.level,
         schoolLevel: toSchoolLevelCode(s.level),

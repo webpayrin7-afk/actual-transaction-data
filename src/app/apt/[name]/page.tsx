@@ -6,7 +6,7 @@ import { getComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 
 type PageProps = {
   params: Promise<{ name: string }>;
-  searchParams: Promise<{ region?: string; gu?: string; area?: string }>;
+  searchParams: Promise<{ region?: string; gu?: string; area?: string; nearbyTab?: string }>;
 };
 
 export async function generateMetadata({
@@ -53,6 +53,7 @@ export default async function AptPage({ params, searchParams }: PageProps) {
           gu={gu}
           initialAreaKey={initialAreaKey}
           complexDetail={complexDetail}
+          initialNearbyTab={sp.nearbyTab}
         />
       </AptDetailEnterTransition>
     </main>
