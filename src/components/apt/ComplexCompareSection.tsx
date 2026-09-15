@@ -126,6 +126,7 @@ function MetricLines({ m }: { m: CompareComplexMetrics }) {
           </span>
           {m.latestSaleDate ? (
             <span className="ml-1.5 text-[10px] tabular-nums text-slate-400">
+              {" "}
               {formatDate(m.latestSaleDate)}
             </span>
           ) : null}
@@ -138,7 +139,8 @@ function MetricLines({ m }: { m: CompareComplexMetrics }) {
             {formatMan(m.latestJeonseMan)}
           </span>
           {m.latestJeonseDate ? (
-            <span className="ml-1.5 text-[10px] text-slate-400">
+            <span className="ml-1.5 text-[10px] tabular-nums text-slate-400">
+              {" "}
               {formatDate(m.latestJeonseDate)}
             </span>
           ) : null}
