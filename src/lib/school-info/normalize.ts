@@ -200,9 +200,9 @@ export function parseAfterSchool(row: Record<string, unknown> | null): {
     row.TOT_PGM_CNT,
   );
   const programs = metric(
-    "방과후학교",
+    "방과후학교 프로그램",
     n,
-    n != null ? countStr(n, "개 프로그램") : null,
+    n != null ? countStr(n, "개") : null,
     { sourceField: "SUM_ASL_PGM_FGR" },
   );
   return { programs, year: yearOf(row), status: programs ? "ok" : "missing" };
@@ -230,7 +230,7 @@ export function parseScholarship(
   let perStudent: Metric | null = null;
   if (totalN != null && studentCount != null && studentCount > 0) {
     const d = totalN / studentCount;
-    perStudent = metric("학생 1인당 장학금", d, wonStr(d), {
+    perStudent = metric("학생 1인당", d, wonStr(d), {
       derived: true,
       sourceField: "SCHO_AMT / students",
     });

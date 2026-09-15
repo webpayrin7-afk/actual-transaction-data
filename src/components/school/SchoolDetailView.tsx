@@ -2,8 +2,18 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { InfoTip } from "@/components/ui/InfoTip";
 import { LabCard, LabSectionHeading } from "@/components/ui/lab";
 import type { Metric, SchoolDetail } from "@/lib/school-info/types";
+
+/** Header subtitle: compact road address for wireframe (서울 · road only). */
+function compactAddress(address: string): string {
+  let s = address.replace(/^서울특별시\s*/, "서울 ").trim();
+  // Drop trailing ", 학교명 (동)" noise from SchoolInfo road strings.
+  s = s.replace(/\s*,\s*.*$/, "").trim();
+  s = s.replace(/\s*\([^)]*\)\s*$/, "").trim();
+  return s;
+}
 
 function MetricGrid({ items }: { items: Metric[] }) {
   if (!items.length) return null;
@@ -55,8 +65,12 @@ export function SchoolDetailView({
   detail: SchoolDetail;
   backHref: string;
 }) {
-  const headerTitle =
-    [detail.foundation, detail.name].filter(Boolean).join(" · ") || detail.name;
+  const headerTitle = detail.foundation
+    ? `[${detail.foundation}] ${detail.name}`
+    : detail.name;
+  const headerAddress = detail.address
+    ? compactAddress(detail.address)
+    : undefined;
 
   const coreItems = [
     detail.core.students,
@@ -121,7 +135,7 @@ export function SchoolDetailView({
           <BackLink fallback={backHref} compact hideLabel preferFallback />
         }
         title={headerTitle}
-        description={detail.address ?? undefined}
+        description={headerAddress}
         compact
       />
 
@@ -203,8 +217,16 @@ export function SchoolDetailView({
         </LabCard>
       ) : null}
 
-      <p className="text-center text-[12px] text-slate-500">
-        {detail.attribution}
+      <p className="flex items-center justify-center gap-1 text-center text-[12px] text-slate-500">
+        <span>{detail.attribution}</span>
+        <span aria-hidden>·</span>
+        <span className="inline-flex items-center gap-0.5">
+          출처
+          <InfoTip aria-label="학교 상세 출처 안내">
+            <p>학교알리미(학교정보공시) OpenAPI 공시 자료를 표시합니다.</p>
+            <p className="mt-1">급식·진학 등 공시 필드가 없으면 해당 섹션은 생략합니다.</p>
+          </InfoTip>
+        </span>
       </p>
 
       <p className="text-center text-[12px]">

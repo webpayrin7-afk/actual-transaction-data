@@ -13,7 +13,7 @@ export type Kind = keyof typeof KIND;
 
 /**
  * Runtime source-link: NEIS SD_SCHUL_CODE → SchoolInfo SCHUL_CODE.
- * Namespaces differ (e.g. 7130202 ≠ S010000888). Verified for 잠실중학교 only.
+ * Namespaces differ (e.g. 7130202 ≠ S010000888). Verified Songpa middle schools.
  */
 export type NeisSchoolInfoLink = {
   neisSdSchulCode: string;
@@ -33,6 +33,15 @@ export const NEIS_TO_SCHOOLINFO_LINKS: readonly NeisSchoolInfoLink[] = [
     schoolInfoSchulCode: "S010000888",
     name: "잠실중학교",
     addressNeedle: "올림픽로35길130",
+    kind: "middle",
+    sidoCode: SEOUL_SIDO,
+    sggCode: SONGPA_SGG,
+  },
+  {
+    neisSdSchulCode: "7130201",
+    schoolInfoSchulCode: "S010000887",
+    name: "잠신중학교",
+    addressNeedle: "잠실로12",
     kind: "middle",
     sidoCode: SEOUL_SIDO,
     sggCode: SONGPA_SGG,
