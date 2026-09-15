@@ -52,17 +52,14 @@ function formatAreaShort(m: CompareComplexMetrics): string {
   return `${((min + max) / 2).toFixed(2)}㎡`;
 }
 
-/** 준공 · 세대 — omit missing household (no bare "—"). */
-function formatComplexLine(m: CompareComplexMetrics): string {
-  const year = m.buildYear != null ? String(m.buildYear) : null;
-  const hh =
-    m.householdCount != null && m.householdCount > 0
-      ? m.householdCount.toLocaleString("ko-KR")
-      : null;
-  if (year && hh) return `${year} · ${hh}`;
-  if (year) return year;
-  if (hh) return hh;
-  return "—";
+/** Household count only — show — when unknown. */
+function formatHousehold(m: CompareComplexMetrics): string {
+  if (m.householdCount == null || m.householdCount <= 0) return "—";
+  return m.householdCount.toLocaleString("ko-KR");
+}
+
+function formatBuildYear(m: CompareComplexMetrics): string {
+  return m.buildYear != null ? String(m.buildYear) : "—";
 }
 
 function areaBandLabel(center: number | null): string {
@@ -154,8 +151,13 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
       muted: true,
     },
     {
-      label: "단지",
-      values: columns.map(formatComplexLine),
+      label: "세대수",
+      values: columns.map(formatHousehold),
+      muted: true,
+    },
+    {
+      label: "준공",
+      values: columns.map(formatBuildYear),
       muted: true,
     },
   ];
@@ -169,31 +171,21 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
         <span className="text-[10px] text-slate-400" aria-hidden="true" />
         {columns.map((c, i) => {
           const isCurrent = i === 0;
+          // Current complex name: teal. Peers: black (link).
           const nameClass = `line-clamp-2 text-[11px] font-semibold leading-snug sm:text-[12px] ${
-            isCurrent ? "text-slate-900" : "text-teal-700"
+            isCurrent ? "text-teal-700" : "text-slate-900"
           }`;
           return (
             <div
               key={`h-${c.aptName}`}
-              className={`min-w-0 rounded-sm px-0.5 text-center sm:px-1 ${
-                isCurrent ? "bg-teal-50/70" : ""
-              }`}
+              className="min-w-0 px-0.5 text-center sm:px-1"
             >
-              {isCurrent ? (
-                <p className="mb-0.5 text-[9px] font-medium leading-none text-teal-700/80">
-                  현재
-                </p>
-              ) : (
-                <p className="mb-0.5 text-[9px] leading-none text-transparent select-none">
-                  .
-                </p>
-              )}
               {isCurrent ? (
                 <span className={nameClass}>{c.aptName}</span>
               ) : (
                 <Link
                   href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
-                  className={`block hover:text-teal-800 ${nameClass}`}
+                  className={`block hover:text-teal-700 ${nameClass}`}
                 >
                   {c.aptName}
                 </Link>
@@ -224,7 +216,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
                   : row.muted
                     ? "font-medium text-slate-600"
                     : "font-medium text-slate-800"
-              } ${i === 0 ? "bg-teal-50/40" : ""}`}
+              }`}
             >
               {v}
             </p>
