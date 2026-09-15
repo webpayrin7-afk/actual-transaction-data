@@ -300,9 +300,9 @@ async function main() {
     .sort((a, b) => a.missingMonths.length - b.missingMonths.length);
 
   // Prefer READY_A, then pilot PARTIAL backfill, then READY_B by household.
-  const readyA = readySorted.filter((c) => c.priority === "READY_A");
-  const readyB = readySorted.filter((c) => c.priority !== "READY_A");
-  const nextBatchCandidates = [...readyA, ...partialPilots, ...readyB]
+  const readyAList = readySorted.filter((c) => c.priority === "READY_A");
+  const readyBList = readySorted.filter((c) => c.priority !== "READY_A");
+  const nextBatchCandidates = [...readyAList, ...partialPilots, ...readyBList]
     .slice(0, 20)
     .map((c, idx) => ({
       rank: idx + 1,

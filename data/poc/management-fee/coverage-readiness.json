@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T16:43:00.755Z",
+  "generatedAt": "2026-09-15T16:43:57.783Z",
   "scope": "seoul",
   "window": {
     "convention": "last 12 completed calendar months (exclude current incomplete month)",
@@ -253,6 +253,49 @@
     },
     {
       "rank": 3,
+      "complexId": "cx_1c244e7305d12c44",
+      "complexName": "반포자이",
+      "kaptId": "A13704104",
+      "status": "PARTIAL_MONTHS",
+      "priority": "BACKFILL",
+      "householdCount": 3410,
+      "missingMonths": [
+        "202608"
+      ],
+      "kaptIdSource": "source_link",
+      "notes": null
+    },
+    {
+      "rank": 4,
+      "complexId": "cx_30d7eea6da810b52",
+      "complexName": "헬리오시티",
+      "kaptId": "A10025850",
+      "status": "PARTIAL_MONTHS",
+      "priority": "BACKFILL",
+      "householdCount": null,
+      "missingMonths": [
+        "202608"
+      ],
+      "kaptIdSource": "source_link",
+      "notes": null
+    },
+    {
+      "rank": 5,
+      "complexId": "cx_ed52bf895d064c11",
+      "complexName": "파크리오",
+      "kaptId": "A13824006",
+      "status": "PARTIAL_MONTHS",
+      "priority": "BACKFILL",
+      "householdCount": 6864,
+      "missingMonths": [
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "source_link",
+      "notes": null
+    },
+    {
+      "rank": 6,
       "complexId": "cx_d01a826118cb08dc",
       "complexName": "개포주공4단지",
       "kaptId": "A10023348",
@@ -277,7 +320,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 4,
+      "rank": 7,
       "complexId": "cx_c9ed0235ecca960c",
       "complexName": "도곡렉슬",
       "kaptId": "A13527203",
@@ -302,7 +345,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 5,
+      "rank": 8,
       "complexId": "cx_5cffd43c4d09f937",
       "complexName": "개포래미안포레스트",
       "kaptId": "A10024564",
@@ -327,7 +370,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 6,
+      "rank": 9,
       "complexId": "cx_4e57a4f2e384805b",
       "complexName": "래미안블레스티지",
       "kaptId": "A10025675",
@@ -352,7 +395,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 7,
+      "rank": 10,
       "complexId": "cx_2ce2c22300234436",
       "complexName": "까치마을",
       "kaptId": "A13522007",
@@ -377,7 +420,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 8,
+      "rank": 11,
       "complexId": "cx_1293d84a4059ff03",
       "complexName": "강남자곡힐스테이트",
       "kaptId": "A10027985",
@@ -402,7 +445,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 9,
+      "rank": 12,
       "complexId": "cx_67d3c2d52851b825",
       "complexName": "럭키(963)",
       "kaptId": "A13585804",
@@ -427,7 +470,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 10,
+      "rank": 13,
       "complexId": "cx_bf600e79ed5abec6",
       "complexName": "래미안강남힐즈",
       "kaptId": "A13520003",
@@ -452,7 +495,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 11,
+      "rank": 14,
       "complexId": "cx_54bbbe97fcae08db",
       "complexName": "대치삼성",
       "kaptId": "A13528003",
@@ -477,7 +520,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 12,
+      "rank": 15,
       "complexId": "cx_fb75e54242978da0",
       "complexName": "개포주공5단지",
       "kaptId": "A13599402",
@@ -502,7 +545,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 13,
+      "rank": 16,
       "complexId": "cx_730df44106310592",
       "complexName": "미성2차",
       "kaptId": "A13511003",
@@ -527,7 +570,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 14,
+      "rank": 17,
       "complexId": "cx_44645ecd97814c0a",
       "complexName": "강남엘에이치1단지",
       "kaptId": "A13519007",
@@ -552,7 +595,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 15,
+      "rank": 18,
       "complexId": "cx_aa00db8ff44e4e76",
       "complexName": "대치아이파크",
       "kaptId": "A13528102",
@@ -577,7 +620,7 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 16,
+      "rank": 19,
       "complexId": "cx_4dd9d64807776b91",
       "complexName": "강남자곡아이파크",
       "kaptId": "A10028172",
@@ -602,88 +645,13 @@
       "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
-      "rank": 17,
+      "rank": 20,
       "complexId": "cx_51c430ee7dc73545",
       "complexName": "롯데캐슬프레미어",
       "kaptId": "A13509010",
       "status": "READY",
       "priority": "READY_B",
       "householdCount": 713,
-      "missingMonths": [
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607",
-        "202608"
-      ],
-      "kaptIdSource": "profile_meta_stage1",
-      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
-    },
-    {
-      "rank": 18,
-      "complexId": "cx_936d4ebd0edd4503",
-      "complexName": "목련타운",
-      "kaptId": "A13523005",
-      "status": "READY",
-      "priority": "READY_B",
-      "householdCount": 650,
-      "missingMonths": [
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607",
-        "202608"
-      ],
-      "kaptIdSource": "profile_meta_stage1",
-      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
-    },
-    {
-      "rank": 19,
-      "complexId": "cx_c93bad4926b72e44",
-      "complexName": "대치현대",
-      "kaptId": "A13583701",
-      "status": "READY",
-      "priority": "READY_B",
-      "householdCount": 630,
-      "missingMonths": [
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607",
-        "202608"
-      ],
-      "kaptIdSource": "profile_meta_stage1",
-      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
-    },
-    {
-      "rank": 20,
-      "complexId": "cx_9cacfb4dc2141eed",
-      "complexName": "동현아파트1~6",
-      "kaptId": "A13582002",
-      "status": "READY",
-      "priority": "READY_B",
-      "householdCount": 548,
       "missingMonths": [
         "202509",
         "202510",
