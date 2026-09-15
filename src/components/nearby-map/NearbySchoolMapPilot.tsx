@@ -143,44 +143,48 @@ export function NearbySchoolMapPilot() {
 
   // DEV-only: when master/GIS coords are null, geocode DB canonical address via NAVER.
   useEffect(() => {
-    if (!data) return;
-    if (data.complex.coords) {
-      setRuntimeCoords(null);
-      setRuntimeCoordMeta(null);
-      setGeocodeHold(null);
-      return;
-    }
+    if (!data || data.complex.coords) return;
     const address = data.complex.address?.trim();
-    if (!data.complex.addressAvailable || !address) {
-      setGeocodeHold("ADDRESS HOLD — canonical address unavailable");
-      return;
-    }
+    if (!data.complex.addressAvailable || !address) return;
+
     let cancelled = false;
-    setGeocodeBusy(true);
-    setGeocodeHold(null);
-    (async () => {
-      const result = await geocodeAddressWithNaver(address);
-      if (cancelled) return;
-      setGeocodeBusy(false);
-      if (!result.ok) {
-        setRuntimeCoords(null);
-        setRuntimeCoordMeta(null);
-        setGeocodeHold(`GEOCODE HOLD — ${result.reason}`);
-        return;
-      }
-      setRuntimeCoords(result.coordinate);
-      setRuntimeCoordMeta({
-        source: "NAVER_GEOCODE",
-        accuracy: "ADDRESS_POINT",
-        detail: `NAVER geocode of ${address} → matched ${result.matchedAddress}`,
-      });
-      setGeocodeHold(null);
-    })();
+    // Defer setState out of the effect body (react-hooks/set-state-in-effect).
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        if (cancelled) return;
+        setGeocodeBusy(true);
+        setGeocodeHold(null);
+        const result = await geocodeAddressWithNaver(address);
+        if (cancelled) return;
+        setGeocodeBusy(false);
+        if (!result.ok) {
+          setRuntimeCoords(null);
+          setRuntimeCoordMeta(null);
+          setGeocodeHold(`GEOCODE HOLD — ${result.reason}`);
+          return;
+        }
+        setRuntimeCoords(result.coordinate);
+        setRuntimeCoordMeta({
+          source: "NAVER_GEOCODE",
+          accuracy: "ADDRESS_POINT",
+          detail: `NAVER geocode of ${address} → matched ${result.matchedAddress}`,
+        });
+        setGeocodeHold(null);
+      })();
+    }, 0);
+
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
     };
   }, [data]);
 
+  const addressHold =
+    data &&
+    !data.complex.coords &&
+    (!data.complex.addressAvailable || !data.complex.address?.trim())
+      ? "ADDRESS HOLD — canonical address unavailable"
+      : null;
   const availableFilters = useMemo(() => {
     if (!data) return [] as { id: CategoryFilter; label: string }[];
     const all: { id: CategoryFilter; label: string }[] = [
@@ -337,13 +341,13 @@ export function NearbySchoolMapPilot() {
           ) : (
             <div
               data-map-hold="1"
-              data-geocode-hold={geocodeHold ? "yes" : "no"}
+              data-geocode-hold={addressHold || geocodeHold ? "yes" : "no"}
               className="flex h-[260px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-4 text-center text-sm text-slate-600 sm:h-[360px]"
             >
               {geocodeBusy
                 ? "NAVER geocode 진행 중…"
-                : geocodeHold
-                  ? geocodeHold
+                : addressHold || geocodeHold
+                  ? addressHold || geocodeHold
                   : "단지 좌표를 확보하지 못해 지도를 중심 고정할 수 없습니다."}
             </div>
           )}
