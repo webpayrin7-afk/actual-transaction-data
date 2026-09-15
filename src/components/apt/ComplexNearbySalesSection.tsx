@@ -46,100 +46,180 @@ function statusPillClass(status: NearbySaleStatus): string {
   return "bg-slate-100 text-slate-600";
 }
 
+/** Prefer 동/가 from regionLabel; fall back to last token. */
+function shortPlace(regionLabel: string): string {
+  const trimmed = regionLabel.trim();
+  if (!trimmed) return "";
+  const dong = trimmed.match(/([가-힣0-9]+(?:동|가))$/)?.[1];
+  if (dong) return dong;
+  const parts = trimmed.split(/\s+/);
+  return parts[parts.length - 1] ?? trimmed;
+}
+
+function metaLine(item: NearbySaleCard): string {
+  const isOfficetel = item.housingCategory === "officetel";
+  const kind = isOfficetel ? "오피스텔" : "아파트";
+  const place = shortPlace(item.regionLabel);
+  const supply = item.supplyCountLabel;
+  return [kind, place || null, supply].filter(Boolean).join(" · ");
+}
+
+function SourceInfoTip() {
+  return (
+    <details className="relative inline-flex shrink-0 align-middle">
+      <summary
+        className="ml-1 inline-flex cursor-pointer list-none items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
+        aria-label="주변 공급 출처 안내"
+      >
+        <span aria-hidden="true">ⓘ</span>
+      </summary>
+      <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-72 max-w-[calc(100vw-2.5rem)] space-y-1 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
+        <p>출처: 청약홈 · 한국부동산원</p>
+        <p>지역 기준: 현재 단지가 속한 시군구</p>
+        <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
+        <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
+      </div>
+    </details>
+  );
+}
+
 function SaleRow({ item }: { item: NearbySaleCard }) {
   const [expanded, setExpanded] = useState(false);
   const isMoveIn = item.status === "move_in_upcoming";
-  const isOfficetel = item.housingCategory === "officetel";
   const visibleTypes = expanded
     ? item.types
     : item.types.slice(0, COLLAPSED_TYPES);
   const hiddenCount = Math.max(0, item.types.length - COLLAPSED_TYPES);
+  const detailHref = item.pblancUrl;
+  const detailLabel = isMoveIn ? "공고 상세 →" : "청약 상세 →";
 
   return (
-    <li className="py-3 first:pt-1">
+    <li className="py-2.5 first:pt-1.5">
+      {/* ROW 1 — name + status pill */}
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 truncate text-[13px] font-semibold leading-snug text-slate-900">
+        <p className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-snug text-slate-900">
           {item.houseName}
         </p>
         <span
-          className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
+          className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
         >
           {item.statusLabel}
         </span>
       </div>
 
-      <p className="mt-1 text-[11px] leading-snug text-slate-500">
-        {isOfficetel ? "오피스텔 · " : null}
-        {item.regionLabel || "—"}
-      </p>
+      {/* ROW 2 — compressed meta */}
       <p className="mt-0.5 text-[11px] leading-snug text-slate-500">
-        공급 {item.supplyCountLabel ?? "—"}
-        {!isMoveIn && item.moveInLabel
-          ? ` · 입주예정 ${item.moveInLabel}`
-          : null}
+        {metaLine(item)}
       </p>
 
-      {isMoveIn && item.moveInLabel ? (
-        <p className="mt-1.5 text-[12px] font-medium tabular-nums text-slate-800">
-          {item.moveInLabel} 입주예정
-        </p>
-      ) : null}
-
+      {/* Active: schedule + competition */}
       {!isMoveIn && item.scheduleLabel ? (
-        <p className="mt-1.5 text-[12px] font-medium tabular-nums text-slate-800">
+        <p className="mt-1 text-[12px] font-medium tabular-nums text-slate-800">
           {item.scheduleLabel}
         </p>
       ) : null}
-
       {!isMoveIn && item.competition ? (
-        <p className="mt-1 text-[11px] leading-snug text-slate-600">
+        <p className="mt-0.5 text-[11px] leading-snug text-slate-600">
           {item.competition.label}
         </p>
       ) : null}
 
-      {visibleTypes.length > 0 ? (
-        <ul className="mt-1.5 space-y-0.5">
-          {visibleTypes.map((t) => (
-            <li
-              key={`${item.id}-${t.modelNo}`}
-              className="flex items-baseline justify-between gap-3 text-[12px] leading-snug"
-            >
-              <span className="font-medium tabular-nums text-slate-800">
-                {t.label}
-              </span>
-              {!isMoveIn && t.topAmountLabel ? (
-                <span className="tabular-nums text-slate-600">
-                  최고 {t.topAmountLabel}
+      {isMoveIn ? (
+        /* ROW 3 — move-in date · type chips · CTA */
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+          {item.moveInLabel ? (
+            <span className="text-[12px] font-semibold tabular-nums text-slate-800">
+              {item.moveInLabel} 입주예정
+            </span>
+          ) : null}
+          {visibleTypes.length > 0 ? (
+            <span className="inline-flex flex-wrap items-center gap-1">
+              {visibleTypes.map((t) => (
+                <span
+                  key={`${item.id}-${t.modelNo}`}
+                  className="rounded px-1 py-px text-[10px] font-medium tabular-nums text-slate-600 ring-1 ring-inset ring-slate-200/90"
+                >
+                  {t.label}
                 </span>
+              ))}
+              {hiddenCount > 0 && !expanded ? (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(true)}
+                  className="rounded px-1 py-px text-[10px] font-medium tabular-nums text-slate-500 ring-1 ring-inset ring-slate-200/90 hover:text-slate-700"
+                >
+                  +{hiddenCount}
+                </button>
               ) : null}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      <div className="mt-1.5 flex items-center justify-between gap-2">
-        {hiddenCount > 0 ? (
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="text-[11px] text-slate-500 underline-offset-2 hover:underline"
-          >
-            {expanded ? "접기" : `주택형 ${hiddenCount}개 더보기`}
-          </button>
-        ) : (
-          <span />
-        )}
-        {item.pblancUrl ? (
-          <a
-            href={item.pblancUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)]"
-          >
-            {isMoveIn ? "공고 상세 →" : "청약 상세 →"}
-          </a>
-        ) : null}
-      </div>
+              {expanded && hiddenCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(false)}
+                  className="text-[10px] text-slate-400 underline-offset-2 hover:underline"
+                >
+                  접기
+                </button>
+              ) : null}
+            </span>
+          ) : null}
+          {detailHref ? (
+            <a
+              href={detailHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)]"
+            >
+              {detailLabel}
+            </a>
+          ) : null}
+        </div>
+      ) : (
+        <>
+          {/* Active: up to 2 type+price rows, then +N */}
+          {visibleTypes.length > 0 ? (
+            <ul className="mt-1 space-y-0.5">
+              {visibleTypes.map((t) => (
+                <li
+                  key={`${item.id}-${t.modelNo}`}
+                  className="flex items-baseline justify-between gap-3 text-[12px] leading-snug"
+                >
+                  <span className="font-medium tabular-nums text-slate-800">
+                    {t.label}
+                  </span>
+                  {t.topAmountLabel ? (
+                    <span className="tabular-nums text-slate-600">
+                      최고 {t.topAmountLabel}
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <div className="mt-1 flex items-center justify-between gap-2">
+            {hiddenCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                className="text-[11px] tabular-nums text-slate-500 underline-offset-2 hover:underline"
+              >
+                {expanded ? "접기" : `+${hiddenCount}`}
+              </button>
+            ) : (
+              <span />
+            )}
+            {detailHref ? (
+              <a
+                href={detailHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 text-[11px] font-medium text-[var(--lab-teal-700)]"
+              >
+                {detailLabel}
+              </a>
+            ) : null}
+          </div>
+        </>
+      )}
     </li>
   );
 }
@@ -172,21 +252,17 @@ export function ComplexNearbySalesSection({
   const emptyReason =
     q.data?.reason ||
     (key
-      ? `현재 ${key}에 확인된 청약·입주예정 주택이 없습니다.`
+      ? `현재 ${key}에 확인된 청약·입주예정 아파트가 없습니다.`
       : "표시할 공급 정보가 없습니다.");
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <div>
-        <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">
+      <div className="flex flex-col gap-0.5">
+        <h2 className="flex items-center text-[15px] font-semibold tracking-tight text-slate-900">
           주변 공급
+          <SourceInfoTip />
         </h2>
-        <p className="mt-0.5 text-[11px] leading-snug text-slate-400">
-          {description}
-        </p>
-        <p className="mt-0.5 text-[10px] leading-snug text-slate-400">
-          청약 및 입주예정 주택
-        </p>
+        <p className="text-[11px] leading-snug text-slate-400">{description}</p>
       </div>
 
       {!key ? (
@@ -208,18 +284,12 @@ export function ComplexNearbySalesSection({
       ) : null}
 
       {ready ? (
-        <ul className="mt-1 divide-y divide-slate-100">
+        <ul className="mt-1.5 divide-y divide-slate-100">
           {items.map((item) => (
             <SaleRow key={item.id} item={item} />
           ))}
         </ul>
       ) : null}
-
-      <p className="mt-2 text-[10px] leading-snug text-slate-400">
-        출처 · 청약홈 · 한국부동산원
-        <br />
-        청약 조건은 실제 입주자모집공고를 확인하세요.
-      </p>
     </LabCard>
   );
 }
