@@ -21,7 +21,7 @@ import { areaSelectorClosedLabel } from "@/lib/apt/area-selector-label";
 
 type Props = {
   aptName: string;
-  regionSlug: string;
+  regionSlug?: string;
   gu?: string;
   dong?: string;
   detail: AptDetailResponse;
@@ -44,19 +44,30 @@ function formatPerSqm(man: number | null): string {
   return `${Math.round(man).toLocaleString("ko-KR")}만`;
 }
 
-function formatArea(m: CompareComplexMetrics): string {
+function formatAreaShort(m: CompareComplexMetrics): string {
   if (!m.matchedArea) return "—";
   const min = m.matchedArea.exclusiveMin;
   const max = m.matchedArea.exclusiveMax;
-  if (Math.abs(max - min) < 0.05) return `${min.toFixed(2)}㎡`;
-  return `${min.toFixed(2)}~${max.toFixed(2)}㎡`;
+  if (Math.abs(max - min) < 0.15) return `${((min + max) / 2).toFixed(2)}㎡`;
+  return `${min.toFixed(1)}~${max.toFixed(1)}㎡`;
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "";
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return iso;
-  return `${m[1].slice(2)}.${m[2]}.${m[3]}`;
+/** 준공 · 세대 — omit missing household (no bare "—"). */
+function formatComplexLine(m: CompareComplexMetrics): string {
+  const year = m.buildYear != null ? String(m.buildYear) : null;
+  const hh =
+    m.householdCount != null && m.householdCount > 0
+      ? m.householdCount.toLocaleString("ko-KR")
+      : null;
+  if (year && hh) return `${year} · ${hh}`;
+  if (year) return year;
+  if (hh) return hh;
+  return "—";
+}
+
+function areaBandLabel(center: number | null): string {
+  if (center == null || !Number.isFinite(center)) return "최근 거래 기준";
+  return `전용 ${Math.round(center)}㎡대 · 최근 거래 기준`;
 }
 
 async function fetchDetail(
@@ -99,15 +110,15 @@ function CompareInfoTip() {
   return (
     <details className="relative inline-flex shrink-0 align-middle">
       <summary
-        className="ml-1.5 inline-flex cursor-pointer list-none items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
+        className="ml-1 inline-flex cursor-pointer list-none items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 [&::-webkit-details-marker]:hidden"
         aria-label="주변 단지 비교 안내"
       >
         <span aria-hidden="true">ⓘ</span>
       </summary>
       <div className="absolute left-0 top-[calc(100%+0.35rem)] z-20 w-72 max-w-[calc(100vw-2.5rem)] space-y-1 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-[12px] leading-5 text-slate-600 shadow-sm">
         <p>
-          같은 동·인근 지역에서 면적, 준공연도, 단지 규모가 유사하고 최근 거래가
-          있는 단지를 자동으로 선정합니다.
+          같은 동·인근 지역에서 전용면적, 준공연도, 최근 거래와 확인 가능한 단지
+          규모를 기준으로 비교 단지를 자동 선정합니다.
         </p>
         <p>거리 기반 추천은 아닙니다.</p>
       </div>
@@ -115,174 +126,105 @@ function CompareInfoTip() {
   );
 }
 
-function MetricLines({ m }: { m: CompareComplexMetrics }) {
-  return (
-    <dl className="mt-1.5 space-y-1 text-[12px] leading-snug">
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-slate-500">매매</dt>
-        <dd className="text-right">
-          <span className="font-semibold tabular-nums text-slate-900">
-            {formatMan(m.latestSaleMan)}
-          </span>
-          {m.latestSaleDate ? (
-            <span className="ml-1.5 text-[10px] tabular-nums text-slate-400">
-              {" "}
-              {formatDate(m.latestSaleDate)}
-            </span>
-          ) : null}
-        </dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-slate-500">전세</dt>
-        <dd className="text-right">
-          <span className="font-medium tabular-nums text-slate-800">
-            {formatMan(m.latestJeonseMan)}
-          </span>
-          {m.latestJeonseDate ? (
-            <span className="ml-1.5 text-[10px] tabular-nums text-slate-400">
-              {" "}
-              {formatDate(m.latestJeonseDate)}
-            </span>
-          ) : null}
-        </dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-slate-500">㎡당</dt>
-        <dd className="font-medium tabular-nums text-slate-800">
-          {formatPerSqm(m.salePerSqmMan)}
-        </dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-slate-500">준공</dt>
-        <dd className="tabular-nums text-slate-700">
-          {m.buildYear != null ? m.buildYear : "—"}
-        </dd>
-      </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="text-slate-500">세대</dt>
-        <dd className="tabular-nums text-slate-700">
-          {m.householdCount != null
-            ? m.householdCount.toLocaleString("ko-KR")
-            : "—"}
-        </dd>
-      </div>
-    </dl>
-  );
-}
-
-function MobileCard({
-  m,
-  role,
-  href,
-}: {
-  m: CompareComplexMetrics;
-  role: "current" | "peer";
-  href?: string;
-}) {
-  return (
-    <div className="py-2.5">
-      <p className="text-[10px] font-medium text-slate-400">
-        {role === "current" ? "현재 단지" : "비교 단지"}
-      </p>
-      <div className="mt-0.5 flex items-baseline justify-between gap-2">
-        {href ? (
-          <Link
-            href={href}
-            className="min-w-0 truncate text-[13px] font-semibold text-teal-700 hover:text-teal-800"
-          >
-            {m.aptName}
-          </Link>
-        ) : (
-          <p className="truncate text-[13px] font-semibold text-slate-900">
-            {m.aptName}
-          </p>
-        )}
-        <span className="shrink-0 text-[11px] tabular-nums text-slate-500">
-          {formatArea(m)}
-        </span>
-      </div>
-      <MetricLines m={m} />
-    </div>
-  );
-}
-
-function DesktopTable({ columns }: { columns: CompareComplexMetrics[] }) {
-  const colCount = columns.length;
+/** Compact metric×complex matrix — mobile & desktop; no horizontal scroll. */
+function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
+  const n = columns.length;
   const gridStyle = {
-    gridTemplateColumns: `minmax(4.5rem,0.7fr) repeat(${colCount}, minmax(0,1fr))`,
+    gridTemplateColumns: `minmax(2.35rem,0.5fr) repeat(${n}, minmax(0,1fr))`,
   } as const;
 
-  const rows: Array<{ label: string; values: string[]; strong?: boolean }> = [
-    { label: "전용면적", values: columns.map(formatArea) },
+  const rows: Array<{
+    label: string;
+    values: string[];
+    strong?: boolean;
+    muted?: boolean;
+  }> = [
     {
-      label: "최근 매매",
+      label: "매매",
       values: columns.map((c) => formatMan(c.latestSaleMan)),
       strong: true,
     },
     {
-      label: "최근 전세",
+      label: "전세",
       values: columns.map((c) => formatMan(c.latestJeonseMan)),
     },
     {
       label: "㎡당",
       values: columns.map((c) => formatPerSqm(c.salePerSqmMan)),
+      muted: true,
     },
     {
-      label: "준공",
-      values: columns.map((c) =>
-        c.buildYear != null ? String(c.buildYear) : "—",
-      ),
-    },
-    {
-      label: "세대수",
-      values: columns.map((c) =>
-        c.householdCount != null
-          ? c.householdCount.toLocaleString("ko-KR")
-          : "—",
-      ),
+      label: "단지",
+      values: columns.map(formatComplexLine),
+      muted: true,
     },
   ];
 
   return (
-    <div className="hidden md:block">
-      <div className="grid gap-2 border-b border-slate-200 pb-2" style={gridStyle}>
-        <p className="text-[11px] text-slate-400">항목</p>
-        {columns.map((c, i) =>
-          i === 0 ? (
-            <div key={`h-${c.aptName}`} className="min-w-0 text-right">
-              <p className="text-[10px] font-medium text-slate-400">현재 단지</p>
-              <p className="truncate text-[12px] font-semibold text-slate-900 sm:text-sm">
-                {c.aptName}
+    <div className="mt-2">
+      <div
+        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-1.5"
+        style={gridStyle}
+      >
+        <span className="text-[10px] text-slate-400" aria-hidden="true" />
+        {columns.map((c, i) => {
+          const isCurrent = i === 0;
+          const nameClass = `line-clamp-2 text-[11px] font-semibold leading-snug sm:text-[12px] ${
+            isCurrent ? "text-slate-900" : "text-teal-700"
+          }`;
+          return (
+            <div
+              key={`h-${c.aptName}`}
+              className={`min-w-0 rounded-sm px-0.5 text-center sm:px-1 ${
+                isCurrent ? "bg-teal-50/70" : ""
+              }`}
+            >
+              {isCurrent ? (
+                <p className="mb-0.5 text-[9px] font-medium leading-none text-teal-700/80">
+                  현재
+                </p>
+              ) : (
+                <p className="mb-0.5 text-[9px] leading-none text-transparent select-none">
+                  .
+                </p>
+              )}
+              {isCurrent ? (
+                <span className={nameClass}>{c.aptName}</span>
+              ) : (
+                <Link
+                  href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
+                  className={`block hover:text-teal-800 ${nameClass}`}
+                >
+                  {c.aptName}
+                </Link>
+              )}
+              <p className="mt-0.5 text-[10px] tabular-nums leading-none text-slate-500">
+                {formatAreaShort(c)}
               </p>
             </div>
-          ) : (
-            <div key={`h-${c.aptName}`} className="min-w-0 text-right">
-              <p className="text-[10px] font-medium text-slate-400">비교 단지</p>
-              <Link
-                href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
-                className="block truncate text-[12px] font-semibold text-teal-700 hover:text-teal-800 sm:text-sm"
-              >
-                {c.aptName}
-              </Link>
-            </div>
-          ),
-        )}
+          );
+        })}
       </div>
+
       {rows.map((row) => (
         <div
           key={row.label}
-          className="grid gap-2 border-b border-slate-100 py-2 last:border-0"
+          className="grid items-center gap-x-1 border-b border-slate-100 py-1.5 last:border-0"
           style={gridStyle}
         >
-          <p className="text-[11px] text-slate-500">{row.label}</p>
+          <p className="text-[10px] leading-none text-slate-500 sm:text-[11px]">
+            {row.label}
+          </p>
           {row.values.map((v, i) => (
             <p
               key={`${row.label}-${i}`}
-              className={`text-right text-[12px] tabular-nums sm:text-sm ${
+              className={`min-w-0 truncate px-0.5 text-center text-[11px] tabular-nums leading-snug sm:text-[12px] ${
                 row.strong
                   ? "font-semibold text-slate-900"
-                  : "font-medium text-slate-800"
-              }`}
+                  : row.muted
+                    ? "font-medium text-slate-600"
+                    : "font-medium text-slate-800"
+              } ${i === 0 ? "bg-teal-50/40" : ""}`}
             >
               {v}
             </p>
@@ -293,7 +235,7 @@ function DesktopTable({ columns }: { columns: CompareComplexMetrics[] }) {
   );
 }
 
-/** Auto 주변 단지 비교 — no search; up to 2 peers. */
+/** Auto 주변 단지 비교 — compact matrix; up to 2 peers; no search. */
 export function ComplexCompareSection({
   aptName,
   gu,
@@ -380,7 +322,7 @@ export function ComplexCompareSection({
       out.push(
         withHouseholdCount(
           buildCompareMetrics(d, targetArea),
-          peers[i]?.householdCount,
+          peers[i]?.householdCount ?? null,
         ),
       );
     });
@@ -395,51 +337,30 @@ export function ComplexCompareSection({
   const empty = !peersQuery.isLoading && !loadingPeers && peers.length === 0;
 
   return (
-    <LabCard className="p-4 sm:p-5">
+    <LabCard className="p-3.5 sm:p-5">
       <div className="min-w-0">
-        <h2 className="flex items-center text-[1.25rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)]">
+        <h2 className="flex items-center text-[1.125rem] font-semibold tracking-tight text-[color:var(--lab-navy-950,#0f172a)] sm:text-[1.25rem]">
           주변 단지 비교
           <CompareInfoTip />
         </h2>
-        <p className="mt-1 text-xs leading-5 text-slate-500">
-          같은 동·인근 지역의 유사 단지 기준
+        <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+          {areaBandLabel(areaCenter)}
         </p>
       </div>
 
       {loadingPeers ? (
-        <p className="mt-3 text-[12px] text-slate-500">
+        <p className="mt-2 text-[12px] text-slate-500">
           비교 단지를 불러오는 중…
         </p>
       ) : null}
 
       {empty ? (
-        <p className="mt-3 text-[12px] leading-snug text-slate-500">
+        <p className="mt-2 text-[12px] leading-snug text-slate-500">
           비교할 수 있는 주변 유사 단지가 아직 없습니다.
         </p>
       ) : null}
 
-      {!loadingPeers && !empty ? (
-        <>
-          <div className="mt-2 divide-y divide-slate-100 md:hidden">
-            <MobileCard m={baseMetrics} role="current" />
-            {peerMetrics.map((m) => (
-              <MobileCard
-                key={m.aptName}
-                m={m}
-                role="peer"
-                href={aptDetailHref(m.aptName, m.regionSlug, m.gu)}
-              />
-            ))}
-          </div>
-          <div className="mt-3">
-            <DesktopTable columns={columns} />
-          </div>
-        </>
-      ) : null}
-
-      <p className="mt-3 text-[11px] text-slate-400">
-        {areaLabel} 기준 · 전용㎡가 가까운 유형을 맞춰 비교합니다.
-      </p>
+      {!loadingPeers && !empty ? <CompareMatrix columns={columns} /> : null}
     </LabCard>
   );
 }
