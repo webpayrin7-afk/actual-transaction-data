@@ -141,6 +141,15 @@ export type NaverGeocodeResult =
     }
   | { ok: false; reason: string; resultCount?: number };
 
+async function waitForNaverGeocoder(timeoutMs = 10000): Promise<boolean> {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (typeof window.naver?.maps?.Service?.geocode === "function") return true;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  return typeof window.naver?.maps?.Service?.geocode === "function";
+}
+
 /**
  * Browser-only NAVER Maps Geocoder. Fail-closed on 0 / ambiguous / invalid.
  * Never logs or returns the Client ID.
@@ -154,13 +163,15 @@ export async function geocodeAddressWithNaver(
   const loaded = await loadNaverMapsSdk();
   if (!loaded.ok) return { ok: false, reason: loaded.reason };
 
-  const service = loaded.naver.maps.Service;
-  if (!service?.geocode) {
+  const ready = await waitForNaverGeocoder();
+  if (!ready) {
     return {
       ok: false,
       reason: "NAVER geocoder submodule unavailable (Service.geocode missing)",
     };
   }
+
+  const service = loaded.naver.maps.Service!;
 
   return new Promise((resolve) => {
     service.geocode({ query }, (status, response) => {
