@@ -61,6 +61,18 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** Lucide `Bus` paths — same glyph as the transport list row icon. */
+const LUCIDE_BUS_SVG = (stroke: string, size = 12) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>`;
+
+/**
+ * Downward selection arrow that bounces vertically above a marker.
+ * Shown when a list row (or marker) is selected.
+ */
+function selectionArrowHtml(): string {
+  return `<style>@keyframes ziplab-marker-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}</style><div style="display:flex;justify-content:center;margin-bottom:3px;animation:ziplab-marker-bounce .85s ease-in-out infinite;will-change:transform"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17L5.5 9.5h13L12 17z" fill="#0f766e"/><path d="M12 17L5.5 9.5h13L12 17z" fill="none" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg></div>`;
+}
+
 /**
  * Marker visual hierarchy: COMPLEX > TRANSIT (subway) > OTHER (bus-stop).
  * COMPLEX: building icon + always-visible name (not a plain dot).
@@ -113,7 +125,9 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
       })
       .join("");
     // Centered badge stack on coordinate (subway station point).
+    // Selected (list tap): bouncing downward arrow above marker.
     const html = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none">
+      ${selected ? selectionArrowHtml() : ""}
       <div style="display:flex;align-items:center;gap:2px">${badgesHtml}</div>
       <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;background:rgba(255,255,255,.92);padding:1px 4px;border-radius:4px;border:1px solid rgba(15,23,42,.1)">${label}</span>
     </div>`;
@@ -125,15 +139,15 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     };
   }
 
-  // Bus stop — stop-sign pictogram (not a plain grey dot; not a vehicle emoji)
+  // Bus stop — same Lucide Bus glyph as the list row (bordered square).
   if (kind === "OTHER" && marker.variant === "bus-stop") {
-    const fill = selected ? "#0f766e" : "#1e3a5f";
+    const stroke = selected ? "#0f766e" : "#1e3a5f";
+    const border = selected ? "#0f766e" : "#cbd5e1";
     const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:20px;padding:2px 0 0;border-radius:4px;background:#fff;border:1.5px solid ${fill};box-shadow:0 1px 2px rgba(15,23,42,.22)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${fill}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="10" rx="1.5"/><path d="M8 13v5"/><path d="M16 13v5"/><path d="M6 21h4"/><path d="M14 21h4"/><path d="M8 7h8"/><path d="M8 10h5"/></svg>
-        <span style="font:700 7px/1 system-ui,-apple-system,sans-serif;color:${fill};letter-spacing:.02em;padding:1px 0 2px">BUS</span>
+      ${selected ? selectionArrowHtml() : ""}
+      <div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#fff;border:1px solid ${border};box-shadow:0 1px 2px rgba(15,23,42,.18);color:${stroke}">
+        ${LUCIDE_BUS_SVG(stroke, 12)}
       </div>
-      <div style="width:2px;height:6px;background:${fill};opacity:.9"></div>
     </div>`;
     return {
       content: html,
