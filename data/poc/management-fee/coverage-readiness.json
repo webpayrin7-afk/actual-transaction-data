@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-09-15T16:37:51.740Z",
-  "scope": "서울특별시 apt_complex_master (local DB/cache only; no KAPT API)",
+  "generatedAt": "2026-09-15T16:43:00.755Z",
+  "scope": "seoul",
   "window": {
-    "convention": "last 12 completed calendar months (exclude current month)",
+    "convention": "last 12 completed calendar months (exclude current incomplete month)",
     "end": "202608",
     "months": [
       "202509",
@@ -17,30 +17,32 @@
       "202606",
       "202607",
       "202608"
-    ]
+    ],
+    "usableMonthRule": "common_fee AND individual_fee AND long_term_repair_reserve all non-null (UI contract)"
   },
   "summary": {
-    "complexesChecked": 8437,
-    "ALREADY_COVERED": 1,
-    "READY": 75,
-    "IDENTITY_MISSING": 8355,
-    "COST_DATA_MISSING": 0,
-    "PARTIAL_MONTHS": 6,
-    "UNKNOWN": 0
+    "checked": 8437,
+    "alreadyCovered": 1,
+    "ready": 75,
+    "readyA": 2,
+    "readyB": 73,
+    "partialMonths": 6,
+    "identityMissing": 8355,
+    "costDataMissing": 0,
+    "unknown": 0
   },
-  "blockers": {
-    "identity": "Dominant: 서울 KAPT source_link coverage is tiny (almost all IDENTITY_MISSING).",
-    "costAvailability": "Secondary among identity-known complexes: some PARTIAL_MONTHS; no confirmed COST_DATA_MISSING without API probe.",
-    "apiQuota": "KAPT HTTP 429 from Stage1 — Stage3 intentionally made zero external KAPT calls.",
-    "other": "리센츠/트리지움 have Stage1 profile kaptCode but no apt_complex_source_links KAPT row yet."
+  "twelveMonthCoverage": {
+    "full12Months": 1,
+    "partial": 6,
+    "noData": 8430,
+    "latestAvailableMonthObserved": "202609"
   },
-  "productAnswers": {
-    "displayableNow": 1,
-    "identityReadyForNextBatch": 75,
-    "biggestBlocker": "KAPT identity coverage (IDENTITY_MISSING)",
-    "safeNextBatchSize": 10,
-    "schemaChangeRequired": false,
-    "existingPipelineExpandable": true
+  "componentCoverage": {
+    "common": 7,
+    "individual": 7,
+    "reserve": 7,
+    "allRequiredComponents": 7,
+    "note": "Counts of Seoul complexes with ≥1 local fee row having that component"
   },
   "representatives": {
     "잠실엘스": {
@@ -51,6 +53,7 @@
       "kaptIdSource": "source_link",
       "householdCount": 5678,
       "status": "ALREADY_COVERED",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -66,23 +69,11 @@
         "202608"
       ],
       "missingMonths": [],
-      "allFeeMonths": [
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607",
-        "202608",
-        "202609"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202609",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true
     },
     "리센츠": {
       "complexId": "cx_caf229b5ac63cfbd",
@@ -92,6 +83,7 @@
       "kaptIdSource": "profile_meta_stage1",
       "householdCount": 5563,
       "status": "READY",
+      "priority": "READY_A",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -107,8 +99,12 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_A"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     "트리지움": {
       "complexId": "cx_85cd8a4b2d5dc3d0",
@@ -118,6 +114,7 @@
       "kaptIdSource": "profile_meta_stage1",
       "householdCount": 3696,
       "status": "READY",
+      "priority": "READY_A",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -133,8 +130,12 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_A"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     "파크리오": {
       "complexId": "cx_ed52bf895d064c11",
@@ -144,6 +145,7 @@
       "kaptIdSource": "source_link",
       "householdCount": 6864,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -160,21 +162,11 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [
-        "202507",
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202606",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true
     },
     "반포자이": {
       "complexId": "cx_1c244e7305d12c44",
@@ -184,6 +176,7 @@
       "kaptIdSource": "source_link",
       "householdCount": 3410,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -200,33 +193,22 @@
       "missingMonths": [
         "202608"
       ],
-      "allFeeMonths": [
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202607",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true
     }
   },
-  "readyCandidates": [
+  "nextBatchCandidates": [
     {
+      "rank": 1,
       "complexId": "cx_caf229b5ac63cfbd",
       "complexName": "리센츠",
-      "sigungu": "송파구",
       "kaptId": "A13822003",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 5563,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_A",
+      "householdCount": 5563,
       "missingMonths": [
         "202509",
         "202510",
@@ -241,18 +223,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_A"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 2,
       "complexId": "cx_85cd8a4b2d5dc3d0",
       "complexName": "트리지움",
-      "sigungu": "송파구",
       "kaptId": "A13822002",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 3696,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_A",
+      "householdCount": 3696,
       "missingMonths": [
         "202509",
         "202510",
@@ -267,18 +248,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_A"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 3,
       "complexId": "cx_d01a826118cb08dc",
       "complexName": "개포주공4단지",
-      "sigungu": "강남구",
       "kaptId": "A10023348",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 3375,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 3375,
       "missingMonths": [
         "202509",
         "202510",
@@ -293,18 +273,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 4,
       "complexId": "cx_c9ed0235ecca960c",
       "complexName": "도곡렉슬",
-      "sigungu": "강남구",
       "kaptId": "A13527203",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 3002,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 3002,
       "missingMonths": [
         "202509",
         "202510",
@@ -319,18 +298,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 5,
       "complexId": "cx_5cffd43c4d09f937",
       "complexName": "개포래미안포레스트",
-      "sigungu": "강남구",
       "kaptId": "A10024564",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 2296,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 2296,
       "missingMonths": [
         "202509",
         "202510",
@@ -345,18 +323,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 6,
       "complexId": "cx_4e57a4f2e384805b",
       "complexName": "래미안블레스티지",
-      "sigungu": "강남구",
       "kaptId": "A10025675",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1957,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 1957,
       "missingMonths": [
         "202509",
         "202510",
@@ -371,18 +348,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 7,
       "complexId": "cx_2ce2c22300234436",
       "complexName": "까치마을",
-      "sigungu": "강남구",
       "kaptId": "A13522007",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1403,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 1403,
       "missingMonths": [
         "202509",
         "202510",
@@ -397,18 +373,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 8,
       "complexId": "cx_1293d84a4059ff03",
       "complexName": "강남자곡힐스테이트",
-      "sigungu": "강남구",
       "kaptId": "A10027985",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1339,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 1339,
       "missingMonths": [
         "202509",
         "202510",
@@ -423,18 +398,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 9,
       "complexId": "cx_67d3c2d52851b825",
       "complexName": "럭키(963)",
-      "sigungu": "강남구",
       "kaptId": "A13585804",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1094,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 1094,
       "missingMonths": [
         "202509",
         "202510",
@@ -449,18 +423,17 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
+      "rank": 10,
       "complexId": "cx_bf600e79ed5abec6",
       "complexName": "래미안강남힐즈",
-      "sigungu": "강남구",
       "kaptId": "A13520003",
-      "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1020,
       "status": "READY",
-      "availableMonths": [],
+      "priority": "READY_B",
+      "householdCount": 1020,
       "missingMonths": [
         "202509",
         "202510",
@@ -475,19 +448,269 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 11,
+      "complexId": "cx_54bbbe97fcae08db",
+      "complexName": "대치삼성",
+      "kaptId": "A13528003",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 960,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 12,
+      "complexId": "cx_fb75e54242978da0",
+      "complexName": "개포주공5단지",
+      "kaptId": "A13599402",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 940,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 13,
+      "complexId": "cx_730df44106310592",
+      "complexName": "미성2차",
+      "kaptId": "A13511003",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 911,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 14,
+      "complexId": "cx_44645ecd97814c0a",
+      "complexName": "강남엘에이치1단지",
+      "kaptId": "A13519007",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 809,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 15,
+      "complexId": "cx_aa00db8ff44e4e76",
+      "complexName": "대치아이파크",
+      "kaptId": "A13528102",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 768,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 16,
+      "complexId": "cx_4dd9d64807776b91",
+      "complexName": "강남자곡아이파크",
+      "kaptId": "A10028172",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 716,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 17,
+      "complexId": "cx_51c430ee7dc73545",
+      "complexName": "롯데캐슬프레미어",
+      "kaptId": "A13509010",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 713,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 18,
+      "complexId": "cx_936d4ebd0edd4503",
+      "complexName": "목련타운",
+      "kaptId": "A13523005",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 650,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 19,
+      "complexId": "cx_c93bad4926b72e44",
+      "complexName": "대치현대",
+      "kaptId": "A13583701",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 630,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
+    },
+    {
+      "rank": 20,
+      "complexId": "cx_9cacfb4dc2141eed",
+      "complexName": "동현아파트1~6",
+      "kaptId": "A13582002",
+      "status": "READY",
+      "priority": "READY_B",
+      "householdCount": 548,
+      "missingMonths": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606",
+        "202607",
+        "202608"
+      ],
+      "kaptIdSource": "profile_meta_stage1",
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     }
   ],
-  "nonIdentityMissingDetail": [
+  "complexes": [
     {
       "complexId": "cx_ec9a204afeaadf1b",
       "complexName": "한강(대우)",
       "sigungu": "용산구",
       "kaptId": "A14003105",
       "kaptIdSource": "source_link",
-      "householdCount": 834,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202510",
         "202511",
@@ -504,19 +727,13 @@
         "202509",
         "202608"
       ],
-      "allFeeMonths": [
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202607",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true,
+      "householdCount": 834,
+      "notes": null
     },
     {
       "complexId": "cx_e47102400fbc8ec6",
@@ -524,8 +741,8 @@
       "sigungu": "용산구",
       "kaptId": "A14077902",
       "kaptIdSource": "source_link",
-      "householdCount": 600,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202510",
         "202511",
@@ -542,19 +759,13 @@
         "202509",
         "202608"
       ],
-      "allFeeMonths": [
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202607",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true,
+      "householdCount": 600,
+      "notes": null
     },
     {
       "complexId": "cx_1c244e7305d12c44",
@@ -562,8 +773,8 @@
       "sigungu": "서초구",
       "kaptId": "A13704104",
       "kaptIdSource": "source_link",
-      "householdCount": 3410,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -580,21 +791,13 @@
       "missingMonths": [
         "202608"
       ],
-      "allFeeMonths": [
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202607",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true,
+      "householdCount": 3410,
+      "notes": null
     },
     {
       "complexId": "cx_99eb581de26a065a",
@@ -602,8 +805,8 @@
       "sigungu": "강남구",
       "kaptId": "A13587603",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 293,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -619,8 +822,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 293,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_567de87772e51838",
@@ -628,8 +836,8 @@
       "sigungu": "강남구",
       "kaptId": "A13527018",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 176,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -645,8 +853,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 176,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_e6523347808fd9f8",
@@ -654,8 +867,8 @@
       "sigungu": "강남구",
       "kaptId": "A13523003",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 496,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -671,8 +884,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 496,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_ce1e5cab96a76f44",
@@ -680,8 +898,8 @@
       "sigungu": "강남구",
       "kaptId": "A13519005",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 546,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -697,8 +915,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 546,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_d32b4cdcd2612ee7",
@@ -706,8 +929,8 @@
       "sigungu": "강남구",
       "kaptId": "A13520004",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 402,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -723,8 +946,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 402,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_69cf1ebe9fc372cb",
@@ -732,8 +960,8 @@
       "sigungu": "강남구",
       "kaptId": "A13519001",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 395,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -749,8 +977,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 395,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_c965c0751f331083",
@@ -758,8 +991,8 @@
       "sigungu": "강남구",
       "kaptId": "A13519002",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 410,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -775,8 +1008,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 410,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_44645ecd97814c0a",
@@ -784,8 +1022,8 @@
       "sigungu": "강남구",
       "kaptId": "A13519007",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 809,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -801,8 +1039,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 809,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_4dd9d64807776b91",
@@ -810,8 +1053,8 @@
       "sigungu": "강남구",
       "kaptId": "A10028172",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 716,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -827,8 +1070,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 716,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_1293d84a4059ff03",
@@ -836,8 +1084,8 @@
       "sigungu": "강남구",
       "kaptId": "A10027985",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1339,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -853,8 +1101,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 1339,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_1b5e6d7f5ff719aa",
@@ -862,8 +1115,8 @@
       "sigungu": "강남구",
       "kaptId": "A10023825",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 499,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -879,8 +1132,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 499,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_7c6b87026198c841",
@@ -888,8 +1146,8 @@
       "sigungu": "강남구",
       "kaptId": "A13579506",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 240,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -905,8 +1163,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 240,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_85e7937bb5ab55bb",
@@ -914,8 +1177,8 @@
       "sigungu": "강남구",
       "kaptId": "A13592601",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 438,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -931,8 +1194,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 438,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_d6d8c1f8fd2a1afe",
@@ -940,8 +1208,8 @@
       "sigungu": "강남구",
       "kaptId": "A13579501",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 332,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -957,8 +1225,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 332,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_fd065121656ce30d",
@@ -966,8 +1239,8 @@
       "sigungu": "강남구",
       "kaptId": "A10023565",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 270,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -983,8 +1256,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 270,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_5cffd43c4d09f937",
@@ -992,8 +1270,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024564",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 2296,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1009,8 +1287,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 2296,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_6876c3734b34b94b",
@@ -1018,8 +1301,8 @@
       "sigungu": "강남구",
       "kaptId": "A13524004",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 405,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1035,8 +1318,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 405,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_1b9bcfeb30a10a27",
@@ -1044,8 +1332,8 @@
       "sigungu": "강남구",
       "kaptId": "A13593901",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 212,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1061,8 +1349,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 212,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_d01a826118cb08dc",
@@ -1070,8 +1363,8 @@
       "sigungu": "강남구",
       "kaptId": "A10023348",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 3375,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1087,8 +1380,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 3375,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_fb75e54242978da0",
@@ -1096,8 +1394,8 @@
       "sigungu": "강남구",
       "kaptId": "A13599402",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 940,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1113,8 +1411,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 940,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_707b7549d526797c",
@@ -1122,8 +1425,8 @@
       "sigungu": "강남구",
       "kaptId": "A13501008",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 113,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1139,8 +1442,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 113,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_cda1e7fb638a9e4f",
@@ -1148,8 +1456,8 @@
       "sigungu": "강남구",
       "kaptId": "A13527008",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 348,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1165,8 +1473,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 348,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_b9c068664c711faa",
@@ -1174,8 +1487,8 @@
       "sigungu": "강남구",
       "kaptId": "A13508002",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 164,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1191,8 +1504,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 164,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_2ce2c22300234436",
@@ -1200,8 +1518,8 @@
       "sigungu": "강남구",
       "kaptId": "A13522007",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1403,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1217,8 +1535,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 1403,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_a0b3b5b9665d1252",
@@ -1226,8 +1549,8 @@
       "sigungu": "강남구",
       "kaptId": "A13501005",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 130,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1243,8 +1566,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 130,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_18ad2083fb0c7a2d",
@@ -1252,8 +1580,8 @@
       "sigungu": "강남구",
       "kaptId": "A13586101",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 197,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1269,8 +1597,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 197,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_450a88a2bc3667c4",
@@ -1278,8 +1611,8 @@
       "sigungu": "강남구",
       "kaptId": "A13527014",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 490,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1295,8 +1628,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 490,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_2454cde9571a6656",
@@ -1304,8 +1642,8 @@
       "sigungu": "강남구",
       "kaptId": "A10021281",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 129,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1321,8 +1659,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 129,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_b7a9b1e9fcae7d41",
@@ -1330,8 +1673,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024258",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 184,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1347,8 +1690,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 184,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_4964845ba288fa43",
@@ -1356,8 +1704,8 @@
       "sigungu": "강남구",
       "kaptId": "A13508003",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 168,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1373,8 +1721,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 168,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_87f8ef853089699c",
@@ -1382,8 +1735,8 @@
       "sigungu": "강남구",
       "kaptId": "A13528001",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 210,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1399,8 +1752,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 210,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_6a50b2c486a55cca",
@@ -1408,8 +1766,8 @@
       "sigungu": "강남구",
       "kaptId": "A13510003",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 196,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1425,8 +1783,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 196,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_7a1a7fb020e04028",
@@ -1434,8 +1797,8 @@
       "sigungu": "강남구",
       "kaptId": "A10026924",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 239,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1451,8 +1814,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 239,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_54bbbe97fcae08db",
@@ -1460,8 +1828,8 @@
       "sigungu": "강남구",
       "kaptId": "A13528003",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 960,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1477,8 +1845,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 960,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_aa00db8ff44e4e76",
@@ -1486,8 +1859,8 @@
       "sigungu": "강남구",
       "kaptId": "A13528102",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 768,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1503,8 +1876,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 768,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_13782d5829297868",
@@ -1512,8 +1890,8 @@
       "sigungu": "강남구",
       "kaptId": "A13583403",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 476,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1529,8 +1907,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 476,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_c93bad4926b72e44",
@@ -1538,8 +1921,8 @@
       "sigungu": "강남구",
       "kaptId": "A13583701",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 630,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1555,8 +1938,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 630,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_eeb8d2fd5ae558d9",
@@ -1564,8 +1952,8 @@
       "sigungu": "강남구",
       "kaptId": "A13528008",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 83,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1581,8 +1969,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 83,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_ae98563709f37f48",
@@ -1590,8 +1983,8 @@
       "sigungu": "강남구",
       "kaptId": "A13527007",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 321,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1607,8 +2000,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 321,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_c9ed0235ecca960c",
@@ -1616,8 +2014,8 @@
       "sigungu": "강남구",
       "kaptId": "A13527203",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 3002,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1633,8 +2031,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 3002,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_7b05e088b9e35de2",
@@ -1642,8 +2045,8 @@
       "sigungu": "강남구",
       "kaptId": "A13527010",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 390,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1659,8 +2062,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 390,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_8b8f8c5a7f92883f",
@@ -1668,8 +2076,8 @@
       "sigungu": "강남구",
       "kaptId": "A13588601",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 330,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1685,8 +2093,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 330,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_64b1e2de187b1b2e",
@@ -1694,8 +2107,8 @@
       "sigungu": "강남구",
       "kaptId": "A13509015",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 36,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1711,8 +2124,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 36,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_9cacfb4dc2141eed",
@@ -1720,8 +2138,8 @@
       "sigungu": "강남구",
       "kaptId": "A13582002",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 548,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1737,8 +2155,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 548,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_dc7941c63cc2b2d2",
@@ -1746,8 +2169,8 @@
       "sigungu": "강남구",
       "kaptId": "A13501005",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 130,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1763,8 +2186,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 130,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_e0be72c3bf354c43",
@@ -1772,8 +2200,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024457",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 136,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1789,8 +2217,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 136,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_bf600e79ed5abec6",
@@ -1798,8 +2231,8 @@
       "sigungu": "강남구",
       "kaptId": "A13520003",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1020,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1815,8 +2248,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 1020,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_525451ca0a5227b3",
@@ -1824,8 +2262,8 @@
       "sigungu": "강남구",
       "kaptId": "A13579505",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 476,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1841,8 +2279,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 476,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_689344cb85ae13ea",
@@ -1850,8 +2293,8 @@
       "sigungu": "강남구",
       "kaptId": "A13508011",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 464,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1867,8 +2310,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 464,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_d0f056c16c98ed17",
@@ -1876,8 +2324,8 @@
       "sigungu": "강남구",
       "kaptId": "A13528007",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 354,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1893,8 +2341,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 354,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_4e57a4f2e384805b",
@@ -1902,8 +2355,8 @@
       "sigungu": "강남구",
       "kaptId": "A10025675",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1957,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1919,8 +2372,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 1957,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_7b0395885c1cb4bc",
@@ -1928,8 +2386,8 @@
       "sigungu": "강남구",
       "kaptId": "A13509014",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 133,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1945,8 +2403,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 133,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_b9b28e4a4734a789",
@@ -1954,8 +2417,8 @@
       "sigungu": "강남구",
       "kaptId": "A13509013",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 112,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1971,8 +2434,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 112,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_30a07d437467816b",
@@ -1980,8 +2448,8 @@
       "sigungu": "강남구",
       "kaptId": "A13509005",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 275,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -1997,8 +2465,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 275,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_c7a7d052ddeca6b3",
@@ -2006,8 +2479,8 @@
       "sigungu": "강남구",
       "kaptId": "A13508006",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 288,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2023,8 +2496,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 288,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_02904e5aeb9e11de",
@@ -2032,8 +2510,8 @@
       "sigungu": "강남구",
       "kaptId": "A10020848",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 128,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2049,8 +2527,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 128,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_67d3c2d52851b825",
@@ -2058,8 +2541,8 @@
       "sigungu": "강남구",
       "kaptId": "A13585804",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 1094,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2075,8 +2558,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 1094,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_3ece202036d1b626",
@@ -2084,8 +2572,8 @@
       "sigungu": "강남구",
       "kaptId": "A13570502",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 77,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2101,8 +2589,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 77,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_67b7f39c21e55a7a",
@@ -2110,8 +2603,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024814",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 139,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2127,8 +2620,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 139,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_57be6f661d38df1c",
@@ -2136,8 +2634,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024821",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 142,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2153,8 +2651,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 142,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_d40b374572ccce9d",
@@ -2162,8 +2665,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024813",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 117,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2179,8 +2682,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 117,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_4eaef75d231b9826",
@@ -2188,8 +2696,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024815",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 144,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2205,8 +2713,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 144,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_51c430ee7dc73545",
@@ -2214,8 +2727,8 @@
       "sigungu": "강남구",
       "kaptId": "A13509010",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 713,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2231,8 +2744,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 713,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_83a4ce2d482ece53",
@@ -2240,8 +2758,8 @@
       "sigungu": "강남구",
       "kaptId": "A13501002",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 260,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2257,8 +2775,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 260,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_1394df50da4b6a36",
@@ -2266,8 +2789,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024793",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 132,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2283,8 +2806,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 132,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_936d4ebd0edd4503",
@@ -2292,8 +2820,8 @@
       "sigungu": "강남구",
       "kaptId": "A13523005",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 650,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2309,8 +2837,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 650,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_a3e39921a28b8fcb",
@@ -2318,8 +2851,8 @@
       "sigungu": "강남구",
       "kaptId": "A13511001",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 322,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2335,8 +2868,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 322,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_730df44106310592",
@@ -2344,8 +2882,8 @@
       "sigungu": "강남구",
       "kaptId": "A13511003",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 911,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2361,8 +2899,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 911,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_cf94d9c39826e444",
@@ -2370,8 +2913,8 @@
       "sigungu": "강남구",
       "kaptId": "A10021034",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 148,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2387,8 +2930,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 148,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_8339dbcf75c794c5",
@@ -2396,8 +2944,8 @@
       "sigungu": "강남구",
       "kaptId": "A10024435",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 59,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2413,8 +2961,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 59,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_923474d2e803bb5a",
@@ -2422,8 +2975,8 @@
       "sigungu": "강남구",
       "kaptId": "A13509007",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 339,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2439,8 +2992,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 339,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_72e2b06663f8790e",
@@ -2448,8 +3006,8 @@
       "sigungu": "강남구",
       "kaptId": "A10026934",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 118,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2465,8 +3023,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 118,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_c98fe56b8eea215d",
@@ -2474,8 +3037,8 @@
       "sigungu": "강남구",
       "kaptId": "A10026350",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 416,
       "status": "READY",
+      "priority": "READY_B",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2491,8 +3054,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_B"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 416,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_0320fd9e007e1f8c",
@@ -2500,8 +3068,8 @@
       "sigungu": "강남구",
       "kaptId": "A13583507",
       "kaptIdSource": "source_link",
-      "householdCount": 4424,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -2518,21 +3086,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [
-        "202507",
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202606",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true,
+      "householdCount": 4424,
+      "notes": null
     },
     {
       "complexId": "cx_caf229b5ac63cfbd",
@@ -2540,8 +3100,8 @@
       "sigungu": "송파구",
       "kaptId": "A13822003",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 5563,
       "status": "READY",
+      "priority": "READY_A",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2557,8 +3117,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_A"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 5563,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_4c63d9a100973c60",
@@ -2566,8 +3131,8 @@
       "sigungu": "송파구",
       "kaptId": "A13822004",
       "kaptIdSource": "source_link",
-      "householdCount": 5678,
       "status": "ALREADY_COVERED",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -2583,23 +3148,13 @@
         "202608"
       ],
       "missingMonths": [],
-      "allFeeMonths": [
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607",
-        "202608",
-        "202609"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202609",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true,
+      "householdCount": 5678,
+      "notes": null
     },
     {
       "complexId": "cx_85cd8a4b2d5dc3d0",
@@ -2607,8 +3162,8 @@
       "sigungu": "송파구",
       "kaptId": "A13822002",
       "kaptIdSource": "profile_meta_stage1",
-      "householdCount": 3696,
       "status": "READY",
+      "priority": "READY_A",
       "availableMonths": [],
       "missingMonths": [
         "202509",
@@ -2624,8 +3179,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [],
-      "priority": "READY_A"
+      "latestAvailableMonth": null,
+      "common": false,
+      "individual": false,
+      "reserve": false,
+      "allRequiredComponents": false,
+      "householdCount": 3696,
+      "notes": "KAPT from Stage1 profile meta; persist apt_complex_source_links before/with fee load"
     },
     {
       "complexId": "cx_ed52bf895d064c11",
@@ -2633,8 +3193,8 @@
       "sigungu": "송파구",
       "kaptId": "A13824006",
       "kaptIdSource": "source_link",
-      "householdCount": 6864,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -2651,21 +3211,13 @@
         "202607",
         "202608"
       ],
-      "allFeeMonths": [
-        "202507",
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202606",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true,
+      "householdCount": 6864,
+      "notes": null
     },
     {
       "complexId": "cx_30d7eea6da810b52",
@@ -2673,8 +3225,8 @@
       "sigungu": "송파구",
       "kaptId": "A10025850",
       "kaptIdSource": "source_link",
-      "householdCount": null,
       "status": "PARTIAL_MONTHS",
+      "priority": null,
       "availableMonths": [
         "202509",
         "202510",
@@ -2691,21 +3243,41 @@
       "missingMonths": [
         "202608"
       ],
-      "allFeeMonths": [
-        "202508",
-        "202509",
-        "202510",
-        "202511",
-        "202512",
-        "202601",
-        "202602",
-        "202603",
-        "202604",
-        "202605",
-        "202606",
-        "202607"
-      ],
-      "priority": null
+      "latestAvailableMonth": "202607",
+      "common": true,
+      "individual": true,
+      "reserve": true,
+      "allRequiredComponents": true,
+      "householdCount": null,
+      "notes": null
     }
-  ]
+  ],
+  "blockers": {
+    "identity": "PRIMARY — vast majority of Seoul masters lack KAPT identity in source_links/profile meta",
+    "costCoverage": "Secondary — among identity-known, several PARTIAL_MONTHS; no COST_DATA_MISSING without API probe",
+    "apiQuota": "KAPT HTTP 429 from Stage1 — this run made zero external KAPT calls",
+    "other": "Some READY_B identities are Stage1 profile meta only (need source_link persist on load)"
+  },
+  "productAnswers": {
+    "displayableNow": 1,
+    "identityReadyForNextBatch": 75,
+    "full12MonthComplexes": 1,
+    "partialMonthsComplexes": 6,
+    "biggestBlocker": "KAPT_IDENTITY",
+    "safeNextBatchSize": 10,
+    "schemaChangeRequired": false,
+    "existingPipelineExpandable": true
+  },
+  "decision": {
+    "MANAGEMENT_IDENTITY_READINESS": "PARTIAL",
+    "MANAGEMENT_COVERAGE_READINESS": "PARTIAL",
+    "NEXT_BATCH_READINESS": "PASS",
+    "DATA_SAFETY": "PASS"
+  },
+  "safety": {
+    "kaptApiCalls": 0,
+    "dbInsert": 0,
+    "dbUpdate": 0,
+    "dbDelete": 0
+  }
 }
