@@ -4,3 +4,4 @@ seoul_gate_inputs.sqlite-*
 failed_targets.jsonl
 acquisition_progress.json
 runner_report.json
+_bulk_trades*
