@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-09-16T03:29:56.948Z",
+  "count": 32,
+  "samples": [
+    {
+      "district": "중구",
+      "masterComplexId": "cx_27b567709a54de37",
+      "masterName": "남산타운",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "중구",
+      "masterComplexId": "cx_e66062833b1ddded",
+      "masterName": "롯데캐슬",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "중구",
+      "masterComplexId": "cx_6d029dc22dfe29e3",
+      "masterName": "청구e편한세상",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "성동구",
+      "masterComplexId": "cx_1dc1ae5eb9ba8b4a",
+      "masterName": "브라운스톤금호",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "성동구",
+      "masterComplexId": "cx_88ede999f3febf59",
+      "masterName": "행당두산위브",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "광진구",
+      "masterComplexId": "cx_7ce2c0c6be9bb8b4",
+      "masterName": "자양현대5",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "광진구",
+      "masterComplexId": "cx_55e8c199aa3d2ef2",
+      "masterName": "자양현대6",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "도봉구",
+      "masterComplexId": "cx_17e5d4cda85c9ecc",
+      "masterName": "창동현대4차",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "도봉구",
+      "masterComplexId": "cx_579c17c2d89cde2f",
+      "masterName": "창동현대타운",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "노원구",
+      "masterComplexId": "cx_a44436e064755142",
+      "masterName": "노원롯데캐슬시그니처",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "노원구",
+      "masterComplexId": "cx_efb77c5a2d4b858c",
+      "masterName": "중계현대2",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "마포구",
+      "masterComplexId": "cx_2f6a9726d8fecdec",
+      "masterName": "공덕sk리더스뷰",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "마포구",
+      "masterComplexId": "cx_7abb5c98d0823ebc",
+      "masterName": "공덕자이",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "양천구",
+      "masterComplexId": "cx_2804831ed574e54b",
+      "masterName": "목동성원",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "양천구",
+      "masterComplexId": "cx_3ecae3a98d8fe51d",
+      "masterName": "목동삼성",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "양천구",
+      "masterComplexId": "cx_13e9f244ff36896a",
+      "masterName": "목동성원(926-8)",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "강서구",
+      "masterComplexId": "cx_019cfd03228aaa9e",
+      "masterName": "동부센트레빌",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "구로구",
+      "masterComplexId": "cx_d020be9102f4c0d2",
+      "masterName": "거성푸르뫼",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "영등포구",
+      "masterComplexId": "cx_edbf0c79067f1f0f",
+      "masterName": "대림현대",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    },
+    {
+      "district": "동작구",
+      "masterComplexId": "cx_dcca5b920bc9ae42",
+      "masterName": "롯데캐슬",
+      "reason": "multiple_plausible_kapt_or_master_candidates_same_bjd"
+    }
+  ]
+}
