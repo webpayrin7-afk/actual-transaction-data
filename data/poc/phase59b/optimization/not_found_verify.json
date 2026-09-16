@@ -1,0 +1,38 @@
+[
+  {
+    "complex_id": "11110:하이텍하우스",
+    "code": "00",
+    "total": 0,
+    "params": {
+      "sigungu": "11110",
+      "bjdong": "16000",
+      "bun": "0036",
+      "ji": "0001"
+    },
+    "terminal": true
+  },
+  {
+    "complex_id": "11140:서울역센트럴자이(임대)",
+    "code": "00",
+    "total": 0,
+    "params": {
+      "sigungu": "11140",
+      "bjdong": "17400",
+      "bun": "0176",
+      "ji": "0001"
+    },
+    "terminal": true
+  },
+  {
+    "complex_id": "11140:한진해모로",
+    "code": "00",
+    "total": 0,
+    "params": {
+      "sigungu": "11140",
+      "bjdong": "16200",
+      "bun": "0845",
+      "ji": "0000"
+    },
+    "terminal": true
+  }
+]

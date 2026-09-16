@@ -1,0 +1,464 @@
+[
+  {
+    "label": "small",
+    "complex_id": "11110:(1-102)",
+    "request_key": {
+      "sigungu_cd": "11110",
+      "bjdong_cd": "17300",
+      "bun": "0001",
+      "ji": "0102"
+    },
+    "db_total": 14,
+    "db_pages": 1,
+    "unresolved_reason": null,
+    "cache_path": "/workspace/data/poc/phase59b/bld-expos-cache/11110__(1-102)-bld-expos-cache.json",
+    "analysis": {
+      "cached_items": 14,
+      "totalCount": 14,
+      "pages_est": 1,
+      "partial": false,
+      "expos_counts": {
+        "전유": 8,
+        "공용": 6
+      },
+      "mainAtch_counts": {
+        "주건축물": 14
+      },
+      "mainPurps_top": [
+        [
+          "아파트",
+          14
+        ]
+      ],
+      "exclusive_apt_rows": 8,
+      "exclusive_apt_units": 0,
+      "distinct_bldNm": 1,
+      "bldNm_top": [
+        [
+          "(blank)",
+          14
+        ]
+      ],
+      "distinct_mgmBldrgstPk": 8,
+      "platPlc_top": [
+        [
+          "서울특별시 종로구 명륜3가 1-102번지",
+          14
+        ]
+      ],
+      "note": "getBrExposPubuseAreaInfo returns ALL expos+pubuse area rows at exact parcel (전유+공용+부속); pagination is cardinality of those rows, not missing filters"
+    }
+  },
+  {
+    "label": "medium",
+    "complex_id": "11140:예장동삼익",
+    "request_key": {
+      "sigungu_cd": "11140",
+      "bjdong_cd": "14200",
+      "bun": "0009",
+      "ji": "0000"
+    },
+    "db_total": 809,
+    "db_pages": 9,
+    "unresolved_reason": null,
+    "cache_path": "/workspace/data/poc/phase59b/bld-expos-cache/11140__예장동삼익-bld-expos-cache.json",
+    "analysis": {
+      "cached_items": 809,
+      "totalCount": 809,
+      "pages_est": 9,
+      "partial": false,
+      "expos_counts": {
+        "전유": 74,
+        "공용": 735
+      },
+      "mainAtch_counts": {
+        "주건축물": 809
+      },
+      "mainPurps_top": [
+        [
+          "아파트",
+          405
+        ],
+        [
+          "다세대주택",
+          221
+        ],
+        [
+          "연립주택",
+          109
+        ],
+        [
+          "부대시설",
+          39
+        ],
+        [
+          "기타제1종근린생활시설",
+          20
+        ],
+        [
+          "기타일반업무시설",
+          13
+        ],
+        [
+          "사무소",
+          2
+        ]
+      ],
+      "exclusive_apt_rows": 39,
+      "exclusive_apt_units": 0,
+      "distinct_bldNm": 1,
+      "bldNm_top": [
+        [
+          "예장동 삼익아파트",
+          809
+        ]
+      ],
+      "distinct_mgmBldrgstPk": 74,
+      "platPlc_top": [
+        [
+          "서울특별시 중구 예장동 9번지",
+          809
+        ]
+      ],
+      "note": "getBrExposPubuseAreaInfo returns ALL expos+pubuse area rows at exact parcel (전유+공용+부속); pagination is cardinality of those rows, not missing filters"
+    }
+  },
+  {
+    "label": "near50",
+    "complex_id": "11110:경희궁자이(2단지)",
+    "request_key": {
+      "sigungu_cd": "11110",
+      "bjdong_cd": "17900",
+      "bun": "0199",
+      "ji": "0000"
+    },
+    "db_total": 10680,
+    "db_pages": 107,
+    "unresolved_reason": null,
+    "cache_path": "/workspace/data/poc/phase59b/bld-expos-cache/11110__경희궁자이(2단지)-bld-expos-cache.json",
+    "analysis": {
+      "cached_items": 10680,
+      "totalCount": 10680,
+      "pages_est": 107,
+      "partial": false,
+      "expos_counts": {
+        "전유": 1235,
+        "공용": 9445
+      },
+      "mainAtch_counts": {
+        "주건축물": 3620,
+        "부속건축물": 7060
+      },
+      "mainPurps_top": [
+        [
+          "아파트",
+          10332
+        ],
+        [
+          "기타제2종근린생활시설",
+          337
+        ],
+        [
+          "의원",
+          5
+        ],
+        [
+          "교습소",
+          4
+        ],
+        [
+          "학원",
+          2
+        ]
+      ],
+      "exclusive_apt_rows": 1148,
+      "exclusive_apt_units": 1148,
+      "distinct_bldNm": 1,
+      "bldNm_top": [
+        [
+          "경희궁자이",
+          10680
+        ]
+      ],
+      "distinct_mgmBldrgstPk": 1235,
+      "platPlc_top": [
+        [
+          "서울특별시 종로구 홍파동 199번지",
+          10680
+        ]
+      ],
+      "note": "getBrExposPubuseAreaInfo returns ALL expos+pubuse area rows at exact parcel (전유+공용+부속); pagination is cardinality of those rows, not missing filters"
+    }
+  },
+  {
+    "label": "large:남산타운",
+    "complex_id": "11140:남산타운",
+    "request_key": {
+      "sigungu_cd": "11140",
+      "bjdong_cd": "16200",
+      "bun": "0844",
+      "ji": "0000"
+    },
+    "db_total": 40560,
+    "db_pages": 406,
+    "unresolved_reason": "deferred_large_registry",
+    "cache_path": "/workspace/data/poc/phase59b/bld-expos-cache/11140__남산타운-bld-expos-cache.json",
+    "analysis": {
+      "cached_items": 100,
+      "totalCount": 40560,
+      "pages_est": 406,
+      "partial": true,
+      "expos_counts": {
+        "전유": 14,
+        "공용": 86
+      },
+      "mainAtch_counts": {
+        "주건축물": 58,
+        "부속건축물": 42
+      },
+      "mainPurps_top": [
+        [
+          "아파트",
+          100
+        ]
+      ],
+      "exclusive_apt_rows": 14,
+      "exclusive_apt_units": 14,
+      "distinct_bldNm": 1,
+      "bldNm_top": [
+        [
+          "남산타운",
+          100
+        ]
+      ],
+      "distinct_mgmBldrgstPk": 14,
+      "platPlc_top": [
+        [
+          "서울특별시 중구 신당동 844번지",
+          100
+        ]
+      ],
+      "note": "getBrExposPubuseAreaInfo returns ALL expos+pubuse area rows at exact parcel (전유+공용+부속); pagination is cardinality of those rows, not missing filters"
+    }
+  },
+  {
+    "label": "large:약수하이츠",
+    "complex_id": "11140:약수하이츠",
+    "request_key": {
+      "sigungu_cd": "11140",
+      "bjdong_cd": "16200",
+      "bun": "0842",
+      "ji": "0000"
+    },
+    "db_total": 20946,
+    "db_pages": 210,
+    "unresolved_reason": "deferred_large_registry",
+    "cache_path": "/workspace/data/poc/phase59b/bld-expos-cache/11140__약수하이츠-bld-expos-cache.json",
+    "analysis": {
+      "cached_items": 100,
+      "totalCount": 20946,
+      "pages_est": 210,
+      "partial": true,
+      "expos_counts": {
+        "전유": 12,
+        "공용": 88
+      },
+      "mainAtch_counts": {
+        "주건축물": 36,
+        "부속건축물": 64
+      },
+      "mainPurps_top": [
+        [
+          "아파트",
+          38
+        ],
+        [
+          "부대시설",
+          23
+        ],
+        [
+          "연립주택",
+          18
+        ],
+        [
+          "공중화장실",
+          11
+        ],
+        [
+          "다세대주택",
+          10
+        ]
+      ],
+      "exclusive_apt_rows": 12,
+      "exclusive_apt_units": 12,
+      "distinct_bldNm": 9,
+      "bldNm_top": [
+        [
+          "약수하이츠 113동",
+          24
+        ],
+        [
+          "약수하이츠 116동",
+          18
+        ],
+        [
+          "약수하이츠 114동",
+          9
+        ],
+        [
+          "약수하이츠 108동",
+          9
+        ],
+        [
+          "약수하이츠 109동",
+          9
+        ]
+      ],
+      "distinct_mgmBldrgstPk": 12,
+      "platPlc_top": [
+        [
+          "서울특별시 중구 신당동 842번지",
+          100
+        ]
+      ],
+      "note": "getBrExposPubuseAreaInfo returns ALL expos+pubuse area rows at exact parcel (전유+공용+부속); pagination is cardinality of those rows, not missing filters"
+    }
+  },
+  {
+    "label": "large:서울역센트럴자이",
+    "complex_id": "11140:서울역센트럴자이",
+    "request_key": {
+      "sigungu_cd": "11140",
+      "bjdong_cd": "17400",
+      "bun": "0273",
+      "ji": "0000"
+    },
+    "db_total": 13495,
+    "db_pages": 135,
+    "unresolved_reason": "deferred_large_registry",
+    "cache_path": "/workspace/data/poc/phase59b/bld-expos-cache/11140__서울역센트럴자이-bld-expos-cache.json",
+    "analysis": {
+      "cached_items": 100,
+      "totalCount": 13495,
+      "pages_est": 135,
+      "partial": true,
+      "expos_counts": {
+        "전유": 10,
+        "공용": 90
+      },
+      "mainAtch_counts": {
+        "주건축물": 40,
+        "부속건축물": 60
+      },
+      "mainPurps_top": [
+        [
+          "부대시설",
+          60
+        ],
+        [
+          "아파트",
+          30
+        ],
+        [
+          "복리시설",
+          10
+        ]
+      ],
+      "exclusive_apt_rows": 10,
+      "exclusive_apt_units": 10,
+      "distinct_bldNm": 1,
+      "bldNm_top": [
+        [
+          "서울역센트럴자이",
+          100
+        ]
+      ],
+      "distinct_mgmBldrgstPk": 10,
+      "platPlc_top": [
+        [
+          "서울특별시 중구 만리동2가 273번지",
+          100
+        ]
+      ],
+      "note": "getBrExposPubuseAreaInfo returns ALL expos+pubuse area rows at exact parcel (전유+공용+부속); pagination is cardinality of those rows, not missing filters"
+    }
+  },
+  {
+    "label": "large:광화문스페이스본",
+    "complex_id": "11110:광화문스페이스본(101동~105동)",
+    "request_key": {
+      "sigungu_cd": "11110",
+      "bjdong_cd": "11500",
+      "bun": "0009",
+      "ji": "0000"
+    },
+    "db_total": 8501,
+    "db_pages": 86,
+    "unresolved_reason": "deferred_large_registry",
+    "cache_path": "/workspace/data/poc/phase59b/bld-expos-cache/11110__광화문스페이스본(101동~105동)-bld-expos-cache.json",
+    "analysis": {
+      "cached_items": 7500,
+      "totalCount": 8501,
+      "pages_est": 86,
+      "partial": true,
+      "expos_counts": {
+        "전유": 898,
+        "공용": 6602
+      },
+      "mainAtch_counts": {
+        "주건축물": 7500
+      },
+      "mainPurps_top": [
+        [
+          "아파트",
+          5166
+        ],
+        [
+          "오피스텔",
+          1795
+        ],
+        [
+          "일반음식점",
+          172
+        ],
+        [
+          "소매점",
+          77
+        ],
+        [
+          "휴게음식점",
+          77
+        ],
+        [
+          "부동산중개업소",
+          62
+        ],
+        [
+          "사무소",
+          54
+        ],
+        [
+          "이(미)용원",
+          32
+        ]
+      ],
+      "exclusive_apt_rows": 574,
+      "exclusive_apt_units": 574,
+      "distinct_bldNm": 1,
+      "bldNm_top": [
+        [
+          "광화문 스페이스본",
+          7500
+        ]
+      ],
+      "distinct_mgmBldrgstPk": 898,
+      "platPlc_top": [
+        [
+          "서울특별시 종로구 사직동 9번지",
+          7500
+        ]
+      ],
+      "note": "getBrExposPubuseAreaInfo returns ALL expos+pubuse area rows at exact parcel (전유+공용+부속); pagination is cardinality of those rows, not missing filters"
+    }
+  }
+]

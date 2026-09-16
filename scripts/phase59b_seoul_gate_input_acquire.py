@@ -347,6 +347,36 @@ def cache_path_for(cid: str, gate, parcel_map: dict[str, Any]) -> Path:
     return CACHE_DIR / f"{safe}-bld-expos-cache.json"
 
 
+def request_key(parcel: dict[str, Any]) -> tuple[str, str, str, str]:
+    return (
+        str(parcel.get("sigungu_cd") or ""),
+        str(parcel.get("bjdong_cd") or ""),
+        str(parcel.get("bun") or "").zfill(4),
+        str(parcel.get("ji") or "").zfill(4),
+    )
+
+
+def build_shared_cache_index(conn: sqlite3.Connection) -> dict[tuple[str, str, str, str], Path]:
+    """Map BldRgst request key -> complete local cache path (shared reuse)."""
+    idx: dict[tuple[str, str, str, str], Path] = {}
+    for sigungu, bjdong, bun, ji, path in conn.execute(
+        """
+        SELECT sigungu_cd, bjdong_cd, bun, ji, bld_cache_path
+        FROM candidates
+        WHERE parcel_ok=1 AND bld_ok=1 AND bld_cache_path IS NOT NULL
+        """
+    ):
+        if not path:
+            continue
+        p = Path(path)
+        ok, _, _ = cache_complete(p)
+        if not ok:
+            continue
+        key = (str(sigungu), str(bjdong), str(bun).zfill(4), str(ji).zfill(4))
+        idx.setdefault(key, p)
+    return idx
+
+
 def index_existing_caches(gate) -> dict[str, Path]:
     idx: dict[str, Path] = {}
     for c in gate.COMPLEXES:
@@ -695,20 +725,29 @@ def run_acquire(
         "id": "ORDER BY complex_id ASC",
     }.get(order, "ORDER BY complex_id ASC")
 
+    # Normal wave (max_pages set): exclude deferred_large + terminal not-found.
+    # Full/large wave (max_pages None): include deferred_large, still skip terminal not-found.
+    exclude = ["registry_not_found_terminal"]
+    if max_pages is not None:
+        exclude.append("deferred_large_registry")
+    exclude_sql = ",".join(f"'{x}'" for x in exclude)
     rows = conn.execute(
         f"""
         SELECT complex_id, sigungu_cd, bjdong_cd, bun, ji, lawd_cd, apt_name_norm, retry_count
         FROM candidates
         WHERE parcel_ok=1 AND bld_ok=0
+          AND COALESCE(unresolved_reason,'') NOT IN ({exclude_sql})
         {order_sql}
         """
     ).fetchall()
     if limit is not None:
         rows = rows[:limit]
 
+    shared_idx = build_shared_cache_index(conn)
     stats = {
         "targets": len(rows),
         "cache_hits": 0,
+        "shared_cache_hits": 0,
         "api_requests": 0,
         "successful": 0,
         "not_found": 0,
@@ -724,15 +763,19 @@ def run_acquire(
         status = result["status"]
         if status == "cache_hit":
             stats["cache_hits"] += 1
+            src = result.get("bld_source") or "local_cache"
+            if src.startswith("shared_request_key"):
+                stats["shared_cache_hits"] += 1
             conn.execute(
                 """
-                UPDATE candidates SET bld_ok=1, bld_source='local_cache',
+                UPDATE candidates SET bld_ok=1, bld_source=?,
                   bld_total_count=?, bld_pages=?, bld_cache_path=?,
                   gate_inputs_complete=1, unresolved_reason=NULL, last_error=NULL, updated_at=?
                 WHERE complex_id=?
                 """,
-                (result["total"], result["pages"], result["path"], now, cid),
+                (src, result["total"], result["pages"], result["path"], now, cid),
             )
+            shared_idx[request_key(parcel)] = Path(result["path"])
         elif status == "success":
             stats["successful"] += 1
             conn.execute(
@@ -744,6 +787,7 @@ def run_acquire(
                 """,
                 (result["total"], result["pages"], result["path"], now, cid),
             )
+            shared_idx[request_key(parcel)] = Path(result["path"])
         elif status == "not_found":
             stats["not_found"] += 1
             conn.execute(
@@ -815,6 +859,25 @@ def run_acquire(
             "ji": ji,
         }
         path = cache_path_for(cid, gate, parcel_map)
+        # Shared request-key reuse: do not re-call API for same parcel key.
+        shared = shared_idx.get(request_key(parcel))
+        if shared and shared.exists():
+            ok, total, pages = cache_complete(shared)
+            if ok:
+                return (
+                    cid,
+                    parcel,
+                    {
+                        "status": "cache_hit",
+                        "total": total,
+                        "pages": pages,
+                        "requests": 0,
+                        "path": str(shared),
+                        "bld_source": "shared_request_key",
+                    },
+                    retry_count,
+                    None,
+                )
         try:
             result = acquire_one(key, cid, parcel, path, sleep_s, max_pages)
             return cid, parcel, result, retry_count, None
