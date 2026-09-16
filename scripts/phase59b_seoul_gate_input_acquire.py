@@ -44,7 +44,9 @@ PROGRESS_PATH = OUT / "acquisition_progress.json"
 FAILED_PATH = OUT / "failed_targets.jsonl"
 PAGE_SIZE = 100
 DEFAULT_SLEEP = 0.35
-MAX_RETRIES = 12
+MAX_RETRIES = 8
+PAGE_TIMEOUT_SEC = 45
+MAX_PAGE_BACKOFF_SEC = 20.0
 
 
 def now_iso() -> str:
@@ -491,7 +493,7 @@ def fetch_page(key: str, parcel: dict[str, str], page: int) -> tuple[list[dict],
     last: Exception | None = None
     for attempt in range(MAX_RETRIES):
         try:
-            with urllib.request.urlopen(url, timeout=90) as resp:
+            with urllib.request.urlopen(url, timeout=PAGE_TIMEOUT_SEC) as resp:
                 raw = resp.read().decode("utf-8", errors="replace")
             if not raw.strip():
                 raise RuntimeError("empty body")
@@ -518,8 +520,8 @@ def fetch_page(key: str, parcel: dict[str, str], page: int) -> tuple[list[dict],
         except Exception as exc:  # noqa: BLE001
             last = exc
             msg = str(exc)
-            base = 1.6 if ("503" in msg or "empty body" in msg or "non-api" in msg) else 0.9
-            time.sleep(min(60.0, base * (2**attempt)))
+            base = 1.4 if ("503" in msg or "empty body" in msg or "non-api" in msg) else 0.8
+            time.sleep(min(MAX_PAGE_BACKOFF_SEC, base * (2**attempt)))
     raise RuntimeError(f"page {page} failed: {last}")
 
 
