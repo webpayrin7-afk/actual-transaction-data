@@ -1294,7 +1294,7 @@ export function ComplexNearbyLifeSection({
                   : tab === "commerce"
                     ? "relative h-[300px] w-full sm:h-[320px] lg:h-[360px]"
                     : tab === "school"
-                      ? "relative h-[310px] w-full sm:h-[340px] lg:h-[380px]"
+                      ? "relative h-[290px] w-full sm:h-[320px] lg:h-[360px]"
                       : "relative h-[240px] w-full sm:h-[280px] lg:h-[330px]"
               }
               style={{
@@ -1353,7 +1353,7 @@ export function ComplexNearbyLifeSection({
                   : tab === "commerce"
                     ? "h-[300px] sm:h-[320px] lg:h-[360px]"
                     : tab === "school"
-                      ? "h-[310px] sm:h-[340px] lg:h-[380px]"
+                      ? "h-[290px] sm:h-[320px] lg:h-[360px]"
                       : "h-[240px] sm:h-[280px] lg:h-[330px]"
               }`}
             >
