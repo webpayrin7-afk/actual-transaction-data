@@ -1,6 +1,15 @@
 /**
- * Shared Stage9/10 grouping contract helpers.
- * Hard-cap budget logic + areaKey clustering (read-only safe).
+ * Shared Stage9–11 grouping contract helpers.
+ *
+ * CANDIDATE PIPELINE ORDER (mandatory):
+ *   1. raw observed values
+ *   2. areaKey canonicalization
+ *   3. canonical dedupe
+ *   4. candidate clustering
+ *   5. group decision
+ *
+ * GLOBAL INVARIANT (not band-specific):
+ *   similar-area group requires distinct canonical areas >= 2 AND min < max
  */
 export type BandKey = "50-69" | "70-79" | "80-89" | "90-109" | "110+" | "other";
 export type Decision = "SAFE_GROUP" | "AMBIGUOUS" | "NOT_GROUPABLE";
@@ -59,6 +68,7 @@ export function dedupeAreas(areas: AreaRow[]): AreaRow[] {
 }
 
 export function clusterAllBands(areasIn: AreaRow[]): ClusterCand[] {
+  // ORDER: canonicalize + dedupe BEFORE clustering / decision
   const areas = dedupeAreas(areasIn);
   const sorted = areas.map((a) => a.exclusiveArea);
   const groups: number[][] = [];
@@ -89,14 +99,14 @@ export function clusterAllBands(areasIn: AreaRow[]): ClusterCand[] {
     const totalTx = Object.values(txCounts).reduce((s, n) => s + n, 0);
     const band = bandOfCluster(members);
 
+    // GLOBAL INVARIANT first — never SAFE without distinct>=2 and min<max
+    const contract = assertMinimumGroupContract(members);
+
     let decision: Decision;
     let reason: string;
-    if (members.length < 2) {
+    if (!contract.ok) {
       decision = "NOT_GROUPABLE";
-      reason = "single raw area";
-    } else if (span <= 0) {
-      decision = "NOT_GROUPABLE";
-      reason = "zero span after areaKey dedupe — not a multi-member family";
+      reason = `global invariant: ${contract.reason}`;
     } else if (span > HEURISTIC_MAX_SPAN + 1e-9) {
       decision = "NOT_GROUPABLE";
       reason = `span ${span} > heuristic ${HEURISTIC_MAX_SPAN}`;
@@ -130,6 +140,45 @@ export function clusterAllBands(areasIn: AreaRow[]): ClusterCand[] {
       writePriority,
     };
   });
+}
+
+export function assertMinimumGroupContract(members: number[]): {
+  ok: boolean;
+  distinctCanonical: number;
+  min: number | null;
+  max: number | null;
+  reason: string;
+} {
+  const canonical = [
+    ...new Set(members.map((m) => areaKey(m))),
+  ].sort((a, b) => a - b);
+  if (canonical.length < 2) {
+    return {
+      ok: false,
+      distinctCanonical: canonical.length,
+      min: canonical[0] ?? null,
+      max: canonical[0] ?? null,
+      reason: "distinct canonical areas < 2",
+    };
+  }
+  const min = canonical[0]!;
+  const max = canonical[canonical.length - 1]!;
+  if (!(min < max)) {
+    return {
+      ok: false,
+      distinctCanonical: canonical.length,
+      min,
+      max,
+      reason: "min canonical area must be < max",
+    };
+  }
+  return {
+    ok: true,
+    distinctCanonical: canonical.length,
+    min,
+    max,
+    reason: "minimum similar-area group contract satisfied",
+  };
 }
 
 /**
