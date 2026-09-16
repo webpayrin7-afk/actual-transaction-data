@@ -11,11 +11,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
+import { HomeNavigation } from "@/components/home/HomeNavigation";
 import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 import { LabSection } from "@/components/lab/LabSection";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { InfoChip } from "@/components/ui/InfoChip";
 import {
   CONTRACT_DATE_BASIS_HELP,
@@ -37,12 +37,10 @@ async function fetchMarketHome(): Promise<MarketHomeResponse> {
 function KpiCard({
   label,
   value,
-  hint,
   tone,
 }: {
   label: string;
   value: string;
-  hint: string;
   tone: "up" | "down" | "neutral" | "hot";
 }) {
   // 신고가/상승 = 빨강, 하락 = 파랑 (한국 시세 관례)
@@ -50,10 +48,17 @@ function KpiCard({
     up: "text-rose-700",
     down: "text-blue-700",
     hot: "text-amber-800",
-    neutral: "text-slate-900",
+    neutral: "text-[color:var(--lab-navy-950)]",
   } as const;
 
-  return <LabKpiCard label={label} value={value} hint={hint} valueClassName={tones[tone]} />;
+  return (
+    <LabKpiCard
+      label={label}
+      value={value}
+      valueClassName={tones[tone]}
+      flat
+    />
+  );
 }
 
 function DealRow({ item }: { item: MarketDealItem }) {
@@ -179,37 +184,44 @@ export function MarketHome() {
   const data = query.data;
   useLoadProgressWhen(query.isLoading && !data, "시장 불러오는 중…");
 
-  return (
-    <div className={PAGE_SHELL}>
-      <PageHeader
-        title="오늘의 아파트 시장"
-        description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
-        className="mt-1.5 sm:mt-2"
-        meta={
-          data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
-            <div className="flex flex-wrap items-center gap-1.5">
-              {data?.lastUpdatedLabel || data?.computedAt ? (
-                <InfoChip
-                  label={`최종 업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
-                >
-                  집랩 데이터가 마지막으로 갱신된 시점입니다. 각 거래 카드의
-                  날짜와 시장동향은 계약일 기준입니다. {CONTRACT_DATE_BASIS_HELP}
-                </InfoChip>
-              ) : null}
-              {data?.discoveryDate ? (
-                <InfoChip label={`확인일 ${data.discoveryDate}`}>
-                  {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
-                  않습니다.
-                </InfoChip>
-              ) : null}
-            </div>
-          ) : null
-        }
-      />
+  const asOfLabel =
+    data?.lastUpdatedLabel ||
+    (data?.computedAt ? data.computedAt : null);
 
-      {query.isLoading ? (
-        <div className="lab-skeleton" />
-      ) : null}
+  return (
+    <>
+      <HomeNavigation />
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-4 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10">
+      <header className="max-w-4xl sm:mt-1">
+        <h1 className="text-xl font-semibold leading-7 tracking-tight text-[color:var(--lab-navy-950)] sm:text-[1.375rem] sm:leading-8">
+          오늘의 아파트 시장
+        </h1>
+        <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm">
+          오늘 새로 확인된 시장 변화를 한눈에 확인하세요.
+        </p>
+        {asOfLabel ? (
+          <p
+            className="mt-1 text-xs leading-5 text-slate-400"
+            title={`집랩 데이터 갱신 시점. ${CONTRACT_DATE_BASIS_HELP}`}
+          >
+            {asOfLabel} 기준
+          </p>
+        ) : null}
+        {/* Desktop / detail: keep chips for fuller context */}
+        {data?.discoveryDate ? (
+          <div className="mt-2 hidden sm:block">
+            <InfoChip label={`확인일 ${data.discoveryDate}`}>
+              {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
+            </InfoChip>
+          </div>
+        ) : null}
+        <div
+          aria-hidden
+          className="mt-3 hidden h-px w-full bg-[color:var(--lab-border)] sm:mt-3.5 sm:block"
+        />
+      </header>
+
+      {query.isLoading ? <div className="lab-skeleton" /> : null}
 
       {query.isError ? (
         <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
@@ -225,29 +237,25 @@ export function MarketHome() {
             </p>
           ) : null}
 
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
             <KpiCard
               label="오늘 새로 확인"
               value={`${data.kpis.newDealCount ?? 0}건`}
-              hint="집랩이 처음 확인한 기준"
               tone="neutral"
             />
             <KpiCard
               label="신규 신고가"
               value={`${data.kpis.singogaCount}건`}
-              hint="계약일 이전 최고가 갱신"
               tone="up"
             />
             <KpiCard
               label="신규 하락거래"
               value={`${data.kpis.dropCount}건`}
-              hint="최고가 대비 −10% 이상"
               tone="down"
             />
             <KpiCard
               label="거래량 급증"
               value={`${data.kpis.volumeSurgeCount ?? 0}곳`}
-              hint="최근 30일 vs 직전 30일"
               tone="hot"
             />
           </div>
@@ -264,8 +272,10 @@ export function MarketHome() {
         </>
       ) : null}
 
-      <section className="lab-card p-4 sm:p-5">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">빠른 검색</h2>
+      <section className="rounded-2xl border border-slate-200/70 bg-white p-3.5 shadow-none sm:p-5">
+        <h2 className="mb-2.5 text-sm font-semibold text-[color:var(--lab-navy-950)]">
+          빠른 검색
+        </h2>
         <AptQuickSearch
           compact
           inputId="market-home-search"
@@ -325,5 +335,6 @@ export function MarketHome() {
       {/* 오늘의 시장 콘텐츠 아래 — 실험실은 두 번째 콘텐츠 영역 */}
       <LabSection />
     </div>
+    </>
   );
 }
