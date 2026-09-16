@@ -1390,7 +1390,7 @@ export function ComplexNearbyLifeSection({
             <div
               className={
                 tab === "living"
-                  ? "h-[380px] w-full sm:h-[430px] lg:h-[480px]"
+                  ? "h-[348px] w-full sm:h-[392px] lg:h-[440px]"
                   : tab === "commerce"
                     ? "h-[324px] w-full sm:h-[350px] lg:h-[400px]"
                     : tab === "school"
@@ -1427,7 +1427,7 @@ export function ComplexNearbyLifeSection({
             <div
               className={`flex items-center justify-center px-4 text-center text-sm text-slate-500 ${
                 tab === "living"
-                  ? "h-[380px] sm:h-[430px] lg:h-[480px]"
+                  ? "h-[348px] sm:h-[392px] lg:h-[440px]"
                   : tab === "commerce"
                     ? "h-[324px] sm:h-[350px] lg:h-[400px]"
                     : tab === "school"

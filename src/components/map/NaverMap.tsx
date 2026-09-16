@@ -538,7 +538,7 @@ export function NaverMap({
         className="h-full min-h-[220px] w-full"
       />
       {status === "ready" ? (
-        <div className="absolute right-2.5 top-2.5 z-[5] flex flex-col overflow-hidden rounded-md border border-slate-200/90 bg-white shadow-sm">
+        <div className="absolute bottom-3 left-3 z-[5] flex flex-col overflow-hidden rounded-md border border-slate-200/90 bg-white shadow-sm">
           <button
             type="button"
             aria-label="지도 확대"
