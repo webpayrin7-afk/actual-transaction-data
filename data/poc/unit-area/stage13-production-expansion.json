@@ -1,0 +1,1432 @@
+{
+  "generatedAt": "2026-09-16T00:57:28.696Z",
+  "stage": "stage13-production-expansion",
+  "ruleVersion": "similar_exclusive_area_v1",
+  "groupingContract": {
+    "version": "similar_exclusive_area_v1",
+    "canonicalPrecision": 2,
+    "maxSpan": 0.2,
+    "maxGap": 0.15,
+    "minimumCanonicalMembers": 2,
+    "ruleMetadataStorage": "DB apt_pyeong_groups.source = similar_exclusive_area_v1",
+    "pipeline": [
+      "raw exclusive_area",
+      "canonicalize to 2 decimals",
+      "canonical dedupe",
+      "sort",
+      "gap-split cluster (gap>0.15 breaks)",
+      "span<=0.20 decision"
+    ]
+  },
+  "selectionRule": {
+    "scope": "Seoul IDENTITY-READY",
+    "exclude": "Stage6–12 samples + existing cx_ unit-master complexes",
+    "minTx": 80,
+    "canonicalAreaRange": [
+      4,
+      15
+    ],
+    "primaryOrder": "total_tx DESC, complex_id ASC",
+    "diversity": "soft band quotas then fill remaining by primary order",
+    "bandSoftQuota": {
+      "50-69": 5,
+      "70-79": 4,
+      "80-89": 5,
+      "90-109": 5,
+      "110+": 6,
+      "other": 0
+    },
+    "bandHitsAfterSelection": {
+      "50-69": 23,
+      "70-79": 10,
+      "80-89": 20,
+      "90-109": 5,
+      "110+": 16
+    },
+    "primaryBandFn": "underfilled band among present, else first BANDS order"
+  },
+  "poolSize": 1663,
+  "targets": [
+    {
+      "index": 1,
+      "name": "파크리오",
+      "complexId": "cx_ed52bf895d064c11",
+      "lawdCd": "11710",
+      "dong": "신천동",
+      "totalTx": 7371,
+      "canonicalAreaCount": 9,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "잠실엘스",
+      "complexId": "cx_4c63d9a100973c60",
+      "lawdCd": "11710",
+      "dong": "잠실동",
+      "totalTx": 5829,
+      "canonicalAreaCount": 5,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "주공아파트5단지",
+      "complexId": "cx_b4db01945df2a55b",
+      "lawdCd": "11710",
+      "dong": "잠실동",
+      "totalTx": 3718,
+      "canonicalAreaCount": 4,
+      "bandsPresent": [
+        "70-79",
+        "80-89"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "에스케이북한산시티",
+      "complexId": "cx_6b236be5a5a32830",
+      "lawdCd": "11305",
+      "dong": "미아동",
+      "totalTx": 3651,
+      "canonicalAreaCount": 7,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "선사현대아파트",
+      "complexId": "cx_f523f190604978e6",
+      "lawdCd": "11740",
+      "dong": "암사동",
+      "totalTx": 3537,
+      "canonicalAreaCount": 8,
+      "bandsPresent": [
+        "50-69",
+        "70-79",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "중계그린1단지",
+      "complexId": "cx_639ca6420a0eb61b",
+      "lawdCd": "11350",
+      "dong": "중계동",
+      "totalTx": 3536,
+      "canonicalAreaCount": 10,
+      "bandsPresent": [
+        "50-69"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "올림픽훼밀리타운",
+      "complexId": "cx_38b28184a6913022",
+      "lawdCd": "11710",
+      "dong": "문정동",
+      "totalTx": 3422,
+      "canonicalAreaCount": 6,
+      "bandsPresent": [
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "도곡렉슬",
+      "complexId": "cx_c9ed0235ecca960c",
+      "lawdCd": "11680",
+      "dong": "도곡동",
+      "totalTx": 3225,
+      "canonicalAreaCount": 11,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "상계주공7(고층)",
+      "complexId": "cx_fe74d4ff43443b50",
+      "lawdCd": "11350",
+      "dong": "상계동",
+      "totalTx": 3221,
+      "canonicalAreaCount": 8,
+      "bandsPresent": [
+        "50-69",
+        "70-79"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "롯데캐슬퍼스트",
+      "complexId": "cx_e0b6328a55c8abb0",
+      "lawdCd": "11740",
+      "dong": "암사동",
+      "totalTx": 3121,
+      "canonicalAreaCount": 9,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "90-109",
+        "110+"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "상계주공9(고층)",
+      "complexId": "cx_0271ef95a6ce5e60",
+      "lawdCd": "11350",
+      "dong": "상계동",
+      "totalTx": 2903,
+      "canonicalAreaCount": 8,
+      "bandsPresent": [
+        "50-69",
+        "70-79"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "삼익그린2차",
+      "complexId": "cx_48f3b32ff07fc4bc",
+      "lawdCd": "11740",
+      "dong": "명일동",
+      "totalTx": 2867,
+      "canonicalAreaCount": 6,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "90-109",
+        "110+"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "목동신시가지14",
+      "complexId": "cx_664b356f99d7b2ff",
+      "lawdCd": "11470",
+      "dong": "신정동",
+      "totalTx": 2546,
+      "canonicalAreaCount": 14,
+      "bandsPresent": [
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109",
+        "110+"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "목동신시가지7",
+      "complexId": "cx_55a0252cbc2225e9",
+      "lawdCd": "11470",
+      "dong": "목동",
+      "totalTx": 2530,
+      "canonicalAreaCount": 7,
+      "bandsPresent": [
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "개포래미안포레스트",
+      "complexId": "cx_5cffd43c4d09f937",
+      "lawdCd": "11680",
+      "dong": "개포동",
+      "totalTx": 2477,
+      "canonicalAreaCount": 15,
+      "bandsPresent": [
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109",
+        "110+"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "고덕아르테온",
+      "complexId": "cx_8bb8df3562c3dd86",
+      "lawdCd": "11740",
+      "dong": "상일동",
+      "totalTx": 3195,
+      "canonicalAreaCount": 8,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "반포자이",
+      "complexId": "cx_1c244e7305d12c44",
+      "lawdCd": "11650",
+      "dong": "반포동",
+      "totalTx": 3126,
+      "canonicalAreaCount": 15,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "상계주공6(고층)",
+      "complexId": "cx_ca784709c2ce2f03",
+      "lawdCd": "11350",
+      "dong": "상계동",
+      "totalTx": 3106,
+      "canonicalAreaCount": 9,
+      "bandsPresent": [
+        "50-69"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "센트라스",
+      "complexId": "cx_f0ea3c3ab7622456",
+      "lawdCd": "11200",
+      "dong": "하왕십리동",
+      "totalTx": 3016,
+      "canonicalAreaCount": 15,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "주공5",
+      "complexId": "cx_dc35de2675d53406",
+      "lawdCd": "11350",
+      "dong": "중계동",
+      "totalTx": 2895,
+      "canonicalAreaCount": 6,
+      "bandsPresent": [
+        "50-69",
+        "70-79",
+        "80-89"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "중계무지개",
+      "complexId": "cx_f014db0b6ff65854",
+      "lawdCd": "11350",
+      "dong": "중계동",
+      "totalTx": 2799,
+      "canonicalAreaCount": 5,
+      "bandsPresent": [
+        "50-69"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "신동아아파트1",
+      "complexId": "cx_80a9adfc80df01f8",
+      "lawdCd": "11320",
+      "dong": "방학동",
+      "totalTx": 2698,
+      "canonicalAreaCount": 8,
+      "bandsPresent": [
+        "50-69",
+        "70-79",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "창동주공3단지(해등마을)",
+      "complexId": "cx_622ec32107d49a92",
+      "lawdCd": "11320",
+      "dong": "창동",
+      "totalTx": 2656,
+      "canonicalAreaCount": 13,
+      "bandsPresent": [
+        "50-69",
+        "70-79",
+        "80-89"
+      ]
+    },
+    {
+      "index": 24,
+      "name": "관악푸르지오",
+      "complexId": "cx_71b2a1be4e457891",
+      "lawdCd": "11620",
+      "dong": "봉천동",
+      "totalTx": 2627,
+      "canonicalAreaCount": 6,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    },
+    {
+      "index": 25,
+      "name": "dmc래미안e편한세상",
+      "complexId": "cx_eadbeb3ecc646d9e",
+      "lawdCd": "11410",
+      "dong": "북가좌동",
+      "totalTx": 2625,
+      "canonicalAreaCount": 14,
+      "bandsPresent": [
+        "50-69",
+        "80-89",
+        "110+"
+      ]
+    }
+  ],
+  "beforeCounts": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 125,
+    "apt_unit_type_group_links": 220,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "afterCounts": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "coverageBefore": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 17,
+    "groupedCxComplexes": 16,
+    "unitMasterComplexCoveragePct": 0.2,
+    "groupedComplexCoveragePct": 0.19,
+    "canonicalRawIdentities": 34380,
+    "unitMasterCanonicalIdentities": 275,
+    "groupLinkedCanonicalIdentities": 220,
+    "unitRawAreaCoveragePct": 0.8,
+    "groupLinkedRawAreaCoveragePct": 0.64
+  },
+  "coverageAfter": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 42,
+    "groupedCxComplexes": 33,
+    "unitMasterComplexCoveragePct": 0.5,
+    "groupedComplexCoveragePct": 0.39,
+    "canonicalRawIdentities": 34380,
+    "unitMasterCanonicalIdentities": 501,
+    "groupLinkedCanonicalIdentities": 293,
+    "unitRawAreaCoveragePct": 1.46,
+    "groupLinkedRawAreaCoveragePct": 0.85
+  },
+  "coverageDelta": {
+    "unitMasterComplexes": {
+      "before": 17,
+      "after": 42
+    },
+    "canonicalUnitIdentities": {
+      "before": 275,
+      "after": 501
+    },
+    "groupLinkedCanonicalIdentities": {
+      "before": 220,
+      "after": 293
+    }
+  },
+  "protectBefore": {
+    "cx_caf229b5ac63cfbd": 0,
+    "cx_85cd8a4b2d5dc3d0": 1,
+    "cx_b1f9d0cc3e8e5c12": 1,
+    "cx_b74bdaa8f28045aa": 2,
+    "cx_4880c4ffe9880d49": 1,
+    "cx_e095bf141dde5379": 1,
+    "cx_c7ac494bf78993ad": 1,
+    "cx_c3f8a052ae66fd32": 3,
+    "cx_774f03bf66e7882f": 3,
+    "cx_836331525ecdd550": 3,
+    "cx_d80e92e6aef239af": 1,
+    "cx_b225492e31c09cdd": 4,
+    "cx_04a453b6ca3d373c": 2,
+    "cx_7ce2c0c6be9bb8b4": 1,
+    "cx_d754faa260b961ae": 4,
+    "cx_c8ecd97624efad6d": 4,
+    "cx_6ae0260f869a7b0f": 4,
+    "parkrio": 5,
+    "jamsil-els": 3,
+    "acro-riverpark": 10,
+    "daechi-palace": 9,
+    "hannam-thehill": 9,
+    "mapo-raemian-prugio": 6,
+    "raemian-hill-godeok": 7
+  },
+  "protectAfter": {
+    "cx_caf229b5ac63cfbd": 0,
+    "cx_85cd8a4b2d5dc3d0": 1,
+    "cx_b1f9d0cc3e8e5c12": 1,
+    "cx_b74bdaa8f28045aa": 2,
+    "cx_4880c4ffe9880d49": 1,
+    "cx_e095bf141dde5379": 1,
+    "cx_c7ac494bf78993ad": 1,
+    "cx_c3f8a052ae66fd32": 3,
+    "cx_774f03bf66e7882f": 3,
+    "cx_836331525ecdd550": 3,
+    "cx_d80e92e6aef239af": 1,
+    "cx_b225492e31c09cdd": 4,
+    "cx_04a453b6ca3d373c": 2,
+    "cx_7ce2c0c6be9bb8b4": 1,
+    "cx_d754faa260b961ae": 4,
+    "cx_c8ecd97624efad6d": 4,
+    "cx_6ae0260f869a7b0f": 4,
+    "parkrio": 5,
+    "jamsil-els": 3,
+    "acro-riverpark": 10,
+    "daechi-palace": 9,
+    "hannam-thehill": 9,
+    "mapo-raemian-prugio": 6,
+    "raemian-hill-godeok": 7
+  },
+  "protectOk": true,
+  "productionTotals": {
+    "complexesProcessed": 25,
+    "canonicalAreasDiscovered": 226,
+    "unitInserted": 226,
+    "V1Candidates": 173,
+    "SAFE_GROUP": 28,
+    "NOT_GROUPABLE": 145,
+    "SEMANTIC_HOLD": 0,
+    "HOLD_BUDGET": 0,
+    "groupsInserted": 28,
+    "linksInserted": 73,
+    "aggregationMismatches": 0,
+    "zeroSpanGroups": 0
+  },
+  "complexes": [
+    {
+      "name": "파크리오",
+      "complexId": "cx_ed52bf895d064c11",
+      "canonicalAreas": 9,
+      "unitBefore": 0,
+      "unitInserted": 9,
+      "unitAfter": 9,
+      "safeGroups": 2,
+      "notGroupable": 4,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 2,
+      "linksWritten": 5,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            59.86,
+            59.95
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_ed52bf895d064c11:G1:ex59.86-59.95",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            84.79,
+            84.9,
+            84.97
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_ed52bf895d064c11:G2:ex84.79-84.97",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "잠실엘스",
+      "complexId": "cx_4c63d9a100973c60",
+      "canonicalAreas": 5,
+      "unitBefore": 0,
+      "unitInserted": 5,
+      "unitAfter": 5,
+      "safeGroups": 1,
+      "notGroupable": 2,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 3,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            84.8,
+            84.88,
+            84.97
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_4c63d9a100973c60:G1:ex84.80-84.97",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "주공아파트5단지",
+      "complexId": "cx_b4db01945df2a55b",
+      "canonicalAreas": 4,
+      "unitBefore": 0,
+      "unitInserted": 4,
+      "unitAfter": 4,
+      "safeGroups": 1,
+      "notGroupable": 2,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 2,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            82.51,
+            82.61
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_b4db01945df2a55b:G1:ex82.51-82.61",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "에스케이북한산시티",
+      "complexId": "cx_6b236be5a5a32830",
+      "canonicalAreas": 7,
+      "unitBefore": 0,
+      "unitInserted": 7,
+      "unitAfter": 7,
+      "safeGroups": 0,
+      "notGroupable": 4,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "선사현대아파트",
+      "complexId": "cx_f523f190604978e6",
+      "canonicalAreas": 8,
+      "unitBefore": 0,
+      "unitInserted": 8,
+      "unitAfter": 8,
+      "safeGroups": 1,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 2,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            83.67,
+            83.79
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_f523f190604978e6:G1:ex83.67-83.79",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "중계그린1단지",
+      "complexId": "cx_639ca6420a0eb61b",
+      "canonicalAreas": 10,
+      "unitBefore": 0,
+      "unitInserted": 10,
+      "unitAfter": 10,
+      "safeGroups": 1,
+      "notGroupable": 7,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 3,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            39.78,
+            39.91,
+            39.92
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_639ca6420a0eb61b:G1:ex39.78-39.92",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "올림픽훼밀리타운",
+      "complexId": "cx_38b28184a6913022",
+      "canonicalAreas": 6,
+      "unitBefore": 0,
+      "unitInserted": 6,
+      "unitAfter": 6,
+      "safeGroups": 1,
+      "notGroupable": 4,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 2,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            84.71,
+            84.75
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_38b28184a6913022:G1:ex84.71-84.75",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "도곡렉슬",
+      "complexId": "cx_c9ed0235ecca960c",
+      "canonicalAreas": 11,
+      "unitBefore": 0,
+      "unitInserted": 11,
+      "unitAfter": 11,
+      "safeGroups": 2,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 2,
+      "linksWritten": 5,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            59.92,
+            59.98,
+            59.99
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_c9ed0235ecca960c:G1:ex59.92-59.99",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            84.92,
+            85
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_c9ed0235ecca960c:G2:ex84.92-85.00",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "상계주공7(고층)",
+      "complexId": "cx_fe74d4ff43443b50",
+      "canonicalAreas": 8,
+      "unitBefore": 0,
+      "unitInserted": 8,
+      "unitAfter": 8,
+      "safeGroups": 1,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 2,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            45.77,
+            45.9
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_fe74d4ff43443b50:G1:ex45.77-45.90",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "롯데캐슬퍼스트",
+      "complexId": "cx_e0b6328a55c8abb0",
+      "canonicalAreas": 9,
+      "unitBefore": 0,
+      "unitInserted": 9,
+      "unitAfter": 9,
+      "safeGroups": 0,
+      "notGroupable": 9,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "상계주공9(고층)",
+      "complexId": "cx_0271ef95a6ce5e60",
+      "canonicalAreas": 8,
+      "unitBefore": 0,
+      "unitInserted": 8,
+      "unitAfter": 8,
+      "safeGroups": 0,
+      "notGroupable": 8,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "삼익그린2차",
+      "complexId": "cx_48f3b32ff07fc4bc",
+      "canonicalAreas": 6,
+      "unitBefore": 0,
+      "unitInserted": 6,
+      "unitAfter": 6,
+      "safeGroups": 0,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "목동신시가지14",
+      "complexId": "cx_664b356f99d7b2ff",
+      "canonicalAreas": 14,
+      "unitBefore": 0,
+      "unitInserted": 14,
+      "unitAfter": 14,
+      "safeGroups": 2,
+      "notGroupable": 10,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 2,
+      "linksWritten": 4,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            71.37,
+            71.4
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_664b356f99d7b2ff:G1:ex71.37-71.40",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            84.84,
+            84.87
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_664b356f99d7b2ff:G2:ex84.84-84.87",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "목동신시가지7",
+      "complexId": "cx_55a0252cbc2225e9",
+      "canonicalAreas": 7,
+      "unitBefore": 0,
+      "unitInserted": 7,
+      "unitAfter": 7,
+      "safeGroups": 0,
+      "notGroupable": 7,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "개포래미안포레스트",
+      "complexId": "cx_5cffd43c4d09f937",
+      "canonicalAreas": 15,
+      "unitBefore": 0,
+      "unitInserted": 15,
+      "unitAfter": 15,
+      "safeGroups": 4,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 4,
+      "linksWritten": 9,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            59.92,
+            59.96
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_5cffd43c4d09f937:G1:ex59.92-59.96",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            84.83,
+            84.86,
+            84.9
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_5cffd43c4d09f937:G2:ex84.83-84.90",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            96.91,
+            96.93
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_5cffd43c4d09f937:G3:ex96.91-96.93",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            102.32,
+            102.41
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_5cffd43c4d09f937:G4:ex102.32-102.41",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "고덕아르테온",
+      "complexId": "cx_8bb8df3562c3dd86",
+      "canonicalAreas": 8,
+      "unitBefore": 0,
+      "unitInserted": 8,
+      "unitAfter": 8,
+      "safeGroups": 2,
+      "notGroupable": 1,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 2,
+      "linksWritten": 7,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            59.83,
+            59.96,
+            59.98
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_8bb8df3562c3dd86:G1:ex59.83-59.98",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            84.93,
+            84.94,
+            84.95,
+            84.97
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_8bb8df3562c3dd86:G2:ex84.93-84.97",
+          "groupAction": "inserted",
+          "linksInserted": 4,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "반포자이",
+      "complexId": "cx_1c244e7305d12c44",
+      "canonicalAreas": 15,
+      "unitBefore": 0,
+      "unitInserted": 15,
+      "unitAfter": 15,
+      "safeGroups": 3,
+      "notGroupable": 8,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 3,
+      "linksWritten": 7,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            59.97,
+            59.98
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_1c244e7305d12c44:G1:ex59.97-59.98",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            84.94,
+            84.98,
+            85
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_1c244e7305d12c44:G2:ex84.94-85.00",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            244.54,
+            244.63
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_1c244e7305d12c44:G3:ex244.54-244.63",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "상계주공6(고층)",
+      "complexId": "cx_ca784709c2ce2f03",
+      "canonicalAreas": 9,
+      "unitBefore": 0,
+      "unitInserted": 9,
+      "unitAfter": 9,
+      "safeGroups": 1,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 3,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            59.2,
+            59.28,
+            59.39
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_ca784709c2ce2f03:G1:ex59.20-59.39",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "센트라스",
+      "complexId": "cx_f0ea3c3ab7622456",
+      "canonicalAreas": 15,
+      "unitBefore": 0,
+      "unitInserted": 15,
+      "unitAfter": 15,
+      "safeGroups": 2,
+      "notGroupable": 3,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 2,
+      "linksWritten": 7,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            59.59,
+            59.66
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_f0ea3c3ab7622456:G1:ex59.59-59.66",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            59.93,
+            59.94,
+            59.95,
+            59.96,
+            59.99
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_f0ea3c3ab7622456:G2:ex59.93-59.99",
+          "groupAction": "inserted",
+          "linksInserted": 5,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "주공5",
+      "complexId": "cx_dc35de2675d53406",
+      "canonicalAreas": 6,
+      "unitBefore": 0,
+      "unitInserted": 6,
+      "unitAfter": 6,
+      "safeGroups": 0,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "중계무지개",
+      "complexId": "cx_f014db0b6ff65854",
+      "canonicalAreas": 5,
+      "unitBefore": 0,
+      "unitInserted": 5,
+      "unitAfter": 5,
+      "safeGroups": 1,
+      "notGroupable": 3,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 2,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            39.82,
+            39.96
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_f014db0b6ff65854:G1:ex39.82-39.96",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "신동아아파트1",
+      "complexId": "cx_80a9adfc80df01f8",
+      "canonicalAreas": 8,
+      "unitBefore": 0,
+      "unitInserted": 8,
+      "unitAfter": 8,
+      "safeGroups": 0,
+      "notGroupable": 8,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "창동주공3단지(해등마을)",
+      "complexId": "cx_622ec32107d49a92",
+      "canonicalAreas": 13,
+      "unitBefore": 0,
+      "unitInserted": 13,
+      "unitAfter": 13,
+      "safeGroups": 0,
+      "notGroupable": 13,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 0,
+      "linksWritten": 0,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": []
+    },
+    {
+      "name": "관악푸르지오",
+      "complexId": "cx_71b2a1be4e457891",
+      "canonicalAreas": 6,
+      "unitBefore": 0,
+      "unitInserted": 6,
+      "unitAfter": 6,
+      "safeGroups": 1,
+      "notGroupable": 4,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 1,
+      "linksWritten": 2,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            84.75,
+            84.9
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_71b2a1be4e457891:G1:ex84.75-84.90",
+          "groupAction": "inserted",
+          "linksInserted": 2,
+          "aggregationPass": true
+        }
+      ]
+    },
+    {
+      "name": "dmc래미안e편한세상",
+      "complexId": "cx_eadbeb3ecc646d9e",
+      "canonicalAreas": 14,
+      "unitBefore": 0,
+      "unitInserted": 14,
+      "unitAfter": 14,
+      "safeGroups": 2,
+      "notGroupable": 6,
+      "semanticHold": 0,
+      "budgetHold": 0,
+      "groupsWritten": 2,
+      "linksWritten": 8,
+      "aggregation": "PASS",
+      "rawPreserved": "PASS",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "writtenGroups": [
+        {
+          "members": [
+            84.92,
+            84.93,
+            84.94,
+            84.95,
+            84.97
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_eadbeb3ecc646d9e:G1:ex84.92-84.97",
+          "groupAction": "inserted",
+          "linksInserted": 5,
+          "aggregationPass": true
+        },
+        {
+          "members": [
+            120.91,
+            120.93,
+            120.95
+          ],
+          "decision": "SAFE_GROUP",
+          "groupKey": "cx_eadbeb3ecc646d9e:G2:ex120.91-120.95",
+          "groupAction": "inserted",
+          "linksInserted": 3,
+          "aggregationPass": true
+        }
+      ]
+    }
+  ],
+  "hardCap": {
+    "configuredMax": 40,
+    "newGroups": 28,
+    "heldByBudget": 0,
+    "remainingAfter": 12,
+    "haltReason": null,
+    "capExceeded": false,
+    "status": "PASS"
+  },
+  "aggregation": {
+    "groupsChecked": 28,
+    "pass": 28,
+    "mismatch": 0,
+    "missingTransactions": 0,
+    "duplicateTransactions": 0,
+    "status": "PASS"
+  },
+  "dataSafety": {
+    "zeroSpanGroups": 0,
+    "collapsedRawIdentities": 0,
+    "duplicateUnits": 0,
+    "duplicateGroups": 0,
+    "duplicateLinks": 0,
+    "existingGroupsModified": false,
+    "legacyGroupsModified": false,
+    "status": "PASS"
+  },
+  "singogaSafety": {
+    "baselineWrites": 0,
+    "classificationWrites": 0,
+    "singogaPathChanges": 0,
+    "featureFlagsChanged": 0
+  },
+  "futureSingogaCompatibility": {
+    "groupRuleVersionTraceable": true,
+    "exactBaselinePossible": true,
+    "groupBaselinePossible": true,
+    "groupMissingExactFallbackPossible": true,
+    "schemaChangeRequiredForStage14": false,
+    "policyNote": {
+      "groupExists": "primary singoga = groupPriorMax (total amount)",
+      "exactOnlyBreak": "secondary individual-area singoga, not primary",
+      "groupMissing": "exact canonical area priorMax fallback",
+      "priceBasis": "transaction total amount (not per-sqm)",
+      "sameDay": "priorMax uses dates before contract day (Stage14)"
+    }
+  },
+  "writeCapRegression": {
+    "results": [
+      {
+        "budget": 0,
+        "proposed": 0,
+        "held": 50,
+        "withinCap": true
+      },
+      {
+        "budget": 5,
+        "proposed": 5,
+        "held": 45,
+        "withinCap": true
+      },
+      {
+        "budget": 20,
+        "proposed": 20,
+        "held": 30,
+        "withinCap": true
+      },
+      {
+        "budget": 40,
+        "proposed": 40,
+        "held": 10,
+        "withinCap": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "idempotency": {
+    "newUnitsOnVerifyReplay": 0,
+    "newGroupsOnVerifyReplay": 0,
+    "newLinksOnVerifyReplay": 0
+  },
+  "selector": {
+    "productionSelector": "transactions-based",
+    "migration": "NOT_READY",
+    "reason": "unit-master complex coverage 0.5% still far below switch threshold"
+  },
+  "db": {
+    "apt_unit_types": {
+      "insert": 226,
+      "update": 0
+    },
+    "apt_pyeong_groups": {
+      "insert": 28,
+      "update": 0
+    },
+    "apt_unit_type_group_links": {
+      "insert": 73,
+      "update": 0
+    },
+    "apt_pyeong_group_baselines_writes": 0,
+    "apt_complex_classifications_writes": 0,
+    "delete": 0,
+    "otherWrites": 0
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Coverage expanded under V1; next is Stage14 exact/group singoga baseline pilot (not full production singoga switch)."
+  },
+  "decision": {
+    "25_COMPLEX_UNIT_EXPANSION": "PASS",
+    "V1_GROUP_EXPANSION": "PASS",
+    "GROUP_AGGREGATION": "PASS",
+    "RAW_PRESERVATION": "PASS",
+    "HARD_WRITE_CAP": "PASS",
+    "SINGOGA_FUTURE_COMPATIBILITY": "PASS",
+    "SELECTOR_MIGRATION": "NOT_READY",
+    "SCHEMA_CHANGE_REQUIRED": "NO",
+    "DATA_SAFETY": "PASS"
+  }
+}
