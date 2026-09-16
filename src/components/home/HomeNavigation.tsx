@@ -113,13 +113,7 @@ export function HomeNavigation() {
 
           const body = (
             <>
-              <span
-                className={
-                  compact && active
-                    ? "inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/70"
-                    : "inline-flex shrink-0"
-                }
-              >
+              <span className="inline-flex shrink-0">
                 <Icon className={iconCls} aria-hidden />
               </span>
               <span className={labelCls}>{label}</span>
