@@ -1,0 +1,301 @@
+{
+  "generatedAt": "2026-09-16T01:29:38.975Z",
+  "stage": "stage17-singoga-v2-production-wiring",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0
+  },
+  "before": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39
+  },
+  "after": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39
+  },
+  "dbUnchanged": true,
+  "finalSemanticContract": {
+    "primarySingoga": "해당 거래가 계약된 시점에, 그 계약일 이전의 최고 실거래가격을 엄격하게 돌파했는가",
+    "exactOnly": "group exists && exact break && !group break → secondary 개별면적 신고가",
+    "currentAllTimeHigh": "현재 전체 history 기준 해당 areaKey 최고가격과 동일한가 (legacy all-time equality)",
+    "fallback": "primary = exactPriorMax break (fallback)",
+    "sameDay": "same-date peers share prior snapshot",
+    "noPrior": "priorMax NULL → singoga FALSE (NO_PRIOR_BASELINE)",
+    "policy": {
+      "version": "singoga_v2",
+      "groupRule": "similar_exclusive_area_v1",
+      "exactArea": "areaKey = Math.round(sqm*100)/100",
+      "priceBasis": "deal_amount total",
+      "strictBreak": "currentPrice > priorMax",
+      "priorDate": "deal_date < current deal_date",
+      "sameDay": "same-date peers share prior snapshot",
+      "noPrior": "priorMax NULL → singoga FALSE (NO_PRIOR_BASELINE)",
+      "groupExists": "primary = groupPriorMax break",
+      "groupMissing": "primary = exactPriorMax break (fallback)",
+      "exactOnly": "group exists && exact break && !group break → secondary 개별면적 신고가"
+    },
+    "baselineModeValues": [
+      "GROUP_V1",
+      "EXACT_FALLBACK",
+      "NO_PRIOR_BASELINE"
+    ]
+  },
+  "flagContract": {
+    "name": "ENABLE_SINGOGA_V2",
+    "default": "OFF (unset / not 1)",
+    "productionValueChanged": false,
+    "previewValueChanged": false,
+    "canaryEnvValue": "(unset)",
+    "isEnabled": false,
+    "blockReason": "ENABLE_SINGOGA_V2 is not 1",
+    "note": "Do not repurpose ENABLE_MARKET_GROUP_BASELINE_SINGOGA or POST_WH_SINGOGA_GAPS_CLEARED"
+  },
+  "productionWiring": {
+    "marketPath": "src/lib/market/home.ts — computeMarketHome overlays V2 priors when ENABLE_SINGOGA_V2=1",
+    "statsPath": "src/lib/market/stats-feeds.ts — computeStatsDealFeed overlays V2 priors when ENABLE_SINGOGA_V2=1",
+    "sharedClassifier": "src/lib/unit-type/singoga-v2.ts classifySingogaV2ForComplex",
+    "batchLoader": "src/lib/unit-type/singoga-v2-batch.ts loadSingogaV2BundlesBatched",
+    "gate": "src/lib/unit-type/singoga-v2-gate.ts",
+    "wiringHelper": "src/lib/unit-type/singoga-v2-wiring.ts",
+    "baselineTableWrites": 0
+  },
+  "offRegression": {
+    "flagOff": true,
+    "overlayEmptyWhenOff": true,
+    "onPathCallable": true,
+    "onPathSampleOverlays": 20,
+    "marketLegacyUnchanged": true,
+    "statsLegacyUnchanged": true,
+    "publicApiUnchanged": true,
+    "snapshotUnchanged": true,
+    "status": "PASS"
+  },
+  "canary42": {
+    "complexes": 42,
+    "complexesWithV1Groups": 33,
+    "historyRows": 38245,
+    "transactions": 38245,
+    "legacy": 401,
+    "exactPrior": 6751,
+    "groupPrimary": 5698,
+    "exactOnly": 1090,
+    "fallback": 4145,
+    "legacyAllTimeHighCheck": 269
+  },
+  "stage16Comparison": {
+    "stage16Path": "/workspace/data/poc/unit-area/stage16-singoga-product-shadow.json",
+    "sameDb": true,
+    "historyDelta": 0,
+    "populationDiffs": {},
+    "todayMarketDiffs": {
+      "1d": {},
+      "7d": {},
+      "30d": {}
+    },
+    "statsDiffs": {
+      "daily30d": {},
+      "weekly16w": {},
+      "monthly18m": {}
+    },
+    "status": "EXACT_MATCH",
+    "reason": "Wired classifier counts match Stage16 on same population."
+  },
+  "todayMarketShadow": {
+    "1d": {
+      "window": {
+        "fromDay": "2026-09-16",
+        "toDay": "2026-09-16"
+      },
+      "transactions": 6,
+      "legacyCurrentHigh": 1,
+      "exactPrior": 1,
+      "groupPrimary": 0,
+      "groupOnlyBreaks": 0,
+      "exactOnly": 1,
+      "fallback": 0
+    },
+    "7d": {
+      "window": {
+        "fromDay": "2026-09-10",
+        "toDay": "2026-09-16"
+      },
+      "transactions": 821,
+      "legacyCurrentHigh": 10,
+      "exactPrior": 161,
+      "groupPrimary": 139,
+      "groupOnlyBreaks": 26,
+      "exactOnly": 22,
+      "fallback": 113
+    },
+    "30d": {
+      "window": {
+        "fromDay": "2026-08-18",
+        "toDay": "2026-09-16"
+      },
+      "transactions": 2594,
+      "legacyCurrentHigh": 69,
+      "exactPrior": 502,
+      "groupPrimary": 412,
+      "groupOnlyBreaks": 141,
+      "exactOnly": 91,
+      "fallback": 271
+    }
+  },
+  "statsShadow": {
+    "daily30d": {
+      "window": {
+        "from": "2026-08-17",
+        "to": "2026-09-15"
+      },
+      "transactions": 64,
+      "legacyCurrentHigh": 11,
+      "exactPrior": 10,
+      "groupPrimary": 8,
+      "groupOnlyBreaks": 3,
+      "exactOnly": 2,
+      "fallback": 5
+    },
+    "weekly16w": {
+      "window": {
+        "from": "2026-06-01",
+        "to": "2026-09-15"
+      },
+      "transactions": 776,
+      "legacyCurrentHigh": 89,
+      "exactPrior": 90,
+      "groupPrimary": 73,
+      "groupOnlyBreaks": 22,
+      "exactOnly": 17,
+      "fallback": 51
+    },
+    "monthly18m": {
+      "window": {
+        "from": "2025-04-01",
+        "to": "2026-09-15"
+      },
+      "transactions": 6173,
+      "legacyCurrentHigh": 274,
+      "exactPrior": 971,
+      "groupPrimary": 785,
+      "groupOnlyBreaks": 277,
+      "exactOnly": 187,
+      "fallback": 508
+    }
+  },
+  "invariants": {
+    "groupPriorGteExactViolations": 0,
+    "groupImpliesExactViolations": 0,
+    "fallbackViolations": 0,
+    "noPriorViolations": 0,
+    "sameDayViolations": 0,
+    "lateReportViolations": 0,
+    "lateReportExamples": [
+      {
+        "txId": "trade-11350-2026-08-07-상계주공9(고층)-상계동-670-9-64000-0-49.94",
+        "dealDate": "2026-08-07",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false,
+        "exactPriorMax": 72200,
+        "groupPriorMax": null
+      },
+      {
+        "txId": "trade-11350-2026-08-06-상계주공9(고층)-상계동-670-8-69800-0-58.01",
+        "dealDate": "2026-08-06",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false,
+        "exactPriorMax": 80000,
+        "groupPriorMax": null
+      },
+      {
+        "txId": "trade-11350-2016-10-04-상계주공9(고층)-상계동-670-5-23500-0-41.3",
+        "dealDate": "2016-10-04",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false,
+        "exactPriorMax": null,
+        "groupPriorMax": null
+      },
+      {
+        "txId": "trade-11350-2016-10-19-상계주공9(고층)-상계동-670-5-27850-0-49.94",
+        "dealDate": "2016-10-19",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false,
+        "exactPriorMax": 29000,
+        "groupPriorMax": null
+      },
+      {
+        "txId": "trade-11350-2016-10-06-상계주공9(고층)-상계동-670-6-29000-0-49.94",
+        "dealDate": "2016-10-06",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": true,
+        "exactPriorMax": 26500,
+        "groupPriorMax": null
+      }
+    ],
+    "status": "PASS"
+  },
+  "queryArchitectureBefore": {
+    "note": "Stage16 per-complex pattern",
+    "transactionFetchQueries": "~1 per complex",
+    "groupFetchQueries": "~1 per complex",
+    "linkFetchQueries": "~1 per eligible group",
+    "total": 151,
+    "perComplexPattern": true,
+    "perTransactionQuery": false
+  },
+  "queryArchitectureAfter": {
+    "transactionFetchQueries": 1,
+    "groupFetchQueries": 1,
+    "linkFetchQueries": 2,
+    "masterLookupQueries": 2,
+    "totalDbQueriesCanaryLoad": 6,
+    "totalDbQueriesIncludingCounts": 15,
+    "chunkSize": 50,
+    "chunkCount": 1,
+    "perComplexPattern": false,
+    "perTransactionQuery": false,
+    "fullTableScan": false
+  },
+  "performance": {
+    "stage16BaselineMs": 42677.14,
+    "stage17CanaryMs": 56073.99,
+    "classifyMs": 28722.69,
+    "deltaMs": 13396.85,
+    "transactions": 38245,
+    "complexes": 42,
+    "status": "PASS"
+  },
+  "scalability": {
+    "chunked": true,
+    "chunkSize": 50,
+    "unboundedMemoryLoad": false,
+    "fullTableScan": false,
+    "productionScaleRisk": "Chunked complex batches keep memory bounded; still need Stage18 Preview soak before city-wide rebuild with flag ON"
+  },
+  "publicBehavior": {
+    "apiChanged": false,
+    "marketChanged": false,
+    "statsChanged": false,
+    "uiChanged": false,
+    "snapshotsChanged": false
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Stage17 wiring PASS with flag OFF; Stage18 may consider Preview-only V2 activation (Production stays OFF)."
+  },
+  "decision": {
+    "V2_PRODUCTION_CODE": "PASS",
+    "FLAG_OFF_SAFETY": "PASS",
+    "MARKET_WIRING": "PASS",
+    "STATS_WIRING": "PASS",
+    "BATCH_DATA_ACCESS": "PASS",
+    "INVARIANTS": "PASS",
+    "PERFORMANCE": "PASS",
+    "PRODUCTION_SWITCH": "NOT_YET",
+    "DATA_SAFETY": "PASS"
+  }
+}

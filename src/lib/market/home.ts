@@ -14,6 +14,11 @@ import {
   seoulDayBoundsUtc,
   seoulToday,
 } from "@/lib/market/time";
+import { isSingogaV2Enabled } from "@/lib/unit-type/singoga-v2-gate";
+import {
+  applySingogaV2PriorOverlay,
+  computeSingogaV2PriorOverlays,
+} from "@/lib/unit-type/singoga-v2-wiring";
 
 const LIST_LIMIT = 8;
 const HIGH_PRICE_MAN = 200_000; // 20억
@@ -497,12 +502,24 @@ export async function computeMarketHome(opts?: {
     );
   }
 
+  // SINGOGA_V2: when ENABLE_SINGOGA_V2=1, overlay primary priors from shared
+  // rolling classifier (group V1 prior if group exists, else exact fallback).
+  // Default OFF → legacy exact-area SQL priors unchanged.
+  let priorsForJudgment = priorByTxId;
+  if (isSingogaV2Enabled()) {
+    const { byTxId: v2Overlay } = await computeSingogaV2PriorOverlays(
+      db,
+      discovered,
+    );
+    priorsForJudgment = applySingogaV2PriorOverlay(priorByTxId, v2Overlay);
+  }
+
   const singoga: MarketDealItem[] = [];
   const drops: MarketDealItem[] = [];
   const highDeals: MarketDealItem[] = [];
 
   for (const tx of discovered) {
-    const prior = priorByTxId.get(tx.id) ?? 0;
+    const prior = priorsForJudgment.get(tx.id) ?? 0;
     const singogaFlag = prior > 0 && tx.dealAmount > prior;
     const dropFlag =
       prior > 0 && (tx.dealAmount - prior) / prior <= DROP_THRESHOLD;

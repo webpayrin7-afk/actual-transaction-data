@@ -16,6 +16,11 @@ import {
   type PeriodWindow,
 } from "@/lib/market/keys";
 import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
+import { isSingogaV2Enabled } from "@/lib/unit-type/singoga-v2-gate";
+import {
+  applySingogaV2PriorOverlay,
+  computeSingogaV2PriorOverlays,
+} from "@/lib/unit-type/singoga-v2-wiring";
 
 const FEED_LIST_LIMIT = 12;
 const HIGH_PRICE_MAN = 200_000; // 20억
@@ -195,11 +200,22 @@ export async function computeStatsDealFeed(
     }
   }
 
+  // SINGOGA_V2: ENABLE_SINGOGA_V2=1 overlays shared classifier priors.
+  // Default OFF → legacy exact-area SQL priors unchanged.
+  let priorsForJudgment = priorById;
+  if (isSingogaV2Enabled()) {
+    const { byTxId: v2Overlay } = await computeSingogaV2PriorOverlays(
+      db,
+      recent,
+    );
+    priorsForJudgment = applySingogaV2PriorOverlay(priorById, v2Overlay);
+  }
+
   const singoga: MarketDealItem[] = [];
   const drops: MarketDealItem[] = [];
 
   for (const tx of recent) {
-    const prior = priorById.get(tx.id) ?? 0;
+    const prior = priorsForJudgment.get(tx.id) ?? 0;
 
     if (prior > 0 && tx.dealAmount > prior) {
       const changeAmount = tx.dealAmount - prior;
@@ -309,13 +325,13 @@ export async function computeStatsDealFeed(
   const nearHigh: MarketDealItem[] = recent
     .filter((tx) => {
       if (shownIds.has(tx.id)) return false;
-      const prior = priorById.get(tx.id) ?? 0;
+      const prior = priorsForJudgment.get(tx.id) ?? 0;
       if (prior <= 0) return false;
       const ratio = tx.dealAmount / prior;
       return ratio >= 0.95 && ratio < 1;
     })
     .map((tx) => {
-      const prior = priorById.get(tx.id)!;
+      const prior = priorsForJudgment.get(tx.id)!;
       const changeAmount = tx.dealAmount - prior;
       return {
         id: tx.id,
@@ -346,7 +362,7 @@ export async function computeStatsDealFeed(
       dealAmount: tx.dealAmount,
       dealDate: tx.dealDate,
       href: hrefFor(tx),
-      priorMaxAmount: priorById.get(tx.id) ?? null,
+      priorMaxAmount: priorsForJudgment.get(tx.id) ?? null,
       changeAmount: null,
       changePct: null,
       kind: "high" as const,
