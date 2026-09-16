@@ -41,6 +41,8 @@ export type NaverMapMarker = {
   variant?: "bus-stop";
   /** Living POI category — icon shape distinguishes category (not rainbow colors). */
   livingCategory?: LivingMarkerCategory;
+  /** HOSPITAL 종합병원 — same family, slightly larger ring. */
+  hospitalEmphasis?: boolean;
   /** School level badge (초/중/고) — same family marker, text distinguishes level. */
   schoolLevel?: "ELEMENTARY" | "MIDDLE" | "HIGH";
   selected?: boolean;
@@ -199,15 +201,26 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   if (kind === "LIVING" || kind === "MEDICAL") {
     const cat: LivingMarkerCategory =
       marker.livingCategory || (kind === "MEDICAL" ? "HOSPITAL" : "MART");
+    const emphasis = Boolean(marker.hospitalEmphasis && cat === "HOSPITAL");
     const stroke = selected ? "#0f766e" : "#1e3a5f";
-    const border = selected ? "#0f766e" : "#94a3b8";
-    const ring = selected ? "2px solid #0f766e" : `1px solid ${border}`;
+    const border = selected ? "#0f766e" : emphasis ? "#1e3a5f" : "#94a3b8";
+    const ring = selected
+      ? "2px solid #0f766e"
+      : emphasis
+        ? "2px solid #1e3a5f"
+        : `1px solid ${border}`;
+    const box = emphasis ? 26 : 22;
+    const iconSize = emphasis ? 15 : 13;
     const iconFn = LIVING_ICON_SVG[cat] || LIVING_ICON_SVG.MART;
+    const badge = emphasis
+      ? `<span style="margin-top:2px;font:700 8px/1 system-ui,-apple-system,sans-serif;color:#1e3a5f;background:rgba(255,255,255,.94);padding:1px 3px;border-radius:3px;border:1px solid rgba(30,58,95,.22)">종합</span>`
+      : "";
     const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none">
       ${selected ? selectionArrowHtml() : ""}
-      <div style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
-        ${iconFn(stroke, 13)}
+      <div style="display:flex;align-items:center;justify-content:center;width:${box}px;height:${box}px;border-radius:6px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
+        ${iconFn(stroke, iconSize)}
       </div>
+      ${badge}
       <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
     </div>`;
     return {

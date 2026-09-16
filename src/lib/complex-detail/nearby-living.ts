@@ -23,6 +23,8 @@ export type LivingCategory =
   | "CONVENIENCE"
   | "PARK";
 
+export type LivingMedicalType = "GENERAL_MEDICAL" | "GENERAL_HOSPITAL";
+
 export type LivingPlace = {
   id: string;
   name: string;
@@ -34,6 +36,8 @@ export type LivingPlace = {
   lng: number;
   distanceM: number;
   source: "NAVER_LOCAL";
+  /** HOSPITAL only — sourceCategory 종합병원일 때만 GENERAL_HOSPITAL. */
+  medicalType?: LivingMedicalType;
 };
 
 export const LIVING_CATEGORY_ORDER: LivingCategory[] = [
@@ -57,9 +61,9 @@ export const LIVING_CATEGORY_CONFIG: Record<
   LivingCategory,
   { radiusM: number; limit: number }
 > = {
-  HOSPITAL: { radiusM: 1500, limit: 5 },
+  HOSPITAL: { radiusM: 3000, limit: 10 },
   PHARMACY: { radiusM: 2000, limit: 5 },
-  MART: { radiusM: 1500, limit: 5 },
+  MART: { radiusM: 3000, limit: 10 },
   CONVENIENCE: { radiusM: 1500, limit: 5 },
   PARK: { radiusM: 1500, limit: 5 },
 };
@@ -81,6 +85,9 @@ export type LivingCategoryResult = {
   rawCount: number;
   rawCountA?: number;
   rawCountB?: number;
+  rawCountC?: number;
+  rawCountD?: number;
+  extraQueries?: string[];
   semanticRejected?: number;
   overRadiusRemoved: number;
   places: LivingPlace[];
@@ -129,6 +136,7 @@ export function isSemanticallyValidLivingPlace(
   switch (category) {
     case "HOSPITAL": {
       if (/동물병원|수의/.test(cat)) return false;
+      if (/약국/.test(cat) && !/병원|의원/.test(cat)) return false;
       // Observed: 병원,의원>피부과 / 소아청소년과 / 치과 …
       return /병원|의원|의료/.test(cat);
     }
@@ -161,6 +169,15 @@ export function isSemanticallyValidLivingPlace(
   }
 }
 
+/** 종합병원 presentation — sourceCategory evidence only (never name heuristics). */
+export function classifyHospitalPresentation(
+  sourceCategory: string | null | undefined,
+): LivingMedicalType {
+  const cat = String(sourceCategory || "").trim();
+  if (/종합병원/.test(cat)) return "GENERAL_HOSPITAL";
+  return "GENERAL_MEDICAL";
+}
+
 function itemToCandidate(
   item: NaverLocalSearchItem,
   category: LivingCategory,
@@ -184,6 +201,9 @@ function itemToCandidate(
     lng: coords.lng,
     distanceM,
     source: "NAVER_LOCAL",
+    ...(category === "HOSPITAL"
+      ? { medicalType: classifyHospitalPresentation(item.category) }
+      : {}),
   };
 }
 
@@ -206,6 +226,9 @@ async function searchCategory(params: {
   let error: string | undefined;
   let itemsA: NaverLocalSearchItem[] = [];
   let itemsB: NaverLocalSearchItem[] = [];
+  let itemsC: NaverLocalSearchItem[] = [];
+  let itemsD: NaverLocalSearchItem[] = [];
+  const extraQueries: string[] = [];
 
   const primary = await fetchNaverLocalSearch({
     query: primaryQuery,
@@ -231,9 +254,36 @@ async function searchCategory(params: {
     if (secondary.ok) itemsB = secondary.items;
   }
 
+  // HOSPITAL C: `${sigungu} 종합병원` — not a new tab, coverage only.
+  if (params.category === "HOSPITAL" && params.sigungu) {
+    const qC = `${params.sigungu} 종합병원`.trim();
+    extraQueries.push(qC);
+    const extra = await fetchNaverLocalSearch({ query: qC, display: 5 });
+    apiCalls += 1;
+    if (!extra.ok && !error) error = extra.error;
+    if (extra.ok) itemsC = extra.items;
+  }
+
+  // MART C/D: 하나로마트 + 대형마트 (max 4 sources).
+  if (params.category === "MART" && params.sigungu && params.legalDong) {
+    const qC = `${params.sigungu} ${params.legalDong} 하나로마트`.trim();
+    const qD = `${params.sigungu} ${params.legalDong} 대형마트`.trim();
+    extraQueries.push(qC, qD);
+    const extraC = await fetchNaverLocalSearch({ query: qC, display: 5 });
+    apiCalls += 1;
+    if (!extraC.ok && !error) error = extraC.error;
+    if (extraC.ok) itemsC = extraC.items;
+    const extraD = await fetchNaverLocalSearch({ query: qD, display: 5 });
+    apiCalls += 1;
+    if (!extraD.ok && !error) error = extraD.error;
+    if (extraD.ok) itemsD = extraD.items;
+  }
+
   const mergedItems: Array<{ item: NaverLocalSearchItem; index: number }> = [
     ...itemsA.map((item, i) => ({ item, index: i })),
     ...itemsB.map((item, i) => ({ item, index: 100 + i })),
+    ...itemsC.map((item, i) => ({ item, index: 200 + i })),
+    ...itemsD.map((item, i) => ({ item, index: 300 + i })),
   ];
 
   const candidates = mergedItems
@@ -279,9 +329,12 @@ async function searchCategory(params: {
     fallbackQuery: secondaryQuery,
     usedFallback: usedSecondary,
     apiCalls,
-    rawCount: itemsA.length + itemsB.length,
+    rawCount: itemsA.length + itemsB.length + itemsC.length + itemsD.length,
     rawCountA: itemsA.length,
     rawCountB: itemsB.length,
+    rawCountC: itemsC.length,
+    rawCountD: itemsD.length,
+    extraQueries,
     semanticRejected,
     overRadiusRemoved,
     places,
@@ -291,7 +344,7 @@ async function searchCategory(params: {
 
 /**
  * Fetch living places for a complex (lazy living-tab path).
- * Max 10 Local Search calls (5 categories × A+B).
+ * Max Local Search: HOSPITAL 3 + MART 4 + others 2 each.
  */
 export async function fetchNearbyLivingPlaces(params: {
   aptName: string;

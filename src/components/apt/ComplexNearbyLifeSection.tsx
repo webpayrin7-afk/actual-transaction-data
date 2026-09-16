@@ -172,6 +172,7 @@ type LivingPlaceDto = {
   lng: number;
   distanceM: number;
   source: "NAVER_LOCAL";
+  medicalType?: "GENERAL_MEDICAL" | "GENERAL_HOSPITAL";
 };
 
 type LivingCategoryDto = {
@@ -670,6 +671,7 @@ export function ComplexNearbyLifeSection({
           title: p.name,
           kind: "LIVING" as const,
           livingCategory: p.category,
+          hospitalEmphasis: p.medicalType === "GENERAL_HOSPITAL",
           selected: selectedId === p.id,
         }));
     }
@@ -1121,8 +1123,15 @@ export function ComplexNearbyLifeSection({
                       <LivingCategoryIcon category={livingCategory} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-medium text-slate-800">
-                        {p.name}
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                          {p.name}
+                        </span>
+                        {p.medicalType === "GENERAL_HOSPITAL" ? (
+                          <span className="inline-flex shrink-0 items-center rounded border border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] px-1 py-px text-[9px] font-semibold leading-none text-[var(--lab-teal-700)]">
+                            종합병원
+                          </span>
+                        ) : null}
                       </span>
                       {address ? (
                         <span className="mt-0.5 block truncate text-[10px] text-slate-500">
