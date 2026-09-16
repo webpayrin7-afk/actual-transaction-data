@@ -3,8 +3,8 @@ import {
   Building2,
   ChartColumn,
   Grid2x2,
-  LayoutDashboard,
   Map,
+  TrendingUp,
 } from "lucide-react";
 
 export type HomeQuickNavItem = {
@@ -30,7 +30,7 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
     label: "오늘의 시장",
     shortLabel: "오늘의 시장",
     href: "/",
-    icon: LayoutDashboard,
+    icon: TrendingUp,
     match: (pathname) => pathname === "/",
   },
   {
