@@ -1,0 +1,393 @@
+{
+  "generatedAt": "2026-09-16T02:19:23.762Z",
+  "stage": "stage21b-coverage-reconciliation",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0
+  },
+  "denominatorReconciliation": {
+    "previousOfficialRecorded": 34380,
+    "previousQueryLiveNow": 34380,
+    "stage21Recorded": 29807,
+    "stage21QueryLiveNow": 29807,
+    "differenceRecorded": 4573,
+    "differenceLive": 4573,
+    "previousQueryScope": "Seoul IDENTITY-READY master JOIN transactions ON (apt_name_norm, lawd_cd); exclusive_area>0; NO deal_type filter; GROUP BY complex_id, areaKey — from Stage10/13",
+    "currentQueryScope": "Same JOIN/filters PLUS deal_type='trade' — Stage21 script",
+    "rootCause": "Stage21 added deal_type='trade'. Previous official 34380 included canonical areas that appear only on non-trade (e.g. rent) rows.",
+    "onlyPrevious": 4573,
+    "onlyCurrent": 0,
+    "intersection": 29807,
+    "rentOrNonTradeExclusiveOverlapWithOnlyPrev": 4573,
+    "rentOnlyIdentityCountApprox": 4573,
+    "previousLiveMatchesRecorded34380": true,
+    "noteOnLivePrevious": "Live previous-scope still equals 34380"
+  },
+  "complexScope": {
+    "previousComplexes": 8437,
+    "currentComplexes": 8437,
+    "excludedComplexes": 0,
+    "excludedCanonicalIdentities": 4573,
+    "examples": [
+      {
+        "complexId": "cx_c3ead7163cd1dbfa",
+        "aptName": "원에디션강남",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 26
+      },
+      {
+        "complexId": "cx_d7422c3fc9c0daea",
+        "aptName": "디에이치퍼스티어아이파크",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 19
+      },
+      {
+        "complexId": "cx_5403335a92b19401",
+        "aptName": "강남(488)",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 18
+      },
+      {
+        "complexId": "cx_5e20b184f772badb",
+        "aptName": "신내데시앙포레",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 17
+      },
+      {
+        "complexId": "cx_4853640e55637f4b",
+        "aptName": "마곡엠벨리(14단지)",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 16
+      },
+      {
+        "complexId": "cx_79a5830d69be113d",
+        "aptName": "상림마을6단지푸르지오(622~629동)bl1-5",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 15
+      },
+      {
+        "complexId": "cx_80c3c64968027182",
+        "aptName": "동문상가",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 14
+      },
+      {
+        "complexId": "cx_80825ed4a7c9a21f",
+        "aptName": "한성1",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 14
+      },
+      {
+        "complexId": "cx_7f94159fda6c04e9",
+        "aptName": "신내우디안1단지",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 14
+      },
+      {
+        "complexId": "cx_35b271e3f9295c7e",
+        "aptName": "강일리버파크9단지",
+        "reasonExcluded": "areaKey present under non-trade (and/or mixed) transactions but no trade row for that areaKey",
+        "onlyPrevIdentityCount": 14
+      }
+    ]
+  },
+  "officialDenominator": {
+    "decision": "29807_BECOMES_OFFICIAL",
+    "officialCanonicalRawIdentities": 29807,
+    "reason": "Unit-master / V1 / singoga targets are trade exclusive-area identities. Previous 34380 omitted deal_type='trade' and inflated the denominator with non-trade-only areas. Official denominator aligns with trade-scope population (live Stage21 query)."
+  },
+  "correctedCoverage": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 42,
+    "unitMasterComplexCoveragePct": 0.5,
+    "canonicalRawIdentities": 29807,
+    "unitMasterCanonicalIdentities": 369,
+    "unitAreaCoveragePct": 1.24,
+    "v1GroupedComplexes": 17,
+    "v1GroupedComplexCoveragePct": 0.2,
+    "v1LinkedCanonicalIdentities": 73,
+    "v1LinkedAreaCoveragePct": 0.24,
+    "complexCoverageSameScope": true,
+    "note": "Complex coverage remains Seoul IDENTITY-READY master count; area coverage uses trade-only canonical denominator."
+  },
+  "duplicateCanonicalIdentities": {
+    "total": 18,
+    "CX_CURRENT": 0,
+    "LEGACY_SLUG": 18,
+    "CROSS_KEY_EQUIVALENT": 36,
+    "OTHER": 0,
+    "newCxDuplicateIdentity": 0,
+    "status": "PASS",
+    "classificationNote": "CX_CURRENT = multiple apt_unit_types rows under the same cx_ complex_key + areaKey(min). LEGACY_SLUG = duplicates under non-cx_ keys. CROSS_KEY_EQUIVALENT = slug identity also present under mapped cx_ (separate keys; not counted in the 18 same-key dups).",
+    "samples": [
+      {
+        "identity": "hangang-daewoo|84.98",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "hangang-daewoo",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "hangang-daewoo:84.98:109.26",
+          "hangang-daewoo:84.98:117.13"
+        ]
+      },
+      {
+        "identity": "hangang-daewoo|60",
+        "category": "LEGACY_SLUG",
+        "rowCount": 3,
+        "complexKey": "hangang-daewoo",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "hangang-daewoo:60.00:81.81",
+          "hangang-daewoo:60.00:82.31",
+          "hangang-daewoo:60.00:82.28"
+        ]
+      },
+      {
+        "identity": "parkrio|59.86",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "parkrio",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "parkrio:59.86:86.74",
+          "parkrio:59.86:87.02"
+        ]
+      },
+      {
+        "identity": "banpo-xi|84.98",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "banpo-xi",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "banpo-xi:84.98:116.12",
+          "banpo-xi:84.98:116.71"
+        ]
+      },
+      {
+        "identity": "banpo-xi|85",
+        "category": "LEGACY_SLUG",
+        "rowCount": 3,
+        "complexKey": "banpo-xi",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "banpo-xi:85.00:116.72",
+          "banpo-xi:85.00:117.08",
+          "banpo-xi:85.00:117.07"
+        ]
+      },
+      {
+        "identity": "jamsil-els|59.96",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "jamsil-els",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "jamsil-els:59.96:84.75",
+          "jamsil-els:59.96:84.77"
+        ]
+      },
+      {
+        "identity": "jamsil-els|119.93",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "jamsil-els",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "jamsil-els:119.93:149.88",
+          "jamsil-els:119.93:149.89"
+        ]
+      },
+      {
+        "identity": "mokdong-7|66.6",
+        "category": "LEGACY_SLUG",
+        "rowCount": 5,
+        "complexKey": "mokdong-7",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "mokdong-7:66.60:89.88",
+          "mokdong-7:66.60:91.33",
+          "mokdong-7:66.60:89.94",
+          "mokdong-7:66.60:79.88",
+          "mokdong-7:66.60:89.89"
+        ]
+      },
+      {
+        "identity": "mokdong-7|53.88",
+        "category": "LEGACY_SLUG",
+        "rowCount": 5,
+        "complexKey": "mokdong-7",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "mokdong-7:53.88:74.74",
+          "mokdong-7:53.88:73.88",
+          "mokdong-7:53.88:74.71",
+          "mokdong-7:53.88:74.72",
+          "mokdong-7:53.88:73.89"
+        ]
+      },
+      {
+        "identity": "mokdong-7|59.39",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "mokdong-7",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "mokdong-7:59.39:72.19",
+          "mokdong-7:59.39:71.90"
+        ]
+      },
+      {
+        "identity": "mokdong-7|74.12",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "mokdong-7",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "mokdong-7:74.12:90.09",
+          "mokdong-7:74.12:89.73"
+        ]
+      },
+      {
+        "identity": "mokdong-7|64.4",
+        "category": "LEGACY_SLUG",
+        "rowCount": 3,
+        "complexKey": "mokdong-7",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "mokdong-7:64.40:78.27",
+          "mokdong-7:64.40:77.94",
+          "mokdong-7:64.40:77.93"
+        ]
+      },
+      {
+        "identity": "mokdong-7|89.05",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "mokdong-7",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "mokdong-7:89.05:106.66",
+          "mokdong-7:89.05:106.67"
+        ]
+      },
+      {
+        "identity": "eunma|94.76",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "eunma",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "eunma:94.76:94.76",
+          "eunma:94.76:101.04"
+        ]
+      },
+      {
+        "identity": "eunma|104.71",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "eunma",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "eunma:104.71:104.71",
+          "eunma:104.71:111.50"
+        ]
+      },
+      {
+        "identity": "eunma|94.42",
+        "category": "LEGACY_SLUG",
+        "rowCount": 2,
+        "complexKey": "eunma",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "eunma:94.42:94.42",
+          "eunma:94.42:100.76"
+        ]
+      },
+      {
+        "identity": "eunma|76.79",
+        "category": "LEGACY_SLUG",
+        "rowCount": 5,
+        "complexKey": "eunma",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "eunma:76.79:76.79",
+          "eunma:76.79:83.13",
+          "eunma:76.79:101.52",
+          "eunma:76.79:82.76",
+          "eunma:76.79:83.07"
+        ]
+      },
+      {
+        "identity": "eunma|84.43",
+        "category": "LEGACY_SLUG",
+        "rowCount": 4,
+        "complexKey": "eunma",
+        "sources": [
+          "phase4"
+        ],
+        "unitTypeKeys": [
+          "eunma:84.43:84.43",
+          "eunma:84.43:91.32",
+          "eunma:84.43:91.16",
+          "eunma:84.43:85.81"
+        ]
+      }
+    ]
+  },
+  "finalStage21Status": {
+    "UNIT_DATA_HYGIENE": "PASS",
+    "GROUP_DATA_HYGIENE": "PASS",
+    "IDENTITY_COMPATIBILITY": "PASS",
+    "BASELINE_DEPENDENCIES": "PASS",
+    "COVERAGE_METRIC": "PASS",
+    "PROMOTION_CONTRACT": "PASS",
+    "DATA_FOUNDATION": "READY"
+  },
+  "pr88": {
+    "status": "READY_TO_PAUSE",
+    "reason": "Denominator reconciled (trade-only official); no new cx_ same-key duplicate BLOCKER. Stop data work; hand off to Nearby Living PR #87."
+  },
+  "nextAction": {
+    "stopDataWork": true,
+    "pr": 87,
+    "branch": "cursor/nearby-school-map-pilot-d2df",
+    "feature": "NEARBY LIVING COMPLETION"
+  }
+}
