@@ -1002,30 +1002,43 @@ async function main() {
   const capExceeded = totalGroupsInserted > MAX_NEW_GROUPS;
   const heldByBudget = totalHoldBudget;
 
-  const unitExpansion =
+  let unitExpansion: "PASS" | "PARTIAL" | "HOLD";
+  if (
     complexes.length === TARGET_COUNT &&
-    afterCounts.apt_unit_types === beforeCounts.apt_unit_types + totalUnitsInserted
-      ? "PASS"
-      : "PARTIAL";
-  const groupExpansion =
+    afterCounts.apt_unit_types ===
+      beforeCounts.apt_unit_types + totalUnitsInserted
+  ) {
+    unitExpansion = "PASS";
+  } else {
+    unitExpansion = "PARTIAL";
+  }
+
+  let groupExpansion: "PASS" | "PARTIAL" | "HOLD";
+  if (
     allAggPass &&
     zeroSpanGroups === 0 &&
     !capExceeded &&
     protectOk &&
     totalSemanticHold === 0
-      ? totalHoldBudget > 0
-        ? "PARTIAL"
-        : "PASS"
-      : totalSemanticHold > 0 || !allAggPass || zeroSpanGroups > 0 || !protectOk
-        ? "HOLD"
-        : "PARTIAL";
+  ) {
+    groupExpansion = totalHoldBudget > 0 ? "PARTIAL" : "PASS";
+  } else if (
+    totalSemanticHold > 0 ||
+    !allAggPass ||
+    zeroSpanGroups > 0 ||
+    !protectOk
+  ) {
+    groupExpansion = "HOLD";
+  } else {
+    groupExpansion = "PARTIAL";
+  }
 
   const migration =
     coverageAfter.unitMasterComplexCoveragePct >= 5 ? "READY" : "NOT_READY";
 
   let nextAction: "A" | "B" | "C" | "D" | "E";
   let nextReason: string;
-  if (groupExpansion === "HOLD" || unitExpansion === "HOLD") {
+  if (groupExpansion === "HOLD") {
     nextAction = "E";
     nextReason = "Defect requires HOLD / repair before further expansion.";
   } else if (groupExpansion === "PASS" && unitExpansion === "PASS") {
