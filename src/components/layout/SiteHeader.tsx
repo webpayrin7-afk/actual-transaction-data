@@ -146,7 +146,7 @@ export function SiteHeader() {
       data-site-header
       className={`sticky top-0 z-50 bg-white ${
         isHome
-          ? "sm:border-b sm:border-slate-200/80"
+          ? "border-b-0 shadow-none sm:border-b sm:border-slate-200/80"
           : "border-b border-slate-200/80"
       }`}
     >

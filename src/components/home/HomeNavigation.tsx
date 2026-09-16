@@ -56,21 +56,20 @@ export function HomeNavigation() {
   }, []);
 
   return (
-    <>
+    // One flex child under PAGE_SHELL — avoids gap-5 gray strip above the menu.
+    <div className="relative sm:hidden">
       <div
         ref={sentinelRef}
-        className="pointer-events-none h-px w-full sm:hidden"
+        className="pointer-events-none absolute top-0 left-0 h-px w-full"
         aria-hidden
       />
       <nav
         aria-label="주요 탐색"
         data-mode={compact ? "compact" : "expanded"}
         className={[
-          "sticky z-40 -mx-4 border-b bg-white sm:hidden",
+          "sticky z-40 -mx-4 border-b border-slate-200/50 bg-white",
           `transition-[padding,border-color] ${EASE}`,
-          compact
-            ? "border-slate-200/80 px-2 py-1.5"
-            : "border-slate-200/50 px-3 pb-2.5 pt-0",
+          compact ? "px-2 py-1.5" : "px-3 pt-0 pb-2.5",
         ].join(" ")}
         style={{ top: "var(--site-header-height, 52px)" }}
       >
@@ -189,6 +188,6 @@ export function HomeNavigation() {
           })}
         </div>
       </nav>
-    </>
+    </div>
   );
 }

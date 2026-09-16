@@ -16,7 +16,6 @@ import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 import { LabSection } from "@/components/lab/LabSection";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import { PAGE_SHELL } from "@/components/layout/PageHeader";
 import { InfoChip } from "@/components/ui/InfoChip";
 import {
   CONTRACT_DATE_BASIS_HELP,
@@ -190,7 +189,7 @@ export function MarketHome() {
     (data?.computedAt ? data.computedAt : null);
 
   return (
-    <div className={`${PAGE_SHELL} max-sm:pt-0`}>
+    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-0 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10">
       <HomeNavigation />
 
       <header className="max-w-4xl sm:mt-1">
