@@ -41,7 +41,7 @@ export function HomeNavigation() {
       className={[
         "sticky z-40 border-b border-slate-200/50 bg-white sm:hidden",
         `transition-[padding,border-color] ${EASE}`,
-        compact ? "px-2 py-1.5" : "px-3 pt-1 pb-2.5",
+        compact ? "px-2 py-1.5" : "px-3 pt-0.5 pb-2",
       ].join(" ")}
       style={{ top: "var(--site-header-height, 52px)" }}
     >
