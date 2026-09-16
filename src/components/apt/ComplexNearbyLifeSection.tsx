@@ -724,17 +724,29 @@ export function ComplexNearbyLifeSection({
     return list;
   }, [tabMarkers, complexMarker]);
 
+  const livingFitToken = useMemo(() => {
+    if (tab !== "living" || !coords) return null;
+    const ids = tabMarkers
+      .map((m) => m.id)
+      .slice()
+      .sort()
+      .join("|");
+    return `living:${livingCategory}:${ids}`;
+  }, [tab, coords, livingCategory, tabMarkers]);
+
   const onMarkerClick = useCallback((id: string) => {
     setSelectedId(id);
   }, []);
 
   const mapCenter = useMemo(() => {
+    // Living category overview stays apartment-centered; list click still pans via NaverMap.
+    if (tab === "living" && !selectedId) return coords;
     if (selectedId && selectedId !== "complex") {
       const m = tabMarkers.find((x) => x.id === selectedId);
       if (m) return m.position;
     }
     return coords;
-  }, [selectedId, tabMarkers, coords]);
+  }, [selectedId, tabMarkers, coords, tab]);
 
   const summaryText = useMemo(() => {
     const data = lifeQuery.data;
@@ -1377,6 +1389,8 @@ export function ComplexNearbyLifeSection({
                 markers={markers}
                 selectedId={selectedId}
                 onMarkerClick={onMarkerClick}
+                fitBoundsToken={livingFitToken}
+                fitAnchor={tab === "living" ? coords : null}
                 ariaLabel={
                   tab === "living"
                     ? `${aptName} 주변 생활시설 지도`

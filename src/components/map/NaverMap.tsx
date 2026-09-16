@@ -55,6 +55,13 @@ type NaverMapProps = {
   className?: string;
   style?: CSSProperties;
   ariaLabel?: string;
+  /**
+   * When this token changes, zoom so all markers are visible while keeping
+   * `fitAnchor` (or `center`) as the geometric center.
+   */
+  fitBoundsToken?: string | null;
+  /** Preferred center when fitting (e.g. complex). Falls back to `center`. */
+  fitAnchor?: LatLng | null;
 };
 
 const KIND_COLOR: Record<NaverMapMarker["kind"], string> = {
@@ -263,6 +270,8 @@ export function NaverMap({
   className = "",
   style,
   ariaLabel = "지도",
+  fitBoundsToken = null,
+  fitAnchor = null,
 }: NaverMapProps) {
   const reactId = useId();
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -430,6 +439,46 @@ export function NaverMap({
       }
     }
   }, [markers, selectedId, status]);
+
+  // Category / set change: keep apartment centered, zoom out to show all markers.
+  useEffect(() => {
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    if (!map || !maps || status !== "ready") return;
+    if (!fitBoundsToken) return;
+
+    const anchor = fitAnchor ?? center;
+    const poi = markers.filter((m) => m.id !== "complex");
+    if (poi.length === 0) {
+      map.setCenter(new maps.LatLng(anchor.lat, anchor.lng));
+      map.setZoom?.(zoom);
+      return;
+    }
+
+    let maxLatDelta = 0;
+    let maxLngDelta = 0;
+    for (const m of poi) {
+      maxLatDelta = Math.max(maxLatDelta, Math.abs(m.position.lat - anchor.lat));
+      maxLngDelta = Math.max(maxLngDelta, Math.abs(m.position.lng - anchor.lng));
+    }
+    // Small pad so edge markers are not clipped under controls.
+    const pad = 1.18;
+    const latDelta = Math.max(maxLatDelta * pad, 0.0012);
+    const lngDelta = Math.max(maxLngDelta * pad, 0.0012);
+    const sw = new maps.LatLng(anchor.lat - latDelta, anchor.lng - lngDelta);
+    const ne = new maps.LatLng(anchor.lat + latDelta, anchor.lng + lngDelta);
+    const bounds = new maps.LatLngBounds(sw, ne);
+    try {
+      map.fitBounds?.(bounds, { top: 48, right: 36, bottom: 36, left: 36 });
+    } catch {
+      map.setCenter(new maps.LatLng(anchor.lat, anchor.lng));
+      map.setZoom?.(Math.max(12, zoom - 1));
+    }
+    // Re-assert apartment as center after fit (bounds fit can drift).
+    map.setCenter(new maps.LatLng(anchor.lat, anchor.lng));
+    // Only re-fit when the token changes (category / marker set), not on selection.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fitBoundsToken, status]);
 
   const zoomBy = (delta: number) => {
     const map = mapRef.current;

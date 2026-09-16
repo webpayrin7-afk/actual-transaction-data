@@ -24,6 +24,7 @@ export type NaverMapsApi = {
       opts: Record<string, unknown>
     ) => NaverMapInstance;
     LatLng: new (lat: number, lng: number) => unknown;
+    LatLngBounds: new (sw: unknown, ne: unknown) => unknown;
     Marker: new (opts: Record<string, unknown>) => NaverMarkerInstance;
     Point: new (x: number, y: number) => unknown;
     Event: {
@@ -50,6 +51,7 @@ export type NaverMapInstance = {
   panTo: (latlng: unknown) => void;
   getZoom?: () => number;
   setZoom?: (zoom: number, opts?: unknown) => void;
+  fitBounds?: (bounds: unknown, margin?: unknown) => void;
   destroy?: () => void;
 };
 
