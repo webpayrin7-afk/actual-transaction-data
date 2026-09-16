@@ -1,0 +1,178 @@
+{
+  "stage": "C1",
+  "title": "Commerce census source evaluation + Jamsil Els 1km PoC",
+  "evaluatedAt": "2026-09-16",
+  "scope": {
+    "uiChanges": false,
+    "productionDbWrites": 0,
+    "tursoWrites": 0,
+    "schemaChanges": 0,
+    "naverAsCensus": false,
+    "maxCandidates": 3,
+    "pocComplex": "jamsil-els",
+    "pocRadiusM": 1000,
+    "distanceMetric": "straight-line"
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "name": "소상공인시장진흥공단_상가(상권)정보",
+      "provider": "소상공인시장진흥공단",
+      "officialPublic": "YES",
+      "access": "API + bulk download (CSV zip by sido)",
+      "portalFileUrl": "https://www.data.go.kr/data/15083033/fileData.do",
+      "portalApiUrl": "https://www.data.go.kr/data/15029180/standard.do",
+      "businessLevelRows": "YES",
+      "latLng": "YES",
+      "address": "YES",
+      "industryCode": "YES",
+      "industryHierarchy": "대/중/소분류 가능 (대 10 / 중 75 / 소 247; 표준산업분류 병행)",
+      "stableBusinessStoreId": "YES (상가업소번호)",
+      "seoulCoverage": "YES",
+      "updateCadence": "분기 (dataRegistCycle RECY03 / portal 업데이트 주기=분기)",
+      "latestDataDate": "2026-06-30",
+      "rateLimit": "API 개발계정 10,000/일; 파일 다운로드는 별도 일 트래픽 캡차 가능. PoC는 Seoul CSV stream filter 사용.",
+      "commercialUseTerms": "이용허락범위 제한 없음 (portal). data.go.kr 정책상 상업적 이용·변형 가능, 출처표시 필요.",
+      "dbStorage": "ALLOWED",
+      "derivedStatisticsPublication": "ALLOWED",
+      "attributionRequirement": "YES — 출처표시 (공공데이터포털 정책 / 제1유형 동등 해석)",
+      "implementationComplexity": "MEDIUM",
+      "officialPolygon": "YES — API 상권영역(storeZone*) 제공. 단지 1km 원과 별개. Stage C1에서 미사용.",
+      "populationMeaning": "영업 중인 전국 상가업소 레코드(국세청/카드사 기반). 실시간 현장 전수 조사와 동일하다고 단정하지 않음.",
+      "pros": [
+        "business-level + lat/lng + 업종 대/중/소 + stable ID",
+        "1km straight-line census 가능",
+        "서울 포함 전국 커버",
+        "상업 이용 라이선스 명확(제한 없음 + 출처표시)"
+      ],
+      "cons": [
+        "파일 단위는 시도 CSV(서울 ~55만행)라 최소 범위 처리 필요",
+        "API는 별도 활용신청 키 필요(기존 MOLIT 키로 미등록)",
+        "상권 정의가 '등록/제공 상가업소'이지 네이버 POI 전수와 다름"
+      ],
+      "selected": true
+    },
+    {
+      "rank": 2,
+      "name": "서울특별시_상권분석서비스(점포_자치구)",
+      "provider": "서울특별시",
+      "officialPublic": "YES",
+      "access": "file / 서울 열린데이터광장 연계",
+      "portalUrl": "https://www.data.go.kr/data/15147215/fileData.do",
+      "businessLevelRows": "NO",
+      "latLng": "NO",
+      "address": "NO",
+      "industryCode": "PARTIAL (업종별 집계)",
+      "industryHierarchy": "집계 단위 업종(점포수); business-level 대/중/소 row 아님",
+      "stableBusinessStoreId": "NO",
+      "seoulCoverage": "YES (자치구 집계)",
+      "updateCadence": "분기",
+      "latestDataDate": "2025-06-11 (파일 라벨)",
+      "rateLimit": "N/A (file)",
+      "commercialUseTerms": "공공저작물 출처표시(제1유형)",
+      "dbStorage": "ALLOWED",
+      "derivedStatisticsPublication": "ALLOWED",
+      "attributionRequirement": "YES",
+      "implementationComplexity": "LOW",
+      "officialPolygon": "UNKNOWN/NO for apartment 1km; district aggregates only",
+      "populationMeaning": "자치구·업종별 점포 수/개폐업 등 집계 통계",
+      "pros": [
+        "공식 서울시 상권분석 집계",
+        "라이선스 명확(제1유형)",
+        "업종별 점포수·개폐업 추이"
+      ],
+      "cons": [
+        "business-level 아님 → 단지 중심 1km census 불가",
+        "좌표 없음",
+        "자치구 단위라 잠실엘스 반경 필터 불가"
+      ],
+      "selected": false
+    },
+    {
+      "rank": 3,
+      "name": "서울특별시_사업체현황(산업대분류별 동별) 통계",
+      "provider": "서울특별시",
+      "officialPublic": "YES",
+      "access": "file (XLSX) / data.seoul.go.kr",
+      "portalUrl": "https://www.data.go.kr/data/15046665/fileData.do",
+      "businessLevelRows": "NO",
+      "latLng": "NO",
+      "address": "NO",
+      "industryCode": "PARTIAL (산업대분류 집계)",
+      "industryHierarchy": "대분류 수준 집계만",
+      "stableBusinessStoreId": "NO",
+      "seoulCoverage": "YES (구·동)",
+      "updateCadence": "연 1회 공표(통계); 포털 메타는 수시 자동갱신 표기",
+      "latestDataDate": "2024-12-31 (파일 라벨)",
+      "rateLimit": "N/A (file)",
+      "commercialUseTerms": "공공저작물 출처표시(제1유형)",
+      "dbStorage": "ALLOWED",
+      "derivedStatisticsPublication": "ALLOWED",
+      "attributionRequirement": "YES",
+      "implementationComplexity": "LOW",
+      "officialPolygon": "NO (행정동 집계)",
+      "populationMeaning": "종사자 1인 이상 사업체 조사통계(영리·비영리 포함 경영단위)",
+      "pros": [
+        "공식 사업체 통계",
+        "동별·산업대분류 규모 파악",
+        "라이선스 명확"
+      ],
+      "cons": [
+        "business-level/좌표 없음 → 1km census 불가",
+        "상가/점포만이 아니라 학교·공공기관 등 사업체 포함",
+        "신선도·공간 해상도가 단지 반경 용도에 부족"
+      ],
+      "selected": false
+    }
+  ],
+  "selection": {
+    "selectedSource": "소상공인시장진흥공단_상가(상권)정보",
+    "reason": [
+      "license: 이용허락범위 제한 없음 → 상업 이용·가공·통계 공표 가능(출처표시)",
+      "business-level coverage + lat/lng → 1km straight-line census 가능",
+      "industry taxonomy 대/중/소 + stable 상가업소번호",
+      "Seoul coverage + quarterly freshness",
+      "ingest cost: sido CSV stream filter로 잠실엘스 PoC 가능(전체 적재 불필요)"
+    ],
+    "LICENSE": "PASS",
+    "COMMERCIAL_USE": "PASS",
+    "DB_STORAGE": "ALLOWED",
+    "DERIVED_STATISTICS": "ALLOWED"
+  },
+  "poc": {
+    "artifact": "data/poc/commerce/stage-c1-jamsil-els-1km-commerce.json",
+    "helperScript": "scripts/poc-commerce-stage-c1-jamsil-els-1km.mjs",
+    "status": "PASS",
+    "uniqueBusinesses1km": 5904,
+    "naverRoleUnchanged": true
+  },
+  "architectureProposalOnly": {
+    "sourceLayer": "SEMAS business-level rows (offline ingest, sido/partitioned)",
+    "derivedLayer": "commerce_area_stats + commerce_category_stats snapshots per complex+radius",
+    "requestPath": "read-only derived snapshot (no full scan / no write on request)",
+    "updateCadence": "quarterly align with SEMAS file release",
+    "schemaConceptOnly": [
+      "commerce_business_source",
+      "commerce_area_stats",
+      "commerce_category_stats"
+    ],
+    "implemented": false
+  },
+  "fullSeoulRoughEstimate": {
+    "rawScale": "~554k business rows in Seoul CSV (2026-06)",
+    "storageScale": "Seoul CSV ~288MB uncompressed; nationwide zip ~337MB compressed / ~1.5GB uncompressed across sido files",
+    "updateCadence": "quarterly",
+    "futureIngestionWorkload": "download zip → extract target sido → upsert by 상가업소번호 → precompute complex 1km aggregates",
+    "mainBottleneck": "bulk file size + quarterly full refresh; request-time aggregation must be avoided"
+  },
+  "decision": {
+    "COMMERCE_CENSUS_SOURCE": "PASS",
+    "LICENSE": "PASS",
+    "ONE_KM_BUSINESS_CENSUS": "PASS",
+    "INDUSTRY_TAXONOMY": "PASS",
+    "ZIPLAB_COMMERCE_DATA_FOUNDATION": "READY",
+    "SIZE_LABEL": "DEFER",
+    "nextAction": "B",
+    "nextActionReason": "1순위 source와 잠실엘스 1km census가 PASS이므로, 다음으로 offline ingest + derived commerce snapshot pilot를 최소 구조로 진행. size label은 다단지 분포(A) 이후."
+  }
+}
