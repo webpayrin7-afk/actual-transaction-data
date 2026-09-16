@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-16T03:40:00.000Z",
+  "generatedAt": "2026-09-16T03:38:45.106Z",
   "stage": "stage-m4-kapt-source-link-night-plan",
   "writePolicy": "plan_only_no_production_write_in_m4_prep",
   "productionWritesThisStage": {
@@ -43,7 +43,7 @@
     "canonicalComplexIdPrefix": "cx_"
   },
   "nightPrecheckDry": {
-    "ranAt": "2026-09-16T03:35:00.000Z",
+    "ranAt": "2026-09-16T03:38:45.106Z",
     "mode": "READ_ONLY",
     "manifestRows": 1655,
     "alreadyMatchingSameLinks": 0,
