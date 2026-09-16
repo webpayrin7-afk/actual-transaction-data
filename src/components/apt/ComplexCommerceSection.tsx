@@ -200,7 +200,6 @@ export function ComplexCommerceStats({
                     style={{
                       width: `${Math.min(100, bucket.share)}%`,
                       backgroundColor: color.fill,
-                      opacity: 0.72,
                     }}
                   />
                 </div>
@@ -277,7 +276,6 @@ export function ComplexCommerceStats({
                     style={{
                       width: `${pct}%`,
                       backgroundColor: color.fill,
-                      opacity: 0.78,
                     }}
                   />
                 </div>

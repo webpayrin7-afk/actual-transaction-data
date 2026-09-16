@@ -101,12 +101,12 @@ export const COMMERCE_FACILITY_ORDER: Array<{
   key: keyof CommerceFacilities;
   label: string;
 }> = [
-  { key: "병원/의원", label: "병원·의원" },
+  { key: "병원/의원", label: "의료기관" },
   { key: "약국", label: "약국" },
   { key: "편의점", label: "편의점" },
   { key: "마트/슈퍼", label: "마트·슈퍼" },
   { key: "카페", label: "카페" },
-  { key: "음식점", label: "음식점" },
+  { key: "음식점", label: "식음업소" },
   { key: "미용", label: "미용" },
   { key: "학원", label: "학원" },
   { key: "체육", label: "체육" },

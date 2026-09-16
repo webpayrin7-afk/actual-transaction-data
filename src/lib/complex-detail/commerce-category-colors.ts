@@ -1,7 +1,7 @@
 /**
- * Shared commerce presentation-category colors (Stage U4).
+ * Shared commerce presentation-category colors (Stage U4 polish).
  * One map for map POI, stacked bar, % bars, TOP5, facility accents.
- * Muted palette — fits lab navy (#1e3a5f) + teal; avoid neon/high-chroma.
+ * Clean cool palette — fits lab navy + teal; no brown/ochre.
  */
 
 import type { CommerceCompositionKey } from "@/lib/complex-detail/commerce-snapshot";
@@ -18,16 +18,37 @@ export const COMMERCE_CATEGORY_COLOR_KEYS = [
 export type CommerceCategoryColorKey =
   (typeof COMMERCE_CATEGORY_COLOR_KEYS)[number];
 
+/** Map POI uses the same hex token at this opacity (do not invent a second hue). */
+export const COMMERCE_MAP_POI_OPACITY = 0.75;
+
 export type CommerceCategoryColor = {
   /** Solid fill for bars / accents */
   fill: string;
-  /** Canvas / map POI (pre-multiplied-ish muted alpha) */
+  /** Canvas / map POI = same token + COMMERCE_MAP_POI_OPACITY */
   mapFill: string;
   /** Soft track / icon wash */
   soft: string;
   /** CSS class-friendly solid (hex) — same as fill */
   hex: string;
 };
+
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace("#", "");
+  const n = Number.parseInt(h, 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function categoryColor(hex: string): CommerceCategoryColor {
+  return {
+    hex,
+    fill: hex,
+    mapFill: hexToRgba(hex, COMMERCE_MAP_POI_OPACITY),
+    soft: hexToRgba(hex, 0.14),
+  };
+}
 
 /**
  * Fixed tokens — do not restyle per-screen.
@@ -37,42 +58,12 @@ export const COMMERCE_CATEGORY_COLORS: Record<
   CommerceCategoryColorKey,
   CommerceCategoryColor
 > = {
-  "음식/외식": {
-    hex: "#C47A5A",
-    fill: "#C47A5A",
-    mapFill: "rgba(196, 122, 90, 0.42)",
-    soft: "rgba(196, 122, 90, 0.16)",
-  },
-  "쇼핑/소매": {
-    hex: "#2F7A73",
-    fill: "#2F7A73",
-    mapFill: "rgba(47, 122, 115, 0.42)",
-    soft: "rgba(47, 122, 115, 0.16)",
-  },
-  생활서비스: {
-    hex: "#6B7F9A",
-    fill: "#6B7F9A",
-    mapFill: "rgba(107, 127, 154, 0.42)",
-    soft: "rgba(107, 127, 154, 0.16)",
-  },
-  교육: {
-    hex: "#B8954A",
-    fill: "#B8954A",
-    mapFill: "rgba(184, 149, 74, 0.42)",
-    soft: "rgba(184, 149, 74, 0.16)",
-  },
-  "여가/체육": {
-    hex: "#6A8F6E",
-    fill: "#6A8F6E",
-    mapFill: "rgba(106, 143, 110, 0.42)",
-    soft: "rgba(106, 143, 110, 0.16)",
-  },
-  "의료/건강": {
-    hex: "#A66D7C",
-    fill: "#A66D7C",
-    mapFill: "rgba(166, 109, 124, 0.42)",
-    soft: "rgba(166, 109, 124, 0.16)",
-  },
+  "음식/외식": categoryColor("#F06B6B"), // coral
+  "쇼핑/소매": categoryColor("#26A69A"), // teal
+  생활서비스: categoryColor("#6686B8"), // blue
+  교육: categoryColor("#8B72C6"), // purple
+  "여가/체육": categoryColor("#55A873"), // green
+  "의료/건강": categoryColor("#D8658B"), // rose
 };
 
 /** Stable index for compact map-point encoding (0..5). */
