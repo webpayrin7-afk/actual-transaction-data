@@ -16,12 +16,10 @@
  */
 
 import {
-  createReadStream,
   existsSync,
   mkdirSync,
   writeFileSync,
 } from "node:fs";
-import { createInterface } from "node:readline";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -31,35 +29,27 @@ import {
   RADIUS_M,
   POPULATION_VERSION,
   POPULATION_RULE_VERSION,
-  inP2,
-  haversineMeters,
-  parseCsvLine,
 } from "./lib/commerce-semas-snapshot-transform.mjs";
+import {
+  JAMSIL_ELS_P2_CENTER,
+  collectJamsilElsP2Points,
+  toLocalMeters,
+} from "./lib/commerce-semas-p2-points.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = join(ROOT, "data/poc/commerce");
 const OUT = join(OUT_DIR, "stage-u2-jamsil-els-density.json");
 
 const GRID_SIZE_M = 150;
-const EXPECTED_P2 = 4381;
+const EXPECTED_P2 = JAMSIL_ELS_P2_CENTER.expectedP2;
 
 const JAMSIL_ELS = {
-  complexId: "cx_4c63d9a100973c60",
-  name: "잠실엘스",
-  lat: 37.5133,
-  lng: 127.1028,
-  coordinateSource: "c1_verified_pilot_center",
+  complexId: JAMSIL_ELS_P2_CENTER.complexId,
+  name: JAMSIL_ELS_P2_CENTER.name,
+  lat: JAMSIL_ELS_P2_CENTER.lat,
+  lng: JAMSIL_ELS_P2_CENTER.lng,
+  coordinateSource: JAMSIL_ELS_P2_CENTER.coordinateSource,
 };
-
-/** Local ENU-ish meter offsets from apartment center (equirectangular). */
-function toLocalMeters(lat, lng, originLat, originLng) {
-  const mPerDegLat = 111320;
-  const mPerDegLng = 111320 * Math.cos((originLat * Math.PI) / 180);
-  return {
-    x: (lng - originLng) * mPerDegLng,
-    y: (lat - originLat) * mPerDegLat,
-  };
-}
 
 function cellCenterLatLng(gridX, gridY, originLat, originLng) {
   const mPerDegLat = 111320;
@@ -79,60 +69,6 @@ function percentile(sortedAsc, p) {
     Math.max(0, Math.ceil((p / 100) * sortedAsc.length) - 1),
   );
   return sortedAsc[idx];
-}
-
-async function collectP2Points(csvPath) {
-  const { lat: oLat, lng: oLng } = JAMSIL_ELS;
-  const dlat = 1.2 / 111;
-  const dlng = 1.2 / (111 * Math.cos((oLat * Math.PI) / 180));
-  const bbox = [oLat - dlat, oLat + dlat, oLng - dlng, oLng + dlng];
-
-  const seen = new Set();
-  const points = [];
-  let header = null;
-  const idx = {};
-  let rows = 0;
-
-  const rl = createInterface({
-    input: createReadStream(csvPath, { encoding: "utf8" }),
-    crlfDelay: Infinity,
-  });
-
-  for await (const line of rl) {
-    if (!header) {
-      header = parseCsvLine(line);
-      for (const name of [
-        "상가업소번호",
-        "상권업종대분류코드",
-        "상권업종중분류코드",
-        "경도",
-        "위도",
-      ]) {
-        idx[name] = header.indexOf(name);
-        if (idx[name] < 0) throw new Error(`Missing column: ${name}`);
-      }
-      continue;
-    }
-    if (!line.trim()) continue;
-    rows += 1;
-    const cols = parseCsvLine(line);
-    const lat = Number(cols[idx["위도"]]);
-    const lng = Number(cols[idx["경도"]]);
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    if (lat < bbox[0] || lat > bbox[1] || lng < bbox[2] || lng > bbox[3]) {
-      continue;
-    }
-    const l = cols[idx["상권업종대분류코드"]];
-    const m = cols[idx["상권업종중분류코드"]];
-    if (!inP2(l, m)) continue;
-    if (haversineMeters(oLat, oLng, lat, lng) > RADIUS_M) continue;
-    const id = cols[idx["상가업소번호"]];
-    if (seen.has(id)) continue;
-    seen.add(id);
-    points.push({ lat, lng });
-  }
-
-  return { points, sourceRows: rows };
 }
 
 function aggregateDensity(points) {
@@ -188,7 +124,7 @@ async function main() {
 
   console.error(`[u2] streaming SEMAS → P2 1km points for ${JAMSIL_ELS.name}…`);
   const t0 = Date.now();
-  const { points, sourceRows } = await collectP2Points(csvPath);
+  const { points, sourceRows } = await collectJamsilElsP2Points(csvPath);
   const inputP2Count = points.length;
   console.error(
     `[u2] input P2 points=${inputP2Count} (expected ${EXPECTED_P2}) sourceRows=${sourceRows}`,

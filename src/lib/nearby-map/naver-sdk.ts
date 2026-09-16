@@ -27,6 +27,7 @@ export type NaverMapsApi = {
     LatLngBounds: new (sw: unknown, ne: unknown) => unknown;
     Marker: new (opts: Record<string, unknown>) => NaverMarkerInstance;
     Circle: new (opts: Record<string, unknown>) => NaverCircleInstance;
+    OverlayView: new () => NaverOverlayViewInstance;
     Point: new (x: number, y: number) => unknown;
     Event: {
       addListener: (
@@ -81,6 +82,28 @@ export type NaverCircleInstance = {
   setCenter?: (latlng: unknown) => void;
   setRadius?: (radius: number) => void;
   setOptions?: (opts: Record<string, unknown>) => void;
+};
+
+export type NaverMapProjection = {
+  fromCoordToOffset: (coord: unknown) => { x: number; y: number };
+};
+
+export type NaverMapPanes = {
+  overlayLayer?: HTMLElement;
+  overlayImage?: HTMLElement;
+  floatPane?: HTMLElement;
+};
+
+/** Minimal OverlayView surface used by commerce point-cloud canvas. */
+export type NaverOverlayViewInstance = {
+  setMap: (map: NaverMapInstance | null) => void;
+  getMap?: () => NaverMapInstance | null;
+  getPanes?: () => NaverMapPanes;
+  getProjection?: () => NaverMapProjection;
+  getContainerTopLeft?: () => { x: number; y: number };
+  onAdd?: () => void;
+  draw?: () => void;
+  onRemove?: () => void;
 };
 
 declare global {

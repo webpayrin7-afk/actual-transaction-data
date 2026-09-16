@@ -13,9 +13,11 @@ import {
   type NaverMapInstance,
   type NaverMarkerInstance,
   type NaverCircleInstance,
+  type NaverOverlayViewInstance,
+  type NaverMapsApi,
 } from "@/lib/nearby-map/naver-sdk";
 import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
-import { commerceDensityCircleStyle } from "@/lib/complex-detail/commerce-snapshot";
+import type { CommerceMapPoints } from "@/lib/complex-detail/commerce-snapshot";
 
 /** Living map height CSS transition (~280ms) — re-fit after layout settles. */
 const FIT_LAYOUT_SETTLE_MS = 300;
@@ -27,11 +29,147 @@ const FIT_COVER_MAX_M_LIVING = 3000;
 /** Commerce / school display radius is 1.5km — tighter cover so tab switch zooms in. */
 const FIT_COVER_MAX_M_NEARBY = 1600;
 
+/** Canvas point style — same for every SEMAS P2 business. */
+const POINT_CLOUD_CSS_PX = 2.5;
+const POINT_CLOUD_FILL = "rgba(15, 118, 110, 0.34)"; // teal ~0.34 opacity
+
 function fitCoverMaxM(token: string): number {
   if (token.startsWith("commerce:") || token.startsWith("school:")) {
     return FIT_COVER_MAX_M_NEARBY;
   }
   return FIT_COVER_MAX_M_LIVING;
+}
+
+function meterOffsetToLatLng(
+  originLat: number,
+  originLng: number,
+  dxM: number,
+  dyM: number,
+): LatLng {
+  const mPerDegLat = 111320;
+  const mPerDegLng = 111320 * Math.cos((originLat * Math.PI) / 180);
+  return {
+    lat: originLat + dyM / mPerDegLat,
+    lng: originLng + dxM / mPerDegLng,
+  };
+}
+
+/**
+ * ONE NAVER OverlayView + ONE canvas drawing SEMAS P2 points.
+ * Never creates per-point Marker/Circle/DOM nodes.
+ */
+function createCommercePointCloudOverlay(
+  maps: NaverMapsApi["maps"],
+  data: CommerceMapPoints,
+): NaverOverlayViewInstance {
+  // Prototype subclass — NAVER OverlayView requires onAdd/draw/onRemove.
+  type OverlayCtor = new () => NaverOverlayViewInstance & {
+    _canvas?: HTMLCanvasElement | null;
+    _data: CommerceMapPoints;
+  };
+  const OverlayViewBase = maps.OverlayView as unknown as {
+    new (): NaverOverlayViewInstance;
+    prototype: NaverOverlayViewInstance;
+  };
+  function PointCloudOverlay(this: {
+    _canvas: HTMLCanvasElement | null;
+    _data: CommerceMapPoints;
+  }) {
+    OverlayViewBase.call(this as unknown as NaverOverlayViewInstance);
+    this._canvas = null;
+    this._data = data;
+  }
+  PointCloudOverlay.prototype = Object.create(OverlayViewBase.prototype);
+  PointCloudOverlay.prototype.constructor = PointCloudOverlay;
+
+  PointCloudOverlay.prototype.onAdd = function (this: {
+    _canvas: HTMLCanvasElement | null;
+    getPanes?: () => { overlayLayer?: HTMLElement };
+  }) {
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-hidden", "true");
+    canvas.style.position = "absolute";
+    canvas.style.left = "0";
+    canvas.style.top = "0";
+    canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = "1";
+    this._canvas = canvas;
+    const panes = this.getPanes?.();
+    panes?.overlayLayer?.appendChild(canvas);
+  };
+
+  PointCloudOverlay.prototype.draw = function (this: {
+    _canvas: HTMLCanvasElement | null;
+    _data: CommerceMapPoints;
+    getMap?: () => NaverMapInstance | null;
+    getProjection?: () => {
+      fromCoordToOffset: (coord: unknown) => { x: number; y: number };
+    };
+    getContainerTopLeft?: () => { x: number; y: number };
+  }) {
+    const map = this.getMap?.();
+    const canvas = this._canvas;
+    const projection = this.getProjection?.();
+    if (!map || !canvas || !projection) return;
+
+    const size = map.getSize?.();
+    if (!size || size.width <= 0 || size.height <= 0) return;
+
+    const topLeft = this.getContainerTopLeft?.() ?? { x: 0, y: 0 };
+    canvas.style.left = `${topLeft.x}px`;
+    canvas.style.top = `${topLeft.y}px`;
+    canvas.style.width = `${size.width}px`;
+    canvas.style.height = `${size.height}px`;
+
+    const dpr = Math.min(
+      2.5,
+      typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+    );
+    const bw = Math.max(1, Math.round(size.width * dpr));
+    const bh = Math.max(1, Math.round(size.height * dpr));
+    if (canvas.width !== bw) canvas.width = bw;
+    if (canvas.height !== bh) canvas.height = bh;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size.width, size.height);
+    ctx.fillStyle = POINT_CLOUD_FILL;
+
+    const { originLat, originLng, offsetsM, pointCount } = this._data;
+    const pad = 4;
+    const half = POINT_CLOUD_CSS_PX / 2;
+    const max = Math.min(pointCount, Math.floor(offsetsM.length / 2));
+
+    for (let i = 0; i < max; i++) {
+      const dx = offsetsM[i * 2];
+      const dy = offsetsM[i * 2 + 1];
+      const ll = meterOffsetToLatLng(originLat, originLng, dx, dy);
+      const offset = projection.fromCoordToOffset(
+        new maps.LatLng(ll.lat, ll.lng),
+      );
+      const x = offset.x - topLeft.x;
+      const y = offset.y - topLeft.y;
+      if (
+        x < -pad ||
+        y < -pad ||
+        x > size.width + pad ||
+        y > size.height + pad
+      ) {
+        continue;
+      }
+      ctx.fillRect(x - half, y - half, POINT_CLOUD_CSS_PX, POINT_CLOUD_CSS_PX);
+    }
+  };
+
+  PointCloudOverlay.prototype.onRemove = function (this: {
+    _canvas: HTMLCanvasElement | null;
+  }) {
+    this._canvas?.remove();
+    this._canvas = null;
+  };
+
+  return new (PointCloudOverlay as unknown as OverlayCtor)();
 }
 
 export type LivingMarkerCategory =
@@ -85,17 +223,11 @@ type NaverMapProps = {
   fitAnchor?: LatLng | null;
   /**
    * When set (and no POI markers), fit so this radius around the anchor is
-   * visible — used by commerce density overlay (1km).
+   * visible — used by commerce point-cloud (1km).
    */
   fitRadiusM?: number | null;
-  /** Passive SEMAS density circles (commerce tab). Click-through; no labels. */
-  densityCircles?: Array<{
-    lat: number;
-    lng: number;
-    count: number;
-  }> | null;
-  /** p95 cell count for intensity scaling. */
-  densityP95Count?: number | null;
+  /** SEMAS P2 actual point cloud (commerce). Canvas overlay — not Markers. */
+  pointCloud?: CommerceMapPoints | null;
   /** Optional thin reference radius (meters) around fitAnchor/center. */
   referenceRadiusM?: number | null;
 };
@@ -320,15 +452,14 @@ export function NaverMap({
   fitBoundsToken = null,
   fitAnchor = null,
   fitRadiusM = null,
-  densityCircles = null,
-  densityP95Count = null,
+  pointCloud = null,
   referenceRadiusM = null,
 }: NaverMapProps) {
   const reactId = useId();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<NaverMapInstance | null>(null);
   const markerMapRef = useRef<Map<string, NaverMarkerInstance>>(new Map());
-  const densityCircleRef = useRef<NaverCircleInstance[]>([]);
+  const pointCloudOverlayRef = useRef<NaverOverlayViewInstance | null>(null);
   const referenceCircleRef = useRef<NaverCircleInstance | null>(null);
   const onMarkerClickRef = useRef(onMarkerClick);
   const markersRef = useRef(markers);
@@ -408,6 +539,14 @@ export function NaverMap({
         m.setMap(null);
       }
       markerMapRef.current.clear();
+      if (pointCloudOverlayRef.current) {
+        pointCloudOverlayRef.current.setMap(null);
+        pointCloudOverlayRef.current = null;
+      }
+      if (referenceCircleRef.current) {
+        referenceCircleRef.current.setMap(null);
+        referenceCircleRef.current = null;
+      }
       try {
         mapRef.current?.destroy?.();
       } catch {
@@ -513,47 +652,51 @@ export function NaverMap({
     }
   }, [markers, selectedId, status]);
 
-  // Commerce density overlays — translucent circles; click-through (no listeners).
+  // Commerce SEMAS P2 point cloud — ONE OverlayView + ONE canvas (no Markers).
   useEffect(() => {
     const map = mapRef.current;
     const maps = window.naver?.maps;
     if (!map || !maps || status !== "ready") return;
 
-    for (const c of densityCircleRef.current) {
-      c.setMap(null);
+    if (pointCloudOverlayRef.current) {
+      pointCloudOverlayRef.current.setMap(null);
+      pointCloudOverlayRef.current = null;
     }
-    densityCircleRef.current = [];
 
-    const cells = densityCircles;
-    if (!cells?.length || !maps.Circle) return;
+    if (
+      !pointCloud ||
+      pointCloud.pointCount <= 0 ||
+      !pointCloud.offsetsM?.length ||
+      !maps.OverlayView
+    ) {
+      return;
+    }
 
-    const p95 = Math.max(1, densityP95Count ?? 1);
-    // Draw low-count first so dense cells sit on top visually.
-    const ordered = cells.slice().sort((a, b) => a.count - b.count);
-    for (const cell of ordered) {
-      const style = commerceDensityCircleStyle(cell.count, p95);
-      const circle = new maps.Circle({
-        map,
-        center: new maps.LatLng(cell.lat, cell.lng),
-        radius: style.radiusM,
-        fillColor: "#0f766e",
-        fillOpacity: style.fillOpacity,
-        strokeColor: "#0f766e",
-        strokeOpacity: style.strokeOpacity,
-        strokeWeight: 1,
-        clickable: false,
-        zIndex: 10,
-      });
-      densityCircleRef.current.push(circle);
+    const t0 =
+      typeof performance !== "undefined" ? performance.now() : Date.now();
+    const overlay = createCommercePointCloudOverlay(maps, pointCloud);
+    overlay.setMap(map);
+    pointCloudOverlayRef.current = overlay;
+    if (process.env.NODE_ENV !== "production") {
+      const ms =
+        (typeof performance !== "undefined" ? performance.now() : Date.now()) -
+        t0;
+      console.info(
+        "[NaverMap] pointCloud overlay ready",
+        pointCloud.pointCount,
+        "pts in",
+        Math.round(ms),
+        "ms",
+      );
     }
 
     return () => {
-      for (const c of densityCircleRef.current) {
-        c.setMap(null);
+      if (pointCloudOverlayRef.current) {
+        pointCloudOverlayRef.current.setMap(null);
+        pointCloudOverlayRef.current = null;
       }
-      densityCircleRef.current = [];
     };
-  }, [densityCircles, densityP95Count, status]);
+  }, [pointCloud, status]);
 
   // Optional thin 1km reference ring (informational; not an official boundary).
   useEffect(() => {
