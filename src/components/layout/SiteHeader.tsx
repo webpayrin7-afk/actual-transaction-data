@@ -153,7 +153,7 @@ export function SiteHeader() {
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div
           className={`flex flex-col gap-0.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0 ${
-            isHome ? "pt-1.5 pb-0.5" : "py-1"
+            isHome ? "pt-1.5 pb-1" : "py-1"
           }`}
         >
           <div className="flex min-w-0 items-center gap-2 sm:gap-5">
