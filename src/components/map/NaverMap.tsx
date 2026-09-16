@@ -440,7 +440,7 @@ export function NaverMap({
     }
   }, [markers, selectedId, status]);
 
-  // Category / set change: keep apartment centered, zoom out to show all markers.
+  // Category / set change: apartment-centered zoom with morph animation.
   useEffect(() => {
     const map = mapRef.current;
     const maps = window.naver?.maps;
@@ -448,10 +448,44 @@ export function NaverMap({
     if (!fitBoundsToken) return;
 
     const anchor = fitAnchor ?? center;
+    const anchorLatLng = new maps.LatLng(anchor.lat, anchor.lng);
     const poi = markers.filter((m) => m.id !== "complex");
+
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
+    const estimateZoom = (latDelta: number, lngDelta: number): number => {
+      const cos = Math.cos((anchor.lat * Math.PI) / 180);
+      const span = Math.max(latDelta * 2, lngDelta * 2 * Math.max(cos, 0.2));
+      if (span > 0.07) return 12;
+      if (span > 0.04) return 13;
+      if (span > 0.022) return 14;
+      if (span > 0.012) return 15;
+      if (span > 0.006) return 16;
+      return 16;
+    };
+
+    const animateTo = (targetZoom: number) => {
+      const z = Math.max(11, Math.min(18, targetZoom));
+      try {
+        map.stop?.();
+      } catch {
+        /* ignore */
+      }
+      if (reduceMotion || typeof map.morph !== "function") {
+        map.setCenter(anchorLatLng);
+        map.setZoom?.(z);
+        return;
+      }
+      map.morph(anchorLatLng, z, {
+        duration: 560,
+        easing: "easeOutCubic",
+      });
+    };
+
     if (poi.length === 0) {
-      map.setCenter(new maps.LatLng(anchor.lat, anchor.lng));
-      map.setZoom?.(zoom);
+      animateTo(zoom);
       return;
     }
 
@@ -461,21 +495,10 @@ export function NaverMap({
       maxLatDelta = Math.max(maxLatDelta, Math.abs(m.position.lat - anchor.lat));
       maxLngDelta = Math.max(maxLngDelta, Math.abs(m.position.lng - anchor.lng));
     }
-    // Small pad so edge markers are not clipped under controls.
-    const pad = 1.18;
+    const pad = 1.25;
     const latDelta = Math.max(maxLatDelta * pad, 0.0012);
     const lngDelta = Math.max(maxLngDelta * pad, 0.0012);
-    const sw = new maps.LatLng(anchor.lat - latDelta, anchor.lng - lngDelta);
-    const ne = new maps.LatLng(anchor.lat + latDelta, anchor.lng + lngDelta);
-    const bounds = new maps.LatLngBounds(sw, ne);
-    try {
-      map.fitBounds?.(bounds, { top: 48, right: 36, bottom: 36, left: 36 });
-    } catch {
-      map.setCenter(new maps.LatLng(anchor.lat, anchor.lng));
-      map.setZoom?.(Math.max(12, zoom - 1));
-    }
-    // Re-assert apartment as center after fit (bounds fit can drift).
-    map.setCenter(new maps.LatLng(anchor.lat, anchor.lng));
+    animateTo(estimateZoom(latDelta, lngDelta));
     // Only re-fit when the token changes (category / marker set), not on selection.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fitBoundsToken, status]);

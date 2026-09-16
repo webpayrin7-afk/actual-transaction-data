@@ -52,6 +52,17 @@ export type NaverMapInstance = {
   getZoom?: () => number;
   setZoom?: (zoom: number, opts?: unknown) => void;
   fitBounds?: (bounds: unknown, margin?: unknown) => void;
+  morph?: (
+    coord: unknown,
+    zoom?: number,
+    transitionOptions?: { duration?: number; easing?: string },
+  ) => void;
+  panToBounds?: (
+    bounds: unknown,
+    transitionOptions?: { duration?: number; easing?: string },
+    margin?: unknown,
+  ) => void;
+  stop?: () => void;
   destroy?: () => void;
 };
 
