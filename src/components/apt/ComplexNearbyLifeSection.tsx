@@ -1381,7 +1381,7 @@ export function ComplexNearbyLifeSection({
           ref={mapSectionRef}
           className={
             tab === "living"
-              ? // Full-bleed width; compact living map so list stays visible.
+              ? // Full-bleed width; living map slightly taller than other tabs.
                 "relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen overflow-hidden bg-slate-50/40"
               : "relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none"
           }
@@ -1390,7 +1390,7 @@ export function ComplexNearbyLifeSection({
             <div
               className={
                 tab === "living"
-                  ? "h-[248px] w-full sm:h-[272px] lg:h-[300px]"
+                  ? "h-[348px] w-full sm:h-[392px] lg:h-[440px]"
                   : tab === "commerce"
                     ? "h-[324px] w-full sm:h-[350px] lg:h-[400px]"
                     : tab === "school"
@@ -1427,7 +1427,7 @@ export function ComplexNearbyLifeSection({
             <div
               className={`flex items-center justify-center px-4 text-center text-sm text-slate-500 ${
                 tab === "living"
-                  ? "h-[248px] sm:h-[272px] lg:h-[300px]"
+                  ? "h-[348px] sm:h-[392px] lg:h-[440px]"
                   : tab === "commerce"
                     ? "h-[324px] sm:h-[350px] lg:h-[400px]"
                     : tab === "school"
