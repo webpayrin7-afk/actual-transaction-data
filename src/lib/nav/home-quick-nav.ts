@@ -9,8 +9,9 @@ import {
 
 export type HomeQuickNavItem = {
   id: string;
+  /** Expanded-row label */
   label: string;
-  /** Short label for compact sticky bar */
+  /** Compact one-line label */
   shortLabel: string;
   href: string | null;
   /** When href is null — shown disabled (e.g. map not shipped yet). */
@@ -27,7 +28,7 @@ export type HomeQuickNavItem = {
 export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   {
     id: "market",
-    label: "오늘의 시장",
+    label: "오늘",
     shortLabel: "오늘",
     href: "/",
     icon: LayoutDashboard,
@@ -45,7 +46,7 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   },
   {
     id: "complexes",
-    label: "단지조회",
+    label: "단지",
     shortLabel: "단지",
     href: "/complexes",
     icon: Building2,
@@ -54,7 +55,7 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   },
   {
     id: "regions",
-    label: "지역별 조회",
+    label: "지역",
     shortLabel: "지역",
     href: "/regions",
     icon: Grid2x2,
@@ -63,8 +64,8 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   },
   {
     id: "stats",
-    label: "시장동향",
-    shortLabel: "동향",
+    label: "시장",
+    shortLabel: "시장",
     href: "/stats",
     icon: ChartColumn,
     match: (pathname) => pathname.startsWith("/stats"),
