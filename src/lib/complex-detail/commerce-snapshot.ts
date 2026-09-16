@@ -111,7 +111,7 @@ export const COMMERCE_FACILITY_ORDER: Array<{
 /**
  * Deterministic UI aliases for awkward SEMAS subcategory names.
  * Only when meaning is clear from C1B / facility cross-check.
- * I212 count (260) == facilities.카페 (260).
+ * I212 “비알코올” → friendlier cafe label when present in TOP5.
  * I210 “기타 간이” kept source-native (uncertain friendlier rewrite).
  */
 export const COMMERCE_TOP_CATEGORY_UI_ALIAS: Record<string, string> = {
@@ -133,9 +133,9 @@ const jamsilElsMapPoints: CommerceMapPoints = {
 };
 
 /**
- * Stage C3 census + U3 actual map points — 잠실엘스 ONLY.
- * Census from stage-c3-derived-snapshot-pilot.json.
- * Points from stage-u3 / jamsil-els-commerce-map-points.json (4381 PASS).
+ * Stage C4 center-corrected census + actual map points — 잠실엘스 ONLY.
+ * Canonical center = product mapAnchor NAVER_GEOCODE (not legacy 37.5133/127.1028).
+ * Metrics/points from stage-c4-jamsil-els-*-correction / map-points artifacts.
  */
 export const jamsilElsCommerceSnapshot: CommerceSnapshot = {
   complexId: "cx_4c63d9a100973c60",
@@ -147,39 +147,39 @@ export const jamsilElsCommerceSnapshot: CommerceSnapshot = {
   distanceMetric: "straight-line",
   populationVersion: "daily_commerce_core_v1",
   populationRuleVersion: "c1b_frozen_p2_v1",
-  p0Total: 5904,
-  p2Total: 4381,
+  p0Total: 3562,
+  p2Total: 2745,
   composition: {
-    "음식/외식": { count: 1846, share: 42.14 },
-    "쇼핑/소매": { count: 1249, share: 28.51 },
-    생활서비스: { count: 508, share: 11.6 },
-    "의료/건강": { count: 211, share: 4.82 },
-    교육: { count: 317, share: 7.24 },
-    "여가/체육": { count: 250, share: 5.71 },
+    "음식/외식": { count: 937, share: 34.13 },
+    "쇼핑/소매": { count: 660, share: 24.04 },
+    생활서비스: { count: 397, share: 14.46 },
+    "의료/건강": { count: 211, share: 7.69 },
+    교육: { count: 318, share: 11.58 },
+    "여가/체육": { count: 222, share: 8.09 },
     기타: { count: 0, share: 0 },
   },
   topCategories: [
-    { code: "I201", name: "한식", count: 597 },
-    { code: "G209", name: "섬유·의복·신발 소매", count: 504 },
-    { code: "I210", name: "기타 간이", count: 329 },
-    { code: "S207", name: "이용·미용", count: 320 },
-    { code: "I212", name: "비알코올", count: 260 },
+    { code: "I201", name: "한식", count: 325 },
+    { code: "S207", name: "이용·미용", count: 299 },
+    { code: "I210", name: "기타 간이", count: 231 },
+    { code: "P106", name: "기타 교육", count: 210 },
+    { code: "Q102", name: "의원", count: 200 },
   ],
   facilities: {
-    "병원/의원": 204,
-    약국: 88,
-    편의점: 106,
-    "마트/슈퍼": 46,
-    카페: 260,
-    음식점: 1586,
-    미용: 320,
-    학원: 271,
-    체육: 116,
+    "병원/의원": 205,
+    약국: 51,
+    편의점: 54,
+    "마트/슈퍼": 35,
+    카페: 116,
+    음식점: 821,
+    미용: 299,
+    학원: 282,
+    체육: 94,
   },
   mapPoints: jamsilElsMapPoints,
   sourceDate: "2026-06-30",
-  computedAt: "2026-09-16T08:55:38.060Z",
-  coordinateSource: "c1_verified_pilot_center",
+  computedAt: "2026-09-16T12:50:04.817Z",
+  coordinateSource: "product_map_anchor_naver_geocode",
 };
 
 const PILOT_BY_COMPLEX_ID = new Map<string, CommerceSnapshot>([

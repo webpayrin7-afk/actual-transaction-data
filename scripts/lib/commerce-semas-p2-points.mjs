@@ -12,13 +12,19 @@ import {
   parseCsvLine,
 } from "./commerce-semas-snapshot-transform.mjs";
 
+/**
+ * Canonical 잠실엘스 center (C4) — product mapAnchor NAVER_GEOCODE.
+ * Legacy pilot 37.5133/127.1028 retired (CENTER_MISMATCH ≈1872m).
+ * Keep in sync with src/lib/nearby-map/jamsil-els-canonical-center.ts
+ */
 export const JAMSIL_ELS_P2_CENTER = {
   complexId: "cx_4c63d9a100973c60",
   name: "잠실엘스",
-  lat: 37.5133,
-  lng: 127.1028,
-  coordinateSource: "c1_verified_pilot_center",
-  expectedP2: 4381,
+  lat: 37.5133051,
+  lng: 127.0815962,
+  coordinateSource: "product_map_anchor_naver_geocode",
+  /** C4 corrected P2 at product mapAnchor center. */
+  expectedP2: 2745,
 };
 
 /** Local ENU-ish meter offsets from apartment center (equirectangular). */

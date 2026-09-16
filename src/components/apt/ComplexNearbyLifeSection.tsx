@@ -457,6 +457,24 @@ export function ComplexNearbyLifeSection({
         });
         if (cancelled) return;
         setMapAnchor(result);
+
+        // C4 one-center contract: when commerce map points exist, their
+        // origin is the canonical apartment center (product mapAnchor
+        // snapshot). Marker, 1km ring, fit, and point cloud share it.
+        const canonicalFromCommerce = commerceSnapshot?.mapPoints
+          ? {
+              lat: commerceSnapshot.mapPoints.originLat,
+              lng: commerceSnapshot.mapPoints.originLng,
+            }
+          : null;
+
+        if (canonicalFromCommerce) {
+          setCoords(canonicalFromCommerce);
+          setGeocodeStatus("ready");
+          setGeocodeReason(null);
+          return;
+        }
+
         if (!result.ok) {
           setGeocodeStatus("error");
           setGeocodeReason("위치 정보를 확인 중입니다");
@@ -473,7 +491,7 @@ export function ComplexNearbyLifeSection({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [identity, aptName]);
+  }, [identity, aptName, commerceSnapshot]);
 
   const lifeQuery = useQuery({
     queryKey: [
