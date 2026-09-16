@@ -142,8 +142,8 @@ const LIVING_CHIP_LABEL: Record<LivingOnlyCategory, string> = {
 
 const LIVING_DEFAULT_CATEGORY: LivingOnlyCategory = "HOSPITAL";
 
-/** Display radius label for contextual count (matches server 1500m filter). */
-const LIVING_DISPLAY_RADIUS_LABEL = "1.5km";
+/** Contextual list subtitle — not a radius census count. */
+const LIVING_LIST_SUBTITLE = "가까운 순 · 주요 시설";
 
 type CommerceMarkerCategory = "MART" | "CONVENIENCE" | "CAFE" | "RESTAURANT";
 
@@ -1036,7 +1036,7 @@ export function ComplexNearbyLifeSection({
             주변 정보를 찾지 못했어요
             <br />
             <span className="text-[12px] text-slate-500">
-              {LIVING_DISPLAY_RADIUS_LABEL} 내 검색 결과가 없어요
+              주변에 표시할 주요 시설이 없어요
             </span>
           </EmptyBlock>
         );
@@ -1059,15 +1059,13 @@ export function ComplexNearbyLifeSection({
           <div>
             <div className="mb-2 flex items-baseline justify-between gap-2">
               <p className="text-[15px] font-semibold text-slate-800">{label}</p>
-              <p className="text-[11px] text-slate-500">
-                {LIVING_DISPLAY_RADIUS_LABEL} 내 0곳
-              </p>
+              <p className="text-[11px] text-slate-500">{LIVING_LIST_SUBTITLE}</p>
             </div>
             <EmptyBlock>
               주변 정보를 찾지 못했어요
               <br />
               <span className="text-[12px] text-slate-500">
-                {LIVING_DISPLAY_RADIUS_LABEL} 내 검색 결과가 없어요
+                주변에 표시할 주요 시설이 없어요
               </span>
             </EmptyBlock>
             <p className="mt-2 text-[11px] text-slate-400">네이버 지역검색</p>
@@ -1080,7 +1078,7 @@ export function ComplexNearbyLifeSection({
           <div className="mb-2 flex items-baseline justify-between gap-2">
             <p className="text-[15px] font-semibold text-slate-800">{label}</p>
             <p className="shrink-0 text-[11px] text-slate-500">
-              {LIVING_DISPLAY_RADIUS_LABEL} 내 {places.length}곳
+              {LIVING_LIST_SUBTITLE}
             </p>
           </div>
           <ul className="space-y-1">

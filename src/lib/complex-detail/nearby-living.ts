@@ -1,6 +1,9 @@
 /**
  * Living tab v1 — NAVER Local Search POIs near a complex.
  * Not a facility census / commerce aggregation.
+ *
+ * Pipeline: query A+B → merge → dedupe → semantic validate →
+ * category radius → nearest sort → display cap.
  */
 
 import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
@@ -49,20 +52,36 @@ export const LIVING_CATEGORY_LABEL: Record<LivingCategory, string> = {
   PARK: "공원",
 };
 
-/** Display guard — not a census radius. */
+/** Per-category radius + display cap (post-filter). */
+export const LIVING_CATEGORY_CONFIG: Record<
+  LivingCategory,
+  { radiusM: number; limit: number }
+> = {
+  HOSPITAL: { radiusM: 1500, limit: 5 },
+  PHARMACY: { radiusM: 2000, limit: 5 },
+  MART: { radiusM: 1500, limit: 5 },
+  CONVENIENCE: { radiusM: 1500, limit: 5 },
+  PARK: { radiusM: 1500, limit: 5 },
+};
+
+/** @deprecated Prefer LIVING_CATEGORY_CONFIG[cat].radiusM */
 export const LIVING_DISPLAY_MAX_METERS = 1500;
 
-/** Max places shown per category in v1. */
-export const LIVING_MAX_PER_CATEGORY = 2;
+/** @deprecated Prefer LIVING_CATEGORY_CONFIG[cat].limit */
+export const LIVING_MAX_PER_CATEGORY = 5;
 
 export type LivingCategoryResult = {
   category: LivingCategory;
   label: string;
   primaryQuery: string;
   fallbackQuery: string | null;
+  /** True when secondary (dong) query was also called and merged. */
   usedFallback: boolean;
   apiCalls: number;
   rawCount: number;
+  rawCountA?: number;
+  rawCountB?: number;
+  semanticRejected?: number;
   overRadiusRemoved: number;
   places: LivingPlace[];
   error?: string;
@@ -96,6 +115,52 @@ function normalizeKey(p: {
   return `${name}|${lat}|${lng}|${addr}`;
 }
 
+/**
+ * sourceCategory-first semantic gate.
+ * Unknown / unsafe category → reject (quality > count).
+ */
+export function isSemanticallyValidLivingPlace(
+  category: LivingCategory,
+  sourceCategory: string | null | undefined,
+): boolean {
+  const cat = String(sourceCategory || "").trim();
+  if (!cat) return false;
+
+  switch (category) {
+    case "HOSPITAL": {
+      if (/동물병원|수의/.test(cat)) return false;
+      // Observed: 병원,의원>피부과 / 소아청소년과 / 치과 …
+      return /병원|의원|의료/.test(cat);
+    }
+    case "PHARMACY": {
+      // Observed: 건강,의료>약국
+      return /약국/.test(cat) && !/동물|수의/.test(cat);
+    }
+    case "MART": {
+      // Explicit: convenience never belongs in MART.
+      if (/편의점/.test(cat)) return false;
+      // Observed: 쇼핑,유통>슈퍼,마트 / 유기농산물마트
+      // Do not expand to 백화점/쇼핑몰 in this stage.
+      if (/백화점|쇼핑몰|쇼핑센터|아울렛|복합쇼핑/.test(cat)) return false;
+      return /슈퍼|마트|대형마트|슈퍼마켓|식료품/.test(cat);
+    }
+    case "CONVENIENCE": {
+      // Observed: 생활,편의>편의점 — brand name alone is insufficient.
+      return /편의점/.test(cat);
+    }
+    case "PARK": {
+      // Explicit: commercial venues (카페 등) even if title mentions 공원.
+      if (/카페|디저트|음식|식당|베이커리|빵|술집|편의점|마트|병원|약국|호텔|숙박/.test(cat)) {
+        return false;
+      }
+      // Observed: 여행,명소>시민공원 — also 공원/도시공원/근린공원/어린이공원.
+      return /공원|시민공원|도시공원|근린공원|어린이공원|수변공원/.test(cat);
+    }
+    default:
+      return false;
+  }
+}
+
 function itemToCandidate(
   item: NaverLocalSearchItem,
   category: LivingCategory,
@@ -122,19 +187,6 @@ function itemToCandidate(
   };
 }
 
-function usableWithinDisplay(places: LivingPlace[]): {
-  usable: LivingPlace[];
-  overRadiusRemoved: number;
-} {
-  const usable: LivingPlace[] = [];
-  let overRadiusRemoved = 0;
-  for (const p of places) {
-    if (p.distanceM <= LIVING_DISPLAY_MAX_METERS) usable.push(p);
-    else overRadiusRemoved += 1;
-  }
-  return { usable, overRadiusRemoved };
-}
-
 async function searchCategory(params: {
   category: LivingCategory;
   aptName: string;
@@ -143,16 +195,17 @@ async function searchCategory(params: {
   legalDong: string | null;
 }): Promise<LivingCategoryResult> {
   const label = LIVING_CATEGORY_LABEL[params.category];
+  const { radiusM, limit } = LIVING_CATEGORY_CONFIG[params.category];
   const primaryQuery = `${params.aptName} ${label}`.trim();
-  const fallbackQuery =
+  const secondaryQuery =
     params.sigungu && params.legalDong
       ? `${params.sigungu} ${params.legalDong} ${label}`.trim()
       : null;
 
   let apiCalls = 0;
-  let usedFallback = false;
-  let raw: NaverLocalSearchItem[] = [];
   let error: string | undefined;
+  let itemsA: NaverLocalSearchItem[] = [];
+  let itemsB: NaverLocalSearchItem[] = [];
 
   const primary = await fetchNaverLocalSearch({
     query: primaryQuery,
@@ -162,49 +215,74 @@ async function searchCategory(params: {
   if (!primary.ok) {
     error = primary.error;
   } else {
-    raw = primary.items;
+    itemsA = primary.items;
   }
 
-  let candidates = raw
-    .map((item, i) =>
-      itemToCandidate(item, params.category, params.center, i),
-    )
-    .filter((x): x is LivingPlace => !!x);
-
-  let { usable, overRadiusRemoved } = usableWithinDisplay(candidates);
-
-  if (usable.length === 0 && fallbackQuery) {
-    const fb = await fetchNaverLocalSearch({
-      query: fallbackQuery,
+  // Always merge A+B when secondary identity is available (coverage fix).
+  let usedSecondary = false;
+  if (secondaryQuery) {
+    const secondary = await fetchNaverLocalSearch({
+      query: secondaryQuery,
       display: 5,
     });
     apiCalls += 1;
-    usedFallback = true;
-    if (!fb.ok && !error) error = fb.error;
-    if (fb.ok) {
-      raw = fb.items;
-      candidates = fb.items
-        .map((item, i) =>
-          itemToCandidate(item, params.category, params.center, 100 + i),
-        )
-        .filter((x): x is LivingPlace => !!x);
-      const second = usableWithinDisplay(candidates);
-      usable = second.usable;
-      overRadiusRemoved += second.overRadiusRemoved;
+    usedSecondary = true;
+    if (!secondary.ok && !error) error = secondary.error;
+    if (secondary.ok) itemsB = secondary.items;
+  }
+
+  const mergedItems: Array<{ item: NaverLocalSearchItem; index: number }> = [
+    ...itemsA.map((item, i) => ({ item, index: i })),
+    ...itemsB.map((item, i) => ({ item, index: 100 + i })),
+  ];
+
+  const candidates = mergedItems
+    .map(({ item, index }) =>
+      itemToCandidate(item, params.category, params.center, index),
+    )
+    .filter((x): x is LivingPlace => !!x);
+
+  // Per-category dedupe before semantic/radius (A∪B).
+  const seenLocal = new Set<string>();
+  const deduped: LivingPlace[] = [];
+  for (const p of candidates) {
+    const key = normalizeKey(p);
+    if (seenLocal.has(key)) continue;
+    seenLocal.add(key);
+    deduped.push(p);
+  }
+
+  let semanticRejected = 0;
+  const semanticOk: LivingPlace[] = [];
+  for (const p of deduped) {
+    if (isSemanticallyValidLivingPlace(params.category, p.sourceCategory)) {
+      semanticOk.push(p);
+    } else {
+      semanticRejected += 1;
     }
   }
 
-  usable.sort((a, b) => a.distanceM - b.distanceM);
-  const places = usable.slice(0, LIVING_MAX_PER_CATEGORY);
+  let overRadiusRemoved = 0;
+  const withinRadius: LivingPlace[] = [];
+  for (const p of semanticOk) {
+    if (p.distanceM <= radiusM) withinRadius.push(p);
+    else overRadiusRemoved += 1;
+  }
+
+  withinRadius.sort((a, b) => a.distanceM - b.distanceM);
+  const places = withinRadius.slice(0, limit);
 
   return {
     category: params.category,
     label,
     primaryQuery,
-    fallbackQuery,
-    usedFallback,
+    fallbackQuery: secondaryQuery,
+    usedFallback: usedSecondary,
     apiCalls,
-    rawCount: raw.length,
+    rawCount: itemsA.length + itemsB.length,
+    rawCountA: itemsA.length,
+    rawCountB: itemsB.length,
+    semanticRejected,
     overRadiusRemoved,
     places,
     error,
@@ -213,7 +291,7 @@ async function searchCategory(params: {
 
 /**
  * Fetch living places for a complex (lazy living-tab path).
- * Max 5 primary Local Search calls; fallback only when primary unusable.
+ * Max 10 Local Search calls (5 categories × A+B).
  */
 export async function fetchNearbyLivingPlaces(params: {
   aptName: string;
@@ -287,6 +365,7 @@ export async function fetchNearbyLivingPlaces(params: {
     }
   }
 
+  // Cross-category dedupe (same POI must not appear under two chips).
   const seen = new Set<string>();
   let duplicatesRemoved = 0;
   const places: LivingPlace[] = [];
