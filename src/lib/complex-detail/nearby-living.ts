@@ -58,16 +58,16 @@ export const LIVING_CATEGORY_LABEL: Record<LivingCategory, string> = {
   PARK: "공원",
 };
 
-/** Per-category radius + display cap (post-filter). */
+/** Per-category radius (post-filter). List initial visibility is UI-only (5). */
 export const LIVING_CATEGORY_CONFIG: Record<
   LivingCategory,
   { radiusM: number; limit: number }
 > = {
-  HOSPITAL: { radiusM: 3000, limit: 10 },
-  PHARMACY: { radiusM: 2000, limit: 5 },
-  MART: { radiusM: 3000, limit: 10 },
-  CONVENIENCE: { radiusM: 1500, limit: 5 },
-  PARK: { radiusM: 1500, limit: 5 },
+  HOSPITAL: { radiusM: 3000, limit: 50 },
+  PHARMACY: { radiusM: 2000, limit: 50 },
+  MART: { radiusM: 2000, limit: 50 },
+  CONVENIENCE: { radiusM: 1500, limit: 50 },
+  PARK: { radiusM: 2500, limit: 50 },
 };
 
 /** @deprecated Prefer LIVING_CATEGORY_CONFIG[cat].radiusM */
@@ -372,47 +372,6 @@ export function collapseHospitalParentFacilities(
   return { places: kept.filter((_, idx) => !remove.has(idx)), collapsed };
 }
 
-/**
- * HOSPITAL display cap: keep distance ascending, but do not let nearer 의원
- * rows entirely crowd out in-radius GENERAL_HOSPITAL discovered via coverage
- * queries. Does not boost 종합병원 to the top — only preserves them inside
- * the capped set, then re-sorts by distance.
- */
-function selectHospitalDisplayPlaces(
-  withinRadius: LivingPlace[],
-  limit: number,
-): LivingPlace[] {
-  const sorted = [...withinRadius].sort((a, b) => a.distanceM - b.distanceM);
-  if (sorted.length <= limit) return sorted;
-
-  const kept = sorted.slice(0, limit);
-  const missingHospitals = sorted
-    .slice(limit)
-    .filter((p) => p.medicalType === "GENERAL_HOSPITAL");
-
-  for (const gh of missingHospitals) {
-    let replaceIdx = -1;
-    let farthest = -1;
-    for (let i = 0; i < kept.length; i++) {
-      const p = kept[i]!;
-      if (p.medicalType === "GENERAL_HOSPITAL") continue;
-      const clinicLike =
-        /의원/.test(String(p.sourceCategory || "")) ||
-        /의원/.test(p.name);
-      if (!clinicLike) continue;
-      if (p.distanceM >= farthest) {
-        farthest = p.distanceM;
-        replaceIdx = i;
-      }
-    }
-    if (replaceIdx < 0) break;
-    kept[replaceIdx] = gh;
-  }
-
-  kept.sort((a, b) => a.distanceM - b.distanceM);
-  return kept.slice(0, limit);
-}
-
 function itemToCandidate(
   item: NaverLocalSearchItem,
   category: LivingCategory,
@@ -586,10 +545,9 @@ async function searchCategory(params: {
   }
 
   withinRadius.sort((a, b) => a.distanceM - b.distanceM);
-  const places =
-    params.category === "HOSPITAL"
-      ? selectHospitalDisplayPlaces(withinRadius, limit)
-      : withinRadius.slice(0, limit);
+  // Return all radius-valid POIs. Initial list visibility (5) is UI-only so
+  // map markers can show the full valid set.
+  const places = withinRadius.slice(0, limit);
 
   return {
     category: params.category,

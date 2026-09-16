@@ -116,6 +116,11 @@ const LIST_LIMIT = 5;
 /** Bus stops shown before “더보기” (subway always fully listed). */
 const TRANSPORT_BUS_LIST_LIMIT = 4;
 
+/** Stable DOM id for living list rows (marker → list scroll). */
+function livingRowDomId(poiId: string): string {
+  return `living-row-${poiId.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+}
+
 type LivingOnlyCategory =
   | "HOSPITAL"
   | "PHARMACY"
@@ -457,6 +462,10 @@ export function ComplexNearbyLifeSection({
   const [livingCategory, setLivingCategory] = useState<LivingOnlyCategory>(
     LIVING_DEFAULT_CATEGORY,
   );
+  /** After marker click, scroll to this living row once it is in the DOM. */
+  const [pendingListScrollId, setPendingListScrollId] = useState<string | null>(
+    null,
+  );
   const mapSectionRef = useRef<HTMLDivElement | null>(null);
 
   const selectFromList = useCallback((id: string) => {
@@ -588,6 +597,7 @@ export function ComplexNearbyLifeSection({
     setTab(next);
     setSelectedId(null);
     setExpanded(false);
+    setPendingListScrollId(null);
     if (next === "living") {
       setLivingCategory(LIVING_DEFAULT_CATEGORY);
     }
@@ -596,7 +606,22 @@ export function ComplexNearbyLifeSection({
   const selectLivingCategory = useCallback((next: LivingOnlyCategory) => {
     setLivingCategory(next);
     setSelectedId(null);
+    setExpanded(false);
+    setPendingListScrollId(null);
   }, []);
+
+  /** Current living-chip valid POIs (all radius/semantic passers — not list-capped). */
+  const livingValidPlaces = useMemo(() => {
+    const living = livingQuery.data;
+    if (!living || living.status !== "READY") return [] as LivingPlaceDto[];
+    const fromApi = living.categories?.find(
+      (c) => c.category === livingCategory,
+    );
+    return (fromApi?.places ??
+      living.places.filter((p) => p.category === livingCategory))
+      .slice()
+      .sort((a, b) => a.distanceM - b.distanceM);
+  }, [livingQuery.data, livingCategory]);
 
   const complexMarker: NaverMapMarker | null = useMemo(
     () =>
@@ -736,9 +761,34 @@ export function ComplexNearbyLifeSection({
     return `living:${livingCategory}:${ids}`;
   }, [tab, coords, livingCategory, tabMarkers]);
 
-  const onMarkerClick = useCallback((id: string) => {
-    setSelectedId(id);
-  }, []);
+  const onMarkerClick = useCallback(
+    (id: string) => {
+      setSelectedId(id);
+      if (tab !== "living" || id === "complex") {
+        setPendingListScrollId(null);
+        return;
+      }
+      const idx = livingValidPlaces.findIndex((p) => p.id === id);
+      if (idx < 0) {
+        setPendingListScrollId(null);
+        return;
+      }
+      if (idx >= LIST_LIMIT && !expanded) {
+        setExpanded(true);
+      }
+      setPendingListScrollId(id);
+    },
+    [tab, livingValidPlaces, expanded],
+  );
+
+  // Marker → list: scroll after expand renders the target row.
+  useEffect(() => {
+    if (!pendingListScrollId || tab !== "living") return;
+    const el = document.getElementById(livingRowDomId(pendingListScrollId));
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setPendingListScrollId(null);
+  }, [pendingListScrollId, expanded, livingValidPlaces, tab]);
 
   const mapCenter = useMemo(() => {
     // Living category overview stays apartment-centered; list click still pans via NaverMap.
@@ -1067,6 +1117,9 @@ export function ComplexNearbyLifeSection({
         .sort((a, b) => a.distanceM - b.distanceM);
 
       const label = LIVING_CHIP_LABEL[livingCategory];
+      const visiblePlaces = expanded
+        ? places
+        : places.slice(0, LIST_LIMIT);
 
       if (!places.length) {
         return (
@@ -1096,12 +1149,12 @@ export function ComplexNearbyLifeSection({
             </p>
           </div>
           <ul className="space-y-1">
-            {places.map((p) => {
+            {visiblePlaces.map((p) => {
               const address = livingPlaceAddress(p);
               const hasCoords =
                 Number.isFinite(p.lat) && Number.isFinite(p.lng);
               return (
-                <li key={p.id}>
+                <li key={p.id} id={livingRowDomId(p.id)}>
                   <button
                     type="button"
                     onClick={() => {
@@ -1285,7 +1338,7 @@ export function ComplexNearbyLifeSection({
       return Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT);
     }
     if (tab === "living") {
-      return 0;
+      return Math.max(0, livingValidPlaces.length - LIST_LIMIT);
     }
     if (tab === "commerce") {
       return 0;
@@ -1444,14 +1497,16 @@ export function ComplexNearbyLifeSection({
 
         <div className="min-w-0">
           {listContent}
-          {moreCount > 0 && tab === "transport" ? (
+          {moreCount > 0 && (tab === "transport" || tab === "living") ? (
             <div className="mt-2 flex justify-end">
               <button
                 type="button"
                 onClick={() => setExpanded(true)}
                 className="text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
               >
-                버스 정류장 더보기 · {moreCount}곳
+                {tab === "transport"
+                  ? `버스 정류장 더보기 · ${moreCount}곳`
+                  : `더보기 · ${moreCount}곳`}
               </button>
             </div>
           ) : null}

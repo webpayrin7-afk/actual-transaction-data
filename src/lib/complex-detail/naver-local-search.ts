@@ -45,7 +45,7 @@ export type NaverLocalCredentials = {
 const API_HUB_BASE = "https://naverapihub.apigw.ntruss.com/search/v1/local";
 
 /** Cache tag / version for living Local Search payloads. */
-export const NAVER_LOCAL_CACHE_VERSION = "living-v2-hospital-campus";
+export const NAVER_LOCAL_CACHE_VERSION = "living-v3-list-map";
 
 /**
  * Resolve server-only Local Search credentials.
