@@ -3,8 +3,8 @@
  * Not a facility census / commerce aggregation.
  *
  * Pipeline: queries → merge → exact dedupe → semantic validate →
- * HOSPITAL parent/sub-facility collapse → category radius →
- * nearest sort → display cap.
+ * HOSPITAL parent/sub-facility collapse → type-specific radius →
+ * nearest sort → return all valid (list cap is UI-only).
  */
 
 import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
@@ -16,7 +16,7 @@ import {
   type NaverLocalSearchItem,
   NAVER_LOCAL_CACHE_VERSION,
 } from "@/lib/complex-detail/naver-local-search";
-import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
+import { hospitalGeneralHospitalDistricts } from "@/lib/constants/seoul-sigungu-adjacency";
 
 export type LivingCategory =
   | "MART"
@@ -70,6 +70,12 @@ export const LIVING_CATEGORY_CONFIG: Record<
   PARK: { radiusM: 2500, limit: 50 },
 };
 
+/** HOSPITAL: 의원/병원 vs 종합병원 radius (type after semantic). */
+export const HOSPITAL_RADIUS_M = {
+  GENERAL_MEDICAL: 3000,
+  GENERAL_HOSPITAL: 5000,
+} as const;
+
 /** @deprecated Prefer LIVING_CATEGORY_CONFIG[cat].radiusM */
 export const LIVING_DISPLAY_MAX_METERS = 1500;
 
@@ -98,8 +104,8 @@ export type LivingCategoryResult = {
   error?: string;
 };
 
-/** Hospital tab Local Search call budget (A+B+C + nearby-dong coverage). */
-const HOSPITAL_QUERY_BUDGET = 5;
+/** Hospital Local Search budget: A+B medical + district 종합병원. */
+const HOSPITAL_QUERY_BUDGET = 8;
 
 /** Campus proximity for parent/child hospital pins (Asan ~135m). */
 const HOSPITAL_CAMPUS_MAX_M = 200;
@@ -193,40 +199,11 @@ export function classifyHospitalPresentation(
   return "GENERAL_MEDICAL";
 }
 
-function isJamsilElsLivingApt(aptName: string): boolean {
-  const n = aptName.replace(/\s+/g, "");
-  return n === "잠실엘스" || n === "잠실엘스아파트";
-}
-
-/**
- * Nearby dong seeds for HOSPITAL 종합병원 coverage.
- * Uses caller-provided dongs, else existing pilot nearbyDongs metadata.
- * Not hospital-name hardcoding; not a Seoul-wide gu fan-out.
- */
-function resolveHospitalCoverageDongs(params: {
-  aptName: string;
-  legalDong: string | null;
-  nearbyDongs?: string[] | null;
-}): string[] {
-  const legal = (params.legalDong || "").trim();
-  const seeds: string[] = [];
-  if (params.nearbyDongs?.length) {
-    for (const d of params.nearbyDongs) {
-      const v = String(d || "").trim();
-      if (v) seeds.push(v);
-    }
-  } else if (isJamsilElsLivingApt(params.aptName)) {
-    seeds.push(...JAMSIL_ELS_MAP_PILOT.nearbyDongs);
+function hospitalRadiusM(p: LivingPlace): number {
+  if (p.medicalType === "GENERAL_HOSPITAL") {
+    return HOSPITAL_RADIUS_M.GENERAL_HOSPITAL;
   }
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const d of seeds) {
-    if (d === legal) continue;
-    if (seen.has(d)) continue;
-    seen.add(d);
-    out.push(d);
-  }
-  return out;
+  return HOSPITAL_RADIUS_M.GENERAL_MEDICAL;
 }
 
 function normalizeCampusAddress(addr: string | null | undefined): string {
@@ -450,33 +427,22 @@ async function searchCategory(params: {
     if (secondary.ok) itemsB = secondary.items;
   }
 
-  // HOSPITAL C: `${sigungu} 종합병원` — same-gu major hospitals.
-  if (params.category === "HOSPITAL" && params.sigungu) {
-    const qC = `${params.sigungu} 종합병원`.trim();
-    extraQueries.push(qC);
-    const extra = await fetchNaverLocalSearch({ query: qC, display: 5 });
-    apiCalls += 1;
-    if (!extra.ok && !error) error = extra.error;
-    if (extra.ok) itemsC = extra.items;
-  }
-
-  // HOSPITAL D+: nearby-dong 종합병원 — cross-sigungu discovery without
-  // hardcoding hospital names or fan-out across all Seoul gu.
+  // HOSPITAL: A+B keep general medical; district 종합병원 for current+adjacent.
+  // Remove weak legalDong/nearby-dong 종합병원 fan-out.
   if (params.category === "HOSPITAL") {
-    const coverageDongs = resolveHospitalCoverageDongs({
-      aptName: params.aptName,
-      legalDong: params.legalDong,
-      nearbyDongs: params.nearbyDongs,
-    });
-    for (const dong of coverageDongs) {
+    const districts = hospitalGeneralHospitalDistricts(params.sigungu);
+    for (const district of districts) {
       if (apiCalls >= HOSPITAL_QUERY_BUDGET) break;
-      const q = `${dong} 종합병원`.trim();
+      const q = `${district} 종합병원`.trim();
       if (!q || extraQueries.includes(q)) continue;
       extraQueries.push(q);
       const extra = await fetchNaverLocalSearch({ query: q, display: 5 });
       apiCalls += 1;
       if (!extra.ok && !error) error = extra.error;
-      if (extra.ok) extraHospitalItems.push(...extra.items);
+      if (extra.ok) {
+        if (itemsC.length === 0) itemsC = extra.items;
+        else extraHospitalItems.push(...extra.items);
+      }
     }
   }
 
@@ -540,7 +506,9 @@ async function searchCategory(params: {
   let overRadiusRemoved = 0;
   const withinRadius: LivingPlace[] = [];
   for (const p of afterCollapse) {
-    if (p.distanceM <= radiusM) withinRadius.push(p);
+    const maxM =
+      params.category === "HOSPITAL" ? hospitalRadiusM(p) : radiusM;
+    if (p.distanceM <= maxM) withinRadius.push(p);
     else overRadiusRemoved += 1;
   }
 
@@ -577,14 +545,14 @@ async function searchCategory(params: {
 
 /**
  * Fetch living places for a complex (lazy living-tab path).
- * Max Local Search: HOSPITAL ≤5 + MART 4 + others 2 each.
+ * Max Local Search: HOSPITAL ≤8 + MART 4 + others 2 each.
  */
 export async function fetchNearbyLivingPlaces(params: {
   aptName: string;
   center: LatLng;
   sigungu?: string | null;
   legalDong?: string | null;
-  /** Optional nearby dongs for HOSPITAL cross-boundary 종합병원 coverage. */
+  /** @deprecated Hospital coverage uses Seoul adjacency districts, not dongs. */
   nearbyDongs?: string[] | null;
 }): Promise<NearbyLivingResult> {
   if (!isNaverLocalSearchConfigured()) {
