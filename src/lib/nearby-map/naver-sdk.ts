@@ -50,7 +50,7 @@ export type NaverMapInstance = {
   setCenter: (latlng: unknown) => void;
   panTo: (latlng: unknown) => void;
   getZoom?: () => number;
-  setZoom?: (zoom: number, opts?: unknown) => void;
+  setZoom?: (zoom: number, effect?: boolean) => void;
   fitBounds?: (bounds: unknown, margin?: unknown) => void;
   morph?: (
     coord: unknown,
@@ -65,6 +65,7 @@ export type NaverMapInstance = {
   stop?: () => void;
   destroy?: () => void;
   getSize?: () => { width: number; height: number };
+  setOptions?: (keyOrOpts: string | Record<string, unknown>, value?: unknown) => void;
 };
 
 export type NaverMarkerInstance = {
