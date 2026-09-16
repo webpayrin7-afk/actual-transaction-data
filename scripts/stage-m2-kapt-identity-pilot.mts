@@ -623,15 +623,16 @@ async function main() {
       ? Math.round((totalKapt / successfulCalls) * 100) / 100
       : 0;
   const seoulSigunguApprox = 25;
+  const districtPages = Object.values(districtReports).map((d) => {
+    const row = d as { pages?: number };
+    return Number(row.pages ?? 1);
+  });
   const callsPerDistrict =
     DISTRICTS.length > 0
       ? Math.max(
           1,
           Math.ceil(
-            Object.values(districtReports).reduce(
-              (s, d) => s + Number((d as { pages?: number }).pages ?? 1),
-              0,
-            ) / DISTRICTS.length,
+            districtPages.reduce((s, n) => s + n, 0) / DISTRICTS.length,
           ),
         )
       : 1;
@@ -784,7 +785,7 @@ async function main() {
     decisionGate: {
       choice: gate,
       reason: gateReason,
-      ...nextActionMap[gate],
+      label: nextActionMap[gate].label,
     },
     decision: {
       BULK_KAPT_DISCOVERY: hit429
