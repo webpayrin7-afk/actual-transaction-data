@@ -1288,7 +1288,9 @@ export function ComplexNearbyLifeSection({
   })();
 
   return (
-    <LabCard className="p-4 sm:p-5">
+    <LabCard
+      className={`p-4 sm:p-5 ${tab === "living" ? "overflow-visible" : ""}`}
+    >
       <div className="lab-section-heading mb-px flex-wrap items-center gap-x-2 gap-y-2">
         <div className="min-w-0 shrink">
           <h2 className="flex items-center">
@@ -1368,16 +1370,23 @@ export function ComplexNearbyLifeSection({
         {/* One NAVER map instance — height animates; never remount on tab change. */}
         <div
           ref={mapSectionRef}
-          className="relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none"
+          className={
+            tab === "living"
+              ? // Full-bleed width (may overflow card/page shell); taller living map.
+                "relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen overflow-hidden bg-slate-50/40"
+              : "relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none"
+          }
         >
           {coords && geocodeStatus === "ready" ? (
             <div
               className={
-                tab === "living" || tab === "commerce"
-                  ? "h-[324px] w-full sm:h-[350px] lg:h-[400px]"
-                  : tab === "school"
-                    ? "h-[310px] w-full sm:h-[340px] lg:h-[380px]"
-                    : "h-[240px] w-full sm:h-[280px] lg:h-[330px]"
+                tab === "living"
+                  ? "h-[380px] w-full sm:h-[430px] lg:h-[480px]"
+                  : tab === "commerce"
+                    ? "h-[324px] w-full sm:h-[350px] lg:h-[400px]"
+                    : tab === "school"
+                      ? "h-[310px] w-full sm:h-[340px] lg:h-[380px]"
+                      : "h-[240px] w-full sm:h-[280px] lg:h-[330px]"
               }
               style={{
                 transition: reduceMotion ? undefined : "height 280ms ease-out",
@@ -1408,11 +1417,13 @@ export function ComplexNearbyLifeSection({
           ) : (
             <div
               className={`flex items-center justify-center px-4 text-center text-sm text-slate-500 ${
-                tab === "living" || tab === "commerce"
-                  ? "h-[324px] sm:h-[350px] lg:h-[400px]"
-                  : tab === "school"
-                    ? "h-[310px] sm:h-[340px] lg:h-[380px]"
-                    : "h-[240px] sm:h-[280px] lg:h-[330px]"
+                tab === "living"
+                  ? "h-[380px] sm:h-[430px] lg:h-[480px]"
+                  : tab === "commerce"
+                    ? "h-[324px] sm:h-[350px] lg:h-[400px]"
+                    : tab === "school"
+                      ? "h-[310px] sm:h-[340px] lg:h-[380px]"
+                      : "h-[240px] sm:h-[280px] lg:h-[330px]"
               }`}
             >
               {geocodeStatus === "loading" || geocodeStatus === "idle"

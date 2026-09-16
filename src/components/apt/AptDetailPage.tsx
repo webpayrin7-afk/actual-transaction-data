@@ -654,7 +654,7 @@ export function AptDetailPage({
       : `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl overflow-x-clip`}>
+    <div className={`${PAGE_SHELL} max-w-5xl`}>
       {/* Sticky compact header — name + shared area selector */}
       <div
         className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
