@@ -469,14 +469,28 @@ export function NaverMap({
       window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
     const estimateZoom = (latDelta: number, lngDelta: number): number => {
-      const cos = Math.cos((anchor.lat * Math.PI) / 180);
-      const span = Math.max(latDelta * 2, lngDelta * 2 * Math.max(cos, 0.2));
-      if (span > 0.07) return 12;
-      if (span > 0.04) return 13;
-      if (span > 0.022) return 14;
-      if (span > 0.012) return 15;
-      if (span > 0.006) return 16;
-      return 16;
+      const cos = Math.max(0.25, Math.cos((anchor.lat * Math.PI) / 180));
+      let width = 360;
+      let height = 320;
+      try {
+        const size = map.getSize?.();
+        if (size && Number.isFinite(size.width) && size.width > 0) {
+          width = size.width;
+        }
+        if (size && Number.isFinite(size.height) && size.height > 0) {
+          height = size.height;
+        }
+      } catch {
+        /* keep fallback size */
+      }
+      // Zoom controls (bottom-left) + marker icon overhang.
+      const usableW = Math.max(96, width - 112);
+      const usableH = Math.max(96, height - 128);
+      const northM = Math.max(latDelta * 111320, 40);
+      const eastM = Math.max(lngDelta * 111320 * cos, 40);
+      const mpp = Math.max((2 * eastM) / usableW, (2 * northM) / usableH);
+      const z = Math.log2((156543.03392 * cos) / mpp);
+      return Math.max(11, Math.min(16, Math.floor(z)));
     };
 
     const animateTo = (targetZoom: number) => {

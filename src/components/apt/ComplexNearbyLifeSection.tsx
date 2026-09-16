@@ -680,14 +680,8 @@ export function ComplexNearbyLifeSection({
       ];
     }
     if (tab === "living") {
-      const places = livingQuery.data?.places ?? [];
-      return places
-        .filter(
-          (p) =>
-            p.category === livingCategory &&
-            Number.isFinite(p.lat) &&
-            Number.isFinite(p.lng),
-        )
+      return livingValidPlaces
+        .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
         .map((p) => ({
           id: p.id,
           position: { lat: p.lat, lng: p.lng },
@@ -735,6 +729,7 @@ export function ComplexNearbyLifeSection({
   }, [
     lifeQuery.data,
     livingQuery.data,
+    livingValidPlaces,
     commerceQuery.data,
     schoolQuery.data,
     tab,

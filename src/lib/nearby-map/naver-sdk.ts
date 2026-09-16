@@ -64,6 +64,7 @@ export type NaverMapInstance = {
   ) => void;
   stop?: () => void;
   destroy?: () => void;
+  getSize?: () => { width: number; height: number };
 };
 
 export type NaverMarkerInstance = {
