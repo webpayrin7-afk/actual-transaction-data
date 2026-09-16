@@ -150,6 +150,21 @@ const LIVING_DEFAULT_CATEGORY: LivingOnlyCategory = "HOSPITAL";
 /** Contextual list subtitle — not a radius census count. */
 const LIVING_LIST_SUBTITLE = "가까운 순 · 주요 시설";
 
+function LivingDistanceSubtitle() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
+      <span>{LIVING_LIST_SUBTITLE}</span>
+      <InfoTip aria-label="생활 시설 거리 기준 안내" className="text-[11px]">
+        <p className="text-[12px] leading-relaxed text-slate-600">
+          표시된 거리는 아파트와 시설 간 직선거리입니다.
+          <br />
+          실제 도보·차량 이동거리는 다를 수 있습니다.
+        </p>
+      </InfoTip>
+    </span>
+  );
+}
+
 type CommerceMarkerCategory = "MART" | "CONVENIENCE" | "CAFE" | "RESTAURANT";
 
 const COMMERCE_SECTION_ORDER: CommerceMarkerCategory[] = [
@@ -1120,7 +1135,7 @@ export function ComplexNearbyLifeSection({
           <div>
             <div className="mb-2 flex items-baseline justify-between gap-2">
               <p className="text-[15px] font-semibold text-slate-800">{label}</p>
-              <p className="text-[11px] text-slate-500">{LIVING_LIST_SUBTITLE}</p>
+              <LivingDistanceSubtitle />
             </div>
             <EmptyBlock>
               주변 정보를 찾지 못했어요
@@ -1137,9 +1152,7 @@ export function ComplexNearbyLifeSection({
         <div>
           <div className="mb-2 flex items-baseline justify-between gap-2">
             <p className="text-[15px] font-semibold text-slate-800">{label}</p>
-            <p className="shrink-0 text-[11px] text-slate-500">
-              {LIVING_LIST_SUBTITLE}
-            </p>
+            <LivingDistanceSubtitle />
           </div>
           <ul className="space-y-1">
             {visiblePlaces.map((p) => {
