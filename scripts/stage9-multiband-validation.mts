@@ -2,6 +2,12 @@
  * STAGE 9 — Multi-band unit-type + similar-area group validation
  * (EXACTLY 10 new complexes; Stage6–8 excluded).
  *
+ * WRITE BUDGET HARD CAP (Stage10 hardening):
+ * - One shared `groupBudget` across all complexes — never reset mid-run
+ * - Idempotency replay MUST use remaining=0 (verify-only) — never reopen MAX_GROUP_WRITES
+ * - Only NEW group INSERTs decrement remaining; existing groups do not consume budget
+ * - When remaining<=0, upsertSafeGroup is never called (HOLD_BUDGET)
+ *
  * - Select 10 Seoul complexes with multi-band diversity
  * - Insert all raw exclusive areas → apt_unit_types (Stage6 contract)
  * - Candidate clusters across ALL area bands (not near-84 only)
@@ -578,14 +584,10 @@ async function processComplex(
     .sort((a, b) => a.min - b.min);
 
   for (const c of safeOrdered) {
-    if (groupBudget.halt) {
+    // HARD CAP — evaluate BEFORE any write helper call
+    if (groupBudget.halt || groupBudget.remaining <= 0) {
       heldForBudget.push(c);
-      continue;
-    }
-    if (groupBudget.remaining <= 0) {
-      heldForBudget.push(c);
-      c.decision = "SAFE_GROUP"; // still SAFE but not written this stage
-      c.reason += " | HOLD_WRITE: max 20 group budget reached";
+      c.reason += " | HOLD_BUDGET";
       continue;
     }
     const w = await upsertSafeGroup(
@@ -601,20 +603,21 @@ async function processComplex(
       groupBudget.halt = true;
       c.aggregation = agg;
       c.reason += " | HOLD: aggregation mismatch — stop further group writes";
-      // Do not count as written if we just inserted? Links already written.
-      // Per instructions: stop additional writes. Keep what was written but flag HOLD.
       c.written = true;
       c.groupKey = w.groupKey;
       c.linksInserted = w.linksInserted;
-      if (w.groupAction === "inserted") groupsInserted += 1;
+      if (w.groupAction === "inserted") {
+        groupsInserted += 1;
+        groupBudget.remaining -= 1;
+      }
       linksInserted += w.linksInserted;
-      groupBudget.remaining -= w.groupAction === "inserted" ? 1 : 0;
       break;
     }
     c.written = true;
     c.groupKey = w.groupKey;
     c.linksInserted = w.linksInserted;
     c.aggregation = agg;
+    // Only NEW inserts consume hard-cap budget
     if (w.groupAction === "inserted") {
       groupsInserted += 1;
       groupBudget.remaining -= 1;
@@ -732,11 +735,22 @@ async function main() {
 
   const groupBudget = { remaining: MAX_GROUP_WRITES, halt: false };
   const complexes = [];
+  let totalNewGroups = 0;
   for (const t of targets) {
-    complexes.push(await processComplex(db, t, groupBudget));
+    const result = await processComplex(db, t, groupBudget);
+    complexes.push(result);
+    totalNewGroups += result.groupsInserted;
+    if (totalNewGroups > MAX_GROUP_WRITES) {
+      throw new Error(
+        `HARD CAP VIOLATION: new groups ${totalNewGroups} > ${MAX_GROUP_WRITES}`,
+      );
+    }
     if (groupBudget.halt) {
       console.error("Aggregation HOLD — stopping further group writes");
     }
+  }
+  if (totalNewGroups > MAX_GROUP_WRITES) {
+    throw new Error(`HARD CAP VIOLATION after loop: ${totalNewGroups}`);
   }
 
   // Idempotency verify-only (do NOT reopen group budget / write)
