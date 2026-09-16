@@ -15,7 +15,12 @@ import {
   type NaverMapMarker,
   type LivingMarkerCategory,
 } from "@/components/map/NaverMap";
-import { LabCard, labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
+import {
+  LabCard,
+  LabState,
+  labSecondaryTabClass,
+  labSegmentedClass,
+} from "@/components/ui/lab";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
 import {
@@ -112,27 +117,33 @@ const LIST_LIMIT = 5;
 const TRANSPORT_BUS_LIST_LIMIT = 4;
 
 type LivingOnlyCategory =
-  | "MART"
   | "HOSPITAL"
   | "PHARMACY"
+  | "MART"
   | "CONVENIENCE"
   | "PARK";
 
-const LIVING_SECTION_ORDER: LivingOnlyCategory[] = [
-  "MART",
+/** Product chip order — 병원 → 약국 → 마트 → 편의점 → 공원 */
+const LIVING_CHIP_ORDER: LivingOnlyCategory[] = [
   "HOSPITAL",
   "PHARMACY",
+  "MART",
   "CONVENIENCE",
   "PARK",
 ];
 
-const LIVING_SECTION_LABEL: Record<LivingOnlyCategory, string> = {
-  MART: "마트",
+const LIVING_CHIP_LABEL: Record<LivingOnlyCategory, string> = {
   HOSPITAL: "병원",
   PHARMACY: "약국",
+  MART: "마트",
   CONVENIENCE: "편의점",
   PARK: "공원",
 };
+
+const LIVING_DEFAULT_CATEGORY: LivingOnlyCategory = "HOSPITAL";
+
+/** Display radius label for contextual count (matches server 1500m filter). */
+const LIVING_DISPLAY_RADIUS_LABEL = "1.5km";
 
 type CommerceMarkerCategory = "MART" | "CONVENIENCE" | "CAFE" | "RESTAURANT";
 
@@ -349,11 +360,34 @@ function LivingCategoryIcon({
   }
 }
 
-function formatDistanceLabel(distanceM: number | null | undefined): string {
+function formatDistanceOnly(distanceM: number | null | undefined): string {
   if (distanceM == null || !Number.isFinite(distanceM) || distanceM < 0) {
     return "거리 정보 없음";
   }
-  return `${formatMeters(distanceM)} · 직선거리`;
+  return formatMeters(distanceM);
+}
+
+function livingPlaceAddress(p: {
+  roadAddress: string | null;
+  address: string | null;
+}): string | null {
+  const road = p.roadAddress?.trim() || "";
+  const addr = p.address?.trim() || "";
+  const raw = road || addr;
+  if (!raw) return null;
+  // Keep secondary line short on mobile.
+  return raw.length > 42 ? `${raw.slice(0, 40)}…` : raw;
+}
+
+function livingChipClass(active: boolean): string {
+  return [
+    "inline-flex shrink-0 items-center justify-center whitespace-nowrap",
+    "h-7 rounded-full px-2.5 text-[12px] font-semibold leading-none",
+    "border transition-colors",
+    active
+      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
+      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+  ].join(" ");
 }
 
 
@@ -411,6 +445,9 @@ export function ComplexNearbyLifeSection({
   const [geocodeReason, setGeocodeReason] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [livingCategory, setLivingCategory] = useState<LivingOnlyCategory>(
+    LIVING_DEFAULT_CATEGORY,
+  );
   const mapSectionRef = useRef<HTMLDivElement | null>(null);
 
   const selectFromList = useCallback((id: string) => {
@@ -542,6 +579,14 @@ export function ComplexNearbyLifeSection({
     setTab(next);
     setSelectedId(null);
     setExpanded(false);
+    if (next === "living") {
+      setLivingCategory(LIVING_DEFAULT_CATEGORY);
+    }
+  }, []);
+
+  const selectLivingCategory = useCallback((next: LivingOnlyCategory) => {
+    setLivingCategory(next);
+    setSelectedId(null);
   }, []);
 
   const complexMarker: NaverMapMarker | null = useMemo(
@@ -605,7 +650,12 @@ export function ComplexNearbyLifeSection({
     if (tab === "living") {
       const places = livingQuery.data?.places ?? [];
       return places
-        .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
+        .filter(
+          (p) =>
+            p.category === livingCategory &&
+            Number.isFinite(p.lat) &&
+            Number.isFinite(p.lng),
+        )
         .map((p) => ({
           id: p.id,
           position: { lat: p.lat, lng: p.lng },
@@ -655,6 +705,7 @@ export function ComplexNearbyLifeSection({
     commerceQuery.data,
     schoolQuery.data,
     tab,
+    livingCategory,
     coords,
     selectedId,
   ]);
@@ -799,7 +850,7 @@ export function ComplexNearbyLifeSection({
                             {p.name}
                           </span>
                           <span className="mt-0.5 block text-[10px] text-slate-500">
-                            {formatDistanceLabel(p.distanceM)}
+                            {formatDistanceOnly(p.distanceM)}
                           </span>
                         </span>
                         {hasCoords ? (
@@ -955,7 +1006,7 @@ export function ComplexNearbyLifeSection({
 
     if (tab === "living") {
       if (livingQuery.isLoading) {
-        return <EmptyBlock>주변 생활시설을 불러오는 중…</EmptyBlock>;
+        return <LabState tone="loading" />;
       }
       if (livingQuery.isError) {
         return <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
@@ -969,70 +1020,104 @@ export function ComplexNearbyLifeSection({
         );
       }
       if (living.status === "ERROR") {
-        return (
-          <EmptyBlock>
-            {living.reason || "주변 정보를 불러오지 못했어요"}
-          </EmptyBlock>
-        );
+        return <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
       }
       if (living.status === "EMPTY") {
         return (
           <EmptyBlock>
-            {living.reason || "주변 정보를 찾지 못했어요"}
+            주변 정보를 찾지 못했어요
+            <br />
+            <span className="text-[12px] text-slate-500">
+              {LIVING_DISPLAY_RADIUS_LABEL} 내 검색 결과가 없어요
+            </span>
           </EmptyBlock>
         );
       }
-      const sections = LIVING_SECTION_ORDER.map((cat) => {
-        const fromApi = living.categories?.find((c) => c.category === cat);
-        const places = (
-          fromApi?.places ?? living.places.filter((p) => p.category === cat)
-        )
-          .slice()
-          .sort((a, b) => a.distanceM - b.distanceM);
-        return { cat, places };
-      }).filter((s) => s.places.length > 0);
 
-      if (!sections.length) {
-        return <EmptyBlock>주변 정보를 찾지 못했어요</EmptyBlock>;
+      const fromApi = living.categories?.find(
+        (c) => c.category === livingCategory,
+      );
+      const places = (
+        fromApi?.places ??
+        living.places.filter((p) => p.category === livingCategory)
+      )
+        .slice()
+        .sort((a, b) => a.distanceM - b.distanceM);
+
+      const label = LIVING_CHIP_LABEL[livingCategory];
+
+      if (!places.length) {
+        return (
+          <div>
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+              <p className="text-[11px] text-slate-500">
+                {LIVING_DISPLAY_RADIUS_LABEL} 내 0곳
+              </p>
+            </div>
+            <EmptyBlock>
+              주변 정보를 찾지 못했어요
+              <br />
+              <span className="text-[12px] text-slate-500">
+                {LIVING_DISPLAY_RADIUS_LABEL} 내 검색 결과가 없어요
+              </span>
+            </EmptyBlock>
+            <p className="mt-2 text-[11px] text-slate-400">네이버 지역검색</p>
+          </div>
+        );
       }
 
       return (
-        <div className="space-y-4">
-          {sections.map(({ cat, places }) => (
-            <div key={cat}>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
-                {LIVING_SECTION_LABEL[cat]}
-              </p>
-              <ul className="space-y-1">
-                {places.map((p) => (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      onClick={() => selectFromList(p.id)}
-                      aria-label={`${p.name} 지도에서 보기`}
-                      className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === p.id)}`}
-                    >
-                      <span className="mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
-                        <LivingCategoryIcon category={cat} />
+        <div>
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+            <p className="shrink-0 text-[11px] text-slate-500">
+              {LIVING_DISPLAY_RADIUS_LABEL} 내 {places.length}곳
+            </p>
+          </div>
+          <ul className="divide-y divide-slate-100">
+            {places.map((p) => {
+              const address = livingPlaceAddress(p);
+              const hasCoords =
+                Number.isFinite(p.lat) && Number.isFinite(p.lng);
+              return (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hasCoords) selectFromList(p.id);
+                    }}
+                    disabled={!hasCoords}
+                    aria-label={
+                      hasCoords
+                        ? `${p.name} 지도에서 보기`
+                        : `${p.name} (지도 위치 없음)`
+                    }
+                    className={`flex w-full items-start gap-3 px-1 py-2.5 text-left transition ${
+                      hasCoords
+                        ? selectedRowClass(selectedId === p.id)
+                        : "cursor-default opacity-90"
+                    }`}
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] font-medium text-slate-800">
+                        {p.name}
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[13px] font-medium text-slate-800">
-                          {p.name}
+                      {address ? (
+                        <span className="mt-0.5 block truncate text-[11px] text-slate-500">
+                          {address}
                         </span>
-                        <span className="mt-0.5 block text-[10px] text-slate-500">
-                          {formatDistanceLabel(p.distanceM)}
-                        </span>
-                      </span>
-                      <ChevronRight
-                        className="h-4 w-4 shrink-0 text-slate-400"
-                        aria-hidden
-                      />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+                      ) : null}
+                    </span>
+                    <span className="shrink-0 pt-0.5 text-[12px] font-medium tabular-nums text-slate-600">
+                      {formatDistanceOnly(p.distanceM)}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-2 text-[11px] text-slate-400">네이버 지역검색</p>
         </div>
       );
     }
@@ -1225,6 +1310,27 @@ export function ComplexNearbyLifeSection({
       </div>
 
       <div className="mt-3 space-y-3">
+        {tab === "living" ? (
+          <div
+            className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            role="tablist"
+            aria-label="생활 시설 종류"
+          >
+            {LIVING_CHIP_ORDER.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                role="tab"
+                aria-selected={livingCategory === cat}
+                onClick={() => selectLivingCategory(cat)}
+                className={livingChipClass(livingCategory === cat)}
+              >
+                {LIVING_CHIP_LABEL[cat]}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         {/* One NAVER map instance — height animates; never remount on tab change. */}
         <div
           ref={mapSectionRef}
