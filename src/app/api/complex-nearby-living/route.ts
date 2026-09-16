@@ -20,6 +20,13 @@ export async function GET(req: NextRequest) {
     searchParams.get("legalDong")?.trim() ||
     searchParams.get("legalDongName")?.trim() ||
     null;
+  const nearbyDongsRaw = searchParams.get("nearbyDongs")?.trim() || "";
+  const nearbyDongs = nearbyDongsRaw
+    ? nearbyDongsRaw
+        .split("|")
+        .map((d) => d.trim())
+        .filter(Boolean)
+    : null;
 
   if (!aptName) {
     return NextResponse.json(
@@ -63,6 +70,7 @@ export async function GET(req: NextRequest) {
     center: { lat, lng },
     sigungu,
     legalDong,
+    nearbyDongs,
   });
 
   return NextResponse.json({

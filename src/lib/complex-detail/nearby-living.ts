@@ -2,8 +2,9 @@
  * Living tab v1 — NAVER Local Search POIs near a complex.
  * Not a facility census / commerce aggregation.
  *
- * Pipeline: query A+B → merge → dedupe → semantic validate →
- * category radius → nearest sort → display cap.
+ * Pipeline: queries → merge → exact dedupe → semantic validate →
+ * HOSPITAL parent/sub-facility collapse → category radius →
+ * nearest sort → display cap.
  */
 
 import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
@@ -15,6 +16,7 @@ import {
   type NaverLocalSearchItem,
   NAVER_LOCAL_CACHE_VERSION,
 } from "@/lib/complex-detail/naver-local-search";
+import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 
 export type LivingCategory =
   | "MART"
@@ -89,10 +91,23 @@ export type LivingCategoryResult = {
   rawCountD?: number;
   extraQueries?: string[];
   semanticRejected?: number;
+  /** HOSPITAL only — parent/sub-facility rows collapsed. */
+  parentCollapsed?: number;
   overRadiusRemoved: number;
   places: LivingPlace[];
   error?: string;
 };
+
+/** Hospital tab Local Search call budget (A+B+C + nearby-dong coverage). */
+const HOSPITAL_QUERY_BUDGET = 5;
+
+/** Campus proximity for parent/child hospital pins (Asan ~135m). */
+const HOSPITAL_CAMPUS_MAX_M = 200;
+
+/** Child facility name suffixes — hospital tab only. */
+const HOSPITAL_CHILD_SUFFIX_RE =
+  /(?:\s*)(응급실|응급의료센터|응급센터|긴급진료실)\s*$/u;
+
 
 export type NearbyLivingResult = {
   status: "READY" | "HOLD" | "EMPTY" | "ERROR";
@@ -178,6 +193,226 @@ export function classifyHospitalPresentation(
   return "GENERAL_MEDICAL";
 }
 
+function isJamsilElsLivingApt(aptName: string): boolean {
+  const n = aptName.replace(/\s+/g, "");
+  return n === "잠실엘스" || n === "잠실엘스아파트";
+}
+
+/**
+ * Nearby dong seeds for HOSPITAL 종합병원 coverage.
+ * Uses caller-provided dongs, else existing pilot nearbyDongs metadata.
+ * Not hospital-name hardcoding; not a Seoul-wide gu fan-out.
+ */
+function resolveHospitalCoverageDongs(params: {
+  aptName: string;
+  legalDong: string | null;
+  nearbyDongs?: string[] | null;
+}): string[] {
+  const legal = (params.legalDong || "").trim();
+  const seeds: string[] = [];
+  if (params.nearbyDongs?.length) {
+    for (const d of params.nearbyDongs) {
+      const v = String(d || "").trim();
+      if (v) seeds.push(v);
+    }
+  } else if (isJamsilElsLivingApt(params.aptName)) {
+    seeds.push(...JAMSIL_ELS_MAP_PILOT.nearbyDongs);
+  }
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const d of seeds) {
+    if (d === legal) continue;
+    if (seen.has(d)) continue;
+    seen.add(d);
+    out.push(d);
+  }
+  return out;
+}
+
+function normalizeCampusAddress(addr: string | null | undefined): string {
+  const raw = String(addr || "").replace(/\s+/g, "");
+  if (!raw) return "";
+  // Keep through 로/길 + street number when present.
+  const road = raw.match(/^(.*?(?:로|길)\d+)/);
+  if (road?.[1]) return road[1];
+  // Jibun-style …동123-45
+  const jibun = raw.match(/^(.*?동\d+(?:-\d+)?)/);
+  if (jibun?.[1]) return jibun[1];
+  return raw;
+}
+
+/** Infer parent hospital name from ER / sub-facility title. */
+export function hospitalParentNameFromChild(name: string): string | null {
+  const n = String(name || "").replace(/\s+/g, " ").trim();
+  if (!n) return null;
+  const m = n.match(HOSPITAL_CHILD_SUFFIX_RE);
+  if (!m) return null;
+  const parent = n.slice(0, m.index).trim();
+  if (parent.length < 2) return null;
+  // Require medical parent token — avoid collapsing unrelated POIs.
+  if (!/(병원|의료원|센터)$/u.test(parent) && !/(병원|의료원)/u.test(parent)) {
+    return null;
+  }
+  return parent;
+}
+
+function isHospitalChildFacility(p: LivingPlace): boolean {
+  if (hospitalParentNameFromChild(p.name)) return true;
+  const cat = String(p.sourceCategory || "");
+  return /응급실/.test(cat) && /병원|의료/.test(cat);
+}
+
+function hospitalNamesCompatible(parentLike: string, childLike: string): boolean {
+  const p = parentLike.replace(/\s+/g, "").toLowerCase();
+  const c = childLike.replace(/\s+/g, "").toLowerCase();
+  if (!p || !c) return false;
+  if (p === c) return true;
+  if (c.startsWith(p) || p.startsWith(c)) return true;
+  const childParent = hospitalParentNameFromChild(childLike)
+    ?.replace(/\s+/g, "")
+    .toLowerCase();
+  if (childParent && (childParent === p || p.startsWith(childParent) || childParent.startsWith(p))) {
+    return true;
+  }
+  return false;
+}
+
+function sameHospitalCampus(a: LivingPlace, b: LivingPlace): boolean {
+  const roadA = normalizeCampusAddress(a.roadAddress);
+  const roadB = normalizeCampusAddress(b.roadAddress);
+  if (roadA && roadB && roadA === roadB) return true;
+  const addrA = normalizeCampusAddress(a.address);
+  const addrB = normalizeCampusAddress(b.address);
+  if (addrA && addrB && addrA === addrB) return true;
+  const dist = haversineMeters(
+    { lat: a.lat, lng: a.lng },
+    { lat: b.lat, lng: b.lng },
+  );
+  return Number.isFinite(dist) && dist <= HOSPITAL_CAMPUS_MAX_M;
+}
+
+function hospitalRepresentativeScore(p: LivingPlace): number {
+  let score = 0;
+  if (p.medicalType === "GENERAL_HOSPITAL") score += 100;
+  if (!isHospitalChildFacility(p)) score += 50;
+  if (/종합병원/.test(String(p.sourceCategory || ""))) score += 20;
+  // Prefer shorter canonical titles (본원 over 응급의료센터).
+  score += Math.max(0, 40 - p.name.length);
+  // Prefer nearer pin only as weak tie-break.
+  score -= Math.min(p.distanceM, 5000) / 5000;
+  return score;
+}
+
+/**
+ * HOSPITAL-only: collapse parent hospital + ER/sub-facility when
+ * parent-name compatible AND same campus (address or ~200m).
+ * Does not merge unrelated clinics sharing a building.
+ */
+export function collapseHospitalParentFacilities(
+  places: LivingPlace[],
+): { places: LivingPlace[]; collapsed: number } {
+  if (places.length < 2) return { places, collapsed: 0 };
+
+  const kept = [...places];
+  const remove = new Set<number>();
+  let collapsed = 0;
+
+  const pairEligible = (a: LivingPlace, b: LivingPlace): boolean => {
+    if (!hospitalNamesCompatible(a.name, b.name)) return false;
+    if (!sameHospitalCampus(a, b)) return false;
+    const aChild = isHospitalChildFacility(a);
+    const bChild = isHospitalChildFacility(b);
+    if (aChild && bChild) {
+      const pa = hospitalParentNameFromChild(a.name)?.replace(/\s+/g, "");
+      const pb = hospitalParentNameFromChild(b.name)?.replace(/\s+/g, "");
+      return !!pa && !!pb && pa === pb;
+    }
+    // Exactly one child, or explicit parent-of relation via suffix strip.
+    if (aChild !== bChild) return true;
+    const parentOfB = hospitalParentNameFromChild(b.name);
+    const parentOfA = hospitalParentNameFromChild(a.name);
+    if (parentOfB && hospitalNamesCompatible(a.name, parentOfB)) return true;
+    if (parentOfA && hospitalNamesCompatible(b.name, parentOfA)) return true;
+    return false;
+  };
+
+  for (let i = 0; i < kept.length; i++) {
+    if (remove.has(i)) continue;
+    for (let j = i + 1; j < kept.length; j++) {
+      if (remove.has(j)) continue;
+      const a = kept[i]!;
+      const b = kept[j]!;
+      if (!pairEligible(a, b)) continue;
+
+      const preferA =
+        hospitalRepresentativeScore(a) >= hospitalRepresentativeScore(b);
+      const winner = preferA ? a : b;
+      const loser = preferA ? b : a;
+      const loserIdx = preferA ? j : i;
+
+      // Inherit 종합병원 evidence onto the surviving row when available.
+      if (
+        loser.medicalType === "GENERAL_HOSPITAL" &&
+        winner.medicalType !== "GENERAL_HOSPITAL"
+      ) {
+        winner.medicalType = "GENERAL_HOSPITAL";
+        if (
+          /종합병원/.test(String(loser.sourceCategory || "")) &&
+          !/종합병원/.test(String(winner.sourceCategory || ""))
+        ) {
+          winner.sourceCategory = loser.sourceCategory;
+        }
+      }
+      remove.add(loserIdx);
+      collapsed += 1;
+      if (loserIdx === i) break;
+    }
+  }
+
+  return { places: kept.filter((_, idx) => !remove.has(idx)), collapsed };
+}
+
+/**
+ * HOSPITAL display cap: keep distance ascending, but do not let nearer 의원
+ * rows entirely crowd out in-radius GENERAL_HOSPITAL discovered via coverage
+ * queries. Does not boost 종합병원 to the top — only preserves them inside
+ * the capped set, then re-sorts by distance.
+ */
+function selectHospitalDisplayPlaces(
+  withinRadius: LivingPlace[],
+  limit: number,
+): LivingPlace[] {
+  const sorted = [...withinRadius].sort((a, b) => a.distanceM - b.distanceM);
+  if (sorted.length <= limit) return sorted;
+
+  const kept = sorted.slice(0, limit);
+  const missingHospitals = sorted
+    .slice(limit)
+    .filter((p) => p.medicalType === "GENERAL_HOSPITAL");
+
+  for (const gh of missingHospitals) {
+    let replaceIdx = -1;
+    let farthest = -1;
+    for (let i = 0; i < kept.length; i++) {
+      const p = kept[i]!;
+      if (p.medicalType === "GENERAL_HOSPITAL") continue;
+      const clinicLike =
+        /의원/.test(String(p.sourceCategory || "")) ||
+        /의원/.test(p.name);
+      if (!clinicLike) continue;
+      if (p.distanceM >= farthest) {
+        farthest = p.distanceM;
+        replaceIdx = i;
+      }
+    }
+    if (replaceIdx < 0) break;
+    kept[replaceIdx] = gh;
+  }
+
+  kept.sort((a, b) => a.distanceM - b.distanceM);
+  return kept.slice(0, limit);
+}
+
 function itemToCandidate(
   item: NaverLocalSearchItem,
   category: LivingCategory,
@@ -213,6 +448,7 @@ async function searchCategory(params: {
   center: LatLng;
   sigungu: string | null;
   legalDong: string | null;
+  nearbyDongs?: string[] | null;
 }): Promise<LivingCategoryResult> {
   const label = LIVING_CATEGORY_LABEL[params.category];
   const { radiusM, limit } = LIVING_CATEGORY_CONFIG[params.category];
@@ -228,6 +464,7 @@ async function searchCategory(params: {
   let itemsB: NaverLocalSearchItem[] = [];
   let itemsC: NaverLocalSearchItem[] = [];
   let itemsD: NaverLocalSearchItem[] = [];
+  const extraHospitalItems: NaverLocalSearchItem[] = [];
   const extraQueries: string[] = [];
 
   const primary = await fetchNaverLocalSearch({
@@ -254,7 +491,7 @@ async function searchCategory(params: {
     if (secondary.ok) itemsB = secondary.items;
   }
 
-  // HOSPITAL C: `${sigungu} 종합병원` — not a new tab, coverage only.
+  // HOSPITAL C: `${sigungu} 종합병원` — same-gu major hospitals.
   if (params.category === "HOSPITAL" && params.sigungu) {
     const qC = `${params.sigungu} 종합병원`.trim();
     extraQueries.push(qC);
@@ -262,6 +499,26 @@ async function searchCategory(params: {
     apiCalls += 1;
     if (!extra.ok && !error) error = extra.error;
     if (extra.ok) itemsC = extra.items;
+  }
+
+  // HOSPITAL D+: nearby-dong 종합병원 — cross-sigungu discovery without
+  // hardcoding hospital names or fan-out across all Seoul gu.
+  if (params.category === "HOSPITAL") {
+    const coverageDongs = resolveHospitalCoverageDongs({
+      aptName: params.aptName,
+      legalDong: params.legalDong,
+      nearbyDongs: params.nearbyDongs,
+    });
+    for (const dong of coverageDongs) {
+      if (apiCalls >= HOSPITAL_QUERY_BUDGET) break;
+      const q = `${dong} 종합병원`.trim();
+      if (!q || extraQueries.includes(q)) continue;
+      extraQueries.push(q);
+      const extra = await fetchNaverLocalSearch({ query: q, display: 5 });
+      apiCalls += 1;
+      if (!extra.ok && !error) error = extra.error;
+      if (extra.ok) extraHospitalItems.push(...extra.items);
+    }
   }
 
   // MART C/D: 하나로마트 + 대형마트 (max 4 sources).
@@ -284,6 +541,7 @@ async function searchCategory(params: {
     ...itemsB.map((item, i) => ({ item, index: 100 + i })),
     ...itemsC.map((item, i) => ({ item, index: 200 + i })),
     ...itemsD.map((item, i) => ({ item, index: 300 + i })),
+    ...extraHospitalItems.map((item, i) => ({ item, index: 400 + i })),
   ];
 
   const candidates = mergedItems
@@ -292,7 +550,7 @@ async function searchCategory(params: {
     )
     .filter((x): x is LivingPlace => !!x);
 
-  // Per-category dedupe before semantic/radius (A∪B).
+  // Per-category exact dedupe before semantic/radius.
   const seenLocal = new Set<string>();
   const deduped: LivingPlace[] = [];
   for (const p of candidates) {
@@ -312,15 +570,26 @@ async function searchCategory(params: {
     }
   }
 
+  let parentCollapsed = 0;
+  let afterCollapse = semanticOk;
+  if (params.category === "HOSPITAL") {
+    const collapsed = collapseHospitalParentFacilities(semanticOk);
+    afterCollapse = collapsed.places;
+    parentCollapsed = collapsed.collapsed;
+  }
+
   let overRadiusRemoved = 0;
   const withinRadius: LivingPlace[] = [];
-  for (const p of semanticOk) {
+  for (const p of afterCollapse) {
     if (p.distanceM <= radiusM) withinRadius.push(p);
     else overRadiusRemoved += 1;
   }
 
   withinRadius.sort((a, b) => a.distanceM - b.distanceM);
-  const places = withinRadius.slice(0, limit);
+  const places =
+    params.category === "HOSPITAL"
+      ? selectHospitalDisplayPlaces(withinRadius, limit)
+      : withinRadius.slice(0, limit);
 
   return {
     category: params.category,
@@ -329,13 +598,19 @@ async function searchCategory(params: {
     fallbackQuery: secondaryQuery,
     usedFallback: usedSecondary,
     apiCalls,
-    rawCount: itemsA.length + itemsB.length + itemsC.length + itemsD.length,
+    rawCount:
+      itemsA.length +
+      itemsB.length +
+      itemsC.length +
+      itemsD.length +
+      extraHospitalItems.length,
     rawCountA: itemsA.length,
     rawCountB: itemsB.length,
     rawCountC: itemsC.length,
-    rawCountD: itemsD.length,
+    rawCountD: itemsD.length + extraHospitalItems.length,
     extraQueries,
     semanticRejected,
+    parentCollapsed,
     overRadiusRemoved,
     places,
     error,
@@ -344,13 +619,15 @@ async function searchCategory(params: {
 
 /**
  * Fetch living places for a complex (lazy living-tab path).
- * Max Local Search: HOSPITAL 3 + MART 4 + others 2 each.
+ * Max Local Search: HOSPITAL ≤5 + MART 4 + others 2 each.
  */
 export async function fetchNearbyLivingPlaces(params: {
   aptName: string;
   center: LatLng;
   sigungu?: string | null;
   legalDong?: string | null;
+  /** Optional nearby dongs for HOSPITAL cross-boundary 종합병원 coverage. */
+  nearbyDongs?: string[] | null;
 }): Promise<NearbyLivingResult> {
   if (!isNaverLocalSearchConfigured()) {
     return {
@@ -398,6 +675,7 @@ export async function fetchNearbyLivingPlaces(params: {
         center: params.center,
         sigungu: params.sigungu?.trim() || null,
         legalDong: params.legalDong?.trim() || null,
+        nearbyDongs: params.nearbyDongs ?? null,
       });
       categories.push(result);
       apiCallCount += result.apiCalls;
