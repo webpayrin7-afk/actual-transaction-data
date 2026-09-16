@@ -189,9 +189,9 @@ export function MarketHome() {
     (data?.computedAt ? data.computedAt : null);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-0 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10">
+    <>
       <HomeNavigation />
-
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-4 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10">
       <header className="max-w-4xl sm:mt-1">
         <h1 className="text-xl font-semibold leading-7 tracking-tight text-[color:var(--lab-navy-950)] sm:text-[1.375rem] sm:leading-8">
           오늘의 아파트 시장
@@ -335,5 +335,6 @@ export function MarketHome() {
       {/* 오늘의 시장 콘텐츠 아래 — 실험실은 두 번째 콘텐츠 영역 */}
       <LabSection />
     </div>
+    </>
   );
 }

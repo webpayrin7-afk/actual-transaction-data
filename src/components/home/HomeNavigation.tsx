@@ -8,12 +8,15 @@ import { HOME_QUICK_NAV } from "@/lib/nav/home-quick-nav";
 const EASE = "duration-200 ease-out";
 
 /**
- * Single mobile home navigation.
- * Same 5 items morph expanded → compact while sticky under SiteHeader.
+ * Mobile home navigation — expanded ↔ compact morph, sticky under SiteHeader.
  *
- * Important: sticky nav must NOT sit inside a short wrapper — sticky only
- * lasts for the height of its containing block. Sentinel + nav are siblings
- * under the page shell; -mt-5 cancels PAGE_SHELL gap so no gray strip.
+ * Rendered outside PAGE_SHELL so:
+ * - no flex gap gray strip
+ * - sticky containing block is <main> (full page height), not a short wrapper
+ *
+ * A 1px sentinel sits above the sticky nav; when it clears the header band,
+ * we enter compact mode. Must stay non-zero height so IO does not fire
+ * compact on first paint.
  */
 export function HomeNavigation() {
   const pathname = usePathname();
@@ -37,18 +40,19 @@ export function HomeNavigation() {
       io?.disconnect();
       io = new IntersectionObserver(
         ([entry]) => {
-          const next = !entry.isIntersecting;
-          setCompact((prev) => (prev === next ? prev : next));
+          setCompact(!entry.isIntersecting);
         },
         {
           root: null,
-          rootMargin: `-${headerH() + 1}px 0px 0px 0px`,
-          threshold: [0, 1],
+          rootMargin: `-${headerH()}px 0px 0px 0px`,
+          threshold: 0,
         },
       );
       io.observe(sentinel);
     };
 
+    // Ensure first paint is expanded; IO corrects after layout.
+    setCompact(false);
     connect();
     const onResize = () => connect();
     window.addEventListener("resize", onResize);
@@ -59,30 +63,29 @@ export function HomeNavigation() {
   }, []);
 
   return (
-    <>
-      {/* Zero-height sentinel; -mb-5 eats the flex gap before the sticky nav. */}
+    <div className="sm:hidden">
       <div
         ref={sentinelRef}
-        className="pointer-events-none -mb-5 h-0 w-full sm:hidden"
+        className="pointer-events-none h-px w-full"
         aria-hidden
       />
       <nav
         aria-label="주요 탐색"
         data-mode={compact ? "compact" : "expanded"}
         className={[
-          "sticky z-40 -mx-4 border-b border-slate-200/50 bg-white sm:hidden",
+          "sticky z-40 border-b border-slate-200/50 bg-white",
           `transition-[padding,border-color] ${EASE}`,
-          compact ? "px-2 py-1.5" : "px-3 pt-0 pb-2.5",
+          compact ? "px-2 py-1.5" : "px-3 pt-1 pb-2.5",
         ].join(" ")}
         style={{ top: "var(--site-header-height, 52px)" }}
       >
         <div
           className={[
-            "grid",
+            "mx-auto grid w-full max-w-[1440px]",
             `transition-[gap] ${EASE}`,
             compact
               ? "grid-cols-5 gap-0.5"
-              : // ~28% featured | ~72% right (map + 3 tiles)
+              : // ~28% featured | ~72% right
                 "grid-cols-[minmax(0,0.28fr)_repeat(3,minmax(0,0.24fr))] grid-rows-[auto_auto] gap-1.5",
           ].join(" ")}
         >
@@ -191,6 +194,6 @@ export function HomeNavigation() {
           })}
         </div>
       </nav>
-    </>
+    </div>
   );
 }
