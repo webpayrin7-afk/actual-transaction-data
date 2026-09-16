@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDownRight,
@@ -12,8 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
-import { HomeQuickNavPanel } from "@/components/home/HomeQuickNavPanel";
-import { HomeStickyCompactNav } from "@/components/home/HomeStickyCompactNav";
+import { HomeNavigation } from "@/components/home/HomeNavigation";
 import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 import { LabSection } from "@/components/lab/LabSection";
 import { LabKpiCard } from "@/components/lab/LabKpiCard";
@@ -187,48 +185,13 @@ export function MarketHome() {
   const data = query.data;
   useLoadProgressWhen(query.isLoading && !data, "시장 불러오는 중…");
 
-  const quickNavRef = useRef<HTMLDivElement>(null);
-  const [compactNav, setCompactNav] = useState(false);
-
-  useEffect(() => {
-    const el = quickNavRef.current;
-    if (!el) return;
-
-    // Only meaningful on mobile; still safe if observer fires on desktop.
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        setCompactNav(!entry.isIntersecting);
-      },
-      {
-        // Treat as out of view once it clears under the sticky site header.
-        root: null,
-        rootMargin: "-56px 0px 0px 0px",
-        threshold: 0,
-      },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
   const asOfLabel =
     data?.lastUpdatedLabel ||
     (data?.computedAt ? data.computedAt : null);
 
   return (
     <div className={PAGE_SHELL}>
-      {/* Fixed compact nav — no layout jump when toggled */}
-      {compactNav ? (
-        <div
-          className="fixed inset-x-0 z-40 sm:hidden"
-          style={{ top: "var(--site-header-height, 52px)" }}
-        >
-          <HomeStickyCompactNav />
-        </div>
-      ) : null}
-
-      <div ref={quickNavRef}>
-        <HomeQuickNavPanel />
-      </div>
+      <HomeNavigation />
 
       <header className="max-w-4xl sm:mt-1">
         <h1 className="text-xl font-semibold leading-7 tracking-tight text-[color:var(--lab-navy-950)] sm:text-[1.375rem] sm:leading-8">
