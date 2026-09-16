@@ -502,6 +502,7 @@ export function NaverMap({
     let settleTimer: number | null = null;
     let retryTimer: number | null = null;
     let enforceTimer: number | null = null;
+    let tweenRaf = 0;
 
     const estimateZoom = (
       anchor: LatLng,
@@ -529,6 +530,37 @@ export function NaverMap({
       return Math.max(12, Math.min(17, Math.round(z)));
     };
 
+    const MORPH_MS = 560;
+
+    /** easeOutCubic zoom tween — used when morph is missing or drops zoom-in. */
+    const tweenZoomTo = (
+      anchorLatLng: unknown,
+      fromZoom: number,
+      toZoom: number,
+      durationMs: number,
+    ) => {
+      if (typeof map.setZoom !== "function") {
+        map.setCenter(anchorLatLng);
+        return;
+      }
+      if (tweenRaf) window.cancelAnimationFrame(tweenRaf);
+      const t0 = performance.now();
+      const step = (now: number) => {
+        if (cancelled) return;
+        const t = Math.min(1, (now - t0) / durationMs);
+        const eased = 1 - (1 - t) ** 3;
+        const z = fromZoom + (toZoom - fromZoom) * eased;
+        map.setCenter(anchorLatLng);
+        map.setZoom?.(z);
+        if (t < 1) {
+          tweenRaf = window.requestAnimationFrame(step);
+        } else {
+          tweenRaf = 0;
+        }
+      };
+      tweenRaf = window.requestAnimationFrame(step);
+    };
+
     const applyZoom = (anchorLatLng: unknown, z: number) => {
       try {
         map.stop?.();
@@ -541,37 +573,46 @@ export function NaverMap({
         /* ignore */
       }
 
-      const currentZoom =
-        typeof map.getZoom === "function" ? map.getZoom() : undefined;
-      // Morph often keeps the previous zoom when zooming in (commerce/school
-      // after a wide living fit). Force setZoom for zoom-in; morph for zoom-out.
-      const zoomingIn =
-        typeof currentZoom === "number" ? z > currentZoom + 0.25 : true;
-
-      if (
-        reduceMotion ||
-        typeof map.morph !== "function" ||
-        zoomingIn
-      ) {
+      if (reduceMotion) {
         map.setCenter(anchorLatLng);
         map.setZoom?.(z);
         return;
       }
 
-      map.morph(anchorLatLng, z, {
-        duration: 560,
-        easing: "easeOutCubic",
-      });
-      // Insurance: if morph dropped the zoom target, snap after animation.
-      enforceTimer = window.setTimeout(() => {
-        if (cancelled) return;
-        const got =
-          typeof map.getZoom === "function" ? map.getZoom() : undefined;
-        if (typeof got === "number" && Math.abs(got - z) > 0.6) {
-          map.setCenter(anchorLatLng);
-          map.setZoom?.(z);
-        }
-      }, 620);
+      const currentZoom =
+        typeof map.getZoom === "function" ? map.getZoom() : undefined;
+      const zoomingIn =
+        typeof currentZoom === "number" ? z > currentZoom + 0.25 : false;
+
+      // Zoom-in: drive our own easeOutCubic tween (NAVER morph often skips zoom).
+      if (zoomingIn && typeof currentZoom === "number") {
+        tweenZoomTo(anchorLatLng, currentZoom, z, MORPH_MS);
+        return;
+      }
+
+      // Zoom-out / same level: morph animates center + zoom together.
+      if (typeof map.morph === "function") {
+        map.morph(anchorLatLng, z, {
+          duration: MORPH_MS,
+          easing: "easeOutCubic",
+        });
+        enforceTimer = window.setTimeout(() => {
+          if (cancelled) return;
+          const got =
+            typeof map.getZoom === "function" ? map.getZoom() : undefined;
+          if (typeof got === "number" && Math.abs(got - z) > 0.6) {
+            tweenZoomTo(anchorLatLng, got, z, 320);
+          }
+        }, MORPH_MS + 40);
+        return;
+      }
+
+      if (typeof currentZoom === "number" && typeof map.setZoom === "function") {
+        tweenZoomTo(anchorLatLng, currentZoom, z, MORPH_MS);
+        return;
+      }
+      map.setCenter(anchorLatLng);
+      map.setZoom?.(z);
     };
 
     const runFitOnce = () => {
@@ -651,6 +692,7 @@ export function NaverMap({
       if (settleTimer != null) window.clearTimeout(settleTimer);
       if (retryTimer != null) window.clearTimeout(retryTimer);
       if (enforceTimer != null) window.clearTimeout(enforceTimer);
+      if (tweenRaf) window.cancelAnimationFrame(tweenRaf);
     };
     // Only re-fit when the token changes (category / marker set), not on selection.
     // eslint-disable-next-line react-hooks/exhaustive-deps
