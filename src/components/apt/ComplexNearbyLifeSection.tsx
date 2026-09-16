@@ -992,12 +992,14 @@ export function ComplexNearbyLifeSection({
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-medium text-slate-800">
-                            {p.name}
-                          </span>
-                          <span className="mt-0.5 block text-[10px] text-slate-500">
-                            {formatMeters(p.distanceMeters)}
-                            {" · 직선거리"}
+                          <span className="flex min-w-0 items-baseline gap-2">
+                            <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                              {p.name}
+                            </span>
+                            <span className="shrink-0 text-[10px] text-slate-500">
+                              {formatMeters(p.distanceMeters)}
+                              {" · 직선거리"}
+                            </span>
                           </span>
                         </span>
                         <ChevronRight
@@ -1127,7 +1129,6 @@ export function ComplexNearbyLifeSection({
                 주변에 표시할 주요 시설이 없어요
               </span>
             </EmptyBlock>
-            <p className="mt-2 text-[11px] text-slate-400">네이버 지역검색</p>
           </div>
         );
       }
@@ -1168,7 +1169,7 @@ export function ComplexNearbyLifeSection({
                       <LivingCategoryIcon category={livingCategory} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="flex min-w-0 items-center gap-1.5">
+                      <span className="flex min-w-0 items-baseline gap-1.5">
                         <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
                           {p.name}
                         </span>
@@ -1177,23 +1178,16 @@ export function ComplexNearbyLifeSection({
                             종합병원
                           </span>
                         ) : null}
+                        <span className="shrink-0 text-[10px] text-slate-500">
+                          {formatDistanceOnly(p.distanceM)}
+                        </span>
                       </span>
                       {address ? (
                         <span className="mt-0.5 block truncate text-[10px] text-slate-500">
                           {address}
                         </span>
-                      ) : (
-                        <span className="mt-0.5 block text-[10px] text-slate-500">
-                          {formatDistanceOnly(p.distanceM)}
-                          {" · 직선거리"}
-                        </span>
-                      )}
+                      ) : null}
                     </span>
-                    {address ? (
-                      <span className="shrink-0 text-[10px] text-slate-500">
-                        {formatDistanceOnly(p.distanceM)}
-                      </span>
-                    ) : null}
                     {hasCoords ? (
                       <ChevronRight
                         className="h-4 w-4 shrink-0 text-slate-400"
@@ -1205,7 +1199,6 @@ export function ComplexNearbyLifeSection({
               );
             })}
           </ul>
-          <p className="mt-2 text-[11px] text-slate-400">네이버 지역검색</p>
         </div>
       );
     }
@@ -1402,7 +1395,7 @@ export function ComplexNearbyLifeSection({
       <div className="mt-3 space-y-3">
         {tab === "living" ? (
           <div
-            className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="-mx-1 flex justify-end gap-1.5 overflow-x-auto px-1 pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             role="tablist"
             aria-label="생활 시설 종류"
           >
@@ -1498,7 +1491,7 @@ export function ComplexNearbyLifeSection({
               >
                 {tab === "transport"
                   ? `버스 정류장 더보기 · ${moreCount}곳`
-                  : `더보기 · ${moreCount}곳`}
+                  : `${LIVING_CHIP_LABEL[livingCategory]} 더보기 · ${moreCount}곳`}
               </button>
             </div>
           ) : null}
