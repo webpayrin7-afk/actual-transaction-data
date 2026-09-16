@@ -57,6 +57,7 @@ export type NaverMarkerInstance = {
   setMap: (map: NaverMapInstance | null) => void;
   setPosition: (latlng: unknown) => void;
   setIcon?: (icon: unknown) => void;
+  setZIndex?: (zIndex: number) => void;
 };
 
 declare global {

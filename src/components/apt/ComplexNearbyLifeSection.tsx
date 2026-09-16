@@ -373,7 +373,15 @@ function livingPlaceAddress(p: {
 }): string | null {
   const road = p.roadAddress?.trim() || "";
   const addr = p.address?.trim() || "";
-  const raw = road || addr;
+  let raw = road || addr;
+  if (!raw) return null;
+  // Drop city-level prefix (서울특별시 / OO광역시 / OO시) — keep 구·동·도로명.
+  raw = raw.replace(
+    /^[가-힣0-9]+(?:특별시|광역시|특별자치시)\s+/,
+    "",
+  );
+  raw = raw.replace(/^[가-힣0-9]+시\s+/, "");
+  raw = raw.trim();
   if (!raw) return null;
   // Keep secondary line short on mobile.
   return raw.length > 42 ? `${raw.slice(0, 40)}…` : raw;
@@ -1075,7 +1083,7 @@ export function ComplexNearbyLifeSection({
               {LIVING_DISPLAY_RADIUS_LABEL} 내 {places.length}곳
             </p>
           </div>
-          <ul className="divide-y divide-slate-100">
+          <ul className="space-y-1">
             {places.map((p) => {
               const address = livingPlaceAddress(p);
               const hasCoords =
@@ -1093,25 +1101,41 @@ export function ComplexNearbyLifeSection({
                         ? `${p.name} 지도에서 보기`
                         : `${p.name} (지도 위치 없음)`
                     }
-                    className={`flex w-full items-start gap-3 px-1 py-2.5 text-left transition ${
+                    className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${
                       hasCoords
                         ? selectedRowClass(selectedId === p.id)
                         : "cursor-default opacity-90"
                     }`}
                   >
+                    <span className="mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
+                      <LivingCategoryIcon category={livingCategory} />
+                    </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-medium text-slate-800">
                         {p.name}
                       </span>
                       {address ? (
-                        <span className="mt-0.5 block truncate text-[11px] text-slate-500">
+                        <span className="mt-0.5 block truncate text-[10px] text-slate-500">
                           {address}
                         </span>
-                      ) : null}
+                      ) : (
+                        <span className="mt-0.5 block text-[10px] text-slate-500">
+                          {formatDistanceOnly(p.distanceM)}
+                          {" · 직선거리"}
+                        </span>
+                      )}
                     </span>
-                    <span className="shrink-0 pt-0.5 text-[12px] font-medium tabular-nums text-slate-600">
-                      {formatDistanceOnly(p.distanceM)}
-                    </span>
+                    {address ? (
+                      <span className="shrink-0 text-[10px] text-slate-500">
+                        {formatDistanceOnly(p.distanceM)}
+                      </span>
+                    ) : null}
+                    {hasCoords ? (
+                      <ChevronRight
+                        className="h-4 w-4 shrink-0 text-slate-400"
+                        aria-hidden
+                      />
+                    ) : null}
                   </button>
                 </li>
               );

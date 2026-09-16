@@ -389,24 +389,23 @@ export function NaverMap({
     for (const item of markers) {
       const selected = Boolean(item.selected || item.id === selectedId);
       const pos = new maps.LatLng(item.position.lat, item.position.lng);
-      const zIndex =
-        item.kind === "COMPLEX"
+      // Selected marker always on top so list-focus is not covered by neighbors.
+      const zIndex = selected
+        ? 200
+        : item.kind === "COMPLEX"
           ? 120
           : item.kind === "LIVING" || item.kind === "MEDICAL"
-            ? selected
-              ? 95
-              : 55
+            ? 55
             : item.kind === "TRANSIT"
-              ? selected
-                ? 90
-                : 60
-              : selected
+              ? 60
+              : item.kind === "SCHOOL"
                 ? 50
                 : 20;
       const existing = markerMapRef.current.get(item.id);
       if (existing) {
         existing.setPosition(pos);
         existing.setIcon?.(markerIconHtml(item, selected));
+        existing.setZIndex?.(zIndex);
         continue;
       }
       const marker = new maps.Marker({
