@@ -70,7 +70,7 @@ export function HomeNavigation() {
           `transition-[padding,border-color] ${EASE}`,
           compact
             ? "border-slate-200/80 px-2 py-1.5"
-            : "border-slate-200/50 px-3 pb-2.5 pt-1.5",
+            : "border-slate-200/50 px-3 pb-2.5 pt-0",
         ].join(" ")}
         style={{ top: "var(--site-header-height, 52px)" }}
       >

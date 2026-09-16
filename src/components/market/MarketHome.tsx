@@ -190,7 +190,7 @@ export function MarketHome() {
     (data?.computedAt ? data.computedAt : null);
 
   return (
-    <div className={PAGE_SHELL}>
+    <div className={`${PAGE_SHELL} max-sm:pt-0`}>
       <HomeNavigation />
 
       <header className="max-w-4xl sm:mt-1">

@@ -144,7 +144,11 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white"
+      className={`sticky top-0 z-50 bg-white ${
+        isHome
+          ? "sm:border-b sm:border-slate-200/80"
+          : "border-b border-slate-200/80"
+      }`}
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div
