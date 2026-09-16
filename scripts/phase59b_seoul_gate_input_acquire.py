@@ -853,11 +853,12 @@ def run_acquire(
                 )
             else:
                 handle_result(cid, parcel, result, retry_count)
+            progress_snapshot(conn, {"stats": stats, "done": i, "wave": "max_pages"})
             if i % 10 == 0 or i == len(rows):
-                progress_snapshot(conn, {"stats": stats, "done": i})
                 print(
                     f"[{i}/{len(rows)}] complete={stats['successful']} "
                     f"empty={stats['not_found']} fail={stats['failed']} "
+                    f"deferred={stats['deferred_large']} "
                     f"req={stats['api_requests']}",
                     flush=True,
                 )
