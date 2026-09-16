@@ -21,7 +21,16 @@ const FIT_LAYOUT_SETTLE_MS = 300;
  * Apartment-centered fit covers in-radius living markers (~3km) so the
  * view is not over-shrunk. Farther leftover markers are not expected.
  */
-const FIT_COVER_MAX_M = 3000;
+const FIT_COVER_MAX_M_LIVING = 3000;
+/** Commerce / school display radius is 1.5km — tighter cover so tab switch zooms in. */
+const FIT_COVER_MAX_M_NEARBY = 1600;
+
+function fitCoverMaxM(token: string): number {
+  if (token.startsWith("commerce:") || token.startsWith("school:")) {
+    return FIT_COVER_MAX_M_NEARBY;
+  }
+  return FIT_COVER_MAX_M_LIVING;
+}
 
 export type LivingMarkerCategory =
   | "MART"
@@ -299,12 +308,27 @@ export function NaverMap({
   const mapRef = useRef<NaverMapInstance | null>(null);
   const markerMapRef = useRef<Map<string, NaverMarkerInstance>>(new Map());
   const onMarkerClickRef = useRef(onMarkerClick);
+  const markersRef = useRef(markers);
+  const fitAnchorRef = useRef(fitAnchor);
+  const centerRef = useRef(center);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
   }, [onMarkerClick]);
+
+  useEffect(() => {
+    markersRef.current = markers;
+  }, [markers]);
+
+  useEffect(() => {
+    fitAnchorRef.current = fitAnchor;
+  }, [fitAnchor]);
+
+  useEffect(() => {
+    centerRef.current = center;
+  }, [center]);
 
   useEffect(() => {
     let cancelled = false;
@@ -468,41 +492,32 @@ export function NaverMap({
     if (!map || !maps || status !== "ready") return;
     if (!fitBoundsToken) return;
 
-    const anchor = fitAnchor ?? center;
-    const anchorLatLng = new maps.LatLng(anchor.lat, anchor.lng);
-    const poi = markers.filter((m) => m.id !== "complex");
-
     const reduceMotion =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    const coverMaxM = fitCoverMaxM(fitBoundsToken);
 
-    const estimateZoom = (latDelta: number, lngDelta: number): number => {
+    let cancelled = false;
+    let fitted = false;
+    let settleTimer: number | null = null;
+    let retryTimer: number | null = null;
+    let enforceTimer: number | null = null;
+
+    const estimateZoom = (
+      anchor: LatLng,
+      latDelta: number,
+      lngDelta: number,
+    ): number => {
       const cos = Math.max(0.25, Math.cos((anchor.lat * Math.PI) / 180));
       const host = hostRef.current;
       let width = 360;
       let height = 320;
-      // Prefer host box (tracks CSS height transition) over stale map.getSize().
       if (host && host.clientWidth > 0) width = host.clientWidth;
-      else {
-        try {
-          const size = map.getSize?.();
-          if (size && Number.isFinite(size.width) && size.width > 0) {
-            width = size.width;
-          }
-        } catch {
-          /* keep fallback */
-        }
-      }
       if (host && host.clientHeight > 0) height = host.clientHeight;
-      else {
-        try {
-          const size = map.getSize?.();
-          if (size && Number.isFinite(size.height) && size.height > 0) {
-            height = size.height;
-          }
-        } catch {
-          /* keep fallback */
-        }
+      try {
+        maps.Event.trigger?.(map, "resize");
+      } catch {
+        /* ignore */
       }
       const usableW = Math.max(120, width - 48);
       const usableH = Math.max(120, height - 56);
@@ -510,11 +525,11 @@ export function NaverMap({
       const eastM = Math.max(lngDelta * 111320 * cos, 40);
       const mpp = Math.max((2 * eastM) / usableW, (2 * northM) / usableH);
       const z = Math.log2((156543.03392 * cos) / mpp);
-      return Math.max(12, Math.min(16, Math.round(z)));
+      // Allow 17 so commerce/school clusters can zoom in from a living overview.
+      return Math.max(12, Math.min(17, Math.round(z)));
     };
 
-    const animateTo = (targetZoom: number) => {
-      const z = Math.max(11, Math.min(18, targetZoom));
+    const applyZoom = (anchorLatLng: unknown, z: number) => {
       try {
         map.stop?.();
       } catch {
@@ -525,30 +540,61 @@ export function NaverMap({
       } catch {
         /* ignore */
       }
-      if (reduceMotion || typeof map.morph !== "function") {
+
+      const currentZoom =
+        typeof map.getZoom === "function" ? map.getZoom() : undefined;
+      // Morph often keeps the previous zoom when zooming in (commerce/school
+      // after a wide living fit). Force setZoom for zoom-in; morph for zoom-out.
+      const zoomingIn =
+        typeof currentZoom === "number" ? z > currentZoom + 0.25 : true;
+
+      if (
+        reduceMotion ||
+        typeof map.morph !== "function" ||
+        zoomingIn
+      ) {
         map.setCenter(anchorLatLng);
         map.setZoom?.(z);
         return;
       }
+
       map.morph(anchorLatLng, z, {
         duration: 560,
         easing: "easeOutCubic",
       });
+      // Insurance: if morph dropped the zoom target, snap after animation.
+      enforceTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        const got =
+          typeof map.getZoom === "function" ? map.getZoom() : undefined;
+        if (typeof got === "number" && Math.abs(got - z) > 0.6) {
+          map.setCenter(anchorLatLng);
+          map.setZoom?.(z);
+        }
+      }, 620);
     };
 
-    const runFit = () => {
-      if (poi.length === 0) {
-        animateTo(zoom);
-        return;
-      }
+    const runFitOnce = () => {
+      if (cancelled || fitted) return;
+
+      const anchor = fitAnchorRef.current ?? centerRef.current;
+      const poi = markersRef.current.filter((m) => m.id !== "complex");
+      // Markers may arrive just after tab switch — retry instead of fitting empty.
+      if (poi.length === 0) return;
+
+      const hostH = hostRef.current?.clientHeight ?? 0;
+      // Still in transport→taller-tab height transition.
+      if (hostH > 0 && hostH < 300) return;
+
+      fitted = true;
+      const anchorLatLng = new maps.LatLng(anchor.lat, anchor.lng);
 
       let maxLatDelta = 0;
       let maxLngDelta = 0;
       let anyInCover = false;
       for (const m of poi) {
         const distM = haversineMeters(anchor, m.position);
-        // Soft cover: keep apartment context within living radius band.
-        if (Number.isFinite(distM) && distM > FIT_COVER_MAX_M) continue;
+        if (Number.isFinite(distM) && distM > coverMaxM) continue;
         anyInCover = true;
         maxLatDelta = Math.max(
           maxLatDelta,
@@ -571,43 +617,40 @@ export function NaverMap({
           );
         }
       }
-      const pad = 1.1;
-      const latDelta = Math.max(maxLatDelta * pad, 0.0012);
-      const lngDelta = Math.max(maxLngDelta * pad, 0.0012);
-      animateTo(estimateZoom(latDelta, lngDelta));
+      const pad = 1.08;
+      const latDelta = Math.max(maxLatDelta * pad, 0.001);
+      const lngDelta = Math.max(maxLngDelta * pad, 0.001);
+      const z = Math.max(
+        12,
+        Math.min(18, estimateZoom(anchor, latDelta, lngDelta)),
+      );
+
+      applyZoom(anchorLatLng, z);
     };
 
-    let cancelled = false;
-    let fitted = false;
-    let settleTimer: number | null = null;
-    let rafOuter = 0;
-    let rafInner = 0;
-
-    const runFitOnce = () => {
+    // Poll briefly so commerce/school async markers + height transition both land.
+    const startedAt = Date.now();
+    const tick = () => {
       if (cancelled || fitted) return;
-      fitted = true;
-      runFit();
+      runFitOnce();
+      if (fitted || cancelled) return;
+      if (Date.now() - startedAt >= 1600) return;
+      retryTimer = window.setTimeout(tick, 80);
     };
-
-    // Avoid double morph: do not fit on the first paint with transport-sized
-    // height (that over-shrinks, then a second fit corrects). Wait for the
-    // living height transition when the box is still short; otherwise fit
-    // on the next frame (in-living chip change).
-    const hostH = hostRef.current?.clientHeight ?? 0;
-    const needsLayoutSettle = hostH > 0 && hostH < 300;
-    if (needsLayoutSettle) {
-      settleTimer = window.setTimeout(runFitOnce, FIT_LAYOUT_SETTLE_MS);
-    } else {
-      rafOuter = window.requestAnimationFrame(() => {
-        rafInner = window.requestAnimationFrame(runFitOnce);
-      });
-    }
+    // Height already tall (living→commerce/school): fit on next frame.
+    // Still short (transport→…): wait for CSS height transition.
+    const hostH0 = hostRef.current?.clientHeight ?? 0;
+    const needsLayoutSettle = hostH0 > 0 && hostH0 < 300;
+    settleTimer = window.setTimeout(
+      tick,
+      needsLayoutSettle ? FIT_LAYOUT_SETTLE_MS : 32,
+    );
 
     return () => {
       cancelled = true;
-      window.cancelAnimationFrame(rafOuter);
-      window.cancelAnimationFrame(rafInner);
       if (settleTimer != null) window.clearTimeout(settleTimer);
+      if (retryTimer != null) window.clearTimeout(retryTimer);
+      if (enforceTimer != null) window.clearTimeout(enforceTimer);
     };
     // Only re-fit when the token changes (category / marker set), not on selection.
     // eslint-disable-next-line react-hooks/exhaustive-deps

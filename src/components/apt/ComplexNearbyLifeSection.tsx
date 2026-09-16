@@ -762,13 +762,18 @@ export function ComplexNearbyLifeSection({
     if (tab !== "living" && tab !== "commerce" && tab !== "school") {
       return null;
     }
+    // Wait until POI markers exist — empty token must not trigger a no-op/default zoom.
+    if (tabMarkers.length === 0) return null;
     const ids = tabMarkers
       .map((m) => m.id)
       .slice()
       .sort()
       .join("|");
-    if (tab === "living") return `living:${livingCategory}:${ids}`;
-    return `${tab}:${ids}`;
+    // Include count so tab switches always remount the fit even if id sets collide.
+    if (tab === "living") {
+      return `living:${livingCategory}:${tabMarkers.length}:${ids}`;
+    }
+    return `${tab}:${tabMarkers.length}:${ids}`;
   }, [tab, coords, livingCategory, tabMarkers]);
 
   const onMarkerClick = useCallback(
