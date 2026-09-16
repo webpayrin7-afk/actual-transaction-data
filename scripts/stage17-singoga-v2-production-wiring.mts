@@ -383,14 +383,13 @@ async function main() {
     stage16 = null;
   }
 
-  const stage16Pop = stage16?.semanticInterpretation.population;
-  const popDiff = stage16Pop
+  const popDiff = stage16
     ? countDiffs(
         {
-          legacy: stage16Pop.legacy,
-          exactPrior: stage16Pop.exactPrior,
-          groupPrimary: stage16Pop.groupPrimary,
-          exactOnly: stage16Pop.exactOnly,
+          legacy: stage16.semanticInterpretation.population.legacy,
+          exactPrior: stage16.semanticInterpretation.population.exactPrior,
+          groupPrimary: stage16.semanticInterpretation.population.groupPrimary,
+          exactOnly: stage16.semanticInterpretation.population.exactOnly,
           transactions: stage16.boundedScope.transactionsEvaluated,
           historyRows: stage16.boundedScope.historyRows,
           complexes: stage16.boundedScope.complexes,
