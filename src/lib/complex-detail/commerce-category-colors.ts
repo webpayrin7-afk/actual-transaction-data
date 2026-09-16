@@ -59,7 +59,7 @@ export const COMMERCE_CATEGORY_COLORS: Record<
   CommerceCategoryColor
 > = {
   "음식/외식": categoryColor("#F06B6B"), // coral
-  "쇼핑/소매": categoryColor("#26A69A"), // teal
+  "쇼핑/소매": categoryColor("#4BA8C9"), // sky — avoid apt-marker teal overlap
   생활서비스: categoryColor("#6686B8"), // blue
   교육: categoryColor("#8B72C6"), // purple
   "여가/체육": categoryColor("#55A873"), // green
