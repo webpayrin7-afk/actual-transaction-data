@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-09-16T01:37:16.336Z",
+  "stage": "stage18-profile-before",
+  "complexes": 42,
+  "historyRows": 38245,
+  "classified": 38245,
+  "masterQueries": 2,
+  "loadStats": {
+    "transactionFetchQueries": 1,
+    "groupFetchQueries": 1,
+    "linkFetchQueries": 2,
+    "totalDbQueries": 4
+  },
+  "queryTimings": [
+    {
+      "queryType": "transactions",
+      "rowsReturned": 38245,
+      "elapsedMs": 29931.99
+    },
+    {
+      "queryType": "groups",
+      "rowsReturned": 64,
+      "elapsedMs": 106.32
+    },
+    {
+      "queryType": "links",
+      "rowsReturned": 122,
+      "elapsedMs": 105.88
+    },
+    {
+      "queryType": "links",
+      "rowsReturned": 39,
+      "elapsedMs": 106.3
+    }
+  ],
+  "phaseMs": {
+    "masterLookup": 614.64,
+    "batchLoadTotal": 30267.25,
+    "transactionsFetch": 29931.99,
+    "groupsFetch": 106.32,
+    "linksFetch": 212.18,
+    "normalizePartition": 15.92,
+    "sortExternalProbe": 17.15,
+    "legacyClassification": 26.54,
+    "v2Classification": 26.16,
+    "todayAggregation": 19.8,
+    "statsAggregation": 109.46,
+    "offOverlay": 0.17,
+    "onOverlayRefetchClassify": 26627.47,
+    "total": 57727.41,
+    "otherUnaccounted": 35.92,
+    "artifactReport": 0.04
+  },
+  "notes": {
+    "v2ClassificationIncludesInternalSort": true,
+    "sortExternalProbeIsExtraDuplicateWork": true,
+    "onOverlayRefetchClassifyReloadsBundles": true,
+    "windowAggregationDoesNotReclassify": true
+  },
+  "accountedMs": 57691.49
+}

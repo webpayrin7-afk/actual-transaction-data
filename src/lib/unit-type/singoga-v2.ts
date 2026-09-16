@@ -50,6 +50,13 @@ export type SingogaV2TxResult = {
   primaryPriorMax: number | null;
 };
 
+/** One-pass classified row reusable across today-market / stats windows. */
+export type SingogaV2ClassifiedRow = SingogaV2TxResult & {
+  firstSeenAt: string | null;
+  discoveryAt: string | null;
+  legacyCurrentHigh: boolean;
+};
+
 export type SingogaV2InvariantViolations = {
   groupPriorLtExact: number;
   groupTrueExactFalse: number;
@@ -88,6 +95,9 @@ export function isStrictSingogaV2Break(
 /**
  * Classify all history for one complex chronologically (deal_date ASC).
  * Same-day trades share the prior snapshot; rolling maxima update after the day.
+ *
+ * Stage18: precomputes canonical areaKey once per trade; sorts once;
+ * builds area→group map once. Does not recompute areaKey on rolling update.
  */
 export function classifySingogaV2ForComplex(params: {
   complexId: string;
@@ -104,12 +114,23 @@ export function classifySingogaV2ForComplex(params: {
   for (const g of params.groups) {
     if (!isEligibleSingogaV2GroupSource(g.source)) continue;
     for (const a of g.memberAreaKeys) {
-      const k = singogaV2AreaKeyStr(a);
+      // memberAreaKeys are already canonical; stringify once
+      const k = String(a);
       if (!areaToGroup.has(k)) areaToGroup.set(k, g.groupKey);
     }
   }
 
-  const sorted = [...params.trades].sort((a, b) => {
+  type NormTrade = SingogaV2Trade & { areaKey: number; areaKeyStr: string };
+  const normalized: NormTrade[] = params.trades.map((t) => {
+    const ak = singogaV2AreaKey(t.exclusiveArea);
+    return {
+      ...t,
+      areaKey: ak,
+      areaKeyStr: String(ak),
+    };
+  });
+
+  normalized.sort((a, b) => {
     if (a.dealDate !== b.dealDate) return a.dealDate < b.dealDate ? -1 : 1;
     return a.id.localeCompare(b.id);
   });
@@ -124,18 +145,18 @@ export function classifySingogaV2ForComplex(params: {
   };
 
   let i = 0;
-  while (i < sorted.length) {
-    const day = sorted[i]!.dealDate;
-    const batch: SingogaV2Trade[] = [];
-    while (i < sorted.length && sorted[i]!.dealDate === day) {
-      batch.push(sorted[i]!);
+  while (i < normalized.length) {
+    const day = normalized[i]!.dealDate;
+    const batch: NormTrade[] = [];
+    while (i < normalized.length && normalized[i]!.dealDate === day) {
+      batch.push(normalized[i]!);
       i += 1;
     }
 
     for (const tx of batch) {
       if (tx.dealDate < windowStart) continue;
-      const ak = singogaV2AreaKey(tx.exclusiveArea);
-      const aks = singogaV2AreaKeyStr(ak);
+      const aks = tx.areaKeyStr;
+      const ak = tx.areaKey;
       const gk = areaToGroup.get(aks) ?? null;
       const exactPrior = runningExact.has(aks)
         ? runningExact.get(aks)!
@@ -223,8 +244,7 @@ export function classifySingogaV2ForComplex(params: {
     }
 
     for (const tx of batch) {
-      const ak = singogaV2AreaKey(tx.exclusiveArea);
-      const aks = singogaV2AreaKeyStr(ak);
+      const aks = tx.areaKeyStr;
       runningExact.set(
         aks,
         Math.max(runningExact.get(aks) ?? 0, tx.dealAmount),
@@ -240,6 +260,69 @@ export function classifySingogaV2ForComplex(params: {
   }
 
   return { results, invariantViolations };
+}
+
+/**
+ * One-pass: V2 rolling + legacy all-time-high for a complex.
+ * Sort/canonicalize once; legacy max map once; no per-window reclassify.
+ */
+export function classifySingogaV2OnePass(params: {
+  complexId: string;
+  trades: Array<
+    SingogaV2Trade & {
+      firstSeenAt?: string | null;
+      discoveryAt?: string | null;
+    }
+  >;
+  groups: SingogaV2Group[];
+  windowStart?: string;
+}): {
+  rows: SingogaV2ClassifiedRow[];
+  invariantViolations: SingogaV2InvariantViolations;
+  sortPasses: number;
+  classificationPasses: number;
+} {
+  // Legacy all-time max once (areaKey → max)
+  const allTimeMax = new Map<string, number>();
+  for (const t of params.trades) {
+    const k = singogaV2AreaKeyStr(t.exclusiveArea);
+    allTimeMax.set(k, Math.max(allTimeMax.get(k) ?? 0, t.dealAmount));
+  }
+
+  const { results, invariantViolations } = classifySingogaV2ForComplex({
+    complexId: params.complexId,
+    trades: params.trades,
+    groups: params.groups,
+    windowStart: params.windowStart,
+  });
+
+  const metaById = new Map(
+    params.trades.map((t) => [
+      t.id,
+      {
+        firstSeenAt: t.firstSeenAt ?? null,
+        discoveryAt: t.discoveryAt ?? null,
+      },
+    ]),
+  );
+
+  const rows: SingogaV2ClassifiedRow[] = results.map((r) => {
+    const meta = metaById.get(r.txId);
+    const aks = String(r.areaKey);
+    return {
+      ...r,
+      firstSeenAt: meta?.firstSeenAt ?? null,
+      discoveryAt: meta?.discoveryAt ?? null,
+      legacyCurrentHigh: r.price === (allTimeMax.get(aks) ?? -1),
+    };
+  });
+
+  return {
+    rows,
+    invariantViolations,
+    sortPasses: 1,
+    classificationPasses: 1,
+  };
 }
 
 /**

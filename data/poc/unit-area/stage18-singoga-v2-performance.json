@@ -1,0 +1,367 @@
+{
+  "generatedAt": "2026-09-16T01:42:23.456Z",
+  "stage": "stage18-singoga-v2-performance",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0,
+    "indexCreated": 0
+  },
+  "before": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39
+  },
+  "after": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39
+  },
+  "dbUnchanged": true,
+  "stage17PerformanceClassification": {
+    "queryArchitecture": "PASS",
+    "runtimePerformance": "PARTIAL"
+  },
+  "profilingBeforeOptimization": {
+    "source": "/workspace/data/poc/unit-area/stage18-profile-before.json",
+    "phaseMs": {
+      "masterLookup": 614.64,
+      "batchLoadTotal": 30267.25,
+      "transactionsFetch": 29931.99,
+      "groupsFetch": 106.32,
+      "linksFetch": 212.18,
+      "normalizePartition": 15.92,
+      "sortExternalProbe": 17.15,
+      "legacyClassification": 26.54,
+      "v2Classification": 26.16,
+      "todayAggregation": 19.8,
+      "statsAggregation": 109.46,
+      "offOverlay": 0.17,
+      "onOverlayRefetchClassify": 26627.47,
+      "total": 57727.41,
+      "otherUnaccounted": 35.92,
+      "artifactReport": 0.04
+    },
+    "queryTimings": [
+      {
+        "queryType": "transactions",
+        "rowsReturned": 38245,
+        "elapsedMs": 29931.99
+      },
+      {
+        "queryType": "groups",
+        "rowsReturned": 64,
+        "elapsedMs": 106.32
+      },
+      {
+        "queryType": "links",
+        "rowsReturned": 122,
+        "elapsedMs": 105.88
+      },
+      {
+        "queryType": "links",
+        "rowsReturned": 39,
+        "elapsedMs": 106.3
+      }
+    ],
+    "primaryBottleneck": "transactions batch fetch (~30s) using idx_tx_type_first_seen",
+    "secondaryBottleneck": "Stage17 canary ON-overlay refetch/classify (~27s)",
+    "duplicateClassificationDetected": false,
+    "duplicateSortingDetected": false,
+    "windowReclassifyDetected": false,
+    "otherDuplicatedWork": "ON overlay full history reload in canary"
+  },
+  "identifiedBottleneck": {
+    "primary": "QUERY_PLAN — (norm,lawd) IN used idx_tx_type_first_seen (~30s)",
+    "secondary": "canary ON overlay re-fetched history (~27s)",
+    "notBottleneck": "V2 classification (~26ms); window aggregation"
+  },
+  "codePathChange": {
+    "files": [
+      "src/lib/unit-type/singoga-v2-batch.ts",
+      "src/lib/unit-type/singoga-v2.ts",
+      "src/lib/unit-type/singoga-v2-wiring.ts",
+      "scripts/stage18-singoga-v2-performance.mts"
+    ],
+    "optimization": [
+      "QUERY_REWRITE: OR (apt_name_norm=? AND lawd_cd=?) pairs so apt/lawd indexes can apply",
+      "classifySingogaV2OnePass: legacy+V2+firstSeen once per complex",
+      "windows filter classified rows only",
+      "ON smoke uses overlaysFromClassifiedRows (no refetch)"
+    ],
+    "classificationPassesBefore": "1 V2 + 1 legacy per complex (+ optional full reclassify on ON overlay)",
+    "classificationPassesAfter": "1 one-pass per complex (legacy+V2)",
+    "sortingPassesBefore": "1 inside V2 (+ probe in profile)",
+    "sortingPassesAfter": "1 inside one-pass/V2",
+    "indexCandidate": "CREATE INDEX … ON transactions (deal_type, apt_name_norm, lawd_cd) — NOT created in Stage18"
+  },
+  "onePassConfirmation": {
+    "classificationPassesTotal": 42,
+    "sortPassesTotal": 42,
+    "complexes": 42,
+    "oneClassificationPerTransaction": true,
+    "classifiedResultReusedAcrossWindows": true,
+    "todayMarketReclassify": false,
+    "statsReclassify": false
+  },
+  "queryArchitectureAfter": {
+    "transactionFetchQueries": 1,
+    "groupFetchQueries": 1,
+    "linkFetchQueries": 2,
+    "masterQueries": 2,
+    "total": 6,
+    "queryTimings": [
+      {
+        "queryType": "transactions",
+        "rowsReturned": 38245,
+        "elapsedMs": 25017.44
+      },
+      {
+        "queryType": "groups",
+        "rowsReturned": 64,
+        "elapsedMs": 105.52
+      },
+      {
+        "queryType": "links",
+        "rowsReturned": 122,
+        "elapsedMs": 103.5
+      },
+      {
+        "queryType": "links",
+        "rowsReturned": 39,
+        "elapsedMs": 102.22
+      }
+    ],
+    "perComplexQuery": false,
+    "perTxQuery": false,
+    "fullTableScan": false,
+    "chunked": true,
+    "chunkSize": 50
+  },
+  "phaseMsAfter": {
+    "masterLookup": 243.91,
+    "batchLoadTotal": 25344.28,
+    "transactionsFetch": 25017.44,
+    "groupsFetch": 105.52,
+    "linksFetch": 205.72,
+    "normalizePartition": 14.8,
+    "onePassClassify": 49.03,
+    "todayAggregation": 8.35,
+    "statsAggregation": 111.04,
+    "offOnSmokeInMemory": 2.91,
+    "total": 26603.88,
+    "artifactReport": 0
+  },
+  "canary42": {
+    "complexes": 42,
+    "complexesWithV1Groups": 33,
+    "historyRows": 38245,
+    "transactions": 38245,
+    "legacyCurrentHigh": 401,
+    "exactPrior": 6751,
+    "groupPrimary": 5698,
+    "exactOnly": 1090,
+    "fallback": 4145,
+    "legacy": 401
+  },
+  "stage17SemanticMatch": {
+    "expected": {
+      "transactions": 38245,
+      "legacy": 401,
+      "exactPrior": 6751,
+      "groupPrimary": 5698,
+      "exactOnly": 1090,
+      "fallback": 4145
+    },
+    "actual": {
+      "transactions": 38245,
+      "legacy": 401,
+      "exactPrior": 6751,
+      "groupPrimary": 5698,
+      "exactOnly": 1090,
+      "fallback": 4145
+    },
+    "diffs": {},
+    "status": "PASS"
+  },
+  "windowRegression": {
+    "todayMarket": {
+      "1d": {
+        "window": {
+          "fromDay": "2026-09-16",
+          "toDay": "2026-09-16"
+        },
+        "transactions": 6,
+        "legacyCurrentHigh": 1,
+        "exactPrior": 1,
+        "groupPrimary": 0,
+        "exactOnly": 1,
+        "fallback": 0
+      },
+      "7d": {
+        "window": {
+          "fromDay": "2026-09-10",
+          "toDay": "2026-09-16"
+        },
+        "transactions": 821,
+        "legacyCurrentHigh": 10,
+        "exactPrior": 161,
+        "groupPrimary": 139,
+        "exactOnly": 22,
+        "fallback": 113
+      },
+      "30d": {
+        "window": {
+          "fromDay": "2026-08-18",
+          "toDay": "2026-09-16"
+        },
+        "transactions": 2594,
+        "legacyCurrentHigh": 69,
+        "exactPrior": 502,
+        "groupPrimary": 412,
+        "exactOnly": 91,
+        "fallback": 271
+      }
+    },
+    "statsShadow": {
+      "daily30d": {
+        "window": {
+          "from": "2026-08-17",
+          "to": "2026-09-15"
+        },
+        "transactions": 64,
+        "legacyCurrentHigh": 11,
+        "exactPrior": 10,
+        "groupPrimary": 8,
+        "exactOnly": 2,
+        "fallback": 5
+      },
+      "weekly16w": {
+        "window": {
+          "from": "2026-06-01",
+          "to": "2026-09-15"
+        },
+        "transactions": 776,
+        "legacyCurrentHigh": 89,
+        "exactPrior": 90,
+        "groupPrimary": 73,
+        "exactOnly": 17,
+        "fallback": 51
+      },
+      "monthly18m": {
+        "window": {
+          "from": "2025-04-01",
+          "to": "2026-09-15"
+        },
+        "transactions": 6173,
+        "legacyCurrentHigh": 274,
+        "exactPrior": 971,
+        "groupPrimary": 785,
+        "exactOnly": 187,
+        "fallback": 508
+      }
+    },
+    "diffs": {
+      "today_1d": {},
+      "today_7d": {},
+      "today_30d": {},
+      "stats_30d": {},
+      "stats_16w": {},
+      "stats_18m": {}
+    },
+    "status": "PASS"
+  },
+  "invariants": {
+    "groupPriorGteExactViolations": 0,
+    "groupImpliesExactViolations": 0,
+    "fallbackViolations": 0,
+    "noPriorViolations": 0,
+    "sameDayViolations": 0,
+    "lateReportViolations": 0,
+    "lateReportExamples": [
+      {
+        "txId": "trade-11350-2016-10-04-상계주공9(고층)-상계동-670-5-23500-0-41.3",
+        "dealDate": "2016-10-04",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false
+      },
+      {
+        "txId": "trade-11350-2016-10-06-상계주공9(고층)-상계동-670-13-21600-0-45.9",
+        "dealDate": "2016-10-06",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false
+      },
+      {
+        "txId": "trade-11350-2016-10-06-상계주공9(고층)-상계동-670-6-29000-0-49.94",
+        "dealDate": "2016-10-06",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": true
+      },
+      {
+        "txId": "trade-11350-2016-10-19-상계주공9(고층)-상계동-670-5-27850-0-49.94",
+        "dealDate": "2016-10-19",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false
+      },
+      {
+        "txId": "trade-11350-2017-05-01-상계주공9(고층)-상계동-670-15-21000-0-45.9",
+        "dealDate": "2017-05-01",
+        "firstSeenDay": "2026-09-10",
+        "primaryV2": false
+      }
+    ],
+    "status": "PASS"
+  },
+  "performanceComparison": {
+    "stage16Ms": 42677,
+    "stage17Ms": 56074,
+    "stage18Ms": 26603.88,
+    "vsStage17": -29470.12,
+    "vsStage16": -16073.12,
+    "improvedVsStage17": true,
+    "noRegressionVsStage16": true,
+    "status": "PASS"
+  },
+  "flagContract": {
+    "name": "ENABLE_SINGOGA_V2",
+    "value": "(unset)",
+    "isEnabled": false,
+    "productionChanged": false,
+    "previewChanged": false
+  },
+  "offRegression": {
+    "flagOff": true,
+    "onSmokeOverlaysInMemory": 20,
+    "status": "PASS"
+  },
+  "publicBehavior": {
+    "apiChanged": false,
+    "marketChanged": false,
+    "statsChanged": false,
+    "uiChanged": false,
+    "snapshotsChanged": false
+  },
+  "scalability": {
+    "oneClassificationPerTransaction": true,
+    "classifiedResultReusedAcrossWindows": true,
+    "chunkedLoading": true,
+    "unboundedMemory": false,
+    "fullTableScan": false
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Semantic + runtime PASS vs Stage16/17; Stage19 may Preview-only activate (Production OFF)."
+  },
+  "decision": {
+    "SEMANTIC_REGRESSION": "PASS",
+    "BATCH_DATA_ACCESS": "PASS",
+    "ONE_PASS_CLASSIFICATION": "PASS",
+    "RUNTIME_PERFORMANCE": "PASS",
+    "INVARIANTS": "PASS",
+    "PREVIEW_ACTIVATION": "READY",
+    "PRODUCTION_SWITCH": "NOT_YET",
+    "DATA_SAFETY": "PASS"
+  }
+}

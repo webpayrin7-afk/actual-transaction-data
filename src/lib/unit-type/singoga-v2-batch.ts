@@ -40,6 +40,12 @@ export type SingogaV2ComplexBundle = {
   groups: SingogaV2Group[];
 };
 
+export type SingogaV2QueryTiming = {
+  queryType: "transactions" | "groups" | "links" | "master";
+  rowsReturned: number;
+  elapsedMs: number;
+};
+
 export type SingogaV2BatchLoadStats = {
   complexCount: number;
   chunkCount: number;
@@ -52,6 +58,14 @@ export type SingogaV2BatchLoadStats = {
   historyRows: number;
   perComplexQueryPattern: boolean;
   perTransactionQuery: boolean;
+  /** Optional per-query timings when opts.collectTimings is true. */
+  queryTimings?: SingogaV2QueryTiming[];
+  phaseMs?: {
+    transactionsFetch: number;
+    groupsFetch: number;
+    linksFetch: number;
+    normalizePartition: number;
+  };
 };
 
 function chunkArray<T>(items: T[], size: number): T[][] {
@@ -118,12 +132,19 @@ export async function loadCxUnitMasterComplexes(
 export async function loadSingogaV2BundlesBatched(
   db: Client,
   complexes: SingogaV2ComplexRef[],
-  opts?: { chunkSize?: number },
+  opts?: { chunkSize?: number; collectTimings?: boolean },
 ): Promise<{
   bundles: Map<string, SingogaV2ComplexBundle>;
   stats: SingogaV2BatchLoadStats;
 }> {
   const chunkSize = opts?.chunkSize ?? SINGOGA_V2_COMPLEX_CHUNK;
+  const collectTimings = opts?.collectTimings === true;
+  const queryTimings: SingogaV2QueryTiming[] = [];
+  let transactionsFetchMs = 0;
+  let groupsFetchMs = 0;
+  let linksFetchMs = 0;
+  let normalizePartitionMs = 0;
+
   const bundles = new Map<string, SingogaV2ComplexBundle>();
   for (const c of complexes) {
     bundles.set(c.complexId, {
@@ -147,24 +168,40 @@ export async function loadSingogaV2BundlesBatched(
   }
 
   for (const chunk of chunkArray(complexes, chunkSize)) {
-    // A. transactions — one query per chunk via (apt_name_norm, lawd_cd) pairs
-    const pairPh = chunk.map(() => "(?, ?)").join(", ");
+    // A. transactions — one query per chunk.
+    // Prefer OR of (apt_name_norm, lawd_cd) equality pairs so SQLite can use
+    // idx_tx_lawd_apt_ym / idx_tx_apt_norm instead of scanning via
+    // idx_tx_type_first_seen + bloom filters on row-value IN.
     const pairArgs: Array<string> = [];
+    const pairPredicates: string[] = [];
     for (const c of chunk) {
+      pairPredicates.push("(apt_name_norm = ? AND lawd_cd = ?)");
       pairArgs.push(c.aptNameNorm, c.lawdCd);
     }
+    const tTx0 = collectTimings ? performance.now() : 0;
     const txRes = await db.execute({
       sql: `SELECT id, deal_date, exclusive_area, deal_amount,
                    first_seen_at, discovery_at, dong,
                    apt_name_norm, lawd_cd
             FROM transactions
-            WHERE deal_type = 'trade'
+            WHERE (${pairPredicates.join(" OR ")})
+              AND deal_type = 'trade'
               AND exclusive_area IS NOT NULL AND exclusive_area > 0
-              AND deal_amount IS NOT NULL AND deal_amount > 0
-              AND (apt_name_norm, lawd_cd) IN (${pairPh})`,
+              AND deal_amount IS NOT NULL AND deal_amount > 0`,
       args: pairArgs as InArgs,
     });
+    const tTx1 = collectTimings ? performance.now() : 0;
     transactionFetchQueries += 1;
+    if (collectTimings) {
+      const elapsed = Math.round((tTx1 - tTx0) * 100) / 100;
+      transactionsFetchMs += elapsed;
+      queryTimings.push({
+        queryType: "transactions",
+        rowsReturned: txRes.rows.length,
+        elapsedMs: elapsed,
+      });
+    }
+    const tNorm0 = collectTimings ? performance.now() : 0;
     for (const row of txRes.rows) {
       const cid = complexByPair.get(
         pairKey(String(row.apt_name_norm), String(row.lawd_cd)),
@@ -189,17 +226,32 @@ export async function loadSingogaV2BundlesBatched(
       });
       historyRows += 1;
     }
+    if (collectTimings) {
+      normalizePartitionMs +=
+        Math.round((performance.now() - tNorm0) * 100) / 100;
+    }
 
     // B. V1 groups — one query per chunk
     const idPh = chunk.map(() => "?").join(",");
     const idArgs = chunk.map((c) => c.complexId);
+    const tG0 = collectTimings ? performance.now() : 0;
     const gRes = await db.execute({
       sql: `SELECT group_key, complex_key, exclusive_area_min, exclusive_area_max, source
             FROM apt_pyeong_groups
             WHERE complex_key IN (${idPh})`,
       args: idArgs as InArgs,
     });
+    const tG1 = collectTimings ? performance.now() : 0;
     groupFetchQueries += 1;
+    if (collectTimings) {
+      const elapsed = Math.round((tG1 - tG0) * 100) / 100;
+      groupsFetchMs += elapsed;
+      queryTimings.push({
+        queryType: "groups",
+        rowsReturned: gRes.rows.length,
+        elapsedMs: elapsed,
+      });
+    }
 
     const eligibleGroupKeys: string[] = [];
     const groupMeta = new Map<
@@ -229,13 +281,24 @@ export async function loadSingogaV2BundlesBatched(
     if (eligibleGroupKeys.length > 0) {
       for (const gkChunk of chunkArray(eligibleGroupKeys, chunkSize)) {
         const gkPh = gkChunk.map(() => "?").join(",");
+        const tL0 = collectTimings ? performance.now() : 0;
         const lRes = await db.execute({
           sql: `SELECT group_key, unit_type_key
                 FROM apt_unit_type_group_links
                 WHERE group_key IN (${gkPh})`,
           args: gkChunk as InArgs,
         });
+        const tL1 = collectTimings ? performance.now() : 0;
         linkFetchQueries += 1;
+        if (collectTimings) {
+          const elapsed = Math.round((tL1 - tL0) * 100) / 100;
+          linksFetchMs += elapsed;
+          queryTimings.push({
+            queryType: "links",
+            rowsReturned: lRes.rows.length,
+            elapsedMs: elapsed,
+          });
+        }
         for (const l of lRes.rows) {
           const gk = String(l.group_key);
           const utk = String(l.unit_type_key);
@@ -248,6 +311,7 @@ export async function loadSingogaV2BundlesBatched(
       }
     }
 
+    const tGroupNorm0 = collectTimings ? performance.now() : 0;
     for (const [groupKey, meta] of groupMeta) {
       let members = [...new Set(membersByGroup.get(groupKey) ?? [])].sort(
         (a, b) => a - b,
@@ -270,6 +334,10 @@ export async function loadSingogaV2BundlesBatched(
         source: meta.source,
       });
     }
+    if (collectTimings) {
+      normalizePartitionMs +=
+        Math.round((performance.now() - tGroupNorm0) * 100) / 100;
+    }
   }
 
   const chunkCount = chunkArray(complexes, chunkSize).length;
@@ -286,6 +354,17 @@ export async function loadSingogaV2BundlesBatched(
     historyRows,
     perComplexQueryPattern: false,
     perTransactionQuery: false,
+    ...(collectTimings
+      ? {
+          queryTimings,
+          phaseMs: {
+            transactionsFetch: Math.round(transactionsFetchMs * 100) / 100,
+            groupsFetch: Math.round(groupsFetchMs * 100) / 100,
+            linksFetch: Math.round(linksFetchMs * 100) / 100,
+            normalizePartition: Math.round(normalizePartitionMs * 100) / 100,
+          },
+        }
+      : {}),
   };
 
   return { bundles, stats };

@@ -87,11 +87,39 @@ async function resolveComplexRefsForCandidates(
 }
 
 /**
+ * Build V2 prior overlays from already-classified rows (no DB refetch).
+ * Used when rebuild already ran one-pass classification.
+ */
+export function overlaysFromClassifiedRows(
+  rows: SingogaV2TxResult[],
+  candidateIds: ReadonlySet<string>,
+): Map<string, SingogaV2PriorOverlay> {
+  const byTxId = new Map<string, SingogaV2PriorOverlay>();
+  for (const r of rows) {
+    if (!candidateIds.has(r.txId)) continue;
+    byTxId.set(r.txId, {
+      priorMaxAmount: r.primaryPriorMax ?? 0,
+      primarySingogaV2: r.primarySingogaV2,
+      exactOnlySingoga: r.exactOnlySingoga,
+      baselineMode: r.baselineMode,
+      groupKey: r.groupKey,
+      exactPriorMax: r.exactPriorMax,
+      groupPriorMax: r.groupPriorMax,
+    });
+  }
+  return byTxId;
+}
+
+/**
  * Compute V2 primary prior overlays for candidate trades.
  * Only covers trades belonging to loaded cx_ complexes; others omitted
  * (caller keeps legacy exact prior for those).
  *
  * Requires ENABLE_SINGOGA_V2=1; returns empty map when flag OFF.
+ *
+ * Stage18: single batch load + one-pass classify per scoped complex
+ * (no per-window reclassify). Prefer overlaysFromClassifiedRows when
+ * classification already exists in-memory.
  */
 export async function computeSingogaV2PriorOverlays(
   db: Client,
@@ -125,7 +153,7 @@ export async function computeSingogaV2PriorOverlays(
   const { bundles } = await loadSingogaV2BundlesBatched(db, scoped);
   const candidateIds = new Set(candidates.map((c) => c.id));
 
-  let classifiedTxCount = 0;
+  const allResults: SingogaV2TxResult[] = [];
   for (const bundle of bundles.values()) {
     const { results } = classifySingogaV2ForComplex({
       complexId: bundle.complexId,
@@ -133,22 +161,15 @@ export async function computeSingogaV2PriorOverlays(
       groups: bundle.groups,
       windowStart: "1900-01-01",
     });
-    for (const r of results) {
-      if (!candidateIds.has(r.txId)) continue;
-      classifiedTxCount += 1;
-      byTxId.set(r.txId, {
-        priorMaxAmount: r.primaryPriorMax ?? 0,
-        primarySingogaV2: r.primarySingogaV2,
-        exactOnlySingoga: r.exactOnlySingoga,
-        baselineMode: r.baselineMode,
-        groupKey: r.groupKey,
-        exactPriorMax: r.exactPriorMax,
-        groupPriorMax: r.groupPriorMax,
-      });
-    }
+    allResults.push(...results);
   }
 
-  return { byTxId, classifiedTxCount, complexCount: scoped.length };
+  const overlay = overlaysFromClassifiedRows(allResults, candidateIds);
+  return {
+    byTxId: overlay,
+    classifiedTxCount: overlay.size,
+    complexCount: scoped.length,
+  };
 }
 
 /**
