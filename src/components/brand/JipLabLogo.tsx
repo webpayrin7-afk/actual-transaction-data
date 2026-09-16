@@ -17,28 +17,14 @@ export function JipLabLogo({
   priority?: boolean;
 }) {
   return (
-    <span
-      className={[
-        "relative inline-flex items-center rounded-xl",
-        "bg-gradient-to-r from-[color:var(--lab-teal-50)] via-[color:var(--lab-teal-50)]/50 to-transparent",
-        "py-1 pr-2.5 pl-2",
-        className,
-      ]
-        .join(" ")
-        .trim()}
-    >
-      {/* Teal accent bar — ties logo to active nav tone */}
-      <span
-        aria-hidden
-        className="absolute top-1/2 left-1 h-[58%] w-[3px] -translate-y-1/2 rounded-full bg-[color:var(--lab-teal-600)]"
-      />
+    <span className={`inline-flex items-center ${className}`.trim()}>
       <Image
         src="/brand/jiplab-logo.png"
         alt={title}
         width={1087}
         height={406}
         priority={priority}
-        className="relative ml-1.5 h-10 w-auto"
+        className="h-9 w-auto"
       />
     </span>
   );
