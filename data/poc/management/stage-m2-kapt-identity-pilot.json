@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-09-16T03:18:58.768Z",
+  "stage": "stage-m2-kapt-identity-pilot",
+  "scope": {
+    "districts": [
+      "송파구",
+      "강남구",
+      "노원구"
+    ],
+    "apartmentMasterComplexes": 1353
+  },
+  "api": {
+    "serviceUsed": "AptListService4/getSigunguAptList4",
+    "basisInfoCalls": 0,
+    "aptIdInfoCalls": 0,
+    "managementFeeCalls": 0,
+    "requestsAttempted": 3,
+    "successful": 3,
+    "hit429": false,
+    "hit429Detail": null,
+    "recordsReturned": 641,
+    "uniqueKaptComplexes": 641,
+    "recordsPerSuccessfulCall": 213.67,
+    "cacheReused": false,
+    "cacheDir": "/tmp/cursor-m2-kapt-cache",
+    "maxBudget": 20
+  },
+  "districts": {
+    "송파구": {
+      "master": 429,
+      "kaptDiscovered": 177,
+      "totalCountReported": 177,
+      "pages": 1,
+      "callsUsed": 1,
+      "EXACT_SAFE": 45,
+      "HIGH_CONFIDENCE": 41,
+      "AMBIGUOUS": 3,
+      "KAPT_ONLY": 85,
+      "MASTER_ONLY": 340,
+      "safeMatchRatePct": 20.05,
+      "kaptSideSafeMatchRatePct": 48.59
+    },
+    "강남구": {
+      "master": 639,
+      "kaptDiscovered": 233,
+      "totalCountReported": 233,
+      "pages": 1,
+      "callsUsed": 1,
+      "EXACT_SAFE": 65,
+      "HIGH_CONFIDENCE": 49,
+      "AMBIGUOUS": 1,
+      "KAPT_ONLY": 118,
+      "MASTER_ONLY": 524,
+      "safeMatchRatePct": 17.84,
+      "kaptSideSafeMatchRatePct": 48.93
+    },
+    "노원구": {
+      "master": 285,
+      "kaptDiscovered": 231,
+      "totalCountReported": 231,
+      "pages": 1,
+      "callsUsed": 1,
+      "EXACT_SAFE": 27,
+      "HIGH_CONFIDENCE": 42,
+      "AMBIGUOUS": 6,
+      "KAPT_ONLY": 149,
+      "MASTER_ONLY": 210,
+      "safeMatchRatePct": 24.21,
+      "kaptSideSafeMatchRatePct": 29.87
+    }
+  },
+  "knownIdentityValidation": {
+    "existingKnownKaptLinksInScope": 6,
+    "correctlyRediscovered": 5,
+    "missed": 1,
+    "wrongMatches": 0,
+    "conflicts": 1,
+    "missSample": [
+      {
+        "complexId": "cx_caf229b5ac63cfbd",
+        "expected": "A13822003"
+      }
+    ],
+    "wrongSample": []
+  },
+  "totals": {
+    "masterComplexes": 1353,
+    "kaptDiscovered": 641,
+    "EXACT_SAFE": 137,
+    "HIGH_CONFIDENCE": 132,
+    "safeTotal": 269,
+    "AMBIGUOUS": 10,
+    "KAPT_ONLY": 352,
+    "MASTER_ONLY": 1074,
+    "safeMasterMatchRatePct": 19.88
+  },
+  "identityIntegrity": {
+    "complexToMultipleKaptConflicts": 0,
+    "kaptToMultipleComplexConflicts": 0,
+    "existingLinkDisagreements": 1
+  },
+  "manifest": {
+    "created": true,
+    "path": "data/poc/management/stage-m2-kapt-identity-promotion-manifest.json",
+    "safeCandidates": 268,
+    "alreadyLinked": 5,
+    "newPromotableLinks": 263
+  },
+  "fullSeoulEstimate": {
+    "estimatedKaptListCalls": 25,
+    "estimatedRecords": 5342,
+    "estimatedSafeMatches": 1677,
+    "estimatedAmbiguous": 62,
+    "note": "Extrapolated from 3-district pilot pages/match rates; paging may differ by district."
+  },
+  "managementApi": {
+    "commonCostCalls": 0,
+    "individualCostCalls": 0,
+    "reserveCalls": 0
+  },
+  "dbWrites": {
+    "sourceLinkInserts": 0,
+    "updates": 0,
+    "deletes": 0,
+    "managementWrites": 0,
+    "otherBusinessWrites": 0
+  },
+  "decisionGate": {
+    "choice": "A",
+    "reason": "Efficient bulk discovery + zero wrong known-link matches; safe tier useful; refine ambiguous offline.",
+    "label": "Full-Seoul KAPT identity discovery + manifest"
+  },
+  "decision": {
+    "BULK_KAPT_DISCOVERY": "PASS",
+    "KNOWN_LINK_RECOVERY": "PASS",
+    "MATCH_QUALITY": "PARTIAL",
+    "API_EFFICIENCY": "PASS",
+    "PROMOTION_MANIFEST": "READY",
+    "MANAGEMENT_FEE_FETCH": "NOT_STARTED",
+    "DATA_SAFETY": "PASS"
+  }
+}
