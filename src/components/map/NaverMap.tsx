@@ -12,8 +12,10 @@ import {
   loadNaverMapsSdk,
   type NaverMapInstance,
   type NaverMarkerInstance,
+  type NaverCircleInstance,
 } from "@/lib/nearby-map/naver-sdk";
 import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
+import { commerceDensityCircleStyle } from "@/lib/complex-detail/commerce-snapshot";
 
 /** Living map height CSS transition (~280ms) — re-fit after layout settles. */
 const FIT_LAYOUT_SETTLE_MS = 300;
@@ -81,6 +83,21 @@ type NaverMapProps = {
   fitBoundsToken?: string | null;
   /** Preferred center when fitting (e.g. complex). Falls back to `center`. */
   fitAnchor?: LatLng | null;
+  /**
+   * When set (and no POI markers), fit so this radius around the anchor is
+   * visible — used by commerce density overlay (1km).
+   */
+  fitRadiusM?: number | null;
+  /** Passive SEMAS density circles (commerce tab). Click-through; no labels. */
+  densityCircles?: Array<{
+    lat: number;
+    lng: number;
+    count: number;
+  }> | null;
+  /** p95 cell count for intensity scaling. */
+  densityP95Count?: number | null;
+  /** Optional thin reference radius (meters) around fitAnchor/center. */
+  referenceRadiusM?: number | null;
 };
 
 const KIND_COLOR: Record<NaverMapMarker["kind"], string> = {
@@ -302,15 +319,22 @@ export function NaverMap({
   ariaLabel = "지도",
   fitBoundsToken = null,
   fitAnchor = null,
+  fitRadiusM = null,
+  densityCircles = null,
+  densityP95Count = null,
+  referenceRadiusM = null,
 }: NaverMapProps) {
   const reactId = useId();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<NaverMapInstance | null>(null);
   const markerMapRef = useRef<Map<string, NaverMarkerInstance>>(new Map());
+  const densityCircleRef = useRef<NaverCircleInstance[]>([]);
+  const referenceCircleRef = useRef<NaverCircleInstance | null>(null);
   const onMarkerClickRef = useRef(onMarkerClick);
   const markersRef = useRef(markers);
   const fitAnchorRef = useRef(fitAnchor);
   const centerRef = useRef(center);
+  const fitRadiusMRef = useRef(fitRadiusM);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
 
@@ -325,6 +349,10 @@ export function NaverMap({
   useEffect(() => {
     fitAnchorRef.current = fitAnchor;
   }, [fitAnchor]);
+
+  useEffect(() => {
+    fitRadiusMRef.current = fitRadiusM;
+  }, [fitRadiusM]);
 
   useEffect(() => {
     centerRef.current = center;
@@ -485,6 +513,85 @@ export function NaverMap({
     }
   }, [markers, selectedId, status]);
 
+  // Commerce density overlays — translucent circles; click-through (no listeners).
+  useEffect(() => {
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    if (!map || !maps || status !== "ready") return;
+
+    for (const c of densityCircleRef.current) {
+      c.setMap(null);
+    }
+    densityCircleRef.current = [];
+
+    const cells = densityCircles;
+    if (!cells?.length || !maps.Circle) return;
+
+    const p95 = Math.max(1, densityP95Count ?? 1);
+    // Draw low-count first so dense cells sit on top visually.
+    const ordered = cells.slice().sort((a, b) => a.count - b.count);
+    for (const cell of ordered) {
+      const style = commerceDensityCircleStyle(cell.count, p95);
+      const circle = new maps.Circle({
+        map,
+        center: new maps.LatLng(cell.lat, cell.lng),
+        radius: style.radiusM,
+        fillColor: "#0f766e",
+        fillOpacity: style.fillOpacity,
+        strokeColor: "#0f766e",
+        strokeOpacity: style.strokeOpacity,
+        strokeWeight: 1,
+        clickable: false,
+        zIndex: 10,
+      });
+      densityCircleRef.current.push(circle);
+    }
+
+    return () => {
+      for (const c of densityCircleRef.current) {
+        c.setMap(null);
+      }
+      densityCircleRef.current = [];
+    };
+  }, [densityCircles, densityP95Count, status]);
+
+  // Optional thin 1km reference ring (informational; not an official boundary).
+  useEffect(() => {
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    if (!map || !maps || status !== "ready") return;
+
+    if (referenceCircleRef.current) {
+      referenceCircleRef.current.setMap(null);
+      referenceCircleRef.current = null;
+    }
+
+    if (referenceRadiusM == null || referenceRadiusM <= 0 || !maps.Circle) {
+      return;
+    }
+
+    const anchor = fitAnchor ?? center;
+    referenceCircleRef.current = new maps.Circle({
+      map,
+      center: new maps.LatLng(anchor.lat, anchor.lng),
+      radius: referenceRadiusM,
+      fillColor: "#64748b",
+      fillOpacity: 0,
+      strokeColor: "#94a3b8",
+      strokeOpacity: 0.45,
+      strokeWeight: 1,
+      clickable: false,
+      zIndex: 5,
+    });
+
+    return () => {
+      if (referenceCircleRef.current) {
+        referenceCircleRef.current.setMap(null);
+        referenceCircleRef.current = null;
+      }
+    };
+  }, [referenceRadiusM, fitAnchor, center, status]);
+
   // Category / set change: apartment-centered zoom with morph animation.
   useEffect(() => {
     const map = mapRef.current;
@@ -587,8 +694,10 @@ export function NaverMap({
 
       const anchor = fitAnchorRef.current ?? centerRef.current;
       const poi = markersRef.current.filter((m) => m.id !== "complex");
+      const radiusFit = fitRadiusMRef.current;
       // Markers may arrive just after tab switch — retry instead of fitting empty.
-      if (poi.length === 0) return;
+      // Commerce density: allow radius-only fit when no POI markers.
+      if (poi.length === 0 && !(radiusFit != null && radiusFit > 0)) return;
 
       const hostH = hostRef.current?.clientHeight ?? 0;
       // Still in transport→taller-tab height transition.
@@ -600,21 +709,12 @@ export function NaverMap({
       let maxLatDelta = 0;
       let maxLngDelta = 0;
       let anyInCover = false;
-      for (const m of poi) {
-        const distM = haversineMeters(anchor, m.position);
-        if (Number.isFinite(distM) && distM > coverMaxM) continue;
-        anyInCover = true;
-        maxLatDelta = Math.max(
-          maxLatDelta,
-          Math.abs(m.position.lat - anchor.lat),
-        );
-        maxLngDelta = Math.max(
-          maxLngDelta,
-          Math.abs(m.position.lng - anchor.lng),
-        );
-      }
-      if (!anyInCover) {
+
+      if (poi.length > 0) {
         for (const m of poi) {
+          const distM = haversineMeters(anchor, m.position);
+          if (Number.isFinite(distM) && distM > coverMaxM) continue;
+          anyInCover = true;
           maxLatDelta = Math.max(
             maxLatDelta,
             Math.abs(m.position.lat - anchor.lat),
@@ -624,7 +724,26 @@ export function NaverMap({
             Math.abs(m.position.lng - anchor.lng),
           );
         }
+        if (!anyInCover) {
+          for (const m of poi) {
+            maxLatDelta = Math.max(
+              maxLatDelta,
+              Math.abs(m.position.lat - anchor.lat),
+            );
+            maxLngDelta = Math.max(
+              maxLngDelta,
+              Math.abs(m.position.lng - anchor.lng),
+            );
+          }
+        }
+      } else if (radiusFit != null && radiusFit > 0) {
+        // Equirectangular delta for the requested cover radius.
+        maxLatDelta = radiusFit / 111320;
+        maxLngDelta =
+          radiusFit /
+          (111320 * Math.max(0.25, Math.cos((anchor.lat * Math.PI) / 180)));
       }
+
       const pad = 1.08;
       const latDelta = Math.max(maxLatDelta * pad, 0.001);
       const lngDelta = Math.max(maxLngDelta * pad, 0.001);

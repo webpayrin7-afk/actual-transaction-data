@@ -26,6 +26,7 @@ export type NaverMapsApi = {
     LatLng: new (lat: number, lng: number) => unknown;
     LatLngBounds: new (sw: unknown, ne: unknown) => unknown;
     Marker: new (opts: Record<string, unknown>) => NaverMarkerInstance;
+    Circle: new (opts: Record<string, unknown>) => NaverCircleInstance;
     Point: new (x: number, y: number) => unknown;
     Event: {
       addListener: (
@@ -73,6 +74,13 @@ export type NaverMarkerInstance = {
   setPosition: (latlng: unknown) => void;
   setIcon?: (icon: unknown) => void;
   setZIndex?: (zIndex: number) => void;
+};
+
+export type NaverCircleInstance = {
+  setMap: (map: NaverMapInstance | null) => void;
+  setCenter?: (latlng: unknown) => void;
+  setRadius?: (radius: number) => void;
+  setOptions?: (opts: Record<string, unknown>) => void;
 };
 
 declare global {

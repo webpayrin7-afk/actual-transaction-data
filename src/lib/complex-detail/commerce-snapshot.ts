@@ -37,6 +37,23 @@ export type CommerceFacilities = {
   체육: number;
 };
 
+/** Compact density cell — no business identity / individual coords. */
+export type CommerceDensityCell = {
+  lat: number;
+  lng: number;
+  count: number;
+};
+
+export type CommerceDensity = {
+  gridSizeM: number;
+  /** p95 of cell counts — used for intensity scaling */
+  p95Count: number;
+  maxCellCount: number;
+  cellCount: number;
+  sumCellCount: number;
+  cells: CommerceDensityCell[];
+};
+
 /**
  * Typed snapshot shape shared by pilot fixture and future API rows.
  * Size labels intentionally omitted (NOT READY).
@@ -59,10 +76,33 @@ export type CommerceSnapshot = {
   composition: Record<CommerceCompositionKey, CommerceCompositionBucket>;
   topCategories: CommerceTopCategory[];
   facilities: CommerceFacilities;
+  /** Optional SEMAS P2 density overlay (U2+). */
+  density?: CommerceDensity | null;
   sourceDate: string;
   computedAt: string;
   coordinateSource: string;
 };
+
+/**
+ * Density circle visual scaling (deterministic; not location-tuned).
+ * normalized = min(count / p95, 1)
+ * strength = sqrt(normalized)
+ * radiusM = 50 + strength * 70   → ~50–120m
+ * fillOpacity = 0.10 + strength * 0.28
+ */
+export function commerceDensityCircleStyle(
+  count: number,
+  p95Count: number,
+): { radiusM: number; fillOpacity: number; strokeOpacity: number } {
+  const p95 = Math.max(1, p95Count);
+  const normalized = Math.min(count / p95, 1);
+  const strength = Math.sqrt(normalized);
+  return {
+    radiusM: 50 + strength * 70,
+    fillOpacity: 0.1 + strength * 0.28,
+    strokeOpacity: 0.08 + strength * 0.18,
+  };
+}
 
 /** Display order for composition rows (exclude zero “기타”). */
 export const COMMERCE_COMPOSITION_ORDER: CommerceCompositionKey[] = [
@@ -107,9 +147,9 @@ export function commerceTopCategoryDisplayName(
 }
 
 /**
- * Stage C3 golden fixture — 잠실엘스 ONLY.
- * Numbers copied from stage-c3-derived-snapshot-pilot.json examplePayload /
- * goldenFixture (exact semantic match PASS).
+ * Stage C3 golden fixture + U2 density — 잠실엘스 ONLY.
+ * Census numbers from stage-c3-derived-snapshot-pilot.json (exact match PASS).
+ * Density cells from stage-u2-jamsil-els-density.json (sum=4381 PASS).
  */
 export const jamsilElsCommerceSnapshot: CommerceSnapshot = {
   complexId: "cx_4c63d9a100973c60",
@@ -149,6 +189,545 @@ export const jamsilElsCommerceSnapshot: CommerceSnapshot = {
     미용: 320,
     학원: 271,
     체육: 116,
+  },
+  density: {
+    gridSizeM: 150,
+    p95Count: 122,
+    maxCellCount: 307,
+    cellCount: 106,
+    sumCellCount: 4381,
+    cells: [
+      {
+        lat: 37.511279,
+        lng: 127.098553,
+        count: 307
+      },
+      {
+        lat: 37.513974,
+        lng: 127.103649,
+        count: 260
+      },
+      {
+        lat: 37.516669,
+        lng: 127.098553,
+        count: 227
+      },
+      {
+        lat: 37.513974,
+        lng: 127.108746,
+        count: 212
+      },
+      {
+        lat: 37.511279,
+        lng: 127.100252,
+        count: 169
+      },
+      {
+        lat: 37.520711,
+        lng: 127.105348,
+        count: 122
+      },
+      {
+        lat: 37.515321,
+        lng: 127.108746,
+        count: 119
+      },
+      {
+        lat: 37.515321,
+        lng: 127.110444,
+        count: 113
+      },
+      {
+        lat: 37.516669,
+        lng: 127.112143,
+        count: 97
+      },
+      {
+        lat: 37.512626,
+        lng: 127.108746,
+        count: 96
+      },
+      {
+        lat: 37.512626,
+        lng: 127.093457,
+        count: 91
+      },
+      {
+        lat: 37.518016,
+        lng: 127.103649,
+        count: 90
+      },
+      {
+        lat: 37.513974,
+        lng: 127.101951,
+        count: 81
+      },
+      {
+        lat: 37.509931,
+        lng: 127.108746,
+        count: 77
+      },
+      {
+        lat: 37.509931,
+        lng: 127.110444,
+        count: 72
+      },
+      {
+        lat: 37.512626,
+        lng: 127.112143,
+        count: 70
+      },
+      {
+        lat: 37.505889,
+        lng: 127.098553,
+        count: 67
+      },
+      {
+        lat: 37.505889,
+        lng: 127.107047,
+        count: 67
+      },
+      {
+        lat: 37.512626,
+        lng: 127.110444,
+        count: 65
+      },
+      {
+        lat: 37.513974,
+        lng: 127.100252,
+        count: 65
+      },
+      {
+        lat: 37.513974,
+        lng: 127.110444,
+        count: 65
+      },
+      {
+        lat: 37.508584,
+        lng: 127.105348,
+        count: 64
+      },
+      {
+        lat: 37.513974,
+        lng: 127.107047,
+        count: 64
+      },
+      {
+        lat: 37.507236,
+        lng: 127.107047,
+        count: 63
+      },
+      {
+        lat: 37.507236,
+        lng: 127.108746,
+        count: 62
+      },
+      {
+        lat: 37.505889,
+        lng: 127.096854,
+        count: 59
+      },
+      {
+        lat: 37.507236,
+        lng: 127.105348,
+        count: 59
+      },
+      {
+        lat: 37.511279,
+        lng: 127.108746,
+        count: 59
+      },
+      {
+        lat: 37.505889,
+        lng: 127.105348,
+        count: 58
+      },
+      {
+        lat: 37.516669,
+        lng: 127.103649,
+        count: 55
+      },
+      {
+        lat: 37.508584,
+        lng: 127.110444,
+        count: 53
+      },
+      {
+        lat: 37.518016,
+        lng: 127.101951,
+        count: 50
+      },
+      {
+        lat: 37.507236,
+        lng: 127.103649,
+        count: 49
+      },
+      {
+        lat: 37.515321,
+        lng: 127.113842,
+        count: 49
+      },
+      {
+        lat: 37.511279,
+        lng: 127.093457,
+        count: 46
+      },
+      {
+        lat: 37.515321,
+        lng: 127.107047,
+        count: 46
+      },
+      {
+        lat: 37.511279,
+        lng: 127.112143,
+        count: 45
+      },
+      {
+        lat: 37.509931,
+        lng: 127.112143,
+        count: 44
+      },
+      {
+        lat: 37.515321,
+        lng: 127.100252,
+        count: 44
+      },
+      {
+        lat: 37.508584,
+        lng: 127.107047,
+        count: 42
+      },
+      {
+        lat: 37.505889,
+        lng: 127.108746,
+        count: 39
+      },
+      {
+        lat: 37.505889,
+        lng: 127.103649,
+        count: 38
+      },
+      {
+        lat: 37.515321,
+        lng: 127.103649,
+        count: 36
+      },
+      {
+        lat: 37.515321,
+        lng: 127.112143,
+        count: 35
+      },
+      {
+        lat: 37.507236,
+        lng: 127.100252,
+        count: 32
+      },
+      {
+        lat: 37.508584,
+        lng: 127.112143,
+        count: 32
+      },
+      {
+        lat: 37.512626,
+        lng: 127.113842,
+        count: 32
+      },
+      {
+        lat: 37.516669,
+        lng: 127.101951,
+        count: 30
+      },
+      {
+        lat: 37.516669,
+        lng: 127.110444,
+        count: 30
+      },
+      {
+        lat: 37.511279,
+        lng: 127.113842,
+        count: 29
+      },
+      {
+        lat: 37.504541,
+        lng: 127.105348,
+        count: 28
+      },
+      {
+        lat: 37.505889,
+        lng: 127.100252,
+        count: 28
+      },
+      {
+        lat: 37.515321,
+        lng: 127.101951,
+        count: 28
+      },
+      {
+        lat: 37.516669,
+        lng: 127.113842,
+        count: 28
+      },
+      {
+        lat: 37.511279,
+        lng: 127.107047,
+        count: 27
+      },
+      {
+        lat: 37.516669,
+        lng: 127.107047,
+        count: 27
+      },
+      {
+        lat: 37.509931,
+        lng: 127.105348,
+        count: 25
+      },
+      {
+        lat: 37.511279,
+        lng: 127.110444,
+        count: 21
+      },
+      {
+        lat: 37.519364,
+        lng: 127.108746,
+        count: 21
+      },
+      {
+        lat: 37.505889,
+        lng: 127.101951,
+        count: 20
+      },
+      {
+        lat: 37.509931,
+        lng: 127.107047,
+        count: 20
+      },
+      {
+        lat: 37.507236,
+        lng: 127.101951,
+        count: 19
+      },
+      {
+        lat: 37.518016,
+        lng: 127.100252,
+        count: 18
+      },
+      {
+        lat: 37.519364,
+        lng: 127.098553,
+        count: 15
+      },
+      {
+        lat: 37.504541,
+        lng: 127.098553,
+        count: 14
+      },
+      {
+        lat: 37.504541,
+        lng: 127.101951,
+        count: 14
+      },
+      {
+        lat: 37.508584,
+        lng: 127.103649,
+        count: 14
+      },
+      {
+        lat: 37.507236,
+        lng: 127.110444,
+        count: 13
+      },
+      {
+        lat: 37.515321,
+        lng: 127.098553,
+        count: 13
+      },
+      {
+        lat: 37.520711,
+        lng: 127.103649,
+        count: 10
+      },
+      {
+        lat: 37.509931,
+        lng: 127.113842,
+        count: 9
+      },
+      {
+        lat: 37.516669,
+        lng: 127.105348,
+        count: 7
+      },
+      {
+        lat: 37.511279,
+        lng: 127.095156,
+        count: 6
+      },
+      {
+        lat: 37.515321,
+        lng: 127.105348,
+        count: 6
+      },
+      {
+        lat: 37.516669,
+        lng: 127.108746,
+        count: 6
+      },
+      {
+        lat: 37.505889,
+        lng: 127.095156,
+        count: 5
+      },
+      {
+        lat: 37.513974,
+        lng: 127.112143,
+        count: 5
+      },
+      {
+        lat: 37.518016,
+        lng: 127.105348,
+        count: 5
+      },
+      {
+        lat: 37.508584,
+        lng: 127.108746,
+        count: 4
+      },
+      {
+        lat: 37.513974,
+        lng: 127.105348,
+        count: 4
+      },
+      {
+        lat: 37.516669,
+        lng: 127.093457,
+        count: 4
+      },
+      {
+        lat: 37.516669,
+        lng: 127.100252,
+        count: 4
+      },
+      {
+        lat: 37.518016,
+        lng: 127.098553,
+        count: 4
+      },
+      {
+        lat: 37.519364,
+        lng: 127.101951,
+        count: 3
+      },
+      {
+        lat: 37.504541,
+        lng: 127.103649,
+        count: 2
+      },
+      {
+        lat: 37.504541,
+        lng: 127.107047,
+        count: 2
+      },
+      {
+        lat: 37.511279,
+        lng: 127.101951,
+        count: 2
+      },
+      {
+        lat: 37.518016,
+        lng: 127.107047,
+        count: 2
+      },
+      {
+        lat: 37.518016,
+        lng: 127.112143,
+        count: 2
+      },
+      {
+        lat: 37.519364,
+        lng: 127.100252,
+        count: 2
+      },
+      {
+        lat: 37.519364,
+        lng: 127.103649,
+        count: 2
+      },
+      {
+        lat: 37.520711,
+        lng: 127.100252,
+        count: 2
+      },
+      {
+        lat: 37.507236,
+        lng: 127.095156,
+        count: 1
+      },
+      {
+        lat: 37.507236,
+        lng: 127.098553,
+        count: 1
+      },
+      {
+        lat: 37.507236,
+        lng: 127.112143,
+        count: 1
+      },
+      {
+        lat: 37.509931,
+        lng: 127.100252,
+        count: 1
+      },
+      {
+        lat: 37.511279,
+        lng: 127.091758,
+        count: 1
+      },
+      {
+        lat: 37.511279,
+        lng: 127.103649,
+        count: 1
+      },
+      {
+        lat: 37.512626,
+        lng: 127.098553,
+        count: 1
+      },
+      {
+        lat: 37.512626,
+        lng: 127.100252,
+        count: 1
+      },
+      {
+        lat: 37.513974,
+        lng: 127.095156,
+        count: 1
+      },
+      {
+        lat: 37.513974,
+        lng: 127.098553,
+        count: 1
+      },
+      {
+        lat: 37.519364,
+        lng: 127.095156,
+        count: 1
+      },
+      {
+        lat: 37.519364,
+        lng: 127.096854,
+        count: 1
+      },
+      {
+        lat: 37.520711,
+        lng: 127.101951,
+        count: 1
+      },
+      {
+        lat: 37.522059,
+        lng: 127.105348,
+        count: 1
+      }
+    ]
   },
   sourceDate: "2026-06-30",
   computedAt: "2026-09-16T08:55:38.060Z",

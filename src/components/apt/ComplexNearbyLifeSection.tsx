@@ -761,22 +761,8 @@ export function ComplexNearbyLifeSection({
         }));
     }
     if (tab === "commerce") {
-      return commerceValidPlaces
-        .filter(
-          (p) =>
-            p.lat != null &&
-            p.lng != null &&
-            Number.isFinite(p.lat) &&
-            Number.isFinite(p.lng),
-        )
-        .map((p) => ({
-          id: p.id,
-          position: { lat: p.lat as number, lng: p.lng as number },
-          title: p.name,
-          kind: "LIVING" as const,
-          livingCategory: p.category as LivingMarkerCategory,
-          selected: selectedId === p.id,
-        }));
+      // Density overlay carries commerce census; no NAVER POI markers on map.
+      return [];
     }
     if (tab === "school") {
       const places = schoolQuery.data?.places ?? [];
@@ -796,7 +782,6 @@ export function ComplexNearbyLifeSection({
   }, [
     lifeQuery.data,
     livingValidPlaces,
-    commerceValidPlaces,
     schoolQuery.data,
     tab,
     coords,
@@ -814,6 +799,11 @@ export function ComplexNearbyLifeSection({
     if (tab !== "living" && tab !== "commerce" && tab !== "school") {
       return null;
     }
+    if (tab === "commerce") {
+      const cells = commerceSnapshot?.density?.cellCount ?? 0;
+      // Radius-only fit (no POI markers) — token still remounts on snapshot change.
+      return `commerce:density:${cells || "pending"}`;
+    }
     // Wait until POI markers exist — empty token must not trigger a no-op/default zoom.
     if (tabMarkers.length === 0) return null;
     const ids = tabMarkers
@@ -825,11 +815,8 @@ export function ComplexNearbyLifeSection({
     if (tab === "living") {
       return `living:${livingCategory}:${tabMarkers.length}:${ids}`;
     }
-    if (tab === "commerce") {
-      return `commerce:${commerceCategory}:${tabMarkers.length}:${ids}`;
-    }
     return `${tab}:${tabMarkers.length}:${ids}`;
-  }, [tab, coords, livingCategory, commerceCategory, tabMarkers]);
+  }, [tab, coords, livingCategory, tabMarkers, commerceSnapshot?.density?.cellCount]);
 
   const onMarkerClick = useCallback(
     (id: string) => {
@@ -906,7 +893,6 @@ export function ComplexNearbyLifeSection({
 
     if (tab === "commerce") {
       const commerce = commerceQuery.data;
-      const chipLabel = COMMERCE_CHIP_LABEL[commerceCategory];
       const places = commerceValidPlaces;
 
       let storeBody: ReactNode;
@@ -931,7 +917,7 @@ export function ComplexNearbyLifeSection({
           <EmptyBlock>
             {commerce.status === "EMPTY"
               ? commerce.reason || "주변 정보를 찾지 못했어요"
-              : `가까운 주요 ${chipLabel}을 찾지 못했어요`}
+              : `가까운 주요 ${COMMERCE_CHIP_LABEL[commerceCategory]}을 찾지 못했어요`}
           </EmptyBlock>
         );
       } else {
@@ -939,30 +925,9 @@ export function ComplexNearbyLifeSection({
           <ul className="space-y-1">
             {places.map((p) => {
               const address = livingPlaceAddress(p);
-              const hasCoords =
-                p.lat != null &&
-                p.lng != null &&
-                Number.isFinite(p.lat) &&
-                Number.isFinite(p.lng);
               return (
                 <li key={p.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (hasCoords) selectFromList(p.id);
-                    }}
-                    disabled={!hasCoords}
-                    aria-label={
-                      hasCoords
-                        ? `${p.name} 지도에서 보기`
-                        : `${p.name} (지도 위치 없음)`
-                    }
-                    className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${
-                      hasCoords
-                        ? selectedRowClass(selectedId === p.id)
-                        : "cursor-default opacity-90"
-                    }`}
-                  >
+                  <div className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left">
                     <span className="mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
                       <LivingCategoryIcon category={commerceCategory} />
                     </span>
@@ -975,13 +940,7 @@ export function ComplexNearbyLifeSection({
                         {address ? ` · ${address}` : ""}
                       </span>
                     </span>
-                    {hasCoords ? (
-                      <ChevronRight
-                        className="h-4 w-4 shrink-0 text-slate-400"
-                        aria-hidden
-                      />
-                    ) : null}
-                  </button>
+                  </div>
                 </li>
               );
             })}
@@ -1003,7 +962,7 @@ export function ComplexNearbyLifeSection({
                 가까운 주요 매장
               </p>
               <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
-                <span>{chipLabel} · 대표</span>
+                <span>대표 · 직선거리</span>
                 <InfoTip
                   aria-label="대표 매장 거리 기준 안내"
                   className="text-[11px]"
@@ -1016,6 +975,24 @@ export function ComplexNearbyLifeSection({
                   </p>
                 </InfoTip>
               </span>
+            </div>
+            <div
+              className="-mx-1 mb-2 flex justify-start gap-1.5 overflow-x-auto px-1 pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              role="tablist"
+              aria-label="대표 매장 종류"
+            >
+              {COMMERCE_CHIP_ORDER.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  role="tab"
+                  aria-selected={commerceCategory === cat}
+                  onClick={() => selectCommerceCategory(cat)}
+                  className={livingChipClass(commerceCategory === cat)}
+                >
+                  {COMMERCE_CHIP_LABEL[cat]}
+                </button>
+              ))}
             </div>
             {storeBody}
           </div>
@@ -1509,27 +1486,6 @@ export function ComplexNearbyLifeSection({
           </div>
         ) : null}
 
-        {tab === "commerce" ? (
-          <div
-            className="-mx-1 flex justify-end gap-1.5 overflow-x-auto px-1 pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            role="tablist"
-            aria-label="상권 대표 매장 종류"
-          >
-            {COMMERCE_CHIP_ORDER.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                role="tab"
-                aria-selected={commerceCategory === cat}
-                onClick={() => selectCommerceCategory(cat)}
-                className={livingChipClass(commerceCategory === cat)}
-              >
-                {COMMERCE_CHIP_LABEL[cat]}
-              </button>
-            ))}
-          </div>
-        ) : null}
-
         {/* One NAVER map instance — height animates; never remount on tab change. */}
         <div
           ref={mapSectionRef}
@@ -1544,12 +1500,12 @@ export function ComplexNearbyLifeSection({
             <div
               className={
                 tab === "living"
-                  ? "h-[348px] w-full sm:h-[392px] lg:h-[440px]"
+                  ? "relative h-[348px] w-full sm:h-[392px] lg:h-[440px]"
                   : tab === "commerce"
-                    ? "h-[324px] w-full sm:h-[350px] lg:h-[400px]"
+                    ? "relative h-[324px] w-full sm:h-[350px] lg:h-[400px]"
                     : tab === "school"
-                      ? "h-[310px] w-full sm:h-[340px] lg:h-[380px]"
-                      : "h-[240px] w-full sm:h-[280px] lg:h-[330px]"
+                      ? "relative h-[310px] w-full sm:h-[340px] lg:h-[380px]"
+                      : "relative h-[240px] w-full sm:h-[280px] lg:h-[330px]"
               }
               style={{
                 transition: reduceMotion ? undefined : "height 280ms ease-out",
@@ -1567,11 +1523,29 @@ export function ComplexNearbyLifeSection({
                     ? coords
                     : null
                 }
+                fitRadiusM={
+                  tab === "commerce" ? commerceSnapshot?.radiusM ?? 1000 : null
+                }
+                densityCircles={
+                  tab === "commerce"
+                    ? commerceSnapshot?.density?.cells ?? null
+                    : null
+                }
+                densityP95Count={
+                  tab === "commerce"
+                    ? commerceSnapshot?.density?.p95Count ?? null
+                    : null
+                }
+                referenceRadiusM={
+                  tab === "commerce" && commerceSnapshot?.density
+                    ? commerceSnapshot.radiusM
+                    : null
+                }
                 ariaLabel={
                   tab === "living"
                     ? `${aptName} 주변 생활시설 지도`
                     : tab === "commerce"
-                      ? `${aptName} 주변 상권 지도`
+                      ? `${aptName} 주변 생활업소 밀집도 지도`
                       : tab === "school"
                         ? `${aptName} 인근 학교 지도`
                         : tab === "transport"
@@ -1580,6 +1554,11 @@ export function ComplexNearbyLifeSection({
                 }
                 className="h-full w-full rounded-none"
               />
+              {tab === "commerce" && commerceSnapshot?.density ? (
+                <p className="pointer-events-none absolute bottom-2 left-3 rounded bg-white/85 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 shadow-sm">
+                  생활업소 밀집도 · 진할수록 밀집
+                </p>
+              ) : null}
             </div>
           ) : (
             <div
