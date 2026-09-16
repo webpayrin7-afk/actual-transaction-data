@@ -547,8 +547,7 @@ export function NaverMap({
       let anyInCover = false;
       for (const m of poi) {
         const distM = haversineMeters(anchor, m.position);
-        // Soft cover: keep apartment context; do not let 4–5km outliers
-        // collapse zoom when entering living from a tighter transport view.
+        // Soft cover: keep apartment context within living radius band.
         if (Number.isFinite(distM) && distM > FIT_COVER_MAX_M) continue;
         anyInCover = true;
         maxLatDelta = Math.max(
@@ -579,39 +578,36 @@ export function NaverMap({
     };
 
     let cancelled = false;
+    let fitted = false;
     let settleTimer: number | null = null;
-    let roTimer: number | null = null;
+    let rafOuter = 0;
+    let rafInner = 0;
 
-    const scheduleFit = () => {
-      if (cancelled) return;
+    const runFitOnce = () => {
+      if (cancelled || fitted) return;
+      fitted = true;
       runFit();
     };
 
-    // After paint, then again once living height transition settles.
-    let rafOuter = 0;
-    let rafInner = 0;
-    rafOuter = window.requestAnimationFrame(() => {
-      rafInner = window.requestAnimationFrame(scheduleFit);
-    });
-    settleTimer = window.setTimeout(scheduleFit, FIT_LAYOUT_SETTLE_MS);
-
-    const host = hostRef.current;
-    const ro =
-      typeof ResizeObserver !== "undefined" && host
-        ? new ResizeObserver(() => {
-            if (roTimer != null) window.clearTimeout(roTimer);
-            roTimer = window.setTimeout(scheduleFit, 40);
-          })
-        : null;
-    if (host && ro) ro.observe(host);
+    // Avoid double morph: do not fit on the first paint with transport-sized
+    // height (that over-shrinks, then a second fit corrects). Wait for the
+    // living height transition when the box is still short; otherwise fit
+    // on the next frame (in-living chip change).
+    const hostH = hostRef.current?.clientHeight ?? 0;
+    const needsLayoutSettle = hostH > 0 && hostH < 300;
+    if (needsLayoutSettle) {
+      settleTimer = window.setTimeout(runFitOnce, FIT_LAYOUT_SETTLE_MS);
+    } else {
+      rafOuter = window.requestAnimationFrame(() => {
+        rafInner = window.requestAnimationFrame(runFitOnce);
+      });
+    }
 
     return () => {
       cancelled = true;
       window.cancelAnimationFrame(rafOuter);
       window.cancelAnimationFrame(rafInner);
       if (settleTimer != null) window.clearTimeout(settleTimer);
-      if (roTimer != null) window.clearTimeout(roTimer);
-      ro?.disconnect();
     };
     // Only re-fit when the token changes (category / marker set), not on selection.
     // eslint-disable-next-line react-hooks/exhaustive-deps
