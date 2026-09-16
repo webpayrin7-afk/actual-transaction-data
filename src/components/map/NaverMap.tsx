@@ -18,10 +18,10 @@ import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
 /** Living map height CSS transition (~280ms) — re-fit after layout settles. */
 const FIT_LAYOUT_SETTLE_MS = 300;
 /**
- * Apartment-centered fit covers markers within this band so a few 4–5km
- * 종합병원 do not force over-zoom-out. Farther markers stay on the map.
+ * Apartment-centered fit covers in-radius living markers (~3km) so the
+ * view is not over-shrunk. Farther leftover markers are not expected.
  */
-const FIT_COVER_MAX_M = 3400;
+const FIT_COVER_MAX_M = 3000;
 
 export type LivingMarkerCategory =
   | "MART"

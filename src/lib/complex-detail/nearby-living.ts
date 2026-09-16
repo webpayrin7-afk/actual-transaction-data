@@ -70,10 +70,10 @@ export const LIVING_CATEGORY_CONFIG: Record<
   PARK: { radiusM: 2500, limit: 50 },
 };
 
-/** HOSPITAL: 의원/병원 vs 종합병원 radius (type after semantic). */
+/** HOSPITAL: 의원/병원 and 종합병원 share 3km living radius. */
 export const HOSPITAL_RADIUS_M = {
   GENERAL_MEDICAL: 3000,
-  GENERAL_HOSPITAL: 5000,
+  GENERAL_HOSPITAL: 3000,
 } as const;
 
 /** @deprecated Prefer LIVING_CATEGORY_CONFIG[cat].radiusM */
