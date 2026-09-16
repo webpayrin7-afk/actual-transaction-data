@@ -427,10 +427,10 @@ async function main() {
     promotionAttempted ? passTargets.map((t) => t.complexId) : [],
   );
 
-  const afterMap =
-    promotedIds.size > 0
-      ? await batchLoadExistingUnits(db, [...promotedIds])
-      : new Map();
+  const afterMap = await batchLoadExistingUnits(
+    db,
+    promotedIds.size > 0 ? [...promotedIds] : [],
+  );
 
   for (const t of targets) {
     if (!promotedIds.has(t.complexId)) {
