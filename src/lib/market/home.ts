@@ -14,11 +14,11 @@ import {
   seoulDayBoundsUtc,
   seoulToday,
 } from "@/lib/market/time";
-import { isSingogaV2Enabled } from "@/lib/unit-type/singoga-v2-gate";
 import {
-  applySingogaV2PriorOverlay,
-  computeSingogaV2PriorOverlays,
-} from "@/lib/unit-type/singoga-v2-wiring";
+  isPreviewV2ReadActive,
+  readPreviewV2MarketHomeRow,
+  recordV2SnapshotMissFallback,
+} from "@/lib/market/singoga-v2-storage";
 
 const LIST_LIMIT = 8;
 const HIGH_PRICE_MAN = 200_000; // 20억
@@ -311,6 +311,30 @@ function withVolumeSurges(
 }
 
 export async function getMarketHome(): Promise<MarketHomeResponse> {
+  // Stage21 prep: Preview + ENABLE_SINGOGA_V2=1 reads *_preview_v2 only.
+  // Stage20: flag stays OFF so this branch is inactive in deployed envs.
+  // On miss: never run full-history V2 — fall back to Production snapshot.
+  if (isPreviewV2ReadActive()) {
+    const v2Row = await readPreviewV2MarketHomeRow();
+    if (v2Row?.payload) {
+      try {
+        const data = JSON.parse(v2Row.payload) as MarketHomeResponse;
+        data.source = "snapshot";
+        data.computedAt = v2Row.computedAt || data.computedAt || "";
+        data.lastUpdatedLabel = formatSeoulDateTime(data.computedAt);
+        if (data.discoveryReady == null) data.discoveryReady = false;
+        if (!data.highDeals) data.highDeals = [];
+        if (!data.discoveryDate) data.discoveryDate = seoulToday();
+        const volumeSurges = await computeVolumeSurges(data.asOfDate ?? "");
+        return withVolumeSurges(data, volumeSurges);
+      } catch {
+        recordV2SnapshotMissFallback();
+      }
+    } else {
+      recordV2SnapshotMissFallback();
+    }
+  }
+
   const snap = await readMarketHomeSnapshot();
   const asOfDate = snap?.asOfDate ?? null;
   let resolvedAsOf = asOfDate;
@@ -325,6 +349,8 @@ export async function getMarketHome(): Promise<MarketHomeResponse> {
     }
   }
   const volumeSurges = await computeVolumeSurges(resolvedAsOf ?? "");
+  // Cache miss: legacy compute only — V2 full-history classify is rebuild-only
+  // (Stage20 request-path cutoff).
   const payload = snap ?? (await computeMarketHome({ discoveryDay: "today" }));
   return withVolumeSurges(payload, volumeSurges);
 }
@@ -502,17 +528,10 @@ export async function computeMarketHome(opts?: {
     );
   }
 
-  // SINGOGA_V2: when ENABLE_SINGOGA_V2=1, overlay primary priors from shared
-  // rolling classifier (group V1 prior if group exists, else exact fallback).
-  // Default OFF → legacy exact-area SQL priors unchanged.
-  let priorsForJudgment = priorByTxId;
-  if (isSingogaV2Enabled()) {
-    const { byTxId: v2Overlay } = await computeSingogaV2PriorOverlays(
-      db,
-      discovered,
-    );
-    priorsForJudgment = applySingogaV2PriorOverlay(priorByTxId, v2Overlay);
-  }
+  // Stage20: SINGOGA_V2 full-history classify removed from this compute path.
+  // Request/cache-miss and Production rebuild use legacy exact-area priors only.
+  // Preview V2 is rebuild/precompute → *_preview_v2 tables (see singoga-v2-storage).
+  const priorsForJudgment = priorByTxId;
 
   const singoga: MarketDealItem[] = [];
   const drops: MarketDealItem[] = [];

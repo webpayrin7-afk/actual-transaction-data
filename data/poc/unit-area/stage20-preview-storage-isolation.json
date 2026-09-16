@@ -1,0 +1,184 @@
+{
+  "generatedAt": "2026-09-16T02:01:13.382Z",
+  "stage": "stage20-preview-storage-isolation",
+  "originalProductionStorage": {
+    "marketHomeTable": "market_home_snapshots",
+    "statsTable": "market_stats_feeds"
+  },
+  "previewV2Storage": {
+    "marketHomeTable": "market_home_snapshots_preview_v2",
+    "statsTable": "market_stats_feeds_preview_v2",
+    "tablesCreated": {
+      "market": true,
+      "stats": true
+    },
+    "schemaApproach": "compatible-minimal-mirror+metadata",
+    "semanticVersion": "singoga_v2",
+    "groupRuleVersion": "similar_exclusive_area_v1"
+  },
+  "routing": {
+    "productionMarketReads": "market_home_snapshots",
+    "productionStatsReads": "market_stats_feeds",
+    "previewV2MarketReads": "market_home_snapshots_preview_v2",
+    "previewV2StatsReads": "market_stats_feeds_preview_v2",
+    "previewV2RebuildWrites": {
+      "market": "market_home_snapshots_preview_v2",
+      "stats": "market_stats_feeds_preview_v2"
+    },
+    "productionRebuildWrites": {
+      "market": "market_home_snapshots",
+      "stats": "market_stats_feeds",
+      "note": "unchanged legacy path; no V2 classify in compute*"
+    }
+  },
+  "hardGuards": {
+    "previewV2CanTargetProductionMarket": false,
+    "previewV2CanTargetProductionStats": false,
+    "productionNormalPathCanWritePreviewV2": false,
+    "wrongTableAbort": "PASS",
+    "wrongPartialAbort": "PASS",
+    "writeGuardWithoutContext": "PASS",
+    "verifiedTargets": {
+      "market": "market_home_snapshots_preview_v2",
+      "stats": "market_stats_feeds_preview_v2"
+    }
+  },
+  "requestPathCutoff": {
+    "v2SnapshotMissBehavior": "read Production legacy snapshot/feed; emit V2_SNAPSHOT_MISS_FALLBACK; never classify",
+    "missDiagnosticToken": "V2_SNAPSHOT_MISS_FALLBACK",
+    "missDiagnosticRecordedAt": "2026-09-16T02:01:12.769Z",
+    "fullHistoryClassifierCalled": false,
+    "transactionHistoryFetchedForV2": false,
+    "requestPathComputeAllowed": false,
+    "homeStillCallsV2Overlay": false,
+    "statsStillCallsV2Overlay": false,
+    "simulatedPreviewFlagOnReadActive": true,
+    "afterClearReadActive": false,
+    "twentySecondRequestComputationPossible": false,
+    "status": "PASS"
+  },
+  "explicitRebuildPath": {
+    "classifierReachable": true,
+    "minimalStubRows": 2,
+    "targetTables": {
+      "market": "market_home_snapshots_preview_v2",
+      "stats": "market_stats_feeds_preview_v2"
+    },
+    "wrongTableAbortGuard": "PASS",
+    "script": "scripts/rebuild-preview-singoga-v2.mts",
+    "status": "PASS"
+  },
+  "statsDeleteSafety": {
+    "previewDeleteTarget": "market_stats_feeds_preview_v2",
+    "productionStatsDeletePossibleFromPreviewPath": false,
+    "status": "PASS"
+  },
+  "storageProbe": {
+    "previewV2Writes": {
+      "marketTable": "market_home_snapshots_preview_v2",
+      "statsTable": "market_stats_feeds_preview_v2",
+      "marketWritten": true,
+      "statsWritten": 1
+    },
+    "previewV2Reads": {
+      "marketOk": true,
+      "statsOk": true,
+      "probeWriteOk": true
+    },
+    "probeCleaned": true,
+    "cleanedCounts": {
+      "marketDeleted": 1,
+      "statsDeleted": 1
+    },
+    "productionMarketFingerprint": {
+      "before": {
+        "computedAt": "2026-09-15T21:18:55.493Z",
+        "asOfDate": "2026-09-15",
+        "payloadBytes": 14905
+      },
+      "after": {
+        "computedAt": "2026-09-15T21:18:55.493Z",
+        "asOfDate": "2026-09-15",
+        "payloadBytes": 14905
+      },
+      "same": true
+    },
+    "productionStatsFingerprint": {
+      "before": {
+        "count": 9,
+        "maxComputedAt": "2026-09-15T21:27:46.010Z",
+        "payloadBytesSum": 128824
+      },
+      "after": {
+        "count": 9,
+        "maxComputedAt": "2026-09-15T21:27:46.010Z",
+        "payloadBytesSum": 128824
+      },
+      "same": true
+    }
+  },
+  "finalPersistentData": {
+    "productionMarketRowsChanged": 0,
+    "productionStatsRowsChanged": 0,
+    "previewV2BusinessSnapshotRows": 0,
+    "previewV2BusinessStatsRows": 0,
+    "probeRowsRemaining": 0,
+    "unitTablesUnchanged": true
+  },
+  "flags": {
+    "ENABLE_SINGOGA_V2": {
+      "preview": "OFF",
+      "production": "OFF",
+      "process": "(unset)"
+    },
+    "legacyFlagsChanged": false,
+    "ENABLE_MARKET_GROUP_BASELINE_SINGOGA": "(unset)",
+    "POST_WH_SINGOGA_GAPS_CLEARED": "(unset)",
+    "flagOff": true
+  },
+  "performance": {
+    "stage18KnownMs": 26604,
+    "stage19EphemeralMs": 24630,
+    "stage20BenchmarkRerun": false,
+    "indexCandidate": "DEFER"
+  },
+  "dbWrites": {
+    "existingProductionTables": 0,
+    "newPreviewTablesCreated": 2,
+    "probeInsertDelete": {
+      "marketInsert": 1,
+      "statsInsert": 1,
+      "marketDelete": 1,
+      "statsDelete": 1
+    },
+    "unitGroupBaselineClassificationWrites": 0
+  },
+  "apiUi": {
+    "publicSchemaChanged": false,
+    "uiChanged": false,
+    "productionBehaviorChanged": false,
+    "previewBehaviorActivated": false
+  },
+  "stage21Readiness": {
+    "previewTablesReady": true,
+    "requestPathCutoffReady": true,
+    "explicitRebuildEntryReady": true,
+    "flagStillOff": true,
+    "activationBlockedUntil": "Stage21 Preview flag ON + real classify rebuild"
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Storage isolation + request-path cutoff PASS; Stage21 can rebuild into *_preview_v2 and turn Preview flag ON."
+  },
+  "decision": {
+    "PREVIEW_STORAGE_ISOLATION": "PASS",
+    "PRODUCTION_STORAGE_SAFETY": "PASS",
+    "REQUEST_PATH_COMPUTE_CUTOFF": "PASS",
+    "EXPLICIT_REBUILD_PATH": "PASS",
+    "STATS_DELETE_SAFETY": "PASS",
+    "FLAG_SAFETY": "PASS",
+    "PREVIEW_ACTIVATION": "NOT_READY",
+    "PRODUCTION_SWITCH": "NOT_YET",
+    "DATA_SAFETY": "PASS"
+  }
+}

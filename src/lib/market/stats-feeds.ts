@@ -16,11 +16,11 @@ import {
   type PeriodWindow,
 } from "@/lib/market/keys";
 import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
-import { isSingogaV2Enabled } from "@/lib/unit-type/singoga-v2-gate";
 import {
-  applySingogaV2PriorOverlay,
-  computeSingogaV2PriorOverlays,
-} from "@/lib/unit-type/singoga-v2-wiring";
+  isPreviewV2ReadActive,
+  readPreviewV2StatsFeedPayload,
+  recordV2SnapshotMissFallback,
+} from "@/lib/market/singoga-v2-storage";
 
 const FEED_LIST_LIMIT = 12;
 const HIGH_PRICE_MAN = 200_000; // 20억
@@ -200,16 +200,9 @@ export async function computeStatsDealFeed(
     }
   }
 
-  // SINGOGA_V2: ENABLE_SINGOGA_V2=1 overlays shared classifier priors.
-  // Default OFF → legacy exact-area SQL priors unchanged.
-  let priorsForJudgment = priorById;
-  if (isSingogaV2Enabled()) {
-    const { byTxId: v2Overlay } = await computeSingogaV2PriorOverlays(
-      db,
-      recent,
-    );
-    priorsForJudgment = applySingogaV2PriorOverlay(priorById, v2Overlay);
-  }
+  // Stage20: V2 full-history classify removed from request/on-demand compute.
+  // Preview V2 uses explicit rebuild → market_stats_feeds_preview_v2 only.
+  const priorsForJudgment = priorById;
 
   const singoga: MarketDealItem[] = [];
   const drops: MarketDealItem[] = [];
@@ -430,6 +423,22 @@ export async function readStatsDealFeed(
 ): Promise<StatsDealFeed | null> {
   const db = getDb();
   if (!db) return null;
+
+  // Stage21 prep: Preview + flag ON reads preview_v2 feeds first.
+  // Miss → diagnostic + fall through to Production feeds (no V2 recompute).
+  if (isPreviewV2ReadActive()) {
+    const rawV2 = await readPreviewV2StatsFeedPayload(period, scope, db);
+    if (rawV2) {
+      try {
+        return JSON.parse(rawV2) as StatsDealFeed;
+      } catch {
+        recordV2SnapshotMissFallback();
+      }
+    } else {
+      recordV2SnapshotMissFallback();
+    }
+  }
+
   try {
     const result = await db.execute({
       sql: `SELECT payload FROM market_stats_feeds
