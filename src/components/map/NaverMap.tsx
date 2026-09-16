@@ -13,7 +13,15 @@ import {
   type NaverMapInstance,
   type NaverMarkerInstance,
 } from "@/lib/nearby-map/naver-sdk";
-import type { LatLng } from "@/lib/nearby-map/geo";
+import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
+
+/** Living map height CSS transition (~280ms) — re-fit after layout settles. */
+const FIT_LAYOUT_SETTLE_MS = 300;
+/**
+ * Apartment-centered fit covers markers within this band so a few 4–5km
+ * 종합병원 do not force over-zoom-out. Farther markers stay on the map.
+ */
+const FIT_COVER_MAX_M = 3400;
 
 export type LivingMarkerCategory =
   | "MART"
@@ -470,27 +478,38 @@ export function NaverMap({
 
     const estimateZoom = (latDelta: number, lngDelta: number): number => {
       const cos = Math.max(0.25, Math.cos((anchor.lat * Math.PI) / 180));
+      const host = hostRef.current;
       let width = 360;
       let height = 320;
-      try {
-        const size = map.getSize?.();
-        if (size && Number.isFinite(size.width) && size.width > 0) {
-          width = size.width;
+      // Prefer host box (tracks CSS height transition) over stale map.getSize().
+      if (host && host.clientWidth > 0) width = host.clientWidth;
+      else {
+        try {
+          const size = map.getSize?.();
+          if (size && Number.isFinite(size.width) && size.width > 0) {
+            width = size.width;
+          }
+        } catch {
+          /* keep fallback */
         }
-        if (size && Number.isFinite(size.height) && size.height > 0) {
-          height = size.height;
-        }
-      } catch {
-        /* keep fallback size */
       }
-      // Light chrome inset — keep markers visible without over-shrinking.
+      if (host && host.clientHeight > 0) height = host.clientHeight;
+      else {
+        try {
+          const size = map.getSize?.();
+          if (size && Number.isFinite(size.height) && size.height > 0) {
+            height = size.height;
+          }
+        } catch {
+          /* keep fallback */
+        }
+      }
       const usableW = Math.max(120, width - 48);
       const usableH = Math.max(120, height - 56);
       const northM = Math.max(latDelta * 111320, 40);
       const eastM = Math.max(lngDelta * 111320 * cos, 40);
       const mpp = Math.max((2 * eastM) / usableW, (2 * northM) / usableH);
       const z = Math.log2((156543.03392 * cos) / mpp);
-      // Round (not floor) so pharmacy-scale clusters are not over-zoomed-out.
       return Math.max(12, Math.min(16, Math.round(z)));
     };
 
@@ -498,6 +517,11 @@ export function NaverMap({
       const z = Math.max(11, Math.min(18, targetZoom));
       try {
         map.stop?.();
+      } catch {
+        /* ignore */
+      }
+      try {
+        maps.Event.trigger?.(map, "resize");
       } catch {
         /* ignore */
       }
@@ -512,21 +536,83 @@ export function NaverMap({
       });
     };
 
-    if (poi.length === 0) {
-      animateTo(zoom);
-      return;
-    }
+    const runFit = () => {
+      if (poi.length === 0) {
+        animateTo(zoom);
+        return;
+      }
 
-    let maxLatDelta = 0;
-    let maxLngDelta = 0;
-    for (const m of poi) {
-      maxLatDelta = Math.max(maxLatDelta, Math.abs(m.position.lat - anchor.lat));
-      maxLngDelta = Math.max(maxLngDelta, Math.abs(m.position.lng - anchor.lng));
-    }
-    const pad = 1.1;
-    const latDelta = Math.max(maxLatDelta * pad, 0.0012);
-    const lngDelta = Math.max(maxLngDelta * pad, 0.0012);
-    animateTo(estimateZoom(latDelta, lngDelta));
+      let maxLatDelta = 0;
+      let maxLngDelta = 0;
+      let anyInCover = false;
+      for (const m of poi) {
+        const distM = haversineMeters(anchor, m.position);
+        // Soft cover: keep apartment context; do not let 4–5km outliers
+        // collapse zoom when entering living from a tighter transport view.
+        if (Number.isFinite(distM) && distM > FIT_COVER_MAX_M) continue;
+        anyInCover = true;
+        maxLatDelta = Math.max(
+          maxLatDelta,
+          Math.abs(m.position.lat - anchor.lat),
+        );
+        maxLngDelta = Math.max(
+          maxLngDelta,
+          Math.abs(m.position.lng - anchor.lng),
+        );
+      }
+      if (!anyInCover) {
+        for (const m of poi) {
+          maxLatDelta = Math.max(
+            maxLatDelta,
+            Math.abs(m.position.lat - anchor.lat),
+          );
+          maxLngDelta = Math.max(
+            maxLngDelta,
+            Math.abs(m.position.lng - anchor.lng),
+          );
+        }
+      }
+      const pad = 1.1;
+      const latDelta = Math.max(maxLatDelta * pad, 0.0012);
+      const lngDelta = Math.max(maxLngDelta * pad, 0.0012);
+      animateTo(estimateZoom(latDelta, lngDelta));
+    };
+
+    let cancelled = false;
+    let settleTimer: number | null = null;
+    let roTimer: number | null = null;
+
+    const scheduleFit = () => {
+      if (cancelled) return;
+      runFit();
+    };
+
+    // After paint, then again once living height transition settles.
+    let rafOuter = 0;
+    let rafInner = 0;
+    rafOuter = window.requestAnimationFrame(() => {
+      rafInner = window.requestAnimationFrame(scheduleFit);
+    });
+    settleTimer = window.setTimeout(scheduleFit, FIT_LAYOUT_SETTLE_MS);
+
+    const host = hostRef.current;
+    const ro =
+      typeof ResizeObserver !== "undefined" && host
+        ? new ResizeObserver(() => {
+            if (roTimer != null) window.clearTimeout(roTimer);
+            roTimer = window.setTimeout(scheduleFit, 40);
+          })
+        : null;
+    if (host && ro) ro.observe(host);
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(rafOuter);
+      window.cancelAnimationFrame(rafInner);
+      if (settleTimer != null) window.clearTimeout(settleTimer);
+      if (roTimer != null) window.clearTimeout(roTimer);
+      ro?.disconnect();
+    };
     // Only re-fit when the token changes (category / marker set), not on selection.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fitBoundsToken, status]);
