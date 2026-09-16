@@ -95,7 +95,7 @@ export function HomeNavigation() {
             placement,
           ].join(" ");
 
-          const label = compact ? item.shortLabel : item.label;
+          const label = item.label;
           const iconCls = compact
             ? "h-[16px] w-[16px] stroke-[1.75]"
             : featured
@@ -105,7 +105,7 @@ export function HomeNavigation() {
             "text-center font-semibold leading-tight",
             `transition-[font-size] ${EASE}`,
             compact
-              ? "max-w-full truncate text-[10px]"
+              ? "max-w-full truncate text-[9px]"
               : featured
                 ? "text-[11px]"
                 : isMap
