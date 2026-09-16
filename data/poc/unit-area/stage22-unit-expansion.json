@@ -1,0 +1,195 @@
+{
+  "generatedAt": "2026-09-16T02:32:37.017Z",
+  "stage": "stage22-unit-expansion",
+  "officialContract": {
+    "scope": "Seoul IDENTITY-READY trade only",
+    "canonical": "Math.round(exclusive_area*100)/100",
+    "officialRawIdentitiesBefore": 29807,
+    "officialRawIdentitiesAfter": 29807
+  },
+  "selection": {
+    "requested": 100,
+    "selected": 100,
+    "poolSize": 2309,
+    "selectionRule": "Seoul IDENTITY-READY cx_; deal_type=trade; exclusive_area>0; exclude existing cx_ unit-master; trade_tx>=50; canonical areas 2–20; ORDER BY trade_tx DESC, complex_id ASC",
+    "existingUnitMasterExcluded": true,
+    "existingUnitMasterExcludedCount": 42,
+    "newSlugCandidates": 0
+  },
+  "manifest": {
+    "path": "data/poc/unit-area/stage22-unit-promotion-manifest.json",
+    "targetComplexes": 100,
+    "expectedUnitRows": 573,
+    "precheck": "PASS",
+    "identityFailures": 0,
+    "duplicates": 0,
+    "invalidAreas": 0,
+    "rowHardCap": 1500,
+    "expectedRows": 573,
+    "capExceeded": "NO"
+  },
+  "productionPromotion": {
+    "attempted": "YES",
+    "complexesPromoted": 100,
+    "unitRowsInserted": 573,
+    "unitRowsUpdated": 0,
+    "unitRowsDeleted": 0
+  },
+  "completeness": {
+    "targetCanonicalTradeIdentities": 573,
+    "afterLoadCanonicalIdentities": 573,
+    "missing": 0,
+    "duplicates": 0,
+    "status": "PASS",
+    "perComplexSummaryOnly": true,
+    "holdOrProblem": []
+  },
+  "newCxIntegrity": {
+    "duplicateUnitTypeKey": 0,
+    "duplicateComplexAreaKey": 0,
+    "newSlugWrites": 0,
+    "status": "PASS"
+  },
+  "distribution": {
+    "min": 2,
+    "median": 5,
+    "max": 16,
+    "totalCanonicalUnits": 573,
+    "buckets": {
+      "1-3": 29,
+      "4-7": 49,
+      "8-12": 15,
+      "13+": 7
+    }
+  },
+  "top10": [
+    {
+      "complexId": "cx_3bcf0f87bce7496b",
+      "aptNameNorm": "래미안퍼스티지",
+      "aptName": "래미안퍼스티지",
+      "canonicalUnitCount": 16
+    },
+    {
+      "complexId": "cx_f39813c026bb2817",
+      "aptNameNorm": "래미안힐스테이트고덕",
+      "aptName": "래미안힐스테이트고덕",
+      "canonicalUnitCount": 16
+    },
+    {
+      "complexId": "cx_6f648848b8568576",
+      "aptNameNorm": "상계주공4(고층)",
+      "aptName": "상계주공4(고층)",
+      "canonicalUnitCount": 15
+    },
+    {
+      "complexId": "cx_f60298b8d6597b74",
+      "aptNameNorm": "장미(시영6)",
+      "aptName": "장미(시영6)",
+      "canonicalUnitCount": 15
+    },
+    {
+      "complexId": "cx_c1119835dd164c62",
+      "aptNameNorm": "상계주공3(고층)",
+      "aptName": "상계주공3(고층)",
+      "canonicalUnitCount": 14
+    },
+    {
+      "complexId": "cx_e1d2e94be6e3e431",
+      "aptNameNorm": "위례24단지(꿈에그린)",
+      "aptName": "위례24단지(꿈에그린)",
+      "canonicalUnitCount": 14
+    },
+    {
+      "complexId": "cx_0f64ef6eef7e9468",
+      "aptNameNorm": "개포주공1단지",
+      "aptName": "개포주공1단지",
+      "canonicalUnitCount": 13
+    },
+    {
+      "complexId": "cx_271339c044af8a26",
+      "aptNameNorm": "백련산힐스테이트1차",
+      "aptName": "백련산힐스테이트1차",
+      "canonicalUnitCount": 12
+    },
+    {
+      "complexId": "cx_a44993152e85f7dc",
+      "aptNameNorm": "화곡푸르지오",
+      "aptName": "화곡푸르지오",
+      "canonicalUnitCount": 11
+    },
+    {
+      "complexId": "cx_4ffda47da0de7668",
+      "aptNameNorm": "래미안옥수리버젠",
+      "aptName": "래미안옥수리버젠",
+      "canonicalUnitCount": 10
+    }
+  ],
+  "optionalV1CandidateEstimate": {
+    "performed": true,
+    "complexesWithCandidate": 40,
+    "safeCandidateEstimate": 67,
+    "groupWrites": 0
+  },
+  "coverageBefore": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 42,
+    "unitMasterComplexCoveragePct": 0.5,
+    "canonicalRawTradeIdentities": 29807,
+    "unitMasterCanonicalIdentities": 369,
+    "unitAreaCoveragePct": 1.24
+  },
+  "coverageAfter": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 142,
+    "unitMasterComplexCoveragePct": 1.68,
+    "canonicalRawTradeIdentities": 29807,
+    "unitMasterCanonicalIdentities": 942,
+    "unitAreaCoveragePct": 3.16
+  },
+  "coverageDelta": {
+    "unitMasterComplexes": "42 → 142",
+    "canonicalUnitIdentities": "369 → 942"
+  },
+  "idempotency": {
+    "verifyOnlyReplayNewInserts": 0,
+    "status": "PASS"
+  },
+  "dataSafety": {
+    "transactionsChanged": 0,
+    "masterChanged": 0,
+    "sourceLinksChanged": 0,
+    "existingUnitRowsUpdated": 0,
+    "legacyRowsChanged": 0,
+    "groupsChanged": 0,
+    "linksChanged": 0,
+    "baselinesChanged": 0,
+    "classificationsChanged": 0,
+    "unitTypesDelta": 573,
+    "status": "PASS"
+  },
+  "timing": {
+    "selectionMs": 66046,
+    "manifestMs": 78226,
+    "insertMs": 126876,
+    "postcheckMs": 122506
+  },
+  "db": {
+    "apt_unit_types_insert": 573,
+    "apt_unit_types_update": 0,
+    "all_other_business_inserts": 0,
+    "delete": 0
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Stage22 unit-master expansion PASS; continue bounded unit coverage before grouping."
+  },
+  "decision": {
+    "MANIFEST_PRECHECK": "PASS",
+    "100_COMPLEX_UNIT_EXPANSION": "PASS",
+    "CANONICAL_COMPLETENESS": "PASS",
+    "NEW_CX_INTEGRITY": "PASS",
+    "IDEMPOTENCY": "PASS",
+    "PROMOTION_CONTRACT_PRACTICAL_TEST": "PASS",
+    "DATA_SAFETY": "PASS"
+  }
+}
