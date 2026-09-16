@@ -9,8 +9,11 @@ const EASE = "duration-200 ease-out";
 
 /**
  * Single mobile home navigation.
- * Same 5 items morph expanded (asymmetric grid) → compact (5-col row)
- * while the nav itself sticks under SiteHeader.
+ * Same 5 items morph expanded → compact while sticky under SiteHeader.
+ *
+ * Important: sticky nav must NOT sit inside a short wrapper — sticky only
+ * lasts for the height of its containing block. Sentinel + nav are siblings
+ * under the page shell; -mt-5 cancels PAGE_SHELL gap so no gray strip.
  */
 export function HomeNavigation() {
   const pathname = usePathname();
@@ -56,18 +59,18 @@ export function HomeNavigation() {
   }, []);
 
   return (
-    // One flex child under PAGE_SHELL — avoids gap-5 gray strip above the menu.
-    <div className="relative sm:hidden">
+    <>
+      {/* Zero-height sentinel; -mb-5 eats the flex gap before the sticky nav. */}
       <div
         ref={sentinelRef}
-        className="pointer-events-none absolute top-0 left-0 h-px w-full"
+        className="pointer-events-none -mb-5 h-0 w-full sm:hidden"
         aria-hidden
       />
       <nav
         aria-label="주요 탐색"
         data-mode={compact ? "compact" : "expanded"}
         className={[
-          "sticky z-40 -mx-4 border-b border-slate-200/50 bg-white",
+          "sticky z-40 -mx-4 border-b border-slate-200/50 bg-white sm:hidden",
           `transition-[padding,border-color] ${EASE}`,
           compact ? "px-2 py-1.5" : "px-3 pt-0 pb-2.5",
         ].join(" ")}
@@ -79,8 +82,8 @@ export function HomeNavigation() {
             `transition-[gap] ${EASE}`,
             compact
               ? "grid-cols-5 gap-0.5"
-              : // 37% featured | 63% right (map + 3 tiles)
-                "grid-cols-[minmax(0,0.37fr)_repeat(3,minmax(0,0.21fr))] grid-rows-[auto_auto] gap-1.5",
+              : // ~28% featured | ~72% right (map + 3 tiles)
+                "grid-cols-[minmax(0,0.28fr)_repeat(3,minmax(0,0.24fr))] grid-rows-[auto_auto] gap-1.5",
           ].join(" ")}
         >
           {HOME_QUICK_NAV.map((item) => {
@@ -111,7 +114,7 @@ export function HomeNavigation() {
             const shape = compact
               ? "min-h-[56px] flex-col gap-0.5 rounded-xl px-0.5 py-1.5"
               : featured
-                ? "min-h-[108px] h-full flex-col gap-1.5 rounded-2xl px-2 py-2.5"
+                ? "min-h-[100px] h-full flex-col gap-1.5 rounded-2xl px-1.5 py-2"
                 : isMap
                   ? "min-h-[48px] flex-row gap-2 rounded-2xl px-3"
                   : "min-h-[52px] flex-col gap-1 rounded-2xl px-1 py-1.5";
@@ -136,7 +139,7 @@ export function HomeNavigation() {
               compact
                 ? "max-w-full truncate text-[10px]"
                 : featured
-                  ? "text-[12px]"
+                  ? "text-[11px]"
                   : isMap
                     ? "text-[12px]"
                     : "text-[10.5px]",
@@ -188,6 +191,6 @@ export function HomeNavigation() {
           })}
         </div>
       </nav>
-    </div>
+    </>
   );
 }
