@@ -757,14 +757,18 @@ export function ComplexNearbyLifeSection({
     return list;
   }, [tabMarkers, complexMarker]);
 
-  const livingFitToken = useMemo(() => {
-    if (tab !== "living" || !coords) return null;
+  const mapFitToken = useMemo(() => {
+    if (!coords) return null;
+    if (tab !== "living" && tab !== "commerce" && tab !== "school") {
+      return null;
+    }
     const ids = tabMarkers
       .map((m) => m.id)
       .slice()
       .sort()
       .join("|");
-    return `living:${livingCategory}:${ids}`;
+    if (tab === "living") return `living:${livingCategory}:${ids}`;
+    return `${tab}:${ids}`;
   }, [tab, coords, livingCategory, tabMarkers]);
 
   const onMarkerClick = useCallback(
@@ -1458,8 +1462,12 @@ export function ComplexNearbyLifeSection({
                 markers={markers}
                 selectedId={selectedId}
                 onMarkerClick={onMarkerClick}
-                fitBoundsToken={livingFitToken}
-                fitAnchor={tab === "living" ? coords : null}
+                fitBoundsToken={mapFitToken}
+                fitAnchor={
+                  tab === "living" || tab === "commerce" || tab === "school"
+                    ? coords
+                    : null
+                }
                 ariaLabel={
                   tab === "living"
                     ? `${aptName} 주변 생활시설 지도`
