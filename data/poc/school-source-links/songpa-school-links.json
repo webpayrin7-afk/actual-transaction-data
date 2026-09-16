@@ -1,0 +1,1283 @@
+{
+  "generatedAt": "2026-09-15T16:37:10.491Z",
+  "scope": "서울특별시 송파구",
+  "namespaces": {
+    "neis": "SD_SCHUL_CODE",
+    "schoolInfo": "SCHUL_CODE",
+    "note": "NEIS CODE != SchoolInfo CODE; never treat as same namespace"
+  },
+  "sources": {
+    "schoolInfo": {
+      "endpoint": "https://www.schoolinfo.go.kr/openApi.do",
+      "apiType": "0",
+      "calls": 3,
+      "sidoCode": "11",
+      "sggCode": "11710"
+    },
+    "neis": {
+      "endpoint": "https://open.neis.go.kr/hub/schoolInfo",
+      "fetchStatus": "NEIS_API_KEY / NEIS_KEY not present in environment; cannot fetch Songpa NEIS schoolInfo list this run",
+      "calls": 0
+    }
+  },
+  "summary": {
+    "neisTotal": 0,
+    "schoolInfoTotal": 91,
+    "schoolInfoByLevel": {
+      "elementary": 41,
+      "middle": 29,
+      "high": 21
+    },
+    "MATCHED": 2,
+    "AMBIGUOUS": 0,
+    "UNRESOLVED": 89,
+    "matchRatePct": 100,
+    "matchRateBasis": "NEIS-keyed rows only",
+    "decision": "HOLD",
+    "decisionReason": "NEIS list unavailable — cannot compute Songpa NEIS→SchoolInfo coverage; known links revalidated on SchoolInfo side only"
+  },
+  "byLevel": {
+    "elementary": {
+      "total": 0,
+      "matched": 0,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "matchRatePct": null
+    },
+    "middle": {
+      "total": 2,
+      "matched": 2,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "matchRatePct": 100
+    },
+    "high": {
+      "total": 0,
+      "matched": 0,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "matchRatePct": null
+    }
+  },
+  "representative": {
+    "잠실중학교": {
+      "neisSchoolCode": "7130202",
+      "schoolInfoCode": "S010000888",
+      "schoolName": "잠실중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로35길 130 (신천동)",
+      "status": "MATCHED",
+      "matchEvidence": [
+        "NAME_EXACT",
+        "LEVEL_EXACT",
+        "REGION_EXACT",
+        "ADDRESS_EXACT",
+        "KNOWN_LINK_REVALIDATED",
+        "NAMESPACE_SEPARATE"
+      ],
+      "notes": "NEIS row not live-fetched this run (key missing); SchoolInfo side revalidated live; link from existing identity contract"
+    }
+  },
+  "ambiguousExamples": [],
+  "futureProduction": {
+    "runtimeResolverReplaceable": "NOT_YET — complete NEIS-side Songpa fetch + match first",
+    "dbMappingRequiredNow": false,
+    "recommendedFutureIdentityModel": "Keep /school/[NEIS SD_SCHUL_CODE] route; resolve SchoolInfo SCHUL_CODE via source-link layer (name+level+region+normalized address). Never merge code namespaces."
+  },
+  "schools": [
+    {
+      "neisSchoolCode": "7130202",
+      "schoolInfoCode": "S010000888",
+      "schoolName": "잠실중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로35길 130 (신천동)",
+      "status": "MATCHED",
+      "matchEvidence": [
+        "NAME_EXACT",
+        "LEVEL_EXACT",
+        "REGION_EXACT",
+        "ADDRESS_EXACT",
+        "KNOWN_LINK_REVALIDATED",
+        "NAMESPACE_SEPARATE"
+      ],
+      "notes": "NEIS row not live-fetched this run (key missing); SchoolInfo side revalidated live; link from existing identity contract"
+    },
+    {
+      "neisSchoolCode": "7130201",
+      "schoolInfoCode": "S010000887",
+      "schoolName": "잠신중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 잠실로 12 , 잠신중학교 (잠실동)",
+      "status": "MATCHED",
+      "matchEvidence": [
+        "NAME_EXACT",
+        "LEVEL_EXACT",
+        "REGION_EXACT",
+        "ADDRESS_EXACT",
+        "KNOWN_LINK_REVALIDATED",
+        "NAMESPACE_SEPARATE"
+      ],
+      "notes": "NEIS row not live-fetched this run (key missing); SchoolInfo side revalidated live; link from existing identity contract"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000897",
+      "schoolName": "서울가동초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 중대로20길 47 (가락동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000898",
+      "schoolName": "서울가락초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로37길 45 (가락동, 가락초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000899",
+      "schoolName": "서울가원초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 중대로4길 8 (문정동, 가원초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000900",
+      "schoolName": "서울가주초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로40길 37 , 서울가주초등학교 (가락동, 가주초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000904",
+      "schoolName": "서울거여초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 마천로25길 18 (오금동, 거여초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000905",
+      "schoolName": "서울거원초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양산로2길 26 (거여동,거원초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000910",
+      "schoolName": "서울남천초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 성내천로 207 (마천동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000913",
+      "schoolName": "서울마천초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 마천로61다길 24 , 서울마천초등학교 (마천동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000918",
+      "schoolName": "서울문덕초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송이로34길 60 (문정동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000919",
+      "schoolName": "서울문정초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 문정로5길 20 , 문정초등학교 (문정동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000920",
+      "schoolName": "서울방산초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로27길 42 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000921",
+      "schoolName": "서울방이초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례성대로10길 4 , 서울방이초등학교 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000922",
+      "schoolName": "서울삼전초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 백제고분로28길 19 (삼전동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000924",
+      "schoolName": "서울석촌초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 가락로11길 26 , 서울석촌초등학교 (석촌동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000929",
+      "schoolName": "서울세륜초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양재대로 1264 , 서울세륜초등학교 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000930",
+      "schoolName": "서울송전초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 석촌호수로 159 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000931",
+      "schoolName": "서울송파초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 백제고분로 400 (송파동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000932",
+      "schoolName": "서울신가초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송이로 75 , 서울신가초등학교 (가락동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000935",
+      "schoolName": "서울신천초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로 215 (잠실동, 주공아파트)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000936",
+      "schoolName": "서울아주초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로4길 59 , 서울아주초등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000937",
+      "schoolName": "서울영풍초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로57길 15 , 서울영풍초등학교 (거여동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000938",
+      "schoolName": "서울오금초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례성대로22길 11 (오금동, 서울오금초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000939",
+      "schoolName": "서울오륜초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양재대로 1196 , 서울오륜초등학교 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000941",
+      "schoolName": "서울잠동초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로35길 122 (신천동, 잠동초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000942",
+      "schoolName": "서울잠신초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 잠실로 32 , 서울잠신초등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000943",
+      "schoolName": "서울잠실초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로35길 20 (신천동,잠실초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000944",
+      "schoolName": "서울잠일초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로 95 , 서울잠일초등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000945",
+      "schoolName": "서울잠전초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로12길 51 , 서울잠전초등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000946",
+      "schoolName": "서울중대초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로36길 8 (송파동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000950",
+      "schoolName": "서울토성초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 풍성로20길 44 , 서울토성초등학교 (풍납동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000951",
+      "schoolName": "서울평화초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로26길 22 , 서울평화초등학교 (가락동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000952",
+      "schoolName": "서울풍납초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 풍성로 43 (풍납동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000953",
+      "schoolName": "서울풍성초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 강동대로2길 13 , (풍납동,풍성초등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005384",
+      "schoolName": "서울버들초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 석촌호수로 81 , 서울버들초등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005386",
+      "schoolName": "서울문현초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 충민로 137 , (서울문현초등학교) (장지동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005503",
+      "schoolName": "서울개롱초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 문정로 211 , 서울개롱초등학교 (오금동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005504",
+      "schoolName": "서울잠현초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로37길 109 , 서울잠현초등학교 (신천동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005599",
+      "schoolName": "서울위례솔초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례북로2길 12 , 12",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010006043",
+      "schoolName": "서울송례초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례순환로 439 (장지동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010006211",
+      "schoolName": "서울위례별초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례광장로 243 , 서울위례별초등학교 (장지동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010006433",
+      "schoolName": "서울해누리초등학교",
+      "schoolLevel": "elementary",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로37길 95 (가락동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000856",
+      "schoolName": "가락중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송이로 45 (송파동,가락중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000857",
+      "schoolName": "가원중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 중대로10길 40-18 (가락동,가원중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000859",
+      "schoolName": "거원중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양산로2길 30 (거여동,거원중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000865",
+      "schoolName": "문정중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 문정로 73 (문정동, 문정중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000866",
+      "schoolName": "방산중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로29길 31 (방이동, 방산중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000867",
+      "schoolName": "방이중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로11길 64 (방이동,방이중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000868",
+      "schoolName": "배명중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 삼학사로 11 (삼전동,배명중고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000870",
+      "schoolName": "보성중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양재대로 1278 (방이동,보성중고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000871",
+      "schoolName": "보인중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로49길 18 (오금동, 보인중고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000873",
+      "schoolName": "석촌중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송이로15길 13 (가락동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000876",
+      "schoolName": "세륜중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양재대로72길 41 (오금동,세륜중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000877",
+      "schoolName": "송파중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 동남로 203 (가락동, 송파중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000880",
+      "schoolName": "신천중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 백제고분로 11 , 신천중학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000881",
+      "schoolName": "아주중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로4길 69 , 아주중학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000882",
+      "schoolName": "영파여자중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로 565 (풍납동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000883",
+      "schoolName": "오금중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로35길 20 (오금동,오금중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000884",
+      "schoolName": "오륜중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양재대로 1242 (방이동,오륜중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000885",
+      "schoolName": "오주중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 동남로 281 (오금동, 오주중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000886",
+      "schoolName": "잠실여자중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로38길 8 (송파동,잠실여자중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000889",
+      "schoolName": "정신여자중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로4길 16 , 정신여자중학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000892",
+      "schoolName": "풍납중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로43길 20 (풍납동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000893",
+      "schoolName": "풍성중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 강동대로2길 27 (풍납동, 풍성중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010004058",
+      "schoolName": "서울체육중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 강동대로 232 , 서울체육중학교 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005520",
+      "schoolName": "문현중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 충민로 99 (장지동, 문현중학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005593",
+      "schoolName": "위례솔중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례북로2길 10 , 위례솔중학교 (거여동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010006041",
+      "schoolName": "송례중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례순환로 429 (장지동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010006434",
+      "schoolName": "해누리중학교",
+      "schoolLevel": "middle",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로37길 95 , 해누리중학교 (가락동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000370",
+      "schoolName": "가락고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송이로 42 (송파동,가락고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000441",
+      "schoolName": "배명고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 삼학사로 11 , 배명고등학교 (삼전동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000446",
+      "schoolName": "보성고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양재대로 1278 (방이동,보성중고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000461",
+      "schoolName": "서울체육고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 강동대로 232 , 서울체육고등학교 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000496",
+      "schoolName": "영동일고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 석촌호수로 93 , 영동일고등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000504",
+      "schoolName": "영파여자고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로 565 , 영파여자고등학교 (풍납동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000507",
+      "schoolName": "오금고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 중대로 247 (오금동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000522",
+      "schoolName": "잠신고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 잠실로 24 , 잠신고등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000523",
+      "schoolName": "잠실고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로33길 71 , 잠실고등학교 (신천동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000524",
+      "schoolName": "잠실여자고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로38길 8 (송파동) 잠실여자고등학교",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000528",
+      "schoolName": "정신여자고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 올림픽로4길 16 , 정신여자고등학교 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000539",
+      "schoolName": "창덕여자고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양재대로 1240 창덕여자고등학교 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000593",
+      "schoolName": "서울인공지능고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 양산로 21 (거여동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000612",
+      "schoolName": "일신여자상업고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송파대로38길 8 (송파동,일신여자상업고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000636",
+      "schoolName": "덕수고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례북로 10 (거여동, 덕수고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010000640",
+      "schoolName": "보인고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로49길 18 , 보인고등학교 (오금동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005182",
+      "schoolName": "방산고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 오금로27길 18 (방이동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005498",
+      "schoolName": "문정고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 송이로34길 62 (문정동,문정고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005524",
+      "schoolName": "문현고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 충민로 115 (장지동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010005566",
+      "schoolName": "잠일고등학교",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 백제고분로 21 (잠실동)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    },
+    {
+      "neisSchoolCode": null,
+      "schoolInfoCode": "S010006558",
+      "schoolName": "덕수고등학교(일반고)",
+      "schoolLevel": "high",
+      "neisAddress": null,
+      "schoolInfoAddress": "서울특별시 송파구 위례북로 10 (거여동, 덕수고등학교)",
+      "status": "UNRESOLVED",
+      "matchEvidence": [
+        "NEIS_SIDE_UNAVAILABLE"
+      ],
+      "notes": "SchoolInfo inventory only; NEIS counterpart not fetched"
+    }
+  ]
+}
