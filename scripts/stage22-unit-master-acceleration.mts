@@ -4,6 +4,9 @@
  * Writes: apt_unit_types INSERT only (manifest targets, cx_ keys, missing rows).
  * Forbidden: groups, links, baselines, classifications, UPDATE/DELETE, slug keys,
  *            transactions/master mutation, external APIs, singoga.
+ *
+ * Stage23: selection/manifest/insert/postcheck use bounded batch helpers
+ * (scripts/lib/unit-master-promotion-path.ts). Semantics unchanged.
  */
 import { createClient, type InArgs } from "@libsql/client";
 import { config } from "dotenv";
@@ -13,9 +16,20 @@ import {
   areaKey,
   areaKeyStr,
   clusterByCommonRuleV1,
-  dedupeAreas,
-  type AreaRow,
 } from "./lib/stage9-grouping-contract";
+import {
+  batchInsertUnits,
+  batchLoadExistingUnits,
+  batchLoadMasterRows,
+  batchLoadTradeAreasByComplexIds,
+  buildTargetsFromMeta,
+  compareManifestIdentities,
+  fetchExistingCxUnitKeys,
+  filterMissingUnits,
+  planUnits,
+  selectEligibleInventory,
+  type UnitTarget,
+} from "./lib/unit-master-promotion-path";
 
 config({ path: ".env.local" });
 config();
@@ -51,17 +65,7 @@ GROUP BY m.complex_id, ROUND(t.exclusive_area * 100) / 100
 `;
 
 type Db = ReturnType<typeof createClient>;
-
-type Target = {
-  complexId: string;
-  aptNameNorm: string;
-  lawdCd: string;
-  aptName: string | null;
-  tradeTxCount: number;
-  canonicalAreaCount: number;
-  areas: AreaRow[];
-};
-
+type Target = UnitTarget;
 type Hold = { complexId: string; reason: string };
 
 async function count(db: Db, sql: string, args: InArgs = []) {
@@ -143,42 +147,6 @@ async function safetySnapshot(db: Db) {
   };
 }
 
-async function loadTradeAreas(
-  db: Db,
-  aptNameNorm: string,
-  lawdCd: string,
-): Promise<AreaRow[]> {
-  const tx = await db.execute({
-    sql: `
-      SELECT exclusive_area AS ea, COUNT(*) AS cnt
-      FROM transactions
-      WHERE apt_name_norm = ? AND lawd_cd = ?
-        AND deal_type = 'trade'
-        AND exclusive_area IS NOT NULL AND exclusive_area > 0
-      GROUP BY exclusive_area
-      ORDER BY exclusive_area
-    `,
-    args: [aptNameNorm, lawdCd],
-  });
-  return tx.rows.map((r) => ({
-    exclusiveArea: Number(r.ea),
-    txCount: Number(r.cnt),
-  }));
-}
-
-async function existingUnits(db: Db, complexKey: string) {
-  const r = await db.execute({
-    sql: `SELECT unit_type_key, exclusive_area_min, exclusive_area_max
-          FROM apt_unit_types WHERE complex_key = ?`,
-    args: [complexKey],
-  });
-  return r.rows.map((row) => ({
-    unitTypeKey: String(row.unit_type_key),
-    exclusiveAreaMin: Number(row.exclusive_area_min),
-    exclusiveAreaMax: Number(row.exclusive_area_max),
-  }));
-}
-
 async function selectTargets(db: Db): Promise<{
   targets: Target[];
   poolSize: number;
@@ -186,68 +154,20 @@ async function selectTargets(db: Db): Promise<{
   selectionMs: number;
 }> {
   const t0 = Date.now();
-  const have = await db.execute(
-    `SELECT DISTINCT complex_key FROM apt_unit_types WHERE complex_key LIKE 'cx_%'`,
-  );
-  const exclude = new Set(have.rows.map((r) => String(r.complex_key)));
+  const exclude = await fetchExistingCxUnitKeys(db);
   const existingUnitMasterExcluded = exclude.size;
 
-  // Aggregate trade inventory for Seoul IDENTITY-READY, excluding existing cx_ masters.
-  const inv = await db.execute(`
-    SELECT m.complex_id, m.apt_name_norm, m.lawd_cd, m.apt_name,
-           COUNT(*) AS trade_tx,
-           COUNT(DISTINCT ROUND(t.exclusive_area * 100) / 100) AS area_n
-    FROM apt_complex_master m
-    JOIN transactions t
-      ON t.apt_name_norm = m.apt_name_norm AND t.lawd_cd = m.lawd_cd
-    WHERE m.identity_status = 'IDENTITY-READY'
-      AND m.sido_code = '11'
-      AND m.complex_id LIKE 'cx_%'
-      AND t.deal_type = 'trade'
-      AND t.exclusive_area IS NOT NULL
-      AND t.exclusive_area > 0
-    GROUP BY m.complex_id, m.apt_name_norm, m.lawd_cd, m.apt_name
-    HAVING COUNT(*) >= ${MIN_TRADE_TX}
-       AND COUNT(DISTINCT ROUND(t.exclusive_area * 100) / 100) >= ${MIN_AREAS}
-       AND COUNT(DISTINCT ROUND(t.exclusive_area * 100) / 100) <= ${MAX_AREAS}
-    ORDER BY COUNT(*) DESC, m.complex_id ASC
-  `);
+  const eligibleMeta = await selectEligibleInventory(db, {
+    minTradeTx: MIN_TRADE_TX,
+    minAreas: MIN_AREAS,
+    maxAreas: MAX_AREAS,
+    exclude,
+  });
 
-  const eligibleMeta: Array<{
-    complexId: string;
-    aptNameNorm: string;
-    lawdCd: string;
-    aptName: string | null;
-    tradeTxCount: number;
-    canonicalAreaCount: number;
-  }> = [];
-  for (const r of inv.rows) {
-    const cid = String(r.complex_id);
-    if (exclude.has(cid)) continue;
-    if (!cid.startsWith("cx_")) continue;
-    eligibleMeta.push({
-      complexId: cid,
-      aptNameNorm: String(r.apt_name_norm),
-      lawdCd: String(r.lawd_cd),
-      aptName: r.apt_name != null ? String(r.apt_name) : null,
-      tradeTxCount: Number(r.trade_tx),
-      canonicalAreaCount: Number(r.area_n),
-    });
-  }
-
-  // Already ordered by SQL; take first 100 and load distinct areas.
   const selectedMeta = eligibleMeta.slice(0, TARGET_COUNT);
-  const targets: Target[] = [];
-  for (const m of selectedMeta) {
-    const raw = await loadTradeAreas(db, m.aptNameNorm, m.lawdCd);
-    const areas = dedupeAreas(raw);
-    targets.push({
-      ...m,
-      tradeTxCount: areas.reduce((s, a) => s + a.txCount, 0),
-      canonicalAreaCount: areas.length,
-      areas,
-    });
-  }
+  const ids = selectedMeta.map((m) => m.complexId);
+  const areasById = await batchLoadTradeAreasByComplexIds(db, ids);
+  const targets = buildTargetsFromMeta(selectedMeta, areasById);
 
   return {
     targets,
@@ -259,115 +179,6 @@ async function selectTargets(db: Db): Promise<{
 
 function plannedRows(targets: Target[]) {
   return targets.reduce((s, t) => s + t.areas.length, 0);
-}
-
-async function precheckTarget(
-  db: Db,
-  t: Target,
-): Promise<{ ok: true } | { ok: false; reason: string }> {
-  if (!t.complexId.startsWith("cx_")) {
-    return { ok: false, reason: "complex_id not cx_" };
-  }
-  const master = await db.execute({
-    sql: `SELECT complex_id, identity_status, sido_code, apt_name_norm, lawd_cd
-          FROM apt_complex_master WHERE complex_id = ?`,
-    args: [t.complexId],
-  });
-  if (master.rows.length === 0) {
-    return { ok: false, reason: "master row missing" };
-  }
-  const row = master.rows[0]!;
-  if (String(row.identity_status) !== "IDENTITY-READY") {
-    return { ok: false, reason: `identity_status=${row.identity_status}` };
-  }
-  if (String(row.sido_code) !== "11") {
-    return { ok: false, reason: `sido_code=${row.sido_code}` };
-  }
-  if (String(row.apt_name_norm) !== t.aptNameNorm || String(row.lawd_cd) !== t.lawdCd) {
-    return { ok: false, reason: "apt_name_norm/lawd_cd mismatch vs selection" };
-  }
-
-  const existingCx = await count(
-    db,
-    `SELECT COUNT(*) c FROM apt_unit_types WHERE complex_key = ?`,
-    [t.complexId],
-  );
-  if (existingCx > 0) {
-    return { ok: false, reason: `existing cx_ unit rows=${existingCx}` };
-  }
-
-  if (t.areas.length === 0) {
-    return { ok: false, reason: "no trade canonical areas" };
-  }
-
-  const keys = new Set<string>();
-  for (const a of t.areas) {
-    const ak = areaKey(a.exclusiveArea);
-    if (!(ak > 0) || !Number.isFinite(ak)) {
-      return { ok: false, reason: `invalid area ${a.exclusiveArea}` };
-    }
-    const utk = `${t.complexId}:ex${areaKeyStr(ak)}`;
-    if (keys.has(utk)) {
-      return { ok: false, reason: `duplicate planned unit_type_key ${utk}` };
-    }
-    keys.add(utk);
-    const pk = await count(
-      db,
-      `SELECT COUNT(*) c FROM apt_unit_types WHERE unit_type_key = ?`,
-      [utk],
-    );
-    if (pk > 0) {
-      return { ok: false, reason: `unit_type_key already exists ${utk}` };
-    }
-  }
-
-  // Same complex_key + areaKey among planned
-  const areaKeys = t.areas.map((a) => areaKeyStr(a.exclusiveArea));
-  if (new Set(areaKeys).size !== areaKeys.length) {
-    return { ok: false, reason: "duplicate complex+areaKey in planned set" };
-  }
-
-  return { ok: true };
-}
-
-async function insertMissingUnits(db: Db, t: Target) {
-  const inserted: string[] = [];
-  const skipped: string[] = [];
-  for (const a of t.areas) {
-    const ak = areaKey(a.exclusiveArea);
-    const aks = areaKeyStr(ak);
-    const unitTypeKey = `${t.complexId}:ex${aks}`;
-    const pk = await count(
-      db,
-      `SELECT COUNT(*) c FROM apt_unit_types WHERE unit_type_key = ?`,
-      [unitTypeKey],
-    );
-    if (pk > 0) {
-      skipped.push(unitTypeKey);
-      continue;
-    }
-    await db.execute({
-      sql: `INSERT INTO apt_unit_types (
-        unit_type_key, complex_key, supply_area_sqm,
-        exclusive_area_min, exclusive_area_max,
-        household_count, mapping_confidence,
-        exclusive_includes_partial_common, source
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        unitTypeKey,
-        t.complexId,
-        null,
-        ak,
-        ak,
-        null,
-        "transaction_raw_exclusive",
-        0,
-        "transactions",
-      ],
-    });
-    inserted.push(unitTypeKey);
-  }
-  return { inserted, skipped };
 }
 
 function median(nums: number[]): number {
@@ -398,7 +209,7 @@ async function main() {
   const selected = targets.length;
   const expectedUnitRows = plannedRows(targets);
 
-  // Manifest build + precheck
+  // Manifest build + batched precheck
   const tManifest0 = Date.now();
   const holds: Hold[] = [];
   let identityFailures = 0;
@@ -413,9 +224,55 @@ async function main() {
     reason?: string;
   }> = [];
 
+  const ids = targets.map((t) => t.complexId);
+  const masters = await batchLoadMasterRows(db, ids);
+  const existingUnitsMap = await batchLoadExistingUnits(db, ids);
+  const planned = planUnits(targets);
+  const plannedKeySet = new Set(planned.map((p) => p.unitTypeKey));
+  if (plannedKeySet.size !== planned.length) {
+    duplicateFailures += planned.length - plannedKeySet.size;
+  }
+
   for (const t of targets) {
-    const pc = await precheckTarget(db, t);
-    if (pc.ok) {
+    let reason: string | null = null;
+    if (!t.complexId.startsWith("cx_")) reason = "complex_id not cx_";
+    const m = masters.get(t.complexId);
+    if (!reason && !m) reason = "master row missing";
+    if (!reason && m!.identityStatus !== "IDENTITY-READY") {
+      reason = `identity_status=${m!.identityStatus}`;
+    }
+    if (!reason && m!.sidoCode !== "11") reason = `sido_code=${m!.sidoCode}`;
+    if (
+      !reason &&
+      (m!.aptNameNorm !== t.aptNameNorm || m!.lawdCd !== t.lawdCd)
+    ) {
+      reason = "apt_name_norm/lawd_cd mismatch vs selection";
+    }
+    const existing = existingUnitsMap.get(t.complexId) ?? [];
+    if (!reason && existing.length > 0) {
+      reason = `existing cx_ unit rows=${existing.length}`;
+    }
+    if (!reason && t.areas.length === 0) reason = "no trade canonical areas";
+    for (const a of t.areas) {
+      if (reason) break;
+      const ak = areaKey(a.exclusiveArea);
+      if (!(ak > 0) || !Number.isFinite(ak)) {
+        reason = `invalid area ${a.exclusiveArea}`;
+      }
+    }
+    const areaKeys = t.areas.map((a) => areaKeyStr(a.exclusiveArea));
+    if (!reason && new Set(areaKeys).size !== areaKeys.length) {
+      reason = "duplicate complex+areaKey in planned set";
+    }
+    for (const a of t.areas) {
+      if (reason) break;
+      const utk = `${t.complexId}:ex${areaKeyStr(a.exclusiveArea)}`;
+      if ((existingUnitsMap.get(t.complexId) ?? []).some((u) => u.unitTypeKey === utk)) {
+        reason = `unit_type_key already exists ${utk}`;
+      }
+    }
+
+    if (!reason) {
       precheckDetails.push({
         complexId: t.complexId,
         aptNameNorm: t.aptNameNorm,
@@ -423,21 +280,24 @@ async function main() {
         status: "PASS",
       });
     } else {
-      holds.push({ complexId: t.complexId, reason: pc.reason });
+      holds.push({ complexId: t.complexId, reason });
       precheckDetails.push({
         complexId: t.complexId,
         aptNameNorm: t.aptNameNorm,
         expectedUnits: t.areas.length,
         status: "HOLD",
-        reason: pc.reason,
+        reason,
       });
-      if (pc.reason.includes("identity") || pc.reason.includes("master")) {
+      if (reason.includes("identity") || reason.includes("master")) {
         identityFailures += 1;
-      } else if (pc.reason.includes("duplicate") || pc.reason.includes("already exists")) {
+      } else if (
+        reason.includes("duplicate") ||
+        reason.includes("already exists")
+      ) {
         duplicateFailures += 1;
-      } else if (pc.reason.includes("invalid area")) {
+      } else if (reason.includes("invalid area")) {
         invalidAreaFailures += 1;
-      } else if (pc.reason.includes("existing cx_")) {
+      } else if (reason.includes("existing cx_")) {
         existingCxFailures += 1;
       }
     }
@@ -536,15 +396,17 @@ async function main() {
   let insertMs = 0;
   let expansionStatus: "PASS" | "PARTIAL" | "HOLD" = "HOLD";
 
-  // Explicit promotion only after full manifest precheck PASS (no silent subset load).
   if (precheckStatus === "PASS" && !capExceeded) {
     promotionAttempted = true;
     const tIns0 = Date.now();
-    for (const t of passTargets) {
-      const { inserted } = await insertMissingUnits(db, t);
-      unitRowsInserted += inserted.length;
-      complexesPromoted += 1;
-    }
+    const existingNow = await batchLoadExistingUnits(
+      db,
+      passTargets.map((t) => t.complexId),
+    );
+    const missing = filterMissingUnits(planUnits(passTargets), existingNow);
+    const { inserted } = await batchInsertUnits(db, missing);
+    unitRowsInserted = inserted;
+    complexesPromoted = passTargets.length;
     insertMs = Date.now() - tIns0;
     expansionStatus = "PASS";
   } else if (capExceeded) {
@@ -555,21 +417,23 @@ async function main() {
     expansionStatus = "HOLD";
   }
 
-  // Postcheck
+  // Postcheck — batched
   const tPost0 = Date.now();
   let missingTotal = 0;
   let dupUnitTypeKey = 0;
   let dupComplexArea = 0;
-  let newSlugWrites = 0;
 
   const promotedIds = new Set(
-    promotionAttempted
-      ? passTargets.map((t) => t.complexId)
-      : [],
+    promotionAttempted ? passTargets.map((t) => t.complexId) : [],
   );
 
+  const afterMap =
+    promotedIds.size > 0
+      ? await batchLoadExistingUnits(db, [...promotedIds])
+      : new Map();
+
   for (const t of targets) {
-    if (!promotedIds.has(t.complexId) && holds.some((h) => h.complexId === t.complexId)) {
+    if (!promotedIds.has(t.complexId)) {
       perComplex.push({
         complexId: t.complexId,
         aptNameNorm: t.aptNameNorm,
@@ -583,39 +447,18 @@ async function main() {
       missingTotal += t.areas.length;
       continue;
     }
-    if (!promotedIds.has(t.complexId)) {
-      perComplex.push({
-        complexId: t.complexId,
-        aptNameNorm: t.aptNameNorm,
-        aptName: t.aptName,
-        tradeCanonical: t.areas.length,
-        afterCanonical: 0,
-        inserted: 0,
-        missing: t.areas.length,
-        status: "HOLD",
-      });
-      continue;
-    }
 
-    const after = await existingUnits(db, t.complexId);
+    const after = afterMap.get(t.complexId) ?? [];
     const afterKeys = new Set(
       after
-        .filter((u) => areaKey(u.exclusiveAreaMin) === areaKey(u.exclusiveAreaMax))
+        .filter(
+          (u) => areaKey(u.exclusiveAreaMin) === areaKey(u.exclusiveAreaMax),
+        )
         .map((u) => areaKeyStr(u.exclusiveAreaMin)),
     );
     const tradeKeys = new Set(t.areas.map((a) => areaKeyStr(a.exclusiveArea)));
     const missing = [...tradeKeys].filter((k) => !afterKeys.has(k));
     missingTotal += missing.length;
-
-    const areaCounts = new Map<string, number>();
-    for (const u of after) {
-      if (areaKey(u.exclusiveAreaMin) !== areaKey(u.exclusiveAreaMax)) continue;
-      const k = areaKeyStr(u.exclusiveAreaMin);
-      areaCounts.set(k, (areaCounts.get(k) ?? 0) + 1);
-    }
-    for (const c of areaCounts.values()) {
-      if (c > 1) dupComplexArea += 1;
-    }
 
     perComplex.push({
       complexId: t.complexId,
@@ -623,50 +466,29 @@ async function main() {
       aptName: t.aptName,
       tradeCanonical: tradeKeys.size,
       afterCanonical: afterKeys.size,
-      inserted: after.length, // all new for this complex
+      inserted: after.length,
       missing: missing.length,
       status: missing.length === 0 ? "PASS" : "HOLD",
     });
   }
 
-  // Global integrity on newly promoted cx_ keys
   if (promotedIds.size > 0) {
-    const ids = [...promotedIds];
-    const placeholders = ids.map(() => "?").join(",");
-    dupUnitTypeKey = await count(
-      db,
-      `SELECT COUNT(*) c FROM (
-         SELECT unit_type_key FROM apt_unit_types
-         WHERE complex_key IN (${placeholders})
-         GROUP BY unit_type_key HAVING COUNT(*) > 1
-       )`,
-      ids,
+    const cmp = compareManifestIdentities(
+      planUnits(passTargets),
+      afterMap,
     );
-    const dupAreaRows = await db.execute({
-      sql: `SELECT complex_key, ROUND(exclusive_area_min*100)/100 AS ak, COUNT(*) AS c
-            FROM apt_unit_types
-            WHERE complex_key IN (${placeholders})
-            GROUP BY complex_key, ROUND(exclusive_area_min*100)/100
-            HAVING COUNT(*) > 1`,
-      args: ids,
-    });
-    dupComplexArea = dupAreaRows.rows.length;
+    dupUnitTypeKey = cmp.duplicateUnitTypeKey;
+    dupComplexArea = cmp.duplicateComplexArea;
   }
-  newSlugWrites = 0; // Stage22 inserts cx_ only; confirmed via legacy count delta
 
-  // Idempotency: verify-only replay (count would-be inserts)
+  // Idempotency verify-only (in-memory against batch fetch)
   let idempotentNewInserts = 0;
-  for (const t of passTargets) {
-    if (!promotedIds.has(t.complexId)) continue;
-    for (const a of t.areas) {
-      const utk = `${t.complexId}:ex${areaKeyStr(a.exclusiveArea)}`;
-      const pk = await count(
-        db,
-        `SELECT COUNT(*) c FROM apt_unit_types WHERE unit_type_key = ?`,
-        [utk],
-      );
-      if (pk === 0) idempotentNewInserts += 1;
-    }
+  if (promotedIds.size > 0) {
+    const replayExisting = await batchLoadExistingUnits(db, [...promotedIds]);
+    idempotentNewInserts = filterMissingUnits(
+      planUnits(passTargets),
+      replayExisting,
+    ).length;
   }
 
   const coverageAfter = await coverageSnapshot(db);
@@ -690,7 +512,11 @@ async function main() {
 
   const top10 = [...perComplex]
     .filter((p) => promotedIds.has(p.complexId))
-    .sort((a, b) => b.afterCanonical - a.afterCanonical || a.complexId.localeCompare(b.complexId))
+    .sort(
+      (a, b) =>
+        b.afterCanonical - a.afterCanonical ||
+        a.complexId.localeCompare(b.complexId),
+    )
     .slice(0, 10)
     .map((p) => ({
       complexId: p.complexId,
@@ -699,7 +525,6 @@ async function main() {
       canonicalUnitCount: p.afterCanonical,
     }));
 
-  // Optional V1 candidate estimate (read-only, cheap)
   let v1Estimate: {
     performed: boolean;
     complexesWithCandidate: number;
@@ -792,7 +617,6 @@ async function main() {
 
   const postcheckMs = Date.now() - tPost0;
 
-  // Next action heuristic
   let nextAction: "A" | "B" | "C" | "D" | "E" = "A";
   let nextReason =
     "Stage22 unit-master expansion PASS; continue bounded unit coverage before grouping.";
@@ -804,7 +628,8 @@ async function main() {
         : "Partial/defect in expansion; repair before larger batch.";
   } else if (coverageAfter.unitMasterComplexes >= 500) {
     nextAction = "B";
-    nextReason = "Unit-master base large enough to consider V1 grouping promotion.";
+    nextReason =
+      "Unit-master base large enough to consider V1 grouping promotion.";
   }
 
   const report = {
