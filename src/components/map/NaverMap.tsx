@@ -18,6 +18,7 @@ import {
 } from "@/lib/nearby-map/naver-sdk";
 import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
 import type { CommerceMapPoints } from "@/lib/complex-detail/commerce-snapshot";
+import { commerceCategoryColorByIndex } from "@/lib/complex-detail/commerce-category-colors";
 
 /** Living map height CSS transition (~280ms) — re-fit after layout settles. */
 const FIT_LAYOUT_SETTLE_MS = 300;
@@ -29,9 +30,9 @@ const FIT_COVER_MAX_M_LIVING = 3000;
 /** Commerce / school display radius is 1.5km — tighter cover so tab switch zooms in. */
 const FIT_COVER_MAX_M_NEARBY = 1600;
 
-/** Canvas point style — same for every SEMAS P2 business. */
+/** Canvas point size — color from shared commerce category tokens (U4). */
 const POINT_CLOUD_CSS_PX = 2.5;
-const POINT_CLOUD_FILL = "rgba(15, 118, 110, 0.34)"; // teal ~0.34 opacity
+const POINT_CLOUD_FALLBACK_FILL = "rgba(47, 122, 115, 0.38)";
 
 function fitCoverMaxM(token: string): number {
   if (token.startsWith("commerce:") || token.startsWith("school:")) {
@@ -134,12 +135,20 @@ function createCommercePointCloudOverlay(
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, size.width, size.height);
-    ctx.fillStyle = POINT_CLOUD_FILL;
 
-    const { originLat, originLng, offsetsM, pointCount } = this._data;
+    const { originLat, originLng, offsetsM, pointCount, categoryIdx } =
+      this._data;
     const pad = 4;
     const half = POINT_CLOUD_CSS_PX / 2;
     const max = Math.min(pointCount, Math.floor(offsetsM.length / 2));
+    const hasCats =
+      Array.isArray(categoryIdx) && categoryIdx.length >= max;
+
+    // Cache fill strings per category index (0..5).
+    const fillByCat: string[] = [];
+    for (let c = 0; c < 6; c++) {
+      fillByCat[c] = commerceCategoryColorByIndex(c).mapFill;
+    }
 
     for (let i = 0; i < max; i++) {
       const dx = offsetsM[i * 2];
@@ -158,6 +167,9 @@ function createCommercePointCloudOverlay(
       ) {
         continue;
       }
+      const cat = hasCats ? categoryIdx![i] : -1;
+      ctx.fillStyle =
+        cat >= 0 && cat < 6 ? fillByCat[cat]! : POINT_CLOUD_FALLBACK_FILL;
       ctx.fillRect(x - half, y - half, POINT_CLOUD_CSS_PX, POINT_CLOUD_CSS_PX);
     }
   };

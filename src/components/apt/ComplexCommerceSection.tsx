@@ -22,6 +22,11 @@ import {
   type CommerceFacilities,
   type CommerceSnapshot,
 } from "@/lib/complex-detail/commerce-snapshot";
+import {
+  commerceCategoryColor,
+  commercePresentationBucketFromMcls,
+  COMMERCE_FACILITY_CATEGORY,
+} from "@/lib/complex-detail/commerce-category-colors";
 
 function FacilityIcon({
   keyName,
@@ -152,22 +157,18 @@ export function ComplexCommerceStats({
           role="img"
           aria-label="업종 구성 비율"
         >
-          {COMMERCE_COMPOSITION_ORDER.map((key, i) => {
+          {COMMERCE_COMPOSITION_ORDER.map((key) => {
             const bucket = snapshot.composition[key];
             if (!bucket || bucket.share <= 0) return null;
-            const tones = [
-              "bg-[var(--lab-teal-600)]",
-              "bg-[color-mix(in_srgb,var(--lab-teal-600)_72%,#1e3a5f)]",
-              "bg-[color-mix(in_srgb,var(--lab-teal-600)_48%,#64748b)]",
-              "bg-slate-400",
-              "bg-slate-300",
-              "bg-slate-200",
-            ];
+            const color = commerceCategoryColor(key);
             return (
               <span
                 key={key}
-                className={`h-full ${tones[i] ?? "bg-slate-300"}`}
-                style={{ width: `${bucket.share}%` }}
+                className="h-full"
+                style={{
+                  width: `${bucket.share}%`,
+                  backgroundColor: color.fill,
+                }}
                 title={`${key} ${formatCommerceShare(bucket.share)}`}
               />
             );
@@ -177,18 +178,30 @@ export function ComplexCommerceStats({
           {COMMERCE_COMPOSITION_ORDER.map((key) => {
             const bucket = snapshot.composition[key];
             if (!bucket || bucket.count <= 0) return null;
+            const color = commerceCategoryColor(key);
             return (
               <li key={key} className="min-w-0">
                 <div className="flex items-baseline justify-between gap-2 text-[12px]">
-                  <span className="truncate text-slate-700">{key}</span>
+                  <span className="flex min-w-0 items-center gap-1.5 truncate text-slate-700">
+                    <span
+                      className="inline-block h-2 w-2 shrink-0 rounded-sm"
+                      style={{ backgroundColor: color.fill }}
+                      aria-hidden
+                    />
+                    <span className="truncate">{key}</span>
+                  </span>
                   <span className="shrink-0 font-semibold tabular-nums text-slate-800">
                     {formatCommerceShare(bucket.share)}
                   </span>
                 </div>
                 <div className="mt-0.5 h-1 w-full overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className="h-full rounded-full bg-[color-mix(in_srgb,var(--lab-teal-600)_55%,transparent)]"
-                    style={{ width: `${Math.min(100, bucket.share)}%` }}
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.min(100, bucket.share)}%`,
+                      backgroundColor: color.fill,
+                      opacity: 0.72,
+                    }}
                   />
                 </div>
               </li>
@@ -203,22 +216,34 @@ export function ComplexCommerceStats({
       <section>
         <SectionHeading>주요 생활시설</SectionHeading>
         <div className="mt-2 grid grid-cols-3 gap-x-2 gap-y-2.5">
-          {COMMERCE_FACILITY_ORDER.map(({ key, label }) => (
-            <div
-              key={key}
-              className="flex min-w-0 flex-col items-center px-1 py-1.5 text-center"
-            >
-              <span className="inline-flex h-6 w-6 items-center justify-center text-[#1e3a5f]">
-                <FacilityIcon keyName={key} />
-              </span>
-              <span className="mt-0.5 truncate text-[10px] leading-tight text-slate-500">
-                {label}
-              </span>
-              <span className="mt-0.5 text-[15px] font-bold leading-none tabular-nums text-slate-800">
-                {formatCommerceCount(snapshot.facilities[key])}
-              </span>
-            </div>
-          ))}
+          {COMMERCE_FACILITY_ORDER.map(({ key, label }) => {
+            const catKey = COMMERCE_FACILITY_CATEGORY[key];
+            const accent = catKey
+              ? commerceCategoryColor(catKey)
+              : commerceCategoryColor(null);
+            return (
+              <div
+                key={key}
+                className="flex min-w-0 flex-col items-center px-1 py-1.5 text-center"
+              >
+                <span
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-md"
+                  style={{
+                    color: accent.fill,
+                    backgroundColor: accent.soft,
+                  }}
+                >
+                  <FacilityIcon keyName={key} />
+                </span>
+                <span className="mt-0.5 truncate text-[10px] leading-tight text-slate-500">
+                  {label}
+                </span>
+                <span className="mt-0.5 text-[15px] font-bold leading-none tabular-nums text-[#1e3a5f]">
+                  {formatCommerceCount(snapshot.facilities[key])}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -231,6 +256,8 @@ export function ComplexCommerceStats({
           {snapshot.topCategories.slice(0, 5).map((cat, idx) => {
             const label = commerceTopCategoryDisplayName(cat);
             const pct = (cat.count / topMax) * 100;
+            const bucket = commercePresentationBucketFromMcls(cat.code);
+            const color = commerceCategoryColor(bucket);
             return (
               <li key={cat.code} className="min-w-0">
                 <div className="flex items-baseline gap-2 text-[12px]">
@@ -246,8 +273,12 @@ export function ComplexCommerceStats({
                 </div>
                 <div className="ml-5 mt-0.5 h-1 overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className="h-full rounded-full bg-[color-mix(in_srgb,#1e3a5f_35%,transparent)]"
-                    style={{ width: `${pct}%` }}
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${pct}%`,
+                      backgroundColor: color.fill,
+                      opacity: 0.78,
+                    }}
                   />
                 </div>
               </li>

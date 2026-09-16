@@ -41,8 +41,9 @@ export type CommerceFacilities = {
 };
 
 /**
- * Compact actual SEMAS P2 point cloud (U3).
+ * Compact actual SEMAS P2 point cloud (U3/U4).
  * meter-offset-int-v1: flattened [dxM, dyM, ...] from apartment origin.
+ * U4: parallel categoryIdx[i] ∈ 0..5 → presentation bucket (see commerce-category-colors).
  * No business identity.
  */
 export type CommerceMapPoints = {
@@ -51,6 +52,9 @@ export type CommerceMapPoints = {
   encoding: "meter-offset-int-v1";
   pointCount: number;
   offsetsM: number[];
+  /** Parallel to points; presentation-bucket-idx-v1 (0..5). Optional for legacy. */
+  categoryIdx?: number[];
+  categoryEncoding?: "presentation-bucket-idx-v1";
 };
 
 /**
@@ -130,6 +134,12 @@ const jamsilElsMapPoints: CommerceMapPoints = {
   encoding: "meter-offset-int-v1",
   pointCount: jamsilElsMapPointsJson.pointCount,
   offsetsM: jamsilElsMapPointsJson.offsetsM as number[],
+  categoryIdx: Array.isArray(
+    (jamsilElsMapPointsJson as { categoryIdx?: number[] }).categoryIdx,
+  )
+    ? ((jamsilElsMapPointsJson as { categoryIdx: number[] }).categoryIdx)
+    : undefined,
+  categoryEncoding: "presentation-bucket-idx-v1",
 };
 
 /**

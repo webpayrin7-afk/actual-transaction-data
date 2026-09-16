@@ -1,0 +1,49 @@
+{
+  "stage": "U4",
+  "purpose": "jamsil-els-hospital-clinic-facility-verify",
+  "center": {
+    "complexId": "cx_4c63d9a100973c60",
+    "name": "잠실엘스",
+    "lat": 37.5133051,
+    "lng": 127.0815962,
+    "coordinateSource": "product_map_anchor_naver_geocode"
+  },
+  "radiusM": 1000,
+  "sourcePeriod": "2026Q2",
+  "A_rawRows": 205,
+  "B_uniqueBusinessIds": 205,
+  "C_dedupeKey": "상가업소번호",
+  "C_duplicateExtraRows": 0,
+  "C_idsWithMultipleRows": 0,
+  "D_smallBreakdown": {
+    "Q10210\t치과의원": 42,
+    "Q10211\t한의원": 41,
+    "Q10201\t내과/소아과 의원": 28,
+    "Q10204\t피부/비뇨기과 의원": 21,
+    "Q10203\t신경/정신과 의원": 14,
+    "Q10209\t기타 의원": 13,
+    "Q10202\t외과 의원": 13,
+    "Q10207\t산부인과 의원": 7,
+    "Q10206\t이비인후과 의원": 7,
+    "Q10208\t성형외과 의원": 6,
+    "Q10205\t안과 의원": 5,
+    "Q10103\t치과병원": 4,
+    "Q10212\t방사선 진단/병리 검사 의원": 3,
+    "Q10102\t일반병원": 1
+  },
+  "F_formula": "unique 상가업소번호 in 1km where 중분류 Q101|Q102 via bumpFacility on first P0 insert",
+  "facilitiesComputed": {
+    "병원/의원": 205,
+    "약국": 51,
+    "편의점": 54,
+    "마트/슈퍼": 35,
+    "카페": 116,
+    "음식점": 821,
+    "미용": 299,
+    "학원": 282,
+    "체육": 94
+  },
+  "aggregationLogicChange": false,
+  "labelRecommendation": "병원·의원 KEEP (source Q101 병원 + Q102 의원)",
+  "verdict": "AGGREGATION_OK"
+}
