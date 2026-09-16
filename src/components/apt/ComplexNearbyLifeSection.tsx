@@ -1381,7 +1381,7 @@ export function ComplexNearbyLifeSection({
           ref={mapSectionRef}
           className={
             tab === "living"
-              ? // Full-bleed width (may overflow card/page shell); taller living map.
+              ? // Full-bleed width; living map slightly taller than other tabs.
                 "relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen overflow-hidden bg-slate-50/40"
               : "relative -mx-4 overflow-hidden bg-slate-50/40 sm:-mx-5 sm:rounded-none"
           }
