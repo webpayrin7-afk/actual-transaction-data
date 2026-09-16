@@ -235,8 +235,8 @@ async function main() {
   let cacheUsableMonthRows = 0;
 
   let alreadyComplete = 0;
-  let promotableMissing = 0;
-  let prodCacheDiff = 0;
+  const promotableMissing = 0;
+  const prodCacheDiff = 0;
   let promoHold = 0;
 
   const partialMissing1: string[] = [];
