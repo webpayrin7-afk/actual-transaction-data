@@ -1341,7 +1341,7 @@ export function ComplexNearbyLifeSection({
               />
               {tab === "commerce" && commerceSnapshot?.mapPoints ? (
                 <p className="pointer-events-none absolute bottom-2 left-3 rounded bg-white/85 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 shadow-sm">
-                  점 1개 = 생활업소 1곳
+                  점 1개 = 생활업소 1곳 · 색 = 업종 대분류
                 </p>
               ) : null}
             </div>
