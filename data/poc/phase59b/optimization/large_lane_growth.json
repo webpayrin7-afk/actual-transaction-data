@@ -1,0 +1,48 @@
+{
+  "prior_reported": 17,
+  "current": 29,
+  "reason": "During normal-lane max-pages=50 acquisition, additional complexes revealed totalCount implying pages>50 after page1/partial fetch and were reclassified into deferred_large_registry. Not rediscovery; same Seoul universe, same request keys.",
+  "all_pages_gt_50": true,
+  "current_list_top": [
+    {
+      "complex_id": "11140:남산타운",
+      "pages": 406,
+      "rows": 40560
+    },
+    {
+      "complex_id": "11140:약수하이츠",
+      "pages": 210,
+      "rows": 20946
+    },
+    {
+      "complex_id": "11170:삼성래미안",
+      "pages": 146,
+      "rows": 14580
+    },
+    {
+      "complex_id": "11140:서울역센트럴자이",
+      "pages": 135,
+      "rows": 13495
+    },
+    {
+      "complex_id": "11140:롯데캐슬",
+      "pages": 127,
+      "rows": 12690
+    },
+    {
+      "complex_id": "11170:센트럴파크",
+      "pages": 113,
+      "rows": 11209
+    },
+    {
+      "complex_id": "11110:광화문스페이스본(101동~105동)",
+      "pages": 86,
+      "rows": 8501
+    },
+    {
+      "complex_id": "11170:용산파크자이",
+      "pages": 85,
+      "rows": 8409
+    }
+  ]
+}

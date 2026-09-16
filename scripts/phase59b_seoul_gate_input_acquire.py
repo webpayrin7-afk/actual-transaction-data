@@ -49,7 +49,8 @@ DEFAULT_SLEEP = 0.35
 MAX_RETRIES = 8
 PAGE_TIMEOUT_SEC = 45
 MAX_PAGE_BACKOFF_SEC = 20.0
-MAX_WORKERS = 4
+MAX_WORKERS = 3  # LOCKED: throughput benchmark accepted; do not raise without new evidence
+DRAIN_LOCK_PATH = OUT / "drain_lock.json"
 
 # Process-wide HTTP metrics + in-flight request-key dedupe (thread-safe).
 _HTTP = {
@@ -964,7 +965,25 @@ def run_acquire(
         conn.commit()
 
     # workers>1 only across complexes; pages inside remain serial
+    # Drain-lock: never exceed MAX_WORKERS=3 (benchmark accepted).
     workers = max(1, min(workers, MAX_WORKERS))
+    DRAIN_LOCK_PATH.write_text(
+        json.dumps(
+            {
+                "mode": "LOCK_AND_DRAIN",
+                "workers_locked": MAX_WORKERS,
+                "requested_workers": workers,
+                "max_pages": max_pages,
+                "sleep_s": sleep_s,
+                "early_stop": False,
+                "benchmarking": False,
+                "locked_at": now_iso(),
+                "policy": "decelerate 3→2→1 only on sustained API degradation; never auto-raise above 3",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
     reset_http_metrics()
     t_run0 = time.time()
 
