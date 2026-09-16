@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-09-16T17:45:19Z",
+  "seoul_total": 8774,
+  "parcel_ok": 8553,
+  "parcel_missing": 221,
+  "bld_ok": 0,
+  "bld_missing": 8774,
+  "trades_ok": 8774,
+  "gate_inputs_complete": 0,
+  "reasons": {
+    "missing_bld_registry": 8553,
+    "missing_parcel_bjdong": 221
+  },
+  "parcel_sources": {
+    "phase511_parcel_exact": 8536,
+    "none": 221,
+    "phase4_COMPLEXES": 17
+  },
+  "missing_bld_with_parcel": 8553,
+  "missing_parcel": 221,
+  "classification_prereq_note": "area/group + label derived after building registry + trades; not separately fetched"
+}

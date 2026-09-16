@@ -1,0 +1,85 @@
+{
+  "phase": "5.9",
+  "universe_rows": 15751,
+  "trade_stats": {
+    "trades_ok": 15751,
+    "trades_missing": 0
+  },
+  "bld_stats": {
+    "bld_cache_hit": 20,
+    "missing_parcel_bjdong": 15731,
+    "missing_bld_cache_external_deferred": 0
+  },
+  "summary": {
+    "total": 15751,
+    "seoul": 8774,
+    "gyeonggi": 6977,
+    "trades_ok": 15751,
+    "bld_ok": 20,
+    "parcel_ok": 20,
+    "gate_inputs_complete": 20,
+    "unresolved": 15731,
+    "coverage_pct": 0.127,
+    "unresolved_reasons": {
+      "missing_parcel_bjdong": 15731,
+      "complete": 20
+    }
+  },
+  "diagnosis": {
+    "building_registry": {
+      "current_source": "local *-bld-expos-cache.json or BldRgstHub API",
+      "exists_in_warehouse": false,
+      "requires_external": true,
+      "allowlist_cache_limited": true,
+      "affected": 15731
+    },
+    "trade_coverage": {
+      "current_source": "Turso transactions",
+      "exists_in_warehouse": true,
+      "requires_external": false,
+      "allowlist_cache_limited": false,
+      "affected": 0
+    },
+    "area_group": {
+      "current_source": "derived in classify() from building+trades",
+      "exists_in_warehouse": false,
+      "requires_external": "indirect",
+      "allowlist_cache_limited": true,
+      "affected": 15731
+    },
+    "label": {
+      "current_source": "derived in classify() from groups",
+      "exists_in_warehouse": false,
+      "requires_external": "indirect",
+      "allowlist_cache_limited": true,
+      "affected": 15731
+    },
+    "cache_config_parcel": {
+      "current_source": "phase4 COMPLEXES parcel fields / parcel_map.json",
+      "exists_in_warehouse": false,
+      "requires_external": false,
+      "allowlist_cache_limited": true,
+      "affected": 15731
+    }
+  },
+  "cost_gate": {
+    "external_api": "apis.data.go.kr BldRgstHubService/getBrExposPubuseAreaInfo",
+    "external_required_for_full_coverage": true,
+    "estimated_pages_per_complex": 245.0,
+    "estimated_full_requests": 3858995,
+    "estimated_hours_at_0_28s": 300.1,
+    "credentials_present": true,
+    "full_run_performed": false,
+    "sample_size_if_used": 0,
+    "blocker": "missing_parcel_bjdong for ~all candidates; full building fetch unbounded (~millions requests / hundreds of hours)"
+  },
+  "runner": {
+    "dynamic": true,
+    "batched": true,
+    "resumable": true,
+    "db": "/workspace/data/poc/phase59/gate_inputs.sqlite"
+  },
+  "production_writes": 0,
+  "decision": "HOLD",
+  "next": "add scalable bjdong/parcel resolution (dong-name→bjdong map) before any external building acquisition; then re-run acquisition"
+}
