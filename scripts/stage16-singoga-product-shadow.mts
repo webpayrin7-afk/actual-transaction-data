@@ -149,15 +149,6 @@ async function loadEligibleGroups(
   return out;
 }
 
-function activityDay(tx: {
-  firstSeenAt: string | null;
-  discoveryAt: string | null;
-}): string | null {
-  const iso = tx.discoveryAt ?? tx.firstSeenAt;
-  if (!iso) return null;
-  return seoulDateOf(iso);
-}
-
 function summarizeSlice(shadows: SingogaShadowResult[]) {
   const s = summarizeShadow(shadows);
   return {
@@ -398,7 +389,7 @@ async function main() {
 
   // Late-report validation
   const lateReports: Array<Record<string, unknown>> = [];
-  let lateViolations = 0;
+  const lateViolations = 0;
   for (const [id, meta] of metaById) {
     const iso = meta.discoveryAt ?? meta.firstSeenAt;
     if (!iso) continue;
