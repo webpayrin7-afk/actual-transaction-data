@@ -1,0 +1,102 @@
+{
+  "as_of": "2026-09-16T23:18:18Z",
+  "SEOUL": {
+    "total": 8774,
+    "gate_complete": 290,
+    "initial_gate_complete": 20,
+    "newly_completed": 270
+  },
+  "ACQUISITION": {
+    "parcel_ok": 8770,
+    "parcel_missing": 4,
+    "bld_ok": 290,
+    "remaining_bld": 8480,
+    "remaining_normal": 8460,
+    "deferred_large": 17,
+    "failed": 1,
+    "not_found_terminal": 3,
+    "not_found": 0,
+    "process": "RUNNING",
+    "wave": "max-pages-50 normal lane + shared request-key cache",
+    "production_writes": 0
+  },
+  "PERFORMANCE": {
+    "API_requests_per_completed_complex_est": 7.07,
+    "avg_pages_per_completed_complex": 7.07,
+    "avg_rows_per_completed_complex": 653.5,
+    "complexes_per_hour_overall": 52.3,
+    "elapsed_hours_since_start": 5.54,
+    "estimated_remaining_hours_normal_at_overall_rate": 161.7,
+    "sum_pages_completed": 2049,
+    "current_wave_stats": {
+      "targets": 8461,
+      "cache_hits": 0,
+      "shared_cache_hits": 0,
+      "api_requests": 8,
+      "successful": 1,
+      "not_found": 0,
+      "failed": 0,
+      "retried": 0,
+      "deferred_large": 0,
+      "started_at": "2026-09-16T23:17:43Z"
+    }
+  },
+  "OPTIMIZATION": {
+    "duplicate_request_keys": 49,
+    "shared_cache_reusable_extra_complexes": 66,
+    "remaining_shared_extra": 65,
+    "early_stop_tested": 8,
+    "full_vs_optimized_gate_mismatch": 24,
+    "optimization_applied": "PARTIAL",
+    "applied": {
+      "shared_request_key_cache": true,
+      "early_stop": false,
+      "max_pages_50_normal_lane": true,
+      "large_lane_separated": true
+    },
+    "amplification_root_cause": "getBrExposPubuseAreaInfo returns all 전유+공용(+부속) rows at exact parcel; 공용 rows dominate cardinality; classify()/build_units need full unit-level 전유+주거공용"
+  },
+  "PARCEL_221": {
+    "resolved": 217,
+    "ambiguous": 0,
+    "not_found": 4,
+    "remaining": 4,
+    "method": "jibun + unique legal_dong (data/static/legal_dong_seoul_gyeonggi.json)"
+  },
+  "LARGE_16": {
+    "count": 17,
+    "completed": 0,
+    "remaining": 17,
+    "largest_remaining": [
+      {
+        "complex_id": "11140:남산타운",
+        "pages": 406,
+        "rows": 40560
+      },
+      {
+        "complex_id": "11140:약수하이츠",
+        "pages": 210,
+        "rows": 20946
+      },
+      {
+        "complex_id": "11140:서울역센트럴자이",
+        "pages": 135,
+        "rows": 13495
+      },
+      {
+        "complex_id": "11140:롯데캐슬",
+        "pages": 127,
+        "rows": 12690
+      },
+      {
+        "complex_id": "11110:광화문스페이스본(101동~105동)",
+        "pages": 86,
+        "rows": 8501
+      }
+    ]
+  },
+  "MANIFEST": {
+    "created": false
+  },
+  "FINAL": "PARTIAL"
+}
