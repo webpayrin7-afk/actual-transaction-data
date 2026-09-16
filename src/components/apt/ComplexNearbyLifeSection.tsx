@@ -463,9 +463,7 @@ export function ComplexNearbyLifeSection({
     LIVING_DEFAULT_CATEGORY,
   );
   /** After marker click, scroll to this living row once it is in the DOM. */
-  const [pendingListScrollId, setPendingListScrollId] = useState<string | null>(
-    null,
-  );
+  const pendingListScrollIdRef = useRef<string | null>(null);
   const mapSectionRef = useRef<HTMLDivElement | null>(null);
 
   const selectFromList = useCallback((id: string) => {
@@ -597,7 +595,7 @@ export function ComplexNearbyLifeSection({
     setTab(next);
     setSelectedId(null);
     setExpanded(false);
-    setPendingListScrollId(null);
+    pendingListScrollIdRef.current = null;
     if (next === "living") {
       setLivingCategory(LIVING_DEFAULT_CATEGORY);
     }
@@ -607,7 +605,7 @@ export function ComplexNearbyLifeSection({
     setLivingCategory(next);
     setSelectedId(null);
     setExpanded(false);
-    setPendingListScrollId(null);
+    pendingListScrollIdRef.current = null;
   }, []);
 
   /** Current living-chip valid POIs (all radius/semantic passers — not list-capped). */
@@ -765,30 +763,31 @@ export function ComplexNearbyLifeSection({
     (id: string) => {
       setSelectedId(id);
       if (tab !== "living" || id === "complex") {
-        setPendingListScrollId(null);
+        pendingListScrollIdRef.current = null;
         return;
       }
       const idx = livingValidPlaces.findIndex((p) => p.id === id);
       if (idx < 0) {
-        setPendingListScrollId(null);
+        pendingListScrollIdRef.current = null;
         return;
       }
+      pendingListScrollIdRef.current = id;
       if (idx >= LIST_LIMIT && !expanded) {
         setExpanded(true);
       }
-      setPendingListScrollId(id);
     },
     [tab, livingValidPlaces, expanded],
   );
 
-  // Marker → list: scroll after expand renders the target row.
+  // Marker → list: scroll after expand renders the target row (DOM only).
   useEffect(() => {
-    if (!pendingListScrollId || tab !== "living") return;
-    const el = document.getElementById(livingRowDomId(pendingListScrollId));
+    const targetId = pendingListScrollIdRef.current;
+    if (!targetId || tab !== "living") return;
+    const el = document.getElementById(livingRowDomId(targetId));
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "center" });
-    setPendingListScrollId(null);
-  }, [pendingListScrollId, expanded, livingValidPlaces, tab]);
+    pendingListScrollIdRef.current = null;
+  }, [selectedId, expanded, livingValidPlaces, tab]);
 
   const mapCenter = useMemo(() => {
     // Living category overview stays apartment-centered; list click still pans via NaverMap.
