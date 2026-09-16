@@ -1,0 +1,175 @@
+{
+  "generatedAt": "2026-09-16T02:53:28.291Z",
+  "stage": "stage24-unit-expansion",
+  "contract": {
+    "scope": "Seoul IDENTITY-READY trade only",
+    "canonicalRule": "Math.round(exclusive_area*100)/100",
+    "source": "transactions",
+    "officialDenominatorBefore": 29807,
+    "officialDenominatorAfter": 29807,
+    "denominatorDelta": null
+  },
+  "selection": {
+    "requested": 250,
+    "eligible": 250,
+    "selected": 250,
+    "selectionRule": "Seoul IDENTITY-READY cx_; deal_type=trade; exclusive_area>0; exclude existing cx_ unit-master; trade_tx>=50; areas 2–20; ORDER BY trade_tx DESC, complex_id ASC",
+    "ms": 12234,
+    "queries": 5
+  },
+  "manifest": {
+    "path": "data/poc/unit-area/stage24-unit-promotion-manifest.json",
+    "targetComplexes": 250,
+    "expectedCanonicalUnits": 1420,
+    "expectedInserts": 1340,
+    "identityFailures": 0,
+    "duplicates": 0,
+    "invalidAreas": 0,
+    "existingCxUnits": 0,
+    "existingTargetUnitCountAtStart": 80,
+    "resumedFromManifest": true,
+    "newSlugCandidates": 0,
+    "precheck": "PASS",
+    "holdUnitRowBudget": false
+  },
+  "rowBudget": {
+    "hardCap": 2500,
+    "expected": 1420,
+    "exceeded": "NO"
+  },
+  "productionInsert": {
+    "attempted": "YES",
+    "rowsInserted": 1340,
+    "batchChunkSize": 80,
+    "batchCalls": 17,
+    "avgRowsPerBatch": 78.82,
+    "firstBatchSanity": "PASS",
+    "stoppedEarly": false,
+    "stopReason": null,
+    "insertRuntimeMs": 2655,
+    "insertNetworkCalls": 18,
+    "totalStage24Rows": 1420,
+    "priorPartialRows": 80,
+    "thisRunRows": 1340
+  },
+  "postcheck": {
+    "expectedIdentities": 1420,
+    "actualIdentities": 1420,
+    "missing": 0,
+    "duplicateUnitKeys": 0,
+    "duplicateComplexAreaKey": 0,
+    "newSlugWrites": 0,
+    "status": "PASS",
+    "ms": 529,
+    "queries": 4
+  },
+  "completeness": {
+    "complexesChecked": 250,
+    "complete": 250,
+    "incomplete": 0,
+    "incompleteExamples": []
+  },
+  "distribution": {
+    "min": 2,
+    "median": 4.5,
+    "max": 19,
+    "buckets": {
+      "1-3": 70,
+      "4-7": 125,
+      "8-12": 40,
+      "13+": 15
+    }
+  },
+  "optionalV1Estimate": {
+    "performed": true,
+    "complexesWithCandidate": 107,
+    "estimatedSafeGroups": 187,
+    "groupsWritten": 0
+  },
+  "coverageBefore": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 155,
+    "unitMasterComplexCoveragePct": 1.84,
+    "canonicalRawTradeIdentities": 29807,
+    "unitMasterCanonicalIdentities": 1022,
+    "unitAreaCoveragePct": 3.43
+  },
+  "coverageAfter": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 392,
+    "unitMasterComplexCoveragePct": 4.65,
+    "canonicalRawTradeIdentities": 29807,
+    "unitMasterCanonicalIdentities": 2362,
+    "unitAreaCoveragePct": 7.92
+  },
+  "coverageDelta": {
+    "complexes": "155 → 392",
+    "canonicalUnits": "1022 → 2362"
+  },
+  "idempotency": {
+    "wouldInsert": 0,
+    "wouldUpdate": 0,
+    "wouldDelete": 0,
+    "status": "PASS"
+  },
+  "performance": {
+    "selection": {
+      "ms": 12234,
+      "queries": 5
+    },
+    "manifest": {
+      "ms": 1099,
+      "queries": 8
+    },
+    "insert": {
+      "ms": 2655,
+      "batchCalls": 17
+    },
+    "postcheck": {
+      "ms": 529,
+      "queries": 4
+    },
+    "totalMs": 16517,
+    "rowByRowDbOperation": "NO"
+  },
+  "dataSafety": {
+    "transactionsWrites": 0,
+    "masterWrites": 0,
+    "existingUnitUpdates": 0,
+    "legacyWrites": 0,
+    "groupWrites": 0,
+    "linkWrites": 0,
+    "baselineWrites": 0,
+    "classificationWrites": 0,
+    "snapshotStatsWrites": 0,
+    "unitDelta": 1340,
+    "status": "PASS"
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Stage24 real batch insert PASS; path ready for bounded 500-complex unit-master promotion."
+  },
+  "decision": {
+    "250_COMPLEX_SELECTION": "PASS",
+    "MANIFEST_PRECHECK": "PASS",
+    "REAL_BATCH_INSERT": "PASS",
+    "CANONICAL_COMPLETENESS": "PASS",
+    "NEW_CX_INTEGRITY": "PASS",
+    "IDEMPOTENCY": "PASS",
+    "500_COMPLEX_SCALE_READINESS": "READY",
+    "DATA_SAFETY": "PASS"
+  },
+  "stage24OfficialBaseline": {
+    "note": "Frozen Stage23 end state before Stage24. Resume run coverageBefore reflected partial first-batch (80 rows) after interrupted attempt.",
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 142,
+    "unitMasterComplexCoveragePct": 1.68,
+    "canonicalRawTradeIdentities": 29807,
+    "unitMasterCanonicalIdentities": 942,
+    "unitAreaCoveragePct": 3.16
+  },
+  "coverageDeltaOfficial": {
+    "complexes": "142 → 392",
+    "canonicalUnits": "942 → 2362"
+  }
+}
