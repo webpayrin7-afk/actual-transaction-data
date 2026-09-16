@@ -909,38 +909,33 @@ export function ComplexNearbyLifeSection({
       const chipLabel = COMMERCE_CHIP_LABEL[commerceCategory];
       const places = commerceValidPlaces;
 
-      const storeList = (() => {
-        if (commerceQuery.isLoading) {
-          return <EmptyBlock>가까운 주요 매장을 불러오는 중…</EmptyBlock>;
-        }
-        if (commerceQuery.isError) {
-          return <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
-        }
-        if (!commerce || commerce.status === "HOLD") {
-          return (
-            <EmptyBlock>
-              {commerce?.reason || "주변 정보를 찾지 못했어요"}
-            </EmptyBlock>
-          );
-        }
-        if (commerce.status === "ERROR") {
-          return (
-            <EmptyBlock>
-              {commerce.reason || "주변 정보를 불러오지 못했어요"}
-            </EmptyBlock>
-          );
-        }
-        if (commerce.status === "EMPTY" || !places.length) {
-          return (
-            <EmptyBlock>
-              {commerce.status === "EMPTY"
-                ? commerce.reason || "주변 정보를 찾지 못했어요"
-                : `가까운 주요 ${chipLabel}을 찾지 못했어요`}
-            </EmptyBlock>
-          );
-        }
-
-        return (
+      let storeBody: ReactNode;
+      if (commerceQuery.isLoading) {
+        storeBody = <EmptyBlock>가까운 주요 매장을 불러오는 중…</EmptyBlock>;
+      } else if (commerceQuery.isError) {
+        storeBody = <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
+      } else if (!commerce || commerce.status === "HOLD") {
+        storeBody = (
+          <EmptyBlock>
+            {commerce?.reason || "주변 정보를 찾지 못했어요"}
+          </EmptyBlock>
+        );
+      } else if (commerce.status === "ERROR") {
+        storeBody = (
+          <EmptyBlock>
+            {commerce.reason || "주변 정보를 불러오지 못했어요"}
+          </EmptyBlock>
+        );
+      } else if (commerce.status === "EMPTY" || !places.length) {
+        storeBody = (
+          <EmptyBlock>
+            {commerce.status === "EMPTY"
+              ? commerce.reason || "주변 정보를 찾지 못했어요"
+              : `가까운 주요 ${chipLabel}을 찾지 못했어요`}
+          </EmptyBlock>
+        );
+      } else {
+        storeBody = (
           <ul className="space-y-1">
             {places.map((p) => {
               const address = livingPlaceAddress(p);
@@ -992,7 +987,7 @@ export function ComplexNearbyLifeSection({
             })}
           </ul>
         );
-      })();
+      }
 
       return (
         <div className="space-y-4">
@@ -1022,7 +1017,7 @@ export function ComplexNearbyLifeSection({
                 </InfoTip>
               </span>
             </div>
-            {storeList}
+            {storeBody}
           </div>
         </div>
       );
