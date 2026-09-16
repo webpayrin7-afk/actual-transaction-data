@@ -26,11 +26,13 @@ import {
 import {
   Bus,
   ChevronRight,
+  Coffee,
   Hospital,
   Pill,
   ShoppingCart,
   Store,
   Trees,
+  UtensilsCrossed,
 } from "lucide-react";
 import {
   loadNearbySchoolsForMap,
@@ -109,7 +111,14 @@ const LIST_LIMIT = 5;
 /** Bus stops shown before “더보기” (subway always fully listed). */
 const TRANSPORT_BUS_LIST_LIMIT = 4;
 
-const LIVING_SECTION_ORDER: LivingMarkerCategory[] = [
+type LivingOnlyCategory =
+  | "MART"
+  | "HOSPITAL"
+  | "PHARMACY"
+  | "CONVENIENCE"
+  | "PARK";
+
+const LIVING_SECTION_ORDER: LivingOnlyCategory[] = [
   "MART",
   "HOSPITAL",
   "PHARMACY",
@@ -117,12 +126,28 @@ const LIVING_SECTION_ORDER: LivingMarkerCategory[] = [
   "PARK",
 ];
 
-const LIVING_SECTION_LABEL: Record<LivingMarkerCategory, string> = {
+const LIVING_SECTION_LABEL: Record<LivingOnlyCategory, string> = {
   MART: "마트",
   HOSPITAL: "병원",
   PHARMACY: "약국",
   CONVENIENCE: "편의점",
   PARK: "공원",
+};
+
+type CommerceMarkerCategory = "MART" | "CONVENIENCE" | "CAFE" | "RESTAURANT";
+
+const COMMERCE_SECTION_ORDER: CommerceMarkerCategory[] = [
+  "MART",
+  "CONVENIENCE",
+  "CAFE",
+  "RESTAURANT",
+];
+
+const COMMERCE_SECTION_LABEL: Record<CommerceMarkerCategory, string> = {
+  MART: "대형마트",
+  CONVENIENCE: "편의점",
+  CAFE: "카페",
+  RESTAURANT: "음식점",
 };
 
 type LivingPlaceDto = {
@@ -159,6 +184,42 @@ type NearbyLivingResponse = {
   overRadiusRemoved?: number;
   categories: LivingCategoryDto[];
   places: LivingPlaceDto[];
+};
+
+type CommercePlaceDto = {
+  id: string;
+  name: string;
+  category: CommerceMarkerCategory;
+  sourceCategory: string | null;
+  address: string | null;
+  roadAddress: string | null;
+  lat: number | null;
+  lng: number | null;
+  distanceM: number | null;
+  source: "NAVER_LOCAL";
+};
+
+type CommerceCategoryDto = {
+  category: CommerceMarkerCategory;
+  label: string;
+  primaryQuery: string;
+  fallbackQuery: string | null;
+  usedFallback: boolean;
+  apiCalls: number;
+  places: CommercePlaceDto[];
+  error?: string;
+};
+
+type NearbyCommerceResponse = {
+  status: "READY" | "HOLD" | "EMPTY" | "ERROR";
+  reason: string | null;
+  configured?: boolean;
+  requiredEnv?: string[];
+  apiCallCount?: number;
+  duplicatesRemoved?: number;
+  overRadiusRemoved?: number;
+  categories: CommerceCategoryDto[];
+  places: CommercePlaceDto[];
 };
 
 
@@ -234,7 +295,29 @@ async function fetchNearbyLiving(
   if (identity?.legalDongName) qs.set("legalDong", identity.legalDongName);
   const res = await fetch(`/api/complex-nearby-living?${qs}`);
   if (!res.ok) {
-    throw new Error("주변 생활시설 정보를 불러오지 못했습니다.");
+    throw new Error("주변 정보를 불러오지 못했어요");
+  }
+  return res.json();
+}
+
+async function fetchNearbyCommerce(
+  aptName: string,
+  coords: LatLng,
+  identity?: {
+    sigungu?: string | null;
+    legalDongName?: string | null;
+  } | null,
+): Promise<NearbyCommerceResponse> {
+  const qs = new URLSearchParams({
+    aptName,
+    lat: String(coords.lat),
+    lng: String(coords.lng),
+  });
+  if (identity?.sigungu) qs.set("sigungu", identity.sigungu);
+  if (identity?.legalDongName) qs.set("legalDong", identity.legalDongName);
+  const res = await fetch(`/api/complex-nearby-commerce?${qs}`);
+  if (!res.ok) {
+    throw new Error("주변 정보를 불러오지 못했어요");
   }
   return res.json();
 }
@@ -257,9 +340,20 @@ function LivingCategoryIcon({
       return <Store className={className} aria-hidden />;
     case "PARK":
       return <Trees className={className} aria-hidden />;
+    case "CAFE":
+      return <Coffee className={className} aria-hidden />;
+    case "RESTAURANT":
+      return <UtensilsCrossed className={className} aria-hidden />;
     default:
       return <Store className={className} aria-hidden />;
   }
+}
+
+function formatDistanceLabel(distanceM: number | null | undefined): string {
+  if (distanceM == null || !Number.isFinite(distanceM) || distanceM < 0) {
+    return "거리 정보 없음";
+  }
+  return `${formatMeters(distanceM)} · 직선거리`;
 }
 
 
@@ -410,6 +504,21 @@ export function ComplexNearbyLifeSection({
     retry: 0,
   });
 
+  const commerceQuery = useQuery({
+    queryKey: [
+      "complex-nearby-commerce",
+      aptName,
+      coords?.lat ?? null,
+      coords?.lng ?? null,
+      identity?.sigungu ?? null,
+      identity?.legalDongName ?? null,
+    ],
+    queryFn: () => fetchNearbyCommerce(aptName, coords!, identity),
+    enabled: tab === "commerce" && !!coords && geocodeStatus === "ready",
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: 0,
+  });
+
   const schoolQuery = useQuery({
     queryKey: [
       "complex-nearby-schools",
@@ -506,6 +615,25 @@ export function ComplexNearbyLifeSection({
           selected: selectedId === p.id,
         }));
     }
+    if (tab === "commerce") {
+      const places = commerceQuery.data?.places ?? [];
+      return places
+        .filter(
+          (p) =>
+            p.lat != null &&
+            p.lng != null &&
+            Number.isFinite(p.lat) &&
+            Number.isFinite(p.lng),
+        )
+        .map((p) => ({
+          id: p.id,
+          position: { lat: p.lat as number, lng: p.lng as number },
+          title: p.name,
+          kind: "LIVING" as const,
+          livingCategory: p.category as LivingMarkerCategory,
+          selected: selectedId === p.id,
+        }));
+    }
     if (tab === "school") {
       const places = schoolQuery.data?.places ?? [];
       return places
@@ -521,7 +649,15 @@ export function ComplexNearbyLifeSection({
         }));
     }
     return [];
-  }, [lifeQuery.data, livingQuery.data, schoolQuery.data, tab, coords, selectedId]);
+  }, [
+    lifeQuery.data,
+    livingQuery.data,
+    commerceQuery.data,
+    schoolQuery.data,
+    tab,
+    coords,
+    selectedId,
+  ]);
 
   const markers = useMemo(() => {
     const list = [...tabMarkers];
@@ -562,12 +698,12 @@ export function ComplexNearbyLifeSection({
         <EmptyBlock>{geocodeReason || "위치 정보를 확인 중입니다"}</EmptyBlock>
       );
     }
-    if (tab !== "living" && tab !== "school") {
+    if (tab !== "living" && tab !== "commerce" && tab !== "school") {
       if (lifeQuery.isLoading) {
         return <EmptyBlock>주변 생활 정보를 불러오는 중…</EmptyBlock>;
       }
       if (lifeQuery.isError || !lifeQuery.data) {
-        return <EmptyBlock>주변 생활 정보를 불러오지 못했습니다.</EmptyBlock>;
+        return <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
       }
     }
 
@@ -575,10 +711,111 @@ export function ComplexNearbyLifeSection({
     const data = lifeQuery.data;
 
     if (tab === "commerce") {
+      if (commerceQuery.isLoading) {
+        return <EmptyBlock>주변 상권 정보를 불러오는 중…</EmptyBlock>;
+      }
+      if (commerceQuery.isError) {
+        return <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
+      }
+      const commerce = commerceQuery.data;
+      if (!commerce || commerce.status === "HOLD") {
+        return (
+          <EmptyBlock>
+            {commerce?.reason || "주변 정보를 찾지 못했어요"}
+          </EmptyBlock>
+        );
+      }
+      if (commerce.status === "ERROR") {
+        return (
+          <EmptyBlock>
+            {commerce.reason || "주변 정보를 불러오지 못했어요"}
+          </EmptyBlock>
+        );
+      }
+      if (commerce.status === "EMPTY") {
+        return (
+          <EmptyBlock>
+            {commerce.reason || "주변 정보를 찾지 못했어요"}
+          </EmptyBlock>
+        );
+      }
+      const sections = COMMERCE_SECTION_ORDER.map((cat) => {
+        const fromApi = commerce.categories?.find((c) => c.category === cat);
+        const places = (
+          fromApi?.places ?? commerce.places.filter((p) => p.category === cat)
+        )
+          .slice()
+          .sort((a, b) => {
+            if (a.distanceM == null && b.distanceM == null) return 0;
+            if (a.distanceM == null) return 1;
+            if (b.distanceM == null) return -1;
+            return a.distanceM - b.distanceM;
+          });
+        return { cat, places };
+      }).filter((s) => s.places.length > 0);
+
+      if (!sections.length) {
+        return <EmptyBlock>주변 정보를 찾지 못했어요</EmptyBlock>;
+      }
+
       return (
-        <EmptyBlock>
-          {data?.commerce.reason || "상권 상세 분석 준비 중"}
-        </EmptyBlock>
+        <div className="space-y-4">
+          {sections.map(({ cat, places }) => (
+            <div key={cat}>
+              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+                {COMMERCE_SECTION_LABEL[cat]}
+              </p>
+              <ul className="space-y-1">
+                {places.map((p) => {
+                  const hasCoords =
+                    p.lat != null &&
+                    p.lng != null &&
+                    Number.isFinite(p.lat) &&
+                    Number.isFinite(p.lng);
+                  return (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (hasCoords) selectFromList(p.id);
+                        }}
+                        disabled={!hasCoords}
+                        aria-label={
+                          hasCoords
+                            ? `${p.name} 지도에서 보기`
+                            : `${p.name} (지도 위치 없음)`
+                        }
+                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${
+                          hasCoords
+                            ? selectedRowClass(selectedId === p.id)
+                            : "cursor-default opacity-90"
+                        }`}
+                      >
+                        <span className="mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white text-[#1e3a5f]">
+                          <LivingCategoryIcon category={cat} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-medium text-slate-800">
+                            {p.name}
+                          </span>
+                          <span className="mt-0.5 block text-[10px] text-slate-500">
+                            {formatDistanceLabel(p.distanceM)}
+                          </span>
+                        </span>
+                        {hasCoords ? (
+                          <ChevronRight
+                            className="h-4 w-4 shrink-0 text-slate-400"
+                            aria-hidden
+                          />
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
       );
     }
 
@@ -721,26 +958,27 @@ export function ComplexNearbyLifeSection({
         return <EmptyBlock>주변 생활시설을 불러오는 중…</EmptyBlock>;
       }
       if (livingQuery.isError) {
-        return (
-          <EmptyBlock>
-            현재 확인 가능한 주변 생활시설 정보가 없습니다.
-          </EmptyBlock>
-        );
+        return <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
       }
       const living = livingQuery.data;
       if (!living || living.status === "HOLD") {
         return (
           <EmptyBlock>
-            {living?.reason ||
-              "현재 확인 가능한 주변 생활시설 정보가 없습니다."}
+            {living?.reason || "주변 정보를 찾지 못했어요"}
           </EmptyBlock>
         );
       }
-      if (living.status === "ERROR" || living.status === "EMPTY") {
+      if (living.status === "ERROR") {
         return (
           <EmptyBlock>
-            {living.reason ||
-              "현재 확인 가능한 주변 생활시설 정보가 없습니다."}
+            {living.reason || "주변 정보를 불러오지 못했어요"}
+          </EmptyBlock>
+        );
+      }
+      if (living.status === "EMPTY") {
+        return (
+          <EmptyBlock>
+            {living.reason || "주변 정보를 찾지 못했어요"}
           </EmptyBlock>
         );
       }
@@ -755,11 +993,7 @@ export function ComplexNearbyLifeSection({
       }).filter((s) => s.places.length > 0);
 
       if (!sections.length) {
-        return (
-          <EmptyBlock>
-            현재 확인 가능한 주변 생활시설 정보가 없습니다.
-          </EmptyBlock>
-        );
+        return <EmptyBlock>주변 정보를 찾지 못했어요</EmptyBlock>;
       }
 
       return (
@@ -786,8 +1020,7 @@ export function ComplexNearbyLifeSection({
                           {p.name}
                         </span>
                         <span className="mt-0.5 block text-[10px] text-slate-500">
-                          {formatMeters(p.distanceM)}
-                          {" · 직선거리"}
+                          {formatDistanceLabel(p.distanceM)}
                         </span>
                       </span>
                       <ChevronRight
@@ -906,11 +1139,11 @@ export function ComplexNearbyLifeSection({
     }
 
     if (!data) {
-      return <EmptyBlock>주변 생활 정보를 불러오지 못했습니다.</EmptyBlock>;
+      return <EmptyBlock>주변 정보를 불러오지 못했어요</EmptyBlock>;
     }
 
     return (
-      <EmptyBlock>현재 확인 가능한 주변 생활 정보가 없습니다.</EmptyBlock>
+      <EmptyBlock>주변 정보를 찾지 못했어요</EmptyBlock>
     );
 
   })();
@@ -924,6 +1157,9 @@ export function ComplexNearbyLifeSection({
       return Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT);
     }
     if (tab === "living") {
+      return 0;
+    }
+    if (tab === "commerce") {
       return 0;
     }
     if (tab === "school") {
@@ -961,7 +1197,7 @@ export function ComplexNearbyLifeSection({
                 <br />
                 학교: NEIS schoolInfo (인근 학교 · 배정/통학구역 아님)
                 <br />
-                생활시설: NAVER 지역 검색
+                생활시설·상권: NAVER 지역 검색
                 <br />
                 지역 검색 결과 기준이며 전체 시설 수를 의미하지 않습니다.
               </p>
@@ -997,7 +1233,7 @@ export function ComplexNearbyLifeSection({
           {coords && geocodeStatus === "ready" ? (
             <div
               className={
-                tab === "living"
+                tab === "living" || tab === "commerce"
                   ? "h-[324px] w-full sm:h-[350px] lg:h-[400px]"
                   : tab === "school"
                     ? "h-[310px] w-full sm:h-[340px] lg:h-[380px]"
@@ -1016,11 +1252,13 @@ export function ComplexNearbyLifeSection({
                 ariaLabel={
                   tab === "living"
                     ? `${aptName} 주변 생활시설 지도`
-                    : tab === "school"
-                      ? `${aptName} 인근 학교 지도`
-                      : tab === "transport"
-                        ? `${aptName} 주변 교통 지도`
-                        : `${aptName} 주변 생활 지도`
+                    : tab === "commerce"
+                      ? `${aptName} 주변 상권 지도`
+                      : tab === "school"
+                        ? `${aptName} 인근 학교 지도`
+                        : tab === "transport"
+                          ? `${aptName} 주변 교통 지도`
+                          : `${aptName} 주변 생활 지도`
                 }
                 className="h-full w-full rounded-none"
               />
@@ -1028,7 +1266,7 @@ export function ComplexNearbyLifeSection({
           ) : (
             <div
               className={`flex items-center justify-center px-4 text-center text-sm text-slate-500 ${
-                tab === "living"
+                tab === "living" || tab === "commerce"
                   ? "h-[324px] sm:h-[350px] lg:h-[400px]"
                   : tab === "school"
                     ? "h-[310px] sm:h-[340px] lg:h-[380px]"

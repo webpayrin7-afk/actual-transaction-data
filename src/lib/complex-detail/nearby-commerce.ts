@@ -1,6 +1,6 @@
 /**
- * Living tab v1 — NAVER Local Search POIs near a complex.
- * Not a facility census / commerce aggregation.
+ * Commerce tab v1 — NAVER Local Search POIs near a complex.
+ * Mirrors nearby-living; not a commerce census / sales aggregation.
  */
 
 import { haversineMeters, type LatLng } from "@/lib/nearby-map/geo";
@@ -13,50 +13,49 @@ import {
   NAVER_LOCAL_CACHE_VERSION,
 } from "@/lib/complex-detail/naver-local-search";
 
-export type LivingCategory =
+export type CommerceCategory =
   | "MART"
-  | "HOSPITAL"
-  | "PHARMACY"
   | "CONVENIENCE"
-  | "PARK";
+  | "CAFE"
+  | "RESTAURANT";
 
-export type LivingPlace = {
+export type CommercePlace = {
   id: string;
   name: string;
-  category: LivingCategory;
+  category: CommerceCategory;
   sourceCategory: string | null;
   address: string | null;
   roadAddress: string | null;
-  lat: number;
-  lng: number;
-  distanceM: number;
+  /** Null when Local Search omitted usable coords — never invent 0m. */
+  lat: number | null;
+  lng: number | null;
+  /** Null when coords unavailable — UI shows distance unavailable. */
+  distanceM: number | null;
   source: "NAVER_LOCAL";
 };
 
-export const LIVING_CATEGORY_ORDER: LivingCategory[] = [
+export const COMMERCE_CATEGORY_ORDER: CommerceCategory[] = [
   "MART",
-  "HOSPITAL",
-  "PHARMACY",
   "CONVENIENCE",
-  "PARK",
+  "CAFE",
+  "RESTAURANT",
 ];
 
-export const LIVING_CATEGORY_LABEL: Record<LivingCategory, string> = {
-  MART: "마트",
-  HOSPITAL: "병원",
-  PHARMACY: "약국",
+export const COMMERCE_CATEGORY_LABEL: Record<CommerceCategory, string> = {
+  MART: "대형마트",
   CONVENIENCE: "편의점",
-  PARK: "공원",
+  CAFE: "카페",
+  RESTAURANT: "음식점",
 };
 
 /** Display guard — not a census radius. */
-export const LIVING_DISPLAY_MAX_METERS = 1500;
+export const COMMERCE_DISPLAY_MAX_METERS = 1500;
 
 /** Max places shown per category in v1. */
-export const LIVING_MAX_PER_CATEGORY = 2;
+export const COMMERCE_MAX_PER_CATEGORY = 2;
 
-export type LivingCategoryResult = {
-  category: LivingCategory;
+export type CommerceCategoryResult = {
+  category: CommerceCategory;
   label: string;
   primaryQuery: string;
   fallbackQuery: string | null;
@@ -64,11 +63,11 @@ export type LivingCategoryResult = {
   apiCalls: number;
   rawCount: number;
   overRadiusRemoved: number;
-  places: LivingPlace[];
+  places: CommercePlace[];
   error?: string;
 };
 
-export type NearbyLivingResult = {
+export type NearbyCommerceResult = {
   status: "READY" | "HOLD" | "EMPTY" | "ERROR";
   reason: string | null;
   source: "NAVER_LOCAL";
@@ -76,20 +75,20 @@ export type NearbyLivingResult = {
   apiCallCount: number;
   duplicatesRemoved: number;
   overRadiusRemoved: number;
-  categories: LivingCategoryResult[];
-  places: LivingPlace[];
+  categories: CommerceCategoryResult[];
+  places: CommercePlace[];
 };
 
 function normalizeKey(p: {
   name: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   address: string | null;
   roadAddress: string | null;
 }): string {
   const name = p.name.replace(/\s+/g, "").toLowerCase();
-  const lat = p.lat.toFixed(5);
-  const lng = p.lng.toFixed(5);
+  const lat = p.lat != null ? p.lat.toFixed(5) : "noc";
+  const lng = p.lng != null ? p.lng.toFixed(5) : "noc";
   const addr = (p.roadAddress || p.address || "")
     .replace(/\s+/g, "")
     .toLowerCase();
@@ -98,23 +97,41 @@ function normalizeKey(p: {
 
 function itemToCandidate(
   item: NaverLocalSearchItem,
-  category: LivingCategory,
+  category: CommerceCategory,
   center: LatLng,
   index: number,
-): LivingPlace | null {
-  const coords = parseNaverLocalCoords(item.mapx, item.mapy);
-  if (!coords) return null;
+): CommercePlace | null {
   const name = cleanNaverLocalTitle(item.title);
   if (!name) return null;
+  const coords = parseNaverLocalCoords(item.mapx, item.mapy);
+  const address = item.address?.trim() || null;
+  const roadAddress = item.roadAddress?.trim() || null;
+
+  if (!coords) {
+    // Keep POI without inventing distance — list can show "거리 정보 없음".
+    return {
+      id: `commerce-${category}-${index}-${name}-nocords`,
+      name,
+      category,
+      sourceCategory: item.category?.trim() || null,
+      address,
+      roadAddress,
+      lat: null,
+      lng: null,
+      distanceM: null,
+      source: "NAVER_LOCAL",
+    };
+  }
+
   const distanceM = Math.round(haversineMeters(center, coords));
   if (!Number.isFinite(distanceM) || distanceM < 0) return null;
   return {
-    id: `living-${category}-${index}-${name}-${coords.lat.toFixed(5)}-${coords.lng.toFixed(5)}`,
+    id: `commerce-${category}-${index}-${name}-${coords.lat.toFixed(5)}-${coords.lng.toFixed(5)}`,
     name,
     category,
     sourceCategory: item.category?.trim() || null,
-    address: item.address?.trim() || null,
-    roadAddress: item.roadAddress?.trim() || null,
+    address,
+    roadAddress,
     lat: coords.lat,
     lng: coords.lng,
     distanceM,
@@ -122,27 +139,41 @@ function itemToCandidate(
   };
 }
 
-function usableWithinDisplay(places: LivingPlace[]): {
-  usable: LivingPlace[];
+function usableWithinDisplay(places: CommercePlace[]): {
+  usable: CommercePlace[];
   overRadiusRemoved: number;
 } {
-  const usable: LivingPlace[] = [];
+  const usable: CommercePlace[] = [];
   let overRadiusRemoved = 0;
   for (const p of places) {
-    if (p.distanceM <= LIVING_DISPLAY_MAX_METERS) usable.push(p);
-    else overRadiusRemoved += 1;
+    // No coords: keep (distance unavailable). With coords: apply radius.
+    if (p.distanceM == null) {
+      usable.push(p);
+    } else if (p.distanceM <= COMMERCE_DISPLAY_MAX_METERS) {
+      usable.push(p);
+    } else {
+      overRadiusRemoved += 1;
+    }
   }
   return { usable, overRadiusRemoved };
 }
 
+function sortCommercePlaces(a: CommercePlace, b: CommercePlace): number {
+  // Known distances first (nearest), then distance-unavailable.
+  if (a.distanceM == null && b.distanceM == null) return 0;
+  if (a.distanceM == null) return 1;
+  if (b.distanceM == null) return -1;
+  return a.distanceM - b.distanceM;
+}
+
 async function searchCategory(params: {
-  category: LivingCategory;
+  category: CommerceCategory;
   aptName: string;
   center: LatLng;
   sigungu: string | null;
   legalDong: string | null;
-}): Promise<LivingCategoryResult> {
-  const label = LIVING_CATEGORY_LABEL[params.category];
+}): Promise<CommerceCategoryResult> {
+  const label = COMMERCE_CATEGORY_LABEL[params.category];
   const primaryQuery = `${params.aptName} ${label}`.trim();
   const fallbackQuery =
     params.sigungu && params.legalDong
@@ -169,11 +200,13 @@ async function searchCategory(params: {
     .map((item, i) =>
       itemToCandidate(item, params.category, params.center, i),
     )
-    .filter((x): x is LivingPlace => !!x);
+    .filter((x): x is CommercePlace => !!x);
 
   let { usable, overRadiusRemoved } = usableWithinDisplay(candidates);
 
-  if (usable.length === 0 && fallbackQuery) {
+  // Fallback when nothing usable with distance, or only no-coord stubs.
+  const hasDistance = usable.some((p) => p.distanceM != null);
+  if (!hasDistance && fallbackQuery) {
     const fb = await fetchNaverLocalSearch({
       query: fallbackQuery,
       display: 5,
@@ -187,15 +220,15 @@ async function searchCategory(params: {
         .map((item, i) =>
           itemToCandidate(item, params.category, params.center, 100 + i),
         )
-        .filter((x): x is LivingPlace => !!x);
+        .filter((x): x is CommercePlace => !!x);
       const second = usableWithinDisplay(candidates);
       usable = second.usable;
       overRadiusRemoved += second.overRadiusRemoved;
     }
   }
 
-  usable.sort((a, b) => a.distanceM - b.distanceM);
-  const places = usable.slice(0, LIVING_MAX_PER_CATEGORY);
+  usable.sort(sortCommercePlaces);
+  const places = usable.slice(0, COMMERCE_MAX_PER_CATEGORY);
 
   return {
     category: params.category,
@@ -212,20 +245,20 @@ async function searchCategory(params: {
 }
 
 /**
- * Fetch living places for a complex (lazy living-tab path).
- * Max 5 primary Local Search calls; fallback only when primary unusable.
+ * Fetch commerce places for a complex (lazy commerce-tab path).
+ * Max 4 primary Local Search calls; fallback only when primary unusable.
  */
-export async function fetchNearbyLivingPlaces(params: {
+export async function fetchNearbyCommercePlaces(params: {
   aptName: string;
   center: LatLng;
   sigungu?: string | null;
   legalDong?: string | null;
-}): Promise<NearbyLivingResult> {
+}): Promise<NearbyCommerceResult> {
   if (!isNaverLocalSearchConfigured()) {
     return {
       status: "HOLD",
       reason:
-        "NAVER Local Search 인증이 없어 주변 생활시설을 불러올 수 없습니다.",
+        "NAVER Local Search 인증이 없어 주변 상권 정보를 불러올 수 없습니다.",
       source: "NAVER_LOCAL",
       cacheVersion: NAVER_LOCAL_CACHE_VERSION,
       apiCallCount: 0,
@@ -255,11 +288,11 @@ export async function fetchNearbyLivingPlaces(params: {
     };
   }
 
-  const categories: LivingCategoryResult[] = [];
+  const categories: CommerceCategoryResult[] = [];
   let apiCallCount = 0;
   let overRadiusRemoved = 0;
 
-  for (const category of LIVING_CATEGORY_ORDER) {
+  for (const category of COMMERCE_CATEGORY_ORDER) {
     try {
       const result = await searchCategory({
         category,
@@ -274,8 +307,8 @@ export async function fetchNearbyLivingPlaces(params: {
     } catch (e) {
       categories.push({
         category,
-        label: LIVING_CATEGORY_LABEL[category],
-        primaryQuery: `${aptName} ${LIVING_CATEGORY_LABEL[category]}`,
+        label: COMMERCE_CATEGORY_LABEL[category],
+        primaryQuery: `${aptName} ${COMMERCE_CATEGORY_LABEL[category]}`,
         fallbackQuery: null,
         usedFallback: false,
         apiCalls: 0,
@@ -289,9 +322,9 @@ export async function fetchNearbyLivingPlaces(params: {
 
   const seen = new Set<string>();
   let duplicatesRemoved = 0;
-  const places: LivingPlace[] = [];
+  const places: CommercePlace[] = [];
   for (const cat of categories) {
-    const kept: LivingPlace[] = [];
+    const kept: CommercePlace[] = [];
     for (const p of cat.places) {
       const key = normalizeKey(p);
       if (seen.has(key)) {
