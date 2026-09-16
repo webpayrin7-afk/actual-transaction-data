@@ -1,0 +1,289 @@
+{
+  "generatedAt": "2026-09-15T16:12:16.446Z",
+  "mode": "apply-partial-finalized",
+  "schemaNote": "household_count is on apt_complex_profile (not apt_complex_master). Stage1 allowed INSERT of missing profile rows as the carrier for NULL→verified household_count only. No non-null overwrite. Area tables WRITE=0.",
+  "coverageBeforeFirstApply": {
+    "total": 8437,
+    "withHousehold": 9,
+    "missing": 8428,
+    "identityReadyMissing": 8428
+  },
+  "coverageAfter": {
+    "total": 8437,
+    "withHousehold": 84,
+    "missing": 8353,
+    "identityReadyMissing": 8353
+  },
+  "stage1Writes": {
+    "profileRowsInsertedOrUpdated": 75,
+    "netHouseholdGain": 75
+  },
+  "representatives": [
+    {
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "apt_name": "리센츠",
+      "lawd_cd": "11710",
+      "jibun": "22",
+      "bjdong_cd": "10100",
+      "household_before": null,
+      "official_household": 5563,
+      "household_after": 5563,
+      "write_op": "inserted_profile_null_to_value",
+      "match": {
+        "status": "matched",
+        "kaptCode": "A13822003",
+        "evidence": "bjd=1171010100 jibun=22 in kaptAddr=\"서울특별시 송파구 잠실동 22 잠실리센츠\" name~=\"잠실리센츠\"",
+        "kaptAddr": "서울특별시 송파구 잠실동 22 잠실리센츠",
+        "kaptName": "잠실리센츠"
+      },
+      "area": {
+        "complexId": "cx_caf229b5ac63cfbd",
+        "complexName": "리센츠",
+        "rawAreaCount": 5,
+        "unitTypeCount": 0,
+        "groupCount": 0,
+        "linkedCount": 0,
+        "unlinkedCount": 5,
+        "status": "RAW_AREA_ONLY",
+        "areas": [
+          {
+            "exclusive_area": 27.68,
+            "tx_count": 1632,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 8.37
+          },
+          {
+            "exclusive_area": 59.99,
+            "tx_count": 316,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 18.15
+          },
+          {
+            "exclusive_area": 84.99,
+            "tx_count": 3278,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 25.71
+          },
+          {
+            "exclusive_area": 98.55,
+            "tx_count": 122,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 29.81
+          },
+          {
+            "exclusive_area": 124.22,
+            "tx_count": 557,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 37.58
+          }
+        ],
+        "unlinkedAreas": [
+          27.68,
+          59.99,
+          84.99,
+          98.55,
+          124.22
+        ]
+      },
+      "updated_at": "2026-09-15T15:32:17.530Z"
+    },
+    {
+      "complex_id": "cx_85cd8a4b2d5dc3d0",
+      "apt_name": "트리지움",
+      "lawd_cd": "11710",
+      "jibun": "35",
+      "bjdong_cd": "10100",
+      "household_before": null,
+      "official_household": 3696,
+      "household_after": 3696,
+      "write_op": "inserted_profile_null_to_value",
+      "match": {
+        "status": "matched",
+        "kaptCode": "A13822002",
+        "evidence": "bjd=1171010100 jibun=35 in kaptAddr=\"서울특별시 송파구 잠실동 35 잠실동트리지움\" name~=\"잠실동트리지움\"",
+        "kaptAddr": "서울특별시 송파구 잠실동 35 잠실동트리지움",
+        "kaptName": "잠실동트리지움"
+      },
+      "area": {
+        "complexId": "cx_85cd8a4b2d5dc3d0",
+        "complexName": "트리지움",
+        "rawAreaCount": 6,
+        "unitTypeCount": 0,
+        "groupCount": 0,
+        "linkedCount": 0,
+        "unlinkedCount": 6,
+        "status": "RAW_AREA_ONLY",
+        "areas": [
+          {
+            "exclusive_area": 59.88,
+            "tx_count": 922,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 18.11
+          },
+          {
+            "exclusive_area": 84.83,
+            "tx_count": 1155,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 25.66
+          },
+          {
+            "exclusive_area": 84.95,
+            "tx_count": 592,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 25.7
+          },
+          {
+            "exclusive_area": 84.97,
+            "tx_count": 302,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 25.7
+          },
+          {
+            "exclusive_area": 114.7,
+            "tx_count": 278,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 34.7
+          },
+          {
+            "exclusive_area": 149.45,
+            "tx_count": 176,
+            "recent_tx": true,
+            "has_unit_type": false,
+            "unit_type_id": null,
+            "group_id": null,
+            "approx_pyeong": 45.21
+          }
+        ],
+        "unlinkedAreas": [
+          59.88,
+          84.83,
+          84.95,
+          84.97,
+          114.7,
+          149.45
+        ]
+      },
+      "updated_at": "2026-09-15T15:32:20.680Z"
+    }
+  ],
+  "batchSummary": {
+    "plannedBatch": 300,
+    "firstWaveProgressAt429": {
+      "matched": 75,
+      "inserted": 71,
+      "unresolvedSeen": 177
+    },
+    "resumeAttempts": "blocked by sustained HTTP 429 on AptBasisInfoServiceV5",
+    "ambiguous": 0,
+    "cumulativeStage1Rows": 75,
+    "note": "Deterministic matcher (lawd+bjd+jibun-in-addr + name compatibility) remains. Further Seoul enrichment deferred until API quota recovers."
+  },
+  "areaSeoul": {
+    "complexesChecked": 8437,
+    "byStatus": {
+      "AREA_READY": 5,
+      "PARTIAL_UNIT_MASTER": 1,
+      "GROUP_LINK_MISSING": 0,
+      "RAW_AREA_ONLY": 8431,
+      "AMBIGUOUS": 0
+    },
+    "totals": {
+      "rawDistinctAreas": 34750,
+      "unitTypes": 94,
+      "groupLinked": 33,
+      "unlinked": 34717
+    }
+  },
+  "areaReadyExamples": [
+    {
+      "complexId": "cx_ec9a204afeaadf1b",
+      "complexName": "한강(대우)",
+      "rawAreaCount": 8,
+      "unitTypeCount": 11,
+      "groupCount": 4,
+      "linkedCount": 8
+    },
+    {
+      "complexId": "cx_55a0252cbc2225e9",
+      "complexName": "목동신시가지7",
+      "rawAreaCount": 7,
+      "unitTypeCount": 21,
+      "groupCount": 7,
+      "linkedCount": 7
+    },
+    {
+      "complexId": "cx_0320fd9e007e1f8c",
+      "complexName": "은마",
+      "rawAreaCount": 2,
+      "unitTypeCount": 27,
+      "groupCount": 6,
+      "linkedCount": 2
+    },
+    {
+      "complexId": "cx_4c63d9a100973c60",
+      "complexName": "잠실엘스",
+      "rawAreaCount": 5,
+      "unitTypeCount": 7,
+      "groupCount": 3,
+      "linkedCount": 5
+    },
+    {
+      "complexId": "cx_ed52bf895d064c11",
+      "complexName": "파크리오",
+      "rawAreaCount": 9,
+      "unitTypeCount": 10,
+      "groupCount": 5,
+      "linkedCount": 9
+    }
+  ],
+  "areaPartialExamples": [
+    {
+      "complexId": "cx_1c244e7305d12c44",
+      "complexName": "반포자이",
+      "rawAreaCount": 16,
+      "unitTypeCount": 18,
+      "groupCount": 7,
+      "linkedCount": 2,
+      "unlinkedCount": 14
+    }
+  ],
+  "uiNote": "Complex detail area selector today derives options from transactions.exclusive_area (all raw areas displayable). Market-group selector only for unit-type pilot complexes (not 리센츠/트리지움). UI code not modified.",
+  "decisions": {
+    "HOUSEHOLD_REPRESENTATIVE": "PASS",
+    "HOUSEHOLD_ENRICHMENT": "PARTIAL",
+    "RAW_AREA_COVERAGE": "PASS",
+    "UNIT_TYPE_READINESS": "PARTIAL",
+    "SIMILAR_AREA_GROUP_READINESS": "PARTIAL",
+    "DATA_SAFETY": "PASS"
+  }
+}

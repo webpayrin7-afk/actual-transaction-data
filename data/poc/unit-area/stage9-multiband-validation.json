@@ -1,0 +1,1802 @@
+{
+  "generatedAt": "2026-09-15T23:55:31.187Z",
+  "stage": "stage9-multiband-validation",
+  "scope": "10 new Seoul complexes; multi-band grouping validation",
+  "heuristicUnderTest": {
+    "maxSpan": 0.2,
+    "maxGap": 0.15,
+    "note": "Stage7/8 verified heuristic — not declared universal a priori"
+  },
+  "targetSelection": {
+    "complexes": [
+      {
+        "n": 1,
+        "name": "옥수파크힐스101동~116동",
+        "complexId": "cx_c3f8a052ae66fd32",
+        "lawdCd": "11200",
+        "dong": "옥수동",
+        "rawAreaCount": 12,
+        "totalTx": 1922,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 3
+      },
+      {
+        "n": 2,
+        "name": "고덕센트럴ipark",
+        "complexId": "cx_774f03bf66e7882f",
+        "lawdCd": "11740",
+        "dong": "상일동",
+        "rawAreaCount": 9,
+        "totalTx": 1558,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 3
+      },
+      {
+        "n": 3,
+        "name": "래미안라클래시",
+        "complexId": "cx_836331525ecdd550",
+        "lawdCd": "11680",
+        "dong": "삼성동",
+        "rawAreaCount": 10,
+        "totalTx": 546,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 3
+      },
+      {
+        "n": 4,
+        "name": "테헤란아이파크",
+        "complexId": "cx_d80e92e6aef239af",
+        "lawdCd": "11680",
+        "dong": "역삼동",
+        "rawAreaCount": 10,
+        "totalTx": 472,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 3
+      },
+      {
+        "n": 5,
+        "name": "온수힐스테이트",
+        "complexId": "cx_b225492e31c09cdd",
+        "lawdCd": "11530",
+        "dong": "온수동",
+        "rawAreaCount": 9,
+        "totalTx": 910,
+        "bands": [
+          "110+",
+          "50-69",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 4
+      },
+      {
+        "n": 6,
+        "name": "dmcsk뷰아이파크포레",
+        "complexId": "cx_04a453b6ca3d373c",
+        "lawdCd": "11380",
+        "dong": "수색동",
+        "rawAreaCount": 10,
+        "totalTx": 983,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 2
+      },
+      {
+        "n": 7,
+        "name": "자양현대5",
+        "complexId": "cx_7ce2c0c6be9bb8b4",
+        "lawdCd": "11215",
+        "dong": "자양동",
+        "rawAreaCount": 7,
+        "totalTx": 195,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 1
+      },
+      {
+        "n": 8,
+        "name": "상도역롯데캐슬파크엘",
+        "complexId": "cx_d754faa260b961ae",
+        "lawdCd": "11590",
+        "dong": "상도동",
+        "rawAreaCount": 11,
+        "totalTx": 1066,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89"
+        ],
+        "safePreview": 4
+      },
+      {
+        "n": 9,
+        "name": "개봉푸르지오",
+        "complexId": "cx_c8ecd97624efad6d",
+        "lawdCd": "11530",
+        "dong": "개봉동",
+        "rawAreaCount": 10,
+        "totalTx": 925,
+        "bands": [
+          "110+",
+          "50-69",
+          "70-79",
+          "80-89"
+        ],
+        "safePreview": 4
+      },
+      {
+        "n": 10,
+        "name": "반포래미안아이파크",
+        "complexId": "cx_6ae0260f869a7b0f",
+        "lawdCd": "11650",
+        "dong": "반포동",
+        "rawAreaCount": 11,
+        "totalTx": 895,
+        "bands": [
+          "110+",
+          "50-69",
+          "80-89",
+          "90-109"
+        ],
+        "safePreview": 4
+      }
+    ],
+    "diversity": {
+      "bandsCovered": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ],
+      "multiBandRequired": true,
+      "excludedStage678": true
+    }
+  },
+  "beforeCounts": {
+    "apt_unit_types": 180,
+    "apt_pyeong_groups": 96,
+    "apt_unit_type_group_links": 157,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "afterCounts": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 127,
+    "apt_unit_type_group_links": 222,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "protectOk": true,
+  "complexes": [
+    {
+      "complex": "옥수파크힐스101동~116동",
+      "complexId": "cx_c3f8a052ae66fd32",
+      "rawAreas": [
+        59.78,
+        59.88,
+        59.91,
+        76.66,
+        84.3,
+        84.51,
+        84.64,
+        84.92,
+        84.96,
+        107.99,
+        115.1,
+        115.9
+      ],
+      "unitInserted": 12,
+      "unitBefore": 0,
+      "unitAfter": 12,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.78,
+            59.88,
+            59.91
+          ],
+          "span": 0.13,
+          "maxGap": 0.1,
+          "band": "50-69",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_c3f8a052ae66fd32:G1:ex59.78-59.91",
+          "aggregation": {
+            "perMember": {
+              "59.78": 290,
+              "59.88": 382,
+              "59.91": 201
+            },
+            "memberSum": 873,
+            "groupResult": 873,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.13 maxGap=0.1 members=3 band=50-69"
+        },
+        {
+          "members": [
+            76.66
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "70-79",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            84.3
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "80-89",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            84.51,
+            84.64
+          ],
+          "span": 0.13,
+          "maxGap": 0.13,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_c3f8a052ae66fd32:G2:ex84.51-84.64",
+          "aggregation": {
+            "perMember": {
+              "84.51": 255,
+              "84.64": 156
+            },
+            "memberSum": 411,
+            "groupResult": 411,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.13 maxGap=0.13 members=2 band=80-89"
+        },
+        {
+          "members": [
+            84.92,
+            84.96
+          ],
+          "span": 0.04,
+          "maxGap": 0.04,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_c3f8a052ae66fd32:G3:ex84.92-84.96",
+          "aggregation": {
+            "perMember": {
+              "84.92": 93,
+              "84.96": 2
+            },
+            "memberSum": 95,
+            "groupResult": 95,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.04 maxGap=0.04 members=2 band=80-89"
+        },
+        {
+          "members": [
+            107.99
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            115.1
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            115.9
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        }
+      ],
+      "SAFE_GROUP": 3,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 5,
+      "groupsWritten": 3,
+      "linksWritten": 7,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "고덕센트럴ipark",
+      "complexId": "cx_774f03bf66e7882f",
+      "rawAreas": [
+        59.91,
+        59.97,
+        59.99,
+        74.88,
+        74.99,
+        84.91,
+        84.97,
+        102.85,
+        120.37
+      ],
+      "unitInserted": 9,
+      "unitBefore": 0,
+      "unitAfter": 9,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.91,
+            59.97,
+            59.99
+          ],
+          "span": 0.08,
+          "maxGap": 0.06,
+          "band": "50-69",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_774f03bf66e7882f:G1:ex59.91-59.99",
+          "aggregation": {
+            "perMember": {
+              "59.91": 48,
+              "59.97": 544,
+              "59.99": 174
+            },
+            "memberSum": 766,
+            "groupResult": 766,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.08 maxGap=0.06 members=3 band=50-69"
+        },
+        {
+          "members": [
+            74.88,
+            74.99
+          ],
+          "span": 0.11,
+          "maxGap": 0.11,
+          "band": "70-79",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_774f03bf66e7882f:G2:ex74.88-74.99",
+          "aggregation": {
+            "perMember": {
+              "74.88": 129,
+              "74.99": 49
+            },
+            "memberSum": 178,
+            "groupResult": 178,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.11 maxGap=0.11 members=2 band=70-79"
+        },
+        {
+          "members": [
+            84.91,
+            84.97
+          ],
+          "span": 0.06,
+          "maxGap": 0.06,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_774f03bf66e7882f:G3:ex84.91-84.97",
+          "aggregation": {
+            "perMember": {
+              "84.91": 361,
+              "84.97": 204
+            },
+            "memberSum": 565,
+            "groupResult": 565,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.06 maxGap=0.06 members=2 band=80-89"
+        },
+        {
+          "members": [
+            102.85
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            120.37
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        }
+      ],
+      "SAFE_GROUP": 3,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 2,
+      "groupsWritten": 3,
+      "linksWritten": 7,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "래미안라클래시",
+      "complexId": "cx_836331525ecdd550",
+      "rawAreas": [
+        59.99,
+        71.9,
+        71.95,
+        71.99,
+        84.98,
+        84.99,
+        101.98,
+        115.93,
+        136.9,
+        136.95
+      ],
+      "unitInserted": 10,
+      "unitBefore": 0,
+      "unitAfter": 10,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.99
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "50-69",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            71.9,
+            71.95,
+            71.99
+          ],
+          "span": 0.09,
+          "maxGap": 0.05,
+          "band": "70-79",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_836331525ecdd550:G1:ex71.90-71.99",
+          "aggregation": {
+            "perMember": {
+              "71.9": 35,
+              "71.95": 72,
+              "71.99": 18
+            },
+            "memberSum": 125,
+            "groupResult": 125,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.09 maxGap=0.05 members=3 band=70-79"
+        },
+        {
+          "members": [
+            84.98,
+            84.99
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_836331525ecdd550:G2:ex84.98-84.99",
+          "aggregation": {
+            "perMember": {
+              "84.98": 99,
+              "84.99": 36
+            },
+            "memberSum": 135,
+            "groupResult": 135,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=80-89"
+        },
+        {
+          "members": [
+            101.98
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            115.93
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            136.9,
+            136.95
+          ],
+          "span": 0.05,
+          "maxGap": 0.05,
+          "band": "110+",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_836331525ecdd550:G3:ex136.90-136.95",
+          "aggregation": {
+            "perMember": {
+              "136.9": 2,
+              "136.95": 11
+            },
+            "memberSum": 13,
+            "groupResult": 13,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.05 maxGap=0.05 members=2 band=110+"
+        }
+      ],
+      "SAFE_GROUP": 3,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 3,
+      "groupsWritten": 3,
+      "linksWritten": 7,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "테헤란아이파크",
+      "complexId": "cx_d80e92e6aef239af",
+      "rawAreas": [
+        59.78,
+        70.83,
+        70.83,
+        70.84,
+        80.2,
+        80.2,
+        84.64,
+        92.62,
+        92.62,
+        118.03
+      ],
+      "unitInserted": 7,
+      "unitBefore": 0,
+      "unitAfter": 7,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.78
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "50-69",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            70.83,
+            70.83,
+            70.84
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "70-79",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_d80e92e6aef239af:G1:ex70.83-70.84",
+          "aggregation": {
+            "perMember": {
+              "70.83": 166,
+              "70.84": 12
+            },
+            "memberSum": 178,
+            "groupResult": 178,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=3 band=70-79"
+        },
+        {
+          "members": [
+            80.2,
+            80.2
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_d80e92e6aef239af:G2:ex80.20-80.20",
+          "aggregation": {
+            "perMember": {
+              "80.2": 31
+            },
+            "memberSum": 31,
+            "groupResult": 31,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0 maxGap=0 members=2 band=80-89"
+        },
+        {
+          "members": [
+            84.64
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "80-89",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            92.62,
+            92.62
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_d80e92e6aef239af:G3:ex92.62-92.62",
+          "aggregation": {
+            "perMember": {
+              "92.62": 201
+            },
+            "memberSum": 201,
+            "groupResult": 201,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0 maxGap=0 members=2 band=90-109"
+        },
+        {
+          "members": [
+            118.03
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        }
+      ],
+      "SAFE_GROUP": 3,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 3,
+      "groupsWritten": 3,
+      "linksWritten": 4,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": [],
+      "note": "Two zero-span groups from undeduped float duplicates (80.20, 92.62); retained because DELETE=0"
+    },
+    {
+      "complex": "온수힐스테이트",
+      "complexId": "cx_b225492e31c09cdd",
+      "rawAreas": [
+        59.96,
+        59.98,
+        84.97,
+        84.99,
+        102.6,
+        121.26,
+        121.28,
+        162.03,
+        162.16
+      ],
+      "unitInserted": 9,
+      "unitBefore": 0,
+      "unitAfter": 9,
+      "bands": [
+        "110+",
+        "50-69",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.96,
+            59.98
+          ],
+          "span": 0.02,
+          "maxGap": 0.02,
+          "band": "50-69",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_b225492e31c09cdd:G1:ex59.96-59.98",
+          "aggregation": {
+            "perMember": {
+              "59.96": 154,
+              "59.98": 234
+            },
+            "memberSum": 388,
+            "groupResult": 388,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.02 maxGap=0.02 members=2 band=50-69"
+        },
+        {
+          "members": [
+            84.97,
+            84.99
+          ],
+          "span": 0.02,
+          "maxGap": 0.02,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_b225492e31c09cdd:G2:ex84.97-84.99",
+          "aggregation": {
+            "perMember": {
+              "84.97": 242,
+              "84.99": 70
+            },
+            "memberSum": 312,
+            "groupResult": 312,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.02 maxGap=0.02 members=2 band=80-89"
+        },
+        {
+          "members": [
+            102.6
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            121.26,
+            121.28
+          ],
+          "span": 0.02,
+          "maxGap": 0.02,
+          "band": "110+",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_b225492e31c09cdd:G3:ex121.26-121.28",
+          "aggregation": {
+            "perMember": {
+              "121.26": 39,
+              "121.28": 35
+            },
+            "memberSum": 74,
+            "groupResult": 74,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.02 maxGap=0.02 members=2 band=110+"
+        },
+        {
+          "members": [
+            162.03,
+            162.16
+          ],
+          "span": 0.13,
+          "maxGap": 0.13,
+          "band": "110+",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_b225492e31c09cdd:G4:ex162.03-162.16",
+          "aggregation": {
+            "perMember": {
+              "162.03": 21,
+              "162.16": 3
+            },
+            "memberSum": 24,
+            "groupResult": 24,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.13 maxGap=0.13 members=2 band=110+"
+        }
+      ],
+      "SAFE_GROUP": 4,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 1,
+      "groupsWritten": 4,
+      "linksWritten": 8,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "dmcsk뷰아이파크포레",
+      "complexId": "cx_04a453b6ca3d373c",
+      "rawAreas": [
+        39.97,
+        49.92,
+        53.95,
+        59.96,
+        59.97,
+        76.65,
+        84.94,
+        84.95,
+        102.74,
+        120.04
+      ],
+      "unitInserted": 10,
+      "unitBefore": 0,
+      "unitAfter": 10,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            39.97
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "other",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            49.92
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "other",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            53.95
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "50-69",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            59.96,
+            59.97
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "50-69",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_04a453b6ca3d373c:G1:ex59.96-59.97",
+          "aggregation": {
+            "perMember": {
+              "59.96": 237,
+              "59.97": 25
+            },
+            "memberSum": 262,
+            "groupResult": 262,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=50-69"
+        },
+        {
+          "members": [
+            76.65
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "70-79",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            84.94,
+            84.95
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_04a453b6ca3d373c:G2:ex84.94-84.95",
+          "aggregation": {
+            "perMember": {
+              "84.94": 30,
+              "84.95": 159
+            },
+            "memberSum": 189,
+            "groupResult": 189,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=80-89"
+        },
+        {
+          "members": [
+            102.74
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            120.04
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        }
+      ],
+      "SAFE_GROUP": 2,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 6,
+      "groupsWritten": 2,
+      "linksWritten": 4,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "자양현대5",
+      "complexId": "cx_7ce2c0c6be9bb8b4",
+      "rawAreas": [
+        59.72,
+        59.88,
+        76.94,
+        84.96,
+        84.97,
+        109.47,
+        114.63
+      ],
+      "unitInserted": 7,
+      "unitBefore": 0,
+      "unitAfter": 7,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.72,
+            59.88
+          ],
+          "span": 0.16,
+          "maxGap": 0.16,
+          "band": "50-69",
+          "decision": "AMBIGUOUS",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "span 0.16 ok but maxGap 0.16 > 0.15"
+        },
+        {
+          "members": [
+            76.94
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "70-79",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            84.96,
+            84.97
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_7ce2c0c6be9bb8b4:G1:ex84.96-84.97",
+          "aggregation": {
+            "perMember": {
+              "84.96": 21,
+              "84.97": 22
+            },
+            "memberSum": 43,
+            "groupResult": 43,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=80-89"
+        },
+        {
+          "members": [
+            109.47
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            114.63
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        }
+      ],
+      "SAFE_GROUP": 1,
+      "AMBIGUOUS": 1,
+      "NOT_GROUPABLE": 3,
+      "groupsWritten": 1,
+      "linksWritten": 2,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "상도역롯데캐슬파크엘",
+      "complexId": "cx_d754faa260b961ae",
+      "rawAreas": [
+        59.7,
+        59.98,
+        59.99,
+        74.96,
+        74.99,
+        84.97,
+        84.98,
+        84.98,
+        85,
+        110.99,
+        111
+      ],
+      "unitInserted": 10,
+      "unitBefore": 0,
+      "unitAfter": 10,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.7
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "50-69",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            59.98,
+            59.99
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "50-69",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": "cx_d754faa260b961ae:G1:ex59.98-59.99",
+          "aggregation": {
+            "perMember": {
+              "59.98": 434,
+              "59.99": 119
+            },
+            "memberSum": 553,
+            "groupResult": 553,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          },
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=50-69"
+        },
+        {
+          "members": [
+            74.96,
+            74.99
+          ],
+          "span": 0.03,
+          "maxGap": 0.03,
+          "band": "70-79",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.03 maxGap=0.03 members=2 band=70-79 | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            84.97,
+            84.98,
+            84.98,
+            85
+          ],
+          "span": 0.03,
+          "maxGap": 0.02,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.03 maxGap=0.02 members=4 band=80-89 | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            110.99,
+            111
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "110+",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=110+ | HOLD_WRITE: max 20 group budget reached"
+        }
+      ],
+      "SAFE_GROUP": 4,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 1,
+      "groupsWritten": 4,
+      "linksWritten": 9,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "개봉푸르지오",
+      "complexId": "cx_c8ecd97624efad6d",
+      "rawAreas": [
+        59.86,
+        59.9,
+        71.49,
+        71.86,
+        71.95,
+        84.83,
+        84.88,
+        84.94,
+        119.86,
+        119.98
+      ],
+      "unitInserted": 10,
+      "unitBefore": 0,
+      "unitAfter": 10,
+      "bands": [
+        "110+",
+        "50-69",
+        "70-79",
+        "80-89"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            59.86,
+            59.9
+          ],
+          "span": 0.04,
+          "maxGap": 0.04,
+          "band": "50-69",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.04 maxGap=0.04 members=2 band=50-69 | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            71.49
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "70-79",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            71.86,
+            71.95
+          ],
+          "span": 0.09,
+          "maxGap": 0.09,
+          "band": "70-79",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.09 maxGap=0.09 members=2 band=70-79 | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            84.83,
+            84.88,
+            84.94
+          ],
+          "span": 0.11,
+          "maxGap": 0.06,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.11 maxGap=0.06 members=3 band=80-89 | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            119.86,
+            119.98
+          ],
+          "span": 0.12,
+          "maxGap": 0.12,
+          "band": "110+",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.12 maxGap=0.12 members=2 band=110+ | HOLD_WRITE: max 20 group budget reached"
+        }
+      ],
+      "SAFE_GROUP": 4,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 1,
+      "groupsWritten": 4,
+      "linksWritten": 9,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    },
+    {
+      "complex": "반포래미안아이파크",
+      "complexId": "cx_6ae0260f869a7b0f",
+      "rawAreas": [
+        49.84,
+        59.95,
+        59.97,
+        84.88,
+        84.93,
+        99.92,
+        112.95,
+        112.96,
+        130.92,
+        130.93,
+        150.96
+      ],
+      "unitInserted": 11,
+      "unitBefore": 0,
+      "unitAfter": 11,
+      "bands": [
+        "110+",
+        "50-69",
+        "80-89",
+        "90-109"
+      ],
+      "candidateClusters": [
+        {
+          "members": [
+            49.84
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "other",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            59.95,
+            59.97
+          ],
+          "span": 0.02,
+          "maxGap": 0.02,
+          "band": "50-69",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.02 maxGap=0.02 members=2 band=50-69 | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            84.88,
+            84.93
+          ],
+          "span": 0.05,
+          "maxGap": 0.05,
+          "band": "80-89",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.05 maxGap=0.05 members=2 band=80-89 | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            99.92
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "90-109",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        },
+        {
+          "members": [
+            112.95,
+            112.96
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "110+",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=110+ | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            130.92,
+            130.93
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "band": "110+",
+          "decision": "SAFE_GROUP",
+          "written": true,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=110+ | HOLD_WRITE: max 20 group budget reached"
+        },
+        {
+          "members": [
+            150.96
+          ],
+          "span": 0,
+          "maxGap": 0,
+          "band": "110+",
+          "decision": "NOT_GROUPABLE",
+          "written": false,
+          "groupKey": null,
+          "aggregation": null,
+          "reason": "single raw area"
+        }
+      ],
+      "SAFE_GROUP": 4,
+      "AMBIGUOUS": 0,
+      "NOT_GROUPABLE": 3,
+      "groupsWritten": 4,
+      "linksWritten": 8,
+      "aggregation": true,
+      "rawPreserved": true,
+      "heldForBudget": []
+    }
+  ],
+  "totals": {
+    "complexes": 10,
+    "rawAreas": 99,
+    "unitTypesBefore": 180,
+    "unitTypesInserted": 95,
+    "unitTypesAfter": 275,
+    "groupCandidates": 60,
+    "SAFE_GROUP": 31,
+    "AMBIGUOUS": 1,
+    "NOT_GROUPABLE": 28,
+    "groupsInserted": 31,
+    "linksInserted": 65,
+    "heldForBudget": 0
+  },
+  "bandValidation": {
+    "50-69": {
+      "sample": 12,
+      "safe": 7,
+      "ambiguous": 1,
+      "notGroupable": 4,
+      "maxSafeSpan": 0.13,
+      "maxSafeGap": 0.1,
+      "written": 5
+    },
+    "70-79": {
+      "sample": 9,
+      "safe": 5,
+      "ambiguous": 0,
+      "notGroupable": 4,
+      "maxSafeSpan": 0.11,
+      "maxSafeGap": 0.11,
+      "written": 3
+    },
+    "80-89": {
+      "sample": 13,
+      "safe": 11,
+      "ambiguous": 0,
+      "notGroupable": 2,
+      "maxSafeSpan": 0.13,
+      "maxSafeGap": 0.13,
+      "written": 8
+    },
+    "90-109": {
+      "sample": 8,
+      "safe": 1,
+      "ambiguous": 0,
+      "notGroupable": 7,
+      "maxSafeSpan": 0,
+      "maxSafeGap": 0,
+      "written": 1,
+      "note": "Only SAFE candidate was zero-span float-duplicate (not a real multi-member family). Treat real multi-member sample as NO_SAMPLE for generalization.",
+      "realMultiMemberSafe": 0
+    },
+    "110+": {
+      "sample": 15,
+      "safe": 7,
+      "ambiguous": 0,
+      "notGroupable": 8,
+      "maxSafeSpan": 0.13,
+      "maxSafeGap": 0.13,
+      "written": 3
+    }
+  },
+  "ruleGeneralization": {
+    "decision": "BAND_SPECIFIC_RULE_NEEDED",
+    "evidence": "SAFE multi-member families observed in 50–69 / 70–79 / 80–89 / 110+ under span≤0.20 & gap≤0.15. 90–109 lacked real multi-member SAFE sample (only float-duplicate zero-span). 1 AMBIGUOUS (자양현대5 59.72–59.88 gap0.16). Group budget overshoot (31>20) due to replay bug — not a threshold failure but process defect.",
+    "bandsWithSample": [
+      "50-69",
+      "70-79",
+      "80-89",
+      "90-109",
+      "110+"
+    ],
+    "bandsWithRealSafe": [
+      "50-69",
+      "70-79",
+      "80-89",
+      "110+"
+    ]
+  },
+  "aggregationSafety": {
+    "groupsChecked": 31,
+    "mismatches": 0,
+    "missingTx": 0,
+    "duplicateTx": 0
+  },
+  "existingDataSafety": {
+    "priorGroupsChanged": false,
+    "priorLinksChanged": false,
+    "rawCollapsed": 0,
+    "duplicateUnit": 0,
+    "duplicateGroup": 0,
+    "duplicateLink": 0
+  },
+  "singogaSafety": {
+    "baselineWrites": 0,
+    "classificationWrites": 0,
+    "baselineChanged": false,
+    "classificationChanged": false,
+    "singogaPathChanges": false,
+    "featureFlags": "unchanged"
+  },
+  "seoulReadiness": {
+    "complexesTotal": 8437,
+    "unitMasterComplexes": 17,
+    "groupedComplexes": 29,
+    "rawDistinctAreas": 34752,
+    "unitMasterRawAreas": 275,
+    "groupLinkedRawAreas": 222,
+    "unitCoveragePct": 0.2,
+    "groupCoveragePct": 0.34,
+    "selectorMigration": "NOT_READY",
+    "reason": "Unit-master coverage still pilot-scale vs Seoul IDENTITY-READY total; keep transactions-based selector."
+  },
+  "idempotencyReplay": [
+    {
+      "name": "옥수파크힐스101동~116동",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "고덕센트럴ipark",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "래미안라클래시",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "테헤란아이파크",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "온수힐스테이트",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "dmcsk뷰아이파크포레",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "자양현대5",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "상도역롯데캐슬파크엘",
+      "unitInserted": 0,
+      "groupsInserted": 3,
+      "linksInserted": 7
+    },
+    {
+      "name": "개봉푸르지오",
+      "unitInserted": 0,
+      "groupsInserted": 4,
+      "linksInserted": 9
+    },
+    {
+      "name": "반포래미안아이파크",
+      "unitInserted": 0,
+      "groupsInserted": 4,
+      "linksInserted": 8
+    }
+  ],
+  "idempotent": false,
+  "db": {
+    "apt_unit_types_insert": 95,
+    "apt_unit_types_update": 0,
+    "apt_pyeong_groups_insert": 31,
+    "apt_pyeong_groups_update": 0,
+    "apt_unit_type_group_links_insert": 65,
+    "apt_unit_type_group_links_update": 0,
+    "other_writes": 0,
+    "delete": 0,
+    "kapt_api_calls": 0
+  },
+  "nextAction": {
+    "choice": "B",
+    "label": "band-specific rule refinement",
+    "reason": "Heuristic works across most bands but 90–109 evidence insufficient, 1 AMBIGUOUS at 50–69 boundary, and write-budget control failed on replay. Refine policy/process before 25–50 expansion."
+  },
+  "decision": {
+    "RAW_UNIT_EXPANSION": "PASS",
+    "MULTI_BAND_GROUPING": "PARTIAL",
+    "RULE_GENERALIZATION": "PARTIAL",
+    "GROUP_AGGREGATION": "PASS",
+    "RAW_PRESERVATION": "PASS",
+    "SELECTOR_MIGRATION": "NOT_READY",
+    "SCHEMA_CHANGE_REQUIRED": "NO",
+    "DATA_SAFETY": "PASS"
+  },
+  "dbAudit": {
+    "note": "Idempotency replay incorrectly reset group budget and wrote held SAFE_GROUPs. DELETE=0 so extras retained. Also 2 zero-span groups from undeduped float areas at 테헤란아이파크.",
+    "stage9Complexes": {
+      "unitTypes": 95,
+      "groups": 31,
+      "links": 65
+    },
+    "zeroSpanGroups": [
+      "cx_d80e92e6aef239af:G2:ex80.20-80.20",
+      "cx_d80e92e6aef239af:G3:ex92.62-92.62"
+    ],
+    "maxGroupBudget": 20,
+    "groupsInsertedVsBudget": "31 actual (20 first-pass + 11 replay overshoot)"
+  },
+  "idempotencyNote": "FAIL on first implementation — replay reopened budget; script fixed to verify-only replay"
+}

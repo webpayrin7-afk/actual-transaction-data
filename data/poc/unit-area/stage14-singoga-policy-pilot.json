@@ -1,0 +1,567 @@
+{
+  "generatedAt": "2026-09-16T01:05:16.501Z",
+  "stage": "stage14-singoga-policy-pilot",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0
+  },
+  "before": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "after": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "dbUnchanged": true,
+  "policyContract": {
+    "exactArea": "areaKey = Math.round(sqm*100)/100",
+    "groupRule": "similar_exclusive_area_v1",
+    "eligibleGroupSources": [
+      "similar_exclusive_area_v1",
+      "transactions-similar-area (Stage7–9 V1-compatible)"
+    ],
+    "priceBasis": "deal_amount total (not per-sqm)",
+    "priorDateRule": "deal_date < T.deal_date only",
+    "sameDayRule": "same-date peers share prior snapshot; not each other's prior",
+    "noPriorRule": "priorMax NULL → isSingoga FALSE (NO_PRIOR_BASELINE)",
+    "primaryRule": "group exists → isGroupSingoga; else → isExactSingoga (EXACT_FALLBACK)",
+    "exactOnlyRule": "group exists && exact && !group → secondary 개별면적 신고가 candidate",
+    "reportWindowMonths": 24,
+    "windowStart": "2024-09-16",
+    "tradeFilter": "deal_type='trade' (production warehouse contract)"
+  },
+  "targets": [
+    {
+      "name": "트리지움",
+      "complexId": "cx_85cd8a4b2d5dc3d0",
+      "purpose": "대표 similar-area group (Stage7 84㎡ family)"
+    },
+    {
+      "name": "파크리오",
+      "complexId": "cx_ed52bf895d064c11",
+      "purpose": "Stage13 V1 groups + high volume"
+    },
+    {
+      "name": "잠실엘스",
+      "complexId": "cx_4c63d9a100973c60",
+      "purpose": "Stage13 V1 group + high volume"
+    },
+    {
+      "name": "반포자이",
+      "complexId": "cx_1c244e7305d12c44",
+      "purpose": "high-price exact/group divergence"
+    },
+    {
+      "name": "롯데캐슬퍼스트",
+      "complexId": "cx_e0b6328a55c8abb0",
+      "purpose": "GROUP MISSING → EXACT FALLBACK"
+    }
+  ],
+  "complexes": [
+    {
+      "name": "트리지움",
+      "complexId": "cx_85cd8a4b2d5dc3d0",
+      "purpose": "대표 similar-area group (Stage7 84㎡ family)",
+      "lawdCd": "11710",
+      "identityStatus": "IDENTITY-READY",
+      "historyTradeCount": 1161,
+      "groups": [
+        {
+          "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+          "members": [
+            84.83,
+            84.95,
+            84.97
+          ],
+          "source": "transactions-similar-area"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 264,
+        "groupedTransactions": 154,
+        "nonGroupedTransactions": 110,
+        "exactSingoga": 48,
+        "groupSingoga": 16,
+        "exactOnlySingoga": 14,
+        "exactFallbackSingoga": 18,
+        "primarySingoga": 34,
+        "noiseReductionCount": 14,
+        "groupedSubset": {
+          "transactions": 154,
+          "exactSingoga": 30,
+          "groupSingoga": 16,
+          "exactOnlySingoga": 14,
+          "noiseReductionCount": 14,
+          "noiseReductionRate": 0.4667
+        }
+      },
+      "examples": {
+        "groupSingoga": [
+          {
+            "date": "2026-01-24",
+            "area": 84.83,
+            "price": 335000,
+            "exactPriorMax": 327000,
+            "groupPriorMax": 330000,
+            "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+            "classification": "GROUP_SINGOGA"
+          }
+        ],
+        "exactOnlySingoga": [
+          {
+            "date": "2026-01-21",
+            "area": 84.83,
+            "price": 327000,
+            "exactPriorMax": 325000,
+            "groupPriorMax": 330000,
+            "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+            "classification": "EXACT_ONLY_SINGOGA"
+          }
+        ],
+        "exactFallbackSingoga": [
+          {
+            "date": "2025-10-15",
+            "area": 149.45,
+            "price": 430000,
+            "exactPriorMax": 410000,
+            "groupPriorMax": null,
+            "groupKey": null,
+            "classification": "EXACT_FALLBACK_SINGOGA"
+          }
+        ]
+      },
+      "legacyAllTimeMaxEqualityCount": 7,
+      "pilotExactCount": 48,
+      "trizium84Family": {
+        "members": [
+          84.83,
+          84.95,
+          84.97
+        ],
+        "transactions": 154,
+        "exactSingogaByMember": {
+          "84.83": {
+            "transactions": 84,
+            "exactSingoga": 11
+          },
+          "84.95": {
+            "transactions": 47,
+            "exactSingoga": 9
+          },
+          "84.97": {
+            "transactions": 23,
+            "exactSingoga": 10
+          }
+        },
+        "groupSingoga": 16,
+        "exactOnly": 14,
+        "primary": 16,
+        "representativeExamples": {
+          "groupSingoga": [
+            {
+              "date": "2026-01-24",
+              "area": 84.83,
+              "price": 335000,
+              "exactPriorMax": 327000,
+              "groupPriorMax": 330000,
+              "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+              "classification": "GROUP_SINGOGA"
+            }
+          ],
+          "exactOnlySingoga": [
+            {
+              "date": "2026-01-21",
+              "area": 84.83,
+              "price": 327000,
+              "exactPriorMax": 325000,
+              "groupPriorMax": 330000,
+              "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+              "classification": "EXACT_ONLY_SINGOGA"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "파크리오",
+      "complexId": "cx_ed52bf895d064c11",
+      "purpose": "Stage13 V1 groups + high volume",
+      "lawdCd": "11710",
+      "identityStatus": "IDENTITY-READY",
+      "historyTradeCount": 2661,
+      "groups": [
+        {
+          "groupKey": "cx_ed52bf895d064c11:G1:ex59.86-59.95",
+          "members": [
+            59.86,
+            59.95
+          ],
+          "source": "similar_exclusive_area_v1"
+        },
+        {
+          "groupKey": "cx_ed52bf895d064c11:G2:ex84.79-84.97",
+          "members": [
+            84.79,
+            84.9,
+            84.97
+          ],
+          "source": "similar_exclusive_area_v1"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 479,
+        "groupedTransactions": 361,
+        "nonGroupedTransactions": 118,
+        "exactSingoga": 83,
+        "groupSingoga": 30,
+        "exactOnlySingoga": 29,
+        "exactFallbackSingoga": 24,
+        "primarySingoga": 54,
+        "noiseReductionCount": 29,
+        "groupedSubset": {
+          "transactions": 361,
+          "exactSingoga": 59,
+          "groupSingoga": 30,
+          "exactOnlySingoga": 29,
+          "noiseReductionCount": 29,
+          "noiseReductionRate": 0.4915
+        }
+      },
+      "examples": {
+        "groupSingoga": [
+          {
+            "date": "2026-01-26",
+            "area": 84.97,
+            "price": 322000,
+            "exactPriorMax": 309000,
+            "groupPriorMax": 315000,
+            "groupKey": "cx_ed52bf895d064c11:G2:ex84.79-84.97",
+            "classification": "GROUP_SINGOGA"
+          }
+        ],
+        "exactOnlySingoga": [
+          {
+            "date": "2025-10-25",
+            "area": 84.79,
+            "price": 309000,
+            "exactPriorMax": 305000,
+            "groupPriorMax": 309000,
+            "groupKey": "cx_ed52bf895d064c11:G2:ex84.79-84.97",
+            "classification": "EXACT_ONLY_SINGOGA"
+          }
+        ],
+        "exactFallbackSingoga": [
+          {
+            "date": "2025-07-14",
+            "area": 144.77,
+            "price": 385000,
+            "exactPriorMax": 341000,
+            "groupPriorMax": null,
+            "groupKey": null,
+            "classification": "EXACT_FALLBACK_SINGOGA"
+          }
+        ]
+      },
+      "legacyAllTimeMaxEqualityCount": 11,
+      "pilotExactCount": 83
+    },
+    {
+      "name": "잠실엘스",
+      "complexId": "cx_4c63d9a100973c60",
+      "purpose": "Stage13 V1 group + high volume",
+      "lawdCd": "11710",
+      "identityStatus": "IDENTITY-READY",
+      "historyTradeCount": 1646,
+      "groups": [
+        {
+          "groupKey": "cx_4c63d9a100973c60:G1:ex84.80-84.97",
+          "members": [
+            84.8,
+            84.88,
+            84.97
+          ],
+          "source": "similar_exclusive_area_v1"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 337,
+        "groupedTransactions": 220,
+        "nonGroupedTransactions": 117,
+        "exactSingoga": 48,
+        "groupSingoga": 17,
+        "exactOnlySingoga": 14,
+        "exactFallbackSingoga": 17,
+        "primarySingoga": 34,
+        "noiseReductionCount": 14,
+        "groupedSubset": {
+          "transactions": 220,
+          "exactSingoga": 31,
+          "groupSingoga": 17,
+          "exactOnlySingoga": 14,
+          "noiseReductionCount": 14,
+          "noiseReductionRate": 0.4516
+        }
+      },
+      "examples": {
+        "groupSingoga": [
+          {
+            "date": "2026-02-20",
+            "area": 84.88,
+            "price": 370000,
+            "exactPriorMax": 348000,
+            "groupPriorMax": 350000,
+            "groupKey": "cx_4c63d9a100973c60:G1:ex84.80-84.97",
+            "classification": "GROUP_SINGOGA"
+          }
+        ],
+        "exactOnlySingoga": [
+          {
+            "date": "2026-01-31",
+            "area": 84.88,
+            "price": 348000,
+            "exactPriorMax": 340000,
+            "groupPriorMax": 350000,
+            "groupKey": "cx_4c63d9a100973c60:G1:ex84.80-84.97",
+            "classification": "EXACT_ONLY_SINGOGA"
+          }
+        ],
+        "exactFallbackSingoga": [
+          {
+            "date": "2026-01-16",
+            "area": 119.93,
+            "price": 460000,
+            "exactPriorMax": 450000,
+            "groupPriorMax": null,
+            "groupKey": null,
+            "classification": "EXACT_FALLBACK_SINGOGA"
+          }
+        ]
+      },
+      "legacyAllTimeMaxEqualityCount": 9,
+      "pilotExactCount": 48
+    },
+    {
+      "name": "반포자이",
+      "complexId": "cx_1c244e7305d12c44",
+      "purpose": "high-price exact/group divergence",
+      "lawdCd": "11650",
+      "identityStatus": "IDENTITY-READY",
+      "historyTradeCount": 1073,
+      "groups": [
+        {
+          "groupKey": "cx_1c244e7305d12c44:G1:ex59.97-59.98",
+          "members": [
+            59.97,
+            59.98
+          ],
+          "source": "similar_exclusive_area_v1"
+        },
+        {
+          "groupKey": "cx_1c244e7305d12c44:G2:ex84.94-85.00",
+          "members": [
+            84.94,
+            84.98,
+            85
+          ],
+          "source": "similar_exclusive_area_v1"
+        },
+        {
+          "groupKey": "cx_1c244e7305d12c44:G3:ex244.54-244.63",
+          "members": [
+            244.54,
+            244.63
+          ],
+          "source": "similar_exclusive_area_v1"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 119,
+        "groupedTransactions": 79,
+        "nonGroupedTransactions": 40,
+        "exactSingoga": 40,
+        "groupSingoga": 16,
+        "exactOnlySingoga": 8,
+        "exactFallbackSingoga": 16,
+        "primarySingoga": 32,
+        "noiseReductionCount": 8,
+        "groupedSubset": {
+          "transactions": 79,
+          "exactSingoga": 24,
+          "groupSingoga": 16,
+          "exactOnlySingoga": 8,
+          "noiseReductionCount": 8,
+          "noiseReductionRate": 0.3333
+        }
+      },
+      "examples": {
+        "groupSingoga": [
+          {
+            "date": "2026-06-13",
+            "area": 244.54,
+            "price": 760000,
+            "exactPriorMax": 750000,
+            "groupPriorMax": 750000,
+            "groupKey": "cx_1c244e7305d12c44:G3:ex244.54-244.63",
+            "classification": "GROUP_SINGOGA"
+          }
+        ],
+        "exactOnlySingoga": [
+          {
+            "date": "2026-03-14",
+            "area": 84.98,
+            "price": 500000,
+            "exactPriorMax": 460000,
+            "groupPriorMax": 520000,
+            "groupKey": "cx_1c244e7305d12c44:G2:ex84.94-85.00",
+            "classification": "EXACT_ONLY_SINGOGA"
+          }
+        ],
+        "exactFallbackSingoga": [
+          {
+            "date": "2025-11-18",
+            "area": 244.97,
+            "price": 803000,
+            "exactPriorMax": 740000,
+            "groupPriorMax": null,
+            "groupKey": null,
+            "classification": "EXACT_FALLBACK_SINGOGA"
+          }
+        ]
+      },
+      "legacyAllTimeMaxEqualityCount": 15,
+      "pilotExactCount": 40
+    },
+    {
+      "name": "롯데캐슬퍼스트",
+      "complexId": "cx_e0b6328a55c8abb0",
+      "purpose": "GROUP MISSING → EXACT FALLBACK",
+      "lawdCd": "11740",
+      "identityStatus": "IDENTITY-READY",
+      "historyTradeCount": 1595,
+      "groups": [],
+      "groupExists": false,
+      "summary": {
+        "reportTransactions": 332,
+        "groupedTransactions": 0,
+        "nonGroupedTransactions": 332,
+        "exactSingoga": 56,
+        "groupSingoga": 0,
+        "exactOnlySingoga": 0,
+        "exactFallbackSingoga": 56,
+        "primarySingoga": 56,
+        "noiseReductionCount": 0,
+        "groupedSubset": {
+          "transactions": 0,
+          "exactSingoga": 0,
+          "groupSingoga": 0,
+          "exactOnlySingoga": 0,
+          "noiseReductionCount": 0,
+          "noiseReductionRate": null
+        }
+      },
+      "examples": {
+        "groupSingoga": [],
+        "exactOnlySingoga": [],
+        "exactFallbackSingoga": [
+          {
+            "date": "2026-04-25",
+            "area": 133.97,
+            "price": 220000,
+            "exactPriorMax": 211000,
+            "groupPriorMax": null,
+            "groupKey": null,
+            "classification": "EXACT_FALLBACK_SINGOGA"
+          }
+        ]
+      },
+      "legacyAllTimeMaxEqualityCount": 9,
+      "pilotExactCount": 56,
+      "fallbackCheck": {
+        "groupExists": false,
+        "exact": 56,
+        "primary": 56,
+        "difference": 0,
+        "status": "PASS"
+      }
+    }
+  ],
+  "totals": {
+    "reportTransactions": 1531,
+    "groupedTransactions": 814,
+    "nonGroupedTransactions": 717,
+    "exactSingoga": 275,
+    "groupSingoga": 79,
+    "exactOnlySingoga": 65,
+    "exactFallbackSingoga": 131,
+    "primarySingoga": 210,
+    "noiseReductionCount": 65,
+    "groupedSubset": {
+      "transactions": 814,
+      "exactSingoga": 144,
+      "groupSingoga": 79,
+      "exactOnlySingoga": 65,
+      "noiseReductionCount": 65,
+      "noiseReductionRate": 0.4514
+    }
+  },
+  "groupedSubset": {
+    "transactions": 814,
+    "exactSingoga": 144,
+    "groupSingoga": 79,
+    "exactOnlySingoga": 65,
+    "noiseReductionCount": 65,
+    "noiseReductionRate": 0.4514
+  },
+  "invariantChecks": {
+    "groupPriorMaxGteExactPriorMax": true,
+    "groupPriorLtExactViolations": 0,
+    "groupSingogaImpliesExactSingoga": true,
+    "groupTrueExactFalseViolations": 0,
+    "samples": [],
+    "sameDayDeterministic": "PASS",
+    "groupMissingPrimaryEqualsExact": "PASS"
+  },
+  "currentProductionComparison": {
+    "note": "Legacy apt-detail markSingogaExclusiveAllTimeMax uses all-time max equality (ties=true), not prior-exceed. Counts are not expected to match pilot exact.",
+    "existingExactAllTimeMaxEqualityCount": 51,
+    "pilotExactPriorExceedCount": 275,
+    "difference": 224,
+    "reason": "Different semantics: legacy all-time equality vs Stage14 prior-date strict exceed."
+  },
+  "productInterpretation": {
+    "groupPrimaryNoiseReductionCount": 65,
+    "groupPrimaryNoiseReductionRate": 0.4514,
+    "exactOnlyCases": 65,
+    "fallbackBehavior": "롯데캐슬퍼스트 group=0 → primary == exact (verified)"
+  },
+  "productionBehavior": {
+    "featureFlagsChanged": 0,
+    "runtimeSingogaChanged": false,
+    "uiChanged": false
+  },
+  "nextAction": {
+    "choice": "B",
+    "reason": "Exact-only cases exist under group-primary; Stage15 shadow dual-computation validates product labeling before switch."
+  },
+  "decision": {
+    "EXACT_BASELINE": "PASS",
+    "GROUP_BASELINE": "PASS",
+    "GROUP_PRIMARY_POLICY": "PASS",
+    "EXACT_FALLBACK_POLICY": "PASS",
+    "SAME_DAY_POLICY": "PASS",
+    "PRODUCTION_SWITCH": "NOT_YET",
+    "DATA_SAFETY": "PASS"
+  }
+}

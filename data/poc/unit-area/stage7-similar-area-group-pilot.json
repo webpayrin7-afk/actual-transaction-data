@@ -1,0 +1,306 @@
+{
+  "generatedAt": "2026-09-15T23:10:50.212Z",
+  "stage": "stage7-similar-area-group-pilot",
+  "scope": "트리지움 84㎡ family ONLY (84.83 / 84.95 / 84.97)",
+  "contract": {
+    "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+    "complexKey": "cx_85cd8a4b2d5dc3d0",
+    "complexId": "cx_85cd8a4b2d5dc3d0",
+    "areaMin": 84.83,
+    "areaMax": 84.97,
+    "representativeArea": 84.83,
+    "displayMode": "range_only",
+    "marketLabel": null,
+    "labelNullReason": "no_supply_area",
+    "displaySemantics": "84㎡대 / 전용 84.83~84.97㎡ (NOT 26평)",
+    "supplyAreaPyeongLabel": false,
+    "helperReused": "direct INSERT matching repository.ts columns (+ complex_id); replacePilotMasterBundles NOT used",
+    "groupKeyConvention": "{complex_key}:G{n}:ex{min}-{max} with toFixed(2)"
+  },
+  "before": {
+    "unitTypesGlobal": 143,
+    "groupsGlobal": 90,
+    "linksGlobal": 135,
+    "triziumUnitTypes": 6,
+    "triziumGroups": 1,
+    "triziumLinks": 3,
+    "triziumAreas": [
+      59.88,
+      84.83,
+      84.95,
+      84.97,
+      114.7,
+      149.45
+    ],
+    "note": "First-run before: triziumGroups=0, triziumLinks=0, unitTypes=6; artifact last run saw post-write state"
+  },
+  "write": {
+    "groupAction": "exists",
+    "groupActionIdempotentReplay": "exists",
+    "linksInserted": 0,
+    "linksExisted": 3,
+    "linksInsertedKeys": [],
+    "linksReplayInserted": 0,
+    "unitTypesModified": 0,
+    "baselinesModified": 0,
+    "classificationsModified": 0,
+    "firstProductionWrite": {
+      "groupsInserted": 1,
+      "linksInserted": 3,
+      "note": "Initial Stage7 run inserted 1 group + 3 links; subsequent runs are no-ops"
+    },
+    "idempotencyVerified": true
+  },
+  "after": {
+    "memberExists": {
+      "84.83": true,
+      "84.95": true,
+      "84.97": true
+    },
+    "groupExists": true,
+    "groupRow": {
+      "group_key": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+      "complex_key": "cx_85cd8a4b2d5dc3d0",
+      "market_label": null,
+      "display_mode": "range_only",
+      "supply_area_min": null,
+      "supply_area_max": null,
+      "exclusive_area_min": 84.83,
+      "exclusive_area_max": 84.97,
+      "household_count": null,
+      "confidence": "grouped",
+      "group_confidence_high": 1,
+      "label_null_reason": "no_supply_area",
+      "sort_order": 0,
+      "source": "transactions-similar-area",
+      "complex_id": "cx_85cd8a4b2d5dc3d0"
+    },
+    "members": [
+      {
+        "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex84.83",
+        "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+        "complexKey": "cx_85cd8a4b2d5dc3d0",
+        "isOutlier": false
+      },
+      {
+        "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex84.95",
+        "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+        "complexKey": "cx_85cd8a4b2d5dc3d0",
+        "isOutlier": false
+      },
+      {
+        "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex84.97",
+        "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+        "complexKey": "cx_85cd8a4b2d5dc3d0",
+        "isOutlier": false
+      }
+    ],
+    "duplicateLinks": 0,
+    "multiGroupMembership": [],
+    "otherAreaGroupsForTrizium": [],
+    "ricenzGroups": 0,
+    "allRawAreas": [
+      59.88,
+      84.83,
+      84.95,
+      84.97,
+      114.7,
+      149.45
+    ],
+    "allRawStillPresent": true,
+    "unitsUnchanged": true,
+    "counts": {
+      "apt_unit_types": 143,
+      "apt_pyeong_groups": 90,
+      "apt_unit_type_group_links": 135,
+      "apt_pyeong_group_baselines": 39,
+      "apt_complex_classifications": 13,
+      "classificationTrizium": 0
+    }
+  },
+  "transactionAggregation": {
+    "perMember": {
+      "84.83": 1156,
+      "84.95": 593,
+      "84.97": 303
+    },
+    "memberSum": 2052,
+    "groupResult": 2052,
+    "missing": 0,
+    "duplicates": 0,
+    "pass": true
+  },
+  "rawQueryPreservation": {
+    "84.83": {
+      "unitExists": true,
+      "txCount": 1156
+    },
+    "84.95": {
+      "unitExists": true,
+      "txCount": 593
+    },
+    "84.97": {
+      "unitExists": true,
+      "txCount": 303
+    }
+  },
+  "selectorReadiness": {
+    "groupDisplayPossible": true,
+    "rawDisplayPossible": true,
+    "suggestedFutureLabel": "84㎡대",
+    "schemaFormattedLabelExample": "전용 84.83~84.97㎡ (range_only)",
+    "supplyAreaPyeongLabelAvailable": false,
+    "note": "UI not modified; data contract supports group view + raw drill-down"
+  },
+  "singogaSafety": {
+    "classificationChanged": false,
+    "baselineChanged": false,
+    "singogaPathChanged": false,
+    "singogaNote": "No apt_complex_classifications for 트리지움 → loadUnitTypeMasterByAptName returns null → exclusive all-time-max unchanged",
+    "featureFlagsChanged": false
+  },
+  "nextPilotCandidates": [
+    {
+      "complexId": "cx_b1f9d0cc3e8e5c12",
+      "name": "올림픽파크센트레빌",
+      "dong": "오금동",
+      "rawAreas": [
+        84.16,
+        84.38,
+        84.59,
+        84.68,
+        84.78,
+        84.91
+      ],
+      "near84": [
+        84.16,
+        84.38,
+        84.59,
+        84.68,
+        84.78,
+        84.91
+      ],
+      "note": "near-84 cluster (84.16, 84.38, 84.59, 84.68, 84.78, 84.91); 6 raw areas; no group pilot yet"
+    },
+    {
+      "complexId": "cx_b74bdaa8f28045aa",
+      "name": "건영1",
+      "dong": "문정동",
+      "rawAreas": [
+        77.68,
+        84.17,
+        84.39,
+        84.42,
+        84.47,
+        84.81,
+        84.87
+      ],
+      "near84": [
+        84.17,
+        84.39,
+        84.42,
+        84.47,
+        84.81,
+        84.87
+      ],
+      "note": "near-84 cluster (84.17, 84.39, 84.42, 84.47, 84.81, 84.87); 7 raw areas; no group pilot yet"
+    },
+    {
+      "complexId": "cx_4880c4ffe9880d49",
+      "name": "산성",
+      "dong": "마천동",
+      "rawAreas": [
+        82.51,
+        83.03,
+        83.97,
+        84.56,
+        84.82,
+        84.87,
+        84.91,
+        84.92,
+        84.96
+      ],
+      "near84": [
+        84.56,
+        84.82,
+        84.87,
+        84.91,
+        84.92,
+        84.96
+      ],
+      "note": "near-84 cluster (84.56, 84.82, 84.87, 84.91, 84.92, 84.96); 9 raw areas; no group pilot yet"
+    },
+    {
+      "complexId": "cx_e095bf141dde5379",
+      "name": "현대1차",
+      "dong": "거여동",
+      "rawAreas": [
+        70.38,
+        74.83,
+        84.64,
+        84.85,
+        84.86,
+        84.89,
+        84.91
+      ],
+      "near84": [
+        84.64,
+        84.85,
+        84.86,
+        84.89,
+        84.91
+      ],
+      "note": "near-84 cluster (84.64, 84.85, 84.86, 84.89, 84.91); 7 raw areas; no group pilot yet"
+    },
+    {
+      "complexId": "cx_c7ac494bf78993ad",
+      "name": "파크하비오",
+      "dong": "문정동",
+      "rawAreas": [
+        84.91,
+        84.93,
+        84.96,
+        84.97,
+        84.99,
+        116.13,
+        127.2,
+        151.58
+      ],
+      "near84": [
+        84.91,
+        84.93,
+        84.96,
+        84.97,
+        84.99
+      ],
+      "note": "near-84 cluster (84.91, 84.93, 84.96, 84.97, 84.99); 8 raw areas; no group pilot yet"
+    }
+  ],
+  "db": {
+    "apt_pyeong_groups_insert": 1,
+    "apt_pyeong_groups_update": 0,
+    "apt_unit_type_group_links_insert": 3,
+    "apt_unit_type_group_links_update": 0,
+    "other_writes": 0,
+    "delete": 0,
+    "kapt_api_calls": 0,
+    "idempotent_replay_inserts": 0
+  },
+  "decision": {
+    "SIMILAR_AREA_PRODUCTION_PILOT": "PASS",
+    "RAW_AREA_PRESERVATION": "PASS",
+    "GROUP_AGGREGATION": "PASS",
+    "SELECTOR_DATA_CONTRACT": "PASS",
+    "SINGOGA_SAFETY": "PASS",
+    "SCHEMA_CHANGE_REQUIRED": "NO",
+    "DATA_SAFETY": "PASS"
+  },
+  "beforeReport": {
+    "triziumUnitTypes": 6,
+    "triziumGroups": 0,
+    "triziumLinks": 0,
+    "unitTypesGlobal": 143,
+    "groupsGlobal": 89,
+    "linksGlobal": 132
+  }
+}

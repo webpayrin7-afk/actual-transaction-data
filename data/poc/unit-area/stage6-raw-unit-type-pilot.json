@@ -1,0 +1,512 @@
+{
+  "generatedAt": "2026-09-15T23:00:11.735Z",
+  "stage": "stage6-raw-unit-type-pilot",
+  "scope": "리센츠 + 트리지움 only",
+  "contract": {
+    "uniqueIdentity": "unit_type_key PRIMARY KEY",
+    "complexIdSupportOnTable": false,
+    "legacyComplexKeyRequired": true,
+    "complexKeyStrategy": "reuse apt_complex_master.complex_id as complex_key (no slug invent; no pyeong_groups mapping existed)",
+    "areaPrecisionRule": "areaKey = Math.round(sqm*100)/100 (singoga.ts)",
+    "existingHelperReused": "direct INSERT matching repository.ts column contract; replacePilotMasterBundles NOT used (would delete/replace groups)",
+    "supplyArea": "NULL (transactions have exclusive only)",
+    "source": "transactions",
+    "mappingConfidence": "transaction_raw_exclusive"
+  },
+  "beforeCounts": {
+    "apt_unit_types": 132,
+    "apt_unit_type_group_links": 132,
+    "apt_pyeong_groups": 89,
+    "apt_pyeong_group_baselines": 39
+  },
+  "afterCounts": {
+    "apt_unit_types": 143,
+    "apt_unit_type_group_links": 132,
+    "apt_pyeong_groups": 89,
+    "apt_pyeong_group_baselines": 39
+  },
+  "pilotSnapshots": {
+    "acro-riverpark": 0,
+    "banpo-xi": 18,
+    "daechi-palace": 0,
+    "eunma": 27,
+    "hangang-daewoo": 11,
+    "hannam-thehill": 0,
+    "heliocity": 22,
+    "jamsil-els": 7,
+    "mokdong-7": 21,
+    "parkrio": 10,
+    "raemian-hill-godeok": 0,
+    "raemian-anyang-megatria": 16
+  },
+  "pilotSnapshotsAfter": {
+    "acro-riverpark": 0,
+    "banpo-xi": 18,
+    "daechi-palace": 0,
+    "eunma": 27,
+    "hangang-daewoo": 11,
+    "hannam-thehill": 0,
+    "heliocity": 22,
+    "jamsil-els": 7,
+    "mokdong-7": 21,
+    "parkrio": 10,
+    "raemian-hill-godeok": 0,
+    "raemian-anyang-megatria": 16
+  },
+  "pilotUnchanged": true,
+  "classificationRowsForTargets": [],
+  "complexes": [
+    {
+      "complexId": "cx_caf229b5ac63cfbd",
+      "complexName": "리센츠",
+      "complexKeyUsed": "cx_caf229b5ac63cfbd",
+      "complexKeySource": "apt_complex_master.complex_id (no slug invent)",
+      "rawAreas": [
+        27.68,
+        59.99,
+        84.99,
+        98.55,
+        124.22
+      ],
+      "rawAreaDetails": [
+        {
+          "exclusiveArea": 27.68,
+          "txCount": 1632
+        },
+        {
+          "exclusiveArea": 59.99,
+          "txCount": 316
+        },
+        {
+          "exclusiveArea": 84.99,
+          "txCount": 3280
+        },
+        {
+          "exclusiveArea": 98.55,
+          "txCount": 122
+        },
+        {
+          "exclusiveArea": 124.22,
+          "txCount": 558
+        }
+      ],
+      "expectedAreas": [
+        27.68,
+        59.99,
+        84.99,
+        98.55,
+        124.22
+      ],
+      "expectedMatch": true,
+      "beforeUnitTypes": 0,
+      "inserted": 5,
+      "insertedKeys": [
+        "cx_caf229b5ac63cfbd:ex27.68",
+        "cx_caf229b5ac63cfbd:ex59.99",
+        "cx_caf229b5ac63cfbd:ex84.99",
+        "cx_caf229b5ac63cfbd:ex98.55",
+        "cx_caf229b5ac63cfbd:ex124.22"
+      ],
+      "skippedExisting": 0,
+      "afterUnitTypes": 5,
+      "afterAreas": [
+        27.68,
+        59.99,
+        84.99,
+        98.55,
+        124.22
+      ],
+      "coveragePct": 100,
+      "missing": [],
+      "duplicates": [],
+      "collapsed": [],
+      "unexpected": [],
+      "selectorEquivalence": "YES",
+      "afterRows": [
+        {
+          "unitTypeKey": "cx_caf229b5ac63cfbd:ex27.68",
+          "exclusiveAreaMin": 27.68,
+          "exclusiveAreaMax": 27.68,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_caf229b5ac63cfbd:ex59.99",
+          "exclusiveAreaMin": 59.99,
+          "exclusiveAreaMax": 59.99,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_caf229b5ac63cfbd:ex84.99",
+          "exclusiveAreaMin": 84.99,
+          "exclusiveAreaMax": 84.99,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_caf229b5ac63cfbd:ex98.55",
+          "exclusiveAreaMin": 98.55,
+          "exclusiveAreaMax": 98.55,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_caf229b5ac63cfbd:ex124.22",
+          "exclusiveAreaMin": 124.22,
+          "exclusiveAreaMax": 124.22,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        }
+      ]
+    },
+    {
+      "complexId": "cx_85cd8a4b2d5dc3d0",
+      "complexName": "트리지움",
+      "complexKeyUsed": "cx_85cd8a4b2d5dc3d0",
+      "complexKeySource": "apt_complex_master.complex_id (no slug invent)",
+      "rawAreas": [
+        59.88,
+        84.83,
+        84.95,
+        84.97,
+        114.7,
+        149.45
+      ],
+      "rawAreaDetails": [
+        {
+          "exclusiveArea": 59.88,
+          "txCount": 923
+        },
+        {
+          "exclusiveArea": 84.83,
+          "txCount": 1156
+        },
+        {
+          "exclusiveArea": 84.95,
+          "txCount": 593
+        },
+        {
+          "exclusiveArea": 84.97,
+          "txCount": 303
+        },
+        {
+          "exclusiveArea": 114.7,
+          "txCount": 278
+        },
+        {
+          "exclusiveArea": 149.45,
+          "txCount": 176
+        }
+      ],
+      "expectedAreas": [
+        59.88,
+        84.83,
+        84.95,
+        84.97,
+        114.7,
+        149.45
+      ],
+      "expectedMatch": true,
+      "beforeUnitTypes": 0,
+      "inserted": 6,
+      "insertedKeys": [
+        "cx_85cd8a4b2d5dc3d0:ex59.88",
+        "cx_85cd8a4b2d5dc3d0:ex84.83",
+        "cx_85cd8a4b2d5dc3d0:ex84.95",
+        "cx_85cd8a4b2d5dc3d0:ex84.97",
+        "cx_85cd8a4b2d5dc3d0:ex114.7",
+        "cx_85cd8a4b2d5dc3d0:ex149.45"
+      ],
+      "skippedExisting": 0,
+      "afterUnitTypes": 6,
+      "afterAreas": [
+        59.88,
+        84.83,
+        84.95,
+        84.97,
+        114.7,
+        149.45
+      ],
+      "coveragePct": 100,
+      "missing": [],
+      "duplicates": [],
+      "collapsed": [],
+      "unexpected": [],
+      "selectorEquivalence": "YES",
+      "afterRows": [
+        {
+          "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex59.88",
+          "exclusiveAreaMin": 59.88,
+          "exclusiveAreaMax": 59.88,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex84.83",
+          "exclusiveAreaMin": 84.83,
+          "exclusiveAreaMax": 84.83,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex84.95",
+          "exclusiveAreaMin": 84.95,
+          "exclusiveAreaMax": 84.95,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex84.97",
+          "exclusiveAreaMin": 84.97,
+          "exclusiveAreaMax": 84.97,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex114.7",
+          "exclusiveAreaMin": 114.7,
+          "exclusiveAreaMax": 114.7,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        },
+        {
+          "unitTypeKey": "cx_85cd8a4b2d5dc3d0:ex149.45",
+          "exclusiveAreaMin": 149.45,
+          "exclusiveAreaMax": 149.45,
+          "supplyAreaSqm": null,
+          "source": "transactions"
+        }
+      ]
+    }
+  ],
+  "trizium84Candidate": {
+    "members": [
+      84.83,
+      84.95,
+      84.97
+    ],
+    "span": 0.14,
+    "stage5HeuristicSpanMax": 0.2,
+    "phase5ComparableSpans": [
+      {
+        "complexKey": "hangang-daewoo",
+        "groupKey": "hangang-daewoo:G2:ex84.94-84.98",
+        "min": 84.94,
+        "max": 84.98,
+        "span": 0.04,
+        "source": "phase4"
+      },
+      {
+        "complexKey": "jamsil-els",
+        "groupKey": "jamsil-els:G2:ex84.80-84.97",
+        "min": 84.8,
+        "max": 84.97,
+        "span": 0.17,
+        "source": "phase4"
+      },
+      {
+        "complexKey": "parkrio",
+        "groupKey": "parkrio:G3:ex84.79-84.97",
+        "min": 84.79,
+        "max": 84.97,
+        "span": 0.18,
+        "source": "phase4"
+      },
+      {
+        "complexKey": "raemian-hill-godeok",
+        "groupKey": "raemian-hill-godeok:G3:ex84.74-84.94",
+        "min": 84.74,
+        "max": 84.94,
+        "span": 0.2,
+        "source": "warehouse-cluster"
+      }
+    ],
+    "txDistribution": [
+      {
+        "exclusiveArea": 84.83,
+        "txCount": 1156
+      },
+      {
+        "exclusiveArea": 84.95,
+        "txCount": 593
+      },
+      {
+        "exclusiveArea": 84.97,
+        "txCount": 303
+      }
+    ],
+    "decision": "SAFE_GROUP_CANDIDATE",
+    "reason": "Span 0.14㎡ ≤ 0.2 and within Phase5 verified Songpa 84㎡ group spans (e.g. parkrio 84.79–84.97, jamsil-els 84.80–84.97). Raw identities must still survive. NO production group write this stage.",
+    "dbWrites": 0
+  },
+  "nextPilotCandidates": [
+    {
+      "complexId": "cx_9d68cb32afed7b7d",
+      "name": "거여1단지",
+      "lawdCd": "11710",
+      "dong": "거여동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        38.9,
+        39.6,
+        40.15,
+        49.8,
+        58.99,
+        59.73
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw areas, no unit pilot yet"
+    },
+    {
+      "complexId": "cx_ade437d249129337",
+      "name": "금강캐스빌",
+      "lawdCd": "11710",
+      "dong": "풍납동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        82.1,
+        84.06,
+        84.07,
+        84.09,
+        84.1,
+        114.62
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw + near-84 cluster (리센츠/트리지움-like)"
+    },
+    {
+      "complexId": "cx_f6ff98e4b253dcce",
+      "name": "기영",
+      "lawdCd": "11710",
+      "dong": "마천동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        59.47,
+        71.19,
+        78.88,
+        79.95,
+        81.94,
+        84.33
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw areas, no unit pilot yet"
+    },
+    {
+      "complexId": "cx_6f00b2a28b9caae7",
+      "name": "마천금호어울림1차아파트",
+      "lawdCd": "11710",
+      "dong": "마천동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        80.88,
+        81.18,
+        84.75,
+        84.95,
+        101.91,
+        114.81
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw + near-84 cluster (리센츠/트리지움-like)"
+    },
+    {
+      "complexId": "cx_0635fa39a56a8f3f",
+      "name": "문정동아",
+      "lawdCd": "11710",
+      "dong": "문정동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        54.1,
+        57.72,
+        74.49,
+        78.4,
+        84.7,
+        84.87
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw + near-84 cluster (리센츠/트리지움-like)"
+    },
+    {
+      "complexId": "cx_246957c9d4358464",
+      "name": "브리앙뜨",
+      "lawdCd": "11710",
+      "dong": "문정동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        48.98,
+        61.7,
+        66.28,
+        77.82,
+        84.72,
+        93.55
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw areas, no unit pilot yet"
+    },
+    {
+      "complexId": "cx_e321c9ad38f9a320",
+      "name": "삼환",
+      "lawdCd": "11710",
+      "dong": "가락동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        72.7,
+        72.88,
+        84.7,
+        84.91,
+        84.97,
+        121.04
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw + near-84 cluster (리센츠/트리지움-like)"
+    },
+    {
+      "complexId": "cx_643a88dcdddcc568",
+      "name": "석촌동효신아파트",
+      "lawdCd": "11710",
+      "dong": "석촌동",
+      "rawAreaCount": 6,
+      "rawAreas": [
+        55.11,
+        60.96,
+        61.51,
+        66.59,
+        70.58,
+        73.98
+      ],
+      "hasExistingUnitPilot": false,
+      "existingComplexKey": null,
+      "scoreNote": "diverse raw areas, no unit pilot yet"
+    }
+  ],
+  "downstreamSafety": {
+    "groupLinksChanged": false,
+    "pyeongGroupsChanged": false,
+    "baselinesChanged": false,
+    "singogaBehaviorChanged": false,
+    "singogaNote": "loadUnitTypeMasterByAptName requires apt_complex_classifications; none for 리센츠/트리지움 → exclusive all-time-max path unchanged",
+    "existingPilotDataChanged": false
+  },
+  "db": {
+    "apt_unit_types_insert": 11,
+    "apt_unit_types_update": 0,
+    "apt_unit_types_delete": 0,
+    "other_table_writes": 0,
+    "kapt_api_calls": 0
+  },
+  "decision": {
+    "RAW_UNIT_TYPE_PRODUCTION_PILOT": "PASS",
+    "RAW_AREA_PRESERVATION": "PASS",
+    "SELECTOR_UNIT_TYPE_READINESS": "PASS",
+    "TRIZIUM_SIMILAR_GROUP": "SAFE_GROUP_CANDIDATE",
+    "SCHEMA_CHANGE_REQUIRED": "NO",
+    "DATA_SAFETY": "PASS"
+  }
+}

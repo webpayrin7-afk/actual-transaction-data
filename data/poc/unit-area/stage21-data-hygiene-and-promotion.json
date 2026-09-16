@@ -1,0 +1,363 @@
+{
+  "generatedAt": "2026-09-16T02:10:05.319Z",
+  "stage": "stage21-data-hygiene-and-promotion",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0,
+    "schemaChanges": 0
+  },
+  "unitMaster": {
+    "rows": 501,
+    "cxRows": 369,
+    "legacyRows": 132,
+    "duplicateUnitKeys": 0,
+    "duplicateCanonicalIdentities": 18,
+    "invalidAreas": 0,
+    "sourceCounts": {
+      "phase4": 94,
+      "bld_rgst_expos_pubuse": 38,
+      "transactions": 369
+    },
+    "unexpectedSources": [],
+    "mappingConfidenceCounts": {
+      "exact": 61,
+      "grouped": 17,
+      "ambiguous": 16,
+      "building_registry_expos": 38,
+      "transaction_raw_exclusive": 369
+    }
+  },
+  "v1Groups": {
+    "ruleVersion": "similar_exclusive_area_v1",
+    "groups": 28,
+    "valid": 28,
+    "zeroSpan": 0,
+    "singleton": 0,
+    "duplicates": 0,
+    "missingSource": 0,
+    "spanViolations": 0,
+    "gapViolations": 0,
+    "unknownComplex": 0,
+    "identityConflicts": 0,
+    "groupsLt2Members": 0,
+    "legacyNonV1Groups": 125
+  },
+  "links": {
+    "rows": 293,
+    "orphanUnits": 0,
+    "orphanGroups": 0,
+    "duplicates": 0,
+    "incompatibleMemberships": 0
+  },
+  "rawPreservation": {
+    "linkedCanonicalUnitsChecked": 73,
+    "missingUnitIdentities": 0,
+    "status": "PASS"
+  },
+  "boundedAggregation": {
+    "groupsChecked": 20,
+    "pass": 20,
+    "mismatch": 0,
+    "samples": [
+      {
+        "groupKey": "cx_1c244e7305d12c44:G1:ex59.97-59.98",
+        "sumMember": 177,
+        "groupCount": 177,
+        "ok": true
+      },
+      {
+        "groupKey": "cx_1c244e7305d12c44:G2:ex84.94-85.00",
+        "sumMember": 446,
+        "groupCount": 446,
+        "ok": true
+      },
+      {
+        "groupKey": "cx_1c244e7305d12c44:G3:ex244.54-244.63",
+        "sumMember": 67,
+        "groupCount": 67,
+        "ok": true
+      },
+      {
+        "groupKey": "cx_38b28184a6913022:G1:ex84.71-84.75",
+        "sumMember": 600,
+        "groupCount": 600,
+        "ok": true
+      },
+      {
+        "groupKey": "cx_4c63d9a100973c60:G1:ex84.80-84.97",
+        "sumMember": 1064,
+        "groupCount": 1064,
+        "ok": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "identity": {
+    "cxDerivedComplexes": 42,
+    "legacySlugComplexes": [
+      "banpo-xi",
+      "eunma",
+      "hangang-daewoo",
+      "heliocity",
+      "jamsil-els",
+      "mokdong-7",
+      "parkrio",
+      "raemian-anyang-megatria"
+    ],
+    "legacySlugAudit": [
+      {
+        "slug": "acro-riverpark",
+        "canonicalComplexId": "cx_ba770c1e608ed88f",
+        "unitCount": 0,
+        "groupCount": 10,
+        "baselineCount": 2,
+        "lookupCompatible": true
+      },
+      {
+        "slug": "daechi-palace",
+        "canonicalComplexId": "cx_adb7193c5c99abd6",
+        "unitCount": 0,
+        "groupCount": 9,
+        "baselineCount": 7,
+        "lookupCompatible": true
+      },
+      {
+        "slug": "hannam-thehill",
+        "canonicalComplexId": "cx_e47102400fbc8ec6",
+        "unitCount": 0,
+        "groupCount": 9,
+        "baselineCount": 8,
+        "lookupCompatible": true
+      },
+      {
+        "slug": "mapo-raemian-prugio",
+        "canonicalComplexId": null,
+        "unitCount": 0,
+        "groupCount": 6,
+        "baselineCount": 3,
+        "lookupCompatible": true
+      },
+      {
+        "slug": "raemian-hill-godeok",
+        "canonicalComplexId": "cx_f39813c026bb2817",
+        "unitCount": 0,
+        "groupCount": 7,
+        "baselineCount": 0,
+        "lookupCompatible": true
+      },
+      {
+        "slug": "parkrio",
+        "canonicalComplexId": "cx_ed52bf895d064c11",
+        "unitCount": 10,
+        "groupCount": 5,
+        "baselineCount": 5,
+        "lookupCompatible": true
+      },
+      {
+        "slug": "jamsil-els",
+        "canonicalComplexId": "cx_4c63d9a100973c60",
+        "unitCount": 7,
+        "groupCount": 3,
+        "baselineCount": 3,
+        "lookupCompatible": true
+      }
+    ],
+    "newSlugWrites": 0,
+    "dualKeyDecision": "CURRENT_DUAL_KEY_COMPATIBLE",
+    "newWriteIdentityContract": "cx_ complex identity ONLY for future Production derived writes"
+  },
+  "baselines": {
+    "rows": 39,
+    "orphan": 0,
+    "identityConflict": 0,
+    "note": "New V1 groups without baseline are not automatically an error",
+    "status": "PASS"
+  },
+  "officialCoverage": {
+    "complexes": {
+      "seoulComplexes": 8437,
+      "unitMasterComplexes": 42,
+      "unitMasterCoveragePct": 0.5,
+      "v1GroupedComplexes": 17,
+      "v1GroupedCoveragePct": 0.2,
+      "v1FamilyGroupedComplexes": 33,
+      "note": "V1 grouped = source similar_exclusive_area_v1 only; family includes transactions-similar-area"
+    },
+    "canonicalAreas": {
+      "denominator": "DISTINCT(complex_id, ROUND(exclusive_area*100)/100) Seoul IDENTITY-READY",
+      "canonicalRawIdentities": 29807,
+      "unitMasterCanonicalIdentities": 369,
+      "unitAreaCoveragePct": 1.24,
+      "v1GroupLinkedCanonicalIdentities": 73,
+      "v1LinkedAreaCoveragePct": 0.24,
+      "sqlLinkedCanonicalAttempt": 73
+    }
+  },
+  "dataStates": {
+    "PRODUCTION_CORE": "transactions, apt_complex_master, apt_complex_source_links — Production READ+controlled WRITE; Preview must be READ ONLY (credential requirement)",
+    "PRODUCTION_DERIVED_VALIDATED": "validated apt_unit_types (501), V1 groups (similar_exclusive_area_v1), validated links, accepted baselines — dual-key legacy slugs still present",
+    "EXPERIMENTAL": "future Preview-generated derived outputs not yet promoted; Stage20 *_preview_v2 = temporary scaffolding with 0 business rows"
+  },
+  "issues": {
+    "BLOCKER": {
+      "count": 0,
+      "details": []
+    },
+    "CLEANUP_LATER": {
+      "count": 3,
+      "details": [
+        "Duplicate complex_key+areaKey unit rows (min-area identity): 18 — not PK collisions; review for future dedupe",
+        "Stage20 *_preview_v2 tables are TEMPORARY_SCAFFOLDING — migrate Preview derived storage then remove",
+        "Preview Apartment Core access should become READ ONLY credentials (architecture requirement; not migrated in Stage21)"
+      ]
+    },
+    "EXPECTED_LEGACY": {
+      "count": 3,
+      "details": [
+        "Legacy Phase5 / pilot group sources remain: phase4, warehouse-cluster, bld_rgst_expos_pubuse, transactions-similar-area (125 groups)",
+        "Legacy slug complex_key unit rows: 132 (dual-key compatible until separate migration)",
+        "Known slug keys retained: acro-riverpark, daechi-palace, hannam-thehill, mapo-raemian-prugio, raemian-hill-godeok, parkrio, jamsil-els"
+      ]
+    }
+  },
+  "dataEnvironmentContract": {
+    "productionApartmentCore": {
+      "examples": [
+        "transactions",
+        "apt_complex_master",
+        "apt_complex_source_links"
+      ],
+      "productionAccess": "READ + controlled WRITE",
+      "previewAccess": "READ ONLY (required; not yet credential-migrated)"
+    },
+    "previewExperimentDerived": {
+      "examples": [
+        "experimental market snapshots",
+        "experimental stats feeds",
+        "pre-production enrichment",
+        "future V2 derived outputs"
+      ],
+      "previewAccess": "READ + WRITE",
+      "productionDependency": "NONE — Production must not depend on experimental rows",
+      "dedicatedPreviewDbImplemented": false,
+      "contractFrozen": true
+    },
+    "productionDerived": {
+      "examples": [
+        "market_home_snapshots",
+        "market_stats_feeds"
+      ],
+      "writers": "Production jobs only"
+    },
+    "userProductionDb": {
+      "status": "FUTURE — not implemented in Stage21"
+    },
+    "userDevDb": {
+      "status": "FUTURE — not implemented in Stage21"
+    },
+    "principle": "REAL PROD APARTMENT DATA → Preview READ ONLY → Experiment WRITE → Validation → Explicit Production Promotion → Postcheck. No automatic promotion. No whole Preview DB copy."
+  },
+  "stage20TemporaryTables": {
+    "market_home_snapshots_preview_v2": {
+      "businessRows": 0,
+      "classification": "TEMPORARY_SCAFFOLDING"
+    },
+    "market_stats_feeds_preview_v2": {
+      "businessRows": 0,
+      "classification": "TEMPORARY_SCAFFOLDING"
+    },
+    "actionNow": "NONE",
+    "futureAction": "After separate Preview/Experiment derived storage is established, remove unused *_preview_v2 tables",
+    "doNot": [
+      "populate",
+      "activate Preview V2 against them",
+      "drop now",
+      "alter now"
+    ]
+  },
+  "promotionContract": {
+    "productionAutoPromotion": false,
+    "wholePreviewDbCopy": false,
+    "explicitManifest": true,
+    "boundedTargetIds": true,
+    "ruleVersion": "REQUIRED",
+    "expectedCounts": "REQUIRED",
+    "precheck": "REQUIRED",
+    "postcheck": "REQUIRED",
+    "idempotency": "REQUIRED",
+    "manifestExample": {
+      "experiment": "unit-group-batch-X",
+      "ruleVersion": "similar_exclusive_area_v1",
+      "complexIds": [
+        "cx_..."
+      ],
+      "expected": {
+        "units": 0,
+        "groups": 0,
+        "links": 0
+      }
+    },
+    "precheckRules": [
+      "complex IDs resolve",
+      "rule version matches",
+      "expected counts match",
+      "duplicates = 0",
+      "zero-span = 0",
+      "incompatible membership = 0",
+      "identity conflict = 0",
+      "raw preservation possible"
+    ],
+    "postcheckRules": [
+      "inserted count",
+      "duplicate count",
+      "aggregation sanity",
+      "raw preservation",
+      "idempotency expected 0 on replay"
+    ]
+  },
+  "singogaV2": {
+    "semantic": "FROZEN",
+    "previewFlag": "OFF",
+    "productionFlag": "OFF",
+    "rerunPerformed": false
+  },
+  "pr88": {
+    "blockerCount": 0,
+    "status": "READY_TO_PAUSE",
+    "reason": "Data-foundation hygiene PASS; Stage20 preview_v2 scaffolding retained as CLEANUP_LATER (do not activate). Pause further data expansion; hand off to Nearby Living PR #87.",
+    "retainForLater": [
+      "src/lib/unit-type/singoga-v2*.ts (frozen classifier; flag OFF)",
+      "src/lib/market/singoga-v2-storage.ts + rebuild-preview-singoga-v2.ts (temporary isolation scaffolding)",
+      "Stage16–21 JSON artifacts under data/poc/unit-area/"
+    ],
+    "revertOrRemoveLater": [
+      "market_home_snapshots_preview_v2 / market_stats_feeds_preview_v2 after dedicated Preview derived storage exists"
+    ],
+    "doNotMergeAutomatically": true
+  },
+  "nearbyLivingHandoff": {
+    "pr": 87,
+    "branch": "cursor/nearby-school-map-pilot-d2df",
+    "naverPoiCredentials": "WAITING",
+    "credentialNames": [
+      "NAVER_API_HUB_CLIENT_ID",
+      "NAVER_API_HUB_CLIENT_SECRET"
+    ],
+    "existingLivingUi": "PRESERVE",
+    "transport": "PRESERVE",
+    "school": "PRESERVE",
+    "nextAction": "NEARBY LIVING COMPLETION",
+    "note": "Do not create a new Nearby Living PR; resume #87 when NAVER POI credentials are ready. Do not continue unit/group expansion."
+  },
+  "decision": {
+    "UNIT_DATA_HYGIENE": "PASS",
+    "GROUP_DATA_HYGIENE": "PASS",
+    "IDENTITY_COMPATIBILITY": "PASS",
+    "BASELINE_DEPENDENCIES": "PASS",
+    "COVERAGE_METRIC": "PASS",
+    "DATA_ENVIRONMENT_CONTRACT": "PASS",
+    "PROMOTION_CONTRACT": "PASS",
+    "DATA_FOUNDATION": "READY"
+  }
+}

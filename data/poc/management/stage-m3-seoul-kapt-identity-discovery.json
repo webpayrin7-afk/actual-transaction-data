@@ -1,0 +1,645 @@
+{
+  "generatedAt": "2026-09-16T03:29:56.948Z",
+  "stage": "stage-m3-seoul-kapt-identity-discovery",
+  "resolverVersion": "kapt_identity_resolver_v2",
+  "resolverChanges": [
+    "Preserve M2 EXACT_SAFE (exact name + bjd) and HIGH_CONFIDENCE (name_compatible + bjd)",
+    "V2: HIGH_CONFIDENCE suffix_name+bjd+dong when KAPT name ends with master name, as3===legal_dong_name, unique, no competing master (리센츠↔잠실리센츠)",
+    "No fuzzy-only matching; no BasisInfo verification crawl"
+  ],
+  "scope": {
+    "seoulSigungu": 25,
+    "apartmentMaster": 8437,
+    "districts": [
+      {
+        "name": "종로구",
+        "sigunguCode": "11110"
+      },
+      {
+        "name": "중구",
+        "sigunguCode": "11140"
+      },
+      {
+        "name": "용산구",
+        "sigunguCode": "11170"
+      },
+      {
+        "name": "성동구",
+        "sigunguCode": "11200"
+      },
+      {
+        "name": "광진구",
+        "sigunguCode": "11215"
+      },
+      {
+        "name": "동대문구",
+        "sigunguCode": "11230"
+      },
+      {
+        "name": "중랑구",
+        "sigunguCode": "11260"
+      },
+      {
+        "name": "성북구",
+        "sigunguCode": "11290"
+      },
+      {
+        "name": "강북구",
+        "sigunguCode": "11305"
+      },
+      {
+        "name": "도봉구",
+        "sigunguCode": "11320"
+      },
+      {
+        "name": "노원구",
+        "sigunguCode": "11350"
+      },
+      {
+        "name": "은평구",
+        "sigunguCode": "11380"
+      },
+      {
+        "name": "서대문구",
+        "sigunguCode": "11410"
+      },
+      {
+        "name": "마포구",
+        "sigunguCode": "11440"
+      },
+      {
+        "name": "양천구",
+        "sigunguCode": "11470"
+      },
+      {
+        "name": "강서구",
+        "sigunguCode": "11500"
+      },
+      {
+        "name": "구로구",
+        "sigunguCode": "11530"
+      },
+      {
+        "name": "금천구",
+        "sigunguCode": "11545"
+      },
+      {
+        "name": "영등포구",
+        "sigunguCode": "11560"
+      },
+      {
+        "name": "동작구",
+        "sigunguCode": "11590"
+      },
+      {
+        "name": "관악구",
+        "sigunguCode": "11620"
+      },
+      {
+        "name": "서초구",
+        "sigunguCode": "11650"
+      },
+      {
+        "name": "강남구",
+        "sigunguCode": "11680"
+      },
+      {
+        "name": "송파구",
+        "sigunguCode": "11710"
+      },
+      {
+        "name": "강동구",
+        "sigunguCode": "11740"
+      }
+    ]
+  },
+  "api": {
+    "endpoint": "AptListService4/getSigunguAptList4",
+    "liveRequestsAttempted": 22,
+    "cacheHits": 3,
+    "successful": 22,
+    "hit429": false,
+    "hit429Detail": null,
+    "rawRecords": 3402,
+    "uniqueKaptIds": 3402,
+    "crossResponseDuplicates": 0,
+    "recordsPerSuccessfulCall": 154.64,
+    "districtCoverage": "25/25",
+    "completedDistricts": [
+      "종로구",
+      "중구",
+      "용산구",
+      "성동구",
+      "광진구",
+      "동대문구",
+      "중랑구",
+      "성북구",
+      "강북구",
+      "도봉구",
+      "노원구",
+      "은평구",
+      "서대문구",
+      "마포구",
+      "양천구",
+      "강서구",
+      "구로구",
+      "금천구",
+      "영등포구",
+      "동작구",
+      "관악구",
+      "서초구",
+      "강남구",
+      "송파구",
+      "강동구"
+    ],
+    "remainingDistricts": [],
+    "basisInfoCalls": 0,
+    "aptIdInfoCalls": 0,
+    "managementFeeCalls": 0,
+    "maxBudget": 40,
+    "cacheDir": "/workspace/data/poc/management/cache/kapt-list"
+  },
+  "districts": {
+    "종로구": {
+      "master": 134,
+      "kaptDiscovered": 38,
+      "totalCountReported": 38,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 13,
+      "HIGH_CONFIDENCE": 8,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 17,
+      "MASTER_ONLY": 113,
+      "safeRatePct": 15.67,
+      "kaptSafeRatePct": 55.26
+    },
+    "중구": {
+      "master": 139,
+      "kaptDiscovered": 49,
+      "totalCountReported": 49,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 14,
+      "HIGH_CONFIDENCE": 8,
+      "AMBIGUOUS": 3,
+      "KAPT_ONLY": 20,
+      "MASTER_ONLY": 114,
+      "safeRatePct": 15.83,
+      "kaptSafeRatePct": 44.9
+    },
+    "용산구": {
+      "master": 233,
+      "kaptDiscovered": 86,
+      "totalCountReported": 86,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 25,
+      "HIGH_CONFIDENCE": 28,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 33,
+      "MASTER_ONLY": 180,
+      "safeRatePct": 22.75,
+      "kaptSafeRatePct": 61.63
+    },
+    "성동구": {
+      "master": 156,
+      "kaptDiscovered": 132,
+      "totalCountReported": 132,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 30,
+      "HIGH_CONFIDENCE": 38,
+      "AMBIGUOUS": 2,
+      "KAPT_ONLY": 58,
+      "MASTER_ONLY": 86,
+      "safeRatePct": 43.59,
+      "kaptSafeRatePct": 51.52
+    },
+    "광진구": {
+      "master": 236,
+      "kaptDiscovered": 96,
+      "totalCountReported": 96,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 28,
+      "HIGH_CONFIDENCE": 33,
+      "AMBIGUOUS": 2,
+      "KAPT_ONLY": 32,
+      "MASTER_ONLY": 173,
+      "safeRatePct": 25.85,
+      "kaptSafeRatePct": 63.54
+    },
+    "동대문구": {
+      "master": 319,
+      "kaptDiscovered": 135,
+      "totalCountReported": 135,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 43,
+      "HIGH_CONFIDENCE": 36,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 55,
+      "MASTER_ONLY": 240,
+      "safeRatePct": 24.76,
+      "kaptSafeRatePct": 58.52
+    },
+    "중랑구": {
+      "master": 282,
+      "kaptDiscovered": 136,
+      "totalCountReported": 136,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 23,
+      "HIGH_CONFIDENCE": 38,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 75,
+      "MASTER_ONLY": 221,
+      "safeRatePct": 21.63,
+      "kaptSafeRatePct": 44.85
+    },
+    "성북구": {
+      "master": 190,
+      "kaptDiscovered": 147,
+      "totalCountReported": 147,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 32,
+      "HIGH_CONFIDENCE": 35,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 80,
+      "MASTER_ONLY": 123,
+      "safeRatePct": 35.26,
+      "kaptSafeRatePct": 45.58
+    },
+    "강북구": {
+      "master": 140,
+      "kaptDiscovered": 58,
+      "totalCountReported": 58,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 8,
+      "HIGH_CONFIDENCE": 16,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 34,
+      "MASTER_ONLY": 116,
+      "safeRatePct": 17.14,
+      "kaptSafeRatePct": 41.38
+    },
+    "도봉구": {
+      "master": 212,
+      "kaptDiscovered": 120,
+      "totalCountReported": 120,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 13,
+      "HIGH_CONFIDENCE": 20,
+      "AMBIGUOUS": 2,
+      "KAPT_ONLY": 84,
+      "MASTER_ONLY": 177,
+      "safeRatePct": 15.57,
+      "kaptSafeRatePct": 27.5
+    },
+    "노원구": {
+      "master": 285,
+      "kaptDiscovered": 231,
+      "totalCountReported": 231,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 27,
+      "HIGH_CONFIDENCE": 47,
+      "AMBIGUOUS": 2,
+      "KAPT_ONLY": 148,
+      "MASTER_ONLY": 209,
+      "safeRatePct": 25.96,
+      "kaptSafeRatePct": 32.03
+    },
+    "은평구": {
+      "master": 514,
+      "kaptDiscovered": 162,
+      "totalCountReported": 162,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 33,
+      "HIGH_CONFIDENCE": 37,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 92,
+      "MASTER_ONLY": 444,
+      "safeRatePct": 13.62,
+      "kaptSafeRatePct": 43.21
+    },
+    "서대문구": {
+      "master": 297,
+      "kaptDiscovered": 96,
+      "totalCountReported": 96,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 32,
+      "HIGH_CONFIDENCE": 25,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 38,
+      "MASTER_ONLY": 240,
+      "safeRatePct": 19.19,
+      "kaptSafeRatePct": 59.38
+    },
+    "마포구": {
+      "master": 317,
+      "kaptDiscovered": 142,
+      "totalCountReported": 142,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 46,
+      "HIGH_CONFIDENCE": 37,
+      "AMBIGUOUS": 2,
+      "KAPT_ONLY": 55,
+      "MASTER_ONLY": 232,
+      "safeRatePct": 26.18,
+      "kaptSafeRatePct": 58.45
+    },
+    "양천구": {
+      "master": 476,
+      "kaptDiscovered": 152,
+      "totalCountReported": 152,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 14,
+      "HIGH_CONFIDENCE": 55,
+      "AMBIGUOUS": 5,
+      "KAPT_ONLY": 78,
+      "MASTER_ONLY": 402,
+      "safeRatePct": 14.5,
+      "kaptSafeRatePct": 45.39
+    },
+    "강서구": {
+      "master": 595,
+      "kaptDiscovered": 212,
+      "totalCountReported": 212,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 52,
+      "HIGH_CONFIDENCE": 48,
+      "AMBIGUOUS": 1,
+      "KAPT_ONLY": 110,
+      "MASTER_ONLY": 494,
+      "safeRatePct": 16.81,
+      "kaptSafeRatePct": 47.17
+    },
+    "구로구": {
+      "master": 643,
+      "kaptDiscovered": 181,
+      "totalCountReported": 181,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 35,
+      "HIGH_CONFIDENCE": 51,
+      "AMBIGUOUS": 1,
+      "KAPT_ONLY": 93,
+      "MASTER_ONLY": 556,
+      "safeRatePct": 13.37,
+      "kaptSafeRatePct": 47.51
+    },
+    "금천구": {
+      "master": 173,
+      "kaptDiscovered": 55,
+      "totalCountReported": 55,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 13,
+      "HIGH_CONFIDENCE": 13,
+      "AMBIGUOUS": 0,
+      "KAPT_ONLY": 29,
+      "MASTER_ONLY": 147,
+      "safeRatePct": 15.03,
+      "kaptSafeRatePct": 47.27
+    },
+    "영등포구": {
+      "master": 237,
+      "kaptDiscovered": 180,
+      "totalCountReported": 180,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 40,
+      "HIGH_CONFIDENCE": 45,
+      "AMBIGUOUS": 1,
+      "KAPT_ONLY": 93,
+      "MASTER_ONLY": 151,
+      "safeRatePct": 35.86,
+      "kaptSafeRatePct": 47.22
+    },
+    "동작구": {
+      "master": 244,
+      "kaptDiscovered": 138,
+      "totalCountReported": 138,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 37,
+      "HIGH_CONFIDENCE": 44,
+      "AMBIGUOUS": 1,
+      "KAPT_ONLY": 55,
+      "MASTER_ONLY": 162,
+      "safeRatePct": 33.2,
+      "kaptSafeRatePct": 58.7
+    },
+    "관악구": {
+      "master": 299,
+      "kaptDiscovered": 92,
+      "totalCountReported": 92,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 20,
+      "HIGH_CONFIDENCE": 14,
+      "AMBIGUOUS": 2,
+      "KAPT_ONLY": 54,
+      "MASTER_ONLY": 263,
+      "safeRatePct": 11.37,
+      "kaptSafeRatePct": 36.96
+    },
+    "서초구": {
+      "master": 750,
+      "kaptDiscovered": 203,
+      "totalCountReported": 203,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 75,
+      "HIGH_CONFIDENCE": 60,
+      "AMBIGUOUS": 4,
+      "KAPT_ONLY": 61,
+      "MASTER_ONLY": 611,
+      "safeRatePct": 18,
+      "kaptSafeRatePct": 66.5
+    },
+    "강남구": {
+      "master": 639,
+      "kaptDiscovered": 233,
+      "totalCountReported": 233,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 65,
+      "HIGH_CONFIDENCE": 49,
+      "AMBIGUOUS": 1,
+      "KAPT_ONLY": 118,
+      "MASTER_ONLY": 524,
+      "safeRatePct": 17.84,
+      "kaptSafeRatePct": 48.93
+    },
+    "송파구": {
+      "master": 429,
+      "kaptDiscovered": 177,
+      "totalCountReported": 177,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 45,
+      "HIGH_CONFIDENCE": 43,
+      "AMBIGUOUS": 2,
+      "KAPT_ONLY": 84,
+      "MASTER_ONLY": 339,
+      "safeRatePct": 20.51,
+      "kaptSafeRatePct": 49.72
+    },
+    "강동구": {
+      "master": 498,
+      "kaptDiscovered": 151,
+      "totalCountReported": 151,
+      "pages": 1,
+      "status": "OK",
+      "EXACT_SAFE": 43,
+      "HIGH_CONFIDENCE": 31,
+      "AMBIGUOUS": 1,
+      "KAPT_ONLY": 75,
+      "MASTER_ONLY": 423,
+      "safeRatePct": 14.86,
+      "kaptSafeRatePct": 49.01
+    }
+  },
+  "notableDistricts": {
+    "top": [
+      {
+        "name": "성동구",
+        "safeRatePct": 43.59,
+        "safe": 68,
+        "master": 156,
+        "kapt": 132
+      },
+      {
+        "name": "영등포구",
+        "safeRatePct": 35.86,
+        "safe": 85,
+        "master": 237,
+        "kapt": 180
+      },
+      {
+        "name": "성북구",
+        "safeRatePct": 35.26,
+        "safe": 67,
+        "master": 190,
+        "kapt": 147
+      }
+    ],
+    "bottom": [
+      {
+        "name": "관악구",
+        "safeRatePct": 11.37,
+        "safe": 34,
+        "master": 299,
+        "kapt": 92
+      },
+      {
+        "name": "구로구",
+        "safeRatePct": 13.37,
+        "safe": 86,
+        "master": 643,
+        "kapt": 181
+      },
+      {
+        "name": "은평구",
+        "safeRatePct": 13.62,
+        "safe": 70,
+        "master": 514,
+        "kapt": 162
+      }
+    ]
+  },
+  "totals": {
+    "EXACT_SAFE": 806,
+    "HIGH_CONFIDENCE": 859,
+    "safeTotal": 1665,
+    "AMBIGUOUS": 32,
+    "KAPT_ONLY": 1671,
+    "MASTER_ONLY": 6740,
+    "safeRateVsMasterPct": 19.73,
+    "safeRateVsDiscoveredKaptPct": 48.94
+  },
+  "knownLinkValidation": {
+    "existingKnownKaptLinks": 9,
+    "correct": 9,
+    "missed": 0,
+    "wrongMatches": 0,
+    "conflicts": 1,
+    "ricentsRecovered": "YES",
+    "ricentsResolvedKapt": "A13822003",
+    "ricentsEvidence": "suffix_name+bjd+dong(잠실동); master=리센츠; kapt=잠실리센츠",
+    "m2ExistingConflict": "still HOLD",
+    "missSample": [],
+    "wrongSample": []
+  },
+  "identityIntegrity": {
+    "complexToMultipleKapt": 0,
+    "kaptToMultipleComplex": 0,
+    "duplicateManifestComplex": 0,
+    "duplicateManifestKapt": 0,
+    "slugIdentities": 0,
+    "wrongKnownMatches": 0
+  },
+  "promotionPopulation": {
+    "ALREADY_LINKED_SAME": 9,
+    "NEW_PROMOTABLE": 1607,
+    "EXISTING_LINK_CONFLICT": 1,
+    "manifestRows": 1655,
+    "NEW_PROMOTABLE_MANIFEST_ROWS": 1655,
+    "NEW_PROMOTABLE_NOT_YET_ID_READY": 1607,
+    "note": "Manifest includes NEW source-link inserts. Some rows may already be ID-ready via profile_meta only; promoting persists source_links."
+  },
+  "projectedIdentityCoverage": {
+    "currentIdReady": 82,
+    "newPromotable": 1607,
+    "projectedIdReady": 1689,
+    "apartmentMasterIdentityCoveragePct": 20.02,
+    "discoveredKaptSafeResolutionRatePct": 48.94
+  },
+  "futureManagementPopulation": {
+    "alreadyManagementCovered": 1,
+    "partialRefreshCandidates": 8,
+    "initialManagementFetchCandidates": 1680,
+    "note": "Projection after promoting M3 safe source links; no management API calls."
+  },
+  "ambiguous": {
+    "count": 32,
+    "representativeArtifact": true,
+    "path": "data/poc/management/stage-m3-kapt-ambiguous-samples.json"
+  },
+  "dbWrites": {
+    "sourceLinkInsert": 0,
+    "update": 0,
+    "delete": 0,
+    "managementWrites": 0,
+    "otherBusinessWrites": 0
+  },
+  "manifest": {
+    "created": true,
+    "path": "data/poc/management/stage-m3-seoul-kapt-identity-promotion-manifest.json",
+    "rows": 1655
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Full-Seoul safe KAPT identity manifest READY for explicit Production source-link promotion."
+  },
+  "decision": {
+    "FULL_SEOUL_KAPT_DISCOVERY": "PASS",
+    "KNOWN_LINK_RECOVERY": "PASS",
+    "RESOLVER_SAFETY": "PASS",
+    "RESOLVER_COVERAGE": "PASS",
+    "PROMOTION_MANIFEST": "READY",
+    "MANAGEMENT_FEE_FETCH": "NOT_STARTED",
+    "DATA_SAFETY": "PASS"
+  }
+}

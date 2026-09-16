@@ -1,0 +1,1917 @@
+{
+  "generatedAt": "2026-09-16T00:12:09.139Z",
+  "stage": "stage10-grouping-hardening",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0
+  },
+  "beforeCounts": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 127,
+    "apt_unit_type_group_links": 222,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "afterCounts": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 127,
+    "apt_unit_type_group_links": 222,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "dbUnchanged": true,
+  "stage9GroupAudit": {
+    "groupsAudited": 31,
+    "VALID_GROUP": 29,
+    "INVALID_SINGLETON": 0,
+    "INVALID_ZERO_SPAN": 2,
+    "INVALID_PRECISION_COLLISION": 0,
+    "INVALID_MEMBER_SET": 0,
+    "OTHER_INVALID": 0,
+    "groups": [
+      {
+        "groupKey": "cx_04a453b6ca3d373c:G1:ex59.96-59.97",
+        "complexKey": "cx_04a453b6ca3d373c",
+        "aptName": "dmcsk뷰아이파크포레",
+        "memberUnitTypeKeys": [
+          "cx_04a453b6ca3d373c:ex59.96",
+          "cx_04a453b6ca3d373c:ex59.97"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          59.96,
+          59.97
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 59.96,
+        "max": 59.97,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "59.96": 237,
+          "59.97": 25
+        },
+        "memberSum": 262,
+        "groupResult": 262,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_04a453b6ca3d373c:G2:ex84.94-84.95",
+        "complexKey": "cx_04a453b6ca3d373c",
+        "aptName": "dmcsk뷰아이파크포레",
+        "memberUnitTypeKeys": [
+          "cx_04a453b6ca3d373c:ex84.94",
+          "cx_04a453b6ca3d373c:ex84.95"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.94,
+          84.95
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.94,
+        "max": 84.95,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "84.94": 30,
+          "84.95": 159
+        },
+        "memberSum": 189,
+        "groupResult": 189,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_6ae0260f869a7b0f:G1:ex59.95-59.97",
+        "complexKey": "cx_6ae0260f869a7b0f",
+        "aptName": "반포래미안아이파크",
+        "memberUnitTypeKeys": [
+          "cx_6ae0260f869a7b0f:ex59.95",
+          "cx_6ae0260f869a7b0f:ex59.97"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          59.95,
+          59.97
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 59.95,
+        "max": 59.97,
+        "span": 0.02,
+        "maxConsecutiveGap": 0.02,
+        "perMemberTx": {
+          "59.95": 84,
+          "59.97": 43
+        },
+        "memberSum": 127,
+        "groupResult": 127,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_6ae0260f869a7b0f:G2:ex84.88-84.93",
+        "complexKey": "cx_6ae0260f869a7b0f",
+        "aptName": "반포래미안아이파크",
+        "memberUnitTypeKeys": [
+          "cx_6ae0260f869a7b0f:ex84.88",
+          "cx_6ae0260f869a7b0f:ex84.93"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.88,
+          84.93
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.88,
+        "max": 84.93,
+        "span": 0.05,
+        "maxConsecutiveGap": 0.05,
+        "perMemberTx": {
+          "84.88": 42,
+          "84.93": 237
+        },
+        "memberSum": 279,
+        "groupResult": 279,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_6ae0260f869a7b0f:G3:ex112.95-112.96",
+        "complexKey": "cx_6ae0260f869a7b0f",
+        "aptName": "반포래미안아이파크",
+        "memberUnitTypeKeys": [
+          "cx_6ae0260f869a7b0f:ex112.95",
+          "cx_6ae0260f869a7b0f:ex112.96"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          112.95,
+          112.96
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 112.95,
+        "max": 112.96,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "112.95": 71,
+          "112.96": 20
+        },
+        "memberSum": 91,
+        "groupResult": 91,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_6ae0260f869a7b0f:G4:ex130.92-130.93",
+        "complexKey": "cx_6ae0260f869a7b0f",
+        "aptName": "반포래미안아이파크",
+        "memberUnitTypeKeys": [
+          "cx_6ae0260f869a7b0f:ex130.92",
+          "cx_6ae0260f869a7b0f:ex130.93"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          130.92,
+          130.93
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 130.92,
+        "max": 130.93,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "130.92": 67,
+          "130.93": 25
+        },
+        "memberSum": 92,
+        "groupResult": 92,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_774f03bf66e7882f:G1:ex59.91-59.99",
+        "complexKey": "cx_774f03bf66e7882f",
+        "aptName": "고덕센트럴ipark",
+        "memberUnitTypeKeys": [
+          "cx_774f03bf66e7882f:ex59.91",
+          "cx_774f03bf66e7882f:ex59.97",
+          "cx_774f03bf66e7882f:ex59.99"
+        ],
+        "memberUnitCount": 3,
+        "distinctCanonicalAreas": [
+          59.91,
+          59.97,
+          59.99
+        ],
+        "distinctCanonicalCount": 3,
+        "min": 59.91,
+        "max": 59.99,
+        "span": 0.08,
+        "maxConsecutiveGap": 0.06,
+        "perMemberTx": {
+          "59.91": 48,
+          "59.97": 544,
+          "59.99": 174
+        },
+        "memberSum": 766,
+        "groupResult": 766,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_774f03bf66e7882f:G2:ex74.88-74.99",
+        "complexKey": "cx_774f03bf66e7882f",
+        "aptName": "고덕센트럴ipark",
+        "memberUnitTypeKeys": [
+          "cx_774f03bf66e7882f:ex74.88",
+          "cx_774f03bf66e7882f:ex74.99"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          74.88,
+          74.99
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 74.88,
+        "max": 74.99,
+        "span": 0.11,
+        "maxConsecutiveGap": 0.11,
+        "perMemberTx": {
+          "74.88": 129,
+          "74.99": 49
+        },
+        "memberSum": 178,
+        "groupResult": 178,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_774f03bf66e7882f:G3:ex84.91-84.97",
+        "complexKey": "cx_774f03bf66e7882f",
+        "aptName": "고덕센트럴ipark",
+        "memberUnitTypeKeys": [
+          "cx_774f03bf66e7882f:ex84.91",
+          "cx_774f03bf66e7882f:ex84.97"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.91,
+          84.97
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.91,
+        "max": 84.97,
+        "span": 0.06,
+        "maxConsecutiveGap": 0.06,
+        "perMemberTx": {
+          "84.91": 361,
+          "84.97": 204
+        },
+        "memberSum": 565,
+        "groupResult": 565,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_7ce2c0c6be9bb8b4:G1:ex84.96-84.97",
+        "complexKey": "cx_7ce2c0c6be9bb8b4",
+        "aptName": "자양현대5",
+        "memberUnitTypeKeys": [
+          "cx_7ce2c0c6be9bb8b4:ex84.96",
+          "cx_7ce2c0c6be9bb8b4:ex84.97"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.96,
+          84.97
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.96,
+        "max": 84.97,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "84.96": 21,
+          "84.97": 22
+        },
+        "memberSum": 43,
+        "groupResult": 43,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_836331525ecdd550:G1:ex71.90-71.99",
+        "complexKey": "cx_836331525ecdd550",
+        "aptName": "래미안라클래시",
+        "memberUnitTypeKeys": [
+          "cx_836331525ecdd550:ex71.9",
+          "cx_836331525ecdd550:ex71.95",
+          "cx_836331525ecdd550:ex71.99"
+        ],
+        "memberUnitCount": 3,
+        "distinctCanonicalAreas": [
+          71.9,
+          71.95,
+          71.99
+        ],
+        "distinctCanonicalCount": 3,
+        "min": 71.9,
+        "max": 71.99,
+        "span": 0.09,
+        "maxConsecutiveGap": 0.05,
+        "perMemberTx": {
+          "71.9": 35,
+          "71.95": 72,
+          "71.99": 18
+        },
+        "memberSum": 125,
+        "groupResult": 125,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_836331525ecdd550:G2:ex84.98-84.99",
+        "complexKey": "cx_836331525ecdd550",
+        "aptName": "래미안라클래시",
+        "memberUnitTypeKeys": [
+          "cx_836331525ecdd550:ex84.98",
+          "cx_836331525ecdd550:ex84.99"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.98,
+          84.99
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.98,
+        "max": 84.99,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "84.98": 99,
+          "84.99": 36
+        },
+        "memberSum": 135,
+        "groupResult": 135,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_836331525ecdd550:G3:ex136.90-136.95",
+        "complexKey": "cx_836331525ecdd550",
+        "aptName": "래미안라클래시",
+        "memberUnitTypeKeys": [
+          "cx_836331525ecdd550:ex136.9",
+          "cx_836331525ecdd550:ex136.95"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          136.9,
+          136.95
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 136.9,
+        "max": 136.95,
+        "span": 0.05,
+        "maxConsecutiveGap": 0.05,
+        "perMemberTx": {
+          "136.9": 2,
+          "136.95": 11
+        },
+        "memberSum": 13,
+        "groupResult": 13,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_b225492e31c09cdd:G1:ex59.96-59.98",
+        "complexKey": "cx_b225492e31c09cdd",
+        "aptName": "온수힐스테이트",
+        "memberUnitTypeKeys": [
+          "cx_b225492e31c09cdd:ex59.96",
+          "cx_b225492e31c09cdd:ex59.98"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          59.96,
+          59.98
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 59.96,
+        "max": 59.98,
+        "span": 0.02,
+        "maxConsecutiveGap": 0.02,
+        "perMemberTx": {
+          "59.96": 154,
+          "59.98": 234
+        },
+        "memberSum": 388,
+        "groupResult": 388,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_b225492e31c09cdd:G2:ex84.97-84.99",
+        "complexKey": "cx_b225492e31c09cdd",
+        "aptName": "온수힐스테이트",
+        "memberUnitTypeKeys": [
+          "cx_b225492e31c09cdd:ex84.97",
+          "cx_b225492e31c09cdd:ex84.99"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.97,
+          84.99
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.97,
+        "max": 84.99,
+        "span": 0.02,
+        "maxConsecutiveGap": 0.02,
+        "perMemberTx": {
+          "84.97": 242,
+          "84.99": 70
+        },
+        "memberSum": 312,
+        "groupResult": 312,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_b225492e31c09cdd:G3:ex121.26-121.28",
+        "complexKey": "cx_b225492e31c09cdd",
+        "aptName": "온수힐스테이트",
+        "memberUnitTypeKeys": [
+          "cx_b225492e31c09cdd:ex121.26",
+          "cx_b225492e31c09cdd:ex121.28"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          121.26,
+          121.28
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 121.26,
+        "max": 121.28,
+        "span": 0.02,
+        "maxConsecutiveGap": 0.02,
+        "perMemberTx": {
+          "121.26": 39,
+          "121.28": 35
+        },
+        "memberSum": 74,
+        "groupResult": 74,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_b225492e31c09cdd:G4:ex162.03-162.16",
+        "complexKey": "cx_b225492e31c09cdd",
+        "aptName": "온수힐스테이트",
+        "memberUnitTypeKeys": [
+          "cx_b225492e31c09cdd:ex162.03",
+          "cx_b225492e31c09cdd:ex162.16"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          162.03,
+          162.16
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 162.03,
+        "max": 162.16,
+        "span": 0.13,
+        "maxConsecutiveGap": 0.13,
+        "perMemberTx": {
+          "162.03": 21,
+          "162.16": 3
+        },
+        "memberSum": 24,
+        "groupResult": 24,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_c3f8a052ae66fd32:G1:ex59.78-59.91",
+        "complexKey": "cx_c3f8a052ae66fd32",
+        "aptName": "옥수파크힐스101동~116동",
+        "memberUnitTypeKeys": [
+          "cx_c3f8a052ae66fd32:ex59.78",
+          "cx_c3f8a052ae66fd32:ex59.88",
+          "cx_c3f8a052ae66fd32:ex59.91"
+        ],
+        "memberUnitCount": 3,
+        "distinctCanonicalAreas": [
+          59.78,
+          59.88,
+          59.91
+        ],
+        "distinctCanonicalCount": 3,
+        "min": 59.78,
+        "max": 59.91,
+        "span": 0.13,
+        "maxConsecutiveGap": 0.1,
+        "perMemberTx": {
+          "59.78": 290,
+          "59.88": 382,
+          "59.91": 201
+        },
+        "memberSum": 873,
+        "groupResult": 873,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_c3f8a052ae66fd32:G2:ex84.51-84.64",
+        "complexKey": "cx_c3f8a052ae66fd32",
+        "aptName": "옥수파크힐스101동~116동",
+        "memberUnitTypeKeys": [
+          "cx_c3f8a052ae66fd32:ex84.51",
+          "cx_c3f8a052ae66fd32:ex84.64"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.51,
+          84.64
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.51,
+        "max": 84.64,
+        "span": 0.13,
+        "maxConsecutiveGap": 0.13,
+        "perMemberTx": {
+          "84.51": 255,
+          "84.64": 156
+        },
+        "memberSum": 411,
+        "groupResult": 411,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_c3f8a052ae66fd32:G3:ex84.92-84.96",
+        "complexKey": "cx_c3f8a052ae66fd32",
+        "aptName": "옥수파크힐스101동~116동",
+        "memberUnitTypeKeys": [
+          "cx_c3f8a052ae66fd32:ex84.92",
+          "cx_c3f8a052ae66fd32:ex84.96"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          84.92,
+          84.96
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 84.92,
+        "max": 84.96,
+        "span": 0.04,
+        "maxConsecutiveGap": 0.04,
+        "perMemberTx": {
+          "84.92": 93,
+          "84.96": 2
+        },
+        "memberSum": 95,
+        "groupResult": 95,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_c8ecd97624efad6d:G1:ex59.86-59.90",
+        "complexKey": "cx_c8ecd97624efad6d",
+        "aptName": "개봉푸르지오",
+        "memberUnitTypeKeys": [
+          "cx_c8ecd97624efad6d:ex59.86",
+          "cx_c8ecd97624efad6d:ex59.9"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          59.86,
+          59.9
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 59.86,
+        "max": 59.9,
+        "span": 0.04,
+        "maxConsecutiveGap": 0.04,
+        "perMemberTx": {
+          "59.86": 205,
+          "59.9": 38
+        },
+        "memberSum": 243,
+        "groupResult": 243,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_c8ecd97624efad6d:G2:ex71.86-71.95",
+        "complexKey": "cx_c8ecd97624efad6d",
+        "aptName": "개봉푸르지오",
+        "memberUnitTypeKeys": [
+          "cx_c8ecd97624efad6d:ex71.86",
+          "cx_c8ecd97624efad6d:ex71.95"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          71.86,
+          71.95
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 71.86,
+        "max": 71.95,
+        "span": 0.09,
+        "maxConsecutiveGap": 0.09,
+        "perMemberTx": {
+          "71.86": 68,
+          "71.95": 100
+        },
+        "memberSum": 168,
+        "groupResult": 168,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_c8ecd97624efad6d:G3:ex84.83-84.94",
+        "complexKey": "cx_c8ecd97624efad6d",
+        "aptName": "개봉푸르지오",
+        "memberUnitTypeKeys": [
+          "cx_c8ecd97624efad6d:ex84.83",
+          "cx_c8ecd97624efad6d:ex84.88",
+          "cx_c8ecd97624efad6d:ex84.94"
+        ],
+        "memberUnitCount": 3,
+        "distinctCanonicalAreas": [
+          84.83,
+          84.88,
+          84.94
+        ],
+        "distinctCanonicalCount": 3,
+        "min": 84.83,
+        "max": 84.94,
+        "span": 0.11,
+        "maxConsecutiveGap": 0.06,
+        "perMemberTx": {
+          "84.83": 143,
+          "84.88": 61,
+          "84.94": 200
+        },
+        "memberSum": 404,
+        "groupResult": 404,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_c8ecd97624efad6d:G4:ex119.86-119.98",
+        "complexKey": "cx_c8ecd97624efad6d",
+        "aptName": "개봉푸르지오",
+        "memberUnitTypeKeys": [
+          "cx_c8ecd97624efad6d:ex119.86",
+          "cx_c8ecd97624efad6d:ex119.98"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          119.86,
+          119.98
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 119.86,
+        "max": 119.98,
+        "span": 0.12,
+        "maxConsecutiveGap": 0.12,
+        "perMemberTx": {
+          "119.86": 20,
+          "119.98": 33
+        },
+        "memberSum": 53,
+        "groupResult": 53,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d754faa260b961ae:G1:ex59.98-59.99",
+        "complexKey": "cx_d754faa260b961ae",
+        "aptName": "상도역롯데캐슬파크엘",
+        "memberUnitTypeKeys": [
+          "cx_d754faa260b961ae:ex59.98",
+          "cx_d754faa260b961ae:ex59.99"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          59.98,
+          59.99
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 59.98,
+        "max": 59.99,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "59.98": 434,
+          "59.99": 119
+        },
+        "memberSum": 553,
+        "groupResult": 553,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d754faa260b961ae:G2:ex74.96-74.99",
+        "complexKey": "cx_d754faa260b961ae",
+        "aptName": "상도역롯데캐슬파크엘",
+        "memberUnitTypeKeys": [
+          "cx_d754faa260b961ae:ex74.96",
+          "cx_d754faa260b961ae:ex74.99"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          74.96,
+          74.99
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 74.96,
+        "max": 74.99,
+        "span": 0.03,
+        "maxConsecutiveGap": 0.03,
+        "perMemberTx": {
+          "74.96": 116,
+          "74.99": 52
+        },
+        "memberSum": 168,
+        "groupResult": 168,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d754faa260b961ae:G3:ex84.97-85.00",
+        "complexKey": "cx_d754faa260b961ae",
+        "aptName": "상도역롯데캐슬파크엘",
+        "memberUnitTypeKeys": [
+          "cx_d754faa260b961ae:ex84.97",
+          "cx_d754faa260b961ae:ex84.98",
+          "cx_d754faa260b961ae:ex85"
+        ],
+        "memberUnitCount": 3,
+        "distinctCanonicalAreas": [
+          84.97,
+          84.98,
+          85
+        ],
+        "distinctCanonicalCount": 3,
+        "min": 84.97,
+        "max": 85,
+        "span": 0.03,
+        "maxConsecutiveGap": 0.02,
+        "perMemberTx": {
+          "85": 162,
+          "84.97": 19,
+          "84.98": 85
+        },
+        "memberSum": 266,
+        "groupResult": 266,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d754faa260b961ae:G4:ex110.99-111.00",
+        "complexKey": "cx_d754faa260b961ae",
+        "aptName": "상도역롯데캐슬파크엘",
+        "memberUnitTypeKeys": [
+          "cx_d754faa260b961ae:ex110.99",
+          "cx_d754faa260b961ae:ex111"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          110.99,
+          111
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 110.99,
+        "max": 111,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "111": 20,
+          "110.99": 17
+        },
+        "memberSum": 37,
+        "groupResult": 37,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d80e92e6aef239af:G1:ex70.83-70.84",
+        "complexKey": "cx_d80e92e6aef239af",
+        "aptName": "테헤란아이파크",
+        "memberUnitTypeKeys": [
+          "cx_d80e92e6aef239af:ex70.83",
+          "cx_d80e92e6aef239af:ex70.84"
+        ],
+        "memberUnitCount": 2,
+        "distinctCanonicalAreas": [
+          70.83,
+          70.84
+        ],
+        "distinctCanonicalCount": 2,
+        "min": 70.83,
+        "max": 70.84,
+        "span": 0.01,
+        "maxConsecutiveGap": 0.01,
+        "perMemberTx": {
+          "70.83": 166,
+          "70.84": 12
+        },
+        "memberSum": 178,
+        "groupResult": 178,
+        "aggregationPass": true,
+        "classification": "VALID_GROUP",
+        "reason": "distinct≥2, min<max, aggregation exact",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d80e92e6aef239af:G2:ex80.20-80.20",
+        "complexKey": "cx_d80e92e6aef239af",
+        "aptName": "테헤란아이파크",
+        "memberUnitTypeKeys": [
+          "cx_d80e92e6aef239af:ex80.2"
+        ],
+        "memberUnitCount": 1,
+        "distinctCanonicalAreas": [
+          80.2
+        ],
+        "distinctCanonicalCount": 1,
+        "min": 80.2,
+        "max": 80.2,
+        "span": 0,
+        "maxConsecutiveGap": 0,
+        "perMemberTx": {
+          "80.2": 31
+        },
+        "memberSum": 31,
+        "groupResult": 31,
+        "aggregationPass": true,
+        "classification": "INVALID_ZERO_SPAN",
+        "reason": "min==max with <2 distinct canonical areas (singleton zero-span group)",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d80e92e6aef239af:G3:ex92.62-92.62",
+        "complexKey": "cx_d80e92e6aef239af",
+        "aptName": "테헤란아이파크",
+        "memberUnitTypeKeys": [
+          "cx_d80e92e6aef239af:ex92.62"
+        ],
+        "memberUnitCount": 1,
+        "distinctCanonicalAreas": [
+          92.62
+        ],
+        "distinctCanonicalCount": 1,
+        "min": 92.62,
+        "max": 92.62,
+        "span": 0,
+        "maxConsecutiveGap": 0,
+        "perMemberTx": {
+          "92.62": 201
+        },
+        "memberSum": 201,
+        "groupResult": 201,
+        "aggregationPass": true,
+        "classification": "INVALID_ZERO_SPAN",
+        "reason": "min==max with <2 distinct canonical areas (singleton zero-span group)",
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      }
+    ]
+  },
+  "teranIpark": {
+    "complexKey": "cx_d80e92e6aef239af",
+    "aptName": "테헤란아이파크",
+    "lawdCd": "11680",
+    "rawAreas": [
+      {
+        "rawExclusiveArea": 59.7788,
+        "canonical": 59.78,
+        "txCount": 16
+      },
+      {
+        "rawExclusiveArea": 70.83,
+        "canonical": 70.83,
+        "txCount": 2
+      },
+      {
+        "rawExclusiveArea": 70.8333,
+        "canonical": 70.83,
+        "txCount": 164
+      },
+      {
+        "rawExclusiveArea": 70.8391,
+        "canonical": 70.84,
+        "txCount": 12
+      },
+      {
+        "rawExclusiveArea": 80.1995,
+        "canonical": 80.2,
+        "txCount": 30
+      },
+      {
+        "rawExclusiveArea": 80.2,
+        "canonical": 80.2,
+        "txCount": 1
+      },
+      {
+        "rawExclusiveArea": 84.641,
+        "canonical": 84.64,
+        "txCount": 21
+      },
+      {
+        "rawExclusiveArea": 92.62,
+        "canonical": 92.62,
+        "txCount": 2
+      },
+      {
+        "rawExclusiveArea": 92.6232,
+        "canonical": 92.62,
+        "txCount": 199
+      },
+      {
+        "rawExclusiveArea": 118.0315,
+        "canonical": 118.03,
+        "txCount": 25
+      }
+    ],
+    "unitTypes": [
+      {
+        "unitTypeKey": "cx_d80e92e6aef239af:ex59.78",
+        "exclusiveAreaMin": 59.78,
+        "exclusiveAreaMax": 59.78
+      },
+      {
+        "unitTypeKey": "cx_d80e92e6aef239af:ex70.83",
+        "exclusiveAreaMin": 70.83,
+        "exclusiveAreaMax": 70.83
+      },
+      {
+        "unitTypeKey": "cx_d80e92e6aef239af:ex70.84",
+        "exclusiveAreaMin": 70.84,
+        "exclusiveAreaMax": 70.84
+      },
+      {
+        "unitTypeKey": "cx_d80e92e6aef239af:ex80.2",
+        "exclusiveAreaMin": 80.2,
+        "exclusiveAreaMax": 80.2
+      },
+      {
+        "unitTypeKey": "cx_d80e92e6aef239af:ex84.64",
+        "exclusiveAreaMin": 84.64,
+        "exclusiveAreaMax": 84.64
+      },
+      {
+        "unitTypeKey": "cx_d80e92e6aef239af:ex92.62",
+        "exclusiveAreaMin": 92.62,
+        "exclusiveAreaMax": 92.62
+      },
+      {
+        "unitTypeKey": "cx_d80e92e6aef239af:ex118.03",
+        "exclusiveAreaMin": 118.03,
+        "exclusiveAreaMax": 118.03
+      }
+    ],
+    "zeroSpanGroups": [
+      {
+        "groupKey": "cx_d80e92e6aef239af:G2:ex80.20-80.20",
+        "min": 80.2,
+        "max": 80.2,
+        "members": [
+          "cx_d80e92e6aef239af:ex80.2"
+        ],
+        "memberCount": 1,
+        "canonicalMembers": [
+          80.2
+        ],
+        "matchingRawExclusiveAreas": [
+          {
+            "rawExclusiveArea": 80.1995,
+            "canonical": 80.2,
+            "txCount": 30
+          },
+          {
+            "rawExclusiveArea": 80.2,
+            "canonical": 80.2,
+            "txCount": 1
+          }
+        ],
+        "decision": "INVALID_ZERO_SPAN",
+        "whyStage9Accepted": "Stage9 candidate generator clustered undeduped float representations; repeated same areaKey looked like multi-member before dedupe fix"
+      },
+      {
+        "groupKey": "cx_d80e92e6aef239af:G3:ex92.62-92.62",
+        "min": 92.62,
+        "max": 92.62,
+        "members": [
+          "cx_d80e92e6aef239af:ex92.62"
+        ],
+        "memberCount": 1,
+        "canonicalMembers": [
+          92.62
+        ],
+        "matchingRawExclusiveAreas": [
+          {
+            "rawExclusiveArea": 92.62,
+            "canonical": 92.62,
+            "txCount": 2
+          },
+          {
+            "rawExclusiveArea": 92.6232,
+            "canonical": 92.62,
+            "txCount": 199
+          }
+        ],
+        "decision": "INVALID_ZERO_SPAN",
+        "whyStage9Accepted": "Stage9 candidate generator clustered undeduped float representations; repeated same areaKey looked like multi-member before dedupe fix"
+      }
+    ]
+  },
+  "repairCandidates": {
+    "count": 2,
+    "items": [
+      {
+        "groupKey": "cx_d80e92e6aef239af:G2:ex80.20-80.20",
+        "reason": "INVALID_ZERO_SPAN: min==max with <2 distinct canonical areas (singleton zero-span group)",
+        "linkedUnitTypes": [
+          "cx_d80e92e6aef239af:ex80.2"
+        ],
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      },
+      {
+        "groupKey": "cx_d80e92e6aef239af:G3:ex92.62-92.62",
+        "reason": "INVALID_ZERO_SPAN: min==max with <2 distinct canonical areas (singleton zero-span group)",
+        "linkedUnitTypes": [
+          "cx_d80e92e6aef239af:ex92.62"
+        ],
+        "baselineExists": false,
+        "classificationDependency": false,
+        "singogaDependency": false
+      }
+    ],
+    "baselineDependency": false,
+    "classificationDependency": false,
+    "singogaDependency": false
+  },
+  "writeBudgetDefect": {
+    "rootCause": "Stage9 idempotency replay re-invoked processComplex with a FRESH groupBudget.remaining=MAX_GROUP_WRITES (or originally remaining=20), so SAFE_GROUPs previously HOLD_BUDGET were written on replay. Hard cap was not process-global across replay.",
+    "fix": "Extract proposeNewGroupsWithHardCap; Stage9 replay is verify-only with budget=0; NEW INSERT only decrements remaining; dry-run QA for budget 0/5/20",
+    "dryRuns": [
+      {
+        "budget": 0,
+        "proposedNewGroups": 0,
+        "heldBudget": 29,
+        "withinCap": true,
+        "acceptedSample": []
+      },
+      {
+        "budget": 5,
+        "proposedNewGroups": 5,
+        "heldBudget": 24,
+        "withinCap": true,
+        "acceptedSample": [
+          "cx_c3f8a052ae66fd32:59.78-59.88-59.91",
+          "cx_c3f8a052ae66fd32:84.51-84.64",
+          "cx_c3f8a052ae66fd32:84.92-84.96",
+          "cx_774f03bf66e7882f:59.91-59.97-59.99",
+          "cx_774f03bf66e7882f:74.88-74.99"
+        ]
+      },
+      {
+        "budget": 20,
+        "proposedNewGroups": 20,
+        "heldBudget": 9,
+        "withinCap": true,
+        "acceptedSample": [
+          "cx_c3f8a052ae66fd32:59.78-59.88-59.91",
+          "cx_c3f8a052ae66fd32:84.51-84.64",
+          "cx_c3f8a052ae66fd32:84.92-84.96",
+          "cx_774f03bf66e7882f:59.91-59.97-59.99",
+          "cx_774f03bf66e7882f:74.88-74.99"
+        ]
+      }
+    ],
+    "hardCap": "PASS"
+  },
+  "validationSample": {
+    "classA_90109": [
+      {
+        "name": "올림픽파크포레온",
+        "complexId": "cx_0d3aa06062c08f6d",
+        "members": [
+          95.97,
+          109.98,
+          109.99
+        ]
+      },
+      {
+        "name": "폭포동4단지힐스테이트(423~425동)bl3-10",
+        "complexId": "cx_1cee18237c0558c8",
+        "members": [
+          101.94,
+          101.95
+        ]
+      },
+      {
+        "name": "우물골2단지두산위브(204~208동)bl2-5",
+        "complexId": "cx_330268b879cddb2a",
+        "members": [
+          101.43,
+          101.83,
+          101.84
+        ]
+      },
+      {
+        "name": "반포훼미리(103동)",
+        "complexId": "cx_34d909b2ef3bd46b",
+        "members": [
+          102.09,
+          102.1
+        ]
+      },
+      {
+        "name": "광장(1,2동)",
+        "complexId": "cx_36885c48bc315d21",
+        "members": [
+          102.84,
+          102.85,
+          104.7
+        ]
+      },
+      {
+        "name": "묵동자이(2단지)",
+        "complexId": "cx_3c9ad2c07cb0a99e",
+        "members": [
+          101.9,
+          101.91
+        ]
+      },
+      {
+        "name": "낙성대늘푸른",
+        "complexId": "cx_481ee87127144ab0",
+        "members": [
+          96.91,
+          96.92
+        ]
+      },
+      {
+        "name": "마포웨스트리버태영데시앙",
+        "complexId": "cx_4b8b70b7ec5957e6",
+        "members": [
+          102.7,
+          102.71
+        ]
+      }
+    ],
+    "classB_5069": [
+      {
+        "name": "리치",
+        "complexId": "cx_03e789e16461e7d8",
+        "members": [
+          53.38,
+          55.84,
+          55.98,
+          58.38
+        ],
+        "gaps": [
+          2.46,
+          0.14,
+          2.4
+        ]
+      },
+      {
+        "name": "신마곡벽산블루밍",
+        "complexId": "cx_04e35eb2cb2d5589",
+        "members": [
+          59.76,
+          59.92,
+          59.93
+        ],
+        "gaps": [
+          0.16,
+          0.01
+        ]
+      },
+      {
+        "name": "e편한세상상도노빌리티",
+        "complexId": "cx_0a13d62a787b2a79",
+        "members": [
+          59.59,
+          59.78,
+          59.92
+        ],
+        "gaps": [
+          0.19,
+          0.14
+        ]
+      },
+      {
+        "name": "우장산동문디이스트",
+        "complexId": "cx_0a6b2e31c09f60f8",
+        "members": [
+          59.24,
+          59.84,
+          66,
+          66.16
+        ],
+        "gaps": [
+          0.6,
+          6.16,
+          0.16
+        ]
+      }
+    ]
+  },
+  "evidence90109": {
+    "complexes": [
+      {
+        "complexId": "cx_0d3aa06062c08f6d",
+        "name": "올림픽파크포레온",
+        "lawdCd": "11740",
+        "dong": "둔촌동",
+        "rawMembers": [
+          95.97,
+          109.98,
+          109.99
+        ],
+        "canonicalMembers": [
+          95.97,
+          109.98,
+          109.99
+        ],
+        "clusters": [
+          {
+            "members": [
+              95.97
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "95.97": 101
+            },
+            "reason": "single raw area"
+          },
+          {
+            "members": [
+              109.98,
+              109.99
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "109.98": 124,
+              "109.99": 44
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_1cee18237c0558c8",
+        "name": "폭포동4단지힐스테이트(423~425동)bl3-10",
+        "lawdCd": "11380",
+        "dong": "진관동",
+        "rawMembers": [
+          101.94,
+          101.95
+        ],
+        "canonicalMembers": [
+          101.94,
+          101.95
+        ],
+        "clusters": [
+          {
+            "members": [
+              101.94,
+              101.95
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "101.94": 12,
+              "101.95": 20
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_330268b879cddb2a",
+        "name": "우물골2단지두산위브(204~208동)bl2-5",
+        "lawdCd": "11380",
+        "dong": "진관동",
+        "rawMembers": [
+          101.43,
+          101.83,
+          101.84
+        ],
+        "canonicalMembers": [
+          101.43,
+          101.83,
+          101.84
+        ],
+        "clusters": [
+          {
+            "members": [
+              101.43
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "101.43": 2
+            },
+            "reason": "single raw area"
+          },
+          {
+            "members": [
+              101.83,
+              101.84
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "101.83": 3,
+              "101.84": 2
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_34d909b2ef3bd46b",
+        "name": "반포훼미리(103동)",
+        "lawdCd": "11650",
+        "dong": "반포동",
+        "rawMembers": [
+          102.09,
+          102.1
+        ],
+        "canonicalMembers": [
+          102.09,
+          102.1
+        ],
+        "clusters": [
+          {
+            "members": [
+              102.09,
+              102.1
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "102.09": 14,
+              "102.1": 4
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_36885c48bc315d21",
+        "name": "광장(1,2동)",
+        "lawdCd": "11560",
+        "dong": "여의도동",
+        "rawMembers": [
+          102.84,
+          102.85,
+          104.7
+        ],
+        "canonicalMembers": [
+          102.84,
+          102.85,
+          104.7
+        ],
+        "clusters": [
+          {
+            "members": [
+              102.84,
+              102.85
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "102.84": 13,
+              "102.85": 13
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          },
+          {
+            "members": [
+              104.7
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "104.7": 2
+            },
+            "reason": "single raw area"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_3c9ad2c07cb0a99e",
+        "name": "묵동자이(2단지)",
+        "lawdCd": "11260",
+        "dong": "묵동",
+        "rawMembers": [
+          101.9,
+          101.91
+        ],
+        "canonicalMembers": [
+          101.9,
+          101.91
+        ],
+        "clusters": [
+          {
+            "members": [
+              101.9,
+              101.91
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "101.9": 121,
+              "101.91": 85
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_481ee87127144ab0",
+        "name": "낙성대늘푸른",
+        "lawdCd": "11620",
+        "dong": "봉천동",
+        "rawMembers": [
+          96.91,
+          96.92
+        ],
+        "canonicalMembers": [
+          96.91,
+          96.92
+        ],
+        "clusters": [
+          {
+            "members": [
+              96.91,
+              96.92
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "96.91": 1,
+              "96.92": 2
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_4b8b70b7ec5957e6",
+        "name": "마포웨스트리버태영데시앙",
+        "lawdCd": "11440",
+        "dong": "창전동",
+        "rawMembers": [
+          102.7,
+          102.71
+        ],
+        "canonicalMembers": [
+          102.7,
+          102.71
+        ],
+        "clusters": [
+          {
+            "members": [
+              102.7,
+              102.71
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "102.7": 8,
+              "102.71": 8
+            },
+            "reason": "multi-band candidate span=0.01 maxGap=0.01 members=2 band=90-109"
+          }
+        ]
+      }
+    ],
+    "sampleClusters": 11,
+    "safeSimulation": 8,
+    "ambiguous": 0,
+    "notGroupable": 3,
+    "maxSafeSpan": 0.01,
+    "maxSafeGap": 0.01
+  },
+  "evidence5069": {
+    "complexes": [
+      {
+        "complexId": "cx_03e789e16461e7d8",
+        "name": "리치",
+        "lawdCd": "11320",
+        "dong": "창동",
+        "rawMembers": [
+          53.38,
+          55.84,
+          55.98,
+          58.38
+        ],
+        "consecutiveGaps": [
+          2.46,
+          0.14,
+          2.4
+        ],
+        "gapsLe015": [
+          0.14
+        ],
+        "gapsGt015": [
+          2.46,
+          2.4
+        ],
+        "clusters": [
+          {
+            "members": [
+              53.38
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "53.38": 1
+            },
+            "reason": "single raw area"
+          },
+          {
+            "members": [
+              55.84,
+              55.98
+            ],
+            "span": 0.14,
+            "maxGap": 0.14,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "55.84": 2,
+              "55.98": 6
+            },
+            "reason": "multi-band candidate span=0.14 maxGap=0.14 members=2 band=50-69"
+          },
+          {
+            "members": [
+              58.38
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "58.38": 4
+            },
+            "reason": "single raw area"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_04e35eb2cb2d5589",
+        "name": "신마곡벽산블루밍",
+        "lawdCd": "11500",
+        "dong": "방화동",
+        "rawMembers": [
+          59.76,
+          59.92,
+          59.93
+        ],
+        "consecutiveGaps": [
+          0.16,
+          0.01
+        ],
+        "gapsLe015": [
+          0.01
+        ],
+        "gapsGt015": [
+          0.16
+        ],
+        "clusters": [
+          {
+            "members": [
+              59.76,
+              59.92,
+              59.93
+            ],
+            "span": 0.17,
+            "maxGap": 0.16,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "59.76": 70,
+              "59.92": 60,
+              "59.93": 53
+            },
+            "reason": "span 0.17 ok but maxGap 0.16 > 0.15"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_0a13d62a787b2a79",
+        "name": "e편한세상상도노빌리티",
+        "lawdCd": "11590",
+        "dong": "상도동",
+        "rawMembers": [
+          59.59,
+          59.78,
+          59.92
+        ],
+        "consecutiveGaps": [
+          0.19,
+          0.14
+        ],
+        "gapsLe015": [
+          0.14
+        ],
+        "gapsGt015": [
+          0.19
+        ],
+        "clusters": [
+          {
+            "members": [
+              59.59,
+              59.78
+            ],
+            "span": 0.19,
+            "maxGap": 0.19,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "59.59": 84,
+              "59.78": 259
+            },
+            "reason": "span 0.19 ok but maxGap 0.19 > 0.15"
+          },
+          {
+            "members": [
+              59.92
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "59.92": 30
+            },
+            "reason": "single raw area"
+          }
+        ]
+      },
+      {
+        "complexId": "cx_0a6b2e31c09f60f8",
+        "name": "우장산동문디이스트",
+        "lawdCd": "11500",
+        "dong": "내발산동",
+        "rawMembers": [
+          59.24,
+          59.84,
+          66,
+          66.16
+        ],
+        "consecutiveGaps": [
+          0.6,
+          6.16,
+          0.16
+        ],
+        "gapsLe015": [],
+        "gapsGt015": [
+          0.6,
+          6.16,
+          0.16
+        ],
+        "clusters": [
+          {
+            "members": [
+              59.24
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "59.24": 3
+            },
+            "reason": "single raw area"
+          },
+          {
+            "members": [
+              59.84
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "59.84": 6
+            },
+            "reason": "single raw area"
+          },
+          {
+            "members": [
+              66,
+              66.16
+            ],
+            "span": 0.16,
+            "maxGap": 0.16,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "66": 3,
+              "66.16": 1
+            },
+            "reason": "span 0.16 ok but maxGap 0.16 > 0.15"
+          }
+        ]
+      }
+    ],
+    "sampleClusters": 9,
+    "le015GapClusters": 6,
+    "gt015GapSplits": 4,
+    "ambiguous": 3,
+    "note": "gap≤0.15 should remain clusterable; gap>0.15 should split — verify via cluster decisions"
+  },
+  "rule": {
+    "decision": "BAND_SPECIFIC_RULE_NEEDED",
+    "reason": "90–109 has 8 SAFE simulations but ambiguous remain (90–109 amb=0, 50–69 amb=3).",
+    "candidateRuleV1": {
+      "minDistinctMembers": 2,
+      "maxSpan": 0.2,
+      "maxConsecutiveGap": 0.15,
+      "requireMinLtMax": true
+    }
+  },
+  "coverageComplex": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 17,
+    "unitMasterComplexCoveragePct": 0.2,
+    "groupedComplexes": 29,
+    "groupedComplexCoveragePct": 0.34
+  },
+  "coverageRawArea": {
+    "rawDistinctAreas": 34380,
+    "unitMasterRawAreas": 275,
+    "unitMasterRawCoveragePct": 0.8,
+    "groupLinkedRawAreas": 222,
+    "groupLinkedRawCoveragePct": 0.65
+  },
+  "legacyGroupAudit": {
+    "groupedWithUnitMaster": 24,
+    "groupedWithoutUnitMaster": 5,
+    "withoutExamples": [
+      "acro-riverpark",
+      "daechi-palace",
+      "hannam-thehill",
+      "mapo-raemian-prugio",
+      "raemian-hill-godeok"
+    ],
+    "reason": "Phase5/legacy pilots use slug complex_key (parkrio, jamsil-els, …) with groups+units under slug; some grouped keys may lack cx_ unit-master rows. Stage6–9 use complex_id carrier."
+  },
+  "selector": {
+    "productionSelector": "transactions-based",
+    "migration": "NOT_READY"
+  },
+  "nextAction": {
+    "choice": "B",
+    "reason": "Repair invalid Stage9 groups, then refine rule (90–109 / boundary) before expansion."
+  },
+  "decision": {
+    "STAGE9_GROUP_AUDIT": "PARTIAL",
+    "WRITE_BUDGET_CONTROL": "PASS",
+    "EVIDENCE_90_109": "PASS",
+    "GROUP_RULE": "PARTIAL",
+    "DATA_SAFETY": "PASS"
+  }
+}

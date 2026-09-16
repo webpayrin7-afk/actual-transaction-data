@@ -16,6 +16,11 @@ import {
   type PeriodWindow,
 } from "@/lib/market/keys";
 import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
+import {
+  isPreviewV2ReadActive,
+  readPreviewV2StatsFeedPayload,
+  recordV2SnapshotMissFallback,
+} from "@/lib/market/singoga-v2-storage";
 
 const FEED_LIST_LIMIT = 12;
 const HIGH_PRICE_MAN = 200_000; // 20억
@@ -195,11 +200,15 @@ export async function computeStatsDealFeed(
     }
   }
 
+  // Stage20: V2 full-history classify removed from request/on-demand compute.
+  // Preview V2 uses explicit rebuild → market_stats_feeds_preview_v2 only.
+  const priorsForJudgment = priorById;
+
   const singoga: MarketDealItem[] = [];
   const drops: MarketDealItem[] = [];
 
   for (const tx of recent) {
-    const prior = priorById.get(tx.id) ?? 0;
+    const prior = priorsForJudgment.get(tx.id) ?? 0;
 
     if (prior > 0 && tx.dealAmount > prior) {
       const changeAmount = tx.dealAmount - prior;
@@ -309,13 +318,13 @@ export async function computeStatsDealFeed(
   const nearHigh: MarketDealItem[] = recent
     .filter((tx) => {
       if (shownIds.has(tx.id)) return false;
-      const prior = priorById.get(tx.id) ?? 0;
+      const prior = priorsForJudgment.get(tx.id) ?? 0;
       if (prior <= 0) return false;
       const ratio = tx.dealAmount / prior;
       return ratio >= 0.95 && ratio < 1;
     })
     .map((tx) => {
-      const prior = priorById.get(tx.id)!;
+      const prior = priorsForJudgment.get(tx.id)!;
       const changeAmount = tx.dealAmount - prior;
       return {
         id: tx.id,
@@ -346,7 +355,7 @@ export async function computeStatsDealFeed(
       dealAmount: tx.dealAmount,
       dealDate: tx.dealDate,
       href: hrefFor(tx),
-      priorMaxAmount: priorById.get(tx.id) ?? null,
+      priorMaxAmount: priorsForJudgment.get(tx.id) ?? null,
       changeAmount: null,
       changePct: null,
       kind: "high" as const,
@@ -414,6 +423,22 @@ export async function readStatsDealFeed(
 ): Promise<StatsDealFeed | null> {
   const db = getDb();
   if (!db) return null;
+
+  // Stage21 prep: Preview + flag ON reads preview_v2 feeds first.
+  // Miss → diagnostic + fall through to Production feeds (no V2 recompute).
+  if (isPreviewV2ReadActive()) {
+    const rawV2 = await readPreviewV2StatsFeedPayload(period, scope, db);
+    if (rawV2) {
+      try {
+        return JSON.parse(rawV2) as StatsDealFeed;
+      } catch {
+        recordV2SnapshotMissFallback();
+      }
+    } else {
+      recordV2SnapshotMissFallback();
+    }
+  }
+
   try {
     const result = await db.execute({
       sql: `SELECT payload FROM market_stats_feeds

@@ -1,0 +1,4219 @@
+{
+  "generatedAt": "2026-09-16T02:53:17.721Z",
+  "stage": "stage24",
+  "dataType": "apt_unit_types",
+  "scope": "trade-only",
+  "canonicalPrecision": 2,
+  "source": "transactions",
+  "mappingContract": "transaction_raw_exclusive",
+  "ruleVersion": "transaction_raw_exclusive_v1",
+  "resumedFromManifest": true,
+  "selection": {
+    "requested": 250,
+    "eligible": 250,
+    "selected": 250,
+    "minTradeTx": 50,
+    "canonicalAreaRange": [
+      2,
+      20
+    ],
+    "order": "trade_tx DESC, complex_id ASC",
+    "existingCxExcluded": 155,
+    "selectionMs": 12234,
+    "selectionQueries": 5
+  },
+  "targetComplexIds": [
+    "cx_af6691b3c66a44e3",
+    "cx_d03d2237890fa984",
+    "cx_0e1cc689e2ee5609",
+    "cx_b857f7530b1035f9",
+    "cx_8dad8e23bb07e1c3",
+    "cx_19f7235df4298af2",
+    "cx_9d68cb32afed7b7d",
+    "cx_81885765788e20e5",
+    "cx_f94e99ece8463227",
+    "cx_31164ad81bd36d9e",
+    "cx_e3e608302bb14d39",
+    "cx_4b884aba0689913c",
+    "cx_e84a9fd9112ddef2",
+    "cx_f5d0a042ba745059",
+    "cx_7ccc30277a99494b",
+    "cx_e37155382e340bb3",
+    "cx_0bf6e2c391d05c18",
+    "cx_229d61d0a0476608",
+    "cx_2f8483f9de56dce7",
+    "cx_fd6338c01141bd3a",
+    "cx_6e0c33a4a442fb23",
+    "cx_47e67d7184c4fc6a",
+    "cx_4a84183cce7cbc49",
+    "cx_01feeea2fcfb89f6",
+    "cx_1f5079b73cbb483a",
+    "cx_5f12141d8b550031",
+    "cx_5c7b4d08b2f2bbce",
+    "cx_8558b211326e27cf",
+    "cx_d74643ddbca5a0f5",
+    "cx_9d3e5a8b0d885986",
+    "cx_f18312d94449fbc4",
+    "cx_439c3d0a00349263",
+    "cx_fc8479f17062904d",
+    "cx_0041cfd994dc0cd0",
+    "cx_235034e171dd98d8",
+    "cx_240447129ee9a96c",
+    "cx_ef35eb3367253c94",
+    "cx_e8779b1ddba786e9",
+    "cx_aaf80151cb4b4234",
+    "cx_8e6e840b03627ba3",
+    "cx_5b2a6ba6356e57de",
+    "cx_d01beae410f8927c",
+    "cx_ffc603f9e201ae99",
+    "cx_5024974243fc35f9",
+    "cx_52077ef3a7868731",
+    "cx_f590c1dc74551e32",
+    "cx_545cbfd74aa27b54",
+    "cx_77539c9324aa7099",
+    "cx_924bb3b34b0449ac",
+    "cx_646b3741c7335aaa",
+    "cx_d65ddcdf07c3b9f3",
+    "cx_aa79112c75b1860a",
+    "cx_2addbcdaa50e35a6",
+    "cx_6e07905565ee2ec4",
+    "cx_0d7852443e139815",
+    "cx_bda6d6312c81625e",
+    "cx_e84abbf76fcf9f2c",
+    "cx_26cc9477e4b4a4ab",
+    "cx_e47102400fbc8ec6",
+    "cx_fc88145051cb3041",
+    "cx_53581631cd6be22a",
+    "cx_59170beeb411f1be",
+    "cx_9a6eb88c55195676",
+    "cx_db4d256433505d29",
+    "cx_67194b0815c1e083",
+    "cx_83771b1cf3a21912",
+    "cx_70ed3c6d42282563",
+    "cx_a5542c9c8c29db05",
+    "cx_2f403b46f33a6425",
+    "cx_7ff576d88ab52b37",
+    "cx_a8551c1e1c08338d",
+    "cx_6913a839aa07a1d5",
+    "cx_f6a1401f4e80baae",
+    "cx_5bc22b4e22133b01",
+    "cx_5fa71177c63cf208",
+    "cx_c249fef8087cc043",
+    "cx_44b1e27eac52a403",
+    "cx_5e357943deed5fd4",
+    "cx_3a03eeb497a002b7",
+    "cx_fba90c19d1b66a51",
+    "cx_6688c94546d9e495",
+    "cx_9fe6015a05df16f0",
+    "cx_bd8464479cee97b4",
+    "cx_7259d23d46994dea",
+    "cx_764652ad39a48270",
+    "cx_93af75a591dcd6df",
+    "cx_004c0f19728c5c7c",
+    "cx_4372ad7456a4d3ea",
+    "cx_7e94885154fa8f37",
+    "cx_4448efbe93cd2e4f",
+    "cx_adb7193c5c99abd6",
+    "cx_8a00b02b031e2198",
+    "cx_f1104af06fb68ecb",
+    "cx_00061802cdff3cdc",
+    "cx_305aa54e3abfe285",
+    "cx_8e24e909a7ea375c",
+    "cx_a802a84cd463a14b",
+    "cx_c940ed4cac4cfa1d",
+    "cx_7c8457f38b822667",
+    "cx_bb6df0580ccfc741",
+    "cx_6e0a719cea1bbd89",
+    "cx_2c22a0aaccf0910c",
+    "cx_01c0dbf7da85cc41",
+    "cx_8f384687cf73e32f",
+    "cx_39c64fbe8fef75e3",
+    "cx_a5ad6f9d2f65a272",
+    "cx_f0ef35b39991b1c9",
+    "cx_11793fec6aea2f6b",
+    "cx_d2e2226d02767684",
+    "cx_f48d9f803e3d8934",
+    "cx_286685122695912f",
+    "cx_c238a46a68f59d86",
+    "cx_96017b5a1aabedaa",
+    "cx_e7c14327fcdbfe91",
+    "cx_ff39381372ae33df",
+    "cx_d1750063c9fe14a0",
+    "cx_2c20b50f2c7a8ba1",
+    "cx_2f1129bf2302fad4",
+    "cx_fd0372a95d34d9d7",
+    "cx_496be5b8281790e3",
+    "cx_2de71f20df8d389d",
+    "cx_c65344adf60979de",
+    "cx_145ff7c33b9cbe3f",
+    "cx_e8ce66cee970b98a",
+    "cx_18bdeeff7d4408fd",
+    "cx_d0badd21400b9399",
+    "cx_b8ef6775fc1a2361",
+    "cx_6cfa07762c2463b1",
+    "cx_c65d8de1fb7b3f7f",
+    "cx_641416be38ddc2a7",
+    "cx_b3781971263f09eb",
+    "cx_60d10049eaaeb05a",
+    "cx_e19a2d11725355b6",
+    "cx_eb5521582ec80f7c",
+    "cx_60caf2936960be62",
+    "cx_4f40a852bbeeb091",
+    "cx_90eeae4864ac114a",
+    "cx_c3e83f00db106b7a",
+    "cx_36e664a5d354c731",
+    "cx_1cc19edab11d4dd7",
+    "cx_aa25c2cd7facc243",
+    "cx_5e967293490c8785",
+    "cx_7d3e992057aab450",
+    "cx_bb70cc79bdf3ec20",
+    "cx_bfe005412ed9afcc",
+    "cx_f2a713b13c4946be",
+    "cx_f9468bf0429b8151",
+    "cx_7fc957faf395acdf",
+    "cx_85066296693b771d",
+    "cx_50f1917baa4ed611",
+    "cx_816aa3d44ca161e0",
+    "cx_d9c614171f6600c4",
+    "cx_f11d23f4301427c5",
+    "cx_27dca36e4a495927",
+    "cx_2c2311555140b149",
+    "cx_8d6c9a6e8c3d3978",
+    "cx_d51af645391192a3",
+    "cx_8af534cf62d0673e",
+    "cx_817585928d2c8e5d",
+    "cx_512f2ffd6402e96f",
+    "cx_64372c056c7f6b49",
+    "cx_daae81b28d64427b",
+    "cx_b3e48f86671c0de2",
+    "cx_9b535df742beda14",
+    "cx_3a3fe7f645ac267f",
+    "cx_5d6b38cbeca0466b",
+    "cx_ef2bb50e7c202140",
+    "cx_4e57a4f2e384805b",
+    "cx_8b0c787dc125a94f",
+    "cx_dc1f212134b1579c",
+    "cx_690744a6090bf0db",
+    "cx_bfba5f2436b89af2",
+    "cx_cb153ba117abb117",
+    "cx_361d791fc8270d2f",
+    "cx_81fa540f3fb53c25",
+    "cx_b520fb2a9bd388ca",
+    "cx_dd9dac8b615bc0d5",
+    "cx_5a7c44c4618a614e",
+    "cx_1becf336ee8d7d1d",
+    "cx_f5404e3998ae7814",
+    "cx_de8c53f35f16abe0",
+    "cx_860980d05b35320d",
+    "cx_c86b406830cb02dc",
+    "cx_41e241aa7a213feb",
+    "cx_459f67a22bd5aa51",
+    "cx_f052141fcd58a101",
+    "cx_1312292f2f31557c",
+    "cx_beb4bf81d59d81b4",
+    "cx_733b787b9884b2d6",
+    "cx_b14ce574b17ec95e",
+    "cx_5a4f70e52507d357",
+    "cx_64fa5787aa2b386c",
+    "cx_5d10db9d39f272f2",
+    "cx_041b686d4a0fe569",
+    "cx_77a4fe42a347a7da",
+    "cx_2e2f48eb187f4ffe",
+    "cx_775851a43fec59d9",
+    "cx_ad13982057bf4230",
+    "cx_6d61671779402edd",
+    "cx_0d49270da7602865",
+    "cx_363ab1559bf17fa7",
+    "cx_70ca4a3127d4e1a4",
+    "cx_4eb6fe90056c9939",
+    "cx_6c49f48131740252",
+    "cx_8af2fdf660afea45",
+    "cx_92e171ea72ab6b5d",
+    "cx_9c1ee3cf5a692632",
+    "cx_b6f3c1c36e962e45",
+    "cx_ea301e82cbe02a66",
+    "cx_6d029dc22dfe29e3",
+    "cx_2690c6be2f70073d",
+    "cx_47c30293a0ce57cf",
+    "cx_4a98dee4762360fb",
+    "cx_6073bb4c356314ed",
+    "cx_cd34a973a189d812",
+    "cx_ef8cd32515f0b149",
+    "cx_a11e2f777d5003b1",
+    "cx_7406c741bdcd56c7",
+    "cx_bbf1236d0a4e7da3",
+    "cx_5cb9cae5a3c064a7",
+    "cx_7be439e4bab69d25",
+    "cx_44ca98838f54a2fe",
+    "cx_b694857baa470062",
+    "cx_e78da3787d6d7f92",
+    "cx_526fff6b4cdeb54f",
+    "cx_725eb186bcbefa1a",
+    "cx_739470526de373b9",
+    "cx_908352f56b5ffe79",
+    "cx_721c7347cf8c09da",
+    "cx_2d7cb64e2755f304",
+    "cx_589e92624ee2b1d8",
+    "cx_c8043b47ccad1352",
+    "cx_0d06e23bdafe7f43",
+    "cx_3a66527bd21deee5",
+    "cx_df89be567d432173",
+    "cx_e6e664439233e8d5",
+    "cx_8a48771bff4ca694",
+    "cx_bf600e79ed5abec6",
+    "cx_e1c880b14dc30b68",
+    "cx_6adc508c196f3ecc",
+    "cx_c547bf66274105a6",
+    "cx_d42067dbcddf0e1b",
+    "cx_e01eb6f407f00d59",
+    "cx_34c88483e68a1e55",
+    "cx_b911c4776e58ec4e",
+    "cx_ea25c346302745fd",
+    "cx_5e78c88fe6035dde",
+    "cx_be197b2e622bb3d9",
+    "cx_e4049090b7766d77",
+    "cx_f52a5c951732a9ea"
+  ],
+  "targets": [
+    {
+      "complexId": "cx_af6691b3c66a44e3",
+      "aptNameNorm": "보문파크뷰자이",
+      "aptName": "보문파크뷰자이",
+      "lawdCd": "11290",
+      "tradeTxCount": 612,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        29.96,
+        45.81,
+        59.19,
+        59.81,
+        59.87,
+        72.9,
+        72.96,
+        72.97,
+        84.96,
+        84.99
+      ]
+    },
+    {
+      "complexId": "cx_d03d2237890fa984",
+      "aptNameNorm": "목동신시가지13",
+      "aptName": "목동신시가지13",
+      "lawdCd": "11470",
+      "tradeTxCount": 612,
+      "canonicalAreaCount": 11,
+      "areaKeys": [
+        53.9,
+        70.73,
+        84.41,
+        98.63,
+        99.26,
+        103.97,
+        122.3,
+        124.55,
+        151.76,
+        154.37,
+        156.62
+      ]
+    },
+    {
+      "complexId": "cx_0e1cc689e2ee5609",
+      "aptNameNorm": "종암에스케이",
+      "aptName": "종암에스케이",
+      "lawdCd": "11290",
+      "tradeTxCount": 606,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.04,
+        59.86,
+        84.72,
+        114.75
+      ]
+    },
+    {
+      "complexId": "cx_b857f7530b1035f9",
+      "aptNameNorm": "남가좌동현대",
+      "aptName": "남가좌동현대",
+      "lawdCd": "11410",
+      "tradeTxCount": 606,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.4,
+        73.65,
+        84.78,
+        84.9,
+        114.9
+      ]
+    },
+    {
+      "complexId": "cx_8dad8e23bb07e1c3",
+      "aptNameNorm": "신도림태영타운",
+      "aptName": "신도림태영타운",
+      "lawdCd": "11530",
+      "tradeTxCount": 605,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.88,
+        84.87,
+        101.74,
+        134.88,
+        171.22
+      ]
+    },
+    {
+      "complexId": "cx_19f7235df4298af2",
+      "aptNameNorm": "북한산현대힐스테이트3차아파트",
+      "aptName": "북한산현대힐스테이트3차아파트",
+      "lawdCd": "11380",
+      "tradeTxCount": 598,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.96,
+        59.99,
+        84.96,
+        84.97,
+        84.98,
+        115.41,
+        129.46
+      ]
+    },
+    {
+      "complexId": "cx_9d68cb32afed7b7d",
+      "aptNameNorm": "거여1단지",
+      "aptName": "거여1단지",
+      "lawdCd": "11710",
+      "tradeTxCount": 598,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        38.9,
+        39.6,
+        49.8,
+        58.99,
+        59.73
+      ]
+    },
+    {
+      "complexId": "cx_81885765788e20e5",
+      "aptNameNorm": "dmc래미안클라시스",
+      "aptName": "dmc래미안클라시스",
+      "lawdCd": "11410",
+      "tradeTxCount": 591,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.59,
+        59.93,
+        59.97,
+        84.9,
+        84.95,
+        114.88,
+        114.93
+      ]
+    },
+    {
+      "complexId": "cx_f94e99ece8463227",
+      "aptNameNorm": "두산",
+      "aptName": "두산",
+      "lawdCd": "11545",
+      "tradeTxCount": 591,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.84,
+        84.9,
+        101.67,
+        134.95
+      ]
+    },
+    {
+      "complexId": "cx_31164ad81bd36d9e",
+      "aptNameNorm": "양평한신",
+      "aptName": "양평한신",
+      "lawdCd": "11560",
+      "tradeTxCount": 585,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.94,
+        84.87,
+        86.87
+      ]
+    },
+    {
+      "complexId": "cx_e3e608302bb14d39",
+      "aptNameNorm": "신트리1",
+      "aptName": "신트리1",
+      "lawdCd": "11470",
+      "tradeTxCount": 579,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        49.14,
+        49.8,
+        49.95,
+        58.99,
+        59.42,
+        59.73
+      ]
+    },
+    {
+      "complexId": "cx_4b884aba0689913c",
+      "aptNameNorm": "포스코더샵",
+      "aptName": "포스코더샵",
+      "lawdCd": "11590",
+      "tradeTxCount": 578,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.96,
+        59.99,
+        60,
+        84.99,
+        85,
+        101.99,
+        132.74,
+        152.22,
+        161.48
+      ]
+    },
+    {
+      "complexId": "cx_e84a9fd9112ddef2",
+      "aptNameNorm": "이수브라운스톤돈암",
+      "aptName": "이수브라운스톤돈암",
+      "lawdCd": "11290",
+      "tradeTxCount": 577,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.99,
+        65.95,
+        84.97,
+        114.89
+      ]
+    },
+    {
+      "complexId": "cx_f5d0a042ba745059",
+      "aptNameNorm": "백련산힐스테이트2차",
+      "aptName": "백련산힐스테이트2차",
+      "lawdCd": "11380",
+      "tradeTxCount": 576,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        59.63,
+        59.85,
+        59.95,
+        84.23,
+        84.37,
+        84.49,
+        84.59,
+        114.29,
+        114.66,
+        114.9
+      ]
+    },
+    {
+      "complexId": "cx_7ccc30277a99494b",
+      "aptNameNorm": "더샵스타시티",
+      "aptName": "더샵스타시티",
+      "lawdCd": "11215",
+      "tradeTxCount": 574,
+      "canonicalAreaCount": 15,
+      "areaKeys": [
+        96.98,
+        100.29,
+        100.32,
+        110.92,
+        119.41,
+        127.95,
+        131.37,
+        135.61,
+        139.54,
+        139.6,
+        163.53,
+        177.97,
+        187.11,
+        193.58,
+        243.94
+      ]
+    },
+    {
+      "complexId": "cx_e37155382e340bb3",
+      "aptNameNorm": "대우",
+      "aptName": "대우",
+      "lawdCd": "11200",
+      "tradeTxCount": 573,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.97,
+        84.71,
+        84.96,
+        114.6,
+        114.71
+      ]
+    },
+    {
+      "complexId": "cx_0bf6e2c391d05c18",
+      "aptNameNorm": "북한산푸르지오",
+      "aptName": "북한산푸르지오",
+      "lawdCd": "11380",
+      "tradeTxCount": 568,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.99,
+        66.9,
+        84.99,
+        97.06,
+        114.98
+      ]
+    },
+    {
+      "complexId": "cx_229d61d0a0476608",
+      "aptNameNorm": "래미안에스티움",
+      "aptName": "래미안에스티움",
+      "lawdCd": "11560",
+      "tradeTxCount": 568,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        39.85,
+        49.97,
+        59.95,
+        59.98,
+        84.92,
+        84.93,
+        84.95,
+        84.97,
+        118.03,
+        118.39
+      ]
+    },
+    {
+      "complexId": "cx_2f8483f9de56dce7",
+      "aptNameNorm": "학여울청구",
+      "aptName": "학여울청구",
+      "lawdCd": "11350",
+      "tradeTxCount": 567,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.4,
+        84.77,
+        113.51
+      ]
+    },
+    {
+      "complexId": "cx_fd6338c01141bd3a",
+      "aptNameNorm": "신촌푸르지오",
+      "aptName": "신촌푸르지오",
+      "lawdCd": "11410",
+      "tradeTxCount": 559,
+      "canonicalAreaCount": 16,
+      "areaKeys": [
+        34.25,
+        34.75,
+        34.94,
+        44.94,
+        44.96,
+        49.02,
+        49.88,
+        59.88,
+        59.91,
+        59.99,
+        60,
+        84.96,
+        84.97,
+        84.99,
+        85,
+        109.09
+      ]
+    },
+    {
+      "complexId": "cx_6e0c33a4a442fb23",
+      "aptNameNorm": "장미1",
+      "aptName": "장미1",
+      "lawdCd": "11710",
+      "tradeTxCount": 558,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        71.2,
+        82.45,
+        99,
+        120,
+        155.22,
+        182.01
+      ]
+    },
+    {
+      "complexId": "cx_47e67d7184c4fc6a",
+      "aptNameNorm": "신금호파크자이",
+      "aptName": "신금호파크자이",
+      "lawdCd": "11200",
+      "tradeTxCount": 557,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.98,
+        84.98,
+        114.98
+      ]
+    },
+    {
+      "complexId": "cx_4a84183cce7cbc49",
+      "aptNameNorm": "주공5",
+      "aptName": "주공5",
+      "lawdCd": "11500",
+      "tradeTxCount": 557,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        37.67,
+        58.14
+      ]
+    },
+    {
+      "complexId": "cx_01feeea2fcfb89f6",
+      "aptNameNorm": "마곡중앙하이츠아파트",
+      "aptName": "마곡중앙하이츠아파트",
+      "lawdCd": "11500",
+      "tradeTxCount": 552,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        39.58,
+        51.03,
+        59.34
+      ]
+    },
+    {
+      "complexId": "cx_1f5079b73cbb483a",
+      "aptNameNorm": "가양도시개발9-2단지",
+      "aptName": "가양도시개발9-2단지",
+      "lawdCd": "11500",
+      "tradeTxCount": 552,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        34.44,
+        39.6,
+        49.5
+      ]
+    },
+    {
+      "complexId": "cx_5f12141d8b550031",
+      "aptNameNorm": "녹번역e편한세상캐슬",
+      "aptName": "녹번역e편한세상캐슬",
+      "lawdCd": "11380",
+      "tradeTxCount": 552,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        44.85,
+        59.94,
+        59.96,
+        59.97,
+        84.92,
+        84.94,
+        84.97,
+        84.98,
+        99.76,
+        114.94
+      ]
+    },
+    {
+      "complexId": "cx_5c7b4d08b2f2bbce",
+      "aptNameNorm": "천연뜨란채",
+      "aptName": "천연뜨란채",
+      "lawdCd": "11410",
+      "tradeTxCount": 551,
+      "canonicalAreaCount": 12,
+      "areaKeys": [
+        30.17,
+        55.82,
+        55.85,
+        56.02,
+        56.08,
+        57.78,
+        59.47,
+        75.42,
+        75.55,
+        75.8,
+        84.74,
+        84.95
+      ]
+    },
+    {
+      "complexId": "cx_8558b211326e27cf",
+      "aptNameNorm": "수유벽산1차",
+      "aptName": "수유벽산1차",
+      "lawdCd": "11305",
+      "tradeTxCount": 551,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        63.78,
+        84.92,
+        84.95,
+        122.58
+      ]
+    },
+    {
+      "complexId": "cx_d74643ddbca5a0f5",
+      "aptNameNorm": "돈암동삼성",
+      "aptName": "돈암동삼성",
+      "lawdCd": "11290",
+      "tradeTxCount": 551,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.4,
+        84.59,
+        114.66
+      ]
+    },
+    {
+      "complexId": "cx_9d3e5a8b0d885986",
+      "aptNameNorm": "전농우성",
+      "aptName": "전농우성",
+      "lawdCd": "11230",
+      "tradeTxCount": 549,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        44.24,
+        59.78,
+        84.84,
+        115.56,
+        126.63
+      ]
+    },
+    {
+      "complexId": "cx_f18312d94449fbc4",
+      "aptNameNorm": "고덕주공9",
+      "aptName": "고덕주공9",
+      "lawdCd": "11740",
+      "tradeTxCount": 549,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        83.21,
+        83.34,
+        83.52,
+        83.93
+      ]
+    },
+    {
+      "complexId": "cx_439c3d0a00349263",
+      "aptNameNorm": "독립문극동(200-0)",
+      "aptName": "독립문극동(200-0)",
+      "lawdCd": "11410",
+      "tradeTxCount": 546,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.58,
+        84.87,
+        84.96,
+        102.45,
+        114.51
+      ]
+    },
+    {
+      "complexId": "cx_fc8479f17062904d",
+      "aptNameNorm": "삼성래미안",
+      "aptName": "삼성래미안",
+      "lawdCd": "11170",
+      "tradeTxCount": 545,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.94,
+        84.69,
+        84.92,
+        114.99
+      ]
+    },
+    {
+      "complexId": "cx_0041cfd994dc0cd0",
+      "aptNameNorm": "옥수삼성",
+      "aptName": "옥수삼성",
+      "lawdCd": "11200",
+      "tradeTxCount": 544,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.7,
+        84.82,
+        114.67
+      ]
+    },
+    {
+      "complexId": "cx_235034e171dd98d8",
+      "aptNameNorm": "목동신시가지9",
+      "aptName": "목동신시가지9",
+      "lawdCd": "11470",
+      "tradeTxCount": 544,
+      "canonicalAreaCount": 12,
+      "areaKeys": [
+        53.82,
+        71.37,
+        84.99,
+        90.72,
+        100.33,
+        106.39,
+        106.93,
+        126.02,
+        126.53,
+        146.04,
+        156.84,
+        158.7
+      ]
+    },
+    {
+      "complexId": "cx_240447129ee9a96c",
+      "aptNameNorm": "대림강변타운",
+      "aptName": "대림강변타운",
+      "lawdCd": "11200",
+      "tradeTxCount": 544,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.76,
+        84.42,
+        114.88
+      ]
+    },
+    {
+      "complexId": "cx_ef35eb3367253c94",
+      "aptNameNorm": "목동신시가지11",
+      "aptName": "목동신시가지11",
+      "lawdCd": "11470",
+      "tradeTxCount": 544,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        51.48,
+        59.29,
+        66.24,
+        66.77,
+        75.68
+      ]
+    },
+    {
+      "complexId": "cx_e8779b1ddba786e9",
+      "aptNameNorm": "봉천동아",
+      "aptName": "봉천동아",
+      "lawdCd": "11620",
+      "tradeTxCount": 543,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.76,
+        84.87,
+        114.69
+      ]
+    },
+    {
+      "complexId": "cx_aaf80151cb4b4234",
+      "aptNameNorm": "신트리4",
+      "aptName": "신트리4",
+      "lawdCd": "11470",
+      "tradeTxCount": 542,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        48.96,
+        49.08,
+        49.5,
+        49.8,
+        59.44,
+        59.73
+      ]
+    },
+    {
+      "complexId": "cx_8e6e840b03627ba3",
+      "aptNameNorm": "목동청구한신아파트",
+      "aptName": "목동청구한신아파트",
+      "lawdCd": "11470",
+      "tradeTxCount": 536,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        84.71,
+        84.76,
+        84.77
+      ]
+    },
+    {
+      "complexId": "cx_5b2a6ba6356e57de",
+      "aptNameNorm": "현대홈타운",
+      "aptName": "현대홈타운",
+      "lawdCd": "11530",
+      "tradeTxCount": 533,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.49,
+        84.92,
+        115,
+        151.41
+      ]
+    },
+    {
+      "complexId": "cx_d01beae410f8927c",
+      "aptNameNorm": "삼성",
+      "aptName": "삼성",
+      "lawdCd": "11140",
+      "tradeTxCount": 530,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.97,
+        59.98,
+        84.96,
+        114.91
+      ]
+    },
+    {
+      "complexId": "cx_ffc603f9e201ae99",
+      "aptNameNorm": "목동신시가지10",
+      "aptName": "목동신시가지10",
+      "lawdCd": "11470",
+      "tradeTxCount": 527,
+      "canonicalAreaCount": 11,
+      "areaKeys": [
+        53.82,
+        61.26,
+        70.2,
+        79.55,
+        85,
+        105.58,
+        106.06,
+        124.51,
+        127.21,
+        156.24,
+        156.87
+      ]
+    },
+    {
+      "complexId": "cx_5024974243fc35f9",
+      "aptNameNorm": "신림푸르지오",
+      "aptName": "신림푸르지오",
+      "lawdCd": "11620",
+      "tradeTxCount": 526,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        59.95,
+        84.79,
+        84.87,
+        114.84,
+        138.64,
+        138.74
+      ]
+    },
+    {
+      "complexId": "cx_52077ef3a7868731",
+      "aptNameNorm": "금천현대",
+      "aptName": "금천현대",
+      "lawdCd": "11545",
+      "tradeTxCount": 524,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        59.82,
+        84.83
+      ]
+    },
+    {
+      "complexId": "cx_f590c1dc74551e32",
+      "aptNameNorm": "래미안솔베뉴",
+      "aptName": "래미안솔베뉴",
+      "lawdCd": "11740",
+      "tradeTxCount": 524,
+      "canonicalAreaCount": 13,
+      "areaKeys": [
+        49.62,
+        49.66,
+        49.68,
+        59.11,
+        59.25,
+        59.29,
+        59.32,
+        78.07,
+        78.84,
+        84.6,
+        84.63,
+        84.68,
+        103.8
+      ]
+    },
+    {
+      "complexId": "cx_545cbfd74aa27b54",
+      "aptNameNorm": "래미안하이리버",
+      "aptName": "래미안하이리버",
+      "lawdCd": "11200",
+      "tradeTxCount": 522,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        59.98,
+        59.99,
+        84.97,
+        84.98,
+        84.99,
+        114.32
+      ]
+    },
+    {
+      "complexId": "cx_77539c9324aa7099",
+      "aptNameNorm": "목동우성2",
+      "aptName": "목동우성2",
+      "lawdCd": "11470",
+      "tradeTxCount": 522,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        84.96,
+        113.91
+      ]
+    },
+    {
+      "complexId": "cx_924bb3b34b0449ac",
+      "aptNameNorm": "대우",
+      "aptName": "대우",
+      "lawdCd": "11530",
+      "tradeTxCount": 522,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.94,
+        59.95,
+        59.96,
+        59.97,
+        71.52,
+        71.53,
+        84.98,
+        84.99,
+        114.95
+      ]
+    },
+    {
+      "complexId": "cx_646b3741c7335aaa",
+      "aptNameNorm": "래미안트리베라1단지",
+      "aptName": "래미안트리베라1단지",
+      "lawdCd": "11305",
+      "tradeTxCount": 520,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.6,
+        84.97,
+        114.98
+      ]
+    },
+    {
+      "complexId": "cx_d65ddcdf07c3b9f3",
+      "aptNameNorm": "당산현대5차",
+      "aptName": "당산현대5차",
+      "lawdCd": "11560",
+      "tradeTxCount": 517,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        59.37,
+        59.55,
+        59.75,
+        59.85,
+        84.69,
+        114.84
+      ]
+    },
+    {
+      "complexId": "cx_aa79112c75b1860a",
+      "aptNameNorm": "당산삼성래미안4차",
+      "aptName": "당산삼성래미안4차",
+      "lawdCd": "11560",
+      "tradeTxCount": 516,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        84.94,
+        97.27,
+        115.78,
+        133.42,
+        161.08
+      ]
+    },
+    {
+      "complexId": "cx_2addbcdaa50e35a6",
+      "aptNameNorm": "라이프미성",
+      "aptName": "라이프미성",
+      "lawdCd": "11380",
+      "tradeTxCount": 513,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        66.7,
+        84.65,
+        125.75
+      ]
+    },
+    {
+      "complexId": "cx_6e07905565ee2ec4",
+      "aptNameNorm": "시영3차(라이프)아파트",
+      "aptName": "시영3차(라이프)아파트",
+      "lawdCd": "11350",
+      "tradeTxCount": 508,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        34.44,
+        39.6,
+        49.5
+      ]
+    },
+    {
+      "complexId": "cx_0d7852443e139815",
+      "aptNameNorm": "도화동현대",
+      "aptName": "도화동현대",
+      "lawdCd": "11440",
+      "tradeTxCount": 505,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        54.72,
+        68.22,
+        79.83,
+        112.09,
+        128.26,
+        147.37
+      ]
+    },
+    {
+      "complexId": "cx_bda6d6312c81625e",
+      "aptNameNorm": "시범",
+      "aptName": "시범",
+      "lawdCd": "11560",
+      "tradeTxCount": 505,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        60.96,
+        79.24,
+        118.12,
+        156.99
+      ]
+    },
+    {
+      "complexId": "cx_e84abbf76fcf9f2c",
+      "aptNameNorm": "e편한세상수색에코포레",
+      "aptName": "e편한세상수색에코포레",
+      "lawdCd": "11380",
+      "tradeTxCount": 505,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.9,
+        84.95,
+        114.18,
+        114.69
+      ]
+    },
+    {
+      "complexId": "cx_26cc9477e4b4a4ab",
+      "aptNameNorm": "삼성산주공(주공3단지)",
+      "aptName": "삼성산주공(주공3단지)",
+      "lawdCd": "11620",
+      "tradeTxCount": 504,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        58.55,
+        83.21,
+        113.31
+      ]
+    },
+    {
+      "complexId": "cx_e47102400fbc8ec6",
+      "aptNameNorm": "한남더힐",
+      "aptName": "한남더힐",
+      "lawdCd": "11170",
+      "tradeTxCount": 504,
+      "canonicalAreaCount": 14,
+      "areaKeys": [
+        59.69,
+        59.7,
+        177.76,
+        208.48,
+        212.52,
+        233.06,
+        235.31,
+        240.23,
+        240.31,
+        241.05,
+        243.2,
+        243.64,
+        244.75,
+        244.78
+      ]
+    },
+    {
+      "complexId": "cx_fc88145051cb3041",
+      "aptNameNorm": "삼성래미안",
+      "aptName": "삼성래미안",
+      "lawdCd": "11530",
+      "tradeTxCount": 503,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        56.04,
+        58.14,
+        78.67,
+        109.65,
+        110.19
+      ]
+    },
+    {
+      "complexId": "cx_53581631cd6be22a",
+      "aptNameNorm": "둔촌푸르지오",
+      "aptName": "둔촌푸르지오",
+      "lawdCd": "11740",
+      "tradeTxCount": 501,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.98,
+        84.9,
+        84.91,
+        84.92,
+        113.67
+      ]
+    },
+    {
+      "complexId": "cx_59170beeb411f1be",
+      "aptNameNorm": "상계주공13(고층)",
+      "aptName": "상계주공13(고층)",
+      "lawdCd": "11350",
+      "tradeTxCount": 501,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        41.3,
+        45.55,
+        45.9,
+        49.94,
+        58.01
+      ]
+    },
+    {
+      "complexId": "cx_9a6eb88c55195676",
+      "aptNameNorm": "명일지에스아파트",
+      "aptName": "명일지에스아파트",
+      "lawdCd": "11740",
+      "tradeTxCount": 499,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.4,
+        59.79,
+        84.9,
+        84.96
+      ]
+    },
+    {
+      "complexId": "cx_db4d256433505d29",
+      "aptNameNorm": "주공3",
+      "aptName": "주공3",
+      "lawdCd": "11500",
+      "tradeTxCount": 498,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        37.67,
+        58.14
+      ]
+    },
+    {
+      "complexId": "cx_67194b0815c1e083",
+      "aptNameNorm": "목동신시가지12",
+      "aptName": "목동신시가지12",
+      "lawdCd": "11470",
+      "tradeTxCount": 495,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        49.14,
+        53.46,
+        56.76,
+        60,
+        64.65,
+        66.78,
+        71.64,
+        72.75
+      ]
+    },
+    {
+      "complexId": "cx_83771b1cf3a21912",
+      "aptNameNorm": "길음뉴타운9단지(래미안)",
+      "aptName": "길음뉴타운9단지(래미안)",
+      "lawdCd": "11290",
+      "tradeTxCount": 493,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.92,
+        59.96,
+        59.98,
+        84.78,
+        84.95,
+        84.96,
+        114.86,
+        114.91,
+        134.99
+      ]
+    },
+    {
+      "complexId": "cx_70ed3c6d42282563",
+      "aptNameNorm": "목동신시가지1",
+      "aptName": "목동신시가지1",
+      "lawdCd": "11470",
+      "tradeTxCount": 492,
+      "canonicalAreaCount": 16,
+      "areaKeys": [
+        47.52,
+        51.48,
+        65.34,
+        65.43,
+        66,
+        83.23,
+        88.5,
+        90.06,
+        91.26,
+        96.9,
+        98.08,
+        99.15,
+        116.29,
+        123.19,
+        125.44,
+        154.44
+      ]
+    },
+    {
+      "complexId": "cx_a5542c9c8c29db05",
+      "aptNameNorm": "홍제한양",
+      "aptName": "홍제한양",
+      "lawdCd": "11410",
+      "tradeTxCount": 490,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        60.06,
+        84.77,
+        120.14
+      ]
+    },
+    {
+      "complexId": "cx_2f403b46f33a6425",
+      "aptNameNorm": "왕십리풍림아이원",
+      "aptName": "왕십리풍림아이원",
+      "lawdCd": "11200",
+      "tradeTxCount": 489,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.94,
+        84.42,
+        114.93
+      ]
+    },
+    {
+      "complexId": "cx_7ff576d88ab52b37",
+      "aptNameNorm": "삼성래미안",
+      "aptName": "삼성래미안",
+      "lawdCd": "11320",
+      "tradeTxCount": 489,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        66.48,
+        66.54,
+        73.77,
+        73.92,
+        84.75,
+        84.87
+      ]
+    },
+    {
+      "complexId": "cx_a8551c1e1c08338d",
+      "aptNameNorm": "마곡13단지힐스테이트마스터",
+      "aptName": "마곡13단지힐스테이트마스터",
+      "lawdCd": "11500",
+      "tradeTxCount": 488,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.98,
+        59.99,
+        84.98,
+        84.99
+      ]
+    },
+    {
+      "complexId": "cx_6913a839aa07a1d5",
+      "aptNameNorm": "텐즈힐(2단지)",
+      "aptName": "텐즈힐(2단지)",
+      "lawdCd": "11200",
+      "tradeTxCount": 487,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        55.2,
+        59.96,
+        59.98,
+        84.9,
+        84.92,
+        84.93,
+        84.95,
+        125.6,
+        127.44,
+        157.29
+      ]
+    },
+    {
+      "complexId": "cx_f6a1401f4e80baae",
+      "aptNameNorm": "우성",
+      "aptName": "우성",
+      "lawdCd": "11440",
+      "tradeTxCount": 483,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        54.72,
+        68.94,
+        79.97,
+        111.73,
+        128.32,
+        141.51
+      ]
+    },
+    {
+      "complexId": "cx_5bc22b4e22133b01",
+      "aptNameNorm": "현대파크빌",
+      "aptName": "현대파크빌",
+      "lawdCd": "11215",
+      "tradeTxCount": 481,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.55,
+        59.76,
+        59.94,
+        84.51,
+        84.81
+      ]
+    },
+    {
+      "complexId": "cx_5fa71177c63cf208",
+      "aptNameNorm": "서울숲푸르지오",
+      "aptName": "서울숲푸르지오",
+      "lawdCd": "11200",
+      "tradeTxCount": 479,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.39,
+        59.9,
+        59.99,
+        84.55,
+        84.6,
+        84.87,
+        106.06,
+        114.55,
+        114.8
+      ]
+    },
+    {
+      "complexId": "cx_c249fef8087cc043",
+      "aptNameNorm": "답십리청솔우성",
+      "aptName": "답십리청솔우성",
+      "lawdCd": "11230",
+      "tradeTxCount": 479,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.74,
+        59.89,
+        84.94,
+        114.76
+      ]
+    },
+    {
+      "complexId": "cx_44b1e27eac52a403",
+      "aptNameNorm": "가락금호아파트",
+      "aptName": "가락금호아파트",
+      "lawdCd": "11710",
+      "tradeTxCount": 478,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.66,
+        59.91,
+        84.85,
+        85
+      ]
+    },
+    {
+      "complexId": "cx_5e357943deed5fd4",
+      "aptNameNorm": "래미안세레니티",
+      "aptName": "래미안세레니티",
+      "lawdCd": "11290",
+      "tradeTxCount": 478,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        59.92,
+        59.97,
+        84.92,
+        84.98,
+        84.99,
+        114.99
+      ]
+    },
+    {
+      "complexId": "cx_3a03eeb497a002b7",
+      "aptNameNorm": "삼풍아파트",
+      "aptName": "삼풍아파트",
+      "lawdCd": "11650",
+      "tradeTxCount": 477,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        79.47,
+        130.23,
+        130.73,
+        163.81,
+        165.36,
+        165.92
+      ]
+    },
+    {
+      "complexId": "cx_fba90c19d1b66a51",
+      "aptNameNorm": "홍제원현대(459-0)",
+      "aptName": "홍제원현대(459-0)",
+      "lawdCd": "11410",
+      "tradeTxCount": 473,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.93,
+        84.9,
+        114.72
+      ]
+    },
+    {
+      "complexId": "cx_6688c94546d9e495",
+      "aptNameNorm": "구의현대2단지",
+      "aptName": "구의현대2단지",
+      "lawdCd": "11215",
+      "tradeTxCount": 470,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        84.75,
+        84.86,
+        84.88,
+        84.91
+      ]
+    },
+    {
+      "complexId": "cx_9fe6015a05df16f0",
+      "aptNameNorm": "꿈의숲푸르지오",
+      "aptName": "꿈의숲푸르지오",
+      "lawdCd": "11290",
+      "tradeTxCount": 467,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.65,
+        84.73,
+        114.61
+      ]
+    },
+    {
+      "complexId": "cx_bd8464479cee97b4",
+      "aptNameNorm": "금천롯데캐슬골드파크1차",
+      "aptName": "금천롯데캐슬골드파크1차",
+      "lawdCd": "11545",
+      "tradeTxCount": 466,
+      "canonicalAreaCount": 13,
+      "areaKeys": [
+        59.94,
+        59.99,
+        71.39,
+        72.52,
+        84.4,
+        84.42,
+        84.44,
+        84.46,
+        84.47,
+        84.81,
+        101.81,
+        101.82,
+        101.83
+      ]
+    },
+    {
+      "complexId": "cx_7259d23d46994dea",
+      "aptNameNorm": "삼선푸르지오",
+      "aptName": "삼선푸르지오",
+      "lawdCd": "11290",
+      "tradeTxCount": 463,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.95,
+        84.53,
+        84.82,
+        84.83,
+        84.84,
+        84.88,
+        114.65
+      ]
+    },
+    {
+      "complexId": "cx_764652ad39a48270",
+      "aptNameNorm": "길음뉴타운경남아너스빌",
+      "aptName": "길음뉴타운경남아너스빌",
+      "lawdCd": "11290",
+      "tradeTxCount": 462,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        45.77,
+        50.45,
+        59.59,
+        84.87,
+        84.88,
+        114.63
+      ]
+    },
+    {
+      "complexId": "cx_93af75a591dcd6df",
+      "aptNameNorm": "장안힐스테이트",
+      "aptName": "장안힐스테이트",
+      "lawdCd": "11230",
+      "tradeTxCount": 461,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.54,
+        59.89,
+        59.93,
+        84.57,
+        84.79,
+        84.85,
+        84.9,
+        114.96,
+        133.28
+      ]
+    },
+    {
+      "complexId": "cx_004c0f19728c5c7c",
+      "aptNameNorm": "쌍용",
+      "aptName": "쌍용",
+      "lawdCd": "11320",
+      "tradeTxCount": 459,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.88,
+        84.76,
+        135
+      ]
+    },
+    {
+      "complexId": "cx_4372ad7456a4d3ea",
+      "aptNameNorm": "독산주공14단지",
+      "aptName": "독산주공14단지",
+      "lawdCd": "11545",
+      "tradeTxCount": 459,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        38.64,
+        44.89,
+        44.94,
+        59.22,
+        76.51,
+        84.79
+      ]
+    },
+    {
+      "complexId": "cx_7e94885154fa8f37",
+      "aptNameNorm": "고덕아이파크",
+      "aptName": "고덕아이파크",
+      "lawdCd": "11740",
+      "tradeTxCount": 459,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.99,
+        84.98,
+        114.98,
+        115.45,
+        145,
+        145.22,
+        177.99
+      ]
+    },
+    {
+      "complexId": "cx_4448efbe93cd2e4f",
+      "aptNameNorm": "정릉e-편한세상",
+      "aptName": "정릉e-편한세상",
+      "lawdCd": "11290",
+      "tradeTxCount": 458,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.77,
+        85,
+        114.56
+      ]
+    },
+    {
+      "complexId": "cx_adb7193c5c99abd6",
+      "aptNameNorm": "래미안대치팰리스",
+      "aptName": "래미안대치팰리스",
+      "lawdCd": "11680",
+      "tradeTxCount": 456,
+      "canonicalAreaCount": 19,
+      "areaKeys": [
+        59.99,
+        69.04,
+        84.97,
+        84.98,
+        84.99,
+        91.55,
+        91.89,
+        91.91,
+        91.93,
+        93.18,
+        94.48,
+        94.49,
+        94.5,
+        94.51,
+        114.14,
+        114.15,
+        114.17,
+        151.27,
+        151.31
+      ]
+    },
+    {
+      "complexId": "cx_8a00b02b031e2198",
+      "aptNameNorm": "우성1차",
+      "aptName": "우성1차",
+      "lawdCd": "11590",
+      "tradeTxCount": 453,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        66.69,
+        84.99,
+        126.16,
+        127.02,
+        157.07
+      ]
+    },
+    {
+      "complexId": "cx_f1104af06fb68ecb",
+      "aptNameNorm": "래미안송파파인탑",
+      "aptName": "래미안송파파인탑",
+      "lawdCd": "11710",
+      "tradeTxCount": 453,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        53.36,
+        53.59,
+        64.66,
+        64.99,
+        71.58,
+        71.73,
+        71.76,
+        87.01,
+        87.05
+      ]
+    },
+    {
+      "complexId": "cx_00061802cdff3cdc",
+      "aptNameNorm": "힐스테이트상도프레스티지",
+      "aptName": "힐스테이트상도프레스티지",
+      "lawdCd": "11590",
+      "tradeTxCount": 452,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.93,
+        84.88,
+        84.92,
+        84.95,
+        120,
+        120.49,
+        120.57,
+        120.94
+      ]
+    },
+    {
+      "complexId": "cx_305aa54e3abfe285",
+      "aptNameNorm": "극동",
+      "aptName": "극동",
+      "lawdCd": "11200",
+      "tradeTxCount": 452,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        57.78,
+        68.58,
+        84.74,
+        142.26,
+        148.23
+      ]
+    },
+    {
+      "complexId": "cx_8e24e909a7ea375c",
+      "aptNameNorm": "아남1",
+      "aptName": "아남1",
+      "lawdCd": "11740",
+      "tradeTxCount": 451,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        50.2,
+        71.2,
+        78.3,
+        84.91
+      ]
+    },
+    {
+      "complexId": "cx_a802a84cd463a14b",
+      "aptNameNorm": "대상타운현대아파트",
+      "aptName": "대상타운현대아파트",
+      "lawdCd": "11320",
+      "tradeTxCount": 451,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        60,
+        84.78,
+        101.4,
+        101.48,
+        133.97,
+        164.15
+      ]
+    },
+    {
+      "complexId": "cx_c940ed4cac4cfa1d",
+      "aptNameNorm": "길음뉴타운6단지(래미안)",
+      "aptName": "길음뉴타운6단지(래미안)",
+      "lawdCd": "11290",
+      "tradeTxCount": 450,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.37,
+        84.05,
+        113.23
+      ]
+    },
+    {
+      "complexId": "cx_7c8457f38b822667",
+      "aptNameNorm": "목동힐스테이트",
+      "aptName": "목동힐스테이트",
+      "lawdCd": "11470",
+      "tradeTxCount": 447,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.87,
+        59.95,
+        84.88,
+        84.93,
+        84.98,
+        100.84,
+        113.62,
+        113.68,
+        155.77
+      ]
+    },
+    {
+      "complexId": "cx_bb6df0580ccfc741",
+      "aptNameNorm": "주공1",
+      "aptName": "주공1",
+      "lawdCd": "11530",
+      "tradeTxCount": 447,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        73.08,
+        73.68,
+        83.81,
+        83.87,
+        84.17,
+        84.87
+      ]
+    },
+    {
+      "complexId": "cx_6e0a719cea1bbd89",
+      "aptNameNorm": "목동신시가지5",
+      "aptName": "목동신시가지5",
+      "lawdCd": "11470",
+      "tradeTxCount": 441,
+      "canonicalAreaCount": 17,
+      "areaKeys": [
+        65.08,
+        81.64,
+        83.47,
+        93.18,
+        93.24,
+        95.01,
+        95.06,
+        95.21,
+        95.22,
+        95.27,
+        95.28,
+        115.47,
+        120.43,
+        122.46,
+        142.51,
+        143.36,
+        152.85
+      ]
+    },
+    {
+      "complexId": "cx_2c22a0aaccf0910c",
+      "aptNameNorm": "동성1",
+      "aptName": "동성1",
+      "lawdCd": "11260",
+      "tradeTxCount": 439,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.4,
+        65.56,
+        84.08,
+        84.98,
+        125.48
+      ]
+    },
+    {
+      "complexId": "cx_01c0dbf7da85cc41",
+      "aptNameNorm": "창신쌍용2",
+      "aptName": "창신쌍용2",
+      "lawdCd": "11110",
+      "tradeTxCount": 438,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        54.7,
+        64.66,
+        79.87,
+        106.62,
+        115.53
+      ]
+    },
+    {
+      "complexId": "cx_8f384687cf73e32f",
+      "aptNameNorm": "월곡래미안루나밸리",
+      "aptName": "월곡래미안루나밸리",
+      "lawdCd": "11290",
+      "tradeTxCount": 438,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.98,
+        84.88,
+        114.93
+      ]
+    },
+    {
+      "complexId": "cx_39c64fbe8fef75e3",
+      "aptNameNorm": "우장산롯데캐슬",
+      "aptName": "우장산롯데캐슬",
+      "lawdCd": "11500",
+      "tradeTxCount": 437,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        85,
+        117.19,
+        134.99,
+        177.86
+      ]
+    },
+    {
+      "complexId": "cx_a5ad6f9d2f65a272",
+      "aptNameNorm": "래미안강동팰리스",
+      "aptName": "래미안강동팰리스",
+      "lawdCd": "11740",
+      "tradeTxCount": 436,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.98,
+        84.97,
+        151.84,
+        155.47
+      ]
+    },
+    {
+      "complexId": "cx_f0ef35b39991b1c9",
+      "aptNameNorm": "길동우성",
+      "aptName": "길동우성",
+      "lawdCd": "11740",
+      "tradeTxCount": 436,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        40.36,
+        57.1,
+        84.75
+      ]
+    },
+    {
+      "complexId": "cx_11793fec6aea2f6b",
+      "aptNameNorm": "흑석한강푸르지오",
+      "aptName": "흑석한강푸르지오",
+      "lawdCd": "11590",
+      "tradeTxCount": 432,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.84,
+        84.79,
+        84.91,
+        84.98,
+        115.84,
+        115.95,
+        115.98,
+        127.52
+      ]
+    },
+    {
+      "complexId": "cx_d2e2226d02767684",
+      "aptNameNorm": "리버힐삼성",
+      "aptName": "리버힐삼성",
+      "lawdCd": "11170",
+      "tradeTxCount": 431,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.55,
+        59.98,
+        84.98,
+        114.48
+      ]
+    },
+    {
+      "complexId": "cx_f48d9f803e3d8934",
+      "aptNameNorm": "대우",
+      "aptName": "대우",
+      "lawdCd": "11320",
+      "tradeTxCount": 431,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.71,
+        59.86,
+        84.88
+      ]
+    },
+    {
+      "complexId": "cx_286685122695912f",
+      "aptNameNorm": "고덕롯데캐슬베네루체",
+      "aptName": "고덕롯데캐슬베네루체",
+      "lawdCd": "11740",
+      "tradeTxCount": 430,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.98,
+        84.15,
+        84.92,
+        122.08
+      ]
+    },
+    {
+      "complexId": "cx_c238a46a68f59d86",
+      "aptNameNorm": "양평현대6차",
+      "aptName": "양평현대6차",
+      "lawdCd": "11560",
+      "tradeTxCount": 430,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.98,
+        84.92,
+        84.94
+      ]
+    },
+    {
+      "complexId": "cx_96017b5a1aabedaa",
+      "aptNameNorm": "구로두산위브",
+      "aptName": "구로두산위브",
+      "lawdCd": "11530",
+      "tradeTxCount": 428,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        36.88,
+        50.14,
+        57.1,
+        83.39
+      ]
+    },
+    {
+      "complexId": "cx_e7c14327fcdbfe91",
+      "aptNameNorm": "구일우성",
+      "aptName": "구일우성",
+      "lawdCd": "11530",
+      "tradeTxCount": 428,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.44,
+        84.49,
+        114.47
+      ]
+    },
+    {
+      "complexId": "cx_ff39381372ae33df",
+      "aptNameNorm": "동부골든",
+      "aptName": "동부골든",
+      "lawdCd": "11530",
+      "tradeTxCount": 425,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.94,
+        71.06,
+        84.96,
+        105.21,
+        113.43
+      ]
+    },
+    {
+      "complexId": "cx_d1750063c9fe14a0",
+      "aptNameNorm": "타워팰리스1",
+      "aptName": "타워팰리스1",
+      "lawdCd": "11680",
+      "tradeTxCount": 424,
+      "canonicalAreaCount": 12,
+      "areaKeys": [
+        78.99,
+        84.15,
+        84.16,
+        120.78,
+        121.42,
+        137.24,
+        164.95,
+        164.97,
+        174.67,
+        222.48,
+        244.66,
+        301.47
+      ]
+    },
+    {
+      "complexId": "cx_2c20b50f2c7a8ba1",
+      "aptNameNorm": "목동신시가지4",
+      "aptName": "목동신시가지4",
+      "lawdCd": "11470",
+      "tradeTxCount": 422,
+      "canonicalAreaCount": 15,
+      "areaKeys": [
+        47.25,
+        48.69,
+        65.34,
+        65.52,
+        67.58,
+        93.02,
+        94.86,
+        95.27,
+        95.34,
+        95.67,
+        96.36,
+        108.06,
+        115.65,
+        122.91,
+        142.2
+      ]
+    },
+    {
+      "complexId": "cx_2f1129bf2302fad4",
+      "aptNameNorm": "문래자이",
+      "aptName": "문래자이",
+      "lawdCd": "11560",
+      "tradeTxCount": 422,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        84.98,
+        121.53,
+        147.34
+      ]
+    },
+    {
+      "complexId": "cx_fd0372a95d34d9d7",
+      "aptNameNorm": "래미안파크팰리스",
+      "aptName": "래미안파크팰리스",
+      "lawdCd": "11710",
+      "tradeTxCount": 422,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.97,
+        84.89,
+        84.92,
+        84.94,
+        114.76
+      ]
+    },
+    {
+      "complexId": "cx_496be5b8281790e3",
+      "aptNameNorm": "목동신시가지2",
+      "aptName": "목동신시가지2",
+      "lawdCd": "11470",
+      "tradeTxCount": 421,
+      "canonicalAreaCount": 16,
+      "areaKeys": [
+        65.25,
+        65.82,
+        83.52,
+        95.22,
+        95.4,
+        95.6,
+        95.67,
+        95.76,
+        97.92,
+        116.82,
+        116.84,
+        120.06,
+        122.31,
+        138.69,
+        144,
+        152.64
+      ]
+    },
+    {
+      "complexId": "cx_2de71f20df8d389d",
+      "aptNameNorm": "동아1",
+      "aptName": "동아1",
+      "lawdCd": "11530",
+      "tradeTxCount": 419,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.98,
+        84.91,
+        148.3,
+        169.2
+      ]
+    },
+    {
+      "complexId": "cx_c65344adf60979de",
+      "aptNameNorm": "동아",
+      "aptName": "동아",
+      "lawdCd": "11500",
+      "tradeTxCount": 419,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.97,
+        84.91,
+        84.95,
+        114.84
+      ]
+    },
+    {
+      "complexId": "cx_145ff7c33b9cbe3f",
+      "aptNameNorm": "흑석한강센트레빌ⅱ",
+      "aptName": "흑석한강센트레빌ⅱ",
+      "lawdCd": "11590",
+      "tradeTxCount": 417,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.95,
+        59.97,
+        84.95,
+        84.97,
+        84.98,
+        84.99,
+        119.73,
+        119.74,
+        146.49
+      ]
+    },
+    {
+      "complexId": "cx_e8ce66cee970b98a",
+      "aptNameNorm": "주공2",
+      "aptName": "주공2",
+      "lawdCd": "11530",
+      "tradeTxCount": 416,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        32.39,
+        41.3,
+        47.34,
+        49.94,
+        54.54,
+        54.9,
+        64.62
+      ]
+    },
+    {
+      "complexId": "cx_18bdeeff7d4408fd",
+      "aptNameNorm": "목동신시가지8",
+      "aptName": "목동신시가지8",
+      "lawdCd": "11470",
+      "tradeTxCount": 414,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        54.94,
+        71.77,
+        92.9,
+        105.35
+      ]
+    },
+    {
+      "complexId": "cx_d0badd21400b9399",
+      "aptNameNorm": "삼호4",
+      "aptName": "삼호4",
+      "lawdCd": "11350",
+      "tradeTxCount": 414,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        50.18,
+        59.49
+      ]
+    },
+    {
+      "complexId": "cx_b8ef6775fc1a2361",
+      "aptNameNorm": "래미안허브리츠",
+      "aptName": "래미안허브리츠",
+      "lawdCd": "11230",
+      "tradeTxCount": 413,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.9,
+        59.96,
+        59.98,
+        84.96,
+        84.97,
+        114.96,
+        114.98
+      ]
+    },
+    {
+      "complexId": "cx_6cfa07762c2463b1",
+      "aptNameNorm": "사슴3",
+      "aptName": "사슴3",
+      "lawdCd": "11350",
+      "tradeTxCount": 412,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        33.18,
+        39.6,
+        49.5
+      ]
+    },
+    {
+      "complexId": "cx_c65d8de1fb7b3f7f",
+      "aptNameNorm": "창동주공18단지",
+      "aptName": "창동주공18단지",
+      "lawdCd": "11320",
+      "tradeTxCount": 412,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        32.34,
+        41.34,
+        45.55,
+        45.77,
+        45.9,
+        59.39,
+        62.17,
+        71.89,
+        84.41
+      ]
+    },
+    {
+      "complexId": "cx_641416be38ddc2a7",
+      "aptNameNorm": "이편한세상금호파크힐스",
+      "aptName": "이편한세상금호파크힐스",
+      "lawdCd": "11200",
+      "tradeTxCount": 411,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.95,
+        59.96,
+        59.98,
+        84.93,
+        84.96,
+        84.98,
+        116.13,
+        124.63
+      ]
+    },
+    {
+      "complexId": "cx_b3781971263f09eb",
+      "aptNameNorm": "삼환",
+      "aptName": "삼환",
+      "lawdCd": "11530",
+      "tradeTxCount": 411,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.4,
+        84.95,
+        114.48
+      ]
+    },
+    {
+      "complexId": "cx_60d10049eaaeb05a",
+      "aptNameNorm": "백련산힐스테이트3차",
+      "aptName": "백련산힐스테이트3차",
+      "lawdCd": "11380",
+      "tradeTxCount": 410,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.63,
+        59.87,
+        84.32,
+        84.43,
+        84.59,
+        114.34,
+        114.65,
+        114.71,
+        114.9
+      ]
+    },
+    {
+      "complexId": "cx_e19a2d11725355b6",
+      "aptNameNorm": "정릉우성아파트101~105동",
+      "aptName": "정릉우성아파트101~105동",
+      "lawdCd": "11290",
+      "tradeTxCount": 410,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        46.65,
+        59.67,
+        59.97,
+        84.96,
+        84.99,
+        114.97
+      ]
+    },
+    {
+      "complexId": "cx_eb5521582ec80f7c",
+      "aptNameNorm": "성원",
+      "aptName": "성원",
+      "lawdCd": "11260",
+      "tradeTxCount": 410,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        84.32,
+        84.4,
+        84.91
+      ]
+    },
+    {
+      "complexId": "cx_60caf2936960be62",
+      "aptNameNorm": "신촌럭키",
+      "aptName": "신촌럭키",
+      "lawdCd": "11410",
+      "tradeTxCount": 407,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.7,
+        83.38,
+        121.6
+      ]
+    },
+    {
+      "complexId": "cx_4f40a852bbeeb091",
+      "aptNameNorm": "롯데캐슬위너",
+      "aptName": "롯데캐슬위너",
+      "lawdCd": "11470",
+      "tradeTxCount": 405,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        59.98,
+        84.94,
+        84.97,
+        84.98,
+        84.99,
+        114.75,
+        127.65,
+        135.85,
+        145.74,
+        156.25
+      ]
+    },
+    {
+      "complexId": "cx_90eeae4864ac114a",
+      "aptNameNorm": "래미안길음센터피스",
+      "aptName": "래미안길음센터피스",
+      "lawdCd": "11290",
+      "tradeTxCount": 403,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        59.69,
+        59.9,
+        59.97,
+        59.99,
+        84.66,
+        84.9,
+        84.95,
+        84.98,
+        84.99,
+        109.98
+      ]
+    },
+    {
+      "complexId": "cx_c3e83f00db106b7a",
+      "aptNameNorm": "청구아파트",
+      "aptName": "청구아파트",
+      "lawdCd": "11320",
+      "tradeTxCount": 403,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        70.69,
+        72.21,
+        84.9,
+        84.97
+      ]
+    },
+    {
+      "complexId": "cx_36e664a5d354c731",
+      "aptNameNorm": "래미안하이베르",
+      "aptName": "래미안하이베르",
+      "lawdCd": "11140",
+      "tradeTxCount": 402,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.74,
+        59.95,
+        59.98,
+        84.85,
+        84.97,
+        84.98,
+        117
+      ]
+    },
+    {
+      "complexId": "cx_1cc19edab11d4dd7",
+      "aptNameNorm": "목동신시가지3",
+      "aptName": "목동신시가지3",
+      "lawdCd": "11470",
+      "tradeTxCount": 401,
+      "canonicalAreaCount": 11,
+      "areaKeys": [
+        64.98,
+        82.43,
+        95.03,
+        95.16,
+        95.61,
+        95.74,
+        116.12,
+        122.35,
+        140.98,
+        145.13,
+        153.58
+      ]
+    },
+    {
+      "complexId": "cx_aa25c2cd7facc243",
+      "aptNameNorm": "등촌1,2단지주공아파트",
+      "aptName": "등촌1,2단지주공아파트",
+      "lawdCd": "11500",
+      "tradeTxCount": 400,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        41.16,
+        41.66,
+        41.85,
+        49.94
+      ]
+    },
+    {
+      "complexId": "cx_5e967293490c8785",
+      "aptNameNorm": "상아2차아파트",
+      "aptName": "상아2차아파트",
+      "lawdCd": "11710",
+      "tradeTxCount": 399,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        45.77,
+        50.72,
+        60,
+        84.98
+      ]
+    },
+    {
+      "complexId": "cx_7d3e992057aab450",
+      "aptNameNorm": "염광",
+      "aptName": "염광",
+      "lawdCd": "11350",
+      "tradeTxCount": 397,
+      "canonicalAreaCount": 10,
+      "areaKeys": [
+        59.34,
+        84.31,
+        84.5,
+        84.6,
+        84.78,
+        123.41,
+        131.25,
+        132.01,
+        132.2,
+        132.21
+      ]
+    },
+    {
+      "complexId": "cx_bb70cc79bdf3ec20",
+      "aptNameNorm": "마곡수명산파크4단지",
+      "aptName": "마곡수명산파크4단지",
+      "lawdCd": "11500",
+      "tradeTxCount": 397,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.84,
+        84.53,
+        84.76,
+        84.96
+      ]
+    },
+    {
+      "complexId": "cx_bfe005412ed9afcc",
+      "aptNameNorm": "롯데낙천대",
+      "aptName": "롯데낙천대",
+      "lawdCd": "11590",
+      "tradeTxCount": 395,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        55.46,
+        77.74,
+        80.02,
+        80.12,
+        80.17,
+        80.24,
+        108.48
+      ]
+    },
+    {
+      "complexId": "cx_f2a713b13c4946be",
+      "aptNameNorm": "목동신시가지6",
+      "aptName": "목동신시가지6",
+      "lawdCd": "11470",
+      "tradeTxCount": 395,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        47.94,
+        65.1,
+        95.03,
+        115.19,
+        142.39
+      ]
+    },
+    {
+      "complexId": "cx_f9468bf0429b8151",
+      "aptNameNorm": "서초힐스",
+      "aptName": "서초힐스",
+      "lawdCd": "11650",
+      "tradeTxCount": 395,
+      "canonicalAreaCount": 11,
+      "areaKeys": [
+        59.89,
+        59.91,
+        59.97,
+        74.95,
+        74.96,
+        74.97,
+        84.93,
+        84.95,
+        84.96,
+        84.97,
+        84.98
+      ]
+    },
+    {
+      "complexId": "cx_7fc957faf395acdf",
+      "aptNameNorm": "반포리체",
+      "aptName": "반포리체",
+      "lawdCd": "11650",
+      "tradeTxCount": 393,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.99,
+        84.97,
+        106.15,
+        138.26,
+        138.73
+      ]
+    },
+    {
+      "complexId": "cx_85066296693b771d",
+      "aptNameNorm": "우성아파트",
+      "aptName": "우성아파트",
+      "lawdCd": "11710",
+      "tradeTxCount": 392,
+      "canonicalAreaCount": 13,
+      "areaKeys": [
+        80.35,
+        80.39,
+        80.76,
+        80.78,
+        82.06,
+        82.56,
+        84.96,
+        96.04,
+        96.05,
+        96.65,
+        131.08,
+        136.34,
+        160.74
+      ]
+    },
+    {
+      "complexId": "cx_50f1917baa4ed611",
+      "aptNameNorm": "강변래미안",
+      "aptName": "강변래미안",
+      "lawdCd": "11560",
+      "tradeTxCount": 390,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        55.91,
+        78.9,
+        79.05,
+        79.43,
+        108.15
+      ]
+    },
+    {
+      "complexId": "cx_816aa3d44ca161e0",
+      "aptNameNorm": "문화촌현대",
+      "aptName": "문화촌현대",
+      "lawdCd": "11410",
+      "tradeTxCount": 390,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        59.94,
+        84.99
+      ]
+    },
+    {
+      "complexId": "cx_d9c614171f6600c4",
+      "aptNameNorm": "비선아파트",
+      "aptName": "비선아파트",
+      "lawdCd": "11350",
+      "tradeTxCount": 390,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        48.6,
+        48.93,
+        49.28,
+        59.74,
+        59.87,
+        59.97
+      ]
+    },
+    {
+      "complexId": "cx_f11d23f4301427c5",
+      "aptNameNorm": "아크로타워스퀘어",
+      "aptName": "아크로타워스퀘어",
+      "lawdCd": "11560",
+      "tradeTxCount": 390,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.7,
+        59.91,
+        71.98,
+        84.65,
+        84.69,
+        84.71,
+        84.75,
+        115.58
+      ]
+    },
+    {
+      "complexId": "cx_27dca36e4a495927",
+      "aptNameNorm": "한화오벨리스크",
+      "aptName": "한화오벨리스크",
+      "lawdCd": "11440",
+      "tradeTxCount": 389,
+      "canonicalAreaCount": 15,
+      "areaKeys": [
+        36.49,
+        36.96,
+        38.08,
+        38.88,
+        39.91,
+        41.32,
+        49.87,
+        59,
+        75.7,
+        75.72,
+        79.9,
+        82.14,
+        85,
+        122.64,
+        126.12
+      ]
+    },
+    {
+      "complexId": "cx_2c2311555140b149",
+      "aptNameNorm": "신반포2",
+      "aptName": "신반포2",
+      "lawdCd": "11650",
+      "tradeTxCount": 387,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        68.91,
+        79.42,
+        92.2,
+        93.71,
+        107.31,
+        135.97,
+        137.66,
+        150.58
+      ]
+    },
+    {
+      "complexId": "cx_8d6c9a6e8c3d3978",
+      "aptNameNorm": "래미안영등포프레비뉴",
+      "aptName": "래미안영등포프레비뉴",
+      "lawdCd": "11560",
+      "tradeTxCount": 387,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.99,
+        84.98,
+        114.99
+      ]
+    },
+    {
+      "complexId": "cx_d51af645391192a3",
+      "aptNameNorm": "송파삼성래미안아파트",
+      "aptName": "송파삼성래미안아파트",
+      "lawdCd": "11710",
+      "tradeTxCount": 387,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        79.62,
+        79.7,
+        87.98,
+        105.99,
+        126.4,
+        148.11,
+        148.19
+      ]
+    },
+    {
+      "complexId": "cx_8af534cf62d0673e",
+      "aptNameNorm": "우성",
+      "aptName": "우성",
+      "lawdCd": "11590",
+      "tradeTxCount": 385,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.82,
+        84.84,
+        84.96,
+        124.77
+      ]
+    },
+    {
+      "complexId": "cx_817585928d2c8e5d",
+      "aptNameNorm": "삼익포레스트아파트",
+      "aptName": "삼익포레스트아파트",
+      "lawdCd": "11350",
+      "tradeTxCount": 384,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        51.03,
+        84.6,
+        114.85,
+        114.88
+      ]
+    },
+    {
+      "complexId": "cx_512f2ffd6402e96f",
+      "aptNameNorm": "한신아파트",
+      "aptName": "한신아파트",
+      "lawdCd": "11545",
+      "tradeTxCount": 382,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        89.46,
+        129.66
+      ]
+    },
+    {
+      "complexId": "cx_64372c056c7f6b49",
+      "aptNameNorm": "서초더샵포레",
+      "aptName": "서초더샵포레",
+      "lawdCd": "11650",
+      "tradeTxCount": 382,
+      "canonicalAreaCount": 16,
+      "areaKeys": [
+        59.69,
+        59.94,
+        84.3,
+        84.41,
+        84.6,
+        84.61,
+        84.81,
+        84.93,
+        101.31,
+        101.34,
+        101.78,
+        101.85,
+        101.95,
+        114.62,
+        114.68,
+        114.71
+      ]
+    },
+    {
+      "complexId": "cx_daae81b28d64427b",
+      "aptNameNorm": "래미안장위퍼스트하이",
+      "aptName": "래미안장위퍼스트하이",
+      "lawdCd": "11290",
+      "tradeTxCount": 382,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.99,
+        84.94,
+        84.98,
+        101.72,
+        116.91
+      ]
+    },
+    {
+      "complexId": "cx_b3e48f86671c0de2",
+      "aptNameNorm": "대림(169-8)",
+      "aptName": "대림(169-8)",
+      "lawdCd": "11590",
+      "tradeTxCount": 380,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.67,
+        84.91,
+        125.4
+      ]
+    },
+    {
+      "complexId": "cx_9b535df742beda14",
+      "aptNameNorm": "시영2단지(라이프)아파트",
+      "aptName": "시영2단지(라이프)아파트",
+      "lawdCd": "11350",
+      "tradeTxCount": 379,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        34.44,
+        39.6,
+        49.5
+      ]
+    },
+    {
+      "complexId": "cx_3a3fe7f645ac267f",
+      "aptNameNorm": "상암월드컵파크2단지",
+      "aptName": "상암월드컵파크2단지",
+      "lawdCd": "11440",
+      "tradeTxCount": 378,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        49.8,
+        49.9,
+        59.84,
+        59.92
+      ]
+    },
+    {
+      "complexId": "cx_5d6b38cbeca0466b",
+      "aptNameNorm": "럭키남서울아파트",
+      "aptName": "럭키남서울아파트",
+      "lawdCd": "11545",
+      "tradeTxCount": 378,
+      "canonicalAreaCount": 13,
+      "areaKeys": [
+        41.22,
+        41.23,
+        41.26,
+        49.74,
+        49.75,
+        49.76,
+        49.78,
+        49.79,
+        62.11,
+        62.12,
+        62.15,
+        62.25,
+        66.48
+      ]
+    },
+    {
+      "complexId": "cx_ef2bb50e7c202140",
+      "aptNameNorm": "현대홈타운",
+      "aptName": "현대홈타운",
+      "lawdCd": "11440",
+      "tradeTxCount": 378,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.17,
+        84.95,
+        113.25
+      ]
+    },
+    {
+      "complexId": "cx_4e57a4f2e384805b",
+      "aptNameNorm": "래미안블레스티지",
+      "aptName": "래미안블레스티지",
+      "lawdCd": "11680",
+      "tradeTxCount": 377,
+      "canonicalAreaCount": 17,
+      "areaKeys": [
+        49.91,
+        59.84,
+        59.89,
+        59.9,
+        59.97,
+        84.79,
+        84.94,
+        84.95,
+        99.92,
+        99.97,
+        99.98,
+        99.99,
+        113.73,
+        113.81,
+        113.96,
+        126.93,
+        126.97
+      ]
+    },
+    {
+      "complexId": "cx_8b0c787dc125a94f",
+      "aptNameNorm": "미성",
+      "aptName": "미성",
+      "lawdCd": "11530",
+      "tradeTxCount": 376,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        37.91,
+        52.45,
+        66.03,
+        83.67
+      ]
+    },
+    {
+      "complexId": "cx_dc1f212134b1579c",
+      "aptNameNorm": "청암2단지",
+      "aptName": "청암2단지",
+      "lawdCd": "11350",
+      "tradeTxCount": 376,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        49.77,
+        59.4,
+        59.96
+      ]
+    },
+    {
+      "complexId": "cx_690744a6090bf0db",
+      "aptNameNorm": "신공덕1차삼성래미안1아파트",
+      "aptName": "신공덕1차삼성래미안1아파트",
+      "lawdCd": "11440",
+      "tradeTxCount": 375,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.76,
+        84.9,
+        114.75
+      ]
+    },
+    {
+      "complexId": "cx_bfba5f2436b89af2",
+      "aptNameNorm": "엘지,쌍용아파트",
+      "aptName": "엘지,쌍용아파트",
+      "lawdCd": "11260",
+      "tradeTxCount": 375,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        68.12,
+        84.67
+      ]
+    },
+    {
+      "complexId": "cx_cb153ba117abb117",
+      "aptNameNorm": "역삼래미안",
+      "aptName": "역삼래미안",
+      "lawdCd": "11680",
+      "tradeTxCount": 374,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.4,
+        59.53,
+        59.65,
+        59.73,
+        80.87
+      ]
+    },
+    {
+      "complexId": "cx_361d791fc8270d2f",
+      "aptNameNorm": "이수힐스테이트",
+      "aptName": "이수힐스테이트",
+      "lawdCd": "11590",
+      "tradeTxCount": 370,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.94,
+        60,
+        84.97,
+        84.98,
+        108.34,
+        133.39,
+        141.16,
+        147.35
+      ]
+    },
+    {
+      "complexId": "cx_81fa540f3fb53c25",
+      "aptNameNorm": "인왕산아이파크",
+      "aptName": "인왕산아이파크",
+      "lawdCd": "11110",
+      "tradeTxCount": 370,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.99,
+        84.86,
+        114.93,
+        157.29
+      ]
+    },
+    {
+      "complexId": "cx_b520fb2a9bd388ca",
+      "aptNameNorm": "독립문삼호",
+      "aptName": "독립문삼호",
+      "lawdCd": "11410",
+      "tradeTxCount": 368,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        75.66,
+        84.78,
+        108.63,
+        114.63
+      ]
+    },
+    {
+      "complexId": "cx_dd9dac8b615bc0d5",
+      "aptNameNorm": "래미안공덕5차",
+      "aptName": "래미안공덕5차",
+      "lawdCd": "11440",
+      "tradeTxCount": 367,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.96,
+        59.97,
+        59.98,
+        84.85,
+        84.86,
+        84.87,
+        113.87
+      ]
+    },
+    {
+      "complexId": "cx_5a7c44c4618a614e",
+      "aptNameNorm": "현대",
+      "aptName": "현대",
+      "lawdCd": "11110",
+      "tradeTxCount": 366,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        60,
+        74.6,
+        84.92,
+        114.9
+      ]
+    },
+    {
+      "complexId": "cx_1becf336ee8d7d1d",
+      "aptNameNorm": "송파파인타운3단지",
+      "aptName": "송파파인타운3단지",
+      "lawdCd": "11710",
+      "tradeTxCount": 365,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        84.93,
+        84.94,
+        84.98
+      ]
+    },
+    {
+      "complexId": "cx_f5404e3998ae7814",
+      "aptNameNorm": "세곡푸르지오",
+      "aptName": "세곡푸르지오",
+      "lawdCd": "11680",
+      "tradeTxCount": 364,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.86,
+        59.89,
+        59.99,
+        74.74,
+        84.83,
+        84.84,
+        84.94,
+        84.95
+      ]
+    },
+    {
+      "complexId": "cx_de8c53f35f16abe0",
+      "aptNameNorm": "사당자이",
+      "aptName": "사당자이",
+      "lawdCd": "11590",
+      "tradeTxCount": 363,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.89,
+        60,
+        84.49,
+        114.94
+      ]
+    },
+    {
+      "complexId": "cx_860980d05b35320d",
+      "aptNameNorm": "학마을1단지",
+      "aptName": "학마을1단지",
+      "lawdCd": "11470",
+      "tradeTxCount": 361,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        49.2,
+        49.98,
+        49.99,
+        59.17,
+        59.98
+      ]
+    },
+    {
+      "complexId": "cx_c86b406830cb02dc",
+      "aptNameNorm": "청구",
+      "aptName": "청구",
+      "lawdCd": "11215",
+      "tradeTxCount": 361,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        59.95,
+        84.86
+      ]
+    },
+    {
+      "complexId": "cx_41e241aa7a213feb",
+      "aptNameNorm": "lig대학마을(건영아파트3차)",
+      "aptName": "lig대학마을(건영아파트3차)",
+      "lawdCd": "11620",
+      "tradeTxCount": 358,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        58.89,
+        58.9,
+        69.16,
+        69.17,
+        84.82
+      ]
+    },
+    {
+      "complexId": "cx_459f67a22bd5aa51",
+      "aptNameNorm": "청계한신휴플러스",
+      "aptName": "청계한신휴플러스",
+      "lawdCd": "11230",
+      "tradeTxCount": 357,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.74,
+        73.96,
+        84.73,
+        90.62,
+        107.75
+      ]
+    },
+    {
+      "complexId": "cx_f052141fcd58a101",
+      "aptNameNorm": "하계2현대",
+      "aptName": "하계2현대",
+      "lawdCd": "11350",
+      "tradeTxCount": 355,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        75.35,
+        84.51,
+        84.9
+      ]
+    },
+    {
+      "complexId": "cx_1312292f2f31557c",
+      "aptNameNorm": "세이지움개봉",
+      "aptName": "세이지움개봉",
+      "lawdCd": "11530",
+      "tradeTxCount": 354,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        18.55,
+        18.89,
+        36.65,
+        39.42
+      ]
+    },
+    {
+      "complexId": "cx_beb4bf81d59d81b4",
+      "aptNameNorm": "인왕산현대",
+      "aptName": "인왕산현대",
+      "lawdCd": "11410",
+      "tradeTxCount": 353,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.93,
+        84.9,
+        114.72
+      ]
+    },
+    {
+      "complexId": "cx_733b787b9884b2d6",
+      "aptNameNorm": "양지마을(대림)2",
+      "aptName": "양지마을(대림)2",
+      "lawdCd": "11350",
+      "tradeTxCount": 352,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.4,
+        84.84,
+        84.88,
+        114.81
+      ]
+    },
+    {
+      "complexId": "cx_b14ce574b17ec95e",
+      "aptNameNorm": "푸른마을아파트101동~111동",
+      "aptName": "푸른마을아파트101동~111동",
+      "lawdCd": "11680",
+      "tradeTxCount": 352,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        59.76,
+        84.93
+      ]
+    },
+    {
+      "complexId": "cx_5a4f70e52507d357",
+      "aptNameNorm": "가양강나루현대",
+      "aptName": "가양강나루현대",
+      "lawdCd": "11500",
+      "tradeTxCount": 351,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        59.76,
+        84.98
+      ]
+    },
+    {
+      "complexId": "cx_64fa5787aa2b386c",
+      "aptNameNorm": "신내11대명",
+      "aptName": "신내11대명",
+      "lawdCd": "11260",
+      "tradeTxCount": 351,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        39.76,
+        49.77,
+        59.76
+      ]
+    },
+    {
+      "complexId": "cx_5d10db9d39f272f2",
+      "aptNameNorm": "경남아너스빌(1356-0)",
+      "aptName": "경남아너스빌(1356-0)",
+      "lawdCd": "11305",
+      "tradeTxCount": 349,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.96,
+        84.87,
+        114.92
+      ]
+    },
+    {
+      "complexId": "cx_041b686d4a0fe569",
+      "aptNameNorm": "현대",
+      "aptName": "현대",
+      "lawdCd": "11140",
+      "tradeTxCount": 348,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        66.6,
+        79.11,
+        83.97,
+        121.14,
+        122.28,
+        139.28
+      ]
+    },
+    {
+      "complexId": "cx_77a4fe42a347a7da",
+      "aptNameNorm": "개봉동현대아이파크",
+      "aptName": "개봉동현대아이파크",
+      "lawdCd": "11530",
+      "tradeTxCount": 348,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.99,
+        84.98,
+        117.74
+      ]
+    },
+    {
+      "complexId": "cx_2e2f48eb187f4ffe",
+      "aptNameNorm": "창동주공1단지",
+      "aptName": "창동주공1단지",
+      "lawdCd": "11320",
+      "tradeTxCount": 347,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        41.3,
+        44.89,
+        45.77,
+        49.94,
+        58.01,
+        59.22,
+        59.39
+      ]
+    },
+    {
+      "complexId": "cx_775851a43fec59d9",
+      "aptNameNorm": "두산",
+      "aptName": "두산",
+      "lawdCd": "11530",
+      "tradeTxCount": 346,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.69,
+        84.96,
+        111.69
+      ]
+    },
+    {
+      "complexId": "cx_ad13982057bf4230",
+      "aptNameNorm": "현대(2-4차)",
+      "aptName": "현대(2-4차)",
+      "lawdCd": "11710",
+      "tradeTxCount": 346,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        84.98,
+        130.93,
+        134.98,
+        170.32
+      ]
+    },
+    {
+      "complexId": "cx_6d61671779402edd",
+      "aptNameNorm": "성원(사슴4)",
+      "aptName": "성원(사슴4)",
+      "lawdCd": "11350",
+      "tradeTxCount": 345,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        39.6,
+        49.92,
+        59.94
+      ]
+    },
+    {
+      "complexId": "cx_0d49270da7602865",
+      "aptNameNorm": "삼성",
+      "aptName": "삼성",
+      "lawdCd": "11440",
+      "tradeTxCount": 343,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        72.19,
+        84.99,
+        114.74,
+        136.1,
+        136.65
+      ]
+    },
+    {
+      "complexId": "cx_363ab1559bf17fa7",
+      "aptNameNorm": "동신",
+      "aptName": "동신",
+      "lawdCd": "11290",
+      "tradeTxCount": 343,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.88,
+        84.78,
+        114.88,
+        114.89
+      ]
+    },
+    {
+      "complexId": "cx_70ca4a3127d4e1a4",
+      "aptNameNorm": "대우",
+      "aptName": "대우",
+      "lawdCd": "11290",
+      "tradeTxCount": 343,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        43.11,
+        59.98,
+        84.83,
+        114.84
+      ]
+    },
+    {
+      "complexId": "cx_4eb6fe90056c9939",
+      "aptNameNorm": "동아3",
+      "aptName": "동아3",
+      "lawdCd": "11530",
+      "tradeTxCount": 342,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        60,
+        84.99,
+        110.3,
+        138.41,
+        164.82
+      ]
+    },
+    {
+      "complexId": "cx_6c49f48131740252",
+      "aptNameNorm": "신동아",
+      "aptName": "신동아",
+      "lawdCd": "11230",
+      "tradeTxCount": 342,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        49.68,
+        58.59,
+        71.01,
+        84.63
+      ]
+    },
+    {
+      "complexId": "cx_8af2fdf660afea45",
+      "aptNameNorm": "거여5단지",
+      "aptName": "거여5단지",
+      "lawdCd": "11710",
+      "tradeTxCount": 342,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.4,
+        59.74,
+        84.17
+      ]
+    },
+    {
+      "complexId": "cx_92e171ea72ab6b5d",
+      "aptNameNorm": "두산",
+      "aptName": "두산",
+      "lawdCd": "11230",
+      "tradeTxCount": 342,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.95,
+        59.96,
+        84.83,
+        114.97
+      ]
+    },
+    {
+      "complexId": "cx_9c1ee3cf5a692632",
+      "aptNameNorm": "한강현대",
+      "aptName": "한강현대",
+      "lawdCd": "11590",
+      "tradeTxCount": 342,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        66.22,
+        83.48,
+        114.44,
+        115.35,
+        131.06,
+        131.4
+      ]
+    },
+    {
+      "complexId": "cx_b6f3c1c36e962e45",
+      "aptNameNorm": "북한산힐스테이트1차아파트",
+      "aptName": "북한산힐스테이트1차아파트",
+      "lawdCd": "11380",
+      "tradeTxCount": 342,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.82,
+        84.37,
+        84.73,
+        114.94
+      ]
+    },
+    {
+      "complexId": "cx_ea301e82cbe02a66",
+      "aptNameNorm": "코오롱아파트",
+      "aptName": "코오롱아파트",
+      "lawdCd": "11710",
+      "tradeTxCount": 342,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        62.39,
+        84.95
+      ]
+    },
+    {
+      "complexId": "cx_6d029dc22dfe29e3",
+      "aptNameNorm": "청구e편한세상",
+      "aptName": "청구e편한세상",
+      "lawdCd": "11140",
+      "tradeTxCount": 341,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.88,
+        59.89,
+        84.95,
+        84.96,
+        118.31,
+        118.47,
+        147.89
+      ]
+    },
+    {
+      "complexId": "cx_2690c6be2f70073d",
+      "aptNameNorm": "동아",
+      "aptName": "동아",
+      "lawdCd": "11650",
+      "tradeTxCount": 339,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.8,
+        59.92,
+        84.91
+      ]
+    },
+    {
+      "complexId": "cx_47c30293a0ce57cf",
+      "aptNameNorm": "삼부컨비니언",
+      "aptName": "삼부컨비니언",
+      "lawdCd": "11290",
+      "tradeTxCount": 339,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.94,
+        84.13,
+        84.52,
+        84.86,
+        111.71
+      ]
+    },
+    {
+      "complexId": "cx_4a98dee4762360fb",
+      "aptNameNorm": "거여4단지",
+      "aptName": "거여4단지",
+      "lawdCd": "11710",
+      "tradeTxCount": 339,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        38.9,
+        39.6,
+        49.8,
+        59.73
+      ]
+    },
+    {
+      "complexId": "cx_6073bb4c356314ed",
+      "aptNameNorm": "왕십리자이",
+      "aptName": "왕십리자이",
+      "lawdCd": "11200",
+      "tradeTxCount": 339,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        51.91,
+        51.94,
+        59.99,
+        84.99
+      ]
+    },
+    {
+      "complexId": "cx_cd34a973a189d812",
+      "aptNameNorm": "창동주공2단지",
+      "aptName": "창동주공2단지",
+      "lawdCd": "11320",
+      "tradeTxCount": 339,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        36.16,
+        36.34,
+        41.3,
+        45.55,
+        45.9,
+        49.94
+      ]
+    },
+    {
+      "complexId": "cx_ef8cd32515f0b149",
+      "aptNameNorm": "목동현대3차",
+      "aptName": "목동현대3차",
+      "lawdCd": "11470",
+      "tradeTxCount": 339,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        71.16,
+        84.77,
+        101.91,
+        114.93
+      ]
+    },
+    {
+      "complexId": "cx_a11e2f777d5003b1",
+      "aptNameNorm": "북한산힐스테이트7차",
+      "aptName": "북한산힐스테이트7차",
+      "lawdCd": "11380",
+      "tradeTxCount": 338,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.98,
+        84.81,
+        84.89,
+        84.95,
+        84.99,
+        114.84,
+        114.98,
+        141.98
+      ]
+    },
+    {
+      "complexId": "cx_7406c741bdcd56c7",
+      "aptNameNorm": "래미안라센트",
+      "aptName": "래미안라센트",
+      "lawdCd": "11290",
+      "tradeTxCount": 337,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.98,
+        84.99,
+        114.98
+      ]
+    },
+    {
+      "complexId": "cx_bbf1236d0a4e7da3",
+      "aptNameNorm": "백련산에스케이뷰아이파크",
+      "aptName": "백련산에스케이뷰아이파크",
+      "lawdCd": "11380",
+      "tradeTxCount": 337,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.85,
+        59.93,
+        84.9,
+        100.99
+      ]
+    },
+    {
+      "complexId": "cx_5cb9cae5a3c064a7",
+      "aptNameNorm": "한강극동",
+      "aptName": "한강극동",
+      "lawdCd": "11710",
+      "tradeTxCount": 336,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.26,
+        84.76,
+        114.76
+      ]
+    },
+    {
+      "complexId": "cx_7be439e4bab69d25",
+      "aptNameNorm": "삼익가든",
+      "aptName": "삼익가든",
+      "lawdCd": "11740",
+      "tradeTxCount": 336,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        57.01,
+        66.87,
+        71.2,
+        72.55,
+        82.45,
+        106.65,
+        117.76,
+        146.54
+      ]
+    },
+    {
+      "complexId": "cx_44ca98838f54a2fe",
+      "aptNameNorm": "동아3",
+      "aptName": "동아3",
+      "lawdCd": "11500",
+      "tradeTxCount": 333,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.7,
+        59.83,
+        84.87
+      ]
+    },
+    {
+      "complexId": "cx_b694857baa470062",
+      "aptNameNorm": "대림e-편한세상4",
+      "aptName": "대림e-편한세상4",
+      "lawdCd": "11530",
+      "tradeTxCount": 333,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        84.78,
+        117.74,
+        118.04,
+        140.74,
+        152.07,
+        161.63
+      ]
+    },
+    {
+      "complexId": "cx_e78da3787d6d7f92",
+      "aptNameNorm": "대림(1차)",
+      "aptName": "대림(1차)",
+      "lawdCd": "11200",
+      "tradeTxCount": 333,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        63.18,
+        75.51,
+        113.71,
+        126.66
+      ]
+    },
+    {
+      "complexId": "cx_526fff6b4cdeb54f",
+      "aptNameNorm": "길음뉴타운데시앙",
+      "aptName": "길음뉴타운데시앙",
+      "lawdCd": "11290",
+      "tradeTxCount": 332,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        55.46,
+        59.42,
+        68.54,
+        84.44,
+        84.94,
+        104.97,
+        114.76,
+        114.94
+      ]
+    },
+    {
+      "complexId": "cx_725eb186bcbefa1a",
+      "aptNameNorm": "정릉2차e-편한세상",
+      "aptName": "정릉2차e-편한세상",
+      "lawdCd": "11290",
+      "tradeTxCount": 332,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        59.2,
+        59.37,
+        59.92,
+        84.09,
+        84.4,
+        114.08,
+        114.35,
+        114.96
+      ]
+    },
+    {
+      "complexId": "cx_739470526de373b9",
+      "aptNameNorm": "래미안공덕4차",
+      "aptName": "래미안공덕4차",
+      "lawdCd": "11440",
+      "tradeTxCount": 332,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.9,
+        83.42,
+        112.71
+      ]
+    },
+    {
+      "complexId": "cx_908352f56b5ffe79",
+      "aptNameNorm": "배재현대",
+      "aptName": "배재현대",
+      "lawdCd": "11740",
+      "tradeTxCount": 332,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        59.94,
+        84.9
+      ]
+    },
+    {
+      "complexId": "cx_721c7347cf8c09da",
+      "aptNameNorm": "주공4",
+      "aptName": "주공4",
+      "lawdCd": "11350",
+      "tradeTxCount": 330,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        45.77,
+        59.39,
+        76.51,
+        84.79
+      ]
+    },
+    {
+      "complexId": "cx_2d7cb64e2755f304",
+      "aptNameNorm": "홍제삼성래미안",
+      "aptName": "홍제삼성래미안",
+      "lawdCd": "11410",
+      "tradeTxCount": 327,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        32.76,
+        60,
+        84.33,
+        114.75
+      ]
+    },
+    {
+      "complexId": "cx_589e92624ee2b1d8",
+      "aptNameNorm": "우성1",
+      "aptName": "우성1",
+      "lawdCd": "11215",
+      "tradeTxCount": 327,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        51.57,
+        59.91,
+        79.75
+      ]
+    },
+    {
+      "complexId": "cx_c8043b47ccad1352",
+      "aptNameNorm": "보라매에스케이뷰",
+      "aptName": "보라매에스케이뷰",
+      "lawdCd": "11560",
+      "tradeTxCount": 327,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.98,
+        84.98,
+        100.95,
+        117.59
+      ]
+    },
+    {
+      "complexId": "cx_0d06e23bdafe7f43",
+      "aptNameNorm": "한신",
+      "aptName": "한신",
+      "lawdCd": "11230",
+      "tradeTxCount": 326,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.97,
+        84.92,
+        114.95
+      ]
+    },
+    {
+      "complexId": "cx_3a66527bd21deee5",
+      "aptNameNorm": "홍제현대",
+      "aptName": "홍제현대",
+      "lawdCd": "11410",
+      "tradeTxCount": 326,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        60.81,
+        75.15,
+        83.05,
+        106.18,
+        119.32
+      ]
+    },
+    {
+      "complexId": "cx_df89be567d432173",
+      "aptNameNorm": "목동센트럴아이파크위브2단지",
+      "aptName": "목동센트럴아이파크위브2단지",
+      "lawdCd": "11470",
+      "tradeTxCount": 326,
+      "canonicalAreaCount": 8,
+      "areaKeys": [
+        52.85,
+        52.96,
+        59.68,
+        59.88,
+        59.97,
+        84.96,
+        84.97,
+        84.98
+      ]
+    },
+    {
+      "complexId": "cx_e6e664439233e8d5",
+      "aptNameNorm": "삼성동힐스테이트1단지",
+      "aptName": "삼성동힐스테이트1단지",
+      "lawdCd": "11680",
+      "tradeTxCount": 326,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        26.5,
+        31.4,
+        84.24,
+        84.35,
+        84.42,
+        84.5,
+        114.46
+      ]
+    },
+    {
+      "complexId": "cx_8a48771bff4ca694",
+      "aptNameNorm": "현대연예인",
+      "aptName": "현대연예인",
+      "lawdCd": "11530",
+      "tradeTxCount": 325,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        44.17,
+        54.86,
+        74.66,
+        74.94,
+        84.91
+      ]
+    },
+    {
+      "complexId": "cx_bf600e79ed5abec6",
+      "aptNameNorm": "래미안강남힐즈",
+      "aptName": "래미안강남힐즈",
+      "lawdCd": "11680",
+      "tradeTxCount": 325,
+      "canonicalAreaCount": 6,
+      "areaKeys": [
+        91.95,
+        91.96,
+        94.91,
+        101.54,
+        101.94,
+        101.95
+      ]
+    },
+    {
+      "complexId": "cx_e1c880b14dc30b68",
+      "aptNameNorm": "주공10",
+      "aptName": "주공10",
+      "lawdCd": "11500",
+      "tradeTxCount": 325,
+      "canonicalAreaCount": 2,
+      "areaKeys": [
+        37.67,
+        58.14
+      ]
+    },
+    {
+      "complexId": "cx_6adc508c196f3ecc",
+      "aptNameNorm": "롯데캐슬클래식",
+      "aptName": "롯데캐슬클래식",
+      "lawdCd": "11650",
+      "tradeTxCount": 324,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        74.3,
+        84.98,
+        120.18,
+        133.45
+      ]
+    },
+    {
+      "complexId": "cx_c547bf66274105a6",
+      "aptNameNorm": "당산대우",
+      "aptName": "당산대우",
+      "lawdCd": "11560",
+      "tradeTxCount": 324,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        31.73,
+        32.62,
+        45.55
+      ]
+    },
+    {
+      "complexId": "cx_d42067dbcddf0e1b",
+      "aptNameNorm": "동성3",
+      "aptName": "동성3",
+      "lawdCd": "11260",
+      "tradeTxCount": 324,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.4,
+        83.43,
+        84.08,
+        105.93,
+        129.37,
+        132.77,
+        134.88
+      ]
+    },
+    {
+      "complexId": "cx_e01eb6f407f00d59",
+      "aptNameNorm": "롯데캐슬루나",
+      "aptName": "롯데캐슬루나",
+      "lawdCd": "11350",
+      "tradeTxCount": 324,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.99,
+        84.99,
+        127.03
+      ]
+    },
+    {
+      "complexId": "cx_34c88483e68a1e55",
+      "aptNameNorm": "중앙하이츠빌2단지",
+      "aptName": "중앙하이츠빌2단지",
+      "lawdCd": "11290",
+      "tradeTxCount": 323,
+      "canonicalAreaCount": 11,
+      "areaKeys": [
+        43.92,
+        59.82,
+        59.85,
+        59.98,
+        59.99,
+        73.28,
+        84.19,
+        84.68,
+        84.95,
+        100.32,
+        122.85
+      ]
+    },
+    {
+      "complexId": "cx_b911c4776e58ec4e",
+      "aptNameNorm": "불암현대",
+      "aptName": "불암현대",
+      "lawdCd": "11350",
+      "tradeTxCount": 323,
+      "canonicalAreaCount": 5,
+      "areaKeys": [
+        59.4,
+        84.86,
+        84.9,
+        114.24,
+        114.37
+      ]
+    },
+    {
+      "complexId": "cx_ea25c346302745fd",
+      "aptNameNorm": "강서한강자이",
+      "aptName": "강서한강자이",
+      "lawdCd": "11500",
+      "tradeTxCount": 323,
+      "canonicalAreaCount": 9,
+      "areaKeys": [
+        59.94,
+        59.99,
+        84.99,
+        85,
+        99,
+        102.92,
+        124.42,
+        127.11,
+        154.32
+      ]
+    },
+    {
+      "complexId": "cx_5e78c88fe6035dde",
+      "aptNameNorm": "마곡수명산파크5단지",
+      "aptName": "마곡수명산파크5단지",
+      "lawdCd": "11500",
+      "tradeTxCount": 322,
+      "canonicalAreaCount": 3,
+      "areaKeys": [
+        59.76,
+        59.84,
+        59.87
+      ]
+    },
+    {
+      "complexId": "cx_be197b2e622bb3d9",
+      "aptNameNorm": "꿈의숲대명루첸아파트",
+      "aptName": "꿈의숲대명루첸아파트",
+      "lawdCd": "11290",
+      "tradeTxCount": 322,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.99,
+        84.84,
+        103.53,
+        122.02
+      ]
+    },
+    {
+      "complexId": "cx_e4049090b7766d77",
+      "aptNameNorm": "금천롯데캐슬골드파크3차",
+      "aptName": "금천롯데캐슬골드파크3차",
+      "lawdCd": "11545",
+      "tradeTxCount": 321,
+      "canonicalAreaCount": 4,
+      "areaKeys": [
+        59.97,
+        84.22,
+        84.41,
+        84.49
+      ]
+    },
+    {
+      "complexId": "cx_f52a5c951732a9ea",
+      "aptNameNorm": "고덕리엔파크3단지",
+      "aptName": "고덕리엔파크3단지",
+      "lawdCd": "11740",
+      "tradeTxCount": 321,
+      "canonicalAreaCount": 7,
+      "areaKeys": [
+        59.72,
+        59.83,
+        84.83,
+        84.87,
+        84.96,
+        84.98,
+        114.97
+      ]
+    }
+  ],
+  "expected": {
+    "complexes": 250,
+    "units": 1420,
+    "inserts": 1340
+  },
+  "existingTargetUnitCount": 80,
+  "rowHardCap": 2500,
+  "capExceeded": false,
+  "precheck": {
+    "status": "PASS",
+    "identityFailures": 0,
+    "duplicateFailures": 0,
+    "invalidAreas": 0,
+    "existingCxUnits": 0,
+    "unexpectedExisting": 0,
+    "nullRequired": 0,
+    "newSlugCandidates": 0,
+    "holds": [],
+    "deterministic": true
+  }
+}

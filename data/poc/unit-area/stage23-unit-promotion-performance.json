@@ -1,0 +1,214 @@
+{
+  "generatedAt": "2026-09-16T02:44:16.085Z",
+  "stage": "stage23-unit-promotion-performance",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0,
+    "schema": 0,
+    "index": 0
+  },
+  "stage22Baseline": {
+    "selectionMs": 66046,
+    "manifestMs": 78226,
+    "insertMs": 126876,
+    "postcheckMs": 122506,
+    "totalMs": 393654
+  },
+  "profileBefore": {
+    "selection": {
+      "queries": 102,
+      "rows": "inventory pool + ~573 area groups across 100 complexes",
+      "ms": 66046,
+      "perComplex": "YES",
+      "helper": "selectTargets → loadTradeAreas per selected complex"
+    },
+    "manifest": {
+      "queries": "100*(1 master + 1 existingCount + N unit_type_key EXISTS)",
+      "approxNetworkCalls": 773,
+      "rows": 573,
+      "ms": 78226,
+      "perComplex": "YES",
+      "helper": "precheckTarget per complex + per unit_type_key SELECT"
+    },
+    "insert": {
+      "networkCalls": 1146,
+      "rows": 573,
+      "ms": 126876,
+      "perRow": "YES",
+      "helper": "insertMissingUnits → count(unit_type_key) + db.execute INSERT"
+    },
+    "postcheck": {
+      "queries": "100+ existingUnits + integrity IN queries",
+      "rows": 573,
+      "ms": 122506,
+      "perComplex": "YES",
+      "helper": "existingUnits(db, complexKey) per target + per-complex loops"
+    }
+  },
+  "rootCause": {
+    "selection": "After inventory aggregate, Stage22 issued loadTradeAreas once per selected complex (100 remote queries).",
+    "manifest": "precheckTarget queried master + existing count per complex and SELECT COUNT per planned unit_type_key (~573).",
+    "insert": "insertMissingUnits did per-row EXISTS + per-row db.execute INSERT (~1146 round trips for 573 rows).",
+    "postcheck": "existingUnits queried once per complex; integrity loops added more round trips.",
+    "primaryBottleneck": "per-row INSERT + EXISTS (insert ~127s)",
+    "secondaryBottleneck": "per-complex postcheck + per-key precheck (~123s + ~78s)"
+  },
+  "optimization": {
+    "filesChanged": [
+      "scripts/lib/unit-master-promotion-path.ts",
+      "scripts/stage22-unit-master-acceleration.mts",
+      "scripts/stage23-unit-promotion-performance.mts"
+    ],
+    "selectionChange": "Ranking uses one inventory aggregate; area materialization via chunked IN batchLoadTradeAreasByComplexIds (no per-complex query).",
+    "manifestChange": "batchLoadMasterRows + batchLoadExistingUnits + in-memory precheck (no per-unit EXISTS).",
+    "insertChange": "filterMissingUnits in memory → db.batch chunks of 80 (repository convention).",
+    "postcheckChange": "batchLoadExistingUnits + compareManifestIdentities in memory."
+  },
+  "profileAfter": {
+    "selection": {
+      "queries": 2,
+      "rows": 2492,
+      "networkCalls": 2,
+      "ms": 6581,
+      "perComplex": "NO",
+      "inventoryEligibleAfterExclude": 2209,
+      "note": "Stage22 targets already in exclude set; inventory used for path timing only."
+    },
+    "manifest": {
+      "queries": 6,
+      "rows": 1246,
+      "networkCalls": 6,
+      "ms": 7393,
+      "perComplex": "NO",
+      "rebuiltTargets": 100,
+      "rebuiltUnitIdentities": 573
+    },
+    "insert": {
+      "networkCallsFor573NewRows": 8,
+      "chunkSize": 80,
+      "perRow": "NO",
+      "verifyOnlyWouldInsert": 0,
+      "dryBatchInserted": 0,
+      "ms": 0
+    },
+    "postcheck": {
+      "queries": 2,
+      "rows": 573,
+      "networkCalls": 2,
+      "ms": 213,
+      "perComplex": "NO"
+    },
+    "totalMs": 14187
+  },
+  "dbCallsAfter": {
+    "selectionQueries": 2,
+    "manifestQueries": 6,
+    "insertCallsExpectedFor573NewRows": 8,
+    "postcheckQueries": 2,
+    "rowByRowInsert": "NO",
+    "perComplexManifestQuery": "NO",
+    "perComplexPostcheckQuery": "NO"
+  },
+  "manifestRegression": {
+    "targetComplexes": 100,
+    "expectedUnitIdentities": 573,
+    "stage22Match": "PASS",
+    "areaKeyMismatches": 0,
+    "identityFailures": 0,
+    "invalidAreas": 0,
+    "holds": 0
+  },
+  "currentIntegrity": {
+    "present": 573,
+    "missing": 0,
+    "duplicateCxCanonicalIdentities": 0,
+    "duplicateUnitTypeKey": 0,
+    "slugWrites": 0
+  },
+  "optimizedTiming": {
+    "selectionMs": 6581,
+    "manifestMs": 7393,
+    "promotionVerifyNoOpMs": 0,
+    "postcheckMs": 213,
+    "totalMs": 14187
+  },
+  "comparison": {
+    "stage22TotalMs": 393654,
+    "stage23OptimizedVerifyPathMs": 14187,
+    "roundTripBeforeEstimate": 2121,
+    "roundTripAfterEstimateForFresh573Insert": 18,
+    "roundTripReductionNote": "Insert path 1146 → 8 batch calls for 573 rows; per-complex manifest/postcheck eliminated.",
+    "afterNetworkEstimateFresh": 18
+  },
+  "indexAnalysis": {
+    "explainPerformed": true,
+    "plan": [
+      {
+        "id": 11,
+        "parent": 0,
+        "detail": "SEARCH t USING INDEX idx_tx_type_first_seen (deal_type=?)"
+      },
+      {
+        "id": 19,
+        "parent": 0,
+        "detail": "SEARCH m USING INDEX idx_acm_lawd_norm (lawd_cd=? AND apt_name_norm=?)"
+      },
+      {
+        "id": 32,
+        "parent": 0,
+        "detail": "USE TEMP B-TREE FOR GROUP BY"
+      },
+      {
+        "id": 93,
+        "parent": 0,
+        "detail": "USE TEMP B-TREE FOR count(DISTINCT)"
+      },
+      {
+        "id": 96,
+        "parent": 0,
+        "detail": "USE TEMP B-TREE FOR ORDER BY"
+      }
+    ],
+    "result": "QUERY_REWRITE_SUFFICIENT",
+    "note": "Selection inventory remains one aggregate JOIN; Stage23 removed 100 follow-up area queries. No index created.",
+    "indexCandidate": "NONE",
+    "indexCreated": false
+  },
+  "idempotency": {
+    "wouldInsert": 0,
+    "wouldUpdate": 0,
+    "wouldDelete": 0,
+    "wouldBatchCalls": 0,
+    "status": "PASS"
+  },
+  "coverage": {
+    "unitMasterComplexes": 142,
+    "canonicalUnitIdentities": 942,
+    "officialRawIdentities": 29807,
+    "newCoverageWrites": 0,
+    "unchangedFromStage22": true
+  },
+  "scale250": {
+    "assumedComplexes": 250,
+    "assumedUnitsApprox": 1433,
+    "expectedInsertBatchCalls": 18,
+    "expectedManifestAreaFetchCalls": 4,
+    "expectedPostcheckCalls": 4
+  },
+  "nextAction": {
+    "choice": "A",
+    "label": "250-complex unit-master promotion",
+    "reason": "Row-by-row insert/postcheck eliminated; semantic match 100/573; verify-only wouldInsert=0; path suitable for bounded 250."
+  },
+  "decision": {
+    "SELECTION_PATH": "PASS",
+    "MANIFEST_PATH": "PASS",
+    "BATCH_INSERT_PATH": "PASS",
+    "POSTCHECK_PATH": "PASS",
+    "SEMANTIC_REGRESSION": "PASS",
+    "IDEMPOTENCY": "PASS",
+    "250_COMPLEX_SCALE_READINESS": "READY",
+    "DATA_SAFETY": "PASS"
+  }
+}

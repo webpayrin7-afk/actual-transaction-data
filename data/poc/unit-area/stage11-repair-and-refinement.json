@@ -1,0 +1,1767 @@
+{
+  "generatedAt": "2026-09-16T00:23:18.019Z",
+  "stage": "stage11-repair-and-refinement",
+  "before": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 125,
+    "apt_unit_type_group_links": 220
+  },
+  "after": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 125,
+    "apt_unit_type_group_links": 220
+  },
+  "targetedRepair": {
+    "groupsTargeted": [
+      "cx_d80e92e6aef239af:G2:ex80.20-80.20",
+      "cx_d80e92e6aef239af:G3:ex92.62-92.62"
+    ],
+    "safety": {
+      "ok": true,
+      "alreadyFullyRepaired": true,
+      "checks": [
+        {
+          "groupKey": "cx_d80e92e6aef239af:G2:ex80.20-80.20",
+          "alreadyAbsent": true,
+          "baseline": 0,
+          "classificationDependency": 0,
+          "singogaDependency": 0,
+          "linkCount": 0,
+          "memberKeys": [],
+          "unitsExist": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "groupKey": "cx_d80e92e6aef239af:G3:ex92.62-92.62",
+          "alreadyAbsent": true,
+          "baseline": 0,
+          "classificationDependency": 0,
+          "singogaDependency": 0,
+          "linkCount": 0,
+          "memberKeys": [],
+          "unitsExist": [],
+          "min": null,
+          "max": null
+        }
+      ],
+      "aptName": "테헤란아이파크",
+      "lawdCd": "11680",
+      "tx802": 31,
+      "tx9262": 201
+    },
+    "linksDeleted": 0,
+    "groupsDeleted": 0,
+    "unitTypesDeleted": 0,
+    "otherStage9GroupsBefore": 29,
+    "otherStage9GroupsAfter": 29,
+    "otherGroupsChanged": false,
+    "unit802Preserved": true,
+    "unit9262Preserved": true,
+    "protectCounts": {
+      "cx_caf229b5ac63cfbd": 0,
+      "cx_85cd8a4b2d5dc3d0": 1,
+      "parkrio": 5,
+      "jamsil-els": 3
+    },
+    "repair": "PASS",
+    "reason": "already repaired (idempotent no-op)",
+    "firstRunDeletes": {
+      "links": 2,
+      "groups": 2,
+      "note": "Applied on first Stage11 execution; this run was idempotent no-op"
+    }
+  },
+  "canonicalDedupeFix": {
+    "oldOrder": [
+      "raw floats → cluster (bug) → later areaKey collapse"
+    ],
+    "newOrder": [
+      "raw observed values",
+      "areaKey canonicalization",
+      "canonical dedupe",
+      "candidate clustering",
+      "group decision"
+    ],
+    "teranReplay": {
+      "case802": {
+        "raw": [
+          {
+            "exclusiveArea": 80.1995,
+            "txCount": 30
+          },
+          {
+            "exclusiveArea": 80.2,
+            "txCount": 1
+          }
+        ],
+        "afterDedupe": [
+          {
+            "exclusiveArea": 80.2,
+            "txCount": 31
+          }
+        ],
+        "clusters": [
+          {
+            "members": [
+              80.2
+            ],
+            "decision": "NOT_GROUPABLE",
+            "span": 0,
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 80.2,
+              "max": 80.2,
+              "reason": "distinct canonical areas < 2"
+            }
+          }
+        ],
+        "expectNoGroup": true
+      },
+      "case9262": {
+        "raw": [
+          {
+            "exclusiveArea": 92.62,
+            "txCount": 2
+          },
+          {
+            "exclusiveArea": 92.6232,
+            "txCount": 199
+          }
+        ],
+        "afterDedupe": [
+          {
+            "exclusiveArea": 92.62,
+            "txCount": 201
+          }
+        ],
+        "clusters": [
+          {
+            "members": [
+              92.62
+            ],
+            "decision": "NOT_GROUPABLE",
+            "span": 0,
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 92.62,
+              "max": 92.62,
+              "reason": "distinct canonical areas < 2"
+            }
+          }
+        ],
+        "expectNoGroup": true
+      }
+    },
+    "zeroSpanReproducibleBefore": true,
+    "zeroSpanPossibleAfter": false,
+    "positiveControls": [
+      {
+        "groupKey": "cx_c3f8a052ae66fd32:G1:ex59.78-59.91",
+        "min": 59.78,
+        "max": 59.91,
+        "span": 0.13,
+        "links": 3,
+        "contractOk": true,
+        "status": "VALID_POSITIVE_CONTROL"
+      },
+      {
+        "groupKey": "cx_774f03bf66e7882f:G3:ex84.91-84.97",
+        "min": 84.91,
+        "max": 84.97,
+        "span": 0.06,
+        "links": 2,
+        "contractOk": true,
+        "status": "VALID_POSITIVE_CONTROL"
+      },
+      {
+        "groupKey": "cx_b225492e31c09cdd:G2:ex84.97-84.99",
+        "min": 84.97,
+        "max": 84.99,
+        "span": 0.02,
+        "links": 2,
+        "contractOk": true,
+        "status": "VALID_POSITIVE_CONTROL"
+      }
+    ],
+    "status": "PASS"
+  },
+  "refinement90109": {
+    "complexes": [
+      {
+        "name": "장안삼성쉐르빌",
+        "complexId": "cx_19d860b6f1691a0a",
+        "members": [
+          97.5,
+          98.5,
+          99.3,
+          99.51,
+          100.1,
+          100.7,
+          102.28,
+          102.31
+        ]
+      },
+      {
+        "name": "신반포6",
+        "complexId": "cx_016721d1bffdbdb2",
+        "members": [
+          106.95,
+          107.81,
+          108.02,
+          108.09,
+          108.86
+        ]
+      },
+      {
+        "name": "서진프라자아파트",
+        "complexId": "cx_055cb985e428bb28",
+        "members": [
+          92.88,
+          93.03
+        ]
+      },
+      {
+        "name": "오페라하우스west",
+        "complexId": "cx_1700b4e47aa74c48",
+        "members": [
+          92.52,
+          92.71
+        ]
+      },
+      {
+        "name": "광장",
+        "complexId": "cx_e13f2397a4636a30",
+        "members": [
+          101.38,
+          101.39,
+          102.25,
+          102.35,
+          102.98,
+          103.17,
+          103.18,
+          103.27,
+          103.93
+        ]
+      },
+      {
+        "name": "강변한솔그라치아",
+        "complexId": "cx_233505f10de13926",
+        "members": [
+          94.26,
+          94.48,
+          94.66,
+          94.69,
+          98.07
+        ]
+      },
+      {
+        "name": "청원",
+        "complexId": "cx_ae75a0e9c461c572",
+        "members": [
+          92.84,
+          105.56,
+          105.74
+        ]
+      },
+      {
+        "name": "롯데캐슬",
+        "complexId": "cx_dcca5b920bc9ae42",
+        "members": [
+          105.53,
+          105.71
+        ]
+      },
+      {
+        "name": "개포자이프레지던스",
+        "complexId": "cx_de547f7aab2e1751",
+        "members": [
+          102.58,
+          102.76,
+          109.88
+        ]
+      },
+      {
+        "name": "목동신시가지2",
+        "complexId": "cx_496be5b8281790e3",
+        "members": [
+          95.22,
+          95.23,
+          95.4,
+          95.6,
+          95.67,
+          95.76,
+          97.92,
+          97.93
+        ]
+      }
+    ],
+    "details": [
+      {
+        "complexId": "cx_19d860b6f1691a0a",
+        "name": "장안삼성쉐르빌",
+        "members": [
+          97.5,
+          98.5,
+          99.3,
+          99.51,
+          100.1,
+          100.7,
+          102.28,
+          102.31
+        ],
+        "clusters": [
+          {
+            "members": [
+              97.5
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "97.5": 2
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 97.5,
+              "max": 97.5,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              98.5
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "98.5": 10
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 98.5,
+              "max": 98.5,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              99.3
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "99.3": 7
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 99.3,
+              "max": 99.3,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              99.51
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "99.51": 7
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 99.51,
+              "max": 99.51,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              100.1
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "100.1": 2
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 100.1,
+              "max": 100.1,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              100.7
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "100.7": 10
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 100.7,
+              "max": 100.7,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              102.28,
+              102.31
+            ],
+            "span": 0.03,
+            "maxGap": 0.03,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "102.28": 12,
+              "102.31": 3
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 102.28,
+              "max": 102.31,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_016721d1bffdbdb2",
+        "name": "신반포6",
+        "members": [
+          106.95,
+          107.81,
+          108.02,
+          108.09,
+          108.86
+        ],
+        "clusters": [
+          {
+            "members": [
+              106.95
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "106.95": 1
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 106.95,
+              "max": 106.95,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              107.81
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "107.81": 1
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 107.81,
+              "max": 107.81,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              108.02,
+              108.09
+            ],
+            "span": 0.07,
+            "maxGap": 0.07,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "108.02": 10,
+              "108.09": 1
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 108.02,
+              "max": 108.09,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              108.86
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "108.86": 4
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 108.86,
+              "max": 108.86,
+              "reason": "distinct canonical areas < 2"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_055cb985e428bb28",
+        "name": "서진프라자아파트",
+        "members": [
+          92.88,
+          93.03
+        ],
+        "clusters": [
+          {
+            "members": [
+              92.88,
+              93.03
+            ],
+            "span": 0.15,
+            "maxGap": 0.15,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "92.88": 8,
+              "93.03": 6
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 92.88,
+              "max": 93.03,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_1700b4e47aa74c48",
+        "name": "오페라하우스west",
+        "members": [
+          92.52,
+          92.71
+        ],
+        "clusters": [
+          {
+            "members": [
+              92.52,
+              92.71
+            ],
+            "span": 0.19,
+            "maxGap": 0.19,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "92.52": 3,
+              "92.71": 1
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 92.52,
+              "max": 92.71,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_e13f2397a4636a30",
+        "name": "광장",
+        "members": [
+          101.38,
+          101.39,
+          102.25,
+          102.35,
+          102.98,
+          103.17,
+          103.18,
+          103.27,
+          103.93
+        ],
+        "clusters": [
+          {
+            "members": [
+              101.38,
+              101.39
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "101.38": 1,
+              "101.39": 28
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 101.38,
+              "max": 101.39,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              102.25,
+              102.35
+            ],
+            "span": 0.1,
+            "maxGap": 0.1,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "102.25": 5,
+              "102.35": 45
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 102.25,
+              "max": 102.35,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              102.98,
+              103.17
+            ],
+            "span": 0.19,
+            "maxGap": 0.19,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "102.98": 2,
+              "103.17": 14
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 102.98,
+              "max": 103.17,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              103.18,
+              103.27
+            ],
+            "span": 0.09,
+            "maxGap": 0.09,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "103.18": 1,
+              "103.27": 1
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 103.18,
+              "max": 103.27,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              103.93
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "103.93": 4
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 103.93,
+              "max": 103.93,
+              "reason": "distinct canonical areas < 2"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_233505f10de13926",
+        "name": "강변한솔그라치아",
+        "members": [
+          94.26,
+          94.48,
+          94.66,
+          94.69,
+          98.07
+        ],
+        "clusters": [
+          {
+            "members": [
+              94.26
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "94.26": 6
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 94.26,
+              "max": 94.26,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              94.48,
+              94.66
+            ],
+            "span": 0.18,
+            "maxGap": 0.18,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "94.48": 2,
+              "94.66": 2
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 94.48,
+              "max": 94.66,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              94.69
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "94.69": 1
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 94.69,
+              "max": 94.69,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              98.07
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "98.07": 3
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 98.07,
+              "max": 98.07,
+              "reason": "distinct canonical areas < 2"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_ae75a0e9c461c572",
+        "name": "청원",
+        "members": [
+          92.84,
+          105.56,
+          105.74
+        ],
+        "clusters": [
+          {
+            "members": [
+              92.84
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "92.84": 1
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 92.84,
+              "max": 92.84,
+              "reason": "distinct canonical areas < 2"
+            }
+          },
+          {
+            "members": [
+              105.56,
+              105.74
+            ],
+            "span": 0.18,
+            "maxGap": 0.18,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "105.56": 1,
+              "105.74": 2
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 105.56,
+              "max": 105.74,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_dcca5b920bc9ae42",
+        "name": "롯데캐슬",
+        "members": [
+          105.53,
+          105.71
+        ],
+        "clusters": [
+          {
+            "members": [
+              105.53,
+              105.71
+            ],
+            "span": 0.18,
+            "maxGap": 0.18,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "105.53": 15,
+              "105.71": 9
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 105.53,
+              "max": 105.71,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_de547f7aab2e1751",
+        "name": "개포자이프레지던스",
+        "members": [
+          102.58,
+          102.76,
+          109.88
+        ],
+        "clusters": [
+          {
+            "members": [
+              102.58,
+              102.76
+            ],
+            "span": 0.18,
+            "maxGap": 0.18,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "102.58": 48,
+              "102.76": 43
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 102.58,
+              "max": 102.76,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              109.88
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "109.88": 30
+            },
+            "contract": {
+              "ok": false,
+              "distinctCanonical": 1,
+              "min": 109.88,
+              "max": 109.88,
+              "reason": "distinct canonical areas < 2"
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_496be5b8281790e3",
+        "name": "목동신시가지2",
+        "members": [
+          95.22,
+          95.23,
+          95.4,
+          95.6,
+          95.67,
+          95.76,
+          97.92,
+          97.93
+        ],
+        "clusters": [
+          {
+            "members": [
+              95.22,
+              95.23,
+              95.4
+            ],
+            "span": 0.18,
+            "maxGap": 0.17,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "95.22": 114,
+              "95.23": 2,
+              "95.4": 27
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 3,
+              "min": 95.22,
+              "max": 95.4,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              95.6,
+              95.67,
+              95.76
+            ],
+            "span": 0.16,
+            "maxGap": 0.09,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "95.6": 3,
+              "95.67": 189,
+              "95.76": 32
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 3,
+              "min": 95.6,
+              "max": 95.76,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          },
+          {
+            "members": [
+              97.92,
+              97.93
+            ],
+            "span": 0.01,
+            "maxGap": 0.01,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "97.92": 182,
+              "97.93": 1
+            },
+            "contract": {
+              "ok": true,
+              "distinctCanonical": 2,
+              "min": 97.92,
+              "max": 97.93,
+              "reason": "minimum similar-area group contract satisfied"
+            }
+          }
+        ]
+      }
+    ],
+    "candidateClusters": 30,
+    "safe": 8,
+    "ambiguous": 7,
+    "notGroupable": 15,
+    "observedSafeSpans": [
+      0.03,
+      0.07,
+      0.15,
+      0.01,
+      0.1,
+      0.09,
+      0.16,
+      0.01
+    ],
+    "observedSafeGaps": [
+      0.03,
+      0.07,
+      0.15,
+      0.01,
+      0.1,
+      0.09,
+      0.09,
+      0.01
+    ],
+    "widerGapSafeCount": 6,
+    "maxSafeSpan": 0.16,
+    "maxSafeGap": 0.15
+  },
+  "refinement5069": {
+    "complexes": [
+      {
+        "name": "인왕",
+        "complexId": "cx_15146fabcc5151c3",
+        "members": [
+          56.66,
+          56.79,
+          58.18,
+          58.21
+        ],
+        "gaps": [
+          0.13,
+          1.39,
+          0.03
+        ]
+      },
+      {
+        "name": "리치",
+        "complexId": "cx_03e789e16461e7d8",
+        "members": [
+          53.38,
+          55.84,
+          55.98,
+          58.38
+        ],
+        "gaps": [
+          2.46,
+          0.14,
+          2.4
+        ]
+      },
+      {
+        "name": "북한산스카이뷰아파트",
+        "complexId": "cx_306a7067aadebbf2",
+        "members": [
+          54.15,
+          56.01,
+          56.41,
+          56.81,
+          56.96,
+          57.21,
+          57.45,
+          59.37,
+          59.51,
+          59.62,
+          59.83,
+          64.5,
+          66.28,
+          66.65
+        ],
+        "gaps": [
+          1.86,
+          0.4,
+          0.4,
+          0.15,
+          0.25,
+          0.24,
+          1.92,
+          0.14,
+          0.11,
+          0.21,
+          4.67,
+          1.78,
+          0.37
+        ]
+      },
+      {
+        "name": "신마곡벽산블루밍",
+        "complexId": "cx_04e35eb2cb2d5589",
+        "members": [
+          59.76,
+          59.92,
+          59.93
+        ],
+        "gaps": [
+          0.16,
+          0.01
+        ]
+      },
+      {
+        "name": "강국",
+        "complexId": "cx_16bfb738f653a613",
+        "members": [
+          60.18,
+          60.35
+        ],
+        "gaps": [
+          0.17
+        ]
+      },
+      {
+        "name": "목동신시가지4",
+        "complexId": "cx_2c20b50f2c7a8ba1",
+        "members": [
+          65.34,
+          65.52,
+          67.58
+        ],
+        "gaps": [
+          0.18,
+          2.06
+        ]
+      }
+    ],
+    "details": [
+      {
+        "complexId": "cx_15146fabcc5151c3",
+        "name": "인왕",
+        "members": [
+          56.66,
+          56.79,
+          58.18,
+          58.21
+        ],
+        "consecutiveGaps": [
+          0.13,
+          1.39,
+          0.03
+        ],
+        "clusters": [
+          {
+            "members": [
+              56.66,
+              56.79
+            ],
+            "span": 0.13,
+            "maxGap": 0.13,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "56.66": 19,
+              "56.79": 19
+            }
+          },
+          {
+            "members": [
+              58.18,
+              58.21
+            ],
+            "span": 0.03,
+            "maxGap": 0.03,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "58.18": 11,
+              "58.21": 18
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_03e789e16461e7d8",
+        "name": "리치",
+        "members": [
+          53.38,
+          55.84,
+          55.98,
+          58.38
+        ],
+        "consecutiveGaps": [
+          2.46,
+          0.14,
+          2.4
+        ],
+        "clusters": [
+          {
+            "members": [
+              53.38
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "53.38": 1
+            }
+          },
+          {
+            "members": [
+              55.84,
+              55.98
+            ],
+            "span": 0.14,
+            "maxGap": 0.14,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "55.84": 2,
+              "55.98": 6
+            }
+          },
+          {
+            "members": [
+              58.38
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "58.38": 4
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_306a7067aadebbf2",
+        "name": "북한산스카이뷰아파트",
+        "members": [
+          54.15,
+          56.01,
+          56.41,
+          56.81,
+          56.96,
+          57.21,
+          57.45,
+          59.37,
+          59.51,
+          59.62,
+          59.83,
+          64.5,
+          66.28,
+          66.65
+        ],
+        "consecutiveGaps": [
+          1.86,
+          0.4,
+          0.4,
+          0.15,
+          0.25,
+          0.24,
+          1.92,
+          0.14,
+          0.11,
+          0.21,
+          4.67,
+          1.78,
+          0.37
+        ],
+        "clusters": [
+          {
+            "members": [
+              54.15
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "54.15": 7
+            }
+          },
+          {
+            "members": [
+              56.01
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "56.01": 9
+            }
+          },
+          {
+            "members": [
+              56.41
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "56.41": 3
+            }
+          },
+          {
+            "members": [
+              56.81,
+              56.96
+            ],
+            "span": 0.15,
+            "maxGap": 0.15,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "56.81": 1,
+              "56.96": 8
+            }
+          },
+          {
+            "members": [
+              57.21
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "57.21": 1
+            }
+          },
+          {
+            "members": [
+              57.45
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "57.45": 1
+            }
+          },
+          {
+            "members": [
+              59.37,
+              59.51
+            ],
+            "span": 0.14,
+            "maxGap": 0.14,
+            "decision": "SAFE_SIMULATION",
+            "txCounts": {
+              "59.37": 1,
+              "59.51": 3
+            }
+          },
+          {
+            "members": [
+              59.62
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "59.62": 2
+            }
+          },
+          {
+            "members": [
+              59.83
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "59.83": 4
+            }
+          },
+          {
+            "members": [
+              64.5
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "64.5": 7
+            }
+          },
+          {
+            "members": [
+              66.28
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "66.28": 4
+            }
+          },
+          {
+            "members": [
+              66.65
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "66.65": 4
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_04e35eb2cb2d5589",
+        "name": "신마곡벽산블루밍",
+        "members": [
+          59.76,
+          59.92,
+          59.93
+        ],
+        "consecutiveGaps": [
+          0.16,
+          0.01
+        ],
+        "clusters": [
+          {
+            "members": [
+              59.76,
+              59.92,
+              59.93
+            ],
+            "span": 0.17,
+            "maxGap": 0.16,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "59.76": 70,
+              "59.92": 60,
+              "59.93": 53
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_16bfb738f653a613",
+        "name": "강국",
+        "members": [
+          60.18,
+          60.35
+        ],
+        "consecutiveGaps": [
+          0.17
+        ],
+        "clusters": [
+          {
+            "members": [
+              60.18,
+              60.35
+            ],
+            "span": 0.17,
+            "maxGap": 0.17,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "60.18": 2,
+              "60.35": 7
+            }
+          }
+        ]
+      },
+      {
+        "complexId": "cx_2c20b50f2c7a8ba1",
+        "name": "목동신시가지4",
+        "members": [
+          65.34,
+          65.52,
+          67.58
+        ],
+        "consecutiveGaps": [
+          0.18,
+          2.06
+        ],
+        "clusters": [
+          {
+            "members": [
+              65.34,
+              65.52
+            ],
+            "span": 0.18,
+            "maxGap": 0.18,
+            "decision": "AMBIGUOUS_SIMULATION",
+            "txCounts": {
+              "65.34": 185,
+              "65.52": 9
+            }
+          },
+          {
+            "members": [
+              67.58
+            ],
+            "span": 0,
+            "maxGap": 0,
+            "decision": "NOT_GROUPABLE",
+            "txCounts": {
+              "67.58": 88
+            }
+          }
+        ]
+      }
+    ],
+    "candidateClusters": 21,
+    "safe": 5,
+    "ambiguous": 3,
+    "notGroupable": 13,
+    "le015": [
+      {
+        "members": [
+          56.66,
+          56.79
+        ],
+        "span": 0.13,
+        "maxGap": 0.13,
+        "decision": "SAFE_SIMULATION",
+        "txCounts": {
+          "56.66": 19,
+          "56.79": 19
+        }
+      },
+      {
+        "members": [
+          58.18,
+          58.21
+        ],
+        "span": 0.03,
+        "maxGap": 0.03,
+        "decision": "SAFE_SIMULATION",
+        "txCounts": {
+          "58.18": 11,
+          "58.21": 18
+        }
+      },
+      {
+        "members": [
+          55.84,
+          55.98
+        ],
+        "span": 0.14,
+        "maxGap": 0.14,
+        "decision": "SAFE_SIMULATION",
+        "txCounts": {
+          "55.84": 2,
+          "55.98": 6
+        }
+      },
+      {
+        "members": [
+          56.81,
+          56.96
+        ],
+        "span": 0.15,
+        "maxGap": 0.15,
+        "decision": "SAFE_SIMULATION",
+        "txCounts": {
+          "56.81": 1,
+          "56.96": 8
+        }
+      },
+      {
+        "members": [
+          59.37,
+          59.51
+        ],
+        "span": 0.14,
+        "maxGap": 0.14,
+        "decision": "SAFE_SIMULATION",
+        "txCounts": {
+          "59.37": 1,
+          "59.51": 3
+        }
+      }
+    ],
+    "gt015Ambiguous": [
+      {
+        "members": [
+          59.76,
+          59.92,
+          59.93
+        ],
+        "span": 0.17,
+        "maxGap": 0.16,
+        "decision": "AMBIGUOUS_SIMULATION",
+        "txCounts": {
+          "59.76": 70,
+          "59.92": 60,
+          "59.93": 53
+        }
+      },
+      {
+        "members": [
+          60.18,
+          60.35
+        ],
+        "span": 0.17,
+        "maxGap": 0.17,
+        "decision": "AMBIGUOUS_SIMULATION",
+        "txCounts": {
+          "60.18": 2,
+          "60.35": 7
+        }
+      },
+      {
+        "members": [
+          65.34,
+          65.52
+        ],
+        "span": 0.18,
+        "maxGap": 0.18,
+        "decision": "AMBIGUOUS_SIMULATION",
+        "txCounts": {
+          "65.34": 185,
+          "65.52": 9
+        }
+      }
+    ]
+  },
+  "ruleDecision": {
+    "decision": "BAND_SPECIFIC_RULE_NEEDED",
+    "reason": "AMBIGUOUS remain (90–109=7, 50–69=3); 90–109 wider SAFE=6."
+  },
+  "coverageReconciliation": {
+    "stage9Denominator": 34752,
+    "stage10Denominator": 34380,
+    "liveRawFloatDistinct": 34752,
+    "liveCanonicalDistinct": 34380,
+    "difference": 372,
+    "differenceCause": "Stage9 counted GROUP BY complex_id, exclusive_area (raw float distinct). Stage10 counted GROUP BY complex_id, ROUND(exclusive_area*100)/100 (areaKey canonical). Float pairs that collapse under areaKey explain the ~372 delta.",
+    "officialFutureDenominator": {
+      "formula": "COUNT(DISTINCT (complex_id, areaKey(exclusive_area))) over Seoul IDENTITY-READY",
+      "implementation": "GROUP BY complex_id, ROUND(exclusive_area*100)/100",
+      "rationale": "Matches apt_unit_types identity (complex_id carrier + areaKey)"
+    }
+  },
+  "currentCoverage": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexesCxOnly": 17,
+    "unitMasterComplexesAllKeys": 25,
+    "unitMasterComplexCoveragePct": 0.2,
+    "canonicalRawAreaIdentities": 34380,
+    "unitMasterCanonicalAreas": 275,
+    "unitMasterRawAreaCoveragePct": 0.8,
+    "groupLinkedCanonicalAreas": 220,
+    "groupLinkedRawAreaCoveragePct": 0.64
+  },
+  "legacyKeyAudit": {
+    "complexes": [
+      {
+        "legacySlug": "acro-riverpark",
+        "canonicalComplexId": "cx_ba770c1e608ed88f",
+        "classificationPresent": true,
+        "aptNameNorm": "아크로리버파크",
+        "groupCount": 10,
+        "unitCountUnderSlug": 0,
+        "unitCountUnderCx": 0,
+        "linkCount": 0,
+        "baselineCount": 2,
+        "lookupViaAptNameToSlug": true,
+        "note": "no units?"
+      },
+      {
+        "legacySlug": "daechi-palace",
+        "canonicalComplexId": "cx_adb7193c5c99abd6",
+        "classificationPresent": true,
+        "aptNameNorm": "래미안대치팰리스",
+        "groupCount": 9,
+        "unitCountUnderSlug": 0,
+        "unitCountUnderCx": 0,
+        "linkCount": 0,
+        "baselineCount": 7,
+        "lookupViaAptNameToSlug": true,
+        "note": "no units?"
+      },
+      {
+        "legacySlug": "hannam-thehill",
+        "canonicalComplexId": "cx_e47102400fbc8ec6",
+        "classificationPresent": true,
+        "aptNameNorm": "한남더힐",
+        "groupCount": 9,
+        "unitCountUnderSlug": 0,
+        "unitCountUnderCx": 0,
+        "linkCount": 0,
+        "baselineCount": 8,
+        "lookupViaAptNameToSlug": true,
+        "note": "no units?"
+      },
+      {
+        "legacySlug": "mapo-raemian-prugio",
+        "canonicalComplexId": null,
+        "classificationPresent": true,
+        "aptNameNorm": "마포래미안푸르지오4단지",
+        "groupCount": 6,
+        "unitCountUnderSlug": 0,
+        "unitCountUnderCx": 0,
+        "linkCount": 0,
+        "baselineCount": 3,
+        "lookupViaAptNameToSlug": true,
+        "note": "no units?"
+      },
+      {
+        "legacySlug": "raemian-hill-godeok",
+        "canonicalComplexId": "cx_f39813c026bb2817",
+        "classificationPresent": true,
+        "aptNameNorm": "래미안힐스테이트고덕",
+        "groupCount": 7,
+        "unitCountUnderSlug": 0,
+        "unitCountUnderCx": 0,
+        "linkCount": 0,
+        "baselineCount": 0,
+        "lookupViaAptNameToSlug": true,
+        "note": "no units?"
+      }
+    ],
+    "lookupCompatibility": "loadUnitTypeMasterByAptName: classifications.apt_name_norm → complex_key (slug). Phase5 pilots resolve via apt name. Stage6+ cx_ rows without classification are not loaded by this path (selector still transactions-based).",
+    "identityDecision": "CURRENT_DUAL-KEY_COMPATIBLE"
+  },
+  "writeCapRegression": {
+    "results": [
+      {
+        "budget": 0,
+        "proposed": 0,
+        "held": 29,
+        "withinCap": true
+      },
+      {
+        "budget": 5,
+        "proposed": 5,
+        "held": 24,
+        "withinCap": true
+      },
+      {
+        "budget": 20,
+        "proposed": 20,
+        "held": 9,
+        "withinCap": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "db": {
+    "insert": 0,
+    "update": 0,
+    "deleteLinks": 2,
+    "deleteGroups": 2,
+    "otherWrites": 0,
+    "unitTypesDelta": 0,
+    "groupsDelta": 0,
+    "linksDelta": 0,
+    "note": "Cumulative Stage11 repair deletes (idempotent re-run reports 0)"
+  },
+  "selector": {
+    "productionSelector": "transactions-based",
+    "migration": "NOT_READY"
+  },
+  "nextAction": {
+    "choice": "B",
+    "reason": "Repair done but band/boundary evidence still needs band-specific rule design before expansion."
+  },
+  "decision": {
+    "INVALID_GROUP_REPAIR": "PASS",
+    "CANONICAL_DEDUPE": "PASS",
+    "GROUP_RULE": "PARTIAL",
+    "COVERAGE_METRIC": "PASS",
+    "LEGACY_KEY_COMPATIBILITY": "PASS",
+    "WRITE_CAP_CONTROL": "PASS",
+    "DATA_SAFETY": "PASS"
+  }
+}

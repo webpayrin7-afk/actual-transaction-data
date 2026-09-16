@@ -1,0 +1,1320 @@
+{
+  "generatedAt": "2026-09-16T00:33:09.110Z",
+  "stage": "stage12-common-rule-confirmation",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0
+  },
+  "before": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 125,
+    "apt_unit_type_group_links": 220
+  },
+  "after": {
+    "apt_unit_types": 275,
+    "apt_pyeong_groups": 125,
+    "apt_unit_type_group_links": 220
+  },
+  "dbUnchanged": true,
+  "excludeCount": 53,
+  "heldOutSample": {
+    "complexes": [
+      {
+        "complexId": "cx_0276fe98811f6b51",
+        "name": "공덕파크자이",
+        "lawdCd": "11440",
+        "dong": "공덕동",
+        "canonicalAreaCount": 12
+      },
+      {
+        "complexId": "cx_07b088014854bcb0",
+        "name": "청계천두산위브더제니스",
+        "lawdCd": "11140",
+        "dong": "흥인동",
+        "canonicalAreaCount": 24
+      },
+      {
+        "complexId": "cx_35b271e3f9295c7e",
+        "name": "강일리버파크9단지",
+        "lawdCd": "11740",
+        "dong": "강일동",
+        "canonicalAreaCount": 16
+      },
+      {
+        "complexId": "cx_50f1917baa4ed611",
+        "name": "강변래미안",
+        "lawdCd": "11560",
+        "dong": "당산동",
+        "canonicalAreaCount": 5
+      },
+      {
+        "complexId": "cx_5a1be94b6a31e36d",
+        "name": "용산파크타워(24-0)",
+        "lawdCd": "11170",
+        "dong": "용산동5가",
+        "canonicalAreaCount": 12
+      },
+      {
+        "complexId": "cx_5a58d36952eb9f8c",
+        "name": "현대1",
+        "lawdCd": "11500",
+        "dong": "염창동",
+        "canonicalAreaCount": 7
+      },
+      {
+        "complexId": "cx_5a87002a61bcacfb",
+        "name": "마곡엠밸리6단지",
+        "lawdCd": "11500",
+        "dong": "마곡동",
+        "canonicalAreaCount": 18
+      },
+      {
+        "complexId": "cx_5d6b38cbeca0466b",
+        "name": "럭키남서울아파트",
+        "lawdCd": "11545",
+        "dong": "시흥동",
+        "canonicalAreaCount": 16
+      },
+      {
+        "complexId": "cx_69a4b95ec1df862d",
+        "name": "래미안엘리니티",
+        "lawdCd": "11230",
+        "dong": "용두동",
+        "canonicalAreaCount": 15
+      },
+      {
+        "complexId": "cx_6e0a719cea1bbd89",
+        "name": "목동신시가지5",
+        "lawdCd": "11470",
+        "dong": "목동",
+        "canonicalAreaCount": 18
+      },
+      {
+        "complexId": "cx_74a163fa0855ed8a",
+        "name": "염창힐스테이트",
+        "lawdCd": "11500",
+        "dong": "염창동",
+        "canonicalAreaCount": 9
+      },
+      {
+        "complexId": "cx_7705825d7bfdcb98",
+        "name": "한남해피트리",
+        "lawdCd": "11170",
+        "dong": "한남동",
+        "canonicalAreaCount": 8
+      },
+      {
+        "complexId": "cx_7c3c9fa6bd00d853",
+        "name": "상림마을6단지푸르지오(601~605동)bl1-8",
+        "lawdCd": "11380",
+        "dong": "진관동",
+        "canonicalAreaCount": 18
+      },
+      {
+        "complexId": "cx_8b99a482478f6a77",
+        "name": "상도1차갑을명가",
+        "lawdCd": "11590",
+        "dong": "상도동",
+        "canonicalAreaCount": 9
+      },
+      {
+        "complexId": "cx_d32f2cad6ab3548b",
+        "name": "성원상떼빌",
+        "lawdCd": "11710",
+        "dong": "가락동",
+        "canonicalAreaCount": 17
+      },
+      {
+        "complexId": "cx_d661dbccff41683d",
+        "name": "아크로서울포레스트",
+        "lawdCd": "11200",
+        "dong": "성수동1가",
+        "canonicalAreaCount": 25
+      },
+      {
+        "complexId": "cx_de373925cabf2828",
+        "name": "하이페리온2",
+        "lawdCd": "11470",
+        "dong": "목동",
+        "canonicalAreaCount": 10
+      },
+      {
+        "complexId": "cx_f1104af06fb68ecb",
+        "name": "래미안송파파인탑",
+        "lawdCd": "11710",
+        "dong": "송파동",
+        "canonicalAreaCount": 9
+      },
+      {
+        "complexId": "cx_f4af38d8341a7e6d",
+        "name": "솔밭노블리안",
+        "lawdCd": "11320",
+        "dong": "쌍문동",
+        "canonicalAreaCount": 11
+      }
+    ],
+    "count": 19,
+    "bandsRepresented": [
+      "50-69",
+      "70-79",
+      "80-89",
+      "90-109",
+      "110+"
+    ],
+    "bandHits": {
+      "50-69": [
+        "cx_7705825d7bfdcb98",
+        "cx_5d6b38cbeca0466b",
+        "cx_f4af38d8341a7e6d",
+        "cx_35b271e3f9295c7e"
+      ],
+      "70-79": [
+        "cx_50f1917baa4ed611",
+        "cx_f1104af06fb68ecb",
+        "cx_69a4b95ec1df862d"
+      ],
+      "80-89": [
+        "cx_74a163fa0855ed8a",
+        "cx_0276fe98811f6b51",
+        "cx_5a58d36952eb9f8c",
+        "cx_8b99a482478f6a77",
+        "cx_5a87002a61bcacfb"
+      ],
+      "90-109": [
+        "cx_d661dbccff41683d",
+        "cx_d32f2cad6ab3548b",
+        "cx_6e0a719cea1bbd89",
+        "cx_7c3c9fa6bd00d853"
+      ],
+      "110+": [
+        "cx_07b088014854bcb0",
+        "cx_d661dbccff41683d",
+        "cx_5a1be94b6a31e36d",
+        "cx_d32f2cad6ab3548b",
+        "cx_de373925cabf2828"
+      ]
+    },
+    "gapCoverage": {
+      "0.12": 1,
+      "0.13": 1,
+      "0.14": 2,
+      "0.15": 18,
+      "0.16": 1,
+      "0.17": 3,
+      "0.18+": 11
+    }
+  },
+  "ruleUnderTest": {
+    "version": "similar_exclusive_area_v1",
+    "distinctCanonicalMin": 2,
+    "maxSpan": 0.2,
+    "maxGap": 0.15,
+    "pipeline": [
+      "raw observed values",
+      "areaKey canonicalization",
+      "canonical dedupe",
+      "gap-split cluster (gap>0.15 breaks)",
+      "span<=0.20 decision"
+    ]
+  },
+  "syntheticControls": {
+    "zeroSpan802": [
+      {
+        "members": [
+          80.2
+        ],
+        "decision": "NOT_GROUPABLE"
+      }
+    ],
+    "zeroSpan9262": [
+      {
+        "members": [
+          92.62
+        ],
+        "decision": "NOT_GROUPABLE"
+      }
+    ],
+    "chainSpan024": [
+      {
+        "members": [
+          84.7,
+          84.82,
+          84.94
+        ],
+        "span": 0.24,
+        "decision": "BOUNDARY_REJECTED"
+      }
+    ],
+    "splitGap017": [
+      {
+        "members": [
+          59.7,
+          59.84
+        ],
+        "decision": "SAFE_BY_COMMON_RULE"
+      },
+      {
+        "members": [
+          60.01
+        ],
+        "decision": "NOT_GROUPABLE"
+      }
+    ]
+  },
+  "bandReports": {
+    "50-69": {
+      "complexes": 4,
+      "complexNames": [
+        {
+          "complexId": "cx_35b271e3f9295c7e",
+          "name": "강일리버파크9단지"
+        },
+        {
+          "complexId": "cx_5d6b38cbeca0466b",
+          "name": "럭키남서울아파트"
+        },
+        {
+          "complexId": "cx_7705825d7bfdcb98",
+          "name": "한남해피트리"
+        },
+        {
+          "complexId": "cx_f4af38d8341a7e6d",
+          "name": "솔밭노블리안"
+        }
+      ],
+      "candidates": 14,
+      "safe": 4,
+      "boundaryRejected": 2,
+      "semanticAmbiguity": 0,
+      "notGroupable": 8,
+      "maxAcceptedGap": 0.15,
+      "maxAcceptedSpan": 0.15,
+      "minRejectedGap": 0.15,
+      "minRejectedSpan": 0.22,
+      "falsePositives": [],
+      "possibleFalseNegatives": [],
+      "gapRejectEvidence": [],
+      "safeSample": [
+        {
+          "members": [
+            62.11,
+            62.12,
+            62.15,
+            62.25
+          ],
+          "span": 0.14,
+          "maxGap": 0.1,
+          "txCounts": {
+            "62.11": 53,
+            "62.12": 13,
+            "62.15": 39,
+            "62.25": 1
+          }
+        },
+        {
+          "members": [
+            62.81,
+            62.96
+          ],
+          "span": 0.15,
+          "maxGap": 0.15,
+          "txCounts": {
+            "62.81": 1,
+            "62.96": 2
+          }
+        },
+        {
+          "members": [
+            54.43,
+            54.51
+          ],
+          "span": 0.08,
+          "maxGap": 0.08,
+          "txCounts": {
+            "54.43": 8,
+            "54.51": 5
+          }
+        },
+        {
+          "members": [
+            58.25,
+            58.4
+          ],
+          "span": 0.15,
+          "maxGap": 0.15,
+          "txCounts": {
+            "58.25": 6,
+            "58.4": 5
+          }
+        }
+      ],
+      "rejectedSample": [
+        {
+          "members": [
+            59.7,
+            59.71,
+            59.86,
+            59.87,
+            59.88,
+            59.92
+          ],
+          "span": 0.22,
+          "maxGap": 0.15,
+          "reason": "chain span 0.22 > V1 max 0.2 (gaps all <= 0.15)"
+        },
+        {
+          "members": [
+            65.82,
+            65.97,
+            66.11,
+            66.2
+          ],
+          "span": 0.38,
+          "maxGap": 0.15,
+          "reason": "chain span 0.38 > V1 max 0.2 (gaps all <= 0.15)"
+        }
+      ]
+    },
+    "70-79": {
+      "complexes": 3,
+      "complexNames": [
+        {
+          "complexId": "cx_50f1917baa4ed611",
+          "name": "강변래미안"
+        },
+        {
+          "complexId": "cx_69a4b95ec1df862d",
+          "name": "래미안엘리니티"
+        },
+        {
+          "complexId": "cx_f1104af06fb68ecb",
+          "name": "래미안송파파인탑"
+        }
+      ],
+      "candidates": 4,
+      "safe": 3,
+      "boundaryRejected": 0,
+      "semanticAmbiguity": 0,
+      "notGroupable": 1,
+      "maxAcceptedGap": 0.15,
+      "maxAcceptedSpan": 0.18,
+      "minRejectedGap": null,
+      "minRejectedSpan": null,
+      "falsePositives": [],
+      "possibleFalseNegatives": [],
+      "gapRejectEvidence": [],
+      "safeSample": [
+        {
+          "members": [
+            78.9,
+            79.05
+          ],
+          "span": 0.15,
+          "maxGap": 0.15,
+          "txCounts": {
+            "78.9": 21,
+            "79.05": 134
+          }
+        },
+        {
+          "members": [
+            74.79,
+            74.94
+          ],
+          "span": 0.15,
+          "maxGap": 0.15,
+          "txCounts": {
+            "74.79": 14,
+            "74.94": 44
+          }
+        },
+        {
+          "members": [
+            71.58,
+            71.73,
+            71.76
+          ],
+          "span": 0.18,
+          "maxGap": 0.15,
+          "txCounts": {
+            "71.58": 45,
+            "71.73": 157,
+            "71.76": 25
+          }
+        }
+      ],
+      "rejectedSample": []
+    },
+    "80-89": {
+      "complexes": 5,
+      "complexNames": [
+        {
+          "complexId": "cx_0276fe98811f6b51",
+          "name": "공덕파크자이"
+        },
+        {
+          "complexId": "cx_5a58d36952eb9f8c",
+          "name": "현대1"
+        },
+        {
+          "complexId": "cx_5a87002a61bcacfb",
+          "name": "마곡엠밸리6단지"
+        },
+        {
+          "complexId": "cx_74a163fa0855ed8a",
+          "name": "염창힐스테이트"
+        },
+        {
+          "complexId": "cx_8b99a482478f6a77",
+          "name": "상도1차갑을명가"
+        }
+      ],
+      "candidates": 11,
+      "safe": 1,
+      "boundaryRejected": 5,
+      "semanticAmbiguity": 0,
+      "notGroupable": 5,
+      "maxAcceptedGap": 0.07,
+      "maxAcceptedSpan": 0.19,
+      "minRejectedGap": 0.14,
+      "minRejectedSpan": 0.26,
+      "falsePositives": [],
+      "possibleFalseNegatives": [],
+      "gapRejectEvidence": [],
+      "safeSample": [
+        {
+          "members": [
+            84.77,
+            84.84,
+            84.9,
+            84.96
+          ],
+          "span": 0.19,
+          "maxGap": 0.07,
+          "txCounts": {
+            "84.77": 24,
+            "84.84": 14,
+            "84.9": 6,
+            "84.96": 67
+          }
+        }
+      ],
+      "rejectedSample": [
+        {
+          "members": [
+            84.74,
+            84.89,
+            84.9,
+            84.95,
+            84.98,
+            85
+          ],
+          "span": 0.26,
+          "maxGap": 0.15,
+          "reason": "chain span 0.26 > V1 max 0.2 (gaps all <= 0.15)"
+        },
+        {
+          "members": [
+            84.07,
+            84.19,
+            84.34
+          ],
+          "span": 0.27,
+          "maxGap": 0.15,
+          "reason": "chain span 0.27 > V1 max 0.2 (gaps all <= 0.15)"
+        },
+        {
+          "members": [
+            84.47,
+            84.6,
+            84.74,
+            84.84,
+            84.85,
+            84.88,
+            84.99
+          ],
+          "span": 0.52,
+          "maxGap": 0.14,
+          "reason": "chain span 0.52 > V1 max 0.2 (gaps all <= 0.15)"
+        },
+        {
+          "members": [
+            84.55,
+            84.6,
+            84.75,
+            84.85,
+            84.86,
+            84.91,
+            84.97
+          ],
+          "span": 0.42,
+          "maxGap": 0.15,
+          "reason": "chain span 0.42 > V1 max 0.2 (gaps all <= 0.15)"
+        },
+        {
+          "members": [
+            84.61,
+            84.71,
+            84.72,
+            84.8,
+            84.95
+          ],
+          "span": 0.34,
+          "maxGap": 0.15,
+          "reason": "chain span 0.34 > V1 max 0.2 (gaps all <= 0.15)"
+        }
+      ]
+    },
+    "90-109": {
+      "complexes": 4,
+      "complexNames": [
+        {
+          "complexId": "cx_6e0a719cea1bbd89",
+          "name": "목동신시가지5"
+        },
+        {
+          "complexId": "cx_7c3c9fa6bd00d853",
+          "name": "상림마을6단지푸르지오(601~605동)bl1-8"
+        },
+        {
+          "complexId": "cx_d32f2cad6ab3548b",
+          "name": "성원상떼빌"
+        },
+        {
+          "complexId": "cx_d661dbccff41683d",
+          "name": "아크로서울포레스트"
+        }
+      ],
+      "candidates": 15,
+      "safe": 6,
+      "boundaryRejected": 2,
+      "semanticAmbiguity": 0,
+      "notGroupable": 7,
+      "maxAcceptedGap": 0.09,
+      "maxAcceptedSpan": 0.15,
+      "minRejectedGap": 0.16,
+      "minRejectedSpan": 0.21,
+      "falsePositives": [],
+      "possibleFalseNegatives": [
+        {
+          "members": [
+            101.61,
+            101.78
+          ],
+          "span": 0.17,
+          "maxGap": 0.17,
+          "note": "gap 0.17 just over 0.15 with both sides tx>=3 (evidence only)"
+        }
+      ],
+      "gapRejectEvidence": [
+        {
+          "complexId": "cx_7c3c9fa6bd00d853",
+          "name": "상림마을6단지푸르지오(601~605동)bl1-8",
+          "left": 101.61,
+          "right": 101.78,
+          "gap": 0.17,
+          "review": "POSSIBLE_FALSE_NEGATIVE",
+          "note": "gap 0.17 just over 0.15 with both sides tx>=3 (evidence only)"
+        },
+        {
+          "complexId": "cx_d661dbccff41683d",
+          "name": "아크로서울포레스트",
+          "left": 95.46,
+          "right": 95.62,
+          "gap": 0.16,
+          "review": "CORRECT_BOUNDARY",
+          "note": "gap 0.16 over 0.15; sparse side suggests correct split"
+        },
+        {
+          "complexId": "cx_d661dbccff41683d",
+          "name": "아크로서울포레스트",
+          "left": 95.64,
+          "right": 95.81,
+          "gap": 0.17,
+          "review": "CORRECT_BOUNDARY",
+          "note": "gap 0.17 over 0.15; sparse side suggests correct split"
+        }
+      ],
+      "safeSample": [
+        {
+          "members": [
+            93.18,
+            93.24
+          ],
+          "span": 0.06,
+          "maxGap": 0.06,
+          "txCounts": {
+            "93.18": 21,
+            "93.24": 22
+          }
+        },
+        {
+          "members": [
+            99.6,
+            99.61
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "txCounts": {
+            "99.6": 40,
+            "99.61": 3
+          }
+        },
+        {
+          "members": [
+            108.6,
+            108.65
+          ],
+          "span": 0.05,
+          "maxGap": 0.05,
+          "txCounts": {
+            "108.6": 5,
+            "108.65": 23
+          }
+        },
+        {
+          "members": [
+            95.62,
+            95.64
+          ],
+          "span": 0.02,
+          "maxGap": 0.02,
+          "txCounts": {
+            "95.62": 3,
+            "95.64": 3
+          }
+        },
+        {
+          "members": [
+            96.06,
+            96.12,
+            96.21
+          ],
+          "span": 0.15,
+          "maxGap": 0.09,
+          "txCounts": {
+            "96.06": 2,
+            "96.12": 4,
+            "96.21": 5
+          }
+        },
+        {
+          "members": [
+            97.45,
+            97.49
+          ],
+          "span": 0.04,
+          "maxGap": 0.04,
+          "txCounts": {
+            "97.45": 5,
+            "97.49": 3
+          }
+        }
+      ],
+      "rejectedSample": [
+        {
+          "members": [
+            95.01,
+            95.06,
+            95.21,
+            95.22,
+            95.27,
+            95.28
+          ],
+          "span": 0.27,
+          "maxGap": 0.15,
+          "reason": "chain span 0.27 > V1 max 0.2 (gaps all <= 0.15)"
+        },
+        {
+          "members": [
+            101.78,
+            101.93,
+            101.97,
+            101.99
+          ],
+          "span": 0.21,
+          "maxGap": 0.15,
+          "reason": "chain span 0.21 > V1 max 0.2 (gaps all <= 0.15)"
+        }
+      ]
+    },
+    "110+": {
+      "complexes": 5,
+      "complexNames": [
+        {
+          "complexId": "cx_07b088014854bcb0",
+          "name": "청계천두산위브더제니스"
+        },
+        {
+          "complexId": "cx_5a1be94b6a31e36d",
+          "name": "용산파크타워(24-0)"
+        },
+        {
+          "complexId": "cx_d32f2cad6ab3548b",
+          "name": "성원상떼빌"
+        },
+        {
+          "complexId": "cx_d661dbccff41683d",
+          "name": "아크로서울포레스트"
+        },
+        {
+          "complexId": "cx_de373925cabf2828",
+          "name": "하이페리온2"
+        }
+      ],
+      "candidates": 51,
+      "safe": 6,
+      "boundaryRejected": 2,
+      "semanticAmbiguity": 0,
+      "notGroupable": 43,
+      "maxAcceptedGap": 0.15,
+      "maxAcceptedSpan": 0.15,
+      "minRejectedGap": 0.17,
+      "minRejectedSpan": 0.24,
+      "falsePositives": [],
+      "possibleFalseNegatives": [
+        {
+          "members": [
+            124.13,
+            124.21,
+            124.22,
+            124.37
+          ],
+          "span": 0.24,
+          "maxGap": 0.15,
+          "note": "near-boundary reject gap=0.15 span=0.24 (evidence only; not promoted)"
+        },
+        {
+          "members": [
+            164.86,
+            165.03
+          ],
+          "span": 0.17,
+          "maxGap": 0.17,
+          "note": "gap 0.17 just over 0.15 with both sides tx>=3 (evidence only)"
+        }
+      ],
+      "gapRejectEvidence": [
+        {
+          "complexId": "cx_d661dbccff41683d",
+          "name": "아크로서울포레스트",
+          "left": 164.86,
+          "right": 165.03,
+          "gap": 0.17,
+          "review": "POSSIBLE_FALSE_NEGATIVE",
+          "note": "gap 0.17 just over 0.15 with both sides tx>=3 (evidence only)"
+        }
+      ],
+      "safeSample": [
+        {
+          "members": [
+            147.32,
+            147.33
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "txCounts": {
+            "147.32": 21,
+            "147.33": 33
+          }
+        },
+        {
+          "members": [
+            133.87,
+            134.02
+          ],
+          "span": 0.15,
+          "maxGap": 0.15,
+          "txCounts": {
+            "133.87": 2,
+            "134.02": 56
+          }
+        },
+        {
+          "members": [
+            145.57,
+            145.72
+          ],
+          "span": 0.15,
+          "maxGap": 0.15,
+          "txCounts": {
+            "145.57": 5,
+            "145.72": 31
+          }
+        },
+        {
+          "members": [
+            200.67,
+            200.71,
+            200.75
+          ],
+          "span": 0.08,
+          "maxGap": 0.04,
+          "txCounts": {
+            "200.67": 7,
+            "200.71": 4,
+            "200.75": 4
+          }
+        },
+        {
+          "members": [
+            119.37,
+            119.52
+          ],
+          "span": 0.15,
+          "maxGap": 0.15,
+          "txCounts": {
+            "119.37": 34,
+            "119.52": 48
+          }
+        },
+        {
+          "members": [
+            209.33,
+            209.34
+          ],
+          "span": 0.01,
+          "maxGap": 0.01,
+          "txCounts": {
+            "209.33": 1,
+            "209.34": 1
+          }
+        }
+      ],
+      "rejectedSample": [
+        {
+          "members": [
+            124.13,
+            124.21,
+            124.22,
+            124.37
+          ],
+          "span": 0.24,
+          "maxGap": 0.15,
+          "reason": "chain span 0.24 > V1 max 0.2 (gaps all <= 0.15)"
+        },
+        {
+          "members": [
+            165.03,
+            165.18,
+            165.28,
+            165.34
+          ],
+          "span": 0.31,
+          "maxGap": 0.15,
+          "reason": "chain span 0.31 > V1 max 0.2 (gaps all <= 0.15)"
+        }
+      ]
+    }
+  },
+  "crossBand": {
+    "distinctCanonicalMinimum": 2,
+    "maxSpan": 0.2,
+    "maxGap": 0.15,
+    "numericSafeCandidates": 27,
+    "semanticFalsePositives": 0,
+    "boundaryRejected": 12,
+    "possibleFalseNegatives": 3,
+    "possibleFalseNegativeSamples": [
+      {
+        "members": [
+          101.61,
+          101.78
+        ],
+        "span": 0.17,
+        "maxGap": 0.17,
+        "note": "gap 0.17 just over 0.15 with both sides tx>=3 (evidence only)"
+      },
+      {
+        "members": [
+          124.13,
+          124.21,
+          124.22,
+          124.37
+        ],
+        "span": 0.24,
+        "maxGap": 0.15,
+        "note": "near-boundary reject gap=0.15 span=0.24 (evidence only; not promoted)"
+      },
+      {
+        "members": [
+          164.86,
+          165.03
+        ],
+        "span": 0.17,
+        "maxGap": 0.17,
+        "note": "gap 0.17 just over 0.15 with both sides tx>=3 (evidence only)"
+      }
+    ],
+    "bandsWithSafe": [
+      "50-69",
+      "70-79",
+      "80-89",
+      "90-109",
+      "110+"
+    ],
+    "bandsWithSample": [
+      "50-69",
+      "70-79",
+      "80-89",
+      "90-109",
+      "110+"
+    ]
+  },
+  "existingStage79ValidGroups": {
+    "checked": 36,
+    "v1Compatible": 36,
+    "v1Incompatible": 0,
+    "failures": [],
+    "sample": [
+      {
+        "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+        "members": [
+          84.83,
+          84.95,
+          84.97
+        ],
+        "span": 0.14,
+        "maxGap": 0.12,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      },
+      {
+        "groupKey": "cx_b1f9d0cc3e8e5c12:G1:ex84.59-84.78",
+        "members": [
+          84.59,
+          84.68,
+          84.78
+        ],
+        "span": 0.19,
+        "maxGap": 0.1,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      },
+      {
+        "groupKey": "cx_b74bdaa8f28045aa:G1:ex84.39-84.47",
+        "members": [
+          84.39,
+          84.42,
+          84.47
+        ],
+        "span": 0.08,
+        "maxGap": 0.05,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      },
+      {
+        "groupKey": "cx_b74bdaa8f28045aa:G2:ex84.81-84.87",
+        "members": [
+          84.81,
+          84.87
+        ],
+        "span": 0.06,
+        "maxGap": 0.06,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      },
+      {
+        "groupKey": "cx_4880c4ffe9880d49:G1:ex84.82-84.96",
+        "members": [
+          84.82,
+          84.87,
+          84.91,
+          84.92,
+          84.96
+        ],
+        "span": 0.14,
+        "maxGap": 0.05,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      },
+      {
+        "groupKey": "cx_e095bf141dde5379:G1:ex84.85-84.91",
+        "members": [
+          84.85,
+          84.86,
+          84.89,
+          84.91
+        ],
+        "span": 0.06,
+        "maxGap": 0.03,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      },
+      {
+        "groupKey": "cx_c7ac494bf78993ad:G1:ex84.91-84.99",
+        "members": [
+          84.91,
+          84.93,
+          84.96,
+          84.97,
+          84.99
+        ],
+        "span": 0.08,
+        "maxGap": 0.03,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      },
+      {
+        "groupKey": "cx_c3f8a052ae66fd32:G1:ex59.78-59.91",
+        "members": [
+          59.78,
+          59.88,
+          59.91
+        ],
+        "span": 0.13,
+        "maxGap": 0.1,
+        "decision": "SAFE_BY_COMMON_RULE",
+        "v1Compatible": true,
+        "reason": "passes similar_exclusive_area_v1"
+      }
+    ]
+  },
+  "legacyPhase5": {
+    "checked": 49,
+    "compatible": 0,
+    "notDirectlyComparable": 49,
+    "bySlug": [
+      {
+        "slug": "acro-riverpark",
+        "groupCount": 10,
+        "compatible": 0,
+        "notDirectlyComparable": 10,
+        "samples": [
+          {
+            "groupKey": "acro-riverpark:G1:ex59.95-59.98",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "acro-riverpark:G2:ex84.94-84.99",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "acro-riverpark:G3:ex112.93-112.99",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          }
+        ]
+      },
+      {
+        "slug": "daechi-palace",
+        "groupCount": 9,
+        "compatible": 0,
+        "notDirectlyComparable": 9,
+        "samples": [
+          {
+            "groupKey": "daechi-palace:G1:ex59.99-59.99",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "daechi-palace:G2:ex69.04-69.04",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "daechi-palace:G3:ex84.97-84.99",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          }
+        ]
+      },
+      {
+        "slug": "hannam-thehill",
+        "groupCount": 9,
+        "compatible": 0,
+        "notDirectlyComparable": 9,
+        "samples": [
+          {
+            "groupKey": "hannam-thehill:G1:ex59.69-59.70",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "hannam-thehill:G2:ex177.76-177.76",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "hannam-thehill:G3:ex208.48-208.48",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          }
+        ]
+      },
+      {
+        "slug": "mapo-raemian-prugio",
+        "groupCount": 6,
+        "compatible": 0,
+        "notDirectlyComparable": 6,
+        "samples": [
+          {
+            "groupKey": "mapo-raemian-prugio:G1:ex36.98-36.98",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "mapo-raemian-prugio:G2:ex41.98-41.98",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "mapo-raemian-prugio:G3:ex59.91-59.98",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          }
+        ]
+      },
+      {
+        "slug": "raemian-hill-godeok",
+        "groupCount": 7,
+        "compatible": 0,
+        "notDirectlyComparable": 7,
+        "samples": [
+          {
+            "groupKey": "raemian-hill-godeok:G1:ex59.23-59.96",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "raemian-hill-godeok:G2:ex72.02-72.02",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          },
+          {
+            "groupKey": "raemian-hill-godeok:G3:ex84.74-84.94",
+            "status": "not_directly_comparable",
+            "reason": "no unit_type links (Phase5 verified workflow)"
+          }
+        ]
+      },
+      {
+        "slug": "parkrio",
+        "groupCount": 5,
+        "compatible": 0,
+        "notDirectlyComparable": 5,
+        "samples": [
+          {
+            "groupKey": "parkrio:G1:ex35.24-35.24",
+            "status": "not_directly_comparable",
+            "reason": "link members < 2 after parse"
+          },
+          {
+            "groupKey": "parkrio:G2:ex59.64-59.95",
+            "status": "not_directly_comparable",
+            "reason": "link members < 2 after parse"
+          },
+          {
+            "groupKey": "parkrio:G3:ex84.79-84.97",
+            "status": "not_directly_comparable",
+            "reason": "link members < 2 after parse"
+          }
+        ]
+      },
+      {
+        "slug": "jamsil-els",
+        "groupCount": 3,
+        "compatible": 0,
+        "notDirectlyComparable": 3,
+        "samples": [
+          {
+            "groupKey": "jamsil-els:G1:ex59.96-59.96",
+            "status": "not_directly_comparable",
+            "reason": "link members < 2 after parse"
+          },
+          {
+            "groupKey": "jamsil-els:G2:ex84.80-84.97",
+            "status": "not_directly_comparable",
+            "reason": "link members < 2 after parse"
+          },
+          {
+            "groupKey": "jamsil-els:G3:ex119.93-119.93",
+            "status": "not_directly_comparable",
+            "reason": "link members < 2 after parse"
+          }
+        ]
+      }
+    ],
+    "note": "Legacy Phase5 groups are NOT required to satisfy V1; no migration."
+  },
+  "coverage": {
+    "seoulComplexes": 8437,
+    "unitMasterComplexes": 17,
+    "unitMasterComplexCoveragePct": 0.2,
+    "canonicalRawIdentities": 34380,
+    "unitMasterCanonicalIdentities": 275,
+    "unitRawAreaCoveragePct": 0.8,
+    "groupLinkedCanonicalIdentities": 220,
+    "groupLinkedRawAreaCoveragePct": 0.64,
+    "officialDenominator": "DISTINCT(complex_id, ROUND(exclusive_area*100)/100) Seoul IDENTITY-READY"
+  },
+  "identityPolicy": {
+    "legacyKey": "slug complex_key allowed (Phase5 rows retained)",
+    "newWriteKey": "cx_ complex_id carrier only",
+    "dualKeyCompatibility": "CURRENT_DUAL-KEY_COMPATIBLE"
+  },
+  "writeCapRegression": {
+    "results": [
+      {
+        "budget": 0,
+        "proposed": 0,
+        "held": 29,
+        "withinCap": true
+      },
+      {
+        "budget": 5,
+        "proposed": 5,
+        "held": 24,
+        "withinCap": true
+      },
+      {
+        "budget": 20,
+        "proposed": 20,
+        "held": 9,
+        "withinCap": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "selector": {
+    "productionSelector": "transactions-based",
+    "migration": "NOT_READY"
+  },
+  "finalRuleDecision": "COMMON_RULE_CONFIRMED",
+  "finalReason": "No strong numeric-rule false positives; 20 SAFE across 5 bands; Stage7–9 V1 compatible 36/36; boundary rejects consistent. Possible FN near 0.16–0.18 kept as evidence only (not promoted).",
+  "ifConfirmed": {
+    "ruleVersion": "similar_exclusive_area_v1",
+    "rule": [
+      "canonicalize to 2 decimals",
+      "dedupe before cluster",
+      "canonical members >= 2",
+      "gap > 0.15 breaks cluster",
+      "span <= 0.20㎡",
+      "max consecutive gap <= 0.15㎡",
+      "raw identities preserved",
+      "group is derived only"
+    ]
+  },
+  "nextAction": {
+    "choice": "A",
+    "reason": "Freeze similar_exclusive_area_v1 and proceed to 25-complex bounded production expansion."
+  },
+  "decision": {
+    "COMMON_RULE_VALIDATION": "PASS",
+    "FALSE_POSITIVE_CHECK": "PASS",
+    "LEGACY_COMPATIBILITY": "PASS",
+    "COVERAGE_METRIC": "PASS",
+    "WRITE_CAP_CONTROL": "PASS",
+    "DATA_SAFETY": "PASS"
+  }
+}

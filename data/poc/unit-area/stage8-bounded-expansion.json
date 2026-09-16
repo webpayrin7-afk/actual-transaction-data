@@ -1,0 +1,826 @@
+{
+  "generatedAt": "2026-09-15T23:30:12.390Z",
+  "stage": "stage8-bounded-expansion",
+  "scope": "5 complexes only",
+  "contract": {
+    "complexKeyConvention": "complex_key = apt_complex_master.complex_id (Stage6; no slug)",
+    "areaPrecision": "areaKey = Math.round(sqm*100)/100 (singoga.ts)",
+    "rawIdentity": "1:1 apt_unit_types per distinct exclusive_area",
+    "groupIdentity": "{complex_key}:G{n}:ex{min}-{max} (Stage7)",
+    "groupingRule": "Stage5/Phase5-compatible: cluster where area-clusterMin ≤ 0.20; SAFE_GROUP if ≥2 members and max consecutive gap ≤ 0.15; near-84 (84–86) only for production group writes",
+    "label": "range_only / market_label NULL / no_supply_area — NOT 26평"
+  },
+  "beforeCounts": {
+    "apt_unit_types": 143,
+    "apt_pyeong_groups": 90,
+    "apt_unit_type_group_links": 135,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "afterCounts": {
+    "apt_unit_types": 180,
+    "apt_pyeong_groups": 96,
+    "apt_unit_type_group_links": 157,
+    "apt_pyeong_group_baselines": 39,
+    "apt_complex_classifications": 13
+  },
+  "protectBefore": {
+    "cx_caf229b5ac63cfbd": {
+      "u": 5,
+      "g": 0,
+      "l": 0
+    },
+    "cx_85cd8a4b2d5dc3d0": {
+      "u": 6,
+      "g": 1,
+      "l": 3
+    },
+    "parkrio": {
+      "u": 10,
+      "g": 5,
+      "l": 10
+    },
+    "jamsil-els": {
+      "u": 7,
+      "g": 3,
+      "l": 7
+    },
+    "hangang-daewoo": {
+      "u": 11,
+      "g": 4,
+      "l": 11
+    }
+  },
+  "protectAfter": {
+    "cx_caf229b5ac63cfbd": {
+      "u": 5,
+      "g": 0,
+      "l": 0
+    },
+    "cx_85cd8a4b2d5dc3d0": {
+      "u": 6,
+      "g": 1,
+      "l": 3
+    },
+    "parkrio": {
+      "u": 10,
+      "g": 5,
+      "l": 10
+    },
+    "jamsil-els": {
+      "u": 7,
+      "g": 3,
+      "l": 7
+    },
+    "hangang-daewoo": {
+      "u": 11,
+      "g": 4,
+      "l": 11
+    }
+  },
+  "protectOk": true,
+  "complexes": [
+    {
+      "complexId": "cx_b1f9d0cc3e8e5c12",
+      "complexName": "올림픽파크센트레빌",
+      "aptNameNorm": "올림픽파크센트레빌",
+      "lawdCd": "11710",
+      "complexKey": "cx_b1f9d0cc3e8e5c12",
+      "rawAreas": [
+        84.16,
+        84.38,
+        84.59,
+        84.68,
+        84.78,
+        84.91
+      ],
+      "rawAreaDetails": [
+        {
+          "exclusiveArea": 84.16,
+          "txCount": 25
+        },
+        {
+          "exclusiveArea": 84.38,
+          "txCount": 18
+        },
+        {
+          "exclusiveArea": 84.59,
+          "txCount": 9
+        },
+        {
+          "exclusiveArea": 84.68,
+          "txCount": 20
+        },
+        {
+          "exclusiveArea": 84.78,
+          "txCount": 9
+        },
+        {
+          "exclusiveArea": 84.91,
+          "txCount": 11
+        }
+      ],
+      "unitBefore": 0,
+      "unitInserted": 6,
+      "unitInsertedKeys": [
+        "cx_b1f9d0cc3e8e5c12:ex84.16",
+        "cx_b1f9d0cc3e8e5c12:ex84.38",
+        "cx_b1f9d0cc3e8e5c12:ex84.59",
+        "cx_b1f9d0cc3e8e5c12:ex84.68",
+        "cx_b1f9d0cc3e8e5c12:ex84.78",
+        "cx_b1f9d0cc3e8e5c12:ex84.91"
+      ],
+      "unitAfter": 6,
+      "near84Members": [
+        84.16,
+        84.38,
+        84.59,
+        84.68,
+        84.78,
+        84.91
+      ],
+      "candidates": [
+        {
+          "members": [
+            84.16
+          ],
+          "span": 0,
+          "decision": "NOT_GROUPABLE",
+          "reason": "single raw area — no similar-area family",
+          "written": false,
+          "groupKey": null,
+          "linksInserted": 0,
+          "aggregation": null
+        },
+        {
+          "members": [
+            84.38
+          ],
+          "span": 0,
+          "decision": "NOT_GROUPABLE",
+          "reason": "single raw area — no similar-area family",
+          "written": false,
+          "groupKey": null,
+          "linksInserted": 0,
+          "aggregation": null
+        },
+        {
+          "members": [
+            84.59,
+            84.68,
+            84.78
+          ],
+          "span": 0.19,
+          "decision": "SAFE_GROUP",
+          "reason": "near-84 family span 0.19㎡ ≤ Phase5 verified 0.2㎡; maxGap 0.1㎡; ≥2 members",
+          "written": true,
+          "groupKey": "cx_b1f9d0cc3e8e5c12:G1:ex84.59-84.78",
+          "linksInserted": 3,
+          "aggregation": {
+            "perMember": {
+              "84.59": 9,
+              "84.68": 20,
+              "84.78": 9
+            },
+            "memberSum": 38,
+            "groupResult": 38,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          }
+        },
+        {
+          "members": [
+            84.91
+          ],
+          "span": 0,
+          "decision": "NOT_GROUPABLE",
+          "reason": "single raw area — no similar-area family",
+          "written": false,
+          "groupKey": null,
+          "linksInserted": 0,
+          "aggregation": null
+        }
+      ],
+      "safeGroupCount": 1,
+      "ambiguousCount": 0,
+      "notGroupableCount": 3,
+      "groupsInserted": 1,
+      "linksInserted": 3,
+      "groupsWritten": [
+        "cx_b1f9d0cc3e8e5c12:G1:ex84.59-84.78"
+      ],
+      "aggregationPass": true,
+      "rawPreserved": true,
+      "missing": [],
+      "unexpected": [],
+      "collapsed": [],
+      "duplicateUnits": []
+    },
+    {
+      "complexId": "cx_b74bdaa8f28045aa",
+      "complexName": "건영1",
+      "aptNameNorm": "건영1",
+      "lawdCd": "11710",
+      "complexKey": "cx_b74bdaa8f28045aa",
+      "rawAreas": [
+        77.68,
+        84.17,
+        84.39,
+        84.42,
+        84.47,
+        84.81,
+        84.87
+      ],
+      "rawAreaDetails": [
+        {
+          "exclusiveArea": 77.68,
+          "txCount": 71
+        },
+        {
+          "exclusiveArea": 84.17,
+          "txCount": 2
+        },
+        {
+          "exclusiveArea": 84.39,
+          "txCount": 359
+        },
+        {
+          "exclusiveArea": 84.42,
+          "txCount": 11
+        },
+        {
+          "exclusiveArea": 84.47,
+          "txCount": 29
+        },
+        {
+          "exclusiveArea": 84.81,
+          "txCount": 43
+        },
+        {
+          "exclusiveArea": 84.87,
+          "txCount": 9
+        }
+      ],
+      "unitBefore": 0,
+      "unitInserted": 7,
+      "unitInsertedKeys": [
+        "cx_b74bdaa8f28045aa:ex77.68",
+        "cx_b74bdaa8f28045aa:ex84.17",
+        "cx_b74bdaa8f28045aa:ex84.39",
+        "cx_b74bdaa8f28045aa:ex84.42",
+        "cx_b74bdaa8f28045aa:ex84.47",
+        "cx_b74bdaa8f28045aa:ex84.81",
+        "cx_b74bdaa8f28045aa:ex84.87"
+      ],
+      "unitAfter": 7,
+      "near84Members": [
+        84.17,
+        84.39,
+        84.42,
+        84.47,
+        84.81,
+        84.87
+      ],
+      "candidates": [
+        {
+          "members": [
+            84.17
+          ],
+          "span": 0,
+          "decision": "NOT_GROUPABLE",
+          "reason": "single raw area — no similar-area family",
+          "written": false,
+          "groupKey": null,
+          "linksInserted": 0,
+          "aggregation": null
+        },
+        {
+          "members": [
+            84.39,
+            84.42,
+            84.47
+          ],
+          "span": 0.08,
+          "decision": "SAFE_GROUP",
+          "reason": "near-84 family span 0.08㎡ ≤ Phase5 verified 0.2㎡; maxGap 0.05㎡; ≥2 members",
+          "written": true,
+          "groupKey": "cx_b74bdaa8f28045aa:G1:ex84.39-84.47",
+          "linksInserted": 3,
+          "aggregation": {
+            "perMember": {
+              "84.39": 359,
+              "84.42": 11,
+              "84.47": 29
+            },
+            "memberSum": 399,
+            "groupResult": 399,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          }
+        },
+        {
+          "members": [
+            84.81,
+            84.87
+          ],
+          "span": 0.06,
+          "decision": "SAFE_GROUP",
+          "reason": "near-84 family span 0.06㎡ ≤ Phase5 verified 0.2㎡; maxGap 0.06㎡; ≥2 members",
+          "written": true,
+          "groupKey": "cx_b74bdaa8f28045aa:G2:ex84.81-84.87",
+          "linksInserted": 2,
+          "aggregation": {
+            "perMember": {
+              "84.81": 43,
+              "84.87": 9
+            },
+            "memberSum": 52,
+            "groupResult": 52,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          }
+        }
+      ],
+      "safeGroupCount": 2,
+      "ambiguousCount": 0,
+      "notGroupableCount": 1,
+      "groupsInserted": 2,
+      "linksInserted": 5,
+      "groupsWritten": [
+        "cx_b74bdaa8f28045aa:G1:ex84.39-84.47",
+        "cx_b74bdaa8f28045aa:G2:ex84.81-84.87"
+      ],
+      "aggregationPass": true,
+      "rawPreserved": true,
+      "missing": [],
+      "unexpected": [],
+      "collapsed": [],
+      "duplicateUnits": []
+    },
+    {
+      "complexId": "cx_4880c4ffe9880d49",
+      "complexName": "산성",
+      "aptNameNorm": "산성",
+      "lawdCd": "11710",
+      "complexKey": "cx_4880c4ffe9880d49",
+      "rawAreas": [
+        82.51,
+        83.03,
+        83.97,
+        84.56,
+        84.82,
+        84.87,
+        84.91,
+        84.92,
+        84.96
+      ],
+      "rawAreaDetails": [
+        {
+          "exclusiveArea": 82.51,
+          "txCount": 3
+        },
+        {
+          "exclusiveArea": 83.03,
+          "txCount": 2
+        },
+        {
+          "exclusiveArea": 83.97,
+          "txCount": 1
+        },
+        {
+          "exclusiveArea": 84.56,
+          "txCount": 2
+        },
+        {
+          "exclusiveArea": 84.82,
+          "txCount": 1
+        },
+        {
+          "exclusiveArea": 84.87,
+          "txCount": 3
+        },
+        {
+          "exclusiveArea": 84.91,
+          "txCount": 2
+        },
+        {
+          "exclusiveArea": 84.92,
+          "txCount": 4
+        },
+        {
+          "exclusiveArea": 84.96,
+          "txCount": 3
+        }
+      ],
+      "unitBefore": 0,
+      "unitInserted": 9,
+      "unitInsertedKeys": [
+        "cx_4880c4ffe9880d49:ex82.51",
+        "cx_4880c4ffe9880d49:ex83.03",
+        "cx_4880c4ffe9880d49:ex83.97",
+        "cx_4880c4ffe9880d49:ex84.56",
+        "cx_4880c4ffe9880d49:ex84.82",
+        "cx_4880c4ffe9880d49:ex84.87",
+        "cx_4880c4ffe9880d49:ex84.91",
+        "cx_4880c4ffe9880d49:ex84.92",
+        "cx_4880c4ffe9880d49:ex84.96"
+      ],
+      "unitAfter": 9,
+      "near84Members": [
+        84.56,
+        84.82,
+        84.87,
+        84.91,
+        84.92,
+        84.96
+      ],
+      "candidates": [
+        {
+          "members": [
+            84.56
+          ],
+          "span": 0,
+          "decision": "NOT_GROUPABLE",
+          "reason": "single raw area — no similar-area family",
+          "written": false,
+          "groupKey": null,
+          "linksInserted": 0,
+          "aggregation": null
+        },
+        {
+          "members": [
+            84.82,
+            84.87,
+            84.91,
+            84.92,
+            84.96
+          ],
+          "span": 0.14,
+          "decision": "SAFE_GROUP",
+          "reason": "near-84 family span 0.14㎡ ≤ Phase5 verified 0.2㎡; maxGap 0.05㎡; ≥2 members",
+          "written": true,
+          "groupKey": "cx_4880c4ffe9880d49:G1:ex84.82-84.96",
+          "linksInserted": 5,
+          "aggregation": {
+            "perMember": {
+              "84.82": 1,
+              "84.87": 3,
+              "84.91": 2,
+              "84.92": 4,
+              "84.96": 3
+            },
+            "memberSum": 13,
+            "groupResult": 13,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          }
+        }
+      ],
+      "safeGroupCount": 1,
+      "ambiguousCount": 0,
+      "notGroupableCount": 1,
+      "groupsInserted": 1,
+      "linksInserted": 5,
+      "groupsWritten": [
+        "cx_4880c4ffe9880d49:G1:ex84.82-84.96"
+      ],
+      "aggregationPass": true,
+      "rawPreserved": true,
+      "missing": [],
+      "unexpected": [],
+      "collapsed": [],
+      "duplicateUnits": []
+    },
+    {
+      "complexId": "cx_e095bf141dde5379",
+      "complexName": "현대1차",
+      "aptNameNorm": "현대1차",
+      "lawdCd": "11710",
+      "complexKey": "cx_e095bf141dde5379",
+      "rawAreas": [
+        70.38,
+        74.83,
+        84.64,
+        84.85,
+        84.86,
+        84.89,
+        84.91
+      ],
+      "rawAreaDetails": [
+        {
+          "exclusiveArea": 70.38,
+          "txCount": 19
+        },
+        {
+          "exclusiveArea": 74.83,
+          "txCount": 55
+        },
+        {
+          "exclusiveArea": 84.64,
+          "txCount": 44
+        },
+        {
+          "exclusiveArea": 84.85,
+          "txCount": 19
+        },
+        {
+          "exclusiveArea": 84.86,
+          "txCount": 25
+        },
+        {
+          "exclusiveArea": 84.89,
+          "txCount": 23
+        },
+        {
+          "exclusiveArea": 84.91,
+          "txCount": 136
+        }
+      ],
+      "unitBefore": 0,
+      "unitInserted": 7,
+      "unitInsertedKeys": [
+        "cx_e095bf141dde5379:ex70.38",
+        "cx_e095bf141dde5379:ex74.83",
+        "cx_e095bf141dde5379:ex84.64",
+        "cx_e095bf141dde5379:ex84.85",
+        "cx_e095bf141dde5379:ex84.86",
+        "cx_e095bf141dde5379:ex84.89",
+        "cx_e095bf141dde5379:ex84.91"
+      ],
+      "unitAfter": 7,
+      "near84Members": [
+        84.64,
+        84.85,
+        84.86,
+        84.89,
+        84.91
+      ],
+      "candidates": [
+        {
+          "members": [
+            84.64
+          ],
+          "span": 0,
+          "decision": "NOT_GROUPABLE",
+          "reason": "single raw area — no similar-area family",
+          "written": false,
+          "groupKey": null,
+          "linksInserted": 0,
+          "aggregation": null
+        },
+        {
+          "members": [
+            84.85,
+            84.86,
+            84.89,
+            84.91
+          ],
+          "span": 0.06,
+          "decision": "SAFE_GROUP",
+          "reason": "near-84 family span 0.06㎡ ≤ Phase5 verified 0.2㎡; maxGap 0.03㎡; ≥2 members",
+          "written": true,
+          "groupKey": "cx_e095bf141dde5379:G1:ex84.85-84.91",
+          "linksInserted": 4,
+          "aggregation": {
+            "perMember": {
+              "84.85": 19,
+              "84.86": 25,
+              "84.89": 23,
+              "84.91": 136
+            },
+            "memberSum": 203,
+            "groupResult": 203,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          }
+        }
+      ],
+      "safeGroupCount": 1,
+      "ambiguousCount": 0,
+      "notGroupableCount": 1,
+      "groupsInserted": 1,
+      "linksInserted": 4,
+      "groupsWritten": [
+        "cx_e095bf141dde5379:G1:ex84.85-84.91"
+      ],
+      "aggregationPass": true,
+      "rawPreserved": true,
+      "missing": [],
+      "unexpected": [],
+      "collapsed": [],
+      "duplicateUnits": []
+    },
+    {
+      "complexId": "cx_c7ac494bf78993ad",
+      "complexName": "파크하비오",
+      "aptNameNorm": "파크하비오",
+      "lawdCd": "11710",
+      "complexKey": "cx_c7ac494bf78993ad",
+      "rawAreas": [
+        84.91,
+        84.93,
+        84.96,
+        84.97,
+        84.99,
+        116.13,
+        127.2,
+        151.58
+      ],
+      "rawAreaDetails": [
+        {
+          "exclusiveArea": 84.91,
+          "txCount": 168
+        },
+        {
+          "exclusiveArea": 84.93,
+          "txCount": 138
+        },
+        {
+          "exclusiveArea": 84.96,
+          "txCount": 309
+        },
+        {
+          "exclusiveArea": 84.97,
+          "txCount": 283
+        },
+        {
+          "exclusiveArea": 84.99,
+          "txCount": 74
+        },
+        {
+          "exclusiveArea": 116.13,
+          "txCount": 35
+        },
+        {
+          "exclusiveArea": 127.2,
+          "txCount": 2
+        },
+        {
+          "exclusiveArea": 151.58,
+          "txCount": 2
+        }
+      ],
+      "unitBefore": 0,
+      "unitInserted": 8,
+      "unitInsertedKeys": [
+        "cx_c7ac494bf78993ad:ex84.91",
+        "cx_c7ac494bf78993ad:ex84.93",
+        "cx_c7ac494bf78993ad:ex84.96",
+        "cx_c7ac494bf78993ad:ex84.97",
+        "cx_c7ac494bf78993ad:ex84.99",
+        "cx_c7ac494bf78993ad:ex116.13",
+        "cx_c7ac494bf78993ad:ex127.2",
+        "cx_c7ac494bf78993ad:ex151.58"
+      ],
+      "unitAfter": 8,
+      "near84Members": [
+        84.91,
+        84.93,
+        84.96,
+        84.97,
+        84.99
+      ],
+      "candidates": [
+        {
+          "members": [
+            84.91,
+            84.93,
+            84.96,
+            84.97,
+            84.99
+          ],
+          "span": 0.08,
+          "decision": "SAFE_GROUP",
+          "reason": "near-84 family span 0.08㎡ ≤ Phase5 verified 0.2㎡; maxGap 0.03㎡; ≥2 members",
+          "written": true,
+          "groupKey": "cx_c7ac494bf78993ad:G1:ex84.91-84.99",
+          "linksInserted": 5,
+          "aggregation": {
+            "perMember": {
+              "84.91": 168,
+              "84.93": 138,
+              "84.96": 309,
+              "84.97": 283,
+              "84.99": 74
+            },
+            "memberSum": 972,
+            "groupResult": 972,
+            "missing": 0,
+            "duplicates": 0,
+            "pass": true
+          }
+        }
+      ],
+      "safeGroupCount": 1,
+      "ambiguousCount": 0,
+      "notGroupableCount": 0,
+      "groupsInserted": 1,
+      "linksInserted": 5,
+      "groupsWritten": [
+        "cx_c7ac494bf78993ad:G1:ex84.91-84.99"
+      ],
+      "aggregationPass": true,
+      "rawPreserved": true,
+      "missing": [],
+      "unexpected": [],
+      "collapsed": [],
+      "duplicateUnits": []
+    }
+  ],
+  "totals": {
+    "complexes": 5,
+    "rawAreas": 37,
+    "unitTypesInserted": 37,
+    "groupsInserted": 6,
+    "linksInserted": 22,
+    "safeGroups": 6,
+    "ambiguousCandidates": 0,
+    "notGroupable": 6
+  },
+  "dataSafety": {
+    "rawCollapsed": 0,
+    "duplicateUnit": 0,
+    "duplicateGroup": 0,
+    "duplicateLink": 0,
+    "aggregationMismatches": 0,
+    "priorPilotsUnchanged": true
+  },
+  "singogaSafety": {
+    "classificationWrites": 0,
+    "classificationChanged": false,
+    "baselineWrites": 0,
+    "baselineChanged": false,
+    "singogaPathChanges": false,
+    "featureFlagChanges": false,
+    "note": "No classifications for Stage8 targets → exclusive all-time-max unchanged"
+  },
+  "idempotencyReplay": [
+    {
+      "name": "올림픽파크센트레빌",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "건영1",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "산성",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "현대1차",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    },
+    {
+      "name": "파크하비오",
+      "unitInserted": 0,
+      "groupsInserted": 0,
+      "linksInserted": 0
+    }
+  ],
+  "idempotent": true,
+  "selectorFutureReadiness": {
+    "rawSelectorPossible": true,
+    "groupSelectorPossible": true,
+    "coverageSufficientToSwitchProductionSelector": false,
+    "reason": "Only 7 complexes have Stage6/7/8 unit masters (리센츠/트리지움+5). Keep transactions-based selector until broader coverage."
+  },
+  "db": {
+    "apt_unit_types_insert": 37,
+    "apt_unit_types_update": 0,
+    "apt_pyeong_groups_insert": 6,
+    "apt_pyeong_groups_update": 0,
+    "apt_unit_type_group_links_insert": 22,
+    "apt_unit_type_group_links_update": 0,
+    "other_writes": 0,
+    "delete": 0,
+    "kapt_api_calls": 0
+  },
+  "nextAction": {
+    "choice": "A",
+    "label": "10~20 complex bounded expansion",
+    "reason": "Raw unit expansion PASS on all 5 (37/37). 6 SAFE_GROUP families wrote under Phase5 ≤0.20 span rule with aggregation PASS; 6 NOT_GROUPABLE are singletons (correctly held); ambiguous=0. Same conservative rule is ready for bounded 10–20 expansion — not Seoul-wide auto-group."
+  },
+  "decision": {
+    "RAW_UNIT_EXPANSION": "PASS",
+    "SIMILAR_GROUP_EXPANSION": "PASS",
+    "GROUP_AGGREGATION": "PASS",
+    "RAW_AREA_PRESERVATION": "PASS",
+    "SELECTOR_MIGRATION": "NOT_READY",
+    "SCHEMA_CHANGE_REQUIRED": "NO",
+    "DATA_SAFETY": "PASS"
+  }
+}

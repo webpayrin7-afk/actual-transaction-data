@@ -1,0 +1,782 @@
+{
+  "generatedAt": "2026-09-16T01:12:35.777Z",
+  "stage": "stage15-singoga-shadow",
+  "dbWrites": {
+    "insert": 0,
+    "update": 0,
+    "delete": 0
+  },
+  "before": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39
+  },
+  "after": {
+    "apt_unit_types": 501,
+    "apt_pyeong_groups": 153,
+    "apt_unit_type_group_links": 293,
+    "apt_pyeong_group_baselines": 39
+  },
+  "dbUnchanged": true,
+  "threeLaneContract": {
+    "LEGACY": "markSingogaExclusiveAllTimeMax — all-time max equality within areaKey (ties=true); production exclusive path",
+    "EXACT_PRIOR": "canonical areaKey + prior deal_date < T + strict price > priorMax",
+    "GROUP_PRIMARY": "V1 eligible groupPriorMax when group exists; else EXACT_PRIOR fallback",
+    "groupRule": "similar_exclusive_area_v1",
+    "eligibleGroupSources": [
+      "similar_exclusive_area_v1",
+      "transactions-similar-area"
+    ],
+    "reportWindowMonths": 24,
+    "windowStart": "2024-09-16",
+    "productionResponseChanged": false
+  },
+  "targets": [
+    {
+      "name": "트리지움",
+      "complexId": "cx_85cd8a4b2d5dc3d0"
+    },
+    {
+      "name": "파크리오",
+      "complexId": "cx_ed52bf895d064c11"
+    },
+    {
+      "name": "잠실엘스",
+      "complexId": "cx_4c63d9a100973c60"
+    },
+    {
+      "name": "반포자이",
+      "complexId": "cx_1c244e7305d12c44"
+    },
+    {
+      "name": "롯데캐슬퍼스트",
+      "complexId": "cx_e0b6328a55c8abb0"
+    }
+  ],
+  "complexes": [
+    {
+      "name": "트리지움",
+      "complexId": "cx_85cd8a4b2d5dc3d0",
+      "lawdCd": "11710",
+      "historyTradeCount": 1161,
+      "groups": [
+        {
+          "groupKey": "cx_85cd8a4b2d5dc3d0:G1:ex84.83-84.97",
+          "members": [
+            84.83,
+            84.95,
+            84.97
+          ],
+          "source": "transactions-similar-area"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 264,
+        "legacy": 7,
+        "exactPrior": 48,
+        "groupPrimary": 34,
+        "exactOnlySuppressed": 14,
+        "fallbackExact": 18,
+        "temporalSemanticsDelta": 41,
+        "groupingDelta": -14,
+        "compareClassCounts": {
+          "NO_SINGOGA": 215,
+          "GROUP_PRIMARY": 16,
+          "FALLBACK_EXACT": 18,
+          "EXACT_ONLY_SUPPRESSED_BY_GROUP": 14,
+          "LEGACY_ONLY": 1
+        },
+        "groupedSubset": {
+          "transactions": 154,
+          "legacy": 4,
+          "exactPrior": 30,
+          "groupPrior": 16,
+          "exactOnly": 14,
+          "groupPrimary": 16,
+          "suppressionRate": 0.4667
+        }
+      },
+      "temporalDiff": {
+        "historical_prior_break_later_surpassed": 42,
+        "all_time_tie_equality_no_exceed": 1,
+        "same_day_batch": 0,
+        "other": 0
+      },
+      "examples": {
+        "legacyAndExactAndGroup": [
+          {
+            "date": "2026-01-24",
+            "area": 84.83,
+            "price": 335000,
+            "legacy": true,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 327000,
+            "groupPriorMax": 330000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactAndGroupNotLegacy": [
+          {
+            "date": "2025-07-04",
+            "area": 84.83,
+            "price": 325000,
+            "legacy": false,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 317000,
+            "groupPriorMax": 320000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactOnlySuppressedByGroup": [
+          {
+            "date": "2026-01-21",
+            "area": 84.83,
+            "price": 327000,
+            "legacy": false,
+            "exactPrior": true,
+            "groupPrior": false,
+            "exactOnly": true,
+            "primaryShadow": false,
+            "exactPriorMax": 325000,
+            "groupPriorMax": 330000,
+            "compareClass": "EXACT_ONLY_SUPPRESSED_BY_GROUP"
+          }
+        ],
+        "noSingoga": [
+          {
+            "date": "2026-07-25",
+            "area": 149.45,
+            "price": 417000,
+            "legacy": false,
+            "exactPrior": false,
+            "groupPrior": null,
+            "exactOnly": false,
+            "primaryShadow": false,
+            "exactPriorMax": 430000,
+            "groupPriorMax": null,
+            "compareClass": "NO_SINGOGA"
+          }
+        ]
+      },
+      "timingMs": {
+        "historyLoad": 2106.65,
+        "legacyOnly": 0.6,
+        "threeLaneShadow": 7.59
+      },
+      "trizium84Family": {
+        "members": [
+          84.83,
+          84.95,
+          84.97
+        ],
+        "transactions": 154,
+        "legacy": 4,
+        "exactPrior": 30,
+        "groupPrimary": 16,
+        "exactOnly": 14,
+        "examples": {
+          "legacyAndExactAndGroup": [
+            {
+              "date": "2026-01-24",
+              "area": 84.83,
+              "price": 335000,
+              "legacy": true,
+              "exactPrior": true,
+              "groupPrior": true,
+              "exactOnly": false,
+              "primaryShadow": true,
+              "exactPriorMax": 327000,
+              "groupPriorMax": 330000,
+              "compareClass": "GROUP_PRIMARY"
+            }
+          ],
+          "exactAndGroupNotLegacy": [
+            {
+              "date": "2025-07-04",
+              "area": 84.83,
+              "price": 325000,
+              "legacy": false,
+              "exactPrior": true,
+              "groupPrior": true,
+              "exactOnly": false,
+              "primaryShadow": true,
+              "exactPriorMax": 317000,
+              "groupPriorMax": 320000,
+              "compareClass": "GROUP_PRIMARY"
+            }
+          ],
+          "exactOnlySuppressedByGroup": [
+            {
+              "date": "2026-01-21",
+              "area": 84.83,
+              "price": 327000,
+              "legacy": false,
+              "exactPrior": true,
+              "groupPrior": false,
+              "exactOnly": true,
+              "primaryShadow": false,
+              "exactPriorMax": 325000,
+              "groupPriorMax": 330000,
+              "compareClass": "EXACT_ONLY_SUPPRESSED_BY_GROUP"
+            }
+          ],
+          "noSingoga": [
+            {
+              "date": "2026-07-22",
+              "area": 84.95,
+              "price": 328000,
+              "legacy": false,
+              "exactPrior": false,
+              "groupPrior": false,
+              "exactOnly": false,
+              "primaryShadow": false,
+              "exactPriorMax": 330000,
+              "groupPriorMax": 335000,
+              "compareClass": "NO_SINGOGA"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "파크리오",
+      "complexId": "cx_ed52bf895d064c11",
+      "lawdCd": "11710",
+      "historyTradeCount": 2661,
+      "groups": [
+        {
+          "groupKey": "cx_ed52bf895d064c11:G1:ex59.86-59.95",
+          "members": [
+            59.86,
+            59.95
+          ],
+          "source": "similar_exclusive_area_v1"
+        },
+        {
+          "groupKey": "cx_ed52bf895d064c11:G2:ex84.79-84.97",
+          "members": [
+            84.79,
+            84.9,
+            84.97
+          ],
+          "source": "similar_exclusive_area_v1"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 479,
+        "legacy": 11,
+        "exactPrior": 83,
+        "groupPrimary": 54,
+        "exactOnlySuppressed": 29,
+        "fallbackExact": 24,
+        "temporalSemanticsDelta": 72,
+        "groupingDelta": -29,
+        "compareClassCounts": {
+          "NO_SINGOGA": 394,
+          "GROUP_PRIMARY": 30,
+          "FALLBACK_EXACT": 24,
+          "EXACT_ONLY_SUPPRESSED_BY_GROUP": 29,
+          "LEGACY_ONLY": 2
+        },
+        "groupedSubset": {
+          "transactions": 361,
+          "legacy": 7,
+          "exactPrior": 59,
+          "groupPrior": 30,
+          "exactOnly": 29,
+          "groupPrimary": 30,
+          "suppressionRate": 0.4915
+        }
+      },
+      "temporalDiff": {
+        "historical_prior_break_later_surpassed": 74,
+        "all_time_tie_equality_no_exceed": 2,
+        "same_day_batch": 0,
+        "other": 0
+      },
+      "examples": {
+        "legacyAndExactAndGroup": [
+          {
+            "date": "2026-01-26",
+            "area": 84.97,
+            "price": 322000,
+            "legacy": true,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 309000,
+            "groupPriorMax": 315000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactAndGroupNotLegacy": [
+          {
+            "date": "2025-10-28",
+            "area": 84.79,
+            "price": 310000,
+            "legacy": false,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 309000,
+            "groupPriorMax": 309000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactOnlySuppressedByGroup": [
+          {
+            "date": "2025-10-25",
+            "area": 84.79,
+            "price": 309000,
+            "legacy": false,
+            "exactPrior": true,
+            "groupPrior": false,
+            "exactOnly": true,
+            "primaryShadow": false,
+            "exactPriorMax": 305000,
+            "groupPriorMax": 309000,
+            "compareClass": "EXACT_ONLY_SUPPRESSED_BY_GROUP"
+          }
+        ],
+        "noSingoga": [
+          {
+            "date": "2025-10-31",
+            "area": 144.77,
+            "price": 377000,
+            "legacy": false,
+            "exactPrior": false,
+            "groupPrior": null,
+            "exactOnly": false,
+            "primaryShadow": false,
+            "exactPriorMax": 385000,
+            "groupPriorMax": null,
+            "compareClass": "NO_SINGOGA"
+          }
+        ]
+      },
+      "timingMs": {
+        "historyLoad": 2326.98,
+        "legacyOnly": 1.14,
+        "threeLaneShadow": 4.8
+      }
+    },
+    {
+      "name": "잠실엘스",
+      "complexId": "cx_4c63d9a100973c60",
+      "lawdCd": "11710",
+      "historyTradeCount": 1646,
+      "groups": [
+        {
+          "groupKey": "cx_4c63d9a100973c60:G1:ex84.80-84.97",
+          "members": [
+            84.8,
+            84.88,
+            84.97
+          ],
+          "source": "similar_exclusive_area_v1"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 337,
+        "legacy": 9,
+        "exactPrior": 48,
+        "groupPrimary": 34,
+        "exactOnlySuppressed": 14,
+        "fallbackExact": 17,
+        "temporalSemanticsDelta": 39,
+        "groupingDelta": -14,
+        "compareClassCounts": {
+          "NO_SINGOGA": 285,
+          "FALLBACK_EXACT": 17,
+          "GROUP_PRIMARY": 17,
+          "EXACT_ONLY_SUPPRESSED_BY_GROUP": 14,
+          "LEGACY_ONLY": 4
+        },
+        "groupedSubset": {
+          "transactions": 220,
+          "legacy": 5,
+          "exactPrior": 31,
+          "groupPrior": 17,
+          "exactOnly": 14,
+          "groupPrimary": 17,
+          "suppressionRate": 0.4516
+        }
+      },
+      "temporalDiff": {
+        "historical_prior_break_later_surpassed": 43,
+        "all_time_tie_equality_no_exceed": 4,
+        "same_day_batch": 0,
+        "other": 0
+      },
+      "examples": {
+        "legacyAndExactAndGroup": [
+          {
+            "date": "2026-02-20",
+            "area": 84.88,
+            "price": 370000,
+            "legacy": true,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 348000,
+            "groupPriorMax": 350000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactAndGroupNotLegacy": [
+          {
+            "date": "2025-10-28",
+            "area": 84.8,
+            "price": 348000,
+            "legacy": false,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 343000,
+            "groupPriorMax": 343000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactOnlySuppressedByGroup": [
+          {
+            "date": "2026-01-31",
+            "area": 84.88,
+            "price": 348000,
+            "legacy": false,
+            "exactPrior": true,
+            "groupPrior": false,
+            "exactOnly": true,
+            "primaryShadow": false,
+            "exactPriorMax": 340000,
+            "groupPriorMax": 350000,
+            "compareClass": "EXACT_ONLY_SUPPRESSED_BY_GROUP"
+          }
+        ],
+        "noSingoga": [
+          {
+            "date": "2026-04-07",
+            "area": 119.93,
+            "price": 450000,
+            "legacy": false,
+            "exactPrior": false,
+            "groupPrior": null,
+            "exactOnly": false,
+            "primaryShadow": false,
+            "exactPriorMax": 460000,
+            "groupPriorMax": null,
+            "compareClass": "NO_SINGOGA"
+          }
+        ]
+      },
+      "timingMs": {
+        "historyLoad": 1041.99,
+        "legacyOnly": 0.44,
+        "threeLaneShadow": 2.02
+      }
+    },
+    {
+      "name": "반포자이",
+      "complexId": "cx_1c244e7305d12c44",
+      "lawdCd": "11650",
+      "historyTradeCount": 1073,
+      "groups": [
+        {
+          "groupKey": "cx_1c244e7305d12c44:G1:ex59.97-59.98",
+          "members": [
+            59.97,
+            59.98
+          ],
+          "source": "similar_exclusive_area_v1"
+        },
+        {
+          "groupKey": "cx_1c244e7305d12c44:G2:ex84.94-85.00",
+          "members": [
+            84.94,
+            84.98,
+            85
+          ],
+          "source": "similar_exclusive_area_v1"
+        },
+        {
+          "groupKey": "cx_1c244e7305d12c44:G3:ex244.54-244.63",
+          "members": [
+            244.54,
+            244.63
+          ],
+          "source": "similar_exclusive_area_v1"
+        }
+      ],
+      "groupExists": true,
+      "summary": {
+        "reportTransactions": 119,
+        "legacy": 14,
+        "exactPrior": 40,
+        "groupPrimary": 32,
+        "exactOnlySuppressed": 8,
+        "fallbackExact": 16,
+        "temporalSemanticsDelta": 26,
+        "groupingDelta": -8,
+        "compareClassCounts": {
+          "NO_SINGOGA": 77,
+          "FALLBACK_EXACT": 16,
+          "GROUP_PRIMARY": 16,
+          "EXACT_ONLY_SUPPRESSED_BY_GROUP": 8,
+          "LEGACY_ONLY": 2
+        },
+        "groupedSubset": {
+          "transactions": 79,
+          "legacy": 8,
+          "exactPrior": 24,
+          "groupPrior": 16,
+          "exactOnly": 8,
+          "groupPrimary": 16,
+          "suppressionRate": 0.3333
+        }
+      },
+      "temporalDiff": {
+        "historical_prior_break_later_surpassed": 28,
+        "all_time_tie_equality_no_exceed": 2,
+        "same_day_batch": 0,
+        "other": 0
+      },
+      "examples": {
+        "legacyAndExactAndGroup": [
+          {
+            "date": "2026-06-13",
+            "area": 244.54,
+            "price": 760000,
+            "legacy": true,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 750000,
+            "groupPriorMax": 750000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactAndGroupNotLegacy": [
+          {
+            "date": "2025-12-29",
+            "area": 84.94,
+            "price": 501000,
+            "legacy": false,
+            "exactPrior": true,
+            "groupPrior": true,
+            "exactOnly": false,
+            "primaryShadow": true,
+            "exactPriorMax": 500000,
+            "groupPriorMax": 500000,
+            "compareClass": "GROUP_PRIMARY"
+          }
+        ],
+        "exactOnlySuppressedByGroup": [
+          {
+            "date": "2026-03-14",
+            "area": 84.98,
+            "price": 500000,
+            "legacy": true,
+            "exactPrior": true,
+            "groupPrior": false,
+            "exactOnly": true,
+            "primaryShadow": false,
+            "exactPriorMax": 460000,
+            "groupPriorMax": 520000,
+            "compareClass": "EXACT_ONLY_SUPPRESSED_BY_GROUP"
+          }
+        ],
+        "noSingoga": [
+          {
+            "date": "2025-03-23",
+            "area": 244.54,
+            "price": 750000,
+            "legacy": false,
+            "exactPrior": false,
+            "groupPrior": false,
+            "exactOnly": false,
+            "primaryShadow": false,
+            "exactPriorMax": 750000,
+            "groupPriorMax": 750000,
+            "compareClass": "NO_SINGOGA"
+          }
+        ]
+      },
+      "timingMs": {
+        "historyLoad": 1781.72,
+        "legacyOnly": 0.64,
+        "threeLaneShadow": 2.72
+      }
+    },
+    {
+      "name": "롯데캐슬퍼스트",
+      "complexId": "cx_e0b6328a55c8abb0",
+      "lawdCd": "11740",
+      "historyTradeCount": 1595,
+      "groups": [],
+      "groupExists": false,
+      "summary": {
+        "reportTransactions": 332,
+        "legacy": 9,
+        "exactPrior": 56,
+        "groupPrimary": 56,
+        "exactOnlySuppressed": 0,
+        "fallbackExact": 56,
+        "temporalSemanticsDelta": 47,
+        "groupingDelta": 0,
+        "compareClassCounts": {
+          "NO_SINGOGA": 276,
+          "FALLBACK_EXACT": 56
+        },
+        "groupedSubset": {
+          "transactions": 0,
+          "legacy": 0,
+          "exactPrior": 0,
+          "groupPrior": 0,
+          "exactOnly": 0,
+          "groupPrimary": 0,
+          "suppressionRate": null
+        }
+      },
+      "temporalDiff": {
+        "historical_prior_break_later_surpassed": 47,
+        "all_time_tie_equality_no_exceed": 0,
+        "same_day_batch": 0,
+        "other": 0
+      },
+      "examples": {
+        "legacyAndExactAndGroup": [],
+        "exactAndGroupNotLegacy": [],
+        "exactOnlySuppressedByGroup": [],
+        "noSingoga": [
+          {
+            "date": "2026-08-11",
+            "area": 111.22,
+            "price": 214000,
+            "legacy": false,
+            "exactPrior": false,
+            "groupPrior": null,
+            "exactOnly": false,
+            "primaryShadow": false,
+            "exactPriorMax": 218000,
+            "groupPriorMax": null,
+            "compareClass": "NO_SINGOGA"
+          }
+        ]
+      },
+      "timingMs": {
+        "historyLoad": 1733.16,
+        "legacyOnly": 0.57,
+        "threeLaneShadow": 3.57
+      },
+      "fallbackCheck": {
+        "groupExists": false,
+        "legacy": 9,
+        "exactPrior": 56,
+        "groupPrimary": 56,
+        "exactEqualsGroupPrimary": true,
+        "status": "PASS"
+      }
+    }
+  ],
+  "totals": {
+    "reportTransactions": 1531,
+    "legacy": 50,
+    "exactPrior": 275,
+    "groupPrimary": 210,
+    "exactOnlySuppressed": 65,
+    "fallbackExact": 131,
+    "temporalSemanticsDelta": 225,
+    "groupingDelta": -65,
+    "compareClassCounts": {
+      "NO_SINGOGA": 1247,
+      "GROUP_PRIMARY": 79,
+      "FALLBACK_EXACT": 131,
+      "EXACT_ONLY_SUPPRESSED_BY_GROUP": 65,
+      "LEGACY_ONLY": 9
+    },
+    "groupedSubset": {
+      "transactions": 814,
+      "legacy": 24,
+      "exactPrior": 144,
+      "groupPrior": 79,
+      "exactOnly": 65,
+      "groupPrimary": 79,
+      "suppressionRate": 0.4514
+    }
+  },
+  "groupedSubset": {
+    "transactions": 814,
+    "legacy": 24,
+    "exactPrior": 144,
+    "groupPrior": 79,
+    "exactOnly": 65,
+    "groupPrimary": 79,
+    "suppressionRate": 0.4514
+  },
+  "temporalSemanticsDifference": {
+    "historical_prior_break_later_surpassed": 234,
+    "all_time_tie_equality_no_exceed": 9,
+    "same_day_batch": 0,
+    "other": 0,
+    "note": "Counts of legacy≠exactPrior rows classified by cause. Grouping effect is NOT included here."
+  },
+  "invariantChecks": {
+    "groupPriorGteExactViolations": 0,
+    "groupSingogaImpliesExactViolations": 0,
+    "fallbackViolations": 0,
+    "sameDay": "PASS",
+    "zeroPriorHandling": "NO_PRIOR_BASELINE → false"
+  },
+  "runtimePerformance": {
+    "legacyCalculationMs": 3.39,
+    "shadowAdditionalMs": 17.31,
+    "totalThreeLaneMs": 20.7,
+    "overheadPct": 510.42,
+    "nPlusOneDetected": false,
+    "fullScanDetected": false,
+    "status": "PASS",
+    "note": "1 history query/complex + in-memory lanes; link queries per group only"
+  },
+  "productSemanticConclusion": {
+    "LEGACY": "거래가 현재까지도 해당 areaKey 역대 최고가와 같은가 (all-time equality)",
+    "EXACT_PRIOR": "그 거래 당시 동일 areaKey 과거 최고가를 돌파했는가 (historical prior-break)",
+    "GROUP_PRIMARY": "그 거래 당시 similar-area family 과거 최고가를 돌파했는가 (group prior-break; else exact fallback)",
+    "recommendedPrimarySingogaSemantic": "A — 거래 당시 과거 최고가 돌파 (EXACT_PRIOR / GROUP_PRIMARY). LEGACY all-time equality는 '현재도 최고가' 의미로 분리 유지 가능.",
+    "evidence": "Temporal delta dominates; exact-only suppression isolates grouping value without conflating temporal rewrite."
+  },
+  "productionBehavior": {
+    "APIChanged": false,
+    "UIChanged": false,
+    "featureFlagsChanged": false,
+    "runtimePrimaryResultChanged": false
+  },
+  "nextAction": {
+    "choice": "C",
+    "reason": "Temporal semantics delta dominates grouping delta; product must choose historical-prior-break (A) vs current-all-time-max (B) before Stage16 baseline pilot."
+  },
+  "decision": {
+    "LEGACY_COMPARISON": "PASS",
+    "EXACT_PRIOR_RUNTIME": "PASS",
+    "GROUP_SHADOW_RUNTIME": "PASS",
+    "TEMPORAL_SEMANTICS": "PARTIAL",
+    "GROUPING_EFFECT_ISOLATION": "PASS",
+    "FALLBACK": "PASS",
+    "PERFORMANCE": "PASS",
+    "PRODUCTION_SWITCH": "NOT_YET",
+    "DATA_SAFETY": "PASS"
+  }
+}

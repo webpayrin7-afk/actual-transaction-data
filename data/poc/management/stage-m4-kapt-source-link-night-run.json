@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-09-16T03:38:45.106Z",
+  "stage": "stage-m4-kapt-source-link-night",
+  "mode": "DRY",
+  "manifestPath": "data/poc/management/stage-m3-seoul-kapt-identity-promotion-manifest.json",
+  "integrity": {
+    "rows": 1655,
+    "duplicateComplexId": 0,
+    "duplicateKaptCode": 0,
+    "slugTargets": 0,
+    "ok": true
+  },
+  "precheck": {
+    "manifestRows": 1655,
+    "alreadyMatchingSameLinks": 0,
+    "missingInserts": 1655,
+    "unexpectedConflicts": 0,
+    "unexpectedDifferentKaptSameComplex": 0,
+    "unexpectedSameKaptOtherComplex": 0,
+    "ready": true,
+    "conflictSamples": []
+  },
+  "batch": {
+    "chunkSize": 80,
+    "expectedBatchCalls": 21
+  },
+  "writes": {
+    "inserted": 0,
+    "updated": 0,
+    "deleted": 0,
+    "batchCalls": 0
+  },
+  "postcheck": null,
+  "idempotencyReplay": null,
+  "decision": "NIGHT_SOURCE_LINK_PROMOTION_READY_DRY"
+}
