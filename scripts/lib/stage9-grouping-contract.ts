@@ -1,5 +1,5 @@
 /**
- * Shared Stage9–11 grouping contract helpers.
+ * Shared Stage9–12 grouping contract helpers.
  *
  * CANDIDATE PIPELINE ORDER (mandatory):
  *   1. raw observed values
@@ -10,9 +10,21 @@
  *
  * GLOBAL INVARIANT (not band-specific):
  *   similar-area group requires distinct canonical areas >= 2 AND min < max
+ *
+ * SIMILAR_EXCLUSIVE_AREA_RULE_V1 (Stage12 freeze candidate):
+ *   - canonicalize to 2 decimals, dedupe before cluster
+ *   - gap > 0.15 breaks cluster
+ *   - within cluster: span <= 0.20 AND distinct canonical >= 2 AND min < max
  */
 export type BandKey = "50-69" | "70-79" | "80-89" | "90-109" | "110+" | "other";
 export type Decision = "SAFE_GROUP" | "AMBIGUOUS" | "NOT_GROUPABLE";
+
+/** Stage12 held-out / freeze-gate labels. */
+export type V1Decision =
+  | "SAFE_BY_COMMON_RULE"
+  | "BOUNDARY_REJECTED"
+  | "NOT_GROUPABLE"
+  | "SEMANTIC_AMBIGUITY";
 
 export type AreaRow = { exclusiveArea: number; txCount: number };
 
@@ -33,6 +45,20 @@ export type ClusterCand = {
   writePriority: number;
 };
 
+export type V1ClusterCand = {
+  members: number[];
+  min: number;
+  max: number;
+  span: number;
+  maxGap: number;
+  consecutiveGaps: number[];
+  band: BandKey;
+  txCounts: Record<string, number>;
+  decision: V1Decision;
+  reason: string;
+  contractOk: boolean;
+};
+
 /** Existing repo precision (singoga.ts). */
 export const areaKey = (sqm: number) => Math.round(sqm * 100) / 100;
 export const areaKeyStr = (sqm: number) => String(areaKey(sqm));
@@ -40,6 +66,11 @@ export const fmtKeyArea = (sqm: number) => areaKey(sqm).toFixed(2);
 
 export const HEURISTIC_MAX_SPAN = 0.2;
 export const HEURISTIC_MAX_GAP = 0.15;
+
+/** Frozen common-rule version string (no new DB schema). */
+export const SIMILAR_EXCLUSIVE_AREA_RULE_VERSION = "similar_exclusive_area_v1";
+export const V1_MAX_SPAN = 0.2;
+export const V1_MAX_GAP = 0.15;
 
 export function bandOf(area: number): BandKey {
   if (area >= 50 && area < 70) return "50-69";
@@ -178,6 +209,140 @@ export function assertMinimumGroupContract(members: number[]): {
     min,
     max,
     reason: "minimum similar-area group contract satisfied",
+  };
+}
+
+/**
+ * V1 clustering: gap > V1_MAX_GAP breaks the cluster first,
+ * then span <= V1_MAX_SPAN is required for SAFE_BY_COMMON_RULE.
+ *
+ * This differs from Stage9–11 clusterAllBands (span-window first, then AMBIGUOUS on gap).
+ */
+export function clusterByCommonRuleV1(areasIn: AreaRow[]): V1ClusterCand[] {
+  const areas = dedupeAreas(areasIn);
+  const sorted = areas.map((a) => a.exclusiveArea);
+  const txMap = new Map(areas.map((a) => [areaKeyStr(a.exclusiveArea), a.txCount]));
+
+  const groups: number[][] = [];
+  let cur: number[] = [];
+  for (const ea of sorted) {
+    if (cur.length === 0) {
+      cur = [ea];
+      continue;
+    }
+    const gap = areaKey(ea - cur[cur.length - 1]!);
+    if (gap > V1_MAX_GAP + 1e-9) {
+      groups.push(cur);
+      cur = [ea];
+    } else {
+      cur.push(ea);
+    }
+  }
+  if (cur.length) groups.push(cur);
+
+  return groups.map((members) => {
+    const span = areaKey(members[members.length - 1]! - members[0]!);
+    const consecutiveGaps: number[] = [];
+    let maxGap = 0;
+    for (let i = 1; i < members.length; i++) {
+      const g = areaKey(members[i]! - members[i - 1]!);
+      consecutiveGaps.push(g);
+      maxGap = Math.max(maxGap, g);
+    }
+    const txCounts: Record<string, number> = {};
+    for (const m of members) txCounts[areaKeyStr(m)] = txMap.get(areaKeyStr(m)) ?? 0;
+    const band = bandOfCluster(members);
+    const contract = assertMinimumGroupContract(members);
+
+    let decision: V1Decision;
+    let reason: string;
+    if (!contract.ok) {
+      decision = "NOT_GROUPABLE";
+      reason = `global invariant: ${contract.reason}`;
+    } else if (span > V1_MAX_SPAN + 1e-9) {
+      decision = "BOUNDARY_REJECTED";
+      reason = `chain span ${span} > V1 max ${V1_MAX_SPAN} (gaps all <= ${V1_MAX_GAP})`;
+    } else if (maxGap > V1_MAX_GAP + 1e-9) {
+      // Should not occur after gap-split; defensive.
+      decision = "BOUNDARY_REJECTED";
+      reason = `maxGap ${maxGap} > V1 max ${V1_MAX_GAP}`;
+    } else {
+      decision = "SAFE_BY_COMMON_RULE";
+      reason = `V1 safe span=${span} maxGap=${maxGap} members=${members.length} band=${band}`;
+    }
+
+    return {
+      members,
+      min: members[0]!,
+      max: members[members.length - 1]!,
+      span,
+      maxGap,
+      consecutiveGaps,
+      band,
+      txCounts,
+      decision,
+      reason,
+      contractOk: contract.ok,
+    };
+  });
+}
+
+/** Evaluate an already-formed member set against V1 (no re-clustering). */
+export function evaluateMembersAgainstV1(membersIn: number[]): {
+  decision: V1Decision;
+  span: number;
+  maxGap: number;
+  consecutiveGaps: number[];
+  reason: string;
+} {
+  const members = [...new Set(membersIn.map((m) => areaKey(m)))].sort(
+    (a, b) => a - b,
+  );
+  const consecutiveGaps: number[] = [];
+  let maxGap = 0;
+  for (let i = 1; i < members.length; i++) {
+    const g = areaKey(members[i]! - members[i - 1]!);
+    consecutiveGaps.push(g);
+    maxGap = Math.max(maxGap, g);
+  }
+  const span =
+    members.length >= 2
+      ? areaKey(members[members.length - 1]! - members[0]!)
+      : 0;
+  const contract = assertMinimumGroupContract(members);
+  if (!contract.ok) {
+    return {
+      decision: "NOT_GROUPABLE",
+      span,
+      maxGap,
+      consecutiveGaps,
+      reason: contract.reason,
+    };
+  }
+  if (maxGap > V1_MAX_GAP + 1e-9) {
+    return {
+      decision: "BOUNDARY_REJECTED",
+      span,
+      maxGap,
+      consecutiveGaps,
+      reason: `maxGap ${maxGap} > ${V1_MAX_GAP}`,
+    };
+  }
+  if (span > V1_MAX_SPAN + 1e-9) {
+    return {
+      decision: "BOUNDARY_REJECTED",
+      span,
+      maxGap,
+      consecutiveGaps,
+      reason: `span ${span} > ${V1_MAX_SPAN}`,
+    };
+  }
+  return {
+    decision: "SAFE_BY_COMMON_RULE",
+    span,
+    maxGap,
+    consecutiveGaps,
+    reason: "passes similar_exclusive_area_v1",
   };
 }
 
