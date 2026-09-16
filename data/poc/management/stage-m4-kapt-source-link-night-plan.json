@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-09-16T03:40:00.000Z",
+  "stage": "stage-m4-kapt-source-link-night-plan",
+  "writePolicy": "plan_only_no_production_write_in_m4_prep",
+  "productionWritesThisStage": {
+    "sourceLinkInsert": 0,
+    "update": 0,
+    "delete": 0
+  },
+  "liveExternalCallsThisStage": {
+    "kapt": 0,
+    "other": 0
+  },
+  "manifest": {
+    "path": "data/poc/management/stage-m3-seoul-kapt-identity-promotion-manifest.json",
+    "locked": true,
+    "rowCount": 1655,
+    "integrity": {
+      "duplicateComplexId": 0,
+      "duplicateKaptCode": 0,
+      "conflictRows": 0,
+      "slugTargets": 0,
+      "wrongKnownMatchRows": 0,
+      "status": "PASS"
+    },
+    "tiers": {
+      "EXACT_SAFE": 801,
+      "HIGH_CONFIDENCE": 854
+    },
+    "existingLinkStateInManifest": {
+      "NONE": 1655
+    },
+    "doNotReplaceTonight": true,
+    "doNotRerunResolver": true,
+    "doNotRerunKaptDiscovery": true
+  },
+  "sourceLinkContract": {
+    "table": "apt_complex_source_links",
+    "schemaChanges": "none",
+    "relation": "complex_id ↔ KAPT source_key (source='KAPT')",
+    "doNotAddKaptToMaster": true,
+    "doNotModifyProfileMeta": true,
+    "canonicalComplexIdPrefix": "cx_"
+  },
+  "nightPrecheckDry": {
+    "ranAt": "2026-09-16T03:35:00.000Z",
+    "mode": "READ_ONLY",
+    "manifestRows": 1655,
+    "alreadyMatchingSameLinks": 0,
+    "missingSourceLinkInserts": 1655,
+    "unexpectedConflicts": 0,
+    "unexpectedDifferentKaptForSameComplex": 0,
+    "unexpectedSameKaptForAnotherComplex": 0,
+    "status": "PASS",
+    "decisionIfConflictGt0": "NIGHT_PROMOTION_NOT_READY"
+  },
+  "identityClassification": {
+    "currentIdReady": 82,
+    "currentIdReadySourceLink": 9,
+    "currentIdReadyMetaOnly": 73,
+    "sourceLinkInsertsTonight": 1655,
+    "netNewIdReadyComplexes": 1607,
+    "metaOnlyToSourceLinkPersistence": 48,
+    "note": "48 manifest rows are already ID-ready via profile_meta only; promoting persists source_links without adding net-new identity. 1607 are net-new ID-ready. Do not classify the 48 as net-new KAPT identities.",
+    "projectedIdReadyAfterNight": 1689,
+    "projectedMasterIdentityCoveragePct": 20.02,
+    "apartmentMaster": 8437
+  },
+  "loader": {
+    "existingHelperReused": false,
+    "reason": "No bounded missing-only source-link batch helper existed (stage4/phase71c are per-row SELECT+INSERT). New helper mirrors unit promotion db.batch convention.",
+    "helperPath": "scripts/lib/kapt-source-link-night-promotion.ts",
+    "runnerPath": "scripts/stage-m4-kapt-source-link-night-promote.mts",
+    "batchSize": 80,
+    "batchSizeSource": "src/lib/db/repository.ts CHUNK=80 / UNIT_INSERT_CHUNK",
+    "expectedBatchCalls": 21,
+    "rowByRowDbOperation": false,
+    "preferredPath": "manifest IDs → bounded existing-link fetch (IN chunks of 80) → filter missing in memory → db.batch insert chunks of 80",
+    "missingOnly": true,
+    "noOverwrite": true,
+    "noDelete": true,
+    "idempotent": true,
+    "resumeSupported": true,
+    "canonicalCxOnly": true
+  },
+  "promotionProcedure": [
+    "1. LOAD locked manifest path exactly (1655 rows). Do not regenerate.",
+    "2. verifyManifestIntegrity: rows=1655, dup complex=0, dup kapt=0, slug=0.",
+    "3. PRECHECK dry: batchLoadExistingKaptLinks for manifest complex_ids and kapt codes; classify already-same / missing / conflict.",
+    "4. If unexpectedConflicts > 0 → STOP NIGHT_PROMOTION_NOT_READY (no writes).",
+    "5. APPLY: batchInsertMissingSourceLinks(missing only) in chunks of 80.",
+    "6. POSTCHECK: actual matching source links == 1655; missing=0; complex→multiple KAPT=0; KAPT→multiple complex=0; slug=0.",
+    "7. IDEMPOTENCY verify-only replay of same manifest: wouldInsert=0, wouldUpdate=0, wouldDelete=0. Do NOT perform a second write pass.",
+    "8. Confirm projected ID-ready ≈ 1689 / coverage ≈ 20.02%."
+  ],
+  "resumeProcedure": [
+    "If interrupted after first successful batch: manifest remains LOCKED.",
+    "DO NOT rerun resolver.",
+    "DO NOT rerun KAPT list discovery.",
+    "DO NOT generate a replacement manifest.",
+    "DO NOT refill target count.",
+    "Resume: load SAME manifest → fetch currently existing matching links → calculate remaining missing → insert missing only.",
+    "Helper path already implements missing-only filter; re-run with --apply is resume-safe."
+  ],
+  "postcheckProcedure": {
+    "manifestExpectedLinks": 1655,
+    "actualMatchingSourceLinksExpected": 1655,
+    "missingExpected": 0,
+    "complexToMultipleKaptExpected": 0,
+    "kaptToMultipleComplexExpected": 0,
+    "wrongSourceProviderTypeExpected": 0,
+    "slugWritesExpected": 0,
+    "existingLinkOverwriteExpected": 0
+  },
+  "idempotencyProcedure": {
+    "afterSuccessfulPromotion": "same manifest verify-only replay (no --apply write)",
+    "expected": {
+      "wouldInsert": 0,
+      "wouldUpdate": 0,
+      "wouldDelete": 0
+    },
+    "secondActualWritePass": false
+  },
+  "precheckQueries": {
+    "existingByComplex": "SELECT complex_id, source_key FROM apt_complex_source_links WHERE source='KAPT' AND complex_id IN (...chunk 80...)",
+    "existingByKapt": "SELECT complex_id, source_key FROM apt_complex_source_links WHERE source='KAPT' AND source_key IN (...chunk 80...)",
+    "postcheckMatching": "same bounded fetches; require every manifest (complex_id,kaptCode) pair present",
+    "multiMapCheck": "in-memory: complex→>1 kapt OR kapt→>1 complex over fetched sets"
+  },
+  "nightCommand": {
+    "dry": "npx tsx scripts/stage-m4-kapt-source-link-night-promote.mts",
+    "apply": "npx tsx scripts/stage-m4-kapt-source-link-night-promote.mts --apply",
+    "defaultMode": "DRY (no writes unless --apply)"
+  },
+  "decision": {
+    "NIGHT_SOURCE_LINK_PROMOTION": "READY",
+    "MANIFEST_LOCK": "PASS",
+    "RESUME_SAFETY": "PASS",
+    "PRODUCTION_WRITE_NOW": 0,
+    "DATA_SAFETY": "PASS"
+  }
+}

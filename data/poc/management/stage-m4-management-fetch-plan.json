@@ -1,0 +1,259 @@
+{
+  "generatedAt": "2026-09-16T03:40:00.000Z",
+  "stage": "stage-m4-management-fetch-plan",
+  "writePolicy": "plan_only_no_http_no_db_write",
+  "liveHttpCallsThisStage": {
+    "AptCmnuseManageCostServiceV3": 0,
+    "AptIndvdlzManageCostServiceV3": 0,
+    "AptRepairsCostServiceV3": 0,
+    "AptBasisInfoServiceV5": 0,
+    "AptListService4": 0,
+    "AptIdInfoSvc": 0
+  },
+  "dbWritesThisStage": {
+    "management": 0,
+    "sourceLink": 0,
+    "other": 0
+  },
+  "identityBasis": {
+    "definition": "projected safe identity = current valid Seoul KAPT source_links (conflict-free) + locked M3 manifest",
+    "currentValidSeoulSourceLinks": 9,
+    "m3ManifestRows": 1655,
+    "overlap": 0,
+    "projectedSafeKaptComplexes": 1664,
+    "noteVsM3": "M3 futureManagementPopulation.initial=1680 used projected ID-ready 1689 (includes ~25 profile_meta-only IDs not in manifest). M4 uses source_link+manifest only → initial=1655."
+  },
+  "populationAfterSourceLinkPromotion": {
+    "MANAGEMENT_COMPLETE": 1,
+    "PARTIAL_REFRESH": 8,
+    "INITIAL_FETCH": 1655,
+    "NO_SAFE_KAPT_ID": 6773,
+    "completeComplexId": "cx_4c63d9a100973c60",
+    "partialComplexIds": [
+      "cx_30d7eea6da810b52",
+      "cx_0320fd9e007e1f8c",
+      "cx_1c244e7305d12c44",
+      "cx_85cd8a4b2d5dc3d0",
+      "cx_caf229b5ac63cfbd",
+      "cx_ed52bf895d064c11",
+      "cx_ec9a204afeaadf1b",
+      "cx_e47102400fbc8ec6"
+    ],
+    "window": [
+      "202509",
+      "202510",
+      "202511",
+      "202512",
+      "202601",
+      "202602",
+      "202603",
+      "202604",
+      "202605",
+      "202606",
+      "202607",
+      "202608"
+    ],
+    "usableMonthRule": "common_fee != NULL AND individual_fee != NULL AND long_term_repair_reserve != NULL (0 valid)"
+  },
+  "endpointRequestModel": {
+    "sourceImplementation": "scripts/stage4-mgmt-fee-small-load.mts",
+    "contract": "one HTTP request = one complex + one YYYYMM + one service operation",
+    "common": {
+      "service": "AptCmnuseManageCostServiceV3",
+      "operations": [
+        "getHsmpCleaningCostInfoV3",
+        "getHsmpGuardCostInfoV3",
+        "getHsmpDisinfectCostInfoV3",
+        "getHsmpElevatorCostInfoV3",
+        "getHsmpLiquifiedTaxCostInfoV3",
+        "getHsmpManageCostInfoV3",
+        "getHsmpDomesticWasteCostInfoV3",
+        "getHsmpMeetingCostInfoV3",
+        "getHsmpBuildingInsuranceCostInfoV3",
+        "getHsmpOtherCostInfoV3",
+        "getHsmpElectricityCostInfoV3",
+        "getHsmpWaterCostInfoV3",
+        "getHsmpHeatingCostInfoV3",
+        "getHsmpHotWaterCostInfoV3",
+        "getHsmpGasCostInfoV3",
+        "getHsmpPurificationCostInfoV3",
+        "getHsmpLaborCostInfoV3"
+      ],
+      "requestsPerComplexPerMonth": 17
+    },
+    "individual": {
+      "service": "AptIndvdlzManageCostServiceV3",
+      "operations": [
+        "getHsmpElectricityCostInfoV3",
+        "getHsmpWaterCostInfoV3",
+        "getHsmpHeatingCostInfoV3",
+        "getHsmpHotWaterCostInfoV3",
+        "getHsmpGasCostInfoV3"
+      ],
+      "requestsPerComplexPerMonth": 5,
+      "note": "P+C fields summed from response item; still 1 HTTP per op"
+    },
+    "reserve": {
+      "service": "AptRepairsCostServiceV3",
+      "operations": [
+        "getHsmpMonthFeeInfoV3"
+      ],
+      "requestsPerComplexPerMonth": 1,
+      "field": "sLevy"
+    },
+    "totalRequestsPerComplexPerMonth": 23,
+    "noMultiMonthResponseInCurrentContract": true
+  },
+  "monthPolicy": {
+    "fullWindow": "202509–202608",
+    "historicalStable": {
+      "range": "202509–202606",
+      "months": 10,
+      "monthsList": [
+        "202509",
+        "202510",
+        "202511",
+        "202512",
+        "202601",
+        "202602",
+        "202603",
+        "202604",
+        "202605",
+        "202606"
+      ]
+    },
+    "recentPublicationGap": {
+      "range": "202607–202608",
+      "months": 2,
+      "monthsList": [
+        "202607",
+        "202608"
+      ],
+      "confirmedAgainstCurrentData": true,
+      "evidence": "All 8 PARTIAL complexes miss 202608; 2 also miss 202607; 2 also miss historical 202509. Do not hammer recent months."
+    }
+  },
+  "partialMissingDetail": [
+    {
+      "complexId": "cx_30d7eea6da810b52",
+      "missing": ["202608"]
+    },
+    {
+      "complexId": "cx_0320fd9e007e1f8c",
+      "missing": ["202607", "202608"]
+    },
+    {
+      "complexId": "cx_1c244e7305d12c44",
+      "missing": ["202608"]
+    },
+    {
+      "complexId": "cx_85cd8a4b2d5dc3d0",
+      "missing": ["202608"]
+    },
+    {
+      "complexId": "cx_caf229b5ac63cfbd",
+      "missing": ["202608"]
+    },
+    {
+      "complexId": "cx_ed52bf895d064c11",
+      "missing": ["202607", "202608"]
+    },
+    {
+      "complexId": "cx_ec9a204afeaadf1b",
+      "missing": ["202509", "202608"]
+    },
+    {
+      "complexId": "cx_e47102400fbc8ec6",
+      "missing": ["202509", "202608"]
+    }
+  ],
+  "workloadMonthSlots": {
+    "initialHistorical": 16550,
+    "initialRecent": 3310,
+    "partialHistorical": 2,
+    "partialRecent": 10,
+    "total": 19872
+  },
+  "estimatedManagementCalls": {
+    "formula": "monthSlots × requestsPerService",
+    "historicalStableWindow": {
+      "monthSlots": 16552,
+      "commonCalls": 281384,
+      "individualCalls": 82760,
+      "reserveCalls": 16552,
+      "subtotal": 380696
+    },
+    "recentPublicationWindow": {
+      "monthSlots": 3320,
+      "commonCalls": 56440,
+      "individualCalls": 16600,
+      "reserveCalls": 3320,
+      "subtotal": 76360
+    },
+    "byPopulation": {
+      "INITIAL_FETCH": {
+        "complexes": 1655,
+        "historical": {
+          "common": 281350,
+          "individual": 82750,
+          "reserve": 16550,
+          "total": 380650
+        },
+        "recent": {
+          "common": 56270,
+          "individual": 16550,
+          "reserve": 3310,
+          "total": 76130
+        },
+        "fullWindowTotal": 456780
+      },
+      "PARTIAL_REFRESH": {
+        "complexes": 8,
+        "historical": {
+          "common": 34,
+          "individual": 10,
+          "reserve": 2,
+          "total": 46
+        },
+        "recent": {
+          "common": 170,
+          "individual": 50,
+          "reserve": 10,
+          "total": 230
+        },
+        "fullWindowTotal": 276
+      },
+      "MANAGEMENT_COMPLETE": {
+        "complexes": 1,
+        "calls": 0
+      }
+    },
+    "totalProjectedCalls": 457056,
+    "scale": "hundreds_of_thousands",
+    "warning": "KAPT previously returned 429. Do NOT start bulk management collection until a paced strategy with first-429 STOP is enforced."
+  },
+  "proposedCollectionStrategy": {
+    "unitOfWork": "one complex × one YYYYMM × full service set (17 common + 5 individual + 1 reserve = 23 HTTP)",
+    "complexBatchSize": 5,
+    "monthOrder": "historical ascending first (202509→202606), then recent (202607→202608) as a separate later pass",
+    "serviceOrder": [
+      "AptCmnuseManageCostServiceV3 ops (17)",
+      "AptIndvdlzManageCostServiceV3 ops (5)",
+      "AptRepairsCostServiceV3/getHsmpMonthFeeInfoV3 (1)"
+    ],
+    "checkpointFrequency": "after each complex×month unit (persist usable row or empty marker) AND after each complex batch of 5",
+    "cacheStrategy": "Production apt_complex_mgmt_fee_monthly is the store; skip months already usable; no separate cache table",
+    "resumeStrategy": "collection manifest/checkpoint of remaining (complex,month) slots; reload checkpoint; never rebuild identity set mid-run",
+    "first429Behavior": "STOP ALL KAPT CALLS immediately; no retry loop; persist checkpoint; resume later from same checkpoint",
+    "recentMonthPolicy": "Do not prioritize or retry-hammer 202607/202608; run after historical pass; accept publication gaps",
+    "interRequestDelayMs": 50,
+    "schedulerInfrastructure": "none — reuse stage4 loop pattern with checkpoint file; do not overbuild",
+    "doNotStartUntil": "night source-link promotion PASS + explicit instruction to begin management collection"
+  },
+  "decision": {
+    "MANAGEMENT_FETCH_WORKLOAD": "KNOWN",
+    "MANAGEMENT_COLLECTION": "NOT_STARTED",
+    "NIGHT_SOURCE_LINK_PROMOTION_FIRST": true,
+    "DATA_SAFETY": "PASS"
+  }
+}
