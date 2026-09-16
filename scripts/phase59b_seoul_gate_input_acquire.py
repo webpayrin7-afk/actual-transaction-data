@@ -23,8 +23,10 @@ import importlib.util
 import json
 import math
 import os
+import random
 import sqlite3
 import subprocess
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -47,6 +49,103 @@ DEFAULT_SLEEP = 0.35
 MAX_RETRIES = 8
 PAGE_TIMEOUT_SEC = 45
 MAX_PAGE_BACKOFF_SEC = 20.0
+MAX_WORKERS = 4
+
+# Process-wide HTTP metrics + in-flight request-key dedupe (thread-safe).
+_HTTP = {
+    "requests": 0,
+    "latencies_ms": [],  # capped
+    "http_429": 0,
+    "http_5xx": 0,
+    "timeout": 0,
+    "retry": 0,
+    "other_err": 0,
+}
+_HTTP_LOCK = threading.Lock()
+_INFLIGHT: dict[tuple[str, str, str, str], threading.Event] = {}
+_INFLIGHT_LOCK = threading.Lock()
+_INFLIGHT_RESULT: dict[tuple[str, str, str, str], Path] = {}
+_ADAPTIVE = {"sleep_mult": 1.0, "recent_errors": 0, "recent_ok": 0}
+_ADAPTIVE_LOCK = threading.Lock()
+
+
+def _http_note(kind: str, latency_ms: float | None = None) -> None:
+    with _HTTP_LOCK:
+        if kind == "ok":
+            _HTTP["requests"] += 1
+            if latency_ms is not None:
+                _HTTP["latencies_ms"].append(latency_ms)
+                if len(_HTTP["latencies_ms"]) > 5000:
+                    _HTTP["latencies_ms"] = _HTTP["latencies_ms"][-2500:]
+        elif kind == "429":
+            _HTTP["http_429"] += 1
+            _HTTP["retry"] += 1
+        elif kind == "5xx":
+            _HTTP["http_5xx"] += 1
+            _HTTP["retry"] += 1
+        elif kind == "timeout":
+            _HTTP["timeout"] += 1
+            _HTTP["retry"] += 1
+        else:
+            _HTTP["other_err"] += 1
+            _HTTP["retry"] += 1
+
+
+def _adaptive_on_result(ok: bool) -> None:
+    with _ADAPTIVE_LOCK:
+        if ok:
+            _ADAPTIVE["recent_ok"] += 1
+        else:
+            _ADAPTIVE["recent_errors"] += 1
+        total = _ADAPTIVE["recent_ok"] + _ADAPTIVE["recent_errors"]
+        if total >= 40:
+            err_rate = _ADAPTIVE["recent_errors"] / total
+            if err_rate >= 0.15:
+                _ADAPTIVE["sleep_mult"] = min(3.0, _ADAPTIVE["sleep_mult"] * 1.5)
+            elif err_rate <= 0.03 and _ADAPTIVE["sleep_mult"] > 1.0:
+                # stabilize: do not aggressively ramp back up
+                _ADAPTIVE["sleep_mult"] = max(1.0, _ADAPTIVE["sleep_mult"] * 0.9)
+            _ADAPTIVE["recent_ok"] = 0
+            _ADAPTIVE["recent_errors"] = 0
+
+
+def http_metrics_snapshot() -> dict[str, Any]:
+    with _HTTP_LOCK:
+        lats = list(_HTTP["latencies_ms"])
+        snap = {
+            "requests": _HTTP["requests"],
+            "http_429": _HTTP["http_429"],
+            "http_5xx": _HTTP["http_5xx"],
+            "timeout": _HTTP["timeout"],
+            "retry": _HTTP["retry"],
+            "other_err": _HTTP["other_err"],
+        }
+    if lats:
+        lats_sorted = sorted(lats)
+        n = len(lats_sorted)
+        snap["median_latency_ms"] = round(lats_sorted[n // 2], 1)
+        snap["p95_latency_ms"] = round(lats_sorted[min(n - 1, int(n * 0.95))], 1)
+    else:
+        snap["median_latency_ms"] = None
+        snap["p95_latency_ms"] = None
+    with _ADAPTIVE_LOCK:
+        snap["adaptive_sleep_mult"] = round(_ADAPTIVE["sleep_mult"], 3)
+    return snap
+
+
+def reset_http_metrics() -> None:
+    with _HTTP_LOCK:
+        _HTTP["requests"] = 0
+        _HTTP["latencies_ms"] = []
+        _HTTP["http_429"] = 0
+        _HTTP["http_5xx"] = 0
+        _HTTP["timeout"] = 0
+        _HTTP["retry"] = 0
+        _HTTP["other_err"] = 0
+    with _ADAPTIVE_LOCK:
+        _ADAPTIVE["sleep_mult"] = 1.0
+        _ADAPTIVE["recent_ok"] = 0
+        _ADAPTIVE["recent_errors"] = 0
 
 
 def now_iso() -> str:
@@ -522,9 +621,11 @@ def fetch_page(key: str, parcel: dict[str, str], page: int) -> tuple[list[dict],
     )
     last: Exception | None = None
     for attempt in range(MAX_RETRIES):
+        t0 = time.time()
         try:
             with urllib.request.urlopen(url, timeout=PAGE_TIMEOUT_SEC) as resp:
                 raw = resp.read().decode("utf-8", errors="replace")
+            latency_ms = (time.time() - t0) * 1000.0
             if not raw.strip():
                 raise RuntimeError("empty body")
             if (
@@ -546,12 +647,28 @@ def fetch_page(key: str, parcel: dict[str, str], page: int) -> tuple[list[dict],
                 except ValueError:
                     row["_area"] = 0.0
                 items.append(row)
+            _http_note("ok", latency_ms)
+            _adaptive_on_result(True)
             return items, total
         except Exception as exc:  # noqa: BLE001
             last = exc
             msg = str(exc)
-            base = 1.4 if ("503" in msg or "empty body" in msg or "non-api" in msg) else 0.8
-            time.sleep(min(MAX_PAGE_BACKOFF_SEC, base * (2**attempt)))
+            if "429" in msg:
+                _http_note("429")
+            elif "503" in msg or "502" in msg or "500" in msg or "504" in msg:
+                _http_note("5xx")
+            elif "timed out" in msg.lower() or "timeout" in msg.lower():
+                _http_note("timeout")
+            else:
+                _http_note("other")
+            _adaptive_on_result(False)
+            base = 1.4 if ("503" in msg or "empty body" in msg or "non-api" in msg or "429" in msg) else 0.8
+            # exponential backoff + small jitter; honor adaptive multiplier
+            with _ADAPTIVE_LOCK:
+                mult = _ADAPTIVE["sleep_mult"]
+            delay = min(MAX_PAGE_BACKOFF_SEC, base * (2**attempt) * mult)
+            delay += random.uniform(0, min(1.0, delay * 0.1))
+            time.sleep(delay)
     raise RuntimeError(f"page {page} failed: {last}")
 
 
@@ -665,7 +782,9 @@ def acquire_one(
         }
 
     for page in range(max(2, start_page), pages + 1):
-        time.sleep(sleep_s)
+        with _ADAPTIVE_LOCK:
+            mult = _ADAPTIVE["sleep_mult"]
+        time.sleep(sleep_s * mult)
         chunk, _ = fetch_page(key, parcel, page)
         requests += 1
         expected = (page - 1) * PAGE_SIZE
@@ -845,7 +964,9 @@ def run_acquire(
         conn.commit()
 
     # workers>1 only across complexes; pages inside remain serial
-    workers = max(1, min(workers, 3))
+    workers = max(1, min(workers, MAX_WORKERS))
+    reset_http_metrics()
+    t_run0 = time.time()
 
     def job(row):
         cid, sigungu, bjdong, bun, ji, lawd, apt, retry_count = row
@@ -859,8 +980,9 @@ def run_acquire(
             "ji": ji,
         }
         path = cache_path_for(cid, gate, parcel_map)
+        rkey = request_key(parcel)
         # Shared request-key reuse: do not re-call API for same parcel key.
-        shared = shared_idx.get(request_key(parcel))
+        shared = shared_idx.get(rkey)
         if shared and shared.exists():
             ok, total, pages = cache_complete(shared)
             if ok:
@@ -878,11 +1000,74 @@ def run_acquire(
                     retry_count,
                     None,
                 )
+
+        # In-flight dedupe: only one worker fetches a given request key.
+        leader = False
+        event: threading.Event | None = None
+        with _INFLIGHT_LOCK:
+            if rkey in _INFLIGHT_RESULT:
+                done_path = _INFLIGHT_RESULT[rkey]
+                ok, total, pages = cache_complete(done_path)
+                if ok:
+                    return (
+                        cid,
+                        parcel,
+                        {
+                            "status": "cache_hit",
+                            "total": total,
+                            "pages": pages,
+                            "requests": 0,
+                            "path": str(done_path),
+                            "bld_source": "shared_request_key_inflight",
+                        },
+                        retry_count,
+                        None,
+                    )
+            if rkey in _INFLIGHT:
+                event = _INFLIGHT[rkey]
+            else:
+                event = threading.Event()
+                _INFLIGHT[rkey] = event
+                leader = True
+
+        if not leader:
+            assert event is not None
+            event.wait(timeout=3600)
+            with _INFLIGHT_LOCK:
+                done_path = _INFLIGHT_RESULT.get(rkey)
+            if done_path and done_path.exists():
+                ok, total, pages = cache_complete(done_path)
+                if ok:
+                    return (
+                        cid,
+                        parcel,
+                        {
+                            "status": "cache_hit",
+                            "total": total,
+                            "pages": pages,
+                            "requests": 0,
+                            "path": str(done_path),
+                            "bld_source": "shared_request_key_inflight",
+                        },
+                        retry_count,
+                        None,
+                    )
+            # leader failed; fall through to own fetch
+
         try:
             result = acquire_one(key, cid, parcel, path, sleep_s, max_pages)
+            if leader and result.get("status") in ("success", "cache_hit", "not_found", "deferred_large"):
+                with _INFLIGHT_LOCK:
+                    _INFLIGHT_RESULT[rkey] = Path(result["path"])
+                    shared_idx[rkey] = Path(result["path"])
             return cid, parcel, result, retry_count, None
         except Exception as exc:  # noqa: BLE001
             return cid, parcel, None, retry_count, str(exc)
+        finally:
+            if leader and event is not None:
+                event.set()
+                with _INFLIGHT_LOCK:
+                    _INFLIGHT.pop(rkey, None)
 
     if workers == 1:
         for i, row in enumerate(rows, 1):
@@ -966,6 +1151,22 @@ def run_acquire(
     stats["remaining"] = conn.execute(
         "SELECT COUNT(*) FROM candidates WHERE parcel_ok=1 AND bld_ok=0"
     ).fetchone()[0]
+    elapsed = max(1e-6, time.time() - t_run0)
+    stats["elapsed_sec"] = round(elapsed, 1)
+    stats["complexes_completed_wave"] = (
+        stats["successful"] + stats["cache_hits"] + stats.get("shared_cache_hits", 0)
+    )
+    # Prefer successful+cache for throughput of "done" complexes in this wave.
+    done_n = stats["successful"] + stats["cache_hits"]
+    stats["complexes_per_hour"] = round(done_n / (elapsed / 3600.0), 1)
+    http = http_metrics_snapshot()
+    stats["http"] = http
+    if elapsed > 0 and http.get("requests"):
+        stats["requests_per_min"] = round(http["requests"] / (elapsed / 60.0), 1)
+    else:
+        stats["requests_per_min"] = 0.0
+    stats["workers"] = workers
+    stats["sleep_s"] = sleep_s
     progress_snapshot(conn, {"stats": stats})
     return stats
 
