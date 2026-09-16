@@ -728,12 +728,10 @@ export function ComplexNearbyLifeSection({
     return [];
   }, [
     lifeQuery.data,
-    livingQuery.data,
     livingValidPlaces,
     commerceQuery.data,
     schoolQuery.data,
     tab,
-    livingCategory,
     coords,
     selectedId,
   ]);

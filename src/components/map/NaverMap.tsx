@@ -483,14 +483,15 @@ export function NaverMap({
       } catch {
         /* keep fallback size */
       }
-      // Zoom controls (bottom-left) + marker icon overhang.
-      const usableW = Math.max(96, width - 112);
-      const usableH = Math.max(96, height - 128);
+      // Light chrome inset — keep markers visible without over-shrinking.
+      const usableW = Math.max(120, width - 48);
+      const usableH = Math.max(120, height - 56);
       const northM = Math.max(latDelta * 111320, 40);
       const eastM = Math.max(lngDelta * 111320 * cos, 40);
       const mpp = Math.max((2 * eastM) / usableW, (2 * northM) / usableH);
       const z = Math.log2((156543.03392 * cos) / mpp);
-      return Math.max(11, Math.min(16, Math.floor(z)));
+      // Round (not floor) so pharmacy-scale clusters are not over-zoomed-out.
+      return Math.max(12, Math.min(16, Math.round(z)));
     };
 
     const animateTo = (targetZoom: number) => {
@@ -522,7 +523,7 @@ export function NaverMap({
       maxLatDelta = Math.max(maxLatDelta, Math.abs(m.position.lat - anchor.lat));
       maxLngDelta = Math.max(maxLngDelta, Math.abs(m.position.lng - anchor.lng));
     }
-    const pad = 1.25;
+    const pad = 1.1;
     const latDelta = Math.max(maxLatDelta * pad, 0.0012);
     const lngDelta = Math.max(maxLngDelta * pad, 0.0012);
     animateTo(estimateZoom(latDelta, lngDelta));
