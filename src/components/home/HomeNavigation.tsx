@@ -106,11 +106,9 @@ export function HomeNavigation() {
             `transition-[font-size] ${EASE}`,
             compact
               ? "max-w-full truncate text-[9px]"
-              : featured
-                ? "text-[11px]"
-                : isMap
-                  ? "text-[12px]"
-                  : "text-[10.5px]",
+              : featured || isMap
+                ? "text-[12px]"
+                : "text-[10.5px]",
           ].join(" ");
 
           const body = (
