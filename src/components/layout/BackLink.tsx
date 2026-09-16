@@ -12,6 +12,13 @@ type BackLinkProps = {
   compact?: boolean;
   /** Keep the back button but hide its text below the sm breakpoint. */
   hideLabelOnMobile?: boolean;
+  /** Icon-only (e.g. beside a page title). */
+  hideLabel?: boolean;
+  /**
+   * Always navigate to fallback (skip history.back).
+   * Use when the parent URL must carry query state (e.g. ?nearbyTab=school).
+   */
+  preferFallback?: boolean;
 };
 
 /**
@@ -23,17 +30,21 @@ export function BackLink({
   className = "",
   compact = false,
   hideLabelOnMobile = false,
+  hideLabel = false,
+  preferFallback = false,
 }: BackLinkProps) {
   const router = useRouter();
 
   function goBack() {
-    const cur =
-      typeof window !== "undefined"
-        ? `${window.location.pathname}${window.location.search}`
-        : "";
-    if (canUseInternalHistoryBack(cur)) {
-      router.back();
-      return;
+    if (!preferFallback) {
+      const cur =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}`
+          : "";
+      if (canUseInternalHistoryBack(cur)) {
+        router.back();
+        return;
+      }
     }
     router.push(fallback);
   }
@@ -56,9 +67,11 @@ export function BackLink({
         strokeWidth={2}
         aria-hidden
       />
-      <span className={hideLabelOnMobile ? "hidden sm:inline" : undefined}>
-        돌아가기
-      </span>
+      {hideLabel ? null : (
+        <span className={hideLabelOnMobile ? "hidden sm:inline" : undefined}>
+          돌아가기
+        </span>
+      )}
     </button>
   );
 }

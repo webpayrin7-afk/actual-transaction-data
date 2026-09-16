@@ -1,0 +1,2077 @@
+[
+  {
+    "complexId": "cx_01c0dbf7da85cc41",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 6449,
+    "p2Total": 4934,
+    "p2ToP0Ratio": 76.51,
+    "composition": {
+      "음식/외식": {
+        "count": 1496,
+        "share": 30.32
+      },
+      "쇼핑/소매": {
+        "count": 2662,
+        "share": 53.95
+      },
+      "생활서비스": {
+        "count": 366,
+        "share": 7.42
+      },
+      "의료/건강": {
+        "count": 148,
+        "share": 3
+      },
+      "교육": {
+        "count": 134,
+        "share": 2.72
+      },
+      "여가/체육": {
+        "count": 128,
+        "share": 2.59
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 1500
+      },
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 608
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 270
+      },
+      {
+        "code": "I212",
+        "name": "비알코올",
+        "count": 246
+      },
+      {
+        "code": "G204",
+        "name": "종합 소매",
+        "count": 222
+      }
+    ],
+    "facilities": {
+      "병원/의원": 143,
+      "약국": 47,
+      "편의점": 80,
+      "마트/슈퍼": 127,
+      "카페": 246,
+      "음식점": 1250,
+      "미용": 160,
+      "학원": 104,
+      "체육": 61
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_27b567709a54de37",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2385,
+    "p2Total": 1725,
+    "p2ToP0Ratio": 72.33,
+    "composition": {
+      "음식/외식": {
+        "count": 603,
+        "share": 34.96
+      },
+      "쇼핑/소매": {
+        "count": 434,
+        "share": 25.16
+      },
+      "생활서비스": {
+        "count": 238,
+        "share": 13.8
+      },
+      "의료/건강": {
+        "count": 114,
+        "share": 6.61
+      },
+      "교육": {
+        "count": 226,
+        "share": 13.1
+      },
+      "여가/체육": {
+        "count": 110,
+        "share": 6.38
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 205
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 172
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 159
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 131
+      },
+      {
+        "code": "Q102",
+        "name": "의원",
+        "count": 108
+      }
+    ],
+    "facilities": {
+      "병원/의원": 111,
+      "약국": 32,
+      "편의점": 37,
+      "마트/슈퍼": 29,
+      "카페": 104,
+      "음식점": 499,
+      "미용": 159,
+      "학원": 197,
+      "체육": 60
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_190b3cad0f08ec10",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 1663,
+    "p2Total": 1311,
+    "p2ToP0Ratio": 78.83,
+    "composition": {
+      "음식/외식": {
+        "count": 617,
+        "share": 47.06
+      },
+      "쇼핑/소매": {
+        "count": 322,
+        "share": 24.56
+      },
+      "생활서비스": {
+        "count": 175,
+        "share": 13.35
+      },
+      "의료/건강": {
+        "count": 67,
+        "share": 5.11
+      },
+      "교육": {
+        "count": 91,
+        "share": 6.94
+      },
+      "여가/체육": {
+        "count": 39,
+        "share": 2.97
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 188
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 132
+      },
+      {
+        "code": "I212",
+        "name": "비알코올",
+        "count": 123
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 119
+      },
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 79
+      }
+    ],
+    "facilities": {
+      "병원/의원": 67,
+      "약국": 25,
+      "편의점": 24,
+      "마트/슈퍼": 18,
+      "카페": 123,
+      "음식점": 494,
+      "미용": 132,
+      "학원": 75,
+      "체육": 26
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_a7c61717bc30d0b5",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 3765,
+    "p2Total": 2915,
+    "p2ToP0Ratio": 77.42,
+    "composition": {
+      "음식/외식": {
+        "count": 1176,
+        "share": 40.34
+      },
+      "쇼핑/소매": {
+        "count": 723,
+        "share": 24.8
+      },
+      "생활서비스": {
+        "count": 417,
+        "share": 14.31
+      },
+      "의료/건강": {
+        "count": 136,
+        "share": 4.67
+      },
+      "교육": {
+        "count": 295,
+        "share": 10.12
+      },
+      "여가/체육": {
+        "count": 168,
+        "share": 5.76
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 453
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 278
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 267
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 161
+      },
+      {
+        "code": "I212",
+        "name": "비알코올",
+        "count": 157
+      }
+    ],
+    "facilities": {
+      "병원/의원": 130,
+      "약국": 39,
+      "편의점": 73,
+      "마트/슈퍼": 66,
+      "카페": 157,
+      "음식점": 1019,
+      "미용": 267,
+      "학원": 260,
+      "체육": 67
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_46318d9ca7d49f92",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2935,
+    "p2Total": 2286,
+    "p2ToP0Ratio": 77.89,
+    "composition": {
+      "음식/외식": {
+        "count": 561,
+        "share": 24.54
+      },
+      "쇼핑/소매": {
+        "count": 957,
+        "share": 41.86
+      },
+      "생활서비스": {
+        "count": 263,
+        "share": 11.5
+      },
+      "의료/건강": {
+        "count": 97,
+        "share": 4.24
+      },
+      "교육": {
+        "count": 286,
+        "share": 12.51
+      },
+      "여가/체육": {
+        "count": 122,
+        "share": 5.34
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "G208",
+        "name": "가전·통신 소매",
+        "count": 423
+      },
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 199
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 159
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 146
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 140
+      }
+    ],
+    "facilities": {
+      "병원/의원": 91,
+      "약국": 29,
+      "편의점": 49,
+      "마트/슈퍼": 45,
+      "카페": 101,
+      "음식점": 460,
+      "미용": 159,
+      "학원": 258,
+      "체육": 56
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_2468523874a116f7",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 3574,
+    "p2Total": 2857,
+    "p2ToP0Ratio": 79.94,
+    "composition": {
+      "음식/외식": {
+        "count": 913,
+        "share": 31.96
+      },
+      "쇼핑/소매": {
+        "count": 844,
+        "share": 29.54
+      },
+      "생활서비스": {
+        "count": 464,
+        "share": 16.24
+      },
+      "의료/건강": {
+        "count": 146,
+        "share": 5.11
+      },
+      "교육": {
+        "count": 305,
+        "share": 10.68
+      },
+      "여가/체육": {
+        "count": 185,
+        "share": 6.48
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 379
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 272
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 247
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 191
+      },
+      {
+        "code": "G204",
+        "name": "종합 소매",
+        "count": 146
+      }
+    ],
+    "facilities": {
+      "병원/의원": 142,
+      "약국": 51,
+      "편의점": 63,
+      "마트/슈퍼": 76,
+      "카페": 121,
+      "음식점": 792,
+      "미용": 272,
+      "학원": 267,
+      "체육": 70
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_022bdfc83b2e13a0",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 1370,
+    "p2Total": 1116,
+    "p2ToP0Ratio": 81.46,
+    "composition": {
+      "음식/외식": {
+        "count": 357,
+        "share": 31.99
+      },
+      "쇼핑/소매": {
+        "count": 287,
+        "share": 25.72
+      },
+      "생활서비스": {
+        "count": 182,
+        "share": 16.31
+      },
+      "의료/건강": {
+        "count": 60,
+        "share": 5.38
+      },
+      "교육": {
+        "count": 167,
+        "share": 14.96
+      },
+      "여가/체육": {
+        "count": 63,
+        "share": 5.65
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 145
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 118
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 97
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 82
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 70
+      }
+    ],
+    "facilities": {
+      "병원/의원": 59,
+      "약국": 28,
+      "편의점": 30,
+      "마트/슈퍼": 31,
+      "카페": 67,
+      "음식점": 290,
+      "미용": 118,
+      "학원": 159,
+      "체육": 31
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_54c57b4ba2afb7b4",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 1623,
+    "p2Total": 1343,
+    "p2ToP0Ratio": 82.75,
+    "composition": {
+      "음식/외식": {
+        "count": 433,
+        "share": 32.24
+      },
+      "쇼핑/소매": {
+        "count": 351,
+        "share": 26.14
+      },
+      "생활서비스": {
+        "count": 208,
+        "share": 15.49
+      },
+      "의료/건강": {
+        "count": 76,
+        "share": 5.66
+      },
+      "교육": {
+        "count": 203,
+        "share": 15.12
+      },
+      "여가/체육": {
+        "count": 72,
+        "share": 5.36
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 170
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 127
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 125
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 114
+      },
+      {
+        "code": "G204",
+        "name": "종합 소매",
+        "count": 95
+      }
+    ],
+    "facilities": {
+      "병원/의원": 75,
+      "약국": 25,
+      "편의점": 38,
+      "마트/슈퍼": 54,
+      "카페": 66,
+      "음식점": 367,
+      "미용": 127,
+      "학원": 190,
+      "체육": 32
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_6b236be5a5a32830",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 4451,
+    "p2Total": 3453,
+    "p2ToP0Ratio": 77.58,
+    "composition": {
+      "음식/외식": {
+        "count": 1162,
+        "share": 33.65
+      },
+      "쇼핑/소매": {
+        "count": 1064,
+        "share": 30.81
+      },
+      "생활서비스": {
+        "count": 652,
+        "share": 18.88
+      },
+      "의료/건강": {
+        "count": 197,
+        "share": 5.71
+      },
+      "교육": {
+        "count": 185,
+        "share": 5.36
+      },
+      "여가/체육": {
+        "count": 193,
+        "share": 5.59
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 497
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 406
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 256
+      },
+      {
+        "code": "G204",
+        "name": "종합 소매",
+        "count": 200
+      },
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 199
+      }
+    ],
+    "facilities": {
+      "병원/의원": 191,
+      "약국": 63,
+      "편의점": 96,
+      "마트/슈퍼": 95,
+      "카페": 142,
+      "음식점": 1020,
+      "미용": 406,
+      "학원": 153,
+      "체육": 62
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_80a9adfc80df01f8",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2961,
+    "p2Total": 2547,
+    "p2ToP0Ratio": 86.02,
+    "composition": {
+      "음식/외식": {
+        "count": 816,
+        "share": 32.04
+      },
+      "쇼핑/소매": {
+        "count": 764,
+        "share": 30
+      },
+      "생활서비스": {
+        "count": 442,
+        "share": 17.35
+      },
+      "의료/건강": {
+        "count": 103,
+        "share": 4.04
+      },
+      "교육": {
+        "count": 229,
+        "share": 8.99
+      },
+      "여가/체육": {
+        "count": 193,
+        "share": 7.58
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 334
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 265
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 196
+      },
+      {
+        "code": "G204",
+        "name": "종합 소매",
+        "count": 153
+      },
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 146
+      }
+    ],
+    "facilities": {
+      "병원/의원": 102,
+      "약국": 29,
+      "편의점": 70,
+      "마트/슈퍼": 74,
+      "카페": 102,
+      "음식점": 714,
+      "미용": 265,
+      "학원": 216,
+      "체육": 73
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_639ca6420a0eb61b",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 1934,
+    "p2Total": 1748,
+    "p2ToP0Ratio": 90.38,
+    "composition": {
+      "음식/외식": {
+        "count": 420,
+        "share": 24.03
+      },
+      "쇼핑/소매": {
+        "count": 303,
+        "share": 17.33
+      },
+      "생활서비스": {
+        "count": 196,
+        "share": 11.21
+      },
+      "의료/건강": {
+        "count": 75,
+        "share": 4.29
+      },
+      "교육": {
+        "count": 624,
+        "share": 35.7
+      },
+      "여가/체육": {
+        "count": 130,
+        "share": 7.44
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 463
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 161
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 148
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 127
+      },
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 114
+      }
+    ],
+    "facilities": {
+      "병원/의원": 73,
+      "약국": 20,
+      "편의점": 37,
+      "마트/슈퍼": 39,
+      "카페": 82,
+      "음식점": 338,
+      "미용": 127,
+      "학원": 610,
+      "체육": 57
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_271339c044af8a26",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2463,
+    "p2Total": 2003,
+    "p2ToP0Ratio": 81.32,
+    "composition": {
+      "음식/외식": {
+        "count": 737,
+        "share": 36.79
+      },
+      "쇼핑/소매": {
+        "count": 546,
+        "share": 27.26
+      },
+      "생활서비스": {
+        "count": 300,
+        "share": 14.98
+      },
+      "의료/건강": {
+        "count": 72,
+        "share": 3.59
+      },
+      "교육": {
+        "count": 231,
+        "share": 11.53
+      },
+      "여가/체육": {
+        "count": 117,
+        "share": 5.84
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 281
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 185
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 166
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 129
+      },
+      {
+        "code": "I211",
+        "name": "주점",
+        "count": 120
+      }
+    ],
+    "facilities": {
+      "병원/의원": 71,
+      "약국": 23,
+      "편의점": 51,
+      "마트/슈퍼": 39,
+      "카페": 98,
+      "음식점": 639,
+      "미용": 185,
+      "학원": 210,
+      "체육": 38
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_eadbeb3ecc646d9e",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2754,
+    "p2Total": 2201,
+    "p2ToP0Ratio": 79.92,
+    "composition": {
+      "음식/외식": {
+        "count": 759,
+        "share": 34.48
+      },
+      "쇼핑/소매": {
+        "count": 598,
+        "share": 27.17
+      },
+      "생활서비스": {
+        "count": 343,
+        "share": 15.58
+      },
+      "의료/건강": {
+        "count": 107,
+        "share": 4.86
+      },
+      "교육": {
+        "count": 299,
+        "share": 13.58
+      },
+      "여가/체육": {
+        "count": 95,
+        "share": 4.32
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 288
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 215
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 212
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 150
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 149
+      }
+    ],
+    "facilities": {
+      "병원/의원": 105,
+      "약국": 36,
+      "편의점": 69,
+      "마트/슈퍼": 65,
+      "카페": 102,
+      "음식점": 657,
+      "미용": 212,
+      "학원": 277,
+      "체육": 42
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_6ac833495f0dffa5",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 6665,
+    "p2Total": 4859,
+    "p2ToP0Ratio": 72.9,
+    "composition": {
+      "음식/외식": {
+        "count": 2050,
+        "share": 42.19
+      },
+      "쇼핑/소매": {
+        "count": 1130,
+        "share": 23.26
+      },
+      "생활서비스": {
+        "count": 608,
+        "share": 12.51
+      },
+      "의료/건강": {
+        "count": 203,
+        "share": 4.18
+      },
+      "교육": {
+        "count": 616,
+        "share": 12.68
+      },
+      "여가/체육": {
+        "count": 252,
+        "share": 5.19
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 639
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 419
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 413
+      },
+      {
+        "code": "I212",
+        "name": "비알코올",
+        "count": 406
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 371
+      }
+    ],
+    "facilities": {
+      "병원/의원": 199,
+      "약국": 67,
+      "편의점": 126,
+      "마트/슈퍼": 85,
+      "카페": 406,
+      "음식점": 1644,
+      "미용": 419,
+      "학원": 530,
+      "체육": 94
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_20d97260455ec07f",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 1710,
+    "p2Total": 1450,
+    "p2ToP0Ratio": 84.8,
+    "composition": {
+      "음식/외식": {
+        "count": 469,
+        "share": 32.34
+      },
+      "쇼핑/소매": {
+        "count": 378,
+        "share": 26.07
+      },
+      "생활서비스": {
+        "count": 239,
+        "share": 16.48
+      },
+      "의료/건강": {
+        "count": 72,
+        "share": 4.97
+      },
+      "교육": {
+        "count": 181,
+        "share": 12.48
+      },
+      "여가/체육": {
+        "count": 111,
+        "share": 7.66
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 184
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 149
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 112
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 102
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 79
+      }
+    ],
+    "facilities": {
+      "병원/의원": 71,
+      "약국": 25,
+      "편의점": 36,
+      "마트/슈퍼": 38,
+      "카페": 58,
+      "음식점": 411,
+      "미용": 149,
+      "학원": 170,
+      "체육": 50
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_42f523cef23d0848",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 3790,
+    "p2Total": 3191,
+    "p2ToP0Ratio": 84.2,
+    "composition": {
+      "음식/외식": {
+        "count": 1065,
+        "share": 33.38
+      },
+      "쇼핑/소매": {
+        "count": 787,
+        "share": 24.66
+      },
+      "생활서비스": {
+        "count": 490,
+        "share": 15.36
+      },
+      "의료/건강": {
+        "count": 185,
+        "share": 5.8
+      },
+      "교육": {
+        "count": 462,
+        "share": 14.48
+      },
+      "여가/체육": {
+        "count": 202,
+        "share": 6.33
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 388
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 337
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 292
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 246
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 216
+      }
+    ],
+    "facilities": {
+      "병원/의원": 183,
+      "약국": 58,
+      "편의점": 68,
+      "마트/슈퍼": 75,
+      "카페": 139,
+      "음식점": 926,
+      "미용": 337,
+      "학원": 432,
+      "체육": 77
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_cb0c0bc9958f2d47",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2251,
+    "p2Total": 1903,
+    "p2ToP0Ratio": 84.54,
+    "composition": {
+      "음식/외식": {
+        "count": 633,
+        "share": 33.26
+      },
+      "쇼핑/소매": {
+        "count": 499,
+        "share": 26.22
+      },
+      "생활서비스": {
+        "count": 310,
+        "share": 16.29
+      },
+      "의료/건강": {
+        "count": 114,
+        "share": 5.99
+      },
+      "교육": {
+        "count": 211,
+        "share": 11.09
+      },
+      "여가/체육": {
+        "count": 136,
+        "share": 7.15
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 208
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 196
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 177
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 117
+      },
+      {
+        "code": "G204",
+        "name": "종합 소매",
+        "count": 112
+      }
+    ],
+    "facilities": {
+      "병원/의원": 114,
+      "약국": 38,
+      "편의점": 44,
+      "마트/슈퍼": 59,
+      "카페": 99,
+      "음식점": 534,
+      "미용": 196,
+      "학원": 197,
+      "체육": 71
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_bc0722f2de30a225",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2863,
+    "p2Total": 2383,
+    "p2ToP0Ratio": 83.23,
+    "composition": {
+      "음식/외식": {
+        "count": 800,
+        "share": 33.57
+      },
+      "쇼핑/소매": {
+        "count": 719,
+        "share": 30.17
+      },
+      "생활서비스": {
+        "count": 394,
+        "share": 16.53
+      },
+      "의료/건강": {
+        "count": 114,
+        "share": 4.78
+      },
+      "교육": {
+        "count": 199,
+        "share": 8.35
+      },
+      "여가/체육": {
+        "count": 157,
+        "share": 6.59
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 317
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 224
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 184
+      },
+      {
+        "code": "G205",
+        "name": "식료품 소매",
+        "count": 161
+      },
+      {
+        "code": "I211",
+        "name": "주점",
+        "count": 148
+      }
+    ],
+    "facilities": {
+      "병원/의원": 112,
+      "약국": 44,
+      "편의점": 43,
+      "마트/슈퍼": 77,
+      "카페": 82,
+      "음식점": 718,
+      "미용": 224,
+      "학원": 182,
+      "체육": 45
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_8d35e3c7f5e24ba9",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 6082,
+    "p2Total": 4615,
+    "p2ToP0Ratio": 75.88,
+    "composition": {
+      "음식/외식": {
+        "count": 1674,
+        "share": 36.27
+      },
+      "쇼핑/소매": {
+        "count": 1768,
+        "share": 38.31
+      },
+      "생활서비스": {
+        "count": 466,
+        "share": 10.1
+      },
+      "의료/건강": {
+        "count": 186,
+        "share": 4.03
+      },
+      "교육": {
+        "count": 261,
+        "share": 5.66
+      },
+      "여가/체육": {
+        "count": 260,
+        "share": 5.63
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 787
+      },
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 686
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 261
+      },
+      {
+        "code": "I211",
+        "name": "주점",
+        "count": 254
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 237
+      }
+    ],
+    "facilities": {
+      "병원/의원": 180,
+      "약국": 63,
+      "편의점": 97,
+      "마트/슈퍼": 120,
+      "카페": 209,
+      "음식점": 1465,
+      "미용": 237,
+      "학원": 208,
+      "체육": 88
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_7e037735051548bf",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2113,
+    "p2Total": 1647,
+    "p2ToP0Ratio": 77.95,
+    "composition": {
+      "음식/외식": {
+        "count": 540,
+        "share": 32.79
+      },
+      "쇼핑/소매": {
+        "count": 360,
+        "share": 21.86
+      },
+      "생활서비스": {
+        "count": 261,
+        "share": 15.85
+      },
+      "의료/건강": {
+        "count": 84,
+        "share": 5.1
+      },
+      "교육": {
+        "count": 290,
+        "share": 17.61
+      },
+      "여가/체육": {
+        "count": 112,
+        "share": 6.8
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 168
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 167
+      },
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 162
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 161
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 129
+      }
+    ],
+    "facilities": {
+      "병원/의원": 82,
+      "약국": 23,
+      "편의점": 58,
+      "마트/슈퍼": 45,
+      "카페": 99,
+      "음식점": 441,
+      "미용": 167,
+      "학원": 269,
+      "체육": 41
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_71b2a1be4e457891",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 3564,
+    "p2Total": 2789,
+    "p2ToP0Ratio": 78.25,
+    "composition": {
+      "음식/외식": {
+        "count": 1050,
+        "share": 37.65
+      },
+      "쇼핑/소매": {
+        "count": 650,
+        "share": 23.31
+      },
+      "생활서비스": {
+        "count": 503,
+        "share": 18.04
+      },
+      "의료/건강": {
+        "count": 135,
+        "share": 4.84
+      },
+      "교육": {
+        "count": 297,
+        "share": 10.65
+      },
+      "여가/체육": {
+        "count": 154,
+        "share": 5.52
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 369
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 323
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 219
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 181
+      },
+      {
+        "code": "I212",
+        "name": "비알코올",
+        "count": 154
+      }
+    ],
+    "facilities": {
+      "병원/의원": 132,
+      "약국": 50,
+      "편의점": 73,
+      "마트/슈퍼": 56,
+      "카페": 154,
+      "음식점": 896,
+      "미용": 323,
+      "학원": 265,
+      "체육": 60
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_1c244e7305d12c44",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 5491,
+    "p2Total": 4115,
+    "p2ToP0Ratio": 74.94,
+    "composition": {
+      "음식/외식": {
+        "count": 919,
+        "share": 22.33
+      },
+      "쇼핑/소매": {
+        "count": 1872,
+        "share": 45.49
+      },
+      "생활서비스": {
+        "count": 377,
+        "share": 9.16
+      },
+      "의료/건강": {
+        "count": 196,
+        "share": 4.76
+      },
+      "교육": {
+        "count": 614,
+        "share": 14.92
+      },
+      "여가/체육": {
+        "count": 137,
+        "share": 3.33
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 1025
+      },
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 334
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 280
+      },
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 273
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 238
+      }
+    ],
+    "facilities": {
+      "병원/의원": 191,
+      "약국": 61,
+      "편의점": 64,
+      "마트/슈퍼": 49,
+      "카페": 162,
+      "음식점": 757,
+      "미용": 232,
+      "학원": 557,
+      "체육": 65
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_c9ed0235ecca960c",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 4695,
+    "p2Total": 3294,
+    "p2ToP0Ratio": 70.16,
+    "composition": {
+      "음식/외식": {
+        "count": 774,
+        "share": 23.5
+      },
+      "쇼핑/소매": {
+        "count": 805,
+        "share": 24.44
+      },
+      "생활서비스": {
+        "count": 337,
+        "share": 10.23
+      },
+      "의료/건강": {
+        "count": 259,
+        "share": 7.86
+      },
+      "교육": {
+        "count": 915,
+        "share": 27.78
+      },
+      "여가/체육": {
+        "count": 204,
+        "share": 6.19
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "P105",
+        "name": "일반 교육",
+        "count": 587
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 328
+      },
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 247
+      },
+      {
+        "code": "Q102",
+        "name": "의원",
+        "count": 242
+      },
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 219
+      }
+    ],
+    "facilities": {
+      "병원/의원": 249,
+      "약국": 61,
+      "편의점": 77,
+      "마트/슈퍼": 39,
+      "카페": 154,
+      "음식점": 620,
+      "미용": 215,
+      "학원": 865,
+      "체육": 96
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_ed52bf895d064c11",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 3411,
+    "p2Total": 2253,
+    "p2ToP0Ratio": 66.05,
+    "composition": {
+      "음식/외식": {
+        "count": 973,
+        "share": 43.19
+      },
+      "쇼핑/소매": {
+        "count": 576,
+        "share": 25.57
+      },
+      "생활서비스": {
+        "count": 291,
+        "share": 12.92
+      },
+      "의료/건강": {
+        "count": 109,
+        "share": 4.84
+      },
+      "교육": {
+        "count": 170,
+        "share": 7.55
+      },
+      "여가/체육": {
+        "count": 134,
+        "share": 5.95
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 361
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 162
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 153
+      },
+      {
+        "code": "G209",
+        "name": "섬유·의복·신발 소매",
+        "count": 147
+      },
+      {
+        "code": "I211",
+        "name": "주점",
+        "count": 146
+      }
+    ],
+    "facilities": {
+      "병원/의원": 103,
+      "약국": 59,
+      "편의점": 56,
+      "마트/슈퍼": 33,
+      "카페": 111,
+      "음식점": 862,
+      "미용": 162,
+      "학원": 147,
+      "체육": 65
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  },
+  {
+    "complexId": "cx_f523f190604978e6",
+    "source": "semas",
+    "sourcePeriod": "2026Q2",
+    "radiusM": 1000,
+    "populationVersion": "daily_commerce_core_v1",
+    "p0Total": 2439,
+    "p2Total": 1915,
+    "p2ToP0Ratio": 78.52,
+    "composition": {
+      "음식/외식": {
+        "count": 662,
+        "share": 34.57
+      },
+      "쇼핑/소매": {
+        "count": 534,
+        "share": 27.89
+      },
+      "생활서비스": {
+        "count": 342,
+        "share": 17.86
+      },
+      "의료/건강": {
+        "count": 86,
+        "share": 4.49
+      },
+      "교육": {
+        "count": 177,
+        "share": 9.24
+      },
+      "여가/체육": {
+        "count": 114,
+        "share": 5.95
+      },
+      "기타": {
+        "count": 0,
+        "share": 0
+      }
+    },
+    "topCategories": [
+      {
+        "code": "I201",
+        "name": "한식",
+        "count": 265
+      },
+      {
+        "code": "S207",
+        "name": "이용·미용",
+        "count": 210
+      },
+      {
+        "code": "I210",
+        "name": "기타 간이",
+        "count": 153
+      },
+      {
+        "code": "P106",
+        "name": "기타 교육",
+        "count": 115
+      },
+      {
+        "code": "G205",
+        "name": "식료품 소매",
+        "count": 100
+      }
+    ],
+    "facilities": {
+      "병원/의원": 85,
+      "약국": 25,
+      "편의점": 52,
+      "마트/슈퍼": 45,
+      "카페": 96,
+      "음식점": 566,
+      "미용": 210,
+      "학원": 145,
+      "체육": 41
+    },
+    "sourceDate": "2026-06-30",
+    "sourceUpdatedDate": "2026-06-30",
+    "computedAt": "2026-09-16T08:55:38.060Z",
+    "coordinateSource": "nominatim_fallback",
+    "populationRuleVersion": "c1b_frozen_p2_v1"
+  }
+]
