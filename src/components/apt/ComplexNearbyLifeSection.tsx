@@ -433,7 +433,12 @@ export function ComplexNearbyLifeSection({
 
   /** Same URL as school list rows — marker + list must stay in sync. */
   const openSchoolDetail = useCallback(
-    (s: Pick<NearbySchoolPlace, "schoolCode" | "name" | "level" | "address">) => {
+    (s: {
+      schoolCode: string | null | undefined;
+      name: string;
+      level: string;
+      address: string | null | undefined;
+    }) => {
       const code = s.schoolCode?.trim();
       if (!code) return false;
       let from = pathname;

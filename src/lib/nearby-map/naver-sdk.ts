@@ -29,6 +29,7 @@ export type NaverMapsApi = {
     Circle: new (opts: Record<string, unknown>) => NaverCircleInstance;
     OverlayView: new () => NaverOverlayViewInstance;
     Point: new (x: number, y: number) => unknown;
+    Size: new (width: number, height: number) => unknown;
     Event: {
       addListener: (
         target: unknown,
