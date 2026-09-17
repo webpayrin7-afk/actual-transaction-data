@@ -230,6 +230,13 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
+        {/* attribution — above 기본정보, right-aligned */}
+        {detail.attribution ? (
+          <p className="-mb-2 text-right text-[11px] leading-4 text-slate-500 sm:-mb-3">
+            {detail.attribution}
+          </p>
+        ) : null}
+
         {/* 1. 기본정보 */}
         {basicRows.length > 0 ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
@@ -267,10 +274,6 @@ export function SchoolDetailView({
             학교알리미에서 보기
           </a>
         ) : null}
-
-        <p className="text-center text-[11px] text-slate-500">
-          {detail.attribution}
-        </p>
       </div>
     </div>
   );
