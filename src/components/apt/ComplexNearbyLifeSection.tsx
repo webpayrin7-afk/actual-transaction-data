@@ -694,6 +694,9 @@ export function ComplexNearbyLifeSection({
           label: s.name,
           kind: "SCHOOL" as const,
           schoolLevel: s.schoolLevel,
+          schoolCode: s.schoolCode,
+          schoolKind: s.level,
+          schoolAddress: s.address,
           selected: selectedId === s.id,
         }));
     }
@@ -743,7 +746,17 @@ export function ComplexNearbyLifeSection({
       if (tab === "school" && id !== "complex") {
         pendingListScrollIdRef.current = null;
         const place = schoolQuery.data?.places.find((p) => p.id === id);
-        if (place) openSchoolDetail(place);
+        const marker = tabMarkers.find((m) => m.id === id);
+        const opened = openSchoolDetail({
+          schoolCode: place?.schoolCode ?? marker?.schoolCode ?? null,
+          name: place?.name ?? marker?.title ?? "",
+          level: place?.level ?? marker?.schoolKind ?? "middle",
+          address: place?.address ?? marker?.schoolAddress ?? null,
+        });
+        if (!opened) {
+          // No NEIS code yet — keep selection highlight only.
+          selectFromList(id);
+        }
         return;
       }
       if (tab !== "living" || id === "complex") {
@@ -765,7 +778,9 @@ export function ComplexNearbyLifeSection({
       livingValidPlaces,
       expanded,
       schoolQuery.data?.places,
+      tabMarkers,
       openSchoolDetail,
+      selectFromList,
     ],
   );
 

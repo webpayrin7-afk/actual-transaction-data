@@ -214,6 +214,10 @@ export type NaverMapMarker = {
   hospitalEmphasis?: boolean;
   /** School level badge (초/중/고) — same family marker, text distinguishes level. */
   schoolLevel?: "ELEMENTARY" | "MIDDLE" | "HIGH";
+  /** NEIS code when known — used by school-tab marker → detail navigation. */
+  schoolCode?: string | null;
+  schoolKind?: string;
+  schoolAddress?: string | null;
   selected?: boolean;
 };
 
@@ -421,18 +425,27 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
           ? "고"
           : "초";
     const label = escapeHtml((marker.label || marker.title || "").trim());
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none;white-space:nowrap">
-      ${selected ? selectionArrowHtml() : ""}
-      <div style="display:flex;align-items:center;gap:3px;padding:2px 5px 2px 2px;border-radius:8px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
-        <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;background:#1e3a5f;color:#fff;font:700 10px/1 system-ui,-apple-system,sans-serif">${badge}</span>
-        <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;max-width:88px;overflow:hidden;text-overflow:ellipsis">${label}</span>
+    // Fixed box + size/anchor so the whole chip is clickable (CSS translate
+    // alone leaves a tiny hit target at the pin tip).
+    const width = 118;
+    const height = selected ? 44 : 36;
+    const html = `<div style="position:relative;width:${width}px;height:${height}px;pointer-events:none">
+      <div style="position:absolute;left:50%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);white-space:nowrap">
+        ${selected ? selectionArrowHtml() : ""}
+        <div style="display:flex;align-items:center;gap:3px;padding:2px 5px 2px 2px;border-radius:8px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;background:#1e3a5f;color:#fff;font:700 10px/1 system-ui,-apple-system,sans-serif">${badge}</span>
+          <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;max-width:88px;overflow:hidden;text-overflow:ellipsis">${label}</span>
+        </div>
+        <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
       </div>
-      <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
     </div>`;
     return {
       content: html,
+      size: window.naver?.maps
+        ? new window.naver.maps.Size(width, height)
+        : undefined,
       anchor: window.naver?.maps
-        ? new window.naver.maps.Point(0, 0)
+        ? new window.naver.maps.Point(width / 2, height)
         : undefined,
     };
   }
@@ -632,7 +645,7 @@ export function NaverMap({
             : item.kind === "TRANSIT"
               ? 60
               : item.kind === "SCHOOL"
-                ? 50
+                ? 70
                 : 20;
       const existing = markerMapRef.current.get(item.id);
       if (existing) {
@@ -647,6 +660,7 @@ export function NaverMap({
         title: item.title,
         icon: markerIconHtml(item, selected),
         zIndex,
+        clickable: true,
       });
       maps.Event.addListener(marker, "click", () => {
         onMarkerClickRef.current?.(item.id);
