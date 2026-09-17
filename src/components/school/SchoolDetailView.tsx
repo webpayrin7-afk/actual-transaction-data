@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { BackLink } from "@/components/layout/BackLink";
+import { AdvancementSection } from "@/components/school/AdvancementSection";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { Metric, SchoolDetail } from "@/lib/school-info/types";
 
@@ -134,29 +135,27 @@ export function SchoolDetailView({
     detail.core.studentsPerTeacher,
   ].filter((m): m is Metric => Boolean(m?.value));
 
+  // 학교생활: 급식 · 방과후 · 장학 — scholarship is a row group, not a peer section.
   const lifeRows = [
     detail.schoolLife.mealPerStudent,
     detail.schoolLife.afterSchoolPrograms,
+    ...(detail.scholarship
+      ? [detail.scholarship.total, detail.scholarship.perStudent]
+      : []),
   ]
     .filter((m): m is Metric => Boolean(m?.value))
     .map((m) => ({ label: m.label, value: m.value }));
-
-  const scholarshipRows = detail.scholarship
-    ? [detail.scholarship.total, detail.scholarship.perStudent]
-        .filter((m): m is Metric => Boolean(m?.value))
-        .map((m) => ({ label: m.label, value: m.value }))
-    : [];
-
-  const hasAdvancement = Boolean(
-    detail.advancement &&
-      (detail.advancement.graduates?.value ||
-        detail.advancement.buckets.length > 0),
-  );
 
   const basicRows: Array<{ label: string; value: ReactNode; long?: boolean }> =
     [];
   if (detail.foundation) {
     basicRows.push({ label: "설립구분", value: detail.foundation });
+  }
+  if (detail.coedu) {
+    basicRows.push({ label: "남녀공학", value: detail.coedu });
+  }
+  if (detail.kind) {
+    basicRows.push({ label: "학교급", value: detail.kind });
   }
   if (detail.address) {
     basicRows.push({ label: "주소", value: detail.address, long: true });
@@ -201,26 +200,6 @@ export function SchoolDetailView({
   }
 
   const authHold = !detail.auth.keyPresent;
-  const hasSecondary =
-    lifeRows.length > 0 ||
-    scholarshipRows.length > 0 ||
-    basicRows.length > 0 ||
-    hasAdvancement;
-
-  let secondaryStarted = false;
-  function secondaryBlock(node: ReactNode) {
-    const withDivider = secondaryStarted;
-    secondaryStarted = true;
-    return (
-      <div
-        className={
-          withDivider ? "mt-3.5 border-t border-slate-100 pt-3.5" : undefined
-        }
-      >
-        {node}
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col">
@@ -262,6 +241,16 @@ export function SchoolDetailView({
         ) : null}
 
         {!authHold &&
+        detail.mapping === "unresolved" &&
+        !detail.schoolInfoCode ? (
+          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
+            <p className="text-sm text-slate-700">
+              이 학교 코드에 해당하는 학교알리미 공시 정보를 찾지 못했습니다.
+            </p>
+          </section>
+        ) : null}
+
+        {!authHold &&
         detail.sectionStatus.basic === "error" &&
         !detail.schoolInfoCode ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
@@ -271,6 +260,7 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
+        {/* 1. 학교 현황 */}
         {coreItems.length > 0 ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
             <SectionTitle>학교 현황</SectionTitle>
@@ -278,68 +268,22 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
-        {hasSecondary ? (
+        {/* 2. 진학 현황 — middle only; HOLD → AdvancementSection returns null */}
+        <AdvancementSection data={detail.advancement} schoolKind={detail.kind} />
+
+        {/* 3. 학교생활 (급식 · 방과후 · 장학) */}
+        {lifeRows.length > 0 ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
-            {lifeRows.length > 0
-              ? secondaryBlock(
-                  <>
-                    <SectionTitle>학교생활</SectionTitle>
-                    <CompactRows rows={lifeRows} />
-                  </>,
-                )
-              : null}
+            <SectionTitle>학교생활</SectionTitle>
+            <CompactRows rows={lifeRows} />
+          </section>
+        ) : null}
 
-            {hasAdvancement && detail.advancement
-              ? secondaryBlock(
-                  <>
-                    <SectionTitle>진학정보</SectionTitle>
-                    {detail.advancement.graduates?.value ? (
-                      <p className="mt-2 text-[13px] font-semibold tabular-nums text-slate-900">
-                        졸업생 {detail.advancement.graduates.value}
-                      </p>
-                    ) : null}
-                    {detail.advancement.buckets.length > 0 ? (
-                      <ul className="mt-2 space-y-1.5">
-                        {detail.advancement.buckets.map((b) => (
-                          <li
-                            key={b.label}
-                            className="flex items-baseline justify-between gap-3 text-[13px]"
-                          >
-                            <span className="text-slate-600">{b.label}</span>
-                            <span className="font-semibold tabular-nums text-slate-900">
-                              {b.count != null
-                                ? `${b.count.toLocaleString("ko-KR")}명`
-                                : ""}
-                              {b.count != null && b.percent != null
-                                ? " · "
-                                : ""}
-                              {b.percent != null ? `${b.percent}%` : ""}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </>,
-                )
-              : null}
-
-            {scholarshipRows.length > 0
-              ? secondaryBlock(
-                  <>
-                    <SectionTitle>장학정보</SectionTitle>
-                    <CompactRows rows={scholarshipRows} />
-                  </>,
-                )
-              : null}
-
-            {basicRows.length > 0
-              ? secondaryBlock(
-                  <>
-                    <SectionTitle>기본정보</SectionTitle>
-                    <BasicRows rows={basicRows} />
-                  </>,
-                )
-              : null}
+        {/* 4. 기본정보 */}
+        {basicRows.length > 0 ? (
+          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
+            <SectionTitle>기본정보</SectionTitle>
+            <BasicRows rows={basicRows} />
           </section>
         ) : null}
 

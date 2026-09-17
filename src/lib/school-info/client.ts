@@ -11,7 +11,16 @@ export type FetchOpts = {
   sggCode: string;
   schulKndCode: string;
   pbanYr?: number | string;
+  /**
+   * Required for some apiTypes (e.g. 35 급식비 집행 실적).
+   * depthNo=20 → 학생 1인당 1식 식품비 (STDNT_ONE_PSNBY_LM).
+   * depthNo=10 → 급식비 부담주체 금액/비율 only.
+   */
+  depthNo?: string;
 };
+
+/** Official depthNo for school-detail meal metric (1인당 1식 식품비). */
+export const MEAL_DEPTH_NO = "20";
 
 export type ApiBody = {
   resultCode: string;
@@ -54,6 +63,9 @@ export async function fetchApi(opts: FetchOpts): Promise<{
   url.searchParams.set("sidoCode", opts.sidoCode);
   url.searchParams.set("sggCode", opts.sggCode);
   if (opts.pbanYr != null) url.searchParams.set("pbanYr", String(opts.pbanYr));
+  const depthNo =
+    opts.depthNo ?? (opts.apiType === "35" ? MEAL_DEPTH_NO : undefined);
+  if (depthNo) url.searchParams.set("depthNo", depthNo);
 
   const res = await fetch(url.toString(), {
     method: "GET",

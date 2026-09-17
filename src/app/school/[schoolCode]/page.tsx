@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { SchoolDetailView } from "@/components/school/SchoolDetailView";
 import { getSchoolDetail } from "@/lib/school-info/get-school-detail";
+import {
+  parseKindParam,
+  type Kind,
+} from "@/lib/school-info/identity";
 
 type PageProps = {
   params: Promise<{ schoolCode: string }>;
@@ -8,6 +12,8 @@ type PageProps = {
     name?: string;
     from?: string;
     nearbyTab?: string;
+    kind?: string;
+    address?: string;
   }>;
 };
 
@@ -33,11 +39,14 @@ export default async function SchoolDetailPage({
   const sp = await searchParams;
   const schoolCode = decodeURIComponent(rawCode).trim();
   const nameHint = sp.name?.trim() || null;
+  const addressHint = sp.address?.trim() || null;
+  const kind: Kind | undefined = parseKindParam(sp.kind) ?? undefined;
 
   const detail = await getSchoolDetail({
     schoolCode,
     nameHint,
-    kind: "middle",
+    addressHint,
+    kind,
   });
 
   const from = sp.from?.trim();
@@ -53,7 +62,7 @@ export default async function SchoolDetailPage({
 
 /**
  * Back from school detail only: restore 학교 탭 + scroll to 주변 생활.
- * Normal apt entry never includes these markers → initial tab stays 교통.
+ * Normal apt entry never includes these markers → initial tab stays first tab.
  */
 function buildSchoolBackHref(
   from: string | undefined,

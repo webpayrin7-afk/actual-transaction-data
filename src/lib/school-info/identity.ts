@@ -26,8 +26,22 @@ export type NeisSchoolInfoLink = {
   sggCode: string;
 };
 
-/** Locked correspondence — not name-only identity. */
+/**
+ * RETAINED — NEIS SD_SCHUL_CODE and SchoolInfo SCHUL_CODE are different
+ * namespaces (e.g. 7130202 ≠ S010000888). Dynamic same-code resolution fails
+ * without these verified Songpa source-links. Prefer retaining over wrong-school
+ * fallback; do not expand via fuzzy name matching.
+ */
 export const NEIS_TO_SCHOOLINFO_LINKS: readonly NeisSchoolInfoLink[] = [
+  {
+    neisSdSchulCode: "7130153",
+    schoolInfoSchulCode: "S010000944",
+    name: "서울잠일초등학교",
+    addressNeedle: "올림픽로95",
+    kind: "elementary",
+    sidoCode: SEOUL_SIDO,
+    sggCode: SONGPA_SGG,
+  },
   {
     neisSdSchulCode: "7130202",
     schoolInfoSchulCode: "S010000888",
@@ -46,7 +60,39 @@ export const NEIS_TO_SCHOOLINFO_LINKS: readonly NeisSchoolInfoLink[] = [
     sidoCode: SEOUL_SIDO,
     sggCode: SONGPA_SGG,
   },
+  {
+    neisSdSchulCode: "7010107",
+    schoolInfoSchulCode: "S010000523",
+    name: "잠실고등학교",
+    addressNeedle: "올림픽로33길71",
+    kind: "high",
+    sidoCode: SEOUL_SIDO,
+    sggCode: SONGPA_SGG,
+  },
 ] as const;
+
+/** Kind label only — never used as permanent school identity. */
+export function inferKindFromNameHint(nameHint: string | null | undefined): Kind | null {
+  const n = (nameHint ?? "").replace(/\s+/g, "");
+  if (!n) return null;
+  if (n.includes("초등학교") || n.endsWith("초등") || n.endsWith("초")) {
+    return "elementary";
+  }
+  if (n.includes("중학교") || n.endsWith("중")) return "middle";
+  if (n.includes("고등학교") || n.endsWith("고등") || n.endsWith("고")) {
+    return "high";
+  }
+  return null;
+}
+
+export function parseKindParam(raw: string | null | undefined): Kind | null {
+  const v = (raw ?? "").trim().toLowerCase();
+  if (v === "elementary" || v === "middle" || v === "high") return v;
+  if (v === "element" || v === "e" || v === "02") return "elementary";
+  if (v === "m" || v === "03") return "middle";
+  if (v === "h" || v === "04") return "high";
+  return null;
+}
 
 export type ResolveMethod =
   | "same_code"
