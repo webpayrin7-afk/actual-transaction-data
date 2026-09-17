@@ -2,9 +2,8 @@ import type { AdvancementData } from "@/lib/school-info/types";
 import { canRenderAdvancementSection } from "@/lib/school-info/advancement-disclosure";
 
 /**
- * Middle-school 진학현황 (apiType52 → AdvancementData).
- * Insertion: after 학교 현황, before 학교생활.
- * High schools use a different career schema — not rendered here while HOLD.
+ * Presentation for middle 진학현황 / high 진학·진로현황.
+ * Data adapters differ by school kind; this component only renders normalized rows.
  */
 export function AdvancementSection({
   data,
@@ -13,8 +12,11 @@ export function AdvancementSection({
   data: AdvancementData | null | undefined;
   schoolKind: string | null | undefined;
 }) {
-  if (!canRenderAdvancementSection()) return null;
-  if (!schoolKind?.includes("중")) return null;
+  const isMiddle = Boolean(schoolKind?.includes("중"));
+  const isHigh = Boolean(schoolKind?.includes("고"));
+
+  if (isMiddle && !canRenderAdvancementSection()) return null;
+  if (!isMiddle && !isHigh) return null;
   if (!data) return null;
 
   const categories = data.categories.filter(
@@ -26,12 +28,13 @@ export function AdvancementSection({
   if (!hasBody) return null;
 
   const yearLabel = data.year ? `${data.year}년 공시` : null;
+  const title = isHigh ? "진학·진로 현황" : "진학 현황";
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-[13px] font-semibold tracking-tight text-slate-800">
-          진학 현황
+          {title}
         </h2>
         {yearLabel ? (
           <p className="text-[11px] text-slate-500">{yearLabel}</p>

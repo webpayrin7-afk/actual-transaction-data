@@ -268,7 +268,7 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
-        {/* 2. 진학 현황 — middle only; HOLD → AdvancementSection returns null */}
+        {/* 2. 진학/진학·진로 현황 — AdvancementSection (middle/high adapters) */}
         <AdvancementSection data={detail.advancement} schoolKind={detail.kind} />
 
         {/* 3. 학교생활 (급식 · 방과후 · 장학) */}

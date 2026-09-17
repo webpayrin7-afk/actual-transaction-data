@@ -33,6 +33,7 @@ import {
   attribution,
   parseAfterSchool,
   parseBasic,
+  parseHighSchoolCareer,
   parseMeal,
   parseMiddleAdvancement,
   parseScholarship,
@@ -46,10 +47,7 @@ import type {
   SectionStatus,
 } from "@/lib/school-info/types";
 
-/**
- * Middle advancement: openData apiType52 when ADVANCEMENT_API52 is PASS_*.
- * High/elementary: never fetch middle bindings; high career remains HOLD.
- */
+/** Middle + high openData apiType52 (separate adapters). Elementary: no fetch. */
 void ADVANCEMENT_API52;
 
 export type GetSchoolDetailParams = {
@@ -263,7 +261,7 @@ function rawNum(m: Metric | null): number | null {
   return m ? asNumber(m.raw) : null;
 }
 
-async function loadMiddleAdvancement(p: {
+async function loadAdvancementOrCareer(p: {
   schoolInfoCode: string;
   kind: Kind;
   sidoCode: string;
@@ -274,15 +272,19 @@ async function loadMiddleAdvancement(p: {
   status: SectionStatus;
   year: number | null;
 }> {
-  // Middle only — do not call apiType52 for elementary/high with middle map.
-  if (p.kind !== "middle") {
+  // Elementary: NOT_APPLICABLE — do not call apiType52.
+  if (p.kind === "elementary") {
     return { data: null, status: "missing", year: null };
   }
-  if (
-    ADVANCEMENT_API52 !== "PASS" &&
-    ADVANCEMENT_API52 !== "PASS_STRUCTURALLY_CONFIRMED"
-  ) {
-    return { data: null, status: "missing", year: null };
+
+  const kindCode = p.kind === "high" ? "04" : "03";
+  if (p.kind === "middle") {
+    if (
+      ADVANCEMENT_API52 !== "PASS" &&
+      ADVANCEMENT_API52 !== "PASS_STRUCTURALLY_CONFIRMED"
+    ) {
+      return { data: null, status: "missing", year: null };
+    }
   }
 
   for (const year of p.yearList) {
@@ -290,14 +292,17 @@ async function loadMiddleAdvancement(p: {
       const res = await fetchOpenDataList({
         apiType: "52",
         year,
-        kindCode: "03",
+        kindCode,
         sidoCode: p.sidoCode,
         sggCode: p.sggCode,
       });
       if (!res.httpOk || res.list.length === 0) continue;
       const row = pickOpenDataRow(res.list, p.schoolInfoCode);
       if (!row) continue;
-      const parsed = parseMiddleAdvancement(row, year);
+      const parsed =
+        p.kind === "high"
+          ? parseHighSchoolCareer(row, year)
+          : parseMiddleAdvancement(row, year);
       if (parsed.data) {
         return { data: parsed.data, status: parsed.status, year };
       }
@@ -342,7 +347,7 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
     fetchSectionBySchoolInfoCode({ ...common, apiType: "35" }),
     fetchSectionBySchoolInfoCode({ ...common, apiType: "59" }),
     fetchSectionBySchoolInfoCode({ ...common, apiType: "55" }),
-    loadMiddleAdvancement({
+    loadAdvancementOrCareer({
       schoolInfoCode: p.schoolInfoCode,
       kind: p.kind,
       sidoCode: p.sidoCode,
