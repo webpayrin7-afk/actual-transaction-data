@@ -127,12 +127,12 @@ API key, provider endpoint, raw field mapping, identifier resolver, normalizatio
 
 ## School detail notes (priority apply)
 
-- **A 유지 (REQUIRED):** 학교알리미 — 제3유형.  
-  표시: 콘텐츠 최하단 `DataAttribution`  
-  (`자료 출처` / `학교알리미 · 교육부` / `항목별 공시연도 기준`)  
-  provider home link ≠ 학교별 「학교알리미에서 보기」 deep link
-- **B 유지:** section DATA CONTEXT (`2025년 공시` 등) — 데이터 가까이
-- **C 제거/완화:** 학교명 아래 출처, 임시 한 줄 출처, NEIS tip, raw metadata
+- **Hero:** Compact SchoolHero (labels + name + address/contact + secondary meta).  
+  No separate 기본정보 card; no fake slogan/illustration.
+- **A 유지 (REQUIRED):** 학교알리미 — compact footer metadata  
+  (`자료 출처  학교알리미 · 교육부 | 항목별 공시연도 기준`)
+- **B 유지:** section DATA CONTEXT (`2025년 공시`) — 데이터 가까이
+- First content card: 학교 현황 → 진학 → 학교생활 → CTA → attribution
 - 진학현황 mapping·count·rate·도넛 UI는 변경하지 않음
 
 ## UI audit snapshot (code search)
