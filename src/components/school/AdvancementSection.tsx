@@ -55,7 +55,7 @@ export function AdvancementSection({
   return (
     <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-[13px] font-semibold tracking-tight text-slate-800">
+        <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
           {title}
         </h2>
         {yearLabel ? (

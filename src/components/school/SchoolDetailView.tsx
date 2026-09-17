@@ -10,7 +10,7 @@ import { SCHOOLINFO_HOME_URL } from "@/lib/school-info/schoolinfo-public-url";
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="text-[13px] font-semibold tracking-tight text-slate-800">
+    <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
       {children}
     </h2>
   );
