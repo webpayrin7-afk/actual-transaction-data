@@ -1176,11 +1176,9 @@ export function ComplexNearbyLifeSection({
         <div className="space-y-4">
           {school.categories.map((section) => (
             <div key={section.level} data-school-level={section.level}>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
-                {section.label}
-              </p>
               {section.level === "high" && highDistrict ? (
                 <SchoolDistrictBlock
+                  sectionTitle={section.label}
                   district={highDistrict}
                   onOpenSchool={(s) => {
                     if (!openSchoolDetail(s)) {
@@ -1188,7 +1186,11 @@ export function ComplexNearbyLifeSection({
                     }
                   }}
                 />
-              ) : null}
+              ) : (
+                <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+                  {section.label}
+                </p>
+              )}
               <ul
                 className={
                   section.level === "high" && highDistrict
@@ -1239,10 +1241,8 @@ export function ComplexNearbyLifeSection({
           ))}
           {!hasHighCategory && highDistrict ? (
             <div key="high-district-only" data-school-level="high">
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
-                고등학교
-              </p>
               <SchoolDistrictBlock
+                sectionTitle="고등학교"
                 district={highDistrict}
                 onOpenSchool={(s) => {
                   if (!openSchoolDetail(s)) {
