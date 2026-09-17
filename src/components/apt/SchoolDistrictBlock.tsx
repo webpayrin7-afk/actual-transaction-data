@@ -27,7 +27,7 @@ export function SchoolDistrictBlock({
   const preview = withDistance.slice(0, SCHOOL_DISTRICT_DEFAULT_VISIBLE);
   const showAllCta = district.memberCount > SCHOOL_DISTRICT_DEFAULT_VISIBLE;
 
-  if (!preview.length && !district.memberCount) return null;
+  if (!district.memberCount) return null;
 
   return (
     <div className="mt-3 border-t border-slate-100 pt-3">
@@ -68,7 +68,8 @@ export function SchoolDistrictBlock({
         </ul>
       ) : (
         <p className="mt-2 text-[12px] text-slate-500">
-          단지와 가까운 소속 학교 거리를 계산하는 중입니다.
+          학교군 소속 {district.memberCount}개교 · 단지와 가까운 순으로 거리를
+          계산합니다.
         </p>
       )}
 

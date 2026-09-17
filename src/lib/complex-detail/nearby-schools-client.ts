@@ -97,6 +97,19 @@ export async function loadNearbySchoolsForMap(params: {
   let withoutCoords = 0;
   const resolved: NearbySchoolPlace[] = [];
 
+  async function geocodeWithTimeout(query: string) {
+    const GEOCODE_TIMEOUT_MS = 4000;
+    return Promise.race([
+      geocodeAddressWithNaver(query, { acceptFirst: true }),
+      new Promise<{ ok: false; reason: string }>((resolve) =>
+        setTimeout(
+          () => resolve({ ok: false, reason: "geocode timeout" }),
+          GEOCODE_TIMEOUT_MS,
+        ),
+      ),
+    ]);
+  }
+
   for (let i = 0; i < raw.length; i++) {
     const s = raw[i];
     const seed = {
@@ -135,7 +148,7 @@ export async function loadNearbySchoolsForMap(params: {
 
     geocodeAttempts += 1;
     // Official NEIS road address — accept first hit (complex-anchor stays fail-closed).
-    const geo = await geocodeAddressWithNaver(query, { acceptFirst: true });
+    const geo = await geocodeWithTimeout(query);
     if (!geo.ok) {
       geocodeFailed += 1;
       withoutCoords += 1;
