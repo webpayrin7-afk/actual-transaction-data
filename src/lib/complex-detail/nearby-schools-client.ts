@@ -17,6 +17,10 @@ import {
   attachDistancesToDistrictMembers,
   type ProductSchoolDistrictsPayload,
 } from "@/lib/complex-detail/school-district";
+import {
+  attachDistancesToAttendanceSchools,
+  type ProductAttendanceZonePayload,
+} from "@/lib/complex-detail/attendance-zone";
 
 export type NearbySchoolApiItem = {
   id: string;
@@ -51,6 +55,7 @@ export type NearbySchoolsClientResult = {
   places: NearbySchoolPlace[];
   categories: NearbySchoolCategory[];
   schoolDistricts: ProductSchoolDistrictsPayload | null;
+  attendanceZone: ProductAttendanceZonePayload | null;
 };
 
 export async function loadNearbySchoolsForMap(params: {
@@ -77,17 +82,19 @@ export async function loadNearbySchoolsForMap(params: {
     needsClientGeocode?: boolean;
     schools: NearbySchoolApiItem[];
     schoolDistricts?: ProductSchoolDistrictsPayload | null;
+    attendanceZone?: ProductAttendanceZonePayload | null;
   };
 
   const disclaimer =
     data.disclaimer ||
     "학교 위치 기반 인근 정보이며 배정학교/통학구역을 의미하지 않습니다.";
 
-  // Preserve district payload even on early status exits when API sent it.
+  // Preserve district / attendance payload even on early status exits when API sent it.
   const apiDistricts = data.schoolDistricts ?? null;
+  const apiAttendance = data.attendanceZone ?? null;
 
   if (data.status === "PILOT_ONLY") {
-    return emptyResult("PILOT_ONLY", data.reason, disclaimer, apiDistricts);
+    return emptyResult("PILOT_ONLY", data.reason, disclaimer, apiDistricts, apiAttendance);
   }
   if (data.status === "ERROR") {
     return emptyResult(
@@ -95,6 +102,7 @@ export async function loadNearbySchoolsForMap(params: {
       data.reason || "인근 학교 정보를 불러오지 못했습니다.",
       disclaimer,
       apiDistricts,
+      apiAttendance,
     );
   }
 
@@ -187,6 +195,28 @@ export async function loadNearbySchoolsForMap(params: {
       ),
     };
   }
+  if (schoolDistricts?.middle) {
+    schoolDistricts = {
+      ...schoolDistricts,
+      middle: attachDistancesToDistrictMembers(
+        schoolDistricts.middle,
+        params.center,
+        resolved,
+      ),
+    };
+  }
+
+  let attendanceZone = apiAttendance;
+  if (attendanceZone?.elementary) {
+    attendanceZone = {
+      ...attendanceZone,
+      elementary: attachDistancesToAttendanceSchools(
+        attendanceZone.elementary,
+        params.center,
+        resolved,
+      ),
+    };
+  }
 
   if (!selected.places.length) {
     return {
@@ -205,6 +235,7 @@ export async function loadNearbySchoolsForMap(params: {
       places: [],
       categories: [],
       schoolDistricts,
+      attendanceZone,
     };
   }
 
@@ -223,6 +254,7 @@ export async function loadNearbySchoolsForMap(params: {
     places: selected.places,
     categories: selected.categories,
     schoolDistricts,
+    attendanceZone,
   };
 }
 
@@ -231,6 +263,7 @@ function emptyResult(
   reason: string | null,
   disclaimer: string,
   schoolDistricts: ProductSchoolDistrictsPayload | null = null,
+  attendanceZone: ProductAttendanceZonePayload | null = null,
 ): NearbySchoolsClientResult {
   return {
     status,
@@ -247,5 +280,6 @@ function emptyResult(
     places: [],
     categories: [],
     schoolDistricts,
+    attendanceZone,
   };
 }

@@ -16,6 +16,7 @@ import {
   toSchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
 import { buildSchoolDistrictsPayload } from "@/lib/complex-detail/school-district-server";
+import { buildAttendanceZonePayload } from "@/lib/complex-detail/attendance-zone-server";
 import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 
 export const dynamic = "force-dynamic";
@@ -77,11 +78,19 @@ export async function GET(req: NextRequest) {
         middleStatus: "NOT_APPLICABLE",
         highStatus: "NOT_APPLICABLE",
       },
+      attendanceZone: {
+        elementary: null,
+        elementaryStatus: "NOT_APPLICABLE",
+      },
     });
   }
 
-  // District payload is independent of NEIS nearby fetch — never drop it on NEIS errors.
+  // District / attendance payloads are independent of NEIS nearby fetch.
   const schoolDistricts = buildSchoolDistrictsPayload({
+    aptName,
+    complexId: complexId || null,
+  });
+  const attendanceZone = buildAttendanceZonePayload({
     aptName,
     complexId: complexId || null,
   });
@@ -150,6 +159,7 @@ export async function GET(req: NextRequest) {
       schools,
       categories: [],
       schoolDistricts,
+      attendanceZone,
     });
   } catch {
     return NextResponse.json({
@@ -161,6 +171,7 @@ export async function GET(req: NextRequest) {
       categories: [],
       needsClientGeocode: false,
       schoolDistricts,
+      attendanceZone,
     });
   }
 }

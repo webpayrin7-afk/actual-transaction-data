@@ -26,14 +26,14 @@ export const JAMSIL_ELS_MAP_PILOT = {
 } as const;
 
 /**
- * Official school assignment / catchment is NOT verified in this phase.
- * Do not infer nearest school = assigned school.
+ * Nearby ≠ assigned. Pilot now has confirmed high/middle districts + elem zone
+ * for 잠실엘스 only; still never treat nearest school as assignment by itself.
  */
 export const SCHOOL_CATCHMENT_AUDIT = {
   nearbySchoolClass: "NEARBY_SCHOOL" as const,
   assignedSchoolClass: "ASSIGNED_SCHOOL" as const,
   districtUnverifiedClass: "SCHOOL_DISTRICT_UNVERIFIED" as const,
   assignedSchoolVerified: false,
-  schoolDistrictVerified: false,
-  note: "인근 학교는 거리·위치 기준 NEARBY_SCHOOL입니다. 배정학교·학군 구역은 공식 출처 확인 전 HOLD입니다.",
+  schoolDistrictVerified: true,
+  note: "인근 학교는 거리·위치 기준 NEARBY_SCHOOL입니다. 잠실엘스 pilot은 공식 통학구역·학교군 메타데이터를 별도 제공합니다.",
 };

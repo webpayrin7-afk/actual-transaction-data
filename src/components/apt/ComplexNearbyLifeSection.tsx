@@ -49,6 +49,7 @@ import {
 } from "@/lib/complex-detail/nearby-schools";
 import type { SchoolLevel } from "@/lib/complex-detail/neis";
 import { SchoolDistrictBlock } from "@/components/apt/SchoolDistrictBlock";
+import { AttendanceZoneBlock } from "@/components/apt/AttendanceZoneBlock";
 import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
 import {
   ComplexCommerceMeta,
@@ -1207,20 +1208,30 @@ export function ComplexNearbyLifeSection({
         );
       }
       if (school.status === "ERROR") {
-        if (!(schoolLevel === "high" && school.schoolDistricts?.high)) {
+        if (
+          !(
+            (schoolLevel === "high" && school.schoolDistricts?.high) ||
+            (schoolLevel === "middle" && school.schoolDistricts?.middle) ||
+            (schoolLevel === "elementary" && school.attendanceZone?.elementary)
+          )
+        ) {
           return (
             <EmptyBlock>
               {school.reason || "인근 학교 정보를 불러오지 못했습니다."}
             </EmptyBlock>
           );
         }
-        // Keep high district visible even when nearby NEIS fetch failed.
+        // Keep education-area metadata visible even when nearby NEIS fetch failed.
       }
       if (
         school.status !== "READY" &&
         school.status !== "EMPTY" &&
         school.status !== "ERROR" &&
-        !(schoolLevel === "high" && school.schoolDistricts?.high)
+        !(
+          (schoolLevel === "high" && school.schoolDistricts?.high) ||
+          (schoolLevel === "middle" && school.schoolDistricts?.middle) ||
+          (schoolLevel === "elementary" && school.attendanceZone?.elementary)
+        )
       ) {
         return (
           <EmptyBlock>
@@ -1231,6 +1242,14 @@ export function ComplexNearbyLifeSection({
 
       const highDistrict =
         schoolLevel === "high" ? (school.schoolDistricts?.high ?? null) : null;
+      const middleDistrict =
+        schoolLevel === "middle"
+          ? (school.schoolDistricts?.middle ?? null)
+          : null;
+      const elementaryZone =
+        schoolLevel === "elementary"
+          ? (school.attendanceZone?.elementary ?? null)
+          : null;
       const section =
         school.categories.find((c) => c.level === schoolLevel) ?? null;
       const places = section?.places ?? [];
@@ -1238,6 +1257,26 @@ export function ComplexNearbyLifeSection({
 
       return (
         <div className="space-y-2.5" data-school-level={schoolLevel}>
+          {elementaryZone ? (
+            <AttendanceZoneBlock
+              zone={elementaryZone}
+              onOpenSchool={(s) => {
+                if (!openSchoolDetail(s)) {
+                  /* no code — stay on list */
+                }
+              }}
+            />
+          ) : null}
+          {middleDistrict ? (
+            <SchoolDistrictBlock
+              district={middleDistrict}
+              onOpenSchool={(s) => {
+                if (!openSchoolDetail(s)) {
+                  /* no code — stay on list */
+                }
+              }}
+            />
+          ) : null}
           {highDistrict ? (
             <SchoolDistrictBlock
               district={highDistrict}

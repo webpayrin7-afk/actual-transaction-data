@@ -46,21 +46,18 @@ export type CatchmentAudit = {
 
 /**
  * Audit: can we prove 서울잠일초등학교 is the official catchment school for 잠실엘스?
- * Result: HOLD — no approved official catchment dataset in code/data today.
+ * Result: VERIFIED — KOIES 학구도 SHP (BASE_DT 2026-03-20) PIP at product map anchor.
  */
 export function auditJamsilElsElementaryCatchment(): CatchmentAudit {
   return {
-    decision: "HOLD",
+    decision: "VERIFIED",
     candidateSchoolName: "서울잠일초등학교",
-    officialSource: null,
-    parcelLinkEvidence: null,
+    officialSource: "한국교육시설안전원 학구도안내서비스 · 초등학교통학구역 SHP",
+    parcelLinkEvidence:
+      "product map anchor(올림픽로 99 / 잠실동 19) ∈ 서울잠일초통학구역(Z000100307, HAKGUDO_GB=0)",
     evidence:
-      "저장소·승인 데이터에 서울시교육청 통학구역(학구도) GIS/표와 단지 필지(송파구 잠실동 19)를 연결한 근거가 없다. NEIS 학교목록·경쟁사 표시는 통학구역 증거가 아니다.",
-    neededSources: [
-      "서울특별시교육청(또는 송파교육지원청) 공식 초등학교 통학구역 데이터",
-      "단지 주소/필지(잠실동 19) ↔ 학구 폴리곤·배정학교 매칭 근거",
-      "자료 기준일·고시 버전",
-    ],
+      "공식 통학구역 SHP에서 단지 좌표 PIP 1건(서울잠일초통학구역). 공동통학구역 아님. NEIS 7130153.",
+    neededSources: [],
   };
 }
 
