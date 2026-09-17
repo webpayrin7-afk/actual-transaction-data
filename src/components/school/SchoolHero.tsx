@@ -59,18 +59,8 @@ export function SchoolHero({
 
   return (
     <header className="px-3 pt-2 sm:px-4 sm:pt-3">
-      <div className="flex items-center">
-        <BackLink
-          fallback={backHref}
-          compact
-          hideLabel
-          preferFallback
-          className="-ml-1"
-        />
-      </div>
-
       {(kind || foundation || coedu) && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           {kind ? <HeroChip tone="kind">{kind}</HeroChip> : null}
           {foundation ? (
             <HeroChip tone="foundation">{foundation}</HeroChip>
@@ -79,9 +69,18 @@ export function SchoolHero({
         </div>
       )}
 
-      <h1 className="mt-2 text-[1.375rem] font-semibold leading-7 tracking-tight text-slate-900 sm:text-[1.5rem] sm:leading-8">
-        {name}
-      </h1>
+      <div className="mt-2 flex min-w-0 items-center gap-1">
+        <BackLink
+          fallback={backHref}
+          compact
+          hideLabel
+          preferFallback
+          className="-ml-2 shrink-0"
+        />
+        <h1 className="min-w-0 flex-1 text-[1.375rem] font-semibold leading-7 tracking-tight text-slate-900 sm:text-[1.5rem] sm:leading-8">
+          {name}
+        </h1>
+      </div>
 
       {address ? (
         <p className="mt-2 flex gap-1.5 text-[12px] leading-5 text-slate-600 sm:text-[13px]">
@@ -92,6 +91,13 @@ export function SchoolHero({
           <span className="min-w-0 break-words">{address}</span>
         </p>
       ) : null}
+
+      {(office || foundedOn) && (
+        <div className="mt-1 space-y-0.5 text-[12px] leading-5 text-slate-600 sm:text-[13px]">
+          {office ? <p>{office}</p> : null}
+          {foundedOn ? <p>설립/개교 {foundedOn}</p> : null}
+        </div>
+      )}
 
       {(tel || homepageHref) && (
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] leading-5 sm:text-[13px]">
@@ -115,13 +121,6 @@ export function SchoolHero({
               <span className="break-all">{homepageLabel(homepage!)}</span>
             </a>
           ) : null}
-        </div>
-      )}
-
-      {(office || foundedOn) && (
-        <div className="mt-2 space-y-0.5 text-[12px] leading-5 text-slate-500 sm:text-[13px]">
-          {office ? <p>{office}</p> : null}
-          {foundedOn ? <p>설립/개교 {foundedOn}</p> : null}
         </div>
       )}
     </header>
