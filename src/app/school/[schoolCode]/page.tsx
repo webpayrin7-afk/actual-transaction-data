@@ -14,6 +14,7 @@ type PageProps = {
     name?: string;
     from?: string;
     nearbyTab?: string;
+    schoolLevel?: string;
     kind?: string;
     address?: string;
   }>;
@@ -55,7 +56,8 @@ export default async function SchoolDetailPage({
 
   const from = sp.from?.trim();
   const nearbyTab = sp.nearbyTab?.trim() || "school";
-  const backHref = buildSchoolBackHref(from, nearbyTab);
+  const schoolLevel = sp.schoolLevel?.trim() || null;
+  const backHref = buildSchoolBackHref(from, nearbyTab, schoolLevel);
 
   return (
     <main className="flex-1 overflow-x-clip">
@@ -67,12 +69,13 @@ export default async function SchoolDetailPage({
 }
 
 /**
- * Back from school detail only: restore 학교 탭 + scroll to 주변 생활.
+ * Back from school detail only: restore 학교 탭 + schoolLevel + scroll to 주변 생활.
  * Normal apt entry never includes these markers → initial tab stays first tab.
  */
 function buildSchoolBackHref(
   from: string | undefined,
   nearbyTab: string,
+  schoolLevel: string | null,
 ): string {
   if (!from || !from.startsWith("/") || from.startsWith("//")) {
     return "/complexes";
@@ -84,7 +87,12 @@ function buildSchoolBackHref(
   const qs = qIdx >= 0 ? withoutHash.slice(qIdx + 1) : "";
   const params = new URLSearchParams(qs);
   params.delete("nearbyTab");
+  params.delete("schoolLevel");
   params.set("nearbyTab", nearbyTab);
+  const level = (schoolLevel ?? "").trim().toLowerCase();
+  if (level === "elementary" || level === "middle" || level === "high") {
+    params.set("schoolLevel", level);
+  }
   const q = params.toString();
   return `${path}${q ? `?${q}` : ""}#section-nearby-life`;
 }

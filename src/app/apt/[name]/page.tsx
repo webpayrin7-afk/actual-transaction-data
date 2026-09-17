@@ -6,7 +6,13 @@ import { getComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 
 type PageProps = {
   params: Promise<{ name: string }>;
-  searchParams: Promise<{ region?: string; gu?: string; area?: string; nearbyTab?: string }>;
+  searchParams: Promise<{
+    region?: string;
+    gu?: string;
+    area?: string;
+    nearbyTab?: string;
+    schoolLevel?: string;
+  }>;
 };
 
 export async function generateMetadata({
@@ -54,6 +60,7 @@ export default async function AptPage({ params, searchParams }: PageProps) {
           initialAreaKey={initialAreaKey}
           complexDetail={complexDetail}
           initialNearbyTab={sp.nearbyTab}
+          initialSchoolLevel={sp.schoolLevel}
         />
       </AptDetailEnterTransition>
     </main>

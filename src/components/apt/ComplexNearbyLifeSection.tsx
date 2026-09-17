@@ -47,6 +47,7 @@ import {
   SCHOOL_LEVEL_BADGE,
   type SchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
+import type { SchoolLevel } from "@/lib/complex-detail/neis";
 import { SchoolDistrictBlock } from "@/components/apt/SchoolDistrictBlock";
 import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
 import {
@@ -56,6 +57,26 @@ import {
 } from "@/components/apt/ComplexCommerceSection";
 
 export type NearbyLifeCategory = "commerce" | "living" | "transport" | "school";
+
+type SchoolLevelTab = SchoolLevel;
+
+const SCHOOL_LEVEL_TABS: Array<{ id: SchoolLevelTab; label: string }> = [
+  { id: "elementary", label: "초등학교" },
+  { id: "middle", label: "중학교" },
+  { id: "high", label: "고등학교" },
+];
+
+const NEARBY_LEVEL_HEADING: Record<SchoolLevelTab, string> = {
+  elementary: "주변 초등학교",
+  middle: "주변 중학교",
+  high: "주변 고등학교",
+};
+
+function parseSchoolLevelTab(raw: string | null | undefined): SchoolLevelTab | null {
+  const v = (raw ?? "").trim().toLowerCase();
+  if (v === "elementary" || v === "middle" || v === "high") return v;
+  return null;
+}
 
 type AddressMeta = {
   available: boolean;
@@ -111,13 +132,6 @@ const TABS: Array<{ id: NearbyLifeCategory; label: string }> = [
   { id: "transport", label: "교통" },
   { id: "school", label: "학교" },
 ];
-
-const LEVEL_LABEL: Record<string, string> = {
-  elementary: "초등학교",
-  middle: "중학교",
-  high: "고등학교",
-  other: "학교",
-};
 
 const LIST_LIMIT = 5;
 /** Bus stops shown before “더보기” (subway always fully listed). */
@@ -375,6 +389,7 @@ export function ComplexNearbyLifeSection({
   aptName,
   identity,
   initialTab,
+  initialSchoolLevel,
 }: {
   aptName: string;
   identity?: {
@@ -387,6 +402,8 @@ export function ComplexNearbyLifeSection({
   } | null;
   /** Restore tab when returning from school detail (?nearbyTab=school). */
   initialTab?: NearbyLifeCategory;
+  /** Restore school-level sub-tab (?schoolLevel=high). */
+  initialSchoolLevel?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -397,6 +414,9 @@ export function ComplexNearbyLifeSection({
       initialTab === "commerce"
       ? initialTab
       : "commerce",
+  );
+  const [schoolLevel, setSchoolLevel] = useState<SchoolLevelTab>(
+    () => parseSchoolLevelTab(initialSchoolLevel) ?? "elementary",
   );
   const [coords, setCoords] = useState<LatLng | null>(null);
   const [mapAnchor, setMapAnchor] = useState<ComplexMapAnchorResult | null>(
@@ -445,6 +465,7 @@ export function ComplexNearbyLifeSection({
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
         params.delete("nearbyTab");
+        params.delete("schoolLevel");
         const q = params.toString();
         from = `${pathname}${q ? `?${q}` : ""}`;
       }
@@ -452,6 +473,7 @@ export function ComplexNearbyLifeSection({
         name: s.name,
         from,
         nearbyTab: "school",
+        schoolLevel,
         kind: s.level,
       });
       if (s.address?.trim()) {
@@ -460,7 +482,7 @@ export function ComplexNearbyLifeSection({
       router.push(`/school/${encodeURIComponent(code)}?${qs}`);
       return true;
     },
-    [pathname, router],
+    [pathname, router, schoolLevel],
   );
 
   useEffect(() => {
@@ -593,7 +615,32 @@ export function ComplexNearbyLifeSection({
     if (next === "living") {
       setLivingCategory(LIVING_DEFAULT_CATEGORY);
     }
-  }, []);
+    if (typeof window !== "undefined") {
+      const u = new URL(window.location.href);
+      if (next === "school") {
+        u.searchParams.set("nearbyTab", "school");
+        u.searchParams.set("schoolLevel", schoolLevel);
+        window.history.replaceState(window.history.state, "", u.toString());
+      } else if (u.searchParams.has("nearbyTab") || u.searchParams.has("schoolLevel")) {
+        u.searchParams.delete("nearbyTab");
+        u.searchParams.delete("schoolLevel");
+        window.history.replaceState(window.history.state, "", u.toString());
+      }
+    }
+  }, [schoolLevel]);
+
+  const selectSchoolLevel = useCallback((next: SchoolLevelTab) => {
+    setSchoolLevel(next);
+    setSelectedId(null);
+    pendingListScrollIdRef.current = null;
+    // Sync URL without scroll so back-from-detail / share keep the level.
+    if (typeof window !== "undefined" && tab === "school") {
+      const u = new URL(window.location.href);
+      u.searchParams.set("nearbyTab", "school");
+      u.searchParams.set("schoolLevel", next);
+      window.history.replaceState(window.history.state, "", u.toString());
+    }
+  }, [tab]);
 
   const selectLivingCategory = useCallback((next: LivingOnlyCategory) => {
     setLivingCategory(next);
@@ -693,7 +740,12 @@ export function ComplexNearbyLifeSection({
     if (tab === "school") {
       const places = schoolQuery.data?.places ?? [];
       return places
-        .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+        .filter(
+          (s) =>
+            s.level === schoolLevel &&
+            Number.isFinite(s.lat) &&
+            Number.isFinite(s.lng),
+        )
         .map((s) => ({
           id: s.id,
           position: { lat: s.lat, lng: s.lng },
@@ -713,6 +765,7 @@ export function ComplexNearbyLifeSection({
     livingValidPlaces,
     schoolQuery.data,
     tab,
+    schoolLevel,
     coords,
     selectedId,
   ]);
@@ -744,8 +797,11 @@ export function ComplexNearbyLifeSection({
     if (tab === "living") {
       return `living:${livingCategory}:${tabMarkers.length}:${ids}`;
     }
+    if (tab === "school") {
+      return `school:${schoolLevel}:${tabMarkers.length}:${ids}`;
+    }
     return `${tab}:${tabMarkers.length}:${ids}`;
-  }, [tab, coords, livingCategory, tabMarkers, commerceSnapshot?.mapPoints?.pointCount]);
+  }, [tab, schoolLevel, coords, livingCategory, tabMarkers, commerceSnapshot?.mapPoints?.pointCount]);
 
   const onMarkerClick = useCallback(
     (id: string) => {
@@ -1137,30 +1193,20 @@ export function ComplexNearbyLifeSection({
         );
       }
       if (school.status === "ERROR") {
-        if (!school.schoolDistricts?.high) {
+        if (!(schoolLevel === "high" && school.schoolDistricts?.high)) {
           return (
             <EmptyBlock>
               {school.reason || "인근 학교 정보를 불러오지 못했습니다."}
             </EmptyBlock>
           );
         }
-        // Keep district visible even when nearby NEIS fetch failed.
+        // Keep high district visible even when nearby NEIS fetch failed.
       }
       if (
         school.status !== "READY" &&
         school.status !== "EMPTY" &&
         school.status !== "ERROR" &&
-        !(school.schoolDistricts?.high)
-      ) {
-        return (
-          <EmptyBlock>
-            {school.reason || "현재 확인 가능한 인근 학교 정보가 없습니다."}
-          </EmptyBlock>
-        );
-      }
-      if (
-        !school.categories.length &&
-        !school.schoolDistricts?.high
+        !(schoolLevel === "high" && school.schoolDistricts?.high)
       ) {
         return (
           <EmptyBlock>
@@ -1169,34 +1215,36 @@ export function ComplexNearbyLifeSection({
         );
       }
 
-      const highDistrict = school.schoolDistricts?.high ?? null;
-      const hasHighCategory = school.categories.some((c) => c.level === "high");
+      const highDistrict =
+        schoolLevel === "high" ? (school.schoolDistricts?.high ?? null) : null;
+      const section =
+        school.categories.find((c) => c.level === schoolLevel) ?? null;
+      const places = section?.places ?? [];
+      const heading = NEARBY_LEVEL_HEADING[schoolLevel];
 
       return (
-        <div className="space-y-4">
-          {school.categories.map((section) => (
-            <div key={section.level} data-school-level={section.level}>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
-                {section.label}
-              </p>
-              {section.level === "high" && highDistrict ? (
-                <SchoolDistrictBlock
-                  district={highDistrict}
-                  onOpenSchool={(s) => {
-                    if (!openSchoolDetail(s)) {
-                      /* no code — stay on list */
-                    }
-                  }}
-                />
-              ) : null}
-              <ul
-                className={
-                  section.level === "high" && highDistrict
-                    ? "mt-2 space-y-1"
-                    : "space-y-1"
+        <div className="space-y-3" data-school-level={schoolLevel}>
+          {highDistrict ? (
+            <SchoolDistrictBlock
+              district={highDistrict}
+              onOpenSchool={(s) => {
+                if (!openSchoolDetail(s)) {
+                  /* no code — stay on list */
                 }
-              >
-                {section.places.map((s) => {
+              }}
+            />
+          ) : null}
+          <div>
+            <p className="mb-1 text-[15px] font-semibold text-slate-800">
+              {heading}
+            </p>
+            {places.length === 0 ? (
+              <p className="px-0.5 py-1.5 text-[13px] text-slate-500">
+                주변에서 확인된 학교가 없습니다.
+              </p>
+            ) : (
+              <ul className="space-y-0.5">
+                {places.map((s) => {
                   const metaParts = [
                     s.establishment,
                     `${formatMeters(s.distanceM)} · 직선거리`,
@@ -1213,7 +1261,7 @@ export function ComplexNearbyLifeSection({
                           }
                         }}
                         aria-label={`${s.name} 상세 보기`}
-                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition active:scale-[0.99] active:bg-slate-100 ${selectedRowClass(selectedId === s.id)}`}
+                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left transition active:scale-[0.99] active:bg-slate-100 ${selectedRowClass(selectedId === s.id)}`}
                       >
                         <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white px-0.5 text-[9px] font-bold text-[#1e3a5f]">
                           {SCHOOL_LEVEL_BADGE[s.schoolLevel as SchoolLevelCode]}
@@ -1235,23 +1283,8 @@ export function ComplexNearbyLifeSection({
                   );
                 })}
               </ul>
-            </div>
-          ))}
-          {!hasHighCategory && highDistrict ? (
-            <div key="high-district-only" data-school-level="high">
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
-                고등학교
-              </p>
-              <SchoolDistrictBlock
-                district={highDistrict}
-                onOpenSchool={(s) => {
-                  if (!openSchoolDetail(s)) {
-                    /* no code — stay on list */
-                  }
-                }}
-              />
-            </div>
-          ) : null}
+            )}
+          </div>
         </div>
       );
     }
@@ -1369,6 +1402,29 @@ export function ComplexNearbyLifeSection({
                 className={livingChipClass(livingCategory === cat)}
               >
                 {LIVING_CHIP_LABEL[cat]}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        {tab === "school" ? (
+          <div
+            className={labSegmentedClass("w-full")}
+            role="tablist"
+            aria-label="학교급"
+            data-testid="school-level-tabs"
+          >
+            {SCHOOL_LEVEL_TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={schoolLevel === t.id}
+                data-school-level-tab={t.id}
+                onClick={() => selectSchoolLevel(t.id)}
+                className={labSecondaryTabClass(schoolLevel === t.id, "flex-1")}
+              >
+                {t.label}
               </button>
             ))}
           </div>

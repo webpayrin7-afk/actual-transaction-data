@@ -111,6 +111,7 @@ export function AptDetailPage({
   initialAreaKey,
   complexDetail = null,
   initialNearbyTab,
+  initialSchoolLevel,
 }: {
   aptName: string;
   regionSlug: string;
@@ -120,6 +121,8 @@ export function AptDetailPage({
   /** Phase 7.2 enrichment (nullable; market must render without it) */
   complexDetail?: ComplexDetailV1 | null;
   initialNearbyTab?: string;
+  /** Restore school-level sub-tab when returning from school detail. */
+  initialSchoolLevel?: string;
 }) {
   const aptIdentity = `${aptName}|${regionSlug}|${gu ?? ""}`;
   /** 사용자/수동 선택. aptIdentity가 바뀌면 자동 기본값으로 복귀 */
@@ -523,6 +526,7 @@ export function AptDetailPage({
       try {
         const u = new URL(window.location.href);
         u.searchParams.delete("nearbyTab");
+        u.searchParams.delete("schoolLevel");
         u.hash = "";
         window.history.replaceState(
           window.history.state,
@@ -951,6 +955,7 @@ export function AptDetailPage({
               ? "school"
               : undefined
           }
+          initialSchoolLevel={initialSchoolLevel}
         />
       </div>
 
