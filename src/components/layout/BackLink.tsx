@@ -17,6 +17,8 @@ type BackLinkProps = {
   /**
    * Always navigate to fallback (skip history.back).
    * Use when the parent URL must carry query state (e.g. ?nearbyTab=school).
+   * Uses replace so the leaf page (e.g. school detail) does not sit under
+   * the restored parent in history.
    */
   preferFallback?: boolean;
 };
@@ -45,6 +47,10 @@ export function BackLink({
         router.back();
         return;
       }
+    }
+    if (preferFallback) {
+      router.replace(fallback);
+      return;
     }
     router.push(fallback);
   }

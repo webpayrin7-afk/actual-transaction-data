@@ -427,13 +427,11 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
           : "초";
     const label = escapeHtml((marker.label || marker.title || "").trim());
     const width = 118;
-    const height = selected ? 44 : 36;
+    const height = 36;
     const markerIdAttr = encodeURIComponent(marker.id);
-    // String HtmlIcon + data attribute: map-root event delegation handles taps
-    // (Naver may clone HTML and drop JS listeners on HTMLElement content).
+    // No bounce arrow on school tab — chip border already shows selection.
     const html = `<div data-map-marker-id="${markerIdAttr}" role="button" aria-label="${escapeHtml(marker.title || "학교")} 상세 보기" style="position:relative;width:${width}px;height:${height}px;pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(15,23,42,.12)">
       <div style="position:absolute;left:50%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);white-space:nowrap;pointer-events:auto;cursor:pointer">
-        ${selected ? selectionArrowHtml() : ""}
         <div style="display:flex;align-items:center;gap:3px;padding:2px 5px 2px 2px;border-radius:8px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16);pointer-events:auto;cursor:pointer">
           <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;background:#1e3a5f;color:#fff;font:700 10px/1 system-ui,-apple-system,sans-serif;pointer-events:none">${badge}</span>
           <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;max-width:88px;overflow:hidden;text-overflow:ellipsis;pointer-events:none">${label}</span>
