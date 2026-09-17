@@ -5,7 +5,7 @@
  * apiType 52 middle (13-다) = STRUCTURALLY_CONFIRMED category bindings.
  * apiType 52 high = STRUCTURALLY_CONFIRMED career leaves (TOTAL5+6→국외진학).
  *
- * UI hierarchy (middle/high): 학교 현황 → 진학(·진로) 현황 → 학교생활 → 기본정보
+ * UI hierarchy (middle/high): 기본정보 → 학교 현황 → 진학(·진로) 현황 → 학교생활
  */
 
 export type SectionStatus = "ok" | "missing" | "error" | "auth_hold";

@@ -1,17 +1,8 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { BackLink } from "@/components/layout/BackLink";
 import { AdvancementSection } from "@/components/school/AdvancementSection";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { Metric, SchoolDetail } from "@/lib/school-info/types";
-
-/** Header subtitle: compact road address (서울 · road only). */
-function compactAddress(address: string): string {
-  let s = address.replace(/^서울특별시\s*/, "서울 ").trim();
-  s = s.replace(/\s*,\s*.*$/, "").trim();
-  s = s.replace(/\s*\([^)]*\)\s*$/, "").trim();
-  return s;
-}
 
 function homepageLabel(url: string): string {
   return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
@@ -123,10 +114,6 @@ export function SchoolDetailView({
   detail: SchoolDetail;
   backHref: string;
 }) {
-  const headerAddress = detail.address
-    ? compactAddress(detail.address)
-    : undefined;
-
   const coreItems = [
     detail.core.students,
     detail.core.classes,
@@ -226,12 +213,6 @@ export function SchoolDetailView({
       </header>
 
       <div className="flex flex-col gap-4 px-3 pb-8 pt-3 sm:gap-5 sm:px-4 sm:pt-4">
-        {headerAddress ? (
-          <p className="text-[12px] leading-4 text-slate-500 sm:text-[13px]">
-            {headerAddress}
-          </p>
-        ) : null}
-
         {authHold ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
             <p className="text-sm text-slate-700">
@@ -260,7 +241,15 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
-        {/* 1. 학교 현황 */}
+        {/* 1. 기본정보 */}
+        {basicRows.length > 0 ? (
+          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
+            <SectionTitle>기본정보</SectionTitle>
+            <BasicRows rows={basicRows} />
+          </section>
+        ) : null}
+
+        {/* 2. 학교 현황 */}
         {coreItems.length > 0 ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
             <SectionTitle>학교 현황</SectionTitle>
@@ -268,22 +257,14 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
-        {/* 2. 진학/진학·진로 현황 — AdvancementSection (middle/high adapters) */}
+        {/* 3. 진학/진학·진로 현황 — AdvancementSection (middle/high adapters) */}
         <AdvancementSection data={detail.advancement} schoolKind={detail.kind} />
 
-        {/* 3. 학교생활 (급식 · 방과후 · 장학) */}
+        {/* 4. 학교생활 (급식 · 방과후 · 장학) */}
         {lifeRows.length > 0 ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
             <SectionTitle>학교생활</SectionTitle>
             <CompactRows rows={lifeRows} />
-          </section>
-        ) : null}
-
-        {/* 4. 기본정보 */}
-        {basicRows.length > 0 ? (
-          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
-            <SectionTitle>기본정보</SectionTitle>
-            <BasicRows rows={basicRows} />
           </section>
         ) : null}
 
@@ -301,15 +282,6 @@ export function SchoolDetailView({
               </p>
             </InfoTip>
           </span>
-        </p>
-
-        <p className="text-center text-[12px]">
-          <Link
-            href={backHref}
-            className="font-medium text-[color:var(--lab-teal-700)] hover:underline"
-          >
-            단지 학교 탭으로 돌아가기
-          </Link>
         </p>
       </div>
     </div>
