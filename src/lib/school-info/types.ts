@@ -2,8 +2,8 @@
  *
  * Confirmed product apiTypes: 0 / 09 / 22 / 35 / 55 / 59.
  * apiType 09 = 학년별·학급별 학생수 → core students/classes (never 진학/특목).
- * apiType 52 (13-다 졸업생 진로) = HOLD_UNCONFIRMED_FIELD_MAPPING —
- *   AdvancementData slot reserved; no TOTAL* binding until official evidence.
+ * apiType 52 middle (13-다) = STRUCTURALLY_CONFIRMED category bindings.
+ * apiType 52 high = HOLD_UNCONFIRMED_FIELD_MAPPING (different TOTAL schema).
  *
  * UI hierarchy (middle): 학교 현황 → 진학 현황 → 학교생활 → 기본정보
  */
@@ -20,10 +20,9 @@ export type Metric = {
 
 /**
  * Meaning-based advancement payload — UI must never see TOTAL3/TOTAL4 etc.
- * Only populate after ADVANCEMENT_API52 = PASS with official column binding.
- * Do not invent categories from observational matches.
  */
 export type AdvancementCategory = {
+  key: string;
   label: string;
   count: number | null;
   percent: number | null;
@@ -33,6 +32,11 @@ export type AdvancementData = {
   year: string | null;
   graduates: Metric | null;
   categories: AdvancementCategory[];
+  /**
+   * full_structurally_confirmed = all product-visible leaves bound.
+   * partial = subset only (hidden leaves must not be implied as full graduate set).
+   */
+  completeness: "full_structurally_confirmed" | "partial";
 };
 
 export type SchoolDetail = {
@@ -58,10 +62,7 @@ export type SchoolDetail = {
     teachers: Metric | null;
     studentsPerTeacher: Metric | null;
   };
-  /**
-   * Middle-school 진학현황. Always null while ADVANCEMENT_API52 is HOLD.
-   * Never fabricate from apiType09 or guessed TOTAL* maps.
-   */
+  /** Middle-school 진학현황 (apiType52). High-school career stays null while HOLD. */
   advancement: AdvancementData | null;
   schoolLife: {
     mealPerStudent: Metric | null;
@@ -79,7 +80,6 @@ export type SchoolDetail = {
     meal: SectionStatus;
     afterSchool: SectionStatus;
     scholarship: SectionStatus;
-    /** HOLD → missing; never ok until official TOTAL binding. */
     advancement: SectionStatus;
   };
   auth: {

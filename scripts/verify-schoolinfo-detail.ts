@@ -74,7 +74,19 @@ async function main() {
           meal: d.schoolLife.mealPerStudent?.value ?? null,
           afterSchool: d.schoolLife.afterSchoolPrograms?.value ?? null,
           scholarship: d.scholarship?.total?.value ?? null,
-          advancement: d.advancement,
+          advancement: d.advancement
+            ? {
+                year: d.advancement.year,
+                graduates: d.advancement.graduates?.value ?? null,
+                categories: d.advancement.categories.map((c) => ({
+                  key: c.key,
+                  label: c.label,
+                  count: c.count,
+                  percent: c.percent,
+                })),
+                completeness: d.advancement.completeness,
+              }
+            : null,
           advancementStatus: d.sectionStatus.advancement,
           auth: d.auth,
           attribution: d.attribution,

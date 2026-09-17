@@ -8,11 +8,19 @@
  * - 55 장학금 수혜 현황 → parseScholarship
  * - 59 방과후학교 → parseAfterSchool
  *
- * apiType 52 (13-다 졸업생의 진로 현황) is intentionally not parsed here.
- * See ADVANCEMENT_API52 = HOLD_UNCONFIRMED_FIELD_MAPPING.
+ * apiType 52 middle (13-다) → parseMiddleAdvancement via STRUCTURALLY_CONFIRMED map.
+ * High-school apiType52 career mapping remains HOLD (separate schema).
  */
 
-import type { Metric, SectionStatus } from "@/lib/school-info/types";
+import {
+  MIDDLE_GRADUATES_BINDING,
+  visibleMiddleBindings,
+} from "@/lib/school-info/middle-advancement-mapping";
+import type {
+  AdvancementData,
+  Metric,
+  SectionStatus,
+} from "@/lib/school-info/types";
 
 export function asString(...vals: unknown[]): string | null {
   for (const v of vals) {
@@ -353,4 +361,65 @@ export function attribution(years: string[]): string {
     return `학교알리미 공시 기준 (${uniq.join(", ")}년 · 항목별 연도 상이)`;
   }
   return "학교알리미 공시 기준";
+}
+
+/**
+ * Middle-school openData apiType52 row → AdvancementData.
+ * Uses STRUCTURALLY_CONFIRMED bindings only; never exposes raw TOTAL* to UI.
+ */
+export function parseMiddleAdvancement(
+  row: Record<string, unknown> | null,
+  pbanYear: number | null,
+): {
+  status: SectionStatus;
+  data: AdvancementData | null;
+} {
+  if (!row) return { status: "missing", data: null };
+
+  const graduatesRaw = asNumber(row[MIDDLE_GRADUATES_BINDING.field]);
+  const graduates =
+    graduatesRaw != null
+      ? metric(
+          "졸업생",
+          graduatesRaw,
+          countStr(graduatesRaw, "명"),
+          { sourceField: MIDDLE_GRADUATES_BINDING.field },
+        )
+      : null;
+
+  const categories = visibleMiddleBindings()
+    .map((b) => {
+      const count = asNumber(row[b.field]);
+      const rateField = `TOTAL_RATE${b.field.replace("TOTAL", "")}`;
+      let percent = asNumber(row[rateField]);
+      if (
+        percent == null &&
+        count != null &&
+        graduatesRaw != null &&
+        graduatesRaw > 0
+      ) {
+        percent = Math.round((1000 * count) / graduatesRaw) / 10;
+      }
+      return {
+        key: b.key,
+        label: b.label,
+        count,
+        percent,
+      };
+    })
+    .filter((c) => c.count != null);
+
+  if (!graduates && categories.length === 0) {
+    return { status: "missing", data: null };
+  }
+
+  return {
+    status: "ok",
+    data: {
+      year: pbanYear != null ? String(pbanYear) : yearOf(row),
+      graduates,
+      categories,
+      completeness: "full_structurally_confirmed",
+    },
+  };
 }

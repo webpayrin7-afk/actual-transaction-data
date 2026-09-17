@@ -1,36 +1,37 @@
 {
-  "status": "HOLD_UNCONFIRMED_FIELD_MAPPING",
+  "status": "PASS_STRUCTURALLY_CONFIRMED",
   "productConstant": "ADVANCEMENT_API52",
-  "holdReason": "openData APITYPE=52 returns matched school rows and TOTAL2–14 partitions, but no reachable official source binds TOTAL* to Korean category labels. Observational screen matches are not sufficient to unblock.",
-  "mappingDecision": "HOLD",
-  "productUiPossible": "NO",
-  "forbiddenWhileHold": [
-    "product UI for 진학현황/졸업생 진로",
-    "TOTAL* hardcode mapping",
-    "DB ingest of apiType52",
-    "regional aggregation",
-    "bulk rediscovery of field labels"
-  ],
-  "unblockIfAny": [
-    "학교알리미 공식 TOTAL2~14 header 확보",
-    "공식 다운로드 파일에서 column binding 확인",
-    "공식 frontend/header definition 확인",
-    "학교알리미 공식 문서로 field mapping 확인"
+  "holdReason": null,
+  "mappingDecision": "STRUCTURALLY_CONFIRMED",
+  "productUiPossible": "YES",
+  "scope": "middle_school_only",
+  "forbiddenWhileHold": [],
+  "unblockBasis": [
+    "2022 초·중등학교 정보공시 입력 지침서 13-다 official 12-leaf order",
+    "openData apiType52 TOTAL3–TOTAL14 exactly 12 partition fields",
+    "TOTAL_i = MAN_i + WOMAN_i; TOTAL_RATE_i ≈ TOTAL_i/TOTAL2; sum(TOTAL3..14)=TOTAL2",
+    "Screen anchors at 잠실중 2025 lock TOTAL3/4/6/9/11; gaps uniquely determined by leaf order",
+    "Multi-school Songpa/nationwide invariant checks"
   ],
   "doNotUnblockOn": [
-    "관측값만으로 TOTAL* ↔ 화면 라벨 일치"
+    "관측값만으로 TOTAL* ↔ 화면 라벨 일치 (alone)"
   ],
   "source": {
     "title": "13-다. 졸업생의 진로 현황",
     "provider": "학교알리미(한국교육학술정보원)",
     "apiType": "52",
+    "transport": "openData.do (openApi.do returns fail for apiType52)",
     "jgHangmokCd": "52",
     "gsHangmokNo": "13-다",
     "mappingReport": "apitype52-total-mapping-report.json",
+    "fieldMap": "middle-advancement-mapping.ts",
     "fetchedAt": "2026-09-17"
   },
   "confirmedSchoolInfoApiTypesForDetail": ["0", "09", "22", "35", "55", "59"],
-  "apiType09Note": "apiType 09 is 학년별·학급별 학생수 (students/classes/teachers metrics) — never present as 진학현황 or 특목고 진학.",
-  "categoryFieldMapping": "UNCONFIRMED",
-  "confirmedOfficialTotalBindings": 0
+  "apiType09Note": "apiType 09 is 학년별·학급별 학생수 — never present as 진학현황.",
+  "categoryFieldMapping": "STRUCTURALLY_CONFIRMED",
+  "confirmedOfficialTotalBindings": 0,
+  "structurallyConfirmedTotalBindings": 13,
+  "highSchoolCareer": "HOLD_UNCONFIRMED_FIELD_MAPPING — see high-school-career-mapping-report.json",
+  "elementaryAdvancement": "NOT_APPLICABLE"
 }
