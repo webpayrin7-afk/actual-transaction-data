@@ -16,7 +16,7 @@ function HeroChip({
     tone === "kind"
       ? "border-sky-200/80 bg-sky-50 text-sky-800"
       : tone === "foundation"
-        ? "border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
+        ? "border-emerald-200/80 bg-emerald-50 text-emerald-800"
         : "border-violet-200/80 bg-violet-50 text-violet-800";
 
   return (
