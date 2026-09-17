@@ -45,7 +45,6 @@ import {
 } from "@/lib/complex-detail/nearby-schools-client";
 import {
   SCHOOL_LEVEL_BADGE,
-  type NearbySchoolPlace,
   type SchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
 import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
