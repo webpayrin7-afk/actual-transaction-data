@@ -366,6 +366,18 @@ function livingChipClass(active: boolean): string {
   ].join(" ");
 }
 
+/** Same visual size as living chips (e.g. 병원); equal-width stretch, no wrap. */
+function schoolLevelChipClass(active: boolean): string {
+  return [
+    "inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap",
+    "h-7 rounded-full px-2 text-[12px] font-semibold leading-none",
+    "border transition-colors",
+    active
+      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
+      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+  ].join(" ");
+}
+
 
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
@@ -1409,7 +1421,7 @@ export function ComplexNearbyLifeSection({
 
         {tab === "school" ? (
           <div
-            className={labSegmentedClass("w-full")}
+            className="flex w-full flex-nowrap items-center gap-1.5"
             role="tablist"
             aria-label="학교급"
             data-testid="school-level-tabs"
@@ -1422,7 +1434,7 @@ export function ComplexNearbyLifeSection({
                 aria-selected={schoolLevel === t.id}
                 data-school-level-tab={t.id}
                 onClick={() => selectSchoolLevel(t.id)}
-                className={labSecondaryTabClass(schoolLevel === t.id, "flex-1")}
+                className={schoolLevelChipClass(schoolLevel === t.id)}
               >
                 {t.label}
               </button>
