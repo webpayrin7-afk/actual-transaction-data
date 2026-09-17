@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { InfoTip } from "@/components/ui/InfoTip";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import {
   formatDistrictDistance,
@@ -36,28 +35,22 @@ export function SchoolDistrictBlock({
       data-district-id={district.id}
       data-district-preview-count="0"
     >
-      <div className="flex items-center gap-1">
-        <p className="text-[14px] font-semibold tracking-tight text-slate-800">
+      <div className="flex items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-[14px] font-semibold tracking-tight text-slate-800">
           {district.officialName}
         </p>
-        <InfoTip aria-label={`${district.officialName} 안내`}>
-          <p className="text-[12px] leading-5 text-slate-700">
-            {district.infoText}
-          </p>
-        </InfoTip>
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          className="inline-flex shrink-0 items-center gap-0.5 text-[12px] font-medium text-[color:var(--lab-teal-700)] hover:underline"
+        >
+          학교군 전체 보기
+          <ChevronRight className="size-3.5" aria-hidden />
+        </button>
       </div>
       <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
         {district.description}
       </p>
-
-      <button
-        type="button"
-        onClick={() => setSheetOpen(true)}
-        className="mt-1.5 inline-flex items-center gap-0.5 text-[12px] font-medium text-[color:var(--lab-teal-700)] hover:underline"
-      >
-        학교군 전체 보기
-        <ChevronRight className="size-3.5" aria-hidden />
-      </button>
 
       <LabBottomSheet
         open={sheetOpen}
