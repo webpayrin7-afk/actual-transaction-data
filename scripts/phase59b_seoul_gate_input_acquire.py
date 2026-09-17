@@ -842,7 +842,12 @@ def run_acquire(
 
     order_sql = {
         "small_first": "ORDER BY COALESCE(bld_total_count, 999999999) ASC, complex_id ASC",
-        "id": "ORDER BY complex_id ASC",
+        # Prefer fresh missing targets before recently failed fetches (e.g. 429),
+        # so resume after rate-limit HOLD does not immediately re-hammer failures.
+        "id": (
+            "ORDER BY CASE WHEN unresolved_reason='bld_fetch_failed' THEN 1 ELSE 0 END ASC, "
+            "complex_id ASC"
+        ),
     }.get(order, "ORDER BY complex_id ASC")
 
     # Normal wave (max_pages set): exclude deferred_large + terminal not-found.
