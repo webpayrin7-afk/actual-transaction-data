@@ -26,7 +26,12 @@ export type NeisSchoolInfoLink = {
   sggCode: string;
 };
 
-/** Locked correspondence — not name-only identity. */
+/**
+ * RETAINED — NEIS SD_SCHUL_CODE and SchoolInfo SCHUL_CODE are different
+ * namespaces (e.g. 7130202 ≠ S010000888). Dynamic same-code resolution fails
+ * without these verified Songpa source-links. Prefer retaining over wrong-school
+ * fallback; do not expand via fuzzy name matching.
+ */
 export const NEIS_TO_SCHOOLINFO_LINKS: readonly NeisSchoolInfoLink[] = [
   {
     neisSdSchulCode: "7130153",

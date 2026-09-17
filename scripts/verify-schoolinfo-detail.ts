@@ -74,6 +74,8 @@ async function main() {
           meal: d.schoolLife.mealPerStudent?.value ?? null,
           afterSchool: d.schoolLife.afterSchoolPrograms?.value ?? null,
           scholarship: d.scholarship?.total?.value ?? null,
+          advancement: d.advancement,
+          advancementStatus: d.sectionStatus.advancement,
           auth: d.auth,
           attribution: d.attribution,
         },

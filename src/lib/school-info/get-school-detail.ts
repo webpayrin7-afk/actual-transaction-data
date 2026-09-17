@@ -205,6 +205,8 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
       teachers: null,
       studentsPerTeacher: null,
     },
+    // ADVANCEMENT_API52 HOLD — never fabricate AdvancementData.
+    advancement: null,
     schoolLife: { mealPerStudent: null, afterSchoolPrograms: null },
     scholarship: null,
     referenceYears: [],
@@ -215,6 +217,7 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
       meal: "auth_hold",
       afterSchool: "auth_hold",
       scholarship: "auth_hold",
+      advancement: "missing",
     },
     auth: {
       keyPresent: false,
@@ -242,6 +245,7 @@ function unresolvedDetail(
       meal: "missing",
       afterSchool: "missing",
       scholarship: "missing",
+      advancement: "missing",
     },
   };
 }
@@ -357,6 +361,8 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
       teachers,
       studentsPerTeacher,
     },
+    // HOLD: do not fetch/parse apiType52; slot reserved for future adapter.
+    advancement: null,
     schoolLife: {
       mealPerStudent: meal.meal,
       afterSchoolPrograms: after.programs,
@@ -370,6 +376,7 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
       meal: meal.status === "ok" ? "ok" : mealSec.status,
       afterSchool: after.status === "ok" ? "ok" : afterSec.status,
       scholarship: scholarshipBlock ? "ok" : scholarshipSec.status,
+      advancement: "missing",
     },
     auth: {
       keyPresent: true,
