@@ -30,7 +30,7 @@ export function SchoolDistrictBlock({
 
   return (
     <div
-      className="mt-1"
+      className="mt-0"
       data-testid="school-district-block"
       data-district-id={district.id}
       data-district-preview-count="0"
@@ -42,7 +42,7 @@ export function SchoolDistrictBlock({
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="inline-flex shrink-0 items-center gap-0.5 text-[12px] font-medium text-[color:var(--lab-teal-700)] hover:underline"
+          className="inline-flex shrink-0 items-center gap-0.5 text-[11px] font-normal text-[color:var(--lab-teal-700)] hover:underline"
         >
           학교군 전체 보기
           <ChevronRight className="size-3.5" aria-hidden />

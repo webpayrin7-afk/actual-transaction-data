@@ -366,15 +366,17 @@ function livingChipClass(active: boolean): string {
   ].join(" ");
 }
 
-/** Same visual size as living chips (e.g. 병원); equal-width stretch, no wrap. */
+/** Secondary school-level filter — lighter than primary nearby-life tabs. */
 function schoolLevelChipClass(active: boolean): string {
   return [
-    "inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap",
-    "h-7 rounded-full px-2 text-[12px] font-semibold leading-none",
+    "relative inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap",
+    // Visual ~h-6; ::before preserves ~36px touch/focus target.
+    "h-6 rounded-full px-2 text-[11px] font-medium leading-none",
+    "before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']",
     "border transition-colors",
     active
-      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
-      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
+      : "border-[color-mix(in_srgb,var(--lab-border)_72%,transparent)] bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-600",
   ].join(" ");
 }
 
@@ -1235,7 +1237,7 @@ export function ComplexNearbyLifeSection({
       const heading = NEARBY_LEVEL_HEADING[schoolLevel];
 
       return (
-        <div className="space-y-3" data-school-level={schoolLevel}>
+        <div className="space-y-2.5" data-school-level={schoolLevel}>
           {highDistrict ? (
             <SchoolDistrictBlock
               district={highDistrict}
@@ -1255,7 +1257,7 @@ export function ComplexNearbyLifeSection({
                 주변에서 확인된 학교가 없습니다.
               </p>
             ) : (
-              <ul className="space-y-0.5">
+              <ul className="space-y-0">
                 {places.map((s) => {
                   const metaParts = [
                     s.establishment,
@@ -1273,7 +1275,7 @@ export function ComplexNearbyLifeSection({
                           }
                         }}
                         aria-label={`${s.name} 상세 보기`}
-                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left transition active:scale-[0.99] active:bg-slate-100 ${selectedRowClass(selectedId === s.id)}`}
+                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left transition active:scale-[0.99] active:bg-slate-100 ${selectedRowClass(selectedId === s.id)}`}
                       >
                         <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white px-0.5 text-[9px] font-bold text-[#1e3a5f]">
                           {SCHOOL_LEVEL_BADGE[s.schoolLevel as SchoolLevelCode]}
@@ -1393,7 +1395,7 @@ export function ComplexNearbyLifeSection({
         </div>
       </div>
 
-      <div className="mt-3 space-y-3">
+      <div className={tab === "school" ? "mt-3 space-y-2.5" : "mt-3 space-y-3"}>
         {tab === "commerce" && commerceSnapshot ? (
           <ComplexCommerceMeta snapshot={commerceSnapshot} />
         ) : null}
@@ -1421,7 +1423,7 @@ export function ComplexNearbyLifeSection({
 
         {tab === "school" ? (
           <div
-            className="flex w-full flex-nowrap items-center gap-1.5"
+            className="flex w-full flex-nowrap items-center gap-1"
             role="tablist"
             aria-label="학교급"
             data-testid="school-level-tabs"
