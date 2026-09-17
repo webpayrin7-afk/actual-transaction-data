@@ -1,0 +1,451 @@
+{
+  "attempted": 221,
+  "counts": {
+    "resolved_deterministic": 217,
+    "not_found": 4
+  },
+  "not_found_reasons": {
+    "dong_not_in_legal_map_for_lawd": 2,
+    "malformed_jibun": 2
+  },
+  "applied_to_db": 217,
+  "parcel_ok_after": 8770,
+  "parcel_missing_after": 4,
+  "samples": {
+    "resolved": [
+      {
+        "complex_id": "11110:송림아마레스아파트",
+        "lawd_cd": "11110",
+        "apt_name_norm": "송림아마레스아파트",
+        "dong": "이화동",
+        "jibun": "9-1",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11110",
+          "bjdong_cd": "16500",
+          "bun": "0009",
+          "ji": "0001",
+          "jibun": "9-1",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11170:센트럴파크",
+        "lawd_cd": "11170",
+        "apt_name_norm": "센트럴파크",
+        "dong": "한강로3가",
+        "jibun": "98",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11170",
+          "bjdong_cd": "12800",
+          "bun": "0098",
+          "ji": "0000",
+          "jibun": "98",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11170:아이딜",
+        "lawd_cd": "11170",
+        "apt_name_norm": "아이딜",
+        "dong": "효창동",
+        "jibun": "130-2",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11170",
+          "bjdong_cd": "11900",
+          "bun": "0130",
+          "ji": "0002",
+          "jibun": "130-2",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11170:예빌리지",
+        "lawd_cd": "11170",
+        "apt_name_norm": "예빌리지",
+        "dong": "후암동",
+        "jibun": "5-262",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11170",
+          "bjdong_cd": "10100",
+          "bun": "0005",
+          "ji": "0262",
+          "jibun": "5-262",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11170:제일",
+        "lawd_cd": "11170",
+        "apt_name_norm": "제일",
+        "dong": "후암동",
+        "jibun": "438-7",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11170",
+          "bjdong_cd": "10100",
+          "bun": "0438",
+          "ji": "0007",
+          "jibun": "438-7",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:금호베스트빌",
+        "lawd_cd": "11200",
+        "apt_name_norm": "금호베스트빌",
+        "dong": "하왕십리동",
+        "jibun": "1052",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "10200",
+          "bun": "1052",
+          "ji": "0000",
+          "jibun": "1052",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:두산",
+        "lawd_cd": "11200",
+        "apt_name_norm": "두산",
+        "dong": "행당동",
+        "jibun": "345",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "10700",
+          "bun": "0345",
+          "ji": "0000",
+          "jibun": "345",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:벽산",
+        "lawd_cd": "11200",
+        "apt_name_norm": "벽산",
+        "dong": "하왕십리동",
+        "jibun": "633",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "10200",
+          "bun": "0633",
+          "ji": "0000",
+          "jibun": "633",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:신동아",
+        "lawd_cd": "11200",
+        "apt_name_norm": "신동아",
+        "dong": "행당동",
+        "jibun": "344",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "10700",
+          "bun": "0344",
+          "ji": "0000",
+          "jibun": "344",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:신성미소지움",
+        "lawd_cd": "11200",
+        "apt_name_norm": "신성미소지움",
+        "dong": "성수동2가",
+        "jibun": "833",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "11500",
+          "bun": "0833",
+          "ji": "0000",
+          "jibun": "833",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:중앙하이츠",
+        "lawd_cd": "11200",
+        "apt_name_norm": "중앙하이츠",
+        "dong": "용답동",
+        "jibun": "199",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "12200",
+          "bun": "0199",
+          "ji": "0000",
+          "jibun": "199",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:한진해모로",
+        "lawd_cd": "11200",
+        "apt_name_norm": "한진해모로",
+        "dong": "하왕십리동",
+        "jibun": "845",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "10200",
+          "bun": "0845",
+          "ji": "0000",
+          "jibun": "845",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11200:현대",
+        "lawd_cd": "11200",
+        "apt_name_norm": "현대",
+        "dong": "옥수동",
+        "jibun": "818",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11200",
+          "bjdong_cd": "11300",
+          "bun": "0818",
+          "ji": "0000",
+          "jibun": "818",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11215:그린",
+        "lawd_cd": "11215",
+        "apt_name_norm": "그린",
+        "dong": "자양동",
+        "jibun": "665",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11215",
+          "bjdong_cd": "10500",
+          "bun": "0665",
+          "ji": "0000",
+          "jibun": "665",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11215:도성",
+        "lawd_cd": "11215",
+        "apt_name_norm": "도성",
+        "dong": "자양동",
+        "jibun": "610-47",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11215",
+          "bjdong_cd": "10500",
+          "bun": "0610",
+          "ji": "0047",
+          "jibun": "610-47",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11215:명성",
+        "lawd_cd": "11215",
+        "apt_name_norm": "명성",
+        "dong": "자양동",
+        "jibun": "607-31",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11215",
+          "bjdong_cd": "10500",
+          "bun": "0607",
+          "ji": "0031",
+          "jibun": "607-31",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11215:삼성로얄",
+        "lawd_cd": "11215",
+        "apt_name_norm": "삼성로얄",
+        "dong": "중곡동",
+        "jibun": "225-26",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11215",
+          "bjdong_cd": "10100",
+          "bun": "0225",
+          "ji": "0026",
+          "jibun": "225-26",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11215:한영해시안아파트",
+        "lawd_cd": "11215",
+        "apt_name_norm": "한영해시안아파트",
+        "dong": "중곡동",
+        "jibun": "71-6",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11215",
+          "bjdong_cd": "10100",
+          "bun": "0071",
+          "ji": "0006",
+          "jibun": "71-6",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11215:현대3",
+        "lawd_cd": "11215",
+        "apt_name_norm": "현대3",
+        "dong": "자양동",
+        "jibun": "670",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11215",
+          "bjdong_cd": "10500",
+          "bun": "0670",
+          "ji": "0000",
+          "jibun": "670",
+          "source": "jibun+unique_legal_dong"
+        }
+      },
+      {
+        "complex_id": "11215:호동",
+        "lawd_cd": "11215",
+        "apt_name_norm": "호동",
+        "dong": "중곡동",
+        "jibun": "343-12",
+        "status": "resolved_deterministic",
+        "reasons": [
+          "jibun+unique_legal_dong"
+        ],
+        "parcel": {
+          "sigungu_cd": "11215",
+          "bjdong_cd": "10100",
+          "bun": "0343",
+          "ji": "0012",
+          "jibun": "343-12",
+          "source": "jibun+unique_legal_dong"
+        }
+      }
+    ],
+    "ambiguous": [],
+    "not_found": [
+      {
+        "complex_id": "11410:청원파크빌3",
+        "lawd_cd": "11410",
+        "apt_name_norm": "청원파크빌3",
+        "dong": "길동",
+        "jibun": "103-5",
+        "status": "not_found",
+        "reasons": [
+          "dong_not_in_legal_map_for_lawd",
+          "dong_exists_other_lawd:['11740']"
+        ],
+        "parcel": null
+      },
+      {
+        "complex_id": "11530:하버라인4단지",
+        "lawd_cd": "11530",
+        "apt_name_norm": "하버라인4단지",
+        "dong": "항동",
+        "jibun": "가-238",
+        "status": "not_found",
+        "reasons": [
+          "malformed_jibun"
+        ],
+        "parcel": null
+      },
+      {
+        "complex_id": "11620:관악푸르지오102동",
+        "lawd_cd": "11620",
+        "apt_name_norm": "관악푸르지오102동",
+        "dong": "사당동",
+        "jibun": "1152",
+        "status": "not_found",
+        "reasons": [
+          "dong_not_in_legal_map_for_lawd",
+          "dong_exists_other_lawd:['11590']"
+        ],
+        "parcel": null
+      },
+      {
+        "complex_id": "11740:고덕풍경채어바니티",
+        "lawd_cd": "11740",
+        "apt_name_norm": "고덕풍경채어바니티",
+        "dong": "고덕동",
+        "jibun": "BL-3-1",
+        "status": "not_found",
+        "reasons": [
+          "malformed_jibun"
+        ],
+        "parcel": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,134 @@
+[
+  {
+    "complex_id": "11410:청원파크빌3",
+    "status": "ambiguous",
+    "reasons": [
+      "master_found_different_or_same_lawd_requires_identity_review",
+      "master_lawd=11740 trade_lawd=11410"
+    ],
+    "trade_variants": [
+      {
+        "dong": "길동",
+        "jibun": "103-5",
+        "n": 1
+      }
+    ],
+    "master_by_name": [
+      {
+        "complex_id": "cx_e82cb737eeb026e8",
+        "lawd_cd": "11740",
+        "apt_name_norm": "청원파크빌3",
+        "legal_dong_name": "길동",
+        "bjdong_cd": "10500",
+        "jibun": "103-5",
+        "identity_status": "IDENTITY-READY"
+      }
+    ],
+    "legal_dong_hits": [
+      [
+        "11740",
+        "10500",
+        "길동"
+      ]
+    ],
+    "parcel_candidate": {
+      "sigungu_cd": "11740",
+      "bjdong_cd": "10500",
+      "bun": "0103",
+      "ji": "0005",
+      "jibun": "103-5",
+      "source": "master_name+jibun_exact",
+      "note": "lawd may differ from trade lawd"
+    }
+  },
+  {
+    "complex_id": "11530:하버라인4단지",
+    "status": "unresolved",
+    "reasons": [
+      "non_standard_jibun",
+      "no_deterministic_parcel_link"
+    ],
+    "trade_variants": [
+      {
+        "dong": "항동",
+        "jibun": "가-238",
+        "n": 53
+      }
+    ],
+    "master_by_name": [],
+    "legal_dong_hits": [
+      [
+        "11530",
+        "11200",
+        "항동"
+      ]
+    ],
+    "parcel_candidate": null
+  },
+  {
+    "complex_id": "11620:관악푸르지오102동",
+    "status": "ambiguous",
+    "reasons": [
+      "master_found_different_or_same_lawd_requires_identity_review",
+      "master_lawd=11590 trade_lawd=11620"
+    ],
+    "trade_variants": [
+      {
+        "dong": "사당동",
+        "jibun": "1152",
+        "n": 5
+      }
+    ],
+    "master_by_name": [
+      {
+        "complex_id": "cx_ae4c7c2efc4a291a",
+        "lawd_cd": "11590",
+        "apt_name_norm": "관악푸르지오102동",
+        "legal_dong_name": "사당동",
+        "bjdong_cd": "10700",
+        "jibun": "1152",
+        "identity_status": "IDENTITY-READY"
+      }
+    ],
+    "legal_dong_hits": [
+      [
+        "11590",
+        "10700",
+        "사당동"
+      ]
+    ],
+    "parcel_candidate": {
+      "sigungu_cd": "11590",
+      "bjdong_cd": "10700",
+      "bun": "1152",
+      "ji": "0000",
+      "jibun": "1152",
+      "source": "master_name+jibun_exact",
+      "note": "lawd may differ from trade lawd"
+    }
+  },
+  {
+    "complex_id": "11740:고덕풍경채어바니티",
+    "status": "unresolved",
+    "reasons": [
+      "non_standard_jibun",
+      "no_deterministic_parcel_link"
+    ],
+    "trade_variants": [
+      {
+        "dong": "고덕동",
+        "jibun": "BL-3-1",
+        "n": 18
+      }
+    ],
+    "master_by_name": [],
+    "legal_dong_hits": [
+      [
+        "11740",
+        "10200",
+        "고덕동"
+      ]
+    ],
+    "parcel_candidate": null
+  }
+]

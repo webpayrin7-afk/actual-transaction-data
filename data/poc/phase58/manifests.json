@@ -1,0 +1,98 @@
+{
+  "load_eligible": [],
+  "hold_counts": {
+    "missing_gate_inputs": 15731,
+    "ambiguous": 1,
+    "registry_abnormal": 1,
+    "diff_failed": 7,
+    "other": 0
+  },
+  "already_loaded": [
+    {
+      "complexKey": "hangang-daewoo",
+      "classification": "auto-safe"
+    },
+    {
+      "complexKey": "parkrio",
+      "classification": "auto-safe"
+    },
+    {
+      "complexKey": "banpo-xi",
+      "classification": "auto-safe"
+    },
+    {
+      "complexKey": "jamsil-els",
+      "classification": "group-safe-label-unknown"
+    },
+    {
+      "complexKey": "mokdong-7",
+      "classification": "ambiguous"
+    },
+    {
+      "complexKey": "eunma",
+      "classification": "registry-abnormal"
+    },
+    {
+      "complexKey": "daechi-palace",
+      "classification": "auto-safe"
+    },
+    {
+      "complexKey": "mapo-raemian-prugio",
+      "classification": "group-safe-label-unknown"
+    },
+    {
+      "complexKey": "acro-riverpark",
+      "classification": "group-safe-label-unknown"
+    },
+    {
+      "complexKey": "hannam-thehill",
+      "classification": "auto-safe"
+    },
+    {
+      "complexKey": "raemian-hill-godeok",
+      "classification": "auto-safe"
+    }
+  ],
+  "hold_diff_failed_sample": [
+    {
+      "complexKey": "raemian-weve",
+      "unexplainedDiff": 156
+    },
+    {
+      "complexKey": "sangye-jugong9",
+      "unexplainedDiff": 170
+    },
+    {
+      "complexKey": "gwanak-prugio",
+      "unexplainedDiff": 106
+    },
+    {
+      "complexKey": "ricents",
+      "unexplainedDiff": 172
+    },
+    {
+      "complexKey": "sibom-hanyang",
+      "unexplainedDiff": 232
+    },
+    {
+      "complexKey": "anyang-samsung-raemian",
+      "unexplainedDiff": 62
+    },
+    {
+      "complexKey": "ilsan-zenith",
+      "unexplainedDiff": 37
+    }
+  ],
+  "hold_ambiguous": [
+    {
+      "complexKey": "olympic-family",
+      "reason": "phase4-json"
+    }
+  ],
+  "hold_registry_abnormal": [
+    {
+      "complexKey": "gaepo-jugong6",
+      "reason": "phase4-json"
+    }
+  ]
+}

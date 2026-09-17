@@ -1,0 +1,364 @@
+{
+  "tested": 8,
+  "mismatches_any_variant": 24,
+  "all_page1_match": false,
+  "all_half_match": false,
+  "exclusive_only_always_match": false,
+  "optimization_applied": false,
+  "decision": "DO_NOT_APPLY_EARLY_STOP",
+  "reason": "Phase4 classify/build_units needs full 전유+주거공용 rows; sample shows mismatches or insufficient proof",
+  "results": [
+    {
+      "complex_id": "11140:뉴그린아파트",
+      "pages": 1,
+      "totalCount": 24,
+      "full": {
+        "classification": "registry-abnormal",
+        "unit_hh": 12,
+        "types": 9,
+        "groups": 9,
+        "reasons": [
+          "ledger_trade_hh_coverage=0.17"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 12,
+          "types": 9,
+          "groups": 9
+        },
+        "first_1_pages": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 12,
+          "types": 9,
+          "groups": 9
+        },
+        "first_1_pages_80pct": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 12,
+          "types": 9,
+          "groups": 9
+        },
+        "exclusive_rows_only": {
+          "match": false,
+          "classification": "registry-abnormal",
+          "unit_hh": 12,
+          "types": 9,
+          "groups": 9
+        }
+      }
+    },
+    {
+      "complex_id": "11110:대아파크빌",
+      "pages": 5,
+      "totalCount": 429,
+      "full": {
+        "classification": "auto-safe",
+        "unit_hh": 67,
+        "types": 3,
+        "groups": 2,
+        "reasons": [
+          "passed_all_gates"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 17,
+          "types": 3,
+          "groups": 2
+        },
+        "first_2_pages": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 31,
+          "types": 3,
+          "groups": 2
+        },
+        "first_4_pages_80pct": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 63,
+          "types": 4,
+          "groups": 2
+        },
+        "exclusive_rows_only": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 67,
+          "types": 2,
+          "groups": 2
+        }
+      }
+    },
+    {
+      "complex_id": "11110:숭인상가",
+      "pages": 10,
+      "totalCount": 978,
+      "full": {
+        "classification": "registry-abnormal",
+        "unit_hh": 0,
+        "types": 0,
+        "groups": 0,
+        "reasons": [
+          "ledger_trade_hh_coverage=0.00"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": false,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        },
+        "first_5_pages": {
+          "match": false,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        },
+        "first_8_pages_80pct": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        },
+        "exclusive_rows_only": {
+          "match": false,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        }
+      }
+    },
+    {
+      "complex_id": "11110:경희궁의아침2단지",
+      "pages": 20,
+      "totalCount": 1965,
+      "full": {
+        "classification": "auto-safe",
+        "unit_hh": 90,
+        "types": 4,
+        "groups": 3,
+        "reasons": [
+          "passed_all_gates"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 4,
+          "types": 2,
+          "groups": 2
+        },
+        "first_10_pages": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 53,
+          "types": 4,
+          "groups": 3
+        },
+        "first_16_pages_80pct": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 80,
+          "types": 4,
+          "groups": 3
+        },
+        "exclusive_rows_only": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 90,
+          "types": 3,
+          "groups": 3
+        }
+      }
+    },
+    {
+      "complex_id": "11110:아남1",
+      "pages": 32,
+      "totalCount": 3130,
+      "full": {
+        "classification": "ambiguous",
+        "unit_hh": 436,
+        "types": 5,
+        "groups": 1,
+        "reasons": [
+          "unknown_common_area_ratio=0.48"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": false,
+          "classification": "ambiguous",
+          "unit_hh": 14,
+          "types": 4,
+          "groups": 1
+        },
+        "first_16_pages": {
+          "match": false,
+          "classification": "ambiguous",
+          "unit_hh": 223,
+          "types": 5,
+          "groups": 1
+        },
+        "first_26_pages_80pct": {
+          "match": false,
+          "classification": "ambiguous",
+          "unit_hh": 362,
+          "types": 5,
+          "groups": 1
+        },
+        "exclusive_rows_only": {
+          "match": false,
+          "classification": "group-safe-label-unknown",
+          "unit_hh": 436,
+          "types": 2,
+          "groups": 1
+        }
+      }
+    },
+    {
+      "complex_id": "11140:세운푸르지오헤리시티",
+      "pages": 40,
+      "totalCount": 3966,
+      "full": {
+        "classification": "registry-abnormal",
+        "unit_hh": 0,
+        "types": 0,
+        "groups": 0,
+        "reasons": [
+          "ledger_trade_hh_coverage=0.00"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        },
+        "first_20_pages": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        },
+        "first_32_pages_80pct": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        },
+        "exclusive_rows_only": {
+          "match": true,
+          "classification": "registry-abnormal",
+          "unit_hh": 0,
+          "types": 0,
+          "groups": 0
+        }
+      }
+    },
+    {
+      "complex_id": "11110:경희궁자이(3단지)",
+      "pages": 56,
+      "totalCount": 5549,
+      "full": {
+        "classification": "group-safe-label-unknown",
+        "unit_hh": 589,
+        "types": 11,
+        "groups": 4,
+        "reasons": [
+          "label_confidence=0.68"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": false,
+          "classification": "group-safe-label-unknown",
+          "unit_hh": 10,
+          "types": 5,
+          "groups": 4
+        },
+        "first_28_pages": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 295,
+          "types": 11,
+          "groups": 4
+        },
+        "first_45_pages_80pct": {
+          "match": false,
+          "classification": "group-safe-label-unknown",
+          "unit_hh": 476,
+          "types": 11,
+          "groups": 4
+        },
+        "exclusive_rows_only": {
+          "match": false,
+          "classification": "group-safe-label-unknown",
+          "unit_hh": 589,
+          "types": 10,
+          "groups": 4
+        }
+      }
+    },
+    {
+      "complex_id": "11110:경희궁자이(2단지)",
+      "pages": 107,
+      "totalCount": 10680,
+      "full": {
+        "classification": "auto-safe",
+        "unit_hh": 1148,
+        "types": 18,
+        "groups": 6,
+        "reasons": [
+          "passed_all_gates"
+        ]
+      },
+      "variants": {
+        "page1": {
+          "match": false,
+          "classification": "ambiguous",
+          "unit_hh": 12,
+          "types": 7,
+          "groups": 2
+        },
+        "first_53_pages": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 570,
+          "types": 18,
+          "groups": 6
+        },
+        "first_86_pages_80pct": {
+          "match": false,
+          "classification": "auto-safe",
+          "unit_hh": 925,
+          "types": 18,
+          "groups": 6
+        },
+        "exclusive_rows_only": {
+          "match": false,
+          "classification": "group-safe-label-unknown",
+          "unit_hh": 1148,
+          "types": 18,
+          "groups": 6
+        }
+      }
+    }
+  ]
+}

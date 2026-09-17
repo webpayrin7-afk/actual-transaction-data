@@ -1,0 +1,228 @@
+{
+  "request_key_definition": "sigungu_cd + bjdong_cd + bun + ji  (BldRgstHub getBrExposPubuseAreaInfo)",
+  "endpoint": "https://apis.data.go.kr/1613000/BldRgstHubService/getBrExposPubuseAreaInfo",
+  "parcel_ok_complexes": 8553,
+  "unique_request_keys": 8487,
+  "duplicate_request_keys": 49,
+  "complexes_on_shared_keys": 115,
+  "potential_saved_complex_fetches_vs_per_complex": 66,
+  "amplification_ratio_complexes_per_key": 1.008,
+  "remaining_that_can_reuse_completed_key_cache_now": 0,
+  "remaining_shared_key_groups": 48,
+  "remaining_extra_complexes_in_shared_groups": 65,
+  "top_shared_keys": [
+    {
+      "key": {
+        "sigungu_cd": "11410",
+        "bjdong_cd": "12000",
+        "bun": "0385",
+        "ji": "0000"
+      },
+      "n": 5,
+      "sample": [
+        "11410:dmc파크뷰자이1단지",
+        "11410:dmc파크뷰자이2단지",
+        "11410:dmc파크뷰자이3단지",
+        "11410:dmc파크뷰자이4단지",
+        "11410:dmc파크뷰자이5단지"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11380",
+        "bjdong_cd": "11000",
+        "bun": "0258",
+        "ji": "0000"
+      },
+      "n": 4,
+      "sample": [
+        "11380:dmc센트럴자이(1단지)",
+        "11380:dmc센트럴자이(2단지)",
+        "11380:dmc센트럴자이(3단지)",
+        "11380:dmc센트럴자이(4단지)"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11410",
+        "bjdong_cd": "11000",
+        "bun": "1013",
+        "ji": "0000"
+      },
+      "n": 4,
+      "sample": [
+        "11410:e편한세상신촌1단지",
+        "11410:e편한세상신촌2단지",
+        "11410:e편한세상신촌3단지",
+        "11410:e편한세상신촌4단지"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11440",
+        "bjdong_cd": "10100",
+        "bun": "0777",
+        "ji": "0000"
+      },
+      "n": 4,
+      "sample": [
+        "11440:마포래미안푸르지오1단지",
+        "11440:마포래미안푸르지오2단지",
+        "11440:마포래미안푸르지오3단지",
+        "11440:마포래미안푸르지오4단지"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11590",
+        "bjdong_cd": "10700",
+        "bun": "0105",
+        "ji": "0000"
+      },
+      "n": 4,
+      "sample": [
+        "11590:극동(105)",
+        "11590:사당우성2",
+        "11590:사당우성3",
+        "11590:신동아4"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11350",
+        "bjdong_cd": "10600",
+        "bun": "0505",
+        "ji": "0000"
+      },
+      "n": 3,
+      "sample": [
+        "11350:경남",
+        "11350:롯데(505)",
+        "11350:상아"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11350",
+        "bjdong_cd": "10600",
+        "bun": "0366",
+        "ji": "0000"
+      },
+      "n": 3,
+      "sample": [
+        "11350:라이프",
+        "11350:신동아(366)",
+        "11350:청구(366)"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11350",
+        "bjdong_cd": "10400",
+        "bun": "0284",
+        "ji": "0000"
+      },
+      "n": 3,
+      "sample": [
+        "11350:청구",
+        "11350:한신1",
+        "11350:한신2"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11440",
+        "bjdong_cd": "12500",
+        "bun": "0446",
+        "ji": "0000"
+      },
+      "n": 3,
+      "sample": [
+        "11440:성산시영(대우)",
+        "11440:성산시영(선경)",
+        "11440:성산시영(유원)"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11680",
+        "bjdong_cd": "11000",
+        "bun": "0456",
+        "ji": "0000"
+      },
+      "n": 3,
+      "sample": [
+        "11680:현대65동(대림아크로빌아파트)",
+        "11680:현대6차(78~81,83,84,86,87동)",
+        "11680:현대7차(73~77,82,85동)"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11710",
+        "bjdong_cd": "11100",
+        "bun": "0089",
+        "ji": "0000"
+      },
+      "n": 3,
+      "sample": [
+        "11710:올림픽선수기자촌1단지",
+        "11710:올림픽선수기자촌2단지",
+        "11710:올림픽선수기자촌3단지"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11110",
+        "bjdong_cd": "17500",
+        "bun": "0204",
+        "ji": "0011"
+      },
+      "n": 2,
+      "sample": [
+        "11110:(204-11)",
+        "11110:숭인상가"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11215",
+        "bjdong_cd": "10400",
+        "bun": "0218",
+        "ji": "0001"
+      },
+      "n": 2,
+      "sample": [
+        "11215:극동1",
+        "11215:극동2"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11230",
+        "bjdong_cd": "10900",
+        "bun": "0057",
+        "ji": "0000"
+      },
+      "n": 2,
+      "sample": [
+        "11230:휘경리오포레아파트(1단지)",
+        "11230:휘경리오포레아파트(2단지)"
+      ]
+    },
+    {
+      "key": {
+        "sigungu_cd": "11260",
+        "bjdong_cd": "10400",
+        "bun": "0020",
+        "ji": "0000"
+      },
+      "n": 2,
+      "sample": [
+        "11260:신내대림아파트",
+        "11260:신내두산아파트"
+      ]
+    }
+  ],
+  "reusable_now_sample": []
+}
