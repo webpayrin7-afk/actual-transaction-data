@@ -306,11 +306,7 @@ function selectionArrowHtml(): string {
  * COMPLEX: building icon only (no apartment-name text label).
  * Pixel anchors only — never shift source lat/lng.
  */
-function markerIconHtml(
-  marker: NaverMapMarker,
-  selected: boolean,
-  onSchoolClick?: () => void,
-) {
+function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   const kind = marker.kind;
   const color =
     marker.color ||
@@ -432,37 +428,21 @@ function markerIconHtml(
     const label = escapeHtml((marker.label || marker.title || "").trim());
     const width = 118;
     const height = selected ? 44 : 36;
-    // HTMLElement (not string) so we can attach a real DOM click on the chip/label.
-    const root = document.createElement("div");
-    root.dataset.schoolMarker = "1";
-    root.style.cssText = `position:relative;width:${width}px;height:${height}px;pointer-events:auto;cursor:pointer;touch-action:manipulation`;
-    root.innerHTML = `<div style="position:absolute;left:50%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);white-space:nowrap;pointer-events:auto;cursor:pointer">
+    const markerIdAttr = encodeURIComponent(marker.id);
+    // String HtmlIcon + data attribute: map-root event delegation handles taps
+    // (Naver may clone HTML and drop JS listeners on HTMLElement content).
+    const html = `<div data-map-marker-id="${markerIdAttr}" role="button" aria-label="${escapeHtml(marker.title || "학교")} 상세 보기" style="position:relative;width:${width}px;height:${height}px;pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(15,23,42,.12)">
+      <div style="position:absolute;left:50%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);white-space:nowrap;pointer-events:auto;cursor:pointer">
         ${selected ? selectionArrowHtml() : ""}
         <div style="display:flex;align-items:center;gap:3px;padding:2px 5px 2px 2px;border-radius:8px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16);pointer-events:auto;cursor:pointer">
-          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;background:#1e3a5f;color:#fff;font:700 10px/1 system-ui,-apple-system,sans-serif">${badge}</span>
-          <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;max-width:88px;overflow:hidden;text-overflow:ellipsis">${label}</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;background:#1e3a5f;color:#fff;font:700 10px/1 system-ui,-apple-system,sans-serif;pointer-events:none">${badge}</span>
+          <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;max-width:88px;overflow:hidden;text-overflow:ellipsis;pointer-events:none">${label}</span>
         </div>
-        <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
-      </div>`;
-    if (onSchoolClick) {
-      const handle = (event: Event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onSchoolClick();
-      };
-      root.addEventListener("click", handle);
-      root.addEventListener("keydown", (event) => {
-        const ke = event as KeyboardEvent;
-        if (ke.key === "Enter" || ke.key === " ") {
-          handle(event);
-        }
-      });
-      root.tabIndex = 0;
-      root.setAttribute("role", "button");
-      root.setAttribute("aria-label", `${marker.title || "학교"} 상세 보기`);
-    }
+        <div style="width:2px;height:5px;background:${stroke};opacity:.85;pointer-events:none"></div>
+      </div>
+    </div>`;
     return {
-      content: root,
+      content: html,
       size: window.naver?.maps
         ? new window.naver.maps.Size(width, height)
         : undefined,
@@ -503,6 +483,7 @@ export function NaverMap({
   referenceRadiusM = null,
 }: NaverMapProps) {
   const reactId = useId();
+  const wrapRef = useRef<HTMLDivElement | null>(null);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<NaverMapInstance | null>(null);
   const markerMapRef = useRef<Map<string, NaverMarkerInstance>>(new Map());
@@ -513,7 +494,7 @@ export function NaverMap({
   const fitAnchorRef = useRef(fitAnchor);
   const centerRef = useRef(center);
   const fitRadiusMRef = useRef(fitRadiusM);
-  /** Dedupe Marker click + DOM click for the same tap. */
+  /** Dedupe Marker click + DOM delegation for the same tap. */
   const lastMarkerClickRef = useRef<{ id: string; at: number } | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
@@ -529,6 +510,37 @@ export function NaverMap({
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
   }, [onMarkerClick]);
+
+  // Capture-phase delegation on document: school chip/label taps survive
+  // Naver HTML cloning and pane placement quirks.
+  useEffect(() => {
+    if (status !== "ready") return;
+
+    const onPointer = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const hit = target.closest("[data-map-marker-id]");
+      if (!(hit instanceof HTMLElement)) return;
+      const encoded = hit.getAttribute("data-map-marker-id");
+      if (!encoded) return;
+      let id = encoded;
+      try {
+        id = decodeURIComponent(encoded);
+      } catch {
+        /* keep raw */
+      }
+      // Only handle markers that belong to this map instance.
+      if (!markersRef.current.some((m) => m.id === id)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      fireMarkerClick(id);
+    };
+
+    document.addEventListener("click", onPointer, true);
+    return () => {
+      document.removeEventListener("click", onPointer, true);
+    };
+  }, [status, fireMarkerClick]);
 
   useEffect(() => {
     markersRef.current = markers;
@@ -679,9 +691,7 @@ export function NaverMap({
               : item.kind === "SCHOOL"
                 ? 70
                 : 20;
-      const schoolClick =
-        item.kind === "SCHOOL" ? () => fireMarkerClick(item.id) : undefined;
-      const icon = markerIconHtml(item, selected, schoolClick);
+      const icon = markerIconHtml(item, selected);
       const existing = markerMapRef.current.get(item.id);
       if (existing) {
         existing.setPosition(pos);
@@ -1001,6 +1011,7 @@ export function NaverMap({
 
   return (
     <div
+      ref={wrapRef}
       className={`relative overflow-hidden rounded-xl bg-slate-50 ${className}`.trim()}
       style={style}
     >

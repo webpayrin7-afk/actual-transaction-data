@@ -1166,12 +1166,14 @@ export function ComplexNearbyLifeSection({
                       <button
                         type="button"
                         onClick={() => {
-                          if (!openSchoolDetail(s)) {
+                          setSelectedId(s.id);
+                          const opened = openSchoolDetail(s);
+                          if (!opened) {
                             selectFromList(s.id);
                           }
                         }}
                         aria-label={`${s.name} 상세 보기`}
-                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === s.id)}`}
+                        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition active:scale-[0.99] active:bg-slate-100 ${selectedRowClass(selectedId === s.id)}`}
                       >
                         <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white px-0.5 text-[9px] font-bold text-[#1e3a5f]">
                           {SCHOOL_LEVEL_BADGE[s.schoolLevel as SchoolLevelCode]}
