@@ -5,6 +5,8 @@
  * Use openData.do for 13-다 졸업생의 진로 현황.
  */
 
+import "server-only";
+
 import { REVALIDATE_SECONDS } from "@/lib/school-info/client";
 
 export const OPEN_DATA_URL = "https://www.schoolinfo.go.kr/openData.do";

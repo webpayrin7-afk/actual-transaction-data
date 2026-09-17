@@ -364,9 +364,10 @@ export function parseBasic(row: Record<string, unknown> | null): {
 
 export function attribution(years: string[]): string {
   const uniq = [...new Set(years.filter(Boolean))];
-  if (uniq.length === 1) return `${uniq[0]}년 학교알리미 공시 기준`;
+  // 학교알리미 attribution retained (공공저작물 출처표시 의무 — do not remove).
+  if (uniq.length === 1) return `${uniq[0]}년 공시 · 학교알리미`;
   if (uniq.length > 1) {
-    return `학교알리미 공시 기준 (${uniq.join(", ")}년 · 항목별 연도 상이)`;
+    return `공시자료 기준 (항목별 연도 상이) · 학교알리미`;
   }
   return "학교알리미 공시 기준";
 }

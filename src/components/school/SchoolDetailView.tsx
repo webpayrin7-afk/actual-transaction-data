@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { BackLink } from "@/components/layout/BackLink";
 import { AdvancementSection } from "@/components/school/AdvancementSection";
 import { InfoTip } from "@/components/ui/InfoTip";
-import type { Metric, SchoolDetail } from "@/lib/school-info/types";
+import type {
+  ProductMetric,
+  ProductSchoolDetail,
+} from "@/lib/school-info/product-school-detail";
 
 function homepageLabel(url: string): string {
   return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
@@ -17,7 +20,7 @@ function SectionTitle({ children }: { children: ReactNode }) {
 }
 
 /** 2-column status metrics; 5th metric spans full width. */
-function StatusMetrics({ items }: { items: Metric[] }) {
+function StatusMetrics({ items }: { items: ProductMetric[] }) {
   if (!items.length) return null;
   const head = items.slice(0, 4);
   const fifth = items.length >= 5 ? items[4] : null;
@@ -111,7 +114,7 @@ export function SchoolDetailView({
   detail,
   backHref,
 }: {
-  detail: SchoolDetail;
+  detail: ProductSchoolDetail;
   backHref: string;
 }) {
   const coreItems = [
@@ -120,7 +123,7 @@ export function SchoolDetailView({
     detail.core.classSize,
     detail.core.teachers,
     detail.core.studentsPerTeacher,
-  ].filter((m): m is Metric => Boolean(m?.value));
+  ].filter((m): m is ProductMetric => Boolean(m?.value));
 
   // 학교생활: 급식 · 방과후 · 장학 — scholarship is a row group, not a peer section.
   const lifeRows = [
@@ -130,7 +133,7 @@ export function SchoolDetailView({
       ? [detail.scholarship.total, detail.scholarship.perStudent]
       : []),
   ]
-    .filter((m): m is Metric => Boolean(m?.value))
+    .filter((m): m is ProductMetric => Boolean(m?.value))
     .map((m) => ({ label: m.label, value: m.value }));
 
   const basicRows: Array<{ label: string; value: ReactNode; long?: boolean }> =
@@ -186,8 +189,6 @@ export function SchoolDetailView({
     basicRows.push({ label: "설립/개교", value: detail.foundedOn });
   }
 
-  const authHold = !detail.auth.keyPresent;
-
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col">
       <header className="sticky top-0 z-30 bg-[var(--lab-bg,#f8fafc)]/95 backdrop-blur">
@@ -206,27 +207,23 @@ export function SchoolDetailView({
       </header>
 
       <div className="flex flex-col gap-4 px-3 pb-8 pt-3 sm:gap-5 sm:px-4 sm:pt-4">
-        {authHold ? (
+        {detail.authHold ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
             <p className="text-sm text-slate-700">
-              학교알리미 API 키가 설정되지 않아 공시 상세를 불러올 수 없습니다.
+              공시 상세를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.
             </p>
           </section>
         ) : null}
 
-        {!authHold &&
-        detail.mapping === "unresolved" &&
-        !detail.schoolInfoCode ? (
+        {!detail.authHold && detail.unresolved ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
             <p className="text-sm text-slate-700">
-              이 학교 코드에 해당하는 학교알리미 공시 정보를 찾지 못했습니다.
+              이 학교의 공시 정보를 찾지 못했습니다.
             </p>
           </section>
         ) : null}
 
-        {!authHold &&
-        detail.sectionStatus.basic === "error" &&
-        !detail.schoolInfoCode ? (
+        {!detail.authHold && detail.basicError ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
             <p className="text-sm text-slate-700">
               학교 기본정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
@@ -250,7 +247,7 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
-        {/* 3. 진학/진학·진로 현황 — AdvancementSection (middle/high adapters) */}
+        {/* 3. 진학/진학·진로 현황 */}
         <AdvancementSection data={detail.advancement} schoolKind={detail.kind} />
 
         {/* 4. 학교생활 (급식 · 방과후 · 장학) */}
@@ -279,7 +276,6 @@ export function SchoolDetailView({
             출처
             <InfoTip aria-label="학교 상세 출처 안내">
               <p>데이터 출처: 학교알리미(학교정보공시)</p>
-              <p className="mt-1">주변 학교 위치: NEIS</p>
               <p className="mt-1">
                 공시 연도는 응답에 있을 때만 표시하며, 임의 연도는 표기하지
                 않습니다.

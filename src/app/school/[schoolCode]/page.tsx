@@ -5,6 +5,7 @@ import {
   parseKindParam,
   type Kind,
 } from "@/lib/school-info/identity";
+import { toProductSchoolDetail } from "@/lib/school-info/product-school-detail";
 
 type PageProps = {
   params: Promise<{ schoolCode: string }>;
@@ -26,7 +27,7 @@ export async function generateMetadata({
   const name = sp.name?.trim();
   return {
     title: name ? `${name} - 학교 상세` : `학교 상세 (${schoolCode})`,
-    description: "학교알리미 공시 기반 학교 상세",
+    description: "공시자료 기반 학교 상세",
     robots: { index: false, follow: false },
   };
 }
@@ -42,12 +43,14 @@ export default async function SchoolDetailPage({
   const addressHint = sp.address?.trim() || null;
   const kind: Kind | undefined = parseKindParam(sp.kind) ?? undefined;
 
-  const detail = await getSchoolDetail({
-    schoolCode,
-    nameHint,
-    addressHint,
-    kind,
-  });
+  const detail = toProductSchoolDetail(
+    await getSchoolDetail({
+      schoolCode,
+      nameHint,
+      addressHint,
+      kind,
+    }),
+  );
 
   const from = sp.from?.trim();
   const nearbyTab = sp.nearbyTab?.trim() || "school";

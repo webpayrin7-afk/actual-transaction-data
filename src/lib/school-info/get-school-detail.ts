@@ -3,6 +3,8 @@
  * App route id stays NEIS SD_SCHUL_CODE; SchoolInfo fetch uses resolved SCHUL_CODE.
  */
 
+import "server-only";
+
 import {
   fetchApi,
   hasApiKey,

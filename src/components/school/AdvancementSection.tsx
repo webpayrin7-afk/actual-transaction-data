@@ -1,6 +1,6 @@
-import type { AdvancementData } from "@/lib/school-info/types";
 import { canRenderAdvancementSection } from "@/lib/school-info/advancement-disclosure";
 import { advancementColorByRank } from "@/lib/school-info/advancement-category-colors";
+import type { ProductAdvancementData } from "@/lib/school-info/product-school-detail";
 
 type VisibleCategory = {
   key: string;
@@ -12,13 +12,13 @@ type VisibleCategory = {
 
 /**
  * Presentation for middle 진학현황 / high 진학·진로현황.
- * Consumes normalized AdvancementData only — no TOTAL field / mapping logic.
+ * Consumes product AdvancementData only — no provider field / mapping logic.
  */
 export function AdvancementSection({
   data,
   schoolKind,
 }: {
-  data: AdvancementData | null | undefined;
+  data: ProductAdvancementData | null | undefined;
   schoolKind: string | null | undefined;
 }) {
   const isMiddle = Boolean(schoolKind?.includes("중"));

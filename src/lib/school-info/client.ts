@@ -1,5 +1,7 @@
 /** SchoolInfo (학교알리미) OpenAPI — server-only. */
 
+import "server-only";
+
 export const BASE_URL = "https://www.schoolinfo.go.kr/openApi.do";
 export const REVALIDATE_SECONDS = 86_400;
 
