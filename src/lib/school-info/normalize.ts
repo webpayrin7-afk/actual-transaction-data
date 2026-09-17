@@ -9,9 +9,13 @@
  * - 59 방과후학교 → parseAfterSchool
  *
  * apiType 52 middle (13-다) → parseMiddleAdvancement via STRUCTURALLY_CONFIRMED map.
- * High-school apiType52 career mapping remains HOLD (separate schema).
+ * apiType 52 high (13-다) → parseHighSchoolCareer via STRUCTURALLY_CONFIRMED map.
  */
 
+import {
+  HIGH_GRADUATES_BINDING,
+  visibleHighCareerBindings,
+} from "@/lib/school-info/high-school-career-mapping";
 import {
   MIDDLE_GRADUATES_BINDING,
   visibleMiddleBindings,
@@ -395,6 +399,73 @@ export function parseMiddleAdvancement(
       if (
         percent == null &&
         count != null &&
+        graduatesRaw != null &&
+        graduatesRaw > 0
+      ) {
+        percent = Math.round((1000 * count) / graduatesRaw) / 10;
+      }
+      return {
+        key: b.key,
+        label: b.label,
+        count,
+        percent,
+      };
+    })
+    .filter((c) => c.count != null);
+
+  if (!graduates && categories.length === 0) {
+    return { status: "missing", data: null };
+  }
+
+  return {
+    status: "ok",
+    data: {
+      year: pbanYear != null ? String(pbanYear) : yearOf(row),
+      graduates,
+      categories,
+      completeness: "full_structurally_confirmed",
+    },
+  };
+}
+
+/**
+ * High-school openData apiType52 row → AdvancementData (career leaves).
+ * Separate adapter from middle — never reuses TOTAL3–14 middle bindings.
+ * 국외진학 = TOTAL5+TOTAL6 (official single leaf).
+ */
+export function parseHighSchoolCareer(
+  row: Record<string, unknown> | null,
+  pbanYear: number | null,
+): {
+  status: SectionStatus;
+  data: AdvancementData | null;
+} {
+  if (!row) return { status: "missing", data: null };
+
+  const graduatesRaw = asNumber(row[HIGH_GRADUATES_BINDING.field]);
+  const graduates =
+    graduatesRaw != null
+      ? metric("졸업생", graduatesRaw, countStr(graduatesRaw, "명"), {
+          sourceField: HIGH_GRADUATES_BINDING.field,
+        })
+      : null;
+
+  const categories = visibleHighCareerBindings()
+    .map((b) => {
+      const count = b.fields.reduce((sum, f) => {
+        const v = asNumber(row[f]);
+        return sum + (v ?? 0);
+      }, 0);
+      // Prefer OUT rate for overseas; else derive from graduates.
+      let percent: number | null = null;
+      if (b.key === "overseas") {
+        percent = asNumber(row.OUT_TOT_SUM_RATE);
+      } else if (b.fields.length === 1) {
+        const rateField = `TOTAL_RATE${b.fields[0]!.replace("TOTAL", "")}`;
+        percent = asNumber(row[rateField]);
+      }
+      if (
+        percent == null &&
         graduatesRaw != null &&
         graduatesRaw > 0
       ) {

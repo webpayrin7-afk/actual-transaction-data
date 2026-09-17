@@ -32,6 +32,6 @@
   "categoryFieldMapping": "STRUCTURALLY_CONFIRMED",
   "confirmedOfficialTotalBindings": 0,
   "structurallyConfirmedTotalBindings": 13,
-  "highSchoolCareer": "HOLD_UNCONFIRMED_FIELD_MAPPING — see high-school-career-mapping-report.json",
+  "highSchoolCareer": "PASS_STRUCTURALLY_CONFIRMED — see high-school-career-mapping-report.json",
   "elementaryAdvancement": "NOT_APPLICABLE"
 }

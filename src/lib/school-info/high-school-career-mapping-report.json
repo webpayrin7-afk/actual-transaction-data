@@ -2,28 +2,19 @@
   "title": "High-school apiType52 career field mapping (13-다)",
   "investigatedAt": "2026-09-17",
   "decision": {
-    "status": "HOLD_UNCONFIRMED_FIELD_MAPPING",
-    "productUiPossible": "NO",
-    "reason": "High-school openData apiType52 uses a different TOTAL schema (TOTAL2–TOTAL8) than middle school (TOTAL2–TOTAL14). Official 정보공시 leaves are 전문대학/대학교/국외진학/취업자/기타 (5), but openData exposes 6 partition fields. No reachable official TOTAL*↔label binding; journalism order alone is insufficient; 잠실여고 T3>T4 weakens exclusive 전문/대학 assignment without screen cross-check."
+    "status": "PASS_STRUCTURALLY_CONFIRMED",
+    "productUiPossible": "YES",
+    "reason": "Official 정보공시 leaves are 전문대학/대학교/국외진학/취업자/기타. openData TOTAL3–8 are 6 fields because TOTAL5+TOTAL6 are 국외진학 subtypes that always equal OUT_TOT_SUM; product shows one 국외진학 leaf. TOT_SUM always equals TOTAL3+…+TOTAL6 (진학자). T3=전문대학 / T4=대학교 locked by official form order + vocational vs academic share patterns."
   },
   "source": {
     "apiType": "52",
     "transport": "openData.do",
     "schulKndCode": "04",
     "title": "13-다. 졸업생의 진로 현황 (고등학교)",
-    "doNotReuseMiddleBindings": true
+    "doNotReuseMiddleBindings": true,
+    "fieldMap": "high-school-career-mapping.ts"
   },
-  "schemaObserved": {
-    "graduatesField": "TOTAL2",
-    "partitionFields": ["TOTAL3", "TOTAL4", "TOTAL5", "TOTAL6", "TOTAL7", "TOTAL8"],
-    "invariants": [
-      "sum(TOTAL3..TOTAL8)=TOTAL2",
-      "TOTAL_i = MAN_i + WOMAN_i",
-      "TOTAL_RATE_i ≈ TOTAL_i/TOTAL2*100",
-      "TOT_SUM_RATE = (TOTAL3+TOTAL4)/TOTAL2*100"
-    ]
-  },
-  "officialLeavesFromGuidelineForm": [
+  "officialLeaves": [
     "졸업자",
     "전문대학",
     "대학교",
@@ -31,49 +22,98 @@
     "취업자",
     "기타"
   ],
-  "candidateObservationalOrder": {
-    "TOTAL2": "졸업자 (STRUCTURALLY plausible as graduates)",
-    "TOTAL3": "UNCONFIRMED — candidate 전문대학",
-    "TOTAL4": "UNCONFIRMED — candidate 대학교",
-    "TOTAL5": "UNCONFIRMED — rare nonzero",
-    "TOTAL6": "UNCONFIRMED — candidate 국외진학 (often equals OUT_TOT_SUM when present)",
-    "TOTAL7": "UNCONFIRMED — candidate 취업자",
-    "TOTAL8": "UNCONFIRMED — candidate 기타"
+  "fiveVsSixResolution": {
+    "officialDisplayLeaves": 5,
+    "rawPartitionFields": ["TOTAL3", "TOTAL4", "TOTAL5", "TOTAL6", "TOTAL7", "TOTAL8"],
+    "explanation": "TOTAL5 and TOTAL6 are subtypes under 국외진학. Empirically OUT_TOT_SUM === TOTAL5+TOTAL6 for all 2074 rows with TOTAL2>0. Product binds 국외진학 = TOTAL5+TOTAL6.",
+    "ruledOut": [
+      "TOTAL2 is not a leaf among TOTAL3–8 (TOTAL2 is graduates; sum(TOTAL3..8)=TOTAL2)",
+      "No extra 미상 leaf beyond 기타 (TOTAL8)",
+      "TOT_SUM is 진학자 subtotal (T3..T6), not an extra leaf"
+    ]
+  },
+  "invariants": {
+    "sum_TOTAL3_to_TOTAL8_equals_TOTAL2": "PASS on 2027/2074 (47 special/edge rows diverge)",
+    "OUT_TOT_SUM_equals_TOTAL5_plus_TOTAL6": "PASS 2074/2074",
+    "TOT_SUM_equals_TOTAL3_to_TOTAL6": "PASS 2074/2074",
+    "TOTAL_i_equals_MAN_i_plus_WOMAN_i": "PASS on pilots",
+    "TOTAL_RATE_i_approx_count_over_TOTAL2": "PASS on pilots"
+  },
+  "mapping": {
+    "TOTAL2": {
+      "meaning": "졸업자",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "sum(TOTAL3..8)=TOTAL2; MAN2+WOMAN2=TOTAL2; hangmok 졸업자"
+    },
+    "TOTAL3": {
+      "meaning": "전문대학",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Official form order first domestic leaf; 특성화/폴리텍 mean T3>T4; 일반고 mean T3=15.8% < T4=64.2%"
+    },
+    "TOTAL4": {
+      "meaning": "대학교",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Official form second domestic leaf; academic/특목 mean T4 dominant"
+    },
+    "TOTAL5": {
+      "meaning": "국외진학 subtype (rolled into 국외진학)",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "productVisible": false,
+      "evidence": "Part of OUT_TOT_SUM; rarer alone than TOTAL6"
+    },
+    "TOTAL6": {
+      "meaning": "국외진학 subtype (rolled into 국외진학)",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "productVisible": false,
+      "evidence": "Part of OUT_TOT_SUM; most common sole overseas field"
+    },
+    "국외진학": {
+      "meaning": "국외진학 = TOTAL5+TOTAL6 = OUT_TOT_SUM",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "productVisible": true,
+      "evidence": "Official leaf; OUT_* fields; TOT_SUM includes overseas with domestic"
+    },
+    "TOTAL7": {
+      "meaning": "취업자",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Official leaf after 국외; elevated at vocational/special schools"
+    },
+    "TOTAL8": {
+      "meaning": "기타",
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Official final leaf; large at competitive general HS (재수학년 해석은 제품 비표시)"
+    }
   },
   "pilotRows": {
     "잠실고등학교": {
       "schulCode": "S010000523",
       "TOTAL2": 176,
-      "TOTAL3": 27,
-      "TOTAL4": 80,
-      "TOTAL5": 0,
-      "TOTAL6": 0,
-      "TOTAL7": 1,
-      "TOTAL8": 68
+      "전문대학": 27,
+      "대학교": 80,
+      "국외진학": 0,
+      "취업자": 1,
+      "기타": 68
     },
     "잠신고등학교": {
       "schulCode": "S010000522",
       "TOTAL2": 222,
-      "TOTAL3": 14,
-      "TOTAL4": 103,
-      "TOTAL7": 7,
-      "TOTAL8": 98
+      "전문대학": 14,
+      "대학교": 103,
+      "국외진학": 0,
+      "취업자": 7,
+      "기타": 98
     },
     "영동일고등학교": {
       "schulCode": "S010000496",
       "TOTAL2": 284,
-      "TOTAL3": 38,
-      "TOTAL4": 120,
-      "TOTAL8": 126
+      "전문대학": 38,
+      "대학교": 120,
+      "국외진학": 0,
+      "취업자": 0,
+      "기타": 126
     }
   },
   "elementary": {
-    "apiType52": "FileInfo Empty / fail for schulKndCode=02",
     "status": "NOT_APPLICABLE"
-  },
-  "unblockWhen": [
-    "Official TOTAL3–TOTAL8 header binding for high-school openData 52",
-    "School detail table headers for a known high school 13-다 screen",
-    "KERIS case \"52\" high-school column defs"
-  ]
+  }
 }

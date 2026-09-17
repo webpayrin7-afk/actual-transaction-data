@@ -69,6 +69,24 @@ export const NEIS_TO_SCHOOLINFO_LINKS: readonly NeisSchoolInfoLink[] = [
     sidoCode: SEOUL_SIDO,
     sggCode: SONGPA_SGG,
   },
+  {
+    neisSdSchulCode: "7010106",
+    schoolInfoSchulCode: "S010000522",
+    name: "잠신고등학교",
+    addressNeedle: "잠실로24",
+    kind: "high",
+    sidoCode: SEOUL_SIDO,
+    sggCode: SONGPA_SGG,
+  },
+  {
+    neisSdSchulCode: "7010712",
+    schoolInfoSchulCode: "S010000496",
+    name: "영동일고등학교",
+    addressNeedle: "석촌호수로93",
+    kind: "high",
+    sidoCode: SEOUL_SIDO,
+    sggCode: SONGPA_SGG,
+  },
 ] as const;
 
 /** Kind label only — never used as permanent school identity. */

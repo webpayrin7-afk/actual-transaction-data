@@ -3,9 +3,9 @@
  * Confirmed product apiTypes: 0 / 09 / 22 / 35 / 55 / 59.
  * apiType 09 = 학년별·학급별 학생수 → core students/classes (never 진학/특목).
  * apiType 52 middle (13-다) = STRUCTURALLY_CONFIRMED category bindings.
- * apiType 52 high = HOLD_UNCONFIRMED_FIELD_MAPPING (different TOTAL schema).
+ * apiType 52 high = STRUCTURALLY_CONFIRMED career leaves (TOTAL5+6→국외진학).
  *
- * UI hierarchy (middle): 학교 현황 → 진학 현황 → 학교생활 → 기본정보
+ * UI hierarchy (middle/high): 학교 현황 → 진학(·진로) 현황 → 학교생활 → 기본정보
  */
 
 export type SectionStatus = "ok" | "missing" | "error" | "auth_hold";
