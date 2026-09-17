@@ -25,21 +25,30 @@ import {
 } from "@/lib/school-info/identity";
 import { ADVANCEMENT_API52 } from "@/lib/school-info/advancement-disclosure";
 import {
+  fetchOpenDataList,
+  pickOpenDataRow,
+} from "@/lib/school-info/open-data";
+import {
   asNumber,
   attribution,
   parseAfterSchool,
   parseBasic,
   parseMeal,
+  parseMiddleAdvancement,
   parseScholarship,
   parseStudentsTeachers,
   parseTeacherHeadcount,
 } from "@/lib/school-info/normalize";
-import type { Metric, SchoolDetail, SectionStatus } from "@/lib/school-info/types";
+import type {
+  AdvancementData,
+  Metric,
+  SchoolDetail,
+  SectionStatus,
+} from "@/lib/school-info/types";
 
 /**
- * ADVANCEMENT_API52 = HOLD_UNCONFIRMED_FIELD_MAPPING.
- * Do not fetch apiType52 or scrape 09/0 into a fake 진학현황 block.
- * Unblock only per advancement-disclosure.ts / mapping report SOT.
+ * Middle advancement: openData apiType52 when ADVANCEMENT_API52 is PASS_*.
+ * High/elementary: never fetch middle bindings; high career remains HOLD.
  */
 void ADVANCEMENT_API52;
 
@@ -254,6 +263,51 @@ function rawNum(m: Metric | null): number | null {
   return m ? asNumber(m.raw) : null;
 }
 
+async function loadMiddleAdvancement(p: {
+  schoolInfoCode: string;
+  kind: Kind;
+  sidoCode: string;
+  sggCode: string;
+  yearList: number[];
+}): Promise<{
+  data: AdvancementData | null;
+  status: SectionStatus;
+  year: number | null;
+}> {
+  // Middle only — do not call apiType52 for elementary/high with middle map.
+  if (p.kind !== "middle") {
+    return { data: null, status: "missing", year: null };
+  }
+  if (
+    ADVANCEMENT_API52 !== "PASS" &&
+    ADVANCEMENT_API52 !== "PASS_STRUCTURALLY_CONFIRMED"
+  ) {
+    return { data: null, status: "missing", year: null };
+  }
+
+  for (const year of p.yearList) {
+    try {
+      const res = await fetchOpenDataList({
+        apiType: "52",
+        year,
+        kindCode: "03",
+        sidoCode: p.sidoCode,
+        sggCode: p.sggCode,
+      });
+      if (!res.httpOk || res.list.length === 0) continue;
+      const row = pickOpenDataRow(res.list, p.schoolInfoCode);
+      if (!row) continue;
+      const parsed = parseMiddleAdvancement(row, year);
+      if (parsed.data) {
+        return { data: parsed.data, status: parsed.status, year };
+      }
+    } catch {
+      // try older year
+    }
+  }
+  return { data: null, status: "missing", year: null };
+}
+
 async function loadSchoolDetailBySchoolInfoCode(p: {
   appSchoolId: string;
   schoolInfoCode: string;
@@ -273,15 +327,29 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
     yearList: p.yearList,
   };
 
-  const [basicSec, studentsSec, teachersSec, mealSec, afterSec, scholarshipSec] =
-    await Promise.all([
-      fetchSectionBySchoolInfoCode({ ...common, apiType: "0" }),
-      fetchSectionBySchoolInfoCode({ ...common, apiType: "09" }),
-      fetchSectionBySchoolInfoCode({ ...common, apiType: "22" }),
-      fetchSectionBySchoolInfoCode({ ...common, apiType: "35" }),
-      fetchSectionBySchoolInfoCode({ ...common, apiType: "59" }),
-      fetchSectionBySchoolInfoCode({ ...common, apiType: "55" }),
-    ]);
+  const [
+    basicSec,
+    studentsSec,
+    teachersSec,
+    mealSec,
+    afterSec,
+    scholarshipSec,
+    advancementLoad,
+  ] = await Promise.all([
+    fetchSectionBySchoolInfoCode({ ...common, apiType: "0" }),
+    fetchSectionBySchoolInfoCode({ ...common, apiType: "09" }),
+    fetchSectionBySchoolInfoCode({ ...common, apiType: "22" }),
+    fetchSectionBySchoolInfoCode({ ...common, apiType: "35" }),
+    fetchSectionBySchoolInfoCode({ ...common, apiType: "59" }),
+    fetchSectionBySchoolInfoCode({ ...common, apiType: "55" }),
+    loadMiddleAdvancement({
+      schoolInfoCode: p.schoolInfoCode,
+      kind: p.kind,
+      sidoCode: p.sidoCode,
+      sggCode: p.sggCode,
+      yearList: p.yearList,
+    }),
+  ]);
 
   // apiType 09 → students/classes only (학년별·학급별 학생수). Not 진학/특목.
   const basic = parseBasic(basicSec.row);
@@ -322,6 +390,7 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
     meal.year ?? (mealSec.year != null ? String(mealSec.year) : null),
     after.year,
     scholarship.year,
+    advancementLoad.data?.year ?? null,
     basicSec.year != null ? String(basicSec.year) : null,
     studentsSec.year != null ? String(studentsSec.year) : null,
   ].filter((y): y is string => !!y);
@@ -361,8 +430,7 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
       teachers,
       studentsPerTeacher,
     },
-    // HOLD: do not fetch/parse apiType52; slot reserved for future adapter.
-    advancement: null,
+    advancement: advancementLoad.data,
     schoolLife: {
       mealPerStudent: meal.meal,
       afterSchoolPrograms: after.programs,
@@ -376,7 +444,7 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
       meal: meal.status === "ok" ? "ok" : mealSec.status,
       afterSchool: after.status === "ok" ? "ok" : afterSec.status,
       scholarship: scholarshipBlock ? "ok" : scholarshipSec.status,
-      advancement: "missing",
+      advancement: advancementLoad.status,
     },
     auth: {
       keyPresent: true,
