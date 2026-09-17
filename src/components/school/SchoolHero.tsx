@@ -83,7 +83,7 @@ export function SchoolHero({
       </div>
 
       {address ? (
-        <p className="mt-2 flex gap-1.5 pr-3 text-[12px] leading-5 text-slate-600 sm:pr-4 sm:text-[13px]">
+        <p className="mt-2 flex gap-1.5 pl-3.5 text-[12px] leading-5 text-slate-600 sm:pl-4 sm:text-[13px]">
           <MapPin
             className="mt-0.5 size-3.5 shrink-0 text-slate-400"
             aria-hidden
@@ -93,7 +93,7 @@ export function SchoolHero({
       ) : null}
 
       {(office || foundedOn) && (
-        <p className="mt-1 pr-3 text-[12px] leading-5 text-slate-600 sm:pr-4 sm:text-[13px]">
+        <p className="mt-1 pl-3.5 text-[12px] leading-5 text-slate-600 sm:pl-4 sm:text-[13px]">
           {[office, foundedOn ? `설립/개교 ${foundedOn}` : null]
             .filter(Boolean)
             .join(" · ")}
@@ -101,7 +101,7 @@ export function SchoolHero({
       )}
 
       {(tel || homepageHref) && (
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 pr-3 text-[12px] leading-5 sm:pr-4 sm:text-[13px]">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 pl-3.5 text-[12px] leading-5 sm:pl-4 sm:text-[13px]">
           {tel ? (
             <a
               href={`tel:${tel.replace(/\s+/g, "")}`}
