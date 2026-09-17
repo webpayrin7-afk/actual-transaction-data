@@ -1192,7 +1192,7 @@ export function ComplexNearbyLifeSection({
               {section.level === "high" &&
               highDistrict &&
               section.places.length > 0 ? (
-                <p className="mb-1 mt-3 text-[12px] font-medium text-slate-500">
+                <p className="mb-1 mt-2.5 text-[12px] font-medium text-slate-500">
                   주변 고등학교
                 </p>
               ) : null}

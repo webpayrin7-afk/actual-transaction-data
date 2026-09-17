@@ -108,6 +108,7 @@ function main() {
 
   const preview = ranked.slice(0, SCHOOL_DISTRICT_DEFAULT_VISIBLE);
   assert.equal(preview.length, SCHOOL_DISTRICT_DEFAULT_VISIBLE);
+  // Compact UI no longer shows these as default rows; constant remains for sheet/helpers.
   assert.equal(SCHOOL_DISTRICT_DEFAULT_VISIBLE, 3);
 
   assert.equal(formatDistrictDistance(186), "186m");

@@ -5,11 +5,14 @@ import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import {
-  SCHOOL_DISTRICT_DEFAULT_VISIBLE,
   formatDistrictDistance,
   type ProductSchoolDistrict,
 } from "@/lib/complex-detail/school-district";
 
+/**
+ * Compact school-district info layer (not a nearby-school list).
+ * Membership list opens only via bottom sheet.
+ */
 export function SchoolDistrictBlock({
   district,
   onOpenSchool,
@@ -23,9 +26,6 @@ export function SchoolDistrictBlock({
   }) => void;
 }) {
   const [sheetOpen, setSheetOpen] = useState(false);
-  const withDistance = district.members.filter((m) => m.distanceM != null);
-  const preview = withDistance.slice(0, SCHOOL_DISTRICT_DEFAULT_VISIBLE);
-  const showAllCta = district.memberCount > SCHOOL_DISTRICT_DEFAULT_VISIBLE;
 
   if (!district.memberCount) return null;
 
@@ -34,6 +34,7 @@ export function SchoolDistrictBlock({
       className="mt-1"
       data-testid="school-district-block"
       data-district-id={district.id}
+      data-district-preview-count="0"
     >
       <div className="flex items-center gap-1">
         <p className="text-[14px] font-semibold tracking-tight text-slate-800">
@@ -49,44 +50,14 @@ export function SchoolDistrictBlock({
         {district.description}
       </p>
 
-      {preview.length > 0 ? (
-        <ul className="mt-2 space-y-1">
-          {preview.map((m) => (
-            <li key={`${m.schoolCode ?? m.name}`}>
-              <DistrictSchoolRow
-                name={m.name}
-                establishment={m.establishment}
-                distanceM={m.distanceM}
-                linkable={m.detailLinkable}
-                onClick={() =>
-                  onOpenSchool({
-                    schoolCode: m.schoolCode,
-                    name: m.name,
-                    level: district.level,
-                    address: null,
-                  })
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-2 text-[12px] text-slate-500">
-          학교군 소속 {district.memberCount}개교 · 단지와 가까운 순으로 거리를
-          계산합니다.
-        </p>
-      )}
-
-      {showAllCta ? (
-        <button
-          type="button"
-          onClick={() => setSheetOpen(true)}
-          className="mt-2 inline-flex items-center gap-0.5 text-[12px] font-medium text-[color:var(--lab-teal-700)] hover:underline"
-        >
-          학교군 전체 보기
-          <ChevronRight className="size-3.5" aria-hidden />
-        </button>
-      ) : null}
+      <button
+        type="button"
+        onClick={() => setSheetOpen(true)}
+        className="mt-1.5 inline-flex items-center gap-0.5 text-[12px] font-medium text-[color:var(--lab-teal-700)] hover:underline"
+      >
+        학교군 전체 보기
+        <ChevronRight className="size-3.5" aria-hidden />
+      </button>
 
       <LabBottomSheet
         open={sheetOpen}
@@ -98,9 +69,9 @@ export function SchoolDistrictBlock({
           학교군 소속 {district.memberCount}개교
         </p>
         <p className="mt-1 text-[11px] leading-4 text-slate-500">
-          {district.infoText}
+          학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.
         </p>
-        <ul className="mt-3 space-y-1">
+        <ul className="mt-3 space-y-1" data-testid="school-district-sheet-list">
           {district.members.map((m) => (
             <li key={`all-${m.schoolCode ?? m.name}`}>
               <DistrictSchoolRow
