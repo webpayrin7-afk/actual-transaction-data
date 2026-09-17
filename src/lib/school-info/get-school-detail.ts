@@ -15,6 +15,8 @@ import {
   KIND,
   SEOUL_SIDO,
   SONGPA_SGG,
+  findKnownLink,
+  inferKindFromNameHint,
   pickByCode,
   resolveSchoolInfoCode,
   years,
@@ -183,6 +185,7 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
     name: nameHint?.trim() || schoolCode,
     kind: null,
     foundation: null,
+    coedu: null,
     address: null,
     tel: null,
     homepage: null,
@@ -343,6 +346,7 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
     name: basic.name || p.nameHint || p.appSchoolId,
     kind: basic.kind,
     foundation: basic.foundation,
+    coedu: basic.coedu,
     address: basic.address,
     tel: basic.tel,
     homepage: basic.homepage,
@@ -387,10 +391,15 @@ export async function getSchoolDetail(
   const appSchoolId = params.schoolCode.trim();
   const nameHint = params.nameHint?.trim() || null;
   const addressHint = params.addressHint?.trim() || null;
-  const kind = params.kind ?? "middle";
+  const known = findKnownLink(appSchoolId);
+  const kind: Kind =
+    params.kind ??
+    known?.kind ??
+    inferKindFromNameHint(nameHint) ??
+    "middle";
   const kindCode = KIND[kind];
-  const sidoCode = params.sidoCode ?? SEOUL_SIDO;
-  const sggCode = params.sggCode ?? SONGPA_SGG;
+  const sidoCode = params.sidoCode ?? known?.sidoCode ?? SEOUL_SIDO;
+  const sggCode = params.sggCode ?? known?.sggCode ?? SONGPA_SGG;
   const yearList = years();
 
   if (!hasApiKey()) return authHold(appSchoolId, nameHint);

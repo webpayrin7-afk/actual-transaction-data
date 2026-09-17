@@ -301,6 +301,7 @@ export function parseBasic(row: Record<string, unknown> | null): {
   name: string | null;
   kind: string | null;
   foundation: string | null;
+  coedu: string | null;
   address: string | null;
   tel: string | null;
   homepage: string | null;
@@ -314,6 +315,7 @@ export function parseBasic(row: Record<string, unknown> | null): {
       name: null,
       kind: null,
       foundation: null,
+      coedu: null,
       address: null,
       tel: null,
       homepage: null,
@@ -342,14 +344,35 @@ export function parseBasic(row: Record<string, unknown> | null): {
     }
   }
 
+  const kindFromCode = (() => {
+    const code = asString(row.SCHUL_KND_SC_CODE, row.SCHUL_KND_CODE);
+    if (code === "02") return "초등학교";
+    if (code === "03") return "중학교";
+    if (code === "04") return "고등학교";
+    if (code === "05") return "특수학교";
+    return null;
+  })();
+
+  const coeduRaw = asString(row.COEDU_SC_NM, row.COEDU_SC_CODE);
+  const coedu =
+    coeduRaw === "남"
+      ? "남학교"
+      : coeduRaw === "여"
+        ? "여학교"
+        : coeduRaw;
+
   return {
     name: asString(row.SCHUL_NM),
-    kind: asString(
-      row.SCHUL_CRSE_SC_VALUE_NM,
-      row.SCHUL_KND_SC_NM,
-      row.SCHUL_KND_NM,
-    ),
+    kind:
+      kindFromCode ||
+      asString(
+        row.SCHUL_CRSE_SC_VALUE_NM,
+        row.SCHUL_KND_SC_NM,
+        row.SCHUL_KND_NM,
+      ),
     foundation: asString(row.FOND_SC_NM, row.FOUND_SC_NM, row.FOND_SC_CODE),
+    // SchoolInfo often stores the label in COEDU_SC_CODE (e.g. 남녀공학).
+    coedu,
     address: asString(road || null, row.SCHUL_RDNMA, row.ADRES_BRKDN, row.ORG_RDNMA),
     tel: asString(row.USER_TELNO, row.ORG_TELNO, row.TELNO),
     homepage: asString(row.HMPG_ADRES, row.HMPG_URL, row.HOMEPAGE),

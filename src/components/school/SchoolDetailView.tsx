@@ -158,6 +158,12 @@ export function SchoolDetailView({
   if (detail.foundation) {
     basicRows.push({ label: "설립구분", value: detail.foundation });
   }
+  if (detail.coedu) {
+    basicRows.push({ label: "남녀공학", value: detail.coedu });
+  }
+  if (detail.kind) {
+    basicRows.push({ label: "학교급", value: detail.kind });
+  }
   if (detail.address) {
     basicRows.push({ label: "주소", value: detail.address, long: true });
   }
@@ -257,6 +263,16 @@ export function SchoolDetailView({
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
             <p className="text-sm text-slate-700">
               학교알리미 API 키가 설정되지 않아 공시 상세를 불러올 수 없습니다.
+            </p>
+          </section>
+        ) : null}
+
+        {!authHold &&
+        detail.mapping === "unresolved" &&
+        !detail.schoolInfoCode ? (
+          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
+            <p className="text-sm text-slate-700">
+              이 학교 코드에 해당하는 학교알리미 공시 정보를 찾지 못했습니다.
             </p>
           </section>
         ) : null}

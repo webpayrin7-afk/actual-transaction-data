@@ -25,6 +25,8 @@ export type SchoolDetail = {
   name: string;
   kind: string | null;
   foundation: string | null;
+  /** 남녀공학 / 남학교 / 여학교 — SchoolInfo COEDU when present. */
+  coedu: string | null;
   address: string | null;
   tel: string | null;
   homepage: string | null;

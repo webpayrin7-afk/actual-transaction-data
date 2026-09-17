@@ -1126,7 +1126,11 @@ export function ComplexNearbyLifeSection({
                             name: s.name,
                             from,
                             nearbyTab: "school",
+                            kind: s.level,
                           });
+                          if (s.address?.trim()) {
+                            qs.set("address", s.address.trim());
+                          }
                           router.push(`/school/${encodeURIComponent(code)}?${qs}`);
                         }}
                         aria-label={`${s.name} 상세 보기`}
