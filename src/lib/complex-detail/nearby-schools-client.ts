@@ -56,12 +56,16 @@ export type NearbySchoolsClientResult = {
 export async function loadNearbySchoolsForMap(params: {
   aptName: string;
   center: LatLng;
+  complexId?: string | null;
 }): Promise<NearbySchoolsClientResult> {
   const qs = new URLSearchParams({
     aptName: params.aptName,
     lat: String(params.center.lat),
     lng: String(params.center.lng),
   });
+  if (params.complexId?.trim()) {
+    qs.set("complexId", params.complexId.trim());
+  }
   const res = await fetch(`/api/complex-nearby-schools?${qs}`);
   if (!res.ok) {
     throw new Error("인근 학교 정보를 불러오지 못했습니다.");
@@ -79,14 +83,18 @@ export async function loadNearbySchoolsForMap(params: {
     data.disclaimer ||
     "학교 위치 기반 인근 정보이며 배정학교/통학구역을 의미하지 않습니다.";
 
+  // Preserve district payload even on early status exits when API sent it.
+  const apiDistricts = data.schoolDistricts ?? null;
+
   if (data.status === "PILOT_ONLY") {
-    return emptyResult("PILOT_ONLY", data.reason, disclaimer);
+    return emptyResult("PILOT_ONLY", data.reason, disclaimer, apiDistricts);
   }
   if (data.status === "ERROR") {
     return emptyResult(
       "ERROR",
       data.reason || "인근 학교 정보를 불러오지 못했습니다.",
       disclaimer,
+      apiDistricts,
     );
   }
 
@@ -168,7 +176,7 @@ export async function loadNearbySchoolsForMap(params: {
 
   const selected = selectDisplayedSchools(resolved);
 
-  let schoolDistricts = data.schoolDistricts ?? null;
+  let schoolDistricts = apiDistricts;
   if (schoolDistricts?.high) {
     schoolDistricts = {
       ...schoolDistricts,
@@ -222,6 +230,7 @@ function emptyResult(
   status: "PILOT_ONLY" | "ERROR" | "EMPTY" | "HOLD",
   reason: string | null,
   disclaimer: string,
+  schoolDistricts: ProductSchoolDistrictsPayload | null = null,
 ): NearbySchoolsClientResult {
   return {
     status,
@@ -237,6 +246,6 @@ function emptyResult(
     withoutCoords: 0,
     places: [],
     categories: [],
-    schoolDistricts: null,
+    schoolDistricts,
   };
 }

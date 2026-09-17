@@ -568,6 +568,7 @@ export function ComplexNearbyLifeSection({
     queryKey: [
       "complex-nearby-schools",
       aptName,
+      identity?.complexId ?? null,
       coords?.lat ?? null,
       coords?.lng ?? null,
     ],
@@ -575,6 +576,7 @@ export function ComplexNearbyLifeSection({
       loadNearbySchoolsForMap({
         aptName,
         center: coords!,
+        complexId: identity?.complexId ?? null,
       }),
     enabled: tab === "school" && !!coords && geocodeStatus === "ready",
     staleTime: 24 * 60 * 60 * 1000,
@@ -1135,15 +1137,20 @@ export function ComplexNearbyLifeSection({
         );
       }
       if (school.status === "ERROR") {
-        return (
-          <EmptyBlock>
-            {school.reason || "인근 학교 정보를 불러오지 못했습니다."}
-          </EmptyBlock>
-        );
+        if (!school.schoolDistricts?.high) {
+          return (
+            <EmptyBlock>
+              {school.reason || "인근 학교 정보를 불러오지 못했습니다."}
+            </EmptyBlock>
+          );
+        }
+        // Keep district visible even when nearby NEIS fetch failed.
       }
       if (
         school.status !== "READY" &&
-        !(school.status === "EMPTY" && school.schoolDistricts?.high)
+        school.status !== "EMPTY" &&
+        school.status !== "ERROR" &&
+        !(school.schoolDistricts?.high)
       ) {
         return (
           <EmptyBlock>
@@ -1168,11 +1175,34 @@ export function ComplexNearbyLifeSection({
       return (
         <div className="space-y-4">
           {school.categories.map((section) => (
-            <div key={section.level}>
+            <div key={section.level} data-school-level={section.level}>
               <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
                 {section.label}
               </p>
-              <ul className="space-y-1">
+              {section.level === "high" && highDistrict ? (
+                <SchoolDistrictBlock
+                  district={highDistrict}
+                  onOpenSchool={(s) => {
+                    if (!openSchoolDetail(s)) {
+                      /* no code — stay on list */
+                    }
+                  }}
+                />
+              ) : null}
+              {section.level === "high" &&
+              highDistrict &&
+              section.places.length > 0 ? (
+                <p className="mb-1 mt-3 text-[12px] font-medium text-slate-500">
+                  주변 고등학교
+                </p>
+              ) : null}
+              <ul
+                className={
+                  section.level === "high" && highDistrict
+                    ? "mt-1 space-y-1"
+                    : "space-y-1"
+                }
+              >
                 {section.places.map((s) => {
                   const metaParts = [
                     s.establishment,
@@ -1212,20 +1242,10 @@ export function ComplexNearbyLifeSection({
                   );
                 })}
               </ul>
-              {section.level === "high" && highDistrict ? (
-                <SchoolDistrictBlock
-                  district={highDistrict}
-                  onOpenSchool={(s) => {
-                    if (!openSchoolDetail(s)) {
-                      /* no code — stay on list */
-                    }
-                  }}
-                />
-              ) : null}
             </div>
           ))}
           {!hasHighCategory && highDistrict ? (
-            <div key="high-district-only">
+            <div key="high-district-only" data-school-level="high">
               <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
                 고등학교
               </p>

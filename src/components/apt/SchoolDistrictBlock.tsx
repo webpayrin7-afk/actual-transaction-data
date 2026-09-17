@@ -30,7 +30,11 @@ export function SchoolDistrictBlock({
   if (!district.memberCount) return null;
 
   return (
-    <div className="mt-3 border-t border-slate-100 pt-3">
+    <div
+      className="mt-1"
+      data-testid="school-district-block"
+      data-district-id={district.id}
+    >
       <div className="flex items-center gap-1">
         <p className="text-[14px] font-semibold tracking-tight text-slate-800">
           {district.officialName}

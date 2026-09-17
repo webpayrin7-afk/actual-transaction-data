@@ -16,6 +16,7 @@ import {
   toSchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
 import { buildSchoolDistrictsPayload } from "@/lib/complex-detail/school-district-server";
+import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 86400;
@@ -23,6 +24,7 @@ export const revalidate = 86400;
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const aptName = searchParams.get("aptName")?.trim() || "";
+  const complexId = searchParams.get("complexId")?.trim() || "";
   const lat = Number(searchParams.get("lat"));
   const lng = Number(searchParams.get("lng"));
 
@@ -54,7 +56,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  if (!isJamsilElsSchoolPilot(aptName)) {
+  const pilot =
+    isJamsilElsSchoolPilot(aptName) ||
+    complexId === JAMSIL_ELS_MAP_PILOT.complexId;
+
+  if (!pilot) {
     return NextResponse.json({
       status: "PILOT_ONLY",
       reason: "인근 학교 실데이터는 잠실엘스 pilot만 지원합니다.",
@@ -65,8 +71,20 @@ export async function GET(req: NextRequest) {
       schools: [],
       categories: [],
       needsClientGeocode: false,
+      schoolDistricts: {
+        middle: null,
+        high: null,
+        middleStatus: "NOT_APPLICABLE",
+        highStatus: "NOT_APPLICABLE",
+      },
     });
   }
+
+  // District payload is independent of NEIS nearby fetch — never drop it on NEIS errors.
+  const schoolDistricts = buildSchoolDistrictsPayload({
+    aptName,
+    complexId: complexId || null,
+  });
 
   try {
     const result = await fetchJamsilElsPilotSchools({
@@ -131,7 +149,7 @@ export async function GET(req: NextRequest) {
       needsClientGeocode,
       schools,
       categories: [],
-      schoolDistricts: buildSchoolDistrictsPayload({ aptName }),
+      schoolDistricts,
     });
   } catch {
     return NextResponse.json({
@@ -142,6 +160,7 @@ export async function GET(req: NextRequest) {
       schools: [],
       categories: [],
       needsClientGeocode: false,
+      schoolDistricts,
     });
   }
 }

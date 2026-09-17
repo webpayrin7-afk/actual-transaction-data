@@ -1,9 +1,8 @@
 /**
  * Server-only school district seed loader + product builder.
+ * Seed is statically imported so Vercel/Next bundles it (no cwd readFile).
  */
 
-import { readFileSync } from "fs";
-import { join } from "path";
 import { isJamsilElsSchoolPilot } from "@/lib/complex-detail/jamsil-els-school-pilot";
 import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 import type {
@@ -12,6 +11,7 @@ import type {
   SchoolDistrictConfidence,
   SchoolDistrictLevel,
 } from "@/lib/complex-detail/school-district";
+import gangdongSongpaHighSeed from "../../../data/poc/school-district/seoul-high-gangdong-songpa.v1.json";
 
 export type SchoolDistrictMemberSeed = {
   name: string;
@@ -47,24 +47,24 @@ export type SchoolDistrictSeed = {
   }>;
 };
 
-let cachedHighSeed: SchoolDistrictSeed | null = null;
-
 export function loadGangdongSongpaHighSeed(): SchoolDistrictSeed {
-  if (cachedHighSeed) return cachedHighSeed;
-  const path = join(
-    process.cwd(),
-    "data/poc/school-district/seoul-high-gangdong-songpa.v1.json",
-  );
-  cachedHighSeed = JSON.parse(
-    readFileSync(path, "utf8"),
-  ) as SchoolDistrictSeed;
-  return cachedHighSeed;
+  return gangdongSongpaHighSeed as SchoolDistrictSeed;
+}
+
+function isPilotComplex(params: {
+  aptName: string;
+  complexId?: string | null;
+}): boolean {
+  const id = params.complexId?.trim();
+  if (id && id === JAMSIL_ELS_MAP_PILOT.complexId) return true;
+  return isJamsilElsSchoolPilot(params.aptName);
 }
 
 export function buildSchoolDistrictsPayload(params: {
   aptName: string;
+  complexId?: string | null;
 }): ProductSchoolDistrictsPayload {
-  if (!isJamsilElsSchoolPilot(params.aptName)) {
+  if (!isPilotComplex(params)) {
     return {
       middle: null,
       high: null,
