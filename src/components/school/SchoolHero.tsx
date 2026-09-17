@@ -93,10 +93,11 @@ export function SchoolHero({
       ) : null}
 
       {(office || foundedOn) && (
-        <div className="mt-1 space-y-0.5 text-[12px] leading-5 text-slate-600 sm:text-[13px]">
-          {office ? <p>{office}</p> : null}
-          {foundedOn ? <p>설립/개교 {foundedOn}</p> : null}
-        </div>
+        <p className="mt-1 text-[12px] leading-5 text-slate-600 sm:text-[13px]">
+          {[office, foundedOn ? `설립/개교 ${foundedOn}` : null]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
       )}
 
       {(tel || homepageHref) && (
