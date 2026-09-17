@@ -60,7 +60,7 @@ export function SchoolHero({
   return (
     <header className="px-3 pt-2 sm:px-4 sm:pt-3">
       {(kind || foundation || coedu) && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 pl-3.5 sm:pl-4">
           {kind ? <HeroChip tone="kind">{kind}</HeroChip> : null}
           {foundation ? (
             <HeroChip tone="foundation">{foundation}</HeroChip>
