@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AptDetailEnterTransition } from "@/components/apt/AptDetailEnterTransition";
 import { SchoolDetailView } from "@/components/school/SchoolDetailView";
 import { getSchoolDetail } from "@/lib/school-info/get-school-detail";
 import {
@@ -58,7 +59,9 @@ export default async function SchoolDetailPage({
 
   return (
     <main className="flex-1 overflow-x-clip">
-      <SchoolDetailView detail={detail} backHref={backHref} />
+      <AptDetailEnterTransition>
+        <SchoolDetailView detail={detail} backHref={backHref} />
+      </AptDetailEnterTransition>
     </main>
   );
 }

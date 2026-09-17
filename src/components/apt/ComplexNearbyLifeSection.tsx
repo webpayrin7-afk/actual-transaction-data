@@ -45,6 +45,7 @@ import {
 } from "@/lib/complex-detail/nearby-schools-client";
 import {
   SCHOOL_LEVEL_BADGE,
+  type NearbySchoolPlace,
   type SchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
 import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
@@ -430,6 +431,33 @@ export function ComplexNearbyLifeSection({
     });
   }, []);
 
+  /** Same URL as school list rows — marker + list must stay in sync. */
+  const openSchoolDetail = useCallback(
+    (s: Pick<NearbySchoolPlace, "schoolCode" | "name" | "level" | "address">) => {
+      const code = s.schoolCode?.trim();
+      if (!code) return false;
+      let from = pathname;
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        params.delete("nearbyTab");
+        const q = params.toString();
+        from = `${pathname}${q ? `?${q}` : ""}`;
+      }
+      const qs = new URLSearchParams({
+        name: s.name,
+        from,
+        nearbyTab: "school",
+        kind: s.level,
+      });
+      if (s.address?.trim()) {
+        qs.set("address", s.address.trim());
+      }
+      router.push(`/school/${encodeURIComponent(code)}?${qs}`);
+      return true;
+    },
+    [pathname, router],
+  );
+
   useEffect(() => {
     let cancelled = false;
     const timer = window.setTimeout(() => {
@@ -712,6 +740,12 @@ export function ComplexNearbyLifeSection({
   const onMarkerClick = useCallback(
     (id: string) => {
       setSelectedId(id);
+      if (tab === "school" && id !== "complex") {
+        pendingListScrollIdRef.current = null;
+        const place = schoolQuery.data?.places.find((p) => p.id === id);
+        if (place) openSchoolDetail(place);
+        return;
+      }
       if (tab !== "living" || id === "complex") {
         pendingListScrollIdRef.current = null;
         return;
@@ -726,7 +760,13 @@ export function ComplexNearbyLifeSection({
         setExpanded(true);
       }
     },
-    [tab, livingValidPlaces, expanded],
+    [
+      tab,
+      livingValidPlaces,
+      expanded,
+      schoolQuery.data?.places,
+      openSchoolDetail,
+    ],
   );
 
   // Marker → list: scroll after expand renders the target row (DOM only).
@@ -1107,31 +1147,9 @@ export function ComplexNearbyLifeSection({
                       <button
                         type="button"
                         onClick={() => {
-                          const code = s.schoolCode?.trim();
-                          if (!code) {
+                          if (!openSchoolDetail(s)) {
                             selectFromList(s.id);
-                            return;
                           }
-                          // Clean apt URL only — nearbyTab/hash are added on back.
-                          let from = pathname;
-                          if (typeof window !== "undefined") {
-                            const params = new URLSearchParams(
-                              window.location.search,
-                            );
-                            params.delete("nearbyTab");
-                            const q = params.toString();
-                            from = `${pathname}${q ? `?${q}` : ""}`;
-                          }
-                          const qs = new URLSearchParams({
-                            name: s.name,
-                            from,
-                            nearbyTab: "school",
-                            kind: s.level,
-                          });
-                          if (s.address?.trim()) {
-                            qs.set("address", s.address.trim());
-                          }
-                          router.push(`/school/${encodeURIComponent(code)}?${qs}`);
                         }}
                         aria-label={`${s.name} 상세 보기`}
                         className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition ${selectedRowClass(selectedId === s.id)}`}
