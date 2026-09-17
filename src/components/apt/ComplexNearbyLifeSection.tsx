@@ -1395,7 +1395,7 @@ export function ComplexNearbyLifeSection({
         </div>
       </div>
 
-      <div className={tab === "school" ? "mt-3 space-y-2.5" : "mt-3 space-y-3"}>
+      <div className="mt-3 space-y-3">
         {tab === "commerce" && commerceSnapshot ? (
           <ComplexCommerceMeta snapshot={commerceSnapshot} />
         ) : null}
