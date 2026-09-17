@@ -1,0 +1,101 @@
+{
+  "status": "HOLD",
+  "holdReason": "openData APITYPE=52 returns matched school rows, but no reachable official source binds TOTAL2–TOTAL14 to Korean labels (opendata.js case 52 empty; open-data UI omits item 52; school-page/Excel header endpoints 서비스 일시 중단). Mapping report: apitype52-total-mapping-report.json. Zero guessed mappings filled.",
+  "mappingDecision": "HOLD",
+  "productUiPossible": "NO",
+  "source": {
+    "title": "13-다. 졸업생의 진로 현황",
+    "provider": "학교알리미(한국교육학술정보원)",
+    "officialPath": "https://www.schoolinfo.go.kr/ng/go/pnnggo_a01_l2.do",
+    "deliveryType": "openData.do JSON (공개용데이터 API)",
+    "apiType": "52",
+    "jgHangmokCd": "52",
+    "gsHangmokNo": "13-다",
+    "latestPublishedYear": 2025,
+    "yearProbe": {
+      "2026": "not published yet (message: 2026년 정보는 2026년 12월 01일 공개됩니다.)",
+      "2025": "list returned (nationwide middle schools via openData.do)",
+      "2024": "list returned"
+    },
+    "dataGoKrCatalog": "https://www.data.go.kr/data/15014351/fileData.do",
+    "rawFileCommitted": false,
+    "fetchedAt": "2026-09-17",
+    "mappingReport": "apitype52-total-mapping-report.json"
+  },
+  "identity": {
+    "appNeisCode": "7130202",
+    "schoolInfoCode": "S010000888",
+    "disclosureSchulCode": "S010000888",
+    "disclosureSchulNm": "잠실중학교",
+    "region": "서울특별시 송파구",
+    "schoolLevelCode": "03",
+    "match": "PASS"
+  },
+  "officialCategorySemanticsFromGuideline": [
+    "졸업자",
+    "진학자-일반고",
+    "진학자-특성화고",
+    "진학자-특수목적고(과학고, 외고·국제고, 예고·체고, 마이스터고)",
+    "진학자-자율고(자율형사립고, 자율형공립고)",
+    "진학자-기타(영재학교 포함)",
+    "취업자",
+    "대안교육기관진학(학력미인정)",
+    "무직자 및 미상"
+  ],
+  "categoryFieldMapping": "UNCONFIRMED",
+  "confirmedOfficialTotalBindings": 0,
+  "specialPurposeHighSchoolMetric": {
+    "officialDirectField": false,
+    "derivedAggregationUsed": false,
+    "reason": "No confirmed TOTAL* field labeled 특수목적고/특목고; subtypes may be separate leaves; aggregation forbidden until headers confirmed."
+  },
+  "autonomousHighSchoolNote": {
+    "officialTerms": ["자율고", "자율형사립고", "자율형공립고"],
+    "screenShorthandSeenByUser": "자사고",
+    "productRule": "Do not display TOTAL9 as 자사고 until official TOTAL9 binding confirms 자율형사립고 specifically; never merge TOTAL9+TOTAL10 under 자사고."
+  },
+  "record": {
+    "referenceYear": 2025,
+    "schoolInfoCode": "S010000888",
+    "source": "SCHOOLINFO_DISCLOSURE",
+    "raw": {
+      "SCHUL_CODE": "S010000888",
+      "SCHUL_NM": "잠실중학교",
+      "SCHUL_KND_SC_CODE": "03",
+      "TOTAL2": 337.0,
+      "TOTAL3": 223.0,
+      "TOTAL4": 6.0,
+      "TOTAL5": 4.0,
+      "TOTAL6": 9.0,
+      "TOTAL7": 3.0,
+      "TOTAL8": 1.0,
+      "TOTAL9": 86.0,
+      "TOTAL10": 0.0,
+      "TOTAL11": 5.0,
+      "TOTAL12": 0.0,
+      "TOTAL13": 0.0,
+      "TOTAL14": 0.0,
+      "TOTAL_RATE3": 66.2,
+      "TOTAL_RATE4": 1.8,
+      "TOTAL_RATE5": 1.2,
+      "TOTAL_RATE6": 2.7,
+      "TOTAL_RATE7": 0.9,
+      "TOTAL_RATE8": 0.3,
+      "TOTAL_RATE9": 25.5,
+      "TOTAL_RATE10": 0.0,
+      "TOTAL_RATE11": 1.5,
+      "TOTAL_RATE12": 0.0,
+      "TOTAL_RATE13": 0.0,
+      "TOTAL_RATE14": 0.0
+    },
+    "userScreenCrossCheck": {
+      "졸업자": { "screen": 337, "TOTAL2": 337, "match": true },
+      "일반": { "screen": 223, "TOTAL3": 223, "match": true },
+      "특성화고": { "screen": 6, "TOTAL4": 6, "match": true },
+      "외고·국제고": { "screen": 9, "TOTAL6": 9, "match": true },
+      "자사고": { "screen": 86, "TOTAL9": 86, "match": true, "officialTermCaution": "screen shorthand; official term likely 자율형사립고" },
+      "기타": { "screen": 5, "TOTAL11": 5, "match": true }
+    },
+    "note": "Observational matches are not official TOTAL* header bindings. TOTAL5=4, TOTAL7=3, TOTAL8=1 are non-zero but absent from the user screen excerpt."
+  }
+}
