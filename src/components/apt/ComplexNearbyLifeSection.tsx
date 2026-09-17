@@ -54,7 +54,7 @@ import {
   ComplexCommerceStats,
 } from "@/components/apt/ComplexCommerceSection";
 
-export type NearbyLifeCategory = "transport" | "living" | "commerce" | "school";
+export type NearbyLifeCategory = "commerce" | "living" | "transport" | "school";
 
 type AddressMeta = {
   available: boolean;
@@ -105,9 +105,9 @@ type NearbyLifeResponse = {
 };
 
 const TABS: Array<{ id: NearbyLifeCategory; label: string }> = [
-  { id: "transport", label: "교통" },
-  { id: "living", label: "생활" },
   { id: "commerce", label: "상권" },
+  { id: "living", label: "생활" },
+  { id: "transport", label: "교통" },
   { id: "school", label: "학교" },
 ];
 
@@ -395,7 +395,7 @@ export function ComplexNearbyLifeSection({
       initialTab === "living" ||
       initialTab === "commerce"
       ? initialTab
-      : "transport",
+      : "commerce",
   );
   const [coords, setCoords] = useState<LatLng | null>(null);
   const [mapAnchor, setMapAnchor] = useState<ComplexMapAnchorResult | null>(
