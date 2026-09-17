@@ -57,10 +57,6 @@ export function SchoolHero({
       : `https://${homepage}`
     : null;
 
-  const secondary = [foundedOn ? `설립/개교 ${foundedOn}` : null, office]
-    .filter(Boolean)
-    .join(" · ");
-
   return (
     <header className="px-3 pt-2 sm:px-4 sm:pt-3">
       <div className="flex items-center">
@@ -122,11 +118,12 @@ export function SchoolHero({
         </div>
       )}
 
-      {secondary ? (
-        <p className="mt-2 text-[11px] leading-4 text-slate-500 sm:text-[12px] sm:leading-5">
-          {secondary}
-        </p>
-      ) : null}
+      {(office || foundedOn) && (
+        <div className="mt-2 space-y-0.5 text-[12px] leading-5 text-slate-500 sm:text-[13px]">
+          {office ? <p>{office}</p> : null}
+          {foundedOn ? <p>설립/개교 {foundedOn}</p> : null}
+        </div>
+      )}
     </header>
   );
 }

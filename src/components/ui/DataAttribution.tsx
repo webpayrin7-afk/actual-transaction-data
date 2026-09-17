@@ -25,20 +25,20 @@ export function DataAttribution({
       href={providerHref}
       target="_blank"
       rel="noopener noreferrer"
-      className="font-medium text-slate-700 underline-offset-2 hover:underline"
+      className="text-slate-500 underline-offset-2 hover:underline"
     >
       {provider}
     </a>
   ) : (
-    <span className="font-medium text-slate-700">{provider}</span>
+    <span>{provider}</span>
   );
 
   return (
-    <div
-      className={`flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[11px] leading-4 sm:text-[12px] sm:leading-5 ${className}`.trim()}
+    <p
+      className={`text-[11px] leading-4 text-slate-500 sm:text-[12px] sm:leading-5 ${className}`.trim()}
     >
-      <span className="shrink-0 font-semibold text-slate-600">자료 출처</span>
-      <span className="min-w-0 text-slate-700">
+      <span className="font-semibold text-slate-600">자료 출처</span>
+      <span className="mx-1.5">
         {providerNode}
         {organization ? (
           <>
@@ -49,14 +49,12 @@ export function DataAttribution({
       </span>
       {context ? (
         <>
-          <span className="hidden text-slate-300 sm:inline" aria-hidden>
+          <span className="text-slate-300" aria-hidden>
             |
           </span>
-          <span className="basis-full text-slate-500 sm:basis-auto">
-            {context}
-          </span>
+          <span className="ml-1.5">{context}</span>
         </>
       ) : null}
-    </div>
+    </p>
   );
 }
