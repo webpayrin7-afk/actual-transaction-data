@@ -261,6 +261,17 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
+        {detail.schoolInfoUrl ? (
+          <a
+            href={detail.schoolInfoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="lab-button lab-button-primary inline-flex w-full items-center justify-center rounded-xl px-3.5 py-3 text-[13px] font-semibold"
+          >
+            학교알리미에서 보기
+          </a>
+        ) : null}
+
         <p className="flex items-center justify-center gap-1 text-center text-[11px] text-slate-500">
           <span>{detail.attribution}</span>
           <span aria-hidden>·</span>
@@ -276,17 +287,6 @@ export function SchoolDetailView({
             </InfoTip>
           </span>
         </p>
-
-        {detail.schoolInfoUrl ? (
-          <a
-            href={detail.schoolInfoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-[13px] font-semibold text-[color:var(--lab-teal-700)] transition-colors hover:border-[color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] hover:bg-[var(--lab-teal-50)]"
-          >
-            학교알리미에서 보기
-          </a>
-        ) : null}
       </div>
     </div>
   );
