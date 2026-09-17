@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { BackLink } from "@/components/layout/BackLink";
 import { AdvancementSection } from "@/components/school/AdvancementSection";
-import { InfoTip } from "@/components/ui/InfoTip";
 import type {
   ProductMetric,
   ProductSchoolDetail,
@@ -269,19 +268,8 @@ export function SchoolDetailView({
           </a>
         ) : null}
 
-        <p className="flex items-center justify-center gap-1 text-center text-[11px] text-slate-500">
-          <span>{detail.attribution}</span>
-          <span aria-hidden>·</span>
-          <span className="inline-flex items-center gap-0.5">
-            출처
-            <InfoTip aria-label="학교 상세 출처 안내">
-              <p>데이터 출처: 학교알리미(학교정보공시)</p>
-              <p className="mt-1">
-                공시 연도는 응답에 있을 때만 표시하며, 임의 연도는 표기하지
-                않습니다.
-              </p>
-            </InfoTip>
-          </span>
+        <p className="text-center text-[11px] text-slate-500">
+          {detail.attribution}
         </p>
       </div>
     </div>
