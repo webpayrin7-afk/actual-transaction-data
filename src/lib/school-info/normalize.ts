@@ -362,14 +362,12 @@ export function parseBasic(row: Record<string, unknown> | null): {
   };
 }
 
-export function attribution(years: string[]): string {
-  const uniq = [...new Set(years.filter(Boolean))];
-  // 학교알리미 attribution retained (공공저작물 출처표시 의무 — do not remove).
-  if (uniq.length === 1) return `${uniq[0]}년 공시 · 학교알리미`;
-  if (uniq.length > 1) {
-    return `공시자료 기준 (항목별 연도 상이) · 학교알리미`;
-  }
-  return "학교알리미 공시 기준";
+export function attribution(_years: string[]): string {
+  // 공공데이터포털「학교알리미 공시정보」OpenAPI: 공공저작물 제3유형(출처표시·변경금지).
+  // Minimum product attribution only — no year/pipeline wording here.
+  // Section-level DATA CONTEXT (예: 2025년 공시) stays on each section.
+  void _years;
+  return "출처: 학교알리미";
 }
 
 /**

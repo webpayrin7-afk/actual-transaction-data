@@ -86,7 +86,7 @@ function schoolInfoDetailCacheKey(
   sidoCode: string,
   sggCode: string,
 ): string {
-  return `schoolinfo:${schoolInfoCode}:detail:v2:${appSchoolId}:${kind}:${sidoCode}:${sggCode}`;
+  return `schoolinfo:${schoolInfoCode}:detail:v3:${appSchoolId}:${kind}:${sidoCode}:${sggCode}`;
 }
 
 function mappingFromMethod(
@@ -236,7 +236,7 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
       httpOk: null,
       resultCode: "auth_hold",
     },
-    attribution: "학교알리미 공시 기준",
+    attribution: "출처: 학교알리미",
   };
 }
 

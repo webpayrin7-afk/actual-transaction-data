@@ -6,6 +6,16 @@
 
 법령 / 라이선스 / 공공데이터 이용조건 / API 약관상 출처표시가 필요하면 **그 의무가 항상 우선**한다. attribution을 추측으로 삭제하지 않는다.
 
+### Product UI rule (source names)
+
+집랩은 **데이터 기준과 시점**은 사용자에게 제공한다.
+
+외부 **source명**은 법률·라이선스·API 이용조건상 표시가 요구되는 경우에만
+제품 UI에 표시하는 것을 기본으로 한다.
+
+새로운 외부 source 도입 시 attribution requirement는
+**해당 source 개발 시점에** 확인한다. (기존 source 일괄 audit 금지)
+
 ## Boundary
 
 ```
@@ -100,9 +110,9 @@ API key, provider endpoint, raw field mapping, identifier resolver, normalizatio
 
 ## School detail notes (priority apply)
 
-- **A 유지:** 학교알리미 출처표시 (공공데이터 이용조건상 출처표시 유형 — 삭제 금지)
-- **B 유지:** 공시연도 (`2025년 공시` 등)
-- **C 제거/완화:** 학교 상세에서 NEIS dual-source 설명, API key/apiType/TOTAL/mapping confidence 노출, product payload의 raw `sourceField` 등
+- **A 유지 (REQUIRED):** 학교알리미 — 공공데이터포털 OpenAPI 이용허락 제3유형(출처표시·변경금지). 제품 표시는 `출처: 학교알리미` 최소 문구.
+- **B 유지:** section DATA CONTEXT (`2025년 공시` 등)
+- **C 제거/완화:** NEIS dual-source tip, API key 문구, raw `sourceField` / mapping metadata
 - 진학현황 mapping·count·rate 자체는 변경하지 않음
 
 ## UI audit snapshot (code search)
