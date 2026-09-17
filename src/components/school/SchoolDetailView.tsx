@@ -205,7 +205,7 @@ export function SchoolDetailView({
                 {detail.foundation}
               </span>
             ) : null}
-            <h1 className="truncate text-[15px] font-semibold leading-5 tracking-tight text-slate-900 sm:text-base">
+            <h1 className="truncate text-xl font-semibold leading-7 tracking-tight text-slate-900 sm:text-[1.375rem] sm:leading-8">
               {detail.name}
             </h1>
           </div>
