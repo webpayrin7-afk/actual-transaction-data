@@ -190,7 +190,7 @@ export function SchoolDetailView({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col">
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-[var(--lab-bg,#f8fafc)]/95 backdrop-blur">
+      <header className="sticky top-0 z-30 bg-[var(--lab-bg,#f8fafc)]/95 backdrop-blur">
         <div className="flex items-center gap-1.5 px-3 py-2 sm:px-4">
           <BackLink
             fallback={backHref}
@@ -199,16 +199,9 @@ export function SchoolDetailView({
             preferFallback
             className="-ml-1"
           />
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            {detail.foundation ? (
-              <span className="inline-flex shrink-0 items-center rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-semibold leading-none text-slate-600">
-                {detail.foundation}
-              </span>
-            ) : null}
-            <h1 className="truncate text-xl font-semibold leading-7 tracking-tight text-slate-900 sm:text-[1.375rem] sm:leading-8">
-              {detail.name}
-            </h1>
-          </div>
+          <h1 className="min-w-0 flex-1 truncate text-xl font-semibold leading-7 tracking-tight text-slate-900 sm:text-[1.375rem] sm:leading-8">
+            {detail.name}
+          </h1>
         </div>
       </header>
 
