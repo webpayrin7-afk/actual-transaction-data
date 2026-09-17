@@ -36,6 +36,13 @@ export type NaverMapsApi = {
         event: string,
         handler: (...args: unknown[]) => void
       ) => void;
+      addDOMListener?: (
+        element: HTMLElement,
+        event: string,
+        handler: (...args: unknown[]) => void
+      ) => unknown;
+      removeDOMListener?: (listener: unknown) => void;
+      clearInstanceListeners?: (target: unknown) => void;
       trigger?: (target: unknown, event: string) => void;
     };
     Position?: { TOP_LEFT?: unknown };
@@ -76,6 +83,9 @@ export type NaverMarkerInstance = {
   setPosition: (latlng: unknown) => void;
   setIcon?: (icon: unknown) => void;
   setZIndex?: (zIndex: number) => void;
+  getElement?: () => HTMLElement | null;
+  setClickable?: (clickable: boolean) => void;
+  setCursor?: (cursor: string) => void;
 };
 
 export type NaverCircleInstance = {

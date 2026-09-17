@@ -753,7 +753,7 @@ export function ComplexNearbyLifeSection({
         const marker = tabMarkers.find((m) => m.id === id);
         const opened = openSchoolDetail({
           schoolCode: place?.schoolCode ?? marker?.schoolCode ?? null,
-          name: place?.name ?? marker?.title ?? "",
+          name: place?.name ?? marker?.title ?? marker?.label ?? "",
           level: place?.level ?? marker?.schoolKind ?? "middle",
           address: place?.address ?? marker?.schoolAddress ?? null,
         });

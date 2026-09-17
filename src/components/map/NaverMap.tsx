@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -305,7 +306,11 @@ function selectionArrowHtml(): string {
  * COMPLEX: building icon only (no apartment-name text label).
  * Pixel anchors only — never shift source lat/lng.
  */
-function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
+function markerIconHtml(
+  marker: NaverMapMarker,
+  selected: boolean,
+  onSchoolClick?: () => void,
+) {
   const kind = marker.kind;
   const color =
     marker.color ||
@@ -425,22 +430,39 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
           ? "고"
           : "초";
     const label = escapeHtml((marker.label || marker.title || "").trim());
-    // Fixed box + size/anchor so the whole chip is clickable (CSS translate
-    // alone leaves a tiny hit target at the pin tip).
     const width = 118;
     const height = selected ? 44 : 36;
-    const html = `<div style="position:relative;width:${width}px;height:${height}px;pointer-events:none">
-      <div style="position:absolute;left:50%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);white-space:nowrap">
+    // HTMLElement (not string) so we can attach a real DOM click on the chip/label.
+    const root = document.createElement("div");
+    root.dataset.schoolMarker = "1";
+    root.style.cssText = `position:relative;width:${width}px;height:${height}px;pointer-events:auto;cursor:pointer;touch-action:manipulation`;
+    root.innerHTML = `<div style="position:absolute;left:50%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);white-space:nowrap;pointer-events:auto;cursor:pointer">
         ${selected ? selectionArrowHtml() : ""}
-        <div style="display:flex;align-items:center;gap:3px;padding:2px 5px 2px 2px;border-radius:8px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
+        <div style="display:flex;align-items:center;gap:3px;padding:2px 5px 2px 2px;border-radius:8px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16);pointer-events:auto;cursor:pointer">
           <span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:5px;background:#1e3a5f;color:#fff;font:700 10px/1 system-ui,-apple-system,sans-serif">${badge}</span>
           <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;max-width:88px;overflow:hidden;text-overflow:ellipsis">${label}</span>
         </div>
         <div style="width:2px;height:5px;background:${stroke};opacity:.85"></div>
-      </div>
-    </div>`;
+      </div>`;
+    if (onSchoolClick) {
+      const handle = (event: Event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onSchoolClick();
+      };
+      root.addEventListener("click", handle);
+      root.addEventListener("keydown", (event) => {
+        const ke = event as KeyboardEvent;
+        if (ke.key === "Enter" || ke.key === " ") {
+          handle(event);
+        }
+      });
+      root.tabIndex = 0;
+      root.setAttribute("role", "button");
+      root.setAttribute("aria-label", `${marker.title || "학교"} 상세 보기`);
+    }
     return {
-      content: html,
+      content: root,
       size: window.naver?.maps
         ? new window.naver.maps.Size(width, height)
         : undefined,
@@ -491,8 +513,18 @@ export function NaverMap({
   const fitAnchorRef = useRef(fitAnchor);
   const centerRef = useRef(center);
   const fitRadiusMRef = useRef(fitRadiusM);
+  /** Dedupe Marker click + DOM click for the same tap. */
+  const lastMarkerClickRef = useRef<{ id: string; at: number } | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
+
+  const fireMarkerClick = useCallback((id: string) => {
+    const now = Date.now();
+    const prev = lastMarkerClickRef.current;
+    if (prev && prev.id === id && now - prev.at < 450) return;
+    lastMarkerClickRef.current = { id, at: now };
+    onMarkerClickRef.current?.(id);
+  }, []);
 
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
@@ -647,23 +679,29 @@ export function NaverMap({
               : item.kind === "SCHOOL"
                 ? 70
                 : 20;
+      const schoolClick =
+        item.kind === "SCHOOL" ? () => fireMarkerClick(item.id) : undefined;
+      const icon = markerIconHtml(item, selected, schoolClick);
       const existing = markerMapRef.current.get(item.id);
       if (existing) {
         existing.setPosition(pos);
-        existing.setIcon?.(markerIconHtml(item, selected));
+        existing.setIcon?.(icon);
         existing.setZIndex?.(zIndex);
+        existing.setClickable?.(true);
+        existing.setCursor?.("pointer");
         continue;
       }
       const marker = new maps.Marker({
         position: pos,
         map,
         title: item.title,
-        icon: markerIconHtml(item, selected),
+        icon,
         zIndex,
         clickable: true,
+        cursor: "pointer",
       });
       maps.Event.addListener(marker, "click", () => {
-        onMarkerClickRef.current?.(item.id);
+        fireMarkerClick(item.id);
       });
       markerMapRef.current.set(item.id, marker);
     }
@@ -676,7 +714,7 @@ export function NaverMap({
         );
       }
     }
-  }, [markers, selectedId, status]);
+  }, [markers, selectedId, status, fireMarkerClick]);
 
   // Commerce SEMAS P2 point cloud — ONE OverlayView + ONE canvas (no Markers).
   useEffect(() => {
