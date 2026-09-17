@@ -1,10 +1,18 @@
-/** Parse SchoolInfo rows into metrics. */
+/** Parse SchoolInfo rows into metrics.
+ *
+ * apiType map used by school detail:
+ * - 0  학교기본정보 → parseBasic
+ * - 09 학년별·학급별 학생수 → parseStudentsTeachers (NOT 진학/특목)
+ * - 22 직위별 교원 현황 → parseTeacherHeadcount
+ * - 35 급식비 집행 실적 → parseMeal
+ * - 55 장학금 수혜 현황 → parseScholarship
+ * - 59 방과후학교 → parseAfterSchool
+ *
+ * apiType 52 (13-다 졸업생의 진로 현황) is intentionally not parsed here.
+ * See ADVANCEMENT_API52 = HOLD_UNCONFIRMED_FIELD_MAPPING.
+ */
 
-import type {
-  AdvancementBucket,
-  Metric,
-  SectionStatus,
-} from "@/lib/school-info/types";
+import type { Metric, SectionStatus } from "@/lib/school-info/types";
 
 export function asString(...vals: unknown[]): string | null {
   for (const v of vals) {
@@ -178,8 +186,9 @@ export function parseMeal(row: Record<string, unknown> | null): {
     row.ONE_PSNBY_MLSV_CT,
     row.MLSV_ONE_PSNBY_AMT,
   );
+  // apiType 35 depthNo=20: 학생 1인당 1식 기준 식품비 (2023+); older years: 1인당 급식비.
   const meal = metric(
-    "급식비",
+    "급식비(1식)",
     n,
     n != null ? `${wonStr(n)} / 1인` : null,
     { sourceField: "STDNT_ONE_PSNBY_LM" },
@@ -243,60 +252,10 @@ export function parseScholarship(
   };
 }
 
-/** Only official graduate/pathway fields — never invent buckets. */
-export function parseAdvancement(row: Record<string, unknown> | null): {
-  graduates: Metric | null;
-  buckets: AdvancementBucket[];
-  year: string | null;
-  status: SectionStatus;
-} {
-  if (!row) {
-    return { graduates: null, buckets: [], year: null, status: "missing" };
-  }
-
-  const graduatesN = asNumber(
-    row.GRDTN_STDNT_CNT,
-    row.TOT_GRDTN_CNT,
-    row.GRADUATE_CNT,
-  );
-  const graduates = metric(
-    "졸업생",
-    graduatesN,
-    graduatesN != null ? countStr(graduatesN, "명") : null,
-  );
-
-  const buckets: AdvancementBucket[] = [];
-  for (let i = 1; i <= 6; i++) {
-    const label = asString(row[`PATH_NM_${i}`]);
-    const count = asNumber(row[`PATH_CNT_${i}`]);
-    if (!label || count == null) continue;
-    buckets.push({
-      label,
-      count,
-      percent: asNumber(row[`PATH_RATE_${i}`]),
-    });
-  }
-
-  if (!buckets.length) {
-    const label = asString(row.ADVNC_TYPE_NM, row.COURSE_NM, row.PATH_NM);
-    const count = asNumber(row.ADVNC_CNT, row.COURSE_CNT, row.PATH_CNT);
-    if (label && count != null) {
-      buckets.push({
-        label,
-        count,
-        percent: asNumber(row.ADVNC_RATE, row.COURSE_RATE, row.PATH_RATE),
-      });
-    }
-  }
-
-  return {
-    graduates,
-    buckets,
-    year: yearOf(row),
-    status: graduates || buckets.length ? "ok" : "missing",
-  };
-}
-
+/**
+ * apiType 0 — 학교기본정보.
+ * Do not use apiType 09 rows here; 09 is students/classes only.
+ */
 export function parseBasic(row: Record<string, unknown> | null): {
   name: string | null;
   kind: string | null;

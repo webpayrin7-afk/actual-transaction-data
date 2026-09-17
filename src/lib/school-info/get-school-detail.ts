@@ -23,11 +23,11 @@ import {
   type Kind,
   type ResolveMethod,
 } from "@/lib/school-info/identity";
+import { ADVANCEMENT_API52 } from "@/lib/school-info/advancement-disclosure";
 import {
   asNumber,
   attribution,
   parseAfterSchool,
-  parseAdvancement,
   parseBasic,
   parseMeal,
   parseScholarship,
@@ -35,6 +35,13 @@ import {
   parseTeacherHeadcount,
 } from "@/lib/school-info/normalize";
 import type { Metric, SchoolDetail, SectionStatus } from "@/lib/school-info/types";
+
+/**
+ * ADVANCEMENT_API52 = HOLD_UNCONFIRMED_FIELD_MAPPING.
+ * Do not fetch apiType52 or scrape 09/0 into a fake 진학현황 block.
+ * Unblock only per advancement-disclosure.ts / mapping report SOT.
+ */
+void ADVANCEMENT_API52;
 
 export type GetSchoolDetailParams = {
   /** App school id — currently NEIS SD_SCHUL_CODE (e.g. 7130202). */
@@ -199,7 +206,6 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
       studentsPerTeacher: null,
     },
     schoolLife: { mealPerStudent: null, afterSchoolPrograms: null },
-    advancement: null,
     scholarship: null,
     referenceYears: [],
     sectionStatus: {
@@ -208,7 +214,6 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
       teachers: "auth_hold",
       meal: "auth_hold",
       afterSchool: "auth_hold",
-      advancement: "auth_hold",
       scholarship: "auth_hold",
     },
     auth: {
@@ -236,7 +241,6 @@ function unresolvedDetail(
       teachers: "missing",
       meal: "missing",
       afterSchool: "missing",
-      advancement: "missing",
       scholarship: "missing",
     },
   };
@@ -275,10 +279,7 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
       fetchSectionBySchoolInfoCode({ ...common, apiType: "55" }),
     ]);
 
-  const advStudents = parseAdvancement(studentsSec.row);
-  const advBasic = parseAdvancement(basicSec.row);
-  const adv = advStudents.status === "ok" ? advStudents : advBasic;
-
+  // apiType 09 → students/classes only (학년별·학급별 학생수). Not 진학/특목.
   const basic = parseBasic(basicSec.row);
   const st = parseStudentsTeachers(studentsSec.row);
   const teacherFb = parseTeacherHeadcount(teachersSec.row);
@@ -314,10 +315,11 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
     basic.year,
     st.year,
     teacherFb.year,
-    meal.year,
+    meal.year ?? (mealSec.year != null ? String(mealSec.year) : null),
     after.year,
     scholarship.year,
-    adv.year,
+    basicSec.year != null ? String(basicSec.year) : null,
+    studentsSec.year != null ? String(studentsSec.year) : null,
   ].filter((y): y is string => !!y);
 
   const anyCalled =
@@ -328,10 +330,6 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
     afterSec.called ||
     scholarshipSec.called;
 
-  const advancement =
-    adv.status === "ok"
-      ? { graduates: adv.graduates, buckets: adv.buckets }
-      : null;
   const scholarshipBlock =
     scholarship.status === "ok"
       ? { total: scholarship.total, perStudent: scholarship.perStudent }
@@ -363,7 +361,6 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
       mealPerStudent: meal.meal,
       afterSchoolPrograms: after.programs,
     },
-    advancement,
     scholarship: scholarshipBlock,
     referenceYears: [...new Set(yearsUsed)],
     sectionStatus: {
@@ -372,7 +369,6 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
       teachers: teachers ? "ok" : teachersSec.status,
       meal: meal.status === "ok" ? "ok" : mealSec.status,
       afterSchool: after.status === "ok" ? "ok" : afterSec.status,
-      advancement: advancement ? "ok" : "missing",
       scholarship: scholarshipBlock ? "ok" : scholarshipSec.status,
     },
     auth: {

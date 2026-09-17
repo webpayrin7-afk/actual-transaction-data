@@ -147,11 +147,8 @@ export function SchoolDetailView({
         .map((m) => ({ label: m.label, value: m.value }))
     : [];
 
-  const hasAdvancement = Boolean(
-    detail.advancement &&
-      (detail.advancement.graduates?.value ||
-        detail.advancement.buckets.length > 0),
-  );
+  // Advancement / 진학현황 intentionally omitted while ADVANCEMENT_API52 is HOLD.
+  // No placeholder, empty card, or "준비중" — treat as non-existent.
 
   const basicRows: Array<{ label: string; value: ReactNode; long?: boolean }> =
     [];
@@ -210,8 +207,7 @@ export function SchoolDetailView({
   const hasSecondary =
     lifeRows.length > 0 ||
     scholarshipRows.length > 0 ||
-    basicRows.length > 0 ||
-    hasAdvancement;
+    basicRows.length > 0;
 
   let secondaryStarted = false;
   function secondaryBlock(node: ReactNode) {
@@ -301,40 +297,6 @@ export function SchoolDetailView({
                   <>
                     <SectionTitle>학교생활</SectionTitle>
                     <CompactRows rows={lifeRows} />
-                  </>,
-                )
-              : null}
-
-            {hasAdvancement && detail.advancement
-              ? secondaryBlock(
-                  <>
-                    <SectionTitle>진학정보</SectionTitle>
-                    {detail.advancement.graduates?.value ? (
-                      <p className="mt-2 text-[13px] font-semibold tabular-nums text-slate-900">
-                        졸업생 {detail.advancement.graduates.value}
-                      </p>
-                    ) : null}
-                    {detail.advancement.buckets.length > 0 ? (
-                      <ul className="mt-2 space-y-1.5">
-                        {detail.advancement.buckets.map((b) => (
-                          <li
-                            key={b.label}
-                            className="flex items-baseline justify-between gap-3 text-[13px]"
-                          >
-                            <span className="text-slate-600">{b.label}</span>
-                            <span className="font-semibold tabular-nums text-slate-900">
-                              {b.count != null
-                                ? `${b.count.toLocaleString("ko-KR")}명`
-                                : ""}
-                              {b.count != null && b.percent != null
-                                ? " · "
-                                : ""}
-                              {b.percent != null ? `${b.percent}%` : ""}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
                   </>,
                 )
               : null}

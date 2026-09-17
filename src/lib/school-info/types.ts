@@ -1,4 +1,9 @@
-/** Normalized SchoolInfo detail — server-only. */
+/** Normalized SchoolInfo detail — server-only.
+ *
+ * Confirmed product apiTypes: 0 / 09 / 22 / 35 / 55 / 59.
+ * apiType 09 = 학년별·학급별 학생수 → core students/classes (never 진학/특목).
+ * apiType 52 (13-다 졸업생 진로) = HOLD_UNCONFIRMED_FIELD_MAPPING — omitted from detail.
+ */
 
 export type SectionStatus = "ok" | "missing" | "error" | "auth_hold";
 
@@ -8,12 +13,6 @@ export type Metric = {
   raw: number | string | null;
   sourceField?: string;
   derived?: boolean;
-};
-
-export type AdvancementBucket = {
-  label: string;
-  count: number | null;
-  percent: number | null;
 };
 
 export type SchoolDetail = {
@@ -43,10 +42,6 @@ export type SchoolDetail = {
     mealPerStudent: Metric | null;
     afterSchoolPrograms: Metric | null;
   };
-  advancement: {
-    graduates: Metric | null;
-    buckets: AdvancementBucket[];
-  } | null;
   scholarship: {
     total: Metric | null;
     perStudent: Metric | null;
@@ -58,7 +53,6 @@ export type SchoolDetail = {
     teachers: SectionStatus;
     meal: SectionStatus;
     afterSchool: SectionStatus;
-    advancement: SectionStatus;
     scholarship: SectionStatus;
   };
   auth: {
