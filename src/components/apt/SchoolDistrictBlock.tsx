@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import {
@@ -9,18 +9,14 @@ import {
 } from "@/lib/complex-detail/school-district";
 
 /**
- * High-school section header with district on the right:
- * 고등학교                    (강동송파학교군) 학교군 전체 보기 >
- * description under the row (full width).
+ * Compact school-district info layer (not a nearby-school list).
+ * Membership list opens only via bottom sheet.
  */
 export function SchoolDistrictBlock({
   district,
-  sectionTitle,
   onOpenSchool,
 }: {
   district: ProductSchoolDistrict;
-  /** e.g. 고등학교 — rendered on the left of the title row */
-  sectionTitle: ReactNode;
   onOpenSchool: (s: {
     schoolCode: string | null;
     name: string;
@@ -34,29 +30,25 @@ export function SchoolDistrictBlock({
 
   return (
     <div
+      className="mt-1"
       data-testid="school-district-block"
       data-district-id={district.id}
       data-district-preview-count="0"
     >
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <p className="min-w-0 text-[17px] font-semibold text-slate-800">
-          {sectionTitle}
+      <div className="flex items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-[14px] font-semibold tracking-tight text-slate-800">
+          {district.officialName}
         </p>
-        <div className="flex shrink-0 items-center gap-1">
-          <span className="truncate text-[12px] font-medium text-slate-500">
-            ({district.officialName})
-          </span>
-          <button
-            type="button"
-            onClick={() => setSheetOpen(true)}
-            className="inline-flex shrink-0 items-center gap-0.5 text-[12px] font-medium text-[color:var(--lab-teal-700)] hover:underline"
-          >
-            학교군 전체 보기
-            <ChevronRight className="size-3.5" aria-hidden />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          className="inline-flex shrink-0 items-center gap-0.5 text-[12px] font-medium text-[color:var(--lab-teal-700)] hover:underline"
+        >
+          학교군 전체 보기
+          <ChevronRight className="size-3.5" aria-hidden />
+        </button>
       </div>
-      <p className="text-[11px] leading-4 text-slate-500">
+      <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
         {district.description}
       </p>
 
