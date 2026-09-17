@@ -46,9 +46,6 @@ export function AdvancementSection({
 
   const yearLabel = data.year ? `${data.year}년 공시` : null;
   const title = isHigh ? "진학·진로 현황" : "진학 현황";
-  const helper = isHigh
-    ? "이 고등학교 졸업생의 진로 현황입니다."
-    : "이 중학교 졸업생의 고등학교 진학 현황입니다.";
 
   const donutStops = buildConicStops(categories);
 
@@ -68,8 +65,6 @@ export function AdvancementSection({
           졸업생 {data.graduates.value}
         </p>
       ) : null}
-
-      <p className="mt-1 text-[11px] leading-4 text-slate-500">{helper}</p>
 
       {categories.length > 0 ? (
         <div className="mt-3.5 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-5">
