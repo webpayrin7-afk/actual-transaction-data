@@ -40,6 +40,7 @@ import {
   parseStudentsTeachers,
   parseTeacherHeadcount,
 } from "@/lib/school-info/normalize";
+import { schoolInfoPublicUrl } from "@/lib/school-info/schoolinfo-public-url";
 import type {
   AdvancementData,
   Metric,
@@ -83,7 +84,7 @@ function schoolInfoDetailCacheKey(
   sidoCode: string,
   sggCode: string,
 ): string {
-  return `schoolinfo:${schoolInfoCode}:detail:${appSchoolId}:${kind}:${sidoCode}:${sggCode}`;
+  return `schoolinfo:${schoolInfoCode}:detail:v2:${appSchoolId}:${kind}:${sidoCode}:${sggCode}`;
 }
 
 function mappingFromMethod(
@@ -194,6 +195,7 @@ function authHold(schoolCode: string, nameHint: string | null): SchoolDetail {
     schoolCode,
     neisCode: schoolCode,
     schoolInfoCode: null,
+    schoolInfoUrl: null,
     sameCode: false,
     mapping: "unresolved",
     name: nameHint?.trim() || schoolCode,
@@ -417,6 +419,10 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
     schoolCode: p.appSchoolId,
     neisCode: p.appSchoolId,
     schoolInfoCode,
+    schoolInfoUrl: schoolInfoPublicUrl({
+      shlIdfCd: basic.shlIdfCd,
+      schoolInfoCode,
+    }),
     sameCode,
     mapping,
     name: basic.name || p.nameHint || p.appSchoolId,

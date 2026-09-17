@@ -279,6 +279,8 @@ export function parseBasic(row: Record<string, unknown> | null): {
   office: string | null;
   foundedOn: string | null;
   schoolInfoCode: string | null;
+  /** Public page UUID (학교알리미 SHL_IDF_CD). */
+  shlIdfCd: string | null;
   year: string | null;
 } {
   if (!row) {
@@ -293,6 +295,7 @@ export function parseBasic(row: Record<string, unknown> | null): {
       office: null,
       foundedOn: null,
       schoolInfoCode: null,
+      shlIdfCd: null,
       year: null,
     };
   }
@@ -354,6 +357,7 @@ export function parseBasic(row: Record<string, unknown> | null): {
     ),
     foundedOn,
     schoolInfoCode: asString(row.SCHUL_CODE, row.SD_SCHUL_CODE),
+    shlIdfCd: asString(row.SHL_IDF_CD),
     year: yearOf(row),
   };
 }

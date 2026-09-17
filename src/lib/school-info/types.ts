@@ -43,6 +43,8 @@ export type SchoolDetail = {
   schoolCode: string;
   neisCode: string | null;
   schoolInfoCode: string | null;
+  /** Official 학교알리미 public detail page (SHL_IDF_CD / HG_CD). */
+  schoolInfoUrl: string | null;
   sameCode: boolean;
   mapping: "same_code" | "runtime_source_link" | "unresolved";
   name: string;
@@ -90,3 +92,4 @@ export type SchoolDetail = {
   };
   attribution: string;
 };
+
