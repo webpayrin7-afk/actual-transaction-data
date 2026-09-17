@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { BackLink } from "@/components/layout/BackLink";
 import { AdvancementSection } from "@/components/school/AdvancementSection";
+import { DataAttribution } from "@/components/ui/DataAttribution";
 import type {
   ProductMetric,
   ProductSchoolDetail,
@@ -230,13 +231,6 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
-        {/* attribution — above 기본정보, right-aligned */}
-        {detail.attribution ? (
-          <p className="-mb-2 text-right text-[11px] leading-4 text-slate-500 sm:-mb-3">
-            {detail.attribution}
-          </p>
-        ) : null}
-
         {/* 1. 기본정보 */}
         {basicRows.length > 0 ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
@@ -253,7 +247,7 @@ export function SchoolDetailView({
           </section>
         ) : null}
 
-        {/* 3. 진학/진학·진로 현황 */}
+        {/* 3. 진학/진학·진로 현황 — DATA CONTEXT (year) stays on section */}
         <AdvancementSection data={detail.advancement} schoolKind={detail.kind} />
 
         {/* 4. 학교생활 (급식 · 방과후 · 장학) */}
@@ -273,6 +267,13 @@ export function SchoolDetailView({
           >
             학교알리미에서 보기
           </a>
+        ) : null}
+
+        {/* REQUIRED ATTRIBUTION — once, after all page content */}
+        {detail.attribution ? (
+          <footer className="mt-2 border-t border-slate-200/80 pt-4 sm:mt-3 sm:pt-5">
+            <DataAttribution label={detail.attribution} />
+          </footer>
         ) : null}
       </div>
     </div>

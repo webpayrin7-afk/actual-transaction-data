@@ -16,6 +16,21 @@
 새로운 외부 source 도입 시 attribution requirement는
 **해당 source 개발 시점에** 확인한다. (기존 source 일괄 audit 금지)
 
+### Attribution placement (DATA CONTEXT vs REQUIRED)
+
+집랩 기본 정책:
+
+1. **DATA CONTEXT** — 해당 데이터 가까이에 표시  
+   (예: `진학 현황 · 2025년 공시`)
+2. **REQUIRED ATTRIBUTION** — 법률/라이선스/API 조건상 필요한 경우 표시  
+   — 페이지 내 반복을 피하고, source가 별도 형식을 요구하지 않으면  
+     **페이지 콘텐츠 최하단에 1회** 표시
+3. **INTERNAL SOURCE INFORMATION** — 제품 UI/client에 노출하지 않음
+4. 특정 source가 attribution 위치/형식을 별도로 요구하면  
+   **해당 source 조건이 공통 위치 정책보다 우선**
+5. 신규 source는 도입 시점에 attribution requirement 확인  
+   — 기존 모든 source 일괄 audit 금지
+
 ## Boundary
 
 ```
@@ -110,10 +125,10 @@ API key, provider endpoint, raw field mapping, identifier resolver, normalizatio
 
 ## School detail notes (priority apply)
 
-- **A 유지 (REQUIRED):** 학교알리미 — 공공데이터포털 OpenAPI 이용허락 제3유형(출처표시·변경금지). 제품 표시는 `출처: 학교알리미` 최소 문구.
-- **B 유지:** section DATA CONTEXT (`2025년 공시` 등)
-- **C 제거/완화:** NEIS dual-source tip, API key 문구, raw `sourceField` / mapping metadata
-- 진학현황 mapping·count·rate 자체는 변경하지 않음
+- **A 유지 (REQUIRED):** 학교알리미 — 제3유형. 표시: `출처: 학교알리미` **페이지 콘텐츠 최하단 1회**
+- **B 유지:** section DATA CONTEXT (`2025년 공시` 등) — 데이터 가까이
+- **C 제거/완화:** 학교명 아래 출처, NEIS tip, API key 문구, raw metadata
+- 진학현황 mapping·count·rate·도넛 UI는 변경하지 않음
 
 ## UI audit snapshot (code search)
 
