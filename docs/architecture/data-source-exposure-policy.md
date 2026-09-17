@@ -24,7 +24,9 @@
    (예: `진학 현황 · 2025년 공시`)
 2. **REQUIRED ATTRIBUTION** — 법률/라이선스/API 조건상 필요한 경우 표시  
    — 페이지 내 반복을 피하고, source가 별도 형식을 요구하지 않으면  
-     **페이지 콘텐츠 최하단에 1회** 표시
+     **페이지 콘텐츠 최하단의 정식 metadata block**으로 1회 표시  
+   — reference: 학교 상세 `DataAttribution`  
+     (`자료 출처` / `학교알리미 · 교육부` / `항목별 공시연도 기준`)
 3. **INTERNAL SOURCE INFORMATION** — 제품 UI/client에 노출하지 않음
 4. 특정 source가 attribution 위치/형식을 별도로 요구하면  
    **해당 source 조건이 공통 위치 정책보다 우선**
@@ -125,9 +127,12 @@ API key, provider endpoint, raw field mapping, identifier resolver, normalizatio
 
 ## School detail notes (priority apply)
 
-- **A 유지 (REQUIRED):** 학교알리미 — 제3유형. 표시: `출처: 학교알리미` **페이지 콘텐츠 최하단 1회**
+- **A 유지 (REQUIRED):** 학교알리미 — 제3유형.  
+  표시: 콘텐츠 최하단 `DataAttribution`  
+  (`자료 출처` / `학교알리미 · 교육부` / `항목별 공시연도 기준`)  
+  provider home link ≠ 학교별 「학교알리미에서 보기」 deep link
 - **B 유지:** section DATA CONTEXT (`2025년 공시` 등) — 데이터 가까이
-- **C 제거/완화:** 학교명 아래 출처, NEIS tip, API key 문구, raw metadata
+- **C 제거/완화:** 학교명 아래 출처, 임시 한 줄 출처, NEIS tip, raw metadata
 - 진학현황 mapping·count·rate·도넛 UI는 변경하지 않음
 
 ## UI audit snapshot (code search)

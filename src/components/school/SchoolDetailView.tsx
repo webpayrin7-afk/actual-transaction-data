@@ -6,6 +6,7 @@ import type {
   ProductMetric,
   ProductSchoolDetail,
 } from "@/lib/school-info/product-school-detail";
+import { SCHOOLINFO_HOME_URL } from "@/lib/school-info/schoolinfo-public-url";
 
 function homepageLabel(url: string): string {
   return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
@@ -206,7 +207,7 @@ export function SchoolDetailView({
         </div>
       </header>
 
-      <div className="flex flex-col gap-4 px-3 pb-8 pt-3 sm:gap-5 sm:px-4 sm:pt-4">
+      <div className="flex flex-col gap-4 px-3 pb-5 pt-3 sm:gap-5 sm:px-4 sm:pb-6 sm:pt-4">
         {detail.authHold ? (
           <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
             <p className="text-sm text-slate-700">
@@ -269,10 +270,15 @@ export function SchoolDetailView({
           </a>
         ) : null}
 
-        {/* REQUIRED ATTRIBUTION — once, after all page content */}
+        {/* REQUIRED ATTRIBUTION — formal metadata block after all content */}
         {detail.attribution ? (
-          <footer className="mt-2 border-t border-slate-200/80 pt-4 sm:mt-3 sm:pt-5">
-            <DataAttribution label={detail.attribution} />
+          <footer className="mt-5 border-t border-slate-200/80 pt-3.5 sm:mt-6 sm:pt-4">
+            <DataAttribution
+              provider="학교알리미"
+              organization="교육부"
+              context="항목별 공시연도 기준"
+              providerHref={SCHOOLINFO_HOME_URL}
+            />
           </footer>
         ) : null}
       </div>

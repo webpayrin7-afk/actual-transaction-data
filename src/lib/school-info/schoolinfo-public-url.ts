@@ -7,6 +7,9 @@
 const SCHOOLINFO_DETAIL =
   "https://www.schoolinfo.go.kr/ei/ss/Pneiss_b01_s0.do";
 
+/** Official SchoolInfo home — provider attribution only (not school-specific). */
+export const SCHOOLINFO_HOME_URL = "https://www.schoolinfo.go.kr/";
+
 export function schoolInfoPublicUrl(opts: {
   shlIdfCd?: string | null;
   schoolInfoCode?: string | null;
