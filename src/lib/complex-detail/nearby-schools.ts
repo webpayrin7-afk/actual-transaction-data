@@ -34,8 +34,9 @@ export type NearbySchoolCategory = {
 };
 
 export const SCHOOL_DISPLAY_MAX_METERS = 1500;
-export const SCHOOL_MAX_PER_LEVEL = 3;
-export const SCHOOL_CACHE_VERSION = "school-v1";
+/** No per-level cap — show every school within SCHOOL_DISPLAY_MAX_METERS. */
+export const SCHOOL_MAX_PER_LEVEL: number | null = null;
+export const SCHOOL_CACHE_VERSION = "school-v2";
 
 export const SCHOOL_LEVEL_ORDER: SchoolLevel[] = [
   "elementary",
@@ -120,7 +121,7 @@ export function buildNearbySchoolPlace(params: {
 }
 
 /**
- * Keep ≤1.5km, sort distance ASC, max 3 per school level.
+ * Keep ≤1.5km, sort distance ASC, all schools per level (no count cap).
  * Empty levels are omitted.
  */
 export function selectDisplayedSchools(places: NearbySchoolPlace[]): {
@@ -140,10 +141,16 @@ export function selectDisplayedSchools(places: NearbySchoolPlace[]): {
   const placesOut: NearbySchoolPlace[] = [];
 
   for (const level of SCHOOL_LEVEL_ORDER) {
-    const slice = within
+    let slice = within
       .filter((p) => p.level === level)
-      .sort((a, b) => a.distanceM - b.distanceM)
-      .slice(0, SCHOOL_MAX_PER_LEVEL);
+      .sort((a, b) => a.distanceM - b.distanceM);
+    if (
+      SCHOOL_MAX_PER_LEVEL != null &&
+      Number.isFinite(SCHOOL_MAX_PER_LEVEL) &&
+      SCHOOL_MAX_PER_LEVEL > 0
+    ) {
+      slice = slice.slice(0, SCHOOL_MAX_PER_LEVEL);
+    }
     if (!slice.length) continue;
     categories.push({
       level,
