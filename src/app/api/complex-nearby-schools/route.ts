@@ -15,6 +15,7 @@ import {
   schoolGeocodeQuery,
   toSchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
+import { buildSchoolDistrictsPayload } from "@/lib/complex-detail/school-district-server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 86400;
@@ -130,6 +131,7 @@ export async function GET(req: NextRequest) {
       needsClientGeocode,
       schools,
       categories: [],
+      schoolDistricts: buildSchoolDistrictsPayload({ aptName }),
     });
   } catch {
     return NextResponse.json({

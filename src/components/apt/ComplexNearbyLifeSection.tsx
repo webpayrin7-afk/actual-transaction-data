@@ -47,6 +47,7 @@ import {
   SCHOOL_LEVEL_BADGE,
   type SchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
+import { SchoolDistrictBlock } from "@/components/apt/SchoolDistrictBlock";
 import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
 import {
   ComplexCommerceMeta,
@@ -1140,13 +1141,29 @@ export function ComplexNearbyLifeSection({
           </EmptyBlock>
         );
       }
-      if (school.status !== "READY" || !school.categories.length) {
+      if (
+        school.status !== "READY" &&
+        !(school.status === "EMPTY" && school.schoolDistricts?.high)
+      ) {
         return (
           <EmptyBlock>
             {school.reason || "현재 확인 가능한 인근 학교 정보가 없습니다."}
           </EmptyBlock>
         );
       }
+      if (
+        !school.categories.length &&
+        !school.schoolDistricts?.high
+      ) {
+        return (
+          <EmptyBlock>
+            {school.reason || "현재 확인 가능한 인근 학교 정보가 없습니다."}
+          </EmptyBlock>
+        );
+      }
+
+      const highDistrict = school.schoolDistricts?.high ?? null;
+      const hasHighCategory = school.categories.some((c) => c.level === "high");
 
       return (
         <div className="space-y-4">
@@ -1195,8 +1212,33 @@ export function ComplexNearbyLifeSection({
                   );
                 })}
               </ul>
+              {section.level === "high" && highDistrict ? (
+                <SchoolDistrictBlock
+                  district={highDistrict}
+                  onOpenSchool={(s) => {
+                    if (!openSchoolDetail(s)) {
+                      /* no code — stay on list */
+                    }
+                  }}
+                />
+              ) : null}
             </div>
           ))}
+          {!hasHighCategory && highDistrict ? (
+            <div key="high-district-only">
+              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+                고등학교
+              </p>
+              <SchoolDistrictBlock
+                district={highDistrict}
+                onOpenSchool={(s) => {
+                  if (!openSchoolDetail(s)) {
+                    /* no code — stay on list */
+                  }
+                }}
+              />
+            </div>
+          ) : null}
         </div>
       );
     }

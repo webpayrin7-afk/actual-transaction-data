@@ -13,6 +13,10 @@ import {
   type NearbySchoolCategory,
   type NearbySchoolPlace,
 } from "@/lib/complex-detail/nearby-schools";
+import {
+  attachDistancesToDistrictMembers,
+  type ProductSchoolDistrictsPayload,
+} from "@/lib/complex-detail/school-district";
 
 export type NearbySchoolApiItem = {
   id: string;
@@ -46,6 +50,7 @@ export type NearbySchoolsClientResult = {
   withoutCoords: number;
   places: NearbySchoolPlace[];
   categories: NearbySchoolCategory[];
+  schoolDistricts: ProductSchoolDistrictsPayload | null;
 };
 
 export async function loadNearbySchoolsForMap(params: {
@@ -67,6 +72,7 @@ export async function loadNearbySchoolsForMap(params: {
     disclaimer?: string;
     needsClientGeocode?: boolean;
     schools: NearbySchoolApiItem[];
+    schoolDistricts?: ProductSchoolDistrictsPayload | null;
   };
 
   const disclaimer =
@@ -149,6 +155,18 @@ export async function loadNearbySchoolsForMap(params: {
 
   const selected = selectDisplayedSchools(resolved);
 
+  let schoolDistricts = data.schoolDistricts ?? null;
+  if (schoolDistricts?.high) {
+    schoolDistricts = {
+      ...schoolDistricts,
+      high: attachDistancesToDistrictMembers(
+        schoolDistricts.high,
+        params.center,
+        resolved,
+      ),
+    };
+  }
+
   if (!selected.places.length) {
     return {
       status: "EMPTY",
@@ -165,6 +183,7 @@ export async function loadNearbySchoolsForMap(params: {
       withoutCoords,
       places: [],
       categories: [],
+      schoolDistricts,
     };
   }
 
@@ -182,6 +201,7 @@ export async function loadNearbySchoolsForMap(params: {
     withoutCoords,
     places: selected.places,
     categories: selected.categories,
+    schoolDistricts,
   };
 }
 
@@ -204,5 +224,6 @@ function emptyResult(
     withoutCoords: 0,
     places: [],
     categories: [],
+    schoolDistricts: null,
   };
 }
