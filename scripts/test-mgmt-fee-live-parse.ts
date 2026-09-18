@@ -80,6 +80,18 @@ function main(): void {
     () => parseFeeResponse({ http: 429, expectedKapt: "A13822004", body: "slow down" }),
     RateLimitStop,
   );
+  const amountWith429 = parseFeeResponse({
+    http: 200,
+    expectedKapt: "A13822004",
+    body: JSON.stringify({
+      response: {
+        header: { resultCode: "00", resultMsg: "NORMAL SERVICE." },
+        body: { item: { kaptCode: "A13822004", cleanCost: 1429000 } },
+      },
+    }),
+  });
+  assert.equal(amountWith429.state, "success");
+  assert.equal(amountWith429.amount, 1429000);
   assert.throws(
     () => parseFeeResponse({ http: 200, expectedKapt: "A13822004", body: "<html>nope</html>" }),
     SchemaStop,

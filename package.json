@@ -34,7 +34,8 @@
     "test:unit-type-phase5": "tsx scripts/test-unit-type-phase5.ts",
     "test:unit-type-phase53b": "tsx scripts/test-unit-type-phase53b.ts",
     "test:mgmt-fee-canonical": "tsx scripts/test-mgmt-fee-canonical-dryrun.ts",
-    "test:mgmt-fee-live-parse": "tsx scripts/test-mgmt-fee-live-parse.ts"
+    "test:mgmt-fee-live-parse": "tsx scripts/test-mgmt-fee-live-parse.ts",
+    "test:mgmt-fee-reconcile": "tsx scripts/test-mgmt-fee-reconcile.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

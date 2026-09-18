@@ -88,7 +88,7 @@ export function sumExplicitAmounts(item: Record<string, unknown> | null): {
 }
 
 function quotaText(value: string): boolean {
-  return /429|too many requests|limited_number_of_service_requests|트래픽/i.test(value);
+  return /too many requests|limited_number_of_service_requests|트래픽|일일\s*호출/i.test(value);
 }
 
 export function parseFeeResponse(args: {
@@ -97,7 +97,7 @@ export function parseFeeResponse(args: {
   expectedKapt: string;
 }): ParsedOp {
   if (args.http === 429 || quotaText(args.body.slice(0, 500))) {
-    throw new RateLimitStop(args.http === 429 ? "HTTP 429" : "quota stop");
+    throw new RateLimitStop(args.http === 429 ? "HTTP 429" : `quota text on http ${args.http}`);
   }
 
   const trimmed = args.body.trim();
