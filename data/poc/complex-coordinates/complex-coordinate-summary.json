@@ -1,0 +1,164 @@
+{
+  "mode": "dry-run",
+  "source_version": "coord-dry-run-2026-09-18",
+  "generatedAt": "2026-09-18T02:47:32.871Z",
+  "production_coordinate_rows_written": 0,
+  "baseline": {
+    "total": 8437,
+    "master_both_nonnull": 0,
+    "both_null_on_master": 8437,
+    "with_road_address": 0,
+    "with_composable_jibun": 8437,
+    "note": "Prior school dry-run valid_coords=1 because master lat/lng null citywide; only product mapAnchor override for 잠실엘스."
+  },
+  "sources": [
+    {
+      "source": "apt_complex_master.lat/lng",
+      "type": "warehouse",
+      "coverage": 0,
+      "confidence": "high_when_present"
+    },
+    {
+      "source": "product_map_anchor (잠실엘스)",
+      "type": "verified_product_fixture",
+      "coverage": 1,
+      "confidence": "high"
+    },
+    {
+      "source": "commerce stage-c2 nominatim cache",
+      "type": "pilot_fallback",
+      "coverage": 25,
+      "confidence": "low_not_gate_eligible"
+    },
+    {
+      "source": "NAVER map-geocode REST",
+      "type": "external",
+      "coverage": 0,
+      "confidence": "n/a",
+      "note": "probe http=401 subscription required — not used"
+    },
+    {
+      "source": "VWorld",
+      "type": "external",
+      "coverage": 0,
+      "confidence": "n/a",
+      "note": "API key absent in env — not used"
+    }
+  ],
+  "external_geocoder_used": false,
+  "network_calls": 1,
+  "cache_hits": 25,
+  "resolution": {
+    "total": 8437,
+    "CONFIRMED": 0,
+    "MULTI_SOURCE_CONFIRMED": 0,
+    "SINGLE_SOURCE_HIGH_CONFIDENCE": 1,
+    "PILOT_LOW_CONFIDENCE": 25,
+    "AMBIGUOUS": 0,
+    "ADDRESS_INCOMPLETE": 0,
+    "SOURCE_NO_MATCH": 8411,
+    "MULTIPLE_MATCHES": 0,
+    "OUTSIDE_EXPECTED_REGION": 0,
+    "INVALID_COORD": 0,
+    "ERROR": 0,
+    "gate_eligible": 1,
+    "usable_coordinate_coverage_pct": 0.0119
+  },
+  "quality": {
+    "gu_consistency": "soft_check_on_nominatim_matched_string_only",
+    "outside_seoul": 0,
+    "duplicate_coordinate_groups": 0,
+    "duplicate_top": [],
+    "multi_source_disagreements": 0,
+    "largest_issue": "No citywide high-confidence coordinate source without mass geocode; master lat/lng empty; NAVER geocode REST unsubscribed; VWorld key absent."
+  },
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "old_anchor": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "candidate": {
+      "lat": 37.5133051,
+      "lng": 127.0815962,
+      "status": "SINGLE_SOURCE_HIGH_CONFIDENCE",
+      "source": "product_map_anchor"
+    },
+    "difference_meters": 0,
+    "status": "SINGLE_SOURCE_HIGH_CONFIDENCE",
+    "gate_eligible": true,
+    "regression": "PASS"
+  },
+  "data_model": {
+    "canonical_coordinate_location": "apt_complex_master.latitude/longitude (future WRITE)",
+    "metadata_location": "apt_complex_enrichment_state domain=coordinate + optional source_links (draft; not applied)",
+    "new_tables": [],
+    "reused_tables": [
+      "apt_complex_master",
+      "apt_complex_source_links",
+      "apt_complex_enrichment_state"
+    ],
+    "migration_drafted": false,
+    "migration_applied": false,
+    "note": "Avoid large new schema; store source/confidence via enrichment_state on WRITE phase."
+  },
+  "samples": [
+    {
+      "complex_id": "cx_01a01c194bce0a20",
+      "apt_name": "휴먼스타빌",
+      "address": "서울특별시 강남구 청담동 5-25",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "address": "서울특별시 송파구 잠실동 19",
+      "source": "product_map_anchor",
+      "coordinate": {
+        "lat": 37.5133051,
+        "lng": 127.0815962
+      },
+      "status": "SINGLE_SOURCE_HIGH_CONFIDENCE",
+      "gate_eligible": true
+    },
+    {
+      "complex_id": "cx_0074b35c6bca6137",
+      "apt_name": "삼흥",
+      "address": "서울특별시 종로구 창신동 638-45",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_0276fe98811f6b51",
+      "apt_name": "공덕파크자이",
+      "address": "서울특별시 마포구 공덕동 476",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_01210eca6e2ee4cc",
+      "apt_name": "마곡수명산파크2단지",
+      "address": "서울특별시 강서구 내발산동 741",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_019b3fbe56815f11",
+      "apt_name": "대명아파트",
+      "address": "서울특별시 노원구 공릉동 270-71",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    }
+  ]
+}

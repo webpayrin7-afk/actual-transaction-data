@@ -1,0 +1,272 @@
+{
+  "title": "apiType=52 TOTAL2–TOTAL14 field mapping investigation",
+  "investigatedAt": "2026-09-17",
+  "decision": {
+    "apiType52Mapping": "STRUCTURALLY_CONFIRMED",
+    "productUiPossible": "YES",
+    "productScope": "middle_school_only",
+    "guessedMappingsFilled": 0,
+    "structurallyConfirmedBindings": 13,
+    "reason": "Official 13-다 12-leaf order + openData TOTAL3–14 partition (12 fields) + TOTAL=MAN+WOMAN + RATE invariants + multi-school checks + 잠실중 screen anchors uniquely determine the bijection. Still not CONFIRMED (no official TOTAL* header file). High-school schema is separate and remains HOLD."
+  },
+  "sourcesChecked": [
+    {
+      "source": "opendata.js case \"52\"",
+      "url": "https://www.schoolinfo.go.kr/js/new/dev/opendata.js?20231128",
+      "result": "EMPTY — column definitions commented out (same state in Wayback 2022-01-31 copy)"
+    },
+    {
+      "source": "openApi.js",
+      "url": "https://www.schoolinfo.go.kr/js/new/dev/openApi.js",
+      "result": "No case \"52\"; jumps 51 → 55"
+    },
+    {
+      "source": "OpenAPI_Output.xlsx",
+      "result": "No sheet for 졸업생의 진로 현황 (52); matches open-data UI item list which also omits 52"
+    },
+    {
+      "source": "공개용 데이터 UI item list (pnnggo_a01_l2.do)",
+      "result": "Item 52 intentionally absent from loadOpenData() titles; API still returns data"
+    },
+    {
+      "source": "stFileDownLoad2.do / Pneipp_d06_s0p.do / Pneipp_b06_s0p.do",
+      "result": "HTTP 200 but body is 서비스 일시 중단 안내 — cannot read Excel/HTML headers"
+    },
+    {
+      "source": "학교알리미 hangmok GS_HANGMOK_DESC_03 (JG_HANGMOK_CD=52)",
+      "result": "Official category DEFINITIONS confirmed (일반고/특성화고/특수목적고 subtypes/자율고/기타/취업자/대안/무직미상) — not TOTAL* index binding"
+    },
+    {
+      "source": "2022 초·중등학교 정보공시 입력 지침서 13-다 중학교 장표",
+      "result": "Official leaf display order + circled numbers ①–⑯ including 계 subtotals; leaf set size=12 matches TOTAL3–TOTAL14 count"
+    },
+    {
+      "source": "openData.do APITYPE=52 PBANYR=2025 SCHULKNDCODE=03",
+      "result": "Raw JSON available (3524 middle schools); 잠실중학교 S010000888 matches user-provided totals exactly"
+    },
+    {
+      "source": "동아일보 2019-05-27 (학교알리미 엑셀 컬럼 서술)",
+      "result": "Secondary journalism: Excel columns listed as 일반고→특성화고→과학고→외국어고·국제고→예고·체고→마이스터고→자율형사립고→자율형공립고→기타; not a KERIS TOTAL* schema"
+    }
+  ],
+  "officialTaxonomyMiddleSchool": {
+    "graduates": "졸업자",
+    "graduatesEquation": "졸업자 = 진학자 + 취업자 + 대안교육기관진학(학력미인정) + 무직자 및 미상",
+    "advancers": {
+      "일반고": "특정분야가 아닌 다양한 분야에 걸쳐 일반적인 교육을 실시하는 고등학교",
+      "특성화고": "직업교육 또는 체험위주 대안교육을 전문적으로 실시하는 고등학교",
+      "특수목적고": "과학고, 외국어고, 국제고, 예술고, 체육고, 마이스터고로 분류",
+      "자율고": "자율형 공립고와 자율형 사립고를 통칭",
+      "기타": "외국인학교, 특수학교, 각종학교, 영재학교, 국외교육기관(학력인정) 등 진학자"
+    },
+    "nonAdvancers": [
+      "취업자",
+      "대안교육기관진학(학력미인정)",
+      "무직자 및 미상"
+    ],
+    "guidelineLeafOrderWithoutSubtotals": [
+      "일반고",
+      "특성화고",
+      "과학고",
+      "외고·국제고",
+      "예고·체고",
+      "마이스터고",
+      "자율형사립고",
+      "자율형공립고",
+      "기타",
+      "취업자",
+      "대안교육기관진학(학력미인정)",
+      "무직자 및 미상"
+    ],
+    "note": "예고·체고 is ONE combined leaf in the guideline table (예술고+체육고 not separate TOTAL leaves). 영재학교 is under 기타, not a separate TOTAL leaf."
+  },
+  "mapping": {
+    "TOTAL2": {
+      "officialLabel": null,
+      "candidateLabel": "졸업자",
+      "jamsil2025": 337,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "TOTAL2 equals sum(TOTAL3..TOTAL14) and MAN2+WOMAN2; matches screen 졸업자; hangmok defines 졸업자."
+    },
+    "TOTAL3": {
+      "officialLabel": null,
+      "candidateLabel": "일반고",
+      "jamsil2025": 223,
+      "jamsilRate": 66.2,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Guideline leaf #1 + screen anchor + RATE; locked by multi-anchor bijection."
+    },
+    "TOTAL4": {
+      "officialLabel": null,
+      "candidateLabel": "특성화고",
+      "jamsil2025": 6,
+      "jamsilRate": 1.8,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Guideline leaf #2 + screen anchor + RATE."
+    },
+    "TOTAL5": {
+      "officialLabel": null,
+      "candidateLabel": "과학고",
+      "jamsil2025": 4,
+      "jamsilRate": 1.2,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Unique gap between anchored TOTAL4(특성화고) and TOTAL6(외고·국제고) in official 12-leaf order."
+    },
+    "TOTAL6": {
+      "officialLabel": null,
+      "candidateLabel": "외고·국제고",
+      "jamsil2025": 9,
+      "jamsilRate": 2.7,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Guideline leaf #4 + screen anchor + RATE."
+    },
+    "TOTAL7": {
+      "officialLabel": null,
+      "candidateLabel": "예고·체고",
+      "jamsil2025": 3,
+      "jamsilRate": 0.9,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Unique gap between anchored TOTAL6 and TOTAL9 in official leaf order (예고·체고 combined leaf)."
+    },
+    "TOTAL8": {
+      "officialLabel": null,
+      "candidateLabel": "마이스터고",
+      "jamsil2025": 1,
+      "jamsilRate": 0.3,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Unique gap between TOTAL7 slot and anchored TOTAL9."
+    },
+    "TOTAL9": {
+      "officialLabel": null,
+      "candidateLabel": "자율형사립고",
+      "jamsil2025": 86,
+      "jamsilRate": 25.5,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Guideline leaf #7 + screen anchor (displayed as 자사고 on third-party UI; product uses official 자율형사립고)."
+    },
+    "TOTAL10": {
+      "officialLabel": null,
+      "candidateLabel": "자율형공립고",
+      "jamsil2025": 0,
+      "jamsilRate": 0.0,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Unique gap between anchored TOTAL9 and TOTAL11."
+    },
+    "TOTAL11": {
+      "officialLabel": null,
+      "candidateLabel": "기타",
+      "jamsil2025": 5,
+      "jamsilRate": 1.5,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Guideline leaf #9 + screen anchor + RATE."
+    },
+    "TOTAL12": {
+      "officialLabel": null,
+      "candidateLabel": "취업자",
+      "jamsil2025": 0,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Official non-advancer leaf #10 after 기타; 12-leaf bijection."
+    },
+    "TOTAL13": {
+      "officialLabel": null,
+      "candidateLabel": "대안교육기관진학(학력미인정)",
+      "jamsil2025": 0,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Official non-advancer leaf #11; 12-leaf bijection."
+    },
+    "TOTAL14": {
+      "officialLabel": null,
+      "candidateLabel": "무직자 및 미상",
+      "jamsil2025": 0,
+      "confidence": "STRUCTURALLY_CONFIRMED",
+      "evidence": "Official non-advancer leaf #12; 12-leaf bijection."
+    }
+  },
+  "specialPurpose": {
+    "과학고": "UNCONFIRMED field — likely TOTAL5 by guideline order only; not bound",
+    "외고·국제고": "UNCONFIRMED field — observational TOTAL6 match; not officially bound",
+    "예술고": "Not a separate openData leaf in 13-다 guideline; combined as 예고·체고",
+    "체육고": "Not a separate openData leaf in 13-다 guideline; combined as 예고·체고",
+    "마이스터고": "UNCONFIRMED field — likely TOTAL8 by guideline order only; not bound",
+    "기타특목": "No separate TOTAL leaf; 특수목적고 subtypes are 과학고/외고·국제고/예고·체고/마이스터고 only",
+    "자율형사립고": "UNCONFIRMED field — observational TOTAL9 vs screen 자사고; official term is 자율형사립고",
+    "자율형공립고": "UNCONFIRMED field — likely TOTAL10 by guideline order only; separate from TOTAL9",
+    "영재학교": "Officially under 기타 (not a separate TOTAL field)"
+  },
+  "validation": {
+    "잠실중학교": {
+      "schulCode": "S010000888",
+      "year": 2025,
+      "raw": {
+        "TOTAL2": 337,
+        "TOTAL3": 223,
+        "TOTAL4": 6,
+        "TOTAL5": 4,
+        "TOTAL6": 9,
+        "TOTAL7": 3,
+        "TOTAL8": 1,
+        "TOTAL9": 86,
+        "TOTAL10": 0,
+        "TOTAL11": 5,
+        "TOTAL12": 0,
+        "TOTAL13": 0,
+        "TOTAL14": 0
+      },
+      "screenReportedByUser": {
+        "졸업자": 337,
+        "일반": 223,
+        "특성화고": 6,
+        "외고·국제고": 9,
+        "자사고": 86,
+        "기타": 5
+      },
+      "sumCheck": "sum(TOTAL3..TOTAL14)=337=TOTAL2 PASS",
+      "screenCrossCheck": "User screen labels for non-zero displayed categories match TOTAL3/4/6/9/11 values; TOTAL5/7/8 non-zero but not listed in user screen excerpt"
+    },
+    "추가학교A_잠신중학교": {
+      "schulCode": "S010000887",
+      "year": 2025,
+      "raw": {
+        "TOTAL2": 327,
+        "TOTAL3": 236,
+        "TOTAL4": 8,
+        "TOTAL5": 1,
+        "TOTAL6": 6,
+        "TOTAL7": 6,
+        "TOTAL8": 1,
+        "TOTAL9": 61,
+        "TOTAL10": 0,
+        "TOTAL11": 7,
+        "TOTAL12": 0,
+        "TOTAL13": 1,
+        "TOTAL14": 0
+      },
+      "note": "Raw partition consistency only; school detail screen unavailable for label cross-check this run"
+    },
+    "추가학교B_송파중학교": {
+      "schulCode": "S010000877",
+      "year": 2025,
+      "raw": {
+        "TOTAL2": 279,
+        "TOTAL3": 210,
+        "TOTAL4": 10,
+        "TOTAL5": 4,
+        "TOTAL6": 7,
+        "TOTAL7": 2,
+        "TOTAL8": 1,
+        "TOTAL9": 43,
+        "TOTAL10": 0,
+        "TOTAL11": 0,
+        "TOTAL12": 0,
+        "TOTAL13": 0,
+        "TOTAL14": 2
+      },
+      "note": "Raw partition consistency only; school detail screen unavailable for label cross-check this run"
+    }
+  },
+  "unblockWhen": [
+    "School detail page Pneipp_b06_s0p.do returns the 13-다 table with Korean headers for a known school, OR",
+    "stFileDownLoad2.do / open-data Excel for APITYPE=52 returns Korean column headers mapped to TOTAL*, OR",
+    "KERIS publishes case \"52\" column defs in opendata.js / OpenAPI_Output.xlsx / 자료설명서"
+  ]
+}

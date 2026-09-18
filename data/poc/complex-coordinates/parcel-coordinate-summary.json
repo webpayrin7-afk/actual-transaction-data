@@ -1,0 +1,254 @@
+{
+  "mode": "dry-run",
+  "generatedAt": "2026-09-18T14:16:39.277Z",
+  "production_coordinate_rows_written": 0,
+  "production_school_rows_written": 0,
+  "production_schema_changed": false,
+  "production_deploy": false,
+  "school_rerun": false,
+  "coordinate_semantics": "PARCEL_REPRESENTATIVE_POINT",
+  "source": {
+    "provider": "국토교통부",
+    "dataset": "국토교통부 일별연속지적도형정보 서울특별시",
+    "source_file": "AL_D002_11_20260908.zip",
+    "source_date_feature": [
+      "2026-09-05"
+    ],
+    "source_crs": "EPSG:5186",
+    "output_crs": "EPSG:4326",
+    "coordinate_semantics": "PARCEL_REPRESENTATIVE_POINT",
+    "method": "point_on_surface/representative point; deterministic; not apartment center",
+    "zip_sha256": "3ae3977a35cb2f9b06c2cfe11f0dee3ccacce37b5654eaecd9dca7520a7876fe",
+    "retrievedAt": "2026-09-18T14:16:37.092Z",
+    "pnu_field": "pnu (19-digit string; plat 1=일반, 2=임야; not numeric)"
+  },
+  "integrity": {
+    "header_ok": true,
+    "data_rows": 896903,
+    "indexed_rows": 896903,
+    "unique_pnu": 896903,
+    "bad_pnu": 0,
+    "bad_coordinate": 0,
+    "outside_seoul_bbox": 0,
+    "mountain_plat2": 16776,
+    "duplicate_identical_pnu": 0,
+    "duplicate_conflict_pnu": 0,
+    "source_date": {
+      "2026-09-05": 896903
+    },
+    "method": {
+      "PARCEL_REPRESENTATIVE_POINT": 896903
+    },
+    "metadata_output_rows": 896903,
+    "metadata_target_crs": "EPSG:4326",
+    "metadata_source_crs": "EPSG:5186"
+  },
+  "load_ms": 2043,
+  "join_ms": 15,
+  "runtime_ms": 4228,
+  "reb_identity": {
+    "total": 8437,
+    "SINGLE_PARCEL": 7955,
+    "MULTI_RECORD_SAME_PARCEL": 313,
+    "MULTI_PARCEL": 0,
+    "AMBIGUOUS_IDENTITY": 0,
+    "NO_PNU": 168,
+    "INVALID_PNU": 1,
+    "unique_full_pnu": 6072,
+    "high_confidence_identity": 8268
+  },
+  "coverage": {
+    "total_complexes": 8437,
+    "valid_strict_pnu": 8268,
+    "coordinate_matched": 2643,
+    "exact_pnu_field_hit": 4648,
+    "overall_coverage": 0.313263,
+    "pnu_stage_coverage": 0.979969,
+    "spatial_stage_coverage": 0.319666,
+    "unique_pnu": 6072,
+    "matched_unique_pnu": 2643,
+    "valid_pnu_spatial_missing": 3620,
+    "exact_match_lot_conflict": 2005,
+    "missing_pnu_address_lot_present": 3614,
+    "no_or_invalid_pnu": 169,
+    "multi_parcel": 0,
+    "ambiguous_identity": 0,
+    "duplicate_geometry": 0,
+    "invalid_geometry": 0
+  },
+  "multiplicity": {
+    "source_duplicate_identical_pnu": 0,
+    "source_duplicate_conflict_pnu": 0,
+    "multi_complex_pnu_groups": 1082,
+    "affected_complexes": 3278,
+    "max_complexes_per_pnu": 29,
+    "examples": [
+      {
+        "pnu": "1114016200104320000",
+        "complexes": 29,
+        "examples": [
+          {
+            "complex_id": "cx_060d94895dc98ca2",
+            "apt_name": "글로리안(a)"
+          },
+          {
+            "complex_id": "cx_1379177e895bbd8d",
+            "apt_name": "프라임2"
+          },
+          {
+            "complex_id": "cx_1b03d3b7cbdf8df1",
+            "apt_name": "초원"
+          },
+          {
+            "complex_id": "cx_232c67e00e105b3b",
+            "apt_name": "남산foresthouse"
+          }
+        ]
+      },
+      {
+        "pnu": "1162010300106020000",
+        "complexes": 23,
+        "examples": [
+          {
+            "complex_id": "cx_03f659a7b733b18e",
+            "apt_name": "e산이랑"
+          },
+          {
+            "complex_id": "cx_0a08df08a53ff75a",
+            "apt_name": "남현그린"
+          },
+          {
+            "complex_id": "cx_0dc40135adab33bf",
+            "apt_name": "한솔아크로"
+          },
+          {
+            "complex_id": "cx_2c6a2bed61de6491",
+            "apt_name": "삼원하이츠11차"
+          }
+        ]
+      },
+      {
+        "pnu": "1153010200107400000",
+        "complexes": 21,
+        "examples": [
+          {
+            "complex_id": "cx_0e39c708ff842008",
+            "apt_name": "청송빌라"
+          },
+          {
+            "complex_id": "cx_1068fcd91fc4b2de",
+            "apt_name": "(740-56)"
+          },
+          {
+            "complex_id": "cx_19360f230e73bfb9",
+            "apt_name": "(740-33)"
+          },
+          {
+            "complex_id": "cx_3a3dd46c502f7d3a",
+            "apt_name": "(740-21)"
+          }
+        ]
+      },
+      {
+        "pnu": "1153010200107430000",
+        "complexes": 20,
+        "examples": [
+          {
+            "complex_id": "cx_00e3aded39b94194",
+            "apt_name": "(743-33)"
+          },
+          {
+            "complex_id": "cx_08333079e2adb0b5",
+            "apt_name": "(743-39)"
+          },
+          {
+            "complex_id": "cx_0b67c338ecc419bf",
+            "apt_name": "(743-35)"
+          },
+          {
+            "complex_id": "cx_10a6a2766b2dad3a",
+            "apt_name": "(743-37)"
+          }
+        ]
+      },
+      {
+        "pnu": "1153010200107490000",
+        "complexes": 19,
+        "examples": [
+          {
+            "complex_id": "cx_043c0e4c4a8ea9c9",
+            "apt_name": "(749-21)"
+          },
+          {
+            "complex_id": "cx_0f25966d704c6736",
+            "apt_name": "(749-5)"
+          },
+          {
+            "complex_id": "cx_11aa54f6b7fdc2ee",
+            "apt_name": "(749-44)"
+          },
+          {
+            "complex_id": "cx_1ad2a98c0ced0e94",
+            "apt_name": "평화빌라"
+          }
+        ]
+      }
+    ]
+  },
+  "cross_check": {
+    "compared": 58,
+    "median_m": 19,
+    "p75_m": 44.3,
+    "p90_m": 118.5,
+    "p95_m": 249.7,
+    "max_m": 10140.1,
+    "le_50m": 44,
+    "m50_100": 7,
+    "m100_250": 4,
+    "m250_500": 1,
+    "m500_plus": 2,
+    "note": "Compared to prior public-source gate overrides. Those coordinates are not parcel representative points."
+  },
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "apt_name": "잠실엘스",
+    "reb_pnu": [
+      "1171010100100190000"
+    ],
+    "spatial_pnu": "1171010100100190000",
+    "geometry": "representative point (precomputed; polygon not in this file)",
+    "representative_point": {
+      "lat": 37.51413457,
+      "lng": 127.07932524
+    },
+    "known_product_anchor": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "distance_m": 220.5,
+    "status": "EXACT_PNU",
+    "lot_agrees": true,
+    "identity_status": "SINGLE_PARCEL",
+    "result": "PASS"
+  },
+  "sample": {
+    "count": 30,
+    "structural_issues": 13,
+    "gate": "FAIL"
+  },
+  "unresolved_breakdown": {
+    "INVALID_PNU|NO_PNU": 1,
+    "MULTI_RECORD_SAME_PARCEL|PNU_LOT_CONFLICT": 298,
+    "MULTI_RECORD_SAME_PARCEL|PNU_NOT_FOUND": 2,
+    "NO_PNU|NO_PNU": 168,
+    "SINGLE_PARCEL|PNU_LOT_CONFLICT": 1707,
+    "SINGLE_PARCEL|PNU_NOT_FOUND": 3618
+  },
+  "gate": {
+    "pnu_exact_join": true,
+    "coordinate_sanity": true,
+    "spatial_coverage": 0.31966618287373005,
+    "decision": "FAIL",
+    "reason": "Jamsil Els exact join passed, but many REB 필지고유번호 values store 부번 0000 while the same row 주소 has a non-zero 부번. Those rows are not counted as high-confidence coordinates."
+  }
+}
