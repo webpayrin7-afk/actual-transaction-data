@@ -46,6 +46,11 @@ export function AttendanceZoneBlock({
       <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
         {zone.description}
       </p>
+      <div
+        className="mx-2.5 mt-2.5 h-px bg-slate-200"
+        role="separator"
+        aria-hidden
+      />
 
       <LabBottomSheet
         open={sheetOpen}
