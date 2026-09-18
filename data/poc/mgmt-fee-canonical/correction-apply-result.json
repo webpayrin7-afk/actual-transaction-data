@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "rows": 124,
+  "complexes": 11,
+  "updates": 52,
+  "deletes": 2,
+  "inserts": 0,
+  "affected": 54,
+  "exact_unchanged": 72,
+  "undercount_remaining": 0,
+  "missing_zero_remaining": 0,
+  "duplicate_keys": 0,
+  "total_amount": 192226996611,
+  "correction_hash": "11c2cc91834f1a406d8ff86d511aeaa0867d9cb48cf6bf822f50043fd2314e96",
+  "rollback_hash": "3f0e9b9a28c14705892e4e28d231a76f1d1eb5877477758d8ff92bc9bab69d95",
+  "rollback_executed": false,
+  "production_write": true,
+  "api_calls": 0
+}
