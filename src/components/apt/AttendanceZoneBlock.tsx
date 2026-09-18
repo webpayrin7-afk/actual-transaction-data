@@ -38,9 +38,10 @@ export function AttendanceZoneBlock({
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="shrink-0 text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
+          className="inline-flex shrink-0 items-center gap-0.5 text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
         >
           {zone.ctaLabel}
+          <ChevronRight className="h-3.5 w-3.5" aria-hidden />
         </button>
       </div>
       <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
