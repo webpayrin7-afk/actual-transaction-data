@@ -3,20 +3,24 @@
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { SCHOOL_MAT_SOURCE_VERSION } from "../src/lib/school-materialization/types";
 import {
   HIGH_SCHOOL_SEED_COMPLEX_ID,
+  NULL_SCHOOL_CODE_REASON,
   SCHOOL_MATERIALIZATION_DB_WRITE_ENABLED,
   SCHOOL_MAT_CHUNK_SIZE,
   SCHOOL_MAT_SAFE_COMPLEX_TARGET,
   SchoolMatGuardError,
   advanceCheckpoint,
+  annotateNearbyDbCandidate,
   assignedAreaKey,
   chunkComplexIds,
   estimateSafeCoordinatePass,
   highSchoolAssignment,
   nearbyUpsertKey,
+  planRemainingChunks,
   refuseSchoolMaterializationWrite,
   relationsSeparated,
   remainingAfterCheckpoint,
@@ -117,8 +121,9 @@ assert.equal(
 
 const estimate = estimateSafeCoordinatePass();
 assert.equal(estimate.complexes_with_coords, SCHOOL_MAT_SAFE_COMPLEX_TARGET);
-assert.equal(estimate.distance_calculations, 7963 * 1313);
-assert.equal(estimate.bottleneck, "nearest_schools_linear_scan");
+assert.equal(estimate.full_scan_distance_upper_bound, 7963 * 1313);
+assert.equal(estimate.bottleneck, "nearest_schools_grid_prefilter");
+assert.equal(estimate.nearby_prefilter, "grid");
 assert.equal(SCHOOL_MAT_CHUNK_SIZE, 500);
 assert.equal(chunkComplexIds(Array.from({ length: 7963 }, (_, i) => `cx_${String(i).padStart(5, "0")}`)).length, 16);
 
@@ -133,12 +138,66 @@ assert.match(py, /WRITE GUARD: this dry-run binary never writes Production rows/
 assert.match(py, /return 2/);
 assert.doesNotMatch(py, /INSERT INTO school_|execute\(`INSERT INTO school_/);
 
+const pyNear = spawnSync("python3", ["scripts/school-materialization/test_nearby_fixture.py"], {
+  cwd: ROOT,
+  encoding: "utf8",
+});
+assert.equal(pyNear.status, 0, pyNear.stderr || pyNear.stdout);
+
+const planIds = Array.from({ length: 7 }, (_, i) => `cx_${String(i).padStart(2, "0")}`);
+const cursor = spawnSync(
+  "npx",
+  ["tsx", "scripts/school-materialization/chunk_cursor.ts"],
+  {
+    cwd: ROOT,
+    encoding: "utf8",
+    input: JSON.stringify({
+      command: "plan",
+      complex_ids: planIds,
+      checkpoint: null,
+      chunk_size: 3,
+      source_version: SCHOOL_MAT_SOURCE_VERSION,
+    }),
+  },
+);
+assert.equal(cursor.status, 0, cursor.stderr);
+const planned = JSON.parse(cursor.stdout) as {
+  chunks: Array<{ ids: string[]; checkpoint_after: { last_completed_complex_id: string; completed_count: number } }>;
+};
+assert.deepEqual(planned.chunks.map((chunk) => chunk.ids.length), [3, 3, 1]);
+const resumed = planRemainingChunks(planIds, {
+  version: 1,
+  mode: "dry-run",
+  region: "seoul",
+  source_version: SCHOOL_MAT_SOURCE_VERSION,
+  last_completed_complex_id: planned.chunks[0]!.checkpoint_after.last_completed_complex_id,
+  completed_count: planned.chunks[0]!.checkpoint_after.completed_count,
+  total: planIds.length,
+}, SCHOOL_MAT_SOURCE_VERSION, 3);
+assert.deepEqual(resumed.map((chunk) => chunk.ids.length), [3, 1]);
+assert.equal(resumed[0]!.ids[0], planIds[3]);
+
+const annotated = sample.jamsil_nearby_top.map((row) =>
+  annotateNearbyDbCandidate({ ...row, school_code: row.school_code }),
+);
+assert.ok(annotated.some((row) => row.db_candidate === false && row.unresolved_reason === NULL_SCHOOL_CODE_REASON && row.school_name));
+assert.ok(annotated.some((row) => row.db_candidate && row.school_code === "7130153"));
+assert.equal(
+  annotateNearbyDbCandidate({ school_code: "  ", school_name: "kept" }).school_name,
+  "kept",
+);
+
+const dry = readFileSync(join(ROOT, "scripts/school-materialization/dry_run_seoul.py"), "utf8");
+assert.match(dry, /plan_remaining\(/);
+assert.match(dry, /if cid == JAMSIL_ID/);
+assert.match(dry, /--chunk-size", type=int, default=500/);
+
 console.log(
   JSON.stringify({
     ok: true,
     chunks: chunks.length,
     high_seed_only: jamHigh.scope,
     nearby_upsert_skipped: sample.jamsil_nearby_top.filter((row) => nearbyUpsertKey(row) == null).length,
-    distance_calculations: estimate.distance_calculations,
+    distance_calculations: estimate.full_scan_distance_upper_bound,
   }),
 );

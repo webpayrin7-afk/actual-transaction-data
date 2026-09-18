@@ -17,12 +17,11 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import math
 import os
 import sys
 import time
 from collections import Counter, defaultdict
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -31,12 +30,28 @@ from pyproj import Transformer
 from shapely.geometry import Point, shape
 from shapely.strtree import STRtree
 
+from batch_cursor import (
+    CheckpointScopeError,
+    apply_counter_delta,
+    assert_checkpoint_scope,
+    checkpoint_path,
+    counter_delta,
+    load_checkpoint,
+    plan_remaining,
+    read_chunk,
+    save_checkpoint,
+    write_chunk,
+)
+from nearby_index import (
+    NEARBY_MAX_M,
+    NEARBY_STORE_CAP_PER_LEVEL,
+    SchoolGrid,
+    annotate_nearby_db_candidate,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_VERSION = "koies-2026-03-20"
 BASE_DATE = "2026-03-20"
-NEARBY_MAX_M = 1500.0
-# Product shows all within 1.5km; store buffer for map/bounds (not UI-visible-only 3).
-NEARBY_STORE_CAP_PER_LEVEL = 24
 CRS_SHP = "EPSG:5186"
 CRS_WGS = "EPSG:4326"
 
@@ -52,15 +67,6 @@ JAMSIL_EXPECT = {
     "high_district_name": "강동송파학교군",
     "high_member_count": 26,
 }
-
-
-def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
-    r = 6371000.0
-    p1, p2 = math.radians(lat1), math.radians(lat2)
-    dphi = math.radians(lat2 - lat1)
-    dl = math.radians(lng2 - lng1)
-    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-    return 2 * r * math.asin(min(1.0, math.sqrt(a)))
 
 
 def load_membership_seeds() -> dict[str, dict[str, Any]]:
@@ -250,22 +256,6 @@ def build_name_index(schools: list[dict[str, Any]]) -> dict[str, list[dict[str, 
     return idx
 
 
-def nearest_schools(
-    schools_by_level: dict[str, list[dict[str, Any]]],
-    lat: float,
-    lng: float,
-    level: str,
-) -> list[dict[str, Any]]:
-    cand = schools_by_level.get(level) or []
-    scored = []
-    for s in cand:
-        d = haversine_m(lat, lng, s["lat"], s["lng"])
-        if d <= NEARBY_MAX_M:
-            scored.append({**s, "distance_m": round(d, 1)})
-    scored.sort(key=lambda x: x["distance_m"])
-    return scored[:NEARBY_STORE_CAP_PER_LEVEL]
-
-
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", default="dry-run", choices=["dry-run", "write"])
@@ -291,6 +281,7 @@ def main() -> int:
         default="/tmp/schoolzone-data/schools/한국교육시설안전원_초중등학교위치_20260320.csv",
     )
     ap.add_argument("--out-dir", default="/tmp/school-materialization-out")
+    ap.add_argument("--chunk-size", type=int, default=500)
     args = ap.parse_args()
 
     if args.mode == "write":
@@ -352,6 +343,10 @@ def main() -> int:
     by_level: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for s in schools:
         by_level[s["level"]].append(s)
+    level_grids = {
+        level: SchoolGrid(rows, max_m=NEARBY_MAX_M, cap=NEARBY_STORE_CAP_PER_LEVEL)
+        for level, rows in by_level.items()
+    }
     print(f"  seoul schools={len(schools)}", flush=True)
 
     # Optional NEIS code map from seeds
@@ -361,253 +356,317 @@ def main() -> int:
             if m.get("school_code") and m.get("name"):
                 neis_by_name[m["name"]] = m["school_code"]
 
+    if len({c["complex_id"] for c in complexes}) != len(complexes):
+        print("DUPLICATE_COMPLEX_ID", file=sys.stderr)
+        return 1
+    complexes = sorted(complexes, key=lambda c: c["complex_id"])
+    ordered_ids = [c["complex_id"] for c in complexes]
+    by_complex = {c["complex_id"]: c for c in complexes}
+    ckpt_file = checkpoint_path(out_dir)
+    saved = load_checkpoint(ckpt_file)
+    try:
+        assert_checkpoint_scope(saved, args.school_level, args.complex_id, args.chunk_size)
+    except CheckpointScopeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    try:
+        chunk_plan = plan_remaining(ordered_ids, saved, args.chunk_size, SOURCE_VERSION)
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
     elem_stats = Counter()
     mid_stats = Counter()
     high_stats = Counter()
     nearby_stats = Counter()
-    unresolved_rows: list[dict[str, Any]] = []
-    samples: dict[str, Any] = {}
-    area_rows: list[dict[str, Any]] = []
-    nearby_rows: list[dict[str, Any]] = []
-
+    unresolved_rows = []
+    samples = {}
+    area_rows = []
+    nearby_rows = []
     valid_coords = 0
-    for c in complexes:
-        cid = c["complex_id"]
-        lat, lng = c.get("lat"), c.get("lng")
-        has_coords = (
-            lat is not None
-            and lng is not None
-            and isinstance(lat, (int, float))
-            and isinstance(lng, (int, float))
-            and 33 <= lat <= 39
-            and 124 <= lng <= 132
-        )
-        if has_coords:
-            valid_coords += 1
+    resumed_from = None if saved is None else saved.get("last_completed_complex_id")
+    chunk_counts = [] if saved is None else list(saved.get("chunk_completed_counts") or [])
+    if saved and saved.get("completed_count") and not chunk_counts:
+        print("CHECKPOINT_CHUNKS_MISSING", file=sys.stderr)
+        return 1
+    if saved and saved.get("completed_count"):
+        for done in chunk_counts:
+            part = read_chunk(out_dir, done)
+            area_rows.extend(part["area_rows"])
+            nearby_rows.extend(part["nearby_rows"])
+            unresolved_rows.extend(part["unresolved_rows"])
+            valid_coords += int(part["valid_coords"])
+            apply_counter_delta(elem_stats, part["elem_stats"])
+            apply_counter_delta(mid_stats, part["mid_stats"])
+            apply_counter_delta(high_stats, part["high_stats"])
+            apply_counter_delta(nearby_stats, part["nearby_stats"])
+            for key, value in part["samples"].items():
+                samples.setdefault(key, value)
 
-        # --- elementary ---
-        if do_elem:
-            if not has_coords:
-                st = "INVALID_COMPLEX_COORD"
-                elem_stats[st] += 1
-                unresolved_rows.append(
-                    {
-                        "complex_id": cid,
-                        "apt_name": c.get("apt_name"),
-                        "school_level": "elementary",
-                        "status": st,
-                        "detail": "master latitude/longitude null",
-                    }
-                )
-                area_rows.append(
-                    {
-                        "complex_id": cid,
-                        "school_level": "elementary",
-                        "area_type": "attendance_zone",
-                        "area_id": None,
-                        "resolution_status": st,
-                        "source_version": SOURCE_VERSION,
-                    }
-                )
-            else:
-                assert elem_tree is not None
-                st, hits = pip_query(elem_tree, elem_polys, float(lat), float(lng))
-                school_code = None
-                school_name = None
-                zone_id = hits[0].zone_id if hits else None
-                zone_name = hits[0].zone_name if hits else None
-                if st in ("CONFIRMED_SINGLE", "CONFIRMED_COMMON") and hits:
-                    # Prefer seed membership
-                    seed = seeds.get(hits[0].zone_id)
-                    if seed and seed["members"]:
-                        school_name = seed["members"][0]["name"]
-                        school_code = seed["members"][0]["school_code"]
-                    else:
-                        guess = zone_name_to_school_guess(hits[0].zone_name)
-                        school_name = guess
-                        if guess and guess in name_idx:
-                            # facility id only — NEIS unresolved unless seed
-                            school_code = neis_by_name.get(guess)
-                            if school_code is None:
-                                st_code = "SCHOOL_CODE_UNRESOLVED"
-                                elem_stats[st_code] += 1
-                                unresolved_rows.append(
-                                    {
-                                        "complex_id": cid,
-                                        "apt_name": c.get("apt_name"),
-                                        "school_level": "elementary",
-                                        "status": st_code,
-                                        "detail": f"zone={hits[0].zone_id} guess={guess}",
-                                    }
-                                )
-                        elif guess:
-                            elem_stats["SCHOOL_CODE_UNRESOLVED"] += 1
-                            unresolved_rows.append(
-                                {
-                                    "complex_id": cid,
-                                    "apt_name": c.get("apt_name"),
-                                    "school_level": "elementary",
-                                    "status": "SCHOOL_CODE_UNRESOLVED",
-                                    "detail": f"zone={hits[0].zone_id} guess={guess} not in CSV",
-                                }
-                            )
-                elem_stats[st] += 1
-                if st not in ("CONFIRMED_SINGLE", "CONFIRMED_COMMON"):
+    for step in chunk_plan:
+        samples_before = set(samples)
+        a0, n0, u0 = len(area_rows), len(nearby_rows), len(unresolved_rows)
+        v0 = valid_coords
+        e0, m0, h0, nb0 = elem_stats.copy(), mid_stats.copy(), high_stats.copy(), nearby_stats.copy()
+        for c in (by_complex[i] for i in step["ids"]):
+            cid = c["complex_id"]
+            lat, lng = c.get("lat"), c.get("lng")
+            has_coords = (
+                lat is not None
+                and lng is not None
+                and isinstance(lat, (int, float))
+                and isinstance(lng, (int, float))
+                and 33 <= lat <= 39
+                and 124 <= lng <= 132
+            )
+            if has_coords:
+                valid_coords += 1
+
+            # --- elementary ---
+            if do_elem:
+                if not has_coords:
+                    st = "INVALID_COMPLEX_COORD"
+                    elem_stats[st] += 1
                     unresolved_rows.append(
                         {
                             "complex_id": cid,
                             "apt_name": c.get("apt_name"),
                             "school_level": "elementary",
                             "status": st,
-                            "detail": ",".join(h.zone_id for h in hits),
+                            "detail": "master latitude/longitude null",
                         }
                     )
-                area_rows.append(
-                    {
-                        "complex_id": cid,
-                        "school_level": "elementary",
-                        "area_type": "attendance_zone",
-                        "area_id": zone_id,
-                        "zone_name": zone_name,
-                        "school_code": school_code,
-                        "school_name": school_name,
-                        "resolution_status": st,
-                        "source_version": SOURCE_VERSION,
-                    }
-                )
-                if st == "CONFIRMED_SINGLE" and "normal_elementary_single" not in samples:
-                    samples["normal_elementary_single"] = {
-                        "complex_id": cid,
-                        "zone_id": zone_id,
-                        "zone_name": zone_name,
-                        "school_name": school_name,
-                    }
-                if st == "CONFIRMED_COMMON" and "common_attendance_zone" not in samples:
-                    samples["common_attendance_zone"] = {
-                        "complex_id": cid,
-                        "zone_id": zone_id,
-                        "zone_name": zone_name,
-                    }
-                if st == "BOUNDARY_AMBIGUOUS" and "boundary_ambiguous" not in samples:
-                    samples["boundary_ambiguous"] = {
-                        "complex_id": cid,
-                        "hits": [h.zone_id for h in hits],
-                    }
-                if st == "NO_POLYGON_MATCH" and "unmatched" not in samples:
-                    samples["unmatched"] = {"complex_id": cid, "lat": lat, "lng": lng}
-
-        # --- middle ---
-        if do_mid:
-            if not has_coords:
-                st = "INVALID_COMPLEX_COORD"
-                mid_stats[st] += 1
-                area_rows.append(
-                    {
-                        "complex_id": cid,
-                        "school_level": "middle",
-                        "area_type": "district",
-                        "area_id": None,
-                        "resolution_status": st,
-                        "source_version": SOURCE_VERSION,
-                    }
-                )
-            else:
-                assert mid_tree is not None
-                st, hits = pip_query(mid_tree, mid_polys, float(lat), float(lng))
-                district_id = hits[0].zone_id if hits else None
-                district_name = hits[0].zone_name if hits else None
-                membership_status = None
-                members = []
-                if st in ("CONFIRMED_SINGLE", "CONFIRMED_COMMON") and district_id:
-                    seed = seeds.get(district_id)
-                    if seed:
-                        members = seed["members"]
-                        membership_status = "MEMBERSHIP_COMPLETE"
-                        mid_stats["MEMBERSHIP_COMPLETE"] += 1
-                    else:
-                        membership_status = "RESOLVED_DISTRICT_ONLY"
-                        mid_stats["RESOLVED_DISTRICT_ONLY"] += 1
-                mid_stats[st] += 1
-                area_rows.append(
-                    {
-                        "complex_id": cid,
-                        "school_level": "middle",
-                        "area_type": "district",
-                        "area_id": district_id,
-                        "district_name": district_name,
-                        "membership_status": membership_status,
-                        "member_count": len(members),
-                        "resolution_status": st,
-                        "source_version": SOURCE_VERSION,
-                    }
-                )
-                if membership_status == "MEMBERSHIP_COMPLETE" and "middle_normal_district" not in samples:
-                    samples["middle_normal_district"] = {
-                        "complex_id": cid,
-                        "district_id": district_id,
-                        "district_name": district_name,
-                        "member_count": len(members),
-                    }
-
-        # --- high ---
-        if do_high:
-            # No Seoul-wide high SHP in this dry-run package.
-            if cid == JAMSIL_ID:
-                seed = seeds.get("name:강동송파학교군")
-                high_stats["MEMBERSHIP_COMPLETE"] += 1
-                high_stats["DISTRICT_RESOLVED_SEED"] += 1
-                area_rows.append(
-                    {
-                        "complex_id": cid,
-                        "school_level": "high",
-                        "area_type": "district",
-                        "area_id": None,
-                        "district_name": "강동송파학교군",
-                        "membership_status": "MEMBERSHIP_COMPLETE",
-                        "member_count": len(seed["members"]) if seed else 0,
-                        "resolution_status": "CONFIRMED_SEED",
-                        "source_version": "pilot-high-seed-web",
-                    }
-                )
-            else:
-                high_stats["UNRESOLVED"] += 1
-                area_rows.append(
-                    {
-                        "complex_id": cid,
-                        "school_level": "high",
-                        "area_type": "district",
-                        "area_id": None,
-                        "resolution_status": "UNRESOLVED",
-                        "source_version": "high-shp-absent",
-                    }
-                )
-
-        # --- nearby ---
-        if has_coords:
-            nearby_stats["complexes_calculated"] += 1
-            for level in ("elementary", "middle", "high"):
-                if args.school_level not in ("all", level):
-                    continue
-                near = nearest_schools(by_level, float(lat), float(lng), level)
-                for rank, s in enumerate(near, start=1):
-                    code = neis_by_name.get(s["name"])
-                    if code is None:
-                        nearby_stats["neis_code_unresolved"] += 1
-                    nearby_rows.append(
+                    area_rows.append(
                         {
                             "complex_id": cid,
-                            "school_level": level,
-                            "school_name": s["name"],
-                            "school_code": code,
-                            "facility_id": s.get("facility_id"),
-                            "distance_m": s["distance_m"],
-                            "rank": rank,
+                            "school_level": "elementary",
+                            "area_type": "attendance_zone",
+                            "area_id": None,
+                            "resolution_status": st,
                             "source_version": SOURCE_VERSION,
                         }
                     )
-                    nearby_stats[f"{level}_rows"] += 1
-        else:
-            nearby_stats["skipped_no_coord"] += 1
+                else:
+                    assert elem_tree is not None
+                    st, hits = pip_query(elem_tree, elem_polys, float(lat), float(lng))
+                    school_code = None
+                    school_name = None
+                    zone_id = hits[0].zone_id if hits else None
+                    zone_name = hits[0].zone_name if hits else None
+                    if st in ("CONFIRMED_SINGLE", "CONFIRMED_COMMON") and hits:
+                        # Prefer seed membership
+                        seed = seeds.get(hits[0].zone_id)
+                        if seed and seed["members"]:
+                            school_name = seed["members"][0]["name"]
+                            school_code = seed["members"][0]["school_code"]
+                        else:
+                            guess = zone_name_to_school_guess(hits[0].zone_name)
+                            school_name = guess
+                            if guess and guess in name_idx:
+                                # facility id only — NEIS unresolved unless seed
+                                school_code = neis_by_name.get(guess)
+                                if school_code is None:
+                                    st_code = "SCHOOL_CODE_UNRESOLVED"
+                                    elem_stats[st_code] += 1
+                                    unresolved_rows.append(
+                                        {
+                                            "complex_id": cid,
+                                            "apt_name": c.get("apt_name"),
+                                            "school_level": "elementary",
+                                            "status": st_code,
+                                            "detail": f"zone={hits[0].zone_id} guess={guess}",
+                                        }
+                                    )
+                            elif guess:
+                                elem_stats["SCHOOL_CODE_UNRESOLVED"] += 1
+                                unresolved_rows.append(
+                                    {
+                                        "complex_id": cid,
+                                        "apt_name": c.get("apt_name"),
+                                        "school_level": "elementary",
+                                        "status": "SCHOOL_CODE_UNRESOLVED",
+                                        "detail": f"zone={hits[0].zone_id} guess={guess} not in CSV",
+                                    }
+                                )
+                    elem_stats[st] += 1
+                    if st not in ("CONFIRMED_SINGLE", "CONFIRMED_COMMON"):
+                        unresolved_rows.append(
+                            {
+                                "complex_id": cid,
+                                "apt_name": c.get("apt_name"),
+                                "school_level": "elementary",
+                                "status": st,
+                                "detail": ",".join(h.zone_id for h in hits),
+                            }
+                        )
+                    area_rows.append(
+                        {
+                            "complex_id": cid,
+                            "school_level": "elementary",
+                            "area_type": "attendance_zone",
+                            "area_id": zone_id,
+                            "zone_name": zone_name,
+                            "school_code": school_code,
+                            "school_name": school_name,
+                            "resolution_status": st,
+                            "source_version": SOURCE_VERSION,
+                        }
+                    )
+                    if st == "CONFIRMED_SINGLE" and "normal_elementary_single" not in samples:
+                        samples["normal_elementary_single"] = {
+                            "complex_id": cid,
+                            "zone_id": zone_id,
+                            "zone_name": zone_name,
+                            "school_name": school_name,
+                        }
+                    if st == "CONFIRMED_COMMON" and "common_attendance_zone" not in samples:
+                        samples["common_attendance_zone"] = {
+                            "complex_id": cid,
+                            "zone_id": zone_id,
+                            "zone_name": zone_name,
+                        }
+                    if st == "BOUNDARY_AMBIGUOUS" and "boundary_ambiguous" not in samples:
+                        samples["boundary_ambiguous"] = {
+                            "complex_id": cid,
+                            "hits": [h.zone_id for h in hits],
+                        }
+                    if st == "NO_POLYGON_MATCH" and "unmatched" not in samples:
+                        samples["unmatched"] = {"complex_id": cid, "lat": lat, "lng": lng}
+
+            # --- middle ---
+            if do_mid:
+                if not has_coords:
+                    st = "INVALID_COMPLEX_COORD"
+                    mid_stats[st] += 1
+                    area_rows.append(
+                        {
+                            "complex_id": cid,
+                            "school_level": "middle",
+                            "area_type": "district",
+                            "area_id": None,
+                            "resolution_status": st,
+                            "source_version": SOURCE_VERSION,
+                        }
+                    )
+                else:
+                    assert mid_tree is not None
+                    st, hits = pip_query(mid_tree, mid_polys, float(lat), float(lng))
+                    district_id = hits[0].zone_id if hits else None
+                    district_name = hits[0].zone_name if hits else None
+                    membership_status = None
+                    members = []
+                    if st in ("CONFIRMED_SINGLE", "CONFIRMED_COMMON") and district_id:
+                        seed = seeds.get(district_id)
+                        if seed:
+                            members = seed["members"]
+                            membership_status = "MEMBERSHIP_COMPLETE"
+                            mid_stats["MEMBERSHIP_COMPLETE"] += 1
+                        else:
+                            membership_status = "RESOLVED_DISTRICT_ONLY"
+                            mid_stats["RESOLVED_DISTRICT_ONLY"] += 1
+                    mid_stats[st] += 1
+                    area_rows.append(
+                        {
+                            "complex_id": cid,
+                            "school_level": "middle",
+                            "area_type": "district",
+                            "area_id": district_id,
+                            "district_name": district_name,
+                            "membership_status": membership_status,
+                            "member_count": len(members),
+                            "resolution_status": st,
+                            "source_version": SOURCE_VERSION,
+                        }
+                    )
+                    if membership_status == "MEMBERSHIP_COMPLETE" and "middle_normal_district" not in samples:
+                        samples["middle_normal_district"] = {
+                            "complex_id": cid,
+                            "district_id": district_id,
+                            "district_name": district_name,
+                            "member_count": len(members),
+                        }
+
+            # --- high ---
+            if do_high:
+                # No Seoul-wide high SHP in this dry-run package.
+                if cid == JAMSIL_ID:
+                    seed = seeds.get("name:강동송파학교군")
+                    high_stats["MEMBERSHIP_COMPLETE"] += 1
+                    high_stats["DISTRICT_RESOLVED_SEED"] += 1
+                    area_rows.append(
+                        {
+                            "complex_id": cid,
+                            "school_level": "high",
+                            "area_type": "district",
+                            "area_id": None,
+                            "district_name": "강동송파학교군",
+                            "membership_status": "MEMBERSHIP_COMPLETE",
+                            "member_count": len(seed["members"]) if seed else 0,
+                            "resolution_status": "CONFIRMED_SEED",
+                            "source_version": "pilot-high-seed-web",
+                        }
+                    )
+                else:
+                    high_stats["UNRESOLVED"] += 1
+                    area_rows.append(
+                        {
+                            "complex_id": cid,
+                            "school_level": "high",
+                            "area_type": "district",
+                            "area_id": None,
+                            "resolution_status": "UNRESOLVED",
+                            "source_version": "high-shp-absent",
+                        }
+                    )
+
+            # --- nearby ---
+            if has_coords:
+                nearby_stats["complexes_calculated"] += 1
+                for level in ("elementary", "middle", "high"):
+                    if args.school_level not in ("all", level):
+                        continue
+                    near = (level_grids.get(level) or SchoolGrid([])).nearest(float(lat), float(lng))
+                    for rank, s in enumerate(near, start=1):
+                        code = neis_by_name.get(s["name"])
+                        row = annotate_nearby_db_candidate(
+                            {
+                                "complex_id": cid,
+                                "school_level": level,
+                                "school_name": s["name"],
+                                "school_code": code,
+                                "facility_id": s.get("facility_id"),
+                                "distance_m": s["distance_m"],
+                                "rank": rank,
+                                "source_version": SOURCE_VERSION,
+                            }
+                        )
+                        if not row["db_candidate"]:
+                            nearby_stats["neis_code_unresolved"] += 1
+                            nearby_stats["db_candidate_excluded"] += 1
+                        nearby_rows.append(row)
+                        nearby_stats[f"{level}_rows"] += 1
+            else:
+                nearby_stats["skipped_no_coord"] += 1
+
+        done = step["checkpoint_after"]
+        part = {
+            "completed_count": done["completed_count"],
+            "last_completed_complex_id": done["last_completed_complex_id"],
+            "area_rows": area_rows[a0:],
+            "nearby_rows": nearby_rows[n0:],
+            "unresolved_rows": unresolved_rows[u0:],
+            "valid_coords": valid_coords - v0,
+            "elem_stats": counter_delta(e0, elem_stats),
+            "mid_stats": counter_delta(m0, mid_stats),
+            "high_stats": counter_delta(h0, high_stats),
+            "nearby_stats": counter_delta(nb0, nearby_stats),
+            "samples": {key: samples[key] for key in samples if key not in samples_before},
+        }
+        write_chunk(out_dir, done["completed_count"], part)
+        chunk_counts.append(done["completed_count"])
+        done = dict(done)
+        done["chunk_completed_counts"] = chunk_counts
+        save_checkpoint(ckpt_file, done, args.school_level, args.complex_id, args.chunk_size)
 
     elapsed = round(time.time() - t0, 2)
 
@@ -682,7 +741,7 @@ def main() -> int:
                 max(1, valid_coords),
                 ["CONFIRMED_SINGLE", "CONFIRMED_COMMON"],
             ),
-            "counts": dict(elem_stats),
+            "counts": dict(sorted(elem_stats.items())),
         },
         "middle": {
             "district_resolved": mid_district_resolved,
@@ -696,7 +755,7 @@ def main() -> int:
                 max(1, valid_coords),
                 ["CONFIRMED_SINGLE", "CONFIRMED_COMMON"],
             ),
-            "counts": dict(mid_stats),
+            "counts": dict(sorted(mid_stats.items())),
         },
         "high": {
             "district_resolved": high_stats["DISTRICT_RESOLVED_SEED"],
@@ -704,7 +763,7 @@ def main() -> int:
             "partial": 0,
             "unresolved": high_stats["UNRESOLVED"],
             "coverage_note": "Seoul-wide high SHP/membership not packaged; seed-only for 잠실엘스.",
-            "counts": dict(high_stats),
+            "counts": dict(sorted(high_stats.items())),
         },
         "nearby": {
             "complexes_calculated": nearby_stats["complexes_calculated"],
@@ -712,6 +771,7 @@ def main() -> int:
             "middle_rows": nearby_stats["middle_rows"],
             "high_rows": nearby_stats["high_rows"],
             "neis_code_unresolved": nearby_stats["neis_code_unresolved"],
+            "db_candidate_excluded": nearby_stats["db_candidate_excluded"],
             "skipped_no_coord": nearby_stats["skipped_no_coord"],
             "radius_m": NEARBY_MAX_M,
             "store_cap_per_level": NEARBY_STORE_CAP_PER_LEVEL,
@@ -732,6 +792,18 @@ def main() -> int:
             "seoul_schools_csv": len(schools),
         },
         "samples": samples,
+        "nearby_db_candidates": {
+            "excluded_null_school_code": nearby_stats["db_candidate_excluded"],
+            "excluded_reason": "SCHOOL_CODE_UNRESOLVED",
+            "note": "Nearby rows are kept. NULL school_code is not a materialization candidate and no code is invented.",
+        },
+        "batch": {
+            "chunk_size": args.chunk_size,
+            "ordered_by": "complex_id",
+            "resumed_from": resumed_from,
+            "chunks_this_run": len(chunk_plan),
+            "completed_count": chunk_counts[-1] if chunk_counts else 0,
+        },
         "pip_semantics": "shapely Polygon.covers(point) — interior OR boundary; multi-cover → BOUNDARY_AMBIGUOUS (no arbitrary pick)",
         "production_rows_written": 0,
     }

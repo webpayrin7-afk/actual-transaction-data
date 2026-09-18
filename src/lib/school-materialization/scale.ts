@@ -209,23 +209,66 @@ export function relationsSeparated(keys: readonly string[]): boolean {
   return all.size === keys.length;
 }
 
+export const NULL_SCHOOL_CODE_REASON = "SCHOOL_CODE_UNRESOLVED" as const;
+
+/** Keep the nearby row. Do not invent a NEIS code. Exclude only the DB candidate. */
+export function annotateNearbyDbCandidate<T extends { school_code: string | null }>(
+  row: T,
+): T & {
+  school_code: string | null;
+  db_candidate: boolean;
+  unresolved_reason: typeof NULL_SCHOOL_CODE_REASON | null;
+} {
+  const code = typeof row.school_code === "string" ? row.school_code.trim() : "";
+  if (!code) {
+    return {
+      ...row,
+      school_code: null,
+      db_candidate: false,
+      unresolved_reason: NULL_SCHOOL_CODE_REASON,
+    };
+  }
+  return {
+    ...row,
+    school_code: code,
+    db_candidate: true,
+    unresolved_reason: null,
+  };
+}
+
+export function planRemainingChunks(
+  orderedIds: readonly string[],
+  checkpoint: SchoolMatCheckpoint | null,
+  sourceVersion: string,
+  chunkSize = SCHOOL_MAT_CHUNK_SIZE,
+): Array<{ ids: string[]; checkpoint_after: SchoolMatCheckpoint }> {
+  const remaining = remainingAfterCheckpoint(orderedIds, checkpoint);
+  const parts = chunkComplexIds(remaining, chunkSize);
+  return parts.map((ids) => ({
+    ids,
+    checkpoint_after: advanceCheckpoint(orderedIds, ids, sourceVersion),
+  }));
+}
+
 export function estimateSafeCoordinatePass(params?: {
   complexesWithCoords?: number;
   seoulSchoolRows?: number;
 }): {
   complexes_with_coords: number;
-  distance_calculations: number;
+  full_scan_distance_upper_bound: number;
   max_nearby_rows_at_cap: number;
   pip_indexed: true;
-  bottleneck: "nearest_schools_linear_scan";
+  nearby_prefilter: "grid";
+  bottleneck: "nearest_schools_grid_prefilter";
 } {
   const complexes = params?.complexesWithCoords ?? SCHOOL_MAT_SAFE_COMPLEX_TARGET;
   const schools = params?.seoulSchoolRows ?? SCHOOL_MAT_SEOUL_SCHOOL_ROWS;
   return {
     complexes_with_coords: complexes,
-    distance_calculations: complexes * schools,
+    full_scan_distance_upper_bound: complexes * schools,
     max_nearby_rows_at_cap: complexes * 3 * 24,
     pip_indexed: true,
-    bottleneck: "nearest_schools_linear_scan",
+    nearby_prefilter: "grid",
+    bottleneck: "nearest_schools_grid_prefilter",
   };
 }
