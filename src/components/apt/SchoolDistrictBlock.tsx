@@ -62,7 +62,7 @@ export function SchoolDistrictBlock({
         <p className="text-[11px] leading-4 text-slate-500">
           학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.
         </p>
-        <ul className="mt-2 space-y-0" data-testid="school-district-sheet-list">
+        <ul className="mt-4 space-y-0" data-testid="school-district-sheet-list">
           {district.members.map((m) => (
             <li key={`all-${m.schoolCode ?? m.name}`}>
               <DistrictSchoolRow

@@ -67,7 +67,7 @@ export function AttendanceZoneBlock({
         >
           {zone.infoText}
         </p>
-        <ul className="mt-2 space-y-0" data-testid="attendance-zone-sheet-list">
+        <ul className="mt-4 space-y-0" data-testid="attendance-zone-sheet-list">
           {zone.designatedSchools.map((m) => {
             const dist = formatDistrictDistance(m.distanceM);
             const meta = [m.establishment, dist].filter(Boolean).join(" · ");
