@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
-import { InfoTip } from "@/components/ui/InfoTip";
 import { formatDistrictDistance } from "@/lib/complex-detail/school-district";
 import type { ProductAttendanceZone } from "@/lib/complex-detail/attendance-zone";
 
@@ -33,9 +32,8 @@ export function AttendanceZoneBlock({
       data-zone-kind={zone.zoneKind}
     >
       <div className="flex items-center justify-between gap-2">
-        <p className="flex min-w-0 items-center gap-1 text-[14px] font-semibold tracking-tight text-slate-800">
-          <span className="truncate">{zone.officialName}</span>
-          <InfoTip aria-label="통학구역 안내">{zone.infoText}</InfoTip>
+        <p className="min-w-0 truncate text-[14px] font-semibold tracking-tight text-slate-800">
+          {zone.officialName}
         </p>
         <button
           type="button"
@@ -55,18 +53,18 @@ export function AttendanceZoneBlock({
         onClose={() => setSheetOpen(false)}
         title={zone.officialName}
         doneLabel="닫기"
+        hideHeaderDivider
       >
-        <p className="text-[12px] text-slate-500">
-          {zone.zoneKind === "joint"
-            ? `공동통학구역 · ${zone.designatedSchools.length}개교`
-            : "취학 대상 초등학교"}
-        </p>
-        {zone.baseDate ? (
-          <p className="mt-1 text-[11px] leading-4 text-slate-500">
-            자료 기준일 {zone.baseDate}
+        {zone.zoneKind === "joint" ? (
+          <p className="text-[12px] text-slate-500">
+            {`공동통학구역 · ${zone.designatedSchools.length}개교`}
           </p>
         ) : null}
-        <p className="mt-1 text-[11px] leading-4 text-slate-500">
+        <p
+          className={`text-[11px] leading-4 text-slate-500 ${
+            zone.zoneKind === "joint" ? "mt-1" : ""
+          }`}
+        >
           {zone.infoText}
         </p>
         <ul className="mt-3 space-y-1" data-testid="attendance-zone-sheet-list">

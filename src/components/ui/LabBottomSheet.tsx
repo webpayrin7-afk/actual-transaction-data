@@ -18,6 +18,8 @@ type LabBottomSheetProps = {
   children: ReactNode;
   /** Right-side header action label. Defaults to 완료. */
   doneLabel?: string;
+  /** Hide the hairline under the title row. */
+  hideHeaderDivider?: boolean;
 };
 
 /**
@@ -30,6 +32,7 @@ export function LabBottomSheet({
   title,
   children,
   doneLabel = "완료",
+  hideHeaderDivider = false,
 }: LabBottomSheetProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
@@ -104,7 +107,11 @@ export function LabBottomSheet({
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-4 py-3">
+        <div
+          className={`flex shrink-0 items-center justify-between px-4 py-3 ${
+            hideHeaderDivider ? "" : "border-b border-slate-200"
+          }`}
+        >
           <h3
             id={titleId}
             className="text-base font-semibold text-slate-900"
