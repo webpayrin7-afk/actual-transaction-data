@@ -301,10 +301,6 @@ export function ComplexCommerceMeta({
 
   return (
     <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] text-slate-600">
-      <span className="font-semibold text-slate-800">생활 상권</span>
-      <span className="text-slate-300" aria-hidden>
-        ·
-      </span>
       <span>
         반경 {radiusKm} · {snapshot.sourcePeriodLabel}
       </span>
