@@ -111,20 +111,19 @@ export function LabBottomSheet({
         }}
       >
         <div
-          className={`flex shrink-0 items-start justify-between gap-3 px-4 ${
+          className={`flex shrink-0 items-center justify-between gap-3 px-4 ${
             hideHeaderDivider ? "pt-5 pb-3" : "border-b border-slate-200 py-3"
           }`}
         >
           <h3
             id={titleId}
-            className="min-w-0 flex-1 text-base font-semibold leading-snug text-slate-900"
-            style={{ paddingLeft: "0.75em", textIndent: "-0.75em" }}
+            className="min-w-0 flex-1 truncate text-base font-semibold leading-snug text-slate-900"
           >
             {title}
           </h3>
           <button
             type="button"
-            className="shrink-0 pt-0.5 text-sm font-medium text-teal-700"
+            className="shrink-0 text-sm font-medium text-teal-700"
             onClick={onClose}
           >
             {doneLabel}
