@@ -112,7 +112,7 @@ export function LabBottomSheet({
       >
         <div
           className={`flex shrink-0 items-center justify-between gap-3 px-4 ${
-            hideHeaderDivider ? "pt-5 pb-3" : "border-b border-slate-200 py-3"
+            hideHeaderDivider ? "pt-5 pb-2" : "border-b border-slate-200 py-3"
           }`}
         >
           <h3
@@ -131,7 +131,7 @@ export function LabBottomSheet({
         </div>
         <div
           className={`min-h-0 flex-1 overflow-y-auto px-4 pb-4 ${
-            compactBodyTop ? "pt-3" : "pt-4"
+            compactBodyTop ? "pt-2" : "pt-4"
           }`}
         >
           {children}
