@@ -55,6 +55,11 @@ export function AttendanceZoneBlock({
         hideHeaderDivider
         compactBodyTop
       >
+        <div
+          className="-mt-1 mx-2.5 mb-3 h-px bg-slate-200"
+          role="separator"
+          aria-hidden
+        />
         {zone.zoneKind === "joint" ? (
           <p className="text-[12px] text-slate-500">
             {`공동통학구역 · ${zone.designatedSchools.length}개교`}
@@ -67,12 +72,7 @@ export function AttendanceZoneBlock({
         >
           {zone.infoText}
         </p>
-        <div
-          className="mx-2.5 mt-3 h-px bg-slate-200"
-          role="separator"
-          aria-hidden
-        />
-        <ul className="mt-3 space-y-0" data-testid="attendance-zone-sheet-list">
+        <ul className="mt-4 space-y-0" data-testid="attendance-zone-sheet-list">
           {zone.designatedSchools.map((m) => {
             const dist = formatDistrictDistance(m.distanceM);
             const meta = [m.establishment, dist].filter(Boolean).join(" · ");

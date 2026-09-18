@@ -59,6 +59,11 @@ export function SchoolDistrictBlock({
         hideHeaderDivider
         compactBodyTop
       >
+        <div
+          className="-mt-1 mx-2.5 mb-3 h-px bg-slate-200"
+          role="separator"
+          aria-hidden
+        />
         <p className="text-[11px] leading-4 text-slate-500">
           학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.
         </p>
