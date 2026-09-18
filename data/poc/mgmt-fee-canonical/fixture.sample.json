@@ -1,0 +1,37 @@
+{
+  "periods": ["202507", "202508"],
+  "expected_ops": ["op_a", "op_b"],
+  "cohort": [
+    { "complex_id": "cx_dryrun_seoul_1", "region": "seoul" },
+    { "complex_id": "cx_dryrun_gg_1", "region": "gyeonggi" }
+  ],
+  "existing_fee_keys": [
+    { "complex_id": "cx_dryrun_seoul_1", "period_yyyymm": "202507" }
+  ],
+  "targets": [
+    {
+      "complex_id": "cx_dryrun_seoul_1",
+      "period_yyyymm": "202507",
+      "observations": [
+        { "op": "op_a", "state": "success", "amount": 1000 },
+        { "op": "op_b", "state": "success", "amount": 0 }
+      ]
+    },
+    {
+      "complex_id": "cx_dryrun_seoul_1",
+      "period_yyyymm": "202508",
+      "observations": [
+        { "op": "op_a", "state": "success", "amount": 400 },
+        { "op": "op_b", "state": "missing", "amount": null }
+      ]
+    },
+    {
+      "complex_id": "cx_dryrun_gg_1",
+      "period_yyyymm": "202507",
+      "observations": [
+        { "op": "op_a", "state": "missing", "amount": null },
+        { "op": "op_b", "state": "missing", "amount": null }
+      ]
+    }
+  ]
+}
