@@ -46,11 +46,6 @@ export function AttendanceZoneBlock({
       <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
         {zone.description}
       </p>
-      <div
-        className="mx-2.5 mt-2.5 h-px bg-slate-200"
-        role="separator"
-        aria-hidden
-      />
 
       <LabBottomSheet
         open={sheetOpen}
@@ -72,7 +67,12 @@ export function AttendanceZoneBlock({
         >
           {zone.infoText}
         </p>
-        <ul className="mt-4 space-y-0" data-testid="attendance-zone-sheet-list">
+        <div
+          className="mx-2.5 mt-3 h-px bg-slate-200"
+          role="separator"
+          aria-hidden
+        />
+        <ul className="mt-3 space-y-0" data-testid="attendance-zone-sheet-list">
           {zone.designatedSchools.map((m) => {
             const dist = formatDistrictDistance(m.distanceM);
             const meta = [m.establishment, dist].filter(Boolean).join(" · ");
