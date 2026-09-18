@@ -37,6 +37,7 @@ import {
   type IndexedParcel,
   type ParcelPointRow,
 } from "../../src/lib/complex-coordinates/parcel-point-join";
+import { writeSameRowRepairReport } from "./same_row_repair_report";
 
 const OUT = process.argv[2] || "data/poc/complex-coordinates";
 const CACHE = process.env.COORD_SOURCE_CACHE || "/tmp/coord-source";
@@ -72,6 +73,8 @@ type IdentityRow = {
   match_bridge: "LAND_AGNOSTIC_KEY" | "JIBUN_ADDRESS" | "NONE";
   lot_agrees: boolean | null;
   aligned_pnu: string | null;
+  addresses: string[];
+  legal_dong: string | null;
 };
 
 async function loadReb(): Promise<{ byKey: Map<string, RebHit[]>; byJibun: Map<string, RebHit[]> }> {
@@ -379,6 +382,8 @@ async function main() {
       match_bridge: keyHits.length ? "LAND_AGNOSTIC_KEY" : jibunHits.length ? "JIBUN_ADDRESS" : "NONE",
       lot_agrees: lotAgrees,
       aligned_pnu: aligned,
+      addresses: chosenHits.map((h) => h.address),
+      legal_dong: r.legal_dong_name == null ? null : String(r.legal_dong_name),
     });
   }
 
@@ -690,6 +695,23 @@ async function main() {
   ].join("\n");
   writeFileSync(join(OUT, "parcel-coordinate-unresolved.csv"), csv);
 
+  const repair = writeSameRowRepairReport({
+    outDir: OUT,
+    index,
+    validPoint,
+    rows: joined.map((row) => ({
+      complex_id: row.complex_id,
+      apt_name: row.apt_name,
+      sigungu: row.sigungu,
+      legal_dong: row.legal_dong,
+      identity_status: row.identity_status,
+      full_pnus: row.full_pnus,
+      addresses: row.addresses,
+      spatial_status: row.spatial.status,
+      lot_agrees: row.lot_agrees,
+    })),
+  });
+
   console.log(
     JSON.stringify(
       {
@@ -703,6 +725,10 @@ async function main() {
         compared,
         unresolved: unresolved.length,
         runtime_ms: summary.runtime_ms,
+        repair_safe: repair.safe,
+        repair_sample: repair.sampleGate,
+        repair_jamsil: repair.jamsil,
+        repair_decision: repair.decision,
       },
       null,
       2,

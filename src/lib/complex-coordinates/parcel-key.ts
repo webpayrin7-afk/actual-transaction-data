@@ -167,6 +167,54 @@ export function trailingLotAgreesPnu(
 }
 
 /**
+ * Trailing lot on one REB 주소. "산" counts only as its own token before the lot,
+ * not as a syllable inside a dong name. Null when the lot is not explicit.
+ */
+export function parseSameRowLot(
+  address: string | null | undefined,
+): { bun: string; ji: string; mountain: boolean } | null {
+  if (!address) return null;
+  const s = address.trim();
+  const mountain = /(?:^|\s)산\s*(\d+)(?:-(\d+))?\s*$/.exec(s);
+  if (mountain) {
+    const lot = parseJibun(mountain[2] ? `${mountain[1]}-${mountain[2]}` : mountain[1]);
+    if (!lot) return null;
+    return { bun: lot.bun, ji: lot.ji, mountain: true };
+  }
+  const plain = /(\d+)(?:-(\d+))?\s*$/.exec(s);
+  if (!plain) return null;
+  const lot = parseJibun(plain[2] ? `${plain[1]}-${plain[2]}` : plain[1]);
+  if (!lot) return null;
+  return { bun: lot.bun, ji: lot.ji, mountain: false };
+}
+
+export type SameRowRepairCause =
+  | "SUBLOT_0000_TO_NONEMPTY"
+  | "BUN_MISMATCH"
+  | "PLAT_MISMATCH"
+  | "OTHER";
+
+/**
+ * Rebuild a cadastral PNU from one stored REB PNU plus that same row's 주소.
+ * Keeps 법정동 and 산여부. Replaces 본번/부번 only when the address states them.
+ * Returns null when the address lot is missing or 산여부 disagrees with the stored digit.
+ */
+export function deriveSameRowCadastralPnu(
+  storedPnu: string | null | undefined,
+  address: string | null | undefined,
+): { pnu: string; cause: SameRowRepairCause | null } | { pnu: null; cause: "PLAT_MISMATCH" | null } {
+  const parsed = parseCadastralPnu(storedPnu);
+  const lot = parseSameRowLot(address);
+  if (!parsed || !lot) return { pnu: null, cause: null };
+  if (lot.mountain !== (parsed.platGb === "2")) return { pnu: null, cause: "PLAT_MISMATCH" };
+  const pnu = `${parsed.bjdong10}${parsed.platGb}${lot.bun}${lot.ji}`;
+  if (pnu === parsed.pnu) return { pnu, cause: null };
+  if (parsed.bun !== lot.bun) return { pnu, cause: "BUN_MISMATCH" };
+  if (parsed.ji === "0000" && lot.ji !== "0000") return { pnu, cause: "SUBLOT_0000_TO_NONEMPTY" };
+  return { pnu, cause: "OTHER" };
+}
+
+/**
  * Same-row diagnostic only. When REB 필지고유번호 부번 is not the address lot,
  * rebuild 19-digit PNU keeping 법정동+산여부 and taking 본번/부번 from that row's 주소.
  * Returns null when the stored lot already agrees or the address cannot be parsed.

@@ -1,0 +1,556 @@
+{
+  "samples": [
+    {
+      "complex_id": "cx_00273cad5221a64a",
+      "apt_name": "선우쉐르빌",
+      "reb_stored_pnu": "1153010900102110000",
+      "same_row_address": "서울특별시 구로구 궁동 211-1",
+      "derived_pnu": "1153010900102110001",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.49513486,
+        "lng": 126.83169488
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_003619d40a7f6583",
+      "apt_name": "서초지웰",
+      "reb_stored_pnu": "1165010800114580000",
+      "same_row_address": "서울특별시 서초구 서초동 1458-6",
+      "derived_pnu": "1165010800114580006",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.48421265,
+        "lng": 127.01369653
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_0074b35c6bca6137",
+      "apt_name": "삼흥",
+      "reb_stored_pnu": "1111017400106380000",
+      "same_row_address": "서울특별시 종로구 창신동 638-45",
+      "derived_pnu": "1111017400106380045",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.57588518,
+        "lng": 127.00933746
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_007f311446966396",
+      "apt_name": "대성효창",
+      "reb_stored_pnu": "1117011900100050000",
+      "same_row_address": "서울특별시 용산구 효창동 5-258",
+      "derived_pnu": "1117011900100050258",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.54184203,
+        "lng": 126.95809733
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_00886cccd757df9c",
+      "apt_name": "홍제원그린뷰아파트",
+      "reb_stored_pnu": "1141011100101570000",
+      "same_row_address": "서울특별시 서대문구 홍제동 157-3",
+      "derived_pnu": "1141011100101570003",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.58543463,
+        "lng": 126.94598058
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_009479e3b5c21988",
+      "apt_name": "어반허브서울스테이션(urbanhubseoulstation)",
+      "reb_stored_pnu": "1117010800101000000",
+      "same_row_address": "서울특별시 용산구 서계동 100-1",
+      "derived_pnu": "1117010800101000001",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.55101095,
+        "lng": 126.96822113
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_00b1656f00a37a6c",
+      "apt_name": "반포힐스테이트",
+      "reb_stored_pnu": "1165010700100160000",
+      "same_row_address": "서울특별시 서초구 반포동 16-6",
+      "derived_pnu": "1165010700100160006",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.50126441,
+        "lng": 126.99679214
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_00baaa91c3085fa8",
+      "apt_name": "용두아파트",
+      "reb_stored_pnu": "1123010200100390000",
+      "same_row_address": "서울특별시 동대문구 용두동 39-446",
+      "derived_pnu": "1123010200100390446",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.57686162,
+        "lng": 127.0408961
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_00d6763a231997f9",
+      "apt_name": "현대플라티앙2",
+      "reb_stored_pnu": "1117013200100010000",
+      "same_row_address": "서울특별시 용산구 동빙고동 1-14",
+      "derived_pnu": "1117013200100010014",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.52643232,
+        "lng": 126.99667133
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_00e3aded39b94194",
+      "apt_name": "(743-33)",
+      "reb_stored_pnu": "1153010200107430000",
+      "same_row_address": "서울특별시 구로구 구로동 743-33",
+      "derived_pnu": "1153010200107430033",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.48874114,
+        "lng": 126.88698494
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_01102d6d47e63118",
+      "apt_name": "롯데캐슬헤론",
+      "reb_stored_pnu": "1165010100107540000",
+      "same_row_address": "서울특별시 서초구 방배동 754-1",
+      "derived_pnu": "1165010100107540001",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.49697249,
+        "lng": 126.9843004
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_0118168189afffaf",
+      "apt_name": "현진아파트",
+      "reb_stored_pnu": "1132010700102540000",
+      "same_row_address": "서울특별시 도봉구 창동 254-5",
+      "derived_pnu": "1132010700102540005",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.65390492,
+        "lng": 127.04552988
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_011d09c356c0acd7",
+      "apt_name": "은하아파트",
+      "reb_stored_pnu": "1147010300101400000",
+      "same_row_address": "서울특별시 양천구 신월동 140-23",
+      "derived_pnu": "1147010300101400023",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.53395646,
+        "lng": 126.83091187
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_013bfc6baa047f60",
+      "apt_name": "도시그린빌라",
+      "reb_stored_pnu": "1111017500101810000",
+      "same_row_address": "서울특별시 종로구 숭인동 181-121",
+      "derived_pnu": "1111017500101810121",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.57650998,
+        "lng": 127.02001196
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_0150f117825323ce",
+      "apt_name": "삼성아트빌(715-32)",
+      "reb_stored_pnu": "1162010200107150000",
+      "same_row_address": "서울특별시 관악구 신림동 715-32",
+      "derived_pnu": "1162010200107150032",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.47034294,
+        "lng": 126.91722427
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_017398cc9873eff8",
+      "apt_name": "기아하이츠빌",
+      "reb_stored_pnu": "1162010300110530000",
+      "same_row_address": "서울특별시 관악구 남현동 1053-4",
+      "derived_pnu": "1162010300110530004",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.47491781,
+        "lng": 126.97167013
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_019b28227c455a53",
+      "apt_name": "삼성",
+      "reb_stored_pnu": "1126010400101610000",
+      "same_row_address": "서울특별시 중랑구 묵동 161-4",
+      "derived_pnu": "1126010400101610004",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.61689058,
+        "lng": 127.07876763
+      },
+      "classification": "REPAIRED_FROM_SAME_ROW_LOT",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_0000802f1c42d195",
+      "apt_name": "sg타워",
+      "reb_stored_pnu": "1126010200101280000",
+      "same_row_address": "서울특별시 중랑구 상봉동 128-10",
+      "derived_pnu": "1126010200101280010",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.59363075,
+        "lng": 127.07975003
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_0018ab93a67a00b2",
+      "apt_name": "markhills",
+      "reb_stored_pnu": "1159010500101720000",
+      "same_row_address": "서울특별시 동작구 흑석동 172-8",
+      "derived_pnu": "1159010500101720008",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.51154622,
+        "lng": 126.96049235
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_0022ba909cdf80cf",
+      "apt_name": "성지하우스",
+      "reb_stored_pnu": "1162010200106260000",
+      "same_row_address": "서울특별시 관악구 신림동 626-11",
+      "derived_pnu": "1162010200106260011",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.47216482,
+        "lng": 126.92160842
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_00b2a8e1482be12f",
+      "apt_name": "동방",
+      "reb_stored_pnu": "1174010800104070000",
+      "same_row_address": "서울특별시 강동구 성내동 407-2",
+      "derived_pnu": "1174010800104070002",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.53134138,
+        "lng": 127.13305273
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_00fa816d47332a11",
+      "apt_name": "삼성그린101동",
+      "reb_stored_pnu": "1159010700101800000",
+      "same_row_address": "서울특별시 동작구 사당동 180-26",
+      "derived_pnu": "1159010700101800026",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.49140696,
+        "lng": 126.96958682
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_0101e6b280d42112",
+      "apt_name": "길음뉴타운2단지푸르지오",
+      "reb_stored_pnu": "1129013400112800000",
+      "same_row_address": "서울특별시 성북구 길음동 1280",
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "AMBIGUOUS",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_0111aee17f914cd3",
+      "apt_name": "목동대림",
+      "reb_stored_pnu": "1147010200104050000",
+      "same_row_address": "서울특별시 양천구 목동 405",
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "AMBIGUOUS",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_019508a9ebcb4a00",
+      "apt_name": "방학지음재힐스",
+      "reb_stored_pnu": "1132010600107170000",
+      "same_row_address": "서울특별시 도봉구 방학동 717-2",
+      "derived_pnu": "1132010600107170002",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.66728592,
+        "lng": 127.04482131
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_01a01c194bce0a20",
+      "apt_name": "휴먼스타빌",
+      "reb_stored_pnu": "1168010400100050000",
+      "same_row_address": "서울특별시 강남구 청담동 5-25",
+      "derived_pnu": "1168010400100050025",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.52370075,
+        "lng": 127.04605251
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_01c5b2fb53e06027",
+      "apt_name": "시원트레벨",
+      "reb_stored_pnu": "1156013200105070000",
+      "same_row_address": "서울특별시 영등포구 신길동 507",
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "AMBIGUOUS",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_01db55db391c7225",
+      "apt_name": "신주아파트b",
+      "reb_stored_pnu": "1132010600106950000",
+      "same_row_address": "서울특별시 도봉구 방학동 695-21",
+      "derived_pnu": "1132010600106950021",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.66419929,
+        "lng": 127.03608455
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_020b58b065aff3e7",
+      "apt_name": "태승훼미리2",
+      "reb_stored_pnu": "1150010600106850000",
+      "same_row_address": "서울특별시 강서구 내발산동 685",
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "AMBIGUOUS",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_026cad617b3a239b",
+      "apt_name": "위례캐스빌",
+      "reb_stored_pnu": "1171010400101040000",
+      "same_row_address": "서울특별시 송파구 송파동 104-1",
+      "derived_pnu": "1171010400101040001",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.5037676,
+        "lng": 127.11355025
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_02870887feec7b9e",
+      "apt_name": "현대홈타운스위트103",
+      "reb_stored_pnu": "1171011100101980000",
+      "same_row_address": "서울특별시 송파구 방이동 198-3",
+      "derived_pnu": "1171011100101980003",
+      "derived_cadastral_hit": true,
+      "parcel_coordinate": {
+        "lat": 37.51063995,
+        "lng": 127.12272321
+      },
+      "classification": "ORIGINAL_CONFLICT_REPAIRED",
+      "cause": "SUBLOT_0000_TO_NONEMPTY"
+    },
+    {
+      "complex_id": "cx_02904e5aeb9e11de",
+      "apt_name": "럭키(462)",
+      "reb_stored_pnu": "1168011800104620000",
+      "same_row_address": "서울특별시 강남구 도곡동 462",
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "AMBIGUOUS",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_00dbb01fb440d612",
+      "apt_name": "신동아아파트(1차)",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_016721d1bffdbdb2",
+      "apt_name": "신반포6",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_018806cc9fb6e2e0",
+      "apt_name": "신구드림하우스",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_019b3fbe56815f11",
+      "apt_name": "대명아파트",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_082b570b7a5d85d0",
+      "apt_name": "삼각아파트c동",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_087e05df7ba95140",
+      "apt_name": "코오롱상가아파트",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_08e402afea3e4d17",
+      "apt_name": "호반써밋양재",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_0a59cb3be4577fb2",
+      "apt_name": "대림(36-1)",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_0d3aa06062c08f6d",
+      "apt_name": "올림픽파크포레온",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    },
+    {
+      "complex_id": "cx_0db93040f020de3e",
+      "apt_name": "신동아아파트(2차)",
+      "reb_stored_pnu": null,
+      "same_row_address": null,
+      "derived_pnu": null,
+      "derived_cadastral_hit": false,
+      "parcel_coordinate": null,
+      "classification": "NO_SOURCE_PARCEL",
+      "cause": null
+    }
+  ],
+  "jamsil": {
+    "classification": "EXACT_ORIGINAL",
+    "pnu": "1171010100100190000",
+    "coordinate": {
+      "lat": 37.51413457,
+      "lng": 127.07932524
+    },
+    "result": "PASS"
+  }
+}

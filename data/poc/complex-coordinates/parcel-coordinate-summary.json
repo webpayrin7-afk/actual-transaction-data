@@ -1,6 +1,6 @@
 {
   "mode": "dry-run",
-  "generatedAt": "2026-09-18T14:04:42.144Z",
+  "generatedAt": "2026-09-18T14:16:39.277Z",
   "production_coordinate_rows_written": 0,
   "production_school_rows_written": 0,
   "production_schema_changed": false,
@@ -19,7 +19,7 @@
     "coordinate_semantics": "PARCEL_REPRESENTATIVE_POINT",
     "method": "point_on_surface/representative point; deterministic; not apartment center",
     "zip_sha256": "3ae3977a35cb2f9b06c2cfe11f0dee3ccacce37b5654eaecd9dca7520a7876fe",
-    "retrievedAt": "2026-09-18T14:04:40.390Z",
+    "retrievedAt": "2026-09-18T14:16:37.092Z",
     "pnu_field": "pnu (19-digit string; plat 1=일반, 2=임야; not numeric)"
   },
   "integrity": {
@@ -43,9 +43,9 @@
     "metadata_target_crs": "EPSG:4326",
     "metadata_source_crs": "EPSG:5186"
   },
-  "load_ms": 2260,
+  "load_ms": 2043,
   "join_ms": 15,
-  "runtime_ms": 4014,
+  "runtime_ms": 4228,
   "reb_identity": {
     "total": 8437,
     "SINGLE_PARCEL": 7955,

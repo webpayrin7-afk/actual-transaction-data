@@ -13,12 +13,15 @@ import {
   buildLandAgnosticParcelKey,
   trailingLotAgreesPnu,
   alignedCadastralPnuFromAddress,
+  parseSameRowLot,
+  deriveSameRowCadastralPnu,
 } from "../src/lib/complex-coordinates/parcel-key";
 import {
   indexParcelPoints,
   joinExactPnu,
   quantile,
 } from "../src/lib/complex-coordinates/parcel-point-join";
+import { classifySameRowRepair } from "../src/lib/complex-coordinates/same-row-pnu-repair";
 
 function assert(cond: unknown, msg: string) {
   if (!cond) throw new Error(msg);
@@ -141,6 +144,51 @@ assert(
 assert(
   alignedCadastralPnuFromAddress("1171010100100190000", "서울특별시 송파구 잠실동 19") === null,
   "no align when agree",
+);
+
+const hit = (pnu: string) => (query: string) => (query === pnu ? "UNIQUE_VALID" as const : "MISSING" as const);
+assert(parseSameRowLot("서울특별시 구로구 궁동 211-1")?.ji === "0001", "sublot 1");
+assert(parseSameRowLot("서울특별시 성북구 정릉동 산87-85")?.mountain === true, "mountain token");
+assert(parseSameRowLot("서울특별시 강서구 마곡동 수명산 12")?.mountain === false, "dong syllable is not mountain");
+assert(deriveSameRowCadastralPnu("1153010900102110000", "서울특별시 구로구 궁동 211-1").pnu === "1153010900102110001", "seonwoo derived");
+assert(deriveSameRowCadastralPnu("1165010800114580000", "서울특별시 서초구 서초동 1458-6").pnu === "1165010800114580006", "seocho derived");
+assert(deriveSameRowCadastralPnu("1129013300200870000", "서울특별시 성북구 정릉동 산87-85").pnu === "1129013300200870085", "mountain sublot");
+assert(deriveSameRowCadastralPnu("1129013300100870000", "서울특별시 성북구 정릉동 산87-85").cause === "PLAT_MISMATCH", "plat mismatch");
+
+const seonwoo = classifySameRowRepair(
+  ["1153010900102110000"],
+  ["서울특별시 구로구 궁동 211-1"],
+  hit("1153010900102110001"),
+);
+assert(seonwoo.classification === "REPAIRED_FROM_SAME_ROW_LOT" && seonwoo.cause === "SUBLOT_0000_TO_NONEMPTY", "missing stored repaired");
+const lotConflict = classifySameRowRepair(
+  ["1153010900102110000"],
+  ["서울특별시 구로구 궁동 211-1"],
+  (pnu) => (pnu === "1153010900102110000" || pnu === "1153010900102110001" ? "UNIQUE_VALID" : "MISSING"),
+);
+assert(lotConflict.classification === "ORIGINAL_CONFLICT_REPAIRED", "conflict uses address parcel");
+const jamsilExact = classifySameRowRepair(
+  ["1171010100100190000"],
+  ["서울특별시 송파구 잠실동 19"],
+  hit("1171010100100190000"),
+);
+assert(jamsilExact.classification === "EXACT_ORIGINAL" && jamsilExact.derivedPnu === "1171010100100190000", "jamsil stays original");
+assert(classifySameRowRepair([], ["서울 궁동 211-1"], hit("x")).classification === "NO_SOURCE_PARCEL", "no pnu no inference");
+assert(
+  classifySameRowRepair(["1153010900102110000"], ["서울특별시 구로구 궁동 211-1"], () => "MISSING").classification === "NOT_FOUND",
+  "derived miss stays unresolved",
+);
+assert(
+  classifySameRowRepair(
+    ["1153010900102110000"],
+    ["서울특별시 구로구 궁동 211-1", "서울특별시 구로구 궁동 211-2"],
+    hit("1153010900102110001"),
+  ).classification === "AMBIGUOUS",
+  "two lots on same pnu are ambiguous",
+);
+assert(
+  classifySameRowRepair(["1153010900102110000"], ["서울특별시 구로구 궁동 211-1"], () => "DUPLICATE").classification === "AMBIGUOUS",
+  "duplicate geometry refused",
 );
 
 console.log("test-complex-coordinate-sources: PASS");

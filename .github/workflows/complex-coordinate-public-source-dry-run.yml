@@ -71,4 +71,8 @@ jobs:
             data/poc/complex-coordinates/parcel-coordinate-unresolved.csv
             data/poc/complex-coordinates/parcel-coordinate-unresolved.json
             data/poc/complex-coordinates/parcel-coordinate-disagreements.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-summary.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-sample.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-unresolved.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-disagreements.json
           if-no-files-found: error
