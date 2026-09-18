@@ -55,13 +55,11 @@ export function SchoolDistrictBlock({
       <LabBottomSheet
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
-        title={district.officialName}
+        title={`${district.officialName} (${district.memberCount}개교)`}
         doneLabel="닫기"
+        hideHeaderDivider
       >
-        <p className="text-[12px] text-slate-500">
-          학교군 소속 {district.memberCount}개교
-        </p>
-        <p className="mt-1 text-[11px] leading-4 text-slate-500">
+        <p className="text-[11px] leading-4 text-slate-500">
           학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.
         </p>
         <ul className="mt-3 space-y-1" data-testid="school-district-sheet-list">
