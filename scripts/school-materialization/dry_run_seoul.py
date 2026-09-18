@@ -277,6 +277,13 @@ def main() -> int:
     )
     ap.add_argument("--complex-id", default="")
     ap.add_argument("--complexes-json", default="/tmp/school-materialization-out/seoul-complexes.json")
+    ap.add_argument(
+        "--coords-json",
+        default="",
+        help="Gate-eligible coordinate overrides JSON "
+        "(complex-coordinate-gate-overrides.json). Applied before PIP; "
+        "does not require Production master lat/lng write.",
+    )
     ap.add_argument("--elem-shp", default="/tmp/schoolzone-data/elem/초등학교통학구역.shp")
     ap.add_argument("--middle-shp", default="/tmp/schoolzone-data/middle/중학교학교군.shp")
     ap.add_argument(
@@ -301,6 +308,24 @@ def main() -> int:
     complexes = payload["complexes"]
     if args.complex_id:
         complexes = [c for c in complexes if c["complex_id"] == args.complex_id]
+
+    coord_overrides: dict[str, dict[str, Any]] = {}
+    if args.coords_json:
+        ov_doc = json.loads(Path(args.coords_json).read_text(encoding="utf-8"))
+        coord_overrides = ov_doc.get("overrides") or {}
+        applied = 0
+        for c in complexes:
+            ov = coord_overrides.get(c["complex_id"])
+            if not ov:
+                continue
+            lat, lng = ov.get("lat"), ov.get("lng")
+            if lat is None or lng is None:
+                continue
+            c["lat"] = float(lat)
+            c["lng"] = float(lng)
+            c["coord_source"] = ov.get("source") or "coord_override"
+            applied += 1
+        print(f"coord overrides applied: {applied}", flush=True)
 
     seeds = load_membership_seeds()
     do_elem = args.school_level in ("all", "elementary")

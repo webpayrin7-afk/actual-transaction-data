@@ -3,7 +3,7 @@
   "region": "seoul",
   "source_version": "koies-2026-03-20",
   "base_date": "2026-03-20",
-  "runtime_sec": 1.39,
+  "runtime_sec": 1.01,
   "total_complexes": 8437,
   "valid_coordinates": 1,
   "coord_note": "Production apt_complex_master lat/lng currently null for Seoul; only product mapAnchor overrides applied (잠실엘스).",
