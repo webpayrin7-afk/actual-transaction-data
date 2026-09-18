@@ -256,7 +256,6 @@ async function main() {
   console.log(
     JSON.stringify(
       {
-        total: rows.length,
         ...summary.reb_identity,
         spatial: summary.spatial_join,
         jamsil: summary.jamsil_els.full_pnus,
