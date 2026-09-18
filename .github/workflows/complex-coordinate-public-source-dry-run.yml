@@ -66,6 +66,9 @@ jobs:
             data/poc/complex-coordinates/coordinate-source-unresolved.csv
             data/poc/complex-coordinates/coordinate-source-gate-overrides.json
             data/poc/complex-coordinates/parcel-coordinate-summary.json
+            data/poc/complex-coordinates/parcel-coordinate-full-summary.json
             data/poc/complex-coordinates/parcel-coordinate-sample.json
             data/poc/complex-coordinates/parcel-coordinate-unresolved.csv
+            data/poc/complex-coordinates/parcel-coordinate-unresolved.json
+            data/poc/complex-coordinates/parcel-coordinate-disagreements.json
           if-no-files-found: error

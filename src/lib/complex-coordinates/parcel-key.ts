@@ -50,22 +50,28 @@ export function buildPnu(params: {
  *   + 본번 4
  *   + 부번 4
  *
- * plat digit is preserved as stored. This parser does not decide whether
- * "1" means 산 — REB and Building Hub disagree on that digit for the same parcel.
+ * plat digit is preserved as stored. It is not rewritten.
+ * Building Hub uses 0/1. This Seoul cadastral file uses 1 (일반) and 2 (임야).
+ * REB 필지고유번호 matches the cadastral digit (잠실엘스 plat 1). Digit 2 is not coerced to 0.
  */
 export type ParsedPnu = {
   pnu: string;
   bjdong10: string;
   lawdCd: string;
   bjdongCd: string;
-  platGb: "0" | "1";
+  /**
+   * Digit 11 of the 19-digit PNU, preserved as stored.
+   * - "0" / "1": Building Hub platGb (대지/산). Not rewritten.
+   * - "1" / "2": continuous-cadastral PNU (일반/임야). Seoul 20260908 file contains only 1 and 2.
+   */
+  platGb: "0" | "1" | "2";
   bun: string;
   ji: string;
 };
 
 export function normalizePnu(raw: string | null | undefined): string | null {
   if (raw == null) return null;
-  const s = raw.replace(/\s+/g, "");
+  const s = String(raw).replace(/\s+/g, "");
   if (!/^\d{19}$/.test(s)) return null;
   return s;
 }
@@ -74,7 +80,7 @@ export function parsePnu(raw: string | null | undefined): ParsedPnu | null {
   const pnu = normalizePnu(raw);
   if (!pnu) return null;
   const plat = pnu[10];
-  if (plat !== "0" && plat !== "1") return null;
+  if (plat !== "0" && plat !== "1" && plat !== "2") return null;
   return {
     pnu,
     bjdong10: pnu.slice(0, 10),
@@ -84,6 +90,17 @@ export function parsePnu(raw: string | null | undefined): ParsedPnu | null {
     bun: pnu.slice(11, 15),
     ji: pnu.slice(15, 19),
   };
+}
+
+/**
+ * Official continuous-cadastral PNU for spatial exact join.
+ * Accepts plat 1 (일반) and 2 (임야/산) only. Does not remap 2 → 0.
+ * Plat 0 is hub encoding and is not a key in the cadastral point file.
+ */
+export function parseCadastralPnu(raw: string | null | undefined): ParsedPnu | null {
+  const parsed = parsePnu(raw);
+  if (!parsed || parsed.platGb === "0") return null;
+  return parsed;
 }
 
 /**
@@ -133,6 +150,39 @@ export function normalizeJibunAddress(addr: string | null | undefined): string |
   // strip trailing complex name tokens after bunji (best-effort deterministic)
   s = s.replace(/(\d+(?:-\d+)?)\s+\S+$/u, "$1").trim();
   return s || null;
+}
+
+/** True when the address's trailing 본번-부번 equals the PNU lot. Null if either side cannot be parsed. */
+export function trailingLotAgreesPnu(
+  address: string | null | undefined,
+  pnu: string | null | undefined,
+): boolean | null {
+  const parsed = parsePnu(pnu);
+  if (!parsed || !address) return null;
+  const m = /(\d+(?:-\d+)?)\s*$/.exec(address.trim());
+  if (!m) return null;
+  const lot = parseJibun(m[1]);
+  if (!lot) return null;
+  return lot.bun === parsed.bun && lot.ji === parsed.ji;
+}
+
+/**
+ * Same-row diagnostic only. When REB 필지고유번호 부번 is not the address lot,
+ * rebuild 19-digit PNU keeping 법정동+산여부 and taking 본번/부번 from that row's 주소.
+ * Returns null when the stored lot already agrees or the address cannot be parsed.
+ * Not a fuzzy join key.
+ */
+export function alignedCadastralPnuFromAddress(
+  storedPnu: string | null | undefined,
+  address: string | null | undefined,
+): string | null {
+  const parsed = parseCadastralPnu(storedPnu);
+  if (!parsed || trailingLotAgreesPnu(address, parsed.pnu) !== false) return null;
+  const m = /(\d+(?:-\d+)?)\s*$/.exec((address ?? "").trim());
+  if (!m) return null;
+  const lot = parseJibun(m[1]);
+  if (!lot) return null;
+  return `${parsed.bjdong10}${parsed.platGb}${lot.bun}${lot.ji}`;
 }
 
 export function composeJibunAddress(parts: {

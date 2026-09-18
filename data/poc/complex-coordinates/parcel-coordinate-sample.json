@@ -1,104 +1,442 @@
 {
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "apt_name": "잠실엘스",
+    "reb_pnu": [
+      "1171010100100190000"
+    ],
+    "spatial_pnu": "1171010100100190000",
+    "geometry": "representative point (precomputed; polygon not in this file)",
+    "representative_point": {
+      "lat": 37.51413457,
+      "lng": 127.07932524
+    },
+    "known_product_anchor": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "distance_m": 220.5,
+    "status": "EXACT_PNU",
+    "lot_agrees": true,
+    "identity_status": "SINGLE_PARCEL",
+    "result": "PASS"
+  },
   "samples": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "gu": "송파구",
+      "reb_pnu": [
+        "1171010100100190000"
+      ],
+      "parcel_lat": 37.51413457,
+      "parcel_lng": 127.07932524,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1171010100100190000"
+    },
     {
       "complex_id": "cx_01a01c194bce0a20",
       "apt_name": "휴먼스타빌",
-      "sigungu": "강남구",
-      "jibun_addr": "서울 강남구 청담동 5-25",
-      "identity_status": "SINGLE_PARCEL",
-      "full_pnus": [
+      "gu": "강남구",
+      "reb_pnu": [
         "1168010400100050000"
       ],
-      "spatial_status": "BLOCKED_BY_ACCESS"
+      "parcel_lat": 37.52353404,
+      "parcel_lng": 127.0450551,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_LOT_CONFLICT",
+      "spatial_pnu": "1168010400100050000"
     },
     {
-      "complex_id": "cx_026cad617b3a239b",
-      "apt_name": "위례캐스빌",
-      "sigungu": "송파구",
-      "jibun_addr": "서울 송파구 송파동 104-1",
-      "identity_status": "SINGLE_PARCEL",
-      "full_pnus": [
-        "1171010400101040000"
+      "complex_id": "cx_001b6dbe1fb7bbaa",
+      "apt_name": "현대홈타운",
+      "gu": "강동구",
+      "reb_pnu": [
+        "1174010700104000000"
       ],
-      "spatial_status": "BLOCKED_BY_ACCESS"
+      "parcel_lat": 37.55647597,
+      "parcel_lng": 127.13849556,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1174010700104000000"
     },
     {
-      "complex_id": "cx_0074b35c6bca6137",
-      "apt_name": "삼흥",
-      "sigungu": "종로구",
-      "jibun_addr": "서울 종로구 창신동 638-45",
-      "identity_status": "SINGLE_PARCEL",
-      "full_pnus": [
-        "1111017400106380000"
+      "complex_id": "cx_00e090b6407013ab",
+      "apt_name": "신일해피트리",
+      "gu": "강북구",
+      "reb_pnu": [
+        "1130510100113580000"
       ],
-      "spatial_status": "BLOCKED_BY_ACCESS"
-    },
-    {
-      "complex_id": "cx_0276fe98811f6b51",
-      "apt_name": "공덕파크자이",
-      "sigungu": "마포구",
-      "jibun_addr": "서울 마포구 공덕동 476",
+      "parcel_lat": 37.62596559,
+      "parcel_lng": 127.03126169,
       "identity_status": "SINGLE_PARCEL",
-      "full_pnus": [
-        "1144010200104760000"
-      ],
-      "spatial_status": "BLOCKED_BY_ACCESS"
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1130510100113580000"
     },
     {
       "complex_id": "cx_01210eca6e2ee4cc",
       "apt_name": "마곡수명산파크2단지",
-      "sigungu": "강서구",
-      "jibun_addr": "서울 강서구 내발산동 741",
-      "identity_status": "SINGLE_PARCEL",
-      "full_pnus": [
+      "gu": "강서구",
+      "reb_pnu": [
         "1150010600107410000"
       ],
-      "spatial_status": "BLOCKED_BY_ACCESS"
+      "parcel_lat": 37.55452849,
+      "parcel_lng": 126.82743144,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1150010600107410000"
+    },
+    {
+      "complex_id": "cx_0022ba909cdf80cf",
+      "apt_name": "성지하우스",
+      "gu": "관악구",
+      "reb_pnu": [
+        "1162010200106260000"
+      ],
+      "parcel_lat": 37.47259748,
+      "parcel_lng": 126.92134288,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_LOT_CONFLICT",
+      "spatial_pnu": "1162010200106260000"
+    },
+    {
+      "complex_id": "cx_027e85f77a9eb5e7",
+      "apt_name": "세림리오빌",
+      "gu": "광진구",
+      "reb_pnu": [
+        "1121510300106590000"
+      ],
+      "parcel_lat": 37.53931469,
+      "parcel_lng": 127.0919791,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1121510300106590000"
+    },
+    {
+      "complex_id": "cx_00273cad5221a64a",
+      "apt_name": "선우쉐르빌",
+      "gu": "구로구",
+      "reb_pnu": [
+        "1153010900102110000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_013b7cb67d85f608",
+      "apt_name": "백운한비치ⅱ",
+      "gu": "금천구",
+      "reb_pnu": [
+        "1154510300110180000"
+      ],
+      "parcel_lat": 37.45349778,
+      "parcel_lng": 126.90986632,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1154510300110180000"
     },
     {
       "complex_id": "cx_0271ef95a6ce5e60",
       "apt_name": "상계주공9(고층)",
-      "sigungu": "노원구",
-      "jibun_addr": "서울 노원구 상계동 670",
-      "identity_status": "SINGLE_PARCEL",
-      "full_pnus": [
+      "gu": "노원구",
+      "reb_pnu": [
         "1135010500106700000"
       ],
-      "spatial_status": "BLOCKED_BY_ACCESS"
+      "parcel_lat": 37.6629795,
+      "parcel_lng": 127.05997473,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1135010500106700000"
+    },
+    {
+      "complex_id": "cx_004c0f19728c5c7c",
+      "apt_name": "쌍용",
+      "gu": "도봉구",
+      "reb_pnu": [
+        "1132010700108070000"
+      ],
+      "parcel_lat": 37.65964039,
+      "parcel_lng": 127.04823085,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1132010700108070000"
+    },
+    {
+      "complex_id": "cx_00baaa91c3085fa8",
+      "apt_name": "용두아파트",
+      "gu": "동대문구",
+      "reb_pnu": [
+        "1123010200100390000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_00061802cdff3cdc",
+      "apt_name": "힐스테이트상도프레스티지",
+      "gu": "동작구",
+      "reb_pnu": [
+        "1159010200105330000"
+      ],
+      "parcel_lat": 37.49671535,
+      "parcel_lng": 126.9491714,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1159010200105330000"
+    },
+    {
+      "complex_id": "cx_0276fe98811f6b51",
+      "apt_name": "공덕파크자이",
+      "gu": "마포구",
+      "reb_pnu": [
+        "1144010200104760000"
+      ],
+      "parcel_lat": 37.54487418,
+      "parcel_lng": 126.94796104,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1144010200104760000"
+    },
+    {
+      "complex_id": "cx_00886cccd757df9c",
+      "apt_name": "홍제원그린뷰아파트",
+      "gu": "서대문구",
+      "reb_pnu": [
+        "1141011100101570000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_003619d40a7f6583",
+      "apt_name": "서초지웰",
+      "gu": "서초구",
+      "reb_pnu": [
+        "1165010800114580000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_0041cfd994dc0cd0",
+      "apt_name": "옥수삼성",
+      "gu": "성동구",
+      "reb_pnu": [
+        "1120011300102500000"
+      ],
+      "parcel_lat": 37.5424312,
+      "parcel_lng": 127.01405208,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1120011300102500000"
+    },
+    {
+      "complex_id": "cx_004078590a07321d",
+      "apt_name": "동부센트레빌",
+      "gu": "성북구",
+      "reb_pnu": [
+        "1129010300106330000"
+      ],
+      "parcel_lat": 37.60195799,
+      "parcel_lng": 127.02632304,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1129010300106330000"
+    },
+    {
+      "complex_id": "cx_026cad617b3a239b",
+      "apt_name": "위례캐스빌",
+      "gu": "송파구",
+      "reb_pnu": [
+        "1171010400101040000"
+      ],
+      "parcel_lat": 37.50386316,
+      "parcel_lng": 127.11339148,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_LOT_CONFLICT",
+      "spatial_pnu": "1171010400101040000"
+    },
+    {
+      "complex_id": "cx_011d09c356c0acd7",
+      "apt_name": "은하아파트",
+      "gu": "양천구",
+      "reb_pnu": [
+        "1147010300101400000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_061cf62877b2f5a7",
+      "apt_name": "한솔",
+      "gu": "영등포구",
+      "reb_pnu": [
+        "1156013000100990000"
+      ],
+      "parcel_lat": 37.54435793,
+      "parcel_lng": 126.88783346,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1156013000100990000"
+    },
+    {
+      "complex_id": "cx_007f311446966396",
+      "apt_name": "대성효창",
+      "gu": "용산구",
+      "reb_pnu": [
+        "1117011900100050000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_02dffbb75a7fd603",
+      "apt_name": "신성수정",
+      "gu": "은평구",
+      "reb_pnu": [
+        "1138010900103580000"
+      ],
+      "parcel_lat": 37.59280818,
+      "parcel_lng": 126.9063921,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1138010900103580000"
+    },
+    {
+      "complex_id": "cx_0074b35c6bca6137",
+      "apt_name": "삼흥",
+      "gu": "종로구",
+      "reb_pnu": [
+        "1111017400106380000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_041b686d4a0fe569",
+      "apt_name": "현대",
+      "gu": "중구",
+      "reb_pnu": [
+        "1114016200108400000"
+      ],
+      "parcel_lat": 37.55994825,
+      "parcel_lng": 127.02165881,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "EXACT_PNU",
+      "spatial_pnu": "1114016200108400000"
+    },
+    {
+      "complex_id": "cx_0000802f1c42d195",
+      "apt_name": "sg타워",
+      "gu": "중랑구",
+      "reb_pnu": [
+        "1126010200101280000"
+      ],
+      "parcel_lat": 37.59456994,
+      "parcel_lng": 127.07980876,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_LOT_CONFLICT",
+      "spatial_pnu": "1126010200101280000"
     },
     {
       "complex_id": "cx_0101e6b280d42112",
       "apt_name": "길음뉴타운2단지푸르지오",
-      "sigungu": "성북구",
-      "jibun_addr": "서울 성북구 길음동 1280",
-      "identity_status": "MULTI_RECORD_SAME_PARCEL",
-      "full_pnus": [
+      "gu": "성북구",
+      "reb_pnu": [
         "1129013400112800000"
       ],
-      "spatial_status": "BLOCKED_BY_ACCESS"
+      "parcel_lat": 37.61182638,
+      "parcel_lng": 127.01616636,
+      "identity_status": "MULTI_RECORD_SAME_PARCEL",
+      "identity_bridge": "LAND_AGNOSTIC_KEY",
+      "join_status": "PNU_LOT_CONFLICT",
+      "spatial_pnu": "1129013400112800000"
     },
     {
       "complex_id": "cx_00dbb01fb440d612",
       "apt_name": "신동아아파트(1차)",
-      "sigungu": "서초구",
-      "jibun_addr": "서울 서초구 서초동 1333",
+      "gu": "서초구",
+      "reb_pnu": [],
+      "parcel_lat": null,
+      "parcel_lng": null,
       "identity_status": "NO_PNU",
-      "full_pnus": [],
-      "spatial_status": "BLOCKED_BY_ACCESS"
-    }
-  ],
-  "jamsil_els": {
-    "complex_id": "cx_4c63d9a100973c60",
-    "identity_status": "SINGLE_PARCEL",
-    "full_pnus": [
-      "1171010100100190000"
-    ],
-    "known_anchor": {
-      "lat": 37.5133051,
-      "lng": 127.0815962
+      "identity_bridge": "NONE",
+      "join_status": "NO_PNU",
+      "spatial_pnu": null
     },
-    "representative_point": null,
-    "distance_meters": null,
-    "spatial_status": "BLOCKED_BY_ACCESS"
-  }
+    {
+      "complex_id": "cx_b374dff92606a1c7",
+      "apt_name": "세한숲속마을",
+      "gu": "서대문구",
+      "reb_pnu": [],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "INVALID_PNU",
+      "identity_bridge": "NONE",
+      "join_status": "NO_PNU",
+      "spatial_pnu": null
+    },
+    {
+      "complex_id": "cx_0dcaa45f350aa659",
+      "apt_name": "금호2",
+      "gu": "도봉구",
+      "reb_pnu": [
+        "1132010500200690000"
+      ],
+      "parcel_lat": null,
+      "parcel_lng": null,
+      "identity_status": "SINGLE_PARCEL",
+      "identity_bridge": "JIBUN_ADDRESS",
+      "join_status": "PNU_NOT_FOUND",
+      "spatial_pnu": null
+    }
+  ]
 }
