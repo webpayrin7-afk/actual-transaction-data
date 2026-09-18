@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-09-18T23:41:49.568Z",
+  "production_write": false,
+  "api_calls": 0,
+  "reused_ops": 0,
+  "http_429": false,
+  "stopped": "no_eligible_wave",
+  "selected_sidos": [],
+  "complexes": 0,
+  "periods": [],
+  "target_months": 0,
+  "by_sido": [],
+  "samples": [],
+  "totals": {
+    "COMPLETE": 0,
+    "PARTIAL": 0,
+    "MISSING": 0,
+    "FAILED": 0,
+    "would_insert": 0,
+    "would_update": 0
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-09-18T23:41:47.770Z",
+  "production_write": false,
+  "national": {
+    "sido": "national",
+    "sido_code": "00",
+    "master": 14966,
+    "kapt_mapped": 11,
+    "coverage_pct": 0.07,
+    "existing_fee_complexes": 11,
+    "ready_unloaded": 0,
+    "already_loaded": 11,
+    "unmapped": 14955,
+    "ambiguous": 0
+  },
+  "by_sido": [
+    {
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "master": 8437,
+      "kapt_mapped": 9,
+      "coverage_pct": 0.11,
+      "existing_fee_complexes": 9,
+      "ready_unloaded": 0,
+      "already_loaded": 9,
+      "unmapped": 8428,
+      "ambiguous": 0
+    },
+    {
+      "sido": "경기도",
+      "sido_code": "41",
+      "master": 6529,
+      "kapt_mapped": 2,
+      "coverage_pct": 0.03,
+      "existing_fee_complexes": 2,
+      "ready_unloaded": 0,
+      "already_loaded": 2,
+      "unmapped": 6527,
+      "ambiguous": 0
+    }
+  ],
+  "wave_candidates": [],
+  "wave_excluded_sido_codes": [
+    "11",
+    "41"
+  ]
+}
