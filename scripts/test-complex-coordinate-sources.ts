@@ -8,6 +8,8 @@ import {
   parseJibun,
   pnuLandAgnosticKey,
   roadAddressJoinKey,
+  parsePnu,
+  buildLandAgnosticParcelKey,
 } from "../src/lib/complex-coordinates/parcel-key";
 
 function assert(cond: unknown, msg: string) {
@@ -45,6 +47,18 @@ assert(
 assert(
   pnuLandAgnosticKey("1171010100000190000") === "117101010000190000",
   "land-agnostic key shape",
+);
+assert(parsePnu("1171010100100190000")?.platGb === "1", "reb plat digit preserved");
+assert(parsePnu("1171010100000190000")?.bun === "0019", "leading-zero bun");
+assert(parsePnu("1171010100000190010")?.ji === "0010", "bun+ji");
+assert(parsePnu(" 1171010100100190000 ")?.pnu === "1171010100100190000", "trim spaces");
+assert(parsePnu("123") === null, "invalid length");
+assert(parsePnu(null) === null, "null pnu");
+assert(parsePnu("1171010100300190000") === null, "unknown plat digit");
+assert(
+  buildLandAgnosticParcelKey("1171010100000190000") ===
+    buildLandAgnosticParcelKey("1171010100100190000"),
+  "land-agnostic alias",
 );
 
 assert(

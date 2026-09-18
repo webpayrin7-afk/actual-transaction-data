@@ -46,6 +46,16 @@ jobs:
           # If SEOUL_OPENAPI_KEY is set, OpenAptInfo full pull runs inside the script.
           npx tsx scripts/complex-coordinates/dry_run_public_source.ts data/poc/complex-coordinates
 
+      - name: REB PNU identity (spatial join if PARCEL_SHP present)
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          COORD_SOURCE_CACHE: /tmp/coord-source
+          PARCEL_SHP: ${{ vars.PARCEL_SHP }}
+        run: |
+          python3 scripts/complex-coordinates/download_public_sources.py
+          npx tsx scripts/complex-coordinates/dry_run_parcel_spatial.ts data/poc/complex-coordinates
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -55,4 +65,7 @@ jobs:
             data/poc/complex-coordinates/coordinate-source-sample.json
             data/poc/complex-coordinates/coordinate-source-unresolved.csv
             data/poc/complex-coordinates/coordinate-source-gate-overrides.json
+            data/poc/complex-coordinates/parcel-coordinate-summary.json
+            data/poc/complex-coordinates/parcel-coordinate-sample.json
+            data/poc/complex-coordinates/parcel-coordinate-unresolved.csv
           if-no-files-found: error

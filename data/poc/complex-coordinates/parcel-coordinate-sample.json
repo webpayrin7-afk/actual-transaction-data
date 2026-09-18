@@ -1,0 +1,104 @@
+{
+  "samples": [
+    {
+      "complex_id": "cx_01a01c194bce0a20",
+      "apt_name": "휴먼스타빌",
+      "sigungu": "강남구",
+      "jibun_addr": "서울 강남구 청담동 5-25",
+      "identity_status": "SINGLE_PARCEL",
+      "full_pnus": [
+        "1168010400100050000"
+      ],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    },
+    {
+      "complex_id": "cx_026cad617b3a239b",
+      "apt_name": "위례캐스빌",
+      "sigungu": "송파구",
+      "jibun_addr": "서울 송파구 송파동 104-1",
+      "identity_status": "SINGLE_PARCEL",
+      "full_pnus": [
+        "1171010400101040000"
+      ],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    },
+    {
+      "complex_id": "cx_0074b35c6bca6137",
+      "apt_name": "삼흥",
+      "sigungu": "종로구",
+      "jibun_addr": "서울 종로구 창신동 638-45",
+      "identity_status": "SINGLE_PARCEL",
+      "full_pnus": [
+        "1111017400106380000"
+      ],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    },
+    {
+      "complex_id": "cx_0276fe98811f6b51",
+      "apt_name": "공덕파크자이",
+      "sigungu": "마포구",
+      "jibun_addr": "서울 마포구 공덕동 476",
+      "identity_status": "SINGLE_PARCEL",
+      "full_pnus": [
+        "1144010200104760000"
+      ],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    },
+    {
+      "complex_id": "cx_01210eca6e2ee4cc",
+      "apt_name": "마곡수명산파크2단지",
+      "sigungu": "강서구",
+      "jibun_addr": "서울 강서구 내발산동 741",
+      "identity_status": "SINGLE_PARCEL",
+      "full_pnus": [
+        "1150010600107410000"
+      ],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    },
+    {
+      "complex_id": "cx_0271ef95a6ce5e60",
+      "apt_name": "상계주공9(고층)",
+      "sigungu": "노원구",
+      "jibun_addr": "서울 노원구 상계동 670",
+      "identity_status": "SINGLE_PARCEL",
+      "full_pnus": [
+        "1135010500106700000"
+      ],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    },
+    {
+      "complex_id": "cx_0101e6b280d42112",
+      "apt_name": "길음뉴타운2단지푸르지오",
+      "sigungu": "성북구",
+      "jibun_addr": "서울 성북구 길음동 1280",
+      "identity_status": "MULTI_RECORD_SAME_PARCEL",
+      "full_pnus": [
+        "1129013400112800000"
+      ],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    },
+    {
+      "complex_id": "cx_00dbb01fb440d612",
+      "apt_name": "신동아아파트(1차)",
+      "sigungu": "서초구",
+      "jibun_addr": "서울 서초구 서초동 1333",
+      "identity_status": "NO_PNU",
+      "full_pnus": [],
+      "spatial_status": "BLOCKED_BY_ACCESS"
+    }
+  ],
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "identity_status": "SINGLE_PARCEL",
+    "full_pnus": [
+      "1171010100100190000"
+    ],
+    "known_anchor": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "representative_point": null,
+    "distance_meters": null,
+    "spatial_status": "BLOCKED_BY_ACCESS"
+  }
+}

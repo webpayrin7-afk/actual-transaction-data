@@ -1,0 +1,51 @@
+{
+  "mode": "dry-run",
+  "generatedAt": "2026-09-18T04:56:57.904Z",
+  "production_coordinate_rows_written": 0,
+  "school_rerun": false,
+  "spatial_join": "BLOCKED_BY_ACCESS",
+  "reb_identity": {
+    "total": 8437,
+    "SINGLE_PARCEL": 7951,
+    "MULTI_RECORD_SAME_PARCEL": 313,
+    "MULTI_PARCEL": 0,
+    "AMBIGUOUS_IDENTITY": 0,
+    "NO_PNU": 168,
+    "INVALID_PNU": 5,
+    "unique_full_pnu": 6068,
+    "jibun_unparseable": 5,
+    "high_confidence_identity": 8264
+  },
+  "spatial_source": {
+    "provider": "국토교통부 / VWorld",
+    "dataset": "일별연속지적도형정보 (dsId=23) 서울특별시 SHP",
+    "official": true,
+    "format": "SHP",
+    "bulk": true,
+    "access": "VWorld downloadResourceFile",
+    "credential": "none stated; host unreachable (HTTP 502 / connection reset)",
+    "version": "dataset page 수정일 2025-09-08; file date not retrieved",
+    "crs": "EPSG:5186 (official page: GRS80)",
+    "pnu_field": "PNU (confirm on file open; not guessed into a join)",
+    "coordinate_meaning": "parcel polygon; representative point not computed",
+    "license": "이용허락범위 제한 없음 (data.go.kr 15045882). Nationwide 20231113 file is 제4유형 and is rejected.",
+    "attribution": "UNKNOWN",
+    "alternative_checked": "geomarket LX 필지점 requires login; provincial cadastral fileData pages also redirect to VWorld"
+  },
+  "high_confidence_coordinates": 0,
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "identity_status": "SINGLE_PARCEL",
+    "full_pnus": [
+      "1171010100100190000"
+    ],
+    "known_anchor": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "representative_point": null,
+    "distance_meters": null,
+    "spatial_status": "BLOCKED_BY_ACCESS"
+  },
+  "required_user_action": "Place Seoul continuous-cadastral SHP (EPSG:5186, dsId=23) at PARCEL_SHP and re-run. Do not use the commercial-prohibited nationwide 제4유형 file."
+}

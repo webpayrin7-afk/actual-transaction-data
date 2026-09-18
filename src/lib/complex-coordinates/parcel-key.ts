@@ -44,13 +44,63 @@ export function buildPnu(params: {
 }
 
 /**
- * REB 필지고유번호 often uses platGb "1" for 대지 while Building Hub uses "0".
- * Normalize both to a land/mountain-agnostic join key: lawd(5)+bjd(5)+bun(4)+ji(4).
+ * Official 19-digit PNU:
+ *   법정동코드 10 (시도2+시군구3+읍면동3+리2)
+ *   + 산/대지 구분 1
+ *   + 본번 4
+ *   + 부번 4
+ *
+ * plat digit is preserved as stored. This parser does not decide whether
+ * "1" means 산 — REB and Building Hub disagree on that digit for the same parcel.
+ */
+export type ParsedPnu = {
+  pnu: string;
+  bjdong10: string;
+  lawdCd: string;
+  bjdongCd: string;
+  platGb: "0" | "1";
+  bun: string;
+  ji: string;
+};
+
+export function normalizePnu(raw: string | null | undefined): string | null {
+  if (raw == null) return null;
+  const s = raw.replace(/\s+/g, "");
+  if (!/^\d{19}$/.test(s)) return null;
+  return s;
+}
+
+export function parsePnu(raw: string | null | undefined): ParsedPnu | null {
+  const pnu = normalizePnu(raw);
+  if (!pnu) return null;
+  const plat = pnu[10];
+  if (plat !== "0" && plat !== "1") return null;
+  return {
+    pnu,
+    bjdong10: pnu.slice(0, 10),
+    lawdCd: pnu.slice(0, 5),
+    bjdongCd: pnu.slice(5, 10),
+    platGb: plat,
+    bun: pnu.slice(11, 15),
+    ji: pnu.slice(15, 19),
+  };
+}
+
+/**
+ * REB 필지고유번호 often uses platGb "1" where Building Hub uses "0".
+ * Land-agnostic key is for identity bridge only: lawd(5)+bjd(5)+bun(4)+ji(4).
+ * Final spatial join should use the source's full PNU, not this key.
  */
 export function pnuLandAgnosticKey(pnu19: string | null | undefined): string | null {
-  const p = (pnu19 ?? "").trim();
-  if (!/^\d{19}$/.test(p)) return null;
-  return p.slice(0, 10) + p.slice(11);
+  const parsed = parsePnu(pnu19);
+  if (!parsed) return null;
+  return parsed.bjdong10 + parsed.bun + parsed.ji;
+}
+
+export function buildLandAgnosticParcelKey(
+  pnu19: string | null | undefined,
+): string | null {
+  return pnuLandAgnosticKey(pnu19);
 }
 
 export function normalizeRoadAddress(addr: string | null | undefined): string | null {
