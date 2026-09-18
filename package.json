@@ -34,6 +34,10 @@
     "test:calculator": "tsx scripts/test-calculator.ts",
     "test:unit-type-phase5": "tsx scripts/test-unit-type-phase5.ts",
     "test:unit-type-phase53b": "tsx scripts/test-unit-type-phase53b.ts",
+    "test:school-materialization": "tsx scripts/test-school-materialization.ts",
+    "school:mat:export-complexes": "tsx scripts/school-materialization/export-seoul-complexes.ts",
+    "school:mat:dry-run": "python3 scripts/school-materialization/dry_run_seoul.py --mode=dry-run",
+    "school:mat:probe-api": "tsx scripts/school-materialization/probe-nearby-api-latency.ts",
     "build:pilot-complex-coordinate": "node scripts/build-pilot-complex-coordinate.mjs"
   },
   "dependencies": {
