@@ -42,10 +42,9 @@ export function SchoolDistrictBlock({
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="inline-flex shrink-0 items-center gap-0.5 text-[11px] font-normal text-[color:var(--lab-teal-700)] hover:underline"
+          className="shrink-0 text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
         >
           학교군 전체 보기
-          <ChevronRight className="size-3.5" aria-hidden />
         </button>
       </div>
       <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
@@ -58,6 +57,7 @@ export function SchoolDistrictBlock({
         title={`${district.officialName} (${district.memberCount}개교)`}
         doneLabel="닫기"
         hideHeaderDivider
+        compactBodyTop
       >
         <p className="text-[11px] leading-4 text-slate-500">
           학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.

@@ -38,10 +38,9 @@ export function AttendanceZoneBlock({
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="inline-flex shrink-0 items-center gap-0.5 text-[11px] font-normal text-[color:var(--lab-teal-700)] hover:underline"
+          className="shrink-0 text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
         >
           {zone.ctaLabel}
-          <ChevronRight className="size-3.5" aria-hidden />
         </button>
       </div>
       <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
@@ -54,6 +53,7 @@ export function AttendanceZoneBlock({
         title={zone.officialName}
         doneLabel="닫기"
         hideHeaderDivider
+        compactBodyTop
       >
         {zone.zoneKind === "joint" ? (
           <p className="text-[12px] text-slate-500">

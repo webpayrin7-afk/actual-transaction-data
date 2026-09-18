@@ -20,6 +20,8 @@ type LabBottomSheetProps = {
   doneLabel?: string;
   /** Hide the hairline under the title row. */
   hideHeaderDivider?: boolean;
+  /** Tighten top padding above sheet body copy. */
+  compactBodyTop?: boolean;
 };
 
 /**
@@ -33,6 +35,7 @@ export function LabBottomSheet({
   children,
   doneLabel = "완료",
   hideHeaderDivider = false,
+  compactBodyTop = false,
 }: LabBottomSheetProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
@@ -108,25 +111,30 @@ export function LabBottomSheet({
         }}
       >
         <div
-          className={`flex shrink-0 items-center justify-between gap-3 px-4 py-3 ${
+          className={`flex shrink-0 items-start justify-between gap-3 px-4 py-3 ${
             hideHeaderDivider ? "" : "border-b border-slate-200"
           }`}
         >
           <h3
             id={titleId}
-            className="min-w-0 flex-1 truncate text-base font-semibold text-slate-900"
+            className="min-w-0 flex-1 text-base font-semibold leading-snug text-slate-900"
+            style={{ paddingLeft: "0.75em", textIndent: "-0.75em" }}
           >
             {title}
           </h3>
           <button
             type="button"
-            className="shrink-0 text-sm font-medium text-teal-700"
+            className="shrink-0 pt-0.5 text-sm font-medium text-teal-700"
             onClick={onClose}
           >
             {doneLabel}
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div
+          className={`min-h-0 flex-1 overflow-y-auto px-4 pb-4 ${
+            compactBodyTop ? "pt-1.5" : "pt-4"
+          }`}
+        >
           {children}
         </div>
       </div>
