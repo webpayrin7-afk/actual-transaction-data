@@ -67,7 +67,7 @@ export function AttendanceZoneBlock({
         >
           {zone.infoText}
         </p>
-        <ul className="mt-3 space-y-1" data-testid="attendance-zone-sheet-list">
+        <ul className="mt-2 space-y-0" data-testid="attendance-zone-sheet-list">
           {zone.designatedSchools.map((m) => {
             const dist = formatDistrictDistance(m.distanceM);
             const meta = [m.establishment, dist].filter(Boolean).join(" · ");
@@ -86,7 +86,7 @@ export function AttendanceZoneBlock({
                       });
                     }}
                     aria-label={`${m.name} 상세 보기`}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition active:scale-[0.99] active:bg-slate-100 hover:bg-slate-50"
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left transition active:scale-[0.99] active:bg-slate-100 hover:bg-slate-50"
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-medium text-slate-800">
@@ -104,7 +104,7 @@ export function AttendanceZoneBlock({
                     />
                   </button>
                 ) : (
-                  <div className="rounded-lg px-2.5 py-2">
+                  <div className="rounded-lg px-2.5 py-[5px]">
                     <p className="truncate text-[13px] font-medium text-slate-800">
                       {m.name}
                     </p>

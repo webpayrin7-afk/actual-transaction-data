@@ -62,7 +62,7 @@ export function SchoolDistrictBlock({
         <p className="text-[11px] leading-4 text-slate-500">
           학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.
         </p>
-        <ul className="mt-3 space-y-1" data-testid="school-district-sheet-list">
+        <ul className="mt-2 space-y-0" data-testid="school-district-sheet-list">
           {district.members.map((m) => (
             <li key={`all-${m.schoolCode ?? m.name}`}>
               <DistrictSchoolRow
@@ -106,7 +106,7 @@ function DistrictSchoolRow({
 
   if (!linkable) {
     return (
-      <div className="rounded-lg px-2.5 py-2">
+      <div className="rounded-lg px-2.5 py-[5px]">
         <p className="truncate text-[13px] font-medium text-slate-800">{name}</p>
         {meta ? (
           <p className="mt-0.5 text-[10px] text-slate-500">{meta}</p>
@@ -120,7 +120,7 @@ function DistrictSchoolRow({
       type="button"
       onClick={onClick}
       aria-label={`${name} 상세 보기`}
-      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition active:scale-[0.99] active:bg-slate-100 hover:bg-slate-50"
+      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left transition active:scale-[0.99] active:bg-slate-100 hover:bg-slate-50"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-medium text-slate-800">
