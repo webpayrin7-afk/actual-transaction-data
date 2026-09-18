@@ -35,6 +35,7 @@
     "test:unit-type-phase5": "tsx scripts/test-unit-type-phase5.ts",
     "test:unit-type-phase53b": "tsx scripts/test-unit-type-phase53b.ts",
     "test:school-materialization": "tsx scripts/test-school-materialization.ts",
+    "test:school-materialization-scale": "tsx scripts/test-school-materialization-scale.ts",
     "test:complex-coordinates": "tsx scripts/test-complex-coordinates.ts",
     "test:complex-coordinate-sources": "tsx scripts/test-complex-coordinate-sources.ts",
     "test:safe-coordinate-payload": "tsx scripts/test-safe-coordinate-payload.ts",
