@@ -1,0 +1,11 @@
+{
+  "source_version": "coord-dry-run-2026-09-18",
+  "count": 1,
+  "overrides": {
+    "cx_4c63d9a100973c60": {
+      "lat": 37.5133051,
+      "lng": 127.0815962,
+      "source": "product_map_anchor"
+    }
+  }
+}
