@@ -37,6 +37,7 @@
     "test:school-materialization": "tsx scripts/test-school-materialization.ts",
     "test:complex-coordinates": "tsx scripts/test-complex-coordinates.ts",
     "test:complex-coordinate-sources": "tsx scripts/test-complex-coordinate-sources.ts",
+    "test:safe-coordinate-payload": "tsx scripts/test-safe-coordinate-payload.ts",
     "school:mat:export-complexes": "tsx scripts/school-materialization/export-seoul-complexes.ts",
     "school:mat:dry-run": "python3 scripts/school-materialization/dry_run_seoul.py --mode=dry-run",
     "school:mat:probe-api": "tsx scripts/school-materialization/probe-nearby-api-latency.ts",
