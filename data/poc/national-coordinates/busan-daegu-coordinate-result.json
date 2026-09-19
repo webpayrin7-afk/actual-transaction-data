@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "semantics": "PARCEL_REPRESENTATIVE_POINT",
+  "production_write": true,
+  "source_link_write": false,
+  "enrichment_domain_write": false,
+  "storage": "apt_complex_master.latitude/longitude",
+  "new_source": false,
+  "new_enrichment_domain": false,
+  "busan_written": 1228,
+  "daegu_written": 974,
+  "skipped_existing_non_null": 0,
+  "duplicate_complex_id": 0,
+  "null_coordinates_in_written": 0,
+  "out_of_region_in_written": 0,
+  "other_sido_changed": 0,
+  "master_total": 27524,
+  "census": {
+    "26": 1228,
+    "27": 974
+  },
+  "school_ready": {
+    "26": 1228,
+    "27": 974
+  },
+  "apply_note": "Busan 1228 committed first. The following Daegu transaction rolled back before commit because the census check compared against the empty pre-Busan snapshot. The check was corrected and Daegu 974 then committed. No pre-existing non-null coordinate was skipped or overwritten.",
+  "stamps": {
+    "busan": "2026-09-19T04:09:42Z",
+    "daegu": "2026-09-19T04:15:15.293Z"
+  }
+}
