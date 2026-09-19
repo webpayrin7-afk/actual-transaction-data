@@ -1,0 +1,208 @@
+{
+  "cohort_origin": "ORIGINAL_POC",
+  "profile_source": "CORE_PROFILE_AUDIT_20260919",
+  "profile_as_of": "2026-09-19",
+  "note": "POC input only. Not a Production profile source. Do not write these rows to apt_complex_profile.",
+  "rows": [
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "household_count": 6864,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "household_count": 5563,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "household_count": 5678,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_30d7eea6da810b52",
+      "household_count": 9510,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_85cd8a4b2d5dc3d0",
+      "household_count": 3696,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_b4db01945df2a55b",
+      "household_count": 3930,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_b0e8352316140107",
+      "household_count": 2064,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_38b28184a6913022",
+      "household_count": 4494,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_c7ac494bf78993ad",
+      "household_count": 999,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_5c5e019f55b0b404",
+      "household_count": 782,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_418069b2f92cb394",
+      "household_count": 303,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_181f263fd604aac3",
+      "household_count": 1945,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_ea301e82cbe02a66",
+      "household_count": 758,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_b74bdaa8f28045aa",
+      "household_count": 545,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_fd0372a95d34d9d7",
+      "household_count": 919,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_1becf336ee8d7d1d",
+      "household_count": 625,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_6e0c33a4a442fb23",
+      "household_count": 2100,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_ea2695a68497c99e",
+      "household_count": 2678,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_44b1e27eac52a403",
+      "household_count": 915,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_3dc0eb548607bdb9",
+      "household_count": 417,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_e095bf141dde5379",
+      "household_count": 497,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_85066296693b771d",
+      "household_count": 1842,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_66434d683dc3914e",
+      "household_count": 564,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_e1d2e94be6e3e431",
+      "household_count": 1810,
+      "profile_confidence": "MEDIUM",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    },
+    {
+      "complex_id": "cx_1dfee9c393937fea",
+      "household_count": 492,
+      "profile_confidence": "HIGH",
+      "cohort_origin": "ORIGINAL_POC",
+      "profile_source": "CORE_PROFILE_AUDIT_20260919",
+      "profile_as_of": "2026-09-19"
+    }
+  ]
+}
