@@ -82,6 +82,7 @@ def assert_checkpoint_scope(
     school_level: str,
     complex_id_filter: str,
     chunk_size: int,
+    sido: str = "",
 ) -> None:
     if saved is None:
         return
@@ -89,17 +90,19 @@ def assert_checkpoint_scope(
         saved.get("school_level") != school_level
         or saved.get("complex_id_filter") != complex_id_filter
         or saved.get("chunk_size") != chunk_size
+        or (saved.get("sido") or "") != (sido or "")
     ):
         raise CheckpointScopeError(
-            "CHECKPOINT_SCOPE_MISMATCH: school_level, complex filter, or chunk size changed"
+            "CHECKPOINT_SCOPE_MISMATCH: school_level, complex filter, chunk size, or sido changed"
         )
 
 
-def save_checkpoint(path: Path, checkpoint: dict, school_level: str, complex_id_filter: str, chunk_size: int) -> None:
+def save_checkpoint(path: Path, checkpoint: dict, school_level: str, complex_id_filter: str, chunk_size: int, sido: str = "") -> None:
     doc = dict(checkpoint)
     doc["school_level"] = school_level
     doc["complex_id_filter"] = complex_id_filter
     doc["chunk_size"] = chunk_size
+    doc["sido"] = sido or ""
     path.write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
