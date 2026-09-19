@@ -23,6 +23,21 @@ export type EligibilityResult = {
   topTierEvaluated: boolean;
 };
 
+const CONFIDENCE_ORDER = ["MISSING", "LOW", "MEDIUM", "HIGH"] as const;
+
+/** HIGH/MEDIUM/LOW/MISSING are an ordinal floor on profile confidence. Other tokens stay an exact identity-status match. */
+function meetsIdentityFloor(
+  floor: string,
+  profileConfidence: string,
+  identityStatus: string | null,
+): boolean {
+  const floorRank = CONFIDENCE_ORDER.indexOf(floor as (typeof CONFIDENCE_ORDER)[number]);
+  if (floorRank < 0) return identityStatus === floor;
+  const actualRank = CONFIDENCE_ORDER.indexOf(profileConfidence as (typeof CONFIDENCE_ORDER)[number]);
+  if (actualRank < 0) return false;
+  return actualRank >= floorRank;
+}
+
 function daysSince(dealDate: string, asOf: string): number {
   const a = Date.parse(`${dealDate.slice(0, 10)}T00:00:00Z`);
   const b = Date.parse(`${asOf.slice(0, 10)}T00:00:00Z`);
@@ -99,7 +114,12 @@ export function evaluateEligibility(params: {
     }
   }
   if (params.config.identityConfidenceFloor) {
-    if (params.identityStatus !== params.config.identityConfidenceFloor) {
+    const ok = meetsIdentityFloor(
+      params.config.identityConfidenceFloor,
+      params.features.profile.confidence,
+      params.identityStatus,
+    );
+    if (!ok) {
       return {
         eligibleInput: false,
         exclusionReason: "IDENTITY_BELOW_FLOOR",

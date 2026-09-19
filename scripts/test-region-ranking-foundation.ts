@@ -76,6 +76,23 @@ const gated = evaluateEligibility({
 });
 assert.equal(gated.exclusionReason, "PROFILE_HOUSEHOLD_MISSING");
 assert.equal(gated.topTierEvaluated, false);
+const floorPass = evaluateEligibility({
+  features,
+  transactionAsOf: windows.transactionAsOf,
+  identityStatus: null,
+  config: { requireHouseholdProfile: true, identityConfidenceFloor: "MEDIUM" },
+});
+assert.equal(floorPass.eligibleInput, true);
+const floorBlock = evaluateEligibility({
+  features: {
+    ...features,
+    profile: { ...features.profile, confidence: "LOW" },
+  },
+  transactionAsOf: windows.transactionAsOf,
+  identityStatus: null,
+  config: { requireHouseholdProfile: true, identityConfidenceFloor: "MEDIUM" },
+});
+assert.equal(floorBlock.exclusionReason, "IDENTITY_BELOW_FLOOR");
 assert.equal(topTierGateReady(null), false);
 assert.equal(topTierGateReady({}), false);
 
