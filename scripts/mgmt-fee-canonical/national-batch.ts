@@ -211,13 +211,17 @@ export async function runExpansionDryRun(args: {
   prior?: readonly TargetRecord[];
   sleepMs?: number;
   workers?: number;
+  /** Defaults to the wave-1 cap. This order cannot raise it above 100. */
+  maxTargets?: number;
   now?: string;
   sleep?: (ms: number) => Promise<void>;
 }): Promise<WaveDryRunResult & { store: OpCheckpointStore }> {
   const workers = args.workers ?? 1;
   const sleepMs = args.sleepMs ?? DEFAULT_SLEEP_MS;
+  const maxTargets = args.maxTargets ?? MAX_WAVE_TARGETS;
   if (workers !== 1 || sleepMs < DEFAULT_SLEEP_MS) throw new Error("rate policy");
-  if (args.targets.length > MAX_WAVE_TARGETS) throw new Error("wave target cap");
+  if (!Number.isInteger(maxTargets) || maxTargets < 1 || maxTargets > 100) throw new Error("wave target cap");
+  if (args.targets.length > maxTargets) throw new Error("wave target cap");
   const store = args.store ?? OpCheckpointStore.empty();
   const existing = args.existingKeys ?? new Set<string>();
   const now = args.now ?? "2026-09-18T00:00:00.000Z";

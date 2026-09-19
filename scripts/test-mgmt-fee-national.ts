@@ -186,6 +186,38 @@ async function main(): Promise<void> {
   assert.equal(second.api_calls, 0);
   assert.equal(second.records[0]?.status, "COMPLETE");
 
+  const wave1Ids = new Set(picked.map((item) => item.complex_id));
+  const wave2 = planNamedSidoCohort({
+    complexes: complexes.filter((item) => !wave1Ids.has(item.complex_id)),
+    sidoCodes: ["26"],
+    perSido: 50,
+    totalCap: 100,
+  });
+  assert.equal(wave2.length, 5);
+  assert.equal(wave2.some((item) => wave1Ids.has(item.complex_id)), false);
+  assert.equal(wave2[0]?.complex_id, "cx_25");
+  await assert.rejects(
+    () =>
+      runExpansionDryRun({
+        targets: Array.from({ length: 51 }, (_, index) => ({ ...target, complex_id: `cx_cap_${index}` })),
+        calls,
+        sleep: async () => undefined,
+        fetchOp: async () => success(1),
+      }),
+    /wave target cap/,
+  );
+  await assert.rejects(
+    () =>
+      runExpansionDryRun({
+        targets: [target],
+        calls,
+        maxTargets: 101,
+        sleep: async () => undefined,
+        fetchOp: async () => success(1),
+      }),
+    /wave target cap/,
+  );
+
   console.log(JSON.stringify({ ok: true, wave: wave.map((item) => item.sido_code) }));
 }
 
