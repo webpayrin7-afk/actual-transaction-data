@@ -11,7 +11,8 @@ export function sha256Hex(value: string): string {
 
 export type CohortInputRow = {
   complexId: string;
-  householdCount: number;
+  /** Null when the complex is in the feature universe but household is unresolved. */
+  householdCount: number | null;
   profileConfidence: string;
   cohortOrigin: string;
 };
