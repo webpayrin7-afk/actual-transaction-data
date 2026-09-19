@@ -49,29 +49,23 @@ export function inWindow(dealDate: string, window: HalfOpenWindow): boolean {
 }
 
 export type SnapshotIdentity = {
-  calculationRunId: string;
+  featureRunId: string;
   transactionAsOf: string;
   sourceWindowStart: string;
   sourceWindowEnd: string;
   featureVersion: string;
-  rankingVersion: string;
 };
 
-/**
- * ranking_version is an opaque label supplied with private config.
- * This module does not select weights from that label.
- */
+/** Feature identity only. Ranking config is not part of this object. */
 export function snapshotIdentity(params: {
-  calculationRunId: string;
+  featureRunId: string;
   windows: RankingWindows;
-  rankingVersion: string;
 }): SnapshotIdentity {
   return {
-    calculationRunId: params.calculationRunId,
+    featureRunId: params.featureRunId,
     transactionAsOf: params.windows.transactionAsOf,
     sourceWindowStart: params.windows.base12m.startExclusive,
     sourceWindowEnd: params.windows.base12m.endInclusive,
     featureVersion: FEATURE_VERSION,
-    rankingVersion: params.rankingVersion,
   };
 }

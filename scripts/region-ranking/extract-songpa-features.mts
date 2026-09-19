@@ -5,17 +5,16 @@
  * Cohort: data/poc/region-ranking/songpa-original-poc-25.json
  * Household overlay is sample-only. Conflicts are excluded, not chosen.
  */
-import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createClient } from "@libsql/client";
 import { activeAreaBand, AREA_BAND_VERSION, REJECTED_84_ALTERNATE, inAreaBand } from "../../src/lib/region-ranking/area-band";
-import { evaluateEligibility } from "../../src/lib/region-ranking/eligibility";
 import { extractFeatures } from "../../src/lib/region-ranking/features";
 import {
   parsePocCohort,
   resolveProfileOverlay,
   type WarehouseHousehold,
 } from "../../src/lib/region-ranking/profile-overlay";
+import { cohortInputId, featureRunId } from "../../src/lib/region-ranking/run-identity";
 import { FEATURE_VERSION, snapshotIdentity, windowsFromAsOf } from "../../src/lib/region-ranking/snapshot";
 
 const COHORT_PATH = "data/poc/region-ranking/songpa-original-poc-25.json";
@@ -113,19 +112,22 @@ async function main() {
   });
   const profileById = new Map(profiles.rows.map((row) => [String(row.complex_id), row]));
   const kaptById = new Map(links.rows.map((row) => [String(row.complex_id), String(row.source_key)]));
-  const runId = createHash("sha256")
-    .update(JSON.stringify({
-      feature: FEATURE_VERSION,
-      band: AREA_BAND_VERSION,
-      areaBand: "84",
-      asOf,
-      ids,
-    }))
-    .digest("hex");
+  const runId = featureRunId({
+    transactionAsOf: asOf,
+    sourceWindowStart: windows.base12m.startExclusive,
+    sourceWindowEnd: windows.base12m.endInclusive,
+    recentWindowStart: windows.recent3m.startExclusive,
+    recentWindowEnd: windows.recent3m.endInclusive,
+    previousWindowStart: windows.previous3m.startExclusive,
+    previousWindowEnd: windows.previous3m.endInclusive,
+    areaBand: "84",
+    areaBandVersion: AREA_BAND_VERSION,
+    featureVersion: FEATURE_VERSION,
+    cohortInputId: cohortInputId(cohort),
+  });
   const identity = snapshotIdentity({
-    calculationRunId: runId,
+    featureRunId: runId,
     windows,
-    rankingVersion: "private-config-not-in-repo",
   });
 
   const rows = [];
@@ -176,16 +178,13 @@ async function main() {
       windows,
       profile: resolution.profile,
     });
-    const gate = evaluateEligibility({
-      features,
-      transactionAsOf: asOf,
-      identityStatus: master!.identity_status == null ? null : String(master!.identity_status),
-      config: null,
-    });
+    const eligibleInput = features.householdCount != null && features.householdCount > 0;
     const shared = {
       ...identity,
       complex_id: id,
       apt_name_norm: String(master!.apt_name_norm),
+      lawd_cd: String(master!.lawd_cd),
+      bjdong_cd: master!.bjdong_cd == null ? null : String(master!.bjdong_cd),
       area_band: "84",
       area_band_version: AREA_BAND_VERSION,
       area_band_min: band.exclusiveSqmMin,
@@ -212,12 +211,13 @@ async function main() {
       profile_source_key: features.profile.sourceKey,
       profile_as_of: features.profile.sourceAsOf,
       profile_confidence: features.profile.confidence,
-      eligible_input: gate.eligibleInput,
-      exclusion_reason: gate.exclusionReason,
+      eligible_input: eligibleInput,
+      exclusion_reason: eligibleInput ? null : "PROFILE_HOUSEHOLD_MISSING",
       building_count_used: false,
       scoring: false,
     };
     if (
+      shared.featureRunId !== runId ||
       shared.transactionAsOf !== asOf ||
       shared.sourceWindowStart !== windows.base12m.startExclusive ||
       shared.sourceWindowEnd !== windows.base12m.endInclusive ||
@@ -225,15 +225,9 @@ async function main() {
     ) {
       throw new Error(`snapshot identity diverged for ${id}`);
     }
-    rows.push({ ...shared, region_scope: "gu", region_code: "11710" });
-    rows.push({
-      ...shared,
-      region_scope: "dong",
-      region_code: master!.bjdong_cd == null ? null : String(master!.bjdong_cd),
-    });
+    rows.push(shared);
   }
 
-  const guRows = rows.filter((row) => row.region_scope === "gu");
   const doc = {
     status: "FEATURE_EXTRACT_ONLY",
     scoring: false,
@@ -245,7 +239,7 @@ async function main() {
     profile_overlay_rows: overlayRows,
     production_profile_matches: matchRows,
     profile_conflicts: conflicts,
-    calculation_run_id: runId,
+    feature_run_id: runId,
     transaction_as_of: asOf,
     warehouse_max_deal_date: warehouseMax,
     source_window_start: windows.base12m.startExclusive,
@@ -256,14 +250,13 @@ async function main() {
     area_band_version: AREA_BAND_VERSION,
     area_band_bounds: [band.exclusiveSqmMin, band.exclusiveSqmMax],
     feature_version: FEATURE_VERSION,
-    feature_rows: guRows.length,
-    scope_rows: rows.length,
+    feature_rows: rows.length,
     excluded,
-    median_price_calculated: guRows.every((row) => row.median_price_per_sqm != null),
-    trade_count_calculated: guRows.every((row) => typeof row.trade_count === "number"),
-    turnover_calculated: guRows.every((row) => row.turnover != null),
-    active_months_calculated: guRows.every((row) => typeof row.active_month_count === "number"),
-    momentum_inputs_calculated: guRows.every(
+    median_price_calculated: rows.every((row) => row.median_price_per_sqm != null),
+    trade_count_calculated: rows.every((row) => typeof row.trade_count === "number"),
+    turnover_calculated: rows.every((row) => row.turnover != null),
+    active_months_calculated: rows.every((row) => typeof row.active_month_count === "number"),
+    momentum_inputs_calculated: rows.every(
       (row) =>
         typeof row.recent_3m_trade_count === "number" &&
         typeof row.previous_3m_trade_count === "number",
@@ -286,7 +279,7 @@ async function main() {
   writeFileSync(`${OUT_DIR}/songpa-84-feature-snapshot.json`, JSON.stringify(doc, null, 2) + "\n");
   console.log(JSON.stringify({
     status: doc.status,
-    calculation_run_id: runId,
+    feature_run_id: runId,
     feature_rows: doc.feature_rows,
     excluded: excluded.length,
     profile_overlay_rows: overlayRows,

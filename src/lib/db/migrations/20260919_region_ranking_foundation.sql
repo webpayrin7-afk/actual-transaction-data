@@ -1,32 +1,33 @@
--- PROPOSAL ONLY. Do not apply in this phase.
--- No score, weight, threshold, or component-breakdown columns.
--- Existing apt_pyeong_groups / apt_complex_profile / market_stats_* are unchanged.
+-- Region ranking foundation schema. Additive only.
+-- Creates empty tables. Existing tables and rows stay as they are.
+-- No weight, threshold, percentile, or component-score columns.
 --
--- Reuse for reads:
---   transactions              one snapshot, already cancellation-resolved at ingest
---   apt_complex_master        immutable complex_id, lawd, dong
---   apt_complex_profile       household_count + source (not building_count as a score input)
---   apt_complex_source_links  KAPT / MOLIT / parcel provenance
+-- ranking_feature_snapshots stores one raw feature row per complex.
+-- region_scope is not part of that key. Dong and gu cohorts are built at rank time.
 --
--- Not reusable as the ranking store:
---   market_stats_daily*       region-day aggregates, no complex, no area band, single as_of overwrite
---   apt_pyeong_groups         per-complex unit clusters, different semantics from a regional band
+-- region_complex_rankings stores a public result for one ranking_run_id.
+-- feature_run_id is a reference only. Config values are not stored.
+-- Re-applying this file is CREATE IF NOT EXISTS. It does not replace older run ids.
+-- A later writer may upsert the same primary key and must keep other run ids.
 --
--- History: unlike market_stats_meta (single overwritten as_of), ranking rows are
--- append-only per calculation_run_id. A later snapshot must not replace an older as_of.
--- Re-running the same calculation_run_id is an idempotent upsert of the same values.
+-- public_display_metrics_json may contain only:
+--   median_price_per_sqm, median_deal_amount, trade_count, latest_deal_date
 
 CREATE TABLE IF NOT EXISTS ranking_feature_snapshots (
-  calculation_run_id TEXT NOT NULL,
+  feature_run_id TEXT NOT NULL,
   complex_id TEXT NOT NULL,
-  region_scope TEXT NOT NULL CHECK (region_scope IN ('gu', 'dong')),
-  region_code TEXT NOT NULL,
+  lawd_cd TEXT NOT NULL,
+  bjdong_cd TEXT NOT NULL,
   area_band TEXT NOT NULL,
   area_band_version TEXT NOT NULL,
   period TEXT NOT NULL,
   transaction_as_of TEXT NOT NULL,
   source_window_start TEXT NOT NULL,
   source_window_end TEXT NOT NULL,
+  recent_window_start TEXT NOT NULL,
+  recent_window_end TEXT NOT NULL,
+  previous_window_start TEXT NOT NULL,
+  previous_window_end TEXT NOT NULL,
   median_price_per_sqm REAL,
   median_deal_amount REAL,
   trade_count INTEGER NOT NULL,
@@ -38,40 +39,40 @@ CREATE TABLE IF NOT EXISTS ranking_feature_snapshots (
   previous_3m_trade_count INTEGER NOT NULL,
   recent_3m_median_price_per_sqm REAL,
   previous_3m_median_price_per_sqm REAL,
-  recent_3m_median_deal_amount REAL,
-  previous_3m_median_deal_amount REAL,
-  profile_source TEXT,
-  profile_source_key TEXT,
-  profile_as_of TEXT,
-  profile_confidence TEXT,
   feature_version TEXT NOT NULL,
-  ranking_version TEXT NOT NULL,
-  transaction_count INTEGER NOT NULL,
+  profile_source TEXT,
+  profile_confidence TEXT,
   eligible_input INTEGER NOT NULL,
   exclusion_reason TEXT,
   calculated_at TEXT NOT NULL,
-  PRIMARY KEY (calculation_run_id, complex_id, region_scope, region_code, area_band)
+  PRIMARY KEY (feature_run_id, complex_id, area_band, period)
 );
 
+CREATE INDEX IF NOT EXISTS idx_rfs_feature_lawd
+  ON ranking_feature_snapshots (feature_run_id, lawd_cd);
+
+CREATE INDEX IF NOT EXISTS idx_rfs_feature_dong
+  ON ranking_feature_snapshots (feature_run_id, bjdong_cd);
+
 CREATE TABLE IF NOT EXISTS region_complex_rankings (
-  calculation_run_id TEXT NOT NULL,
+  ranking_run_id TEXT NOT NULL,
   region_scope TEXT NOT NULL CHECK (region_scope IN ('gu', 'dong')),
   region_code TEXT NOT NULL,
   complex_id TEXT NOT NULL,
   area_band TEXT NOT NULL,
   period TEXT NOT NULL,
-  rank INTEGER,
+  feature_run_id TEXT NOT NULL,
+  "rank" INTEGER,
   region_total INTEGER,
   confidence_bucket TEXT,
   eligible INTEGER NOT NULL,
   exclusion_reason TEXT,
   ranking_version TEXT NOT NULL,
-  feature_version TEXT NOT NULL,
   transaction_as_of TEXT NOT NULL,
   calculated_at TEXT NOT NULL,
   public_display_metrics_json TEXT NOT NULL,
   PRIMARY KEY (
-    calculation_run_id,
+    ranking_run_id,
     region_scope,
     region_code,
     complex_id,
@@ -80,6 +81,8 @@ CREATE TABLE IF NOT EXISTS region_complex_rankings (
   )
 );
 
--- public_display_metrics_json may contain only:
---   median_price_per_sqm, median_deal_amount, trade_count, latest_deal_date
--- It must not contain weights, thresholds, percentiles, or score components.
+CREATE INDEX IF NOT EXISTS idx_rcr_feature_run
+  ON region_complex_rankings (feature_run_id);
+
+CREATE INDEX IF NOT EXISTS idx_rcr_region_lookup
+  ON region_complex_rankings (region_scope, region_code, area_band, period);

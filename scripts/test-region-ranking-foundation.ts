@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import {
   AREA_BAND_VERSION,
   REJECTED_84_ALTERNATE,
@@ -11,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { extractFeatures } from "../src/lib/region-ranking/features";
 import { parsePocCohort, resolveProfileOverlay } from "../src/lib/region-ranking/profile-overlay";
 import { inWindow, snapshotIdentity, windowsFromAsOf } from "../src/lib/region-ranking/snapshot";
+import { featureRunId } from "../src/lib/region-ranking/run-identity";
 
 const band = activeAreaBand("84");
 assert.equal(AREA_BAND_VERSION, "REGIONAL_RANKING_AREA_BAND_V1");
@@ -88,14 +88,26 @@ const absent = evaluateEligibility({
 assert.equal(absent.exclusionReason, "PRIVATE_CONFIG_ABSENT");
 
 const id = snapshotIdentity({
-  calculationRunId: createHash("sha256").update("same").digest("hex"),
+  featureRunId: featureRunId({
+    transactionAsOf: windows.transactionAsOf,
+    sourceWindowStart: windows.base12m.startExclusive,
+    sourceWindowEnd: windows.base12m.endInclusive,
+    recentWindowStart: windows.recent3m.startExclusive,
+    recentWindowEnd: windows.recent3m.endInclusive,
+    previousWindowStart: windows.previous3m.startExclusive,
+    previousWindowEnd: windows.previous3m.endInclusive,
+    areaBand: "84",
+    areaBandVersion: AREA_BAND_VERSION,
+    featureVersion: "region-feature-v1",
+    cohortInputId: "cohort",
+  }),
   windows,
-  rankingVersion: "private",
 });
 assert.equal(id.featureVersion, "region-feature-v1");
 assert.equal(id.sourceWindowStart, windows.base12m.startExclusive);
 assert.equal(id.sourceWindowEnd, windows.base12m.endInclusive);
 assert.equal(id.transactionAsOf, "2026-09-17");
+assert.equal("rankingVersion" in id, false);
 
 const poc = {
   complexId: "cx_ed52bf895d064c11",
