@@ -163,8 +163,9 @@ const TOP_TIER_SLOT_COUNT = 5;
 /**
  * The gu TOP-5 price constraint is not applied to a dong cohort this small.
  * 잠실동 in the frozen sample has 6 complexes.
+ * Read paths may expose this as metadata. It is not a new gate.
  */
-const SMALL_DONG_COHORT_MAX = 6;
+export const SMALL_DONG_COHORT_MAX = 6;
 
 export function priceGateMode(
   regionScope: "gu" | "dong",

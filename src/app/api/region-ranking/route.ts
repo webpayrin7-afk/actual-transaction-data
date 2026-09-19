@@ -1,10 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import { publishedRegionRanking, type LaunchAreaBand } from "@/lib/region-ranking/query";
+import { SMALL_DONG_COHORT_MAX } from "@/lib/region-ranking/score";
 
 export const dynamic = "force-dynamic";
 
 const BANDS = new Set(["ALL", "59", "84", "114"]);
+
+function coverageOf(metrics: Record<string, unknown> | null) {
+  if (!metrics || !("coverage_status" in metrics)) return null;
+  return {
+    expected_bands: metrics.expected_bands ?? null,
+    valid_bands: metrics.valid_bands ?? null,
+    expected_band_count: metrics.expected_band_count ?? null,
+    valid_band_count: metrics.valid_band_count ?? null,
+    coverage_completeness: metrics.coverage_completeness ?? null,
+    coverage_status: metrics.coverage_status ?? null,
+    single_product_band: metrics.single_product_band === true,
+  };
+}
+
+function publicMetricsOf(metrics: Record<string, unknown> | null) {
+  if (!metrics || "coverage_status" in metrics) return null;
+  return {
+    median_price_per_sqm: metrics.median_price_per_sqm ?? null,
+    median_deal_amount: metrics.median_deal_amount ?? null,
+    trade_count: metrics.trade_count ?? null,
+    latest_deal_date: metrics.latest_deal_date ?? null,
+  };
+}
 
 export async function GET(request: NextRequest) {
   const regionCode = request.nextUrl.searchParams.get("region_code")?.trim() ?? "";
@@ -19,42 +43,43 @@ export async function GET(request: NextRequest) {
   }
   const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(Math.trunc(limitRaw), 1), 50) : 10;
   try {
-    const started = Date.now();
     const data = await publishedRegionRanking(db, {
       regionCode,
       areaBand: rankingType as LaunchAreaBand,
       limit,
     });
-    const elapsed = Date.now() - started;
-    if (!data.published) {
+    if (!("published" in data) || !data.published) {
       return NextResponse.json({
-        ranking_type: rankingType,
-        region_scope: data.regionScope ?? null,
-        region_code: regionCode,
-        published: false,
         status: "unavailable",
+        rankingType,
+        regionCode,
+        transactionAsOf: null,
+        rankingVersion: null,
+        regionTotal: null,
         rows: [],
-        elapsed_ms: elapsed,
       });
     }
+    const smallCohort = regionCode.length === 10 && data.regionTotal > 0 && data.regionTotal <= SMALL_DONG_COHORT_MAX;
     return NextResponse.json({
-      ranking_type: data.rankingType,
-      region_scope: data.regionScope,
-      region_code: data.regionCode,
-      transaction_as_of: data.transactionAsOf,
-      ranking_version: data.rankingVersion,
-      region_total: data.regionTotal,
-      published: true,
-      rows: data.rows.map((row) => ({
-        rank: row.rank,
-        complex_id: row.complexId,
-        apt_name: row.name,
-        dong: row.dong,
-        public_metrics: row.publicMetrics,
-        confidence: row.confidenceBucket,
-        coverage: row.publicMetrics,
-      })),
-      elapsed_ms: elapsed,
+      status: "ok",
+      rankingType: data.rankingType,
+      regionCode: data.regionCode,
+      transactionAsOf: data.transactionAsOf,
+      rankingVersion: data.rankingVersion,
+      regionTotal: data.regionTotal,
+      smallCohort,
+      rows: data.rows.map((row) => {
+        const metrics = row.publicMetrics as Record<string, unknown> | null;
+        return {
+          rank: row.rank,
+          complex_id: row.complexId,
+          apt_name: row.name,
+          dong: row.dong,
+          confidence: row.confidenceBucket,
+          coverage: coverageOf(metrics),
+          public_metrics: publicMetricsOf(metrics),
+        };
+      }),
     });
   } catch (error) {
     console.error(error);
