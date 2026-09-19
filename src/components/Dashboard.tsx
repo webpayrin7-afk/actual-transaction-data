@@ -13,6 +13,7 @@ import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
 import { RegionDailyStatus } from "@/components/RegionDailyStatus";
 import { RegionDongBrowse } from "@/components/RegionDongBrowse";
+import { RegionLeaderboard } from "@/components/region/RegionLeaderboard";
 import { TransactionTable } from "@/components/TransactionTable";
 import { BackLink } from "@/components/layout/BackLink";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
@@ -206,10 +207,17 @@ export function Dashboard({
       {tab === "dong" && <RegionDongBrowse regionSlug={region.slug} />}
 
       {tab === "stats" && (
-        <RegionDailyStatus
-          regionSlug={region.slug}
-          regionName={region.name}
-        />
+        <>
+          <RegionLeaderboard
+            regionSlug={region.slug}
+            regionName={region.name}
+            lawdCodes={region.lawdCodes}
+          />
+          <RegionDailyStatus
+            regionSlug={region.slug}
+            regionName={region.name}
+          />
+        </>
       )}
 
       {tab === "search" && (

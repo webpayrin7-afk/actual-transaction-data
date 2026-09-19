@@ -23,6 +23,7 @@ import {
 import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSection";
 import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
 import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
+import { ComplexRegionRankSection } from "@/components/apt/ComplexRegionRankSection";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
@@ -844,6 +845,14 @@ export function AptDetailPage({
           />
         </div>
       </section>
+
+      <ComplexRegionRankSection
+        complexId={identity?.complexId ?? null}
+        regionSlug={regionSlug}
+        regionName={region?.name ?? data.regionName}
+        dongName={identity?.legalDongName ?? data.dong}
+        selectedArea={areaKey === "all" ? null : selectedArea}
+      />
 
       <section
         id="section-trades"
