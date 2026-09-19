@@ -1,0 +1,21 @@
+{
+  "status": "SCHEMA_APPLIED",
+  "precheck": "PASS",
+  "production_schema_write": true,
+  "idempotent_rerun": "SCHEMA_ALREADY_PRESENT",
+  "feature_data_write": false,
+  "ranking_data_write": false,
+  "tables": [
+    "ranking_feature_snapshots",
+    "region_complex_rankings"
+  ],
+  "indexes": [
+    "idx_rfs_feature_lawd",
+    "idx_rfs_feature_dong",
+    "idx_rcr_feature_run",
+    "idx_rcr_region_lookup"
+  ],
+  "feature_rows": 0,
+  "ranking_rows": 0,
+  "unrelated_data_changed": false
+}
