@@ -161,7 +161,7 @@ assert(guLine?.meta === "57개 단지 중", `gu meta ${guLine?.meta}`);
 const dongLine = placeHeadline({ regionName: "잠실동", place: dong });
 assert(dongLine?.title === "잠실동 3위", `dong title ${dongLine?.title}`);
 assert(
-  dongLine?.meta === "잠실동 내 비교 가능한 6개 단지 기준",
+  dongLine?.meta === "잠실동 비교 6개 단지 기준",
   `dong meta ${dongLine?.meta}`,
 );
 assert(!JSON.stringify(dongLine).includes("smallCohort"), "no raw smallCohort");

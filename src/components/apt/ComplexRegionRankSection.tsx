@@ -12,30 +12,66 @@ import {
   type ComplexRankPlace,
 } from "@/lib/region-ranking/public";
 
-function PlaceBlock({
-  regionName,
-  place,
+function RankCell({
+  line,
   empty,
 }: {
-  regionName: string;
-  place: ComplexRankPlace | null | undefined;
+  line: { title: string; meta: string | null } | null;
   empty: string;
 }) {
-  const line = placeHeadline({ regionName, place });
+  if (!line) {
+    return (
+      <p className="min-w-0 truncate text-[13px] leading-5 text-slate-500">
+        {empty}
+      </p>
+    );
+  }
   return (
-    <div className="min-w-0">
-      {line ? (
+    <p className="min-w-0 truncate text-[15px] font-semibold leading-5 tabular-nums text-slate-900">
+      {line.title}
+    </p>
+  );
+}
+
+function RankPair({
+  guName,
+  dongName,
+  gu,
+  dong,
+  emptyGu,
+  emptyDong,
+}: {
+  guName: string;
+  dongName: string;
+  gu: ComplexRankPlace | null | undefined;
+  dong: ComplexRankPlace | null | undefined;
+  emptyGu: string;
+  emptyDong: string;
+}) {
+  const guLine = placeHeadline({ regionName: guName, place: gu });
+  const dongLine = placeHeadline({ regionName: dongName, place: dong });
+  const sameEmpty = !guLine && !dongLine && emptyGu === emptyDong;
+
+  if (sameEmpty) {
+    return (
+      <p className="text-[13px] leading-5 text-slate-500">{emptyGu}</p>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+      <RankCell line={guLine} empty={emptyGu} />
+      <RankCell line={dongLine} empty={emptyDong} />
+      {guLine?.meta || dongLine?.meta ? (
         <>
-          <p className="text-[17px] font-semibold leading-6 tabular-nums text-slate-900">
-            {line.title}
+          <p className="min-w-0 truncate text-[12px] leading-4 text-slate-500">
+            {guLine?.meta ?? ""}
           </p>
-          {line.meta ? (
-            <p className="mt-0.5 text-[12px] leading-4 text-slate-500">{line.meta}</p>
-          ) : null}
+          <p className="min-w-0 truncate text-[12px] leading-4 text-slate-500">
+            {dongLine?.meta ?? ""}
+          </p>
         </>
-      ) : (
-        <p className="text-[13px] leading-5 text-slate-500">{empty}</p>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -88,7 +124,7 @@ export function ComplexRegionRankSection({
   return (
     <section
       id="section-region-rank"
-      className="lab-card scroll-mt-28 p-4 sm:p-5"
+      className="lab-card scroll-mt-28 p-3.5 sm:p-4"
     >
       <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
         <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
@@ -100,69 +136,67 @@ export function ComplexRegionRankSection({
       </div>
 
       {query.isLoading ? (
-        <div className="mt-4 space-y-2" aria-label="순위 불러오는 중">
-          <div className="h-16 animate-pulse rounded-xl bg-slate-100" />
-          <div className="h-16 animate-pulse rounded-xl bg-slate-100" />
+        <div className="mt-3 space-y-2" aria-label="순위 불러오는 중">
+          <div className="h-10 animate-pulse rounded-lg bg-slate-100" />
+          <div className="h-10 animate-pulse rounded-lg bg-slate-100" />
         </div>
       ) : query.isError ? (
-        <div className="mt-4 rounded-xl bg-slate-50 px-3 py-4 text-center">
+        <div className="mt-3 rounded-xl bg-slate-50 px-3 py-3 text-center">
           <p className="text-sm font-medium text-slate-700">
             순위를 불러오지 못했습니다.
           </p>
           <button
             type="button"
             onClick={() => void query.refetch()}
-            className="lab-button lab-button-secondary mt-3 min-h-10 px-4 text-sm"
+            className="lab-button lab-button-secondary mt-2 !min-h-9 px-4 text-[13px]"
           >
             다시 시도
           </button>
         </div>
       ) : (
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 space-y-2.5">
           <div>
-            <p className="text-[13px] font-medium text-slate-600">종합</p>
-            <div className="mt-1.5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <PlaceBlock
-                regionName={regionName}
-                place={data?.all?.gu}
-                empty="종합 순위를 준비 중이에요"
-              />
-              <PlaceBlock
-                regionName={dongLabel}
-                place={data?.all?.dong}
-                empty="이 동 종합 순위를 준비 중이에요"
+            <p className="text-[13px] font-medium leading-5 text-slate-600">종합</p>
+            <div className="mt-1">
+              <RankPair
+                guName={regionName}
+                dongName={dongLabel}
+                gu={data?.all?.gu}
+                dong={data?.all?.dong}
+                emptyGu="종합 순위를 준비 중이에요"
+                emptyDong="이 동 종합 순위를 준비 중이에요"
               />
             </div>
           </div>
 
           {areaBand ? (
-            <div className="border-t border-slate-100 pt-3">
-              <p className="text-[13px] font-medium text-slate-600">{bandLabel}</p>
-              {data?.area ? (
-                <div className="mt-1.5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <PlaceBlock
-                    regionName={regionName}
-                    place={data.area.gu}
-                    empty="이 면적대는 아직 순위를 제공하지 않아요"
+            <div className="border-t border-slate-100 pt-2">
+              <p className="text-[13px] font-medium leading-5 text-slate-600">
+                {bandLabel}
+              </p>
+              <div className="mt-1">
+                {data?.area ? (
+                  <RankPair
+                    guName={regionName}
+                    dongName={dongLabel}
+                    gu={data.area.gu}
+                    dong={data.area.dong}
+                    emptyGu="이 면적대는 아직 순위를 제공하지 않아요"
+                    emptyDong="이 면적대는 아직 순위를 제공하지 않아요"
                   />
-                  <PlaceBlock
-                    regionName={dongLabel}
-                    place={data.area.dong}
-                    empty="이 면적대는 아직 순위를 제공하지 않아요"
-                  />
-                </div>
-              ) : (
-                <p className="mt-1.5 text-[13px] leading-5 text-slate-500">
-                  이 면적대는 아직 순위를 제공하지 않아요
-                </p>
-              )}
+                ) : (
+                  <p className="text-[13px] leading-5 text-slate-500">
+                    이 면적대는 아직 순위를 제공하지 않아요
+                  </p>
+                )}
+              </div>
             </div>
           ) : null}
 
           <Link
             href={regionRankingHref(regionSlug)}
             data-event="complex_region_rank_cta"
-            className="lab-button lab-button-secondary flex w-full min-h-10 items-center justify-center text-sm"
+            className="lab-button lab-button-secondary flex w-full !min-h-9 items-center justify-center text-[13px]"
           >
             {regionName} 아파트 순위 보기
           </Link>

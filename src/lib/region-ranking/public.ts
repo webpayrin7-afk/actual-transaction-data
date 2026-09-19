@@ -336,7 +336,7 @@ export function placeHeadline(params: {
   if (place.smallCohort && total != null && total > 0) {
     return {
       title,
-      meta: `${params.regionName} 내 비교 가능한 ${total.toLocaleString("ko-KR")}개 단지 기준`,
+      meta: `${params.regionName} 비교 ${total.toLocaleString("ko-KR")}개 단지 기준`,
     };
   }
   return {
