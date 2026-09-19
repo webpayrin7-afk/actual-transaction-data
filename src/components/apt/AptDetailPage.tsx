@@ -787,14 +787,18 @@ export function AptDetailPage({
             "최고가 대비",
             vsMaxPct == null
               ? "—"
-              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`,
+              : vsMaxPct > 0
+                ? `+${vsMaxPct}% ↑`
+                : vsMaxPct < 0
+                  ? `${vsMaxPct}% ↓`
+                  : `${vsMaxPct}%`,
             "최근 매매 대비",
             vsMaxPct == null
               ? "!text-slate-400"
-              : vsMaxPct < 0
+              : vsMaxPct > 0
                 ? "!text-rose-600"
-                : vsMaxPct > 0
-                  ? "!text-teal-700"
+                : vsMaxPct < 0
+                  ? "!text-blue-600"
                   : "",
           )}
           {kpiCell(
