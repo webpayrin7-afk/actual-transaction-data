@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "sample_label": "CROSS_REGION_BACKTEST_SAMPLE",
+  "region": "서울특별시 노원구",
+  "lawd_cd": "11350",
+  "production_write": false,
+  "private_config_values_stored": false,
+  "building_count_used": false,
+  "note": "Not a Production Nowon ranking. Scores were computed in memory from the frozen feature sample and the existing Songpa P1/P2/P3 runtime configs. No weight was changed.",
+  "cohort": {
+    "discovery_candidates": 62,
+    "selected": 25,
+    "household_confirmed": 24,
+    "household_coverage": 0.96,
+    "profile_unresolved": [
+      {
+        "complex_id": "cx_a44436e064755142",
+        "apt_name_norm": "노원롯데캐슬시그니처",
+        "reason": "OFFICIAL_SPLIT_NO_UNIQUE_CODE"
+      }
+    ]
+  },
+  "snapshot": {
+    "feature_run_id": "452f7ec43acdee378ca89837b6e3742ae700ca898e38116b51610be2f8b57529",
+    "transaction_as_of": "2026-09-17",
+    "area_band": "84",
+    "area_band_version": "REGIONAL_RANKING_AREA_BAND_V1",
+    "feature_deterministic_rerun": "IDENTICAL",
+    "score_deterministic_rerun": "IDENTICAL"
+  },
+  "candidates": {
+    "P1": {
+      "ranking_version": "songpa-candidate-p1",
+      "ranking_run_id": "9b472629e9daa0b24a507722b3769977caf6f9cc9a6e50ae2e9ba761c5ddab02",
+      "base_eligible": 24,
+      "base_excluded": 0,
+      "full_rank_coverage": 24,
+      "top_tier_eligible": 10,
+      "top5_changes_from_price_gate": [],
+      "full_rank_removals": 0,
+      "constrained_top10": [
+        "건영3",
+        "포레나노원",
+        "월계센트럴아이파크",
+        "한진한화그랑빌",
+        "하계2현대",
+        "주공5",
+        "하계1청구",
+        "태릉해링턴플레이스",
+        "노원프레미어스엠코",
+        "양지마을(대림)1"
+      ],
+      "sanity_issues": []
+    },
+    "P2": {
+      "ranking_version": "songpa-candidate-p2",
+      "ranking_run_id": "9ff6e8b800608d5008077504aaca7e906e63ef32bd8568b7aef8403162dc9e23",
+      "constrained_top10": [
+        "건영3",
+        "포레나노원",
+        "월계센트럴아이파크",
+        "한진한화그랑빌",
+        "하계2현대",
+        "주공5",
+        "하계1청구",
+        "태릉해링턴플레이스",
+        "노원프레미어스엠코",
+        "양지마을(대림)1"
+      ],
+      "sanity_issues": []
+    },
+    "P3": {
+      "ranking_version": "songpa-candidate-p3",
+      "ranking_run_id": "955e1df965a982e008fb853ad6f65788b2e92543b14e85eb6dd0ea6ea4943013",
+      "constrained_top10": [
+        "건영3",
+        "포레나노원",
+        "월계센트럴아이파크",
+        "한진한화그랑빌",
+        "하계2현대",
+        "주공5",
+        "하계1청구",
+        "태릉해링턴플레이스",
+        "노원프레미어스엠코",
+        "한화꿈에그린"
+      ],
+      "sanity_issues": []
+    }
+  },
+  "stability": {
+    "top5_overlap": { "P1-P2": 5, "P1-P3": 5, "P2-P3": 5 },
+    "top10_overlap": { "P1-P2": 10, "P1-P3": 9, "P2-P3": 9 },
+    "full_rank_spearman": { "P1-P2": 0.9983, "P1-P3": 0.9965, "P2-P3": 0.9983 },
+    "largest_movement": "두산힐스빌아파트 P1 16 / P2 15"
+  },
+  "price_gate": {
+    "mode": "TOP5_CONSTRAINT",
+    "top_tier_eligible": 10,
+    "top5_changes": 0,
+    "full_rank_removals": 0
+  },
+  "stress_test": {
+    "turnover_domination": "none",
+    "absolute_volume_domination": "none",
+    "price_domination": "none",
+    "low_price_liquidity": "none",
+    "momentum_domination": "none"
+  },
+  "generalization": {
+    "songpa_top5_overlap_across_candidates": 5,
+    "nowon_top5_overlap_across_candidates": 5,
+    "songpa_price_gate_top5_changes": 0,
+    "nowon_price_gate_top5_changes": 0,
+    "songpa_largest_movement": "장미1 P1 7 / P3 9",
+    "model_family_portable": true
+  },
+  "decision": "P1_RETAIN"
+}
