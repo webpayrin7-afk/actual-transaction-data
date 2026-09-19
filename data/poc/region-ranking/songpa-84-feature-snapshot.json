@@ -1,0 +1,9 @@
+{
+  "status": "COHORT_SOURCE_MISSING",
+  "cohort": "songpa-original-poc-25",
+  "feature_rows": 0,
+  "transaction_as_of": "2026-09-17",
+  "feature_version": "region-feature-v1",
+  "production_write": false,
+  "scoring": false
+}

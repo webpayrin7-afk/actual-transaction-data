@@ -1,0 +1,98 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import {
+  AREA_BAND_VERSION,
+  REJECTED_84_ALTERNATE,
+  activeAreaBand,
+  inAreaBand,
+} from "../src/lib/region-ranking/area-band";
+import { evaluateEligibility, topTierGateReady } from "../src/lib/region-ranking/eligibility";
+import { extractFeatures } from "../src/lib/region-ranking/features";
+import { inWindow, snapshotIdentity, windowsFromAsOf } from "../src/lib/region-ranking/snapshot";
+
+const band = activeAreaBand("84");
+assert.equal(AREA_BAND_VERSION, "REGIONAL_RANKING_AREA_BAND_V1");
+assert.equal(inAreaBand(81.8, band), true);
+assert.equal(inAreaBand(81.8, REJECTED_84_ALTERNATE), false);
+assert.equal(inAreaBand(84.9, band), true);
+assert.equal(inAreaBand(79.9, band), false);
+assert.equal(inAreaBand(90.1, band), false);
+
+const windows = windowsFromAsOf("2026-09-17");
+assert.equal(windows.base12m.startExclusive, "2025-09-17");
+assert.equal(windows.base12m.endInclusive, "2026-09-17");
+assert.equal(windows.recent3m.startExclusive, "2026-06-17");
+assert.equal(windows.previous3m.endInclusive, "2026-06-17");
+assert.equal(inWindow("2026-06-17", windows.recent3m), false);
+assert.equal(inWindow("2026-06-17", windows.previous3m), true);
+assert.equal(inWindow("2025-09-17", windows.base12m), false);
+
+const features = extractFeatures({
+  band,
+  windows,
+  profile: {
+    householdCount: 100,
+    source: "kapt_basis_v5",
+    sourceKey: "A00000000",
+    sourceAsOf: "2026-09-01",
+    confidence: "HIGH",
+  },
+  deals: [
+    { dealDate: "2026-09-01", exclusiveArea: 84.5, dealAmount: 1000 },
+    { dealDate: "2026-08-01", exclusiveArea: 81.8, dealAmount: 800 },
+    { dealDate: "2026-04-01", exclusiveArea: 84.5, dealAmount: 600 },
+    { dealDate: "2026-09-01", exclusiveArea: 70, dealAmount: 9999 },
+    { dealDate: "2024-01-01", exclusiveArea: 84.5, dealAmount: 1 },
+  ],
+});
+assert.equal(features.tradeCount, 3);
+assert.equal(features.householdCount, 100);
+assert.equal(features.turnover, 0.03);
+assert.equal(features.activeMonthCount, 3);
+assert.equal(features.recent3mTradeCount, 2);
+assert.equal(features.previous3mTradeCount, 1);
+assert.equal("buildingCount" in features, false);
+
+const missing = extractFeatures({
+  band,
+  windows,
+  profile: {
+    householdCount: null,
+    source: null,
+    sourceKey: null,
+    sourceAsOf: null,
+    confidence: "MISSING",
+  },
+  deals: [{ dealDate: "2026-09-01", exclusiveArea: 84, dealAmount: 10 }],
+});
+assert.equal(missing.turnover, null);
+const gated = evaluateEligibility({
+  features: missing,
+  transactionAsOf: windows.transactionAsOf,
+  identityStatus: "IDENTITY-READY",
+  config: { requireHouseholdProfile: true },
+});
+assert.equal(gated.exclusionReason, "PROFILE_HOUSEHOLD_MISSING");
+assert.equal(gated.topTierEvaluated, false);
+assert.equal(topTierGateReady(null), false);
+assert.equal(topTierGateReady({}), false);
+
+const absent = evaluateEligibility({
+  features,
+  transactionAsOf: windows.transactionAsOf,
+  identityStatus: "IDENTITY-READY",
+  config: null,
+});
+assert.equal(absent.exclusionReason, "PRIVATE_CONFIG_ABSENT");
+
+const id = snapshotIdentity({
+  calculationRunId: createHash("sha256").update("same").digest("hex"),
+  windows,
+  rankingVersion: "private",
+});
+assert.equal(id.featureVersion, "region-feature-v1");
+assert.equal(id.sourceWindowStart, windows.base12m.startExclusive);
+assert.equal(id.sourceWindowEnd, windows.base12m.endInclusive);
+assert.equal(id.transactionAsOf, "2026-09-17");
+
+console.log(JSON.stringify({ ok: true, area_band: AREA_BAND_VERSION }));
