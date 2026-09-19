@@ -211,7 +211,7 @@ async function main(): Promise<void> {
       runExpansionDryRun({
         targets: [target],
         calls,
-        maxTargets: 101,
+        maxTargets: 201,
         sleep: async () => undefined,
         fetchOp: async () => success(1),
       }),
