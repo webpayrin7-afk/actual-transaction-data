@@ -9,13 +9,17 @@ import { createClient, type Client } from "@libsql/client";
 import { SEOUL_REGIONS } from "../../src/lib/constants/regions-registry";
 import { activeAreaBand, AREA_BAND_VERSION, type AreaBandDef } from "../../src/lib/region-ranking/area-band";
 import { extractFeatures, type FeatureInputs } from "../../src/lib/region-ranking/features";
-import { aggregateAll, type AllBandId, type AllPrivateConfig, type AllBandStrength } from "../../src/lib/region-ranking/all-aggregate";
+import { aggregateAll, classifyProductCoverage, type AllBandId, type AllPrivateConfig, type AllBandStrength } from "../../src/lib/region-ranking/all-aggregate";
+import { householdFromTitleRows, type TitleRow } from "../../src/lib/region-ranking/ledger-household";
 import { loadPrivateConfig, type RankingPrivateConfig } from "../../src/lib/region-ranking/private-config";
 import { cohortInputId, featureRunId, rankingRunId, sha256Hex } from "../../src/lib/region-ranking/run-identity";
+import { precheckAdditiveCreateSql } from "../../src/lib/region-ranking/migration-precheck";
 import { percentileRank, priceGateMode, rankWithTopTierSlots, scoreCohort, type FeatureSnapshotRow } from "../../src/lib/region-ranking/score";
+import { publishedComplexPosition, publishedRegionRanking } from "../../src/lib/region-ranking/query";
 import { FEATURE_VERSION, windowsFromAsOf } from "../../src/lib/region-ranking/snapshot";
 
 const P1_FINGERPRINT = "19ba3623e8187a35f763a0a44e6c37ba568c8322e5b6e5c82c761c9a632c7835";
+const ALGORITHM_VERSION = "seoul-ranking-v2";
 const PINNED_TARGET = "2026-09-17";
 const LAWD = SEOUL_REGIONS.map((region) => region.lawdCodes[0]!);
 if (LAWD.length !== 25) throw new Error("SEOUL_GU_COUNT");
@@ -23,6 +27,8 @@ const GU_NAME = new Map(SEOUL_REGIONS.map((region) => [region.lawdCodes[0]!, reg
 const BANDS = ["59", "84", "114"] as const;
 const KAPT_PATH = process.env.KAPT_UNIVERSE_PATH ?? "/tmp/national-inputs/kapt-complex-universe.jsonl";
 const CACHE_PATH = "/tmp/seoul-kapt-basis-cache.json";
+const LEDGER_CACHE_PATH = "/tmp/seoul-ledger-cache.json";
+const PUBLICATION_SQL = "src/lib/db/migrations/20260920_region_ranking_publications.sql";
 const CALCULATED_AT = new Date().toISOString();
 
 type BandId = (typeof BANDS)[number];
@@ -52,7 +58,7 @@ function must<T>(value: T | undefined, message: string): T {
 
 function loadAllConfigs(path: string): AllPrivateConfig[] {
   const raw = JSON.parse(readFileSync(path, "utf8"));
-  if (!Array.isArray(raw) || raw.length < 2 || raw.length > 3) throw new Error("ALL_CONFIG_MALFORMED");
+  if (!Array.isArray(raw) || raw.length < 1 || raw.length > 3) throw new Error("ALL_CONFIG_MALFORMED");
   return raw.map((row) => {
     const config = row as AllPrivateConfig;
     if (!config.rankingVersion || !config.method) throw new Error("ALL_CONFIG_MALFORMED");
@@ -220,10 +226,14 @@ async function main() {
   const profiles = await loadProfiles(db, [...masters.keys()]);
   const profileBefore = Number((await db.execute("SELECT COUNT(*) AS c FROM apt_complex_profile")).rows[0]!.c);
   const resolved = await resolveHouseholds(db, masters, profiles);
+  let built = buildBands(masters, deals, resolved, asOf, windows, bandDefs);
+  const missingBefore = [...resolved.values()].filter((row) => row.household == null || row.household <= 0).length;
+  const coverageBefore = coverageSnapshot(built, config);
+  const ledger = await repairPriorityHouseholds(db, masters, resolved, built, config);
+  if (ledger.newly_resolved > 0) built = buildBands(masters, deals, resolved, asOf, windows, bandDefs);
+  const coverageAfter = coverageSnapshot(built, config);
   const profileWrites = await fillNullProfiles(db, resolved, profiles);
   const profileAfter = Number((await db.execute("SELECT COUNT(*) AS c FROM apt_complex_profile")).rows[0]!.c);
-
-  const built = buildBands(masters, deals, resolved, asOf, windows, bandDefs);
   if (!built.deterministic) {
     console.log(JSON.stringify({ status: "DETERMINISM_FAIL" }));
     process.exit(2);
@@ -231,9 +241,11 @@ async function main() {
 
   const cellResults = [];
   const rankingRows: RankingInsert[] = [];
+  const publications: PublicationInsert[] = [];
   const guScores = new Map<string, Map<BandId, Map<string, { score: number; pricePercentile: number; row: FeatureSnapshotRow }>>>();
   let dongBandCohorts = 0;
   let dongSmallCohorts = 0;
+  let dongRejected = 0;
 
   for (const band of BANDS) {
     const rows = built.rows[band];
@@ -247,6 +259,7 @@ async function main() {
         regionCode: lawd,
         config,
         privateConfigFingerprint: loaded.fingerprint,
+        rankingVersion: ALGORITHM_VERSION,
       });
       if (!scored.ok) throw new Error("score failed");
       const likely = cohort.filter((row) => likelyWithoutHousehold(row, config));
@@ -287,12 +300,28 @@ async function main() {
       lawdMap.set(band, byComplex);
       guScores.set(lawd, lawdMap);
       if (status === "PASS") {
+        publications.push({
+          regionScope: "gu",
+          regionCode: lawd,
+          areaBand: band,
+          rankingRunId: rankingRunId({
+            featureRunId: runId,
+            rankingVersion: ALGORITHM_VERSION,
+            privateConfigFingerprint: loaded.fingerprint,
+            regionScope: "gu",
+            regionCode: lawd,
+          }),
+          featureRunId: runId,
+          rankingVersion: ALGORITHM_VERSION,
+          asOf,
+        });
         pushRanking(rankingRows, scored, cohort, runId, loaded.fingerprint, config, "gu", lawd, band);
         const dongCodes = [...new Set(cohort.map((row) => row.bjdongCd))];
         for (const bjdong of dongCodes) {
           const members = cohort.filter((row) => row.bjdongCd === bjdong);
           dongBandCohorts += 1;
           if (members.length <= 6) dongSmallCohorts += 1;
+          const dongCode = `${lawd}${bjdong}`;
           const dong = scoreCohort({
             featureRunId: runId,
             rows: members,
@@ -300,28 +329,55 @@ async function main() {
             regionCode: bjdong,
             config,
             privateConfigFingerprint: loaded.fingerprint,
+            rankingVersion: ALGORITHM_VERSION,
           });
           if (!dong.ok) continue;
-          pushRanking(rankingRows, dong, members, runId, loaded.fingerprint, config, "dong", `${lawd}${bjdong}`, band);
+          const dongIssues = rankIssues(dong.constrainedOrder.map((item) => item.rank));
+          if (
+            dongIssues.duplicate > 0
+            || dongIssues.gaps > 0
+            || dong.constrainedOrder.length !== dong.baseEligible
+          ) {
+            dongRejected += 1;
+            continue;
+          }
+          publications.push({
+            regionScope: "dong",
+            regionCode: dongCode,
+            areaBand: band,
+            rankingRunId: rankingRunId({
+              featureRunId: runId,
+              rankingVersion: ALGORITHM_VERSION,
+              privateConfigFingerprint: loaded.fingerprint,
+              regionScope: "dong",
+              regionCode: dongCode,
+            }),
+            featureRunId: runId,
+            rankingVersion: ALGORITHM_VERSION,
+            asOf,
+          });
+          pushRanking(rankingRows, dong, members, runId, loaded.fingerprint, config, "dong", dongCode, band);
         }
       }
     }
   }
 
-  const selected = selectAll(allConfigs, guScores, LAWD);
+  const expected = await loadExpectedBands(db, masters, bandDefs);
+  const selected = selectAll(allConfigs);
   const allRun = rankingRunId({
     featureRunId: built.allFeatureRunId,
-    rankingVersion: selected.config.rankingVersion,
+    rankingVersion: ALGORITHM_VERSION,
     privateConfigFingerprint: selected.fingerprint,
     regionScope: "gu",
     regionCode: "11",
   });
   const allCells = [];
   const allCoverage = { 3: 0, 2: 0, 1: 0, excluded: 0 };
+  const productCoverage = { single_product: 0, partial: 0, unknown: 0, complete: 0 };
   let allDongCohorts = 0;
   let allSmallCohorts = 0;
   for (const lawd of LAWD) {
-    const items = allItemsForGu(lawd, guScores, selected.config);
+    const items = allItemsForGu(lawd, guScores, selected.config, expected);
     const universeIds = new Set<string>();
     for (const band of BANDS) {
       for (const row of built.rows[band]) {
@@ -333,18 +389,31 @@ async function main() {
     allCoverage[3] += items.filter((item) => item.coverage === 3).length;
     allCoverage[2] += items.filter((item) => item.coverage === 2).length;
     allCoverage[1] += items.filter((item) => item.coverage === 1).length;
-    const singleInTop = items.filter((item) => item.rank != null && item.rank <= 5 && item.coverage === 1).length;
+    productCoverage.single_product += items.filter((item) => item.singleProductBand).length;
+    productCoverage.partial += items.filter((item) => item.coverageStatus === "PARTIAL_PRODUCT_COVERAGE").length;
+    productCoverage.unknown += items.filter((item) => item.coverageStatus === "EXPECTED_BAND_UNKNOWN").length;
+    productCoverage.complete += items.filter((item) => item.coverageStatus === "COMPLETE_PRODUCT_COVERAGE").length;
+    const partialInTop = items.filter((item) => item.rank != null && item.rank <= 5 && item.coverageStatus === "PARTIAL_PRODUCT_COVERAGE").length;
     const topCount = items.filter((item) => item.rank != null && item.rank <= 5).length;
     const ranks = items.filter((item) => item.rank != null).map((item) => item.rank!);
     const issues = rankIssues(ranks);
     let status = "PASS";
     if (items.length === 0) status = "HOLD_ALL_EMPTY";
     else if (issues.duplicate > 0 || issues.gaps > 0) status = "HOLD_ALL_RANK_GAP";
-    else if (topCount > 0 && singleInTop / topCount > 0.6) status = "HOLD_ALL_SINGLE_BAND";
-    allCells.push({ lawd, gu: GU_NAME.get(lawd), status, eligible: items.length, single_in_top5: singleInTop });
+    else if (topCount > 0 && partialInTop / topCount > 0.6) status = "HOLD_ALL_PARTIAL_DATA";
+    allCells.push({ lawd, gu: GU_NAME.get(lawd), status, eligible: items.length, partial_in_top5: partialInTop });
     if (status !== "PASS") continue;
+    publications.push({
+      regionScope: "gu",
+      regionCode: lawd,
+      areaBand: "ALL",
+      rankingRunId: allRun,
+      featureRunId: built.allFeatureRunId,
+      rankingVersion: ALGORITHM_VERSION,
+      asOf,
+    });
     for (const item of items) {
-      rankingRows.push(allRow(allRun, built.allFeatureRunId, selected.config.rankingVersion, asOf, "gu", lawd, item));
+      rankingRows.push(allRow(allRun, built.allFeatureRunId, ALGORITHM_VERSION, asOf, "gu", lawd, item));
     }
     const byDong = new Map<string, typeof items>();
     for (const item of items) {
@@ -361,8 +430,23 @@ async function main() {
         mode,
       );
       const rankById = new Map(ranked.map((item) => [item.id, item.rank]));
+      const dongIssues = rankIssues(ranked.map((item) => item.rank));
+      if (dongIssues.duplicate > 0 || dongIssues.gaps > 0 || ranked.length !== members.length) {
+        dongRejected += 1;
+        continue;
+      }
+      const dongCode = `${lawd}${bjdong}`;
+      publications.push({
+        regionScope: "dong",
+        regionCode: dongCode,
+        areaBand: "ALL",
+        rankingRunId: allRun,
+        featureRunId: built.allFeatureRunId,
+        rankingVersion: ALGORITHM_VERSION,
+        asOf,
+      });
       for (const item of members) {
-        rankingRows.push(allRow(allRun, built.allFeatureRunId, selected.config.rankingVersion, asOf, "dong", `${lawd}${bjdong}`, {
+        rankingRows.push(allRow(allRun, built.allFeatureRunId, ALGORITHM_VERSION, asOf, "dong", dongCode, {
           ...item,
           rank: rankById.get(item.complexId) ?? null,
           regionTotal: members.length,
@@ -371,15 +455,20 @@ async function main() {
     }
   }
 
-  console.log(JSON.stringify({ stage: "write", features: built.universe, rankings: rankingRows.length }));
+  console.log(JSON.stringify({ stage: "write", features: built.universe, rankings: rankingRows.length, publications: publications.length }));
+  await ensurePublicationTable(db);
   const featureInserted = await writeFeatures(db, built, asOf);
-  await writeFeatures(db, built, asOf);
   const rankingInserted = await writeRankings(db, rankingRows);
+  const publicationInserted = await writePublications(db, publications);
   const featureCount = await db.execute("SELECT COUNT(*) AS c FROM ranking_feature_snapshots");
   const rankingCount = await db.execute("SELECT COUNT(*) AS c FROM region_complex_rankings");
+  const publicationCount = await db.execute("SELECT COUNT(*) AS c FROM region_ranking_publications");
+  await writeFeatures(db, built, asOf);
   await writeRankings(db, rankingRows);
+  await writePublications(db, publications);
   const featureCount2 = await db.execute("SELECT COUNT(*) AS c FROM ranking_feature_snapshots");
   const rankingCount2 = await db.execute("SELECT COUNT(*) AS c FROM region_complex_rankings");
+  const publicationCount2 = await db.execute("SELECT COUNT(*) AS c FROM region_ranking_publications");
 
   const manifest = {
     transaction_as_of: asOf,
@@ -392,9 +481,9 @@ async function main() {
     },
     feature_run_id: built.runIds,
     all_feature_run_id: built.allFeatureRunId,
-    ranking_version: config.rankingVersion,
+    ranking_version: ALGORITHM_VERSION,
     p1_fingerprint: loaded.fingerprint,
-    all_ranking_version: selected.config.rankingVersion,
+    all_ranking_version: ALGORITHM_VERSION,
     all_fingerprint: selected.fingerprint,
     all_ranking_run_id: allRun,
     all_selection: selected.reason,
@@ -404,12 +493,20 @@ async function main() {
     profile_count_before: profileBefore,
     profile_count_after: profileAfter,
     profile_resolved: [...resolved.values()].filter((row) => row.household != null && row.household > 0).length,
+    profile_missing_before: missingBefore,
     profile_missing: [...resolved.values()].filter((row) => row.household == null || row.household <= 0).length,
+    household_newly_resolved: ledger.newly_resolved,
+    household_attempted: ledger.attempted,
+    household_conflicts: ledger.conflicts,
+    coverage_before: summarizeCoverage(coverageBefore),
+    coverage_after: summarizeCoverage(coverageAfter),
     conflicts: [...resolved.values()].filter((row) => row.conflict).length,
     dong_band_cohorts: dongBandCohorts,
     dong_small_cohorts: dongSmallCohorts,
     all_dong_cohorts: allDongCohorts,
-    all_small_cohorts: allSmallCohorts,
+    dong_rejected: dongRejected,
+    product_coverage: productCoverage,
+    publication_rows: publications.length,
     cells: cellResults,
     all_cells: allCells,
     all_coverage: allCoverage,
@@ -419,8 +516,11 @@ async function main() {
       feature_after_rerun: Number(featureCount2.rows[0]!.c),
       ranking_before_rerun: Number(rankingCount.rows[0]!.c),
       ranking_after_rerun: Number(rankingCount2.rows[0]!.c),
+      publication_before_rerun: Number(publicationCount.rows[0]!.c),
+      publication_after_rerun: Number(publicationCount2.rows[0]!.c),
       feature_inserted_attempt: featureInserted,
       ranking_inserted_attempt: rankingInserted,
+      publication_inserted_attempt: publicationInserted,
     },
     production_write: true,
   };
@@ -434,17 +534,18 @@ async function main() {
     cells_pass: cellResults.filter((row) => row.status === "PASS").length,
     cells_hold: cellResults.filter((row) => row.status !== "PASS").length,
     all_pass: allCells.filter((row) => row.status === "PASS").length,
-    all_version: selected.config.rankingVersion,
+    all_version: ALGORITHM_VERSION,
     feature_rows: manifest.counts.feature_after_rerun,
     ranking_rows: manifest.counts.ranking_after_rerun,
     idempotent: manifest.counts.feature_before_rerun === manifest.counts.feature_after_rerun
-      && manifest.counts.ranking_before_rerun === manifest.counts.ranking_after_rerun,
+      && manifest.counts.ranking_before_rerun === manifest.counts.ranking_after_rerun
+      && manifest.counts.publication_before_rerun === manifest.counts.publication_after_rerun,
     profile_resolved: manifest.profile_resolved,
     profile_missing: manifest.profile_missing,
     conflicts: manifest.conflicts,
     profile_writes: profileWrites,
   }));
-  await postValidate(db, built.allFeatureRunId);
+  await postValidate(db, built, allRun);
   db.close();
 }
 
@@ -752,10 +853,10 @@ function matchKapt(masters: Map<string, Master>, links: Map<string, string>) {
     }
     const norm = master.name.replace(/\s+/g, "").replace(/아파트$/, "");
     const named = nameIndex.get(`${master.lawd}|${master.bjdong}|${norm}`);
-    const parcel = master.jibun ? lotIndex.get(`${master.lawd}|${master.bjdong}|${master.jibun}`) : undefined;
+    const parcelCode = lookupParcel(lotIndex, master.lawd, master.bjdong, master.jibun);
     let code: string | null = null;
-    if (named && named.size === 1 && parcel && parcel.size === 1 && [...named][0] === [...parcel][0]) code = [...named][0]!;
-    else if (parcel && parcel.size === 1) code = [...parcel][0]!;
+    if (named && named.size === 1 && parcelCode && [...named][0] === parcelCode) code = parcelCode;
+    else if (parcelCode) code = parcelCode;
     else if (named && named.size === 1) code = [...named][0]!;
     if (!code) continue;
     const official = (names.get(code) ?? "").replace(/\s+/g, "");
@@ -840,7 +941,7 @@ function pushRanking(
 ) {
   const runId = rankingRunId({
     featureRunId: featureRunIdValue,
-    rankingVersion: config.rankingVersion,
+    rankingVersion: ALGORITHM_VERSION,
     privateConfigFingerprint: fingerprint,
     regionScope: scope,
     regionCode,
@@ -860,7 +961,7 @@ function pushRanking(
       confidence: row.confidenceBucket,
       eligible: row.eligible ? 1 : 0,
       exclusion: row.exclusionReason,
-      rankingVersion: config.rankingVersion,
+      rankingVersion: ALGORITHM_VERSION,
       asOf: row.transactionAsOf,
       metrics: JSON.stringify({
         median_price_per_sqm: feat?.medianPricePerSqm ?? null,
@@ -872,48 +973,14 @@ function pushRanking(
   }
 }
 
-function selectAll(
-  configs: AllPrivateConfig[],
-  guScores: Map<string, Map<BandId, Map<string, { score: number; pricePercentile: number; row: FeatureSnapshotRow }>>>,
-  lawds: string[],
-) {
-  const focus = ["11680", "11650", "11710", "11200", "11440", "11350"];
-  const boards = configs.map((config) => {
-    const tops = new Map<string, string[]>();
-    for (const lawd of focus) {
-      const items = allItemsForGu(lawd, guScores, config).filter((item) => item.rank != null && item.rank <= 10);
-      tops.set(lawd, items.sort((a, b) => a.rank! - b.rank!).map((item) => item.complexId));
-    }
-    return { config, fingerprint: sha256Hex(JSON.stringify(config)), tops };
-  });
-  const overlap = (a: string[], b: string[]) => a.filter((id) => b.includes(id)).length;
-  const comparison = [];
-  for (let i = 0; i < boards.length; i++) {
-    for (let j = i + 1; j < boards.length; j++) {
-      let top5 = 0;
-      let top10 = 0;
-      let n = 0;
-      for (const lawd of focus) {
-        const left = boards[i]!.tops.get(lawd) ?? [];
-        const right = boards[j]!.tops.get(lawd) ?? [];
-        top5 += overlap(left.slice(0, 5), right.slice(0, 5));
-        top10 += overlap(left.slice(0, 10), right.slice(0, 10));
-        n += 1;
-      }
-      comparison.push({
-        pair: `${boards[i]!.config.rankingVersion}|${boards[j]!.config.rankingVersion}`,
-        mean_top5: Number((top5 / n).toFixed(2)),
-        mean_top10: Number((top10 / n).toFixed(2)),
-      });
-    }
-  }
-  const simplest = boards.find((board) => board.config.method === "reliability_weighted_mean") ?? boards[0]!;
-  const close = comparison.every((row) => row.mean_top5 >= 4 && row.mean_top10 >= 8);
+function selectAll(configs: AllPrivateConfig[]) {
+  const config = configs.find((row) => row.method === "reliability_weighted_mean");
+  if (!config) throw new Error("ALL_CONFIG_MALFORMED");
   return {
-    config: simplest.config,
-    fingerprint: simplest.fingerprint,
-    reason: close ? "candidates agree; selected reliability-weighted mean" : "candidates diverged; selected reliability-weighted mean as the launch-safe simple aggregate",
-    comparison,
+    config,
+    fingerprint: sha256Hex(JSON.stringify(config)),
+    reason: "retained reliability-weighted mean",
+    comparison: [] as Array<{ pair: string; mean_top5: number; mean_top10: number }>,
   };
 }
 
@@ -921,6 +988,7 @@ function allItemsForGu(
   lawd: string,
   guScores: Map<string, Map<BandId, Map<string, { score: number; pricePercentile: number; row: FeatureSnapshotRow }>>>,
   config: AllPrivateConfig,
+  expected: Map<string, BandId[]>,
 ) {
   const bands = guScores.get(lawd);
   const ids = new Set<string>();
@@ -945,8 +1013,16 @@ function allItemsForGu(
         pricePercentile: got.pricePercentile,
       });
     }
-    const aggregate = aggregateAll(strengths, config);
+    const expectedBands = expected.get(complexId) ?? null;
+    const usable = expectedBands == null
+      ? strengths
+      : strengths.filter((band) => expectedBands.includes(band.band));
+    const aggregate = aggregateAll(usable, config);
     if (!aggregate) continue;
+    const product = classifyProductCoverage(
+      usable.map((band) => band.band),
+      expectedBands,
+    );
     items.push({
       complexId,
       bjdong,
@@ -955,11 +1031,10 @@ function allItemsForGu(
       tieBreak,
       coverage: aggregate.coverage,
       coverageClass: aggregate.coverageClass,
-      lowCoverage: aggregate.lowCoverage,
-      bands: aggregate.bands,
       confidence,
       rank: null as number | null,
       regionTotal: 0,
+      ...product,
     });
   }
   const mode = priceGateMode("gu", items.length);
@@ -995,16 +1070,19 @@ function allRow(
     featureRunId: featureRunIdValue,
     rank: item.rank,
     regionTotal: item.regionTotal,
-    confidence: item.lowCoverage ? "LOW_COVERAGE" : item.confidence,
+    confidence: item.coverageStatus === "PARTIAL_PRODUCT_COVERAGE" ? "DATA_COVERAGE_INCOMPLETE" : item.confidence,
     eligible: 1,
     exclusion: null,
     rankingVersion,
     asOf,
     metrics: JSON.stringify({
-      valid_band_count: item.coverage,
-      available_bands: item.bands.join(","),
-      coverage_class: item.coverageClass,
-      low_coverage: item.lowCoverage,
+      expected_band_count: item.expectedBandCount,
+      valid_band_count: item.validBandCount,
+      expected_bands: item.expectedBands == null ? null : item.expectedBands.join(","),
+      valid_bands: item.validBands.join(","),
+      coverage_completeness: item.coverageCompleteness,
+      coverage_status: item.coverageStatus,
+      single_product_band: item.singleProductBand,
     }),
   };
 }
@@ -1022,14 +1100,7 @@ async function writeFeatures(db: Client, built: Built, asOf: string) {
           recent_3m_median_price_per_sqm, previous_3m_median_price_per_sqm, feature_version, profile_source,
           profile_confidence, eligible_input, exclusion_reason, calculated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(feature_run_id, complex_id, area_band, period) DO UPDATE SET
-          household_count = excluded.household_count,
-          turnover = excluded.turnover,
-          profile_source = excluded.profile_source,
-          profile_confidence = excluded.profile_confidence,
-          eligible_input = excluded.eligible_input,
-          exclusion_reason = excluded.exclusion_reason,
-          calculated_at = excluded.calculated_at`,
+        ON CONFLICT(feature_run_id, complex_id, area_band, period) DO NOTHING`,
         args: [
           built.runIds[band], row.complexId, row.lawdCd, row.bjdongCd, band, AREA_BAND_VERSION, "12M",
           asOf, row.sourceWindowStart, row.sourceWindowEnd, row.recentWindowStart, row.recentWindowEnd,
@@ -1072,17 +1143,387 @@ async function writeRankings(db: Client, rows: RankingInsert[]) {
   return statements.length;
 }
 
-async function postValidate(db: Client, allFeatureRunId: string) {
-  const groups = await db.execute(`
-    SELECT region_scope, region_code, area_band,
+type PublicationInsert = {
+  regionScope: "gu" | "dong";
+  regionCode: string;
+  areaBand: string;
+  rankingRunId: string;
+  featureRunId: string;
+  rankingVersion: string;
+  asOf: string;
+};
+
+type CoverageCell = { lawd: string; band: BandId; pass: boolean; coverage: number };
+
+function coverageSnapshot(built: Built, config: RankingPrivateConfig): CoverageCell[] {
+  const cells: CoverageCell[] = [];
+  for (const band of BANDS) {
+    for (const lawd of LAWD) {
+      const cohort = built.rows[band].filter((row) => row.lawdCd === lawd);
+      const likely = cohort.filter((row) => likelyWithoutHousehold(row, config));
+      const hit = likely.filter((row) => row.householdCount != null && row.householdCount > 0).length;
+      const coverage = likely.length === 0 ? 1 : hit / likely.length;
+      cells.push({ lawd, band, pass: coverage >= 0.95, coverage });
+    }
+  }
+  return cells;
+}
+
+function summarizeCoverage(cells: CoverageCell[]) {
+  const out: Record<string, { pass: number; hold: number }> = {};
+  for (const band of BANDS) {
+    const rows = cells.filter((cell) => cell.band === band);
+    out[band] = {
+      pass: rows.filter((cell) => cell.pass).length,
+      hold: rows.filter((cell) => !cell.pass).length,
+    };
+  }
+  return out;
+}
+
+function bandsForSpan(min: number, max: number, defs: Record<BandId, AreaBandDef>): BandId[] {
+  const hits: BandId[] = [];
+  for (const band of BANDS) {
+    const lo = defs[band].exclusiveSqmMin;
+    const hi = defs[band].exclusiveSqmMax;
+    if (lo == null || hi == null) continue;
+    if (max >= lo && min <= hi) hits.push(band);
+  }
+  return hits;
+}
+
+function lookupParcel(
+  lotIndex: Map<string, Set<string>>,
+  lawd: string,
+  bjdong: string,
+  jibun: string,
+): string | null {
+  const raw = jibun.trim();
+  if (!raw) return null;
+  const keys = [`${lawd}|${bjdong}|${raw}`];
+  const [bun, ji] = raw.replace(/^산\s*/, "").split("-");
+  if (bun) keys.push(`${lawd}|${bjdong}|${String(Number(bun))}`);
+  if (bun && ji && Number(ji) === 0) keys.push(`${lawd}|${bjdong}|${String(Number(bun))}`);
+  const found = new Set<string>();
+  for (const key of keys) {
+    for (const code of lotIndex.get(key) ?? []) found.add(code);
+  }
+  if (found.size !== 1) return null;
+  return [...found][0]!;
+}
+
+function padLot(jibun: string): { plat: string; bun: string; ji: string } | null {
+  const mountain = /^\s*산/.test(jibun);
+  const raw = jibun.replace(/^산\s*/, "").trim();
+  if (!raw) return null;
+  const [bun, ji] = raw.split("-");
+  if (!bun || !/^[0-9]+$/.test(bun)) return null;
+  if (ji != null && ji !== "" && !/^[0-9]+$/.test(ji)) return null;
+  return {
+    plat: mountain ? "1" : "0",
+    bun: String(Number(bun)).padStart(4, "0"),
+    ji: String(Number(ji || 0)).padStart(4, "0"),
+  };
+}
+
+function parcelKey(master: Master): string | null {
+  const lot = padLot(master.jibun);
+  if (!lot) return null;
+  return `${master.lawd}|${master.bjdong}|${lot.plat}|${lot.bun}|${lot.ji}`;
+}
+
+type LedgerCacheEntry = { complete: boolean; rows: TitleRow[] };
+
+function readLedgerCache(): Record<string, LedgerCacheEntry> {
+  if (!existsSync(LEDGER_CACHE_PATH)) return {};
+  return JSON.parse(readFileSync(LEDGER_CACHE_PATH, "utf8")) as Record<string, LedgerCacheEntry>;
+}
+
+function parseLedgerBody(text: string): { ok: boolean; total: number; rows: TitleRow[] } {
+  const trimmed = text.trim();
+  if (trimmed.startsWith("{")) {
+    const parsed = JSON.parse(trimmed) as {
+      response?: { header?: { resultCode?: string }; body?: { totalCount?: unknown; items?: { item?: unknown } } };
+    };
+    if (String(parsed.response?.header?.resultCode ?? "") !== "00") return { ok: false, total: 0, rows: [] };
+    const item = parsed.response?.body?.items?.item;
+    const list = Array.isArray(item) ? item : item ? [item] : [];
+    const rows = list.map((row) => {
+      const rec = row as Record<string, unknown>;
+      return {
+        bldNm: rec.bldNm == null ? null : String(rec.bldNm),
+        dongNm: rec.dongNm == null ? null : String(rec.dongNm),
+        mainPurpsCdNm: rec.mainPurpsCdNm == null ? null : String(rec.mainPurpsCdNm),
+        hhldCnt: rec.hhldCnt,
+      };
+    });
+    const totalRaw = Number(parsed.response?.body?.totalCount ?? rows.length);
+    return { ok: true, total: Number.isFinite(totalRaw) ? totalRaw : rows.length, rows };
+  }
+  if (!trimmed.includes("<resultCode>00</resultCode>")) return { ok: false, total: 0, rows: [] };
+  const rows: TitleRow[] = [];
+  for (const block of trimmed.split(/<item>/).slice(1)) {
+    const body = block.split(/<\/item>/)[0] ?? "";
+    const pick = (tag: string) => {
+      const match = new RegExp(`<${tag}>([^<]*)</${tag}>`).exec(body);
+      return match?.[1] ?? null;
+    };
+    rows.push({
+      bldNm: pick("bldNm"),
+      dongNm: pick("dongNm"),
+      mainPurpsCdNm: pick("mainPurpsCdNm"),
+      hhldCnt: pick("hhldCnt"),
+    });
+  }
+  const totalMatch = /<totalCount>([0-9]+)<\/totalCount>/.exec(trimmed);
+  return { ok: true, total: totalMatch ? Number(totalMatch[1]) : rows.length, rows };
+}
+
+async function fetchLedgerPages(master: Master): Promise<LedgerCacheEntry | null> {
+  const lot = padLot(master.jibun);
+  const key = process.env.MOLIT_API_KEY?.trim();
+  if (!lot || !key) return null;
+  const rows: TitleRow[] = [];
+  let total = 0;
+  for (let page = 1; page <= 5; page += 1) {
+    const url = `https://apis.data.go.kr/1613000/BldRgstHubService/getBrTitleInfo?serviceKey=${key}&sigunguCd=${master.lawd}&bjdongCd=${master.bjdong}&platGbCd=${lot.plat}&bun=${lot.bun}&ji=${lot.ji}&numOfRows=100&pageNo=${page}&_type=json`;
+    let parsed: { ok: boolean; total: number; rows: TitleRow[] } | null = null;
+    for (let attempt = 0; attempt < 4 && !parsed; attempt += 1) {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        if (res.status === 429 || res.status >= 500) {
+          await new Promise((resolve) => setTimeout(resolve, 700 * (attempt + 1)));
+          continue;
+        }
+        const body = parseLedgerBody(await res.text());
+        if (!body.ok) {
+          await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+          continue;
+        }
+        parsed = body;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+      }
+    }
+    if (!parsed) return null;
+    total = parsed.total;
+    rows.push(...parsed.rows);
+    if (rows.length >= total || parsed.rows.length === 0) break;
+  }
+  if (total > rows.length) return { complete: false, rows: [] };
+  return { complete: true, rows };
+}
+
+async function repairPriorityHouseholds(
+  db: Client,
+  masters: Map<string, Master>,
+  resolved: Map<string, ProfileRes>,
+  built: Built,
+  config: RankingPrivateConfig,
+) {
+  void db;
+  const bandHits = new Map<string, number>();
+  const likely = new Set<string>();
+  for (const band of BANDS) {
+    for (const row of built.rows[band]) {
+      bandHits.set(row.complexId, (bandHits.get(row.complexId) ?? 0) + 1);
+      if ((row.householdCount == null || row.householdCount <= 0) && likelyWithoutHousehold(row, config)) {
+        likely.add(row.complexId);
+      }
+    }
+  }
+  const parcelOwners = new Map<string, number>();
+  for (const master of masters.values()) {
+    const key = parcelKey(master);
+    if (!key) continue;
+    parcelOwners.set(key, (parcelOwners.get(key) ?? 0) + 1);
+  }
+  const targets = [...masters.values()].filter((master) => {
+    const profile = resolved.get(master.complexId);
+    if (profile?.household) return false;
+    const bands = bandHits.get(master.complexId) ?? 0;
+    if (likely.has(master.complexId) || bands >= 2) return true;
+    return false;
+  }).sort((a, b) => {
+    const pa = likely.has(a.complexId) ? 0 : 1;
+    const pb = likely.has(b.complexId) ? 0 : 1;
+    if (pa !== pb) return pa - pb;
+    return a.complexId.localeCompare(b.complexId);
+  });
+  const cache = readLedgerCache();
+  let attempted = 0;
+  let newly = 0;
+  let conflicts = 0;
+  const queue = targets.filter((master) => {
+    const key = parcelKey(master);
+    return key != null && parcelOwners.get(key) === 1;
+  });
+  console.log(JSON.stringify({ stage: "ledger_plan", targets: targets.length, exact_parcel: queue.length, cached: Object.keys(cache).length }));
+  let cursor = 0;
+  async function worker() {
+    while (cursor < queue.length) {
+      const master = queue[cursor++]!;
+      const key = parcelKey(master);
+      if (!key) continue;
+      attempted += 1;
+      let entry = cache[key];
+      if (!entry) {
+        const fetched = await fetchLedgerPages(master);
+        if (!fetched) continue;
+        if (!fetched.complete) continue;
+        cache[key] = fetched;
+        entry = fetched;
+        if (attempted % 25 === 0) writeFileSync(LEDGER_CACHE_PATH, JSON.stringify(cache));
+      }
+      if (!entry.complete) continue;
+      const household = householdFromTitleRows(entry.rows, master.name);
+      if (household == null) continue;
+      const current = resolved.get(master.complexId);
+      if (current?.household && current.household !== household) {
+        conflicts += 1;
+        continue;
+      }
+      if (current?.household) continue;
+      resolved.set(master.complexId, {
+        household,
+        source: "BldRgstHubService",
+        sourceKey: key.replace(/\|/g, ""),
+        asOf: "2026-09-19",
+        confidence: "MEDIUM",
+        conflict: false,
+      });
+      newly += 1;
+    }
+  }
+  await Promise.all([worker(), worker(), worker()]);
+  writeFileSync(LEDGER_CACHE_PATH, JSON.stringify(cache));
+  console.log(JSON.stringify({ stage: "ledger_done", attempted, newly_resolved: newly, conflicts }));
+  return { newly_resolved: newly, attempted, conflicts };
+}
+
+async function loadExpectedBands(
+  db: Client,
+  masters: Map<string, Master>,
+  defs: Record<BandId, AreaBandDef>,
+): Promise<Map<string, BandId[]>> {
+  const expected = new Map<string, Set<BandId>>();
+  const remember = (complexId: string, min: number, max: number) => {
+    if (!masters.has(complexId) || !Number.isFinite(min) || !Number.isFinite(max)) return;
+    const set = expected.get(complexId) ?? new Set<BandId>();
+    for (const band of bandsForSpan(min, max, defs)) set.add(band);
+    if (set.size > 0) expected.set(complexId, set);
+  };
+  const ids = [...masters.keys()];
+  const fromUnit = new Set<string>();
+  for (let i = 0; i < ids.length; i += 80) {
+    const slice = ids.slice(i, i + 80);
+    const unit = await db.execute({
+      sql: `SELECT c.complex_id, u.exclusive_area_min, u.exclusive_area_max
+            FROM apt_complex_classifications c
+            JOIN apt_unit_types u ON u.complex_key = c.complex_key
+            WHERE c.complex_id IN (${slice.map(() => "?").join(",")})`,
+      args: slice,
+    });
+    for (const row of unit.rows) {
+      const id = String(row.complex_id);
+      remember(id, Number(row.exclusive_area_min), Number(row.exclusive_area_max));
+      if (expected.has(id)) fromUnit.add(id);
+    }
+  }
+  for (let i = 0; i < ids.length; i += 80) {
+    const slice = ids.slice(i, i + 80).filter((id) => !fromUnit.has(id));
+    if (slice.length === 0) continue;
+    const groups = await db.execute({
+      sql: `SELECT complex_id, exclusive_area_min, exclusive_area_max
+            FROM apt_pyeong_groups
+            WHERE complex_id IN (${slice.map(() => "?").join(",")})`,
+      args: slice,
+    });
+    const touched = new Set<string>();
+    for (const row of groups.rows) {
+      if (row.complex_id == null) continue;
+      const id = String(row.complex_id);
+      if (fromUnit.has(id)) continue;
+      remember(id, Number(row.exclusive_area_min), Number(row.exclusive_area_max));
+      if (expected.has(id)) touched.add(id);
+    }
+    for (const id of touched) fromUnit.add(id);
+  }
+  for (const lawd of LAWD) {
+    const hist = await db.execute({
+      sql: `SELECT m.complex_id,
+              MAX(CASE WHEN t.exclusive_area >= 55 AND t.exclusive_area <= 65 THEN 1 ELSE 0 END) AS b59,
+              MAX(CASE WHEN t.exclusive_area >= 80 AND t.exclusive_area <= 90 THEN 1 ELSE 0 END) AS b84,
+              MAX(CASE WHEN t.exclusive_area >= 110 AND t.exclusive_area <= 120 THEN 1 ELSE 0 END) AS b114
+            FROM apt_complex_master m
+            JOIN transactions t ON t.lawd_cd = m.lawd_cd AND t.apt_name_norm = m.apt_name_norm
+            WHERE m.lawd_cd = ? AND t.deal_type = 'trade'
+              AND m.complex_id IN (SELECT complex_id FROM apt_complex_master WHERE lawd_cd = ?)
+            GROUP BY m.complex_id`,
+      args: [lawd, lawd],
+    });
+    for (const row of hist.rows) {
+      const id = String(row.complex_id);
+      if (!masters.has(id) || fromUnit.has(id)) continue;
+      const set = new Set<BandId>();
+      if (Number(row.b59) === 1) set.add("59");
+      if (Number(row.b84) === 1) set.add("84");
+      if (Number(row.b114) === 1) set.add("114");
+      if (set.size > 0) expected.set(id, set);
+    }
+    console.log(JSON.stringify({ stage: "expected", lawd, known: expected.size }));
+  }
+  return new Map([...expected.entries()].map(([id, set]) => [id, [...set].sort() as BandId[]]));
+}
+
+async function ensurePublicationTable(db: Client) {
+  const sql = readFileSync(PUBLICATION_SQL, "utf8");
+  const precheck = precheckAdditiveCreateSql(sql);
+  if (!precheck.ok) throw new Error(precheck.reason);
+  for (const statement of precheck.statements) await db.execute(statement);
+}
+
+async function writePublications(db: Client, rows: PublicationInsert[]) {
+  const statements: Stmt[] = rows.map((row) => ({
+    sql: `INSERT INTO region_ranking_publications (
+            region_scope, region_code, area_band, period, active_ranking_run_id,
+            feature_run_id, ranking_version, transaction_as_of, published_at
+          ) VALUES (?, ?, ?, '12M', ?, ?, ?, ?, ?)
+          ON CONFLICT(region_scope, region_code, area_band, period) DO UPDATE SET
+            active_ranking_run_id = excluded.active_ranking_run_id,
+            feature_run_id = excluded.feature_run_id,
+            ranking_version = excluded.ranking_version,
+            transaction_as_of = excluded.transaction_as_of,
+            published_at = excluded.published_at`,
+    args: [
+      row.regionScope,
+      row.regionCode,
+      row.areaBand,
+      row.rankingRunId,
+      row.featureRunId,
+      row.rankingVersion,
+      row.asOf,
+      CALCULATED_AT,
+    ],
+  }));
+  await runBatches(db, statements, "publications");
+  return statements.length;
+}
+
+async function postValidate(db: Client, built: Built, allRun: string) {
+  const version = ALGORITHM_VERSION;
+  const groups = await db.execute({
+    sql: `SELECT region_scope, region_code, area_band,
            COUNT(*) AS n,
            MIN("rank") AS min_rank,
            MAX("rank") AS max_rank,
            COUNT(DISTINCT "rank") AS distinct_ranks
     FROM region_complex_rankings
-    WHERE eligible = 1 AND "rank" IS NOT NULL
-    GROUP BY ranking_run_id, region_scope, region_code, area_band
-  `);
+    WHERE ranking_version = ? AND eligible = 1 AND "rank" IS NOT NULL
+    GROUP BY ranking_run_id, region_scope, region_code, area_band`,
+    args: [version],
+  });
   let guGap = 0;
   let guDup = 0;
   let dongGap = 0;
@@ -1097,7 +1538,10 @@ async function postValidate(db: Client, allFeatureRunId: string) {
     if (row.region_scope === "gu" && dup) guDup += 1;
     if (row.region_scope === "dong" && gap) dongGap += 1;
   }
-  const missingRank = await db.execute(`SELECT COUNT(*) AS c FROM region_complex_rankings WHERE eligible = 1 AND "rank" IS NULL`);
+  const missingRank = await db.execute({
+    sql: `SELECT COUNT(*) AS c FROM region_complex_rankings WHERE ranking_version = ? AND eligible = 1 AND "rank" IS NULL`,
+    args: [version],
+  });
   const featureDup = await db.execute(`
     SELECT COUNT(*) AS c FROM (
       SELECT feature_run_id, complex_id, area_band, period
@@ -1108,59 +1552,94 @@ async function postValidate(db: Client, allFeatureRunId: string) {
   `);
   const badAll = await db.execute({
     sql: `SELECT COUNT(*) AS c FROM region_complex_rankings
-          WHERE area_band = 'ALL' AND (
+          WHERE ranking_version = ? AND area_band = 'ALL' AND (
             public_display_metrics_json NOT LIKE '%valid_band_count%'
             OR public_display_metrics_json LIKE '%median_price_per_sqm%'
             OR feature_run_id != ?
           )`,
-    args: [allFeatureRunId],
+    args: [version, built.allFeatureRunId],
   });
-  const bandCounts = await db.execute(`
-    SELECT area_band, region_scope, COUNT(*) AS c
-    FROM region_complex_rankings
-    GROUP BY area_band, region_scope
-  `);
+  const orphanFeature = await db.execute({
+    sql: `SELECT COUNT(*) AS c FROM region_complex_rankings r
+          WHERE r.ranking_version = ? AND r.area_band != 'ALL'
+            AND NOT EXISTS (
+              SELECT 1 FROM ranking_feature_snapshots f
+              WHERE f.feature_run_id = r.feature_run_id
+                AND f.complex_id = r.complex_id
+                AND f.area_band = r.area_band
+                AND f.period = r.period
+            )`,
+    args: [version],
+  });
+  const badPublication = await db.execute({
+    sql: `SELECT COUNT(*) AS c FROM region_ranking_publications p
+          WHERE p.ranking_version != ?
+             OR p.active_ranking_run_id IS NULL
+             OR NOT EXISTS (
+               SELECT 1 FROM region_complex_rankings r
+               WHERE r.ranking_run_id = p.active_ranking_run_id
+                 AND r.region_scope = p.region_scope
+                 AND r.region_code = p.region_code
+                 AND r.area_band = p.area_band
+                 AND r.period = p.period
+                 AND r.ranking_version = p.ranking_version
+             )`,
+    args: [version],
+  });
+  const oldSelected = await db.execute({
+    sql: `SELECT COUNT(*) AS c FROM region_ranking_publications WHERE ranking_version != ?`,
+    args: [version],
+  });
+  const published = await db.execute(
+    `SELECT area_band, region_scope, COUNT(*) AS c
+     FROM region_ranking_publications
+     GROUP BY area_band, region_scope`,
+  );
   const focus = ["11680", "11650", "11710", "11200", "11440", "11350"];
   const tops: Record<string, unknown> = {};
+  const timings: Record<string, number> = {};
   for (const lawd of focus) {
-    for (const band of ["ALL", "59", "84", "114"]) {
+    for (const band of ["ALL", "59", "84", "114"] as const) {
       if (lawd !== "11710" && band !== "ALL") continue;
-      const result = await db.execute({
-        sql: `SELECT r."rank" AS rank, r.region_total, r.confidence_bucket, r.public_display_metrics_json, m.apt_name_norm
-              FROM region_complex_rankings r
-              LEFT JOIN apt_complex_master m ON m.complex_id = r.complex_id
-              WHERE r.region_scope = 'gu' AND r.region_code = ? AND r.area_band = ?
-                AND r.eligible = 1 AND r."rank" IS NOT NULL AND r."rank" <= 10
-              ORDER BY r."rank"`,
-        args: [lawd, band],
-      });
-      tops[`${lawd}:${band}`] = result.rows.map((row) => ({
-        rank: Number(row.rank),
-        name: row.apt_name_norm,
-        total: Number(row.region_total),
-        confidence: row.confidence_bucket,
-        metrics: JSON.parse(String(row.public_display_metrics_json)),
-      }));
+      const started = Date.now();
+      const result = await publishedRegionRanking(db, { regionCode: lawd, areaBand: band, limit: 10 });
+      timings[`${lawd}:${band}`] = Date.now() - started;
+      tops[`${lawd}:${band}`] = result.published
+        ? result.rows.map((row) => ({
+          rank: row.rank,
+          name: row.name,
+          total: row.regionTotal,
+          confidence: row.confidenceBucket,
+          metrics: row.publicMetrics,
+        }))
+        : { published: false };
     }
   }
-  const jamsil = await db.execute({
-    sql: `SELECT region_scope, region_code, area_band, "rank" AS rank, region_total, confidence_bucket
-          FROM region_complex_rankings
-          WHERE complex_id = 'cx_4c63d9a100973c60'
-            AND region_code IN ('11710', '1171010100')
-            AND area_band IN ('ALL', '84', '59', '114')`,
-    args: [],
-  });
+  const complexStarted = Date.now();
+  const jamsilAll = await publishedComplexPosition(db, { complexId: "cx_4c63d9a100973c60" });
+  const jamsilAllMs = Date.now() - complexStarted;
+  const jamsil84Started = Date.now();
+  const jamsil84 = await publishedComplexPosition(db, { complexId: "cx_4c63d9a100973c60", areaBand: "84" });
+  const jamsil84Ms = Date.now() - jamsil84Started;
   const spot = {
+    ranking_version: version,
+    all_ranking_run_id: allRun,
     gu_rank_gap_cells: guGap,
     gu_duplicate_rank_cells: guDup,
     dong_slot_gap_cells: dongGap,
     eligible_missing_rank: Number(missingRank.rows[0]!.c),
     feature_duplicate_groups: Number(featureDup.rows[0]!.c),
     invalid_all_rows: Number(badAll.rows[0]!.c),
-    ranking_counts: bandCounts.rows,
+    orphan_feature_rows: Number(orphanFeature.rows[0]!.c),
+    bad_publications: Number(badPublication.rows[0]!.c),
+    old_runs_selected: Number(oldSelected.rows[0]!.c),
+    published: published.rows,
+    timings,
+    jamsil_all_ms: jamsilAllMs,
+    jamsil_84_ms: jamsil84Ms,
     tops,
-    jamsil: jamsil.rows,
+    jamsil_all: jamsilAll,
+    jamsil_84: jamsil84,
   };
   writeFileSync("/tmp/seoul-launch-spotcheck.json", JSON.stringify(spot, null, 2) + "\n");
   console.log(JSON.stringify({
@@ -1169,8 +1648,12 @@ async function postValidate(db: Client, allFeatureRunId: string) {
     gu_duplicate_rank_cells: guDup,
     dong_slot_gap_cells: dongGap,
     eligible_missing_rank: spot.eligible_missing_rank,
-    feature_duplicate_groups: spot.feature_duplicate_groups,
-    invalid_all_rows: spot.invalid_all_rows,
+    orphan_feature_rows: spot.orphan_feature_rows,
+    bad_publications: spot.bad_publications,
+    old_runs_selected: spot.old_runs_selected,
+    published: published.rows,
+    region_top_ms: timings["11710:ALL"],
+    complex_ms: jamsil84Ms,
   }));
 }
 

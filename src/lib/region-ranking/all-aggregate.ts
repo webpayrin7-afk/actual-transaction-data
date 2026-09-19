@@ -84,7 +84,53 @@ export function aggregateAll(
     topTier: price >= config.topTierSignalFloor,
     coverage,
     coverageClass: coverageClass(coverage),
-    lowCoverage: coverage === 1,
+    lowCoverage: false,
     bands: bands.map((band) => band.band).sort(),
+  };
+}
+
+export type ProductCoverageStatus =
+  | "COMPLETE_PRODUCT_COVERAGE"
+  | "PARTIAL_PRODUCT_COVERAGE"
+  | "EXPECTED_BAND_UNKNOWN";
+
+/** Separates a real one-band product from a band that is missing a score. */
+export function classifyProductCoverage(
+  valid: readonly AllBandId[],
+  expected: readonly AllBandId[] | null,
+): {
+  expectedBands: AllBandId[] | null;
+  validBands: AllBandId[];
+  expectedBandCount: number | null;
+  validBandCount: number;
+  coverageCompleteness: number | null;
+  coverageStatus: ProductCoverageStatus;
+  singleProductBand: boolean;
+} {
+  const validBands = [...new Set(valid)].sort() as AllBandId[];
+  if (expected == null) {
+    return {
+      expectedBands: null,
+      validBands,
+      expectedBandCount: null,
+      validBandCount: validBands.length,
+      coverageCompleteness: null,
+      coverageStatus: "EXPECTED_BAND_UNKNOWN",
+      singleProductBand: false,
+    };
+  }
+  const expectedBands = [...new Set(expected)].sort() as AllBandId[];
+  const missing = expectedBands.filter((band) => !validBands.includes(band));
+  const covered = validBands.filter((band) => expectedBands.includes(band)).length;
+  return {
+    expectedBands,
+    validBands,
+    expectedBandCount: expectedBands.length,
+    validBandCount: validBands.length,
+    coverageCompleteness: expectedBands.length === 0 ? null : covered / expectedBands.length,
+    coverageStatus: missing.length === 0 && expectedBands.length > 0
+      ? "COMPLETE_PRODUCT_COVERAGE"
+      : "PARTIAL_PRODUCT_COVERAGE",
+    singleProductBand: expectedBands.length === 1 && missing.length === 0 && validBands.length === 1,
   };
 }

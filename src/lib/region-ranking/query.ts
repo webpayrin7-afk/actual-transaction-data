@@ -22,7 +22,7 @@ export async function regionTop(db: RankingReader, query: RegionTopQuery) {
   const result = await db.execute({
     sql: `SELECT r.complex_id, r."rank" AS rank, r.region_total, r.confidence_bucket,
                  r.transaction_as_of, r.public_display_metrics_json, r.eligible,
-                 m.apt_name_norm
+                 m.apt_name, m.apt_name_norm, m.legal_dong_name
           FROM region_complex_rankings r
           LEFT JOIN apt_complex_master m ON m.complex_id = r.complex_id
           WHERE r.ranking_run_id = ?
@@ -38,7 +38,10 @@ export async function regionTop(db: RankingReader, query: RegionTopQuery) {
   });
   return result.rows.map((row) => ({
     complexId: String(row.complex_id),
-    name: row.apt_name_norm == null ? null : String(row.apt_name_norm),
+    name: row.apt_name == null
+      ? (row.apt_name_norm == null ? null : String(row.apt_name_norm))
+      : String(row.apt_name),
+    dong: row.legal_dong_name == null ? null : String(row.legal_dong_name),
     rank: Number(row.rank),
     regionTotal: Number(row.region_total),
     confidenceBucket: row.confidence_bucket == null ? null : String(row.confidence_bucket),
@@ -91,4 +94,125 @@ export async function complexRegionRanks(db: RankingReader, query: ComplexRankQu
     };
   };
   return { gu: read("gu"), dong: read("dong") };
+}
+
+function scopeOf(regionCode: string): "gu" | "dong" | null {
+  if (/^[0-9]{5}$/.test(regionCode)) return "gu";
+  if (/^[0-9]{10}$/.test(regionCode)) return "dong";
+  return null;
+}
+
+export async function publishedRegionRanking(
+  db: RankingReader,
+  query: { regionCode: string; areaBand: LaunchAreaBand; limit?: number },
+) {
+  const regionScope = scopeOf(query.regionCode);
+  if (!regionScope) return { published: false as const, reason: "bad_region" };
+  const pub = await db.execute({
+    sql: `SELECT active_ranking_run_id, ranking_version, transaction_as_of
+          FROM region_ranking_publications
+          WHERE region_scope = ? AND region_code = ? AND area_band = ? AND period = '12M'`,
+    args: [regionScope, query.regionCode, query.areaBand],
+  });
+  const pointer = pub.rows[0];
+  if (!pointer) {
+    return {
+      published: false as const,
+      rankingType: query.areaBand,
+      regionScope,
+      regionCode: query.regionCode,
+      rows: [] as Awaited<ReturnType<typeof regionTop>>,
+    };
+  }
+  const rows = await regionTop(db, {
+    rankingRunId: String(pointer.active_ranking_run_id),
+    regionScope,
+    regionCode: query.regionCode,
+    areaBand: query.areaBand,
+    limit: query.limit,
+  });
+  return {
+    published: true as const,
+    rankingType: query.areaBand,
+    regionScope,
+    regionCode: query.regionCode,
+    transactionAsOf: String(pointer.transaction_as_of),
+    rankingVersion: String(pointer.ranking_version),
+    regionTotal: rows[0]?.regionTotal ?? 0,
+    rows,
+  };
+}
+
+export async function publishedComplexPosition(
+  db: RankingReader,
+  query: { complexId: string; areaBand?: LaunchAreaBand | null },
+) {
+  const master = await db.execute({
+    sql: `SELECT lawd_cd, bjdong_cd, legal_dong_name, apt_name
+          FROM apt_complex_master WHERE complex_id = ?`,
+    args: [query.complexId],
+  });
+  const row = master.rows[0];
+  if (!row) return { found: false as const };
+  const guCode = String(row.lawd_cd);
+  const dongCode = `${guCode}${String(row.bjdong_cd)}`;
+  const bands: LaunchAreaBand[] = query.areaBand && query.areaBand !== "ALL"
+    ? ["ALL", query.areaBand]
+    : ["ALL"];
+  const result = await db.execute({
+    sql: `SELECT p.area_band, p.region_scope, p.ranking_version, p.transaction_as_of,
+                 r."rank" AS rank, r.region_total, r.confidence_bucket, r.public_display_metrics_json
+          FROM region_ranking_publications p
+          LEFT JOIN region_complex_rankings r
+            ON r.ranking_run_id = p.active_ranking_run_id
+           AND r.region_scope = p.region_scope
+           AND r.region_code = p.region_code
+           AND r.area_band = p.area_band
+           AND r.period = p.period
+           AND r.complex_id = ?
+           AND r.eligible = 1
+          WHERE p.period = '12M'
+            AND p.area_band IN (${bands.map(() => "?").join(",")})
+            AND (
+              (p.region_scope = 'gu' AND p.region_code = ?)
+              OR (p.region_scope = 'dong' AND p.region_code = ?)
+            )`,
+    args: [query.complexId, ...bands, guCode, dongCode],
+  });
+  const byKey = new Map(result.rows.map((item) => [`${item.area_band}:${item.region_scope}`, item]));
+  const read = (band: LaunchAreaBand, scope: "gu" | "dong") => {
+    const got = byKey.get(`${band}:${scope}`);
+    if (!got) return { published: false as const, status: "unavailable" as const };
+    if (got.rank == null) {
+      return {
+        published: true as const,
+        status: "not_ranked" as const,
+        transactionAsOf: String(got.transaction_as_of),
+        rankingVersion: String(got.ranking_version),
+      };
+    }
+    return {
+      published: true as const,
+      status: "ranked" as const,
+      rank: Number(got.rank),
+      regionTotal: Number(got.region_total),
+      confidenceBucket: got.confidence_bucket == null ? null : String(got.confidence_bucket),
+      transactionAsOf: String(got.transaction_as_of),
+      rankingVersion: String(got.ranking_version),
+      publicMetrics: JSON.parse(String(got.public_display_metrics_json)),
+    };
+  };
+  return {
+    found: true as const,
+    complexId: query.complexId,
+    aptName: row.apt_name == null ? null : String(row.apt_name),
+    dongName: row.legal_dong_name == null ? null : String(row.legal_dong_name),
+    guCode,
+    dongCode,
+    positions: bands.map((band) => ({
+      areaBand: band,
+      gu: read(band, "gu"),
+      dong: read(band, "dong"),
+    })),
+  };
 }

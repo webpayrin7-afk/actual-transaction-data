@@ -155,3 +155,18 @@ export function precheckRankingMigrationSql(sql: string): PrecheckResult {
   }
   return { ok: true, statements };
 }
+
+/** Additive CREATE TABLE / CREATE INDEX only. Used for later publication pointers. */
+export function precheckAdditiveCreateSql(sql: string): PrecheckResult {
+  const executable = sqlWithoutComments(sql);
+  if (FORBIDDEN.test(executable)) return { ok: false, reason: "destructive or mutating statement" };
+  if (FORBIDDEN_COLUMN.test(executable)) return { ok: false, reason: "proprietary column" };
+  const statements = migrationStatements(sql);
+  if (statements.length === 0) return { ok: false, reason: "no statements" };
+  for (const statement of statements) {
+    if (!/^CREATE (TABLE|INDEX) IF NOT EXISTS /i.test(statement)) {
+      return { ok: false, reason: "statement is not additive create-if-not-exists" };
+    }
+  }
+  return { ok: true, statements };
+}

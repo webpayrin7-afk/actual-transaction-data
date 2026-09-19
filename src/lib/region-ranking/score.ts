@@ -177,8 +177,8 @@ export function priceGateMode(
 }
 
 /**
- * Raw order is score order. When the price gate is on, only top-tier rows
- * may occupy the first slots. Everyone else keeps a later rank.
+ * Raw order is score order. When the price gate is on, top-tier rows
+ * take the front of the order. Ranks are then 1..N with no reserved holes.
  */
 export function placeRanks(
   scored: readonly Scored[],
@@ -195,10 +195,12 @@ export function placeRanks(
   const head = raw.filter((item) => item.topTierEligible).slice(0, TOP_TIER_SLOT_COUNT);
   const headIds = new Set(head.map((item) => item.row.complexId));
   const rest = raw.filter((item) => !headIds.has(item.row.complexId));
-  const rankById = new Map<string, number>();
-  head.forEach((item, index) => rankById.set(item.row.complexId, index + 1));
-  rest.forEach((item, index) => rankById.set(item.row.complexId, TOP_TIER_SLOT_COUNT + 1 + index));
-  return { raw, constrained: [...head, ...rest], rankById };
+  const constrained = [...head, ...rest];
+  return {
+    raw,
+    constrained,
+    rankById: new Map(constrained.map((item, index) => [item.row.complexId, index + 1])),
+  };
 }
 
 export function rankWithTopTierSlots(
@@ -216,10 +218,7 @@ export function rankWithTopTierSlots(
   const head = ordered.filter((item) => item.topTier).slice(0, TOP_TIER_SLOT_COUNT);
   const headIds = new Set(head.map((item) => item.id));
   const rest = ordered.filter((item) => !headIds.has(item.id));
-  return [
-    ...head.map((item, index) => ({ id: item.id, rank: index + 1 })),
-    ...rest.map((item, index) => ({ id: item.id, rank: TOP_TIER_SLOT_COUNT + 1 + index })),
-  ];
+  return [...head, ...rest].map((item, index) => ({ id: item.id, rank: index + 1 }));
 }
 
 function reliabilityOf(config: RankingPrivateConfig, confidence: FeatureSnapshotRow["profileConfidence"]): number {
@@ -247,11 +246,14 @@ export function scoreCohort(params: {
   regionCode: string;
   config: RankingPrivateConfig | null;
   privateConfigFingerprint: string | null;
+  /** Algorithm label. Defaults to the injected config version so fingerprints stay stable. */
+  rankingVersion?: string;
 }): CohortScore {
   if (!params.config || !params.privateConfigFingerprint) {
     return { ok: false, code: "PRIVATE_CONFIG_ABSENT" };
   }
   const config = params.config;
+  const rankingVersion = params.rankingVersion ?? config.rankingVersion;
   const cohort = params.rows.filter((row) =>
     params.regionScope === "gu" ? row.lawdCd === params.regionCode : row.bjdongCd === params.regionCode,
   );
@@ -325,7 +327,7 @@ export function scoreCohort(params: {
   const rankById = placed.rankById;
   const runId = rankingRunId({
     featureRunId: params.featureRunId,
-    rankingVersion: config.rankingVersion,
+    rankingVersion,
     privateConfigFingerprint: params.privateConfigFingerprint,
     regionScope: params.regionScope,
     regionCode: params.regionCode,
@@ -349,7 +351,7 @@ export function scoreCohort(params: {
         confidenceBucket: item.row.profileConfidence,
         eligible: item.eligible,
         exclusionReason: item.exclusionReason,
-        rankingVersion: config.rankingVersion,
+        rankingVersion,
         transactionAsOf: item.row.transactionAsOf,
         publicDisplayMetrics: metrics,
       };

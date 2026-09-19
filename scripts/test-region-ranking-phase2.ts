@@ -4,7 +4,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { evaluateEligibility } from "../src/lib/region-ranking/eligibility";
-import { precheckRankingMigrationSql } from "../src/lib/region-ranking/migration-precheck";
+import { precheckAdditiveCreateSql, precheckRankingMigrationSql } from "../src/lib/region-ranking/migration-precheck";
+import { classifyProductCoverage } from "../src/lib/region-ranking/all-aggregate";
+import { householdFromTitleRows } from "../src/lib/region-ranking/ledger-household";
 import { normalizePhase1FeatureSnapshot } from "../src/lib/region-ranking/normalize-snapshot";
 import {
   loadPrivateConfig,
@@ -21,6 +23,43 @@ import { windowsFromAsOf } from "../src/lib/region-ranking/snapshot";
 const sql = readFileSync("src/lib/db/migrations/20260919_region_ranking_foundation.sql", "utf8");
 const precheck = precheckRankingMigrationSql(sql);
 assert.equal(precheck.ok, true, precheck.ok ? "" : precheck.reason);
+const publicationSql = readFileSync("src/lib/db/migrations/20260920_region_ranking_publications.sql", "utf8");
+const publicationPrecheck = precheckAdditiveCreateSql(publicationSql);
+assert.equal(publicationPrecheck.ok, true, publicationPrecheck.ok ? "" : publicationPrecheck.reason);
+
+const structural = classifyProductCoverage(["84"], ["84"]);
+assert.equal(structural.coverageStatus, "COMPLETE_PRODUCT_COVERAGE");
+assert.equal(structural.singleProductBand, true);
+assert.equal(structural.coverageCompleteness, 1);
+const incomplete = classifyProductCoverage(["84"], ["59", "84"]);
+assert.equal(incomplete.coverageStatus, "PARTIAL_PRODUCT_COVERAGE");
+assert.equal(incomplete.singleProductBand, false);
+assert.equal(incomplete.coverageCompleteness, 0.5);
+const unknownBands = classifyProductCoverage(["84"], null);
+assert.equal(unknownBands.coverageStatus, "EXPECTED_BAND_UNKNOWN");
+assert.equal(unknownBands.singleProductBand, false);
+assert.equal(householdFromTitleRows([{ bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 4424, dongNm: "은마" }], "은마"), 4424);
+assert.equal(
+  householdFromTitleRows(
+    [
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 2000, dongNm: "1" },
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 2000, dongNm: "합계" },
+    ],
+    "은마",
+  ),
+  2000,
+);
+assert.equal(
+  householdFromTitleRows(
+    [
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 10, dongNm: "1" },
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 10, dongNm: "1" },
+    ],
+    "은마",
+  ),
+  null,
+);
+assert.equal(householdFromTitleRows([{ bldNm: "다른아파트", mainPurpsCdNm: "아파트", hhldCnt: 10, dongNm: "1" }], "은마"), null);
 
 assert.equal(loadPrivateConfig(null).ok, false);
 assert.equal(loadPrivateConfig(undefined).ok, false);
@@ -293,8 +332,13 @@ assert.equal(slotted.rows.filter((row) => row.rank != null).length, 6);
 assert.equal(slotted.rows.some((row) => row.exclusionReason === "PRICE_BELOW_TOP_TIER_FLOOR"), false);
 const cheap = slotted.rows.find((row) => row.complexId === "cx_a00000000000000a");
 assert.equal(cheap?.eligible, true);
-assert.ok((cheap?.rank ?? 0) >= 6);
-assert.equal(slotted.constrainedOrder.filter((row) => row.rank <= 5).length, slotted.topTierEligible);
+assert.ok((cheap?.rank ?? 0) > (slotted.topTierEligible ?? 0));
+const eligibleRanks = slotted.rows
+  .filter((row) => row.eligible && row.rank != null)
+  .map((row) => row.rank!)
+  .sort((a, b) => a - b);
+assert.deepEqual(eligibleRanks, eligibleRanks.map((_, index) => index + 1));
+assert.equal(new Set(eligibleRanks).size, eligibleRanks.length);
 
 const dongSlot = scoreCohort({
   featureRunId: normalized.featureRunId,
