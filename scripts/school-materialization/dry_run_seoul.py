@@ -266,6 +266,7 @@ def main() -> int:
         choices=["all", "elementary", "middle", "high"],
     )
     ap.add_argument("--complex-id", default="")
+    ap.add_argument("--sido", default="", help="Keep complexes with this sido name or sido_code.")
     ap.add_argument("--complexes-json", default="/tmp/school-materialization-out/seoul-complexes.json")
     ap.add_argument(
         "--coords-json",
@@ -299,6 +300,13 @@ def main() -> int:
     complexes = payload["complexes"]
     if args.complex_id:
         complexes = [c for c in complexes if c["complex_id"] == args.complex_id]
+    if args.sido:
+        wanted = args.sido
+        complexes = [
+            c
+            for c in complexes
+            if wanted in (c.get("sido"), c.get("sido_code"))
+        ]
 
     coord_overrides: dict[str, dict[str, Any]] = {}
     if args.coords_json:
@@ -365,7 +373,7 @@ def main() -> int:
     ckpt_file = checkpoint_path(out_dir)
     saved = load_checkpoint(ckpt_file)
     try:
-        assert_checkpoint_scope(saved, args.school_level, args.complex_id, args.chunk_size)
+        assert_checkpoint_scope(saved, args.school_level, args.complex_id, args.chunk_size, args.sido)
     except CheckpointScopeError as exc:
         print(str(exc), file=sys.stderr)
         return 2
@@ -666,7 +674,7 @@ def main() -> int:
         chunk_counts.append(done["completed_count"])
         done = dict(done)
         done["chunk_completed_counts"] = chunk_counts
-        save_checkpoint(ckpt_file, done, args.school_level, args.complex_id, args.chunk_size)
+        save_checkpoint(ckpt_file, done, args.school_level, args.complex_id, args.chunk_size, args.sido)
 
     elapsed = round(time.time() - t0, 2)
 
