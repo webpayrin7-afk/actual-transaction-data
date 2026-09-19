@@ -5,6 +5,7 @@ import {
   confidenceCopy,
   coverageCopy,
   formatRankingAsOf,
+  dongSmallCohortHelper,
   placeHeadline,
   rankingBandForArea,
   rankingBandForExclusiveRange,
@@ -160,11 +161,24 @@ assert(guLine?.title === "송파구 3위", `gu title ${guLine?.title}`);
 assert(guLine?.meta === "57개 단지 중", `gu meta ${guLine?.meta}`);
 const dongLine = placeHeadline({ regionName: "잠실동", place: dong });
 assert(dongLine?.title === "잠실동 3위", `dong title ${dongLine?.title}`);
-assert(
-  dongLine?.meta === "잠실동 비교 6개 단지 기준",
-  `dong meta ${dongLine?.meta}`,
-);
+assert(dongLine?.meta == null, "dong row does not repeat cohort copy");
 assert(!JSON.stringify(dongLine).includes("smallCohort"), "no raw smallCohort");
+const helper = dongSmallCohortHelper({
+  dongName: "잠실동",
+  places: [dong, dong],
+});
+assert(
+  helper === "잠실동 순위 · 비교 가능한 6개 단지 기준",
+  `helper ${helper}`,
+);
+assert(
+  (helper?.match(/비교 가능한/g)?.length ?? 0) === 1,
+  "helper appears once",
+);
+assert(
+  dongSmallCohortHelper({ dongName: "잠실동", places: [gu] }) === null,
+  "no helper when smallCohort is false",
+);
 
 const unavailable = {
   status: "unavailable" as const,
@@ -197,7 +211,7 @@ assert(
   "no name-only empty lookup",
 );
 assert(
-  regionRankingHref("seoul-songpa") === "/region/seoul-songpa#region-ranking",
+  regionRankingHref("seoul-songpa") === "/region/seoul-songpa?tab=stats",
   "region CTA",
 );
 

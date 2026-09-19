@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
+  dongSmallCohortHelper,
   fetchComplexRegionRank,
   formatRankingAsOf,
   placeHeadline,
@@ -62,15 +63,10 @@ function RankPair({
     <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
       <RankCell line={guLine} empty={emptyGu} />
       <RankCell line={dongLine} empty={emptyDong} />
-      {guLine?.meta || dongLine?.meta ? (
-        <>
-          <p className="min-w-0 truncate text-[12px] leading-4 text-slate-500">
-            {guLine?.meta ?? ""}
-          </p>
-          <p className="min-w-0 truncate text-[12px] leading-4 text-slate-500">
-            {dongLine?.meta ?? ""}
-          </p>
-        </>
+      {guLine?.meta ? (
+        <p className="min-w-0 truncate text-[12px] leading-4 text-slate-500">
+          {guLine.meta}
+        </p>
       ) : null}
     </div>
   );
@@ -120,6 +116,10 @@ export function ComplexRegionRankSection({
   );
   const dongLabel = data?.dong?.trim() || dongName?.trim() || "이 동";
   const bandLabel = areaBand ? `${areaBand}㎡` : null;
+  const cohortHelper = dongSmallCohortHelper({
+    dongName: dongLabel,
+    places: [data?.all?.dong, data?.area?.dong],
+  });
 
   return (
     <section
@@ -191,6 +191,10 @@ export function ComplexRegionRankSection({
                 )}
               </div>
             </div>
+          ) : null}
+
+          {cohortHelper ? (
+            <p className="text-[12px] leading-4 text-slate-500">{cohortHelper}</p>
           ) : null}
 
           <Link

@@ -221,7 +221,7 @@ export function rankingComplexHref(params: {
 }
 
 export function regionRankingHref(regionSlug: string): string {
-  return `/region/${regionSlug}#region-ranking`;
+  return `/region/${regionSlug}?tab=stats`;
 }
 
 export function formatRankingAsOf(raw: string | null | undefined): string | null {
@@ -333,19 +333,31 @@ export function placeHeadline(params: {
   if (!place || place.status !== "ranked" || place.rank == null) return null;
   const total = place.total;
   const title = `${params.regionName} ${place.rank}위`;
-  if (place.smallCohort && total != null && total > 0) {
-    return {
-      title,
-      meta: `${params.regionName} 비교 ${total.toLocaleString("ko-KR")}개 단지 기준`,
-    };
-  }
   return {
     title,
     meta:
-      total != null && total > 0
+      !place.smallCohort && total != null && total > 0
         ? `${total.toLocaleString("ko-KR")}개 단지 중`
         : null,
   };
+}
+
+/** One card-level note. Never repeat per ranking row. */
+export function dongSmallCohortHelper(params: {
+  dongName: string;
+  places: Array<ComplexRankPlace | null | undefined>;
+}): string | null {
+  const name = params.dongName.trim();
+  if (!name) return null;
+  const hit = params.places.find(
+    (place) =>
+      place?.status === "ranked" &&
+      place.smallCohort === true &&
+      place.total != null &&
+      place.total > 0,
+  );
+  if (!hit || hit.total == null) return null;
+  return `${name} 순위 · 비교 가능한 ${hit.total.toLocaleString("ko-KR")}개 단지 기준`;
 }
 
 export function unavailableBoardCopy(type: RankingType): {
