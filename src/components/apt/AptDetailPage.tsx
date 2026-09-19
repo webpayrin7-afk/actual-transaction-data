@@ -67,6 +67,7 @@ import {
   formatDealDate,
   formatEok,
 } from "@/lib/utils/format";
+import { APT_HELPER } from "@/lib/apt/detail-copy";
 
 const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
@@ -479,7 +480,7 @@ export function AptDetailPage({
       year: "all",
     });
     if (gu?.trim()) qs.set("gu", gu.trim());
-    return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
+    return `/apt/${aptName}/transactions?${qs.toString()}`;
   }, [aptName, regionSlug, gu, areaKey, dealFilter]);
 
 
@@ -600,16 +601,16 @@ export function AptDetailPage({
     hint: ReactNode,
     valueClassName = "",
   ) => (
-    <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
+    <div className="flex min-h-[4.25rem] min-w-0 flex-col items-center justify-center px-1 py-1.5 text-center">
+      <p className="h-5 w-full truncate text-[13px] font-medium leading-5 text-slate-600">
         {label}
       </p>
       <p
-        className={`lab-kpi-value mt-0.5 text-[13px] font-semibold leading-tight tabular-nums sm:text-base ${valueClassName}`.trim()}
+        className={`lab-kpi-value h-6 w-full truncate text-[17px] font-bold leading-6 tabular-nums ${valueClassName}`.trim()}
       >
         {value}
       </p>
-      <p className="mt-0.5 break-keep text-[9px] leading-snug text-slate-500 sm:text-[11px]">
+      <p className="h-5 w-full truncate text-[12px] font-normal leading-5 text-slate-500">
         {hint}
       </p>
     </div>
@@ -700,16 +701,14 @@ export function AptDetailPage({
           }
           title={data.aptName}
           description={locationLabel}
+          descriptionClassName={APT_HELPER}
+          metaClassName={APT_HELPER}
           meta={
             <>
               {headerChips.length > 0 ? (
-                <p className="text-[13px] font-medium leading-5 text-slate-700 sm:text-sm">
-                  {headerChips.join(" · ")}
-                </p>
+                <p>{headerChips.join(" · ")}</p>
               ) : data.buildYear ? (
-                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
-                  {data.buildYear}년 입주
-                </p>
+                <p>{data.buildYear}년 입주</p>
               ) : null}
             </>
           }
@@ -773,7 +772,7 @@ export function AptDetailPage({
         {/* Match 거래 내역 helper→list gap */}
         <div style={{ height: 16 }} className="w-full" aria-hidden />
 
-        <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
+        <div className="grid grid-cols-4 divide-x divide-slate-200/35 rounded-xl border border-slate-100/80 bg-slate-50/40">
           {kpiCell(
             "최근 매매",
             latestTrade ? formatEok(latestTrade.dealAmount) : "—",
@@ -788,25 +787,28 @@ export function AptDetailPage({
             "최고가 대비",
             vsMaxPct == null
               ? "—"
-              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`,
-            "최근 매매 기준",
+              : vsMaxPct > 0
+                ? `+${vsMaxPct}% ↑`
+                : vsMaxPct < 0
+                  ? `${vsMaxPct}% ↓`
+                  : `${vsMaxPct}%`,
+            "최근 매매 대비",
             vsMaxPct == null
               ? "!text-slate-400"
-              : vsMaxPct < 0
+              : vsMaxPct > 0
                 ? "!text-rose-600"
-                : vsMaxPct > 0
-                  ? "!text-teal-700"
+                : vsMaxPct < 0
+                  ? "!text-blue-600"
                   : "",
           )}
           {kpiCell(
             "거래량",
-            <span className="whitespace-nowrap">{`매매 ${periodTradeCount.toLocaleString("ko-KR")}건`}</span>,
-            <span className="whitespace-nowrap">{`전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`}</span>,
-            "!font-sans !tracking-normal !text-[12px] sm:!text-[13px] !whitespace-nowrap",
+            `${periodTradeCount.toLocaleString("ko-KR")}건`,
+            `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
           )}
         </div>
 
-        <p className="mt-2.5 rounded-lg bg-[var(--lab-teal-50)] px-2.5 py-1.5 text-xs text-slate-600 sm:text-[13px]">
+        <p className={`mt-2.5 rounded-lg bg-[var(--lab-teal-50)] px-2.5 py-1.5 ${APT_HELPER}`}>
           <span>
             전세가율{" "}
             <span className="font-semibold tabular-nums text-slate-800">
@@ -860,7 +862,7 @@ export function AptDetailPage({
               onChange={setDealFilter}
             />
           </div>
-          <p className="mt-[5px] truncate text-xs text-slate-500">
+          <p className={`mt-[5px] truncate ${APT_HELPER}`}>
             {areaKey === "all" || !selectedArea
               ? "전체 면적"
               : areaSelectorClosedLabel(selectedArea)}

@@ -22,6 +22,7 @@ import {
   type CommerceFacilities,
   type CommerceSnapshot,
 } from "@/lib/complex-detail/commerce-snapshot";
+import { APT_HELPER, APT_LABEL } from "@/lib/apt/detail-copy";
 import {
   commerceCategoryColor,
   commercePresentationBucketFromMcls,
@@ -108,7 +109,7 @@ export function ComplexCommerceStats({
       <section>
         <div className="flex items-baseline justify-between gap-2">
           <SectionHeading>생활 상권</SectionHeading>
-          <span className="text-[11px] text-slate-500">
+          <span className={APT_HELPER}>
             반경 {radiusKm} · {snapshot.sourcePeriodLabel}
           </span>
         </div>
@@ -123,7 +124,7 @@ export function ComplexCommerceStats({
             aria-label="생활 상권 집계 안내"
             className="mb-0.5 text-[12px]"
           >
-            <p className="text-[12px] leading-relaxed text-slate-600">
+            <p className={`${APT_HELPER} leading-relaxed`}>
               단지 중심 반경 {radiusKm} 내 상가업소 중 일상생활과 밀접한 업종을
               집계합니다. 거리는 직선거리 기준입니다.
               <br />
@@ -136,11 +137,11 @@ export function ComplexCommerceStats({
             </p>
           </InfoTip>
         </div>
-        <p className="mt-1 text-[12px] text-slate-500">
+        <p className={`mt-1 ${APT_HELPER}`}>
           반경 {radiusKm} 내 생활 밀착 업소
         </p>
         {leadingComposition && leadingComposition.key === "음식/외식" ? (
-          <p className="mt-1.5 text-[12px] text-slate-600">
+          <p className={`mt-1.5 ${APT_HELPER}`}>
             음식/외식 업종 비중이 가장 높아요.
           </p>
         ) : null}
@@ -181,8 +182,8 @@ export function ComplexCommerceStats({
             const color = commerceCategoryColor(key);
             return (
               <li key={key} className="min-w-0">
-                <div className="flex items-baseline justify-between gap-2 text-[12px]">
-                  <span className="flex min-w-0 items-center gap-1.5 truncate text-slate-700">
+                <div className={`flex items-baseline justify-between gap-2 ${APT_LABEL}`}>
+                  <span className="flex min-w-0 items-center gap-1.5 truncate">
                     <span
                       className="inline-block h-2 w-2 shrink-0 rounded-sm"
                       style={{ backgroundColor: color.fill }}
@@ -259,11 +260,11 @@ export function ComplexCommerceStats({
             const color = commerceCategoryColor(bucket);
             return (
               <li key={cat.code} className="min-w-0">
-                <div className="flex items-baseline gap-2 text-[12px]">
-                  <span className="w-3.5 shrink-0 text-[11px] font-semibold text-slate-400 tabular-nums">
+                <div className={`flex items-baseline gap-2 ${APT_LABEL}`}>
+                  <span className="w-3.5 shrink-0 font-semibold text-slate-400 tabular-nums">
                     {idx + 1}
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-slate-700">
+                  <span className="min-w-0 flex-1 truncate">
                     {label}
                   </span>
                   <span className="shrink-0 font-semibold tabular-nums text-slate-800">
@@ -300,7 +301,7 @@ export function ComplexCommerceMeta({
       : `${snapshot.radiusM}m`;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] text-slate-600">
+    <div className={`flex flex-wrap items-center gap-x-1.5 gap-y-0.5 ${APT_HELPER}`}>
       <span>
         반경 {radiusKm} · {snapshot.sourcePeriodLabel}
       </span>
@@ -324,7 +325,7 @@ export function ComplexCommerceMeta({
 export function ComplexCommercePreparing() {
   return (
     <div className="rounded-lg bg-slate-50/80 px-3 py-3">
-      <p className="text-sm text-slate-600">상권 데이터를 준비 중입니다.</p>
+      <p className={APT_HELPER}>상권 데이터를 준비 중입니다.</p>
     </div>
   );
 }

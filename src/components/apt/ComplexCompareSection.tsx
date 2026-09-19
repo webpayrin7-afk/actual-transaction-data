@@ -19,6 +19,7 @@ import {
 import type { ComparePeerCandidate } from "@/lib/complex-detail/select-compare-peers";
 import { formatEok } from "@/lib/utils/format";
 import { areaSelectorClosedLabel } from "@/lib/apt/area-selector-label";
+import { APT_HELPER, APT_LABEL } from "@/lib/apt/detail-copy";
 
 type Props = {
   aptName: string;
@@ -188,13 +189,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
           className="grid items-center gap-x-1 border-b border-slate-100 py-1.5 last:border-0"
           style={gridStyle}
         >
-          <p
-            className={`leading-none text-slate-500 ${
-              row.large
-                ? "text-[12px] sm:text-[13px]"
-                : "text-[11px] sm:text-[12px]"
-            }`}
-          >
+          <p className={`${APT_LABEL} leading-none`}>
             {row.label}
           </p>
           {row.values.map((v, i) => (
@@ -337,19 +332,19 @@ export function ComplexCompareSection({
             </InfoTip>
           </h2>
         </div>
-        <p className="shrink-0 pt-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">
+        <p className={`shrink-0 pt-0.5 text-right ${APT_HELPER}`}>
           {areaBandLabel(areaCenter)}
         </p>
       </div>
 
       {loadingPeers ? (
-        <p className="mt-2 text-[12px] text-slate-500">
+        <p className={`mt-2 ${APT_HELPER}`}>
           비교 단지를 불러오는 중…
         </p>
       ) : null}
 
       {empty ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
+        <p className={`mt-2 ${APT_HELPER}`}>
           비교할 수 있는 주변 유사 단지가 아직 없습니다.
         </p>
       ) : null}

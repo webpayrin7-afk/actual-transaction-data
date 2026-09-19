@@ -19,6 +19,7 @@ import {
   archiveBuildingDongLabel,
   archiveStatusLabel,
 } from "@/lib/apt/transaction-row-display";
+import { APT_HELPER } from "@/lib/apt/detail-copy";
 
 
 /** Compact monthly-rent money line — deposit strongest, monthly secondary. */
@@ -160,7 +161,7 @@ function RowMeta({
     dealingGbn || null,
   ].filter(Boolean) as string[];
   return (
-    <p className="mt-0.5 text-xs leading-snug text-slate-500 sm:text-[13px]">
+    <p className={`mt-0.5 ${APT_HELPER}`}>
       {bits.map((bit, i) => (
         <span key={`${bit}-${i}`}>
           {i > 0 ? (
@@ -202,7 +203,7 @@ export function TransactionRow({
               dateTime={tx.dealDate}
               title={dateFull}
               aria-label={dateFull}
-              className="block text-sm font-medium tabular-nums text-slate-900"
+              className={`block tabular-nums ${APT_HELPER}`}
             >
               <span className="sm:hidden">{dateShort}</span>
               <span className="hidden sm:inline">{dateFull}</span>
@@ -219,7 +220,9 @@ export function TransactionRow({
             >
               {m.primary}
             </p>
-            <p className="mt-0.5 text-xs font-medium tabular-nums text-slate-600 sm:text-[13px]">
+            <p
+              className={`mt-0.5 text-sm font-semibold tabular-nums sm:text-base ${dealTypePriceTextClass(mode)}`}
+            >
               {m.secondary}
             </p>
           </div>
@@ -239,7 +242,7 @@ export function TransactionRow({
             dateTime={tx.dealDate}
             title={dateFull}
             aria-label={dateFull}
-            className="block text-sm font-medium tabular-nums text-slate-900"
+            className={`block tabular-nums ${APT_HELPER}`}
           >
             <span className="sm:hidden">{dateShort}</span>
             <span className="hidden sm:inline">{dateFull}</span>
@@ -328,6 +331,9 @@ function StatusBadge({ label }: { label: "신규" | "갱신" }) {
 }
 
 function AreaCell({ exclusiveArea }: { exclusiveArea: number }) {
+  if (!Number.isFinite(exclusiveArea)) {
+    return <span className="text-[color:var(--lab-muted)]">—</span>;
+  }
   const display =
     exclusiveArea % 1 === 0
       ? `${exclusiveArea}`

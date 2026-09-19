@@ -56,6 +56,7 @@ import {
   ComplexCommercePreparing,
   ComplexCommerceStats,
 } from "@/components/apt/ComplexCommerceSection";
+import { APT_HELPER } from "@/lib/apt/detail-copy";
 
 export type NearbyLifeCategory = "commerce" | "living" | "transport" | "school";
 
@@ -174,7 +175,7 @@ const LIVING_LIST_SUBTITLE = "가까운 순 · 주요 시설";
 
 function LivingDistanceSubtitle() {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
+    <span className={`inline-flex shrink-0 items-center gap-1 ${APT_HELPER}`}>
       <span>{LIVING_LIST_SUBTITLE}</span>
       <InfoTip aria-label="생활 시설 거리 기준 안내" className="text-[11px]">
         <p className="text-[12px] leading-relaxed text-slate-600">
@@ -385,7 +386,7 @@ function schoolLevelChipClass(active: boolean): string {
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-3">
-      <p className="text-sm text-slate-600">{children}</p>
+      <p className={APT_HELPER}>{children}</p>
     </div>
   );
 }
@@ -1082,7 +1083,7 @@ export function ComplexNearbyLifeSection({
           <EmptyBlock>
             주변 정보를 찾지 못했어요
             <br />
-            <span className="text-[12px] text-slate-500">
+            <span className={APT_HELPER}>
               주변에 표시할 주요 시설이 없어요
             </span>
           </EmptyBlock>
@@ -1381,7 +1382,7 @@ export function ComplexNearbyLifeSection({
           <h2 className="flex items-center">
             주변 생활
             <InfoTip aria-label="주변 생활 출처 안내" className="ml-1.5 text-[13px]">
-              <p className="text-[12px] leading-relaxed text-slate-600">
+              <p className={`${APT_HELPER} leading-relaxed`}>
                 지도: NAVER Maps
                 <br />
                 단지 위치:{" "}
@@ -1554,7 +1555,7 @@ export function ComplexNearbyLifeSection({
             </div>
           ) : (
             <div
-              className={`flex items-center justify-center px-4 text-center text-sm text-slate-500 ${
+              className={`flex items-center justify-center px-4 text-center ${APT_HELPER} ${
                 tab === "living"
                   ? "h-[348px] sm:h-[392px] lg:h-[440px]"
                   : tab === "commerce"

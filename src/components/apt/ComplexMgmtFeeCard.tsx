@@ -11,6 +11,7 @@ import {
   estimateSelectedPyeongFromPortal,
   formatWonRangeAsManwon,
 } from "@/lib/complex-detail/selected-pyeong-mgmt-fee";
+import { APT_HELPER, APT_LABEL } from "@/lib/apt/detail-copy";
 
 function MetricRow({
   label,
@@ -21,7 +22,7 @@ function MetricRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-2">
-      <p className="min-w-0 text-sm text-slate-600">{label}</p>
+      <p className={`min-w-0 ${APT_LABEL}`}>{label}</p>
       <p className="shrink-0 text-sm font-semibold tabular-nums text-slate-800">
         {valueLabel}
       </p>
@@ -49,7 +50,7 @@ function formatWonPerSqm(n: number): string {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5">
-      <dt className="shrink-0 text-sm text-slate-600">{label}</dt>
+      <dt className={`shrink-0 ${APT_LABEL}`}>{label}</dt>
       <dd className="min-w-0 text-right text-sm font-medium leading-snug text-slate-800">
         {value}
       </dd>
@@ -104,7 +105,7 @@ export function ComplexMgmtFeeCard({
       {showSelectedEstimate && estimate ? (
         <>
           <div className="mt-3">
-            <p className="text-sm text-slate-600">최근 예상 관리비</p>
+            <p className={APT_LABEL}>최근 예상 관리비</p>
             <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-900">
               {formatWonRangeAsManwon(
                 estimate.latest.wonMin,
@@ -257,7 +258,7 @@ export function ComplexMgmtFeeCard({
 
             <div className="mt-2 border-t border-slate-100 pt-2">
               <p className="text-sm font-medium text-slate-800">안내</p>
-              <p className="mt-1 text-sm leading-relaxed text-slate-700">
+              <p className={`mt-1 ${APT_HELPER}`}>
                 주거전용면적 기준 관리비 단가를 선택 평형에 적용한 예상값입니다.
                 실제 세대별 관리비는 사용량과 일부 부과항목에 따라 달라질 수
                 있습니다.
@@ -268,7 +269,7 @@ export function ComplexMgmtFeeCard({
       ) : (
         <>
           <div className="mt-3">
-            <p className="text-sm text-slate-600">선택 평형 예상 관리비</p>
+            <p className={APT_LABEL}>선택 평형 예상 관리비</p>
             <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
               평형별 관리비 데이터 준비 중
             </p>
@@ -291,7 +292,7 @@ export function ComplexMgmtFeeCard({
             </dl>
             <div className="mt-2 border-t border-slate-100 pt-2">
               <p className="text-sm font-medium text-slate-800">안내</p>
-              <p className="mt-1 text-sm leading-relaxed text-slate-700">
+              <p className={`mt-1 ${APT_HELPER}`}>
                 이 단지는 아직 선택 평형 예상 관리비를 표시할 수 없습니다.
                 단지 전체 평균은 선택 평형 금액으로 쓰지 않습니다.
               </p>

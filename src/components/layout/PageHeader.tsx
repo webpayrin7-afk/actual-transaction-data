@@ -28,6 +28,8 @@ export function PageHeader({
   compact = false,
   showDivider = true,
   className = "",
+  descriptionClassName,
+  metaClassName,
 }: {
   title: string;
   description?: ReactNode;
@@ -40,6 +42,9 @@ export function PageHeader({
   /** 첫 콘텐츠와 구분하는 얇은 선. 탭이 바로 이어지는 페이지는 false */
   showDivider?: boolean;
   className?: string;
+  /** Apt-detail helper copy only. Leaves the title untouched. */
+  descriptionClassName?: string;
+  metaClassName?: string;
 }) {
   return (
     <header className={`max-w-4xl ${className}`.trim()}>
@@ -59,12 +64,22 @@ export function PageHeader({
         {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
       </div>
       {description ? (
-        <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">
+        <p
+          className={`mt-1 text-pretty ${
+            descriptionClassName ??
+            "text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5"
+          }`}
+        >
           {description}
         </p>
       ) : null}
       {meta ? (
-        <div className="mt-1.5 space-y-0.5 text-xs leading-5 text-[color:var(--lab-muted)]">
+        <div
+          className={`mt-1.5 space-y-0.5 ${
+            metaClassName ??
+            "text-xs leading-5 text-[color:var(--lab-muted)]"
+          }`}
+        >
           {meta}
         </div>
       ) : null}

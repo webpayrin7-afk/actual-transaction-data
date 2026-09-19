@@ -21,6 +21,7 @@ import {
 } from "@/lib/calculator";
 import type { HomeCount } from "@/lib/loan/calc";
 import { resolveLoanPropertyConditions } from "@/lib/loan/property-conditions";
+import { APT_HELPER, APT_LABEL } from "@/lib/apt/detail-copy";
 
 type TabId = "purchase" | "holding" | "loan";
 
@@ -125,15 +126,11 @@ function Row({
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <dt
-          className={
-            emph ? "text-sm text-slate-600" : "text-sm text-slate-500"
-          }
-        >
+        <dt className={APT_LABEL}>
           {label}
         </dt>
         {hint ? (
-          <p className="mt-0.5 text-xs leading-snug text-slate-500">
+          <p className={`mt-0.5 ${APT_HELPER}`}>
             {hint}
           </p>
         ) : null}
@@ -164,11 +161,8 @@ function BreakdownRow({
 }) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <dt
-        className={
-          emph ? "text-sm font-medium text-slate-800" : "text-sm text-slate-600"
-        }
-      >
+        <dt className={APT_LABEL}>
+
         {label}
       </dt>
       <dd
@@ -223,11 +217,11 @@ function FieldSelect({
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="min-w-0 shrink">
-        <label htmlFor={id} className="text-xs text-slate-500">
+        <label htmlFor={id} className={APT_LABEL}>
           {label}
         </label>
         {status ? (
-          <p className="mt-0.5 truncate text-[11px] text-slate-500">{status}</p>
+          <p className={`mt-0.5 truncate ${APT_HELPER}`}>{status}</p>
         ) : null}
       </div>
       <div className="relative ml-auto flex h-8 w-fit shrink-0 items-center justify-end gap-1.5 rounded-md border border-slate-200 bg-white py-0 pl-6 pr-2.5 text-xs font-semibold text-slate-800">
@@ -306,7 +300,7 @@ function DetailItem({
       <p className="text-sm font-medium text-slate-800">{label}</p>
       <p className="text-sm font-semibold tabular-nums text-slate-900">{value}</p>
       {basis ? (
-        <p className="text-sm leading-relaxed text-slate-600">{basis}</p>
+        <p className={APT_HELPER}>{basis}</p>
       ) : null}
     </div>
   );
@@ -813,12 +807,12 @@ export function ComplexPurchaseCalculatorSection({
             세금, 대출 계산
           </h2>
           {compactArea ? (
-            <p className="text-[11px] tabular-nums text-slate-400">
+            <p className={`tabular-nums ${APT_HELPER}`}>
               {compactArea} 기준
             </p>
           ) : null}
         </div>
-        <p className="mt-1.5 text-[11px] leading-snug text-slate-400 sm:text-xs">
+        <p className={`mt-1.5 ${APT_HELPER}`}>
           이 단지를 매수할 때 필요한 비용과 대출을 계산해보세요.
         </p>
       </header>
@@ -842,7 +836,7 @@ export function ComplexPurchaseCalculatorSection({
             <div className="flex items-center justify-between gap-2">
               <label
                 htmlFor="calc-purchase-price"
-                className="text-xs font-medium text-slate-600"
+                className={APT_LABEL}
               >
                 예상 매수가
                 <span className="ml-1 font-normal text-slate-400">(만원)</span>
@@ -949,7 +943,7 @@ export function ComplexPurchaseCalculatorSection({
                 </div>
               </dl>
             ) : (
-              <p className="text-sm text-slate-500">
+              <p className={APT_HELPER}>
                 매수가를 입력하면 결과가 표시됩니다.
               </p>
             )}
@@ -1011,7 +1005,7 @@ export function ComplexPurchaseCalculatorSection({
                       <li>부가가치세는 사업자 유형에 따라 별도 발생할 수 있습니다.</li>
                       <li>개인별 감면·특례는 반영하지 않은 예상값입니다.</li>
                     </ul>
-                    <p className="pt-1 text-xs text-slate-500">
+                    <p className={`pt-1 ${APT_HELPER}`}>
                       {purchase.acquisition.meta.ruleVersion} /{" "}
                       {purchase.brokerage.meta.ruleVersion} · 시행{" "}
                       {purchase.acquisition.meta.effectiveFrom}
@@ -1045,15 +1039,15 @@ export function ComplexPurchaseCalculatorSection({
                   />
                   <div className="space-y-0.5 pl-0.5">
                     {officialDateLabel ? (
-                      <p className="text-sm leading-relaxed text-slate-600">
+                      <p className={APT_HELPER}>
                         {officialDateLabel} 공식 공시가격 기준
                       </p>
                     ) : (
-                      <p className="text-sm leading-relaxed text-slate-600">
+                      <p className={APT_HELPER}>
                         입력 공시가격 기준
                       </p>
                     )}
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className={APT_HELPER}>
                       {growthActive
                         ? `공시가격 ${growthLabel} 가정 · 현행 세제 유지`
                         : "현행 세제 유지 가정"}
@@ -1080,7 +1074,7 @@ export function ComplexPurchaseCalculatorSection({
                 </div>
               </dl>
             ) : (
-              <p className="text-sm text-slate-500">
+              <p className={APT_HELPER}>
                 공시가격을 입력하면 이 단지·면적 기준 보유세가 표시됩니다.
               </p>
             )}
@@ -1091,9 +1085,9 @@ export function ComplexPurchaseCalculatorSection({
                 {hasOfficialUnit &&
                 !officialManualOverride &&
                 !officialEditing ? (
-                  <span className="text-xs text-slate-500">공식값</span>
+                  <span className={APT_HELPER}>공식값</span>
                 ) : officialManualOverride ? (
-                  <span className="text-xs text-slate-500">사용자 입력값</span>
+                  <span className={APT_HELPER}>사용자 입력값</span>
                 ) : null}
               </div>
 
@@ -1110,12 +1104,12 @@ export function ComplexPurchaseCalculatorSection({
                     </p>
                   ) : null}
                   {officialDateLabel ? (
-                    <p className="text-xs text-slate-500">
+                    <p className={APT_HELPER}>
                       {officialDateLabel} · 국토교통부·한국부동산원
                     </p>
                   ) : null}
                   {publicPrice.usedPriorBulkYear ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className={APT_HELPER}>
                       {holdingBaseYear}년 공식 공시가격은 자료 공개 후 반영됩니다.
                     </p>
                   ) : null}
@@ -1169,7 +1163,7 @@ export function ComplexPurchaseCalculatorSection({
                     }}
                   />
                   {!hasOfficialUnit ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className={APT_HELPER}>
                       {publicPrice.blocker ??
                         "공식 공시가격을 연결할 수 없어 직접 입력합니다. 실거래가 비율로 추정하지 않습니다."}
                     </p>
@@ -1220,7 +1214,7 @@ export function ComplexPurchaseCalculatorSection({
                     onChange={(e) => setGrowthPct(Number(e.target.value))}
                   />
                 </div>
-                <div className="flex justify-between text-xs text-slate-500">
+                <div className={`flex justify-between ${APT_HELPER}`}>
                   <span>-30%</span>
                   <span>0%</span>
                   <span>+30%</span>
@@ -1247,7 +1241,7 @@ export function ComplexPurchaseCalculatorSection({
                         기준 공시가격과 동일합니다.
                       </p>
                     )}
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className={APT_HELPER}>
                       {growthActive
                         ? `공시가격 ${growthLabel} 가정 · 현행 세제 유지`
                         : "현행 세제 유지 가정"}
@@ -1267,7 +1261,7 @@ export function ComplexPurchaseCalculatorSection({
                         <p className="font-medium text-slate-800">
                           {officialPriceYear}년 · 공식
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className={APT_HELPER}>
                           공시가격만 표시 · 과거 실제 납부세액 아님
                         </p>
                       </div>
@@ -1279,7 +1273,7 @@ export function ComplexPurchaseCalculatorSection({
                     <li className="flex items-start justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="font-medium text-slate-800">기준 공시가격</p>
-                        <p className="text-xs text-slate-500">
+                        <p className={APT_HELPER}>
                           {officialManualOverride ? "사용자 입력" : "입력값"}
                         </p>
                       </div>
@@ -1294,7 +1288,7 @@ export function ComplexPurchaseCalculatorSection({
                         <p className="font-medium text-slate-800">
                           {holdingBaseYear}년 · 예상
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className={APT_HELPER}>
                           공시가격 {growthLabel} · 현행 세제 적용 시
                         </p>
                       </div>
@@ -1469,7 +1463,7 @@ export function ComplexPurchaseCalculatorSection({
                           />
                         ))}
                       </dl>
-                      <p className="mt-2 text-xs text-slate-500">
+                      <p className={`mt-2 ${APT_HELPER}`}>
                         2026년 현행 세제 기준
                       </p>
                     </LabDisclosure>
@@ -1489,7 +1483,7 @@ export function ComplexPurchaseCalculatorSection({
                     <p className="text-sm leading-relaxed text-slate-700">
                       {holding?.estimateDisclaimer}
                     </p>
-                    <p className="text-xs text-slate-500">2026년 현행 세제 기준</p>
+                    <p className={APT_HELPER}>2026년 현행 세제 기준</p>
                   </div>
                 </div>
               </LabDisclosure>
@@ -1522,7 +1516,7 @@ export function ComplexPurchaseCalculatorSection({
                         해당 없음
                       </button>
                     </div>
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className={APT_HELPER}>
                       공정시장가액비율과 종합부동산세 기본공제 등에 반영됩니다.
                     </p>
                   </div>
@@ -1619,7 +1613,7 @@ export function ComplexPurchaseCalculatorSection({
                     />
                   )
                 ) : (
-                  <p className="text-sm leading-relaxed text-slate-600">
+                  <p className={APT_HELPER}>
                     연소득을 입력하면 최종 자금계획(추가 필요/여유)을 확인할 수
                     있습니다.
                   </p>
@@ -1644,14 +1638,14 @@ export function ComplexPurchaseCalculatorSection({
                     }
                     emph={fundingPlan.expectedLoanMan > 0}
                   />
-                  <p className="text-xs text-slate-500">
+                  <p className={APT_HELPER}>
                     {loan.repayMethodLabel} · {baseRatePct}% · {years}년
                     {fundingPlan.provisional ? " · 잠정 기준" : ""}
                   </p>
                 </div>
               </dl>
             ) : (
-              <p className="text-sm text-slate-500">
+              <p className={APT_HELPER}>
                 매수가를 입력하면 결과가 표시됩니다.
               </p>
             )}
@@ -1661,7 +1655,7 @@ export function ComplexPurchaseCalculatorSection({
                 <div className="flex items-center justify-between gap-2">
                   <label
                     htmlFor="calc-loan-price"
-                    className="text-xs font-medium text-slate-600"
+                    className={APT_LABEL}
                   >
                     예상 매수가
                     <span className="ml-1 font-normal text-slate-400">
@@ -1705,14 +1699,14 @@ export function ComplexPurchaseCalculatorSection({
               <div className="space-y-1.5">
                 <label
                   htmlFor="calc-loan-cash"
-                  className="text-xs font-medium text-slate-600"
+                  className={APT_LABEL}
                 >
                   보유 자기자금
                   <span className="ml-1 font-normal text-slate-400">
                     (만원)
                   </span>
                 </label>
-                <p className="text-[11px] leading-snug text-slate-500">
+                <p className={APT_HELPER}>
                   이번 매수에 사용할 수 있는 자금
                 </p>
                 <ManWonField
@@ -1761,7 +1755,7 @@ export function ComplexPurchaseCalculatorSection({
 
               <div className="grid grid-cols-2 gap-2.5">
                 <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">금리 (%)</span>
+                  <span className={APT_LABEL}>금리 (%)</span>
                   <input
                     className={inputClass}
                     inputMode="decimal"
@@ -1772,7 +1766,7 @@ export function ComplexPurchaseCalculatorSection({
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">기간 (년)</span>
+                  <span className={APT_LABEL}>기간 (년)</span>
                   <input
                     className={inputClass}
                     type="number"
@@ -1812,14 +1806,14 @@ export function ComplexPurchaseCalculatorSection({
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="calc-loan-income"
-                    className="text-xs font-medium text-slate-600"
+                    className={APT_LABEL}
                   >
                     연소득
                     <span className="ml-1 font-normal text-slate-400">
                       (만원)
                     </span>
                   </label>
-                  <p className="text-[11px] text-slate-500">
+                  <p className={APT_HELPER}>
                     DSR 한도 계산에 필요합니다.
                   </p>
                   <ManWonField
@@ -1845,7 +1839,7 @@ export function ComplexPurchaseCalculatorSection({
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="calc-loan-existing"
-                    className="text-xs font-medium text-slate-600"
+                    className={APT_LABEL}
                   >
                     기존 월 원리금 상환
                     <span className="ml-1 font-normal text-slate-400">
@@ -1874,7 +1868,7 @@ export function ComplexPurchaseCalculatorSection({
                 </div>
 
                 <label className="block space-y-1 sm:col-span-2">
-                  <span className="text-xs text-slate-500">보유 주택 수</span>
+                  <span className={APT_LABEL}>보유 주택 수</span>
                   <select
                     className={inputClass}
                     value={homes}

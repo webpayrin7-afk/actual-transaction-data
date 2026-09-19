@@ -54,6 +54,7 @@ const sample = JSON.parse(
     complex_id: string;
     school_level: string;
     school_code: string | null;
+    school_name?: string;
   }>;
 };
 

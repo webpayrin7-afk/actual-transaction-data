@@ -8,6 +8,7 @@ import type {
   NearbySaleStatus,
   NearbySalesResult,
 } from "@/lib/complex-detail/applyhome-nearby-sales";
+import { APT_HELPER } from "@/lib/apt/detail-copy";
 
 const VISIBLE_TYPES = 2;
 
@@ -245,24 +246,24 @@ export function ComplexNearbySalesSection({
               <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
             </InfoTip>
           </h2>
-          <p>{description}</p>
+          <p className={`${APT_HELPER} !text-[13px] !leading-5`}>{description}</p>
         </div>
       </div>
 
       {!key ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
+        <p className={`mt-2 ${APT_HELPER}`}>
           단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.
         </p>
       ) : null}
 
       {key && q.isLoading ? (
-        <p className="mt-2 text-[12px] text-slate-500">
+        <p className={`mt-2 ${APT_HELPER}`}>
           주변 공급 정보를 불러오는 중…
         </p>
       ) : null}
 
       {key && !q.isLoading && !ready ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
+        <p className={`mt-2 ${APT_HELPER}`}>
           {emptyReason}
         </p>
       ) : null}
