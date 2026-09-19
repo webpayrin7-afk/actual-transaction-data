@@ -1,6 +1,7 @@
 {
   "area_band_version": "REGIONAL_RANKING_AREA_BAND_V1",
   "transaction_as_of": "2026-09-17",
+  "warehouse_max_deal_date": "2026-09-17",
   "source_window_start": "2025-09-17",
   "source_window_end": "2026-09-17",
   "cited": [
@@ -19,5 +20,5 @@
       "trade_count_rejected_82_87": 43
     }
   ],
-  "note": "Counts are from one read of the current warehouse. Manifest counts are not mixed in."
+  "note": "Counts are from one read of the pinned snapshot. Manifest counts are not mixed in."
 }
