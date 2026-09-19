@@ -1599,7 +1599,6 @@ export function ComplexPurchaseCalculatorSection({
                           ? `총 필요자금 ${formatEokMan(fundingPlan.totalRequiredFundsMan)} 기준 · 취득세·중개보수 등 매수비용 포함`
                           : "총 필요자금 − 예상 실행 대출"
                       }
-                      emph
                     />
                   ) : (
                     <Row
@@ -1610,7 +1609,6 @@ export function ComplexPurchaseCalculatorSection({
                           ? "집값 기준 필요 대출 0원 · 부대비용은 별도"
                           : undefined
                       }
-                      emph
                     />
                   )
                 ) : (
@@ -1637,7 +1635,6 @@ export function ComplexPurchaseCalculatorSection({
                         ? formatManWon(loan.monthlyPaymentMan)
                         : "0만원"
                     }
-                    emph={fundingPlan.expectedLoanMan > 0}
                   />
                   <p className="detail-meta">
                     {loan.repayMethodLabel} · {baseRatePct}% · {years}년
