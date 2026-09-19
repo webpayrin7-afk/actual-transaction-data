@@ -1,0 +1,46 @@
+{
+  "completed": [
+    {
+      "sido": "전남광주통합특별시",
+      "sido_code": "12",
+      "inserted": 1646,
+      "kapt_links": 1646,
+      "master_total": 16612,
+      "cadastral_source_available": false,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "부산광역시",
+      "sido_code": "26",
+      "inserted": 1404,
+      "kapt_links": 1404,
+      "master_total": 18016,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "경상남도",
+      "sido_code": "48",
+      "inserted": 1395,
+      "kapt_links": 1395,
+      "master_total": 19411,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    }
+  ],
+  "failed": null,
+  "remaining": [
+    "대구광역시",
+    "인천광역시",
+    "경상북도",
+    "충청남도",
+    "전북특별자치도",
+    "강원특별자치도",
+    "충청북도",
+    "대전광역시",
+    "울산광역시",
+    "세종특별자치시",
+    "제주특별자치도"
+  ],
+  "next_wave_ready": true
+}

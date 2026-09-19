@@ -1,0 +1,101 @@
+{
+  "status": "PASS",
+  "stamp": "2026-09-19T00:49:01.649Z",
+  "capital_unchanged": true,
+  "final": {
+    "master": 19411,
+    "seoul": 8437,
+    "gyeonggi": 6529,
+    "kapt_links": 4456,
+    "dup_complex_id": 0,
+    "dup_kapt": 0
+  },
+  "by_sido": [
+    {
+      "sido": "서울특별시",
+      "n": 8437
+    },
+    {
+      "sido": "경기도",
+      "n": 6529
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "n": 1646
+    },
+    {
+      "sido": "부산광역시",
+      "n": 1404
+    },
+    {
+      "sido": "경상남도",
+      "n": 1395
+    }
+  ],
+  "waves": [
+    {
+      "sido": "전남광주통합특별시",
+      "sido_code": "12",
+      "inserted": 1646,
+      "kapt_links": 1646,
+      "master_total": 16612,
+      "cadastral_source_available": false,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "부산광역시",
+      "sido_code": "26",
+      "inserted": 1404,
+      "kapt_links": 1404,
+      "master_total": 18016,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "경상남도",
+      "sido_code": "48",
+      "inserted": 1395,
+      "kapt_links": 1395,
+      "master_total": 19411,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    }
+  ],
+  "coordinate_next": [
+    {
+      "sido": "전남광주통합특별시",
+      "master_count": 1646,
+      "kapt_linked": 1646,
+      "cadastral_source_available": "NO",
+      "coordinate_phase_ready": "NO"
+    },
+    {
+      "sido": "부산광역시",
+      "master_count": 1404,
+      "kapt_linked": 1404,
+      "cadastral_source_available": "YES",
+      "coordinate_phase_ready": "NO"
+    },
+    {
+      "sido": "경상남도",
+      "master_count": 1395,
+      "kapt_linked": 1395,
+      "cadastral_source_available": "YES",
+      "coordinate_phase_ready": "NO"
+    }
+  ],
+  "next_wave_ready": true,
+  "remaining": [
+    "대구광역시",
+    "인천광역시",
+    "경상북도",
+    "충청남도",
+    "전북특별자치도",
+    "강원특별자치도",
+    "충청북도",
+    "대전광역시",
+    "울산광역시",
+    "세종특별자치시",
+    "제주특별자치도"
+  ]
+}

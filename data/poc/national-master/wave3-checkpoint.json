@@ -1,0 +1,40 @@
+{
+  "completed": [
+    {
+      "sido": "충청남도",
+      "sido_code": "44",
+      "inserted": 976,
+      "kapt_links": 976,
+      "master_total": 23637,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "전북특별자치도",
+      "sido_code": "52",
+      "inserted": 851,
+      "kapt_links": 851,
+      "master_total": 24488,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "강원특별자치도",
+      "sido_code": "51",
+      "inserted": 815,
+      "kapt_links": 815,
+      "master_total": 25303,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    }
+  ],
+  "failed": null,
+  "remaining": [
+    "충청북도",
+    "대전광역시",
+    "울산광역시",
+    "세종특별자치시",
+    "제주특별자치도"
+  ],
+  "next_wave_ready": true
+}
