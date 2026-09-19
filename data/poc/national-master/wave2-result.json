@@ -1,0 +1,139 @@
+{
+  "status": "PASS",
+  "stamp": "2026-09-19T01:02:54.077Z",
+  "capital_unchanged": true,
+  "existing_rows_changed": 0,
+  "final": {
+    "master": 22661,
+    "seoul": 8437,
+    "gyeonggi": 6529,
+    "kapt_links": 7706,
+    "dup_complex_id": 0,
+    "dup_kapt": 0
+  },
+  "by_sido": [
+    {
+      "sido": "서울특별시",
+      "n": 8437
+    },
+    {
+      "sido": "경기도",
+      "n": 6529
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "n": 1646
+    },
+    {
+      "sido": "부산광역시",
+      "n": 1404
+    },
+    {
+      "sido": "경상남도",
+      "n": 1395
+    },
+    {
+      "sido": "대구광역시",
+      "n": 1151
+    },
+    {
+      "sido": "인천광역시",
+      "n": 1093
+    },
+    {
+      "sido": "경상북도",
+      "n": 1006
+    }
+  ],
+  "waves": [
+    {
+      "sido": "대구광역시",
+      "sido_code": "27",
+      "inserted": 1151,
+      "kapt_links": 1151,
+      "master_total": 20562,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "인천광역시",
+      "sido_code": "28",
+      "inserted": 1093,
+      "kapt_links": 1093,
+      "master_total": 21655,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "경상북도",
+      "sido_code": "47",
+      "inserted": 1006,
+      "kapt_links": 1006,
+      "master_total": 22661,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    }
+  ],
+  "remaining_new_safe": 4863,
+  "coordinate_next": [
+    {
+      "sido": "전남광주통합특별시",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run"
+    },
+    {
+      "sido": "부산광역시",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run"
+    },
+    {
+      "sido": "경상남도",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run"
+    },
+    {
+      "sido": "대구광역시",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run"
+    },
+    {
+      "sido": "인천광역시",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run"
+    },
+    {
+      "sido": "경상북도",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run"
+    }
+  ],
+  "next_wave_ready": true,
+  "remaining": [
+    "충청남도",
+    "전북특별자치도",
+    "강원특별자치도",
+    "충청북도",
+    "대전광역시",
+    "울산광역시",
+    "세종특별자치시",
+    "제주특별자치도"
+  ]
+}

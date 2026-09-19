@@ -1,0 +1,371 @@
+{
+  "resolver_version": "pnu-cadastral-v1",
+  "production_write": false,
+  "targets": 12558,
+  "parcel_address_available": 12558,
+  "counts": {
+    "PNU_EXACT": 11785,
+    "NO_PARCEL_ADDRESS": 0,
+    "LAWD_UNRESOLVED": 0,
+    "LOT_PARSE_FAILED": 759,
+    "AMBIGUOUS_LAWD": 0,
+    "INVALID_PNU": 14
+  },
+  "pnu_exact": 11785,
+  "unresolved": 773,
+  "coverage": 0.938446,
+  "duplicate_complex_id": 0,
+  "invalid_exact_pnu": 0,
+  "by_sido": [
+    {
+      "sido": "전남광주통합특별시",
+      "targets": 1646,
+      "parcel_address_available": 1646,
+      "PNU_EXACT": 1568,
+      "unresolved": 78,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 78,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 0
+    },
+    {
+      "sido": "부산광역시",
+      "targets": 1404,
+      "parcel_address_available": 1404,
+      "PNU_EXACT": 1342,
+      "unresolved": 62,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 61,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 1
+    },
+    {
+      "sido": "경상남도",
+      "targets": 1395,
+      "parcel_address_available": 1395,
+      "PNU_EXACT": 1302,
+      "unresolved": 93,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 93,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 0
+    },
+    {
+      "sido": "대구광역시",
+      "targets": 1151,
+      "parcel_address_available": 1151,
+      "PNU_EXACT": 1089,
+      "unresolved": 62,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 61,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 1
+    },
+    {
+      "sido": "인천광역시",
+      "targets": 1093,
+      "parcel_address_available": 1093,
+      "PNU_EXACT": 1028,
+      "unresolved": 65,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 58,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 7
+    },
+    {
+      "sido": "경상북도",
+      "targets": 1006,
+      "parcel_address_available": 1006,
+      "PNU_EXACT": 909,
+      "unresolved": 97,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 95,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 2
+    },
+    {
+      "sido": "충청남도",
+      "targets": 976,
+      "parcel_address_available": 976,
+      "PNU_EXACT": 931,
+      "unresolved": 45,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 44,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 1
+    },
+    {
+      "sido": "전북특별자치도",
+      "targets": 851,
+      "parcel_address_available": 851,
+      "PNU_EXACT": 809,
+      "unresolved": 42,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 42,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 0
+    },
+    {
+      "sido": "강원특별자치도",
+      "targets": 815,
+      "parcel_address_available": 815,
+      "PNU_EXACT": 766,
+      "unresolved": 49,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 49,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 0
+    },
+    {
+      "sido": "충청북도",
+      "targets": 756,
+      "parcel_address_available": 756,
+      "PNU_EXACT": 702,
+      "unresolved": 54,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 54,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 0
+    },
+    {
+      "sido": "대전광역시",
+      "targets": 561,
+      "parcel_address_available": 561,
+      "PNU_EXACT": 536,
+      "unresolved": 25,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 24,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 1
+    },
+    {
+      "sido": "울산광역시",
+      "targets": 519,
+      "parcel_address_available": 519,
+      "PNU_EXACT": 489,
+      "unresolved": 30,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 29,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 1
+    },
+    {
+      "sido": "세종특별자치시",
+      "targets": 210,
+      "parcel_address_available": 210,
+      "PNU_EXACT": 168,
+      "unresolved": 42,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 42,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 0
+    },
+    {
+      "sido": "제주특별자치도",
+      "targets": 175,
+      "parcel_address_available": 175,
+      "PNU_EXACT": 146,
+      "unresolved": 29,
+      "NO_PARCEL_ADDRESS": 0,
+      "LAWD_UNRESOLVED": 0,
+      "LOT_PARSE_FAILED": 29,
+      "AMBIGUOUS_LAWD": 0,
+      "INVALID_PNU": 0
+    }
+  ],
+  "samples": [
+    {
+      "complex_id": "cx_0003e4fb3f3b213f",
+      "sido": "충청남도",
+      "source_key": "A34384401",
+      "pnu": "4427031029106420002",
+      "mountain_flag": false,
+      "main_lot": "0642",
+      "sub_lot": "0002"
+    },
+    {
+      "complex_id": "cx_0007937da6d12946",
+      "sido": "부산광역시",
+      "source_key": "A60880001",
+      "pnu": "2629011100100310003",
+      "mountain_flag": false,
+      "main_lot": "0031",
+      "sub_lot": "0003"
+    },
+    {
+      "complex_id": "cx_000e69af5c96ab70",
+      "sido": "부산광역시",
+      "source_key": "A60776401",
+      "pnu": "2626010900110190000",
+      "mountain_flag": false,
+      "main_lot": "1019",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_000f2cb34e4036c2",
+      "sido": "부산광역시",
+      "source_key": "A61203031",
+      "pnu": "2635010700113310000",
+      "mountain_flag": false,
+      "main_lot": "1331",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_0015f75ef27d574f",
+      "sido": "강원특별자치도",
+      "source_key": "A20071305",
+      "pnu": "5111011900108200000",
+      "mountain_flag": false,
+      "main_lot": "0820",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_001928890b44ffbe",
+      "sido": "충청남도",
+      "source_key": "A10026968",
+      "pnu": "4421010700107010000",
+      "mountain_flag": false,
+      "main_lot": "0701",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_00198a6d5f200453",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10022567",
+      "pnu": "1281025335103140000",
+      "mountain_flag": false,
+      "main_lot": "0314",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_0019d20c4fb88dc4",
+      "sido": "전남광주통합특별시",
+      "source_key": "A53073526",
+      "pnu": "1211016400110260000",
+      "mountain_flag": false,
+      "main_lot": "1026",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_001d7b06b16cc257",
+      "sido": "울산광역시",
+      "source_key": "A10023077",
+      "pnu": "3117010400102800003",
+      "mountain_flag": false,
+      "main_lot": "0280",
+      "sub_lot": "0003"
+    },
+    {
+      "complex_id": "cx_001ddd0f1594fc9a",
+      "sido": "대구광역시",
+      "source_key": "A70148006",
+      "pnu": "2714014500103270000",
+      "mountain_flag": false,
+      "main_lot": "0327",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_0027139484d10f7f",
+      "sido": "울산광역시",
+      "source_key": "A68081703",
+      "pnu": "3114010600115290002",
+      "mountain_flag": false,
+      "main_lot": "1529",
+      "sub_lot": "0002"
+    },
+    {
+      "complex_id": "cx_0028f64493162847",
+      "sido": "대전광역시",
+      "source_key": "A10022215",
+      "pnu": "3011010200100780004",
+      "mountain_flag": false,
+      "main_lot": "0078",
+      "sub_lot": "0004"
+    },
+    {
+      "complex_id": "cx_0029eb1f02c24eb1",
+      "sido": "전북특별자치도",
+      "source_key": "A57335031",
+      "pnu": "5213014400105270000",
+      "mountain_flag": false,
+      "main_lot": "0527",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_002b3646e4229aa8",
+      "sido": "충청남도",
+      "source_key": "A33117008",
+      "pnu": "4413310200113220000",
+      "mountain_flag": false,
+      "main_lot": "1322",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_0035e0f664952371",
+      "sido": "충청남도",
+      "source_key": "A33607006",
+      "pnu": "4420010300100570006",
+      "mountain_flag": false,
+      "main_lot": "0057",
+      "sub_lot": "0006"
+    },
+    {
+      "complex_id": "cx_00369e1e89701dee",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10020785",
+      "pnu": "1230010900100650006",
+      "mountain_flag": false,
+      "main_lot": "0065",
+      "sub_lot": "0006"
+    },
+    {
+      "complex_id": "cx_003a83cff332fdd5",
+      "sido": "강원특별자치도",
+      "source_key": "A24590101",
+      "pnu": "5123025034103460000",
+      "mountain_flag": false,
+      "main_lot": "0346",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_003ecb5eb4302935",
+      "sido": "충청남도",
+      "source_key": "A10027922",
+      "pnu": "4480025625112040000",
+      "mountain_flag": false,
+      "main_lot": "1204",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_004681fee4a67402",
+      "sido": "충청북도",
+      "source_key": "A10026375",
+      "pnu": "4375025325131480000",
+      "mountain_flag": false,
+      "main_lot": "3148",
+      "sub_lot": "0000"
+    },
+    {
+      "complex_id": "cx_004b156d376a2ee6",
+      "sido": "전북특별자치도",
+      "source_key": "A10021227",
+      "pnu": "5214012100106200003",
+      "mountain_flag": false,
+      "main_lot": "0620",
+      "sub_lot": "0003"
+    }
+  ]
+}
