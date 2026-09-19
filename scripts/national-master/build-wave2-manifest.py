@@ -6,6 +6,7 @@ The universe and lawd files must match the hashes already stored on that dry-run
 
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import json
 import sys
@@ -25,12 +26,27 @@ run_dry = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(run_dry)
 
 
+def load_checkpoint(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("universe")
+    parser.add_argument("lawd")
+    parser.add_argument("index")
+    parser.add_argument("--checkpoint", default="data/poc/national-master/wave1-checkpoint.json")
+    parser.add_argument("--prior", action="append", default=[])
+    parser.add_argument("--out", default="data/poc/national-master/wave2-manifest.json")
+    parser.add_argument("--new-only-coordinate", action="store_true")
+    args = parser.parse_args()
     dry = json.loads((ROOT / "data/poc/national-master/national-dry-run.json").read_text(encoding="utf-8"))
-    checkpoint = json.loads((ROOT / "data/poc/national-master/wave1-checkpoint.json").read_text(encoding="utf-8"))
-    universe_path = Path(sys.argv[1])
-    lawd_path = Path(sys.argv[2])
-    index_path = Path(sys.argv[3])
+    checkpoint_path = ROOT / args.checkpoint
+    checkpoint = load_checkpoint(checkpoint_path)
+    prior_paths = [ROOT / args.checkpoint, *[ROOT / item for item in args.prior]]
+    universe_path = Path(args.universe)
+    lawd_path = Path(args.lawd)
+    index_path = Path(args.index)
     if run_dry.sha256_file(universe_path) != dry["universe_sha256"]:
         raise SystemExit("universe hash drift")
     if run_dry.sha256_file(lawd_path) != dry["lawd_sha256"]:
@@ -87,44 +103,52 @@ def main() -> None:
         )
 
     done = {row["sido"] for row in checkpoint["completed"]}
+    inserted_prior = 0
+    protected = [
+        {"sido": "서울특별시", "n": 8437},
+        {"sido": "경기도", "n": 6529},
+    ]
+    seen = {"서울특별시", "경기도"}
+    for path in prior_paths:
+        for row in load_checkpoint(path)["completed"]:
+            if row["sido"] in seen:
+                continue
+            seen.add(row["sido"])
+            inserted_prior += int(row["inserted"])
+            protected.append({"sido": row["sido"], "n": int(row["inserted"])})
     coordinate_next = []
-    for row in checkpoint["completed"]:
-        coordinate_next.append(
-            {
-                "sido": row["sido"],
-                "cadastral_source_available": bool(row["cadastral_source_available"]),
-                "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run",
-            }
-        )
+    if not args.new_only_coordinate:
+        for row in checkpoint["completed"]:
+            coordinate_next.append(
+                {
+                    "sido": row["sido"],
+                    "cadastral_source_available": bool(row["cadastral_source_available"]),
+                    "blocker": "verified PNU input 없음. cadastral parcel file 없음",
+                }
+            )
     for wave in waves:
         coordinate_next.append(
             {
                 "sido": wave["sido"],
-                "cadastral_source_available": wave["cadastral_source_available"],
-                "blocker": "no staged PNU or cadastral parcel file; coordinate dry-run not run",
+                "cadastral_source_available": False,
+                "blocker": "verified PNU input 없음. cadastral parcel file 없음",
             }
         )
 
     manifest = {
         "initial": {
-            "master": 19411,
+            "master": 14966 + inserted_prior,
             "seoul": 8437,
             "gyeonggi": 6529,
-            "kapt_links": 4456,
+            "kapt_links": 11 + inserted_prior,
         },
         "new_safe_total": dry["counts"]["NEW_SAFE"],
-        "new_safe_remaining_before": dry["counts"]["NEW_SAFE"] - sum(row["inserted"] for row in checkpoint["completed"]),
-        "protected": [
-            {"sido": "서울특별시", "n": 8437},
-            {"sido": "경기도", "n": 6529},
-            {"sido": "전남광주통합특별시", "n": 1646},
-            {"sido": "부산광역시", "n": 1404},
-            {"sido": "경상남도", "n": 1395},
-        ],
+        "new_safe_remaining_before": dry["counts"]["NEW_SAFE"] - inserted_prior,
+        "protected": protected,
         "coordinate_next": coordinate_next,
         "waves": waves,
     }
-    out = ROOT / "data/poc/national-master/wave2-manifest.json"
+    out = ROOT / args.out
     out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(
         json.dumps(
