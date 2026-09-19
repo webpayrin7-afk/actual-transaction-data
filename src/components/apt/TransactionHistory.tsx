@@ -331,6 +331,9 @@ function StatusBadge({ label }: { label: "신규" | "갱신" }) {
 }
 
 function AreaCell({ exclusiveArea }: { exclusiveArea: number }) {
+  if (!Number.isFinite(exclusiveArea)) {
+    return <span className="text-[color:var(--lab-muted)]">—</span>;
+  }
   const display =
     exclusiveArea % 1 === 0
       ? `${exclusiveArea}`

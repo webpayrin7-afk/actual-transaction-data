@@ -4,6 +4,7 @@ import type { AptAreaOption } from "@/lib/molit/apt-client";
 export const SQM_PER_PYEONG = 3.3058;
 
 function fmtSqm(n: number): string {
+  if (!Number.isFinite(n)) return "—";
   const s = n.toFixed(2);
   return s.replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
@@ -59,6 +60,7 @@ export function areaSelectorPyeongLabel(area: AptAreaOption): string | null {
 export function areaSelectorExclusiveLabel(area: AptAreaOption): string {
   const min = area.exclusiveAreaMin ?? area.exclusiveArea;
   const max = area.exclusiveAreaMax ?? area.exclusiveArea;
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return "전용 —";
   return `전용 ${rangeText(min, max)}`;
 }
 

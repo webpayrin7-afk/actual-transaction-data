@@ -480,7 +480,7 @@ export function AptDetailPage({
       year: "all",
     });
     if (gu?.trim()) qs.set("gu", gu.trim());
-    return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
+    return `/apt/${aptName}/transactions?${qs.toString()}`;
   }, [aptName, regionSlug, gu, areaKey, dealFilter]);
 
 
