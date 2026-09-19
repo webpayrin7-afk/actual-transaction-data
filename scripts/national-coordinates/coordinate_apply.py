@@ -52,6 +52,78 @@ def exact_pnu_hit(index: dict[str, list[tuple[float, float]]], pnu: str) -> tupl
     return next(iter(unique))
 
 
+def parse_cadastral_pnu(raw: str) -> str | None:
+    """Same cadastral key as the Seoul safe-payload parser: 19 digits, plat 1 or 2."""
+    if not isinstance(raw, str) or len(raw) != 19 or not raw.isdigit():
+        return None
+    if raw[10] not in ("1", "2"):
+        return None
+    return raw
+
+
+def in_sido_bbox(latitude: float, longitude: float, sido_code: str) -> bool:
+    box = SIDO_BBOX.get(str(sido_code))
+    if box is None:
+        return False
+    return box[0] <= latitude <= box[1] and box[2] <= longitude <= box[3]
+
+
+def classify_exact_join(
+    pnu: str,
+    *,
+    duplicate_pnu: bool,
+    coordinate: tuple[str, str] | None,
+    sido_code: str,
+) -> str:
+    """String-equality join classes. coordinate is present only after Core PNU == CSV pnu."""
+    if duplicate_pnu:
+        return "DUPLICATE_PNU"
+    if coordinate is None:
+        return "PNU_NOT_FOUND"
+    if parse_cadastral_pnu(pnu) is None:
+        return "INVALID_COORDINATE"
+    longitude, latitude = parse_wgs84_pair(coordinate[0], coordinate[1])
+    if longitude is None or latitude is None or not in_sido_bbox(latitude, longitude, sido_code):
+        return "INVALID_COORDINATE"
+    return "MATCHED_EXACT"
+
+
+def parse_wgs84_pair(longitude_text: str, latitude_text: str) -> tuple[float | None, float | None]:
+    """Reject blank, non-decimal, non-finite, and 0,0. Mirrors isValidWgs84."""
+    longitude = _decimal(longitude_text)
+    latitude = _decimal(latitude_text)
+    if longitude is None or latitude is None:
+        return None, None
+    if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
+        return None, None
+    if latitude == 0 and longitude == 0:
+        return None, None
+    return longitude, latitude
+
+
+def _decimal(text: str) -> float | None:
+    if not isinstance(text, str):
+        return None
+    if not text or text[0] == "+" or "e" in text or "E" in text:
+        return None
+    if text.count(".") > 1 or text.count("-") > 1:
+        return None
+    body = text[1:] if text[0] == "-" else text
+    if not body or body.startswith(".") or body.endswith("."):
+        return None
+    if not all(ch.isdigit() or ch == "." for ch in body):
+        return None
+    if body.count(".") > 1:
+        return None
+    try:
+        value = float(text)
+    except ValueError:
+        return None
+    if value != value or value in (float("inf"), float("-inf")):
+        return None
+    return value
+
+
 def validate_payload(rows: list[dict], *, expected: int, existing_coords: set[str]) -> None:
     if len(rows) != expected:
         raise CoordinateGuardError("EXPECTED_COUNT")
