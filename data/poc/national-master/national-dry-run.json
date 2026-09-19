@@ -1,0 +1,467 @@
+{
+  "production_write": false,
+  "ready_input": 21055,
+  "counts": {
+    "NEW_SAFE": 12558,
+    "NO_MATCH": 6459,
+    "EXISTING_EXACT": 2005,
+    "DUPLICATE_SOURCE_KEY": 1491,
+    "AMBIGUOUS": 33,
+    "REGION_UNRESOLVED": 1
+  },
+  "duplicate_source_keys": 674,
+  "by_sido": [
+    {
+      "sido": "경기도",
+      "kapt_rows": 5779,
+      "ready": 5399,
+      "EXISTING_EXACT": 1250,
+      "NEW_SAFE": 0,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 380,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 4149,
+      "deterministic_rate": 0.231524,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "서울특별시",
+      "kapt_rows": 3335,
+      "ready": 3065,
+      "EXISTING_EXACT": 755,
+      "NEW_SAFE": 0,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 270,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 2310,
+      "deterministic_rate": 0.24633,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "kapt_rows": 1761,
+      "ready": 1675,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 1646,
+      "AMBIGUOUS": 29,
+      "DUPLICATE_SOURCE_KEY": 86,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 0.982687,
+      "ambiguous_ratio": 0.017313,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "부산광역시",
+      "kapt_rows": 1500,
+      "ready": 1406,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 1404,
+      "AMBIGUOUS": 2,
+      "DUPLICATE_SOURCE_KEY": 94,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 0.998578,
+      "ambiguous_ratio": 0.001422,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "경상남도",
+      "kapt_rows": 1497,
+      "ready": 1395,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 1395,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 102,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "대구광역시",
+      "kapt_rows": 1210,
+      "ready": 1151,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 1151,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 58,
+      "REGION_UNRESOLVED": 1,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.000826
+    },
+    {
+      "sido": "인천광역시",
+      "kapt_rows": 1159,
+      "ready": 1093,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 1093,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 66,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "경상북도",
+      "kapt_rows": 1100,
+      "ready": 1006,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 1006,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 94,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "충청남도",
+      "kapt_rows": 1008,
+      "ready": 978,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 976,
+      "AMBIGUOUS": 2,
+      "DUPLICATE_SOURCE_KEY": 30,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 0.997955,
+      "ambiguous_ratio": 0.002045,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "전북특별자치도",
+      "kapt_rows": 899,
+      "ready": 851,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 851,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 48,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "강원특별자치도",
+      "kapt_rows": 856,
+      "ready": 815,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 815,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 41,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "충청북도",
+      "kapt_rows": 831,
+      "ready": 756,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 756,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 75,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "대전광역시",
+      "kapt_rows": 623,
+      "ready": 561,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 561,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 62,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "울산광역시",
+      "kapt_rows": 583,
+      "ready": 519,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 519,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 64,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "세종특별자치시",
+      "kapt_rows": 224,
+      "ready": 210,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 210,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 14,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    },
+    {
+      "sido": "제주특별자치도",
+      "kapt_rows": 182,
+      "ready": 175,
+      "EXISTING_EXACT": 0,
+      "NEW_SAFE": 175,
+      "AMBIGUOUS": 0,
+      "DUPLICATE_SOURCE_KEY": 7,
+      "REGION_UNRESOLVED": 0,
+      "NO_MATCH": 0,
+      "deterministic_rate": 1.0,
+      "ambiguous_ratio": 0.0,
+      "unresolved_ratio": 0.0
+    }
+  ],
+  "wave_sido": [
+    "전남광주통합특별시",
+    "부산광역시",
+    "경상남도"
+  ],
+  "wave_rejected_or_deferred": [
+    {
+      "sido": "대구광역시",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 1151
+    },
+    {
+      "sido": "인천광역시",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 1093
+    },
+    {
+      "sido": "경상북도",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 1006
+    },
+    {
+      "sido": "충청남도",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 976
+    },
+    {
+      "sido": "전북특별자치도",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 851
+    },
+    {
+      "sido": "강원특별자치도",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 815
+    },
+    {
+      "sido": "충청북도",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 756
+    },
+    {
+      "sido": "대전광역시",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 561
+    },
+    {
+      "sido": "울산광역시",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 519
+    },
+    {
+      "sido": "세종특별자치시",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 210
+    },
+    {
+      "sido": "제주특별자치도",
+      "reason": "deferred_rank",
+      "NEW_SAFE": 175
+    }
+  ],
+  "samples": [
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "경상남도",
+      "source_key": "A10019920",
+      "complex_id": "cx_240af99b0abfb784",
+      "apt_name": "창녕영산 행복주택아파트",
+      "lawd_cd": "48740"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "경상남도",
+      "source_key": "A10019922",
+      "complex_id": "cx_aa5e44629ab6a563",
+      "apt_name": "창원센트럴아이파크",
+      "lawd_cd": "48123"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10019927",
+      "complex_id": "cx_82daa1df03f0bb6d",
+      "apt_name": "위파크 더 센트럴",
+      "lawd_cd": "12240"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10019928",
+      "complex_id": "cx_9c936b35beda4b13",
+      "apt_name": "양산유탑유블레스스카이뷰",
+      "lawd_cd": "12300"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10019952",
+      "complex_id": "cx_441157979b0a3399",
+      "apt_name": "송정더폴디오션",
+      "lawd_cd": "26350"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10019962",
+      "complex_id": "cx_17ac6321fec0ed85",
+      "apt_name": "광양중동 센텀유블레스",
+      "lawd_cd": "12190"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10019976",
+      "complex_id": "cx_a790e45bd16847e9",
+      "apt_name": "퀸즈이즈카운티",
+      "lawd_cd": "26170"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10019984",
+      "complex_id": "cx_8c2ceaac23bff898",
+      "apt_name": "예다음퍼스티지",
+      "lawd_cd": "12330"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10019986",
+      "complex_id": "cx_34e7ee92abc29ddf",
+      "apt_name": "장성남양휴튼리버파크",
+      "lawd_cd": "12840"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10020001",
+      "complex_id": "cx_332e6b0293418f33",
+      "apt_name": "농성제일파크맨션",
+      "lawd_cd": "12240"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020002",
+      "complex_id": "cx_c7a7ba94b472f78c",
+      "apt_name": "드파인 광안",
+      "lawd_cd": "26500"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020004",
+      "complex_id": "cx_f7fa525da23cc8e5",
+      "apt_name": "롯데캐슬 인피니엘",
+      "lawd_cd": "26290"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020008",
+      "complex_id": "cx_3bb293ff731d0f31",
+      "apt_name": "시청역 해모로 센티아",
+      "lawd_cd": "26470"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020018",
+      "complex_id": "cx_2f1439a0c8b1e556",
+      "apt_name": "e편한세상금정메종카운티",
+      "lawd_cd": "26410"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020020",
+      "complex_id": "cx_9d5d75ac76396761",
+      "apt_name": "부산에코델타시티 디에트르 더 퍼스트아파트",
+      "lawd_cd": "26440"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020029",
+      "complex_id": "cx_7143c2550e5c1b3f",
+      "apt_name": "한독아파트",
+      "lawd_cd": "26470"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020042",
+      "complex_id": "cx_6151a9d5df7fa258",
+      "apt_name": "중앙하이즈더힐",
+      "lawd_cd": "26380"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "전남광주통합특별시",
+      "source_key": "A10020047",
+      "complex_id": "cx_b153f40ad16ef870",
+      "apt_name": "연제첨단광신프로그레스아파트",
+      "lawd_cd": "12300"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "부산광역시",
+      "source_key": "A10020059",
+      "complex_id": "cx_2aa4f35e1531e570",
+      "apt_name": "냉정역비스타동원",
+      "lawd_cd": "26530"
+    },
+    {
+      "match_class": "NEW_SAFE",
+      "sido": "경상남도",
+      "source_key": "A10020075",
+      "complex_id": "cx_923e54a7afd9a092",
+      "apt_name": "롯데캐슬 포레스트 1단지 아파트",
+      "lawd_cd": "48121"
+    }
+  ],
+  "universe_sha256": "77129a57c8249d2ac1f311fc3fd56e1058a33b63ef6300a204b5215c6cda49d4",
+  "lawd_sha256": "d07f6e418df638fdf5176d2b551bdef46bfda20d1f3a15f91fabb7c7543f32a7",
+  "master_rows": 14966,
+  "kapt_links": 11
+}
