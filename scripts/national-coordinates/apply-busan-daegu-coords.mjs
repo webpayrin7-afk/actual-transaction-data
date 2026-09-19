@@ -180,12 +180,6 @@ for (const code of order) {
       throw new Error(`expected mismatch inside ${code}`);
     }
     const censusBefore = await coordCensus(tx);
-    for (const key of Object.keys(beforeCensus)) {
-      if (key === code) continue;
-      if ((censusBefore[key] ?? 0) !== (beforeCensus[key] ?? 0)) {
-        throw new Error(`other sido changed before update ${key}`);
-      }
-    }
     let affected = 0;
     for (const row of rows) {
       const rs = await tx.execute({
@@ -201,8 +195,8 @@ for (const code of order) {
     }
     if (affected !== fixed) throw new Error(`affected ${affected} expected ${fixed} ${code}`);
     const censusAfter = await coordCensus(tx);
-    for (const key of new Set([...Object.keys(beforeCensus), ...Object.keys(censusAfter)])) {
-      const delta = (censusAfter[key] ?? 0) - (beforeCensus[key] ?? 0);
+    for (const key of new Set([...Object.keys(censusBefore), ...Object.keys(censusAfter)])) {
+      const delta = (censusAfter[key] ?? 0) - (censusBefore[key] ?? 0);
       if (key === code) {
         if (delta !== fixed) throw new Error(`census delta ${code} ${delta}`);
       } else if (delta !== 0) {
