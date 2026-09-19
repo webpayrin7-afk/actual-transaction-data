@@ -1,0 +1,26 @@
+{
+  "resolver_version": "pnu-cadastral-v1",
+  "input_count": 12558,
+  "safe_count": 11785,
+  "artifact": "data/poc/national-coordinates/pnu-resolution.jsonl",
+  "artifact_sha256": "56a3a38c5142643a65b64907385172ff039b358a097ffe964b4f10cedd8c04a8",
+  "sources": {
+    "kapt_universe": {
+      "source_version": "20260918_단지_기본정보.xlsx seq=135448 boardType=03",
+      "sha256": "77129a57c8249d2ac1f311fc3fd56e1058a33b63ef6300a204b5215c6cda49d4"
+    },
+    "lawd_resolver": {
+      "source_version": "code.go.kr/etc/codeFullDown.do codeseId=법정동코드",
+      "source_date": "2026-09-19",
+      "sha256": "d07f6e418df638fdf5176d2b551bdef46bfda20d1f3a15f91fabb7c7543f32a7"
+    },
+    "wave_manifests": [
+      "data/poc/national-master/wave1-manifest.json",
+      "data/poc/national-master/wave2-manifest.json",
+      "data/poc/national-master/wave3-manifest.json",
+      "data/poc/national-master/wave4-manifest.json"
+    ]
+  },
+  "pnu_format": "10-digit legal code + cadastral plat 1/2 + bonbun 4 + bubun 4",
+  "production_write": false
+}
