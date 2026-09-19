@@ -12,12 +12,23 @@ import { readFileSync, writeFileSync } from "node:fs";
 const args = process.argv.slice(2);
 const commit = args.includes("--commit");
 const root = new URL("../../", import.meta.url);
-const manifest = JSON.parse(
-  readFileSync(new URL("data/poc/national-master/wave1-manifest.json", root), "utf8"),
-);
+
+function fileArg(flag, fallback) {
+  const index = args.indexOf(flag);
+  const rel = index >= 0 ? args[index + 1] : fallback;
+  return new URL(rel, root);
+}
+
+const manifest = JSON.parse(readFileSync(fileArg("--manifest", "data/poc/national-master/wave1-manifest.json"), "utf8"));
 const dry = JSON.parse(
   readFileSync(new URL("data/poc/national-master/national-dry-run.json", root), "utf8"),
 );
+const checkpointPath = fileArg("--checkpoint", "data/poc/national-master/wave1-checkpoint.json");
+const resultPath = fileArg("--result", "data/poc/national-master/wave1-result.json");
+const protectedRows = manifest.protected || [
+  { sido: "서울특별시", n: 8437 },
+  { sido: "경기도", n: 6529 },
+];
 const lawdPath = process.env.LAWD_RESOLVER;
 if (!lawdPath) throw new Error("LAWD_RESOLVER is required");
 
@@ -119,7 +130,6 @@ async function presentKeys(keys) {
   return n;
 }
 
-const checkpointPath = new URL("data/poc/national-master/wave1-checkpoint.json", root);
 let checkpoint = { completed: [], failed: null };
 try {
   checkpoint = JSON.parse(readFileSync(checkpointPath, "utf8"));
@@ -136,9 +146,37 @@ const live = {
 };
 const insertedSoFar = checkpoint.completed.reduce((sum, row) => sum + row.inserted, 0);
 const expectedMaster = manifest.initial.master + insertedSoFar;
+async function assertProtected(exec) {
+  for (const row of protectedRows) {
+    const rs = await exec({
+      sql: "SELECT COUNT(*) AS n FROM apt_complex_master WHERE sido = ?",
+      args: [row.sido],
+    });
+    if (Number(rs.rows[0].n) !== row.n) {
+      throw new Error(`protected drift ${row.sido} ${rs.rows[0].n} expected ${row.n}`);
+    }
+  }
+}
+
+async function protectedDigest(exec) {
+  const sidos = protectedRows.map((row) => row.sido);
+  const ph = sidos.map(() => "?").join(",");
+  const rs = await exec({
+    sql: `SELECT complex_id, apt_name_norm, lawd_cd FROM apt_complex_master WHERE sido IN (${ph}) ORDER BY complex_id`,
+    args: sidos,
+  });
+  const digest = createHash("sha256");
+  for (const row of rs.rows) {
+    digest.update(`${row.complex_id}|${row.apt_name_norm}|${row.lawd_cd}\n`);
+  }
+  return { n: rs.rows.length, sha256: digest.digest("hex") };
+}
+
 if (live.seoul !== 8437 || live.gyeonggi !== 6529) {
   throw new Error(`capital drift seoul ${live.seoul} gyeonggi ${live.gyeonggi}`);
 }
+await assertProtected((query) => db.execute(query));
+const beforeProtected = await protectedDigest((query) => db.execute(query));
 if (live.master !== expectedMaster) {
   throw new Error(`master drift ${live.master} expected ${expectedMaster}`);
 }
@@ -271,6 +309,11 @@ for (const wave of manifest.waves) {
     if (Number(dupId.rows[0].n) !== 0 || Number(dupKey.rows[0].n) !== 0) {
       throw new Error("duplicate identity inside transaction");
     }
+    await assertProtected((query) => tx.execute(query));
+    const insideProtected = await protectedDigest((query) => tx.execute(query));
+    if (insideProtected.sha256 !== beforeProtected.sha256 || insideProtected.n !== beforeProtected.n) {
+      throw new Error("existing rows changed inside transaction");
+    }
     await tx.commit();
   } catch (error) {
     await tx.rollback().catch(() => undefined);
@@ -320,25 +363,29 @@ const final = {
 const bySido = await db.execute(
   "SELECT sido, COUNT(*) AS n FROM apt_complex_master GROUP BY sido ORDER BY n DESC",
 );
+const insertedThisWave = checkpoint.completed.reduce((sum, row) => sum + row.inserted, 0);
 const result = {
   status: "PASS",
   stamp,
   capital_unchanged: finalCapital.sha256 === beforeCapital.sha256 && finalCapital.n === 14966,
+  existing_rows_changed: finalCapital.sha256 === beforeCapital.sha256 ? 0 : 1,
   final,
   by_sido: bySido.rows,
   waves: checkpoint.completed,
-  coordinate_next: checkpoint.completed.map((row) => ({
+  remaining_new_safe:
+    typeof manifest.new_safe_remaining_before === "number"
+      ? manifest.new_safe_remaining_before - insertedThisWave
+      : null,
+  coordinate_next: (manifest.coordinate_next || checkpoint.completed).map((row) => ({
     sido: row.sido,
-    master_count: row.inserted,
-    kapt_linked: row.kapt_links,
-    cadastral_source_available: row.cadastral_source_available ? "YES" : "NO",
-    coordinate_phase_ready: "NO",
+    status: "BLOCKED",
+    pnu_identity_input: "NO",
+    cadastral_file: "NO",
+    coordinate_dry_run_ready: "NO",
+    blocker: row.blocker || "no staged PNU or cadastral parcel file; coordinate dry-run not run",
   })),
   next_wave_ready: checkpoint.next_wave_ready === true,
   remaining: checkpoint.remaining || remaining(),
 };
-writeFileSync(
-  new URL("data/poc/national-master/wave1-result.json", root),
-  JSON.stringify(result, null, 2) + "\n",
-);
+writeFileSync(resultPath, JSON.stringify(result, null, 2) + "\n");
 process.stdout.write(JSON.stringify({ status: "PASS", final, waves: result.waves.map((row) => row.sido) }) + "\n");
