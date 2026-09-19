@@ -67,7 +67,7 @@ import {
   formatDealDate,
   formatEok,
 } from "@/lib/utils/format";
-import { APT_HELPER, APT_LABEL } from "@/lib/apt/detail-copy";
+import { APT_HELPER } from "@/lib/apt/detail-copy";
 
 const QUICK_MONTHS = 36;
 const FULL_MONTHS = 120;
@@ -92,6 +92,15 @@ async function fetchAptDetail(
 
 function ymFromDealDate(dealDate: string): string {
   return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
+}
+
+/** KPI meta only — MM.DD. Do not reuse for trade-list dates. */
+function formatKpiMetaDate(date: string): string {
+  const compact = date.replaceAll("-", "").replaceAll(".", "");
+  if (compact.length >= 8) {
+    return `${compact.slice(4, 6)}.${compact.slice(6, 8)}`;
+  }
+  return formatDealDate(date);
 }
 
 function recentYearsRange(length: number, years = RECENT_YEARS) {
@@ -601,16 +610,16 @@ export function AptDetailPage({
     hint: ReactNode,
     valueClassName = "",
   ) => (
-    <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className={`${APT_LABEL} leading-tight`}>
+    <div className="flex min-h-[4.25rem] min-w-0 flex-col items-center justify-center px-1 py-1.5 text-center">
+      <p className="h-5 w-full truncate text-[13px] font-medium leading-5 text-slate-600">
         {label}
       </p>
       <p
-        className={`lab-kpi-value mt-0.5 text-[13px] font-semibold leading-tight tabular-nums sm:text-base ${valueClassName}`.trim()}
+        className={`lab-kpi-value h-6 w-full truncate text-[17px] font-bold leading-6 tabular-nums ${valueClassName}`.trim()}
       >
         {value}
       </p>
-      <p className={`mt-0.5 break-keep ${APT_HELPER}`}>
+      <p className="h-5 w-full truncate text-[12px] font-normal leading-5 text-slate-500">
         {hint}
       </p>
     </div>
@@ -772,23 +781,23 @@ export function AptDetailPage({
         {/* Match 거래 내역 helper→list gap */}
         <div style={{ height: 16 }} className="w-full" aria-hidden />
 
-        <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
+        <div className="grid grid-cols-4 divide-x divide-slate-200/35 rounded-xl border border-slate-100/80 bg-slate-50/40">
           {kpiCell(
             "최근 매매",
             latestTrade ? formatEok(latestTrade.dealAmount) : "—",
-            latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
+            latestTrade ? formatKpiMetaDate(latestTrade.dealDate) : "—",
           )}
           {kpiCell(
             "최근 전세",
             latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
-            latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
+            latestJeonse ? formatKpiMetaDate(latestJeonse.dealDate) : "—",
           )}
           {kpiCell(
             "최고가 대비",
             vsMaxPct == null
               ? "—"
               : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`,
-            "최근 매매 기준",
+            "최근 매매 대비",
             vsMaxPct == null
               ? "!text-slate-400"
               : vsMaxPct < 0
@@ -799,9 +808,8 @@ export function AptDetailPage({
           )}
           {kpiCell(
             "거래량",
-            <span className="whitespace-nowrap">{`매매 ${periodTradeCount.toLocaleString("ko-KR")}건`}</span>,
-            <span className="whitespace-nowrap">{`전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`}</span>,
-            "!font-sans !tracking-normal !text-[12px] sm:!text-[13px] !whitespace-nowrap",
+            `${periodTradeCount.toLocaleString("ko-KR")}건`,
+            `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
           )}
         </div>
 
