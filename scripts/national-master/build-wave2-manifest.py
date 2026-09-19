@@ -39,6 +39,8 @@ def main() -> None:
     parser.add_argument("--prior", action="append", default=[])
     parser.add_argument("--out", default="data/poc/national-master/wave2-manifest.json")
     parser.add_argument("--new-only-coordinate", action="store_true")
+    parser.add_argument("--take", type=int, default=3)
+    parser.add_argument("--expect-total", type=int, default=0)
     args = parser.parse_args()
     dry = json.loads((ROOT / "data/poc/national-master/national-dry-run.json").read_text(encoding="utf-8"))
     checkpoint_path = ROOT / args.checkpoint
@@ -53,8 +55,8 @@ def main() -> None:
         raise SystemExit("lawd hash drift")
 
     saved = {row["sido"]: row for row in dry["by_sido"]}
-    chosen_names = list(checkpoint["remaining"][:3])
-    if len(chosen_names) != 3:
+    chosen_names = list(checkpoint["remaining"][: args.take] if args.take else checkpoint["remaining"])
+    if args.take and len(chosen_names) != args.take:
         raise SystemExit(f"wave size {chosen_names}")
     for name in chosen_names:
         row = saved[name]
@@ -101,6 +103,9 @@ def main() -> None:
                 "coordinate_phase_ready": False,
             }
         )
+    total_inserts = sum(wave["expected_inserts"] for wave in waves)
+    if args.expect_total and total_inserts != args.expect_total:
+        raise SystemExit(f"count mismatch expected {args.expect_total} manifest {total_inserts}")
 
     done = {row["sido"] for row in checkpoint["completed"]}
     inserted_prior = 0
