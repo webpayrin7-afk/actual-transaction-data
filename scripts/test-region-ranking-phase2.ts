@@ -238,6 +238,81 @@ assert.equal(evaluateEligibility({
   config: null,
 }).exclusionReason, "PRIVATE_CONFIG_ABSENT");
 
+const slotConfig = loadPrivateConfig({
+  ranking_version: "TEST_ONLY_SLOT",
+  weights: { price: 0, liquidity: 1, turnover: 0, household_scale: 0, stability: 0, momentum: 0 },
+  min_trade_count: 0,
+  min_active_months: 0,
+  max_recency_days: 100000,
+  require_household_profile: true,
+  identity_confidence_floor: null,
+  price_top_tier_percentile_floor: 0.5,
+  reliability: { high: 1, medium: 1, low: 1, missing: 1 },
+  normalization_cap: 1,
+});
+assert.equal(slotConfig.ok, true);
+if (!slotConfig.ok) throw new Error("slot");
+const baseRow = normalized.rows[0]!;
+function slotRow(id: string, trades: number, price: number): FeatureSnapshotRow {
+  return {
+    ...baseRow,
+    complexId: id,
+    lawdCd: "11710",
+    bjdongCd: "10100",
+    tradeCount: trades,
+    medianPricePerSqm: price,
+    householdCount: 100,
+    turnover: trades / 100,
+    activeMonthCount: 6,
+    latestDealDate: "2026-09-01",
+    profileConfidence: "HIGH",
+    recent3mTradeCount: 1,
+    previous3mTradeCount: 1,
+  };
+}
+const slotRows = [
+  slotRow("cx_a00000000000000a", 60, 1),
+  slotRow("cx_b00000000000000b", 50, 90),
+  slotRow("cx_c00000000000000c", 40, 80),
+  slotRow("cx_d00000000000000d", 30, 70),
+  slotRow("cx_e00000000000000e", 20, 60),
+  slotRow("cx_f00000000000000f", 10, 50),
+];
+const slotted = scoreCohort({
+  featureRunId: normalized.featureRunId,
+  rows: slotRows,
+  regionScope: "gu",
+  regionCode: "11710",
+  config: slotConfig.config,
+  privateConfigFingerprint: slotConfig.fingerprint,
+});
+assert.equal(slotted.ok, true);
+if (!slotted.ok) throw new Error("slotted");
+assert.equal(slotted.baseEligible, 6);
+assert.equal(slotted.rows.filter((row) => row.rank != null).length, 6);
+assert.equal(slotted.rows.some((row) => row.exclusionReason === "PRICE_BELOW_TOP_TIER_FLOOR"), false);
+const cheap = slotted.rows.find((row) => row.complexId === "cx_a00000000000000a");
+assert.equal(cheap?.eligible, true);
+assert.ok((cheap?.rank ?? 0) >= 6);
+assert.equal(slotted.constrainedOrder.filter((row) => row.rank <= 5).length, slotted.topTierEligible);
+
+const dongSlot = scoreCohort({
+  featureRunId: normalized.featureRunId,
+  rows: slotRows,
+  regionScope: "dong",
+  regionCode: "10100",
+  config: slotConfig.config,
+  privateConfigFingerprint: slotConfig.fingerprint,
+});
+assert.equal(dongSlot.ok, true);
+if (!dongSlot.ok) throw new Error("dong slot");
+assert.equal(dongSlot.priceGate, "NOT_EVALUATED_FOR_SMALL_COHORT");
+assert.equal(dongSlot.rows.filter((row) => row.rank != null).length, 6);
+assert.deepEqual(
+  dongSlot.constrainedOrder.map((row) => row.rank),
+  dongSlot.rawOrder.map((row) => row.rank),
+);
+
 const summary = {
   feature_run_id: normalized.featureRunId,
   gu_cohort: gu.cohortSize,

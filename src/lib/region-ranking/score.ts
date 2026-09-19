@@ -74,6 +74,12 @@ export type CohortScore =
       regionCode: string;
       cohortSize: number;
       rows: PublicRankingRow[];
+      priceGate: "TOP5_CONSTRAINT" | "NOT_EVALUATED_FOR_SMALL_COHORT";
+      baseEligible: number;
+      baseExcluded: number;
+      topTierEligible: number | null;
+      rawOrder: Array<{ complexId: string; rank: number }>;
+      constrainedOrder: Array<{ complexId: string; rank: number }>;
     };
 
 const PUBLIC_METRIC_KEYS = [
@@ -145,7 +151,53 @@ type Scored = {
   exclusionReason: string | null;
   score: number;
   priceSignal: number;
+  /** Internal. Not copied onto public rows. */
+  topTierEligible: boolean;
 };
+
+/** Gu leader slots. Not a private threshold. */
+const TOP_TIER_SLOT_COUNT = 5;
+
+/**
+ * The gu TOP-5 price constraint is not applied to a dong cohort this small.
+ * 잠실동 in the frozen sample has 6 complexes.
+ */
+const SMALL_DONG_COHORT_MAX = 6;
+
+export function priceGateMode(
+  regionScope: "gu" | "dong",
+  cohortSize: number,
+): "TOP5_CONSTRAINT" | "NOT_EVALUATED_FOR_SMALL_COHORT" {
+  if (regionScope === "dong" && cohortSize <= SMALL_DONG_COHORT_MAX) {
+    return "NOT_EVALUATED_FOR_SMALL_COHORT";
+  }
+  return "TOP5_CONSTRAINT";
+}
+
+/**
+ * Raw order is score order. When the price gate is on, only top-tier rows
+ * may occupy the first slots. Everyone else keeps a later rank.
+ */
+export function placeRanks(
+  scored: readonly Scored[],
+  mode: "TOP5_CONSTRAINT" | "NOT_EVALUATED_FOR_SMALL_COHORT",
+): { raw: Scored[]; constrained: Scored[]; rankById: Map<string, number> } {
+  const raw = scored.filter((item) => item.eligible).sort(compareRank);
+  if (mode === "NOT_EVALUATED_FOR_SMALL_COHORT") {
+    return {
+      raw,
+      constrained: raw,
+      rankById: new Map(raw.map((item, index) => [item.row.complexId, index + 1])),
+    };
+  }
+  const head = raw.filter((item) => item.topTierEligible).slice(0, TOP_TIER_SLOT_COUNT);
+  const headIds = new Set(head.map((item) => item.row.complexId));
+  const rest = raw.filter((item) => !headIds.has(item.row.complexId));
+  const rankById = new Map<string, number>();
+  head.forEach((item, index) => rankById.set(item.row.complexId, index + 1));
+  rest.forEach((item, index) => rankById.set(item.row.complexId, TOP_TIER_SLOT_COUNT + 1 + index));
+  return { raw, constrained: [...head, ...rest], rankById };
+}
 
 function reliabilityOf(config: RankingPrivateConfig, confidence: FeatureSnapshotRow["profileConfidence"]): number {
   if (confidence === "HIGH") return config.reliability.high;
@@ -211,6 +263,7 @@ export function scoreCohort(params: {
         exclusionReason: item.exclusionReason,
         score: Number.NEGATIVE_INFINITY,
         priceSignal: item.row.medianPricePerSqm ?? Number.NEGATIVE_INFINITY,
+        topTierEligible: false,
       };
     }
     const price = percentileRank(item.row.medianPricePerSqm ?? Number.NEGATIVE_INFINITY, priceValues);
@@ -231,26 +284,22 @@ export function scoreCohort(params: {
       config.weights.momentum * momentum;
     const adjusted = Math.min(weighted * reliabilityOf(config, item.row.profileConfidence), config.normalizationCap);
     const priceSignal = item.row.medianPricePerSqm ?? Number.NEGATIVE_INFINITY;
-    if (price < config.priceTopTierPercentileFloor) {
-      return {
-        row: item.row,
-        eligible: false,
-        exclusionReason: "PRICE_BELOW_TOP_TIER_FLOOR",
-        score: adjusted,
-        priceSignal,
-      };
-    }
     return {
       row: item.row,
       eligible: true,
       exclusionReason: null,
       score: adjusted,
       priceSignal,
+      topTierEligible: price >= config.priceTopTierPercentileFloor,
     };
   });
 
-  const ranked = scored.filter((item) => item.eligible).sort(compareRank);
-  const rankById = new Map(ranked.map((item, index) => [item.row.complexId, index + 1]));
+  const mode = priceGateMode(params.regionScope, cohort.length);
+  if (mode === "NOT_EVALUATED_FOR_SMALL_COHORT") {
+    for (const item of scored) item.topTierEligible = false;
+  }
+  const placed = placeRanks(scored, mode);
+  const rankById = placed.rankById;
   const runId = rankingRunId({
     featureRunId: params.featureRunId,
     rankingVersion: config.rankingVersion,
@@ -258,7 +307,8 @@ export function scoreCohort(params: {
     regionScope: params.regionScope,
     regionCode: params.regionCode,
   });
-  const regionTotal = ranked.length;
+  const regionTotal = placed.constrained.length;
+  const rawRank = new Map(placed.raw.map((item, index) => [item.row.complexId, index + 1]));
   const rows = scored
     .map((item): PublicRankingRow => {
       const metrics = publicDisplayMetrics(item.row);
@@ -290,5 +340,17 @@ export function scoreCohort(params: {
     regionCode: params.regionCode,
     cohortSize: cohort.length,
     rows,
+    priceGate: mode,
+    baseEligible: placed.constrained.length,
+    baseExcluded: cohort.length - placed.constrained.length,
+    topTierEligible: mode === "TOP5_CONSTRAINT" ? scored.filter((item) => item.topTierEligible).length : null,
+    rawOrder: placed.raw.map((item) => ({
+      complexId: item.row.complexId,
+      rank: rawRank.get(item.row.complexId) ?? 0,
+    })),
+    constrainedOrder: placed.constrained.map((item) => ({
+      complexId: item.row.complexId,
+      rank: rankById.get(item.row.complexId) ?? 0,
+    })),
   };
 }
