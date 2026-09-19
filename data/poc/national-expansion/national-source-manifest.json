@@ -1,0 +1,398 @@
+{
+  "production_write": false,
+  "management_fee_write": false,
+  "lawd": {
+    "source": "행정안전부 행정표준코드관리시스템 법정동코드 전체자료",
+    "source_url": "https://www.code.go.kr/etc/codeFullDown.do",
+    "source_version": "code.go.kr/etc/codeFullDown.do codeseId=법정동코드",
+    "source_date": "2026-09-19",
+    "source_sha256": "44b96f4a86ad102057463a05aae8842f1d706d3e9e69d2dfc409023bf75ca56b",
+    "artifact": "data/poc/national-expansion/lawd-resolver.jsonl",
+    "artifact_sha256": "d07f6e418df638fdf5176d2b551bdef46bfda20d1f3a15f91fabb7c7543f32a7",
+    "row_count": 53387,
+    "active_rows": 20560,
+    "inactive_rows": 32827,
+    "parent_gaps": 0,
+    "sido_coverage": [
+      "강원특별자치도",
+      "경기도",
+      "경상남도",
+      "경상북도",
+      "대구광역시",
+      "대전광역시",
+      "부산광역시",
+      "서울특별시",
+      "세종특별자치시",
+      "울산광역시",
+      "인천광역시",
+      "전남광주통합특별시",
+      "전북특별자치도",
+      "제주특별자치도",
+      "충청남도",
+      "충청북도"
+    ],
+    "unresolved_parent_rows": 0
+  },
+  "kapt_universe": {
+    "source": "K-apt 공동주택관리정보시스템 자료실 기본정보",
+    "source_url": "https://www.k-apt.go.kr/board/getFileDownload.do?seq=135448&boardType=03",
+    "source_version": "20260918_단지_기본정보.xlsx seq=135448 boardType=03",
+    "source_date": "2026-09-18",
+    "source_sha256": "e42b77628333bc3ba9f01ae0c1999ccd8ed2d8fef62ecb19052c0bb1feb926c6",
+    "artifact": "data/poc/national-expansion/kapt-complex-universe.jsonl",
+    "artifact_sha256": "77129a57c8249d2ac1f311fc3fd56e1058a33b63ef6300a204b5215c6cda49d4",
+    "row_count": 22547,
+    "unique_source_keys": 21730,
+    "duplicate_source_keys": 674,
+    "quality": {
+      "READY": 21055,
+      "DUPLICATE_SOURCE_KEY": 1491,
+      "REGION_UNRESOLVED": 1
+    },
+    "lawd_resolved": 22546,
+    "lawd_unresolved": 1,
+    "sido_coverage": [
+      {
+        "sido": "경기도",
+        "total": 5779,
+        "ready": 5399,
+        "lawd_resolved": 5779,
+        "unresolved": 0,
+        "duplicate": 380,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "서울특별시",
+        "total": 3335,
+        "ready": 3065,
+        "lawd_resolved": 3335,
+        "unresolved": 0,
+        "duplicate": 270,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "전남광주통합특별시",
+        "total": 1761,
+        "ready": 1675,
+        "lawd_resolved": 1761,
+        "unresolved": 0,
+        "duplicate": 86,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "부산광역시",
+        "total": 1500,
+        "ready": 1406,
+        "lawd_resolved": 1500,
+        "unresolved": 0,
+        "duplicate": 94,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "경상남도",
+        "total": 1497,
+        "ready": 1395,
+        "lawd_resolved": 1497,
+        "unresolved": 0,
+        "duplicate": 102,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "대구광역시",
+        "total": 1210,
+        "ready": 1151,
+        "lawd_resolved": 1209,
+        "unresolved": 1,
+        "duplicate": 58,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "인천광역시",
+        "total": 1159,
+        "ready": 1093,
+        "lawd_resolved": 1159,
+        "unresolved": 0,
+        "duplicate": 66,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "경상북도",
+        "total": 1100,
+        "ready": 1006,
+        "lawd_resolved": 1100,
+        "unresolved": 0,
+        "duplicate": 94,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "충청남도",
+        "total": 1008,
+        "ready": 978,
+        "lawd_resolved": 1008,
+        "unresolved": 0,
+        "duplicate": 30,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "전북특별자치도",
+        "total": 899,
+        "ready": 851,
+        "lawd_resolved": 899,
+        "unresolved": 0,
+        "duplicate": 48,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "강원특별자치도",
+        "total": 856,
+        "ready": 815,
+        "lawd_resolved": 856,
+        "unresolved": 0,
+        "duplicate": 41,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "충청북도",
+        "total": 831,
+        "ready": 756,
+        "lawd_resolved": 831,
+        "unresolved": 0,
+        "duplicate": 75,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "대전광역시",
+        "total": 623,
+        "ready": 561,
+        "lawd_resolved": 623,
+        "unresolved": 0,
+        "duplicate": 62,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "울산광역시",
+        "total": 583,
+        "ready": 519,
+        "lawd_resolved": 583,
+        "unresolved": 0,
+        "duplicate": 64,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "세종특별자치시",
+        "total": 224,
+        "ready": 210,
+        "lawd_resolved": 224,
+        "unresolved": 0,
+        "duplicate": 14,
+        "missing_address": 0,
+        "invalid": 0
+      },
+      {
+        "sido": "제주특별자치도",
+        "total": 182,
+        "ready": 175,
+        "lawd_resolved": 182,
+        "unresolved": 0,
+        "duplicate": 7,
+        "missing_address": 0,
+        "invalid": 0
+      }
+    ],
+    "identity_fields": [
+      "kapt_code",
+      "source_key",
+      "apt_name",
+      "apt_name_norm",
+      "sido",
+      "sigungu",
+      "eupmyeon",
+      "dongri",
+      "bjdong_name",
+      "bjdong_code",
+      "lawd_cd",
+      "full_legal_code",
+      "road_address",
+      "parcel_address",
+      "lawd_resolved",
+      "quality",
+      "source_version",
+      "source_date"
+    ]
+  },
+  "identity_fields": {
+    "lawd": [
+      "full_legal_code",
+      "sido_code",
+      "sido_name",
+      "sigungu_code",
+      "sigungu_name",
+      "bjdong_code",
+      "bjdong_name",
+      "level",
+      "active",
+      "status",
+      "full_name",
+      "source_version",
+      "source_date"
+    ],
+    "kapt": [
+      "kapt_code",
+      "source_key",
+      "apt_name",
+      "apt_name_norm",
+      "sido",
+      "sigungu",
+      "eupmyeon",
+      "dongri",
+      "bjdong_name",
+      "bjdong_code",
+      "lawd_cd",
+      "full_legal_code",
+      "road_address",
+      "parcel_address",
+      "lawd_resolved",
+      "quality",
+      "source_version",
+      "source_date"
+    ],
+    "complex_id_assigned": false
+  },
+  "production_kapt_links": {
+    "checked": true,
+    "read_only": true,
+    "link_count": 11,
+    "compatible": true,
+    "collisions": [],
+    "missing": [],
+    "matched": [
+      {
+        "source_key": "A10025850",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A10027336",
+        "quality": "READY",
+        "sido": "경기도"
+      },
+      {
+        "source_key": "A13583507",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A13704104",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A13822002",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A13822003",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A13822004",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A13824006",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A14003105",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A14077902",
+        "quality": "READY",
+        "sido": "서울특별시"
+      },
+      {
+        "source_key": "A46377610",
+        "quality": "READY",
+        "sido": "경기도"
+      }
+    ]
+  },
+  "coordinate_source_inventory": {
+    "conversion_executed": false,
+    "nationwide_availability": "file",
+    "missing_sido": [
+      "전남광주통합특별시"
+    ],
+    "sources": [
+      {
+        "name": "국토교통부 일별연속지적도형정보",
+        "portal": "https://www.data.go.kr/data/15045882/fileData.do",
+        "locator": "https://www.vworld.kr/dtmk/dtmk_ntads_s002.do?svcCde=NA&dsId=23",
+        "form": "file",
+        "format": "SHP",
+        "crs": "EPSG:5186",
+        "source_date": "portal record modified 2025-09-08; update cycle 수시. Individual file dates were not read.",
+        "expected_scale": "38352207 parcels nationwide on the portal record. Per-sido counts were not measured.",
+        "sido_files": [
+          "서울특별시",
+          "부산광역시",
+          "대구광역시",
+          "인천광역시",
+          "광주광역시",
+          "대전광역시",
+          "울산광역시",
+          "세종특별자치시",
+          "경기도",
+          "강원특별자치도",
+          "충청북도",
+          "충청남도",
+          "전북특별자치도",
+          "전라남도",
+          "경상북도",
+          "경상남도",
+          "제주특별자치도"
+        ],
+        "api": "VWorld data API exists for this product family and was not called.",
+        "note": "Catalog still lists 광주광역시 and 전라남도 separately. 전남광주통합특별시 has no own file in that list."
+      }
+    ]
+  },
+  "checkpoint": {
+    "resumable": false,
+    "reason": "Two official bulk files. No regional API loop, so there is no partial-region checkpoint.",
+    "api_calls": 0,
+    "http_429": false
+  },
+  "known_limitations": [
+    "K-apt 기본정보는 관리비 공개 의무단지이다. 전국 모든 아파트가 아니다.",
+    "674 source keys are repeated in the workbook (1491 rows). Those rows are DUPLICATE_SOURCE_KEY. Rows were not merged.",
+    "A50010008 (한국부동산원테스트1) is REGION_UNRESOLVED because the parcel text leads with 서울특별시 while the structured region is 대구광역시 동구.",
+    "Compound districts are matched by an exact mechanical alias only: 수원시 장안구 → 수원장안구. This is not an apt-name merge.",
+    "세종특별자치시 has no 3600000000 sido row. The active root is sigungu 36110. K-apt leaves sigungu blank.",
+    "Inactive legal codes stay in the resolver. READY requires one active eup/myeon/dong or ri code.",
+    "apt_name_norm matches src/lib/db/repository.ts (strip whitespace, lower). It is stored, not used to join rows.",
+    "No complex_id, apt_complex_master row, or apt_complex_source_links insert is created here.",
+    "src/lib/constants/nationwide-lawd.json is a 5-digit sigungu catalog and is not this resolver.",
+    "Cadastral SHP files were not downloaded and were not converted."
+  ]
+}
