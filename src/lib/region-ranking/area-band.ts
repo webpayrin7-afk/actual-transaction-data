@@ -21,7 +21,19 @@ export type AreaBandDef = {
   note: string;
 };
 
+/**
+ * 59 and 114 use the same offsets as the locked 84 window.
+ * Seoul 12M trade modes are 59, 84, and 114. Each window is [mode-4, mode+6].
+ * The windows do not overlap. 49㎡ and 101㎡ stay outside.
+ */
 export const AREA_BANDS_V1: readonly AreaBandDef[] = [
+  {
+    id: "59",
+    status: "active",
+    exclusiveSqmMin: 55,
+    exclusiveSqmMax: 65,
+    note: "Inclusive exclusive_area around the Seoul 59㎡ mode. Does not include the separate 49㎡ mode.",
+  },
   {
     id: "84",
     status: "active",
@@ -30,19 +42,16 @@ export const AREA_BANDS_V1: readonly AreaBandDef[] = [
     note: "Inclusive exclusive_area. Reproduces the cited 12-month warehouse counts. Not an apt_pyeong_groups label.",
   },
   {
-    id: "59",
-    status: "future",
-    note: "Bounds not frozen. Do not mix raw deals into 84.",
-  },
-  {
     id: "114",
-    status: "future",
-    note: "Bounds not frozen. Do not mix raw deals into 84.",
+    status: "active",
+    exclusiveSqmMin: 110,
+    exclusiveSqmMax: 120,
+    note: "Inclusive exclusive_area around the Seoul 114㎡ mode. Does not include the 101㎡ or 134㎡ modes.",
   },
   {
     id: "ALL",
     status: "future",
-    note: "Future band-score aggregation only. Raw transactions from different bands must not be pooled.",
+    note: "Band-score aggregation only. Raw transactions from different bands must not be pooled.",
   },
 ];
 
@@ -54,7 +63,7 @@ export const REJECTED_84_ALTERNATE = {
   note: "Later POC retest expression. Not equivalent to BAND_V1 84 on 주공아파트5단지.",
 };
 
-export function activeAreaBand(id: "84"): AreaBandDef {
+export function activeAreaBand(id: "59" | "84" | "114"): AreaBandDef {
   const band = AREA_BANDS_V1.find((row) => row.id === id);
   if (!band || band.exclusiveSqmMin == null || band.exclusiveSqmMax == null) {
     throw new Error(`area band ${id} is not active`);

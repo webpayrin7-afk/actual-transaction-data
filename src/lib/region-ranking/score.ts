@@ -80,6 +80,8 @@ export type CohortScore =
       topTierEligible: number | null;
       rawOrder: Array<{ complexId: string; rank: number }>;
       constrainedOrder: Array<{ complexId: string; rank: number }>;
+      /** In-memory only. Not a public metric and not stored. */
+      strengthByComplex: Record<string, number>;
     };
 
 const PUBLIC_METRIC_KEYS = [
@@ -197,6 +199,27 @@ export function placeRanks(
   head.forEach((item, index) => rankById.set(item.row.complexId, index + 1));
   rest.forEach((item, index) => rankById.set(item.row.complexId, TOP_TIER_SLOT_COUNT + 1 + index));
   return { raw, constrained: [...head, ...rest], rankById };
+}
+
+export function rankWithTopTierSlots(
+  items: readonly { id: string; score: number; topTier: boolean; tieBreak: number }[],
+  mode: "TOP5_CONSTRAINT" | "NOT_EVALUATED_FOR_SMALL_COHORT",
+): { id: string; rank: number }[] {
+  const ordered = [...items].sort((a, b) => {
+    if (a.score !== b.score) return a.score > b.score ? -1 : 1;
+    if (a.tieBreak !== b.tieBreak) return a.tieBreak > b.tieBreak ? -1 : 1;
+    return a.id.localeCompare(b.id);
+  });
+  if (mode === "NOT_EVALUATED_FOR_SMALL_COHORT") {
+    return ordered.map((item, index) => ({ id: item.id, rank: index + 1 }));
+  }
+  const head = ordered.filter((item) => item.topTier).slice(0, TOP_TIER_SLOT_COUNT);
+  const headIds = new Set(head.map((item) => item.id));
+  const rest = ordered.filter((item) => !headIds.has(item.id));
+  return [
+    ...head.map((item, index) => ({ id: item.id, rank: index + 1 })),
+    ...rest.map((item, index) => ({ id: item.id, rank: TOP_TIER_SLOT_COUNT + 1 + index })),
+  ];
 }
 
 function reliabilityOf(config: RankingPrivateConfig, confidence: FeatureSnapshotRow["profileConfidence"]): number {
@@ -352,5 +375,8 @@ export function scoreCohort(params: {
       complexId: item.row.complexId,
       rank: rankById.get(item.row.complexId) ?? 0,
     })),
+    strengthByComplex: Object.fromEntries(
+      scored.filter((item) => item.eligible).map((item) => [item.row.complexId, item.score]),
+    ),
   };
 }

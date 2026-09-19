@@ -13,6 +13,14 @@ import { inWindow, snapshotIdentity, windowsFromAsOf } from "../src/lib/region-r
 import { featureRunId } from "../src/lib/region-ranking/run-identity";
 
 const band = activeAreaBand("84");
+const band59 = activeAreaBand("59");
+const band114 = activeAreaBand("114");
+assert.equal(band59.exclusiveSqmMax! < band.exclusiveSqmMin!, true);
+assert.equal(band.exclusiveSqmMax! < band114.exclusiveSqmMin!, true);
+assert.equal(band59.exclusiveSqmMin, 55);
+assert.equal(band59.exclusiveSqmMax, 65);
+assert.equal(band114.exclusiveSqmMin, 110);
+assert.equal(band114.exclusiveSqmMax, 120);
 assert.equal(AREA_BAND_VERSION, "REGIONAL_RANKING_AREA_BAND_V1");
 assert.equal(inAreaBand(81.8, band), true);
 assert.equal(inAreaBand(81.8, REJECTED_84_ALTERNATE), false);
