@@ -1,0 +1,52 @@
+{
+  "completed": [
+    {
+      "sido": "충청북도",
+      "sido_code": "43",
+      "inserted": 756,
+      "kapt_links": 756,
+      "master_total": 26059,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "대전광역시",
+      "sido_code": "30",
+      "inserted": 561,
+      "kapt_links": 561,
+      "master_total": 26620,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "울산광역시",
+      "sido_code": "31",
+      "inserted": 519,
+      "kapt_links": 519,
+      "master_total": 27139,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "세종특별자치시",
+      "sido_code": "36",
+      "inserted": 210,
+      "kapt_links": 210,
+      "master_total": 27349,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "제주특별자치도",
+      "sido_code": "50",
+      "inserted": 175,
+      "kapt_links": 175,
+      "master_total": 27524,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    }
+  ],
+  "failed": null,
+  "remaining": [],
+  "next_wave_ready": false
+}

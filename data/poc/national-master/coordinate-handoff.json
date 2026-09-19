@@ -1,0 +1,18 @@
+{
+  "scope": "SAFE expansion inserts from wave 1-4 manifests. No new source search. No PNU or coordinate conversion.",
+  "expansion_rows": 12558,
+  "parcel_or_road_identity_available": 12558,
+  "parcel_address_available": 12558,
+  "road_address_available": 12469,
+  "pnu_resolved": 0,
+  "pnu_unresolved": 12558,
+  "verified_cadastral_source_ready_sido": 0,
+  "unsafe_backlog_from_saved_dry_run": {
+    "AMBIGUOUS": 33,
+    "DUPLICATE_SOURCE_KEY": 1491,
+    "REGION_UNRESOLVED": 1,
+    "NO_MATCH": 6459,
+    "source": "data/poc/national-master/national-dry-run.json",
+    "recomputed": false
+  }
+}

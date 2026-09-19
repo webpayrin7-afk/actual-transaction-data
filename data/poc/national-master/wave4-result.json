@@ -1,0 +1,172 @@
+{
+  "status": "PASS",
+  "stamp": "2026-09-19T01:15:59.436Z",
+  "capital_unchanged": true,
+  "existing_rows_changed": 0,
+  "final": {
+    "master": 27524,
+    "seoul": 8437,
+    "gyeonggi": 6529,
+    "kapt_links": 12569,
+    "dup_complex_id": 0,
+    "dup_kapt": 0
+  },
+  "by_sido": [
+    {
+      "sido": "서울특별시",
+      "n": 8437
+    },
+    {
+      "sido": "경기도",
+      "n": 6529
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "n": 1646
+    },
+    {
+      "sido": "부산광역시",
+      "n": 1404
+    },
+    {
+      "sido": "경상남도",
+      "n": 1395
+    },
+    {
+      "sido": "대구광역시",
+      "n": 1151
+    },
+    {
+      "sido": "인천광역시",
+      "n": 1093
+    },
+    {
+      "sido": "경상북도",
+      "n": 1006
+    },
+    {
+      "sido": "충청남도",
+      "n": 976
+    },
+    {
+      "sido": "전북특별자치도",
+      "n": 851
+    },
+    {
+      "sido": "강원특별자치도",
+      "n": 815
+    },
+    {
+      "sido": "충청북도",
+      "n": 756
+    },
+    {
+      "sido": "대전광역시",
+      "n": 561
+    },
+    {
+      "sido": "울산광역시",
+      "n": 519
+    },
+    {
+      "sido": "세종특별자치시",
+      "n": 210
+    },
+    {
+      "sido": "제주특별자치도",
+      "n": 175
+    }
+  ],
+  "waves": [
+    {
+      "sido": "충청북도",
+      "sido_code": "43",
+      "inserted": 756,
+      "kapt_links": 756,
+      "master_total": 26059,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "대전광역시",
+      "sido_code": "30",
+      "inserted": 561,
+      "kapt_links": 561,
+      "master_total": 26620,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "울산광역시",
+      "sido_code": "31",
+      "inserted": 519,
+      "kapt_links": 519,
+      "master_total": 27139,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "세종특별자치시",
+      "sido_code": "36",
+      "inserted": 210,
+      "kapt_links": 210,
+      "master_total": 27349,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "제주특별자치도",
+      "sido_code": "50",
+      "inserted": 175,
+      "kapt_links": 175,
+      "master_total": 27524,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    }
+  ],
+  "remaining_new_safe": 0,
+  "coordinate_next": [
+    {
+      "sido": "충청북도",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    },
+    {
+      "sido": "대전광역시",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    },
+    {
+      "sido": "울산광역시",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    },
+    {
+      "sido": "세종특별자치시",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    },
+    {
+      "sido": "제주특별자치도",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    }
+  ],
+  "next_wave_ready": false,
+  "remaining": []
+}
