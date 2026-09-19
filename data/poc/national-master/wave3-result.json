@@ -1,0 +1,124 @@
+{
+  "status": "PASS",
+  "stamp": "2026-09-19T01:08:15.387Z",
+  "capital_unchanged": true,
+  "existing_rows_changed": 0,
+  "final": {
+    "master": 25303,
+    "seoul": 8437,
+    "gyeonggi": 6529,
+    "kapt_links": 10348,
+    "dup_complex_id": 0,
+    "dup_kapt": 0
+  },
+  "by_sido": [
+    {
+      "sido": "서울특별시",
+      "n": 8437
+    },
+    {
+      "sido": "경기도",
+      "n": 6529
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "n": 1646
+    },
+    {
+      "sido": "부산광역시",
+      "n": 1404
+    },
+    {
+      "sido": "경상남도",
+      "n": 1395
+    },
+    {
+      "sido": "대구광역시",
+      "n": 1151
+    },
+    {
+      "sido": "인천광역시",
+      "n": 1093
+    },
+    {
+      "sido": "경상북도",
+      "n": 1006
+    },
+    {
+      "sido": "충청남도",
+      "n": 976
+    },
+    {
+      "sido": "전북특별자치도",
+      "n": 851
+    },
+    {
+      "sido": "강원특별자치도",
+      "n": 815
+    }
+  ],
+  "waves": [
+    {
+      "sido": "충청남도",
+      "sido_code": "44",
+      "inserted": 976,
+      "kapt_links": 976,
+      "master_total": 23637,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "전북특별자치도",
+      "sido_code": "52",
+      "inserted": 851,
+      "kapt_links": 851,
+      "master_total": 24488,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    },
+    {
+      "sido": "강원특별자치도",
+      "sido_code": "51",
+      "inserted": 815,
+      "kapt_links": 815,
+      "master_total": 25303,
+      "cadastral_source_available": true,
+      "coordinate_phase_ready": false
+    }
+  ],
+  "remaining_new_safe": 2221,
+  "coordinate_next": [
+    {
+      "sido": "충청남도",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    },
+    {
+      "sido": "전북특별자치도",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    },
+    {
+      "sido": "강원특별자치도",
+      "status": "BLOCKED",
+      "pnu_identity_input": "NO",
+      "cadastral_file": "NO",
+      "coordinate_dry_run_ready": "NO",
+      "blocker": "verified PNU input 없음. cadastral parcel file 없음"
+    }
+  ],
+  "next_wave_ready": true,
+  "remaining": [
+    "충청북도",
+    "대전광역시",
+    "울산광역시",
+    "세종특별자치시",
+    "제주특별자치도"
+  ]
+}

@@ -188,9 +188,14 @@ const stamp = new Date().toISOString();
 const results = [];
 
 function remaining() {
+  const done = new Set([
+    ...protectedRows.map((row) => row.sido),
+    ...checkpoint.completed.map((row) => row.sido),
+  ]);
   return (dry.wave_rejected_or_deferred || [])
     .filter((row) => row.reason === "deferred_rank")
-    .map((row) => row.sido);
+    .map((row) => row.sido)
+    .filter((sido) => !done.has(sido));
 }
 
 if (!commit) {
