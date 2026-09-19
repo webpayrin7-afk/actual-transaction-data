@@ -385,7 +385,7 @@ function schoolLevelChipClass(active: boolean): string {
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-3">
-      <p className="text-sm text-slate-600">{children}</p>
+      <p className="apt-type-secondary">{children}</p>
     </div>
   );
 }
@@ -1378,7 +1378,7 @@ export function ComplexNearbyLifeSection({
     >
       <div className="lab-section-heading mb-px flex-wrap items-center gap-x-2 gap-y-2">
         <div className="min-w-0 shrink">
-          <h2 className="flex items-center">
+          <h2 className="apt-type-section-title flex items-center">
             주변 생활
             <InfoTip aria-label="주변 생활 출처 안내" className="ml-1.5 text-[13px]">
               <p className="text-[12px] leading-relaxed text-slate-600">
@@ -1554,7 +1554,7 @@ export function ComplexNearbyLifeSection({
             </div>
           ) : (
             <div
-              className={`flex items-center justify-center px-4 text-center text-sm text-slate-500 ${
+              className={`apt-type-secondary flex items-center justify-center px-4 text-center ${
                 tab === "living"
                   ? "h-[348px] sm:h-[392px] lg:h-[440px]"
                   : tab === "commerce"

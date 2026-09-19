@@ -57,6 +57,7 @@ import {
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
+import { aptType } from "@/lib/apt/typography";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   labSecondaryTabClass,
@@ -601,15 +602,15 @@ export function AptDetailPage({
     valueClassName = "",
   ) => (
     <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
+      <p className={`${aptType.captionStrong} leading-tight`}>
         {label}
       </p>
       <p
-        className={`lab-kpi-value mt-0.5 text-[13px] font-semibold leading-tight tabular-nums sm:text-base ${valueClassName}`.trim()}
+        className={`lab-kpi-value mt-0.5 ${aptType.subMetric} leading-tight ${valueClassName}`.trim()}
       >
         {value}
       </p>
-      <p className="mt-0.5 break-keep text-[9px] leading-snug text-slate-500 sm:text-[11px]">
+      <p className={`mt-0.5 break-keep ${aptType.caption}`}>
         {hint}
       </p>
     </div>
@@ -632,7 +633,7 @@ export function AptDetailPage({
   if ((quickQuery.isError && !data) || !data) {
     return (
       <div className={`${PAGE_SHELL} max-w-5xl text-center`}>
-        <p className="text-sm font-medium text-slate-700">
+        <p className={`${aptType.body} text-slate-700`}>
           단지 정보를 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
@@ -658,7 +659,7 @@ export function AptDetailPage({
       : `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl`}>
+    <div className={`${PAGE_SHELL} ${aptType.scope} max-w-5xl`}>
       {/* Sticky compact header — name + shared area selector */}
       <div
         className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
@@ -675,7 +676,7 @@ export function AptDetailPage({
             <BackLink fallback="/complexes" compact hideLabel />
           </div>
           <p
-            className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900"
+            className={`min-w-0 flex-1 truncate ${aptType.bodySemibold}`}
             title={data.aptName}
           >
             {data.aptName}
@@ -695,6 +696,7 @@ export function AptDetailPage({
 
       <header ref={heroRef} className="-mt-1 sm:-mt-1.5">
         <PageHeader
+          tone="apt"
           leading={
             <BackLink fallback="/complexes" compact hideLabel />
           }
@@ -703,11 +705,11 @@ export function AptDetailPage({
           meta={
             <>
               {headerChips.length > 0 ? (
-                <p className="text-[13px] font-medium leading-5 text-slate-700 sm:text-sm">
+                <p className={`${aptType.body} text-slate-700`}>
                   {headerChips.join(" · ")}
                 </p>
               ) : data.buildYear ? (
-                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
+                <p className={`${aptType.body} text-slate-700`}>
                   {data.buildYear}년 입주
                 </p>
               ) : null}
@@ -745,7 +747,7 @@ export function AptDetailPage({
       ) : null}
 
       {(data.warning || data.source === "mock") && (
-        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className={`flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 ${aptType.secondary} text-amber-900`}>
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
             {data.warning ??
@@ -757,12 +759,12 @@ export function AptDetailPage({
       {/* Market: one white section — period + KPI row + context + chart */}
       <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-          <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+          <h2 className={aptType.sectionTitle}>
             시세 추이
           </h2>
           <div className="flex flex-wrap items-center gap-2">
             {isExtendingHistory ? (
-              <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
+              <p className={`inline-flex items-center gap-1.5 ${aptType.caption} text-teal-700`}>
                 <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                 과거 시세 추가 중…
               </p>
@@ -802,11 +804,11 @@ export function AptDetailPage({
             "거래량",
             <span className="whitespace-nowrap">{`매매 ${periodTradeCount.toLocaleString("ko-KR")}건`}</span>,
             <span className="whitespace-nowrap">{`전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`}</span>,
-            "!font-sans !tracking-normal !text-[12px] sm:!text-[13px] !whitespace-nowrap",
+            "!font-sans !tracking-normal !whitespace-nowrap",
           )}
         </div>
 
-        <p className="mt-2.5 rounded-lg bg-[var(--lab-teal-50)] px-2.5 py-1.5 text-xs text-slate-600 sm:text-[13px]">
+        <p className={`mt-2.5 rounded-lg bg-[var(--lab-teal-50)] px-2.5 py-1.5 ${aptType.caption} text-slate-600`}>
           <span>
             전세가율{" "}
             <span className="font-semibold tabular-nums text-slate-800">
@@ -852,7 +854,7 @@ export function AptDetailPage({
       >
         <div>
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+            <h2 className={aptType.sectionTitle}>
               거래 내역
             </h2>
             <TransactionTypeTabs
@@ -860,7 +862,7 @@ export function AptDetailPage({
               onChange={setDealFilter}
             />
           </div>
-          <p className="mt-[5px] truncate text-xs text-slate-500">
+          <p className={`mt-[5px] truncate ${aptType.secondary}`}>
             {areaKey === "all" || !selectedArea
               ? "전체 면적"
               : areaSelectorClosedLabel(selectedArea)}
@@ -873,7 +875,7 @@ export function AptDetailPage({
         <div className="mt-4 space-y-2">
           <Link
             href={transactionsHref}
-            className="lab-button lab-button-primary w-full min-h-10 text-sm"
+            className={`lab-button lab-button-primary w-full min-h-10 ${aptType.bodySemibold}`}
           >
             거래 내역 자세히 보기
             {filteredByType.length > 5

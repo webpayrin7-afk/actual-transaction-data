@@ -67,7 +67,7 @@ function FacilityIcon({
 
 function SectionHeading({ children }: { children: ReactNode }) {
   return (
-    <h3 className="text-[14px] font-semibold tracking-tight text-slate-800">
+    <h3 className="apt-type-body-semibold tracking-tight text-slate-800">
       {children}
     </h3>
   );
@@ -108,14 +108,14 @@ export function ComplexCommerceStats({
       <section>
         <div className="flex items-baseline justify-between gap-2">
           <SectionHeading>생활 상권</SectionHeading>
-          <span className="text-[11px] text-slate-500">
+          <span className="apt-type-caption">
             반경 {radiusKm} · {snapshot.sourcePeriodLabel}
           </span>
         </div>
         <div className="mt-1.5 flex items-end gap-1.5">
-          <p className="text-[28px] font-bold leading-none tracking-tight text-[#1e3a5f] tabular-nums">
+          <p className="apt-type-main-metric text-[#1e3a5f]">
             {formatCommerceCount(snapshot.p2Total)}
-            <span className="ml-0.5 text-[15px] font-semibold text-slate-700">
+            <span className="apt-type-body-semibold ml-0.5 text-slate-700">
               개
             </span>
           </p>
@@ -136,11 +136,11 @@ export function ComplexCommerceStats({
             </p>
           </InfoTip>
         </div>
-        <p className="mt-1 text-[12px] text-slate-500">
+        <p className="apt-type-secondary mt-1">
           반경 {radiusKm} 내 생활 밀착 업소
         </p>
         {leadingComposition && leadingComposition.key === "음식/외식" ? (
-          <p className="mt-1.5 text-[12px] text-slate-600">
+          <p className="apt-type-secondary mt-1.5">
             음식/외식 업종 비중이 가장 높아요.
           </p>
         ) : null}
@@ -181,7 +181,7 @@ export function ComplexCommerceStats({
             const color = commerceCategoryColor(key);
             return (
               <li key={key} className="min-w-0">
-                <div className="flex items-baseline justify-between gap-2 text-[12px]">
+                <div className="apt-type-body flex items-baseline justify-between gap-2">
                   <span className="flex min-w-0 items-center gap-1.5 truncate text-slate-700">
                     <span
                       className="inline-block h-2 w-2 shrink-0 rounded-sm"
@@ -190,7 +190,7 @@ export function ComplexCommerceStats({
                     />
                     <span className="truncate">{key}</span>
                   </span>
-                  <span className="shrink-0 font-semibold tabular-nums text-slate-800">
+                  <span className="apt-type-sub-metric shrink-0 text-slate-800">
                     {formatCommerceShare(bucket.share)}
                   </span>
                 </div>
@@ -234,10 +234,10 @@ export function ComplexCommerceStats({
                 >
                   <FacilityIcon keyName={key} />
                 </span>
-                <span className="mt-0.5 truncate text-[10px] leading-tight text-slate-500">
+                <span className="apt-type-caption-strong mt-0.5 truncate text-slate-500">
                   {label}
                 </span>
-                <span className="mt-0.5 text-[15px] font-bold leading-none tabular-nums text-[#1e3a5f]">
+                <span className="apt-type-body-semibold mt-0.5 leading-none tabular-nums text-[#1e3a5f]">
                   {formatCommerceCount(snapshot.facilities[key])}
                 </span>
               </div>
@@ -259,14 +259,14 @@ export function ComplexCommerceStats({
             const color = commerceCategoryColor(bucket);
             return (
               <li key={cat.code} className="min-w-0">
-                <div className="flex items-baseline gap-2 text-[12px]">
-                  <span className="w-3.5 shrink-0 text-[11px] font-semibold text-slate-400 tabular-nums">
+                <div className="apt-type-body flex items-baseline gap-2">
+                  <span className="apt-type-caption-strong w-3.5 shrink-0 text-slate-400 tabular-nums">
                     {idx + 1}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-slate-700">
                     {label}
                   </span>
-                  <span className="shrink-0 font-semibold tabular-nums text-slate-800">
+                  <span className="apt-type-sub-metric shrink-0 text-slate-800">
                     {formatCommerceCount(cat.count)}
                   </span>
                 </div>
@@ -300,7 +300,7 @@ export function ComplexCommerceMeta({
       : `${snapshot.radiusM}m`;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] text-slate-600">
+    <div className="apt-type-caption flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
       <span>
         반경 {radiusKm} · {snapshot.sourcePeriodLabel}
       </span>
@@ -324,7 +324,7 @@ export function ComplexCommerceMeta({
 export function ComplexCommercePreparing() {
   return (
     <div className="rounded-lg bg-slate-50/80 px-3 py-3">
-      <p className="text-sm text-slate-600">상권 데이터를 준비 중입니다.</p>
+      <p className="apt-type-secondary">상권 데이터를 준비 중입니다.</p>
     </div>
   );
 }
