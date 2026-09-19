@@ -1,0 +1,1043 @@
+{
+  "transaction_as_of": "2026-09-17",
+  "warehouse_max_deal_date": "2026-09-18",
+  "area_band_version": "REGIONAL_RANKING_AREA_BAND_V1",
+  "bands": {
+    "59": {
+      "id": "59",
+      "status": "active",
+      "exclusiveSqmMin": 55,
+      "exclusiveSqmMax": 65,
+      "note": "Inclusive exclusive_area around the Seoul 59㎡ mode. Does not include the separate 49㎡ mode."
+    },
+    "84": {
+      "id": "84",
+      "status": "active",
+      "exclusiveSqmMin": 80,
+      "exclusiveSqmMax": 90,
+      "note": "Inclusive exclusive_area. Reproduces the cited 12-month warehouse counts. Not an apt_pyeong_groups label."
+    },
+    "114": {
+      "id": "114",
+      "status": "active",
+      "exclusiveSqmMin": 110,
+      "exclusiveSqmMax": 120,
+      "note": "Inclusive exclusive_area around the Seoul 114㎡ mode. Does not include the 101㎡ or 134㎡ modes."
+    }
+  },
+  "feature_run_id": {
+    "59": "fb362ccecc35d5843ee586a7d601922da7f8317844bef75d5243c7ed7431fbf0",
+    "84": "3dcefe8829154bf7ccffc4dd21c4f58ebaa245024207f57399571359da94adee",
+    "114": "4e00f18101933c578666db6429081a18d4df5ffabdf7fadf6810fd1ba63a4ef4"
+  },
+  "all_feature_run_id": "372fcdbc1a0fe0211a4cd82a250c3f707ab7908ceaa5b6ccc0bd16a50f1cbb69",
+  "ranking_version": "seoul-ranking-v2",
+  "p1_fingerprint": "19ba3623e8187a35f763a0a44e6c37ba568c8322e5b6e5c82c761c9a632c7835",
+  "all_ranking_version": "seoul-ranking-v2",
+  "all_fingerprint": "1a028dac168a8fa72bd2fff788500fdbf95d741065a7758e459c30ad9892d5fd",
+  "all_ranking_run_id": "405f8b4a9117e31a6aa8666680dabd666b0d2ef199e472c67447e785be777b34",
+  "all_selection": "retained reliability-weighted mean",
+  "ambiguous_name_groups": 0,
+  "universe": {
+    "59": 1961,
+    "84": 2912,
+    "114": 794
+  },
+  "profile_writes": 82,
+  "profile_count_before": 2128,
+  "profile_count_after": 2210,
+  "profile_resolved": 2182,
+  "profile_missing_before": 1590,
+  "profile_missing": 1515,
+  "household_newly_resolved": 75,
+  "household_attempted": 270,
+  "household_conflicts": 0,
+  "coverage_before": {
+    "59": {
+      "pass": 7,
+      "hold": 18
+    },
+    "84": {
+      "pass": 7,
+      "hold": 18
+    },
+    "114": {
+      "pass": 18,
+      "hold": 7
+    }
+  },
+  "coverage_after": {
+    "59": {
+      "pass": 8,
+      "hold": 17
+    },
+    "84": {
+      "pass": 10,
+      "hold": 15
+    },
+    "114": {
+      "pass": 20,
+      "hold": 5
+    }
+  },
+  "conflicts": 0,
+  "dong_band_cohorts": 313,
+  "dong_small_cohorts": 205,
+  "all_dong_cohorts": 145,
+  "dong_rejected": 0,
+  "product_coverage": {
+    "single_product": 313,
+    "partial": 563,
+    "unknown": 0,
+    "complete": 535
+  },
+  "publication_rows": 516,
+  "cells": [
+    {
+      "lawd": "11110",
+      "gu": "종로구",
+      "band": "59",
+      "universe": 25,
+      "likely": 6,
+      "likely_coverage": 1,
+      "base_eligible": 6,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11140",
+      "gu": "중구",
+      "band": "59",
+      "universe": 28,
+      "likely": 7,
+      "likely_coverage": 0.5714,
+      "base_eligible": 4,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11170",
+      "gu": "용산구",
+      "band": "59",
+      "universe": 41,
+      "likely": 9,
+      "likely_coverage": 0.8889,
+      "base_eligible": 8,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11200",
+      "gu": "성동구",
+      "band": "59",
+      "universe": 75,
+      "likely": 26,
+      "likely_coverage": 0.8462,
+      "base_eligible": 22,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11215",
+      "gu": "광진구",
+      "band": "59",
+      "universe": 54,
+      "likely": 12,
+      "likely_coverage": 0.9167,
+      "base_eligible": 11,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11230",
+      "gu": "동대문구",
+      "band": "59",
+      "universe": 83,
+      "likely": 37,
+      "likely_coverage": 0.9189,
+      "base_eligible": 34,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11260",
+      "gu": "중랑구",
+      "band": "59",
+      "universe": 89,
+      "likely": 26,
+      "likely_coverage": 0.8846,
+      "base_eligible": 23,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11290",
+      "gu": "성북구",
+      "band": "59",
+      "universe": 90,
+      "likely": 63,
+      "likely_coverage": 0.9206,
+      "base_eligible": 58,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11305",
+      "gu": "강북구",
+      "band": "59",
+      "universe": 34,
+      "likely": 14,
+      "likely_coverage": 1,
+      "base_eligible": 14,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11320",
+      "gu": "도봉구",
+      "band": "59",
+      "universe": 65,
+      "likely": 21,
+      "likely_coverage": 1,
+      "base_eligible": 21,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11350",
+      "gu": "노원구",
+      "band": "59",
+      "universe": 117,
+      "likely": 65,
+      "likely_coverage": 0.9385,
+      "base_eligible": 61,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11380",
+      "gu": "은평구",
+      "band": "59",
+      "universe": 104,
+      "likely": 45,
+      "likely_coverage": 0.9111,
+      "base_eligible": 41,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11410",
+      "gu": "서대문구",
+      "band": "59",
+      "universe": 79,
+      "likely": 37,
+      "likely_coverage": 0.9459,
+      "base_eligible": 35,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11440",
+      "gu": "마포구",
+      "band": "59",
+      "universe": 93,
+      "likely": 26,
+      "likely_coverage": 0.8846,
+      "base_eligible": 23,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11470",
+      "gu": "양천구",
+      "band": "59",
+      "universe": 100,
+      "likely": 24,
+      "likely_coverage": 0.7917,
+      "base_eligible": 19,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11500",
+      "gu": "강서구",
+      "band": "59",
+      "universe": 140,
+      "likely": 45,
+      "likely_coverage": 0.9111,
+      "base_eligible": 41,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11530",
+      "gu": "구로구",
+      "band": "59",
+      "universe": 126,
+      "likely": 50,
+      "likely_coverage": 0.92,
+      "base_eligible": 46,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11545",
+      "gu": "금천구",
+      "band": "59",
+      "universe": 44,
+      "likely": 13,
+      "likely_coverage": 1,
+      "base_eligible": 13,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11560",
+      "gu": "영등포구",
+      "band": "59",
+      "universe": 86,
+      "likely": 29,
+      "likely_coverage": 0.931,
+      "base_eligible": 27,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11590",
+      "gu": "동작구",
+      "band": "59",
+      "universe": 83,
+      "likely": 24,
+      "likely_coverage": 0.9583,
+      "base_eligible": 23,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11620",
+      "gu": "관악구",
+      "band": "59",
+      "universe": 69,
+      "likely": 26,
+      "likely_coverage": 0.8077,
+      "base_eligible": 21,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11650",
+      "gu": "서초구",
+      "band": "59",
+      "universe": 61,
+      "likely": 1,
+      "likely_coverage": 1,
+      "base_eligible": 1,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11680",
+      "gu": "강남구",
+      "band": "59",
+      "universe": 74,
+      "likely": 12,
+      "likely_coverage": 1,
+      "base_eligible": 12,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11710",
+      "gu": "송파구",
+      "band": "59",
+      "universe": 91,
+      "likely": 30,
+      "likely_coverage": 1,
+      "base_eligible": 30,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11740",
+      "gu": "강동구",
+      "band": "59",
+      "universe": 110,
+      "likely": 38,
+      "likely_coverage": 0.9211,
+      "base_eligible": 35,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11110",
+      "gu": "종로구",
+      "band": "84",
+      "universe": 28,
+      "likely": 8,
+      "likely_coverage": 0.875,
+      "base_eligible": 7,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11140",
+      "gu": "중구",
+      "band": "84",
+      "universe": 28,
+      "likely": 10,
+      "likely_coverage": 0.7,
+      "base_eligible": 7,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11170",
+      "gu": "용산구",
+      "band": "84",
+      "universe": 64,
+      "likely": 11,
+      "likely_coverage": 1,
+      "base_eligible": 11,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11200",
+      "gu": "성동구",
+      "band": "84",
+      "universe": 100,
+      "likely": 28,
+      "likely_coverage": 0.8571,
+      "base_eligible": 24,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11215",
+      "gu": "광진구",
+      "band": "84",
+      "universe": 94,
+      "likely": 12,
+      "likely_coverage": 1,
+      "base_eligible": 12,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11230",
+      "gu": "동대문구",
+      "band": "84",
+      "universe": 128,
+      "likely": 50,
+      "likely_coverage": 0.94,
+      "base_eligible": 47,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11260",
+      "gu": "중랑구",
+      "band": "84",
+      "universe": 113,
+      "likely": 40,
+      "likely_coverage": 0.85,
+      "base_eligible": 34,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11290",
+      "gu": "성북구",
+      "band": "84",
+      "universe": 113,
+      "likely": 69,
+      "likely_coverage": 0.9275,
+      "base_eligible": 64,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11305",
+      "gu": "강북구",
+      "band": "84",
+      "universe": 46,
+      "likely": 18,
+      "likely_coverage": 1,
+      "base_eligible": 18,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11320",
+      "gu": "도봉구",
+      "band": "84",
+      "universe": 88,
+      "likely": 37,
+      "likely_coverage": 0.973,
+      "base_eligible": 36,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11350",
+      "gu": "노원구",
+      "band": "84",
+      "universe": 156,
+      "likely": 62,
+      "likely_coverage": 0.9516,
+      "base_eligible": 59,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11380",
+      "gu": "은평구",
+      "band": "84",
+      "universe": 156,
+      "likely": 50,
+      "likely_coverage": 0.94,
+      "base_eligible": 47,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11410",
+      "gu": "서대문구",
+      "band": "84",
+      "universe": 108,
+      "likely": 42,
+      "likely_coverage": 0.9286,
+      "base_eligible": 39,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11440",
+      "gu": "마포구",
+      "band": "84",
+      "universe": 140,
+      "likely": 38,
+      "likely_coverage": 0.8947,
+      "base_eligible": 34,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11470",
+      "gu": "양천구",
+      "band": "84",
+      "universe": 177,
+      "likely": 30,
+      "likely_coverage": 0.7,
+      "base_eligible": 21,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11500",
+      "gu": "강서구",
+      "band": "84",
+      "universe": 218,
+      "likely": 62,
+      "likely_coverage": 0.9032,
+      "base_eligible": 56,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11530",
+      "gu": "구로구",
+      "band": "84",
+      "universe": 151,
+      "likely": 58,
+      "likely_coverage": 0.8448,
+      "base_eligible": 49,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11545",
+      "gu": "금천구",
+      "band": "84",
+      "universe": 47,
+      "likely": 13,
+      "likely_coverage": 1,
+      "base_eligible": 13,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11560",
+      "gu": "영등포구",
+      "band": "84",
+      "universe": 117,
+      "likely": 38,
+      "likely_coverage": 0.8947,
+      "base_eligible": 34,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11590",
+      "gu": "동작구",
+      "band": "84",
+      "universe": 109,
+      "likely": 45,
+      "likely_coverage": 1,
+      "base_eligible": 45,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11620",
+      "gu": "관악구",
+      "band": "84",
+      "universe": 90,
+      "likely": 25,
+      "likely_coverage": 0.8,
+      "base_eligible": 20,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11650",
+      "gu": "서초구",
+      "band": "84",
+      "universe": 123,
+      "likely": 5,
+      "likely_coverage": 1,
+      "base_eligible": 5,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11680",
+      "gu": "강남구",
+      "band": "84",
+      "universe": 147,
+      "likely": 21,
+      "likely_coverage": 0.9524,
+      "base_eligible": 20,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11710",
+      "gu": "송파구",
+      "band": "84",
+      "universe": 155,
+      "likely": 41,
+      "likely_coverage": 0.9756,
+      "base_eligible": 40,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11740",
+      "gu": "강동구",
+      "band": "84",
+      "universe": 216,
+      "likely": 46,
+      "likely_coverage": 0.9348,
+      "base_eligible": 43,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11110",
+      "gu": "종로구",
+      "band": "114",
+      "universe": 14,
+      "likely": 1,
+      "likely_coverage": 1,
+      "base_eligible": 1,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11140",
+      "gu": "중구",
+      "band": "114",
+      "universe": 16,
+      "likely": 5,
+      "likely_coverage": 0.4,
+      "base_eligible": 2,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11170",
+      "gu": "용산구",
+      "band": "114",
+      "universe": 21,
+      "likely": 3,
+      "likely_coverage": 1,
+      "base_eligible": 3,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11200",
+      "gu": "성동구",
+      "band": "114",
+      "universe": 33,
+      "likely": 4,
+      "likely_coverage": 0.75,
+      "base_eligible": 3,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11215",
+      "gu": "광진구",
+      "band": "114",
+      "universe": 13,
+      "likely": 2,
+      "likely_coverage": 1,
+      "base_eligible": 2,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11230",
+      "gu": "동대문구",
+      "band": "114",
+      "universe": 41,
+      "likely": 12,
+      "likely_coverage": 1,
+      "base_eligible": 12,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11260",
+      "gu": "중랑구",
+      "band": "114",
+      "universe": 18,
+      "likely": 1,
+      "likely_coverage": 1,
+      "base_eligible": 1,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11290",
+      "gu": "성북구",
+      "band": "114",
+      "universe": 61,
+      "likely": 20,
+      "likely_coverage": 0.95,
+      "base_eligible": 19,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11305",
+      "gu": "강북구",
+      "band": "114",
+      "universe": 12,
+      "likely": 5,
+      "likely_coverage": 1,
+      "base_eligible": 5,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11320",
+      "gu": "도봉구",
+      "band": "114",
+      "universe": 12,
+      "likely": 1,
+      "likely_coverage": 1,
+      "base_eligible": 1,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11350",
+      "gu": "노원구",
+      "band": "114",
+      "universe": 31,
+      "likely": 7,
+      "likely_coverage": 1,
+      "base_eligible": 7,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11380",
+      "gu": "은평구",
+      "band": "114",
+      "universe": 37,
+      "likely": 2,
+      "likely_coverage": 1,
+      "base_eligible": 2,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11410",
+      "gu": "서대문구",
+      "band": "114",
+      "universe": 36,
+      "likely": 8,
+      "likely_coverage": 1,
+      "base_eligible": 8,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11440",
+      "gu": "마포구",
+      "band": "114",
+      "universe": 60,
+      "likely": 1,
+      "likely_coverage": 1,
+      "base_eligible": 1,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11470",
+      "gu": "양천구",
+      "band": "114",
+      "universe": 37,
+      "likely": 3,
+      "likely_coverage": 1,
+      "base_eligible": 3,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11500",
+      "gu": "강서구",
+      "band": "114",
+      "universe": 39,
+      "likely": 5,
+      "likely_coverage": 1,
+      "base_eligible": 5,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11530",
+      "gu": "구로구",
+      "band": "114",
+      "universe": 32,
+      "likely": 7,
+      "likely_coverage": 0.8571,
+      "base_eligible": 6,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11545",
+      "gu": "금천구",
+      "band": "114",
+      "universe": 5,
+      "likely": 4,
+      "likely_coverage": 1,
+      "base_eligible": 4,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11560",
+      "gu": "영등포구",
+      "band": "114",
+      "universe": 28,
+      "likely": 4,
+      "likely_coverage": 1,
+      "base_eligible": 4,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11590",
+      "gu": "동작구",
+      "band": "114",
+      "universe": 43,
+      "likely": 6,
+      "likely_coverage": 1,
+      "base_eligible": 6,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11620",
+      "gu": "관악구",
+      "band": "114",
+      "universe": 34,
+      "likely": 7,
+      "likely_coverage": 0.7143,
+      "base_eligible": 5,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11650",
+      "gu": "서초구",
+      "band": "114",
+      "universe": 38,
+      "likely": 0,
+      "likely_coverage": 1,
+      "base_eligible": 0,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11680",
+      "gu": "강남구",
+      "band": "114",
+      "universe": 55,
+      "likely": 3,
+      "likely_coverage": 0.3333,
+      "base_eligible": 1,
+      "status": "HOLD_PROFILE_COVERAGE"
+    },
+    {
+      "lawd": "11710",
+      "gu": "송파구",
+      "band": "114",
+      "universe": 36,
+      "likely": 7,
+      "likely_coverage": 1,
+      "base_eligible": 7,
+      "status": "PASS"
+    },
+    {
+      "lawd": "11740",
+      "gu": "강동구",
+      "band": "114",
+      "universe": 42,
+      "likely": 6,
+      "likely_coverage": 1,
+      "base_eligible": 6,
+      "status": "PASS"
+    }
+  ],
+  "all_cells": [
+    {
+      "lawd": "11110",
+      "gu": "종로구",
+      "status": "HOLD_ALL_PARTIAL_DATA",
+      "eligible": 9,
+      "partial_in_top5": 4
+    },
+    {
+      "lawd": "11140",
+      "gu": "중구",
+      "status": "PASS",
+      "eligible": 7,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11170",
+      "gu": "용산구",
+      "status": "PASS",
+      "eligible": 15,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11200",
+      "gu": "성동구",
+      "status": "HOLD_ALL_PARTIAL_DATA",
+      "eligible": 33,
+      "partial_in_top5": 4
+    },
+    {
+      "lawd": "11215",
+      "gu": "광진구",
+      "status": "PASS",
+      "eligible": 21,
+      "partial_in_top5": 1
+    },
+    {
+      "lawd": "11230",
+      "gu": "동대문구",
+      "status": "PASS",
+      "eligible": 55,
+      "partial_in_top5": 1
+    },
+    {
+      "lawd": "11260",
+      "gu": "중랑구",
+      "status": "PASS",
+      "eligible": 49,
+      "partial_in_top5": 2
+    },
+    {
+      "lawd": "11290",
+      "gu": "성북구",
+      "status": "PASS",
+      "eligible": 79,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11305",
+      "gu": "강북구",
+      "status": "PASS",
+      "eligible": 22,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11320",
+      "gu": "도봉구",
+      "status": "PASS",
+      "eligible": 50,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11350",
+      "gu": "노원구",
+      "status": "PASS",
+      "eligible": 102,
+      "partial_in_top5": 0
+    },
+    {
+      "lawd": "11380",
+      "gu": "은평구",
+      "status": "PASS",
+      "eligible": 62,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11410",
+      "gu": "서대문구",
+      "status": "PASS",
+      "eligible": 49,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11440",
+      "gu": "마포구",
+      "status": "HOLD_ALL_PARTIAL_DATA",
+      "eligible": 49,
+      "partial_in_top5": 4
+    },
+    {
+      "lawd": "11470",
+      "gu": "양천구",
+      "status": "PASS",
+      "eligible": 37,
+      "partial_in_top5": 2
+    },
+    {
+      "lawd": "11500",
+      "gu": "강서구",
+      "status": "PASS",
+      "eligible": 80,
+      "partial_in_top5": 2
+    },
+    {
+      "lawd": "11530",
+      "gu": "구로구",
+      "status": "PASS",
+      "eligible": 74,
+      "partial_in_top5": 0
+    },
+    {
+      "lawd": "11545",
+      "gu": "금천구",
+      "status": "PASS",
+      "eligible": 17,
+      "partial_in_top5": 1
+    },
+    {
+      "lawd": "11560",
+      "gu": "영등포구",
+      "status": "HOLD_ALL_PARTIAL_DATA",
+      "eligible": 50,
+      "partial_in_top5": 4
+    },
+    {
+      "lawd": "11590",
+      "gu": "동작구",
+      "status": "PASS",
+      "eligible": 57,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11620",
+      "gu": "관악구",
+      "status": "PASS",
+      "eligible": 32,
+      "partial_in_top5": 2
+    },
+    {
+      "lawd": "11650",
+      "gu": "서초구",
+      "status": "HOLD_ALL_PARTIAL_DATA",
+      "eligible": 6,
+      "partial_in_top5": 5
+    },
+    {
+      "lawd": "11680",
+      "gu": "강남구",
+      "status": "PASS",
+      "eligible": 27,
+      "partial_in_top5": 3
+    },
+    {
+      "lawd": "11710",
+      "gu": "송파구",
+      "status": "PASS",
+      "eligible": 57,
+      "partial_in_top5": 0
+    },
+    {
+      "lawd": "11740",
+      "gu": "강동구",
+      "status": "PASS",
+      "eligible": 59,
+      "partial_in_top5": 2
+    }
+  ],
+  "all_coverage": {
+    "1": 749,
+    "2": 277,
+    "3": 72,
+    "excluded": 2599
+  },
+  "comparison": [],
+  "counts": {
+    "feature_before_rerun": 11334,
+    "feature_after_rerun": 11334,
+    "ranking_before_rerun": 10800,
+    "ranking_after_rerun": 10800,
+    "publication_before_rerun": 516,
+    "publication_after_rerun": 516,
+    "feature_inserted_attempt": 5667,
+    "ranking_inserted_attempt": 6162,
+    "publication_inserted_attempt": 516
+  },
+  "production_write": true
+}
