@@ -5,7 +5,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "national-coordinates"))
 
-from coordinate_apply import CoordinateGuardError, exact_pnu_hit, refuse_write, validate_payload
+from coordinate_apply import (
+    CoordinateGuardError,
+    classify_exact_join,
+    exact_pnu_hit,
+    parse_cadastral_pnu,
+    parse_wgs84_pair,
+    refuse_write,
+    validate_payload,
+)
 from pnu_resolve import resolve_row
 
 JAMSIL = {
@@ -89,6 +97,17 @@ def test_mountain_and_rejects() -> None:
     assert empty["resolution_status"] == "NO_PARCEL_ADDRESS"
 
 
+def test_join_classes() -> None:
+    assert classify_exact_join("1" * 19, duplicate_pnu=True, coordinate=("129.0", "35.1"), sido_code="26") == "DUPLICATE_PNU"
+    assert classify_exact_join("1" * 19, duplicate_pnu=False, coordinate=None, sido_code="26") == "PNU_NOT_FOUND"
+    assert classify_exact_join("1" * 18, duplicate_pnu=False, coordinate=("129.0", "35.1"), sido_code="26") == "INVALID_COORDINATE"
+    assert classify_exact_join("1" * 19, duplicate_pnu=False, coordinate=("129.0", "10.0"), sido_code="26") == "INVALID_COORDINATE"
+    assert classify_exact_join("1" * 19, duplicate_pnu=False, coordinate=("129.0", "35.1"), sido_code="26") == "MATCHED_EXACT"
+    assert parse_wgs84_pair("0", "0") == (None, None)
+    assert parse_cadastral_pnu("1171010100100190000") == "1171010100100190000"
+    assert parse_cadastral_pnu("1171010100000190000") is None
+
+
 def test_coordinate_guards() -> None:
     try:
         refuse_write(["--write"])
@@ -129,5 +148,6 @@ if __name__ == "__main__":
     test_jamsil_parity()
     test_mountain_and_rejects()
     test_coordinate_guards()
+    test_join_classes()
     test_cli_refuses_write()
     print(json.dumps({"ok": True, "jamsil_pnu": "1171010100100190000"}))
