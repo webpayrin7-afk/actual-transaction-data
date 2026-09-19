@@ -19,7 +19,7 @@ import {
   archiveBuildingDongLabel,
   archiveStatusLabel,
 } from "@/lib/apt/transaction-row-display";
-import { aptType } from "@/lib/apt/typography";
+import { APT_HELPER } from "@/lib/apt/detail-copy";
 
 
 /** Compact monthly-rent money line — deposit strongest, monthly secondary. */
@@ -161,7 +161,7 @@ function RowMeta({
     dealingGbn || null,
   ].filter(Boolean) as string[];
   return (
-    <p className={`mt-0.5 ${aptType.secondary}`}>
+    <p className={`mt-0.5 ${APT_HELPER}`}>
       {bits.map((bit, i) => (
         <span key={`${bit}-${i}`}>
           {i > 0 ? (
@@ -203,7 +203,7 @@ export function TransactionRow({
               dateTime={tx.dealDate}
               title={dateFull}
               aria-label={dateFull}
-              className={`block tabular-nums ${dense ? aptType.bodySemibold : aptType.subMetric}`}
+              className={`block tabular-nums ${APT_HELPER}`}
             >
               <span className="sm:hidden">{dateShort}</span>
               <span className="hidden sm:inline">{dateFull}</span>
@@ -216,11 +216,11 @@ export function TransactionRow({
           </div>
           <div className="shrink-0 text-right">
             <p
-              className={`${dense ? aptType.bodySemibold : aptType.subMetric} ${dealTypePriceTextClass(mode)}`}
+              className={`text-sm font-semibold tabular-nums sm:text-base ${dealTypePriceTextClass(mode)}`}
             >
               {m.primary}
             </p>
-            <p className={`mt-0.5 tabular-nums ${aptType.caption}`}>
+            <p className="mt-0.5 text-xs font-medium tabular-nums text-slate-600 sm:text-[13px]">
               {m.secondary}
             </p>
           </div>
@@ -240,7 +240,7 @@ export function TransactionRow({
             dateTime={tx.dealDate}
             title={dateFull}
             aria-label={dateFull}
-            className={`block tabular-nums ${dense ? aptType.bodySemibold : aptType.subMetric}`}
+            className={`block tabular-nums ${APT_HELPER}`}
           >
             <span className="sm:hidden">{dateShort}</span>
             <span className="hidden sm:inline">{dateFull}</span>
@@ -253,13 +253,13 @@ export function TransactionRow({
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {mode === "trade" && tx.isSingoga ? (
-            <span className={`inline-flex items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 font-semibold text-white sm:gap-1 sm:px-2 ${aptType.captionStrong} !text-white`}>
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
               <Flame className="h-3 w-3" aria-hidden />
               신고가
             </span>
           ) : null}
           <p
-            className={`${dense ? aptType.bodySemibold : aptType.subMetric} ${moneyClass}`}
+            className={`text-sm font-semibold tabular-nums sm:text-base ${moneyClass}`}
           >
             {primaryMoney}
           </p>
@@ -281,7 +281,7 @@ export function TransactionList({
 }) {
   if (items.length === 0) {
     return (
-      <p className={`rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center ${aptType.secondary}`}>
+      <p className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500">
         {emptyLabel}
       </p>
     );

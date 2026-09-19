@@ -28,7 +28,8 @@ export function PageHeader({
   compact = false,
   showDivider = true,
   className = "",
-  tone = "default",
+  descriptionClassName,
+  metaClassName,
 }: {
   title: string;
   description?: ReactNode;
@@ -41,22 +42,20 @@ export function PageHeader({
   /** 첫 콘텐츠와 구분하는 얇은 선. 탭이 바로 이어지는 페이지는 false */
   showDivider?: boolean;
   className?: string;
-  /** apt = 단지상세 mobile typography scale */
-  tone?: "default" | "apt";
+  /** Apt-detail helper copy only. Leaves the title untouched. */
+  descriptionClassName?: string;
+  metaClassName?: string;
 }) {
-  const apt = tone === "apt";
   return (
     <header className={`max-w-4xl ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {leading ? <div className="shrink-0">{leading}</div> : null}
           <h1
-            className={`min-w-0 flex-1 tracking-tight text-[color:var(--lab-navy-950)] ${
-              apt
-                ? "apt-type-page-title"
-                : compact
-                  ? "text-lg font-semibold leading-6 sm:text-xl sm:leading-7"
-                  : "text-xl font-semibold leading-7 sm:text-[1.375rem] sm:leading-8"
+            className={`min-w-0 flex-1 font-semibold tracking-tight text-[color:var(--lab-navy-950)] ${
+              compact
+                ? "text-lg leading-6 sm:text-xl sm:leading-7"
+                : "text-xl leading-7 sm:text-[1.375rem] sm:leading-8"
             }`}
           >
             {title}
@@ -66,22 +65,20 @@ export function PageHeader({
       </div>
       {description ? (
         <p
-          className={
-            apt
-              ? "apt-type-secondary mt-1 text-pretty"
-              : "mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5"
-          }
+          className={`mt-1 text-pretty ${
+            descriptionClassName ??
+            "text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5"
+          }`}
         >
           {description}
         </p>
       ) : null}
       {meta ? (
         <div
-          className={
-            apt
-              ? "mt-1.5 space-y-0.5"
-              : "mt-1.5 space-y-0.5 text-xs leading-5 text-[color:var(--lab-muted)]"
-          }
+          className={`mt-1.5 space-y-0.5 ${
+            metaClassName ??
+            "text-xs leading-5 text-[color:var(--lab-muted)]"
+          }`}
         >
           {meta}
         </div>

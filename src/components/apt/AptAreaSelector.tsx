@@ -17,7 +17,6 @@ import {
   areaSelectorPyeongLabel,
   areaSelectorSupplyLabel,
 } from "@/lib/apt/area-selector-label";
-import { aptType } from "@/lib/apt/typography";
 
 type AptAreaSelectorProps = {
   areas: AptAreaOption[];
@@ -31,30 +30,21 @@ type AptAreaSelectorProps = {
 
 const SHEET_MS = 280;
 
-function AreaTriggerLabel({
-  area,
-  compact = false,
-}: {
-  area: AptAreaOption;
-  compact?: boolean;
-}) {
+const PYEONG_TEXT =
+  "font-semibold text-[color:var(--lab-teal-700)]";
+
+function AreaTriggerLabel({ area }: { area: AptAreaOption }) {
   const pyeong = areaSelectorPyeongLabel(area);
   const exclusive = areaSelectorExclusiveLabel(area);
-  const pyeongClass = compact
-    ? `${aptType.bodySemibold} text-[color:var(--lab-teal-700)]`
-    : `${aptType.subMetric} text-[color:var(--lab-teal-700)]`;
-  const exclusiveClass = compact
-    ? `${aptType.captionStrong} text-slate-700`
-    : `${aptType.body} text-slate-800`;
   // Sticky + closed both show exclusive so the trigger can grow with real text
   // (max-width alone does not widen short labels).
   if (!pyeong) {
-    return <span className={pyeongClass}>{exclusive}</span>;
+    return <span className={PYEONG_TEXT}>{exclusive}</span>;
   }
   return (
     <>
-      <span className={pyeongClass}>{pyeong}</span>
-      <span className={exclusiveClass}>
+      <span className={PYEONG_TEXT}>{pyeong}</span>
+      <span className="font-semibold text-slate-800">
         {` · ${exclusive}`}
       </span>
     </>
@@ -146,7 +136,7 @@ export function AptAreaSelector({
       return (
         <div
           className={`flex items-center rounded-lg border border-slate-200 text-slate-700 ${
-            compact ? `h-8 px-2.5 ${aptType.caption}` : `h-10 w-full px-3.5 ${aptType.body}`
+            compact ? "h-8 px-2.5 text-xs" : "h-10 w-full px-3.5 text-sm"
           } ${triggerClassName || "bg-white"}`}
         >
           전체 면적
@@ -156,13 +146,13 @@ export function AptAreaSelector({
     return (
       <div
         className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
-            compact
-            ? `h-8 max-w-full px-2.5 ${aptType.captionStrong}`
-            : `h-10 w-full px-3.5 ${aptType.bodySemibold}`
+          compact
+            ? "h-8 max-w-full px-2.5 text-xs font-semibold"
+            : "h-10 w-full px-3.5 text-sm font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 truncate">
-          <AreaTriggerLabel area={only} compact={compact} />
+          <AreaTriggerLabel area={only} />
         </span>
       </div>
     );
@@ -187,16 +177,16 @@ export function AptAreaSelector({
         aria-label={`현재 ${triggerLabel}, ${a11yExtra}`}
         onClick={openSheet}
         className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
-            compact
-            ? `h-8 max-w-full rounded-md px-2.5 ${aptType.captionStrong}`
-            : `h-10 w-full gap-2 rounded-xl px-3.5 ${aptType.body} sm:gap-3`
+          compact
+            ? "h-8 max-w-full rounded-md px-2.5 text-xs font-semibold"
+            : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 flex-1 truncate">
           {isAll || !selected ? (
-            <span className={compact ? aptType.captionStrong : aptType.bodySemibold}>전체 면적</span>
+            <span className="font-semibold">전체 면적</span>
           ) : (
-            <AreaTriggerLabel area={selected} compact={compact} />
+            <AreaTriggerLabel area={selected} />
           )}
         </span>
         <ChevronDown
@@ -359,7 +349,7 @@ function AreaSheet({
           <div className="relative flex items-center justify-center px-12 pb-3.5 pt-2.5">
             <h2
               id={titleId}
-              className={`${aptType.sectionTitle} text-center tracking-tight`}
+              className="text-center text-lg font-bold leading-none tracking-tight text-slate-900 sm:text-xl"
             >
               평형
             </h2>
@@ -453,21 +443,21 @@ function AreaOptionRow({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className={`block tabular-nums leading-snug text-[color:var(--lab-teal-700)] ${aptType.bodySemibold}`}>
+        <span className="block text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
           {pyeongLabel}
         </span>
         <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           {exclusiveLabel ? (
-            <span className={`tabular-nums leading-snug ${aptType.caption}`}>
+            <span className="text-[13px] tabular-nums leading-snug text-slate-500">
               {exclusiveLabel}
             </span>
           ) : null}
-          <span className={`tabular-nums leading-snug ${aptType.caption}`}>
+          <span className="text-[13px] tabular-nums leading-snug text-slate-400">
             {dealLabel}
           </span>
         </span>
         {supplyLabel ? (
-          <span className={`mt-0.5 hidden tabular-nums sm:block ${aptType.captionStrong}`}>
+          <span className="mt-0.5 hidden text-[12px] tabular-nums text-slate-400 sm:block">
             {supplyLabel}
           </span>
         ) : null}

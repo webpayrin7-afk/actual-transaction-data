@@ -10,7 +10,6 @@ type LabDisclosureProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   className?: string;
-  titleClassName?: string;
 };
 
 /**
@@ -25,7 +24,6 @@ export function LabDisclosure({
   open: openProp,
   onOpenChange,
   className = "",
-  titleClassName = "",
 }: LabDisclosureProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const controlled = openProp !== undefined;
@@ -48,13 +46,7 @@ export function LabDisclosure({
         onClick={() => setOpen(!open)}
         className="flex min-h-11 w-full items-center justify-between gap-3 py-2 text-left transition hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
       >
-        <span
-          className={
-            titleClassName
-              ? `min-w-0 ${titleClassName}`
-              : "min-w-0 text-sm font-semibold text-slate-900"
-          }
-        >
+        <span className="min-w-0 text-sm font-semibold text-slate-900">
           {title}
         </span>
         <svg

@@ -8,6 +8,7 @@ import type {
   NearbySaleStatus,
   NearbySalesResult,
 } from "@/lib/complex-detail/applyhome-nearby-sales";
+import { APT_HELPER } from "@/lib/apt/detail-copy";
 
 const VISIBLE_TYPES = 2;
 
@@ -130,7 +131,7 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
     <li className="px-3 py-2.5">
       {/* ROW 1 — name; status pill only when not move-in */}
       <div className="flex items-start justify-between gap-2">
-        <p className="apt-type-body-semibold min-w-0 line-clamp-2 text-slate-900">
+        <p className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-snug text-slate-900">
           {item.houseName}
         </p>
         {!isMoveIn ? (
@@ -144,7 +145,7 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
 
       {/* ROW 2 — meta + type badges to the right of 세대 */}
       <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-        <p className="apt-type-caption">
+        <p className="text-[11px] leading-snug text-slate-500">
           {metaLeft(item)}
         </p>
         <TypeChips item={item} />
@@ -236,7 +237,7 @@ export function ComplexNearbySalesSection({
     <LabCard className="p-4 sm:p-5">
       <div className="lab-section-heading">
         <div className="min-w-0">
-          <h2 className="apt-type-section-title flex items-center">
+          <h2 className="flex items-center">
             주변 공급
             <InfoTip aria-label="주변 공급 출처 안내" className="ml-1.5 text-[13px]">
               <p>출처: 청약홈 · 한국부동산원</p>
@@ -245,24 +246,24 @@ export function ComplexNearbySalesSection({
               <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
             </InfoTip>
           </h2>
-          <p>{description}</p>
+          <p className={`${APT_HELPER} !text-[13px] !leading-5`}>{description}</p>
         </div>
       </div>
 
       {!key ? (
-        <p className="apt-type-secondary mt-2">
+        <p className={`mt-2 ${APT_HELPER}`}>
           단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.
         </p>
       ) : null}
 
       {key && q.isLoading ? (
-        <p className="apt-type-secondary mt-2">
+        <p className={`mt-2 ${APT_HELPER}`}>
           주변 공급 정보를 불러오는 중…
         </p>
       ) : null}
 
       {key && !q.isLoading && !ready ? (
-        <p className="apt-type-secondary mt-2">
+        <p className={`mt-2 ${APT_HELPER}`}>
           {emptyReason}
         </p>
       ) : null}

@@ -13,12 +13,12 @@ export function SiteFooter() {
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:justify-between sm:gap-10">
           <div className="min-w-0 max-w-sm">
-            <p className="apt-type-body-semibold text-slate-800">{SITE_BRAND}</p>
-            <p className="apt-type-caption mt-1.5">
+            <p className="text-sm font-semibold text-slate-900">{SITE_BRAND}</p>
+            <p className="mt-1.5 text-xs leading-5 text-slate-500">
               국토교통부 아파트 실거래 공개자료를 바탕으로 단지·지역별 시장
               정보를 정리해 제공합니다.
             </p>
-            <p className="apt-type-caption mt-3">
+            <p className="mt-3 text-xs text-slate-500">
               문의{" "}
               <a
                 href={SITE_CONTACT_MAILTO}
@@ -31,7 +31,7 @@ export function SiteFooter() {
 
           <div className="grid grid-cols-2 gap-6 sm:gap-10">
             <div>
-              <p className="apt-type-caption-strong tracking-wide">
+              <p className="text-xs font-semibold tracking-wide text-slate-500">
                 서비스
               </p>
               <ul className="mt-2 space-y-1.5">
@@ -39,7 +39,7 @@ export function SiteFooter() {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="apt-type-caption text-slate-600 hover:text-teal-800 hover:underline"
+                      className="text-sm text-slate-700 hover:text-teal-800 hover:underline"
                     >
                       {item.label}
                     </Link>
@@ -48,7 +48,7 @@ export function SiteFooter() {
               </ul>
             </div>
             <div>
-              <p className="apt-type-caption-strong tracking-wide">
+              <p className="text-xs font-semibold tracking-wide text-slate-500">
                 운영
               </p>
               <ul className="mt-2 space-y-1.5">
@@ -56,7 +56,7 @@ export function SiteFooter() {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="apt-type-caption text-slate-600 hover:text-teal-800 hover:underline"
+                      className="text-sm text-slate-700 hover:text-teal-800 hover:underline"
                     >
                       {item.label}
                     </Link>
@@ -67,7 +67,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <p className="apt-type-caption-strong mt-8 border-t border-slate-200 pt-4 text-slate-400">
+        <p className="mt-8 border-t border-slate-200 pt-4 text-xs text-slate-400">
           © {new Date().getFullYear()} {SITE_BRAND}. 국토교통부 실거래 OpenAPI
           기반.
         </p>

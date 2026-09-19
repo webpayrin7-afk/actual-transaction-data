@@ -19,6 +19,7 @@ import {
 import type { ComparePeerCandidate } from "@/lib/complex-detail/select-compare-peers";
 import { formatEok } from "@/lib/utils/format";
 import { areaSelectorClosedLabel } from "@/lib/apt/area-selector-label";
+import { APT_HELPER, APT_LABEL } from "@/lib/apt/detail-copy";
 
 type Props = {
   aptName: string;
@@ -156,7 +157,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
         {columns.map((c, i) => {
           const isCurrent = i === 0;
           // Current complex name: teal. Peers: black (link).
-          const nameClass = `apt-type-body-semibold line-clamp-2 ${
+          const nameClass = `line-clamp-2 text-[12px] font-semibold leading-snug sm:text-[13px] ${
             isCurrent ? "text-teal-700" : "text-slate-900"
           }`;
           return (
@@ -174,7 +175,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
                   {c.aptName}
                 </Link>
               )}
-              <p className="apt-type-caption mt-0.5 mb-1 tabular-nums">
+              <p className="mt-0.5 mb-1 text-[11px] tabular-nums leading-none text-slate-500">
                 {formatAreaShort(c)}
               </p>
             </div>
@@ -188,11 +189,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
           className="grid items-center gap-x-1 border-b border-slate-100 py-1.5 last:border-0"
           style={gridStyle}
         >
-          <p
-            className={`leading-none ${
-              row.large ? "apt-type-secondary" : "apt-type-caption"
-            }`}
-          >
+          <p className={`${APT_LABEL} leading-none`}>
             {row.label}
           </p>
           {row.values.map((v, i) => (
@@ -200,14 +197,14 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
               key={`${row.label}-${i}`}
               className={`min-w-0 truncate px-0.5 text-center tabular-nums leading-snug ${
                 row.large
-                  ? "apt-type-sub-metric"
-                  : "apt-type-body"
+                  ? "text-[13px] sm:text-[14px]"
+                  : "text-[12px] sm:text-[13px]"
               } ${
                 row.strong
-                  ? "text-slate-900"
+                  ? "font-semibold text-slate-900"
                   : row.muted
                     ? "font-medium text-slate-600"
-                    : "text-slate-800"
+                    : "font-medium text-slate-800"
               }`}
             >
               {v}
@@ -324,7 +321,7 @@ export function ComplexCompareSection({
     <LabCard className="p-3.5 sm:p-5">
       <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="apt-type-section-title flex items-center">
+          <h2 className="flex items-center">
             주변 단지 비교
             <InfoTip aria-label="주변 단지 비교 안내" className="ml-1">
               <p>
@@ -335,19 +332,19 @@ export function ComplexCompareSection({
             </InfoTip>
           </h2>
         </div>
-        <p className="apt-type-caption shrink-0 pt-0.5 text-right">
+        <p className={`shrink-0 pt-0.5 text-right ${APT_HELPER}`}>
           {areaBandLabel(areaCenter)}
         </p>
       </div>
 
       {loadingPeers ? (
-        <p className="apt-type-secondary mt-2">
+        <p className={`mt-2 ${APT_HELPER}`}>
           비교 단지를 불러오는 중…
         </p>
       ) : null}
 
       {empty ? (
-        <p className="apt-type-secondary mt-2">
+        <p className={`mt-2 ${APT_HELPER}`}>
           비교할 수 있는 주변 유사 단지가 아직 없습니다.
         </p>
       ) : null}
