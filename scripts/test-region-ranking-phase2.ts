@@ -60,6 +60,26 @@ assert.equal(
   null,
 );
 assert.equal(householdFromTitleRows([{ bldNm: "다른아파트", mainPurpsCdNm: "아파트", hhldCnt: 10, dongNm: "1" }], "은마"), null);
+assert.equal(
+  householdFromTitleRows(
+    [
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 10, dongNm: "101" },
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 0, dongNm: "관리" },
+    ],
+    "은마",
+  ),
+  10,
+);
+assert.equal(
+  householdFromTitleRows(
+    [
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: 10, dongNm: "101" },
+      { bldNm: "은마", mainPurpsCdNm: "아파트", hhldCnt: "", dongNm: "102" },
+    ],
+    "은마",
+  ),
+  null,
+);
 
 assert.equal(loadPrivateConfig(null).ok, false);
 assert.equal(loadPrivateConfig(undefined).ok, false);
