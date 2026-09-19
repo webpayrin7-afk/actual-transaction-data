@@ -94,15 +94,6 @@ function ymFromDealDate(dealDate: string): string {
   return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
 }
 
-/** KPI meta only — MM.DD. Do not reuse for trade-list dates. */
-function formatKpiMetaDate(date: string): string {
-  const compact = date.replaceAll("-", "").replaceAll(".", "");
-  if (compact.length >= 8) {
-    return `${compact.slice(4, 6)}.${compact.slice(6, 8)}`;
-  }
-  return formatDealDate(date);
-}
-
 function recentYearsRange(length: number, years = RECENT_YEARS) {
   if (length <= 0) return { start: 0, end: 0 };
   const count = Math.min(years * 12, length);
@@ -785,12 +776,12 @@ export function AptDetailPage({
           {kpiCell(
             "최근 매매",
             latestTrade ? formatEok(latestTrade.dealAmount) : "—",
-            latestTrade ? formatKpiMetaDate(latestTrade.dealDate) : "—",
+            latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
           )}
           {kpiCell(
             "최근 전세",
             latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
-            latestJeonse ? formatKpiMetaDate(latestJeonse.dealDate) : "—",
+            latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
           )}
           {kpiCell(
             "최고가 대비",

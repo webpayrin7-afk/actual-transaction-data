@@ -220,7 +220,9 @@ export function TransactionRow({
             >
               {m.primary}
             </p>
-            <p className="mt-0.5 text-xs font-medium tabular-nums text-slate-600 sm:text-[13px]">
+            <p
+              className={`mt-0.5 text-sm font-semibold tabular-nums sm:text-base ${dealTypePriceTextClass(mode)}`}
+            >
               {m.secondary}
             </p>
           </div>
