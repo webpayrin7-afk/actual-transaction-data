@@ -141,6 +141,22 @@ export function planWaveCohort(args: {
   return picked;
 }
 
+/** Explicit sido allow-list. Does not rank other regions in. */
+export function planNamedSidoCohort(args: {
+  complexes: readonly WaveComplex[];
+  sidoCodes: readonly string[];
+  perSido?: number;
+  totalCap?: number;
+}): WaveComplex[] {
+  const allowed = new Set(args.sidoCodes);
+  if (allowed.size === 0) throw new Error("sido allow-list empty");
+  return planWaveCohort({
+    complexes: args.complexes.filter((row) => allowed.has(row.sido_code)),
+    perSido: args.perSido,
+    totalCap: args.totalCap,
+  });
+}
+
 function observationsFor(
   calls: readonly LiveCall[],
   store: OpCheckpointStore,

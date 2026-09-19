@@ -15,6 +15,7 @@ import {
 import {
   chunkItems,
   parseExplicitPeriods,
+  planNamedSidoCohort,
   planWaveCohort,
   planWriteAction,
   runExpansionDryRun,
@@ -113,6 +114,33 @@ async function main(): Promise<void> {
   const picked = planWaveCohort({ complexes, perSido: 25, totalCap: 50 });
   assert.equal(picked.length, 25);
   assert.equal(picked.some((item) => item.state !== "READY"), false);
+  const named = planNamedSidoCohort({
+    complexes: [
+      ...complexes,
+      {
+        complex_id: "cx_gyeongnam",
+        sido: "경상남도",
+        sido_code: "48",
+        kapt_code: "A48000001",
+        state: "READY",
+      },
+      {
+        complex_id: "cx_jeonnam",
+        sido: "전남광주통합특별시",
+        sido_code: "12",
+        kapt_code: "A12000001",
+        state: "READY",
+      },
+    ],
+    sidoCodes: ["26", "48"],
+    perSido: 25,
+    totalCap: 50,
+  });
+  assert.equal(named.length, 26);
+  assert.equal(named.some((item) => item.sido_code === "12"), false);
+  assert.equal(named.some((item) => item.state === "ALREADY_LOADED"), false);
+  assert.equal(named.filter((item) => item.sido_code === "26").length, 25);
+  assert.equal(named.filter((item) => item.sido_code === "48").length, 1);
   assert.equal(chunkItems(picked, 25).length, 1);
 
   assert.equal(planWriteAction("MISSING", false), "skip");
