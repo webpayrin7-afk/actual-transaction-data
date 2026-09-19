@@ -7,7 +7,9 @@ import {
   inAreaBand,
 } from "../src/lib/region-ranking/area-band";
 import { evaluateEligibility, topTierGateReady } from "../src/lib/region-ranking/eligibility";
+import { readFileSync } from "node:fs";
 import { extractFeatures } from "../src/lib/region-ranking/features";
+import { parsePocCohort, resolveProfileOverlay } from "../src/lib/region-ranking/profile-overlay";
 import { inWindow, snapshotIdentity, windowsFromAsOf } from "../src/lib/region-ranking/snapshot";
 
 const band = activeAreaBand("84");
@@ -94,5 +96,48 @@ assert.equal(id.featureVersion, "region-feature-v1");
 assert.equal(id.sourceWindowStart, windows.base12m.startExclusive);
 assert.equal(id.sourceWindowEnd, windows.base12m.endInclusive);
 assert.equal(id.transactionAsOf, "2026-09-17");
+
+const poc = {
+  complexId: "cx_ed52bf895d064c11",
+  householdCount: 6864,
+  profileConfidence: "HIGH" as const,
+  profileSource: "CORE_PROFILE_AUDIT_20260919",
+  profileAsOf: "2026-09-19",
+  cohortOrigin: "ORIGINAL_POC" as const,
+};
+const matched = resolveProfileOverlay(poc, {
+  householdCount: 6864,
+  source: "COMPOSITE",
+  sourceKey: "A13824006",
+  sourceAsOf: "2026-01-01",
+});
+assert.equal(matched.status, "PRODUCTION_MATCH");
+if (matched.status === "PRODUCTION_MATCH") {
+  assert.equal(matched.profile.householdCount, 6864);
+  assert.equal(matched.profile.source, "COMPOSITE");
+  assert.equal(matched.profile.confidence, "HIGH");
+}
+const overlay = resolveProfileOverlay(poc, null);
+assert.equal(overlay.status, "POC_OVERLAY");
+if (overlay.status === "POC_OVERLAY") {
+  assert.equal(overlay.profile.householdCount, 6864);
+  assert.equal(overlay.profile.source, "CORE_PROFILE_AUDIT_20260919");
+}
+const conflict = resolveProfileOverlay(poc, {
+  householdCount: 86,
+  source: "COMPOSITE",
+  sourceKey: null,
+  sourceAsOf: null,
+});
+assert.equal(conflict.status, "PROFILE_CONFLICT");
+assert.equal("profile" in conflict, false);
+
+const cohort = parsePocCohort(
+  JSON.parse(readFileSync("data/poc/region-ranking/songpa-original-poc-25.json", "utf8")),
+);
+assert.equal(cohort.length, 25);
+assert.equal(new Set(cohort.map((row) => row.complexId)).size, 25);
+assert.equal(cohort.find((row) => row.complexId === "cx_30d7eea6da810b52")?.householdCount, 9510);
+assert.equal(cohort.find((row) => row.complexId === "cx_b4db01945df2a55b")?.householdCount, 3930);
 
 console.log(JSON.stringify({ ok: true, area_band: AREA_BAND_VERSION }));
