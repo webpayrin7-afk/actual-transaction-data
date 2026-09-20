@@ -1,0 +1,421 @@
+{
+  "generated_at": "2026-09-20T15:46:03.263Z",
+  "assignment": [
+    {
+      "level": "elementary",
+      "question": "elementary school attendance districts (통학구역)",
+      "officialSource": "한국교육시설안전원 학구도안내서비스 https://schoolzone.emac.kr/publicData/dataInfo.do and 공공데이터포털 전국초등학교통학구역표준데이터 https://www.data.go.kr/data/15021149/standard.do (초·중등교육법 시행령 제16조)",
+      "geographyType": "SHP attendance-zone polygon plus CSV attributes (학구ID, 학구명, 학구분류). Sample 학구ID Z000101365.",
+      "yearVersion": "Data basis 2026-03-20, portal file registered 2026-04-21. Prior drop 2025-09-22.",
+      "schoolLinkageKey": "Separate 전국학교학구도연계정보 https://www.data.go.kr/data/15021158/standard.do uses KOIES 학교ID (sample B000002433), not SchoolInfo SCHUL_CODE.",
+      "updateCadence": "KOIES publishes the seven school-zone datasets in March and September.",
+      "redistribution": "Publisher is 한국교육시설안전원 via data.go.kr. The extracted portal page does not state a commercial-use grant. SchoolInfo OpenAPI remains 공공저작물 제3유형 (출처표시·변경금지) and is a different dataset.",
+      "scalableNationwide": "NO",
+      "recommendation": "HOLD",
+      "claimExactAssignedSchool": false
+    },
+    {
+      "level": "middle",
+      "question": "middle-school assignment zones/groups (학교군, 중학구, 추첨/배정)",
+      "officialSource": "한국교육시설안전원 중학교 학구 및 학군 SHP (2026-03-20 list on schoolzone.emac.kr) and 공공데이터포털 전국중학교학교군표준데이터 https://www.data.go.kr/data/15021151/standard.do (시행령 제68조)",
+      "geographyType": "SHP school-group / middle-school district polygon. Not a student-level lottery result.",
+      "yearVersion": "2026-03-20 file set, registered on the KOIES list 2026-05-19.",
+      "schoolLinkageKey": "KOIES 학교ID on the separate linkage CSV, not SchoolInfo SCHUL_CODE.",
+      "updateCadence": "March and September.",
+      "redistribution": "Same KOIES / data.go.kr publication. Commercial terms not verified on the portal extract.",
+      "scalableNationwide": "NO",
+      "recommendation": "HOLD",
+      "claimExactAssignedSchool": false
+    },
+    {
+      "level": "high",
+      "question": "high-school districts/groups and superintendent allocation category",
+      "officialSource": "한국교육시설안전원 고등학교 학교군 SHP and 고등학교 비평준화지역 SHP (2026-03-20). 공공데이터포털 전국고등학교학교군표준데이터 https://www.data.go.kr/data/15021153/standard.do. 강동송파 group pilot stays reference only.",
+      "geographyType": "SHP school-group polygon for standardized areas, plus a separate non-standardized area layer. Not an allocation of one student to one school.",
+      "yearVersion": "2026-03-20.",
+      "schoolLinkageKey": "KOIES 학교ID, not SchoolInfo SCHUL_CODE.",
+      "updateCadence": "March and September.",
+      "redistribution": "Same KOIES / data.go.kr publication. Commercial terms not verified on the portal extract.",
+      "scalableNationwide": "NO",
+      "recommendation": "HOLD",
+      "claimExactAssignedSchool": false
+    }
+  ],
+  "assignment_production_writes": 0,
+  "holds": [
+    {
+      "sgg": "12110",
+      "feedRows": 67,
+      "alreadyStored": 0,
+      "holds": 67,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12130",
+      "feedRows": 120,
+      "alreadyStored": 0,
+      "holds": 120,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12150",
+      "feedRows": 85,
+      "alreadyStored": 0,
+      "holds": 85,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12170",
+      "feedRows": 58,
+      "alreadyStored": 0,
+      "holds": 58,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12190",
+      "feedRows": 56,
+      "alreadyStored": 0,
+      "holds": 56,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12210",
+      "feedRows": 22,
+      "alreadyStored": 0,
+      "holds": 22,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12240",
+      "feedRows": 53,
+      "alreadyStored": 0,
+      "holds": 53,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12270",
+      "feedRows": 56,
+      "alreadyStored": 0,
+      "holds": 56,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12300",
+      "feedRows": 98,
+      "alreadyStored": 0,
+      "holds": 98,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12330",
+      "feedRows": 90,
+      "alreadyStored": 0,
+      "holds": 90,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12710",
+      "feedRows": 27,
+      "alreadyStored": 1,
+      "holds": 26,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12720",
+      "feedRows": 15,
+      "alreadyStored": 0,
+      "holds": 15,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12730",
+      "feedRows": 18,
+      "alreadyStored": 0,
+      "holds": 18,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12740",
+      "feedRows": 47,
+      "alreadyStored": 0,
+      "holds": 47,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12750",
+      "feedRows": 40,
+      "alreadyStored": 0,
+      "holds": 40,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12760",
+      "feedRows": 32,
+      "alreadyStored": 0,
+      "holds": 32,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12770",
+      "feedRows": 28,
+      "alreadyStored": 0,
+      "holds": 28,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12780",
+      "feedRows": 28,
+      "alreadyStored": 0,
+      "holds": 28,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12790",
+      "feedRows": 49,
+      "alreadyStored": 0,
+      "holds": 49,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12800",
+      "feedRows": 38,
+      "alreadyStored": 0,
+      "holds": 38,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12810",
+      "feedRows": 42,
+      "alreadyStored": 1,
+      "holds": 41,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12820",
+      "feedRows": 27,
+      "alreadyStored": 0,
+      "holds": 27,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12830",
+      "feedRows": 40,
+      "alreadyStored": 0,
+      "holds": 40,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12840",
+      "feedRows": 26,
+      "alreadyStored": 0,
+      "holds": 26,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12850",
+      "feedRows": 47,
+      "alreadyStored": 0,
+      "holds": 47,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12860",
+      "feedRows": 32,
+      "alreadyStored": 0,
+      "holds": 32,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "12870",
+      "feedRows": 60,
+      "alreadyStored": 1,
+      "holds": 59,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from 전남광주통합특별시 (prefix 12) matched an existing school_code/year stored under 광주 or 전남. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "28125",
+      "feedRows": 32,
+      "alreadyStored": 7,
+      "holds": 25,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from a reorganized Incheon district matched an existing school_code/year stored under the previous district code. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "28155",
+      "feedRows": 27,
+      "alreadyStored": 8,
+      "holds": 19,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from a reorganized Incheon district matched an existing school_code/year stored under the previous district code. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "28275",
+      "feedRows": 63,
+      "alreadyStored": 32,
+      "holds": 31,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from a reorganized Incheon district matched an existing school_code/year stored under the previous district code. Same code, different region fingerprint. Not merged and not overwritten."
+    },
+    {
+      "sgg": "28290",
+      "feedRows": 39,
+      "alreadyStored": 21,
+      "holds": 18,
+      "classification": "HISTORICAL_REGION_CODE_ALIAS",
+      "detail": "2026 BASIC rows from a reorganized Incheon district matched an existing school_code/year stored under the previous district code. Same code, different region fingerprint. Not merged and not overwritten."
+    }
+  ],
+  "recovered_exclusions": 0,
+  "discovery": {
+    "discover|2027|11710|03|BASIC": {
+      "reused": true,
+      "status": "available"
+    },
+    "discover|2026|*|03|GRADUATE_PATH": {
+      "reused": true,
+      "status": "empty"
+    },
+    "discover|2026|*|04|GRADUATE_PATH": {
+      "reused": true,
+      "status": "empty"
+    }
+  },
+  "reads": {
+    "school_detail_ms": 204,
+    "school_detail_live_calls": 0,
+    "school_detail_categories": {
+      "BASIC": "COMPLETE",
+      "STUDENT": "COMPLETE",
+      "TEACHER": "COMPLETE",
+      "MEAL": "COMPLETE",
+      "AFTERSCHOOL": "COMPLETE",
+      "SCHOLARSHIP": "COMPLETE",
+      "GRADUATE_PATH": "COMPLETE"
+    },
+    "nearby_ready_ms": 306,
+    "nearby_ready_state": "READY",
+    "nearby_ready_live_calls": 0,
+    "nearby_no_coordinate_ms": 205,
+    "nearby_no_coordinate_state": "NO_COORDINATE",
+    "nearby_no_coordinate_schools": null
+  },
+  "coverage": {
+    "master": {
+      "schools": 12706,
+      "with_coord": 12611,
+      "missing_status": 95
+    },
+    "pointers": 89280,
+    "holds": [
+      {
+        "classification": "HISTORICAL_REGION_CODE_ALIAS",
+        "n": 1391
+      }
+    ],
+    "exclusions": 4,
+    "nearby": [
+      {
+        "region": "other",
+        "materialized": 2203,
+        "with_links": 2203
+      },
+      {
+        "region": "seoul",
+        "materialized": 8364,
+        "with_links": 8364
+      }
+    ],
+    "complexes": [
+      {
+        "region": "gyeonggi",
+        "no_coordinate": 6529,
+        "complexes": 6529
+      },
+      {
+        "region": "other",
+        "no_coordinate": 10355,
+        "complexes": 12558
+      },
+      {
+        "region": "seoul",
+        "no_coordinate": 73,
+        "complexes": 8437
+      }
+    ],
+    "duplicate_master": 0,
+    "duplicate_snapshots": 0,
+    "duplicate_nearby": 0
+  },
+  "run_stats": {
+    "masterIdentityWrites": 0,
+    "coordStatusFills": 0,
+    "snapshotInserts": 0,
+    "pointerWrites": 0,
+    "auditWrites": 0,
+    "exclusionWrites": 0,
+    "nearbyInserts": 0,
+    "nearbyDeletes": 0,
+    "materializationInserts": 0,
+    "materializationUpdates": 0,
+    "reusedComplexes": 10567,
+    "newlyMaterialized": 0,
+    "rebuiltComplexes": 0,
+    "discoveryCalls": 0
+  },
+  "first_apply": {
+    "coord_status_fills": 12706,
+    "coordinate_value_fills": 0,
+    "pointer_writes": 89280,
+    "snapshot_inserts": 0,
+    "master_identity_writes": 0,
+    "nearby_inserts": 160811,
+    "nearby_deletes": 0,
+    "newly_materialized": 8365,
+    "reused_complexes": 2202,
+    "discovery_calls": 3,
+    "assignment_production_writes": 0
+  },
+  "idempotent_rerun": {
+    "masterIdentityWrites": 0,
+    "coordStatusFills": 0,
+    "snapshotInserts": 0,
+    "pointerWrites": 0,
+    "auditWrites": 0,
+    "exclusionWrites": 0,
+    "nearbyInserts": 0,
+    "nearbyDeletes": 0,
+    "materializationInserts": 0,
+    "materializationUpdates": 0,
+    "reusedComplexes": 10567,
+    "newlyMaterialized": 0,
+    "rebuiltComplexes": 0,
+    "discoveryCalls": 0
+  }
+}
