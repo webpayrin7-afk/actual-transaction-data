@@ -26,6 +26,7 @@ import {
 
 const APPLY = !process.argv.includes("--dry-run");
 const PILOTS_ONLY = process.argv.includes("--pilots");
+const OUAC_UNITS = process.argv.includes("--ouac-units");
 const PHASE = (process.argv.find((a) => a.startsWith("--phase="))?.slice(8) ?? "all").toLowerCase();
 const LIMIT = Number(process.argv.find((a) => a.startsWith("--limit="))?.slice(8) ?? "0");
 const MAX_API = Number(process.argv.find((a) => a.startsWith("--max-api="))?.slice(10) ?? "20000");
@@ -440,6 +441,13 @@ async function main() {
   const targets = await loadTargets(db);
   let work = targets.filter((t) => t.priority <= PRIORITY_MAX);
   if (PILOTS_ONLY) work = work.filter((t) => PILOT_IDS.includes(t.complexId));
+  if (OUAC_UNITS) {
+    const unitComplexes = await db.execute(
+      `SELECT DISTINCT complex_id FROM official_unit_area_cache WHERE source_provider='BldRgstHubService'`,
+    );
+    const allow = new Set(unitComplexes.rows.map((r) => String(r.complex_id)));
+    work = work.filter((t) => allow.has(t.complexId));
+  }
   work.sort((a, b) => a.priority - b.priority || a.complexId.localeCompare(b.complexId));
   if (LIMIT > 0) work = work.slice(0, LIMIT);
 

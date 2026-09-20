@@ -36,14 +36,23 @@ export async function upsertBuildings(
   rows: BuildingRecord[],
 ): Promise<UpsertStats> {
   const stats: UpsertStats = { inserted: 0, unchanged: 0, skippedPositive: 0, updatedFill: 0 };
+  if (rows.length === 0) return stats;
   const ts = nowIso();
+  const complexId = rows[0].complexId;
+  const existing = await db.execute({
+    sql: `SELECT * FROM complex_buildings WHERE complex_id = ?`,
+    args: [complexId],
+  });
+  const byId = new Map<string, Record<string, unknown>>();
+  const byKey = new Map<string, Record<string, unknown>>();
+  for (const cur of existing.rows as Record<string, unknown>[]) {
+    byId.set(String(cur.building_id), cur);
+    byKey.set(String(cur.official_building_key), cur);
+  }
+  const inserts: { sql: string; args: unknown[] }[] = [];
   for (const row of rows) {
-    const existing = await db.execute({
-      sql: `SELECT * FROM complex_buildings WHERE building_id = ? OR official_building_key = ? LIMIT 1`,
-      args: [row.buildingId, row.officialBuildingKey],
-    });
-    if (existing.rows.length > 0) {
-      const cur = existing.rows[0] as Record<string, unknown>;
+    const cur = byId.get(row.buildingId) ?? byKey.get(row.officialBuildingKey);
+    if (cur) {
       if (sameBuilding(cur, row)) {
         stats.unchanged += 1;
         continue;
@@ -83,7 +92,7 @@ export async function upsertBuildings(
       stats.updatedFill += 1;
       continue;
     }
-    await db.execute({
+    inserts.push({
       sql: `INSERT INTO complex_buildings (
               building_id, complex_id, official_building_key, mgm_bldrgst_pk,
               dong_label, dong_label_status, building_name, main_usage, main_usage_code,
@@ -114,6 +123,9 @@ export async function upsertBuildings(
       ],
     });
     stats.inserted += 1;
+  }
+  for (let i = 0; i < inserts.length; i += 40) {
+    await db.batch(inserts.slice(i, i + 40) as never, "write");
   }
   return stats;
 }
@@ -177,16 +189,22 @@ export async function upsertTypeBuildingLinks(
   links: TypeBuildingLink[],
 ): Promise<UpsertStats> {
   const stats: UpsertStats = { inserted: 0, unchanged: 0, skippedPositive: 0, updatedFill: 0 };
+  const exact = links.filter((link) => link.status === "EXACT");
+  if (exact.length === 0) return stats;
   const ts = nowIso();
-  for (const link of links) {
-    if (link.status !== "EXACT") continue;
-    const existing = await db.execute({
-      sql: `SELECT household_count, status FROM unit_type_building_links
-            WHERE complex_id=? AND unit_type_id=? AND building_id=?`,
-      args: [complexId, link.unitTypeId, link.buildingId],
-    });
-    if (existing.rows.length > 0) {
-      const cur = existing.rows[0];
+  const existing = await db.execute({
+    sql: `SELECT unit_type_id, building_id, household_count, status
+          FROM unit_type_building_links WHERE complex_id=?`,
+    args: [complexId],
+  });
+  const seen = new Map<string, { household_count: unknown; status: unknown }>();
+  for (const row of existing.rows) {
+    seen.set(`${row.unit_type_id}\t${row.building_id}`, row);
+  }
+  const inserts: { sql: string; args: unknown[] }[] = [];
+  for (const link of exact) {
+    const cur = seen.get(`${link.unitTypeId}\t${link.buildingId}`);
+    if (cur) {
       const curHh = cur.household_count == null ? null : Number(cur.household_count);
       if (curHh === link.householdCount && String(cur.status) === link.status) {
         stats.unchanged += 1;
@@ -199,7 +217,7 @@ export async function upsertTypeBuildingLinks(
       stats.unchanged += 1;
       continue;
     }
-    await db.execute({
+    inserts.push({
       sql: `INSERT INTO unit_type_building_links (
               complex_id, unit_type_id, building_id, household_count, source, source_key,
               confidence, status, source_as_of, provenance_json, created_at, updated_at
@@ -219,6 +237,9 @@ export async function upsertTypeBuildingLinks(
       ],
     });
     stats.inserted += 1;
+  }
+  for (let i = 0; i < inserts.length; i += 40) {
+    await db.batch(inserts.slice(i, i + 40) as never, "write");
   }
   return stats;
 }
