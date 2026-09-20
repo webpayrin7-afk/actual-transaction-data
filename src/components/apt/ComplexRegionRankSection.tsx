@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { ComplexRegionPriceCompare } from "@/components/apt/ComplexRegionPriceCompare";
 import {
   dongSmallCohortHelper,
   fetchComplexRegionRank,
   formatRankingAsOf,
   placeHeadline,
   rankingBandForArea,
+  regionOverviewCtaLabel,
   regionRankingHref,
   type AreaRankingBand,
   type ComplexRankPlace,
@@ -128,7 +130,7 @@ export function ComplexRegionRankSection({
     >
       <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
         <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-          지역 내 순위
+          지역 내 비교
         </h2>
         {asOf ? (
           <p className="text-[12px] leading-4 text-slate-500">{asOf}</p>
@@ -196,16 +198,18 @@ export function ComplexRegionRankSection({
           {cohortHelper ? (
             <p className="text-[12px] leading-4 text-slate-500">{cohortHelper}</p>
           ) : null}
-
-          <Link
-            href={regionRankingHref(regionSlug)}
-            data-event="complex_region_rank_cta"
-            className="lab-button lab-button-secondary flex w-full !min-h-9 items-center justify-center text-[13px]"
-          >
-            {regionName} 아파트 순위 보기
-          </Link>
         </div>
       )}
+
+      <ComplexRegionPriceCompare complexId={id} areaBand={areaBand} />
+
+      <Link
+        href={regionRankingHref(regionSlug)}
+        data-event="complex_region_rank_cta"
+        className="lab-button lab-button-secondary mt-3 flex w-full !min-h-9 items-center justify-center text-[13px]"
+      >
+        {regionOverviewCtaLabel(regionName)}
+      </Link>
     </section>
   );
 }

@@ -75,3 +75,19 @@ export function inAreaBand(exclusiveSqm: number, band: AreaBandDef): boolean {
   if (band.exclusiveSqmMin == null || band.exclusiveSqmMax == null) return false;
   return exclusiveSqm >= band.exclusiveSqmMin && exclusiveSqm <= band.exclusiveSqmMax;
 }
+
+export type RegionalAreaBandId = "59" | "84" | "114";
+
+/**
+ * Selected exclusive area → regional band.
+ * Uses the frozen inclusive windows only. No nearest-band rounding.
+ * Not apt_pyeong_groups and not the 84.00–84.99 selector helper.
+ */
+export function resolveSelectedAreaBand(exclusiveSqm: number): RegionalAreaBandId | null {
+  if (!Number.isFinite(exclusiveSqm)) return null;
+  const ids: readonly RegionalAreaBandId[] = ["59", "84", "114"];
+  for (const id of ids) {
+    if (inAreaBand(exclusiveSqm, activeAreaBand(id))) return id;
+  }
+  return null;
+}

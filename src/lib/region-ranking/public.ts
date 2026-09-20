@@ -3,21 +3,37 @@
  * Does not score, recompute ranks, or invent public metrics.
  */
 import { AREA_BANDS_V1, inAreaBand } from "@/lib/region-ranking/area-band";
-import { formatDealDate, formatEok } from "@/lib/utils/format";
+import { formatDealDate } from "@/lib/utils/format";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 
-export const RANKING_TYPES = ["ALL", "59", "84", "114"] as const;
+export const RANKING_TYPES = [
+  "COMPOSITE",
+  "TRADE_VOLUME",
+  "PRICE_PER_SQM",
+] as const;
 export type RankingType = (typeof RANKING_TYPES)[number];
-export type AreaRankingBand = Exclude<RankingType, "ALL">;
+export type AreaRankingBand = "59" | "84" | "114";
 
 export const RANKING_TABS: ReadonlyArray<{
   id: RankingType;
   label: string;
+  hint: string;
 }> = [
-  { id: "ALL", label: "종합" },
-  { id: "59", label: "59㎡" },
-  { id: "84", label: "84㎡" },
-  { id: "114", label: "114㎡" },
+  {
+    id: "COMPOSITE",
+    label: "종합",
+    hint: "가격 경쟁력, 거래활성도, 단지 규모, 시장 안정성과 최근 흐름 등을 종합해 비교합니다.",
+  },
+  {
+    id: "TRADE_VOLUME",
+    label: "거래량",
+    hint: "최근 3개월 실거래 매매 건수 기준",
+  },
+  {
+    id: "PRICE_PER_SQM",
+    label: "㎡당 가격",
+    hint: "최근 3개월 매매 실거래의 ㎡당 가격 중위값 기준",
+  },
 ];
 
 export type RegionRankingCoverage = {
@@ -42,9 +58,12 @@ export type RegionRankingRow = {
   complex_id: string;
   apt_name: string | null;
   dong: string | null;
-  confidence: string | null;
-  coverage: RegionRankingCoverage | null;
-  public_metrics: RegionRankingPublicMetrics | null;
+  confidence?: string | null;
+  coverage?: RegionRankingCoverage | null;
+  public_metrics?: RegionRankingPublicMetrics | null;
+  trade_count_3m?: unknown;
+  latest_deal_date?: unknown;
+  median_price_per_sqm_3m?: unknown;
 };
 
 export type RegionRankingBoard = {
@@ -161,10 +180,9 @@ export async function fetchRegionRankingBoards(
     }),
   );
   return {
-    ALL: entries.find(([k]) => k === "ALL")?.[1] ?? null,
-    "59": entries.find(([k]) => k === "59")?.[1] ?? null,
-    "84": entries.find(([k]) => k === "84")?.[1] ?? null,
-    "114": entries.find(([k]) => k === "114")?.[1] ?? null,
+    COMPOSITE: entries.find(([k]) => k === "COMPOSITE")?.[1] ?? null,
+    TRADE_VOLUME: entries.find(([k]) => k === "TRADE_VOLUME")?.[1] ?? null,
+    PRICE_PER_SQM: entries.find(([k]) => k === "PRICE_PER_SQM")?.[1] ?? null,
   };
 }
 
@@ -279,18 +297,107 @@ export function confidenceCopy(raw: string | null | undefined): string | null {
 }
 
 export type RankingRowMetrics = {
-  price: string | null;
-  volume: string | null;
-  perSqm: string | null;
-  latest: string | null;
-  allHint: string | null;
+  primary: string | null;
+  secondary: string | null;
+  hint: string | null;
 };
+
+export function formatWonPerSqm(value: unknown): string | null {
+  const n = finiteNumber(value);
+  if (n == null || n <= 0) return null;
+  return `${Math.round(n).toLocaleString("ko-KR")}만원/㎡`;
+}
+
+/** Display-only 평당가. Does not convert or invent the source number. */
+export function formatWonPerPyeong(value: unknown): string | null {
+  const n = finiteNumber(value);
+  if (n == null || n <= 0) return null;
+  const eok = Math.floor(n / 10000);
+  const rest = Math.round(n % 10000);
+  if (eok >= 1) {
+    if (rest === 0) return `${eok}억/평`;
+    return `${eok}억 ${rest.toLocaleString("ko-KR")}만/평`;
+  }
+  return `${Math.round(n).toLocaleString("ko-KR")}만/평`;
+}
+
+export function formatSignedPct(value: unknown): string | null {
+  const n = finiteNumber(value);
+  if (n == null) return null;
+  const rounded = Math.round(n * 100) / 100;
+  const abs = Math.abs(rounded);
+  const text = Number.isInteger(abs)
+    ? String(Math.abs(rounded))
+    : abs.toFixed(2).replace(/0$/, "").replace(/\.$/, "");
+  if (rounded > 0) return `+${text}%`;
+  if (rounded < 0) return `-${text}%`;
+  return "0%";
+}
+
+export function formatReferenceMonthLabel(raw: string | null | undefined): string | null {
+  if (!raw?.trim()) return null;
+  const match = /^(\d{4})-(\d{2})/.exec(raw.trim());
+  if (!match) return null;
+  return `${match[1]}년 ${Number(match[2])}월 기준`;
+}
+
+export function formatTradeCount(value: unknown, prefix = ""): string | null {
+  const n = finiteNumber(value);
+  if (n == null || n <= 0) return null;
+  return `${prefix}${Math.round(n).toLocaleString("ko-KR")}건`;
+}
+
+export function latestDealLabel(value: unknown): string | null {
+  const raw = asString(value);
+  if (!raw) return null;
+  const iso = raw.length >= 10 ? raw.slice(0, 10) : raw;
+  const dotted = formatDealDate(iso.includes("-") ? iso : iso);
+  return dotted || null;
+}
+
+export function priceLevelScale(
+  cells: ReadonlyArray<{ status: string; value: number | null }>,
+): number | null {
+  const values = cells
+    .filter((cell) => cell.status === "ok" && cell.value != null && cell.value > 0)
+    .map((cell) => cell.value as number);
+  return values.length > 0 ? Math.max(...values) : null;
+}
+
+export function barWidthPct(value: number | null, max: number | null): number {
+  if (value == null || max == null || !(max > 0) || !(value > 0)) return 0;
+  return Math.min(100, (value / max) * 100);
+}
+
+export function trendAbsScale(
+  cells: ReadonlyArray<{ status: string; changePercent: number | null }>,
+  apiMax?: number | null,
+): number | null {
+  if (apiMax != null && Number.isFinite(apiMax) && apiMax > 0) return apiMax;
+  const values = cells
+    .filter((cell) => cell.status === "ok" && cell.changePercent != null)
+    .map((cell) => Math.abs(cell.changePercent as number));
+  return values.length > 0 ? Math.max(...values) : null;
+}
+
+export function trendBarLayout(
+  value: number | null,
+  maxAbs: number | null,
+): { side: "left" | "right" | "none"; pct: number } {
+  if (value == null || maxAbs == null || !(maxAbs > 0)) {
+    return { side: "none", pct: 0 };
+  }
+  const pct = Math.min(100, (Math.abs(value) / maxAbs) * 100);
+  if (value < 0) return { side: "left", pct };
+  if (value > 0) return { side: "right", pct };
+  return { side: "none", pct: 0 };
+}
 
 export function rowPublicMetrics(
   type: RankingType,
   row: RegionRankingRow,
 ): RankingRowMetrics {
-  if (type === "ALL") {
+  if (type === "COMPOSITE") {
     const hint = [
       coverageCopy(row.coverage),
       confidenceCopy(row.confidence),
@@ -298,30 +405,26 @@ export function rowPublicMetrics(
       .filter(Boolean)
       .join(" · ");
     return {
-      price: null,
-      volume: null,
-      perSqm: null,
-      latest: null,
-      allHint: hint || null,
+      primary: null,
+      secondary: null,
+      hint: hint || null,
     };
   }
-  const metrics = row.public_metrics;
-  const amount = finiteNumber(metrics?.median_deal_amount);
-  const perSqm = finiteNumber(metrics?.median_price_per_sqm);
-  const count = finiteNumber(metrics?.trade_count);
-  const latest = asString(metrics?.latest_deal_date);
+  if (type === "TRADE_VOLUME") {
+    const count = row.trade_count_3m ?? row.public_metrics?.trade_count;
+    const latest = row.latest_deal_date ?? row.public_metrics?.latest_deal_date;
+    return {
+      primary: formatTradeCount(count),
+      secondary: latestDealLabel(latest),
+      hint: null,
+    };
+  }
+  const perSqm = row.median_price_per_sqm_3m ?? row.public_metrics?.median_price_per_sqm;
+  const count = row.trade_count_3m ?? row.public_metrics?.trade_count;
   return {
-    price: amount != null && amount > 0 ? formatEok(amount) : null,
-    volume:
-      count != null && count > 0
-        ? `${Math.round(count).toLocaleString("ko-KR")}건`
-        : null,
-    perSqm:
-      perSqm != null && perSqm > 0
-        ? `${Math.round(perSqm).toLocaleString("ko-KR")}만/㎡`
-        : null,
-    latest: latest ? formatDealDate(latest.length >= 10 ? latest.slice(0, 10) : latest) : null,
-    allHint: null,
+    primary: formatWonPerSqm(perSqm),
+    secondary: formatTradeCount(count, "거래 "),
+    hint: null,
   };
 }
 
@@ -360,18 +463,194 @@ export function dongSmallCohortHelper(params: {
   return `${name} 순위 · 비교 가능한 ${hit.total.toLocaleString("ko-KR")}개 단지 기준`;
 }
 
-export function unavailableBoardCopy(type: RankingType): {
+export const RANK_PREPARING_COPY = "지역 비교 데이터를 준비 중이에요.";
+export const RANK_SMALL_REGION_COPY =
+  "이 지역은 비교 가능한 아파트 단지가 적어 순위를 제공하지 않아요.";
+export const PRICE_COMPARE_UNSUPPORTED_COPY =
+  "이 면적대는 지역 가격 비교를 제공하지 않아요.";
+export const INSUFFICIENT_SAMPLE_COPY = "표본 부족";
+
+export function unavailableBoardCopy(_type?: RankingType): {
   title: string;
   helper: string;
 } {
-  if (type === "ALL") {
-    return {
-      title: "아직 이 면적대의 순위를 준비 중이에요",
-      helper: "충분한 거래·단지 데이터가 확보되면 제공됩니다.",
-    };
-  }
   return {
-    title: "아직 이 면적대의 순위를 준비 중이에요",
+    title: RANK_PREPARING_COPY,
     helper: "충분한 거래·단지 데이터가 확보되면 제공됩니다.",
   };
+}
+
+export function regionOverviewCtaLabel(regionName: string): string {
+  return `${regionName} 지역현황 보기`;
+}
+
+export const PRICE_COMPARE_TABS = [
+  { id: "level", label: "가격 수준" },
+  { id: "trend", label: "변동률" },
+] as const;
+export type PriceCompareTab = (typeof PRICE_COMPARE_TABS)[number]["id"];
+
+export const TREND_PERIOD_TABS = [
+  { id: "3M", label: "3개월" },
+  { id: "6M", label: "6개월" },
+  { id: "1Y", label: "1년" },
+  { id: "3Y", label: "3년" },
+] as const;
+export type TrendPeriodId = (typeof TREND_PERIOD_TABS)[number]["id"];
+
+export const PRICE_LEVEL_TIP =
+  "선택한 면적대의 최근 거래월을 기준으로, 같은 달의 단지·동·구·서울 실거래 ㎡당 중위가격을 평당 가격으로 환산해 비교합니다.";
+export const TREND_TIP =
+  "선택한 면적대의 최근 3개월 ㎡당 실거래 중위가격과 각 비교시점의 동일한 3개월 구간을 비교합니다. 지역 단위 값은 거래 구성에 따라 변동될 수 있습니다.";
+
+export type PriceCompareStatus =
+  | "ok"
+  | "INSUFFICIENT_SAMPLE"
+  | "PRICE_COMPARE_UNSUPPORTED_AREA"
+  | "unavailable";
+
+export type PriceLevelPublicCell = {
+  scope: "COMPLEX" | "DONG" | "GU" | "SEOUL";
+  label: string;
+  medianPricePerSqm: number | null;
+  medianPricePerPyeong: number | null;
+  tradeCount: number | null;
+  status: "ok" | "INSUFFICIENT_SAMPLE";
+};
+
+export type TrendPublicCell = {
+  scope: "COMPLEX" | "DONG" | "GU" | "SEOUL";
+  label: string;
+  changePercent: number | null;
+  status: "ok" | "INSUFFICIENT_SAMPLE";
+};
+
+export type ComplexPricePositionResponse = {
+  status: PriceCompareStatus;
+  complexId: string;
+  aptName: string | null;
+  areaBand: string | null;
+  transactionAsOf: string | null;
+  referenceMonth: string | null;
+  priceLevel: PriceLevelPublicCell[];
+  trends: Record<TrendPeriodId, TrendPublicCell[]>;
+  maxAvailableValue: {
+    priceLevel: number | null;
+    trends: Record<TrendPeriodId, number | null>;
+  };
+};
+
+function asPriceCells(raw: unknown): PriceLevelPublicCell[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as Partial<PriceLevelPublicCell>;
+      const scope = row.scope;
+      if (scope !== "COMPLEX" && scope !== "DONG" && scope !== "GU" && scope !== "SEOUL") {
+        return null;
+      }
+      return {
+        scope,
+        label: asString(row.label) ?? scope,
+        medianPricePerSqm: finiteNumber(row.medianPricePerSqm),
+        medianPricePerPyeong: finiteNumber(row.medianPricePerPyeong),
+        tradeCount: finiteNumber(row.tradeCount),
+        status: row.status === "INSUFFICIENT_SAMPLE" ? "INSUFFICIENT_SAMPLE" : "ok",
+      };
+    })
+    .filter((row): row is PriceLevelPublicCell => row != null);
+}
+
+function asTrendCells(raw: unknown): TrendPublicCell[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as Partial<TrendPublicCell>;
+      const scope = row.scope;
+      if (scope !== "COMPLEX" && scope !== "DONG" && scope !== "GU" && scope !== "SEOUL") {
+        return null;
+      }
+      return {
+        scope,
+        label: asString(row.label) ?? scope,
+        changePercent: finiteNumber(row.changePercent),
+        status: row.status === "INSUFFICIENT_SAMPLE" ? "INSUFFICIENT_SAMPLE" : "ok",
+      };
+    })
+    .filter((row): row is TrendPublicCell => row != null);
+}
+
+function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionResponse {
+  const data = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const statusRaw = asString(data.status);
+  const status: PriceCompareStatus =
+    statusRaw === "ok" ||
+    statusRaw === "INSUFFICIENT_SAMPLE" ||
+    statusRaw === "PRICE_COMPARE_UNSUPPORTED_AREA" ||
+    statusRaw === "unavailable"
+      ? statusRaw
+      : "unavailable";
+  const trendsRaw = data.trends && typeof data.trends === "object"
+    ? (data.trends as Record<string, unknown>)
+    : {};
+  const maxRaw = data.maxAvailableValue && typeof data.maxAvailableValue === "object"
+    ? (data.maxAvailableValue as Record<string, unknown>)
+    : {};
+  const trendMaxRaw = maxRaw.trends && typeof maxRaw.trends === "object"
+    ? (maxRaw.trends as Record<string, unknown>)
+    : {};
+  return {
+    status,
+    complexId: asString(data.complexId) ?? complexId,
+    aptName: asString(data.aptName),
+    areaBand: asString(data.areaBand),
+    transactionAsOf: asString(data.transactionAsOf),
+    referenceMonth: asString(data.referenceMonth),
+    priceLevel: asPriceCells(data.priceLevel),
+    trends: {
+      "3M": asTrendCells(trendsRaw["3M"]),
+      "6M": asTrendCells(trendsRaw["6M"]),
+      "1Y": asTrendCells(trendsRaw["1Y"]),
+      "3Y": asTrendCells(trendsRaw["3Y"]),
+    },
+    maxAvailableValue: {
+      priceLevel: finiteNumber(maxRaw.priceLevel),
+      trends: {
+        "3M": finiteNumber(trendMaxRaw["3M"]),
+        "6M": finiteNumber(trendMaxRaw["6M"]),
+        "1Y": finiteNumber(trendMaxRaw["1Y"]),
+        "3Y": finiteNumber(trendMaxRaw["3Y"]),
+      },
+    },
+  };
+}
+
+export async function fetchComplexPricePosition(params: {
+  complexId: string;
+  areaBand: AreaRankingBand;
+}): Promise<ComplexPricePositionResponse> {
+  const qs = new URLSearchParams({
+    complex_id: params.complexId,
+    area_band: params.areaBand,
+  });
+  const res = await fetch(`/api/complex-region-price-position?${qs.toString()}`);
+  if (!res.ok) {
+    throw new RankingRequestError("지역 가격 비교를 불러오지 못했습니다.");
+  }
+  return asPricePosition(await res.json(), params.complexId);
+}
+
+export function priceCompareStatusCopy(status: PriceCompareStatus | string | null | undefined): {
+  title: string;
+  helper?: string;
+} {
+  if (status === "PRICE_COMPARE_UNSUPPORTED_AREA") {
+    return { title: PRICE_COMPARE_UNSUPPORTED_COPY };
+  }
+  if (status === "INSUFFICIENT_SAMPLE") {
+    return { title: INSUFFICIENT_SAMPLE_COPY };
+  }
+  return { title: RANK_PREPARING_COPY };
 }
