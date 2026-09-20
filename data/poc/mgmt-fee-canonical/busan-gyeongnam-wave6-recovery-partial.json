@@ -1,0 +1,47 @@
+{
+  "status": "CLEAN_STOP_PARTIAL_ACQUISITION",
+  "wave": 6,
+  "production_write": false,
+  "stop_reason": "WALL_RUNTIME_90_MIN",
+  "recovery_start": "2026-09-20T12:22:36Z",
+  "stopped_at": "2026-09-20T13:49:31.786690Z",
+  "production": {
+    "rows": 781,
+    "complexes": 668
+  },
+  "prior_waves": {
+    "wave3": "APPLIED",
+    "wave4": "APPLIED",
+    "wave5": "APPLIED",
+    "wave6": "PARTIAL_ACQUISITION"
+  },
+  "checkpoint": {
+    "path": "data/poc/mgmt-fee-canonical/busan-gyeongnam-wave6-op-checkpoint.json",
+    "records": 2619,
+    "complex_ids": 200,
+    "full_catalog_months": 74,
+    "published_probe_complexes": 182,
+    "http": {
+      "200": 2619
+    },
+    "status_counts": {
+      "missing": 344,
+      "success": 2275
+    },
+    "latest_completed_at": "2026-09-20T10:11:40.225Z",
+    "resumable": true
+  },
+  "this_run": {
+    "new_api_calls_approx": 1320,
+    "records_at_recovery_start": 1299,
+    "waves_applied": 0,
+    "inserted": 0,
+    "updated": 0,
+    "deleted": 0
+  },
+  "next": {
+    "wave": 6,
+    "action": "RESUME_CHECKPOINT_THEN_FINISH_DRYRUN_THEN_APPLY",
+    "cursor": "remaining catalog ops for published months after existing checkpoint records; do not reselect cohort"
+  }
+}
