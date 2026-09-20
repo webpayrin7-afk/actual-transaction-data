@@ -128,7 +128,7 @@ export function resolveComplexMonth(params: {
     const cell = cells.get(month);
     if (!cell || cell.tradeCount < minTrades) continue;
     const distance = Math.abs(delta);
-    if (!best || distance < best.distance || (distance === best.distance && month > best.month)) {
+    if (!best || distance < best.distance || (distance === best.distance && month < best.month)) {
       best = { month, cell, distance };
     }
   }

@@ -21,8 +21,8 @@ function unsupported(complexId: string, exclusiveArea: number | null) {
     transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
     referenceMonth: null,
     priceLevel: [],
-    trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
-    maxAvailableValue: { priceLevel: null, trends: { "3M": null, "6M": null, "1Y": null, "3Y": null } },
+    trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
+    maxAvailableValue: { priceLevel: null, trends: { "6M": null, "1Y": null, "2Y": null, "5Y": null } },
   });
 }
 
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
         referenceMonth: null,
         priceLevel: [],
-        trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
+        trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
       });
     }
     return NextResponse.json(found.body);
