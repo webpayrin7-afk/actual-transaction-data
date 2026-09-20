@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import time
 import zipfile
 from collections import defaultdict
@@ -15,8 +16,8 @@ from pathlib import Path
 
 ROOT = Path("/tmp/building-hub-bulk")
 ZIP_PATH = ROOT / "mart_djy_06_202608.zip"
-MANIFEST = ROOT / "manifest-parcels.jsonl"
-SHARD_DIR = ROOT / "matched-shards"
+MANIFEST = Path(os.environ.get("BULK_MANIFEST", str(ROOT / "manifest-parcels.jsonl")))
+SHARD_DIR = Path(os.environ.get("BULK_SHARD_DIR", str(ROOT / "matched-shards")))
 PROGRESS = ROOT / "stream-progress.json"
 META = ROOT / "source-meta.json"
 

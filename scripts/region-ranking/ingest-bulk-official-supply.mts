@@ -26,7 +26,7 @@ import { supplyPyeongDisplayLabel } from "../../src/lib/unit-type/supply-label";
 const ROOT = "/tmp/building-hub-bulk";
 const SHARD_DIR = join(ROOT, "matched-shards");
 const MIGRATION = "src/lib/db/migrations/20260924_official_unit_area.sql";
-const BATCH = 40;
+const BATCH = 100;
 const AS_OF = "2026-09-17";
 const START_12M = "2025-09-17";
 const START_3Y = "2023-09-17";
@@ -113,11 +113,12 @@ async function writeCache(
   db: Client,
   complexId: string,
   pnu: string,
-  units: ReturnType<typeof deriveOfficialSupplies>["units"],
+  derived: ReturnType<typeof deriveOfficialSupplies>,
   meta: { checksum: string; sourceMonth: string },
   now: string,
 ) {
-  const statements = units.map((unit) => ({
+  // Full ho-level rows stay in local matched-shards (62M+). Turso keeps one evidence row per derived supply type.
+  const statements = derived.supplies.map((supply) => ({
     sql: `INSERT INTO official_unit_area_cache (
             complex_id, source_unit_id, source_provider, source_dataset, pnu, source_building_id,
             dong, floor, ho, exclusive_area, residential_common_area, other_common_area,
@@ -126,29 +127,29 @@ async function writeCache(
           ON CONFLICT(complex_id, source_unit_id) DO NOTHING`,
     args: [
       complexId,
-      `${unit.dong}|${unit.ho}`,
-      "BldRgstHubService",
-      "getBrExposPubuseAreaInfo",
+      `type:${supply.exclusiveCents}:${supply.supplyCents}`,
+      "BuildingHubBulk",
+      "mart_djy_06",
       pnu,
-      unit.sourceBuildingId,
-      unit.dong,
-      unit.floor,
-      unit.ho,
-      unit.exclusiveArea,
-      unit.residentialCommonArea,
-      unit.otherCommonArea,
-      unit.explicitSupplyArea,
-      unit.contractArea,
-      `${pnu}:${unit.dong}:${unit.ho}`,
-      unit.sourceAsOf,
+      "",
+      "",
+      "",
+      "",
+      supply.exclusiveArea,
+      supply.residentialCommonArea,
+      null,
+      supply.supplyArea,
+      null,
+      `${pnu}:${supply.exclusiveCents}:${supply.supplyCents}`,
+      meta.sourceMonth,
       now,
       JSON.stringify({
         acquisition_method: "BULK",
         bulk_source_month: meta.sourceMonth,
         bulk_checksum: meta.checksum,
-        formula: "exclusive_plus_residential_common",
-        derivable: unit.derivable,
-        partial: unit.partial,
+        formula: supply.formula,
+        household_count: supply.householdCount,
+        local_shard: true,
       }),
     ] as InArgs,
   }));
@@ -278,7 +279,7 @@ async function processComplex(
 ) {
   const now = new Date().toISOString();
   const derived = deriveOfficialSupplies(rows, aptName);
-  await writeCache(db, complexId, pnu, derived.units, meta, now);
+  await writeCache(db, complexId, pnu, derived, meta, now);
   const bucket = existing.get(complexId) ?? new Map();
   existing.set(complexId, bucket);
   if (derived.distinguishable) {
@@ -358,10 +359,21 @@ async function main() {
   };
   const meta = { checksum: sourceMeta.sha256, sourceMonth: sourceMeta.source_month };
   const manifest = new Map<string, { aptName: string; pnu: string; parcelKey: string | null }>();
-  for (const line of readFileSync(join(ROOT, "manifest-parcels.jsonl"), "utf8").split("\n")) {
-    if (!line) continue;
-    const row = JSON.parse(line) as { complexId: string; aptName: string; pnu: string | null; parcelKey: string | null };
-    manifest.set(row.complexId, { aptName: row.aptName, pnu: row.pnu || "", parcelKey: row.parcelKey });
+  for (const file of ["manifest-parcels.jsonl", "pilot-parcels.jsonl"]) {
+    const path = join(ROOT, file);
+    if (!existsSync(path)) continue;
+    for (const line of readFileSync(path, "utf8").split("\n")) {
+      if (!line) continue;
+      const row = JSON.parse(line) as {
+        complexId: string;
+        aptName: string;
+        pnu: string | null;
+        parcelKey: string | null;
+      };
+      if (!manifest.has(row.complexId)) {
+        manifest.set(row.complexId, { aptName: row.aptName, pnu: row.pnu || "", parcelKey: row.parcelKey });
+      }
+    }
   }
 
   const existing = new Map<string, Existing>();
