@@ -48,6 +48,8 @@ const OBSOLETE_OPS = new Set([
 ]);
 
 let store = OpCheckpointStore.empty();
+let checkpointLoaded = false;
+let retryCount = 0;
 
 function referenceCalls(): LiveCall[] {
   const calls = buildLiveCalls().filter((call) => call.in_reference);
@@ -62,8 +64,18 @@ function sleep(ms: number): Promise<void> {
 }
 
 function persist(): void {
+  if (!checkpointLoaded) return;
   writeFileSync(CHECKPOINT_PATH, store.serialize());
 }
+
+process.on("SIGINT", () => {
+  try { persist(); } catch { /* checkpoint may not be loaded */ }
+  process.exit(130);
+});
+process.on("SIGTERM", () => {
+  try { persist(); } catch { /* checkpoint may not be loaded */ }
+  process.exit(143);
+});
 
 function existsCheckpoint(): boolean {
   try {
@@ -107,12 +119,24 @@ async function fetchText(url: URL): Promise<{ status: number; body: string }> {
         headers: { Accept: "application/json" },
         signal: AbortSignal.timeout(20000),
       });
-      return { status: response.status, body: await response.text() };
+      const body = await response.text();
+      if (response.status === 429 || response.status >= 500) {
+        last = new Error(`http ${response.status}`);
+        if (attempt < 3) {
+          retryCount += 1;
+          await sleep(SLEEP_MS * (response.status === 429 ? 5 * attempt : attempt));
+          continue;
+        }
+      }
+      return { status: response.status, body };
     } catch (error) {
       const name = error instanceof Error ? error.name : "";
       if (name !== "AbortError" && name !== "TimeoutError") throw error;
       last = error;
-      if (attempt < 3) await sleep(SLEEP_MS);
+      if (attempt < 3) {
+        retryCount += 1;
+        await sleep(SLEEP_MS);
+      }
     }
   }
   throw last instanceof Error ? last : new Error("timeout");
@@ -220,8 +244,17 @@ async function main(): Promise<void> {
   const probe = calls.find((call) => call.op === "getHsmpCleaningCostInfoV3" && call.service === "common");
   if (!probe) throw new Error("cleaning probe missing from reference catalog");
   store = existsCheckpoint() ? OpCheckpointStore.parse(readFileSync(CHECKPOINT_PATH, "utf8")) : OpCheckpointStore.empty();
+  checkpointLoaded = true;
   const resumedOverlap = store.list().filter((record) => prior.has(record.complex_id)).length;
   if (resumedOverlap !== 0) throw new Error("wave 6 checkpoint contains an earlier cohort");
+  const checkpointIds = new Set(store.list().map((record) => record.complex_id));
+  if (
+    checkpointIds.size !== cohort.length ||
+    cohort.some((row) => !checkpointIds.has(row.complex_id))
+  ) {
+    throw new Error(`wave 6 resume cohort mismatch checkpoint=${checkpointIds.size} planned=${cohort.length}`);
+  }
+  writeSync(1, `resume records=${store.list().length} cohort=${cohort.length} retries=${retryCount}\n`);
   const periods = buildProbePeriods(PERIOD_CEILING, 3);
   const targets: WaveTarget[] = [];
   let apiCalls = 0;
