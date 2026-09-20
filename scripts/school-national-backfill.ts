@@ -118,9 +118,6 @@ function arg(name: string): string | null {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : null;
 }
-  const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
-  return hit ? hit.slice(name.length + 3) : null;
-}
 
 function hasFlag(name: string): boolean {
   return process.argv.includes(`--${name}`);
