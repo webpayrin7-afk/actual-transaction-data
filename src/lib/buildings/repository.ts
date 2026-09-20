@@ -342,46 +342,6 @@ export async function upsertParity(
     ],
   });
 }
-  db: Client,
-  row: {
-    complexId: string;
-    kaptHousehold: number | null;
-    unitHousehold: number | null;
-    typeHouseholdSum: number | null;
-    buildingHouseholdSum: number | null;
-    parityClass: string;
-    detail: string;
-    sourceAsOf: string;
-  },
-): Promise<void> {
-  const ts = nowIso();
-  await db.execute({
-    sql: `INSERT INTO complex_building_parity (
-            complex_id, kapt_household_count, unit_household_count, type_household_sum,
-            building_household_sum, parity_class, detail, source_as_of, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-          ON CONFLICT(complex_id) DO UPDATE SET
-            kapt_household_count=excluded.kapt_household_count,
-            unit_household_count=excluded.unit_household_count,
-            type_household_sum=excluded.type_household_sum,
-            building_household_sum=excluded.building_household_sum,
-            parity_class=excluded.parity_class,
-            detail=excluded.detail,
-            source_as_of=excluded.source_as_of,
-            updated_at=excluded.updated_at`,
-    args: [
-      row.complexId,
-      row.kaptHousehold,
-      row.unitHousehold,
-      row.typeHouseholdSum,
-      row.buildingHouseholdSum,
-      row.parityClass,
-      row.detail,
-      row.sourceAsOf,
-      ts,
-    ],
-  });
-}
 
 export async function upsertCheckpoint(
   db: Client,
@@ -718,58 +678,4 @@ export async function refreshThreeDReadiness(db: Client): Promise<void> {
     WHERE residential_flag = 1
   `);
 }
-  db: Client,
-  row: {
-    complexId: string;
-    parcelKey?: string;
-    pnu?: string;
-    priority?: number;
-    titleStatus: string;
-    buildingStatus: string;
-    geometryStatus: string;
-    linkStatus: string;
-    titleTotalCount?: number;
-    residentialCount?: number;
-    apiCalls?: number;
-    detail?: string;
-  },
-): Promise<void> {
-  const ts = nowIso();
-  await db.execute({
-    sql: `INSERT INTO complex_building_checkpoint (
-            complex_id, parcel_key, pnu, priority, title_status, building_status,
-            geometry_status, link_status, title_total_count, residential_count,
-            api_calls, detail, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          ON CONFLICT(complex_id) DO UPDATE SET
-            parcel_key=excluded.parcel_key,
-            pnu=excluded.pnu,
-            priority=excluded.priority,
-            title_status=excluded.title_status,
-            building_status=excluded.building_status,
-            geometry_status=excluded.geometry_status,
-            link_status=excluded.link_status,
-            title_total_count=excluded.title_total_count,
-            residential_count=excluded.residential_count,
-            api_calls=excluded.api_calls,
-            detail=excluded.detail,
-            title_retry_count=COALESCE(excluded.title_retry_count, complex_building_checkpoint.title_retry_count),
-            title_recovery_status=COALESCE(excluded.title_recovery_status, complex_building_checkpoint.title_recovery_status),
-            updated_at=excluded.updated_at`,
-    args: [
-      row.complexId,
-      row.parcelKey ?? "",
-      row.pnu ?? "",
-      row.priority ?? 9,
-      row.titleStatus,
-      row.buildingStatus,
-      row.geometryStatus,
-      row.linkStatus,
-      row.titleTotalCount ?? 0,
-      row.residentialCount ?? 0,
-      row.apiCalls ?? 0,
-      row.detail ?? "",
-      ts,
-    ],
-  });
-}
+

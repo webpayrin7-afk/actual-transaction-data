@@ -10,6 +10,6 @@
   "wfsFallbackUsed": false,
   "acquisitionStatus": "SOURCE_UNAVAILABLE",
   "localPath": "",
-  "detail": "Official SHP/file bulk (VWorld dsId=18 / data.go.kr 15083092) did not download: vworld.kr connection reset, nsdi.go.kr DNS failure. WFS fallback not used.",
-  "createdAt": "2026-09-20T19:45:00.000Z"
+  "detail": "Official SHP bulk (data.go.kr 15083092 / VWorld dsId=18) unreachable from this environment; NSDI DNS failed; WFS fallback not used.",
+  "createdAt": "2026-09-20T19:55:37.771Z"
 }
