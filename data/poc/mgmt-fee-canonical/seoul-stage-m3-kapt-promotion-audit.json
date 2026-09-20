@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-09-20T23:41:20.033Z",
+  "manifest_sha256": "75954b99f42aed19cf27e5f701a076ca1a2b7cb03c17cd5389f9e03973e599c7",
+  "stage_m3_candidates": 1655,
+  "exact_safe": 801,
+  "high_confidence_skipped": 854,
+  "counts": {
+    "PROMOTABLE": 801,
+    "ALREADY_PRESENT": 0,
+    "CONFLICT": 0,
+    "STALE": 0,
+    "INVALID": 0,
+    "SKIPPED_NON_EXACT": 854
+  },
+  "production_write": false
+}

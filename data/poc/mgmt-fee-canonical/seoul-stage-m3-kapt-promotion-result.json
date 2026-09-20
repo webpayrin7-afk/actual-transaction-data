@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "production_write": true,
+  "inserted_source_links": 801,
+  "positive_overwrites": 0,
+  "before_kapt_links": 12569,
+  "after_kapt_links": 13370,
+  "counts": {
+    "PROMOTABLE": 801,
+    "ALREADY_PRESENT": 0,
+    "CONFLICT": 0,
+    "STALE": 0,
+    "INVALID": 0,
+    "SKIPPED_NON_EXACT": 854
+  },
+  "gyeonggi_identity_artifact": "GYEONGGI_IDENTITY_ARTIFACT_MISSING",
+  "coverage": {
+    "kapt_source_links": 13370,
+    "duplicate_complex_to_kapt": 0,
+    "duplicate_kapt_to_complex": 0,
+    "by_sido": {
+      "11": {
+        "master": 8437,
+        "confirmed_kapt": 810,
+        "fee": 9,
+        "ready_unloaded": 801
+      },
+      "26": {
+        "master": 1404,
+        "confirmed_kapt": 1404,
+        "fee": 411,
+        "ready_unloaded": 993
+      },
+      "41": {
+        "master": 6529,
+        "confirmed_kapt": 2,
+        "fee": 2,
+        "ready_unloaded": 0
+      },
+      "48": {
+        "master": 1395,
+        "confirmed_kapt": 1395,
+        "fee": 428,
+        "ready_unloaded": 967
+      }
+    },
+    "national": {
+      "master": 27524,
+      "confirmed_kapt": 13370,
+      "fee_complexes": 850,
+      "ready_unloaded": 12520
+    }
+  },
+  "updated_at": "2026-09-20T23:41:20.033Z",
+  "source": "KAPT",
+  "source_version": "stage-m3/AptListService4/getSigunguAptList4@2026-09-16",
+  "manifest_sha256": "75954b99f42aed19cf27e5f701a076ca1a2b7cb03c17cd5389f9e03973e599c7",
+  "api_calls": 0
+}
