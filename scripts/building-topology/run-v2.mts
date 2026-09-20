@@ -293,7 +293,7 @@ async function phaseCounts(db: Client) {
       args: [
         complexId, kapt.get(complexId) ?? null, physical, unsafe.get(complexId) ?? null,
         bldg.get(complexId) ?? null, parity.parityClass, parity.detail, asOf, ts,
-        physical, uiSum, groupSum, displayedExceedsPhysical(uiSum, physical ?? bldg.get(complexId) ?? null) ? 1 : 0,
+        physical, uiSum, groupSum, displayedExceedsPhysical(uiSum, physical) ? 1 : 0,
       ],
     });
     n += 1;
