@@ -4,9 +4,22 @@ import { activeAreaBand, type RegionalAreaBandId } from "./area-band";
 import {
   assemblePricePosition,
   pricePositionSnapshotId,
+  PRICE_POSITION_AS_OF,
   type PricePositionBody,
   type PriceScope,
 } from "./price-position";
+import {
+  PRICE_POSITION_V2_VERSION,
+  pricePositionV2SnapshotId,
+  type PricePositionBodyV2,
+} from "./price-position-v2";
+
+/**
+ * Public pointer stays on V1 until V2 is materialized after Seoul gate PASS.
+ * When V2 rows exist for the requested key, prefer V2 (no silent V1 mix-in).
+ */
+export const PRICE_POSITION_PUBLIC_VERSION = "price-position-v1";
+export const PRICE_POSITION_PUBLIC_AS_OF = PRICE_POSITION_AS_OF;
 
 export function seoulGuName(lawdCd: string): string | null {
   for (const region of SEOUL_REGIONS) {
@@ -51,8 +64,21 @@ export async function readComplexPricePosition(
 ): Promise<
   | { kind: "missing" }
   | { kind: "outside-seoul" }
-  | { kind: "body"; body: PricePositionBody }
+  | { kind: "body"; body: PricePositionBody | PricePositionBodyV2 }
 > {
+  // Prefer V2 only when materialized for this key.
+  const v2 = await db.execute({
+    sql: `SELECT payload_json
+          FROM complex_region_price_position
+          WHERE snapshot_id = ? AND complex_id = ? AND area_band = ?`,
+    args: [pricePositionV2SnapshotId(), query.complexId, query.areaBand],
+  });
+  if (v2.rows[0]?.payload_json) {
+    const body = JSON.parse(String(v2.rows[0].payload_json)) as PricePositionBodyV2;
+    activeAreaBand(body.areaBand);
+    return { kind: "body", body };
+  }
+
   const snapshotId = pricePositionSnapshotId();
   const stored = await db.execute({
     sql: `SELECT payload_json
@@ -87,3 +113,5 @@ export async function readComplexPricePosition(
     }),
   };
 }
+
+export { PRICE_POSITION_AS_OF, PRICE_POSITION_V2_VERSION };

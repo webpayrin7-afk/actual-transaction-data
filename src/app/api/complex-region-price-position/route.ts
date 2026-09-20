@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import { resolveSelectedAreaBand, type RegionalAreaBandId } from "@/lib/region-ranking/area-band";
-import { PRICE_POSITION_AS_OF } from "@/lib/region-ranking/price-position";
-import { readComplexPricePosition } from "@/lib/region-ranking/price-position-read";
+import {
+  PRICE_POSITION_PUBLIC_AS_OF,
+  PRICE_POSITION_PUBLIC_VERSION,
+  readComplexPricePosition,
+} from "@/lib/region-ranking/price-position-read";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +14,11 @@ const BANDS = new Set<RegionalAreaBandId>(["59", "84", "114"]);
 function unsupported(complexId: string, exclusiveArea: number | null) {
   return NextResponse.json({
     status: "PRICE_COMPARE_UNSUPPORTED_AREA",
+    version: PRICE_POSITION_PUBLIC_VERSION,
     complexId,
     areaBand: null,
     exclusiveArea,
-    transactionAsOf: PRICE_POSITION_AS_OF,
+    transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
     referenceMonth: null,
     priceLevel: [],
     trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
@@ -54,9 +58,10 @@ export async function GET(request: NextRequest) {
     if (found.kind === "missing" || found.kind === "outside-seoul") {
       return NextResponse.json({
         status: "unavailable",
+        version: PRICE_POSITION_PUBLIC_VERSION,
         complexId,
         areaBand,
-        transactionAsOf: PRICE_POSITION_AS_OF,
+        transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
         referenceMonth: null,
         priceLevel: [],
         trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
