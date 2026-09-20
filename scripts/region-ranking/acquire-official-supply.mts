@@ -1,5 +1,11 @@
 /**
- * Official expos acquisition for apt_unit_acquisition_manifest.
+ * Official expos acquisition for apt_unit_acquisition_manifest (OpenAPI fallback).
+ *
+ * NATIONAL INITIAL BUILD primary path is Building Hub bulk ingest
+ * (bulk-hub-stream-filter.py + ingest-bulk-official-supply.mts).
+ * Keep this crawler for residual / incremental validation only.
+ * Do not use it for a full national rebuild.
+ *
  * Supply = exclusive + residential common only. Does not overwrite a positive supply.
  *
  * Usage: ./node_modules/.bin/tsx scripts/region-ranking/acquire-official-supply.mts
