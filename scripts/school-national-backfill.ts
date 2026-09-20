@@ -106,7 +106,18 @@ const stats = {
   missingSchoolCode: 0,
 };
 
+function schoolInfoLawd(row: Lawd): Lawd {
+  // SchoolInfo adopted the autonomous-province codes. MOLIT LAWD is still 42/45.
+  // The published change is a prefix swap; the sigungu suffix stays the same.
+  if (row.code.startsWith("42")) return { ...row, code: `51${row.code.slice(2)}` };
+  if (row.code.startsWith("45")) return { ...row, code: `52${row.code.slice(2)}` };
+  return row;
+}
+
 function arg(name: string): string | null {
+  const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
+  return hit ? hit.slice(name.length + 3) : null;
+}
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : null;
 }
@@ -1208,6 +1219,52 @@ async function buildReport(db: Client): Promise<Record<string, unknown>> {
       GROUP BY 1, 2, 3, 4
       HAVING c > 1
     )`);
+  const samples = await db.execute(`
+    WITH ranked AS (
+      SELECT
+        m.school_code,
+        m.school_name,
+        m.school_level,
+        m.sido,
+        m.sigungu,
+        CASE
+          WHEN m.sido LIKE '서울%' THEN 'seoul'
+          WHEN m.sido LIKE '경기%' THEN 'gyeonggi'
+          WHEN m.sido LIKE '부산%' THEN 'busan'
+          WHEN m.sido LIKE '대구%' THEN 'daegu'
+          WHEN m.sido LIKE '인천%' THEN 'incheon'
+          WHEN m.sido LIKE '광주%' THEN 'gwangju'
+          WHEN m.sido LIKE '대전%' THEN 'daejeon'
+          WHEN m.sido LIKE '울산%' THEN 'ulsan'
+          ELSE 'other'
+        END AS bucket,
+        ROW_NUMBER() OVER (
+          PARTITION BY
+            CASE
+              WHEN m.sido LIKE '서울%' THEN 'seoul'
+              WHEN m.sido LIKE '경기%' THEN 'gyeonggi'
+              WHEN m.sido LIKE '부산%' THEN 'busan'
+              WHEN m.sido LIKE '대구%' THEN 'daegu'
+              WHEN m.sido LIKE '인천%' THEN 'incheon'
+              WHEN m.sido LIKE '광주%' THEN 'gwangju'
+              WHEN m.sido LIKE '대전%' THEN 'daejeon'
+              WHEN m.sido LIKE '울산%' THEN 'ulsan'
+              ELSE 'other'
+            END,
+            m.school_level
+          ORDER BY m.school_code
+        ) AS rn
+      FROM school_master m
+      WHERE m.status = 'operating'
+    )
+    SELECT r.bucket, r.school_level, r.school_code, r.school_name, r.sido, r.sigungu,
+      GROUP_CONCAT(s.category || ':' || s.status, ',') AS categories
+    FROM ranked r
+    LEFT JOIN school_data_status s ON s.school_code = r.school_code
+    WHERE r.rn <= 3 AND r.bucket IN ('seoul', 'gyeonggi', 'busan', 'daegu', 'incheon', 'gwangju', 'daejeon', 'ulsan')
+    GROUP BY r.bucket, r.school_level, r.school_code, r.school_name, r.sido, r.sigungu
+    ORDER BY r.bucket, r.school_level, r.school_code
+  `);
   const checkpoint = await db.execute(`
     SELECT status, COUNT(*) AS n, SUM(attempts) AS attempts, SUM(retries) AS retries, SUM(rate_limits) AS rate_limits
     FROM school_fetch_checkpoint GROUP BY status`);
@@ -1226,6 +1283,7 @@ async function buildReport(db: Client): Promise<Record<string, unknown>> {
     checkpoints: checkpoint.rows,
     orphan_snapshots: Number(orphans.rows[0]?.n ?? 0),
     duplicate_snapshots: Number(duplicateSnapshots.rows[0]?.n ?? 0),
+    samples: samples.rows,
     pilots: pilots.rows.map((row) => ({
       school_code: row.school_code,
       category: row.category,
@@ -1291,7 +1349,8 @@ async function main(): Promise<void> {
       return a.code < b.code ? -1 : 1;
     });
     if (sido) lawds = lawds.filter((row) => row.code.startsWith(sido));
-    if (sgg) lawds = lawds.filter((row) => row.code === sgg);
+    if (sgg) lawds = lawds.filter((row) => row.code === sgg || schoolInfoLawd(row).code === sgg);
+    lawds = lawds.map(schoolInfoLawd);
     const max = Number(arg("max-scopes") ?? "0");
     const kinds = kindArg ? KINDS.filter((k) => k.code === kindArg) : KINDS;
     const scopes = kinds.length * lawds.length;
