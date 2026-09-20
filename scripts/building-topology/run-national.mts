@@ -31,6 +31,7 @@ const PHASE = (process.argv.find((a) => a.startsWith("--phase="))?.slice(8) ?? "
 const LIMIT = Number(process.argv.find((a) => a.startsWith("--limit="))?.slice(8) ?? "0");
 const MAX_API = Number(process.argv.find((a) => a.startsWith("--max-api="))?.slice(10) ?? "20000");
 const PRIORITY_MAX = Number(process.argv.find((a) => a.startsWith("--priority="))?.slice(11) ?? "3");
+const CONCURRENCY = Math.max(1, Number(process.argv.find((a) => a.startsWith("--concurrency="))?.slice(14) ?? "2"));
 const OUT = join(process.cwd(), "data/poc/building-topology");
 
 const PILOT_IDS = [
@@ -138,7 +139,7 @@ async function alreadySuccess(db: Client, complexId: string): Promise<boolean> {
     args: [complexId],
   });
   const status = String(res.rows[0]?.title_status ?? "");
-  return status === "SUCCESS" || status === "EMPTY" || status === "SKIP_CACHED";
+  return status === "SUCCESS" || status === "EMPTY" || status === "SKIP_CACHED" || status === "NO_PARCEL";
 }
 
 async function processTitleComplex(
@@ -457,43 +458,55 @@ async function main() {
   if (LIMIT > 0) work = work.slice(0, LIMIT);
 
   if (PHASE === "title" || PHASE === "all") {
-    console.log("phase title", work.length);
+    console.log("phase title", work.length, "concurrency", CONCURRENCY);
+    let next = 0;
     let consecErrors = 0;
-    for (let i = 0; i < work.length; i += 1) {
-      if (totals.titleApiCalls >= MAX_API) {
-        console.log("max-api reached", totals.titleApiCalls);
-        break;
-      }
-      const target = work[i];
-      try {
-        await processTitleComplex(db, target, totals);
-        consecErrors = 0;
-      } catch (error) {
-        const quota = Boolean((error as { quota?: boolean }).quota);
-        console.warn("title fail", target.aptName, (error as Error).message);
-        consecErrors += 1;
-        if (quota) {
-          console.log("STOP quota");
-          break;
+    let stop = false;
+    const workers = Array.from({ length: CONCURRENCY }, async () => {
+      while (!stop) {
+        const i = next;
+        next += 1;
+        if (i >= work.length) return;
+        if (totals.titleApiCalls >= MAX_API) {
+          stop = true;
+          console.log("max-api reached", totals.titleApiCalls);
+          return;
         }
-        if (consecErrors >= 8) {
-          console.log("STOP consecutive title errors", consecErrors);
-          break;
+        const target = work[i];
+        try {
+          await processTitleComplex(db, target, totals);
+          consecErrors = 0;
+        } catch (error) {
+          const quota = Boolean((error as { quota?: boolean }).quota);
+          console.warn("title fail", target.aptName, (error as Error).message);
+          consecErrors += 1;
+          if (quota) {
+            totals.quota = true;
+            stop = true;
+            console.log("STOP quota");
+            return;
+          }
+          if (consecErrors >= 12) {
+            stop = true;
+            console.log("STOP consecutive title errors", consecErrors);
+            return;
+          }
+          await new Promise((r) => setTimeout(r, Math.min(20000, 1000 * 2 ** Math.min(consecErrors, 5))));
         }
-        await new Promise((r) => setTimeout(r, Math.min(30000, 1500 * 2 ** consecErrors)));
+        if ((i + 1) % 25 === 0) {
+          console.log(
+            JSON.stringify({
+              i: i + 1,
+              api: totals.titleApiCalls,
+              cache: totals.titleCacheHits,
+              errors: totals.titleErrors,
+              inserted: totals.building.inserted,
+            }),
+          );
+        }
       }
-      if ((i + 1) % 25 === 0) {
-        console.log(
-          JSON.stringify({
-            i: i + 1,
-            api: totals.titleApiCalls,
-            cache: totals.titleCacheHits,
-            errors: totals.titleErrors,
-            inserted: totals.building.inserted,
-          }),
-        );
-      }
-    }
+    });
+    await Promise.all(workers);
   }
 
   if (PHASE === "links" || PHASE === "all") {
