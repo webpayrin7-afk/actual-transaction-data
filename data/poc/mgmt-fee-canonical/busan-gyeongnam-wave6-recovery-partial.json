@@ -1,8 +1,9 @@
 {
-  "status": "CLEAN_STOP_PARTIAL_ACQUISITION",
+  "status": "SUPERSEDED_BY_WAVE6_DRYRUN",
   "wave": 6,
   "production_write": false,
   "stop_reason": "WALL_RUNTIME_90_MIN",
+  "note": "Historical 90-minute stop at 4018 records. The same checkpoint was resumed and finished. Canonical artifact is busan-gyeongnam-wave6-dryrun.json. Do not reselect. Do not start wave 7.",
   "resume_start": "2026-09-20T13:59:44Z",
   "stopped_at": "2026-09-20T15:26:23.797984Z",
   "elapsed_min": 86.7,
@@ -21,8 +22,8 @@
     "missing": 344,
     "success": 3674
   },
-  "checkpoint_resumable": true,
-  "next": "RESUME same wave 6 checkpoint; do not reselect; do not start wave 7",
+  "checkpoint_resumable": false,
+  "next": "NONE. Wave 6 acquisition finished. Do not start wave 7.",
   "no_published_month": 18,
   "checkpoint_sha256": "1b9921e7c4eb40ec24b0610f2b210f001fe4e4c09f8037e1f32d7def152bd1e8"
 }
