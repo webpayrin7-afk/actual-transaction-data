@@ -83,7 +83,43 @@ const KINDS: { level: SchoolLevel; code: string }[] = [
   { level: "high", code: "04" },
 ];
 
-const PRIORITY = ["11", "41", "28", "26", "27", "30", "29", "31", "36", "42", "43", "44", "45", "46", "47", "48", "50"];
+const PRIORITY = ["11", "41", "28", "26", "27", "30", "29", "31", "36", "42", "43", "44", "45", "46", "47", "48", "50", "12"];
+
+/** SchoolInfo districts that are not in the MOLIT LAWD catalog yet. */
+const EXTRA_LAWD: Lawd[] = [
+  { code: "27720", fullName: "대구광역시 군위군" },
+  { code: "28125", fullName: "인천광역시 제물포구" },
+  { code: "28155", fullName: "인천광역시 영종구" },
+  { code: "28275", fullName: "인천광역시 서해구" },
+  { code: "28290", fullName: "인천광역시 검단구" },
+  { code: "12110", fullName: "전남광주통합특별시 목포시" },
+  { code: "12130", fullName: "전남광주통합특별시 여수시" },
+  { code: "12150", fullName: "전남광주통합특별시 순천시" },
+  { code: "12170", fullName: "전남광주통합특별시 나주시" },
+  { code: "12190", fullName: "전남광주통합특별시 광양시" },
+  { code: "12210", fullName: "전남광주통합특별시 동구" },
+  { code: "12240", fullName: "전남광주통합특별시 서구" },
+  { code: "12270", fullName: "전남광주통합특별시 남구" },
+  { code: "12300", fullName: "전남광주통합특별시 북구" },
+  { code: "12330", fullName: "전남광주통합특별시 광산구" },
+  { code: "12710", fullName: "전남광주통합특별시 담양군" },
+  { code: "12720", fullName: "전남광주통합특별시 곡성군" },
+  { code: "12730", fullName: "전남광주통합특별시 구례군" },
+  { code: "12740", fullName: "전남광주통합특별시 고흥군" },
+  { code: "12750", fullName: "전남광주통합특별시 보성군" },
+  { code: "12760", fullName: "전남광주통합특별시 화순군" },
+  { code: "12770", fullName: "전남광주통합특별시 장흥군" },
+  { code: "12780", fullName: "전남광주통합특별시 강진군" },
+  { code: "12790", fullName: "전남광주통합특별시 해남군" },
+  { code: "12800", fullName: "전남광주통합특별시 영암군" },
+  { code: "12810", fullName: "전남광주통합특별시 무안군" },
+  { code: "12820", fullName: "전남광주통합특별시 함평군" },
+  { code: "12830", fullName: "전남광주통합특별시 영광군" },
+  { code: "12840", fullName: "전남광주통합특별시 장성군" },
+  { code: "12850", fullName: "전남광주통합특별시 완도군" },
+  { code: "12860", fullName: "전남광주통합특별시 진도군" },
+  { code: "12870", fullName: "전남광주통합특별시 신안군" },
+];
 
 type Lawd = { code: string; fullName: string };
 type Row = Record<string, unknown>;
@@ -1348,6 +1384,11 @@ async function main(): Promise<void> {
     if (sido) lawds = lawds.filter((row) => row.code.startsWith(sido));
     if (sgg) lawds = lawds.filter((row) => row.code === sgg || schoolInfoLawd(row).code === sgg);
     lawds = lawds.map(schoolInfoLawd);
+    const seen = new Set(lawds.map((row) => row.code));
+    for (const extra of EXTRA_LAWD) {
+      if (!seen.has(extra.code)) lawds.push(extra);
+    }
+    if (hasFlag("extra-only")) lawds = EXTRA_LAWD.slice();
     const max = Number(arg("max-scopes") ?? "0");
     const kinds = kindArg ? KINDS.filter((k) => k.code === kindArg) : KINDS;
     const scopes = kinds.length * lawds.length;
