@@ -654,7 +654,12 @@ async function apiPhase(db: Client) {
     if (hardStop) break;
     const complexId = str(row.complex_id);
     cursor += 1;
-    if (str(doneDetail.get(complexId)).startsWith("API ")) {
+    const detail = str(doneDetail.get(complexId));
+    if (
+      detail.startsWith("API RECOVERED_DATA") ||
+      detail.startsWith("API OFFICIAL_NO_DATA") ||
+      detail.startsWith("API IDENTITY_CONFLICT")
+    ) {
       apiStats.reused += 1;
       continue;
     }
@@ -751,7 +756,7 @@ async function coveragePhase(db: Client) {
              WHEN m.sido LIKE '부산%' THEN 'BUSAN'
              WHEN m.sido LIKE '대구%' THEN 'DAEGU'
              WHEN m.sido LIKE '대전%' THEN 'DAEJEON'
-             WHEN m.sido LIKE '광주%' THEN 'GWANGJU'
+             WHEN m.sido LIKE '%광주%' OR substr(m.lawd_cd,1,2) = '12' THEN 'GWANGJU'
              WHEN m.sido LIKE '울산%' THEN 'ULSAN'
              ELSE 'OTHER'
            END AS region,
@@ -774,7 +779,7 @@ async function coveragePhase(db: Client) {
              WHEN m.sido LIKE '부산%' THEN 'BUSAN'
              WHEN m.sido LIKE '대구%' THEN 'DAEGU'
              WHEN m.sido LIKE '대전%' THEN 'DAEJEON'
-             WHEN m.sido LIKE '광주%' THEN 'GWANGJU'
+             WHEN m.sido LIKE '%광주%' OR substr(m.lawd_cd,1,2) = '12' THEN 'GWANGJU'
              WHEN m.sido LIKE '울산%' THEN 'ULSAN'
              ELSE 'OTHER'
            END AS region,

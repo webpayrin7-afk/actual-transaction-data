@@ -79,6 +79,15 @@ assert.equal(
   }),
   "DERIVATION_CONFLICT",
 );
+assert.equal(
+  classifySupplyConflict({
+    exclusiveCents: 8480,
+    heldSupplyCents: 11152,
+    reason: "GROUPED_DIFFERS_FROM_VERIFIED",
+    provenanceJson: JSON.stringify({ held: { source: "grouped" } }),
+  }),
+  "DERIVATION_CONFLICT",
+);
 assert.equal(sameIncrementalSource({ month: "2026-08", sha256: "abc" }, { month: "2026-08", sha256: "abc" }), true);
 assert.equal(sameIncrementalSource({ month: "2026-08", sha256: "abc" }, { month: "2026-09", sha256: "abc" }), false);
 

@@ -96,7 +96,6 @@ export function classifySupplyConflict(input: {
     return "UNKNOWN";
   }
   const incoming = asPairs(parsed.incoming);
-  if (!incoming.length) return "OLDER_SOURCE";
   const heldExclusive = input.exclusiveCents / 100;
   const heldSupply = input.heldSupplyCents / 100;
   const nearExclusive = (exclusive: number) => Math.abs(exclusive - heldExclusive) < 0.02;
@@ -107,6 +106,7 @@ export function classifySupplyConflict(input: {
   if (input.reason === "GROUPED_DIFFERS_FROM_VERIFIED" || input.reason === "AMBIGUOUS_DIFFERS_FROM_VERIFIED") {
     return "DERIVATION_CONFLICT";
   }
+  if (!incoming.length) return "OLDER_SOURCE";
   const precision = incoming.some(
     ([exclusive, supply]) => nearExclusive(exclusive) && Math.abs(supply - heldSupply) <= 0.05,
   );
