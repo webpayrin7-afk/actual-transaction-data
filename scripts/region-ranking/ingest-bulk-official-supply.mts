@@ -72,7 +72,18 @@ function str(value: unknown): string {
 
 async function batchWrite(db: Client, statements: { sql: string; args: InArgs }[]) {
   for (let i = 0; i < statements.length; i += BATCH) {
-    await db.batch(statements.slice(i, i + BATCH), "write");
+    let lastError: unknown = null;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      try {
+        await db.batch(statements.slice(i, i + BATCH), "write");
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+      }
+    }
+    if (lastError) throw lastError;
   }
 }
 
@@ -402,6 +413,15 @@ async function main() {
     shardByComplex.set(complexId, path);
   }
 
+  const doneBulk = new Set<string>();
+  const prior = await db.execute(`SELECT complex_id, status, detail FROM official_unit_area_checkpoint`);
+  for (const row of prior.rows) {
+    const detail = str(row.detail);
+    if (detail.startsWith("BULK") && (str(row.status) === "COMPLETE_DATA" || str(row.status) === "COMPLETE_NO_DATA" || str(row.status) === "IDENTITY_UNRESOLVED")) {
+      doneBulk.add(str(row.complex_id));
+    }
+  }
+
   const pilotNotes: Record<string, unknown> = {};
   for (const [name, complexId] of PILOTS) {
     const path = shardByComplex.get(complexId);
@@ -410,8 +430,27 @@ async function main() {
       pilotNotes[name] = { complexId, status: "NO_SHARD" };
       continue;
     }
+    if (doneBulk.has(complexId)) {
+      const derived = deriveOfficialSupplies(loadRows(path), info.aptName);
+      pilotNotes[name] = {
+        complexId,
+        status: "RESUMED",
+        rows: loadRows(path).length,
+        distinguishable: derived.distinguishable,
+        supplies: derived.supplies.map((s) => [s.exclusiveCents, s.supplyCents]),
+      };
+      if (complexId === JAMSIL) {
+        const got = new Set(derived.supplies.map((s) => `${s.exclusiveCents}:${s.supplyCents}`));
+        for (const [ex, su] of JAMSIL_REQUIRED) {
+          if (!got.has(`${ex}:${su}`)) throw new Error(`jamsil bulk parity failed ${ex}->${su}`);
+        }
+        console.log("jamsil bulk parity PASS");
+      }
+      continue;
+    }
     const rows = loadRows(path);
     const derived = await processComplex(db, complexId, info.aptName, info.pnu, rows, existing, meta);
+    doneBulk.add(complexId);
     const maps = derived.supplies.map((s) => [s.exclusiveCents, s.supplyCents]);
     pilotNotes[name] = {
       complexId,
@@ -433,12 +472,22 @@ async function main() {
   let i = 0;
   for (const [complexId, path] of shardByComplex) {
     if (PILOTS.some(([, id]) => id === complexId)) continue;
+    if (doneBulk.has(complexId)) continue;
     i += 1;
     const info = manifest.get(complexId);
     if (!info) continue;
-    const rows = loadRows(path);
-    await processComplex(db, complexId, info.aptName, info.pnu, rows, existing, meta);
-    if (i % 100 === 0) console.log(JSON.stringify({ i, remaining: shardByComplex.size - PILOTS.length, ...stats }));
+    try {
+      const rows = loadRows(path);
+      await processComplex(db, complexId, info.aptName, info.pnu, rows, existing, meta);
+      doneBulk.add(complexId);
+    } catch (error) {
+      console.error(`complex failed ${complexId}:`, error instanceof Error ? error.message : error);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const rows = loadRows(path);
+      await processComplex(db, complexId, info.aptName, info.pnu, rows, existing, meta);
+      doneBulk.add(complexId);
+    }
+    if (i % 100 === 0) console.log(JSON.stringify({ i, remaining: shardByComplex.size - PILOTS.length, doneBulk: doneBulk.size, ...stats }));
   }
 
   // mark unresolved / no-data from stream summary if present
