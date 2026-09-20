@@ -127,8 +127,9 @@ assert(
   RANKING_TABS.map((tab) => tab.label).join("|") === "종합|거래량|㎡당 가격",
   "region overview tabs",
 );
+const regionTabIds = RANKING_TABS.map((tab) => String(tab.id));
 assert(
-  !RANKING_TABS.some((tab) => tab.id === "59" || tab.id === "84" || tab.id === "114" || tab.id === "ALL"),
+  !["59", "84", "114", "ALL"].some((id) => regionTabIds.includes(id)),
   "area-band tabs removed from region overview",
 );
 assert(RANKING_TABS[0].id === "COMPOSITE", "default tab is 종합");
@@ -248,7 +249,10 @@ assert(
   "unavailable copy preserves preparing status",
 );
 assert(RANK_SMALL_REGION_COPY.includes("비교 가능한 아파트"), "small-region copy is product language");
-assert(RANK_PREPARING_COPY !== RANK_SMALL_REGION_COPY, "preparing and small-region stay distinct");
+assert(
+  RANK_PREPARING_COPY.includes("준비 중") && RANK_SMALL_REGION_COPY.includes("비교 가능한 아파트"),
+  "preparing and small-region stay distinct",
+);
 
 assert(formatRankingAsOf("2026-09-17") === "2026.09.17 기준", "as-of date");
 assert(formatRankingAsOf(null) === null, "no hardcoded as-of");
