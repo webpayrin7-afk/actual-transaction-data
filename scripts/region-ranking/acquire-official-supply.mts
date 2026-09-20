@@ -117,7 +117,7 @@ async function fetchPage(parcel: { sigunguCd: string; bjdongCd: string; platGbCd
     _type: "json",
   });
   let last = "unknown";
-  for (let attempt = 0; attempt < 5; attempt += 1) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
     await pace();
     stats.calls += 1;
     const res = await fetch(
@@ -441,6 +441,9 @@ async function coverage(db: Client) {
 }
 
 async function main() {
+  if (process.env.ALLOW_NATIONAL_SUPPLY_CRAWL !== "1") {
+    throw new Error("national expos crawl is disabled; use scripts/region-ranking/incremental-supply-update.mts");
+  }
   const db = createClient({
     url: process.env.TURSO_DATABASE_URL!.trim(),
     authToken: process.env.TURSO_AUTH_TOKEN!.trim(),
