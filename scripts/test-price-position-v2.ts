@@ -36,17 +36,18 @@ const built = buildPricePositionV2({
     ["cx_b", { complexId: "cx_b", lawdCd: "11710", bjdongCd: "10800", aptName: "B", legalDongName: "잠실동" }],
   ]),
   points: [
-    { complexId: "cx_a", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-09", pricePerSupplyPyeong: 10000, dealAmount: 330000, exclusiveArea: 84.88, supplyArea: 109.29, supplyPyeong: 33.06 },
-    { complexId: "cx_a", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-06", pricePerSupplyPyeong: 10100, dealAmount: 334400, exclusiveArea: 84.88, supplyArea: 109.29, supplyPyeong: 33.06 },
-    { complexId: "cx_b", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-09", pricePerSupplyPyeong: 9900, dealAmount: 320000, exclusiveArea: 84.9, supplyArea: 110, supplyPyeong: 33.27 },
-    { complexId: "cx_b", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-06", pricePerSupplyPyeong: 9800, dealAmount: 318000, exclusiveArea: 84.9, supplyArea: 110, supplyPyeong: 33.27 },
+    { complexId: "cx_a", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-09", pricePerSupplyPyeong: 10057, pricePerMarketPyeong: 10075.8, marketPyeongLabel: 33, dealAmount: 332500, exclusiveArea: 84.88, supplyArea: 109.29, supplyPyeong: 33.06 },
+    { complexId: "cx_a", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-06", pricePerSupplyPyeong: 10100, pricePerMarketPyeong: 10133, marketPyeongLabel: 33, dealAmount: 334400, exclusiveArea: 84.88, supplyArea: 109.29, supplyPyeong: 33.06 },
+    { complexId: "cx_b", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-09", pricePerSupplyPyeong: 9900, pricePerMarketPyeong: 9697, marketPyeongLabel: 33, dealAmount: 320000, exclusiveArea: 84.9, supplyArea: 110, supplyPyeong: 33.27 },
+    { complexId: "cx_b", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-06", pricePerSupplyPyeong: 9800, pricePerMarketPyeong: 9636, marketPyeongLabel: 33, dealAmount: 318000, exclusiveArea: 84.9, supplyArea: 110, supplyPyeong: 33.27 },
   ],
 });
 assert.ok(built.bodies.length >= 1);
 const a = built.bodies.find((b) => b.complexId === "cx_a");
 assert.ok(a);
 assert.equal(a!.referenceMonth, "2026-09");
-assert.equal(a!.priceLevelDefinition, "reference_month_mean_price_per_supply_pyeong");
+assert.equal(a!.priceLevelDefinition, "reference_month_mean_deal_per_market_pyeong_label");
+assert.equal(a!.areaBasis, "SUPPLY_PYEONG_LABEL");
 const t3 = a!.trends["3M"].find((c) => c.scope === "DONG");
 assert.ok(t3?.matchedComplexCount === 2);
 

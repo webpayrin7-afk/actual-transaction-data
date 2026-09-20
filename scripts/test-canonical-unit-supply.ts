@@ -15,6 +15,7 @@ import {
 } from "../src/lib/unit-type/canonical";
 import {
   complexHasCanonicalSupplyLabel,
+  marketPyeongLabelInteger,
   selectorSupplyCoverage,
   selectorSupplyOption,
   supplyPyeongDisplayLabel,
@@ -29,6 +30,9 @@ assert.equal(supplyPyeongDisplayLabel(109.29), "33평");
 assert.notEqual(supplyPyeongDisplayLabel(109.29), `${Math.round(84.88 / SUPPLY_PYEONG_FACTOR)}평`);
 assert.equal(Math.round(exactSupplyPyeong(111.52) * 100) / 100, 33.73);
 assert.equal(supplyPyeongDisplayLabel(111.52), "34평");
+assert.equal(marketPyeongLabelInteger(109.29), 33);
+assert.equal(marketPyeongLabelInteger(111.52), 34);
+assert.equal(Math.round((332500 / 33) * 10) / 10, 10075.8);
 
 const jamsil = [
   [8480, 11152],

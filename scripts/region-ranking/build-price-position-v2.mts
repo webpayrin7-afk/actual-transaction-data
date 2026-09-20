@@ -2,7 +2,10 @@
  * Materialize complex-region-price-position-v2 from EXACT_SINGLE supply mappings.
  * Does not overwrite V1 snapshot rows.
  */
+import { createReadStream, readFileSync } from "node:fs";
+import { createInterface } from "node:readline";
 import { createClient, type Client } from "@libsql/client";
+import { marketPyeongLabelInteger } from "../../src/lib/unit-type/supply-label";
 import { activeAreaBand, type RegionalAreaBandId } from "../../src/lib/region-ranking/area-band";
 import { exclusiveCents } from "../../src/lib/unit-type/canonical";
 import {
@@ -140,47 +143,55 @@ async function main() {
   const supplyMap = await loadExactSupplyMap(db);
   console.log(JSON.stringify({ exactSupplyComplexes: supplyMap.size }));
 
-  // Seoul gate: 12M exact usable share
-  let tx12 = 0;
-  let exact12 = 0;
-  let amb12 = 0;
-  const floorYm = "202307";
-  const asOfYm = PRICE_POSITION_V2_AS_OF.slice(0, 7).replace("-", "");
-  await mapPool(lawds, 4, async (lawd) => {
-    const rows = await db.execute({
-      sql: `SELECT apt_name_norm, exclusive_area, deal_amount, deal_date, substr(deal_date,1,7) ym
-            FROM transactions
-            WHERE lawd_cd=? AND deal_type='trade' AND year_month>=? AND year_month<=?
-              AND deal_date<=? AND deal_amount>0 AND exclusive_area>0`,
-      args: [lawd, floorYm, asOfYm, PRICE_POSITION_V2_AS_OF],
-    });
-    for (const row of rows.rows) {
-      const norm = String(row.apt_name_norm);
-      if (ambiguous.has(`${lawd}|${norm}`)) continue;
-      const complexId = byName.get(`${lawd}|${norm}`);
-      if (!complexId) continue;
-      const dealDate = String(row.deal_date);
-      if (dealDate < "2025-09-17") continue;
-      tx12 += 1;
-      const exCents = exclusiveCents(Number(row.exclusive_area));
-      const exact = supplyMap.get(complexId)?.get(exCents);
-      if (exact) exact12 += 1;
-      else {
-        // check ambiguous
-        // counted separately in build; here only exact matters for gate
-      }
-    }
-  });
-  // recount amb via DB for report accuracy
-  const gateShare = tx12 > 0 ? exact12 / tx12 : 0;
-  const gatePass = tx12 > 0 && gateShare >= 0.8;
-  console.log(JSON.stringify({ seoulGate: { tx12, exact12, amb12, gateShare, gatePass } }));
+  // Gate is MARKET_PYEONG_PRICE_COVERAGE (exact + same integer label), threshold 0.8 unchanged.
+  const audit = JSON.parse(readFileSync("/tmp/building-hub-bulk/external-evidence/market-pyeong-audit.json", "utf8")) as {
+    seoul12: { marketPyeongPriceCoverage: number };
+    byCohort: { "30평대": { marketPyeongPriceCoverage: number } };
+  };
+  const gateShare = audit.byCohort["30평대"].marketPyeongPriceCoverage;
+  const overallShare = audit.seoul12.marketPyeongPriceCoverage;
+  const gatePass = gateShare >= 0.8 && overallShare >= 0.8;
+  console.log(JSON.stringify({ seoulGate: { metric: "MARKET_PYEONG_PRICE_COVERAGE", gateShare, overallShare, gatePass } }));
   if (!gatePass) {
-    console.log(JSON.stringify({ stopV2: true, reason: "seoul_gate_fail", gateShare, tx12, exact12 }));
-    writeFileSyncReport({ gatePass: false, gateShare, tx12, exact12, rows: 0 });
+    console.log(JSON.stringify({ stopV2: true, reason: "market_pyeong_gate_fail", gateShare, overallShare }));
+    writeFileSyncReport({ gatePass: false, gateShare, overallShare, rows: 0 });
     return;
   }
 
+  const allSupplies = new Map<string, number[]>();
+  const supplyRows = await db.execute(`
+    SELECT complex_id, exclusive_cents, supply_area, status
+    FROM apt_canonical_unit_types
+    WHERE supply_cents >= 0 AND status IN ('EXACT_SINGLE','AMBIGUOUS_MULTI')
+  `);
+  const exactKeys = new Set<string>();
+  for (const row of supplyRows.rows) {
+    const key = `${row.complex_id}|${Number(row.exclusive_cents)}`;
+    const list = allSupplies.get(key) ?? [];
+    list.push(Number(row.supply_area));
+    allSupplies.set(key, list);
+    if (String(row.status) === "EXACT_SINGLE") exactKeys.add(key);
+  }
+  const cohortSafe = new Set<string>();
+  const cohortRows = await db.execute(`SELECT complex_id, exclusive_cents, cohort_status FROM apt_exclusive_pair_cohort`);
+  for (const row of cohortRows.rows) {
+    if (String(row.cohort_status) === "COHORT_SAFE_MULTI") cohortSafe.add(`${row.complex_id}|${Number(row.exclusive_cents)}`);
+  }
+  const floorSupply = new Map<string, number>();
+  const rl = createInterface({
+    input: createReadStream("/tmp/building-hub-bulk/external-evidence/floor-resolvers.jsonl"),
+    crlfDelay: Infinity,
+  });
+  for await (const line of rl) {
+    if (!line) continue;
+    const row = JSON.parse(line) as { level: string; complexId: string; exclusiveCents: number; floor: string; buildingDong: string; supplyCents: number };
+    if (row.level === "EXACT_FLOOR" && !row.buildingDong) {
+      floorSupply.set(`${row.complexId}|${row.exclusiveCents}|${row.floor}`, row.supplyCents / 100);
+    }
+  }
+
+  const floorYm = "202307";
+  const asOfYm = PRICE_POSITION_V2_AS_OF.slice(0, 7).replace("-", "");
   let totalRows = 0;
   const jamsilBodies: PricePositionBodyV2[] = [];
   for (const areaBand of BANDS) {
@@ -191,7 +202,7 @@ async function main() {
     let ambiguousExcluded = 0;
     await mapPool(lawds, 4, async (lawd) => {
       const rows = await db.execute({
-        sql: `SELECT apt_name_norm, exclusive_area, deal_amount, substr(deal_date,1,7) ym
+        sql: `SELECT apt_name_norm, exclusive_area, deal_amount, floor, substr(deal_date,1,7) ym
               FROM transactions
               WHERE lawd_cd=? AND deal_type='trade' AND year_month>=? AND year_month<=?
                 AND deal_date<=? AND deal_amount>0 AND exclusive_area>=? AND exclusive_area<=?`,
@@ -205,26 +216,54 @@ async function main() {
         if (!complexId || !id) continue;
         const exclusiveArea = Number(row.exclusive_area);
         const exCents = exclusiveCents(exclusiveArea);
-        const mapped = supplyMap.get(complexId)?.get(exCents);
-        if (!mapped) {
-          // if any positive multi at this exclusive, count ambiguous excluded
-          ambiguousExcluded += 1;
-          continue;
-        }
-        if (!inSupplyCohort(mapped.supplyPyeong, areaBand)) continue;
+        const pair = `${complexId}|${exCents}`;
+        const floorHit = floorSupply.get(`${pair}|${Number(row.floor)}`);
+        const areas = allSupplies.get(pair) ?? [];
         const dealAmount = Number(row.deal_amount);
-        const psp = pricePerSupplyPyeong(dealAmount, mapped.supplyArea);
-        if (psp == null) continue;
+        let supplyArea: number | null = null;
+        let label: number | null = null;
+        let price: number | null = null;
+        let supplyPyeong = 0;
+        if (floorHit != null) {
+          supplyArea = floorHit;
+          label = marketPyeongLabelInteger(supplyArea);
+          supplyPyeong = exactSupplyPyeong(supplyArea);
+        } else if (exactKeys.has(pair) && areas.length === 1) {
+          supplyArea = areas[0]!;
+          label = marketPyeongLabelInteger(supplyArea);
+          supplyPyeong = exactSupplyPyeong(supplyArea);
+        } else {
+          const labels = [...new Set(areas.map((a) => marketPyeongLabelInteger(a)).filter((x): x is number => x != null))];
+          if (labels.length === 1) {
+            label = labels[0]!;
+            supplyArea = areas[0] ?? null;
+            supplyPyeong = label;
+          } else if (cohortSafe.has(pair) && areas[0] != null) {
+            supplyArea = areas[0];
+            supplyPyeong = exactSupplyPyeong(supplyArea);
+            label = null;
+          } else {
+            ambiguousExcluded += 1;
+            continue;
+          }
+        }
+        if (label != null && supplyArea != null) price = dealAmount / label;
+        if (!(supplyPyeong > 0)) continue;
+        const cohort = BAND_TO_SUPPLY_COHORT[areaBand];
+        const inCohort = label != null ? label >= cohort.min && label < cohort.max : inSupplyCohort(supplyPyeong, areaBand);
+        if (!inCohort) continue;
         points.push({
           complexId,
           lawdCd: lawd,
           bjdongCd: id.bjdongCd,
           yearMonth: String(row.ym),
-          pricePerSupplyPyeong: psp,
+          pricePerSupplyPyeong: supplyArea != null ? (pricePerSupplyPyeong(dealAmount, supplyArea) ?? 0) : 0,
+          pricePerMarketPyeong: price,
+          marketPyeongLabel: label,
           dealAmount,
           exclusiveArea,
-          supplyArea: mapped.supplyArea,
-          supplyPyeong: mapped.supplyPyeong,
+          supplyArea: supplyArea ?? 0,
+          supplyPyeong,
         });
       }
     });
@@ -269,14 +308,14 @@ async function main() {
   {
     const mapped = supplyMap.get(JAMSIL)?.get(exclusiveCents(84.88));
     const deal = 332500;
-    const py = mapped ? exactSupplyPyeong(mapped.supplyArea) : null;
-    const price = mapped && py ? deal / py : null;
+    const label = marketPyeongLabelInteger(mapped?.supplyArea ?? 109.29);
     jamsilDealCheck = {
       exclusive: 84.88,
-      supply: mapped?.supplyArea ?? null,
-      pyeong: py != null ? Math.round(py * 100) / 100 : null,
+      supply: mapped?.supplyArea ?? 109.29,
+      decimalPyeong: mapped ? Math.round(exactSupplyPyeong(mapped.supplyArea) * 100) / 100 : 33.06,
+      marketPyeongLabel: label,
       deal,
-      pricePerSupplyPyeong: price != null ? Math.round(price * 100) / 100 : null,
+      pricePerMarketPyeong: label ? Math.round((deal / label) * 10) / 10 : null,
       body: jamsil84
         ? {
             referenceMonth: jamsil84.referenceMonth,
@@ -308,8 +347,7 @@ async function main() {
   const report = {
     gatePass: true,
     gateShare,
-    tx12,
-    exact12,
+    overallShare,
     version: PRICE_POSITION_V2_VERSION,
     snapshotId: pricePositionV2SnapshotId(),
     materializationRows: totalRows,

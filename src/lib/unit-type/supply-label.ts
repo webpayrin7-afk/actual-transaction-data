@@ -23,10 +23,21 @@ export type SelectorSupplyOption = {
   usableForUnscopedTrade: boolean;
 };
 
+/** Existing label version. Integer 평형 is round(canonical supply pyeong), not a new rule. */
+export const PYEONG_LABEL_VERSION = "canonical-supply-pyeong-round-v1";
+
 /** Integer market label derived from supply pyeong. 33.06 → "33평". Does not replace the stored pyeong. */
 export function supplyPyeongDisplayLabel(supplyAreaSqm: number): string {
   const pyeong = canonicalSupplyPyeong(supplyAreaSqm);
   return `${Math.round(pyeong)}평`;
+}
+
+/** Integer denominator used by supplyPyeongDisplayLabel. 109.29㎡ → 33. */
+export function marketPyeongLabelInteger(supplyAreaSqm: number): number | null {
+  const pyeong = canonicalSupplyPyeong(supplyAreaSqm);
+  if (!Number.isFinite(pyeong) || pyeong <= 0) return null;
+  const label = Math.round(pyeong);
+  return label > 0 ? label : null;
 }
 
 /**

@@ -13,6 +13,9 @@ export const HISTORY_FLOOR_MONTH_V2 = "2023-07";
 export const SUPPLY_PYEONG_FACTOR_V2 = 3.305785;
 export const CHANGE_UNIT_V2 = "percentage_points" as const;
 export const PRICE_LEVEL_MIN_SAMPLE_V2 = 1;
+export const PRICE_LEVEL_DEFINITION_V2 = "reference_month_mean_deal_per_market_pyeong_label" as const;
+export const AREA_BASIS_V2 = "SUPPLY_PYEONG_LABEL" as const;
+export const PYEONG_LABEL_VERSION_V2 = "canonical-supply-pyeong-round-v1";
 
 export const PRICE_SCOPES_V2 = ["COMPLEX", "DONG", "GU", "SEOUL"] as const;
 export type PriceScopeV2 = (typeof PRICE_SCOPES_V2)[number];
@@ -46,8 +49,11 @@ export type SupplySalePoint = {
   lawdCd: string;
   bjdongCd: string;
   yearMonth: string;
-  /** 만원 / 공급평 */
+  /** 만원 / 공급평 (decimal). Kept for audit. User-facing 평당가 uses pricePerMarketPyeong. */
   pricePerSupplyPyeong: number;
+  /** 만원 / 평형 integer label. Null when the label is not deterministic. */
+  pricePerMarketPyeong: number | null;
+  marketPyeongLabel: number | null;
   /** deal_amount in 만원 (mean trend uses this for complex) */
   dealAmount: number;
   exclusiveArea: number;
@@ -99,9 +105,11 @@ export type PricePositionBodyV2 = {
   transactionAsOf: string;
   referenceMonth: string | null;
   changeUnit: typeof CHANGE_UNIT_V2;
-  priceLevelDefinition: "reference_month_mean_price_per_supply_pyeong";
+  priceLevelDefinition: typeof PRICE_LEVEL_DEFINITION_V2;
   complexTrendDefinition: "calendar_month_mean_deal_amount";
   regionTrendDefinition: "median_of_matched_complex_changes_same_cohort";
+  areaBasis: typeof AREA_BASIS_V2;
+  pyeongLabelVersion: typeof PYEONG_LABEL_VERSION_V2;
   priceLevel: PriceLevelCellV2[];
   trends: Record<TrendHorizonV2, TrendCellV2[]>;
   maxAvailableValue: {
@@ -213,10 +221,18 @@ export function buildPricePositionV2(params: {
   let exactMapped = 0;
 
   for (const p of params.points) {
-    if (!inSupplyCohort(p.supplyPyeong, params.areaBand)) continue;
+    const cohort = BAND_TO_SUPPLY_COHORT[params.areaBand];
+    const inCohort = p.marketPyeongLabel != null
+      ? p.marketPyeongLabel >= cohort.min && p.marketPyeongLabel < cohort.max
+      : inSupplyCohort(p.supplyPyeong, params.areaBand);
+    if (!inCohort) continue;
     if (p.yearMonth < HISTORY_FLOOR_MONTH_V2) continue;
     exactMapped += 1;
-    pushAgg(byComplex, p.complexId, p.yearMonth, p.pricePerSupplyPyeong, p.dealAmount);
+    if (p.pricePerMarketPyeong != null && Number.isFinite(p.pricePerMarketPyeong)) {
+      pushAgg(byComplex, p.complexId, p.yearMonth, p.pricePerMarketPyeong, p.dealAmount);
+    } else {
+      pushAgg(byComplex, p.complexId, p.yearMonth, Number.NaN, p.dealAmount);
+    }
     const prev = identityRef.get(p.complexId);
     if (!prev || p.yearMonth > prev) identityRef.set(p.complexId, p.yearMonth);
   }
@@ -229,7 +245,8 @@ export function buildPricePositionV2(params: {
     const prices = new Map<string, number>();
     for (const [ym, agg] of months) {
       const d = mean(agg.deals);
-      const pr = mean(agg.prices);
+      const priced = agg.prices.filter((v) => Number.isFinite(v));
+      const pr = mean(priced);
       if (d != null) deals.set(ym, d);
       if (pr != null) prices.set(ym, pr);
     }
@@ -267,8 +284,8 @@ export function buildPricePositionV2(params: {
         const m = monthMeanPrice(byComplex, cid, referenceMonth);
         if (m.mean != null) {
           // for dong/gu/seoul: pool all trades in month via reconstituting from aggs
-          const cell = byComplex.get(cid)?.get(referenceMonth);
-          if (cell) prices.push(...cell.prices);
+        const cell = byComplex.get(cid)?.get(referenceMonth);
+        if (cell) prices.push(...cell.prices.filter((v) => Number.isFinite(v)));
         }
       }
       const n = prices.length;
@@ -358,9 +375,11 @@ export function buildPricePositionV2(params: {
       transactionAsOf: params.transactionAsOf ?? PRICE_POSITION_V2_AS_OF,
       referenceMonth,
       changeUnit: CHANGE_UNIT_V2,
-      priceLevelDefinition: "reference_month_mean_price_per_supply_pyeong",
+      priceLevelDefinition: PRICE_LEVEL_DEFINITION_V2,
       complexTrendDefinition: "calendar_month_mean_deal_amount",
       regionTrendDefinition: "median_of_matched_complex_changes_same_cohort",
+      areaBasis: AREA_BASIS_V2,
+      pyeongLabelVersion: PYEONG_LABEL_VERSION_V2,
       priceLevel,
       trends,
       maxAvailableValue: {

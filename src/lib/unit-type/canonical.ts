@@ -25,7 +25,7 @@ export function areaFromCents(cents: number): number {
   return cents / 100;
 }
 
-/** Unrounded supply pyeong. User-facing 평당가 divides by this, not by an exclusive conversion. */
+/** Unrounded supply pyeong. Stored supply metric. User-facing 평당가 uses the integer market label. */
 export function exactSupplyPyeong(supplyAreaSqm: number): number {
   return supplyAreaSqm / SUPPLY_PYEONG_FACTOR;
 }
