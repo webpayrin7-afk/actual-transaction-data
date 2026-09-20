@@ -412,7 +412,7 @@ async function main(): Promise<void> {
     totals,
   };
   writeFileSync(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
-  writeSync(1, `${JSON.stringify({ stopped: dry.stopped, api_calls: apiCalls, targets: targets.length, no_published_month: report.no_published_month, totals })}\n`);
+  writeSync(1, `${JSON.stringify({ stopped: dry.stopped, api_calls: apiCalls, retries: retryCount, targets: targets.length, no_published_month: report.no_published_month, totals })}\n`);
   if (dry.stopped === "HOLD_429") process.exit(2);
 }
 
