@@ -37,7 +37,8 @@ const METRO: Record<string, string> = {
   "26": "부산",
   "27": "대구",
   "30": "대전",
-  "29": "광주",
+  // Current master uses 12 for 전남광주통합특별시. Prefix 29 is not present.
+  "12": "광주",
   "31": "울산",
 };
 
