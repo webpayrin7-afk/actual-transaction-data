@@ -1,0 +1,38 @@
+{
+  "specId": "compact-unit-building-evidence-v1",
+  "required": true,
+  "reason": "Production official_unit_area_cache BuildingHubBulk rows are type-level (dong/ho/source_building_id empty). BldRgstHubService retains unit grain for 373 complexes / 161,469 rows. National type↔building expansion beyond those complexes needs dong/building identity from the existing filtered official unit-area bulk, not a 44GB rescan.",
+  "input": {
+    "artifact": "existing filtered official unit-area bulk / local shards that still contain dongNm and mgmBldrgstPk",
+    "doNotRedownload": "44GB raw BuildingHUB national dump",
+    "knownBulkChecksum": "ccf99ab5f2423f73bfdc4ffb825a0a7642057d853eff16ec4a10339cd7832fe5",
+    "bulkSourceMonth": "2026-08"
+  },
+  "output": {
+    "artifactName": "unit-building-evidence.jsonl.gz",
+    "format": "jsonl+gzip",
+    "expectedSize": "80–150MB gzip for nationwide unit grain; ~5–15MB if restricted to complexes with surviving dong+building keys",
+    "oneRowPerPhysicalUnit": true
+  },
+  "requiredColumns": [
+    { "name": "complex_id", "type": "text", "required": true },
+    { "name": "mgm_bldrgst_pk", "type": "text", "required": true, "note": "official building-register PK; keep as string" },
+    { "name": "dong_label", "type": "text", "required": false, "note": "official dongNm only; blank allowed" },
+    { "name": "exclusive_area", "type": "number", "required": true },
+    { "name": "residential_common_area", "type": "number", "required": false },
+    { "name": "supply_area", "type": "number", "required": false, "note": "exclusive + residential common when present" },
+    { "name": "floor", "type": "text", "required": false },
+    { "name": "ho", "type": "text", "required": true, "note": "physical unit identity with dong+floor" },
+    { "name": "unit_identity", "type": "text", "required": true, "note": "dong|floor|ho or official unit key for dedup" },
+    { "name": "unit_count", "type": "integer", "required": true, "note": "1 for unit-level rows" },
+    { "name": "source", "type": "text", "required": true },
+    { "name": "source_version", "type": "text", "required": true },
+    { "name": "source_as_of", "type": "text", "required": true }
+  ],
+  "rules": [
+    "Keep mgm_bldrgst_pk as decimal string; never JSON numbers.",
+    "Do not infer dong or building from apartment name or proximity.",
+    "Drop type-only aggregates that lack building/dong/unit identity.",
+    "Gzip the jsonl; do not store the original 44GB scan in this repo."
+  ]
+}

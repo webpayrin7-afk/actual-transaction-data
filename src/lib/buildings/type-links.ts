@@ -16,6 +16,7 @@ export type OfficialUnit = {
   ho: string;
   exclusiveArea: number | null;
   residentialCommonArea: number | null;
+  officialBuildingKey?: string | null;
   sourceAsOf: string;
   sourceKey: string;
 };
@@ -24,6 +25,7 @@ export type BuildingDong = {
   buildingId: string;
   dongLabel: string | null;
   residentialFlag: boolean;
+  officialBuildingKey?: string | null;
 };
 
 export type TypeBuildingLink = {
@@ -100,9 +102,11 @@ export function buildTypeBuildingLinks(input: {
 }): { links: TypeBuildingLink[]; unresolvedDong: number; ambiguousType: number } {
   const units = dedupeUnits(input.units);
   const byEx = typesByExclusive(input.types);
+  const buildingByKey = new Map<string, BuildingDong>();
   const buildingByDong = new Map<string, BuildingDong[]>();
   for (const b of input.buildings) {
     if (!b.residentialFlag) continue;
+    if (b.officialBuildingKey) buildingByKey.set(b.officialBuildingKey, b);
     const key = dongMatchKey(b.dongLabel);
     if (!key) continue;
     const list = buildingByDong.get(key);
@@ -126,18 +130,29 @@ export function buildTypeBuildingLinks(input: {
       if (resolved.status === "TYPE_VARIANT_AMBIGUOUS") ambiguousType += 1;
       continue;
     }
-    const dongKey = dongMatchKey(unit.dong);
-    if (!dongKey) {
-      unresolvedDong += 1;
-      continue;
+    let building: BuildingDong | undefined;
+    const unitPk = (unit.officialBuildingKey ?? "").trim();
+    if (unitPk) {
+      building = buildingByKey.get(unitPk);
+      if (!building) {
+        unresolvedDong += 1;
+        continue;
+      }
+    } else {
+      const dongKey = dongMatchKey(unit.dong);
+      if (!dongKey) {
+        unresolvedDong += 1;
+        continue;
+      }
+      const buildings = buildingByDong.get(dongKey);
+      if (!buildings || buildings.length === 0) {
+        unresolvedDong += 1;
+        continue;
+      }
+      if (buildings.length > 1) continue;
+      building = buildings[0];
     }
-    const buildings = buildingByDong.get(dongKey);
-    if (!buildings || buildings.length === 0) {
-      unresolvedDong += 1;
-      continue;
-    }
-    if (buildings.length > 1) continue;
-    const building = buildings[0];
+    if (!building) continue;
     const id = `${resolved.unitTypeId}\t${building.buildingId}`;
     const prev = counts.get(id);
     if (prev) {

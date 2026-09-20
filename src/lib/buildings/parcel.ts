@@ -37,6 +37,21 @@ export function parcelFromParts(
   };
 }
 
+export function parcelFromCadastralPnu(pnu: string): ParcelRef | null {
+  const raw = (pnu ?? "").trim();
+  if (!/^\d{19}$/.test(raw)) return null;
+  const plat = raw.slice(10, 11);
+  const hubPlat = plat === "1" ? "0" : plat === "2" ? "1" : null;
+  if (!hubPlat) return null;
+  return {
+    sigunguCd: raw.slice(0, 5),
+    bjdongCd: raw.slice(5, 10),
+    platGbCd: hubPlat,
+    bun: raw.slice(11, 15),
+    ji: raw.slice(15, 19),
+  };
+}
+
 export function parcelFromHubPnu(pnu: string): ParcelRef | null {
   const raw = (pnu ?? "").trim();
   if (!/^\d{19}$/.test(raw)) return null;

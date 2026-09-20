@@ -1,0 +1,15 @@
+{
+  "sourceDataset": "국토교통부_GIS건물통합정보",
+  "sourceVersion": "20260809",
+  "sourceDate": "2026-08-09",
+  "checksum": "",
+  "crs": "",
+  "featureCount": 6656497,
+  "validGeometryCount": null,
+  "licenseAttribution": "공공누리 제1유형(출처표시). 국토교통부 GIS건물통합정보 / data.go.kr 15083092 / VWorld dsId=18",
+  "wfsFallbackUsed": false,
+  "acquisitionStatus": "SOURCE_UNAVAILABLE",
+  "localPath": "",
+  "detail": "Official SHP/file bulk (VWorld dsId=18 / data.go.kr 15083092) did not download: vworld.kr connection reset, nsdi.go.kr DNS failure. WFS fallback not used.",
+  "createdAt": "2026-09-20T19:45:00.000Z"
+}

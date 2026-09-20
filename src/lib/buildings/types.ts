@@ -19,6 +19,31 @@ export const GEOMETRY_STATUSES = [
 ] as const;
 export type GeometryStatus = (typeof GEOMETRY_STATUSES)[number];
 
+export const HEIGHT_STATUSES = [
+  "OFFICIAL_HEIGHT",
+  "FLOOR_COUNT_ONLY",
+  "HEIGHT_MISSING",
+] as const;
+export type HeightStatus = (typeof HEIGHT_STATUSES)[number];
+
+export const THREE_D_CLASSES = [
+  "3D_EXACT",
+  "3D_PARTIAL",
+  "FOOTPRINT_ONLY",
+  "NO_GEOMETRY",
+] as const;
+export type ThreeDClass = (typeof THREE_D_CLASSES)[number];
+
+export const COUNT_STATUSES = [
+  "EXACT_VARIANT_COUNT",
+  "EXACT_SINGLE_VARIANT_COUNT",
+  "EXCLUSIVE_GROUP_ONLY",
+  "PARTIAL_UNIT_EVIDENCE",
+  "COUNT_CONFLICT",
+  "NO_SOURCE",
+] as const;
+export type CountStatus = (typeof COUNT_STATUSES)[number];
+
 export const LINK_STATUSES = [
   "EXACT",
   "PARTIAL",
@@ -48,7 +73,17 @@ export type TitleRow = {
   etcPurps?: string;
   hhldCnt?: string | number;
   hoCnt?: string | number;
+  heit?: string | number;
   grndFlrCnt?: string | number;
+  ugrndFlrCnt?: string | number;
+  strctCd?: string;
+  strctCdNm?: string;
+  etcStrct?: string;
+  roofCd?: string;
+  roofCdNm?: string;
+  etcRoof?: string;
+  archArea?: string | number;
+  totArea?: string | number;
   crtnDay?: string;
   sigunguCd?: string;
   bjdongCd?: string;
@@ -96,6 +131,14 @@ export type BuildingRecord = {
   residentialFlag: boolean;
   householdCount: number | null;
   floorCount: number | null;
+  heightM: number | null;
+  undergroundFloorCount: number | null;
+  structureType: string | null;
+  roofType: string | null;
+  archArea: number | null;
+  totArea: number | null;
+  heightStatus: HeightStatus;
+  threeDReadiness: ThreeDClass;
   source: string;
   sourceKey: string;
   sourceAsOf: string;

@@ -310,3 +310,85 @@ CREATE TABLE IF NOT EXISTS official_building_title_cache (
   fetched_at TEXT NOT NULL,
   PRIMARY KEY (parcel_key, page_no)
 );
+
+-- BUILDING V2 (see src/lib/db/migrations/20260921_building_geometry_3d.sql)
+CREATE TABLE IF NOT EXISTS building_3d_source_links (
+  complex_id TEXT NOT NULL,
+  building_id TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  provider_complex_id TEXT NOT NULL DEFAULT '',
+  provider_building_id TEXT NOT NULL DEFAULT '',
+  provider_object_id TEXT NOT NULL DEFAULT '',
+  geometry_version TEXT NOT NULL DEFAULT '',
+  provider_geometry_version TEXT NOT NULL DEFAULT '',
+  source_as_of TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'EMPTY',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (building_id, provider, provider_object_id)
+);
+CREATE TABLE IF NOT EXISTS building_3d_provider_capabilities (
+  provider TEXT PRIMARY KEY,
+  supports_footprint INTEGER,
+  supports_height INTEGER,
+  supports_3d_object INTEGER,
+  supports_sunlight INTEGER,
+  supports_datetime_shadow INTEGER,
+  embed_allowed INTEGER,
+  commercial_use_status TEXT NOT NULL DEFAULT 'UNVERIFIED',
+  cache_allowed INTEGER,
+  source_version TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS unit_type_household_counts (
+  complex_id TEXT NOT NULL,
+  unit_type_id TEXT NOT NULL,
+  exclusive_cents INTEGER NOT NULL,
+  supply_cents INTEGER,
+  household_count INTEGER,
+  count_status TEXT NOT NULL,
+  ui_safe INTEGER NOT NULL DEFAULT 0,
+  source TEXT NOT NULL,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, unit_type_id)
+);
+CREATE TABLE IF NOT EXISTS unit_exclusive_group_counts (
+  complex_id TEXT NOT NULL,
+  exclusive_cents INTEGER NOT NULL,
+  household_count INTEGER,
+  variant_count INTEGER NOT NULL DEFAULT 0,
+  count_status TEXT NOT NULL,
+  source TEXT NOT NULL,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, exclusive_cents)
+);
+CREATE TABLE IF NOT EXISTS gis_building_source_manifest (
+  manifest_id TEXT PRIMARY KEY,
+  source_dataset TEXT NOT NULL,
+  source_version TEXT NOT NULL DEFAULT '',
+  source_date TEXT NOT NULL DEFAULT '',
+  checksum TEXT NOT NULL DEFAULT '',
+  crs TEXT NOT NULL DEFAULT '',
+  feature_count INTEGER,
+  valid_geometry_count INTEGER,
+  license_attribution TEXT NOT NULL DEFAULT '',
+  wfs_fallback_used INTEGER NOT NULL DEFAULT 0,
+  acquisition_status TEXT NOT NULL,
+  local_path TEXT NOT NULL DEFAULT '',
+  detail TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS compact_extractor_spec (
+  spec_id TEXT PRIMARY KEY,
+  required INTEGER NOT NULL DEFAULT 1,
+  artifact_name TEXT NOT NULL,
+  expected_size TEXT NOT NULL DEFAULT '',
+  spec_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);

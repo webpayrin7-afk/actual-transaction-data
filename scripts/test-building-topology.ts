@@ -98,7 +98,9 @@ function testTitleMap() {
       mainPurpsCd: "02000",
       mainPurpsCdNm: "공동주택",
       hhldCnt: 36,
+      heit: 53.4,
       grndFlrCnt: 19,
+      ugrndFlrCnt: 2,
       crtnDay: "20220813",
     },
     "cx_4c63d9a100973c60",
@@ -109,6 +111,9 @@ function testTitleMap() {
   assert.equal(row!.dongLabel, "169동");
   assert.equal(row!.status, "EXACT");
   assert.equal(row!.officialBuildingKey, "10251100216862");
+  assert.equal(row!.heightM, 53.4);
+  assert.equal(row!.heightStatus, "OFFICIAL_HEIGHT");
+  assert.equal(row!.threeDReadiness, "NO_GEOMETRY");
 }
 
 function testTypeLinks() {
@@ -180,6 +185,101 @@ function testParity() {
   );
 }
 
+function testHeightAndThreeD() {
+  const { heightAttrsFromTitle } = require("../src/lib/buildings/height") as typeof import("../src/lib/buildings/height");
+  const { classifyThreeD } = require("../src/lib/buildings/three-d") as typeof import("../src/lib/buildings/three-d");
+  const official = heightAttrsFromTitle({ heit: "48.4", grndFlrCnt: "18" });
+  assert.equal(official.heightStatus, "OFFICIAL_HEIGHT");
+  assert.equal(official.heightM, 48.4);
+  const floors = heightAttrsFromTitle({ heit: "0", grndFlrCnt: "15" });
+  assert.equal(floors.heightStatus, "FLOOR_COUNT_ONLY");
+  assert.equal(floors.heightM, null);
+  const missing = heightAttrsFromTitle({ heit: "", grndFlrCnt: "0" });
+  assert.equal(missing.heightStatus, "HEIGHT_MISSING");
+  assert.equal(classifyThreeD({ hasOfficialFootprint: true, heightStatus: "OFFICIAL_HEIGHT" }), "3D_EXACT");
+  assert.equal(classifyThreeD({ hasOfficialFootprint: true, heightStatus: "FLOOR_COUNT_ONLY" }), "3D_PARTIAL");
+  assert.equal(classifyThreeD({ hasOfficialFootprint: true, heightStatus: "HEIGHT_MISSING" }), "FOOTPRINT_ONLY");
+  assert.equal(classifyThreeD({ hasOfficialFootprint: false, heightStatus: "OFFICIAL_HEIGHT" }), "NO_GEOMETRY");
+}
+
+function testHouseholdSemantics() {
+  const { deriveHouseholdCounts, uiSafeTypeSum, displayedExceedsPhysical } = require("../src/lib/buildings/counts") as typeof import("../src/lib/buildings/counts");
+  const banpo = deriveHouseholdCounts({
+    types: [
+      { unitTypeId: "ut_a", exclusiveCents: 8494, supplyCents: 11687, status: "AMBIGUOUS_MULTI", householdCount: 724 },
+      { unitTypeId: "ut_b", exclusiveCents: 8494, supplyCents: 11688, status: "AMBIGUOUS_MULTI", householdCount: 724 },
+      { unitTypeId: "ut_c", exclusiveCents: 5997, supplyCents: 8424, status: "EXACT_SINGLE", householdCount: 158 },
+    ],
+    units: [],
+  });
+  assert.equal(banpo.types.find((t) => t.unitTypeId === "ut_a")?.countStatus, "EXCLUSIVE_GROUP_ONLY");
+  assert.equal(banpo.types.find((t) => t.unitTypeId === "ut_a")?.householdCount, null);
+  assert.equal(banpo.types.find((t) => t.unitTypeId === "ut_c")?.countStatus, "EXACT_SINGLE_VARIANT_COUNT");
+  assert.equal(banpo.groups.find((g) => g.exclusiveCents === 8494)?.householdCount, 724);
+  assert.equal(uiSafeTypeSum(banpo.types), 158);
+  assert.equal(displayedExceedsPhysical(uiSafeTypeSum(banpo.types), 3410), false);
+
+  const fromUnits = deriveHouseholdCounts({
+    types: [
+      { unitTypeId: "ut_a", exclusiveCents: 8480, supplyCents: 11152, status: "EXACT_SINGLE", householdCount: 3 },
+      { unitTypeId: "ut_b", exclusiveCents: 8480, supplyCents: 10929, status: "AMBIGUOUS_MULTI", householdCount: 3 },
+    ],
+    units: [
+      { dong: "101동", floor: "1", ho: "101", exclusiveArea: 84.8, residentialCommonArea: 26.72, officialBuildingKey: "1", sourceAsOf: "2026", sourceKey: "a" },
+      { dong: "101동", floor: "2", ho: "201", exclusiveArea: 84.8, residentialCommonArea: 24.49, officialBuildingKey: "1", sourceAsOf: "2026", sourceKey: "b" },
+    ],
+  });
+  assert.equal(fromUnits.types.reduce((n, t) => n + (t.householdCount ?? 0), 0), 2);
+}
+
+function testGisJoinIdentity() {
+  const { joinGisFeature, pnuUniqueJoinAllowed } = require("../src/lib/buildings/gis-join") as typeof import("../src/lib/buildings/gis-join");
+  const buildings = new Map([["10251100216862", { officialBuildingKey: "10251100216862" }]]);
+  const matched = joinGisFeature(
+    { properties: { BLDRGST_PK: "10251100216862", UFID: "u1", PNU: "1171010100100190000" }, geometry: { type: "Polygon", coordinates: [] } },
+    buildings,
+    new Map([["1171010100100190000", ["10251100216862"]]]),
+    new Map([["1171010100100190000", 72]]),
+  );
+  assert.equal(matched.status, "MATCHED");
+  assert.equal(matched.evidence, "official_building_register_pk");
+  const unresolved = joinGisFeature(
+    { properties: { UFID: "u1", PNU: "1171010100100190000", DONG_NM: "101동" }, geometry: { type: "Polygon", coordinates: [] } },
+    buildings,
+    new Map([["1171010100100190000", ["10251100216862", "pk2"]]]),
+    new Map([["1171010100100190000", 72]]),
+  );
+  assert.equal(unresolved.status, "GEOMETRY_IDENTITY_UNRESOLVED");
+  assert.equal(pnuUniqueJoinAllowed(1, 1), true);
+  assert.equal(pnuUniqueJoinAllowed(72, 72), false);
+}
+
+function testPkTypeLinks() {
+  const links = buildTypeBuildingLinks({
+    source: "test",
+    types: [
+      { unitTypeId: "ut_a", exclusiveCents: 8480, supplyCents: 11152, status: "EXACT_SINGLE", householdCount: 3 },
+    ],
+    buildings: [
+      { buildingId: "bd_1", dongLabel: "101동", residentialFlag: true, officialBuildingKey: "pk1" },
+      { buildingId: "bd_2", dongLabel: "102동", residentialFlag: true, officialBuildingKey: "pk2" },
+    ],
+    units: [
+      { dong: "x", floor: "1", ho: "101", exclusiveArea: 84.8, residentialCommonArea: 26.72, officialBuildingKey: "pk1", sourceAsOf: "2026", sourceKey: "a" },
+      { dong: "y", floor: "2", ho: "201", exclusiveArea: 84.8, residentialCommonArea: 26.72, officialBuildingKey: "pk2", sourceAsOf: "2026", sourceKey: "b" },
+    ],
+  });
+  assert.equal(links.links.length, 2);
+}
+
+function testParcelCadastral() {
+  const { parcelFromCadastralPnu, hubPnu } = require("../src/lib/buildings/parcel") as typeof import("../src/lib/buildings/parcel");
+  const p = parcelFromCadastralPnu("1171010100100190000");
+  assert.ok(p);
+  assert.equal(p!.platGbCd, "0");
+  assert.equal(hubPnu(p!), "1171010100000190000");
+}
+
 testIdentity();
 testResidential();
 testDong();
@@ -187,4 +287,9 @@ testParcel();
 testTitleMap();
 testTypeLinks();
 testParity();
+testHeightAndThreeD();
+testHouseholdSemantics();
+testGisJoinIdentity();
+testPkTypeLinks();
+testParcelCadastral();
 console.log("test-building-topology ok");

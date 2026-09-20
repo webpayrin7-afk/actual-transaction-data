@@ -90,6 +90,14 @@ export async function upsertBuildings(
                 main_usage_code = COALESCE(main_usage_code, ?),
                 household_count = COALESCE(household_count, ?),
                 floor_count = COALESCE(floor_count, ?),
+                height_m = COALESCE(height_m, ?),
+                underground_floor_count = COALESCE(underground_floor_count, ?),
+                structure_type = COALESCE(structure_type, ?),
+                roof_type = COALESCE(roof_type, ?),
+                arch_area = COALESCE(arch_area, ?),
+                tot_area = COALESCE(tot_area, ?),
+                height_status = COALESCE(height_status, ?),
+                three_d_readiness = COALESCE(three_d_readiness, ?),
                 updated_at = ?
               WHERE building_id = ?`,
         args: [
@@ -100,6 +108,14 @@ export async function upsertBuildings(
           row.mainUsageCode,
           row.householdCount,
           row.floorCount,
+          row.heightM,
+          row.undergroundFloorCount,
+          row.structureType,
+          row.roofType,
+          row.archArea,
+          row.totArea,
+          row.heightStatus,
+          row.threeDReadiness,
           ts,
           String(cur.building_id),
         ],
@@ -112,8 +128,10 @@ export async function upsertBuildings(
               building_id, complex_id, official_building_key, mgm_bldrgst_pk,
               dong_label, dong_label_status, building_name, main_usage, main_usage_code,
               main_atch_type, residential_flag, household_count, floor_count,
+              height_m, underground_floor_count, structure_type, roof_type, arch_area, tot_area,
+              height_status, three_d_readiness,
               source, source_key, source_as_of, status, provenance_json, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         row.buildingId,
         row.complexId,
@@ -128,6 +146,14 @@ export async function upsertBuildings(
         row.residentialFlag ? 1 : 0,
         row.householdCount,
         row.floorCount,
+        row.heightM,
+        row.undergroundFloorCount,
+        row.structureType,
+        row.roofType,
+        row.archArea,
+        row.totArea,
+        row.heightStatus,
+        row.threeDReadiness,
         row.source,
         row.sourceKey,
         row.sourceAsOf,
@@ -273,6 +299,59 @@ export async function upsertParity(
     parityClass: string;
     detail: string;
     sourceAsOf: string;
+    physicalUnitCount?: number | null;
+    uiSafeTypeSum?: number | null;
+    exclusiveGroupSum?: number | null;
+    displayedExceedsPhysical?: boolean;
+  },
+): Promise<void> {
+  const ts = nowIso();
+  await db.execute({
+    sql: `INSERT INTO complex_building_parity (
+            complex_id, kapt_household_count, unit_household_count, type_household_sum,
+            building_household_sum, parity_class, detail, source_as_of, updated_at,
+            physical_unit_count, ui_safe_type_sum, exclusive_group_sum, displayed_exceeds_physical
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(complex_id) DO UPDATE SET
+            kapt_household_count=excluded.kapt_household_count,
+            unit_household_count=excluded.unit_household_count,
+            type_household_sum=excluded.type_household_sum,
+            building_household_sum=excluded.building_household_sum,
+            parity_class=excluded.parity_class,
+            detail=excluded.detail,
+            source_as_of=excluded.source_as_of,
+            physical_unit_count=excluded.physical_unit_count,
+            ui_safe_type_sum=excluded.ui_safe_type_sum,
+            exclusive_group_sum=excluded.exclusive_group_sum,
+            displayed_exceeds_physical=excluded.displayed_exceeds_physical,
+            updated_at=excluded.updated_at`,
+    args: [
+      row.complexId,
+      row.kaptHousehold,
+      row.unitHousehold,
+      row.typeHouseholdSum,
+      row.buildingHouseholdSum,
+      row.parityClass,
+      row.detail,
+      row.sourceAsOf,
+      ts,
+      row.physicalUnitCount ?? null,
+      row.uiSafeTypeSum ?? null,
+      row.exclusiveGroupSum ?? null,
+      row.displayedExceedsPhysical ? 1 : 0,
+    ],
+  });
+}
+  db: Client,
+  row: {
+    complexId: string;
+    kaptHousehold: number | null;
+    unitHousehold: number | null;
+    typeHouseholdSum: number | null;
+    buildingHouseholdSum: number | null;
+    parityClass: string;
+    detail: string;
+    sourceAsOf: string;
   },
 ): Promise<void> {
   const ts = nowIso();
@@ -319,6 +398,340 @@ export async function upsertCheckpoint(
     residentialCount?: number;
     apiCalls?: number;
     detail?: string;
+    titleRetryCount?: number;
+    titleRecoveryStatus?: string;
+  },
+): Promise<void> {
+  const ts = nowIso();
+  await db.execute({
+    sql: `INSERT INTO complex_building_checkpoint (
+            complex_id, parcel_key, pnu, priority, title_status, building_status,
+            geometry_status, link_status, title_total_count, residential_count,
+            api_calls, detail, title_retry_count, title_recovery_status, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(complex_id) DO UPDATE SET
+            parcel_key=excluded.parcel_key,
+            pnu=excluded.pnu,
+            priority=excluded.priority,
+            title_status=excluded.title_status,
+            building_status=excluded.building_status,
+            geometry_status=excluded.geometry_status,
+            link_status=excluded.link_status,
+            title_total_count=excluded.title_total_count,
+            residential_count=excluded.residential_count,
+            api_calls=excluded.api_calls,
+            detail=excluded.detail,
+            title_retry_count=COALESCE(excluded.title_retry_count, complex_building_checkpoint.title_retry_count),
+            title_recovery_status=COALESCE(NULLIF(excluded.title_recovery_status, ''), complex_building_checkpoint.title_recovery_status),
+            updated_at=excluded.updated_at`,
+    args: [
+      row.complexId,
+      row.parcelKey ?? "",
+      row.pnu ?? "",
+      row.priority ?? 9,
+      row.titleStatus,
+      row.buildingStatus,
+      row.geometryStatus,
+      row.linkStatus,
+      row.titleTotalCount ?? 0,
+      row.residentialCount ?? 0,
+      row.apiCalls ?? 0,
+      row.detail ?? "",
+      row.titleRetryCount ?? 0,
+      row.titleRecoveryStatus ?? "",
+      ts,
+    ],
+  });
+}
+
+export async function upsertHouseholdCounts(
+  db: Client,
+  complexId: string,
+  types: Array<{
+    unitTypeId: string;
+    exclusiveCents: number;
+    supplyCents: number | null;
+    householdCount: number | null;
+    countStatus: string;
+    uiSafe: boolean;
+    source: string;
+    provenance: Record<string, unknown>;
+  }>,
+  groups: Array<{
+    exclusiveCents: number;
+    householdCount: number | null;
+    variantCount: number;
+    countStatus: string;
+    source: string;
+    provenance: Record<string, unknown>;
+  }>,
+  sourceAsOf: string,
+): Promise<UpsertStats> {
+  const stats: UpsertStats = { inserted: 0, unchanged: 0, skippedPositive: 0, updatedFill: 0 };
+  const ts = nowIso();
+  await db.execute({
+    sql: `DELETE FROM unit_type_household_counts WHERE complex_id=?`,
+    args: [complexId],
+  });
+  await db.execute({
+    sql: `DELETE FROM unit_exclusive_group_counts WHERE complex_id=?`,
+    args: [complexId],
+  });
+  const typeInserts = types.map((row) => ({
+    sql: `INSERT INTO unit_type_household_counts (
+            complex_id, unit_type_id, exclusive_cents, supply_cents, household_count,
+            count_status, ui_safe, source, source_as_of, provenance_json, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      complexId,
+      row.unitTypeId,
+      row.exclusiveCents,
+      row.supplyCents,
+      row.householdCount,
+      row.countStatus,
+      row.uiSafe ? 1 : 0,
+      row.source,
+      sourceAsOf,
+      json(row.provenance),
+      ts,
+      ts,
+    ],
+  }));
+  for (let i = 0; i < typeInserts.length; i += 40) {
+    await db.batch(typeInserts.slice(i, i + 40) as never, "write");
+  }
+  stats.inserted += types.length;
+  const groupInserts = groups.map((row) => ({
+    sql: `INSERT INTO unit_exclusive_group_counts (
+            complex_id, exclusive_cents, household_count, variant_count, count_status,
+            source, source_as_of, provenance_json, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      complexId,
+      row.exclusiveCents,
+      row.householdCount,
+      row.variantCount,
+      row.countStatus,
+      row.source,
+      sourceAsOf,
+      json(row.provenance),
+      ts,
+    ],
+  }));
+  for (let i = 0; i < groupInserts.length; i += 40) {
+    await db.batch(groupInserts.slice(i, i + 40) as never, "write");
+  }
+  return stats;
+}
+
+export async function upsertGeometryRow(
+  db: Client,
+  row: {
+    buildingId: string;
+    geometrySource: string;
+    centroidLat: number | null;
+    centroidLng: number | null;
+    footprintGeojson: string | null;
+    footprintOriginalGeojson: string | null;
+    footprintDisplayGeojson: string | null;
+    sourceObjectId: string | null;
+    sourceGeometryId: string | null;
+    sourceGeometryHash: string | null;
+    sourceCrs: string | null;
+    canonicalCrs: string;
+    sourceVersion: string;
+    sourceAsOf: string;
+    geometryStatus: string;
+    identityStatus: string;
+    repairStatus: string;
+    areaM2: number | null;
+    bbox: { minLng: number; minLat: number; maxLng: number; maxLat: number } | null;
+    displaySimplifyToleranceM: number | null;
+    provenance: Record<string, unknown>;
+  },
+): Promise<void> {
+  const ts = nowIso();
+  await db.execute({
+    sql: `INSERT INTO complex_building_geometry (
+            building_id, geometry_source, centroid_lat, centroid_lng,
+            representative_lat, representative_lng, footprint_geojson,
+            source_object_id, source_version, source_as_of, geometry_status,
+            provenance_json, created_at, updated_at,
+            source_crs, canonical_crs, source_geometry_id, source_geometry_hash,
+            bbox_min_lng, bbox_min_lat, bbox_max_lng, bbox_max_lat,
+            footprint_original_geojson, footprint_display_geojson,
+            display_simplify_tolerance_m, repair_status, identity_status, area_m2
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(building_id) DO UPDATE SET
+            geometry_source=excluded.geometry_source,
+            centroid_lat=excluded.centroid_lat,
+            centroid_lng=excluded.centroid_lng,
+            representative_lat=excluded.representative_lat,
+            representative_lng=excluded.representative_lng,
+            footprint_geojson=excluded.footprint_geojson,
+            source_object_id=excluded.source_object_id,
+            source_version=excluded.source_version,
+            source_as_of=excluded.source_as_of,
+            geometry_status=excluded.geometry_status,
+            provenance_json=excluded.provenance_json,
+            source_crs=excluded.source_crs,
+            canonical_crs=excluded.canonical_crs,
+            source_geometry_id=excluded.source_geometry_id,
+            source_geometry_hash=excluded.source_geometry_hash,
+            bbox_min_lng=excluded.bbox_min_lng,
+            bbox_min_lat=excluded.bbox_min_lat,
+            bbox_max_lng=excluded.bbox_max_lng,
+            bbox_max_lat=excluded.bbox_max_lat,
+            footprint_original_geojson=excluded.footprint_original_geojson,
+            footprint_display_geojson=excluded.footprint_display_geojson,
+            display_simplify_tolerance_m=excluded.display_simplify_tolerance_m,
+            repair_status=excluded.repair_status,
+            identity_status=excluded.identity_status,
+            area_m2=excluded.area_m2,
+            updated_at=excluded.updated_at`,
+    args: [
+      row.buildingId,
+      row.geometrySource,
+      row.centroidLat,
+      row.centroidLng,
+      row.centroidLat,
+      row.centroidLng,
+      row.footprintGeojson,
+      row.sourceObjectId,
+      row.sourceVersion,
+      row.sourceAsOf,
+      row.geometryStatus,
+      json(row.provenance),
+      ts,
+      ts,
+      row.sourceCrs,
+      row.canonicalCrs,
+      row.sourceGeometryId,
+      row.sourceGeometryHash,
+      row.bbox?.minLng ?? null,
+      row.bbox?.minLat ?? null,
+      row.bbox?.maxLng ?? null,
+      row.bbox?.maxLat ?? null,
+      row.footprintOriginalGeojson,
+      row.footprintDisplayGeojson,
+      row.displaySimplifyToleranceM,
+      row.repairStatus,
+      row.identityStatus,
+      row.areaM2,
+    ],
+  });
+}
+
+export async function upsertGisManifest(
+  db: Client,
+  row: {
+    manifestId: string;
+    sourceDataset: string;
+    sourceVersion: string;
+    sourceDate: string;
+    checksum: string;
+    crs: string;
+    featureCount: number | null;
+    validGeometryCount: number | null;
+    licenseAttribution: string;
+    wfsFallbackUsed: boolean;
+    acquisitionStatus: string;
+    localPath: string;
+    detail: string;
+  },
+): Promise<void> {
+  const ts = nowIso();
+  await db.execute({
+    sql: `INSERT INTO gis_building_source_manifest (
+            manifest_id, source_dataset, source_version, source_date, checksum, crs,
+            feature_count, valid_geometry_count, license_attribution, wfs_fallback_used,
+            acquisition_status, local_path, detail, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(manifest_id) DO UPDATE SET
+            source_version=excluded.source_version,
+            checksum=excluded.checksum,
+            crs=excluded.crs,
+            feature_count=excluded.feature_count,
+            valid_geometry_count=excluded.valid_geometry_count,
+            acquisition_status=excluded.acquisition_status,
+            local_path=excluded.local_path,
+            detail=excluded.detail`,
+    args: [
+      row.manifestId,
+      row.sourceDataset,
+      row.sourceVersion,
+      row.sourceDate,
+      row.checksum,
+      row.crs,
+      row.featureCount,
+      row.validGeometryCount,
+      row.licenseAttribution,
+      row.wfsFallbackUsed ? 1 : 0,
+      row.acquisitionStatus,
+      row.localPath,
+      row.detail,
+      ts,
+    ],
+  });
+}
+
+export async function upsertCompactExtractorSpec(
+  db: Client,
+  spec: {
+    specId: string;
+    required: boolean;
+    artifactName: string;
+    expectedSize: string;
+    specJson: string;
+  },
+): Promise<void> {
+  const ts = nowIso();
+  await db.execute({
+    sql: `INSERT INTO compact_extractor_spec (
+            spec_id, required, artifact_name, expected_size, spec_json, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?)
+          ON CONFLICT(spec_id) DO UPDATE SET
+            required=excluded.required,
+            artifact_name=excluded.artifact_name,
+            expected_size=excluded.expected_size,
+            spec_json=excluded.spec_json,
+            updated_at=excluded.updated_at`,
+    args: [spec.specId, spec.required ? 1 : 0, spec.artifactName, spec.expectedSize, spec.specJson, ts],
+  });
+}
+
+export async function refreshThreeDReadiness(db: Client): Promise<void> {
+  await db.execute(`
+    UPDATE complex_buildings
+    SET three_d_readiness = CASE
+      WHEN EXISTS (
+        SELECT 1 FROM complex_building_geometry g
+        WHERE g.building_id = complex_buildings.building_id
+          AND g.geometry_status = 'EXACT_FOOTPRINT'
+      ) THEN CASE
+        WHEN height_status = 'OFFICIAL_HEIGHT' THEN '3D_EXACT'
+        WHEN height_status = 'FLOOR_COUNT_ONLY' THEN '3D_PARTIAL'
+        ELSE 'FOOTPRINT_ONLY'
+      END
+      ELSE 'NO_GEOMETRY'
+    END
+    WHERE residential_flag = 1
+  `);
+}
+  db: Client,
+  row: {
+    complexId: string;
+    parcelKey?: string;
+    pnu?: string;
+    priority?: number;
+    titleStatus: string;
+    buildingStatus: string;
+    geometryStatus: string;
+    linkStatus: string;
+    titleTotalCount?: number;
+    residentialCount?: number;
+    apiCalls?: number;
+    detail?: string;
   },
 ): Promise<void> {
   const ts = nowIso();
@@ -340,6 +753,8 @@ export async function upsertCheckpoint(
             residential_count=excluded.residential_count,
             api_calls=excluded.api_calls,
             detail=excluded.detail,
+            title_retry_count=COALESCE(excluded.title_retry_count, complex_building_checkpoint.title_retry_count),
+            title_recovery_status=COALESCE(excluded.title_recovery_status, complex_building_checkpoint.title_recovery_status),
             updated_at=excluded.updated_at`,
     args: [
       row.complexId,
