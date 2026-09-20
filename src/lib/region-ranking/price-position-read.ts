@@ -2,11 +2,21 @@ import { SEOUL_REGIONS } from "../constants/regions-registry";
 import type { RankingReader } from "./query";
 import { activeAreaBand, type RegionalAreaBandId } from "./area-band";
 import {
-  assemblePricePosition,
-  pricePositionSnapshotId,
-  type PricePositionBody,
-  type PriceScope,
+  PRICE_POSITION_AS_OF,
 } from "./price-position";
+import {
+  PRICE_POSITION_V2_AS_OF,
+  PRICE_POSITION_V2_VERSION,
+  pricePositionV2SnapshotId,
+  type PricePositionBodyV2,
+} from "./price-position-v2";
+
+/**
+ * Public pointer is V2 only after publication.
+ * Missing V2 is unavailable. V1 rows stay stored and are not a fallback.
+ */
+export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V2_VERSION;
+export const PRICE_POSITION_PUBLIC_AS_OF = PRICE_POSITION_V2_AS_OF;
 
 export function seoulGuName(lawdCd: string): string | null {
   for (const region of SEOUL_REGIONS) {
@@ -19,50 +29,23 @@ export function seoulLawdCodes(): string[] {
   return SEOUL_REGIONS.flatMap((region) => region.lawdCodes);
 }
 
-function labelsFor(dongName: string | null, lawdCd: string): Record<PriceScope, string> {
-  return {
-    COMPLEX: "이 단지",
-    DONG: dongName || "동",
-    GU: seoulGuName(lawdCd) || "구",
-    SEOUL: "서울",
-  };
-}
-
-function skeleton(params: {
-  complexId: string;
-  aptName: string | null;
-  areaBand: RegionalAreaBandId;
-  dongName: string | null;
-  lawdCd: string;
-}): PricePositionBody {
-  return assemblePricePosition({
-    complexId: params.complexId,
-    aptName: params.aptName,
-    areaBand: params.areaBand,
-    referenceMonth: null,
-    labels: labelsFor(params.dongName, params.lawdCd),
-    buckets: [],
-  });
-}
-
 export async function readComplexPricePosition(
   db: RankingReader,
   query: { complexId: string; areaBand: RegionalAreaBandId },
 ): Promise<
   | { kind: "missing" }
   | { kind: "outside-seoul" }
-  | { kind: "body"; body: PricePositionBody }
+  | { kind: "body"; body: PricePositionBody | PricePositionBodyV2 }
 > {
-  const snapshotId = pricePositionSnapshotId();
-  const stored = await db.execute({
+  // Prefer V2 only when materialized for this key.
+  const v2 = await db.execute({
     sql: `SELECT payload_json
           FROM complex_region_price_position
           WHERE snapshot_id = ? AND complex_id = ? AND area_band = ?`,
-    args: [snapshotId, query.complexId, query.areaBand],
+    args: [pricePositionV2SnapshotId(), query.complexId, query.areaBand],
   });
-  const payload = stored.rows[0]?.payload_json;
-  if (payload != null && String(payload).length > 0) {
-    const body = JSON.parse(String(payload)) as PricePositionBody;
+  if (v2.rows[0]?.payload_json) {
+    const body = JSON.parse(String(v2.rows[0].payload_json)) as PricePositionBodyV2;
     activeAreaBand(body.areaBand);
     return { kind: "body", body };
   }
@@ -76,14 +59,28 @@ export async function readComplexPricePosition(
   if (!row) return { kind: "missing" };
   const lawd = String(row.lawd_cd);
   if (!seoulGuName(lawd)) return { kind: "outside-seoul" };
-  return {
-    kind: "body",
-    body: skeleton({
-      complexId: query.complexId,
-      aptName: row.apt_name == null ? null : String(row.apt_name),
-      areaBand: query.areaBand,
-      dongName: row.legal_dong_name == null ? null : String(row.legal_dong_name),
-      lawdCd: lawd,
-    }),
+  const unavailable: PricePositionBodyV2 = {
+    status: "unavailable",
+    version: PRICE_POSITION_V2_VERSION,
+    complexId: query.complexId,
+    aptName: row.apt_name == null ? null : String(row.apt_name),
+    areaBand: query.areaBand,
+    supplyPyeongCohort: "",
+    areaBandVersion: "",
+    transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
+    referenceMonth: null,
+    changeUnit: "percentage_points",
+    priceLevelDefinition: "reference_month_mean_deal_per_market_pyeong_label",
+    complexTrendDefinition: "calendar_month_mean_deal_amount",
+    regionTrendDefinition: "median_of_matched_complex_changes_same_cohort",
+    areaBasis: "SUPPLY_PYEONG_LABEL",
+    pyeongLabelVersion: "canonical-supply-pyeong-round-v1",
+    priceLevel: [],
+    trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
+    maxAvailableValue: { priceLevel: null, trends: { "3M": null, "6M": null, "1Y": null, "3Y": null } },
+    coverage: { exactMappedTrades: 0, ambiguousExcluded: 0 },
   };
+  return { kind: "body", body: unavailable };
 }
+
+export { PRICE_POSITION_AS_OF, PRICE_POSITION_V2_VERSION };
