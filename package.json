@@ -32,7 +32,9 @@
     "test:loan-repay": "tsx scripts/test-loan-repay.ts",
     "test:loan-limit": "tsx scripts/test-loan-limit.ts",
     "test:unit-type-phase5": "tsx scripts/test-unit-type-phase5.ts",
-    "test:unit-type-phase53b": "tsx scripts/test-unit-type-phase53b.ts"
+    "test:unit-type-phase53b": "tsx scripts/test-unit-type-phase53b.ts",
+    "test:building-topology": "tsx scripts/test-building-topology.ts",
+    "building:topology": "tsx scripts/building-topology/run-national.mts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

@@ -28,6 +28,9 @@
 /data/*.db
 /data/*.db-*
 
+# BUILDING title/GIS response cache (checkpointed; do not commit)
+/data/cache/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
