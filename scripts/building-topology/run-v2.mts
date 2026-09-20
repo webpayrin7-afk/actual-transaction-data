@@ -28,7 +28,9 @@ import {
 } from "@/lib/buildings/counts";
 import { payloadBytes } from "@/lib/buildings/geometry";
 import { emptyManifest, writeManifest } from "@/lib/buildings/gis-source";
-import { loadComplexBuildingsApi } from "@/lib/buildings/api";
+import { acquireOfficialGis } from "@/lib/buildings/gis-acquire";
+import { loadComplexBuildingsApi, loadComplexBuildingsApiLive } from "@/lib/buildings/api";
+import { findCompactArtifact, ingestCompactUnitEvidence } from "@/lib/buildings/ingest-unit-evidence";
 import {
   upsertBuildings,
   upsertCheckpoint,
@@ -37,6 +39,8 @@ import {
   upsertHouseholdCounts,
   upsertParity,
   upsertTypeBuildingLinks,
+  upsertResolutionStats,
+  upsertApiSnapshot,
   refreshThreeDReadiness,
   type UpsertStats,
 } from "@/lib/buildings/repository";
@@ -92,12 +96,25 @@ async function phaseSchema(db: Client) {
 }
 
 async function phaseGisManifest(db: Client) {
+  const acquired = await acquireOfficialGis();
+  const status = acquired.sourceTemporarilyUnavailable
+    ? "SOURCE_TEMPORARILY_UNAVAILABLE"
+    : "FILE_AVAILABLE";
   const manifest = emptyManifest(
-    "Official SHP bulk (data.go.kr 15083092 / VWorld dsId=18) unreachable from this environment; NSDI DNS failed; WFS fallback not used.",
-    "SOURCE_UNAVAILABLE",
+    JSON.stringify({
+      successfulOfficialPath: acquired.successfulOfficialPath,
+      failedPaths: acquired.failedPaths,
+      wfsValidationOk: acquired.wfsValidationOk,
+      fileUrl: acquired.fileUrl,
+      paths: acquired.paths.map((p) => ({ path: p.path, status: p.status, attempts: p.attempts.length })),
+      note: "Bulk SHP not acquired; WFS not ingested as national footprints",
+    }),
+    status,
   );
+  manifest.successfulOfficialPath = acquired.successfulOfficialPath;
+  manifest.failedPaths = acquired.failedPaths;
   writeManifest(manifest);
-  if (!APPLY) return manifest;
+  if (!APPLY) return { manifest, acquired };
   await upsertGisManifest(db, {
     manifestId: "gis-building-20260809",
     sourceDataset: manifest.sourceDataset,
@@ -120,7 +137,7 @@ async function phaseGisManifest(db: Client) {
     expectedSize: EXTRACTOR.output.expectedSize,
     specJson: JSON.stringify(EXTRACTOR),
   });
-  return manifest;
+  return { manifest, acquired };
 }
 
 async function phaseHeight(db: Client) {
@@ -376,9 +393,20 @@ async function phaseLinks(db: Client) {
       buildings,
       source: "official_unit_area_cache+title.mgm_bldrgst_pk",
     });
+    if (APPLY) {
+      if (built.links.length) {
+        const up = await upsertTypeBuildingLinks(db, complexId, built.links);
+        Object.assign(stats, addUpsert(stats, up));
+      }
+      await upsertResolutionStats(
+        db,
+        complexId,
+        built.stats,
+        "official_unit_area_cache+title.mgm_bldrgst_pk",
+        units[0]?.sourceAsOf ?? "",
+      );
+    }
     if (APPLY && built.links.length) {
-      const up = await upsertTypeBuildingLinks(db, complexId, built.links);
-      Object.assign(stats, addUpsert(stats, up));
       const cp = await db.execute({
         sql: `SELECT * FROM complex_building_checkpoint WHERE complex_id=?`,
         args: [complexId],
@@ -563,14 +591,32 @@ async function phaseNoParcel(db: Client) {
 }
 
 async function measureApi(db: Client) {
-  const timings: Record<string, { ms: number; bytes: number; buildings: number }> = {};
+  const timings: Record<string, {
+    liveMs: number;
+    snapshotMs: number | null;
+    bytes: number;
+    buildings: number;
+    displayedHousehold: number;
+  }> = {};
   for (const id of PILOT_IDS) {
     const t0 = Date.now();
-    const payload = await loadComplexBuildingsApi(db, id);
+    const live = await loadComplexBuildingsApiLive(db, id);
+    const liveMs = Date.now() - t0;
+    if (APPLY && live) {
+      await upsertApiSnapshot(db, id, live);
+    }
+    const t1 = Date.now();
+    const snap = await loadComplexBuildingsApi(db, id);
+    const snapshotMs = Date.now() - t1;
+    const displayedHousehold = (live?.typeStats.rows ?? [])
+      .filter((r) => r.uiSafe)
+      .reduce((n, r) => n + (r.householdCount ?? 0), 0);
     timings[id] = {
-      ms: Date.now() - t0,
-      bytes: payloadBytes(payload),
-      buildings: payload?.buildings.length ?? 0,
+      liveMs,
+      snapshotMs: snap ? snapshotMs : null,
+      bytes: payloadBytes(live),
+      buildings: live?.buildings.length ?? 0,
+      displayedHousehold,
     };
   }
   return timings;
@@ -600,6 +646,19 @@ async function writeReport(db: Client, extras: Record<string, unknown>) {
     SELECT COUNT(DISTINCT complex_id) complexes, COUNT(*) links,
            SUM(CASE WHEN status='EXACT' THEN 1 ELSE 0 END) exact
     FROM unit_type_building_links`);
+  const resolution = await q(`
+    SELECT COUNT(*) complexes,
+           SUM(physical_units) physical_units,
+           SUM(building_linked_units) building_linked,
+           SUM(exact_variant_building) exact_variant_building,
+           SUM(exact_single_building) exact_single_building,
+           SUM(exclusive_group_only) exclusive_group_only,
+           SUM(ambiguous_type) ambiguous_type,
+           SUM(ambiguous_building) ambiguous_building,
+           SUM(no_canonical_type) no_canonical_type,
+           SUM(no_building_identity) no_building_identity,
+           SUM(public_exact_links) public_exact_links
+    FROM unit_building_resolution_stats`);
   const geom = await q(`
     SELECT COUNT(*) n,
            SUM(CASE WHEN geometry_status='EXACT_FOOTPRINT' THEN 1 ELSE 0 END) footprints
@@ -644,7 +703,7 @@ async function writeReport(db: Client, extras: Record<string, unknown>) {
   const report = {
     generatedAt: new Date().toISOString(),
     extras,
-    national: { inventory: inv[0], height: height[0], threeD: three[0], counts, exceed, links: links[0], geometry: geom[0], title },
+    national: { inventory: inv[0], height: height[0], threeD: three[0], counts, exceed, links: links[0], resolution: resolution[0], geometry: geom[0], title },
     sido: Object.fromEntries(
       sido.map((row) => [
         sidoBucket(row.sido == null ? null : String(row.sido), row.sido_code == null ? null : String(row.sido_code)),
@@ -669,6 +728,12 @@ async function main() {
   if (PHASE === "height" || PHASE === "all") extras.height = await phaseHeight(db);
   if (PHASE === "counts" || PHASE === "all") extras.counts = await phaseCounts(db);
   if (PHASE === "links" || PHASE === "all") extras.links = await phaseLinks(db);
+  if (PHASE === "ingest" || PHASE === "all") {
+    const artifact = findCompactArtifact();
+    extras.ingest = artifact
+      ? await ingestCompactUnitEvidence(db, artifact, APPLY)
+      : { artifact: null, LOCAL_EXECUTION_REQUIRED: "YES" };
+  }
   if (PHASE === "retry" || PHASE === "all") extras.retry = await phaseTitleRetry(db);
   if (PHASE === "noparcel" || PHASE === "all") extras.noparcel = await phaseNoParcel(db);
   if (PHASE === "report" || PHASE === "all") {

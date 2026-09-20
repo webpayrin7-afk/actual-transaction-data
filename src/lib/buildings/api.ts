@@ -62,54 +62,16 @@ export type ComplexBuildingApiResponse = {
   }>;
 };
 
-export async function loadComplexBuildingsApi(
-  db: Client,
+function assemble(
   complexId: string,
-): Promise<ComplexBuildingApiResponse | null> {
-  const master = await db.execute({
-    sql: `SELECT complex_id FROM apt_complex_master WHERE complex_id = ?`,
-    args: [complexId],
-  });
-  if (master.rows.length === 0) return null;
-
-  const checkpoint = await db.execute({
-    sql: `SELECT building_status, geometry_status, link_status FROM complex_building_checkpoint WHERE complex_id=?`,
-    args: [complexId],
-  });
-  const cp = checkpoint.rows[0] as
-    | { building_status?: string; geometry_status?: string; link_status?: string }
-    | undefined;
+  cp: { building_status?: string; geometry_status?: string; link_status?: string } | undefined,
+  buildingRows: Record<string, unknown>[],
+  linkRows: Record<string, unknown>[],
+  typeRows: Record<string, unknown>[],
+): ComplexBuildingApiResponse {
   const status = String(cp?.building_status ?? "NO_SOURCE");
-
-  const buildings = await db.execute({
-    sql: `SELECT b.building_id, b.dong_label, b.dong_label_status, b.household_count, b.floor_count,
-                 b.height_m, b.height_status, b.three_d_readiness, b.status,
-                 g.representative_lat, g.representative_lng, g.centroid_lat, g.centroid_lng,
-                 g.footprint_display_geojson, g.footprint_geojson, g.geometry_status
-          FROM complex_buildings b
-          LEFT JOIN complex_building_geometry g ON g.building_id = b.building_id
-          WHERE b.complex_id = ? AND b.residential_flag = 1 AND b.status = 'EXACT'
-          ORDER BY b.dong_label`,
-    args: [complexId],
-  });
-
-  const links = await db.execute({
-    sql: `SELECT l.building_id, l.unit_type_id, l.household_count,
-                 t.exclusive_area, t.supply_area, t.supply_pyeong
-          FROM unit_type_building_links l
-          LEFT JOIN apt_canonical_unit_types t ON t.unit_type_id = l.unit_type_id
-          WHERE l.complex_id = ? AND l.status = 'EXACT'`,
-    args: [complexId],
-  });
-
-  const typeRows = await db.execute({
-    sql: `SELECT unit_type_id, exclusive_cents, household_count, count_status, ui_safe
-          FROM unit_type_household_counts WHERE complex_id=?`,
-    args: [complexId],
-  });
-
   const byBuilding = new Map<string, ComplexBuildingApiResponse["buildings"][number]["unitTypes"]>();
-  for (const row of links.rows) {
+  for (const row of linkRows) {
     const id = String(row.building_id);
     const list = byBuilding.get(id) ?? [];
     list.push({
@@ -122,7 +84,7 @@ export async function loadComplexBuildingsApi(
     byBuilding.set(id, list);
   }
 
-  const mapped = buildings.rows.map((row) => {
+  const mapped = buildingRows.map((row) => {
     const lat =
       row.representative_lat != null
         ? Number(row.representative_lat)
@@ -162,7 +124,7 @@ export async function loadComplexBuildingsApi(
   });
 
   const geomMatched = mapped.filter((b) => b.geometryStatus === "EXACT_FOOTPRINT").length;
-  const typeStatusRows = typeRows.rows.map((row) => ({
+  const typeStatusRows = typeRows.map((row) => ({
     unitTypeId: String(row.unit_type_id),
     exclusiveCents: Number(row.exclusive_cents),
     householdCount: row.household_count == null ? null : Number(row.household_count),
@@ -213,8 +175,8 @@ export async function loadComplexBuildingsApi(
       rows: typeStatusRows,
     },
     typeBuildingLinks: {
-      status: String(cp?.link_status ?? (links.rows.length ? "EXACT" : "NO_SOURCE")),
-      count: links.rows.length,
+      status: String(cp?.link_status ?? (linkRows.length ? "EXACT" : "NO_SOURCE")),
+      count: linkRows.length,
     },
     buildings: mapped.map((b) => ({
       buildingId: b.buildingId,
@@ -227,4 +189,72 @@ export async function loadComplexBuildingsApi(
       unitTypes: b.unitTypes,
     })),
   };
+}
+
+export async function loadComplexBuildingsApiLive(
+  db: Client,
+  complexId: string,
+): Promise<ComplexBuildingApiResponse | null> {
+  const [master, buildings, links, typeRows] = await Promise.all([
+    db.execute({
+      sql: `SELECT m.complex_id, c.building_status, c.geometry_status, c.link_status
+            FROM apt_complex_master m
+            LEFT JOIN complex_building_checkpoint c ON c.complex_id = m.complex_id
+            WHERE m.complex_id = ?`,
+      args: [complexId],
+    }),
+    db.execute({
+      sql: `SELECT b.building_id, b.dong_label, b.dong_label_status, b.household_count, b.floor_count,
+                   b.height_m, b.height_status, b.three_d_readiness, b.status,
+                   g.representative_lat, g.representative_lng, g.centroid_lat, g.centroid_lng,
+                   g.footprint_display_geojson, g.footprint_geojson, g.geometry_status
+            FROM complex_buildings b
+            LEFT JOIN complex_building_geometry g ON g.building_id = b.building_id
+            WHERE b.complex_id = ? AND b.residential_flag = 1 AND b.status = 'EXACT'
+            ORDER BY b.dong_label`,
+      args: [complexId],
+    }),
+    db.execute({
+      sql: `SELECT l.building_id, l.unit_type_id, l.household_count,
+                   t.exclusive_area, t.supply_area, t.supply_pyeong
+            FROM unit_type_building_links l
+            LEFT JOIN apt_canonical_unit_types t ON t.unit_type_id = l.unit_type_id
+            WHERE l.complex_id = ? AND l.status = 'EXACT'`,
+      args: [complexId],
+    }),
+    db.execute({
+      sql: `SELECT unit_type_id, exclusive_cents, household_count, count_status, ui_safe
+            FROM unit_type_household_counts WHERE complex_id=?`,
+      args: [complexId],
+    }),
+  ]);
+  if (master.rows.length === 0) return null;
+  return assemble(
+    complexId,
+    master.rows[0] as { building_status?: string; geometry_status?: string; link_status?: string },
+    buildings.rows as Record<string, unknown>[],
+    links.rows as Record<string, unknown>[],
+    typeRows.rows as Record<string, unknown>[],
+  );
+}
+
+export async function loadComplexBuildingsApi(
+  db: Client,
+  complexId: string,
+  opts: { skipSnapshot?: boolean } = {},
+): Promise<ComplexBuildingApiResponse | null> {
+  if (!opts.skipSnapshot) {
+    try {
+      const snap = await db.execute({
+        sql: `SELECT payload_json FROM complex_building_api_snapshot WHERE complex_id=?`,
+        args: [complexId],
+      });
+      if (snap.rows[0]?.payload_json) {
+        return JSON.parse(String(snap.rows[0].payload_json)) as ComplexBuildingApiResponse;
+      }
+    } catch {
+      // Snapshot table may not exist yet; fall through to live reads.
+    }
+  }
+  return loadComplexBuildingsApiLive(db, complexId);
 }

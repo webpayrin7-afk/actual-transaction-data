@@ -1,38 +1,44 @@
 {
-  "specId": "compact-unit-building-evidence-v1",
+  "specId": "compact-unit-building-evidence-v2",
   "required": true,
-  "reason": "Production official_unit_area_cache BuildingHubBulk rows are type-level (dong/ho/source_building_id empty). BldRgstHubService retains unit grain for 373 complexes / 161,469 rows. National type↔building expansion beyond those complexes needs dong/building identity from the existing filtered official unit-area bulk, not a 44GB rescan.",
+  "reason": "Production official_unit_area_cache BuildingHubBulk rows are type-level (dong/ho/source_building_id empty). BldRgstHubService retains unit grain for 373 complexes. National type↔building expansion needs the existing filtered official unit-area bulk, not a 44GB rescan.",
   "input": {
-    "artifact": "existing filtered official unit-area bulk / local shards that still contain dongNm and mgmBldrgstPk",
-    "doNotRedownload": "44GB raw BuildingHUB national dump",
+    "artifact": "C:\\data\\buildinghub\\2026-08\\filtered\\official_unit_area_bulk_filtered.csv.gz",
+    "doNotRedownload": "44GB raw BuildingHUB national dump / mart_djy_06.txt",
     "knownBulkChecksum": "ccf99ab5f2423f73bfdc4ffb825a0a7642057d853eff16ec4a10339cd7832fe5",
-    "bulkSourceMonth": "2026-08"
+    "bulkSourceMonth": "2026-08",
+    "knownRows": 30188057,
+    "knownGzipBytesApprox": 1240000000
   },
   "output": {
-    "artifactName": "unit-building-evidence.jsonl.gz",
-    "format": "jsonl+gzip",
-    "expectedSize": "80–150MB gzip for nationwide unit grain; ~5–15MB if restricted to complexes with surviving dong+building keys",
+    "artifactName": "national_unit_building_evidence.csv.gz",
+    "summaryName": "national_unit_building_evidence_summary.json",
+    "format": "csv+gzip",
+    "expectedSize": "80–150MB gzip for nationwide unit grain; ~5–15MB if restricted to complexes with surviving parent 표제부 keys",
     "oneRowPerPhysicalUnit": true
   },
-  "requiredColumns": [
-    { "name": "complex_id", "type": "text", "required": true },
-    { "name": "mgm_bldrgst_pk", "type": "text", "required": true, "note": "표제부 building-register PK of the dong, not 호별/전유부 PK" },
-    { "name": "dong_label", "type": "text", "required": false, "note": "official dongNm only; blank allowed" },
-    { "name": "exclusive_area", "type": "number", "required": true },
-    { "name": "residential_common_area", "type": "number", "required": false },
-    { "name": "supply_area", "type": "number", "required": false, "note": "exclusive + residential common when present" },
-    { "name": "floor", "type": "text", "required": false },
-    { "name": "ho", "type": "text", "required": true, "note": "physical unit identity with dong+floor" },
-    { "name": "unit_identity", "type": "text", "required": true, "note": "dong|floor|ho or official unit key for dedup" },
-    { "name": "unit_count", "type": "integer", "required": true, "note": "1 for unit-level rows" },
-    { "name": "source", "type": "text", "required": true },
-    { "name": "source_version", "type": "text", "required": true },
-    { "name": "source_as_of", "type": "text", "required": true }
-  ],
+  "columnMappingPolicy": {
+    "inspectHeaderFirst": true,
+    "unitRowPk": "mgmBldrgstPk / unit_register_pk — 전유부/호별 register identity. NEVER used as 표제부 building key.",
+    "parentBuildingPk": "mgmUpBldrgstPk / parent_building_pk / title_mgm_bldrgst_pk only. If absent, report PARENT_BUILDING_KEY_ABSENT and do not auto-scan 44GB.",
+    "dong": "dongNm",
+    "ho": "hoNm",
+    "floor": "flrNo"
+  },
+  "physicalUnitKey": {
+    "preferred": "official unit register identity (전유부 PK)",
+    "fallback": "complex + official 표제부 building + dong + floor + ho",
+    "forbidden": ["apartment name fuzzy identity", "majority assignment"]
+  },
+  "script": "scripts/building-topology/extract-unit-building-evidence.mts",
+  "command": "npx tsx scripts/building-topology/extract-unit-building-evidence.mts --input \"C:\\data\\buildinghub\\2026-08\\filtered\\official_unit_area_bulk_filtered.csv.gz\" --out \"C:\\data\\buildinghub\\2026-08\\filtered\\national_unit_building_evidence.csv.gz\" --summary \"C:\\data\\buildinghub\\2026-08\\filtered\\national_unit_building_evidence_summary.json\"",
+  "inspectCommand": "npx tsx scripts/building-topology/extract-unit-building-evidence.mts --inspect-header --input \"C:\\data\\buildinghub\\2026-08\\filtered\\official_unit_area_bulk_filtered.csv.gz\"",
+  "LOCAL_EXECUTION_REQUIRED": "YES when this Cloud agent cannot see C:\\data",
   "rules": [
-    "Keep mgm_bldrgst_pk as decimal string; never JSON numbers.",
+    "Inspect header before extraction. Do not invent unavailable fields.",
+    "Keep register PKs as decimal strings; never JSON numbers.",
     "Do not infer dong or building from apartment name or proximity.",
-    "Drop type-only aggregates that lack building/dong/unit identity.",
-    "Gzip the jsonl; do not store the original 44GB scan in this repo."
+    "Do not treat 호별/전유부 PK as 표제부 PK.",
+    "Do not store the original 44GB scan in this repo."
   ]
 }

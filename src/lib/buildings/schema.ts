@@ -6,6 +6,7 @@ const MIGRATION_DIR = "src/lib/db/migrations";
 const BUILDING_MIGRATIONS = [
   "20260920_complex_buildings.sql",
   "20260921_building_geometry_3d.sql",
+  "20260922_building_api_type_resolution.sql",
 ];
 
 const EXTRA_COLUMNS: Array<{ table: string; column: string; sqlType: string }> = [
@@ -94,5 +95,17 @@ export async function ensureBuildingSchema(db: Client): Promise<void> {
   await execIgnore(
     db,
     `CREATE INDEX IF NOT EXISTS idx_cb_3d ON complex_buildings (three_d_readiness)`,
+  );
+  await execIgnore(
+    db,
+    `CREATE INDEX IF NOT EXISTS idx_utbl_complex_status ON unit_type_building_links (complex_id, status)`,
+  );
+  await execIgnore(
+    db,
+    `CREATE INDEX IF NOT EXISTS idx_uthc_complex ON unit_type_household_counts (complex_id)`,
+  );
+  await execIgnore(
+    db,
+    `CREATE INDEX IF NOT EXISTS idx_cb_api ON complex_buildings (complex_id, residential_flag, status)`,
   );
 }

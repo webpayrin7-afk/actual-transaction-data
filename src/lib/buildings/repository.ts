@@ -1,6 +1,7 @@
 import type { Client } from "@libsql/client";
 import type { BuildingRecord } from "./types";
 import type { TypeBuildingLink } from "./type-links";
+import type { TypeBuildingResolutionStats } from "./type-links";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -265,7 +266,7 @@ export async function upsertTypeBuildingLinks(
       sql: `INSERT INTO unit_type_building_links (
               complex_id, unit_type_id, building_id, household_count, source, source_key,
               confidence, status, source_as_of, provenance_json, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '{}', ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         complexId,
         link.unitTypeId,
@@ -276,6 +277,7 @@ export async function upsertTypeBuildingLinks(
         link.confidence,
         link.status,
         link.sourceAsOf,
+        json({ resolutionStatus: link.resolutionStatus }),
         ts,
         ts,
       ],
@@ -677,5 +679,81 @@ export async function refreshThreeDReadiness(db: Client): Promise<void> {
     END
     WHERE residential_flag = 1
   `);
+}
+
+export async function upsertResolutionStats(
+  db: Client,
+  complexId: string,
+  stats: TypeBuildingResolutionStats,
+  source: string,
+  sourceAsOf: string,
+): Promise<void> {
+  const ts = nowIso();
+  await db.execute({
+    sql: `INSERT INTO unit_building_resolution_stats (
+            complex_id, physical_units, building_linked_units,
+            exact_variant_building, exact_single_building, exclusive_group_only,
+            ambiguous_type, ambiguous_building, no_canonical_type, no_building_identity,
+            public_exact_links, source, source_as_of, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(complex_id) DO UPDATE SET
+            physical_units=excluded.physical_units,
+            building_linked_units=excluded.building_linked_units,
+            exact_variant_building=excluded.exact_variant_building,
+            exact_single_building=excluded.exact_single_building,
+            exclusive_group_only=excluded.exclusive_group_only,
+            ambiguous_type=excluded.ambiguous_type,
+            ambiguous_building=excluded.ambiguous_building,
+            no_canonical_type=excluded.no_canonical_type,
+            no_building_identity=excluded.no_building_identity,
+            public_exact_links=excluded.public_exact_links,
+            source=excluded.source,
+            source_as_of=excluded.source_as_of,
+            updated_at=excluded.updated_at`,
+    args: [
+      complexId,
+      stats.physicalUnits,
+      stats.buildingLinkedUnits,
+      stats.exactVariantBuilding,
+      stats.exactSingleBuilding,
+      stats.exclusiveGroupOnly,
+      stats.ambiguousType,
+      stats.ambiguousBuilding,
+      stats.noCanonicalType,
+      stats.noBuildingIdentity,
+      stats.publicExactLinks,
+      source,
+      sourceAsOf,
+      ts,
+    ],
+  });
+}
+
+export async function upsertApiSnapshot(
+  db: Client,
+  complexId: string,
+  payload: unknown,
+): Promise<void> {
+  const ts = nowIso();
+  const payloadJson = JSON.stringify(payload ?? {});
+  await db.execute({
+    sql: `INSERT INTO complex_building_api_snapshot (
+            complex_id, payload_json, payload_bytes, building_count, updated_at
+          ) VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT(complex_id) DO UPDATE SET
+            payload_json=excluded.payload_json,
+            payload_bytes=excluded.payload_bytes,
+            building_count=excluded.building_count,
+            updated_at=excluded.updated_at`,
+    args: [
+      complexId,
+      payloadJson,
+      Buffer.byteLength(payloadJson, "utf8"),
+      Array.isArray((payload as { buildings?: unknown[] } | null)?.buildings)
+        ? (payload as { buildings: unknown[] }).buildings.length
+        : 0,
+      ts,
+    ],
+  });
 }
 

@@ -270,6 +270,7 @@ function testPkTypeLinks() {
     ],
   });
   assert.equal(links.links.length, 2);
+  assert.equal(links.stats.exactSingleBuilding, 2);
 }
 
 function testParcelCadastral() {
@@ -278,6 +279,109 @@ function testParcelCadastral() {
   assert.ok(p);
   assert.equal(p!.platGbCd, "0");
   assert.equal(hubPnu(p!), "1171010100000190000");
+}
+
+function testUnitEvidenceMapping() {
+  const {
+    mapUnitEvidenceColumns,
+    physicalUnitKey,
+    commonAreaJoinKey,
+    isExclusiveAreaRow,
+    isResidentialCommonRow,
+  } = require("../src/lib/buildings/unit-evidence") as typeof import("../src/lib/buildings/unit-evidence");
+  const mapped = mapUnitEvidenceColumns([
+    "complex_id",
+    "mgmBldrgstPk",
+    "dongNm",
+    "hoNm",
+    "flrNo",
+    "exposPubuseGbCdNm",
+    "mainAtchGbCdNm",
+    "area",
+    "etcPurps",
+    "pnu",
+  ]);
+  assert.equal(mapped.unitPk, "mgmBldrgstPk");
+  assert.equal(mapped.parentBuildingPk, null);
+  assert.equal(mapped.parentBuildingKeyPresent, false);
+  assert.equal(mapped.unitPkWouldBeMistakenForTitle, true);
+  assert.equal(mapped.dong, "dongNm");
+  assert.equal(mapped.ho, "hoNm");
+  const withParent = mapUnitEvidenceColumns(["complex_id", "mgmBldrgstPk", "mgmUpBldrgstPk", "dongNm", "hoNm"]);
+  assert.equal(withParent.parentBuildingPk, "mgmUpBldrgstPk");
+  assert.equal(physicalUnitKey({ unitRegisterPk: "1025110021686212345" }).kind, "unit_register");
+  assert.equal(
+    physicalUnitKey({
+      complexId: "cx_1",
+      parentBuildingPk: "10251100216862",
+      dong: "101동",
+      floor: "1",
+      ho: "101",
+    }).kind,
+    "complex_building_dong_floor_ho",
+  );
+  assert.equal(commonAreaJoinKey({ complexId: "cx_1", dong: "101동", floor: "1", ho: "101" }), "u:cx_1|101동|1|101");
+  assert.equal(isExclusiveAreaRow("전유", "주건축물"), true);
+  assert.equal(isResidentialCommonRow("공용", "주건축물", "계단실"), true);
+  assert.equal(isResidentialCommonRow("공용", "주건축물", "주차장"), false);
+}
+
+function testTypeBuildingResolutions() {
+  const { buildTypeBuildingLinks, isPublicExactResolution } = require("../src/lib/buildings/type-links") as typeof import("../src/lib/buildings/type-links");
+  const groupOnly = buildTypeBuildingLinks({
+    source: "test",
+    types: [
+      { unitTypeId: "ut_b", exclusiveCents: 8480, supplyCents: 11152, status: "AMBIGUOUS_MULTI", householdCount: 10 },
+      { unitTypeId: "ut_c", exclusiveCents: 8480, supplyCents: 10929, status: "AMBIGUOUS_MULTI", householdCount: 10 },
+    ],
+    buildings: [{ buildingId: "bd_1", dongLabel: "101동", residentialFlag: true, officialBuildingKey: "pk1" }],
+    units: [
+      { dong: "101동", floor: "1", ho: "101", exclusiveArea: 84.8, residentialCommonArea: null, officialBuildingKey: "pk1", sourceAsOf: "2026", sourceKey: "a" },
+    ],
+  });
+  assert.equal(groupOnly.links.length, 0);
+  assert.equal(groupOnly.stats.exclusiveGroupOnly, 1);
+  assert.equal(isPublicExactResolution("EXCLUSIVE_GROUP_ONLY"), false);
+
+  const variant = buildTypeBuildingLinks({
+    source: "test",
+    types: [
+      { unitTypeId: "ut_b", exclusiveCents: 8480, supplyCents: 11152, status: "AMBIGUOUS_MULTI", householdCount: 10 },
+      { unitTypeId: "ut_c", exclusiveCents: 8480, supplyCents: 10929, status: "AMBIGUOUS_MULTI", householdCount: 10 },
+    ],
+    buildings: [{ buildingId: "bd_1", dongLabel: "101동", residentialFlag: true, officialBuildingKey: "pk1" }],
+    units: [
+      { dong: "101동", floor: "1", ho: "101", exclusiveArea: 84.8, residentialCommonArea: 26.72, officialBuildingKey: "pk1", sourceAsOf: "2026", sourceKey: "a" },
+    ],
+  });
+  assert.equal(variant.links.length, 1);
+  assert.equal(variant.links[0].resolutionStatus, "EXACT_VARIANT_BUILDING");
+  assert.equal(variant.links[0].unitTypeId, "ut_b");
+
+  const noBuilding = buildTypeBuildingLinks({
+    source: "test",
+    types: [{ unitTypeId: "ut_a", exclusiveCents: 8480, supplyCents: 11152, status: "EXACT_SINGLE", householdCount: 1 }],
+    buildings: [{ buildingId: "bd_1", dongLabel: "101동", residentialFlag: true, officialBuildingKey: "pk1" }],
+    units: [
+      { dong: "999동", floor: "1", ho: "101", exclusiveArea: 84.8, residentialCommonArea: 26.72, officialBuildingKey: "other", sourceAsOf: "2026", sourceKey: "a" },
+    ],
+  });
+  assert.equal(noBuilding.links.length, 0);
+  assert.equal(noBuilding.stats.noBuildingIdentity, 1);
+
+  const ambBuilding = buildTypeBuildingLinks({
+    source: "test",
+    types: [{ unitTypeId: "ut_a", exclusiveCents: 8480, supplyCents: 11152, status: "EXACT_SINGLE", householdCount: 1 }],
+    buildings: [
+      { buildingId: "bd_1", dongLabel: "101동", residentialFlag: true, officialBuildingKey: "pk1" },
+      { buildingId: "bd_2", dongLabel: "101동", residentialFlag: true, officialBuildingKey: "pk2" },
+    ],
+    units: [
+      { dong: "101동", floor: "1", ho: "101", exclusiveArea: 84.8, residentialCommonArea: 26.72, sourceAsOf: "2026", sourceKey: "a" },
+    ],
+  });
+  assert.equal(ambBuilding.links.length, 0);
+  assert.equal(ambBuilding.stats.ambiguousBuilding, 1);
 }
 
 testIdentity();
@@ -292,4 +396,6 @@ testHouseholdSemantics();
 testGisJoinIdentity();
 testPkTypeLinks();
 testParcelCadastral();
+testUnitEvidenceMapping();
+testTypeBuildingResolutions();
 console.log("test-building-topology ok");
