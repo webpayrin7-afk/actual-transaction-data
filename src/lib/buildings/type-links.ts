@@ -132,13 +132,8 @@ export function buildTypeBuildingLinks(input: {
     }
     let building: BuildingDong | undefined;
     const unitPk = (unit.officialBuildingKey ?? "").trim();
-    if (unitPk) {
-      building = buildingByKey.get(unitPk);
-      if (!building) {
-        unresolvedDong += 1;
-        continue;
-      }
-    } else {
+    if (unitPk) building = buildingByKey.get(unitPk);
+    if (!building) {
       const dongKey = dongMatchKey(unit.dong);
       if (!dongKey) {
         unresolvedDong += 1;

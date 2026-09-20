@@ -16,7 +16,7 @@
   },
   "requiredColumns": [
     { "name": "complex_id", "type": "text", "required": true },
-    { "name": "mgm_bldrgst_pk", "type": "text", "required": true, "note": "official building-register PK; keep as string" },
+    { "name": "mgm_bldrgst_pk", "type": "text", "required": true, "note": "표제부 building-register PK of the dong, not 호별/전유부 PK" },
     { "name": "dong_label", "type": "text", "required": false, "note": "official dongNm only; blank allowed" },
     { "name": "exclusive_area", "type": "number", "required": true },
     { "name": "residential_common_area", "type": "number", "required": false },
