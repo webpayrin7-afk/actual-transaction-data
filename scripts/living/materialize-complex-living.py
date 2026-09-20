@@ -314,7 +314,7 @@ def load_complexes(path):
     return complexes
 
 
-def write_db(db_path, spec, subs, complexes, snapshots, built_at):
+def write_db(db_path, spec, subs, complexes, snapshots, built_at, publication_count=None):
     if db_path.exists():
         db_path.unlink()
     db = sqlite3.connect(db_path)
@@ -408,7 +408,7 @@ def write_db(db_path, spec, subs, complexes, snapshots, built_at):
             spec["sourceDataset"],
             spec["sourceAsOf"],
             built_at,
-            complete,
+            complete if publication_count is None else publication_count,
             note,
         ),
     )
@@ -548,6 +548,7 @@ def main(argv):
     parser.add_argument("--complexes", dest="complexes_path")
     parser.add_argument("--out-db", dest="out_db")
     parser.add_argument("--report-dir", dest="report_dir")
+    parser.add_argument("--publication-count", dest="publication_count", type=int)
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
@@ -593,7 +594,19 @@ def main(argv):
     built_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     out_db = Path(args.out_db)
     out_db.parent.mkdir(parents=True, exist_ok=True)
-    complete, snap_rows, ready_rows = write_db(out_db, spec, subs, complexes, snapshots, built_at)
+    if args.publication_count is not None and args.publication_count < sum(
+        1 for row in complexes if row["coord_status"] == "OK"
+    ):
+        raise SystemExit("publication count is below the complexes being written")
+    complete, snap_rows, ready_rows = write_db(
+        out_db,
+        spec,
+        subs,
+        complexes,
+        snapshots,
+        built_at,
+        publication_count=args.publication_count,
+    )
 
     report_dir = Path(args.report_dir)
     report_dir.mkdir(parents=True, exist_ok=True)
@@ -615,6 +628,28 @@ def main(argv):
             }
         )
     coverage = coverage_report(complexes, snapshots, subs)
+    official = None
+    official_row = by_id.get(JAMSIL_REFERENCE["complex_id"])
+    official_counts = snapshots.get(JAMSIL_REFERENCE["complex_id"])
+    if official_row and official_row["coord_status"] == "OK" and official_counts:
+        official_totals = {
+            category: category_total(subcats) for category, subcats in official_counts[1000].items()
+        }
+        prior_same = JAMSIL_REFERENCE["prior_pipeline_same_point"]
+        official = {
+            "complex_id": JAMSIL_REFERENCE["complex_id"],
+            "name": JAMSIL_REFERENCE["name"],
+            "semantics": "PARCEL_REPRESENTATIVE_POINT",
+            "latitude": official_row["lat"],
+            "longitude": official_row["lng"],
+            "reference_point": {"lat": JAMSIL_REFERENCE["lat"], "lng": JAMSIL_REFERENCE["lng"]},
+            "radius_m": 1000,
+            "totals": official_totals,
+            "count_delta_vs_reference_point": {
+                category: official_totals.get(category, 0) - expected
+                for category, expected in prior_same.items()
+            },
+        }
     summary = {
         "built_at": built_at,
         "source": {
@@ -650,6 +685,7 @@ def main(argv):
         "coverage": coverage,
         "pilots": pilots,
         "jamsil_parity": parity,
+        "jamsil_official_parcel": official,
         "performance": {
             "spatial_index": f"grid cell {CELL} degrees, then haversine",
             "index_seconds": round(index_s, 3),
@@ -666,6 +702,11 @@ def main(argv):
         json.dumps(parity, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    if official is not None:
+        (report_dir / "jamsil-official-parcel.json").write_text(
+            json.dumps(official, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
     print(json.dumps({
         "parity_pass": parity["parity"]["pass"],
         "medical": parity["totals"].get("MEDICAL"),
