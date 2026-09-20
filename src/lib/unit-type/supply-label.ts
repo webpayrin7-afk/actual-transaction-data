@@ -70,3 +70,28 @@ export function complexHasCanonicalSupplyLabel(rows: SupplyLabelInput[]): boolea
 export function exactSupplyPyeongForLabel(supplyAreaSqm: number): number {
   return exactSupplyPyeong(supplyAreaSqm);
 }
+
+/**
+ * Selector area contract (no UI change in this pass):
+ * - ㎡ display and trade filter key = exclusive area
+ * - 평 / 평당가 label = supply area (EXACT_SINGLE only for unscoped trades)
+ */
+export type SelectorSupplyCoverage = {
+  supplyReadyComplexes: number;
+  supplyReadyPairs: number;
+  /** True when at least one EXACT_SINGLE supply mapping is available for selector labels. */
+  SELECTOR_SUPPLY_READY: boolean;
+};
+
+export function selectorSupplyCoverage(params: {
+  supplyReadyComplexes: number;
+  supplyReadyPairs: number;
+}): SelectorSupplyCoverage {
+  const supplyReadyComplexes = Math.max(0, Math.floor(params.supplyReadyComplexes));
+  const supplyReadyPairs = Math.max(0, Math.floor(params.supplyReadyPairs));
+  return {
+    supplyReadyComplexes,
+    supplyReadyPairs,
+    SELECTOR_SUPPLY_READY: supplyReadyComplexes > 0 && supplyReadyPairs > 0,
+  };
+}

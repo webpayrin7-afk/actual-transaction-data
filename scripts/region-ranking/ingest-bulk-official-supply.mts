@@ -431,11 +431,12 @@ async function main() {
       continue;
     }
     if (doneBulk.has(complexId)) {
-      const derived = deriveOfficialSupplies(loadRows(path), info.aptName);
+      const rows = loadRows(path);
+      const derived = deriveOfficialSupplies(rows, info.aptName);
       pilotNotes[name] = {
         complexId,
         status: "RESUMED",
-        rows: loadRows(path).length,
+        rows: rows.length,
         distinguishable: derived.distinguishable,
         supplies: derived.supplies.map((s) => [s.exclusiveCents, s.supplyCents]),
       };

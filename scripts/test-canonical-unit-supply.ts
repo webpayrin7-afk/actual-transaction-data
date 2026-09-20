@@ -15,6 +15,7 @@ import {
 } from "../src/lib/unit-type/canonical";
 import {
   complexHasCanonicalSupplyLabel,
+  selectorSupplyCoverage,
   selectorSupplyOption,
   supplyPyeongDisplayLabel,
 } from "../src/lib/unit-type/supply-label";
@@ -101,6 +102,12 @@ assert.equal(
   ]),
   false,
 );
+
+const coverage = selectorSupplyCoverage({ supplyReadyComplexes: 7085, supplyReadyPairs: 25323 });
+assert.equal(coverage.SELECTOR_SUPPLY_READY, true);
+assert.equal(coverage.supplyReadyComplexes, 7085);
+assert.equal(coverage.supplyReadyPairs, 25323);
+assert.equal(selectorSupplyCoverage({ supplyReadyComplexes: 0, supplyReadyPairs: 0 }).SELECTOR_SUPPLY_READY, false);
 
 const migration = readFileSync("src/lib/db/migrations/20260923_canonical_unit_types.sql", "utf8");
 const precheck = precheckAdditiveCreateSql(migration);
