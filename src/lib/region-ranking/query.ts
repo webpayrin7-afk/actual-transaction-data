@@ -9,11 +9,14 @@ export type RankingReader = {
   execute(query: { sql: string; args?: unknown[] }): Promise<{ rows: Array<Record<string, unknown>> }>;
 };
 
+export type RegionBoardBand = LaunchAreaBand | "TRADE_VOLUME" | "PRICE_PER_SQM";
+
 export type RegionTopQuery = {
   rankingRunId: string;
   regionScope: "gu" | "dong";
   regionCode: string;
-  areaBand: LaunchAreaBand;
+  areaBand: RegionBoardBand;
+  period?: string;
   limit?: number;
 };
 
@@ -29,12 +32,12 @@ export async function regionTop(db: RankingReader, query: RegionTopQuery) {
             AND r.region_scope = ?
             AND r.region_code = ?
             AND r.area_band = ?
-            AND r.period = '12M'
+            AND r.period = ?
             AND r.eligible = 1
             AND r."rank" IS NOT NULL
           ORDER BY r."rank" ASC
           LIMIT ?`,
-    args: [query.rankingRunId, query.regionScope, query.regionCode, query.areaBand, limit],
+    args: [query.rankingRunId, query.regionScope, query.regionCode, query.areaBand, query.period ?? "12M", limit],
   });
   return result.rows.map((row) => ({
     complexId: String(row.complex_id),
@@ -104,15 +107,16 @@ function scopeOf(regionCode: string): "gu" | "dong" | null {
 
 export async function publishedRegionRanking(
   db: RankingReader,
-  query: { regionCode: string; areaBand: LaunchAreaBand; limit?: number },
+  query: { regionCode: string; areaBand: RegionBoardBand; period?: string; limit?: number },
 ) {
   const regionScope = scopeOf(query.regionCode);
+  const period = query.period ?? "12M";
   if (!regionScope) return { published: false as const, reason: "bad_region" };
   const pub = await db.execute({
     sql: `SELECT active_ranking_run_id, ranking_version, transaction_as_of
           FROM region_ranking_publications
-          WHERE region_scope = ? AND region_code = ? AND area_band = ? AND period = '12M'`,
-    args: [regionScope, query.regionCode, query.areaBand],
+          WHERE region_scope = ? AND region_code = ? AND area_band = ? AND period = ?`,
+    args: [regionScope, query.regionCode, query.areaBand, period],
   });
   const pointer = pub.rows[0];
   if (!pointer) {
@@ -129,6 +133,7 @@ export async function publishedRegionRanking(
     regionScope,
     regionCode: query.regionCode,
     areaBand: query.areaBand,
+    period,
     limit: query.limit,
   });
   return {
@@ -138,9 +143,43 @@ export async function publishedRegionRanking(
     regionCode: query.regionCode,
     transactionAsOf: String(pointer.transaction_as_of),
     rankingVersion: String(pointer.ranking_version),
+    period,
     regionTotal: rows[0]?.regionTotal ?? 0,
     rows,
   };
+}
+
+export async function objectiveMetricsByComplex(
+  db: RankingReader,
+  transactionAsOf: string,
+  complexIds: readonly string[],
+) {
+  const out = new Map<string, { tradeCount3m: number; medianPricePerSqm3m: number | null }>();
+  if (complexIds.length === 0) return out;
+  const pointer = await db.execute({
+    sql: `SELECT feature_run_id FROM region_ranking_publications
+          WHERE area_band = 'TRADE_VOLUME' AND period = '3M' AND transaction_as_of = ?
+          LIMIT 1`,
+    args: [transactionAsOf],
+  });
+  const runId = pointer.rows[0]?.feature_run_id;
+  if (runId == null) return out;
+  for (let i = 0; i < complexIds.length; i += 80) {
+    const slice = complexIds.slice(i, i + 80);
+    const result = await db.execute({
+      sql: `SELECT complex_id, trade_count_3m, median_price_per_sqm_3m
+            FROM region_objective_metrics
+            WHERE metric_run_id = ? AND complex_id IN (${slice.map(() => "?").join(",")})`,
+      args: [String(runId), ...slice],
+    });
+    for (const row of result.rows) {
+      out.set(String(row.complex_id), {
+        tradeCount3m: Number(row.trade_count_3m),
+        medianPricePerSqm3m: row.median_price_per_sqm_3m == null ? null : Number(row.median_price_per_sqm_3m),
+      });
+    }
+  }
+  return out;
 }
 
 export async function publishedComplexPosition(
