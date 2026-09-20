@@ -1,0 +1,1808 @@
+{
+  "mapped": [
+    {
+      "koiesId": "B000013195",
+      "name": "경일고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S150000733",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000013530",
+      "name": "보문고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S050000139",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002807",
+      "name": "대구내서초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000871",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000007927",
+      "name": "유림초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160002892",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000003875",
+      "name": "호계초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090003084",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005736",
+      "name": "조치원교동초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S080000054",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009920",
+      "name": "대성중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S110000896",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000022777",
+      "name": "가재울고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010005591",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000007002",
+      "name": "모아초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S150001175",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002704",
+      "name": "반안초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020001660",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000024106",
+      "name": "대구봉무초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030001853",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000013540",
+      "name": "성신고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S070000090",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000011399",
+      "name": "대구공업고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000286",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002750",
+      "name": "대구동촌초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000677",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002764",
+      "name": "대구효동초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000718",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000022623",
+      "name": "제석초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160003850",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000011312",
+      "name": "고명외식고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010000629",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012217",
+      "name": "경원고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000265",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008723",
+      "name": "대진중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030001741",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000007621",
+      "name": "산양초등학교풍화분교장",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160002522",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008237",
+      "name": "상명대학교사범대학부속여자중학교",
+      "level": "middle",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010002346",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002095",
+      "name": "상명대학교사범대학부속초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010002368",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000003331",
+      "name": "삼도초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S050000451",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009774",
+      "name": "왕산중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100000562",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002256",
+      "name": "서울원촌초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010000780",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002849",
+      "name": "대구태암초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000904",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000010159",
+      "name": "청양중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S120000827",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000003409",
+      "name": "신탄진용정초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S060000343",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000022832",
+      "name": "인천한빛초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S040002176",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000004101",
+      "name": "시흥은행초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090002761",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000006816",
+      "name": "청해초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S140001878",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000025212",
+      "name": "인천포스코고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S040002244",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000004270",
+      "name": "광명남초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090001203",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005187",
+      "name": "양구초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100001108",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000024401",
+      "name": "서진초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160003485",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012187",
+      "name": "함지고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030001816",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005218",
+      "name": "거성초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100000720",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009392",
+      "name": "송운중학교",
+      "level": "middle",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090002698",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002531",
+      "name": "운산초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020000656",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012100",
+      "name": "경남고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020000342",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002543",
+      "name": "용호초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020000654",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002753",
+      "name": "대구불로초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000688",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000011009",
+      "name": "용원중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160003335",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000011848",
+      "name": "울산예술고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S070000108",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000025316",
+      "name": "신용중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S050001280",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000006705",
+      "name": "송지초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S140002181",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009833",
+      "name": "봉래중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100001144",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012405",
+      "name": "울산제일고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S070000111",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000003548",
+      "name": "울산중앙초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S070000217",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012412",
+      "name": "남목고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S070000550",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000004104",
+      "name": "시흥장현초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090004851",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012388",
+      "name": "동대전고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S060000206",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005729",
+      "name": "복수초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S120000395",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008640",
+      "name": "동촌중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000636",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009476",
+      "name": "가림중학교",
+      "level": "middle",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090001188",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012199",
+      "name": "대구여자고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000300",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009369",
+      "name": "궁내중학교",
+      "level": "middle",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090001369",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000022573",
+      "name": "군포신기초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090005846",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000025726",
+      "name": "아산테크노중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S120002885",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012251",
+      "name": "인천만수고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S040001818",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000001867",
+      "name": "서울면동초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010001403",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000007925",
+      "name": "병곡초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160002868",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000025146",
+      "name": "별빛중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S150006477",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012883",
+      "name": "진천고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S110000204",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009840",
+      "name": "옥동중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100001151",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000011177",
+      "name": "양주중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160001790",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009324",
+      "name": "서천중학교",
+      "level": "middle",
+      "region": "gyeonggi",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S090005863",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008523",
+      "name": "성동중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020000619",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000006985",
+      "name": "안강초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S150001197",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002841",
+      "name": "대구칠곡초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000901",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008928",
+      "name": "광주화정중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S050000379",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012097",
+      "name": "혜광고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020000556",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005089",
+      "name": "봉래초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100001203",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009832",
+      "name": "영월중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100001150",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002129",
+      "name": "서울가원초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010000899",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000022744",
+      "name": "모전중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020002069",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000009803",
+      "name": "미로중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S100000834",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002295",
+      "name": "서울신구초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010000766",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000007934",
+      "name": "거창초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160000934",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000003295",
+      "name": "유안초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S050000477",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000001877",
+      "name": "서울봉화초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010001410",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002770",
+      "name": "영신초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S030000723",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005687",
+      "name": "서령초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S120000971",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008630",
+      "name": "동아중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S020001624",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008256",
+      "name": "방산중학교",
+      "level": "middle",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010000866",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008365",
+      "name": "봉은중학교",
+      "level": "middle",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010000713",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000003396",
+      "name": "대전대화초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S060000289",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000023141",
+      "name": "도담고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S080000119",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000003430",
+      "name": "가수원초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S060000490",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000001876",
+      "name": "서울중화초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010001428",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008924",
+      "name": "금호중앙중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S050000180",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000011103",
+      "name": "월산중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S160001148",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000002058",
+      "name": "서울상월초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010001753",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000008184",
+      "name": "선유중학교",
+      "level": "middle",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010001184",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000001868",
+      "name": "서울중목초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010001427",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000012028",
+      "name": "독산고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S010000419",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005742",
+      "name": "연봉초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S080000050",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005745",
+      "name": "연남초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S080000048",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000005744",
+      "name": "수왕초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S080000046",
+      "evidence": "level+road_address+name"
+    },
+    {
+      "koiesId": "B000010586",
+      "name": "산이중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "EXACT_MULTI_FIELD",
+      "schoolCode": "S140002145",
+      "evidence": "level+road_address+name"
+    }
+  ],
+  "ambiguous": [
+    {
+      "koiesId": "B000008691",
+      "name": "복현중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S030000833,S030000847"
+    },
+    {
+      "koiesId": "B000004955",
+      "name": "북삼초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000005098",
+      "name": "옥동초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000008561",
+      "name": "동래여자중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S020000772,S020000779"
+    },
+    {
+      "koiesId": "B000011355",
+      "name": "단국대학교부속소프트웨어고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000405,S010000581"
+    },
+    {
+      "koiesId": "B000012048",
+      "name": "서울문영여자고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000437,S010000607"
+    },
+    {
+      "koiesId": "B000009871",
+      "name": "석천중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000004915",
+      "name": "모산초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000012814",
+      "name": "상동고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000011858",
+      "name": "과천외국어고등학교",
+      "level": "high",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S090000473,S090000474"
+    },
+    {
+      "koiesId": "B000004866",
+      "name": "반곡초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000005115",
+      "name": "장평초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000012067",
+      "name": "단국대학교사범대학부속고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000405,S010000581"
+    },
+    {
+      "koiesId": "B000009736",
+      "name": "동산중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000005161",
+      "name": "장흥초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000011331",
+      "name": "홍익디자인고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000381,S010000615"
+    },
+    {
+      "koiesId": "B000005016",
+      "name": "신동초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000012051",
+      "name": "영락고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000499,S010000611"
+    },
+    {
+      "koiesId": "B000013464",
+      "name": "선덕고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000465,S010000618"
+    },
+    {
+      "koiesId": "B000012515",
+      "name": "과천여자고등학교",
+      "level": "high",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S090000473,S090000474"
+    },
+    {
+      "koiesId": "B000011352",
+      "name": "영락의료과학고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000499,S010000611"
+    },
+    {
+      "koiesId": "B000012003",
+      "name": "광영고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000396,S010000397"
+    },
+    {
+      "koiesId": "B000012007",
+      "name": "광영여자고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000396,S010000397"
+    },
+    {
+      "koiesId": "B000012159",
+      "name": "브니엘고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S020000494,S020000495,S020000496"
+    },
+    {
+      "koiesId": "B000012592",
+      "name": "예당고등학교",
+      "level": "high",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000007405",
+      "name": "동양초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000006274",
+      "name": "진안초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000004187",
+      "name": "화산초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000007404",
+      "name": "봉성초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000010357",
+      "name": "안천중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000007397",
+      "name": "도촌초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000006653",
+      "name": "예당초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000006671",
+      "name": "아산초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000010696",
+      "name": "동지여자중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S150003523,S150003524"
+    },
+    {
+      "koiesId": "B000012719",
+      "name": "경민고등학교",
+      "level": "high",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S090000451,S090000453,S090000455"
+    },
+    {
+      "koiesId": "B000003980",
+      "name": "서원초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000004697",
+      "name": "신산초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000004175",
+      "name": "능동초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000004545",
+      "name": "용정초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000004167",
+      "name": "솔빛초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000006261",
+      "name": "소양초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000007198",
+      "name": "낙동초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000011988",
+      "name": "동명여자고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000422,S010000638"
+    },
+    {
+      "koiesId": "B000012167",
+      "name": "이사벨고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S020000530,S020000536"
+    },
+    {
+      "koiesId": "B000006203",
+      "name": "대강초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000012019",
+      "name": "덕원여자고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000418,S010000622"
+    },
+    {
+      "koiesId": "B000024717",
+      "name": "서경초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000005141",
+      "name": "북평초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000003941",
+      "name": "성지초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "name+level only, multiple SchoolInfo codes; not public-safe"
+    },
+    {
+      "koiesId": "B000011349",
+      "name": "서울여자상업고등학교",
+      "level": "high",
+      "region": "seoul",
+      "classification": "AMBIGUOUS",
+      "schoolCode": null,
+      "evidence": "road candidates S010000437,S010000607"
+    }
+  ],
+  "unmatched": [
+    {
+      "koiesId": "B000006285",
+      "name": "무주초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S130000898; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000009731",
+      "name": "강원체육중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100003726; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000009729",
+      "name": "봄내중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001815; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000012774",
+      "name": "육민관고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000477; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000025756",
+      "name": "인천청호초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S040002308; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000009788",
+      "name": "상장중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001962; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000005015",
+      "name": "맹방초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000888; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000004967",
+      "name": "통리초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001986; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000003476",
+      "name": "대전하기초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S060001072; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000002065",
+      "name": "서울한천초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S010001791; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000011810",
+      "name": "한국과학영재학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "no shared official address"
+    },
+    {
+      "koiesId": "B000004857",
+      "name": "춘천삼육초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001896; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000004971",
+      "name": "철암초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001980; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000026753",
+      "name": "계룡대실초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S120002976; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000009849",
+      "name": "계촌중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100002026; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000004990",
+      "name": "상평초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001013; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000005004",
+      "name": "상평초등학교공수전분교장",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001004; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000012386",
+      "name": "중일고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S060000231; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000012788",
+      "name": "황지고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000539; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000011838",
+      "name": "광주자동화설비마이스터고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S050000122; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000011565",
+      "name": "김화공업고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "no shared official address"
+    },
+    {
+      "koiesId": "B000012812",
+      "name": "주천고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000499; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000005014",
+      "name": "근덕초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000855; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000013202",
+      "name": "성희여자고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S150000866; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000011547",
+      "name": "강원생명과학고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000514; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000004097",
+      "name": "소래초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S090002751; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000005217",
+      "name": "간성초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000718; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000005164",
+      "name": "묘장초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001750; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000001845",
+      "name": "서울장평초등학교",
+      "level": "elementary",
+      "region": "seoul",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S010001420; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000005125",
+      "name": "속사초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100002081; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000009880",
+      "name": "기린중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001460; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000007408",
+      "name": "서벽초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S150001957; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000026417",
+      "name": "청완초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S130001089; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000022834",
+      "name": "인천청람초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S040002067; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000003367",
+      "name": "대전동광초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S060000291; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000003169",
+      "name": "인천신현초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S040000867; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000004961",
+      "name": "동해중앙초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000779; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000011087",
+      "name": "활천중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S160003434; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000006028",
+      "name": "군산금광초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S130000576; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000011558",
+      "name": "한국에너지마이스터고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000428; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000003419",
+      "name": "대전둔원초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S060000511; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000004188",
+      "name": "안녕초등학교",
+      "level": "elementary",
+      "region": "gyeonggi",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S090005363; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000005100",
+      "name": "마차초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100001183; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000012773",
+      "name": "원주금융회계고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000417; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000012767",
+      "name": "치악고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100003702; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000026473",
+      "name": "인천검단호수초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S040002137; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000011763",
+      "name": "김해건설공업고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S160000509; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000009883",
+      "name": "거진중학교",
+      "level": "middle",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S100000714; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000023105",
+      "name": "김천중앙고등학교",
+      "level": "high",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S150000783; rejected (name-only insufficient)"
+    },
+    {
+      "koiesId": "B000026332",
+      "name": "인천백석초등학교",
+      "level": "elementary",
+      "region": "other",
+      "classification": "NO_MATCH",
+      "schoolCode": null,
+      "evidence": "name+level only to S040000829; rejected (name-only insufficient)"
+    }
+  ]
+}
