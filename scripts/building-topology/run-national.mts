@@ -172,23 +172,28 @@ async function processTitleComplex(
     const buildings = main
       .map((row) => buildingFromTitleRow(row, target.complexId, title.sourceAsOf))
       .filter((row): row is NonNullable<typeof row> => row != null);
-    const residential = buildings.filter((b) => b.residentialFlag);
+    const unique = new Map<string, (typeof buildings)[number]>();
+    for (const row of buildings) {
+      if (!unique.has(row.officialBuildingKey)) unique.set(row.officialBuildingKey, row);
+    }
+    const deduped = [...unique.values()];
+    const residential = deduped.filter((b) => b.residentialFlag);
     if (APPLY) {
-      const stats = await upsertBuildings(db, buildings);
+      const stats = await upsertBuildings(db, deduped);
       totals.building = addUpsert(totals.building, stats);
       await upsertCheckpoint(db, {
         complexId: target.complexId,
         parcelKey: target.parcelKey ?? "",
         pnu: target.hubPnu ?? "",
         priority: target.priority,
-        titleStatus: buildings.length ? (title.fromCache ? "SKIP_CACHED" : "SUCCESS") : "EMPTY",
-        buildingStatus: residential.length ? "EXACT" : buildings.length ? "PARTIAL" : "NO_SOURCE",
+        titleStatus: deduped.length ? (title.fromCache ? "SKIP_CACHED" : "SUCCESS") : "EMPTY",
+        buildingStatus: residential.length ? "EXACT" : deduped.length ? "PARTIAL" : "NO_SOURCE",
         geometryStatus: "NO_GEOMETRY",
         linkStatus: "NO_SOURCE",
         titleTotalCount: title.totalCount,
         residentialCount: residential.length,
         apiCalls: title.apiCalls,
-        detail: `main=${main.length} residential=${residential.length}`,
+        detail: `main=${main.length} residential=${residential.length} unique=${deduped.length}`,
       });
     }
   } catch (error) {

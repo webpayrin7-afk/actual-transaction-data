@@ -40,7 +40,19 @@ export function readTitleCache(key: string): TitleFetchResult | null {
 
 export function writeTitleCache(result: TitleFetchResult): void {
   mkdirSync(CACHE_DIR, { recursive: true });
+  const safe = result.items.every((row) => {
+    const pk = String(row.mgmBldrgstPk ?? "").trim();
+    return !pk || /^\d{6,32}$/.test(pk);
+  });
+  if (!safe) throw new Error("refusing to cache imprecise building PKs");
   writeFileSync(cachePath(result.parcelKey), JSON.stringify(result));
+}
+
+export function cacheHasPrecisePks(result: TitleFetchResult): boolean {
+  return result.items.every((row) => {
+    const pk = String(row.mgmBldrgstPk ?? "").trim();
+    return !pk || /^\d{6,32}$/.test(pk);
+  });
 }
 
 function parseItems(payload: unknown): { totalCount: number; items: TitleRow[] } {
@@ -106,7 +118,6 @@ export async function fetchTitlePage(
     ji: parcel.ji,
     numOfRows: String(numOfRows),
     pageNo: String(pageNo),
-    _type: "json",
   });
   const url = `${TITLE_URL}?serviceKey=${encodeURIComponent(key)}&${qs.toString()}`;
   let lastError: unknown = null;
@@ -135,10 +146,13 @@ export async function fetchTitlePage(
         await sleep(2000 * 2 ** attempt);
         continue;
       }
-      if (text.trimStart().startsWith("<")) {
-        return parseXmlItems(text);
+      // JSON numbers lose 건축물대장 PK precision past 16 digits. XML keeps strings.
+      if (text.trimStart().startsWith("{") || text.trimStart().startsWith("[")) {
+        lastError = new Error("json title payload rejected");
+        await sleep(500);
+        continue;
       }
-      return parseItems(JSON.parse(text));
+      return parseXmlItems(text);
     } catch (error) {
       lastError = error;
       await sleep(2000 * 2 ** attempt);
@@ -156,7 +170,7 @@ export async function fetchTitleParcel(
   const key = parcelKey(parcel);
   if (!opts.force) {
     const cached = readTitleCache(key);
-    if (cached) return { ...cached, fromCache: true, apiCalls: 0 };
+    if (cached && cacheHasPrecisePks(cached)) return { ...cached, fromCache: true, apiCalls: 0 };
   }
   const first = await fetchTitlePage(parcel, 1);
   const items = [...first.items];

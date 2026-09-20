@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { buildingIdFromOfficialKey, areaCents } from "../src/lib/buildings/identity";
+import { buildingIdFromOfficialKey, areaCents, officialKeyFromTitlePk } from "../src/lib/buildings/identity";
 import { isResidentialBuilding, isMainBuilding } from "../src/lib/buildings/residential";
 import { officialDongLabel, dongMatchKey } from "../src/lib/buildings/dong-label";
 import { parcelFromParts, hubPnu, cadastralPnu } from "../src/lib/buildings/parcel";
@@ -12,7 +12,9 @@ function testIdentity() {
   const b = buildingIdFromOfficialKey("10251100216862");
   assert.equal(a, b);
   assert.match(a, /^bd_[0-9a-f]{16}$/);
-  assert.notEqual(a, buildingIdFromOfficialKey("http://example.com/10251100216862"));
+  assert.equal(officialKeyFromTitlePk("10251100216862"), "10251100216862");
+  assert.equal(officialKeyFromTitlePk("1.0000000000000055e+21"), null);
+  assert.equal(officialKeyFromTitlePk(""), null);
   assert.equal(areaCents(84.8), 8480);
   assert.equal(areaCents(84.88), 8488);
   assert.equal(areaCents(84.97), 8497);

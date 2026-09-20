@@ -49,6 +49,21 @@ export async function upsertBuildings(
     byId.set(String(cur.building_id), cur);
     byKey.set(String(cur.official_building_key), cur);
   }
+  const keys = rows.map((row) => row.officialBuildingKey);
+  if (keys.length) {
+    const others = await db.execute({
+      sql: `SELECT official_building_key, complex_id FROM complex_buildings
+            WHERE official_building_key IN (${keys.map(() => "?").join(",")})
+              AND complex_id != ?`,
+      args: [...keys, complexId],
+    });
+    const taken = new Set(others.rows.map((r) => String(r.official_building_key)));
+    rows = rows.filter((row) => {
+      if (!taken.has(row.officialBuildingKey)) return true;
+      stats.skippedPositive += 1;
+      return false;
+    });
+  }
   const inserts: { sql: string; args: unknown[] }[] = [];
   for (const row of rows) {
     const cur = byId.get(row.buildingId) ?? byKey.get(row.officialBuildingKey);
@@ -199,7 +214,10 @@ export async function upsertTypeBuildingLinks(
   });
   const seen = new Map<string, { household_count: unknown; status: unknown }>();
   for (const row of existing.rows) {
-    seen.set(`${row.unit_type_id}\t${row.building_id}`, row);
+    seen.set(`${row.unit_type_id}\t${row.building_id}`, {
+      household_count: row.household_count,
+      status: row.status,
+    });
   }
   const inserts: { sql: string; args: unknown[] }[] = [];
   for (const link of exact) {

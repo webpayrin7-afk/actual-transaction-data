@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2026-09-20T13:39:56.160Z",
+  "generatedAt": "2026-09-20T13:54:51.417Z",
   "apply": true,
   "totals": {
-    "titleApiCalls": 0,
+    "titleApiCalls": 173,
     "titleCacheHits": 10,
-    "titleErrors": 0,
+    "titleErrors": 6,
     "quota": false,
     "building": {
-      "inserted": 0,
+      "inserted": 852,
       "unchanged": 0,
       "skippedPositive": 0,
       "updatedFill": 0
     },
     "links": {
-      "inserted": 0,
+      "inserted": 1551,
       "unchanged": 917,
       "skippedPositive": 0,
       "updatedFill": 0
@@ -22,12 +22,12 @@
   "national": {
     "targetComplexes": 27524,
     "inventory": {
-      "complexes": 10,
-      "residential": 453,
-      "exact": 453,
+      "complexes": 176,
+      "residential": 1205,
+      "exact": 1205,
       "partial": 0,
-      "labeled": 453,
-      "unlabeled": 0
+      "labeled": 1195,
+      "unlabeled": 10
     },
     "geometry": {
       "n": 0,
@@ -41,28 +41,36 @@
       "households": 6239866
     },
     "typeBuilding": {
-      "complexes": 10,
-      "links": 917,
-      "exact": 917
+      "complexes": 157,
+      "links": 2468,
+      "exact": 2468
     },
     "parity": [
       {
         "parity_class": "MAJOR_MISMATCH",
-        "n": 4
+        "n": 59
       },
       {
         "parity_class": "MINOR_SCOPE_DIFF",
-        "n": 3
+        "n": 38
       },
       {
         "parity_class": "PARITY",
-        "n": 3
+        "n": 56
+      },
+      {
+        "parity_class": "PARTIAL_SOURCE",
+        "n": 21
       }
     ],
     "titleStatus": [
       {
+        "title_status": "ERROR",
+        "n": 6
+      },
+      {
         "title_status": "SUCCESS",
-        "n": 10
+        "n": 176
       }
     ]
   },
@@ -80,9 +88,9 @@
       "sido": "경기도",
       "sido_code": "41",
       "complexes": 6529,
-      "with_buildings": 0,
-      "residential": 0,
-      "with_links": 0,
+      "with_buildings": 6,
+      "residential": 54,
+      "with_links": 6,
       "with_types": 5341
     },
     {
@@ -116,9 +124,9 @@
       "sido": "대전광역시",
       "sido_code": "30",
       "complexes": 561,
-      "with_buildings": 0,
-      "residential": 0,
-      "with_links": 0,
+      "with_buildings": 1,
+      "residential": 16,
+      "with_links": 1,
       "with_types": 165
     },
     {
@@ -134,9 +142,9 @@
       "sido": "서울특별시",
       "sido_code": "11",
       "complexes": 8437,
-      "with_buildings": 10,
-      "residential": 453,
-      "with_links": 10,
+      "with_buildings": 166,
+      "residential": 1125,
+      "with_links": 149,
       "with_types": 8023
     },
     {
@@ -161,8 +169,8 @@
       "sido": "인천광역시",
       "sido_code": "28",
       "complexes": 1093,
-      "with_buildings": 0,
-      "residential": 0,
+      "with_buildings": 1,
+      "residential": 4,
       "with_links": 0,
       "with_types": 243
     },
@@ -179,7 +187,7 @@
       "sido": "전북특별자치도",
       "sido_code": "52",
       "complexes": 851,
-      "with_buildings": 0,
+      "with_buildings": 1,
       "residential": 0,
       "with_links": 0,
       "with_types": 188
@@ -206,9 +214,9 @@
       "sido": "충청북도",
       "sido_code": "43",
       "complexes": 756,
-      "with_buildings": 0,
-      "residential": 0,
-      "with_links": 0,
+      "with_buildings": 1,
+      "residential": 6,
+      "with_links": 1,
       "with_types": 284
     }
   ],
@@ -217,18 +225,18 @@
       "sido": "충청북도",
       "sido_code": "43",
       "complexes": 756,
-      "with_buildings": 0,
-      "residential": 0,
-      "with_links": 0,
+      "with_buildings": 1,
+      "residential": 6,
+      "with_links": 1,
       "with_types": 284
     },
     "GYEONGGI": {
       "sido": "경기도",
       "sido_code": "41",
       "complexes": 6529,
-      "with_buildings": 0,
-      "residential": 0,
-      "with_links": 0,
+      "with_buildings": 6,
+      "residential": 54,
+      "with_links": 6,
       "with_types": 5341
     },
     "DAEGU": {
@@ -244,9 +252,9 @@
       "sido": "대전광역시",
       "sido_code": "30",
       "complexes": 561,
-      "with_buildings": 0,
-      "residential": 0,
-      "with_links": 0,
+      "with_buildings": 1,
+      "residential": 16,
+      "with_links": 1,
       "with_types": 165
     },
     "BUSAN": {
@@ -262,9 +270,9 @@
       "sido": "서울특별시",
       "sido_code": "11",
       "complexes": 8437,
-      "with_buildings": 10,
-      "residential": 453,
-      "with_links": 10,
+      "with_buildings": 166,
+      "residential": 1125,
+      "with_links": 149,
       "with_types": 8023
     },
     "ULSAN": {
@@ -280,8 +288,8 @@
       "sido": "인천광역시",
       "sido_code": "28",
       "complexes": 1093,
-      "with_buildings": 0,
-      "residential": 0,
+      "with_buildings": 1,
+      "residential": 4,
       "with_links": 0,
       "with_types": 243
     },

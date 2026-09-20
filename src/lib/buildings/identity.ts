@@ -13,7 +13,8 @@ export function buildingIdFromOfficialKey(officialKey: string): string {
 
 export function officialKeyFromTitlePk(mgmBldrgstPk: string | number): string | null {
   const pk = String(mgmBldrgstPk ?? "").trim();
-  return pk ? pk : null;
+  if (!/^\d{6,32}$/.test(pk)) return null;
+  return pk;
 }
 
 export function areaCents(area: number): number {
