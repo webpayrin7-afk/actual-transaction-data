@@ -217,30 +217,45 @@ async function main() {
   };
 
   // Prior +2.12% was V2 complex trend on deal-amount means for calendar months (not market pyeong), horizon 6M.
-  // Classify vs exact-33 S1 market-pyeong change.
+  // After exact-label fix, published COMPLEX with exclusive overlay uses exact-33 S1 market-pyeong.
   const published6 = body.trends?.["6M"]?.find((c: { scope: string }) => c.scope === "COMPLEX");
+  const exactSlice6 = body.complexExactByMarketLabel?.["33"]?.trends?.["6M"];
   const classification = {
-    published6M: published6?.changePercent ?? null,
+    publishedStoredComplex6M: published6?.changePercent ?? null,
+    publishedExactSlice6M: exactSlice6?.changePercent ?? null,
     priorValidated6M: 2.12,
     cohortS1MarketPyeong6M: (horizons["6M"] as { cohort: { change: number | null } }).cohort.change,
     exact33S1MarketPyeong6M: (horizons["6M"] as { exact33: { change: number | null } }).exact33.change,
+    differenceClass: [
+      "EXPECTED_PERIOD_METHOD_CHANGE", // V2 deal-amount mean → V2.1 market-pyeong mean + S1
+      "EXACT_PYEONG_VS_COHORT_CHANGE", // stored decade COMPLEX was +3.97; exact-33 is +3.42
+    ],
     notes: [
       "V2 complex trends used calendar-month mean DEAL AMOUNT, not 만원/평.",
       "V2.1 complex trends use calendar-month mean market-pyeong price with S1.",
-      "V2.1 complex currently pools entire 30평대 labels for the complex, not exact 33.",
+      "Stored body COMPLEX remains decade_cohort; exclusive_area read overlays exact market label.",
+      "Region scopes stay supply-pyeong decade cohort (P2/T0 unchanged).",
     ],
   };
 
   const report = {
-    implementation,
+    implementation: {
+      ...implementation,
+      complexUsesExactSelectedLabel: "at_read_when_exclusive_area_resolves",
+      complexUsesDecadeCohort: "stored_default_and_area_band_only",
+      complexExactSlicesPresent: Object.keys(body.complexExactByMarketLabel ?? {}).sort(),
+      complexTrendSparse: "S1",
+    },
     published: {
       version: body.version,
       referenceMonth: body.referenceMonth,
       cohort: body.supplyPyeongCohort,
+      complexScopeBasis: body.complexScopeBasis,
       complexPrice: body.priceLevel?.find((c: { scope: string }) => c.scope === "COMPLEX"),
       complexTrends: Object.fromEntries(
         TREND_HORIZONS_V21.map((h) => [h, body.trends?.[h]?.find((c: { scope: string }) => c.scope === "COMPLEX")]),
       ),
+      exact33: body.complexExactByMarketLabel?.["33"] ?? null,
     },
     referenceMonth: { cohort: refCohort, exact33: refExact },
     horizons,
