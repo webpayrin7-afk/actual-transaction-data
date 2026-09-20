@@ -592,6 +592,7 @@ async function phaseNoParcel(db: Client) {
 
 async function measureApi(db: Client) {
   const timings: Record<string, {
+    coldMs: number;
     liveMs: number;
     snapshotMs: number | null;
     bytes: number;
@@ -599,6 +600,9 @@ async function measureApi(db: Client) {
     displayedHousehold: number;
   }> = {};
   for (const id of PILOT_IDS) {
+    const tCold = Date.now();
+    await loadComplexBuildingsApiLive(db, id);
+    const coldMs = Date.now() - tCold;
     const t0 = Date.now();
     const live = await loadComplexBuildingsApiLive(db, id);
     const liveMs = Date.now() - t0;
@@ -612,6 +616,7 @@ async function measureApi(db: Client) {
       .filter((r) => r.uiSafe)
       .reduce((n, r) => n + (r.householdCount ?? 0), 0);
     timings[id] = {
+      coldMs,
       liveMs,
       snapshotMs: snap ? snapshotMs : null,
       bytes: payloadBytes(live),

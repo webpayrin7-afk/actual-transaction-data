@@ -2,14 +2,26 @@
   "sourceDataset": "국토교통부_GIS건물통합정보",
   "sourceVersion": "20260809",
   "sourceDate": "2026-08-09",
+  "downloadTimestamp": "2026-09-20T23:18:14.161Z",
   "checksum": "",
   "crs": "",
+  "geometryType": "",
   "featureCount": 6656497,
   "validGeometryCount": null,
   "licenseAttribution": "공공누리 제1유형(출처표시). 국토교통부 GIS건물통합정보 / data.go.kr 15083092 / VWorld dsId=18",
   "wfsFallbackUsed": false,
-  "acquisitionStatus": "SOURCE_UNAVAILABLE",
+  "acquisitionStatus": "SOURCE_TEMPORARILY_UNAVAILABLE",
+  "successfulOfficialPath": "",
+  "failedPaths": [
+    "A_DATAGOKR",
+    "B_VWORLD",
+    "C_NSDI",
+    "D_WFS_VALIDATION"
+  ],
+  "fileList": [],
+  "compressedSize": null,
+  "extractedSize": null,
   "localPath": "",
-  "detail": "Official SHP bulk (data.go.kr 15083092 / VWorld dsId=18) unreachable from this environment; NSDI DNS failed; WFS fallback not used.",
-  "createdAt": "2026-09-20T19:55:37.771Z"
+  "detail": "{\"successfulOfficialPath\":\"\",\"failedPaths\":[\"A_DATAGOKR\",\"B_VWORLD\",\"C_NSDI\",\"D_WFS_VALIDATION\"],\"wfsValidationOk\":false,\"fileUrl\":\"\",\"paths\":[{\"path\":\"A_DATAGOKR\",\"status\":\"PAGE_ONLY\",\"attempts\":3},{\"path\":\"B_VWORLD\",\"status\":\"SOURCE_TEMPORARILY_UNAVAILABLE\",\"attempts\":3},{\"path\":\"C_NSDI\",\"status\":\"SOURCE_TEMPORARILY_UNAVAILABLE\",\"attempts\":3},{\"path\":\"D_WFS_VALIDATION\",\"status\":\"SOURCE_TEMPORARILY_UNAVAILABLE\",\"attempts\":3}],\"note\":\"Bulk SHP not acquired; WFS not ingested as national footprints\"}",
+  "createdAt": "2026-09-20T23:18:14.161Z"
 }

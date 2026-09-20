@@ -1,58 +1,88 @@
 {
-  "generatedAt": "2026-09-20T20:40:24.957Z",
+  "generatedAt": "2026-09-20T23:23:01.269Z",
   "extras": {
     "apply": true,
     "phase": "report",
     "api": {
       "cx_4c63d9a100973c60": {
-        "ms": 529,
+        "coldMs": 381,
+        "liveMs": 105,
+        "snapshotMs": 103,
         "bytes": 40003,
-        "buildings": 72
+        "buildings": 72,
+        "displayedHousehold": 5678
       },
       "cx_ed52bf895d064c11": {
-        "ms": 528,
+        "coldMs": 130,
+        "liveMs": 105,
+        "snapshotMs": 103,
         "bytes": 37677,
-        "buildings": 66
+        "buildings": 66,
+        "displayedHousehold": 6864
       },
       "cx_caf229b5ac63cfbd": {
-        "ms": 536,
+        "coldMs": 143,
+        "liveMs": 106,
+        "snapshotMs": 106,
         "bytes": 41494,
-        "buildings": 65
+        "buildings": 65,
+        "displayedHousehold": 5563
       },
       "cx_30d7eea6da810b52": {
-        "ms": 553,
+        "coldMs": 135,
+        "liveMs": 113,
+        "snapshotMs": 204,
         "bytes": 93185,
-        "buildings": 84
+        "buildings": 84,
+        "displayedHousehold": 9510
       },
       "cx_1c244e7305d12c44": {
-        "ms": 531,
+        "coldMs": 161,
+        "liveMs": 105,
+        "snapshotMs": 102,
         "bytes": 29688,
-        "buildings": 44
+        "buildings": 44,
+        "displayedHousehold": 3410
       },
       "cx_3bcf0f87bce7496b": {
-        "ms": 530,
+        "coldMs": 120,
+        "liveMs": 107,
+        "snapshotMs": 105,
         "bytes": 25274,
-        "buildings": 28
+        "buildings": 28,
+        "displayedHousehold": 2444
       },
       "cx_0320fd9e007e1f8c": {
-        "ms": 513,
+        "coldMs": 105,
+        "liveMs": 105,
+        "snapshotMs": 102,
         "bytes": 11051,
-        "buildings": 29
+        "buildings": 29,
+        "displayedHousehold": 10
       },
       "cx_c9ed0235ecca960c": {
-        "ms": 523,
+        "coldMs": 145,
+        "liveMs": 109,
+        "snapshotMs": 103,
         "bytes": 21254,
-        "buildings": 34
+        "buildings": 34,
+        "displayedHousehold": 3002
       },
       "cx_07caf64c556e85a7": {
-        "ms": 537,
+        "coldMs": 116,
+        "liveMs": 107,
+        "snapshotMs": 102,
         "bytes": 30694,
-        "buildings": 18
+        "buildings": 18,
+        "displayedHousehold": 1694
       },
       "cx_88d05e29df26a0d6": {
-        "ms": 520,
+        "coldMs": 109,
+        "liveMs": 105,
+        "snapshotMs": 103,
         "bytes": 13712,
-        "buildings": 13
+        "buildings": 13,
+        "displayedHousehold": 1061
       }
     }
   },
@@ -113,6 +143,19 @@
       "complexes": 163,
       "links": 2758,
       "exact": 2758
+    },
+    "resolution": {
+      "complexes": 373,
+      "physical_units": 161469,
+      "building_linked": 157643,
+      "exact_variant_building": 42601,
+      "exact_single_building": 62039,
+      "exclusive_group_only": 2846,
+      "ambiguous_type": 0,
+      "ambiguous_building": 0,
+      "no_canonical_type": 50157,
+      "no_building_identity": 3826,
+      "public_exact_links": 2758
     },
     "geometry": {
       "n": 0,

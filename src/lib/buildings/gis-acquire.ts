@@ -125,30 +125,35 @@ export async function acquireOfficialGis(): Promise<{
 }> {
   const paths: GisPathResult[] = [];
   const probes: GisProbe[] = [];
-  for (const path of Object.keys(PATHS) as GisPathId[]) {
-    const urls = PATHS[path].slice(0, GIS_MAX_ATTEMPTS_PER_PATH);
-    const attempts: GisProbe[] = [];
-    for (let i = 0; i < urls.length; i += 1) {
-      const raw = await probeUrl(urls[i]);
-      const probe: GisProbe = { path, attempt: i + 1, ...raw };
-      attempts.push(probe);
-      probes.push(probe);
-    }
-    const fileHit = attempts.find((a) => a.looksLikeFile && a.http === 200);
-    const wfsOk =
-      path === "D_WFS_VALIDATION" &&
-      attempts.some((a) => a.http === 200 && looksLikeWfs(a.snippet, a.contentType));
-    const pageOnly = attempts.some((a) => a.http === 200 && a.looksLikePage);
-    let status: GisPathResult["status"] = "SOURCE_TEMPORARILY_UNAVAILABLE";
-    if (fileHit) status = "FILE_AVAILABLE";
-    else if (wfsOk) status = "WFS_VALIDATION_OK";
-    else if (pageOnly && path !== "D_WFS_VALIDATION") status = "PAGE_ONLY";
-    paths.push({
-      path,
-      attempts,
-      acquired: status === "FILE_AVAILABLE",
-      status,
-    });
+  const pathResults = await Promise.all(
+    (Object.keys(PATHS) as GisPathId[]).map(async (path) => {
+      const urls = PATHS[path].slice(0, GIS_MAX_ATTEMPTS_PER_PATH);
+      const attempts: GisProbe[] = await Promise.all(
+        urls.map(async (url, i) => {
+          const raw = await probeUrl(url);
+          return { path, attempt: i + 1, ...raw };
+        }),
+      );
+      const fileHit = attempts.find((a) => a.looksLikeFile && a.http === 200);
+      const wfsOk =
+        path === "D_WFS_VALIDATION" &&
+        attempts.some((a) => a.http === 200 && looksLikeWfs(a.snippet, a.contentType));
+      const pageOnly = attempts.some((a) => a.http === 200 && a.looksLikePage);
+      let status: GisPathResult["status"] = "SOURCE_TEMPORARILY_UNAVAILABLE";
+      if (fileHit) status = "FILE_AVAILABLE";
+      else if (wfsOk) status = "WFS_VALIDATION_OK";
+      else if (pageOnly && path !== "D_WFS_VALIDATION") status = "PAGE_ONLY";
+      return {
+        path,
+        attempts,
+        acquired: status === "FILE_AVAILABLE",
+        status,
+      } satisfies GisPathResult;
+    }),
+  );
+  for (const result of pathResults) {
+    paths.push(result);
+    probes.push(...result.attempts);
   }
   const filePath = paths.find((p) => p.status === "FILE_AVAILABLE");
   const failedPaths = paths
