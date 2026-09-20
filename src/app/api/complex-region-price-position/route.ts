@@ -54,7 +54,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "시세 저장소를 사용할 수 없습니다." }, { status: 500 });
   }
   try {
-    const found = await readComplexPricePosition(db, { complexId, areaBand });
+    const found = await readComplexPricePosition(db, {
+      complexId,
+      areaBand,
+      exclusiveArea,
+    });
     if (found.kind === "missing" || found.kind === "outside-seoul") {
       return NextResponse.json({
         status: "unavailable",

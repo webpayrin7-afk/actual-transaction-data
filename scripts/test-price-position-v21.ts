@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {
+  applyExactComplexMarketLabel,
   buildPricePositionV21,
   METHODOLOGY_FINGERPRINT_V21,
   PRICE_MIN_COMPLEXES_V21,
@@ -18,6 +19,7 @@ assert.equal(PRICE_MIN_COMPLEXES_V21.GU, 5);
 assert.equal(PRICE_MIN_COMPLEXES_V21.SEOUL, 10);
 assert.equal(TREND_MIN_COMPLEXES_V21.SEOUL, 10);
 assert.ok(METHODOLOGY_FINGERPRINT_V21.includes("P2"));
+assert.ok(METHODOLOGY_FINGERPRINT_V21.includes("complex-exact-market-label"));
 
 const identities = new Map<string, ComplexIdentityV2>([
   ["cx_aaaaaaaaaaaaaaaa", { complexId: "cx_aaaaaaaaaaaaaaaa", lawdCd: "11710", bjdongCd: "10800", aptName: "A", legalDongName: "잠실동" }],
@@ -27,7 +29,14 @@ const identities = new Map<string, ComplexIdentityV2>([
   ["cx_eeeeeeeeeeeeeeee", { complexId: "cx_eeeeeeeeeeeeeeee", lawdCd: "11680", bjdongCd: "10300", aptName: "E", legalDongName: "대치동" }],
 ]);
 
-function pt(complexId: string, lawdCd: string, bjdongCd: string, ym: string, price: number): SupplySalePoint {
+function pt(
+  complexId: string,
+  lawdCd: string,
+  bjdongCd: string,
+  ym: string,
+  price: number,
+  marketPyeongLabel = 33,
+): SupplySalePoint {
   return {
     complexId,
     lawdCd,
@@ -35,17 +44,20 @@ function pt(complexId: string, lawdCd: string, bjdongCd: string, ym: string, pri
     yearMonth: ym,
     pricePerSupplyPyeong: price,
     pricePerMarketPyeong: price,
-    marketPyeongLabel: 33,
-    dealAmount: price * 33,
-    exclusiveArea: 84.88,
-    supplyArea: 109.29,
-    supplyPyeong: 33.06,
+    marketPyeongLabel,
+    dealAmount: price * marketPyeongLabel,
+    exclusiveArea: marketPyeongLabel === 33 ? 84.88 : 84.5,
+    supplyArea: marketPyeongLabel === 33 ? 109.29 : 112.4,
+    supplyPyeong: marketPyeongLabel === 33 ? 33.06 : 34.0,
   };
 }
 
 const points: SupplySalePoint[] = [
-  pt("cx_aaaaaaaaaaaaaaaa", "11710", "10800", "2026-09", 10000),
-  pt("cx_aaaaaaaaaaaaaaaa", "11710", "10800", "2026-03", 9000),
+  pt("cx_aaaaaaaaaaaaaaaa", "11710", "10800", "2026-09", 10000, 33),
+  pt("cx_aaaaaaaaaaaaaaaa", "11710", "10800", "2026-03", 9000, 33),
+  // Same complex, different decade label — must not pollute exact-33 COMPLEX overlay.
+  pt("cx_aaaaaaaaaaaaaaaa", "11710", "10800", "2026-09", 15000, 34),
+  pt("cx_aaaaaaaaaaaaaaaa", "11710", "10800", "2026-03", 14000, 34),
   pt("cx_bbbbbbbbbbbbbbbb", "11710", "10800", "2026-09", 11000),
   pt("cx_bbbbbbbbbbbbbbbb", "11710", "10800", "2026-03", 10000),
   pt("cx_cccccccccccccccc", "11710", "10800", "2026-09", 12000),
@@ -66,13 +78,33 @@ assert.equal(built.bodies.length, 5);
 const a = built.bodies.find((body) => body.complexId === "cx_aaaaaaaaaaaaaaaa")!;
 assert.equal(a.version, "price-position-v2.1");
 assert.equal(a.supplyPyeongCohort, "30평대");
+assert.equal(a.complexScopeBasis, "decade_cohort");
 assert.ok(!("3M" in a.trends));
 assert.ok(!("3Y" in a.trends));
-assert.equal(a.priceLevel.find((c) => c.scope === "COMPLEX")?.meanPricePerSupplyPyeong, 10000);
+// Stored COMPLEX remains decade cohort (mean of 33+34 in ref month).
+assert.equal(a.priceLevel.find((c) => c.scope === "COMPLEX")?.meanPricePerSupplyPyeong, 12500);
+assert.ok(a.complexExactByMarketLabel["33"]);
+assert.ok(a.complexExactByMarketLabel["34"]);
+assert.equal(a.complexExactByMarketLabel["33"]!.priceLevel.meanPricePerSupplyPyeong, 10000);
+assert.equal(a.complexExactByMarketLabel["34"]!.priceLevel.meanPricePerSupplyPyeong, 15000);
+
+const exact = applyExactComplexMarketLabel(a, 33, "exact");
+assert.equal(exact.complexScopeBasis, "exact_market_pyeong_label");
+assert.equal(exact.selectedMarketPyeongLabel, 33);
+assert.equal(exact.priceLevel.find((c) => c.scope === "COMPLEX")?.meanPricePerSupplyPyeong, 10000);
+assert.equal(exact.trends["6M"].find((c) => c.scope === "COMPLEX")?.changePercent, 11.11);
+// Region scopes unchanged after exact overlay.
+assert.equal(exact.priceLevel.find((c) => c.scope === "DONG")?.meanPricePerSupplyPyeong, a.priceLevel.find((c) => c.scope === "DONG")?.meanPricePerSupplyPyeong);
+assert.equal(exact.trends["6M"].find((c) => c.scope === "DONG")?.changePercent, a.trends["6M"].find((c) => c.scope === "DONG")?.changePercent);
+
+const ambiguous = applyExactComplexMarketLabel(a, null, "ambiguous");
+assert.equal(ambiguous.complexScopeBasis, "ambiguous");
+assert.equal(ambiguous.priceLevel.find((c) => c.scope === "COMPLEX")?.status, "INSUFFICIENT_SAMPLE");
+assert.equal(ambiguous.priceLevel.find((c) => c.scope === "DONG")?.status, "ok");
+
 const dong = a.priceLevel.find((c) => c.scope === "DONG")!;
 assert.equal(dong.status, "ok");
 assert.equal(dong.contributingComplexCount, 3);
-assert.equal(dong.meanPricePerSupplyPyeong, 11000); // median(10000,11000,12000)
 const trend6 = a.trends["6M"].find((c) => c.scope === "DONG")!;
 assert.equal(trend6.status, "ok");
 assert.equal(trend6.matchedComplexCount, 3);

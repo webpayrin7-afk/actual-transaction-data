@@ -18,6 +18,7 @@ import {
   type SupplySalePoint,
 } from "../../src/lib/region-ranking/price-position-v2";
 import {
+  applyExactComplexMarketLabel,
   buildPricePositionV21,
   HISTORY_FLOOR_MONTH_V21,
   METHODOLOGY_FINGERPRINT_V21,
@@ -431,14 +432,34 @@ async function main() {
       unavailable += 1;
       continue;
     }
-    const complex = body.priceLevel.find((c) => c.scope === "COMPLEX");
+    const exactLabels = Object.keys(body.complexExactByMarketLabel ?? {}).sort();
+    // Prefer modal exact label inside 30평대 for pilot report (Jamsil → 33).
+    const preferredExact =
+      body.complexExactByMarketLabel?.["33"] != null
+        ? 33
+        : exactLabels.length
+          ? Number(exactLabels[0])
+          : null;
+    const exactBody =
+      preferredExact != null ? applyExactComplexMarketLabel(body, preferredExact, "exact") : null;
+    const complex = (exactBody ?? body).priceLevel.find((c) => c.scope === "COMPLEX");
     const dong = body.priceLevel.find((c) => c.scope === "DONG");
     const gu = body.priceLevel.find((c) => c.scope === "GU");
     const seoul = body.priceLevel.find((c) => c.scope === "SEOUL");
+    const regionUnchanged =
+      exactBody == null ||
+      (exactBody.priceLevel.find((c) => c.scope === "DONG")?.meanPricePerSupplyPyeong ===
+        dong?.meanPricePerSupplyPyeong &&
+        exactBody.trends["6M"].find((c) => c.scope === "DONG")?.changePercent ===
+          body.trends["6M"].find((c) => c.scope === "DONG")?.changePercent);
+    if (!regionUnchanged) throw new Error(`region mutated after exact overlay ${name}`);
     pilots[name] = {
       complexId,
-      referenceMonth: body.referenceMonth,
+      referenceMonth: (exactBody ?? body).referenceMonth,
       cohort: body.supplyPyeongCohort,
+      complexScopeBasis: exactBody?.complexScopeBasis ?? body.complexScopeBasis,
+      selectedMarketPyeongLabel: exactBody?.selectedMarketPyeongLabel ?? null,
+      exactLabels,
       complexPrice: complex?.meanPricePerSupplyPyeong ?? null,
       complexTrades: complex?.tradeCount ?? null,
       dong: { value: dong?.meanPricePerSupplyPyeong ?? null, n: dong?.contributingComplexCount ?? null, status: dong?.status },
@@ -449,7 +470,8 @@ async function main() {
           horizon,
           Object.fromEntries(
             (["COMPLEX", "DONG", "GU", "SEOUL"] as const).map((scope) => {
-              const cell = body.trends[horizon].find((c) => c.scope === scope)!;
+              const src = scope === "COMPLEX" && exactBody ? exactBody : body;
+              const cell = src.trends[horizon].find((c) => c.scope === scope)!;
               return [
                 scope,
                 {
@@ -470,10 +492,23 @@ async function main() {
   const jamsil = bandBodies.get("84")?.find((row) => row.complexId === JAMSIL);
   if (!jamsil) throw new Error("jamsil missing");
   if (jamsil.supplyPyeongCohort !== "30평대") throw new Error("cohort leakage");
-  const jamsilPrice = jamsil.priceLevel.find((c) => c.scope === "COMPLEX")?.meanPricePerSupplyPyeong;
+  const jamsilExact = jamsil.complexExactByMarketLabel?.["33"];
+  if (!jamsilExact) throw new Error("jamsil exact 33 slice missing");
+  const jamsilExactApplied = applyExactComplexMarketLabel(jamsil, 33, "exact");
+  const jamsilPrice = jamsilExactApplied.priceLevel.find((c) => c.scope === "COMPLEX")?.meanPricePerSupplyPyeong;
   if (jamsilPrice == null || Math.abs(jamsilPrice - 10075.7576) > 0.01) {
-    // May be multi-trade month mean; still must be market-label based and finite.
-    if (!(jamsilPrice != null && jamsilPrice > 0)) throw new Error(`jamsil complex price invalid ${jamsilPrice}`);
+    if (!(jamsilPrice != null && jamsilPrice > 0)) throw new Error(`jamsil exact-33 price invalid ${jamsilPrice}`);
+  }
+  // Region P2/T0 must match stored decade body after exact COMPLEX overlay.
+  for (const scope of ["DONG", "GU", "SEOUL"] as const) {
+    const before = jamsil.priceLevel.find((c) => c.scope === scope)?.meanPricePerSupplyPyeong;
+    const after = jamsilExactApplied.priceLevel.find((c) => c.scope === scope)?.meanPricePerSupplyPyeong;
+    if (before !== after) throw new Error(`P2 region changed after exact overlay ${scope}`);
+    for (const horizon of TREND_HORIZONS_V21) {
+      const tb = jamsil.trends[horizon].find((c) => c.scope === scope)?.changePercent;
+      const ta = jamsilExactApplied.trends[horizon].find((c) => c.scope === scope)?.changePercent;
+      if (tb !== ta) throw new Error(`T0 region changed after exact overlay ${scope} ${horizon}`);
+    }
   }
 
   const v2After = num(
