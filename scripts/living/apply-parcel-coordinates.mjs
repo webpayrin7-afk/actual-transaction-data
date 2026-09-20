@@ -158,60 +158,57 @@ const stampRows = rows.filter((row) => {
 
 let filled = 0;
 let provenance = 0;
-const batchSize = 100;
+const batchSize = 40;
 for (let i = 0; i < stampRows.length; i += batchSize) {
   const batch = stampRows.slice(i, i + batchSize);
-  const tx = await db.transaction("write");
-  try {
-    const inside = await fetchExisting(
-      tx,
-      batch.map((row) => row.complex_id),
-    );
-    for (const row of batch) {
-      const current = inside.get(row.complex_id);
-      if (!current || current.latitude != null || current.longitude != null) {
-        throw new Error(`race ${row.complex_id}`);
-      }
-      const updated = await tx.execute({
-        sql: `UPDATE apt_complex_master
-              SET latitude = ?, longitude = ?, updated_at = ?
-              WHERE complex_id = ?
-                AND sido_code = ?
-                AND latitude IS NULL
-                AND longitude IS NULL`,
-        args: [row.latitude_text, row.longitude_text, row.generated_at, row.complex_id, row.sido_code],
-      });
-      if (num(updated.rowsAffected) !== 1) throw new Error(`fill ${row.complex_id}`);
-      const inserted = await tx.execute({
-        sql: `INSERT INTO complex_parcel_coordinates (
-                complex_id, pnu, latitude, longitude, coordinate_semantics, resolution_status,
-                coordinate_source, source_object_id, source_version, source_dataset, generated_at
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [
-          row.complex_id,
-          row.pnu,
-          row.latitude_text,
-          row.longitude_text,
-          row.semantics,
-          row.resolution_status,
-          row.coordinate_source,
-          row.source_object_id,
-          row.source_version,
-          row.source_dataset,
-          row.generated_at,
-        ],
-      });
-      if (num(inserted.rowsAffected) !== 1) throw new Error(`provenance ${row.complex_id}`);
+  const inside = await fetchExisting(
+    db,
+    batch.map((row) => row.complex_id),
+  );
+  const statements = [];
+  for (const row of batch) {
+    const current = inside.get(row.complex_id);
+    if (!current || current.latitude != null || current.longitude != null) {
+      throw new Error(`race ${row.complex_id}`);
     }
-    await tx.commit();
-    filled += batch.length;
-    provenance += batch.length;
-  } catch (error) {
-    await tx.rollback().catch(() => undefined);
-    throw error;
+    statements.push({
+      sql: `UPDATE apt_complex_master
+            SET latitude = ?, longitude = ?, updated_at = ?
+            WHERE complex_id = ?
+              AND sido_code = ?
+              AND latitude IS NULL
+              AND longitude IS NULL`,
+      args: [row.latitude_text, row.longitude_text, row.generated_at, row.complex_id, row.sido_code],
+    });
+    statements.push({
+      sql: `INSERT INTO complex_parcel_coordinates (
+              complex_id, pnu, latitude, longitude, coordinate_semantics, resolution_status,
+              coordinate_source, source_object_id, source_version, source_dataset, generated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        row.complex_id,
+        row.pnu,
+        row.latitude_text,
+        row.longitude_text,
+        row.semantics,
+        row.resolution_status,
+        row.coordinate_source,
+        row.source_object_id,
+        row.source_version,
+        row.source_dataset,
+        row.generated_at,
+      ],
+    });
   }
-  tx.close();
-  if (i > 0 && i % 1000 === 0) process.stderr.write(`[parcel] ${i}/${stampRows.length}\n`);
+  const rs = await db.batch(statements, "write");
+  for (const result of rs) {
+    if (num(result.rowsAffected) !== 1) throw new Error("batch row was not applied");
+  }
+  filled += batch.length;
+  provenance += batch.length;
+  if ((i + batch.length) % 1000 < batchSize) {
+    process.stderr.write(`[parcel] ${i + batch.length}/${stampRows.length}\n`);
+  }
 }
 
 const afterCounts = await tableCounts(db);
