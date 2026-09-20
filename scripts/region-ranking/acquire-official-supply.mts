@@ -70,7 +70,7 @@ const stats = {
   positiveOverwrites: 0,
 };
 
-let spacingMs = 70;
+let spacingMs = 160;
 let nextSlot = 0;
 let consecutive429 = 0;
 let hardStop = "";
@@ -122,11 +122,11 @@ async function fetchPage(parcel: { sigunguCd: string; bjdongCd: string; platGbCd
     if (res.status === 429 || text.includes("LIMIT") || text.includes("한도")) {
       stats.http429 += 1;
       consecutive429 += 1;
-      spacingMs = Math.min(2000, spacingMs * 2);
+      spacingMs = Math.min(1500, Math.round(spacingMs * 1.5));
       stats.retries += 1;
-      await new Promise((resolve) => setTimeout(resolve, Math.min(30000, 1000 * 2 ** attempt)));
+      await new Promise((resolve) => setTimeout(resolve, Math.min(20000, 1500 * (attempt + 1))));
       last = `429 spacing=${spacingMs}`;
-      if (consecutive429 >= 8 && spacingMs >= 2000) {
+      if (consecutive429 >= 25) {
         hardStop = "RATE_LIMIT_HOLD";
         throw new Error("RATE_LIMIT_HOLD");
       }
