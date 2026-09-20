@@ -366,7 +366,7 @@ export function regionTrendCandidate(params: {
   };
 }
 
-export function stabilityStats(series: readonly Array<{ month: string; value: number | null; sample: number }>) {
+export function stabilityStats(series: ReadonlyArray<{ month: string; value: number | null; sample: number }>) {
   const usable = series.filter((row) => row.value != null) as Array<{ month: string; value: number; sample: number }>;
   const mom: number[] = [];
   for (let i = 1; i < usable.length; i += 1) {

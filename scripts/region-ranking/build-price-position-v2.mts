@@ -154,7 +154,7 @@ async function main() {
   console.log(JSON.stringify({ seoulGate: { metric: "MARKET_PYEONG_PRICE_COVERAGE", gateShare, overallShare, gatePass } }));
   if (!gatePass) {
     console.log(JSON.stringify({ stopV2: true, reason: "market_pyeong_gate_fail", gateShare, overallShare }));
-    writeFileSyncReport({ gatePass: false, gateShare, overallShare, rows: 0 });
+    writeFileSync("/tmp/building-hub-bulk/external-evidence/v2-report.json", JSON.stringify({ gatePass: false, gateShare, overallShare, rows: 0 }, null, 2));
     return;
   }
 

@@ -5,8 +5,14 @@
 
 export type LaunchAreaBand = "59" | "84" | "114" | "ALL";
 
+/** libSQL-compatible bind values (narrower than unknown[] so Client is assignable). */
+export type RankingSqlValue = string | number | bigint | boolean | null | Uint8Array;
+
 export type RankingReader = {
-  execute(query: { sql: string; args?: unknown[] }): Promise<{ rows: Array<Record<string, unknown>> }>;
+  execute(query: {
+    sql: string;
+    args?: RankingSqlValue[] | Record<string, RankingSqlValue>;
+  }): Promise<{ rows: Array<Record<string, unknown>> }>;
 };
 
 export type RegionBoardBand = LaunchAreaBand | "TRADE_VOLUME" | "PRICE_PER_SQM";
