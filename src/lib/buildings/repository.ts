@@ -108,7 +108,7 @@ export async function upsertBuildings(
       continue;
     }
     inserts.push({
-      sql: `INSERT INTO complex_buildings (
+      sql: `INSERT OR IGNORE INTO complex_buildings (
               building_id, complex_id, official_building_key, mgm_bldrgst_pk,
               dong_label, dong_label_status, building_name, main_usage, main_usage_code,
               main_atch_type, residential_flag, household_count, floor_count,
