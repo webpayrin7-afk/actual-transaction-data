@@ -21,10 +21,13 @@ import {
   formatSignedPct,
   formatWonPerPyeong,
   formatWonPerSqm,
+  parseComplexPricePosition,
   placeHeadline,
   priceCompareStatusCopy,
   priceLevelScale,
   rankingBandForArea,
+  rankingSelectedHeading,
+  selectedPyeongCompareLines,
   rankingBandForExclusiveRange,
   rankingComplexHref,
   regionOverviewCtaLabel,
@@ -280,47 +283,129 @@ assert(
 assert(PRICE_COMPARE_TABS.map((tab) => tab.label).join("|") === "가격 수준|변동률", "price compare tabs");
 assert(TREND_PERIOD_TABS.map((tab) => tab.label).join("|") === "3개월|6개월|1년|3년", "trend periods");
 assert(TREND_PERIOD_TABS[0].id === "3M", "default trend period");
-assert(PRICE_LEVEL_TIP.includes("중위가격"), "price tip uses median");
+assert(PRICE_LEVEL_TIP.includes("평당가"), "price tip uses 평당가");
+assert(PRICE_LEVEL_TIP.includes("공급면적"), "price tip says supply pyeong");
 assert(!PRICE_LEVEL_TIP.includes("평균"), "price tip never says 평균");
-assert(TREND_TIP.includes("거래 구성에 따라 변동될 수 있습니다"), "trend tip mentions composition");
+assert(TREND_TIP.includes("맞춰진 단지"), "trend tip mentions matched complexes");
 assert(!TREND_TIP.includes("시세 변동률"), "do not assert 시세 변동률");
 
 assert(formatWonPerSqm(5303) === "5,303만원/㎡", "만원/㎡");
-assert(formatWonPerPyeong(12949.7) === "1억 2,950만/평", `els pyeong ${formatWonPerPyeong(12949.7)}`);
-assert(formatWonPerPyeong(12719.2) === "1억 2,719만/평", "dong pyeong");
-assert(formatWonPerPyeong(7200) === "7,200만/평", "gu pyeong");
-assert(formatWonPerPyeong(3537.7) === "3,538만/평", "seoul pyeong");
+assert(formatWonPerPyeong(10075.8) === "1억 76만원/평", `els v2 ${formatWonPerPyeong(10075.8)}`);
+assert(formatWonPerPyeong(10142) === "1억 142만원/평", "dong v2");
+assert(formatWonPerPyeong(6741.6) === "6,742만원/평", "gu v2");
+assert(formatWonPerPyeong(3575) === "3,575만원/평", "seoul v2");
 assert(formatReferenceMonthLabel("2026-09") === "2026년 9월 기준", "reference month from API");
 assert(formatReferenceMonthLabel(null) === null, "no hardcoded month");
-assert(formatSignedPct(1.82) === "+1.82%", `3M complex ${formatSignedPct(1.82)}`);
-assert(formatSignedPct(3.83) === "+3.83%", "3M dong");
-assert(formatSignedPct(-18.33) === "-18.33%", "3M gu");
-assert(formatSignedPct(-2.99) === "-2.99%", "3M seoul");
+assert(formatSignedPct(-1.34) === "-1.34%", "33평 3M complex");
+assert(formatSignedPct(2.12) === "+2.12%", "33평 6M complex");
+assert(formatSignedPct(0.91) === "+0.91%", "33평 1Y complex");
+assert(formatSignedPct(38.88) === "+38.88%", "33평 3Y complex");
+assert(formatSignedPct(2.75) === "+2.75%", "33평 3M dong/gu");
+assert(formatSignedPct(1.76) === "+1.76%", "33평 3M seoul");
 assert(formatSignedPct(0) === "0%", "true zero stays signed only as 0%");
 
+const els25 = selectedPyeongCompareLines({
+  selectedPyeongLabel: "25평",
+  supplyPyeongCohort: "20평대",
+  referenceMonth: "2026-09",
+});
+assert(els25.line1 === "25평 · 20평대 비교", `25평 copy ${els25.line1}`);
+const els33 = selectedPyeongCompareLines({
+  selectedPyeongLabel: "33평",
+  supplyPyeongCohort: "30평대",
+  referenceMonth: "2026-09",
+});
+assert(els33.line1 === "33평 · 30평대 비교", `33평 copy ${els33.line1}`);
+assert(els33.line2 === "2026년 9월 기준", "month stays on API");
+const els45 = selectedPyeongCompareLines({
+  selectedPyeongLabel: "45평",
+  supplyPyeongCohort: "40평대",
+  referenceMonth: "2026-09",
+});
+assert(els45.line1 === "45평 · 40평대 비교", `45평 copy ${els45.line1}`);
+assert(!String(els45.line1).includes("45평대"), "never 45평대 비교");
+assert(
+  selectedPyeongCompareLines({
+    selectedPyeongLabel: "45평",
+    supplyPyeongCohort: null,
+    referenceMonth: "2026-09",
+  }).line1 !== "45평 · 40평대 비교",
+  "client does not invent decade cohort",
+);
+assert(rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84" }) === "33평", "rank heading uses supply label");
+assert(rankingSelectedHeading({ pyeongLabel: null, rankingBand: "84" }) === "84㎡", "rank heading falls back to ranking band, not invented 평");
+
+const v1Rejected = parseComplexPricePosition(
+  {
+    status: "ok",
+    priceLevel: [
+      { scope: "COMPLEX", label: "이 단지", medianPricePerPyeong: 12949.7, status: "ok" },
+    ],
+    trends: { "3M": [{ scope: "COMPLEX", changePercent: 1.82, status: "ok" }] },
+  },
+  "cx_4c63d9a100973c60",
+);
+assert(v1Rejected.version == null, "V1 has no public version");
+assert(v1Rejected.status === "unavailable", "V1 is not a fallback");
+assert(v1Rejected.priceLevel.length === 0, "V1 prices stay hidden");
+
+const v2Body = parseComplexPricePosition(
+  {
+    status: "ok",
+    version: "price-position-v2",
+    complexId: "cx_4c63d9a100973c60",
+    supplyPyeongCohort: "30평대",
+    referenceMonth: "2026-09",
+    areaBasis: "SUPPLY_PYEONG_LABEL",
+    priceLevel: [
+      { scope: "COMPLEX", label: "이 단지", meanPricePerSupplyPyeong: 10075.8, status: "ok" },
+      { scope: "DONG", label: "잠실동", meanPricePerSupplyPyeong: 10142, status: "ok" },
+      { scope: "GU", label: "송파구", meanPricePerSupplyPyeong: 6741.6, status: "ok" },
+      { scope: "SEOUL", label: "서울", meanPricePerSupplyPyeong: 3575, status: "ok" },
+    ],
+    trends: {
+      "3M": [
+        { scope: "COMPLEX", changePercent: -1.34, status: "ok" },
+        { scope: "DONG", changePercent: 2.75, status: "ok" },
+        { scope: "GU", changePercent: 2.75, status: "ok" },
+        { scope: "SEOUL", changePercent: 1.76, status: "ok" },
+      ],
+      "6M": [{ scope: "COMPLEX", changePercent: 2.12, status: "ok" }],
+      "1Y": [{ scope: "COMPLEX", changePercent: 0.91, status: "ok" }],
+      "3Y": [{ scope: "COMPLEX", changePercent: 38.88, status: "ok" }],
+    },
+  },
+  "cx_4c63d9a100973c60",
+);
+assert(v2Body.version === "price-position-v2", "V2 pointer only");
+assert(v2Body.supplyPyeongCohort === "30평대", "cohort from API");
+assert(v2Body.priceLevel[0]?.meanPricePerSupplyPyeong === 10075.8, "V2 complex price");
+assert(v2Body.trends["3M"][0]?.changePercent === -1.34, "V2 3M");
+assert(v2Body.trends["6M"][0]?.changePercent === 2.12, "V2 6M");
+assert(v2Body.trends["1Y"][0]?.changePercent === 0.91, "V2 1Y");
+assert(v2Body.trends["3Y"][0]?.changePercent === 38.88, "V2 3Y");
+
 const elsPrice = [
-  { status: "ok", value: 12949.7 },
-  { status: "ok", value: 12719.2 },
-  { status: "ok", value: 7200 },
-  { status: "ok", value: 3537.7 },
+  { status: "ok", value: 10075.8 },
+  { status: "ok", value: 10142 },
+  { status: "ok", value: 6741.6 },
+  { status: "ok", value: 3575 },
 ];
-assert(priceLevelScale(elsPrice) === 12949.7, "scale uses available max, no score transform");
-assert(barWidthPct(12949.7, 12949.7) === 100, "complex bar full");
-assert(Math.round(barWidthPct(7200, 12949.7)) === 56, "gu bar proportional");
-assert(barWidthPct(null, 12949.7) === 0, "missing value has no bar");
+assert(priceLevelScale(elsPrice) === 10142, "scale uses available max, no score transform");
+assert(barWidthPct(10142, 10142) === 100, "dong bar full when max");
+assert(Math.round(barWidthPct(6741.6, 10142)) === 66, "gu bar proportional");
+assert(barWidthPct(null, 10142) === 0, "missing value has no bar");
 
 const els3m = [
-  { status: "ok" as const, changePercent: 1.82 },
-  { status: "ok" as const, changePercent: 3.83 },
-  { status: "ok" as const, changePercent: -18.33 },
-  { status: "ok" as const, changePercent: -2.99 },
+  { status: "ok" as const, changePercent: -1.34 },
+  { status: "ok" as const, changePercent: 2.75 },
+  { status: "ok" as const, changePercent: 1.76 },
 ];
-assert(trendAbsScale(els3m, 18.33) === 18.33, "trend scale from API maxAbs");
-assert(trendBarLayout(-18.33, 18.33).side === "left", "negative left");
-assert(trendBarLayout(-18.33, 18.33).pct === 100, "max abs fills left");
-assert(trendBarLayout(1.82, 18.33).side === "right", "positive right");
-assert(trendBarLayout(0, 18.33).side === "none", "true zero has no bar");
-assert(trendBarLayout(null, 18.33).side === "none", "insufficient not drawn as 0");
+assert(trendAbsScale(els3m) === 2.75, "trend scale from available max abs");
+assert(trendBarLayout(-1.34, 2.75).side === "left", "negative left");
+assert(trendBarLayout(2.75, 2.75).pct === 100, "max abs fills");
+assert(trendBarLayout(0, 2.75).side === "none", "true zero has no bar");
+assert(trendBarLayout(null, 2.75).side === "none", "insufficient not drawn as 0");
 
 const mixed = [
   { status: "ok" as const, changePercent: 1.82 },

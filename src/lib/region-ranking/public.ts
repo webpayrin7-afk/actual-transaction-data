@@ -316,9 +316,9 @@ export function formatWonPerPyeong(value: unknown): string | null {
   const rest = Math.round(n % 10000);
   if (eok >= 1) {
     if (rest === 0) return `${eok}억/평`;
-    return `${eok}억 ${rest.toLocaleString("ko-KR")}만/평`;
+    return `${eok}억 ${rest.toLocaleString("ko-KR")}만원/평`;
   }
-  return `${Math.round(n).toLocaleString("ko-KR")}만/평`;
+  return `${Math.round(n).toLocaleString("ko-KR")}만원/평`;
 }
 
 export function formatSignedPct(value: unknown): string | null {
@@ -469,6 +469,8 @@ export const RANK_SMALL_REGION_COPY =
 export const PRICE_COMPARE_UNSUPPORTED_COPY =
   "이 면적대는 지역 가격 비교를 제공하지 않아요.";
 export const INSUFFICIENT_SAMPLE_COPY = "표본 부족";
+export const PRICE_POSITION_V2_VERSION = "price-position-v2";
+export const LABEL_AMBIGUOUS_COPY = "이 면적은 평형 라벨이 여러 개라 비교하지 않아요.";
 
 export function unavailableBoardCopy(_type?: RankingType): {
   title: string;
@@ -499,21 +501,21 @@ export const TREND_PERIOD_TABS = [
 export type TrendPeriodId = (typeof TREND_PERIOD_TABS)[number]["id"];
 
 export const PRICE_LEVEL_TIP =
-  "선택한 면적대의 최근 거래월을 기준으로, 같은 달의 단지·동·구·서울 실거래 ㎡당 중위가격을 평당 가격으로 환산해 비교합니다.";
+  "선택한 평형과 같은 평형대의 최근 실거래 기준 평당가를 비교합니다. 평당가는 공급면적 기준 평형으로 계산합니다.";
 export const TREND_TIP =
-  "선택한 면적대의 최근 3개월 ㎡당 실거래 중위가격과 각 비교시점의 동일한 3개월 구간을 비교합니다. 지역 단위 값은 거래 구성에 따라 변동될 수 있습니다.";
+  "선택한 평형대에서 두 비교시점 모두 거래가 확인된 단지들의 실거래 가격 변화를 비교합니다. 지역 값은 같은 평형대에서 맞춰진 단지 기준입니다.";
 
 export type PriceCompareStatus =
   | "ok"
   | "INSUFFICIENT_SAMPLE"
   | "PRICE_COMPARE_UNSUPPORTED_AREA"
+  | "LABEL_AMBIGUOUS"
   | "unavailable";
 
 export type PriceLevelPublicCell = {
   scope: "COMPLEX" | "DONG" | "GU" | "SEOUL";
   label: string;
-  medianPricePerSqm: number | null;
-  medianPricePerPyeong: number | null;
+  meanPricePerSupplyPyeong: number | null;
   tradeCount: number | null;
   status: "ok" | "INSUFFICIENT_SAMPLE";
 };
@@ -527,11 +529,14 @@ export type TrendPublicCell = {
 
 export type ComplexPricePositionResponse = {
   status: PriceCompareStatus;
+  version: string | null;
   complexId: string;
   aptName: string | null;
   areaBand: string | null;
+  supplyPyeongCohort: string | null;
   transactionAsOf: string | null;
   referenceMonth: string | null;
+  areaBasis: string | null;
   priceLevel: PriceLevelPublicCell[];
   trends: Record<TrendPeriodId, TrendPublicCell[]>;
   maxAvailableValue: {
@@ -550,11 +555,11 @@ function asPriceCells(raw: unknown): PriceLevelPublicCell[] {
       if (scope !== "COMPLEX" && scope !== "DONG" && scope !== "GU" && scope !== "SEOUL") {
         return null;
       }
+      const raw = item as Record<string, unknown>;
       return {
         scope,
         label: asString(row.label) ?? scope,
-        medianPricePerSqm: finiteNumber(row.medianPricePerSqm),
-        medianPricePerPyeong: finiteNumber(row.medianPricePerPyeong),
+        meanPricePerSupplyPyeong: finiteNumber(raw.meanPricePerSupplyPyeong),
         tradeCount: finiteNumber(row.tradeCount),
         status: row.status === "INSUFFICIENT_SAMPLE" ? "INSUFFICIENT_SAMPLE" : "ok",
       };
@@ -582,16 +587,56 @@ function asTrendCells(raw: unknown): TrendPublicCell[] {
     .filter((row): row is TrendPublicCell => row != null);
 }
 
+function emptyPricePosition(
+  complexId: string,
+  status: PriceCompareStatus,
+): ComplexPricePositionResponse {
+  return {
+    status,
+    version: null,
+    complexId,
+    aptName: null,
+    areaBand: null,
+    supplyPyeongCohort: null,
+    transactionAsOf: null,
+    referenceMonth: null,
+    areaBasis: null,
+    priceLevel: [],
+    trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
+    maxAvailableValue: {
+      priceLevel: null,
+      trends: { "3M": null, "6M": null, "1Y": null, "3Y": null },
+    },
+  };
+}
+
+export function isPricePositionV2(raw: unknown): boolean {
+  if (!raw || typeof raw !== "object") return false;
+  return asString((raw as Record<string, unknown>).version) === PRICE_POSITION_V2_VERSION;
+}
+
+export function parseComplexPricePosition(
+  raw: unknown,
+  complexId: string,
+): ComplexPricePositionResponse {
+  return asPricePosition(raw, complexId);
+}
+
 function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionResponse {
   const data = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const version = asString(data.version);
   const statusRaw = asString(data.status);
   const status: PriceCompareStatus =
     statusRaw === "ok" ||
     statusRaw === "INSUFFICIENT_SAMPLE" ||
     statusRaw === "PRICE_COMPARE_UNSUPPORTED_AREA" ||
+    statusRaw === "LABEL_AMBIGUOUS" ||
     statusRaw === "unavailable"
       ? statusRaw
       : "unavailable";
+  if (version !== PRICE_POSITION_V2_VERSION) {
+    return emptyPricePosition(complexId, status === "PRICE_COMPARE_UNSUPPORTED_AREA" ? status : "unavailable");
+  }
   const trendsRaw = data.trends && typeof data.trends === "object"
     ? (data.trends as Record<string, unknown>)
     : {};
@@ -603,11 +648,14 @@ function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionR
     : {};
   return {
     status,
+    version,
     complexId: asString(data.complexId) ?? complexId,
     aptName: asString(data.aptName),
     areaBand: asString(data.areaBand),
+    supplyPyeongCohort: asString(data.supplyPyeongCohort),
     transactionAsOf: asString(data.transactionAsOf),
     referenceMonth: asString(data.referenceMonth),
+    areaBasis: asString(data.areaBasis),
     priceLevel: asPriceCells(data.priceLevel),
     trends: {
       "3M": asTrendCells(trendsRaw["3M"]),
@@ -629,11 +677,11 @@ function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionR
 
 export async function fetchComplexPricePosition(params: {
   complexId: string;
-  areaBand: AreaRankingBand;
+  exclusiveArea: number;
 }): Promise<ComplexPricePositionResponse> {
   const qs = new URLSearchParams({
     complex_id: params.complexId,
-    area_band: params.areaBand,
+    exclusive_area: String(params.exclusiveArea),
   });
   const res = await fetch(`/api/complex-region-price-position?${qs.toString()}`);
   if (!res.ok) {
@@ -649,8 +697,54 @@ export function priceCompareStatusCopy(status: PriceCompareStatus | string | nul
   if (status === "PRICE_COMPARE_UNSUPPORTED_AREA") {
     return { title: PRICE_COMPARE_UNSUPPORTED_COPY };
   }
+  if (status === "LABEL_AMBIGUOUS") {
+    return { title: LABEL_AMBIGUOUS_COPY };
+  }
   if (status === "INSUFFICIENT_SAMPLE") {
     return { title: INSUFFICIENT_SAMPLE_COPY };
   }
   return { title: RANK_PREPARING_COPY };
+}
+
+export function formatReferenceMonthShort(raw: string | null | undefined): string | null {
+  if (!raw?.trim()) return null;
+  const match = /^(\d{4})-(\d{2})/.exec(raw.trim());
+  if (!match) return null;
+  return `${match[1]}년 ${Number(match[2])}월`;
+}
+
+export function supplyCohortCompareLabel(cohort: string | null | undefined): string | null {
+  const value = cohort?.trim();
+  if (!value) return null;
+  if (value.endsWith("비교")) return value;
+  return `${value} 비교`;
+}
+
+/** Selected exact 평 + API cohort. Never invents 45평대 from 45평. */
+export function selectedPyeongCompareLines(params: {
+  selectedPyeongLabel: string | null;
+  supplyPyeongCohort: string | null;
+  referenceMonth: string | null;
+}): { line1: string | null; line2: string | null } {
+  const selected = params.selectedPyeongLabel?.trim() || null;
+  const cohort = supplyCohortCompareLabel(params.supplyPyeongCohort);
+  const month = formatReferenceMonthLabel(params.referenceMonth);
+  const monthShort = formatReferenceMonthShort(params.referenceMonth);
+  if (selected && cohort) {
+    return { line1: `${selected} · ${cohort}`, line2: month };
+  }
+  if (selected) {
+    return { line1: [selected, monthShort].filter(Boolean).join(" · ") || selected, line2: null };
+  }
+  if (cohort) return { line1: cohort, line2: month };
+  return { line1: month, line2: null };
+}
+
+export function rankingSelectedHeading(params: {
+  pyeongLabel: string | null;
+  rankingBand: AreaRankingBand | null;
+}): string | null {
+  if (params.pyeongLabel?.trim()) return params.pyeongLabel.trim();
+  if (params.rankingBand) return `${params.rankingBand}㎡`;
+  return null;
 }

@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ComplexRegionPriceCompare } from "@/components/apt/ComplexRegionPriceCompare";
+import { areaSelectorPyeongLabel } from "@/lib/apt/area-selector-label";
+import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
   dongSmallCohortHelper,
   fetchComplexRegionRank,
   formatRankingAsOf,
   placeHeadline,
   rankingBandForArea,
+  rankingSelectedHeading,
   regionOverviewCtaLabel,
   regionRankingHref,
   type AreaRankingBand,
@@ -85,13 +88,17 @@ export function ComplexRegionRankSection({
   regionSlug: string;
   regionName: string;
   dongName?: string | null;
-  selectedArea: {
-    exclusiveArea: number;
-    exclusiveAreaMin?: number | null;
-    exclusiveAreaMax?: number | null;
-  } | null;
+  selectedArea: AptAreaOption | null;
 }) {
   const areaBand: AreaRankingBand | null = rankingBandForArea(selectedArea);
+  const selectedPyeongLabel = selectedArea
+    ? areaSelectorPyeongLabel(selectedArea)
+    : null;
+  const selectedRankHeading = rankingSelectedHeading({
+    pyeongLabel: selectedPyeongLabel,
+    rankingBand: areaBand,
+  });
+  const exclusiveArea = selectedArea?.exclusiveArea ?? null;
   const id = complexId?.trim() || "";
   const enabled = /^cx_[0-9a-f]{16}$/.test(id);
 
@@ -117,7 +124,6 @@ export function ComplexRegionRankSection({
       null,
   );
   const dongLabel = data?.dong?.trim() || dongName?.trim() || "이 동";
-  const bandLabel = areaBand ? `${areaBand}㎡` : null;
   const cohortHelper = dongSmallCohortHelper({
     dongName: dongLabel,
     places: [data?.all?.dong, data?.area?.dong],
@@ -174,7 +180,7 @@ export function ComplexRegionRankSection({
           {areaBand ? (
             <div className="border-t border-slate-100 pt-2">
               <p className="text-[13px] font-medium leading-5 text-slate-600">
-                {bandLabel}
+                {selectedRankHeading}
               </p>
               <div className="mt-1">
                 {data?.area ? (
@@ -201,7 +207,11 @@ export function ComplexRegionRankSection({
         </div>
       )}
 
-      <ComplexRegionPriceCompare complexId={id} areaBand={areaBand} />
+      <ComplexRegionPriceCompare
+        complexId={id}
+        exclusiveArea={exclusiveArea}
+        selectedPyeongLabel={selectedPyeongLabel}
+      />
 
       <Link
         href={regionRankingHref(regionSlug)}

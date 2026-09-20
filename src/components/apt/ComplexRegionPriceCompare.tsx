@@ -13,14 +13,13 @@ import {
   TREND_TIP,
   barWidthPct,
   fetchComplexPricePosition,
-  formatReferenceMonthLabel,
   formatSignedPct,
   formatWonPerPyeong,
   priceCompareStatusCopy,
   priceLevelScale,
+  selectedPyeongCompareLines,
   trendAbsScale,
   trendBarLayout,
-  type AreaRankingBand,
   type PriceCompareTab,
   type PriceLevelPublicCell,
   type TrendPeriodId,
@@ -31,14 +30,14 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
   const scale = priceLevelScale(
     cells.map((cell) => ({
       status: cell.status,
-      value: cell.medianPricePerPyeong,
+      value: cell.meanPricePerSupplyPyeong,
     })),
   );
   return (
-    <ul className="mt-3 space-y-2.5">
+    <ul className="mt-2 space-y-2">
       {cells.map((cell) => {
         const insufficient = cell.status === "INSUFFICIENT_SAMPLE";
-        const value = cell.medianPricePerPyeong;
+        const value = cell.meanPricePerSupplyPyeong;
         const width = insufficient ? 0 : barWidthPct(value, scale);
         const accent = cell.scope === "COMPLEX";
         return (
@@ -57,7 +56,7 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
               )}
             </div>
             <span
-              className={`w-[7.25rem] shrink-0 text-right text-[12px] leading-4 tabular-nums sm:w-32 sm:text-[13px] ${
+              className={`w-[7.5rem] shrink-0 text-right text-[12px] leading-4 tabular-nums sm:w-36 sm:text-[13px] ${
                 accent ? "font-semibold text-slate-900" : "text-slate-600"
               }`}
             >
@@ -93,9 +92,9 @@ function TrendBars({
   maxAbs: number | null;
 }) {
   return (
-    <div className="mt-3">
+    <div className="mt-2">
       {maxAbs != null && maxAbs > 0 ? <TrendScale maxAbs={maxAbs} /> : null}
-      <ul className="space-y-2.5">
+      <ul className="space-y-2">
         {cells.map((cell) => {
           const insufficient = cell.status === "INSUFFICIENT_SAMPLE";
           const value = cell.changePercent;
@@ -154,21 +153,23 @@ function TrendBars({
 
 export function ComplexRegionPriceCompare({
   complexId,
-  areaBand,
+  exclusiveArea,
+  selectedPyeongLabel,
 }: {
   complexId: string;
-  areaBand: AreaRankingBand | null;
+  exclusiveArea: number | null;
+  selectedPyeongLabel: string | null;
 }) {
   const [tab, setTab] = useState<PriceCompareTab>("level");
   const [period, setPeriod] = useState<TrendPeriodId>("3M");
-  const enabled = !!areaBand;
+  const enabled = exclusiveArea != null && Number.isFinite(exclusiveArea) && exclusiveArea > 0;
 
   const query = useQuery({
-    queryKey: ["complex-region-price-position", complexId, areaBand],
+    queryKey: ["complex-region-price-position-v2", complexId, exclusiveArea],
     queryFn: () =>
       fetchComplexPricePosition({
         complexId,
-        areaBand: areaBand!,
+        exclusiveArea: exclusiveArea!,
       }),
     enabled,
     staleTime: 5 * 60_000,
@@ -177,34 +178,39 @@ export function ComplexRegionPriceCompare({
 
   const data = query.data;
   const unsupported =
-    !areaBand || data?.status === "PRICE_COMPARE_UNSUPPORTED_AREA";
-  const monthLabel = formatReferenceMonthLabel(data?.referenceMonth);
-  const bandLabel = areaBand ? `${areaBand}㎡` : null;
+    !enabled ||
+    data?.status === "PRICE_COMPARE_UNSUPPORTED_AREA" ||
+    data?.status === "LABEL_AMBIGUOUS";
+  const lines = selectedPyeongCompareLines({
+    selectedPyeongLabel,
+    supplyPyeongCohort: data?.supplyPyeongCohort ?? null,
+    referenceMonth: data?.referenceMonth ?? null,
+  });
   const trendCells = data?.trends[period] ?? [];
-  const trendScale = trendAbsScale(
-    trendCells,
-    data?.maxAvailableValue.trends[period],
-  );
+  const trendScale = trendAbsScale(trendCells);
 
   return (
-    <div className="border-t border-slate-100 pt-3">
+    <div className="border-t border-slate-100 pt-2.5">
       <div className="flex flex-wrap items-center gap-1">
         <h3 className="text-[15px] font-semibold leading-5 text-slate-900">
           지역 가격 비교
         </h3>
+        <span className="text-[12px] text-slate-500">평당가</span>
         <InfoTip aria-label={tab === "level" ? "평당가 비교 안내" : "실거래 가격 변동 안내"}>
           <p>{tab === "level" ? PRICE_LEVEL_TIP : TREND_TIP}</p>
         </InfoTip>
       </div>
 
       {!enabled || unsupported ? (
-        <p className="mt-2 text-[13px] leading-5 text-slate-500">
-          {PRICE_COMPARE_UNSUPPORTED_COPY}
+        <p className="mt-1.5 text-[13px] leading-5 text-slate-500">
+          {data?.status === "LABEL_AMBIGUOUS"
+            ? priceCompareStatusCopy("LABEL_AMBIGUOUS").title
+            : PRICE_COMPARE_UNSUPPORTED_COPY}
         </p>
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("mt-2.5 !flex-nowrap")} w-full`}
+            className={`${labSegmentedClass("mt-2 !flex-nowrap")} w-full`}
             role="tablist"
             aria-label="지역 가격 비교"
           >
@@ -222,13 +228,21 @@ export function ComplexRegionPriceCompare({
             ))}
           </div>
 
-          <p className="mt-2 text-[12px] leading-4 text-slate-500">
-            {[bandLabel, monthLabel].filter(Boolean).join(" · ") || "선택 면적 기준"}
-          </p>
+          {lines.line1 ? (
+            <p className="mt-1.5 text-[12px] leading-4 text-slate-500">
+              {lines.line1}
+              {lines.line2 ? (
+                <>
+                  <span className="mx-1 text-slate-300">·</span>
+                  {lines.line2}
+                </>
+              ) : null}
+            </p>
+          ) : null}
 
           {tab === "trend" ? (
             <div
-              className={`${labSegmentedClass("mt-2 !flex-nowrap")} w-full`}
+              className={`${labSegmentedClass("mt-1.5 !flex-nowrap")} w-full`}
               role="tablist"
               aria-label="변동률 기간"
             >
@@ -251,14 +265,14 @@ export function ComplexRegionPriceCompare({
           ) : null}
 
           {query.isLoading ? (
-            <div className="mt-3 space-y-2" aria-label="가격 비교 불러오는 중">
-              <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
-              <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
-              <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
-              <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
+            <div className="mt-2 space-y-1.5" aria-label="가격 비교 불러오는 중">
+              <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
+              <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
+              <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
+              <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
             </div>
           ) : query.isError ? (
-            <div className="mt-3 rounded-xl bg-slate-50 px-3 py-3 text-center">
+            <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2.5 text-center">
               <p className="text-sm font-medium text-slate-700">
                 가격 비교를 불러오지 못했습니다.
               </p>
@@ -271,21 +285,21 @@ export function ComplexRegionPriceCompare({
               </button>
             </div>
           ) : data?.status === "unavailable" ? (
-            <p className="mt-3 text-[13px] leading-5 text-slate-500">
+            <p className="mt-2 text-[13px] leading-5 text-slate-500">
               {priceCompareStatusCopy("unavailable").title}
             </p>
           ) : tab === "level" ? (
             data?.priceLevel.length ? (
               <PriceLevelBars cells={data.priceLevel} />
             ) : (
-              <p className="mt-3 text-[13px] leading-5 text-slate-500">
+              <p className="mt-2 text-[13px] leading-5 text-slate-500">
                 {priceCompareStatusCopy(data?.status).title}
               </p>
             )
           ) : trendCells.length ? (
             <TrendBars cells={trendCells} maxAbs={trendScale} />
           ) : (
-            <p className="mt-3 text-[13px] leading-5 text-slate-500">
+            <p className="mt-2 text-[13px] leading-5 text-slate-500">
               {priceCompareStatusCopy(data?.status).title}
             </p>
           )}
