@@ -121,9 +121,9 @@ export async function fetchTitlePage(
   });
   const url = `${TITLE_URL}?serviceKey=${encodeURIComponent(key)}&${qs.toString()}`;
   let lastError: unknown = null;
-  for (let attempt = 0; attempt < 5; attempt += 1) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
     const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), 25000);
+    const timer = setTimeout(() => ac.abort(), 20000);
     try {
       const res = await fetch(url, {
         headers: { "User-Agent": "ziplab-building-topology" },
@@ -132,18 +132,18 @@ export async function fetchTitlePage(
       const text = await res.text();
       if (res.status === 429) {
         lastError = new Error("429");
-        await sleep(4000 * (attempt + 1));
+        await sleep(8000 * (attempt + 1));
         continue;
       }
       if (res.status >= 500 || res.status === 0) {
         lastError = new Error(`HTTP ${res.status}`);
-        await sleep(2000 * 2 ** attempt);
+        await sleep(1500 * (attempt + 1));
         continue;
       }
       if (!res.ok) throw new Error(`HTTP ${res.status} ${text.slice(0, 180)}`);
       if (!text.trim()) {
         lastError = new Error("empty body");
-        await sleep(2000 * 2 ** attempt);
+        await sleep(1500 * (attempt + 1));
         continue;
       }
       // JSON numbers lose 건축물대장 PK precision past 16 digits. XML keeps strings.
