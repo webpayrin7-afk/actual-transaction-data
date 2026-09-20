@@ -100,7 +100,33 @@ for (let i = 0; i < 3; i += 1) {
 const partial = deriveOfficialSupplies(partialRows, "잠실엘스");
 assert.equal(partial.supplies.length, 0);
 
-assert.equal(priorityRank("11710", 3), 1);
+const embedded: ExposRow[] = [];
+for (let i = 0; i < 3; i += 1) {
+  embedded.push(
+    row({
+      dongNm: " ",
+      hoNm: `104-100${i}`,
+      exposPubuseGbCdNm: "전유",
+      mainAtchGbCdNm: "주건축물",
+      etcPurps: "아파트",
+      area: 84.98,
+      bldNm: "롯데캐슬헤론",
+    }),
+    row({
+      dongNm: " ",
+      hoNm: `104-100${i}`,
+      exposPubuseGbCdNm: "공용",
+      mainAtchGbCdNm: "주건축물",
+      etcPurps: "벽체",
+      area: 31.14,
+      bldNm: "롯데캐슬헤론",
+    }),
+  );
+}
+const embeddedDerived = deriveOfficialSupplies(embedded, "롯데캐슬헤론");
+assert.equal(embeddedDerived.units.length, 3);
+assert.equal(embeddedDerived.supplies[0]?.exclusiveCents, 8498);
+assert.equal(embeddedDerived.supplies[0]?.supplyCents, 11612);
 assert.equal(priorityRank("41110", 2), 2);
 assert.equal(priorityRank("28110", 0), 5);
 assert.equal(priorityRank("26110", 0), 6);

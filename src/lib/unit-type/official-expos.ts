@@ -87,6 +87,19 @@ export function namesMatch(buildingName: string, aptName: string): boolean {
   return building.includes(apt) || apt.includes(building);
 }
 
+function unitIdentity(row: ExposRow): { dong: string; ho: string } | null {
+  let dong = (row.dongNm || "").trim();
+  let ho = (row.hoNm || "").trim();
+  if (!dong && ho.includes("-")) {
+    const [head, ...rest] = ho.split("-");
+    if (head && rest.length > 0 && rest.join("-")) {
+      dong = head;
+      ho = rest.join("-");
+    }
+  }
+  if (!dong || !ho) return null;
+  return { dong, ho };
+}
 function areaOf(row: ExposRow): number {
   const n = Number(row.area ?? 0);
   return Number.isFinite(n) ? n : 0;
@@ -130,10 +143,9 @@ export function deriveOfficialSupplies(rows: ExposRow[], aptName: string): Deriv
       continue;
     }
     matchedRows += 1;
-    const dong = (row.dongNm || "").trim();
-    const ho = (row.hoNm || "").trim();
-    if (!dong || !ho) continue;
-    const key = `${dong}\t${ho}`;
+    const identity = unitIdentity(row);
+    if (!identity) continue;
+    const key = `${identity.dong}\t${identity.ho}`;
     const list = byUnit.get(key);
     if (list) list.push(row);
     else byUnit.set(key, [row]);
