@@ -7,7 +7,6 @@ import { createInterface } from "node:readline";
 import { createClient } from "@libsql/client";
 import { exclusiveCents } from "../../src/lib/unit-type/canonical";
 import { marketPyeongLabelInteger } from "../../src/lib/unit-type/supply-label";
-import { exactSupplyPyeong } from "../../src/lib/region-ranking/price-position-v2";
 import {
   PRICE_POSITION_V21_AS_OF,
   pricePositionV21SnapshotId,
