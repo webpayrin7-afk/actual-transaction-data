@@ -1,0 +1,58 @@
+{
+  "complex_id": "cx_4c63d9a100973c60",
+  "name": "잠실엘스",
+  "source_version": "SEMAS_2026Q2",
+  "radius_m": 1000,
+  "reference_point": {
+    "lat": 37.5133051,
+    "lng": 127.0815962,
+    "role": "Reference point supplied for pipeline parity. Not a parcel coordinate and not written as this complex's snapshot."
+  },
+  "totals": {
+    "MEDICAL": 205,
+    "FOOD": 821,
+    "CAFE": 116,
+    "CONVENIENCE": 54,
+    "GROCERY": 35,
+    "ETC": 51,
+    "SPORTS": 94
+  },
+  "medical_subcategories": {
+    "DENTAL": 42,
+    "DERM_UROLOGY": 21,
+    "ENT": 7,
+    "HOSPITAL": 1,
+    "HOSPITAL_DENTAL": 4,
+    "HOSPITAL_KOREAN": 0,
+    "HOSPITAL_NURSING": 0,
+    "INTERNAL_PEDIATRIC": 28,
+    "KOREAN_MEDICINE": 41,
+    "NEURO_PSYCHIATRY": 14,
+    "OBGYN": 7,
+    "OPHTHALMOLOGY": 5,
+    "OTHER": 13,
+    "PLASTIC_SURGERY": 6,
+    "RADIOLOGY_LAB": 3,
+    "SURGERY": 13
+  },
+  "food_subcategories": {
+    "BAR": 133,
+    "CAFETERIA_BUFFET": 8,
+    "CASUAL_OTHER": 231,
+    "CHINESE": 29,
+    "JAPANESE": 51,
+    "KOREAN": 325,
+    "OTHER": 0,
+    "SOUTHEAST_ASIAN": 9,
+    "WESTERN": 35
+  },
+  "cafe": 116,
+  "parity": {
+    "medical_total": true,
+    "food_total": true,
+    "pass": true
+  },
+  "prior_pipeline_differences": {},
+  "subcategory_note": "SEMAS has no separate 정형/재활/가정 small code. 성형외과 의원 stays PLASTIC_SURGERY, 안과 stays OPHTHALMOLOGY, 방사선 진단/병리 stays RADIOLOGY_LAB. Those are not folded into the non-source specialty list.",
+  "zero_distance_links": 0
+}
