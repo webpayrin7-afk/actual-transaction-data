@@ -7,6 +7,7 @@ const BUILDING_MIGRATIONS = [
   "20260920_complex_buildings.sql",
   "20260921_building_geometry_3d.sql",
   "20260922_building_api_type_resolution.sql",
+  "20260923_physical_household_holds.sql",
 ];
 
 const EXTRA_COLUMNS: Array<{ table: string; column: string; sqlType: string }> = [
@@ -18,6 +19,8 @@ const EXTRA_COLUMNS: Array<{ table: string; column: string; sqlType: string }> =
   { table: "complex_buildings", column: "tot_area", sqlType: "REAL" },
   { table: "complex_buildings", column: "height_status", sqlType: "TEXT" },
   { table: "complex_buildings", column: "three_d_readiness", sqlType: "TEXT" },
+  { table: "complex_buildings", column: "physical_household_count", sqlType: "INTEGER" },
+  { table: "complex_buildings", column: "physical_household_version", sqlType: "TEXT" },
   { table: "complex_building_geometry", column: "source_crs", sqlType: "TEXT" },
   { table: "complex_building_geometry", column: "canonical_crs", sqlType: "TEXT" },
   { table: "complex_building_geometry", column: "source_geometry_id", sqlType: "TEXT" },

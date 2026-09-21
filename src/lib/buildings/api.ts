@@ -12,6 +12,7 @@ export type ComplexBuildingApiResponse = {
       dongLabel: string | null;
       dongLabelStatus?: string;
       householdCount: number | null;
+      physicalHouseholdCount: number | null;
       floors: number | null;
       heightM: number | null;
       heightStatus: string | null;
@@ -48,6 +49,7 @@ export type ComplexBuildingApiResponse = {
     buildingId: string;
     dongLabel: string | null;
     householdCount: number | null;
+    physicalHouseholdCount: number | null;
     floors: number | null;
     lat: number | null;
     lng: number | null;
@@ -111,6 +113,8 @@ function assemble(
       dongLabel: row.dong_label == null ? null : String(row.dong_label),
       dongLabelStatus: row.dong_label_status == null ? undefined : String(row.dong_label_status),
       householdCount: row.household_count == null ? null : Number(row.household_count),
+      physicalHouseholdCount:
+        row.physical_household_count == null ? null : Number(row.physical_household_count),
       floors: row.floor_count == null ? null : Number(row.floor_count),
       heightM: row.height_m == null ? null : Number(row.height_m),
       heightStatus: row.height_status == null ? null : String(row.height_status),
@@ -152,6 +156,7 @@ function assemble(
         dongLabel: b.dongLabel,
         dongLabelStatus: b.dongLabelStatus,
         householdCount: b.householdCount,
+        physicalHouseholdCount: b.physicalHouseholdCount,
         floors: b.floors,
         heightM: b.heightM,
         heightStatus: b.heightStatus,
@@ -182,6 +187,7 @@ function assemble(
       buildingId: b.buildingId,
       dongLabel: b.dongLabel,
       householdCount: b.householdCount,
+      physicalHouseholdCount: b.physicalHouseholdCount,
       floors: b.floors,
       lat: b.lat,
       lng: b.lng,
@@ -204,7 +210,8 @@ export async function loadComplexBuildingsApiLive(
       args: [complexId],
     }),
     db.execute({
-      sql: `SELECT b.building_id, b.dong_label, b.dong_label_status, b.household_count, b.floor_count,
+      sql: `SELECT b.building_id, b.dong_label, b.dong_label_status, b.household_count,
+                   b.physical_household_count, b.floor_count,
                    b.height_m, b.height_status, b.three_d_readiness, b.status,
                    g.representative_lat, g.representative_lng, g.centroid_lat, g.centroid_lng,
                    g.footprint_display_geojson, g.footprint_geojson, g.geometry_status

@@ -414,6 +414,16 @@ CREATE TABLE IF NOT EXISTS unit_building_resolution_stats (
   source_as_of TEXT NOT NULL DEFAULT '',
   updated_at TEXT NOT NULL
 );
+-- physical household totals from exact-dong unit evidence; distinct from title household_count
+-- unresolved holds are internal and are not public exact type links
+CREATE TABLE IF NOT EXISTS building_unit_unresolved_holds (
+  complex_id TEXT NOT NULL,
+  resolution_status TEXT NOT NULL,
+  household_count INTEGER NOT NULL,
+  source_version TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, resolution_status)
+);
 CREATE TABLE IF NOT EXISTS complex_building_api_snapshot (
   complex_id TEXT PRIMARY KEY,
   payload_json TEXT NOT NULL,
