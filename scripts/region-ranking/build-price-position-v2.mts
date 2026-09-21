@@ -2,7 +2,7 @@
  * Materialize complex-region-price-position-v2 from EXACT_SINGLE supply mappings.
  * Does not overwrite V1 snapshot rows.
  */
-import { createReadStream, readFileSync } from "node:fs";
+import { createReadStream, readFileSync, writeFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { createClient, type Client } from "@libsql/client";
 import { marketPyeongLabelInteger } from "../../src/lib/unit-type/supply-label";
@@ -154,7 +154,7 @@ async function main() {
   console.log(JSON.stringify({ seoulGate: { metric: "MARKET_PYEONG_PRICE_COVERAGE", gateShare, overallShare, gatePass } }));
   if (!gatePass) {
     console.log(JSON.stringify({ stopV2: true, reason: "market_pyeong_gate_fail", gateShare, overallShare }));
-    writeFileSyncReport({ gatePass: false, gateShare, overallShare, rows: 0 });
+    writeFileSync("/tmp/building-hub-bulk/external-evidence/v2-report.json", JSON.stringify({ gatePass: false, gateShare, overallShare, rows: 0 }, null, 2));
     return;
   }
 
@@ -357,13 +357,8 @@ async function main() {
     jamsilDealCheck,
     snaps: snaps.rows,
   };
-  writeFileSyncReport(report);
-  console.log(JSON.stringify(report, null, 2));
-}
-
-function writeFileSyncReport(report: unknown) {
-  const { writeFileSync } = require("node:fs") as typeof import("node:fs");
   writeFileSync("/tmp/building-hub-bulk/external-evidence/v2-report.json", JSON.stringify(report, null, 2));
+  console.log(JSON.stringify(report, null, 2));
 }
 
 main().catch((e) => {

@@ -38,6 +38,21 @@ const sparse = resolveComplexMonth({
 });
 assert.equal(sparse?.month, "2026-09");
 
+// S1 tie-break: when ±1 both available, prefer PREVIOUS month.
+const tieCells = buildComplexMonthValues([
+  { complexId: "t", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-08", pricePerMarketPyeong: 90, dealAmount: 1 },
+  { complexId: "t", lawdCd: "11710", bjdongCd: "10800", yearMonth: "2026-10", pricePerMarketPyeong: 110, dealAmount: 1 },
+]);
+const tie = resolveComplexMonth({
+  cells: tieCells.get("t")!,
+  targetMonth: "2026-09",
+  asOfMonth: "2026-10",
+  sparse: "S1",
+  minTrades: 1,
+});
+assert.equal(tie?.month, "2026-08");
+assert.equal(tie?.cell.meanPrice, 90);
+
 const p0 = regionPriceCandidate({
   candidate: "P0",
   complexIds: ["a", "b"],

@@ -150,10 +150,23 @@ export function loadPrivateConfig(raw: unknown): ConfigLoadResult {
     stability: unitInterval(raw.weights.stability),
     momentum: unitInterval(raw.weights.momentum),
   };
-  if (Object.values(weights).some((value) => value == null)) {
+  if (
+    weights.price == null ||
+    weights.liquidity == null ||
+    weights.turnover == null ||
+    weights.householdScale == null ||
+    weights.stability == null ||
+    weights.momentum == null
+  ) {
     return { ok: false, code: "PRIVATE_CONFIG_MALFORMED" };
   }
-  const weightTotal = Object.values(weights).reduce((sum, value) => sum + (value ?? 0), 0);
+  const weightTotal =
+    weights.price +
+    weights.liquidity +
+    weights.turnover +
+    weights.householdScale +
+    weights.stability +
+    weights.momentum;
   if (Math.abs(weightTotal - 1) > 1e-9) return { ok: false, code: "PRIVATE_CONFIG_MALFORMED" };
 
   const minTradeCount = nonNegativeInteger(raw.min_trade_count, 1_000_000);

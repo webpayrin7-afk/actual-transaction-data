@@ -128,7 +128,7 @@ export function resolveComplexMonth(params: {
     const cell = cells.get(month);
     if (!cell || cell.tradeCount < minTrades) continue;
     const distance = Math.abs(delta);
-    if (!best || distance < best.distance || (distance === best.distance && month > best.month)) {
+    if (!best || distance < best.distance || (distance === best.distance && month < best.month)) {
       best = { month, cell, distance };
     }
   }
@@ -366,7 +366,7 @@ export function regionTrendCandidate(params: {
   };
 }
 
-export function stabilityStats(series: readonly Array<{ month: string; value: number | null; sample: number }>) {
+export function stabilityStats(series: ReadonlyArray<{ month: string; value: number | null; sample: number }>) {
   const usable = series.filter((row) => row.value != null) as Array<{ month: string; value: number; sample: number }>;
   const mom: number[] = [];
   for (let i = 1; i < usable.length; i += 1) {
