@@ -32,7 +32,9 @@ import {
   formatWonPerSqm,
   parseComplexPricePosition,
   parseMarketPyeongLabelParam,
+  DECADE_RANK_UNAVAILABLE_COPY,
   placeHeadline,
+  placeRankDisplay,
   priceCompareRowCopy,
   priceCompareStatusCopy,
   priceLevelScale,
@@ -236,6 +238,9 @@ assert(!JSON.stringify(dongLine).includes("smallCohort"), "no raw smallCohort");
 assert(!JSON.stringify(guLine).includes("단지 중"), "no population count on gu");
 assert(!JSON.stringify(dongLine).includes("비교 가능"), "no 비교 가능 on dong");
 assert(!JSON.stringify(dongLine).includes("순위 산정"), "no 순위 산정 on dong");
+const stacked = placeRankDisplay({ regionName: "송파구", place: guPlace });
+assert(stacked?.region === "송파구" && stacked.rank === 3, `stacked ${JSON.stringify(stacked)}`);
+assert(DECADE_RANK_UNAVAILABLE_COPY === "해당 평형대 순위 없음", "unavailable decade copy");
 const helper = dongSmallCohortHelper({
   dongName: "잠실동",
   places: [dong, dong],
@@ -260,6 +265,7 @@ const unavailable = {
   smallCohort: false,
 };
 assert(placeHeadline({ regionName: "서초구", place: unavailable }) === null, "unavailable place");
+assert(placeRankDisplay({ regionName: "서초구", place: unavailable }) === null, "stacked unavailable");
 assert(
   unavailableBoardCopy("COMPOSITE").title === RANK_PREPARING_COPY,
   "unavailable copy preserves preparing status",
@@ -576,6 +582,9 @@ assert(rankSection.includes("complex-region-rank-v3"), "v3 query key");
 assert(!rankSection.includes("개 단지 중"), "card has no population copy");
 assert(!rankSection.includes("비교 가능"), "card has no 비교 가능");
 assert(!rankSection.includes("순위 산정"), "card has no 순위 산정");
+assert(rankSection.includes("DECADE_RANK_UNAVAILABLE_COPY"), "uses shared unavailable copy");
+assert(rankSection.includes("placeRankDisplay"), "stacked rank display");
+assert(!rankSection.includes("선택 평형 순위"), "no invented selected heading");
 
 const rankRoute = readFileSync(
   resolve(import.meta.dirname, "../src/app/api/complex-region-rank/route.ts"),

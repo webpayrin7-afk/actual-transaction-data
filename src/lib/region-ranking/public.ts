@@ -457,6 +457,8 @@ export function rowPublicMetrics(
   };
 }
 
+export const DECADE_RANK_UNAVAILABLE_COPY = "해당 평형대 순위 없음";
+
 export function placeHeadline(params: {
   regionName: string;
   place: ComplexRankPlace | null | undefined;
@@ -467,6 +469,18 @@ export function placeHeadline(params: {
     title: `${params.regionName} ${place.rank}위`,
     meta: null,
   };
+}
+
+/** Region name + rank parts for the compact 2-column card. Never includes population. */
+export function placeRankDisplay(params: {
+  regionName: string;
+  place: ComplexRankPlace | null | undefined;
+}): { region: string; rank: number } | null {
+  const place = params.place;
+  if (!place || place.status !== "ranked" || place.rank == null) return null;
+  const region = params.regionName.trim();
+  if (!region) return null;
+  return { region, rank: place.rank };
 }
 
 /** One card-level note. Never repeat per ranking row. */

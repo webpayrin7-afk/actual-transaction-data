@@ -6,9 +6,10 @@ import { ComplexRegionPriceCompare } from "@/components/apt/ComplexRegionPriceCo
 import { areaSelectorPyeongLabel } from "@/lib/apt/area-selector-label";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
+  DECADE_RANK_UNAVAILABLE_COPY,
   fetchComplexRegionRank,
   formatRankingAsOf,
-  placeHeadline,
+  placeRankDisplay,
   rankingSelectedHeading,
   regionOverviewCtaLabel,
   regionRankingHref,
@@ -20,7 +21,7 @@ function RankCell({
   line,
   empty,
 }: {
-  line: { title: string; meta: string | null } | null;
+  line: { region: string; rank: number } | null;
   empty: string;
 }) {
   if (!line) {
@@ -32,8 +33,9 @@ function RankCell({
   }
   return (
     <div className="min-w-0">
-      <p className="truncate text-[15px] font-semibold leading-5 tabular-nums text-slate-900">
-        {line.title}
+      <p className="truncate text-[11px] leading-4 text-slate-500">{line.region}</p>
+      <p className="truncate text-[17px] font-semibold leading-5 tabular-nums text-slate-900">
+        {line.rank}위
       </p>
     </div>
   );
@@ -44,28 +46,25 @@ function RankPair({
   dongName,
   gu,
   dong,
-  emptyGu,
-  emptyDong,
+  empty,
 }: {
   guName: string;
   dongName: string;
   gu: ComplexRankPlace | null | undefined;
   dong: ComplexRankPlace | null | undefined;
-  emptyGu: string;
-  emptyDong: string;
+  empty: string;
 }) {
-  const guLine = placeHeadline({ regionName: guName, place: gu });
-  const dongLine = placeHeadline({ regionName: dongName, place: dong });
-  const sameEmpty = !guLine && !dongLine && emptyGu === emptyDong;
+  const guLine = placeRankDisplay({ regionName: guName, place: gu });
+  const dongLine = placeRankDisplay({ regionName: dongName, place: dong });
 
-  if (sameEmpty) {
-    return <p className="text-[13px] leading-5 text-slate-500">{emptyGu}</p>;
+  if (!guLine && !dongLine) {
+    return <p className="text-[13px] leading-5 text-slate-500">{empty}</p>;
   }
 
   return (
     <div className="grid grid-cols-2 gap-x-3">
-      <RankCell line={guLine} empty={emptyGu} />
-      <RankCell line={dongLine} empty={emptyDong} />
+      <RankCell line={guLine} empty={empty} />
+      <RankCell line={dongLine} empty={empty} />
     </div>
   );
 }
@@ -116,40 +115,42 @@ export function ComplexRegionRankSection({
       null,
   );
   const dongLabel = data?.dong?.trim() || dongName?.trim() || "이 동";
-  const selectedLabel =
-    selectedPyeongLabel ??
-    (data?.selectedMarketPyeongLabel != null && data.selectedMarketPyeongLabel > 0
+  const selectedFromApi =
+    data?.selectedMarketPyeongLabel != null && data.selectedMarketPyeongLabel > 0
       ? `${Math.round(data.selectedMarketPyeongLabel)}평`
-      : null);
+      : null;
+  const selectedLabel =
+    marketPyeongLabel != null ? `${marketPyeongLabel}평` : selectedFromApi;
+  const decadeFromApi = data?.regionPyeongDecade ?? data?.area?.regionPyeongDecade ?? null;
   const selectedRankHeading = rankingSelectedHeading({
     pyeongLabel: selectedLabel,
-    rankingCohortLabel: data?.regionPyeongDecade ?? data?.area?.regionPyeongDecade ?? null,
+    rankingCohortLabel: decadeFromApi,
   });
-  const showSelected = selectedLabel != null || marketPyeongLabel != null;
+  const showSelected = marketPyeongLabel != null || selectedFromApi != null;
 
   return (
     <section
       id="section-region-rank"
-      className="lab-card scroll-mt-28 p-3.5 sm:p-4"
+      className="lab-card scroll-mt-28 p-3 sm:p-3.5"
     >
       <div className="flex flex-nowrap items-center justify-between gap-2">
         <h2 className="min-w-0 truncate text-xl font-semibold leading-none tracking-tight text-slate-900">
           지역 내 비교
         </h2>
         {asOf ? (
-          <p className="shrink-0 text-[11px] leading-4 text-slate-500 sm:text-[12px]">
+          <p className="shrink-0 text-[11px] leading-4 text-slate-500">
             {asOf}
           </p>
         ) : null}
       </div>
 
       {query.isLoading ? (
-        <div className="mt-2.5 space-y-2" aria-label="순위 불러오는 중">
+        <div className="mt-2 space-y-2" aria-label="순위 불러오는 중">
           <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
           <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
         </div>
       ) : query.isError ? (
-        <div className="mt-2.5 rounded-xl bg-slate-50 px-3 py-3 text-center">
+        <div className="mt-2 rounded-xl bg-slate-50 px-3 py-3 text-center">
           <p className="text-sm font-medium text-slate-700">
             순위를 불러오지 못했습니다.
           </p>
@@ -162,7 +163,7 @@ export function ComplexRegionRankSection({
           </button>
         </div>
       ) : (
-        <div className="mt-2.5 space-y-2.5">
+        <div className="mt-2 space-y-2">
           <div>
             <p className="text-[13px] font-semibold leading-5 text-slate-700">
               종합 순위
@@ -173,32 +174,26 @@ export function ComplexRegionRankSection({
                 dongName={dongLabel}
                 gu={data?.all?.gu}
                 dong={data?.all?.dong}
-                emptyGu="종합 순위를 준비 중이에요"
-                emptyDong="이 동 종합 순위를 준비 중이에요"
+                empty="종합 순위를 준비 중이에요"
               />
             </div>
           </div>
 
           {showSelected ? (
-            <div className="border-t border-slate-100 pt-2.5">
-              <p className="text-[13px] font-medium leading-5 text-slate-600">
-                {selectedRankHeading ?? "선택 평형 순위"}
-              </p>
-              <div className="mt-0.5">
-                {data?.area ? (
-                  <RankPair
-                    guName={regionName}
-                    dongName={dongLabel}
-                    gu={data.area.gu}
-                    dong={data.area.dong}
-                    emptyGu="이 평형대는 아직 순위를 제공하지 않아요"
-                    emptyDong="이 평형대는 아직 순위를 제공하지 않아요"
-                  />
-                ) : (
-                  <p className="text-[13px] leading-5 text-slate-500">
-                    이 평형대는 아직 순위를 제공하지 않아요
-                  </p>
-                )}
+            <div className="border-t border-slate-100 pt-2">
+              {selectedRankHeading ? (
+                <p className="text-[13px] font-medium leading-5 text-slate-600">
+                  {selectedRankHeading}
+                </p>
+              ) : null}
+              <div className={selectedRankHeading ? "mt-0.5" : undefined}>
+                <RankPair
+                  guName={regionName}
+                  dongName={dongLabel}
+                  gu={data?.area?.gu}
+                  dong={data?.area?.dong}
+                  empty={DECADE_RANK_UNAVAILABLE_COPY}
+                />
               </div>
             </div>
           ) : null}
