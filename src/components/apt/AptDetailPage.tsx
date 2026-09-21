@@ -262,12 +262,12 @@ export function AptDetailPage({
     const ids = [
       "market",
       "trades",
+      "calculator",
       "region-rank",
       "comparison",
       "nearby-life",
       "nearby-sales",
       "management",
-      "calculator",
     ] as const;
     const nodes = ids
       .map((id) => document.getElementById(`section-${id}`))
@@ -573,6 +573,7 @@ export function AptDetailPage({
 
   const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
     { id: "market", label: "시세 · 거래", show: true },
+    { id: "calculator", label: "세금, 대출 계산", show: true },
     { id: "region-rank", label: "지역 내 비교", show: true },
     { id: "comparison", label: "주변 단지 비교", show: true },
     { id: "nearby-life", label: "주변 생활", show: true },
@@ -582,7 +583,6 @@ export function AptDetailPage({
       label: "관리비",
       show: !!complexDetail?.management,
     },
-    { id: "calculator", label: "세금, 대출 계산", show: true },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
 
@@ -881,6 +881,30 @@ export function AptDetailPage({
         </div>
       </section>
 
+      <ComplexPurchaseCalculatorSection
+        complexId={identity?.complexId ?? null}
+        complexName={data.aptName}
+        areaKey={areaKey}
+        areaLabel={
+          areaKey === "all" || !selectedArea
+            ? "전체 면적"
+            : areaSelectorClosedLabel(selectedArea)
+        }
+        latestTradeMan={latestTrade?.dealAmount ?? 0}
+        exclusiveAreaMinSqm={
+          selectedArea
+            ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
+            : null
+        }
+        exclusiveAreaMaxSqm={
+          selectedArea
+            ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
+            : null
+        }
+        regionSlug={regionSlug}
+        locationLabel={locationLabel}
+      />
+
       <ComplexRegionRankSection
         complexId={identity?.complexId ?? null}
         regionSlug={regionSlug}
@@ -953,30 +977,6 @@ export function AptDetailPage({
           />
         </div>
       ) : null}
-
-      <ComplexPurchaseCalculatorSection
-        complexId={identity?.complexId ?? null}
-        complexName={data.aptName}
-        areaKey={areaKey}
-        areaLabel={
-          areaKey === "all" || !selectedArea
-            ? "전체 면적"
-            : areaSelectorClosedLabel(selectedArea)
-        }
-        latestTradeMan={latestTrade?.dealAmount ?? 0}
-        exclusiveAreaMinSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
-        exclusiveAreaMaxSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
-        regionSlug={regionSlug}
-        locationLabel={locationLabel}
-      />
     </div>
   );
 }
