@@ -338,29 +338,31 @@ const afterReady = await scalar(
 );
 if (afterReady !== beforeReady + filled) throw new Error(`ready ${afterReady} expected ${beforeReady + filled}`);
 
-const schoolIds = fills.map((row) => row.complex_id);
-const schoolPath = resolve(outDir, "school-delta-newly-coordinate-ready.json");
-writeFileSync(
-  schoolPath,
-  JSON.stringify({ purpose: "SCHOOL_NEARBY_DELTA_ONLY", count: schoolIds.length, complex_ids: schoolIds }, null, 2) + "\n",
-);
-const materializePath = resolve("data/cache/living/national-new-complexes.jsonl");
-mkdirSync(dirname(materializePath), { recursive: true });
-writeFileSync(
-  materializePath,
-  fills
-    .map((row) =>
-      JSON.stringify({
-        complex_id: row.complex_id,
-        apt_name: row.apt_name,
-        sido: row.sido,
-        sido_code: row.sido_code,
-        latitude: row.latitude_text,
-        longitude: row.longitude_text,
-      }),
-    )
-    .join("\n") + (fills.length ? "\n" : ""),
-);
+if (fills.length > 0) {
+  const schoolIds = fills.map((row) => row.complex_id);
+  const schoolPath = resolve(outDir, "school-delta-newly-coordinate-ready.json");
+  writeFileSync(
+    schoolPath,
+    JSON.stringify({ purpose: "SCHOOL_NEARBY_DELTA_ONLY", count: schoolIds.length, complex_ids: schoolIds }, null, 2) + "\n",
+  );
+  const materializePath = resolve("data/cache/living/national-new-complexes.jsonl");
+  mkdirSync(dirname(materializePath), { recursive: true });
+  writeFileSync(
+    materializePath,
+    fills
+      .map((row) =>
+        JSON.stringify({
+          complex_id: row.complex_id,
+          apt_name: row.apt_name,
+          sido: row.sido,
+          sido_code: row.sido_code,
+          latitude: row.latitude_text,
+          longitude: row.longitude_text,
+        }),
+      )
+      .join("\n") + "\n",
+  );
+}
 const result = {
   filled,
   updates: 0,
@@ -369,7 +371,7 @@ const result = {
   unrelated,
   applySeconds: Number(((Date.now() - applyStarted) / 1000).toFixed(3)),
   schoolArtifact: "data/poc/living/school-delta-newly-coordinate-ready.json",
-  schoolCount: schoolIds.length,
+  schoolCount: fills.length,
 };
 writeFileSync(resolve(outDir, "national-parcel-ingest-result.json"), JSON.stringify(result, null, 2) + "\n");
 process.stdout.write(`${JSON.stringify(result)}\n`);
