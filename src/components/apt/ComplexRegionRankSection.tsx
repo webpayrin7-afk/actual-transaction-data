@@ -133,7 +133,7 @@ export function ComplexRegionRankSection({
 
       <div className="mt-3">
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-          <div className="flex min-w-0 items-center gap-0.5">
+          <div className="flex min-w-0 items-center">
             <h3 className="text-sm font-semibold leading-5 text-slate-900">
               {ZIPLAB_RANK_TITLE}
             </h3>

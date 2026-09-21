@@ -112,7 +112,7 @@ export function ComplexCommerceStats({
             반경 {radiusKm} · {snapshot.sourcePeriodLabel}
           </span>
         </div>
-        <div className="mt-1.5 flex items-end gap-1.5">
+        <div className="mt-1.5 flex items-end">
           <p className="text-[28px] font-bold leading-none tracking-tight text-[#1e3a5f] tabular-nums">
             {formatCommerceCount(snapshot.p2Total)}
             <span className="ml-0.5 text-[15px] font-semibold text-slate-700">
@@ -300,7 +300,7 @@ export function ComplexCommerceMeta({
       : `${snapshot.radiusM}m`;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] text-slate-600">
+    <div className="flex flex-wrap items-center gap-y-0.5 text-[12px] text-slate-600">
       <span>
         반경 {radiusKm} · {snapshot.sourcePeriodLabel}
       </span>

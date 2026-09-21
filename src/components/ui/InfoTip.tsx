@@ -89,7 +89,11 @@ export function InfoTip({
     ) : null;
 
   return (
-    <span className="relative z-10 inline-flex shrink-0 align-middle">
+    <span
+      className={`relative z-10 inline-flex shrink-0 align-middle ${
+        trigger ? "" : "ml-[0.25em]"
+      }`}
+    >
       <button
         ref={buttonRef}
         type="button"
@@ -109,7 +113,29 @@ export function InfoTip({
           className="absolute -inset-y-2.5 -left-1 -right-2.5"
           aria-hidden
         />
-        {trigger ?? <span aria-hidden="true">ⓘ</span>}
+        {trigger ?? (
+          <svg
+            viewBox="0 0 16 16"
+            className="block h-[1em] w-[1em]"
+            aria-hidden="true"
+          >
+            <circle
+              cx="8"
+              cy="8"
+              r="6.25"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.25"
+            />
+            <circle cx="8" cy="5.15" r="0.75" fill="currentColor" />
+            <path
+              d="M8 7.15v4.15"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
       </button>
       {panel}
     </span>

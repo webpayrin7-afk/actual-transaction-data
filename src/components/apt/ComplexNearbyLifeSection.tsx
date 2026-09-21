@@ -174,7 +174,7 @@ const LIVING_LIST_SUBTITLE = "가까운 순 · 주요 시설";
 
 function LivingDistanceSubtitle() {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
+    <span className="inline-flex shrink-0 items-center text-[11px] text-slate-500">
       <span>{LIVING_LIST_SUBTITLE}</span>
       <InfoTip aria-label="생활 시설 거리 기준 안내" className="text-[11px]">
         <p className="text-[12px] leading-relaxed text-slate-600">
@@ -1380,7 +1380,7 @@ export function ComplexNearbyLifeSection({
         <div className="min-w-0">
           <h2 className="flex items-center">
             주변 생활
-            <InfoTip aria-label="주변 생활 출처 안내" className="ml-0.5 text-[13px]">
+            <InfoTip aria-label="주변 생활 출처 안내" className="text-[13px]">
               <p className="text-[12px] leading-relaxed text-slate-600">
                 지도: NAVER Maps
                 <br />

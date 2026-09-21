@@ -146,14 +146,14 @@ export function RegionLeaderboard({
       </div>
 
       {tab === "COMPOSITE" ? (
-        <div className="mt-3 flex items-center gap-1 text-[13px] font-medium text-slate-600">
+        <div className="mt-3 flex items-center text-[13px] font-medium text-slate-600">
           <span>집랩 종합랭킹</span>
           <InfoTip aria-label="집랩 종합랭킹 안내">
             <p>{activeTab?.hint}</p>
           </InfoTip>
         </div>
       ) : activeTab?.hint ? (
-        <div className="mt-3 flex items-center gap-1 text-[12px] text-slate-500">
+        <div className="mt-3 flex items-center text-[12px] text-slate-500">
           <span>{tab === "TRADE_VOLUME" ? "최근 3개월 매매" : "최근 3개월 중위값"}</span>
           <InfoTip aria-label={`${activeTab.label} 기준 안내`}>
             <p>{activeTab.hint}</p>
