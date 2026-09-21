@@ -62,7 +62,7 @@ function RankRow({
 }) {
   return (
     <div className={RANK_GRID}>
-      <p className="truncate text-[13px] leading-5 text-slate-600">{label}</p>
+      <p className="truncate text-[15px] leading-5 text-slate-600">{label}</p>
       <RankValue place={gu} regionName={guName} empty={empty} />
       <RankValue place={dong} regionName={dongName} empty={empty} />
     </div>
@@ -175,14 +175,14 @@ export function ComplexRegionRankSection({
           <div className="mt-2">
             <div className={RANK_GRID}>
               <span />
-              <p className="truncate text-[11px] leading-4 text-slate-500">
+              <p className="truncate text-[13px] leading-5 text-slate-500">
                 {regionName}
               </p>
-              <p className="truncate text-[11px] leading-4 text-slate-500">
+              <p className="truncate text-[13px] leading-5 text-slate-500">
                 {dongLabel}
               </p>
             </div>
-            <div className="mt-1.5 space-y-2.5">
+            <div className="mt-1.5 space-y-4">
               <RankRow
                 label="종합"
                 guName={regionName}
