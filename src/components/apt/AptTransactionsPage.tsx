@@ -261,7 +261,7 @@ export function AptTransactionsPage({
     const qs = new URLSearchParams({ region: regionSlug });
     if (gu?.trim()) qs.set("gu", gu.trim());
     if (resolvedAreaKey) qs.set("area", resolvedAreaKey);
-    return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
+    return `/apt/${aptName}?${qs.toString()}`;
   }, [aptName, regionSlug, gu, resolvedAreaKey]);
 
   const syncUrl = useCallback(
@@ -278,7 +278,7 @@ export function AptTransactionsPage({
       });
       if (gu?.trim()) qs.set("gu", gu.trim());
       router.replace(
-        `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`,
+        `/apt/${aptName}/transactions?${qs.toString()}`,
         { scroll: false },
       );
     },
