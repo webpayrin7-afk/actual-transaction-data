@@ -21,7 +21,7 @@ import {
   type ComplexRankPlace,
 } from "@/lib/region-ranking/public";
 
-const RANK_GRID = "grid grid-cols-[4.25rem_minmax(0,1fr)_minmax(0,1fr)] items-center gap-x-2";
+const RANK_GRID = "grid grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)] items-center gap-x-2";
 
 function RankValue({
   place,
@@ -185,7 +185,7 @@ export function ComplexRegionRankSection({
             </div>
             <div className="detail-after-title detail-rows">
               <RankRow
-                label="종합"
+                label="종합 순위"
                 guName={regionName}
                 dongName={dongLabel}
                 gu={data?.all?.gu}
@@ -194,7 +194,7 @@ export function ComplexRegionRankSection({
               />
               {showDecade ? (
                 <RankRow
-                  label={decadeLabel}
+                  label={`${decadeLabel} 순위`}
                   guName={regionName}
                   dongName={dongLabel}
                   gu={data?.area?.gu}

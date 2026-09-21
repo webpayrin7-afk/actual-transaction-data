@@ -16,21 +16,21 @@ import {
   type PricePositionBodyV21,
 } from "./price-position-v21";
 import {
-  METHODOLOGY_FINGERPRINT_V23,
-  PRICE_POSITION_V23_VERSION,
+  METHODOLOGY_FINGERPRINT_V231,
+  PRICE_POSITION_V231_VERSION,
   pricePositionStorageBand,
-  pricePositionV23SnapshotId,
-  REGION_TREND_DEFINITION_V23,
+  pricePositionV231SnapshotId,
+  REGION_TREND_DEFINITION_V231,
 } from "./price-position-v23";
 import { decadeCohortByKey } from "./ranking-v3";
 
 /**
- * Public read pointer is V2.3.
- * Missing V2.3 is unavailable. V2 / V2.1 / V2.2 rows stay stored and are never a fallback.
+ * Public read pointer is V2.3.1.
+ * Missing V2.3.1 is unavailable. V2 / V2.1 / V2.2 / V2.3 stay stored and are never a fallback.
  */
-export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V23_VERSION;
+export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V231_VERSION;
 export const PRICE_POSITION_PUBLIC_AS_OF = PRICE_POSITION_V21_AS_OF;
-const PUBLIC_SNAPSHOT_ID = pricePositionV23SnapshotId();
+const PUBLIC_SNAPSHOT_ID = pricePositionV231SnapshotId();
 
 export function seoulGuName(lawdCd: string): string | null {
   for (const region of SEOUL_REGIONS) {
@@ -116,7 +116,7 @@ export async function readComplexPricePosition(
     if (body.complexExactByMarketLabel == null) body.complexExactByMarketLabel = {};
     if (body.selectedMarketPyeongLabel === undefined) body.selectedMarketPyeongLabel = null;
     if (body.complexScopeBasis == null) body.complexScopeBasis = "decade_cohort";
-    body.version = PRICE_POSITION_V23_VERSION as typeof body.version;
+    body.version = PRICE_POSITION_V231_VERSION as typeof body.version;
     (body as { snapshotId?: string }).snapshotId = PUBLIC_SNAPSHOT_ID;
 
     const selectedLabel =
@@ -127,7 +127,7 @@ export async function readComplexPricePosition(
         : null;
     if (selectedLabel != null) {
       body = applyExactComplexMarketLabel(body, selectedLabel, "exact");
-      body.version = PRICE_POSITION_V23_VERSION as typeof body.version;
+      body.version = PRICE_POSITION_V231_VERSION as typeof body.version;
     }
     return { kind: "body", body };
   }
@@ -144,7 +144,7 @@ export async function readComplexPricePosition(
   const cohort = decadeCohortByKey(storageBand);
   const unavailable = {
     status: "unavailable",
-    version: PRICE_POSITION_V23_VERSION,
+    version: PRICE_POSITION_V231_VERSION,
     snapshotId: PUBLIC_SNAPSHOT_ID,
     complexId: query.complexId,
     aptName: row.apt_name == null ? null : String(row.apt_name),
@@ -159,10 +159,10 @@ export async function readComplexPricePosition(
     priceLevelDefinition: PRICE_LEVEL_DEFINITION_V21,
     complexPriceDefinition: COMPLEX_PRICE_DEFINITION_V21,
     complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label",
-    regionTrendDefinition: REGION_TREND_DEFINITION_V23,
+    regionTrendDefinition: REGION_TREND_DEFINITION_V231,
     areaBasis: "SUPPLY_PYEONG_LABEL",
     pyeongLabelVersion: "canonical-supply-pyeong-round-v1",
-    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V23,
+    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V231,
     methodologyCopy: {
       price: PRICE_COPY_V21,
       trend: TREND_COPY_V21,
@@ -176,4 +176,9 @@ export async function readComplexPricePosition(
   return { kind: "body", body: unavailable };
 }
 
-export { PRICE_POSITION_AS_OF, PRICE_POSITION_V2_VERSION, PRICE_POSITION_V21_VERSION, PRICE_POSITION_V23_VERSION };
+export {
+  PRICE_POSITION_AS_OF,
+  PRICE_POSITION_V2_VERSION,
+  PRICE_POSITION_V21_VERSION,
+  PRICE_POSITION_V231_VERSION,
+};

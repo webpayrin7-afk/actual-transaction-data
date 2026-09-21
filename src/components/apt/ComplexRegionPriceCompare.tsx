@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import {
+  PARTIAL_HISTORY_TIP,
   PRICE_COMPARE_TABS,
   PRICE_COMPARE_TIP,
   PRICE_COMPARE_TIP_TITLE,
@@ -17,6 +18,7 @@ import {
   fetchComplexPricePosition,
   formatSignedPct,
   formatWonPerPyeong,
+  isTrendHorizonUnavailable,
   partialHistoryHelperCopy,
   priceCompareMetaLine,
   priceCompareRowCopy,
@@ -209,15 +211,17 @@ function TrendBars({
       {maxAbs != null && maxAbs > 0 ? <TrendScale maxAbs={maxAbs} /> : null}
       <ul className="space-y-2">
         {cells.map((cell, index) => {
-          const hiddenBar = cell.status !== "ok";
+          const unavailable = isTrendHorizonUnavailable(cell);
           const value = cell.changePercent;
-          const layout = hiddenBar ? { side: "none" as const, pct: 0 } : trendBarLayout(value, maxAbs);
-          const up = !hiddenBar && value != null && value > 0;
-          const down = !hiddenBar && value != null && value < 0;
-          const sampleLabel = trendSampleStatusLabel({
-            scope: cell.scope,
-            sampleStatus: cell.sampleStatus,
-          });
+          const layout = unavailable ? { side: "none" as const, pct: 0 } : trendBarLayout(value, maxAbs);
+          const up = !unavailable && value != null && value > 0;
+          const down = !unavailable && value != null && value < 0;
+          const sampleLabel = unavailable
+            ? null
+            : trendSampleStatusLabel({
+                scope: cell.scope,
+                sampleStatus: cell.sampleStatus,
+              });
           const scopeLabel = priceCompareScopeLabel({
             scope: cell.scope,
             label: cell.label,
@@ -233,9 +237,11 @@ function TrendBars({
               >
                 {scopeLabel}
               </span>
-              {hiddenBar ? (
-                <p className="min-w-0 flex-1 text-[12px] leading-4 text-slate-500">
-                  {priceCompareRowCopy(cell.status)}
+              {unavailable ? (
+                <p className="detail-meta min-w-0 flex-1">
+                  {cell.status != null && cell.status !== "ok"
+                    ? priceCompareRowCopy(cell.status)
+                    : "—"}
                 </p>
               ) : (
                 <>
@@ -315,7 +321,7 @@ export function ComplexRegionPriceCompare({
     marketPyeongLabel > 0;
 
   const query = useQuery({
-    queryKey: ["complex-region-price-position-v23", complexId, exclusiveArea, marketPyeongLabel],
+    queryKey: ["complex-region-price-position-v231", complexId, exclusiveArea, marketPyeongLabel],
     queryFn: () =>
       fetchComplexPricePosition({
         complexId,
@@ -391,7 +397,7 @@ export function ComplexRegionPriceCompare({
                 onClick={() => setTab(item.id)}
                 className={labSecondaryTabClass(
                   tab === item.id,
-                  "!h-8 min-h-8 min-w-0 flex-1 !px-4 whitespace-nowrap text-[13px]",
+                  "!h-8 min-h-8 min-w-0 flex-1 !px-4 whitespace-nowrap",
                 )}
               >
                 {item.label}
@@ -414,7 +420,7 @@ export function ComplexRegionPriceCompare({
                   onClick={() => setPeriod(item.id)}
                   className={labSecondaryTabClass(
                     period === item.id,
-                    "!h-8 min-h-8 min-w-0 flex-1 !px-3 whitespace-nowrap text-[13px]",
+                    "!h-8 min-h-8 min-w-0 flex-1 !px-3 whitespace-nowrap",
                   )}
                 >
                   {item.label}
@@ -424,7 +430,12 @@ export function ComplexRegionPriceCompare({
           ) : null}
 
           {tab === "trend" && historyHelper ? (
-            <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{historyHelper}</p>
+            <p className="detail-meta mt-1.5 inline-flex items-center">
+              <span>{historyHelper}</span>
+              <InfoTip aria-label="일부 기간 기준 안내" className="detail-caption">
+                <p>{PARTIAL_HISTORY_TIP}</p>
+              </InfoTip>
+            </p>
           ) : null}
 
           <PriceCompareChart key={chartKey} replayKey={chartKey} className="detail-chart-gap">

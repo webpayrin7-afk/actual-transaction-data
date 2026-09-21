@@ -511,18 +511,35 @@ export const PRICE_POSITION_V2_VERSION = "price-position-v2";
 export const PRICE_POSITION_V21_VERSION = "price-position-v2.1";
 export const PRICE_POSITION_V22_VERSION = "price-position-v2.2";
 export const PRICE_POSITION_V23_VERSION = "price-position-v2.3";
+export const PRICE_POSITION_V231_VERSION = "price-position-v2.3.1";
 export const LABEL_AMBIGUOUS_COPY = "이 면적은 평형 라벨이 여러 개라 비교하지 않아요.";
 
-export const TREND_SAMPLE_THIN_COPY = "표본 적음";
-export const TREND_SAMPLE_VERY_THIN_COPY = "표본 매우 적음";
+export const TREND_SAMPLE_LIMITED_COPY = "표본 제한";
+export const TREND_SAMPLE_SEVERELY_LIMITED_COPY = "참고용";
 export const TREND_SAMPLE_TIP_TITLE = "표본 안내";
 export const TREND_SAMPLE_TIP = [
-  "해당 기간에 양 시점 모두 거래가 확인된 같은 평형대 단지들을 기준으로 계산합니다.",
-  "비교 가능한 단지가 적은 경우 실제 지역 흐름과 차이가 있을 수 있습니다.",
+  "같은 지역·평형대에서 현재와 과거 가격을 모두 비교할 수 있는 단지들을 기준으로 계산합니다.",
+  "비교할 수 있는 단지가 적을수록 실제 지역 흐름과 차이가 날 수 있습니다.",
 ].join("\n\n");
 
-export type TrendSampleStatus = "ADEQUATE" | "THIN" | "VERY_THIN";
+/** Forbidden legacy copy — never render these. */
+export const TREND_SAMPLE_FORBIDDEN_COPY = [
+  "표본 적음",
+  "표본 매우 적음",
+  "비교 표본 제한",
+] as const;
+
+export type TrendSampleStatus =
+  | "SAMPLE_ADEQUATE"
+  | "SAMPLE_LIMITED"
+  | "SAMPLE_SEVERELY_LIMITED"
+  | "HORIZON_UNAVAILABLE";
 export type TrendWindowStatus = "FULL_WINDOW" | "PARTIAL_HISTORY_WINDOW";
+
+/** Unified partial-window user label. Technical enum stays out of the UI. */
+export const PARTIAL_HISTORY_COPY = "일부 기간 기준";
+export const PARTIAL_HISTORY_TIP =
+  "전체 비교기간의 데이터가 없어 확보된 기간을 기준으로 계산했어요.";
 
 export function unavailableBoardCopy(_type?: RankingType): {
   title: string;
@@ -561,15 +578,16 @@ export const COMPLEX_EXACT_TIP = "이 단지는 선택한 평형만 사용합니
 export const ZIPLAB_RANK_TITLE = "집랩 순위";
 export const ZIPLAB_RANK_TIP_TITLE = "집랩 순위란?";
 export const ZIPLAB_RANK_TIP = [
-  "실거래 가격, 거래량, 거래 지속성, 가격 흐름, 단지 규모 등을 종합해 같은 지역 내 단지의 상대적인 위치를 나타냅니다.",
-  "종합은 단지 전체를, 평형대 순위는 현재 선택한 평형이 속한 평형대를 기준으로 계산합니다.",
+  "거래 가격과 같은 지역·평형대 안에서의 상대적인 위치를 종합해, 단지가 지역 안에서 어느 정도인지 보여줍니다.",
+  "종합은 단지 전체를, 평형대 순위는 현재 선택한 평형이 속한 평형대를 기준으로 합니다.",
 ].join("\n\n");
 
 export const PRICE_COMPARE_TITLE = "가격 비교";
-export const PRICE_COMPARE_TIP_TITLE = "지역 가격 비교란?";
+export const PRICE_COMPARE_TIP_TITLE = "가격 비교란?";
 export const PRICE_COMPARE_TIP = [
-  "이 단지는 현재 선택한 평형의 실거래 가격을 기준으로 하고, 지역은 같은 평형대 단지들의 실거래 가격을 기준으로 비교합니다.",
-  "평당가는 공급면적 기준입니다.",
+  "현재 가격 수준과 기간별 변동률을 같은 지역·평형대 기준으로 비교합니다.",
+  "이 단지는 선택한 평형의 실거래 가격을 쓰고, 지역 값은 같은 평형대 단지들의 실거래 가격을 기준으로 합니다.",
+  "지역 변동률은 같은 지역·평형대에서 현재와 과거 가격을 모두 비교할 수 있는 동일 단지들의 변동률 중앙값이에요.",
 ].join("\n\n");
 
 export type PriceCompareStatus =
@@ -656,7 +674,14 @@ function asPriceCells(raw: unknown): PriceLevelPublicCell[] {
 }
 
 function asSampleStatus(value: unknown): TrendSampleStatus | null {
-  if (value === "ADEQUATE" || value === "THIN" || value === "VERY_THIN") return value;
+  if (
+    value === "SAMPLE_ADEQUATE" ||
+    value === "SAMPLE_LIMITED" ||
+    value === "SAMPLE_SEVERELY_LIMITED" ||
+    value === "HORIZON_UNAVAILABLE"
+  ) {
+    return value;
+  }
   return null;
 }
 
@@ -732,6 +757,11 @@ export function isPricePositionV23(raw: unknown): boolean {
   return asString((raw as Record<string, unknown>).version) === PRICE_POSITION_V23_VERSION;
 }
 
+export function isPricePositionV231(raw: unknown): boolean {
+  if (!raw || typeof raw !== "object") return false;
+  return asString((raw as Record<string, unknown>).version) === PRICE_POSITION_V231_VERSION;
+}
+
 export function parseComplexPricePosition(
   raw: unknown,
   complexId: string,
@@ -751,7 +781,7 @@ function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionR
     statusRaw === "unavailable"
       ? statusRaw
       : "unavailable";
-  if (version !== PRICE_POSITION_V23_VERSION) {
+  if (version !== PRICE_POSITION_V231_VERSION) {
     return emptyPricePosition(complexId, status === "PRICE_COMPARE_UNSUPPORTED_AREA" ? status : "unavailable");
   }
   const trendsRaw = data.trends && typeof data.trends === "object"
@@ -965,14 +995,16 @@ export function rankingSelectedHeading(params: {
   return decade ? `${decade} 순위` : null;
 }
 
-/** Region-trend sample badge only. COMPLEX never shows a badge. ADEQUATE is silent. */
+/** Region-trend sample badge only. COMPLEX never shows a badge. ADEQUATE / UNAVAILABLE are silent. */
 export function trendSampleStatusLabel(params: {
   scope: string | null | undefined;
   sampleStatus: TrendSampleStatus | string | null | undefined;
 }): string | null {
   if (params.scope === "COMPLEX") return null;
-  if (params.sampleStatus === "THIN") return TREND_SAMPLE_THIN_COPY;
-  if (params.sampleStatus === "VERY_THIN") return TREND_SAMPLE_VERY_THIN_COPY;
+  if (params.sampleStatus === "SAMPLE_LIMITED") return TREND_SAMPLE_LIMITED_COPY;
+  if (params.sampleStatus === "SAMPLE_SEVERELY_LIMITED") {
+    return TREND_SAMPLE_SEVERELY_LIMITED_COPY;
+  }
   return null;
 }
 
@@ -987,24 +1019,29 @@ export function monthsInYearMonthWindow(raw: string | null | undefined): number 
 }
 
 /**
- * Muted helper when the selected horizon is a partial history window.
- * Horizon label and month count come from the selected tab + API windows.
+ * Horizon-level partial-history helper. One short label when any cell is partial.
+ * Does not repeat per row. Technical enum stays out of the UI.
  */
 export function partialHistoryHelperCopy(params: {
   horizonLabel: string;
   cells: ReadonlyArray<Pick<TrendPublicCell, "windowStatus" | "currentWindow" | "baselineWindow">>;
 }): string | null {
-  const partial = params.cells.find((cell) => cell.windowStatus === "PARTIAL_HISTORY_WINDOW");
+  const partial = params.cells.some((cell) => cell.windowStatus === "PARTIAL_HISTORY_WINDOW");
   if (!partial) return null;
-  const months =
-    monthsInYearMonthWindow(partial.currentWindow) ??
-    monthsInYearMonthWindow(partial.baselineWindow);
   const horizon = params.horizonLabel.trim();
-  if (!horizon) return null;
-  if (months != null && months > 0) {
-    return `${horizon} 변동률은 확보된 이력 범위에 맞춰 양 시점 ${months}개월씩 비교합니다.`;
-  }
-  return `${horizon} 변동률은 확보된 이력 범위에 맞춰 비교합니다.`;
+  if (!horizon) return PARTIAL_HISTORY_COPY;
+  return `${horizon} · ${PARTIAL_HISTORY_COPY}`;
+}
+
+/** True when a trend cell should render as empty (never 0%). */
+export function isTrendHorizonUnavailable(cell: {
+  status?: string | null;
+  changePercent?: number | null;
+  sampleStatus?: string | null;
+}): boolean {
+  if (cell.sampleStatus === "HORIZON_UNAVAILABLE") return true;
+  if (cell.status != null && cell.status !== "ok") return true;
+  return cell.changePercent == null || !Number.isFinite(cell.changePercent);
 }
 
 /** Right-side meta for 가격 비교: "30평대 기준 · 2026.09 기준". No selected 평. */

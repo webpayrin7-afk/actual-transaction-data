@@ -16,10 +16,14 @@ import {
   PRICE_LEVEL_TIP,
   PRICE_POSITION_V21_VERSION,
   PRICE_POSITION_V23_VERSION,
-  TREND_SAMPLE_THIN_COPY,
+  PRICE_POSITION_V231_VERSION,
+  TREND_SAMPLE_FORBIDDEN_COPY,
+  TREND_SAMPLE_LIMITED_COPY,
+  TREND_SAMPLE_SEVERELY_LIMITED_COPY,
   TREND_SAMPLE_TIP,
   TREND_SAMPLE_TIP_TITLE,
-  TREND_SAMPLE_VERY_THIN_COPY,
+  PARTIAL_HISTORY_COPY,
+  PARTIAL_HISTORY_TIP,
   RANKING_TABS,
   RANKING_TYPES,
   RANK_PREPARING_COPY,
@@ -69,10 +73,12 @@ import {
   trendEndpointFallbackNote,
   trendHorizonFallbackNotes,
   trendSampleStatusLabel,
+  isTrendHorizonUnavailable,
   unavailableBoardCopy,
   type ComplexRankPlace,
   type RegionRankingRow,
 } from "../src/lib/region-ranking/public";
+import { SAMPLE_CONFIDENCE_VERSION } from "../src/lib/region-ranking/sample-confidence-v2";
 
 function assert(cond: unknown, msg: string) {
   if (!cond) throw new Error(msg);
@@ -446,11 +452,15 @@ assert(
 assert(ZIPLAB_RANK_TITLE === "집랩 순위", "ranking subtitle");
 assert(PRICE_COMPARE_TITLE === "가격 비교", "price subtitle");
 assert(ZIPLAB_RANK_TIP_TITLE === "집랩 순위란?", "rank tip title");
-assert(PRICE_COMPARE_TIP_TITLE === "지역 가격 비교란?", "price tip title");
-assert(ZIPLAB_RANK_TIP.includes("실거래 가격, 거래량, 거래 지속성"), "rank tip signals");
+assert(PRICE_COMPARE_TIP_TITLE === "가격 비교란?", "price tip title");
+assert(ZIPLAB_RANK_TIP.includes("거래 가격"), "rank tip signals price");
+assert(ZIPLAB_RANK_TIP.includes("평형대"), "rank tip names decade cohort");
 assert(!ZIPLAB_RANK_TIP.includes("인기"), "no popularity signal");
 assert(!ZIPLAB_RANK_TIP.includes("조회수"), "no views signal");
 assert(!ZIPLAB_RANK_TIP.includes("관심도"), "no interest signal");
+assert(!ZIPLAB_RANK_TIP.includes("fingerprint"), "no internal fingerprint");
+assert(!ZIPLAB_RANK_TIP.includes("가장 정확한"), "no overclaim");
+assert(!ZIPLAB_RANK_TIP.includes("투자가치"), "no investment claim");
 assert(
   priceCompareScopeLabel({ scope: "COMPLEX", label: "이 단지", aptName: "잠실엘스" }) === "잠실엘스",
   "COMPLEX uses apt name",
@@ -469,7 +479,9 @@ assert(
 );
 assert(PRICE_COMPARE_TIP.includes("선택한 평형"), "price tip uses selected 평 for complex");
 assert(PRICE_COMPARE_TIP.includes("같은 평형대"), "price tip uses decade for region");
-assert(PRICE_COMPARE_TIP.includes("공급면적"), "price tip names supply pyeong");
+assert(PRICE_COMPARE_TIP.includes("변동률 중앙값"), "price tip names regional median semantics");
+assert(!PRICE_COMPARE_TIP.includes("canonical"), "no internal canonical term");
+assert(!PRICE_COMPARE_TIP.includes("공급면적"), "price tip does not lead with supply jargon");
 
 const v1Rejected = parseComplexPricePosition(
   {
@@ -544,10 +556,23 @@ const v22Rejected = parseComplexPricePosition(
 );
 assert(v22Rejected.status === "unavailable", "V2.2 is not a fallback");
 
-const v23Body = parseComplexPricePosition(
+const v23Rejected = parseComplexPricePosition(
   {
     status: "ok",
     version: PRICE_POSITION_V23_VERSION,
+    trends: {
+      "1Y": [{ scope: "DONG", changePercent: 5.03, status: "ok", sampleStatus: "THIN" }],
+    },
+  },
+  "cx_4c63d9a100973c60",
+);
+assert(v23Rejected.status === "unavailable", "V2.3 is not a fallback");
+assert(v23Rejected.trends["1Y"].length === 0, "V2.3 sample grades stay hidden");
+
+const v231Body = parseComplexPricePosition(
+  {
+    status: "ok",
+    version: PRICE_POSITION_V231_VERSION,
     complexId: "cx_4c63d9a100973c60",
     aptName: "잠실엘스",
     supplyPyeongCohort: "30평대",
@@ -555,6 +580,7 @@ const v23Body = parseComplexPricePosition(
     complexScopeBasis: "exact_market_pyeong_label",
     referenceMonth: "2026-09",
     areaBasis: "SUPPLY_PYEONG_LABEL",
+    sampleConfidenceVersion: SAMPLE_CONFIDENCE_VERSION,
     methodologyCopy: {
       price: PRICE_LEVEL_TIP,
       trend: TREND_TIP,
@@ -572,7 +598,7 @@ const v23Body = parseComplexPricePosition(
           scope: "DONG",
           changePercent: 1.2,
           status: "ok",
-          sampleStatus: "THIN",
+          sampleStatus: "SAMPLE_LIMITED",
           windowStatus: "FULL_WINDOW",
           currentWindow: "2026-04..2026-09",
           baselineWindow: "2025-10..2026-03",
@@ -585,7 +611,8 @@ const v23Body = parseComplexPricePosition(
           label: "잠실동",
           changePercent: 5.03,
           status: "ok",
-          sampleStatus: "THIN",
+          sampleStatus: "SAMPLE_ADEQUATE",
+          windowStatus: "FULL_WINDOW",
           matchedComplexCount: 8,
           matchedCoverageRatio: 0.6154,
         },
@@ -594,15 +621,17 @@ const v23Body = parseComplexPricePosition(
           label: "송파구",
           changePercent: 20.84,
           status: "ok",
-          sampleStatus: "ADEQUATE",
+          sampleStatus: "SAMPLE_ADEQUATE",
+          windowStatus: "FULL_WINDOW",
           matchedComplexCount: 76,
         },
         {
           scope: "SEOUL",
           label: "서울",
-          changePercent: 12.38,
+          changePercent: 12.4,
           status: "ok",
-          sampleStatus: "ADEQUATE",
+          sampleStatus: "SAMPLE_ADEQUATE",
+          windowStatus: "FULL_WINDOW",
           matchedComplexCount: 1622,
         },
       ],
@@ -619,13 +648,37 @@ const v23Body = parseComplexPricePosition(
       ],
       "5Y": [
         {
-          scope: "SEOUL",
-          changePercent: 32.21,
+          scope: "DONG",
+          changePercent: 45.71,
           status: "ok",
-          sampleStatus: "ADEQUATE",
+          sampleStatus: "SAMPLE_LIMITED",
           windowStatus: "PARTIAL_HISTORY_WINDOW",
           currentWindow: "2026-07..2026-09",
           baselineWindow: "2021-07..2021-09",
+        },
+        {
+          scope: "GU",
+          changePercent: 27.17,
+          status: "ok",
+          sampleStatus: "SAMPLE_LIMITED",
+          windowStatus: "PARTIAL_HISTORY_WINDOW",
+          currentWindow: "2026-07..2026-09",
+          baselineWindow: "2021-07..2021-09",
+        },
+        {
+          scope: "SEOUL",
+          changePercent: 7.83,
+          status: "ok",
+          sampleStatus: "SAMPLE_ADEQUATE",
+          windowStatus: "PARTIAL_HISTORY_WINDOW",
+          currentWindow: "2026-07..2026-09",
+          baselineWindow: "2021-07..2021-09",
+        },
+        {
+          scope: "COMPLEX",
+          changePercent: null,
+          status: "unavailable",
+          sampleStatus: "HORIZON_UNAVAILABLE",
         },
       ],
       "3M": [{ scope: "COMPLEX", changePercent: -1.34, status: "ok" }],
@@ -634,56 +687,98 @@ const v23Body = parseComplexPricePosition(
   },
   "cx_4c63d9a100973c60",
 );
-assert(v23Body.version === "price-position-v2.3", "V2.3 pointer only");
-assert(v23Body.selectedMarketPyeongLabel === 33, "exact 33평 from API");
-assert(v23Body.supplyPyeongCohort === "30평대", "region cohort from API");
-assert(v23Body.complexScopeBasis === "exact_market_pyeong_label", "complex is exact label");
-assert(v23Body.priceLevel[0]?.meanPricePerSupplyPyeong === 10075.7576, "Els 33평 API price");
-assert(v23Body.referenceMonth === "2026-09", "reference month from API");
-assert(v23Body.trends["1Y"][0]?.changePercent === 0.91, "Els 1Y complex");
-assert(v23Body.trends["1Y"][1]?.changePercent === 5.03, "Els 1Y dong V2.3");
-assert(v23Body.trends["1Y"][2]?.changePercent === 20.84, "Els 1Y gu V2.3");
-assert(v23Body.trends["1Y"][3]?.changePercent === 12.38, "Els 1Y seoul V2.3");
-assert(v23Body.trends["1Y"][1]?.sampleStatus === "THIN", "dong 1Y THIN");
-assert(v23Body.trends["1Y"][2]?.sampleStatus === "ADEQUATE", "gu 1Y ADEQUATE");
-assert(v23Body.trends["1Y"][3]?.sampleStatus === "ADEQUATE", "seoul 1Y ADEQUATE");
-assert(!("3M" in v23Body.trends), "parsed trends drop 3M");
-assert(!("3Y" in v23Body.trends), "parsed trends drop 3Y");
-assert(v23Body.methodologyCopy.price === PRICE_LEVEL_TIP, "API methodology price copy");
-assert(v23Body.methodologyCopy.trend === TREND_TIP, "API methodology trend copy");
+assert(v231Body.version === "price-position-v2.3.1", "V2.3.1 pointer only");
+assert(v231Body.selectedMarketPyeongLabel === 33, "exact 33평 from API");
+assert(v231Body.supplyPyeongCohort === "30평대", "region cohort from API");
+assert(v231Body.complexScopeBasis === "exact_market_pyeong_label", "complex is exact label");
+assert(v231Body.priceLevel[0]?.meanPricePerSupplyPyeong === 10075.7576, "Els 33평 API price");
+assert(v231Body.referenceMonth === "2026-09", "reference month from API");
+assert(v231Body.trends["1Y"][0]?.changePercent === 0.91, "Els 1Y complex");
+assert(v231Body.trends["1Y"][1]?.changePercent === 5.03, "Els 1Y dong V2.3.1");
+assert(v231Body.trends["1Y"][2]?.changePercent === 20.84, "Els 1Y gu V2.3.1");
+assert(v231Body.trends["1Y"][3]?.changePercent === 12.4, "Els 1Y seoul V2.3.1");
+assert(v231Body.trends["1Y"][1]?.sampleStatus === "SAMPLE_ADEQUATE", "dong 1Y ADEQUATE");
+assert(v231Body.trends["1Y"][2]?.sampleStatus === "SAMPLE_ADEQUATE", "gu 1Y ADEQUATE");
+assert(v231Body.trends["1Y"][3]?.sampleStatus === "SAMPLE_ADEQUATE", "seoul 1Y ADEQUATE");
+assert(v231Body.trends["5Y"][0]?.changePercent === 45.71, "Els 5Y dong");
+assert(v231Body.trends["5Y"][0]?.sampleStatus === "SAMPLE_LIMITED", "dong 5Y LIMITED");
+assert(v231Body.trends["5Y"][0]?.windowStatus === "PARTIAL_HISTORY_WINDOW", "dong 5Y partial");
+assert(v231Body.trends["5Y"][1]?.changePercent === 27.17, "Els 5Y gu");
+assert(v231Body.trends["5Y"][2]?.changePercent === 7.83, "Els 5Y seoul");
+assert(v231Body.trends["5Y"][2]?.sampleStatus === "SAMPLE_ADEQUATE", "seoul 5Y ADEQUATE");
+assert(!("3M" in v231Body.trends), "parsed trends drop 3M");
+assert(!("3Y" in v231Body.trends), "parsed trends drop 3Y");
+assert(v231Body.methodologyCopy.price === PRICE_LEVEL_TIP, "API methodology price copy");
+assert(v231Body.methodologyCopy.trend === TREND_TIP, "API methodology trend copy");
 
-assert(trendSampleStatusLabel({ scope: "COMPLEX", sampleStatus: "THIN" }) == null, "complex has no sample badge");
-assert(trendSampleStatusLabel({ scope: "DONG", sampleStatus: "ADEQUATE" }) == null, "ADEQUATE is silent");
-assert(trendSampleStatusLabel({ scope: "DONG", sampleStatus: "THIN" }) === TREND_SAMPLE_THIN_COPY, "THIN copy");
 assert(
-  trendSampleStatusLabel({ scope: "GU", sampleStatus: "VERY_THIN" }) === TREND_SAMPLE_VERY_THIN_COPY,
-  "VERY_THIN copy",
+  trendSampleStatusLabel({ scope: "COMPLEX", sampleStatus: "SAMPLE_LIMITED" }) == null,
+  "complex has no sample badge",
 );
+assert(
+  trendSampleStatusLabel({ scope: "DONG", sampleStatus: "SAMPLE_ADEQUATE" }) == null,
+  "ADEQUATE is silent",
+);
+assert(
+  trendSampleStatusLabel({ scope: "DONG", sampleStatus: "SAMPLE_LIMITED" }) ===
+    TREND_SAMPLE_LIMITED_COPY,
+  "LIMITED copy",
+);
+assert(
+  trendSampleStatusLabel({ scope: "GU", sampleStatus: "SAMPLE_SEVERELY_LIMITED" }) ===
+    TREND_SAMPLE_SEVERELY_LIMITED_COPY,
+  "SEVERELY_LIMITED copy",
+);
+assert(
+  trendSampleStatusLabel({ scope: "SEOUL", sampleStatus: "HORIZON_UNAVAILABLE" }) == null,
+  "HORIZON_UNAVAILABLE has no sample badge",
+);
+assert(TREND_SAMPLE_LIMITED_COPY === "표본 제한", "limited label");
+assert(TREND_SAMPLE_SEVERELY_LIMITED_COPY === "참고용", "severely limited label");
+assert(!TREND_SAMPLE_FORBIDDEN_COPY.some((copy) => TREND_SAMPLE_TIP.includes(copy)), "tip avoids forbidden copy");
 assert(TREND_SAMPLE_TIP_TITLE === "표본 안내", "sample tip title");
-assert(TREND_SAMPLE_TIP.includes("양 시점 모두 거래"), "sample tip explains matched window");
+assert(TREND_SAMPLE_TIP.includes("같은 지역·평형대"), "sample tip explains regional matched set");
 assert(!TREND_SAMPLE_TIP.includes("8/13"), "sample tip has no counts");
 assert(!TREND_SAMPLE_TIP.includes("%"), "sample tip has no coverage %");
 assert(monthsInYearMonthWindow("2026-07..2026-09") === 3, "partial 5Y window is 3 months");
 assert(monthsInYearMonthWindow("2026-04..2026-09") === 6, "full 6M window is 6 months");
+assert(PARTIAL_HISTORY_COPY === "일부 기간 기준", "unified partial copy");
 assert(
-  partialHistoryHelperCopy({ horizonLabel: "5년", cells: v23Body.trends["5Y"] }) ===
-    "5년 변동률은 확보된 이력 범위에 맞춰 양 시점 3개월씩 비교합니다.",
-  "5Y partial helper",
+  partialHistoryHelperCopy({ horizonLabel: "5년", cells: v231Body.trends["5Y"] }) ===
+    "5년 · 일부 기간 기준",
+  "5Y partial helper once per horizon",
 );
+assert(PARTIAL_HISTORY_TIP.includes("확보된 기간"), "partial tip explains window");
 assert(
-  partialHistoryHelperCopy({ horizonLabel: "6개월", cells: v23Body.trends["6M"] }) == null,
+  partialHistoryHelperCopy({ horizonLabel: "6개월", cells: v231Body.trends["6M"] }) == null,
   "FULL_WINDOW has no helper",
 );
 assert(
-  partialHistoryHelperCopy({ horizonLabel: "1년", cells: v23Body.trends["1Y"] }) == null,
-  "missing windowStatus has no helper",
+  partialHistoryHelperCopy({ horizonLabel: "1년", cells: v231Body.trends["1Y"] }) == null,
+  "1Y full window has no helper",
+);
+assert(
+  isTrendHorizonUnavailable({
+    status: "unavailable",
+    changePercent: null,
+    sampleStatus: "HORIZON_UNAVAILABLE",
+  }),
+  "HORIZON_UNAVAILABLE renders empty",
+);
+assert(
+  !isTrendHorizonUnavailable({
+    status: "ok",
+    changePercent: 7.83,
+    sampleStatus: "SAMPLE_ADEQUATE",
+  }),
+  "available trend keeps its value",
 );
 
-const s1Note = trendEndpointFallbackNote(v23Body.trends["2Y"][0]!);
+const s1Note = trendEndpointFallbackNote(v231Body.trends["2Y"][0]!);
 assert(s1Note === "비교월 2024.09 → 2024.08", `S1 note ${s1Note}`);
 assert(!String(s1Note).includes("오류"), "S1 is metadata, not an error");
-assert(trendHorizonFallbackNotes(v23Body.trends["2Y"]).join("|") === "비교월 2024.09 → 2024.08", "horizon S1 notes");
-assert(trendHorizonFallbackNotes(v23Body.trends["6M"]).length === 0, "exact month has no fallback note");
+assert(trendHorizonFallbackNotes(v231Body.trends["2Y"]).join("|") === "비교월 2024.09 → 2024.08", "horizon S1 notes");
+assert(trendHorizonFallbackNotes(v231Body.trends["6M"]).length === 0, "exact month has no fallback note");
 
 const elsPrice = [
   { status: "ok", value: 10075.8 },
@@ -728,7 +823,7 @@ assert(
 const sparseKept = parseComplexPricePosition(
   {
     status: "ok",
-    version: PRICE_POSITION_V23_VERSION,
+    version: PRICE_POSITION_V231_VERSION,
     supplyPyeongCohort: "30평대",
     selectedMarketPyeongLabel: 33,
     priceLevel: [
@@ -768,8 +863,9 @@ assert(
   rankSection.includes("detail-subsection-title"),
   "집랩 순위 uses the detail subsection title",
 );
-assert(rankSection.includes('label="종합"'), "overall is a row, not a section title");
-assert(!rankSection.includes("종합 순위"), "no overall subsection heading");
+assert(rankSection.includes('label="종합 순위"'), "overall is a rank row");
+assert(rankSection.includes(" 순위"), "decade row appends 순위");
+assert(!rankSection.includes('label="종합"'), "no bare 종합 row label");
 assert(!rankSection.includes("rankingSelectedHeading"), "no decade subsection heading");
 assert(rankSection.includes("rankingDecadeRowLabel"), "decade row from API");
 assert(rankSection.includes("formatRankingAsOf"), "ranking date stays on 집랩 순위");
@@ -820,13 +916,18 @@ assert(globalsCss.includes("price-compare-bar-grow"), "bar grow keyframes exist"
 assert(globalsCss.includes("prefers-reduced-motion"), "reduced motion is respected");
 assert(priceCompare.includes("TREND_PERIOD_TABS"), "keeps 6M/1Y/2Y/5Y");
 assert(!priceCompare.includes('"3Y"'), "no 3Y period");
-assert(priceCompare.includes("complex-region-price-position-v23"), "v23 query key");
+assert(priceCompare.includes("complex-region-price-position-v231"), "v2.3.1 query key");
 assert(priceCompare.includes("trendSampleStatusLabel"), "trend sample status only");
 assert(priceCompare.includes("partialHistoryHelperCopy"), "partial history helper");
+assert(priceCompare.includes("PARTIAL_HISTORY_TIP"), "partial tip separate from sample tip");
+assert(priceCompare.includes("isTrendHorizonUnavailable"), "unavailable horizons stay empty");
 assert(priceCompare.includes("TREND_SAMPLE_TIP"), "sample tooltip is separate");
 assert(!priceCompare.includes("matchedComplexCount"), "UI does not render matched counts");
 assert(!priceCompare.includes("matchedCoverageRatio"), "UI does not render coverage %");
 assert(!priceCompare.includes("8/13"), "no raw fraction");
+assert(!priceCompare.includes("표본 적음"), "forbidden thin copy absent");
+assert(!priceCompare.includes("표본 매우 적음"), "forbidden very thin copy absent");
+assert(!priceCompare.includes("비교 표본 제한"), "forbidden coverage copy absent");
 assert(
   priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") <
     priceCompare.lastIndexOf("PRICE_COMPARE_TABS.map") &&
@@ -858,9 +959,21 @@ const priceRead = readFileSync(
   resolve(import.meta.dirname, "../src/lib/region-ranking/price-position-read.ts"),
   "utf8",
 );
-assert(priceRead.includes("PRICE_POSITION_V23_VERSION"), "read pointer is V2.3");
-assert(priceRead.includes("pricePositionV23SnapshotId"), "reads V2.3 snapshot");
+assert(priceRead.includes("PRICE_POSITION_V231_VERSION"), "read pointer is V2.3.1");
+assert(priceRead.includes("pricePositionV231SnapshotId"), "reads V2.3.1 snapshot");
 assert(!priceRead.includes("pricePositionV21SnapshotId"), "does not read V2.1 snapshot");
+assert(!priceRead.includes("pricePositionV23SnapshotId()"), "does not read V2.3 snapshot as public");
+assert(priceRead.includes("PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V231_VERSION"), "public pointer is V2.3.1");
+
+const sampleConfidence = readFileSync(
+  resolve(import.meta.dirname, "../src/lib/region-ranking/sample-confidence-v2.ts"),
+  "utf8",
+);
+assert(sampleConfidence.includes('SAMPLE_CONFIDENCE_VERSION = "sample-confidence-v2"'), "confidence v2 version");
+assert(sampleConfidence.includes("표본 제한"), "limited copy");
+assert(sampleConfidence.includes("참고용"), "severely limited copy");
+assert(!sampleConfidence.includes("표본 적음"), "no legacy thin copy");
+assert(!sampleConfidence.includes("표본 매우 적음"), "no legacy very thin copy");
 
 const infoTip = readFileSync(
   resolve(import.meta.dirname, "../src/components/ui/InfoTip.tsx"),
