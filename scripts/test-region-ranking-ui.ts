@@ -25,12 +25,14 @@ import {
   formatWonPerPyeong,
   formatWonPerSqm,
   parseComplexPricePosition,
+  parseMarketPyeongLabelParam,
   placeHeadline,
   priceCompareRowCopy,
   priceCompareStatusCopy,
   priceLevelScale,
   rankingBandForArea,
   rankingSelectedHeading,
+  selectedMarketPyeongInteger,
   selectedPyeongCompareLines,
   rankingBandForExclusiveRange,
   rankingComplexHref,
@@ -306,11 +308,13 @@ assert(!PRICE_LEVEL_TIP.includes("평균"), "price tip never says 평균");
 assert(!TREND_TIP.includes("시세 변동률"), "do not assert 시세 변동률");
 
 assert(formatWonPerSqm(5303) === "5,303만원/㎡", "만원/㎡");
-assert(formatWonPerPyeong(10075.8) === "1억 76만원/평", `els v2.1 ${formatWonPerPyeong(10075.8)}`);
-assert(formatWonPerPyeong(10142) === "1억 142만원/평", "dong display");
-assert(formatWonPerPyeong(6741.6) === "6,742만원/평", "gu display");
-assert(formatWonPerPyeong(3575) === "3,575만원/평", "seoul display");
-assert(formatReferenceMonthLabel("2026-09") === "2026년 9월 기준", "reference month from API");
+assert(formatWonPerPyeong(10075.7576) === "10,076만원/평", `els 33평 ${formatWonPerPyeong(10075.7576)}`);
+assert(formatWonPerPyeong(10075.8) === "10,076만원/평", `els rounded ${formatWonPerPyeong(10075.8)}`);
+assert(formatWonPerPyeong(9706) === "9,706만원/평", "만원/평 no eok");
+assert(formatWonPerPyeong(5766) === "5,766만원/평", "gu 만원/평");
+assert(formatWonPerPyeong(2809) === "2,809만원/평", "seoul 만원/평");
+assert(!String(formatWonPerPyeong(10075.7576)).includes("억"), "compare UI never uses 억");
+assert(formatReferenceMonthLabel("2026-08") === "2026년 8월 기준", "reference month from API");
 assert(formatReferenceMonthLabel(null) === null, "no hardcoded month");
 assert(formatSignedPct(3.42) === "+3.42%", "33평 6M complex");
 assert(formatSignedPct(0.91) === "+0.91%", "33평 1Y complex");
@@ -318,25 +322,42 @@ assert(formatSignedPct(23.15) === "+23.15%", "33평 2Y complex");
 assert(formatSignedPct(32.21) === "+32.21%", "33평 5Y complex");
 assert(formatSignedPct(0) === "0%", "true zero stays signed only as 0%");
 
+assert(selectedMarketPyeongInteger({ marketLabel: 33 }) === 33, "selector marketLabel 33");
+assert(selectedMarketPyeongInteger({ marketLabel: 25 }) === 25, "selector marketLabel 25");
+assert(selectedMarketPyeongInteger({ marketLabel: 45 }) === 45, "selector marketLabel 45");
+assert(
+  selectedMarketPyeongInteger({ selectedPyeongLabel: "33평" }) === 33,
+  "selector confirmed 33평 label",
+);
+assert(
+  selectedMarketPyeongInteger({ marketLabel: 33, selectedPyeongLabel: "34평" }) === 33,
+  "marketLabel wins over a rematched 34평",
+);
+assert(selectedMarketPyeongInteger({ selectedPyeongLabel: "84㎡" }) === null, "no 84㎡→평");
+assert(selectedMarketPyeongInteger({}) === null, "no invented pyeong");
+assert(parseMarketPyeongLabelParam("33") === 33, "API param 33");
+assert(parseMarketPyeongLabelParam("34.2") === 34, "API param rounds");
+assert(parseMarketPyeongLabelParam("0") === null, "reject zero label");
+
 const els25 = selectedPyeongCompareLines({
   selectedPyeongLabel: "25평",
   supplyPyeongCohort: "20평대",
-  referenceMonth: "2026-09",
+  referenceMonth: "2026-08",
 });
 assert(els25.line1 === "이 단지 25평 · 20평대 비교", `25평 copy ${els25.line1}`);
 const els33 = selectedPyeongCompareLines({
-  selectedPyeongLabel: "84㎡",
-  selectedMarketPyeongLabel: 33,
+  selectedPyeongLabel: "33평",
+  selectedMarketPyeongLabel: 34,
   supplyPyeongCohort: "30평대",
-  referenceMonth: "2026-09",
+  referenceMonth: "2026-08",
 });
 assert(els33.line1 === "이 단지 33평 · 30평대 비교", `33평 copy ${els33.line1}`);
-assert(!String(els33.line1).includes("84"), "no exclusive ㎡ as selected 평");
-assert(els33.line2 === "2026년 9월 기준", "month stays on API");
+assert(!String(els33.line1).includes("34평"), "selector 33평 wins over rematched 34평");
+assert(els33.line2 === "2026년 8월 기준", "month stays on API");
 const els45 = selectedPyeongCompareLines({
   selectedPyeongLabel: "45평",
   supplyPyeongCohort: "40평대",
-  referenceMonth: "2026-09",
+  referenceMonth: "2026-08",
 });
 assert(els45.line1 === "이 단지 45평 · 40평대 비교", `45평 copy ${els45.line1}`);
 assert(!String(els45.line1).includes("45평대"), "never 45평대 비교");
@@ -397,14 +418,14 @@ const v21Body = parseComplexPricePosition(
     supplyPyeongCohort: "30평대",
     selectedMarketPyeongLabel: 33,
     complexScopeBasis: "exact_market_pyeong_label",
-    referenceMonth: "2026-09",
+    referenceMonth: "2026-08",
     areaBasis: "SUPPLY_PYEONG_LABEL",
     methodologyCopy: {
       price: PRICE_LEVEL_TIP,
       trend: TREND_TIP,
     },
     priceLevel: [
-      { scope: "COMPLEX", label: "이 단지", meanPricePerSupplyPyeong: 10075.8, status: "ok" },
+      { scope: "COMPLEX", label: "이 단지", meanPricePerSupplyPyeong: 10075.7576, status: "ok" },
       { scope: "DONG", label: "잠실동", meanPricePerSupplyPyeong: 10142, status: "ok" },
       { scope: "GU", label: "송파구", meanPricePerSupplyPyeong: 6741.6, status: "ok" },
       { scope: "SEOUL", label: "서울", meanPricePerSupplyPyeong: 3575, status: "ok" },
@@ -434,7 +455,8 @@ assert(v21Body.version === "price-position-v2.1", "V2.1 pointer only");
 assert(v21Body.selectedMarketPyeongLabel === 33, "exact 33평 from API");
 assert(v21Body.supplyPyeongCohort === "30평대", "region cohort from API");
 assert(v21Body.complexScopeBasis === "exact_market_pyeong_label", "complex is exact label");
-assert(v21Body.priceLevel[0]?.meanPricePerSupplyPyeong === 10075.8, "Els 33평 API price");
+assert(v21Body.priceLevel[0]?.meanPricePerSupplyPyeong === 10075.7576, "Els 33평 API price");
+assert(v21Body.referenceMonth === "2026-08", "reference month from API");
 assert(v21Body.trends["6M"][0]?.changePercent === 3.42, "Els 6M API");
 assert(v21Body.trends["1Y"][0]?.changePercent === 0.91, "Els 1Y API");
 assert(v21Body.trends["2Y"][0]?.changePercent === 23.15, "Els 2Y API");

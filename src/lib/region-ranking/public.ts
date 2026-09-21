@@ -308,17 +308,37 @@ export function formatWonPerSqm(value: unknown): string | null {
   return `${Math.round(n).toLocaleString("ko-KR")}만원/㎡`;
 }
 
-/** Display-only 평당가. Does not convert or invent the source number. */
+/** Display-only 평당가. Always 만원/평 — no 억 conversion. */
 export function formatWonPerPyeong(value: unknown): string | null {
   const n = finiteNumber(value);
   if (n == null || n <= 0) return null;
-  const eok = Math.floor(n / 10000);
-  const rest = Math.round(n % 10000);
-  if (eok >= 1) {
-    if (rest === 0) return `${eok}억/평`;
-    return `${eok}억 ${rest.toLocaleString("ko-KR")}만원/평`;
-  }
   return `${Math.round(n).toLocaleString("ko-KR")}만원/평`;
+}
+
+/**
+ * Selector-confirmed market pyeong only.
+ * Does not re-round exclusive or supply area.
+ */
+export function selectedMarketPyeongInteger(params: {
+  marketLabel?: number | null;
+  selectedPyeongLabel?: string | null;
+}): number | null {
+  const fromLabel = params.marketLabel;
+  if (fromLabel != null && Number.isFinite(fromLabel) && fromLabel > 0) {
+    return Math.round(fromLabel);
+  }
+  const match = /^(\d+)평$/.exec(params.selectedPyeongLabel?.trim() ?? "");
+  if (!match) return null;
+  const n = Number(match[1]);
+  return n > 0 ? n : null;
+}
+
+export function parseMarketPyeongLabelParam(raw: string | null | undefined): number | null {
+  if (!raw?.trim()) return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const label = Math.round(n);
+  return label > 0 ? label : null;
 }
 
 export function formatSignedPct(value: unknown): string | null {
@@ -715,10 +735,12 @@ function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionR
 export async function fetchComplexPricePosition(params: {
   complexId: string;
   exclusiveArea: number;
+  marketPyeongLabel: number;
 }): Promise<ComplexPricePositionResponse> {
   const qs = new URLSearchParams({
     complex_id: params.complexId,
     exclusive_area: String(params.exclusiveArea),
+    market_pyeong_label: String(params.marketPyeongLabel),
   });
   const res = await fetch(`/api/complex-region-price-position?${qs.toString()}`);
   if (!res.ok) {
@@ -772,11 +794,13 @@ export function selectedPyeongCompareLines(params: {
   supplyPyeongCohort: string | null;
   referenceMonth: string | null;
 }): { line1: string | null; line2: string | null } {
+  const fromSelector = params.selectedPyeongLabel?.trim() || null;
+  const selectorPyeong = fromSelector && /^\d+평$/.test(fromSelector) ? fromSelector : null;
   const fromApi =
     params.selectedMarketPyeongLabel != null && params.selectedMarketPyeongLabel > 0
       ? `${Math.round(params.selectedMarketPyeongLabel)}평`
       : null;
-  const selected = fromApi ?? (params.selectedPyeongLabel?.trim() || null);
+  const selected = selectorPyeong ?? fromApi ?? fromSelector;
   const cohort = supplyCohortCompareLabel(params.supplyPyeongCohort);
   const month = formatReferenceMonthLabel(params.referenceMonth);
   const monthShort = formatReferenceMonthShort(params.referenceMonth);

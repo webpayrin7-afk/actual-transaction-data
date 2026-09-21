@@ -6,6 +6,7 @@ import {
   PRICE_POSITION_PUBLIC_VERSION,
   readComplexPricePosition,
 } from "@/lib/region-ranking/price-position-read";
+import { parseMarketPyeongLabelParam } from "@/lib/region-ranking/public";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,9 @@ export async function GET(request: NextRequest) {
   const complexId = request.nextUrl.searchParams.get("complex_id")?.trim() ?? "";
   const areaBandRaw = request.nextUrl.searchParams.get("area_band")?.trim() ?? "";
   const exclusiveRaw = request.nextUrl.searchParams.get("exclusive_area")?.trim() ?? "";
+  const marketPyeongLabel = parseMarketPyeongLabelParam(
+    request.nextUrl.searchParams.get("market_pyeong_label"),
+  );
   if (!/^cx_[0-9a-f]{16}$/.test(complexId)) {
     return NextResponse.json({ error: "complex_id가 필요합니다." }, { status: 400 });
   }
@@ -58,6 +62,7 @@ export async function GET(request: NextRequest) {
       complexId,
       areaBand,
       exclusiveArea,
+      marketPyeongLabel,
     });
     if (found.kind === "missing" || found.kind === "outside-seoul") {
       return NextResponse.json({

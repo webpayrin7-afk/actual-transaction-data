@@ -160,22 +160,30 @@ function TrendBars({
 export function ComplexRegionPriceCompare({
   complexId,
   exclusiveArea,
+  marketPyeongLabel,
   selectedPyeongLabel,
 }: {
   complexId: string;
   exclusiveArea: number | null;
+  marketPyeongLabel: number | null;
   selectedPyeongLabel: string | null;
 }) {
   const [tab, setTab] = useState<PriceCompareTab>("level");
   const [period, setPeriod] = useState<TrendPeriodId>("6M");
-  const enabled = exclusiveArea != null && Number.isFinite(exclusiveArea) && exclusiveArea > 0;
+  const enabled =
+    exclusiveArea != null &&
+    Number.isFinite(exclusiveArea) &&
+    exclusiveArea > 0 &&
+    marketPyeongLabel != null &&
+    marketPyeongLabel > 0;
 
   const query = useQuery({
-    queryKey: ["complex-region-price-position-v21", complexId, exclusiveArea],
+    queryKey: ["complex-region-price-position-v21", complexId, exclusiveArea, marketPyeongLabel],
     queryFn: () =>
       fetchComplexPricePosition({
         complexId,
         exclusiveArea: exclusiveArea!,
+        marketPyeongLabel: marketPyeongLabel!,
       }),
     enabled,
     staleTime: 5 * 60_000,
@@ -186,7 +194,7 @@ export function ComplexRegionPriceCompare({
   const unsupported = !enabled || data?.status === "PRICE_COMPARE_UNSUPPORTED_AREA";
   const lines = selectedPyeongCompareLines({
     selectedPyeongLabel,
-    selectedMarketPyeongLabel: data?.selectedMarketPyeongLabel ?? null,
+    selectedMarketPyeongLabel: marketPyeongLabel ?? data?.selectedMarketPyeongLabel ?? null,
     supplyPyeongCohort: data?.supplyPyeongCohort ?? null,
     referenceMonth: data?.referenceMonth ?? null,
   });
@@ -221,7 +229,7 @@ export function ComplexRegionPriceCompare({
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("mt-2 !flex-nowrap")} w-full`}
+            className={`${labSegmentedClass("mt-2 !flex-nowrap !gap-1")} w-full`}
             role="tablist"
             aria-label="지역 가격 비교"
           >
@@ -232,7 +240,10 @@ export function ComplexRegionPriceCompare({
                 role="tab"
                 aria-selected={tab === item.id}
                 onClick={() => setTab(item.id)}
-                className={labSecondaryTabClass(tab === item.id, "min-h-8 flex-1 px-2 text-[13px]")}
+                className={labSecondaryTabClass(
+                  tab === item.id,
+                  "min-h-8 min-w-0 flex-1 !px-1.5 whitespace-nowrap text-[12px] sm:text-[13px]",
+                )}
               >
                 {item.label}
               </button>
@@ -253,7 +264,7 @@ export function ComplexRegionPriceCompare({
 
           {tab === "trend" ? (
             <div
-              className={`${labSegmentedClass("mt-1.5 !flex-nowrap")} w-full`}
+              className={`${labSegmentedClass("mt-1.5 !flex-nowrap !gap-1")} w-full`}
               role="tablist"
               aria-label="변동률 기간"
             >
@@ -266,7 +277,7 @@ export function ComplexRegionPriceCompare({
                   onClick={() => setPeriod(item.id)}
                   className={labSecondaryTabClass(
                     period === item.id,
-                    "min-h-8 min-w-0 flex-1 px-1.5 text-[12px] sm:text-[13px]",
+                    "min-h-8 min-w-0 flex-1 !px-1 whitespace-nowrap text-[12px] sm:text-[13px]",
                   )}
                 >
                   {item.label}

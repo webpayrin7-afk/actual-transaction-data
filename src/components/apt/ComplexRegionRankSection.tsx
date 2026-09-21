@@ -14,6 +14,7 @@ import {
   rankingSelectedHeading,
   regionOverviewCtaLabel,
   regionRankingHref,
+  selectedMarketPyeongInteger,
   type AreaRankingBand,
   type ComplexRankPlace,
 } from "@/lib/region-ranking/public";
@@ -99,6 +100,10 @@ export function ComplexRegionRankSection({
     rankingBand: areaBand,
   });
   const exclusiveArea = selectedArea?.exclusiveArea ?? null;
+  const marketPyeongLabel = selectedMarketPyeongInteger({
+    marketLabel: selectedArea?.marketLabel,
+    selectedPyeongLabel,
+  });
   const id = complexId?.trim() || "";
   const enabled = /^cx_[0-9a-f]{16}$/.test(id);
 
@@ -210,6 +215,7 @@ export function ComplexRegionRankSection({
       <ComplexRegionPriceCompare
         complexId={id}
         exclusiveArea={exclusiveArea}
+        marketPyeongLabel={marketPyeongLabel}
         selectedPyeongLabel={selectedPyeongLabel}
       />
 

@@ -83,7 +83,12 @@ export async function resolveSelectedMarketPyeongLabel(
 
 export async function readComplexPricePosition(
   db: RankingReader,
-  query: { complexId: string; areaBand: RegionalAreaBandId; exclusiveArea?: number | null },
+  query: {
+    complexId: string;
+    areaBand: RegionalAreaBandId;
+    exclusiveArea?: number | null;
+    marketPyeongLabel?: number | null;
+  },
 ): Promise<
   | { kind: "missing" }
   | { kind: "outside-seoul" }
@@ -103,18 +108,14 @@ export async function readComplexPricePosition(
     if (body.selectedMarketPyeongLabel === undefined) body.selectedMarketPyeongLabel = null;
     if (body.complexScopeBasis == null) body.complexScopeBasis = "decade_cohort";
 
-    if (query.exclusiveArea != null && Number.isFinite(query.exclusiveArea)) {
-      const resolved = await resolveSelectedMarketPyeongLabel(db, {
-        complexId: query.complexId,
-        exclusiveArea: query.exclusiveArea,
-      });
-      if (resolved.kind === "exact") {
-        body = applyExactComplexMarketLabel(body, resolved.marketPyeongLabel, "exact");
-      } else if (resolved.kind === "ambiguous") {
-        body = applyExactComplexMarketLabel(body, null, "ambiguous");
-      } else {
-        body = applyExactComplexMarketLabel(body, null, "missing");
-      }
+    const selectedLabel =
+      query.marketPyeongLabel != null &&
+      Number.isFinite(query.marketPyeongLabel) &&
+      query.marketPyeongLabel > 0
+        ? Math.round(query.marketPyeongLabel)
+        : null;
+    if (selectedLabel != null) {
+      body = applyExactComplexMarketLabel(body, selectedLabel, "exact");
     }
     return { kind: "body", body };
   }
