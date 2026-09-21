@@ -1,0 +1,2020 @@
+{
+  "generated_at": "2026-09-21T04:35:29.841Z",
+  "wave": 2,
+  "region": "seoul",
+  "selected": 200,
+  "eligible_remaining": 701,
+  "excluded_wave1": 10,
+  "excluded_already_covered": 99,
+  "excluded_unsafe": 0,
+  "ready_pool": 701,
+  "bands": {
+    "A": 200,
+    "B": 0,
+    "C": 0,
+    "D": 0
+  },
+  "complexes": [
+    {
+      "complex_id": "cx_a5542c9c8c29db05",
+      "kapt_code": "A12085303",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 191,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_229d61d0a0476608",
+      "kapt_code": "A10027073",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 189,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_cd34a973a189d812",
+      "kapt_code": "A13204508",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 189,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_6edc70f3475d9d26",
+      "kapt_code": "A10026988",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 188,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_cd27c4f0c84653f9",
+      "kapt_code": "A10024098",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 187,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_dc840f30acbb3278",
+      "kapt_code": "A13613007",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 187,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e54c18c5b85e5408",
+      "kapt_code": "A10025283",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 187,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_96017b5a1aabedaa",
+      "kapt_code": "A15205305",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 186,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_271339c044af8a26",
+      "kapt_code": "A12201003",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 186,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_13006da6c89dc962",
+      "kapt_code": "A13410008",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 185,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_fe650d7f77f987c7",
+      "kapt_code": "A10025174",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 185,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_92a1eed5d6f1abd9",
+      "kapt_code": "A10024468",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 183,
+      "tx_30d": 14,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_f9468bf0429b8151",
+      "kapt_code": "A13778204",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 183,
+      "tx_30d": 11,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_18e4b96c06d12f59",
+      "kapt_code": "A14070302",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 183,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_7c8457f38b822667",
+      "kapt_code": "A10027375",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 182,
+      "tx_30d": 17,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_3a3fe7f645ac267f",
+      "kapt_code": "A12127004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 182,
+      "tx_30d": 15,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_d65ddcdf07c3b9f3",
+      "kapt_code": "A15080507",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 182,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c36e50988b1b9019",
+      "kapt_code": "A10023560",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 179,
+      "tx_30d": 21,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_26305b009843a548",
+      "kapt_code": "A10023188",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 178,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_db47f76b36ddcfde",
+      "kapt_code": "A10026941",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 178,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_aa00db8ff44e4e76",
+      "kapt_code": "A13528102",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 178,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_545cbfd74aa27b54",
+      "kapt_code": "A13380302",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 177,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_6688c94546d9e495",
+      "kapt_code": "A14383205",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 176,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_744ab760b990e900",
+      "kapt_code": "A10019970",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 175,
+      "tx_30d": 71,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_0bf6e2c391d05c18",
+      "kapt_code": "A10027816",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 174,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_4b9e83cb2dfba9e1",
+      "kapt_code": "A13510007",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 173,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_836331525ecdd550",
+      "kapt_code": "A10024131",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 172,
+      "tx_30d": 11,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_eb940fa42803b890",
+      "kapt_code": "A10026232",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 172,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_b225492e31c09cdd",
+      "kapt_code": "A15279101",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 172,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_7fc957faf395acdf",
+      "kapt_code": "A13776301",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 171,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_ea28e6e58bcfbe8c",
+      "kapt_code": "A10020253",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 171,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_9d807a0fac9cee5e",
+      "kapt_code": "A10024552",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 170,
+      "tx_30d": 14,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_4372ad7456a4d3ea",
+      "kapt_code": "A15375809",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 169,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_07fe65bb13d22e0b",
+      "kapt_code": "A10025754",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 168,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e1cfba905cd8ada9",
+      "kapt_code": "A10025133",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 167,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_500966d9278b799c",
+      "kapt_code": "A10020618",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 167,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5e967293490c8785",
+      "kapt_code": "A13886009",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 166,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_12a598be15c6bc88",
+      "kapt_code": "A10027714",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 165,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_00061802cdff3cdc",
+      "kapt_code": "A15603008",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 164,
+      "tx_30d": 11,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_9ee75ccae6efe235",
+      "kapt_code": "A13410009",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 163,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c8ecd97624efad6d",
+      "kapt_code": "A15209007",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 162,
+      "tx_30d": 14,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c39e3f3ef946a531",
+      "kapt_code": "A10024562",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 162,
+      "tx_30d": 12,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_69a4b95ec1df862d",
+      "kapt_code": "A10023633",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 162,
+      "tx_30d": 11,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5fa71177c63cf208",
+      "kapt_code": "A13380803",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 162,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_f1104af06fb68ecb",
+      "kapt_code": "A13817001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 161,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c51ff5feb64ddb73",
+      "kapt_code": "A10020222",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 161,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5024974243fc35f9",
+      "kapt_code": "A15190705",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 160,
+      "tx_30d": 12,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_4c04f2d9bdb60d71",
+      "kapt_code": "A12179503",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 159,
+      "tx_30d": 23,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_64372c056c7f6b49",
+      "kapt_code": "A13718001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 159,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_ea25c346302745fd",
+      "kapt_code": "A15720001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 159,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_30dffe7c0d4c815c",
+      "kapt_code": "A13820006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 158,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5e357943deed5fd4",
+      "kapt_code": "A13671208",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 158,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_b32a7ad2790abc61",
+      "kapt_code": "A13592604",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 157,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_52077ef3a7868731",
+      "kapt_code": "A15381706",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 155,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_53581631cd6be22a",
+      "kapt_code": "A13470503",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 154,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_1a30834175a024c1",
+      "kapt_code": "A10027433",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 153,
+      "tx_30d": 32,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_a0e1102a9a3908f4",
+      "kapt_code": "A13678401",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 153,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_0ddbf4cf296d4d0d",
+      "kapt_code": "A14009001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 152,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_81885765788e20e5",
+      "kapt_code": "A12012201",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 151,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2e2f48eb187f4ffe",
+      "kapt_code": "A13290809",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 148,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_f5d0a042ba745059",
+      "kapt_code": "A12201002",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 148,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_88d0c07de50b859b",
+      "kapt_code": "A10023079",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 148,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_44e0223e68edcd31",
+      "kapt_code": "A15210001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 145,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_8af2fdf660afea45",
+      "kapt_code": "A13811205",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 144,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_bf600e79ed5abec6",
+      "kapt_code": "A13520003",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 144,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_85734aec0d015a56",
+      "kapt_code": "A10023715",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 143,
+      "tx_30d": 24,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_3f35988f99ebae2f",
+      "kapt_code": "A13881701",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 143,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_11793fec6aea2f6b",
+      "kapt_code": "A15679108",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 143,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c249fef8087cc043",
+      "kapt_code": "A13003202",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 142,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c93bad4926b72e44",
+      "kapt_code": "A13583701",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 142,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_9fe6015a05df16f0",
+      "kapt_code": "A13613009",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 141,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e923f7ca43c8931c",
+      "kapt_code": "A10027687",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 141,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_fea6a2ae006419bb",
+      "kapt_code": "A13778205",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 140,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_0d98685fc0116b1a",
+      "kapt_code": "A15213001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 140,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_7bb0b682ca5bf945",
+      "kapt_code": "A10024440",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 140,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_44ff0e3346fc6059",
+      "kapt_code": "A15213004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 140,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_01210eca6e2ee4cc",
+      "kapt_code": "A15728004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 139,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_6adc508c196f3ecc",
+      "kapt_code": "A13785607",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 138,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_47c226357c09af8c",
+      "kapt_code": "A13812005",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 137,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_ce1e5cab96a76f44",
+      "kapt_code": "A13519005",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 137,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5a4f70e52507d357",
+      "kapt_code": "A15780401",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 136,
+      "tx_30d": 10,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_f5404e3998ae7814",
+      "kapt_code": "A13519006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 136,
+      "tx_30d": 10,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_cf8af8a3cf43a077",
+      "kapt_code": "A10027105",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 136,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_44645ecd97814c0a",
+      "kapt_code": "A13519007",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 136,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_0f97e2394ccb03e4",
+      "kapt_code": "A10025166",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 135,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_de8c53f35f16abe0",
+      "kapt_code": "A15609502",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 134,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_4592e750aa3c3e30",
+      "kapt_code": "A13410005",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 133,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_08c6a92c932dc5bd",
+      "kapt_code": "A12127005",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 132,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2ac9546421099c40",
+      "kapt_code": "A10026470",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 132,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_0fd89f8d2d21665e",
+      "kapt_code": "A10026227",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 131,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_a11e2f777d5003b1",
+      "kapt_code": "A12275202",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 130,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c9f2c3b519d43d7b",
+      "kapt_code": "A10023343",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 130,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_84fa6e9a8408e07f",
+      "kapt_code": "A13410006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 129,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_8f384687cf73e32f",
+      "kapt_code": "A13613006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 129,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_d754faa260b961ae",
+      "kapt_code": "A10024365",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 129,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_39c64fbe8fef75e3",
+      "kapt_code": "A15701602",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 128,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_857d21c897c74114",
+      "kapt_code": "A13821005",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 128,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e02035e08190d69d",
+      "kapt_code": "A13778201",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 127,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_9fb69673619373b8",
+      "kapt_code": "A13378102",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 126,
+      "tx_30d": 10,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_4a98dee4762360fb",
+      "kapt_code": "A13811203",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 126,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_4a44d23113386afc",
+      "kapt_code": "A13716002",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 125,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_bd8730d6c7dd6f30",
+      "kapt_code": "A10025913",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 124,
+      "tx_30d": 13,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_cef285d03fec1f16",
+      "kapt_code": "A13716003",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 124,
+      "tx_30d": 11,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_25434ce364c8025a",
+      "kapt_code": "A13552002",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 124,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_6d9b193fb0031366",
+      "kapt_code": "A10020085",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 124,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_816aa3d44ca161e0",
+      "kapt_code": "A12009305",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 122,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_1bc393d4290d8d94",
+      "kapt_code": "A10027912",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 122,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_7eb2a74e1e12aa2b",
+      "kapt_code": "A15213002",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 121,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c09c980f7b6f8f8f",
+      "kapt_code": "A10025823",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 120,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_35b271e3f9295c7e",
+      "kapt_code": "A13410007",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 120,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_de55f72aaf3bb627",
+      "kapt_code": "A14085501",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 118,
+      "tx_30d": 10,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_b520fb2a9bd388ca",
+      "kapt_code": "A12007001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 118,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_beb4bf81d59d81b4",
+      "kapt_code": "A12078201",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 118,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_7406c741bdcd56c7",
+      "kapt_code": "A13671209",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 118,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_459f67a22bd5aa51",
+      "kapt_code": "A13003005",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 117,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_89a4985fadb6c3c9",
+      "kapt_code": "A12172201",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 117,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_11da2b243b1bde27",
+      "kapt_code": "A10025259",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 117,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_6ae0260f869a7b0f",
+      "kapt_code": "A10026051",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 116,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_6d61671779402edd",
+      "kapt_code": "A13905302",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 116,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5ac617610fc242ae",
+      "kapt_code": "A10020305",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 116,
+      "tx_30d": 0,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_fe83657974b1bd0b",
+      "kapt_code": "A15679107",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 115,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_37f677450af47e61",
+      "kapt_code": "A13974102",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 115,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_8658d5c87b8723d0",
+      "kapt_code": "A13788208",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 114,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_9793018d413d8072",
+      "kapt_code": "A10026015",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 114,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_60d10049eaaeb05a",
+      "kapt_code": "A12290901",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 113,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_6d08f53c70c4104f",
+      "kapt_code": "A12127006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 113,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_66434d683dc3914e",
+      "kapt_code": "A13876108",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 111,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2f403b46f33a6425",
+      "kapt_code": "A13302206",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 111,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_497e4edd100262f4",
+      "kapt_code": "A13770611",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 111,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_b8ef6775fc1a2361",
+      "kapt_code": "A13070301",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 110,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_12a8ada64abf15ab",
+      "kapt_code": "A10021996",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 110,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_82ba84ac5204877e",
+      "kapt_code": "A15004406",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 109,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_f91082295855cd3c",
+      "kapt_code": "A10027439",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 109,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_90e71cef3c3f587d",
+      "kapt_code": "A15728003",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 109,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_093396b06f60a0f4",
+      "kapt_code": "A13083102",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 109,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_764652ad39a48270",
+      "kapt_code": "A13610107",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 108,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_395429fe5ffb6bb6",
+      "kapt_code": "A10026023",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 108,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_419b1cb6421af1e6",
+      "kapt_code": "A15721009",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 108,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_47d296a094699359",
+      "kapt_code": "A15076702",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 107,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_b3468f2d7a3ebc40",
+      "kapt_code": "A15721008",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 106,
+      "tx_30d": 11,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e9d85c5df9b3960a",
+      "kapt_code": "A10023669",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 106,
+      "tx_30d": 0,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_7f154f7452e01a78",
+      "kapt_code": "A10024245",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 105,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_0d0c9e37930c8f07",
+      "kapt_code": "A10022156",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 104,
+      "tx_30d": 17,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_361d791fc8270d2f",
+      "kapt_code": "A15608003",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 104,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2c6980fc1ac1c577",
+      "kapt_code": "A10024102",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 104,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5486679ba2578652",
+      "kapt_code": "A10022761",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 104,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5b24bfccdec19b2a",
+      "kapt_code": "A13410010",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 103,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_54a7c2ef2391cb91",
+      "kapt_code": "A10023709",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 102,
+      "tx_30d": 9,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_40791f0dc24583ae",
+      "kapt_code": "A13716001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 102,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5b726e4b06864253",
+      "kapt_code": "A10025600",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 102,
+      "tx_30d": 7,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_61f49a1ba1731887",
+      "kapt_code": "A13183204",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 102,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_f8a42bc5c15444bb",
+      "kapt_code": "A13410011",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 102,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_74d53f27dfe0c664",
+      "kapt_code": "A10025418",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 101,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e96fd0497113551a",
+      "kapt_code": "A10025562",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 101,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_1becf336ee8d7d1d",
+      "kapt_code": "A13876110",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 100,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_24dd585cfff6e5ec",
+      "kapt_code": "A13410004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 99,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_81fa540f3fb53c25",
+      "kapt_code": "A11081302",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 99,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c93cc14bc7aaa6ec",
+      "kapt_code": "A10022649",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 98,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_9b4eef0d953c5246",
+      "kapt_code": "A15086006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 97,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c8ba370bd1920a72",
+      "kapt_code": "A10023162",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 97,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_bdda840b5edf8f95",
+      "kapt_code": "A12114001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 97,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_dd372e619c6c7ce4",
+      "kapt_code": "A10023356",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 96,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_eab9ca806a05be85",
+      "kapt_code": "A15288004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 96,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2d405b516f4c1396",
+      "kapt_code": "A13002002",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 96,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_817585928d2c8e5d",
+      "kapt_code": "A13924004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 95,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_8a0481f5bc1175fd",
+      "kapt_code": "A15105004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 94,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_520bbeeea9ce2548",
+      "kapt_code": "A15728002",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 94,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c065d885adb95ed2",
+      "kapt_code": "A10027354",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 93,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5db9c51961726f8d",
+      "kapt_code": "A13707010",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 93,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_3404a1cd86296762",
+      "kapt_code": "A15722010",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 93,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_623d20a3b492ef89",
+      "kapt_code": "A13410012",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 93,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_972407c44c58b825",
+      "kapt_code": "A13821004",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 93,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e47c94ecfe91babb",
+      "kapt_code": "A10023825",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 92,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_5008159e06661eca",
+      "kapt_code": "A12172402",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 92,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_e01eb6f407f00d59",
+      "kapt_code": "A13991018",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 92,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_fe2beb4b7a43e10e",
+      "kapt_code": "A10026414",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 91,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_b878b6b9ce3a89bb",
+      "kapt_code": "A12187501",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 90,
+      "tx_30d": 10,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_196339171143f4c4",
+      "kapt_code": "A12174601",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 90,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_bddc2bc068c7120b",
+      "kapt_code": "A15609007",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 90,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_911641e7bb41958f",
+      "kapt_code": "A10024254",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 90,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_1bdfc83a7d8869d1",
+      "kapt_code": "A10023515",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 89,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2c8653e5eab24908",
+      "kapt_code": "A10027090",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 89,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_d361484428434c0f",
+      "kapt_code": "A10026604",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 89,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_51150ccbabcec2d4",
+      "kapt_code": "A10022093",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 89,
+      "tx_30d": 0,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_65505d4a4f801a63",
+      "kapt_code": "A10020503",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 89,
+      "tx_30d": 0,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c98fe56b8eea215d",
+      "kapt_code": "A10026350",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 88,
+      "tx_30d": 8,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_d8fd983b4d14c93f",
+      "kapt_code": "A13410003",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 88,
+      "tx_30d": 6,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_84de2b9c32e7576e",
+      "kapt_code": "A12070101",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 88,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_dc1f212134b1579c",
+      "kapt_code": "A13981405",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 88,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_0dbbaf03bd12b77d",
+      "kapt_code": "A13707006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 88,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_d7c27f2f11cb6c77",
+      "kapt_code": "A12127001",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 88,
+      "tx_30d": 1,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_8a7bb85fc0ccbc65",
+      "kapt_code": "A10022419",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 88,
+      "tx_30d": 0,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_34a10fd9194d3aac",
+      "kapt_code": "A15606007",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 87,
+      "tx_30d": 5,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_c469d8559dcf80e4",
+      "kapt_code": "A13375901",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 87,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_746a546fc6cc34e5",
+      "kapt_code": "A13821006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 86,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_693a14dd924f2ca4",
+      "kapt_code": "A15780002",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 86,
+      "tx_30d": 3,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2266a8dd81591f63",
+      "kapt_code": "A13821003",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 86,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2d7cb64e2755f304",
+      "kapt_code": "A12009202",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 86,
+      "tx_30d": 2,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_8d399c8febd87e68",
+      "kapt_code": "A12204006",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 85,
+      "tx_30d": 4,
+      "supply_ready": false
+    },
+    {
+      "complex_id": "cx_2a1177edff5ee864",
+      "kapt_code": "A10020279",
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "band": "A",
+      "tx_12m": 85,
+      "tx_30d": 2,
+      "supply_ready": false
+    }
+  ],
+  "frozen": true
+}
