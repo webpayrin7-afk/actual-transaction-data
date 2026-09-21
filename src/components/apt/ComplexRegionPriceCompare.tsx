@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import {
-  INSUFFICIENT_SAMPLE_COPY,
   PRICE_COMPARE_TABS,
   PRICE_COMPARE_UNSUPPORTED_COPY,
+  COMPLEX_EXACT_TIP,
   PRICE_LEVEL_TIP,
   TREND_PERIOD_TABS,
   TREND_TIP,
@@ -15,11 +15,13 @@ import {
   fetchComplexPricePosition,
   formatSignedPct,
   formatWonPerPyeong,
+  priceCompareRowCopy,
   priceCompareStatusCopy,
   priceLevelScale,
   selectedPyeongCompareLines,
   trendAbsScale,
   trendBarLayout,
+  trendHorizonFallbackNotes,
   type PriceCompareTab,
   type PriceLevelPublicCell,
   type TrendPeriodId,
@@ -36,9 +38,9 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
   return (
     <ul className="mt-2 space-y-2">
       {cells.map((cell) => {
-        const insufficient = cell.status === "INSUFFICIENT_SAMPLE";
+        const hiddenBar = cell.status !== "ok";
         const value = cell.meanPricePerSupplyPyeong;
-        const width = insufficient ? 0 : barWidthPct(value, scale);
+        const width = hiddenBar ? 0 : barWidthPct(value, scale);
         const accent = cell.scope === "COMPLEX";
         return (
           <li key={cell.scope} className="flex items-center gap-2">
@@ -46,7 +48,7 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
               {cell.label}
             </span>
             <div className="min-w-0 flex-1">
-              {insufficient || width <= 0 ? (
+              {hiddenBar || width <= 0 ? (
                 <div className="h-2" />
               ) : (
                 <div
@@ -57,10 +59,14 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
             </div>
             <span
               className={`w-[7.5rem] shrink-0 text-right text-[12px] leading-4 tabular-nums sm:w-36 sm:text-[13px] ${
-                accent ? "font-semibold text-slate-900" : "text-slate-600"
+                hiddenBar
+                  ? "text-slate-500"
+                  : accent
+                    ? "font-semibold text-slate-900"
+                    : "text-slate-600"
               }`}
             >
-              {insufficient ? INSUFFICIENT_SAMPLE_COPY : formatWonPerPyeong(value) ?? "—"}
+              {hiddenBar ? priceCompareRowCopy(cell.status) : formatWonPerPyeong(value) ?? "—"}
             </span>
           </li>
         );
@@ -96,19 +102,19 @@ function TrendBars({
       {maxAbs != null && maxAbs > 0 ? <TrendScale maxAbs={maxAbs} /> : null}
       <ul className="space-y-2">
         {cells.map((cell) => {
-          const insufficient = cell.status === "INSUFFICIENT_SAMPLE";
+          const hiddenBar = cell.status !== "ok";
           const value = cell.changePercent;
-          const layout = insufficient ? { side: "none" as const, pct: 0 } : trendBarLayout(value, maxAbs);
-          const up = !insufficient && value != null && value > 0;
-          const down = !insufficient && value != null && value < 0;
+          const layout = hiddenBar ? { side: "none" as const, pct: 0 } : trendBarLayout(value, maxAbs);
+          const up = !hiddenBar && value != null && value > 0;
+          const down = !hiddenBar && value != null && value < 0;
           return (
             <li key={cell.scope} className="flex items-center gap-2">
               <span className="w-12 shrink-0 truncate text-[13px] leading-4 text-slate-600">
                 {cell.label}
               </span>
-              {insufficient ? (
+              {hiddenBar ? (
                 <p className="min-w-0 flex-1 text-[12px] leading-4 text-slate-500">
-                  {INSUFFICIENT_SAMPLE_COPY}
+                  {priceCompareRowCopy(cell.status)}
                 </p>
               ) : (
                 <>
@@ -161,11 +167,11 @@ export function ComplexRegionPriceCompare({
   selectedPyeongLabel: string | null;
 }) {
   const [tab, setTab] = useState<PriceCompareTab>("level");
-  const [period, setPeriod] = useState<TrendPeriodId>("3M");
+  const [period, setPeriod] = useState<TrendPeriodId>("6M");
   const enabled = exclusiveArea != null && Number.isFinite(exclusiveArea) && exclusiveArea > 0;
 
   const query = useQuery({
-    queryKey: ["complex-region-price-position-v2", complexId, exclusiveArea],
+    queryKey: ["complex-region-price-position-v21", complexId, exclusiveArea],
     queryFn: () =>
       fetchComplexPricePosition({
         complexId,
@@ -177,17 +183,18 @@ export function ComplexRegionPriceCompare({
   });
 
   const data = query.data;
-  const unsupported =
-    !enabled ||
-    data?.status === "PRICE_COMPARE_UNSUPPORTED_AREA" ||
-    data?.status === "LABEL_AMBIGUOUS";
+  const unsupported = !enabled || data?.status === "PRICE_COMPARE_UNSUPPORTED_AREA";
   const lines = selectedPyeongCompareLines({
     selectedPyeongLabel,
+    selectedMarketPyeongLabel: data?.selectedMarketPyeongLabel ?? null,
     supplyPyeongCohort: data?.supplyPyeongCohort ?? null,
     referenceMonth: data?.referenceMonth ?? null,
   });
   const trendCells = data?.trends[period] ?? [];
   const trendScale = trendAbsScale(trendCells);
+  const priceTip = data?.methodologyCopy.price ?? PRICE_LEVEL_TIP;
+  const trendTip = data?.methodologyCopy.trend ?? TREND_TIP;
+  const fallbackNotes = trendHorizonFallbackNotes(trendCells);
 
   return (
     <div className="border-t border-slate-100 pt-2.5">
@@ -197,15 +204,19 @@ export function ComplexRegionPriceCompare({
         </h3>
         <span className="text-[12px] text-slate-500">평당가</span>
         <InfoTip aria-label={tab === "level" ? "평당가 비교 안내" : "실거래 가격 변동 안내"}>
-          <p>{tab === "level" ? PRICE_LEVEL_TIP : TREND_TIP}</p>
+          <p>{tab === "level" ? priceTip : trendTip}</p>
+          <p className="mt-1">{COMPLEX_EXACT_TIP}</p>
+          {tab === "trend" && fallbackNotes.length > 0 ? (
+            <p className="mt-1 text-slate-500">
+              {fallbackNotes.join(" · ")}
+            </p>
+          ) : null}
         </InfoTip>
       </div>
 
       {!enabled || unsupported ? (
         <p className="mt-1.5 text-[13px] leading-5 text-slate-500">
-          {data?.status === "LABEL_AMBIGUOUS"
-            ? priceCompareStatusCopy("LABEL_AMBIGUOUS").title
-            : PRICE_COMPARE_UNSUPPORTED_COPY}
+          {PRICE_COMPARE_UNSUPPORTED_COPY}
         </p>
       ) : (
         <>

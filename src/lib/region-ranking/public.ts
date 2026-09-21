@@ -470,6 +470,7 @@ export const PRICE_COMPARE_UNSUPPORTED_COPY =
   "이 면적대는 지역 가격 비교를 제공하지 않아요.";
 export const INSUFFICIENT_SAMPLE_COPY = "표본 부족";
 export const PRICE_POSITION_V2_VERSION = "price-position-v2";
+export const PRICE_POSITION_V21_VERSION = "price-position-v2.1";
 export const LABEL_AMBIGUOUS_COPY = "이 면적은 평형 라벨이 여러 개라 비교하지 않아요.";
 
 export function unavailableBoardCopy(_type?: RankingType): {
@@ -493,17 +494,18 @@ export const PRICE_COMPARE_TABS = [
 export type PriceCompareTab = (typeof PRICE_COMPARE_TABS)[number]["id"];
 
 export const TREND_PERIOD_TABS = [
-  { id: "3M", label: "3개월" },
   { id: "6M", label: "6개월" },
   { id: "1Y", label: "1년" },
-  { id: "3Y", label: "3년" },
+  { id: "2Y", label: "2년" },
+  { id: "5Y", label: "5년" },
 ] as const;
 export type TrendPeriodId = (typeof TREND_PERIOD_TABS)[number]["id"];
 
 export const PRICE_LEVEL_TIP =
-  "선택한 평형과 같은 평형대의 최근 실거래 기준 평당가를 비교합니다. 평당가는 공급면적 기준 평형으로 계산합니다.";
+  "선택한 평형대의 단지별 실거래 가격을 기준으로 지역 가격 수준을 비교합니다.";
 export const TREND_TIP =
-  "선택한 평형대에서 두 비교시점 모두 거래가 확인된 단지들의 실거래 가격 변화를 비교합니다. 지역 값은 같은 평형대에서 맞춰진 단지 기준입니다.";
+  "동일한 단지의 현재와 과거 실거래 가격을 비교해 지역 가격 변화를 계산합니다.";
+export const COMPLEX_EXACT_TIP = "이 단지는 선택한 평형만 사용합니다. 지역 값은 같은 평형대 기준입니다.";
 
 export type PriceCompareStatus =
   | "ok"
@@ -512,19 +514,25 @@ export type PriceCompareStatus =
   | "LABEL_AMBIGUOUS"
   | "unavailable";
 
+export type PriceCompareCellStatus = "ok" | "INSUFFICIENT_SAMPLE" | "unavailable";
+
 export type PriceLevelPublicCell = {
   scope: "COMPLEX" | "DONG" | "GU" | "SEOUL";
   label: string;
   meanPricePerSupplyPyeong: number | null;
   tradeCount: number | null;
-  status: "ok" | "INSUFFICIENT_SAMPLE";
+  status: PriceCompareCellStatus;
 };
 
 export type TrendPublicCell = {
   scope: "COMPLEX" | "DONG" | "GU" | "SEOUL";
   label: string;
   changePercent: number | null;
-  status: "ok" | "INSUFFICIENT_SAMPLE";
+  currentMonth: string | null;
+  baselineMonth: string | null;
+  actualCurrentMonth: string | null;
+  actualBaselineMonth: string | null;
+  status: PriceCompareCellStatus;
 };
 
 export type ComplexPricePositionResponse = {
@@ -534,9 +542,12 @@ export type ComplexPricePositionResponse = {
   aptName: string | null;
   areaBand: string | null;
   supplyPyeongCohort: string | null;
+  selectedMarketPyeongLabel: number | null;
+  complexScopeBasis: string | null;
   transactionAsOf: string | null;
   referenceMonth: string | null;
   areaBasis: string | null;
+  methodologyCopy: { price: string | null; trend: string | null };
   priceLevel: PriceLevelPublicCell[];
   trends: Record<TrendPeriodId, TrendPublicCell[]>;
   maxAvailableValue: {
@@ -544,6 +555,12 @@ export type ComplexPricePositionResponse = {
     trends: Record<TrendPeriodId, number | null>;
   };
 };
+
+function asCompareCellStatus(value: unknown): PriceCompareCellStatus {
+  if (value === "INSUFFICIENT_SAMPLE") return "INSUFFICIENT_SAMPLE";
+  if (value === "unavailable") return "unavailable";
+  return "ok";
+}
 
 function asPriceCells(raw: unknown): PriceLevelPublicCell[] {
   if (!Array.isArray(raw)) return [];
@@ -561,7 +578,7 @@ function asPriceCells(raw: unknown): PriceLevelPublicCell[] {
         label: asString(row.label) ?? scope,
         meanPricePerSupplyPyeong: finiteNumber(raw.meanPricePerSupplyPyeong),
         tradeCount: finiteNumber(row.tradeCount),
-        status: row.status === "INSUFFICIENT_SAMPLE" ? "INSUFFICIENT_SAMPLE" : "ok",
+        status: asCompareCellStatus(row.status),
       };
     })
     .filter((row): row is PriceLevelPublicCell => row != null);
@@ -577,11 +594,16 @@ function asTrendCells(raw: unknown): TrendPublicCell[] {
       if (scope !== "COMPLEX" && scope !== "DONG" && scope !== "GU" && scope !== "SEOUL") {
         return null;
       }
+      const rec = item as Record<string, unknown>;
       return {
         scope,
         label: asString(row.label) ?? scope,
         changePercent: finiteNumber(row.changePercent),
-        status: row.status === "INSUFFICIENT_SAMPLE" ? "INSUFFICIENT_SAMPLE" : "ok",
+        currentMonth: asString(rec.currentMonth),
+        baselineMonth: asString(rec.baselineMonth),
+        actualCurrentMonth: asString(rec.actualCurrentMonth),
+        actualBaselineMonth: asString(rec.actualBaselineMonth),
+        status: asCompareCellStatus(row.status),
       };
     })
     .filter((row): row is TrendPublicCell => row != null);
@@ -598,21 +620,24 @@ function emptyPricePosition(
     aptName: null,
     areaBand: null,
     supplyPyeongCohort: null,
+    selectedMarketPyeongLabel: null,
+    complexScopeBasis: null,
     transactionAsOf: null,
     referenceMonth: null,
     areaBasis: null,
+    methodologyCopy: { price: null, trend: null },
     priceLevel: [],
-    trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
+    trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
     maxAvailableValue: {
       priceLevel: null,
-      trends: { "3M": null, "6M": null, "1Y": null, "3Y": null },
+      trends: { "6M": null, "1Y": null, "2Y": null, "5Y": null },
     },
   };
 }
 
-export function isPricePositionV2(raw: unknown): boolean {
+export function isPricePositionV21(raw: unknown): boolean {
   if (!raw || typeof raw !== "object") return false;
-  return asString((raw as Record<string, unknown>).version) === PRICE_POSITION_V2_VERSION;
+  return asString((raw as Record<string, unknown>).version) === PRICE_POSITION_V21_VERSION;
 }
 
 export function parseComplexPricePosition(
@@ -634,7 +659,7 @@ function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionR
     statusRaw === "unavailable"
       ? statusRaw
       : "unavailable";
-  if (version !== PRICE_POSITION_V2_VERSION) {
+  if (version !== PRICE_POSITION_V21_VERSION) {
     return emptyPricePosition(complexId, status === "PRICE_COMPARE_UNSUPPORTED_AREA" ? status : "unavailable");
   }
   const trendsRaw = data.trends && typeof data.trends === "object"
@@ -646,30 +671,42 @@ function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionR
   const trendMaxRaw = maxRaw.trends && typeof maxRaw.trends === "object"
     ? (maxRaw.trends as Record<string, unknown>)
     : {};
+  const copyRaw = data.methodologyCopy && typeof data.methodologyCopy === "object"
+    ? (data.methodologyCopy as Record<string, unknown>)
+    : {};
+  const basis = asString(data.complexScopeBasis);
+  const resolvedStatus: PriceCompareStatus =
+    basis === "ambiguous" && status === "ok" ? "ok" : status;
   return {
-    status,
+    status: resolvedStatus,
     version,
     complexId: asString(data.complexId) ?? complexId,
     aptName: asString(data.aptName),
     areaBand: asString(data.areaBand),
     supplyPyeongCohort: asString(data.supplyPyeongCohort),
+    selectedMarketPyeongLabel: finiteNumber(data.selectedMarketPyeongLabel),
+    complexScopeBasis: basis,
     transactionAsOf: asString(data.transactionAsOf),
     referenceMonth: asString(data.referenceMonth),
     areaBasis: asString(data.areaBasis),
+    methodologyCopy: {
+      price: asString(copyRaw.price),
+      trend: asString(copyRaw.trend),
+    },
     priceLevel: asPriceCells(data.priceLevel),
     trends: {
-      "3M": asTrendCells(trendsRaw["3M"]),
       "6M": asTrendCells(trendsRaw["6M"]),
       "1Y": asTrendCells(trendsRaw["1Y"]),
-      "3Y": asTrendCells(trendsRaw["3Y"]),
+      "2Y": asTrendCells(trendsRaw["2Y"]),
+      "5Y": asTrendCells(trendsRaw["5Y"]),
     },
     maxAvailableValue: {
       priceLevel: finiteNumber(maxRaw.priceLevel),
       trends: {
-        "3M": finiteNumber(trendMaxRaw["3M"]),
         "6M": finiteNumber(trendMaxRaw["6M"]),
         "1Y": finiteNumber(trendMaxRaw["1Y"]),
-        "3Y": finiteNumber(trendMaxRaw["3Y"]),
+        "2Y": finiteNumber(trendMaxRaw["2Y"]),
+        "5Y": finiteNumber(trendMaxRaw["5Y"]),
       },
     },
   };
@@ -688,6 +725,14 @@ export async function fetchComplexPricePosition(params: {
     throw new RankingRequestError("지역 가격 비교를 불러오지 못했습니다.");
   }
   return asPricePosition(await res.json(), params.complexId);
+}
+
+export const PRICE_COMPARE_UNAVAILABLE_ROW_COPY = "준비 중";
+
+export function priceCompareRowCopy(status: PriceCompareCellStatus | string | null | undefined): string {
+  if (status === "INSUFFICIENT_SAMPLE") return INSUFFICIENT_SAMPLE_COPY;
+  if (status === "unavailable") return PRICE_COMPARE_UNAVAILABLE_ROW_COPY;
+  return "—";
 }
 
 export function priceCompareStatusCopy(status: PriceCompareStatus | string | null | undefined): {
@@ -723,21 +768,67 @@ export function supplyCohortCompareLabel(cohort: string | null | undefined): str
 /** Selected exact 평 + API cohort. Never invents 45평대 from 45평. */
 export function selectedPyeongCompareLines(params: {
   selectedPyeongLabel: string | null;
+  selectedMarketPyeongLabel?: number | null;
   supplyPyeongCohort: string | null;
   referenceMonth: string | null;
 }): { line1: string | null; line2: string | null } {
-  const selected = params.selectedPyeongLabel?.trim() || null;
+  const fromApi =
+    params.selectedMarketPyeongLabel != null && params.selectedMarketPyeongLabel > 0
+      ? `${Math.round(params.selectedMarketPyeongLabel)}평`
+      : null;
+  const selected = fromApi ?? (params.selectedPyeongLabel?.trim() || null);
   const cohort = supplyCohortCompareLabel(params.supplyPyeongCohort);
   const month = formatReferenceMonthLabel(params.referenceMonth);
   const monthShort = formatReferenceMonthShort(params.referenceMonth);
   if (selected && cohort) {
-    return { line1: `${selected} · ${cohort}`, line2: month };
+    return { line1: `이 단지 ${selected} · ${cohort}`, line2: month };
   }
   if (selected) {
     return { line1: [selected, monthShort].filter(Boolean).join(" · ") || selected, line2: null };
   }
   if (cohort) return { line1: cohort, line2: month };
   return { line1: month, line2: null };
+}
+
+function yearMonthLabel(raw: string | null | undefined): string | null {
+  const match = raw ? /^(\d{4})-(\d{2})/.exec(raw.trim()) : null;
+  if (!match) return raw?.trim() || null;
+  return `${match[1]}.${match[2]}`;
+}
+
+export function trendEndpointFallbackNote(cell: TrendPublicCell): string | null {
+  const parts: string[] = [];
+  if (
+    cell.baselineMonth &&
+    cell.actualBaselineMonth &&
+    cell.actualBaselineMonth !== cell.baselineMonth
+  ) {
+    parts.push(
+      `비교월 ${yearMonthLabel(cell.baselineMonth)} → ${yearMonthLabel(cell.actualBaselineMonth)}`,
+    );
+  }
+  if (
+    cell.currentMonth &&
+    cell.actualCurrentMonth &&
+    cell.actualCurrentMonth !== cell.currentMonth
+  ) {
+    parts.push(
+      `현재월 ${yearMonthLabel(cell.currentMonth)} → ${yearMonthLabel(cell.actualCurrentMonth)}`,
+    );
+  }
+  return parts.length ? parts.join(" · ") : null;
+}
+
+export function trendHorizonFallbackNotes(cells: readonly TrendPublicCell[]): string[] {
+  const seen = new Set<string>();
+  const notes: string[] = [];
+  for (const cell of cells) {
+    const note = trendEndpointFallbackNote(cell);
+    if (!note || seen.has(note)) continue;
+    seen.add(note);
+    notes.push(note);
+  }
+  return notes;
 }
 
 export function rankingSelectedHeading(params: {

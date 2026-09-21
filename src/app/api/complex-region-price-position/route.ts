@@ -21,8 +21,8 @@ function unsupported(complexId: string, exclusiveArea: number | null) {
     transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
     referenceMonth: null,
     priceLevel: [],
-    trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
-    maxAvailableValue: { priceLevel: null, trends: { "3M": null, "6M": null, "1Y": null, "3Y": null } },
+    trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
+    maxAvailableValue: { priceLevel: null, trends: { "6M": null, "1Y": null, "2Y": null, "5Y": null } },
   });
 }
 
@@ -54,7 +54,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "시세 저장소를 사용할 수 없습니다." }, { status: 500 });
   }
   try {
-    const found = await readComplexPricePosition(db, { complexId, areaBand });
+    const found = await readComplexPricePosition(db, {
+      complexId,
+      areaBand,
+      exclusiveArea,
+    });
     if (found.kind === "missing" || found.kind === "outside-seoul") {
       return NextResponse.json({
         status: "unavailable",
@@ -64,7 +68,7 @@ export async function GET(request: NextRequest) {
         transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
         referenceMonth: null,
         priceLevel: [],
-        trends: { "3M": [], "6M": [], "1Y": [], "3Y": [] },
+        trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
       });
     }
     return NextResponse.json(found.body);
