@@ -509,7 +509,20 @@ export const PRICE_COMPARE_UNSUPPORTED_COPY =
 export const INSUFFICIENT_SAMPLE_COPY = "표본 부족";
 export const PRICE_POSITION_V2_VERSION = "price-position-v2";
 export const PRICE_POSITION_V21_VERSION = "price-position-v2.1";
+export const PRICE_POSITION_V22_VERSION = "price-position-v2.2";
+export const PRICE_POSITION_V23_VERSION = "price-position-v2.3";
 export const LABEL_AMBIGUOUS_COPY = "이 면적은 평형 라벨이 여러 개라 비교하지 않아요.";
+
+export const TREND_SAMPLE_THIN_COPY = "표본 적음";
+export const TREND_SAMPLE_VERY_THIN_COPY = "표본 매우 적음";
+export const TREND_SAMPLE_TIP_TITLE = "표본 안내";
+export const TREND_SAMPLE_TIP = [
+  "해당 기간에 양 시점 모두 거래가 확인된 같은 평형대 단지들을 기준으로 계산합니다.",
+  "비교 가능한 단지가 적은 경우 실제 지역 흐름과 차이가 있을 수 있습니다.",
+].join("\n\n");
+
+export type TrendSampleStatus = "ADEQUATE" | "THIN" | "VERY_THIN";
+export type TrendWindowStatus = "FULL_WINDOW" | "PARTIAL_HISTORY_WINDOW";
 
 export function unavailableBoardCopy(_type?: RankingType): {
   title: string;
@@ -585,6 +598,12 @@ export type TrendPublicCell = {
   actualCurrentMonth: string | null;
   actualBaselineMonth: string | null;
   status: PriceCompareCellStatus;
+  sampleStatus: TrendSampleStatus | null;
+  windowStatus: TrendWindowStatus | null;
+  currentWindow: string | null;
+  baselineWindow: string | null;
+  matchedComplexCount: number | null;
+  matchedCoverageRatio: number | null;
 };
 
 export type ComplexPricePositionResponse = {
@@ -636,6 +655,16 @@ function asPriceCells(raw: unknown): PriceLevelPublicCell[] {
     .filter((row): row is PriceLevelPublicCell => row != null);
 }
 
+function asSampleStatus(value: unknown): TrendSampleStatus | null {
+  if (value === "ADEQUATE" || value === "THIN" || value === "VERY_THIN") return value;
+  return null;
+}
+
+function asWindowStatus(value: unknown): TrendWindowStatus | null {
+  if (value === "FULL_WINDOW" || value === "PARTIAL_HISTORY_WINDOW") return value;
+  return null;
+}
+
 function asTrendCells(raw: unknown): TrendPublicCell[] {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -656,6 +685,12 @@ function asTrendCells(raw: unknown): TrendPublicCell[] {
         actualCurrentMonth: asString(rec.actualCurrentMonth),
         actualBaselineMonth: asString(rec.actualBaselineMonth),
         status: asCompareCellStatus(row.status),
+        sampleStatus: asSampleStatus(rec.sampleStatus),
+        windowStatus: asWindowStatus(rec.windowStatus),
+        currentWindow: asString(rec.currentWindow),
+        baselineWindow: asString(rec.baselineWindow),
+        matchedComplexCount: finiteNumber(rec.matchedComplexCount),
+        matchedCoverageRatio: finiteNumber(rec.matchedCoverageRatio),
       };
     })
     .filter((row): row is TrendPublicCell => row != null);
@@ -692,6 +727,11 @@ export function isPricePositionV21(raw: unknown): boolean {
   return asString((raw as Record<string, unknown>).version) === PRICE_POSITION_V21_VERSION;
 }
 
+export function isPricePositionV23(raw: unknown): boolean {
+  if (!raw || typeof raw !== "object") return false;
+  return asString((raw as Record<string, unknown>).version) === PRICE_POSITION_V23_VERSION;
+}
+
 export function parseComplexPricePosition(
   raw: unknown,
   complexId: string,
@@ -711,7 +751,7 @@ function asPricePosition(raw: unknown, complexId: string): ComplexPricePositionR
     statusRaw === "unavailable"
       ? statusRaw
       : "unavailable";
-  if (version !== PRICE_POSITION_V21_VERSION) {
+  if (version !== PRICE_POSITION_V23_VERSION) {
     return emptyPricePosition(complexId, status === "PRICE_COMPARE_UNSUPPORTED_AREA" ? status : "unavailable");
   }
   const trendsRaw = data.trends && typeof data.trends === "object"
@@ -910,6 +950,48 @@ export function rankingSelectedHeading(params: {
 }): string | null {
   const decade = rankingDecadeRowLabel(params.rankingCohortLabel);
   return decade ? `${decade} 순위` : null;
+}
+
+/** Region-trend sample badge only. COMPLEX never shows a badge. ADEQUATE is silent. */
+export function trendSampleStatusLabel(params: {
+  scope: string | null | undefined;
+  sampleStatus: TrendSampleStatus | string | null | undefined;
+}): string | null {
+  if (params.scope === "COMPLEX") return null;
+  if (params.sampleStatus === "THIN") return TREND_SAMPLE_THIN_COPY;
+  if (params.sampleStatus === "VERY_THIN") return TREND_SAMPLE_VERY_THIN_COPY;
+  return null;
+}
+
+/** Inclusive YYYY-MM..YYYY-MM length. Used for helper copy, not displayed as raw windows. */
+export function monthsInYearMonthWindow(raw: string | null | undefined): number | null {
+  const match = /^(\d{4})-(\d{2})\.\.(\d{4})-(\d{2})$/.exec(raw?.trim() ?? "");
+  if (!match) return null;
+  const start = Number(match[1]) * 12 + Number(match[2]);
+  const end = Number(match[3]) * 12 + Number(match[4]);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return null;
+  return end - start + 1;
+}
+
+/**
+ * Muted helper when the selected horizon is a partial history window.
+ * Horizon label and month count come from the selected tab + API windows.
+ */
+export function partialHistoryHelperCopy(params: {
+  horizonLabel: string;
+  cells: ReadonlyArray<Pick<TrendPublicCell, "windowStatus" | "currentWindow" | "baselineWindow">>;
+}): string | null {
+  const partial = params.cells.find((cell) => cell.windowStatus === "PARTIAL_HISTORY_WINDOW");
+  if (!partial) return null;
+  const months =
+    monthsInYearMonthWindow(partial.currentWindow) ??
+    monthsInYearMonthWindow(partial.baselineWindow);
+  const horizon = params.horizonLabel.trim();
+  if (!horizon) return null;
+  if (months != null && months > 0) {
+    return `${horizon} 변동률은 확보된 이력 범위에 맞춰 양 시점 ${months}개월씩 비교합니다.`;
+  }
+  return `${horizon} 변동률은 확보된 이력 범위에 맞춰 비교합니다.`;
 }
 
 /** Right-side meta for 가격 비교: "30평대 기준 · 2026.09 기준". No selected 평. */

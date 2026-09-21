@@ -6,11 +6,13 @@ import {
   PRICE_POSITION_PUBLIC_VERSION,
   readComplexPricePosition,
 } from "@/lib/region-ranking/price-position-read";
+import { pricePositionStorageBand } from "@/lib/region-ranking/price-position-v23";
 import { parseMarketPyeongLabelParam } from "@/lib/region-ranking/public";
+import { decadeCohortByKey, decadeCohortForLabel } from "@/lib/region-ranking/ranking-v3";
 
 export const dynamic = "force-dynamic";
 
-const BANDS = new Set<RegionalAreaBandId>(["59", "84", "114"]);
+const LEGACY_BANDS = new Set<RegionalAreaBandId>(["59", "84", "114"]);
 
 function unsupported(complexId: string, exclusiveArea: number | null) {
   return NextResponse.json({
@@ -27,6 +29,24 @@ function unsupported(complexId: string, exclusiveArea: number | null) {
   });
 }
 
+function resolveDecadeKey(params: {
+  marketPyeongLabel: number | null;
+  areaBandRaw: string;
+  exclusiveArea: number | null;
+}): string | null {
+  if (params.marketPyeongLabel != null) {
+    return decadeCohortForLabel(params.marketPyeongLabel)?.key ?? null;
+  }
+  if (params.areaBandRaw) {
+    return pricePositionStorageBand(params.areaBandRaw);
+  }
+  if (params.exclusiveArea != null) {
+    const legacy = resolveSelectedAreaBand(params.exclusiveArea);
+    return legacy ? pricePositionStorageBand(legacy) : null;
+  }
+  return null;
+}
+
 export async function GET(request: NextRequest) {
   const complexId = request.nextUrl.searchParams.get("complex_id")?.trim() ?? "";
   const areaBandRaw = request.nextUrl.searchParams.get("area_band")?.trim() ?? "";
@@ -38,19 +58,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "complex_id가 필요합니다." }, { status: 400 });
   }
 
-  let areaBand: RegionalAreaBandId | null = null;
   let exclusiveArea: number | null = null;
   if (exclusiveRaw) {
     exclusiveArea = Number(exclusiveRaw);
-    const resolved = resolveSelectedAreaBand(exclusiveArea);
-    if (!resolved) return unsupported(complexId, Number.isFinite(exclusiveArea) ? exclusiveArea : null);
-    if (areaBandRaw && areaBandRaw !== resolved) return unsupported(complexId, exclusiveArea);
-    areaBand = resolved;
-  } else if (areaBandRaw) {
-    if (!BANDS.has(areaBandRaw as RegionalAreaBandId)) return unsupported(complexId, null);
-    areaBand = areaBandRaw as RegionalAreaBandId;
-  } else {
+    if (!Number.isFinite(exclusiveArea)) return unsupported(complexId, null);
+  } else if (!areaBandRaw && marketPyeongLabel == null) {
     return NextResponse.json({ error: "area_band가 필요합니다." }, { status: 400 });
+  }
+
+  if (areaBandRaw && !LEGACY_BANDS.has(areaBandRaw as RegionalAreaBandId) && !decadeCohortByKey(areaBandRaw)) {
+    return unsupported(complexId, exclusiveArea);
+  }
+
+  const decadeKey = resolveDecadeKey({ marketPyeongLabel, areaBandRaw, exclusiveArea });
+  if (!decadeKey || !decadeCohortByKey(decadeKey)) {
+    return unsupported(complexId, exclusiveArea);
   }
 
   const db = getDb();
@@ -60,7 +82,7 @@ export async function GET(request: NextRequest) {
   try {
     const found = await readComplexPricePosition(db, {
       complexId,
-      areaBand,
+      areaBand: decadeKey,
       exclusiveArea,
       marketPyeongLabel,
     });
@@ -69,7 +91,7 @@ export async function GET(request: NextRequest) {
         status: "unavailable",
         version: PRICE_POSITION_PUBLIC_VERSION,
         complexId,
-        areaBand,
+        areaBand: decadeKey,
         transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
         referenceMonth: null,
         priceLevel: [],

@@ -15,6 +15,11 @@ import {
   PRICE_COMPARE_UNSUPPORTED_COPY,
   PRICE_LEVEL_TIP,
   PRICE_POSITION_V21_VERSION,
+  PRICE_POSITION_V23_VERSION,
+  TREND_SAMPLE_THIN_COPY,
+  TREND_SAMPLE_TIP,
+  TREND_SAMPLE_TIP_TITLE,
+  TREND_SAMPLE_VERY_THIN_COPY,
   RANKING_TABS,
   RANKING_TYPES,
   RANK_PREPARING_COPY,
@@ -30,8 +35,10 @@ import {
   formatSignedPct,
   formatWonPerPyeong,
   formatWonPerSqm,
+  monthsInYearMonthWindow,
   parseComplexPricePosition,
   parseMarketPyeongLabelParam,
+  partialHistoryHelperCopy,
   DECADE_RANK_UNAVAILABLE_COPY,
   PRICE_COMPARE_TIP,
   PRICE_COMPARE_TIP_TITLE,
@@ -60,6 +67,7 @@ import {
   trendBarLayout,
   trendEndpointFallbackNote,
   trendHorizonFallbackNotes,
+  trendSampleStatusLabel,
   unavailableBoardCopy,
   type ComplexRankPlace,
   type RegionRankingRow,
@@ -483,16 +491,52 @@ assert(v2Rejected.status === "unavailable", "V2 is not a fallback");
 assert(v2Rejected.priceLevel.length === 0, "V2 prices stay hidden");
 assert(v2Rejected.trends["6M"].length === 0, "V2 trends stay hidden");
 
-const v21Body = parseComplexPricePosition(
+const v21Rejected = parseComplexPricePosition(
   {
     status: "ok",
     version: PRICE_POSITION_V21_VERSION,
+    complexId: "cx_4c63d9a100973c60",
+    supplyPyeongCohort: "30평대",
+    selectedMarketPyeongLabel: 33,
+    referenceMonth: "2026-09",
+    priceLevel: [
+      { scope: "COMPLEX", label: "이 단지", meanPricePerSupplyPyeong: 10075.8, status: "ok" },
+    ],
+    trends: {
+      "1Y": [
+        { scope: "DONG", label: "잠실동", changePercent: 0.91, status: "ok" },
+        { scope: "GU", label: "송파구", changePercent: 15.42, status: "ok" },
+        { scope: "SEOUL", label: "서울", changePercent: 15.26, status: "ok" },
+      ],
+    },
+  },
+  "cx_4c63d9a100973c60",
+);
+assert(v21Rejected.version == null, "V2.1 is not public");
+assert(v21Rejected.status === "unavailable", "V2.1 is not a fallback");
+assert(v21Rejected.priceLevel.length === 0, "V2.1 prices stay hidden");
+assert(v21Rejected.trends["1Y"].length === 0, "V2.1 stale 1Y stays hidden");
+
+const v22Rejected = parseComplexPricePosition(
+  {
+    status: "ok",
+    version: "price-position-v2.2",
+    trends: { "1Y": [{ scope: "DONG", changePercent: 0.91, status: "ok" }] },
+  },
+  "cx_4c63d9a100973c60",
+);
+assert(v22Rejected.status === "unavailable", "V2.2 is not a fallback");
+
+const v23Body = parseComplexPricePosition(
+  {
+    status: "ok",
+    version: PRICE_POSITION_V23_VERSION,
     complexId: "cx_4c63d9a100973c60",
     aptName: "잠실엘스",
     supplyPyeongCohort: "30평대",
     selectedMarketPyeongLabel: 33,
     complexScopeBasis: "exact_market_pyeong_label",
-    referenceMonth: "2026-08",
+    referenceMonth: "2026-09",
     areaBasis: "SUPPLY_PYEONG_LABEL",
     methodologyCopy: {
       price: PRICE_LEVEL_TIP,
@@ -505,8 +549,46 @@ const v21Body = parseComplexPricePosition(
       { scope: "SEOUL", label: "서울", meanPricePerSupplyPyeong: 3575, status: "ok" },
     ],
     trends: {
-      "6M": [{ scope: "COMPLEX", changePercent: 3.42, status: "ok" }],
-      "1Y": [{ scope: "COMPLEX", changePercent: 0.91, status: "ok" }],
+      "6M": [
+        { scope: "COMPLEX", changePercent: 3.42, status: "ok" },
+        {
+          scope: "DONG",
+          changePercent: 1.2,
+          status: "ok",
+          sampleStatus: "THIN",
+          windowStatus: "FULL_WINDOW",
+          currentWindow: "2026-04..2026-09",
+          baselineWindow: "2025-10..2026-03",
+        },
+      ],
+      "1Y": [
+        { scope: "COMPLEX", label: "이 단지", changePercent: 0.91, status: "ok" },
+        {
+          scope: "DONG",
+          label: "잠실동",
+          changePercent: 5.03,
+          status: "ok",
+          sampleStatus: "THIN",
+          matchedComplexCount: 8,
+          matchedCoverageRatio: 0.6154,
+        },
+        {
+          scope: "GU",
+          label: "송파구",
+          changePercent: 20.84,
+          status: "ok",
+          sampleStatus: "ADEQUATE",
+          matchedComplexCount: 76,
+        },
+        {
+          scope: "SEOUL",
+          label: "서울",
+          changePercent: 12.38,
+          status: "ok",
+          sampleStatus: "ADEQUATE",
+          matchedComplexCount: 1622,
+        },
+      ],
       "2Y": [
         {
           scope: "COMPLEX",
@@ -518,33 +600,73 @@ const v21Body = parseComplexPricePosition(
           status: "ok",
         },
       ],
-      "5Y": [{ scope: "COMPLEX", changePercent: 32.21, status: "ok" }],
+      "5Y": [
+        {
+          scope: "SEOUL",
+          changePercent: 32.21,
+          status: "ok",
+          sampleStatus: "ADEQUATE",
+          windowStatus: "PARTIAL_HISTORY_WINDOW",
+          currentWindow: "2026-07..2026-09",
+          baselineWindow: "2021-07..2021-09",
+        },
+      ],
       "3M": [{ scope: "COMPLEX", changePercent: -1.34, status: "ok" }],
       "3Y": [{ scope: "COMPLEX", changePercent: 38.88, status: "ok" }],
     },
   },
   "cx_4c63d9a100973c60",
 );
-assert(v21Body.version === "price-position-v2.1", "V2.1 pointer only");
-assert(v21Body.selectedMarketPyeongLabel === 33, "exact 33평 from API");
-assert(v21Body.supplyPyeongCohort === "30평대", "region cohort from API");
-assert(v21Body.complexScopeBasis === "exact_market_pyeong_label", "complex is exact label");
-assert(v21Body.priceLevel[0]?.meanPricePerSupplyPyeong === 10075.7576, "Els 33평 API price");
-assert(v21Body.referenceMonth === "2026-08", "reference month from API");
-assert(v21Body.trends["6M"][0]?.changePercent === 3.42, "Els 6M API");
-assert(v21Body.trends["1Y"][0]?.changePercent === 0.91, "Els 1Y API");
-assert(v21Body.trends["2Y"][0]?.changePercent === 23.15, "Els 2Y API");
-assert(v21Body.trends["5Y"][0]?.changePercent === 32.21, "Els 5Y API");
-assert(!("3M" in v21Body.trends), "parsed trends drop 3M");
-assert(!("3Y" in v21Body.trends), "parsed trends drop 3Y");
-assert(v21Body.methodologyCopy.price === PRICE_LEVEL_TIP, "API methodology price copy");
-assert(v21Body.methodologyCopy.trend === TREND_TIP, "API methodology trend copy");
+assert(v23Body.version === "price-position-v2.3", "V2.3 pointer only");
+assert(v23Body.selectedMarketPyeongLabel === 33, "exact 33평 from API");
+assert(v23Body.supplyPyeongCohort === "30평대", "region cohort from API");
+assert(v23Body.complexScopeBasis === "exact_market_pyeong_label", "complex is exact label");
+assert(v23Body.priceLevel[0]?.meanPricePerSupplyPyeong === 10075.7576, "Els 33평 API price");
+assert(v23Body.referenceMonth === "2026-09", "reference month from API");
+assert(v23Body.trends["1Y"][0]?.changePercent === 0.91, "Els 1Y complex");
+assert(v23Body.trends["1Y"][1]?.changePercent === 5.03, "Els 1Y dong V2.3");
+assert(v23Body.trends["1Y"][2]?.changePercent === 20.84, "Els 1Y gu V2.3");
+assert(v23Body.trends["1Y"][3]?.changePercent === 12.38, "Els 1Y seoul V2.3");
+assert(v23Body.trends["1Y"][1]?.sampleStatus === "THIN", "dong 1Y THIN");
+assert(v23Body.trends["1Y"][2]?.sampleStatus === "ADEQUATE", "gu 1Y ADEQUATE");
+assert(v23Body.trends["1Y"][3]?.sampleStatus === "ADEQUATE", "seoul 1Y ADEQUATE");
+assert(!("3M" in v23Body.trends), "parsed trends drop 3M");
+assert(!("3Y" in v23Body.trends), "parsed trends drop 3Y");
+assert(v23Body.methodologyCopy.price === PRICE_LEVEL_TIP, "API methodology price copy");
+assert(v23Body.methodologyCopy.trend === TREND_TIP, "API methodology trend copy");
 
-const s1Note = trendEndpointFallbackNote(v21Body.trends["2Y"][0]!);
+assert(trendSampleStatusLabel({ scope: "COMPLEX", sampleStatus: "THIN" }) == null, "complex has no sample badge");
+assert(trendSampleStatusLabel({ scope: "DONG", sampleStatus: "ADEQUATE" }) == null, "ADEQUATE is silent");
+assert(trendSampleStatusLabel({ scope: "DONG", sampleStatus: "THIN" }) === TREND_SAMPLE_THIN_COPY, "THIN copy");
+assert(
+  trendSampleStatusLabel({ scope: "GU", sampleStatus: "VERY_THIN" }) === TREND_SAMPLE_VERY_THIN_COPY,
+  "VERY_THIN copy",
+);
+assert(TREND_SAMPLE_TIP_TITLE === "표본 안내", "sample tip title");
+assert(TREND_SAMPLE_TIP.includes("양 시점 모두 거래"), "sample tip explains matched window");
+assert(!TREND_SAMPLE_TIP.includes("8/13"), "sample tip has no counts");
+assert(!TREND_SAMPLE_TIP.includes("%"), "sample tip has no coverage %");
+assert(monthsInYearMonthWindow("2026-07..2026-09") === 3, "partial 5Y window is 3 months");
+assert(monthsInYearMonthWindow("2026-04..2026-09") === 6, "full 6M window is 6 months");
+assert(
+  partialHistoryHelperCopy({ horizonLabel: "5년", cells: v23Body.trends["5Y"] }) ===
+    "5년 변동률은 확보된 이력 범위에 맞춰 양 시점 3개월씩 비교합니다.",
+  "5Y partial helper",
+);
+assert(
+  partialHistoryHelperCopy({ horizonLabel: "6개월", cells: v23Body.trends["6M"] }) == null,
+  "FULL_WINDOW has no helper",
+);
+assert(
+  partialHistoryHelperCopy({ horizonLabel: "1년", cells: v23Body.trends["1Y"] }) == null,
+  "missing windowStatus has no helper",
+);
+
+const s1Note = trendEndpointFallbackNote(v23Body.trends["2Y"][0]!);
 assert(s1Note === "비교월 2024.09 → 2024.08", `S1 note ${s1Note}`);
 assert(!String(s1Note).includes("오류"), "S1 is metadata, not an error");
-assert(trendHorizonFallbackNotes(v21Body.trends["2Y"]).join("|") === "비교월 2024.09 → 2024.08", "horizon S1 notes");
-assert(trendHorizonFallbackNotes(v21Body.trends["6M"]).length === 0, "exact month has no fallback note");
+assert(trendHorizonFallbackNotes(v23Body.trends["2Y"]).join("|") === "비교월 2024.09 → 2024.08", "horizon S1 notes");
+assert(trendHorizonFallbackNotes(v23Body.trends["6M"]).length === 0, "exact month has no fallback note");
 
 const elsPrice = [
   { status: "ok", value: 10075.8 },
@@ -589,7 +711,7 @@ assert(
 const sparseKept = parseComplexPricePosition(
   {
     status: "ok",
-    version: PRICE_POSITION_V21_VERSION,
+    version: PRICE_POSITION_V23_VERSION,
     supplyPyeongCohort: "30평대",
     selectedMarketPyeongLabel: 33,
     priceLevel: [
@@ -657,12 +779,47 @@ assert(!priceCompare.includes("지역 가격 비교"), "subtitle drops 지역");
 assert(priceCompare.includes("PRICE_COMPARE_TABS"), "keeps 가격 수준 / 변동률");
 assert(priceCompare.includes("TREND_PERIOD_TABS"), "keeps 6M/1Y/2Y/5Y");
 assert(!priceCompare.includes('"3Y"'), "no 3Y period");
+assert(priceCompare.includes("complex-region-price-position-v23"), "v23 query key");
+assert(priceCompare.includes("trendSampleStatusLabel"), "trend sample status only");
+assert(priceCompare.includes("partialHistoryHelperCopy"), "partial history helper");
+assert(priceCompare.includes("TREND_SAMPLE_TIP"), "sample tooltip is separate");
+assert(!priceCompare.includes("matchedComplexCount"), "UI does not render matched counts");
+assert(!priceCompare.includes("matchedCoverageRatio"), "UI does not render coverage %");
+assert(!priceCompare.includes("8/13"), "no raw fraction");
 assert(
   priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") <
     priceCompare.lastIndexOf("PRICE_COMPARE_TABS.map") &&
     priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") > 0,
   "title/meta sit above tabs",
 );
+assert(
+  !priceCompare.slice(
+    priceCompare.indexOf("function PriceLevelBars"),
+    priceCompare.indexOf("function TrendScale"),
+  ).includes("trendSampleStatusLabel"),
+  "price level has no sample-status UI",
+);
+assert(
+  !priceCompare.slice(
+    priceCompare.indexOf("function PriceLevelBars"),
+    priceCompare.indexOf("function TrendScale"),
+  ).includes("partialHistoryHelperCopy"),
+  "price level has no history helper",
+);
+
+const priceRoute = readFileSync(
+  resolve(import.meta.dirname, "../src/app/api/complex-region-price-position/route.ts"),
+  "utf8",
+);
+assert(priceRoute.includes("market_pyeong_label"), "price API keeps selected label");
+assert(priceRoute.includes("decadeCohortForLabel"), "price API stores decade from selected 평");
+const priceRead = readFileSync(
+  resolve(import.meta.dirname, "../src/lib/region-ranking/price-position-read.ts"),
+  "utf8",
+);
+assert(priceRead.includes("PRICE_POSITION_V23_VERSION"), "read pointer is V2.3");
+assert(priceRead.includes("pricePositionV23SnapshotId"), "reads V2.3 snapshot");
+assert(!priceRead.includes("pricePositionV21SnapshotId"), "does not read V2.1 snapshot");
 
 const rankRoute = readFileSync(
   resolve(import.meta.dirname, "../src/app/api/complex-region-rank/route.ts"),

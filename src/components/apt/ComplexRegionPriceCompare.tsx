@@ -11,16 +11,20 @@ import {
   PRICE_COMPARE_TITLE,
   PRICE_COMPARE_UNSUPPORTED_COPY,
   TREND_PERIOD_TABS,
+  TREND_SAMPLE_TIP,
+  TREND_SAMPLE_TIP_TITLE,
   barWidthPct,
   fetchComplexPricePosition,
   formatSignedPct,
   formatWonPerPyeong,
+  partialHistoryHelperCopy,
   priceCompareMetaLine,
   priceCompareRowCopy,
   priceCompareStatusCopy,
   priceLevelScale,
   trendAbsScale,
   trendBarLayout,
+  trendSampleStatusLabel,
   type PriceCompareTab,
   type PriceLevelPublicCell,
   type TrendPeriodId,
@@ -110,6 +114,10 @@ function TrendBars({
           const layout = hiddenBar ? { side: "none" as const, pct: 0 } : trendBarLayout(value, maxAbs);
           const up = !hiddenBar && value != null && value > 0;
           const down = !hiddenBar && value != null && value < 0;
+          const sampleLabel = trendSampleStatusLabel({
+            scope: cell.scope,
+            sampleStatus: cell.sampleStatus,
+          });
           return (
             <li key={cell.scope} className="flex items-center gap-2.5">
               <span
@@ -147,13 +155,29 @@ function TrendBars({
                       ) : null}
                     </div>
                   </div>
-                  <span
-                    className={`w-14 shrink-0 whitespace-nowrap text-right text-[12px] tabular-nums sm:w-16 sm:text-[13px] ${
-                      up ? "font-medium text-rose-600" : down ? "font-medium text-blue-600" : "text-slate-500"
-                    }`}
-                  >
-                    {formatSignedPct(value) ?? "—"}
-                  </span>
+                  <div className="flex w-14 shrink-0 flex-col items-end sm:w-16">
+                    <span
+                      className={`whitespace-nowrap text-right text-[12px] tabular-nums sm:text-[13px] ${
+                        up ? "font-medium text-rose-600" : down ? "font-medium text-blue-600" : "text-slate-500"
+                      }`}
+                    >
+                      {formatSignedPct(value) ?? "—"}
+                    </span>
+                    {sampleLabel ? (
+                      <InfoTip
+                        aria-label={sampleLabel}
+                        className="mt-0.5 !text-[10px] !leading-4 text-slate-500 hover:text-slate-600"
+                        trigger={<span>{sampleLabel}</span>}
+                      >
+                        <p className="font-medium text-slate-800">{TREND_SAMPLE_TIP_TITLE}</p>
+                        {TREND_SAMPLE_TIP.split("\n\n").map((paragraph) => (
+                          <p key={paragraph} className="mt-1.5 first:mt-1">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </InfoTip>
+                    ) : null}
+                  </div>
                 </>
               )}
             </li>
@@ -183,7 +207,7 @@ export function ComplexRegionPriceCompare({
     marketPyeongLabel > 0;
 
   const query = useQuery({
-    queryKey: ["complex-region-price-position-v21", complexId, exclusiveArea, marketPyeongLabel],
+    queryKey: ["complex-region-price-position-v23", complexId, exclusiveArea, marketPyeongLabel],
     queryFn: () =>
       fetchComplexPricePosition({
         complexId,
@@ -203,6 +227,11 @@ export function ComplexRegionPriceCompare({
   });
   const trendCells = data?.trends[period] ?? [];
   const trendScale = trendAbsScale(trendCells);
+  const periodLabel = TREND_PERIOD_TABS.find((item) => item.id === period)?.label ?? "";
+  const historyHelper = partialHistoryHelperCopy({
+    horizonLabel: periodLabel,
+    cells: trendCells,
+  });
 
   return (
     <div className="mt-4 border-t border-slate-200 pt-3.5">
@@ -277,6 +306,10 @@ export function ComplexRegionPriceCompare({
                 </button>
               ))}
             </div>
+          ) : null}
+
+          {tab === "trend" && historyHelper ? (
+            <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{historyHelper}</p>
           ) : null}
 
           {query.isLoading ? (

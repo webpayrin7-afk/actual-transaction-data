@@ -18,10 +18,12 @@ export function InfoTip({
   "aria-label": ariaLabel,
   children,
   className = "",
+  trigger,
 }: {
   "aria-label": string;
   children: ReactNode;
   className?: string;
+  trigger?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -78,7 +80,7 @@ export function InfoTip({
         onClick={() => setOpen((value) => !value)}
         className={`inline-flex cursor-pointer items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${className}`.trim()}
       >
-        <span aria-hidden="true">ⓘ</span>
+        {trigger ?? <span aria-hidden="true">ⓘ</span>}
       </button>
       {open ? (
         <div
