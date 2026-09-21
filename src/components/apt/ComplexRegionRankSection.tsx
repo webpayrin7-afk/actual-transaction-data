@@ -125,7 +125,7 @@ export function ComplexRegionRankSection({
   return (
     <section
       id="section-region-rank"
-      className="lab-card scroll-mt-28 p-3 sm:p-3.5"
+      className="lab-card scroll-mt-28 px-3 pt-4 pb-3 sm:px-3.5 sm:pt-5 sm:pb-3.5"
     >
       <h2 className="min-w-0 truncate text-xl font-semibold leading-none tracking-tight text-slate-900">
         지역 내 비교
