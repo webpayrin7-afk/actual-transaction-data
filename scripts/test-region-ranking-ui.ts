@@ -821,6 +821,15 @@ assert(priceRead.includes("PRICE_POSITION_V23_VERSION"), "read pointer is V2.3")
 assert(priceRead.includes("pricePositionV23SnapshotId"), "reads V2.3 snapshot");
 assert(!priceRead.includes("pricePositionV21SnapshotId"), "does not read V2.1 snapshot");
 
+const infoTip = readFileSync(
+  resolve(import.meta.dirname, "../src/components/ui/InfoTip.tsx"),
+  "utf8",
+);
+assert(infoTip.includes("createPortal"), "tip panel escapes apt-detail transform clip");
+assert(infoTip.includes("document.body"), "tip panel mounts on body");
+assert(infoTip.includes("min-h-8"), "tip has a tappable hit target");
+assert(infoTip.includes("onClick"), "tip opens on tap/click");
+
 const rankRoute = readFileSync(
   resolve(import.meta.dirname, "../src/app/api/complex-region-rank/route.ts"),
   "utf8",

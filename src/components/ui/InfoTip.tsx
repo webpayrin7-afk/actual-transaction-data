@@ -7,11 +7,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { INFO_PANEL_CLASS, placeInfoPanel } from "@/components/ui/info-panel";
 
 /**
- * Site-common icon-only ⓘ tip.
- * Panel is fixed, centered on the trigger, and clamped to the viewport.
+ * Site-common ⓘ tip.
+ * Panel is portaled to document.body so transformed / overflow-clip ancestors
+ * (apt-detail enter animation) cannot swallow taps or clip the panel.
  * Closes on outside click, panel body click, or Escape.
  */
 export function InfoTip({
@@ -34,7 +36,9 @@ export function InfoTip({
     if (!open) return;
 
     function onPointerDown(event: PointerEvent) {
-      if (buttonRef.current?.contains(event.target as Node)) return;
+      const target = event.target as Node;
+      if (buttonRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
       setOpen(false);
     }
     function onKeyDown(event: KeyboardEvent) {
@@ -69,20 +73,9 @@ export function InfoTip({
     };
   }, [open]);
 
-  return (
-    <span className="inline-flex shrink-0 align-middle">
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-expanded={open}
-        aria-controls={open ? panelId : undefined}
-        aria-label={ariaLabel}
-        onClick={() => setOpen((value) => !value)}
-        className={`inline-flex cursor-pointer items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${className}`.trim()}
-      >
-        {trigger ?? <span aria-hidden="true">ⓘ</span>}
-      </button>
-      {open ? (
+  const panel =
+    open && typeof document !== "undefined" ? (
+      createPortal(
         <div
           id={panelId}
           ref={panelRef}
@@ -90,8 +83,31 @@ export function InfoTip({
           className={INFO_PANEL_CLASS}
         >
           {children}
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+    ) : null;
+
+  return (
+    <span className="relative z-10 inline-flex shrink-0 align-middle">
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-expanded={open}
+        aria-controls={open ? panelId : undefined}
+        aria-label={ariaLabel}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpen((value) => !value);
+        }}
+        className={`relative z-10 inline-flex min-h-8 min-w-8 cursor-pointer items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${className}`.trim()}
+      >
+        {trigger ?? <span aria-hidden="true">ⓘ</span>}
+      </button>
+      {panel}
     </span>
   );
 }
