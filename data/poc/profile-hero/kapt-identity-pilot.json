@@ -1,0 +1,752 @@
+{
+  "mode": "PILOT",
+  "audit": {
+    "seoul_master": 8437,
+    "universe_rows": 3335,
+    "confirmed_before": 810,
+    "classification": {
+      "EXACT_MULTI_SIGNAL": 273,
+      "STRONG_BUT_NOT_EXACT": 0,
+      "CONFLICT": 1439,
+      "INSUFFICIENT": 602,
+      "STALE_INVALID": 243,
+      "ALREADY_CONFIRMED": 778
+    },
+    "exact_candidates": 273,
+    "estimated_nulls_among_exact": {
+      "household": 11,
+      "building_count": 51,
+      "approval_date": 131,
+      "max_floor": 2,
+      "heating_type": 273,
+      "parking_per_household": 49
+    }
+  },
+  "pilot_tested": 50,
+  "pilot_passed": 50,
+  "pilot_failed": 0,
+  "pilot": [
+    {
+      "complex_id": "cx_00e090b6407013ab",
+      "apt_name": "신일해피트리",
+      "kapt_code": "A10022183",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0276fe98811f6b51",
+      "apt_name": "공덕파크자이",
+      "kapt_code": "A10027748",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0404274c20500c85",
+      "apt_name": "신성",
+      "kapt_code": "A12208203",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_04b870c4cd22ed69",
+      "apt_name": "강변현대",
+      "kapt_code": "A10026804",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_058d1ab795601eda",
+      "apt_name": "반포미도2차아파트",
+      "kapt_code": "A13770105",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0761cae78219cf08",
+      "apt_name": "성수우방2차아파트",
+      "kapt_code": "A13383301",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0828f7a37711fa2b",
+      "apt_name": "자양9차현대홈타운",
+      "kapt_code": "A10022362",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0bc8e3e8318b1011",
+      "apt_name": "염창1차보람더하임",
+      "kapt_code": "A15704007",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0c6a862c84919fd7",
+      "apt_name": "마포아이파크포레",
+      "kapt_code": "A10024974",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0e553e9a88efab32",
+      "apt_name": "문래현대5차",
+      "kapt_code": "A15009504",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0f51ec5ecb9de628",
+      "apt_name": "인왕산어울림",
+      "kapt_code": "A10024620",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_0fb0b832f2ef227b",
+      "apt_name": "두산",
+      "kapt_code": "A13983713",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1024a29b283a86b4",
+      "apt_name": "삼성타운",
+      "kapt_code": "A12284501",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_116f653326a8bcd1",
+      "apt_name": "공릉1단지아파트",
+      "kapt_code": "A13980512",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1272b5504c6629b9",
+      "apt_name": "현재트윈빌",
+      "kapt_code": "A10024128",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1293d84a4059ff03",
+      "apt_name": "강남자곡힐스테이트",
+      "kapt_code": "A10027985",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_12a9e346f95d1999",
+      "apt_name": "왕십리금호어울림",
+      "kapt_code": "A13381604",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_131e40f1b76da877",
+      "apt_name": "신한토탈",
+      "kapt_code": "A10024752",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1328ffa425f99365",
+      "apt_name": "마곡엠밸리10단지",
+      "kapt_code": "A10027452",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1394df50da4b6a36",
+      "apt_name": "매봉삼성",
+      "kapt_code": "A10024793",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_14fa507ce8086607",
+      "apt_name": "현대까르띠에710",
+      "kapt_code": "A10024820",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_151fd843b50eb508",
+      "apt_name": "천호롯데아파트",
+      "kapt_code": "A13402005",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_160a606cd34de6c3",
+      "apt_name": "한강밤섬자이",
+      "kapt_code": "A12115001",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_17ccafbc27241d63",
+      "apt_name": "삼성청담공원아파트",
+      "kapt_code": "A13510103",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_181f263fd604aac3",
+      "apt_name": "송파시그니처롯데캐슬",
+      "kapt_code": "A10023887",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1898f86878b197f3",
+      "apt_name": "휘경미소지움",
+      "kapt_code": "A13077702",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_18d6396a8ea408fd",
+      "apt_name": "대흥동세양",
+      "kapt_code": "A10021649",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1a5b41b83d64e057",
+      "apt_name": "우성캐릭터199",
+      "kapt_code": "A13527003",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1b2ded5d954b2074",
+      "apt_name": "브라운스톤서울",
+      "kapt_code": "A10095301",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1b3851bed2e9e293",
+      "apt_name": "송파레이크힐",
+      "kapt_code": "A10024197",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1b9bcfeb30a10a27",
+      "apt_name": "개포자이",
+      "kapt_code": "A13593901",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1baa5ad947ea0bcf",
+      "apt_name": "궁전",
+      "kapt_code": "A10024646",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1cba408bc3b796c6",
+      "apt_name": "우림필유",
+      "kapt_code": "A10027522",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1dc1ae5eb9ba8b4a",
+      "apt_name": "브라운스톤금호",
+      "kapt_code": "A13380901",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1e38aeea0d8d0844",
+      "apt_name": "인왕산벽산",
+      "kapt_code": "A12009302",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1f083a9b0ccae766",
+      "apt_name": "방배아이파크",
+      "kapt_code": "A10021518",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1f18865550a18372",
+      "apt_name": "신사성원",
+      "kapt_code": "A12208101",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_1f358c26ac18d963",
+      "apt_name": "순영웰라이빌",
+      "kapt_code": "A10026311",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_209c131e82756e99",
+      "apt_name": "현대파크빌",
+      "kapt_code": "A10020947",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_20d97260455ec07f",
+      "apt_name": "신월시영",
+      "kapt_code": "A15884703",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_2226f1745dad7dc6",
+      "apt_name": "덕영드림",
+      "kapt_code": "A10027493",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_23a95ced22ef4b3c",
+      "apt_name": "연희파크푸르지오",
+      "kapt_code": "A10025822",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_24426e5ea2cab0b8",
+      "apt_name": "반포미도",
+      "kapt_code": "A13704404",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_2454cde9571a6656",
+      "apt_name": "대림역삼",
+      "kapt_code": "A10021281",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_24be140eeabca07e",
+      "apt_name": "치현마을동일스위트리버",
+      "kapt_code": "A15722304",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_277bed3239a06fb3",
+      "apt_name": "서울숲르씨엘",
+      "kapt_code": "A10020977",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_2804831ed574e54b",
+      "apt_name": "목동성원",
+      "kapt_code": "A15881702",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_29050293847c2bba",
+      "apt_name": "우남",
+      "kapt_code": "A10023157",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_2a21151c43561386",
+      "apt_name": "한일써너스빌",
+      "kapt_code": "A13170401",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_2abe92f1a31f81c0",
+      "apt_name": "중계센트럴파크",
+      "kapt_code": "A10027601",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [],
+      "promote": "YES",
+      "basic": "YES",
+      "detail": "YES"
+    }
+  ],
+  "api": {
+    "calls": 100,
+    "http429": 0,
+    "http5xx": 0,
+    "timeout": 0,
+    "basic_ok": 50,
+    "detail_ok": 50
+  },
+  "promoted": 0,
+  "heldIdentity": 0,
+  "complexesChanged": 0,
+  "fieldFills": {
+    "household": 0,
+    "building_count": 0,
+    "approval": 0,
+    "max_floor": 0,
+    "heating": 0,
+    "parking": 0
+  },
+  "fills": 0,
+  "material": 0,
+  "invalid": 0
+}
