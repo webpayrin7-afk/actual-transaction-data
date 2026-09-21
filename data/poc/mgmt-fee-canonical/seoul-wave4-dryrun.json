@@ -1,0 +1,162 @@
+{
+  "generated_at": "2026-09-21T14:37:28.101Z",
+  "wave": 4,
+  "region": "seoul",
+  "production_write": false,
+  "cohort_terminal": true,
+  "gate": "PASS",
+  "api_calls": 5352,
+  "reused_ops": 176,
+  "reuse_confirmation_api_calls": 0,
+  "http_429": false,
+  "http_429_count": 0,
+  "http_5xx": 0,
+  "timeouts": 3,
+  "retries": 3,
+  "segments_completed": 5,
+  "segment_size": 40,
+  "runtime_ms": 9947666,
+  "stopped": "ok",
+  "canonical_total": 26946642020,
+  "selected_sidos": [
+    "11"
+  ],
+  "complexes": 200,
+  "complexes_by_sido": {
+    "11": 200
+  },
+  "checkpoint_records": 5352,
+  "no_published_month": 24,
+  "no_published_month_by_sido": {
+    "11": 24
+  },
+  "classification": {
+    "COMPLETE": 176,
+    "NO_PUBLISHED_MONTH": 24,
+    "PARTIAL": 0,
+    "MISSING": 0,
+    "FAILED": 0
+  },
+  "classification_sum": 200,
+  "periods": [
+    "202607",
+    "202608",
+    "202609"
+  ],
+  "period_distribution": {
+    "202607": 118,
+    "202608": 55,
+    "202609": 3
+  },
+  "target_months": 176,
+  "mapping_mismatch": 0,
+  "duplicate_keys": 0,
+  "invalid_amounts": 0,
+  "existing_fee_keys": 0,
+  "would_delete": 0,
+  "baseline_fee_rows": 1404,
+  "baseline_fee_complexes": 1291,
+  "by_sido": [
+    {
+      "sido_code": "11",
+      "sido": "서울특별시",
+      "targets": 176,
+      "COMPLETE": 176,
+      "PARTIAL": 0,
+      "MISSING": 0,
+      "FAILED": 0,
+      "would_insert": 176,
+      "would_update": 0
+    }
+  ],
+  "samples": [
+    {
+      "complex_id": "cx_8bb8df3562c3dd86",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 1206708405,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_181f263fd604aac3",
+      "sido_code": "11",
+      "period": "202608",
+      "status": "COMPLETE",
+      "amount": 643087407,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_71b2a1be4e457891",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 472962593,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_7bf3821a158d3a70",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 377083440,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_20d97260455ec07f",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 404968092,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_488b8078fe87530d",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 364778600,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_8a06f156c3456d94",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 226552200,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_c194a498af54b795",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 449573962,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_0c6a862c84919fd7",
+      "sido_code": "11",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 349344163,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_47e67d7184c4fc6a",
+      "sido_code": "11",
+      "period": "202608",
+      "status": "COMPLETE",
+      "amount": 353618946,
+      "would": "insert"
+    }
+  ],
+  "totals": {
+    "COMPLETE": 176,
+    "PARTIAL": 0,
+    "MISSING": 0,
+    "FAILED": 0,
+    "would_insert": 176,
+    "would_update": 0
+  }
+}
