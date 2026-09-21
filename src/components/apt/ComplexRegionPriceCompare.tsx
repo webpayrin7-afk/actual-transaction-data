@@ -327,7 +327,7 @@ export function ComplexRegionPriceCompare({
   return (
     <div className="mt-4 border-t border-slate-200 pt-3.5">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-        <div className="flex min-w-0 items-center gap-1">
+        <div className="flex min-w-0 items-center gap-0.5">
           <h3 className="text-[13px] font-semibold leading-5 text-slate-800">
             {PRICE_COMPARE_TITLE}
           </h3>

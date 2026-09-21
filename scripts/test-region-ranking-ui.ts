@@ -854,7 +854,7 @@ const infoTip = readFileSync(
 );
 assert(infoTip.includes("createPortal"), "tip panel escapes apt-detail transform clip");
 assert(infoTip.includes("document.body"), "tip panel mounts on body");
-assert(infoTip.includes("min-h-8"), "tip has a tappable hit target");
+assert(infoTip.includes("-inset-y-2.5"), "tip hit target expands without pushing the glyph");
 assert(infoTip.includes("onClick"), "tip opens on tap/click");
 
 const rankRoute = readFileSync(

@@ -1380,7 +1380,7 @@ export function ComplexNearbyLifeSection({
         <div className="min-w-0">
           <h2 className="flex items-center">
             주변 생활
-            <InfoTip aria-label="주변 생활 출처 안내" className="ml-1.5 text-[13px]">
+            <InfoTip aria-label="주변 생활 출처 안내" className="ml-0.5 text-[13px]">
               <p className="text-[12px] leading-relaxed text-slate-600">
                 지도: NAVER Maps
                 <br />
