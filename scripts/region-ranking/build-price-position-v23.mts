@@ -39,9 +39,14 @@ import { decadeCohortForLabel, pricePositionV22SnapshotId } from "../../src/lib/
 import {
   DECADE_COHORTS_V22,
   METHODOLOGY_FINGERPRINT_V23,
+  METHODOLOGY_FINGERPRINT_V231,
   PRICE_POSITION_V23_VERSION,
+  PRICE_POSITION_V231_VERSION,
   buildPricePositionV23,
+  buildPricePositionV231,
   pricePositionV23SnapshotId,
+  pricePositionV231SnapshotId,
+  type ContributorAuditRow,
 } from "../../src/lib/region-ranking/price-position-v23";
 import { SAMPLE_CONFIDENCE_VERSION } from "../../src/lib/region-ranking/sample-confidence-v2";
 
@@ -50,7 +55,10 @@ const FLOOR_YM = "202107";
 const ASOF_YM = "202609";
 const APPLY = process.argv.includes("--apply");
 const CONFIDENCE = process.argv.includes("--confidence");
+const AUDIT_CONTRIBUTORS = process.argv.includes("--audit-contributors");
+const V231 = process.argv.includes("--v231");
 const SNAP23 = pricePositionV23SnapshotId();
+const SNAP231 = pricePositionV231SnapshotId();
 const SNAP22 = pricePositionV22SnapshotId();
 const BATCH = 40;
 const REPORT = "/tmp/building-hub-bulk/external-evidence/v23-publish-report.json";
@@ -152,6 +160,22 @@ function payloadPricesEqual(stored: PricePositionBodyV21, rebuilt: PricePosition
   return true;
 }
 
+function regionalStructureEqual(stored: TrendCellV21, rebuilt: TrendCellV21): boolean {
+  if (stored.currentMonth !== rebuilt.currentMonth || stored.baselineMonth !== rebuilt.baselineMonth) return false;
+  if ((stored.currentWindow ?? null) !== (rebuilt.currentWindow ?? null)) return false;
+  if ((stored.baselineWindow ?? null) !== (rebuilt.baselineWindow ?? null)) return false;
+  if ((stored.windowStatus ?? null) !== (rebuilt.windowStatus ?? null)) return false;
+  if ((stored.historyAvailableCount ?? null) !== (rebuilt.historyAvailableCount ?? null)) return false;
+  if ((stored.canonicalHistoryAvailableCount ?? null) !== (rebuilt.canonicalHistoryAvailableCount ?? null)) return false;
+  if ((stored.cohortUniverseCount ?? null) !== (rebuilt.cohortUniverseCount ?? null)) return false;
+  if ((stored.sampleStatus ?? null) !== (rebuilt.sampleStatus ?? null)) return false;
+  if ((stored.matchedComplexCount ?? null) !== (rebuilt.matchedComplexCount ?? null)) return false;
+  if (!sameNum(stored.sampleCoverageRatio, rebuilt.sampleCoverageRatio)) return false;
+  if ((stored.sampleConfidenceVersion ?? null) !== (rebuilt.sampleConfidenceVersion ?? null)) return false;
+  if ((stored.dataCoverageStatus ?? null) !== (rebuilt.dataCoverageStatus ?? null)) return false;
+  return true;
+}
+
 function regionalValueEqual(stored: TrendCellV21, rebuilt: TrendCellV21): boolean {
   if (stored.status !== rebuilt.status) return false;
   if (!sameNum(stored.changePercent, rebuilt.changePercent)) return false;
@@ -164,6 +188,121 @@ function regionalValueEqual(stored: TrendCellV21, rebuilt: TrendCellV21): boolea
   if ((stored.historyAvailableCount ?? null) !== (rebuilt.historyAvailableCount ?? null)) return false;
   if (!sameNum(stored.matchedCoverageRatio, rebuilt.matchedCoverageRatio)) return false;
   return true;
+}
+
+function summarizeContributorAudit(rows: ContributorAuditRow[]) {
+  const absDeltas: number[] = [];
+  const signedDeltas: number[] = [];
+  let affected = 0;
+  let unaffected = 0;
+  let valueChanged = 0;
+  let numericChanged = 0;
+  let nullTransitions = 0;
+  let legacyOnly = 0;
+  let canonicalOnly = 0;
+  let nonCanonicalSlots = 0;
+  const uniqueNonCanonical = new Set<string>();
+  const byScope: Record<string, { cells: number; affected: number; valueChanged: number }> = {};
+  const examples: {
+    cohortKey: string;
+    cacheKey: string;
+    legacyContributors: number;
+    canonicalContributors: number;
+    nonCanonicalContributors: number;
+    legacyMedian: number | null;
+    canonicalMedian: number | null;
+    delta: number | null;
+  }[] = [];
+  const jamsil: Record<string, unknown> = {};
+  for (const row of rows) {
+    const scope = row.cacheKey.split("|")[0] ?? "";
+    const bucket = byScope[scope] ?? { cells: 0, affected: 0, valueChanged: 0 };
+    bucket.cells += 1;
+    const moved = row.legacyMedian !== row.canonicalMedian;
+    if (row.nonCanonicalContributors > 0) {
+      affected += 1;
+      bucket.affected += 1;
+      nonCanonicalSlots += row.nonCanonicalContributors;
+      for (const id of row.nonCanonicalIds) uniqueNonCanonical.add(`${row.cohortKey}|${id}`);
+    } else unaffected += 1;
+    if (moved) {
+      valueChanged += 1;
+      bucket.valueChanged += 1;
+      if (row.legacyMedian != null && row.canonicalMedian != null) {
+        numericChanged += 1;
+        const delta = Math.round((row.canonicalMedian - row.legacyMedian) * 100) / 100;
+        absDeltas.push(Math.abs(delta));
+        signedDeltas.push(delta);
+        examples.push({
+          cohortKey: row.cohortKey,
+          cacheKey: row.cacheKey,
+          legacyContributors: row.legacyContributors,
+          canonicalContributors: row.canonicalContributors,
+          nonCanonicalContributors: row.nonCanonicalContributors,
+          legacyMedian: row.legacyMedian,
+          canonicalMedian: row.canonicalMedian,
+          delta,
+        });
+      } else {
+        nullTransitions += 1;
+        if (row.legacyMedian != null) legacyOnly += 1;
+        if (row.canonicalMedian != null) canonicalOnly += 1;
+      }
+    }
+    byScope[scope] = bucket;
+    if (
+      row.cohortKey === "30" &&
+      row.referenceMonth === "2026-09" &&
+      (row.cacheKey.startsWith("DONG|1171010100|") ||
+        row.cacheKey.startsWith("GU|11710|") ||
+        row.cacheKey.startsWith("SEOUL|SEOUL|"))
+    ) {
+      const delta =
+        row.legacyMedian != null && row.canonicalMedian != null
+          ? Math.round((row.canonicalMedian - row.legacyMedian) * 100) / 100
+          : null;
+      jamsil[`${row.horizon}|${scope}`] = {
+        legacyContributors: row.legacyContributors,
+        canonicalContributors: row.canonicalContributors,
+        nonCanonicalContributors: row.nonCanonicalContributors,
+        legacyMedian: row.legacyMedian,
+        canonicalMedian: row.canonicalMedian,
+        delta,
+        nonCanonicalIds: row.nonCanonicalIds,
+      };
+    }
+  }
+  absDeltas.sort((a, b) => a - b);
+  signedDeltas.sort((a, b) => a - b);
+  examples.sort((a, b) => Math.abs(b.delta ?? 0) - Math.abs(a.delta ?? 0));
+  const nearest = (sorted: number[], p: number) => {
+    if (!sorted.length) return null;
+    return sorted[Math.max(0, Math.ceil(p * sorted.length) - 1)] ?? null;
+  };
+  return {
+    summary: {
+      totalRegionalCells: rows.length,
+      affectedCells: affected,
+      unaffectedCells: unaffected,
+      valueChangedCells: valueChanged,
+      numericChangedCells: numericChanged,
+      nullTransitions,
+      legacyMedianOnly: legacyOnly,
+      canonicalMedianOnly: canonicalOnly,
+      nonCanonicalContributorSlots: nonCanonicalSlots,
+      uniqueCohortComplexes: uniqueNonCanonical.size,
+      absDeltaP50: nearest(absDeltas, 0.5),
+      absDeltaP90: nearest(absDeltas, 0.9),
+      absDeltaP99: nearest(absDeltas, 0.99),
+      maxAbsDelta: absDeltas.at(-1) ?? null,
+      signedDeltaP50: nearest(signedDeltas, 0.5),
+      signedDeltaMin: signedDeltas[0] ?? null,
+      signedDeltaMax: signedDeltas.at(-1) ?? null,
+      byScope,
+    },
+    largest: examples.slice(0, 15),
+    jamsil,
+  };
 }
 
 function regionTrendChanged(left: PricePositionBodyV21, right: PricePositionBodyV21): boolean {
@@ -397,6 +536,17 @@ async function main() {
   const newViolationExamples: string[] = [];
   const uniqueConfidence = new Map<string, { scope: string; horizon: string; status: string; window: string | null }>();
   const confidenceJamsil: Record<string, unknown> = {};
+  const v231Stats = {
+    scanned: 0,
+    missingRebuilt: 0,
+    priceMismatch: 0,
+    complexMismatch: 0,
+    structuralMismatch: 0,
+    regionalValueCells: new Set<string>(),
+    statusOnlyCells: new Set<string>(),
+    invariantKeys: new Set<string>(),
+    sampleStatus: new Map<string, string>(),
+  };
   let smallArea: Record<string, unknown> | null = null;
   let largeArea: Record<string, unknown> | null = null;
   let duplicateKeys = 0;
@@ -413,15 +563,17 @@ async function main() {
   const gatePass = { DONG: 0, GU: 0, SEOUL: 0 };
   const bodiesDir = "/tmp/v23-bodies";
   mkdirSync(bodiesDir, { recursive: true });
+  const contributorAudit: ContributorAuditRow[] = [];
 
   for (const cohort of DECADE_COHORTS_V22) {
     const started = Date.now();
-    const built = buildPricePositionV23({
+    const built = (V231 ? buildPricePositionV231 : buildPricePositionV23)({
       cohort,
       points: points.get(cohort.key) ?? [],
       identities,
       cohortUniverse: canonical.get(cohort.key),
       transactionAsOf: AS_OF,
+      contributorAudit: AUDIT_CONTRIBUTORS || V231 ? contributorAudit : undefined,
     });
     const seen = new Set<string>();
     let slices = 0;
@@ -436,8 +588,8 @@ async function main() {
       if (seen.has(body.complexId)) duplicateKeys += 1;
       seen.add(body.complexId);
       uniqueComplexes.add(body.complexId);
-      if (body.version !== PRICE_POSITION_V23_VERSION) fail(`${cohort.key} version`);
-      if (body.methodologyFingerprint !== METHODOLOGY_FINGERPRINT_V23) fail(`${cohort.key} fingerprint`);
+      if (body.version !== (V231 ? PRICE_POSITION_V231_VERSION : PRICE_POSITION_V23_VERSION)) fail(`${cohort.key} version`);
+      if (body.methodologyFingerprint !== (V231 ? METHODOLOGY_FINGERPRINT_V231 : METHODOLOGY_FINGERPRINT_V23)) fail(`${cohort.key} fingerprint`);
       if (body.areaBand !== cohort.key || body.cohortKey !== cohort.key || body.regionPyeongDecade !== cohort.label) {
         fail(`${cohort.key} cohort identity ${body.complexId}`);
       }
@@ -486,11 +638,63 @@ async function main() {
       seconds: Math.round((Date.now() - started) / 1000),
     };
     console.log(`built ${cohort.label}`, coverage[cohort.label]);
+    if (AUDIT_CONTRIBUTORS) {
+      points.set(cohort.key, []);
+      continue;
+    }
     for (const body of built.bodies) {
       const gu = seoulGuName(identities.get(body.complexId)?.lawdCd ?? "") || "구";
       for (const cell of body.priceLevel) if (cell.scope === "GU") cell.label = gu;
       for (const horizon of TREND_HORIZONS_V21) {
         for (const cell of body.trends[horizon]) if (cell.scope === "GU") cell.label = gu;
+      }
+    }
+    if (V231) {
+      const stored23 = await db.execute({
+        sql: `SELECT complex_id, payload_json FROM complex_region_price_position WHERE snapshot_id=? AND area_band=?`,
+        args: [SNAP23, cohort.key],
+      });
+      const rebuiltById = new Map(built.bodies.map((body) => [body.complexId, body]));
+      const storedIds = new Set<string>();
+      for (const row of stored23.rows) {
+        v231Stats.scanned += 1;
+        const complexId = String(row.complex_id);
+        storedIds.add(complexId);
+        const rebuilt = rebuiltById.get(complexId);
+        if (!rebuilt) {
+          v231Stats.missingRebuilt += 1;
+          continue;
+        }
+        const storedBody = JSON.parse(String(row.payload_json)) as PricePositionBodyV21;
+        if (!priceLevelEqual(storedBody, rebuilt)) v231Stats.priceMismatch += 1;
+        if (!complexTrendEqual(storedBody, rebuilt)) v231Stats.complexMismatch += 1;
+        const ident = identities.get(complexId);
+        for (const horizon of TREND_HORIZONS_V21) {
+          for (const scope of ["DONG", "GU", "SEOUL"] as const) {
+            const src = rebuilt.trends[horizon].find((cell) => cell.scope === scope);
+            const dst = storedBody.trends[horizon]?.find((cell) => cell.scope === scope);
+            if (!src || !dst) {
+              v231Stats.structuralMismatch += 1;
+              continue;
+            }
+            const region =
+              scope === "DONG" ? `${ident?.lawdCd}|${ident?.bjdongCd}` : scope === "GU" ? ident?.lawdCd ?? "" : "SEOUL";
+            const key = `${cohort.key}|${scope}|${region}|${horizon}|${rebuilt.referenceMonth}`;
+            const nextA = src.cohortUniverseCount ?? 0;
+            const nextB = src.canonicalHistoryAvailableCount ?? 0;
+            const nextC = src.matchedComplexCount ?? 0;
+            if (!(nextC <= nextB && nextB <= nextA)) v231Stats.invariantKeys.add(key);
+            if (!regionalStructureEqual(dst, src)) v231Stats.structuralMismatch += 1;
+            if ((dst.changePercent ?? null) !== (src.changePercent ?? null)) v231Stats.regionalValueCells.add(key);
+            if ((dst.status ?? null) !== (src.status ?? null) && (src.changePercent ?? null) != null) {
+              v231Stats.statusOnlyCells.add(key);
+            }
+            if (!v231Stats.sampleStatus.has(key)) v231Stats.sampleStatus.set(key, src.sampleStatus ?? "");
+          }
+        }
+      }
+      for (const id of rebuiltById.keys()) {
+        if (!storedIds.has(id)) v231Stats.missingRebuilt += 1;
       }
     }
     if (CONFIDENCE) {
@@ -739,6 +943,17 @@ async function main() {
     points.set(cohort.key, []);
   }
 
+  if (AUDIT_CONTRIBUTORS) {
+    const report = summarizeContributorAudit(contributorAudit);
+    const auditPath = "/tmp/building-hub-bulk/external-evidence/canonical-contributor-audit.json";
+    mkdirSync("/tmp/building-hub-bulk/external-evidence", { recursive: true });
+    writeFileSync(auditPath, JSON.stringify(report));
+    console.log(`contributor audit ${auditPath}`);
+    console.log(JSON.stringify(report.summary));
+    console.log(JSON.stringify(report.jamsil));
+    return;
+  }
+
   const withDecade = uniqueComplexes.size;
   let noTrade = 0;
   let unresolvedOnly = 0;
@@ -953,6 +1168,132 @@ async function main() {
     };
     writeFileSync(confidenceReportPath, JSON.stringify({ ...confidenceReport, delta }));
     console.log("confidence delta", delta);
+    if (delta.v23Rows !== 0 || delta.v22Rows !== 0 || delta.v21Rows !== 0 || delta.v2Rows !== 0) {
+      throw new Error("unrelated snapshot changed");
+    }
+    return;
+  }
+
+  if (V231) {
+    let contributorFail = 0;
+    for (const row of contributorAudit) {
+      if (row.publishedMedian !== row.canonicalMedian) contributorFail += 1;
+      if (row.publishedContributors !== row.canonicalContributors) contributorFail += 1;
+    }
+    const sampleTally: Record<string, number> = {};
+    for (const status of v231Stats.sampleStatus.values()) sampleTally[status] = (sampleTally[status] ?? 0) + 1;
+    const gate =
+      invariantOk &&
+      v231Stats.priceMismatch === 0 &&
+      v231Stats.complexMismatch === 0 &&
+      v231Stats.structuralMismatch === 0 &&
+      v231Stats.missingRebuilt === 0 &&
+      v231Stats.invariantKeys.size === 0 &&
+      v231Stats.statusOnlyCells.size === 0 &&
+      contributorFail === 0;
+    const v231Report = {
+      version: PRICE_POSITION_V231_VERSION,
+      snapshot: SNAP231,
+      fingerprint: METHODOLOGY_FINGERPRINT_V231,
+      scanned: v231Stats.scanned,
+      priceMismatch: v231Stats.priceMismatch,
+      complexMismatch: v231Stats.complexMismatch,
+      structuralMismatch: v231Stats.structuralMismatch,
+      missingRebuilt: v231Stats.missingRebuilt,
+      regionalValueCells: v231Stats.regionalValueCells.size,
+      statusOnlyCells: v231Stats.statusOnlyCells.size,
+      invariantViolations: v231Stats.invariantKeys.size,
+      contributorParityFails: contributorFail,
+      auditCells: contributorAudit.length,
+      sampleTally,
+      jamsilComplex1Y,
+      invariantOk,
+      gate,
+    };
+    const v231Path = "/tmp/building-hub-bulk/external-evidence/v231-publish-report.json";
+    mkdirSync("/tmp/building-hub-bulk/external-evidence", { recursive: true });
+    writeFileSync(v231Path, JSON.stringify(v231Report));
+    console.log(`v231 report ${v231Path} gate=${gate}`);
+    console.log(JSON.stringify(v231Report));
+    if (!gate) {
+      console.log("v231 gate failed; no write");
+      process.exitCode = 2;
+      return;
+    }
+    if (!APPLY) {
+      console.log("v231 dry-run only");
+      return;
+    }
+    const before231 = await countSnap(db, SNAP231);
+    const now = new Date().toISOString();
+    let insertedBatches = 0;
+    let insertedRows = 0;
+    for (const cohort of DECADE_COHORTS_V22) {
+      const pending: PricePositionBodyV21[] = [];
+      const rl = createInterface({ input: createReadStream(`${bodiesDir}/${cohort.key}.jsonl`), crlfDelay: Infinity });
+      const flush = async () => {
+        if (!pending.length) return;
+        const slice = pending.splice(0, pending.length).map((body) => ({
+          sql: `INSERT INTO complex_region_price_position (
+                  snapshot_id, complex_id, area_band, transaction_as_of, area_band_version,
+                  reference_month, status, payload_json, calculated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(snapshot_id, complex_id, area_band) DO NOTHING`,
+          args: [
+            SNAP231,
+            body.complexId,
+            body.areaBand,
+            body.transactionAsOf,
+            body.areaBandVersion,
+            body.referenceMonth,
+            body.status,
+            JSON.stringify(body),
+            now,
+          ],
+        }));
+        let last: unknown = null;
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          try {
+            await db.batch(slice, "write");
+            last = null;
+            break;
+          } catch (error) {
+            last = error;
+            await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+          }
+        }
+        if (last) throw last;
+        insertedBatches += 1;
+        insertedRows += slice.length;
+      };
+      for await (const line of rl) {
+        if (!line) continue;
+        pending.push(JSON.parse(line) as PricePositionBodyV21);
+        if (pending.length >= BATCH) await flush();
+      }
+      await flush();
+      console.log(`inserted v231 cohort ${cohort.key}`);
+    }
+    const after231 = await countSnap(db, SNAP231);
+    const after23 = await countSnap(db, SNAP23);
+    const after22 = await countSnap(db, SNAP22);
+    const afterV2 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2|2026-09-17"] })).rows[0]?.n,
+    );
+    const after21 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2.1|2026-09-17"] })).rows[0]?.n,
+    );
+    const delta = {
+      v231Rows: after231.rows - before231.rows,
+      v23Rows: after23.rows - before23.rows,
+      v22Rows: after22.rows - before22.rows,
+      v21Rows: after21 - beforeV21,
+      v2Rows: afterV2 - beforeV2,
+      batches: insertedBatches,
+      attempted: insertedRows,
+    };
+    writeFileSync(v231Path, JSON.stringify({ ...v231Report, delta }));
+    console.log("v231 delta", delta);
     if (delta.v23Rows !== 0 || delta.v22Rows !== 0 || delta.v21Rows !== 0 || delta.v2Rows !== 0) {
       throw new Error("unrelated snapshot changed");
     }
