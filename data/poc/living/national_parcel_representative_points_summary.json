@@ -1,0 +1,556 @@
+{
+  "status": "READY_FOR_LIVING_CLOUD",
+  "generated_at": "2026-09-21T04:34:58.056371+00:00",
+  "target_sha256": "a2f0f4220dec775f304fad7b26925735cd320bd4be33b674e827f05b714b3874",
+  "target_complexes": 18724,
+  "target_pnus": 18724,
+  "available_source_codes": [
+    "11",
+    "12",
+    "26",
+    "27",
+    "28",
+    "30",
+    "31",
+    "36",
+    "41",
+    "43",
+    "44",
+    "47",
+    "48",
+    "50",
+    "51",
+    "52"
+  ],
+  "missing_target_source_codes": [],
+  "regions": {
+    "11": {
+      "archive": "AL_D002_11_20260908.zip",
+      "source_region": "11",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 896903,
+      "target_features_retained": 8364,
+      "target_rows": 8437,
+      "counts": {
+        "EXACT_PNU": 8362,
+        "PNU_NOT_FOUND": 73,
+        "INVALID_GEOMETRY": 2
+      },
+      "runtime_seconds": 37.957,
+      "temp_bytes_max": 669145100
+    },
+    "12": {
+      "archive": "AL_D002_12_20260908.zip",
+      "source_region": "12",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 6307550,
+      "target_features_retained": 469,
+      "target_rows": 469,
+      "counts": {
+        "EXACT_PNU": 469
+      },
+      "runtime_seconds": 135.884,
+      "temp_bytes_max": 5116317332
+    },
+    "26": {
+      "archive": "AL_D002_26_20260908.zip",
+      "source_region": "26",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 705940,
+      "target_features_retained": 402,
+      "target_rows": 403,
+      "counts": {
+        "EXACT_PNU": 402,
+        "PNU_NOT_FOUND": 1
+      },
+      "runtime_seconds": 15.744,
+      "temp_bytes_max": 543467968
+    },
+    "27": {
+      "archive": "AL_D002_27_20260908.zip",
+      "source_region": "27",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 785263,
+      "target_features_retained": 440,
+      "target_rows": 440,
+      "counts": {
+        "EXACT_PNU": 440
+      },
+      "runtime_seconds": 17.789,
+      "temp_bytes_max": 638560732
+    },
+    "28": {
+      "archive": "AL_D002_28_20260908.zip",
+      "source_region": "28",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 667724,
+      "target_features_retained": 247,
+      "target_rows": 248,
+      "counts": {
+        "EXACT_PNU": 247,
+        "PNU_NOT_FOUND": 1
+      },
+      "runtime_seconds": 14.739,
+      "temp_bytes_max": 518809396
+    },
+    "30": {
+      "archive": "AL_D002_30_20260908.zip",
+      "source_region": "30",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 290840,
+      "target_features_retained": 167,
+      "target_rows": 167,
+      "counts": {
+        "EXACT_PNU": 167
+      },
+      "runtime_seconds": 6.717,
+      "temp_bytes_max": 233993524
+    },
+    "31": {
+      "archive": "AL_D002_31_20260908.zip",
+      "source_region": "31",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 510997,
+      "target_features_retained": 150,
+      "target_rows": 151,
+      "counts": {
+        "EXACT_PNU": 150,
+        "PNU_NOT_FOUND": 1
+      },
+      "runtime_seconds": 11.464,
+      "temp_bytes_max": 419234568
+    },
+    "36": {
+      "archive": "AL_D002_36_20260908.zip",
+      "source_region": "36",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 207960,
+      "target_features_retained": 28,
+      "target_rows": 28,
+      "counts": {
+        "EXACT_PNU": 28
+      },
+      "runtime_seconds": 4.576,
+      "temp_bytes_max": 174888560
+    },
+    "41": {
+      "archive": "AL_D002_41_20260908.zip",
+      "source_region": "41",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 5211685,
+      "target_features_retained": 5599,
+      "target_rows": 6529,
+      "counts": {
+        "EXACT_PNU": 5592,
+        "PNU_NOT_FOUND": 930,
+        "INVALID_GEOMETRY": 7
+      },
+      "runtime_seconds": 133.876,
+      "temp_bytes_max": 4171022344
+    },
+    "43": {
+      "archive": "AL_D002_43_20260908.zip",
+      "source_region": "43",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 2415439,
+      "target_features_retained": 287,
+      "target_rows": 287,
+      "counts": {
+        "EXACT_PNU": 287
+      },
+      "runtime_seconds": 55.043,
+      "temp_bytes_max": 2028616388
+    },
+    "44": {
+      "archive": "AL_D002_44_20260908.zip",
+      "source_region": "44",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 3775096,
+      "target_features_retained": 287,
+      "target_rows": 287,
+      "counts": {
+        "EXACT_PNU": 287
+      },
+      "runtime_seconds": 90.867,
+      "temp_bytes_max": 3094768312
+    },
+    "47": {
+      "archive": "AL_D002_47_20260908.zip",
+      "source_region": "47",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 5733851,
+      "target_features_retained": 338,
+      "target_rows": 338,
+      "counts": {
+        "EXACT_PNU": 337,
+        "INVALID_GEOMETRY": 1
+      },
+      "runtime_seconds": 134.528,
+      "temp_bytes_max": 4825385740
+    },
+    "48": {
+      "archive": "AL_D002_48_20260908.zip",
+      "source_region": "48",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 4833198,
+      "target_features_retained": 453,
+      "target_rows": 453,
+      "counts": {
+        "EXACT_PNU": 453
+      },
+      "runtime_seconds": 112.221,
+      "temp_bytes_max": 3993365344
+    },
+    "50": {
+      "archive": "AL_D002_50_20260908.zip",
+      "source_region": "50",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 887267,
+      "target_features_retained": 20,
+      "target_rows": 20,
+      "counts": {
+        "EXACT_PNU": 20
+      },
+      "runtime_seconds": 21.771,
+      "temp_bytes_max": 716209636
+    },
+    "51": {
+      "archive": "AL_D002_51_20260908.zip",
+      "source_region": "51",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 2758377,
+      "target_features_retained": 286,
+      "target_rows": 286,
+      "counts": {
+        "EXACT_PNU": 286
+      },
+      "runtime_seconds": 63.935,
+      "temp_bytes_max": 2219607636
+    },
+    "52": {
+      "archive": "AL_D002_52_20260908.zip",
+      "source_region": "52",
+      "source_version": "20260908",
+      "status": "COMPLETE",
+      "features_scanned": 3886613,
+      "target_features_retained": 181,
+      "target_rows": 181,
+      "counts": {
+        "EXACT_PNU": 181
+      },
+      "runtime_seconds": 87.795,
+      "temp_bytes_max": 3140984724
+    }
+  },
+  "scan": {
+    "features_scanned": 39874703,
+    "target_features_retained": 17718,
+    "runtime_seconds": 816.44,
+    "peak_python_memory_bytes": 2360736254,
+    "peak_temp_bytes": 5116317332
+  },
+  "result": {
+    "resolved_complexes": 17708,
+    "unresolved": 1016,
+    "PNU_NOT_FOUND": 1006,
+    "DUPLICATE_PNU_FEATURE": 0,
+    "INVALID_GEOMETRY": 10,
+    "SOURCE_REGION_MISSING": 0
+  },
+  "outputs": {
+    "representative_points": "C:\\data\\cadastre\\2026-09\\out\\national_parcel_representative_points.csv.gz",
+    "representative_rows": 17708,
+    "representative_gzip_bytes": 532155,
+    "representative_sha256": "30e622d790569a601160d143586646f0d2f98fbb6f2fe2be680df1e562ea83a7",
+    "unresolved": "C:\\data\\cadastre\\2026-09\\out\\national_parcel_unresolved.csv.gz",
+    "unresolved_rows": 1016,
+    "unresolved_gzip_bytes": 16476,
+    "unresolved_sha256": "4b70168e57316b0e991b1d0a6eec21bec77cacd95a499f500581368501b98cc2",
+    "checkpoint": "C:\\data\\cadastre\\2026-09\\out\\checkpoint.json",
+    "summary": "C:\\data\\cadastre\\2026-09\\out\\national_parcel_representative_points_summary.json",
+    "target": "C:\\data\\cadastre\\2026-09\\out\\target_complex_pnu.csv",
+    "target_summary": "C:\\data\\cadastre\\2026-09\\out\\target_complex_pnu_summary.json"
+  },
+  "coordinate_semantics": "PARCEL_REPRESENTATIVE_POINT",
+  "pnu_rebuild": {
+    "status": "READY_FOR_EXTRACTION",
+    "generated_at": "2026-09-21T04:20:52.914931+00:00",
+    "master_complexes": 27524,
+    "prior_verified_target": 14966,
+    "buildinghub_complexes_inspected": 17295,
+    "EXACT_SINGLE_BUILDING_PNU": 17295,
+    "MULTI_BUILDING_PNU": 0,
+    "NO_BUILDING_PNU": 0,
+    "secondary_confirmations": 13534,
+    "secondary_conflicts": 0,
+    "overlaps": 13537,
+    "overlap_same": 13537,
+    "overlap_conflict": 0,
+    "newly_added_exact_pnu": 3758,
+    "final_exact_pnu_target": 18724,
+    "unresolved_master": 8800,
+    "regions": {
+      "11": 8437,
+      "12": 469,
+      "26": 403,
+      "27": 440,
+      "28": 248,
+      "30": 167,
+      "31": 151,
+      "36": 28,
+      "41": 6529,
+      "43": 287,
+      "44": 287,
+      "47": 338,
+      "48": 453,
+      "50": 20,
+      "51": 286,
+      "52": 181
+    },
+    "provenance": {
+      "primary": "C:\\data\\canonical_building_dong_keymap.csv.gz",
+      "primary_sha256": "feafa828033875d013b70d2f18f959973ea66a4993b00781038fd4f7fb721349",
+      "secondary": "C:\\data\\buildinghub\\2026-08\\filtered\\national_unit_building_evidence.csv.gz",
+      "secondary_sha256": "63d5f3df407e7d53daab68c763617a4814437ee46d8a776e22e951602e08f66b",
+      "pnu_encoding": "BuildingHub platGbCd normalized 0->PNU 1, 1->PNU 2; validated against 13,537 existing overlaps"
+    },
+    "target_sha256": "a2f0f4220dec775f304fad7b26925735cd320bd4be33b674e827f05b714b3874"
+  },
+  "source_inventory": {
+    "archives": 16,
+    "regions": [
+      "11",
+      "12",
+      "26",
+      "27",
+      "28",
+      "30",
+      "31",
+      "36",
+      "41",
+      "43",
+      "44",
+      "47",
+      "48",
+      "50",
+      "51",
+      "52"
+    ],
+    "source_version": "20260908",
+    "raw_bytes": 6618911502,
+    "crs": "EPSG:5186 / Korea 2000 Central Belt 2010",
+    "pnu_field": "A1"
+  },
+  "region_report": {
+    "11": {
+      "label": "서울",
+      "master_complexes": 8437,
+      "exact_pnu_targets": 8437,
+      "source_available": true,
+      "matched_target_features": 8364,
+      "representative_points": 8362,
+      "PNU_NOT_FOUND": 73,
+      "INVALID_GEOMETRY": 2,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "12": {
+      "label": "광주/전남 combined",
+      "master_complexes": 1646,
+      "exact_pnu_targets": 469,
+      "source_available": true,
+      "matched_target_features": 469,
+      "representative_points": 469,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "26": {
+      "label": "부산",
+      "master_complexes": 1404,
+      "exact_pnu_targets": 403,
+      "source_available": true,
+      "matched_target_features": 402,
+      "representative_points": 402,
+      "PNU_NOT_FOUND": 1,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "27": {
+      "label": "대구",
+      "master_complexes": 1151,
+      "exact_pnu_targets": 440,
+      "source_available": true,
+      "matched_target_features": 440,
+      "representative_points": 440,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "28": {
+      "label": "인천",
+      "master_complexes": 1093,
+      "exact_pnu_targets": 248,
+      "source_available": true,
+      "matched_target_features": 247,
+      "representative_points": 247,
+      "PNU_NOT_FOUND": 1,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "30": {
+      "label": "대전",
+      "master_complexes": 561,
+      "exact_pnu_targets": 167,
+      "source_available": true,
+      "matched_target_features": 167,
+      "representative_points": 167,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "31": {
+      "label": "울산",
+      "master_complexes": 519,
+      "exact_pnu_targets": 151,
+      "source_available": true,
+      "matched_target_features": 150,
+      "representative_points": 150,
+      "PNU_NOT_FOUND": 1,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "36": {
+      "label": "세종",
+      "master_complexes": 210,
+      "exact_pnu_targets": 28,
+      "source_available": true,
+      "matched_target_features": 28,
+      "representative_points": 28,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "41": {
+      "label": "경기",
+      "master_complexes": 6529,
+      "exact_pnu_targets": 6529,
+      "source_available": true,
+      "matched_target_features": 5599,
+      "representative_points": 5592,
+      "PNU_NOT_FOUND": 930,
+      "INVALID_GEOMETRY": 7,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "43": {
+      "label": "충북",
+      "master_complexes": 756,
+      "exact_pnu_targets": 287,
+      "source_available": true,
+      "matched_target_features": 287,
+      "representative_points": 287,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "44": {
+      "label": "충남",
+      "master_complexes": 976,
+      "exact_pnu_targets": 287,
+      "source_available": true,
+      "matched_target_features": 287,
+      "representative_points": 287,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "47": {
+      "label": "경북",
+      "master_complexes": 1006,
+      "exact_pnu_targets": 338,
+      "source_available": true,
+      "matched_target_features": 338,
+      "representative_points": 337,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 1,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "48": {
+      "label": "경남",
+      "master_complexes": 1395,
+      "exact_pnu_targets": 453,
+      "source_available": true,
+      "matched_target_features": 453,
+      "representative_points": 453,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "50": {
+      "label": "제주",
+      "master_complexes": 175,
+      "exact_pnu_targets": 20,
+      "source_available": true,
+      "matched_target_features": 20,
+      "representative_points": 20,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "51": {
+      "label": "강원",
+      "master_complexes": 815,
+      "exact_pnu_targets": 286,
+      "source_available": true,
+      "matched_target_features": 286,
+      "representative_points": 286,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    },
+    "52": {
+      "label": "전북",
+      "master_complexes": 851,
+      "exact_pnu_targets": 181,
+      "source_available": true,
+      "matched_target_features": 181,
+      "representative_points": 181,
+      "PNU_NOT_FOUND": 0,
+      "INVALID_GEOMETRY": 0,
+      "DUPLICATE_PNU_FEATURE": 0
+    }
+  },
+  "gyeonggi": {
+    "preserved_rows": 5592,
+    "rescanned": false
+  },
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "pnu": "1171010100100190000",
+    "lat": 37.51413457,
+    "lon": 127.07932524,
+    "source_version": "20260908",
+    "distance_from_current_canonical_m": 0.0,
+    "status": "EXACT_PNU"
+  },
+  "safety": {
+    "fuzzy_joins": 0,
+    "pnu_conflicts_published": 0,
+    "production_writes": 0,
+    "coordinate_semantics": "PARCEL_REPRESENTATIVE_POINT"
+  }
+}

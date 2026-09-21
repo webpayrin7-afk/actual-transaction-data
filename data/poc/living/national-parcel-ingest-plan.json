@@ -1,0 +1,169 @@
+{
+  "mode": "dry-run",
+  "sha256": "30e622d790569a601160d143586646f0d2f98fbb6f2fe2be680df1e562ea83a7",
+  "gzipBytes": 532155,
+  "incoming": 17708,
+  "counts": {
+    "EXISTING_SAME_PNU_SAME_POINT": 9203,
+    "NULL_SAFE_FILL": 8505
+  },
+  "beforeReady": 10567,
+  "expectedReady": 19072,
+  "expectedCoverage": 69.29,
+  "regions": [
+    {
+      "sido_code": "11",
+      "sido": "서울특별시",
+      "master": 8437,
+      "ready_before": 8364,
+      "newly_filled": 0,
+      "resulting_ready": 8364,
+      "coverage_pct": 99.13
+    },
+    {
+      "sido_code": "12",
+      "sido": "전남광주통합특별시",
+      "master": 1646,
+      "ready_before": 0,
+      "newly_filled": 469,
+      "resulting_ready": 469,
+      "coverage_pct": 28.49
+    },
+    {
+      "sido_code": "26",
+      "sido": "부산광역시",
+      "master": 1404,
+      "ready_before": 1228,
+      "newly_filled": 0,
+      "resulting_ready": 1228,
+      "coverage_pct": 87.46
+    },
+    {
+      "sido_code": "27",
+      "sido": "대구광역시",
+      "master": 1151,
+      "ready_before": 975,
+      "newly_filled": 1,
+      "resulting_ready": 976,
+      "coverage_pct": 84.8
+    },
+    {
+      "sido_code": "28",
+      "sido": "인천광역시",
+      "master": 1093,
+      "ready_before": 0,
+      "newly_filled": 247,
+      "resulting_ready": 247,
+      "coverage_pct": 22.6
+    },
+    {
+      "sido_code": "30",
+      "sido": "대전광역시",
+      "master": 561,
+      "ready_before": 0,
+      "newly_filled": 167,
+      "resulting_ready": 167,
+      "coverage_pct": 29.77
+    },
+    {
+      "sido_code": "31",
+      "sido": "울산광역시",
+      "master": 519,
+      "ready_before": 0,
+      "newly_filled": 150,
+      "resulting_ready": 150,
+      "coverage_pct": 28.9
+    },
+    {
+      "sido_code": "36",
+      "sido": "세종특별자치시",
+      "master": 210,
+      "ready_before": 0,
+      "newly_filled": 28,
+      "resulting_ready": 28,
+      "coverage_pct": 13.33
+    },
+    {
+      "sido_code": "41",
+      "sido": "경기도",
+      "master": 6529,
+      "ready_before": 0,
+      "newly_filled": 5592,
+      "resulting_ready": 5592,
+      "coverage_pct": 85.65
+    },
+    {
+      "sido_code": "43",
+      "sido": "충청북도",
+      "master": 756,
+      "ready_before": 0,
+      "newly_filled": 287,
+      "resulting_ready": 287,
+      "coverage_pct": 37.96
+    },
+    {
+      "sido_code": "44",
+      "sido": "충청남도",
+      "master": 976,
+      "ready_before": 0,
+      "newly_filled": 287,
+      "resulting_ready": 287,
+      "coverage_pct": 29.41
+    },
+    {
+      "sido_code": "47",
+      "sido": "경상북도",
+      "master": 1006,
+      "ready_before": 0,
+      "newly_filled": 337,
+      "resulting_ready": 337,
+      "coverage_pct": 33.5
+    },
+    {
+      "sido_code": "48",
+      "sido": "경상남도",
+      "master": 1395,
+      "ready_before": 0,
+      "newly_filled": 453,
+      "resulting_ready": 453,
+      "coverage_pct": 32.47
+    },
+    {
+      "sido_code": "50",
+      "sido": "제주특별자치도",
+      "master": 175,
+      "ready_before": 0,
+      "newly_filled": 20,
+      "resulting_ready": 20,
+      "coverage_pct": 11.43
+    },
+    {
+      "sido_code": "51",
+      "sido": "강원특별자치도",
+      "master": 815,
+      "ready_before": 0,
+      "newly_filled": 286,
+      "resulting_ready": 286,
+      "coverage_pct": 35.09
+    },
+    {
+      "sido_code": "52",
+      "sido": "전북특별자치도",
+      "master": 851,
+      "ready_before": 0,
+      "newly_filled": 181,
+      "resulting_ready": 181,
+      "coverage_pct": 21.27
+    }
+  ],
+  "jamsil": {
+    "klass": "EXISTING_SAME_PNU_SAME_POINT",
+    "pnu": "1171010100100190000",
+    "lat": "37.51413457",
+    "lon": "127.07932524",
+    "deltaM": 0
+  },
+  "pointDifferenceSamples": [],
+  "conflictSamples": [],
+  "validationSeconds": 24.405
+}
