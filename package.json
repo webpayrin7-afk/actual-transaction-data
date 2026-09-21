@@ -37,7 +37,8 @@
     "building:topology": "tsx scripts/building-topology/run-national.mts",
     "building:topology:v2": "tsx scripts/building-topology/run-v2.mts",
     "building:gis:download": "tsx scripts/building-topology/download-gis.mts",
-    "building:unit-evidence": "tsx scripts/building-topology/extract-unit-building-evidence.mts"
+    "building:unit-evidence": "tsx scripts/building-topology/extract-unit-building-evidence.mts",
+    "building:dong-keymap": "tsx scripts/building-topology/export-canonical-dong-keymap.mts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
