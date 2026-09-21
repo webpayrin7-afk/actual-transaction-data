@@ -1,0 +1,7 @@
+{
+  "package": "exact_type_building_households.csv.gz",
+  "sha256": "15970b2c9963da438b3e8ccb139a731d4a32805c3fccd3c4d19e051438eb3395",
+  "status": "SUPERSEDED_DO_NOT_PUBLISH",
+  "reason": "Local unit_type_id values are ut_ + 16 hex and do not match Core ut_ + 32 hex. Serving uses exact_type_building_households_v2 area keys joined to Core.",
+  "replacementVersion": "building-unit-link|buildinghub-2026-08|exact-dong-v2-core-area-key"
+}
