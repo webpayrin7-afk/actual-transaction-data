@@ -265,12 +265,13 @@ export function AptDetailPage({
     const ids = [
       "market",
       "trades",
-      "calculator",
-      "management",
-      "complex-info",
+      "region-rank",
+      "comparison",
       "nearby-life",
       "nearby-sales",
-      "comparison",
+      "complex-info",
+      "management",
+      "calculator",
     ] as const;
     const nodes = ids
       .map((id) => document.getElementById(`section-${id}`))
@@ -578,20 +579,21 @@ export function AptDetailPage({
 
   const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
     { id: "market", label: "시세 · 거래", show: true },
-    { id: "calculator", label: "세금, 대출 계산", show: true },
-    {
-      id: "management",
-      label: "관리비",
-      show: !!complexDetail?.management,
-    },
+    { id: "region-rank", label: "지역 내 비교", show: true },
+    { id: "comparison", label: "주변 단지 비교", show: true },
+    { id: "nearby-life", label: "주변 생활", show: true },
+    { id: "nearby-sales", label: "주변 공급", show: true },
     {
       id: "complex-info",
       label: "단지 정보",
       show: hasComplexInfoSection(complexDetail),
     },
-    { id: "nearby-life", label: "주변 생활", show: true },
-    { id: "nearby-sales", label: "주변 공급", show: true },
-    { id: "comparison", label: "주변 단지 비교", show: true },
+    {
+      id: "management",
+      label: "관리비",
+      show: !!complexDetail?.management,
+    },
+    { id: "calculator", label: "세금, 대출 계산", show: true },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
 
@@ -846,14 +848,6 @@ export function AptDetailPage({
         </div>
       </section>
 
-      <ComplexRegionRankSection
-        complexId={identity?.complexId ?? null}
-        regionSlug={regionSlug}
-        regionName={region?.name ?? data.regionName}
-        dongName={identity?.legalDongName ?? data.dong}
-        selectedArea={areaKey === "all" ? null : selectedArea}
-      />
-
       <section
         id="section-trades"
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
@@ -895,29 +889,55 @@ export function AptDetailPage({
         </div>
       </section>
 
-      <ComplexPurchaseCalculatorSection
+      <ComplexRegionRankSection
         complexId={identity?.complexId ?? null}
-        complexName={data.aptName}
-        areaKey={areaKey}
-        areaLabel={
-          areaKey === "all" || !selectedArea
-            ? "전체 면적"
-            : areaSelectorClosedLabel(selectedArea)
-        }
-        latestTradeMan={latestTrade?.dealAmount ?? 0}
-        exclusiveAreaMinSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
-        exclusiveAreaMaxSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
         regionSlug={regionSlug}
-        locationLabel={locationLabel}
+        regionName={region?.name ?? data.regionName}
+        dongName={identity?.legalDongName ?? data.dong}
+        selectedArea={areaKey === "all" ? null : selectedArea}
       />
+
+      {data ? (
+        <div id="section-comparison" className="scroll-mt-28">
+          <ComplexCompareSection
+            aptName={aptName}
+            regionSlug={regionSlug}
+            gu={gu}
+            dong={data.dong}
+            detail={data}
+            selectedArea={selectedArea}
+            areaKey={areaKey}
+            householdCount={complexDetail?.basic?.householdCount ?? null}
+          />
+        </div>
+      ) : null}
+
+      <div id="section-nearby-life" className="scroll-mt-28">
+        <ComplexNearbyLifeSection
+          aptName={aptName}
+          identity={identity ?? null}
+          initialTab={
+            // Default apt entry → 교통. School tab only via back-from-detail restore.
+            initialNearbyTab === "school"
+              ? "school"
+              : undefined
+          }
+          initialSchoolLevel={initialSchoolLevel}
+        />
+      </div>
+
+      <div id="section-nearby-sales" className="scroll-mt-28">
+        <ComplexNearbySalesSection
+          aptName={aptName}
+          sigungu={nearbySigungu}
+        />
+      </div>
+
+      {hasComplexInfoSection(complexDetail) && complexDetail ? (
+        <div id="section-complex-info" className="scroll-mt-28">
+          <ComplexInfoCard detail={complexDetail} />
+        </div>
+      ) : null}
 
       {complexDetail?.management ? (
         <div id="section-management" className="scroll-mt-28">
@@ -948,47 +968,29 @@ export function AptDetailPage({
         </div>
       ) : null}
 
-      {hasComplexInfoSection(complexDetail) && complexDetail ? (
-        <div id="section-complex-info" className="scroll-mt-28">
-          <ComplexInfoCard detail={complexDetail} />
-        </div>
-      ) : null}
-
-      <div id="section-nearby-life" className="scroll-mt-28">
-        <ComplexNearbyLifeSection
-          aptName={aptName}
-          identity={identity ?? null}
-          initialTab={
-            // Default apt entry → 교통. School tab only via back-from-detail restore.
-            initialNearbyTab === "school"
-              ? "school"
-              : undefined
-          }
-          initialSchoolLevel={initialSchoolLevel}
-        />
-      </div>
-
-      <div id="section-nearby-sales" className="scroll-mt-28">
-        <ComplexNearbySalesSection
-          aptName={aptName}
-          sigungu={nearbySigungu}
-        />
-      </div>
-
-      {data ? (
-        <div id="section-comparison" className="scroll-mt-28">
-          <ComplexCompareSection
-            aptName={aptName}
-            regionSlug={regionSlug}
-            gu={gu}
-            dong={data.dong}
-            detail={data}
-            selectedArea={selectedArea}
-            areaKey={areaKey}
-            householdCount={complexDetail?.basic?.householdCount ?? null}
-          />
-        </div>
-      ) : null}
+      <ComplexPurchaseCalculatorSection
+        complexId={identity?.complexId ?? null}
+        complexName={data.aptName}
+        areaKey={areaKey}
+        areaLabel={
+          areaKey === "all" || !selectedArea
+            ? "전체 면적"
+            : areaSelectorClosedLabel(selectedArea)
+        }
+        latestTradeMan={latestTrade?.dealAmount ?? 0}
+        exclusiveAreaMinSqm={
+          selectedArea
+            ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
+            : null
+        }
+        exclusiveAreaMaxSqm={
+          selectedArea
+            ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
+            : null
+        }
+        regionSlug={regionSlug}
+        locationLabel={locationLabel}
+      />
     </div>
   );
 }
