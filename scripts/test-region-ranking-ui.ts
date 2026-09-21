@@ -225,8 +225,9 @@ assert(guLine?.title === "송파구 3위", `gu title ${guLine?.title}`);
 assert(guLine?.meta === "57개 단지 중", `gu meta ${guLine?.meta}`);
 const dongLine = placeHeadline({ regionName: "잠실동", place: dong });
 assert(dongLine?.title === "잠실동 3위", `dong title ${dongLine?.title}`);
-assert(dongLine?.meta == null, "dong row does not repeat cohort copy");
+assert(dongLine?.meta === "비교 가능 6개 단지 중", `dong meta ${dongLine?.meta}`);
 assert(!JSON.stringify(dongLine).includes("smallCohort"), "no raw smallCohort");
+assert(!String(dongLine?.meta).includes("잠실동 순위"), "dong sample stays under the rank, not a second card line");
 const helper = dongSmallCohortHelper({
   dongName: "잠실동",
   places: [dong, dong],
@@ -234,10 +235,6 @@ const helper = dongSmallCohortHelper({
 assert(
   helper === "잠실동 순위 · 비교 가능한 6개 단지 기준",
   `helper ${helper}`,
-);
-assert(
-  (helper?.match(/비교 가능한/g)?.length ?? 0) === 1,
-  "helper appears once",
 );
 assert(
   dongSmallCohortHelper({ dongName: "잠실동", places: [guPlace] }) === null,
@@ -344,33 +341,38 @@ const els25 = selectedPyeongCompareLines({
   supplyPyeongCohort: "20평대",
   referenceMonth: "2026-08",
 });
-assert(els25.line1 === "이 단지 25평 · 20평대 비교", `25평 copy ${els25.line1}`);
+assert(els25.line1 === "25평 · 20평대 비교 · 2026.08 기준", `25평 copy ${els25.line1}`);
 const els33 = selectedPyeongCompareLines({
   selectedPyeongLabel: "33평",
   selectedMarketPyeongLabel: 34,
   supplyPyeongCohort: "30평대",
   referenceMonth: "2026-08",
 });
-assert(els33.line1 === "이 단지 33평 · 30평대 비교", `33평 copy ${els33.line1}`);
+assert(els33.line1 === "33평 · 30평대 비교 · 2026.08 기준", `33평 copy ${els33.line1}`);
 assert(!String(els33.line1).includes("34평"), "selector 33평 wins over rematched 34평");
-assert(els33.line2 === "2026년 8월 기준", "month stays on API");
+assert(els33.line2 == null, "compact subtitle is one line");
 const els45 = selectedPyeongCompareLines({
   selectedPyeongLabel: "45평",
   supplyPyeongCohort: "40평대",
   referenceMonth: "2026-08",
 });
-assert(els45.line1 === "이 단지 45평 · 40평대 비교", `45평 copy ${els45.line1}`);
+assert(els45.line1 === "45평 · 40평대 비교 · 2026.08 기준", `45평 copy ${els45.line1}`);
 assert(!String(els45.line1).includes("45평대"), "never 45평대 비교");
 assert(
   selectedPyeongCompareLines({
     selectedPyeongLabel: "45평",
     supplyPyeongCohort: null,
     referenceMonth: "2026-09",
-  }).line1 !== "이 단지 45평 · 40평대 비교",
+  }).line1 === "45평 · 2026.09 기준",
   "client does not invent decade cohort",
 );
-assert(rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84" }) === "33평", "rank heading uses supply label");
-assert(rankingSelectedHeading({ pyeongLabel: null, rankingBand: "84" }) === "84㎡", "rank heading falls back to ranking band, not invented 평");
+assert(rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84" }) === "33평 순위", "rank heading uses selected 평, not decade");
+assert(!String(rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84" })).includes("30평대"), "ranking stays off invented decade");
+assert(rankingSelectedHeading({ pyeongLabel: null, rankingBand: "84" }) === "84㎡ 순위", "rank heading falls back to ranking band, not invented 평");
+assert(
+  rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84", rankingCohortLabel: "30평대" }) === "33평 · 30평대 순위",
+  "decade rank label only when ranking API supplies it",
+);
 
 const v1Rejected = parseComplexPricePosition(
   {

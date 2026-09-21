@@ -456,13 +456,13 @@ export function placeHeadline(params: {
   if (!place || place.status !== "ranked" || place.rank == null) return null;
   const total = place.total;
   const title = `${params.regionName} ${place.rank}위`;
-  return {
-    title,
-    meta:
-      !place.smallCohort && total != null && total > 0
-        ? `${total.toLocaleString("ko-KR")}개 단지 중`
-        : null,
-  };
+  let meta: string | null = null;
+  if (total != null && total > 0) {
+    meta = place.smallCohort
+      ? `비교 가능 ${total.toLocaleString("ko-KR")}개 단지 중`
+      : `${total.toLocaleString("ko-KR")}개 단지 중`;
+  }
+  return { title, meta };
 }
 
 /** One card-level note. Never repeat per ranking row. */
@@ -780,6 +780,13 @@ export function formatReferenceMonthShort(raw: string | null | undefined): strin
   return `${match[1]}년 ${Number(match[2])}월`;
 }
 
+export function formatReferenceMonthCompact(raw: string | null | undefined): string | null {
+  if (!raw?.trim()) return null;
+  const match = /^(\d{4})-(\d{2})/.exec(raw.trim());
+  if (!match) return null;
+  return `${match[1]}.${match[2]} 기준`;
+}
+
 export function supplyCohortCompareLabel(cohort: string | null | undefined): string | null {
   const value = cohort?.trim();
   if (!value) return null;
@@ -802,16 +809,15 @@ export function selectedPyeongCompareLines(params: {
       : null;
   const selected = selectorPyeong ?? fromApi ?? fromSelector;
   const cohort = supplyCohortCompareLabel(params.supplyPyeongCohort);
-  const month = formatReferenceMonthLabel(params.referenceMonth);
-  const monthShort = formatReferenceMonthShort(params.referenceMonth);
+  const compact = formatReferenceMonthCompact(params.referenceMonth);
   if (selected && cohort) {
-    return { line1: `이 단지 ${selected} · ${cohort}`, line2: month };
+    return { line1: [selected, cohort, compact].filter(Boolean).join(" · "), line2: null };
   }
   if (selected) {
-    return { line1: [selected, monthShort].filter(Boolean).join(" · ") || selected, line2: null };
+    return { line1: [selected, compact].filter(Boolean).join(" · ") || selected, line2: null };
   }
-  if (cohort) return { line1: cohort, line2: month };
-  return { line1: month, line2: null };
+  if (cohort) return { line1: [cohort, compact].filter(Boolean).join(" · "), line2: null };
+  return { line1: compact, line2: null };
 }
 
 function yearMonthLabel(raw: string | null | undefined): string | null {
@@ -855,11 +861,19 @@ export function trendHorizonFallbackNotes(cells: readonly TrendPublicCell[]): st
   return notes;
 }
 
+/**
+ * Selected-area ranking title. Ranking payload is still 59/84/114.
+ * Pass rankingCohortLabel only when the ranking API itself exposes a decade cohort.
+ * Never invent 30평대 from 33평 or from price-position.
+ */
 export function rankingSelectedHeading(params: {
   pyeongLabel: string | null;
   rankingBand: AreaRankingBand | null;
+  rankingCohortLabel?: string | null;
 }): string | null {
-  if (params.pyeongLabel?.trim()) return params.pyeongLabel.trim();
-  if (params.rankingBand) return `${params.rankingBand}㎡`;
-  return null;
+  const selected = params.pyeongLabel?.trim() || (params.rankingBand ? `${params.rankingBand}㎡` : null);
+  if (!selected) return null;
+  const cohort = params.rankingCohortLabel?.trim() || null;
+  if (cohort) return `${selected} · ${cohort} 순위`;
+  return `${selected} 순위`;
 }

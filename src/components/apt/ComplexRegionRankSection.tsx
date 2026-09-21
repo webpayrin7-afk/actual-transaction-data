@@ -6,7 +6,6 @@ import { ComplexRegionPriceCompare } from "@/components/apt/ComplexRegionPriceCo
 import { areaSelectorPyeongLabel } from "@/lib/apt/area-selector-label";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
-  dongSmallCohortHelper,
   fetchComplexRegionRank,
   formatRankingAsOf,
   placeHeadline,
@@ -28,15 +27,22 @@ function RankCell({
 }) {
   if (!line) {
     return (
-      <p className="min-w-0 truncate text-[13px] leading-5 text-slate-500">
-        {empty}
-      </p>
+      <div className="min-w-0">
+        <p className="truncate text-[13px] leading-5 text-slate-500">{empty}</p>
+      </div>
     );
   }
   return (
-    <p className="min-w-0 truncate text-[15px] font-semibold leading-5 tabular-nums text-slate-900">
-      {line.title}
-    </p>
+    <div className="min-w-0">
+      <p className="truncate text-[15px] font-semibold leading-5 tabular-nums text-slate-900">
+        {line.title}
+      </p>
+      {line.meta ? (
+        <p className="mt-0.5 truncate text-[11px] leading-4 text-slate-500">
+          {line.meta}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -66,14 +72,9 @@ function RankPair({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+    <div className="grid grid-cols-2 gap-x-3">
       <RankCell line={guLine} empty={emptyGu} />
       <RankCell line={dongLine} empty={emptyDong} />
-      {guLine?.meta ? (
-        <p className="min-w-0 truncate text-[12px] leading-4 text-slate-500">
-          {guLine.meta}
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -129,22 +130,20 @@ export function ComplexRegionRankSection({
       null,
   );
   const dongLabel = data?.dong?.trim() || dongName?.trim() || "이 동";
-  const cohortHelper = dongSmallCohortHelper({
-    dongName: dongLabel,
-    places: [data?.all?.dong, data?.area?.dong],
-  });
 
   return (
     <section
       id="section-region-rank"
       className="lab-card scroll-mt-28 p-3.5 sm:p-4"
     >
-      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
-        <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+      <div className="flex flex-nowrap items-center justify-between gap-2">
+        <h2 className="min-w-0 truncate text-xl font-semibold leading-none tracking-tight text-slate-900">
           지역 내 비교
         </h2>
         {asOf ? (
-          <p className="text-[12px] leading-4 text-slate-500">{asOf}</p>
+          <p className="shrink-0 text-[11px] leading-4 text-slate-500 sm:text-[12px]">
+            {asOf}
+          </p>
         ) : null}
       </div>
 
@@ -167,9 +166,9 @@ export function ComplexRegionRankSection({
           </button>
         </div>
       ) : (
-        <div className="mt-3 space-y-2.5">
+        <div className="mt-3 space-y-3">
           <div>
-            <p className="text-[13px] font-medium leading-5 text-slate-600">종합</p>
+            <p className="text-[13px] font-medium leading-5 text-slate-600">종합 순위</p>
             <div className="mt-1">
               <RankPair
                 guName={regionName}
@@ -183,7 +182,7 @@ export function ComplexRegionRankSection({
           </div>
 
           {areaBand ? (
-            <div className="border-t border-slate-100 pt-2">
+            <div className="border-t border-slate-100 pt-3">
               <p className="text-[13px] font-medium leading-5 text-slate-600">
                 {selectedRankHeading}
               </p>
@@ -205,10 +204,6 @@ export function ComplexRegionRankSection({
               </div>
             </div>
           ) : null}
-
-          {cohortHelper ? (
-            <p className="text-[12px] leading-4 text-slate-500">{cohortHelper}</p>
-          ) : null}
         </div>
       )}
 
@@ -222,7 +217,7 @@ export function ComplexRegionRankSection({
       <Link
         href={regionRankingHref(regionSlug)}
         data-event="complex_region_rank_cta"
-        className="lab-button lab-button-secondary mt-3 flex w-full !min-h-9 items-center justify-center text-[13px]"
+        className="lab-button lab-button-secondary mt-3.5 flex w-full !min-h-9 items-center justify-center text-[13px]"
       >
         {regionOverviewCtaLabel(regionName)}
       </Link>

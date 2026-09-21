@@ -43,8 +43,12 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
         const width = hiddenBar ? 0 : barWidthPct(value, scale);
         const accent = cell.scope === "COMPLEX";
         return (
-          <li key={cell.scope} className="flex items-center gap-2">
-            <span className="w-12 shrink-0 truncate text-[13px] leading-4 text-slate-600">
+          <li key={cell.scope} className="flex items-center gap-2.5">
+            <span
+              className={`w-12 shrink-0 truncate text-[13px] leading-4 ${
+                accent ? "font-medium text-teal-700" : "text-slate-600"
+              }`}
+            >
               {cell.label}
             </span>
             <div className="min-w-0 flex-1">
@@ -58,7 +62,7 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
               )}
             </div>
             <span
-              className={`w-[7.5rem] shrink-0 text-right text-[12px] leading-4 tabular-nums sm:w-36 sm:text-[13px] ${
+              className={`w-[7.5rem] shrink-0 whitespace-nowrap text-right text-[12px] leading-4 tabular-nums sm:w-36 sm:text-[13px] ${
                 hiddenBar
                   ? "text-slate-500"
                   : accent
@@ -108,8 +112,12 @@ function TrendBars({
           const up = !hiddenBar && value != null && value > 0;
           const down = !hiddenBar && value != null && value < 0;
           return (
-            <li key={cell.scope} className="flex items-center gap-2">
-              <span className="w-12 shrink-0 truncate text-[13px] leading-4 text-slate-600">
+            <li key={cell.scope} className="flex items-center gap-2.5">
+              <span
+                className={`w-12 shrink-0 truncate text-[13px] leading-4 ${
+                  cell.scope === "COMPLEX" ? "font-medium text-teal-700" : "text-slate-600"
+                }`}
+              >
                 {cell.label}
               </span>
               {hiddenBar ? (
@@ -141,7 +149,7 @@ function TrendBars({
                     </div>
                   </div>
                   <span
-                    className={`w-14 shrink-0 text-right text-[12px] tabular-nums sm:w-16 sm:text-[13px] ${
+                    className={`w-14 shrink-0 whitespace-nowrap text-right text-[12px] tabular-nums sm:w-16 sm:text-[13px] ${
                       up ? "font-medium text-rose-600" : down ? "font-medium text-blue-600" : "text-slate-500"
                     }`}
                   >
@@ -205,12 +213,12 @@ export function ComplexRegionPriceCompare({
   const fallbackNotes = trendHorizonFallbackNotes(trendCells);
 
   return (
-    <div className="border-t border-slate-100 pt-2.5">
-      <div className="flex flex-wrap items-center gap-1">
-        <h3 className="text-[15px] font-semibold leading-5 text-slate-900">
+    <div className="mt-3 border-t border-slate-200 pt-3">
+      <div className="flex flex-nowrap items-center gap-1">
+        <h3 className="text-[13px] font-medium leading-5 text-slate-600">
           지역 가격 비교
         </h3>
-        <span className="text-[12px] text-slate-500">평당가</span>
+        <span className="text-[11px] text-slate-400">평당가</span>
         <InfoTip aria-label={tab === "level" ? "평당가 비교 안내" : "실거래 가격 변동 안내"}>
           <p>{tab === "level" ? priceTip : trendTip}</p>
           <p className="mt-1">{COMPLEX_EXACT_TIP}</p>
@@ -242,7 +250,7 @@ export function ComplexRegionPriceCompare({
                 onClick={() => setTab(item.id)}
                 className={labSecondaryTabClass(
                   tab === item.id,
-                  "min-h-8 min-w-0 flex-1 !px-1.5 whitespace-nowrap text-[12px] sm:text-[13px]",
+                  "!h-7 min-h-7 min-w-0 flex-1 !px-1.5 whitespace-nowrap text-[12px]",
                 )}
               >
                 {item.label}
@@ -277,7 +285,7 @@ export function ComplexRegionPriceCompare({
                   onClick={() => setPeriod(item.id)}
                   className={labSecondaryTabClass(
                     period === item.id,
-                    "min-h-8 min-w-0 flex-1 !px-1 whitespace-nowrap text-[12px] sm:text-[13px]",
+                    "!h-7 min-h-7 min-w-0 flex-1 !px-1 whitespace-nowrap text-[12px]",
                   )}
                 >
                   {item.label}
