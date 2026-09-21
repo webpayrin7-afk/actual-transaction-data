@@ -312,8 +312,8 @@ assert(
   "region CTA stays on 지역현황 tab",
 );
 assert(
-  regionOverviewCtaLabel("송파구") === "송파구 순위 보기",
-  "CTA renamed to 순위 보기",
+  regionOverviewCtaLabel("송파구") === "송파구 지역 순위 보기",
+  "CTA renamed to 지역 순위 보기",
 );
 
 assert(PRICE_COMPARE_TABS.map((tab) => tab.label).join("|") === "가격 수준|변동률", "price compare tabs");
