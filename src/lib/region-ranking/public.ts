@@ -882,19 +882,14 @@ export function trendHorizonFallbackNotes(cells: readonly TrendPublicCell[]): st
 /**
  * Selected-area ranking title.
  * Decade text comes from ranking API regionPyeongDecade only.
- * Never uses legacy 59/84/114 and never invents a decade from exclusive ㎡.
+ * Does not prefix the selected exact 평 (33평 · 30평대 순위 → 30평대 순위).
  */
 export function rankingSelectedHeading(params: {
-  pyeongLabel: string | null;
+  pyeongLabel?: string | null;
   rankingCohortLabel?: string | null;
 }): string | null {
-  const selected = params.pyeongLabel?.trim() || null;
   const cohort = params.rankingCohortLabel?.trim() || null;
-  if (selected && cohort) {
-    const decade = cohort.replace(/\s*순위$/, "");
-    return `${selected} · ${decade} 순위`;
-  }
-  if (selected) return `${selected} 순위`;
-  if (cohort) return `${cohort.replace(/\s*순위$/, "")} 순위`;
-  return null;
+  if (!cohort) return null;
+  const decade = cohort.replace(/\s*순위$/, "");
+  return `${decade} 순위`;
 }

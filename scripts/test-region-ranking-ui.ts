@@ -380,23 +380,26 @@ assert(
   }).line1 === "45평 · 2026.09 기준",
   "client does not invent decade cohort",
 );
-assert(rankingSelectedHeading({ pyeongLabel: "33평" }) === "33평 순위", "rank heading uses selected 평");
-assert(!String(rankingSelectedHeading({ pyeongLabel: "33평" })).includes("30평대"), "no invented decade without API");
+assert(rankingSelectedHeading({ pyeongLabel: "33평" }) === null, "no 33평 heading without API decade");
 assert(rankingSelectedHeading({ pyeongLabel: null }) === null, "no 84㎡ fallback");
 assert(
-  rankingSelectedHeading({ pyeongLabel: "33평", rankingCohortLabel: "30평대" }) === "33평 · 30평대 순위",
-  "decade rank label only when ranking API supplies it",
+  rankingSelectedHeading({ pyeongLabel: "33평", rankingCohortLabel: "30평대" }) === "30평대 순위",
+  "drop selected 평 from decade rank heading",
 );
 assert(
-  rankingSelectedHeading({ pyeongLabel: "24평", rankingCohortLabel: "20평대" }) === "24평 · 20평대 순위",
+  !String(rankingSelectedHeading({ pyeongLabel: "33평", rankingCohortLabel: "30평대" })).includes("33평"),
+  "33평 is not in the decade heading",
+);
+assert(
+  rankingSelectedHeading({ pyeongLabel: "24평", rankingCohortLabel: "20평대" }) === "20평대 순위",
   "20평대 heading",
 );
 assert(
-  rankingSelectedHeading({ pyeongLabel: "43평", rankingCohortLabel: "40평대" }) === "43평 · 40평대 순위",
+  rankingSelectedHeading({ pyeongLabel: "43평", rankingCohortLabel: "40평대" }) === "40평대 순위",
   "40평대 heading",
 );
 assert(
-  rankingSelectedHeading({ pyeongLabel: "102평", rankingCohortLabel: "100평+" }) === "102평 · 100평+ 순위",
+  rankingSelectedHeading({ pyeongLabel: "102평", rankingCohortLabel: "100평+" }) === "100평+ 순위",
   "100평+ heading stays API semantic",
 );
 
