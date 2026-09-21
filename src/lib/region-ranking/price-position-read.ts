@@ -16,9 +16,9 @@ import {
   type PricePositionBodyV21,
 } from "./price-position-v21";
 import {
-  METHODOLOGY_FINGERPRINT_V23,
-  PRICE_POSITION_V23_VERSION,
-  pricePositionV23SnapshotId,
+  METHODOLOGY_FINGERPRINT_V231,
+  PRICE_POSITION_V231_VERSION,
+  pricePositionV231SnapshotId,
 } from "./price-position-v23";
 import {
   decadeCohortByKey,
@@ -26,14 +26,14 @@ import {
 } from "./price-position-v22";
 
 /**
- * Public pointer is V2.3.
- * A missing V2.3 row is unavailable. V2, V2.1, and V2.2 stay stored and are never read as fallbacks.
- * Legacy area_band 59/84/114 is stored under the decade key on the V2.3 snapshot only.
+ * Public pointer is V2.3.1.
+ * A missing V2.3.1 row is unavailable. V2, V2.1, V2.2, and V2.3 stay stored and are never read as fallbacks.
+ * Legacy area_band 59/84/114 is stored under the decade key.
  */
-export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V23_VERSION;
+export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V231_VERSION;
 export const PRICE_POSITION_PUBLIC_AS_OF = PRICE_POSITION_V21_AS_OF;
 
-const PUBLIC_SNAPSHOT_ID = pricePositionV23SnapshotId();
+const PUBLIC_SNAPSHOT_ID = pricePositionV231SnapshotId();
 
 export function seoulGuName(lawdCd: string): string | null {
   for (const region of SEOUL_REGIONS) {
@@ -94,7 +94,7 @@ function publicSnapshot(areaBand: string): { snapshotId: string; storageBand: st
   return {
     snapshotId: PUBLIC_SNAPSHOT_ID,
     storageBand: decadeKeyFromLegacyAreaBand(areaBand) ?? areaBand,
-    version: PRICE_POSITION_V23_VERSION,
+    version: PRICE_POSITION_V231_VERSION,
   };
 }
 
@@ -172,10 +172,10 @@ export async function readComplexPricePosition(
     priceLevelDefinition: PRICE_LEVEL_DEFINITION_V21,
     complexPriceDefinition: COMPLEX_PRICE_DEFINITION_V21,
     complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label",
-    regionTrendDefinition: "median_of_matched_complex_changes_trailing_6m_pooled_mean",
+    regionTrendDefinition: "median_of_canonical_matched_complex_changes_trailing_6m_pooled_mean",
     areaBasis: "SUPPLY_PYEONG_LABEL",
     pyeongLabelVersion: "canonical-supply-pyeong-round-v1",
-    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V23,
+    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V231,
     methodologyCopy: {
       price: PRICE_COPY_V21,
       trend: TREND_COPY_V21,

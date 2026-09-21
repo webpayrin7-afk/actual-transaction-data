@@ -176,6 +176,21 @@ export type PricePositionBodyV21 = {
   };
 };
 
+export type ContributorAuditRow = {
+  cohortKey: string;
+  cacheKey: string;
+  referenceMonth: string;
+  horizon: TrendHorizonV21;
+  legacyContributors: number;
+  canonicalContributors: number;
+  nonCanonicalContributors: number;
+  legacyMedian: number | null;
+  canonicalMedian: number | null;
+  publishedMedian: number | null;
+  publishedContributors: number;
+  nonCanonicalIds: string[];
+};
+
 export function pricePositionV21SnapshotId(asOf: string = PRICE_POSITION_V21_AS_OF): string {
   return `${PRICE_POSITION_V21_VERSION}|${asOf}`;
 }
@@ -206,10 +221,14 @@ export function buildPricePositionV21(params: {
   /** Default S1 keeps V2.1/V2.2 region trends unchanged. */
   regionEndpoint?: "S1" | "TRAILING_6M";
   regionTrendDefinition?: string;
-  /** Canonical supply complexes. Coverage denominator only; matching stays on traded complexes. */
+  /** Canonical supply complexes. Coverage denominator. V2.3.1 also uses this set as the regional median population. */
   cohortUniverse?: ReadonlySet<string>;
   /** When false, a matched median is returned even below the legacy minimum. */
   enforceTrendMinimum?: boolean;
+  /** V2.3.1. Regional median uses canonical cohort members only. */
+  canonicalContributorsOnly?: boolean;
+  /** Read-only. Does not change the published median. */
+  contributorAudit?: ContributorAuditRow[];
 }): { bodies: PricePositionBodyV21[]; ambiguousExcluded: number; exactMapped: number } {
   const cohort = params.cohort ?? BAND_TO_SUPPLY_COHORT[params.areaBand as RegionalAreaBandId];
   const version = params.version ?? PRICE_POSITION_V21_VERSION;
@@ -219,6 +238,7 @@ export function buildPricePositionV21(params: {
   const regionEndpoint = params.regionEndpoint ?? "S1";
   const regionTrendDefinition = params.regionTrendDefinition ?? REGION_TREND_DEFINITION_V21;
   const enforceTrendMinimum = params.enforceTrendMinimum ?? true;
+  const canonicalContributorsOnly = params.canonicalContributorsOnly === true;
 
   const dealPoints: Array<{
     complexId: string;
@@ -433,10 +453,14 @@ export function buildPricePositionV21(params: {
     const cached = regionTrendCache.get(cacheKey);
     if (cached) return cached;
     const changes: number[] = [];
+    const canonicalChanges: number[] = [];
+    const nonCanonicalIds: string[] = [];
     let matched = 0;
     let canonicalMatched = 0;
     const actualCurrent = new Set<string>();
     const actualBaseline = new Set<string>();
+    const canonicalCurrent = new Set<string>();
+    const canonicalBaseline = new Set<string>();
     let historyAvailable = 0;
     let canonicalHistory = 0;
     const window =
@@ -447,6 +471,7 @@ export function buildPricePositionV21(params: {
             historyFloor: HISTORY_FLOOR_MONTH_V21,
           })
         : null;
+    const useCanonical = canonicalContributorsOnly && canonicalSet != null;
     for (const cid of ids) {
       const cells = tables.get(cid);
       if (!cells) continue;
@@ -462,9 +487,16 @@ export function buildPricePositionV21(params: {
         if (ch == null) continue;
         changes.push(ch);
         matched += 1;
-        if (inCanonical) canonicalMatched += 1;
-        for (const month of cur.months) actualCurrent.add(month);
-        for (const month of base.months) actualBaseline.add(month);
+        if (inCanonical) {
+          canonicalChanges.push(ch);
+          canonicalMatched += 1;
+          for (const month of cur.months) canonicalCurrent.add(month);
+          for (const month of base.months) canonicalBaseline.add(month);
+        } else nonCanonicalIds.push(cid);
+        if (!useCanonical) {
+          for (const month of cur.months) actualCurrent.add(month);
+          for (const month of base.months) actualBaseline.add(month);
+        }
         continue;
       }
       const cur = resolveComplexMonth({
@@ -489,14 +521,20 @@ export function buildPricePositionV21(params: {
       actualCurrent.add(cur.month);
       actualBaseline.add(base.month);
     }
-    const med = median(changes);
     const minimum = enforceTrendMinimum ? minComplexes : 1;
-    const ok = med != null && matched >= minimum;
+    const legacyMed = median(changes);
+    const legacyOk = legacyMed != null && matched >= minimum;
+    const publishedChanges = useCanonical ? canonicalChanges : changes;
+    const publishedCount = useCanonical ? canonicalMatched : matched;
+    const med = median(publishedChanges);
+    const ok = med != null && publishedCount >= minimum;
+    const publishedCurrent = useCanonical ? canonicalCurrent : actualCurrent;
+    const publishedBaseline = useCanonical ? canonicalBaseline : actualBaseline;
     const computed: RegionTrend = {
       changePercent: ok ? roundToV2(med!, 2) : null,
-      matchedComplexCount: matched || null,
-      actualCurrentMonth: actualCurrent.size ? [...actualCurrent].sort().join(",") : null,
-      actualBaselineMonth: actualBaseline.size ? [...actualBaseline].sort().join(",") : null,
+      matchedComplexCount: publishedCount || null,
+      actualCurrentMonth: publishedCurrent.size ? [...publishedCurrent].sort().join(",") : null,
+      actualBaselineMonth: publishedBaseline.size ? [...publishedBaseline].sort().join(",") : null,
       status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
       cohortUniverseCount: null,
       historyAvailableCount: null,
@@ -521,7 +559,8 @@ export function buildPricePositionV21(params: {
       const confidenceUniverse = canonicalSet ? canonicalSet.size : coverageUniverse;
       computed.cohortUniverseCount = confidenceUniverse;
       computed.historyAvailableCount = historyAvailable;
-      computed.matchedCoverageRatio = coverageUniverse > 0 ? roundToV2(matched / coverageUniverse, 4) : null;
+      const membership = useCanonical ? canonicalMatched : matched;
+      computed.matchedCoverageRatio = coverageUniverse > 0 ? roundToV2(membership / coverageUniverse, 4) : null;
       computed.canonicalHistoryAvailableCount = confidenceHistory;
       computed.canonicalMatchedComplexCount = confidenceMatched;
       computed.matchedComplexCount = confidenceMatched || null;
@@ -541,6 +580,24 @@ export function buildPricePositionV21(params: {
         canonicalHistory: confidenceHistory,
       });
       computed.windowStatistic = "pooled_trade_mean";
+      if (params.contributorAudit) {
+        const canonicalMed = median(canonicalChanges);
+        const canonicalOk = canonicalMed != null && canonicalMatched >= minimum;
+        params.contributorAudit.push({
+          cohortKey: params.cohort?.key ?? String(params.areaBand),
+          cacheKey,
+          referenceMonth,
+          horizon,
+          legacyContributors: matched,
+          canonicalContributors: canonicalMatched,
+          nonCanonicalContributors: matched - canonicalMatched,
+          legacyMedian: legacyOk ? roundToV2(legacyMed!, 2) : null,
+          canonicalMedian: canonicalOk ? roundToV2(canonicalMed!, 2) : null,
+          publishedMedian: computed.changePercent,
+          publishedContributors: publishedCount,
+          nonCanonicalIds,
+        });
+      }
     }
     regionTrendCache.set(cacheKey, computed);
     return computed;
