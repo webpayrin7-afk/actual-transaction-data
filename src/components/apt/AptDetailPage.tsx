@@ -907,6 +907,7 @@ export function AptDetailPage({
 
       <ComplexRegionRankSection
         complexId={identity?.complexId ?? null}
+        aptName={data.aptName}
         regionSlug={regionSlug}
         regionName={region?.name ?? data.regionName}
         dongName={identity?.legalDongName ?? data.dong}

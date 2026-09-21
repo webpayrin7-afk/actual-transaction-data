@@ -49,6 +49,7 @@ import {
   placeHeadline,
   placeRankDisplay,
   priceCompareMetaLine,
+  priceCompareScopeLabel,
   rankingDecadeRowLabel,
   priceCompareRowCopy,
   priceCompareStatusCopy,
@@ -450,6 +451,22 @@ assert(ZIPLAB_RANK_TIP.includes("실거래 가격, 거래량, 거래 지속성")
 assert(!ZIPLAB_RANK_TIP.includes("인기"), "no popularity signal");
 assert(!ZIPLAB_RANK_TIP.includes("조회수"), "no views signal");
 assert(!ZIPLAB_RANK_TIP.includes("관심도"), "no interest signal");
+assert(
+  priceCompareScopeLabel({ scope: "COMPLEX", label: "이 단지", aptName: "잠실엘스" }) === "잠실엘스",
+  "COMPLEX uses apt name",
+);
+assert(
+  priceCompareScopeLabel({ scope: "COMPLEX", label: "이 단지", aptName: "헬리오시티" }) === "헬리오시티",
+  "COMPLEX uses current apt name, not a hardcoded 단지",
+);
+assert(
+  priceCompareScopeLabel({ scope: "DONG", label: "잠실동", aptName: "잠실엘스" }) === "잠실동",
+  "dong keeps region label",
+);
+assert(
+  priceCompareScopeLabel({ scope: "COMPLEX", label: "이 단지", aptName: null }) === "—",
+  "no invented 이 단지 when name is missing",
+);
 assert(PRICE_COMPARE_TIP.includes("선택한 평형"), "price tip uses selected 평 for complex");
 assert(PRICE_COMPARE_TIP.includes("같은 평형대"), "price tip uses decade for region");
 assert(PRICE_COMPARE_TIP.includes("공급면적"), "price tip names supply pyeong");
@@ -776,6 +793,8 @@ assert(!priceCompare.includes("selectedPyeongCompareLines"), "no selected-평 su
 assert(!priceCompare.includes("selectedPyeongLabel"), "no selected 평 prop");
 assert(!priceCompare.includes("평당가"), "no standalone 평당가");
 assert(!priceCompare.includes("지역 가격 비교"), "subtitle drops 지역");
+assert(priceCompare.includes("priceCompareScopeLabel"), "COMPLEX row uses apt name");
+assert(!/이 단지/.test(priceCompare), "price compare UI does not hardcode 이 단지");
 assert(priceCompare.includes("PRICE_COMPARE_TABS"), "keeps 가격 수준 / 변동률");
 assert(priceCompare.includes("TREND_PERIOD_TABS"), "keeps 6M/1Y/2Y/5Y");
 assert(!priceCompare.includes('"3Y"'), "no 3Y period");

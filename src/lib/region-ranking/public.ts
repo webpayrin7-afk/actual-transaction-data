@@ -933,6 +933,19 @@ export function trendHorizonFallbackNotes(cells: readonly TrendPublicCell[]): st
   return notes;
 }
 
+/** COMPLEX row shows the apartment name. Never keeps the generic 이 단지 label when a name exists. */
+export function priceCompareScopeLabel(params: {
+  scope: string | null | undefined;
+  label: string | null | undefined;
+  aptName: string | null | undefined;
+}): string {
+  const name = params.aptName?.trim() || null;
+  if (params.scope === "COMPLEX" && name) return name;
+  const fallback = params.label?.trim() || null;
+  if (fallback && fallback !== "이 단지") return fallback;
+  return name ?? "—";
+}
+
 /** Decade row label from ranking API regionPyeongDecade. Never invents from exclusive ㎡. */
 export function rankingDecadeRowLabel(cohort: string | null | undefined): string | null {
   const value = cohort?.trim();

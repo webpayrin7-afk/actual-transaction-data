@@ -71,12 +71,14 @@ function RankRow({
 
 export function ComplexRegionRankSection({
   complexId,
+  aptName,
   regionSlug,
   regionName,
   dongName,
   selectedArea,
 }: {
   complexId?: string | null;
+  aptName?: string | null;
   regionSlug: string;
   regionName: string;
   dongName?: string | null;
@@ -204,6 +206,7 @@ export function ComplexRegionRankSection({
 
       <ComplexRegionPriceCompare
         complexId={id}
+        aptName={aptName}
         exclusiveArea={exclusiveArea}
         marketPyeongLabel={marketPyeongLabel}
       />

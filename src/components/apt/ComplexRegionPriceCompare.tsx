@@ -20,6 +20,7 @@ import {
   partialHistoryHelperCopy,
   priceCompareMetaLine,
   priceCompareRowCopy,
+  priceCompareScopeLabel,
   priceCompareStatusCopy,
   priceLevelScale,
   trendAbsScale,
@@ -31,7 +32,15 @@ import {
   type TrendPublicCell,
 } from "@/lib/region-ranking/public";
 
-function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
+const SCOPE_LABEL_CLASS = "w-[4.75rem] shrink-0 truncate text-[13px] leading-4 sm:w-[5.5rem]";
+
+function PriceLevelBars({
+  cells,
+  aptName,
+}: {
+  cells: PriceLevelPublicCell[];
+  aptName: string | null;
+}) {
   const scale = priceLevelScale(
     cells.map((cell) => ({
       status: cell.status,
@@ -45,14 +54,20 @@ function PriceLevelBars({ cells }: { cells: PriceLevelPublicCell[] }) {
         const value = cell.meanPricePerSupplyPyeong;
         const width = hiddenBar ? 0 : barWidthPct(value, scale);
         const accent = cell.scope === "COMPLEX";
+        const scopeLabel = priceCompareScopeLabel({
+          scope: cell.scope,
+          label: cell.label,
+          aptName,
+        });
         return (
           <li key={cell.scope} className="flex items-center gap-2.5">
             <span
-              className={`w-12 shrink-0 truncate text-[13px] leading-4 ${
+              className={`${SCOPE_LABEL_CLASS} ${
                 accent ? "font-medium text-teal-700" : "text-slate-600"
               }`}
+              title={scopeLabel}
             >
-              {cell.label}
+              {scopeLabel}
             </span>
             <div className="min-w-0 flex-1">
               {hiddenBar || width <= 0 ? (
@@ -86,7 +101,7 @@ function TrendScale({ maxAbs }: { maxAbs: number }) {
   const label = formatSignedPct(maxAbs)?.replace("+", "") ?? `${maxAbs}%`;
   return (
     <div className="mb-1 flex items-center gap-2 text-[11px] tabular-nums text-slate-400">
-      <span className="w-12 shrink-0" />
+      <span className="w-[4.75rem] shrink-0 sm:w-[5.5rem]" />
       <div className="flex min-w-0 flex-1 justify-between">
         <span>-{label}</span>
         <span>0</span>
@@ -100,9 +115,11 @@ function TrendScale({ maxAbs }: { maxAbs: number }) {
 function TrendBars({
   cells,
   maxAbs,
+  aptName,
 }: {
   cells: TrendPublicCell[];
   maxAbs: number | null;
+  aptName: string | null;
 }) {
   return (
     <div className="mt-2">
@@ -118,14 +135,20 @@ function TrendBars({
             scope: cell.scope,
             sampleStatus: cell.sampleStatus,
           });
+          const scopeLabel = priceCompareScopeLabel({
+            scope: cell.scope,
+            label: cell.label,
+            aptName,
+          });
           return (
             <li key={cell.scope} className="flex items-center gap-2.5">
               <span
-                className={`w-12 shrink-0 truncate text-[13px] leading-4 ${
+                className={`${SCOPE_LABEL_CLASS} ${
                   cell.scope === "COMPLEX" ? "font-medium text-teal-700" : "text-slate-600"
                 }`}
+                title={scopeLabel}
               >
-                {cell.label}
+                {scopeLabel}
               </span>
               {hiddenBar ? (
                 <p className="min-w-0 flex-1 text-[12px] leading-4 text-slate-500">
@@ -190,10 +213,12 @@ function TrendBars({
 
 export function ComplexRegionPriceCompare({
   complexId,
+  aptName,
   exclusiveArea,
   marketPyeongLabel,
 }: {
   complexId: string;
+  aptName?: string | null;
   exclusiveArea: number | null;
   marketPyeongLabel: number | null;
 }) {
@@ -220,6 +245,7 @@ export function ComplexRegionPriceCompare({
   });
 
   const data = query.data;
+  const resolvedAptName = data?.aptName?.trim() || aptName?.trim() || null;
   const unsupported = !enabled || data?.status === "PRICE_COMPARE_UNSUPPORTED_AREA";
   const meta = priceCompareMetaLine({
     supplyPyeongCohort: data?.supplyPyeongCohort ?? null,
@@ -338,14 +364,14 @@ export function ComplexRegionPriceCompare({
             </p>
           ) : tab === "level" ? (
             data?.priceLevel.length ? (
-              <PriceLevelBars cells={data.priceLevel} />
+              <PriceLevelBars cells={data.priceLevel} aptName={resolvedAptName} />
             ) : (
               <p className="mt-2 text-[13px] leading-5 text-slate-500">
                 {priceCompareStatusCopy(data?.status).title}
               </p>
             )
           ) : trendCells.length ? (
-            <TrendBars cells={trendCells} maxAbs={trendScale} />
+            <TrendBars cells={trendCells} maxAbs={trendScale} aptName={resolvedAptName} />
           ) : (
             <p className="mt-2 text-[13px] leading-5 text-slate-500">
               {priceCompareStatusCopy(data?.status).title}
