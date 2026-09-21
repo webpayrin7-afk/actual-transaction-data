@@ -403,7 +403,7 @@ export function ComplexRegionPriceCompare({
             <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{historyHelper}</p>
           ) : null}
 
-          <PriceCompareChart key={chartKey} replayKey={chartKey} className="mt-7">
+          <PriceCompareChart key={chartKey} replayKey={chartKey} className="mt-5">
             {(entered) =>
               query.isLoading ? (
             <div className="mt-2 space-y-1.5" aria-label="가격 비교 불러오는 중">
