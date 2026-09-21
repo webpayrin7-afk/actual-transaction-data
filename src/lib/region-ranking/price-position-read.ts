@@ -8,31 +8,32 @@ import { marketPyeongLabelInteger } from "../unit-type/supply-label";
 import {
   applyExactComplexMarketLabel,
   COMPLEX_PRICE_DEFINITION_V21,
-  METHODOLOGY_FINGERPRINT_V21,
   PRICE_COPY_V21,
   PRICE_LEVEL_DEFINITION_V21,
   PRICE_POSITION_V21_AS_OF,
   PRICE_POSITION_V21_VERSION,
-  pricePositionV21SnapshotId,
-  REGION_TREND_DEFINITION_V21,
   TREND_COPY_V21,
   type PricePositionBodyV21,
 } from "./price-position-v21";
 import {
+  METHODOLOGY_FINGERPRINT_V23,
+  PRICE_POSITION_V23_VERSION,
+  pricePositionV23SnapshotId,
+} from "./price-position-v23";
+import {
   decadeCohortByKey,
   decadeKeyFromLegacyAreaBand,
-  METHODOLOGY_FINGERPRINT_V22,
-  PRICE_POSITION_V22_VERSION,
-  pricePositionV22SnapshotId,
 } from "./price-position-v22";
 
 /**
- * Public pointer is V2.2 after the all-decade publication.
- * Missing V2.2 is unavailable. V2 and V2.1 rows stay stored and are not fallbacks.
+ * Public pointer is V2.3.
+ * A missing V2.3 row is unavailable. V2, V2.1, and V2.2 stay stored and are never read as fallbacks.
+ * Legacy area_band 59/84/114 is stored under the decade key on the V2.3 snapshot only.
  */
-export const PRICE_POSITION_PUBLIC_VERSION: typeof PRICE_POSITION_V21_VERSION | typeof PRICE_POSITION_V22_VERSION =
-  PRICE_POSITION_V22_VERSION;
+export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V23_VERSION;
 export const PRICE_POSITION_PUBLIC_AS_OF = PRICE_POSITION_V21_AS_OF;
+
+const PUBLIC_SNAPSHOT_ID = pricePositionV23SnapshotId();
 
 export function seoulGuName(lawdCd: string): string | null {
   for (const region of SEOUL_REGIONS) {
@@ -90,17 +91,10 @@ export async function resolveSelectedMarketPyeongLabel(
 }
 
 function publicSnapshot(areaBand: string): { snapshotId: string; storageBand: string; version: string } {
-  if (PRICE_POSITION_PUBLIC_VERSION === PRICE_POSITION_V22_VERSION) {
-    return {
-      snapshotId: pricePositionV22SnapshotId(),
-      storageBand: decadeKeyFromLegacyAreaBand(areaBand) ?? areaBand,
-      version: PRICE_POSITION_V22_VERSION,
-    };
-  }
   return {
-    snapshotId: pricePositionV21SnapshotId(),
-    storageBand: areaBand,
-    version: PRICE_POSITION_V21_VERSION,
+    snapshotId: PUBLIC_SNAPSHOT_ID,
+    storageBand: decadeKeyFromLegacyAreaBand(areaBand) ?? areaBand,
+    version: PRICE_POSITION_V23_VERSION,
   };
 }
 
@@ -130,6 +124,8 @@ export async function readComplexPricePosition(
     if (body.complexScopeBasis == null) body.complexScopeBasis = "decade_cohort";
     if (!body.regionPyeongDecade) body.regionPyeongDecade = body.supplyPyeongCohort ?? "";
     if (!body.cohortKey) body.cohortKey = publication.storageBand;
+    body.snapshotId = publication.snapshotId;
+    body.version = publication.version;
 
     if (query.exclusiveArea != null && Number.isFinite(query.exclusiveArea)) {
       const resolved = await resolveSelectedMarketPyeongLabel(db, {
@@ -160,6 +156,7 @@ export async function readComplexPricePosition(
   const unavailable: PricePositionBodyV21 = {
     status: "unavailable",
     version: publication.version,
+    snapshotId: publication.snapshotId,
     complexId: query.complexId,
     aptName: row.apt_name == null ? null : String(row.apt_name),
     areaBand: publication.storageBand,
@@ -175,11 +172,10 @@ export async function readComplexPricePosition(
     priceLevelDefinition: PRICE_LEVEL_DEFINITION_V21,
     complexPriceDefinition: COMPLEX_PRICE_DEFINITION_V21,
     complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label",
-    regionTrendDefinition: REGION_TREND_DEFINITION_V21,
+    regionTrendDefinition: "median_of_matched_complex_changes_trailing_6m_pooled_mean",
     areaBasis: "SUPPLY_PYEONG_LABEL",
     pyeongLabelVersion: "canonical-supply-pyeong-round-v1",
-    methodologyFingerprint:
-      publication.version === PRICE_POSITION_V22_VERSION ? METHODOLOGY_FINGERPRINT_V22 : METHODOLOGY_FINGERPRINT_V21,
+    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V23,
     methodologyCopy: {
       price: PRICE_COPY_V21,
       trend: TREND_COPY_V21,

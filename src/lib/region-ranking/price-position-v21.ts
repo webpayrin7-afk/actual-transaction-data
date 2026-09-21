@@ -25,6 +25,13 @@ import {
   TREND_HORIZONS_V21,
   type TrendHorizonV21,
 } from "./price-position-v21-audit";
+import {
+  pooledWindowMean,
+  resolveRegionWindowV23,
+  sampleStatusV23,
+  type SampleStatusV23,
+  type WindowStatusV23,
+} from "./region-trend-window";
 
 export const PRICE_POSITION_V21_VERSION = "price-position-v2.1";
 export const PRICE_POSITION_V21_AS_OF = "2026-09-17";
@@ -91,6 +98,15 @@ export type TrendCellV21 = {
   actualCurrentMonth: string | null;
   actualBaselineMonth: string | null;
   status: "ok" | "INSUFFICIENT_SAMPLE";
+  /** V2.3 regional diagnostics. Absent on V2.1/V2.2 rows. */
+  cohortUniverseCount?: number | null;
+  historyAvailableCount?: number | null;
+  matchedCoverageRatio?: number | null;
+  currentWindow?: string | null;
+  baselineWindow?: string | null;
+  windowStatus?: WindowStatusV23 | null;
+  sampleStatus?: SampleStatusV23 | null;
+  windowStatistic?: "pooled_trade_mean" | null;
 };
 
 export type ComplexExactLabelSliceV21 = {
@@ -112,6 +128,7 @@ export type PricePositionBodyV21 = {
   areaBandVersion: string;
   transactionAsOf: string;
   referenceMonth: string | null;
+  snapshotId?: string;
   /** Set at read when exclusive_area / market_pyeong_label selects an exact complex series. */
   selectedMarketPyeongLabel: number | null;
   /** How COMPLEX scope was produced for this response. */
@@ -120,7 +137,7 @@ export type PricePositionBodyV21 = {
   priceLevelDefinition: typeof PRICE_LEVEL_DEFINITION_V21;
   complexPriceDefinition: typeof COMPLEX_PRICE_DEFINITION_V21;
   complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label";
-  regionTrendDefinition: typeof REGION_TREND_DEFINITION_V21;
+  regionTrendDefinition: string;
   areaBasis: typeof AREA_BASIS_V21;
   pyeongLabelVersion: typeof PYEONG_LABEL_VERSION_V21;
   methodologyFingerprint: string;
@@ -166,12 +183,22 @@ export function buildPricePositionV21(params: {
   cohort?: { key: string; min: number; max: number; label: string };
   version?: string;
   methodologyFingerprint?: string;
+  /** Default S1 keeps V2.1/V2.2 region trends unchanged. */
+  regionEndpoint?: "S1" | "TRAILING_6M";
+  regionTrendDefinition?: string;
+  /** Canonical supply complexes. Coverage denominator only; matching stays on traded complexes. */
+  cohortUniverse?: ReadonlySet<string>;
+  /** When false, a matched median is returned even below the legacy minimum. */
+  enforceTrendMinimum?: boolean;
 }): { bodies: PricePositionBodyV21[]; ambiguousExcluded: number; exactMapped: number } {
   const cohort = params.cohort ?? BAND_TO_SUPPLY_COHORT[params.areaBand as RegionalAreaBandId];
   const version = params.version ?? PRICE_POSITION_V21_VERSION;
   const fingerprint = params.methodologyFingerprint ?? METHODOLOGY_FINGERPRINT_V21;
   const asOf = params.transactionAsOf ?? PRICE_POSITION_V21_AS_OF;
   const asOfMonth = asOf.slice(0, 7);
+  const regionEndpoint = params.regionEndpoint ?? "S1";
+  const regionTrendDefinition = params.regionTrendDefinition ?? REGION_TREND_DEFINITION_V21;
+  const enforceTrendMinimum = params.enforceTrendMinimum ?? true;
 
   const dealPoints: Array<{
     complexId: string;
@@ -280,6 +307,26 @@ export function buildPricePositionV21(params: {
     else byGu.set(ident.lawdCd, [cid]);
   }
   const seoulIds = [...identityRef.keys()];
+  const universeDong = new Map<string, number>();
+  const universeGu = new Map<string, number>();
+  let universeSeoul = 0;
+  if (params.cohortUniverse) {
+    for (const cid of params.cohortUniverse) {
+      const ident = params.identities.get(cid);
+      if (!ident) continue;
+      universeSeoul += 1;
+      universeGu.set(ident.lawdCd, (universeGu.get(ident.lawdCd) ?? 0) + 1);
+      const dk = dongKey(ident.lawdCd, ident.bjdongCd);
+      universeDong.set(dk, (universeDong.get(dk) ?? 0) + 1);
+    }
+  }
+
+  function scopeUniverse(scope: PriceScopeV21, dong: string, lawd: string, traded: number): number {
+    if (!params.cohortUniverse || scope === "COMPLEX") return traded;
+    if (scope === "DONG") return universeDong.get(dong) ?? 0;
+    if (scope === "GU") return universeGu.get(lawd) ?? 0;
+    return universeSeoul;
+  }
 
   type RegionPrice = {
     meanPricePerSupplyPyeong: number | null;
@@ -319,6 +366,14 @@ export function buildPricePositionV21(params: {
     actualCurrentMonth: string | null;
     actualBaselineMonth: string | null;
     status: "ok" | "INSUFFICIENT_SAMPLE";
+    cohortUniverseCount: number | null;
+    historyAvailableCount: number | null;
+    matchedCoverageRatio: number | null;
+    currentWindow: string | null;
+    baselineWindow: string | null;
+    windowStatus: WindowStatusV23 | null;
+    sampleStatus: SampleStatusV23 | null;
+    windowStatistic: "pooled_trade_mean" | null;
   };
   const regionTrendCache = new Map<string, RegionTrend>();
   function regionTrend(
@@ -327,6 +382,8 @@ export function buildPricePositionV21(params: {
     referenceMonth: string,
     baselineTarget: string,
     minComplexes: number,
+    horizon: TrendHorizonV21,
+    universeCount: number,
   ): RegionTrend {
     const cached = regionTrendCache.get(cacheKey);
     if (cached) return cached;
@@ -334,9 +391,32 @@ export function buildPricePositionV21(params: {
     let matched = 0;
     const actualCurrent = new Set<string>();
     const actualBaseline = new Set<string>();
+    let historyAvailable = 0;
+    const window =
+      regionEndpoint === "TRAILING_6M"
+        ? resolveRegionWindowV23({
+            referenceMonth,
+            horizonShift: HORIZON_SHIFT_MONTHS_V21[horizon],
+            historyFloor: HISTORY_FLOOR_MONTH_V21,
+          })
+        : null;
     for (const cid of ids) {
       const cells = tables.get(cid);
       if (!cells) continue;
+      historyAvailable += 1;
+      if (regionEndpoint === "TRAILING_6M") {
+        if (!window) continue;
+        const cur = pooledWindowMean(cells, window.currentStart, window.currentEnd, asOfMonth);
+        const base = pooledWindowMean(cells, window.baselineStart, window.baselineEnd, asOfMonth);
+        if (!cur || !base) continue;
+        const ch = changePercent(cur.mean, base.mean);
+        if (ch == null) continue;
+        changes.push(ch);
+        matched += 1;
+        for (const month of cur.months) actualCurrent.add(month);
+        for (const month of base.months) actualBaseline.add(month);
+        continue;
+      }
       const cur = resolveComplexMonth({
         cells,
         targetMonth: referenceMonth,
@@ -360,14 +440,34 @@ export function buildPricePositionV21(params: {
       actualBaseline.add(base.month);
     }
     const med = median(changes);
-    const ok = med != null && matched >= minComplexes;
+    const minimum = enforceTrendMinimum ? minComplexes : 1;
+    const ok = med != null && matched >= minimum;
     const computed: RegionTrend = {
       changePercent: ok ? roundToV2(med!, 2) : null,
       matchedComplexCount: matched || null,
       actualCurrentMonth: actualCurrent.size ? [...actualCurrent].sort().join(",") : null,
       actualBaselineMonth: actualBaseline.size ? [...actualBaseline].sort().join(",") : null,
       status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
+      cohortUniverseCount: null,
+      historyAvailableCount: null,
+      matchedCoverageRatio: null,
+      currentWindow: null,
+      baselineWindow: null,
+      windowStatus: null,
+      sampleStatus: null,
+      windowStatistic: null,
     };
+    if (regionEndpoint === "TRAILING_6M") {
+      const coverageUniverse = universeCount > 0 ? universeCount : ids.length;
+      computed.cohortUniverseCount = coverageUniverse;
+      computed.historyAvailableCount = historyAvailable;
+      computed.matchedCoverageRatio = coverageUniverse > 0 ? roundToV2(matched / coverageUniverse, 4) : null;
+      computed.currentWindow = window ? `${window.currentStart}..${window.currentEnd}` : null;
+      computed.baselineWindow = window ? `${window.baselineStart}..${window.baselineEnd}` : null;
+      computed.windowStatus = window?.status ?? null;
+      computed.sampleStatus = sampleStatusV23(matched, coverageUniverse);
+      computed.windowStatistic = "pooled_trade_mean";
+    }
     regionTrendCache.set(cacheKey, computed);
     return computed;
   }
@@ -475,11 +575,13 @@ export function buildPricePositionV21(params: {
           return complexTrendCell(tables.get(complexId) ?? new Map(), referenceMonth, baselineTarget, labels.COMPLEX);
         }
         const cached = regionTrend(
-          `${scope}|${scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL"}|${referenceMonth}|${horizon}`,
+          `${scope}|${scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL"}|${referenceMonth}|${horizon}|${regionEndpoint}`,
           scopeComplexes[scope],
           referenceMonth,
           baselineTarget,
           TREND_MIN_COMPLEXES_V21[scope],
+          horizon,
+          scopeUniverse(scope, key, id.lawdCd, scopeComplexes[scope].length),
         );
         return {
           scope,
@@ -495,6 +597,18 @@ export function buildPricePositionV21(params: {
           actualCurrentMonth: cached.actualCurrentMonth,
           actualBaselineMonth: cached.actualBaselineMonth,
           status: cached.status,
+          ...(cached.windowStatistic
+            ? {
+                cohortUniverseCount: cached.cohortUniverseCount,
+                historyAvailableCount: cached.historyAvailableCount,
+                matchedCoverageRatio: cached.matchedCoverageRatio,
+                currentWindow: cached.currentWindow,
+                baselineWindow: cached.baselineWindow,
+                windowStatus: cached.windowStatus,
+                sampleStatus: cached.sampleStatus,
+                windowStatistic: cached.windowStatistic,
+              }
+            : {}),
         };
       });
     }
@@ -523,7 +637,7 @@ export function buildPricePositionV21(params: {
       priceLevelDefinition: PRICE_LEVEL_DEFINITION_V21,
       complexPriceDefinition: COMPLEX_PRICE_DEFINITION_V21,
       complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label",
-      regionTrendDefinition: REGION_TREND_DEFINITION_V21,
+      regionTrendDefinition,
       areaBasis: AREA_BASIS_V21,
       pyeongLabelVersion: PYEONG_LABEL_VERSION_V21,
       methodologyFingerprint: fingerprint,

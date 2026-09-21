@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
-import { resolveSelectedAreaBand, type RegionalAreaBandId } from "@/lib/region-ranking/area-band";
 import {
   PRICE_POSITION_PUBLIC_AS_OF,
   PRICE_POSITION_PUBLIC_VERSION,
   readComplexPricePosition,
   resolveSelectedMarketPyeongLabel,
 } from "@/lib/region-ranking/price-position-read";
-import { PRICE_POSITION_V22_VERSION, resolveV22PricePositionRequest } from "@/lib/region-ranking/price-position-v22";
+import { resolveV22PricePositionRequest } from "@/lib/region-ranking/price-position-v22";
 
 export const dynamic = "force-dynamic";
 
-const BANDS = new Set<RegionalAreaBandId>(["59", "84", "114"]);
+function json(body: unknown, status = 200) {
+  return NextResponse.json(body, {
+    status,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
 
 function unsupported(complexId: string, exclusiveArea: number | null) {
-  return NextResponse.json({
+  return json({
     status: "PRICE_COMPARE_UNSUPPORTED_AREA",
     version: PRICE_POSITION_PUBLIC_VERSION,
+    snapshotId: null,
     complexId,
     areaBand: null,
     exclusiveArea,
@@ -35,13 +40,9 @@ export async function GET(request: NextRequest) {
   const areaBandRaw = request.nextUrl.searchParams.get("area_band")?.trim() ?? "";
   const exclusiveRaw = request.nextUrl.searchParams.get("exclusive_area")?.trim() ?? "";
   if (!/^cx_[0-9a-f]{16}$/.test(complexId)) {
-    return NextResponse.json({ error: "complex_id가 필요합니다." }, { status: 400 });
+    return json({ error: "complex_id가 필요합니다." }, 400);
   }
-
-  if (PRICE_POSITION_PUBLIC_VERSION === PRICE_POSITION_V22_VERSION) {
-    return getDecadeCohort(complexId, areaBandRaw, exclusiveRaw);
-  }
-  return getLegacyBand(complexId, areaBandRaw, exclusiveRaw);
+  return getDecadeCohort(complexId, areaBandRaw, exclusiveRaw);
 }
 
 async function getDecadeCohort(complexId: string, areaBandRaw: string, exclusiveRaw: string) {
@@ -50,19 +51,19 @@ async function getDecadeCohort(complexId: string, areaBandRaw: string, exclusive
     exclusiveArea = Number(exclusiveRaw);
     if (!Number.isFinite(exclusiveArea)) return unsupported(complexId, null);
   } else if (!areaBandRaw) {
-    return NextResponse.json({ error: "area_band가 필요합니다." }, { status: 400 });
+    return json({ error: "area_band가 필요합니다." }, 400);
   }
 
   const db = getDb();
   if (!db) {
-    return NextResponse.json({ error: "시세 저장소를 사용할 수 없습니다." }, { status: 500 });
+    return json({ error: "시세 저장소를 사용할 수 없습니다." }, 500);
   }
   try {
     const label = exclusiveArea == null ? null : await resolveSelectedMarketPyeongLabel(db, { complexId, exclusiveArea });
     const resolved = resolveV22PricePositionRequest({ areaBandRaw, exclusiveArea, label });
     if (!resolved.ok) {
       if (resolved.reason === "AREA_BAND_REQUIRED" && !exclusiveRaw) {
-        return NextResponse.json({ error: "area_band가 필요합니다." }, { status: 400 });
+        return json({ error: "area_band가 필요합니다." }, 400);
       }
       return unsupported(complexId, exclusiveArea);
     }
@@ -72,9 +73,10 @@ async function getDecadeCohort(complexId: string, areaBandRaw: string, exclusive
       exclusiveArea: resolved.exclusiveArea,
     });
     if (found.kind === "missing" || found.kind === "outside-seoul") {
-      return NextResponse.json({
+      return json({
         status: "unavailable",
         version: PRICE_POSITION_PUBLIC_VERSION,
+        snapshotId: null,
         complexId,
         areaBand: resolved.decadeKey,
         selectedMarketPyeongLabel: null,
@@ -85,54 +87,9 @@ async function getDecadeCohort(complexId: string, areaBandRaw: string, exclusive
         trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
       });
     }
-    return NextResponse.json(found.body);
+    return json(found.body);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "지역 내 가격 위치를 불러오지 못했습니다." }, { status: 500 });
-  }
-}
-
-async function getLegacyBand(complexId: string, areaBandRaw: string, exclusiveRaw: string) {
-  let areaBand: RegionalAreaBandId | null = null;
-  let exclusiveArea: number | null = null;
-  if (exclusiveRaw) {
-    exclusiveArea = Number(exclusiveRaw);
-    const resolved = resolveSelectedAreaBand(exclusiveArea);
-    if (!resolved) return unsupported(complexId, Number.isFinite(exclusiveArea) ? exclusiveArea : null);
-    if (areaBandRaw && areaBandRaw !== resolved) return unsupported(complexId, exclusiveArea);
-    areaBand = resolved;
-  } else if (areaBandRaw) {
-    if (!BANDS.has(areaBandRaw as RegionalAreaBandId)) return unsupported(complexId, null);
-    areaBand = areaBandRaw as RegionalAreaBandId;
-  } else {
-    return NextResponse.json({ error: "area_band가 필요합니다." }, { status: 400 });
-  }
-
-  const db = getDb();
-  if (!db) {
-    return NextResponse.json({ error: "시세 저장소를 사용할 수 없습니다." }, { status: 500 });
-  }
-  try {
-    const found = await readComplexPricePosition(db, {
-      complexId,
-      areaBand,
-      exclusiveArea,
-    });
-    if (found.kind === "missing" || found.kind === "outside-seoul") {
-      return NextResponse.json({
-        status: "unavailable",
-        version: PRICE_POSITION_PUBLIC_VERSION,
-        complexId,
-        areaBand,
-        transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
-        referenceMonth: null,
-        priceLevel: [],
-        trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
-      });
-    }
-    return NextResponse.json(found.body);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "지역 내 가격 위치를 불러오지 못했습니다." }, { status: 500 });
+    return json({ error: "지역 내 가격 위치를 불러오지 못했습니다." }, 500);
   }
 }
