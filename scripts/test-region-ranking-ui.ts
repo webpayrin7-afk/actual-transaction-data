@@ -33,8 +33,16 @@ import {
   parseComplexPricePosition,
   parseMarketPyeongLabelParam,
   DECADE_RANK_UNAVAILABLE_COPY,
+  PRICE_COMPARE_TIP,
+  PRICE_COMPARE_TIP_TITLE,
+  PRICE_COMPARE_TITLE,
+  ZIPLAB_RANK_TIP,
+  ZIPLAB_RANK_TIP_TITLE,
+  ZIPLAB_RANK_TITLE,
   placeHeadline,
   placeRankDisplay,
+  priceCompareMetaLine,
+  rankingDecadeRowLabel,
   priceCompareRowCopy,
   priceCompareStatusCopy,
   priceLevelScale,
@@ -402,6 +410,41 @@ assert(
   rankingSelectedHeading({ pyeongLabel: "102평", rankingCohortLabel: "100평+" }) === "100평+ 순위",
   "100평+ heading stays API semantic",
 );
+assert(rankingDecadeRowLabel("30평대") === "30평대", "row label drops 순위");
+assert(rankingDecadeRowLabel("30평대 순위") === "30평대", "row label strips suffix");
+assert(rankingDecadeRowLabel(null) === null, "no invented decade row");
+assert(
+  priceCompareMetaLine({ supplyPyeongCohort: "30평대", referenceMonth: "2026-09" }) ===
+    "30평대 기준 · 2026.09 기준",
+  "price meta uses cohort + month only",
+);
+assert(
+  !String(
+    priceCompareMetaLine({ supplyPyeongCohort: "30평대", referenceMonth: "2026-09" }),
+  ).includes("33평"),
+  "price meta does not repeat selected 평",
+);
+assert(
+  priceCompareMetaLine({ supplyPyeongCohort: "20평대", referenceMonth: "2026-09" }) ===
+    "20평대 기준 · 2026.09 기준",
+  "20평대 meta",
+);
+assert(
+  priceCompareMetaLine({ supplyPyeongCohort: "40평대", referenceMonth: "2026-09" }) ===
+    "40평대 기준 · 2026.09 기준",
+  "40평대 meta",
+);
+assert(ZIPLAB_RANK_TITLE === "집랩 순위", "ranking subtitle");
+assert(PRICE_COMPARE_TITLE === "가격 비교", "price subtitle");
+assert(ZIPLAB_RANK_TIP_TITLE === "집랩 순위란?", "rank tip title");
+assert(PRICE_COMPARE_TIP_TITLE === "지역 가격 비교란?", "price tip title");
+assert(ZIPLAB_RANK_TIP.includes("실거래 가격, 거래량, 거래 지속성"), "rank tip signals");
+assert(!ZIPLAB_RANK_TIP.includes("인기"), "no popularity signal");
+assert(!ZIPLAB_RANK_TIP.includes("조회수"), "no views signal");
+assert(!ZIPLAB_RANK_TIP.includes("관심도"), "no interest signal");
+assert(PRICE_COMPARE_TIP.includes("선택한 평형"), "price tip uses selected 평 for complex");
+assert(PRICE_COMPARE_TIP.includes("같은 평형대"), "price tip uses decade for region");
+assert(PRICE_COMPARE_TIP.includes("공급면적"), "price tip names supply pyeong");
 
 const v1Rejected = parseComplexPricePosition(
   {
@@ -580,7 +623,17 @@ const rankSection = readFileSync(
 assert(!rankSection.includes("rankingBandForArea"), "selected ranking no longer remaps exclusive bands");
 assert(!rankSection.includes('areaBand: "84"'), "no hardcoded 84");
 assert(!rankSection.includes("59/84/114"), "no legacy band comment in card");
-assert(rankSection.includes("종합 순위"), "overall copy");
+assert(rankSection.includes("지역 내 비교"), "top section title");
+assert(rankSection.includes("ZIPLAB_RANK_TITLE"), "집랩 순위 subtitle");
+assert(rankSection.includes('label="종합"'), "overall is a row, not a section title");
+assert(!rankSection.includes("종합 순위"), "no overall subsection heading");
+assert(!rankSection.includes("rankingSelectedHeading"), "no decade subsection heading");
+assert(rankSection.includes("rankingDecadeRowLabel"), "decade row from API");
+assert(rankSection.includes("formatRankingAsOf"), "ranking date stays on 집랩 순위");
+assert(
+  /<h2[\s\S]*?>\s*지역 내 비교\s*<\/h2>/.test(rankSection),
+  "top heading has no merged as-of date",
+);
 assert(rankSection.includes("complex-region-rank-v3"), "v3 query key");
 assert(!rankSection.includes("개 단지 중"), "card has no population copy");
 assert(!rankSection.includes("비교 가능"), "card has no 비교 가능");
@@ -588,6 +641,28 @@ assert(!rankSection.includes("순위 산정"), "card has no 순위 산정");
 assert(rankSection.includes("DECADE_RANK_UNAVAILABLE_COPY"), "uses shared unavailable copy");
 assert(rankSection.includes("placeRankDisplay"), "stacked rank display");
 assert(!rankSection.includes("선택 평형 순위"), "no invented selected heading");
+assert(!rankSection.includes("selectedPyeongCompareLines"), "rank card does not repeat 33평 · 30평대 비교");
+
+const priceCompare = readFileSync(
+  resolve(import.meta.dirname, "../src/components/apt/ComplexRegionPriceCompare.tsx"),
+  "utf8",
+);
+assert(priceCompare.includes("PRICE_COMPARE_TITLE"), "가격 비교 subtitle");
+assert(priceCompare.includes("PRICE_COMPARE_TIP"), "가격 비교 tooltip");
+assert(priceCompare.includes("priceCompareMetaLine"), "cohort + month on title line");
+assert(!priceCompare.includes("selectedPyeongCompareLines"), "no selected-평 subtitle");
+assert(!priceCompare.includes("selectedPyeongLabel"), "no selected 평 prop");
+assert(!priceCompare.includes("평당가"), "no standalone 평당가");
+assert(!priceCompare.includes("지역 가격 비교"), "subtitle drops 지역");
+assert(priceCompare.includes("PRICE_COMPARE_TABS"), "keeps 가격 수준 / 변동률");
+assert(priceCompare.includes("TREND_PERIOD_TABS"), "keeps 6M/1Y/2Y/5Y");
+assert(!priceCompare.includes('"3Y"'), "no 3Y period");
+assert(
+  priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") <
+    priceCompare.lastIndexOf("PRICE_COMPARE_TABS.map") &&
+    priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") > 0,
+  "title/meta sit above tabs",
+);
 
 const rankRoute = readFileSync(
   resolve(import.meta.dirname, "../src/app/api/complex-region-rank/route.ts"),

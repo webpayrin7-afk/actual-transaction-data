@@ -6,22 +6,21 @@ import { InfoTip } from "@/components/ui/InfoTip";
 import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import {
   PRICE_COMPARE_TABS,
+  PRICE_COMPARE_TIP,
+  PRICE_COMPARE_TIP_TITLE,
+  PRICE_COMPARE_TITLE,
   PRICE_COMPARE_UNSUPPORTED_COPY,
-  COMPLEX_EXACT_TIP,
-  PRICE_LEVEL_TIP,
   TREND_PERIOD_TABS,
-  TREND_TIP,
   barWidthPct,
   fetchComplexPricePosition,
   formatSignedPct,
   formatWonPerPyeong,
+  priceCompareMetaLine,
   priceCompareRowCopy,
   priceCompareStatusCopy,
   priceLevelScale,
-  selectedPyeongCompareLines,
   trendAbsScale,
   trendBarLayout,
-  trendHorizonFallbackNotes,
   type PriceCompareTab,
   type PriceLevelPublicCell,
   type TrendPeriodId,
@@ -169,12 +168,10 @@ export function ComplexRegionPriceCompare({
   complexId,
   exclusiveArea,
   marketPyeongLabel,
-  selectedPyeongLabel,
 }: {
   complexId: string;
   exclusiveArea: number | null;
   marketPyeongLabel: number | null;
-  selectedPyeongLabel: string | null;
 }) {
   const [tab, setTab] = useState<PriceCompareTab>("level");
   const [period, setPeriod] = useState<TrendPeriodId>("6M");
@@ -200,34 +197,34 @@ export function ComplexRegionPriceCompare({
 
   const data = query.data;
   const unsupported = !enabled || data?.status === "PRICE_COMPARE_UNSUPPORTED_AREA";
-  const lines = selectedPyeongCompareLines({
-    selectedPyeongLabel,
-    selectedMarketPyeongLabel: marketPyeongLabel ?? data?.selectedMarketPyeongLabel ?? null,
+  const meta = priceCompareMetaLine({
     supplyPyeongCohort: data?.supplyPyeongCohort ?? null,
     referenceMonth: data?.referenceMonth ?? null,
   });
   const trendCells = data?.trends[period] ?? [];
   const trendScale = trendAbsScale(trendCells);
-  const priceTip = data?.methodologyCopy.price ?? PRICE_LEVEL_TIP;
-  const trendTip = data?.methodologyCopy.trend ?? TREND_TIP;
-  const fallbackNotes = trendHorizonFallbackNotes(trendCells);
 
   return (
-    <div className="mt-3 border-t border-slate-200 pt-3">
-      <div className="flex flex-nowrap items-center gap-1">
-        <h3 className="text-[13px] font-medium leading-5 text-slate-600">
-          지역 가격 비교
-        </h3>
-        <span className="text-[11px] text-slate-400">평당가</span>
-        <InfoTip aria-label={tab === "level" ? "평당가 비교 안내" : "실거래 가격 변동 안내"}>
-          <p>{tab === "level" ? priceTip : trendTip}</p>
-          <p className="mt-1">{COMPLEX_EXACT_TIP}</p>
-          {tab === "trend" && fallbackNotes.length > 0 ? (
-            <p className="mt-1 text-slate-500">
-              {fallbackNotes.join(" · ")}
-            </p>
-          ) : null}
-        </InfoTip>
+    <div className="mt-4 border-t border-slate-200 pt-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+        <div className="flex min-w-0 items-center gap-1">
+          <h3 className="text-[13px] font-semibold leading-5 text-slate-800">
+            {PRICE_COMPARE_TITLE}
+          </h3>
+          <InfoTip aria-label="가격 비교 안내">
+            <p className="font-medium text-slate-800">{PRICE_COMPARE_TIP_TITLE}</p>
+            {PRICE_COMPARE_TIP.split("\n\n").map((paragraph) => (
+              <p key={paragraph} className="mt-1.5 first:mt-1">
+                {paragraph}
+              </p>
+            ))}
+          </InfoTip>
+        </div>
+        {meta ? (
+          <p className="min-w-0 text-right text-[11px] leading-4 text-slate-500">
+            {meta}
+          </p>
+        ) : null}
       </div>
 
       {!enabled || unsupported ? (
@@ -239,7 +236,7 @@ export function ComplexRegionPriceCompare({
           <div
             className={`${labSegmentedClass("mt-2 !flex-nowrap !gap-1")} w-full`}
             role="tablist"
-            aria-label="지역 가격 비교"
+            aria-label="가격 비교"
           >
             {PRICE_COMPARE_TABS.map((item) => (
               <button
@@ -257,18 +254,6 @@ export function ComplexRegionPriceCompare({
               </button>
             ))}
           </div>
-
-          {lines.line1 ? (
-            <p className="mt-1.5 text-[12px] leading-4 text-slate-500">
-              {lines.line1}
-              {lines.line2 ? (
-                <>
-                  <span className="mx-1 text-slate-300">·</span>
-                  {lines.line2}
-                </>
-              ) : null}
-            </p>
-          ) : null}
 
           {tab === "trend" ? (
             <div

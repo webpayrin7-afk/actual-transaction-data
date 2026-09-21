@@ -545,6 +545,20 @@ export const TREND_TIP =
   "동일한 단지의 현재와 과거 실거래 가격을 비교해 지역 가격 변화를 계산합니다.";
 export const COMPLEX_EXACT_TIP = "이 단지는 선택한 평형만 사용합니다. 지역 값은 같은 평형대 기준입니다.";
 
+export const ZIPLAB_RANK_TITLE = "집랩 순위";
+export const ZIPLAB_RANK_TIP_TITLE = "집랩 순위란?";
+export const ZIPLAB_RANK_TIP = [
+  "실거래 가격, 거래량, 거래 지속성, 가격 흐름, 단지 규모 등을 종합해 같은 지역 내 단지의 상대적인 위치를 나타냅니다.",
+  "종합은 단지 전체를, 평형대 순위는 현재 선택한 평형이 속한 평형대를 기준으로 계산합니다.",
+].join("\n\n");
+
+export const PRICE_COMPARE_TITLE = "가격 비교";
+export const PRICE_COMPARE_TIP_TITLE = "지역 가격 비교란?";
+export const PRICE_COMPARE_TIP = [
+  "이 단지는 현재 선택한 평형의 실거래 가격을 기준으로 하고, 지역은 같은 평형대 단지들의 실거래 가격을 기준으로 비교합니다.",
+  "평당가는 공급면적 기준입니다.",
+].join("\n\n");
+
 export type PriceCompareStatus =
   | "ok"
   | "INSUFFICIENT_SAMPLE"
@@ -879,17 +893,33 @@ export function trendHorizonFallbackNotes(cells: readonly TrendPublicCell[]): st
   return notes;
 }
 
+/** Decade row label from ranking API regionPyeongDecade. Never invents from exclusive ㎡. */
+export function rankingDecadeRowLabel(cohort: string | null | undefined): string | null {
+  const value = cohort?.trim();
+  if (!value) return null;
+  return value.replace(/\s*순위$/, "");
+}
+
 /**
  * Selected-area ranking title.
  * Decade text comes from ranking API regionPyeongDecade only.
- * Does not prefix the selected exact 평 (33평 · 30평대 순위 → 30평대 순위).
  */
 export function rankingSelectedHeading(params: {
   pyeongLabel?: string | null;
   rankingCohortLabel?: string | null;
 }): string | null {
-  const cohort = params.rankingCohortLabel?.trim() || null;
-  if (!cohort) return null;
-  const decade = cohort.replace(/\s*순위$/, "");
-  return `${decade} 순위`;
+  const decade = rankingDecadeRowLabel(params.rankingCohortLabel);
+  return decade ? `${decade} 순위` : null;
+}
+
+/** Right-side meta for 가격 비교: "30평대 기준 · 2026.09 기준". No selected 평. */
+export function priceCompareMetaLine(params: {
+  supplyPyeongCohort: string | null | undefined;
+  referenceMonth: string | null | undefined;
+}): string | null {
+  const decade = rankingDecadeRowLabel(params.supplyPyeongCohort);
+  const decadeMeta = decade ? `${decade} 기준` : null;
+  const month = formatReferenceMonthCompact(params.referenceMonth);
+  const parts = [decadeMeta, month].filter((part): part is string => !!part);
+  return parts.length ? parts.join(" · ") : null;
 }
