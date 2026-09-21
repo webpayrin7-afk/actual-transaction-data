@@ -764,6 +764,10 @@ assert(!rankSection.includes('areaBand: "84"'), "no hardcoded 84");
 assert(!rankSection.includes("59/84/114"), "no legacy band comment in card");
 assert(rankSection.includes("지역 내 비교"), "top section title");
 assert(rankSection.includes("ZIPLAB_RANK_TITLE"), "집랩 순위 subtitle");
+assert(
+  rankSection.includes("text-sm font-semibold leading-5 text-slate-900"),
+  "집랩 순위 title matches 계산 기준 및 세부내역 size",
+);
 assert(rankSection.includes('label="종합"'), "overall is a row, not a section title");
 assert(!rankSection.includes("종합 순위"), "no overall subsection heading");
 assert(!rankSection.includes("rankingSelectedHeading"), "no decade subsection heading");
@@ -787,6 +791,10 @@ const priceCompare = readFileSync(
   "utf8",
 );
 assert(priceCompare.includes("PRICE_COMPARE_TITLE"), "가격 비교 subtitle");
+assert(
+  priceCompare.includes("text-sm font-semibold leading-5 text-slate-900"),
+  "가격 비교 title matches 계산 기준 및 세부내역 size",
+);
 assert(priceCompare.includes("PRICE_COMPARE_TIP"), "가격 비교 tooltip");
 assert(priceCompare.includes("priceCompareMetaLine"), "cohort + month on title line");
 assert(!priceCompare.includes("selectedPyeongCompareLines"), "no selected-평 subtitle");
