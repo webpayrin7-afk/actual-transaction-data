@@ -1,0 +1,47 @@
+{
+  "coverage": {
+    "total": 8437,
+    "profile_rows": 8131,
+    "household_count": 2963,
+    "building_count": 2274,
+    "approval_date": 1792,
+    "max_floor": 8059,
+    "parking_per_household": 2446,
+    "far_ratio": 2064,
+    "bcr_ratio": 2067,
+    "heating_type": 792,
+    "hh_invalid": 0,
+    "bld_invalid": 0,
+    "fl_invalid": 0
+  },
+  "source_distribution": [
+    {
+      "source": "COMPOSITE",
+      "n": 8121
+    },
+    {
+      "source": "(no row)",
+      "n": 306
+    },
+    {
+      "source": "AptBasisInfoServiceV5",
+      "n": 6
+    },
+    {
+      "source": "kapt_basis_v5",
+      "n": 4
+    }
+  ],
+  "buckets": {
+    "FULL_HERO": 136,
+    "GOOD_HERO": 1110,
+    "PARTIAL_HERO": 6885,
+    "NO_PROFILE": 306
+  },
+  "intersection": {
+    "all8": 136,
+    "n7": 1210,
+    "n6": 812,
+    "le5": 6279
+  }
+}

@@ -30,6 +30,7 @@ const APPLY = process.argv.includes("--apply");
 const PILOT = process.argv.includes("--pilot");
 const AUDIT = process.argv.includes("--audit");
 const IDEMPOTENCY = process.argv.includes("--idempotency");
+const RECONCILE = process.argv.includes("--reconcile");
 const DRY = !APPLY && !AUDIT; // pilot/dry-run also dry unless --apply
 const SOURCE_VERSION = "profile-hero-v1";
 const BASE = "https://apis.data.go.kr/1613000";
@@ -630,6 +631,50 @@ function preferCandidate(
   return list[0] ?? null;
 }
 
+function valuesMateriallyDiffer(
+  field: HeroField | "parking_total",
+  a: string | number,
+  b: string | number,
+): boolean {
+  if (field === "parking_total") {
+    const x = Number(a);
+    const y = Number(b);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return true;
+    if (x === y) return false;
+    const denom = Math.max(Math.abs(x), Math.abs(y), 1);
+    return Math.abs(x - y) > 2 && Math.abs(x - y) / denom > 0.01;
+  }
+  return compareValues(field, a, b) === "MATERIAL_DIFFERENCE";
+}
+
+/**
+ * Multiple official candidates must agree. Disagreement is AMBIGUOUS — never pick a winner.
+ */
+function resolveAgreedCandidate(
+  field: HeroField | "parking_total",
+  list: Candidate[] | undefined,
+): { candidate: Candidate | null; ambiguous: boolean; invalid: boolean } {
+  if (!list?.length) return { candidate: null, ambiguous: false, invalid: false };
+  const valid = list.filter((c) =>
+    field === "parking_total"
+      ? typeof c.value === "number" && Number.isFinite(c.value) && c.value >= 0
+      : isValidField(field, c.value),
+  );
+  if (!valid.length) {
+    return { candidate: list[0] ?? null, ambiguous: false, invalid: true };
+  }
+  const first = valid[0]!;
+  const conflict = valid.some((c) =>
+    valuesMateriallyDiffer(field, first.value, c.value),
+  );
+  if (conflict) return { candidate: null, ambiguous: true, invalid: false };
+  return {
+    candidate: preferCandidate(field, valid),
+    ambiguous: false,
+    invalid: false,
+  };
+}
+
 function classifyField(
   field: HeroField,
   existing: string | number | null,
@@ -919,8 +964,6 @@ async function applyFills(
               bcr_ratio = COALESCE(bcr_ratio, ?),
               heating_type = COALESCE(heating_type, ?),
               parking_total = COALESCE(parking_total, ?),
-              source = ?,
-              source_version = ?,
               raw_meta_json = ?,
               updated_at = ?
             WHERE complex_id = ?`,
@@ -934,8 +977,6 @@ async function applyFills(
         vals.bcr_ratio,
         vals.heating_type,
         vals.parking_total,
-        source,
-        SOURCE_VERSION,
         raw,
         ts,
         complexId,
@@ -1034,6 +1075,7 @@ async function processUniverse(opts: {
   apiKey: string;
   onlyIds: string[] | null;
   apply: boolean;
+  reconcile: boolean;
   label: string;
 }) {
   const { masters, profiles, links, blds } = await loadSeoulUniverse(
@@ -1125,27 +1167,32 @@ async function processUniverse(opts: {
       bldMaxFloor: agg.max_floor,
     });
 
-    // parking_total preferred candidate (for derivation only; not a HERO gate field)
-    const parkingCand = preferCandidate("parking_total", bags.parking_total);
-
     const decisions: FieldDecision[] = [];
     const fills: Partial<Record<HeroField | "parking_total", Candidate>> = {};
 
     for (const field of HERO_FIELDS) {
       if (field === "parking_per_household") continue; // handle after hh+parking
-      const cand = preferCandidate(field, bags[field]);
+      const resolved = resolveAgreedCandidate(field, bags[field]);
+      const cand = resolved.candidate;
       const existingVal = existing
         ? (existing[field] as string | number | null)
         : null;
-      const d = classifyField(
-        field,
-        existingVal,
-        cand,
-        !identityUnresolved || cand != null || agg.max_floor != null,
-        ambiguous &&
-          (cand?.source === "BUILDING_HUB_RECAP" ||
-            (cand == null && !kaptCode)),
-      );
+      const d: FieldDecision = resolved.ambiguous
+        ? {
+            field,
+            classification: "AMBIGUOUS",
+            conflict: "MATERIAL_DIFFERENCE",
+            existing: existingVal,
+            candidate: null,
+            reason: "official_sources_disagree",
+          }
+        : classifyField(
+            field,
+            existingVal,
+            cand,
+            !identityUnresolved || cand != null || agg.max_floor != null,
+            false,
+          );
       decisions.push(d);
       fieldStats[field][d.classification] += 1;
       if (d.classification === "NULL_SAFE_FILL" && d.candidate) {
@@ -1165,22 +1212,39 @@ async function processUniverse(opts: {
       }
     }
 
-    // parking_per_household: derive from trusted parking_total + household
-    const hhEffective =
-      (existing?.household_count as number | null) ??
-      (fills.household_count?.value as number | null) ??
-      null;
-    const pkTotalEffective =
-      (existing?.parking_total as number | null) ??
-      (parkingCand &&
-      typeof parkingCand.value === "number" &&
-      Number.isFinite(parkingCand.value) &&
-      parkingCand.value >= 0
-        ? parkingCand.value
-        : null);
+    // parking_per_household: derive only when official totals (and households) agree
+    const parkingResolved = resolveAgreedCandidate(
+      "parking_total",
+      bags.parking_total,
+    );
+    const parkingCand = parkingResolved.candidate;
+    const hhResolved = resolveAgreedCandidate(
+      "household_count",
+      bags.household_count,
+    );
+    const hhFromSources = hhResolved.ambiguous
+      ? null
+      : ((hhResolved.candidate?.value as number | null) ?? null);
+    const existingHh = existing?.household_count ?? null;
+    // Stored household is trusted. Source disagreement blocks only a new household fill,
+    // not a ratio that uses the already-stored count.
+    const hhEffective: number | null =
+      existingHh != null
+        ? Number(existingHh)
+        : hhFromSources != null
+          ? Number(hhFromSources)
+          : null;
+    const pkTotalEffective = parkingResolved.ambiguous
+      ? null
+      : ((existing?.parking_total as number | null) ??
+        (typeof parkingCand?.value === "number" && parkingCand.value >= 0
+          ? parkingCand.value
+          : null));
 
     let pphCand: Candidate | null = null;
+    const parkingAmbiguous = parkingResolved.ambiguous;
     if (
+      !parkingAmbiguous &&
       pkTotalEffective != null &&
       hhEffective != null &&
       hhEffective > 0 &&
@@ -1197,13 +1261,16 @@ async function processUniverse(opts: {
       };
     }
     const pphExisting = existing?.parking_per_household ?? null;
-    const pphDec = classifyField(
-      "parking_per_household",
-      pphExisting,
-      pphCand,
-      true,
-      false,
-    );
+    const pphDec: FieldDecision = parkingAmbiguous
+      ? {
+          field: "parking_per_household",
+          classification: "AMBIGUOUS",
+          conflict: "MATERIAL_DIFFERENCE",
+          existing: pphExisting,
+          candidate: null,
+          reason: "parking_or_household_sources_disagree",
+        }
+      : classifyField("parking_per_household", pphExisting, pphCand, true, false);
     decisions.push(pphDec);
     fieldStats.parking_per_household[pphDec.classification] += 1;
     if (pphDec.classification === "NULL_SAFE_FILL" && pphDec.candidate) {
@@ -1227,7 +1294,60 @@ async function processUniverse(opts: {
     const fillCount = Object.keys(fills).filter((k) => k !== "parking_total" || fills.parking_per_household).length;
     const heroFills = HERO_FIELDS.filter((f) => fills[f]).length;
 
-    if (opts.apply && heroFills > 0) {
+    if (opts.reconcile && existing?.raw_meta_json) {
+      let prov: Record<string, unknown> = {};
+      try {
+        const meta = JSON.parse(existing.raw_meta_json) as {
+          field_provenance?: Record<string, unknown>;
+        };
+        prov = meta.field_provenance ?? {};
+      } catch {
+        prov = {};
+      }
+      const nullFields = HERO_FIELDS.filter(
+        (f) =>
+          decisions.find((d) => d.field === f)?.classification === "AMBIGUOUS" &&
+          prov[f] != null,
+      );
+      const nullParkingTotal =
+        nullFields.includes("parking_per_household") &&
+        existing.parking_total != null;
+      if ((nullFields.length > 0 || nullParkingTotal) && opts.apply) {
+        const sets = [
+          ...nullFields.map((f) => `${f} = NULL`),
+          ...(nullParkingTotal ? ["parking_total = NULL"] : []),
+        ];
+        let metaObj: Record<string, unknown> = {};
+        try {
+          metaObj = JSON.parse(existing.raw_meta_json) as Record<string, unknown>;
+        } catch {
+          metaObj = { prior_raw_meta: existing.raw_meta_json };
+        }
+        const prevProv =
+          metaObj.field_provenance && typeof metaObj.field_provenance === "object"
+            ? { ...(metaObj.field_provenance as Record<string, unknown>) }
+            : {};
+        for (const f of nullFields) delete prevProv[f];
+        metaObj.field_provenance = prevProv;
+        metaObj.profile_hero_reconcile = {
+          nulled: nullFields,
+          parking_total_nulled: nullParkingTotal,
+          at: nowIso(),
+          reason: "official_sources_disagree",
+        };
+        await opts.db.execute({
+          sql: `UPDATE apt_complex_profile SET ${sets.join(", ")}, raw_meta_json = ?, updated_at = ? WHERE complex_id = ?`,
+          args: [JSON.stringify(metaObj), nowIso(), master.complex_id],
+        });
+        complexesChanged += 1;
+        fieldFills += nullFields.length;
+      } else if (nullFields.length > 0) {
+        fieldFills += nullFields.length;
+        fillableSet.add(master.complex_id);
+      }
+    }
+
+    if (opts.apply && !opts.reconcile && heroFills > 0) {
       await applyFills(opts.db, master.complex_id, existing, fills);
       complexesChanged += 1;
       fieldFills += heroFills;
@@ -1408,6 +1528,36 @@ async function main() {
     return;
   }
 
+  if (RECONCILE) {
+    const reconciled = await processUniverse({
+      db,
+      apiKey,
+      onlyIds: null,
+      apply: true,
+      reconcile: true,
+      label: "reconcile",
+    });
+    const after = await coverageReport(db);
+    writeFileSync(
+      resolve(OUT, "reconcile-report.json"),
+      JSON.stringify({ reconciled, after }, null, 2),
+    );
+    console.log(
+      JSON.stringify(
+        {
+          reconcile_rows: reconciled.complexes_changed,
+          fields_nulled: reconciled.planned_or_applied_field_fills,
+          after: after.coverage,
+          buckets: after.buckets,
+        },
+        null,
+        2,
+      ),
+    );
+    db.close();
+    return;
+  }
+
   // Pilot first
   const pilotIds = await resolvePilotIds(db);
   const pilot = await processUniverse({
@@ -1415,6 +1565,7 @@ async function main() {
     apiKey,
     onlyIds: pilotIds,
     apply: false,
+    reconcile: false,
     label: "pilot",
   });
   writeFileSync(resolve(OUT, "pilot-report.json"), JSON.stringify(pilot, null, 2));
@@ -1443,6 +1594,7 @@ async function main() {
     apiKey,
     onlyIds: null,
     apply: false,
+    reconcile: false,
     label: "dry-run",
   });
   writeFileSync(resolve(OUT, "dry-run-report.json"), JSON.stringify(dry, null, 2));
@@ -1470,6 +1622,7 @@ async function main() {
       apiKey,
       onlyIds: null,
       apply: true,
+      reconcile: false,
       label: "apply",
     });
     writeFileSync(
@@ -1485,6 +1638,7 @@ async function main() {
         apiKey,
         onlyIds: null,
         apply: true,
+        reconcile: false,
         label: "idempotency",
       });
       writeFileSync(
