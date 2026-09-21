@@ -97,9 +97,11 @@ export function ComplexMgmtFeeCard({
 
   return (
     <LabCard className="p-4 sm:p-5">
-      <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-        관리비
-      </h2>
+      <div className="lab-section-heading">
+        <div className="min-w-0">
+          <h2>관리비</h2>
+        </div>
+      </div>
 
       {showSelectedEstimate && estimate ? (
         <>
