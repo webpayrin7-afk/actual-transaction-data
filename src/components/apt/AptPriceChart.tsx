@@ -376,7 +376,7 @@ export function PeriodRangeSlider({
         />
       </div>
 
-      <div className="flex items-center justify-between gap-2 text-[10px] leading-none text-slate-500">
+      <div className="detail-caption flex items-center justify-between gap-2 leading-none">
         <span className="min-w-0 shrink tabular-nums">
           {formatYmLabel(months[0])}
         </span>

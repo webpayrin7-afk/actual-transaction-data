@@ -30,18 +30,9 @@ export function ComplexHeroMeta({ lines }: { lines: ComplexHeroMetaLines }) {
   }
   return (
     <div className="space-y-0.5">
-      <HeroMetaLine
-        items={lines.line1}
-        className="text-[13px] leading-5 text-slate-600 sm:text-sm"
-      />
-      <HeroMetaLine
-        items={lines.line2}
-        className="text-[13px] leading-5 text-slate-600 sm:text-sm"
-      />
-      <HeroMetaLine
-        items={lines.line3}
-        className="text-xs leading-5 text-slate-500 sm:text-[13px]"
-      />
+      <HeroMetaLine items={lines.line1} className="detail-meta" />
+      <HeroMetaLine items={lines.line2} className="detail-meta" />
+      <HeroMetaLine items={lines.line3} className="detail-caption" />
     </div>
   );
 }

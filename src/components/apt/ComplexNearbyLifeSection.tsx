@@ -947,7 +947,7 @@ export function ComplexNearbyLifeSection({
         <div className="space-y-4">
           {subwayItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+              <p className="detail-subsection-title mb-1.5">
                 지하철
               </p>
               <ul className="space-y-1">
@@ -1004,7 +1004,7 @@ export function ComplexNearbyLifeSection({
           ) : null}
           {busItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+              <p className="detail-subsection-title mb-1.5">
                 버스
               </p>
               <ul className="space-y-1">
@@ -1108,7 +1108,7 @@ export function ComplexNearbyLifeSection({
         return (
           <div>
             <div className="mb-2 flex items-baseline justify-between gap-2">
-              <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+              <p className="detail-subsection-title">{label}</p>
               <LivingDistanceSubtitle />
             </div>
             <EmptyBlock>
@@ -1125,7 +1125,7 @@ export function ComplexNearbyLifeSection({
       return (
         <div>
           <div className="mb-2 flex items-baseline justify-between gap-2">
-            <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+            <p className="detail-subsection-title">{label}</p>
             <LivingDistanceSubtitle />
           </div>
           <ul className="space-y-1">
@@ -1288,7 +1288,7 @@ export function ComplexNearbyLifeSection({
             />
           ) : null}
           <div>
-            <p className="mb-1 text-[15px] font-semibold text-slate-800">
+            <p className="detail-subsection-title mb-1">
               {heading}
             </p>
             {places.length === 0 ? (
@@ -1374,11 +1374,11 @@ export function ComplexNearbyLifeSection({
 
   return (
     <LabCard
-      className={`p-4 sm:p-5 ${tab === "living" ? "overflow-visible" : ""}`}
+      className={`lab-card detail-card ${tab === "living" ? "overflow-visible" : ""}`}
     >
       <div className="lab-section-heading mb-px">
         <div className="min-w-0">
-          <h2 className="flex items-center">
+          <h2 className="detail-section-title flex items-center">
             주변 생활
             <InfoTip aria-label="주변 생활 출처 안내" className="text-[13px]">
               <p className="text-[12px] leading-relaxed text-slate-600">

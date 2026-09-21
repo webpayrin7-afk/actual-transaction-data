@@ -35,13 +35,14 @@ function RankValue({
   const line = placeRankDisplay({ regionName, place });
   if (!line) {
     return (
-      <p className="truncate text-[13px] leading-5 text-slate-500">{empty}</p>
+      <p className="detail-body truncate text-slate-500">{empty}</p>
     );
   }
   return (
-    <p className="truncate text-[17px] font-semibold leading-5 tabular-nums text-slate-900">
-      {line.rank}위
-    </p>
+      <p className="detail-number">
+        <span>{line.rank}</span>
+        <span className="detail-number-unit">위</span>
+      </p>
   );
 }
 
@@ -62,7 +63,7 @@ function RankRow({
 }) {
   return (
     <div className={RANK_GRID}>
-      <p className="truncate text-[15px] leading-5 text-slate-600">{label}</p>
+      <p className="detail-label truncate">{label}</p>
       <RankValue place={gu} regionName={guName} empty={empty} />
       <RankValue place={dong} regionName={dongName} empty={empty} />
     </div>
@@ -125,16 +126,16 @@ export function ComplexRegionRankSection({
   return (
     <section
       id="section-region-rank"
-      className="lab-card scroll-mt-28 p-4 sm:p-5"
+      className="lab-card detail-card scroll-mt-28"
     >
-      <h2 className="min-w-0 truncate text-xl font-semibold leading-none tracking-tight text-slate-900">
+      <h2 className="detail-section-title min-w-0 truncate">
         지역 내 비교
       </h2>
 
-      <div className="mt-3">
+      <div className="detail-after-title">
         <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
           <div className="flex min-w-0 items-center">
-            <h3 className="text-sm font-semibold leading-5 text-slate-900">
+            <h3 className="detail-subsection-title">
               {ZIPLAB_RANK_TITLE}
             </h3>
             <InfoTip aria-label="집랩 순위 안내">
@@ -147,7 +148,7 @@ export function ComplexRegionRankSection({
             </InfoTip>
           </div>
           {asOf ? (
-            <p className="shrink-0 text-right text-[11px] leading-4 text-slate-500">
+            <p className="detail-meta shrink-0 text-right">
               {asOf}
             </p>
           ) : null}
@@ -175,14 +176,14 @@ export function ComplexRegionRankSection({
           <div className="mt-2">
             <div className={RANK_GRID}>
               <span />
-              <p className="truncate text-[13px] leading-5 text-slate-500">
+              <p className="detail-meta truncate">
                 {regionName}
               </p>
-              <p className="truncate text-[13px] leading-5 text-slate-500">
+              <p className="detail-meta truncate">
                 {dongLabel}
               </p>
             </div>
-            <div className="mt-1.5 space-y-4">
+            <div className="detail-after-title detail-rows">
               <RankRow
                 label="종합"
                 guName={regionName}
@@ -216,7 +217,7 @@ export function ComplexRegionRankSection({
       <Link
         href={regionRankingHref(regionSlug)}
         data-event="complex_region_rank_cta"
-        className="lab-button lab-button-primary mt-7 w-full min-h-10 text-sm"
+        className="lab-button lab-button-primary detail-cta w-full min-h-10 text-sm"
       >
         {regionOverviewCtaLabel(regionName)}
         <span aria-hidden className="ml-1">

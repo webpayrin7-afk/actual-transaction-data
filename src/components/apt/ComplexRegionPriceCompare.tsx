@@ -32,7 +32,32 @@ import {
   type TrendPublicCell,
 } from "@/lib/region-ranking/public";
 
-const SCOPE_LABEL_CLASS = "w-[4.75rem] shrink-0 truncate text-[13px] leading-4 sm:w-[5.5rem]";
+const SCOPE_LABEL_CLASS = "detail-label w-[4.75rem] shrink-0 truncate sm:w-[5.5rem]";
+
+function PriceFigure({ text, strong }: { text: string; strong: boolean }) {
+  const unit = "만원/평";
+  if (!text.endsWith(unit)) {
+    return <span className={strong ? "detail-number" : "detail-body tabular-nums"}>{text}</span>;
+  }
+  return (
+    <span className="inline-flex items-baseline gap-0.5">
+      <span className={strong ? "detail-number" : "detail-body tabular-nums"}>
+        {text.slice(0, -unit.length)}
+      </span>
+      <span className="detail-number-unit">{unit}</span>
+    </span>
+  );
+}
+
+function PercentFigure({ text }: { text: string }) {
+  if (!text.endsWith("%")) return <span className="detail-number">{text}</span>;
+  return (
+    <span className="inline-flex items-baseline">
+      <span className="detail-number">{text.slice(0, -1)}</span>
+      <span className="detail-number-unit">%</span>
+    </span>
+  );
+}
 
 function usePriceCompareEnter() {
   const ref = useRef<HTMLDivElement>(null);
@@ -136,16 +161,15 @@ function PriceLevelBars({
                 />
               )}
             </div>
-            <span
-              className={`w-[7.5rem] shrink-0 whitespace-nowrap text-right text-[12px] leading-4 tabular-nums sm:w-36 sm:text-[13px] ${
-                hiddenBar
-                  ? "text-slate-500"
-                  : accent
-                    ? "font-semibold text-slate-900"
-                    : "text-slate-600"
-              }`}
-            >
-              {hiddenBar ? priceCompareRowCopy(cell.status) : formatWonPerPyeong(value) ?? "—"}
+            <span className="inline-flex w-[7.5rem] shrink-0 items-baseline justify-end gap-0.5 whitespace-nowrap sm:w-36">
+              {hiddenBar ? (
+                <span className="detail-meta">{priceCompareRowCopy(cell.status)}</span>
+              ) : (
+                <PriceFigure
+                  text={formatWonPerPyeong(value) ?? "—"}
+                  strong={accent}
+                />
+              )}
             </span>
           </li>
         );
@@ -157,7 +181,7 @@ function PriceLevelBars({
 function TrendScale({ maxAbs }: { maxAbs: number }) {
   const label = formatSignedPct(maxAbs)?.replace("+", "") ?? `${maxAbs}%`;
   return (
-    <div className="mb-1 flex items-center gap-2 text-[11px] tabular-nums text-slate-400">
+    <div className="detail-caption mb-1 flex items-center gap-2 tabular-nums">
       <span className="w-[4.75rem] shrink-0 sm:w-[5.5rem]" />
       <div className="flex min-w-0 flex-1 justify-between">
         <span>-{label}</span>
@@ -239,16 +263,16 @@ function TrendBars({
                   </div>
                   <div className="flex w-14 shrink-0 flex-col items-end sm:w-16">
                     <span
-                      className={`whitespace-nowrap text-right text-[12px] tabular-nums sm:text-[13px] ${
-                        up ? "font-medium text-rose-600" : down ? "font-medium text-blue-600" : "text-slate-500"
+                      className={`inline-flex items-baseline justify-end ${
+                        up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
                       }`}
                     >
-                      {formatSignedPct(value) ?? "—"}
+                      <PercentFigure text={formatSignedPct(value) ?? "—"} />
                     </span>
                     {sampleLabel ? (
                       <InfoTip
                         aria-label={sampleLabel}
-                        className="mt-0.5 !text-[10px] !leading-4 text-slate-500 hover:text-slate-600"
+                        className="detail-caption mt-0.5 text-slate-500 hover:text-slate-600"
                         trigger={<span>{sampleLabel}</span>}
                       >
                         <p className="font-medium text-slate-800">{TREND_SAMPLE_TIP_TITLE}</p>
@@ -325,10 +349,10 @@ export function ComplexRegionPriceCompare({
     query.isSuccess ? "ready" : "wait",
   ].join("|");
   return (
-    <div className="mt-4 border-t border-slate-200 pt-3.5">
+    <div className="detail-subsection-rule">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
         <div className="flex min-w-0 items-center">
-          <h3 className="text-sm font-semibold leading-5 text-slate-900">
+          <h3 className="detail-subsection-title">
             {PRICE_COMPARE_TITLE}
           </h3>
           <InfoTip aria-label="가격 비교 안내">
@@ -341,7 +365,7 @@ export function ComplexRegionPriceCompare({
           </InfoTip>
         </div>
         {meta ? (
-          <p className="min-w-0 text-right text-[11px] leading-4 text-slate-500">
+          <p className="detail-meta min-w-0 text-right">
             {meta}
           </p>
         ) : null}
@@ -354,7 +378,7 @@ export function ComplexRegionPriceCompare({
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("mt-2 !w-full !flex-nowrap !gap-1.5")}`}
+            className={`${labSegmentedClass("detail-after-title !w-full !flex-nowrap !gap-1.5")}`}
             role="tablist"
             aria-label="가격 비교"
           >
@@ -403,7 +427,7 @@ export function ComplexRegionPriceCompare({
             <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{historyHelper}</p>
           ) : null}
 
-          <PriceCompareChart key={chartKey} replayKey={chartKey} className="mt-3">
+          <PriceCompareChart key={chartKey} replayKey={chartKey} className="detail-chart-gap">
             {(entered) =>
               query.isLoading ? (
             <div className="mt-2 space-y-1.5" aria-label="가격 비교 불러오는 중">

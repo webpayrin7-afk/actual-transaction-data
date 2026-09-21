@@ -122,17 +122,17 @@ function KpiCell({
 }) {
   return (
     <div className="min-w-0 flex-1 px-2 py-2.5 text-center sm:px-3 sm:py-3">
-      <p className="text-[10px] font-medium leading-tight text-[color:var(--lab-muted)] sm:text-[11px]">
+      <p className="detail-caption">
         {label}
       </p>
       <p
-        className={`lab-kpi-value mt-0.5 truncate text-[15px] font-bold leading-tight tabular-nums sm:text-base ${
+        className={`detail-number mt-0.5 truncate ${
           valueClassName ?? "text-[color:var(--lab-navy-950)]"
         }`}
       >
         {value}
       </p>
-      <p className="mt-0.5 truncate text-[10px] leading-snug text-[color:var(--lab-muted)] sm:text-[11px]">
+      <p className="detail-caption mt-0.5 truncate">
         {hint}
       </p>
     </div>
@@ -341,7 +341,7 @@ export function AptTransactionsPage({
       <div className="space-y-2">
         <div className="flex min-h-10 items-center gap-1.5">
           <BackLink fallback={detailHref} compact hideLabel />
-          <h1 className="min-w-0 flex-1 truncate font-semibold tracking-tight text-[color:var(--lab-navy-950)] text-xl leading-7 sm:text-[1.375rem] sm:leading-8">
+          <h1 className="detail-page-title min-w-0 flex-1 truncate">
             {displayName}
           </h1>
           <Link

@@ -58,7 +58,7 @@ export function ComplexSurroundingsSection({ aptName }: { aptName: string }) {
   }
 
   return (
-    <LabCard className="p-4 sm:p-5">
+    <LabCard className="detail-card">
       <LabSectionHeading
         title="주변환경"
         description="생활·교통 시설 · 직선거리"

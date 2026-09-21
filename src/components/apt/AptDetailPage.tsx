@@ -593,23 +593,19 @@ export function AptDetailPage({
     valueClassName = "",
   ) => (
     <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
-        {label}
-      </p>
+      <p className="detail-caption">{label}</p>
       <p
-        className={`lab-kpi-value mt-0.5 text-[13px] font-semibold leading-tight tabular-nums sm:text-base ${valueClassName}`.trim()}
+        className={`detail-number mt-0.5 ${valueClassName}`.trim()}
       >
         {value}
       </p>
-      <p className="mt-0.5 break-keep text-[9px] leading-snug text-slate-500 sm:text-[11px]">
-        {hint}
-      </p>
+      <p className="detail-caption mt-0.5 break-keep">{hint}</p>
     </div>
   );
 
   if (quickQuery.isLoading && !data) {
     return (
-      <div className={`${PAGE_SHELL} max-w-5xl`}>
+      <div className={`${PAGE_SHELL} detail-page max-w-5xl`}>
         <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -665,7 +661,7 @@ export function AptDetailPage({
   });
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl`}>
+    <div className={`${PAGE_SHELL} detail-page max-w-5xl`}>
       {/* Sticky compact header — name + shared area selector */}
       <div
         className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
@@ -706,6 +702,7 @@ export function AptDetailPage({
             <BackLink fallback="/complexes" compact hideLabel />
           }
           title={data.aptName}
+          titleClassName="detail-page-title"
           meta={<ComplexHeroMeta lines={heroMeta} />}
           showDivider={false}
         >
@@ -750,9 +747,9 @@ export function AptDetailPage({
       )}
 
       {/* Market: one white section — period + KPI row + context + chart */}
-      <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
+      <section id="section-market" className="lab-card detail-card scroll-mt-28">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-          <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+          <h2 className="detail-section-title min-w-0">
             시세 추이
           </h2>
           <div className="flex flex-wrap items-center gap-2">
@@ -766,7 +763,7 @@ export function AptDetailPage({
           </div>
         </div>
         {/* Match 거래 내역 helper→list gap */}
-        <div style={{ height: 16 }} className="w-full" aria-hidden />
+        <div className="detail-after-title w-full" aria-hidden />
 
         <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
           {kpiCell(
@@ -843,11 +840,11 @@ export function AptDetailPage({
       <section
         id="section-trades"
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
-        className="lab-card scroll-mt-28 p-4 sm:p-5"
+        className="lab-card detail-card scroll-mt-28"
       >
         <div>
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+            <h2 className="detail-section-title">
               거래 내역
             </h2>
             <TransactionTypeTabs
@@ -860,7 +857,7 @@ export function AptDetailPage({
               ? "전체 면적"
               : areaSelectorClosedLabel(selectedArea)}
           </p>
-          <div style={{ height: 16 }} className="w-full" aria-hidden />
+          <div className="detail-after-title w-full" aria-hidden />
         </div>
 
         <TransactionList items={filtered} mode={dealFilter} />

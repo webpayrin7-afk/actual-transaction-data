@@ -765,8 +765,8 @@ assert(!rankSection.includes("59/84/114"), "no legacy band comment in card");
 assert(rankSection.includes("지역 내 비교"), "top section title");
 assert(rankSection.includes("ZIPLAB_RANK_TITLE"), "집랩 순위 subtitle");
 assert(
-  rankSection.includes("text-sm font-semibold leading-5 text-slate-900"),
-  "집랩 순위 title matches 계산 기준 및 세부내역 size",
+  rankSection.includes("detail-subsection-title"),
+  "집랩 순위 uses the detail subsection title",
 );
 assert(rankSection.includes('label="종합"'), "overall is a row, not a section title");
 assert(!rankSection.includes("종합 순위"), "no overall subsection heading");
@@ -797,8 +797,8 @@ const priceCompare = readFileSync(
 );
 assert(priceCompare.includes("PRICE_COMPARE_TITLE"), "가격 비교 subtitle");
 assert(
-  priceCompare.includes("text-sm font-semibold leading-5 text-slate-900"),
-  "가격 비교 title matches 계산 기준 및 세부내역 size",
+  priceCompare.includes("detail-subsection-title"),
+  "가격 비교 uses the detail subsection title",
 );
 assert(priceCompare.includes("PRICE_COMPARE_TIP"), "가격 비교 tooltip");
 assert(priceCompare.includes("priceCompareMetaLine"), "cohort + month on title line");
@@ -809,6 +809,7 @@ assert(!priceCompare.includes("지역 가격 비교"), "subtitle drops 지역");
 assert(priceCompare.includes("priceCompareScopeLabel"), "COMPLEX row uses apt name");
 assert(!/이 단지/.test(priceCompare), "price compare UI does not hardcode 이 단지");
 assert(priceCompare.includes("PRICE_COMPARE_TABS"), "keeps 가격 수준 / 변동률");
+assert(priceCompare.includes("detail-chart-gap"), "tab and chart share one gap token");
 assert(priceCompare.includes("price-compare-bar-play"), "price bars animate on enter");
 assert(priceCompare.includes("IntersectionObserver"), "chart plays when the section enters view");
 const globalsCss = readFileSync(

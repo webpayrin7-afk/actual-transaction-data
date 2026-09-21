@@ -323,10 +323,10 @@ export function ComplexCompareSection({
   const empty = !peersQuery.isLoading && !loadingPeers && peers.length === 0;
 
   return (
-    <LabCard className="p-4 sm:p-5">
+    <LabCard className="detail-card">
       <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="flex items-center">
+          <h2 className="detail-section-title flex items-center">
             주변 단지 비교
             <InfoTip aria-label="주변 단지 비교 안내">
               <p>
@@ -337,7 +337,7 @@ export function ComplexCompareSection({
             </InfoTip>
           </h2>
         </div>
-        <p className="shrink-0 pt-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">
+        <p className="detail-meta shrink-0 pt-0.5 text-right">
           {areaBandLabel(areaCenter)}
         </p>
       </div>
