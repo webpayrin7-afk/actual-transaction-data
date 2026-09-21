@@ -215,7 +215,7 @@ export function TransactionRow({
           </div>
           <div className="shrink-0 text-right">
             <p
-              className={`text-sm font-semibold tabular-nums sm:text-base ${dealTypePriceTextClass(mode)}`}
+              className={`detail-number ${dealTypePriceTextClass(mode)}`}
             >
               {m.primary}
             </p>
@@ -258,7 +258,7 @@ export function TransactionRow({
             </span>
           ) : null}
           <p
-            className={`text-sm font-semibold tabular-nums sm:text-base ${moneyClass}`}
+            className={`detail-number ${moneyClass}`}
           >
             {primaryMoney}
           </p>
@@ -328,6 +328,9 @@ function StatusBadge({ label }: { label: "신규" | "갱신" }) {
 }
 
 function AreaCell({ exclusiveArea }: { exclusiveArea: number }) {
+  if (!Number.isFinite(exclusiveArea)) {
+    return <span className="text-[color:var(--lab-muted)]">—</span>;
+  }
   const display =
     exclusiveArea % 1 === 0
       ? `${exclusiveArea}`
@@ -393,10 +396,10 @@ export function GroupedTransactionList({
           className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white shadow-[var(--lab-shadow)]"
         >
           <div className="flex items-center justify-between gap-2 bg-white px-2.5 pt-2.5 pb-1 sm:px-3">
-            <h3 className="text-sm font-bold text-[color:var(--lab-navy-950)] sm:text-[15px]">
+            <h3 className="detail-subsection-title">
               {group.label}
             </h3>
-            <span className="text-[12px] tabular-nums text-[color:var(--lab-muted)] sm:text-[13px]">
+            <span className="detail-meta tabular-nums">
               {group.count.toLocaleString("ko-KR")}건
             </span>
           </div>
@@ -426,7 +429,7 @@ export function GroupedTransactionList({
                   <span className="min-w-0">
                     <span className="inline-flex max-w-full flex-nowrap items-center gap-1 overflow-hidden">
                       <span
-                        className={`whitespace-nowrap text-[13px] font-bold tabular-nums sm:text-[14px] ${dealTypePriceTextClass(mode)}`}
+                        className={`detail-number whitespace-nowrap ${dealTypePriceTextClass(mode)}`}
                       >
                         {archivePriceLabel(tx, mode)}
                       </span>

@@ -67,7 +67,7 @@ function FacilityIcon({
 
 function SectionHeading({ children }: { children: ReactNode }) {
   return (
-    <h3 className="text-[14px] font-semibold tracking-tight text-slate-800">
+    <h3 className="detail-subsection-title">
       {children}
     </h3>
   );
@@ -108,14 +108,14 @@ export function ComplexCommerceStats({
       <section>
         <div className="flex items-baseline justify-between gap-2">
           <SectionHeading>생활 상권</SectionHeading>
-          <span className="text-[11px] text-slate-500">
+          <span className="detail-meta">
             반경 {radiusKm} · {snapshot.sourcePeriodLabel}
           </span>
         </div>
-        <div className="mt-1.5 flex items-end gap-1.5">
-          <p className="text-[28px] font-bold leading-none tracking-tight text-[#1e3a5f] tabular-nums">
+        <div className="mt-1.5 flex items-end">
+          <p className="detail-number-strong leading-none text-[#1e3a5f]">
             {formatCommerceCount(snapshot.p2Total)}
-            <span className="ml-0.5 text-[15px] font-semibold text-slate-700">
+            <span className="detail-number-unit ml-0.5">
               개
             </span>
           </p>
@@ -237,7 +237,7 @@ export function ComplexCommerceStats({
                 <span className="mt-0.5 truncate text-[10px] leading-tight text-slate-500">
                   {label}
                 </span>
-                <span className="mt-0.5 text-[15px] font-bold leading-none tabular-nums text-[#1e3a5f]">
+                <span className="detail-number mt-0.5 leading-none text-[#1e3a5f]">
                   {formatCommerceCount(snapshot.facilities[key])}
                 </span>
               </div>
@@ -300,7 +300,7 @@ export function ComplexCommerceMeta({
       : `${snapshot.radiusM}m`;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] text-slate-600">
+    <div className="flex flex-wrap items-center gap-y-0.5 text-[12px] text-slate-600">
       <span>
         반경 {radiusKm} · {snapshot.sourcePeriodLabel}
       </span>

@@ -21,8 +21,8 @@ function MetricRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-2">
-      <p className="min-w-0 text-sm text-slate-600">{label}</p>
-      <p className="shrink-0 text-sm font-semibold tabular-nums text-slate-800">
+      <p className="detail-label min-w-0">{label}</p>
+      <p className="detail-number shrink-0 text-slate-800">
         {valueLabel}
       </p>
     </div>
@@ -96,16 +96,18 @@ export function ComplexMgmtFeeCard({
   const showSelectedEstimate = estimate != null;
 
   return (
-    <LabCard className="p-4 sm:p-5">
-      <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-        관리비
-      </h2>
+    <LabCard className="detail-card">
+      <div className="lab-section-heading">
+        <div className="min-w-0">
+          <h2 className="detail-section-title">관리비</h2>
+        </div>
+      </div>
 
       {showSelectedEstimate && estimate ? (
         <>
           <div className="mt-3">
-            <p className="text-sm text-slate-600">최근 예상 관리비</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-900">
+            <p className="detail-meta">최근 예상 관리비</p>
+            <p className="detail-number-strong mt-1 text-slate-900">
               {formatWonRangeAsManwon(
                 estimate.latest.wonMin,
                 estimate.latest.wonMax,
@@ -268,8 +270,8 @@ export function ComplexMgmtFeeCard({
       ) : (
         <>
           <div className="mt-3">
-            <p className="text-sm text-slate-600">선택 평형 예상 관리비</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+            <p className="detail-meta">선택 평형 예상 관리비</p>
+            <p className="detail-number-strong mt-1 text-slate-900">
               평형별 관리비 데이터 준비 중
             </p>
           </div>

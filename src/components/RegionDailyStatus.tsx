@@ -13,6 +13,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import { RegionLeaderboard } from "@/components/region/RegionLeaderboard";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -718,9 +719,11 @@ function scrollToDateHeading(date: string) {
 export function RegionDailyStatus({
   regionSlug,
   regionName,
+  lawdCodes = [],
 }: {
   regionSlug: string;
   regionName: string;
+  lawdCodes?: string[];
 }) {
   const contractMonthFallback = useMemo(() => fallbackContractMonths(), []);
   const [contractMonth, setContractMonth] = useState(
@@ -1177,6 +1180,14 @@ export function RegionDailyStatus({
         ) : null}
         </div>
       </section>
+
+      {lawdCodes.length > 0 ? (
+        <RegionLeaderboard
+          regionSlug={regionSlug}
+          regionName={regionName}
+          lawdCodes={lawdCodes}
+        />
+      ) : null}
 
       <section
         id="newly-seen-deals"

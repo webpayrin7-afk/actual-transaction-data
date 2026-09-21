@@ -233,12 +233,12 @@ export function ComplexNearbySalesSection({
       : "표시할 공급 정보가 없습니다.");
 
   return (
-    <LabCard className="p-4 sm:p-5">
+    <LabCard className="detail-card">
       <div className="lab-section-heading">
         <div className="min-w-0">
-          <h2 className="flex items-center">
+          <h2 className="detail-section-title flex items-center">
             주변 공급
-            <InfoTip aria-label="주변 공급 출처 안내" className="ml-1.5 text-[13px]">
+            <InfoTip aria-label="주변 공급 출처 안내" className="text-[13px]">
               <p>출처: 청약홈 · 한국부동산원</p>
               <p>지역 기준: 현재 단지가 속한 시군구</p>
               <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>

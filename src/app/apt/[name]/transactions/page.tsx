@@ -14,13 +14,21 @@ type PageProps = {
   }>;
 };
 
+function safeDecodeName(name: string): string {
+  try {
+    return decodeURIComponent(name);
+  } catch {
+    return name;
+  }
+}
+
 export async function generateMetadata({
   params,
   searchParams,
 }: PageProps): Promise<Metadata> {
   const { name } = await params;
   const sp = await searchParams;
-  const aptName = decodeURIComponent(name);
+  const aptName = safeDecodeName(name);
   const region = sp.region ? getRegion(sp.region) : undefined;
   return {
     title: `${aptName} 거래내역${region ? ` - ${region.name}` : ""}`,
@@ -34,7 +42,7 @@ export default async function AptTransactionsRoute({
 }: PageProps) {
   const { name } = await params;
   const sp = await searchParams;
-  const aptName = decodeURIComponent(name);
+  const aptName = safeDecodeName(name);
   const regionSlug = sp.region?.trim() || "seoul-gangnam";
   const gu = sp.gu?.trim() || undefined;
   const initialAreaKey = sp.area?.trim() || undefined;

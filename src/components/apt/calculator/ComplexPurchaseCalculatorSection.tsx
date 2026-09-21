@@ -803,13 +803,13 @@ export function ComplexPurchaseCalculatorSection({
   return (
     <section
       id="section-calculator"
-      className="lab-card scroll-mt-28 p-4 sm:p-5"
+      className="lab-card detail-card scroll-mt-28"
     >
       <div id="calculator" className="sr-only" aria-hidden />
 
       <header className="min-w-0">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+          <h2 className="detail-section-title">
             세금, 대출 계산
           </h2>
           {compactArea ? (

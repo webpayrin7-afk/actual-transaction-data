@@ -209,6 +209,7 @@ export function Dashboard({
         <RegionDailyStatus
           regionSlug={region.slug}
           regionName={region.name}
+          lawdCodes={region.lawdCodes}
         />
       )}
 
