@@ -172,7 +172,7 @@ export function ComplexRegionRankSection({
             </button>
           </div>
         ) : (
-          <div className="mt-2 space-y-1.5">
+          <div className="mt-2">
             <div className={RANK_GRID}>
               <span />
               <p className="truncate text-[11px] leading-4 text-slate-500">
@@ -182,24 +182,26 @@ export function ComplexRegionRankSection({
                 {dongLabel}
               </p>
             </div>
-            <RankRow
-              label="종합"
-              guName={regionName}
-              dongName={dongLabel}
-              gu={data?.all?.gu}
-              dong={data?.all?.dong}
-              empty="—"
-            />
-            {showDecade ? (
+            <div className="mt-1.5 space-y-2.5">
               <RankRow
-                label={decadeLabel}
+                label="종합"
                 guName={regionName}
                 dongName={dongLabel}
-                gu={data?.area?.gu}
-                dong={data?.area?.dong}
-                empty={DECADE_RANK_UNAVAILABLE_COPY}
+                gu={data?.all?.gu}
+                dong={data?.all?.dong}
+                empty="—"
               />
-            ) : null}
+              {showDecade ? (
+                <RankRow
+                  label={decadeLabel}
+                  guName={regionName}
+                  dongName={dongLabel}
+                  gu={data?.area?.gu}
+                  dong={data?.area?.dong}
+                  empty={DECADE_RANK_UNAVAILABLE_COPY}
+                />
+              ) : null}
+            </div>
           </div>
         )}
       </div>

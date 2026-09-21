@@ -289,7 +289,7 @@ export function ComplexRegionPriceCompare({
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("mt-2 !flex-nowrap !gap-1")} w-full`}
+            className={`${labSegmentedClass("mt-2 !w-full !flex-nowrap !gap-1.5")}`}
             role="tablist"
             aria-label="가격 비교"
           >
@@ -302,7 +302,7 @@ export function ComplexRegionPriceCompare({
                 onClick={() => setTab(item.id)}
                 className={labSecondaryTabClass(
                   tab === item.id,
-                  "!h-7 min-h-7 min-w-0 flex-1 !px-1.5 whitespace-nowrap text-[12px]",
+                  "!h-8 min-h-8 min-w-0 flex-1 !px-4 whitespace-nowrap text-[13px]",
                 )}
               >
                 {item.label}
@@ -312,7 +312,7 @@ export function ComplexRegionPriceCompare({
 
           {tab === "trend" ? (
             <div
-              className={`${labSegmentedClass("mt-1.5 !flex-nowrap !gap-1")} w-full`}
+              className={`${labSegmentedClass("mt-1.5 !w-full !flex-nowrap !gap-1.5")}`}
               role="tablist"
               aria-label="변동률 기간"
             >
@@ -325,7 +325,7 @@ export function ComplexRegionPriceCompare({
                   onClick={() => setPeriod(item.id)}
                   className={labSecondaryTabClass(
                     period === item.id,
-                    "!h-7 min-h-7 min-w-0 flex-1 !px-1 whitespace-nowrap text-[12px]",
+                    "!h-8 min-h-8 min-w-0 flex-1 !px-3 whitespace-nowrap text-[13px]",
                   )}
                 >
                   {item.label}
