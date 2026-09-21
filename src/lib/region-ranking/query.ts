@@ -4,6 +4,20 @@
  */
 
 export type LaunchAreaBand = "59" | "84" | "114" | "ALL";
+export type RankingAreaBandV3 =
+  | LaunchAreaBand
+  | "10"
+  | "20"
+  | "30"
+  | "40"
+  | "50"
+  | "60"
+  | "70"
+  | "80"
+  | "90"
+  | "100";
+
+export type RegionBoardBand = RankingAreaBandV3 | "TRADE_VOLUME" | "PRICE_PER_SQM";
 
 /** libSQL-compatible bind values (narrower than unknown[] so Client is assignable). */
 export type RankingSqlValue = string | number | bigint | boolean | null | Uint8Array;
@@ -14,8 +28,6 @@ export type RankingReader = {
     args?: RankingSqlValue[] | Record<string, RankingSqlValue>;
   }): Promise<{ rows: Array<Record<string, unknown>> }>;
 };
-
-export type RegionBoardBand = LaunchAreaBand | "TRADE_VOLUME" | "PRICE_PER_SQM";
 
 export type RegionTopQuery = {
   rankingRunId: string;
@@ -190,7 +202,7 @@ export async function objectiveMetricsByComplex(
 
 export async function publishedComplexPosition(
   db: RankingReader,
-  query: { complexId: string; areaBand?: LaunchAreaBand | null },
+  query: { complexId: string; areaBand?: RankingAreaBandV3 | null },
 ) {
   const master = await db.execute({
     sql: `SELECT lawd_cd, bjdong_cd, legal_dong_name, apt_name
@@ -201,9 +213,8 @@ export async function publishedComplexPosition(
   if (!row) return { found: false as const };
   const guCode = String(row.lawd_cd);
   const dongCode = `${guCode}${String(row.bjdong_cd)}`;
-  const bands: LaunchAreaBand[] = query.areaBand && query.areaBand !== "ALL"
-    ? ["ALL", query.areaBand]
-    : ["ALL"];
+  const bands: RankingAreaBandV3[] =
+    query.areaBand && query.areaBand !== "ALL" ? ["ALL", query.areaBand] : ["ALL"];
   const result = await db.execute({
     sql: `SELECT p.area_band, p.region_scope, p.ranking_version, p.transaction_as_of,
                  r."rank" AS rank, r.region_total, r.confidence_bucket, r.public_display_metrics_json
@@ -225,7 +236,7 @@ export async function publishedComplexPosition(
     args: [query.complexId, ...bands, guCode, dongCode],
   });
   const byKey = new Map(result.rows.map((item) => [`${item.area_band}:${item.region_scope}`, item]));
-  const read = (band: LaunchAreaBand, scope: "gu" | "dong") => {
+  const read = (band: RankingAreaBandV3, scope: "gu" | "dong") => {
     const got = byKey.get(`${band}:${scope}`);
     if (!got) return { published: false as const, status: "unavailable" as const };
     if (got.rank == null) {

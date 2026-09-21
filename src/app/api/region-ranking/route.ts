@@ -3,7 +3,6 @@ import { getDb } from "@/lib/db/client";
 import {
   objectiveMetricsByComplex,
   publishedRegionRanking,
-  type LaunchAreaBand,
   type RegionBoardBand,
 } from "@/lib/region-ranking/query";
 import { SMALL_DONG_COHORT_MAX } from "@/lib/region-ranking/score";
@@ -11,7 +10,9 @@ import { SMALL_DONG_COHORT_MAX } from "@/lib/region-ranking/score";
 export const dynamic = "force-dynamic";
 
 const LEGACY = new Set(["ALL", "59", "84", "114"]);
+const DECADES = new Set(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"]);
 const OBJECTIVE = new Set(["TRADE_VOLUME", "PRICE_PER_SQM"]);
+const LEGACY_TO_DECADE: Record<string, string> = { "59": "20", "84": "30", "114": "40" };
 
 function coverageOf(metrics: Record<string, unknown> | null) {
   if (!metrics || !("coverage_status" in metrics)) return null;
@@ -38,7 +39,11 @@ function publicMetricsOf(metrics: Record<string, unknown> | null) {
 
 function boardOf(rankingType: string): { areaBand: RegionBoardBand; period: string } | null {
   if (rankingType === "COMPOSITE") return { areaBand: "ALL", period: "12M" };
-  if (LEGACY.has(rankingType)) return { areaBand: rankingType as LaunchAreaBand, period: "12M" };
+  if (DECADES.has(rankingType)) return { areaBand: rankingType as RegionBoardBand, period: "12M" };
+  if (LEGACY.has(rankingType)) {
+    const mapped = LEGACY_TO_DECADE[rankingType] ?? rankingType;
+    return { areaBand: (mapped === "ALL" ? "ALL" : mapped) as RegionBoardBand, period: "12M" };
+  }
   if (OBJECTIVE.has(rankingType)) return { areaBand: rankingType as RegionBoardBand, period: "3M" };
   return null;
 }
