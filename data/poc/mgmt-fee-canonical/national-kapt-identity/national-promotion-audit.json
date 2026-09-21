@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-09-21T23:54:06.390Z",
+  "commit": false,
+  "production_write": false,
+  "management_fee_write": false,
+  "manifest_sha256": "9575f12ebbbe4464fc152f4f0328d4e06625f8ae4f38a38d74d7842071aff1af",
+  "inserted": 0,
+  "skipped_present": 0,
+  "conflicts": 0,
+  "invalid": 0,
+  "sample": []
+}

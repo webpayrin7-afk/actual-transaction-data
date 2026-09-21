@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-09-21T23:54:35.050Z",
+  "region": "all",
+  "commit": true,
+  "production_write": true,
+  "management_fee_write": false,
+  "identity_inserts": 0,
+  "identity_updates": 0,
+  "identity_deletes": 0,
+  "classification_changes": 0,
+  "conflicts": 0,
+  "invalid": 0,
+  "skipped_present": 0,
+  "unrelated_writes": 0,
+  "fee_rows": 1843,
+  "fee_complexes": 1730,
+  "gyeonggi_prior_inserts": 1150,
+  "national_exact_after": 14790,
+  "idempotent": true,
+  "note": "National pass after Gyeonggi apply. No additional EXACT_SAFE promotions. Idempotent rerun."
+}

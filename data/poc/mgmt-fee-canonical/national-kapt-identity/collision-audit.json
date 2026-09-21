@@ -1,0 +1,8 @@
+{
+  "generated_at": "2026-09-21T23:54:35.050Z",
+  "canonical_to_multiple_exact": 0,
+  "kapt_to_multiple_canonical": 0,
+  "ambiguous_same_name": 32,
+  "address_conflicts": 0,
+  "held_for_review": 1711
+}

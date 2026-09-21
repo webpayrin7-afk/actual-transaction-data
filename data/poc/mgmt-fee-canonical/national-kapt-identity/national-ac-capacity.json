@@ -1,0 +1,420 @@
+{
+  "generated_at": "2026-09-21T23:55:17.771Z",
+  "national_master": 27524,
+  "fee_rows": 1843,
+  "fee_complexes": 1730,
+  "seoul": {
+    "exact": 1080,
+    "fee_covered": 889,
+    "terminal_no_published": 191,
+    "never_attempted": 0,
+    "reconciles": true,
+    "mapping_retained": 1080
+  },
+  "national_capacity": {
+    "exact": 14790,
+    "fee_covered": 1730,
+    "terminal_no_published": 191,
+    "never_attempted": 12869,
+    "exceptional": 0
+  },
+  "by_sido": {
+    "11": {
+      "sido": "서울특별시",
+      "exact": 1080,
+      "fee_covered": 889,
+      "terminal_no_published": 191,
+      "never_attempted": 0,
+      "exceptional": 0
+    },
+    "12": {
+      "sido": "전남광주통합특별시",
+      "exact": 1646,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 1646,
+      "exceptional": 0
+    },
+    "26": {
+      "sido": "부산광역시",
+      "exact": 1404,
+      "fee_covered": 411,
+      "terminal_no_published": 0,
+      "never_attempted": 993,
+      "exceptional": 0
+    },
+    "27": {
+      "sido": "대구광역시",
+      "exact": 1151,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 1151,
+      "exceptional": 0
+    },
+    "28": {
+      "sido": "인천광역시",
+      "exact": 1093,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 1093,
+      "exceptional": 0
+    },
+    "30": {
+      "sido": "대전광역시",
+      "exact": 561,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 561,
+      "exceptional": 0
+    },
+    "31": {
+      "sido": "울산광역시",
+      "exact": 519,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 519,
+      "exceptional": 0
+    },
+    "36": {
+      "sido": "세종특별자치시",
+      "exact": 210,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 210,
+      "exceptional": 0
+    },
+    "41": {
+      "sido": "경기도",
+      "exact": 1152,
+      "fee_covered": 2,
+      "terminal_no_published": 0,
+      "never_attempted": 1150,
+      "exceptional": 0
+    },
+    "43": {
+      "sido": "충청북도",
+      "exact": 756,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 756,
+      "exceptional": 0
+    },
+    "44": {
+      "sido": "충청남도",
+      "exact": 976,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 976,
+      "exceptional": 0
+    },
+    "47": {
+      "sido": "경상북도",
+      "exact": 1006,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 1006,
+      "exceptional": 0
+    },
+    "48": {
+      "sido": "경상남도",
+      "exact": 1395,
+      "fee_covered": 428,
+      "terminal_no_published": 0,
+      "never_attempted": 967,
+      "exceptional": 0
+    },
+    "50": {
+      "sido": "제주특별자치도",
+      "exact": 175,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 175,
+      "exceptional": 0
+    },
+    "51": {
+      "sido": "강원특별자치도",
+      "exact": 815,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 815,
+      "exceptional": 0
+    },
+    "52": {
+      "sido": "전북특별자치도",
+      "exact": 851,
+      "fee_covered": 0,
+      "terminal_no_published": 0,
+      "never_attempted": 851,
+      "exceptional": 0
+    }
+  },
+  "identity_scope": {
+    "classified": 27524,
+    "EXACT": 14790,
+    "CONFLICT": 32,
+    "INSUFFICIENT": 1679,
+    "STALE_INVALID": 0,
+    "NO_CANDIDATE": 11023,
+    "sum": 27524,
+    "unclassified": 0,
+    "existing_exact": 14790,
+    "new_exact": 0
+  },
+  "regions": [
+    {
+      "sido_code": "11",
+      "sido": "서울특별시",
+      "canonical": 8437,
+      "existing_exact": 1080,
+      "new_exact": 0,
+      "exact_after": 1080,
+      "conflict": 20,
+      "insufficient": 539,
+      "stale_invalid": 0,
+      "no_candidate": 6798,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "12",
+      "sido": "전남광주통합특별시",
+      "canonical": 1646,
+      "existing_exact": 1646,
+      "new_exact": 0,
+      "exact_after": 1646,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "26",
+      "sido": "부산광역시",
+      "canonical": 1404,
+      "existing_exact": 1404,
+      "new_exact": 0,
+      "exact_after": 1404,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "27",
+      "sido": "대구광역시",
+      "canonical": 1151,
+      "existing_exact": 1151,
+      "new_exact": 0,
+      "exact_after": 1151,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "28",
+      "sido": "인천광역시",
+      "canonical": 1093,
+      "existing_exact": 1093,
+      "new_exact": 0,
+      "exact_after": 1093,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "30",
+      "sido": "대전광역시",
+      "canonical": 561,
+      "existing_exact": 561,
+      "new_exact": 0,
+      "exact_after": 561,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "31",
+      "sido": "울산광역시",
+      "canonical": 519,
+      "existing_exact": 519,
+      "new_exact": 0,
+      "exact_after": 519,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "36",
+      "sido": "세종특별자치시",
+      "canonical": 210,
+      "existing_exact": 210,
+      "new_exact": 0,
+      "exact_after": 210,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "41",
+      "sido": "경기도",
+      "canonical": 6529,
+      "existing_exact": 1152,
+      "new_exact": 0,
+      "exact_after": 1152,
+      "conflict": 12,
+      "insufficient": 1140,
+      "stale_invalid": 0,
+      "no_candidate": 4225,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "43",
+      "sido": "충청북도",
+      "canonical": 756,
+      "existing_exact": 756,
+      "new_exact": 0,
+      "exact_after": 756,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "44",
+      "sido": "충청남도",
+      "canonical": 976,
+      "existing_exact": 976,
+      "new_exact": 0,
+      "exact_after": 976,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "47",
+      "sido": "경상북도",
+      "canonical": 1006,
+      "existing_exact": 1006,
+      "new_exact": 0,
+      "exact_after": 1006,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "48",
+      "sido": "경상남도",
+      "canonical": 1395,
+      "existing_exact": 1395,
+      "new_exact": 0,
+      "exact_after": 1395,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "50",
+      "sido": "제주특별자치도",
+      "canonical": 175,
+      "existing_exact": 175,
+      "new_exact": 0,
+      "exact_after": 175,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "51",
+      "sido": "강원특별자치도",
+      "canonical": 815,
+      "existing_exact": 815,
+      "new_exact": 0,
+      "exact_after": 815,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    },
+    {
+      "sido_code": "52",
+      "sido": "전북특별자치도",
+      "canonical": 851,
+      "existing_exact": 851,
+      "new_exact": 0,
+      "exact_after": 851,
+      "conflict": 0,
+      "insufficient": 0,
+      "stale_invalid": 0,
+      "no_candidate": 0,
+      "unclassified": 0,
+      "api_calls": 0
+    }
+  ],
+  "gyeonggi_gate": {
+    "canonical_ok": true,
+    "duplicate_kapt": true,
+    "duplicate_complex": true,
+    "seoul_regressions": true,
+    "unrelated_writes": true,
+    "gate": "PASS"
+  },
+  "seoul_preservation": {
+    "existing_exact_before": 1080,
+    "regressions": 0,
+    "mapping_changed": 0,
+    "new_exact_candidates": 0
+  },
+  "collisions": {
+    "canonical_to_multiple_exact": 0,
+    "kapt_to_multiple_canonical": 0,
+    "ambiguous_same_name": 32,
+    "address_conflicts": 0,
+    "held_for_review": 1711
+  },
+  "next_ac_plan": {
+    "first_acquisition_region": "41",
+    "first_region_name": "경기도",
+    "exact_cohort_size": 1150,
+    "estimated_api_workload": "Same Seoul FINAL policy: workers=1, sleep>=1s, ~28 ops/complex when published, segment 40, checkpointed province cohort",
+    "remaining_national_never_attempted": 11719,
+    "recommended_segmentation": "province-sized historical closeout with segment size 40",
+    "historical_closeout_strategy": "One frozen province cohort of all never-attempted exact identities; no small Wave1/2/3 split",
+    "future_incremental_strategy": "A new/changed KAPT identity discovery; B latest published month refresh; C NO_PUBLISHED_MONTH recheck; D newly exact historical bootstrap"
+  }
+}
