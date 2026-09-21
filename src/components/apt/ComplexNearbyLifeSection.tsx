@@ -1376,8 +1376,8 @@ export function ComplexNearbyLifeSection({
     <LabCard
       className={`p-4 sm:p-5 ${tab === "living" ? "overflow-visible" : ""}`}
     >
-      <div className="lab-section-heading mb-px flex-wrap items-center gap-x-2 gap-y-2">
-        <div className="min-w-0 shrink">
+      <div className="lab-section-heading mb-px">
+        <div className="min-w-0">
           <h2 className="flex items-center">
             주변 생활
             <InfoTip aria-label="주변 생활 출처 안내" className="ml-1.5 text-[13px]">
@@ -1414,24 +1414,27 @@ export function ComplexNearbyLifeSection({
             </InfoTip>
           </h2>
         </div>
-        <div
-          className={labSegmentedClass("ml-auto shrink-0")}
-          role="tablist"
-          aria-label="주변 생활 카테고리"
-        >
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => selectTab(t.id)}
-              className={labSecondaryTabClass(tab === t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+      </div>
+      <div
+        className={labSegmentedClass("mt-2.5 !w-full !flex-nowrap !gap-1.5")}
+        role="tablist"
+        aria-label="주변 생활 카테고리"
+      >
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => selectTab(t.id)}
+            className={labSecondaryTabClass(
+              tab === t.id,
+              "!h-8 min-h-8 min-w-0 flex-1 !px-3 whitespace-nowrap text-[13px]",
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       <div className="mt-3 space-y-3">

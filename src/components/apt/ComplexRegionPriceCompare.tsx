@@ -103,7 +103,7 @@ function PriceLevelBars({
     })),
   );
   return (
-    <ul className="mt-2 space-y-2">
+    <ul className="mt-3 space-y-3">
       {cells.map((cell, index) => {
         const hiddenBar = cell.status !== "ok";
         const value = cell.meanPricePerSupplyPyeong;
@@ -352,7 +352,7 @@ export function ComplexRegionPriceCompare({
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("mt-2 mb-2 !w-full !flex-nowrap !gap-1.5")}`}
+            className={`${labSegmentedClass("mt-2 mb-3 !w-full !flex-nowrap !gap-1.5")}`}
             role="tablist"
             aria-label="가격 비교"
           >
