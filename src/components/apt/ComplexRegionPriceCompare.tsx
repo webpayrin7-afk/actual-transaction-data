@@ -61,14 +61,16 @@ function usePriceCompareEnter() {
 
 function PriceCompareChart({
   replayKey,
+  className = "",
   children,
 }: {
   replayKey: string;
+  className?: string;
   children: (entered: boolean) => ReactNode;
 }) {
   const { ref, entered } = usePriceCompareEnter();
   return (
-    <div ref={ref} data-chart-key={replayKey}>
+    <div ref={ref} data-chart-key={replayKey} className={className}>
       {children(entered)}
     </div>
   );
@@ -103,7 +105,7 @@ function PriceLevelBars({
     })),
   );
   return (
-    <ul className="mt-3 space-y-3">
+    <ul className="space-y-3">
       {cells.map((cell, index) => {
         const hiddenBar = cell.status !== "ok";
         const value = cell.meanPricePerSupplyPyeong;
@@ -179,7 +181,7 @@ function TrendBars({
   animate: boolean;
 }) {
   return (
-    <div className="mt-2">
+    <div>
       {maxAbs != null && maxAbs > 0 ? <TrendScale maxAbs={maxAbs} /> : null}
       <ul className="space-y-2">
         {cells.map((cell, index) => {
@@ -352,7 +354,7 @@ export function ComplexRegionPriceCompare({
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("mt-2 mb-3 !w-full !flex-nowrap !gap-1.5")}`}
+            className={`${labSegmentedClass("mt-2 !w-full !flex-nowrap !gap-1.5")}`}
             role="tablist"
             aria-label="가격 비교"
           >
@@ -375,7 +377,7 @@ export function ComplexRegionPriceCompare({
 
           {tab === "trend" ? (
             <div
-              className={`${labSegmentedClass("mt-1.5 mb-2 !w-full !flex-nowrap !gap-1.5")}`}
+              className={`${labSegmentedClass("mt-1.5 !w-full !flex-nowrap !gap-1.5")}`}
               role="tablist"
               aria-label="변동률 기간"
             >
@@ -401,7 +403,7 @@ export function ComplexRegionPriceCompare({
             <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{historyHelper}</p>
           ) : null}
 
-          <PriceCompareChart key={chartKey} replayKey={chartKey}>
+          <PriceCompareChart key={chartKey} replayKey={chartKey} className="mt-7">
             {(entered) =>
               query.isLoading ? (
             <div className="mt-2 space-y-1.5" aria-label="가격 비교 불러오는 중">
