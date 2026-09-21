@@ -289,7 +289,7 @@ export function ComplexRegionPriceCompare({
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("mt-2 !w-full !flex-nowrap !gap-1.5")}`}
+            className={`${labSegmentedClass("mt-2 mb-2 !w-full !flex-nowrap !gap-1.5")}`}
             role="tablist"
             aria-label="가격 비교"
           >
@@ -312,7 +312,7 @@ export function ComplexRegionPriceCompare({
 
           {tab === "trend" ? (
             <div
-              className={`${labSegmentedClass("mt-1.5 !w-full !flex-nowrap !gap-1.5")}`}
+              className={`${labSegmentedClass("mt-1.5 mb-2 !w-full !flex-nowrap !gap-1.5")}`}
               role="tablist"
               aria-label="변동률 기간"
             >
