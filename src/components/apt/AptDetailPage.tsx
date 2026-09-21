@@ -15,11 +15,8 @@ import {
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
-import {
-  ComplexInfoCard,
-  complexHeaderChips,
-  hasComplexInfoSection,
-} from "@/components/apt/ComplexInfoCards";
+import { ComplexHeroMeta } from "@/components/apt/ComplexHeroMeta";
+import { complexHeroMeta } from "@/lib/complex-detail/hero-meta";
 import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSection";
 import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
 import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
@@ -269,7 +266,6 @@ export function AptDetailPage({
       "comparison",
       "nearby-life",
       "nearby-sales",
-      "complex-info",
       "management",
       "calculator",
     ] as const;
@@ -471,8 +467,6 @@ export function AptDetailPage({
       ? latestTrade.dealAmount - latestJeonse.dealAmount
       : null;
 
-  const headerChips = complexHeaderChips(complexDetail);
-
   const transactionsHref = useMemo(() => {
     const qs = new URLSearchParams({
       region: regionSlug,
@@ -584,11 +578,6 @@ export function AptDetailPage({
     { id: "nearby-life", label: "주변 생활", show: true },
     { id: "nearby-sales", label: "주변 공급", show: true },
     {
-      id: "complex-info",
-      label: "단지 정보",
-      show: hasComplexInfoSection(complexDetail),
-    },
-    {
       id: "management",
       label: "관리비",
       show: !!complexDetail?.management,
@@ -659,6 +648,21 @@ export function AptDetailPage({
           .filter(Boolean)
           .join(" ")
       : `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
+  const heroMeta = complexHeroMeta({
+    sido: identity?.sido,
+    sigungu: identity?.sigungu,
+    legalDongName: identity?.legalDongName,
+    approvalDate: complexDetail?.basic?.approvalDate,
+    buildYear: data.buildYear,
+    householdCount: complexDetail?.basic?.householdCount,
+    buildingCount: complexDetail?.basic?.buildingCount,
+    maxFloor: complexDetail?.building?.maxFloor,
+    parkingPerHousehold: complexDetail?.basic?.parkingPerHousehold,
+    farRatio: complexDetail?.building?.farRatio,
+    bcrRatio: complexDetail?.building?.bcrRatio,
+    heatingType: complexDetail?.basic?.heatingType,
+    locationFallback: locationLabel,
+  });
 
   return (
     <div className={`${PAGE_SHELL} max-w-5xl`}>
@@ -702,20 +706,8 @@ export function AptDetailPage({
             <BackLink fallback="/complexes" compact hideLabel />
           }
           title={data.aptName}
-          description={locationLabel}
-          meta={
-            <>
-              {headerChips.length > 0 ? (
-                <p className="text-[13px] font-medium leading-5 text-slate-700 sm:text-sm">
-                  {headerChips.join(" · ")}
-                </p>
-              ) : data.buildYear ? (
-                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
-                  {data.buildYear}년 입주
-                </p>
-              ) : null}
-            </>
-          }
+          meta={<ComplexHeroMeta lines={heroMeta} />}
+          showDivider={false}
         >
           <AptAreaSelector
             areas={data.areas}
@@ -932,12 +924,6 @@ export function AptDetailPage({
           sigungu={nearbySigungu}
         />
       </div>
-
-      {hasComplexInfoSection(complexDetail) && complexDetail ? (
-        <div id="section-complex-info" className="scroll-mt-28">
-          <ComplexInfoCard detail={complexDetail} />
-        </div>
-      ) : null}
 
       {complexDetail?.management ? (
         <div id="section-management" className="scroll-mt-28">
