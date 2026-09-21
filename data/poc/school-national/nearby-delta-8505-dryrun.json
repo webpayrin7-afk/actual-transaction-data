@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-09-21T07:20:01.605Z",
+  "mode": "dry-run",
+  "input": {
+    "artifact": "data/poc/living/school-delta-newly-coordinate-ready.json",
+    "target_complexes": 8505,
+    "unique": 8505,
+    "coordinate_verified": 8505
+  },
+  "baseline_before": {
+    "coord_ready": 19072,
+    "materialized": 10567,
+    "nearby_ready": 10567,
+    "nearby_links": 193599,
+    "schools": 12706,
+    "snapshots": 89280
+  },
+  "precheck": {
+    "already_complete": 0,
+    "need_materialization": 8505,
+    "invalid": 0,
+    "conflicts": 0,
+    "conflict_samples": [],
+    "school_master_operating_with_coord": 12559
+  },
+  "dry_run": {
+    "complexes": 8505,
+    "inserts": 98368,
+    "updates": 0,
+    "deletes": 0,
+    "duplicates": 0,
+    "missing_school_identities": 0,
+    "no_schools_within_radius": 88,
+    "by_region": {
+      "강원": 286,
+      "경기": 5592,
+      "경남": 453,
+      "경북": 337,
+      "광주/combined": 469,
+      "대구": 1,
+      "대전": 167,
+      "세종": 28,
+      "울산": 150,
+      "인천": 247,
+      "전북": 181,
+      "제주": 20,
+      "충남": 287,
+      "충북": 287
+    }
+  }
+}
