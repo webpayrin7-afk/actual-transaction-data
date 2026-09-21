@@ -130,7 +130,7 @@ function loadState(): void {
   const state = existsSync(STATE_PATH)
     ? (JSON.parse(readFileSync(STATE_PATH, "utf8")) as SegmentState)
     : emptyState();
-  if (state.version !== 1 || state.wave !== 3 || state.segment_size !== SEGMENT_SIZE) {
+  if (state.version !== 1 || state.wave !== 4 || state.segment_size !== SEGMENT_SIZE) {
     throw new Error("wave 4 segment state mismatch");
   }
   stats.api_calls = state.api_calls;
@@ -161,7 +161,7 @@ function persist(): void {
     http_5xx: stats.http_5xx,
     timeouts: stats.timeouts,
     reused_ops: stats.reused_ops,
-    runtime_ms: runtimeLoaded + (Date.now() - processStarted),
+    runtime_ms: runtimeLoaded + (processStarted > 0 ? Date.now() - processStarted : 0),
     classifications: snapshot.classifications,
     unfinished_complex_ids: snapshot.unfinished,
   };
@@ -835,7 +835,7 @@ async function writeFinalReport(cohort: readonly CohortRow[], calls: readonly Li
     retries: stats.retries,
     segments_completed: stats.segments_completed,
     segment_size: SEGMENT_SIZE,
-    runtime_ms: runtimeLoaded + (Date.now() - processStarted),
+    runtime_ms: runtimeLoaded + (processStarted > 0 ? Date.now() - processStarted : 0),
     stopped: "ok",
     canonical_total: canonicalTotal,
     selected_sidos: [SIDO_CODE],
