@@ -192,11 +192,7 @@ async function fetchText(url: URL): Promise<{ status: number; body: string }> {
   let last: unknown;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const response = await fetch(url, {
-        headers: { Accept: "application/json" },
-        signal: AbortSignal.timeout(20000),
-      });
-      const body = await response.text();
+      const response = await fetchBounded(url);
       if (response.status === 429 || response.status >= 500) {
         noteResponse(response.status);
         last = new Error(`http ${response.status}`);
@@ -206,7 +202,7 @@ async function fetchText(url: URL): Promise<{ status: number; body: string }> {
           continue;
         }
       }
-      return { status: response.status, body };
+      return response;
     } catch (error) {
       const name = error instanceof Error ? error.name : "";
       if (name !== "AbortError" && name !== "TimeoutError") throw error;
@@ -219,6 +215,34 @@ async function fetchText(url: URL): Promise<{ status: number; body: string }> {
     }
   }
   throw last instanceof Error ? last : new Error("timeout");
+}
+
+async function fetchBounded(url: URL): Promise<{ status: number; body: string }> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      const error = new Error("timeout");
+      error.name = "TimeoutError";
+      reject(error);
+    }, 25000);
+  });
+  try {
+    return await Promise.race([
+      (async () => {
+        const response = await fetch(url, {
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+        const body = await response.text();
+        return { status: response.status, body };
+      })(),
+      deadline,
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 async function fetchOp(
