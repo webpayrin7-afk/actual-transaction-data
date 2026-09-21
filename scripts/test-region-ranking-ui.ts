@@ -312,8 +312,8 @@ assert(
   "region CTA stays on 지역현황 tab",
 );
 assert(
-  regionOverviewCtaLabel("송파구") === "송파구 지역현황 보기",
-  "CTA renamed to 지역현황",
+  regionOverviewCtaLabel("송파구") === "송파구 순위 보기",
+  "CTA renamed to 순위 보기",
 );
 
 assert(PRICE_COMPARE_TABS.map((tab) => tab.label).join("|") === "가격 수준|변동률", "price compare tabs");
@@ -785,6 +785,11 @@ assert(rankSection.includes("DECADE_RANK_UNAVAILABLE_COPY"), "uses shared unavai
 assert(rankSection.includes("placeRankDisplay"), "stacked rank display");
 assert(!rankSection.includes("선택 평형 순위"), "no invented selected heading");
 assert(!rankSection.includes("selectedPyeongCompareLines"), "rank card does not repeat 33평 · 30평대 비교");
+assert(
+  rankSection.includes("lab-button lab-button-primary") &&
+    rankSection.includes("→"),
+  "region rank CTA matches 거래 내역 자세히 보기",
+);
 
 const priceCompare = readFileSync(
   resolve(import.meta.dirname, "../src/components/apt/ComplexRegionPriceCompare.tsx"),

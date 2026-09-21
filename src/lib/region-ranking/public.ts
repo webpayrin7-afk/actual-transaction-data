@@ -535,7 +535,7 @@ export function unavailableBoardCopy(_type?: RankingType): {
 }
 
 export function regionOverviewCtaLabel(regionName: string): string {
-  return `${regionName} 지역현황 보기`;
+  return `${regionName} 순위 보기`;
 }
 
 export const PRICE_COMPARE_TABS = [
