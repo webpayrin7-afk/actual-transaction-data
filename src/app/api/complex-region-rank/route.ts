@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "순위 저장소를 사용할 수 없습니다." }, { status: 500 });
   }
   try {
-    let selectedMarketPyeongLabel = marketPyeongLabel;
+    const selectedMarketPyeongLabel = marketPyeongLabel;
     let regionPyeongDecade: string | null = null;
     let storageBand: RankingAreaBandV3 | null = null;
 
