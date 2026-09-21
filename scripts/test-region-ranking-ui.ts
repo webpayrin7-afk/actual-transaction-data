@@ -1,6 +1,12 @@
 /**
  * Presentation-only ranking UI tests. No scoring, no DB writes.
  */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import {
+  RANKING_V3_VERSION,
+  decadeCohortForLabel,
+} from "../src/lib/region-ranking/ranking-v3";
 import {
   COMPLEX_EXACT_TIP,
   INSUFFICIENT_SAMPLE_COPY,
@@ -222,12 +228,14 @@ const dong: ComplexRankPlace = {
 };
 const guLine = placeHeadline({ regionName: "송파구", place: guPlace });
 assert(guLine?.title === "송파구 3위", `gu title ${guLine?.title}`);
-assert(guLine?.meta === "57개 단지 중", `gu meta ${guLine?.meta}`);
+assert(guLine?.meta == null, `gu meta hidden ${guLine?.meta}`);
 const dongLine = placeHeadline({ regionName: "잠실동", place: dong });
 assert(dongLine?.title === "잠실동 3위", `dong title ${dongLine?.title}`);
-assert(dongLine?.meta === "비교 가능 6개 단지 중", `dong meta ${dongLine?.meta}`);
+assert(dongLine?.meta == null, `dong meta hidden ${dongLine?.meta}`);
 assert(!JSON.stringify(dongLine).includes("smallCohort"), "no raw smallCohort");
-assert(!String(dongLine?.meta).includes("잠실동 순위"), "dong sample stays under the rank, not a second card line");
+assert(!JSON.stringify(guLine).includes("단지 중"), "no population count on gu");
+assert(!JSON.stringify(dongLine).includes("비교 가능"), "no 비교 가능 on dong");
+assert(!JSON.stringify(dongLine).includes("순위 산정"), "no 순위 산정 on dong");
 const helper = dongSmallCohortHelper({
   dongName: "잠실동",
   places: [dong, dong],
@@ -366,12 +374,24 @@ assert(
   }).line1 === "45평 · 2026.09 기준",
   "client does not invent decade cohort",
 );
-assert(rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84" }) === "33평 순위", "rank heading uses selected 평, not decade");
-assert(!String(rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84" })).includes("30평대"), "ranking stays off invented decade");
-assert(rankingSelectedHeading({ pyeongLabel: null, rankingBand: "84" }) === "84㎡ 순위", "rank heading falls back to ranking band, not invented 평");
+assert(rankingSelectedHeading({ pyeongLabel: "33평" }) === "33평 순위", "rank heading uses selected 평");
+assert(!String(rankingSelectedHeading({ pyeongLabel: "33평" })).includes("30평대"), "no invented decade without API");
+assert(rankingSelectedHeading({ pyeongLabel: null }) === null, "no 84㎡ fallback");
 assert(
-  rankingSelectedHeading({ pyeongLabel: "33평", rankingBand: "84", rankingCohortLabel: "30평대" }) === "33평 · 30평대 순위",
+  rankingSelectedHeading({ pyeongLabel: "33평", rankingCohortLabel: "30평대" }) === "33평 · 30평대 순위",
   "decade rank label only when ranking API supplies it",
+);
+assert(
+  rankingSelectedHeading({ pyeongLabel: "24평", rankingCohortLabel: "20평대" }) === "24평 · 20평대 순위",
+  "20평대 heading",
+);
+assert(
+  rankingSelectedHeading({ pyeongLabel: "43평", rankingCohortLabel: "40평대" }) === "43평 · 40평대 순위",
+  "40평대 heading",
+);
+assert(
+  rankingSelectedHeading({ pyeongLabel: "102평", rankingCohortLabel: "100평+" }) === "102평 · 100평+ 순위",
+  "100평+ heading stays API semantic",
 );
 
 const v1Rejected = parseComplexPricePosition(
@@ -534,5 +554,37 @@ assert(sparseKept.status === "ok", "one sparse region does not fail the card");
 assert(sparseKept.priceLevel.length === 4, "all region rows stay visible");
 assert(sparseKept.priceLevel[1]?.status === "INSUFFICIENT_SAMPLE", "dong sparse status");
 assert(sparseKept.priceLevel[3]?.status === "unavailable", "seoul unavailable status");
+
+assert(RANKING_V3_VERSION === "seoul-ranking-v3", "v3 version pointer");
+assert(decadeCohortForLabel(33)?.key === "30", "33 → 30 decade");
+assert(decadeCohortForLabel(33)?.label === "30평대", "33 → 30평대");
+assert(decadeCohortForLabel(24)?.label === "20평대", "24 → 20평대");
+assert(decadeCohortForLabel(43)?.label === "40평대", "43 → 40평대");
+assert(decadeCohortForLabel(55)?.label === "50평대", "55 → 50평대");
+assert(decadeCohortForLabel(102)?.label === "100평+", "102 → 100평+");
+assert(decadeCohortForLabel(9) == null, "below 10 is unavailable decade");
+
+const rankSection = readFileSync(
+  resolve(import.meta.dirname, "../src/components/apt/ComplexRegionRankSection.tsx"),
+  "utf8",
+);
+assert(!rankSection.includes("rankingBandForArea"), "selected ranking no longer remaps exclusive bands");
+assert(!rankSection.includes('areaBand: "84"'), "no hardcoded 84");
+assert(!rankSection.includes("59/84/114"), "no legacy band comment in card");
+assert(rankSection.includes("종합 순위"), "overall copy");
+assert(rankSection.includes("complex-region-rank-v3"), "v3 query key");
+assert(!rankSection.includes("개 단지 중"), "card has no population copy");
+assert(!rankSection.includes("비교 가능"), "card has no 비교 가능");
+assert(!rankSection.includes("순위 산정"), "card has no 순위 산정");
+
+const rankRoute = readFileSync(
+  resolve(import.meta.dirname, "../src/app/api/complex-region-rank/route.ts"),
+  "utf8",
+);
+assert(rankRoute.includes("market_pyeong_label"), "API accepts selected market label");
+assert(rankRoute.includes("regionPyeongDecade"), "API exposes decade label");
+assert(!rankRoute.includes('"59"'), "API does not accept legacy 59 for selected");
+assert(!rankRoute.includes('"84"'), "API does not accept legacy 84 for selected");
+assert(!rankRoute.includes('"114"'), "API does not accept legacy 114 for selected");
 
 console.log("ok: region-ranking-ui");

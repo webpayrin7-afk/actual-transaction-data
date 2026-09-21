@@ -9,12 +9,10 @@ import {
   fetchComplexRegionRank,
   formatRankingAsOf,
   placeHeadline,
-  rankingBandForArea,
   rankingSelectedHeading,
   regionOverviewCtaLabel,
   regionRankingHref,
   selectedMarketPyeongInteger,
-  type AreaRankingBand,
   type ComplexRankPlace,
 } from "@/lib/region-ranking/public";
 
@@ -37,11 +35,6 @@ function RankCell({
       <p className="truncate text-[15px] font-semibold leading-5 tabular-nums text-slate-900">
         {line.title}
       </p>
-      {line.meta ? (
-        <p className="mt-0.5 truncate text-[11px] leading-4 text-slate-500">
-          {line.meta}
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -66,9 +59,7 @@ function RankPair({
   const sameEmpty = !guLine && !dongLine && emptyGu === emptyDong;
 
   if (sameEmpty) {
-    return (
-      <p className="text-[13px] leading-5 text-slate-500">{emptyGu}</p>
-    );
+    return <p className="text-[13px] leading-5 text-slate-500">{emptyGu}</p>;
   }
 
   return (
@@ -92,14 +83,9 @@ export function ComplexRegionRankSection({
   dongName?: string | null;
   selectedArea: AptAreaOption | null;
 }) {
-  const areaBand: AreaRankingBand | null = rankingBandForArea(selectedArea);
   const selectedPyeongLabel = selectedArea
     ? areaSelectorPyeongLabel(selectedArea)
     : null;
-  const selectedRankHeading = rankingSelectedHeading({
-    pyeongLabel: selectedPyeongLabel,
-    rankingBand: areaBand,
-  });
   const exclusiveArea = selectedArea?.exclusiveArea ?? null;
   const marketPyeongLabel = selectedMarketPyeongInteger({
     marketLabel: selectedArea?.marketLabel,
@@ -109,11 +95,11 @@ export function ComplexRegionRankSection({
   const enabled = /^cx_[0-9a-f]{16}$/.test(id);
 
   const query = useQuery({
-    queryKey: ["complex-region-rank", id, areaBand ?? "ALL"],
+    queryKey: ["complex-region-rank-v3", id, marketPyeongLabel ?? "ALL"],
     queryFn: () =>
       fetchComplexRegionRank({
         complexId: id,
-        areaBand,
+        marketPyeongLabel,
       }),
     enabled,
     staleTime: 5 * 60_000,
@@ -130,6 +116,16 @@ export function ComplexRegionRankSection({
       null,
   );
   const dongLabel = data?.dong?.trim() || dongName?.trim() || "이 동";
+  const selectedLabel =
+    selectedPyeongLabel ??
+    (data?.selectedMarketPyeongLabel != null && data.selectedMarketPyeongLabel > 0
+      ? `${Math.round(data.selectedMarketPyeongLabel)}평`
+      : null);
+  const selectedRankHeading = rankingSelectedHeading({
+    pyeongLabel: selectedLabel,
+    rankingCohortLabel: data?.regionPyeongDecade ?? data?.area?.regionPyeongDecade ?? null,
+  });
+  const showSelected = selectedLabel != null || marketPyeongLabel != null;
 
   return (
     <section
@@ -148,12 +144,12 @@ export function ComplexRegionRankSection({
       </div>
 
       {query.isLoading ? (
-        <div className="mt-3 space-y-2" aria-label="순위 불러오는 중">
-          <div className="h-10 animate-pulse rounded-lg bg-slate-100" />
-          <div className="h-10 animate-pulse rounded-lg bg-slate-100" />
+        <div className="mt-2.5 space-y-2" aria-label="순위 불러오는 중">
+          <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
+          <div className="h-8 animate-pulse rounded-lg bg-slate-100" />
         </div>
       ) : query.isError ? (
-        <div className="mt-3 rounded-xl bg-slate-50 px-3 py-3 text-center">
+        <div className="mt-2.5 rounded-xl bg-slate-50 px-3 py-3 text-center">
           <p className="text-sm font-medium text-slate-700">
             순위를 불러오지 못했습니다.
           </p>
@@ -166,10 +162,12 @@ export function ComplexRegionRankSection({
           </button>
         </div>
       ) : (
-        <div className="mt-3 space-y-3">
+        <div className="mt-2.5 space-y-2.5">
           <div>
-            <p className="text-[13px] font-medium leading-5 text-slate-600">종합 순위</p>
-            <div className="mt-1">
+            <p className="text-[13px] font-semibold leading-5 text-slate-700">
+              종합 순위
+            </p>
+            <div className="mt-0.5">
               <RankPair
                 guName={regionName}
                 dongName={dongLabel}
@@ -181,24 +179,24 @@ export function ComplexRegionRankSection({
             </div>
           </div>
 
-          {areaBand ? (
-            <div className="border-t border-slate-100 pt-3">
+          {showSelected ? (
+            <div className="border-t border-slate-100 pt-2.5">
               <p className="text-[13px] font-medium leading-5 text-slate-600">
-                {selectedRankHeading}
+                {selectedRankHeading ?? "선택 평형 순위"}
               </p>
-              <div className="mt-1">
+              <div className="mt-0.5">
                 {data?.area ? (
                   <RankPair
                     guName={regionName}
                     dongName={dongLabel}
                     gu={data.area.gu}
                     dong={data.area.dong}
-                    emptyGu="이 면적대는 아직 순위를 제공하지 않아요"
-                    emptyDong="이 면적대는 아직 순위를 제공하지 않아요"
+                    emptyGu="이 평형대는 아직 순위를 제공하지 않아요"
+                    emptyDong="이 평형대는 아직 순위를 제공하지 않아요"
                   />
                 ) : (
                   <p className="text-[13px] leading-5 text-slate-500">
-                    이 면적대는 아직 순위를 제공하지 않아요
+                    이 평형대는 아직 순위를 제공하지 않아요
                   </p>
                 )}
               </div>
@@ -217,7 +215,7 @@ export function ComplexRegionRankSection({
       <Link
         href={regionRankingHref(regionSlug)}
         data-event="complex_region_rank_cta"
-        className="lab-button lab-button-secondary mt-3.5 flex w-full !min-h-9 items-center justify-center text-[13px]"
+        className="lab-button lab-button-secondary mt-3 flex w-full !min-h-9 items-center justify-center text-[13px]"
       >
         {regionOverviewCtaLabel(regionName)}
       </Link>

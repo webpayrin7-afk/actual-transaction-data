@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
-import { publishedComplexPosition, type LaunchAreaBand } from "@/lib/region-ranking/query";
+import {
+  publishedComplexPosition,
+  type RankingAreaBandV3,
+} from "@/lib/region-ranking/query";
 import { SMALL_DONG_COHORT_MAX } from "@/lib/region-ranking/score";
+import {
+  DECADE_KEYS_V3,
+  decadeCohortByKey,
+  decadeCohortForLabel,
+  parseSelectedMarketPyeongLabel,
+} from "@/lib/region-ranking/ranking-v3";
 
 export const dynamic = "force-dynamic";
-
-const BANDS = new Set(["ALL", "59", "84", "114"]);
 
 type Slot = {
   published?: boolean;
@@ -52,17 +59,23 @@ function place(slot: Slot | undefined, scope: "gu" | "dong") {
     coverage: coverageOf(slot.publicMetrics),
     transactionAsOf: slot.transactionAsOf ?? null,
     rankingVersion: slot.rankingVersion ?? null,
-    smallCohort: scope === "dong" && (slot.regionTotal ?? 0) > 0 && (slot.regionTotal ?? 0) <= SMALL_DONG_COHORT_MAX,
+    smallCohort:
+      scope === "dong" &&
+      (slot.regionTotal ?? 0) > 0 &&
+      (slot.regionTotal ?? 0) <= SMALL_DONG_COHORT_MAX,
   };
 }
 
 export async function GET(request: NextRequest) {
   const complexId = request.nextUrl.searchParams.get("complex_id")?.trim() ?? "";
-  const areaBand = request.nextUrl.searchParams.get("area_band")?.trim() ?? "";
+  const areaBandRaw = request.nextUrl.searchParams.get("area_band")?.trim() ?? "";
+  const marketPyeongLabel = parseSelectedMarketPyeongLabel(
+    request.nextUrl.searchParams.get("market_pyeong_label"),
+  );
   if (!/^cx_[0-9a-f]{16}$/.test(complexId)) {
     return NextResponse.json({ error: "complex_id가 필요합니다." }, { status: 400 });
   }
-  if (areaBand && !BANDS.has(areaBand)) {
+  if (areaBandRaw && areaBandRaw !== "ALL" && !DECADE_KEYS_V3.has(areaBandRaw)) {
     return NextResponse.json({ error: "area_band가 올바르지 않습니다." }, { status: 400 });
   }
   const db = getDb();
@@ -70,9 +83,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "순위 저장소를 사용할 수 없습니다." }, { status: 500 });
   }
   try {
+    let selectedMarketPyeongLabel = marketPyeongLabel;
+    let regionPyeongDecade: string | null = null;
+    let storageBand: RankingAreaBandV3 | null = null;
+
+    if (selectedMarketPyeongLabel != null) {
+      const cohort = decadeCohortForLabel(selectedMarketPyeongLabel);
+      if (cohort) {
+        regionPyeongDecade = cohort.label;
+        storageBand = cohort.key;
+      }
+    } else if (areaBandRaw && DECADE_KEYS_V3.has(areaBandRaw)) {
+      storageBand = areaBandRaw as RankingAreaBandV3;
+      regionPyeongDecade = decadeCohortByKey(areaBandRaw)?.label ?? null;
+    }
+
     const data = await publishedComplexPosition(db, {
       complexId,
-      areaBand: areaBand ? (areaBand as LaunchAreaBand) : null,
+      areaBand: storageBand,
     });
     if (!data.found) {
       return NextResponse.json({
@@ -82,15 +110,23 @@ export async function GET(request: NextRequest) {
         dong: null,
         all: null,
         area: null,
+        selectedMarketPyeongLabel,
+        regionPyeongDecade,
       });
     }
     const byBand = new Map(data.positions.map((item) => [item.areaBand, item]));
     const all = byBand.get("ALL");
-    const selected = areaBand && areaBand !== "ALL" ? byBand.get(areaBand as LaunchAreaBand) : undefined;
+    const selected =
+      storageBand && storageBand !== "ALL" ? byBand.get(storageBand) : undefined;
     const allGu = place(all?.gu as Slot | undefined, "gu");
     const allDong = place(all?.dong as Slot | undefined, "dong");
-    const ranked = allGu.status === "ranked" || allDong.status === "ranked"
-      || (selected != null && (place(selected.gu as Slot, "gu").status === "ranked" || place(selected.dong as Slot, "dong").status === "ranked"));
+    const selectedGu = selected ? place(selected.gu as Slot, "gu") : null;
+    const selectedDong = selected ? place(selected.dong as Slot, "dong") : null;
+    const ranked =
+      allGu.status === "ranked" ||
+      allDong.status === "ranked" ||
+      selectedGu?.status === "ranked" ||
+      selectedDong?.status === "ranked";
     return NextResponse.json({
       status: ranked ? "ok" : "unavailable",
       complex_id: data.complexId,
@@ -98,16 +134,20 @@ export async function GET(request: NextRequest) {
       dong: data.dongName,
       transactionAsOf: allGu.transactionAsOf ?? allDong.transactionAsOf ?? null,
       rankingVersion: allGu.rankingVersion ?? allDong.rankingVersion ?? null,
+      selectedMarketPyeongLabel,
+      regionPyeongDecade,
       all: {
         gu: allGu,
         dong: allDong,
       },
       area: selected
         ? {
-          rankingType: areaBand,
-          gu: place(selected.gu as Slot, "gu"),
-          dong: place(selected.dong as Slot, "dong"),
-        }
+            rankingType: storageBand,
+            selectedMarketPyeongLabel,
+            regionPyeongDecade,
+            gu: selectedGu,
+            dong: selectedDong,
+          }
         : null,
     });
   } catch (error) {

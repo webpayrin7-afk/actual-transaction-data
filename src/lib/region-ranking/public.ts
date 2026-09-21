@@ -97,9 +97,13 @@ export type ComplexRegionRankResponse = {
   dong: string | null;
   transactionAsOf: string | null;
   rankingVersion: string | null;
+  selectedMarketPyeongLabel: number | null;
+  regionPyeongDecade: string | null;
   all: { gu: ComplexRankPlace; dong: ComplexRankPlace } | null;
   area: {
     rankingType: string;
+    selectedMarketPyeongLabel?: number | null;
+    regionPyeongDecade?: string | null;
     gu: ComplexRankPlace;
     dong: ComplexRankPlace;
   } | null;
@@ -188,10 +192,15 @@ export async function fetchRegionRankingBoards(
 
 export async function fetchComplexRegionRank(params: {
   complexId: string;
-  areaBand?: AreaRankingBand | null;
+  marketPyeongLabel?: number | null;
+  decadeKey?: string | null;
 }): Promise<ComplexRegionRankResponse> {
   const qs = new URLSearchParams({ complex_id: params.complexId });
-  if (params.areaBand) qs.set("area_band", params.areaBand);
+  if (params.marketPyeongLabel != null && params.marketPyeongLabel > 0) {
+    qs.set("market_pyeong_label", String(Math.round(params.marketPyeongLabel)));
+  } else if (params.decadeKey && /^\d+$/.test(params.decadeKey)) {
+    qs.set("area_band", params.decadeKey);
+  }
   const res = await fetch(`/api/complex-region-rank?${qs.toString()}`);
   if (!res.ok) {
     throw new RankingRequestError("단지 순위를 불러오지 못했습니다.");
@@ -454,15 +463,10 @@ export function placeHeadline(params: {
 }): { title: string; meta: string | null } | null {
   const place = params.place;
   if (!place || place.status !== "ranked" || place.rank == null) return null;
-  const total = place.total;
-  const title = `${params.regionName} ${place.rank}위`;
-  let meta: string | null = null;
-  if (total != null && total > 0) {
-    meta = place.smallCohort
-      ? `비교 가능 ${total.toLocaleString("ko-KR")}개 단지 중`
-      : `${total.toLocaleString("ko-KR")}개 단지 중`;
-  }
-  return { title, meta };
+  return {
+    title: `${params.regionName} ${place.rank}위`,
+    meta: null,
+  };
 }
 
 /** One card-level note. Never repeat per ranking row. */
@@ -862,18 +866,21 @@ export function trendHorizonFallbackNotes(cells: readonly TrendPublicCell[]): st
 }
 
 /**
- * Selected-area ranking title. Ranking payload is still 59/84/114.
- * Pass rankingCohortLabel only when the ranking API itself exposes a decade cohort.
- * Never invent 30평대 from 33평 or from price-position.
+ * Selected-area ranking title.
+ * Decade text comes from ranking API regionPyeongDecade only.
+ * Never uses legacy 59/84/114 and never invents a decade from exclusive ㎡.
  */
 export function rankingSelectedHeading(params: {
   pyeongLabel: string | null;
-  rankingBand: AreaRankingBand | null;
   rankingCohortLabel?: string | null;
 }): string | null {
-  const selected = params.pyeongLabel?.trim() || (params.rankingBand ? `${params.rankingBand}㎡` : null);
-  if (!selected) return null;
+  const selected = params.pyeongLabel?.trim() || null;
   const cohort = params.rankingCohortLabel?.trim() || null;
-  if (cohort) return `${selected} · ${cohort} 순위`;
-  return `${selected} 순위`;
+  if (selected && cohort) {
+    const decade = cohort.replace(/\s*순위$/, "");
+    return `${selected} · ${decade} 순위`;
+  }
+  if (selected) return `${selected} 순위`;
+  if (cohort) return `${cohort.replace(/\s*순위$/, "")} 순위`;
+  return null;
 }
