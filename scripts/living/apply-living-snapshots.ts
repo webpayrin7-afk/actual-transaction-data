@@ -137,10 +137,23 @@ async function applyStatements(
   let affected = 0;
   for (let i = 0; i < rows.length; i += batchSize) {
     const chunk = rows.slice(i, i + batchSize);
-    const rs = await db.batch(
-      chunk.map((args) => ({ sql, args })),
-      "write",
-    );
+    const statements = chunk.map((args) => ({ sql, args }));
+    let rs = null;
+    let lastError = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        rs = await db.batch(statements, "write");
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        const message = String(error?.cause?.code || error?.message || error);
+        console.error(`[apply] retry ${attempt} ${table} ${i} ${message}`);
+        if (attempt === 3) break;
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      }
+    }
+    if (!rs) throw lastError;
     for (const result of rs) affected += result.rowsAffected;
     if (i > 0 && i % (batchSize * 20) === 0) {
       console.error(`[apply] ${table} ${i}/${rows.length}`);
