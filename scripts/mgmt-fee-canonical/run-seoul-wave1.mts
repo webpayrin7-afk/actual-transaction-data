@@ -5,7 +5,6 @@
  *
  *   npx tsx scripts/mgmt-fee-canonical/run-seoul-wave1.mts
  */
-import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, writeSync } from "node:fs";
 import { resolve } from "node:path";
 import { classifyComplex, sharedKaptCodes, buildProbePeriods, choosePublishedPeriod } from "./national-inventory";
