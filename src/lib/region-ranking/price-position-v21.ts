@@ -102,11 +102,13 @@ export type ComplexExactLabelSliceV21 = {
 
 export type PricePositionBodyV21 = {
   status: "ok" | "INSUFFICIENT_SAMPLE" | "unavailable";
-  version: typeof PRICE_POSITION_V21_VERSION;
+  version: string;
   complexId: string;
   aptName: string | null;
-  areaBand: RegionalAreaBandId;
+  areaBand: string;
   supplyPyeongCohort: string;
+  regionPyeongDecade: string;
+  cohortKey: string;
   areaBandVersion: string;
   transactionAsOf: string;
   referenceMonth: string | null;
@@ -121,7 +123,7 @@ export type PricePositionBodyV21 = {
   regionTrendDefinition: typeof REGION_TREND_DEFINITION_V21;
   areaBasis: typeof AREA_BASIS_V21;
   pyeongLabelVersion: typeof PYEONG_LABEL_VERSION_V21;
-  methodologyFingerprint: typeof METHODOLOGY_FINGERPRINT_V21;
+  methodologyFingerprint: string;
   methodologyCopy: { price: string; trend: string };
   priceLevel: PriceLevelCellV21[];
   trends: Record<TrendHorizonV21, TrendCellV21[]>;
@@ -156,12 +158,18 @@ function dongKey(lawdCd: string, bjdongCd: string): string {
  * Region trend = median of matched-complex changes with S1 endpoints (T0).
  */
 export function buildPricePositionV21(params: {
-  areaBand: RegionalAreaBandId;
+  areaBand: RegionalAreaBandId | string;
   points: readonly SupplySalePoint[];
   identities: ReadonlyMap<string, ComplexIdentityV2>;
   transactionAsOf?: string;
+  /** Overrides the legacy exclusive-band cohort. Label bounds only. */
+  cohort?: { key: string; min: number; max: number; label: string };
+  version?: string;
+  methodologyFingerprint?: string;
 }): { bodies: PricePositionBodyV21[]; ambiguousExcluded: number; exactMapped: number } {
-  const cohort = BAND_TO_SUPPLY_COHORT[params.areaBand];
+  const cohort = params.cohort ?? BAND_TO_SUPPLY_COHORT[params.areaBand as RegionalAreaBandId];
+  const version = params.version ?? PRICE_POSITION_V21_VERSION;
+  const fingerprint = params.methodologyFingerprint ?? METHODOLOGY_FINGERPRINT_V21;
   const asOf = params.transactionAsOf ?? PRICE_POSITION_V21_AS_OF;
   const asOfMonth = asOf.slice(0, 7);
 
@@ -179,7 +187,9 @@ export function buildPricePositionV21(params: {
     const inCohort =
       point.marketPyeongLabel != null
         ? point.marketPyeongLabel >= cohort.min && point.marketPyeongLabel < cohort.max
-        : inSupplyCohort(point.supplyPyeong, params.areaBand);
+        : params.cohort
+          ? false
+          : inSupplyCohort(point.supplyPyeong, params.areaBand as RegionalAreaBandId);
     if (!inCohort) continue;
     if (point.yearMonth < HISTORY_FLOOR_MONTH_V21) continue;
     if (point.yearMonth > asOfMonth) continue;
@@ -247,19 +257,131 @@ export function buildPricePositionV21(params: {
     };
   }
 
+  // Group once. Regional medians depend only on scope membership and the
+  // subject complex's reference month, so later cells are cached. The cached
+  // value is the same P2 / T0 calculation, not a different formula.
+  const pointsByComplex = new Map<string, typeof dealPoints>();
+  for (const point of dealPoints) {
+    const list = pointsByComplex.get(point.complexId);
+    if (list) list.push(point);
+    else pointsByComplex.set(point.complexId, [point]);
+  }
+  const byDong = new Map<string, string[]>();
+  const byGu = new Map<string, string[]>();
+  for (const cid of identityRef.keys()) {
+    const ident = params.identities.get(cid);
+    if (!ident) continue;
+    const dk = dongKey(ident.lawdCd, ident.bjdongCd);
+    const dongList = byDong.get(dk);
+    if (dongList) dongList.push(cid);
+    else byDong.set(dk, [cid]);
+    const guList = byGu.get(ident.lawdCd);
+    if (guList) guList.push(cid);
+    else byGu.set(ident.lawdCd, [cid]);
+  }
+  const seoulIds = [...identityRef.keys()];
+
+  type RegionPrice = {
+    meanPricePerSupplyPyeong: number | null;
+    tradeCount: number | null;
+    sampleCount: number | null;
+    contributingComplexCount: number | null;
+    status: "ok" | "INSUFFICIENT_SAMPLE";
+  };
+  const regionPriceCache = new Map<string, RegionPrice>();
+  function regionPrice(cacheKey: string, ids: readonly string[], referenceMonth: string, minComplexes: number): RegionPrice {
+    const cached = regionPriceCache.get(cacheKey);
+    if (cached) return cached;
+    const values: number[] = [];
+    let trades = 0;
+    for (const cid of ids) {
+      const cell = tables.get(cid)?.get(referenceMonth);
+      if (!cell || cell.tradeCount < 1) continue;
+      values.push(complexMonthStat(cell, "C1_MEAN"));
+      trades += cell.tradeCount;
+    }
+    const med = median(values);
+    const ok = med != null && values.length >= minComplexes;
+    const computed: RegionPrice = {
+      meanPricePerSupplyPyeong: ok ? roundToV2(med!, 4) : null,
+      tradeCount: values.length ? trades : null,
+      sampleCount: values.length || null,
+      contributingComplexCount: values.length || null,
+      status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
+    };
+    regionPriceCache.set(cacheKey, computed);
+    return computed;
+  }
+
+  type RegionTrend = {
+    changePercent: number | null;
+    matchedComplexCount: number | null;
+    actualCurrentMonth: string | null;
+    actualBaselineMonth: string | null;
+    status: "ok" | "INSUFFICIENT_SAMPLE";
+  };
+  const regionTrendCache = new Map<string, RegionTrend>();
+  function regionTrend(
+    cacheKey: string,
+    ids: readonly string[],
+    referenceMonth: string,
+    baselineTarget: string,
+    minComplexes: number,
+  ): RegionTrend {
+    const cached = regionTrendCache.get(cacheKey);
+    if (cached) return cached;
+    const changes: number[] = [];
+    let matched = 0;
+    const actualCurrent = new Set<string>();
+    const actualBaseline = new Set<string>();
+    for (const cid of ids) {
+      const cells = tables.get(cid);
+      if (!cells) continue;
+      const cur = resolveComplexMonth({
+        cells,
+        targetMonth: referenceMonth,
+        asOfMonth,
+        sparse: "S1",
+        minTrades: 1,
+      });
+      const base = resolveComplexMonth({
+        cells,
+        targetMonth: baselineTarget,
+        asOfMonth,
+        sparse: "S1",
+        minTrades: 1,
+      });
+      if (!cur || !base) continue;
+      const ch = changePercent(complexMonthStat(cur.cell, "C1_MEAN"), complexMonthStat(base.cell, "C1_MEAN"));
+      if (ch == null) continue;
+      changes.push(ch);
+      matched += 1;
+      actualCurrent.add(cur.month);
+      actualBaseline.add(base.month);
+    }
+    const med = median(changes);
+    const ok = med != null && matched >= minComplexes;
+    const computed: RegionTrend = {
+      changePercent: ok ? roundToV2(med!, 2) : null,
+      matchedComplexCount: matched || null,
+      actualCurrentMonth: actualCurrent.size ? [...actualCurrent].sort().join(",") : null,
+      actualBaselineMonth: actualBaseline.size ? [...actualBaseline].sort().join(",") : null,
+      status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
+    };
+    regionTrendCache.set(cacheKey, computed);
+    return computed;
+  }
+
   const bodies: PricePositionBodyV21[] = [];
   for (const [complexId, referenceMonth] of identityRef) {
     const id = params.identities.get(complexId);
     if (!id) continue;
     const key = dongKey(id.lawdCd, id.bjdongCd);
-    const scopeComplexes: Record<PriceScopeV21, string[]> = {
+    const scopeComplexes: Record<PriceScopeV21, readonly string[]> = {
       COMPLEX: [complexId],
-      DONG: [...identityRef.keys()].filter((cid) => {
-        const other = params.identities.get(cid);
-        return other != null && dongKey(other.lawdCd, other.bjdongCd) === key;
-      }),
-      GU: [...identityRef.keys()].filter((cid) => params.identities.get(cid)?.lawdCd === id.lawdCd),
-      SEOUL: [...identityRef.keys()],
+      DONG: byDong.get(key) ?? [],
+      GU: byGu.get(id.lawdCd) ?? [],
+      SEOUL: seoulIds,
     };
     const labels: Record<PriceScopeV21, string> = {
       COMPLEX: "이 단지",
@@ -270,8 +392,7 @@ export function buildPricePositionV21(params: {
 
     // Exact-label complex slices (COMPLEX only). Region stays decade.
     const labelPoints = new Map<number, typeof dealPoints>();
-    for (const point of dealPoints) {
-      if (point.complexId !== complexId) continue;
+    for (const point of pointsByComplex.get(complexId) ?? []) {
       const list = labelPoints.get(point.marketPyeongLabel) ?? [];
       list.push(point);
       labelPoints.set(point.marketPyeongLabel, list);
@@ -328,25 +449,21 @@ export function buildPricePositionV21(params: {
           status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
         };
       }
-      const values: number[] = [];
-      let trades = 0;
-      for (const cid of scopeComplexes[scope]) {
-        const cell = tables.get(cid)?.get(referenceMonth);
-        if (!cell || cell.tradeCount < 1) continue;
-        values.push(complexMonthStat(cell, "C1_MEAN"));
-        trades += cell.tradeCount;
-      }
-      const med = median(values);
-      const ok = med != null && values.length >= PRICE_MIN_COMPLEXES_V21[scope];
+      const cached = regionPrice(
+        `${scope}|${scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL"}|${referenceMonth}`,
+        scopeComplexes[scope],
+        referenceMonth,
+        PRICE_MIN_COMPLEXES_V21[scope],
+      );
       return {
         scope,
         label: labels[scope],
-        meanPricePerSupplyPyeong: ok ? roundToV2(med!, 4) : null,
-        tradeCount: values.length ? trades : null,
-        sampleCount: values.length || null,
-        contributingComplexCount: values.length || null,
+        meanPricePerSupplyPyeong: cached.meanPricePerSupplyPyeong,
+        tradeCount: cached.tradeCount,
+        sampleCount: cached.sampleCount,
+        contributingComplexCount: cached.contributingComplexCount,
         referenceMonth,
-        status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
+        status: cached.status,
       };
     });
 
@@ -357,52 +474,27 @@ export function buildPricePositionV21(params: {
         if (scope === "COMPLEX") {
           return complexTrendCell(tables.get(complexId) ?? new Map(), referenceMonth, baselineTarget, labels.COMPLEX);
         }
-
-        const changes: number[] = [];
-        let matched = 0;
-        const actualCurrent = new Set<string>();
-        const actualBaseline = new Set<string>();
-        for (const cid of scopeComplexes[scope]) {
-          const cells = tables.get(cid);
-          if (!cells) continue;
-          const cur = resolveComplexMonth({
-            cells,
-            targetMonth: referenceMonth,
-            asOfMonth,
-            sparse: "S1",
-            minTrades: 1,
-          });
-          const base = resolveComplexMonth({
-            cells,
-            targetMonth: baselineTarget,
-            asOfMonth,
-            sparse: "S1",
-            minTrades: 1,
-          });
-          if (!cur || !base) continue;
-          const ch = changePercent(complexMonthStat(cur.cell, "C1_MEAN"), complexMonthStat(base.cell, "C1_MEAN"));
-          if (ch == null) continue;
-          changes.push(ch);
-          matched += 1;
-          actualCurrent.add(cur.month);
-          actualBaseline.add(base.month);
-        }
-        const med = median(changes);
-        const ok = med != null && matched >= TREND_MIN_COMPLEXES_V21[scope];
+        const cached = regionTrend(
+          `${scope}|${scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL"}|${referenceMonth}|${horizon}`,
+          scopeComplexes[scope],
+          referenceMonth,
+          baselineTarget,
+          TREND_MIN_COMPLEXES_V21[scope],
+        );
         return {
           scope,
           label: labels[scope],
-          changePercent: ok ? roundToV2(med!, 2) : null,
+          changePercent: cached.changePercent,
           currentMean: null,
           baselineMean: null,
           currentTradeCount: null,
           baselineTradeCount: null,
-          matchedComplexCount: matched || null,
+          matchedComplexCount: cached.matchedComplexCount,
           currentMonth: referenceMonth,
           baselineMonth: baselineTarget,
-          actualCurrentMonth: actualCurrent.size ? [...actualCurrent].sort().join(",") : null,
-          actualBaselineMonth: actualBaseline.size ? [...actualBaseline].sort().join(",") : null,
-          status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
+          actualCurrentMonth: cached.actualCurrentMonth,
+          actualBaselineMonth: cached.actualBaselineMonth,
+          status: cached.status,
         };
       });
     }
@@ -415,11 +507,13 @@ export function buildPricePositionV21(params: {
 
     bodies.push({
       status: complexLevel?.status === "ok" ? "ok" : "INSUFFICIENT_SAMPLE",
-      version: PRICE_POSITION_V21_VERSION,
+      version,
       complexId,
       aptName: id.aptName || null,
-      areaBand: params.areaBand,
+      areaBand: params.cohort ? params.cohort.key : params.areaBand,
       supplyPyeongCohort: cohort.label,
+      regionPyeongDecade: cohort.label,
+      cohortKey: params.cohort?.key ?? cohort.label.replace("평대", "").replace("+", ""),
       areaBandVersion: AREA_BAND_VERSION,
       transactionAsOf: asOf,
       referenceMonth,
@@ -432,7 +526,7 @@ export function buildPricePositionV21(params: {
       regionTrendDefinition: REGION_TREND_DEFINITION_V21,
       areaBasis: AREA_BASIS_V21,
       pyeongLabelVersion: PYEONG_LABEL_VERSION_V21,
-      methodologyFingerprint: METHODOLOGY_FINGERPRINT_V21,
+      methodologyFingerprint: fingerprint,
       methodologyCopy: { price: PRICE_COPY_V21, trend: TREND_COPY_V21 },
       priceLevel,
       trends,

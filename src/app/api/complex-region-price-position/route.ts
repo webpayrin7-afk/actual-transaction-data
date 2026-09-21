@@ -5,7 +5,9 @@ import {
   PRICE_POSITION_PUBLIC_AS_OF,
   PRICE_POSITION_PUBLIC_VERSION,
   readComplexPricePosition,
+  resolveSelectedMarketPyeongLabel,
 } from "@/lib/region-ranking/price-position-read";
+import { PRICE_POSITION_V22_VERSION, resolveV22PricePositionRequest } from "@/lib/region-ranking/price-position-v22";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,8 @@ function unsupported(complexId: string, exclusiveArea: number | null) {
     complexId,
     areaBand: null,
     exclusiveArea,
+    selectedMarketPyeongLabel: null,
+    regionPyeongDecade: null,
     transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
     referenceMonth: null,
     priceLevel: [],
@@ -34,6 +38,61 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "complex_id가 필요합니다." }, { status: 400 });
   }
 
+  if (PRICE_POSITION_PUBLIC_VERSION === PRICE_POSITION_V22_VERSION) {
+    return getDecadeCohort(complexId, areaBandRaw, exclusiveRaw);
+  }
+  return getLegacyBand(complexId, areaBandRaw, exclusiveRaw);
+}
+
+async function getDecadeCohort(complexId: string, areaBandRaw: string, exclusiveRaw: string) {
+  let exclusiveArea: number | null = null;
+  if (exclusiveRaw) {
+    exclusiveArea = Number(exclusiveRaw);
+    if (!Number.isFinite(exclusiveArea)) return unsupported(complexId, null);
+  } else if (!areaBandRaw) {
+    return NextResponse.json({ error: "area_band가 필요합니다." }, { status: 400 });
+  }
+
+  const db = getDb();
+  if (!db) {
+    return NextResponse.json({ error: "시세 저장소를 사용할 수 없습니다." }, { status: 500 });
+  }
+  try {
+    const label = exclusiveArea == null ? null : await resolveSelectedMarketPyeongLabel(db, { complexId, exclusiveArea });
+    const resolved = resolveV22PricePositionRequest({ areaBandRaw, exclusiveArea, label });
+    if (!resolved.ok) {
+      if (resolved.reason === "AREA_BAND_REQUIRED" && !exclusiveRaw) {
+        return NextResponse.json({ error: "area_band가 필요합니다." }, { status: 400 });
+      }
+      return unsupported(complexId, exclusiveArea);
+    }
+    const found = await readComplexPricePosition(db, {
+      complexId,
+      areaBand: resolved.decadeKey,
+      exclusiveArea: resolved.exclusiveArea,
+    });
+    if (found.kind === "missing" || found.kind === "outside-seoul") {
+      return NextResponse.json({
+        status: "unavailable",
+        version: PRICE_POSITION_PUBLIC_VERSION,
+        complexId,
+        areaBand: resolved.decadeKey,
+        selectedMarketPyeongLabel: null,
+        regionPyeongDecade: resolved.regionPyeongDecade,
+        transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
+        referenceMonth: null,
+        priceLevel: [],
+        trends: { "6M": [], "1Y": [], "2Y": [], "5Y": [] },
+      });
+    }
+    return NextResponse.json(found.body);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "지역 내 가격 위치를 불러오지 못했습니다." }, { status: 500 });
+  }
+}
+
+async function getLegacyBand(complexId: string, areaBandRaw: string, exclusiveRaw: string) {
   let areaBand: RegionalAreaBandId | null = null;
   let exclusiveArea: number | null = null;
   if (exclusiveRaw) {

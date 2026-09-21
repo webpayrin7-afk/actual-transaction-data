@@ -18,12 +18,20 @@ import {
   TREND_COPY_V21,
   type PricePositionBodyV21,
 } from "./price-position-v21";
+import {
+  decadeCohortByKey,
+  decadeKeyFromLegacyAreaBand,
+  METHODOLOGY_FINGERPRINT_V22,
+  PRICE_POSITION_V22_VERSION,
+  pricePositionV22SnapshotId,
+} from "./price-position-v22";
 
 /**
- * Public pointer is V2.1 only after publication.
- * Missing V2.1 is unavailable. V2 rows stay stored and are not a fallback.
+ * Public pointer is V2.2 after the all-decade publication.
+ * Missing V2.2 is unavailable. V2 and V2.1 rows stay stored and are not fallbacks.
  */
-export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V21_VERSION;
+export const PRICE_POSITION_PUBLIC_VERSION: typeof PRICE_POSITION_V21_VERSION | typeof PRICE_POSITION_V22_VERSION =
+  PRICE_POSITION_V22_VERSION;
 export const PRICE_POSITION_PUBLIC_AS_OF = PRICE_POSITION_V21_AS_OF;
 
 export function seoulGuName(lawdCd: string): string | null {
@@ -81,27 +89,47 @@ export async function resolveSelectedMarketPyeongLabel(
   return { kind: "missing" };
 }
 
+function publicSnapshot(areaBand: string): { snapshotId: string; storageBand: string; version: string } {
+  if (PRICE_POSITION_PUBLIC_VERSION === PRICE_POSITION_V22_VERSION) {
+    return {
+      snapshotId: pricePositionV22SnapshotId(),
+      storageBand: decadeKeyFromLegacyAreaBand(areaBand) ?? areaBand,
+      version: PRICE_POSITION_V22_VERSION,
+    };
+  }
+  return {
+    snapshotId: pricePositionV21SnapshotId(),
+    storageBand: areaBand,
+    version: PRICE_POSITION_V21_VERSION,
+  };
+}
+
 export async function readComplexPricePosition(
   db: RankingReader,
-  query: { complexId: string; areaBand: RegionalAreaBandId; exclusiveArea?: number | null },
+  query: { complexId: string; areaBand: RegionalAreaBandId | string; exclusiveArea?: number | null },
 ): Promise<
   | { kind: "missing" }
   | { kind: "outside-seoul" }
   | { kind: "body"; body: PricePositionBodyV21 }
 > {
+  const publication = publicSnapshot(query.areaBand);
   const v21 = await db.execute({
     sql: `SELECT payload_json
           FROM complex_region_price_position
           WHERE snapshot_id = ? AND complex_id = ? AND area_band = ?`,
-    args: [pricePositionV21SnapshotId(), query.complexId, query.areaBand],
+    args: [publication.snapshotId, query.complexId, publication.storageBand],
   });
   if (v21.rows[0]?.payload_json) {
     let body = JSON.parse(String(v21.rows[0].payload_json)) as PricePositionBodyV21;
-    activeAreaBand(body.areaBand);
+    if (body.areaBand === "59" || body.areaBand === "84" || body.areaBand === "114") {
+      activeAreaBand(body.areaBand);
+    }
     // Backward-compatible defaults for payloads written before exact-label fields.
     if (body.complexExactByMarketLabel == null) body.complexExactByMarketLabel = {};
     if (body.selectedMarketPyeongLabel === undefined) body.selectedMarketPyeongLabel = null;
     if (body.complexScopeBasis == null) body.complexScopeBasis = "decade_cohort";
+    if (!body.regionPyeongDecade) body.regionPyeongDecade = body.supplyPyeongCohort ?? "";
+    if (!body.cohortKey) body.cohortKey = publication.storageBand;
 
     if (query.exclusiveArea != null && Number.isFinite(query.exclusiveArea)) {
       const resolved = await resolveSelectedMarketPyeongLabel(db, {
@@ -128,13 +156,16 @@ export async function readComplexPricePosition(
   if (!row) return { kind: "missing" };
   const lawd = String(row.lawd_cd);
   if (!seoulGuName(lawd)) return { kind: "outside-seoul" };
+  const cohort = decadeCohortByKey(publication.storageBand);
   const unavailable: PricePositionBodyV21 = {
     status: "unavailable",
-    version: PRICE_POSITION_V21_VERSION,
+    version: publication.version,
     complexId: query.complexId,
     aptName: row.apt_name == null ? null : String(row.apt_name),
-    areaBand: query.areaBand,
-    supplyPyeongCohort: "",
+    areaBand: publication.storageBand,
+    supplyPyeongCohort: cohort?.label ?? "",
+    regionPyeongDecade: cohort?.label ?? "",
+    cohortKey: cohort?.key ?? "",
     areaBandVersion: "",
     transactionAsOf: PRICE_POSITION_PUBLIC_AS_OF,
     referenceMonth: null,
@@ -147,7 +178,8 @@ export async function readComplexPricePosition(
     regionTrendDefinition: REGION_TREND_DEFINITION_V21,
     areaBasis: "SUPPLY_PYEONG_LABEL",
     pyeongLabelVersion: "canonical-supply-pyeong-round-v1",
-    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V21,
+    methodologyFingerprint:
+      publication.version === PRICE_POSITION_V22_VERSION ? METHODOLOGY_FINGERPRINT_V22 : METHODOLOGY_FINGERPRINT_V21,
     methodologyCopy: {
       price: PRICE_COPY_V21,
       trend: TREND_COPY_V21,
