@@ -796,6 +796,14 @@ assert(!priceCompare.includes("지역 가격 비교"), "subtitle drops 지역");
 assert(priceCompare.includes("priceCompareScopeLabel"), "COMPLEX row uses apt name");
 assert(!/이 단지/.test(priceCompare), "price compare UI does not hardcode 이 단지");
 assert(priceCompare.includes("PRICE_COMPARE_TABS"), "keeps 가격 수준 / 변동률");
+assert(priceCompare.includes("price-compare-bar-play"), "price bars animate on enter");
+assert(priceCompare.includes("IntersectionObserver"), "chart plays when the section enters view");
+const globalsCss = readFileSync(
+  resolve(import.meta.dirname, "../src/app/globals.css"),
+  "utf8",
+);
+assert(globalsCss.includes("price-compare-bar-grow"), "bar grow keyframes exist");
+assert(globalsCss.includes("prefers-reduced-motion"), "reduced motion is respected");
 assert(priceCompare.includes("TREND_PERIOD_TABS"), "keeps 6M/1Y/2Y/5Y");
 assert(!priceCompare.includes('"3Y"'), "no 3Y period");
 assert(priceCompare.includes("complex-region-price-position-v23"), "v23 query key");

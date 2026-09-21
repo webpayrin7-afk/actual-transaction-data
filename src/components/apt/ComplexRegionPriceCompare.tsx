@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
@@ -34,12 +34,67 @@ import {
 
 const SCOPE_LABEL_CLASS = "w-[4.75rem] shrink-0 truncate text-[13px] leading-4 sm:w-[5.5rem]";
 
+function usePriceCompareEnter() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [entered, setEntered] = useState(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || entered) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setEntered(true);
+        observer.disconnect();
+      },
+      { threshold: 0.18, rootMargin: "0px 0px -6% 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [entered]);
+
+  return { ref, entered };
+}
+
+function PriceCompareChart({
+  replayKey,
+  children,
+}: {
+  replayKey: string;
+  children: (entered: boolean) => ReactNode;
+}) {
+  const { ref, entered } = usePriceCompareEnter();
+  return (
+    <div ref={ref} data-chart-key={replayKey}>
+      {children(entered)}
+    </div>
+  );
+}
+
+function barPlayClass(entered: boolean, origin: "left" | "right") {
+  return [
+    origin === "right" ? "price-compare-bar-left" : "price-compare-bar",
+    entered ? "price-compare-bar-play" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function barDelayStyle(index: number) {
+  return { ["--bar-delay"]: `${index * 45}ms` } as CSSProperties;
+}
+
 function PriceLevelBars({
   cells,
   aptName,
+  animate,
 }: {
   cells: PriceLevelPublicCell[];
   aptName: string | null;
+  animate: boolean;
 }) {
   const scale = priceLevelScale(
     cells.map((cell) => ({
@@ -49,7 +104,7 @@ function PriceLevelBars({
   );
   return (
     <ul className="mt-2 space-y-2">
-      {cells.map((cell) => {
+      {cells.map((cell, index) => {
         const hiddenBar = cell.status !== "ok";
         const value = cell.meanPricePerSupplyPyeong;
         const width = hiddenBar ? 0 : barWidthPct(value, scale);
@@ -74,8 +129,8 @@ function PriceLevelBars({
                 <div className="h-2" />
               ) : (
                 <div
-                  className={`h-2 rounded-full ${accent ? "bg-teal-600" : "bg-slate-300"}`}
-                  style={{ width: `${width}%` }}
+                  className={`h-2 rounded-full ${accent ? "bg-teal-600" : "bg-slate-300"} ${barPlayClass(animate, "left")}`}
+                  style={{ width: `${width}%`, ...barDelayStyle(index) }}
                 />
               )}
             </div>
@@ -116,16 +171,18 @@ function TrendBars({
   cells,
   maxAbs,
   aptName,
+  animate,
 }: {
   cells: TrendPublicCell[];
   maxAbs: number | null;
   aptName: string | null;
+  animate: boolean;
 }) {
   return (
     <div className="mt-2">
       {maxAbs != null && maxAbs > 0 ? <TrendScale maxAbs={maxAbs} /> : null}
       <ul className="space-y-2">
-        {cells.map((cell) => {
+        {cells.map((cell, index) => {
           const hiddenBar = cell.status !== "ok";
           const value = cell.changePercent;
           const layout = hiddenBar ? { side: "none" as const, pct: 0 } : trendBarLayout(value, maxAbs);
@@ -160,8 +217,8 @@ function TrendBars({
                     <div className="flex h-2 w-1/2 justify-end pr-px">
                       {layout.side === "left" ? (
                         <div
-                          className="h-2 rounded-l-full bg-blue-600"
-                          style={{ width: `${layout.pct}%` }}
+                          className={`h-2 rounded-l-full bg-blue-600 ${barPlayClass(animate, "right")}`}
+                          style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
                         />
                       ) : null}
                     </div>
@@ -172,8 +229,8 @@ function TrendBars({
                     <div className="flex h-2 w-1/2 justify-start pl-px">
                       {layout.side === "right" ? (
                         <div
-                          className="h-2 rounded-r-full bg-rose-600"
-                          style={{ width: `${layout.pct}%` }}
+                          className={`h-2 rounded-r-full bg-rose-600 ${barPlayClass(animate, "left")}`}
+                          style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
                         />
                       ) : null}
                     </div>
@@ -258,7 +315,13 @@ export function ComplexRegionPriceCompare({
     horizonLabel: periodLabel,
     cells: trendCells,
   });
-
+  const chartKey = [
+    tab,
+    tab === "trend" ? period : "level",
+    data?.version ?? "",
+    data?.referenceMonth ?? "",
+    query.isSuccess ? "ready" : "wait",
+  ].join("|");
   return (
     <div className="mt-4 border-t border-slate-200 pt-3.5">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
@@ -338,7 +401,9 @@ export function ComplexRegionPriceCompare({
             <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{historyHelper}</p>
           ) : null}
 
-          {query.isLoading ? (
+          <PriceCompareChart key={chartKey} replayKey={chartKey}>
+            {(entered) =>
+              query.isLoading ? (
             <div className="mt-2 space-y-1.5" aria-label="가격 비교 불러오는 중">
               <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
               <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
@@ -364,19 +429,30 @@ export function ComplexRegionPriceCompare({
             </p>
           ) : tab === "level" ? (
             data?.priceLevel.length ? (
-              <PriceLevelBars cells={data.priceLevel} aptName={resolvedAptName} />
+              <PriceLevelBars
+                cells={data.priceLevel}
+                aptName={resolvedAptName}
+                animate={entered}
+              />
             ) : (
               <p className="mt-2 text-[13px] leading-5 text-slate-500">
                 {priceCompareStatusCopy(data?.status).title}
               </p>
             )
           ) : trendCells.length ? (
-            <TrendBars cells={trendCells} maxAbs={trendScale} aptName={resolvedAptName} />
+            <TrendBars
+              cells={trendCells}
+              maxAbs={trendScale}
+              aptName={resolvedAptName}
+              animate={entered}
+            />
           ) : (
             <p className="mt-2 text-[13px] leading-5 text-slate-500">
               {priceCompareStatusCopy(data?.status).title}
             </p>
-          )}
+          )
+            }
+          </PriceCompareChart>
         </>
       )}
     </div>

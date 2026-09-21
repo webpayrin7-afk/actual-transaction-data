@@ -292,6 +292,36 @@ h3 {
   will-change: transform, opacity;
 }
 
+@keyframes price-compare-bar-grow {
+  from {
+    opacity: 0.4;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.price-compare-bar,
+.price-compare-bar-left {
+  opacity: 0.4;
+  transform: scaleX(0);
+}
+
+.price-compare-bar {
+  transform-origin: left center;
+}
+
+.price-compare-bar-left {
+  transform-origin: right center;
+}
+
+.price-compare-bar-play {
+  animation: price-compare-bar-grow 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--bar-delay, 0ms);
+}
+
 .region-basis-chip {
   flex-shrink: 0;
 }
@@ -314,5 +344,13 @@ h3 {
   .apt-detail-enter {
     animation: none;
     will-change: auto;
+  }
+
+  .price-compare-bar,
+  .price-compare-bar-left,
+  .price-compare-bar-play {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }
