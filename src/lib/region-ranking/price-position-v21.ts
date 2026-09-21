@@ -26,10 +26,15 @@ import {
   type TrendHorizonV21,
 } from "./price-position-v21-audit";
 import {
+  dataCoverageStatusV2,
+  SAMPLE_CONFIDENCE_VERSION,
+  sampleStatusV2,
+  type DataCoverageStatusV2,
+  type SampleStatusV2,
+} from "./sample-confidence-v2";
+import {
   pooledWindowMean,
   resolveRegionWindowV23,
-  sampleStatusV23,
-  type SampleStatusV23,
   type WindowStatusV23,
 } from "./region-trend-window";
 
@@ -100,12 +105,25 @@ export type TrendCellV21 = {
   status: "ok" | "INSUFFICIENT_SAMPLE";
   /** V2.3 regional diagnostics. Absent on V2.1/V2.2 rows. */
   cohortUniverseCount?: number | null;
+  /** Traded complexes in the region, including complexes outside the canonical supply set. */
   historyAvailableCount?: number | null;
+  /** Legacy ratio: median membership / cohort universe. Not the confidence denominator. */
   matchedCoverageRatio?: number | null;
+  /** Canonical supply complexes that have usable mapped history. Confidence denominator B. */
+  canonicalHistoryAvailableCount?: number | null;
+  /** C / B. Confidence coverage. Null when B is 0 or the window does not exist. */
+  sampleCoverageRatio?: number | null;
+  /** C / A. Diagnostic only. */
+  supplyCoverageRatio?: number | null;
+  /** B / A. Diagnostic only. Same value as historyDataCoverageRatio. */
+  historyCoverageRatio?: number | null;
+  historyDataCoverageRatio?: number | null;
+  dataCoverageStatus?: DataCoverageStatusV2 | null;
   currentWindow?: string | null;
   baselineWindow?: string | null;
   windowStatus?: WindowStatusV23 | null;
-  sampleStatus?: SampleStatusV23 | null;
+  sampleStatus?: SampleStatusV2 | null;
+  sampleConfidenceVersion?: typeof SAMPLE_CONFIDENCE_VERSION | null;
   windowStatistic?: "pooled_trade_mean" | null;
 };
 
@@ -146,6 +164,8 @@ export type PricePositionBodyV21 = {
   trends: Record<TrendHorizonV21, TrendCellV21[]>;
   /** Exact-label complex slices inside this decade cohort. Region scopes stay decade. */
   complexExactByMarketLabel: Record<string, ComplexExactLabelSliceV21>;
+  /** Present on V2.3 bodies after sample-confidence-v2. Price fingerprint stays v2.3. */
+  sampleConfidenceVersion?: typeof SAMPLE_CONFIDENCE_VERSION;
   maxAvailableValue: {
     priceLevel: number | null;
     trends: Record<TrendHorizonV21, number | null>;
@@ -310,15 +330,32 @@ export function buildPricePositionV21(params: {
   const universeDong = new Map<string, number>();
   const universeGu = new Map<string, number>();
   let universeSeoul = 0;
+  const canonicalDong = new Map<string, Set<string>>();
+  const canonicalGu = new Map<string, Set<string>>();
+  const canonicalSeoul = new Set<string>();
   if (params.cohortUniverse) {
     for (const cid of params.cohortUniverse) {
       const ident = params.identities.get(cid);
       if (!ident) continue;
       universeSeoul += 1;
+      canonicalSeoul.add(cid);
       universeGu.set(ident.lawdCd, (universeGu.get(ident.lawdCd) ?? 0) + 1);
+      const guSet = canonicalGu.get(ident.lawdCd) ?? new Set<string>();
+      guSet.add(cid);
+      canonicalGu.set(ident.lawdCd, guSet);
       const dk = dongKey(ident.lawdCd, ident.bjdongCd);
       universeDong.set(dk, (universeDong.get(dk) ?? 0) + 1);
+      const dongSet = canonicalDong.get(dk) ?? new Set<string>();
+      dongSet.add(cid);
+      canonicalDong.set(dk, dongSet);
     }
+  }
+
+  function regionCanonical(scope: PriceScopeV21, dong: string, lawd: string): ReadonlySet<string> | null {
+    if (!params.cohortUniverse || scope === "COMPLEX") return null;
+    if (scope === "DONG") return canonicalDong.get(dong) ?? new Set();
+    if (scope === "GU") return canonicalGu.get(lawd) ?? new Set();
+    return canonicalSeoul;
   }
 
   function scopeUniverse(scope: PriceScopeV21, dong: string, lawd: string, traded: number): number {
@@ -369,10 +406,17 @@ export function buildPricePositionV21(params: {
     cohortUniverseCount: number | null;
     historyAvailableCount: number | null;
     matchedCoverageRatio: number | null;
+    canonicalHistoryAvailableCount: number | null;
+    canonicalMatchedComplexCount: number | null;
+    sampleCoverageRatio: number | null;
+    supplyCoverageRatio: number | null;
+    historyCoverageRatio: number | null;
+    historyDataCoverageRatio: number | null;
+    dataCoverageStatus: DataCoverageStatusV2 | null;
     currentWindow: string | null;
     baselineWindow: string | null;
     windowStatus: WindowStatusV23 | null;
-    sampleStatus: SampleStatusV23 | null;
+    sampleStatus: SampleStatusV2 | null;
     windowStatistic: "pooled_trade_mean" | null;
   };
   const regionTrendCache = new Map<string, RegionTrend>();
@@ -384,14 +428,17 @@ export function buildPricePositionV21(params: {
     minComplexes: number,
     horizon: TrendHorizonV21,
     universeCount: number,
+    canonicalSet: ReadonlySet<string> | null,
   ): RegionTrend {
     const cached = regionTrendCache.get(cacheKey);
     if (cached) return cached;
     const changes: number[] = [];
     let matched = 0;
+    let canonicalMatched = 0;
     const actualCurrent = new Set<string>();
     const actualBaseline = new Set<string>();
     let historyAvailable = 0;
+    let canonicalHistory = 0;
     const window =
       regionEndpoint === "TRAILING_6M"
         ? resolveRegionWindowV23({
@@ -404,6 +451,8 @@ export function buildPricePositionV21(params: {
       const cells = tables.get(cid);
       if (!cells) continue;
       historyAvailable += 1;
+      const inCanonical = canonicalSet ? canonicalSet.has(cid) : true;
+      if (inCanonical) canonicalHistory += 1;
       if (regionEndpoint === "TRAILING_6M") {
         if (!window) continue;
         const cur = pooledWindowMean(cells, window.currentStart, window.currentEnd, asOfMonth);
@@ -413,6 +462,7 @@ export function buildPricePositionV21(params: {
         if (ch == null) continue;
         changes.push(ch);
         matched += 1;
+        if (inCanonical) canonicalMatched += 1;
         for (const month of cur.months) actualCurrent.add(month);
         for (const month of base.months) actualBaseline.add(month);
         continue;
@@ -451,6 +501,13 @@ export function buildPricePositionV21(params: {
       cohortUniverseCount: null,
       historyAvailableCount: null,
       matchedCoverageRatio: null,
+      canonicalHistoryAvailableCount: null,
+      canonicalMatchedComplexCount: null,
+      sampleCoverageRatio: null,
+      supplyCoverageRatio: null,
+      historyCoverageRatio: null,
+      historyDataCoverageRatio: null,
+      dataCoverageStatus: null,
       currentWindow: null,
       baselineWindow: null,
       windowStatus: null,
@@ -459,13 +516,30 @@ export function buildPricePositionV21(params: {
     };
     if (regionEndpoint === "TRAILING_6M") {
       const coverageUniverse = universeCount > 0 ? universeCount : ids.length;
-      computed.cohortUniverseCount = coverageUniverse;
+      const confidenceMatched = canonicalSet ? canonicalMatched : matched;
+      const confidenceHistory = canonicalSet ? canonicalHistory : historyAvailable;
+      const confidenceUniverse = canonicalSet ? canonicalSet.size : coverageUniverse;
+      computed.cohortUniverseCount = confidenceUniverse;
       computed.historyAvailableCount = historyAvailable;
       computed.matchedCoverageRatio = coverageUniverse > 0 ? roundToV2(matched / coverageUniverse, 4) : null;
+      computed.canonicalHistoryAvailableCount = confidenceHistory;
+      computed.canonicalMatchedComplexCount = confidenceMatched;
+      computed.matchedComplexCount = confidenceMatched || null;
+      computed.sampleCoverageRatio =
+        window && confidenceHistory > 0 ? roundToV2(confidenceMatched / confidenceHistory, 4) : null;
+      computed.supplyCoverageRatio =
+        window && confidenceUniverse > 0 ? roundToV2(confidenceMatched / confidenceUniverse, 4) : null;
+      computed.historyCoverageRatio = confidenceUniverse > 0 ? roundToV2(confidenceHistory / confidenceUniverse, 4) : null;
+      computed.historyDataCoverageRatio = computed.historyCoverageRatio;
+      computed.dataCoverageStatus = dataCoverageStatusV2(confidenceHistory, confidenceUniverse);
       computed.currentWindow = window ? `${window.currentStart}..${window.currentEnd}` : null;
       computed.baselineWindow = window ? `${window.baselineStart}..${window.baselineEnd}` : null;
       computed.windowStatus = window?.status ?? null;
-      computed.sampleStatus = sampleStatusV23(matched, coverageUniverse);
+      computed.sampleStatus = sampleStatusV2({
+        windowAvailable: window != null,
+        matched: confidenceMatched,
+        canonicalHistory: confidenceHistory,
+      });
       computed.windowStatistic = "pooled_trade_mean";
     }
     regionTrendCache.set(cacheKey, computed);
@@ -582,6 +656,7 @@ export function buildPricePositionV21(params: {
           TREND_MIN_COMPLEXES_V21[scope],
           horizon,
           scopeUniverse(scope, key, id.lawdCd, scopeComplexes[scope].length),
+          regionCanonical(scope, key, id.lawdCd),
         );
         return {
           scope,
@@ -602,10 +677,17 @@ export function buildPricePositionV21(params: {
                 cohortUniverseCount: cached.cohortUniverseCount,
                 historyAvailableCount: cached.historyAvailableCount,
                 matchedCoverageRatio: cached.matchedCoverageRatio,
+                canonicalHistoryAvailableCount: cached.canonicalHistoryAvailableCount,
+                sampleCoverageRatio: cached.sampleCoverageRatio,
+                supplyCoverageRatio: cached.supplyCoverageRatio,
+                historyCoverageRatio: cached.historyCoverageRatio,
+                historyDataCoverageRatio: cached.historyDataCoverageRatio,
+                dataCoverageStatus: cached.dataCoverageStatus,
                 currentWindow: cached.currentWindow,
                 baselineWindow: cached.baselineWindow,
                 windowStatus: cached.windowStatus,
                 sampleStatus: cached.sampleStatus,
+                sampleConfidenceVersion: SAMPLE_CONFIDENCE_VERSION,
                 windowStatistic: cached.windowStatistic,
               }
             : {}),
@@ -645,6 +727,7 @@ export function buildPricePositionV21(params: {
       priceLevel,
       trends,
       complexExactByMarketLabel,
+      ...(regionEndpoint === "TRAILING_6M" ? { sampleConfidenceVersion: SAMPLE_CONFIDENCE_VERSION } : {}),
       maxAvailableValue: {
         priceLevel: complexLevel?.meanPricePerSupplyPyeong ?? null,
         trends: maxTrends,

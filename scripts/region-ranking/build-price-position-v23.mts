@@ -5,6 +5,11 @@
  * Usage:
  *   tsx scripts/region-ranking/build-price-position-v23.mts
  *   tsx scripts/region-ranking/build-price-position-v23.mts --apply
+ *   tsx scripts/region-ranking/build-price-position-v23.mts --confidence
+ *   tsx scripts/region-ranking/build-price-position-v23.mts --confidence --apply
+ *
+ * --confidence updates sample-confidence-v2 metadata on the current V2.3
+ * snapshot only. It does not insert a snapshot and does not change prices.
  */
 import { createReadStream, createWriteStream, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { once } from "node:events";
@@ -28,6 +33,7 @@ import {
   PRICE_POSITION_V21_AS_OF,
   TREND_HORIZONS_V21,
   type PricePositionBodyV21,
+  type TrendCellV21,
 } from "../../src/lib/region-ranking/price-position-v21";
 import { decadeCohortForLabel, pricePositionV22SnapshotId } from "../../src/lib/region-ranking/price-position-v22";
 import {
@@ -37,11 +43,13 @@ import {
   buildPricePositionV23,
   pricePositionV23SnapshotId,
 } from "../../src/lib/region-ranking/price-position-v23";
+import { SAMPLE_CONFIDENCE_VERSION } from "../../src/lib/region-ranking/sample-confidence-v2";
 
 const AS_OF = PRICE_POSITION_V21_AS_OF;
 const FLOOR_YM = "202107";
 const ASOF_YM = "202609";
 const APPLY = process.argv.includes("--apply");
+const CONFIDENCE = process.argv.includes("--confidence");
 const SNAP23 = pricePositionV23SnapshotId();
 const SNAP22 = pricePositionV22SnapshotId();
 const BATCH = 40;
@@ -128,6 +136,33 @@ function complexTrendEqual(left: PricePositionBodyV21, right: PricePositionBodyV
       if (!sameNum(a.currentMean, b.currentMean) || !sameNum(a.baselineMean, b.baselineMean)) return false;
     }
   }
+  return true;
+}
+
+function payloadPricesEqual(stored: PricePositionBodyV21, rebuilt: PricePositionBodyV21): boolean {
+  if (stored.referenceMonth !== rebuilt.referenceMonth || stored.status !== rebuilt.status) return false;
+  if (stored.methodologyFingerprint !== rebuilt.methodologyFingerprint) return false;
+  if (!priceLevelEqual(stored, rebuilt) || !complexTrendEqual(stored, rebuilt)) return false;
+  for (const horizon of TREND_HORIZONS_V21) {
+    const left = stored.trends[horizon]?.find((cell) => cell.scope === "COMPLEX");
+    const right = rebuilt.trends[horizon]?.find((cell) => cell.scope === "COMPLEX");
+    if (!left || !right) return false;
+    if (!sameNum(left.currentMean, right.currentMean) || !sameNum(left.baselineMean, right.baselineMean)) return false;
+  }
+  return true;
+}
+
+function regionalValueEqual(stored: TrendCellV21, rebuilt: TrendCellV21): boolean {
+  if (stored.status !== rebuilt.status) return false;
+  if (!sameNum(stored.changePercent, rebuilt.changePercent)) return false;
+  if (!sameNum(stored.currentMean, rebuilt.currentMean) || !sameNum(stored.baselineMean, rebuilt.baselineMean)) return false;
+  if (stored.currentMonth !== rebuilt.currentMonth || stored.baselineMonth !== rebuilt.baselineMonth) return false;
+  if (stored.actualCurrentMonth !== rebuilt.actualCurrentMonth || stored.actualBaselineMonth !== rebuilt.actualBaselineMonth) return false;
+  if ((stored.currentWindow ?? null) !== (rebuilt.currentWindow ?? null)) return false;
+  if ((stored.baselineWindow ?? null) !== (rebuilt.baselineWindow ?? null)) return false;
+  if ((stored.windowStatus ?? null) !== (rebuilt.windowStatus ?? null)) return false;
+  if ((stored.historyAvailableCount ?? null) !== (rebuilt.historyAvailableCount ?? null)) return false;
+  if (!sameNum(stored.matchedCoverageRatio, rebuilt.matchedCoverageRatio)) return false;
   return true;
 }
 
@@ -343,6 +378,25 @@ async function main() {
   const pilotOut: Record<string, unknown> = {};
   let seoul5yDistribution: Record<string, unknown> | null = null;
   let jamsil: Record<string, unknown> = {};
+  const confidencePatches: { complexId: string; areaBand: string; payload: string }[] = [];
+  const confidence = {
+    scanned: 0,
+    metadataChanges: 0,
+    priceChanges: 0,
+    missingRebuilt: 0,
+    matchedCountChanges: 0,
+    cohortUniverseChanges: 0,
+    priceExamples: [] as string[],
+  };
+  const oldBaKeys = new Set<string>();
+  const oldCaKeys = new Set<string>();
+  const matchedCountKeys = new Set<string>();
+  const cohortUniverseKeys = new Set<string>();
+  const sampleStatusKeys = new Set<string>();
+  const newViolationKeys = new Set<string>();
+  const newViolationExamples: string[] = [];
+  const uniqueConfidence = new Map<string, { scope: string; horizon: string; status: string; window: string | null }>();
+  const confidenceJamsil: Record<string, unknown> = {};
   let smallArea: Record<string, unknown> | null = null;
   let largeArea: Record<string, unknown> | null = null;
   let duplicateKeys = 0;
@@ -437,6 +491,138 @@ async function main() {
       for (const cell of body.priceLevel) if (cell.scope === "GU") cell.label = gu;
       for (const horizon of TREND_HORIZONS_V21) {
         for (const cell of body.trends[horizon]) if (cell.scope === "GU") cell.label = gu;
+      }
+    }
+    if (CONFIDENCE) {
+      const stored23 = await db.execute({
+        sql: `SELECT complex_id, payload_json FROM complex_region_price_position WHERE snapshot_id=? AND area_band=?`,
+        args: [SNAP23, cohort.key],
+      });
+      const rebuiltById = new Map(built.bodies.map((body) => [body.complexId, body]));
+      for (const row of stored23.rows) {
+        confidence.scanned += 1;
+        const complexId = String(row.complex_id);
+        const rebuilt = rebuiltById.get(complexId);
+        const storedBody = JSON.parse(String(row.payload_json)) as PricePositionBodyV21;
+        if (!rebuilt) {
+          confidence.missingRebuilt += 1;
+          continue;
+        }
+        if (!payloadPricesEqual(storedBody, rebuilt)) {
+          confidence.priceChanges += 1;
+          if (confidence.priceExamples.length < 8) confidence.priceExamples.push(`${cohort.key}|${complexId}`);
+          continue;
+        }
+        const patched = storedBody;
+        patched.sampleConfidenceVersion = SAMPLE_CONFIDENCE_VERSION;
+        const ident = identities.get(complexId);
+        let rowChanged = false;
+        let rowPriceOk = true;
+        for (const horizon of TREND_HORIZONS_V21) {
+          for (const scope of ["DONG", "GU", "SEOUL"] as const) {
+            const src = rebuilt.trends[horizon].find((cell) => cell.scope === scope);
+            const dst = patched.trends[horizon].find((cell) => cell.scope === scope);
+            if (!src || !dst) {
+              confidence.priceChanges += 1;
+              rowPriceOk = false;
+              continue;
+            }
+            if (!regionalValueEqual(dst, src)) {
+              confidence.priceChanges += 1;
+              rowPriceOk = false;
+              if (confidence.priceExamples.length < 8) confidence.priceExamples.push(`${cohort.key}|${complexId}|${scope}|${horizon}`);
+              continue;
+            }
+            const region =
+              scope === "DONG" ? `${ident?.lawdCd}|${ident?.bjdongCd}` : scope === "GU" ? ident?.lawdCd ?? "" : "SEOUL";
+            const key = `${cohort.key}|${scope}|${region}|${horizon}|${storedBody.referenceMonth}`;
+            const oldA = dst.cohortUniverseCount ?? 0;
+            const oldB = dst.historyAvailableCount ?? 0;
+            const oldC = dst.matchedComplexCount ?? 0;
+            if (oldB > oldA) oldBaKeys.add(key);
+            if (oldC > oldA) oldCaKeys.add(key);
+            if ((dst.matchedComplexCount ?? null) !== (src.matchedComplexCount ?? null)) matchedCountKeys.add(key);
+            if ((dst.cohortUniverseCount ?? null) !== (src.cohortUniverseCount ?? null)) {
+              confidence.cohortUniverseChanges += 1;
+              cohortUniverseKeys.add(key);
+              dst.cohortUniverseCount = src.cohortUniverseCount;
+              rowChanged = true;
+            }
+            const previousStatus = dst.sampleStatus ?? null;
+            const before = JSON.stringify({
+              sampleStatus: dst.sampleStatus,
+              matchedComplexCount: dst.matchedComplexCount,
+              canonicalHistoryAvailableCount: dst.canonicalHistoryAvailableCount,
+              sampleCoverageRatio: dst.sampleCoverageRatio,
+              supplyCoverageRatio: dst.supplyCoverageRatio,
+              historyCoverageRatio: dst.historyCoverageRatio,
+              historyDataCoverageRatio: dst.historyDataCoverageRatio,
+              dataCoverageStatus: dst.dataCoverageStatus,
+              sampleConfidenceVersion: dst.sampleConfidenceVersion,
+            });
+            dst.sampleStatus = src.sampleStatus;
+            dst.matchedComplexCount = src.matchedComplexCount;
+            dst.canonicalHistoryAvailableCount = src.canonicalHistoryAvailableCount;
+            dst.sampleCoverageRatio = src.sampleCoverageRatio;
+            dst.supplyCoverageRatio = src.supplyCoverageRatio;
+            dst.historyCoverageRatio = src.historyCoverageRatio;
+            dst.historyDataCoverageRatio = src.historyDataCoverageRatio;
+            dst.dataCoverageStatus = src.dataCoverageStatus;
+            dst.sampleConfidenceVersion = SAMPLE_CONFIDENCE_VERSION;
+            const after = JSON.stringify({
+              sampleStatus: dst.sampleStatus,
+              matchedComplexCount: dst.matchedComplexCount,
+              canonicalHistoryAvailableCount: dst.canonicalHistoryAvailableCount,
+              sampleCoverageRatio: dst.sampleCoverageRatio,
+              supplyCoverageRatio: dst.supplyCoverageRatio,
+              historyCoverageRatio: dst.historyCoverageRatio,
+              historyDataCoverageRatio: dst.historyDataCoverageRatio,
+              dataCoverageStatus: dst.dataCoverageStatus,
+              sampleConfidenceVersion: dst.sampleConfidenceVersion,
+            });
+            if (before !== after) rowChanged = true;
+            if (previousStatus !== (dst.sampleStatus ?? null)) sampleStatusKeys.add(key);
+            const nextA = dst.cohortUniverseCount ?? 0;
+            const nextB = dst.canonicalHistoryAvailableCount ?? 0;
+            const nextC = dst.matchedComplexCount ?? 0;
+            if (!(nextC <= nextB && nextB <= nextA)) {
+              newViolationKeys.add(key);
+              if (newViolationExamples.length < 8) newViolationExamples.push(`${key}|C${nextC}|B${nextB}|A${nextA}`);
+            }
+            if (!uniqueConfidence.has(key)) {
+              uniqueConfidence.set(key, {
+                scope,
+                horizon,
+                status: dst.sampleStatus ?? "",
+                window: dst.windowStatus ?? null,
+              });
+            }
+            if (complexId === JAMSIL && cohort.key === "30") {
+              confidenceJamsil[`${horizon}|${scope}`] = {
+                A: nextA,
+                B: nextB,
+                C: nextC,
+                sampleCoverageRatio: dst.sampleCoverageRatio,
+                historyDataCoverageRatio: dst.historyDataCoverageRatio,
+                sampleStatus: dst.sampleStatus,
+                windowStatus: dst.windowStatus,
+                dataCoverageStatus: dst.dataCoverageStatus,
+                changePercent: dst.changePercent,
+                legacyHistory: dst.historyAvailableCount,
+              };
+            }
+          }
+        }
+        if (rowChanged && rowPriceOk) {
+          confidence.metadataChanges += 1;
+          if (APPLY) {
+            confidencePatches.push({
+              complexId,
+              areaBand: cohort.key,
+              payload: JSON.stringify(patched),
+            });
+          }
+        }
       }
     }
     const sink = createWriteStream(`${bodiesDir}/${cohort.key}.jsonl`);
@@ -640,6 +826,138 @@ async function main() {
   mkdirSync("/tmp/building-hub-bulk/external-evidence", { recursive: true });
   writeFileSync(REPORT, JSON.stringify(report));
   console.log(`report ${REPORT} invariantOk=${invariantOk} priceMismatch=${priceMismatch} complexMismatch=${complexMismatch} regionChanged=${regionChanged} rowLoss=${rowLoss} jamsil1Y=${jamsilComplex1Y}`);
+
+  if (CONFIDENCE) {
+    const tally = {
+      SAMPLE_ADEQUATE: 0,
+      SAMPLE_LIMITED: 0,
+      SAMPLE_SEVERELY_LIMITED: 0,
+      HORIZON_UNAVAILABLE: 0,
+      other: 0,
+      fullWindow: 0,
+      partialWindow: 0,
+      nullWindow: 0,
+      partialAdequate: 0,
+      byScope: {} as Record<string, Record<string, number>>,
+      byHorizon: {} as Record<string, Record<string, number>>,
+    };
+    for (const cell of uniqueConfidence.values()) {
+      const status = cell.status || "other";
+      if (status === "SAMPLE_ADEQUATE") tally.SAMPLE_ADEQUATE += 1;
+      else if (status === "SAMPLE_LIMITED") tally.SAMPLE_LIMITED += 1;
+      else if (status === "SAMPLE_SEVERELY_LIMITED") tally.SAMPLE_SEVERELY_LIMITED += 1;
+      else if (status === "HORIZON_UNAVAILABLE") tally.HORIZON_UNAVAILABLE += 1;
+      else tally.other += 1;
+      if (cell.window === "FULL_WINDOW") tally.fullWindow += 1;
+      else if (cell.window === "PARTIAL_HISTORY_WINDOW") {
+        tally.partialWindow += 1;
+        if (status === "SAMPLE_ADEQUATE") tally.partialAdequate += 1;
+      } else tally.nullWindow += 1;
+      tally.byScope[cell.scope] ??= {};
+      tally.byScope[cell.scope][status] = (tally.byScope[cell.scope][status] ?? 0) + 1;
+      tally.byHorizon[cell.horizon] ??= {};
+      tally.byHorizon[cell.horizon][status] = (tally.byHorizon[cell.horizon][status] ?? 0) + 1;
+    }
+    const gate =
+      confidence.priceChanges === 0 &&
+      newViolationKeys.size === 0 &&
+      confidence.missingRebuilt === 0 &&
+      invariantOk;
+    const confidenceReport = {
+      version: SAMPLE_CONFIDENCE_VERSION,
+      apply: APPLY,
+      scanned: confidence.scanned,
+      metadataChanges: confidence.metadataChanges,
+      priceChanges: confidence.priceChanges,
+      priceExamples: confidence.priceExamples,
+      missingRebuilt: confidence.missingRebuilt,
+      matchedCountCellChanges: matchedCountKeys.size,
+      cohortUniverseCellWrites: confidence.cohortUniverseChanges,
+      cohortUniverseUniqueCells: cohortUniverseKeys.size,
+      sampleStatusUniqueCells: sampleStatusKeys.size,
+      oldBaViolations: oldBaKeys.size,
+      oldCaViolations: oldCaKeys.size,
+      newInvariantViolations: newViolationKeys.size,
+      newViolationExamples,
+      uniqueCells: uniqueConfidence.size,
+      tally,
+      jamsil: confidenceJamsil,
+      invariantOk,
+      gate,
+      unrelatedWrites: 0,
+    };
+    const confidenceReportPath = "/tmp/building-hub-bulk/external-evidence/sample-confidence-v2-report.json";
+    writeFileSync(confidenceReportPath, JSON.stringify(confidenceReport));
+    console.log(`confidence report ${confidenceReportPath} gate=${gate}`);
+    console.log(JSON.stringify({
+      scanned: confidence.scanned,
+      metadataChanges: confidence.metadataChanges,
+      priceChanges: confidence.priceChanges,
+      missingRebuilt: confidence.missingRebuilt,
+      matchedCountCellChanges: matchedCountKeys.size,
+      oldBa: oldBaKeys.size,
+      oldCa: oldCaKeys.size,
+      newViolations: newViolationKeys.size,
+      uniqueCells: uniqueConfidence.size,
+      tally,
+      gate,
+    }));
+    if (!gate) {
+      console.log("confidence gate failed; no write");
+      process.exitCode = 2;
+      return;
+    }
+    if (!APPLY) {
+      console.log("confidence dry-run only");
+      return;
+    }
+    let updatedBatches = 0;
+    for (let offset = 0; offset < confidencePatches.length; offset += BATCH) {
+      const slice = confidencePatches.slice(offset, offset + BATCH).map((row) => ({
+        sql: `UPDATE complex_region_price_position
+                SET payload_json=?
+              WHERE snapshot_id=? AND complex_id=? AND area_band=?`,
+        args: [row.payload, SNAP23, row.complexId, row.areaBand],
+      }));
+      let last: unknown = null;
+      for (let attempt = 0; attempt < 6; attempt += 1) {
+        try {
+          await db.batch(slice, "write");
+          last = null;
+          break;
+        } catch (error) {
+          last = error;
+          await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+        }
+      }
+      if (last) throw last;
+      updatedBatches += 1;
+    }
+    const after23 = await countSnap(db, SNAP23);
+    const after22 = await countSnap(db, SNAP22);
+    const afterV2 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2|2026-09-17"] })).rows[0]?.n,
+    );
+    const after21 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2.1|2026-09-17"] })).rows[0]?.n,
+    );
+    const delta = {
+      v23Rows: after23.rows - before23.rows,
+      v22Rows: after22.rows - before22.rows,
+      v21Rows: after21 - beforeV21,
+      v2Rows: afterV2 - beforeV2,
+      updates: confidence.metadataChanges,
+      inserts: 0,
+      deletes: 0,
+      batches: updatedBatches,
+    };
+    writeFileSync(confidenceReportPath, JSON.stringify({ ...confidenceReport, delta }));
+    console.log("confidence delta", delta);
+    if (delta.v23Rows !== 0 || delta.v22Rows !== 0 || delta.v21Rows !== 0 || delta.v2Rows !== 0) {
+      throw new Error("unrelated snapshot changed");
+    }
+    return;
+  }
 
   if (!invariantOk) {
     console.log("invariant failure; no write");

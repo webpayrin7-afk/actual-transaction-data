@@ -108,7 +108,10 @@ assert.equal(dong?.baselineWindow, "2025-04..2025-09");
 assert.equal(dong?.windowStatus, "FULL_WINDOW");
 assert.equal(dong?.cohortUniverseCount, 3);
 assert.equal(dong?.matchedComplexCount, 2);
-assert.equal(dong?.sampleStatus, "VERY_THIN");
+assert.equal(dong?.canonicalHistoryAvailableCount, 2);
+assert.equal(dong?.sampleCoverageRatio, 1);
+assert.equal(dong?.sampleStatus, "SAMPLE_SEVERELY_LIMITED");
+assert.equal(body.sampleConfidenceVersion, "sample-confidence-v2");
 assert.notEqual(dong?.changePercent, exact?.trends["1Y"].changePercent);
 
 const fiveYear = body.trends["5Y"].find((cell) => cell.scope === "SEOUL");
