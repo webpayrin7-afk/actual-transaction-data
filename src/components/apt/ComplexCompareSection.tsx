@@ -323,7 +323,7 @@ export function ComplexCompareSection({
   const empty = !peersQuery.isLoading && !loadingPeers && peers.length === 0;
 
   return (
-    <LabCard className="p-3.5 sm:p-5">
+    <LabCard className="p-4 sm:p-5">
       <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h2 className="flex items-center">
