@@ -966,6 +966,8 @@ export function AptDetailPage({
         regionSlug={regionSlug}
         regionName={region?.name ?? data.regionName}
         dongName={identity?.legalDongName ?? data.dong}
+        lawdCd={identity?.lawdCd ?? null}
+        bjdongCd={identity?.bjdongCd ?? null}
         selectedArea={areaKey === "all" ? null : selectedArea}
       />
 

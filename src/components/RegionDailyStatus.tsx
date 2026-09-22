@@ -720,10 +720,16 @@ export function RegionDailyStatus({
   regionSlug,
   regionName,
   lawdCodes = [],
+  rankingDongName = null,
+  rankingDongCode = null,
+  fromComplexId = null,
 }: {
   regionSlug: string;
   regionName: string;
   lawdCodes?: string[];
+  rankingDongName?: string | null;
+  rankingDongCode?: string | null;
+  fromComplexId?: string | null;
 }) {
   const contractMonthFallback = useMemo(() => fallbackContractMonths(), []);
   const [contractMonth, setContractMonth] = useState(
@@ -1186,6 +1192,9 @@ export function RegionDailyStatus({
           regionSlug={regionSlug}
           regionName={regionName}
           lawdCodes={lawdCodes}
+          dongName={rankingDongName}
+          dongRegionCode={rankingDongCode}
+          fromComplexId={fromComplexId}
         />
       ) : null}
 

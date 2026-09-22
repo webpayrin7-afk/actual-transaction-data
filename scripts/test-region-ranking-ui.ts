@@ -67,6 +67,14 @@ import {
   regionOverviewCtaLabel,
   regionRankingCode,
   regionRankingHref,
+  rankingDongRegionCode,
+  rankingRowMetaLine,
+  REGION_APT_RANK_TITLE,
+  REGION_APT_RANK_TIP,
+  REGION_RANK_CURRENT_COMPLEX_LABEL,
+  REGION_RANK_EMPTY_DECADE_COPY,
+  REGION_RANK_UNAVAILABLE_COPY,
+  REGION_RANK_V3_TABS,
   rowPublicMetrics,
   trendAbsScale,
   trendBarLayout,
@@ -317,9 +325,22 @@ assert(
   regionRankingHref("seoul-songpa") === "/region/seoul-songpa?tab=stats",
   "region CTA stays on 지역현황 tab",
 );
+{
+  const href = regionRankingHref("seoul-songpa", {
+    dong: "잠실동",
+    regionCode: "1171010100",
+    fromComplexId: "cx_4c63d9a100973c60",
+    section: "ranking",
+  });
+  assert(href.includes("dong="), "region CTA carries dong");
+  assert(href.includes("regionCode=1171010100"), "region CTA carries dong code");
+  assert(href.includes("fromComplexId=cx_4c63d9a100973c60"), "region CTA carries complex");
+  assert(href.includes("section=ranking"), "region CTA lands on ranking");
+  assert(href.includes("#region-ranking"), "region CTA anchors ranking section");
+}
 assert(
-  regionOverviewCtaLabel("송파구") === "송파구 지역 순위 보기",
-  "CTA renamed to 지역 순위 보기",
+  regionOverviewCtaLabel("송파구") === "지역현황으로 이동",
+  "CTA renamed to 지역현황으로 이동",
 );
 
 assert(PRICE_COMPARE_TABS.map((tab) => tab.label).join("|") === "가격 수준|변동률", "price compare tabs");
@@ -946,7 +967,10 @@ assert(!priceCompare.includes("표본 매우 적음"), "forbidden very thin copy
 assert(!priceCompare.includes("비교 표본 제한"), "forbidden coverage copy absent");
 assert(
   priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") <
-    priceCompare.lastIndexOf("PRICE_COMPARE_TABS.map") &&
+    Math.max(
+      priceCompare.lastIndexOf("PRICE_COMPARE_TABS.map"),
+      priceCompare.lastIndexOf("items={PRICE_COMPARE_TABS}"),
+    ) &&
     priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") > 0,
   "title/meta sit above tabs",
 );
@@ -956,8 +980,9 @@ assert(priceCompare.includes("detail-number"), "price numbers use list-title/num
 assert(priceCompare.includes("space-y-3"), "price rows use 12px vertical gap");
 assert(priceCompare.includes("space-y-1"), "label/value to bar gap is 4px");
 assert(priceCompare.includes("h-2.5"), "compare bars are ~10px tall");
-assert(priceCompare.includes("!h-11"), "main compare tabs ~44px");
-assert(priceCompare.includes("!h-10"), "period tabs one step smaller ~40px");
+assert(priceCompare.includes("LabTabs"), "main compare tabs use LabTabs policy");
+assert(priceCompare.includes("variant=\"primary\"") || priceCompare.includes('variant="primary"') || priceCompare.includes("LabTabs"), "primary LabTabs for main compare");
+assert(priceCompare.includes("variant=\"secondary\"") || priceCompare.includes('variant="secondary"') || priceCompare.includes("LabTabs"), "secondary LabTabs for period");
 assert(priceCompare.includes('layout="inline"'), "trend keeps name/% on one row");
 assert(priceCompare.includes("--lab-change-up"), "trend deltas use change-up token");
 assert(priceCompare.includes("--lab-change-down"), "trend deltas use change-down token");
@@ -1037,5 +1062,60 @@ assert(rankRoute.includes("regionPyeongDecade"), "API exposes decade label");
 assert(!rankRoute.includes('"59"'), "API does not accept legacy 59 for selected");
 assert(!rankRoute.includes('"84"'), "API does not accept legacy 84 for selected");
 assert(!rankRoute.includes('"114"'), "API does not accept legacy 114 for selected");
+
+assert(REGION_APT_RANK_TITLE === "지역 아파트 순위", "region rank section title");
+assert(REGION_APT_RANK_TIP.includes("집랩 순위"), "region tip names 집랩 순위");
+assert(REGION_RANK_EMPTY_DECADE_COPY.includes("평형대"), "empty decade copy");
+assert(REGION_RANK_UNAVAILABLE_COPY === "순위 정보를 준비 중입니다.", "unsupported copy");
+assert(REGION_RANK_CURRENT_COMPLEX_LABEL === "현재 단지", "current complex label");
+assert(REGION_RANK_V3_TABS[0].id === "COMPOSITE", "V3 default is 종합");
+assert(REGION_RANK_V3_TABS[0].label === "종합", "V3 default label");
+assert(
+  REGION_RANK_V3_TABS.some((tab) => tab.id === "30" && tab.label === "30평대"),
+  "V3 includes 30평대",
+);
+assert(
+  REGION_RANK_V3_TABS.some((tab) => tab.label === "100평대+"),
+  "V3 UI uses 100평대+",
+);
+assert(
+  rankingDongRegionCode("11710", "10100") === "1171010100",
+  "dong region code from lawd+bjdong",
+);
+assert(
+  rankingRowMetaLine({
+    rank: 1,
+    complex_id: "cx_4c63d9a100973c60",
+    apt_name: "잠실엘스",
+    dong: "잠실동",
+    build_year: 2008,
+  }) === "잠실동 · 2008년",
+  "row meta is dong · year",
+);
+
+const leaderboardSrc = readFileSync(
+  resolve(import.meta.dirname, "../src/components/region/RegionLeaderboard.tsx"),
+  "utf8",
+);
+assert(leaderboardSrc.includes("REGION_RANK_V3_TABS"), "leaderboard uses V3 tabs");
+assert(leaderboardSrc.includes("REGION_APT_RANK_TITLE"), "leaderboard title");
+assert(leaderboardSrc.includes("formatReferenceMonthCompact"), "compact reference date");
+assert(!leaderboardSrc.includes("TRADE_VOLUME"), "no objective trade tab in V3 UI");
+assert(!leaderboardSrc.includes("개 단지 중"), "no population count copy");
+
+const regionRankApi = readFileSync(
+  resolve(import.meta.dirname, "../src/app/api/region-ranking/route.ts"),
+  "utf8",
+);
+assert(regionRankApi.includes("DECADE_KEYS_V3"), "region API accepts V3 decades");
+assert(regionRankApi.includes("build_year"), "region API returns build year");
+
+const ctaSrc = readFileSync(
+  resolve(import.meta.dirname, "../src/components/apt/ComplexRegionRankSection.tsx"),
+  "utf8",
+);
+assert(ctaSrc.includes("rankingDongRegionCode"), "CTA uses canonical dong code");
+assert(ctaSrc.includes("fromComplexId"), "CTA passes source complex");
+assert(ctaSrc.includes('section: "ranking"'), "CTA section=ranking");
 
 console.log("ok: region-ranking-ui");

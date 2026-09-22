@@ -10,6 +10,10 @@ export type ComplexDetailIdentity = {
   sido: string | null;
   sigungu: string | null;
   legalDongName: string | null;
+  /** 5-digit LAWD (구). Canonical region handoff — not inferred from names. */
+  lawdCd: string | null;
+  /** 5-digit legal-dong code; with lawdCd forms 10-digit ranking region_code. */
+  bjdongCd: string | null;
   jibun: string | null;
   roadAddress: string | null;
 };

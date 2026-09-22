@@ -56,12 +56,20 @@ export function Dashboard({
   initialGu = "all",
   initialDealType = "all",
   initialTab,
+  initialDong = null,
+  initialRegionCode = null,
+  initialFromComplexId = null,
+  initialSection = null,
 }: {
   region: RegionDef;
   initialAptName?: string;
   initialGu?: string;
   initialDealType?: DealType | "all";
   initialTab?: RegionTab;
+  initialDong?: string | null;
+  initialRegionCode?: string | null;
+  initialFromComplexId?: string | null;
+  initialSection?: string | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -71,6 +79,17 @@ export function Dashboard({
   const tab =
     parseTab(searchParams.get("tab")) ??
     (initialTab ?? (initialAptName.trim() ? "search" : "stats"));
+  const rankingDong =
+    searchParams.get("dong")?.trim() || initialDong?.trim() || null;
+  const rankingRegionCode =
+    searchParams.get("regionCode")?.trim() ||
+    initialRegionCode?.trim() ||
+    null;
+  const fromComplexId =
+    searchParams.get("fromComplexId")?.trim() ||
+    initialFromComplexId?.trim() ||
+    null;
+  void initialSection;
   const [aptNameInput, setAptNameInput] = useState(initialAptName);
   const [gu, setGu] = useState(initialGu);
   const [dong, setDong] = useState("all");
@@ -210,6 +229,9 @@ export function Dashboard({
           regionSlug={region.slug}
           regionName={region.name}
           lawdCodes={region.lawdCodes}
+          rankingDongName={rankingDong}
+          rankingDongCode={rankingRegionCode}
+          fromComplexId={fromComplexId}
         />
       )}
 

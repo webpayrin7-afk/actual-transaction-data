@@ -10,6 +10,11 @@ type SearchParams = Promise<{
   gu?: string;
   dealType?: string;
   tab?: string;
+  dong?: string;
+  regionCode?: string;
+  fromComplexId?: string;
+  section?: string;
+  scope?: string;
 }>;
 
 export function generateStaticParams() {
@@ -49,7 +54,9 @@ export default async function RegionPage({
   const initialTab =
     sp.tab === "dong" || sp.tab === "stats" || sp.tab === "search"
       ? sp.tab
-      : undefined;
+      : sp.section === "ranking"
+        ? "stats"
+        : undefined;
 
   return (
     <main className="flex-1">
@@ -60,6 +67,10 @@ export default async function RegionPage({
           initialGu={sp.gu ?? "all"}
           initialDealType={dealType}
           initialTab={initialTab}
+          initialDong={sp.dong ?? null}
+          initialRegionCode={sp.regionCode ?? null}
+          initialFromComplexId={sp.fromComplexId ?? null}
+          initialSection={sp.section ?? null}
         />
       </Suspense>
     </main>

@@ -15,6 +15,7 @@ import {
   formatRankingAsOf,
   placeRankDisplay,
   rankingDecadeRowLabel,
+  rankingDongRegionCode,
   regionOverviewCtaLabel,
   regionRankingHref,
   selectedMarketPyeongInteger,
@@ -76,6 +77,8 @@ export function ComplexRegionRankSection({
   regionSlug,
   regionName,
   dongName,
+  lawdCd,
+  bjdongCd,
   selectedArea,
 }: {
   complexId?: string | null;
@@ -83,6 +86,8 @@ export function ComplexRegionRankSection({
   regionSlug: string;
   regionName: string;
   dongName?: string | null;
+  lawdCd?: string | null;
+  bjdongCd?: string | null;
   selectedArea: AptAreaOption | null;
 }) {
   const selectedPyeongLabel = selectedArea
@@ -95,6 +100,13 @@ export function ComplexRegionRankSection({
   });
   const id = complexId?.trim() || "";
   const enabled = /^cx_[0-9a-f]{16}$/.test(id);
+  const dongCode = rankingDongRegionCode(lawdCd, bjdongCd);
+  const regionHref = regionRankingHref(regionSlug, {
+    dong: dongName,
+    regionCode: dongCode,
+    fromComplexId: enabled ? id : null,
+    section: "ranking",
+  });
 
   const query = useQuery({
     queryKey: ["complex-region-rank-v3", id, marketPyeongLabel ?? "ALL"],
@@ -216,7 +228,7 @@ export function ComplexRegionRankSection({
 
       <div className="mt-6 border-t border-[color:var(--lab-border)] pt-6">
         <Link
-          href={regionRankingHref(regionSlug)}
+          href={regionHref}
           data-event="complex_region_rank_cta"
           className="lab-button lab-button-primary w-full"
         >

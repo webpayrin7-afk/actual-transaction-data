@@ -40,9 +40,11 @@ export async function regionTop(db: RankingReader, query: RegionTopQuery) {
   const result = await db.execute({
     sql: `SELECT r.complex_id, r."rank" AS rank, r.region_total, r.confidence_bucket,
                  r.transaction_as_of, r.public_display_metrics_json, r.eligible,
-                 m.apt_name, m.apt_name_norm, m.legal_dong_name
+                 m.apt_name, m.apt_name_norm, m.legal_dong_name,
+                 p.approval_date
           FROM region_complex_rankings r
           LEFT JOIN apt_complex_master m ON m.complex_id = r.complex_id
+          LEFT JOIN apt_complex_profile p ON p.complex_id = r.complex_id
           WHERE r.ranking_run_id = ?
             AND r.region_scope = ?
             AND r.region_code = ?
@@ -54,18 +56,23 @@ export async function regionTop(db: RankingReader, query: RegionTopQuery) {
           LIMIT ?`,
     args: [query.rankingRunId, query.regionScope, query.regionCode, query.areaBand, query.period ?? "12M", limit],
   });
-  return result.rows.map((row) => ({
-    complexId: String(row.complex_id),
-    name: row.apt_name == null
-      ? (row.apt_name_norm == null ? null : String(row.apt_name_norm))
-      : String(row.apt_name),
-    dong: row.legal_dong_name == null ? null : String(row.legal_dong_name),
-    rank: Number(row.rank),
-    regionTotal: Number(row.region_total),
-    confidenceBucket: row.confidence_bucket == null ? null : String(row.confidence_bucket),
-    transactionAsOf: String(row.transaction_as_of),
-    publicMetrics: JSON.parse(String(row.public_display_metrics_json)),
-  }));
+  return result.rows.map((row) => {
+    const approval = row.approval_date == null ? null : String(row.approval_date);
+    const yearMatch = approval ? /^(\d{4})/.exec(approval) : null;
+    return {
+      complexId: String(row.complex_id),
+      name: row.apt_name == null
+        ? (row.apt_name_norm == null ? null : String(row.apt_name_norm))
+        : String(row.apt_name),
+      dong: row.legal_dong_name == null ? null : String(row.legal_dong_name),
+      buildYear: yearMatch ? Number(yearMatch[1]) : null,
+      rank: Number(row.rank),
+      regionTotal: Number(row.region_total),
+      confidenceBucket: row.confidence_bucket == null ? null : String(row.confidence_bucket),
+      transactionAsOf: String(row.transaction_as_of),
+      publicMetrics: JSON.parse(String(row.public_display_metrics_json)),
+    };
+  });
 }
 
 export type ComplexRankQuery = {

@@ -296,7 +296,7 @@ export async function getComplexDetailV1(params: {
   const masterResult = params.lawdCd?.trim()
     ? await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
-                     legal_dong_name, jibun, road_address, lawd_cd
+                     legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
               FROM apt_complex_master
               WHERE apt_name_norm = ? AND lawd_cd = ?
               LIMIT 1`,
@@ -304,7 +304,7 @@ export async function getComplexDetailV1(params: {
       })
     : await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
-                     legal_dong_name, jibun, road_address, lawd_cd
+                     legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
               FROM apt_complex_master
               WHERE apt_name_norm = ?
               ORDER BY CASE WHEN identity_status = 'IDENTITY-READY' THEN 0 ELSE 1 END
@@ -331,6 +331,8 @@ export async function getComplexDetailV1(params: {
     sido: asStr(master.sido),
     sigungu: asStr(master.sigungu),
     legalDongName: asStr(master.legal_dong_name),
+    lawdCd: asStr(master.lawd_cd),
+    bjdongCd: asStr(master.bjdong_cd),
     jibun: asStr(master.jibun),
     roadAddress: asStr(master.road_address),
   };

@@ -3,6 +3,7 @@
  * Does not score, recompute ranks, or invent public metrics.
  */
 import { AREA_BANDS_V1, inAreaBand } from "@/lib/region-ranking/area-band";
+import { DECADE_COHORTS_V3 } from "@/lib/region-ranking/ranking-v3";
 import { formatDealDate } from "@/lib/utils/format";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 
@@ -13,6 +14,27 @@ export const RANKING_TYPES = [
 ] as const;
 export type RankingType = (typeof RANKING_TYPES)[number];
 export type AreaRankingBand = "59" | "84" | "114";
+
+/** Ranking V3 board selector: overall + supply-pyeong decades. */
+export const REGION_RANK_V3_TABS: ReadonlyArray<{
+  id: string;
+  label: string;
+}> = [
+  { id: "COMPOSITE", label: "종합" },
+  ...DECADE_COHORTS_V3.map((cohort) => ({
+    id: cohort.key,
+    label: cohort.label === "100평+" ? "100평대+" : cohort.label,
+  })),
+];
+
+export const REGION_APT_RANK_TITLE = "지역 아파트 순위";
+export const REGION_APT_RANK_TIP_TITLE = "집랩 순위란?";
+export const REGION_APT_RANK_TIP =
+  "가격 수준, 가격 흐름, 단지 특성 등을 종합해 같은 지역의 아파트를 비교한 집랩 순위예요.";
+export const REGION_RANK_EMPTY_DECADE_COPY =
+  "이 평형대의 순위 정보가 아직 없습니다.";
+export const REGION_RANK_UNAVAILABLE_COPY = "순위 정보를 준비 중입니다.";
+export const REGION_RANK_CURRENT_COMPLEX_LABEL = "현재 단지";
 
 export const RANKING_TABS: ReadonlyArray<{
   id: RankingType;
@@ -58,6 +80,7 @@ export type RegionRankingRow = {
   complex_id: string;
   apt_name: string | null;
   dong: string | null;
+  build_year?: number | null;
   confidence?: string | null;
   coverage?: RegionRankingCoverage | null;
   public_metrics?: RegionRankingPublicMetrics | null;
@@ -154,19 +177,25 @@ function asBoard(raw: unknown, fallbackType: RankingType, regionCode: string): R
 
 export async function fetchRegionRankingBoard(params: {
   regionCode: string;
-  rankingType: RankingType;
+  rankingType: string;
   limit?: number;
 }): Promise<RegionRankingBoard> {
   const qs = new URLSearchParams({
     region_code: params.regionCode,
     ranking_type: params.rankingType,
-    limit: String(params.limit ?? 10),
+    limit: String(params.limit ?? 20),
   });
   const res = await fetch(`/api/region-ranking?${qs.toString()}`);
   if (!res.ok) {
     throw new RankingRequestError("지역 순위를 불러오지 못했습니다.");
   }
-  return asBoard(await res.json(), params.rankingType, params.regionCode);
+  return asBoard(
+    await res.json(),
+    (RANKING_TYPES as readonly string[]).includes(params.rankingType)
+      ? (params.rankingType as RankingType)
+      : "COMPOSITE",
+    params.regionCode,
+  );
 }
 
 export async function fetchRegionRankingBoards(
@@ -213,6 +242,47 @@ export function regionRankingCode(lawdCodes: string[] | undefined): string | nul
   return /^[0-9]{5}$/.test(code) ? code : null;
 }
 
+/** 5-digit gu or 10-digit dong ranking region_code. */
+export function resolveRankingRegionCode(params: {
+  regionCode?: string | null;
+  lawdCd?: string | null;
+  bjdongCd?: string | null;
+  lawdCodes?: string[];
+}): string | null {
+  const direct = params.regionCode?.trim() ?? "";
+  if (/^[0-9]{5}$|^[0-9]{10}$/.test(direct)) return direct;
+  const lawd = params.lawdCd?.trim() ?? "";
+  const bjdong = params.bjdongCd?.trim() ?? "";
+  if (/^[0-9]{5}$/.test(lawd) && /^[0-9]{5}$/.test(bjdong)) {
+    return `${lawd}${bjdong}`;
+  }
+  return regionRankingCode(params.lawdCodes);
+}
+
+export function rankingDongRegionCode(
+  lawdCd: string | null | undefined,
+  bjdongCd: string | null | undefined,
+): string | null {
+  const lawd = lawdCd?.trim() ?? "";
+  const bjdong = bjdongCd?.trim() ?? "";
+  if (/^[0-9]{5}$/.test(lawd) && /^[0-9]{5}$/.test(bjdong)) {
+    return `${lawd}${bjdong}`;
+  }
+  return null;
+}
+
+export function rankingRowMetaLine(row: RegionRankingRow): string | null {
+  const parts: string[] = [];
+  const dong = row.dong?.trim();
+  if (dong) parts.push(dong);
+  const year =
+    row.build_year != null && Number.isFinite(row.build_year) && row.build_year > 0
+      ? Math.round(row.build_year)
+      : null;
+  if (year) parts.push(`${year}년`);
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 export function rankingBandForExclusiveRange(
   min: number,
   max: number,
@@ -241,14 +311,42 @@ export function rankingComplexHref(params: {
   aptName: string | null | undefined;
   regionSlug: string;
   gu?: string;
+  complexId?: string | null;
 }): string | null {
   const name = params.aptName?.trim();
   if (!name) return null;
-  return aptDetailHref(name, params.regionSlug, params.gu);
+  const base = aptDetailHref(name, params.regionSlug, params.gu);
+  const id = params.complexId?.trim();
+  if (!id || !/^cx_[0-9a-f]{16}$/.test(id)) return base;
+  const sep = base.includes("?") ? "&" : "?";
+  return `${base}${sep}complexId=${encodeURIComponent(id)}`;
 }
 
-export function regionRankingHref(regionSlug: string): string {
-  return `/region/${regionSlug}?tab=stats`;
+export type RegionRankingHrefOpts = {
+  dong?: string | null;
+  regionCode?: string | null;
+  fromComplexId?: string | null;
+  section?: "ranking";
+};
+
+export function regionRankingHref(
+  regionSlug: string,
+  opts?: RegionRankingHrefOpts,
+): string {
+  const qs = new URLSearchParams({ tab: "stats" });
+  if (opts?.dong?.trim()) qs.set("dong", opts.dong.trim());
+  if (opts?.regionCode?.trim()) qs.set("regionCode", opts.regionCode.trim());
+  if (opts?.fromComplexId?.trim()) {
+    qs.set("fromComplexId", opts.fromComplexId.trim());
+  }
+  if (opts?.section === "ranking" || opts?.fromComplexId || opts?.dong) {
+    qs.set("section", "ranking");
+  }
+  const hash =
+    opts?.section === "ranking" || opts?.fromComplexId || opts?.dong
+      ? "#region-ranking"
+      : "";
+  return `/region/${regionSlug}?${qs.toString()}${hash}`;
 }
 
 export function formatRankingAsOf(raw: string | null | undefined): string | null {
@@ -551,8 +649,8 @@ export function unavailableBoardCopy(_type?: RankingType): {
   };
 }
 
-export function regionOverviewCtaLabel(regionName: string): string {
-  return `${regionName} 지역 순위 보기`;
+export function regionOverviewCtaLabel(_regionName?: string): string {
+  return "지역현황으로 이동";
 }
 
 export const PRICE_COMPARE_TABS = [

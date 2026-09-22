@@ -7,6 +7,7 @@ import {
   type RegionBoardBand,
 } from "@/lib/region-ranking/query";
 import { SMALL_DONG_COHORT_MAX } from "@/lib/region-ranking/score";
+import { DECADE_KEYS_V3 } from "@/lib/region-ranking/ranking-v3";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,12 @@ function publicMetricsOf(metrics: Record<string, unknown> | null) {
 }
 
 function boardOf(rankingType: string): { areaBand: RegionBoardBand; period: string } | null {
-  if (rankingType === "COMPOSITE") return { areaBand: "ALL", period: "12M" };
+  if (rankingType === "COMPOSITE" || rankingType === "ALL") {
+    return { areaBand: "ALL", period: "12M" };
+  }
+  if (DECADE_KEYS_V3.has(rankingType)) {
+    return { areaBand: rankingType as RegionBoardBand, period: "12M" };
+  }
   if (LEGACY.has(rankingType)) return { areaBand: rankingType as LaunchAreaBand, period: "12M" };
   if (OBJECTIVE.has(rankingType)) return { areaBand: rankingType as RegionBoardBand, period: "3M" };
   return null;
@@ -87,10 +93,18 @@ export async function GET(request: NextRequest) {
         rows: [],
       });
     }
-    const smallCohort = regionCode.length === 10 && data.regionTotal > 0 && data.regionTotal <= SMALL_DONG_COHORT_MAX;
-    const objective = rankingType === "COMPOSITE" || rankingType === "ALL"
-      ? await objectiveMetricsByComplex(db, data.transactionAsOf, data.rows.map((row) => row.complexId))
-      : null;
+    const smallCohort =
+      regionCode.length === 10 &&
+      data.regionTotal > 0 &&
+      data.regionTotal <= SMALL_DONG_COHORT_MAX;
+    const objective =
+      rankingType === "COMPOSITE" || rankingType === "ALL"
+        ? await objectiveMetricsByComplex(
+            db,
+            data.transactionAsOf,
+            data.rows.map((row) => row.complexId),
+          )
+        : null;
     return NextResponse.json({
       status: "ok",
       rankingType,
@@ -108,6 +122,7 @@ export async function GET(request: NextRequest) {
             complex_id: row.complexId,
             apt_name: row.name,
             dong: row.dong,
+            build_year: row.buildYear ?? null,
             trade_count_3m: metrics?.trade_count_3m ?? null,
             latest_deal_date: metrics?.latest_deal_date ?? null,
           };
@@ -118,6 +133,7 @@ export async function GET(request: NextRequest) {
             complex_id: row.complexId,
             apt_name: row.name,
             dong: row.dong,
+            build_year: row.buildYear ?? null,
             median_price_per_sqm_3m: metrics?.median_price_per_sqm_3m ?? null,
             trade_count_3m: metrics?.trade_count_3m ?? null,
           };
@@ -128,6 +144,7 @@ export async function GET(request: NextRequest) {
           complex_id: row.complexId,
           apt_name: row.name,
           dong: row.dong,
+          build_year: row.buildYear ?? null,
           transaction_as_of: row.transactionAsOf,
           confidence: row.confidenceBucket,
           coverage: coverageOf(metrics),
