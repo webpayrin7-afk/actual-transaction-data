@@ -7,79 +7,43 @@ import {
   ComposedChart,
   Line,
   ResponsiveContainer,
+  Scatter,
   Tooltip,
   XAxis,
   YAxis,
   type TooltipProps,
 } from "recharts";
-import type { AptChartPoint } from "@/lib/molit/apt-client";
+import type { AptChartPoint, AptHistoryItem } from "@/lib/molit/apt-client";
+import type { TransactionTabType } from "@/lib/apt/transaction-type";
 import { labSecondaryTabClass } from "@/components/ui/lab";
+import { formatDealDate, formatEok, formatExclusiveArea } from "@/lib/utils/format";
 
-/** Match --lab-chart-* tokens (hex for reliable SVG fill/stroke). */
+/** Brand / accent hex for reliable SVG (match globals tokens). */
 const CHART_COLORS = {
-  trade: "#2563EB",
-  jeonse: "#C2410C",
-  volume: "#0F766E",
+  price: "#0F766E", // --lab-teal-600 brand
+  deal: "#94A3B8",
+  high: "#DC2626",
+  low: "#2563EB",
+  volume: "#CBD5E1",
 } as const;
 
-const LEGEND_ITEMS = [
-  { name: "매매 평균", color: CHART_COLORS.trade },
-  { name: "전세 평균", color: CHART_COLORS.jeonse },
-  { name: "거래량", color: CHART_COLORS.volume },
-] as const;
+type DealScatterPoint = {
+  t: number;
+  priceEok: number;
+  dealDate: string;
+  dealAmount: number;
+  exclusiveArea: number;
+  floor: number;
+  kind: "deal" | "high" | "low";
+  id: string;
+};
 
-function seriesTextColor(name: string): string {
-  if (name === "거래량") return "#0F766E";
-  if (name === "매매 평균") return "#2563EB";
-  if (name === "전세 평균") return "#C2410C";
-  return "#334155";
-}
-
-function ChartTooltip({
-  active,
-  payload,
-}: TooltipProps<number, string>) {
-  if (!active || !payload?.length) return null;
-  const row = payload[0]?.payload as AptChartPoint | undefined;
-  const ym = row?.yearMonth;
-
-  return (
-    <div className="w-max max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md lg:max-w-[280px]">
-      <p className="mb-1.5 font-medium text-slate-800">
-        {ym ? formatYmLabel(ym) : ""}
-      </p>
-      <ul className="space-y-0.5">
-        {payload.map((item) => {
-          const name = String(item.name ?? "");
-          const isVolume = name === "거래량";
-          const value = item.value;
-          return (
-            <li
-              key={name}
-              className="flex items-center justify-between gap-3 font-medium sm:gap-4"
-              style={{
-                color: seriesTextColor(name),
-              }}
-            >
-              <span className="shrink-0">{name}</span>
-              <span className="tabular-nums">
-                {value == null ? "—" : isVolume ? `${value}건` : `${value}억`}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-      {row?.tradeMax != null && row.tradeMax > 0 ? (
-        <p className="mt-1.5 border-t border-slate-100 pt-1.5 text-[11px] text-slate-500">
-          당월 매매 최고{" "}
-          <span className="font-semibold tabular-nums text-slate-700">
-            {toEok(row.tradeMax)}억
-          </span>
-        </p>
-      ) : null}
-    </div>
-  );
-}
+type MonthSeriesPoint = {
+  t: number;
+  yearMonth: string;
+  priceEok: number | null;
+  volume: number;
+};
 
 function toEok(manwon: number | null | undefined): number | null {
   if (manwon == null || !Number.isFinite(manwon) || manwon <= 0) return null;
@@ -91,22 +55,275 @@ function formatYmLabel(ym: string): string {
   return `${ym.slice(2, 4)}년 ${Number(ym.slice(4, 6))}월`;
 }
 
+function ymToMidTs(ym: string): number {
+  const y = Number(ym.slice(0, 4));
+  const m = Number(ym.slice(4, 6));
+  return Date.UTC(y, m - 1, 15);
+}
+
+function ymToStartTs(ym: string): number {
+  const y = Number(ym.slice(0, 4));
+  const m = Number(ym.slice(4, 6));
+  return Date.UTC(y, m - 1, 1);
+}
+
+function ymToEndTs(ym: string): number {
+  const y = Number(ym.slice(0, 4));
+  const m = Number(ym.slice(4, 6));
+  return Date.UTC(y, m, 0, 23, 59, 59);
+}
+
+function dealDateToTs(dealDate: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dealDate.trim());
+  if (!m) return null;
+  return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+}
+
+function seriesAvgMan(
+  point: AptChartPoint,
+  dealType: TransactionTabType,
+): number | null {
+  if (dealType === "trade") return point.tradeAvg;
+  if (dealType === "jeonse") return point.jeonseAvg;
+  return null;
+}
+
+function seriesVolume(
+  point: AptChartPoint,
+  dealType: TransactionTabType,
+): number {
+  if (dealType === "trade") return point.tradeCount;
+  if (dealType === "jeonse") return point.jeonseCount;
+  return point.wolseCount;
+}
+
+function seriesLabel(dealType: TransactionTabType): string {
+  if (dealType === "jeonse") return "전세 평균";
+  if (dealType === "monthly") return "시세";
+  return "매매 평균";
+}
+
+function PriceChartTooltip({
+  active,
+  payload,
+}: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null;
+
+  const scatter = payload.find(
+    (item) =>
+      item.payload &&
+      typeof (item.payload as DealScatterPoint).kind === "string",
+  );
+  if (scatter) {
+    const row = scatter.payload as DealScatterPoint;
+    const tag =
+      row.kind === "high" ? "최고" : row.kind === "low" ? "최저" : null;
+    return (
+      <div className="w-max max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md lg:max-w-[280px]">
+        {tag ? (
+          <p
+            className="mb-1 font-semibold"
+            style={{
+              color: row.kind === "high" ? CHART_COLORS.high : CHART_COLORS.low,
+            }}
+          >
+            {tag}
+          </p>
+        ) : null}
+        <p className="font-medium text-slate-800">{formatDealDate(row.dealDate)}</p>
+        <ul className="mt-1.5 space-y-0.5 text-slate-600">
+          <li className="flex justify-between gap-4">
+            <span>거래가격</span>
+            <span className="font-semibold tabular-nums text-slate-800">
+              {formatEok(row.dealAmount)}
+            </span>
+          </li>
+          <li className="flex justify-between gap-4">
+            <span>전용면적</span>
+            <span className="tabular-nums">{formatExclusiveArea(row.exclusiveArea)}</span>
+          </li>
+          <li className="flex justify-between gap-4">
+            <span>층</span>
+            <span className="tabular-nums">{row.floor}층</span>
+          </li>
+        </ul>
+      </div>
+    );
+  }
+
+  const row = payload[0]?.payload as MonthSeriesPoint | undefined;
+  if (!row) return null;
+  const priceItem = payload.find((item) => item.dataKey === "priceEok");
+  return (
+    <div className="w-max max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md lg:max-w-[280px]">
+      <p className="mb-1.5 font-medium text-slate-800">
+        {formatYmLabel(row.yearMonth)}
+      </p>
+      <p className="flex items-center justify-between gap-3 font-medium text-[color:var(--lab-teal-700)]">
+        <span>{String(priceItem?.name ?? "시세")}</span>
+        <span className="tabular-nums">
+          {row.priceEok == null ? "—" : `${row.priceEok}억`}
+        </span>
+      </p>
+    </div>
+  );
+}
+
+function VolumeTooltip({
+  active,
+  payload,
+}: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null;
+  const row = payload[0]?.payload as MonthSeriesPoint | undefined;
+  if (!row) return null;
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs shadow-md">
+      <p className="font-medium text-slate-700">{formatYmLabel(row.yearMonth)}</p>
+      <p className="mt-0.5 tabular-nums text-slate-500">{row.volume}건</p>
+    </div>
+  );
+}
+
+function ExtremeDot(
+  props: {
+    cx?: number;
+    cy?: number;
+    payload?: DealScatterPoint;
+  },
+) {
+  const { cx, cy, payload } = props;
+  if (cx == null || cy == null || !payload) return null;
+  const fill =
+    payload.kind === "high"
+      ? CHART_COLORS.high
+      : payload.kind === "low"
+        ? CHART_COLORS.low
+        : CHART_COLORS.deal;
+  const r = payload.kind === "deal" ? 2.5 : 4;
+  const label =
+    payload.kind === "high" ? "최고" : payload.kind === "low" ? "최저" : null;
+  return (
+    <g>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill={fill}
+        fillOpacity={payload.kind === "deal" ? 0.45 : 0.95}
+        stroke={payload.kind === "deal" ? "none" : "#fff"}
+        strokeWidth={payload.kind === "deal" ? 0 : 1.5}
+      />
+      {label ? (
+        <text
+          x={cx}
+          y={cy - 8}
+          textAnchor="middle"
+          fill={fill}
+          fontSize={10}
+          fontWeight={600}
+        >
+          {label}
+        </text>
+      ) : null}
+    </g>
+  );
+}
+
 export function AptPriceChart({
   points,
+  deals = [],
+  dealType = "trade",
 }: {
   points: AptChartPoint[];
+  /** Period + area + deal-type filtered raw deals (one point per trade). */
+  deals?: AptHistoryItem[];
+  dealType?: TransactionTabType;
 }) {
-  const data = useMemo(
+  const monthSeries = useMemo<MonthSeriesPoint[]>(
     () =>
       points.map((p) => ({
-        ...p,
-        tradeEok: toEok(p.tradeAvg),
-        jeonseEok: toEok(p.jeonseAvg),
+        t: ymToMidTs(p.yearMonth),
+        yearMonth: p.yearMonth,
+        priceEok: toEok(seriesAvgMan(p, dealType)),
+        volume: seriesVolume(p, dealType),
       })),
-    [points],
+    [points, dealType],
   );
 
-  if (data.length === 0) {
+  const domain = useMemo<[number, number]>(() => {
+    if (!points.length) return [0, 1];
+    const start = ymToStartTs(points[0]!.yearMonth);
+    const end = ymToEndTs(points[points.length - 1]!.yearMonth);
+    return [start, end];
+  }, [points]);
+
+  const { scatterDeals, extremePoints } = useMemo(() => {
+    const mapped: DealScatterPoint[] = [];
+    for (const deal of deals) {
+      const t = dealDateToTs(deal.dealDate);
+      const priceEok = toEok(deal.dealAmount);
+      if (t == null || priceEok == null) continue;
+      if (t < domain[0] || t > domain[1]) continue;
+      mapped.push({
+        t,
+        priceEok,
+        dealDate: deal.dealDate,
+        dealAmount: deal.dealAmount,
+        exclusiveArea: deal.exclusiveArea,
+        floor: deal.floor,
+        kind: "deal",
+        id: deal.id,
+      });
+    }
+
+    if (!mapped.length) {
+      return { scatterDeals: mapped, extremePoints: [] as DealScatterPoint[] };
+    }
+
+    let high = mapped[0]!;
+    let low = mapped[0]!;
+    for (const row of mapped) {
+      if (row.dealAmount > high.dealAmount) high = row;
+      if (row.dealAmount < low.dealAmount) low = row;
+    }
+    const extremes: DealScatterPoint[] = [
+      { ...high, kind: "high" },
+    ];
+    if (low.id !== high.id) {
+      extremes.push({ ...low, kind: "low" });
+    }
+    const extremeIds = new Set(extremes.map((row) => row.id));
+    return {
+      scatterDeals: mapped.filter((row) => !extremeIds.has(row.id)),
+      extremePoints: extremes,
+    };
+  }, [deals, domain]);
+
+  const priceLabel = seriesLabel(dealType);
+  const showPriceLine = dealType !== "monthly";
+  const hasVolume = monthSeries.some((row) => row.volume > 0);
+
+  const legendItems = [
+    showPriceLine
+      ? { name: priceLabel, color: CHART_COLORS.price, swatch: "line" as const }
+      : null,
+    { name: "실거래", color: CHART_COLORS.deal, swatch: "dot" as const },
+    extremePoints.some((p) => p.kind === "high")
+      ? { name: "최고", color: CHART_COLORS.high, swatch: "dot" as const }
+      : null,
+    extremePoints.some((p) => p.kind === "low")
+      ? { name: "최저", color: CHART_COLORS.low, swatch: "dot" as const }
+      : null,
+    hasVolume
+      ? { name: "거래량", color: CHART_COLORS.volume, swatch: "bar" as const }
+      : null,
+  ].filter(Boolean) as Array<{
+    name: string;
+    color: string;
+    swatch: "line" | "dot" | "bar";
+  }>;
+
+  if (monthSeries.length === 0) {
     return (
       <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-500">
         선택한 기간의 시세 데이터가 없습니다.
@@ -114,97 +331,143 @@ export function AptPriceChart({
     );
   }
 
+  const xTicks = monthSeries
+    .filter((row) => row.yearMonth.endsWith("01"))
+    .map((row) => row.t);
+
   return (
     <div className="w-full">
       <ul className="detail-price-chart-legend" aria-label="차트 범례">
-        {LEGEND_ITEMS.map((item) => (
+        {legendItems.map((item) => (
           <li key={item.name} className="detail-price-chart-legend-item">
             <span
-              className="detail-price-chart-legend-swatch"
+              className={
+                item.swatch === "line"
+                  ? "detail-price-chart-legend-line"
+                  : item.swatch === "bar"
+                    ? "detail-price-chart-legend-bar"
+                    : "detail-price-chart-legend-swatch"
+              }
               style={{ backgroundColor: item.color }}
               aria-hidden
             />
-            <span style={{ color: seriesTextColor(item.name) }}>{item.name}</span>
+            <span className="text-[color:var(--lab-navy-700)]">{item.name}</span>
           </li>
         ))}
       </ul>
-      <div className="detail-price-chart-plot">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={data}
-            margin={{ top: 4, right: 2, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-            <XAxis
-              dataKey="yearMonth"
-              height={18}
-              tickFormatter={(ym: string) =>
-                ym.endsWith("01") ? `${ym.slice(2, 4)}년` : ""
-              }
-              interval="preserveStartEnd"
-              minTickGap={28}
-              tick={{ fill: "#64748b", fontSize: 12 }}
-              axisLine={{ stroke: "#cbd5e1" }}
-              tickLine={false}
-            />
-            <YAxis
-              yAxisId="price"
-              tickFormatter={(v: number) => `${v}억`}
-              tick={{ fill: "#94a3b8", fontSize: 12 }}
-              axisLine={false}
-              tickLine={false}
-              width={36}
-            />
-            <YAxis
-              yAxisId="volume"
-              orientation="right"
-              tickFormatter={(v: number) => `${v}건`}
-              tick={{ fill: "#94a3b8", fontSize: 12 }}
-              axisLine={false}
-              tickLine={false}
-              width={34}
-              allowDecimals={false}
-            />
-            <Tooltip
-              content={<ChartTooltip />}
-              allowEscapeViewBox={{ x: true, y: true }}
-              wrapperStyle={{ zIndex: 40, outline: "none" }}
-              offset={12}
-            />
-            <Bar
-              yAxisId="volume"
-              dataKey="volume"
-              name="거래량"
-              fill={CHART_COLORS.volume}
-              fillOpacity={0.28}
-              barSize={8}
-              radius={[2, 2, 0, 0]}
-              isAnimationActive={false}
-            />
-            <Line
-              yAxisId="price"
-              type="monotone"
-              dataKey="tradeEok"
-              name="매매 평균"
-              stroke={CHART_COLORS.trade}
-              strokeWidth={2.4}
-              dot={false}
-              activeDot={{ r: 5, strokeWidth: 0 }}
-              connectNulls
-            />
-            <Line
-              yAxisId="price"
-              type="monotone"
-              dataKey="jeonseEok"
-              name="전세 평균"
-              stroke={CHART_COLORS.jeonse}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 5, strokeWidth: 0 }}
-              connectNulls
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+
+      <div className="detail-price-chart-stack">
+        <div className="detail-price-chart-plot">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart margin={{ top: 14, right: 6, left: 0, bottom: 0 }}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#e2e8f0"
+                vertical={false}
+              />
+              <XAxis
+                type="number"
+                dataKey="t"
+                domain={domain}
+                ticks={xTicks.length ? xTicks : undefined}
+                tickFormatter={(ts: number) => {
+                  const d = new Date(ts);
+                  return `${String(d.getUTCFullYear()).slice(2)}년`;
+                }}
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                axisLine={{ stroke: "#e2e8f0" }}
+                tickLine={false}
+                height={16}
+              />
+              <YAxis
+                type="number"
+                dataKey="priceEok"
+                tickFormatter={(v: number) => `${v}억`}
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+                width={34}
+                domain={["auto", "auto"]}
+              />
+              <Tooltip
+                content={<PriceChartTooltip />}
+                allowEscapeViewBox={{ x: true, y: true }}
+                wrapperStyle={{ zIndex: 40, outline: "none" }}
+                offset={10}
+                cursor={{ stroke: "#cbd5e1", strokeDasharray: "3 3" }}
+              />
+              {showPriceLine ? (
+                <Line
+                  data={monthSeries}
+                  type="monotone"
+                  dataKey="priceEok"
+                  name={priceLabel}
+                  stroke={CHART_COLORS.price}
+                  strokeWidth={2.4}
+                  dot={false}
+                  activeDot={{ r: 4, strokeWidth: 0, fill: CHART_COLORS.price }}
+                  connectNulls
+                  isAnimationActive={false}
+                />
+              ) : null}
+              <Scatter
+                data={scatterDeals}
+                dataKey="priceEok"
+                name="실거래"
+                fill={CHART_COLORS.deal}
+                isAnimationActive={false}
+                shape={<ExtremeDot />}
+              />
+              <Scatter
+                data={extremePoints}
+                dataKey="priceEok"
+                name="최고최저"
+                isAnimationActive={false}
+                shape={<ExtremeDot />}
+                legendType="none"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+
+        {hasVolume ? (
+          <div className="detail-price-chart-volume" aria-label="월별 거래량">
+            <span className="detail-price-chart-volume-label">거래량</span>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart
+                data={monthSeries}
+                margin={{ top: 2, right: 6, left: 0, bottom: 0 }}
+              >
+                <XAxis
+                  type="number"
+                  dataKey="t"
+                  domain={domain}
+                  hide
+                />
+                <YAxis
+                  type="number"
+                  dataKey="volume"
+                  hide
+                  domain={[0, "auto"]}
+                />
+                <Tooltip
+                  content={<VolumeTooltip />}
+                  cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
+                  wrapperStyle={{ zIndex: 40, outline: "none" }}
+                />
+                <Bar
+                  dataKey="volume"
+                  name="거래량"
+                  fill={CHART_COLORS.volume}
+                  fillOpacity={0.9}
+                  radius={[2, 2, 0, 0]}
+                  isAnimationActive={false}
+                  maxBarSize={10}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        ) : null}
       </div>
     </div>
   );

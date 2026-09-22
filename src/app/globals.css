@@ -320,7 +320,7 @@ textarea,
   color: var(--lab-navy-950);
 }
 
-/* Price chart plot heights — keep current (do not enlarge further) */
+/* Price chart: main plot + compact volume strip */
 .detail-price-chart-legend {
   display: flex;
   flex-wrap: wrap;
@@ -344,15 +344,52 @@ textarea,
   border-radius: 999px;
   flex-shrink: 0;
 }
+.detail-price-chart-legend-line {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.1875rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.detail-price-chart-legend-bar {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.detail-price-chart-stack {
+  width: 100%;
+}
 .detail-price-chart-plot {
   width: 100%;
-  height: 270px; /* mobile 360–430 */
+  height: 220px; /* ~80% of prior plot budget */
 }
 @media (min-width: 768px) {
-  .detail-price-chart-plot { height: 300px; }
+  .detail-price-chart-plot { height: 248px; }
 }
 @media (min-width: 1024px) {
-  .detail-price-chart-plot { height: 330px; }
+  .detail-price-chart-plot { height: 270px; }
+}
+.detail-price-chart-volume {
+  position: relative;
+  width: 100%;
+  height: 48px; /* ~15–18% of stack */
+  margin-top: 0.125rem;
+}
+@media (min-width: 768px) {
+  .detail-price-chart-volume { height: 56px; }
+}
+.detail-price-chart-volume-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--lab-muted);
+  pointer-events: none;
 }
 
 /* Typography roles — sizes in rem (16px root) */

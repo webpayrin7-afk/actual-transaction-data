@@ -371,6 +371,11 @@ export function AptDetailPage({
     () => filteredByType.slice(0, 5),
     [filteredByType],
   );
+  /** Chart overlays: same area + period + deal-type as other market filters. */
+  const chartDeals = useMemo(
+    () => filterTransactionsByType(periodItems, dealFilter),
+    [periodItems, dealFilter],
+  );
   const chartPoints = (() => {
     if (!data) return [];
     const base = data.chart.slice(startIndex, endIndex + 1);
@@ -824,7 +829,11 @@ export function AptDetailPage({
         </p>
 
         <div className="detail-market-chart">
-          <AptPriceChart points={chartPoints} />
+          <AptPriceChart
+            points={chartPoints}
+            deals={chartDeals}
+            dealType={dealFilter}
+          />
         </div>
 
         <div className="detail-market-slider min-h-11 px-1">
