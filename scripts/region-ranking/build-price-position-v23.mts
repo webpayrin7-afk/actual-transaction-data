@@ -1453,13 +1453,16 @@ async function main() {
       v232Fresh.impossibleContributor === 0 &&
       v232Fresh.nullPriceWrites === 0 &&
       duplicateKeys === 0 &&
-      contributorFail === 0;
+      contributorFail === 0 &&
+      invariantFailureCount === 0;
     const selfParityOk =
       v232Fresh.selfVsStored232.scanned === 0 ||
       (v232Fresh.selfVsStored232.priceMismatch === 0 &&
         v232Fresh.selfVsStored232.complexMismatch === 0 &&
         v232Fresh.selfVsStored232.missingRebuilt === 0);
-    const gate = invariantOk && integrityOk && !freshnessUnexpected && selfParityOk;
+    // Do not require V2.2→V2.3 publish invariantOk (priceMismatch vs SNAP22).
+    // V2.3.2 is a freshness patch of V2.3.1; gate on integrity + expected delta only.
+    const gate = integrityOk && !freshnessUnexpected && selfParityOk;
     const v232Report = {
       version: PRICE_POSITION_V232_VERSION,
       snapshot: SNAP232,
