@@ -9,10 +9,14 @@ import {
   formatExclusiveArea,
   formatMonthlyPriceCell,
 } from "@/lib/utils/format";
-import type { TransactionTabType } from "@/lib/apt/transaction-type";
+import type {
+  TransactionListMode,
+  TransactionTabType,
+} from "@/lib/apt/transaction-type";
 import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import {
   dealTypePriceTextClass,
+  transactionTabFromItem,
   TRANSACTION_TABS,
 } from "@/lib/apt/transaction-type";
 import {
@@ -183,7 +187,7 @@ export function TransactionRow({
   layout = "default",
 }: {
   tx: AptHistoryItem;
-  mode: TransactionTabType;
+  mode: TransactionListMode;
   /** Archive page: date left, price right, compact meta under price. */
   dense?: boolean;
   /** Embedded detail list: date/area left, price/floor right. */
@@ -191,10 +195,12 @@ export function TransactionRow({
 }) {
   const dateFull = formatDealDate(tx.dealDate);
   const dateShort = dayShort(tx.dealDate);
+  const priceType =
+    mode === "rent" ? transactionTabFromItem(tx) : mode;
 
   if (layout === "split") {
     const price =
-      mode === "monthly"
+      priceType === "monthly"
         ? formatMonthlyPriceCell(tx.dealAmount, Number(tx.monthlyRent ?? 0))
         : formatEokDetail(tx.dealAmount);
     return (
@@ -209,10 +215,18 @@ export function TransactionRow({
           </time>
           <p className="detail-trade-row-meta tabular-nums">
             {formatExclusiveArea(tx.exclusiveArea)}
+            {mode === "rent" ? (
+              <span className="detail-trade-row-kind">
+                {" · "}
+                {priceType === "monthly" ? "월세" : "전세"}
+              </span>
+            ) : null}
           </p>
         </div>
         <div className="detail-trade-row-right">
-          <p className={`detail-trade-row-price ${dealTypePriceTextClass(mode)}`}>
+          <p
+            className={`detail-trade-row-price ${dealTypePriceTextClass(priceType)}`}
+          >
             {price}
           </p>
           <p className="detail-trade-row-meta tabular-nums">{tx.floor}층</p>
@@ -221,7 +235,7 @@ export function TransactionRow({
     );
   }
 
-  if (mode === "monthly") {
+  if (priceType === "monthly") {
     const m = formatMonthlyRentDisplay(
       tx.dealAmount,
       Number(tx.monthlyRent ?? 0),
@@ -247,7 +261,7 @@ export function TransactionRow({
           </div>
           <div className="shrink-0 text-right">
             <p
-            className={`detail-list-title ${dealTypePriceTextClass(mode)}`}
+            className={`detail-list-title ${dealTypePriceTextClass(priceType)}`}
             >
               {m.primary}
             </p>
@@ -261,7 +275,7 @@ export function TransactionRow({
   }
 
   const primaryMoney = formatEok(tx.dealAmount);
-  const moneyClass = dealTypePriceTextClass(mode);
+  const moneyClass = dealTypePriceTextClass(priceType);
 
   return (
     <li className={dense ? "px-3 py-2 sm:px-3.5 sm:py-2.5" : "px-3.5 py-2.5 sm:px-4 sm:py-3"}>
@@ -308,7 +322,7 @@ export function TransactionList({
   layout = "default",
 }: {
   items: AptHistoryItem[];
-  mode: TransactionTabType;
+  mode: TransactionListMode;
   emptyLabel?: string;
   layout?: "default" | "split";
 }) {
@@ -324,11 +338,13 @@ export function TransactionList({
         <li className="detail-trade-list-head" aria-hidden>
           <span>계약일 · 전용면적</span>
           <span>
-            {mode === "jeonse"
-              ? "전세가 · 층"
-              : mode === "monthly"
-                ? "보증금 · 월세"
-                : "매매가 · 층"}
+            {mode === "rent"
+              ? "전세·월세 · 층"
+              : mode === "jeonse"
+                ? "전세가 · 층"
+                : mode === "monthly"
+                  ? "보증금 · 월세"
+                  : "매매가 · 층"}
           </span>
         </li>
         {items.map((tx, idx) => (

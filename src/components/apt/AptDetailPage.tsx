@@ -34,6 +34,8 @@ import {
 } from "@/components/apt/TransactionHistory";
 import {
   filterTransactionsByType,
+  filterTransactionsForList,
+  dealTypePriceTextClass,
   type TransactionTabType,
 } from "@/lib/apt/transaction-type";
 import {
@@ -362,8 +364,11 @@ export function AptDetailPage({
   })();
 
   // Summary list shares area + period + deal-type with the chart.
+  // 전월세 탭: 차트는 전세만, 거래내역은 전세+월세.
   const chartDealType: TransactionTabType =
     dealFilter === "monthly" ? "jeonse" : dealFilter;
+  const listDealMode =
+    chartDealType === "trade" ? ("trade" as const) : ("rent" as const);
 
   const listSourceItems = useMemo(() => {
     const base = selectedMonthYm
@@ -371,15 +376,19 @@ export function AptDetailPage({
           (item) => ymFromDealDate(item.dealDate) === selectedMonthYm,
         )
       : periodItems;
-    return filterTransactionsByType(base, chartDealType);
-  }, [periodItems, selectedMonthYm, chartDealType]);
+    return filterTransactionsForList(base, listDealMode);
+  }, [periodItems, selectedMonthYm, listDealMode]);
 
   const LIST_PREVIEW = 5;
   const visibleTrades = listSourceItems.slice(0, LIST_PREVIEW);
 
-  /** Chart overlays: same area + period + deal-type as other market filters. */
+  /** Chart overlays: 매매 or 전세 only (월세는 그래프 미표현). */
   const chartDeals = useMemo(
-    () => filterTransactionsByType(periodItems, chartDealType),
+    () =>
+      filterTransactionsByType(
+        periodItems,
+        chartDealType === "trade" ? "trade" : "jeonse",
+      ),
     [periodItems, chartDealType],
   );
   const chartPoints = (() => {
@@ -754,7 +763,9 @@ export function AptDetailPage({
         <div className="detail-summary-primary" role="group">
           <div className="detail-summary-cell">
             <p className="detail-summary-label">최근 매매</p>
-            <p className="detail-summary-value detail-kpi-brand">
+            <p
+              className={`detail-summary-value ${dealTypePriceTextClass("trade")}`}
+            >
               {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
             </p>
             <p className="detail-summary-hint">
@@ -763,7 +774,9 @@ export function AptDetailPage({
           </div>
           <div className="detail-summary-cell">
             <p className="detail-summary-label">최근 전세</p>
-            <p className="detail-summary-value">
+            <p
+              className={`detail-summary-value ${dealTypePriceTextClass("jeonse")}`}
+            >
               {latestJeonse ? formatEok(latestJeonse.dealAmount) : "—"}
             </p>
             <p className="detail-summary-hint">
@@ -889,7 +902,7 @@ export function AptDetailPage({
 
           <TransactionList
             items={visibleTrades}
-            mode={chartDealType}
+            mode={listDealMode}
             layout="split"
           />
 

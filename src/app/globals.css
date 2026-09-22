@@ -22,10 +22,10 @@
   --lab-chart-trade: #2563eb;
   --lab-chart-jeonse: #c2410c;
   --lab-chart-volume: #0f766e;
-  /* Deal list prices use primary text; retained aliases for chart/legacy */
-  --lab-price-trade: #0f172a;
-  --lab-price-jeonse: #0f172a;
-  --lab-price-monthly: #0f172a;
+  /* Deal list prices — align with chart series; monthly uses teal */
+  --lab-price-trade: #2563eb;
+  --lab-price-jeonse: #c2410c;
+  --lab-price-monthly: #0f766e;
   --lab-border: #e2e8f0;
   --lab-border-control: #64748b;
   --lab-muted: #64748b;
@@ -346,7 +346,6 @@ textarea,
   line-height: 1.375rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  color: var(--lab-navy-950);
   white-space: nowrap;
 }
 .detail-trade-row-meta {
