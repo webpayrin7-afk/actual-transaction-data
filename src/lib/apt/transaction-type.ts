@@ -34,6 +34,7 @@ export function transactionTypeLabel(type: TransactionTabType): string {
 
 /** Unique price ink per deal type — Policy v2: list prices use primary text. */
 export function dealTypePriceTextClass(_type?: TransactionTabType): string {
+  void _type;
   return "text-[color:var(--lab-navy-950)]";
 }
 
