@@ -18,9 +18,8 @@ import {
 import {
   LabCard,
   LabState,
-  labSecondaryTabClass,
-  labSegmentedClass,
 } from "@/components/ui/lab";
+import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
 import {
@@ -355,30 +354,6 @@ function livingPlaceAddress(p: {
   // Keep secondary line short on mobile.
   return raw.length > 42 ? `${raw.slice(0, 40)}…` : raw;
 }
-
-function livingChipClass(active: boolean): string {
-  return [
-    "inline-flex shrink-0 items-center justify-center whitespace-nowrap",
-    "detail-micro h-8 min-h-8 rounded-full px-2.5 font-medium leading-none",
-    "border transition-colors",
-    active
-      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
-      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
-  ].join(" ");
-}
-
-/** Secondary school-level filter — lighter than primary nearby-life tabs. */
-function schoolLevelChipClass(active: boolean): string {
-  return [
-    "relative inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap",
-    "detail-label h-11 min-h-11 rounded-lg px-2 font-medium",
-    "border transition-colors",
-    active
-      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] font-semibold text-[var(--lab-teal-700)]"
-      : "border-[color-mix(in_srgb,var(--lab-border)_72%,transparent)] bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-600",
-  ].join(" ");
-}
-
 
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
@@ -1413,27 +1388,14 @@ export function ComplexNearbyLifeSection({
           </h2>
         </div>
       </div>
-      <div
-        className={labSegmentedClass("mt-2.5 !w-full !flex-nowrap !gap-1.5")}
-        role="tablist"
-        aria-label="주변 생활 카테고리"
-      >
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => selectTab(t.id)}
-            className={labSecondaryTabClass(
-              tab === t.id,
-              "min-h-11 min-w-0 flex-1 !px-2 whitespace-nowrap detail-label",
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <LabTabs
+        className="mt-2.5"
+        variant="secondary"
+        ariaLabel="주변 생활 카테고리"
+        value={tab}
+        items={TABS}
+        onChange={selectTab}
+      />
 
       <div className="mt-3 space-y-3">
         {tab === "commerce" && commerceSnapshot ? (
@@ -1441,46 +1403,27 @@ export function ComplexNearbyLifeSection({
         ) : null}
 
         {tab === "living" ? (
-          <div
-            className="-mx-1 flex justify-end gap-1.5 overflow-x-auto px-1 pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            role="tablist"
-            aria-label="생활 시설 종류"
-          >
-            {LIVING_CHIP_ORDER.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                role="tab"
-                aria-selected={livingCategory === cat}
-                onClick={() => selectLivingCategory(cat)}
-                className={livingChipClass(livingCategory === cat)}
-              >
-                {LIVING_CHIP_LABEL[cat]}
-              </button>
-            ))}
-          </div>
+          <LabTabs
+            variant="secondary"
+            ariaLabel="생활 시설 종류"
+            value={livingCategory}
+            items={LIVING_CHIP_ORDER.map((cat) => ({
+              id: cat,
+              label: LIVING_CHIP_LABEL[cat],
+            }))}
+            onChange={selectLivingCategory}
+          />
         ) : null}
 
         {tab === "school" ? (
-          <div
-            className="flex w-full flex-nowrap items-center gap-1"
-            role="tablist"
-            aria-label="학교급"
-            data-testid="school-level-tabs"
-          >
-            {SCHOOL_LEVEL_TABS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={schoolLevel === t.id}
-                data-school-level-tab={t.id}
-                onClick={() => selectSchoolLevel(t.id)}
-                className={schoolLevelChipClass(schoolLevel === t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
+          <div data-testid="school-level-tabs">
+            <LabTabs
+              variant="secondary"
+              ariaLabel="학교급"
+              value={schoolLevel}
+              items={SCHOOL_LEVEL_TABS}
+              onChange={selectSchoolLevel}
+            />
           </div>
         ) : null}
 

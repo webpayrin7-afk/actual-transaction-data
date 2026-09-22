@@ -98,7 +98,7 @@ export function ComplexSchoolsSection({ aptName }: { aptName: string }) {
           value={level}
           onChange={setLevel}
           ariaLabel="학교급"
-          density="compact"
+          variant="primary"
         />
       </div>
 

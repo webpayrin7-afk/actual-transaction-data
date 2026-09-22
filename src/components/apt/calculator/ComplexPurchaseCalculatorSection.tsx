@@ -816,10 +816,10 @@ export function ComplexPurchaseCalculatorSection({
 
       <LabTabs
         className="mt-3"
+        variant="primary"
         ariaLabel="세금, 대출 계산 메뉴"
         items={TABS}
         value={tab}
-        density="compact"
         onChange={(next) => {
           setTab(next);
           setConditionsOpen(false);

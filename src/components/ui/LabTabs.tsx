@@ -1,33 +1,73 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { labPrimaryTabClass } from "@/components/ui/lab";
+import {
+  useCallback,
+  useRef,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 
 export type LabTabItem<T extends string = string> = {
   id: T;
   label: string;
 };
 
+/**
+ * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 탭 체계
+ * - primary: 1차 독립 버튼형 (콘텐츠 구조 전환)
+ * - secondary: 2차 연결형 segmented (같은 영역 분류·보기)
+ * - compact: 기간·정렬·범위 preset 보조 필터
+ */
+export type LabTabsVariant = "primary" | "secondary" | "compact";
+
 type LabTabsProps<T extends string> = {
   items: readonly LabTabItem<T>[];
-  value: T;
+  value: T | null;
   onChange: (value: T) => void;
-  /** Accessible name for the tablist. */
+  /** Accessible name for the control. */
   ariaLabel: string;
   className?: string;
   /** Optional trailing content (rare). */
   trailing?: ReactNode;
+  variant?: LabTabsVariant;
   /**
-   * Compact = calculator density (slightly lower height / padding, no icons).
-   * Same LAB shell as region detail tabs.
+   * @deprecated Use variant="primary". Kept so older call sites keep compiling.
    */
   density?: "default" | "compact";
+  /** Equal-width items (default true for primary/secondary full-width tracks). */
+  equalWidth?: boolean;
+  /**
+   * compact만: null value = 어떤 preset도 활성 아님 (슬라이더 임의 구간).
+   * primary/secondary는 항상 선택 필요.
+   */
+  allowEmpty?: boolean;
 };
 
+function variantClass(variant: LabTabsVariant): string {
+  if (variant === "primary") return "lab-tabs lab-tabs--primary";
+  if (variant === "compact") return "lab-tabs lab-tabs--compact";
+  return "lab-tabs lab-tabs--secondary";
+}
+
+function itemClass(
+  variant: LabTabsVariant,
+  active: boolean,
+  equalWidth: boolean,
+): string {
+  const base =
+    variant === "primary"
+      ? "lab-tabs__btn lab-tabs__btn--primary"
+      : variant === "compact"
+        ? "lab-tabs__btn lab-tabs__btn--compact"
+        : "lab-tabs__btn lab-tabs__btn--secondary";
+  const width = equalWidth ? "lab-tabs__btn--equal" : "";
+  const state = active ? "is-active" : "";
+  return `${base} ${width} ${state}`.trim();
+}
+
 /**
- * LAB Series SubTabs — shared rounded shell, soft teal active surface.
- * Matches region detail (시장 현황 | 실거래 검색 | 단지 탐색).
- * No underline, no separate pill borders, no solid teal fill.
+ * Shared LAB Series tab / segmented / compact filter control.
+ * Selection colors and sizes come from `.lab-tabs*` tokens in globals.css.
  */
 export function LabTabs<T extends string>({
   items,
@@ -36,14 +76,66 @@ export function LabTabs<T extends string>({
   ariaLabel,
   className = "",
   trailing,
-  density = "default",
+  variant: variantProp,
+  density,
+  equalWidth: equalWidthProp,
+  allowEmpty = false,
 }: LabTabsProps<T>) {
-  const compact = density === "compact";
+  // Legacy density=compact on calculator meant denser primary tabs — map to primary.
+  const variant: LabTabsVariant =
+    variantProp ?? (density === "compact" ? "primary" : "primary");
+  const equalWidth =
+    equalWidthProp ?? (variant === "compact" ? false : true);
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  const isRadio = variant === "compact";
+  const listRole = isRadio ? "radiogroup" : "tablist";
+
+  const focusAt = useCallback((index: number) => {
+    const root = listRef.current;
+    if (!root) return;
+    const buttons = root.querySelectorAll<HTMLButtonElement>("[data-lab-tab]");
+    const btn = buttons[index];
+    btn?.focus();
+  }, []);
+
+  const onKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
+      if (!keys.includes(event.key)) return;
+      if (items.length === 0) return;
+
+      const currentIndex = Math.max(
+        0,
+        items.findIndex((item) => item.id === value),
+      );
+      let next = currentIndex;
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        next = (currentIndex + 1) % items.length;
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        next = (currentIndex - 1 + items.length) % items.length;
+      } else if (event.key === "Home") {
+        next = 0;
+      } else if (event.key === "End") {
+        next = items.length - 1;
+      }
+      event.preventDefault();
+      const nextId = items[next]?.id;
+      if (nextId != null) {
+        onChange(nextId);
+        focusAt(next);
+      }
+    },
+    [focusAt, items, onChange, value],
+  );
+
   return (
     <div
-      className={`inline-flex w-full gap-1 rounded-[var(--lab-radius-sm)] border border-[color:var(--lab-border)] bg-white p-1 ${className}`.trim()}
-      role="tablist"
+      ref={listRef}
+      className={`${variantClass(variant)} ${className}`.trim()}
+      role={listRole}
       aria-label={ariaLabel}
+      onKeyDown={onKeyDown}
     >
       {items.map((item) => {
         const active = value === item.id;
@@ -51,17 +143,15 @@ export function LabTabs<T extends string>({
           <button
             key={item.id}
             type="button"
-            role="tab"
-            aria-selected={active}
-            className={labPrimaryTabClass(
-              active,
-              compact
-                ? "min-h-11 flex-1 !rounded-[var(--lab-radius-sm)] px-2.5 detail-label sm:flex-none"
-                : "min-h-11 flex-1 !rounded-[var(--lab-radius-sm)] px-3.5 detail-label sm:flex-none",
-            )}
+            data-lab-tab=""
+            role={isRadio ? "radio" : "tab"}
+            aria-checked={isRadio ? active : undefined}
+            aria-selected={!isRadio ? active : undefined}
+            tabIndex={active || (allowEmpty && value == null && item === items[0]) ? 0 : -1}
+            className={itemClass(variant, active, equalWidth)}
             onClick={() => onChange(item.id)}
           >
-            {item.label}
+            <span className="lab-tabs__label">{item.label}</span>
           </button>
         );
       })}

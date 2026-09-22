@@ -171,90 +171,27 @@ textarea,
 .detail-chart-gap { margin-top: 0.75rem; }
 .detail-cta { margin-top: 1rem; }
 
-/* Market trend: title + compact period segmented control on one row */
+/* Market trend: title + compact period filter; wrap filter to next row right */
 .detail-market-header {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem; /* 8 — keep title + period on one line */
-}
-@media (max-width: 379px) {
-  .detail-market-header {
-    gap: 0.375rem; /* 6 */
-  }
+  gap: 0.5rem; /* 8 */
 }
 .detail-market-period {
   display: flex;
   min-width: 0;
-  flex-shrink: 1;
+  flex-shrink: 0;
+  margin-left: auto;
   align-items: center;
   justify-content: flex-end;
 }
-/* Apple-style segmented track — secondary to deal-type tabs */
-.detail-market-period-tabs {
-  display: inline-flex;
-  box-sizing: border-box;
-  height: 2rem; /* 32 */
-  max-width: 100%;
-  flex-shrink: 1;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  gap: 0;
-  border: none;
-  border-radius: 999px;
-  background: var(--lab-surface-subtle); /* soft neutral track */
-  padding: 0.125rem; /* 2 — inset for selected pill */
-  box-shadow: none;
-}
-.detail-market-period-tab {
-  position: relative;
-  display: inline-flex;
-  box-sizing: border-box;
-  height: auto;
-  min-height: 0;
-  min-width: 0;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  padding: 0 0.625rem; /* 10 */
-  font-size: 0.75rem; /* 12 — below deal-type 14 */
-  font-weight: 500;
-  line-height: 1;
-  color: var(--lab-muted);
-  white-space: nowrap;
-  transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
-}
-/* Expand tap target without growing the visual control */
-.detail-market-period-tab::before {
-  content: "";
-  position: absolute;
-  inset: -0.375rem 0; /* +6px vertical hit */
-}
-@media (max-width: 379px) {
-  .detail-market-period-tab {
-    padding: 0 0.4375rem; /* 7 — squeeze before wrapping */
-  }
-}
-.detail-market-period-tab:hover:not([aria-pressed="true"]):not(:disabled) {
-  color: var(--lab-navy-950);
-}
-.detail-market-period-tab[aria-pressed="true"] {
-  background: var(--lab-surface); /* white pill on gray track */
-  color: var(--lab-teal-700);
-  font-weight: 600;
-  box-shadow: 0 1px 1px rgb(15 23 42 / 0.04);
+.detail-market-deal-tabs {
+  margin-top: 0.75rem; /* 12 */
 }
 .detail-market-context { margin-top: 0.5rem; } /* 8 period → meta */
-.detail-market-deal-tabs {
-  display: flex;
-  gap: 1.25rem; /* 20 */
-  margin-top: 0.75rem; /* 12 */
-  border-bottom: 1px solid var(--lab-border);
-}
 .detail-market-chart { margin-top: 0.75rem; } /* 12 meta → chart */
 .detail-market-slider { margin-top: 0.75rem; } /* 12 chart → slider */
 .detail-market-kpi { margin-top: 0.75rem; } /* 12 slider → compact KPI */
@@ -818,6 +755,164 @@ h2.detail-section-title {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
+}
+
+/*
+ * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 탭 체계
+ * Tokens: --lab-teal-50/600/700, --lab-muted, --lab-border, --lab-surface-subtle, --lab-radius-sm
+ */
+.lab-tabs {
+  display: flex;
+  max-width: 100%;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+.lab-tabs__btn {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.lab-tabs__btn:focus-visible {
+  outline: 2px solid var(--lab-teal-600);
+  outline-offset: 2px;
+  z-index: 1;
+}
+.lab-tabs__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.lab-tabs__btn--equal {
+  flex: 1 1 0;
+}
+.lab-tabs__label {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  text-align: center;
+}
+.lab-tabs__btn--compact .lab-tabs__label,
+.lab-tabs__btn--primary .lab-tabs__label {
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-tabs__btn {
+    transition: none;
+  }
+}
+
+/* 1차 — 독립 버튼형 */
+.lab-tabs--primary {
+  gap: 0.5rem; /* 8 */
+  width: 100%;
+}
+.lab-tabs__btn--primary {
+  min-height: 3rem; /* 48 */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--lab-border); /* #E2E8F0 */
+  border-radius: var(--lab-radius-sm); /* 8 */
+  background: var(--lab-surface);
+  color: var(--lab-muted); /* #64748B */
+  font-size: 1rem; /* 16 */
+  font-weight: 600;
+  line-height: 1.5rem;
+}
+.lab-tabs__btn--primary.is-active,
+.lab-tabs__btn--primary[aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--lab-teal-600) 40%, var(--lab-border));
+  background: var(--lab-teal-50); /* #F0FDFA */
+  color: var(--lab-teal-600); /* #0F766E */
+}
+
+/* 2차 — 연결형 segmented track */
+.lab-tabs--secondary {
+  gap: 0;
+  width: 100%;
+  min-height: 2.5rem; /* 40 */
+  padding: 3px;
+  border-radius: var(--lab-radius-sm); /* 8 */
+  background: var(--lab-surface-subtle); /* #F1F5F9 */
+  box-shadow: none;
+}
+.lab-tabs__btn--secondary {
+  min-height: calc(2.5rem - 6px); /* track 40 − padding 3×2 */
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--lab-muted);
+  font-size: 0.875rem; /* 14 */
+  font-weight: 500;
+  line-height: 1.25rem;
+  box-shadow: none;
+}
+.lab-tabs__btn--secondary.is-active,
+.lab-tabs__btn--secondary[aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
+  background: var(--lab-surface);
+  color: var(--lab-teal-600);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+/* compact — 기간·조건 preset (내용 너비, 시각 30 / 터치 44) */
+.lab-tabs--compact {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  align-items: center;
+  gap: 0;
+  background: var(--lab-surface-subtle);
+  min-height: 1.875rem; /* 30 visual */
+  padding: 3px;
+  border-radius: var(--lab-radius-sm);
+}
+.lab-tabs--compact.w-full {
+  display: flex;
+  width: 100%;
+}
+.lab-tabs__btn--compact {
+  min-height: 1.5rem; /* inside track */
+  min-width: 2.75rem; /* 44 horizontal touch */
+  padding: 0 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--lab-muted);
+  font-size: 0.8125rem; /* 13 */
+  font-weight: 500;
+  line-height: 1.125rem;
+  box-shadow: none;
+}
+/* Expand vertical hit to ≥44 without overlapping neighbors horizontally */
+.lab-tabs__btn--compact::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2.75rem; /* 44 */
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+.lab-tabs__btn--compact.is-active,
+.lab-tabs__btn--compact[aria-checked="true"],
+.lab-tabs__btn--compact[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
+  background: var(--lab-surface);
+  color: var(--lab-teal-600);
+  font-weight: 600;
+  box-shadow: none;
 }
 /* Official LAB section navigation — text + underline (no filled pill) */
 .lab-tab-underline {

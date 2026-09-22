@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
+import { LabTabs } from "@/components/ui/LabTabs";
 import {
   PARTIAL_HISTORY_TIP,
   PRICE_COMPARE_TABS,
@@ -447,50 +447,25 @@ export function ComplexRegionPriceCompare({
         </p>
       ) : (
         <>
-          <div
-            className={`${labSegmentedClass("mt-3 !w-full !flex-nowrap !gap-1.5")}`}
-            role="tablist"
-            aria-label="가격 비교"
-          >
-            {PRICE_COMPARE_TABS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={tab === item.id}
-                onClick={() => setTab(item.id)}
-                className={labSecondaryTabClass(
-                  tab === item.id,
-                  "min-w-0 flex-1 !h-11 !min-h-11 !px-4 whitespace-nowrap",
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+          <LabTabs
+            className="mt-3"
+            variant="secondary"
+            ariaLabel="가격 비교"
+            value={tab}
+            items={PRICE_COMPARE_TABS}
+            onChange={setTab}
+          />
 
           {tab === "trend" ? (
-            <div
-              className={`${labSegmentedClass("mt-1.5 !w-full !flex-nowrap !gap-1.5")}`}
-              role="tablist"
-              aria-label="변동률 기간"
-            >
-              {TREND_PERIOD_TABS.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={period === item.id}
-                  onClick={() => setPeriod(item.id)}
-                  className={labSecondaryTabClass(
-                    period === item.id,
-                    "min-w-0 flex-1 !h-10 !min-h-10 !px-3 whitespace-nowrap",
-                  )}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+            <LabTabs
+              className="mt-1.5 w-full"
+              variant="compact"
+              ariaLabel="변동률 기간"
+              equalWidth
+              value={period}
+              items={TREND_PERIOD_TABS}
+              onChange={setPeriod}
+            />
           ) : null}
 
           {tab === "trend" && historyHelper ? (

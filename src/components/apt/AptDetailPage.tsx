@@ -57,6 +57,7 @@ import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   labUnderlineTabClass,
 } from "@/components/ui/lab";
+import { LabTabs } from "@/components/ui/LabTabs";
 import {
   formatDealDate,
   formatEok,
@@ -558,35 +559,32 @@ export function AptDetailPage({
   }
 
   const periodButtons = (
-    <div
-      className="detail-market-period-tabs"
-      role="group"
-      aria-label="시세 기간"
-    >
-      {([1, 3, 5] as const).map((years) => {
-        const key = years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
-        const pressed = periodPreset === key;
-        return (
-          <button
-            key={years}
-            type="button"
-            onClick={() => setRecentYears(years)}
-            aria-pressed={pressed}
-            className="detail-market-period-tab"
-          >
-            {years}년
-          </button>
-        );
-      })}
-      <button
-        type="button"
-        onClick={setFullRange}
-        aria-pressed={periodPreset === "full"}
-        className="detail-market-period-tab"
-      >
-        전체
-      </button>
-    </div>
+    <LabTabs
+      variant="compact"
+      ariaLabel="시세 기간"
+      equalWidth={false}
+      allowEmpty
+      value={
+        periodPreset === "recent1" ||
+        periodPreset === "recent3" ||
+        periodPreset === "recent5" ||
+        periodPreset === "full"
+          ? periodPreset
+          : null
+      }
+      items={[
+        { id: "recent1", label: "1년" },
+        { id: "recent3", label: "3년" },
+        { id: "recent5", label: "5년" },
+        { id: "full", label: "전체" },
+      ]}
+      onChange={(next) => {
+        if (next === "full") setFullRange();
+        else if (next === "recent1") setRecentYears(1);
+        else if (next === "recent3") setRecentYears(3);
+        else setRecentYears(5);
+      }}
+    />
   );
 
   const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
@@ -825,30 +823,17 @@ export function AptDetailPage({
           </p>
         ) : null}
 
-        <div
+        <LabTabs
           className="detail-market-deal-tabs"
-          role="tablist"
-          aria-label="거래 유형"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={chartDealType === "trade"}
-            className={labUnderlineTabClass(chartDealType === "trade")}
-            onClick={() => setDealFilter("trade")}
-          >
-            매매
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={chartDealType === "jeonse"}
-            className={labUnderlineTabClass(chartDealType === "jeonse")}
-            onClick={() => setDealFilter("jeonse")}
-          >
-            전월세
-          </button>
-        </div>
+          variant="secondary"
+          ariaLabel="거래 유형"
+          value={chartDealType === "jeonse" ? "jeonse" : "trade"}
+          items={[
+            { id: "trade", label: "매매" },
+            { id: "jeonse", label: "전월세" },
+          ]}
+          onChange={(next) => setDealFilter(next)}
+        />
 
         <div className="detail-market-chart">
           <AptPriceChart
