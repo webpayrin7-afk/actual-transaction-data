@@ -603,35 +603,21 @@ h2.detail-section-title {
   letter-spacing: -0.02em;
   color: var(--lab-navy-950);
 }
-.detail-price-trade { color: var(--lab-price-trade); }
-.detail-price-jeonse { color: var(--lab-price-jeonse); }
-.detail-price-monthly { color: var(--lab-price-monthly); }
-.detail-number.detail-price-trade,
-.detail-number.detail-price-jeonse,
-.detail-number.detail-price-monthly,
-.detail-summary-value.detail-price-trade,
-.detail-summary-value.detail-price-jeonse,
-.detail-summary-value.detail-price-monthly,
-.detail-list-title.detail-price-trade,
-.detail-list-title.detail-price-jeonse,
-.detail-list-title.detail-price-monthly,
-.detail-trade-row-price.detail-price-trade,
-.detail-trade-row-price.detail-price-jeonse,
-.detail-trade-row-price.detail-price-monthly {
-  color: inherit;
-}
+.detail-price-trade,
 .detail-number.detail-price-trade,
 .detail-summary-value.detail-price-trade,
 .detail-list-title.detail-price-trade,
 .detail-trade-row-price.detail-price-trade {
   color: var(--lab-price-trade);
 }
+.detail-price-jeonse,
 .detail-number.detail-price-jeonse,
 .detail-summary-value.detail-price-jeonse,
 .detail-list-title.detail-price-jeonse,
 .detail-trade-row-price.detail-price-jeonse {
   color: var(--lab-price-jeonse);
 }
+.detail-price-monthly,
 .detail-number.detail-price-monthly,
 .detail-summary-value.detail-price-monthly,
 .detail-list-title.detail-price-monthly,

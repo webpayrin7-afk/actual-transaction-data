@@ -805,7 +805,7 @@ export function AptDetailPage({
         </div>
         <div className="detail-summary-secondary">
           <p className="detail-summary-meta">
-            전세가율{" "}
+            최근 거래 기준 전세가율{" "}
             <span className="detail-summary-meta-value">
               {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
             </span>
@@ -819,7 +819,6 @@ export function AptDetailPage({
                 : "—"}
             </span>
           </p>
-          <p className="detail-summary-foot">각 최근 거래 기준</p>
         </div>
       </section>
 
