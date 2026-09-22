@@ -354,7 +354,6 @@ export function AptTransactionsPage({
 
         <div className="flex items-center gap-2">
           <TransactionTypeTabs
-            variant="pills"
             value={dealType}
             onChange={(next) => {
               resetAnd(() => {

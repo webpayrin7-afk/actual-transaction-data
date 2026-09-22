@@ -13,7 +13,7 @@ import type {
   TransactionListMode,
   TransactionTabType,
 } from "@/lib/apt/transaction-type";
-import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
+import { LabTabs } from "@/components/ui/LabTabs";
 import {
   dealTypePriceTextClass,
   transactionTabFromItem,
@@ -36,72 +36,49 @@ export function formatMonthlyRentDisplay(
   };
 }
 
+const DEAL_TAB_ITEMS = TRANSACTION_TABS.map((tab) => ({
+  id: tab.value,
+  label: tab.label,
+}));
+
+/**
+ * 매매 / 전세 / 월세 — ZIPLAB §11 LabTabs secondary (공통 segmented).
+ * `counts`는 라벨 옆에 건수를 붙일 때 사용 (옵션).
+ */
 export function TransactionTypeTabs({
   value,
   onChange,
   counts,
-  variant = "chips",
+  className = "",
 }: {
   value: TransactionTabType;
   onChange: (next: TransactionTabType) => void;
   counts?: Partial<Record<TransactionTabType, number>>;
-  /** chips = Complex Detail; pills = archive top (reference) */
+  className?: string;
+  /** @deprecated Ignored — always LabTabs secondary. Kept for call-site compatibility. */
   variant?: "chips" | "pills" | "segmented";
 }) {
-  if (variant === "pills" || variant === "segmented") {
-    return (
-      <div
-        className={labSegmentedClass("min-w-0 max-w-full flex-1")}
-        role="radiogroup"
-        aria-label="거래 유형"
-      >
-        {TRANSACTION_TABS.map((tab) => {
-          const active = value === tab.value;
-          return (
-            <button
-              key={tab.value}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => onChange(tab.value)}
-              className={labSecondaryTabClass(active)}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
+  const items = counts
+    ? DEAL_TAB_ITEMS.map((tab) => {
+        const count = counts[tab.id];
+        return count != null
+          ? {
+              id: tab.id,
+              label: `${tab.label} ${count.toLocaleString("ko-KR")}`,
+            }
+          : tab;
+      })
+    : DEAL_TAB_ITEMS;
 
   return (
-    <div
-      className={labSegmentedClass("max-w-full shrink-0")}
-      role="radiogroup"
-      aria-label="거래 유형"
-    >
-      {TRANSACTION_TABS.map((tab) => {
-        const active = value === tab.value;
-        const count = counts?.[tab.value];
-        return (
-          <button
-            key={tab.value}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => onChange(tab.value)}
-            className={labSecondaryTabClass(active)}
-          >
-            {tab.label}
-            {count != null ? (
-              <span className="ml-1 tabular-nums opacity-70">
-                {count.toLocaleString("ko-KR")}
-              </span>
-            ) : null}
-          </button>
-        );
-      })}
-    </div>
+    <LabTabs
+      variant="secondary"
+      ariaLabel="거래 유형"
+      className={`min-w-0 max-w-full flex-1 ${className}`.trim()}
+      value={value}
+      items={items}
+      onChange={onChange}
+    />
   );
 }
 
