@@ -161,7 +161,7 @@ function TooltipBox({
 }
 
 /** Keep price + volume plot gutters identical so month X positions align. */
-const PRICE_CHART_MARGIN = { top: 14, right: 6, left: 0, bottom: 0 } as const;
+const PRICE_CHART_MARGIN = { top: 14, right: 6, left: 0, bottom: 4 } as const;
 const VOLUME_CHART_MARGIN = { top: 2, right: 6, left: 34, bottom: 0 } as const;
 const PRICE_Y_AXIS_WIDTH = 34;
 /** Finger/cursor proximity for promoting 최고/최저 over nearby deals or the line. */
@@ -606,7 +606,8 @@ export function AptPriceChart({
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
                 axisLine={{ stroke: "#e2e8f0" }}
                 tickLine={false}
-                height={16}
+                height={24}
+                dy={4}
               />
               <YAxis
                 type="number"

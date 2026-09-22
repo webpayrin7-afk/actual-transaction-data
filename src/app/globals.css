@@ -380,6 +380,7 @@ textarea,
 .detail-price-chart-plot {
   width: 100%;
   height: 220px; /* ~80% of prior plot budget */
+  overflow: visible;
 }
 @media (min-width: 768px) {
   .detail-price-chart-plot { height: 248px; }
