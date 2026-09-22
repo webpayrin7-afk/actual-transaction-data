@@ -797,14 +797,15 @@ export function AptDetailPage({
             <p className="detail-summary-hint">최근 매매 기준</p>
           </div>
         </div>
-        <div className="detail-summary-secondary" role="group">
+        <div className="detail-summary-secondary">
           <p className="detail-summary-meta">
             전세가율{" "}
             <span className="detail-summary-meta-value">
               {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
             </span>
-          </p>
-          <p className="detail-summary-meta">
+            <span className="detail-summary-meta-sep" aria-hidden>
+              ·
+            </span>
             매매-전세 갭{" "}
             <span className="detail-summary-meta-value">
               {saleJeonseGap != null && saleJeonseGap !== 0
@@ -812,8 +813,8 @@ export function AptDetailPage({
                 : "—"}
             </span>
           </p>
+          <p className="detail-summary-foot">각 최근 거래 기준</p>
         </div>
-        <p className="detail-summary-foot">각 최근 거래 기준</p>
       </section>
 
       {/* Market + trades — single card */}
