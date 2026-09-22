@@ -882,12 +882,16 @@ assert(rankSection.includes("placeRankDisplay"), "stacked rank display");
 assert(!rankSection.includes("선택 평형 순위"), "no invented selected heading");
 assert(!rankSection.includes("selectedPyeongCompareLines"), "rank card does not repeat 33평 · 30평대 비교");
 assert(
-  rankSection.includes("lab-button lab-button-secondary") &&
+  rankSection.includes("lab-button lab-button-primary detail-cta") &&
     rankSection.includes("→"),
-  "region rank CTA is secondary (정책 v2)",
+  "region rank CTA is primary (matches trade-history CTA)",
 );
 assert(rankSection.includes("detail-compact-value"), "ranks use compact-value");
-assert(!rankSection.includes("lab-button-primary"), "region rank CTA is not primary");
+assert(
+  rankSection.includes('data-event="complex_region_rank_cta"') &&
+    /complex_region_rank_cta[\s\S]*?lab-button-primary/.test(rankSection),
+  "region rank CTA link uses primary button",
+);
 
 const priceCompare = readFileSync(
   resolve(import.meta.dirname, "../src/components/apt/ComplexRegionPriceCompare.tsx"),

@@ -217,7 +217,7 @@ export function ComplexRegionRankSection({
       <Link
         href={regionRankingHref(regionSlug)}
         data-event="complex_region_rank_cta"
-        className="lab-button lab-button-secondary detail-cta w-full"
+        className="lab-button lab-button-primary detail-cta w-full"
       >
         {regionOverviewCtaLabel(regionName)}
         <span aria-hidden className="ml-1">
