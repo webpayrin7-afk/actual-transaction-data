@@ -15,10 +15,7 @@ import {
   dealTypePriceTextClass,
   TRANSACTION_TABS,
 } from "@/lib/apt/transaction-type";
-import {
-  archiveBuildingDongLabel,
-  archiveStatusLabel,
-} from "@/lib/apt/transaction-row-display";
+import { archiveContractTypeLabel } from "@/lib/apt/transaction-row-display";
 
 
 /** Compact monthly-rent money line — deposit strongest, monthly secondary. */
@@ -292,8 +289,17 @@ export function TransactionList({
     </ul>
   );
 }
-const ARCHIVE_GRID =
-  "minmax(2.2rem,0.55fr) minmax(2rem,0.55fr) minmax(5.2rem,1.85fr) minmax(2rem,0.65fr) minmax(1.9rem,0.55fr) minmax(1.7rem,0.45fr)";
+/** 매매: 계약일 | 가격 | 면적 | 층 */
+const ARCHIVE_GRID_TRADE =
+  "minmax(2.4rem,0.7fr) minmax(5.4rem,2.1fr) minmax(2.2rem,0.85fr) minmax(1.8rem,0.55fr)";
+
+/** 전세/월세: 계약일 | 계약구분 | 가격 | 면적 | 층 */
+const ARCHIVE_GRID_RENT =
+  "minmax(2.2rem,0.55fr) minmax(2.4rem,0.75fr) minmax(5.2rem,1.95fr) minmax(2rem,0.7fr) minmax(1.7rem,0.5fr)";
+
+function archiveGridFor(mode: TransactionTabType): string {
+  return mode === "trade" ? ARCHIVE_GRID_TRADE : ARCHIVE_GRID_RENT;
+}
 
 function contractDay(dealDate: string): string {
   if (dealDate.length < 10) return dealDate;
@@ -310,7 +316,7 @@ function archivePriceLabel(
   return formatEokDetail(tx.dealAmount);
 }
 
-function StatusBadge({ label }: { label: "신규" | "갱신" }) {
+function ContractTypeBadge({ label }: { label: "신규" | "갱신" }) {
   const renewal = label === "갱신";
   return (
     <span
@@ -343,20 +349,20 @@ function FloorCell({ floor }: { floor: number | null | undefined }) {
   return <span className="tabular-nums text-[color:var(--lab-navy-700)]">{floor}층</span>;
 }
 
-function ArchiveColHeader() {
+function ArchiveColHeader({ mode }: { mode: TransactionTabType }) {
+  const showContractType = mode !== "trade";
   return (
     <div className="bg-white px-1 pb-1 pt-0.5 sm:px-1.5">
       <div
         className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 text-[11px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5 sm:text-[12px]"
-        style={{ gridTemplateColumns: ARCHIVE_GRID }}
+        style={{ gridTemplateColumns: archiveGridFor(mode) }}
         role="row"
       >
         <span>계약일</span>
-        <span>상태</span>
+        {showContractType ? <span>계약구분</span> : null}
         <span>가격</span>
         <span className="hidden sm:inline">면적(㎡)</span>
         <span className="sm:hidden">면적</span>
-        <span>거래동</span>
         <span>층</span>
       </div>
     </div>
@@ -364,8 +370,9 @@ function ArchiveColHeader() {
 }
 
 /**
- * Archive list — month cards + dense 6-column rows (desktop = mobile IA).
- * 계약일 | 상태 | 가격 | 면적 | 거래동 | 층
+ * Archive list — month cards + dense rows (desktop = mobile IA).
+ * 매매: 계약일 | 가격 | 면적 | 층
+ * 전세/월세: 계약일 | 계약구분 | 가격 | 면적 | 층
  */
 export function GroupedTransactionList({
   items,
@@ -385,6 +392,8 @@ export function GroupedTransactionList({
   }
 
   const groups = groupTransactionsByMonth(items);
+  const grid = archiveGridFor(mode);
+  const showContractType = mode !== "trade";
 
   return (
     <div className="space-y-4">
@@ -402,28 +411,31 @@ export function GroupedTransactionList({
             </span>
           </div>
 
-          <ArchiveColHeader />
+          <ArchiveColHeader mode={mode} />
 
           <ul>
             {group.items.map((tx, idx) => {
-              const status = archiveStatusLabel(mode, tx.dealingGbn);
-              const dong = archiveBuildingDongLabel(tx);
+              const contractType = showContractType
+                ? archiveContractTypeLabel(mode, tx.dealingGbn)
+                : null;
               return (
                 <li
                   key={`${tx.id}-${idx}`}
                   className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2 text-[12px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2.5 sm:text-[13px]"
-                  style={{ gridTemplateColumns: ARCHIVE_GRID }}
+                  style={{ gridTemplateColumns: grid }}
                 >
                   <span className="tabular-nums text-[color:var(--lab-navy-900)]">
                     {contractDay(tx.dealDate)}
                   </span>
-                  <span className="min-w-0">
-                    {status ? (
-                      <StatusBadge label={status} />
-                    ) : (
-                      <span className="text-[color:var(--lab-muted)]">—</span>
-                    )}
-                  </span>
+                  {showContractType ? (
+                    <span className="min-w-0">
+                      {contractType ? (
+                        <ContractTypeBadge label={contractType} />
+                      ) : (
+                        <span className="text-[color:var(--lab-muted)]">—</span>
+                      )}
+                    </span>
+                  ) : null}
                   <span className="min-w-0">
                     <span className="inline-flex max-w-full flex-nowrap items-center gap-1 overflow-hidden">
                       <span
@@ -440,9 +452,6 @@ export function GroupedTransactionList({
                   </span>
                   <span className="min-w-0">
                     <AreaCell exclusiveArea={tx.exclusiveArea} />
-                  </span>
-                  <span className="min-w-0 truncate text-[color:var(--lab-navy-700)]">
-                    {dong ?? "—"}
                   </span>
                   <span className="min-w-0">
                     <FloorCell floor={tx.floor} />
