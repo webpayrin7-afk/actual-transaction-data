@@ -402,7 +402,7 @@ function ArchiveColHeader() {
   return (
     <div className="bg-white px-1 pb-1 pt-0.5 sm:px-1.5">
       <div
-        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 text-[11px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5 sm:text-[12px]"
+        className="detail-trade-archive-row grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5"
         style={{ gridTemplateColumns: ARCHIVE_GRID }}
         role="row"
       >
