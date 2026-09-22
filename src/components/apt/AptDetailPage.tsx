@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
 } from "react";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -922,7 +921,8 @@ export function AptDetailPage({
 
           {listSourceItems.length > 0 ? (
             <div className="detail-cta">
-              <Link
+              {/* Full document navigation — soft Link nav is unreliable via the preview tunnel. */}
+              <a
                 href={transactionsHref}
                 className="lab-button lab-button-primary w-full"
               >
@@ -930,7 +930,7 @@ export function AptDetailPage({
                 <span aria-hidden className="ml-1">
                   →
                 </span>
-              </Link>
+              </a>
             </div>
           ) : null}
         </div>
