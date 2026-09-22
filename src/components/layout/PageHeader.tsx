@@ -27,6 +27,7 @@ export function PageHeader({
   children,
   compact = false,
   showDivider = true,
+  titleClassName = "",
   className = "",
 }: {
   title: string;
@@ -39,6 +40,8 @@ export function PageHeader({
   compact?: boolean;
   /** 첫 콘텐츠와 구분하는 얇은 선. 탭이 바로 이어지는 페이지는 false */
   showDivider?: boolean;
+  /** Replaces the default title scale. Apt detail passes detail-page-title. */
+  titleClassName?: string;
   className?: string;
 }) {
   return (
@@ -47,10 +50,12 @@ export function PageHeader({
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {leading ? <div className="shrink-0">{leading}</div> : null}
           <h1
-            className={`min-w-0 flex-1 font-semibold tracking-tight text-[color:var(--lab-navy-950)] ${
-              compact
-                ? "text-lg leading-6 sm:text-xl sm:leading-7"
-                : "text-xl leading-7 sm:text-[1.375rem] sm:leading-8"
+            className={`min-w-0 flex-1 tracking-tight text-[color:var(--lab-navy-950)] ${
+              titleClassName
+                ? titleClassName
+                : compact
+                  ? "text-lg font-semibold leading-6 sm:text-xl sm:leading-7"
+                  : "text-xl font-semibold leading-7 sm:text-[1.375rem] sm:leading-8"
             }`}
           >
             {title}

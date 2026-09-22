@@ -15,14 +15,12 @@ import {
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
-import {
-  ComplexInfoCard,
-  complexHeaderChips,
-  hasComplexInfoSection,
-} from "@/components/apt/ComplexInfoCards";
+import { ComplexHeroMeta } from "@/components/apt/ComplexHeroMeta";
+import { complexHeroMeta } from "@/lib/complex-detail/hero-meta";
 import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSection";
 import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
 import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
+import { ComplexRegionRankSection } from "@/components/apt/ComplexRegionRankSection";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
@@ -265,11 +263,11 @@ export function AptDetailPage({
       "market",
       "trades",
       "calculator",
-      "management",
-      "complex-info",
+      "region-rank",
+      "comparison",
       "nearby-life",
       "nearby-sales",
-      "comparison",
+      "management",
     ] as const;
     const nodes = ids
       .map((id) => document.getElementById(`section-${id}`))
@@ -469,8 +467,6 @@ export function AptDetailPage({
       ? latestTrade.dealAmount - latestJeonse.dealAmount
       : null;
 
-  const headerChips = complexHeaderChips(complexDetail);
-
   const transactionsHref = useMemo(() => {
     const qs = new URLSearchParams({
       region: regionSlug,
@@ -479,7 +475,7 @@ export function AptDetailPage({
       year: "all",
     });
     if (gu?.trim()) qs.set("gu", gu.trim());
-    return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
+    return `/apt/${aptName}/transactions?${qs.toString()}`;
   }, [aptName, regionSlug, gu, areaKey, dealFilter]);
 
 
@@ -578,19 +574,15 @@ export function AptDetailPage({
   const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
     { id: "market", label: "시세 · 거래", show: true },
     { id: "calculator", label: "세금, 대출 계산", show: true },
+    { id: "region-rank", label: "지역 내 비교", show: true },
+    { id: "comparison", label: "주변 단지 비교", show: true },
+    { id: "nearby-life", label: "주변 생활", show: true },
+    { id: "nearby-sales", label: "주변 공급", show: true },
     {
       id: "management",
       label: "관리비",
       show: !!complexDetail?.management,
     },
-    {
-      id: "complex-info",
-      label: "단지 정보",
-      show: hasComplexInfoSection(complexDetail),
-    },
-    { id: "nearby-life", label: "주변 생활", show: true },
-    { id: "nearby-sales", label: "주변 공급", show: true },
-    { id: "comparison", label: "주변 단지 비교", show: true },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
 
@@ -601,23 +593,19 @@ export function AptDetailPage({
     valueClassName = "",
   ) => (
     <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
-        {label}
-      </p>
+      <p className="detail-caption">{label}</p>
       <p
-        className={`lab-kpi-value mt-0.5 text-[13px] font-semibold leading-tight tabular-nums sm:text-base ${valueClassName}`.trim()}
+        className={`detail-number mt-0.5 ${valueClassName}`.trim()}
       >
         {value}
       </p>
-      <p className="mt-0.5 break-keep text-[9px] leading-snug text-slate-500 sm:text-[11px]">
-        {hint}
-      </p>
+      <p className="detail-caption mt-0.5 break-keep">{hint}</p>
     </div>
   );
 
   if (quickQuery.isLoading && !data) {
     return (
-      <div className={`${PAGE_SHELL} max-w-5xl`}>
+      <div className={`${PAGE_SHELL} detail-page max-w-5xl`}>
         <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -656,9 +644,24 @@ export function AptDetailPage({
           .filter(Boolean)
           .join(" ")
       : `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
+  const heroMeta = complexHeroMeta({
+    sido: identity?.sido,
+    sigungu: identity?.sigungu,
+    legalDongName: identity?.legalDongName,
+    approvalDate: complexDetail?.basic?.approvalDate,
+    buildYear: data.buildYear,
+    householdCount: complexDetail?.basic?.householdCount,
+    buildingCount: complexDetail?.basic?.buildingCount,
+    maxFloor: complexDetail?.building?.maxFloor,
+    parkingPerHousehold: complexDetail?.basic?.parkingPerHousehold,
+    farRatio: complexDetail?.building?.farRatio,
+    bcrRatio: complexDetail?.building?.bcrRatio,
+    heatingType: complexDetail?.basic?.heatingType,
+    locationFallback: locationLabel,
+  });
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl`}>
+    <div className={`${PAGE_SHELL} detail-page max-w-5xl`}>
       {/* Sticky compact header — name + shared area selector */}
       <div
         className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
@@ -699,20 +702,9 @@ export function AptDetailPage({
             <BackLink fallback="/complexes" compact hideLabel />
           }
           title={data.aptName}
-          description={locationLabel}
-          meta={
-            <>
-              {headerChips.length > 0 ? (
-                <p className="text-[13px] font-medium leading-5 text-slate-700 sm:text-sm">
-                  {headerChips.join(" · ")}
-                </p>
-              ) : data.buildYear ? (
-                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
-                  {data.buildYear}년 입주
-                </p>
-              ) : null}
-            </>
-          }
+          titleClassName="detail-page-title"
+          meta={<ComplexHeroMeta lines={heroMeta} />}
+          showDivider={false}
         >
           <AptAreaSelector
             areas={data.areas}
@@ -755,9 +747,9 @@ export function AptDetailPage({
       )}
 
       {/* Market: one white section — period + KPI row + context + chart */}
-      <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
+      <section id="section-market" className="lab-card detail-card scroll-mt-28">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-          <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+          <h2 className="detail-section-title min-w-0">
             시세 추이
           </h2>
           <div className="flex flex-wrap items-center gap-2">
@@ -771,7 +763,7 @@ export function AptDetailPage({
           </div>
         </div>
         {/* Match 거래 내역 helper→list gap */}
-        <div style={{ height: 16 }} className="w-full" aria-hidden />
+        <div className="detail-after-title w-full" aria-hidden />
 
         <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
           {kpiCell(
@@ -848,11 +840,11 @@ export function AptDetailPage({
       <section
         id="section-trades"
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
-        className="lab-card scroll-mt-28 p-4 sm:p-5"
+        className="lab-card detail-card scroll-mt-28"
       >
         <div>
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+            <h2 className="detail-section-title">
               거래 내역
             </h2>
             <TransactionTypeTabs
@@ -865,7 +857,7 @@ export function AptDetailPage({
               ? "전체 면적"
               : areaSelectorClosedLabel(selectedArea)}
           </p>
-          <div style={{ height: 16 }} className="w-full" aria-hidden />
+          <div className="detail-after-title w-full" aria-hidden />
         </div>
 
         <TransactionList items={filtered} mode={dealFilter} />
@@ -910,6 +902,51 @@ export function AptDetailPage({
         locationLabel={locationLabel}
       />
 
+      <ComplexRegionRankSection
+        complexId={identity?.complexId ?? null}
+        aptName={data.aptName}
+        regionSlug={regionSlug}
+        regionName={region?.name ?? data.regionName}
+        dongName={identity?.legalDongName ?? data.dong}
+        selectedArea={areaKey === "all" ? null : selectedArea}
+      />
+
+      {data ? (
+        <div id="section-comparison" className="scroll-mt-28">
+          <ComplexCompareSection
+            aptName={aptName}
+            regionSlug={regionSlug}
+            gu={gu}
+            dong={data.dong}
+            detail={data}
+            selectedArea={selectedArea}
+            areaKey={areaKey}
+            householdCount={complexDetail?.basic?.householdCount ?? null}
+          />
+        </div>
+      ) : null}
+
+      <div id="section-nearby-life" className="scroll-mt-28">
+        <ComplexNearbyLifeSection
+          aptName={aptName}
+          identity={identity ?? null}
+          initialTab={
+            // Default apt entry → 교통. School tab only via back-from-detail restore.
+            initialNearbyTab === "school"
+              ? "school"
+              : undefined
+          }
+          initialSchoolLevel={initialSchoolLevel}
+        />
+      </div>
+
+      <div id="section-nearby-sales" className="scroll-mt-28">
+        <ComplexNearbySalesSection
+          aptName={aptName}
+          sigungu={nearbySigungu}
+        />
+      </div>
+
       {complexDetail?.management ? (
         <div id="section-management" className="scroll-mt-28">
           <ComplexMgmtFeeCard
@@ -935,48 +972,6 @@ export function AptDetailPage({
             }
             aptName={data.aptName}
             complexId={identity?.complexId ?? null}
-          />
-        </div>
-      ) : null}
-
-      {hasComplexInfoSection(complexDetail) && complexDetail ? (
-        <div id="section-complex-info" className="scroll-mt-28">
-          <ComplexInfoCard detail={complexDetail} />
-        </div>
-      ) : null}
-
-      <div id="section-nearby-life" className="scroll-mt-28">
-        <ComplexNearbyLifeSection
-          aptName={aptName}
-          identity={identity ?? null}
-          initialTab={
-            // Default apt entry → 교통. School tab only via back-from-detail restore.
-            initialNearbyTab === "school"
-              ? "school"
-              : undefined
-          }
-          initialSchoolLevel={initialSchoolLevel}
-        />
-      </div>
-
-      <div id="section-nearby-sales" className="scroll-mt-28">
-        <ComplexNearbySalesSection
-          aptName={aptName}
-          sigungu={nearbySigungu}
-        />
-      </div>
-
-      {data ? (
-        <div id="section-comparison" className="scroll-mt-28">
-          <ComplexCompareSection
-            aptName={aptName}
-            regionSlug={regionSlug}
-            gu={gu}
-            dong={data.dong}
-            detail={data}
-            selectedArea={selectedArea}
-            areaKey={areaKey}
-            householdCount={complexDetail?.basic?.householdCount ?? null}
           />
         </div>
       ) : null}

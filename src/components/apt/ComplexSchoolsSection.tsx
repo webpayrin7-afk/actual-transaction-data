@@ -89,7 +89,7 @@ export function ComplexSchoolsSection({ aptName }: { aptName: string }) {
   const showList = status === "CATCHMENT_UNVERIFIED" || status === "SUCCESS";
 
   return (
-    <LabCard className="p-4 sm:p-5">
+    <LabCard className="detail-card">
       <LabSectionHeading title="학군" description="인근 학교 정보" />
 
       <div className="mt-3">

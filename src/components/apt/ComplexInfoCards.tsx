@@ -70,7 +70,7 @@ export function ComplexInfoCard({ detail }: { detail: ComplexDetailV1 }) {
   const rows = complexInfoRows(detail);
   if (rows.length === 0) return null;
   return (
-    <LabCard className="p-4 sm:p-5">
+    <LabCard className="detail-card">
       <LabSectionHeading title="단지 정보" />
       <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 sm:mt-4 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((r) => (

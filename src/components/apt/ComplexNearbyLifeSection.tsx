@@ -174,7 +174,7 @@ const LIVING_LIST_SUBTITLE = "가까운 순 · 주요 시설";
 
 function LivingDistanceSubtitle() {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
+    <span className="inline-flex shrink-0 items-center text-[11px] text-slate-500">
       <span>{LIVING_LIST_SUBTITLE}</span>
       <InfoTip aria-label="생활 시설 거리 기준 안내" className="text-[11px]">
         <p className="text-[12px] leading-relaxed text-slate-600">
@@ -947,7 +947,7 @@ export function ComplexNearbyLifeSection({
         <div className="space-y-4">
           {subwayItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+              <p className="detail-subsection-title mb-1.5">
                 지하철
               </p>
               <ul className="space-y-1">
@@ -1004,7 +1004,7 @@ export function ComplexNearbyLifeSection({
           ) : null}
           {busItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+              <p className="detail-subsection-title mb-1.5">
                 버스
               </p>
               <ul className="space-y-1">
@@ -1108,7 +1108,7 @@ export function ComplexNearbyLifeSection({
         return (
           <div>
             <div className="mb-2 flex items-baseline justify-between gap-2">
-              <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+              <p className="detail-subsection-title">{label}</p>
               <LivingDistanceSubtitle />
             </div>
             <EmptyBlock>
@@ -1125,7 +1125,7 @@ export function ComplexNearbyLifeSection({
       return (
         <div>
           <div className="mb-2 flex items-baseline justify-between gap-2">
-            <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+            <p className="detail-subsection-title">{label}</p>
             <LivingDistanceSubtitle />
           </div>
           <ul className="space-y-1">
@@ -1288,7 +1288,7 @@ export function ComplexNearbyLifeSection({
             />
           ) : null}
           <div>
-            <p className="mb-1 text-[15px] font-semibold text-slate-800">
+            <p className="detail-subsection-title mb-1">
               {heading}
             </p>
             {places.length === 0 ? (
@@ -1374,13 +1374,13 @@ export function ComplexNearbyLifeSection({
 
   return (
     <LabCard
-      className={`p-4 sm:p-5 ${tab === "living" ? "overflow-visible" : ""}`}
+      className={`lab-card detail-card ${tab === "living" ? "overflow-visible" : ""}`}
     >
-      <div className="lab-section-heading mb-px flex-wrap items-center gap-x-2 gap-y-2">
-        <div className="min-w-0 shrink">
-          <h2 className="flex items-center">
+      <div className="lab-section-heading mb-px">
+        <div className="min-w-0">
+          <h2 className="detail-section-title flex items-center">
             주변 생활
-            <InfoTip aria-label="주변 생활 출처 안내" className="ml-1.5 text-[13px]">
+            <InfoTip aria-label="주변 생활 출처 안내" className="text-[13px]">
               <p className="text-[12px] leading-relaxed text-slate-600">
                 지도: NAVER Maps
                 <br />
@@ -1414,24 +1414,27 @@ export function ComplexNearbyLifeSection({
             </InfoTip>
           </h2>
         </div>
-        <div
-          className={labSegmentedClass("ml-auto shrink-0")}
-          role="tablist"
-          aria-label="주변 생활 카테고리"
-        >
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => selectTab(t.id)}
-              className={labSecondaryTabClass(tab === t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+      </div>
+      <div
+        className={labSegmentedClass("mt-2.5 !w-full !flex-nowrap !gap-1.5")}
+        role="tablist"
+        aria-label="주변 생활 카테고리"
+      >
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => selectTab(t.id)}
+            className={labSecondaryTabClass(
+              tab === t.id,
+              "!h-8 min-h-8 min-w-0 flex-1 !px-3 whitespace-nowrap text-[13px]",
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       <div className="mt-3 space-y-3">

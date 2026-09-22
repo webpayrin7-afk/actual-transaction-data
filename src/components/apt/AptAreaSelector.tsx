@@ -349,7 +349,7 @@ function AreaSheet({
           <div className="relative flex items-center justify-center px-12 pb-3.5 pt-2.5">
             <h2
               id={titleId}
-              className="text-center text-lg font-bold leading-none tracking-tight text-slate-900 sm:text-xl"
+              className="text-center detail-section-title"
             >
               평형
             </h2>
@@ -443,16 +443,16 @@ function AreaOptionRow({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
+        <span className="detail-number block leading-snug text-[color:var(--lab-teal-700)]">
           {pyeongLabel}
         </span>
         <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           {exclusiveLabel ? (
-            <span className="text-[13px] tabular-nums leading-snug text-slate-500">
+            <span className="detail-meta tabular-nums">
               {exclusiveLabel}
             </span>
           ) : null}
-          <span className="text-[13px] tabular-nums leading-snug text-slate-400">
+          <span className="detail-meta tabular-nums">
             {dealLabel}
           </span>
         </span>

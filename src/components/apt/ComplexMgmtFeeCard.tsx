@@ -12,6 +12,33 @@ import {
   formatWonRangeAsManwon,
 } from "@/lib/complex-detail/selected-pyeong-mgmt-fee";
 
+const MGMT_FEE_DISCLOSURE_ACTION =
+  "detail-body min-w-0 font-medium text-slate-800";
+
+function ManwonFigure({
+  text,
+  strong = false,
+}: {
+  text: string;
+  strong?: boolean;
+}) {
+  const unit = "만원";
+  const numberClass = strong
+    ? "detail-number-strong text-slate-900"
+    : "detail-number text-slate-800";
+
+  if (text === "—" || !text.endsWith(unit)) {
+    return <span className={numberClass}>{text}</span>;
+  }
+
+  return (
+    <span className="inline-flex items-baseline gap-0.5">
+      <span className={numberClass}>{text.slice(0, -unit.length)}</span>
+      <span className="detail-number-unit">{unit}</span>
+    </span>
+  );
+}
+
 function MetricRow({
   label,
   valueLabel,
@@ -20,11 +47,9 @@ function MetricRow({
   valueLabel: string;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-2">
-      <p className="min-w-0 text-sm text-slate-600">{label}</p>
-      <p className="shrink-0 text-sm font-semibold tabular-nums text-slate-800">
-        {valueLabel}
-      </p>
+    <div className="flex items-baseline justify-between gap-3">
+      <p className="detail-body min-w-0">{label}</p>
+      <ManwonFigure text={valueLabel} />
     </div>
   );
 }
@@ -49,10 +74,8 @@ function formatWonPerSqm(n: number): string {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5">
-      <dt className="shrink-0 text-sm text-slate-600">{label}</dt>
-      <dd className="min-w-0 text-right text-sm font-medium leading-snug text-slate-800">
-        {value}
-      </dd>
+      <dt className="detail-body shrink-0">{label}</dt>
+      <dd className="detail-meta min-w-0 text-right">{value}</dd>
     </div>
   );
 }
@@ -63,7 +86,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
  */
 export function ComplexMgmtFeeCard({
   management,
-  selectedPyeongLabel,
   exclusiveAreaMinSqm,
   exclusiveAreaMaxSqm,
 }: {
@@ -75,11 +97,6 @@ export function ComplexMgmtFeeCard({
   aptName?: string | null;
   complexId?: string | null;
 }) {
-  const pyeongTitle =
-    selectedPyeongLabel && selectedPyeongLabel !== "전체"
-      ? selectedPyeongLabel
-      : null;
-
   const areaMin = exclusiveAreaMinSqm ?? null;
   const areaMax = exclusiveAreaMaxSqm ?? exclusiveAreaMinSqm ?? null;
   const hasPortalData = management.portalAreaFees.length > 0;
@@ -96,24 +113,25 @@ export function ComplexMgmtFeeCard({
   const showSelectedEstimate = estimate != null;
 
   return (
-    <LabCard className="p-4 sm:p-5">
-      <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
-        관리비
-      </h2>
+    <LabCard className="detail-card">
+      <h2 className="detail-section-title">관리비</h2>
 
       {showSelectedEstimate && estimate ? (
         <>
-          <div className="mt-3">
-            <p className="text-sm text-slate-600">최근 예상 관리비</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-slate-900">
-              {formatWonRangeAsManwon(
-                estimate.latest.wonMin,
-                estimate.latest.wonMax,
-              )}
+          <div className="detail-after-title">
+            <p className="detail-meta">최근 예상 관리비</p>
+            <p className="mt-1">
+              <ManwonFigure
+                text={formatWonRangeAsManwon(
+                  estimate.latest.wonMin,
+                  estimate.latest.wonMax,
+                )}
+                strong
+              />
             </p>
           </div>
 
-          <div className="mt-4 border-t border-slate-200/80 pt-1">
+          <div className="detail-subsection-rule detail-rows">
             <MetricRow
               label="겨울 평균"
               valueLabel={
@@ -152,11 +170,9 @@ export function ComplexMgmtFeeCard({
           {estimate.components.common &&
           estimate.components.individual &&
           estimate.components.reserve ? (
-            <div className="mt-2 border-t border-slate-200/80 pt-1">
-              <p className="pt-2 text-sm font-medium text-slate-800">
-                관리비 구성
-              </p>
-              <div className="mt-1">
+            <div className="detail-subsection-rule">
+              <p className="detail-subsection-title">관리비 구성</p>
+              <div className="detail-rows">
                 <MetricRow
                   label="공용관리비"
                   valueLabel={formatWonRangeAsManwon(
@@ -182,7 +198,12 @@ export function ComplexMgmtFeeCard({
             </div>
           ) : null}
 
-          <LabDisclosure title="관리비 산정근거 보기" className="mt-3">
+          <LabDisclosure
+            title="관리비 산정근거 보기"
+            className="detail-subsection"
+            titleClassName={MGMT_FEE_DISCLOSURE_ACTION}
+            chevronClassName="h-4 w-4"
+          >
             <dl>
               <InfoRow
                 label="계산 방식"
@@ -230,11 +251,9 @@ export function ComplexMgmtFeeCard({
             {estimate.components.common &&
             estimate.components.individual &&
             estimate.components.reserve ? (
-              <div className="mt-2 border-t border-slate-100 pt-2">
-                <p className="pb-0.5 text-sm font-medium text-slate-800">
-                  최근월 면적단가
-                </p>
-                <dl>
+              <div className="detail-subsection-rule">
+                <p className="detail-subsection-title">최근월 면적단가</p>
+                <dl className="detail-rows">
                   <InfoRow
                     label="공용관리비"
                     value={formatWonPerSqm(estimate.components.common.perM2)}
@@ -255,9 +274,9 @@ export function ComplexMgmtFeeCard({
               </div>
             ) : null}
 
-            <div className="mt-2 border-t border-slate-100 pt-2">
-              <p className="text-sm font-medium text-slate-800">안내</p>
-              <p className="mt-1 text-sm leading-relaxed text-slate-700">
+            <div className="detail-subsection-rule">
+              <p className="detail-subsection-title">안내</p>
+              <p className="detail-body mt-1 text-slate-700">
                 주거전용면적 기준 관리비 단가를 선택 평형에 적용한 예상값입니다.
                 실제 세대별 관리비는 사용량과 일부 부과항목에 따라 달라질 수
                 있습니다.
@@ -267,14 +286,19 @@ export function ComplexMgmtFeeCard({
         </>
       ) : (
         <>
-          <div className="mt-3">
-            <p className="text-sm text-slate-600">선택 평형 예상 관리비</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+          <div className="detail-after-title">
+            <p className="detail-meta">선택 평형 예상 관리비</p>
+            <p className="detail-number-strong mt-1 text-slate-900">
               평형별 관리비 데이터 준비 중
             </p>
           </div>
 
-          <LabDisclosure title="관리비 산정근거 보기" className="mt-3">
+          <LabDisclosure
+            title="관리비 산정근거 보기"
+            className="detail-subsection"
+            titleClassName={MGMT_FEE_DISCLOSURE_ACTION}
+            chevronClassName="h-4 w-4"
+          >
             <dl>
               <InfoRow
                 label="계산 방식"
@@ -289,9 +313,9 @@ export function ComplexMgmtFeeCard({
                 value={formatYyyymmBasisLabel(management.latest.periodYyyymm)}
               />
             </dl>
-            <div className="mt-2 border-t border-slate-100 pt-2">
-              <p className="text-sm font-medium text-slate-800">안내</p>
-              <p className="mt-1 text-sm leading-relaxed text-slate-700">
+            <div className="detail-subsection-rule">
+              <p className="detail-subsection-title">안내</p>
+              <p className="detail-body mt-1 text-slate-700">
                 이 단지는 아직 선택 평형 예상 관리비를 표시할 수 없습니다.
                 단지 전체 평균은 선택 평형 금액으로 쓰지 않습니다.
               </p>

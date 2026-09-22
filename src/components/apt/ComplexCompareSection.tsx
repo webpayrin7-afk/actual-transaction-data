@@ -323,12 +323,12 @@ export function ComplexCompareSection({
   const empty = !peersQuery.isLoading && !loadingPeers && peers.length === 0;
 
   return (
-    <LabCard className="p-3.5 sm:p-5">
+    <LabCard className="detail-card">
       <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="flex items-center">
+          <h2 className="detail-section-title flex items-center">
             주변 단지 비교
-            <InfoTip aria-label="주변 단지 비교 안내" className="ml-1">
+            <InfoTip aria-label="주변 단지 비교 안내">
               <p>
                 같은 동·인근 지역에서 전용면적, 준공연도, 최근 거래와 확인 가능한
                 단지 규모를 기준으로 비교 단지를 자동 선정합니다.
@@ -337,7 +337,7 @@ export function ComplexCompareSection({
             </InfoTip>
           </h2>
         </div>
-        <p className="shrink-0 pt-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">
+        <p className="detail-meta shrink-0 pt-0.5 text-right">
           {areaBandLabel(areaCenter)}
         </p>
       </div>

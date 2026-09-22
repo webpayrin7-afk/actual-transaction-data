@@ -7,21 +7,25 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { INFO_PANEL_CLASS, placeInfoPanel } from "@/components/ui/info-panel";
 
 /**
- * Site-common icon-only ⓘ tip.
- * Panel is fixed, centered on the trigger, and clamped to the viewport.
+ * Site-common ⓘ tip.
+ * Panel is portaled to document.body so transformed / overflow-clip ancestors
+ * (apt-detail enter animation) cannot swallow taps or clip the panel.
  * Closes on outside click, panel body click, or Escape.
  */
 export function InfoTip({
   "aria-label": ariaLabel,
   children,
   className = "",
+  trigger,
 }: {
   "aria-label": string;
   children: ReactNode;
   className?: string;
+  trigger?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -32,7 +36,9 @@ export function InfoTip({
     if (!open) return;
 
     function onPointerDown(event: PointerEvent) {
-      if (buttonRef.current?.contains(event.target as Node)) return;
+      const target = event.target as Node;
+      if (buttonRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
       setOpen(false);
     }
     function onKeyDown(event: KeyboardEvent) {
@@ -67,20 +73,9 @@ export function InfoTip({
     };
   }, [open]);
 
-  return (
-    <span className="inline-flex shrink-0 align-middle">
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-expanded={open}
-        aria-controls={open ? panelId : undefined}
-        aria-label={ariaLabel}
-        onClick={() => setOpen((value) => !value)}
-        className={`inline-flex cursor-pointer items-center justify-center text-[12px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${className}`.trim()}
-      >
-        <span aria-hidden="true">ⓘ</span>
-      </button>
-      {open ? (
+  const panel =
+    open && typeof document !== "undefined" ? (
+      createPortal(
         <div
           id={panelId}
           ref={panelRef}
@@ -88,8 +83,61 @@ export function InfoTip({
           className={INFO_PANEL_CLASS}
         >
           {children}
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+    ) : null;
+
+  return (
+    <span
+      className={`relative z-10 inline-flex shrink-0 align-middle ${
+        trigger ? "" : "ml-[0.25em]"
+      }`}
+    >
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-expanded={open}
+        aria-controls={open ? panelId : undefined}
+        aria-label={ariaLabel}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpen((value) => !value);
+        }}
+        className={`relative z-10 inline-flex cursor-pointer items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${className}`.trim()}
+      >
+        <span
+          className="absolute -inset-y-2.5 -left-1 -right-2.5"
+          aria-hidden
+        />
+        {trigger ?? (
+          <svg
+            viewBox="0 0 16 16"
+            className="block h-[1em] w-[1em]"
+            aria-hidden="true"
+          >
+            <circle
+              cx="8"
+              cy="8"
+              r="6.25"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.25"
+            />
+            <circle cx="8" cy="5.15" r="0.75" fill="currentColor" />
+            <path
+              d="M8 7.15v4.15"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+      </button>
+      {panel}
     </span>
   );
 }

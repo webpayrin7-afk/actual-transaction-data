@@ -23,4 +23,4 @@ export function placeInfoPanel(
 }
 
 export const INFO_PANEL_CLASS =
-  "fixed z-[60] max-w-[calc(100vw-1rem)] space-y-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-left text-[12px] font-normal leading-5 text-slate-600 shadow-sm";
+  "fixed z-[80] max-w-[calc(100vw-1rem)] space-y-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-pretty text-left text-[12px] font-normal leading-5 text-slate-600 shadow-sm";
