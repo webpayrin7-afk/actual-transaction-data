@@ -794,11 +794,11 @@ export function ComplexPurchaseCalculatorSection({
   return (
     <section
       id="section-calculator"
-      className="lab-card detail-card scroll-mt-28"
+      className="lab-card calculator-card scroll-mt-28"
     >
       <div id="calculator" className="sr-only" aria-hidden />
 
-      <header className="min-w-0">
+      <header className="calculator-header min-w-0">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h2 className="detail-section-title">
             세금, 대출 계산
@@ -814,7 +814,7 @@ export function ComplexPurchaseCalculatorSection({
         </p>
       </header>
 
-      <div className="lab-tabs-connected mt-3">
+      <div className="calculator-tab-rail">
         <LabTabs
           variant="primary"
           idPrefix="calc"
@@ -827,13 +827,14 @@ export function ComplexPurchaseCalculatorSection({
             setHoldingSettingsOpen(false);
           }}
         />
+      </div>
 
-        <div
-          role="tabpanel"
-          id={labTabPanelId("calc", tab)}
-          aria-labelledby={labTabId("calc", tab)}
-          className="lab-tabs-connected__panel mx-auto w-full max-w-[40rem] space-y-3"
-        >
+      <div
+        role="tabpanel"
+        id={labTabPanelId("calc", tab)}
+        aria-labelledby={labTabId("calc", tab)}
+        className="calculator-tab-panel mx-auto w-full max-w-[40rem] space-y-3"
+      >
         {tab === "purchase" ? (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
@@ -1958,7 +1959,6 @@ export function ComplexPurchaseCalculatorSection({
             />
           </div>
         ) : null}
-        </div>
       </div>
     </section>
   );

@@ -157,6 +157,37 @@ textarea,
 @media (min-width: 768px) {
   .detail-card { padding: 1.5rem; } /* 24 */
 }
+
+/*
+ * Calculator card — split padding so 1차 tabs go full-bleed to card edges.
+ * Header / rail / panel each own horizontal inset; no card-level padding.
+ */
+.calculator-card {
+  padding: 0;
+  overflow: hidden; /* clip track to card radius on sides if needed */
+}
+.calculator-header {
+  padding: 1rem 1rem 0.75rem; /* 16 / 16 / 12 */
+}
+.calculator-tab-rail {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+.calculator-tab-panel {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1.5rem 1rem 1rem; /* top 24 · x 16 · bottom 16 */
+  background: var(--lab-surface);
+}
+@media (min-width: 768px) {
+  .calculator-header {
+    padding: 1.5rem 1.5rem 1rem; /* 24 / 24 / 16 */
+  }
+  .calculator-tab-panel {
+    padding: 1.5rem; /* 24 all — first content 24 below tabs */
+  }
+}
 .detail-after-title { margin-top: 1rem; } /* 16 title-group → body */
 @media (min-width: 1024px) {
   .detail-after-title { margin-top: 1.5rem; } /* 24 */
