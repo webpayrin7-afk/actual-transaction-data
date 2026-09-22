@@ -430,6 +430,11 @@ h2.detail-section-title {
 }
 .detail-change-up { color: var(--lab-change-up); }
 .detail-change-down { color: var(--lab-change-down); }
+.detail-summary-value.detail-kpi-brand {
+  color: var(--lab-brand-primary);
+}
+.detail-summary-value.detail-change-up { color: var(--lab-change-up); }
+.detail-summary-value.detail-change-down { color: var(--lab-change-down); }
 
 .lab-button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 6px; border-radius: var(--lab-radius-sm); padding: 0 14px; font-size: .875rem; font-weight: 500; line-height: 1.25rem; transition: background-color .15s, border-color .15s, color .15s; }
 .lab-button:focus-visible, .lab-input:focus-visible, .lab-tab:focus-visible, .lab-side-link:focus-visible { outline: 2px solid var(--lab-teal-600); outline-offset: 2px; }
