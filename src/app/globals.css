@@ -389,8 +389,8 @@ textarea,
 }
 .detail-trade-row--inline > :nth-child(3),
 .detail-trade-row--inline > :nth-child(4) {
-  justify-self: end;
-  text-align: right;
+  justify-self: start;
+  text-align: left;
   font-variant-numeric: tabular-nums;
 }
 .detail-trade-row-date {
@@ -913,11 +913,12 @@ h2.detail-section-title {
 .lab-tabs__btn--primary {
   z-index: 0;
   min-height: 3rem; /* 48 — grows with text zoom */
+  min-width: 2.75rem; /* 44 touch */
   margin-bottom: -1px; /* sit on / cover baseline when active */
   padding: 0.625rem 0.5rem; /* 10 8 */
   border: 1px solid transparent;
   border-bottom: 1px solid transparent;
-  border-radius: var(--lab-radius-sm) var(--lab-radius-sm) 0 0; /* 8 top */
+  border-radius: 0; /* unselected: no rounded face */
   background: transparent;
   color: var(--lab-muted); /* #64748B */
   font-size: 1rem; /* 16 */
@@ -937,6 +938,7 @@ h2.detail-section-title {
   z-index: 1;
   border-color: var(--lab-border);
   border-bottom-color: var(--lab-surface); /* open into panel */
+  border-radius: var(--lab-radius-sm) var(--lab-radius-sm) 0 0; /* 8 top only */
   background: var(--lab-surface); /* #FFFFFF */
   color: var(--lab-teal-600); /* #0F766E */
   font-weight: 600;
