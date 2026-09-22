@@ -89,12 +89,12 @@ function YearSelect({
     value === "all" ? "전체년도" : `${value}년`;
 
   return (
-    <label className="relative inline-flex h-8 min-w-[5.75rem] shrink-0 cursor-pointer items-center justify-between gap-1 rounded-lg border border-[color:var(--lab-border)] bg-white py-0 pl-2 pr-1.5 detail-label font-medium text-[color:var(--lab-navy-950)] sm:h-9 sm:min-w-[6.5rem] sm:pl-2.5 sm:pr-2">
+    <label className="relative inline-flex min-h-10 min-w-[5.75rem] shrink-0 cursor-pointer items-center justify-between gap-1 self-stretch rounded-[12px] border border-[color:var(--lab-border)] bg-white py-0 pl-2.5 pr-2 detail-label font-medium text-[color:var(--lab-navy-950)] sm:min-w-[6.5rem]">
       <span className="pointer-events-none min-w-0 flex-1 truncate text-left" aria-hidden>
         {displayLabel}
       </span>
       <ChevronsUpDown
-        className="pointer-events-none relative h-3.5 w-3.5 shrink-0 text-[color:var(--lab-muted)] sm:h-4 sm:w-4"
+        className="pointer-events-none relative h-4 w-4 shrink-0 text-[color:var(--lab-muted)]"
         aria-hidden
       />
       <select
@@ -357,7 +357,7 @@ export function AptTransactionsPage({
           </Link>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-stretch gap-2">
           <TransactionTypeTabs
             value={dealType}
             onChange={(next) => {
@@ -367,7 +367,7 @@ export function AptTransactionsPage({
               });
             }}
           />
-          <div className="ml-auto shrink-0">
+          <div className="ml-auto flex shrink-0 items-stretch">
             <YearSelect
               value={year}
               years={years}
