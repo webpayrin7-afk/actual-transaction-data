@@ -538,12 +538,6 @@ export function AptPriceChart({
       ? { name: priceLabel, color: CHART_COLORS.price, swatch: "line" as const }
       : null,
     { name: "실거래", color: CHART_COLORS.deal, swatch: "dot" as const },
-    extremePoints.some((p) => p.kind === "high")
-      ? { name: "최고", color: CHART_COLORS.high, swatch: "dot" as const }
-      : null,
-    extremePoints.some((p) => p.kind === "low")
-      ? { name: "최저", color: CHART_COLORS.low, swatch: "dot" as const }
-      : null,
     hasVolume
       ? { name: "거래량", color: CHART_COLORS.volume, swatch: "bar" as const }
       : null,

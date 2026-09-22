@@ -280,9 +280,6 @@ textarea,
     padding: 0.625rem 0.5rem; /* 10 / 8 */
   }
 }
-.detail-kpi-panel > .detail-kpi-cell:not(:last-child) {
-  border-right: 1px solid var(--lab-border);
-}
 .detail-kpi-label {
   font-size: 0.6875rem; /* 11 */
   font-weight: 500;
