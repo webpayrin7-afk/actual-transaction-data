@@ -137,20 +137,14 @@ export function ComplexMgmtFeeCard({
 
       {showSelectedEstimate && estimate ? (
         <>
-          <div className="detail-after-title">
-            <p className="detail-meta">최근 예상 관리비</p>
-            <p className="mt-1">
-              <ManwonFigure
-                text={formatWonRangeAsManwon(
-                  estimate.latest.wonMin,
-                  estimate.latest.wonMax,
-                )}
-                role="summary"
-              />
-            </p>
-          </div>
-
-          <div className="detail-subsection-rule detail-rows">
+          <div className="detail-after-title detail-rows">
+            <MetricRow
+              label="최근 예상 관리비"
+              valueLabel={formatWonRangeAsManwon(
+                estimate.latest.wonMin,
+                estimate.latest.wonMax,
+              )}
+            />
             <MetricRow
               label="겨울 평균"
               valueLabel={
