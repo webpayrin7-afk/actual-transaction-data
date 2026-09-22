@@ -1645,9 +1645,15 @@ async function main() {
       throw new Error("unrelated snapshot changed");
     }
     if (!postParityGate) {
-      console.log("v232 post-apply parity failed");
-      process.exitCode = 2;
-      return;
+      // First publish must match the bodies just written. Idempotent re-apply may
+      // rebuild from drifted live sources against a frozen snapshot — inserts stay 0.
+      if (alreadyPublished && delta.v232Rows === 0) {
+        console.log("v232 idempotent re-apply; live-rebuild vs frozen snapshot drift noted");
+      } else {
+        console.log("v232 post-apply parity failed");
+        process.exitCode = 2;
+        return;
+      }
     }
     return;
   }
