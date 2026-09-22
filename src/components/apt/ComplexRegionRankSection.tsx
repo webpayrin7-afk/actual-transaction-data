@@ -214,16 +214,18 @@ export function ComplexRegionRankSection({
         marketPyeongLabel={marketPyeongLabel}
       />
 
-      <Link
-        href={regionRankingHref(regionSlug)}
-        data-event="complex_region_rank_cta"
-        className="lab-button lab-button-primary detail-cta w-full"
-      >
-        {regionOverviewCtaLabel(regionName)}
-        <span aria-hidden className="ml-1">
-          →
-        </span>
-      </Link>
+      <div className="mt-6 border-t border-[color:var(--lab-border)] pt-6">
+        <Link
+          href={regionRankingHref(regionSlug)}
+          data-event="complex_region_rank_cta"
+          className="lab-button lab-button-primary w-full"
+        >
+          {regionOverviewCtaLabel(regionName)}
+          <span aria-hidden className="ml-1">
+            →
+          </span>
+        </Link>
+      </div>
     </section>
   );
 }

@@ -91,7 +91,7 @@ export function InfoTip({
   return (
     <span
       className={`relative z-10 inline-flex shrink-0 align-middle ${
-        trigger ? "" : "ml-[0.1em]"
+        trigger ? "" : "ml-[0.35em]"
       }`}
     >
       <button
