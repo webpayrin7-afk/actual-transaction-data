@@ -85,14 +85,23 @@ function YearSelect({
     return [...set].sort((a, b) => b - a);
   }, [years, value]);
 
+  const displayLabel =
+    value === "all" ? "전체년도" : `${value}년`;
+
   return (
-    <label className="relative inline-flex shrink-0 items-center">
-      <span className="sr-only">년도</span>
+    <label className="relative inline-flex h-8 min-w-[5.75rem] shrink-0 cursor-pointer items-center justify-between gap-1 rounded-lg border border-[color:var(--lab-border)] bg-white py-0 pl-2 pr-1.5 detail-label font-medium text-[color:var(--lab-navy-950)] sm:h-9 sm:min-w-[6.5rem] sm:pl-2.5 sm:pr-2">
+      <span className="pointer-events-none min-w-0 flex-1 truncate text-left" aria-hidden>
+        {displayLabel}
+      </span>
+      <ChevronsUpDown
+        className="pointer-events-none relative h-3.5 w-3.5 shrink-0 text-[color:var(--lab-muted)] sm:h-4 sm:w-4"
+        aria-hidden
+      />
       <select
         value={value}
         aria-label="조회 연도"
         onChange={(e) => onChange(parseTransactionYear(e.target.value))}
-        className="h-8 min-w-[5.75rem] appearance-none rounded-lg border border-[color:var(--lab-border)] bg-white py-0 pl-2 pr-7 text-[12px] font-semibold text-[color:var(--lab-navy-900)] sm:h-9 sm:min-w-[6.5rem] sm:pl-2.5 sm:pr-8 sm:text-sm"
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       >
         <option value="all">전체년도</option>
         {options.map((y) => (
@@ -101,10 +110,6 @@ function YearSelect({
           </option>
         ))}
       </select>
-      <ChevronsUpDown
-        className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-[color:var(--lab-muted)] sm:right-2"
-        aria-hidden
-      />
     </label>
   );
 }
