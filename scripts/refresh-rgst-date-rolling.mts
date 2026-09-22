@@ -39,7 +39,7 @@ async function main() {
   const apply = argValue("apply", "0") === "1";
   const planOnly = argValue("plan", "0") === "1";
   const discovery = argValue("discovery", "0") !== "0";
-  const months = Math.min(24, Math.max(1, Number(argValue("months", "12")) || 12));
+  const months = Math.min(24, Math.max(1, Number(argValue("months", "6")) || 6));
   const sleepMs = Math.max(0, Number(argValue("sleep-ms", "250")) || 0);
   const concurrency = Math.min(
     3,
@@ -51,20 +51,18 @@ async function main() {
   if (!db) throw new Error("DB unavailable");
 
   const yms = rollingTradeMonths(months);
-  const lawdsRes = await db.execute({
-    sql: `SELECT DISTINCT lawd_cd AS lawd
+  const cellRes = await db.execute({
+    sql: `SELECT lawd_cd AS lawd, year_month AS ym
           FROM sync_months
           WHERE deal_kind='trade' AND year_month IN (${yms.map(() => "?").join(",")})
-          ORDER BY 1`,
+          ORDER BY year_month DESC, lawd_cd ASC`,
     args: yms,
   });
-  const lawds = lawdsRes.rows.map((r) => String(r.lawd));
-  const cells: Array<{ lawdCd: string; yearMonth: string }> = [];
-  for (const lawdCd of lawds) {
-    for (const yearMonth of yms) {
-      cells.push({ lawdCd, yearMonth });
-    }
-  }
+  const cells = cellRes.rows.map((r) => ({
+    lawdCd: String(r.lawd),
+    yearMonth: String(r.ym),
+  }));
+  const lawds = [...new Set(cells.map((c) => c.lawdCd))];
 
   console.error(
     `[rgst-refresh] months=${months} yms=${yms.join(",")} lawds=${lawds.length} cells=${cells.length} ` +

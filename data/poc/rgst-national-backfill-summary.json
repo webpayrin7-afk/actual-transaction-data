@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "startedAt": "2026-09-22T15:08:03.717Z",
+  "updatedAt": "2026-09-22T16:12:39.575Z",
+  "fromYm": "202301",
+  "toYm": "202609",
+  "cellsComplete": 2263,
+  "cellsFailed": 0,
+  "totals": {
+    "apiCalls": 2264,
+    "inserted": 2247,
+    "updated": 408243,
+    "unchanged": 60998,
+    "populated": 425103,
+    "unresolved": 46385,
+    "identityConflicts": 0
+  },
+  "failed": {}
+}
