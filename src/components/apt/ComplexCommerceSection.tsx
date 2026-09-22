@@ -122,15 +122,12 @@ export function ComplexCommerceStats({
         <div className="flex items-baseline justify-between gap-2">
           <SectionHeading>생활 상권</SectionHeading>
         </div>
-        <div className="mt-1.5 flex items-end gap-1">
+        <div className="mt-1.5 flex items-center gap-1">
           <p className="detail-summary-value leading-none">
             {formatCommerceCount(snapshot.p2Total)}
             <span className="detail-micro ml-0.5 font-medium">개</span>
           </p>
-          <InfoTip
-            aria-label="생활 상권 집계 안내"
-            className="mb-0.5"
-          >
+          <InfoTip aria-label="생활 상권 집계 안내">
             <p className="detail-body">
               단지 중심 반경 {radiusKm} 내 상가업소 중 일상생활과 밀접한 업종을
               집계합니다. 거리는 직선거리 기준입니다.

@@ -108,7 +108,7 @@ export function InfoTip({
   return (
     <span
       ref={rootRef}
-      className={`relative z-10 inline-flex shrink-0 align-middle ${
+      className={`relative z-10 inline-flex shrink-0 items-center self-center align-middle ${
         trigger || rootClassName ? "" : "ml-[0.35em]"
       } ${rootClassName}`.trim()}
       onMouseEnter={() => {
