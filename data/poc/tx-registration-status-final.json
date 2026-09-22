@@ -1,0 +1,62 @@
+{
+  "title": "TRANSACTION REGISTRATION STATUS FINAL",
+  "diagnosedAt": "2026-09-22",
+  "STATUS": "PILOT_COMPLETE",
+  "SOURCE": {
+    "field": "MOLIT AptTrade rgstDate",
+    "officialAvailability": "아파트 매매 실거래; 2023-01-01 이후 계약부터 공개 대상",
+    "publicStartDate": "2023-01-01",
+    "sourceSemantics": "populated = 소유권 이전등기 완료 공개; empty ≠ proven 미등기 (지연/미제공 가능)",
+    "rawFormat": "YY.MM.DD (e.g. 24.04.19) → stored ISO YYYY-MM-DD"
+  },
+  "LINEAGE": {
+    "parser": "parseTradeXml → ingestMeta.rgstDate + Transaction.rgstDate (normalized)",
+    "ingestMeta": "yes (pre-existing)",
+    "DB": "rgst_date TEXT nullable (added)",
+    "API": "archive items include rgstDate when column present",
+    "UI": "매매 등기 column: 등기완료 / 등기 미확인 / —"
+  },
+  "COVERAGE": {
+    "note": "DB rgst coverage national still near 0 outside Songpa pilot; MOLIT sample coverage below",
+    "dbNational2023plusRows": 486890,
+    "dbSeoul2023plusRows": 223542,
+    "dbSongpa2023plus": { "total": 15281, "filled": 14469, "unresolved": 812, "filledPct": 94.7 },
+    "dbJamsilEls2023plus": { "populatedFromPilotActive": 536, "unresolvedActive": 32 },
+    "molitSongpaProbePct": 98.9,
+    "molitOtherDistrictsSamplePct": 70.3,
+    "byYearSongpaProbe": {
+      "2023": "100%",
+      "2024": "~99.8%",
+      "2025": "~99.7%",
+      "2026": "recent lag — many 등기 미확인"
+    }
+  },
+  "PILOT": {
+    "target": "Songpa lawd 11710 trade 202301-202609",
+    "apiCalls": 45,
+    "rowsUpdated": 14465,
+    "rowsInserted": 4,
+    "populated": 14469,
+    "unresolved": 656,
+    "jamsilPopulated": 536,
+    "jamsilUnresolved": 32,
+    "identityConflicts": 0,
+    "duplicates": "naturalKey dedupe in replaceMonth; cancel resolve before persist",
+    "cancelledExcluded": "resolveActiveTrades (unchanged policy)",
+    "executed": true
+  },
+  "BACKFILL": {
+    "neededForNational": true,
+    "earliestDate": "2023-01-01",
+    "rawCacheReusable": false,
+    "estimatedApiCalls": 2263,
+    "estimatedWrites": "~487k trade rows (2023+)",
+    "recommendedScope": "2023+ AptTrade nationwide after Songpa pilot review",
+    "executedNational": false
+  },
+  "INCREMENTAL": {
+    "registrationRefreshNeeded": true,
+    "proposedWindow": "recent 6–12 trade months with --only-changed=0",
+    "existingSyncReusable": "yes via replaceMonth + dirty rgstDate; only-changed=1 can miss in-place rgst fills"
+  }
+}
