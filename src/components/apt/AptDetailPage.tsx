@@ -822,7 +822,10 @@ export function AptDetailPage({
                   ? formatEok(Math.abs(saleJeonseGap))
                   : "—"}
               </span>
-              <InfoTip aria-label="전세가율 및 매매-전세 갭 계산 기준">
+              <InfoTip
+                aria-label="전세가율 및 매매-전세 갭 계산 기준"
+                rootClassName="detail-summary-meta-tip"
+              >
                 <p>
                   {latestTrade && latestJeonse
                     ? `최근 매매가(${formatDealDate(latestTrade.dealDate)})와 최근 전세가(${formatDealDate(latestJeonse.dealDate)})를 기준으로 계산했어요.`

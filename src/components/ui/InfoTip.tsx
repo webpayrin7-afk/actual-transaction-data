@@ -20,11 +20,14 @@ export function InfoTip({
   "aria-label": ariaLabel,
   children,
   className = "",
+  rootClassName = "",
   trigger,
 }: {
   "aria-label": string;
   children: ReactNode;
   className?: string;
+  /** Extra classes on the outer span (e.g. tighter margin in dense meta rows). */
+  rootClassName?: string;
   trigger?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -106,8 +109,8 @@ export function InfoTip({
     <span
       ref={rootRef}
       className={`relative z-10 inline-flex shrink-0 align-middle ${
-        trigger ? "" : "ml-[0.35em]"
-      }`}
+        trigger || rootClassName ? "" : "ml-[0.35em]"
+      } ${rootClassName}`.trim()}
       onMouseEnter={() => {
         if (fineHoverRef.current) setOpen(true);
       }}

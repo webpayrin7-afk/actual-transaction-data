@@ -337,8 +337,12 @@ textarea,
   font-variant-numeric: tabular-nums;
 }
 .detail-summary-meta-item .relative {
-  /* keep tip on the optical center of the text line */
   align-self: center;
+}
+.detail-summary-meta-tip {
+  /* tighter to value; slight optical drop onto text midline */
+  margin-left: 0.125rem; /* 2 */
+  transform: translateY(0.12em);
 }
 /* 360: wrap by meaning unit — ratio on row 1, gap+tip on row 2 */
 @media (max-width: 379px) {
