@@ -1,6 +1,13 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   Bar,
   CartesianGrid,
@@ -153,60 +160,120 @@ function TooltipBox({
   );
 }
 
+/** Finger/cursor proximity for promoting 최고/최저 over nearby deals or the line. */
+const EXTREME_HIT_RADIUS_PX = 28;
+
+type ExtremeHit = {
+  id: string;
+  kind: "high" | "low";
+  x: number;
+  y: number;
+  point: DealScatterPoint;
+};
+
+type PriorityExtreme = {
+  point: DealScatterPoint;
+  x: number;
+  y: number;
+};
+
+const TOOLTIP_BOX_CLASS =
+  "w-max max-w-[min(14rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md";
+
+function DealScatterTooltip({
+  row,
+  coordinate,
+  viewBox,
+}: {
+  row: DealScatterPoint;
+  coordinate?: Partial<{ x: number; y: number }>;
+  viewBox?: ChartViewBox;
+}) {
+  const tag =
+    row.kind === "high" ? "최고" : row.kind === "low" ? "최저" : null;
+  return (
+    <TooltipBox
+      className={TOOLTIP_BOX_CLASS}
+      coordinate={coordinate}
+      viewBox={viewBox}
+    >
+      {tag ? (
+        <p
+          className="mb-1 font-semibold"
+          style={{
+            color: row.kind === "high" ? CHART_COLORS.high : CHART_COLORS.low,
+          }}
+        >
+          {tag}
+        </p>
+      ) : null}
+      <p className="font-medium text-slate-800">{formatDealDate(row.dealDate)}</p>
+      <ul className="mt-1.5 space-y-0.5 text-slate-600">
+        <li className="flex justify-between gap-4">
+          <span>거래가격</span>
+          <span className="font-semibold tabular-nums text-slate-800">
+            {formatEok(row.dealAmount)}
+          </span>
+        </li>
+        <li className="flex justify-between gap-4">
+          <span>전용면적</span>
+          <span className="tabular-nums">{formatExclusiveArea(row.exclusiveArea)}</span>
+        </li>
+        <li className="flex justify-between gap-4">
+          <span>층</span>
+          <span className="tabular-nums">{row.floor}층</span>
+        </li>
+      </ul>
+    </TooltipBox>
+  );
+}
+
+function pickScatterFromPayload(
+  payload: NonNullable<TooltipProps<number, string>["payload"]>,
+): DealScatterPoint | null {
+  // Prefer 최고/최저 when Recharts includes multiple scatter series at once.
+  const extreme = payload.find((item) => {
+    const kind = (item.payload as DealScatterPoint | undefined)?.kind;
+    return kind === "high" || kind === "low";
+  });
+  if (extreme?.payload) return extreme.payload as DealScatterPoint;
+  const any = payload.find(
+    (item) =>
+      item.payload &&
+      typeof (item.payload as DealScatterPoint).kind === "string",
+  );
+  return any?.payload ? (any.payload as DealScatterPoint) : null;
+}
+
 function PriceChartTooltip({
   active,
   payload,
   coordinate,
   viewBox,
-}: TooltipProps<number, string>) {
+  priorityExtreme,
+}: TooltipProps<number, string> & {
+  priorityExtreme?: PriorityExtreme | null;
+}) {
+  if (priorityExtreme) {
+    return (
+      <DealScatterTooltip
+        row={priorityExtreme.point}
+        coordinate={{ x: priorityExtreme.x, y: priorityExtreme.y }}
+        viewBox={viewBox as ChartViewBox | undefined}
+      />
+    );
+  }
+
   if (!active || !payload?.length) return null;
 
-  const boxClass =
-    "w-max max-w-[min(14rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md";
-
-  const scatter = payload.find(
-    (item) =>
-      item.payload &&
-      typeof (item.payload as DealScatterPoint).kind === "string",
-  );
+  const scatter = pickScatterFromPayload(payload);
   if (scatter) {
-    const row = scatter.payload as DealScatterPoint;
-    const tag =
-      row.kind === "high" ? "최고" : row.kind === "low" ? "최저" : null;
     return (
-      <TooltipBox
-        className={boxClass}
+      <DealScatterTooltip
+        row={scatter}
         coordinate={coordinate}
         viewBox={viewBox as ChartViewBox | undefined}
-      >
-        {tag ? (
-          <p
-            className="mb-1 font-semibold"
-            style={{
-              color: row.kind === "high" ? CHART_COLORS.high : CHART_COLORS.low,
-            }}
-          >
-            {tag}
-          </p>
-        ) : null}
-        <p className="font-medium text-slate-800">{formatDealDate(row.dealDate)}</p>
-        <ul className="mt-1.5 space-y-0.5 text-slate-600">
-          <li className="flex justify-between gap-4">
-            <span>거래가격</span>
-            <span className="font-semibold tabular-nums text-slate-800">
-              {formatEok(row.dealAmount)}
-            </span>
-          </li>
-          <li className="flex justify-between gap-4">
-            <span>전용면적</span>
-            <span className="tabular-nums">{formatExclusiveArea(row.exclusiveArea)}</span>
-          </li>
-          <li className="flex justify-between gap-4">
-            <span>층</span>
-            <span className="tabular-nums">{row.floor}층</span>
-          </li>
-        </ul>
-      </TooltipBox>
+      />
     );
   }
 
@@ -215,7 +282,7 @@ function PriceChartTooltip({
   const priceItem = payload.find((item) => item.dataKey === "priceEok");
   return (
     <TooltipBox
-      className={boxClass}
+      className={TOOLTIP_BOX_CLASS}
       coordinate={coordinate}
       viewBox={viewBox as ChartViewBox | undefined}
     >
@@ -252,21 +319,42 @@ function ExtremeDot(
     cx?: number;
     cy?: number;
     payload?: DealScatterPoint;
+    registerExtremeHit?: (hit: ExtremeHit) => void;
   },
 ) {
-  const { cx, cy, payload } = props;
+  const { cx, cy, payload, registerExtremeHit } = props;
   if (cx == null || cy == null || !payload) return null;
+  const isExtreme = payload.kind === "high" || payload.kind === "low";
+  if (isExtreme && registerExtremeHit) {
+    registerExtremeHit({
+      id: payload.id,
+      kind: payload.kind as "high" | "low",
+      x: cx,
+      y: cy,
+      point: payload,
+    });
+  }
   const fill =
     payload.kind === "high"
       ? CHART_COLORS.high
       : payload.kind === "low"
         ? CHART_COLORS.low
         : CHART_COLORS.deal;
-  const r = payload.kind === "deal" ? 2.5 : 4;
+  const r = payload.kind === "deal" ? 2.5 : 5;
   const label =
     payload.kind === "high" ? "최고" : payload.kind === "low" ? "최저" : null;
   return (
     <g>
+      {isExtreme ? (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={EXTREME_HIT_RADIUS_PX}
+          fill="transparent"
+          stroke="none"
+          style={{ pointerEvents: "all" }}
+        />
+      ) : null}
       <circle
         cx={cx}
         cy={cy}
@@ -279,7 +367,7 @@ function ExtremeDot(
       {label ? (
         <text
           x={cx}
-          y={cy - 8}
+          y={cy - 9}
           textAnchor="middle"
           fill={fill}
           fontSize={10}
@@ -302,6 +390,57 @@ export function AptPriceChart({
   deals?: AptHistoryItem[];
   dealType?: TransactionTabType;
 }) {
+  const extremeHitsRef = useRef<ExtremeHit[]>([]);
+  const [priorityExtreme, setPriorityExtreme] = useState<PriorityExtreme | null>(
+    null,
+  );
+
+  const registerExtremeHit = useCallback((hit: ExtremeHit) => {
+    const hits = extremeHitsRef.current;
+    const idx = hits.findIndex(
+      (row) => row.id === hit.id && row.kind === hit.kind,
+    );
+    if (idx >= 0) hits[idx] = hit;
+    else hits.push(hit);
+  }, []);
+
+  const clearPriorityExtreme = useCallback(() => {
+    setPriorityExtreme(null);
+  }, []);
+
+  const handleChartMouseMove = useCallback(
+    (state: { chartX?: number; chartY?: number } | null) => {
+      if (!state || state.chartX == null || state.chartY == null) {
+        setPriorityExtreme(null);
+        return;
+      }
+      const { chartX, chartY } = state;
+      let best: ExtremeHit | null = null;
+      let bestDist = EXTREME_HIT_RADIUS_PX;
+      for (const hit of extremeHitsRef.current) {
+        const dist = Math.hypot(hit.x - chartX, hit.y - chartY);
+        if (dist <= bestDist) {
+          bestDist = dist;
+          best = hit;
+        }
+      }
+      setPriorityExtreme((prev) => {
+        if (!best) return prev ? null : prev;
+        if (
+          prev &&
+          prev.point.id === best.point.id &&
+          prev.point.kind === best.point.kind &&
+          prev.x === best.x &&
+          prev.y === best.y
+        ) {
+          return prev;
+        }
+        return { point: best.point, x: best.x, y: best.y };
+      });
+    },
+    [],
+  );
+
   const monthSeries = useMemo<MonthSeriesPoint[]>(
     () =>
       points.map((p) => ({
@@ -361,6 +500,30 @@ export function AptPriceChart({
       extremePoints: extremes,
     };
   }, [deals, domain]);
+
+  useLayoutEffect(() => {
+    extremeHitsRef.current = [];
+    setPriorityExtreme(null);
+  }, [extremePoints]);
+
+  const extremeDotShape = useCallback(
+    (props: { cx?: number; cy?: number; payload?: DealScatterPoint }) => (
+      <ExtremeDot {...props} registerExtremeHit={registerExtremeHit} />
+    ),
+    [registerExtremeHit],
+  );
+
+  const dealDotShape = useCallback(
+    (props: { cx?: number; cy?: number; payload?: DealScatterPoint }) => (
+      <ExtremeDot {...props} />
+    ),
+    [],
+  );
+
+  const tooltipContent = useMemo(
+    () => <PriceChartTooltip priorityExtreme={priorityExtreme} />,
+    [priorityExtreme],
+  );
 
   const priceLabel = seriesLabel(dealType);
   const showPriceLine = dealType !== "monthly";
@@ -422,7 +585,11 @@ export function AptPriceChart({
       <div className="detail-price-chart-stack">
         <div className="detail-price-chart-plot">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart margin={{ top: 14, right: 6, left: 0, bottom: 0 }}>
+            <ComposedChart
+              margin={{ top: 14, right: 6, left: 0, bottom: 0 }}
+              onMouseMove={handleChartMouseMove}
+              onMouseLeave={clearPriorityExtreme}
+            >
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke="#e2e8f0"
@@ -453,11 +620,16 @@ export function AptPriceChart({
                 domain={["auto", "auto"]}
               />
               <Tooltip
-                content={<PriceChartTooltip />}
+                content={tooltipContent}
                 allowEscapeViewBox={{ x: true, y: true }}
                 wrapperStyle={{ zIndex: 40, outline: "none", pointerEvents: "none" }}
                 offset={8}
                 cursor={{ stroke: "#cbd5e1", strokeDasharray: "3 3" }}
+                position={
+                  priorityExtreme
+                    ? { x: priorityExtreme.x + 10, y: priorityExtreme.y - 12 }
+                    : undefined
+                }
               />
               {showPriceLine ? (
                 <Line
@@ -479,14 +651,14 @@ export function AptPriceChart({
                 name="실거래"
                 fill={CHART_COLORS.deal}
                 isAnimationActive={false}
-                shape={<ExtremeDot />}
+                shape={dealDotShape}
               />
               <Scatter
                 data={extremePoints}
                 dataKey="priceEok"
                 name="최고최저"
                 isAnimationActive={false}
-                shape={<ExtremeDot />}
+                shape={extremeDotShape}
                 legendType="none"
               />
             </ComposedChart>
