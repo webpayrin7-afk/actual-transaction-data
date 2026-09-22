@@ -410,7 +410,7 @@ export function ComplexRegionPriceCompare({
   ].join("|");
   return (
     <div className="detail-subsection-rule">
-      <div className="flex min-w-0 items-start justify-between gap-x-3 gap-y-1">
+      <div className="flex min-w-0 items-center justify-between gap-x-3 gap-y-1">
         <div className="flex min-w-0 items-center gap-1.5">
           <h3 className="detail-subsection-title">{PRICE_COMPARE_TITLE}</h3>
           <InfoTip aria-label="가격 비교 안내">
@@ -423,7 +423,7 @@ export function ComplexRegionPriceCompare({
           </InfoTip>
         </div>
         {meta ? (
-          <p className="detail-meta min-w-0 shrink text-right break-keep">{meta}</p>
+          <p className="detail-meta ml-auto min-w-0 shrink text-right break-keep">{meta}</p>
         ) : null}
       </div>
 
