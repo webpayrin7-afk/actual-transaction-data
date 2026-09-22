@@ -219,19 +219,21 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 
 탭의 위치나 카드 안팎이 아니라, 선택했을 때 바뀌는 콘텐츠 범위로 유형을 결정한다.
 
-1. 주요 기능·콘텐츠 구조가 바뀜 → 1차 독립 버튼형 탭
+1. 주요 기능·콘텐츠 구조가 바뀜 → 1차 콘텐츠 연결형 탭
 2. 같은 영역에서 분류·보기 방식만 바뀜 → 2차 연결형 segmented control
 3. 기간·조건·정렬만 바뀜 → compact 보조 필터
 
 1차와 2차를 동일한 독립 버튼형으로 만들지 않는다. 진한 청록 채움형 탭과 단순 밑줄형 탭은 이 공통 체계로 정리한다.
 
-### 1차 독립 버튼형
+### 1차 콘텐츠 연결형
 
 - 적용: 매수비용 / 보유세 / 대출 등 입력·결과·콘텐츠 구조가 통째로 바뀌는 항목
-- 독립 버튼, 높이 48px, 글자 16/600, 간격 8px, radius 8px, 1px 테두리, 가능하면 동일 폭
-- 선택: 배경 `#F0FDFA`, 글자 `#0F766E`, 은은한 청록 테두리
-- 비선택: 흰 배경, 글자 `#64748B`, 테두리 `#E2E8F0`
-- 금지: 진한 청록 전체 채움, 밑줄만 선택 표시, 그림자·그라데이션, 활성 시 글자/폭 변경
+- 하나의 가로 탭 바, 동일 폭, 보이는 높이 48px(min-height), 글자 16/24 · 선택 600 / 비선택 500
+- 트랙 `#F1F5F9`, 선택 면 `#FFFFFF`, 선택 글자·상단 2px 포인트 `#0F766E`, 비선택 글자 `#64748B`, 기준선 `#E2E8F0`
+- 선택 탭: 상단 radius 8px, 좌우·상단 얇은 경계, 하단은 열려 아래 콘텐츠와 연결, 기준선은 선택 구간에서 끊김
+- 비선택: 개별 외곽선·둥근 버튼 금지
+- 탭+패널은 `.lab-tabs-connected`로 묶고 중첩 카드를 추가하지 않음
+- 금지: 그라데이션·그림자·진한 청록 전체 채움, 활성 시 글자/폭 변경
 
 ### 2차 연결형
 
@@ -250,7 +252,7 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 
 ### 접근성
 
-- 색과 형태로 선택 표시, tablist/tab 또는 radiogroup/radio, aria-selected/aria-checked
+- 색과 형태로 선택 표시, tablist/tab(+ aria-controls/tabpanel) 또는 radiogroup/radio, aria-selected/aria-checked
 - 방향키·Enter/Space, focus-visible 2px 청록 outline offset 2px
 - 애니메이션 120~180ms, prefers-reduced-motion 시 제거
 - 글자 200% 확대 시 높이 증가 허용. 모바일 묶음 약 5개 이하 우선
@@ -258,4 +260,5 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 ### 구현
 
 - `LabTabs` variant=`primary` | `secondary` | `compact` (`src/components/ui/LabTabs.tsx`)
+- 1차: `.lab-tabs--primary` + `.lab-tabs-connected` / `__panel`, `idPrefix`로 tab↔panel 연결
 - 스타일 토큰: `.lab-tabs*` in `src/app/globals.css`, 색·radius는 `--lab-*` 변수
