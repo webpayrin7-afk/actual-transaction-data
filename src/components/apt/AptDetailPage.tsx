@@ -912,9 +912,12 @@ export function AptDetailPage({
             <div className="detail-cta">
               <Link
                 href={transactionsHref}
-                className="lab-button lab-button-secondary w-full"
+                className="lab-button lab-button-primary w-full"
               >
-                거래 내역 자세히 보기
+                {`거래 내역 자세히 보기 (${listSourceItems.length.toLocaleString("ko-KR")}건)`}
+                <span aria-hidden className="ml-1">
+                  →
+                </span>
               </Link>
             </div>
           ) : null}
