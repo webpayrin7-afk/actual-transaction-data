@@ -262,7 +262,6 @@ export function ComplexMgmtFeeCard({
                     : "—"
                 }
               />
-              <InfoRow label="출처" value={estimate.sourceLabelKo} />
             </dl>
 
             {estimate.components.common &&
@@ -320,10 +319,6 @@ export function ComplexMgmtFeeCard({
               <InfoRow
                 label="계산 방식"
                 value="주거전용면적 기준 관리비 단가 × 선택 평형 전용면적"
-              />
-              <InfoRow
-                label="출처"
-                value="국토교통부 공동주택관리정보 공공데이터"
               />
               <InfoRow
                 label="최근 자료"
