@@ -857,8 +857,12 @@ h2.detail-section-title {
  * primary 48 / secondary 40 / compact 30(visual)·44(touch)
  */
 .lab-tabs {
+  /* Soft-teal shell tokens (policy §11 / apt-detail reference) — local so brand buttons stay on Tailwind teal scale */
   --lab-tabs-track-pad: 3px;
   --lab-tabs-thumb-radius: 6px;
+  --lab-tabs-thumb-bg: #eefafa;
+  --lab-tabs-active-ink: #087f83;
+  --lab-tabs-thumb-edge: color-mix(in srgb, #0f766e 35%, transparent);
   position: relative;
   display: flex;
   max-width: 100%;
@@ -880,9 +884,9 @@ h2.detail-section-title {
   height: calc(100% - (var(--lab-tabs-track-pad) * 2));
   width: 0;
   border-radius: var(--lab-tabs-thumb-radius);
-  background: var(--lab-teal-50); /* #EEFAFA soft teal face */
+  background: var(--lab-tabs-thumb-bg);
   /* thin teal edge without changing outer size */
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
+  box-shadow: inset 0 0 0 1px var(--lab-tabs-thumb-edge);
   pointer-events: none;
   transform: translate3d(0, 0, 0);
   opacity: 0;
@@ -929,7 +933,7 @@ h2.detail-section-title {
 .lab-tabs__btn[aria-selected="true"],
 .lab-tabs__btn[aria-checked="true"] {
   background: transparent;
-  color: var(--lab-teal-700); /* #087F83 — screenshot active ink */
+  color: var(--lab-tabs-active-ink);
   font-weight: 600;
   box-shadow: none;
 }

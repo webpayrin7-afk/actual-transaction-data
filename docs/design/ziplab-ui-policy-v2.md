@@ -264,4 +264,5 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 - `LabTabs` variant=`primary` | `secondary` | `compact` (`src/components/ui/LabTabs.tsx`)
 - 공통 트랙 + `.lab-tabs__thumb` 슬라이딩 선택 면 (`src/app/globals.css`)
 - 색·radius·그림자는 `--lab-*` / `--lab-tabs-*` 토큰에서 관리 (페이지별 하드코딩 금지)
+  - 선택 면 `--lab-tabs-thumb-bg` `#EEFAFA`, 선택 글자 `--lab-tabs-active-ink` `#087F83` (글로벌 `--lab-teal-*` Tailwind 스케일과 구분)
 - SSR/hydration 시 첫 측정 후에만 thumb transition 활성화
