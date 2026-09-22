@@ -14,6 +14,7 @@ import {
   formatEokMan,
   formatManInput,
   formatManWon,
+  formatPurchasePolicyBasisLine,
   getComplexPublicPrices,
   parseEokInputToMan,
   type AcquisitionHomeStatus,
@@ -666,6 +667,12 @@ export function ComplexPurchaseCalculatorSection({
 
   /** 총 필요자금 = 매수가 + 매수비용(취득·중개). LTV 분모와 분리. */
   const purchaseExtraMan = purchase?.extraCostMan ?? 0;
+  const purchasePolicyBasis = purchase
+    ? formatPurchasePolicyBasisLine(
+        purchase.acquisition.meta.effectiveFrom,
+        purchase.brokerage.meta.effectiveFrom,
+      )
+    : null;
   const totalRequiredFundsMan =
     effectivePriceMan > 0
       ? (purchase?.totalCostMan ?? effectivePriceMan)
@@ -995,11 +1002,9 @@ export function ComplexPurchaseCalculatorSection({
                       <li>부가가치세는 사업자 유형에 따라 별도 발생할 수 있습니다.</li>
                       <li>개인별 감면·특례는 반영하지 않은 예상값입니다.</li>
                     </ul>
-                    <p className="detail-meta pt-1">
-                      {purchase.acquisition.meta.ruleVersion} /{" "}
-                      {purchase.brokerage.meta.ruleVersion} · 시행{" "}
-                      {purchase.acquisition.meta.effectiveFrom}
-                    </p>
+                    {purchasePolicyBasis ? (
+                      <p className="detail-meta pt-1">{purchasePolicyBasis}</p>
+                    ) : null}
                   </div>
                 </div>
               </LabDisclosure>
@@ -1903,7 +1908,6 @@ export function ComplexPurchaseCalculatorSection({
                     : ""
                 }`,
                 `주택 ${complexName}${compactArea ? ` · ${compactArea}` : ""}`,
-                propertyConditions.sourceNote,
                 "",
                 "개인 조건",
                 annualIncomeMan > 0
@@ -1921,7 +1925,6 @@ export function ComplexPurchaseCalculatorSection({
                 homes === "1" && disposeCondition ? "처분조건부" : "",
                 "",
                 "한도·상환",
-                loan?.disclaimer ?? "",
                 loan
                   ? `상환방식 ${loan.repayMethodLabel} · 금리 ${baseRatePct}% · 기간 ${years}년`
                   : "",
@@ -1942,9 +1945,9 @@ export function ComplexPurchaseCalculatorSection({
                   : "",
                 "집값 기준 필요 대출과 추가 필요 자기자금(매수비용 포함)은 다른 개념입니다.",
                 ...(loan?.breakdown.notes ?? []),
-                loan?.meta
-                  ? `${loan.meta.ruleVersion} · ${loan.meta.source}`
-                  : "",
+                "",
+                loan?.disclaimer ?? "",
+                propertyConditions.sourceNote,
               ]}
             />
           </div>
