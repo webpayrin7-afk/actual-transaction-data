@@ -44,9 +44,9 @@ export function transactionTabFromItem(tx: AptHistoryItem): TransactionTabType {
 
 /** Price ink: 매매 / 전세 / 월세 — tokens in globals.css (--lab-price-*). */
 export function dealTypePriceTextClass(type?: TransactionTabType): string {
-  if (type === "jeonse") return "text-[color:var(--lab-price-jeonse)]";
-  if (type === "monthly") return "text-[color:var(--lab-price-monthly)]";
-  return "text-[color:var(--lab-price-trade)]";
+  if (type === "jeonse") return "detail-price-jeonse";
+  if (type === "monthly") return "detail-price-monthly";
+  return "detail-price-trade";
 }
 
 export function matchesTransactionTab(
