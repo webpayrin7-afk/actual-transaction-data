@@ -371,8 +371,8 @@ function StatusBadge({ label }: { label: "신규" | "갱신" }) {
     <span
       className={
         renewal
-          ? "inline-flex items-center rounded px-1 py-0.5 text-[11px] font-semibold leading-none text-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-50)]"
-          : "inline-flex items-center rounded px-1 py-0.5 text-[11px] font-semibold leading-none text-[color:var(--lab-navy-900)] bg-[color-mix(in_srgb,var(--lab-navy-900)_8%,white)]"
+          ? "inline-flex items-center rounded px-1 py-0.5 text-[0.8125rem] font-semibold leading-none text-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-50)]"
+          : "inline-flex items-center rounded px-1 py-0.5 text-[0.8125rem] font-semibold leading-none text-[color:var(--lab-navy-900)] bg-[color-mix(in_srgb,var(--lab-navy-900)_8%,white)]"
       }
     >
       {label}
@@ -466,7 +466,7 @@ export function GroupedTransactionList({
               return (
                 <li
                   key={`${tx.id}-${idx}`}
-                  className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2 text-[12px] leading-snug last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2.5 sm:text-[13px]"
+                  className="detail-trade-archive-row grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2 last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2.5"
                   style={{ gridTemplateColumns: ARCHIVE_GRID }}
                 >
                   <span className="tabular-nums text-[color:var(--lab-navy-900)]">
@@ -482,7 +482,7 @@ export function GroupedTransactionList({
                   <span className="min-w-0">
                     <span className="inline-flex max-w-full flex-nowrap items-center gap-1 overflow-hidden">
                       <span
-                        className={`detail-number whitespace-nowrap ${dealTypePriceTextClass(mode)}`}
+                        className={`detail-trade-archive-price ${dealTypePriceTextClass(mode)}`}
                       >
                         {archivePriceLabel(tx, mode)}
                       </span>
