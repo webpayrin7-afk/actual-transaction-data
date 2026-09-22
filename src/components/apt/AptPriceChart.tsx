@@ -106,8 +106,24 @@ function seriesLabel(dealType: TransactionTabType): string {
 function PriceChartTooltip({
   active,
   payload,
+  coordinate,
+  viewBox,
 }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
+
+  const vb = viewBox as { x?: number; y?: number; width?: number } | undefined;
+  const chartLeft = vb?.x ?? 0;
+  const chartWidth = vb?.width ?? 0;
+  const flipLeft =
+    coordinate?.x != null &&
+    chartWidth > 0 &&
+    coordinate.x > chartLeft + chartWidth * 0.58;
+
+  const boxClass =
+    "w-max max-w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md";
+  const boxStyle = flipLeft
+    ? { transform: "translateX(calc(-100% - 12px))" }
+    : undefined;
 
   const scatter = payload.find(
     (item) =>
@@ -119,7 +135,7 @@ function PriceChartTooltip({
     const tag =
       row.kind === "high" ? "최고" : row.kind === "low" ? "최저" : null;
     return (
-      <div className="w-max max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md lg:max-w-[280px]">
+      <div className={boxClass} style={boxStyle}>
         {tag ? (
           <p
             className="mb-1 font-semibold"
@@ -155,7 +171,7 @@ function PriceChartTooltip({
   if (!row) return null;
   const priceItem = payload.find((item) => item.dataKey === "priceEok");
   return (
-    <div className="w-max max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md lg:max-w-[280px]">
+    <div className={boxClass} style={boxStyle}>
       <p className="mb-1.5 font-medium text-slate-800">
         {formatYmLabel(row.yearMonth)}
       </p>
@@ -391,9 +407,9 @@ export function AptPriceChart({
               />
               <Tooltip
                 content={<PriceChartTooltip />}
-                allowEscapeViewBox={{ x: true, y: true }}
-                wrapperStyle={{ zIndex: 40, outline: "none" }}
-                offset={10}
+                allowEscapeViewBox={{ x: false, y: true }}
+                wrapperStyle={{ zIndex: 40, outline: "none", pointerEvents: "none" }}
+                offset={8}
                 cursor={{ stroke: "#cbd5e1", strokeDasharray: "3 3" }}
               />
               {showPriceLine ? (
@@ -452,8 +468,10 @@ export function AptPriceChart({
                 />
                 <Tooltip
                   content={<VolumeTooltip />}
+                  allowEscapeViewBox={{ x: false, y: true }}
                   cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
-                  wrapperStyle={{ zIndex: 40, outline: "none" }}
+                  wrapperStyle={{ zIndex: 40, outline: "none", pointerEvents: "none" }}
+                  offset={8}
                 />
                 <Bar
                   dataKey="volume"
