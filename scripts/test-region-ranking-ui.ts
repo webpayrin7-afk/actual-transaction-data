@@ -888,7 +888,7 @@ assert(rankSection.includes("placeRankDisplay"), "stacked rank display");
 assert(!rankSection.includes("선택 평형 순위"), "no invented selected heading");
 assert(!rankSection.includes("selectedPyeongCompareLines"), "rank card does not repeat 33평 · 30평대 비교");
 assert(
-  rankSection.includes("lab-button lab-button-primary detail-cta") &&
+  rankSection.includes("lab-button lab-button-primary") &&
     rankSection.includes("→"),
   "region rank CTA is primary (matches trade-history CTA)",
 );
@@ -897,6 +897,10 @@ assert(
   rankSection.includes('data-event="complex_region_rank_cta"') &&
     /complex_region_rank_cta[\s\S]*?lab-button-primary/.test(rankSection),
   "region rank CTA link uses primary button",
+);
+assert(
+  rankSection.includes("border-t border-[color:var(--lab-border)] pt-6"),
+  "region rank CTA sits below a light divider with 24px padding",
 );
 
 const priceCompare = readFileSync(
