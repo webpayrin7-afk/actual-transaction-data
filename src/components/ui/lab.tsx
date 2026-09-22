@@ -2,17 +2,17 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 /**
  * Tab hierarchy (ZIPLAB UI Policy v2 §11):
- * - LabTabs variant="primary" — 48px segmented (주요 모드)
- * - LabTabs variant="secondary" — 40px segmented (분류·보기)
+ * - LabTabs variant="primary" — 48px soft-teal segmented (주요 모드)
+ * - LabTabs variant="secondary" — 40px soft-teal segmented (분류·보기)
  * - LabTabs variant="compact" — 30px visual / 44px touch (기간·조건)
- * Same track + sliding thumb family; hierarchy is size and placement only.
+ * White bordered shell + soft teal selected face; hierarchy is size only.
  * Pair content tabs with `role="tabpanel"` via idPrefix.
  * Legacy class helpers below remain for non-migrated surfaces.
  *
  * Color rules:
  * - Solid teal (`.lab-button-primary`) = execution CTA only
- * - Segmented selection = white thumb + teal text (no filled teal pill)
- * - White/transparent + muted text = unselected
+ * - Soft teal-50 face + teal-700 text = selection (tabs/filters)
+ * - White shell + muted text = unselected
  * - No gray selected state, no gradients
  */
 export function LabCard({ className = "", ...props }: HTMLAttributes<HTMLElement>) {

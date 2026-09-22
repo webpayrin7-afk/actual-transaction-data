@@ -15,10 +15,10 @@ export type LabTabItem<T extends string = string> = {
 
 /**
  * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 segmented family
+ * Soft teal selection inside a white bordered shell.
  * - primary: 48px (주요 모드)
  * - secondary: 40px (내부 분류·보기)
  * - compact: 30px visual / 44px touch (보조 조건)
- * Hierarchy is size + placement; all share the same track + sliding thumb.
  */
 export type LabTabsVariant = "primary" | "secondary" | "compact";
 

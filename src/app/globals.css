@@ -853,13 +853,12 @@ h2.detail-section-title {
 
 /*
  * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 segmented family
+ * Soft teal selection in a white bordered shell (apt-detail reference).
  * primary 48 / secondary 40 / compact 30(visual)·44(touch)
- * Shared: track #F1F5F9, thumb #FFF + soft shadow, teal/muted text
  */
 .lab-tabs {
   --lab-tabs-track-pad: 3px;
   --lab-tabs-thumb-radius: 6px;
-  --lab-tabs-thumb-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
   position: relative;
   display: flex;
   max-width: 100%;
@@ -867,8 +866,9 @@ h2.detail-section-title {
   box-sizing: border-box;
   gap: 0;
   padding: var(--lab-tabs-track-pad);
-  border-radius: var(--lab-radius-sm); /* 8 */
-  background: var(--lab-surface-subtle); /* #F1F5F9 */
+  border: 1px solid var(--lab-border); /* #E2E8F0 */
+  border-radius: 12px; /* rounded shell */
+  background: var(--lab-surface); /* #FFFFFF */
   box-shadow: none;
 }
 .lab-tabs__thumb {
@@ -880,8 +880,9 @@ h2.detail-section-title {
   height: calc(100% - (var(--lab-tabs-track-pad) * 2));
   width: 0;
   border-radius: var(--lab-tabs-thumb-radius);
-  background: var(--lab-surface); /* #FFFFFF */
-  box-shadow: var(--lab-tabs-thumb-shadow);
+  background: var(--lab-teal-50); /* #EEFAFA soft teal face */
+  /* thin teal edge without changing outer size */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
   pointer-events: none;
   transform: translate3d(0, 0, 0);
   opacity: 0;
@@ -928,7 +929,7 @@ h2.detail-section-title {
 .lab-tabs__btn[aria-selected="true"],
 .lab-tabs__btn[aria-checked="true"] {
   background: transparent;
-  color: var(--lab-teal-600); /* #0F766E */
+  color: var(--lab-teal-700); /* #087F83 — screenshot active ink */
   font-weight: 600;
   box-shadow: none;
 }
