@@ -85,6 +85,10 @@ export function RegionLeaderboard({
   dongName = null,
   dongRegionCode = null,
   fromComplexId = null,
+  scope: scopeProp,
+  onScopeChange,
+  hideScopeToggle = false,
+  onDecadeSelect,
 }: {
   regionSlug: string;
   regionName: string;
@@ -92,6 +96,10 @@ export function RegionLeaderboard({
   dongName?: string | null;
   dongRegionCode?: string | null;
   fromComplexId?: string | null;
+  scope?: "gu" | "dong";
+  onScopeChange?: (next: "gu" | "dong") => void;
+  hideScopeToggle?: boolean;
+  onDecadeSelect?: (decadeKey: string) => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -102,9 +110,10 @@ export function RegionLeaderboard({
   const canDong = Boolean(dongCode && dongName?.trim());
   const scopeParam = searchParams.get("scope");
   const effectiveScope: "gu" | "dong" =
-    canDong && (scopeParam === "dong" || (!scopeParam && Boolean(dongCode)))
+    scopeProp ??
+    (canDong && (scopeParam === "dong" || (!scopeParam && Boolean(dongCode)))
       ? "dong"
-      : "gu";
+      : "gu");
   const regionCode =
     effectiveScope === "dong" && dongCode ? dongCode : guCode;
 
@@ -135,6 +144,10 @@ export function RegionLeaderboard({
   const isDecade = tab !== "COMPOSITE";
 
   const setScope = (next: "gu" | "dong") => {
+    if (onScopeChange) {
+      onScopeChange(next);
+      return;
+    }
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", "stats");
     params.set("section", "ranking");
@@ -175,7 +188,7 @@ export function RegionLeaderboard({
         ) : null}
       </div>
 
-      {canDong ? (
+      {canDong && !hideScopeToggle ? (
         <ScopeToggle
           guLabel={regionName}
           dongLabel={dongName!.trim()}
@@ -202,6 +215,7 @@ export function RegionLeaderboard({
               onClick={() => {
                 setTab(item.id);
                 setExpanded(false);
+                if (item.id !== "COMPOSITE") onDecadeSelect?.(item.id);
               }}
               className={labSecondaryTabClass(
                 active,
