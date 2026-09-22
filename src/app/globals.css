@@ -402,12 +402,15 @@ textarea,
 .detail-price-chart-volume-label {
   position: absolute;
   left: 0;
-  top: 0;
+  top: 2px;
   z-index: 1;
+  width: 34px; /* match price Y-axis gutter */
+  padding-right: 2px;
   font-size: 0.625rem;
   font-weight: 500;
   line-height: 1;
   color: var(--lab-muted);
+  text-align: right;
   pointer-events: none;
 }
 

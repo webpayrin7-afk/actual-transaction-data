@@ -160,8 +160,10 @@ function TooltipBox({
   );
 }
 
-/** Finger/cursor proximity for promoting 최고/최저 over nearby deals or the line. */
-const EXTREME_HIT_RADIUS_PX = 28;
+/** Keep price + volume plot gutters identical so month X positions align. */
+const PRICE_CHART_MARGIN = { top: 14, right: 6, left: 0, bottom: 0 } as const;
+const VOLUME_CHART_MARGIN = { top: 2, right: 6, left: 34, bottom: 0 } as const;
+const PRICE_Y_AXIS_WIDTH = 34;
 
 type ExtremeHit = {
   id: string;
@@ -586,7 +588,7 @@ export function AptPriceChart({
         <div className="detail-price-chart-plot">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
-              margin={{ top: 14, right: 6, left: 0, bottom: 0 }}
+              margin={{ ...PRICE_CHART_MARGIN }}
               onMouseMove={handleChartMouseMove}
               onMouseLeave={clearPriorityExtreme}
             >
@@ -599,6 +601,7 @@ export function AptPriceChart({
                 type="number"
                 dataKey="t"
                 domain={domain}
+                allowDataOverflow
                 ticks={xTicks.length ? xTicks : undefined}
                 tickFormatter={(ts: number) => {
                   const d = new Date(ts);
@@ -616,7 +619,7 @@ export function AptPriceChart({
                 tick={{ fill: "#94a3b8", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
-                width={34}
+                width={PRICE_Y_AXIS_WIDTH}
                 domain={["auto", "auto"]}
               />
               <Tooltip
@@ -671,18 +674,20 @@ export function AptPriceChart({
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 data={monthSeries}
-                margin={{ top: 2, right: 6, left: 0, bottom: 0 }}
+                margin={{ ...VOLUME_CHART_MARGIN }}
               >
                 <XAxis
                   type="number"
                   dataKey="t"
                   domain={domain}
+                  allowDataOverflow
                   hide
                 />
                 <YAxis
                   type="number"
                   dataKey="volume"
                   hide
+                  width={0}
                   domain={[0, "auto"]}
                 />
                 <Tooltip
