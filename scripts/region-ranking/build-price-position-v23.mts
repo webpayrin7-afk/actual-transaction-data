@@ -1462,7 +1462,10 @@ async function main() {
         v232Fresh.selfVsStored232.missingRebuilt === 0);
     // Do not require V2.2→V2.3 publish invariantOk (priceMismatch vs SNAP22).
     // V2.3.2 is a freshness patch of V2.3.1; gate on integrity + expected delta only.
-    const gate = integrityOk && !freshnessUnexpected && selfParityOk;
+    // When V2.3.2 already exists, allow idempotent ON CONFLICT DO NOTHING even if
+    // a live rebuild drifts from the frozen snapshot (source inputs may move).
+    const alreadyPublished = v232Fresh.selfVsStored232.scanned > 0;
+    const gate = integrityOk && !freshnessUnexpected && (selfParityOk || alreadyPublished);
     const v232Report = {
       version: PRICE_POSITION_V232_VERSION,
       snapshot: SNAP232,
@@ -1500,6 +1503,7 @@ async function main() {
       auditCells: contributorAudit.length,
       jamsil: v232Fresh.jamsil,
       selfVsStored232: v232Fresh.selfVsStored232,
+      alreadyPublished,
       invariantOk,
       integrityOk,
       selfParityOk,
