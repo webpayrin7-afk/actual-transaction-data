@@ -376,6 +376,7 @@ textarea,
 }
 .detail-price-chart-stack {
   width: 100%;
+  overflow: visible;
 }
 .detail-price-chart-plot {
   width: 100%;

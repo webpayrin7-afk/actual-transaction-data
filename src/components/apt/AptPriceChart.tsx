@@ -603,11 +603,10 @@ export function AptPriceChart({
                   const d = new Date(ts);
                   return `${String(d.getUTCFullYear()).slice(2)}년`;
                 }}
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                tick={{ fill: "#94a3b8", fontSize: 11, dy: 4 }}
                 axisLine={{ stroke: "#e2e8f0" }}
                 tickLine={false}
                 height={24}
-                dy={4}
               />
               <YAxis
                 type="number"
