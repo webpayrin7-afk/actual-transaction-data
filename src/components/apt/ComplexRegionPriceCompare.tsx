@@ -162,7 +162,9 @@ function RowHeader({
     <div className="flex flex-col gap-1 min-[400px]:flex-row min-[400px]:items-baseline min-[400px]:justify-between min-[400px]:gap-2">
       <span
         className={`${SCOPE_LABEL_CLASS} ${
-          accent ? "font-medium text-[color:var(--lab-brand-primary)]" : ""
+          accent
+            ? "font-medium !text-[color:var(--lab-brand-primary)]"
+            : ""
         }`}
         title={scopeLabel}
       >
