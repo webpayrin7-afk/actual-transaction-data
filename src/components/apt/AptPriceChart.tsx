@@ -411,9 +411,11 @@ export function AptPriceChart({
   onMonthSelect?: (ym: string | null) => void;
 }) {
   const extremeHitsRef = useRef<ExtremeHit[]>([]);
-  const [priorityExtreme, setPriorityExtreme] = useState<PriorityExtreme | null>(
-    null,
-  );
+  const extremeKeyRef = useRef("");
+  const [priorityState, setPriorityState] = useState<{
+    key: string;
+    value: PriorityExtreme | null;
+  }>({ key: "", value: null });
 
   const registerExtremeHit = useCallback((hit: ExtremeHit) => {
     const hits = extremeHitsRef.current;
@@ -425,13 +427,23 @@ export function AptPriceChart({
   }, []);
 
   const clearPriorityExtreme = useCallback(() => {
-    setPriorityExtreme(null);
+    const key = extremeKeyRef.current;
+    setPriorityState((prev) =>
+      prev.key === key && prev.value == null
+        ? prev
+        : { key, value: null },
+    );
   }, []);
 
   const handleChartMouseMove = useCallback(
     (state: { chartX?: number; chartY?: number } | null) => {
+      const key = extremeKeyRef.current;
       if (!state || state.chartX == null || state.chartY == null) {
-        setPriorityExtreme(null);
+        setPriorityState((prev) =>
+          prev.key === key && prev.value == null
+            ? prev
+            : { key, value: null },
+        );
         return;
       }
       const { chartX, chartY } = state;
@@ -444,18 +456,26 @@ export function AptPriceChart({
           best = hit;
         }
       }
-      setPriorityExtreme((prev) => {
-        if (!best) return prev ? null : prev;
+      setPriorityState((prev) => {
+        if (!best) {
+          return prev.key === key && prev.value == null
+            ? prev
+            : { key, value: null };
+        }
         if (
-          prev &&
-          prev.point.id === best.point.id &&
-          prev.point.kind === best.point.kind &&
-          prev.x === best.x &&
-          prev.y === best.y
+          prev.key === key &&
+          prev.value &&
+          prev.value.point.id === best.point.id &&
+          prev.value.point.kind === best.point.kind &&
+          prev.value.x === best.x &&
+          prev.value.y === best.y
         ) {
           return prev;
         }
-        return { point: best.point, x: best.x, y: best.y };
+        return {
+          key,
+          value: { point: best.point, x: best.x, y: best.y },
+        };
       });
     },
     [],
@@ -521,10 +541,17 @@ export function AptPriceChart({
     };
   }, [deals, domain]);
 
+  const extremeKey = useMemo(
+    () => extremePoints.map((row) => `${row.kind}:${row.id}`).join("|"),
+    [extremePoints],
+  );
+  const priorityExtreme =
+    priorityState.key === extremeKey ? priorityState.value : null;
+
   useLayoutEffect(() => {
+    extremeKeyRef.current = extremeKey;
     extremeHitsRef.current = [];
-    setPriorityExtreme(null);
-  }, [extremePoints]);
+  }, [extremeKey]);
 
   const extremeDotShape = useCallback(
     (props: { cx?: number; cy?: number; payload?: DealScatterPoint }) => (

@@ -136,7 +136,10 @@ export function AptDetailPage({
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
   const [stickyVisible, setStickyVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("market");
-  const [selectedMonthYm, setSelectedMonthYm] = useState<string | null>(null);
+  const [monthSelection, setMonthSelection] = useState<{
+    scope: string;
+    ym: string | null;
+  }>({ scope: "", ym: null });
   const heroRef = useRef<HTMLElement | null>(null);
 
   const quickQuery = useQuery({
@@ -370,6 +373,13 @@ export function AptDetailPage({
   const listDealMode =
     chartDealType === "trade" ? ("trade" as const) : ("rent" as const);
 
+  const monthScope = `${areaKey}|${chartDealType}|${startYm}|${endYm}`;
+  const selectedMonthYm =
+    monthSelection.scope === monthScope ? monthSelection.ym : null;
+  const setSelectedMonthYm = (ym: string | null) => {
+    setMonthSelection({ scope: monthScope, ym });
+  };
+
   const listSourceItems = useMemo(() => {
     const base = selectedMonthYm
       ? periodItems.filter(
@@ -517,12 +527,6 @@ export function AptDetailPage({
     setPeriodPreset("full");
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
-
-  // Reset month pick when shared filters change.
-  useEffect(() => {
-    setSelectedMonthYm(null);
-  }, [areaKey, chartDealType, startYm, endYm]);
-
 
   useEffect(() => {
     if (!data) return;
