@@ -160,21 +160,12 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
               return (
                 <div
                   key={`h-${c.aptName}`}
-                  className={`min-w-0 px-3 text-center ${
-                    isCurrent
-                      ? "border-t-2 border-[color:var(--lab-brand-primary)] pt-1"
-                      : "border-t-2 border-transparent pt-1"
-                  }`}
+                  className="min-w-0 px-3 text-center"
                 >
                   {isCurrent ? (
-                    <>
-                      <span className="mb-1 inline-flex items-center rounded-full px-1.5 py-px detail-micro font-medium text-[color:var(--lab-brand-primary)] ring-1 ring-[color:var(--lab-brand-border)]">
-                        선택 단지
-                      </span>
-                      <span className="detail-label line-clamp-2 font-semibold !text-[color:var(--lab-brand-primary)]">
-                        {c.aptName}
-                      </span>
-                    </>
+                    <span className="detail-label line-clamp-2 font-semibold !text-[color:var(--lab-brand-primary)]">
+                      {c.aptName}
+                    </span>
                   ) : (
                     <Link
                       href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
