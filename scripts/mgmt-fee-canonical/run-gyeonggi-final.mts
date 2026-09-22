@@ -203,12 +203,18 @@ async function fetchText(url: URL): Promise<{ status: number; body: string }> {
       return response;
     } catch (error) {
       const name = error instanceof Error ? error.name : "";
-      if (name !== "AbortError" && name !== "TimeoutError") throw error;
+      const message = error instanceof Error ? error.message : String(error);
+      const retryable =
+        name === "AbortError" ||
+        name === "TimeoutError" ||
+        name === "TypeError" ||
+        /fetch failed|network|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket/i.test(message);
+      if (!retryable) throw error;
       stats.timeouts += 1;
       last = error;
       if (attempt < 3) {
         stats.retries += 1;
-        await sleep(SLEEP_MS);
+        await sleep(SLEEP_MS * attempt);
       }
     }
   }
