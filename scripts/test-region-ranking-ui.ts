@@ -882,10 +882,12 @@ assert(rankSection.includes("placeRankDisplay"), "stacked rank display");
 assert(!rankSection.includes("선택 평형 순위"), "no invented selected heading");
 assert(!rankSection.includes("selectedPyeongCompareLines"), "rank card does not repeat 33평 · 30평대 비교");
 assert(
-  rankSection.includes("lab-button lab-button-primary") &&
+  rankSection.includes("lab-button lab-button-secondary") &&
     rankSection.includes("→"),
-  "region rank CTA matches 거래 내역 자세히 보기",
+  "region rank CTA is secondary (정책 v2)",
 );
+assert(rankSection.includes("detail-compact-value"), "ranks use compact-value");
+assert(!rankSection.includes("lab-button-primary"), "region rank CTA is not primary");
 
 const priceCompare = readFileSync(
   resolve(import.meta.dirname, "../src/components/apt/ComplexRegionPriceCompare.tsx"),
@@ -934,6 +936,12 @@ assert(
     priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") > 0,
   "title/meta sit above tabs",
 );
+assert(priceCompare.includes("PRICE_UNIT"), "만원/평 unit token in header");
+assert(priceCompare.includes("detail-data-value-emphasis"), "price values use data-value-emphasis");
+assert(priceCompare.includes("space-y-1.5"), "price level stacks label/value then bar");
+assert(priceCompare.includes("detail-change-up"), "trend deltas use change-up");
+assert(priceCompare.includes("detail-change-down"), "trend deltas use change-down");
+assert(!priceCompare.includes("function PriceFigure"), "unit no longer inline per row");
 assert(
   !priceCompare.slice(
     priceCompare.indexOf("function PriceLevelBars"),

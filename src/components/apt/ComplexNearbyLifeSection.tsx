@@ -174,10 +174,10 @@ const LIVING_LIST_SUBTITLE = "가까운 순 · 주요 시설";
 
 function LivingDistanceSubtitle() {
   return (
-    <span className="inline-flex shrink-0 items-center text-[11px] text-slate-500">
+    <span className="detail-meta inline-flex shrink-0 items-center">
       <span>{LIVING_LIST_SUBTITLE}</span>
-      <InfoTip aria-label="생활 시설 거리 기준 안내" className="text-[11px]">
-        <p className="text-[12px] leading-relaxed text-slate-600">
+      <InfoTip aria-label="생활 시설 거리 기준 안내" className="detail-meta">
+        <p className="detail-body">
           표시된 거리는 아파트와 시설 간 직선거리입니다.
           <br />
           실제 도보·차량 이동거리는 다를 수 있습니다.
@@ -359,7 +359,7 @@ function livingPlaceAddress(p: {
 function livingChipClass(active: boolean): string {
   return [
     "inline-flex shrink-0 items-center justify-center whitespace-nowrap",
-    "h-7 rounded-full px-2.5 text-[12px] font-semibold leading-none",
+    "detail-micro h-8 min-h-8 rounded-full px-2.5 font-medium leading-none",
     "border transition-colors",
     active
       ? "border-[color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
@@ -371,12 +371,10 @@ function livingChipClass(active: boolean): string {
 function schoolLevelChipClass(active: boolean): string {
   return [
     "relative inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap",
-    // Visual ~h-6; ::before preserves ~36px touch/focus target.
-    "h-6 rounded-full px-2 text-[11px] font-medium leading-none",
-    "before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']",
+    "detail-label h-11 min-h-11 rounded-lg px-2 font-medium",
     "border transition-colors",
     active
-      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
+      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] font-semibold text-[var(--lab-teal-700)]"
       : "border-[color-mix(in_srgb,var(--lab-border)_72%,transparent)] bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-600",
   ].join(" ");
 }
@@ -385,7 +383,7 @@ function schoolLevelChipClass(active: boolean): string {
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-3">
-      <p className="text-sm text-slate-600">{children}</p>
+      <p className="detail-body">{children}</p>
     </div>
   );
 }
@@ -966,7 +964,7 @@ export function ComplexNearbyLifeSection({
                             lines.map((line) => (
                               <span
                                 key={`${p.id}-${line}`}
-                                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 px-1 text-[9px] font-bold text-white shadow-sm"
+                                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 detail-micro px-1 font-bold text-white shadow-sm"
                                 style={{
                                   backgroundColor: subwayLineColor(line),
                                 }}
@@ -975,17 +973,17 @@ export function ComplexNearbyLifeSection({
                               </span>
                             ))
                           ) : (
-                            <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 bg-amber-700 px-1 text-[9px] font-bold text-white shadow-sm">
+                            <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 bg-amber-700 detail-micro px-1 font-bold text-white shadow-sm">
                               역
                             </span>
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="flex min-w-0 items-baseline gap-2">
-                            <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                            <span className="detail-label min-w-0 truncate font-medium text-[color:var(--lab-navy-950)]">
                               {p.name}
                             </span>
-                            <span className="shrink-0 text-[10px] text-slate-500">
+                            <span className="detail-meta shrink-0">
                               {formatMeters(p.distanceMeters)}
                               {" · 직선거리"}
                             </span>
@@ -1024,10 +1022,10 @@ export function ComplexNearbyLifeSection({
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="flex min-w-0 items-baseline gap-2">
-                            <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                            <span className="detail-label min-w-0 truncate font-medium text-[color:var(--lab-navy-950)]">
                               {p.name}
                             </span>
-                            <span className="shrink-0 text-[10px] text-slate-500">
+                            <span className="detail-meta shrink-0">
                               {metaText}
                             </span>
                           </span>
@@ -1036,7 +1034,7 @@ export function ComplexNearbyLifeSection({
                               {routes.map((route) => (
                                 <span
                                   key={`${p.id}-${route}`}
-                                  className="inline-flex h-[18px] items-center rounded border border-slate-200 bg-slate-50 px-1.5 text-[9px] font-semibold text-slate-700"
+                                  className="inline-flex h-[18px] items-center rounded border border-slate-200 bg-slate-50 detail-micro px-1.5 font-semibold text-slate-700"
                                 >
                                   {route}
                                 </span>
@@ -1082,7 +1080,7 @@ export function ComplexNearbyLifeSection({
           <EmptyBlock>
             주변 정보를 찾지 못했어요
             <br />
-            <span className="text-[12px] text-slate-500">
+            <span className="detail-meta">
               주변에 표시할 주요 시설이 없어요
             </span>
           </EmptyBlock>
@@ -1114,7 +1112,7 @@ export function ComplexNearbyLifeSection({
             <EmptyBlock>
               주변 정보를 찾지 못했어요
               <br />
-              <span className="text-[12px] text-slate-500">
+              <span className="detail-meta">
                 주변에 표시할 주요 시설이 없어요
               </span>
             </EmptyBlock>
@@ -1157,20 +1155,20 @@ export function ComplexNearbyLifeSection({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex min-w-0 items-baseline gap-1.5">
-                        <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                        <span className="detail-label min-w-0 truncate font-medium text-[color:var(--lab-navy-950)]">
                           {p.name}
                         </span>
                         {p.medicalType === "GENERAL_HOSPITAL" ? (
-                          <span className="inline-flex shrink-0 items-center rounded border border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] px-1 py-px text-[9px] font-semibold leading-none text-[var(--lab-teal-700)]">
+                          <span className="inline-flex shrink-0 items-center rounded border border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] detail-micro px-1 py-px font-semibold leading-none text-[var(--lab-teal-700)]">
                             종합병원
                           </span>
                         ) : null}
-                        <span className="shrink-0 text-[10px] text-slate-500">
+                        <span className="detail-meta shrink-0">
                           {formatDistanceOnly(p.distanceM)}
                         </span>
                       </span>
                       {address ? (
-                        <span className="mt-0.5 block truncate text-[10px] text-slate-500">
+                        <span className="detail-meta mt-0.5 block truncate">
                           {address}
                         </span>
                       ) : null}
@@ -1292,7 +1290,7 @@ export function ComplexNearbyLifeSection({
               {heading}
             </p>
             {places.length === 0 ? (
-              <p className="px-0.5 py-1.5 text-[13px] text-slate-500">
+              <p className="detail-meta px-0.5 py-1.5">
                 주변에서 확인된 학교가 없습니다.
               </p>
             ) : (
@@ -1316,14 +1314,14 @@ export function ComplexNearbyLifeSection({
                         aria-label={`${s.name} 상세 보기`}
                         className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left transition active:scale-[0.99] active:bg-slate-100 ${selectedRowClass(selectedId === s.id)}`}
                       >
-                        <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white px-0.5 text-[9px] font-bold text-[#1e3a5f]">
+                        <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white detail-micro px-0.5 font-bold text-[color:var(--lab-navy-950)]">
                           {SCHOOL_LEVEL_BADGE[s.schoolLevel as SchoolLevelCode]}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-medium text-slate-800">
+                          <span className="detail-label block truncate font-medium text-[color:var(--lab-navy-950)]">
                             {s.name}
                           </span>
-                          <span className="mt-0.5 block text-[10px] text-slate-500">
+                          <span className="detail-meta mt-0.5 block">
                             {metaParts.join(" · ")}
                           </span>
                         </span>
@@ -1380,8 +1378,8 @@ export function ComplexNearbyLifeSection({
         <div className="min-w-0">
           <h2 className="detail-section-title flex items-center">
             주변 생활
-            <InfoTip aria-label="주변 생활 출처 안내" className="text-[13px]">
-              <p className="text-[12px] leading-relaxed text-slate-600">
+            <InfoTip aria-label="주변 생활 출처 안내" className="detail-meta">
+              <p className="detail-body">
                 지도: NAVER Maps
                 <br />
                 단지 위치:{" "}
@@ -1429,7 +1427,7 @@ export function ComplexNearbyLifeSection({
             onClick={() => selectTab(t.id)}
             className={labSecondaryTabClass(
               tab === t.id,
-              "!h-8 min-h-8 min-w-0 flex-1 !px-3 whitespace-nowrap text-[13px]",
+              "min-h-11 min-w-0 flex-1 !px-2 whitespace-nowrap detail-label",
             )}
           >
             {t.label}
@@ -1550,7 +1548,7 @@ export function ComplexNearbyLifeSection({
                 className="h-full w-full rounded-none"
               />
               {tab === "commerce" && commerceSnapshot?.mapPoints ? (
-                <p className="pointer-events-none absolute bottom-2 left-3 rounded bg-white/85 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 shadow-sm">
+                <p className="detail-micro pointer-events-none absolute bottom-2 left-3 rounded bg-white/85 px-1.5 py-0.5 font-medium text-slate-600 shadow-sm">
                   점 1개 = 생활업소 1곳 · 색 = 업종 대분류
                 </p>
               ) : null}
@@ -1581,7 +1579,7 @@ export function ComplexNearbyLifeSection({
               <button
                 type="button"
                 onClick={() => setExpanded(true)}
-                className="text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
+                className="detail-label font-medium text-[var(--lab-teal-700)] hover:underline"
               >
                 {tab === "transport"
                   ? `버스 정류장 더보기 · ${moreCount}곳`

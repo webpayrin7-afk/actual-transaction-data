@@ -51,19 +51,31 @@ function categoryColor(hex: string): CommerceCategoryColor {
 }
 
 /**
- * Fixed tokens — do not restyle per-screen.
+ * ZIPLAB UI Policy v2 — matches CSS vars --lab-cat-* in globals.css.
  * Index order matches COMMERCE_CATEGORY_COLOR_KEYS / map-point categoryIdx.
  */
+export const COMMERCE_CATEGORY_CSS_VAR: Record<
+  CommerceCategoryColorKey,
+  string
+> = {
+  "음식/외식": "var(--lab-cat-food)",
+  "쇼핑/소매": "var(--lab-cat-shop)",
+  생활서비스: "var(--lab-cat-life)",
+  교육: "var(--lab-cat-edu)",
+  "여가/체육": "var(--lab-cat-leisure)",
+  "의료/건강": "var(--lab-cat-health)",
+};
+
 export const COMMERCE_CATEGORY_COLORS: Record<
   CommerceCategoryColorKey,
   CommerceCategoryColor
 > = {
-  "음식/외식": categoryColor("#F06B6B"), // coral
-  "쇼핑/소매": categoryColor("#4BA8C9"), // sky — avoid apt-marker teal overlap
-  생활서비스: categoryColor("#6686B8"), // blue
-  교육: categoryColor("#8B72C6"), // purple
-  "여가/체육": categoryColor("#55A873"), // green
-  "의료/건강": categoryColor("#D8658B"), // rose
+  "음식/외식": categoryColor("#c2410c"), // --lab-cat-food
+  "쇼핑/소매": categoryColor("#0369a1"), // --lab-cat-shop
+  생활서비스: categoryColor("#475569"), // --lab-cat-life
+  교육: categoryColor("#7c3aed"), // --lab-cat-edu
+  "여가/체육": categoryColor("#15803d"), // --lab-cat-leisure
+  "의료/건강": categoryColor("#be185d"), // --lab-cat-health
 };
 
 /** Stable index for compact map-point encoding (0..5). */

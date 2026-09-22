@@ -57,7 +57,7 @@ function formatSignedPctPoints(rate: number, digits = 0): string {
   return `${n > 0 ? "+" : "-"}${fixed}%`;
 }
 
-const inputClass = "lab-input h-10 w-full min-w-0 px-3 text-sm tabular-nums";
+const inputClass = "lab-input min-h-12 h-12 w-full min-w-0 px-3 text-base tabular-nums";
 
 /** 만원 숫자 입력 + 입력칸 안 실시간 억·만원 환산 */
 function ManWonField({
@@ -81,31 +81,27 @@ function ManWonField({
     liveMan != null && liveMan > 0 ? formatEokMan(liveMan) : null;
 
   return (
-    <div className="lab-input flex h-10 w-full min-w-0 items-center gap-2 px-3 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20">
-      <input
-        id={id}
-        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-base tabular-nums text-slate-900 outline-none placeholder:text-slate-400"
-        inputMode="numeric"
-        value={value}
-        placeholder={placeholder}
-        onFocus={onFocus}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") e.currentTarget.blur();
-        }}
-        aria-describedby={liveLabel ? `${id}-live` : undefined}
-      />
+    <div className="space-y-1">
+      <div className="lab-input flex min-h-12 h-12 w-full min-w-0 items-center px-3 focus-within:border-[color:var(--lab-teal-600)] focus-within:ring-2 focus-within:ring-[color:var(--lab-teal-600)]/20">
+        <input
+          id={id}
+          className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-base tabular-nums text-[color:var(--lab-navy-950)] outline-none placeholder:text-slate-400"
+          inputMode="numeric"
+          value={value}
+          placeholder={placeholder}
+          onFocus={onFocus}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.currentTarget.blur();
+          }}
+          aria-describedby={liveLabel ? `${id}-live` : undefined}
+        />
+      </div>
       {liveLabel ? (
-        <>
-          <span aria-hidden className="h-4 w-px shrink-0 bg-slate-200" />
-          <span
-            id={`${id}-live`}
-            className="max-w-[48%] shrink-0 truncate text-right text-sm font-medium tabular-nums text-slate-700"
-          >
-            {liveLabel}
-          </span>
-        </>
+        <p id={`${id}-live`} className="detail-meta tabular-nums">
+          {liveLabel}
+        </p>
       ) : null}
     </div>
   );
@@ -123,26 +119,20 @@ function Row({
   emph?: boolean;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3">
+    <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
       <div className="min-w-0">
-        <dt
-          className={
-            emph ? "text-sm text-slate-600" : "text-sm text-slate-500"
-          }
-        >
+        <dt className={emph ? "detail-label text-[color:var(--lab-navy-950)]" : "detail-label"}>
           {label}
         </dt>
         {hint ? (
-          <p className="mt-0.5 text-xs leading-snug text-slate-500">
-            {hint}
-          </p>
+          <p className="detail-meta mt-0.5">{hint}</p>
         ) : null}
       </div>
       <dd
         className={
           emph
-            ? "shrink-0 text-lg font-bold tabular-nums tracking-tight text-slate-900"
-            : "shrink-0 text-sm font-semibold tabular-nums text-slate-800"
+            ? "detail-summary-value shrink-0"
+            : "detail-data-value-emphasis shrink-0"
         }
       >
         {value}
@@ -166,7 +156,7 @@ function BreakdownRow({
     <div className="flex items-start justify-between gap-3">
       <dt
         className={
-          emph ? "text-sm font-medium text-slate-800" : "text-sm text-slate-600"
+          emph ? "detail-label font-medium text-[color:var(--lab-navy-950)]" : "detail-label"
         }
       >
         {label}
@@ -174,10 +164,8 @@ function BreakdownRow({
       <dd
         className={
           emph
-            ? "shrink-0 text-sm font-bold tabular-nums text-slate-900"
-            : negative
-              ? "shrink-0 text-sm font-semibold tabular-nums text-slate-700"
-              : "shrink-0 text-sm font-semibold tabular-nums text-slate-800"
+            ? "detail-data-value-emphasis shrink-0"
+            : "detail-data-value-emphasis shrink-0"
         }
       >
         {value}
@@ -192,7 +180,7 @@ function BasisDetails({ lines }: { lines: string[] }) {
   if (!cleaned.length) return null;
   return (
     <LabDisclosure title="계산 기준 및 세부내역">
-      <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
+      <ul className="detail-body space-y-2">
         {cleaned.map((line) => (
           <li key={line}>{line}</li>
         ))}
@@ -216,26 +204,22 @@ function FieldSelect({
   onChange: (value: string) => void;
   children: ReactNode;
 }) {
-  // Visible chip matches AptAreaSelector compact trigger (h-8 / text-xs).
-  // Native <select> stays transparent on top — global 16px !important would
-  // otherwise force these controls larger than the area picker button.
-  // Width follows label text (w-fit) with comfortable pl/pr; text right-aligned.
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="min-w-0 shrink">
-        <label htmlFor={id} className="text-xs text-slate-500">
+    <div className="space-y-1.5">
+      <div className="min-w-0">
+        <label htmlFor={id} className="detail-label">
           {label}
         </label>
         {status ? (
-          <p className="mt-0.5 truncate text-[11px] text-slate-500">{status}</p>
+          <p className="detail-meta mt-0.5 truncate">{status}</p>
         ) : null}
       </div>
-      <div className="relative ml-auto flex h-8 w-fit shrink-0 items-center justify-end gap-1.5 rounded-md border border-slate-200 bg-white py-0 pl-6 pr-2.5 text-xs font-semibold text-slate-800">
-        <span className="pointer-events-none whitespace-nowrap text-right" aria-hidden>
+      <div className="relative flex min-h-12 h-12 w-full items-center justify-between gap-1.5 rounded-lg border border-[color:var(--lab-border-control)] bg-white px-3 detail-label font-medium text-[color:var(--lab-navy-950)]">
+        <span className="pointer-events-none min-w-0 flex-1 truncate text-left" aria-hidden>
           <FieldSelectDisplay value={String(value)} options={children} />
         </span>
         <ChevronsUpDown
-          className="pointer-events-none relative h-3.5 w-3.5 shrink-0 text-slate-400"
+          className="pointer-events-none relative h-4 w-4 shrink-0 text-slate-400"
           aria-hidden
         />
         <select
@@ -303,10 +287,10 @@ function DetailItem({
 }) {
   return (
     <div className="space-y-1">
-      <p className="text-sm font-medium text-slate-800">{label}</p>
-      <p className="text-sm font-semibold tabular-nums text-slate-900">{value}</p>
+      <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">{label}</p>
+      <p className="detail-data-value-emphasis">{value}</p>
       {basis ? (
-        <p className="text-sm leading-relaxed text-slate-600">{basis}</p>
+        <p className="detail-body">{basis}</p>
       ) : null}
     </div>
   );
@@ -314,15 +298,15 @@ function DetailItem({
 
 function choiceClass(active: boolean) {
   return active
-    ? "rounded-md bg-teal-50 px-2.5 py-1.5 text-xs font-semibold text-teal-800"
-    : "rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-600";
+    ? "detail-label rounded-md bg-[color:var(--lab-teal-50)] px-2.5 py-2 font-semibold text-[color:var(--lab-teal-700)]"
+    : "detail-label rounded-md border border-[color:var(--lab-border)] bg-white px-2.5 py-2 text-slate-600";
 }
 
 
 function growthToneClass(pct: number): string {
-  if (pct > 0) return "text-rose-600";
-  if (pct < 0) return "text-blue-600";
-  return "text-slate-700";
+  if (pct > 0) return "detail-change-up";
+  if (pct < 0) return "detail-change-down";
+  return "text-[color:var(--lab-navy-700)]";
 }
 
 function growthTrackStyle(pct: number): CSSProperties {
@@ -813,12 +797,12 @@ export function ComplexPurchaseCalculatorSection({
             세금, 대출 계산
           </h2>
           {compactArea ? (
-            <p className="text-[11px] tabular-nums text-slate-400">
+            <p className="detail-meta tabular-nums">
               {compactArea} 기준
             </p>
           ) : null}
         </div>
-        <p className="mt-1.5 text-[11px] leading-snug text-slate-400 sm:text-xs">
+        <p className="detail-meta mt-1.5">
           이 단지를 매수할 때 필요한 비용과 대출을 계산해보세요.
         </p>
       </header>
@@ -836,21 +820,21 @@ export function ComplexPurchaseCalculatorSection({
         }}
       />
 
-      <div className="mt-3 space-y-3">
+      <div className="detail-after-title mx-auto w-full max-w-[40rem] space-y-3">
         {tab === "purchase" ? (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
               <label
                 htmlFor="calc-purchase-price"
-                className="text-xs font-medium text-slate-600"
+                className="detail-label font-medium text-[color:var(--lab-navy-950)]"
               >
                 예상 매수가
-                <span className="ml-1 font-normal text-slate-400">(만원)</span>
+                <span className="detail-meta ml-1">(만원)</span>
               </label>
               {latestTradeMan > 0 ? (
                 <button
                   type="button"
-                  className="text-[11px] font-medium text-teal-700 hover:underline"
+                  className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
                   onClick={resetToLatestTrade}
                 >
                   최근 거래가 ↺
@@ -949,7 +933,7 @@ export function ComplexPurchaseCalculatorSection({
                 </div>
               </dl>
             ) : (
-              <p className="text-sm text-slate-500">
+              <p className="detail-meta">
                 매수가를 입력하면 결과가 표시됩니다.
               </p>
             )}
@@ -1001,17 +985,17 @@ export function ComplexPurchaseCalculatorSection({
                     basis={`선택 요율 ${purchase.brokerage.ratePct.toFixed(2)}% · 법정 상한 ${purchase.brokerage.legalCapRatePct.toFixed(2)}%`}
                   />
                   <div className="space-y-1.5 border-t border-slate-200/70 pt-3">
-                    <p className="text-sm font-medium text-slate-800">
+                    <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
                       적용·미반영 안내
                     </p>
-                    <ul className="space-y-1.5 text-sm leading-relaxed text-slate-700">
+                    <ul className="detail-body space-y-1.5">
                       {(purchase.acquisition.notes ?? []).map((n) => (
                         <li key={n}>{n}</li>
                       ))}
                       <li>부가가치세는 사업자 유형에 따라 별도 발생할 수 있습니다.</li>
                       <li>개인별 감면·특례는 반영하지 않은 예상값입니다.</li>
                     </ul>
-                    <p className="pt-1 text-xs text-slate-500">
+                    <p className="detail-meta pt-1">
                       {purchase.acquisition.meta.ruleVersion} /{" "}
                       {purchase.brokerage.meta.ruleVersion} · 시행{" "}
                       {purchase.acquisition.meta.effectiveFrom}
@@ -1025,10 +1009,10 @@ export function ComplexPurchaseCalculatorSection({
 
         {tab === "holding" ? (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-slate-800">
+            <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
               보유세
               {compactArea ? (
-                <span className="font-normal text-slate-500">
+                <span className="detail-meta font-normal">
                   {" "}
                   · {compactArea} 기준
                 </span>
@@ -1045,22 +1029,22 @@ export function ComplexPurchaseCalculatorSection({
                   />
                   <div className="space-y-0.5 pl-0.5">
                     {officialDateLabel ? (
-                      <p className="text-sm leading-relaxed text-slate-600">
+                      <p className="detail-body">
                         {officialDateLabel} 공식 공시가격 기준
                       </p>
                     ) : (
-                      <p className="text-sm leading-relaxed text-slate-600">
+                      <p className="detail-body">
                         입력 공시가격 기준
                       </p>
                     )}
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="detail-body">
                       {growthActive
                         ? `공시가격 ${growthLabel} 가정 · 현행 세제 유지`
                         : "현행 세제 유지 가정"}
                     </p>
                     {growthActive ? (
                       <p
-                        className={`text-sm font-medium tabular-nums ${growthToneClass(taxDeltaMan)}`}
+                        className={`detail-data-value-emphasis ${growthToneClass(taxDeltaMan)}`}
                       >
                         기준 대비 {formatSignedEokMan(taxDeltaMan)} ·{" "}
                         {formatSignedPctPoints(taxDeltaRate, 0)}
@@ -1080,20 +1064,20 @@ export function ComplexPurchaseCalculatorSection({
                 </div>
               </dl>
             ) : (
-              <p className="text-sm text-slate-500">
+              <p className="detail-meta">
                 공시가격을 입력하면 이 단지·면적 기준 보유세가 표시됩니다.
               </p>
             )}
 
             <div className="space-y-2 border-t border-slate-200/80 pt-3">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-slate-800">공시가격</p>
+                <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">공시가격</p>
                 {hasOfficialUnit &&
                 !officialManualOverride &&
                 !officialEditing ? (
-                  <span className="text-xs text-slate-500">공식값</span>
+                  <span className="detail-meta">공식값</span>
                 ) : officialManualOverride ? (
-                  <span className="text-xs text-slate-500">사용자 입력값</span>
+                  <span className="detail-meta">사용자 입력값</span>
                 ) : null}
               </div>
 
@@ -1101,27 +1085,27 @@ export function ComplexPurchaseCalculatorSection({
               !officialManualOverride &&
               !officialEditing ? (
                 <div className="space-y-1.5">
-                  <p className="text-lg font-bold tabular-nums tracking-tight text-slate-900">
+                  <p className="detail-summary-value">
                     {formatEokMan(autoOfficialPriceMan)}
                   </p>
                   {unitContextParts.length ? (
-                    <p className="text-sm text-slate-600">
+                    <p className="detail-body">
                       {unitContextParts.join(" · ")}
                     </p>
                   ) : null}
                   {officialDateLabel ? (
-                    <p className="text-xs text-slate-500">
+                    <p className="detail-meta">
                       {officialDateLabel} · 국토교통부·한국부동산원
                     </p>
                   ) : null}
                   {publicPrice.usedPriorBulkYear ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="detail-body">
                       {holdingBaseYear}년 공식 공시가격은 자료 공개 후 반영됩니다.
                     </p>
                   ) : null}
                   <button
                     type="button"
-                    className="text-sm font-medium text-teal-700 hover:underline"
+                    className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
                     onClick={() => {
                       setOfficialEditing(true);
                       setOfficialDraft(
@@ -1169,14 +1153,14 @@ export function ComplexPurchaseCalculatorSection({
                     }}
                   />
                   {!hasOfficialUnit ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="detail-body">
                       {publicPrice.blocker ??
                         "공식 공시가격을 연결할 수 없어 직접 입력합니다. 실거래가 비율로 추정하지 않습니다."}
                     </p>
                   ) : (
                     <button
                       type="button"
-                      className="text-sm font-medium text-teal-700 hover:underline"
+                      className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
                       onClick={() => {
                         setOfficialManualOverride(false);
                         setOfficialEditing(false);
@@ -1194,11 +1178,11 @@ export function ComplexPurchaseCalculatorSection({
             {baselinePriceMan > 0 ? (
               <div className="space-y-2.5 border-t border-slate-200/80 pt-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium text-slate-800">
+                  <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
                     공시가격 예상 증감률
                   </p>
                   <p
-                    className={`text-sm font-semibold tabular-nums ${growthToneClass(growthPct)}`}
+                    className={`detail-data-value-emphasis ${growthToneClass(growthPct)}`}
                   >
                     {growthLabel}
                   </p>
@@ -1220,7 +1204,7 @@ export function ComplexPurchaseCalculatorSection({
                     onChange={(e) => setGrowthPct(Number(e.target.value))}
                   />
                 </div>
-                <div className="flex justify-between text-xs text-slate-500">
+                <div className="detail-meta flex justify-between">
                   <span>-30%</span>
                   <span>0%</span>
                   <span>+30%</span>
@@ -1237,17 +1221,17 @@ export function ComplexPurchaseCalculatorSection({
                     />
                     {growthActive ? (
                       <p
-                        className={`text-sm font-medium tabular-nums ${growthToneClass(taxDeltaMan)}`}
+                        className={`detail-data-value-emphasis ${growthToneClass(taxDeltaMan)}`}
                       >
                         기준 대비 {formatSignedEokMan(taxDeltaMan)} ·{" "}
                         {formatSignedPctPoints(taxDeltaRate, 0)}
                       </p>
                     ) : (
-                      <p className="text-sm text-slate-600">
+                      <p className="detail-body">
                         기준 공시가격과 동일합니다.
                       </p>
                     )}
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="detail-body">
                       {growthActive
                         ? `공시가격 ${growthLabel} 가정 · 현행 세제 유지`
                         : "현행 세제 유지 가정"}
@@ -1259,50 +1243,50 @@ export function ComplexPurchaseCalculatorSection({
 
             {baselinePriceMan > 0 ? (
               <div className="space-y-2 border-t border-slate-200/80 pt-3">
-                <p className="text-sm font-medium text-slate-800">연도 구분</p>
+                <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">연도 구분</p>
                 <ul className="space-y-2">
                   {officialPriceYear ? (
-                    <li className="flex items-start justify-between gap-3 text-sm">
+                    <li className="detail-label flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-medium text-slate-800">
+                        <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
                           {officialPriceYear}년 · 공식
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="detail-meta">
                           공시가격만 표시 · 과거 실제 납부세액 아님
                         </p>
                       </div>
-                      <p className="shrink-0 font-semibold tabular-nums text-slate-900">
+                      <p className="detail-data-value-emphasis shrink-0">
                         {formatEokMan(baselinePriceMan)}
                       </p>
                     </li>
                   ) : (
-                    <li className="flex items-start justify-between gap-3 text-sm">
+                    <li className="detail-label flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-medium text-slate-800">기준 공시가격</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">기준 공시가격</p>
+                        <p className="detail-meta">
                           {officialManualOverride ? "사용자 입력" : "입력값"}
                         </p>
                       </div>
-                      <p className="shrink-0 font-semibold tabular-nums text-slate-900">
+                      <p className="detail-data-value-emphasis shrink-0">
                         {formatEokMan(baselinePriceMan)}
                       </p>
                     </li>
                   )}
                   {holdingYear0 ? (
-                    <li className="flex items-start justify-between gap-3 text-sm">
+                    <li className="detail-label flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-medium text-slate-800">
+                        <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
                           {holdingBaseYear}년 · 예상
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="detail-meta">
                           공시가격 {growthLabel} · 현행 세제 적용 시
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="font-semibold tabular-nums text-slate-900">
+                        <p className="detail-data-value-emphasis">
                           {formatEokMan(projectedPriceMan)}
                         </p>
-                        <p className="text-xs tabular-nums text-slate-500">
+                        <p className="detail-meta tabular-nums">
                           보유세 {formatEokMan(holdingYear0.totalMan)}
                         </p>
                       </div>
@@ -1315,14 +1299,14 @@ export function ComplexPurchaseCalculatorSection({
             <div className="space-y-2 border-t border-slate-200/80 pt-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800">계산 조건</p>
-                  <p className="mt-0.5 text-sm leading-relaxed text-slate-600">
+                  <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">계산 조건</p>
+                  <p className="detail-body mt-0.5">
                     {holdingConditionSummary}
                   </p>
                 </div>
                 <button
                   type="button"
-                  className="shrink-0 text-sm font-medium text-teal-700 hover:underline"
+                  className="lab-button-tertiary detail-label shrink-0 !min-h-0 px-1 py-1"
                   onClick={() => setHoldingSettingsOpen(true)}
                 >
                   설정 변경 ›
@@ -1334,7 +1318,7 @@ export function ComplexPurchaseCalculatorSection({
               <LabDisclosure title="계산 기준 및 세부내역">
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <p className="text-sm font-semibold text-slate-900">재산세</p>
+                    <p className="detail-list-title">재산세</p>
                     <dl className="space-y-1.5">
                       <BreakdownRow
                         label="공시가격"
@@ -1350,7 +1334,7 @@ export function ComplexPurchaseCalculatorSection({
                           value={formatEokMan(holdingYear0.property.taxBaseMan)}
                           emph
                         />
-                        <p className="text-sm leading-snug text-slate-600">
+                        <p className="detail-body">
                           {formatEokMan(holdingYear0.property.officialPriceMan)} ×{" "}
                           {formatPct(holdingYear0.property.fairMarketRatio)}
                         </p>
@@ -1378,7 +1362,7 @@ export function ComplexPurchaseCalculatorSection({
                   </div>
 
                   <div className="space-y-1.5 border-t border-slate-100 pt-3">
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="detail-list-title">
                       종합부동산세
                     </p>
                     <dl className="space-y-1.5">
@@ -1408,7 +1392,7 @@ export function ComplexPurchaseCalculatorSection({
                           )}
                           emph
                         />
-                        <p className="text-sm leading-snug text-slate-600">
+                        <p className="detail-body">
                           ({formatEokMan(
                             holdingYear0.comprehensive.officialPriceMan,
                           )}{" "}
@@ -1441,7 +1425,7 @@ export function ComplexPurchaseCalculatorSection({
                           />
                         </>
                       ) : (
-                        <p className="text-sm text-slate-600">
+                        <p className="detail-body">
                           기본공제 이하로 종부세 과세대상이 아닙니다.
                         </p>
                       )}
@@ -1469,7 +1453,7 @@ export function ComplexPurchaseCalculatorSection({
                           />
                         ))}
                       </dl>
-                      <p className="mt-2 text-xs text-slate-500">
+                      <p className="detail-meta mt-2">
                         2026년 현행 세제 기준
                       </p>
                     </LabDisclosure>
@@ -1481,15 +1465,15 @@ export function ComplexPurchaseCalculatorSection({
                       value={formatEokMan(holdingYear0.totalMan)}
                       emph
                     />
-                    <p className="text-sm text-slate-600">
+                    <p className="detail-body">
                       재산세 합계 {formatEokMan(holdingYear0.property.totalMan)}{" "}
                       + 종합부동산세 합계{" "}
                       {formatEokMan(holdingYear0.comprehensive.taxMan)}
                     </p>
-                    <p className="text-sm leading-relaxed text-slate-700">
+                    <p className="detail-body">
                       {holding?.estimateDisclaimer}
                     </p>
-                    <p className="text-xs text-slate-500">2026년 현행 세제 기준</p>
+                    <p className="detail-meta">2026년 현행 세제 기준</p>
                   </div>
                 </div>
               </LabDisclosure>
@@ -1503,7 +1487,7 @@ export function ComplexPurchaseCalculatorSection({
               >
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-slate-800">
+                    <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
                       1세대 1주택
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -1522,13 +1506,13 @@ export function ComplexPurchaseCalculatorSection({
                         해당 없음
                       </button>
                     </div>
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="detail-body">
                       공정시장가액비율과 종합부동산세 기본공제 등에 반영됩니다.
                     </p>
                   </div>
 
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm leading-relaxed text-slate-700">
-                    <p className="font-medium text-slate-800">현재 미반영 항목</p>
+                  <div className="detail-body rounded-lg border border-[color:var(--lab-border)] bg-[color:var(--lab-surface-subtle)] px-3 py-3">
+                    <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">현재 미반영 항목</p>
                     <p className="mt-1">
                       고령자 공제 · 장기보유 공제 · 공동명의 특례 등
                     </p>
@@ -1541,10 +1525,10 @@ export function ComplexPurchaseCalculatorSection({
 
         {tab === "loan" ? (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-slate-800">
+            <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
               대출
               {compactArea ? (
-                <span className="font-normal text-slate-500">
+                <span className="detail-meta font-normal">
                   {" "}
                   · {compactArea} 기준
                 </span>
@@ -1554,7 +1538,7 @@ export function ComplexPurchaseCalculatorSection({
             {loan && fundingPlan ? (
               <dl className="space-y-3">
                 {loan.breakdown.blocked ? (
-                  <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
+                  <p className="detail-body rounded-lg bg-rose-50 px-3 py-2 text-[color:var(--lab-error-text)]">
                     {loan.breakdown.blockedReason ?? "대출 불가 가정"}
                   </p>
                 ) : null}
@@ -1619,7 +1603,7 @@ export function ComplexPurchaseCalculatorSection({
                     />
                   )
                 ) : (
-                  <p className="text-sm leading-relaxed text-slate-600">
+                  <p className="detail-body">
                     연소득을 입력하면 최종 자금계획(추가 필요/여유)을 확인할 수
                     있습니다.
                   </p>
@@ -1644,14 +1628,14 @@ export function ComplexPurchaseCalculatorSection({
                     }
                     emph={fundingPlan.expectedLoanMan > 0}
                   />
-                  <p className="text-xs text-slate-500">
+                  <p className="detail-meta">
                     {loan.repayMethodLabel} · {baseRatePct}% · {years}년
                     {fundingPlan.provisional ? " · 잠정 기준" : ""}
                   </p>
                 </div>
               </dl>
             ) : (
-              <p className="text-sm text-slate-500">
+              <p className="detail-meta">
                 매수가를 입력하면 결과가 표시됩니다.
               </p>
             )}
@@ -1661,17 +1645,17 @@ export function ComplexPurchaseCalculatorSection({
                 <div className="flex items-center justify-between gap-2">
                   <label
                     htmlFor="calc-loan-price"
-                    className="text-xs font-medium text-slate-600"
+                    className="detail-label font-medium"
                   >
                     예상 매수가
-                    <span className="ml-1 font-normal text-slate-400">
+                    <span className="detail-meta ml-1">
                       (만원)
                     </span>
                   </label>
                   {latestTradeMan > 0 ? (
                     <button
                       type="button"
-                      className="text-[11px] font-medium text-teal-700 hover:underline"
+                      className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
                       onClick={resetToLatestTrade}
                     >
                       최근 거래가 ↺
@@ -1705,14 +1689,14 @@ export function ComplexPurchaseCalculatorSection({
               <div className="space-y-1.5">
                 <label
                   htmlFor="calc-loan-cash"
-                  className="text-xs font-medium text-slate-600"
+                  className="detail-label font-medium"
                 >
                   보유 자기자금
-                  <span className="ml-1 font-normal text-slate-400">
+                  <span className="detail-meta ml-1">
                     (만원)
                   </span>
                 </label>
-                <p className="text-[11px] leading-snug text-slate-500">
+                <p className="detail-meta">
                   이번 매수에 사용할 수 있는 자금
                 </p>
                 <ManWonField
@@ -1751,7 +1735,7 @@ export function ComplexPurchaseCalculatorSection({
                       className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-teal-600"
                       aria-label="보유 자기자금 빠른 조절"
                     />
-                    <div className="mt-1 flex justify-between text-[10px] tabular-nums text-slate-400">
+                    <div className="detail-micro mt-1 flex justify-between tabular-nums">
                       <span>0</span>
                       <span>{formatEokMan(effectivePriceMan)}</span>
                     </div>
@@ -1760,8 +1744,8 @@ export function ComplexPurchaseCalculatorSection({
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">금리 (%)</span>
+                <label className="detail-label block space-y-1">
+                  <span className="detail-meta">금리 (%)</span>
                   <input
                     className={inputClass}
                     inputMode="decimal"
@@ -1771,8 +1755,8 @@ export function ComplexPurchaseCalculatorSection({
                     }
                   />
                 </label>
-                <label className="block space-y-1">
-                  <span className="text-xs text-slate-500">기간 (년)</span>
+                <label className="detail-label block space-y-1">
+                  <span className="detail-meta">기간 (년)</span>
                   <input
                     className={inputClass}
                     type="number"
@@ -1788,14 +1772,14 @@ export function ComplexPurchaseCalculatorSection({
             <div className="space-y-2 border-t border-slate-200/80 pt-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800">계산 조건</p>
-                  <p className="mt-0.5 text-sm leading-relaxed text-slate-600">
+                  <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">계산 조건</p>
+                  <p className="detail-body mt-0.5">
                     {loanConditionSummary}
                   </p>
                 </div>
                 <button
                   type="button"
-                  className="shrink-0 text-sm font-medium text-teal-700 hover:underline"
+                  className="lab-button-tertiary detail-label shrink-0 !min-h-0 px-1 py-1"
                   onClick={() => setConditionsOpen(true)}
                 >
                   설정 변경 ›
@@ -1812,14 +1796,14 @@ export function ComplexPurchaseCalculatorSection({
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="calc-loan-income"
-                    className="text-xs font-medium text-slate-600"
+                    className="detail-label font-medium"
                   >
                     연소득
-                    <span className="ml-1 font-normal text-slate-400">
+                    <span className="detail-meta ml-1">
                       (만원)
                     </span>
                   </label>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="detail-meta">
                     DSR 한도 계산에 필요합니다.
                   </p>
                   <ManWonField
@@ -1845,10 +1829,10 @@ export function ComplexPurchaseCalculatorSection({
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="calc-loan-existing"
-                    className="text-xs font-medium text-slate-600"
+                    className="detail-label font-medium"
                   >
                     기존 월 원리금 상환
-                    <span className="ml-1 font-normal text-slate-400">
+                    <span className="detail-meta ml-1">
                       (만원)
                     </span>
                   </label>
@@ -1873,8 +1857,8 @@ export function ComplexPurchaseCalculatorSection({
                   />
                 </div>
 
-                <label className="block space-y-1 sm:col-span-2">
-                  <span className="text-xs text-slate-500">보유 주택 수</span>
+                <label className="detail-label block space-y-1 sm:col-span-2">
+                  <span className="detail-meta">보유 주택 수</span>
                   <select
                     className={inputClass}
                     value={homes}
@@ -1886,7 +1870,7 @@ export function ComplexPurchaseCalculatorSection({
                   </select>
                 </label>
                 {homes === "0" ? (
-                  <label className="inline-flex items-center gap-1.5 text-xs sm:col-span-2">
+                  <label className="detail-label inline-flex items-center gap-1.5 sm:col-span-2">
                     <input
                       type="checkbox"
                       checked={firstHome}
@@ -1896,7 +1880,7 @@ export function ComplexPurchaseCalculatorSection({
                   </label>
                 ) : null}
                 {homes === "1" ? (
-                  <label className="inline-flex items-center gap-1.5 text-xs sm:col-span-2">
+                  <label className="detail-label inline-flex items-center gap-1.5 sm:col-span-2">
                     <input
                       type="checkbox"
                       checked={disposeCondition}

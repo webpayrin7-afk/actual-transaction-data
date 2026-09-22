@@ -35,14 +35,14 @@ function RankValue({
   const line = placeRankDisplay({ regionName, place });
   if (!line) {
     return (
-      <p className="detail-body truncate text-slate-500">{empty}</p>
+      <p className="detail-meta truncate">{empty}</p>
     );
   }
   return (
-      <p className="detail-number">
-        <span>{line.rank}</span>
-        <span className="detail-number-unit">위</span>
-      </p>
+    <p className="detail-compact-value">
+      <span>{line.rank}</span>
+      <span className="detail-micro ml-0.5 font-medium">위</span>
+    </p>
   );
 }
 
@@ -161,13 +161,13 @@ export function ComplexRegionRankSection({
           </div>
         ) : query.isError ? (
           <div className="mt-2 rounded-xl bg-slate-50 px-3 py-3 text-center">
-            <p className="text-sm font-medium text-slate-700">
+            <p className="detail-body font-medium text-[color:var(--lab-navy-950)]">
               순위를 불러오지 못했습니다.
             </p>
             <button
               type="button"
               onClick={() => void query.refetch()}
-              className="lab-button lab-button-secondary mt-2 !min-h-9 px-4 text-[13px]"
+              className="lab-button lab-button-secondary mt-2 px-4"
             >
               다시 시도
             </button>
@@ -217,7 +217,7 @@ export function ComplexRegionRankSection({
       <Link
         href={regionRankingHref(regionSlug)}
         data-event="complex_region_rank_cta"
-        className="lab-button lab-button-primary detail-cta w-full min-h-10 text-sm"
+        className="lab-button lab-button-secondary detail-cta w-full"
       >
         {regionOverviewCtaLabel(regionName)}
         <span aria-hidden className="ml-1">

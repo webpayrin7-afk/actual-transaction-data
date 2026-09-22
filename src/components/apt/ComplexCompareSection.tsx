@@ -104,119 +104,116 @@ async function fetchPeers(params: {
   return json.peers ?? [];
 }
 
-/** Compact metric×complex matrix — mobile & desktop; no horizontal scroll. */
+/**
+ * Metric×complex matrix — label 72px sticky, complex cols min 104px,
+ * horizontal scroll when needed; selected column subtle bg.
+ */
 function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
   const n = columns.length;
   const gridStyle = {
-    gridTemplateColumns: `minmax(2.35rem,0.5fr) repeat(${n}, minmax(0,1fr))`,
+    gridTemplateColumns: `72px repeat(${n}, minmax(104px, 1fr))`,
   } as const;
 
   const rows: Array<{
     label: string;
     values: string[];
-    strong?: boolean;
-    muted?: boolean;
-    large?: boolean;
+    price?: boolean;
   }> = [
     {
       label: "매매",
       values: columns.map((c) => formatMan(c.latestSaleMan)),
-      strong: true,
-      large: true,
+      price: true,
     },
     {
       label: "전세",
       values: columns.map((c) => formatMan(c.latestJeonseMan)),
-      large: true,
+      price: true,
     },
     {
       label: "㎡당",
       values: columns.map((c) => formatPerSqm(c.salePerSqmMan)),
-      muted: true,
     },
     {
       label: "세대수",
       values: columns.map(formatHousehold),
-      muted: true,
     },
     {
       label: "준공",
       values: columns.map(formatBuildYear),
-      muted: true,
     },
   ];
 
-  return (
-    <div className="mt-2">
-      <div
-        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-2 pt-1.5"
-        style={gridStyle}
-      >
-        <span className="text-[10px] text-slate-400" aria-hidden="true" />
-        {columns.map((c, i) => {
-          const isCurrent = i === 0;
-          // Current complex name: teal. Peers: black (link).
-          const nameClass = `line-clamp-2 text-[12px] font-semibold leading-snug sm:text-[13px] ${
-            isCurrent ? "text-teal-700" : "text-slate-900"
-          }`;
-          return (
-            <div
-              key={`h-${c.aptName}`}
-              className="min-w-0 px-0.5 text-center sm:px-1"
-            >
-              {isCurrent ? (
-                <span className={nameClass}>{c.aptName}</span>
-              ) : (
-                <Link
-                  href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
-                  className={`block hover:text-teal-700 ${nameClass}`}
-                >
-                  {c.aptName}
-                </Link>
-              )}
-              <p className="mt-0.5 mb-1 text-[11px] tabular-nums leading-none text-slate-500">
-                {formatAreaShort(c)}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+  const selectedColBg = "bg-[color:var(--lab-teal-50)]";
 
-      {rows.map((row) => (
-        <div
-          key={row.label}
-          className="grid items-center gap-x-1 border-b border-slate-100 py-1.5 last:border-0"
-          style={gridStyle}
-        >
-          <p
-            className={`leading-none text-slate-500 ${
-              row.large
-                ? "text-[12px] sm:text-[13px]"
-                : "text-[11px] sm:text-[12px]"
-            }`}
+  return (
+    <div className="detail-after-title">
+      <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+        <div className="min-w-0" style={{ minWidth: 72 + n * 104 }}>
+          <div
+            className="grid items-end gap-x-0 border-b border-[color:var(--lab-border)] pb-2 pt-1.5"
+            style={gridStyle}
           >
-            {row.label}
-          </p>
-          {row.values.map((v, i) => (
-            <p
-              key={`${row.label}-${i}`}
-              className={`min-w-0 truncate px-0.5 text-center tabular-nums leading-snug ${
-                row.large
-                  ? "text-[13px] sm:text-[14px]"
-                  : "text-[12px] sm:text-[13px]"
-              } ${
-                row.strong
-                  ? "font-semibold text-slate-900"
-                  : row.muted
-                    ? "font-medium text-slate-600"
-                    : "font-medium text-slate-800"
-              }`}
+            <span
+              className="sticky left-0 z-10 bg-[color:var(--lab-surface)]"
+              aria-hidden="true"
+            />
+            {columns.map((c, i) => {
+              const isCurrent = i === 0;
+              return (
+                <div
+                  key={`h-${c.aptName}`}
+                  className={`min-w-0 px-3 text-center ${isCurrent ? selectedColBg : ""}`}
+                >
+                  {isCurrent ? (
+                    <span className="detail-label line-clamp-2 font-semibold text-[color:var(--lab-teal-700)]">
+                      {c.aptName}
+                    </span>
+                  ) : (
+                    <Link
+                      href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
+                      className="detail-label block line-clamp-2 font-semibold text-[color:var(--lab-navy-950)] hover:text-[color:var(--lab-teal-700)]"
+                    >
+                      {c.aptName}
+                    </Link>
+                  )}
+                  <p className="detail-meta mt-0.5 mb-1 tabular-nums">
+                    {formatAreaShort(c)}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {rows.map((row) => (
+            <div
+              key={row.label}
+              className="grid min-h-11 items-center gap-x-0 border-b border-slate-100 last:border-0"
+              style={gridStyle}
             >
-              {v}
-            </p>
+              <p className="detail-label sticky left-0 z-10 bg-[color:var(--lab-surface)] px-0 py-2.5 pr-2">
+                {row.label}
+              </p>
+              {row.values.map((v, i) => (
+                <p
+                  key={`${row.label}-${i}`}
+                  className={`min-w-0 truncate px-3 py-2.5 text-center tabular-nums ${
+                    i === 0 ? selectedColBg : ""
+                  } ${
+                    row.price
+                      ? "detail-data-value-emphasis"
+                      : "detail-label text-[color:var(--lab-navy-950)]"
+                  }`}
+                >
+                  {v}
+                </p>
+              ))}
+            </div>
           ))}
         </div>
-      ))}
+      </div>
+      {n > 2 ? (
+        <p className="detail-meta mt-2">좌우로 밀어서 다른 단지를 확인하세요.</p>
+      ) : null}
     </div>
   );
 }
@@ -343,13 +340,11 @@ export function ComplexCompareSection({
       </div>
 
       {loadingPeers ? (
-        <p className="mt-2 text-[12px] text-slate-500">
-          비교 단지를 불러오는 중…
-        </p>
+        <p className="detail-meta mt-2">비교 단지를 불러오는 중…</p>
       ) : null}
 
       {empty ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
+        <p className="detail-meta mt-2">
           비교할 수 있는 주변 유사 단지가 아직 없습니다.
         </p>
       ) : null}

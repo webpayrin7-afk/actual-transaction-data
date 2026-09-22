@@ -82,13 +82,13 @@ function TypeChips({ item }: { item: NearbySaleCard }) {
       {visible.map((t) => (
         <span
           key={`${item.id}-${t.modelNo}`}
-          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium leading-none tabular-nums text-slate-600"
+          className="detail-micro inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-medium tabular-nums text-slate-600"
         >
           {t.label}
         </span>
       ))}
       {extra > 0 ? (
-        <span className="inline-flex items-center rounded-full border border-slate-200/80 bg-white px-1.5 py-0.5 text-[10px] font-medium leading-none tabular-nums text-slate-400">
+        <span className="detail-micro inline-flex items-center rounded-full border border-slate-200/80 bg-white px-1.5 py-0.5 font-medium tabular-nums text-slate-400">
           외 {extra}개
         </span>
       ) : null}
@@ -108,13 +108,17 @@ function DetailCta({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="shrink-0 text-[11px] font-medium !text-teal-700 transition hover:!text-teal-800"
+      className="detail-label shrink-0 font-medium !text-[color:var(--lab-teal-700)] transition hover:!text-[color:var(--lab-teal-700)]"
     >
       {label}
     </a>
   );
 }
 
+/**
+ * Stack: name → meta → badges → date/link.
+ * Badges wrap; long names wrap naturally.
+ */
 function SaleRow({ item }: { item: NearbySaleCard }) {
   const isMoveIn = item.status === "move_in_upcoming";
   const detailHref = item.pblancUrl;
@@ -128,66 +132,64 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
 
   return (
     <li className="px-3 py-2.5">
-      {/* ROW 1 — name; status pill only when not move-in */}
+      {/* 1 — name (+ status when active) */}
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-snug text-slate-900">
+        <p className="detail-list-title min-w-0 break-keep">
           {item.houseName}
         </p>
         {!isMoveIn ? (
           <span
-            className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
+            className={`detail-micro mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 font-medium leading-none ${statusPillClass(item.status)}`}
           >
             {item.statusLabel}
           </span>
         ) : null}
       </div>
 
-      {/* ROW 2 — meta + type badges to the right of 세대 */}
-      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-        <p className="text-[11px] leading-snug text-slate-500">
-          {metaLeft(item)}
-        </p>
+      {/* 2 — meta */}
+      <p className="detail-meta mt-1">{metaLeft(item)}</p>
+
+      {/* 3 — type badges (wrap) */}
+      <div className="mt-1.5">
         <TypeChips item={item} />
       </div>
 
       {/* Active: schedule + competition + price rows */}
       {!isMoveIn && item.scheduleLabel ? (
-        <p className="mt-1 text-[12px] font-medium tabular-nums text-slate-800">
+        <p className="detail-label mt-2 font-medium tabular-nums text-[color:var(--lab-navy-950)]">
           {item.scheduleLabel}
         </p>
       ) : null}
       {!isMoveIn && item.competition ? (
-        <p className="mt-0.5 text-[11px] leading-snug text-slate-600">
-          {item.competition.label}
-        </p>
+        <p className="detail-meta mt-0.5">{item.competition.label}</p>
       ) : null}
       {priced.length > 0 ? (
-        <ul className="mt-1 space-y-0.5">
+        <ul className="mt-1.5 space-y-0.5">
           {priced.map((t) => (
             <li
               key={`${item.id}-price-${t.modelNo}`}
-              className="flex items-baseline justify-between gap-3 text-[12px] leading-snug"
+              className="flex items-baseline justify-between gap-3"
             >
-              <span className="font-medium tabular-nums text-slate-800">
+              <span className="detail-label font-medium tabular-nums text-[color:var(--lab-navy-950)]">
                 {t.label}
               </span>
-              <span className="tabular-nums text-slate-600">
+              <span className="detail-label tabular-nums">
                 최고 {t.topAmountLabel}
               </span>
             </li>
           ))}
           {pricedExtra > 0 ? (
-            <li className="text-[10px] font-medium tabular-nums text-slate-400">
+            <li className="detail-micro font-medium tabular-nums text-slate-400">
               외 {pricedExtra}개
             </li>
           ) : null}
         </ul>
       ) : null}
 
-      {/* ROW 3 — move-in date + 입주예정 (same type size) + teal text CTA */}
-      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+      {/* 4 — move-in date / detail link */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
         {isMoveIn && item.moveInLabel ? (
-          <span className="text-[12px] font-semibold leading-snug tabular-nums text-slate-800">
+          <span className="detail-label font-medium tabular-nums text-[color:var(--lab-navy-950)]">
             {item.moveInLabel} 입주예정
           </span>
         ) : null}
@@ -238,37 +240,33 @@ export function ComplexNearbySalesSection({
         <div className="min-w-0">
           <h2 className="detail-section-title flex items-center">
             주변 공급
-            <InfoTip aria-label="주변 공급 출처 안내" className="text-[13px]">
+            <InfoTip aria-label="주변 공급 출처 안내" className="detail-meta">
               <p>출처: 청약홈 · 한국부동산원</p>
               <p>지역 기준: 현재 단지가 속한 시군구</p>
               <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
               <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
             </InfoTip>
           </h2>
-          <p>{description}</p>
+          <p className="detail-meta mt-1">{description}</p>
         </div>
       </div>
 
       {!key ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
+        <p className="detail-meta mt-2">
           단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.
         </p>
       ) : null}
 
       {key && q.isLoading ? (
-        <p className="mt-2 text-[12px] text-slate-500">
-          주변 공급 정보를 불러오는 중…
-        </p>
+        <p className="detail-meta mt-2">주변 공급 정보를 불러오는 중…</p>
       ) : null}
 
       {key && !q.isLoading && !ready ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
-          {emptyReason}
-        </p>
+        <p className="detail-meta mt-2">{emptyReason}</p>
       ) : null}
 
       {ready ? (
-        <ul className="mt-2 overflow-hidden rounded-lg border border-slate-200 divide-y divide-slate-100">
+        <ul className="detail-after-title overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
           {items.map((item) => (
             <SaleRow key={item.id} item={item} />
           ))}

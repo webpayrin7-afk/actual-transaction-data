@@ -35,28 +35,22 @@ import {
 } from "@/lib/region-ranking/public";
 
 const SCOPE_LABEL_CLASS = "detail-label w-[4.75rem] shrink-0 truncate sm:w-[5.5rem]";
+const PRICE_UNIT = "만원/평";
 
-function PriceFigure({ text, strong }: { text: string; strong: boolean }) {
-  const unit = "만원/평";
-  if (!text.endsWith(unit)) {
-    return <span className={strong ? "detail-number" : "detail-body tabular-nums"}>{text}</span>;
-  }
-  return (
-    <span className="inline-flex items-baseline gap-0.5">
-      <span className={strong ? "detail-number" : "detail-body tabular-nums"}>
-        {text.slice(0, -unit.length)}
-      </span>
-      <span className="detail-number-unit">{unit}</span>
-    </span>
-  );
+function formatPriceNumber(value: number | null | undefined): string {
+  const text = formatWonPerPyeong(value);
+  if (!text) return "—";
+  return text.endsWith(PRICE_UNIT) ? text.slice(0, -PRICE_UNIT.length) : text;
 }
 
 function PercentFigure({ text }: { text: string }) {
-  if (!text.endsWith("%")) return <span className="detail-number">{text}</span>;
+  if (!text.endsWith("%")) {
+    return <span className="detail-data-value-emphasis">{text}</span>;
+  }
   return (
     <span className="inline-flex items-baseline">
-      <span className="detail-number">{text.slice(0, -1)}</span>
-      <span className="detail-number-unit">%</span>
+      <span className="detail-data-value-emphasis">{text.slice(0, -1)}</span>
+      <span className="detail-micro ml-px font-medium">%</span>
     </span>
   );
 }
@@ -144,35 +138,36 @@ function PriceLevelBars({
           aptName,
         });
         return (
-          <li key={cell.scope} className="flex items-center gap-2.5">
-            <span
-              className={`${SCOPE_LABEL_CLASS} ${
-                accent ? "font-medium text-teal-700" : "text-slate-600"
-              }`}
-              title={scopeLabel}
-            >
-              {scopeLabel}
-            </span>
-            <div className="min-w-0 flex-1">
+          <li key={cell.scope} className="space-y-1.5">
+            <div className="flex items-baseline justify-between gap-2">
+              <span
+                className={`${SCOPE_LABEL_CLASS} ${
+                  accent ? "font-medium text-[color:var(--lab-teal-700)]" : ""
+                }`}
+                title={scopeLabel}
+              >
+                {scopeLabel}
+              </span>
+              {hiddenBar ? (
+                <span className="detail-meta shrink-0 text-right">
+                  {priceCompareRowCopy(cell.status)}
+                </span>
+              ) : (
+                <span className="detail-data-value-emphasis shrink-0 tabular-nums">
+                  {formatPriceNumber(value)}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
               {hiddenBar || width <= 0 ? (
                 <div className="h-2" />
               ) : (
                 <div
-                  className={`h-2 rounded-full ${accent ? "bg-teal-600" : "bg-slate-300"} ${barPlayClass(animate, "left")}`}
+                  className={`h-2 rounded-full ${accent ? "bg-[color:var(--lab-teal-600)]" : "bg-slate-300"} ${barPlayClass(animate, "left")}`}
                   style={{ width: `${width}%`, ...barDelayStyle(index) }}
                 />
               )}
             </div>
-            <span className="inline-flex w-[7.5rem] shrink-0 items-baseline justify-end gap-0.5 whitespace-nowrap sm:w-36">
-              {hiddenBar ? (
-                <span className="detail-meta">{priceCompareRowCopy(cell.status)}</span>
-              ) : (
-                <PriceFigure
-                  text={formatWonPerPyeong(value) ?? "—"}
-                  strong={accent}
-                />
-              )}
-            </span>
           </li>
         );
       })}
@@ -183,7 +178,7 @@ function PriceLevelBars({
 function TrendScale({ maxAbs }: { maxAbs: number }) {
   const label = formatSignedPct(maxAbs)?.replace("+", "") ?? `${maxAbs}%`;
   return (
-    <div className="detail-caption mb-1 flex items-center gap-2 tabular-nums">
+    <div className="detail-micro mb-1 flex items-center gap-2 tabular-nums">
       <span className="w-[4.75rem] shrink-0 sm:w-[5.5rem]" />
       <div className="flex min-w-0 flex-1 justify-between">
         <span>-{label}</span>
@@ -228,57 +223,41 @@ function TrendBars({
             aptName,
           });
           return (
-            <li key={cell.scope} className="flex items-center gap-2.5">
-              <span
-                className={`${SCOPE_LABEL_CLASS} ${
-                  cell.scope === "COMPLEX" ? "font-medium text-teal-700" : "text-slate-600"
-                }`}
-                title={scopeLabel}
-              >
-                {scopeLabel}
-              </span>
-              {unavailable ? (
-                <p className="detail-meta min-w-0 flex-1">
-                  {cell.status != null && cell.status !== "ok"
-                    ? priceCompareRowCopy(cell.status)
-                    : "—"}
-                </p>
-              ) : (
-                <>
-                  <div className="relative flex h-5 min-w-0 flex-1 items-center">
-                    <div className="flex h-2 w-1/2 justify-end pr-px">
-                      {layout.side === "left" ? (
-                        <div
-                          className={`h-2 rounded-l-full bg-blue-600 ${barPlayClass(animate, "right")}`}
-                          style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
-                        />
-                      ) : null}
-                    </div>
-                    <div
-                      className="absolute left-1/2 h-5 w-px -translate-x-1/2 bg-slate-300"
-                      aria-hidden
-                    />
-                    <div className="flex h-2 w-1/2 justify-start pl-px">
-                      {layout.side === "right" ? (
-                        <div
-                          className={`h-2 rounded-r-full bg-rose-600 ${barPlayClass(animate, "left")}`}
-                          style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
-                        />
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="flex w-14 shrink-0 flex-col items-end sm:w-16">
+            <li key={cell.scope} className="space-y-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <span
+                  className={`${SCOPE_LABEL_CLASS} ${
+                    cell.scope === "COMPLEX"
+                      ? "font-medium text-[color:var(--lab-teal-700)]"
+                      : ""
+                  }`}
+                  title={scopeLabel}
+                >
+                  {scopeLabel}
+                </span>
+                {unavailable ? (
+                  <p className="detail-meta shrink-0 text-right">
+                    {cell.status != null && cell.status !== "ok"
+                      ? priceCompareRowCopy(cell.status)
+                      : "—"}
+                  </p>
+                ) : (
+                  <div className="flex shrink-0 flex-col items-end">
                     <span
-                      className={`inline-flex items-baseline justify-end ${
-                        up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
-                      }`}
+                      className={
+                        up
+                          ? "detail-change-up"
+                          : down
+                            ? "detail-change-down"
+                            : "text-[color:var(--lab-muted)]"
+                      }
                     >
                       <PercentFigure text={formatSignedPct(value) ?? "—"} />
                     </span>
                     {sampleLabel ? (
                       <InfoTip
                         aria-label={sampleLabel}
-                        className="detail-caption mt-0.5 text-slate-500 hover:text-slate-600"
+                        className="detail-meta mt-0.5 hover:text-[color:var(--lab-navy-700)]"
                         trigger={<span>{sampleLabel}</span>}
                       >
                         <p className="font-medium text-slate-800">{TREND_SAMPLE_TIP_TITLE}</p>
@@ -290,8 +269,32 @@ function TrendBars({
                       </InfoTip>
                     ) : null}
                   </div>
-                </>
-              )}
+                )}
+              </div>
+              {!unavailable ? (
+                <div className="relative flex h-5 min-w-0 items-center">
+                  <div className="flex h-2 w-1/2 justify-end pr-px">
+                    {layout.side === "left" ? (
+                      <div
+                        className={`h-2 rounded-l-full bg-[color:var(--lab-change-down)] ${barPlayClass(animate, "right")}`}
+                        style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
+                      />
+                    ) : null}
+                  </div>
+                  <div
+                    className="absolute left-1/2 h-5 w-px -translate-x-1/2 bg-slate-300"
+                    aria-hidden
+                  />
+                  <div className="flex h-2 w-1/2 justify-start pl-px">
+                    {layout.side === "right" ? (
+                      <div
+                        className={`h-2 rounded-r-full bg-[color:var(--lab-change-up)] ${barPlayClass(animate, "left")}`}
+                        style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
             </li>
           );
         })}
@@ -357,10 +360,13 @@ export function ComplexRegionPriceCompare({
   return (
     <div className="detail-subsection-rule">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-        <div className="flex min-w-0 items-center">
+        <div className="flex min-w-0 items-center gap-1.5">
           <h3 className="detail-subsection-title">
             {PRICE_COMPARE_TITLE}
           </h3>
+          {tab === "level" ? (
+            <span className="detail-meta shrink-0">{PRICE_UNIT}</span>
+          ) : null}
           <InfoTip aria-label="가격 비교 안내">
             <p className="font-medium text-slate-800">{PRICE_COMPARE_TIP_TITLE}</p>
             {PRICE_COMPARE_TIP.split("\n\n").map((paragraph) => (
@@ -378,13 +384,13 @@ export function ComplexRegionPriceCompare({
       </div>
 
       {!enabled || unsupported ? (
-        <p className="mt-1.5 text-[13px] leading-5 text-slate-500">
+        <p className="detail-meta mt-1.5">
           {PRICE_COMPARE_UNSUPPORTED_COPY}
         </p>
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("detail-after-title !w-full !flex-nowrap !gap-1.5")}`}
+            className={`${labSegmentedClass("detail-after-title !w-full !flex-nowrap !gap-2")}`}
             role="tablist"
             aria-label="가격 비교"
           >
@@ -397,7 +403,7 @@ export function ComplexRegionPriceCompare({
                 onClick={() => setTab(item.id)}
                 className={labSecondaryTabClass(
                   tab === item.id,
-                  "!h-8 min-h-8 min-w-0 flex-1 !px-4 whitespace-nowrap",
+                  "min-w-0 flex-1 !px-4 whitespace-nowrap",
                 )}
               >
                 {item.label}
@@ -407,7 +413,7 @@ export function ComplexRegionPriceCompare({
 
           {tab === "trend" ? (
             <div
-              className={`${labSegmentedClass("mt-1.5 !w-full !flex-nowrap !gap-1.5")}`}
+              className={`${labSegmentedClass("mt-2 !w-full !flex-nowrap !gap-2")}`}
               role="tablist"
               aria-label="변동률 기간"
             >
@@ -420,7 +426,7 @@ export function ComplexRegionPriceCompare({
                   onClick={() => setPeriod(item.id)}
                   className={labSecondaryTabClass(
                     period === item.id,
-                    "!h-8 min-h-8 min-w-0 flex-1 !px-3 whitespace-nowrap",
+                    "min-w-0 flex-1 !px-3 whitespace-nowrap",
                   )}
                 >
                   {item.label}
@@ -432,7 +438,7 @@ export function ComplexRegionPriceCompare({
           {tab === "trend" && historyHelper ? (
             <p className="detail-meta mt-1.5 inline-flex items-center">
               <span>{historyHelper}</span>
-              <InfoTip aria-label="일부 기간 기준 안내" className="detail-caption">
+              <InfoTip aria-label="일부 기간 기준 안내" className="detail-meta">
                 <p>{PARTIAL_HISTORY_TIP}</p>
               </InfoTip>
             </p>
@@ -449,19 +455,19 @@ export function ComplexRegionPriceCompare({
             </div>
           ) : query.isError ? (
             <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2.5 text-center">
-              <p className="text-sm font-medium text-slate-700">
+              <p className="detail-body font-medium text-[color:var(--lab-navy-950)]">
                 가격 비교를 불러오지 못했습니다.
               </p>
               <button
                 type="button"
                 onClick={() => void query.refetch()}
-                className="lab-button lab-button-secondary mt-2 !min-h-9 px-4 text-[13px]"
+                className="lab-button lab-button-secondary mt-2 px-4"
               >
                 다시 시도
               </button>
             </div>
           ) : data?.status === "unavailable" ? (
-            <p className="mt-2 text-[13px] leading-5 text-slate-500">
+            <p className="detail-meta mt-2">
               {priceCompareStatusCopy("unavailable").title}
             </p>
           ) : tab === "level" ? (
@@ -472,7 +478,7 @@ export function ComplexRegionPriceCompare({
                 animate={entered}
               />
             ) : (
-              <p className="mt-2 text-[13px] leading-5 text-slate-500">
+              <p className="detail-meta mt-2">
                 {priceCompareStatusCopy(data?.status).title}
               </p>
             )
@@ -484,7 +490,7 @@ export function ComplexRegionPriceCompare({
               animate={entered}
             />
           ) : (
-            <p className="mt-2 text-[13px] leading-5 text-slate-500">
+            <p className="detail-meta mt-2">
               {priceCompareStatusCopy(data?.status).title}
             </p>
           )
