@@ -91,7 +91,7 @@ export function InfoTip({
   return (
     <span
       className={`relative z-10 inline-flex shrink-0 align-middle ${
-        trigger ? "" : "ml-[0.25em]"
+        trigger ? "" : "ml-[0.1em]"
       }`}
     >
       <button
@@ -107,12 +107,23 @@ export function InfoTip({
           event.stopPropagation();
           setOpen((value) => !value);
         }}
-        className={`relative z-10 inline-flex h-11 w-11 cursor-pointer items-center justify-center text-[color:var(--lab-muted)] transition hover:text-[color:var(--lab-navy-950)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${className}`.trim()}
+        className={`relative z-10 inline-flex cursor-pointer items-center justify-center text-[color:var(--lab-muted)] transition hover:text-[color:var(--lab-navy-950)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
+          trigger ? "min-h-4 min-w-0" : "h-4 w-4"
+        } ${className}`.trim()}
       >
+        {/* Expand hit target to ≥44×44 without pushing the glyph away from the label */}
+        <span
+          aria-hidden
+          className={
+            trigger
+              ? "pointer-events-auto absolute -inset-y-3.5 inset-x-0"
+              : "pointer-events-auto absolute -inset-x-3.5 -inset-y-3.5"
+          }
+        />
         {trigger ?? (
           <svg
             viewBox="0 0 16 16"
-            className="pointer-events-none block h-4 w-4"
+            className="pointer-events-none relative z-10 block h-4 w-4"
             aria-hidden="true"
           >
             <circle

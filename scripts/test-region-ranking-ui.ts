@@ -1015,9 +1015,10 @@ const infoTip = readFileSync(
 );
 assert(infoTip.includes("createPortal"), "tip panel escapes apt-detail transform clip");
 assert(infoTip.includes("document.body"), "tip panel mounts on body");
-assert(infoTip.includes("-inset-y-2.5"), "tip hit target expands without pushing the glyph");
-assert(infoTip.includes("ml-[0.25em]"), "tip sits one space from its label");
+assert(infoTip.includes("-inset-y-3.5"), "tip hit target expands without pushing the glyph");
+assert(infoTip.includes("ml-[0.1em]"), "tip sits close to its label");
 assert(infoTip.includes("onClick"), "tip opens on tap/click");
+assert(!infoTip.includes("h-11 w-11"), "icon box is not a full 44px layout square");
 
 const rankRoute = readFileSync(
   resolve(import.meta.dirname, "../src/app/api/complex-region-rank/route.ts"),
