@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Bar,
   CartesianGrid,
@@ -103,6 +103,56 @@ function seriesLabel(dealType: TransactionTabType): string {
   return "매매 평균";
 }
 
+type ChartViewBox = Partial<{
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}>;
+
+/**
+ * Keep tooltip near the cursor; shift left only by the overflow past the
+ * chart/view edge (not a full left flip).
+ */
+function TooltipBox({
+  children,
+  className,
+  coordinate,
+  viewBox,
+}: {
+  children: ReactNode;
+  className: string;
+  coordinate?: Partial<{ x: number; y: number }>;
+  viewBox?: ChartViewBox;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shiftX, setShiftX] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || coordinate?.x == null || viewBox?.width == null) {
+      setShiftX(0);
+      return;
+    }
+    const width = el.offsetWidth;
+    const pad = 8;
+    const chartRight = (viewBox.x ?? 0) + viewBox.width;
+    // Default placement grows to the right of the cursor/wrapper.
+    const overflow = coordinate.x + pad + width - chartRight;
+    setShiftX(overflow > 0 ? -Math.ceil(overflow) : 0);
+  }, [children, coordinate?.x, coordinate?.y, viewBox?.width, viewBox?.x]);
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={shiftX ? { transform: `translateX(${shiftX}px)` } : undefined}
+    >
+      {children}
+    </div>
+  );
+}
+
 function PriceChartTooltip({
   active,
   payload,
@@ -111,19 +161,8 @@ function PriceChartTooltip({
 }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
 
-  const vb = viewBox as { x?: number; y?: number; width?: number } | undefined;
-  const chartLeft = vb?.x ?? 0;
-  const chartWidth = vb?.width ?? 0;
-  const flipLeft =
-    coordinate?.x != null &&
-    chartWidth > 0 &&
-    coordinate.x > chartLeft + chartWidth * 0.58;
-
   const boxClass =
-    "w-max max-w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md";
-  const boxStyle = flipLeft
-    ? { transform: "translateX(calc(-100% - 12px))" }
-    : undefined;
+    "w-max max-w-[min(14rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md";
 
   const scatter = payload.find(
     (item) =>
@@ -135,7 +174,11 @@ function PriceChartTooltip({
     const tag =
       row.kind === "high" ? "최고" : row.kind === "low" ? "최저" : null;
     return (
-      <div className={boxClass} style={boxStyle}>
+      <TooltipBox
+        className={boxClass}
+        coordinate={coordinate}
+        viewBox={viewBox as ChartViewBox | undefined}
+      >
         {tag ? (
           <p
             className="mb-1 font-semibold"
@@ -163,7 +206,7 @@ function PriceChartTooltip({
             <span className="tabular-nums">{row.floor}층</span>
           </li>
         </ul>
-      </div>
+      </TooltipBox>
     );
   }
 
@@ -171,7 +214,11 @@ function PriceChartTooltip({
   if (!row) return null;
   const priceItem = payload.find((item) => item.dataKey === "priceEok");
   return (
-    <div className={boxClass} style={boxStyle}>
+    <TooltipBox
+      className={boxClass}
+      coordinate={coordinate}
+      viewBox={viewBox as ChartViewBox | undefined}
+    >
       <p className="mb-1.5 font-medium text-slate-800">
         {formatYmLabel(row.yearMonth)}
       </p>
@@ -181,7 +228,7 @@ function PriceChartTooltip({
           {row.priceEok == null ? "—" : `${row.priceEok}억`}
         </span>
       </p>
-    </div>
+    </TooltipBox>
   );
 }
 
@@ -407,7 +454,7 @@ export function AptPriceChart({
               />
               <Tooltip
                 content={<PriceChartTooltip />}
-                allowEscapeViewBox={{ x: false, y: true }}
+                allowEscapeViewBox={{ x: true, y: true }}
                 wrapperStyle={{ zIndex: 40, outline: "none", pointerEvents: "none" }}
                 offset={8}
                 cursor={{ stroke: "#cbd5e1", strokeDasharray: "3 3" }}
