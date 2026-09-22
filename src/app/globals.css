@@ -22,10 +22,10 @@
   --lab-chart-trade: #2563eb;
   --lab-chart-jeonse: #c2410c;
   --lab-chart-volume: #0f766e;
-  /* Deal list prices — align with chart series; monthly uses teal */
-  --lab-price-trade: #2563eb;
+  /* Deal list prices — archive 매매/전세/월세 ink (unify detail + archive) */
+  --lab-price-trade: #087f83;
   --lab-price-jeonse: #c2410c;
-  --lab-price-monthly: #0f766e;
+  --lab-price-monthly: #4338ca;
   --lab-border: #e2e8f0;
   --lab-border-control: #64748b;
   --lab-muted: #64748b;
@@ -606,6 +606,38 @@ h2.detail-section-title {
 .detail-price-trade { color: var(--lab-price-trade); }
 .detail-price-jeonse { color: var(--lab-price-jeonse); }
 .detail-price-monthly { color: var(--lab-price-monthly); }
+.detail-number.detail-price-trade,
+.detail-number.detail-price-jeonse,
+.detail-number.detail-price-monthly,
+.detail-summary-value.detail-price-trade,
+.detail-summary-value.detail-price-jeonse,
+.detail-summary-value.detail-price-monthly,
+.detail-list-title.detail-price-trade,
+.detail-list-title.detail-price-jeonse,
+.detail-list-title.detail-price-monthly,
+.detail-trade-row-price.detail-price-trade,
+.detail-trade-row-price.detail-price-jeonse,
+.detail-trade-row-price.detail-price-monthly {
+  color: inherit;
+}
+.detail-number.detail-price-trade,
+.detail-summary-value.detail-price-trade,
+.detail-list-title.detail-price-trade,
+.detail-trade-row-price.detail-price-trade {
+  color: var(--lab-price-trade);
+}
+.detail-number.detail-price-jeonse,
+.detail-summary-value.detail-price-jeonse,
+.detail-list-title.detail-price-jeonse,
+.detail-trade-row-price.detail-price-jeonse {
+  color: var(--lab-price-jeonse);
+}
+.detail-number.detail-price-monthly,
+.detail-summary-value.detail-price-monthly,
+.detail-list-title.detail-price-monthly,
+.detail-trade-row-price.detail-price-monthly {
+  color: var(--lab-price-monthly);
+}
 @media (min-width: 1024px) {
   .detail-summary-value,
   .detail-number-strong {

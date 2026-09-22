@@ -42,7 +42,7 @@ export function transactionTabFromItem(tx: AptHistoryItem): TransactionTabType {
   return "jeonse";
 }
 
-/** Price ink: 매매 / 전세 / 월세 — tokens in globals.css (--lab-price-*). */
+/** Price ink: 매매 teal / 전세 orange / 월세 indigo — archive tokens. */
 export function dealTypePriceTextClass(type?: TransactionTabType): string {
   if (type === "jeonse") return "detail-price-jeonse";
   if (type === "monthly") return "detail-price-monthly";
