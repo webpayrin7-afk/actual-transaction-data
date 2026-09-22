@@ -69,13 +69,15 @@ function PercentFigure({
 }) {
   const toneClass =
     tone === "up"
-      ? "detail-change-up"
+      ? "text-[color:var(--lab-change-up)]"
       : tone === "down"
-        ? "detail-change-down"
+        ? "text-[color:var(--lab-change-down)]"
         : "text-[color:var(--lab-muted)]";
   if (!text.endsWith("%")) {
     return (
-      <span className={`detail-number whitespace-nowrap tabular-nums ${toneClass}`}>
+      <span
+        className={`detail-number whitespace-nowrap tabular-nums ${toneClass}`}
+      >
         {text}
       </span>
     );
@@ -84,8 +86,10 @@ function PercentFigure({
     <span
       className={`inline-flex shrink-0 items-baseline whitespace-nowrap tabular-nums ${toneClass}`}
     >
-      <span className="detail-number">{text.slice(0, -1)}</span>
-      <span className="detail-meta ml-px font-medium">%</span>
+      <span className="text-[1rem] font-semibold leading-6 tracking-[-0.02em]">
+        {text.slice(0, -1)}
+      </span>
+      <span className="ml-px text-[0.8125rem] font-medium leading-5">%</span>
     </span>
   );
 }
@@ -390,7 +394,6 @@ export function ComplexRegionPriceCompare({
   const meta = priceCompareMetaLine({
     supplyPyeongCohort: data?.supplyPyeongCohort ?? null,
     referenceMonth: data?.referenceMonth ?? null,
-    trendPeriodLabel: tab === "trend" ? periodLabel : null,
   });
   const trendCells = data?.trends[period] ?? [];
   const trendScale = trendAbsScale(trendCells);
@@ -407,7 +410,7 @@ export function ComplexRegionPriceCompare({
   ].join("|");
   return (
     <div className="detail-subsection-rule">
-      <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 items-start justify-between gap-x-3 gap-y-1">
         <div className="flex min-w-0 items-center gap-1.5">
           <h3 className="detail-subsection-title">{PRICE_COMPARE_TITLE}</h3>
           <InfoTip aria-label="가격 비교 안내">
@@ -419,7 +422,9 @@ export function ComplexRegionPriceCompare({
             ))}
           </InfoTip>
         </div>
-        {meta ? <p className="detail-meta break-keep">{meta}</p> : null}
+        {meta ? (
+          <p className="detail-meta min-w-0 shrink text-right break-keep">{meta}</p>
+        ) : null}
       </div>
 
       {!enabled || unsupported ? (

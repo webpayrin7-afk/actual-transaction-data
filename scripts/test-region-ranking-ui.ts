@@ -450,20 +450,10 @@ assert(
   "40평대 meta",
 );
 assert(
-  priceCompareMetaLine({
-    supplyPyeongCohort: "30평대",
-    referenceMonth: "2026-09",
-    trendPeriodLabel: "6개월",
-  }) === "30평대 · 6개월 전 대비 · 2026년 9월 기준",
-  "trend meta includes period contrast",
-);
-assert(
-  priceCompareMetaLine({
-    supplyPyeongCohort: "30평대",
-    referenceMonth: "2026-09",
-    trendPeriodLabel: "1년",
-  }) === "30평대 · 1년 전 대비 · 2026년 9월 기준",
-  "1Y trend meta",
+  !String(
+    priceCompareMetaLine({ supplyPyeongCohort: "30평대", referenceMonth: "2026-09" }),
+  ).includes("전 대비"),
+  "price meta has no period contrast",
 );
 assert(ZIPLAB_RANK_TITLE === "집랩 순위", "ranking subtitle");
 assert(PRICE_COMPARE_TITLE === "가격 비교", "price subtitle");
@@ -961,10 +951,19 @@ assert(priceCompare.includes("function PriceFigure"), "inline unit per price row
 assert(priceCompare.includes("detail-number"), "price numbers use list-title/number 16/600");
 assert(priceCompare.includes("space-y-5"), "price rows use 20px vertical gap");
 assert(priceCompare.includes("space-y-2"), "label/value to bar gap is 8px");
-assert(priceCompare.includes("detail-change-up"), "trend deltas use change-up");
-assert(priceCompare.includes("detail-change-down"), "trend deltas use change-down");
+assert(priceCompare.includes("--lab-change-up"), "trend deltas use change-up token");
+assert(priceCompare.includes("--lab-change-down"), "trend deltas use change-down token");
 assert(priceCompare.includes("formatTrendAxisPct"), "trend axis trims decimals");
-assert(priceCompare.includes("trendPeriodLabel"), "meta follows selected trend period");
+assert(
+  priceCompare.includes("justify-between") && priceCompare.includes("text-right"),
+  "cohort/month meta sits on the title row, right-aligned",
+);
+assert(!priceCompare.includes("trendPeriodLabel"), "no N전 대비 in price compare meta");
+assert(
+  priceCompare.includes("text-[color:var(--lab-change-up)]") &&
+    priceCompare.includes("text-[color:var(--lab-change-down)]"),
+  "trend % text uses the same change colors as bars",
+);
 assert(
   !priceCompare.slice(
     priceCompare.indexOf("function PriceLevelBars"),

@@ -1044,23 +1044,16 @@ export function isTrendHorizonUnavailable(cell: {
   return cell.changePercent == null || !Number.isFinite(cell.changePercent);
 }
 
-/** Right-side / subtitle meta for 가격 비교.
- * Level: "30평대 · 2026년 9월 기준"
- * Trend: "30평대 · 6개월 전 대비 · 2026년 9월 기준"
- * Never invents selected 평 (e.g. 33평).
+/** Subtitle meta for 가격 비교: "30평대 · 2026년 9월 기준".
+ * Never invents selected 평 (e.g. 33평). No "N전 대비" period contrast.
  */
 export function priceCompareMetaLine(params: {
   supplyPyeongCohort: string | null | undefined;
   referenceMonth: string | null | undefined;
-  /** e.g. "6개월" | "1년" — when set, inserts "N 전 대비" */
-  trendPeriodLabel?: string | null;
 }): string | null {
   const decade = rankingDecadeRowLabel(params.supplyPyeongCohort);
   const month = formatReferenceMonthLabel(params.referenceMonth);
-  const contrast = params.trendPeriodLabel?.trim()
-    ? `${params.trendPeriodLabel.trim()} 전 대비`
-    : null;
-  const parts = [decade, contrast, month].filter((part): part is string => !!part);
+  const parts = [decade, month].filter((part): part is string => !!part);
   return parts.length ? parts.join(" · ") : null;
 }
 
