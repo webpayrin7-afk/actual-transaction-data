@@ -223,7 +223,7 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 
 공통 문법:
 - 흰 셸 배경 `#FFFFFF` + 얇은 경계 `#E2E8F0`, 셸 radius 12px, 트랙 padding 3px
-- 선택 면 `#EEFAFA`(teal-50) + 얇은 청록 경계, radius 6px
+- 선택 면 `#EEFAFA`(teal-50), radius 6px (안쪽 테두리 없음)
 - 선택 글자 `#087F83`(teal-700), 비선택 글자 `#64748B`
 - 동일 폭 기본, 활성 시 글자 크기·항목 폭·전체 높이 불변
 - 선택 면 이동 160ms, `prefers-reduced-motion` 시 제거

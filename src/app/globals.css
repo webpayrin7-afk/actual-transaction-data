@@ -862,7 +862,6 @@ h2.detail-section-title {
   --lab-tabs-thumb-radius: 6px;
   --lab-tabs-thumb-bg: #eefafa;
   --lab-tabs-active-ink: #087f83;
-  --lab-tabs-thumb-edge: color-mix(in srgb, #0f766e 35%, transparent);
   position: relative;
   display: flex;
   max-width: 100%;
@@ -885,8 +884,7 @@ h2.detail-section-title {
   width: 0;
   border-radius: var(--lab-tabs-thumb-radius);
   background: var(--lab-tabs-thumb-bg);
-  /* thin teal edge without changing outer size */
-  box-shadow: inset 0 0 0 1px var(--lab-tabs-thumb-edge);
+  box-shadow: none;
   pointer-events: none;
   transform: translate3d(0, 0, 0);
   opacity: 0;
