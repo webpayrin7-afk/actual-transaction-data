@@ -275,7 +275,7 @@ textarea,
 .detail-summary-meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   row-gap: 0.25rem; /* 4 */
   margin: 0;
   font-size: 0.875rem; /* 14 */
@@ -285,7 +285,8 @@ textarea,
 }
 .detail-summary-meta-item {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center; /* vertically center ⓘ with label/value */
+  gap: 0.375rem; /* 6 — label ↔ value */
   max-width: 100%;
   white-space: nowrap;
 }
@@ -302,6 +303,10 @@ textarea,
   font-weight: 600;
   color: var(--lab-navy-950);
   font-variant-numeric: tabular-nums;
+}
+.detail-summary-meta-item .relative {
+  /* keep tip on the optical center of the text line */
+  align-self: center;
 }
 /* 360: wrap by meaning unit — ratio on row 1, gap+tip on row 2 */
 @media (max-width: 379px) {

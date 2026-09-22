@@ -807,7 +807,7 @@ export function AptDetailPage({
         <div className="detail-summary-secondary">
           <p className="detail-summary-meta">
             <span className="detail-summary-meta-item">
-              <span className="detail-summary-meta-label">전세가율 </span>
+              <span className="detail-summary-meta-label">전세가율</span>
               <span className="detail-summary-meta-value">
                 {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
               </span>
@@ -816,7 +816,7 @@ export function AptDetailPage({
               ·
             </span>
             <span className="detail-summary-meta-item">
-              <span className="detail-summary-meta-label">매매−전세 갭 </span>
+              <span className="detail-summary-meta-label">매매−전세 갭</span>
               <span className="detail-summary-meta-value">
                 {saleJeonseGap != null && saleJeonseGap !== 0
                   ? formatEok(Math.abs(saleJeonseGap))
