@@ -123,7 +123,17 @@ export function ComplexMgmtFeeCard({
 
   return (
     <LabCard className="detail-card">
-      <h2 className="detail-section-title">관리비</h2>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="detail-section-title shrink-0">관리비</h2>
+        {showSelectedEstimate && estimate ? (
+          <p className="detail-meta min-w-0 text-right">
+            기준월 {formatMonthKo(estimate.latestMonth)}
+            {" · "}
+            전용 {estimate.exclusiveAreaMin.toFixed(2)}~
+            {estimate.exclusiveAreaMax.toFixed(2)}㎡
+          </p>
+        ) : null}
+      </div>
 
       {showSelectedEstimate && estimate ? (
         <>
@@ -137,12 +147,6 @@ export function ComplexMgmtFeeCard({
                 )}
                 role="summary"
               />
-            </p>
-            <p className="detail-source mt-1">
-              기준월 {formatMonthKo(estimate.latestMonth)}
-              {" · "}
-              전용 {estimate.exclusiveAreaMin.toFixed(2)}~
-              {estimate.exclusiveAreaMax.toFixed(2)}㎡
             </p>
           </div>
 
