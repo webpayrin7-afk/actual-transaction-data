@@ -16,6 +16,8 @@
     "db:rgst:national": "tsx scripts/backfill-rgst-date-national.mts --apply=1 --discovery=0 --concurrency=2",
     "db:rgst:refresh-plan": "tsx scripts/refresh-rgst-date-rolling.mts --plan=1 --months=6",
     "db:rgst:refresh": "tsx scripts/refresh-rgst-date-rolling.mts --apply=1 --months=6 --discovery=0 --concurrency=2",
+    "db:aptrade:expand-plan": "tsx scripts/expand-aptrade-national-2023.mts --plan=1",
+    "db:aptrade:expand": "tsx scripts/expand-aptrade-national-2023.mts --apply=1 --discovery=0 --concurrency=2",
     "db:sync:nationwide-plan": "tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --rent-months=0 --plan=1",
     "db:estimate-nationwide": "tsx scripts/estimate-nationwide.ts",
     "db:probe": "tsx scripts/probe-molit-freshness.ts",

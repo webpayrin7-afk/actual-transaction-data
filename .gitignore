@@ -49,3 +49,4 @@ next-env.d.ts
 # national coordinate cache (manifest is tracked; raw extracts are not)
 /data/poc/national-expansion/coordinates/cache/
 data/poc/rgst-national-backfill-checkpoint.json
+data/poc/aptrade-national-expand-checkpoint.json
