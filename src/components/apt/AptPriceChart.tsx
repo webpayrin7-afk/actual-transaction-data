@@ -5,7 +5,6 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
-  Legend,
   Line,
   ResponsiveContainer,
   Tooltip,
@@ -16,17 +15,23 @@ import {
 import type { AptChartPoint } from "@/lib/molit/apt-client";
 import { labSecondaryTabClass } from "@/components/ui/lab";
 
+/** Match --lab-chart-* tokens (hex for reliable SVG fill/stroke). */
 const CHART_COLORS = {
-  trade: "#2563eb",
-  jeonse: "#ea580c",
-  volume: "#0f766e",
-  volumeBar: "#2dd4bf",
+  trade: "#2563EB",
+  jeonse: "#C2410C",
+  volume: "#0F766E",
 } as const;
 
+const LEGEND_ITEMS = [
+  { name: "매매 평균", color: CHART_COLORS.trade },
+  { name: "전세 평균", color: CHART_COLORS.jeonse },
+  { name: "거래량", color: CHART_COLORS.volume },
+] as const;
+
 function seriesTextColor(name: string): string {
-  if (name === "거래량") return CHART_COLORS.volume;
-  if (name === "매매 평균") return CHART_COLORS.trade;
-  if (name === "전세 평균") return CHART_COLORS.jeonse;
+  if (name === "거래량") return "#0F766E";
+  if (name === "매매 평균") return "#2563EB";
+  if (name === "전세 평균") return "#C2410C";
   return "#334155";
 }
 
@@ -39,7 +44,7 @@ function ChartTooltip({
   const ym = row?.yearMonth;
 
   return (
-    <div className="max-w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
+    <div className="w-max max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md lg:max-w-[280px]">
       <p className="mb-1.5 font-medium text-slate-800">
         {ym ? formatYmLabel(ym) : ""}
       </p>
@@ -110,98 +115,97 @@ export function AptPriceChart({
   }
 
   return (
-    <div className="h-52 w-full sm:h-60">
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
-          data={data}
-          margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-          <XAxis
-            dataKey="yearMonth"
-            height={16}
-            tickFormatter={(ym: string) =>
-              ym.endsWith("01") ? `${ym.slice(2, 4)}년` : ""
-            }
-            interval="preserveStartEnd"
-            minTickGap={28}
-            tick={{ fill: "#475569", fontSize: 10 }}
-            axisLine={{ stroke: "#cbd5e1" }}
-            tickLine={false}
-          />
-          <YAxis
-            yAxisId="price"
-            tickFormatter={(v: number) => `${v}억`}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-            width={42}
-          />
-          <YAxis
-            yAxisId="volume"
-            orientation="right"
-            tickFormatter={(v: number) => `${v}건`}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-            width={40}
-            allowDecimals={false}
-          />
-          <Tooltip
-            content={<ChartTooltip />}
-            allowEscapeViewBox={{ x: true, y: true }}
-            wrapperStyle={{ zIndex: 40, outline: "none" }}
-            offset={12}
-          />
-          <Legend
-            verticalAlign="top"
-            height={28}
-            iconType="circle"
-            wrapperStyle={{ fontSize: 12, color: "#334155" }}
-            formatter={(value) => (
-              <span
-                style={{
-                  color: seriesTextColor(String(value)),
-                  fontWeight: 600,
-                }}
-              >
-                {value}
-              </span>
-            )}
-          />
-          <Bar
-            yAxisId="volume"
-            dataKey="volume"
-            name="거래량"
-            fill={CHART_COLORS.volumeBar}
-            opacity={0.9}
-            barSize={6}
-            radius={[2, 2, 0, 0]}
-          />
-          <Line
-            yAxisId="price"
-            type="monotone"
-            dataKey="tradeEok"
-            name="매매 평균"
-            stroke={CHART_COLORS.trade}
-            strokeWidth={2.4}
-            dot={{ r: 2.5, fill: CHART_COLORS.trade, strokeWidth: 0 }}
-            activeDot={{ r: 4 }}
-            connectNulls
-          />
-          <Line
-            yAxisId="price"
-            type="monotone"
-            dataKey="jeonseEok"
-            name="전세 평균"
-            stroke={CHART_COLORS.jeonse}
-            strokeWidth={2}
-            dot={{ r: 2, fill: CHART_COLORS.jeonse, strokeWidth: 0 }}
-            activeDot={{ r: 4 }}
-            connectNulls
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+    <div className="w-full">
+      <ul className="detail-price-chart-legend" aria-label="차트 범례">
+        {LEGEND_ITEMS.map((item) => (
+          <li key={item.name} className="detail-price-chart-legend-item">
+            <span
+              className="detail-price-chart-legend-swatch"
+              style={{ backgroundColor: item.color }}
+              aria-hidden
+            />
+            <span style={{ color: seriesTextColor(item.name) }}>{item.name}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="detail-price-chart-plot">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            data={data}
+            margin={{ top: 4, right: 2, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <XAxis
+              dataKey="yearMonth"
+              height={18}
+              tickFormatter={(ym: string) =>
+                ym.endsWith("01") ? `${ym.slice(2, 4)}년` : ""
+              }
+              interval="preserveStartEnd"
+              minTickGap={28}
+              tick={{ fill: "#64748b", fontSize: 12 }}
+              axisLine={{ stroke: "#cbd5e1" }}
+              tickLine={false}
+            />
+            <YAxis
+              yAxisId="price"
+              tickFormatter={(v: number) => `${v}억`}
+              tick={{ fill: "#94a3b8", fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+              width={36}
+            />
+            <YAxis
+              yAxisId="volume"
+              orientation="right"
+              tickFormatter={(v: number) => `${v}건`}
+              tick={{ fill: "#94a3b8", fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+              width={34}
+              allowDecimals={false}
+            />
+            <Tooltip
+              content={<ChartTooltip />}
+              allowEscapeViewBox={{ x: true, y: true }}
+              wrapperStyle={{ zIndex: 40, outline: "none" }}
+              offset={12}
+            />
+            <Bar
+              yAxisId="volume"
+              dataKey="volume"
+              name="거래량"
+              fill={CHART_COLORS.volume}
+              fillOpacity={0.28}
+              barSize={8}
+              radius={[2, 2, 0, 0]}
+              isAnimationActive={false}
+            />
+            <Line
+              yAxisId="price"
+              type="monotone"
+              dataKey="tradeEok"
+              name="매매 평균"
+              stroke={CHART_COLORS.trade}
+              strokeWidth={2.4}
+              dot={false}
+              activeDot={{ r: 5, strokeWidth: 0 }}
+              connectNulls
+            />
+            <Line
+              yAxisId="price"
+              type="monotone"
+              dataKey="jeonseEok"
+              name="전세 평균"
+              stroke={CHART_COLORS.jeonse}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 5, strokeWidth: 0 }}
+              connectNulls
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -344,7 +348,7 @@ export function PeriodRangeSlider({
           onPointerDown={(e) => beginDrag(e)}
         >
           <div
-            className="absolute top-0 h-full rounded-full bg-[color:var(--lab-teal-600)]"
+            className="absolute top-0 h-full rounded-full bg-[color:var(--lab-brand-primary)]"
             style={{
               left: `${startPct}%`,
               width: `${Math.max(endPct - startPct, 0)}%`,
@@ -365,7 +369,7 @@ export function PeriodRangeSlider({
         >
           <span
             aria-hidden
-            className="pointer-events-none block h-4 w-4 rounded-full border-2 border-[color:var(--lab-teal-700)] bg-white shadow-sm"
+            className="pointer-events-none block h-4 w-4 rounded-full border-2 border-[color:var(--lab-brand-hover)] bg-white shadow-sm"
           />
         </button>
         <button
@@ -381,7 +385,7 @@ export function PeriodRangeSlider({
         >
           <span
             aria-hidden
-            className="pointer-events-none block h-4 w-4 rounded-full border-2 border-[color:var(--lab-teal-700)] bg-white shadow-sm"
+            className="pointer-events-none block h-4 w-4 rounded-full border-2 border-[color:var(--lab-brand-hover)] bg-white shadow-sm"
           />
         </button>
       </div>

@@ -589,15 +589,19 @@ export function AptDetailPage({
   const kpiCell = (
     label: string,
     value: ReactNode,
-    hint: ReactNode,
+    hint: ReactNode | null,
     valueClassName = "",
   ) => (
-    <div className="min-w-0 px-2 py-2 sm:px-3 sm:py-2.5">
+    <div className="detail-kpi-cell">
       <p className="detail-label">{label}</p>
-      <p className={`detail-summary-value mt-1 break-words ${valueClassName}`.trim()}>
+      <div
+        className={`detail-summary-value mt-1 break-words ${valueClassName}`.trim()}
+      >
         {value}
-      </p>
-      <p className="detail-meta mt-1 break-keep">{hint}</p>
+      </div>
+      {hint != null && hint !== "" ? (
+        <p className="detail-meta mt-1 break-keep">{hint}</p>
+      ) : null}
     </div>
   );
 
@@ -744,24 +748,27 @@ export function AptDetailPage({
         </div>
       )}
 
-      {/* Market: title row → period filters → KPI → context → chart */}
+      {/* Market: title+filters → KPI panel → context → chart → slider */}
       <section id="section-market" className="lab-card detail-card scroll-mt-28">
-        <h2 className="detail-section-title">시세 추이</h2>
-        <div className="mt-3 flex flex-col gap-2">
-          {isExtendingHistory ? (
-            <p className="detail-meta inline-flex items-center gap-1.5 text-[color:var(--lab-teal-600)]">
-              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              과거 시세 추가 중…
-            </p>
-          ) : null}
-          {periodButtons}
+        <div className="detail-market-header">
+          <h2 className="detail-section-title shrink-0">시세 추이</h2>
+          <div className="detail-market-period flex min-w-0 flex-col gap-2">
+            {isExtendingHistory ? (
+              <p className="detail-meta inline-flex items-center gap-1.5 text-[color:var(--lab-brand-primary)]">
+                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                과거 시세 추가 중…
+              </p>
+            ) : null}
+            {periodButtons}
+          </div>
         </div>
 
-        <div className="detail-after-title grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="detail-market-kpi detail-kpi-panel" role="group" aria-label="시세 요약">
           {kpiCell(
             "최근 매매",
             latestTrade ? formatEok(latestTrade.dealAmount) : "—",
             latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
+            "detail-kpi-brand",
           )}
           {kpiCell(
             "최근 전세",
@@ -784,17 +791,19 @@ export function AptDetailPage({
           )}
           {kpiCell(
             "거래량",
-            <>
-              <span className="detail-label mr-1 inline font-medium text-[color:var(--lab-muted)]">
-                매매
-              </span>
-              {periodTradeCount.toLocaleString("ko-KR")}건
-            </>,
-            `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
+            <div className="detail-kpi-volume">
+              <p className="detail-kpi-volume-line">
+                매매 {periodTradeCount.toLocaleString("ko-KR")}건
+              </p>
+              <p className="detail-kpi-volume-line">
+                전세 {periodJeonseCount.toLocaleString("ko-KR")}건
+              </p>
+            </div>,
+            null,
           )}
         </div>
 
-        <p className="detail-after-title flex flex-wrap gap-x-3 gap-y-1 rounded-lg bg-[var(--lab-surface-subtle)] px-3 py-2">
+        <p className="detail-market-context flex flex-wrap gap-x-3 gap-y-1 rounded-lg bg-[var(--lab-surface-subtle)] px-3 py-2">
           <span className="detail-label">
             전세가율{" "}
             <span className="detail-data-value-emphasis">
@@ -811,11 +820,11 @@ export function AptDetailPage({
           </span>
         </p>
 
-        <div className="detail-chart-gap">
+        <div className="detail-market-chart">
           <AptPriceChart points={chartPoints} />
         </div>
 
-        <div className="detail-chart-gap min-h-11 px-1">
+        <div className="detail-market-slider min-h-11 px-1">
           <PeriodRangeSlider
             months={chartMonths}
             startIndex={startIndex}
@@ -856,7 +865,7 @@ export function AptDetailPage({
         <div className="detail-cta">
           <Link
             href={transactionsHref}
-            className="lab-button lab-button-secondary w-full"
+            className="lab-button lab-button-primary w-full"
           >
             거래 내역 자세히 보기
             {filteredByType.length > 5
