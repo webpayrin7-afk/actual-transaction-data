@@ -166,6 +166,8 @@ const VOLUME_CHART_MARGIN = { top: 2, right: 6, left: 34, bottom: 0 } as const;
 const PRICE_Y_AXIS_WIDTH = 34;
 /** Finger/cursor proximity for promoting 최고/최저 over nearby deals or the line. */
 const EXTREME_HIT_RADIUS_PX = 28;
+/** Period / filter changes replay chart draw. */
+const CHART_ANIMATION_MS = 480;
 
 type ExtremeHit = {
   id: string;
@@ -614,6 +616,8 @@ export function AptPriceChart({
     .map((row) => row.t);
 
   const countReady = dealCount != null && !!dealCountLabel;
+  /** Remount series on period/type change so draw animation always replays. */
+  const chartAnimKey = `${domain[0]}-${domain[1]}-${dealType}-${monthSeries.length}`;
 
   return (
     <div className="w-full">
@@ -650,6 +654,7 @@ export function AptPriceChart({
         <div className="detail-price-chart-plot">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
+              key={`plot-${chartAnimKey}`}
               margin={{ ...PRICE_CHART_MARGIN }}
               onMouseMove={handleChartMouseMove}
               onMouseLeave={clearPriorityExtreme}
@@ -708,7 +713,9 @@ export function AptPriceChart({
                   dot={false}
                   activeDot={{ r: 4, strokeWidth: 0, fill: CHART_COLORS.price }}
                   connectNulls
-                  isAnimationActive={false}
+                  isAnimationActive
+                  animationDuration={CHART_ANIMATION_MS}
+                  animationEasing="ease-out"
                 />
               ) : null}
               <Scatter
@@ -716,14 +723,18 @@ export function AptPriceChart({
                 dataKey="priceEok"
                 name="실거래"
                 fill={CHART_COLORS.deal}
-                isAnimationActive={false}
+                isAnimationActive
+                animationDuration={CHART_ANIMATION_MS}
+                animationEasing="ease-out"
                 shape={dealDotShape}
               />
               <Scatter
                 data={extremePoints}
                 dataKey="priceEok"
                 name="최고최저"
-                isAnimationActive={false}
+                isAnimationActive
+                animationDuration={CHART_ANIMATION_MS}
+                animationEasing="ease-out"
                 shape={extremeDotShape}
                 legendType="none"
               />
@@ -736,6 +747,7 @@ export function AptPriceChart({
             <span className="detail-price-chart-volume-label">거래량</span>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
+                key={`vol-${chartAnimKey}`}
                 data={monthSeries}
                 margin={{ ...VOLUME_CHART_MARGIN }}
                 onClick={handleChartClick}
@@ -767,7 +779,9 @@ export function AptPriceChart({
                   fill={CHART_COLORS.volume}
                   fillOpacity={0.9}
                   radius={[2, 2, 0, 0]}
-                  isAnimationActive={false}
+                  isAnimationActive
+                  animationDuration={CHART_ANIMATION_MS}
+                  animationEasing="ease-out"
                   maxBarSize={10}
                 />
               </ComposedChart>
