@@ -43,14 +43,25 @@ function ManwonFigure({
 function MetricRow({
   label,
   valueLabel,
+  emphasize = false,
 }: {
   label: string;
   valueLabel: string;
+  /** Larger summary-value type for the primary estimate row. */
+  emphasize?: boolean;
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <p className="detail-label min-w-0">{label}</p>
-      <ManwonFigure text={valueLabel} role="data" />
+      <p
+        className={
+          emphasize
+            ? "detail-label min-w-0 font-medium text-[color:var(--lab-navy-950)]"
+            : "detail-label min-w-0"
+        }
+      >
+        {label}
+      </p>
+      <ManwonFigure text={valueLabel} role={emphasize ? "summary" : "data"} />
     </div>
   );
 }
@@ -140,10 +151,16 @@ export function ComplexMgmtFeeCard({
           <div className="detail-after-title detail-rows">
             <MetricRow
               label="최근 예상 관리비"
+              emphasize
               valueLabel={formatWonRangeAsManwon(
                 estimate.latest.wonMin,
                 estimate.latest.wonMax,
               )}
+            />
+            <div
+              className="border-t border-[color:var(--lab-border)]"
+              role="separator"
+              aria-hidden
             />
             <MetricRow
               label="겨울 평균"
