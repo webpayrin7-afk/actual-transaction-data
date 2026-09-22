@@ -134,7 +134,6 @@ export function AptDetailPage({
   const [stickyVisible, setStickyVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("market");
   const [selectedMonthYm, setSelectedMonthYm] = useState<string | null>(null);
-  const [listExpanded, setListExpanded] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
 
   const quickQuery = useQuery({
@@ -375,10 +374,7 @@ export function AptDetailPage({
   }, [periodItems, selectedMonthYm, chartDealType]);
 
   const LIST_PREVIEW = 5;
-  const visibleTrades = listExpanded
-    ? listSourceItems
-    : listSourceItems.slice(0, LIST_PREVIEW);
-  const canExpandTrades = listSourceItems.length > LIST_PREVIEW;
+  const visibleTrades = listSourceItems.slice(0, LIST_PREVIEW);
 
   /** Chart overlays: same area + period + deal-type as other market filters. */
   const chartDeals = useMemo(
@@ -512,10 +508,9 @@ export function AptDetailPage({
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
-  // Reset month pick + list expand when shared filters change.
+  // Reset month pick when shared filters change.
   useEffect(() => {
     setSelectedMonthYm(null);
-    setListExpanded(false);
   }, [areaKey, chartDealType, startYm, endYm]);
 
 
@@ -913,25 +908,13 @@ export function AptDetailPage({
             layout="split"
           />
 
-          {canExpandTrades ? (
-            <div className="detail-cta">
-              <button
-                type="button"
-                className="lab-button lab-button-secondary w-full"
-                onClick={() => setListExpanded((v) => !v)}
-              >
-                {listExpanded
-                  ? "접기"
-                  : `거래내역 더 보기 (${listSourceItems.length.toLocaleString("ko-KR")}건)`}
-              </button>
-            </div>
-          ) : listSourceItems.length > 0 ? (
+          {listSourceItems.length > 0 ? (
             <div className="detail-cta">
               <Link
                 href={transactionsHref}
                 className="lab-button lab-button-secondary w-full"
               >
-                거래내역 더 보기
+                거래 내역 자세히 보기
               </Link>
             </div>
           ) : null}
