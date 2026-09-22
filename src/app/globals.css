@@ -359,14 +359,14 @@ textarea,
   color: var(--lab-muted);
 }
 
-/* Embedded trade list inside market card */
+/* Embedded trade list inside market card — full-width columns, left-aligned cells */
 .detail-trade-list {
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  grid-template-columns: 3.25rem max-content max-content max-content;
-  justify-content: start;
+  width: 100%;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem minmax(0, 1.25fr);
   column-gap: 0.5rem; /* 8 — shared so head + rows align */
 }
 .detail-trade-list-head {
@@ -384,7 +384,7 @@ textarea,
 .detail-trade-row:last-child {
   border-bottom: none;
 }
-/* One-line: 계약일 · 전용면적 · 층 · 가격 — left-packed, shared tracks via subgrid */
+/* One-line: 계약일 · 전용면적 · 층 · 가격 — full bleed width via subgrid */
 .detail-trade-row--inline {
   display: grid;
   grid-template-columns: subgrid;
@@ -406,9 +406,9 @@ textarea,
   }
   .detail-trade-row--inline {
     display: grid;
-    grid-template-columns: 3.25rem max-content 2.75rem max-content;
+    width: 100%;
+    grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem minmax(0, 1.25fr);
     grid-column: auto;
-    justify-content: start;
     column-gap: 0.5rem;
   }
 }
