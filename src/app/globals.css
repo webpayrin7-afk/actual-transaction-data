@@ -190,24 +190,21 @@ textarea,
     flex-shrink: 0;
   }
 }
-.detail-market-kpi { margin-top: 1rem; } /* 16 */
-.detail-market-context { margin-top: 0.75rem; } /* 12 */
-.detail-market-chart { margin-top: 1rem; } /* 16 to legend */
+.detail-market-kpi { margin-top: 1rem; } /* 16 period → KPI */
+.detail-market-context { margin-top: 0.75rem; } /* 12 KPI → context */
+.detail-market-chart { margin-top: 1rem; } /* 16 context → legend */
 .detail-market-slider { margin-top: 0.75rem; } /* 12 */
 
-/* Unified KPI summary panel (not four separate cards) */
+/* Market KPI grid — no brand fill; hairline dividers only */
 .detail-kpi-panel {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  padding: 0.875rem; /* 14 mobile */
-  border: 1px solid var(--lab-brand-border);
-  border-radius: var(--lab-radius-md);
-  background: var(--lab-brand-subtle);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   box-shadow: none;
-}
-@media (min-width: 768px) {
-  .detail-kpi-panel { padding: 1rem; }
 }
 @media (min-width: 1024px) {
   .detail-kpi-panel {
@@ -219,30 +216,42 @@ textarea,
   min-width: 0;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0.5rem 0.75rem;
-  border-color: var(--lab-brand-border);
+  padding: 0.5rem 1rem; /* 8 / 16 — compact toward 160–180 panel height */
+  border-color: var(--lab-border); /* #E2E8F0 */
+}
+@media (min-width: 1024px) {
+  .detail-kpi-cell {
+    padding: 0.75rem; /* 12 — PC ~96–112 */
+  }
+}
+.detail-kpi-cell .detail-summary-value {
+  line-height: 1.5rem; /* 24 — keep 20px size, tighten stack */
+}
+@media (min-width: 1024px) {
+  .detail-kpi-cell .detail-summary-value {
+    line-height: 1.75rem; /* 28 */
+  }
 }
 @media (max-width: 1023px) {
   .detail-kpi-panel > .detail-kpi-cell:nth-child(odd) {
-    border-right: 1px solid var(--lab-brand-border);
+    border-right: 1px solid var(--lab-border);
   }
   .detail-kpi-panel > .detail-kpi-cell:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--lab-brand-border);
+    border-bottom: 1px solid var(--lab-border);
   }
 }
 @media (min-width: 1024px) {
   .detail-kpi-panel > .detail-kpi-cell:not(:last-child) {
-    border-right: 1px solid var(--lab-brand-border);
+    border-right: 1px solid var(--lab-border);
   }
 }
-.detail-kpi-brand {
+.detail-summary-value.detail-kpi-brand {
   color: var(--lab-brand-primary);
 }
 .detail-kpi-volume {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
-  margin-top: 0.25rem;
 }
 .detail-kpi-volume-line {
   font-size: 0.9375rem; /* 15 */
@@ -252,14 +261,8 @@ textarea,
   letter-spacing: -0.02em;
   color: var(--lab-navy-950);
 }
-@media (min-width: 1024px) {
-  .detail-kpi-volume-line {
-    font-size: 1rem; /* 16 */
-    line-height: 1.5rem; /* 24 */
-  }
-}
 
-/* Price chart plot heights (Policy market correction) */
+/* Price chart plot heights — keep current (do not enlarge further) */
 .detail-price-chart-legend {
   display: flex;
   flex-wrap: wrap;

@@ -143,8 +143,6 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
     },
   ];
 
-  const selectedColBg = "bg-[color:var(--lab-teal-50)]";
-
   return (
     <div className="detail-after-title">
       <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
@@ -162,12 +160,21 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
               return (
                 <div
                   key={`h-${c.aptName}`}
-                  className={`min-w-0 px-3 text-center ${isCurrent ? selectedColBg : ""}`}
+                  className={`min-w-0 px-3 text-center ${
+                    isCurrent
+                      ? "border-t-2 border-[color:var(--lab-brand-primary)] pt-1"
+                      : "border-t-2 border-transparent pt-1"
+                  }`}
                 >
                   {isCurrent ? (
-                    <span className="detail-label line-clamp-2 font-semibold text-[color:var(--lab-teal-700)]">
-                      {c.aptName}
-                    </span>
+                    <>
+                      <span className="mb-1 inline-flex items-center rounded-full px-1.5 py-px detail-micro font-medium text-[color:var(--lab-brand-primary)] ring-1 ring-[color:var(--lab-brand-border)]">
+                        선택 단지
+                      </span>
+                      <span className="detail-label line-clamp-2 font-semibold !text-[color:var(--lab-brand-primary)]">
+                        {c.aptName}
+                      </span>
+                    </>
                   ) : (
                     <Link
                       href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
@@ -197,8 +204,6 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
                 <p
                   key={`${row.label}-${i}`}
                   className={`min-w-0 truncate px-3 py-2.5 text-center tabular-nums ${
-                    i === 0 ? selectedColBg : ""
-                  } ${
                     row.price
                       ? "detail-data-value-emphasis"
                       : "detail-label text-[color:var(--lab-navy-950)]"

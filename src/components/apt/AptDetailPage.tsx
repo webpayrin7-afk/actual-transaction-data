@@ -595,7 +595,7 @@ export function AptDetailPage({
     <div className="detail-kpi-cell">
       <p className="detail-label">{label}</p>
       <div
-        className={`detail-summary-value mt-1 break-words ${valueClassName}`.trim()}
+        className={`detail-summary-value mt-1.5 break-words ${valueClassName}`.trim()}
       >
         {value}
       </div>
@@ -787,7 +787,7 @@ export function AptDetailPage({
                 ? "detail-change-down"
                 : vsMaxPct > 0
                   ? "detail-change-up"
-                  : "",
+                  : "text-[color:var(--lab-muted)]",
           )}
           {kpiCell(
             "거래량",
@@ -803,16 +803,19 @@ export function AptDetailPage({
           )}
         </div>
 
-        <p className="detail-market-context flex flex-wrap gap-x-3 gap-y-1 rounded-lg bg-[var(--lab-surface-subtle)] px-3 py-2">
-          <span className="detail-label">
+        <p className="detail-market-context flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-[color:var(--lab-border)] pt-3">
+          <span className="detail-meta">
             전세가율{" "}
-            <span className="detail-data-value-emphasis">
+            <span className="detail-label font-semibold text-[color:var(--lab-navy-950)]">
               {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
             </span>
           </span>
-          <span className="detail-label">
+          <span className="detail-meta" aria-hidden>
+            ·
+          </span>
+          <span className="detail-meta">
             매매-전세 갭{" "}
-            <span className="detail-data-value-emphasis">
+            <span className="detail-label font-semibold text-[color:var(--lab-navy-950)]">
               {saleJeonseGap != null && saleJeonseGap !== 0
                 ? formatEok(Math.abs(saleJeonseGap))
                 : "—"}
