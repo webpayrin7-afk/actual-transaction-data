@@ -171,13 +171,18 @@ textarea,
 .detail-chart-gap { margin-top: 0.75rem; }
 .detail-cta { margin-top: 1rem; }
 
-/* Market trend: title + compact period filter on one row */
+/* Market trend: title + compact period segmented control on one row */
 .detail-market-header {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem; /* 8 — keep title + period on one line */
+}
+@media (max-width: 379px) {
+  .detail-market-header {
+    gap: 0.375rem; /* 6 */
+  }
 }
 .detail-market-period {
   display: flex;
@@ -186,47 +191,62 @@ textarea,
   align-items: center;
   justify-content: flex-end;
 }
+/* Apple-style segmented track — secondary to deal-type tabs */
 .detail-market-period-tabs {
-  display: inline-flex;
-  max-width: 100%;
-  flex-shrink: 1;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0.125rem; /* 2 */
-}
-.detail-market-period-tab {
   display: inline-flex;
   box-sizing: border-box;
   height: 2rem; /* 32 */
-  min-height: 2rem;
+  max-width: 100%;
+  flex-shrink: 1;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--lab-surface-subtle); /* soft neutral track */
+  padding: 0.125rem; /* 2 — inset for selected pill */
+  box-shadow: none;
+}
+.detail-market-period-tab {
+  position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  height: auto;
+  min-height: 0;
   min-width: 0;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: var(--lab-radius-sm);
+  border-radius: 999px;
   background: transparent;
-  padding: 0 0.5rem; /* 8 */
-  font-size: 0.8125rem; /* 13 */
+  padding: 0 0.625rem; /* 10 */
+  font-size: 0.75rem; /* 12 — below deal-type 14 */
   font-weight: 500;
   line-height: 1;
   color: var(--lab-muted);
   white-space: nowrap;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+/* Expand tap target without growing the visual control */
+.detail-market-period-tab::before {
+  content: "";
+  position: absolute;
+  inset: -0.375rem 0; /* +6px vertical hit */
 }
 @media (max-width: 379px) {
   .detail-market-period-tab {
-    padding: 0 0.375rem; /* 6 — squeeze before wrapping */
+    padding: 0 0.4375rem; /* 7 — squeeze before wrapping */
   }
 }
 .detail-market-period-tab:hover:not([aria-pressed="true"]):not(:disabled) {
-  background: #f8fafc;
   color: var(--lab-navy-950);
 }
 .detail-market-period-tab[aria-pressed="true"] {
-  background: var(--lab-teal-50);
+  background: var(--lab-surface); /* white pill on gray track */
   color: var(--lab-teal-700);
   font-weight: 600;
+  box-shadow: 0 1px 1px rgb(15 23 42 / 0.04);
 }
 .detail-market-kpi { margin-top: 1rem; } /* 16 period → KPI */
 .detail-market-context { margin-top: 0.75rem; } /* 12 KPI → context */
