@@ -834,7 +834,7 @@ export function ComplexPurchaseCalculatorSection({
               {latestTradeMan > 0 ? (
                 <button
                   type="button"
-                  className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
+                  className="lab-button-tertiary detail-label inline-flex min-h-11 items-center px-2"
                   onClick={resetToLatestTrade}
                 >
                   최근 거래가 ↺
@@ -1105,7 +1105,7 @@ export function ComplexPurchaseCalculatorSection({
                   ) : null}
                   <button
                     type="button"
-                    className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
+                    className="lab-button-tertiary detail-label inline-flex min-h-11 items-center px-2"
                     onClick={() => {
                       setOfficialEditing(true);
                       setOfficialDraft(
@@ -1160,7 +1160,7 @@ export function ComplexPurchaseCalculatorSection({
                   ) : (
                     <button
                       type="button"
-                      className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
+                      className="lab-button-tertiary detail-label inline-flex min-h-11 items-center px-2"
                       onClick={() => {
                         setOfficialManualOverride(false);
                         setOfficialEditing(false);
@@ -1306,7 +1306,7 @@ export function ComplexPurchaseCalculatorSection({
                 </div>
                 <button
                   type="button"
-                  className="lab-button-tertiary detail-label shrink-0 !min-h-0 px-1 py-1"
+                  className="lab-button-tertiary detail-label inline-flex min-h-11 shrink-0 items-center px-2"
                   onClick={() => setHoldingSettingsOpen(true)}
                 >
                   설정 변경 ›
@@ -1655,7 +1655,7 @@ export function ComplexPurchaseCalculatorSection({
                   {latestTradeMan > 0 ? (
                     <button
                       type="button"
-                      className="lab-button-tertiary detail-label !min-h-0 px-1 py-1"
+                      className="lab-button-tertiary detail-label inline-flex min-h-11 items-center px-2"
                       onClick={resetToLatestTrade}
                     >
                       최근 거래가 ↺
@@ -1779,7 +1779,7 @@ export function ComplexPurchaseCalculatorSection({
                 </div>
                 <button
                   type="button"
-                  className="lab-button-tertiary detail-label shrink-0 !min-h-0 px-1 py-1"
+                  className="lab-button-tertiary detail-label inline-flex min-h-11 shrink-0 items-center px-2"
                   onClick={() => setConditionsOpen(true)}
                 >
                   설정 변경 ›

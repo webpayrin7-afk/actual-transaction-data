@@ -318,7 +318,21 @@ h2.detail-section-title {
 .lab-tab[aria-selected="true"], .lab-tab[aria-pressed="true"], .lab-tab-active { background: var(--lab-teal-50); color: var(--lab-teal-700); }
 .lab-tab:disabled { cursor: not-allowed; opacity: .45; }
 /* Primary = section switcher (size step up); same selection colors */
-.lab-tab-primary { min-height: 44px; padding: 0 14px; font-size: .8125rem; font-weight: 650; }
+.lab-tab-primary {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--lab-radius-sm);
+  font-size: 0.875rem; /* 14 */
+  font-weight: 500;
+  line-height: 1.25rem; /* 20 */
+}
+.lab-tab-primary.lab-tab-active,
+.lab-tab.lab-tab-primary[aria-selected="true"],
+.lab-tab.lab-tab-primary[aria-pressed="true"] {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
 /* Secondary = in-page filter / segmented chips (기간·거래유형·주변생활 공통 size) */
 .lab-tab-secondary {
   display: inline-flex;

@@ -337,14 +337,14 @@ export function PeriodRangeSlider({
         </div>
       ) : null}
 
-      <div className="relative h-6 touch-none select-none">
+      <div className="relative flex min-h-11 touch-none select-none items-center">
         <div
           ref={trackRef}
-          className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 cursor-pointer rounded-full bg-slate-200"
+          className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 cursor-pointer rounded-full bg-[color:var(--lab-border)]"
           onPointerDown={(e) => beginDrag(e)}
         >
           <div
-            className="absolute top-0 h-full rounded-full bg-teal-600"
+            className="absolute top-0 h-full rounded-full bg-[color:var(--lab-teal-600)]"
             style={{
               left: `${startPct}%`,
               width: `${Math.max(endPct - startPct, 0)}%`,
@@ -359,10 +359,15 @@ export function PeriodRangeSlider({
           aria-valuemin={0}
           aria-valuemax={max}
           aria-valuenow={startIndex}
-          className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          className="absolute top-1/2 z-30 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center active:cursor-grabbing"
           style={{ left: `${startPct}%` }}
           onPointerDown={(e) => beginDrag(e, "start")}
-        />
+        >
+          <span
+            aria-hidden
+            className="pointer-events-none block h-4 w-4 rounded-full border-2 border-[color:var(--lab-teal-700)] bg-white shadow-sm"
+          />
+        </button>
         <button
           type="button"
           role="slider"
@@ -370,10 +375,15 @@ export function PeriodRangeSlider({
           aria-valuemin={0}
           aria-valuemax={max}
           aria-valuenow={endIndex}
-          className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-teal-700 bg-white shadow-md active:cursor-grabbing"
+          className="absolute top-1/2 z-30 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center active:cursor-grabbing"
           style={{ left: `${endPct}%` }}
           onPointerDown={(e) => beginDrag(e, "end")}
-        />
+        >
+          <span
+            aria-hidden
+            className="pointer-events-none block h-4 w-4 rounded-full border-2 border-[color:var(--lab-teal-700)] bg-white shadow-sm"
+          />
+        </button>
       </div>
 
       <div className="detail-caption flex items-center justify-between gap-2 leading-none">

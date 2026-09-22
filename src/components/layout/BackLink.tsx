@@ -61,15 +61,13 @@ export function BackLink({
       onClick={goBack}
       aria-label="돌아가기"
       className={
-        compact
-          ? `inline-flex h-9 items-center gap-1 rounded-lg px-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 ${className}`.trim()
-          : // Layout height stays compact (contextual to title); ::before expands the
-            // hit target to ~36px without adding visual section gap.
-            `relative inline-flex w-fit max-w-full shrink-0 items-center gap-1 self-start rounded-md text-[13px] font-medium leading-none text-slate-600 transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 before:absolute before:-inset-x-1.5 before:-inset-y-2.5 before:content-[''] ${className}`.trim()
+        compact || hideLabel
+          ? `inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--lab-radius-sm)] text-[color:var(--lab-navy-950)] hover:bg-[color:var(--lab-surface-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${className}`.trim()
+          : `relative inline-flex min-h-11 w-fit max-w-full shrink-0 items-center gap-1.5 self-start rounded-[var(--lab-radius-sm)] px-2.5 detail-label font-medium text-[color:var(--lab-body)] transition hover:text-[color:var(--lab-navy-950)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${className}`.trim()
       }
     >
       <ArrowLeft
-        className={compact ? "h-4 w-4 shrink-0" : "h-3.5 w-3.5 shrink-0"}
+        className={compact || hideLabel ? "h-5 w-5 shrink-0" : "h-4 w-4 shrink-0"}
         strokeWidth={2}
         aria-hidden
       />

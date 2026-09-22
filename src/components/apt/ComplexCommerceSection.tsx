@@ -121,9 +121,6 @@ export function ComplexCommerceStats({
       <section>
         <div className="flex items-baseline justify-between gap-2">
           <SectionHeading>생활 상권</SectionHeading>
-          <span className="detail-meta">
-            반경 {radiusKm} · {snapshot.sourcePeriodLabel}
-          </span>
         </div>
         <div className="mt-1.5 flex items-end gap-1">
           <p className="detail-summary-value leading-none">
@@ -132,7 +129,7 @@ export function ComplexCommerceStats({
           </p>
           <InfoTip
             aria-label="생활 상권 집계 안내"
-            className="mb-0.5 detail-meta"
+            className="mb-0.5"
           >
             <p className="detail-body">
               단지 중심 반경 {radiusKm} 내 상가업소 중 일상생활과 밀접한 업종을
@@ -147,7 +144,6 @@ export function ComplexCommerceStats({
             </p>
           </InfoTip>
         </div>
-        <p className="detail-meta mt-1">반경 {radiusKm} 내 생활 밀착 업소</p>
         {leadingComposition && leadingComposition.key === "음식/외식" ? (
           <p className="detail-body mt-1.5">음식/외식 업종 비중이 가장 높아요.</p>
         ) : null}

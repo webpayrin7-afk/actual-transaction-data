@@ -672,10 +672,8 @@ export function AptDetailPage({
         {...(!stickyVisible ? { inert: true } : {})}
       >
         <div className="mx-auto flex w-full max-w-[70rem] flex-wrap items-center gap-x-2 gap-y-2 px-4 py-2 sm:px-6 lg:px-8">
-          <div className="flex min-h-11 min-w-0 flex-1 items-center gap-2">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center">
-              <BackLink fallback="/complexes" compact hideLabel />
-            </div>
+          <div className="flex min-h-11 min-w-0 flex-1 items-center gap-1">
+            <BackLink fallback="/complexes" compact hideLabel />
             <p
               className="detail-subsection-title min-w-0 flex-1 truncate"
               title={data.aptName}
@@ -786,7 +784,12 @@ export function AptDetailPage({
           )}
           {kpiCell(
             "거래량",
-            `${periodTradeCount.toLocaleString("ko-KR")}건`,
+            <>
+              <span className="detail-label mr-1 inline font-medium text-[color:var(--lab-muted)]">
+                매매
+              </span>
+              {periodTradeCount.toLocaleString("ko-KR")}건
+            </>,
             `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
           )}
         </div>

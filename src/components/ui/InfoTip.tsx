@@ -107,16 +107,12 @@ export function InfoTip({
           event.stopPropagation();
           setOpen((value) => !value);
         }}
-        className={`relative z-10 inline-flex cursor-pointer items-center justify-center text-[13px] leading-none text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 ${className}`.trim()}
+        className={`relative z-10 inline-flex h-11 w-11 cursor-pointer items-center justify-center text-[color:var(--lab-muted)] transition hover:text-[color:var(--lab-navy-950)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${className}`.trim()}
       >
-        <span
-          className="absolute -inset-y-2.5 -left-1 -right-2.5"
-          aria-hidden
-        />
         {trigger ?? (
           <svg
             viewBox="0 0 16 16"
-            className="block h-[1em] w-[1em]"
+            className="pointer-events-none block h-4 w-4"
             aria-hidden="true"
           >
             <circle

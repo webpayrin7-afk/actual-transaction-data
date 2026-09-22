@@ -41,7 +41,7 @@ export function LabTabs<T extends string>({
   const compact = density === "compact";
   return (
     <div
-      className={`inline-flex w-full gap-1 rounded-xl border border-slate-200 bg-white p-1 ${className}`.trim()}
+      className={`inline-flex w-full gap-1 rounded-[var(--lab-radius-sm)] border border-[color:var(--lab-border)] bg-white p-1 ${className}`.trim()}
       role="tablist"
       aria-label={ariaLabel}
     >
@@ -56,8 +56,8 @@ export function LabTabs<T extends string>({
             className={labPrimaryTabClass(
               active,
               compact
-                ? "min-h-11 flex-1 px-2.5 text-[13px] sm:flex-none"
-                : "min-h-11 flex-1 px-3.5 sm:flex-none",
+                ? "min-h-11 flex-1 !rounded-[var(--lab-radius-sm)] px-2.5 detail-label sm:flex-none"
+                : "min-h-11 flex-1 !rounded-[var(--lab-radius-sm)] px-3.5 detail-label sm:flex-none",
             )}
             onClick={() => onChange(item.id)}
           >
