@@ -171,24 +171,62 @@ textarea,
 .detail-chart-gap { margin-top: 0.75rem; }
 .detail-cta { margin-top: 1rem; }
 
-/* Market trend: title/filters → KPI → context → chart → slider */
+/* Market trend: title + compact period filter on one row */
 .detail-market-header {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem; /* 12 */
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem; /* 8 — keep title + period on one line */
 }
-@media (min-width: 1024px) {
-  .detail-market-header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+.detail-market-period {
+  display: flex;
+  min-width: 0;
+  flex-shrink: 1;
+  align-items: center;
+  justify-content: flex-end;
+}
+.detail-market-period-tabs {
+  display: inline-flex;
+  max-width: 100%;
+  flex-shrink: 1;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.125rem; /* 2 */
+}
+.detail-market-period-tab {
+  display: inline-flex;
+  box-sizing: border-box;
+  height: 2rem; /* 32 */
+  min-height: 2rem;
+  min-width: 0;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--lab-radius-sm);
+  background: transparent;
+  padding: 0 0.5rem; /* 8 */
+  font-size: 0.8125rem; /* 13 */
+  font-weight: 500;
+  line-height: 1;
+  color: var(--lab-muted);
+  white-space: nowrap;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+@media (max-width: 379px) {
+  .detail-market-period-tab {
+    padding: 0 0.375rem; /* 6 — squeeze before wrapping */
   }
-  .detail-market-period {
-    width: auto;
-    max-width: 17.5rem; /* ~280 */
-    flex-shrink: 0;
-  }
+}
+.detail-market-period-tab:hover:not([aria-pressed="true"]):not(:disabled) {
+  background: #f8fafc;
+  color: var(--lab-navy-950);
+}
+.detail-market-period-tab[aria-pressed="true"] {
+  background: var(--lab-teal-50);
+  color: var(--lab-teal-700);
+  font-weight: 600;
 }
 .detail-market-kpi { margin-top: 1rem; } /* 16 period → KPI */
 .detail-market-context { margin-top: 0.75rem; } /* 12 KPI → context */

@@ -57,8 +57,6 @@ import {
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
-  labSecondaryTabClass,
-  labSegmentedClass,
   labUnderlineTabClass,
 } from "@/components/ui/lab";
 import {
@@ -544,7 +542,11 @@ export function AptDetailPage({
   }
 
   const periodButtons = (
-    <div className={labSegmentedClass()} role="group" aria-label="시세 기간">
+    <div
+      className="detail-market-period-tabs"
+      role="group"
+      aria-label="시세 기간"
+    >
       {([1, 3, 5] as const).map((years) => {
         const key = years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
         const pressed = periodPreset === key;
@@ -554,7 +556,7 @@ export function AptDetailPage({
             type="button"
             onClick={() => setRecentYears(years)}
             aria-pressed={pressed}
-            className={labSecondaryTabClass(pressed)}
+            className="detail-market-period-tab"
           >
             {years}년
           </button>
@@ -564,7 +566,7 @@ export function AptDetailPage({
         type="button"
         onClick={setFullRange}
         aria-pressed={periodPreset === "full"}
-        className={labSecondaryTabClass(periodPreset === "full")}
+        className="detail-market-period-tab"
       >
         전체
       </button>
@@ -752,16 +754,14 @@ export function AptDetailPage({
       <section id="section-market" className="lab-card detail-card scroll-mt-28">
         <div className="detail-market-header">
           <h2 className="detail-section-title shrink-0">시세 추이</h2>
-          <div className="detail-market-period flex min-w-0 flex-col gap-2">
-            {isExtendingHistory ? (
-              <p className="detail-meta inline-flex items-center gap-1.5 text-[color:var(--lab-brand-primary)]">
-                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                과거 시세 추가 중…
-              </p>
-            ) : null}
-            {periodButtons}
-          </div>
+          <div className="detail-market-period">{periodButtons}</div>
         </div>
+        {isExtendingHistory ? (
+          <p className="detail-meta mt-1.5 inline-flex items-center gap-1.5 text-[color:var(--lab-brand-primary)]">
+            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+            과거 시세 추가 중…
+          </p>
+        ) : null}
 
         <div className="detail-market-kpi detail-kpi-panel" role="group" aria-label="시세 요약">
           {kpiCell(
