@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import {
   archiveRegistrationDateTitle,
   archiveRegistrationLabel,
+  mergeRgstDateForPersist,
   normalizeMolitRgstDate,
   rgstDateFromTx,
 } from "../src/lib/molit/rgst-date";
@@ -59,6 +60,12 @@ assert.equal(snapFilled.rgstDate, "2024-04-19");
 assert.equal(isSameTransactionContent(snapEmpty, snapFilled), false);
 assert.equal(isSameTransactionContent(snapFilled, snapFilled), true);
 
+assert.equal(mergeRgstDateForPersist("2024-04-19", null), "2024-04-19");
+assert.equal(mergeRgstDateForPersist("2024-04-19", ""), "2024-04-19");
+assert.equal(mergeRgstDateForPersist("", "24.04.19"), "2024-04-19");
+assert.equal(mergeRgstDateForPersist("2024-04-19", "24.05.01"), "2024-05-01");
+assert.equal(mergeRgstDateForPersist(null, null), null);
+
 console.log(
   JSON.stringify({
     ok: true,
@@ -68,6 +75,7 @@ console.log(
       "label-unresolved-2023plus",
       "label-pre2023-null",
       "dirty-when-rgst-fills",
+      "preserve-existing-on-source-empty",
     ],
   }),
 );

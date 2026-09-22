@@ -7,7 +7,10 @@ import {
 import type { TxContentSnapshot } from "@/lib/db/sync-diff";
 import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
 import { isUnsafeMonthShrink } from "@/lib/molit/trade-resolve";
-import { rgstDateFromTx } from "@/lib/molit/rgst-date";
+import {
+  mergeRgstDateForPersist,
+  rgstDateFromTx,
+} from "@/lib/molit/rgst-date";
 import type { DealType, Transaction } from "@/types/transaction";
 import { noteDbQuery } from "@/lib/db/query-stats";
 import {
@@ -208,13 +211,19 @@ export async function replaceMonthTransactions(params: {
     const matched = byNatural.get(nk) ?? byId.get(raw.id) ?? byId.get(candidateId);
 
     if (matched) {
+      const incomingRgst = rgstDateFromTx(raw);
+      const mergedRgst = mergeRgstDateForPersist(
+        matched.content.rgstDate,
+        incomingRgst,
+      );
+      const tx: Transaction = { ...raw, rgstDate: mergedRgst };
       const dirty = !isSameTransactionContent(
         matched.content,
-        snapshotFromTx(raw),
+        snapshotFromTx(tx),
       );
       upserts.push({
         id: matched.id,
-        tx: raw,
+        tx,
         firstSeen: matched.firstSeenAt,
         isInsert: false,
         dirty,
@@ -230,7 +239,7 @@ export async function replaceMonthTransactions(params: {
     usedIds.add(candidateId);
     upserts.push({
       id: candidateId,
-      tx: raw,
+      tx: { ...raw, rgstDate: rgstDateFromTx(raw) },
       firstSeen: null,
       isInsert: true,
       dirty: true,
@@ -276,7 +285,7 @@ export async function replaceMonthTransactions(params: {
 
   for (const u of upserts) {
     const aptNorm = normalizeAptName(u.tx.aptName);
-    const rgstVal = writeRgstCol ? rgstDateFromTx(u.tx) : null;
+    const rgstVal = writeRgstCol ? (u.tx.rgstDate ?? rgstDateFromTx(u.tx)) : null;
     if (u.isInsert) {
       inserted += 1;
       statements.push({

@@ -35,6 +35,22 @@ export function rgstDateFromTx(tx: {
   return normalizeMolitRgstDate(tx.ingestMeta?.rgstDate);
 }
 
+/**
+ * Merge registration date for warehouse write.
+ * - Incoming non-empty wins (source published / corrected date).
+ * - Incoming empty MUST NOT clear an existing valid warehouse date
+ *   (publication lag / temporary API omission).
+ */
+export function mergeRgstDateForPersist(
+  existingIso: string | null | undefined,
+  incomingIso: string | null | undefined,
+): string | null {
+  const incoming = normalizeMolitRgstDate(incomingIso ?? "");
+  if (incoming) return incoming;
+  const existing = normalizeMolitRgstDate(existingIso ?? "");
+  return existing;
+}
+
 export type RegistrationDisplay = "등기완료" | "등기 미확인" | null;
 
 /**
