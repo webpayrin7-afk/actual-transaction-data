@@ -316,13 +316,14 @@ textarea,
   color: var(--lab-navy-950);
   font-variant-numeric: tabular-nums;
 }
-.detail-summary-meta-item .relative {
+.detail-summary-meta-item .relative:not(.detail-summary-meta-tip) {
   align-self: center;
 }
 .detail-summary-meta-tip {
-  /* tighter to value; slight optical drop onto text midline */
+  /* sit on the value baseline (bottom of the meta row), not optically high */
   margin-left: 0.125rem; /* 2 */
-  transform: translateY(0.12em);
+  align-self: flex-end;
+  transform: none;
 }
 /* 360: wrap by meaning unit — ratio on row 1, gap+tip on row 2 */
 @media (max-width: 379px) {
