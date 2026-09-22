@@ -600,14 +600,10 @@ export function AptDetailPage({
     valueClassName = "",
   ) => (
     <div className="detail-kpi-cell">
-      <p className="detail-label">{label}</p>
-      <div
-        className={`detail-summary-value mt-1.5 break-words ${valueClassName}`.trim()}
-      >
-        {value}
-      </div>
+      <p className="detail-kpi-label">{label}</p>
+      <div className={`detail-kpi-value ${valueClassName}`.trim()}>{value}</div>
       {hint != null && hint !== "" ? (
-        <p className="detail-meta mt-1 break-keep">{hint}</p>
+        <p className="detail-kpi-hint">{hint}</p>
       ) : null}
     </div>
   );
@@ -755,7 +751,7 @@ export function AptDetailPage({
         </div>
       )}
 
-      {/* Market: title+filters → KPI panel → context → chart → slider */}
+      {/* Market: title+period → meta → chart → slider → compact KPI */}
       <section id="section-market" className="lab-card detail-card scroll-mt-28">
         <div className="detail-market-header">
           <h2 className="detail-section-title shrink-0">시세 추이</h2>
@@ -768,50 +764,10 @@ export function AptDetailPage({
           </p>
         ) : null}
 
-        <div className="detail-market-kpi detail-kpi-panel" role="group" aria-label="시세 요약">
-          {kpiCell(
-            "최근 매매",
-            latestTrade ? formatEok(latestTrade.dealAmount) : "—",
-            latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
-            "detail-kpi-brand",
-          )}
-          {kpiCell(
-            "최근 전세",
-            latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
-            latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
-          )}
-          {kpiCell(
-            "최고가 대비",
-            vsMaxPct == null
-              ? "—"
-              : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`,
-            "최근 매매 기준",
-            vsMaxPct == null
-              ? ""
-              : vsMaxPct < 0
-                ? "detail-change-down"
-                : vsMaxPct > 0
-                  ? "detail-change-up"
-                  : "text-[color:var(--lab-muted)]",
-          )}
-          {kpiCell(
-            "거래량",
-            <div className="detail-kpi-volume">
-              <p className="detail-kpi-volume-line">
-                매매 {periodTradeCount.toLocaleString("ko-KR")}건
-              </p>
-              <p className="detail-kpi-volume-line">
-                전세 {periodJeonseCount.toLocaleString("ko-KR")}건
-              </p>
-            </div>,
-            null,
-          )}
-        </div>
-
-        <p className="detail-market-context flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-[color:var(--lab-border)] pt-3">
+        <p className="detail-market-context flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <span className="detail-meta">
             전세가율{" "}
-            <span className="detail-label font-semibold text-[color:var(--lab-navy-950)]">
+            <span className="font-semibold text-[color:var(--lab-navy-950)]">
               {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
             </span>
           </span>
@@ -820,7 +776,7 @@ export function AptDetailPage({
           </span>
           <span className="detail-meta">
             매매-전세 갭{" "}
-            <span className="detail-label font-semibold text-[color:var(--lab-navy-950)]">
+            <span className="font-semibold text-[color:var(--lab-navy-950)]">
               {saleJeonseGap != null && saleJeonseGap !== 0
                 ? formatEok(Math.abs(saleJeonseGap))
                 : "—"}
@@ -850,6 +806,43 @@ export function AptDetailPage({
             onRecentYears={setRecentYears}
             onFullRange={setFullRange}
           />
+        </div>
+
+        <div
+          className="detail-market-kpi detail-kpi-panel"
+          role="group"
+          aria-label="시세 요약"
+        >
+          {kpiCell(
+            "최근 매매",
+            latestTrade ? formatEok(latestTrade.dealAmount) : "—",
+            latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
+            "detail-kpi-brand",
+          )}
+          {kpiCell(
+            "최근 전세",
+            latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
+            latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
+          )}
+          {kpiCell(
+            "최고가 대비",
+            vsMaxPct == null
+              ? "—"
+              : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`,
+            "최근 매매 기준",
+            vsMaxPct == null
+              ? ""
+              : vsMaxPct < 0
+                ? "detail-change-down"
+                : vsMaxPct > 0
+                  ? "detail-change-up"
+                  : "text-[color:var(--lab-muted)]",
+          )}
+          {kpiCell(
+            "거래량",
+            `${periodTradeCount.toLocaleString("ko-KR")} / ${periodJeonseCount.toLocaleString("ko-KR")}`,
+            "매매 / 전세",
+          )}
         </div>
       </section>
 
