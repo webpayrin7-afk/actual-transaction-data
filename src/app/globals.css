@@ -349,16 +349,18 @@ textarea,
 .detail-trade-row:last-child {
   border-bottom: none;
 }
-/* One-line: 계약일 · 전용면적 · 층 · 가격 */
+/* One-line: 계약일 · 전용면적 · 층 · 가격 — shared tracks for head + rows */
 .detail-trade-row--inline {
   display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) 2.5rem auto;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem 6.25rem;
   align-items: center;
   column-gap: 0.5rem; /* 8 */
 }
-.detail-trade-row--inline > :last-child {
+.detail-trade-row--inline > :nth-child(3),
+.detail-trade-row--inline > :nth-child(4) {
   justify-self: end;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .detail-trade-row-date {
   font-size: 0.875rem;
