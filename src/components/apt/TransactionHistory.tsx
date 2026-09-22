@@ -400,17 +400,19 @@ function FloorCell({ floor }: { floor: number | null | undefined }) {
 
 function ArchiveColHeader() {
   return (
-    <div className="bg-white px-1 pb-1 pt-0.5 sm:px-1.5">
+    <div className="px-2 pb-1 pt-0.5 sm:px-3">
       <div
-        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] px-2 py-1.5 text-[11px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:px-2.5 sm:text-[12px]"
+        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] py-1.5 text-[11px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:text-[12px]"
         style={{ gridTemplateColumns: ARCHIVE_GRID }}
         role="row"
       >
         <span>계약일</span>
         <span>상태</span>
         <span>가격</span>
-        <span className="hidden sm:inline">면적(㎡)</span>
-        <span className="sm:hidden">면적</span>
+        <span>
+          면적
+          <span className="hidden sm:inline">(㎡)</span>
+        </span>
         <span>거래동</span>
         <span>층</span>
       </div>
