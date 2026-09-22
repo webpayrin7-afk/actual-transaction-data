@@ -364,6 +364,10 @@ textarea,
   margin: 0;
   padding: 0;
   list-style: none;
+  display: grid;
+  grid-template-columns: 3.25rem max-content max-content max-content;
+  justify-content: start;
+  column-gap: 0.5rem; /* 8 — shared so head + rows align */
 }
 .detail-trade-list-head {
   padding: 0 0 0.5rem;
@@ -380,13 +384,12 @@ textarea,
 .detail-trade-row:last-child {
   border-bottom: none;
 }
-/* One-line: 계약일 · 전용면적 · 층 · 가격 — left-packed shared tracks */
+/* One-line: 계약일 · 전용면적 · 층 · 가격 — left-packed, shared tracks via subgrid */
 .detail-trade-row--inline {
   display: grid;
-  grid-template-columns: 3.25rem max-content max-content max-content;
-  justify-content: start;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   align-items: center;
-  column-gap: 0.5rem; /* 8 */
 }
 .detail-trade-row--inline > * {
   justify-self: start;
@@ -396,6 +399,18 @@ textarea,
 .detail-trade-row--inline > :nth-child(3),
 .detail-trade-row--inline > :nth-child(4) {
   font-variant-numeric: tabular-nums;
+}
+@supports not (grid-template-columns: subgrid) {
+  .detail-trade-list {
+    display: block;
+  }
+  .detail-trade-row--inline {
+    display: grid;
+    grid-template-columns: 3.25rem max-content 2.75rem max-content;
+    grid-column: auto;
+    justify-content: start;
+    column-gap: 0.5rem;
+  }
 }
 .detail-trade-row-date {
   font-size: 0.875rem;
