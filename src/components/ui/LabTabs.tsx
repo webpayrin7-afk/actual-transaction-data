@@ -124,13 +124,21 @@ export function LabTabs<T extends string>({
     if (!active) {
       thumb.hidden = true;
       thumb.style.width = "0px";
+      thumb.style.height = "0px";
+      thumb.style.top = "0px";
       thumb.style.transform = "translate3d(0,0,0)";
       return;
     }
 
+    // Pin thumb to the active button box (inherits equal track padding on all sides).
+    // Avoid CSS top+bottom on a min-height-only parent — WebKit can resolve bottom unevenly.
+    const top = active.offsetTop;
     const left = active.offsetLeft;
     const width = active.offsetWidth;
+    const height = active.offsetHeight;
     thumb.hidden = false;
+    thumb.style.top = `${top}px`;
+    thumb.style.height = `${height}px`;
     thumb.style.width = `${width}px`;
     thumb.style.transform = `translate3d(${left}px,0,0)`;
 
