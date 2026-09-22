@@ -18,9 +18,9 @@
   --lab-brand-hover: var(--lab-teal-700);
   --lab-brand-subtle: var(--lab-teal-50);
   --lab-brand-border: var(--lab-teal-border);
-  /* Chart series (not change colors) */
-  --lab-chart-trade: #2563eb;
-  --lab-chart-jeonse: #c2410c;
+  /* Chart series — align with deal price ink (매매/전세) */
+  --lab-chart-trade: var(--lab-price-trade);
+  --lab-chart-jeonse: var(--lab-price-jeonse);
   --lab-chart-volume: #0f766e;
   /* Deal list prices — archive 매매/전세/월세 ink (unify detail + archive) */
   --lab-price-trade: #087f83;

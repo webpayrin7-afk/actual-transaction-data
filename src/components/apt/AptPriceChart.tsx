@@ -25,14 +25,19 @@ import type { TransactionTabType } from "@/lib/apt/transaction-type";
 import { labSecondaryTabClass } from "@/components/ui/lab";
 import { formatDealDate, formatEok, formatExclusiveArea } from "@/lib/utils/format";
 
-/** Brand / accent hex for reliable SVG (match globals tokens). */
+/** Brand / accent hex for reliable SVG (match --lab-price-* / --lab-chart-*). */
 const CHART_COLORS = {
-  price: "#0F766E", // --lab-teal-600 brand
+  trade: "#087F83", // --lab-price-trade
+  jeonse: "#C2410C", // --lab-price-jeonse
   deal: "#94A3B8",
   high: "#DC2626",
   low: "#2563EB",
   volume: "#CBD5E1",
 } as const;
+
+function seriesLineColor(dealType: TransactionTabType): string {
+  return dealType === "jeonse" ? CHART_COLORS.jeonse : CHART_COLORS.trade;
+}
 
 type DealScatterPoint = {
   t: number;
@@ -541,12 +546,13 @@ export function AptPriceChart({
   );
 
   const priceLabel = seriesLabel(dealType);
+  const priceLineColor = seriesLineColor(dealType);
   const showPriceLine = dealType !== "monthly";
   const hasVolume = monthSeries.some((row) => row.volume > 0);
 
   const legendItems = [
     showPriceLine
-      ? { name: priceLabel, color: CHART_COLORS.price, swatch: "line" as const }
+      ? { name: priceLabel, color: priceLineColor, swatch: "line" as const }
       : null,
     { name: "실거래", color: CHART_COLORS.deal, swatch: "dot" as const },
   ].filter(Boolean) as Array<{
@@ -708,10 +714,10 @@ export function AptPriceChart({
                   type="monotone"
                   dataKey="priceEok"
                   name={priceLabel}
-                  stroke={CHART_COLORS.price}
+                  stroke={priceLineColor}
                   strokeWidth={2.4}
                   dot={false}
-                  activeDot={{ r: 4, strokeWidth: 0, fill: CHART_COLORS.price }}
+                  activeDot={{ r: 4, strokeWidth: 0, fill: priceLineColor }}
                   connectNulls
                   isAnimationActive
                   animationDuration={CHART_ANIMATION_MS}
