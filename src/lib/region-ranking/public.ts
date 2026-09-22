@@ -1044,14 +1044,30 @@ export function isTrendHorizonUnavailable(cell: {
   return cell.changePercent == null || !Number.isFinite(cell.changePercent);
 }
 
-/** Right-side meta for 가격 비교: "30평대 기준 · 2026.09 기준". No selected 평. */
+/** Right-side / subtitle meta for 가격 비교.
+ * Level: "30평대 · 2026년 9월 기준"
+ * Trend: "30평대 · 6개월 전 대비 · 2026년 9월 기준"
+ * Never invents selected 평 (e.g. 33평).
+ */
 export function priceCompareMetaLine(params: {
   supplyPyeongCohort: string | null | undefined;
   referenceMonth: string | null | undefined;
+  /** e.g. "6개월" | "1년" — when set, inserts "N 전 대비" */
+  trendPeriodLabel?: string | null;
 }): string | null {
   const decade = rankingDecadeRowLabel(params.supplyPyeongCohort);
-  const decadeMeta = decade ? `${decade} 기준` : null;
-  const month = formatReferenceMonthCompact(params.referenceMonth);
-  const parts = [decadeMeta, month].filter((part): part is string => !!part);
+  const month = formatReferenceMonthLabel(params.referenceMonth);
+  const contrast = params.trendPeriodLabel?.trim()
+    ? `${params.trendPeriodLabel.trim()} 전 대비`
+    : null;
+  const parts = [decade, contrast, month].filter((part): part is string => !!part);
   return parts.length ? parts.join(" · ") : null;
+}
+
+/** Axis tick for bidirectional trend scale — trim excess decimals. */
+export function formatTrendAxisPct(maxAbs: number): string {
+  if (!Number.isFinite(maxAbs) || maxAbs <= 0) return "0";
+  const rounded = Math.round(maxAbs * 10) / 10;
+  if (Number.isInteger(rounded)) return String(rounded);
+  return rounded.toFixed(1);
 }

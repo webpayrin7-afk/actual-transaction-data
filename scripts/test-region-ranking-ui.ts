@@ -430,7 +430,7 @@ assert(rankingDecadeRowLabel("30평대 순위") === "30평대", "row label strip
 assert(rankingDecadeRowLabel(null) === null, "no invented decade row");
 assert(
   priceCompareMetaLine({ supplyPyeongCohort: "30평대", referenceMonth: "2026-09" }) ===
-    "30평대 기준 · 2026.09 기준",
+    "30평대 · 2026년 9월 기준",
   "price meta uses cohort + month only",
 );
 assert(
@@ -441,13 +441,29 @@ assert(
 );
 assert(
   priceCompareMetaLine({ supplyPyeongCohort: "20평대", referenceMonth: "2026-09" }) ===
-    "20평대 기준 · 2026.09 기준",
+    "20평대 · 2026년 9월 기준",
   "20평대 meta",
 );
 assert(
   priceCompareMetaLine({ supplyPyeongCohort: "40평대", referenceMonth: "2026-09" }) ===
-    "40평대 기준 · 2026.09 기준",
+    "40평대 · 2026년 9월 기준",
   "40평대 meta",
+);
+assert(
+  priceCompareMetaLine({
+    supplyPyeongCohort: "30평대",
+    referenceMonth: "2026-09",
+    trendPeriodLabel: "6개월",
+  }) === "30평대 · 6개월 전 대비 · 2026년 9월 기준",
+  "trend meta includes period contrast",
+);
+assert(
+  priceCompareMetaLine({
+    supplyPyeongCohort: "30평대",
+    referenceMonth: "2026-09",
+    trendPeriodLabel: "1년",
+  }) === "30평대 · 1년 전 대비 · 2026년 9월 기준",
+  "1Y trend meta",
 );
 assert(ZIPLAB_RANK_TITLE === "집랩 순위", "ranking subtitle");
 assert(PRICE_COMPARE_TITLE === "가격 비교", "price subtitle");
@@ -940,12 +956,15 @@ assert(
     priceCompare.lastIndexOf("{PRICE_COMPARE_TITLE}") > 0,
   "title/meta sit above tabs",
 );
-assert(priceCompare.includes("PRICE_UNIT"), "만원/평 unit token in header");
-assert(priceCompare.includes("detail-data-value-emphasis"), "price values use data-value-emphasis");
-assert(priceCompare.includes("space-y-1.5"), "price level stacks label/value then bar");
+assert(priceCompare.includes("PRICE_UNIT"), "만원/평 unit token for row values");
+assert(priceCompare.includes("function PriceFigure"), "inline unit per price row");
+assert(priceCompare.includes("detail-number"), "price numbers use list-title/number 16/600");
+assert(priceCompare.includes("space-y-5"), "price rows use 20px vertical gap");
+assert(priceCompare.includes("space-y-2"), "label/value to bar gap is 8px");
 assert(priceCompare.includes("detail-change-up"), "trend deltas use change-up");
 assert(priceCompare.includes("detail-change-down"), "trend deltas use change-down");
-assert(!priceCompare.includes("function PriceFigure"), "unit no longer inline per row");
+assert(priceCompare.includes("formatTrendAxisPct"), "trend axis trims decimals");
+assert(priceCompare.includes("trendPeriodLabel"), "meta follows selected trend period");
 assert(
   !priceCompare.slice(
     priceCompare.indexOf("function PriceLevelBars"),
@@ -959,6 +978,10 @@ assert(
     priceCompare.indexOf("function TrendScale"),
   ).includes("partialHistoryHelperCopy"),
   "price level has no history helper",
+);
+assert(
+  !priceCompare.includes('tab === "level" ? (\n            <span className="detail-meta shrink-0">{PRICE_UNIT}</span>'),
+  "title no longer shows duplicate 만원/평",
 );
 
 const priceRoute = readFileSync(
