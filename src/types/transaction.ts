@@ -21,6 +21,11 @@ export interface Transaction {
   buildYear: number | null;
   jibun: string;
   dealingGbn: string;
+  /**
+   * MOLIT AptTrade 등기일자 (YYYY-MM-DD). Trade only; rent is null.
+   * Official public start: contracts from 2023-01-01. Empty ≠ proven 미등기.
+   */
+  rgstDate?: string | null;
   /** 법정동코드 (웨어하우스 적재용) */
   lawdCd?: string;
   /**

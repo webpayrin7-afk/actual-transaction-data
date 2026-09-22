@@ -1,4 +1,5 @@
 import type { Transaction } from "@/types/transaction";
+import { rgstDateFromTx } from "@/lib/molit/rgst-date";
 
 /** sync dirty-check에 쓰는 거래 본문 스냅샷 (자연키 + 표시/보조 필드). */
 export type TxContentSnapshot = {
@@ -13,6 +14,8 @@ export type TxContentSnapshot = {
   buildYear: number | null;
   jibun: string;
   dealingGbn: string;
+  /** ISO YYYY-MM-DD or "" when absent */
+  rgstDate: string;
 };
 
 export function roundExclusiveArea(area: number): number {
@@ -32,6 +35,7 @@ export function snapshotFromTx(tx: Transaction): TxContentSnapshot {
     buildYear: tx.buildYear == null ? null : Number(tx.buildYear),
     jibun: tx.jibun ?? "",
     dealingGbn: tx.dealingGbn ?? "",
+    rgstDate: rgstDateFromTx(tx) ?? "",
   };
 }
 
@@ -55,6 +59,7 @@ export function isSameTransactionContent(
     existing.floor === incoming.floor &&
     (existing.buildYear ?? null) === (incoming.buildYear ?? null) &&
     existing.jibun.trim() === incoming.jibun.trim() &&
-    existing.dealingGbn === incoming.dealingGbn
+    existing.dealingGbn === incoming.dealingGbn &&
+    (existing.rgstDate ?? "") === (incoming.rgstDate ?? "")
   );
 }

@@ -1,0 +1,5 @@
+-- Additive: MOLIT AptTrade 등기일자 (YYYY-MM-DD). Trade only.
+-- Official public start: contracts from 2023-01-01.
+-- Empty/NULL = 등기 미확인 (do not treat as proven 미등기).
+-- Applied by ensureSchema / pilot script via ALTER TABLE ... ADD COLUMN.
+-- ALTER TABLE transactions ADD COLUMN rgst_date TEXT;

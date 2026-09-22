@@ -1,4 +1,15 @@
 import type { TransactionTabType } from "@/lib/apt/transaction-type";
+import {
+  archiveRegistrationDateTitle,
+  archiveRegistrationLabel,
+  type RegistrationDisplay,
+} from "@/lib/molit/rgst-date";
+
+export {
+  archiveRegistrationDateTitle,
+  archiveRegistrationLabel,
+  type RegistrationDisplay,
+};
 
 /**
  * 전세/월세 계약구분 — source-backed only.

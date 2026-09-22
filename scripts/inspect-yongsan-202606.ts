@@ -207,6 +207,7 @@ async function main() {
               : Number(matched.build_year),
           jibun: String(matched.jibun ?? ""),
           dealingGbn: String(matched.dealing_gbn ?? ""),
+          rgstDate: "",
         };
         const incoming = snapshotFromTx(tx);
         if (isSameTransactionContent(existingSnap, incoming)) wouldUnchanged += 1;
