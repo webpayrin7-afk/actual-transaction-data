@@ -21,6 +21,7 @@ import {
   complexMonthStat,
   HORIZON_SHIFT_MONTHS_V21,
   mean,
+  monthsBetweenInclusive,
   resolveComplexMonth,
   TREND_HORIZONS_V21,
   type TrendHorizonV21,
@@ -78,6 +79,8 @@ export const TREND_MIN_COMPLEXES_V21: Record<PriceScopeV21, number> = {
 
 export { TREND_HORIZONS_V21, HORIZON_SHIFT_MONTHS_V21, type TrendHorizonV21 };
 
+export type FreshnessStatusV3 = "FRESH" | "STALE_MIXED" | "STALE_HEAVY";
+
 export type PriceLevelCellV21 = {
   scope: PriceScopeV21;
   label: string;
@@ -87,6 +90,17 @@ export type PriceLevelCellV21 = {
   contributingComplexCount: number | null;
   referenceMonth: string | null;
   status: "ok" | "INSUFFICIENT_SAMPLE";
+  /** V3 regional freshness. Absent on V2.x rows. */
+  canonicalCount?: number | null;
+  historyUsableCount?: number | null;
+  medianAgeMonths?: number | null;
+  p75AgeMonths?: number | null;
+  p90AgeMonths?: number | null;
+  shareOver12Months?: number | null;
+  shareOver24Months?: number | null;
+  freshnessStatus?: FreshnessStatusV3 | null;
+  /** Calculation as-of month for latest-active regional cells (not a shared trade month). */
+  asOfMonth?: string | null;
 };
 
 export type TrendCellV21 = {
@@ -152,7 +166,7 @@ export type PricePositionBodyV21 = {
   /** How COMPLEX scope was produced for this response. */
   complexScopeBasis: "decade_cohort" | "exact_market_pyeong_label" | "ambiguous" | "unavailable";
   changeUnit: typeof CHANGE_UNIT_V21;
-  priceLevelDefinition: typeof PRICE_LEVEL_DEFINITION_V21;
+  priceLevelDefinition: string;
   complexPriceDefinition: typeof COMPLEX_PRICE_DEFINITION_V21;
   complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label";
   regionTrendDefinition: string;
@@ -227,6 +241,16 @@ export function buildPricePositionV21(params: {
   enforceTrendMinimum?: boolean;
   /** V2.3.1. Regional median uses canonical cohort members only. */
   canonicalContributorsOnly?: boolean;
+  /**
+   * Regional price membership month policy.
+   * SAME_MONTH (default): exact calendar referenceMonth.
+   * LATEST_ACTIVE (V3): each complex's latest usable month ≤ as-of.
+   */
+  regionPriceMode?: "SAME_MONTH" | "LATEST_ACTIVE";
+  /** Override published price-level definition string (V3). */
+  priceLevelDefinition?: string;
+  /** Override price methodology copy (V3). */
+  priceCopy?: string;
   /** Read-only. Does not change the published median. */
   contributorAudit?: ContributorAuditRow[];
 }): { bodies: PricePositionBodyV21[]; ambiguousExcluded: number; exactMapped: number } {
@@ -239,6 +263,9 @@ export function buildPricePositionV21(params: {
   const regionTrendDefinition = params.regionTrendDefinition ?? REGION_TREND_DEFINITION_V21;
   const enforceTrendMinimum = params.enforceTrendMinimum ?? true;
   const canonicalContributorsOnly = params.canonicalContributorsOnly === true;
+  const regionPriceMode = params.regionPriceMode ?? "SAME_MONTH";
+  const priceLevelDefinition = params.priceLevelDefinition ?? PRICE_LEVEL_DEFINITION_V21;
+  const priceCopy = params.priceCopy ?? PRICE_COPY_V21;
 
   const dealPoints: Array<{
     complexId: string;
@@ -391,27 +418,103 @@ export function buildPricePositionV21(params: {
     sampleCount: number | null;
     contributingComplexCount: number | null;
     status: "ok" | "INSUFFICIENT_SAMPLE";
+    canonicalCount: number | null;
+    historyUsableCount: number | null;
+    medianAgeMonths: number | null;
+    p75AgeMonths: number | null;
+    p90AgeMonths: number | null;
+    shareOver12Months: number | null;
+    shareOver24Months: number | null;
+    freshnessStatus: FreshnessStatusV3 | null;
   };
   const regionPriceCache = new Map<string, RegionPrice>();
-  function regionPrice(cacheKey: string, ids: readonly string[], referenceMonth: string, minComplexes: number): RegionPrice {
+
+  function agePercentile(sorted: number[], p: number): number | null {
+    if (!sorted.length) return null;
+    return sorted[Math.max(0, Math.ceil(p * sorted.length) - 1)] ?? null;
+  }
+
+  function classifyFreshness(share12: number, share24: number, medianAge: number | null): FreshnessStatusV3 {
+    const med = medianAge ?? 0;
+    if (share24 >= 0.15 || (share12 >= 0.25 && med >= 6)) return "STALE_HEAVY";
+    if (share12 >= 0.25 || med >= 6) return "STALE_MIXED";
+    return "FRESH";
+  }
+
+  function regionPrice(
+    cacheKey: string,
+    ids: readonly string[],
+    referenceMonth: string,
+    minComplexes: number,
+    canonicalSet: ReadonlySet<string> | null,
+  ): RegionPrice {
     const cached = regionPriceCache.get(cacheKey);
     if (cached) return cached;
     const values: number[] = [];
+    const ages: number[] = [];
     let trades = 0;
+    // Canonical filter for regional price applies to V3 latest-active only.
+    // SAME_MONTH (V2.3.x) keeps prior traded-scope membership.
+    const useCanonical = regionPriceMode === "LATEST_ACTIVE" && canonicalContributorsOnly && canonicalSet != null;
+    let historyUsable = 0;
     for (const cid of ids) {
-      const cell = tables.get(cid)?.get(referenceMonth);
-      if (!cell || cell.tradeCount < 1) continue;
-      values.push(complexMonthStat(cell, "C1_MEAN"));
-      trades += cell.tradeCount;
+      if (useCanonical && !canonicalSet!.has(cid)) continue;
+      const months = tables.get(cid);
+      if (!months || months.size < 1) continue;
+      historyUsable += 1;
+      if (regionPriceMode === "LATEST_ACTIVE") {
+        const latest = identityRef.get(cid);
+        if (!latest) continue;
+        const cell = months.get(latest);
+        if (!cell || cell.tradeCount < 1) continue;
+        values.push(complexMonthStat(cell, "C1_MEAN"));
+        trades += cell.tradeCount;
+        ages.push(monthsBetweenInclusive(latest, asOfMonth));
+      } else {
+        const cell = months.get(referenceMonth);
+        if (!cell || cell.tradeCount < 1) continue;
+        values.push(complexMonthStat(cell, "C1_MEAN"));
+        trades += cell.tradeCount;
+        ages.push(0);
+      }
+    }
+    // Also count canonical complexes with history that may be missing from traded scope ids
+    let canonicalCount: number | null = null;
+    if (canonicalSet) {
+      canonicalCount = canonicalSet.size;
+      if (regionPriceMode === "LATEST_ACTIVE") {
+        historyUsable = 0;
+        for (const cid of canonicalSet) {
+          if ((tables.get(cid)?.size ?? 0) > 0) historyUsable += 1;
+        }
+      }
     }
     const med = median(values);
     const ok = med != null && values.length >= minComplexes;
+    const sortedAges = [...ages].sort((a, b) => a - b);
+    const medianAge = agePercentile(sortedAges, 0.5);
+    const gt12 = ages.filter((a) => a > 12).length;
+    const gt24 = ages.filter((a) => a > 24).length;
+    const share12 = ages.length ? gt12 / ages.length : 0;
+    const share24 = ages.length ? gt24 / ages.length : 0;
+    const freshness =
+      regionPriceMode === "LATEST_ACTIVE" && ages.length
+        ? classifyFreshness(share12, share24, medianAge)
+        : null;
     const computed: RegionPrice = {
       meanPricePerSupplyPyeong: ok ? roundToV2(med!, 4) : null,
       tradeCount: values.length ? trades : null,
       sampleCount: values.length || null,
       contributingComplexCount: values.length || null,
       status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
+      canonicalCount,
+      historyUsableCount: canonicalSet ? historyUsable : null,
+      medianAgeMonths: regionPriceMode === "LATEST_ACTIVE" ? medianAge : null,
+      p75AgeMonths: regionPriceMode === "LATEST_ACTIVE" ? agePercentile(sortedAges, 0.75) : null,
+      p90AgeMonths: regionPriceMode === "LATEST_ACTIVE" ? agePercentile(sortedAges, 0.9) : null,
+      shareOver12Months: regionPriceMode === "LATEST_ACTIVE" && ages.length ? roundToV2(share12, 4) : null,
+      shareOver24Months: regionPriceMode === "LATEST_ACTIVE" && ages.length ? roundToV2(share24, 4) : null,
+      freshnessStatus: freshness,
     };
     regionPriceCache.set(cacheKey, computed);
     return computed;
@@ -680,11 +783,18 @@ export function buildPricePositionV21(params: {
           status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
         };
       }
+      const regionKey = scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL";
+      const canon = regionCanonical(scope, key, id.lawdCd);
+      const priceCacheKey =
+        regionPriceMode === "LATEST_ACTIVE"
+          ? `${scope}|${regionKey}|LATEST_ACTIVE|${asOfMonth}`
+          : `${scope}|${regionKey}|${referenceMonth}`;
       const cached = regionPrice(
-        `${scope}|${scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL"}|${referenceMonth}`,
+        priceCacheKey,
         scopeComplexes[scope],
         referenceMonth,
         PRICE_MIN_COMPLEXES_V21[scope],
+        canon,
       );
       return {
         scope,
@@ -693,8 +803,22 @@ export function buildPricePositionV21(params: {
         tradeCount: cached.tradeCount,
         sampleCount: cached.sampleCount,
         contributingComplexCount: cached.contributingComplexCount,
-        referenceMonth,
+        // Latest-active regional price is not a shared calendar trade month.
+        referenceMonth: regionPriceMode === "LATEST_ACTIVE" ? null : referenceMonth,
         status: cached.status,
+        ...(regionPriceMode === "LATEST_ACTIVE"
+          ? {
+              canonicalCount: cached.canonicalCount,
+              historyUsableCount: cached.historyUsableCount,
+              medianAgeMonths: cached.medianAgeMonths,
+              p75AgeMonths: cached.p75AgeMonths,
+              p90AgeMonths: cached.p90AgeMonths,
+              shareOver12Months: cached.shareOver12Months,
+              shareOver24Months: cached.shareOver24Months,
+              freshnessStatus: cached.freshnessStatus,
+              asOfMonth,
+            }
+          : {}),
       };
     });
 
@@ -773,14 +897,14 @@ export function buildPricePositionV21(params: {
       selectedMarketPyeongLabel: null,
       complexScopeBasis: "decade_cohort",
       changeUnit: CHANGE_UNIT_V21,
-      priceLevelDefinition: PRICE_LEVEL_DEFINITION_V21,
+      priceLevelDefinition,
       complexPriceDefinition: COMPLEX_PRICE_DEFINITION_V21,
       complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label",
       regionTrendDefinition,
       areaBasis: AREA_BASIS_V21,
       pyeongLabelVersion: PYEONG_LABEL_VERSION_V21,
       methodologyFingerprint: fingerprint,
-      methodologyCopy: { price: PRICE_COPY_V21, trend: TREND_COPY_V21 },
+      methodologyCopy: { price: priceCopy, trend: TREND_COPY_V21 },
       priceLevel,
       trends,
       complexExactByMarketLabel,

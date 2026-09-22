@@ -16,25 +16,24 @@ import {
   type PricePositionBodyV21,
 } from "./price-position-v21";
 import {
-  METHODOLOGY_FINGERPRINT_V232,
-  PRICE_POSITION_V232_VERSION,
-  pricePositionV232SnapshotId,
-} from "./price-position-v23";
+  METHODOLOGY_FINGERPRINT_V3,
+  PRICE_POSITION_V3_VERSION,
+  pricePositionV3SnapshotId,
+} from "./price-position-v3";
 import {
   decadeCohortByKey,
   decadeKeyFromLegacyAreaBand,
 } from "./price-position-v22";
 
 /**
- * Public pointer is V2.3.2 (freshness patch of V2.3.1).
- * A missing V2.3.2 row is unavailable. V2, V2.1, V2.2, V2.3, and V2.3.1 stay stored
- * and are never read as fallbacks.
+ * Public pointer is V3 (latest-active regional representative pyeong price).
+ * A missing V3 row is unavailable. Older versions stay stored and are never read as fallbacks.
  * Legacy area_band 59/84/114 is stored under the decade key.
  */
-export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V232_VERSION;
+export const PRICE_POSITION_PUBLIC_VERSION = PRICE_POSITION_V3_VERSION;
 export const PRICE_POSITION_PUBLIC_AS_OF = PRICE_POSITION_V21_AS_OF;
 
-const PUBLIC_SNAPSHOT_ID = pricePositionV232SnapshotId();
+const PUBLIC_SNAPSHOT_ID = pricePositionV3SnapshotId();
 
 export function seoulGuName(lawdCd: string): string | null {
   for (const region of SEOUL_REGIONS) {
@@ -95,7 +94,7 @@ function publicSnapshot(areaBand: string): { snapshotId: string; storageBand: st
   return {
     snapshotId: PUBLIC_SNAPSHOT_ID,
     storageBand: decadeKeyFromLegacyAreaBand(areaBand) ?? areaBand,
-    version: PRICE_POSITION_V232_VERSION,
+    version: PRICE_POSITION_V3_VERSION,
   };
 }
 
@@ -176,7 +175,7 @@ export async function readComplexPricePosition(
     regionTrendDefinition: "median_of_canonical_matched_complex_changes_trailing_6m_pooled_mean",
     areaBasis: "SUPPLY_PYEONG_LABEL",
     pyeongLabelVersion: "canonical-supply-pyeong-round-v1",
-    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V232,
+    methodologyFingerprint: METHODOLOGY_FINGERPRINT_V3,
     methodologyCopy: {
       price: PRICE_COPY_V21,
       trend: TREND_COPY_V21,

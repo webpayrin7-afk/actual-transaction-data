@@ -25,7 +25,7 @@ import {
 assert.equal(pricePositionV23SnapshotId(), "price-position-v2.3|2026-09-17");
 assert.equal(pricePositionV231SnapshotId(), "price-position-v2.3.1|2026-09-17");
 assert.equal(pricePositionV232SnapshotId(), "price-position-v2.3.2|2026-09-17");
-assert.equal(PRICE_POSITION_PUBLIC_VERSION, "price-position-v2.3.2");
+assert.equal(PRICE_POSITION_PUBLIC_VERSION, "price-position-v3");
 assert.match(METHODOLOGY_FINGERPRINT_V231, /canonical-cohort-contributors/);
 assert.match(METHODOLOGY_FINGERPRINT_V232, /canonical-cohort-contributors/);
 assert.match(METHODOLOGY_FINGERPRINT_V232, /freshness-patch/);
