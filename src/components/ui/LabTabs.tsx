@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useLayoutEffect,
   useRef,
   type KeyboardEvent,
   type ReactNode,
@@ -13,10 +14,11 @@ export type LabTabItem<T extends string = string> = {
 };
 
 /**
- * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 탭 체계
- * - primary: 1차 콘텐츠 연결형 (주요 메뉴·콘텐츠 구조 전환)
- * - secondary: 2차 연결형 segmented (같은 영역 분류·보기)
- * - compact: 기간·정렬·범위 preset 보조 필터
+ * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 segmented family
+ * - primary: 48px (주요 모드)
+ * - secondary: 40px (내부 분류·보기)
+ * - compact: 30px visual / 44px touch (보조 조건)
+ * Hierarchy is size + placement; all share the same track + sliding thumb.
  */
 export type LabTabsVariant = "primary" | "secondary" | "compact";
 
@@ -79,8 +81,8 @@ function itemClass(
 }
 
 /**
- * Shared LAB Series tab / segmented / compact filter control.
- * Selection colors and sizes come from `.lab-tabs*` tokens in globals.css.
+ * Shared LAB Series segmented control (1·2·3차).
+ * Track + sliding thumb styles live in `.lab-tabs*` tokens (globals.css).
  */
 export function LabTabs<T extends string>({
   items,
@@ -101,9 +103,61 @@ export function LabTabs<T extends string>({
   const equalWidth =
     equalWidthProp ?? (variant === "compact" ? false : true);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const thumbRef = useRef<HTMLSpanElement | null>(null);
+  const thumbReadyRef = useRef(false);
 
   const isRadio = variant === "compact";
   const listRole = isRadio ? "radiogroup" : "tablist";
+
+  const syncThumb = useCallback(() => {
+    const root = listRef.current;
+    const thumb = thumbRef.current;
+    if (!root || !thumb) return;
+
+    const active =
+      value == null
+        ? null
+        : Array.from(
+            root.querySelectorAll<HTMLElement>("[data-lab-tab]"),
+          ).find((el) => el.getAttribute("data-lab-tab-id") === value) ?? null;
+
+    if (!active) {
+      thumb.hidden = true;
+      thumb.style.width = "0px";
+      thumb.style.transform = "translate3d(0,0,0)";
+      return;
+    }
+
+    const left = active.offsetLeft;
+    const width = active.offsetWidth;
+    thumb.hidden = false;
+    thumb.style.width = `${width}px`;
+    thumb.style.transform = `translate3d(${left}px,0,0)`;
+
+    // Enable motion only after the first measured paint (avoids SSR/hydration jump).
+    if (!thumbReadyRef.current) {
+      thumbReadyRef.current = true;
+      requestAnimationFrame(() => {
+        thumb.classList.add("is-ready");
+      });
+    }
+  }, [value]);
+
+  useLayoutEffect(() => {
+    syncThumb();
+    const root = listRef.current;
+    if (!root || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => syncThumb());
+    ro.observe(root);
+    for (const btn of root.querySelectorAll("[data-lab-tab]")) {
+      ro.observe(btn);
+    }
+    window.addEventListener("resize", syncThumb);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", syncThumb);
+    };
+  }, [syncThumb, items, equalWidth, variant]);
 
   const focusAt = useCallback((index: number) => {
     const root = listRef.current;
@@ -151,6 +205,12 @@ export function LabTabs<T extends string>({
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
     >
+      <span
+        ref={thumbRef}
+        className="lab-tabs__thumb"
+        aria-hidden
+        hidden
+      />
       {items.map((item) => {
         const active = value === item.id;
         return (
@@ -158,6 +218,7 @@ export function LabTabs<T extends string>({
             key={item.id}
             type="button"
             data-lab-tab=""
+            data-lab-tab-id={item.id}
             id={idPrefix ? labTabId(idPrefix, item.id) : undefined}
             role={isRadio ? "radio" : "tab"}
             aria-checked={isRadio ? active : undefined}

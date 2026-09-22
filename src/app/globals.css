@@ -159,34 +159,14 @@ textarea,
 }
 
 /*
- * Calculator card — split padding so 1차 tabs go full-bleed to card edges.
- * Header / rail / panel each own horizontal inset; no card-level padding.
+ * Calculator card uses standard .detail-card padding.
+ * Primary LabTabs sit inset; spacing via utility / section classes.
  */
-.calculator-card {
-  padding: 0;
-  overflow: hidden; /* clip track to card radius on sides if needed */
-}
-.calculator-header {
-  padding: 1rem 1rem 0.75rem; /* 16 / 16 / 12 */
-}
-.calculator-tab-rail {
-  width: 100%;
-  padding: 0;
-  margin: 0;
+.calculator-primary-tabs {
+  margin-top: 1rem; /* 16 — below title group */
 }
 .calculator-tab-panel {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 1.5rem 1rem 1rem; /* top 24 · x 16 · bottom 16 */
-  background: var(--lab-surface);
-}
-@media (min-width: 768px) {
-  .calculator-header {
-    padding: 1.5rem 1.5rem 1rem; /* 24 / 24 / 16 */
-  }
-  .calculator-tab-panel {
-    padding: 1.5rem; /* 24 all — first content 24 below tabs */
-  }
+  margin-top: 1.5rem; /* 24 — first content below tabs */
 }
 .detail-after-title { margin-top: 1rem; } /* 16 title-group → body */
 @media (min-width: 1024px) {
@@ -872,34 +852,70 @@ h2.detail-section-title {
 }
 
 /*
- * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 탭 체계
- * Tokens: --lab-teal-50/600/700, --lab-muted, --lab-border, --lab-surface-subtle, --lab-radius-sm
+ * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 segmented family
+ * primary 48 / secondary 40 / compact 30(visual)·44(touch)
+ * Shared: track #F1F5F9, thumb #FFF + soft shadow, teal/muted text
  */
 .lab-tabs {
+  --lab-tabs-track-pad: 3px;
+  --lab-tabs-thumb-radius: 6px;
+  --lab-tabs-thumb-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  position: relative;
   display: flex;
   max-width: 100%;
   align-items: stretch;
   box-sizing: border-box;
+  gap: 0;
+  padding: var(--lab-tabs-track-pad);
+  border-radius: var(--lab-radius-sm); /* 8 */
+  background: var(--lab-surface-subtle); /* #F1F5F9 */
+  box-shadow: none;
+}
+.lab-tabs__thumb {
+  position: absolute;
+  top: var(--lab-tabs-track-pad);
+  left: 0;
+  z-index: 0;
+  box-sizing: border-box;
+  height: calc(100% - (var(--lab-tabs-track-pad) * 2));
+  width: 0;
+  border-radius: var(--lab-tabs-thumb-radius);
+  background: var(--lab-surface); /* #FFFFFF */
+  box-shadow: var(--lab-tabs-thumb-shadow);
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  opacity: 0;
+}
+.lab-tabs__thumb.is-ready {
+  opacity: 1;
+  transition:
+    transform 160ms ease,
+    width 160ms ease,
+    opacity 160ms ease;
 }
 .lab-tabs__btn {
   position: relative;
+  z-index: 1;
   display: inline-flex;
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
   min-width: 0;
   margin: 0;
+  border: none;
+  border-radius: var(--lab-tabs-thumb-radius);
+  background: transparent;
+  color: var(--lab-muted); /* #64748B */
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease;
+  box-shadow: none;
+  transition: color 160ms ease;
 }
 .lab-tabs__btn:focus-visible {
   outline: 2px solid var(--lab-teal-600);
   outline-offset: 2px;
-  z-index: 1;
+  z-index: 2;
 }
 .lab-tabs__btn:disabled {
   cursor: not-allowed;
@@ -907,6 +923,17 @@ h2.detail-section-title {
 }
 .lab-tabs__btn--equal {
   flex: 1 1 0;
+}
+.lab-tabs__btn.is-active,
+.lab-tabs__btn[aria-selected="true"],
+.lab-tabs__btn[aria-checked="true"] {
+  background: transparent;
+  color: var(--lab-teal-600); /* #0F766E */
+  font-weight: 600;
+  box-shadow: none;
+}
+.lab-tabs__btn:hover:not(.is-active):not([aria-selected="true"]):not([aria-checked="true"]):not(:disabled) {
+  color: var(--lab-navy-950);
 }
 .lab-tabs__label {
   display: inline-block;
@@ -922,122 +949,57 @@ h2.detail-section-title {
   .lab-tabs__btn {
     transition: none;
   }
+  .lab-tabs__thumb.is-ready {
+    transition: none;
+  }
 }
 
-/* 1차 — 콘텐츠 연결형 (매수비용/보유세/대출 등) */
-.lab-tabs-connected {
-  width: 100%;
-}
+/* 1차 — 주요 모드 (48) */
 .lab-tabs--primary {
-  gap: 0;
   width: 100%;
-  align-items: stretch;
-  background: var(--lab-surface-subtle); /* #F1F5F9 track */
-  border-bottom: 1px solid var(--lab-border); /* #E2E8F0 baseline */
-  box-shadow: none;
+  min-height: 3rem; /* 48 */
 }
 .lab-tabs__btn--primary {
-  z-index: 0;
-  min-height: 3rem; /* 48 — grows with text zoom */
+  min-height: calc(3rem - (var(--lab-tabs-track-pad) * 2));
   min-width: 2.75rem; /* 44 touch */
-  margin-bottom: -1px; /* sit on / cover baseline when active */
-  padding: 0.625rem 0.5rem; /* 10 8 */
-  border: 1px solid transparent;
-  border-bottom: 1px solid transparent;
-  border-radius: 0; /* unselected: no rounded face */
-  background: transparent;
-  color: var(--lab-muted); /* #64748B */
+  padding: 0.5rem 0.5rem;
   font-size: 1rem; /* 16 */
-  font-weight: 500;
   line-height: 1.5rem; /* 24 */
-  box-shadow: none;
-}
-.lab-tabs__btn--primary:hover:not(.is-active):not([aria-selected="true"]):not(:disabled) {
-  color: var(--lab-navy-950);
-  background: color-mix(in srgb, var(--lab-surface) 55%, var(--lab-surface-subtle));
-}
-.lab-tabs__btn--primary:active:not(.is-active):not([aria-selected="true"]):not(:disabled) {
-  background: color-mix(in srgb, var(--lab-surface) 35%, var(--lab-surface-subtle));
-}
-.lab-tabs__btn--primary.is-active,
-.lab-tabs__btn--primary[aria-selected="true"] {
-  z-index: 1;
-  border-color: var(--lab-border);
-  border-bottom-color: var(--lab-surface); /* open into panel */
-  border-radius: var(--lab-radius-sm) var(--lab-radius-sm) 0 0; /* 8 top only */
-  background: var(--lab-surface); /* #FFFFFF */
-  color: var(--lab-teal-600); /* #0F766E */
-  font-weight: 600;
-  /* 2px teal top point inside the selected face */
-  box-shadow: inset 0 2px 0 0 var(--lab-teal-600);
 }
 .lab-tabs__btn--primary .lab-tabs__label {
   white-space: normal; /* allow height growth at 200% zoom */
 }
-.lab-tabs-connected__panel {
-  padding-top: 1.25rem; /* 20 — first content below tab baseline */
-  background: var(--lab-surface);
-}
 
-/* 2차 — 연결형 segmented track */
+/* 2차 — 내부 분류·보기 (40) */
 .lab-tabs--secondary {
-  gap: 0;
   width: 100%;
   min-height: 2.5rem; /* 40 */
-  padding: 3px;
-  border-radius: var(--lab-radius-sm); /* 8 */
-  background: var(--lab-surface-subtle); /* #F1F5F9 */
-  box-shadow: none;
 }
 .lab-tabs__btn--secondary {
-  min-height: calc(2.5rem - 6px); /* track 40 − padding 3×2 */
+  min-height: calc(2.5rem - (var(--lab-tabs-track-pad) * 2));
+  min-width: 2.75rem;
   padding: 0.25rem 0.5rem;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--lab-muted);
   font-size: 0.875rem; /* 14 */
-  font-weight: 500;
-  line-height: 1.25rem;
-  box-shadow: none;
-}
-.lab-tabs__btn--secondary.is-active,
-.lab-tabs__btn--secondary[aria-selected="true"] {
-  border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
-  background: var(--lab-surface);
-  color: var(--lab-teal-600);
-  font-weight: 600;
-  box-shadow: none;
+  line-height: 1.25rem; /* 20 */
 }
 
-/* compact — 기간·조건 preset (내용 너비, 시각 30 / 터치 44) */
+/* 3차 — 보조 조건 (visual 30 / touch 44) */
 .lab-tabs--compact {
   display: inline-flex;
   width: auto;
   max-width: 100%;
-  align-items: center;
-  gap: 0;
-  background: var(--lab-surface-subtle);
   min-height: 1.875rem; /* 30 visual */
-  padding: 3px;
-  border-radius: var(--lab-radius-sm);
 }
 .lab-tabs--compact.w-full {
   display: flex;
   width: 100%;
 }
 .lab-tabs__btn--compact {
-  min-height: 1.5rem; /* inside track */
+  min-height: calc(1.875rem - (var(--lab-tabs-track-pad) * 2));
   min-width: 2.75rem; /* 44 horizontal touch */
   padding: 0 0.5rem;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--lab-muted);
   font-size: 0.8125rem; /* 13 */
-  font-weight: 500;
-  line-height: 1.125rem;
-  box-shadow: none;
+  line-height: 1.25rem; /* 20 */
 }
 /* Expand vertical hit to ≥44 without overlapping neighbors horizontally */
 .lab-tabs__btn--compact::before {
@@ -1050,14 +1012,13 @@ h2.detail-section-title {
   transform: translateY(-50%);
   pointer-events: auto;
 }
-.lab-tabs__btn--compact.is-active,
-.lab-tabs__btn--compact[aria-checked="true"],
-.lab-tabs__btn--compact[aria-pressed="true"] {
-  border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
-  background: var(--lab-surface);
-  color: var(--lab-teal-600);
-  font-weight: 600;
-  box-shadow: none;
+
+/* Legacy alias — prefer LabTabs variants */
+.lab-tabs-connected {
+  width: 100%;
+}
+.lab-tabs-connected__panel {
+  padding-top: 1.5rem; /* 24 — first content below primary tabs */
 }
 /* Official LAB section navigation — text + underline (no filled pill) */
 .lab-tab-underline {

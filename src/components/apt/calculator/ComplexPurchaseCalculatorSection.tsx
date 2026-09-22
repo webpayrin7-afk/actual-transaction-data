@@ -794,11 +794,11 @@ export function ComplexPurchaseCalculatorSection({
   return (
     <section
       id="section-calculator"
-      className="lab-card calculator-card scroll-mt-28"
+      className="lab-card detail-card scroll-mt-28"
     >
       <div id="calculator" className="sr-only" aria-hidden />
 
-      <header className="calculator-header min-w-0">
+      <header className="min-w-0">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h2 className="detail-section-title">
             세금, 대출 계산
@@ -814,28 +814,26 @@ export function ComplexPurchaseCalculatorSection({
         </p>
       </header>
 
-      <div className="calculator-tab-rail">
-        <LabTabs
-          variant="primary"
-          idPrefix="calc"
-          ariaLabel="세금, 대출 계산 메뉴"
-          items={TABS}
-          value={tab}
-          onChange={(next) => {
-            setTab(next);
-            setConditionsOpen(false);
-            setHoldingSettingsOpen(false);
-          }}
-        />
-      </div>
+      <LabTabs
+        className="calculator-primary-tabs"
+        variant="primary"
+        idPrefix="calc"
+        ariaLabel="세금, 대출 계산 메뉴"
+        items={TABS}
+        value={tab}
+        onChange={(next) => {
+          setTab(next);
+          setConditionsOpen(false);
+          setHoldingSettingsOpen(false);
+        }}
+      />
 
       <div
         role="tabpanel"
         id={labTabPanelId("calc", tab)}
         aria-labelledby={labTabId("calc", tab)}
-        className="calculator-tab-panel"
+        className="calculator-tab-panel mx-auto w-full max-w-[40rem] space-y-3"
       >
-        <div className="calculator-tab-panel__inner mx-auto w-full max-w-[40rem] space-y-3">
         {tab === "purchase" ? (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
@@ -1960,7 +1958,6 @@ export function ComplexPurchaseCalculatorSection({
             />
           </div>
         ) : null}
-        </div>
       </div>
     </section>
   );
