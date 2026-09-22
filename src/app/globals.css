@@ -603,6 +603,9 @@ h2.detail-section-title {
   letter-spacing: -0.02em;
   color: var(--lab-navy-950);
 }
+.detail-price-trade { color: var(--lab-price-trade); }
+.detail-price-jeonse { color: var(--lab-price-jeonse); }
+.detail-price-monthly { color: var(--lab-price-monthly); }
 @media (min-width: 1024px) {
   .detail-summary-value,
   .detail-number-strong {
