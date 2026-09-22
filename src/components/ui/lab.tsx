@@ -2,9 +2,10 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 /**
  * Tab hierarchy (ZIPLAB UI Policy v2 §11):
- * - LabTabs variant="primary" — 1차 독립 버튼 (콘텐츠 구조 전환)
+ * - LabTabs variant="primary" — 1차 콘텐츠 연결형 (주요 메뉴·콘텐츠 구조 전환)
  * - LabTabs variant="secondary" — 2차 연결형 segmented (분류·보기)
  * - LabTabs variant="compact" — 기간·조건 preset
+ * Pair primary tabs with `.lab-tabs-connected` + `role="tabpanel"` via idPrefix.
  * Legacy class helpers below remain for non-migrated surfaces.
  *
  * Color rules:

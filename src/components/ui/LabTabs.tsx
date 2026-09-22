@@ -14,7 +14,7 @@ export type LabTabItem<T extends string = string> = {
 
 /**
  * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 탭 체계
- * - primary: 1차 독립 버튼형 (콘텐츠 구조 전환)
+ * - primary: 1차 콘텐츠 연결형 (주요 메뉴·콘텐츠 구조 전환)
  * - secondary: 2차 연결형 segmented (같은 영역 분류·보기)
  * - compact: 기간·정렬·범위 preset 보조 필터
  */
@@ -41,7 +41,20 @@ type LabTabsProps<T extends string> = {
    * primary/secondary는 항상 선택 필요.
    */
   allowEmpty?: boolean;
+  /**
+   * When set, tabs get stable ids + aria-controls for paired tabpanels:
+   * `${idPrefix}-tab-${id}` / `${idPrefix}-panel-${id}`.
+   */
+  idPrefix?: string;
 };
+
+export function labTabId(idPrefix: string, id: string): string {
+  return `${idPrefix}-tab-${id}`;
+}
+
+export function labTabPanelId(idPrefix: string, id: string): string {
+  return `${idPrefix}-panel-${id}`;
+}
 
 function variantClass(variant: LabTabsVariant): string {
   if (variant === "primary") return "lab-tabs lab-tabs--primary";
@@ -80,6 +93,7 @@ export function LabTabs<T extends string>({
   density,
   equalWidth: equalWidthProp,
   allowEmpty = false,
+  idPrefix,
 }: LabTabsProps<T>) {
   // Legacy density=compact on calculator meant denser primary tabs — map to primary.
   const variant: LabTabsVariant =
@@ -144,10 +158,18 @@ export function LabTabs<T extends string>({
             key={item.id}
             type="button"
             data-lab-tab=""
+            id={idPrefix ? labTabId(idPrefix, item.id) : undefined}
             role={isRadio ? "radio" : "tab"}
             aria-checked={isRadio ? active : undefined}
             aria-selected={!isRadio ? active : undefined}
-            tabIndex={active || (allowEmpty && value == null && item === items[0]) ? 0 : -1}
+            aria-controls={
+              idPrefix && !isRadio ? labTabPanelId(idPrefix, item.id) : undefined
+            }
+            tabIndex={
+              active || (allowEmpty && value == null && item === items[0])
+                ? 0
+                : -1
+            }
             className={itemClass(variant, active, equalWidth)}
             onClick={() => onChange(item.id)}
           >

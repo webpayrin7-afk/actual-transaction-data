@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNod
 import { ChevronsUpDown } from "lucide-react";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
-import { LabTabs } from "@/components/ui/LabTabs";
+import { LabTabs, labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import {
   brokerageRatePctOptionsForPrice,
   calculateHoldingTax,
@@ -814,20 +814,26 @@ export function ComplexPurchaseCalculatorSection({
         </p>
       </header>
 
-      <LabTabs
-        className="mt-3"
-        variant="primary"
-        ariaLabel="세금, 대출 계산 메뉴"
-        items={TABS}
-        value={tab}
-        onChange={(next) => {
-          setTab(next);
-          setConditionsOpen(false);
-          setHoldingSettingsOpen(false);
-        }}
-      />
+      <div className="lab-tabs-connected mt-3">
+        <LabTabs
+          variant="primary"
+          idPrefix="calc"
+          ariaLabel="세금, 대출 계산 메뉴"
+          items={TABS}
+          value={tab}
+          onChange={(next) => {
+            setTab(next);
+            setConditionsOpen(false);
+            setHoldingSettingsOpen(false);
+          }}
+        />
 
-      <div className="detail-after-title mx-auto w-full max-w-[40rem] space-y-3">
+        <div
+          role="tabpanel"
+          id={labTabPanelId("calc", tab)}
+          aria-labelledby={labTabId("calc", tab)}
+          className="lab-tabs-connected__panel mx-auto w-full max-w-[40rem] space-y-3"
+        >
         {tab === "purchase" ? (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
@@ -1952,6 +1958,7 @@ export function ComplexPurchaseCalculatorSection({
             />
           </div>
         ) : null}
+        </div>
       </div>
     </section>
   );
