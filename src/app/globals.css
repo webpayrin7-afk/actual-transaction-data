@@ -396,9 +396,18 @@ textarea,
   text-align: left;
   min-width: 0;
 }
-.detail-trade-row--inline > :nth-child(3),
-.detail-trade-row--inline > :nth-child(4) {
+/* Data rows: 층·가격 values hug the right of their columns */
+.detail-trade-row.detail-trade-row--inline > :nth-child(3),
+.detail-trade-row.detail-trade-row--inline > :nth-child(4) {
+  justify-self: end;
+  text-align: right;
   font-variant-numeric: tabular-nums;
+}
+/* Head labels (층·매매가) stay left-aligned */
+.detail-trade-list-head > :nth-child(3),
+.detail-trade-list-head > :nth-child(4) {
+  justify-self: start;
+  text-align: left;
 }
 @supports not (grid-template-columns: subgrid) {
   .detail-trade-list {
