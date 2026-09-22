@@ -105,9 +105,9 @@ function seriesVolume(
 }
 
 function seriesLabel(dealType: TransactionTabType): string {
-  if (dealType === "jeonse") return "전세 평균";
+  if (dealType === "jeonse") return "전세 월평균";
   if (dealType === "monthly") return "시세";
-  return "매매 평균";
+  return "매매 월평균";
 }
 
 type ChartViewBox = Partial<{
@@ -388,11 +388,20 @@ export function AptPriceChart({
   points,
   deals = [],
   dealType = "trade",
+  dealCount,
+  dealCountLabel,
+  selectedMonthYm = null,
+  onMonthSelect,
 }: {
   points: AptChartPoint[];
   /** Period + area + deal-type filtered raw deals (one point per trade). */
   deals?: AptHistoryItem[];
   dealType?: TransactionTabType;
+  /** Period deal count shown on the legend row (right). */
+  dealCount?: number;
+  dealCountLabel?: string;
+  selectedMonthYm?: string | null;
+  onMonthSelect?: (ym: string | null) => void;
 }) {
   const extremeHitsRef = useRef<ExtremeHit[]>([]);
   const [priorityExtreme, setPriorityExtreme] = useState<PriorityExtreme | null>(
@@ -538,14 +547,59 @@ export function AptPriceChart({
       ? { name: priceLabel, color: CHART_COLORS.price, swatch: "line" as const }
       : null,
     { name: "실거래", color: CHART_COLORS.deal, swatch: "dot" as const },
-    hasVolume
-      ? { name: "거래량", color: CHART_COLORS.volume, swatch: "bar" as const }
-      : null,
   ].filter(Boolean) as Array<{
     name: string;
     color: string;
     swatch: "line" | "dot" | "bar";
   }>;
+
+  const handleChartClick = useCallback(
+    (state: {
+      chartX?: number;
+      activeLabel?: number | string;
+      activePayload?: Array<{
+        payload?: (MonthSeriesPoint | DealScatterPoint) & {
+          yearMonth?: string;
+          dealDate?: string;
+          kind?: string;
+        };
+      }>;
+    } | null) => {
+      if (!onMonthSelect || !state) return;
+      let ym: string | null = null;
+      const monthPayload = state.activePayload?.find(
+        (item) =>
+          item.payload &&
+          typeof item.payload.yearMonth === "string" &&
+          item.payload.kind == null,
+      )?.payload?.yearMonth;
+      if (monthPayload) {
+        ym = monthPayload;
+      } else {
+        const dealDate = state.activePayload?.find(
+          (item) => item.payload && typeof item.payload.dealDate === "string",
+        )?.payload?.dealDate;
+        if (dealDate && dealDate.length >= 7) {
+          ym = `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
+        }
+      }
+      if (!ym && typeof state.activeLabel === "number" && monthSeries.length) {
+        let best: string | null = null;
+        let bestDist = Number.POSITIVE_INFINITY;
+        for (const row of monthSeries) {
+          const dist = Math.abs(row.t - state.activeLabel);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = row.yearMonth;
+          }
+        }
+        ym = best;
+      }
+      if (!ym) return;
+      onMonthSelect(ym === selectedMonthYm ? null : ym);
+    },
+    [onMonthSelect, monthSeries, selectedMonthYm],
+  );
 
   if (monthSeries.length === 0) {
     return (
@@ -559,26 +613,38 @@ export function AptPriceChart({
     .filter((row) => row.yearMonth.endsWith("01"))
     .map((row) => row.t);
 
+  const countReady = dealCount != null && !!dealCountLabel;
+
   return (
     <div className="w-full">
-      <ul className="detail-price-chart-legend" aria-label="차트 범례">
-        {legendItems.map((item) => (
-          <li key={item.name} className="detail-price-chart-legend-item">
-            <span
-              className={
-                item.swatch === "line"
-                  ? "detail-price-chart-legend-line"
-                  : item.swatch === "bar"
-                    ? "detail-price-chart-legend-bar"
+      <div className="detail-price-chart-legend" aria-label="차트 범례">
+        <ul className="detail-price-chart-legend-items">
+          {legendItems.map((item) => (
+            <li key={item.name} className="detail-price-chart-legend-item">
+              <span
+                className={
+                  item.swatch === "line"
+                    ? "detail-price-chart-legend-line"
                     : "detail-price-chart-legend-swatch"
-              }
-              style={{ backgroundColor: item.color }}
-              aria-hidden
-            />
-            <span className="text-[color:var(--lab-navy-700)]">{item.name}</span>
-          </li>
-        ))}
-      </ul>
+                }
+                style={{ backgroundColor: item.color }}
+                aria-hidden
+              />
+              <span className="text-[color:var(--lab-navy-700)]">{item.name}</span>
+            </li>
+          ))}
+        </ul>
+        {countReady ? (
+          <p className="detail-price-chart-legend-count">
+            <span className="detail-price-chart-legend-count-label">
+              {dealCountLabel}
+            </span>{" "}
+            <span className="detail-price-chart-legend-count-value">
+              {Number(dealCount).toLocaleString("ko-KR")}건
+            </span>
+          </p>
+        ) : null}
+      </div>
 
       <div className="detail-price-chart-stack">
         <div className="detail-price-chart-plot">
@@ -587,6 +653,7 @@ export function AptPriceChart({
               margin={{ ...PRICE_CHART_MARGIN }}
               onMouseMove={handleChartMouseMove}
               onMouseLeave={clearPriorityExtreme}
+              onClick={handleChartClick}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
@@ -671,6 +738,7 @@ export function AptPriceChart({
               <ComposedChart
                 data={monthSeries}
                 margin={{ ...VOLUME_CHART_MARGIN }}
+                onClick={handleChartClick}
               >
                 <XAxis
                   type="number"

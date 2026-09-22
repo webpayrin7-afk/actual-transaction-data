@@ -180,14 +180,46 @@ export function TransactionRow({
   tx,
   mode,
   dense = false,
+  layout = "default",
 }: {
   tx: AptHistoryItem;
   mode: TransactionTabType;
   /** Archive page: date left, price right, compact meta under price. */
   dense?: boolean;
+  /** Embedded detail list: date/area left, price/floor right. */
+  layout?: "default" | "split";
 }) {
   const dateFull = formatDealDate(tx.dealDate);
   const dateShort = dayShort(tx.dealDate);
+
+  if (layout === "split") {
+    const price =
+      mode === "monthly"
+        ? formatMonthlyPriceCell(tx.dealAmount, Number(tx.monthlyRent ?? 0))
+        : formatEokDetail(tx.dealAmount);
+    return (
+      <li className="detail-trade-row">
+        <div className="detail-trade-row-left">
+          <time
+            dateTime={tx.dealDate}
+            title={dateFull}
+            className="detail-trade-row-date"
+          >
+            {dateShort}
+          </time>
+          <p className="detail-trade-row-meta tabular-nums">
+            {formatExclusiveArea(tx.exclusiveArea)}
+          </p>
+        </div>
+        <div className="detail-trade-row-right">
+          <p className={`detail-trade-row-price ${dealTypePriceTextClass(mode)}`}>
+            {price}
+          </p>
+          <p className="detail-trade-row-meta tabular-nums">{tx.floor}층</p>
+        </div>
+      </li>
+    );
+  }
 
   if (mode === "monthly") {
     const m = formatMonthlyRentDisplay(
@@ -268,19 +300,46 @@ export function TransactionRow({
   );
 }
 
-/** Flat list (Complex Detail recent 5). */
+/** Flat list (Complex Detail recent N). */
 export function TransactionList({
   items,
   mode,
   emptyLabel = "선택한 조건의 거래가 없습니다.",
+  layout = "default",
 }: {
   items: AptHistoryItem[];
   mode: TransactionTabType;
   emptyLabel?: string;
+  layout?: "default" | "split";
 }) {
   if (items.length === 0) {
     return (
       <p className="lab-state detail-body">{emptyLabel}</p>
+    );
+  }
+
+  if (layout === "split") {
+    return (
+      <ul className="detail-trade-list">
+        <li className="detail-trade-list-head" aria-hidden>
+          <span>계약일 · 전용면적</span>
+          <span>
+            {mode === "jeonse"
+              ? "전세가 · 층"
+              : mode === "monthly"
+                ? "보증금 · 월세"
+                : "매매가 · 층"}
+          </span>
+        </li>
+        {items.map((tx, idx) => (
+          <TransactionRow
+            key={`${tx.id}-${idx}`}
+            tx={tx}
+            mode={mode}
+            layout="split"
+          />
+        ))}
+      </ul>
     );
   }
 

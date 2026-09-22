@@ -5,7 +5,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -32,7 +31,6 @@ import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import { ComplexPurchaseCalculatorSection } from "@/components/apt/calculator/ComplexPurchaseCalculatorSection";
 import {
   TransactionList,
-  TransactionTypeTabs,
 } from "@/components/apt/TransactionHistory";
 import {
   filterTransactionsByType,
@@ -135,6 +133,8 @@ export function AptDetailPage({
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
   const [stickyVisible, setStickyVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("market");
+  const [selectedMonthYm, setSelectedMonthYm] = useState<string | null>(null);
+  const [listExpanded, setListExpanded] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
 
   const quickQuery = useQuery({
@@ -361,20 +361,29 @@ export function AptDetailPage({
     });
   })();
 
-  // Summary list is independent of chart period: latest N for selected area group.
-  const filteredByType = useMemo(
-    () => filterTransactionsByType(areaFiltered, dealFilter),
-    [areaFiltered, dealFilter],
-  );
-  /** Detail summary: latest 5 only for the active tab. */
-  const filtered = useMemo(
-    () => filteredByType.slice(0, 5),
-    [filteredByType],
-  );
+  // Summary list shares area + period + deal-type with the chart.
+  const chartDealType: TransactionTabType =
+    dealFilter === "monthly" ? "jeonse" : dealFilter;
+
+  const listSourceItems = useMemo(() => {
+    const base = selectedMonthYm
+      ? periodItems.filter(
+          (item) => ymFromDealDate(item.dealDate) === selectedMonthYm,
+        )
+      : periodItems;
+    return filterTransactionsByType(base, chartDealType);
+  }, [periodItems, selectedMonthYm, chartDealType]);
+
+  const LIST_PREVIEW = 5;
+  const visibleTrades = listExpanded
+    ? listSourceItems
+    : listSourceItems.slice(0, LIST_PREVIEW);
+  const canExpandTrades = listSourceItems.length > LIST_PREVIEW;
+
   /** Chart overlays: same area + period + deal-type as other market filters. */
   const chartDeals = useMemo(
-    () => filterTransactionsByType(periodItems, dealFilter),
-    [periodItems, dealFilter],
+    () => filterTransactionsByType(periodItems, chartDealType),
+    [periodItems, chartDealType],
   );
   const chartPoints = (() => {
     if (!data) return [];
@@ -431,8 +440,9 @@ export function AptDetailPage({
   const periodTradeCount = periodItems.filter(
     (i) => i.dealType === "trade",
   ).length;
-  const periodMax =
-    periodItems
+  /** Area-wide peak for 최고가 대비 — independent of chart period / deal tab. */
+  const areaTradeMax =
+    areaFiltered
       .filter((i) => i.dealType === "trade")
       .reduce((m, i) => Math.max(m, i.dealAmount), 0) || 0;
 
@@ -445,8 +455,8 @@ export function AptDetailPage({
   }, [areaFiltered]);
 
   const vsMaxPct =
-    latestTrade && periodMax > 0
-      ? Math.round((latestTrade.dealAmount / periodMax - 1) * 1000) / 10
+    latestTrade && areaTradeMax > 0
+      ? Math.round((latestTrade.dealAmount / areaTradeMax - 1) * 1000) / 10
       : null;
 
   const latestJeonse = useMemo(() => {
@@ -501,6 +511,12 @@ export function AptDetailPage({
     setPeriodPreset("full");
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
+
+  // Reset month pick + list expand when shared filters change.
+  useEffect(() => {
+    setSelectedMonthYm(null);
+    setListExpanded(false);
+  }, [areaKey, chartDealType, startYm, endYm]);
 
 
   useEffect(() => {
@@ -592,21 +608,6 @@ export function AptDetailPage({
     },
   ];
   const desktopNav = desktopNavItems.filter((i) => i.show);
-
-  const kpiCell = (
-    label: string,
-    value: ReactNode,
-    hint: ReactNode | null,
-    valueClassName = "",
-  ) => (
-    <div className="detail-kpi-cell">
-      <p className="detail-kpi-label">{label}</p>
-      <div className={`detail-kpi-value ${valueClassName}`.trim()}>{value}</div>
-      {hint != null && hint !== "" ? (
-        <p className="detail-kpi-hint">{hint}</p>
-      ) : null}
-    </div>
-  );
 
   if (quickQuery.isLoading && !data) {
     return (
@@ -751,7 +752,71 @@ export function AptDetailPage({
         </div>
       )}
 
-      {/* Market: title+period → meta → chart → slider → compact KPI */}
+      {/* Price summary — area-scoped; independent of chart period / deal tab */}
+      <section
+        id="section-price-summary"
+        className="lab-card detail-card scroll-mt-28"
+        aria-label="시세 요약"
+      >
+        <div className="detail-summary-primary" role="group">
+          <div className="detail-summary-cell">
+            <p className="detail-summary-label">최근 매매</p>
+            <p className="detail-summary-value detail-kpi-brand">
+              {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
+            </p>
+            <p className="detail-summary-hint">
+              {latestTrade ? formatDealDate(latestTrade.dealDate) : "—"}
+            </p>
+          </div>
+          <div className="detail-summary-cell">
+            <p className="detail-summary-label">최근 전세</p>
+            <p className="detail-summary-value">
+              {latestJeonse ? formatEok(latestJeonse.dealAmount) : "—"}
+            </p>
+            <p className="detail-summary-hint">
+              {latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—"}
+            </p>
+          </div>
+          <div className="detail-summary-cell">
+            <p className="detail-summary-label">최고가 대비</p>
+            <p
+              className={`detail-summary-value ${
+                vsMaxPct == null
+                  ? ""
+                  : vsMaxPct < 0
+                    ? "detail-change-down"
+                    : vsMaxPct > 0
+                      ? "detail-change-up"
+                      : "text-[color:var(--lab-muted)]"
+              }`.trim()}
+            >
+              {vsMaxPct == null
+                ? "—"
+                : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`}
+            </p>
+            <p className="detail-summary-hint">최근 매매 기준</p>
+          </div>
+        </div>
+        <div className="detail-summary-secondary" role="group">
+          <p className="detail-summary-meta">
+            전세가율{" "}
+            <span className="detail-summary-meta-value">
+              {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
+            </span>
+          </p>
+          <p className="detail-summary-meta">
+            매매-전세 갭{" "}
+            <span className="detail-summary-meta-value">
+              {saleJeonseGap != null && saleJeonseGap !== 0
+                ? formatEok(Math.abs(saleJeonseGap))
+                : "—"}
+            </span>
+          </p>
+        </div>
+        <p className="detail-summary-foot">각 최근 거래 기준</p>
+      </section>
+
+      {/* Market + trades — single card */}
       <section id="section-market" className="lab-card detail-card scroll-mt-28">
         <div className="detail-market-header">
           <h2 className="detail-section-title shrink-0">시세 추이</h2>
@@ -764,31 +829,42 @@ export function AptDetailPage({
           </p>
         ) : null}
 
-        <p className="detail-market-context flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="detail-meta">
-            전세가율{" "}
-            <span className="font-semibold text-[color:var(--lab-navy-950)]">
-              {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
-            </span>
-          </span>
-          <span className="detail-meta" aria-hidden>
-            ·
-          </span>
-          <span className="detail-meta">
-            매매-전세 갭{" "}
-            <span className="font-semibold text-[color:var(--lab-navy-950)]">
-              {saleJeonseGap != null && saleJeonseGap !== 0
-                ? formatEok(Math.abs(saleJeonseGap))
-                : "—"}
-            </span>
-          </span>
-        </p>
+        <div
+          className="detail-market-deal-tabs"
+          role="tablist"
+          aria-label="거래 유형"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={chartDealType === "trade"}
+            className={labUnderlineTabClass(chartDealType === "trade")}
+            onClick={() => setDealFilter("trade")}
+          >
+            매매
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={chartDealType === "jeonse"}
+            className={labUnderlineTabClass(chartDealType === "jeonse")}
+            onClick={() => setDealFilter("jeonse")}
+          >
+            전월세
+          </button>
+        </div>
 
         <div className="detail-market-chart">
           <AptPriceChart
             points={chartPoints}
             deals={chartDeals}
-            dealType={dealFilter}
+            dealType={chartDealType}
+            dealCount={
+              chartDealType === "trade" ? periodTradeCount : periodJeonseCount
+            }
+            dealCountLabel={chartDealType === "trade" ? "매매" : "전세"}
+            selectedMonthYm={selectedMonthYm}
+            onMonthSelect={setSelectedMonthYm}
           />
         </div>
 
@@ -808,78 +884,56 @@ export function AptDetailPage({
           />
         </div>
 
-        <div
-          className="detail-market-kpi detail-kpi-panel"
-          role="group"
-          aria-label="시세 요약"
-        >
-          {kpiCell(
-            "최근 매매",
-            latestTrade ? formatEok(latestTrade.dealAmount) : "—",
-            latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
-            "detail-kpi-brand",
-          )}
-          {kpiCell(
-            "최근 전세",
-            latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
-            latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
-          )}
-          {kpiCell(
-            "최고가 대비",
-            vsMaxPct == null
-              ? "—"
-              : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`,
-            "최근 매매 기준",
-            vsMaxPct == null
-              ? ""
-              : vsMaxPct < 0
-                ? "detail-change-down"
-                : vsMaxPct > 0
-                  ? "detail-change-up"
-                  : "text-[color:var(--lab-muted)]",
-          )}
-          {kpiCell(
-            "거래량",
-            `${periodTradeCount.toLocaleString("ko-KR")} / ${periodJeonseCount.toLocaleString("ko-KR")}`,
-            "매매 / 전세",
-          )}
-        </div>
-      </section>
+        <div className="detail-market-trades">
+          <div className="detail-market-trades-head">
+            <h3 className="detail-subsection-title">거래내역</h3>
+            <p className="detail-meta">최근 계약일순</p>
+          </div>
 
-      <section
-        id="section-trades"
-        key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
-        className="lab-card detail-card scroll-mt-28"
-      >
-        <h2 className="detail-section-title">거래 내역</h2>
-        <p className="detail-source mt-1 truncate">
-          {areaKey === "all" || !selectedArea
-            ? "전체 면적"
-            : areaSelectorClosedLabel(selectedArea)}
-        </p>
-        <div className="mt-3">
-          <TransactionTypeTabs
-            value={dealFilter}
-            onChange={setDealFilter}
+          {selectedMonthYm ? (
+            <div className="detail-market-month-filter">
+              <p className="detail-meta">
+                {Number(selectedMonthYm.slice(0, 4))}년{" "}
+                {Number(selectedMonthYm.slice(4, 6))}월 거래
+              </p>
+              <button
+                type="button"
+                className="lab-button lab-button-tertiary detail-market-month-clear"
+                onClick={() => setSelectedMonthYm(null)}
+              >
+                선택 해제
+              </button>
+            </div>
+          ) : null}
+
+          <TransactionList
+            items={visibleTrades}
+            mode={chartDealType}
+            layout="split"
           />
-        </div>
-        <div className="detail-after-title">
-          <TransactionList items={filtered} mode={dealFilter} />
-        </div>
 
-        <div className="detail-cta">
-          <Link
-            href={transactionsHref}
-            className="lab-button lab-button-primary w-full"
-          >
-            거래 내역 자세히 보기
-            {filteredByType.length > 5
-              ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
-              : ""}
-            <span aria-hidden className="ml-1">
-              →
-            </span>
-          </Link>
+          {canExpandTrades ? (
+            <div className="detail-cta">
+              <button
+                type="button"
+                className="lab-button lab-button-secondary w-full"
+                onClick={() => setListExpanded((v) => !v)}
+              >
+                {listExpanded
+                  ? "접기"
+                  : `거래내역 더 보기 (${listSourceItems.length.toLocaleString("ko-KR")}건)`}
+              </button>
+            </div>
+          ) : listSourceItems.length > 0 ? (
+            <div className="detail-cta">
+              <Link
+                href={transactionsHref}
+                className="lab-button lab-button-secondary w-full"
+              >
+                거래내역 더 보기
+              </Link>
+            </div>
+          ) : null}
         </div>
       </section>
 
