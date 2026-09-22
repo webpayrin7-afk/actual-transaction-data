@@ -921,7 +921,7 @@ assert(!priceCompare.includes("지역 가격 비교"), "subtitle drops 지역");
 assert(priceCompare.includes("priceCompareScopeLabel"), "COMPLEX row uses apt name");
 assert(!/이 단지/.test(priceCompare), "price compare UI does not hardcode 이 단지");
 assert(priceCompare.includes("PRICE_COMPARE_TABS"), "keeps 가격 수준 / 변동률");
-assert(priceCompare.includes("detail-chart-gap"), "tab and chart share one gap token");
+assert(priceCompare.includes('className="mt-2"'), "tab→chart gap tightened to 8px");
 assert(priceCompare.includes("price-compare-bar-play"), "price bars animate on enter");
 assert(priceCompare.includes("IntersectionObserver"), "chart plays when the section enters view");
 const globalsCss = readFileSync(
@@ -953,8 +953,12 @@ assert(
 assert(priceCompare.includes("PRICE_UNIT"), "만원/평 unit token for row values");
 assert(priceCompare.includes("function PriceFigure"), "inline unit per price row");
 assert(priceCompare.includes("detail-number"), "price numbers use list-title/number 16/600");
-assert(priceCompare.includes("space-y-5"), "price rows use 20px vertical gap");
-assert(priceCompare.includes("space-y-2"), "label/value to bar gap is 8px");
+assert(priceCompare.includes("space-y-3"), "price rows use 12px vertical gap");
+assert(priceCompare.includes("space-y-1"), "label/value to bar gap is 4px");
+assert(priceCompare.includes("h-2.5"), "compare bars are ~10px tall");
+assert(priceCompare.includes("!h-11"), "main compare tabs ~44px");
+assert(priceCompare.includes("!h-10"), "period tabs one step smaller ~40px");
+assert(priceCompare.includes('layout="inline"'), "trend keeps name/% on one row");
 assert(priceCompare.includes("--lab-change-up"), "trend deltas use change-up token");
 assert(priceCompare.includes("--lab-change-down"), "trend deltas use change-down token");
 assert(priceCompare.includes("formatTrendAxisPct"), "trend axis trims decimals");

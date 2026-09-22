@@ -153,13 +153,22 @@ function RowHeader({
   scopeLabel,
   accent,
   value,
+  /** stack = 가격 수준(이름→가격→bar); inline = 변동률(이름·% 한 줄) */
+  layout = "stack",
 }: {
   scopeLabel: string;
   accent: boolean;
   value: ReactNode;
+  layout?: "stack" | "inline";
 }) {
   return (
-    <div className="flex flex-col gap-1 min-[400px]:flex-row min-[400px]:items-baseline min-[400px]:justify-between min-[400px]:gap-2">
+    <div
+      className={
+        layout === "inline"
+          ? "flex items-baseline justify-between gap-2"
+          : "flex flex-col gap-0.5 min-[400px]:flex-row min-[400px]:items-baseline min-[400px]:justify-between min-[400px]:gap-2"
+      }
+    >
       <span
         className={`${SCOPE_LABEL_CLASS} ${
           accent
@@ -174,6 +183,10 @@ function RowHeader({
     </div>
   );
 }
+
+/** Compact compare bars — ~8–10px visual height (보조 시각화). */
+const BAR_TRACK = "h-2.5";
+const BAR_FILL = "h-2.5 rounded-full";
 
 function PriceLevelBars({
   cells,
@@ -191,7 +204,7 @@ function PriceLevelBars({
     })),
   );
   return (
-    <ul className="space-y-5">
+    <ul className="space-y-3">
       {cells.map((cell, index) => {
         const hiddenBar = cell.status !== "ok";
         const value = cell.meanPricePerSupplyPyeong;
@@ -203,7 +216,7 @@ function PriceLevelBars({
           aptName,
         });
         return (
-          <li key={cell.scope} className="space-y-2">
+          <li key={cell.scope} className="space-y-1">
             <RowHeader
               scopeLabel={scopeLabel}
               accent={accent}
@@ -219,10 +232,10 @@ function PriceLevelBars({
             />
             <div className="min-w-0">
               {hiddenBar || width <= 0 ? (
-                <div className="h-3" />
+                <div className={BAR_TRACK} />
               ) : (
                 <div
-                  className={`h-3 rounded-full ${accent ? "bg-[color:var(--lab-brand-primary)]" : "bg-slate-300"} ${barPlayClass(animate, "left")}`}
+                  className={`${BAR_FILL} ${accent ? "bg-[color:var(--lab-brand-primary)]" : "bg-slate-300"} ${barPlayClass(animate, "left")}`}
                   style={{ width: `${width}%`, ...barDelayStyle(index) }}
                 />
               )}
@@ -237,7 +250,7 @@ function PriceLevelBars({
 function TrendScale({ maxAbs }: { maxAbs: number }) {
   const label = formatTrendAxisPct(maxAbs);
   return (
-    <div className="detail-micro mb-2 flex items-center justify-between tabular-nums">
+    <div className="detail-micro mb-1.5 flex items-center justify-between tabular-nums">
       <span>-{label}%</span>
       <span>0</span>
       <span>+{label}%</span>
@@ -259,7 +272,7 @@ function TrendBars({
   return (
     <div>
       {maxAbs != null && maxAbs > 0 ? <TrendScale maxAbs={maxAbs} /> : null}
-      <ul className="space-y-5">
+      <ul className="space-y-3">
         {cells.map((cell, index) => {
           const unavailable = isTrendHorizonUnavailable(cell);
           const value = cell.changePercent;
@@ -282,10 +295,11 @@ function TrendBars({
             aptName,
           });
           return (
-            <li key={cell.scope} className="space-y-2">
+            <li key={cell.scope} className="space-y-1">
               <RowHeader
                 scopeLabel={scopeLabel}
                 accent={cell.scope === "COMPLEX"}
+                layout="inline"
                 value={
                   unavailable ? (
                     <p className="detail-meta shrink-0 text-right">
@@ -294,7 +308,7 @@ function TrendBars({
                         : "—"}
                     </p>
                   ) : (
-                    <div className="flex shrink-0 flex-col items-end gap-0.5">
+                    <div className="flex shrink-0 flex-col items-end gap-0">
                       <PercentFigure
                         text={formatSignedPct(value) ?? "—"}
                         tone={tone}
@@ -320,23 +334,23 @@ function TrendBars({
                 }
               />
               {!unavailable ? (
-                <div className="relative flex h-3 min-w-0 items-center">
-                  <div className="flex h-3 w-1/2 justify-end pr-px">
+                <div className={`relative flex ${BAR_TRACK} min-w-0 items-center`}>
+                  <div className={`flex ${BAR_TRACK} w-1/2 justify-end pr-px`}>
                     {layout.side === "left" ? (
                       <div
-                        className={`h-3 rounded-full bg-[color:var(--lab-change-down)] ${barPlayClass(animate, "right")}`}
+                        className={`${BAR_FILL} bg-[color:var(--lab-change-down)] ${barPlayClass(animate, "right")}`}
                         style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
                       />
                     ) : null}
                   </div>
                   <div
-                    className="absolute left-1/2 h-3 w-px -translate-x-1/2 bg-slate-300"
+                    className={`absolute left-1/2 ${BAR_TRACK} w-px -translate-x-1/2 bg-slate-300`}
                     aria-hidden
                   />
-                  <div className="flex h-3 w-1/2 justify-start pl-px">
+                  <div className={`flex ${BAR_TRACK} w-1/2 justify-start pl-px`}>
                     {layout.side === "right" ? (
                       <div
-                        className={`h-3 rounded-full bg-[color:var(--lab-change-up)] ${barPlayClass(animate, "left")}`}
+                        className={`${BAR_FILL} bg-[color:var(--lab-change-up)] ${barPlayClass(animate, "left")}`}
                         style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
                       />
                     ) : null}
@@ -434,7 +448,7 @@ export function ComplexRegionPriceCompare({
       ) : (
         <>
           <div
-            className={`${labSegmentedClass("detail-after-title !w-full !flex-nowrap !gap-2")}`}
+            className={`${labSegmentedClass("mt-3 !w-full !flex-nowrap !gap-1.5")}`}
             role="tablist"
             aria-label="가격 비교"
           >
@@ -447,7 +461,7 @@ export function ComplexRegionPriceCompare({
                 onClick={() => setTab(item.id)}
                 className={labSecondaryTabClass(
                   tab === item.id,
-                  "min-w-0 flex-1 !px-4 whitespace-nowrap",
+                  "min-w-0 flex-1 !h-11 !min-h-11 !px-4 whitespace-nowrap",
                 )}
               >
                 {item.label}
@@ -457,7 +471,7 @@ export function ComplexRegionPriceCompare({
 
           {tab === "trend" ? (
             <div
-              className={`${labSegmentedClass("mt-2 !w-full !flex-nowrap !gap-2")}`}
+              className={`${labSegmentedClass("mt-1.5 !w-full !flex-nowrap !gap-1.5")}`}
               role="tablist"
               aria-label="변동률 기간"
             >
@@ -470,7 +484,7 @@ export function ComplexRegionPriceCompare({
                   onClick={() => setPeriod(item.id)}
                   className={labSecondaryTabClass(
                     period === item.id,
-                    "min-w-0 flex-1 !px-3 whitespace-nowrap",
+                    "min-w-0 flex-1 !h-10 !min-h-10 !px-3 whitespace-nowrap",
                   )}
                 >
                   {item.label}
@@ -480,7 +494,7 @@ export function ComplexRegionPriceCompare({
           ) : null}
 
           {tab === "trend" && historyHelper ? (
-            <p className="detail-meta mt-1.5 inline-flex items-center">
+            <p className="detail-meta mt-1 inline-flex items-center">
               <span>{historyHelper}</span>
               <InfoTip aria-label="일부 기간 기준 안내" className="detail-meta">
                 <p>{PARTIAL_HISTORY_TIP}</p>
@@ -488,17 +502,17 @@ export function ComplexRegionPriceCompare({
             </p>
           ) : null}
 
-          <PriceCompareChart key={chartKey} replayKey={chartKey} className="detail-chart-gap">
+          <PriceCompareChart key={chartKey} replayKey={chartKey} className="mt-2">
             {(entered) =>
               query.isLoading ? (
-                <div className="mt-2 space-y-1.5" aria-label="가격 비교 불러오는 중">
-                  <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
+                <div className="space-y-1.5" aria-label="가격 비교 불러오는 중">
+                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
+                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
+                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
+                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
                 </div>
               ) : query.isError ? (
-                <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2.5 text-center">
+                <div className="rounded-xl bg-slate-50 px-3 py-2.5 text-center">
                   <p className="detail-body font-medium text-[color:var(--lab-navy-950)]">
                     가격 비교를 불러오지 못했습니다.
                   </p>
@@ -511,7 +525,7 @@ export function ComplexRegionPriceCompare({
                   </button>
                 </div>
               ) : data?.status === "unavailable" ? (
-                <p className="detail-meta mt-2">
+                <p className="detail-meta">
                   {priceCompareStatusCopy("unavailable").title}
                 </p>
               ) : tab === "level" ? (
@@ -522,7 +536,7 @@ export function ComplexRegionPriceCompare({
                     animate={entered}
                   />
                 ) : (
-                  <p className="detail-meta mt-2">
+                  <p className="detail-meta">
                     {priceCompareStatusCopy(data?.status).title}
                   </p>
                 )
@@ -534,7 +548,7 @@ export function ComplexRegionPriceCompare({
                   animate={entered}
                 />
               ) : (
-                <p className="detail-meta mt-2">
+                <p className="detail-meta">
                   {priceCompareStatusCopy(data?.status).title}
                 </p>
               )
