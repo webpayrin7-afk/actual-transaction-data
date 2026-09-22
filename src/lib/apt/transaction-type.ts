@@ -32,11 +32,9 @@ export function transactionTypeLabel(type: TransactionTabType): string {
   return TRANSACTION_TABS.find((t) => t.value === type)?.label ?? "매매";
 }
 
-/** Unique price ink per deal type (매매 teal / 전세 orange / 월세 indigo). */
-export function dealTypePriceTextClass(type: TransactionTabType): string {
-  if (type === "jeonse") return "text-[color:var(--lab-price-jeonse)]";
-  if (type === "monthly") return "text-[color:var(--lab-price-monthly)]";
-  return "text-[color:var(--lab-price-trade)]";
+/** Unique price ink per deal type — Policy v2: list prices use primary text. */
+export function dealTypePriceTextClass(_type?: TransactionTabType): string {
+  return "text-[color:var(--lab-navy-950)]";
 }
 
 export function matchesTransactionTab(

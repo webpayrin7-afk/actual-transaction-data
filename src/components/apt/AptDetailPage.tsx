@@ -52,7 +52,7 @@ import {
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
 import {
-  PAGE_SHELL,
+  DETAIL_PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
@@ -592,22 +592,20 @@ export function AptDetailPage({
     hint: ReactNode,
     valueClassName = "",
   ) => (
-    <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className="detail-caption">{label}</p>
-      <p
-        className={`detail-number mt-0.5 ${valueClassName}`.trim()}
-      >
+    <div className="min-w-0 px-2 py-2 sm:px-3 sm:py-2.5">
+      <p className="detail-label">{label}</p>
+      <p className={`detail-summary-value mt-1 break-words ${valueClassName}`.trim()}>
         {value}
       </p>
-      <p className="detail-caption mt-0.5 break-keep">{hint}</p>
+      <p className="detail-meta mt-1 break-keep">{hint}</p>
     </div>
   );
 
   if (quickQuery.isLoading && !data) {
     return (
-      <div className={`${PAGE_SHELL} detail-page max-w-5xl`}>
+      <div className={DETAIL_PAGE_SHELL}>
         <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/60" />
           ))}
@@ -619,8 +617,8 @@ export function AptDetailPage({
 
   if ((quickQuery.isError && !data) || !data) {
     return (
-      <div className={`${PAGE_SHELL} max-w-5xl text-center`}>
-        <p className="text-sm font-medium text-slate-700">
+      <div className={`${DETAIL_PAGE_SHELL} text-center`}>
+        <p className="detail-body font-medium text-[color:var(--lab-navy-950)]">
           단지 정보를 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
@@ -661,10 +659,10 @@ export function AptDetailPage({
   });
 
   return (
-    <div className={`${PAGE_SHELL} detail-page max-w-5xl`}>
-      {/* Sticky compact header — name + shared area selector */}
+    <div className={DETAIL_PAGE_SHELL}>
+      {/* Sticky compact header — replaces hero; does not stack with it */}
       <div
-        className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
+        className={`fixed inset-x-0 z-40 border-b border-[color:var(--lab-border)] bg-white/95 backdrop-blur transition-[opacity,transform] duration-150 ease-out ${
           stickyVisible
             ? "translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-2 opacity-0"
@@ -673,17 +671,19 @@ export function AptDetailPage({
         aria-hidden={!stickyVisible}
         {...(!stickyVisible ? { inert: true } : {})}
       >
-        <div className="mx-auto flex w-full max-w-5xl items-center gap-2 overflow-hidden px-3 py-1.5 sm:gap-3 sm:px-6">
-          <div className="shrink-0">
-            <BackLink fallback="/complexes" compact hideLabel />
+        <div className="mx-auto flex w-full max-w-[70rem] flex-wrap items-center gap-x-2 gap-y-2 px-4 py-2 sm:px-6 lg:px-8">
+          <div className="flex min-h-11 min-w-0 flex-1 items-center gap-2">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center">
+              <BackLink fallback="/complexes" compact hideLabel />
+            </div>
+            <p
+              className="detail-subsection-title min-w-0 flex-1 truncate"
+              title={data.aptName}
+            >
+              {data.aptName}
+            </p>
           </div>
-          <p
-            className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900"
-            title={data.aptName}
-          >
-            {data.aptName}
-          </p>
-          <div className="min-w-0 max-w-[min(21rem,58%)] shrink-0">
+          <div className="min-w-0 w-full sm:ml-auto sm:w-auto sm:max-w-[min(21rem,58%)] sm:shrink-0">
             <AptAreaSelector
               areas={data.areas}
               value={areaKey}
@@ -746,26 +746,20 @@ export function AptDetailPage({
         </div>
       )}
 
-      {/* Market: one white section — period + KPI row + context + chart */}
+      {/* Market: title row → period filters → KPI → context → chart */}
       <section id="section-market" className="lab-card detail-card scroll-mt-28">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-          <h2 className="detail-section-title min-w-0">
-            시세 추이
-          </h2>
-          <div className="flex flex-wrap items-center gap-2">
-            {isExtendingHistory ? (
-              <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
-                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                과거 시세 추가 중…
-              </p>
-            ) : null}
-            {periodButtons}
-          </div>
+        <h2 className="detail-section-title">시세 추이</h2>
+        <div className="mt-3 flex flex-col gap-2">
+          {isExtendingHistory ? (
+            <p className="detail-meta inline-flex items-center gap-1.5 text-[color:var(--lab-teal-600)]">
+              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+              과거 시세 추가 중…
+            </p>
+          ) : null}
+          {periodButtons}
         </div>
-        {/* Match 거래 내역 helper→list gap */}
-        <div className="detail-after-title w-full" aria-hidden />
 
-        <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
+        <div className="detail-after-title grid grid-cols-2 gap-3 lg:grid-cols-4">
           {kpiCell(
             "최근 매매",
             latestTrade ? formatEok(latestTrade.dealAmount) : "—",
@@ -780,35 +774,33 @@ export function AptDetailPage({
             "최고가 대비",
             vsMaxPct == null
               ? "—"
-              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`,
+              : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`,
             "최근 매매 기준",
             vsMaxPct == null
-              ? "!text-slate-400"
+              ? ""
               : vsMaxPct < 0
-                ? "!text-rose-600"
+                ? "detail-change-down"
                 : vsMaxPct > 0
-                  ? "!text-teal-700"
+                  ? "detail-change-up"
                   : "",
           )}
           {kpiCell(
             "거래량",
-            <span className="whitespace-nowrap">{`매매 ${periodTradeCount.toLocaleString("ko-KR")}건`}</span>,
-            <span className="whitespace-nowrap">{`전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`}</span>,
-            "!font-sans !tracking-normal !text-[12px] sm:!text-[13px] !whitespace-nowrap",
+            `${periodTradeCount.toLocaleString("ko-KR")}건`,
+            `전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`,
           )}
         </div>
 
-        <p className="mt-2.5 rounded-lg bg-[var(--lab-teal-50)] px-2.5 py-1.5 text-xs text-slate-600 sm:text-[13px]">
-          <span>
+        <p className="detail-after-title flex flex-wrap gap-x-3 gap-y-1 rounded-lg bg-[var(--lab-surface-subtle)] px-3 py-2">
+          <span className="detail-label">
             전세가율{" "}
-            <span className="font-semibold tabular-nums text-slate-800">
+            <span className="detail-data-value-emphasis">
               {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
             </span>
           </span>
-          <span className="text-slate-300"> · </span>
-          <span>
+          <span className="detail-label">
             매매-전세 갭{" "}
-            <span className="font-semibold tabular-nums text-slate-800">
+            <span className="detail-data-value-emphasis">
               {saleJeonseGap != null && saleJeonseGap !== 0
                 ? formatEok(Math.abs(saleJeonseGap))
                 : "—"}
@@ -816,11 +808,11 @@ export function AptDetailPage({
           </span>
         </p>
 
-        <div className="mt-2">
+        <div className="detail-chart-gap">
           <AptPriceChart points={chartPoints} />
         </div>
 
-        <div className="pl-[18px] pr-5">
+        <div className="detail-chart-gap min-h-11 px-1">
           <PeriodRangeSlider
             months={chartMonths}
             startIndex={startIndex}
@@ -842,30 +834,26 @@ export function AptDetailPage({
         key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
         className="lab-card detail-card scroll-mt-28"
       >
-        <div>
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="detail-section-title">
-              거래 내역
-            </h2>
-            <TransactionTypeTabs
-              value={dealFilter}
-              onChange={setDealFilter}
-            />
-          </div>
-          <p className="mt-[5px] truncate text-xs text-slate-500">
-            {areaKey === "all" || !selectedArea
-              ? "전체 면적"
-              : areaSelectorClosedLabel(selectedArea)}
-          </p>
-          <div className="detail-after-title w-full" aria-hidden />
+        <h2 className="detail-section-title">거래 내역</h2>
+        <p className="detail-source mt-1 truncate">
+          {areaKey === "all" || !selectedArea
+            ? "전체 면적"
+            : areaSelectorClosedLabel(selectedArea)}
+        </p>
+        <div className="mt-3">
+          <TransactionTypeTabs
+            value={dealFilter}
+            onChange={setDealFilter}
+          />
+        </div>
+        <div className="detail-after-title">
+          <TransactionList items={filtered} mode={dealFilter} />
         </div>
 
-        <TransactionList items={filtered} mode={dealFilter} />
-
-        <div className="mt-4 space-y-2">
+        <div className="detail-cta">
           <Link
             href={transactionsHref}
-            className="lab-button lab-button-primary w-full min-h-10 text-sm"
+            className="lab-button lab-button-secondary w-full"
           >
             거래 내역 자세히 보기
             {filteredByType.length > 5

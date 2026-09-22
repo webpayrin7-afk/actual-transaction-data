@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 export const PAGE_SHELL =
   "mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-4 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10";
 
+/** 단지상세 — ZIPLAB UI Policy v2 (padding/max-width from .detail-page) */
+export const DETAIL_PAGE_SHELL =
+  "mx-auto flex w-full detail-page flex-col pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] lg:pt-5 lg:pb-10";
+
 /**
  * BackLink + PageHeader 묶음.
  * shell의 gap과 분리해 돌아가기가 별도 section처럼 벌어지지 않게 함.
@@ -45,7 +49,7 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={`max-w-4xl ${className}`.trim()}>
+    <header className={`${titleClassName.includes("detail-page-title") ? "max-w-none" : "max-w-4xl"} ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {leading ? <div className="shrink-0">{leading}</div> : null}

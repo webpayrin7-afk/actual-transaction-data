@@ -160,11 +160,11 @@ function RowMeta({
     dealingGbn || null,
   ].filter(Boolean) as string[];
   return (
-    <p className="mt-0.5 text-xs leading-snug text-slate-500 sm:text-[13px]">
+    <p className="detail-meta mt-0.5 leading-snug">
       {bits.map((bit, i) => (
         <span key={`${bit}-${i}`}>
           {i > 0 ? (
-            <span className="text-slate-300" aria-hidden>
+            <span className="text-[color:var(--lab-border)]" aria-hidden>
               {" "}
               ·{" "}
             </span>
@@ -202,7 +202,7 @@ export function TransactionRow({
               dateTime={tx.dealDate}
               title={dateFull}
               aria-label={dateFull}
-              className="block text-sm font-medium tabular-nums text-slate-900"
+              className="detail-label block tabular-nums text-[color:var(--lab-navy-950)]"
             >
               <span className="sm:hidden">{dateShort}</span>
               <span className="hidden sm:inline">{dateFull}</span>
@@ -215,7 +215,7 @@ export function TransactionRow({
           </div>
           <div className="shrink-0 text-right">
             <p
-              className={`detail-number ${dealTypePriceTextClass(mode)}`}
+            className={`detail-list-title ${dealTypePriceTextClass(mode)}`}
             >
               {m.primary}
             </p>
@@ -235,11 +235,11 @@ export function TransactionRow({
     <li className={dense ? "px-3 py-2 sm:px-3.5 sm:py-2.5" : "px-3.5 py-2.5 sm:px-4 sm:py-3"}>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <time
+            <time
             dateTime={tx.dealDate}
             title={dateFull}
             aria-label={dateFull}
-            className="block text-sm font-medium tabular-nums text-slate-900"
+            className="detail-label block tabular-nums text-[color:var(--lab-navy-950)]"
           >
             <span className="sm:hidden">{dateShort}</span>
             <span className="hidden sm:inline">{dateFull}</span>
@@ -258,7 +258,7 @@ export function TransactionRow({
             </span>
           ) : null}
           <p
-            className={`detail-number ${moneyClass}`}
+            className={`detail-list-title ${moneyClass}`}
           >
             {primaryMoney}
           </p>
@@ -280,9 +280,7 @@ export function TransactionList({
 }) {
   if (items.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500">
-        {emptyLabel}
-      </p>
+      <p className="lab-state detail-body">{emptyLabel}</p>
     );
   }
 
