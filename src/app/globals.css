@@ -858,8 +858,10 @@ h2.detail-section-title {
  */
 .lab-tabs {
   /* Soft-teal shell tokens (policy §11 / apt-detail reference) — local so brand buttons stay on Tailwind teal scale */
-  --lab-tabs-track-pad: 3px;
-  --lab-tabs-thumb-radius: 6px;
+  --lab-tabs-track-pad: 4px;
+  --lab-tabs-shell-radius: 12px;
+  /* concentric: thumb radius = shell − pad so inset reads equal on all sides */
+  --lab-tabs-thumb-radius: calc(var(--lab-tabs-shell-radius) - var(--lab-tabs-track-pad));
   --lab-tabs-thumb-bg: #eefafa;
   --lab-tabs-active-ink: #087f83;
   position: relative;
@@ -870,17 +872,19 @@ h2.detail-section-title {
   gap: 0;
   padding: var(--lab-tabs-track-pad);
   border: 1px solid var(--lab-border); /* #E2E8F0 */
-  border-radius: 12px; /* rounded shell */
+  border-radius: var(--lab-tabs-shell-radius);
   background: var(--lab-surface); /* #FFFFFF */
   box-shadow: none;
+  overflow: hidden; /* clip thumb to shell; keeps inset gutter visually even */
 }
 .lab-tabs__thumb {
   position: absolute;
   top: var(--lab-tabs-track-pad);
+  bottom: var(--lab-tabs-track-pad);
   left: 0;
   z-index: 0;
   box-sizing: border-box;
-  height: calc(100% - (var(--lab-tabs-track-pad) * 2));
+  height: auto; /* top+bottom pin equal vertical inset */
   width: 0;
   border-radius: var(--lab-tabs-thumb-radius);
   background: var(--lab-tabs-thumb-bg);

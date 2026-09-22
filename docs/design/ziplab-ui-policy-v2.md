@@ -222,9 +222,10 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 기존 1차 독립 버튼형·폴더형(콘텐츠 연결 밑줄형)·진한 청록 채움형·단순 밑줄형은 폐기한다.
 
 공통 문법:
-- 흰 셸 배경 `#FFFFFF` + 얇은 경계 `#E2E8F0`, 셸 radius 12px, 트랙 padding 3px
-- 선택 면 `#EEFAFA`(teal-50), radius 6px (안쪽 테두리 없음)
+- 흰 셸 배경 `#FFFFFF` + 얇은 경계 `#E2E8F0`, 셸 radius 12px, 트랙 padding 4px
+- 선택 면 `#EEFAFA`(teal-50), radius 8px (= 셸 12 − 패딩 4, 동심원) — 안쪽 테두리 없음
 - 선택 글자 `#087F83`(teal-700), 비선택 글자 `#64748B`
+- 선택 면과 바깥 테두리 사이 여백은 상·하·좌(첫 항목)·우(마지막 항목)가 동일
 - 동일 폭 기본, 활성 시 글자 크기·항목 폭·전체 높이 불변
 - 선택 면 이동 160ms, `prefers-reduced-motion` 시 제거
 - 금지: 그라데이션, 진한 청록 전체 채움, 밑줄형, 회색 트랙+흰 선택 면
@@ -264,5 +265,5 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 - `LabTabs` variant=`primary` | `secondary` | `compact` (`src/components/ui/LabTabs.tsx`)
 - 공통 트랙 + `.lab-tabs__thumb` 슬라이딩 선택 면 (`src/app/globals.css`)
 - 색·radius·그림자는 `--lab-*` / `--lab-tabs-*` 토큰에서 관리 (페이지별 하드코딩 금지)
-  - 선택 면 `--lab-tabs-thumb-bg` `#EEFAFA`, 선택 글자 `--lab-tabs-active-ink` `#087F83` (글로벌 `--lab-teal-*` Tailwind 스케일과 구분)
+  - 선택 면 `--lab-tabs-thumb-bg` `#EEFAFA`, 선택 글자 `--lab-tabs-active-ink` `#087F83`, 트랙 패딩 `--lab-tabs-track-pad` 4px, thumb radius = shell − pad (글로벌 `--lab-teal-*`와 구분)
 - SSR/hydration 시 첫 측정 후에만 thumb transition 활성화
