@@ -1,0 +1,95 @@
+{
+  "title": "TRANSACTION DETAIL FIELD LINEAGE FINAL",
+  "diagnosedAt": "2026-09-22",
+  "uiBranchReferenced": "origin/cursor/apt-detail-typography-6779",
+  "uiFiles": [
+    "src/components/apt/TransactionHistory.tsx",
+    "src/lib/apt/transaction-row-display.ts",
+    "src/lib/apt/get-apt-transaction-archive.ts"
+  ],
+  "note": "TransactionHistory 6-column archive UI is on UI agent branches, not on main at diagnosis time.",
+  "STATUS": {
+    "intendedSemantics": "전세/월세 신규|갱신 badge from dealingGbn(contractType). 매매 always null → '—'. NOT 거래해제/cdealType.",
+    "sourceField": {
+      "trade": "dealingGbn (중개거래|직거래) — unused by status badge; cdealType used only at ingest cancel resolve",
+      "rent": "contractType → dealingGbn (신규|갱신)"
+    },
+    "sourceAvailability": "rent: high (잠실엘스 202608 rent 신규24+갱신32); trade cancel rows exist in MOLIT but excluded before persist",
+    "dbField": "dealing_gbn (no cdeal_type column)",
+    "dbCoverage": {
+      "rentNewbie": 1438226,
+      "rentRenew": 815075,
+      "rentOther": 239888,
+      "rentTotal": 2493189,
+      "tradeDealingGbn": { "중개거래": 1348230, "직거래": 25853 }
+    },
+    "api": "returns dealingGbn; archiveStatusLabel(mode=trade) → null",
+    "ui": "archiveStatusLabel — trade:null; jeonse/monthly: 신규|갱신|null",
+    "rootCause": "INTENTIONAL_EMPTY_STATE",
+    "fix": "none (매매 '—' is by contract)",
+    "cancelledSample": {
+      "apt": "신아",
+      "dealDate": "2026-08-14",
+      "source": { "cdealType": "O", "cdealDay": "26.09.10", "pair": "live+cancel" },
+      "resolve": "cancellation-pair → active survivor only",
+      "db": "active 중개거래 row kept; cancel row not persisted as status",
+      "ui": "never shows 해제; STATUS column does not encode cancellation"
+    }
+  },
+  "BUILDING_DONG": {
+    "sourceField": "MOLIT AptTrade aptDong (ingestMeta only). Rent payloads have no aptDong.",
+    "sourceAvailability": {
+      "jamsilEls202608": { "filled": 0, "total": 7 },
+      "songpa202608": { "filled": 7, "total": 167, "pct": 4.2 },
+      "gangnam202609": { "filled": 2, "total": 29, "pct": 6.9 },
+      "yongsan202606": { "filled": 26, "total": 66, "pct": 39.4 },
+      "bundang202608": { "filled": 3, "total": 154, "pct": 1.9 },
+      "sampleBlendPctApprox": 9.1
+    },
+    "dbField": "NONE — transactions.dong is legal umdNm only; no apt_dong column",
+    "nationalCoverageDb": "0% (column absent)",
+    "seoulCoverageDb": "0%",
+    "jamsilElsCoverageDb": "0%",
+    "api": "no buildingDong / aptDong field on archive items",
+    "ui": "archiveBuildingDongLabel always returns null (documented)",
+    "rootCause": "SOURCE_NOT_AVAILABLE for 잠실엘스 samples; systemically DB_FIELD_MISSING (+ intentional UI empty) when source has aptDong",
+    "fix": "none in-scope — schema+backfill required to surface sparse aptDong",
+    "dongPresentSample": {
+      "apt": "쌍용",
+      "dealDate": "2026-08-31",
+      "sourceAptDong": "101",
+      "parsedIngestMeta": "101",
+      "db": "dong=풍납동 only; apt_dong absent",
+      "apiUi": "—"
+    },
+    "mobileColumnValue": "LOW — source fill sparse (~2–40% by district sample); DB 0%. Column deletion out of scope."
+  },
+  "FLOOR": {
+    "source": "MOLIT floor",
+    "db": "floor INTEGER",
+    "api": "floor on items",
+    "ui": "FloorCell: null→—; finite incl. 0/-1 → '{n}층'",
+    "regression": {
+      "positiveOk": true,
+      "floor0Count": 1,
+      "negativeCount": 254,
+      "nullCount": 0,
+      "jamsilSamples": { "2026-08-11": 2, "2026-08-10": 7, "2026-08-07": 26, "2026-08-06": 20 },
+      "change": "none"
+    }
+  },
+  "BACKFILL": {
+    "needed": true,
+    "reason": "Only if product wants 거래동 when MOLIT aptDong present",
+    "scope": {
+      "nationalTradeRows": 1374083,
+      "seoulTradeRows": 645969,
+      "jamsilElsTradeRows": 1647,
+      "expectedNonNullShare": "low single-digit to ~40% by district; Jamsil Els Aug sample 0%"
+    },
+    "rawArtifactReusable": false,
+    "estimatedApiCalls": "1 MOLIT AptTrade call per (lawd_cd, year_month) for full trade history",
+    "estimatedWrites": "schema add apt_dong + UPDATE/re-ingest of trade rows (up to ~1.37M) — NOT executed",
+    "executed": false
+  }
+}
