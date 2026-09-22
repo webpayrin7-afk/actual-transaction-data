@@ -22,6 +22,7 @@ import {
 import { exactSupplyPyeong, pricePerSupplyPyeong, type ComplexIdentityV2, type SupplySalePoint } from "../../src/lib/region-ranking/price-position-v2";
 import { decadeCohortForLabel } from "../../src/lib/region-ranking/price-position-v22";
 import {
+  buildPricePositionV232,
   DECADE_COHORTS_V22,
   pricePositionV232SnapshotId,
 } from "../../src/lib/region-ranking/price-position-v23";
@@ -42,7 +43,6 @@ const BATCH = 40;
 const BODIES = "/tmp/v3-bodies";
 const REPORT = "/tmp/building-hub-bulk/external-evidence/v3-publish-report.json";
 const JAMSIL = "cx_4c63d9a100973c60";
-const JAMSIL_DONG = "1171010100";
 
 /** Audit golden (pre-publish gate). */
 const GOLDEN = {
@@ -253,7 +253,7 @@ async function main() {
   let jamsilBody: PricePositionBodyV21 | null = null;
   const cCounts: number[] = [];
   const ages: number[] = [];
-  let freshnessTally: Record<string, number> = { FRESH: 0, STALE_MIXED: 0, STALE_HEAVY: 0 };
+  const freshnessTally: Record<string, number> = { FRESH: 0, STALE_MIXED: 0, STALE_HEAVY: 0 };
   let sparseLe3 = 0;
   let regionalOk = 0;
   const seenRegional = new Set<string>();
@@ -328,29 +328,60 @@ async function main() {
     sameNum(seoul?.meanPricePerSupplyPyeong, GOLDEN.seoul) &&
     sameNum(seoul?.contributingComplexCount, GOLDEN.seoulC);
 
-  // Trend regression: V3 body trends should match V2.3.2 for Jamsil (same trend methodology)
+  // Trend regression: same-source V2.3.2 rebuild (methodology freeze; ignore warehouse drift vs stored).
   let trendRegressionOk = true;
   const trendDiffs: string[] = [];
+  const storedTrendDrift: string[] = [];
   if (jamsilBody) {
-    const stored232 = await db.execute({
-      sql: `SELECT payload_json FROM complex_region_price_position WHERE snapshot_id=? AND complex_id=? AND area_band=?`,
-      args: [SNAP232, JAMSIL, "30"],
-    });
-    if (stored232.rows[0]) {
-      const old = JSON.parse(String(stored232.rows[0].payload_json)) as PricePositionBodyV21;
+    const rebuilt232 = buildPricePositionV232({
+      cohort: DECADE_COHORTS_V22.find((c) => c.key === "30")!,
+      points: points.get("30") ?? [],
+      identities,
+      cohortUniverse: canonical.get("30"),
+      transactionAsOf: AS_OF,
+    }).bodies.find((b) => b.complexId === JAMSIL);
+    if (!rebuilt232) {
+      trendRegressionOk = false;
+      trendDiffs.push("same-source-v232-missing");
+    } else {
       for (const horizon of TREND_HORIZONS_V21) {
         for (const scope of ["COMPLEX", "DONG", "GU", "SEOUL"] as const) {
-          const a = old.trends[horizon]?.find((c) => c.scope === scope);
+          const a = rebuilt232.trends[horizon]?.find((c) => c.scope === scope);
           const b = jamsilBody.trends[horizon]?.find((c) => c.scope === scope);
           if (!a || !b) {
             trendRegressionOk = false;
             trendDiffs.push(`${horizon}|${scope}|missing`);
             continue;
           }
-          if (!sameNum(a.changePercent, b.changePercent) || a.status !== b.status) {
+          if (
+            !sameNum(a.changePercent, b.changePercent) ||
+            a.status !== b.status ||
+            !sameNum(a.matchedComplexCount, b.matchedComplexCount)
+          ) {
             trendRegressionOk = false;
             if (trendDiffs.length < 12) {
               trendDiffs.push(`${horizon}|${scope}|${a.changePercent}->${b.changePercent}`);
+            }
+          }
+        }
+      }
+    }
+    const stored232 = await db.execute({
+      sql: `SELECT payload_json FROM complex_region_price_position WHERE snapshot_id=? AND complex_id=? AND area_band=?`,
+      args: [SNAP232, JAMSIL, "30"],
+    });
+    if (stored232.rows[0] && rebuilt232) {
+      const old = JSON.parse(String(stored232.rows[0].payload_json)) as PricePositionBodyV21;
+      for (const horizon of TREND_HORIZONS_V21) {
+        for (const scope of ["COMPLEX", "DONG", "GU", "SEOUL"] as const) {
+          const a = old.trends[horizon]?.find((c) => c.scope === scope);
+          const b = rebuilt232.trends[horizon]?.find((c) => c.scope === scope);
+          if (!a || !b) continue;
+          if (!sameNum(a.changePercent, b.changePercent) || !sameNum(a.matchedComplexCount, b.matchedComplexCount)) {
+            if (storedTrendDrift.length < 8) {
+              storedTrendDrift.push(
+                `${horizon}|${scope}|stored=${a.changePercent}/${a.matchedComplexCount}->live=${b.changePercent}/${b.matchedComplexCount}`,
+              );
             }
           }
         }
@@ -391,6 +422,7 @@ async function main() {
     },
     trendRegressionOk,
     trendDiffs,
+    storedTrendDrift,
     gate,
   };
   writeFileSync(REPORT, JSON.stringify(report));
