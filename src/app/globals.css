@@ -270,12 +270,13 @@ textarea,
   margin-top: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--lab-border);
-  text-align: left;
+  text-align: center;
 }
 .detail-summary-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   row-gap: 0.25rem; /* 4 */
   margin: 0;
   font-size: 0.875rem; /* 14 */
@@ -315,6 +316,7 @@ textarea,
   }
   .detail-summary-meta-item {
     flex: 1 1 100%;
+    justify-content: center;
   }
 }
 .detail-summary-foot {
@@ -333,9 +335,6 @@ textarea,
   list-style: none;
 }
 .detail-trade-list-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
   padding: 0 0 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
@@ -344,29 +343,37 @@ textarea,
   border-bottom: 1px solid var(--lab-border);
 }
 .detail-trade-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid rgb(241 245 249); /* slate-100 */
 }
 .detail-trade-row:last-child {
   border-bottom: none;
 }
-.detail-trade-row-left,
-.detail-trade-row-right {
-  min-width: 0;
+/* One-line: 계약일 · 전용면적 · 층 · 가격 */
+.detail-trade-row--inline {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 2.5rem auto;
+  align-items: center;
+  column-gap: 0.5rem; /* 8 */
 }
-.detail-trade-row-right {
+.detail-trade-row--inline > :last-child {
+  justify-self: end;
   text-align: right;
 }
 .detail-trade-row-date {
-  display: block;
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.25rem;
   color: var(--lab-navy-950);
   font-variant-numeric: tabular-nums;
+}
+.detail-trade-row-area,
+.detail-trade-row-floor {
+  margin: 0;
+  font-size: 0.8125rem; /* 13 */
+  font-weight: 400;
+  line-height: 1.25rem;
+  color: var(--lab-muted);
 }
 .detail-trade-row-price {
   font-size: 0.9375rem; /* 15 */

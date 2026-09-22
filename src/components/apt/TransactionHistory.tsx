@@ -203,34 +203,32 @@ export function TransactionRow({
       priceType === "monthly"
         ? formatMonthlyPriceCell(tx.dealAmount, Number(tx.monthlyRent ?? 0))
         : formatEokDetail(tx.dealAmount);
+    const floorLabel =
+      tx.floor != null && Number.isFinite(tx.floor) ? `${tx.floor}층` : "—";
     return (
-      <li className="detail-trade-row">
-        <div className="detail-trade-row-left">
-          <time
-            dateTime={tx.dealDate}
-            title={dateFull}
-            className="detail-trade-row-date"
-          >
-            {dateShort}
-          </time>
-          <p className="detail-trade-row-meta tabular-nums">
-            {formatExclusiveArea(tx.exclusiveArea)}
-            {mode === "rent" ? (
-              <span className="detail-trade-row-kind">
-                {" · "}
-                {priceType === "monthly" ? "월세" : "전세"}
-              </span>
-            ) : null}
-          </p>
-        </div>
-        <div className="detail-trade-row-right">
-          <p
-            className={`detail-trade-row-price ${dealTypePriceTextClass(priceType)}`}
-          >
-            {price}
-          </p>
-          <p className="detail-trade-row-meta tabular-nums">{tx.floor}층</p>
-        </div>
+      <li className="detail-trade-row detail-trade-row--inline">
+        <time
+          dateTime={tx.dealDate}
+          title={dateFull}
+          className="detail-trade-row-date"
+        >
+          {dateShort}
+        </time>
+        <p className="detail-trade-row-area tabular-nums">
+          {formatExclusiveArea(tx.exclusiveArea)}
+          {mode === "rent" ? (
+            <span className="detail-trade-row-kind">
+              {" · "}
+              {priceType === "monthly" ? "월세" : "전세"}
+            </span>
+          ) : null}
+        </p>
+        <p className="detail-trade-row-floor tabular-nums">{floorLabel}</p>
+        <p
+          className={`detail-trade-row-price ${dealTypePriceTextClass(priceType)}`}
+        >
+          {price}
+        </p>
       </li>
     );
   }
@@ -333,19 +331,24 @@ export function TransactionList({
   }
 
   if (layout === "split") {
+    const priceHead =
+      mode === "rent"
+        ? "전세·월세"
+        : mode === "jeonse"
+          ? "전세가"
+          : mode === "monthly"
+            ? "보증금·월세"
+            : "매매가";
     return (
       <ul className="detail-trade-list">
-        <li className="detail-trade-list-head" aria-hidden>
-          <span>계약일 · 전용면적</span>
-          <span>
-            {mode === "rent"
-              ? "전세·월세 · 층"
-              : mode === "jeonse"
-                ? "전세가 · 층"
-                : mode === "monthly"
-                  ? "보증금 · 월세"
-                  : "매매가 · 층"}
-          </span>
+        <li
+          className="detail-trade-list-head detail-trade-row--inline"
+          aria-hidden
+        >
+          <span>계약일</span>
+          <span>전용면적</span>
+          <span>층</span>
+          <span>{priceHead}</span>
         </li>
         {items.map((tx, idx) => (
           <TransactionRow
