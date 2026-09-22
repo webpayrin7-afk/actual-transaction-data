@@ -60,6 +60,7 @@ import {
   labUnderlineTabClass,
 } from "@/components/ui/lab";
 import { LabTabs } from "@/components/ui/LabTabs";
+import { InfoTip } from "@/components/ui/InfoTip";
 import {
   formatDealDate,
   formatEok,
@@ -805,18 +806,29 @@ export function AptDetailPage({
         </div>
         <div className="detail-summary-secondary">
           <p className="detail-summary-meta">
-            최근 거래 기준 전세가율{" "}
-            <span className="detail-summary-meta-value">
-              {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
+            <span className="detail-summary-meta-item">
+              <span className="detail-summary-meta-label">전세가율 </span>
+              <span className="detail-summary-meta-value">
+                {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
+              </span>
             </span>
             <span className="detail-summary-meta-sep" aria-hidden>
               ·
             </span>
-            매매-전세 갭{" "}
-            <span className="detail-summary-meta-value">
-              {saleJeonseGap != null && saleJeonseGap !== 0
-                ? formatEok(Math.abs(saleJeonseGap))
-                : "—"}
+            <span className="detail-summary-meta-item">
+              <span className="detail-summary-meta-label">매매−전세 갭 </span>
+              <span className="detail-summary-meta-value">
+                {saleJeonseGap != null && saleJeonseGap !== 0
+                  ? formatEok(Math.abs(saleJeonseGap))
+                  : "—"}
+              </span>
+              <InfoTip aria-label="전세가율 및 매매-전세 갭 계산 기준">
+                <p>
+                  {latestTrade && latestJeonse
+                    ? `최근 매매가(${formatDealDate(latestTrade.dealDate)})와 최근 전세가(${formatDealDate(latestJeonse.dealDate)})를 기준으로 계산했어요.`
+                    : "계산 기준 자료 없음"}
+                </p>
+              </InfoTip>
             </span>
           </p>
         </div>

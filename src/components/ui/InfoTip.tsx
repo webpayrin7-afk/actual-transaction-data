@@ -30,7 +30,15 @@ export function InfoTip({
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLSpanElement>(null);
   const panelId = useId();
+  const fineHoverRef = useRef(false);
+
+  useEffect(() => {
+    fineHoverRef.current = window.matchMedia(
+      "(hover: hover) and (pointer: fine)",
+    ).matches;
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -81,6 +89,12 @@ export function InfoTip({
           ref={panelRef}
           role="note"
           className={INFO_PANEL_CLASS}
+          onMouseEnter={() => {
+            if (fineHoverRef.current) setOpen(true);
+          }}
+          onMouseLeave={() => {
+            if (fineHoverRef.current) setOpen(false);
+          }}
         >
           {children}
         </div>,
@@ -90,9 +104,16 @@ export function InfoTip({
 
   return (
     <span
+      ref={rootRef}
       className={`relative z-10 inline-flex shrink-0 align-middle ${
         trigger ? "" : "ml-[0.35em]"
       }`}
+      onMouseEnter={() => {
+        if (fineHoverRef.current) setOpen(true);
+      }}
+      onMouseLeave={() => {
+        if (fineHoverRef.current) setOpen(false);
+      }}
     >
       <button
         ref={buttonRef}
@@ -100,12 +121,23 @@ export function InfoTip({
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         aria-label={ariaLabel}
+        onFocus={() => {
+          if (fineHoverRef.current) setOpen(true);
+        }}
+        onBlur={(event) => {
+          if (!fineHoverRef.current) return;
+          const next = event.relatedTarget as Node | null;
+          if (panelRef.current?.contains(next)) return;
+          if (buttonRef.current?.contains(next)) return;
+          setOpen(false);
+        }}
         onPointerDown={(event) => {
           event.stopPropagation();
         }}
         onClick={(event) => {
           event.stopPropagation();
-          setOpen((value) => !value);
+          // Touch / non-hover: toggle. Fine pointer already opens on hover.
+          if (!fineHoverRef.current) setOpen((value) => !value);
         }}
         className={`relative z-10 inline-flex cursor-pointer items-center justify-center text-[color:var(--lab-muted)] transition hover:text-[color:var(--lab-navy-950)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] ${
           trigger ? "min-h-4 min-w-0" : "h-4 w-4"
