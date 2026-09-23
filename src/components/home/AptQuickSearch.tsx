@@ -153,7 +153,7 @@ export function AptQuickSearch({
         {includeRegions ? "단지 또는 지역 검색" : "단지명 검색"}
       </label>
       <div ref={searchWrapRef} className="relative z-30">
-        <div className="relative flex min-h-12 items-center overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="relative flex min-h-12 items-center overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             ref={inputRef}
