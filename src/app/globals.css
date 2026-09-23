@@ -755,11 +755,18 @@ h2.detail-section-title {
   line-height: 1.5rem; /* 24 */
   color: var(--lab-body);
 }
-.detail-label {
-  font-size: 0.875rem; /* 14 */
-  font-weight: 500;
-  line-height: 1.25rem; /* 20 */
-  color: var(--lab-muted);
+/*
+ * Layered so utilities win: `detail-label text-[color:var(--lab-navy-950)]` (names in lists,
+ * disclosure titles, calculator labels) was rendering gray because this unlayered rule beat
+ * Tailwind's utilities layer. Default stays muted gray for plain labels.
+ */
+@layer components {
+  .detail-label {
+    font-size: 0.875rem; /* 14 */
+    font-weight: 500;
+    line-height: 1.25rem; /* 20 */
+    color: var(--lab-muted);
+  }
 }
 .detail-meta,
 .detail-caption,
