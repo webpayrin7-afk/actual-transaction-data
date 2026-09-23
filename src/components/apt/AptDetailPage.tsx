@@ -23,7 +23,6 @@ import { ComplexUnitMixSection } from "@/components/apt/ComplexUnitMixSection";
 import { ComplexJeonseBenchmark } from "@/components/apt/ComplexJeonseBenchmark";
 import { ComplexTradeInsightSection } from "@/components/apt/ComplexTradeInsightSection";
 import { ComplexTradeActivity } from "@/components/apt/ComplexTradeActivity";
-import { ComplexInfoSection } from "@/components/apt/ComplexInfoSection";
 import { ComplexRentMetrics } from "@/components/apt/ComplexRentMetrics";
 import { SaveComplexButton } from "@/components/complexes/SaveComplexButton";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
@@ -626,7 +625,13 @@ export function AptDetailPage({
           showDivider={false}
         >
           {/* 라벨 행은 전체 폭 children 슬롯 (지역 헤더와 같음) — meta 슬롯은 제목 옆이라 좁다. */}
-          <ComplexHeroMeta lines={heroMeta} />
+          <ComplexHeroMeta
+            lines={heroMeta}
+            extraTags={[
+              complexDetail?.basic?.managementType,
+              complexDetail?.building?.structureType,
+            ]}
+          />
           <AptAreaSelector
             areas={data.areas}
             value={areaKey}
@@ -839,10 +844,6 @@ export function AptDetailPage({
               : areaSelectorClosedLabel(selectedArea)
           }
         />
-      </LabSectionBoundary>
-
-      <LabSectionBoundary id="section-info" title="단지 정보">
-        <ComplexInfoSection detail={complexDetail} />
       </LabSectionBoundary>
 
       <LabSectionBoundary id="section-unit-mix" title="평형 구성">

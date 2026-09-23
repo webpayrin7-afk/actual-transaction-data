@@ -79,16 +79,9 @@ export type ComplexUnitMixV1 = {
   sourceAsOf: string | null;
 };
 
-/** 가장 가까운 초등학교 (complex_nearby_schools, 직선거리). 배정 학교(통학구역)가 아니다. */
-export type ComplexNearestElementaryV1 = {
-  schoolName: string;
-  distanceM: number;
-};
-
 export type ComplexDetailV1 = {
   resolved: boolean;
   unitMix?: ComplexUnitMixV1 | null;
-  nearestElementary?: ComplexNearestElementaryV1 | null;
   identity: ComplexDetailIdentity | null;
   basic: ComplexDetailBasic | null;
   building: ComplexDetailBuilding | null;
@@ -358,7 +351,7 @@ export async function getComplexDetailV1(params: {
   };
 
   const tProfile = performance.now();
-  const [profileRes, stateRes, unitMixRes, nearestSchoolRes] = await Promise.all([
+  const [profileRes, stateRes, unitMixRes] = await Promise.all([
     db.execute({
       sql: `SELECT household_count, building_count, approval_date, heating_type,
                    management_type, parking_total, parking_per_household,
@@ -380,15 +373,6 @@ export async function getComplexDetailV1(params: {
             WHERE complex_id = ? AND ui_safe = 1 AND household_count > 0
             GROUP BY exclusive_cents, supply_cents
             ORDER BY exclusive_cents`,
-      args: [complexId],
-    }),
-    db.execute({
-      sql: `SELECT m.school_name, n.distance_m
-            FROM complex_nearby_schools n
-            JOIN school_master m ON m.school_code = n.school_code
-            WHERE n.complex_id = ? AND n.school_level = 'elementary'
-            ORDER BY n.distance_m
-            LIMIT 1`,
       args: [complexId],
     }),
   ]);
@@ -591,19 +575,9 @@ export async function getComplexDetailV1(params: {
       ? { rows: unitMixRows, sourceAsOf: unitMixAsOf ?? null }
       : null;
 
-  const nearestRow = nearestSchoolRes.rows[0];
-  const nearestElementary: ComplexNearestElementaryV1 | null =
-    nearestRow && asStr(nearestRow.school_name) && Number(nearestRow.distance_m) > 0
-      ? {
-          schoolName: asStr(nearestRow.school_name)!,
-          distanceM: Math.round(Number(nearestRow.distance_m)),
-        }
-      : null;
-
   return {
     resolved: true,
     unitMix,
-    nearestElementary,
     identity,
     basic,
     building,
