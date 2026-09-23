@@ -389,7 +389,8 @@ export function RegionPriceTrendChart({
         )}
         {current ? (
           <p className="detail-meta mt-0.5 tabular-nums">
-            단지 {current.complexCount.toLocaleString("ko-KR")}곳 · 세대수 가중
+            이 달 매매 {current.tradeCount.toLocaleString("ko-KR")}건 · 단지{" "}
+            {current.complexCount.toLocaleString("ko-KR")}곳 기준
           </p>
         ) : null}
       </div>
@@ -416,9 +417,8 @@ export function RegionPriceTrendChart({
           <h3 className="detail-subsection-title">{regionName} 시세 평당가 추이</h3>
           <InfoTip aria-label="평당가 추이 안내">
             <p>
-              월별 지역 시세 평당가(공급면적 기준)와 계약월 매매 거래량입니다. 각 달
-              시점의 단지별 최근 실거래 시세를 세대수로 가중 평균합니다. 이번 달
-              거래는 신고 기간 중이라 값이 바뀔 수 있습니다.
+              월별 지역 시세 평당가(공급면적 기준)와 계약월 매매 거래량입니다. 이번
+              달 거래는 신고 기간 중이라 값이 바뀔 수 있습니다.
             </p>
             <p className="mt-1.5">
               그래프를 누르거나 맨 위 ◀ ▶ 버튼으로 달을 바꾸면 평당가, 변화율, 그

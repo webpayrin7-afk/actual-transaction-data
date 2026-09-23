@@ -62,17 +62,10 @@ export function RegionPriceSection({
         title="지역 시세 평당가"
         meta="공급면적 기준"
         tip={
-          <>
-            <p>
-              {regionName} 아파트 단지들의 현재 시세를 세대수로 가중 평균한
-              평당가입니다.
-            </p>
-            <p className="mt-1.5">
-              단지마다 평형별 가장 최근 매매 실거래(최근 3년 이내) 평당가를
-              공급면적 평형 기준으로 구하고, 단지 세대수가 많을수록 크게
-              반영합니다.
-            </p>
-          </>
+          <p>
+            {regionName} 아파트 단지들의 실거래를 바탕으로 집랩이 산출한 지역 시세
+            평당가입니다. 공급면적(평형) 기준입니다.
+          </p>
         }
       />
 
@@ -159,16 +152,10 @@ export function RegionRankingTable({
         title="지역 아파트 랭킹"
         meta={formatReferenceMonthCompact(board?.transactionAsOf ?? null)}
         tip={
-          <>
-            <p>
-              최근 12개월 실거래를 바탕으로 같은 지역 안에서 가격 수준(50%), 거래
-              활발도(20%), 단지 규모(20%), 회전율(10%)을 비교해 종합한 집랩
-              순위입니다.
-            </p>
-            <p className="mt-1.5">
-              12개월 거래 6건 이상, 세대수 100세대 이상인 단지만 포함합니다.
-            </p>
-          </>
+          <p>
+            최근 1년 실거래를 바탕으로 가격 수준, 거래 활발도, 단지 규모 등을
+            종합해 매긴 집랩 순위입니다. 거래가 충분한 단지만 포함합니다.
+          </p>
         }
       />
       {query.isLoading ? (

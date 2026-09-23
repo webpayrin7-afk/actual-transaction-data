@@ -186,7 +186,7 @@ function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">최근 3개월 거래 신호</h3>
           <InfoTip aria-label="최근 3개월 거래 신호 안내">
-            <p>같은 단지·동·전용면적 거래를 기준으로 셉니다.</p>
+            <p>같은 단지·면적의 이전 거래와 비교합니다.</p>
             <p className="mt-1.5">신고가: 종전 최고가를 넘은 거래</p>
             <p>최고가 대비 10%↓: 종전 최고가보다 10% 이상 낮은 거래</p>
             <p>직전보다 내림: 바로 전 거래보다 낮은 거래</p>
