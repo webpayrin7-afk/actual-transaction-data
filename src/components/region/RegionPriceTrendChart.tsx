@@ -201,7 +201,7 @@ function MonthComposition({
           </dl>
         </div>
         <div className="mt-4 flex items-center justify-between gap-2 border-t border-[color:var(--lab-border)] pt-3">
-          <p className="detail-label">어디서 거래됐나</p>
+          <h5 className="detail-data-value-emphasis">어디서 거래됐나</h5>
           <LabTabs
             variant="compact"
             ariaLabel="거래량 구분"
@@ -220,7 +220,7 @@ function MonthComposition({
             return (
               <li key={row.key} className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="detail-label truncate text-[color:var(--lab-body)]">{row.label}</span>
+                  <span className="detail-data-value truncate">{row.label}</span>
                   <span className="detail-data-value shrink-0">
                     {n.toLocaleString("ko-KR")}건
                     <span className="detail-meta ml-1.5">{share(n)}%</span>
