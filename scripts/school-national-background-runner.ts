@@ -54,9 +54,9 @@ const MANIFEST_PATH = path.join(RUNNER_DIR, "target-manifest.json");
 const LOG_PATH = path.join(RUNNER_DIR, "runner.log.jsonl");
 const FAILED_PATH = path.join(RUNNER_DIR, "failed.jsonl");
 const LIVING_DONE_FLAG = path.join(ROOT, "data/poc/living/runner-terminal.json");
+/** Ongoing LIVING handoff only — not the historical one-shot 8505 delta artifact. */
 const LIVING_MANIFEST_CANDIDATES = [
   path.join(ROOT, "data/poc/living/school-coordinate-ready-manifest.json"),
-  path.join(ROOT, "data/poc/living/school-delta-newly-coordinate-ready.json"),
 ];
 
 const WRITE_TABLES = ["complex_nearby_schools", "complex_nearby_materialization"];
@@ -314,14 +314,25 @@ async function loadWorkRows(db: Client, ids: string[]): Promise<WorkRow[]> {
       const lng = row.longitude == null ? null : Number(row.longitude);
       const identity = row.identity_status == null ? null : String(row.identity_status);
       if (lat == null || lng == null) continue;
+      const storedVersion = row.stored_version == null ? null : String(row.stored_version);
+      const storedStatus = row.stored_status == null ? null : String(row.stored_status);
+      const version = parcelCoordVersion(lat, lng);
+      const action = nearbyDeltaAction({
+        safe: true,
+        coordVersion: version,
+        storedVersion,
+        storedStatus,
+      });
+      // Missing-only: skip already-materialized exact coord versions.
+      if (action === "reuse" || action === "skip_no_coordinate") continue;
       out.push({
         complex_id: String(row.complex_id),
         sido: String(row.sido ?? ""),
         latitude: lat,
         longitude: lng,
         identity_status: String(identity ?? ""),
-        stored_version: row.stored_version == null ? null : String(row.stored_version),
-        stored_status: row.stored_status == null ? null : String(row.stored_status),
+        stored_version: storedVersion,
+        stored_status: storedStatus,
         existing_link_count: Number(row.existing_link_count ?? 0),
         region: regionFromSido(String(row.sido ?? "")),
         source: "EXISTING_READY",

@@ -1,0 +1,78 @@
+{
+  "generated_at": "2026-09-23T05:13:12.228200Z",
+  "status": "BACKGROUND_RUNNING",
+  "baseline": {
+    "school_master": 12706,
+    "detail_rows": 89280,
+    "nearby_ready": 19072,
+    "coordinate_ready": 19072,
+    "waiting_coordinate": 8452,
+    "canonical_total": 27524
+  },
+  "target": {
+    "existing_coord_missing_nearby": 0,
+    "detail_missing_nearby_linked_basic": 0,
+    "living_follow_wait_coordinate": 8452
+  },
+  "coverage_now": {
+    "NATIONAL": "19072/27524",
+    "SEOUL": "8364/8437",
+    "GYEONGGI": "5592/6529"
+  },
+  "background": {
+    "pid": 26189,
+    "lock": "data/poc/school-national/runner/runner.lock.json",
+    "checkpoint": "data/poc/school-national/runner/checkpoint.json",
+    "heartbeat": "2026-09-23T05:12:46.560Z",
+    "log": "data/poc/school-national/runner/runner.log.jsonl",
+    "log_events": 5,
+    "batch_size": 8,
+    "workers": 8,
+    "rate_sleep": "DEPENDENCY_POLL_MS=900000 (15m)",
+    "retry": "failed.jsonl + retry_ids",
+    "dependency_check": "DB coord-ready missing nearby + optional living school-coordinate-ready-manifest.json",
+    "resume_command": "bash scripts/school-national-background-start.sh"
+  },
+  "first_batch": {
+    "processed": 0,
+    "nearby_added": 0,
+    "detail_added": 0,
+    "no_school": 0,
+    "failed": 0,
+    "note": "EXISTING_READY queue empty; all 19072 coord-ready already nearby-materialized"
+  },
+  "progress": {
+    "version": 1,
+    "started_at": "2026-09-23T05:12:43.788Z",
+    "updated_at": "2026-09-23T05:12:46.560Z",
+    "terminal_state": "RUNNING",
+    "canonical_total": 27524,
+    "existing_ready_total": 0,
+    "living_wait_total": 8452,
+    "nearby_processed": 0,
+    "nearby_success": 0,
+    "nearby_no_result": 0,
+    "school_details_processed": 0,
+    "school_details_added": 0,
+    "living_handoff_received": 0,
+    "failed": 0,
+    "retryable": 0,
+    "current_region": null,
+    "current_complex_id": null,
+    "external_calls": 0,
+    "wave": "IDLE_WAIT",
+    "last_dependency_check_at": "2026-09-23T05:12:46.423Z",
+    "last_heartbeat_at": "2026-09-23T05:12:46.560Z",
+    "batches_completed": 0,
+    "relation_inserts": 0,
+    "materialization_inserts": 0,
+    "restarts": 0,
+    "final_sweep_done": false,
+    "coverage": {
+      "national_nearby": 19072,
+      "seoul_nearby": 8364,
+      "gyeonggi_nearby": 5592,
+      "coord_ready": 19072
+    }
+  }
+}
