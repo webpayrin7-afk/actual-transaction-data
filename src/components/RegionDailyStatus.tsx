@@ -20,6 +20,12 @@ import {
   RegionRankingTable,
   RegionPriceSection,
 } from "@/components/region/RegionMarketSections";
+import {
+  RegionAnalysisSection,
+  RegionSupplyTimelineSection,
+  RegionTradeHighlightsSection,
+} from "@/components/region/RegionMarketExtras";
+import { regionRankingCode } from "@/lib/region-ranking/public";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -557,10 +563,9 @@ function MonthCalendar({
 }
 
 function volumeChangeClass(pct: number | null): string {
-  if (pct == null) return "text-slate-400";
-  if (pct === 0) return "text-slate-500";
-  if (pct > 0) return "text-rose-600";
-  return "text-blue-600";
+  if (pct == null || pct === 0) return "text-[color:var(--lab-muted)]";
+  if (pct > 0) return "detail-change-up";
+  return "detail-change-down";
 }
 
 function PhraseRow({
@@ -839,6 +844,7 @@ export function RegionDailyStatus({
       ? momChangePct(market.monthTradeCount, market.yearAgoMonthTradeCount)
       : null;
 
+  const guLawdCd = regionRankingCode(lawdCodes);
   const singogaDeals = useMemo(
     () =>
       sortNewlySeenDeals(latest?.deals ?? []).filter(
@@ -984,7 +990,7 @@ export function RegionDailyStatus({
           }`}
         />
         {marketQuery.isError ? (
-          <p className="text-sm text-slate-600">거래 현황을 불러오지 못했습니다.</p>
+          <p className="detail-body">거래 현황을 불러오지 못했습니다.</p>
         ) : marketQuery.isLoading && !market ? (
           <div className="h-20 animate-pulse rounded-lg bg-slate-100" />
         ) : market ? (
@@ -1008,14 +1014,10 @@ export function RegionDailyStatus({
             ].map((kpi) => (
               <div
                 key={kpi.label}
-                className="min-w-0 rounded-lg border border-slate-200 px-1.5 py-3 text-center"
+                className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-1.5 py-3 text-center"
               >
-                <p className="whitespace-nowrap text-[12px] leading-4 text-slate-600">
-                  {kpi.label}
-                </p>
-                <p
-                  className={`mt-1.5 whitespace-nowrap text-[19px] font-bold leading-none tabular-nums sm:text-2xl ${kpi.cls}`}
-                >
+                <p className="detail-label whitespace-nowrap">{kpi.label}</p>
+                <p className={`detail-summary-value mt-1 whitespace-nowrap ${kpi.cls}`}>
                   {kpi.value}
                 </p>
               </div>
@@ -1037,7 +1039,7 @@ export function RegionDailyStatus({
           tip={<p>{SEEN_DATE_BASIS_HELP}</p>}
         />
         {latestQuery.isError ? (
-          <p className="text-sm text-slate-600">새로 확인된 신고가를 불러오지 못했습니다.</p>
+          <p className="detail-body">새로 확인된 신고가를 불러오지 못했습니다.</p>
         ) : latestQuery.isLoading && !latest ? (
           <div className="h-32 animate-pulse rounded-lg bg-slate-100" />
         ) : singogaDeals.length > 0 ? (
@@ -1054,7 +1056,7 @@ export function RegionDailyStatus({
                 type="button"
                 onClick={() => setSingogaExpanded((v) => !v)}
                 aria-expanded={singogaExpanded}
-                className="inline-flex min-h-10 w-full items-center justify-center gap-1 rounded-lg bg-teal-50 text-[14px] font-medium text-teal-800 hover:bg-teal-100/70"
+                className="lab-button lab-button-secondary w-full"
               >
                 {singogaExpanded
                   ? "접기"
@@ -1067,7 +1069,7 @@ export function RegionDailyStatus({
             ) : null}
           </>
         ) : (
-          <p className="px-1 py-2 text-sm text-slate-500">
+          <p className="detail-body">
             {latest?.bulkIngestDay
               ? "이날 확인 건수가 많아 신고가 강조는 생략했습니다."
               : "최근 확인된 거래 중 신고가가 없습니다."}
@@ -1078,11 +1080,22 @@ export function RegionDailyStatus({
       {lawdCodes.length > 0 ? (
         <>
           <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
+          {guLawdCd ? (
+            <RegionTradeHighlightsSection
+              lawdCd={guLawdCd}
+              regionSlug={regionSlug}
+              regionName={regionName}
+            />
+          ) : null}
           <RegionRankingTable
             regionSlug={regionSlug}
             regionName={regionName}
             lawdCodes={lawdCodes}
           />
+          <RegionSupplyTimelineSection regionName={regionName} />
+          {guLawdCd ? (
+            <RegionAnalysisSection lawdCd={guLawdCd} regionName={regionName} />
+          ) : null}
           <RegionAptSummarySection lawdCodes={lawdCodes} regionName={regionName} />
         </>
       ) : null}

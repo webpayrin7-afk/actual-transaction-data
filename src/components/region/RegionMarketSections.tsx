@@ -17,7 +17,7 @@ import type { RegionAptSummary } from "@/lib/region/region-summary";
 import type { RegionPriceTrend } from "@/lib/region/region-price-trend";
 import { RegionPriceTrendChart } from "@/components/region/RegionPriceTrendChart";
 
-export const MARKET_SECTION_SURFACE = "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
+export const MARKET_SECTION_SURFACE = "lab-card detail-card";
 
 export function MarketSectionHeader({
   title,
@@ -31,13 +31,13 @@ export function MarketSectionHeader({
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
       <div className="flex min-w-0 items-center">
-        <h2 className="text-[17px] font-semibold tracking-tight text-slate-900 sm:text-lg">
+        <h2 className="detail-section-title">
           {title}
         </h2>
         {tip ? <InfoTip aria-label={`${title} 안내`}>{tip}</InfoTip> : null}
       </div>
       {meta ? (
-        <p className="text-[12px] leading-4 tabular-nums text-slate-500">{meta}</p>
+        <p className="detail-meta tabular-nums">{meta}</p>
       ) : null}
     </div>
   );
@@ -52,8 +52,8 @@ export function changeArrowText(pct: number | null | undefined): string {
 }
 
 export function changeToneClass(pct: number | null | undefined): string {
-  if (pct == null || !Number.isFinite(pct) || pct === 0) return "text-slate-500";
-  return pct > 0 ? "text-rose-600" : "text-blue-600";
+  if (pct == null || !Number.isFinite(pct) || pct === 0) return "text-[color:var(--lab-muted)]";
+  return pct > 0 ? "detail-change-up" : "detail-change-down";
 }
 
 function changeSrText(pct: number | null | undefined): string {
@@ -106,43 +106,40 @@ export function RegionPriceSection({
       />
 
       <div className="grid grid-cols-2 gap-2">
-        <div className="min-w-0 rounded-lg bg-teal-50/70 px-3 py-3">
-          <p className="text-[12px] leading-4 text-slate-600">
-            최근 1개월 평당가
-          </p>
+        <div className="min-w-0 rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-3 py-3">
+          <p className="detail-label">최근 1개월 평당가</p>
           {query.isLoading ? (
             <div className="mt-2 h-7 w-28 animate-pulse rounded bg-teal-100/70" />
           ) : (
-            <p className="mt-1.5 whitespace-nowrap text-[19px] font-bold leading-none tabular-nums text-teal-800 sm:text-2xl">
+            <p className="detail-summary-value detail-kpi-brand mt-1 whitespace-nowrap">
               {priceText ?? "—"}
             </p>
           )}
         </div>
-        <div className="min-w-0 rounded-lg border border-slate-200 px-3 py-3">
-          <p className="text-[12px] leading-4 text-slate-600">
-            최근 1개월 거래량
-          </p>
+        <div className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-3 py-3">
+          <p className="detail-label">최근 1개월 거래량</p>
           {query.isLoading ? (
             <div className="mt-2 h-7 w-16 animate-pulse rounded bg-slate-100" />
           ) : (
-            <p className="mt-1.5 whitespace-nowrap text-[19px] font-bold leading-none tabular-nums text-slate-900 sm:text-2xl">
+            <p className="detail-summary-value mt-1 whitespace-nowrap">
               {recent ? `${recent.current.tradeCount.toLocaleString("ko-KR")}건` : "—"}
             </p>
           )}
         </div>
       </div>
 
+      <div className="flex flex-col gap-1.5">
       <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
         {TREND_PERIOD_TABS.map((tab) => {
           const pct = recent?.changes[tab.id] ?? null;
           return (
             <div
               key={tab.id}
-              className="min-w-0 rounded-lg border border-slate-200 px-2 py-2.5 sm:px-3"
+              className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-2 py-2.5 sm:px-3"
             >
-              <p className="text-[11px] leading-4 text-slate-500">{tab.label} 전 대비</p>
+              <p className="detail-label whitespace-nowrap">{tab.label} 전</p>
               <p
-                className={`mt-1 whitespace-nowrap text-[13px] font-semibold tabular-nums sm:text-[15px] ${changeToneClass(pct)}`}
+                className={`detail-data-value-emphasis mt-0.5 whitespace-nowrap ${changeToneClass(pct)}`}
               >
                 {query.isLoading ? "…" : changeArrowText(pct)}
                 <span className="sr-only">{changeSrText(pct)}</span>
@@ -150,6 +147,8 @@ export function RegionPriceSection({
             </div>
           );
         })}
+      </div>
+      <p className="detail-meta">같은 30일 구간의 과거 평당가 대비</p>
       </div>
 
       <RegionPriceTrendChart lawdCd={lawdCd} regionName={regionName} />
@@ -230,13 +229,13 @@ export function RegionRankingTable({
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-slate-500">순위 정보를 준비 중입니다.</p>
+        <p className="detail-body">순위 정보를 준비 중입니다.</p>
       ) : (
         <>
           <div role="table" aria-label={`${regionName} 아파트 랭킹`}>
             <div
               role="row"
-              className="grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 rounded-md bg-slate-50 px-2 py-1.5 text-[11px] font-medium text-slate-500"
+              className="detail-meta grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 rounded-lg bg-[color:var(--lab-surface-subtle,#F1F5F9)] px-2 py-1.5"
             >
               <span role="columnheader">순위</span>
               <span role="columnheader">단지명</span>
@@ -245,7 +244,7 @@ export function RegionRankingTable({
               </span>
               <span aria-hidden />
             </div>
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-[color:var(--lab-border)]">
               {visible.map((row) => {
                 const href = rankingComplexHref({
                   aptName: row.apt_name,
@@ -258,10 +257,10 @@ export function RegionRankingTable({
                     <span className="flex justify-center">
                       <RankCircle rank={row.rank} />
                     </span>
-                    <span className="truncate text-[14px] font-semibold text-slate-900">
+                    <span className="detail-data-value-emphasis truncate">
                       {row.apt_name ?? "—"}
                     </span>
-                    <span className="truncate text-center text-[12px] text-slate-500">
+                    <span className="detail-meta truncate text-center">
                       {row.dong ?? "—"}
                     </span>
                     <ChevronRight
@@ -271,7 +270,7 @@ export function RegionRankingTable({
                   </>
                 );
                 const cls =
-                  "grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 px-2 py-1.5";
+                  "grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 px-2 py-2.5";
                 return (
                   <li key={row.complex_id} role="row">
                     {href ? (
@@ -291,7 +290,7 @@ export function RegionRankingTable({
               type="button"
               onClick={() => setExpanded((v) => !v)}
               aria-expanded={expanded}
-              className="inline-flex min-h-10 w-full items-center justify-center gap-1 rounded-lg bg-teal-50 text-[14px] font-medium text-teal-800 hover:bg-teal-100/70"
+              className="lab-button lab-button-secondary w-full"
             >
               {expanded ? "접기" : "전체 순위 보기"}
               <ChevronRight
@@ -346,7 +345,7 @@ export function RegionAptSummarySection({
           : undefined,
     },
     {
-      label: "평균",
+      label: "평균 연차",
       value:
         data?.averageAgeYears != null ? `${data.averageAgeYears}년차` : "—",
       note: "준공 연도 기준",
@@ -373,18 +372,18 @@ export function RegionAptSummarySection({
         {items.map((item) => (
           <div
             key={item.label}
-            className="min-w-0 rounded-lg border border-slate-200 px-3 py-3"
+            className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-3 py-3"
           >
-            <p className="text-[12px] leading-4 text-slate-500">{item.label}</p>
+            <p className="detail-label">{item.label}</p>
             {query.isLoading ? (
               <div className="mt-2 h-6 w-20 animate-pulse rounded bg-slate-100" />
             ) : (
-              <p className="mt-1 truncate text-[17px] font-bold tabular-nums text-slate-900 sm:text-lg">
+              <p className="detail-compact-value mt-1 truncate">
                 {item.value}
               </p>
             )}
             {item.note ? (
-              <p className="mt-0.5 truncate text-[11px] text-slate-400">
+              <p className="detail-meta mt-0.5 truncate">
                 {item.note}
               </p>
             ) : null}

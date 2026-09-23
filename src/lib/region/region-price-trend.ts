@@ -11,7 +11,36 @@ export type RegionPriceTrendPoint = {
   yearMonth: string;
   medianPyeongPrice: number;
   tradeCount: number;
+  /** 최근 3개월(해당 월 포함) 월별 중앙값의 거래건수 가중 평균. 표시용 완화값. */
+  smoothedPyeongPrice: number;
 };
+
+const SMOOTH_MONTHS = 3;
+
+function monthIndex(ym: string): number {
+  return Number(ym.slice(0, 4)) * 12 + Number(ym.slice(4, 6)) - 1;
+}
+
+function withSmoothing(
+  raw: Array<Omit<RegionPriceTrendPoint, "smoothedPyeongPrice">>,
+): RegionPriceTrendPoint[] {
+  return raw.map((point, index) => {
+    const idx = monthIndex(point.yearMonth);
+    let weighted = 0;
+    let count = 0;
+    for (let i = index; i >= 0; i -= 1) {
+      const p = raw[i]!;
+      if (idx - monthIndex(p.yearMonth) >= SMOOTH_MONTHS) break;
+      weighted += p.medianPyeongPrice * p.tradeCount;
+      count += p.tradeCount;
+    }
+    return {
+      ...point,
+      smoothedPyeongPrice:
+        count > 0 ? Math.round(weighted / count) : point.medianPyeongPrice,
+    };
+  });
+}
 
 export type RegionRecentPriceWindow = {
   start: string;
@@ -157,18 +186,20 @@ export async function readRegionPriceTrend(
     args: [lawdCd],
   });
 
-  const points: RegionPriceTrendPoint[] = result.rows
-    .map((row) => ({
-      yearMonth: String(row.ym),
-      medianPyeongPrice: Number(row.med),
-      tradeCount: Number(row.c),
-    }))
-    .filter(
-      (p) =>
-        /^\d{6}$/.test(p.yearMonth) &&
-        Number.isFinite(p.medianPyeongPrice) &&
-        p.medianPyeongPrice > 0,
-    );
+  const points = withSmoothing(
+    result.rows
+      .map((row) => ({
+        yearMonth: String(row.ym),
+        medianPyeongPrice: Number(row.med),
+        tradeCount: Number(row.c),
+      }))
+      .filter(
+        (p) =>
+          /^\d{6}$/.test(p.yearMonth) &&
+          Number.isFinite(p.medianPyeongPrice) &&
+          p.medianPyeongPrice > 0,
+      ),
+  );
 
   const value: RegionPriceTrend = {
     status: "ok",
