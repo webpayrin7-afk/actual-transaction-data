@@ -73,6 +73,7 @@ export function RegionDongPricesSection({
 
   return (
     <section
+      id="market-dong"
       aria-label={`${regionName} 동네별 시세`}
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >

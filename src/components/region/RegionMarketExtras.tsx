@@ -140,6 +140,7 @@ export function RegionTradeHighlightsSection({
 
   return (
     <section
+      id="market-trends"
       aria-label={`${regionName} 거래 동향`}
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >
@@ -302,6 +303,7 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
 
   return (
     <section
+      id="market-supply"
       aria-label={`${regionName} 입주 예정`}
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >

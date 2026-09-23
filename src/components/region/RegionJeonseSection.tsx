@@ -133,6 +133,7 @@ export function RegionJeonseSection({
 
   return (
     <section
+      id="market-jeonse"
       aria-label={`${regionName} 전세가율과 갭`}
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >

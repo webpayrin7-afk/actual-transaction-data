@@ -59,6 +59,7 @@ export function RegionBudgetFinderSection({
 
   return (
     <section
+      id="market-budget"
       aria-label={`${regionName} 예산으로 찾기`}
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >

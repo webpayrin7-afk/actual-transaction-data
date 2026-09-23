@@ -28,6 +28,7 @@ import { regionRankingCode } from "@/lib/region-ranking/public";
 import { RegionDongPricesSection } from "@/components/region/RegionDongPrices";
 import { RegionBudgetFinderSection } from "@/components/region/RegionBudgetFinder";
 import { RegionJeonseSection } from "@/components/region/RegionJeonseSection";
+import { RegionStickyNav } from "@/components/region/RegionStickyNav";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -813,6 +814,7 @@ export function RegionDailyStatus({
 
 
   const guLawdCd = regionRankingCode(lawdCodes);
+  const stickyNavAnchor = useRef<HTMLDivElement | null>(null);
   const singogaDeals = useMemo(
     () =>
       sortNewlySeenDeals(latest?.deals ?? []).filter(
@@ -935,6 +937,8 @@ export function RegionDailyStatus({
 
   return (
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
+      <div ref={stickyNavAnchor} className="-mb-4 h-0 sm:-mb-5" aria-hidden />
+      <RegionStickyNav anchor={stickyNavAnchor} title={regionName} subtitle="시장 현황" />
       {lawdCodes.length > 0 ? (
         <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
       ) : null}
@@ -1016,6 +1020,7 @@ export function RegionDailyStatus({
       ) : null}
 
       <section
+        id="market-history"
         aria-label={`${regionName} 지역 거래 내역`}
         className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
       >
@@ -1076,7 +1081,7 @@ export function RegionDailyStatus({
                     flashDate === date ? `${date}-flash-${flashNonce}` : date
                   }
                   id={recordDateDomId(date)}
-                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)] ${headingClass}`}
+                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+var(--region-sticky-nav-height,0px)+0.75rem)] ${headingClass}`}
                 >
                   <PhraseRow
                     className="text-sm font-medium text-slate-900"

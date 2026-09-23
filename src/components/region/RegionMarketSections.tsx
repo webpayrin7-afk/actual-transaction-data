@@ -59,6 +59,7 @@ export function RegionPriceSection({
 
   return (
     <section
+      id="market-price"
       aria-label="지역 시세 평당가"
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >
