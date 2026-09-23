@@ -8,7 +8,6 @@ import { InfoTip } from "@/components/ui/InfoTip";
 import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import {
   TREND_PERIOD_TABS,
-  confidenceCopy,
   fetchRegionRankingBoard,
   formatReferenceMonthCompact,
   formatWonPerPyeong,
@@ -230,23 +229,6 @@ function RankCircle({ rank }: { rank: number }) {
   );
 }
 
-function ConfidenceBadge({ raw }: { raw: string | null | undefined }) {
-  const label = confidenceCopy(raw);
-  if (!label) return <span className="text-[12px] text-slate-400">—</span>;
-  const tone =
-    raw?.toUpperCase() === "HIGH"
-      ? "bg-teal-50 text-teal-700"
-      : raw?.toUpperCase() === "MEDIUM"
-        ? "bg-amber-50 text-amber-700"
-        : "bg-slate-100 text-slate-600";
-  return (
-    <span
-      className={`inline-flex whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-medium ${tone}`}
-    >
-      {label}
-    </span>
-  );
-}
 
 const RANK_PREVIEW = 5;
 const RANK_FULL = 20;
@@ -308,15 +290,12 @@ export function RegionRankingTable({
           <div role="table" aria-label={`${regionName} 아파트 랭킹`}>
             <div
               role="row"
-              className="grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_4.75rem_1rem] items-center gap-x-2 rounded-md bg-slate-50 px-2 py-1.5 text-[11px] font-medium text-slate-500"
+              className="grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 rounded-md bg-slate-50 px-2 py-1.5 text-[11px] font-medium text-slate-500"
             >
               <span role="columnheader">순위</span>
               <span role="columnheader">단지명</span>
               <span role="columnheader" className="text-center">
                 지역
-              </span>
-              <span role="columnheader" className="text-center">
-                자료
               </span>
               <span aria-hidden />
             </div>
@@ -339,9 +318,6 @@ export function RegionRankingTable({
                     <span className="truncate text-center text-[12px] text-slate-500">
                       {row.dong ?? "—"}
                     </span>
-                    <span className="flex justify-center">
-                      <ConfidenceBadge raw={row.confidence} />
-                    </span>
                     <ChevronRight
                       className="h-4 w-4 text-slate-400"
                       aria-hidden
@@ -349,7 +325,7 @@ export function RegionRankingTable({
                   </>
                 );
                 const cls =
-                  "grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_4.75rem_1rem] items-center gap-x-2 px-2 py-1.5";
+                  "grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 px-2 py-1.5";
                 return (
                   <li key={row.complex_id} role="row">
                     {href ? (

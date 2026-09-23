@@ -215,44 +215,6 @@ function FeaturedDealCard({
   );
 }
 
-function MiniSparkline({ points }: { points: { date: string; amount: number }[] }) {
-  if (points.length < 3) return null;
-  const width = 96;
-  const height = 36;
-  const pad = 4;
-  const amounts = points.map((p) => p.amount);
-  const min = Math.min(...amounts);
-  const range = Math.max(...amounts) - min || 1;
-  const coords = points.map((p, i) => ({
-    x: pad + (i / (points.length - 1)) * (width - pad * 2),
-    y: pad + (1 - (p.amount - min) / range) * (height - pad * 2),
-  }));
-  const path = coords
-    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
-    .join(" ");
-  const last = coords[coords.length - 1]!;
-  return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      width={width}
-      height={height}
-      className="shrink-0"
-      aria-hidden
-    >
-      <path d={path} fill="none" stroke="#0f766e" strokeWidth={1.5} />
-      {coords.map((c, i) => (
-        <circle
-          key={i}
-          cx={c.x}
-          cy={c.y}
-          r={i === coords.length - 1 ? 2.8 : 1.6}
-          fill={i === coords.length - 1 ? "#0f766e" : "#14b8a6"}
-        />
-      ))}
-      <circle cx={last.x} cy={last.y} r={4.5} fill="#0f766e" opacity={0.15} />
-    </svg>
-  );
-}
 
 function SingogaRowCard({
   deal,
@@ -261,43 +223,52 @@ function SingogaRowCard({
   deal: RegionDailyDeal;
   regionSlug: string;
 }) {
+  const prior = priorPeakAmount(deal);
   const rate = increaseRatePct(deal);
+  const trend = deal.priceTrend;
   const meta = [deal.dong || null, deal.buildYear ? `${deal.buildYear}년 준공` : null]
     .filter(Boolean)
     .join(" · ");
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="flex items-center gap-2.5 rounded-xl border border-slate-200 px-3 py-2.5 transition hover:border-teal-200 hover:bg-teal-50/40"
+      className="block rounded-xl border border-slate-200 px-3 py-2.5 transition hover:border-teal-200 hover:bg-teal-50/40"
     >
-      <SingogaBadge variant="compact">{singogaLabel(deal.singogaKind)}</SingogaBadge>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[15px] font-semibold leading-snug text-slate-900">
-          {deal.aptName}
-        </p>
-        {meta ? <p className="truncate text-[11px] text-slate-500">{meta}</p> : null}
-        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
-          <span className="whitespace-nowrap text-[18px] font-bold leading-none tabular-nums text-slate-900">
-            {formatEok(deal.dealAmount)}
-          </span>
-          {deal.increaseAmount > 0 ? (
-            <span className="whitespace-nowrap text-[12px] font-medium tabular-nums text-rose-600">
-              ▲ {formatEok(deal.increaseAmount)}
-              {rate != null ? ` (+${rate}%)` : ""}
-            </span>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="break-keep text-[16px] font-bold leading-snug text-slate-900 line-clamp-2">
+            {deal.aptName}
+          </p>
+          {meta ? (
+            <p className="mt-0.5 truncate text-xs text-slate-500">{meta}</p>
           ) : null}
         </div>
-        <p className="mt-1 truncate text-[11px] tabular-nums text-slate-500">
-          {specLine(deal)} · {contractLine(deal.dealDate)} ·{" "}
-          {deal.dealingGbn || "중개거래"}
-        </p>
+        <SingogaBadge variant="compact">{singogaLabel(deal.singogaKind)}</SingogaBadge>
       </div>
-      {deal.priceTrend && deal.priceTrend.length >= 3 ? (
-        <span className="hidden min-[360px]:block">
-          <MiniSparkline points={deal.priceTrend} />
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="whitespace-nowrap text-[21px] font-semibold leading-none tabular-nums text-slate-900">
+          {formatEok(deal.dealAmount)}
         </span>
+        {deal.increaseAmount > 0 ? (
+          <span className="whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
+            ▲ {formatEok(deal.increaseAmount)}
+            {rate != null ? ` (+${rate}%)` : ""}
+          </span>
+        ) : null}
+      </div>
+      {prior != null ? (
+        <p className="mt-1 whitespace-nowrap text-[12px] tabular-nums text-slate-500">
+          종전 최고 {formatEok(prior)}
+        </p>
       ) : null}
-      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+      <DealMetaLine deal={deal} emphasizeSpec />
+      {trend && trend.length >= 3 ? (
+        <TypePriceSparkline
+          points={trend}
+          currentAmount={deal.dealAmount}
+          currentDate={deal.dealDate}
+        />
+      ) : null}
     </Link>
   );
 }
