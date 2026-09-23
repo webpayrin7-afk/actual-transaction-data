@@ -746,17 +746,18 @@ export async function upsertSourceLink(
   meta: Record<string, unknown>,
 ) {
   const ts = nowIso();
+  // Production schema has no match_tier. DO NOTHING preserves any existing
+  // complex_id ownership (AC / prior PROFILE) — never steal a link.
   await db.execute({
     sql: `INSERT INTO apt_complex_source_links (
-            source, source_key, complex_id, match_tier, source_meta_json,
+            source, source_key, complex_id, source_meta_json,
             source_version, created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(source, source_key) DO NOTHING`,
     args: [
       source,
       sourceKey,
       complexId,
-      "EXACT",
       JSON.stringify(meta),
       SOURCE_VERSION,
       ts,
@@ -867,9 +868,17 @@ export async function applyFills(
       c.source === "BUILDING_HUB_RECAP" ||
       c.source === "BUILDING_HUB_DUPLICATE_COLLAPSE"
     ) {
-      await upsertSourceLink(db, c.source, String(c.source_key), complexId, {
-        fields: fieldNames,
-      });
+      try {
+        await upsertSourceLink(db, c.source, String(c.source_key), complexId, {
+          fields: fieldNames,
+        });
+      } catch (e) {
+        // Profile NULL_SAFE_FILL already committed; do not roll back fills
+        // because provenance link write failed.
+        console.error(
+          `source_link_warn ${complexId} ${c.source} ${c.source_key}: ${String(e)}`,
+        );
+      }
     }
   }
 
