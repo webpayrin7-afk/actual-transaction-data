@@ -16,7 +16,6 @@ import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
-  RegionAptSummarySection,
   RegionRankingTable,
   RegionPriceSection,
 } from "@/components/region/RegionMarketSections";
@@ -1015,7 +1014,6 @@ export function RegionDailyStatus({
             lawdCodes={lawdCodes}
           />
           <RegionSupplyTimelineSection regionName={regionName} />
-          <RegionAptSummarySection lawdCodes={lawdCodes} regionName={regionName} />
         </>
       ) : null}
 

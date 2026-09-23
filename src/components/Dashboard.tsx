@@ -8,11 +8,11 @@ import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
 import { RegionDailyStatus } from "@/components/RegionDailyStatus";
 import { RegionDongBrowse } from "@/components/RegionDongBrowse";
+import { RegionHeroMeta } from "@/components/region/RegionHeroMeta";
 import { TransactionTable } from "@/components/TransactionTable";
 import { BackLink } from "@/components/layout/BackLink";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
-  PAGE_HEADER_WITH_BACK,
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
@@ -166,13 +166,12 @@ export function Dashboard({
 
   return (
     <div className={PAGE_SHELL}>
-      <header className={PAGE_HEADER_WITH_BACK}>
-        <BackLink fallback="/regions" />
+      <header className="-mt-1 sm:-mt-1.5">
         <PageHeader
+          leading={<BackLink fallback="/regions" compact hideLabel />}
           title={region.name}
-          description={
-            region.fullName.replace(region.name, "").trim() || region.fullName
-          }
+          titleClassName="detail-page-title"
+          meta={<RegionHeroMeta fullName={region.fullName} lawdCodes={region.lawdCodes} />}
           showDivider={false}
         />
       </header>

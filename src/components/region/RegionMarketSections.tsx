@@ -11,7 +11,6 @@ import {
   rankingComplexHref,
   regionRankingCode,
 } from "@/lib/region-ranking/public";
-import type { RegionAptSummary } from "@/lib/region/region-summary";
 import { RegionPriceTrendChart } from "@/components/region/RegionPriceTrendChart";
 
 export const MARKET_SECTION_SURFACE = "lab-card detail-card";
@@ -244,95 +243,6 @@ export function RegionRankingTable({
           ) : null}
         </>
       )}
-    </section>
-  );
-}
-
-export function RegionAptSummarySection({
-  lawdCodes,
-  regionName,
-}: {
-  lawdCodes: string[];
-  regionName: string;
-}) {
-  const lawdCd = regionRankingCode(lawdCodes);
-  const query = useQuery({
-    queryKey: ["region-summary", lawdCd],
-    queryFn: async () => {
-      const res = await fetch(`/api/region-summary?lawd_cd=${lawdCd}`);
-      if (!res.ok) throw new Error("summary");
-      return (await res.json()) as RegionAptSummary;
-    },
-    enabled: !!lawdCd,
-    staleTime: 60 * 60_000,
-    retry: 1,
-  });
-  if (!lawdCd) return null;
-  const data = query.data?.status === "ok" ? query.data : null;
-  if (query.isError) return null;
-
-  const items: Array<{ label: string; value: ReactNode; note?: string }> = [
-    {
-      label: "아파트 단지 수",
-      value: data ? `${data.complexCount.toLocaleString("ko-KR")}개` : "—",
-    },
-    {
-      label: "총 세대수",
-      value:
-        data?.householdTotal != null
-          ? `${data.householdTotal.toLocaleString("ko-KR")}세대`
-          : "—",
-      note:
-        data && data.householdComplexCount < data.complexCount
-          ? `세대수 확인 ${data.householdComplexCount.toLocaleString("ko-KR")}개 단지 기준`
-          : undefined,
-    },
-    {
-      label: "평균 연차",
-      value:
-        data?.averageAgeYears != null ? `${data.averageAgeYears}년차` : "—",
-      note: "준공 연도 기준",
-    },
-    {
-      label: "대표 평형",
-      value: data?.representativeDecade
-        ? `${data.representativeDecade.label} (${data.representativeDecade.sharePct}%)`
-        : "—",
-      note: data?.representativeDecade ? "세대수 비중 기준" : undefined,
-    },
-  ];
-
-  return (
-    <section
-      aria-label={`${regionName} 아파트 요약`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
-    >
-      <MarketSectionHeader
-        title={`${regionName} 아파트 요약`}
-        meta={data ? formatReferenceMonthCompact(data.asOfMonth) : null}
-      />
-      <div className="grid grid-cols-2 gap-2">
-        {items.map((item) => (
-          <div
-            key={item.label}
-            className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-3 py-3"
-          >
-            <p className="detail-label">{item.label}</p>
-            {query.isLoading ? (
-              <div className="mt-2 h-6 w-20 animate-pulse rounded bg-slate-100" />
-            ) : (
-              <p className="detail-compact-value mt-1 truncate">
-                {item.value}
-              </p>
-            )}
-            {item.note ? (
-              <p className="detail-meta mt-0.5 truncate">
-                {item.note}
-              </p>
-            ) : null}
-          </div>
-        ))}
-      </div>
     </section>
   );
 }
