@@ -58,7 +58,8 @@ import {
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabTabs } from "@/components/ui/LabTabs";
 import {
-  LAB_SECTION_SURFACE,
+  LAB_SUBSECTION_RULE,
+  LabSection,
   LabSubsectionHeader,
 } from "@/components/ui/LabSection";
 import { LabStatTiles } from "@/components/ui/LabStatTiles";
@@ -611,11 +612,16 @@ export function AptDetailPage({
         </div>
       )}
 
-      {/* Price summary — area-scoped; independent of chart period / deal tab */}
-      <section
-        id="section-price-summary"
-        className={`${LAB_SECTION_SURFACE} scroll-mt-28`}
-        aria-label="시세 요약"
+      {/* 시세 = 요약(면적 기준) → 추이(차트) → 거래내역. 한 주제 한 섹션 (policy §12.1). */}
+      <LabSection
+        id="section-market"
+        title="시세"
+        meta={
+          areaKey === "all" || !selectedArea
+            ? "전체 면적 기준"
+            : `${areaSelectorClosedLabel(selectedArea)} 기준`
+        }
+        className="gap-4"
       >
         <LabStatTiles
           columns={4}
@@ -679,110 +685,105 @@ export function AptDetailPage({
             },
           ]}
         />
-      </section>
 
-      {/* Market + trades — single card */}
-      <section
-        id="section-market"
-        aria-label="시세 추이"
-        className={`${LAB_SECTION_SURFACE} scroll-mt-28`}
-      >
-        <div className="detail-market-header">
-          <h2 className="detail-section-title shrink-0">시세 추이</h2>
-          <div className="detail-market-period">{periodButtons}</div>
-        </div>
-        {isExtendingHistory ? (
-          <p className="detail-meta mt-1.5 inline-flex items-center gap-1.5 text-[color:var(--lab-brand-primary)]">
-            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-            과거 시세 추가 중…
-          </p>
-        ) : null}
+        <div className={LAB_SUBSECTION_RULE}>
+          <div className="detail-market-header">
+            <h3 className="detail-subsection-title shrink-0">시세 추이</h3>
+            <div className="detail-market-period">{periodButtons}</div>
+          </div>
+          {isExtendingHistory ? (
+            <p className="detail-meta mt-1.5 inline-flex items-center gap-1.5 text-[color:var(--lab-brand-primary)]">
+              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+              과거 시세 추가 중…
+            </p>
+          ) : null}
 
-        <LabTabs
-          className="detail-market-deal-tabs"
-          variant="secondary"
-          ariaLabel="거래 유형"
-          value={chartDealType === "jeonse" ? "jeonse" : "trade"}
-          items={[
-            { id: "trade", label: "매매" },
-            { id: "jeonse", label: "전월세" },
-          ]}
-          onChange={(next) => setDealFilter(next)}
-        />
-
-        <div className="detail-market-chart">
-          <AptPriceChart
-            points={chartPoints}
-            deals={chartDeals}
-            dealType={chartDealType}
-            dealCount={
-              chartDealType === "trade" ? periodTradeCount : periodJeonseCount
-            }
-            dealCountLabel={chartDealType === "trade" ? "매매" : "전세"}
-            selectedMonthYm={selectedMonthYm}
-            onMonthSelect={setSelectedMonthYm}
+          <LabTabs
+            className="detail-market-deal-tabs"
+            variant="secondary"
+            ariaLabel="거래 유형"
+            value={chartDealType === "jeonse" ? "jeonse" : "trade"}
+            items={[
+              { id: "trade", label: "매매" },
+              { id: "jeonse", label: "전월세" },
+            ]}
+            onChange={(next) => setDealFilter(next)}
           />
-        </div>
 
-        <div className="detail-market-slider min-h-11 px-1">
-          <PeriodRangeSlider
-            months={chartMonths}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            activePreset={periodPreset === "custom" ? null : periodPreset}
-            showPresets={false}
-            onChange={(start, end) => {
-              setPeriodPreset("custom");
-              setRangeOverride({ start, end });
-            }}
-            onRecentYears={setRecentYears}
-            onFullRange={setFullRange}
-          />
-        </div>
-
-        <div className="detail-market-trades">
-          <div className="mb-3">
-            <LabSubsectionHeader title="거래내역" meta="최근 계약일순" />
+          <div className="detail-market-chart">
+            <AptPriceChart
+              points={chartPoints}
+              deals={chartDeals}
+              dealType={chartDealType}
+              dealCount={
+                chartDealType === "trade" ? periodTradeCount : periodJeonseCount
+              }
+              dealCountLabel={chartDealType === "trade" ? "매매" : "전세"}
+              selectedMonthYm={selectedMonthYm}
+              onMonthSelect={setSelectedMonthYm}
+            />
           </div>
 
-          {selectedMonthYm ? (
-            <div className="detail-market-month-filter">
-              <p className="detail-meta">
-                {Number(selectedMonthYm.slice(0, 4))}년{" "}
-                {Number(selectedMonthYm.slice(4, 6))}월 거래
-              </p>
-              <button
-                type="button"
-                className="lab-button lab-button-tertiary detail-market-month-clear"
-                onClick={() => setSelectedMonthYm(null)}
-              >
-                선택 해제
-              </button>
-            </div>
-          ) : null}
+          <div className="detail-market-slider min-h-11 px-1">
+            <PeriodRangeSlider
+              months={chartMonths}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              activePreset={periodPreset === "custom" ? null : periodPreset}
+              showPresets={false}
+              onChange={(start, end) => {
+                setPeriodPreset("custom");
+                setRangeOverride({ start, end });
+              }}
+              onRecentYears={setRecentYears}
+              onFullRange={setFullRange}
+            />
+          </div>
 
-          <TransactionList
-            items={visibleTrades}
-            mode={listDealMode}
-            layout="split"
-          />
-
-          {listSourceItems.length > 0 ? (
-            <div className="detail-cta">
-              {/* Full document navigation — soft Link nav is unreliable via the preview tunnel. */}
-              <a
-                href={transactionsHref}
-                className="lab-button lab-button-secondary w-full"
-              >
-                {`거래 내역 자세히 보기 (${listSourceItems.length.toLocaleString("ko-KR")}건)`}
-                <span aria-hidden className="ml-1">
-                  →
-                </span>
-              </a>
+          <div className="detail-market-trades">
+            <div className="mb-3">
+              <LabSubsectionHeader title="거래내역" meta="최근 계약일순" />
             </div>
-          ) : null}
+
+            {selectedMonthYm ? (
+              <div className="detail-market-month-filter">
+                <p className="detail-meta">
+                  {Number(selectedMonthYm.slice(0, 4))}년{" "}
+                  {Number(selectedMonthYm.slice(4, 6))}월 거래
+                </p>
+                <button
+                  type="button"
+                  className="lab-button lab-button-tertiary detail-market-month-clear"
+                  onClick={() => setSelectedMonthYm(null)}
+                >
+                  선택 해제
+                </button>
+              </div>
+            ) : null}
+
+            <TransactionList
+              items={visibleTrades}
+              mode={listDealMode}
+              layout="split"
+            />
+
+            {listSourceItems.length > 0 ? (
+              <div className="detail-cta">
+                {/* Full document navigation — soft Link nav is unreliable via the preview tunnel. */}
+                <a
+                  href={transactionsHref}
+                  className="lab-button lab-button-secondary w-full"
+                >
+                  {`거래 내역 자세히 보기 (${listSourceItems.length.toLocaleString("ko-KR")}건)`}
+                  <span aria-hidden className="ml-1">
+                    →
+                  </span>
+                </a>
+              </div>
+            ) : null}
+          </div>
         </div>
-      </section>
+      </LabSection>
 
       <ComplexPurchaseCalculatorSection
         complexId={identity?.complexId ?? null}

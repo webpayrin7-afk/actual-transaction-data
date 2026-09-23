@@ -8,10 +8,10 @@ import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 
 export const APT_SECTIONS = [
-  { id: "section-price-summary", label: "시세" },
+  { id: "section-market", label: "시세" },
   { id: "section-calculator", label: "계산기" },
-  { id: "section-region-rank", label: "지역 비교" },
-  { id: "section-comparison", label: "단지 비교" },
+  // 지역 비교 → 단지 비교가 이어지는 한 흐름. 탭은 첫 섹션으로 점프 (policy §12.3 탭 수 ≤ 6).
+  { id: "section-region-rank", label: "비교" },
   { id: "section-nearby-life", label: "생활" },
   { id: "section-nearby-sales", label: "공급" },
   { id: "section-management", label: "관리비" },
