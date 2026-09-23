@@ -1,0 +1,365 @@
+{
+  "generated_at": "2026-09-23T11:52:58.968Z",
+  "mode": "idempotent-check",
+  "input": {
+    "artifact": "data/poc/living/school-delta-newly-coordinate-ready.json",
+    "target_complexes": 3058,
+    "unique": 3058,
+    "coordinate_verified": 3058
+  },
+  "baseline_before": {
+    "coord_ready": 22130,
+    "materialized": 22130,
+    "nearby_ready": 22130,
+    "nearby_links": 327579,
+    "schools": 12706,
+    "snapshots": 89280
+  },
+  "precheck": {
+    "already_complete": 3058,
+    "need_materialization": 0,
+    "invalid": 0,
+    "conflicts": 0,
+    "conflict_samples": [],
+    "school_master_operating_with_coord": 12559
+  },
+  "dry_run": {
+    "complexes": 0,
+    "inserts": 0,
+    "updates": 0,
+    "deletes": 0,
+    "duplicates": 0,
+    "missing_school_identities": 0,
+    "no_schools_within_radius": 0,
+    "by_region": {}
+  },
+  "production": {
+    "newly_materialized_complexes": 0,
+    "relation_inserts": 0,
+    "updates": 0,
+    "deletes": 0,
+    "materialization_inserts": 0,
+    "rebuilt_complexes": 0,
+    "no_schools_within_radius": 0,
+    "unrelated_writes": 0,
+    "run_stats": {
+      "nearbyInserts": 0,
+      "nearbyDeletes": 0,
+      "materializationInserts": 0,
+      "materializationUpdates": 0,
+      "newlyMaterialized": 0,
+      "reusedComplexes": 0,
+      "rebuiltComplexes": 0,
+      "noSchoolsWithinRadius": 0
+    }
+  },
+  "coverage_after": {
+    "totals": {
+      "coord_ready": 22130,
+      "materialized": 22130,
+      "nearby_ready": 22130,
+      "nearby_links": 327579,
+      "schools": 12706,
+      "snapshots": 89280
+    },
+    "regions": [
+      {
+        "region": "강원",
+        "materialized": 341,
+        "with_links": 329
+      },
+      {
+        "region": "경기",
+        "materialized": 5592,
+        "with_links": 5557
+      },
+      {
+        "region": "경남",
+        "materialized": 689,
+        "with_links": 677
+      },
+      {
+        "region": "경북",
+        "materialized": 512,
+        "with_links": 498
+      },
+      {
+        "region": "광주/combined",
+        "materialized": 1134,
+        "with_links": 1131
+      },
+      {
+        "region": "대구",
+        "materialized": 976,
+        "with_links": 976
+      },
+      {
+        "region": "대전",
+        "materialized": 513,
+        "with_links": 513
+      },
+      {
+        "region": "부산",
+        "materialized": 1231,
+        "with_links": 1231
+      },
+      {
+        "region": "서울",
+        "materialized": 8364,
+        "with_links": 8364
+      },
+      {
+        "region": "세종",
+        "materialized": 84,
+        "with_links": 84
+      },
+      {
+        "region": "울산",
+        "materialized": 445,
+        "with_links": 441
+      },
+      {
+        "region": "인천",
+        "materialized": 971,
+        "with_links": 970
+      },
+      {
+        "region": "전북",
+        "materialized": 269,
+        "with_links": 263
+      },
+      {
+        "region": "제주",
+        "materialized": 143,
+        "with_links": 138
+      },
+      {
+        "region": "충남",
+        "materialized": 509,
+        "with_links": 485
+      },
+      {
+        "region": "충북",
+        "materialized": 357,
+        "with_links": 349
+      }
+    ],
+    "duplicate_nearby": 0
+  },
+  "pilots_before": {
+    "pilots": {
+      "잠실엘스": {
+        "name": "잠실엘스",
+        "complex_id": "cx_4c63d9a100973c60",
+        "in_delta_list": false,
+        "materialization": {
+          "coord_version": "parcel-rep|37.5141346|127.0793252",
+          "link_count": 14,
+          "status": "READY",
+          "materialized_at": "2026-09-20T15:36:36.107Z"
+        },
+        "links_by_level": [
+          {
+            "school_level": "elementary",
+            "n": 6
+          },
+          {
+            "school_level": "high",
+            "n": 4
+          },
+          {
+            "school_level": "middle",
+            "n": 4
+          }
+        ],
+        "expectation": "reused_unchanged"
+      },
+      "파크리오": {
+        "name": "파크리오",
+        "complex_id": "cx_ed52bf895d064c11",
+        "in_delta_list": false,
+        "materialization": {
+          "coord_version": "parcel-rep|37.5204422|127.1062839",
+          "link_count": 11,
+          "status": "READY",
+          "materialized_at": "2026-09-20T15:36:36.107Z"
+        },
+        "links_by_level": [
+          {
+            "school_level": "elementary",
+            "n": 6
+          },
+          {
+            "school_level": "high",
+            "n": 1
+          },
+          {
+            "school_level": "middle",
+            "n": 4
+          }
+        ],
+        "expectation": "reused_unchanged"
+      },
+      "리센츠": {
+        "name": "리센츠",
+        "complex_id": "cx_caf229b5ac63cfbd",
+        "in_delta_list": false,
+        "materialization": {
+          "coord_version": "parcel-rep|37.5143769|127.0860049",
+          "link_count": 17,
+          "status": "READY",
+          "materialized_at": "2026-09-20T15:36:36.107Z"
+        },
+        "links_by_level": [
+          {
+            "school_level": "elementary",
+            "n": 8
+          },
+          {
+            "school_level": "high",
+            "n": 4
+          },
+          {
+            "school_level": "middle",
+            "n": 5
+          }
+        ],
+        "expectation": "reused_unchanged"
+      }
+    },
+    "new_region_samples": [
+      {
+        "region": "인천",
+        "complex_id": "cx_68e91bb11738ab0d",
+        "apt_name": "부개주공3단지아파트",
+        "sido": "인천광역시",
+        "link_count": 39,
+        "status": "READY"
+      },
+      {
+        "region": "대전",
+        "complex_id": "cx_988291a62ff8e135",
+        "apt_name": "미르마을",
+        "sido": "대전광역시",
+        "link_count": 31,
+        "status": "READY"
+      },
+      {
+        "region": "제주",
+        "complex_id": "cx_3372cbc9327ca285",
+        "apt_name": "미듬아뜨리에아파트",
+        "sido": "제주특별자치도",
+        "link_count": 13,
+        "status": "READY"
+      }
+    ]
+  },
+  "pilots_after": {
+    "pilots": {
+      "잠실엘스": {
+        "name": "잠실엘스",
+        "complex_id": "cx_4c63d9a100973c60",
+        "in_delta_list": false,
+        "materialization": {
+          "coord_version": "parcel-rep|37.5141346|127.0793252",
+          "link_count": 14,
+          "status": "READY",
+          "materialized_at": "2026-09-20T15:36:36.107Z"
+        },
+        "links_by_level": [
+          {
+            "school_level": "elementary",
+            "n": 6
+          },
+          {
+            "school_level": "high",
+            "n": 4
+          },
+          {
+            "school_level": "middle",
+            "n": 4
+          }
+        ],
+        "expectation": "reused_unchanged"
+      },
+      "파크리오": {
+        "name": "파크리오",
+        "complex_id": "cx_ed52bf895d064c11",
+        "in_delta_list": false,
+        "materialization": {
+          "coord_version": "parcel-rep|37.5204422|127.1062839",
+          "link_count": 11,
+          "status": "READY",
+          "materialized_at": "2026-09-20T15:36:36.107Z"
+        },
+        "links_by_level": [
+          {
+            "school_level": "elementary",
+            "n": 6
+          },
+          {
+            "school_level": "high",
+            "n": 1
+          },
+          {
+            "school_level": "middle",
+            "n": 4
+          }
+        ],
+        "expectation": "reused_unchanged"
+      },
+      "리센츠": {
+        "name": "리센츠",
+        "complex_id": "cx_caf229b5ac63cfbd",
+        "in_delta_list": false,
+        "materialization": {
+          "coord_version": "parcel-rep|37.5143769|127.0860049",
+          "link_count": 17,
+          "status": "READY",
+          "materialized_at": "2026-09-20T15:36:36.107Z"
+        },
+        "links_by_level": [
+          {
+            "school_level": "elementary",
+            "n": 8
+          },
+          {
+            "school_level": "high",
+            "n": 4
+          },
+          {
+            "school_level": "middle",
+            "n": 5
+          }
+        ],
+        "expectation": "reused_unchanged"
+      }
+    },
+    "new_region_samples": [
+      {
+        "region": "인천",
+        "complex_id": "cx_68e91bb11738ab0d",
+        "apt_name": "부개주공3단지아파트",
+        "sido": "인천광역시",
+        "link_count": 39,
+        "status": "READY"
+      },
+      {
+        "region": "대전",
+        "complex_id": "cx_988291a62ff8e135",
+        "apt_name": "미르마을",
+        "sido": "대전광역시",
+        "link_count": 31,
+        "status": "READY"
+      },
+      {
+        "region": "제주",
+        "complex_id": "cx_3372cbc9327ca285",
+        "apt_name": "미듬아뜨리에아파트",
+        "sido": "제주특별자치도",
+        "link_count": 13,
+        "status": "READY"
+      }
+    ]
+  }
+}
