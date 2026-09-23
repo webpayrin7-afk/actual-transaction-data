@@ -1195,7 +1195,7 @@ export function RegionDailyStatus({
       ? (market?.monthTradeCount ?? null)
       : recentFromCalendar.filter((d) =>
           d.dealDate.replaceAll("-", "").startsWith(contractMonth),
-        ).length || null;
+        ).length;
   const volumeNote =
     scope === "gu"
       ? market?.comparePartial
