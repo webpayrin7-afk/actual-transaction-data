@@ -49,6 +49,14 @@ const PANEL_RULE = "mt-4 border-t border-[color:var(--lab-border)] pt-4";
 
 const CHART_TRADE = "#087F83";
 const CHART_VOLUME = "#0F766E";
+const DIR_UP = "var(--lab-change-up)";
+const DIR_DOWN = "var(--lab-change-down)";
+const DIR_OTHER = "#CBD5E1";
+const DIRECTIONS = [
+  { key: "up", label: "오름", color: DIR_UP, cls: "detail-change-up" },
+  { key: "other", label: "보합·기타", color: DIR_OTHER, cls: "" },
+  { key: "down", label: "내림", color: DIR_DOWN, cls: "detail-change-down" },
+] as const;
 
 type ChartRow = RegionPriceTrendPoint & { label: string; partial: boolean };
 
@@ -75,6 +83,33 @@ function changeClass(n: number | null): string {
 
 function total(row: { up: number; down: number; other: number }): number {
   return row.up + row.down + row.other;
+}
+
+function DirectionBar({
+  row,
+  widthPct,
+  className,
+}: {
+  row: { up: number; down: number; other: number };
+  widthPct: number;
+  className: string;
+}) {
+  const sum = total(row);
+  return (
+    <div className={`overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)] ${className}`} aria-hidden>
+      <div className="flex h-full overflow-hidden rounded-full" style={{ width: `${widthPct}%` }}>
+        {DIRECTIONS.map((dir) =>
+          row[dir.key] > 0 && sum > 0 ? (
+            <span
+              key={dir.key}
+              className="h-full"
+              style={{ width: `${(row[dir.key] / sum) * 100}%`, background: dir.color }}
+            />
+          ) : null,
+        )}
+      </div>
+    </div>
+  );
 }
 
 function MonthStepper({
@@ -131,11 +166,42 @@ function MonthComposition({
       <div className={PANEL_RULE}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
-            <h4 className="detail-subsection-title">어디서 거래됐나</h4>
+            <div className="flex items-center">
+              <h4 className="detail-subsection-title">이 달 거래 구성</h4>
+              <InfoTip aria-label="이 달 거래 구성 안내">
+                <p>
+                  오름·내림은 같은 단지·면적의 직전 거래와 비교한 결과입니다. 직전
+                  거래가 없거나 같은 가격이면 보합·기타로 분류합니다.
+                </p>
+              </InfoTip>
+            </div>
             <p className="detail-meta tabular-nums">
               {monthLabel} · 매매 {tradeCount.toLocaleString("ko-KR")}건
             </p>
           </div>
+        </div>
+        <div className="mt-3">
+          <DirectionBar row={d} widthPct={100} className="h-2.5" />
+          <dl
+            className="mt-2 grid grid-cols-3 gap-2"
+            aria-label={`${monthLabel} 오름 ${d.up}건, 보합·기타 ${d.other}건, 내림 ${d.down}건`}
+          >
+            {DIRECTIONS.map((dir) => (
+              <div key={dir.key} className="min-w-0">
+                <dt className="detail-meta flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="inline-block h-2 w-2 shrink-0 rounded-sm" style={{ background: dir.color }} aria-hidden />
+                  {dir.label}
+                </dt>
+                <dd className="whitespace-nowrap tabular-nums">
+                  <span className={`detail-data-value-emphasis ${dir.cls}`}>{share(d[dir.key])}%</span>
+                  <span className="detail-meta ml-1">{d[dir.key].toLocaleString("ko-KR")}건</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <div className="mt-4 flex items-center justify-between gap-2 border-t border-[color:var(--lab-border)] pt-3">
+          <p className="detail-label">어디서 거래됐나</p>
           <LabTabs
             variant="compact"
             ariaLabel="거래량 구분"
@@ -160,9 +226,7 @@ function MonthComposition({
                     <span className="detail-meta ml-1.5">{share(n)}%</span>
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)]" aria-hidden>
-                  <div className="h-full rounded-full" style={{ width: `${(n / scale) * 100}%`, background: CHART_VOLUME }} />
-                </div>
+                <DirectionBar row={row} widthPct={(n / scale) * 100} className="h-2" />
               </li>
             );
           })}
