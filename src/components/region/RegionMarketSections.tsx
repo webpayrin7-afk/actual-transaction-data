@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
+import { LabTabs } from "@/components/ui/LabTabs";
 import {
   TREND_PERIOD_TABS,
   fetchRegionRankingBoard,
@@ -129,27 +129,13 @@ export function RegionRepPriceSection({
           </p>
         }
       />
-      <div
-        className={`${labSegmentedClass()} grid w-full grid-cols-4`}
-        role="tablist"
-        aria-label="평형대"
-      >
-        {PRICE_BANDS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={band === item.id}
-            onClick={() => setBand(item.id)}
-            className={labSecondaryTabClass(
-              band === item.id,
-              "min-h-9 px-1 text-[13px]",
-            )}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      <LabTabs
+        variant="secondary"
+        ariaLabel="평형대"
+        items={PRICE_BANDS}
+        value={band}
+        onChange={setBand}
+      />
 
       <div className="grid grid-cols-2 gap-2">
         <div className="min-w-0 rounded-lg bg-teal-50/70 px-3 py-3">
