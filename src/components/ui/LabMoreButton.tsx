@@ -2,15 +2,17 @@
 
 import { ChevronRight } from "lucide-react";
 
-export const LIST_PREVIEW = 5;
+/** 목록 기본 노출 개수 (policy §12.3). */
+export const LAB_LIST_PREVIEW = 5;
 
-export function ListMoreButton({
+export function LabMoreButton({
   expanded,
   onToggle,
   label = "더보기",
 }: {
   expanded: boolean;
   onToggle: () => void;
+  /** e.g. "15곳 더보기" — include the remaining count when known. */
   label?: string;
 }) {
   return (

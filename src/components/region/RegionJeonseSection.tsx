@@ -1,17 +1,12 @@
 "use client";
 
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight } from "lucide-react";
 import { Area, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
-import {
-  LIST_PREVIEW,
-  ListMoreButton,
-  MARKET_SECTION_SURFACE,
-  MarketSectionHeader,
-} from "@/components/region/RegionMarketSections";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { rankingComplexHref } from "@/lib/region-ranking/public";
 import type { RegionJeonse } from "@/lib/region/region-jeonse";
 import { formatEok } from "@/lib/utils/format";
@@ -135,9 +130,9 @@ export function RegionJeonseSection({
     <section
       id="market-jeonse"
       aria-label={`${regionName} 전세가율과 갭`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
+      className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
-      <MarketSectionHeader
+      <LabSectionHeader
         title="전세가율 · 갭"
         meta={data ? `${monthLabel(data.asOfMonth)} 기준 · 최근 3개월 실거래` : undefined}
         tip={
@@ -273,52 +268,30 @@ export function RegionJeonseSection({
                 : "비교할 만큼 거래된 단지가 아직 없습니다."}
             </p>
           ) : (
-            <ul className="divide-y divide-[color:var(--lab-border)]">
-              {(expanded ? rows : rows.slice(0, LIST_PREVIEW)).map((row) => {
-                const href = rankingComplexHref({
-                  aptName: row.name,
-                  regionSlug,
-                  gu: regionName,
-                  complexId: row.complexId,
-                });
-                const body = (
-                  <>
-                    <div className="min-w-0 flex-1">
-                      <p className="detail-data-value-emphasis truncate">{row.name || "—"}</p>
-                      <p className="detail-meta truncate">{row.meta}</p>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <p
-                        className="detail-data-value-emphasis whitespace-nowrap tabular-nums"
-                        style={row.tone === "down" ? { color: "var(--lab-change-down)" } : undefined}
-                      >
-                        {row.value}
-                      </p>
-                      <p className="detail-meta whitespace-nowrap tabular-nums">{row.sub}</p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
-                  </>
-                );
-                const cls = "flex min-h-11 items-center gap-3 py-2.5";
-                return (
-                  <li key={row.key}>
-                    {href ? (
-                      <Link href={href} className={`${cls} hover:bg-slate-50`}>
-                        {body}
-                      </Link>
-                    ) : (
-                      <div className={cls}>{body}</div>
-                    )}
-                  </li>
-                );
-              })}
+            <ul className={LAB_LIST}>
+              {(expanded ? rows : rows.slice(0, LAB_LIST_PREVIEW)).map((row) => (
+                <LabListRow
+                  key={row.key}
+                  href={rankingComplexHref({
+                    aptName: row.name,
+                    regionSlug,
+                    gu: regionName,
+                    complexId: row.complexId,
+                  })}
+                  title={row.name || "—"}
+                  meta={row.meta}
+                  value={row.value}
+                  sub={row.sub}
+                  valueTone={row.tone}
+                />
+              ))}
             </ul>
           )}
-          {rows.length > LIST_PREVIEW ? (
-            <ListMoreButton
+          {rows.length > LAB_LIST_PREVIEW ? (
+            <LabMoreButton
               expanded={expanded}
               onToggle={() => setExpanded((v) => !v)}
-              label={`${rows.length - LIST_PREVIEW}곳 더보기`}
+              label={`${rows.length - LAB_LIST_PREVIEW}곳 더보기`}
             />
           ) : null}
         </>

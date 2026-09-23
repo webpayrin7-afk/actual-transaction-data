@@ -1,5 +1,7 @@
 "use client";
 
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import Link from "next/link";
 import {
   useCallback,
@@ -13,10 +15,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
-  LIST_PREVIEW,
-  ListMoreButton,
-  MARKET_SECTION_SURFACE,
-  MarketSectionHeader,
   RegionRankingTable,
   RegionPriceSection,
 } from "@/components/region/RegionMarketSections";
@@ -632,7 +630,7 @@ export function RegionDailyStatus({
   const [visibleDayCount, setVisibleDayCount] = useState(
     HISTORY_INITIAL_DAY_COUNT,
   );
-  const [visibleDealCount, setVisibleDealCount] = useState(LIST_PREVIEW);
+  const [visibleDealCount, setVisibleDealCount] = useState(LAB_LIST_PREVIEW);
   const [clickedDates, setClickedDates] = useState<string[]>([]);
   const [calendarSelected, setCalendarSelected] = useState<string | null>(null);
   const [flashDate, setFlashDate] = useState<string | null>(null);
@@ -831,7 +829,7 @@ export function RegionDailyStatus({
     inFlightPages.current.clear();
     setActivityMonthUser(next);
     setVisibleDayCount(HISTORY_INITIAL_DAY_COUNT);
-    setVisibleDealCount(LIST_PREVIEW);
+    setVisibleDealCount(LAB_LIST_PREVIEW);
     setClickedDates([]);
     setCalendarSelected(null);
     setBulkExtra({});
@@ -962,9 +960,9 @@ export function RegionDailyStatus({
       <section
         id="newly-seen-deals"
         aria-label={`${regionName} 새로 확인된 신고가`}
-        className={`${MARKET_SECTION_SURFACE} flex flex-col gap-2.5`}
+        className={`${LAB_SECTION_SURFACE} flex flex-col gap-2.5`}
       >
-        <MarketSectionHeader
+        <LabSectionHeader
           title="새로 확인된 신고가"
           meta={
             heroDate ? `확인일 기준 · 최근 확인 ${koreanMonthDayLabel(heroDate)}` : "확인일 기준"
@@ -985,7 +983,7 @@ export function RegionDailyStatus({
               )}
             </div>
             {singogaDeals.length > SINGOGA_PREVIEW ? (
-              <ListMoreButton
+              <LabMoreButton
                 expanded={singogaExpanded}
                 onToggle={() => setSingogaExpanded((v) => !v)}
                 label={`${(singogaDeals.length - SINGOGA_PREVIEW).toLocaleString("ko-KR")}건 더보기`}
@@ -1022,9 +1020,9 @@ export function RegionDailyStatus({
       <section
         id="market-history"
         aria-label={`${regionName} 지역 거래 내역`}
-        className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
+        className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
       >
-        <MarketSectionHeader
+        <LabSectionHeader
           title="지역 거래 내역"
           meta={CONTRACT_DATE_BASIS_LABEL}
           tip={<p>{CONTRACT_DATE_BASIS_HELP}</p>}
@@ -1081,7 +1079,7 @@ export function RegionDailyStatus({
                     flashDate === date ? `${date}-flash-${flashNonce}` : date
                   }
                   id={recordDateDomId(date)}
-                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+var(--region-sticky-nav-height,0px)+0.75rem)] ${headingClass}`}
+                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+var(--lab-sticky-nav-height,0px)+0.75rem)] ${headingClass}`}
                 >
                   <PhraseRow
                     className="text-sm font-medium text-slate-900"
@@ -1124,7 +1122,7 @@ export function RegionDailyStatus({
             <div className="h-16 animate-pulse rounded-lg bg-slate-200/50" />
           ) : null}
           {hasMoreHistory && pendingDates.length === 0 ? (
-            <ListMoreButton expanded={false} onToggle={loadNextHistory} />
+            <LabMoreButton expanded={false} onToggle={loadNextHistory} />
           ) : null}
         </div>
       </section>

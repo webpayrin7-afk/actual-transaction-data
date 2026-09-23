@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { LabEmphasisChip } from "@/components/ui/LabTag";
 
 export type SeoulRankGu = {
   lawdCd: string;
@@ -119,39 +119,15 @@ export function RegionSeoulRankBadges({ rank }: { rank: SeoulRank }) {
   return (
     <div className="mt-2">
       <div className="flex flex-wrap gap-1.5">
-        {badges.map((b) => {
-          const active = open === b.kind;
-          const pill =
-            "inline-flex h-7 items-center gap-0.5 rounded-full border px-2.5 text-[13px] font-semibold leading-5 tabular-nums";
-          const style = {
-            background: "var(--lab-brand-subtle)",
-            borderColor: active ? "var(--lab-brand-primary)" : "var(--lab-brand-border)",
-            color: "var(--lab-brand-primary)",
-          };
-          if (!hasList) {
-            return (
-              <span key={b.kind} className={pill} style={style}>
-                {b.text}
-              </span>
-            );
-          }
-          return (
-            <button
-              key={b.kind}
-              type="button"
-              aria-expanded={active}
-              onClick={() => setOpen(active ? null : b.kind)}
-              className={`${pill} relative before:absolute before:-inset-y-2 before:inset-x-0 before:content-['']`}
-              style={style}
-            >
-              {b.text}
-              <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform ${active ? "rotate-180" : ""}`}
-                aria-hidden
-              />
-            </button>
-          );
-        })}
+        {badges.map((b) => (
+          <LabEmphasisChip
+            key={b.kind}
+            expanded={open === b.kind}
+            onToggle={hasList ? () => setOpen(open === b.kind ? null : b.kind) : undefined}
+          >
+            {b.text}
+          </LabEmphasisChip>
+        ))}
       </div>
       {open ? <RankList key={open} rank={rank} kind={open} /> : null}
     </div>

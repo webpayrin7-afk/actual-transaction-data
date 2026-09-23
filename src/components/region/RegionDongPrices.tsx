@@ -1,14 +1,10 @@
 "use client";
 
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabTabs } from "@/components/ui/LabTabs";
-import {
-  LIST_PREVIEW,
-  ListMoreButton,
-  MARKET_SECTION_SURFACE,
-  MarketSectionHeader,
-} from "@/components/region/RegionMarketSections";
 import type { RegionDongPrice, RegionPriceTrend } from "@/lib/region/region-price-trend";
 
 const SORTS = [
@@ -18,7 +14,7 @@ const SORTS = [
 ] as const;
 type SortId = (typeof SORTS)[number]["id"];
 
-const PREVIEW = LIST_PREVIEW;
+const PREVIEW = LAB_LIST_PREVIEW;
 const BAR = "#0F766E";
 
 function pctText(pct: number | null): string {
@@ -75,9 +71,9 @@ export function RegionDongPricesSection({
     <section
       id="market-dong"
       aria-label={`${regionName} 동네별 시세`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
+      className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
-      <MarketSectionHeader
+      <LabSectionHeader
         title="동네별 시세"
         meta={asOf ? `공급면적 기준 · ${asOf}` : "공급면적 기준"}
         tip={
@@ -164,7 +160,7 @@ export function RegionDongPricesSection({
             })}
           </ol>
           {dongs.length > PREVIEW ? (
-            <ListMoreButton
+            <LabMoreButton
               expanded={expanded}
               onToggle={() => setExpanded((v) => !v)}
               label={`${dongs.length - PREVIEW}개 동 더보기`}

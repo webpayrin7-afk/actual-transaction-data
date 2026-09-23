@@ -1,21 +1,21 @@
 "use client";
 
+import {
+  LAB_SECTION_SURFACE,
+  LAB_SUBSECTION_RULE,
+  LabSectionHeader,
+  LabSubsectionHeader,
+} from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
-import { InfoTip } from "@/components/ui/InfoTip";
 import { SaleRow } from "@/components/apt/ComplexNearbySalesSection";
 import { RegionMarketTemperature } from "@/components/region/RegionMarketTemperature";
 import { useRegionMarketDetail } from "@/components/region/useRegionMarketDetail";
 
 export { useRegionMarketDetail };
-import {
-  LIST_PREVIEW,
-  ListMoreButton,
-  MARKET_SECTION_SURFACE,
-  MarketSectionHeader,
-} from "@/components/region/RegionMarketSections";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import { seoulToday } from "@/lib/market/time";
 import type { RegionHighlightDeal } from "@/lib/region/region-market-detail";
@@ -142,9 +142,9 @@ export function RegionTradeHighlightsSection({
     <section
       id="market-trends"
       aria-label={`${regionName} 거래 동향`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
+      className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
-      <MarketSectionHeader
+      <LabSectionHeader
         title="거래 동향"
         meta="계약일 기준"
         tip={
@@ -155,17 +155,17 @@ export function RegionTradeHighlightsSection({
         }
       />
       <RegionMarketTemperature lawdCd={lawdCd} />
-      <div className="mt-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[color:var(--lab-border)] pt-4">
-        <div className="flex min-w-0 items-center">
-          <h3 className="detail-subsection-title">주목할 거래</h3>
-          <InfoTip aria-label="주목할 거래 안내">
+      <div className={`mt-1 ${LAB_SUBSECTION_RULE}`}>
+        <LabSubsectionHeader
+          title="주목할 거래"
+          meta="최근 1개월"
+          tip={
             <p>
               최근 30일 동안 계약된 매매 실거래 중 거래금액이 가장 큰 거래와, 같은
               단지·면적의 직전 거래 대비 가장 크게 오르거나 내린 거래입니다.
             </p>
-          </InfoTip>
-        </div>
-        <p className="detail-meta">최근 1개월</p>
+          }
+        />
       </div>
       {query.isLoading ? (
         <div className="h-40 animate-pulse rounded-lg bg-slate-100" />
@@ -218,7 +218,7 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
     )
     .sort((a, b) => (a.moveInYm ?? "").localeCompare(b.moveInYm ?? ""));
   const visibleIds = new Set(
-    (expanded ? items : items.slice(0, LIST_PREVIEW)).map((it) => it.id),
+    (expanded ? items : items.slice(0, LAB_LIST_PREVIEW)).map((it) => it.id),
   );
   const groups = [...new Set(items.map((it) => it.moveInYm!.slice(0, 4)))]
     .map((year) => {
@@ -248,9 +248,9 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
     <section
       id="market-supply"
       aria-label={`${regionName} 입주 예정`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
+      className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
-      <MarketSectionHeader
+      <LabSectionHeader
         title="입주 예정"
         meta={`${regionName} 기준`}
         tip={<p>같은 시·군·구의 청약·입주 예정 공급 정보를 보여드려요.</p>}
@@ -295,11 +295,11 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
               );
             })}
           </div>
-          {items.length > LIST_PREVIEW ? (
-            <ListMoreButton
+          {items.length > LAB_LIST_PREVIEW ? (
+            <LabMoreButton
               expanded={expanded}
               onToggle={() => setExpanded((v) => !v)}
-              label={`${items.length - LIST_PREVIEW}곳 더보기`}
+              label={`${items.length - LAB_LIST_PREVIEW}곳 더보기`}
             />
           ) : null}
         </>

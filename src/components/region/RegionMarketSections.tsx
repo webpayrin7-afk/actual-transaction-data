@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
-import { InfoTip } from "@/components/ui/InfoTip";
 import { LabTabs } from "@/components/ui/LabTabs";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LabTag } from "@/components/ui/LabTag";
 import {
   fetchRegionRankingBoard,
   formatReferenceMonthCompact,
@@ -13,39 +15,6 @@ import {
   regionRankingCode,
 } from "@/lib/region-ranking/public";
 import { RegionPriceTrendChart } from "@/components/region/RegionPriceTrendChart";
-import { LIST_PREVIEW, ListMoreButton } from "@/components/region/ListMoreButton";
-
-export { LIST_PREVIEW, ListMoreButton };
-
-export const MARKET_SECTION_SURFACE = "lab-card detail-card";
-
-export function MarketSectionHeader({
-  title,
-  meta,
-  tip,
-}: {
-  title: string;
-  meta?: ReactNode;
-  tip?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-      <div className="flex min-w-0 items-center">
-        <h2 className="detail-section-title">
-          {title}
-        </h2>
-        {tip ? <InfoTip aria-label={`${title} 안내`}>{tip}</InfoTip> : null}
-      </div>
-      {meta ? (
-        <p className="detail-meta tabular-nums">{meta}</p>
-      ) : null}
-    </div>
-  );
-}
-
-
-
-
 
 export function RegionPriceSection({
   lawdCodes,
@@ -61,9 +30,9 @@ export function RegionPriceSection({
     <section
       id="market-price"
       aria-label="지역 시세 평당가"
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
+      className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
-      <MarketSectionHeader
+      <LabSectionHeader
         title="지역 시세 평당가"
         meta="공급면적 기준"
         tip={
@@ -116,7 +85,7 @@ function strengthTags(
     .map((t) => `${STRENGTH_LABELS[t.k]} 상위 ${t.share}%`);
 }
 
-const RANK_PREVIEW = LIST_PREVIEW;
+const RANK_PREVIEW = LAB_LIST_PREVIEW;
 const RANK_FULL = 20;
 
 const RANK_TABS = [
@@ -177,9 +146,9 @@ export function RegionRankingTable({
     <section
       id="region-ranking"
       aria-label="지역 아파트 랭킹"
-      className={`${MARKET_SECTION_SURFACE} flex scroll-mt-28 flex-col gap-3`}
+      className={`${LAB_SECTION_SURFACE} flex scroll-mt-28 flex-col gap-3`}
     >
-      <MarketSectionHeader
+      <LabSectionHeader
         title="지역 아파트 랭킹"
         meta={formatReferenceMonthCompact(board?.transactionAsOf ?? null)}
         tip={<p>{RANK_TIPS[tab]}</p>}
@@ -256,12 +225,7 @@ export function RegionRankingTable({
                           {strengthTags(row.percentiles).length ? (
                             <span className="mt-1 flex flex-wrap gap-1">
                               {strengthTags(row.percentiles).map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="whitespace-nowrap rounded border border-[color:var(--lab-border)] px-1.5 text-[12px] font-medium leading-5 text-[color:var(--lab-body)] tabular-nums"
-                                >
-                                  {tag}
-                                </span>
+                                <LabTag key={tag}>{tag}</LabTag>
                               ))}
                             </span>
                           ) : null}
@@ -299,7 +263,7 @@ export function RegionRankingTable({
             </ul>
           </div>
           {rows.length > RANK_PREVIEW ? (
-            <ListMoreButton
+            <LabMoreButton
               expanded={expanded}
               onToggle={() => setExpanded((v) => !v)}
               label={`${rows.length - RANK_PREVIEW}곳 더보기`}

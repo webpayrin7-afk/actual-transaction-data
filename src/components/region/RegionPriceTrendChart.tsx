@@ -1,5 +1,6 @@
 "use client";
 
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +16,13 @@ import {
 } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { LIST_PREVIEW, ListMoreButton } from "@/components/region/ListMoreButton";
+import { LabStatTiles } from "@/components/ui/LabStatTiles";
+import { LabSubsectionHeader } from "@/components/ui/LabSection";
+import {
+  LAB_DIRECTION_SEGMENTS,
+  LabStackedBar,
+  directionSegments,
+} from "@/components/ui/LabStackedBar";
 import {
   RegionSeoulRankBadges,
   type SeoulRank,
@@ -43,20 +50,13 @@ const BREAKDOWNS = [
 ] as const;
 type BreakdownId = (typeof BREAKDOWNS)[number]["id"];
 
-const BREAKDOWN_PREVIEW = LIST_PREVIEW;
+const BREAKDOWN_PREVIEW = LAB_LIST_PREVIEW;
 
 const PANEL_RULE = "mt-4 border-t border-[color:var(--lab-border)] pt-4";
 
 const CHART_TRADE = "#087F83";
 const CHART_VOLUME = "#0F766E";
-const DIR_UP = "var(--lab-change-up)";
-const DIR_DOWN = "var(--lab-change-down)";
-const DIR_OTHER = "#CBD5E1";
-const DIRECTIONS = [
-  { key: "up", label: "오름", color: DIR_UP, cls: "detail-change-up" },
-  { key: "other", label: "보합·기타", color: DIR_OTHER, cls: "" },
-  { key: "down", label: "내림", color: DIR_DOWN, cls: "detail-change-down" },
-] as const;
+const DIRECTIONS = LAB_DIRECTION_SEGMENTS;
 
 type ChartRow = RegionPriceTrendPoint & { label: string; partial: boolean };
 
@@ -75,41 +75,10 @@ function formatAxisManwon(n: number): string {
 }
 
 
-function changeClass(n: number | null): string {
-  if (n == null || n === 0) return "text-[color:var(--lab-muted)]";
-  return n > 0 ? "detail-change-up" : "detail-change-down";
-}
 
 
 function total(row: { up: number; down: number; other: number }): number {
   return row.up + row.down + row.other;
-}
-
-function DirectionBar({
-  row,
-  widthPct,
-  className,
-}: {
-  row: { up: number; down: number; other: number };
-  widthPct: number;
-  className: string;
-}) {
-  const sum = total(row);
-  return (
-    <div className={`overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)] ${className}`} aria-hidden>
-      <div className="flex h-full overflow-hidden rounded-full" style={{ width: `${widthPct}%` }}>
-        {DIRECTIONS.map((dir) =>
-          row[dir.key] > 0 && sum > 0 ? (
-            <span
-              key={dir.key}
-              className="h-full"
-              style={{ width: `${(row[dir.key] / sum) * 100}%`, background: dir.color }}
-            />
-          ) : null,
-        )}
-      </div>
-    </div>
-  );
 }
 
 function MonthStepper({
@@ -164,24 +133,21 @@ function MonthComposition({
   return (
     <>
       <div className={PANEL_RULE}>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="min-w-0">
-            <div className="flex items-center">
-              <h4 className="detail-subsection-title">이 달 거래 구성</h4>
-              <InfoTip aria-label="이 달 거래 구성 안내">
-                <p>
-                  오름·내림은 같은 단지·면적의 직전 거래와 비교한 결과입니다. 직전
-                  거래가 없거나 같은 가격이면 보합·기타로 분류합니다.
-                </p>
-              </InfoTip>
-            </div>
-            <p className="detail-meta tabular-nums">
-              {monthLabel} · 매매 {tradeCount.toLocaleString("ko-KR")}건
+        <LabSubsectionHeader
+          as="h4"
+          title="이 달 거래 구성"
+          tip={
+            <p>
+              오름·내림은 같은 단지·면적의 직전 거래와 비교한 결과입니다. 직전
+              거래가 없거나 같은 가격이면 보합·기타로 분류합니다.
             </p>
-          </div>
-        </div>
+          }
+        />
+        <p className="detail-meta tabular-nums">
+          {monthLabel} · 매매 {tradeCount.toLocaleString("ko-KR")}건
+        </p>
         <div className="mt-3">
-          <DirectionBar row={d} widthPct={100} className="h-2.5" />
+          <LabStackedBar segments={directionSegments(d)} className="h-2.5" />
           <dl
             className="mt-2 grid grid-cols-3 gap-2"
             aria-label={`${monthLabel} 오름 ${d.up}건, 보합·기타 ${d.other}건, 내림 ${d.down}건`}
@@ -226,7 +192,7 @@ function MonthComposition({
                     <span className="detail-meta ml-1.5">{share(n)}%</span>
                   </span>
                 </div>
-                <DirectionBar row={row} widthPct={(n / scale) * 100} className="h-2" />
+                <LabStackedBar segments={directionSegments(row)} widthPct={(n / scale) * 100} />
                 <p className="detail-meta flex flex-wrap gap-x-2 tabular-nums">
                   {DIRECTIONS.map((dir) => (
                     <span key={dir.key} className="whitespace-nowrap">
@@ -243,7 +209,7 @@ function MonthComposition({
         </ul>
         {rows.length > BREAKDOWN_PREVIEW ? (
           <div className="mt-3">
-            <ListMoreButton
+            <LabMoreButton
               expanded={expanded}
               onToggle={() => setExpanded((v) => !v)}
               label={`${rows.length - BREAKDOWN_PREVIEW}${mode === "dong" ? "개 동" : "개"} 더보기`}
@@ -414,22 +380,17 @@ export function RegionPriceTrendChart({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        {changeTiles.map((t) => (
-          <div
-            key={t.key}
-            className="flex min-w-0 items-baseline justify-between gap-2 rounded-xl border border-[color:var(--lab-border)] px-3 py-2.5"
-          >
-            <p className="detail-label whitespace-nowrap">{t.label}</p>
-            <p className={`detail-data-value-emphasis whitespace-nowrap ${changeClass(t.pct)}`}>
-              {query.isLoading ? "…" : pctText2(t.pct)}
-              <span className="sr-only">
-                {t.pct == null || t.pct === 0 ? "" : t.pct > 0 ? " 상승" : " 하락"}
-              </span>
-            </p>
-          </div>
-        ))}
-      </div>
+      <LabStatTiles
+        columns={4}
+        layout="inline"
+        items={changeTiles.map((t) => ({
+          key: t.key,
+          label: t.label,
+          value: query.isLoading ? "…" : pctText2(t.pct),
+          tone: t.pct == null || t.pct === 0 ? "neutral" : t.pct > 0 ? "up" : "down",
+          srValue: t.pct == null || t.pct === 0 ? undefined : t.pct > 0 ? " 상승" : " 하락",
+        }))}
+      />
 
       <div className={`${PANEL_RULE} flex flex-wrap items-center justify-between gap-2`}>
         <div className="flex min-w-0 items-center">

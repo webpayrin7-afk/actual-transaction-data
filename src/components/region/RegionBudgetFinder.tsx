@@ -1,16 +1,11 @@
 "use client";
 
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useState } from "react";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight } from "lucide-react";
 import { LabTabs } from "@/components/ui/LabTabs";
-import {
-  LIST_PREVIEW,
-  ListMoreButton,
-  MARKET_SECTION_SURFACE,
-  MarketSectionHeader,
-} from "@/components/region/RegionMarketSections";
+import { LAB_LIST, LabListRow, LabTextLink } from "@/components/ui/LabListRow";
 import { rankingComplexHref } from "@/lib/region-ranking/public";
 import type { RegionBudgetResult } from "@/lib/region/region-budget";
 import { formatEok } from "@/lib/utils/format";
@@ -55,15 +50,15 @@ export function RegionBudgetFinderSection({
   const listKey = `${budget}|${current?.key ?? ""}`;
   const expanded = expandedKey === listKey;
   const items = current?.items ?? [];
-  const visibleItems = expanded ? items : items.slice(0, LIST_PREVIEW);
+  const visibleItems = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
 
   return (
     <section
       id="market-budget"
       aria-label={`${regionName} 예산으로 찾기`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
+      className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
-      <MarketSectionHeader
+      <LabSectionHeader
         title="예산으로 찾기"
         meta="최근 1년 실거래 기준"
         tip={
@@ -110,62 +105,35 @@ export function RegionBudgetFinderSection({
               {budgetLabel} 이하로 거래된 {current.label} 단지 {current.matched}곳 · 전체{" "}
               {current.total}곳
             </p>
-            <ul className="divide-y divide-[color:var(--lab-border)]">
-              {visibleItems.map((item) => {
-                const href = rankingComplexHref({
-                  aptName: item.name,
-                  regionSlug,
-                  gu: regionName,
-                  complexId: item.complexId,
-                });
-                const body = (
-                  <>
-                    <div className="min-w-0 flex-1">
-                      <p className="detail-data-value-emphasis truncate">{item.name ?? "—"}</p>
-                      <p className="detail-meta truncate">
-                        {[item.dong, `1년 ${item.tradeCount.toLocaleString("ko-KR")}건`]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </p>
-                    </div>
-                    <p className="detail-data-value-emphasis shrink-0 whitespace-nowrap tabular-nums">
-                      {formatEok(item.medianDealAmount)}
-                    </p>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
-                  </>
-                );
-                const cls = "flex min-h-11 items-center gap-3 py-2.5";
-                return (
-                  <li key={item.complexId}>
-                    {href ? (
-                      <Link href={href} className={`${cls} hover:bg-slate-50`}>
-                        {body}
-                      </Link>
-                    ) : (
-                      <div className={cls}>{body}</div>
-                    )}
-                  </li>
-                );
-              })}
+            <ul className={LAB_LIST}>
+              {visibleItems.map((item) => (
+                <LabListRow
+                  key={item.complexId}
+                  href={rankingComplexHref({
+                    aptName: item.name,
+                    regionSlug,
+                    gu: regionName,
+                    complexId: item.complexId,
+                  })}
+                  title={item.name ?? "—"}
+                  meta={[item.dong, `1년 ${item.tradeCount.toLocaleString("ko-KR")}건`]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  value={formatEok(item.medianDealAmount)}
+                />
+              ))}
             </ul>
-            {items.length > LIST_PREVIEW ? (
-              <ListMoreButton
+            {items.length > LAB_LIST_PREVIEW ? (
+              <LabMoreButton
                 expanded={expanded}
                 onToggle={() => setExpandedKey(expanded ? null : listKey)}
-                label={`${items.length - LIST_PREVIEW}곳 더보기`}
+                label={`${items.length - LAB_LIST_PREVIEW}곳 더보기`}
               />
             ) : null}
           </>
         )
       ) : null}
-      <Link
-        href="/loan"
-        className="inline-flex min-h-[44px] items-center gap-0.5 self-start text-[14px] font-semibold leading-5 hover:underline"
-        style={{ color: "var(--lab-brand-primary)" }}
-      >
-        대출 포함 한도 계산해 보기
-        <ChevronRight className="h-4 w-4" aria-hidden />
-      </Link>
+      <LabTextLink href="/loan">대출 포함 한도 계산해 보기</LabTextLink>
     </section>
   );
 }
