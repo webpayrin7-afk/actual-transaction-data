@@ -134,10 +134,17 @@ export function LabTabs<T extends string>({
 
     // Pin thumb to the active button box (inherits equal track padding on all sides).
     // Avoid CSS top+bottom on a min-height-only parent — WebKit can resolve bottom unevenly.
-    const top = active.offsetTop;
-    const left = active.offsetLeft;
-    const width = active.offsetWidth;
-    const height = active.offsetHeight;
+    // Fractional rects, not offset* (whole px): rounding left the thumb 0.8px off the shell edge
+    // on one side, so inner spacing looked uneven.
+    const a = active.getBoundingClientRect();
+    const r = root.getBoundingClientRect();
+    const cs = getComputedStyle(root);
+    const borderLeft = parseFloat(cs.borderLeftWidth) || 0;
+    const borderTop = parseFloat(cs.borderTopWidth) || 0;
+    const top = a.top - r.top - borderTop;
+    const left = a.left - r.left - borderLeft;
+    const width = a.width;
+    const height = a.height;
     thumb.hidden = false;
     thumb.style.top = `${top}px`;
     thumb.style.height = `${height}px`;
