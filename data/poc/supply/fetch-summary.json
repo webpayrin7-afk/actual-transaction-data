@@ -1,0 +1,15 @@
+{
+  "at": "2026-09-23T23:53:48.636Z",
+  "parcels": 2124,
+  "cursor": 3,
+  "done": 3,
+  "cached": 0,
+  "failed": 0,
+  "quotaStop": false,
+  "calls": 20,
+  "retries": 0,
+  "http503": 0,
+  "http429": 0,
+  "cachedPages": 3,
+  "vworldCalls": 0
+}
