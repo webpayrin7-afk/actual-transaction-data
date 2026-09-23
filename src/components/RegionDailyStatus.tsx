@@ -27,6 +27,7 @@ import { RegionDongPricesSection } from "@/components/region/RegionDongPrices";
 import { RegionBudgetFinderSection } from "@/components/region/RegionBudgetFinder";
 import { RegionJeonseSection } from "@/components/region/RegionJeonseSection";
 import { RegionStickyNav } from "@/components/region/RegionStickyNav";
+import { LabTextLink } from "@/components/ui/LabListRow";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -837,7 +838,17 @@ export function RegionDailyStatus({
     setPendingDates([]);
   }
 
+  function clearCalendarDate() {
+    setCalendarSelected(null);
+    setFlashDate(null);
+    setClickedDates([]);
+  }
+
   function selectCalendarDate(date: string) {
+    if (date === calendarSelected) {
+      clearCalendarDate();
+      return;
+    }
     setCalendarSelected(date);
     setFlashDate(date);
     setFlashNonce((n) => n + 1);
@@ -1043,7 +1054,21 @@ export function RegionDailyStatus({
         </div>
 
         <div className="mt-2 flex flex-col gap-5 border-t border-slate-200/70 pt-5">
-          {historyQuery.data ? (
+          {calendarSelected ? (
+            <div className="flex items-center justify-between gap-3">
+              <p className="detail-meta tabular-nums">
+                {koreanMonthDayLabel(calendarSelected)} 거래만 보는 중
+              </p>
+              <button
+                type="button"
+                onClick={clearCalendarDate}
+                className="inline-flex min-h-[44px] items-center text-[14px] font-semibold leading-5 hover:underline"
+                style={{ color: "var(--lab-brand-primary)" }}
+              >
+                전체 거래 보기
+              </button>
+            </div>
+          ) : historyQuery.data ? (
             <p className="detail-meta shrink-0 text-left tabular-nums">
               이 달 총{" "}
               {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
@@ -1064,7 +1089,7 @@ export function RegionDailyStatus({
           !initialDaysQuery.data ? (
             <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
           ) : null}
-          {listedDates.map((date) => {
+          {(calendarSelected ? [calendarSelected] : listedDates).map((date) => {
             const section = sectionByDate.get(date);
             const summary = calendarDays.find((d) => d.date === date);
             const visibleDeals = visibleDealsByDate.get(date) ?? [];
@@ -1113,6 +1138,15 @@ export function RegionDailyStatus({
                         해당 날짜 거래가 없습니다.
                       </p>
                     ) : null}
+                    {date === calendarSelected && section.hasMore ? (
+                      <div className="mt-3">
+                        <LabMoreButton
+                          expanded={false}
+                          onToggle={() => void loadMoreBulk(section)}
+                          label="이 날 거래 더보기"
+                        />
+                      </div>
+                    ) : null}
                   </>
                 ) : null}
               </div>
@@ -1121,9 +1155,12 @@ export function RegionDailyStatus({
           {pendingDates.length > 0 ? (
             <div className="h-16 animate-pulse rounded-lg bg-slate-200/50" />
           ) : null}
-          {hasMoreHistory && pendingDates.length === 0 ? (
+          {!calendarSelected && hasMoreHistory && pendingDates.length === 0 ? (
             <LabMoreButton expanded={false} onToggle={loadNextHistory} />
           ) : null}
+          <LabTextLink href={`/transactions?region=${regionSlug}`}>
+            조건으로 실거래 검색하기
+          </LabTextLink>
         </div>
       </section>
     </div>
