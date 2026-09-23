@@ -45,6 +45,8 @@ export type SelectedPyeongMgmtFeeEstimate = {
   winter: PeriodEstimate | null;
   summer: PeriodEstimate | null;
   trailingAverage: PeriodEstimate | null;
+  /** Contiguous months ending at latest (≤12), oldest first — 월별 추이. */
+  monthly: Array<WonRange & { periodYyyymm: string }>;
   disclaimer: string;
   knownMissingNote: string;
 };
@@ -299,6 +301,13 @@ export function estimateSelectedPyeongFromPortal(params: {
     winter,
     summer,
     trailingAverage,
+    monthly: [...continuousRows]
+      .reverse()
+      .filter((m) => m.perAreaTotal != null)
+      .map((m) => ({
+        periodYyyymm: m.periodYyyymm,
+        ...wonRange(m.perAreaTotal as number, areaMin, areaMax),
+      })),
     disclaimer: DISCLAIMER,
     knownMissingNote: KNOWN_MISSING_NOTE,
   };

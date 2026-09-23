@@ -10,6 +10,7 @@ import {
 import {
   estimateSelectedPyeongFromPortal,
   formatWonRangeAsManwon,
+  type SelectedPyeongMgmtFeeEstimate,
 } from "@/lib/complex-detail/selected-pyeong-mgmt-fee";
 
 const MGMT_FEE_DISCLOSURE_ACTION =
@@ -89,6 +90,84 @@ function trailingAverageLabel(monthCount: number | null | undefined): string {
     return `최근 ${monthCount}개월 평균`;
   }
   return "최근 평균";
+}
+
+/**
+ * 월별 추이: 막대(선택 면적 중간값) + 최고/최저 달 수치 병기 (policy §12.7 막대만으로 전달 금지).
+ * 가장 최근 달만 진하게, 나머지는 옅게.
+ */
+function MgmtFeeMonthlyBars({
+  monthly,
+}: {
+  monthly: SelectedPyeongMgmtFeeEstimate["monthly"];
+}) {
+  if (monthly.length < 3) return null;
+  const mid = (m: (typeof monthly)[number]) => (m.wonMin + m.wonMax) / 2;
+  const max = Math.max(...monthly.map(mid));
+  const hi = monthly.reduce((a, b) => (mid(b) > mid(a) ? b : a));
+  const lo = monthly.reduce((a, b) => (mid(b) < mid(a) ? b : a));
+  const monthLabel = (ym: string) => `${Number(ym.slice(4, 6))}월`;
+  const first = monthly[0]!.periodYyyymm;
+  const last = monthly[monthly.length - 1]!.periodYyyymm;
+
+  return (
+    <div className={`${LAB_SUBSECTION_RULE} flex flex-col gap-3`}>
+      <LabSubsectionHeader
+        title="월별 추이"
+        meta={`${formatMonthKo(first)} ~ ${formatMonthKo(last)}`}
+      />
+      <div
+        className="grid h-28 items-end gap-1"
+        style={{ gridTemplateColumns: `repeat(${monthly.length}, minmax(0, 1fr))` }}
+        aria-hidden
+      >
+        {monthly.map((m, i) => (
+          <div key={m.periodYyyymm} className="flex h-full flex-col justify-end">
+            <div
+              className="w-full rounded-t-sm"
+              style={{
+                height: `${Math.max(4, (mid(m) / max) * 100)}%`,
+                background: "var(--lab-brand-primary)",
+                opacity: i === monthly.length - 1 ? 1 : 0.35,
+              }}
+            />
+          </div>
+        ))}
+      </div>
+      <div
+        className="grid gap-1 text-center text-[12px] leading-4 tabular-nums text-[color:var(--lab-muted)]"
+        style={{ gridTemplateColumns: `repeat(${monthly.length}, minmax(0, 1fr))` }}
+        aria-hidden
+      >
+        {monthly.map((m, i) => (
+          <span key={m.periodYyyymm}>
+            {i % 2 === (monthly.length - 1) % 2 ? Number(m.periodYyyymm.slice(4, 6)) : ""}
+          </span>
+        ))}
+      </div>
+      <div className="detail-rows">
+        <MetricRow
+          label={`가장 높은 달 · ${monthLabel(hi.periodYyyymm)}`}
+          valueLabel={formatWonRangeAsManwon(hi.wonMin, hi.wonMax)}
+        />
+        <MetricRow
+          label={`가장 낮은 달 · ${monthLabel(lo.periodYyyymm)}`}
+          valueLabel={formatWonRangeAsManwon(lo.wonMin, lo.wonMax)}
+        />
+      </div>
+      <table className="sr-only">
+        <caption>월별 예상 관리비</caption>
+        <tbody>
+          {monthly.map((m) => (
+            <tr key={m.periodYyyymm}>
+              <th scope="row">{formatMonthKo(m.periodYyyymm)}</th>
+              <td>{formatWonRangeAsManwon(m.wonMin, m.wonMax)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -231,6 +310,8 @@ export function ComplexMgmtFeeCard({
               </div>
             </div>
           ) : null}
+
+          <MgmtFeeMonthlyBars monthly={estimate.monthly} />
 
           <LabDisclosure
             title="관리비 산정근거 보기"
