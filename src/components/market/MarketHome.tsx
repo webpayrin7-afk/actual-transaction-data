@@ -1,18 +1,22 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { AptQuickSearch } from "@/components/home/AptQuickSearch";
-import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 import { LabSection as LabExperiments } from "@/components/lab/LabSection";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { MarketPolicyNews } from "@/components/market/MarketPolicyNews";
+import { MarketRegionBreakdown } from "@/components/market/MarketRegionBreakdown";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabSection } from "@/components/ui/LabSection";
-import { LAB_LIST, LabListRow, LabTextLink } from "@/components/ui/LabListRow";
+import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { LabStatTiles } from "@/components/ui/LabStatTiles";
+import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
+import { LabTabs, labTabPanelId } from "@/components/ui/LabTabs";
 import { LabTag } from "@/components/ui/LabTag";
 import {
   CONTRACT_DATE_BASIS_HELP,
@@ -31,6 +35,22 @@ async function fetchMarketHome(): Promise<MarketHomeResponse> {
   return res.json();
 }
 
+/** 섹션 앵커 — 스티키 섹션 탭 (policy §12.3). 렌더되지 않은 섹션은 탭에서 빠진다. */
+const MARKET_SECTIONS = [
+  { id: "market-summary", label: "요약" },
+  { id: "market-price-issues", label: "가격" },
+  { id: "market-policy", label: "정책" },
+  { id: "market-regions", label: "지역" },
+  { id: "market-volume", label: "거래량" },
+] as const;
+
+const KIND_TAG: Record<MarketDealItem["kind"], string> = {
+  singoga: "신고가",
+  drop: "고점 −10%",
+  high: "20억 이상",
+  surge: "거래 급증",
+};
+
 function ChangePct({ pct }: { pct: number }) {
   const color =
     pct > 0 ? "var(--lab-change-up)" : pct < 0 ? "var(--lab-change-down)" : undefined;
@@ -47,7 +67,7 @@ function ChangePct({ pct }: { pct: number }) {
   );
 }
 
-function DealRow({ item }: { item: MarketDealItem }) {
+function DealRow({ item, showKind = false }: { item: MarketDealItem; showKind?: boolean }) {
   return (
     <LabListRow
       href={item.href}
@@ -55,22 +75,25 @@ function DealRow({ item }: { item: MarketDealItem }) {
       meta={
         <>
           <span className="block truncate">
-            계약일 {formatDealDate(item.dealDate)} · {item.gu} {item.dong} ·{" "}
-            {formatArea(item.exclusiveArea)}
+            {item.gu} {item.dong} · {formatArea(item.exclusiveArea)}
           </span>
-          {item.priorMaxAmount != null ? (
-            <span className="block truncate">
-              이전 최고 {formatEok(item.priorMaxAmount)}
-              {item.changeAmount != null
-                ? ` · ${item.changeAmount >= 0 ? "+" : ""}${formatEok(Math.abs(item.changeAmount))}`
-                : ""}
-            </span>
-          ) : null}
+          <span className="block truncate">
+            계약 {formatDealDate(item.dealDate)}
+            {item.priorMaxAmount != null
+              ? ` · 이전 최고 ${formatEok(item.priorMaxAmount)}`
+              : ""}
+          </span>
         </>
       }
       value={formatEok(item.dealAmount)}
       sub={item.changePct != null ? <ChangePct pct={item.changePct} /> : null}
-    />
+    >
+      {showKind ? (
+        <span className="mt-1 flex">
+          <LabTag>{KIND_TAG[item.kind] ?? item.kindLabel}</LabTag>
+        </span>
+      ) : null}
+    </LabListRow>
   );
 }
 
@@ -96,40 +119,119 @@ function VolumeRow({ item }: { item: MarketVolumeItem }) {
   );
 }
 
-function ListSection<T>({
-  title,
+/** 5개 + 더보기 (policy §12.4). `resetKey`가 바뀌면 펼침을 닫는다. */
+function PreviewList<T>({
   items,
-  renderItem,
+  render,
   getKey,
+  emptyLabel,
+  resetKey,
+  moreUnit = "건",
 }: {
-  title: string;
   items: T[];
-  renderItem: (item: T) => React.ReactNode;
+  render: (item: T) => React.ReactNode;
   getKey: (item: T) => string;
+  emptyLabel: string;
+  resetKey?: string;
+  moreUnit?: string;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [state, setState] = useState({ key: resetKey, expanded: false });
+  const expanded = state.key === resetKey ? state.expanded : false;
+  if (items.length === 0) return <p className="lab-state">{emptyLabel}</p>;
   const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
-  const rest = items.length - LAB_LIST_PREVIEW;
+  const hidden = items.length - LAB_LIST_PREVIEW;
   return (
-    <LabSection title={title}>
-      {items.length === 0 ? (
-        <p className="lab-state">해당 조건의 항목이 없습니다.</p>
-      ) : (
-        <>
-          <ul className={LAB_LIST}>
-            {visible.map((item) => (
-              <Fragment key={getKey(item)}>{renderItem(item)}</Fragment>
-            ))}
-          </ul>
-          {rest > 0 ? (
-            <LabMoreButton
-              expanded={expanded}
-              onToggle={() => setExpanded((v) => !v)}
-              label={`${rest}건 더보기`}
-            />
-          ) : null}
-        </>
-      )}
+    <>
+      <ul className={LAB_LIST}>
+        {visible.map((item) => (
+          <Fragment key={getKey(item)}>{render(item)}</Fragment>
+        ))}
+      </ul>
+      {hidden > 0 ? (
+        <LabMoreButton
+          expanded={expanded}
+          onToggle={() => setState({ key: resetKey, expanded: !expanded })}
+          label={`${hidden}${moreUnit} 더보기`}
+        />
+      ) : null}
+    </>
+  );
+}
+
+type IssueTab = "notable" | "singoga" | "drop";
+
+/** 오늘의 가격 이슈 — 주요 · 신고가 · 하락거래를 한 섹션의 탭으로 (같은 주제 한 곳). */
+function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse }) {
+  const tabs: { id: IssueTab; label: string; count: string; items: MarketDealItem[]; total: number }[] = [
+    {
+      id: "notable",
+      label: "주요",
+      count: String(data.notables.length),
+      items: data.notables,
+      total: data.notables.length,
+    },
+    {
+      id: "singoga",
+      label: "신고가",
+      count: String(data.kpis.singogaCount),
+      items: data.singoga,
+      total: data.kpis.singogaCount,
+    },
+    {
+      id: "drop",
+      label: "하락거래",
+      count: String(data.kpis.dropCount),
+      items: data.drops,
+      total: data.kpis.dropCount,
+    },
+  ];
+  const firstWithItems = tabs.find((t) => t.items.length > 0)?.id ?? "notable";
+  const [picked, setPicked] = useState<IssueTab | null>(null);
+  const active = picked ?? firstWithItems;
+  const tab = tabs.find((t) => t.id === active) ?? tabs[0];
+  const prefix = "market-issues";
+
+  return (
+    <LabSection
+      id={id}
+      title="오늘의 가격 이슈"
+      meta="오늘 확인 · 계약일 이전 거래와 비교"
+      tip={
+        <ul className="flex list-disc flex-col gap-1 pl-4">
+          <li>신고가: 같은 단지·면적에서 계약일 이전 최고가보다 높은 거래</li>
+          <li>하락거래(고점 −10%): 계약일 이전 최고가보다 10% 이상 낮은 거래</li>
+          <li>주요: 오늘 확인된 신고가·하락거래·20억 이상 거래 중 일부</li>
+        </ul>
+      }
+    >
+      <LabTabs
+        variant="secondary"
+        ariaLabel="가격 이슈 구분"
+        idPrefix={prefix}
+        items={tabs.map(({ id: tid, label, count }) => ({ id: tid, label, count }))}
+        value={active}
+        onChange={setPicked}
+      />
+      <div id={labTabPanelId(prefix, active)} role="tabpanel" className="flex flex-col">
+        <PreviewList
+          items={tab.items}
+          resetKey={active}
+          getKey={(item) => `${active}-${item.id}`}
+          emptyLabel={
+            active === "singoga"
+              ? "오늘 확인된 신고가가 없습니다."
+              : active === "drop"
+                ? "오늘 확인된 하락거래가 없습니다."
+                : "오늘 확인된 주요 거래가 없습니다."
+          }
+          render={(item) => <DealRow item={item} showKind={active === "notable"} />}
+        />
+        {tab.total > tab.items.length ? (
+          <p className="detail-meta mt-2">
+            {tab.total.toLocaleString("ko-KR")}건 중 변화가 큰 {tab.items.length}건을 보여 줍니다.
+          </p>
+        ) : null}
+      </div>
     </LabSection>
   );
 }
@@ -149,31 +251,24 @@ export function MarketHome() {
     queryFn: fetchMarketHome,
     staleTime: 5 * 60 * 1000,
   });
+  const stickyAnchorRef = useRef<HTMLDivElement | null>(null);
 
   const data = query.data;
   useLoadProgressWhen(query.isLoading && !data, "시장 불러오는 중…");
+  const hasNewDeals = (data?.kpis.newDealCount ?? 0) > 0;
+  const hasIssues =
+    !!data &&
+    (data.notables.length > 0 || data.singoga.length > 0 || data.drops.length > 0);
 
   return (
-    <>
     <div className={PAGE_SHELL}>
       <PageHeader
         title="오늘의 아파트 시장"
-        description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
+        description="오늘 확인된 거래 변화와 주거 정책 발표를 한눈에 봅니다."
         className="mt-1.5 sm:mt-2"
         meta={
           data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
             <div className="flex flex-wrap items-center gap-x-1 gap-y-1">
-              {data?.lastUpdatedLabel || data?.computedAt ? (
-                <MetaTag
-                  label={`최종 업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
-                  tip={
-                    <>
-                      집랩 데이터가 마지막으로 갱신된 시점입니다. 각 거래 카드의
-                      날짜와 시장동향은 계약일 기준입니다. {CONTRACT_DATE_BASIS_HELP}
-                    </>
-                  }
-                />
-              ) : null}
               {data?.discoveryDate ? (
                 <MetaTag
                   label={`확인일 ${data.discoveryDate}`}
@@ -185,108 +280,131 @@ export function MarketHome() {
                   }
                 />
               ) : null}
+              {data?.lastUpdatedLabel || data?.computedAt ? (
+                <MetaTag
+                  label={`업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
+                  tip={
+                    <>
+                      집랩 데이터가 마지막으로 갱신된 시점입니다. 각 거래의
+                      날짜와 시장동향은 계약일 기준입니다. {CONTRACT_DATE_BASIS_HELP}
+                    </>
+                  }
+                />
+              ) : null}
             </div>
           ) : null
         }
       />
+      <div ref={stickyAnchorRef} className="-mb-5 h-0 sm:-mb-6" aria-hidden />
+      <LabStickySectionNav
+        anchor={stickyAnchorRef}
+        sections={MARKET_SECTIONS}
+        title="오늘의 아파트 시장"
+        subtitle={data?.discoveryDate ?? undefined}
+        ariaLabel="오늘의 시장 섹션"
+      />
 
-      {query.isLoading ? (
-        <div className="lab-skeleton" />
-      ) : null}
+      {query.isLoading ? <div className="lab-skeleton" /> : null}
 
       {query.isError ? (
-        <p className="lab-state lab-state-error">
-          {(query.error as Error).message}
-        </p>
+        <LabSection id="market-summary" title="오늘의 요약">
+          <p className="lab-state lab-state-error">{(query.error as Error).message}</p>
+          <button
+            type="button"
+            className="lab-button lab-button-primary w-full"
+            onClick={() => void query.refetch()}
+          >
+            다시 시도
+          </button>
+        </LabSection>
       ) : null}
 
       {data ? (
-        <>
+        <LabSection id="market-summary" title="오늘의 요약">
+          <LabStatTiles
+            columns={4}
+            items={[
+              {
+                key: "new",
+                label: "새로 확인된 매매",
+                value: `${(data.kpis.newDealCount ?? 0).toLocaleString("ko-KR")}건`,
+                sub: "집랩 첫 확인 기준",
+              },
+              {
+                key: "singoga",
+                label: "신고가",
+                value: `${data.kpis.singogaCount.toLocaleString("ko-KR")}건`,
+                sub: "이전 최고가 갱신",
+                tone: data.kpis.singogaCount > 0 ? "up" : "neutral",
+              },
+              {
+                key: "drop",
+                label: "고점 −10%",
+                value: `${data.kpis.dropCount.toLocaleString("ko-KR")}건`,
+                sub: "이전 최고가 대비",
+                tone: data.kpis.dropCount > 0 ? "down" : "neutral",
+              },
+              {
+                key: "surge",
+                label: "거래량 급증",
+                value: `${(data.kpis.volumeSurgeCount ?? 0).toLocaleString("ko-KR")}곳`,
+                sub: "최근 30일 vs 직전",
+              },
+            ]}
+          />
           {data.warning ? (
-            <p className="detail-body rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[color:var(--lab-warning-text)]">
-              {data.warning}
-            </p>
+            <p className="detail-body text-[color:var(--lab-warning-text)]">{data.warning}</p>
           ) : null}
+          <div className="mt-1">
+            <Link href="/stats" className="lab-button lab-button-secondary w-full">
+              시장동향 자세히 보기
+              <span aria-hidden className="ml-1">
+                →
+              </span>
+            </Link>
+          </div>
+        </LabSection>
+      ) : null}
 
-          <LabSection title="오늘의 요약">
-            <LabStatTiles
-              columns={4}
-              items={[
-                {
-                  key: "new",
-                  label: "오늘 새로 확인",
-                  value: `${data.kpis.newDealCount ?? 0}건`,
-                  sub: "집랩이 처음 확인한 기준",
-                },
-                {
-                  key: "singoga",
-                  label: "신규 신고가",
-                  value: `${data.kpis.singogaCount}건`,
-                  sub: "계약일 이전 최고가 갱신",
-                  tone: "up",
-                },
-                {
-                  key: "drop",
-                  label: "신규 하락거래",
-                  value: `${data.kpis.dropCount}건`,
-                  sub: "최고가 대비 −10% 이상",
-                  tone: "down",
-                },
-                {
-                  key: "surge",
-                  label: "거래량 급증",
-                  value: `${data.kpis.volumeSurgeCount ?? 0}곳`,
-                  sub: "최근 30일 vs 직전 30일",
-                },
-              ]}
+      {/* 정책 발표는 시장 데이터와 별도로 불러와 먼저 보일 수 있다 */}
+      <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
+        {data && hasIssues ? (
+          <PriceIssuesSection id="market-price-issues" data={data} />
+        ) : null}
+
+        <LabSectionBoundary id="market-policy" title="정책·규제 발표">
+          <MarketPolicyNews id="market-policy" />
+        </LabSectionBoundary>
+
+        {data && hasNewDeals && data.regionBreakdown ? (
+          <MarketRegionBreakdown id="market-regions" data={data.regionBreakdown} />
+        ) : null}
+
+        {data ? (
+          <LabSection
+            id="market-volume"
+            title="거래량 급증 단지"
+            meta="최근 30일 vs 직전 30일 · 계약일 기준"
+            tip={
+              <p>
+                계약일 기준 최근 30일 매매가 그 직전 30일보다 크게 늘어난 단지입니다. 늘어난
+                건수가 많은 순입니다.
+              </p>
+            }
+          >
+            <PreviewList
+              items={data.volumeSurges ?? []}
+              getKey={(item) => `${item.aptName}|${item.gu}|${item.dong}`}
+              emptyLabel="조건에 맞는 단지가 없습니다."
+              moreUnit="곳"
+              render={(item) => <VolumeRow item={item} />}
             />
-            <LabTextLink href="/stats">시장동향 자세히 보기</LabTextLink>
           </LabSection>
-        </>
-      ) : null}
-
-      <LabSection title="빠른 검색">
-        <AptQuickSearch
-          compact
-          inputId="market-home-search"
-          placeholder={UNIFIED_SEARCH_PLACEHOLDER}
-          showPrice={false}
-          includeRegions
-        />
-      </LabSection>
-
-      {data ? (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-          <ListSection
-            title="신규 신고가"
-            items={data.singoga}
-            getKey={(item) => item.id}
-            renderItem={(item) => <DealRow item={item} />}
-          />
-          <ListSection
-            title="신규 하락거래"
-            items={data.drops}
-            getKey={(item) => item.id}
-            renderItem={(item) => <DealRow item={item} />}
-          />
-          <ListSection
-            title="거래량 급증"
-            items={data.volumeSurges ?? []}
-            getKey={(item) => `${item.aptName}|${item.gu}|${item.dong}`}
-            renderItem={(item) => <VolumeRow item={item} />}
-          />
-          <ListSection
-            title="새로 확인된 주요 거래"
-            items={data.notables}
-            getKey={(item) => `n-${item.id}`}
-            renderItem={(item) => <DealRow item={item} />}
-          />
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       {/* 오늘의 시장 콘텐츠 아래 — 실험실은 두 번째 콘텐츠 영역 */}
       <LabExperiments />
     </div>
-    </>
   );
 }
