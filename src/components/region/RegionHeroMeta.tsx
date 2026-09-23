@@ -1,11 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ComplexHeroMeta } from "@/components/apt/ComplexHeroMeta";
+import { LabTag } from "@/components/ui/LabTag";
 import { regionRankingCode } from "@/lib/region-ranking/public";
 import type { RegionAptSummary } from "@/lib/region/region-summary";
 
-/** 단지 상세 HERO와 같은 형식의 지역 소개 줄. */
+/** 지역 요약 속성 라벨 (단지 수 · 세대 · 연식 · 주력 평형). */
 export function RegionHeroMeta({ lawdCodes }: { lawdCodes: string[] }) {
   const lawdCd = regionRankingCode(lawdCodes);
   const query = useQuery({
@@ -20,18 +20,22 @@ export function RegionHeroMeta({ lawdCodes }: { lawdCodes: string[] }) {
     retry: 1,
   });
   const data = query.data?.status === "ok" ? query.data : null;
-  const present = (items: (string | null)[]) => items.filter((v): v is string => Boolean(v));
-  const size = data
-    ? present([
+  const tags = data
+    ? [
         data.complexCount > 0 ? `${data.complexCount.toLocaleString("ko-KR")}개 단지` : null,
         data.householdTotal != null ? `${data.householdTotal.toLocaleString("ko-KR")}세대` : null,
-      ])
-    : [];
-  const character = data
-    ? present([
-        data.averageAgeYears != null ? `평균 ${data.averageAgeYears}년차` : null,
+        data.averageAgeYears != null ? `평균 ${Math.round(data.averageAgeYears)}년차` : null,
         data.representativeDecade ? `${data.representativeDecade.label} 중심` : null,
-      ])
+      ].filter((v): v is string => Boolean(v))
     : [];
-  return <ComplexHeroMeta lines={{ line1: size, line2: character, line3: [] }} />;
+  if (query.isError || (query.isSuccess && tags.length === 0)) return null;
+  return (
+    <div className="flex min-h-[26px] flex-wrap gap-1" aria-label="지역 요약">
+      {tags.map((t) => (
+        <LabTag key={t} size="md">
+          {t}
+        </LabTag>
+      ))}
+    </div>
+  );
 }

@@ -172,9 +172,10 @@ export function Dashboard({
           title={region.name}
           titleSuffix={region.fullName.replace(region.name, "").trim() || null}
           titleClassName="detail-page-title"
-          meta={<RegionHeroMeta lawdCodes={region.lawdCodes} />}
           showDivider={false}
-        />
+        >
+          <RegionHeroMeta lawdCodes={region.lawdCodes} />
+        </PageHeader>
       </header>
 
       <LabTabs

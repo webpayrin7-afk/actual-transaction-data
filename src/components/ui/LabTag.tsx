@@ -3,10 +3,20 @@
 import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
-/** 작은 테두리 태그 — 목록 행의 근거·속성 (예: "가격 상위 3%"). 줄바꿈 시 태그 단위로 넘어간다. */
-export function LabTag({ children }: { children: ReactNode }) {
+/**
+ * 테두리 태그 — 짧은 속성 나열. 줄바꿈 시 태그 단위로 넘어간다.
+ * - sm: 목록 행의 근거 (예: "가격 상위 3%")
+ * - md: 페이지 헤더의 요약 속성 (예: "429개 단지")
+ */
+export function LabTag({ children, size = "sm" }: { children: ReactNode; size?: "sm" | "md" }) {
+  const scale =
+    size === "md"
+      ? "rounded-md px-1.5 text-[12px] leading-6"
+      : "rounded px-1.5 text-[12px] leading-5";
   return (
-    <span className="whitespace-nowrap rounded border border-[color:var(--lab-border)] px-1.5 text-[12px] font-medium leading-5 text-[color:var(--lab-body)] tabular-nums">
+    <span
+      className={`whitespace-nowrap border border-[color:var(--lab-border)] bg-white font-medium text-[color:var(--lab-body)] tabular-nums ${scale}`}
+    >
       {children}
     </span>
   );
