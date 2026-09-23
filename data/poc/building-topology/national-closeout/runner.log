@@ -1,0 +1,240 @@
+[2026-09-23T05:09:15.262Z] start apply=true daemon=true wave=all batch=40 maxApi=3000
+[2026-09-23T05:09:15.262Z] start apply=true daemon=true wave=all batch=40 maxApi=3000
+[2026-09-23T05:09:42.496Z] manifest total=27524 actionable=1622
+[2026-09-23T05:09:42.496Z] manifest total=27524 actionable=1622
+[2026-09-23T05:09:44.506Z] project_unit_stats inserted=0
+[2026-09-23T05:09:44.506Z] project_unit_stats inserted=0
+[2026-09-23T05:09:49.047Z] batch cursor=40/1622 insert=0 update=0 fail=0
+[2026-09-23T05:09:49.047Z] batch cursor=40/1622 insert=0 update=0 fail=0
+[2026-09-23T05:09:53.690Z] batch cursor=80/1622 insert=0 update=0 fail=0
+[2026-09-23T05:09:53.690Z] batch cursor=80/1622 insert=0 update=0 fail=0
+[2026-09-23T05:09:59.081Z] batch cursor=120/1622 insert=0 update=0 fail=0
+[2026-09-23T05:09:59.081Z] batch cursor=120/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:03.891Z] batch cursor=160/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:03.891Z] batch cursor=160/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:08.064Z] batch cursor=200/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:08.064Z] batch cursor=200/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:13.731Z] batch cursor=240/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:13.731Z] batch cursor=240/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:18.647Z] batch cursor=280/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:18.647Z] batch cursor=280/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:23.846Z] batch cursor=320/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:23.846Z] batch cursor=320/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:29.586Z] batch cursor=360/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:29.586Z] batch cursor=360/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:35.374Z] batch cursor=400/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:35.374Z] batch cursor=400/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:39.881Z] batch cursor=440/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:39.881Z] batch cursor=440/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:43.771Z] batch cursor=480/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:43.771Z] batch cursor=480/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:46.286Z] batch cursor=520/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:46.286Z] batch cursor=520/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:50.018Z] batch cursor=560/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:50.018Z] batch cursor=560/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:52.712Z] batch cursor=600/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:52.712Z] batch cursor=600/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:55.793Z] batch cursor=640/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:55.793Z] batch cursor=640/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:59.080Z] batch cursor=680/1622 insert=0 update=0 fail=0
+[2026-09-23T05:10:59.080Z] batch cursor=680/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:01.804Z] batch cursor=720/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:01.804Z] batch cursor=720/1622 insert=0 update=0 fail=0
+EXIT:143
+[2026-09-23T05:11:08.911Z] start apply=true daemon=true wave=all batch=40 maxApi=3000
+[2026-09-23T05:11:08.911Z] start apply=true daemon=true wave=all batch=40 maxApi=3000
+[2026-09-23T05:11:16.885Z] manifest total=27524 actionable=1622
+[2026-09-23T05:11:16.885Z] manifest total=27524 actionable=1622
+[2026-09-23T05:11:18.950Z] project_unit_stats inserted=6881
+[2026-09-23T05:11:18.950Z] project_unit_stats inserted=6881
+[2026-09-23T05:11:23.595Z] batch cursor=40/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:23.595Z] batch cursor=40/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:28.130Z] batch cursor=80/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:28.130Z] batch cursor=80/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:33.155Z] batch cursor=120/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:33.155Z] batch cursor=120/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:37.512Z] batch cursor=160/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:37.512Z] batch cursor=160/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:41.460Z] batch cursor=200/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:41.460Z] batch cursor=200/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:46.563Z] batch cursor=240/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:46.563Z] batch cursor=240/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:51.093Z] batch cursor=280/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:51.093Z] batch cursor=280/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:55.617Z] batch cursor=320/1622 insert=0 update=0 fail=0
+[2026-09-23T05:11:55.617Z] batch cursor=320/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:00.826Z] batch cursor=360/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:00.826Z] batch cursor=360/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:05.928Z] batch cursor=400/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:05.928Z] batch cursor=400/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:10.052Z] batch cursor=440/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:10.052Z] batch cursor=440/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:12.885Z] batch cursor=480/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:12.885Z] batch cursor=480/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:15.417Z] batch cursor=520/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:15.417Z] batch cursor=520/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:19.088Z] batch cursor=560/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:19.088Z] batch cursor=560/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:21.543Z] batch cursor=600/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:21.543Z] batch cursor=600/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:24.454Z] batch cursor=640/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:24.454Z] batch cursor=640/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:27.705Z] batch cursor=680/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:27.705Z] batch cursor=680/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:30.636Z] batch cursor=720/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:30.636Z] batch cursor=720/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:34.135Z] batch cursor=760/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:34.135Z] batch cursor=760/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:38.493Z] batch cursor=800/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:38.493Z] batch cursor=800/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:41.113Z] batch cursor=840/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:41.113Z] batch cursor=840/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:43.884Z] batch cursor=880/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:43.884Z] batch cursor=880/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:46.704Z] batch cursor=920/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:46.704Z] batch cursor=920/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:49.153Z] batch cursor=960/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:49.153Z] batch cursor=960/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:51.460Z] batch cursor=1000/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:51.460Z] batch cursor=1000/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:55.781Z] batch cursor=1040/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:55.781Z] batch cursor=1040/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:58.092Z] batch cursor=1080/1622 insert=0 update=0 fail=0
+[2026-09-23T05:12:58.092Z] batch cursor=1080/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:00.744Z] batch cursor=1120/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:00.744Z] batch cursor=1120/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:03.978Z] batch cursor=1160/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:03.978Z] batch cursor=1160/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:07.689Z] batch cursor=1200/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:07.689Z] batch cursor=1200/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:10.325Z] batch cursor=1240/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:10.325Z] batch cursor=1240/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:13.397Z] batch cursor=1280/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:13.397Z] batch cursor=1280/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:15.127Z] batch cursor=1320/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:15.127Z] batch cursor=1320/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:17.449Z] batch cursor=1360/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:17.449Z] batch cursor=1360/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:20.482Z] batch cursor=1400/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:20.482Z] batch cursor=1400/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:23.793Z] batch cursor=1440/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:23.793Z] batch cursor=1440/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:26.812Z] batch cursor=1480/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:26.812Z] batch cursor=1480/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:30.200Z] batch cursor=1520/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:30.200Z] batch cursor=1520/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:32.976Z] batch cursor=1560/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:32.976Z] batch cursor=1560/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:36.624Z] batch cursor=1600/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:36.624Z] batch cursor=1600/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:39.016Z] batch cursor=1622/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:39.016Z] batch cursor=1622/1622 insert=0 update=0 fail=0
+[2026-09-23T05:13:40.788Z] completed all actionable targets
+[2026-09-23T05:13:40.788Z] completed all actionable targets
+{
+  "status": "COMPLETE",
+  "apply": true,
+  "out": "/workspace/data/poc/building-topology/national-closeout",
+  "progress": {
+    "version": "national-building-unit-closeout-v1",
+    "startedAt": "2026-09-23T05:09:42.497Z",
+    "updatedAt": "2026-09-23T05:13:40.787Z",
+    "cursor": 1622,
+    "wave": "all",
+    "apiCalls": 0,
+    "processed": 2344,
+    "inserted": 6881,
+    "updated": 0,
+    "conflicts": 0,
+    "failures": 0,
+    "holds": 322,
+    "completed": true,
+    "pid": 34129,
+    "firstBatchApplied": true,
+    "lastComplexId": "cx_ff9153ea04f2d8d2",
+    "coverage": {
+      "total": 27524,
+      "building": 17295,
+      "buildingAny": 17614,
+      "unit": 18664,
+      "exclusive": 18664,
+      "supply": 17051,
+      "typeBuilding": 7382,
+      "areaSelectorReady": 18664,
+      "supplyPyeongReady": 17051
+    }
+  },
+  "firstBatch": {
+    "at": "2026-09-23T05:11:23.595Z",
+    "processed": 40,
+    "inserted": 6881,
+    "updated": 0,
+    "conflicts": 0,
+    "failures": 0,
+    "unitStatsProjected": true
+  },
+  "safety": {
+    "duplicateLinks": 0,
+    "orphanLinks": 0,
+    "invalidAreas": 6881
+  },
+  "lock": true,
+  "heartbeat": true,
+  "checkpoint": true
+}
+EXIT:0
+[2026-09-23T05:15:21.974Z] start apply=true daemon=true wave=all batch=25 maxApi=3000
+[2026-09-23T05:15:21.974Z] start apply=true daemon=true wave=all batch=25 maxApi=3000
+[2026-09-23T05:15:30.868Z] manifest total=27524 actionable=1332
+[2026-09-23T05:15:30.868Z] manifest total=27524 actionable=1332
+[2026-09-23T05:15:32.225Z] project_unit_stats inserted=0
+[2026-09-23T05:15:32.225Z] project_unit_stats inserted=0
+[2026-09-23T05:15:38.255Z] batch cursor=25/1332 insert=0 update=0 fail=0
+[2026-09-23T05:15:38.255Z] batch cursor=25/1332 insert=0 update=0 fail=0
+[2026-09-23T05:15:45.080Z] batch cursor=50/1332 insert=0 update=0 fail=0
+[2026-09-23T05:15:45.080Z] batch cursor=50/1332 insert=0 update=0 fail=0
+[2026-09-23T05:15:52.688Z] batch cursor=75/1332 insert=0 update=0 fail=0
+[2026-09-23T05:15:52.688Z] batch cursor=75/1332 insert=0 update=0 fail=0
+[2026-09-23T05:15:58.394Z] batch cursor=100/1332 insert=0 update=0 fail=0
+[2026-09-23T05:15:58.394Z] batch cursor=100/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:05.345Z] batch cursor=125/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:05.345Z] batch cursor=125/1332 insert=0 update=0 fail=0
+EXIT:143
+[2026-09-23T05:16:11.166Z] start apply=true daemon=true wave=all batch=20 maxApi=3000
+[2026-09-23T05:16:11.166Z] start apply=true daemon=true wave=all batch=20 maxApi=3000
+[2026-09-23T05:16:19.183Z] manifest total=27524 actionable=1332
+[2026-09-23T05:16:19.183Z] manifest total=27524 actionable=1332
+[2026-09-23T05:16:20.554Z] project_unit_stats inserted=0
+[2026-09-23T05:16:20.554Z] project_unit_stats inserted=0
+[2026-09-23T05:16:27.675Z] batch cursor=20/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:27.675Z] batch cursor=20/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:36.704Z] batch cursor=40/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:36.704Z] batch cursor=40/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:45.584Z] batch cursor=60/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:45.584Z] batch cursor=60/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:54.592Z] batch cursor=80/1332 insert=0 update=0 fail=0
+[2026-09-23T05:16:54.592Z] batch cursor=80/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:02.650Z] batch cursor=100/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:02.650Z] batch cursor=100/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:11.838Z] batch cursor=120/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:11.838Z] batch cursor=120/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:21.231Z] batch cursor=140/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:21.231Z] batch cursor=140/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:30.209Z] batch cursor=160/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:30.209Z] batch cursor=160/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:39.045Z] batch cursor=180/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:39.045Z] batch cursor=180/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:47.770Z] batch cursor=200/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:47.770Z] batch cursor=200/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:56.966Z] batch cursor=220/1332 insert=0 update=0 fail=0
+[2026-09-23T05:17:56.966Z] batch cursor=220/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:05.621Z] batch cursor=240/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:05.621Z] batch cursor=240/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:13.735Z] batch cursor=260/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:13.735Z] batch cursor=260/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:21.911Z] batch cursor=280/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:21.911Z] batch cursor=280/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:29.828Z] batch cursor=300/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:29.828Z] batch cursor=300/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:37.814Z] batch cursor=320/1332 insert=0 update=0 fail=0
+[2026-09-23T05:18:37.814Z] batch cursor=320/1332 insert=0 update=0 fail=0

@@ -6,6 +6,13 @@ import { parcelFromParts, hubPnu, cadastralPnu } from "../src/lib/buildings/parc
 import { buildingFromTitleRow } from "../src/lib/buildings/from-title";
 import { resolveUnitTypeId, buildTypeBuildingLinks } from "../src/lib/buildings/type-links";
 import { classifyParity } from "../src/lib/buildings/parity";
+import {
+  classifyAreaStatus,
+  classifyBuildingStatus,
+  classifyLinkStatus,
+  lockIsStale,
+  mayInventSupplyFromExclusive,
+} from "../src/lib/buildings/closeout-classify";
 
 function testIdentity() {
   const a = buildingIdFromOfficialKey("10251100216862");
@@ -384,6 +391,63 @@ function testTypeBuildingResolutions() {
   assert.equal(ambBuilding.stats.ambiguousBuilding, 1);
 }
 
+function testCloseoutClassify() {
+  assert.equal(
+    classifyBuildingStatus({
+      hasResidentialExact: true,
+      titleStatus: "SUCCESS",
+      hasParcel: true,
+    }).status,
+    "COMPLETE",
+  );
+  assert.equal(
+    classifyBuildingStatus({
+      hasResidentialExact: false,
+      titleStatus: "NO_PARCEL",
+      hasParcel: false,
+    }).status,
+    "IDENTITY_GAP",
+  );
+  assert.equal(
+    classifyBuildingStatus({
+      hasResidentialExact: false,
+      titleStatus: "EMPTY",
+      hasParcel: true,
+    }).status,
+    "NO_SOURCE",
+  );
+  assert.equal(
+    classifyAreaStatus({ hasCanonicalType: true, hasExclusive: true, hasSupply: true }),
+    "COMPLETE",
+  );
+  assert.equal(
+    classifyAreaStatus({ hasCanonicalType: true, hasExclusive: true, hasSupply: false }),
+    "SUPPLY_AREA_UNAVAILABLE",
+  );
+  assert.equal(mayInventSupplyFromExclusive(), false);
+  assert.equal(
+    classifyLinkStatus({
+      hasExactLink: false,
+      hasResidentialExact: true,
+      hasCanonicalType: true,
+      hasOuacDongHo: true,
+    }).status,
+    "READY_LOCAL",
+  );
+  assert.equal(
+    classifyLinkStatus({
+      hasExactLink: false,
+      hasResidentialExact: true,
+      hasCanonicalType: true,
+      hasOuacDongHo: false,
+    }).status,
+    "IDENTITY_GAP",
+  );
+  assert.equal(lockIsStale({ lockPid: null, pidAlive: () => true }), true);
+  assert.equal(lockIsStale({ lockPid: 1, pidAlive: () => false }), true);
+  assert.equal(lockIsStale({ lockPid: 1, pidAlive: () => true }), false);
+}
+
 testIdentity();
 testResidential();
 testDong();
@@ -398,4 +462,5 @@ testPkTypeLinks();
 testParcelCadastral();
 testUnitEvidenceMapping();
 testTypeBuildingResolutions();
+testCloseoutClassify();
 console.log("test-building-topology ok");

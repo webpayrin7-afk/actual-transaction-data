@@ -1,0 +1,86 @@
+{
+  "status": "BACKGROUND_RUNNING",
+  "verified": {
+    "process_running": true,
+    "lock": true,
+    "checkpoint": true,
+    "first_batch_applied": true,
+    "heartbeat_advancing": true
+  },
+  "process": {
+    "pid": 35255,
+    "tmux": "building-national-closeout"
+  },
+  "heartbeat": {
+    "pid": 35255,
+    "at": "2026-09-23T05:18:37.814Z",
+    "phase": "batch",
+    "cursor": 320,
+    "total": 1332,
+    "inserted": 0,
+    "apiCalls": 217
+  },
+  "progress": {
+    "cursor": 320,
+    "processed": 447,
+    "inserted": 0,
+    "updated": 0,
+    "conflicts": 0,
+    "failures": 0,
+    "holds": 155,
+    "apiCalls": 217,
+    "firstBatchApplied": true,
+    "completed": false
+  },
+  "firstBatch": {
+    "at": "2026-09-23T05:16:27.675Z",
+    "processed": 20,
+    "inserted": 0,
+    "updated": 0,
+    "conflicts": 0,
+    "failures": 0,
+    "unitStatsProjected": true
+  },
+  "target": {
+    "national": 27524,
+    "building_missing": 10229,
+    "unit_missing": 8860,
+    "supply_area_missing": 10473,
+    "link_missing": 20142,
+    "actionable": 1332,
+    "byOperation": {
+      "TITLE_FETCH": 1133,
+      "ATTEMPT_LINK": 199
+    }
+  },
+  "coverage_before": {
+    "total": 27524,
+    "building": 17295,
+    "buildingAny": 17614,
+    "unit": 18664,
+    "exclusive": 18664,
+    "supply": 17051,
+    "typeBuilding": 7382,
+    "areaSelectorReady": 18664,
+    "supplyPyeongReady": 17051
+  },
+  "coverage_now": {
+    "total": 27524,
+    "building": 17295,
+    "buildingAny": 17614,
+    "unit": 18664,
+    "exclusive": 18664,
+    "supply": 17051,
+    "typeBuilding": 7382,
+    "areaSelectorReady": 18664,
+    "supplyPyeongReady": 17051
+  },
+  "resume": "tmux attach -t building-national-closeout  OR  npx tsx scripts/building-topology/national-closeout-runner.mts --daemon --apply --wave=all --batch=20 --max-api=3000",
+  "wave1": {
+    "inserted": 6881,
+    "processed": 2344,
+    "holds": 322,
+    "completed": true
+  },
+  "cumulative_inserts": 6881
+}
