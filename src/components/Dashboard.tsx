@@ -17,6 +17,7 @@ import {
   PageHeader,
 } from "@/components/layout/PageHeader";
 import { LabTabs } from "@/components/ui/LabTabs";
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { PAGE_SIZE, type RegionDef } from "@/lib/constants/regions";
 import { recentYearMonths } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -242,19 +243,17 @@ export function Dashboard({
             onSearch={handleSearch}
           />
 
-          <section className="flex flex-col gap-3">
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">
-                거래 내역
-              </h3>
-              <p className="mt-0.5 text-xs text-slate-500">
-                계약일 · 단지 · 면적 · 가격 · 층 — 단지명 클릭 시 상세로 이동
-              </p>
-            </div>
+          <section aria-label={`${region.name} 거래 내역`} className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}>
+            <LabSectionHeader
+              title="거래 내역"
+              meta={data && data.totalCount > 0 ? `${data.totalCount.toLocaleString("ko-KR")}건 · 계약일 기준` : "계약일 기준"}
+              tip={<p>단지명을 누르면 단지 상세로 이동합니다.</p>}
+            />
 
             <TransactionTable
               items={data?.items ?? []}
               isLoading={query.isLoading || query.isFetching}
+              regionSlug={region.slug}
             />
 
             {data && data.totalCount > 0 && (
