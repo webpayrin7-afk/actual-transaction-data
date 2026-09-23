@@ -2,12 +2,15 @@
  * Rolling AptTrade registration refresh (late-published rgstDate).
  * Forces only-changed=0 semantics for recent trade months.
  *
+ * Uses the temporal lawd crosswalk so request lawds spanning the
+ * 2026-07-01 admin change are planned/fetched correctly.
+ *
  *   npx tsx scripts/refresh-rgst-date-rolling.mts --plan=1
  *   npx tsx scripts/refresh-rgst-date-rolling.mts --apply=1 --months=12 --discovery=0
  */
 import { config } from "dotenv";
-config({ path: ".env.local" });
-config();
+config({ path: ".env.local", quiet: true });
+config({ quiet: true });
 
 import { ensureSchema, getDb } from "../src/lib/db/client";
 import { replaceMonthTransactions } from "../src/lib/db/repository";
@@ -17,6 +20,10 @@ import {
 } from "../src/lib/db/rgst-date-column";
 import { fetchOneTradeForSync } from "../src/lib/molit/client";
 import { rgstDateFromTx } from "../src/lib/molit/rgst-date";
+import {
+  planAptTradeRequestLawd,
+  validateTemporalRollingPlan,
+} from "../src/lib/molit/temporal-lawd";
 
 function argValue(name: string, fallback: string): string {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -58,15 +65,33 @@ async function main() {
           ORDER BY year_month DESC, lawd_cd ASC`,
     args: yms,
   });
-  const cells = cellRes.rows.map((r) => ({
+  const storedCells = cellRes.rows.map((r) => ({
     lawdCd: String(r.lawd),
     yearMonth: String(r.ym),
   }));
+
+  // Temporal remap: request lawd may differ from obsolete catalog code.
+  // Deduplicate after remap so we do not double-fetch the same MOLIT cell.
+  const seen = new Set<string>();
+  const cells: Array<{ lawdCd: string; yearMonth: string; storedLawd: string }> =
+    [];
+  for (const c of storedCells) {
+    const request = planAptTradeRequestLawd(c.lawdCd, c.yearMonth);
+    const key = `${request}|${c.yearMonth}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cells.push({
+      lawdCd: request,
+      yearMonth: c.yearMonth,
+      storedLawd: c.lawdCd,
+    });
+  }
   const lawds = [...new Set(cells.map((c) => c.lawdCd))];
+  const temporal = validateTemporalRollingPlan(storedCells);
 
   console.error(
     `[rgst-refresh] months=${months} yms=${yms.join(",")} lawds=${lawds.length} cells=${cells.length} ` +
-      `onlyChanged=0 apply=${apply ? 1 : 0}`,
+      `onlyChanged=0 apply=${apply ? 1 : 0} temporalAware=1`,
   );
 
   if (planOnly) {
@@ -80,6 +105,10 @@ async function main() {
           cells: cells.length,
           onlyChanged: 0,
           write: 0,
+          temporal,
+          sampleRemaps: cells
+            .filter((c) => c.lawdCd !== c.storedLawd)
+            .slice(0, 20),
         },
         null,
         2,
@@ -156,6 +185,7 @@ async function main() {
         yearMonths: yms,
         cells: cells.length,
         onlyChanged: 0,
+        temporalAware: true,
         totals,
       },
       null,

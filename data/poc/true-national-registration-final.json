@@ -1,82 +1,135 @@
 {
-  "title": "TRUE NATIONAL APTTRADE 2023+ EXPANSION + REGISTRATION",
-  "STATUS": "PARTIAL",
-  "VERDICT": "TRUE_NATIONAL_PARTIAL",
-  "MAPPING": {
-    "gwangju": "MAPPING_HOLD",
-    "jeonnam": "MAPPING_HOLD",
+  "mapping": {
+    "gwangju": "TEMPORAL_CROSSWALK_PASS",
+    "jeonnam": "TEMPORAL_CROSSWALK_PASS",
     "sourceSpecificLawdMapping": true,
     "legacyPrefixRemap": {
       "42": "51",
       "45": "52"
     },
-    "reason": "Gwangju/Jeonnam: master 12xxx under 전남광주통합특별시 ↔ MOLIT 29/46 has no deterministic bridge without complex_id rewrite (HOLD). Gangwon/Jeonbuk: catalog 42/45 → AptTrade+master 51/52 via verified prefix remap.",
-    "holdLawds": [
-      "29110",
-      "29140",
-      "29155",
-      "29170",
-      "29200",
-      "46110",
-      "46130",
-      "46150",
-      "46170",
-      "46230",
-      "46710",
-      "46720",
-      "46730",
-      "46770",
-      "46780",
-      "46790",
-      "46800",
-      "46810",
-      "46820",
-      "46830",
-      "46840",
-      "46860",
-      "46870",
-      "46880",
-      "46890",
-      "46900",
-      "46910"
-    ]
+    "temporalEffectiveDate": "2026-07-01",
+    "reason": "MOIS 2026-07-01 official pairs: 29/46↔12xxx exact 27/27. Live MOLIT AptTrade serves canonical 12xxx (and Incheon successors) for pre/post months; obsolete catalog codes return 0.",
+    "holdLawds": []
   },
-  "CHECKPOINT": {
-    "completedCells": 8458,
-    "failedCells": 0,
-    "totals": {
-      "apiCalls": 8464,
-      "inserted": 861454,
-      "updated": 0,
-      "unchanged": 115,
-      "deleted": 0,
-      "populated": 822946,
-      "unresolved": 38623,
-      "identityConflicts": 0
+  "DENOMINATORS": {
+    "A_EXPECTED_CURRENT_CANONICAL_GEOGRAPHY": {
+      "count": 254,
+      "note": "Nationwide catalog codes (may still list pre-change 29/46/28110…)"
+    },
+    "B_HISTORICALLY_REQUESTABLE_APTTRADE_GEOGRAPHY": {
+      "count": 255,
+      "note": "Temporal + prefix remapped MOLIT request lawds (12xxx, 51/52, Incheon successors)",
+      "gwangjuRequestLawds": 5,
+      "jeonnamRequestLawds": 22,
+      "incheonBackfillLawds": [
+        "28125",
+        "28155",
+        "28275",
+        "28290"
+      ]
+    },
+    "C_ACTUAL_DATA_BEARING_COVERED_GEOGRAPHY": {
+      "coveredSyncLawds": 255,
+      "dataBearingLawds": 255,
+      "unresolvedRequestLawds": [],
+      "documentedNodata": [
+        "28720"
+      ]
     }
   },
   "GEOGRAPHIC_COVERAGE": {
-    "expectedRunnableLawds": 229,
-    "nationalExpectedWithHold": 256,
-    "coveredLawds": 225,
-    "missingRunnable": 4,
+    "expectedRunnableLawds": 255,
+    "nationalExpectedWithHold": 255,
+    "coveredLawds": 255,
+    "missingRunnable": 0,
     "missingRunnableNonNodata": 0,
-    "persistentNodataLawds": [
-      "28110",
-      "28140",
-      "28260",
-      "28720"
-    ],
-    "missingHeld": 27,
-    "geographicCoveragePctVsRunnable": 98.3,
-    "geographicCoveragePctVsNationalWithHold": 87.9,
-    "cells2023to202609": 8956
+    "persistentNodataLawds": [],
+    "missingHeld": 0,
+    "geographicCoveragePctVsRunnable": 100,
+    "geographicCoveragePctVsNationalWithHold": 100,
+    "cells2023to202609": 10489
+  },
+  "TEMPORAL_CROSSWALK": {
+    "effectiveDate": "2026-07-01",
+    "gwangju": {
+      "requestLawds": [
+        "12210",
+        "12240",
+        "12270",
+        "12300",
+        "12330"
+      ],
+      "covered": 5
+    },
+    "jeonnam": {
+      "requestLawds": [
+        "12110",
+        "12130",
+        "12150",
+        "12170",
+        "12190",
+        "12710",
+        "12720",
+        "12730",
+        "12740",
+        "12750",
+        "12760",
+        "12770",
+        "12780",
+        "12790",
+        "12800",
+        "12810",
+        "12820",
+        "12830",
+        "12840",
+        "12850",
+        "12860",
+        "12870"
+      ],
+      "covered": 22
+    },
+    "incheonNodataClassification": [
+      {
+        "code": "28110",
+        "classification": "TEMPORAL_CODE_ISSUE",
+        "successors": [
+          "28125",
+          "28155"
+        ],
+        "note": "Obsolete catalog code; MOLIT serves successor lawds for pre/post months"
+      },
+      {
+        "code": "28140",
+        "classification": "TEMPORAL_CODE_ISSUE",
+        "successors": [
+          "28125"
+        ],
+        "note": "Obsolete catalog code; MOLIT serves successor lawds for pre/post months"
+      },
+      {
+        "code": "28260",
+        "classification": "TEMPORAL_CODE_ISSUE",
+        "successors": [
+          "28275",
+          "28290"
+        ],
+        "note": "Obsolete catalog code; MOLIT serves successor lawds for pre/post months"
+      },
+      {
+        "code": "28720",
+        "classification": "TRUE_NODATA",
+        "successors": [
+          "28720"
+        ],
+        "note": "Unchanged under 2026-07-01 reform; AptTrade returns 0"
+      }
+    ]
   },
   "WAREHOUSE_REGISTRATION": {
-    "rows": 1352307,
-    "rgstPopulated": 1249617,
-    "unresolved": 102690,
-    "coveragePct": 92.4
+    "rows": 1491399,
+    "rgstPopulated": 1381391,
+    "unresolved": 110008,
+    "coveragePct": 92.6
   },
   "BY_REGION": {
     "서울": {
@@ -84,32 +137,32 @@
       "targetLawds": 25,
       "coveredLawds": 25,
       "cells": 1125,
-      "transactionRows": 225648,
+      "transactionRows": 225834,
       "rgstPopulated": 201408,
-      "rgstUnresolved": 24240,
-      "coveragePct": 89.3,
+      "rgstUnresolved": 24426,
+      "coveragePct": 89.2,
       "mappingHold": false
     },
     "경기": {
       "canonicalComplexes": 6529,
-      "targetLawds": 49,
-      "coveredLawds": 49,
-      "cells": 1136,
-      "transactionRows": 263085,
+      "targetLawds": 47,
+      "coveredLawds": 47,
+      "cells": 1129,
+      "transactionRows": 263615,
       "rgstPopulated": 223651,
-      "rgstUnresolved": 39434,
-      "coveragePct": 85,
+      "rgstUnresolved": 39964,
+      "coveragePct": 84.8,
       "mappingHold": false
     },
     "인천": {
       "canonicalComplexes": 1093,
-      "targetLawds": 10,
-      "coveredLawds": 6,
-      "cells": 270,
-      "transactionRows": 70304,
-      "rgstPopulated": 66319,
-      "rgstUnresolved": 3985,
-      "coveragePct": 94.3,
+      "targetLawds": 11,
+      "coveredLawds": 11,
+      "cells": 495,
+      "transactionRows": 101581,
+      "rgstPopulated": 95902,
+      "rgstUnresolved": 5679,
+      "coveragePct": 94.4,
       "mappingHold": false
     },
     "부산": {
@@ -146,15 +199,15 @@
       "mappingHold": false
     },
     "광주": {
-      "canonicalComplexes": 1646,
+      "canonicalComplexes": 888,
       "targetLawds": 5,
-      "coveredLawds": 0,
-      "cells": 0,
-      "transactionRows": 0,
-      "rgstPopulated": 0,
-      "rgstUnresolved": 0,
-      "coveragePct": 0,
-      "mappingHold": true
+      "coveredLawds": 5,
+      "cells": 225,
+      "transactionRows": 55578,
+      "rgstPopulated": 52598,
+      "rgstUnresolved": 2980,
+      "coveragePct": 94.6,
+      "mappingHold": false
     },
     "울산": {
       "canonicalComplexes": 519,
@@ -182,7 +235,7 @@
       "canonicalComplexes": 815,
       "targetLawds": 18,
       "coveredLawds": 18,
-      "cells": 805,
+      "cells": 810,
       "transactionRows": 57582,
       "rgstPopulated": 55465,
       "rgstUnresolved": 2117,
@@ -193,7 +246,7 @@
       "canonicalComplexes": 756,
       "targetLawds": 14,
       "coveredLawds": 14,
-      "cells": 628,
+      "cells": 630,
       "transactionRows": 68002,
       "rgstPopulated": 65130,
       "rgstUnresolved": 2872,
@@ -204,7 +257,7 @@
       "canonicalComplexes": 976,
       "targetLawds": 16,
       "coveredLawds": 16,
-      "cells": 717,
+      "cells": 720,
       "transactionRows": 85245,
       "rgstPopulated": 81979,
       "rgstUnresolved": 3266,
@@ -215,7 +268,7 @@
       "canonicalComplexes": 851,
       "targetLawds": 15,
       "coveredLawds": 15,
-      "cells": 652,
+      "cells": 675,
       "transactionRows": 66939,
       "rgstPopulated": 64002,
       "rgstUnresolved": 2937,
@@ -223,21 +276,21 @@
       "mappingHold": false
     },
     "전남": {
-      "canonicalComplexes": 0,
+      "canonicalComplexes": 758,
       "targetLawds": 22,
-      "coveredLawds": 0,
-      "cells": 0,
-      "transactionRows": 0,
-      "rgstPopulated": 0,
-      "rgstUnresolved": 0,
-      "coveragePct": 0,
-      "mappingHold": true
+      "coveredLawds": 22,
+      "cells": 990,
+      "transactionRows": 51521,
+      "rgstPopulated": 49593,
+      "rgstUnresolved": 1928,
+      "coveragePct": 96.3,
+      "mappingHold": false
     },
     "경북": {
       "canonicalComplexes": 1006,
       "targetLawds": 23,
       "coveredLawds": 23,
-      "cells": 972,
+      "cells": 1035,
       "transactionRows": 80821,
       "rgstPopulated": 77954,
       "rgstUnresolved": 2867,
@@ -248,7 +301,7 @@
       "canonicalComplexes": 1395,
       "targetLawds": 22,
       "coveredLawds": 22,
-      "cells": 986,
+      "cells": 990,
       "transactionRows": 116715,
       "rgstPopulated": 111630,
       "rgstUnresolved": 5085,
@@ -269,28 +322,28 @@
   },
   "YEAR": {
     "2023": {
-      "rows": 293862,
-      "filled": 290811,
-      "unresolved": 3051,
-      "pct": 99
+      "rows": 328171,
+      "filled": 325104,
+      "unresolved": 3067,
+      "pct": 99.1
     },
     "2024": {
-      "rows": 346065,
-      "filled": 341073,
-      "unresolved": 4992,
-      "pct": 98.6
+      "rows": 383594,
+      "filled": 378546,
+      "unresolved": 5048,
+      "pct": 98.7
     },
     "2025": {
-      "rows": 402681,
-      "filled": 392935,
-      "unresolved": 9746,
-      "pct": 97.6
+      "rows": 440509,
+      "filled": 430667,
+      "unresolved": 9842,
+      "pct": 97.8
     },
     "2026": {
-      "rows": 309699,
-      "filled": 224798,
-      "unresolved": 84901,
-      "pct": 72.6
+      "rows": 339125,
+      "filled": 247074,
+      "unresolved": 92051,
+      "pct": 72.9
     }
   },
   "REGISTRATION_LAG_SONGPA": {
@@ -304,20 +357,5 @@
     "pre2023RgstPopulated": 0,
     "invalidRgstDates": 0
   },
-  "ROLLING_REFRESH_PLAN": {
-    "lawds": 225,
-    "cells": 1277,
-    "windowMonths": 6
-  },
-  "IDEMPOTENCY_SAMPLE": {
-    "51110|202405": "ins0 upd0 del0",
-    "28177|202405": "ins0 upd0 del0",
-    "26350|202301": "ins0 upd0 del0"
-  },
-  "PERSISTENT_NODATA": [
-    "28110",
-    "28140",
-    "28260",
-    "28720"
-  ]
+  "VERDICT": "TRUE_NATIONAL_WITH_DOCUMENTED_NODATA"
 }

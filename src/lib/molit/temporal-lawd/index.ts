@@ -38,7 +38,7 @@ type CrosswalkDoc = {
   };
   incheon: {
     pairs: TemporalLawdPair[];
-    apttrade_request_lawds_to_backfill: string[];
+    aptrade_request_lawds_to_backfill: string[];
     true_nodata: string[];
     obsolete_catalog_nodata: string[];
   };
@@ -200,4 +200,98 @@ export function classifyIncheonNodataCode(lawdCd: string): {
     successors: [],
     note: "Not in MOIS 2026-07-01 Incheon change set",
   };
+}
+
+/** Normalize catalog/sync lawd → MOLIT AptTrade request lawd for a deal month. */
+export function planAptTradeRequestLawd(
+  lawdCd: string,
+  yearMonth: string,
+): string {
+  return aptTradeRequestLawdForMonth({
+    canonicalOrCatalogLawd: lawdCd,
+    yearMonth,
+  });
+}
+
+/**
+ * Validate a rolling-refresh cell plan against the temporal crosswalk.
+ * Flags obsolete catalog codes still stored in sync_months.
+ */
+export function validateTemporalRollingPlan(
+  cells: Array<{ lawdCd: string; yearMonth: string }>,
+): {
+  temporalAware: true;
+  boundarySamples: Array<{
+    catalogOrSyncLawd: string;
+    yearMonth: string;
+    requestLawd: string;
+  }>;
+  mismatched: Array<{
+    catalogOrSyncLawd: string;
+    yearMonth: string;
+    expected: string;
+    stored: string;
+  }>;
+} {
+  const boundarySamples: Array<{
+    catalogOrSyncLawd: string;
+    yearMonth: string;
+    requestLawd: string;
+  }> = [];
+  const mismatched: Array<{
+    catalogOrSyncLawd: string;
+    yearMonth: string;
+    expected: string;
+    stored: string;
+  }> = [];
+
+  for (const cell of cells) {
+    const request = planAptTradeRequestLawd(cell.lawdCd, cell.yearMonth);
+    if (
+      cell.yearMonth === "202606" ||
+      cell.yearMonth === "202607" ||
+      cell.yearMonth === "202608"
+    ) {
+      boundarySamples.push({
+        catalogOrSyncLawd: cell.lawdCd,
+        yearMonth: cell.yearMonth,
+        requestLawd: request,
+      });
+    }
+    if (
+      (cell.lawdCd.startsWith("29") ||
+        cell.lawdCd.startsWith("46") ||
+        cell.lawdCd === "28110" ||
+        cell.lawdCd === "28140" ||
+        cell.lawdCd === "28260") &&
+      request !== cell.lawdCd
+    ) {
+      mismatched.push({
+        catalogOrSyncLawd: cell.lawdCd,
+        yearMonth: cell.yearMonth,
+        expected: request,
+        stored: cell.lawdCd,
+      });
+    }
+  }
+
+  const reps = [
+    { lawdCd: "29110", yearMonth: "202606" },
+    { lawdCd: "29110", yearMonth: "202607" },
+    { lawdCd: "46110", yearMonth: "202606" },
+    { lawdCd: "46110", yearMonth: "202608" },
+    { lawdCd: "12210", yearMonth: "202606" },
+    { lawdCd: "12210", yearMonth: "202607" },
+    { lawdCd: "28110", yearMonth: "202606" },
+    { lawdCd: "28110", yearMonth: "202608" },
+  ];
+  for (const r of reps) {
+    boundarySamples.push({
+      catalogOrSyncLawd: r.lawdCd,
+      yearMonth: r.yearMonth,
+      requestLawd: planAptTradeRequestLawd(r.lawdCd, r.yearMonth),
+    });
+  }
+
+  return { temporalAware: true, boundarySamples, mismatched };
 }

@@ -14,8 +14,15 @@ import {
 import {
   aptTradeMappingStatus,
   isAptTradeMappingHoldLawd,
-  toAptTradeRequestLawd,
+  runnableAptTradeRequestLawds,
+  toAptTradeRequestLawds,
 } from "../src/lib/molit/aptrade-lawd-mapping";
+import {
+  classifyIncheonNodataCode,
+  gwangjuJeonnamAptTradeRequestLawds,
+  incheonAptTradeBackfillLawds,
+  incheonTrueNodataLawds,
+} from "../src/lib/molit/temporal-lawd";
 
 const db = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -76,35 +83,43 @@ async function q(sql: string, args: Array<string | number> = []) {
 async function main() {
   const mapping = aptTradeMappingStatus();
   const catalog = NATIONWIDE_LAWD_ROWS.map((r) => r.code);
-  // Expected AptTrade geography = request lawds (legacy 42/45 → 51/52) + sync extras
-  const expectedLawds = new Set(
-    catalog
-      .filter((c) => !isAptTradeMappingHoldLawd(c))
-      .map((c) => toAptTradeRequestLawd(c)),
-  );
-  // Hold lawds remain in the national catalog denominator for geographic B
+  // A: current/canonical geography (catalog codes as stored; 29/46 still cataloged)
+  const canonicalGeography = new Set(catalog);
+  // B: historically / currently requestable AptTrade geography (temporal + prefix remap)
+  const expectedLawds = new Set(runnableAptTradeRequestLawds());
   const holdLawds = mapping.holdLawds;
   const nationalExpectedWithHold = new Set([
-    ...catalog.map((c) =>
-      isAptTradeMappingHoldLawd(c) ? c : toAptTradeRequestLawd(c),
-    ),
+    ...expectedLawds,
+    ...holdLawds,
   ]);
 
   const masterSido = await q(
     `SELECT sido, COUNT(*) AS complexes FROM apt_complex_master GROUP BY 1`,
   );
   const masterByMetro = new Map<string, number>();
-  let mergedCx = 0;
   for (const r of masterSido) {
     const m = MASTER_SIDO_TO_METRO[String(r.sido)];
-    if (m === "merged") {
-      mergedCx += Number(r.complexes ?? 0);
-      continue;
-    }
+    if (m === "merged") continue;
     if (m) masterByMetro.set(m, (masterByMetro.get(m) ?? 0) + Number(r.complexes ?? 0));
   }
-  masterByMetro.set("gwangju", mergedCx);
-  masterByMetro.set("jeonnam", 0);
+  // Split 전남광주통합특별시 by canonical lawd (12xxx) via metroFromLawdNationwide
+  const mergedByLawd = await q(
+    `SELECT lawd_cd AS lawd, COUNT(*) AS complexes
+     FROM apt_complex_master
+     WHERE sido = '전남광주통합특별시'
+     GROUP BY 1`,
+  );
+  let gwangjuCx = masterByMetro.get("gwangju") ?? 0;
+  let jeonnamCx = masterByMetro.get("jeonnam") ?? 0;
+  for (const r of mergedByLawd) {
+    const lawd = String(r.lawd);
+    const n = Number(r.complexes ?? 0);
+    const metro = metroFromLawdNationwide(lawd);
+    if (metro === "gwangju") gwangjuCx += n;
+    else if (metro === "jeonnam") jeonnamCx += n;
+  }
+  masterByMetro.set("gwangju", gwangjuCx);
+  masterByMetro.set("jeonnam", jeonnamCx);
 
   const syncCells = await q(
     `SELECT lawd_cd AS lawd, year_month AS ym, row_count
@@ -143,19 +158,18 @@ async function main() {
   const warehouseRows = [...txMap.values()].reduce((s, v) => s + v.rows, 0);
   const warehouseFilled = [...txMap.values()].reduce((s, v) => s + v.filled, 0);
 
-  // include sync extras in expected for geographic B
+  // include sync extras in expected for geographic B (request geography)
   for (const l of syncLawds) {
     expectedLawds.add(l);
     nationalExpectedWithHold.add(l);
   }
 
   const held = holdLawds;
+  const trueNodata = new Set(incheonTrueNodataLawds());
   const missingRunnable = [...expectedLawds].filter((c) => !syncLawds.has(c));
   const missingHeld = held.filter((c) => !syncLawds.has(c));
-  // Persistent MOLIT NODATA under catalog codes (probed; no alternate code)
-  const persistentNodataLawds = missingRunnable.filter((c) =>
-    ["28110", "28140", "28260", "28720"].includes(c),
-  );
+  // Persistent MOLIT NODATA (probe-backed TRUE_NODATA only — not obsolete catalog codes)
+  const persistentNodataLawds = missingRunnable.filter((c) => trueNodata.has(c));
   const missingRunnableNonNodata = missingRunnable.filter(
     (c) => !persistentNodataLawds.includes(c),
   );
@@ -164,8 +178,8 @@ async function main() {
   for (const metro of REPORT_METROS) {
     const catalogTargets = catalog
       .filter((c) => metroFromLawdNationwide(c) === metro)
-      .map((c) =>
-        isAptTradeMappingHoldLawd(c) ? c : toAptTradeRequestLawd(c),
+      .flatMap((c) =>
+        isAptTradeMappingHoldLawd(c) ? [c] : toAptTradeRequestLawds(c),
       );
     const syncInMetro = [...syncLawds].filter(
       (c) => metroFromLawdNationwide(c) === metro,
@@ -189,10 +203,19 @@ async function main() {
       rgstPopulated: filled,
       rgstUnresolved: rows - filled,
       coveragePct: pct(filled, rows),
-      mappingHold:
-        metro === "gwangju" || metro === "jeonnam",
+      mappingHold: false,
     };
   }
+
+  const gwReq = gwangjuJeonnamAptTradeRequestLawds().filter(
+    (c) => metroFromLawdNationwide(c) === "gwangju",
+  );
+  const jnReq = gwangjuJeonnamAptTradeRequestLawds().filter(
+    (c) => metroFromLawdNationwide(c) === "jeonnam",
+  );
+  const icnClass = ["28110", "28140", "28260", "28720"].map((c) =>
+    classifyIncheonNodataCode(c),
+  );
 
   const lag = await q(
     `SELECT
@@ -232,8 +255,39 @@ async function main() {
     )[0]?.n ?? 0,
   );
 
+  const coveredDataBearing = [...syncLawds].filter((c) => {
+    const t = txMap.get(c);
+    return (t?.rows ?? 0) > 0 || (cellsByLawd.get(c) ?? 0) > 0;
+  });
+
   const out = {
     mapping,
+    DENOMINATORS: {
+      A_EXPECTED_CURRENT_CANONICAL_GEOGRAPHY: {
+        count: canonicalGeography.size,
+        note: "Nationwide catalog codes (may still list pre-change 29/46/28110…)",
+      },
+      B_HISTORICALLY_REQUESTABLE_APTTRADE_GEOGRAPHY: {
+        count: expectedLawds.size,
+        note: "Temporal + prefix remapped MOLIT request lawds (12xxx, 51/52, Incheon successors)",
+        gwangjuRequestLawds: gwReq.length,
+        jeonnamRequestLawds: jnReq.length,
+        incheonBackfillLawds: incheonAptTradeBackfillLawds(),
+      },
+      C_ACTUAL_DATA_BEARING_COVERED_GEOGRAPHY: {
+        coveredSyncLawds: syncLawds.size,
+        dataBearingLawds: coveredDataBearing.length,
+        unresolvedRequestLawds: missingRunnableNonNodata,
+        documentedNodata: [
+          ...new Set([
+            ...persistentNodataLawds,
+            ...incheonTrueNodataLawds().filter(
+              (c) => !syncLawds.has(c) || (txMap.get(c)?.rows ?? 0) === 0,
+            ),
+          ]),
+        ],
+      },
+    },
     GEOGRAPHIC_COVERAGE: {
       expectedRunnableLawds: expectedLawds.size,
       nationalExpectedWithHold: nationalExpectedWithHold.size,
@@ -248,6 +302,18 @@ async function main() {
         nationalExpectedWithHold.size,
       ),
       cells2023to202609: syncCells.length,
+    },
+    TEMPORAL_CROSSWALK: {
+      effectiveDate: mapping.temporalEffectiveDate,
+      gwangju: {
+        requestLawds: gwReq,
+        covered: gwReq.filter((c) => syncLawds.has(c)).length,
+      },
+      jeonnam: {
+        requestLawds: jnReq,
+        covered: jnReq.filter((c) => syncLawds.has(c)).length,
+      },
+      incheonNodataClassification: icnClass,
     },
     WAREHOUSE_REGISTRATION: {
       rows: warehouseRows,
@@ -278,12 +344,25 @@ async function main() {
       pre2023RgstPopulated: pre2023,
       invalidRgstDates: invalid,
     },
-    VERDICT:
-      missingRunnableNonNodata.length === 0 && missingHeld.length > 0
-        ? "TRUE_NATIONAL_PARTIAL"
-        : missingRunnableNonNodata.length === 0 && missingHeld.length === 0
-          ? "TRUE_NATIONAL_COMPLETE"
-          : "TARGETED_RETRY",
+    VERDICT: (() => {
+      const documentedNodata = incheonTrueNodataLawds().filter(
+        (c) => !syncLawds.has(c) || (txMap.get(c)?.rows ?? 0) === 0,
+      );
+      if (
+        missingRunnableNonNodata.length === 0 &&
+        missingHeld.length === 0 &&
+        documentedNodata.length > 0
+      ) {
+        return "TRUE_NATIONAL_WITH_DOCUMENTED_NODATA";
+      }
+      if (missingRunnableNonNodata.length === 0 && missingHeld.length > 0) {
+        return "TRUE_NATIONAL_PARTIAL";
+      }
+      if (missingRunnableNonNodata.length === 0 && missingHeld.length === 0) {
+        return "TRUE_NATIONAL_COMPLETE";
+      }
+      return "TARGETED_RETRY";
+    })(),
   };
 
   const path = resolve("data/poc/true-national-registration-final.json");

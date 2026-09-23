@@ -1,0 +1,3888 @@
+{
+  "plan": true,
+  "windowMonths": 6,
+  "yearMonths": [
+    "202609",
+    "202608",
+    "202607",
+    "202606",
+    "202605",
+    "202604"
+  ],
+  "lawds": 255,
+  "cells": 1481,
+  "onlyChanged": 0,
+  "write": 0,
+  "temporal": {
+    "temporalAware": true,
+    "boundarySamples": [
+      {
+        "catalogOrSyncLawd": "11110",
+        "yearMonth": "202608",
+        "requestLawd": "11110"
+      },
+      {
+        "catalogOrSyncLawd": "11140",
+        "yearMonth": "202608",
+        "requestLawd": "11140"
+      },
+      {
+        "catalogOrSyncLawd": "11170",
+        "yearMonth": "202608",
+        "requestLawd": "11170"
+      },
+      {
+        "catalogOrSyncLawd": "11200",
+        "yearMonth": "202608",
+        "requestLawd": "11200"
+      },
+      {
+        "catalogOrSyncLawd": "11215",
+        "yearMonth": "202608",
+        "requestLawd": "11215"
+      },
+      {
+        "catalogOrSyncLawd": "11230",
+        "yearMonth": "202608",
+        "requestLawd": "11230"
+      },
+      {
+        "catalogOrSyncLawd": "11260",
+        "yearMonth": "202608",
+        "requestLawd": "11260"
+      },
+      {
+        "catalogOrSyncLawd": "11290",
+        "yearMonth": "202608",
+        "requestLawd": "11290"
+      },
+      {
+        "catalogOrSyncLawd": "11305",
+        "yearMonth": "202608",
+        "requestLawd": "11305"
+      },
+      {
+        "catalogOrSyncLawd": "11320",
+        "yearMonth": "202608",
+        "requestLawd": "11320"
+      },
+      {
+        "catalogOrSyncLawd": "11350",
+        "yearMonth": "202608",
+        "requestLawd": "11350"
+      },
+      {
+        "catalogOrSyncLawd": "11380",
+        "yearMonth": "202608",
+        "requestLawd": "11380"
+      },
+      {
+        "catalogOrSyncLawd": "11410",
+        "yearMonth": "202608",
+        "requestLawd": "11410"
+      },
+      {
+        "catalogOrSyncLawd": "11440",
+        "yearMonth": "202608",
+        "requestLawd": "11440"
+      },
+      {
+        "catalogOrSyncLawd": "11470",
+        "yearMonth": "202608",
+        "requestLawd": "11470"
+      },
+      {
+        "catalogOrSyncLawd": "11500",
+        "yearMonth": "202608",
+        "requestLawd": "11500"
+      },
+      {
+        "catalogOrSyncLawd": "11530",
+        "yearMonth": "202608",
+        "requestLawd": "11530"
+      },
+      {
+        "catalogOrSyncLawd": "11545",
+        "yearMonth": "202608",
+        "requestLawd": "11545"
+      },
+      {
+        "catalogOrSyncLawd": "11560",
+        "yearMonth": "202608",
+        "requestLawd": "11560"
+      },
+      {
+        "catalogOrSyncLawd": "11590",
+        "yearMonth": "202608",
+        "requestLawd": "11590"
+      },
+      {
+        "catalogOrSyncLawd": "11620",
+        "yearMonth": "202608",
+        "requestLawd": "11620"
+      },
+      {
+        "catalogOrSyncLawd": "11650",
+        "yearMonth": "202608",
+        "requestLawd": "11650"
+      },
+      {
+        "catalogOrSyncLawd": "11680",
+        "yearMonth": "202608",
+        "requestLawd": "11680"
+      },
+      {
+        "catalogOrSyncLawd": "11710",
+        "yearMonth": "202608",
+        "requestLawd": "11710"
+      },
+      {
+        "catalogOrSyncLawd": "11740",
+        "yearMonth": "202608",
+        "requestLawd": "11740"
+      },
+      {
+        "catalogOrSyncLawd": "12110",
+        "yearMonth": "202608",
+        "requestLawd": "12110"
+      },
+      {
+        "catalogOrSyncLawd": "12130",
+        "yearMonth": "202608",
+        "requestLawd": "12130"
+      },
+      {
+        "catalogOrSyncLawd": "12150",
+        "yearMonth": "202608",
+        "requestLawd": "12150"
+      },
+      {
+        "catalogOrSyncLawd": "12170",
+        "yearMonth": "202608",
+        "requestLawd": "12170"
+      },
+      {
+        "catalogOrSyncLawd": "12190",
+        "yearMonth": "202608",
+        "requestLawd": "12190"
+      },
+      {
+        "catalogOrSyncLawd": "12210",
+        "yearMonth": "202608",
+        "requestLawd": "12210"
+      },
+      {
+        "catalogOrSyncLawd": "12240",
+        "yearMonth": "202608",
+        "requestLawd": "12240"
+      },
+      {
+        "catalogOrSyncLawd": "12270",
+        "yearMonth": "202608",
+        "requestLawd": "12270"
+      },
+      {
+        "catalogOrSyncLawd": "12300",
+        "yearMonth": "202608",
+        "requestLawd": "12300"
+      },
+      {
+        "catalogOrSyncLawd": "12330",
+        "yearMonth": "202608",
+        "requestLawd": "12330"
+      },
+      {
+        "catalogOrSyncLawd": "12710",
+        "yearMonth": "202608",
+        "requestLawd": "12710"
+      },
+      {
+        "catalogOrSyncLawd": "12720",
+        "yearMonth": "202608",
+        "requestLawd": "12720"
+      },
+      {
+        "catalogOrSyncLawd": "12730",
+        "yearMonth": "202608",
+        "requestLawd": "12730"
+      },
+      {
+        "catalogOrSyncLawd": "12740",
+        "yearMonth": "202608",
+        "requestLawd": "12740"
+      },
+      {
+        "catalogOrSyncLawd": "12750",
+        "yearMonth": "202608",
+        "requestLawd": "12750"
+      },
+      {
+        "catalogOrSyncLawd": "12760",
+        "yearMonth": "202608",
+        "requestLawd": "12760"
+      },
+      {
+        "catalogOrSyncLawd": "12770",
+        "yearMonth": "202608",
+        "requestLawd": "12770"
+      },
+      {
+        "catalogOrSyncLawd": "12780",
+        "yearMonth": "202608",
+        "requestLawd": "12780"
+      },
+      {
+        "catalogOrSyncLawd": "12790",
+        "yearMonth": "202608",
+        "requestLawd": "12790"
+      },
+      {
+        "catalogOrSyncLawd": "12800",
+        "yearMonth": "202608",
+        "requestLawd": "12800"
+      },
+      {
+        "catalogOrSyncLawd": "12810",
+        "yearMonth": "202608",
+        "requestLawd": "12810"
+      },
+      {
+        "catalogOrSyncLawd": "12820",
+        "yearMonth": "202608",
+        "requestLawd": "12820"
+      },
+      {
+        "catalogOrSyncLawd": "12830",
+        "yearMonth": "202608",
+        "requestLawd": "12830"
+      },
+      {
+        "catalogOrSyncLawd": "12840",
+        "yearMonth": "202608",
+        "requestLawd": "12840"
+      },
+      {
+        "catalogOrSyncLawd": "12850",
+        "yearMonth": "202608",
+        "requestLawd": "12850"
+      },
+      {
+        "catalogOrSyncLawd": "12860",
+        "yearMonth": "202608",
+        "requestLawd": "12860"
+      },
+      {
+        "catalogOrSyncLawd": "12870",
+        "yearMonth": "202608",
+        "requestLawd": "12870"
+      },
+      {
+        "catalogOrSyncLawd": "26110",
+        "yearMonth": "202608",
+        "requestLawd": "26110"
+      },
+      {
+        "catalogOrSyncLawd": "26140",
+        "yearMonth": "202608",
+        "requestLawd": "26140"
+      },
+      {
+        "catalogOrSyncLawd": "26170",
+        "yearMonth": "202608",
+        "requestLawd": "26170"
+      },
+      {
+        "catalogOrSyncLawd": "26200",
+        "yearMonth": "202608",
+        "requestLawd": "26200"
+      },
+      {
+        "catalogOrSyncLawd": "26230",
+        "yearMonth": "202608",
+        "requestLawd": "26230"
+      },
+      {
+        "catalogOrSyncLawd": "26260",
+        "yearMonth": "202608",
+        "requestLawd": "26260"
+      },
+      {
+        "catalogOrSyncLawd": "26290",
+        "yearMonth": "202608",
+        "requestLawd": "26290"
+      },
+      {
+        "catalogOrSyncLawd": "26320",
+        "yearMonth": "202608",
+        "requestLawd": "26320"
+      },
+      {
+        "catalogOrSyncLawd": "26350",
+        "yearMonth": "202608",
+        "requestLawd": "26350"
+      },
+      {
+        "catalogOrSyncLawd": "26380",
+        "yearMonth": "202608",
+        "requestLawd": "26380"
+      },
+      {
+        "catalogOrSyncLawd": "26410",
+        "yearMonth": "202608",
+        "requestLawd": "26410"
+      },
+      {
+        "catalogOrSyncLawd": "26440",
+        "yearMonth": "202608",
+        "requestLawd": "26440"
+      },
+      {
+        "catalogOrSyncLawd": "26470",
+        "yearMonth": "202608",
+        "requestLawd": "26470"
+      },
+      {
+        "catalogOrSyncLawd": "26500",
+        "yearMonth": "202608",
+        "requestLawd": "26500"
+      },
+      {
+        "catalogOrSyncLawd": "26530",
+        "yearMonth": "202608",
+        "requestLawd": "26530"
+      },
+      {
+        "catalogOrSyncLawd": "26710",
+        "yearMonth": "202608",
+        "requestLawd": "26710"
+      },
+      {
+        "catalogOrSyncLawd": "27110",
+        "yearMonth": "202608",
+        "requestLawd": "27110"
+      },
+      {
+        "catalogOrSyncLawd": "27140",
+        "yearMonth": "202608",
+        "requestLawd": "27140"
+      },
+      {
+        "catalogOrSyncLawd": "27170",
+        "yearMonth": "202608",
+        "requestLawd": "27170"
+      },
+      {
+        "catalogOrSyncLawd": "27200",
+        "yearMonth": "202608",
+        "requestLawd": "27200"
+      },
+      {
+        "catalogOrSyncLawd": "27230",
+        "yearMonth": "202608",
+        "requestLawd": "27230"
+      },
+      {
+        "catalogOrSyncLawd": "27260",
+        "yearMonth": "202608",
+        "requestLawd": "27260"
+      },
+      {
+        "catalogOrSyncLawd": "27290",
+        "yearMonth": "202608",
+        "requestLawd": "27290"
+      },
+      {
+        "catalogOrSyncLawd": "27710",
+        "yearMonth": "202608",
+        "requestLawd": "27710"
+      },
+      {
+        "catalogOrSyncLawd": "28125",
+        "yearMonth": "202608",
+        "requestLawd": "28125"
+      },
+      {
+        "catalogOrSyncLawd": "28155",
+        "yearMonth": "202608",
+        "requestLawd": "28155"
+      },
+      {
+        "catalogOrSyncLawd": "28177",
+        "yearMonth": "202608",
+        "requestLawd": "28177"
+      },
+      {
+        "catalogOrSyncLawd": "28185",
+        "yearMonth": "202608",
+        "requestLawd": "28185"
+      },
+      {
+        "catalogOrSyncLawd": "28200",
+        "yearMonth": "202608",
+        "requestLawd": "28200"
+      },
+      {
+        "catalogOrSyncLawd": "28237",
+        "yearMonth": "202608",
+        "requestLawd": "28237"
+      },
+      {
+        "catalogOrSyncLawd": "28245",
+        "yearMonth": "202608",
+        "requestLawd": "28245"
+      },
+      {
+        "catalogOrSyncLawd": "28275",
+        "yearMonth": "202608",
+        "requestLawd": "28275"
+      },
+      {
+        "catalogOrSyncLawd": "28290",
+        "yearMonth": "202608",
+        "requestLawd": "28290"
+      },
+      {
+        "catalogOrSyncLawd": "28710",
+        "yearMonth": "202608",
+        "requestLawd": "28710"
+      },
+      {
+        "catalogOrSyncLawd": "28720",
+        "yearMonth": "202608",
+        "requestLawd": "28720"
+      },
+      {
+        "catalogOrSyncLawd": "30110",
+        "yearMonth": "202608",
+        "requestLawd": "30110"
+      },
+      {
+        "catalogOrSyncLawd": "30140",
+        "yearMonth": "202608",
+        "requestLawd": "30140"
+      },
+      {
+        "catalogOrSyncLawd": "30170",
+        "yearMonth": "202608",
+        "requestLawd": "30170"
+      },
+      {
+        "catalogOrSyncLawd": "30200",
+        "yearMonth": "202608",
+        "requestLawd": "30200"
+      },
+      {
+        "catalogOrSyncLawd": "30230",
+        "yearMonth": "202608",
+        "requestLawd": "30230"
+      },
+      {
+        "catalogOrSyncLawd": "31110",
+        "yearMonth": "202608",
+        "requestLawd": "31110"
+      },
+      {
+        "catalogOrSyncLawd": "31140",
+        "yearMonth": "202608",
+        "requestLawd": "31140"
+      },
+      {
+        "catalogOrSyncLawd": "31170",
+        "yearMonth": "202608",
+        "requestLawd": "31170"
+      },
+      {
+        "catalogOrSyncLawd": "31200",
+        "yearMonth": "202608",
+        "requestLawd": "31200"
+      },
+      {
+        "catalogOrSyncLawd": "31710",
+        "yearMonth": "202608",
+        "requestLawd": "31710"
+      },
+      {
+        "catalogOrSyncLawd": "36110",
+        "yearMonth": "202608",
+        "requestLawd": "36110"
+      },
+      {
+        "catalogOrSyncLawd": "41111",
+        "yearMonth": "202608",
+        "requestLawd": "41111"
+      },
+      {
+        "catalogOrSyncLawd": "41113",
+        "yearMonth": "202608",
+        "requestLawd": "41113"
+      },
+      {
+        "catalogOrSyncLawd": "41115",
+        "yearMonth": "202608",
+        "requestLawd": "41115"
+      },
+      {
+        "catalogOrSyncLawd": "41117",
+        "yearMonth": "202608",
+        "requestLawd": "41117"
+      },
+      {
+        "catalogOrSyncLawd": "41131",
+        "yearMonth": "202608",
+        "requestLawd": "41131"
+      },
+      {
+        "catalogOrSyncLawd": "41133",
+        "yearMonth": "202608",
+        "requestLawd": "41133"
+      },
+      {
+        "catalogOrSyncLawd": "41135",
+        "yearMonth": "202608",
+        "requestLawd": "41135"
+      },
+      {
+        "catalogOrSyncLawd": "41150",
+        "yearMonth": "202608",
+        "requestLawd": "41150"
+      },
+      {
+        "catalogOrSyncLawd": "41171",
+        "yearMonth": "202608",
+        "requestLawd": "41171"
+      },
+      {
+        "catalogOrSyncLawd": "41173",
+        "yearMonth": "202608",
+        "requestLawd": "41173"
+      },
+      {
+        "catalogOrSyncLawd": "41192",
+        "yearMonth": "202608",
+        "requestLawd": "41192"
+      },
+      {
+        "catalogOrSyncLawd": "41194",
+        "yearMonth": "202608",
+        "requestLawd": "41194"
+      },
+      {
+        "catalogOrSyncLawd": "41196",
+        "yearMonth": "202608",
+        "requestLawd": "41196"
+      },
+      {
+        "catalogOrSyncLawd": "41210",
+        "yearMonth": "202608",
+        "requestLawd": "41210"
+      },
+      {
+        "catalogOrSyncLawd": "41220",
+        "yearMonth": "202608",
+        "requestLawd": "41220"
+      },
+      {
+        "catalogOrSyncLawd": "41250",
+        "yearMonth": "202608",
+        "requestLawd": "41250"
+      },
+      {
+        "catalogOrSyncLawd": "41271",
+        "yearMonth": "202608",
+        "requestLawd": "41271"
+      },
+      {
+        "catalogOrSyncLawd": "41273",
+        "yearMonth": "202608",
+        "requestLawd": "41273"
+      },
+      {
+        "catalogOrSyncLawd": "41281",
+        "yearMonth": "202608",
+        "requestLawd": "41281"
+      },
+      {
+        "catalogOrSyncLawd": "41285",
+        "yearMonth": "202608",
+        "requestLawd": "41285"
+      },
+      {
+        "catalogOrSyncLawd": "41287",
+        "yearMonth": "202608",
+        "requestLawd": "41287"
+      },
+      {
+        "catalogOrSyncLawd": "41290",
+        "yearMonth": "202608",
+        "requestLawd": "41290"
+      },
+      {
+        "catalogOrSyncLawd": "41310",
+        "yearMonth": "202608",
+        "requestLawd": "41310"
+      },
+      {
+        "catalogOrSyncLawd": "41360",
+        "yearMonth": "202608",
+        "requestLawd": "41360"
+      },
+      {
+        "catalogOrSyncLawd": "41370",
+        "yearMonth": "202608",
+        "requestLawd": "41370"
+      },
+      {
+        "catalogOrSyncLawd": "41390",
+        "yearMonth": "202608",
+        "requestLawd": "41390"
+      },
+      {
+        "catalogOrSyncLawd": "41410",
+        "yearMonth": "202608",
+        "requestLawd": "41410"
+      },
+      {
+        "catalogOrSyncLawd": "41430",
+        "yearMonth": "202608",
+        "requestLawd": "41430"
+      },
+      {
+        "catalogOrSyncLawd": "41450",
+        "yearMonth": "202608",
+        "requestLawd": "41450"
+      },
+      {
+        "catalogOrSyncLawd": "41461",
+        "yearMonth": "202608",
+        "requestLawd": "41461"
+      },
+      {
+        "catalogOrSyncLawd": "41463",
+        "yearMonth": "202608",
+        "requestLawd": "41463"
+      },
+      {
+        "catalogOrSyncLawd": "41465",
+        "yearMonth": "202608",
+        "requestLawd": "41465"
+      },
+      {
+        "catalogOrSyncLawd": "41480",
+        "yearMonth": "202608",
+        "requestLawd": "41480"
+      },
+      {
+        "catalogOrSyncLawd": "41500",
+        "yearMonth": "202608",
+        "requestLawd": "41500"
+      },
+      {
+        "catalogOrSyncLawd": "41550",
+        "yearMonth": "202608",
+        "requestLawd": "41550"
+      },
+      {
+        "catalogOrSyncLawd": "41570",
+        "yearMonth": "202608",
+        "requestLawd": "41570"
+      },
+      {
+        "catalogOrSyncLawd": "41591",
+        "yearMonth": "202608",
+        "requestLawd": "41591"
+      },
+      {
+        "catalogOrSyncLawd": "41593",
+        "yearMonth": "202608",
+        "requestLawd": "41593"
+      },
+      {
+        "catalogOrSyncLawd": "41595",
+        "yearMonth": "202608",
+        "requestLawd": "41595"
+      },
+      {
+        "catalogOrSyncLawd": "41597",
+        "yearMonth": "202608",
+        "requestLawd": "41597"
+      },
+      {
+        "catalogOrSyncLawd": "41610",
+        "yearMonth": "202608",
+        "requestLawd": "41610"
+      },
+      {
+        "catalogOrSyncLawd": "41630",
+        "yearMonth": "202608",
+        "requestLawd": "41630"
+      },
+      {
+        "catalogOrSyncLawd": "41650",
+        "yearMonth": "202608",
+        "requestLawd": "41650"
+      },
+      {
+        "catalogOrSyncLawd": "41670",
+        "yearMonth": "202608",
+        "requestLawd": "41670"
+      },
+      {
+        "catalogOrSyncLawd": "41800",
+        "yearMonth": "202608",
+        "requestLawd": "41800"
+      },
+      {
+        "catalogOrSyncLawd": "41820",
+        "yearMonth": "202608",
+        "requestLawd": "41820"
+      },
+      {
+        "catalogOrSyncLawd": "41830",
+        "yearMonth": "202608",
+        "requestLawd": "41830"
+      },
+      {
+        "catalogOrSyncLawd": "43111",
+        "yearMonth": "202608",
+        "requestLawd": "43111"
+      },
+      {
+        "catalogOrSyncLawd": "43112",
+        "yearMonth": "202608",
+        "requestLawd": "43112"
+      },
+      {
+        "catalogOrSyncLawd": "43113",
+        "yearMonth": "202608",
+        "requestLawd": "43113"
+      },
+      {
+        "catalogOrSyncLawd": "43114",
+        "yearMonth": "202608",
+        "requestLawd": "43114"
+      },
+      {
+        "catalogOrSyncLawd": "43130",
+        "yearMonth": "202608",
+        "requestLawd": "43130"
+      },
+      {
+        "catalogOrSyncLawd": "43150",
+        "yearMonth": "202608",
+        "requestLawd": "43150"
+      },
+      {
+        "catalogOrSyncLawd": "43720",
+        "yearMonth": "202608",
+        "requestLawd": "43720"
+      },
+      {
+        "catalogOrSyncLawd": "43730",
+        "yearMonth": "202608",
+        "requestLawd": "43730"
+      },
+      {
+        "catalogOrSyncLawd": "43740",
+        "yearMonth": "202608",
+        "requestLawd": "43740"
+      },
+      {
+        "catalogOrSyncLawd": "43745",
+        "yearMonth": "202608",
+        "requestLawd": "43745"
+      },
+      {
+        "catalogOrSyncLawd": "43750",
+        "yearMonth": "202608",
+        "requestLawd": "43750"
+      },
+      {
+        "catalogOrSyncLawd": "43760",
+        "yearMonth": "202608",
+        "requestLawd": "43760"
+      },
+      {
+        "catalogOrSyncLawd": "43770",
+        "yearMonth": "202608",
+        "requestLawd": "43770"
+      },
+      {
+        "catalogOrSyncLawd": "43800",
+        "yearMonth": "202608",
+        "requestLawd": "43800"
+      },
+      {
+        "catalogOrSyncLawd": "44131",
+        "yearMonth": "202608",
+        "requestLawd": "44131"
+      },
+      {
+        "catalogOrSyncLawd": "44133",
+        "yearMonth": "202608",
+        "requestLawd": "44133"
+      },
+      {
+        "catalogOrSyncLawd": "44150",
+        "yearMonth": "202608",
+        "requestLawd": "44150"
+      },
+      {
+        "catalogOrSyncLawd": "44180",
+        "yearMonth": "202608",
+        "requestLawd": "44180"
+      },
+      {
+        "catalogOrSyncLawd": "44200",
+        "yearMonth": "202608",
+        "requestLawd": "44200"
+      },
+      {
+        "catalogOrSyncLawd": "44210",
+        "yearMonth": "202608",
+        "requestLawd": "44210"
+      },
+      {
+        "catalogOrSyncLawd": "44230",
+        "yearMonth": "202608",
+        "requestLawd": "44230"
+      },
+      {
+        "catalogOrSyncLawd": "44250",
+        "yearMonth": "202608",
+        "requestLawd": "44250"
+      },
+      {
+        "catalogOrSyncLawd": "44270",
+        "yearMonth": "202608",
+        "requestLawd": "44270"
+      },
+      {
+        "catalogOrSyncLawd": "44710",
+        "yearMonth": "202608",
+        "requestLawd": "44710"
+      },
+      {
+        "catalogOrSyncLawd": "44760",
+        "yearMonth": "202608",
+        "requestLawd": "44760"
+      },
+      {
+        "catalogOrSyncLawd": "44770",
+        "yearMonth": "202608",
+        "requestLawd": "44770"
+      },
+      {
+        "catalogOrSyncLawd": "44790",
+        "yearMonth": "202608",
+        "requestLawd": "44790"
+      },
+      {
+        "catalogOrSyncLawd": "44800",
+        "yearMonth": "202608",
+        "requestLawd": "44800"
+      },
+      {
+        "catalogOrSyncLawd": "44810",
+        "yearMonth": "202608",
+        "requestLawd": "44810"
+      },
+      {
+        "catalogOrSyncLawd": "44825",
+        "yearMonth": "202608",
+        "requestLawd": "44825"
+      },
+      {
+        "catalogOrSyncLawd": "47111",
+        "yearMonth": "202608",
+        "requestLawd": "47111"
+      },
+      {
+        "catalogOrSyncLawd": "47113",
+        "yearMonth": "202608",
+        "requestLawd": "47113"
+      },
+      {
+        "catalogOrSyncLawd": "47130",
+        "yearMonth": "202608",
+        "requestLawd": "47130"
+      },
+      {
+        "catalogOrSyncLawd": "47150",
+        "yearMonth": "202608",
+        "requestLawd": "47150"
+      },
+      {
+        "catalogOrSyncLawd": "47170",
+        "yearMonth": "202608",
+        "requestLawd": "47170"
+      },
+      {
+        "catalogOrSyncLawd": "47190",
+        "yearMonth": "202608",
+        "requestLawd": "47190"
+      },
+      {
+        "catalogOrSyncLawd": "47210",
+        "yearMonth": "202608",
+        "requestLawd": "47210"
+      },
+      {
+        "catalogOrSyncLawd": "47230",
+        "yearMonth": "202608",
+        "requestLawd": "47230"
+      },
+      {
+        "catalogOrSyncLawd": "47250",
+        "yearMonth": "202608",
+        "requestLawd": "47250"
+      },
+      {
+        "catalogOrSyncLawd": "47280",
+        "yearMonth": "202608",
+        "requestLawd": "47280"
+      },
+      {
+        "catalogOrSyncLawd": "47290",
+        "yearMonth": "202608",
+        "requestLawd": "47290"
+      },
+      {
+        "catalogOrSyncLawd": "47730",
+        "yearMonth": "202608",
+        "requestLawd": "47730"
+      },
+      {
+        "catalogOrSyncLawd": "47750",
+        "yearMonth": "202608",
+        "requestLawd": "47750"
+      },
+      {
+        "catalogOrSyncLawd": "47760",
+        "yearMonth": "202608",
+        "requestLawd": "47760"
+      },
+      {
+        "catalogOrSyncLawd": "47770",
+        "yearMonth": "202608",
+        "requestLawd": "47770"
+      },
+      {
+        "catalogOrSyncLawd": "47820",
+        "yearMonth": "202608",
+        "requestLawd": "47820"
+      },
+      {
+        "catalogOrSyncLawd": "47830",
+        "yearMonth": "202608",
+        "requestLawd": "47830"
+      },
+      {
+        "catalogOrSyncLawd": "47840",
+        "yearMonth": "202608",
+        "requestLawd": "47840"
+      },
+      {
+        "catalogOrSyncLawd": "47850",
+        "yearMonth": "202608",
+        "requestLawd": "47850"
+      },
+      {
+        "catalogOrSyncLawd": "47900",
+        "yearMonth": "202608",
+        "requestLawd": "47900"
+      },
+      {
+        "catalogOrSyncLawd": "47920",
+        "yearMonth": "202608",
+        "requestLawd": "47920"
+      },
+      {
+        "catalogOrSyncLawd": "47930",
+        "yearMonth": "202608",
+        "requestLawd": "47930"
+      },
+      {
+        "catalogOrSyncLawd": "47940",
+        "yearMonth": "202608",
+        "requestLawd": "47940"
+      },
+      {
+        "catalogOrSyncLawd": "48121",
+        "yearMonth": "202608",
+        "requestLawd": "48121"
+      },
+      {
+        "catalogOrSyncLawd": "48123",
+        "yearMonth": "202608",
+        "requestLawd": "48123"
+      },
+      {
+        "catalogOrSyncLawd": "48125",
+        "yearMonth": "202608",
+        "requestLawd": "48125"
+      },
+      {
+        "catalogOrSyncLawd": "48127",
+        "yearMonth": "202608",
+        "requestLawd": "48127"
+      },
+      {
+        "catalogOrSyncLawd": "48129",
+        "yearMonth": "202608",
+        "requestLawd": "48129"
+      },
+      {
+        "catalogOrSyncLawd": "48170",
+        "yearMonth": "202608",
+        "requestLawd": "48170"
+      },
+      {
+        "catalogOrSyncLawd": "48220",
+        "yearMonth": "202608",
+        "requestLawd": "48220"
+      },
+      {
+        "catalogOrSyncLawd": "48240",
+        "yearMonth": "202608",
+        "requestLawd": "48240"
+      },
+      {
+        "catalogOrSyncLawd": "48250",
+        "yearMonth": "202608",
+        "requestLawd": "48250"
+      },
+      {
+        "catalogOrSyncLawd": "48270",
+        "yearMonth": "202608",
+        "requestLawd": "48270"
+      },
+      {
+        "catalogOrSyncLawd": "48310",
+        "yearMonth": "202608",
+        "requestLawd": "48310"
+      },
+      {
+        "catalogOrSyncLawd": "48330",
+        "yearMonth": "202608",
+        "requestLawd": "48330"
+      },
+      {
+        "catalogOrSyncLawd": "48720",
+        "yearMonth": "202608",
+        "requestLawd": "48720"
+      },
+      {
+        "catalogOrSyncLawd": "48730",
+        "yearMonth": "202608",
+        "requestLawd": "48730"
+      },
+      {
+        "catalogOrSyncLawd": "48740",
+        "yearMonth": "202608",
+        "requestLawd": "48740"
+      },
+      {
+        "catalogOrSyncLawd": "48820",
+        "yearMonth": "202608",
+        "requestLawd": "48820"
+      },
+      {
+        "catalogOrSyncLawd": "48840",
+        "yearMonth": "202608",
+        "requestLawd": "48840"
+      },
+      {
+        "catalogOrSyncLawd": "48850",
+        "yearMonth": "202608",
+        "requestLawd": "48850"
+      },
+      {
+        "catalogOrSyncLawd": "48860",
+        "yearMonth": "202608",
+        "requestLawd": "48860"
+      },
+      {
+        "catalogOrSyncLawd": "48870",
+        "yearMonth": "202608",
+        "requestLawd": "48870"
+      },
+      {
+        "catalogOrSyncLawd": "48880",
+        "yearMonth": "202608",
+        "requestLawd": "48880"
+      },
+      {
+        "catalogOrSyncLawd": "48890",
+        "yearMonth": "202608",
+        "requestLawd": "48890"
+      },
+      {
+        "catalogOrSyncLawd": "50110",
+        "yearMonth": "202608",
+        "requestLawd": "50110"
+      },
+      {
+        "catalogOrSyncLawd": "50130",
+        "yearMonth": "202608",
+        "requestLawd": "50130"
+      },
+      {
+        "catalogOrSyncLawd": "51110",
+        "yearMonth": "202608",
+        "requestLawd": "51110"
+      },
+      {
+        "catalogOrSyncLawd": "51130",
+        "yearMonth": "202608",
+        "requestLawd": "51130"
+      },
+      {
+        "catalogOrSyncLawd": "51150",
+        "yearMonth": "202608",
+        "requestLawd": "51150"
+      },
+      {
+        "catalogOrSyncLawd": "51170",
+        "yearMonth": "202608",
+        "requestLawd": "51170"
+      },
+      {
+        "catalogOrSyncLawd": "51190",
+        "yearMonth": "202608",
+        "requestLawd": "51190"
+      },
+      {
+        "catalogOrSyncLawd": "51210",
+        "yearMonth": "202608",
+        "requestLawd": "51210"
+      },
+      {
+        "catalogOrSyncLawd": "51230",
+        "yearMonth": "202608",
+        "requestLawd": "51230"
+      },
+      {
+        "catalogOrSyncLawd": "51720",
+        "yearMonth": "202608",
+        "requestLawd": "51720"
+      },
+      {
+        "catalogOrSyncLawd": "51730",
+        "yearMonth": "202608",
+        "requestLawd": "51730"
+      },
+      {
+        "catalogOrSyncLawd": "51750",
+        "yearMonth": "202608",
+        "requestLawd": "51750"
+      },
+      {
+        "catalogOrSyncLawd": "51760",
+        "yearMonth": "202608",
+        "requestLawd": "51760"
+      },
+      {
+        "catalogOrSyncLawd": "51770",
+        "yearMonth": "202608",
+        "requestLawd": "51770"
+      },
+      {
+        "catalogOrSyncLawd": "51780",
+        "yearMonth": "202608",
+        "requestLawd": "51780"
+      },
+      {
+        "catalogOrSyncLawd": "51790",
+        "yearMonth": "202608",
+        "requestLawd": "51790"
+      },
+      {
+        "catalogOrSyncLawd": "51800",
+        "yearMonth": "202608",
+        "requestLawd": "51800"
+      },
+      {
+        "catalogOrSyncLawd": "51810",
+        "yearMonth": "202608",
+        "requestLawd": "51810"
+      },
+      {
+        "catalogOrSyncLawd": "51820",
+        "yearMonth": "202608",
+        "requestLawd": "51820"
+      },
+      {
+        "catalogOrSyncLawd": "51830",
+        "yearMonth": "202608",
+        "requestLawd": "51830"
+      },
+      {
+        "catalogOrSyncLawd": "52111",
+        "yearMonth": "202608",
+        "requestLawd": "52111"
+      },
+      {
+        "catalogOrSyncLawd": "52113",
+        "yearMonth": "202608",
+        "requestLawd": "52113"
+      },
+      {
+        "catalogOrSyncLawd": "52130",
+        "yearMonth": "202608",
+        "requestLawd": "52130"
+      },
+      {
+        "catalogOrSyncLawd": "52140",
+        "yearMonth": "202608",
+        "requestLawd": "52140"
+      },
+      {
+        "catalogOrSyncLawd": "52180",
+        "yearMonth": "202608",
+        "requestLawd": "52180"
+      },
+      {
+        "catalogOrSyncLawd": "52190",
+        "yearMonth": "202608",
+        "requestLawd": "52190"
+      },
+      {
+        "catalogOrSyncLawd": "52210",
+        "yearMonth": "202608",
+        "requestLawd": "52210"
+      },
+      {
+        "catalogOrSyncLawd": "52710",
+        "yearMonth": "202608",
+        "requestLawd": "52710"
+      },
+      {
+        "catalogOrSyncLawd": "52720",
+        "yearMonth": "202608",
+        "requestLawd": "52720"
+      },
+      {
+        "catalogOrSyncLawd": "52730",
+        "yearMonth": "202608",
+        "requestLawd": "52730"
+      },
+      {
+        "catalogOrSyncLawd": "52740",
+        "yearMonth": "202608",
+        "requestLawd": "52740"
+      },
+      {
+        "catalogOrSyncLawd": "52750",
+        "yearMonth": "202608",
+        "requestLawd": "52750"
+      },
+      {
+        "catalogOrSyncLawd": "52770",
+        "yearMonth": "202608",
+        "requestLawd": "52770"
+      },
+      {
+        "catalogOrSyncLawd": "52790",
+        "yearMonth": "202608",
+        "requestLawd": "52790"
+      },
+      {
+        "catalogOrSyncLawd": "52800",
+        "yearMonth": "202608",
+        "requestLawd": "52800"
+      },
+      {
+        "catalogOrSyncLawd": "11110",
+        "yearMonth": "202607",
+        "requestLawd": "11110"
+      },
+      {
+        "catalogOrSyncLawd": "11140",
+        "yearMonth": "202607",
+        "requestLawd": "11140"
+      },
+      {
+        "catalogOrSyncLawd": "11170",
+        "yearMonth": "202607",
+        "requestLawd": "11170"
+      },
+      {
+        "catalogOrSyncLawd": "11200",
+        "yearMonth": "202607",
+        "requestLawd": "11200"
+      },
+      {
+        "catalogOrSyncLawd": "11215",
+        "yearMonth": "202607",
+        "requestLawd": "11215"
+      },
+      {
+        "catalogOrSyncLawd": "11230",
+        "yearMonth": "202607",
+        "requestLawd": "11230"
+      },
+      {
+        "catalogOrSyncLawd": "11260",
+        "yearMonth": "202607",
+        "requestLawd": "11260"
+      },
+      {
+        "catalogOrSyncLawd": "11290",
+        "yearMonth": "202607",
+        "requestLawd": "11290"
+      },
+      {
+        "catalogOrSyncLawd": "11305",
+        "yearMonth": "202607",
+        "requestLawd": "11305"
+      },
+      {
+        "catalogOrSyncLawd": "11320",
+        "yearMonth": "202607",
+        "requestLawd": "11320"
+      },
+      {
+        "catalogOrSyncLawd": "11350",
+        "yearMonth": "202607",
+        "requestLawd": "11350"
+      },
+      {
+        "catalogOrSyncLawd": "11380",
+        "yearMonth": "202607",
+        "requestLawd": "11380"
+      },
+      {
+        "catalogOrSyncLawd": "11410",
+        "yearMonth": "202607",
+        "requestLawd": "11410"
+      },
+      {
+        "catalogOrSyncLawd": "11440",
+        "yearMonth": "202607",
+        "requestLawd": "11440"
+      },
+      {
+        "catalogOrSyncLawd": "11470",
+        "yearMonth": "202607",
+        "requestLawd": "11470"
+      },
+      {
+        "catalogOrSyncLawd": "11500",
+        "yearMonth": "202607",
+        "requestLawd": "11500"
+      },
+      {
+        "catalogOrSyncLawd": "11530",
+        "yearMonth": "202607",
+        "requestLawd": "11530"
+      },
+      {
+        "catalogOrSyncLawd": "11545",
+        "yearMonth": "202607",
+        "requestLawd": "11545"
+      },
+      {
+        "catalogOrSyncLawd": "11560",
+        "yearMonth": "202607",
+        "requestLawd": "11560"
+      },
+      {
+        "catalogOrSyncLawd": "11590",
+        "yearMonth": "202607",
+        "requestLawd": "11590"
+      },
+      {
+        "catalogOrSyncLawd": "11620",
+        "yearMonth": "202607",
+        "requestLawd": "11620"
+      },
+      {
+        "catalogOrSyncLawd": "11650",
+        "yearMonth": "202607",
+        "requestLawd": "11650"
+      },
+      {
+        "catalogOrSyncLawd": "11680",
+        "yearMonth": "202607",
+        "requestLawd": "11680"
+      },
+      {
+        "catalogOrSyncLawd": "11710",
+        "yearMonth": "202607",
+        "requestLawd": "11710"
+      },
+      {
+        "catalogOrSyncLawd": "11740",
+        "yearMonth": "202607",
+        "requestLawd": "11740"
+      },
+      {
+        "catalogOrSyncLawd": "12110",
+        "yearMonth": "202607",
+        "requestLawd": "12110"
+      },
+      {
+        "catalogOrSyncLawd": "12130",
+        "yearMonth": "202607",
+        "requestLawd": "12130"
+      },
+      {
+        "catalogOrSyncLawd": "12150",
+        "yearMonth": "202607",
+        "requestLawd": "12150"
+      },
+      {
+        "catalogOrSyncLawd": "12170",
+        "yearMonth": "202607",
+        "requestLawd": "12170"
+      },
+      {
+        "catalogOrSyncLawd": "12190",
+        "yearMonth": "202607",
+        "requestLawd": "12190"
+      },
+      {
+        "catalogOrSyncLawd": "12210",
+        "yearMonth": "202607",
+        "requestLawd": "12210"
+      },
+      {
+        "catalogOrSyncLawd": "12240",
+        "yearMonth": "202607",
+        "requestLawd": "12240"
+      },
+      {
+        "catalogOrSyncLawd": "12270",
+        "yearMonth": "202607",
+        "requestLawd": "12270"
+      },
+      {
+        "catalogOrSyncLawd": "12300",
+        "yearMonth": "202607",
+        "requestLawd": "12300"
+      },
+      {
+        "catalogOrSyncLawd": "12330",
+        "yearMonth": "202607",
+        "requestLawd": "12330"
+      },
+      {
+        "catalogOrSyncLawd": "12710",
+        "yearMonth": "202607",
+        "requestLawd": "12710"
+      },
+      {
+        "catalogOrSyncLawd": "12720",
+        "yearMonth": "202607",
+        "requestLawd": "12720"
+      },
+      {
+        "catalogOrSyncLawd": "12730",
+        "yearMonth": "202607",
+        "requestLawd": "12730"
+      },
+      {
+        "catalogOrSyncLawd": "12740",
+        "yearMonth": "202607",
+        "requestLawd": "12740"
+      },
+      {
+        "catalogOrSyncLawd": "12750",
+        "yearMonth": "202607",
+        "requestLawd": "12750"
+      },
+      {
+        "catalogOrSyncLawd": "12760",
+        "yearMonth": "202607",
+        "requestLawd": "12760"
+      },
+      {
+        "catalogOrSyncLawd": "12770",
+        "yearMonth": "202607",
+        "requestLawd": "12770"
+      },
+      {
+        "catalogOrSyncLawd": "12780",
+        "yearMonth": "202607",
+        "requestLawd": "12780"
+      },
+      {
+        "catalogOrSyncLawd": "12790",
+        "yearMonth": "202607",
+        "requestLawd": "12790"
+      },
+      {
+        "catalogOrSyncLawd": "12800",
+        "yearMonth": "202607",
+        "requestLawd": "12800"
+      },
+      {
+        "catalogOrSyncLawd": "12810",
+        "yearMonth": "202607",
+        "requestLawd": "12810"
+      },
+      {
+        "catalogOrSyncLawd": "12820",
+        "yearMonth": "202607",
+        "requestLawd": "12820"
+      },
+      {
+        "catalogOrSyncLawd": "12830",
+        "yearMonth": "202607",
+        "requestLawd": "12830"
+      },
+      {
+        "catalogOrSyncLawd": "12840",
+        "yearMonth": "202607",
+        "requestLawd": "12840"
+      },
+      {
+        "catalogOrSyncLawd": "12850",
+        "yearMonth": "202607",
+        "requestLawd": "12850"
+      },
+      {
+        "catalogOrSyncLawd": "12860",
+        "yearMonth": "202607",
+        "requestLawd": "12860"
+      },
+      {
+        "catalogOrSyncLawd": "12870",
+        "yearMonth": "202607",
+        "requestLawd": "12870"
+      },
+      {
+        "catalogOrSyncLawd": "26110",
+        "yearMonth": "202607",
+        "requestLawd": "26110"
+      },
+      {
+        "catalogOrSyncLawd": "26140",
+        "yearMonth": "202607",
+        "requestLawd": "26140"
+      },
+      {
+        "catalogOrSyncLawd": "26170",
+        "yearMonth": "202607",
+        "requestLawd": "26170"
+      },
+      {
+        "catalogOrSyncLawd": "26200",
+        "yearMonth": "202607",
+        "requestLawd": "26200"
+      },
+      {
+        "catalogOrSyncLawd": "26230",
+        "yearMonth": "202607",
+        "requestLawd": "26230"
+      },
+      {
+        "catalogOrSyncLawd": "26260",
+        "yearMonth": "202607",
+        "requestLawd": "26260"
+      },
+      {
+        "catalogOrSyncLawd": "26290",
+        "yearMonth": "202607",
+        "requestLawd": "26290"
+      },
+      {
+        "catalogOrSyncLawd": "26320",
+        "yearMonth": "202607",
+        "requestLawd": "26320"
+      },
+      {
+        "catalogOrSyncLawd": "26350",
+        "yearMonth": "202607",
+        "requestLawd": "26350"
+      },
+      {
+        "catalogOrSyncLawd": "26380",
+        "yearMonth": "202607",
+        "requestLawd": "26380"
+      },
+      {
+        "catalogOrSyncLawd": "26410",
+        "yearMonth": "202607",
+        "requestLawd": "26410"
+      },
+      {
+        "catalogOrSyncLawd": "26440",
+        "yearMonth": "202607",
+        "requestLawd": "26440"
+      },
+      {
+        "catalogOrSyncLawd": "26470",
+        "yearMonth": "202607",
+        "requestLawd": "26470"
+      },
+      {
+        "catalogOrSyncLawd": "26500",
+        "yearMonth": "202607",
+        "requestLawd": "26500"
+      },
+      {
+        "catalogOrSyncLawd": "26530",
+        "yearMonth": "202607",
+        "requestLawd": "26530"
+      },
+      {
+        "catalogOrSyncLawd": "26710",
+        "yearMonth": "202607",
+        "requestLawd": "26710"
+      },
+      {
+        "catalogOrSyncLawd": "27110",
+        "yearMonth": "202607",
+        "requestLawd": "27110"
+      },
+      {
+        "catalogOrSyncLawd": "27140",
+        "yearMonth": "202607",
+        "requestLawd": "27140"
+      },
+      {
+        "catalogOrSyncLawd": "27170",
+        "yearMonth": "202607",
+        "requestLawd": "27170"
+      },
+      {
+        "catalogOrSyncLawd": "27200",
+        "yearMonth": "202607",
+        "requestLawd": "27200"
+      },
+      {
+        "catalogOrSyncLawd": "27230",
+        "yearMonth": "202607",
+        "requestLawd": "27230"
+      },
+      {
+        "catalogOrSyncLawd": "27260",
+        "yearMonth": "202607",
+        "requestLawd": "27260"
+      },
+      {
+        "catalogOrSyncLawd": "27290",
+        "yearMonth": "202607",
+        "requestLawd": "27290"
+      },
+      {
+        "catalogOrSyncLawd": "27710",
+        "yearMonth": "202607",
+        "requestLawd": "27710"
+      },
+      {
+        "catalogOrSyncLawd": "28125",
+        "yearMonth": "202607",
+        "requestLawd": "28125"
+      },
+      {
+        "catalogOrSyncLawd": "28155",
+        "yearMonth": "202607",
+        "requestLawd": "28155"
+      },
+      {
+        "catalogOrSyncLawd": "28177",
+        "yearMonth": "202607",
+        "requestLawd": "28177"
+      },
+      {
+        "catalogOrSyncLawd": "28185",
+        "yearMonth": "202607",
+        "requestLawd": "28185"
+      },
+      {
+        "catalogOrSyncLawd": "28200",
+        "yearMonth": "202607",
+        "requestLawd": "28200"
+      },
+      {
+        "catalogOrSyncLawd": "28237",
+        "yearMonth": "202607",
+        "requestLawd": "28237"
+      },
+      {
+        "catalogOrSyncLawd": "28245",
+        "yearMonth": "202607",
+        "requestLawd": "28245"
+      },
+      {
+        "catalogOrSyncLawd": "28275",
+        "yearMonth": "202607",
+        "requestLawd": "28275"
+      },
+      {
+        "catalogOrSyncLawd": "28290",
+        "yearMonth": "202607",
+        "requestLawd": "28290"
+      },
+      {
+        "catalogOrSyncLawd": "28710",
+        "yearMonth": "202607",
+        "requestLawd": "28710"
+      },
+      {
+        "catalogOrSyncLawd": "28720",
+        "yearMonth": "202607",
+        "requestLawd": "28720"
+      },
+      {
+        "catalogOrSyncLawd": "30110",
+        "yearMonth": "202607",
+        "requestLawd": "30110"
+      },
+      {
+        "catalogOrSyncLawd": "30140",
+        "yearMonth": "202607",
+        "requestLawd": "30140"
+      },
+      {
+        "catalogOrSyncLawd": "30170",
+        "yearMonth": "202607",
+        "requestLawd": "30170"
+      },
+      {
+        "catalogOrSyncLawd": "30200",
+        "yearMonth": "202607",
+        "requestLawd": "30200"
+      },
+      {
+        "catalogOrSyncLawd": "30230",
+        "yearMonth": "202607",
+        "requestLawd": "30230"
+      },
+      {
+        "catalogOrSyncLawd": "31110",
+        "yearMonth": "202607",
+        "requestLawd": "31110"
+      },
+      {
+        "catalogOrSyncLawd": "31140",
+        "yearMonth": "202607",
+        "requestLawd": "31140"
+      },
+      {
+        "catalogOrSyncLawd": "31170",
+        "yearMonth": "202607",
+        "requestLawd": "31170"
+      },
+      {
+        "catalogOrSyncLawd": "31200",
+        "yearMonth": "202607",
+        "requestLawd": "31200"
+      },
+      {
+        "catalogOrSyncLawd": "31710",
+        "yearMonth": "202607",
+        "requestLawd": "31710"
+      },
+      {
+        "catalogOrSyncLawd": "36110",
+        "yearMonth": "202607",
+        "requestLawd": "36110"
+      },
+      {
+        "catalogOrSyncLawd": "41111",
+        "yearMonth": "202607",
+        "requestLawd": "41111"
+      },
+      {
+        "catalogOrSyncLawd": "41113",
+        "yearMonth": "202607",
+        "requestLawd": "41113"
+      },
+      {
+        "catalogOrSyncLawd": "41115",
+        "yearMonth": "202607",
+        "requestLawd": "41115"
+      },
+      {
+        "catalogOrSyncLawd": "41117",
+        "yearMonth": "202607",
+        "requestLawd": "41117"
+      },
+      {
+        "catalogOrSyncLawd": "41131",
+        "yearMonth": "202607",
+        "requestLawd": "41131"
+      },
+      {
+        "catalogOrSyncLawd": "41133",
+        "yearMonth": "202607",
+        "requestLawd": "41133"
+      },
+      {
+        "catalogOrSyncLawd": "41135",
+        "yearMonth": "202607",
+        "requestLawd": "41135"
+      },
+      {
+        "catalogOrSyncLawd": "41150",
+        "yearMonth": "202607",
+        "requestLawd": "41150"
+      },
+      {
+        "catalogOrSyncLawd": "41171",
+        "yearMonth": "202607",
+        "requestLawd": "41171"
+      },
+      {
+        "catalogOrSyncLawd": "41173",
+        "yearMonth": "202607",
+        "requestLawd": "41173"
+      },
+      {
+        "catalogOrSyncLawd": "41192",
+        "yearMonth": "202607",
+        "requestLawd": "41192"
+      },
+      {
+        "catalogOrSyncLawd": "41194",
+        "yearMonth": "202607",
+        "requestLawd": "41194"
+      },
+      {
+        "catalogOrSyncLawd": "41196",
+        "yearMonth": "202607",
+        "requestLawd": "41196"
+      },
+      {
+        "catalogOrSyncLawd": "41210",
+        "yearMonth": "202607",
+        "requestLawd": "41210"
+      },
+      {
+        "catalogOrSyncLawd": "41220",
+        "yearMonth": "202607",
+        "requestLawd": "41220"
+      },
+      {
+        "catalogOrSyncLawd": "41250",
+        "yearMonth": "202607",
+        "requestLawd": "41250"
+      },
+      {
+        "catalogOrSyncLawd": "41271",
+        "yearMonth": "202607",
+        "requestLawd": "41271"
+      },
+      {
+        "catalogOrSyncLawd": "41273",
+        "yearMonth": "202607",
+        "requestLawd": "41273"
+      },
+      {
+        "catalogOrSyncLawd": "41281",
+        "yearMonth": "202607",
+        "requestLawd": "41281"
+      },
+      {
+        "catalogOrSyncLawd": "41285",
+        "yearMonth": "202607",
+        "requestLawd": "41285"
+      },
+      {
+        "catalogOrSyncLawd": "41287",
+        "yearMonth": "202607",
+        "requestLawd": "41287"
+      },
+      {
+        "catalogOrSyncLawd": "41290",
+        "yearMonth": "202607",
+        "requestLawd": "41290"
+      },
+      {
+        "catalogOrSyncLawd": "41310",
+        "yearMonth": "202607",
+        "requestLawd": "41310"
+      },
+      {
+        "catalogOrSyncLawd": "41360",
+        "yearMonth": "202607",
+        "requestLawd": "41360"
+      },
+      {
+        "catalogOrSyncLawd": "41370",
+        "yearMonth": "202607",
+        "requestLawd": "41370"
+      },
+      {
+        "catalogOrSyncLawd": "41390",
+        "yearMonth": "202607",
+        "requestLawd": "41390"
+      },
+      {
+        "catalogOrSyncLawd": "41410",
+        "yearMonth": "202607",
+        "requestLawd": "41410"
+      },
+      {
+        "catalogOrSyncLawd": "41430",
+        "yearMonth": "202607",
+        "requestLawd": "41430"
+      },
+      {
+        "catalogOrSyncLawd": "41450",
+        "yearMonth": "202607",
+        "requestLawd": "41450"
+      },
+      {
+        "catalogOrSyncLawd": "41461",
+        "yearMonth": "202607",
+        "requestLawd": "41461"
+      },
+      {
+        "catalogOrSyncLawd": "41463",
+        "yearMonth": "202607",
+        "requestLawd": "41463"
+      },
+      {
+        "catalogOrSyncLawd": "41465",
+        "yearMonth": "202607",
+        "requestLawd": "41465"
+      },
+      {
+        "catalogOrSyncLawd": "41480",
+        "yearMonth": "202607",
+        "requestLawd": "41480"
+      },
+      {
+        "catalogOrSyncLawd": "41500",
+        "yearMonth": "202607",
+        "requestLawd": "41500"
+      },
+      {
+        "catalogOrSyncLawd": "41550",
+        "yearMonth": "202607",
+        "requestLawd": "41550"
+      },
+      {
+        "catalogOrSyncLawd": "41570",
+        "yearMonth": "202607",
+        "requestLawd": "41570"
+      },
+      {
+        "catalogOrSyncLawd": "41591",
+        "yearMonth": "202607",
+        "requestLawd": "41591"
+      },
+      {
+        "catalogOrSyncLawd": "41593",
+        "yearMonth": "202607",
+        "requestLawd": "41593"
+      },
+      {
+        "catalogOrSyncLawd": "41595",
+        "yearMonth": "202607",
+        "requestLawd": "41595"
+      },
+      {
+        "catalogOrSyncLawd": "41597",
+        "yearMonth": "202607",
+        "requestLawd": "41597"
+      },
+      {
+        "catalogOrSyncLawd": "41610",
+        "yearMonth": "202607",
+        "requestLawd": "41610"
+      },
+      {
+        "catalogOrSyncLawd": "41630",
+        "yearMonth": "202607",
+        "requestLawd": "41630"
+      },
+      {
+        "catalogOrSyncLawd": "41650",
+        "yearMonth": "202607",
+        "requestLawd": "41650"
+      },
+      {
+        "catalogOrSyncLawd": "41670",
+        "yearMonth": "202607",
+        "requestLawd": "41670"
+      },
+      {
+        "catalogOrSyncLawd": "41800",
+        "yearMonth": "202607",
+        "requestLawd": "41800"
+      },
+      {
+        "catalogOrSyncLawd": "41820",
+        "yearMonth": "202607",
+        "requestLawd": "41820"
+      },
+      {
+        "catalogOrSyncLawd": "41830",
+        "yearMonth": "202607",
+        "requestLawd": "41830"
+      },
+      {
+        "catalogOrSyncLawd": "43111",
+        "yearMonth": "202607",
+        "requestLawd": "43111"
+      },
+      {
+        "catalogOrSyncLawd": "43112",
+        "yearMonth": "202607",
+        "requestLawd": "43112"
+      },
+      {
+        "catalogOrSyncLawd": "43113",
+        "yearMonth": "202607",
+        "requestLawd": "43113"
+      },
+      {
+        "catalogOrSyncLawd": "43114",
+        "yearMonth": "202607",
+        "requestLawd": "43114"
+      },
+      {
+        "catalogOrSyncLawd": "43130",
+        "yearMonth": "202607",
+        "requestLawd": "43130"
+      },
+      {
+        "catalogOrSyncLawd": "43150",
+        "yearMonth": "202607",
+        "requestLawd": "43150"
+      },
+      {
+        "catalogOrSyncLawd": "43720",
+        "yearMonth": "202607",
+        "requestLawd": "43720"
+      },
+      {
+        "catalogOrSyncLawd": "43730",
+        "yearMonth": "202607",
+        "requestLawd": "43730"
+      },
+      {
+        "catalogOrSyncLawd": "43740",
+        "yearMonth": "202607",
+        "requestLawd": "43740"
+      },
+      {
+        "catalogOrSyncLawd": "43745",
+        "yearMonth": "202607",
+        "requestLawd": "43745"
+      },
+      {
+        "catalogOrSyncLawd": "43750",
+        "yearMonth": "202607",
+        "requestLawd": "43750"
+      },
+      {
+        "catalogOrSyncLawd": "43760",
+        "yearMonth": "202607",
+        "requestLawd": "43760"
+      },
+      {
+        "catalogOrSyncLawd": "43770",
+        "yearMonth": "202607",
+        "requestLawd": "43770"
+      },
+      {
+        "catalogOrSyncLawd": "43800",
+        "yearMonth": "202607",
+        "requestLawd": "43800"
+      },
+      {
+        "catalogOrSyncLawd": "44131",
+        "yearMonth": "202607",
+        "requestLawd": "44131"
+      },
+      {
+        "catalogOrSyncLawd": "44133",
+        "yearMonth": "202607",
+        "requestLawd": "44133"
+      },
+      {
+        "catalogOrSyncLawd": "44150",
+        "yearMonth": "202607",
+        "requestLawd": "44150"
+      },
+      {
+        "catalogOrSyncLawd": "44180",
+        "yearMonth": "202607",
+        "requestLawd": "44180"
+      },
+      {
+        "catalogOrSyncLawd": "44200",
+        "yearMonth": "202607",
+        "requestLawd": "44200"
+      },
+      {
+        "catalogOrSyncLawd": "44210",
+        "yearMonth": "202607",
+        "requestLawd": "44210"
+      },
+      {
+        "catalogOrSyncLawd": "44230",
+        "yearMonth": "202607",
+        "requestLawd": "44230"
+      },
+      {
+        "catalogOrSyncLawd": "44250",
+        "yearMonth": "202607",
+        "requestLawd": "44250"
+      },
+      {
+        "catalogOrSyncLawd": "44270",
+        "yearMonth": "202607",
+        "requestLawd": "44270"
+      },
+      {
+        "catalogOrSyncLawd": "44710",
+        "yearMonth": "202607",
+        "requestLawd": "44710"
+      },
+      {
+        "catalogOrSyncLawd": "44760",
+        "yearMonth": "202607",
+        "requestLawd": "44760"
+      },
+      {
+        "catalogOrSyncLawd": "44770",
+        "yearMonth": "202607",
+        "requestLawd": "44770"
+      },
+      {
+        "catalogOrSyncLawd": "44790",
+        "yearMonth": "202607",
+        "requestLawd": "44790"
+      },
+      {
+        "catalogOrSyncLawd": "44800",
+        "yearMonth": "202607",
+        "requestLawd": "44800"
+      },
+      {
+        "catalogOrSyncLawd": "44810",
+        "yearMonth": "202607",
+        "requestLawd": "44810"
+      },
+      {
+        "catalogOrSyncLawd": "44825",
+        "yearMonth": "202607",
+        "requestLawd": "44825"
+      },
+      {
+        "catalogOrSyncLawd": "47111",
+        "yearMonth": "202607",
+        "requestLawd": "47111"
+      },
+      {
+        "catalogOrSyncLawd": "47113",
+        "yearMonth": "202607",
+        "requestLawd": "47113"
+      },
+      {
+        "catalogOrSyncLawd": "47130",
+        "yearMonth": "202607",
+        "requestLawd": "47130"
+      },
+      {
+        "catalogOrSyncLawd": "47150",
+        "yearMonth": "202607",
+        "requestLawd": "47150"
+      },
+      {
+        "catalogOrSyncLawd": "47170",
+        "yearMonth": "202607",
+        "requestLawd": "47170"
+      },
+      {
+        "catalogOrSyncLawd": "47190",
+        "yearMonth": "202607",
+        "requestLawd": "47190"
+      },
+      {
+        "catalogOrSyncLawd": "47210",
+        "yearMonth": "202607",
+        "requestLawd": "47210"
+      },
+      {
+        "catalogOrSyncLawd": "47230",
+        "yearMonth": "202607",
+        "requestLawd": "47230"
+      },
+      {
+        "catalogOrSyncLawd": "47250",
+        "yearMonth": "202607",
+        "requestLawd": "47250"
+      },
+      {
+        "catalogOrSyncLawd": "47280",
+        "yearMonth": "202607",
+        "requestLawd": "47280"
+      },
+      {
+        "catalogOrSyncLawd": "47290",
+        "yearMonth": "202607",
+        "requestLawd": "47290"
+      },
+      {
+        "catalogOrSyncLawd": "47730",
+        "yearMonth": "202607",
+        "requestLawd": "47730"
+      },
+      {
+        "catalogOrSyncLawd": "47750",
+        "yearMonth": "202607",
+        "requestLawd": "47750"
+      },
+      {
+        "catalogOrSyncLawd": "47760",
+        "yearMonth": "202607",
+        "requestLawd": "47760"
+      },
+      {
+        "catalogOrSyncLawd": "47770",
+        "yearMonth": "202607",
+        "requestLawd": "47770"
+      },
+      {
+        "catalogOrSyncLawd": "47820",
+        "yearMonth": "202607",
+        "requestLawd": "47820"
+      },
+      {
+        "catalogOrSyncLawd": "47830",
+        "yearMonth": "202607",
+        "requestLawd": "47830"
+      },
+      {
+        "catalogOrSyncLawd": "47840",
+        "yearMonth": "202607",
+        "requestLawd": "47840"
+      },
+      {
+        "catalogOrSyncLawd": "47850",
+        "yearMonth": "202607",
+        "requestLawd": "47850"
+      },
+      {
+        "catalogOrSyncLawd": "47900",
+        "yearMonth": "202607",
+        "requestLawd": "47900"
+      },
+      {
+        "catalogOrSyncLawd": "47920",
+        "yearMonth": "202607",
+        "requestLawd": "47920"
+      },
+      {
+        "catalogOrSyncLawd": "47930",
+        "yearMonth": "202607",
+        "requestLawd": "47930"
+      },
+      {
+        "catalogOrSyncLawd": "47940",
+        "yearMonth": "202607",
+        "requestLawd": "47940"
+      },
+      {
+        "catalogOrSyncLawd": "48121",
+        "yearMonth": "202607",
+        "requestLawd": "48121"
+      },
+      {
+        "catalogOrSyncLawd": "48123",
+        "yearMonth": "202607",
+        "requestLawd": "48123"
+      },
+      {
+        "catalogOrSyncLawd": "48125",
+        "yearMonth": "202607",
+        "requestLawd": "48125"
+      },
+      {
+        "catalogOrSyncLawd": "48127",
+        "yearMonth": "202607",
+        "requestLawd": "48127"
+      },
+      {
+        "catalogOrSyncLawd": "48129",
+        "yearMonth": "202607",
+        "requestLawd": "48129"
+      },
+      {
+        "catalogOrSyncLawd": "48170",
+        "yearMonth": "202607",
+        "requestLawd": "48170"
+      },
+      {
+        "catalogOrSyncLawd": "48220",
+        "yearMonth": "202607",
+        "requestLawd": "48220"
+      },
+      {
+        "catalogOrSyncLawd": "48240",
+        "yearMonth": "202607",
+        "requestLawd": "48240"
+      },
+      {
+        "catalogOrSyncLawd": "48250",
+        "yearMonth": "202607",
+        "requestLawd": "48250"
+      },
+      {
+        "catalogOrSyncLawd": "48270",
+        "yearMonth": "202607",
+        "requestLawd": "48270"
+      },
+      {
+        "catalogOrSyncLawd": "48310",
+        "yearMonth": "202607",
+        "requestLawd": "48310"
+      },
+      {
+        "catalogOrSyncLawd": "48330",
+        "yearMonth": "202607",
+        "requestLawd": "48330"
+      },
+      {
+        "catalogOrSyncLawd": "48720",
+        "yearMonth": "202607",
+        "requestLawd": "48720"
+      },
+      {
+        "catalogOrSyncLawd": "48730",
+        "yearMonth": "202607",
+        "requestLawd": "48730"
+      },
+      {
+        "catalogOrSyncLawd": "48740",
+        "yearMonth": "202607",
+        "requestLawd": "48740"
+      },
+      {
+        "catalogOrSyncLawd": "48820",
+        "yearMonth": "202607",
+        "requestLawd": "48820"
+      },
+      {
+        "catalogOrSyncLawd": "48840",
+        "yearMonth": "202607",
+        "requestLawd": "48840"
+      },
+      {
+        "catalogOrSyncLawd": "48850",
+        "yearMonth": "202607",
+        "requestLawd": "48850"
+      },
+      {
+        "catalogOrSyncLawd": "48860",
+        "yearMonth": "202607",
+        "requestLawd": "48860"
+      },
+      {
+        "catalogOrSyncLawd": "48870",
+        "yearMonth": "202607",
+        "requestLawd": "48870"
+      },
+      {
+        "catalogOrSyncLawd": "48880",
+        "yearMonth": "202607",
+        "requestLawd": "48880"
+      },
+      {
+        "catalogOrSyncLawd": "48890",
+        "yearMonth": "202607",
+        "requestLawd": "48890"
+      },
+      {
+        "catalogOrSyncLawd": "50110",
+        "yearMonth": "202607",
+        "requestLawd": "50110"
+      },
+      {
+        "catalogOrSyncLawd": "50130",
+        "yearMonth": "202607",
+        "requestLawd": "50130"
+      },
+      {
+        "catalogOrSyncLawd": "51110",
+        "yearMonth": "202607",
+        "requestLawd": "51110"
+      },
+      {
+        "catalogOrSyncLawd": "51130",
+        "yearMonth": "202607",
+        "requestLawd": "51130"
+      },
+      {
+        "catalogOrSyncLawd": "51150",
+        "yearMonth": "202607",
+        "requestLawd": "51150"
+      },
+      {
+        "catalogOrSyncLawd": "51170",
+        "yearMonth": "202607",
+        "requestLawd": "51170"
+      },
+      {
+        "catalogOrSyncLawd": "51190",
+        "yearMonth": "202607",
+        "requestLawd": "51190"
+      },
+      {
+        "catalogOrSyncLawd": "51210",
+        "yearMonth": "202607",
+        "requestLawd": "51210"
+      },
+      {
+        "catalogOrSyncLawd": "51230",
+        "yearMonth": "202607",
+        "requestLawd": "51230"
+      },
+      {
+        "catalogOrSyncLawd": "51720",
+        "yearMonth": "202607",
+        "requestLawd": "51720"
+      },
+      {
+        "catalogOrSyncLawd": "51730",
+        "yearMonth": "202607",
+        "requestLawd": "51730"
+      },
+      {
+        "catalogOrSyncLawd": "51750",
+        "yearMonth": "202607",
+        "requestLawd": "51750"
+      },
+      {
+        "catalogOrSyncLawd": "51760",
+        "yearMonth": "202607",
+        "requestLawd": "51760"
+      },
+      {
+        "catalogOrSyncLawd": "51770",
+        "yearMonth": "202607",
+        "requestLawd": "51770"
+      },
+      {
+        "catalogOrSyncLawd": "51780",
+        "yearMonth": "202607",
+        "requestLawd": "51780"
+      },
+      {
+        "catalogOrSyncLawd": "51790",
+        "yearMonth": "202607",
+        "requestLawd": "51790"
+      },
+      {
+        "catalogOrSyncLawd": "51800",
+        "yearMonth": "202607",
+        "requestLawd": "51800"
+      },
+      {
+        "catalogOrSyncLawd": "51810",
+        "yearMonth": "202607",
+        "requestLawd": "51810"
+      },
+      {
+        "catalogOrSyncLawd": "51820",
+        "yearMonth": "202607",
+        "requestLawd": "51820"
+      },
+      {
+        "catalogOrSyncLawd": "51830",
+        "yearMonth": "202607",
+        "requestLawd": "51830"
+      },
+      {
+        "catalogOrSyncLawd": "52111",
+        "yearMonth": "202607",
+        "requestLawd": "52111"
+      },
+      {
+        "catalogOrSyncLawd": "52113",
+        "yearMonth": "202607",
+        "requestLawd": "52113"
+      },
+      {
+        "catalogOrSyncLawd": "52130",
+        "yearMonth": "202607",
+        "requestLawd": "52130"
+      },
+      {
+        "catalogOrSyncLawd": "52140",
+        "yearMonth": "202607",
+        "requestLawd": "52140"
+      },
+      {
+        "catalogOrSyncLawd": "52180",
+        "yearMonth": "202607",
+        "requestLawd": "52180"
+      },
+      {
+        "catalogOrSyncLawd": "52190",
+        "yearMonth": "202607",
+        "requestLawd": "52190"
+      },
+      {
+        "catalogOrSyncLawd": "52210",
+        "yearMonth": "202607",
+        "requestLawd": "52210"
+      },
+      {
+        "catalogOrSyncLawd": "52710",
+        "yearMonth": "202607",
+        "requestLawd": "52710"
+      },
+      {
+        "catalogOrSyncLawd": "52720",
+        "yearMonth": "202607",
+        "requestLawd": "52720"
+      },
+      {
+        "catalogOrSyncLawd": "52730",
+        "yearMonth": "202607",
+        "requestLawd": "52730"
+      },
+      {
+        "catalogOrSyncLawd": "52740",
+        "yearMonth": "202607",
+        "requestLawd": "52740"
+      },
+      {
+        "catalogOrSyncLawd": "52750",
+        "yearMonth": "202607",
+        "requestLawd": "52750"
+      },
+      {
+        "catalogOrSyncLawd": "52770",
+        "yearMonth": "202607",
+        "requestLawd": "52770"
+      },
+      {
+        "catalogOrSyncLawd": "52790",
+        "yearMonth": "202607",
+        "requestLawd": "52790"
+      },
+      {
+        "catalogOrSyncLawd": "52800",
+        "yearMonth": "202607",
+        "requestLawd": "52800"
+      },
+      {
+        "catalogOrSyncLawd": "11110",
+        "yearMonth": "202606",
+        "requestLawd": "11110"
+      },
+      {
+        "catalogOrSyncLawd": "11140",
+        "yearMonth": "202606",
+        "requestLawd": "11140"
+      },
+      {
+        "catalogOrSyncLawd": "11170",
+        "yearMonth": "202606",
+        "requestLawd": "11170"
+      },
+      {
+        "catalogOrSyncLawd": "11200",
+        "yearMonth": "202606",
+        "requestLawd": "11200"
+      },
+      {
+        "catalogOrSyncLawd": "11215",
+        "yearMonth": "202606",
+        "requestLawd": "11215"
+      },
+      {
+        "catalogOrSyncLawd": "11230",
+        "yearMonth": "202606",
+        "requestLawd": "11230"
+      },
+      {
+        "catalogOrSyncLawd": "11260",
+        "yearMonth": "202606",
+        "requestLawd": "11260"
+      },
+      {
+        "catalogOrSyncLawd": "11290",
+        "yearMonth": "202606",
+        "requestLawd": "11290"
+      },
+      {
+        "catalogOrSyncLawd": "11305",
+        "yearMonth": "202606",
+        "requestLawd": "11305"
+      },
+      {
+        "catalogOrSyncLawd": "11320",
+        "yearMonth": "202606",
+        "requestLawd": "11320"
+      },
+      {
+        "catalogOrSyncLawd": "11350",
+        "yearMonth": "202606",
+        "requestLawd": "11350"
+      },
+      {
+        "catalogOrSyncLawd": "11380",
+        "yearMonth": "202606",
+        "requestLawd": "11380"
+      },
+      {
+        "catalogOrSyncLawd": "11410",
+        "yearMonth": "202606",
+        "requestLawd": "11410"
+      },
+      {
+        "catalogOrSyncLawd": "11440",
+        "yearMonth": "202606",
+        "requestLawd": "11440"
+      },
+      {
+        "catalogOrSyncLawd": "11470",
+        "yearMonth": "202606",
+        "requestLawd": "11470"
+      },
+      {
+        "catalogOrSyncLawd": "11500",
+        "yearMonth": "202606",
+        "requestLawd": "11500"
+      },
+      {
+        "catalogOrSyncLawd": "11530",
+        "yearMonth": "202606",
+        "requestLawd": "11530"
+      },
+      {
+        "catalogOrSyncLawd": "11545",
+        "yearMonth": "202606",
+        "requestLawd": "11545"
+      },
+      {
+        "catalogOrSyncLawd": "11560",
+        "yearMonth": "202606",
+        "requestLawd": "11560"
+      },
+      {
+        "catalogOrSyncLawd": "11590",
+        "yearMonth": "202606",
+        "requestLawd": "11590"
+      },
+      {
+        "catalogOrSyncLawd": "11620",
+        "yearMonth": "202606",
+        "requestLawd": "11620"
+      },
+      {
+        "catalogOrSyncLawd": "11650",
+        "yearMonth": "202606",
+        "requestLawd": "11650"
+      },
+      {
+        "catalogOrSyncLawd": "11680",
+        "yearMonth": "202606",
+        "requestLawd": "11680"
+      },
+      {
+        "catalogOrSyncLawd": "11710",
+        "yearMonth": "202606",
+        "requestLawd": "11710"
+      },
+      {
+        "catalogOrSyncLawd": "11740",
+        "yearMonth": "202606",
+        "requestLawd": "11740"
+      },
+      {
+        "catalogOrSyncLawd": "12110",
+        "yearMonth": "202606",
+        "requestLawd": "12110"
+      },
+      {
+        "catalogOrSyncLawd": "12130",
+        "yearMonth": "202606",
+        "requestLawd": "12130"
+      },
+      {
+        "catalogOrSyncLawd": "12150",
+        "yearMonth": "202606",
+        "requestLawd": "12150"
+      },
+      {
+        "catalogOrSyncLawd": "12170",
+        "yearMonth": "202606",
+        "requestLawd": "12170"
+      },
+      {
+        "catalogOrSyncLawd": "12190",
+        "yearMonth": "202606",
+        "requestLawd": "12190"
+      },
+      {
+        "catalogOrSyncLawd": "12210",
+        "yearMonth": "202606",
+        "requestLawd": "12210"
+      },
+      {
+        "catalogOrSyncLawd": "12240",
+        "yearMonth": "202606",
+        "requestLawd": "12240"
+      },
+      {
+        "catalogOrSyncLawd": "12270",
+        "yearMonth": "202606",
+        "requestLawd": "12270"
+      },
+      {
+        "catalogOrSyncLawd": "12300",
+        "yearMonth": "202606",
+        "requestLawd": "12300"
+      },
+      {
+        "catalogOrSyncLawd": "12330",
+        "yearMonth": "202606",
+        "requestLawd": "12330"
+      },
+      {
+        "catalogOrSyncLawd": "12710",
+        "yearMonth": "202606",
+        "requestLawd": "12710"
+      },
+      {
+        "catalogOrSyncLawd": "12720",
+        "yearMonth": "202606",
+        "requestLawd": "12720"
+      },
+      {
+        "catalogOrSyncLawd": "12730",
+        "yearMonth": "202606",
+        "requestLawd": "12730"
+      },
+      {
+        "catalogOrSyncLawd": "12740",
+        "yearMonth": "202606",
+        "requestLawd": "12740"
+      },
+      {
+        "catalogOrSyncLawd": "12750",
+        "yearMonth": "202606",
+        "requestLawd": "12750"
+      },
+      {
+        "catalogOrSyncLawd": "12760",
+        "yearMonth": "202606",
+        "requestLawd": "12760"
+      },
+      {
+        "catalogOrSyncLawd": "12770",
+        "yearMonth": "202606",
+        "requestLawd": "12770"
+      },
+      {
+        "catalogOrSyncLawd": "12780",
+        "yearMonth": "202606",
+        "requestLawd": "12780"
+      },
+      {
+        "catalogOrSyncLawd": "12790",
+        "yearMonth": "202606",
+        "requestLawd": "12790"
+      },
+      {
+        "catalogOrSyncLawd": "12800",
+        "yearMonth": "202606",
+        "requestLawd": "12800"
+      },
+      {
+        "catalogOrSyncLawd": "12810",
+        "yearMonth": "202606",
+        "requestLawd": "12810"
+      },
+      {
+        "catalogOrSyncLawd": "12820",
+        "yearMonth": "202606",
+        "requestLawd": "12820"
+      },
+      {
+        "catalogOrSyncLawd": "12830",
+        "yearMonth": "202606",
+        "requestLawd": "12830"
+      },
+      {
+        "catalogOrSyncLawd": "12840",
+        "yearMonth": "202606",
+        "requestLawd": "12840"
+      },
+      {
+        "catalogOrSyncLawd": "12850",
+        "yearMonth": "202606",
+        "requestLawd": "12850"
+      },
+      {
+        "catalogOrSyncLawd": "12860",
+        "yearMonth": "202606",
+        "requestLawd": "12860"
+      },
+      {
+        "catalogOrSyncLawd": "12870",
+        "yearMonth": "202606",
+        "requestLawd": "12870"
+      },
+      {
+        "catalogOrSyncLawd": "26110",
+        "yearMonth": "202606",
+        "requestLawd": "26110"
+      },
+      {
+        "catalogOrSyncLawd": "26140",
+        "yearMonth": "202606",
+        "requestLawd": "26140"
+      },
+      {
+        "catalogOrSyncLawd": "26170",
+        "yearMonth": "202606",
+        "requestLawd": "26170"
+      },
+      {
+        "catalogOrSyncLawd": "26200",
+        "yearMonth": "202606",
+        "requestLawd": "26200"
+      },
+      {
+        "catalogOrSyncLawd": "26230",
+        "yearMonth": "202606",
+        "requestLawd": "26230"
+      },
+      {
+        "catalogOrSyncLawd": "26260",
+        "yearMonth": "202606",
+        "requestLawd": "26260"
+      },
+      {
+        "catalogOrSyncLawd": "26290",
+        "yearMonth": "202606",
+        "requestLawd": "26290"
+      },
+      {
+        "catalogOrSyncLawd": "26320",
+        "yearMonth": "202606",
+        "requestLawd": "26320"
+      },
+      {
+        "catalogOrSyncLawd": "26350",
+        "yearMonth": "202606",
+        "requestLawd": "26350"
+      },
+      {
+        "catalogOrSyncLawd": "26380",
+        "yearMonth": "202606",
+        "requestLawd": "26380"
+      },
+      {
+        "catalogOrSyncLawd": "26410",
+        "yearMonth": "202606",
+        "requestLawd": "26410"
+      },
+      {
+        "catalogOrSyncLawd": "26440",
+        "yearMonth": "202606",
+        "requestLawd": "26440"
+      },
+      {
+        "catalogOrSyncLawd": "26470",
+        "yearMonth": "202606",
+        "requestLawd": "26470"
+      },
+      {
+        "catalogOrSyncLawd": "26500",
+        "yearMonth": "202606",
+        "requestLawd": "26500"
+      },
+      {
+        "catalogOrSyncLawd": "26530",
+        "yearMonth": "202606",
+        "requestLawd": "26530"
+      },
+      {
+        "catalogOrSyncLawd": "26710",
+        "yearMonth": "202606",
+        "requestLawd": "26710"
+      },
+      {
+        "catalogOrSyncLawd": "27110",
+        "yearMonth": "202606",
+        "requestLawd": "27110"
+      },
+      {
+        "catalogOrSyncLawd": "27140",
+        "yearMonth": "202606",
+        "requestLawd": "27140"
+      },
+      {
+        "catalogOrSyncLawd": "27170",
+        "yearMonth": "202606",
+        "requestLawd": "27170"
+      },
+      {
+        "catalogOrSyncLawd": "27200",
+        "yearMonth": "202606",
+        "requestLawd": "27200"
+      },
+      {
+        "catalogOrSyncLawd": "27230",
+        "yearMonth": "202606",
+        "requestLawd": "27230"
+      },
+      {
+        "catalogOrSyncLawd": "27260",
+        "yearMonth": "202606",
+        "requestLawd": "27260"
+      },
+      {
+        "catalogOrSyncLawd": "27290",
+        "yearMonth": "202606",
+        "requestLawd": "27290"
+      },
+      {
+        "catalogOrSyncLawd": "27710",
+        "yearMonth": "202606",
+        "requestLawd": "27710"
+      },
+      {
+        "catalogOrSyncLawd": "28125",
+        "yearMonth": "202606",
+        "requestLawd": "28125"
+      },
+      {
+        "catalogOrSyncLawd": "28155",
+        "yearMonth": "202606",
+        "requestLawd": "28155"
+      },
+      {
+        "catalogOrSyncLawd": "28177",
+        "yearMonth": "202606",
+        "requestLawd": "28177"
+      },
+      {
+        "catalogOrSyncLawd": "28185",
+        "yearMonth": "202606",
+        "requestLawd": "28185"
+      },
+      {
+        "catalogOrSyncLawd": "28200",
+        "yearMonth": "202606",
+        "requestLawd": "28200"
+      },
+      {
+        "catalogOrSyncLawd": "28237",
+        "yearMonth": "202606",
+        "requestLawd": "28237"
+      },
+      {
+        "catalogOrSyncLawd": "28245",
+        "yearMonth": "202606",
+        "requestLawd": "28245"
+      },
+      {
+        "catalogOrSyncLawd": "28275",
+        "yearMonth": "202606",
+        "requestLawd": "28275"
+      },
+      {
+        "catalogOrSyncLawd": "28290",
+        "yearMonth": "202606",
+        "requestLawd": "28290"
+      },
+      {
+        "catalogOrSyncLawd": "28710",
+        "yearMonth": "202606",
+        "requestLawd": "28710"
+      },
+      {
+        "catalogOrSyncLawd": "28720",
+        "yearMonth": "202606",
+        "requestLawd": "28720"
+      },
+      {
+        "catalogOrSyncLawd": "30110",
+        "yearMonth": "202606",
+        "requestLawd": "30110"
+      },
+      {
+        "catalogOrSyncLawd": "30140",
+        "yearMonth": "202606",
+        "requestLawd": "30140"
+      },
+      {
+        "catalogOrSyncLawd": "30170",
+        "yearMonth": "202606",
+        "requestLawd": "30170"
+      },
+      {
+        "catalogOrSyncLawd": "30200",
+        "yearMonth": "202606",
+        "requestLawd": "30200"
+      },
+      {
+        "catalogOrSyncLawd": "30230",
+        "yearMonth": "202606",
+        "requestLawd": "30230"
+      },
+      {
+        "catalogOrSyncLawd": "31110",
+        "yearMonth": "202606",
+        "requestLawd": "31110"
+      },
+      {
+        "catalogOrSyncLawd": "31140",
+        "yearMonth": "202606",
+        "requestLawd": "31140"
+      },
+      {
+        "catalogOrSyncLawd": "31170",
+        "yearMonth": "202606",
+        "requestLawd": "31170"
+      },
+      {
+        "catalogOrSyncLawd": "31200",
+        "yearMonth": "202606",
+        "requestLawd": "31200"
+      },
+      {
+        "catalogOrSyncLawd": "31710",
+        "yearMonth": "202606",
+        "requestLawd": "31710"
+      },
+      {
+        "catalogOrSyncLawd": "36110",
+        "yearMonth": "202606",
+        "requestLawd": "36110"
+      },
+      {
+        "catalogOrSyncLawd": "41111",
+        "yearMonth": "202606",
+        "requestLawd": "41111"
+      },
+      {
+        "catalogOrSyncLawd": "41113",
+        "yearMonth": "202606",
+        "requestLawd": "41113"
+      },
+      {
+        "catalogOrSyncLawd": "41115",
+        "yearMonth": "202606",
+        "requestLawd": "41115"
+      },
+      {
+        "catalogOrSyncLawd": "41117",
+        "yearMonth": "202606",
+        "requestLawd": "41117"
+      },
+      {
+        "catalogOrSyncLawd": "41131",
+        "yearMonth": "202606",
+        "requestLawd": "41131"
+      },
+      {
+        "catalogOrSyncLawd": "41133",
+        "yearMonth": "202606",
+        "requestLawd": "41133"
+      },
+      {
+        "catalogOrSyncLawd": "41135",
+        "yearMonth": "202606",
+        "requestLawd": "41135"
+      },
+      {
+        "catalogOrSyncLawd": "41150",
+        "yearMonth": "202606",
+        "requestLawd": "41150"
+      },
+      {
+        "catalogOrSyncLawd": "41171",
+        "yearMonth": "202606",
+        "requestLawd": "41171"
+      },
+      {
+        "catalogOrSyncLawd": "41173",
+        "yearMonth": "202606",
+        "requestLawd": "41173"
+      },
+      {
+        "catalogOrSyncLawd": "41192",
+        "yearMonth": "202606",
+        "requestLawd": "41192"
+      },
+      {
+        "catalogOrSyncLawd": "41194",
+        "yearMonth": "202606",
+        "requestLawd": "41194"
+      },
+      {
+        "catalogOrSyncLawd": "41196",
+        "yearMonth": "202606",
+        "requestLawd": "41196"
+      },
+      {
+        "catalogOrSyncLawd": "41210",
+        "yearMonth": "202606",
+        "requestLawd": "41210"
+      },
+      {
+        "catalogOrSyncLawd": "41220",
+        "yearMonth": "202606",
+        "requestLawd": "41220"
+      },
+      {
+        "catalogOrSyncLawd": "41250",
+        "yearMonth": "202606",
+        "requestLawd": "41250"
+      },
+      {
+        "catalogOrSyncLawd": "41271",
+        "yearMonth": "202606",
+        "requestLawd": "41271"
+      },
+      {
+        "catalogOrSyncLawd": "41273",
+        "yearMonth": "202606",
+        "requestLawd": "41273"
+      },
+      {
+        "catalogOrSyncLawd": "41281",
+        "yearMonth": "202606",
+        "requestLawd": "41281"
+      },
+      {
+        "catalogOrSyncLawd": "41285",
+        "yearMonth": "202606",
+        "requestLawd": "41285"
+      },
+      {
+        "catalogOrSyncLawd": "41287",
+        "yearMonth": "202606",
+        "requestLawd": "41287"
+      },
+      {
+        "catalogOrSyncLawd": "41290",
+        "yearMonth": "202606",
+        "requestLawd": "41290"
+      },
+      {
+        "catalogOrSyncLawd": "41310",
+        "yearMonth": "202606",
+        "requestLawd": "41310"
+      },
+      {
+        "catalogOrSyncLawd": "41360",
+        "yearMonth": "202606",
+        "requestLawd": "41360"
+      },
+      {
+        "catalogOrSyncLawd": "41370",
+        "yearMonth": "202606",
+        "requestLawd": "41370"
+      },
+      {
+        "catalogOrSyncLawd": "41390",
+        "yearMonth": "202606",
+        "requestLawd": "41390"
+      },
+      {
+        "catalogOrSyncLawd": "41410",
+        "yearMonth": "202606",
+        "requestLawd": "41410"
+      },
+      {
+        "catalogOrSyncLawd": "41430",
+        "yearMonth": "202606",
+        "requestLawd": "41430"
+      },
+      {
+        "catalogOrSyncLawd": "41450",
+        "yearMonth": "202606",
+        "requestLawd": "41450"
+      },
+      {
+        "catalogOrSyncLawd": "41461",
+        "yearMonth": "202606",
+        "requestLawd": "41461"
+      },
+      {
+        "catalogOrSyncLawd": "41463",
+        "yearMonth": "202606",
+        "requestLawd": "41463"
+      },
+      {
+        "catalogOrSyncLawd": "41465",
+        "yearMonth": "202606",
+        "requestLawd": "41465"
+      },
+      {
+        "catalogOrSyncLawd": "41480",
+        "yearMonth": "202606",
+        "requestLawd": "41480"
+      },
+      {
+        "catalogOrSyncLawd": "41500",
+        "yearMonth": "202606",
+        "requestLawd": "41500"
+      },
+      {
+        "catalogOrSyncLawd": "41550",
+        "yearMonth": "202606",
+        "requestLawd": "41550"
+      },
+      {
+        "catalogOrSyncLawd": "41570",
+        "yearMonth": "202606",
+        "requestLawd": "41570"
+      },
+      {
+        "catalogOrSyncLawd": "41591",
+        "yearMonth": "202606",
+        "requestLawd": "41591"
+      },
+      {
+        "catalogOrSyncLawd": "41593",
+        "yearMonth": "202606",
+        "requestLawd": "41593"
+      },
+      {
+        "catalogOrSyncLawd": "41595",
+        "yearMonth": "202606",
+        "requestLawd": "41595"
+      },
+      {
+        "catalogOrSyncLawd": "41597",
+        "yearMonth": "202606",
+        "requestLawd": "41597"
+      },
+      {
+        "catalogOrSyncLawd": "41610",
+        "yearMonth": "202606",
+        "requestLawd": "41610"
+      },
+      {
+        "catalogOrSyncLawd": "41630",
+        "yearMonth": "202606",
+        "requestLawd": "41630"
+      },
+      {
+        "catalogOrSyncLawd": "41650",
+        "yearMonth": "202606",
+        "requestLawd": "41650"
+      },
+      {
+        "catalogOrSyncLawd": "41670",
+        "yearMonth": "202606",
+        "requestLawd": "41670"
+      },
+      {
+        "catalogOrSyncLawd": "41800",
+        "yearMonth": "202606",
+        "requestLawd": "41800"
+      },
+      {
+        "catalogOrSyncLawd": "41820",
+        "yearMonth": "202606",
+        "requestLawd": "41820"
+      },
+      {
+        "catalogOrSyncLawd": "41830",
+        "yearMonth": "202606",
+        "requestLawd": "41830"
+      },
+      {
+        "catalogOrSyncLawd": "43111",
+        "yearMonth": "202606",
+        "requestLawd": "43111"
+      },
+      {
+        "catalogOrSyncLawd": "43112",
+        "yearMonth": "202606",
+        "requestLawd": "43112"
+      },
+      {
+        "catalogOrSyncLawd": "43113",
+        "yearMonth": "202606",
+        "requestLawd": "43113"
+      },
+      {
+        "catalogOrSyncLawd": "43114",
+        "yearMonth": "202606",
+        "requestLawd": "43114"
+      },
+      {
+        "catalogOrSyncLawd": "43130",
+        "yearMonth": "202606",
+        "requestLawd": "43130"
+      },
+      {
+        "catalogOrSyncLawd": "43150",
+        "yearMonth": "202606",
+        "requestLawd": "43150"
+      },
+      {
+        "catalogOrSyncLawd": "43720",
+        "yearMonth": "202606",
+        "requestLawd": "43720"
+      },
+      {
+        "catalogOrSyncLawd": "43730",
+        "yearMonth": "202606",
+        "requestLawd": "43730"
+      },
+      {
+        "catalogOrSyncLawd": "43740",
+        "yearMonth": "202606",
+        "requestLawd": "43740"
+      },
+      {
+        "catalogOrSyncLawd": "43745",
+        "yearMonth": "202606",
+        "requestLawd": "43745"
+      },
+      {
+        "catalogOrSyncLawd": "43750",
+        "yearMonth": "202606",
+        "requestLawd": "43750"
+      },
+      {
+        "catalogOrSyncLawd": "43760",
+        "yearMonth": "202606",
+        "requestLawd": "43760"
+      },
+      {
+        "catalogOrSyncLawd": "43770",
+        "yearMonth": "202606",
+        "requestLawd": "43770"
+      },
+      {
+        "catalogOrSyncLawd": "43800",
+        "yearMonth": "202606",
+        "requestLawd": "43800"
+      },
+      {
+        "catalogOrSyncLawd": "44131",
+        "yearMonth": "202606",
+        "requestLawd": "44131"
+      },
+      {
+        "catalogOrSyncLawd": "44133",
+        "yearMonth": "202606",
+        "requestLawd": "44133"
+      },
+      {
+        "catalogOrSyncLawd": "44150",
+        "yearMonth": "202606",
+        "requestLawd": "44150"
+      },
+      {
+        "catalogOrSyncLawd": "44180",
+        "yearMonth": "202606",
+        "requestLawd": "44180"
+      },
+      {
+        "catalogOrSyncLawd": "44200",
+        "yearMonth": "202606",
+        "requestLawd": "44200"
+      },
+      {
+        "catalogOrSyncLawd": "44210",
+        "yearMonth": "202606",
+        "requestLawd": "44210"
+      },
+      {
+        "catalogOrSyncLawd": "44230",
+        "yearMonth": "202606",
+        "requestLawd": "44230"
+      },
+      {
+        "catalogOrSyncLawd": "44250",
+        "yearMonth": "202606",
+        "requestLawd": "44250"
+      },
+      {
+        "catalogOrSyncLawd": "44270",
+        "yearMonth": "202606",
+        "requestLawd": "44270"
+      },
+      {
+        "catalogOrSyncLawd": "44710",
+        "yearMonth": "202606",
+        "requestLawd": "44710"
+      },
+      {
+        "catalogOrSyncLawd": "44760",
+        "yearMonth": "202606",
+        "requestLawd": "44760"
+      },
+      {
+        "catalogOrSyncLawd": "44770",
+        "yearMonth": "202606",
+        "requestLawd": "44770"
+      },
+      {
+        "catalogOrSyncLawd": "44790",
+        "yearMonth": "202606",
+        "requestLawd": "44790"
+      },
+      {
+        "catalogOrSyncLawd": "44800",
+        "yearMonth": "202606",
+        "requestLawd": "44800"
+      },
+      {
+        "catalogOrSyncLawd": "44810",
+        "yearMonth": "202606",
+        "requestLawd": "44810"
+      },
+      {
+        "catalogOrSyncLawd": "44825",
+        "yearMonth": "202606",
+        "requestLawd": "44825"
+      },
+      {
+        "catalogOrSyncLawd": "47111",
+        "yearMonth": "202606",
+        "requestLawd": "47111"
+      },
+      {
+        "catalogOrSyncLawd": "47113",
+        "yearMonth": "202606",
+        "requestLawd": "47113"
+      },
+      {
+        "catalogOrSyncLawd": "47130",
+        "yearMonth": "202606",
+        "requestLawd": "47130"
+      },
+      {
+        "catalogOrSyncLawd": "47150",
+        "yearMonth": "202606",
+        "requestLawd": "47150"
+      },
+      {
+        "catalogOrSyncLawd": "47170",
+        "yearMonth": "202606",
+        "requestLawd": "47170"
+      },
+      {
+        "catalogOrSyncLawd": "47190",
+        "yearMonth": "202606",
+        "requestLawd": "47190"
+      },
+      {
+        "catalogOrSyncLawd": "47210",
+        "yearMonth": "202606",
+        "requestLawd": "47210"
+      },
+      {
+        "catalogOrSyncLawd": "47230",
+        "yearMonth": "202606",
+        "requestLawd": "47230"
+      },
+      {
+        "catalogOrSyncLawd": "47250",
+        "yearMonth": "202606",
+        "requestLawd": "47250"
+      },
+      {
+        "catalogOrSyncLawd": "47280",
+        "yearMonth": "202606",
+        "requestLawd": "47280"
+      },
+      {
+        "catalogOrSyncLawd": "47290",
+        "yearMonth": "202606",
+        "requestLawd": "47290"
+      },
+      {
+        "catalogOrSyncLawd": "47730",
+        "yearMonth": "202606",
+        "requestLawd": "47730"
+      },
+      {
+        "catalogOrSyncLawd": "47750",
+        "yearMonth": "202606",
+        "requestLawd": "47750"
+      },
+      {
+        "catalogOrSyncLawd": "47760",
+        "yearMonth": "202606",
+        "requestLawd": "47760"
+      },
+      {
+        "catalogOrSyncLawd": "47770",
+        "yearMonth": "202606",
+        "requestLawd": "47770"
+      },
+      {
+        "catalogOrSyncLawd": "47820",
+        "yearMonth": "202606",
+        "requestLawd": "47820"
+      },
+      {
+        "catalogOrSyncLawd": "47830",
+        "yearMonth": "202606",
+        "requestLawd": "47830"
+      },
+      {
+        "catalogOrSyncLawd": "47840",
+        "yearMonth": "202606",
+        "requestLawd": "47840"
+      },
+      {
+        "catalogOrSyncLawd": "47850",
+        "yearMonth": "202606",
+        "requestLawd": "47850"
+      },
+      {
+        "catalogOrSyncLawd": "47900",
+        "yearMonth": "202606",
+        "requestLawd": "47900"
+      },
+      {
+        "catalogOrSyncLawd": "47920",
+        "yearMonth": "202606",
+        "requestLawd": "47920"
+      },
+      {
+        "catalogOrSyncLawd": "47930",
+        "yearMonth": "202606",
+        "requestLawd": "47930"
+      },
+      {
+        "catalogOrSyncLawd": "47940",
+        "yearMonth": "202606",
+        "requestLawd": "47940"
+      },
+      {
+        "catalogOrSyncLawd": "48121",
+        "yearMonth": "202606",
+        "requestLawd": "48121"
+      },
+      {
+        "catalogOrSyncLawd": "48123",
+        "yearMonth": "202606",
+        "requestLawd": "48123"
+      },
+      {
+        "catalogOrSyncLawd": "48125",
+        "yearMonth": "202606",
+        "requestLawd": "48125"
+      },
+      {
+        "catalogOrSyncLawd": "48127",
+        "yearMonth": "202606",
+        "requestLawd": "48127"
+      },
+      {
+        "catalogOrSyncLawd": "48129",
+        "yearMonth": "202606",
+        "requestLawd": "48129"
+      },
+      {
+        "catalogOrSyncLawd": "48170",
+        "yearMonth": "202606",
+        "requestLawd": "48170"
+      },
+      {
+        "catalogOrSyncLawd": "48220",
+        "yearMonth": "202606",
+        "requestLawd": "48220"
+      },
+      {
+        "catalogOrSyncLawd": "48240",
+        "yearMonth": "202606",
+        "requestLawd": "48240"
+      },
+      {
+        "catalogOrSyncLawd": "48250",
+        "yearMonth": "202606",
+        "requestLawd": "48250"
+      },
+      {
+        "catalogOrSyncLawd": "48270",
+        "yearMonth": "202606",
+        "requestLawd": "48270"
+      },
+      {
+        "catalogOrSyncLawd": "48310",
+        "yearMonth": "202606",
+        "requestLawd": "48310"
+      },
+      {
+        "catalogOrSyncLawd": "48330",
+        "yearMonth": "202606",
+        "requestLawd": "48330"
+      },
+      {
+        "catalogOrSyncLawd": "48720",
+        "yearMonth": "202606",
+        "requestLawd": "48720"
+      },
+      {
+        "catalogOrSyncLawd": "48730",
+        "yearMonth": "202606",
+        "requestLawd": "48730"
+      },
+      {
+        "catalogOrSyncLawd": "48740",
+        "yearMonth": "202606",
+        "requestLawd": "48740"
+      },
+      {
+        "catalogOrSyncLawd": "48820",
+        "yearMonth": "202606",
+        "requestLawd": "48820"
+      },
+      {
+        "catalogOrSyncLawd": "48840",
+        "yearMonth": "202606",
+        "requestLawd": "48840"
+      },
+      {
+        "catalogOrSyncLawd": "48850",
+        "yearMonth": "202606",
+        "requestLawd": "48850"
+      },
+      {
+        "catalogOrSyncLawd": "48860",
+        "yearMonth": "202606",
+        "requestLawd": "48860"
+      },
+      {
+        "catalogOrSyncLawd": "48870",
+        "yearMonth": "202606",
+        "requestLawd": "48870"
+      },
+      {
+        "catalogOrSyncLawd": "48880",
+        "yearMonth": "202606",
+        "requestLawd": "48880"
+      },
+      {
+        "catalogOrSyncLawd": "48890",
+        "yearMonth": "202606",
+        "requestLawd": "48890"
+      },
+      {
+        "catalogOrSyncLawd": "50110",
+        "yearMonth": "202606",
+        "requestLawd": "50110"
+      },
+      {
+        "catalogOrSyncLawd": "50130",
+        "yearMonth": "202606",
+        "requestLawd": "50130"
+      },
+      {
+        "catalogOrSyncLawd": "51110",
+        "yearMonth": "202606",
+        "requestLawd": "51110"
+      },
+      {
+        "catalogOrSyncLawd": "51130",
+        "yearMonth": "202606",
+        "requestLawd": "51130"
+      },
+      {
+        "catalogOrSyncLawd": "51150",
+        "yearMonth": "202606",
+        "requestLawd": "51150"
+      },
+      {
+        "catalogOrSyncLawd": "51170",
+        "yearMonth": "202606",
+        "requestLawd": "51170"
+      },
+      {
+        "catalogOrSyncLawd": "51190",
+        "yearMonth": "202606",
+        "requestLawd": "51190"
+      },
+      {
+        "catalogOrSyncLawd": "51210",
+        "yearMonth": "202606",
+        "requestLawd": "51210"
+      },
+      {
+        "catalogOrSyncLawd": "51230",
+        "yearMonth": "202606",
+        "requestLawd": "51230"
+      },
+      {
+        "catalogOrSyncLawd": "51720",
+        "yearMonth": "202606",
+        "requestLawd": "51720"
+      },
+      {
+        "catalogOrSyncLawd": "51730",
+        "yearMonth": "202606",
+        "requestLawd": "51730"
+      },
+      {
+        "catalogOrSyncLawd": "51750",
+        "yearMonth": "202606",
+        "requestLawd": "51750"
+      },
+      {
+        "catalogOrSyncLawd": "51760",
+        "yearMonth": "202606",
+        "requestLawd": "51760"
+      },
+      {
+        "catalogOrSyncLawd": "51770",
+        "yearMonth": "202606",
+        "requestLawd": "51770"
+      },
+      {
+        "catalogOrSyncLawd": "51780",
+        "yearMonth": "202606",
+        "requestLawd": "51780"
+      },
+      {
+        "catalogOrSyncLawd": "51790",
+        "yearMonth": "202606",
+        "requestLawd": "51790"
+      },
+      {
+        "catalogOrSyncLawd": "51800",
+        "yearMonth": "202606",
+        "requestLawd": "51800"
+      },
+      {
+        "catalogOrSyncLawd": "51810",
+        "yearMonth": "202606",
+        "requestLawd": "51810"
+      },
+      {
+        "catalogOrSyncLawd": "51820",
+        "yearMonth": "202606",
+        "requestLawd": "51820"
+      },
+      {
+        "catalogOrSyncLawd": "51830",
+        "yearMonth": "202606",
+        "requestLawd": "51830"
+      },
+      {
+        "catalogOrSyncLawd": "52111",
+        "yearMonth": "202606",
+        "requestLawd": "52111"
+      },
+      {
+        "catalogOrSyncLawd": "52113",
+        "yearMonth": "202606",
+        "requestLawd": "52113"
+      },
+      {
+        "catalogOrSyncLawd": "52130",
+        "yearMonth": "202606",
+        "requestLawd": "52130"
+      },
+      {
+        "catalogOrSyncLawd": "52140",
+        "yearMonth": "202606",
+        "requestLawd": "52140"
+      },
+      {
+        "catalogOrSyncLawd": "52180",
+        "yearMonth": "202606",
+        "requestLawd": "52180"
+      },
+      {
+        "catalogOrSyncLawd": "52190",
+        "yearMonth": "202606",
+        "requestLawd": "52190"
+      },
+      {
+        "catalogOrSyncLawd": "52210",
+        "yearMonth": "202606",
+        "requestLawd": "52210"
+      },
+      {
+        "catalogOrSyncLawd": "52710",
+        "yearMonth": "202606",
+        "requestLawd": "52710"
+      },
+      {
+        "catalogOrSyncLawd": "52720",
+        "yearMonth": "202606",
+        "requestLawd": "52720"
+      },
+      {
+        "catalogOrSyncLawd": "52730",
+        "yearMonth": "202606",
+        "requestLawd": "52730"
+      },
+      {
+        "catalogOrSyncLawd": "52740",
+        "yearMonth": "202606",
+        "requestLawd": "52740"
+      },
+      {
+        "catalogOrSyncLawd": "52750",
+        "yearMonth": "202606",
+        "requestLawd": "52750"
+      },
+      {
+        "catalogOrSyncLawd": "52770",
+        "yearMonth": "202606",
+        "requestLawd": "52770"
+      },
+      {
+        "catalogOrSyncLawd": "52790",
+        "yearMonth": "202606",
+        "requestLawd": "52790"
+      },
+      {
+        "catalogOrSyncLawd": "52800",
+        "yearMonth": "202606",
+        "requestLawd": "52800"
+      },
+      {
+        "catalogOrSyncLawd": "29110",
+        "yearMonth": "202606",
+        "requestLawd": "12210"
+      },
+      {
+        "catalogOrSyncLawd": "29110",
+        "yearMonth": "202607",
+        "requestLawd": "12210"
+      },
+      {
+        "catalogOrSyncLawd": "46110",
+        "yearMonth": "202606",
+        "requestLawd": "12110"
+      },
+      {
+        "catalogOrSyncLawd": "46110",
+        "yearMonth": "202608",
+        "requestLawd": "12110"
+      },
+      {
+        "catalogOrSyncLawd": "12210",
+        "yearMonth": "202606",
+        "requestLawd": "12210"
+      },
+      {
+        "catalogOrSyncLawd": "12210",
+        "yearMonth": "202607",
+        "requestLawd": "12210"
+      },
+      {
+        "catalogOrSyncLawd": "28110",
+        "yearMonth": "202606",
+        "requestLawd": "28125"
+      },
+      {
+        "catalogOrSyncLawd": "28110",
+        "yearMonth": "202608",
+        "requestLawd": "28125"
+      }
+    ],
+    "mismatched": []
+  },
+  "sampleRemaps": []
+}

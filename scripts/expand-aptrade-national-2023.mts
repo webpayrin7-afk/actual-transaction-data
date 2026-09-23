@@ -2,7 +2,7 @@
  * TRUE NATIONAL AptTrade 2023-01..2026-09 expansion + rgstDate ingest.
  *
  * Missing cells only. Preserves Seoul/Gyeonggi + existing Busan months.
- * Gwangju/Jeonnam = MAPPING_HOLD (see apttrade-lawd-mapping.ts).
+ * Gwangju/Jeonnam use MOIS 2026-07-01 temporal crosswalk (canonical 12xxx).
  *
  * Reuses: fetchOneTradeForSync → resolveActiveTrades → replaceMonthTransactions
  *
@@ -345,6 +345,19 @@ async function main() {
           dryRun: !apply,
           skipDelete,
         });
+
+        // Empty MOLIT months still need sync_months so coverage is complete.
+        // replaceMonthTransactions only upserts sync_months when tx writes occur.
+        if (apply && items.length === 0) {
+          await db!.execute({
+            sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
+                  VALUES (?, ?, 'trade', ?, 0)
+                  ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
+                    synced_at = excluded.synced_at,
+                    row_count = excluded.row_count`,
+            args: [job.lawdCd, job.yearMonth, new Date().toISOString()],
+          });
+        }
 
         let populated = 0;
         let unresolved = 0;

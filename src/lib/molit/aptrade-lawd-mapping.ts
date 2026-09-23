@@ -30,7 +30,8 @@ const LEGACY_TO_APTTRADE_PREFIX: Record<string, string> = {
 export const APTTRADE_MAPPING_HOLD_METROS: ReadonlySet<NationwideMetro> =
   new Set();
 
-export function isAptTradeMappingHoldLawd(_lawdCd: string): boolean {
+export function isAptTradeMappingHoldLawd(lawdCd: string): boolean {
+  void lawdCd;
   // Gwangju/Jeonnam HOLD lifted after MOIS 2026-07-01 crosswalk + MOLIT probe.
   return false;
 }

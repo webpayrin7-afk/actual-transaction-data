@@ -87,7 +87,14 @@ export const METRO_LABELS: Record<NationwideMetro, string> = {
 };
 
 export function metroFromLawdNationwide(lawdCd: string): NationwideMetro {
-  return PREFIX_METRO[lawdCd.slice(0, 2)] ?? "other";
+  const prefix = lawdCd.slice(0, 2);
+  if (prefix === "12") {
+    // 전남광주통합특별시 (MOIS 2026-07-01): 시/군 = 전남 계열, 구 = 광주 계열
+    const n = Number(lawdCd);
+    if (n >= 12210 && n <= 12330) return "gwangju";
+    return "jeonnam";
+  }
+  return PREFIX_METRO[prefix] ?? "other";
 }
 
 export function sidoFromFullName(fullName: string): string {

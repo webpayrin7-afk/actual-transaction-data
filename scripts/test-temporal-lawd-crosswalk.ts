@@ -13,12 +13,15 @@ import {
   gwangjuJeonnamMappingCoverage,
   historicalAdminLawdFromCanonical,
   isYmBeforeAdminChange,
+  planAptTradeRequestLawd,
+  validateTemporalRollingPlan,
 } from "../src/lib/molit/temporal-lawd";
 import {
   aptTradeMappingStatus,
   toAptTradeRequestLawd,
   toAptTradeRequestLawds,
 } from "../src/lib/molit/aptrade-lawd-mapping";
+import { metroFromLawdNationwide } from "../src/lib/constants/nationwide-lawd";
 
 assert.equal(APTTRADE_ADMIN_EFFECTIVE_DATE, "2026-07-01");
 assert.equal(APTTRADE_ADMIN_EFFECTIVE_YM, "202607");
@@ -86,6 +89,34 @@ assert.equal(status.jeonnam, "TEMPORAL_CROSSWALK_PASS");
 assert.equal(toAptTradeRequestLawd("29140"), "12240");
 assert.ok(toAptTradeRequestLawds("28110").includes("28125"));
 
+// 12xxx metro split (전남광주통합특별시)
+assert.equal(metroFromLawdNationwide("12210"), "gwangju");
+assert.equal(metroFromLawdNationwide("12330"), "gwangju");
+assert.equal(metroFromLawdNationwide("12110"), "jeonnam");
+assert.equal(metroFromLawdNationwide("12870"), "jeonnam");
+assert.equal(metroFromLawdNationwide("29110"), "gwangju");
+assert.equal(metroFromLawdNationwide("46110"), "jeonnam");
+
+// Rolling refresh temporal planner (pre/post 2026-07)
+assert.equal(planAptTradeRequestLawd("29110", "202606"), "12210");
+assert.equal(planAptTradeRequestLawd("29110", "202607"), "12210");
+assert.equal(planAptTradeRequestLawd("46110", "202606"), "12110");
+assert.equal(planAptTradeRequestLawd("12210", "202608"), "12210");
+assert.equal(planAptTradeRequestLawd("28110", "202606"), "28125");
+assert.equal(planAptTradeRequestLawd("28110", "202608"), "28125");
+const rolling = validateTemporalRollingPlan([
+  { lawdCd: "12210", yearMonth: "202606" },
+  { lawdCd: "12210", yearMonth: "202607" },
+  { lawdCd: "29110", yearMonth: "202606" },
+]);
+assert.equal(rolling.temporalAware, true);
+assert.ok(rolling.boundarySamples.length >= 2);
+assert.ok(
+  rolling.mismatched.some(
+    (m) => m.catalogOrSyncLawd === "29110" && m.expected === "12210",
+  ),
+);
+
 console.log(
   JSON.stringify({
     ok: true,
@@ -95,6 +126,8 @@ console.log(
       "request-planner-canonical",
       "incheon-4-classification",
       "mapping-status-pass",
+      "metro-12xxx-split",
+      "rolling-refresh-temporal-plan",
     ],
   }),
 );
