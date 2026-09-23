@@ -25,7 +25,7 @@ const COLS: Record<2 | 3 | 4, string> = {
 };
 
 /**
- * 테두리 박스 지표 묶음 (policy §12.4).
+ * 테두리 박스 지표 묶음 (policy §12.4). 흰 면을 직접 가져서 카드 밖(회색 캔버스)에 놓여도 회색으로 비치지 않는다.
  * - stack: 라벨 위 · 값 아래(+보조), 값은 박스 하단 정렬 — 2~3개 요약 지표
  * - inline: 라벨 왼쪽 · 값 오른쪽 한 줄 — 변화율처럼 짧은 값 4개
  */
@@ -58,7 +58,7 @@ export function LabStatTiles({
           return (
             <div
               key={t.key}
-              className="flex min-w-0 items-baseline justify-between gap-2 rounded-xl border border-[color:var(--lab-border)] px-3 py-2.5"
+              className="flex min-w-0 items-baseline justify-between gap-2 rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3 py-2.5"
             >
               <dt className="detail-label whitespace-nowrap">{t.label}</dt>
               <dd className={`detail-data-value-emphasis whitespace-nowrap ${tone}`}>{value}</dd>
@@ -68,7 +68,7 @@ export function LabStatTiles({
         return (
           <div
             key={t.key}
-            className="flex min-w-0 flex-col justify-between gap-1 rounded-xl border border-[color:var(--lab-border)] px-2.5 py-2.5"
+            className="flex min-w-0 flex-col justify-between gap-1 rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-2.5 py-2.5"
           >
             <dt className="detail-label break-keep">{t.label}</dt>
             <dd className="tabular-nums">
