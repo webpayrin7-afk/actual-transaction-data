@@ -143,17 +143,16 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      // Mobile: the quick nav below carries the divider on every page.
-      className="sticky top-0 z-50 border-b-0 bg-white shadow-none sm:border-b sm:border-slate-200/80"
+      // Mobile (B+): search pill + menu only; menus live in the floating dock (MobileDock).
+      className="sticky top-0 z-50 border-b border-[color:var(--lab-border)] bg-white shadow-none"
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
-        <div
-          className="flex flex-col gap-0.5 pt-1.5 pb-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0"
-        >
-          <div className="flex min-w-0 items-center gap-2 sm:gap-5">
+        <div className="flex py-1.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-5">
+            <HeaderAptSearch variant="pill" className="min-w-0 flex-1 sm:hidden" />
             <Link
               href="/"
-              className="inline-flex shrink-0 items-center lg:hidden"
+              className="hidden shrink-0 items-center sm:inline-flex lg:hidden"
               aria-label="집랩 홈"
             >
               <JipLabLogo priority />
@@ -177,8 +176,8 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:ml-0">
-              <HeaderAptSearch />
+            <div className="flex shrink-0 items-center gap-0.5 sm:ml-auto lg:ml-0">
+              <HeaderAptSearch className="hidden sm:block" />
 
               <button
                 type="button"
@@ -187,14 +186,12 @@ export function SiteHeader() {
                 aria-haspopup="dialog"
                 aria-label="더보기"
                 onClick={openMenu}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-[color:var(--lab-navy-900)] transition-colors duration-150 hover:bg-slate-100"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[color:var(--lab-navy-900)] transition-colors duration-150 hover:bg-slate-100 sm:h-9 sm:w-9"
               >
                 <Menu className="h-[18px] w-[18px]" aria-hidden />
               </button>
             </div>
           </div>
-
-          {/* Mobile: HomeNavigation (AppShell) is the menu on every page — no text tabs here. */}
         </div>
       </div>
       <SiteHeaderLoadProgress />

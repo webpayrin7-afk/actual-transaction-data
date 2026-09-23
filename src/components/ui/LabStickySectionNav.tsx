@@ -9,13 +9,9 @@ export const LAB_STICKY_NAV_HEIGHT_VAR = "--lab-sticky-nav-height";
 const SHOW_SLACK_PX = 4;
 const HIDE_SLACK_PX = 32;
 
-/** Sticky chrome above this bar: site header + mobile quick nav (0 when hidden). */
 function siteHeaderHeight(): number {
   const header = document.querySelector<HTMLElement>("[data-site-header]");
-  const quick = document.querySelector<HTMLElement>('nav[aria-label="주요 탐색"]');
-  const h = header ? header.getBoundingClientRect().height : 0;
-  const q = quick ? quick.getBoundingClientRect().height : 0;
-  return Math.max(0, Math.round(h + q));
+  return header ? Math.max(0, Math.round(header.getBoundingClientRect().height)) : 0;
 }
 
 /**
@@ -156,7 +152,7 @@ export function LabStickySectionNav({
       className={`fixed inset-x-0 z-40 border-b border-[color:var(--lab-border)] bg-white/95 backdrop-blur transition-[opacity,transform] duration-150 ease-out ${
         visible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
       }`}
-      style={{ top: "calc(var(--site-header-height, 0px) + var(--lab-quicknav-height, 0px))" }}
+      style={{ top: "var(--site-header-height, 0px)" }}
       aria-hidden={!visible}
       {...(!visible ? { inert: true } : {})}
     >

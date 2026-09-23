@@ -7,7 +7,7 @@ import { BarChart3, Building2, Map, MapPinned, Search } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
-import { HomeNavigation } from "@/components/home/HomeNavigation";
+import { MOBILE_DOCK_SPACER, MobileDock } from "@/components/layout/MobileDock";
 
 const NAV = [
   {
@@ -122,10 +122,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="flex min-h-dvh min-w-0 flex-col lg:col-start-2">
         <SiteHeader />
-        {/* Mobile quick nav on every menu page — expanded on home, compact elsewhere. */}
-        <HomeNavigation />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
+        <div aria-hidden className={MOBILE_DOCK_SPACER} />
+        <MobileDock />
       </div>
     </div>
   );

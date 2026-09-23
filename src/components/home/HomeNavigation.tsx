@@ -1,91 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LabTag } from "@/components/ui/LabTag";
 import { HOME_QUICK_NAV } from "@/lib/nav/home-quick-nav";
 
 const EASE = "duration-200 ease-out";
-/** Keep first paint expanded; compact only after a real scroll. */
-const COMPACT_SCROLL_Y = 12;
 
 /**
- * Mobile quick navigation on every menu page (AppShell), sticky under SiteHeader.
- * Home: starts expanded and morphs to compact on scroll. Other pages: always compact.
+ * 홈 바로가기 카드 (모바일, 홈 본문 첫 카드) — 오늘의 시장 강조 타일 + 지도 가로 타일 + 3칸.
+ * 고정 바가 아니다: 사이트 전체 메뉴는 떠 있는 독(MobileDock)이 맡는다.
  */
 export function HomeNavigation() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(false);
-  const compact = !isHome || scrolled;
-
-  useEffect(() => {
-    if (!isHome) return;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      setScrolled(window.scrollY > COMPACT_SCROLL_Y);
-    };
-    const onScroll = () => {
-      if (!raf) raf = window.requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) window.cancelAnimationFrame(raf);
-    };
-  }, [isHome]);
-
-  // Expose height for full-height pages (지도) and sticky offsets; 0 when hidden (≥sm).
-  const navRef = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    const el = navRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const root = document.documentElement;
-    const sync = () =>
-      root.style.setProperty("--lab-quicknav-height", `${Math.round(el.getBoundingClientRect().height)}px`);
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(el);
-    return () => {
-      ro.disconnect();
-      root.style.removeProperty("--lab-quicknav-height");
-    };
-  }, []);
 
   return (
-    <nav
-      ref={navRef}
-      aria-label="주요 탐색"
-      data-mode={compact ? "compact" : "expanded"}
-      className={[
-        "sticky z-40 border-b border-[color:var(--lab-border)] bg-white sm:hidden",
-        `transition-[padding] ${EASE} motion-reduce:transition-none`,
-        compact ? "px-2 py-1.5" : "px-3 pt-1.5 pb-2",
-      ].join(" ")}
-      style={{ top: "var(--site-header-height, 52px)" }}
-    >
-      <div
-        className={[
-          "mx-auto grid w-full max-w-[1440px]",
-          `transition-[gap] ${EASE} motion-reduce:transition-none`,
-          compact
-            ? "grid-cols-5 gap-0.5"
-            : "grid-cols-[minmax(0,0.28fr)_repeat(3,minmax(0,0.24fr))] grid-rows-[auto_auto] gap-1.5",
-        ].join(" ")}
-      >
+    <nav aria-label="바로가기" className="sm:hidden">
+      <div className="mx-auto grid w-full max-w-[1440px] grid-cols-[minmax(0,0.28fr)_repeat(3,minmax(0,0.24fr))] grid-rows-[auto_auto] gap-1.5">
         {HOME_QUICK_NAV.map((item) => {
           const active = item.match(pathname);
           const Icon = item.icon;
           const disabled = !item.href || Boolean(item.disabled);
-          const featured = !compact && item.id === "market";
+          const featured = item.id === "market";
           const isMap = item.id === "map";
 
-          const placement = compact
-            ? ""
-            : item.id === "market"
+          const placement =
+            item.id === "market"
               ? "col-start-1 row-span-2 row-start-1"
               : item.id === "map"
                 ? "col-span-3 col-start-2 row-start-1"
@@ -103,9 +43,7 @@ export function HomeNavigation() {
               : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface-subtle)] text-[color:var(--lab-navy-950)]";
 
           // 정책 §5: 카드·타일 radius 12. 터치 영역 44 이상.
-          const shape = compact
-            ? "min-h-[56px] flex-col gap-0.5 px-0.5 py-1.5"
-            : featured
+          const shape = featured
               ? "min-h-[104px] h-full flex-col gap-1.5 px-1.5 py-2"
               : isMap
                 ? "min-h-[48px] flex-row gap-2 px-3"
@@ -114,21 +52,19 @@ export function HomeNavigation() {
           const className = [
             "flex min-w-0 items-center justify-center rounded-xl border",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]",
-            `transition-[min-height,padding,gap,background-color,color,border-color] ${EASE} motion-reduce:transition-none`,
+            `transition-[background-color,color,border-color] ${EASE} motion-reduce:transition-none`,
             tone,
             shape,
             placement,
           ].join(" ");
 
-          const label = compact ? item.shortLabel : item.label;
-          const iconCls = compact
-            ? "h-4 w-4 stroke-[1.75]"
-            : "h-5 w-5 stroke-[1.75]";
-          // 정책 §3·§11: 컨트롤 14/20, 압축(compact) 13/20. 12px 미만 금지. 선택 600 / 비선택 500.
+          const label = item.label;
+          const iconCls = "h-5 w-5 stroke-[1.75]";
+          // 정책 §3·§11: 컨트롤 14/20. 선택 600 / 비선택 500.
           const labelCls = [
             "max-w-full truncate text-center",
             active ? "font-semibold" : "font-medium",
-            compact ? "text-[13px] leading-5" : "text-[14px] leading-5",
+            "text-[14px] leading-5",
           ].join(" ");
 
           const body = (
@@ -137,7 +73,7 @@ export function HomeNavigation() {
                 <Icon className={iconCls} aria-hidden />
               </span>
               <span className={labelCls}>{label}</span>
-              {!compact && isMap && disabled ? (
+              {isMap && disabled ? (
                 <LabTag>{item.disabledHint ?? "준비중"}</LabTag>
               ) : null}
             </>

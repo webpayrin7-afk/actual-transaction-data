@@ -8,7 +8,14 @@ import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 const EXIT_MS = 160;
 
 /** Header utility — 통합(단지+지역) 검색. 모바일은 sheet, PC는 dropdown */
-export function HeaderAptSearch({ className = "" }: { className?: string }) {
+export function HeaderAptSearch({
+  className = "",
+  variant = "icon",
+}: {
+  className?: string;
+  /** "pill": mobile header search field look (B+ nav) — same panel opens. */
+  variant?: "icon" | "pill";
+}) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [shown, setShown] = useState(false);
@@ -83,13 +90,18 @@ export function HeaderAptSearch({ className = "" }: { className?: string }) {
         aria-haspopup="dialog"
         aria-label="통합 검색"
         onClick={toggleSearch}
-        className={`inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
-          open
-            ? "text-teal-800 hover:bg-teal-50/70"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-        }`}
+        className={
+          variant === "pill"
+            ? "flex h-10 w-full items-center gap-2 rounded-full bg-[color:var(--lab-surface-subtle)] px-3.5 text-left text-[14px] leading-5 text-[color:var(--lab-muted)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]"
+            : `inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
+                open
+                  ? "text-teal-800 hover:bg-teal-50/70"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`
+        }
       >
-        <Search className="h-[18px] w-[18px]" />
+        <Search className="h-[18px] w-[18px] shrink-0" aria-hidden />
+        {variant === "pill" ? <span className="truncate">단지 · 지역 검색</span> : null}
       </button>
 
       {mounted ? (
