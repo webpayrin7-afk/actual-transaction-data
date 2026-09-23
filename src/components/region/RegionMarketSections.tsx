@@ -15,6 +15,7 @@ import {
   regionRankingCode,
 } from "@/lib/region-ranking/public";
 import type { RegionAptSummary } from "@/lib/region/region-summary";
+import { RegionPriceTrendChart } from "@/components/region/RegionPriceTrendChart";
 
 export const MARKET_SECTION_SURFACE = "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
 
@@ -193,6 +194,7 @@ export function RegionRepPriceSection({
           })}
         </div>
       )}
+      <RegionPriceTrendChart lawdCd={regionCode} regionName={regionName} />
     </section>
   );
 }
