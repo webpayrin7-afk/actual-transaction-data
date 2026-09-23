@@ -13,19 +13,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import {
-  RegionAnalysisSection,
-  RegionDecadeSelector,
-  RegionMarketSummary,
-  RegionPriceTrendSection,
-  RegionRecentTransactions,
-  RegionStatusHero,
-  RegionSupplySection,
-  collectRecentContractDeals,
-  useRegionScopeControls,
-} from "@/components/region/RegionStatusSections";
-import { regionRankingCode } from "@/lib/region-ranking/public";
-import type { DecadeKeyV3 } from "@/lib/region-ranking/ranking-v3";
+import { RegionLeaderboard } from "@/components/region/RegionLeaderboard";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -731,19 +719,11 @@ function scrollToDateHeading(date: string) {
 export function RegionDailyStatus({
   regionSlug,
   regionName,
-  regionFullName,
   lawdCodes = [],
-  rankingDongName = null,
-  rankingDongCode = null,
-  fromComplexId = null,
 }: {
   regionSlug: string;
   regionName: string;
-  regionFullName?: string;
   lawdCodes?: string[];
-  rankingDongName?: string | null;
-  rankingDongCode?: string | null;
-  fromComplexId?: string | null;
 }) {
   const contractMonthFallback = useMemo(() => fallbackContractMonths(), []);
   const [contractMonth, setContractMonth] = useState(
@@ -1106,152 +1086,273 @@ export function RegionDailyStatus({
     return map;
   }, [calendarSelected, listedDates, sectionByDate, visibleDealCount]);
 
-  const { searchParams, setParams } = useRegionScopeControls();
-  const guCode = regionRankingCode(lawdCodes);
-  const dongCode =
-    rankingDongCode && /^[0-9]{10}$/.test(rankingDongCode)
-      ? rankingDongCode
-      : null;
-  const canDong = Boolean(dongCode && rankingDongName?.trim());
-  const scopeParam = searchParams.get("scope");
-  const scope: "gu" | "dong" =
-    canDong && (scopeParam === "dong" || (!scopeParam && Boolean(dongCode)))
-      ? "dong"
-      : "gu";
-  const activeRegionCode =
-    scope === "dong" && dongCode ? dongCode : guCode;
-  const decadeParam = searchParams.get("decade")?.trim() ?? "";
-  const decade: DecadeKeyV3 =
-    /^\d+$/.test(decadeParam) && decadeParam.length <= 3
-      ? (decadeParam as DecadeKeyV3)
-      : "30";
-
-  const setScope = (next: "gu" | "dong") => {
-    if (next === "dong" && rankingDongName && dongCode) {
-      setParams({
-        dong: rankingDongName,
-        regionCode: dongCode,
-        scope: "dong",
-        fromComplexId: fromComplexId,
-        decade,
-        section: searchParams.get("section"),
-      });
-      return;
-    }
-    setParams({
-      scope: "gu",
-      regionCode: null,
-      dong: rankingDongName,
-      fromComplexId: fromComplexId,
-      decade,
-      section: searchParams.get("section"),
-    });
-  };
-
-  const setDecade = (next: DecadeKeyV3) => {
-    setParams({
-      decade: next,
-      scope,
-      dong: rankingDongName,
-      regionCode: scope === "dong" ? dongCode : null,
-      fromComplexId: fromComplexId,
-      section: searchParams.get("section"),
-    });
-  };
-
-  const heroTitle =
-    scope === "dong" && rankingDongName?.trim()
-      ? rankingDongName.trim()
-      : regionName;
-  const heroSubtitle =
-    scope === "dong" && rankingDongName?.trim()
-      ? regionFullName?.trim() || `서울 ${regionName}`
-      : regionFullName?.includes(" ")
-        ? regionFullName.split(/\s+/)[0] || "서울특별시"
-        : regionFullName?.replace(regionName, "").trim() || "서울특별시";
-
-  const recentFromCalendar = useMemo(() => {
-    const sections = [...sectionByDate.values()].map((s) => ({ deals: s.deals }));
-    return collectRecentContractDeals({
-      sections,
-      dongName: scope === "dong" ? rankingDongName : null,
-      limit: 20,
-    });
-  }, [rankingDongName, scope, sectionByDate]);
-
-  const recentMerged = useMemo(() => {
-    return collectRecentContractDeals({
-      sections: [{ deals: recentFromCalendar }],
-      dongName: null,
-      limit: 12,
-    });
-  }, [recentFromCalendar]);
-
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-8 sm:gap-10">
-      <RegionStatusHero
-        title={heroTitle}
-        subtitle={heroSubtitle}
-        guLabel={regionName}
-        dongLabel={rankingDongName}
-        scope={scope}
-        onScopeChange={setScope}
-        canDong={canDong}
-      />
-
-      <div className="flex flex-col gap-3">
-        <RegionDecadeSelector value={decade} onChange={setDecade} />
-        <RegionMarketSummary
-          regionCode={activeRegionCode}
-          decade={decade}
-          fromComplexId={fromComplexId}
-          monthTradeCount={market?.monthTradeCount ?? null}
-          volumeLoading={marketQuery.isLoading && !market}
-          volumeError={marketQuery.isError}
-          volumeLabel={scope === "dong" ? `${regionName} 거래량` : "거래량"}
-          volumeSide={
-            market?.comparePartial
-              ? "계약월 · 오늘까지"
-              : market
-                ? "계약월 기준"
-                : null
-          }
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
+      <section
+        aria-label={`${regionName} 지역 시장 현황`}
+        className={`${SECTION_SURFACE} flex flex-col gap-3`}
+      >
+        <SectionHeading
+          title="지역 시장 현황"
+          basisLabel={CONTRACT_DATE_BASIS_LABEL}
+          basisHelp={CONTRACT_DATE_BASIS_HELP}
         />
-        <div className="pt-1">
-          <MonthNav
-            value={contractMonth}
-            options={section1Months}
-            onChange={setContractMonth}
-          />
+        <div className="flex flex-col gap-2">
+        <MonthNav
+          value={contractMonth}
+          options={section1Months}
+          onChange={setContractMonth}
+        />
+        {marketQuery.isError ? (
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            시장 현황을 불러오지 못했습니다.
+          </p>
+        ) : null}
+        {marketQuery.isLoading && !market ? (
+          <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
+        ) : market ? (
+          <>
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
+              <Kpi
+                label="거래량"
+                value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
+                side={market.comparePartial ? "오늘까지" : undefined}
+              />
+              <Kpi
+                label="전월 대비"
+                value={formatMomChangeValue(volumePct)}
+                side={volumeChangeSide(
+                  market.monthTradeCount,
+                  market.prevMonthTradeCount,
+                  volumePct,
+                )}
+                valueClassName={volumeChangeClass(volumePct)}
+                sideClassName={volumeChangeSideClass(volumePct)}
+              />
+              <Kpi
+                label="전년 동월 대비"
+                value={formatMomChangeValue(yearAgoPct)}
+                side={
+                  market.yearAgoMonthTradeCount != null
+                    ? volumeChangeSide(
+                        market.monthTradeCount,
+                        market.yearAgoMonthTradeCount,
+                        yearAgoPct,
+                      )
+                    : undefined
+                }
+                valueClassName={volumeChangeClass(yearAgoPct)}
+                sideClassName={volumeChangeSideClass(yearAgoPct)}
+              />
+              <Kpi
+                label="신고가"
+                value={
+                  market.monthSingogaCount != null
+                    ? `${market.monthSingogaCount.toLocaleString("ko-KR")}건`
+                    : "—"
+                }
+                valueClassName={singogaValueClass(market.monthSingogaCount)}
+              />
+              <Kpi
+                label="신고가 비율"
+                value={formatSharePct(singogaPct)}
+                valueClassName={singogaValueClass(
+                  market.monthSingogaCount,
+                )}
+              />
+              <Kpi
+                label="평당 중위가"
+                value={
+                  market.medianPyeongPrice != null
+                    ? formatPyeongMedian(market.medianPyeongPrice)
+                    : "—"
+                }
+              />
+            </div>
+            <Link
+              href="/stats"
+              className="inline-flex items-center gap-1 self-start text-sm font-medium text-slate-600 transition hover:text-slate-900"
+            >
+              시장 동향 자세히 보기
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </>
+        ) : null}
         </div>
-      </div>
+      </section>
 
-      <RegionPriceTrendSection
-        regionCode={activeRegionCode}
-        decade={decade}
-        fromComplexId={fromComplexId}
-      />
+      {lawdCodes.length > 0 ? (
+        <RegionLeaderboard
+          regionSlug={regionSlug}
+          regionName={regionName}
+          lawdCodes={lawdCodes}
+        />
+      ) : null}
 
-      <RegionRecentTransactions
-        deals={recentMerged}
-        regionSlug={regionSlug}
-        guName={regionName}
-        loading={
-          (historyQuery.isLoading || initialDaysQuery.isLoading) &&
-          recentMerged.length === 0
-        }
-        error={historyQuery.isError && recentMerged.length === 0}
-      />
+      <section
+        id="newly-seen-deals"
+        aria-label={`${regionName} 새로 확인된 거래`}
+        className={`${SECTION_SURFACE} flex flex-col gap-2.5`}
+      >
+        <SectionHeading
+          title="새로 확인된 거래"
+          basisLabel={SEEN_DATE_BASIS_LABEL}
+          basisHelp={SEEN_DATE_BASIS_HELP}
+        />
+        {latestQuery.isError ? (
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            새로 확인된 거래를 불러오지 못했습니다.
+          </p>
+        ) : null}
+        {latestQuery.isLoading && !latest ? (
+          <div className="h-40 animate-pulse rounded-lg bg-slate-200/50" />
+        ) : heroDate && heroDeals.length > 0 ? (
+          <>
+            {heroIsToday ? (
+              <PhraseRow
+                className="text-sm leading-5"
+                leadingClassName="font-medium text-slate-900"
+                restClassName="tabular-nums text-slate-500"
+                items={[koreanMonthDayLabel(heroDate), ...heroCountPhrases]}
+              />
+            ) : (
+              <p className="break-keep text-sm text-slate-600">
+                {newlySeenCompactStatus({
+                  isToday: false,
+                  heroDate,
+                })}
+              </p>
+            )}
+            {latest?.bulkIngestDay ? (
+              <p className="text-pretty text-xs leading-5 text-slate-500">
+                이날 확인 건수가 많아 신고가 강조는 생략했습니다. 신고가가
+                0건이라는 뜻은 아닙니다.
+              </p>
+            ) : null}
+            <DealGrid
+              deals={heroVisible}
+              regionSlug={regionSlug}
+              variant="featured"
+            />
+            {heroHidden > 0 ? (
+              <MoreControl onClick={() => setHeroExpanded(true)}>
+                더보기 {heroHidden.toLocaleString("ko-KR")}건
+              </MoreControl>
+            ) : null}
+          </>
+        ) : (
+          <div className="px-1 py-2 text-sm text-slate-500">
+            {EMPTY_NEWLY_SEEN}
+          </div>
+        )}
+      </section>
 
-      <RegionAnalysisSection
-        volumePct={volumePct}
-        yearAgoPct={yearAgoPct}
-        singogaCount={market?.monthSingogaCount ?? null}
-        singogaPct={singogaPct}
-        comparePartial={Boolean(market?.comparePartial)}
-      />
+      <section
+        aria-label={`${regionName} 지역 거래 내역`}
+        className={`${SECTION_SURFACE} flex flex-col gap-3`}
+      >
+        <SectionHeading
+          title="지역 거래 내역"
+          basisLabel={CONTRACT_DATE_BASIS_LABEL}
+          basisHelp={CONTRACT_DATE_BASIS_HELP}
+        />
 
-      <RegionSupplySection sigungu={regionName} />
+        <div>
+          <MonthCalendar
+            yearMonth={activityMonth}
+            days={calendarDays}
+            selectedDate={calendarSelected}
+            onSelectDate={selectCalendarDate}
+            monthOptions={section3Months}
+            onChangeMonth={changeActivityMonth}
+          />
+          <p className="mt-2 max-w-md text-[11px] leading-4 text-slate-400">
+            {CALENDAR_HELPER}
+          </p>
+        </div>
+
+        <div className="mt-2 flex flex-col gap-5 border-t border-slate-200/70 pt-5">
+          {historyQuery.data ? (
+            <p className="shrink-0 text-left text-xs tabular-nums text-slate-500">
+              이 달 총{" "}
+              {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
+                "ko-KR",
+              )}
+              건
+            </p>
+          ) : null}
+          {activeDates.length === 0 && historyQuery.data ? (
+            <div className="flex min-h-[12rem] shrink-0 items-center justify-center px-1 py-8 text-center sm:min-h-[14rem]">
+              <p className="break-keep text-sm text-slate-500">
+                {EMPTY_MONTH_HISTORY}
+              </p>
+            </div>
+          ) : null}
+          {(historyQuery.isLoading || initialDaysQuery.isLoading) &&
+          !historyQuery.data &&
+          !initialDaysQuery.data ? (
+            <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
+          ) : null}
+          {listedDates.map((date) => {
+            const section = sectionByDate.get(date);
+            const summary = calendarDays.find((d) => d.date === date);
+            const visibleDeals = visibleDealsByDate.get(date) ?? [];
+            const headingClass =
+              flashDate === date
+                ? "region-date-flash rounded-md px-1 -mx-1"
+                : "px-1 -mx-1";
+            return (
+              <div key={date}>
+                <h4
+                  key={
+                    flashDate === date ? `${date}-flash-${flashNonce}` : date
+                  }
+                  id={recordDateDomId(date)}
+                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)] ${headingClass}`}
+                >
+                  <PhraseRow
+                    className="text-sm font-medium text-slate-900"
+                    restClassName="text-xs font-normal tabular-nums text-slate-500"
+                    items={[
+                      koreanMonthDayLabel(date),
+                      ...(section
+                        ? dayCountPhrases(section)
+                        : [
+                            `총 ${(summary?.dealCount ?? 0).toLocaleString("ko-KR")}건`,
+                          ]),
+                    ]}
+                  />
+                </h4>
+                {section?.bulkIngestDay ? (
+                  <p className="mt-1 text-pretty text-xs leading-5 text-slate-500">
+                    이날 거래 건수가 많아 신고가 강조는 생략했습니다. 신고가가
+                    0건이라는 뜻은 아닙니다.
+                  </p>
+                ) : null}
+                {section ? (
+                  <>
+                    {visibleDeals.length > 0 ? (
+                      <DealGrid
+                        deals={visibleDeals}
+                        regionSlug={regionSlug}
+                        variant="history"
+                      />
+                    ) : section.totalCount === 0 ? (
+                      <p className="mt-2 text-sm text-slate-500">
+                        해당 날짜 거래가 없습니다.
+                      </p>
+                    ) : null}
+                  </>
+                ) : null}
+              </div>
+            );
+          })}
+          {pendingDates.length > 0 ? (
+            <div className="h-16 animate-pulse rounded-lg bg-slate-200/50" />
+          ) : null}
+          <div ref={historySentinel} className="h-px" aria-hidden="true" />
+        </div>
+      </section>
     </div>
   );
 }
