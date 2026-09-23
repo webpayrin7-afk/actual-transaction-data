@@ -85,7 +85,7 @@ export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
     },
     {
       key: "peak",
-      label: "고점 대비 10%↓",
+      label: "고점 −10%",
       value: peakShare != null ? `${peakShare}%` : "—",
       sub: a ? `${a.belowPeakCount.toLocaleString("ko-KR")}건` : null,
       cls: "detail-change-down",
@@ -104,7 +104,7 @@ export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
               많았다는 뜻입니다.
             </p>
             <p className="mt-1.5">신고가: 종전 최고가를 넘은 거래</p>
-            <p>고점 대비 10%↓: 종전 최고가보다 10% 이상 낮은 거래</p>
+            <p>고점 −10%: 종전 최고가보다 10% 이상 낮은 거래</p>
           </InfoTip>
         </div>
         {a ? (
