@@ -18,6 +18,10 @@ export const MAP_AREA_BANDS: Record<MapAreaBand, { label: string; min: number; m
   large: { label: "대형", min: 86, max: 10_000 },
 };
 
+/** 매매 = trade, 전세 = rent with monthly_rent 0 (보증금만). 월세는 제외. */
+export type MapDealKind = "trade" | "jeonse";
+export const MAP_DEAL_KINDS: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
+
 export type MapBBox = { swLat: number; swLng: number; neLat: number; neLng: number };
 
 export type MapComplex = {
@@ -28,8 +32,12 @@ export type MapComplex = {
   dong: string | null;
   householdCount: number | null;
   href: string;
-  /** 최근 12개월 선택 구간 매매 중위가 (만원) */
+  /** 최근 12개월 선택 구간·거래유형 중위가 (만원) */
   medianPriceMan: number | null;
+  /** 기간 내 가장 많이 거래된 전용면적(㎡, 소수 첫째 자리) — 마커의 평형 표기용 */
+  mainAreaSqm: number | null;
+  /** 건축년도 (거래 신고의 build_year, 없으면 사용승인일 연도) */
+  buildYear: number | null;
   tradeCount12m: number;
   latestDealDate: string | null;
   latestPriceMan: number | null;
@@ -43,6 +51,25 @@ function median(values: number[]): number | null {
   const s = [...values].sort((a, b) => a - b);
   const mid = s.length >> 1;
   return s.length % 2 ? s[mid]! : (s[mid - 1]! + s[mid]!) / 2;
+}
+
+/** 가장 많이 거래된 전용면적 (소수 첫째 자리로 묶음). 동률이면 작은 면적. */
+function modeArea(values: number[]): number | null {
+  const counts = new Map<number, number>();
+  for (const v of values) {
+    if (!(v > 0)) continue;
+    const k = Math.round(v * 10) / 10;
+    counts.set(k, (counts.get(k) ?? 0) + 1);
+  }
+  let best: number | null = null;
+  let bestN = 0;
+  for (const [k, n] of counts) {
+    if (n > bestN || (n === bestN && best != null && k < best)) {
+      best = k;
+      bestN = n;
+    }
+  }
+  return best;
 }
 
 function yearMonthMonthsAgo(months: number): string {
@@ -71,6 +98,7 @@ export async function readMapComplexes(
   db: Client,
   bbox: MapBBox,
   band: MapAreaBand,
+  deal: MapDealKind = "trade",
 ): Promise<{ complexes: MapComplex[]; truncated: boolean }> {
   // 좌표: NAVER 지오코딩 중심점(complex_map_anchor)이 있으면 그것, 없으면 필지 대표점.
   // 네이버 지도 위 아파트 라벨과 마커 위치를 맞추기 위함.
@@ -80,7 +108,7 @@ export async function readMapComplexes(
   const master = await db.execute({
     // 영역에 단지가 많으면 세대수 큰 단지부터 (호갱노노처럼 주요 단지가 먼저 보이게).
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
-                 ${lat} AS latitude, ${lng} AS longitude, p.household_count
+                 ${lat} AS latitude, ${lng} AS longitude, p.household_count, p.approval_date
           FROM apt_complex_master m
           ${anchored ? "LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id" : ""}
           LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
@@ -95,7 +123,7 @@ export async function readMapComplexes(
 
   const { min, max } = MAP_AREA_BANDS[band];
   const since = yearMonthMonthsAgo(WINDOW_MONTHS);
-  const deals = new Map<string, Array<{ amount: number; date: string }>>();
+  const deals = new Map<string, Array<{ amount: number; date: string; area: number; buildYear: number | null }>>();
   const keyOf = (lawd: unknown, norm: unknown) => `${String(lawd)}|${String(norm)}`;
 
   // lawd_cd별로 묶어 `lawd_cd = ? AND apt_name_norm IN (...)` — idx_tx_lawd_apt_ym 를 그대로 탄다.
@@ -114,19 +142,26 @@ export async function readMapComplexes(
       jobs.push(
         db
           .execute({
-            sql: `SELECT lawd_cd, apt_name_norm, deal_amount, deal_date
+            sql: `SELECT lawd_cd, apt_name_norm, deal_amount, deal_date, exclusive_area, build_year
                   FROM transactions
                   WHERE lawd_cd = ? AND apt_name_norm IN (${slice.map(() => "?").join(",")})
-                    AND year_month >= ? AND deal_type = 'trade'
-                    AND exclusive_area >= ? AND exclusive_area <= ?`,
-            args: [lawd, ...slice, since, min, max],
+                    AND year_month >= ? AND deal_type = ?
+                    AND exclusive_area >= ? AND exclusive_area <= ?
+                    ${deal === "jeonse" ? "AND COALESCE(monthly_rent, 0) = 0" : ""}`,
+            args: [lawd, ...slice, since, deal === "trade" ? "trade" : "rent", min, max],
           })
           .then((res) => {
             for (const r of res.rows) {
               const k = keyOf(r.lawd_cd, r.apt_name_norm);
               if (!wanted.has(k)) continue;
               const list = deals.get(k) ?? [];
-              list.push({ amount: Number(r.deal_amount), date: String(r.deal_date) });
+              const by = Number(r.build_year);
+              list.push({
+                amount: Number(r.deal_amount),
+                date: String(r.deal_date),
+                area: Number(r.exclusive_area),
+                buildYear: Number.isFinite(by) && by > 1900 ? by : null,
+              });
               deals.set(k, list);
             }
           }),
@@ -152,6 +187,10 @@ export async function readMapComplexes(
       householdCount: r.household_count == null ? null : Number(r.household_count),
       href: aptDetailHref(String(r.apt_name), regionSlugFor(lawd), gu || undefined),
       medianPriceMan: median(list.map((d) => d.amount)),
+      mainAreaSqm: modeArea(list.map((d) => d.area)),
+      buildYear:
+        list.find((d) => d.buildYear != null)?.buildYear ??
+        (r.approval_date ? Number(String(r.approval_date).slice(0, 4)) || null : null),
       tradeCount12m: list.length,
       latestDealDate: latest?.date ?? null,
       latestPriceMan: latest?.amount ?? null,
