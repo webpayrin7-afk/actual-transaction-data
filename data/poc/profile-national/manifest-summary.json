@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-09-23T05:06:51.320Z",
+  "total": 27524,
+  "by_status": {
+    "READY_LOCAL": 9259,
+    "READY_API": 17932,
+    "COMPLETE": 333,
+    "NO_SOURCE": 0,
+    "CONFLICT": 0,
+    "AMBIGUOUS": 0,
+    "FAILED_RETRYABLE": 0
+  },
+  "by_region": {
+    "GYEONGGI": 6529,
+    "SEOUL": 8437,
+    "BUSAN": 1404,
+    "INCHEON": 1093,
+    "CHUNGNAM": 976,
+    "GANGWON": 815,
+    "ULSAN": 519,
+    "DAEGU": 1151,
+    "DAEJEON": 561,
+    "JEONBUK": 851,
+    "CHUNGBUK": 756,
+    "GYEONGNAM": 1395,
+    "GYEONGBUK": 1006,
+    "JEJU": 175,
+    "SEJONG": 210,
+    "GWANGJU_JEONNAM": 1646
+  }
+}
