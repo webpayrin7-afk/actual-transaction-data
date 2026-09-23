@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Area,
   ComposedChart,
   Line,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -117,7 +119,46 @@ function DirectionBar({
   );
 }
 
-function MonthBreakdown({ detail }: { detail: RegionMonthDetail }) {
+function MonthStepper({
+  label,
+  canPrev,
+  canNext,
+  onPrev,
+  onNext,
+}: {
+  label: string;
+  canPrev: boolean;
+  canNext: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const btn =
+    "inline-flex h-11 w-11 shrink-0 items-center justify-center text-[color:var(--lab-muted)] transition hover:bg-slate-50 disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-brand-primary)]";
+  return (
+    <div className="flex w-full items-center rounded-xl border border-[color:var(--lab-border)] bg-white">
+      <button type="button" className={`${btn} rounded-l-xl`} onClick={onPrev} disabled={!canPrev} aria-label="이전 달">
+        <ChevronLeft className="h-5 w-5" aria-hidden />
+      </button>
+      <p className="detail-subsection-title flex-1 text-center tabular-nums" aria-live="polite">
+        {label}
+      </p>
+      <button type="button" className={`${btn} rounded-r-xl`} onClick={onNext} disabled={!canNext} aria-label="다음 달">
+        <ChevronRight className="h-5 w-5" aria-hidden />
+      </button>
+    </div>
+  );
+}
+
+function DataRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-2.5">
+      <dt className="detail-label">{label}</dt>
+      <dd className="text-right">{children}</dd>
+    </div>
+  );
+}
+
+function MonthComposition({ detail }: { detail: RegionMonthDetail }) {
   const [mode, setMode] = useState<BreakdownId>("dong");
   const [expanded, setExpanded] = useState(false);
   const d = detail.direction;
@@ -128,81 +169,88 @@ function MonthBreakdown({ detail }: { detail: RegionMonthDetail }) {
   const share = (n: number) => (sum > 0 ? Math.round((n / sum) * 100) : 0);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-[color:var(--lab-border)] pt-3">
-      <div>
-        <DirectionBar row={d} scale={sum} label="전체" />
-        <ul className="mt-2 grid grid-cols-3 gap-2">
+    <>
+      <div className="detail-subsection-rule">
+        <div className="flex items-center">
+          <h4 className="detail-subsection-title">거래 방향</h4>
+          <InfoTip aria-label="거래 방향 안내">
+            <p>
+              같은 단지·면적의 직전 거래와 비교합니다. 직전 거래가 없거나 같은
+              가격이면 보합·기타로 분류합니다.
+            </p>
+          </InfoTip>
+        </div>
+        <div className="mt-3">
+          <DirectionBar row={d} scale={sum} label="이 달 전체" />
+        </div>
+        <dl className="mt-1 divide-y divide-[color:var(--lab-border)]">
           {(
             [
-              ["up", "상승 거래", "detail-change-up"],
-              ["down", "하락 거래", "detail-change-down"],
-              ["other", "기타 거래", "text-[color:var(--lab-muted)]"],
+              ["up", "직전보다 오름", "detail-change-up", DIR_UP],
+              ["down", "직전보다 내림", "detail-change-down", DIR_DOWN],
+              ["other", "보합·기타", "", DIR_OTHER],
             ] as const
-          ).map(([k, label, cls]) => (
-            <li key={k} className="min-w-0">
-              <p className="detail-meta flex items-center gap-1">
-                <span
-                  className="inline-block h-2 w-2 shrink-0 rounded-full"
-                  style={{
-                    background: k === "up" ? DIR_UP : k === "down" ? DIR_DOWN : DIR_OTHER,
-                  }}
-                  aria-hidden
-                />
+          ).map(([k, label, cls, color]) => (
+            <div key={k} className="flex items-center justify-between gap-3 py-2">
+              <dt className="detail-label flex items-center gap-2">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: color }} aria-hidden />
                 {label}
-              </p>
-              <p className={`detail-data-value-emphasis ${cls}`}>
+              </dt>
+              <dd className={`detail-data-value-emphasis ${cls}`}>
                 {d[k].toLocaleString("ko-KR")}건
-                <span className="detail-meta ml-1">({share(d[k])}%)</span>
-              </p>
-            </li>
+                <span className="detail-meta ml-1.5">{share(d[k])}%</span>
+              </dd>
+            </div>
           ))}
-        </ul>
-        <p className="detail-meta mt-1">
-          같은 단지·면적의 직전 거래와 비교합니다. 직전 거래가 없거나 같은 가격이면
-          기타로 분류합니다.
-        </p>
+        </dl>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <LabTabs
-          variant="compact"
-          ariaLabel="거래량 구분"
-          equalWidth={false}
-          items={BREAKDOWNS}
-          value={mode}
-          onChange={(next) => {
-            setMode(next);
-            setExpanded(false);
-          }}
-        />
-        <ul className="flex flex-col gap-2">
-          {visible.map((row) => (
-            <li
-              key={row.key}
-              className="grid grid-cols-[5.5rem_minmax(0,1fr)_2.75rem] items-center gap-2"
-            >
-              <span className="detail-label truncate text-[color:var(--lab-body)]">
-                {row.label}
-              </span>
-              <DirectionBar row={row} scale={scale} label={row.label} />
-              <span className="detail-data-value text-right">
-                {total(row).toLocaleString("ko-KR")}건
-              </span>
-            </li>
-          ))}
+      <div className="detail-subsection-rule">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h4 className="detail-subsection-title">어디서 거래됐나</h4>
+          <LabTabs
+            variant="compact"
+            ariaLabel="거래량 구분"
+            equalWidth={false}
+            items={BREAKDOWNS}
+            value={mode}
+            onChange={(next) => {
+              setMode(next);
+              setExpanded(false);
+            }}
+          />
+        </div>
+        <ul className="mt-3 flex flex-col gap-2.5">
+          {visible.map((row) => {
+            const n = total(row);
+            return (
+              <li key={row.key} className="flex flex-col gap-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="detail-label truncate text-[color:var(--lab-body)]">{row.label}</span>
+                  <span className="detail-data-value shrink-0">
+                    {n.toLocaleString("ko-KR")}건
+                    <span className="detail-meta ml-1.5">{share(n)}%</span>
+                  </span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)]" aria-hidden>
+                  <div className="h-full rounded-full" style={{ width: `${(n / scale) * 100}%`, background: CHART_VOLUME }} />
+                </div>
+              </li>
+            );
+          })}
         </ul>
         {rows.length > BREAKDOWN_PREVIEW ? (
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
-            className="lab-button lab-button-secondary self-center"
+            className="lab-button lab-button-secondary detail-cta w-full"
           >
-            {expanded ? "접기" : `더보기 (${rows.length - BREAKDOWN_PREVIEW}개)`}
+            {expanded ? "접기" : `${rows.length - BREAKDOWN_PREVIEW}곳 더 보기`}
           </button>
         ) : null}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -254,10 +302,8 @@ export function RegionPriceTrendChart({
     [all, period],
   );
 
-  const selectedIndex = Math.max(
-    0,
-    selected ? rows.findIndex((r) => r.yearMonth === selected) : rows.length - 1,
-  );
+  const foundIndex = selected ? rows.findIndex((r) => r.yearMonth === selected) : -1;
+  const selectedIndex = foundIndex >= 0 ? foundIndex : rows.length - 1;
   const current = rows[selectedIndex] ?? null;
   const allIndex = current ? all.findIndex((r) => r.yearMonth === current.yearMonth) : -1;
   const prevRow = allIndex > 0 ? all[allIndex - 1]! : null;
@@ -307,16 +353,20 @@ export function RegionPriceTrendChart({
     const ym = rows[Number(index)]?.yearMonth;
     if (ym && ym !== selected) setSelected(ym);
   };
+  const stepMonth = (delta: number) => {
+    const next = rows[selectedIndex + delta];
+    if (next) setSelected(next.yearMonth);
+  };
 
   return (
-    <div className="flex flex-col gap-3 border-t border-[color:var(--lab-border)] pt-4">
+    <div className="detail-subsection-rule flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">{regionName} 평당가 추이</h3>
           <InfoTip aria-label="평당가 추이 안내">
             <p>
               월별 매매 실거래 평당가(공급면적 기준 중앙값)를 최근 3개월 표본 수로
-              가중 평균해 흐름을 보여줍니다. 막대 영역은 월별 거래량입니다. 이번 달
+              가중 평균해 흐름을 보여줍니다. 옅은 영역은 월별 거래량입니다. 이번 달
               값은 거래 신고 기간 중이라 바뀔 수 있습니다.
             </p>
           </InfoTip>
@@ -346,7 +396,6 @@ export function RegionPriceTrendChart({
                 data={rows}
                 margin={{ top: 8, right: 4, bottom: 0, left: -12 }}
                 onClick={(state) => selectRow(state?.activeTooltipIndex)}
-                onMouseMove={(state) => selectRow(state?.activeTooltipIndex)}
               >
                 <XAxis
                   dataKey="label"
@@ -374,7 +423,7 @@ export function RegionPriceTrendChart({
                   domain={[0, (max: number) => max * 2.6]}
                 />
                 <Tooltip
-                  cursor={{ stroke: "#94a3b8", strokeDasharray: "3 3" }}
+                  cursor={{ stroke: "#cbd5e1", strokeDasharray: "3 3" }}
                   content={() => null}
                 />
                 <Area
@@ -383,18 +432,41 @@ export function RegionPriceTrendChart({
                   type="monotone"
                   stroke="none"
                   fill={CHART_VOLUME}
-                  fillOpacity={0.14}
+                  fillOpacity={0.12}
                   isAnimationActive={false}
                   name="거래량"
                 />
+                {current ? (
+                  <ReferenceLine
+                    yAxisId="price"
+                    x={current.label}
+                    stroke={CHART_TRADE}
+                    strokeOpacity={0.55}
+                    strokeWidth={1.5}
+                  />
+                ) : null}
                 <Line
                   yAxisId="price"
                   dataKey="smoothedPyeongPrice"
                   type="monotone"
                   stroke={CHART_TRADE}
                   strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4, fill: CHART_TRADE, stroke: "#fff", strokeWidth: 2 }}
+                  dot={(props: { cx?: number; cy?: number; index?: number }) =>
+                    props.index === selectedIndex && props.cx != null && props.cy != null ? (
+                      <circle
+                        key="sel"
+                        cx={props.cx}
+                        cy={props.cy}
+                        r={4.5}
+                        fill={CHART_TRADE}
+                        stroke="#fff"
+                        strokeWidth={2}
+                      />
+                    ) : (
+                      <g key={`d-${props.index}`} />
+                    )
+                  }
+                  activeDot={false}
                   isAnimationActive={false}
                   connectNulls
                   name="평당가"
@@ -402,46 +474,38 @@ export function RegionPriceTrendChart({
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <p className="detail-meta -mt-1 flex items-center gap-3">
+          <p className="detail-meta -mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="inline-flex items-center gap-1">
               <span className="h-0.5 w-3 rounded" style={{ background: CHART_TRADE }} aria-hidden />
               평당가 (만원/공급평)
             </span>
             <span className="inline-flex items-center gap-1">
-              <span
-                className="h-2 w-3 rounded-sm"
-                style={{ background: CHART_VOLUME, opacity: 0.3 }}
-                aria-hidden
-              />
+              <span className="h-2 w-3 rounded-sm" style={{ background: CHART_VOLUME, opacity: 0.3 }} aria-hidden />
               거래량 (건)
             </span>
+            <span>그래프를 눌러도 월을 고를 수 있어요</span>
           </p>
 
           {current ? (
-            <div
-              className="flex flex-col gap-3 rounded-xl border border-[color:var(--lab-border)] p-4"
-              aria-live="polite"
-            >
-              <div className="flex items-baseline justify-between gap-2">
-                <p className="detail-subsection-title">
-                  {ymKorean(current.yearMonth)}
-                  {current.partial ? <span className="detail-meta ml-1">(진행 중)</span> : null}
-                </p>
-              </div>
-              <div>
-                <p className="detail-label">평당가</p>
-                <p className="detail-summary-value">
-                  {current.smoothedPyeongPrice != null
-                    ? formatManwon(current.smoothedPyeongPrice)
-                    : "—"}
-                </p>
-                <p className="detail-meta">
-                  {current.medianPyeongPrice != null
-                    ? `이 달 실거래 중앙값 ${formatManwon(current.medianPyeongPrice)} · 평형 확인 ${current.priceSampleCount.toLocaleString("ko-KR")}건`
-                    : "이 달은 공급 평형을 확인한 거래가 없습니다."}
-                </p>
-              </div>
-              <dl className="flex flex-col gap-1.5">
+            <div className="flex flex-col">
+              <MonthStepper
+                label={`${ymKorean(current.yearMonth)}${current.partial ? " (진행 중)" : ""}`}
+                canPrev={selectedIndex > 0}
+                canNext={selectedIndex < rows.length - 1}
+                onPrev={() => stepMonth(-1)}
+                onNext={() => stepMonth(1)}
+              />
+              <dl className="mt-2 divide-y divide-[color:var(--lab-border)]">
+                <DataRow label="평당가">
+                  <span className="detail-summary-value">
+                    {value != null ? formatManwon(value) : "—"}
+                  </span>
+                  <span className="detail-meta block">
+                    {current.medianPyeongPrice != null
+                      ? `이 달 중앙값 ${formatManwon(current.medianPyeongPrice)} · 평형 확인 ${current.priceSampleCount.toLocaleString("ko-KR")}건`
+                      : "이 달은 공급 평형을 확인한 거래가 없습니다."}
+                  </span>
+                </DataRow>
                 {(
                   [
                     ["전월 대비", momDiff, prevRow?.smoothedPyeongPrice ?? null],
@@ -449,26 +513,24 @@ export function RegionPriceTrendChart({
                     ["최고점 대비", peakDiff, peak?.smoothedPyeongPrice ?? null],
                   ] as const
                 ).map(([label, diff, base]) => (
-                  <div key={label} className="flex items-baseline justify-between gap-2">
-                    <dt className="detail-label">{label}</dt>
-                    <dd className={`detail-data-value-emphasis ${changeClass(diff)}`}>
+                  <DataRow key={label} label={label}>
+                    <span className={`detail-data-value-emphasis ${changeClass(diff)}`}>
                       {diff != null ? `${signedManwon(diff)}${pctText(diff, base)}` : "—"}
-                    </dd>
-                  </div>
+                    </span>
+                  </DataRow>
                 ))}
+                <DataRow label="거래량">
+                  <span className="detail-data-value-emphasis">
+                    {current.tradeCount.toLocaleString("ko-KR")}건
+                  </span>
+                </DataRow>
               </dl>
-              <div className="flex items-baseline justify-between gap-2 border-t border-[color:var(--lab-border)] pt-3">
-                <p className="detail-label">총 거래량</p>
-                <p className="detail-summary-value">
-                  {current.tradeCount.toLocaleString("ko-KR")}건
-                </p>
-              </div>
               {monthDetail ? (
-                <MonthBreakdown key={current.yearMonth} detail={monthDetail} />
+                <MonthComposition key={current.yearMonth} detail={monthDetail} />
               ) : detailQuery.isLoading ? (
-                <div className="h-24 animate-pulse rounded-lg bg-slate-100" />
+                <div className="mt-4 h-24 animate-pulse rounded-lg bg-slate-100" />
               ) : (
-                <p className="detail-meta">이 달의 거래 구성은 최근 5년까지 제공합니다.</p>
+                <p className="detail-meta mt-2">거래 구성은 최근 5년까지 제공합니다.</p>
               )}
             </div>
           ) : null}

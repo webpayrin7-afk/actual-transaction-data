@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
+import { InfoTip } from "@/components/ui/InfoTip";
 import {
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
@@ -157,65 +158,63 @@ export function RegionTradeHighlightsSection({
   );
 }
 
-export function RegionAnalysisSection({
-  lawdCd,
-  regionName,
-}: {
-  lawdCd: string;
-  regionName: string;
-}) {
+export function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
   const query = useRegionMarketDetail(lawdCd);
   if (query.isError) return null;
   const a = query.data?.analysis;
   const tiles = [
     { key: "high", label: "신고가", value: a?.recordHighCount, cls: "detail-change-up" },
     { key: "peak", label: "최고가 대비 10%↓", value: a?.belowPeakCount, cls: "detail-change-down" },
-    { key: "down", label: "직전 대비 하락", value: a?.downCount, cls: "detail-change-down" },
+    { key: "down", label: "직전보다 내림", value: a?.downCount, cls: "detail-change-down" },
   ];
   return (
-    <section
-      aria-label={`${regionName} 지역 분석`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
-    >
-      <MarketSectionHeader
-        title="지역 분석"
-        meta="계약일 기준 · 최근 3개월"
-        tip={
-          <>
+    <div className="detail-subsection-rule">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <div className="flex min-w-0 items-center">
+          <h3 className="detail-subsection-title">최근 3개월 거래 신호</h3>
+          <InfoTip aria-label="최근 3개월 거래 신호 안내">
             <p>같은 단지·동·전용면적 거래를 기준으로 셉니다.</p>
             <p className="mt-1.5">신고가: 종전 최고가를 넘은 거래</p>
             <p>최고가 대비 10%↓: 종전 최고가보다 10% 이상 낮은 거래</p>
-            <p>직전 대비 하락: 바로 전 거래보다 낮은 거래</p>
-          </>
-        }
-      />
-      <div className="grid grid-cols-3 gap-2">
-        {tiles.map((t) => (
-          <div
-            key={t.key}
-            className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-2 py-3 text-center"
-          >
-            <p className="detail-label whitespace-nowrap">{t.label}</p>
-            {query.isLoading ? (
-              <div className="mx-auto mt-1.5 h-6 w-12 animate-pulse rounded bg-slate-100" />
-            ) : (
-              <p className={`detail-compact-value mt-1 ${t.cls}`}>
-                {t.value != null ? `${t.value.toLocaleString("ko-KR")}건` : "—"}
-              </p>
-            )}
-          </div>
-        ))}
+            <p>직전보다 내림: 바로 전 거래보다 낮은 거래</p>
+          </InfoTip>
+        </div>
+        {a ? (
+          <p className="detail-meta tabular-nums">
+            매매 {a.tradeCount.toLocaleString("ko-KR")}건 중
+          </p>
+        ) : null}
       </div>
-      {a ? (
-        <p className="detail-meta">
-          최근 3개월 매매 {a.tradeCount.toLocaleString("ko-KR")}건 중
-        </p>
-      ) : null}
-    </section>
+      <dl className="mt-2 divide-y divide-[color:var(--lab-border)]">
+        {tiles.map((t) => {
+          const share =
+            a && a.tradeCount > 0 && t.value != null
+              ? Math.round((t.value / a.tradeCount) * 100)
+              : null;
+          return (
+            <div key={t.key} className="flex items-baseline justify-between gap-3 py-2.5">
+              <dt className="detail-label">{t.label}</dt>
+              <dd>
+                {query.isLoading ? (
+                  <span className="inline-block h-5 w-14 animate-pulse rounded bg-slate-100 align-middle" />
+                ) : (
+                  <span className={`detail-data-value-emphasis ${t.cls}`}>
+                    {t.value != null ? `${t.value.toLocaleString("ko-KR")}건` : "—"}
+                    {share != null ? (
+                      <span className="detail-meta ml-1.5">{share}%</span>
+                    ) : null}
+                  </span>
+                )}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </div>
   );
 }
 
-const SUPPLY_YEARS = 3;
+const SUPPLY_HORIZON_YEARS = 6;
 
 export function RegionSupplyTimelineSection({ regionName }: { regionName: string }) {
   const query = useQuery({
@@ -231,28 +230,32 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
     retry: 1,
   });
   const currentYm = seoulToday().slice(0, 7).replace("-", "");
-  const currentYear = Number(currentYm.slice(0, 4));
+  const lastYear = Number(currentYm.slice(0, 4)) + SUPPLY_HORIZON_YEARS - 1;
   const items = (query.data?.items ?? [])
-    .filter((it) => it.moveInYm && it.moveInYm >= currentYm)
+    .filter(
+      (it) =>
+        it.moveInYm &&
+        it.moveInYm >= currentYm &&
+        Number(it.moveInYm.slice(0, 4)) <= lastYear,
+    )
     .sort((a, b) => (a.moveInYm ?? "").localeCompare(b.moveInYm ?? ""));
-  const lastYear = Math.max(
-    currentYear + SUPPLY_YEARS - 1,
-    ...items.map((it) => Number(it.moveInYm!.slice(0, 4))),
-  );
-  const years = Array.from(
-    { length: Math.min(6, lastYear - currentYear + 1) },
-    (_, i) => currentYear + i,
-  );
-  const byYear = years.map((year) => {
-    const list = items.filter((it) => Number(it.moveInYm!.slice(0, 4)) === year);
-    return {
-      year,
-      units: list.reduce((s, it) => s + (it.supplyCount ?? 0), 0),
-      count: list.length,
-    };
-  });
-  const maxUnits = Math.max(1, ...byYear.map((y) => y.units));
+  const groups = [...new Set(items.map((it) => it.moveInYm!.slice(0, 4)))].map((year) => ({
+    year,
+    list: items.filter((it) => it.moveInYm!.startsWith(year)),
+  }));
+  const aptUnits = items
+    .filter((it) => it.housingCategory === "apartment")
+    .reduce((s, it) => s + (it.supplyCount ?? 0), 0);
+  const officetelUnits = items
+    .filter((it) => it.housingCategory === "officetel")
+    .reduce((s, it) => s + (it.supplyCount ?? 0), 0);
   const failed = query.isError || query.data?.status === "ERROR";
+  const summary = [
+    aptUnits > 0 ? `아파트 ${aptUnits.toLocaleString("ko-KR")}세대` : null,
+    officetelUnits > 0 ? `오피스텔 ${officetelUnits.toLocaleString("ko-KR")}실` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <section
@@ -265,63 +268,78 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
         tip={<p>같은 시·군·구의 청약·입주 예정 공급 정보를 보여드려요.</p>}
       />
       {query.isLoading ? (
-        <div className="h-40 animate-pulse rounded-lg bg-slate-100" />
+        <div className="h-32 animate-pulse rounded-lg bg-slate-100" />
       ) : failed ? (
         <p className="detail-body">주변 공급 정보를 불러오지 못했습니다.</p>
+      ) : items.length === 0 ? (
+        <p className="detail-body">
+          앞으로 {SUPPLY_HORIZON_YEARS}년 안에 입주 예정으로 확인된 공급이 없습니다.
+        </p>
       ) : (
         <>
-          <div
-            className="grid items-end gap-2"
-            style={{ gridTemplateColumns: `repeat(${byYear.length}, minmax(0, 1fr))` }}
-          >
-            {byYear.map((y) => (
-              <div key={y.year} className="flex min-w-0 flex-col items-center gap-1">
-                <p className="detail-data-value-emphasis whitespace-nowrap">
-                  {y.units.toLocaleString("ko-KR")}
-                </p>
-                <div className="flex h-24 w-full max-w-[3.5rem] items-end">
-                  <div
-                    className="w-full rounded-t-md"
-                    style={{
-                      height: `${y.units > 0 ? Math.max(6, (y.units / maxUnits) * 100) : 2}%`,
-                      background: y.units > 0 ? "#0F766E" : "#E2E8F0",
-                    }}
-                    aria-hidden
-                  />
-                </div>
-                <p className="detail-meta whitespace-nowrap">{y.year}년</p>
-                <p className="detail-meta whitespace-nowrap">{y.count}곳</p>
+          <dl className="divide-y divide-[color:var(--lab-border)]">
+            <div className="flex items-baseline justify-between gap-3 py-2.5">
+              <dt className="detail-label">앞으로 {SUPPLY_HORIZON_YEARS}년</dt>
+              <dd className="detail-data-value-emphasis text-right">
+                {items.length.toLocaleString("ko-KR")}곳
+                {summary ? <span className="detail-meta ml-1.5">{summary}</span> : null}
+              </dd>
+            </div>
+          </dl>
+          <div className="flex flex-col gap-4">
+            {groups.map((g) => (
+              <div key={g.year} className="flex flex-col gap-2">
+                <p className="detail-label text-[color:var(--lab-body)]">{g.year}년 입주</p>
+                <ul className="flex flex-col gap-2">
+                  {g.list.map((it) => {
+                    const body = (
+                      <>
+                        <div className="min-w-0 flex-1">
+                          <p className="detail-list-title break-keep">{it.houseName}</p>
+                          <p className="detail-meta">
+                            {[
+                              it.housingCategory === "officetel" ? "오피스텔" : "아파트",
+                              it.supplyCountLabel,
+                              it.statusLabel,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="detail-data-value whitespace-nowrap">{it.moveInLabel}</p>
+                          {it.pblancUrl ? (
+                            <p className="detail-meta inline-flex items-center gap-0.5 text-[color:var(--lab-brand-primary)]">
+                              공고 보기
+                              <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                            </p>
+                          ) : null}
+                        </div>
+                      </>
+                    );
+                    const cls =
+                      "flex items-start justify-between gap-3 rounded-xl border border-[color:var(--lab-border)] px-4 py-3";
+                    return (
+                      <li key={it.id}>
+                        {it.pblancUrl ? (
+                          <a
+                            href={it.pblancUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`${cls} transition hover:border-[color:var(--lab-brand-primary)]`}
+                          >
+                            {body}
+                          </a>
+                        ) : (
+                          <div className={cls}>{body}</div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             ))}
           </div>
-          <p className="detail-meta">세대·실 수 합계 (아파트 세대, 오피스텔 실)</p>
-          {items.length === 0 ? (
-            <p className="detail-body">
-              현재 {regionName}에 확인된 입주 예정 주택이 없습니다.
-            </p>
-          ) : (
-            <ul className="divide-y divide-[color:var(--lab-border)] border-t border-[color:var(--lab-border)]">
-              {items.map((it) => (
-                <li key={it.id} className="flex items-start justify-between gap-3 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="detail-list-title break-keep">{it.houseName}</p>
-                    <p className="detail-meta">
-                      {[
-                        it.housingCategory === "officetel" ? "오피스텔" : "아파트",
-                        it.statusLabel,
-                        it.supplyCountLabel,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  </div>
-                  <p className="detail-data-value shrink-0 whitespace-nowrap">
-                    {it.moveInLabel} 입주
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
           {query.data?.attribution ? (
             <p className="detail-source">{query.data.attribution}</p>
           ) : null}

@@ -21,9 +21,9 @@ import {
   RegionPriceSection,
 } from "@/components/region/RegionMarketSections";
 import {
-  RegionAnalysisSection,
   RegionSupplyTimelineSection,
   RegionTradeHighlightsSection,
+  RegionTradeSignals,
 } from "@/components/region/RegionMarketExtras";
 import { regionRankingCode } from "@/lib/region-ranking/public";
 import { aptDetailHref } from "@/lib/molit/apt-client";
@@ -980,15 +980,18 @@ export function RegionDailyStatus({
   return (
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
       <section
-        aria-label={`${regionName} 이달의 거래 현황`}
+        aria-label={`${regionName} 거래 현황`}
         className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
       >
         <MarketSectionHeader
-          title="이달의 거래 현황"
-          meta={`계약일 기준 · ${koreanYearMonthLabel(contractMonth)}${
-            market?.comparePartial ? " (오늘까지)" : ""
-          }`}
+          title="거래 현황"
+          meta="계약일 기준"
+          tip={<p>{CONTRACT_DATE_BASIS_HELP}</p>}
         />
+        <p className="detail-label -mb-1 text-[color:var(--lab-body)]">
+          이번 달 · {koreanYearMonthLabel(contractMonth)}
+          {market?.comparePartial ? " (오늘까지)" : ""}
+        </p>
         {marketQuery.isError ? (
           <p className="detail-body">거래 현황을 불러오지 못했습니다.</p>
         ) : marketQuery.isLoading && !market ? (
@@ -1024,6 +1027,7 @@ export function RegionDailyStatus({
             ))}
           </div>
         ) : null}
+        {guLawdCd ? <RegionTradeSignals lawdCd={guLawdCd} /> : null}
       </section>
 
       <section
@@ -1093,9 +1097,6 @@ export function RegionDailyStatus({
             lawdCodes={lawdCodes}
           />
           <RegionSupplyTimelineSection regionName={regionName} />
-          {guLawdCd ? (
-            <RegionAnalysisSection lawdCd={guLawdCd} regionName={regionName} />
-          ) : null}
           <RegionAptSummarySection lawdCodes={lawdCodes} regionName={regionName} />
         </>
       ) : null}
