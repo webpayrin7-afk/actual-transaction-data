@@ -405,6 +405,10 @@ export function RegionPriceTrendChart({
               시점의 단지별 최근 실거래 시세를 세대수로 가중 평균합니다. 이번 달
               거래는 신고 기간 중이라 값이 바뀔 수 있습니다.
             </p>
+            <p className="mt-1.5">
+              그래프를 누르거나 아래 ◀ ▶ 버튼으로 달을 바꾸면 위 평당가와 그 달의
+              거래 구성이 함께 바뀝니다.
+            </p>
           </InfoTip>
         </div>
         <LabTabs
@@ -519,7 +523,6 @@ export function RegionPriceTrendChart({
               <span className="h-2 w-3 rounded-sm" style={{ background: CHART_VOLUME, opacity: 0.3 }} aria-hidden />
               거래량 (건)
             </span>
-            <span>그래프를 눌러도 월을 고를 수 있어요</span>
           </p>
 
           {current ? (
