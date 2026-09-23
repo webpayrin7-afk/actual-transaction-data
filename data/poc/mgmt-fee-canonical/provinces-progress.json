@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-09-23T23:25:49.564Z",
-  "driver_status": "incheon acquiring",
+  "generated_at": "2026-09-23T23:31:54.363Z",
+  "driver_status": "incheon dry-run PASS",
   "fee_table": {
     "rows": 2923,
     "complexes": 2810
   },
-  "api_calls_total": 30375,
+  "api_calls_total": 30684,
   "applied_rows_total": 0,
   "provinces": [
     {
       "province": "incheon",
       "sido_code": "28",
       "sido": "인천광역시",
-      "phase": "ACQUIRING",
+      "phase": "DRYRUN_PASS",
       "cohort": 1093,
-      "terminal": 1080,
-      "unfinished": 13,
-      "COMPLETE": 1005,
-      "NO_PUBLISHED_MONTH": 75,
+      "terminal": 1093,
+      "unfinished": 0,
+      "COMPLETE": 1015,
+      "NO_PUBLISHED_MONTH": 78,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 30375,
+      "api_calls": 30684,
       "http_429": 0,
       "retries": 23,
-      "dryrun_gate": null,
+      "dryrun_gate": "PASS",
       "applied_rows": 0
     },
     {
