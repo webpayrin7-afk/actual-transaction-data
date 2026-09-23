@@ -800,6 +800,7 @@ export function AptDetailPage({
           areas={data.areas}
           areaKey={areaKey}
           onAreaChange={(key) => setAreaOverride({ forId: aptIdentity, key })}
+          complexHouseholdCount={complexDetail?.basic?.householdCount ?? null}
         />
       </LabSectionBoundary>
 

@@ -41,11 +41,11 @@ function buildGroups(unitMix: ComplexUnitMixV1, areas: AptAreaOption[]): MixGrou
       existing.householdCount += row.householdCount;
       continue;
     }
-    const pyeong = area
-      ? areaSelectorPyeongLabel(area)
-      : row.supplySqm
+    const pyeong =
+      (area ? areaSelectorPyeongLabel(area) : null) ??
+      (row.supplySqm
         ? `${representativePyeongFromSupplySqm(row.supplySqm, row.supplySqm)}평`
-        : null;
+        : null);
     groups.set(key, {
       key,
       area,
@@ -62,11 +62,14 @@ export function ComplexUnitMixSection({
   areas,
   areaKey,
   onAreaChange,
+  complexHouseholdCount,
 }: {
   unitMix: ComplexUnitMixV1 | null | undefined;
   areas: AptAreaOption[];
   areaKey: string;
   onAreaChange: (key: string) => void;
+  /** 단지 전체 세대수(건축물대장 표제부). 확인된 평형 합계와 다르면 둘 다 보여준다. */
+  complexHouseholdCount?: number | null;
 }) {
   const [expanded, setExpanded] = useState(false);
   if (!unitMix || unitMix.rows.length === 0) return null;
@@ -77,13 +80,23 @@ export function ComplexUnitMixSection({
   const maxCount = Math.max(...groups.map((g) => g.householdCount));
   const visible = expanded ? groups : groups.slice(0, LAB_LIST_PREVIEW);
   const hidden = groups.length - LAB_LIST_PREVIEW;
+  const partial =
+    complexHouseholdCount != null && complexHouseholdCount > total;
 
   return (
     <LabSection
       id="section-unit-mix"
       title="평형 구성"
-      meta={`총 ${total.toLocaleString("ko-KR")}세대`}
-      tip="건축물대장 전유부 기준 평형별 세대수입니다. 평형을 누르면 시세·계산기가 그 면적으로 바뀝니다."
+      meta={
+        partial
+          ? `확인 ${total.toLocaleString("ko-KR")} / 전체 ${complexHouseholdCount!.toLocaleString("ko-KR")}세대`
+          : `총 ${total.toLocaleString("ko-KR")}세대`
+      }
+      tip={
+        partial
+          ? "건축물대장 전유부에서 세대수가 확인된 평형만 보여줍니다. 비율은 확인된 세대 기준입니다. 평형을 누르면 시세·계산기가 그 면적으로 바뀝니다."
+          : "건축물대장 전유부 기준 평형별 세대수입니다. 평형을 누르면 시세·계산기가 그 면적으로 바뀝니다."
+      }
     >
       <ul className={LAB_LIST}>
         {visible.map((g) => {
