@@ -48,7 +48,7 @@ export function StatsRegionSelect({
         aria-expanded={open}
         aria-controls={listId}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-8 min-w-[4.75rem] items-center justify-between gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-800 hover:bg-slate-50 sm:text-[13px]"
+        className="inline-flex h-11 min-w-[5.5rem] items-center justify-between gap-1 rounded-lg border border-[color:var(--lab-border)] bg-white px-3 text-[14px] font-medium leading-5 text-[color:var(--lab-navy-950)] hover:bg-slate-50"
       >
         <span className="truncate">{statsRegionLabel(value)}</span>
         <ChevronDown
@@ -71,9 +71,9 @@ export function StatsRegionSelect({
               <li key={opt.value} role="option" aria-selected={active}>
                 <button
                   type="button"
-                  className={`flex w-full px-3 py-2 text-left text-sm transition ${
+                  className={`flex min-h-11 w-full items-center px-3 py-2 text-left text-[14px] leading-5 transition ${
                     active
-                      ? "bg-teal-50 font-medium text-teal-900"
+                      ? "bg-[color:var(--lab-teal-50)] font-semibold text-[color:var(--lab-teal-700)]"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                   onClick={() => {

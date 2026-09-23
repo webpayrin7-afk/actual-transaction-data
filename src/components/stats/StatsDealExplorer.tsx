@@ -1,9 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
 import { formatArea, formatDealDate, formatEok } from "@/lib/utils/format";
+import { LabSection } from "@/components/ui/LabSection";
+import { LAB_LIST } from "@/components/ui/LabListRow";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabTag } from "@/components/ui/LabTag";
+import { LabTabs } from "@/components/ui/LabTabs";
+
+const ROW =
+  "flex min-h-11 items-start justify-between gap-3 py-3 hover:bg-slate-50";
+const UP = { color: "var(--lab-change-up)" };
+const DOWN = { color: "var(--lab-change-down)" };
 
 export type DealExplorerTab =
   | "notables"
@@ -15,7 +26,7 @@ const TABS: { id: DealExplorerTab; label: string }[] = [
   { id: "notables", label: "주요 실거래" },
   { id: "singoga", label: "신고가" },
   { id: "drops", label: "하락거래" },
-  { id: "active", label: "거래 활발 단지" },
+  { id: "active", label: "거래 활발" },
 ];
 
 function compareLine(item: MarketDealItem): string | null {
@@ -48,27 +59,19 @@ export function StatsDealRow({ item }: { item: MarketDealItem }) {
   return (
     <Link
       href={item.href}
-      className="flex items-start justify-between gap-3 border-b border-slate-100 px-1 py-3.5 last:border-0 hover:bg-slate-50/80 sm:px-2"
+      className={ROW}
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="truncate text-sm font-semibold text-slate-900">
-            {item.aptName}
-          </span>
-          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
-            {item.kindLabel}
-          </span>
+          <span className="detail-data-value-emphasis truncate">{item.aptName}</span>
+          <LabTag>{item.kindLabel}</LabTag>
         </div>
-        <p className="mt-0.5 text-xs text-slate-500">
+        <p className="detail-meta mt-0.5">
           {item.gu} {item.dong} · {formatArea(item.exclusiveArea)} ·{" "}
           {formatDealDate(item.dealDate)}
         </p>
         {compare ? (
-          <p
-            className={`mt-1 text-[11px] font-medium ${
-              up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
-            }`}
-          >
+          <p className="detail-meta mt-0.5 font-medium" style={up ? UP : down ? DOWN : undefined}>
             {compare}
             {item.priorMaxAmount != null
               ? ` · 이전 최고 ${formatEok(item.priorMaxAmount)}`
@@ -77,14 +80,13 @@ export function StatsDealRow({ item }: { item: MarketDealItem }) {
         ) : null}
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-base font-semibold tabular-nums text-slate-900">
+        <p className="detail-data-value-emphasis tabular-nums">
           {formatEok(item.dealAmount)}
         </p>
         {item.changePct != null ? (
           <p
-            className={`mt-0.5 inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums ${
-              up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
-            }`}
+            className="detail-meta mt-0.5 inline-flex items-center gap-0.5 font-semibold tabular-nums"
+            style={up ? UP : down ? DOWN : undefined}
           >
             {up ? (
               <ArrowUpRight className="h-3.5 w-3.5" />
@@ -112,36 +114,33 @@ function ActiveRow({
   return (
     <Link
       href={item.href}
-      className="flex items-start justify-between gap-3 border-b border-slate-100 px-1 py-3.5 last:border-0 hover:bg-slate-50/80 sm:px-2"
+      className={ROW}
     >
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold text-slate-900">
-          {item.aptName}
-        </p>
-        <p className="mt-0.5 text-xs text-slate-500">
+      <div className="min-w-0 flex-1">
+        <p className="detail-data-value-emphasis truncate">{item.aptName}</p>
+        <p className="detail-meta mt-0.5">
           {item.gu} {item.dong}
         </p>
-        <p className="mt-1 text-[11px] text-slate-500">
+        <p className="detail-meta">
           {windowLabel} {item.recentCount}건 · {prevWindowLabel}{" "}
           {item.priorCount}건
         </p>
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-sm font-semibold tabular-nums text-slate-900">
+        <p className="detail-data-value-emphasis tabular-nums">
           {item.recentCount}건
         </p>
         {item.increaseCount !== 0 ? (
           <p
-            className={`mt-0.5 text-xs tabular-nums ${
-              item.increaseCount > 0 ? "text-rose-600" : "text-blue-600"
-            }`}
+            className="detail-meta mt-0.5 tabular-nums"
+            style={item.increaseCount > 0 ? UP : DOWN}
           >
             {item.increaseCount > 0 ? "+" : ""}
             {item.increaseCount}건
             {item.growthPct != null ? ` (${item.growthPct > 0 ? "+" : ""}${item.growthPct}%)` : ""}
           </p>
         ) : (
-          <p className="mt-0.5 text-xs text-slate-400">변동 없음</p>
+          <p className="detail-meta mt-0.5">변동 없음</p>
         )}
       </div>
     </Link>
@@ -171,6 +170,7 @@ export function StatsDealExplorer({
   windowFrom: string;
   windowTo: string;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const items =
     tab === "notables"
       ? notables
@@ -179,51 +179,40 @@ export function StatsDealExplorer({
         : tab === "drops"
           ? drops
           : null;
+  const total = tab === "active" ? activeComplexes.length : (items ?? []).length;
+  const cut = (n: number) => (expanded ? n : Math.min(n, LAB_LIST_PREVIEW));
+  const more =
+    total > LAB_LIST_PREVIEW ? (
+      <LabMoreButton
+        expanded={expanded}
+        onToggle={() => setExpanded((v) => !v)}
+        label={`${total - LAB_LIST_PREVIEW}${tab === "active" ? "곳" : "건"} 더보기`}
+      />
+    ) : null;
 
   return (
-    <section className="lab-card p-4 sm:p-5">
-      <div className="mb-3">
-        <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
-          실거래 탐색
-        </h2>
-        <p className="mt-0.5 text-xs text-slate-500">
-          {windowLabel} ({formatDealDate(windowFrom)} ~{" "}
-          {formatDealDate(windowTo)}) 기준 · 단지 클릭 시 상세로 이동
-        </p>
-      </div>
-
-      <div
-        className="mb-3 flex w-full gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-1"
-        role="tablist"
-        aria-label="실거래 탐색"
-      >
-        {TABS.map((t) => {
-          const active = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => onTabChange(t.id)}
-              className={`lab-tab shrink-0 flex-1 px-2 py-1.5 text-center text-xs sm:text-sm ${
-                active ? "lab-tab-active" : ""
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
+    <LabSection
+      title="실거래 탐색"
+      meta={`${windowLabel} (${formatDealDate(windowFrom)} ~ ${formatDealDate(windowTo)}) 기준`}
+      tip={<p>단지를 누르면 상세로 이동합니다.</p>}
+    >
+      <LabTabs
+        variant="secondary"
+        items={TABS}
+        value={tab}
+        onChange={(t) => {
+          setExpanded(false);
+          onTabChange(t);
+        }}
+        ariaLabel="실거래 탐색"
+      />
 
       {tab === "active" ? (
         activeComplexes.length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-500">
-            해당 기간 거래 활발 단지가 없습니다.
-          </p>
+          <p className="detail-body py-6 text-center">해당 기간 거래 활발 단지가 없습니다.</p>
         ) : (
-          <ul>
-            {activeComplexes.map((item) => (
+          <ul className={LAB_LIST}>
+            {activeComplexes.slice(0, cut(activeComplexes.length)).map((item) => (
               <li key={`${item.aptName}-${item.gu}-${item.dong}`}>
                 <ActiveRow
                   item={item}
@@ -235,18 +224,17 @@ export function StatsDealExplorer({
           </ul>
         )
       ) : items && items.length === 0 ? (
-        <p className="py-8 text-center text-sm text-slate-500">
-          해당 기간 표시할 거래가 없습니다.
-        </p>
+        <p className="detail-body py-6 text-center">해당 기간 표시할 거래가 없습니다.</p>
       ) : (
-        <ul>
-          {(items ?? []).map((item) => (
+        <ul className={LAB_LIST}>
+          {(items ?? []).slice(0, cut((items ?? []).length)).map((item) => (
             <li key={item.id}>
               <StatsDealRow item={item} />
             </li>
           ))}
         </ul>
       )}
-    </section>
+      {more}
+    </LabSection>
   );
 }
