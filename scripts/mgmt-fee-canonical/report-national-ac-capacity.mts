@@ -11,7 +11,7 @@ import { openReadOnlyClient, readNationalComplexes } from "./read-national-inven
 const DIR = resolve(import.meta.dirname, "../../data/poc/mgmt-fee-canonical");
 const OUT = resolve(DIR, "national-kapt-identity/national-ac-capacity.json");
 
-function loadSeoulNoPublished(): Set<string> {
+function loadTerminalNoPublished(): Set<string> {
   const ids = new Set<string>();
   for (const name of [
     "seoul-wave1-segment-state.json",
@@ -19,6 +19,7 @@ function loadSeoulNoPublished(): Set<string> {
     "seoul-wave3-segment-state.json",
     "seoul-wave4-segment-state.json",
     "seoul-final-segment-state.json",
+    "gyeonggi-final-segment-state.json",
   ]) {
     const path = resolve(DIR, name);
     if (!existsSync(path)) continue;
@@ -40,7 +41,7 @@ async function main(): Promise<void> {
     "SELECT COUNT(*) AS rows, COUNT(DISTINCT complex_id) AS complexes FROM apt_complex_mgmt_fee_monthly",
   );
   const master = await db.execute("SELECT COUNT(*) AS n FROM apt_complex_master");
-  const seoulNoPubKnown = loadSeoulNoPublished();
+  const terminalNoPubKnown = loadTerminalNoPublished();
 
   const bySido: Record<
     string,
@@ -82,7 +83,7 @@ async function main(): Promise<void> {
       // Seoul AC historical closeout complete: every exact without fee is terminal NO_PUBLISHED.
       bucket.terminal_no_published += 1;
       seoulNoPub += 1;
-    } else if (seoulNoPubKnown.has(row.complex_id)) {
+    } else if (terminalNoPubKnown.has(row.complex_id)) {
       bucket.terminal_no_published += 1;
     } else {
       bucket.never_attempted += 1;
@@ -147,16 +148,27 @@ async function main(): Promise<void> {
     seoul_preservation: classification.seoul_preservation,
     collisions: classification.collisions,
     next_ac_plan: {
-      first_acquisition_region: "41",
-      first_region_name: "경기도",
+      first_acquisition_region: "done_41",
+      first_region_name: "경기도 (complete)",
       exact_cohort_size: bySido["41"]?.never_attempted ?? 0,
       estimated_api_workload:
-        "Same Seoul FINAL policy: workers=1, sleep>=1s, ~28 ops/complex when published, segment 40, checkpointed province cohort",
-      remaining_national_never_attempted: national.never_attempted - (bySido["41"]?.never_attempted ?? 0),
+        "Same Seoul/Gyeonggi FINAL policy: workers=1, sleep>=1s, ~28 ops/complex when published, segment 40, checkpointed province cohort",
+      remaining_national_never_attempted: national.never_attempted,
       recommended_segmentation: "province-sized historical closeout with segment size 40",
       historical_closeout_strategy: "One frozen province cohort of all never-attempted exact identities; no small Wave1/2/3 split",
       future_incremental_strategy:
         "A new/changed KAPT identity discovery; B latest published month refresh; C NO_PUBLISHED_MONTH recheck; D newly exact historical bootstrap",
+      gyeonggi_closeout: {
+        exact: bySido["41"]?.exact ?? 0,
+        fee_covered: bySido["41"]?.fee_covered ?? 0,
+        terminal_no_published: bySido["41"]?.terminal_no_published ?? 0,
+        never_attempted: bySido["41"]?.never_attempted ?? 0,
+        reconciles:
+          (bySido["41"]?.exact ?? 0) ===
+          (bySido["41"]?.fee_covered ?? 0) +
+            (bySido["41"]?.terminal_no_published ?? 0) +
+            (bySido["41"]?.never_attempted ?? 0),
+      },
     },
   };
   writeFileSync(OUT, `${JSON.stringify(body, null, 2)}\n`);

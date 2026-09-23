@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-09-21T23:55:17.771Z",
+  "generated_at": "2026-09-23T05:35:59.364Z",
   "national_master": 27524,
-  "fee_rows": 1843,
-  "fee_complexes": 1730,
+  "fee_rows": 2923,
+  "fee_complexes": 2810,
   "seoul": {
     "exact": 1080,
     "fee_covered": 889,
@@ -13,9 +13,9 @@
   },
   "national_capacity": {
     "exact": 14790,
-    "fee_covered": 1730,
-    "terminal_no_published": 191,
-    "never_attempted": 12869,
+    "fee_covered": 2810,
+    "terminal_no_published": 261,
+    "never_attempted": 11719,
     "exceptional": 0
   },
   "by_sido": {
@@ -86,9 +86,9 @@
     "41": {
       "sido": "경기도",
       "exact": 1152,
-      "fee_covered": 2,
-      "terminal_no_published": 0,
-      "never_attempted": 1150,
+      "fee_covered": 1082,
+      "terminal_no_published": 70,
+      "never_attempted": 0,
       "exceptional": 0
     },
     "43": {
@@ -408,13 +408,20 @@
     "held_for_review": 1711
   },
   "next_ac_plan": {
-    "first_acquisition_region": "41",
-    "first_region_name": "경기도",
-    "exact_cohort_size": 1150,
-    "estimated_api_workload": "Same Seoul FINAL policy: workers=1, sleep>=1s, ~28 ops/complex when published, segment 40, checkpointed province cohort",
+    "first_acquisition_region": "done_41",
+    "first_region_name": "경기도 (complete)",
+    "exact_cohort_size": 0,
+    "estimated_api_workload": "Same Seoul/Gyeonggi FINAL policy: workers=1, sleep>=1s, ~28 ops/complex when published, segment 40, checkpointed province cohort",
     "remaining_national_never_attempted": 11719,
     "recommended_segmentation": "province-sized historical closeout with segment size 40",
     "historical_closeout_strategy": "One frozen province cohort of all never-attempted exact identities; no small Wave1/2/3 split",
-    "future_incremental_strategy": "A new/changed KAPT identity discovery; B latest published month refresh; C NO_PUBLISHED_MONTH recheck; D newly exact historical bootstrap"
+    "future_incremental_strategy": "A new/changed KAPT identity discovery; B latest published month refresh; C NO_PUBLISHED_MONTH recheck; D newly exact historical bootstrap",
+    "gyeonggi_closeout": {
+      "exact": 1152,
+      "fee_covered": 1082,
+      "terminal_no_published": 70,
+      "never_attempted": 0,
+      "reconciles": true
+    }
   }
 }
