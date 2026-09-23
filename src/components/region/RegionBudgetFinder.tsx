@@ -80,7 +80,7 @@ export function RegionBudgetFinderSection({
         <LabTabs
           variant="secondary"
           ariaLabel="평형대"
-          items={bands.map((b) => ({ id: b.key, label: `${b.label} ${b.matched}` }))}
+          items={bands.map((b) => ({ id: b.key, label: b.label, count: String(b.matched) }))}
           value={current?.key ?? band}
           onChange={setBand}
         />
@@ -99,7 +99,8 @@ export function RegionBudgetFinderSection({
         ) : (
           <>
             <p className="detail-meta tabular-nums">
-              {current.label} {current.total}곳 중 {current.matched}곳이 {budgetLabel} 이하
+              {budgetLabel} 이하로 거래된 {current.label} 단지 {current.matched}곳 · 전체{" "}
+              {current.total}곳
             </p>
             <ul className="divide-y divide-[color:var(--lab-border)]">
               {current.items.map((item) => {

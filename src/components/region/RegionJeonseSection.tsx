@@ -19,8 +19,8 @@ const LIST_SHOWN = 6;
 
 const TABS = [
   { id: "gap", label: "갭 작은 순" },
-  { id: "ratio", label: "전세가율 높은 순" },
-  { id: "drop", label: "전세 하락" },
+  { id: "ratio", label: "전세가율 순" },
+  { id: "drop", label: "전세 하락 순" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 

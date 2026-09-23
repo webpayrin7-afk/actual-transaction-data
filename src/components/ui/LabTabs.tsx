@@ -11,6 +11,8 @@ import {
 export type LabTabItem<T extends string = string> = {
   id: T;
   label: string;
+  /** Small muted count after the label, e.g. "13곳". */
+  count?: string;
 };
 
 /**
@@ -242,7 +244,15 @@ export function LabTabs<T extends string>({
             className={itemClass(variant, active, equalWidth)}
             onClick={() => onChange(item.id)}
           >
-            <span className="lab-tabs__label">{item.label}</span>
+            <span className="lab-tabs__label">
+              {item.label}
+              {item.count != null ? (
+                <span className="lab-tabs__count">
+                  <span className="sr-only"> </span>
+                  {item.count}
+                </span>
+              ) : null}
+            </span>
           </button>
         );
       })}

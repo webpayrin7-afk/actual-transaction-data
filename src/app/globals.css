@@ -966,6 +966,17 @@ h2.detail-section-title {
 .lab-tabs__btn--compact .lab-tabs__label {
   white-space: nowrap;
 }
+.lab-tabs__label:has(.lab-tabs__count) {
+  white-space: nowrap;
+}
+.lab-tabs__count {
+  margin-left: 0.1875rem;
+  font-size: 0.75rem; /* 12 */
+  font-weight: 500;
+  color: var(--lab-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 @media (prefers-reduced-motion: reduce) {
   .lab-tabs__btn {
     transition: none;
