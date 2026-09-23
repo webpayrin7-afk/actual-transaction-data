@@ -6,13 +6,7 @@ import { regionRankingCode } from "@/lib/region-ranking/public";
 import type { RegionAptSummary } from "@/lib/region/region-summary";
 
 /** 단지 상세 HERO와 같은 형식의 지역 소개 줄. */
-export function RegionHeroMeta({
-  fullName,
-  lawdCodes,
-}: {
-  fullName: string;
-  lawdCodes: string[];
-}) {
+export function RegionHeroMeta({ lawdCodes }: { lawdCodes: string[] }) {
   const lawdCd = regionRankingCode(lawdCodes);
   const query = useQuery({
     queryKey: ["region-summary", lawdCd],
@@ -34,5 +28,5 @@ export function RegionHeroMeta({
         data.representativeDecade ? `${data.representativeDecade.label} 중심` : null,
       ].filter((v): v is string => Boolean(v))
     : [];
-  return <ComplexHeroMeta lines={{ line1: [fullName], line2, line3: [] }} />;
+  return <ComplexHeroMeta lines={{ line1: line2, line2: [], line3: [] }} />;
 }

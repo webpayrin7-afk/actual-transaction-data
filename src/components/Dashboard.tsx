@@ -170,8 +170,9 @@ export function Dashboard({
         <PageHeader
           leading={<BackLink fallback="/regions" compact hideLabel />}
           title={region.name}
+          titleSuffix={region.fullName.replace(region.name, "").trim() || null}
           titleClassName="detail-page-title"
-          meta={<RegionHeroMeta fullName={region.fullName} lawdCodes={region.lawdCodes} />}
+          meta={<RegionHeroMeta lawdCodes={region.lawdCodes} />}
           showDivider={false}
         />
       </header>

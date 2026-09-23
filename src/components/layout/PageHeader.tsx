@@ -24,6 +24,7 @@ export const PAGE_HEADER_WITH_BACK =
  */
 export function PageHeader({
   title,
+  titleSuffix,
   description,
   meta,
   action,
@@ -35,6 +36,8 @@ export function PageHeader({
   className = "",
 }: {
   title: string;
+  /** Small context text right after the title (e.g. parent region). */
+  titleSuffix?: ReactNode;
   description?: ReactNode;
   meta?: ReactNode;
   action?: ReactNode;
@@ -63,6 +66,11 @@ export function PageHeader({
             }`}
           >
             {title}
+            {titleSuffix ? (
+              <span className="detail-meta ml-2 align-baseline font-normal tracking-normal">
+                {titleSuffix}
+              </span>
+            ) : null}
           </h1>
         </div>
         {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
