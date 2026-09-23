@@ -294,6 +294,41 @@ function monthsBeforeDate(dateStr: string, months: number): string {
  * 동일 단지·동일 areaTypeKey 실거래 점. 빈 월은 0으로 채우지 않음.
  * 같은 달/같은 날 여러 거래는 모두 보존 (평균 아님).
  */
+const TREND_MIN_MONTHS = 12;
+const TREND_MAX_MONTHS = 60;
+const TREND_TARGET_POINTS = 5;
+const TREND_PEAK_LEAD_MONTHS = 3;
+
+function monthsBetween(from: string, to: string): number {
+  const a = new Date(`${from.slice(0, 10)}T00:00:00`);
+  const b = new Date(`${to.slice(0, 10)}T00:00:00`);
+  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+}
+
+/**
+ * 거래마다 기간을 정한다: 종전 최고가 거래가 보이도록 그 시점 조금 앞부터,
+ * 최소 1년·최대 5년. 점이 적으면 2년→3년→5년으로 넓힌다.
+ */
+export function adaptiveTrendMonths(
+  typeTrades: TypeTrendPoint[],
+  through: string,
+): number {
+  const before = typeTrades.filter((t) => t.date < through);
+  let months = TREND_MIN_MONTHS;
+  if (before.length) {
+    const peak = Math.max(...before.map((t) => t.amount));
+    const peakDate = before.filter((t) => t.amount === peak).at(-1)!.date;
+    months = Math.max(months, monthsBetween(peakDate, through) + TREND_PEAK_LEAD_MONTHS);
+  }
+  months = Math.min(TREND_MAX_MONTHS, months);
+  for (const step of [24, 36, TREND_MAX_MONTHS]) {
+    const from = monthsBeforeDate(through, months);
+    if (typeTrades.filter((t) => t.date >= from).length >= TREND_TARGET_POINTS) break;
+    months = Math.max(months, step);
+  }
+  return months;
+}
+
 export function typePriceTrend(params: {
   trades: { dealDate: string; exclusiveArea: number; dealAmount: number }[];
   exclusiveArea: number;
@@ -302,21 +337,19 @@ export function typePriceTrend(params: {
 }): TypeTrendPoint[] {
   const key = areaTypeKey(params.exclusiveArea);
   const through = params.throughDate.slice(0, 10);
-  const from = monthsBeforeDate(through, params.months ?? TYPE_TREND_MONTHS);
-  return params.trades
+  const typeTrades = params.trades
     .filter((tx) => {
       const day = tx.dealDate.slice(0, 10);
-      return (
-        areaTypeKey(tx.exclusiveArea) === key &&
-        day >= from &&
-        day <= through
-      );
+      return areaTypeKey(tx.exclusiveArea) === key && day <= through;
     })
     .map((tx) => ({
       date: tx.dealDate.slice(0, 10),
       amount: tx.dealAmount,
     }))
     .sort((a, b) => a.date.localeCompare(b.date) || a.amount - b.amount);
+  const months = params.months ?? adaptiveTrendMonths(typeTrades, through);
+  const from = monthsBeforeDate(through, months);
+  return typeTrades.filter((t) => t.date >= from);
 }
 
 /** 종전 최고가(만원). 상승액이 없으면 첫 신고가라 null. */

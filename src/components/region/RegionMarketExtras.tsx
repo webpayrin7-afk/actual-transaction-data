@@ -39,20 +39,33 @@ function signedEok(n: number): string {
   return `${n > 0 ? "+" : "−"}${formatEok(Math.abs(n))}`;
 }
 
+type HighlightTone = "top" | "rise" | "drop";
+
+const HIGHLIGHT_TONE: Record<HighlightTone, { chip: string; value: string }> = {
+  top: {
+    chip: "bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-brand-primary)]",
+    value: "",
+  },
+  rise: { chip: "bg-red-50 text-[color:var(--lab-change-up)]", value: "detail-change-up" },
+  drop: { chip: "bg-blue-50 text-[color:var(--lab-change-down)]", value: "detail-change-down" },
+};
+
 function HighlightRow({
   deal,
   regionSlug,
   guName,
+  tone,
+  reason,
   value,
-  valueClass,
-  caption,
+  sub,
 }: {
   deal: RegionHighlightDeal;
   regionSlug: string;
   guName: string;
+  tone: HighlightTone;
+  reason: string;
   value: string;
-  valueClass: string;
-  caption: string;
+  sub: string | null;
 }) {
   const meta = [
     deal.dong,
@@ -62,19 +75,25 @@ function HighlightRow({
   ]
     .filter(Boolean)
     .join(" · ");
+  const t = HIGHLIGHT_TONE[tone];
   return (
     <li>
       <Link
         href={aptDetailHref(deal.aptName, regionSlug, guName)}
-        className="flex min-h-[64px] items-center justify-between gap-3 py-3"
+        className="flex min-h-[64px] items-center gap-3 py-3"
       >
         <div className="min-w-0 flex-1">
-          <p className="detail-list-title truncate">{deal.aptName}</p>
-          <p className="detail-meta truncate">{meta}</p>
+          <span
+            className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-semibold leading-4 ${t.chip}`}
+          >
+            {reason}
+          </span>
+          <p className="detail-list-title mt-1 break-keep">{deal.aptName}</p>
+          <p className="detail-meta break-keep">{meta}</p>
         </div>
-        <div className="shrink-0 text-right">
-          <p className={`detail-data-value-emphasis whitespace-nowrap ${valueClass}`}>{value}</p>
-          <p className="detail-meta whitespace-nowrap">{caption}</p>
+        <div className="shrink-0 self-center text-right">
+          <p className={`detail-list-title whitespace-nowrap ${t.value}`}>{value}</p>
+          {sub ? <p className="detail-meta whitespace-nowrap">{sub}</p> : null}
         </div>
         <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
       </Link>
@@ -98,24 +117,27 @@ export function RegionTradeHighlightsSection({
     ? [
         h.topAmount && {
           key: "top",
+          tone: "top" as const,
           deal: h.topAmount,
+          reason: "가장 큰 금액",
           value: formatEok(h.topAmount.dealAmount),
-          valueClass: "",
-          caption: "가장 큰 금액으로 거래",
+          sub: null,
         },
         h.biggestRise && {
           key: "rise",
+          tone: "rise" as const,
           deal: h.biggestRise,
+          reason: "가장 큰 폭 상승",
           value: signedEok(h.biggestRise.diff ?? 0),
-          valueClass: "detail-change-up",
-          caption: "가장 큰 폭으로 상승",
+          sub: `거래가 ${formatEok(h.biggestRise.dealAmount)}`,
         },
         h.biggestDrop && {
           key: "drop",
+          tone: "drop" as const,
           deal: h.biggestDrop,
+          reason: "가장 큰 폭 하락",
           value: signedEok(h.biggestDrop.diff ?? 0),
-          valueClass: "detail-change-down",
-          caption: "가장 큰 폭으로 하락",
+          sub: `거래가 ${formatEok(h.biggestDrop.dealAmount)}`,
         },
       ].filter((r): r is NonNullable<typeof r> => Boolean(r))
     : [];
@@ -160,9 +182,10 @@ export function RegionTradeHighlightsSection({
               deal={r.deal}
               regionSlug={regionSlug}
               guName={regionName}
+              tone={r.tone}
+              reason={r.reason}
               value={r.value}
-              valueClass={r.valueClass}
-              caption={r.caption}
+              sub={r.sub}
             />
           ))}
         </ul>
@@ -290,72 +313,68 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
         </p>
       ) : (
         <>
-          <dl className="divide-y divide-[color:var(--lab-border)]">
-            <div className="flex items-baseline justify-between gap-3 py-2.5">
-              <dt className="detail-label">앞으로 {SUPPLY_HORIZON_YEARS}년</dt>
-              <dd className="detail-data-value-emphasis text-right">
-                {items.length.toLocaleString("ko-KR")}곳
-                {summary ? <span className="detail-meta ml-1.5">{summary}</span> : null}
-              </dd>
-            </div>
-          </dl>
-          <div className="flex flex-col gap-4">
-            {groups.map((g) => (
-              <div key={g.year} className="flex flex-col gap-2">
-                <p className="detail-label text-[color:var(--lab-body)]">{g.year}년 입주</p>
-                <ul className="flex flex-col gap-2">
-                  {g.list.map((it) => {
-                    const body = (
-                      <>
+          <div className="rounded-xl bg-[color:var(--lab-brand-subtle)] px-4 py-3">
+            <p className="detail-label">앞으로 {SUPPLY_HORIZON_YEARS}년 입주 예정</p>
+            <p className="detail-summary-value detail-kpi-brand mt-1">
+              {items.length.toLocaleString("ko-KR")}곳
+            </p>
+            {summary ? <p className="detail-meta mt-0.5">{summary}</p> : null}
+          </div>
+          <div className="flex flex-col">
+            {groups.map((g) => {
+              const units = g.list.reduce((sum, it) => sum + (it.supplyCount ?? 0), 0);
+              return (
+                <div key={g.year} className="detail-subsection-rule first:mt-0 first:border-t-0 first:pt-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <h3 className="detail-subsection-title">{g.year}년</h3>
+                    <p className="detail-meta tabular-nums">
+                      {g.list.length.toLocaleString("ko-KR")}곳
+                      {units > 0 ? ` · ${units.toLocaleString("ko-KR")}세대·실` : ""}
+                    </p>
+                  </div>
+                  <ul className="mt-1 divide-y divide-[color:var(--lab-border)]">
+                    {g.list.map((it) => (
+                      <li key={it.id} className="flex items-start justify-between gap-3 py-3">
                         <div className="min-w-0 flex-1">
                           <p className="detail-list-title break-keep">{it.houseName}</p>
-                          <p className="detail-meta">
-                            {[
-                              it.housingCategory === "officetel" ? "오피스텔" : "아파트",
-                              it.supplyCountLabel,
-                              it.statusLabel,
-                            ]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </p>
+                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                            <span className="inline-flex rounded-full bg-[color:var(--lab-surface-subtle)] px-2 py-0.5 text-[12px] font-medium leading-4 text-[color:var(--lab-body)]">
+                              {it.housingCategory === "officetel" ? "오피스텔" : "아파트"}
+                            </span>
+                            {it.statusLabel ? (
+                              <span className="inline-flex rounded-full bg-[color:var(--lab-brand-subtle)] px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-brand-primary)]">
+                                {it.statusLabel}
+                              </span>
+                            ) : null}
+                            {it.supplyCountLabel ? (
+                              <span className="detail-meta">{it.supplyCountLabel}</span>
+                            ) : null}
+                          </div>
                         </div>
-                        <div className="shrink-0 text-right">
-                          <p className="detail-data-value whitespace-nowrap">{it.moveInLabel}</p>
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                          <p className="detail-data-value-emphasis whitespace-nowrap">
+                            {it.moveInLabel} 입주
+                          </p>
                           {it.pblancUrl ? (
-                            <p className="detail-meta inline-flex items-center gap-0.5 text-[color:var(--lab-brand-primary)]">
+                            <a
+                              href={it.pblancUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex min-h-[44px] items-center gap-0.5 text-[14px] font-semibold leading-5 hover:underline"
+                              style={{ color: "var(--lab-brand-primary)" }}
+                            >
                               공고 보기
-                              <ChevronRight className="h-3.5 w-3.5" aria-hidden />
-                            </p>
+                              <ChevronRight className="h-4 w-4" aria-hidden />
+                            </a>
                           ) : null}
                         </div>
-                      </>
-                    );
-                    const cls =
-                      "flex items-start justify-between gap-3 rounded-xl border border-[color:var(--lab-border)] px-4 py-3";
-                    return (
-                      <li key={it.id}>
-                        {it.pblancUrl ? (
-                          <a
-                            href={it.pblancUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={`${cls} transition hover:border-[color:var(--lab-brand-primary)]`}
-                          >
-                            {body}
-                          </a>
-                        ) : (
-                          <div className={cls}>{body}</div>
-                        )}
                       </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
-          {query.data?.attribution ? (
-            <p className="detail-source">{query.data.attribution}</p>
-          ) : null}
         </>
       )}
     </section>
