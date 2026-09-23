@@ -33,7 +33,7 @@
     "test:loan-limit": "tsx scripts/test-loan-limit.ts",
     "test:unit-type-phase5": "tsx scripts/test-unit-type-phase5.ts",
     "test:unit-type-phase53b": "tsx scripts/test-unit-type-phase53b.ts",
-    "test:living": "python3 scripts/living/recover-parcel-coordinates.py --self-test && python3 scripts/living/materialize-complex-living.py --self-test && tsx scripts/living/test-living-snapshots.ts"
+    "test:living": "python3 scripts/living/recover-parcel-coordinates.py --self-test && python3 scripts/living/test-national-coordinate-runner.py && python3 scripts/living/materialize-complex-living.py --self-test && tsx scripts/living/test-living-snapshots.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
