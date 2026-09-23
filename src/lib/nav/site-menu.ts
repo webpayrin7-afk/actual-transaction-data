@@ -21,6 +21,11 @@ export const PRIMARY_NAV = [
     label: "시장 동향",
     match: (pathname: string) => pathname.startsWith("/stats"),
   },
+  {
+    href: "/map",
+    label: "지도",
+    match: (pathname: string) => pathname.startsWith("/map"),
+  },
 ] as const;
 
 /** 더보기 > 도구 — 학군(/school)은 비활성·메뉴 비노출 */

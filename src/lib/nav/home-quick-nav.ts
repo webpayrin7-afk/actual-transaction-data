@@ -22,7 +22,6 @@ export type HomeQuickNavItem = {
 
 /**
  * Mobile home quick actions.
- * TODO(map): wire "지도로 찾기" when a map route ships — do not invent /map here.
  */
 export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   {
@@ -37,11 +36,9 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
     id: "map",
     label: "지도로 찾기",
     shortLabel: "지도",
-    href: null,
-    disabled: true,
-    disabledHint: "준비중",
+    href: "/map",
     icon: Map,
-    match: () => false,
+    match: (pathname) => pathname.startsWith("/map"),
   },
   {
     id: "complexes",
