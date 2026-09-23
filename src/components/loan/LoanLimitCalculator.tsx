@@ -111,10 +111,10 @@ export function LoanLimitCalculator({
   return (
     <div className="flex flex-col gap-5">
       <LabCard className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">대출 조건</h2>
+        <h2 className="detail-subsection-title">대출 조건</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <p id="limit-metro-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
+            <p id="limit-metro-label" className="detail-label font-medium">
               지역 구분
             </p>
             <Segmented
@@ -129,7 +129,7 @@ export function LoanLimitCalculator({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <p id="limit-reg-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
+            <p id="limit-reg-label" className="detail-label font-medium">
               규제지역
             </p>
             <div className="flex flex-wrap items-center gap-2">
@@ -145,7 +145,7 @@ export function LoanLimitCalculator({
               <button
                 type="button"
                 onClick={() => setShowRegions((v) => !v)}
-                className="text-xs font-medium text-teal-700 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+                className="inline-flex min-h-11 items-center px-1 text-sm font-medium text-[color:var(--lab-teal-700)] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
               >
                 지역확인
               </button>
@@ -153,19 +153,19 @@ export function LoanLimitCalculator({
           </div>
 
           {showRegions ? (
-            <div className="rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-600">
+            <div className="rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-white px-3 py-3 detail-meta">
               <p className="font-semibold text-slate-800">투기과열지구</p>
               <p className="mt-1">{REGULATED_REGIONS.투기과열지구.join(" · ")}</p>
               <p className="mt-3 font-semibold text-slate-800">조정대상지역</p>
               <p className="mt-1">{REGULATED_REGIONS.조정대상지역.join(" · ")}</p>
-              <p className="mt-2 text-[11px] text-slate-400">
+              <p className="mt-2 detail-meta">
                 금융위원회 고시 기준 참고 · 실제 지정 현황은 최신 공고를 확인하세요.
               </p>
             </div>
           ) : null}
 
           <div className="flex flex-col gap-1.5">
-            <p id="limit-homes-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
+            <p id="limit-homes-label" className="detail-label font-medium">
               보유 주택 수
             </p>
             <Segmented
@@ -182,7 +182,7 @@ export function LoanLimitCalculator({
 
           {homes === "0" ? (
             <div className="flex flex-col gap-1.5">
-              <p id="limit-first-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
+              <p id="limit-first-label" className="detail-label font-medium">
                 생애최초 여부
               </p>
               <Segmented
@@ -199,7 +199,7 @@ export function LoanLimitCalculator({
 
           {homes === "1" ? (
             <div className="flex flex-col gap-1.5">
-              <p id="limit-dispose-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
+              <p id="limit-dispose-label" className="detail-label font-medium">
                 처분조건부 여부
               </p>
               <Segmented
@@ -217,7 +217,7 @@ export function LoanLimitCalculator({
       </LabCard>
 
       <LabCard className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">담보 및 소득</h2>
+        <h2 className="detail-subsection-title">담보 및 소득</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             id="limit-collateral"
@@ -273,10 +273,10 @@ export function LoanLimitCalculator({
       </LabCard>
 
       <LabCard className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-[color:var(--lab-navy-950)]">만기 · 금리</h2>
+        <h2 className="detail-subsection-title">만기 · 금리</h2>
         <div className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <p id="limit-years-label" className="text-xs font-medium text-[color:var(--lab-muted)]">
+            <p id="limit-years-label" className="detail-label font-medium">
               희망 만기
             </p>
             <div
@@ -320,9 +320,9 @@ export function LoanLimitCalculator({
       </LabCard>
 
       <LabCard className="p-5">
-        <p className="text-xs font-medium text-[color:var(--lab-muted)]">한도 계산 결과</p>
-        <p className="mt-3 text-sm text-slate-600">예상 대출 가능 한도</p>
-        <p className="mt-1 lab-kpi-value break-words text-3xl font-semibold tracking-tight text-[color:var(--lab-navy-950)]">
+        <p className="detail-label font-medium">한도 계산 결과</p>
+        <p className="mt-3 detail-label">예상 대출 가능 한도</p>
+        <p className="mt-1 detail-hero-value break-words tabular-nums">
           {submitted
             ? result.blocked
               ? "대출 불가"
@@ -342,7 +342,7 @@ export function LoanLimitCalculator({
             <p className="mt-2 text-sm text-slate-600">
               {formatMan(result.finalLimitMan)} · 월 상환 약{" "}
               {result.monthlyPaymentMan.toLocaleString("ko-KR")}만
-              <span className="text-slate-400">
+              <span className="text-[color:var(--lab-muted)]">
                 {" "}
                 (만기 {result.effectiveYears}년 · 금리 {input.baseRatePct}% ·
                 원리금균등)
@@ -414,10 +414,10 @@ export function LoanLimitCalculator({
 
         {submitted && result.notes.length > 0 ? (
           <details className="mt-4 border-t border-slate-100 pt-4">
-            <summary className="cursor-pointer text-sm font-medium text-slate-700">
+            <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-[color:var(--lab-navy-900)]">
               계산 기준 보기
             </summary>
-            <ul className="mt-3 space-y-1.5 text-xs leading-5 text-slate-500">
+            <ul className="mt-3 space-y-1.5 detail-meta">
               {result.notes.map((note) => (
                 <li key={note}>· {note}</li>
               ))}
@@ -426,7 +426,7 @@ export function LoanLimitCalculator({
         ) : null}
       </LabCard>
 
-      <p className="text-xs leading-5 text-slate-500">
+      <p className="detail-meta">
         계산 결과는 입력값을 기준으로 한 참고용이며, 실제 대출 가능 금액과 조건은
         금융기관 심사에 따라 달라질 수 있습니다.
       </p>
@@ -450,20 +450,20 @@ function ResultRow({
     <div
       className={`min-w-0 rounded-[var(--lab-radius-md)] px-3 py-3 ${
         emphasized
-          ? "border border-[color:var(--lab-teal-600)]/35 bg-[color:var(--lab-teal-50)]"
-          : "border border-[color:var(--lab-border)] bg-slate-50/80"
+          ? "border border-[color:var(--lab-teal-600)] bg-white"
+          : "border border-[color:var(--lab-border)] bg-white"
       }`}
     >
-      <p className="flex flex-wrap items-center gap-2 text-xs font-medium text-[color:var(--lab-muted)]">
+      <p className="detail-label flex flex-wrap items-center gap-2 font-medium">
         <span>{label}</span>
         {emphasized ? (
-          <span className="lab-badge">한도 결정</span>
+          <span className="lab-badge text-xs leading-4">한도 결정</span>
         ) : null}
       </p>
-      <p className="mt-1 break-words text-base font-semibold text-[color:var(--lab-navy-950)]">
+      <p className="mt-1 break-words detail-data-value-emphasis tabular-nums">
         {value}
       </p>
-      <p className="mt-1 text-[11px] leading-4 text-slate-400">{hint}</p>
+      <p className="mt-1 detail-meta">{hint}</p>
     </div>
   );
 }

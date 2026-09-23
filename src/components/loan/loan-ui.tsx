@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/lab";
 
 /** LAB 입력 — globals `.lab-input` + 패딩/타이포 */
-export const inputClass = `${LAB_INPUT} px-3 text-sm outline-none placeholder:text-slate-400`;
+export const inputClass = `${LAB_INPUT} px-3 outline-none placeholder:text-slate-400`;
 
 export function Field({
   id,
@@ -32,23 +32,22 @@ export function Field({
       {id ? (
         <label
           htmlFor={id}
-          className="text-xs font-medium text-[color:var(--lab-muted)]"
-        >
+          className="detail-label font-medium">
           {label}
         </label>
       ) : (
-        <p className="text-xs font-medium text-[color:var(--lab-muted)]">
+        <p className="detail-label font-medium">
           {label}
         </p>
       )}
       {hint ? (
-        <p id={hintId} className="text-[11px] leading-4 text-slate-400">
+        <p id={hintId} className="detail-meta">
           {hint}
         </p>
       ) : null}
       {children}
       {error ? (
-        <p id={errorId} role="alert" className="text-xs text-rose-600">
+        <p id={errorId} role="alert" className="detail-meta text-rose-600">
           {error}
         </p>
       ) : null}
@@ -87,7 +86,7 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(opt.value)}
-            className={`${LAB_CHOICE} min-w-0 ${active ? LAB_CHOICE_SELECTED : ""}`}
+            className={`${LAB_CHOICE} min-h-11 min-w-0 ${active ? LAB_CHOICE_SELECTED : ""}`}
           >
             {opt.label}
           </button>
@@ -115,7 +114,7 @@ export function ChoiceChip({
       {...rest}
       onClick={onClick}
       aria-checked={selected}
-      className={`${LAB_CHOICE} ${selected ? LAB_CHOICE_SELECTED : ""} ${rest.className ?? ""}`.trim()}
+      className={`${LAB_CHOICE} min-h-11 ${selected ? LAB_CHOICE_SELECTED : ""} ${rest.className ?? ""}`.trim()}
     >
       {children}
     </button>
@@ -137,7 +136,7 @@ export function ModeTabButton({
       role="tab"
       {...rest}
       aria-selected={selected}
-      className={`${LAB_TAB} min-w-0 flex-1 px-1 text-[11px] leading-tight sm:px-3 sm:text-sm ${
+      className={`${LAB_TAB} min-w-0 flex-1 min-h-11 px-1 text-sm leading-tight sm:px-3 ${
         selected ? LAB_TAB_ACTIVE : ""
       } ${rest.className ?? ""}`.trim()}
     >
