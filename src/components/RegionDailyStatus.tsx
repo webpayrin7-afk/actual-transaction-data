@@ -25,6 +25,8 @@ import {
 } from "@/components/region/RegionMarketExtras";
 import { regionRankingCode } from "@/lib/region-ranking/public";
 import { RegionDongPricesSection } from "@/components/region/RegionDongPrices";
+import { RegionBudgetFinderSection } from "@/components/region/RegionBudgetFinder";
+import { RegionJeonseSection } from "@/components/region/RegionJeonseSection";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -1015,6 +1017,20 @@ export function RegionDailyStatus({
             regionName={regionName}
             lawdCodes={lawdCodes}
           />
+          {guLawdCd ? (
+            <RegionBudgetFinderSection
+              lawdCd={guLawdCd}
+              regionSlug={regionSlug}
+              regionName={regionName}
+            />
+          ) : null}
+          {guLawdCd ? (
+            <RegionJeonseSection
+              lawdCd={guLawdCd}
+              regionSlug={regionSlug}
+              regionName={regionName}
+            />
+          ) : null}
           <RegionSupplyTimelineSection regionName={regionName} />
         </>
       ) : null}
