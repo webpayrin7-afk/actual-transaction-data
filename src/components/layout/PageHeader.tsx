@@ -51,40 +51,63 @@ export function PageHeader({
   titleClassName?: string;
   className?: string;
 }) {
+  const isDetailTitle = titleClassName.includes("detail-page-title");
+  const heading = (
+    <h1
+      className={`min-w-0 tracking-tight text-[color:var(--lab-navy-950)] ${
+        titleClassName
+          ? titleClassName
+          : compact
+            ? "text-lg font-semibold leading-6 sm:text-xl sm:leading-7"
+            : "text-xl font-semibold leading-7 sm:text-[1.375rem] sm:leading-8"
+      }`}
+    >
+      {title}
+      {titleSuffix ? (
+        <span className="detail-meta ml-2 align-baseline font-normal tracking-normal">
+          {titleSuffix}
+        </span>
+      ) : null}
+    </h1>
+  );
+  const descriptionNode = description ? (
+    <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">
+      {description}
+    </p>
+  ) : null;
+  const metaNode = (spacing: string) =>
+    meta ? (
+      <div className={`${spacing} space-y-0.5 text-xs leading-5 text-[color:var(--lab-muted)]`}>
+        {meta}
+      </div>
+    ) : null;
+  // Leading control box matches the title line height so a 44px back button
+  // centers on the first title line instead of the whole block.
+  const leadingLine = isDetailTitle
+    ? "h-8 lg:h-9"
+    : compact
+      ? "h-6 sm:h-7"
+      : "h-7 sm:h-8";
+
   return (
-    <header className={`${titleClassName.includes("detail-page-title") ? "max-w-none" : "max-w-4xl"} ${className}`.trim()}>
+    <header className={`${isDetailTitle ? "max-w-none" : "max-w-4xl"} ${className}`.trim()}>
       <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          {leading ? <div className="shrink-0">{leading}</div> : null}
-          <h1
-            className={`min-w-0 flex-1 tracking-tight text-[color:var(--lab-navy-950)] ${
-              titleClassName
-                ? titleClassName
-                : compact
-                  ? "text-lg font-semibold leading-6 sm:text-xl sm:leading-7"
-                  : "text-xl font-semibold leading-7 sm:text-[1.375rem] sm:leading-8"
-            }`}
-          >
-            {title}
-            {titleSuffix ? (
-              <span className="detail-meta ml-2 align-baseline font-normal tracking-normal">
-                {titleSuffix}
-              </span>
-            ) : null}
-          </h1>
-        </div>
+        {leading ? (
+          <div className="flex min-w-0 flex-1 items-start gap-2">
+            <div className={`flex shrink-0 items-center ${leadingLine}`}>{leading}</div>
+            <div className="min-w-0 flex-1">
+              {heading}
+              {descriptionNode}
+              {metaNode("mt-1")}
+            </div>
+          </div>
+        ) : (
+          <div className="min-w-0 flex-1">{heading}</div>
+        )}
         {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
       </div>
-      {description ? (
-        <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">
-          {description}
-        </p>
-      ) : null}
-      {meta ? (
-        <div className="mt-1.5 space-y-0.5 text-xs leading-5 text-[color:var(--lab-muted)]">
-          {meta}
-        </div>
-      ) : null}
+      {leading ? null : descriptionNode}
+      {leading ? null : metaNode("mt-1.5")}
       {showDivider ? (
         <div
           aria-hidden

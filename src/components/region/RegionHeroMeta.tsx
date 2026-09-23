@@ -20,13 +20,18 @@ export function RegionHeroMeta({ lawdCodes }: { lawdCodes: string[] }) {
     retry: 1,
   });
   const data = query.data?.status === "ok" ? query.data : null;
-  const line2 = data
-    ? [
+  const present = (items: (string | null)[]) => items.filter((v): v is string => Boolean(v));
+  const size = data
+    ? present([
         data.complexCount > 0 ? `${data.complexCount.toLocaleString("ko-KR")}개 단지` : null,
         data.householdTotal != null ? `${data.householdTotal.toLocaleString("ko-KR")}세대` : null,
+      ])
+    : [];
+  const character = data
+    ? present([
         data.averageAgeYears != null ? `평균 ${data.averageAgeYears}년차` : null,
         data.representativeDecade ? `${data.representativeDecade.label} 중심` : null,
-      ].filter((v): v is string => Boolean(v))
+      ])
     : [];
-  return <ComplexHeroMeta lines={{ line1: line2, line2: [], line3: [] }} />;
+  return <ComplexHeroMeta lines={{ line1: size, line2: character, line3: [] }} />;
 }
