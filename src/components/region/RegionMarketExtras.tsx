@@ -91,11 +91,11 @@ function HighlightRow({
               >
                 {reason}
               </span>
-              {sub ? (
-                <span className="detail-meta truncate tabular-nums">{sub}</span>
-              ) : null}
             </div>
-            <p className={`detail-list-title shrink-0 whitespace-nowrap ${t.value}`}>{value}</p>
+            <p className="shrink-0 whitespace-nowrap">
+              <span className={`detail-list-title ${t.value}`}>{value}</span>
+              {sub ? <span className="detail-meta ml-1 tabular-nums">({sub})</span> : null}
+            </p>
           </div>
           <p className="detail-list-title mt-1 break-keep">{deal.aptName}</p>
           <p className="detail-meta break-keep">{meta}</p>
@@ -134,7 +134,7 @@ export function RegionTradeHighlightsSection({
           deal: h.biggestRise,
           reason: "가장 큰 폭 상승",
           value: signedEok(h.biggestRise.diff ?? 0),
-          sub: `거래가 ${formatEok(h.biggestRise.dealAmount)}`,
+          sub: formatEok(h.biggestRise.dealAmount),
         },
         h.biggestDrop && {
           key: "drop",
@@ -142,7 +142,7 @@ export function RegionTradeHighlightsSection({
           deal: h.biggestDrop,
           reason: "가장 큰 폭 하락",
           value: signedEok(h.biggestDrop.diff ?? 0),
-          sub: `거래가 ${formatEok(h.biggestDrop.dealAmount)}`,
+          sub: formatEok(h.biggestDrop.dealAmount),
         },
       ].filter((r): r is NonNullable<typeof r> => Boolean(r))
     : [];
