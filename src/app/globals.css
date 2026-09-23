@@ -29,6 +29,17 @@
   --lab-border: #e2e8f0;
   --lab-border-control: #64748b;
   --lab-muted: #64748b;
+  /* 학교 속성 라벨 (학교 상세 제목 위) — 값마다 구분되는 연한 배경 + 진한 글자 */
+  --lab-school-elementary-bg: #dcfce7; --lab-school-elementary-ink: #166534; /* 초등 */
+  --lab-school-middle-bg: #dbeafe; --lab-school-middle-ink: #1e40af; /* 중 */
+  --lab-school-high-bg: #ede9fe; --lab-school-high-ink: #5b21b6; /* 고 */
+  --lab-school-public-bg: #ccfbf1; --lab-school-public-ink: #115e59; /* 공립 */
+  --lab-school-private-bg: #fef3c7; --lab-school-private-ink: #92400e; /* 사립 */
+  --lab-school-national-bg: #e0e7ff; --lab-school-national-ink: #3730a3; /* 국립 */
+  --lab-school-boys-bg: #cffafe; --lab-school-boys-ink: #155e75; /* 남 */
+  --lab-school-girls-bg: #fce7f3; --lab-school-girls-ink: #9d174d; /* 여 */
+  --lab-school-coed-bg: #f1f5f9; --lab-school-coed-ink: #334155; /* 남녀공학 */
+  --lab-school-neutral-bg: #f1f5f9; --lab-school-neutral-ink: #334155;
   --lab-change-up: #b91c1c;
   --lab-change-down: #1d4ed8;
   --lab-warning-text: #92400e;

@@ -20,10 +20,34 @@ function homepageLabel(url: string): string {
   return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
 }
 
-/** 학교급·설립·성별 — 제목 위 색 라벨 (배지형 12px, policy §3). */
+/**
+ * 학교급·설립·성별 색 — 값마다 다른 연한 배경 + 진한 글자 (글자 대비 4.5:1 이상).
+ * 초·중·고 / 공립·사립·국립 / 남·여·남녀공학. 토큰은 globals.css `--lab-school-*`.
+ */
+function kindTone(label: string): string {
+  if (/초등/.test(label)) return "elementary";
+  if (/중학/.test(label)) return "middle";
+  if (/고등|고교/.test(label)) return "high";
+  if (/공립/.test(label)) return "public";
+  if (/사립/.test(label)) return "private";
+  if (/국립/.test(label)) return "national";
+  if (/공학/.test(label)) return "coed";
+  if (/^여/.test(label) || /여자/.test(label)) return "girls";
+  if (/^남/.test(label) || /남자/.test(label)) return "boys";
+  return "neutral";
+}
+
+/** 제목 위 색 라벨 (배지형 12px, policy §3). */
 function KindChip({ children }: { children: string }) {
+  const tone = kindTone(children);
   return (
-    <span className="inline-flex h-6 items-center rounded-md bg-[color:var(--lab-brand-subtle)] px-2 text-[12px] font-semibold leading-4 text-[color:var(--lab-teal-700)]">
+    <span
+      className="inline-flex h-6 items-center rounded-md px-2 text-[12px] font-semibold leading-4"
+      style={{
+        background: `var(--lab-school-${tone}-bg)`,
+        color: `var(--lab-school-${tone}-ink)`,
+      }}
+    >
       {children}
     </span>
   );
