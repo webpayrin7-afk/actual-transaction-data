@@ -1,0 +1,165 @@
+{
+  "status": "READY_FOR_LIVING_CLOUD",
+  "generated_at": "2026-09-23T11:03:45.224718+00:00",
+  "target_file": "residual_parcel_targets_20260923.csv",
+  "target_sha256": "7cc59ee9d704ee09693251a0be4453f999c0af12e5c953e0873598df6f6b308b",
+  "target_pnus": 6579,
+  "representative_points": 3005,
+  "output_sha256": "dccb481eef9ed3efd406e7fd2e68ba19f0767537e12115af3fd8622a870ebd29",
+  "regions": {
+    "12": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_12_20260908.zip",
+      "source_version": "20260908",
+      "targets": 1082,
+      "found": 653,
+      "pnu_not_found": 429,
+      "invalid_geometry": 0,
+      "features_scanned": 1000000,
+      "runtime_seconds": 36.7
+    },
+    "26": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_26_20260908.zip",
+      "source_version": "20260908",
+      "targets": 113,
+      "found": 3,
+      "pnu_not_found": 110,
+      "invalid_geometry": 0,
+      "features_scanned": 705940,
+      "runtime_seconds": 23.0
+    },
+    "27": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_27_20260908.zip",
+      "source_version": "20260908",
+      "targets": 114,
+      "found": 0,
+      "pnu_not_found": 114,
+      "invalid_geometry": 0,
+      "features_scanned": 785263,
+      "runtime_seconds": 25.7
+    },
+    "28": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_28_20260908.zip",
+      "source_version": "20260908",
+      "targets": 765,
+      "found": 708,
+      "pnu_not_found": 57,
+      "invalid_geometry": 0,
+      "features_scanned": 667724,
+      "runtime_seconds": 25.5
+    },
+    "30": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_30_20260908.zip",
+      "source_version": "20260908",
+      "targets": 356,
+      "found": 333,
+      "pnu_not_found": 23,
+      "invalid_geometry": 0,
+      "features_scanned": 290840,
+      "runtime_seconds": 11.4
+    },
+    "31": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_31_20260908.zip",
+      "source_version": "20260908",
+      "targets": 329,
+      "found": 289,
+      "pnu_not_found": 40,
+      "invalid_geometry": 0,
+      "features_scanned": 510997,
+      "runtime_seconds": 18.5
+    },
+    "36": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_36_20260908.zip",
+      "source_version": "20260908",
+      "targets": 140,
+      "found": 56,
+      "pnu_not_found": 84,
+      "invalid_geometry": 0,
+      "features_scanned": 207960,
+      "runtime_seconds": 7.2
+    },
+    "43": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_43_20260908.zip",
+      "source_version": "20260908",
+      "targets": 409,
+      "found": 70,
+      "pnu_not_found": 339,
+      "invalid_geometry": 0,
+      "features_scanned": 1000000,
+      "runtime_seconds": 33.8
+    },
+    "44": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_44_20260908.zip",
+      "source_version": "20260908",
+      "targets": 636,
+      "found": 221,
+      "pnu_not_found": 415,
+      "invalid_geometry": 0,
+      "features_scanned": 1000000,
+      "runtime_seconds": 34.2
+    },
+    "47": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_47_20260908.zip",
+      "source_version": "20260908",
+      "targets": 563,
+      "found": 174,
+      "pnu_not_found": 389,
+      "invalid_geometry": 0,
+      "features_scanned": 1000000,
+      "runtime_seconds": 34.1
+    },
+    "48": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_48_20260908.zip",
+      "source_version": "20260908",
+      "targets": 841,
+      "found": 234,
+      "pnu_not_found": 607,
+      "invalid_geometry": 0,
+      "features_scanned": 1000000,
+      "runtime_seconds": 37.4
+    },
+    "50": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_50_20260908.zip",
+      "source_version": "20260908",
+      "targets": 125,
+      "found": 122,
+      "pnu_not_found": 3,
+      "invalid_geometry": 0,
+      "features_scanned": 887267,
+      "runtime_seconds": 31.8
+    },
+    "51": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_51_20260908.zip",
+      "source_version": "20260908",
+      "targets": 479,
+      "found": 55,
+      "pnu_not_found": 424,
+      "invalid_geometry": 0,
+      "features_scanned": 1000000,
+      "runtime_seconds": 34.9
+    },
+    "52": {
+      "status": "COMPLETE",
+      "archive": "AL_D002_52_20260908.zip",
+      "source_version": "20260908",
+      "targets": 627,
+      "found": 87,
+      "pnu_not_found": 540,
+      "invalid_geometry": 0,
+      "features_scanned": 1000000,
+      "runtime_seconds": 33.7
+    }
+  }
+}
