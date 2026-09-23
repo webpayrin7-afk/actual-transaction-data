@@ -16,7 +16,6 @@ import { LabSubsectionHeader } from "@/components/ui/LabSection";
 import {
   COMMERCE_COMPOSITION_ORDER,
   COMMERCE_FACILITY_ORDER,
-  commerceTopCategoryDisplayName,
   formatCommerceCount,
   formatCommerceShare,
   type CommerceFacilities,
@@ -24,7 +23,6 @@ import {
 } from "@/lib/complex-detail/commerce-snapshot";
 import {
   commerceCategoryColor,
-  commercePresentationBucketFromMcls,
   COMMERCE_CATEGORY_CSS_VAR,
   COMMERCE_FACILITY_CATEGORY,
   type CommerceCategoryColorKey,
@@ -95,10 +93,6 @@ export function ComplexCommerceStats({
   const radiusKm = snapshot.radiusM >= 1000
     ? `${snapshot.radiusM / 1000}km`
     : `${snapshot.radiusM}m`;
-  const topMax = Math.max(
-    ...snapshot.topCategories.map((c) => c.count),
-    1,
-  );
   const leadingComposition = COMMERCE_COMPOSITION_ORDER.reduce<{
     key: (typeof COMMERCE_COMPOSITION_ORDER)[number];
     share: number;
@@ -222,48 +216,6 @@ export function ComplexCommerceStats({
             );
           })}
         </div>
-      </section>
-
-      <div className={thinDividerClass()} />
-
-      {/* 주요 업종 TOP5 */}
-      <section>
-        <SectionHeading>주요 업종</SectionHeading>
-        <ol className="mt-3 space-y-2.5">
-          {snapshot.topCategories.slice(0, 5).map((cat, idx) => {
-            const label = commerceTopCategoryDisplayName(cat);
-            const pct = (cat.count / topMax) * 100;
-            const bucket = commercePresentationBucketFromMcls(cat.code);
-            const color =
-              bucket !== "기타"
-                ? catCssVar(bucket as CommerceCategoryColorKey)
-                : "var(--lab-muted)";
-            return (
-              <li key={cat.code} className="min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="detail-meta w-4 shrink-0 font-semibold tabular-nums">
-                    {idx + 1}
-                  </span>
-                  <span className="detail-label min-w-0 flex-1 truncate text-[color:var(--lab-navy-950)]">
-                    {label}
-                  </span>
-                  <span className="detail-label shrink-0 font-medium tabular-nums text-[color:var(--lab-navy-950)]">
-                    {formatCommerceCount(cat.count)}
-                  </span>
-                </div>
-                <div className="ml-6 mt-1 h-1.5 overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)]">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${pct}%`,
-                      backgroundColor: color,
-                    }}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ol>
       </section>
     </div>
   );
