@@ -1,8 +1,8 @@
 export const PRIMARY_NAV = [
   {
     href: "/",
-    label: "오늘의 시장",
-    match: (pathname: string) => pathname === "/",
+    label: "시장",
+    match: (pathname: string) => pathname === "/" || pathname.startsWith("/stats"),
   },
   {
     href: "/regions",
@@ -15,11 +15,6 @@ export const PRIMARY_NAV = [
     label: "단지별 조회",
     match: (pathname: string) =>
       pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
-  },
-  {
-    href: "/stats",
-    label: "시장 동향",
-    match: (pathname: string) => pathname.startsWith("/stats"),
   },
   {
     href: "/map",

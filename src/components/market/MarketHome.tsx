@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment, useRef, useState } from "react";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { LabSection as LabExperiments } from "@/components/lab/LabSection";
@@ -11,6 +10,7 @@ import { MarketPolicyNews } from "@/components/market/MarketPolicyNews";
 import { MarketRegionBreakdown } from "@/components/market/MarketRegionBreakdown";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabSection } from "@/components/ui/LabSection";
+import { MarketFlowSummary } from "@/components/market/MarketFlowSummary";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
@@ -42,6 +42,7 @@ const MARKET_SECTIONS = [
   { id: "market-policy", label: "정책" },
   { id: "market-regions", label: "지역" },
   { id: "market-volume", label: "거래량" },
+  { id: "price-index", label: "흐름" },
 ] as const;
 
 const KIND_TAG: Record<MarketDealItem["kind"], string> = {
@@ -263,8 +264,8 @@ export function MarketHome() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="오늘의 아파트 시장"
-        description="오늘 확인된 거래 변화와 주거 정책 발표를 한눈에 봅니다."
+        title="아파트 시장"
+        description="오늘의 거래·정책 이슈와 시장 흐름을 한눈에 봅니다."
         className="mt-1.5 sm:mt-2"
         meta={
           data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
@@ -299,9 +300,9 @@ export function MarketHome() {
       <LabStickySectionNav
         anchor={stickyAnchorRef}
         sections={MARKET_SECTIONS}
-        title="오늘의 아파트 시장"
+        title="아파트 시장"
         subtitle={data?.discoveryDate ?? undefined}
-        ariaLabel="오늘의 시장 섹션"
+        ariaLabel="시장 섹션"
       />
 
       {query.isLoading ? <div className="lab-skeleton" /> : null}
@@ -355,14 +356,6 @@ export function MarketHome() {
           {data.warning ? (
             <p className="detail-body text-[color:var(--lab-warning-text)]">{data.warning}</p>
           ) : null}
-          <div className="mt-1">
-            <Link href="/stats" className="lab-button lab-button-secondary w-full">
-              시장동향 자세히 보기
-              <span aria-hidden className="ml-1">
-                →
-              </span>
-            </Link>
-          </div>
         </LabSection>
       ) : null}
 
@@ -403,7 +396,10 @@ export function MarketHome() {
         ) : null}
       </div>
 
-      {/* 오늘의 시장 콘텐츠 아래 — 실험실은 두 번째 콘텐츠 영역 */}
+      {/* 오늘 이슈 아래: 장기 흐름 요약 (전국) — 자세히는 /stats */}
+      <MarketFlowSummary />
+
+      {/* 시장 콘텐츠 아래 — 실험실은 두 번째 콘텐츠 영역 */}
       <LabExperiments />
     </div>
   );

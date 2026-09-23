@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Building2,
-  ChartColumn,
   Grid2x2,
   Map,
   TrendingUp,
@@ -26,11 +25,11 @@ export type HomeQuickNavItem = {
 export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   {
     id: "market",
-    label: "오늘의 시장",
-    shortLabel: "오늘 시장",
+    label: "시장",
+    shortLabel: "시장",
     href: "/",
     icon: TrendingUp,
-    match: (pathname) => pathname === "/",
+    match: (pathname) => pathname === "/" || pathname.startsWith("/stats"),
   },
   {
     id: "map",
@@ -57,13 +56,5 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
     icon: Building2,
     match: (pathname) =>
       pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
-  },
-  {
-    id: "stats",
-    label: "시장동향",
-    shortLabel: "시장동향",
-    href: "/stats",
-    icon: ChartColumn,
-    match: (pathname) => pathname.startsWith("/stats"),
   },
 ];

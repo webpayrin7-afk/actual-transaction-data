@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
-import { BarChart3, Building2, Map, MapPinned, Search } from "lucide-react";
+import { BarChart3, Building2, Map, MapPinned } from "lucide-react";
 import { MOBILE_DOCK_SPACER, MobileDock } from "@/components/layout/MobileDock";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -12,9 +12,9 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 const NAV = [
   {
     href: "/",
-    label: "오늘의 시장",
+    label: "시장",
     icon: BarChart3,
-    match: (p: string) => p === "/",
+    match: (p: string) => p === "/" || p.startsWith("/stats"),
   },
   {
     href: "/regions",
@@ -28,12 +28,6 @@ const NAV = [
     icon: Building2,
     match: (p: string) =>
       p.startsWith("/complexes") || p.startsWith("/apt/"),
-  },
-  {
-    href: "/stats",
-    label: "시장 동향",
-    icon: Search,
-    match: (p: string) => p.startsWith("/stats"),
   },
   {
     href: "/map",

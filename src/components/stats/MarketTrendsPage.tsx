@@ -118,7 +118,7 @@ export function MarketTrendsPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="시장 동향"
+        title="시장 흐름"
         titleClassName="detail-page-title"
         description="한국부동산원 가격지수와 국토교통부 실거래로 아파트 시장의 장기 흐름을 봅니다."
       />
