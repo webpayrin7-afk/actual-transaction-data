@@ -7,7 +7,7 @@ import type { ProductAdvancementData } from "@/lib/school-info/product-school-de
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
-import { LabStackedBar } from "@/components/ui/LabStackedBar";
+import { LabDonut } from "@/components/ui/LabDonut";
 
 type VisibleCategory = {
   key: string;
@@ -19,7 +19,7 @@ type VisibleCategory = {
 
 /**
  * Presentation for middle 진학현황 / high 진학·진로현황.
- * 구성비 막대 1줄 + 항목 행(비율·인원 병기, 5개 + 더보기) — policy §12.4 / §12.7.
+ * 구성비 도넛(가운데 졸업생 수) + 항목 행(비율·인원 병기, 5개 + 더보기) — policy §12.4 / §12.7.
  * Consumes product AdvancementData only — no provider field / mapping logic.
  */
 export function AdvancementSection({
@@ -62,14 +62,17 @@ export function AdvancementSection({
     >
       {categories.length > 0 ? (
         <>
-          <LabStackedBar
-            className="h-2.5"
-            segments={categories.map((c) => ({
-              key: c.key,
-              value: c.percent ?? c.count,
-              color: c.color,
-            }))}
-          />
+          <div className="flex justify-center">
+            <LabDonut
+              segments={categories.map((c) => ({
+                key: c.key,
+                value: c.percent ?? c.count,
+                color: c.color,
+              }))}
+              centerLabel="졸업생"
+              centerValue={data.graduates?.value ?? undefined}
+            />
+          </div>
           <ul className={LAB_LIST}>
             {visible.map((c) => (
               <LabListRow
