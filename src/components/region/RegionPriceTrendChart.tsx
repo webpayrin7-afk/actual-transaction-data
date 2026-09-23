@@ -400,12 +400,12 @@ export function RegionPriceTrendChart({
           onNext={() => stepMonth(1)}
         />
       ) : null}
-      <div className="rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-4 py-3" aria-live="polite">
+      <div className="pt-1" aria-live="polite">
         <p className="detail-label">시세 평당가</p>
         {query.isLoading ? (
-          <div className="mt-2 h-7 w-32 animate-pulse rounded bg-teal-100/70" />
+          <div className="mt-2 h-8 w-40 animate-pulse rounded bg-slate-100" />
         ) : (
-          <p className="detail-summary-value detail-kpi-brand mt-1 whitespace-nowrap">
+          <p className="detail-hero-value mt-0.5 whitespace-nowrap">
             {value != null ? `${Math.round(value).toLocaleString("ko-KR")}만원/평` : "—"}
           </p>
         )}
@@ -418,12 +418,12 @@ export function RegionPriceTrendChart({
         {current && rankQuery.data && rankQuery.data.yearMonth === current.yearMonth ? (
           <p className="mt-1.5 flex flex-wrap gap-1.5">
             {rankQuery.data.priceRank != null ? (
-              <span className="inline-flex rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-brand-primary)]">
+              <span className="inline-flex rounded-full border border-[color:var(--lab-border)] px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-brand-primary)]">
                 서울 {rankQuery.data.total}개 구 중 {rankQuery.data.priceRank}위
               </span>
             ) : null}
             {rankQuery.data.change1yRank != null ? (
-              <span className="inline-flex rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-body)]">
+              <span className="inline-flex rounded-full border border-[color:var(--lab-border)] px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-body)]">
                 1년 상승률 {rankQuery.data.change1yRank}위
               </span>
             ) : null}

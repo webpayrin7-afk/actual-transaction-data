@@ -322,12 +322,14 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
         </p>
       ) : (
         <>
-          <div className="rounded-xl bg-[color:var(--lab-brand-subtle)] px-4 py-3">
+          <div>
             <p className="detail-label">앞으로 {SUPPLY_HORIZON_YEARS}년 동안 입주 예정</p>
-            <p className="detail-summary-value detail-kpi-brand mt-1">
+            <p className="detail-summary-value mt-0.5">
               {items.length.toLocaleString("ko-KR")}곳
+              {summary ? (
+                <span className="detail-meta ml-2 align-baseline font-normal">{summary}</span>
+              ) : null}
             </p>
-            {summary ? <p className="detail-meta mt-0.5">{summary}</p> : null}
           </div>
           <div className="flex flex-col">
             {groups.map((g) => {
