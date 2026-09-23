@@ -24,6 +24,7 @@ import {
   RegionTradeHighlightsSection,
 } from "@/components/region/RegionMarketExtras";
 import { regionRankingCode } from "@/lib/region-ranking/public";
+import { RegionDongPricesSection } from "@/components/region/RegionDongPrices";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -947,6 +948,7 @@ export function RegionDailyStatus({
       {lawdCodes.length > 0 ? (
         <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
       ) : null}
+      {guLawdCd ? <RegionDongPricesSection lawdCd={guLawdCd} regionName={regionName} /> : null}
 
       <section
         id="newly-seen-deals"
