@@ -100,15 +100,15 @@ const STRENGTH_LABELS = {
   turnover: "회전율",
 } as const;
 
-function strengthText(
+function strengthTags(
   p: { price: number; liquidity: number; size: number; turnover: number } | null | undefined,
-): string | null {
-  if (!p) return null;
-  const top = (Object.keys(STRENGTH_LABELS) as Array<keyof typeof STRENGTH_LABELS>)
+): string[] {
+  if (!p) return [];
+  return (Object.keys(STRENGTH_LABELS) as Array<keyof typeof STRENGTH_LABELS>)
     .map((k) => ({ k, share: Math.max(1, Math.round((1 - p[k]) * 100)) }))
     .sort((a, b) => a.share - b.share)
-    .slice(0, 2);
-  return top.map((t) => `${STRENGTH_LABELS[t.k]} 상위 ${t.share}%`).join(" · ");
+    .slice(0, 2)
+    .map((t) => `${STRENGTH_LABELS[t.k]} 상위 ${t.share}%`);
 }
 
 const RANK_PREVIEW = 5;
@@ -166,7 +166,7 @@ export function RegionRankingTable({
   const visible = expanded ? rows : rows.slice(0, RANK_PREVIEW);
   const gridCols = metricTab
     ? "grid-cols-[2.5rem_minmax(0,1fr)_5rem_1rem]"
-    : "grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem]";
+    : "grid-cols-[2.5rem_minmax(0,1fr)_1rem]";
 
   return (
     <section
@@ -206,9 +206,11 @@ export function RegionRankingTable({
             >
               <span role="columnheader">순위</span>
               <span role="columnheader">단지명</span>
-              <span role="columnheader" className={metricTab ? "text-right" : "text-center"}>
-                {tab === "TRADES_12M" ? "1년 거래" : tab === "PRICE_12M" ? "만원/평" : "지역"}
-              </span>
+              {metricTab ? (
+                <span role="columnheader" className="text-right">
+                  {tab === "TRADES_12M" ? "1년 거래" : "만원/평"}
+                </span>
+              ) : null}
               <span aria-hidden />
             </div>
             <ul className="divide-y divide-[color:var(--lab-border)]">
@@ -225,18 +227,41 @@ export function RegionRankingTable({
                       <RankCircle rank={row.rank} />
                     </span>
                     <span className="min-w-0">
-                      <span className="detail-data-value-emphasis block truncate">
-                        {row.apt_name ?? "—"}
-                      </span>
                       {metricTab ? (
-                        row.dong ? (
-                          <span className="detail-meta block truncate">{row.dong}</span>
-                        ) : null
-                      ) : strengthText(row.percentiles) ? (
-                        <span className="detail-meta block truncate">
-                          {strengthText(row.percentiles)}
-                        </span>
-                      ) : null}
+                        <>
+                          <span className="detail-data-value-emphasis block truncate">
+                            {row.apt_name ?? "—"}
+                          </span>
+                          {row.dong ? (
+                            <span className="detail-meta block truncate">{row.dong}</span>
+                          ) : null}
+                        </>
+                      ) : (
+                        <>
+                          <span className="flex min-w-0 items-baseline gap-1.5">
+                            <span className="detail-data-value-emphasis min-w-0 truncate">
+                              {row.apt_name ?? "—"}
+                            </span>
+                            {row.dong ? (
+                              <span className="detail-meta shrink-0 whitespace-nowrap">
+                                {row.dong}
+                              </span>
+                            ) : null}
+                          </span>
+                          {strengthTags(row.percentiles).length ? (
+                            <span className="mt-1 flex flex-wrap gap-1">
+                              {strengthTags(row.percentiles).map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="whitespace-nowrap rounded border border-[color:var(--lab-border)] px-1.5 text-[12px] font-medium leading-5 text-[color:var(--lab-body)] tabular-nums"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </span>
+                          ) : null}
+                        </>
+                      )}
                     </span>
                     {metricTab ? (
                       <span className="detail-data-value-emphasis whitespace-nowrap text-right tabular-nums">
@@ -246,11 +271,7 @@ export function RegionRankingTable({
                             ? Math.round(numberOf(row.public_metrics?.median_price_per_sqm)!).toLocaleString("ko-KR")
                             : "—"}
                       </span>
-                    ) : (
-                      <span className="detail-meta truncate text-center">
-                        {row.dong ?? "—"}
-                      </span>
-                    )}
+                    ) : null}
                     <ChevronRight
                       className="h-4 w-4 text-slate-400"
                       aria-hidden
