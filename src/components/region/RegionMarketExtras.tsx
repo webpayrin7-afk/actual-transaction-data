@@ -155,9 +155,6 @@ export function RegionTradeHighlightsSection({
         }
       />
       <RegionMarketTemperature lawdCd={lawdCd} />
-      <div className="border-t border-[color:var(--lab-border)] pt-4">
-        <RegionTradeSignals lawdCd={lawdCd} />
-      </div>
       <div className="mt-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[color:var(--lab-border)] pt-4">
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">주목할 거래</h3>
@@ -191,63 +188,6 @@ export function RegionTradeHighlightsSection({
         </ul>
       )}
     </section>
-  );
-}
-
-function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
-  const query = useRegionMarketDetail(lawdCd);
-  if (query.isError) return null;
-  const a = query.data?.analysis;
-  const tiles = [
-    { key: "high", label: "신고가", value: a?.recordHighCount, cls: "detail-change-up" },
-    { key: "peak", label: "최고가 대비 10%↓", value: a?.belowPeakCount, cls: "detail-change-down" },
-  ];
-  return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <div className="flex min-w-0 items-center">
-          <h3 className="detail-subsection-title">최근 3개월 거래 신호</h3>
-          <InfoTip aria-label="최근 3개월 거래 신호 안내">
-            <p>같은 단지·면적의 이전 거래와 비교합니다.</p>
-            <p className="mt-1.5">신고가: 종전 최고가를 넘은 거래</p>
-            <p>최고가 대비 10%↓: 종전 최고가보다 10% 이상 낮은 거래</p>
-          </InfoTip>
-        </div>
-        {a ? (
-          <p className="detail-meta tabular-nums">
-            매매 {a.tradeCount.toLocaleString("ko-KR")}건 중
-          </p>
-        ) : null}
-      </div>
-      <dl className="mt-3 grid grid-cols-2 gap-2">
-        {tiles.map((t) => {
-          const share =
-            a && a.tradeCount > 0 && t.value != null
-              ? Math.round((t.value / a.tradeCount) * 100)
-              : null;
-          return (
-            <div
-              key={t.key}
-              className="flex min-w-0 flex-col gap-0.5 rounded-xl border border-[color:var(--lab-border)] px-3 py-2.5"
-            >
-              <dt className="detail-label break-keep">{t.label}</dt>
-              <dd className="whitespace-nowrap tabular-nums">
-                {query.isLoading ? (
-                  <span className="inline-block h-5 w-14 animate-pulse rounded bg-slate-100 align-middle" />
-                ) : (
-                  <span className={`detail-data-value-emphasis ${t.cls}`}>
-                    {t.value != null ? `${t.value.toLocaleString("ko-KR")}건` : "—"}
-                    {share != null ? (
-                      <span className="detail-meta ml-1.5">{share}%</span>
-                    ) : null}
-                  </span>
-                )}
-              </dd>
-            </div>
-          );
-        })}
-      </dl>
-    </div>
   );
 }
 

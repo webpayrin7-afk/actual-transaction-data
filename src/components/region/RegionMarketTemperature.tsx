@@ -63,6 +63,34 @@ export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
       ? points.find((p) => monthIndex(p.yearMonth) === monthIndex(latest.yearMonth) - 12) ?? null
       : null;
   const yearTicks = points.filter((p) => p.yearMonth.endsWith("01")).map((p) => p.label);
+  const a = query.data?.analysis;
+  const shareOf = (n: number | undefined) =>
+    a && a.tradeCount > 0 && n != null ? Math.round((n / a.tradeCount) * 100) : null;
+  const highShare = shareOf(a?.recordHighCount);
+  const peakShare = shareOf(a?.belowPeakCount);
+  const tiles = [
+    {
+      key: "up",
+      label: "오른 거래",
+      value: latest?.share != null ? `${Math.round(latest.share)}%` : "—",
+      sub: yearAgo?.share != null ? `1년 전 ${Math.round(yearAgo.share)}%` : null,
+      cls: "",
+    },
+    {
+      key: "high",
+      label: "신고가",
+      value: highShare != null ? `${highShare}%` : "—",
+      sub: a ? `${a.recordHighCount.toLocaleString("ko-KR")}건` : null,
+      cls: "detail-change-up",
+    },
+    {
+      key: "peak",
+      label: "고점 대비 10%↓",
+      value: peakShare != null ? `${peakShare}%` : "—",
+      sub: a ? `${a.belowPeakCount.toLocaleString("ko-KR")}건` : null,
+      cls: "detail-change-down",
+    },
+  ];
 
   return (
     <div>
@@ -71,19 +99,17 @@ export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
           <h3 className="detail-subsection-title">시장 온도</h3>
           <InfoTip aria-label="시장 온도 안내">
             <p>
-              같은 단지·면적의 직전 거래보다 오른 가격에 거래된 비율입니다. 최근
-              3개월씩 묶어 계산하며, 50%보다 높으면 오른 거래가 내린 거래보다
+              오른 거래: 같은 단지·면적의 직전 거래보다 오른 가격에 거래된 비율입니다.
+              3개월씩 묶어 계산하며, 그래프가 50%보다 높으면 오른 거래가 내린 거래보다
               많았다는 뜻입니다.
             </p>
+            <p className="mt-1.5">신고가: 종전 최고가를 넘은 거래</p>
+            <p>고점 대비 10%↓: 종전 최고가보다 10% 이상 낮은 거래</p>
           </InfoTip>
         </div>
-        {latest ? (
+        {a ? (
           <p className="detail-meta tabular-nums">
-            오른 거래{" "}
-            <span className="detail-data-value-emphasis text-[color:var(--lab-navy-950)]">
-              {latest.share}%
-            </span>
-            {yearAgo?.share != null ? ` · 1년 전 ${yearAgo.share}%` : ""}
+            최근 3개월 · 매매 {a.tradeCount.toLocaleString("ko-KR")}건
           </p>
         ) : null}
       </div>
@@ -128,6 +154,26 @@ export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
           </ResponsiveContainer>
         </div>
       )}
+      <dl className="mt-3 grid grid-cols-3 gap-2">
+        {tiles.map((t) => (
+          <div
+            key={t.key}
+            className="flex min-w-0 flex-col justify-between gap-1 rounded-xl border border-[color:var(--lab-border)] px-2.5 py-2.5"
+          >
+            <dt className="detail-label break-keep">{t.label}</dt>
+            <dd className="tabular-nums">
+              {query.isLoading ? (
+                <span className="inline-block h-5 w-12 animate-pulse rounded bg-slate-100 align-middle" />
+              ) : (
+                <>
+                  <span className={`detail-data-value-emphasis block ${t.cls}`}>{t.value}</span>
+                  {t.sub ? <span className="detail-meta block break-keep">{t.sub}</span> : null}
+                </>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
