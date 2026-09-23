@@ -61,11 +61,6 @@ function changeSrText(pct: number | null | undefined): string {
   return pct > 0 ? " 상승" : " 하락";
 }
 
-function shortRange(start: string, end: string): string {
-  const fmt = (d: string) => `${Number(d.slice(5, 7))}.${Number(d.slice(8, 10))}`;
-  return `${fmt(start)}~${fmt(end)}`;
-}
-
 export function fetchRegionPriceTrend(lawdCd: string) {
   return async (): Promise<RegionPriceTrend> => {
     const res = await fetch(`/api/region-price-trend?lawd_cd=${lawdCd}`);
@@ -90,29 +85,35 @@ export function RegionPriceSection({
     retry: 1,
   });
   if (!lawdCd) return null;
-  const recent = query.data?.status === "ok" ? query.data.recent : null;
-  const priceText = formatWonPerPyeong(recent?.current.medianPyeongPrice);
+  const latest = query.data?.status === "ok" ? query.data.latest : null;
+  const priceText = formatWonPerPyeong(latest?.pyeongPrice);
+  const asOf = latest ? `${latest.yearMonth.slice(0, 4)}.${latest.yearMonth.slice(4, 6)}` : null;
 
   return (
     <section
-      aria-label="지역 평당가"
+      aria-label="지역 시세 평당가"
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >
       <MarketSectionHeader
-        title="지역 평당가"
-        meta="공급면적 기준 · 최근 1개월"
+        title="지역 시세 평당가"
+        meta={asOf ? `공급면적 기준 · ${asOf}` : "공급면적 기준"}
         tip={
-          <p>
-            최근 30일 동안 계약된 {regionName} 아파트 매매 실거래의 평당가
-            중앙값입니다. 거래금액을 공급면적 평형으로 나눠 계산하며, 평형을
-            확인할 수 없는 거래는 평당가에서 제외하고 거래량에만 포함합니다. 최근
-            거래는 신고 기간이 남아 있어 건수가 늘어날 수 있습니다.
-          </p>
+          <>
+            <p>
+              {regionName} 아파트 단지들의 현재 시세를 세대수로 가중 평균한
+              평당가입니다.
+            </p>
+            <p className="mt-1.5">
+              단지마다 평형별 가장 최근 매매 실거래(최근 3년 이내) 평당가를
+              공급면적 평형 기준으로 구하고, 단지 세대수가 많을수록 크게
+              반영합니다.
+            </p>
+          </>
         }
       />
 
       <div className="rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-4 py-3">
-        <p className="detail-label">최근 1개월 평당가</p>
+        <p className="detail-label">지역 시세 평당가</p>
         {query.isLoading ? (
           <div className="mt-2 h-7 w-32 animate-pulse rounded bg-teal-100/70" />
         ) : (
@@ -120,10 +121,9 @@ export function RegionPriceSection({
             {priceText ?? "—"}
           </p>
         )}
-        {recent ? (
+        {latest ? (
           <p className="detail-meta mt-0.5 tabular-nums">
-            {shortRange(recent.current.start, recent.current.end)} 계약 · 평형 확인{" "}
-            {recent.current.priceSampleCount.toLocaleString("ko-KR")}건 기준
+            단지 {latest.complexCount.toLocaleString("ko-KR")}곳 · 세대수 가중
           </p>
         ) : null}
       </div>
@@ -131,7 +131,7 @@ export function RegionPriceSection({
       <div className="flex flex-col gap-1.5">
       <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
         {TREND_PERIOD_TABS.map((tab) => {
-          const pct = recent?.changes[tab.id] ?? null;
+          const pct = latest?.changes[tab.id] ?? null;
           return (
             <div
               key={tab.id}
@@ -148,7 +148,7 @@ export function RegionPriceSection({
           );
         })}
       </div>
-      <p className="detail-meta">같은 30일 구간의 과거 평당가 대비</p>
+      <p className="detail-meta">같은 방식으로 계산한 과거 시세 평당가 대비</p>
       </div>
 
       <RegionPriceTrendChart lawdCd={lawdCd} regionName={regionName} />

@@ -318,16 +318,16 @@ export function RegionPriceTrendChart({
     allIndex >= 0
       ? all.slice(0, allIndex + 1).reduce<ChartRow | null>(
           (best, r) =>
-            r.smoothedPyeongPrice != null &&
-            (!best || r.smoothedPyeongPrice > (best.smoothedPyeongPrice ?? 0))
+            r.pyeongPrice != null &&
+            (!best || r.pyeongPrice > (best.pyeongPrice ?? 0))
               ? r
               : best,
           null,
         )
       : null;
-  const value = current?.smoothedPyeongPrice ?? null;
+  const value = current?.pyeongPrice ?? null;
   const diffTo = (base: ChartRow | null) =>
-    value != null && base?.smoothedPyeongPrice != null ? value - base.smoothedPyeongPrice : null;
+    value != null && base?.pyeongPrice != null ? value - base.pyeongPrice : null;
   const momDiff = diffTo(prevRow);
   const yoyDiff = diffTo(yearAgo);
   const peakDiff = diffTo(peak);
@@ -336,7 +336,7 @@ export function RegionPriceTrendChart({
   if (query.isError) return null;
 
   const prices = rows
-    .map((r) => r.smoothedPyeongPrice)
+    .map((r) => r.pyeongPrice)
     .filter((v): v is number => v != null);
   const span = prices.length ? Math.max(...prices) - Math.min(...prices) : 0;
   const step = span > 5000 ? 2000 : span > 1500 ? 1000 : 500;
@@ -362,12 +362,12 @@ export function RegionPriceTrendChart({
     <div className="detail-subsection-rule flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center">
-          <h3 className="detail-subsection-title">{regionName} 평당가 추이</h3>
+          <h3 className="detail-subsection-title">{regionName} 시세 평당가 추이</h3>
           <InfoTip aria-label="평당가 추이 안내">
             <p>
-              월별 매매 실거래 평당가(공급면적 기준 중앙값)를 최근 3개월 표본 수로
-              가중 평균해 흐름을 보여줍니다. 옅은 영역은 월별 거래량입니다. 이번 달
-              값은 거래 신고 기간 중이라 바뀔 수 있습니다.
+              월별 지역 시세 평당가(공급면적 기준)와 계약월 매매 거래량입니다. 각 달
+              시점의 단지별 최근 실거래 시세를 세대수로 가중 평균합니다. 이번 달
+              거래는 신고 기간 중이라 값이 바뀔 수 있습니다.
             </p>
           </InfoTip>
         </div>
@@ -447,7 +447,7 @@ export function RegionPriceTrendChart({
                 ) : null}
                 <Line
                   yAxisId="price"
-                  dataKey="smoothedPyeongPrice"
+                  dataKey="pyeongPrice"
                   type="monotone"
                   stroke={CHART_TRADE}
                   strokeWidth={2}
@@ -496,21 +496,21 @@ export function RegionPriceTrendChart({
                 onNext={() => stepMonth(1)}
               />
               <dl className="mt-2 divide-y divide-[color:var(--lab-border)]">
-                <DataRow label="평당가">
+                <DataRow label="시세 평당가">
                   <span className="detail-summary-value">
                     {value != null ? formatManwon(value) : "—"}
                   </span>
                   <span className="detail-meta block">
-                    {current.medianPyeongPrice != null
-                      ? `이 달 중앙값 ${formatManwon(current.medianPyeongPrice)} · 평형 확인 ${current.priceSampleCount.toLocaleString("ko-KR")}건`
-                      : "이 달은 공급 평형을 확인한 거래가 없습니다."}
+                    {value != null
+                      ? `단지 ${current.complexCount.toLocaleString("ko-KR")}곳 · 세대수 가중`
+                      : "계산할 수 있는 단지가 없습니다."}
                   </span>
                 </DataRow>
                 {(
                   [
-                    ["전월 대비", momDiff, prevRow?.smoothedPyeongPrice ?? null],
-                    ["전년 대비", yoyDiff, yearAgo?.smoothedPyeongPrice ?? null],
-                    ["최고점 대비", peakDiff, peak?.smoothedPyeongPrice ?? null],
+                    ["전월 대비", momDiff, prevRow?.pyeongPrice ?? null],
+                    ["전년 대비", yoyDiff, yearAgo?.pyeongPrice ?? null],
+                    ["최고점 대비", peakDiff, peak?.pyeongPrice ?? null],
                   ] as const
                 ).map(([label, diff, base]) => (
                   <DataRow key={label} label={label}>

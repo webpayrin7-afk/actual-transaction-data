@@ -1,197 +1,210 @@
 /**
- * 구 단위 지역 평당가 (read-only, 공급면적 기준).
+ * 구 단위 지역 시세 평당가 (read-only, 공급면적 기준).
  *
- * 매매 실거래의 거래금액 ÷ 공급 평형 라벨(정수)의 중앙값. 평형 라벨은 단지 상세 V3와 같은 규칙:
- * 단지·전용면적별 canonical 공급면적이 하나로 확정(EXACT_SINGLE)되거나, 후보가 여러 개여도
- * 정수 평형이 모두 같을 때만 사용한다. 평형을 정할 수 없는 거래는 평당가에서 제외하고 거래량에만 센다.
- *
- * - points: 계약월별 값 + 거래량
- * - recent: 최근 30일 계약 구간 값과, 같은 구간의 6개월·1년·2년·5년 전 대비 변화율
+ * 월 M의 값:
+ *   1) 단지·전용면적 타입마다 M 이전 36개월 안의 가장 최근 거래월 평균 평당가
+ *      (거래금액 ÷ 공급 평형 라벨, 라벨 규칙은 단지 상세 V3와 동일)
+ *   2) 단지 값 = 타입 값의 평균
+ *   3) 지역 값 = 단지 값의 세대수 가중 평균
+ *      (세대수: 매매 거래가 있었던 평형의 세대수 합계, 없으면 단지 프로필 세대수.
+ *       둘 다 없으면 제외)
+ * 거래량은 공급 평형 확인 여부와 무관하게 계약월 매매 건수를 센다.
  */
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { seoulToday } from "@/lib/market/time";
 
 export type RegionPriceTrendPoint = {
   yearMonth: string;
-  /** 공급 평형 기준 중앙값. 평형 확인 거래가 없으면 null. */
-  medianPyeongPrice: number | null;
-  /** 전체 매매 거래 수 (평형 미확인 포함). */
+  /** 지역 시세 평당가 (만원/공급평). 계산 가능한 단지가 없으면 null. */
+  pyeongPrice: number | null;
+  /** 이 달 값에 반영된 단지 수. */
+  complexCount: number;
+  /** 계약월 매매 거래 수. */
   tradeCount: number;
-  /** 평당가 계산에 쓴 거래 수. */
-  priceSampleCount: number;
-  /** 최근 3개월(해당 월 포함) 월별 중앙값의 표본 수 가중 평균. 표시용 완화값. */
-  smoothedPyeongPrice: number | null;
-};
-
-export type RegionRecentPriceWindow = {
-  start: string;
-  end: string;
-  medianPyeongPrice: number | null;
-  tradeCount: number;
-  priceSampleCount: number;
-};
-
-export type RegionRecentPrice = {
-  current: RegionRecentPriceWindow;
-  changes: Record<"6M" | "1Y" | "2Y" | "5Y", number | null>;
 };
 
 export type RegionPriceTrend = {
   status: "ok";
   lawdCd: string;
   basis: "SUPPLY_PYEONG_LABEL";
+  method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED";
   points: RegionPriceTrendPoint[];
-  recent: RegionRecentPrice;
+  latest: {
+    yearMonth: string;
+    pyeongPrice: number | null;
+    complexCount: number;
+    changes: Record<"6M" | "1Y" | "2Y" | "5Y", number | null>;
+  } | null;
 };
 
 const SUPPLY_PYEONG_FACTOR = 3.305785;
-const SMOOTH_MONTHS = 3;
-const RECENT_WINDOW_DAYS = 30;
+const LOOKBACK_MONTHS = 36;
 const CHANGE_MONTHS = { "6M": 6, "1Y": 12, "2Y": 24, "5Y": 60 } as const;
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const cache = new Map<string, { at: number; value: RegionPriceTrend }>();
-
-/** Trades in one 구 with the V3 supply-pyeong label when resolvable (`label` null otherwise). */
-const SUPPLY_TRADES_CTE = `
-  cu AS (
-    SELECT c.complex_id, c.exclusive_cents, c.status,
-           ROUND(ROUND(c.supply_area / ${SUPPLY_PYEONG_FACTOR}, 2)) AS lbl
-    FROM apt_canonical_unit_types c
-    JOIN apt_complex_master mm ON mm.complex_id = c.complex_id
-    WHERE mm.lawd_cd = ? AND c.supply_cents >= 0 AND c.supply_area > 0
-      AND c.status IN ('EXACT_SINGLE', 'AMBIGUOUS_MULTI')
-  ),
-  ul AS (
-    SELECT complex_id, exclusive_cents,
-           CASE
-             WHEN SUM(status = 'EXACT_SINGLE') = 1
-               THEN MAX(CASE WHEN status = 'EXACT_SINGLE' THEN lbl END)
-             WHEN MIN(lbl) = MAX(lbl) THEN MIN(lbl)
-           END AS label
-    FROM cu GROUP BY complex_id, exclusive_cents
-  ),
-  st AS (
-    SELECT t.year_month AS ym, t.deal_date AS d,
-           CAST(t.deal_amount AS REAL) AS a, ul.label AS label
-    FROM transactions t
-    LEFT JOIN apt_complex_master m
-      ON m.lawd_cd = t.lawd_cd AND m.apt_name_norm = t.apt_name_norm
-     AND m.legal_dong_name = t.dong
-    LEFT JOIN ul ON ul.complex_id = m.complex_id
-     AND ul.exclusive_cents = CAST(ROUND(CAST(t.exclusive_area AS REAL) * 100) AS INTEGER)
-    WHERE t.lawd_cd = ? AND t.deal_type = 'trade'
-      AND CAST(t.deal_amount AS REAL) > 0 AND CAST(t.exclusive_area AS REAL) > 0
-      __EXTRA__
-  )`;
+const inflight = new Map<string, Promise<RegionPriceTrend>>();
 
 function monthIndex(ym: string): number {
   return Number(ym.slice(0, 4)) * 12 + Number(ym.slice(4, 6)) - 1;
 }
 
-function median(values: number[]): number | null {
-  if (!values.length) return null;
-  const s = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return Math.round(s.length % 2 ? s[mid]! : (s[mid - 1]! + s[mid]!) / 2);
+function ymFromIndex(idx: number): string {
+  return `${Math.floor(idx / 12)}${String((idx % 12) + 1).padStart(2, "0")}`;
 }
 
-function withSmoothing(
-  raw: Array<Omit<RegionPriceTrendPoint, "smoothedPyeongPrice">>,
-): RegionPriceTrendPoint[] {
-  return raw.map((point, index) => {
-    const idx = monthIndex(point.yearMonth);
-    let weighted = 0;
-    let count = 0;
-    for (let i = index; i >= 0; i -= 1) {
-      const p = raw[i]!;
-      if (idx - monthIndex(p.yearMonth) >= SMOOTH_MONTHS) break;
-      if (p.medianPyeongPrice == null) continue;
-      weighted += p.medianPyeongPrice * p.priceSampleCount;
-      count += p.priceSampleCount;
+async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTrend> {
+  const [typeRows, volumeRows] = await Promise.all([
+    db.execute({
+      sql: `WITH cu AS (
+              SELECT c.complex_id, c.exclusive_cents, c.status,
+                     ROUND(ROUND(c.supply_area / ${SUPPLY_PYEONG_FACTOR}, 2)) AS lbl
+              FROM apt_canonical_unit_types c
+              JOIN apt_complex_master mm ON mm.complex_id = c.complex_id
+              WHERE mm.lawd_cd = ? AND c.supply_cents >= 0 AND c.supply_area > 0
+                AND c.status IN ('EXACT_SINGLE', 'AMBIGUOUS_MULTI')
+            ),
+            ul AS (
+              SELECT complex_id, exclusive_cents,
+                     CASE
+                       WHEN SUM(status = 'EXACT_SINGLE') = 1
+                         THEN MAX(CASE WHEN status = 'EXACT_SINGLE' THEN lbl END)
+                       WHEN MIN(lbl) = MAX(lbl) THEN MIN(lbl)
+                     END AS label
+              FROM cu GROUP BY complex_id, exclusive_cents
+            ),
+            base AS MATERIALIZED (
+              SELECT m.complex_id AS cid,
+                     CAST(ROUND(CAST(t.exclusive_area AS REAL) * 100) AS INTEGER) AS ec,
+                     t.year_month AS ym,
+                     CAST(t.deal_amount AS REAL) AS a
+              FROM transactions t
+              JOIN apt_complex_master m
+                ON m.lawd_cd = t.lawd_cd AND m.apt_name_norm = t.apt_name_norm
+               AND m.legal_dong_name = t.dong
+              WHERE t.lawd_cd = ? AND t.deal_type = 'trade'
+                AND CAST(t.deal_amount AS REAL) > 0
+            ),
+            traded AS (SELECT DISTINCT cid, ec FROM base),
+            hh AS (
+              SELECT u.complex_id, SUM(u.household_count) AS h
+              FROM unit_type_household_counts u
+              JOIN traded tr ON tr.cid = u.complex_id AND tr.ec = u.exclusive_cents
+              WHERE u.household_count IS NOT NULL
+              GROUP BY u.complex_id
+            ),
+            agg AS (
+              SELECT b.cid, b.ec, b.ym, AVG(b.a / ul.label) AS v
+              FROM base b
+              JOIN ul ON ul.complex_id = b.cid AND ul.exclusive_cents = b.ec
+              WHERE ul.label > 0
+              GROUP BY b.cid, b.ec, b.ym
+            )
+            SELECT agg.cid, agg.ec, agg.ym, agg.v, COALESCE(hh.h, p.household_count) AS w
+            FROM agg
+            LEFT JOIN hh ON hh.complex_id = agg.cid
+            LEFT JOIN apt_complex_profile p ON p.complex_id = agg.cid`,
+      args: [lawdCd, lawdCd],
+    }),
+    db.execute({
+      sql: `SELECT year_month AS ym, COUNT(*) AS c
+            FROM transactions
+            WHERE lawd_cd = ? AND deal_type = 'trade' AND CAST(deal_amount AS REAL) > 0
+            GROUP BY year_month`,
+      args: [lawdCd],
+    }),
+  ]);
+
+  const volume = new Map<string, number>();
+  for (const row of volumeRows.rows) {
+    const ym = String(row.ym);
+    if (/^\d{6}$/.test(ym)) volume.set(ym, Number(row.c));
+  }
+
+  type TypeSeries = { cid: string; months: number[]; values: number[]; cursor: number };
+  const types = new Map<string, TypeSeries>();
+  const weights = new Map<string, number>();
+  for (const row of typeRows.rows) {
+    const ym = String(row.ym);
+    const v = Number(row.v);
+    if (!/^\d{6}$/.test(ym) || !Number.isFinite(v) || v <= 0) continue;
+    const cid = String(row.cid);
+    const w = Number(row.w);
+    if (Number.isFinite(w) && w > 0) weights.set(cid, w);
+    const key = `${cid}|${row.ec}`;
+    let t = types.get(key);
+    if (!t) {
+      t = { cid, months: [], values: [], cursor: -1 };
+      types.set(key, t);
     }
-    return {
-      ...point,
-      smoothedPyeongPrice: count > 0 ? Math.round(weighted / count) : null,
-    };
-  });
-}
+    t.months.push(monthIndex(ym));
+    t.values.push(v);
+  }
+  for (const t of types.values()) {
+    const order = t.months.map((m, i) => [m, t.values[i]!] as const).sort((a, b) => a[0] - b[0]);
+    t.months = order.map((o) => o[0]);
+    t.values = order.map((o) => o[1]);
+  }
 
-function isoDay(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
+  const allMonths = [...volume.keys()].map(monthIndex);
+  if (!allMonths.length) {
+    return { status: "ok", lawdCd, basis: "SUPPLY_PYEONG_LABEL", method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED", points: [], latest: null };
+  }
+  const first = Math.min(...allMonths);
+  const last = Math.max(...allMonths, monthIndex(seoulToday().slice(0, 7).replace("-", "")));
 
-function shiftDays(day: string, days: number): string {
-  const d = new Date(`${day}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return isoDay(d);
-}
+  const points: RegionPriceTrendPoint[] = [];
+  for (let m = first; m <= last; m += 1) {
+    const byComplex = new Map<string, { sum: number; n: number }>();
+    for (const t of types.values()) {
+      while (t.cursor + 1 < t.months.length && t.months[t.cursor + 1]! <= m) t.cursor += 1;
+      if (t.cursor < 0 || m - t.months[t.cursor]! >= LOOKBACK_MONTHS) continue;
+      if (!weights.has(t.cid)) continue;
+      const agg = byComplex.get(t.cid) ?? { sum: 0, n: 0 };
+      agg.sum += t.values[t.cursor]!;
+      agg.n += 1;
+      byComplex.set(t.cid, agg);
+    }
+    let num = 0;
+    let den = 0;
+    for (const [cid, agg] of byComplex) {
+      const w = weights.get(cid)!;
+      num += (agg.sum / agg.n) * w;
+      den += w;
+    }
+    const ym = ymFromIndex(m);
+    points.push({
+      yearMonth: ym,
+      pyeongPrice: den > 0 ? Math.round(num / den) : null,
+      complexCount: byComplex.size,
+      tradeCount: volume.get(ym) ?? 0,
+    });
+  }
 
-function shiftMonths(day: string, months: number): string {
-  const d = new Date(`${day}T00:00:00Z`);
-  const target = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - months, 1));
-  const lastDay = new Date(
-    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
-  ).getUTCDate();
-  target.setUTCDate(Math.min(d.getUTCDate(), lastDay));
-  return isoDay(target);
-}
-
-async function readRecentPrice(
-  db: RankingReader,
-  lawdCd: string,
-  today: string,
-): Promise<RegionRecentPrice> {
-  const end = today;
-  const start = shiftDays(end, -(RECENT_WINDOW_DAYS - 1));
-  const entries = Object.entries(CHANGE_MONTHS) as Array<[keyof typeof CHANGE_MONTHS, number]>;
-  const windows = [
-    { start, end },
-    ...entries.map(([, months]) => ({
-      start: shiftMonths(start, months),
-      end: shiftMonths(end, months),
-    })),
-  ];
-  const range = windows.map(() => "(d BETWEEN ? AND ?)").join(" OR ");
-  const result = await db.execute({
-    sql: `WITH ${SUPPLY_TRADES_CTE.replace(
-      "__EXTRA__",
-      `AND t.year_month IN (${windows
-        .flatMap((w) => {
-          const out: string[] = [];
-          for (let m = monthIndex(w.start.slice(0, 7).replace("-", "")); m <= monthIndex(w.end.slice(0, 7).replace("-", "")); m += 1) {
-            out.push(`'${Math.floor(m / 12)}${String((m % 12) + 1).padStart(2, "0")}'`);
-          }
-          return out;
-        })
-        .join(",")})`,
-    )}
-          SELECT d, a, label FROM st WHERE ${range}`,
-    args: [lawdCd, lawdCd, ...windows.flatMap((w) => [w.start, w.end])],
-  });
-
-  const stats = windows.map((w) => {
-    const rows = result.rows.filter((r) => String(r.d) >= w.start && String(r.d) <= w.end);
-    const prices = rows
-      .filter((r) => r.label != null && Number(r.label) > 0)
-      .map((r) => Number(r.a) / Number(r.label));
-    return {
-      start: w.start,
-      end: w.end,
-      medianPyeongPrice: median(prices),
-      tradeCount: rows.length,
-      priceSampleCount: prices.length,
-    };
-  });
-  const [current, ...past] = stats;
-  const changes = {} as RegionRecentPrice["changes"];
-  entries.forEach(([key], index) => {
-    const base = past[index]?.medianPyeongPrice ?? null;
+  const tail = points[points.length - 1] ?? null;
+  const changes = {} as Record<keyof typeof CHANGE_MONTHS, number | null>;
+  for (const [key, months] of Object.entries(CHANGE_MONTHS) as Array<[keyof typeof CHANGE_MONTHS, number]>) {
+    const base = points[points.length - 1 - months];
     changes[key] =
-      current!.medianPyeongPrice != null && base != null && base > 0
-        ? Math.round(((current!.medianPyeongPrice - base) / base) * 10000) / 100
+      tail?.pyeongPrice != null && base?.pyeongPrice != null && base.pyeongPrice > 0
+        ? Math.round(((tail.pyeongPrice - base.pyeongPrice) / base.pyeongPrice) * 10000) / 100
         : null;
-  });
-  return { current: current!, changes };
+  }
+
+  return {
+    status: "ok",
+    lawdCd,
+    basis: "SUPPLY_PYEONG_LABEL",
+    method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED",
+    points,
+    latest: tail
+      ? {
+          yearMonth: tail.yearMonth,
+          pyeongPrice: tail.pyeongPrice,
+          complexCount: tail.complexCount,
+          changes,
+        }
+      : null,
+  };
 }
 
 export async function readRegionPriceTrend(
@@ -200,58 +213,14 @@ export async function readRegionPriceTrend(
 ): Promise<RegionPriceTrend> {
   const hit = cache.get(lawdCd);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
-
-  const recentPromise = readRecentPrice(db, lawdCd, seoulToday());
-  const result = await db.execute({
-    sql: `WITH ${SUPPLY_TRADES_CTE.replace("__EXTRA__", "")},
-          stm AS MATERIALIZED (SELECT ym, a, label FROM st),
-          p AS (SELECT ym, ROUND(a / label) AS v FROM stm WHERE label > 0),
-          r AS (
-            SELECT ym, v,
-                   ROW_NUMBER() OVER (PARTITION BY ym ORDER BY v) AS rn,
-                   COUNT(*) OVER (PARTITION BY ym) AS c
-            FROM p
-          )
-          SELECT 'price' AS kind, ym, MAX(c) AS c, ROUND(AVG(v)) AS med
-          FROM r WHERE rn IN ((c + 1) / 2, (c + 2) / 2)
-          GROUP BY ym
-          UNION ALL
-          SELECT 'volume', ym, COUNT(*), NULL FROM stm GROUP BY ym`,
-    args: [lawdCd, lawdCd],
-  });
-
-  const byYm = new Map<string, { med: number | null; sample: number; total: number }>();
-  for (const row of result.rows) {
-    const ym = String(row.ym);
-    if (!/^\d{6}$/.test(ym)) continue;
-    const entry = byYm.get(ym) ?? { med: null, sample: 0, total: 0 };
-    if (String(row.kind) === "price") {
-      const med = Number(row.med);
-      entry.med = Number.isFinite(med) && med > 0 ? med : null;
-      entry.sample = Number(row.c);
-    } else {
-      entry.total = Number(row.c);
-    }
-    byYm.set(ym, entry);
-  }
-  const points = withSmoothing(
-    [...byYm.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([ym, e]) => ({
-        yearMonth: ym,
-        medianPyeongPrice: e.med,
-        tradeCount: e.total,
-        priceSampleCount: e.sample,
-      })),
-  );
-
-  const value: RegionPriceTrend = {
-    status: "ok",
-    lawdCd,
-    basis: "SUPPLY_PYEONG_LABEL",
-    points,
-    recent: await recentPromise,
-  };
-  cache.set(lawdCd, { at: Date.now(), value });
-  return value;
+  const pending = inflight.get(lawdCd);
+  if (pending) return pending;
+  const job = compute(db, lawdCd)
+    .then((value) => {
+      cache.set(lawdCd, { at: Date.now(), value });
+      return value;
+    })
+    .finally(() => inflight.delete(lawdCd));
+  inflight.set(lawdCd, job);
+  return job;
 }

@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db/client";
 import { readRegionPriceTrend } from "@/lib/region/region-price-trend";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export async function GET(request: NextRequest) {
   const lawdCd = request.nextUrl.searchParams.get("lawd_cd")?.trim() ?? "";
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     const data = await readRegionPriceTrend(db, lawdCd);
     return NextResponse.json(data, {
-      headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" },
+      headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });
   } catch (error) {
     console.error(error);
