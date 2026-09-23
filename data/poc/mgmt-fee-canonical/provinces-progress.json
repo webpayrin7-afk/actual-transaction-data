@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-23T15:19:52.912Z",
+  "generated_at": "2026-09-23T16:10:33.222Z",
   "driver_status": "incheon acquiring",
   "fee_table": {
     "rows": 2923,
     "complexes": 2810
   },
-  "api_calls_total": 13617,
+  "api_calls_total": 15828,
   "applied_rows_total": 0,
   "provinces": [
     {
@@ -14,17 +14,17 @@
       "sido": "인천광역시",
       "phase": "ACQUIRING",
       "cohort": 1093,
-      "terminal": 480,
-      "unfinished": 613,
-      "COMPLETE": 451,
-      "NO_PUBLISHED_MONTH": 29,
+      "terminal": 560,
+      "unfinished": 533,
+      "COMPLETE": 524,
+      "NO_PUBLISHED_MONTH": 36,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 13617,
+      "api_calls": 15828,
       "http_429": 0,
-      "retries": 4,
+      "retries": 5,
       "dryrun_gate": null,
       "applied_rows": 0
     },
