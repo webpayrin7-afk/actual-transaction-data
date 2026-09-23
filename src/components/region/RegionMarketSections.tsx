@@ -95,11 +95,12 @@ export function RegionPriceSection({
     >
       <MarketSectionHeader
         title="지역 평당가"
-        meta="전용면적 기준 · 최근 1개월"
+        meta="공급면적 기준 · 최근 1개월"
         tip={
           <p>
             최근 30일 동안 계약된 {regionName} 아파트 매매 실거래의 평당가
-            중앙값입니다. 거래금액을 전용면적(평)으로 나눠 계산합니다. 최근
+            중앙값입니다. 거래금액을 공급면적 평형으로 나눠 계산하며, 평형을
+            확인할 수 없는 거래는 평당가에서 제외하고 거래량에만 포함합니다. 최근
             거래는 신고 기간이 남아 있어 건수가 늘어날 수 있습니다.
           </p>
         }
@@ -148,7 +149,12 @@ export function RegionPriceSection({
           );
         })}
       </div>
-      <p className="detail-meta">같은 30일 구간의 과거 평당가 대비</p>
+      <p className="detail-meta">
+        같은 30일 구간의 과거 평당가 대비
+        {recent && recent.current.priceSampleCount < recent.current.tradeCount
+          ? ` · 평당가는 평형 확인 ${recent.current.priceSampleCount.toLocaleString("ko-KR")}건 기준`
+          : ""}
+      </p>
       </div>
 
       <RegionPriceTrendChart lawdCd={lawdCd} regionName={regionName} />

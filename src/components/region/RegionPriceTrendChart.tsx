@@ -272,21 +272,28 @@ export function RegionPriceTrendChart({
     allIndex >= 0
       ? all.slice(0, allIndex + 1).reduce<ChartRow | null>(
           (best, r) =>
-            !best || r.smoothedPyeongPrice > best.smoothedPyeongPrice ? r : best,
+            r.smoothedPyeongPrice != null &&
+            (!best || r.smoothedPyeongPrice > (best.smoothedPyeongPrice ?? 0))
+              ? r
+              : best,
           null,
         )
       : null;
   const value = current?.smoothedPyeongPrice ?? null;
-  const momDiff = value != null && prevRow ? value - prevRow.smoothedPyeongPrice : null;
-  const yoyDiff = value != null && yearAgo ? value - yearAgo.smoothedPyeongPrice : null;
-  const peakDiff = value != null && peak ? value - peak.smoothedPyeongPrice : null;
+  const diffTo = (base: ChartRow | null) =>
+    value != null && base?.smoothedPyeongPrice != null ? value - base.smoothedPyeongPrice : null;
+  const momDiff = diffTo(prevRow);
+  const yoyDiff = diffTo(yearAgo);
+  const peakDiff = diffTo(peak);
   const monthDetail = current ? detailQuery.data?.months?.[current.yearMonth] ?? null : null;
 
   if (query.isError) return null;
 
-  const prices = rows.map((r) => r.smoothedPyeongPrice);
+  const prices = rows
+    .map((r) => r.smoothedPyeongPrice)
+    .filter((v): v is number => v != null);
   const span = prices.length ? Math.max(...prices) - Math.min(...prices) : 0;
-  const step = span > 5000 ? 2000 : span > 2500 ? 1000 : 500;
+  const step = span > 5000 ? 2000 : span > 1500 ? 1000 : 500;
   const yMin = prices.length ? Math.floor(Math.min(...prices) / step) * step : 0;
   const yMax = prices.length ? Math.ceil(Math.max(...prices) / step) * step : step;
   const priceTicks = Array.from(
@@ -308,7 +315,7 @@ export function RegionPriceTrendChart({
           <h3 className="detail-subsection-title">{regionName} 평당가 추이</h3>
           <InfoTip aria-label="평당가 추이 안내">
             <p>
-              월별 매매 실거래 평당가(전용면적 기준 중앙값)를 최근 3개월 거래량으로
+              월별 매매 실거래 평당가(공급면적 기준 중앙값)를 최근 3개월 표본 수로
               가중 평균해 흐름을 보여줍니다. 막대 영역은 월별 거래량입니다. 이번 달
               값은 거래 신고 기간 중이라 바뀔 수 있습니다.
             </p>
@@ -389,6 +396,7 @@ export function RegionPriceTrendChart({
                   dot={false}
                   activeDot={{ r: 4, fill: CHART_TRADE, stroke: "#fff", strokeWidth: 2 }}
                   isAnimationActive={false}
+                  connectNulls
                   name="평당가"
                 />
               </ComposedChart>
@@ -397,7 +405,7 @@ export function RegionPriceTrendChart({
           <p className="detail-meta -mt-1 flex items-center gap-3">
             <span className="inline-flex items-center gap-1">
               <span className="h-0.5 w-3 rounded" style={{ background: CHART_TRADE }} aria-hidden />
-              평당가 (만원/평)
+              평당가 (만원/공급평)
             </span>
             <span className="inline-flex items-center gap-1">
               <span
@@ -422,9 +430,15 @@ export function RegionPriceTrendChart({
               </div>
               <div>
                 <p className="detail-label">평당가</p>
-                <p className="detail-summary-value">{formatManwon(current.smoothedPyeongPrice)}</p>
+                <p className="detail-summary-value">
+                  {current.smoothedPyeongPrice != null
+                    ? formatManwon(current.smoothedPyeongPrice)
+                    : "—"}
+                </p>
                 <p className="detail-meta">
-                  이 달 실거래 중앙값 {formatManwon(current.medianPyeongPrice)}
+                  {current.medianPyeongPrice != null
+                    ? `이 달 실거래 중앙값 ${formatManwon(current.medianPyeongPrice)} · 평형 확인 ${current.priceSampleCount.toLocaleString("ko-KR")}건`
+                    : "이 달은 공급 평형을 확인한 거래가 없습니다."}
                 </p>
               </div>
               <dl className="flex flex-col gap-1.5">
