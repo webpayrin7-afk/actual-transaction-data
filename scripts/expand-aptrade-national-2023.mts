@@ -32,8 +32,13 @@ import {
   aptTradeMappingStatus,
   isAptTradeMappingHoldLawd,
   runnableAptTradeLawds,
-  toAptTradeRequestLawd,
+  toAptTradeRequestLawds,
 } from "../src/lib/molit/aptrade-lawd-mapping";
+import {
+  gwangjuJeonnamAptTradeRequestLawds,
+  incheonAptTradeBackfillLawds,
+  incheonTrueNodataLawds,
+} from "../src/lib/molit/temporal-lawd";
 import { rgstDateFromTx } from "../src/lib/molit/rgst-date";
 
 /** Launch-complete capital — never re-expand even if some months are sparse. */
@@ -190,7 +195,7 @@ async function main() {
 
   const mapping = aptTradeMappingStatus();
   console.log(
-    `[expand] MAPPING_HOLD gwangju+jeonnam lawds=${mapping.holdLawds.length} reason=${mapping.reason}`,
+    `[expand] mapping status gwangju=${mapping.gwangju} jeonnam=${mapping.jeonnam} hold=${mapping.holdLawds.length} reason=${mapping.reason}`,
   );
 
   process.env.MOLIT_SYNCING = "1";
@@ -215,26 +220,41 @@ async function main() {
     existing.rows.map((r) => cellKey(String(r.lawd_cd), String(r.year_month))),
   );
 
+  const seedLawds = [
+    ...NATIONWIDE_LAWD_CODES,
+    ...gwangjuJeonnamAptTradeRequestLawds(),
+    ...incheonAptTradeBackfillLawds(),
+  ];
+  const trueNodata = new Set(incheonTrueNodataLawds());
+
   const allCatalogCells: Array<{ lawdCd: string; yearMonth: string }> = [];
   let heldCells = 0;
   let capitalExcludedCells = 0;
+  let nodataExcluded = 0;
   const seenRequest = new Set<string>();
-  for (const catalogLawd of NATIONWIDE_LAWD_CODES) {
-    for (const yearMonth of months) {
-      if (isAptTradeMappingHoldLawd(catalogLawd)) {
-        heldCells += 1;
-        continue;
+  for (const catalogLawd of seedLawds) {
+    if (trueNodata.has(catalogLawd)) {
+      nodataExcluded += months.length;
+      continue;
+    }
+    if (isAptTradeMappingHoldLawd(catalogLawd)) {
+      heldCells += 1;
+      continue;
+    }
+    if (isCapitalCompleteLawd(catalogLawd)) {
+      capitalExcludedCells += months.length;
+      continue;
+    }
+    const requestLawds = toAptTradeRequestLawds(catalogLawd);
+    for (const lawdCd of requestLawds) {
+      if (trueNodata.has(lawdCd)) continue;
+      if (isCapitalCompleteLawd(lawdCd)) continue;
+      for (const yearMonth of months) {
+        const rk = cellKey(lawdCd, yearMonth);
+        if (seenRequest.has(rk)) continue;
+        seenRequest.add(rk);
+        allCatalogCells.push({ lawdCd, yearMonth });
       }
-      if (isCapitalCompleteLawd(catalogLawd)) {
-        capitalExcludedCells += 1;
-        continue;
-      }
-      // Persist + request under MOLIT AptTrade lawd (legacy 42/45 → 51/52).
-      const lawdCd = toAptTradeRequestLawd(catalogLawd);
-      const rk = cellKey(lawdCd, yearMonth);
-      if (seenRequest.has(rk)) continue;
-      seenRequest.add(rk);
-      allCatalogCells.push({ lawdCd, yearMonth });
     }
   }
 
@@ -243,7 +263,7 @@ async function main() {
   );
 
   console.log(
-    `[expand] catalog=${NATIONWIDE_LAWD_CODES.length} runnableLawds=${runnable.length} requestCells=${allCatalogCells.length} months=${months.length} existingCells=${have.size} missingCells=${missing.length} heldCells=${heldCells} capitalExcluded=${capitalExcludedCells} apply=${apply ? 1 : 0} discovery=${discovery ? 1 : 0} concurrency=${concurrency}`,
+    `[expand] catalog=${NATIONWIDE_LAWD_CODES.length} runnableLawds=${runnable.length} requestCells=${allCatalogCells.length} months=${months.length} existingCells=${have.size} missingCells=${missing.length} heldCells=${heldCells} capitalExcluded=${capitalExcludedCells} nodataExcluded=${nodataExcluded} apply=${apply ? 1 : 0} discovery=${discovery ? 1 : 0} concurrency=${concurrency}`,
   );
 
   if (planOnly) {

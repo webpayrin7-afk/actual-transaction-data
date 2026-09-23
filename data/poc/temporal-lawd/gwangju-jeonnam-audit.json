@@ -1,0 +1,256 @@
+{
+  "dryRun": true,
+  "apiCalls": 0,
+  "effectiveDate": "2026-07-01",
+  "officialCoverage": {
+    "exact": 27,
+    "ambiguous": 0,
+    "unmapped": 0,
+    "historicalRequestLawds": 27,
+    "canonicalCodes": 27
+  },
+  "masterComplexes": 1646,
+  "masterExactComplexes": 1646,
+  "masterAmbiguousComplexes": 0,
+  "masterUnmappedComplexes": 0,
+  "masterLawdRows": [
+    {
+      "canonical_lawd": "12110",
+      "sigungu": "목포시",
+      "complexes": 147,
+      "historical_lawd": "46110",
+      "roundtrip": "12110",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12130",
+      "sigungu": "여수시",
+      "complexes": 118,
+      "historical_lawd": "46130",
+      "roundtrip": "12130",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12150",
+      "sigungu": "순천시",
+      "complexes": 145,
+      "historical_lawd": "46150",
+      "roundtrip": "12150",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12170",
+      "sigungu": "나주시",
+      "complexes": 45,
+      "historical_lawd": "46170",
+      "roundtrip": "12170",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12190",
+      "sigungu": "광양시",
+      "complexes": 96,
+      "historical_lawd": "46230",
+      "roundtrip": "12190",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12210",
+      "sigungu": "동구",
+      "complexes": 57,
+      "historical_lawd": "29110",
+      "roundtrip": "12210",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12240",
+      "sigungu": "서구",
+      "complexes": 177,
+      "historical_lawd": "29140",
+      "roundtrip": "12240",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12270",
+      "sigungu": "남구",
+      "complexes": 155,
+      "historical_lawd": "29155",
+      "roundtrip": "12270",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12300",
+      "sigungu": "북구",
+      "complexes": 244,
+      "historical_lawd": "29170",
+      "roundtrip": "12300",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12330",
+      "sigungu": "광산구",
+      "complexes": 255,
+      "historical_lawd": "29200",
+      "roundtrip": "12330",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12710",
+      "sigungu": "담양군",
+      "complexes": 8,
+      "historical_lawd": "46710",
+      "roundtrip": "12710",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12720",
+      "sigungu": "곡성군",
+      "complexes": 1,
+      "historical_lawd": "46720",
+      "roundtrip": "12720",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12730",
+      "sigungu": "구례군",
+      "complexes": 5,
+      "historical_lawd": "46730",
+      "roundtrip": "12730",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12740",
+      "sigungu": "고흥군",
+      "complexes": 10,
+      "historical_lawd": "46770",
+      "roundtrip": "12740",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12750",
+      "sigungu": "보성군",
+      "complexes": 7,
+      "historical_lawd": "46780",
+      "roundtrip": "12750",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12760",
+      "sigungu": "화순군",
+      "complexes": 29,
+      "historical_lawd": "46790",
+      "roundtrip": "12760",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12770",
+      "sigungu": "장흥군",
+      "complexes": 8,
+      "historical_lawd": "46800",
+      "roundtrip": "12770",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12780",
+      "sigungu": "강진군",
+      "complexes": 8,
+      "historical_lawd": "46810",
+      "roundtrip": "12780",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12790",
+      "sigungu": "해남군",
+      "complexes": 14,
+      "historical_lawd": "46820",
+      "roundtrip": "12790",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12800",
+      "sigungu": "영암군",
+      "complexes": 23,
+      "historical_lawd": "46830",
+      "roundtrip": "12800",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12810",
+      "sigungu": "무안군",
+      "complexes": 48,
+      "historical_lawd": "46840",
+      "roundtrip": "12810",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12820",
+      "sigungu": "함평군",
+      "complexes": 6,
+      "historical_lawd": "46860",
+      "roundtrip": "12820",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12830",
+      "sigungu": "영광군",
+      "complexes": 20,
+      "historical_lawd": "46870",
+      "roundtrip": "12830",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12840",
+      "sigungu": "장성군",
+      "complexes": 14,
+      "historical_lawd": "46880",
+      "roundtrip": "12840",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12850",
+      "sigungu": "완도군",
+      "complexes": 5,
+      "historical_lawd": "46890",
+      "roundtrip": "12850",
+      "status": "exact"
+    },
+    {
+      "canonical_lawd": "12860",
+      "sigungu": "진도군",
+      "complexes": 1,
+      "historical_lawd": "46900",
+      "roundtrip": "12860",
+      "status": "exact"
+    }
+  ],
+  "requestLawds": [
+    "12110",
+    "12130",
+    "12150",
+    "12170",
+    "12190",
+    "12210",
+    "12240",
+    "12270",
+    "12300",
+    "12330",
+    "12710",
+    "12720",
+    "12730",
+    "12740",
+    "12750",
+    "12760",
+    "12770",
+    "12780",
+    "12790",
+    "12800",
+    "12810",
+    "12820",
+    "12830",
+    "12840",
+    "12850",
+    "12860",
+    "12870"
+  ],
+  "applyGate": "PASS"
+}

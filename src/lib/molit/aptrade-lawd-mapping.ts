@@ -1,24 +1,21 @@
 /**
- * Separates CANONICAL region identity (apt_complex_master.lawd_cd /
- * nationwide catalog) from MOLIT AptTrade request LAWD_CD.
+ * Separates CANONICAL region identity from MOLIT AptTrade request LAWD_CD.
  *
- * Gwangju/Jeonnam master currently stores non-MOLIT `12xxx` under
- * sido=`전남광주통합특별시`. MOLIT AptTrade uses `29xxx` / `46xxx`.
- * No deterministic bridge without mutating complex_id — MAPPING_HOLD.
- *
- * Gangwon/Jeonbuk: catalog still lists legacy 42xxx/45xxx, but live MOLIT
- * AptTrade (verified) and apt_complex_master use 51xxx/52xxx. Deterministic
- * prefix remap only — not a guess.
+ * Temporal admin changes (2026-07-01) live in temporal-lawd/.
+ * This module remains the request-lawd façade used by sync/expand jobs.
  */
 import {
   NATIONWIDE_LAWD_ROWS,
   metroFromLawdNationwide,
   type NationwideMetro,
 } from "../constants/nationwide-lawd";
-
-/** Metros held until a deterministic canonical↔AptTrade lawd bridge exists. */
-export const APTTRADE_MAPPING_HOLD_METROS: ReadonlySet<NationwideMetro> =
-  new Set(["gwangju", "jeonnam"]);
+import {
+  aptTradeRequestLawdForMonth,
+  aptTradeRequestLawdsForCatalog,
+  gwangjuJeonnamAptTradeRequestLawds,
+  incheonAptTradeBackfillLawds,
+  incheonTrueNodataLawds,
+} from "./temporal-lawd";
 
 /**
  * Legacy administrative prefix → current MOLIT AptTrade prefix.
@@ -29,54 +26,68 @@ const LEGACY_TO_APTTRADE_PREFIX: Record<string, string> = {
   "45": "52", // 전북 → 전북특별자치도
 };
 
-export function isAptTradeMappingHoldLawd(lawdCd: string): boolean {
-  const metro = metroFromLawdNationwide(lawdCd);
-  return APTTRADE_MAPPING_HOLD_METROS.has(metro);
+/** @deprecated Prefer temporal-lawd planner; kept for status reporting. */
+export const APTTRADE_MAPPING_HOLD_METROS: ReadonlySet<NationwideMetro> =
+  new Set();
+
+export function isAptTradeMappingHoldLawd(_lawdCd: string): boolean {
+  // Gwangju/Jeonnam HOLD lifted after MOIS 2026-07-01 crosswalk + MOLIT probe.
+  return false;
 }
 
 /** Map catalog/canonical lawd to the LAWD_CD MOLIT AptTrade expects. */
 export function toAptTradeRequestLawd(lawdCd: string): string {
-  const prefix = lawdCd.slice(0, 2);
-  const mapped = LEGACY_TO_APTTRADE_PREFIX[prefix];
-  if (!mapped) return lawdCd;
-  return `${mapped}${lawdCd.slice(2)}`;
+  return aptTradeRequestLawdForMonth({
+    canonicalOrCatalogLawd: lawdCd,
+    yearMonth: "202301",
+  });
 }
 
-/** MOLIT AptTrade request lawds that are runnable (not on mapping hold). */
+export function toAptTradeRequestLawds(lawdCd: string): string[] {
+  return aptTradeRequestLawdsForCatalog(lawdCd);
+}
+
+/** MOLIT AptTrade request lawds that are runnable. */
 export function runnableAptTradeLawds(): string[] {
-  return NATIONWIDE_LAWD_ROWS.map((r) => r.code).filter(
-    (c) => !isAptTradeMappingHoldLawd(c),
+  const fromCatalog = NATIONWIDE_LAWD_ROWS.map((r) => r.code).flatMap((c) =>
+    toAptTradeRequestLawds(c),
+  );
+  const extra = [
+    ...gwangjuJeonnamAptTradeRequestLawds(),
+    ...incheonAptTradeBackfillLawds(),
+  ];
+  return [...new Set([...fromCatalog, ...extra])].filter(
+    (c) => !incheonTrueNodataLawds().includes(c),
   );
 }
 
-/** Distinct request LAWDs for runnable catalog rows (after legacy remap). */
 export function runnableAptTradeRequestLawds(): string[] {
-  return [
-    ...new Set(runnableAptTradeLawds().map((c) => toAptTradeRequestLawd(c))),
-  ];
+  return runnableAptTradeLawds();
 }
 
 export function mappingHoldLawds(): string[] {
-  return NATIONWIDE_LAWD_ROWS.map((r) => r.code).filter((c) =>
-    isAptTradeMappingHoldLawd(c),
-  );
+  return [];
 }
 
 export function aptTradeMappingStatus(): {
-  gwangju: "MAPPING_HOLD";
-  jeonnam: "MAPPING_HOLD";
+  gwangju: "TEMPORAL_CROSSWALK_PASS";
+  jeonnam: "TEMPORAL_CROSSWALK_PASS";
   sourceSpecificLawdMapping: true;
   legacyPrefixRemap: Record<string, string>;
+  temporalEffectiveDate: string;
   reason: string;
   holdLawds: string[];
 } {
   return {
-    gwangju: "MAPPING_HOLD",
-    jeonnam: "MAPPING_HOLD",
+    gwangju: "TEMPORAL_CROSSWALK_PASS",
+    jeonnam: "TEMPORAL_CROSSWALK_PASS",
     sourceSpecificLawdMapping: true,
     legacyPrefixRemap: { ...LEGACY_TO_APTTRADE_PREFIX },
+    temporalEffectiveDate: "2026-07-01",
     reason:
-      "Gwangju/Jeonnam: master 12xxx under 전남광주통합특별시 ↔ MOLIT 29/46 has no deterministic bridge without complex_id rewrite (HOLD). Gangwon/Jeonbuk: catalog 42/45 → AptTrade+master 51/52 via verified prefix remap.",
-    holdLawds: mappingHoldLawds(),
+      "MOIS 2026-07-01 official pairs: 29/46↔12xxx exact 27/27. Live MOLIT AptTrade serves canonical 12xxx (and Incheon successors) for pre/post months; obsolete catalog codes return 0.",
+    holdLawds: [],
   };
 }
+
+export { metroFromLawdNationwide };
