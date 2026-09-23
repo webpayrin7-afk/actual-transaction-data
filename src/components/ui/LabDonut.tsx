@@ -6,7 +6,7 @@ export type LabDonutSegment = {
   color: string;
   /** Fade when another segment is the current choice. */
   dimmed?: boolean;
-  /** Short on-slice label (e.g. "33평"); the share % is added under it. */
+  /** Short on-slice label (e.g. "33평"); the share % is added under it. Empty string = % only. */
   label?: string;
 };
 
@@ -14,7 +14,7 @@ export type LabDonutSegment = {
 const MIN_LABEL_SHARE = 0.08;
 const HOLE_INSET = 0.22;
 
-/** Relative luminance → pick white or navy text on a slice. */
+/** White or navy text on a slice — whichever has the higher contrast ratio. */
 function inkFor(hex: string): string {
   const m = hex.match(/^#([0-9a-f]{6})$/i);
   if (!m) return "var(--lab-navy-950)";
@@ -24,7 +24,10 @@ function inkFor(hex: string): string {
     return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
   });
   const lum = 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
-  return lum < 0.3 ? "#FFFFFF" : "var(--lab-navy-950)";
+  const NAVY_LUM = 0.0105; // #0F172A
+  const onWhite = 1.05 / (lum + 0.05);
+  const onNavy = (lum + 0.05) / (NAVY_LUM + 0.05);
+  return onWhite >= onNavy ? "#FFFFFF" : "var(--lab-navy-950)";
 }
 
 /**
@@ -36,15 +39,18 @@ export function LabDonut({
   centerLabel,
   centerValue,
   size = 184,
+  gaps = true,
 }: {
   segments: LabDonutSegment[];
   centerLabel?: ReactNode;
   centerValue?: ReactNode;
   size?: number;
+  /** White separators between slices (useful for same-hue ramps). */
+  gaps?: boolean;
 }) {
   const total = segments.reduce((s, x) => s + Math.max(0, x.value), 0);
   if (total <= 0) return null;
-  const GAP = segments.length > 1 ? 0.6 : 0;
+  const GAP = gaps && segments.length > 1 ? 0.6 : 0;
   let cursor = 0;
   const stops: string[] = [];
   const labels: Array<{ key: string; x: number; y: number; text: string; pct: number; ink: string }> = [];
@@ -58,7 +64,7 @@ export function LabDonut({
     const color = seg.dimmed ? `color-mix(in srgb, ${seg.color} 40%, white)` : seg.color;
     stops.push(`${color} ${cursor}% ${Math.max(cursor, end - GAP)}%`);
     if (GAP) stops.push(`#fff ${Math.max(cursor, end - GAP)}% ${end}%`);
-    if (seg.label && share >= MIN_LABEL_SHARE) {
+    if (seg.label != null && share >= MIN_LABEL_SHARE) {
       // conic-gradient starts at 12 o'clock and runs clockwise.
       const angle = ((cursor + pct / 2) / 100) * 2 * Math.PI;
       labels.push({
@@ -94,8 +100,8 @@ export function LabDonut({
           className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center whitespace-nowrap text-center text-[13px] font-semibold leading-4 tabular-nums"
           style={{ left: `${l.x * 100}%`, top: `${l.y * 100}%`, color: l.ink }}
         >
-          <span>{l.text}</span>
-          <span className="font-medium">{l.pct}%</span>
+          {l.text ? <span>{l.text}</span> : null}
+          <span className={l.text ? "font-medium" : undefined}>{l.pct}%</span>
         </span>
       ))}
     </div>

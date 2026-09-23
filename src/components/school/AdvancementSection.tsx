@@ -64,10 +64,13 @@ export function AdvancementSection({
         <>
           <div className="flex justify-center">
             <LabDonut
+              gaps={false}
               segments={categories.map((c) => ({
                 key: c.key,
                 value: c.percent ?? c.count,
                 color: c.color,
+                // 비율만 조각 위에 (항목명은 길어서 아래 목록에).
+                label: "",
               }))}
               centerLabel="졸업생"
               centerValue={data.graduates?.value ?? undefined}
