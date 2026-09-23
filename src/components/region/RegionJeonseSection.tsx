@@ -144,7 +144,8 @@ export function RegionJeonseSection({
           <p>
             같은 단지·면적에서 최근 매매 가격 대비 전세 가격 수준입니다. 갭은 매매가와
             전세가의 차이이며, 전세 하락은 2년 전 계약 때보다 전세 가격이 낮아진 단지를
-            보여줍니다. 월세 낀 계약은 제외합니다.
+            보여줍니다(2년 전과 비교할 수 있는 단지 중 하락한 곳 수). 월세 낀 계약은
+            제외합니다.
           </p>
         }
       />
@@ -236,15 +237,20 @@ export function RegionJeonseSection({
           ) : null}
 
           {drop && drop.eligible > 0 ? (
-            <p className="detail-body tabular-nums">
-              2년 전보다 전세가 낮아진 단지{" "}
-              <span className="font-semibold" style={{ color: "var(--lab-change-down)" }}>
-                {drop.count.toLocaleString("ko-KR")}곳
-              </span>{" "}
-              <span className="detail-meta">
-                (비교 가능 {drop.eligible.toLocaleString("ko-KR")}곳 중)
-              </span>
-            </p>
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="detail-label whitespace-nowrap">2년 전 대비 전세 하락</p>
+              <p className="whitespace-nowrap tabular-nums">
+                <span
+                  className="detail-data-value-emphasis"
+                  style={{ color: "var(--lab-change-down)" }}
+                >
+                  {drop.count.toLocaleString("ko-KR")}곳
+                </span>
+                <span className="detail-meta ml-1">
+                  / {drop.eligible.toLocaleString("ko-KR")}곳
+                </span>
+              </p>
+            </div>
           ) : null}
 
           <div className="border-t border-[color:var(--lab-border)] pt-3">
