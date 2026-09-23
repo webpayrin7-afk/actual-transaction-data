@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownUp, ArrowUpDown, ExternalLink, RefreshCw } from "lucide-react";
+import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import type { BankLoanRate, DreamMoneyResult } from "@/lib/seoul/dream-money";
 
 type FilterMode = "all" | "first";
@@ -47,8 +48,8 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1 whitespace-nowrap ${
-        active ? "font-semibold text-teal-800" : "font-medium text-slate-500"
+      className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap ${
+        active ? "font-semibold text-[color:var(--lab-navy-950)]" : "font-medium text-[color:var(--lab-muted)]"
       }`}
     >
       {label}
@@ -106,17 +107,12 @@ export function LoanRateCompare() {
   }, [query.data?.items]);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="max-w-3xl">
-        <p className="text-xs font-medium tracking-wide text-teal-700">도구</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          금리비교
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          서울시 시중은행협력자금 취급 은행별 최근 3개월 실행 금리(대출·보전)를
-          비교합니다. 최저금리 순으로 정렬해 한눈에 볼 수 있습니다.
-        </p>
-      </div>
+    <div className={PAGE_SHELL}>
+      <PageHeader
+        title="금리비교"
+        titleClassName="detail-page-title"
+        description="서울시 시중은행협력자금 취급 은행별 최근 3개월 실행 금리(대출·보전)를 비교합니다. 최저금리 순으로 정렬해 한눈에 볼 수 있습니다."
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-wrap gap-2">
@@ -132,7 +128,7 @@ export function LoanRateCompare() {
                 key={opt.value}
                 type="button"
                 onClick={() => setFilter(opt.value)}
-                className={`lab-choice ${active ? "lab-choice-selected" : ""}`}
+                className={`lab-choice min-h-11 ${active ? "lab-choice-selected" : ""}`}
               >
                 {opt.label}
               </button>
@@ -140,13 +136,13 @@ export function LoanRateCompare() {
           })}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+        <div className="detail-meta flex flex-wrap items-center gap-x-3 gap-y-1">
           {periodLabel ? <span>기준기간 {periodLabel}</span> : null}
           <button
             type="button"
             onClick={() => void query.refetch()}
             disabled={query.isFetching}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+            className="lab-button lab-button-secondary disabled:opacity-50"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${query.isFetching ? "animate-spin" : ""}`}
@@ -155,7 +151,7 @@ export function LoanRateCompare() {
           </button>
           <Link
             href="/loan"
-            className="inline-flex items-center gap-1 font-medium text-teal-700 hover:underline"
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-[color:var(--lab-teal-700)] hover:underline"
           >
             대출계산기
           </Link>
@@ -164,13 +160,13 @@ export function LoanRateCompare() {
 
       {query.isLoading ? (
         <div
-          className="h-40 animate-pulse rounded-2xl border border-slate-200 bg-slate-100/70"
+          className="h-40 animate-pulse lab-skeleton"
           aria-hidden
         />
       ) : null}
 
       {query.isError ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-8 text-sm text-rose-800">
+        <div className="rounded-[var(--lab-radius-md)] border border-rose-200 bg-rose-50 px-5 py-8 text-sm text-rose-800">
           {(query.error as Error).message}
           <p className="mt-2 text-rose-600">
             서울 열린데이터광장에서 OpenAPI 키를 발급받아{" "}
@@ -183,7 +179,7 @@ export function LoanRateCompare() {
       {query.data ? (
         <>
           {query.data.partial || query.data.usingSampleKey ? (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <p className="rounded-[var(--lab-radius-md)] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
               현재 샘플 키로 {query.data.items.length}건만 표시 중입니다 (전체{" "}
               {query.data.totalCount}건). 전체 은행을 보려면{" "}
               <a
@@ -200,9 +196,9 @@ export function LoanRateCompare() {
             </p>
           ) : null}
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+          <div className="overflow-x-auto rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-white">
             <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="border-b border-[color:var(--lab-border)] bg-white text-[13px] leading-5 text-[color:var(--lab-muted)]">
                 <tr>
                   <th className="px-4 py-3">
                     <SortButton
@@ -271,7 +267,7 @@ export function LoanRateCompare() {
                   <tr>
                     <td
                       colSpan={8}
-                      className="px-4 py-12 text-center text-slate-500"
+                      className="px-4 py-12 text-center text-[color:var(--lab-muted)]"
                     >
                       표시할 금리 데이터가 없습니다.
                     </td>
@@ -285,7 +281,7 @@ export function LoanRateCompare() {
             </table>
           </div>
 
-          <p className="text-xs leading-5 text-slate-500">
+          <p className="detail-meta">
             출처:{" "}
             <a
               href="https://data.seoul.go.kr/dataList/OA-21098/A/1/datasetView.do"
@@ -312,44 +308,44 @@ function RateRow({ row, rank }: { row: BankLoanRate; rank: number }) {
   const lowest = rank === 1;
   return (
     <tr
-      className={`border-b border-slate-100 last:border-0 ${
-        lowest ? "bg-teal-50/60" : "hover:bg-slate-50/80"
+      className={`border-b border-[color:var(--lab-border)] last:border-0 ${
+        lowest ? "" : "hover:bg-slate-50/80"
       }`}
     >
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           {lowest ? (
-            <span className="rounded bg-teal-700 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+            <span className="rounded border border-[color:var(--lab-brand-border)] bg-[color:var(--lab-brand-subtle)] px-1.5 text-xs leading-5 font-semibold text-[color:var(--lab-teal-700)]">
               최저
             </span>
           ) : (
-            <span className="w-5 text-xs text-slate-400">{rank}</span>
+            <span className="w-5 text-[13px] tabular-nums text-[color:var(--lab-muted)]">{rank}</span>
           )}
-          <span className="font-medium text-slate-900">{row.orgName}</span>
+          <span className="font-semibold text-[color:var(--lab-navy-950)]">{row.orgName}</span>
         </div>
       </td>
-      <td className="px-4 py-3 text-slate-600">
+      <td className="px-4 py-3 text-[color:var(--lab-navy-900)]">
         {row.isFirstTier ? "1금융" : "기타"}
       </td>
-      <td className="px-4 py-3 text-right tabular-nums text-slate-700">
+      <td className="px-4 py-3 text-right tabular-nums text-[color:var(--lab-navy-900)]">
         {formatCount(row.loanCount)}
       </td>
-      <td className="px-4 py-3 text-right tabular-nums font-semibold text-teal-800">
+      <td className="px-4 py-3 text-right tabular-nums font-semibold text-[color:var(--lab-navy-950)]">
         {formatRate(row.minRate)}
       </td>
-      <td className="px-4 py-3 text-right tabular-nums text-slate-700">
+      <td className="px-4 py-3 text-right tabular-nums text-[color:var(--lab-navy-900)]">
         {formatRate(row.maxRate)}
       </td>
-      <td className="px-4 py-3 text-right tabular-nums text-slate-700">
+      <td className="px-4 py-3 text-right tabular-nums text-[color:var(--lab-navy-900)]">
         {formatRate(row.avgRate)}
       </td>
-      <td className="px-4 py-3 text-right tabular-nums text-slate-600">
+      <td className="px-4 py-3 text-right tabular-nums text-[color:var(--lab-navy-900)]">
         {formatRate(row.avgSubsidyRate)}
       </td>
       <td className="px-4 py-3 text-right">
         <Link
           href={`/loan?rate=${encodeURIComponent(String(row.minRate))}`}
-          className="text-xs font-semibold text-teal-700 hover:underline"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-[color:var(--lab-teal-700)] hover:underline"
         >
           한도계산
         </Link>
