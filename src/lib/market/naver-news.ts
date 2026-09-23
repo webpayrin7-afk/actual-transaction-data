@@ -10,6 +10,13 @@ export const HEADLINES_REVALIDATE_SECONDS = 900;
 /** 최근 N시간 기사만 */
 const WINDOW_HOURS = 48;
 const PER_TOPIC = 10;
+
+/**
+ * 제목에 주거 문맥이 있어야 한다. 정책 발표 필터보다 좁다 — 뉴스는 "카드론 금리" 같은
+ * 주거와 무관한 대출 기사가 많아 맨 "대출"은 인정하지 않는다.
+ */
+const HOUSING_TITLE =
+  /부동산|주택|아파트|청약|분양|주담대|DSR|LTV|전세|월세|임대차|재건축|재개발|정비사업|신도시|토지거래허가|규제지역|조정대상|투기과열|종부세|양도세|취득세|보유세|공시가격|실거래|집값|매매가|입주|오피스텔|빌라|갭투자|영끌|내\s?집/;
 const FETCH_TIMEOUT_MS = 8000;
 
 export type HeadlineTopic = "policy" | "trade" | "jeonse" | "loan";
@@ -115,7 +122,7 @@ async function fetchTopic(
 ): Promise<HeadlineItem[]> {
   const url = `${NEWS_ENDPOINT}?${new URLSearchParams({
     query: topic.query,
-    display: "30",
+    display: "100",
     sort: "date",
   })}`;
   const res = await fetch(url, {
@@ -133,8 +140,10 @@ async function fetchTopic(
     const title = cleanNaverLocalTitle(it.title ?? "");
     const original = it.originallink?.trim() || "";
     const naver = it.link?.trim() || "";
-    // 네이버 뉴스 링크가 있으면 그것(모바일에서 안정적), 없으면 언론사 원문.
-    const href = /^https:\/\/n\.news\.naver\.com\//.test(naver) ? naver : original || naver;
+    // 네이버 뉴스에 실린 기사(제휴 언론사)만 — 품질 필터이자 모바일에서 안정적인 링크.
+    if (!/^https:\/\/n\.news\.naver\.com\//.test(naver)) continue;
+    if (!HOUSING_TITLE.test(title)) continue;
+    const href = naver;
     const when = it.pubDate ? new Date(it.pubDate) : null;
     if (!title || !/^https?:\/\//.test(href) || !when || Number.isNaN(when.getTime())) continue;
     out.push({
