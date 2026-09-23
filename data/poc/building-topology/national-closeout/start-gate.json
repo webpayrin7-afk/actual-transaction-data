@@ -4,54 +4,59 @@
     "process_running": true,
     "lock": true,
     "checkpoint": true,
+    "manifest": true,
     "first_batch_applied": true,
-    "heartbeat_advancing": true
+    "heartbeat_advancing": true,
+    "heartbeat_age_s": 2.2
   },
-  "process": {
-    "pid": 35255,
-    "tmux": "building-national-closeout"
+  "frozen_baseline": {
+    "version": "building-unit-link|buildinghub-2026-08|exact-dong-v2-core-area-key",
+    "exact_complexes": 7382,
+    "exact_links": 93446,
+    "exact_v2_rerun": "SKIPPED_FROZEN",
+    "previous_commit": "301600a"
+  },
+  "wave1_local": {
+    "inserted_unit_type_stats_rows": 6881,
+    "apiCalls": 0
+  },
+  "wave2_now": {
+    "cursor": 1200,
+    "apiCalls": 1015,
+    "inserted": 0,
+    "processed": 1327,
+    "completed": false,
+    "firstBatchApplied": true
   },
   "heartbeat": {
     "pid": 35255,
-    "at": "2026-09-23T05:18:37.814Z",
+    "at": "2026-09-23T05:24:34.463Z",
     "phase": "batch",
-    "cursor": 320,
+    "cursor": 1200,
     "total": 1332,
     "inserted": 0,
-    "apiCalls": 217
+    "apiCalls": 1015
   },
-  "progress": {
-    "cursor": 320,
-    "processed": 447,
-    "inserted": 0,
-    "updated": 0,
-    "conflicts": 0,
-    "failures": 0,
-    "holds": 155,
-    "apiCalls": 217,
-    "firstBatchApplied": true,
-    "completed": false
-  },
-  "firstBatch": {
-    "at": "2026-09-23T05:16:27.675Z",
-    "processed": 20,
-    "inserted": 0,
-    "updated": 0,
-    "conflicts": 0,
-    "failures": 0,
-    "unitStatsProjected": true
-  },
-  "target": {
-    "national": 27524,
-    "building_missing": 10229,
-    "unit_missing": 8860,
-    "supply_area_missing": 10473,
-    "link_missing": 20142,
-    "actionable": 1332,
+  "manifest": {
+    "path": "data/poc/building-topology/national-closeout/missing_inventory.json",
+    "targets_actionable": 1332,
+    "ready_local": 199,
+    "ready_external": 1133,
+    "hold_or_complete_skip": 26192,
+    "missing": {
+      "building": 10229,
+      "unit": 8860,
+      "supplyArea": 10473,
+      "link": 20142
+    },
     "byOperation": {
       "TITLE_FETCH": 1133,
       "ATTEMPT_LINK": 199
     }
+  },
+  "applied_ops_counts": {
+    "ATTEMPT_LINK": 567,
+    "TITLE_FETCH": 1088
   },
   "coverage_before": {
     "total": 27524,
@@ -75,12 +80,14 @@
     "areaSelectorReady": 18664,
     "supplyPyeongReady": 17051
   },
-  "resume": "tmux attach -t building-national-closeout  OR  npx tsx scripts/building-topology/national-closeout-runner.mts --daemon --apply --wave=all --batch=20 --max-api=3000",
-  "wave1": {
-    "inserted": 6881,
-    "processed": 2344,
-    "holds": 322,
-    "completed": true
+  "first_batch": {
+    "at": "2026-09-23T05:16:27.675Z",
+    "processed": 20,
+    "inserted": 0,
+    "updated": 0,
+    "conflicts": 0,
+    "failures": 0,
+    "unitStatsProjected": true
   },
-  "cumulative_inserts": 6881
+  "resume": "npx tsx scripts/building-topology/national-closeout-runner.mts --daemon --apply --wave=all --batch=20 --max-api=3000"
 }

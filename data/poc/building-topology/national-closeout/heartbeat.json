@@ -1,9 +1,9 @@
 {
   "pid": 35255,
-  "at": "2026-09-23T05:18:37.814Z",
+  "at": "2026-09-23T05:24:42.529Z",
   "phase": "batch",
-  "cursor": 320,
+  "cursor": 1220,
   "total": 1332,
   "inserted": 0,
-  "apiCalls": 217
+  "apiCalls": 1034
 }
