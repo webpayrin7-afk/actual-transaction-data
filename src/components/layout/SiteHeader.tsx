@@ -143,16 +143,14 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      // Mobile (B+): search pill + menu only; menus live in the floating dock (MobileDock).
       className="sticky top-0 z-50 border-b border-[color:var(--lab-border)] bg-white shadow-none"
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div className="flex py-1.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-5">
-            <HeaderAptSearch variant="pill" className="min-w-0 flex-1 sm:hidden" />
             <Link
               href="/"
-              className="hidden shrink-0 items-center sm:inline-flex lg:hidden"
+              className="inline-flex shrink-0 items-center lg:hidden"
               aria-label="집랩 홈"
             >
               <JipLabLogo priority />
@@ -176,8 +174,8 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <div className="flex shrink-0 items-center gap-0.5 sm:ml-auto lg:ml-0">
-              <HeaderAptSearch className="hidden sm:block" />
+            <div className="ml-auto flex shrink-0 items-center gap-0.5 lg:ml-0">
+              <HeaderAptSearch />
 
               <button
                 type="button"
@@ -239,6 +237,26 @@ export function SiteHeader() {
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 pt-3 pb-4">
+              {/* Mobile: the primary menus live here (the text menu is desktop-only). */}
+              <div className="mb-3.5 border-b border-slate-100/80 pb-3.5 sm:hidden">
+                <p className={sectionHeadingClass()}>메뉴</p>
+                <nav aria-label="주요 메뉴" className="flex flex-col gap-0.5">
+                  {PRIMARY_NAV.map((item) => {
+                    const active = item.match(pathname);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={drawerItemClass(active)}
+                        onClick={closeMenu}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+
               <p className={sectionHeadingClass()}>도구</p>
               <nav aria-label="도구" className="flex flex-col gap-0.5">
                 {TOOL_NAV.map((item) => {

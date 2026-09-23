@@ -41,15 +41,6 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
     match: (pathname) => pathname.startsWith("/map"),
   },
   {
-    id: "complexes",
-    label: "단지조회",
-    shortLabel: "단지조회",
-    href: "/complexes",
-    icon: Building2,
-    match: (pathname) =>
-      pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
-  },
-  {
     id: "regions",
     label: "지역조회",
     shortLabel: "지역조회",
@@ -57,6 +48,15 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
     icon: Grid2x2,
     match: (pathname) =>
       pathname === "/regions" || pathname.startsWith("/region/"),
+  },
+  {
+    id: "complexes",
+    label: "단지조회",
+    shortLabel: "단지조회",
+    href: "/complexes",
+    icon: Building2,
+    match: (pathname) =>
+      pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
   },
   {
     id: "stats",

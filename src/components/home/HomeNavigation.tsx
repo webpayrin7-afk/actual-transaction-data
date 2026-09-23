@@ -9,7 +9,7 @@ const EASE = "duration-200 ease-out";
 
 /**
  * 홈 바로가기 카드 (모바일, 홈 본문 첫 카드) — 오늘의 시장 강조 타일 + 지도 가로 타일 + 3칸.
- * 고정 바가 아니다: 사이트 전체 메뉴는 떠 있는 독(MobileDock)이 맡는다.
+ * 고정 바가 아니다: 다른 페이지에서는 헤더 메뉴(드로어)로 이동한다.
  */
 export function HomeNavigation() {
   const pathname = usePathname();
@@ -29,9 +29,9 @@ export function HomeNavigation() {
               ? "col-start-1 row-span-2 row-start-1"
               : item.id === "map"
                 ? "col-span-3 col-start-2 row-start-1"
-                : item.id === "complexes"
+                : item.id === "regions"
                   ? "col-start-2 row-start-2"
-                  : item.id === "regions"
+                  : item.id === "complexes"
                     ? "col-start-3 row-start-2"
                     : "col-start-4 row-start-2";
 

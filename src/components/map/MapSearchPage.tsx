@@ -310,15 +310,15 @@ export function MapSearchPage() {
         type="button"
         onClick={locate}
         aria-label="내 위치로 이동"
-        className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+84px)] inline-flex sm:bottom-[calc(env(safe-area-inset-bottom)+16px)] h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4"
-        style={selected ? { bottom: "calc(env(safe-area-inset-bottom) + 264px)" } : undefined}
+        className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+16px)] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4"
+        style={selected ? { bottom: "calc(env(safe-area-inset-bottom) + 184px)" } : undefined}
       >
         <LocateFixed className="h-5 w-5" aria-hidden />
       </button>
 
       {/* 하단: 선택 단지 카드 */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 p-3 pb-[calc(env(safe-area-inset-bottom)+80px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 p-3 pb-[calc(env(safe-area-inset-bottom)+12px)] sm:p-4">
           <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

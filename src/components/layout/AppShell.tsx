@@ -7,7 +7,6 @@ import { BarChart3, Building2, Map, MapPinned, Search } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
-import { MOBILE_DOCK_SPACER, MobileDock } from "@/components/layout/MobileDock";
 
 const NAV = [
   {
@@ -17,17 +16,17 @@ const NAV = [
     match: (p: string) => p === "/",
   },
   {
+    href: "/regions",
+    label: "지역별 조회",
+    icon: MapPinned,
+    match: (p: string) => p === "/regions" || p.startsWith("/region/"),
+  },
+  {
     href: "/complexes",
     label: "단지별 조회",
     icon: Building2,
     match: (p: string) =>
       p.startsWith("/complexes") || p.startsWith("/apt/"),
-  },
-  {
-    href: "/regions",
-    label: "지역별 조회",
-    icon: MapPinned,
-    match: (p: string) => p === "/regions" || p.startsWith("/region/"),
   },
   {
     href: "/stats",
@@ -124,9 +123,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
-        {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
-        <div aria-hidden className={MOBILE_DOCK_SPACER} />
-        <MobileDock />
       </div>
     </div>
   );

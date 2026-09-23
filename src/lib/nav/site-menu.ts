@@ -5,16 +5,16 @@ export const PRIMARY_NAV = [
     match: (pathname: string) => pathname === "/",
   },
   {
-    href: "/complexes",
-    label: "단지별 조회",
-    match: (pathname: string) =>
-      pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
-  },
-  {
     href: "/regions",
     label: "지역별 조회",
     match: (pathname: string) =>
       pathname === "/regions" || pathname.startsWith("/region/"),
+  },
+  {
+    href: "/complexes",
+    label: "단지별 조회",
+    match: (pathname: string) =>
+      pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
   },
   {
     href: "/stats",

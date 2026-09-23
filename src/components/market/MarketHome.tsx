@@ -8,7 +8,6 @@ import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 import { LabSection as LabExperiments } from "@/components/lab/LabSection";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import { JipLabLogo } from "@/components/brand/JipLabLogo";
 import { HomeNavigation } from "@/components/home/HomeNavigation";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabSection } from "@/components/ui/LabSection";
@@ -158,11 +157,8 @@ export function MarketHome() {
   return (
     <>
     <div className={PAGE_SHELL}>
-      {/* 모바일 홈 첫 화면: 로고 + 바로가기 카드 (헤더는 검색창만, 메뉴는 하단 독). */}
-      <div className="-mt-1 flex flex-col gap-3 sm:hidden">
-        <JipLabLogo priority />
-        <HomeNavigation />
-      </div>
+      {/* 모바일 홈 첫 화면: 바로가기 카드 */}
+      <HomeNavigation />
       <PageHeader
         title="오늘의 아파트 시장"
         description="오늘 새로 확인된 시장 변화를 한눈에 확인하세요."
