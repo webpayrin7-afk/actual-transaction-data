@@ -1,6 +1,6 @@
 # ZIPLAB 인수인계 현황판
 
-기준 시각: 2026-09-23 14:16 UTC · 작성: Cursor 데이터 감시(Auto/Composer) · living `cursor/vworld-watch-6779`
+기준 시각: 2026-09-23 14:49 UTC · 작성: Cursor 데이터 감시(Auto/Composer) · living `cursor/vworld-watch-6779`
 
 이 문서는 Claude Max(Opus)와 Cursor(Composer)가 같은 현황을 보고 이어서 작업하기 위한 한 장짜리 현황판이다. 작업을 넘겨받으면 이 문서부터 읽고, 상태가 바뀌면 이 문서를 갱신한다.
 
@@ -31,19 +31,19 @@
 
 실행 위치: Cursor VM tmux. 워크트리 `/home/ubuntu/wt/<이름>`.
 
-| 작업 | 브랜치 / PR | 상태 (14:16Z) | 재개 |
+| 작업 | 브랜치 / PR | 상태 (14:49Z) | 재개 |
 |---|---|---|---|
-| 전월세 과거 이력 2011-01~2022-09 (서울 25구) | tmux `rent-backfill` /workspace | **3,275/3,525** 셀, 약 172.6만 행, failures=4(fetch failed 일시), eta~30m | 완료 후 `region-jeonse` 시리즈 확장 → materialize → test |
-| 매매·전월세 전국 전체 이력 missing-only | `cursor/tx-registration-status-1922` / PR #131 | **2,961/24,243** 완료, 72.1만 행, fail=6(retry queue) · 충남 RENT 2026-03 | `cd /home/ubuntu/wt/tx && bash scripts/full-history/start.sh` |
-| 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` | **인천 ACQUIRING** COMPLETE 401 + NO_PUB 27 / 1,093 (~39%), api~12,170, 일부 timeout/retry, 429 0. 부산 이하 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
+| 전월세 과거 이력 2011-01~2022-09 (서울 25구) | tmux `rent-backfill` /workspace | **3,325+/3,525** 셀 (진행 중), 약 178.6만 행, failures≥6(fetch failed 일시), eta~24m대 | 완료 후 `region-jeonse` 시리즈 확장 → materialize → test |
+| 매매·전월세 전국 전체 이력 missing-only | `cursor/tx-registration-status-1922` / PR #131 | **~3,193/24,243** 완료, 78.9만 행, fail=6(retry) · 대구 RENT | `cd /home/ubuntu/wt/tx && bash scripts/full-history/start.sh` |
+| 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` | **인천 ACQUIRING** COMPLETE 425 + NO_PUB 29 / 1,093 (~41%), api~12,920, timeout/retry 소량, 429 0. seg 11→12. 부산 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
 | 좌표 잔여 → SEMAS 생활 → 학교 | `cursor/vworld-watch-6779` / PR #135 | **완료(이번 배치)** coords 19,072→**22,130** (+3,058) · living +238,524 snaps · school +35,612 links. 잔여 NULL ~5,394 / exact-PNU 재추출 ~3,612는 오너 PC | `scripts/living/local-extract-residual-parcels.py` |
 | 학교 잔여 델타 | `cursor/school-residual-delta-6779` / PR #134 | **완료** — 3,058 materialized, +35,612 nearby links (36 NO_SCHOOLS_WITHIN_RADIUS). assignment HOLD | — |
-| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | 미국 AWS IP disconnect — 대기 (tmux `vworld-watch`, 마지막 13:51Z) | `bash scripts/living/vworld-watch.sh` |
+| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | disconnect — 대기 (tmux `vworld-watch`, 마지막 14:23Z) | `bash scripts/living/vworld-watch.sh` |
 | 건축물 동·세대 | PR #115 | **완료** | — |
 | 단지 기본정보(HERO) | PR #122 | 원 에이전트 쪽에서 계속 | `bash scripts/profile-national-background-start.sh` |
 | 주변 공급(청약홈) | PR #124 | 완료 | — |
 
-주요 수치 (14:16Z Production)
+주요 수치 (14:49Z Production)
 - 단지 마스터 27,524. 좌표·생활 readiness COMPLETE **22,130** (80.4%). NO_COORDINATE living stub 5,394.
 - 관리비 2,923행/2,810단지(인천 적용 전). 전국 거래 백필 진행 중.
 
