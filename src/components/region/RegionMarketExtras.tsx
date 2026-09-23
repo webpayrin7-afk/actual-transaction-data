@@ -73,7 +73,6 @@ function HighlightRow({
     formatSqmApproxPyeong(deal.exclusiveArea),
     deal.floor != null ? `${deal.floor}층` : null,
     shortDate(deal.dealDate),
-    sub,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -85,17 +84,22 @@ function HighlightRow({
         className="flex min-h-[64px] items-center gap-3 py-3"
       >
         <div className="min-w-0 flex-1">
-          <span
-            className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-semibold leading-4 ${t.chip}`}
-          >
-            {reason}
-          </span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[12px] font-semibold leading-4 ${t.chip}`}
+              >
+                {reason}
+              </span>
+              {sub ? (
+                <span className="detail-meta truncate tabular-nums">{sub}</span>
+              ) : null}
+            </div>
+            <p className={`detail-list-title shrink-0 whitespace-nowrap ${t.value}`}>{value}</p>
+          </div>
           <p className="detail-list-title mt-1 break-keep">{deal.aptName}</p>
           <p className="detail-meta break-keep">{meta}</p>
         </div>
-        <p className={`detail-list-title shrink-0 self-center whitespace-nowrap text-right ${t.value}`}>
-          {value}
-        </p>
         <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
       </Link>
     </li>
@@ -286,13 +290,17 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
   const officetelUnits = items
     .filter((it) => it.housingCategory === "officetel")
     .reduce((s, it) => s + (it.supplyCount ?? 0), 0);
+  const totalUnits = aptUnits + officetelUnits;
   const failed = query.isError || query.data?.status === "ERROR";
-  const summary = [
-    aptUnits > 0 ? `아파트 ${aptUnits.toLocaleString("ko-KR")}세대` : null,
-    officetelUnits > 0 ? `오피스텔 ${officetelUnits.toLocaleString("ko-KR")}실` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const fmt = (n: number) => n.toLocaleString("ko-KR");
+  const summary =
+    totalUnits > 0
+      ? `총 ${fmt(totalUnits)}세대${
+          aptUnits > 0 && officetelUnits > 0
+            ? ` (아파트 ${fmt(aptUnits)} · 오피스텔 ${fmt(officetelUnits)})`
+            : ""
+        }`
+      : null;
 
   return (
     <section
@@ -330,7 +338,7 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
                     <h3 className="detail-subsection-title">{g.year}년</h3>
                     <p className="detail-meta tabular-nums">
                       {g.list.length.toLocaleString("ko-KR")}곳
-                      {units > 0 ? ` · ${units.toLocaleString("ko-KR")}세대·실` : ""}
+                      {units > 0 ? ` · ${units.toLocaleString("ko-KR")}세대` : ""}
                     </p>
                   </div>
                   <ul className="mt-2 overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
