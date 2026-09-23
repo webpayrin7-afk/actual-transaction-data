@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "preview:alias": "node scripts/preview-alias.mjs",
     "db:sync": "tsx scripts/sync-molit.ts",
     "db:sync:anyang": "tsx scripts/sync-molit.ts --scope=anyang --trade-months=240 --rent-months=48",
     "db:sync:featured": "tsx scripts/sync-molit.ts --scope=featured --trade-months=240 --rent-months=48",
