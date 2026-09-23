@@ -457,7 +457,7 @@ function ResultRow({
       <p className="detail-label flex flex-wrap items-center gap-2 font-medium">
         <span>{label}</span>
         {emphasized ? (
-          <span className="lab-badge text-xs leading-4">한도 결정</span>
+          <span className="lab-badge text-xs! leading-4">한도 결정</span>
         ) : null}
       </p>
       <p className="mt-1 break-words detail-data-value-emphasis tabular-nums">

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabSection } from "@/components/ui/LabSection";
-import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
+import { LAB_LIST } from "@/components/ui/LabListRow";
 
 export const metadata: Metadata = {
   title: "부동산 계산 도구 | 아파트 데이터랩",
@@ -21,11 +23,23 @@ export default function Page() {
 
         <LabSection title="계산기">
           <ul className={LAB_LIST}>
-            <LabListRow
-              href="/loan"
-              title="대출 계산기"
-              meta="대출 한도와 이자를 계산하고, 서울시 협력자금 실행금리를 확인하세요."
-            />
+            <li>
+              <Link
+                href="/loan"
+                className="flex min-h-11 items-center gap-3 py-3 hover:bg-slate-50/60"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="detail-data-value-emphasis">대출 계산기</p>
+                  <p className="detail-meta">
+                    대출 한도와 이자를 계산하고, 서울시 협력자금 실행금리를 확인하세요.
+                  </p>
+                </div>
+                <ChevronRight
+                  className="size-4 shrink-0 text-[color:var(--lab-muted)]"
+                  aria-hidden
+                />
+              </Link>
+            </li>
           </ul>
         </LabSection>
       </div>

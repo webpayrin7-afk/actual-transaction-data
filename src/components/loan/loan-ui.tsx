@@ -86,7 +86,7 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(opt.value)}
-            className={`${LAB_CHOICE} min-h-11 min-w-0 ${active ? LAB_CHOICE_SELECTED : ""}`}
+            className={`${LAB_CHOICE} min-h-11! min-w-0 ${active ? LAB_CHOICE_SELECTED : ""}`}
           >
             {opt.label}
           </button>
@@ -114,7 +114,7 @@ export function ChoiceChip({
       {...rest}
       onClick={onClick}
       aria-checked={selected}
-      className={`${LAB_CHOICE} min-h-11 ${selected ? LAB_CHOICE_SELECTED : ""} ${rest.className ?? ""}`.trim()}
+      className={`${LAB_CHOICE} min-h-11! ${selected ? LAB_CHOICE_SELECTED : ""} ${rest.className ?? ""}`.trim()}
     >
       {children}
     </button>
@@ -136,7 +136,7 @@ export function ModeTabButton({
       role="tab"
       {...rest}
       aria-selected={selected}
-      className={`${LAB_TAB} min-w-0 flex-1 min-h-11 px-1 text-sm leading-tight sm:px-3 ${
+      className={`${LAB_TAB} min-w-0 flex-1 min-h-11! px-1 text-sm leading-tight sm:px-3 ${
         selected ? LAB_TAB_ACTIVE : ""
       } ${rest.className ?? ""}`.trim()}
     >

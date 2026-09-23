@@ -128,7 +128,7 @@ export function LoanRateCompare() {
                 key={opt.value}
                 type="button"
                 onClick={() => setFilter(opt.value)}
-                className={`lab-choice min-h-11 ${active ? "lab-choice-selected" : ""}`}
+                className={`lab-choice min-h-11! ${active ? "lab-choice-selected" : ""}`}
               >
                 {opt.label}
               </button>

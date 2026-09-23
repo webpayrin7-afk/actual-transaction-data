@@ -642,7 +642,7 @@ function ScenarioList({
                 {formatRatePct(scenario.ratePct)}
               </p>
               <span
-                className={`rounded-full px-2 py-0.5 text-xs leading-4 font-medium ${
+                className={`rounded-full px-2 py-0.5 text-xs! leading-4 font-medium ${
                   scenario.kind === "base"
                     ? "lab-badge"
                     : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-body)]"

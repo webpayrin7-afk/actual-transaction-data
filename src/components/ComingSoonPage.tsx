@@ -15,7 +15,7 @@ export function ComingSoonPage({
       <PageHeader
         title={title}
         titleClassName="detail-page-title"
-        meta={group}
+        titleSuffix={group}
         description={description}
       />
 
