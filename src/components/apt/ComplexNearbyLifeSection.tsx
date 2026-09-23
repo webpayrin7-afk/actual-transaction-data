@@ -48,7 +48,10 @@ import {
 import type { SchoolLevel } from "@/lib/complex-detail/neis";
 import { SchoolDistrictBlock } from "@/components/apt/SchoolDistrictBlock";
 import { AttendanceZoneBlock } from "@/components/apt/AttendanceZoneBlock";
-import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
+import {
+  getCommerceSnapshot,
+  type CommerceSnapshot,
+} from "@/lib/complex-detail/commerce-snapshot";
 import {
   ComplexCommerceMeta,
   ComplexCommerceStats,
@@ -406,11 +409,11 @@ export function ComplexNearbyLifeSection({
   const [schoolLevel, setSchoolLevel] = useState<SchoolLevelTab>(
     () => parseSchoolLevelTab(initialSchoolLevel) ?? "elementary",
   );
-  const [coords, setCoords] = useState<LatLng | null>(null);
+  const [resolvedCoords, setCoords] = useState<LatLng | null>(null);
   const [mapAnchor, setMapAnchor] = useState<ComplexMapAnchorResult | null>(
     null,
   );
-  const [geocodeStatus, setGeocodeStatus] = useState<
+  const [resolvedGeocodeStatus, setGeocodeStatus] = useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
   const [geocodeReason, setGeocodeReason] = useState<string | null>(null);
@@ -419,7 +422,8 @@ export function ComplexNearbyLifeSection({
   const [livingCategory, setLivingCategory] = useState<LivingOnlyCategory>(
     LIVING_DEFAULT_CATEGORY,
   );
-  const commerceSnapshot = useMemo(
+  /** 잠실엘스 pilot fixture (static) — wins over the national DB snapshot. */
+  const pilotCommerceSnapshot = useMemo(
     () =>
       getCommerceSnapshot({
         complexId: identity?.complexId,
@@ -427,6 +431,44 @@ export function ComplexNearbyLifeSection({
       }),
     [identity?.complexId, aptName],
   );
+  const commerceComplexId = identity?.complexId ?? null;
+  /** National SEMAS snapshot (complex_commerce_snapshots). Fetched on the commerce tab only. */
+  const nationalCommerceQuery = useQuery({
+    queryKey: ["complex-commerce", commerceComplexId],
+    queryFn: async (): Promise<CommerceSnapshot | null> => {
+      const res = await fetch(
+        `/api/complex-commerce?complex_id=${encodeURIComponent(commerceComplexId ?? "")}`,
+      );
+      if (!res.ok) throw new Error("complex-commerce");
+      const json = (await res.json()) as
+        | { status: "ok"; snapshot: CommerceSnapshot }
+        | { status: string };
+      return json.status === "ok" && "snapshot" in json ? json.snapshot : null;
+    },
+    enabled: !pilotCommerceSnapshot && !!commerceComplexId && tab === "commerce",
+    staleTime: 60 * 60 * 1000,
+    retry: 1,
+  });
+  const commerceSnapshot: CommerceSnapshot | null =
+    pilotCommerceSnapshot ?? nationalCommerceQuery.data ?? null;
+  const commerceLoading =
+    !pilotCommerceSnapshot && !!commerceComplexId && nationalCommerceQuery.isPending;
+  // One-center contract for national snapshots: once the commerce point cloud
+  // arrives, its origin (the stored complex center) is the map center so the
+  // marker, 1km ring and points line up — same rule as the pilot below.
+  const nationalCommercePoints = nationalCommerceQuery.data?.mapPoints ?? null;
+  const nationalCommerceCenter = useMemo<LatLng | null>(
+    () =>
+      nationalCommercePoints
+        ? {
+            lat: nationalCommercePoints.originLat,
+            lng: nationalCommercePoints.originLng,
+          }
+        : null,
+    [nationalCommercePoints],
+  );
+  const coords = nationalCommerceCenter ?? resolvedCoords;
+  const geocodeStatus = nationalCommerceCenter ? "ready" : resolvedGeocodeStatus;
   /** After marker click, scroll to this living row once it is in the DOM. */
   const pendingListScrollIdRef = useRef<string | null>(null);
   const mapSectionRef = useRef<HTMLDivElement | null>(null);
@@ -482,7 +524,7 @@ export function ComplexNearbyLifeSection({
 
         // Stored NAVER anchor (same geocoder, precomputed) — no network round-trips.
         // The 잠실엘스 commerce pilot origin still wins below via canonicalFromCommerce.
-        if (presetAnchor && !commerceSnapshot?.mapPoints) {
+        if (presetAnchor && !pilotCommerceSnapshot?.mapPoints) {
           const coordinate = { lat: presetAnchor.lat, lng: presetAnchor.lng };
           setMapAnchor({
             ok: true,
@@ -523,10 +565,10 @@ export function ComplexNearbyLifeSection({
         // C4 one-center contract: when commerce map points exist, their
         // origin is the canonical apartment center (product mapAnchor
         // snapshot). Marker, 1km ring, fit, and point cloud share it.
-        const canonicalFromCommerce = commerceSnapshot?.mapPoints
+        const canonicalFromCommerce = pilotCommerceSnapshot?.mapPoints
           ? {
-              lat: commerceSnapshot.mapPoints.originLat,
-              lng: commerceSnapshot.mapPoints.originLng,
+              lat: pilotCommerceSnapshot.mapPoints.originLat,
+              lng: pilotCommerceSnapshot.mapPoints.originLng,
             }
           : null;
 
@@ -553,7 +595,9 @@ export function ComplexNearbyLifeSection({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [identity, aptName, commerceSnapshot, presetAnchor]);
+  }, [identity, aptName, pilotCommerceSnapshot, presetAnchor]);
+
+
 
   const lifeQuery = useQuery({
     queryKey: [
@@ -909,8 +953,11 @@ export function ComplexNearbyLifeSection({
     const data = lifeQuery.data;
 
     if (tab === "commerce") {
-      return commerceSnapshot ? (
-        <ComplexCommerceStats snapshot={commerceSnapshot} />
+      if (commerceSnapshot) {
+        return <ComplexCommerceStats snapshot={commerceSnapshot} />;
+      }
+      return commerceLoading ? (
+        <EmptyBlock>상권 정보를 불러오는 중…</EmptyBlock>
       ) : (
         <ComplexLivingCensus complexId={identity?.complexId ?? null} />
       );

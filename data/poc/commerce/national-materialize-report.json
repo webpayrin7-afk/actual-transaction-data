@@ -1,0 +1,295 @@
+{
+  "builtAt": "2026-09-23T16:35:38Z",
+  "source": {
+    "dataset": "소상공인시장진흥공단_상가(상권)정보",
+    "version": "SEMAS_2026Q2",
+    "asOf": "2026-06-30",
+    "zip": "semas_store_20260630.zip",
+    "files": [
+      "소상공인시장진흥공단_상가(상권)정보_강원_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_경기_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_경남_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_경북_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_대구_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_대전_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_부산_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_서울_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_세종_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_울산_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_인천_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_전남광주_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_전북_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_제주_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_충남_202606.csv",
+      "소상공인시장진흥공단_상가(상권)정보_충북_202606.csv"
+    ],
+    "rows": 2772484,
+    "stores": 2772484,
+    "p2_stores": 2150765,
+    "p2StoresNational": 2150765
+  },
+  "centers": {
+    "anchor": 27253,
+    "master": 107,
+    "noCoordinate": 164,
+    "masterRows": 27524,
+    "invalidCenter": 0,
+    "withSnapshot": 27360
+  },
+  "rows": {
+    "complex_commerce_snapshots": 54720,
+    "commerce_point_cells": 12327,
+    "complex_commerce_publications": 1,
+    "pointsInCells": 1979003
+  },
+  "sizeEstimateBytes": {
+    "snapshots": 11419319,
+    "pointCellsPayload": 23321407,
+    "localSqliteFile": 43585536
+  },
+  "distributionP2r1000": {
+    "min": 3,
+    "p25": 839,
+    "median": 1656,
+    "p75": 2728,
+    "p95": 4645,
+    "max": 9273
+  },
+  "zeroP0r1000": 0,
+  "parity": {
+    "pilotCenter": {
+      "center": {
+        "lat": 37.5133051,
+        "lng": 127.0815962,
+        "source": "pilot C4 product_map_anchor_naver_geocode"
+      },
+      "p0": {
+        "pipeline": 3562,
+        "pilot": 3562,
+        "diff": 0
+      },
+      "p2": {
+        "pipeline": 2745,
+        "pilot": 2745,
+        "diff": 0
+      },
+      "composition": {
+        "음식/외식": {
+          "pipeline": 937,
+          "pilot": 937,
+          "diff": 0
+        },
+        "쇼핑/소매": {
+          "pipeline": 660,
+          "pilot": 660,
+          "diff": 0
+        },
+        "생활서비스": {
+          "pipeline": 397,
+          "pilot": 397,
+          "diff": 0
+        },
+        "교육": {
+          "pipeline": 318,
+          "pilot": 318,
+          "diff": 0
+        },
+        "여가/체육": {
+          "pipeline": 222,
+          "pilot": 222,
+          "diff": 0
+        },
+        "의료/건강": {
+          "pipeline": 211,
+          "pilot": 211,
+          "diff": 0
+        },
+        "기타": {
+          "pipeline": 0,
+          "pilot": 0,
+          "diff": 0
+        }
+      },
+      "facilities": {
+        "병원/의원": {
+          "pipeline": 205,
+          "pilot": 205,
+          "diff": 0
+        },
+        "약국": {
+          "pipeline": 51,
+          "pilot": 51,
+          "diff": 0
+        },
+        "편의점": {
+          "pipeline": 54,
+          "pilot": 54,
+          "diff": 0
+        },
+        "마트/슈퍼": {
+          "pipeline": 35,
+          "pilot": 35,
+          "diff": 0
+        },
+        "카페": {
+          "pipeline": 116,
+          "pilot": 116,
+          "diff": 0
+        },
+        "음식점": {
+          "pipeline": 821,
+          "pilot": 821,
+          "diff": 0
+        },
+        "미용": {
+          "pipeline": 299,
+          "pilot": 299,
+          "diff": 0
+        },
+        "학원": {
+          "pipeline": 282,
+          "pilot": 282,
+          "diff": 0
+        },
+        "체육": {
+          "pipeline": 94,
+          "pilot": 94,
+          "diff": 0
+        }
+      }
+    },
+    "pilotCenterMapPoints": {
+      "pipelinePointCount": 2745,
+      "fixturePointCount": 2745,
+      "exactMatch": 2618,
+      "withinOneMeterMatch": 127,
+      "unmatchedPipeline": 0,
+      "unmatchedFixture": 0
+    },
+    "productionCenter": {
+      "center": {
+        "lat": 37.5141205,
+        "lng": 127.079339,
+        "source": "complex_map_anchor"
+      },
+      "shiftFromPilotCenterM": 218.8,
+      "r1000": {
+        "p0": 3153,
+        "p2": 2439,
+        "composition": {
+          "음식/외식": {
+            "pipeline": 841,
+            "pilot": 937,
+            "diff": -96
+          },
+          "쇼핑/소매": {
+            "pipeline": 597,
+            "pilot": 660,
+            "diff": -63
+          },
+          "생활서비스": {
+            "pipeline": 339,
+            "pilot": 397,
+            "diff": -58
+          },
+          "교육": {
+            "pipeline": 266,
+            "pilot": 318,
+            "diff": -52
+          },
+          "여가/체육": {
+            "pipeline": 200,
+            "pilot": 222,
+            "diff": -22
+          },
+          "의료/건강": {
+            "pipeline": 196,
+            "pilot": 211,
+            "diff": -15
+          },
+          "기타": {
+            "pipeline": 0,
+            "pilot": 0,
+            "diff": 0
+          }
+        },
+        "facilities": {
+          "병원/의원": {
+            "pipeline": 191,
+            "pilot": 205,
+            "diff": -14
+          },
+          "약국": {
+            "pipeline": 43,
+            "pilot": 51,
+            "diff": -8
+          },
+          "편의점": {
+            "pipeline": 45,
+            "pilot": 54,
+            "diff": -9
+          },
+          "마트/슈퍼": {
+            "pipeline": 33,
+            "pilot": 35,
+            "diff": -2
+          },
+          "카페": {
+            "pipeline": 103,
+            "pilot": 116,
+            "diff": -13
+          },
+          "음식점": {
+            "pipeline": 738,
+            "pilot": 821,
+            "diff": -83
+          },
+          "미용": {
+            "pipeline": 259,
+            "pilot": 299,
+            "diff": -40
+          },
+          "학원": {
+            "pipeline": 237,
+            "pilot": 282,
+            "diff": -45
+          },
+          "체육": {
+            "pipeline": 85,
+            "pilot": 94,
+            "diff": -9
+          }
+        }
+      },
+      "r500": {
+        "p0": 1206,
+        "p2": 881,
+        "composition": [
+          302,
+          197,
+          106,
+          90,
+          79,
+          107,
+          0
+        ],
+        "facilities": [
+          104,
+          18,
+          15,
+          12,
+          35,
+          267,
+          79,
+          75,
+          32
+        ]
+      }
+    }
+  },
+  "timingSec": {
+    "source": 26.2,
+    "aggregate": 13.4,
+    "total": 42.7
+  }
+}

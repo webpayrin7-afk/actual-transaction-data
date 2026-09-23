@@ -51,3 +51,6 @@ next-env.d.ts
 
 # NAVER map-anchor geocode runs (local review files)
 data/map-anchor/
+
+# SEMAS national store zip + local commerce build (large, regenerable)
+/data/semas/
