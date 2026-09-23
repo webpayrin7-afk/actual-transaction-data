@@ -320,7 +320,6 @@ export function AptTransactionsPage({
         <PageHeader
           leading={<BackLink fallback={detailHref} compact hideLabel />}
           title={displayName}
-          titleSuffix="거래 내역"
           titleClassName="detail-page-title"
           showDivider={false}
           action={
