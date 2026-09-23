@@ -27,6 +27,7 @@ import {
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
+import { AptStickyNav } from "@/components/apt/AptStickyNav";
 import { ComplexPurchaseCalculatorSection } from "@/components/apt/calculator/ComplexPurchaseCalculatorSection";
 import {
   TransactionList,
@@ -55,9 +56,6 @@ import {
   PageHeader,
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import {
-  labUnderlineTabClass,
-} from "@/components/ui/lab";
 import { LabTabs } from "@/components/ui/LabTabs";
 import {
   LAB_SECTION_SURFACE,
@@ -103,6 +101,12 @@ function recentYearsRange(length: number, years = RECENT_YEARS) {
   };
 }
 
+function scrollToSection(id: string) {
+  const el = document.getElementById(`section-${id}`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 type PeriodPreset = "recent1" | "recent3" | "recent5" | "full" | "custom";
 
 export function AptDetailPage({
@@ -138,13 +142,11 @@ export function AptDetailPage({
   } | null>(null);
   const [boundKey, setBoundKey] = useState(aptIdentity);
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
-  const [stickyVisible, setStickyVisible] = useState(false);
-  const [activeSection, setActiveSection] = useState("market");
   const [monthSelection, setMonthSelection] = useState<{
     scope: string;
     ym: string | null;
   }>({ scope: "", ym: null });
-  const heroRef = useRef<HTMLElement | null>(null);
+  const stickyAnchorRef = useRef<HTMLDivElement | null>(null);
 
   const quickQuery = useQuery({
     queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "quick", QUICK_MONTHS],
@@ -211,93 +213,6 @@ export function AptDetailPage({
     gu,
   ]);
 
-  useEffect(() => {
-    if (!data) return;
-    const hero = heroRef.current;
-    if (!hero) return;
-
-    // Hysteresis avoids boundary thrash when site-header height changes
-    // (load progress) or subpixel scroll toggles isIntersecting.
-    const SHOW_SLACK_PX = 4;
-    const HIDE_SLACK_PX = 32;
-    let visible = false;
-    let raf = 0;
-
-    const headerH = () => {
-      // Full-page /apt/[name] hides SiteHeader — treat as 0 (no blank top gap).
-      const header = document.querySelector<HTMLElement>("[data-site-header]");
-      if (!header) return 0;
-      return Math.max(1, Math.round(header.getBoundingClientRect().height));
-    };
-
-    const update = () => {
-      raf = 0;
-      const top = headerH();
-      const heroBottom = hero.getBoundingClientRect().bottom;
-      if (!visible && heroBottom <= top - SHOW_SLACK_PX) {
-        visible = true;
-        setStickyVisible(true);
-      } else if (visible && heroBottom >= top + HIDE_SLACK_PX) {
-        visible = false;
-        setStickyVisible(false);
-      }
-    };
-
-    const onScrollOrResize = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScrollOrResize, { passive: true });
-    window.addEventListener("resize", onScrollOrResize);
-    const header = document.querySelector<HTMLElement>("[data-site-header]");
-    const ro = header ? new ResizeObserver(onScrollOrResize) : null;
-    if (header && ro) ro.observe(header);
-
-    return () => {
-      if (raf) window.cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScrollOrResize);
-      window.removeEventListener("resize", onScrollOrResize);
-      ro?.disconnect();
-      setStickyVisible(false);
-    };
-  }, [data]);
-
-  useEffect(() => {
-    if (!data) return;
-    const ids = [
-      "market",
-      "trades",
-      "calculator",
-      "region-rank",
-      "comparison",
-      "nearby-life",
-      "nearby-sales",
-      "management",
-    ] as const;
-    const nodes = ids
-      .map((id) => document.getElementById(`section-${id}`))
-      .filter((el): el is HTMLElement => !!el);
-    if (nodes.length === 0) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        const top = visible[0]?.target.getAttribute("id");
-        if (top?.startsWith("section-")) {
-          const id = top.replace("section-", "");
-          setActiveSection(
-            id === "trades" ? "market" : id,
-          );
-        }
-      },
-      { rootMargin: "-30% 0px -55% 0px", threshold: [0.1, 0.25, 0.5] },
-    );
-    nodes.forEach((n) => io.observe(n));
-    return () => io.disconnect();
-  }, [data, complexDetail]);
   const isExtendingHistory =
     quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
   // Historical extend: bar-only (empty label) to avoid a sticky shouty banner;
@@ -568,13 +483,6 @@ export function AptDetailPage({
     return () => window.clearTimeout(t);
   }, [initialNearbyTab]);
 
-  function scrollToSection(id: string) {
-    const el = document.getElementById(`section-${id}`);
-    if (!el) return;
-    setActiveSection(id);
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
   const periodButtons = (
     <LabTabs
       variant="compact"
@@ -604,20 +512,6 @@ export function AptDetailPage({
     />
   );
 
-  const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
-    { id: "market", label: "시세 · 거래", show: true },
-    { id: "calculator", label: "세금, 대출 계산", show: true },
-    { id: "region-rank", label: "지역 내 비교", show: true },
-    { id: "comparison", label: "주변 단지 비교", show: true },
-    { id: "nearby-life", label: "주변 생활", show: true },
-    { id: "nearby-sales", label: "주변 공급", show: true },
-    {
-      id: "management",
-      label: "관리비",
-      show: !!complexDetail?.management,
-    },
-  ];
-  const desktopNav = desktopNavItems.filter((i) => i.show);
 
   if (quickQuery.isLoading && !data) {
     return (
@@ -678,41 +572,15 @@ export function AptDetailPage({
 
   return (
     <div className={DETAIL_PAGE_SHELL}>
-      {/* Sticky compact header — replaces hero; does not stack with it */}
-      <div
-        className={`fixed inset-x-0 z-40 border-b border-[color:var(--lab-border)] bg-white/95 backdrop-blur transition-[opacity,transform] duration-150 ease-out ${
-          stickyVisible
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-2 opacity-0"
-        }`}
-        style={{ top: "var(--site-header-height, 0px)" }}
-        aria-hidden={!stickyVisible}
-        {...(!stickyVisible ? { inert: true } : {})}
-      >
-        <div className="mx-auto flex w-full max-w-[70rem] flex-wrap items-center gap-x-2 gap-y-2 px-4 py-2 sm:px-6 lg:px-8">
-          <div className="flex min-h-11 min-w-0 flex-1 items-center gap-1">
-            <BackLink fallback="/complexes" compact hideLabel />
-            <p
-              className="detail-subsection-title min-w-0 flex-1 truncate"
-              title={data.aptName}
-            >
-              {data.aptName}
-            </p>
-          </div>
-          <div className="min-w-0 w-full sm:ml-auto sm:w-auto sm:max-w-[min(21rem,58%)] sm:shrink-0">
-            <AptAreaSelector
-              areas={data.areas}
-              value={areaKey}
-              variant="compact"
-              onChange={(key) => {
-                setAreaOverride({ forId: aptIdentity, key });
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      <AptStickyNav
+        anchor={stickyAnchorRef}
+        aptName={data.aptName}
+        areas={data.areas}
+        areaKey={areaKey}
+        onAreaChange={(key) => setAreaOverride({ forId: aptIdentity, key })}
+      />
 
-      <header ref={heroRef} className="-mt-1 sm:-mt-1.5">
+      <header className="-mt-1 sm:-mt-1.5">
         <PageHeader
           leading={
             <BackLink fallback="/complexes" compact hideLabel />
@@ -730,27 +598,8 @@ export function AptDetailPage({
             }}
           />
         </PageHeader>
+        <div ref={stickyAnchorRef} aria-hidden />
       </header>
-
-      {/* Desktop section nav — underline LAB tabs; scroll only, no page swap */}
-      {desktopNav.length > 1 ? (
-        <nav
-          className="sticky top-[calc(var(--site-header-height,0px)+0.25rem)] z-30 -mx-1 hidden gap-5 overflow-x-auto border-b border-slate-200/80 bg-[var(--lab-bg)]/95 px-1 backdrop-blur md:flex"
-          aria-label="단지 상세 섹션"
-        >
-          {desktopNav.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-current={activeSection === item.id ? "true" : undefined}
-              onClick={() => scrollToSection(item.id)}
-              className={labUnderlineTabClass(activeSection === item.id, "shrink-0")}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      ) : null}
 
       {(data.warning || data.source === "mock") && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
