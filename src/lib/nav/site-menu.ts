@@ -26,6 +26,11 @@ export const PRIMARY_NAV = [
 /** 더보기 > 도구 — 학군(/school)은 비활성·메뉴 비노출 */
 export const TOOL_NAV = [
   {
+    href: "/transactions",
+    label: "실거래 검색",
+    match: (pathname: string) => pathname.startsWith("/transactions"),
+  },
+  {
     href: "/loan",
     label: "대출계산기",
     match: (pathname: string) => pathname.startsWith("/loan"),

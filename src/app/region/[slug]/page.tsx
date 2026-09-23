@@ -1,9 +1,8 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Dashboard } from "@/components/Dashboard";
 import { RegionPageLoadFallback } from "@/components/RegionPageLoadFallback";
 import { ALL_REGIONS, getRegion } from "@/lib/constants/regions";
-import type { DealType } from "@/types/transaction";
 
 type SearchParams = Promise<{
   aptName?: string;
@@ -42,25 +41,19 @@ export default async function RegionPage({
   if (!region) notFound();
 
   const sp = await searchParams;
-  const dealType =
-    sp.dealType === "trade" || sp.dealType === "rent"
-      ? (sp.dealType as DealType)
-      : "all";
-  const initialTab =
-    sp.tab === "dong" || sp.tab === "stats" || sp.tab === "search"
-      ? sp.tab
-      : undefined;
+  if (sp.tab === "search" || sp.aptName?.trim()) {
+    const qs = new URLSearchParams({ region: region.slug });
+    if (sp.aptName?.trim()) qs.set("aptName", sp.aptName.trim());
+    if (sp.gu && sp.gu !== "all") qs.set("gu", sp.gu);
+    if (sp.dealType === "trade" || sp.dealType === "rent") qs.set("dealType", sp.dealType);
+    redirect(`/transactions?${qs.toString()}`);
+  }
+  const initialTab = sp.tab === "dong" || sp.tab === "stats" ? sp.tab : undefined;
 
   return (
     <main className="flex-1">
       <Suspense fallback={<RegionPageLoadFallback />}>
-        <Dashboard
-          region={region}
-          initialAptName={sp.aptName ?? ""}
-          initialGu={sp.gu ?? "all"}
-          initialDealType={dealType}
-          initialTab={initialTab}
-        />
+        <Dashboard region={region} initialTab={initialTab} />
       </Suspense>
     </main>
   );
