@@ -195,20 +195,6 @@ const BAR_FILL = "h-2 rounded-full";
 const BAR_COLOR = "var(--lab-brand-primary)";
 const ROW = "flex flex-col gap-1.5 py-2.5";
 
-/** "이 단지보다 12% 낮음" — 비교 지역 행의 보조 줄. */
-function diffVsComplex(value: number | null | undefined, complex: number | null | undefined) {
-  if (value == null || complex == null || complex <= 0) return null;
-  const pct = Math.round(((complex - value) / value) * 100);
-  if (pct === 0) return { text: "이 단지와 비슷", tone: "flat" as const };
-  if (complex / value >= 2) {
-    return { text: `이 단지가 ${(complex / value).toFixed(1)}배`, tone: "up" as const };
-  }
-  return {
-    text: `이 단지가 ${Math.abs(pct)}% ${pct > 0 ? "높음" : "낮음"}`,
-    tone: pct > 0 ? ("up" as const) : ("down" as const),
-  };
-}
-
 function PriceLevelBars({
   cells,
   aptName,
@@ -224,9 +210,6 @@ function PriceLevelBars({
       value: cell.meanPricePerSupplyPyeong,
     })),
   );
-  const complexValue = cells.find(
-    (c) => c.scope === "COMPLEX" && c.status === "ok",
-  )?.meanPricePerSupplyPyeong;
   return (
     <ul className="flex flex-col divide-y divide-[color:var(--lab-border)]">
       {cells.map((cell, index) => {
@@ -239,7 +222,6 @@ function PriceLevelBars({
           label: cell.label,
           aptName,
         });
-        const diff = !accent && !hiddenBar ? diffVsComplex(value, complexValue) : null;
         return (
           <li key={cell.scope} className={ROW}>
             <RowHeader
@@ -256,36 +238,17 @@ function PriceLevelBars({
                 )
               }
             />
-            <div className="flex min-w-0 items-center gap-2">
-              <div className={`${BAR_TRACK} min-w-0 flex-1 overflow-hidden`} aria-hidden>
-                {!hiddenBar && width > 0 ? (
-                  <div
-                    className={`${BAR_FILL} ${barPlayClass(animate, "left")}`}
-                    style={{
-                      width: `${Math.max(2, width)}%`,
-                      background: BAR_COLOR,
-                      opacity: accent ? 1 : 0.35,
-                      ...barDelayStyle(index),
-                    }}
-                  />
-                ) : null}
-              </div>
-              {diff ? (
-                <span
-                  className={`detail-meta shrink-0 whitespace-nowrap tabular-nums ${
-                    diff.tone === "up"
-                      ? "text-[color:var(--lab-change-up)]"
-                      : diff.tone === "down"
-                        ? "text-[color:var(--lab-change-down)]"
-                        : ""
-                  }`}
-                >
-                  {diff.text}
-                </span>
-              ) : accent && !hiddenBar ? (
-                <span className="detail-meta shrink-0 whitespace-nowrap font-medium !text-[color:var(--lab-brand-primary)]">
-                  기준
-                </span>
+            <div className={`${BAR_TRACK} min-w-0 overflow-hidden`} aria-hidden>
+              {!hiddenBar && width > 0 ? (
+                <div
+                  className={`${BAR_FILL} ${barPlayClass(animate, "left")}`}
+                  style={{
+                    width: `${Math.max(2, width)}%`,
+                    background: BAR_COLOR,
+                    opacity: accent ? 1 : 0.35,
+                    ...barDelayStyle(index),
+                  }}
+                />
               ) : null}
             </div>
           </li>
@@ -383,10 +346,11 @@ function TrendBars({
               />
               {!unavailable ? (
                 <div className={`relative flex ${BAR_TRACK} min-w-0 items-center`} aria-hidden>
-                  <div className="flex h-2 w-1/2 justify-end pr-px">
+                  {/* 가운데 기준선에 딱 붙는 쪽은 각지게, 바깥 끝만 둥글게. */}
+                  <div className="flex h-2 w-1/2 justify-end">
                     {layout.side === "left" ? (
                       <div
-                        className={`${BAR_FILL} bg-[color:var(--lab-change-down)] ${barPlayClass(animate, "right")}`}
+                        className={`h-2 rounded-l-full rounded-r-none bg-[color:var(--lab-change-down)] ${barPlayClass(animate, "right")}`}
                         style={{
                           width: `${layout.pct}%`,
                           opacity: cell.scope === "COMPLEX" ? 1 : 0.55,
@@ -396,13 +360,13 @@ function TrendBars({
                     ) : null}
                   </div>
                   <div
-                    className="absolute left-1/2 h-3.5 w-px -translate-x-1/2 bg-[color:var(--lab-muted)]"
+                    className="absolute left-1/2 z-10 h-3.5 w-px -translate-x-1/2 bg-[color:var(--lab-muted)]"
                     aria-hidden
                   />
-                  <div className="flex h-2 w-1/2 justify-start pl-px">
+                  <div className="flex h-2 w-1/2 justify-start">
                     {layout.side === "right" ? (
                       <div
-                        className={`${BAR_FILL} bg-[color:var(--lab-change-up)] ${barPlayClass(animate, "left")}`}
+                        className={`h-2 rounded-l-none rounded-r-full bg-[color:var(--lab-change-up)] ${barPlayClass(animate, "left")}`}
                         style={{
                           width: `${layout.pct}%`,
                           opacity: cell.scope === "COMPLEX" ? 1 : 0.55,
