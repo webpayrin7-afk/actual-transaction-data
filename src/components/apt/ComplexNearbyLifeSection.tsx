@@ -133,8 +133,6 @@ const TABS: Array<{ id: NearbyLifeCategory; label: string }> = [
 ];
 
 const LIST_LIMIT = 5;
-/** Bus stops shown before “더보기” (subway always fully listed). */
-const TRANSPORT_BUS_LIST_LIMIT = 4;
 
 /** Stable DOM id for living list rows (marker → list scroll). */
 function livingRowDomId(poiId: string): string {
@@ -619,6 +617,7 @@ export function ComplexNearbyLifeSection({
   const selectSchoolLevel = useCallback((next: SchoolLevelTab) => {
     setSchoolLevel(next);
     setSelectedId(null);
+    setExpanded(false);
     pendingListScrollIdRef.current = null;
     // Sync URL without scroll so back-from-detail / share keep the level.
     if (typeof window !== "undefined" && tab === "school") {
@@ -909,11 +908,11 @@ export function ComplexNearbyLifeSection({
       const buses = data.transport.items
         .filter((p) => !isSubwayPoi(p))
         .sort((a, b) => a.distanceMeters - b.distanceMeters);
-      // Subway: always list all nearby stations. Bus: 4 default, expand via 더보기.
-      const subwayItems = subways;
+      // 지하철 먼저, 버스로 채워 합계 5개 (policy §12.4). 더보기로 전체.
+      const subwayItems = expanded ? subways : subways.slice(0, LIST_LIMIT);
       const busItems = expanded
         ? buses
-        : buses.slice(0, TRANSPORT_BUS_LIST_LIMIT);
+        : buses.slice(0, Math.max(0, LIST_LIMIT - subwayItems.length));
 
       return (
         <div className="space-y-4">
@@ -1269,7 +1268,7 @@ export function ComplexNearbyLifeSection({
               </p>
             ) : (
               <ul className="space-y-0">
-                {places.map((s) => {
+                {(expanded ? places : places.slice(0, LIST_LIMIT)).map((s) => {
                   const metaParts = [
                     s.establishment,
                     `${formatMeters(s.distanceM)} · 직선거리`,
@@ -1328,9 +1327,7 @@ export function ComplexNearbyLifeSection({
     const data = lifeQuery.data;
     if (!data) return 0;
     if (tab === "transport") {
-      // 더보기 expands bus stops only — subway is always fully listed.
-      const buses = data.transport.items.filter((p) => !isSubwayPoi(p)).length;
-      return Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT);
+      return Math.max(0, data.transport.items.length - LIST_LIMIT);
     }
     if (tab === "living") {
       return Math.max(0, livingValidPlaces.length - LIST_LIMIT);
@@ -1339,7 +1336,10 @@ export function ComplexNearbyLifeSection({
       return 0;
     }
     if (tab === "school") {
-      return 0;
+      const places =
+        schoolQuery.data?.categories?.find((c) => c.level === schoolLevel)
+          ?.places ?? [];
+      return Math.max(0, places.length - LIST_LIMIT);
     }
     return 0;
   })();
@@ -1510,15 +1510,18 @@ export function ComplexNearbyLifeSection({
 
         <div className="min-w-0">
           {listContent}
-          {moreCount > 0 && (tab === "transport" || tab === "living") ? (
+          {moreCount > 0 &&
+          (tab === "transport" || tab === "living" || tab === "school") ? (
             <div className="mt-3">
               <LabMoreButton
                 expanded={expanded}
                 onToggle={() => setExpanded((v) => !v)}
                 label={
                   tab === "transport"
-                    ? `버스 정류장 ${moreCount}곳 더보기`
-                    : `${LIVING_CHIP_LABEL[livingCategory]} ${moreCount}곳 더보기`
+                    ? `교통 ${moreCount}곳 더보기`
+                    : tab === "school"
+                      ? `학교 ${moreCount}곳 더보기`
+                      : `${LIVING_CHIP_LABEL[livingCategory]} ${moreCount}곳 더보기`
                 }
               />
             </div>
