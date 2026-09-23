@@ -28,7 +28,7 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   {
     id: "market",
     label: "오늘의 시장",
-    shortLabel: "오늘의 시장",
+    shortLabel: "오늘 시장",
     href: "/",
     icon: TrendingUp,
     match: (pathname) => pathname === "/",
@@ -36,7 +36,7 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   {
     id: "map",
     label: "지도로 찾기",
-    shortLabel: "지도로 찾기",
+    shortLabel: "지도",
     href: null,
     disabled: true,
     disabledHint: "준비중",

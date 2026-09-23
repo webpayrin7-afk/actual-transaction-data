@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { LabTag } from "@/components/ui/LabTag";
 import { HOME_QUICK_NAV } from "@/lib/nav/home-quick-nav";
 
 const EASE = "duration-200 ease-out";
@@ -39,8 +40,8 @@ export function HomeNavigation() {
       aria-label="주요 탐색"
       data-mode={compact ? "compact" : "expanded"}
       className={[
-        "sticky z-40 border-b border-slate-200/50 bg-white sm:hidden",
-        `transition-[padding,border-color] ${EASE}`,
+        "sticky z-40 border-b border-[color:var(--lab-border)] bg-white sm:hidden",
+        `transition-[padding] ${EASE} motion-reduce:transition-none`,
         compact ? "px-2 py-1.5" : "px-3 pt-1.5 pb-2",
       ].join(" ")}
       style={{ top: "var(--site-header-height, 52px)" }}
@@ -48,7 +49,7 @@ export function HomeNavigation() {
       <div
         className={[
           "mx-auto grid w-full max-w-[1440px]",
-          `transition-[gap] ${EASE}`,
+          `transition-[gap] ${EASE} motion-reduce:transition-none`,
           compact
             ? "grid-cols-5 gap-0.5"
             : "grid-cols-[minmax(0,0.28fr)_repeat(3,minmax(0,0.24fr))] grid-rows-[auto_auto] gap-1.5",
@@ -73,42 +74,40 @@ export function HomeNavigation() {
                     ? "col-start-3 row-start-2"
                     : "col-start-4 row-start-2";
 
+          // 정책 §4·§11: 선택 = brand-subtle 면 + teal 글자, 비선택 = surface-subtle + navy.
           const tone = disabled
-            ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400"
+            ? "cursor-not-allowed border-[color:var(--lab-border)] bg-[color:var(--lab-surface-subtle)] text-[color:var(--lab-muted)]"
             : active
-              ? "border-teal-100/90 bg-[color:var(--lab-teal-50)] text-[color:var(--lab-teal-700)]"
-              : "border-slate-200/70 bg-[#f3f5f7] text-[color:var(--lab-navy-900)]";
+              ? "border-[color:var(--lab-brand-border)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+              : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface-subtle)] text-[color:var(--lab-navy-950)]";
 
+          // 정책 §5: 카드·타일 radius 12. 터치 영역 44 이상.
           const shape = compact
-            ? "min-h-[56px] flex-col gap-0.5 rounded-xl px-0.5 py-1.5"
+            ? "min-h-[56px] flex-col gap-0.5 px-0.5 py-1.5"
             : featured
-              ? "min-h-[100px] h-full flex-col gap-1.5 rounded-2xl px-1.5 py-2"
+              ? "min-h-[104px] h-full flex-col gap-1.5 px-1.5 py-2"
               : isMap
-                ? "min-h-[48px] flex-row gap-2 rounded-2xl px-3"
-                : "min-h-[52px] flex-col gap-1 rounded-2xl px-1 py-1.5";
+                ? "min-h-[48px] flex-row gap-2 px-3"
+                : "min-h-[56px] flex-col gap-1 px-1 py-1.5";
 
           const className = [
-            "flex min-w-0 items-center justify-center border",
-            `transition-[min-height,padding,gap,border-radius,background-color,color,border-color] ${EASE}`,
+            "flex min-w-0 items-center justify-center rounded-xl border",
+            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]",
+            `transition-[min-height,padding,gap,background-color,color,border-color] ${EASE} motion-reduce:transition-none`,
             tone,
             shape,
             placement,
           ].join(" ");
 
-          const label = item.label;
+          const label = compact ? item.shortLabel : item.label;
           const iconCls = compact
-            ? "h-[16px] w-[16px] stroke-[1.75]"
-            : featured
-              ? "h-[18px] w-[18px] stroke-[1.75]"
-              : "h-[17px] w-[17px] stroke-[1.75]";
+            ? "h-4 w-4 stroke-[1.75]"
+            : "h-5 w-5 stroke-[1.75]";
+          // 정책 §3·§11: 컨트롤 14/20, 압축(compact) 13/20. 12px 미만 금지. 선택 600 / 비선택 500.
           const labelCls = [
-            "text-center font-semibold leading-tight",
-            `transition-[font-size] ${EASE}`,
-            compact
-              ? "max-w-full truncate text-[9px]"
-              : featured || isMap
-                ? "text-[12px]"
-                : "text-[10.5px]",
+            "max-w-full truncate text-center",
+            active ? "font-semibold" : "font-medium",
+            compact ? "text-[13px] leading-5" : "text-[14px] leading-5",
           ].join(" ");
 
           const body = (
@@ -118,9 +117,7 @@ export function HomeNavigation() {
               </span>
               <span className={labelCls}>{label}</span>
               {!compact && isMap && disabled ? (
-                <span className="text-[10px] font-medium text-slate-400">
-                  {item.disabledHint ?? "준비중"}
-                </span>
+                <LabTag>{item.disabledHint ?? "준비중"}</LabTag>
               ) : null}
             </>
           );
@@ -143,7 +140,7 @@ export function HomeNavigation() {
               key={item.id}
               href={item.href!}
               aria-current={active ? "page" : undefined}
-              className={`${className} active:scale-[0.99]`}
+              className={className}
             >
               {body}
             </Link>
