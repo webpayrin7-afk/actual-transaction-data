@@ -1,0 +1,498 @@
+{
+  "built_at": "2026-09-23T11:11:58Z",
+  "source": {
+    "provider": "SEMAS",
+    "dataset": "소상공인시장진흥공단_상가(상권)정보",
+    "version": "SEMAS_2026Q2",
+    "as_of": "2026-06-30",
+    "rule_version": "living_semas_v1",
+    "snapshot_version": "living_v1",
+    "active_status": "SEMAS file is the published 영업중 상가업소 population. There is no per-row closure flag in the bulk file. Rows are not dropped by an inferred closed/open guess.",
+    "files": [
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_강원_202606.csv",
+        "rows": 110206
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_경기_202606.csv",
+        "rows": 672680
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_경남_202606.csv",
+        "rows": 172887
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_경북_202606.csv",
+        "rows": 144967
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_대구_202606.csv",
+        "rows": 118357
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_대전_202606.csv",
+        "rows": 80704
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_부산_202606.csv",
+        "rows": 159689
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_서울_202606.csv",
+        "rows": 554092
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_세종_202606.csv",
+        "rows": 15816
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_울산_202606.csv",
+        "rows": 54737
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_인천_202606.csv",
+        "rows": 136995
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_전남광주_202606.csv",
+        "rows": 175276
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_전북_202606.csv",
+        "rows": 98749
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_제주_202606.csv",
+        "rows": 59009
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_충남_202606.csv",
+        "rows": 124589
+      },
+      {
+        "name": "소상공인시장진흥공단_상가(상권)정보_충북_202606.csv",
+        "rows": 93731
+      }
+    ],
+    "facility_rows": 2772484,
+    "invalid_coord_rows": 0,
+    "duplicate_extra_rows": 0,
+    "classified_points_indexed": 248196,
+    "status_columns": [],
+    "status_values": {},
+    "unlisted_medical": {},
+    "unlisted_food": {},
+    "unlisted_sports": {}
+  },
+  "national": {
+    "target_complexes": 3058,
+    "coordinate_ready": 3058,
+    "snapshot_500": 3058,
+    "snapshot_1000": 3058,
+    "no_coordinate": 0,
+    "invalid_coordinate": 0,
+    "readiness_rows": 3058,
+    "snapshot_rows": 238524,
+    "zero_distance_links": 0
+  },
+  "coverage": {
+    "by_sido": {
+      "전남광주통합특별시": {
+        "target": 665,
+        "coordinate_ready": 665,
+        "snapshot_500": 665,
+        "snapshot_1000": 665,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "부산광역시": {
+        "target": 3,
+        "coordinate_ready": 3,
+        "snapshot_500": 3,
+        "snapshot_1000": 3,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "인천광역시": {
+        "target": 724,
+        "coordinate_ready": 724,
+        "snapshot_500": 724,
+        "snapshot_1000": 724,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "대전광역시": {
+        "target": 346,
+        "coordinate_ready": 346,
+        "snapshot_500": 346,
+        "snapshot_1000": 346,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "울산광역시": {
+        "target": 295,
+        "coordinate_ready": 295,
+        "snapshot_500": 295,
+        "snapshot_1000": 295,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "세종특별자치시": {
+        "target": 56,
+        "coordinate_ready": 56,
+        "snapshot_500": 56,
+        "snapshot_1000": 56,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "충청북도": {
+        "target": 70,
+        "coordinate_ready": 70,
+        "snapshot_500": 70,
+        "snapshot_1000": 70,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "충청남도": {
+        "target": 222,
+        "coordinate_ready": 222,
+        "snapshot_500": 222,
+        "snapshot_1000": 222,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "경상북도": {
+        "target": 175,
+        "coordinate_ready": 175,
+        "snapshot_500": 175,
+        "snapshot_1000": 175,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "경상남도": {
+        "target": 236,
+        "coordinate_ready": 236,
+        "snapshot_500": 236,
+        "snapshot_1000": 236,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "제주특별자치도": {
+        "target": 123,
+        "coordinate_ready": 123,
+        "snapshot_500": 123,
+        "snapshot_1000": 123,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "강원특별자치도": {
+        "target": 55,
+        "coordinate_ready": 55,
+        "snapshot_500": 55,
+        "snapshot_1000": 55,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      },
+      "전북특별자치도": {
+        "target": 88,
+        "coordinate_ready": 88,
+        "snapshot_500": 88,
+        "snapshot_1000": 88,
+        "no_coordinate": 0,
+        "invalid_coordinate": 0
+      }
+    },
+    "categories": {
+      "MEDICAL": {
+        "500": {
+          "complexes_with_any": 2438,
+          "complexes_measured": 3058,
+          "facility_count": 30644,
+          "other": 1675,
+          "classified": 28969,
+          "classification_coverage": 0.9453400339381282
+        },
+        "1000": {
+          "complexes_with_any": 2872,
+          "complexes_measured": 3058,
+          "facility_count": 102997,
+          "other": 5361,
+          "classified": 97636,
+          "classification_coverage": 0.947949940289523
+        }
+      },
+      "FOOD": {
+        "500": {
+          "complexes_with_any": 3049,
+          "complexes_measured": 3058,
+          "facility_count": 414798,
+          "other": 3,
+          "classified": 414795,
+          "classification_coverage": 0.9999927675639709
+        },
+        "1000": {
+          "complexes_with_any": 3057,
+          "complexes_measured": 3058,
+          "facility_count": 1379060,
+          "other": 6,
+          "classified": 1379054,
+          "classification_coverage": 0.9999956492103317
+        }
+      },
+      "CAFE": {
+        "500": {
+          "complexes_with_any": 3000,
+          "complexes_measured": 3058,
+          "facility_count": 61923,
+          "other": 0,
+          "classified": 61923,
+          "classification_coverage": 1.0
+        },
+        "1000": {
+          "complexes_with_any": 3050,
+          "complexes_measured": 3058,
+          "facility_count": 211281,
+          "other": 0,
+          "classified": 211281,
+          "classification_coverage": 1.0
+        }
+      },
+      "CONVENIENCE": {
+        "500": {
+          "complexes_with_any": 3003,
+          "complexes_measured": 3058,
+          "facility_count": 29206,
+          "other": 0,
+          "classified": 29206,
+          "classification_coverage": 1.0
+        },
+        "1000": {
+          "complexes_with_any": 3049,
+          "complexes_measured": 3058,
+          "facility_count": 96244,
+          "other": 0,
+          "classified": 96244,
+          "classification_coverage": 1.0
+        }
+      },
+      "GROCERY": {
+        "500": {
+          "complexes_with_any": 2969,
+          "complexes_measured": 3058,
+          "facility_count": 31764,
+          "other": 0,
+          "classified": 31764,
+          "classification_coverage": 1.0
+        },
+        "1000": {
+          "complexes_with_any": 3041,
+          "complexes_measured": 3058,
+          "facility_count": 103979,
+          "other": 0,
+          "classified": 103979,
+          "classification_coverage": 1.0
+        }
+      },
+      "ETC": {
+        "500": {
+          "complexes_with_any": 2542,
+          "complexes_measured": 3058,
+          "facility_count": 15457,
+          "other": 0,
+          "classified": 15457,
+          "classification_coverage": 1.0
+        },
+        "1000": {
+          "complexes_with_any": 2918,
+          "complexes_measured": 3058,
+          "facility_count": 51001,
+          "other": 0,
+          "classified": 51001,
+          "classification_coverage": 1.0
+        }
+      },
+      "SPORTS": {
+        "500": {
+          "complexes_with_any": 2792,
+          "complexes_measured": 3058,
+          "facility_count": 31760,
+          "other": 1509,
+          "classified": 30251,
+          "classification_coverage": 0.9524874055415617
+        },
+        "1000": {
+          "complexes_with_any": 3000,
+          "complexes_measured": 3058,
+          "facility_count": 101893,
+          "other": 5007,
+          "classified": 96886,
+          "classification_coverage": 0.9508602161090556
+        }
+      }
+    }
+  },
+  "pilots": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "name": "잠실엘스",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "name": "파크리오",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "name": "리센츠",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_30d7eea6da810b52",
+      "name": "헬리오시티",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "name": "반포자이",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_3bcf0f87bce7496b",
+      "name": "래미안퍼스티지",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "name": "은마",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_c9ed0235ecca960c",
+      "name": "도곡렉슬",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_07caf64c556e85a7",
+      "name": "마포프레스티지자이",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "complex_id": "cx_88d05e29df26a0d6",
+      "name": "포레나노원",
+      "found": false,
+      "sido": null,
+      "quality_status": null,
+      "latitude": null,
+      "longitude": null
+    }
+  ],
+  "jamsil_parity": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "name": "잠실엘스",
+    "source_version": "SEMAS_2026Q2",
+    "radius_m": 1000,
+    "reference_point": {
+      "lat": 37.5133051,
+      "lng": 127.0815962,
+      "role": "Reference point supplied for pipeline parity. Not a parcel coordinate and not written as this complex's snapshot."
+    },
+    "totals": {
+      "MEDICAL": 205,
+      "FOOD": 821,
+      "CAFE": 116,
+      "CONVENIENCE": 54,
+      "GROCERY": 35,
+      "ETC": 51,
+      "SPORTS": 94
+    },
+    "medical_subcategories": {
+      "DENTAL": 42,
+      "DERM_UROLOGY": 21,
+      "ENT": 7,
+      "HOSPITAL": 1,
+      "HOSPITAL_DENTAL": 4,
+      "HOSPITAL_KOREAN": 0,
+      "HOSPITAL_NURSING": 0,
+      "INTERNAL_PEDIATRIC": 28,
+      "KOREAN_MEDICINE": 41,
+      "NEURO_PSYCHIATRY": 14,
+      "OBGYN": 7,
+      "OPHTHALMOLOGY": 5,
+      "OTHER": 13,
+      "PLASTIC_SURGERY": 6,
+      "RADIOLOGY_LAB": 3,
+      "SURGERY": 13
+    },
+    "food_subcategories": {
+      "BAR": 133,
+      "CAFETERIA_BUFFET": 8,
+      "CASUAL_OTHER": 231,
+      "CHINESE": 29,
+      "JAPANESE": 51,
+      "KOREAN": 325,
+      "OTHER": 0,
+      "SOUTHEAST_ASIAN": 9,
+      "WESTERN": 35
+    },
+    "cafe": 116,
+    "parity": {
+      "medical_total": true,
+      "food_total": true,
+      "pass": true
+    },
+    "prior_pipeline_differences": {},
+    "subcategory_note": "SEMAS has no separate 정형/재활/가정 small code. 성형외과 의원 stays PLASTIC_SURGERY, 안과 stays OPHTHALMOLOGY, 방사선 진단/병리 stays RADIOLOGY_LAB. Those are not folded into the non-source specialty list.",
+    "zero_distance_links": 0
+  },
+  "jamsil_official_parcel": null,
+  "performance": {
+    "spatial_index": "grid cell 0.01 degrees, then haversine",
+    "index_seconds": 22.021,
+    "aggregate_seconds": 2.843
+  },
+  "held": [
+    {
+      "category": "PARK",
+      "qualityStatus": "NO_SOURCE",
+      "reason": "SEMAS is a commercial-store file. No official park dataset is in this repo, so parks are not estimated from store categories."
+    }
+  ],
+  "local_db": "data/cache/living/residual-delta.db"
+}

@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-09-23T12:37:06.263Z",
+  "input_complexes": 3058,
+  "materialize": {
+    "parity_pass": true,
+    "complete": 3058,
+    "snapshot_rows": 238524,
+    "semas_zip": "data/cache/semas/semas_20260630.full.zip",
+    "publication_count": 22130
+  },
+  "production": {
+    "snapshotInserts": 238524,
+    "snapshotUpdates": 0,
+    "readinessInserts": 0,
+    "readinessUpdates": 3058,
+    "ruleInserts": 0,
+    "ruleUpdates": 0,
+    "publicationInserts": 0,
+    "publicationUpdates": 1,
+    "pointerClears": 0
+  },
+  "coverage": {
+    "coords_before": 19072,
+    "coords_after": 22130,
+    "living_snapshots_before": 1487616,
+    "living_snapshots_after": 1726140
+  }
+}

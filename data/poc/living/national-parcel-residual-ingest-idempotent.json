@@ -1,0 +1,12 @@
+{
+  "filled": 0,
+  "updates": 0,
+  "held": 0,
+  "resultingReady": 22130,
+  "unrelated": {
+    "transactions": 400
+  },
+  "applySeconds": 3.784,
+  "schoolArtifact": "data/poc/living/school-delta-newly-coordinate-ready.json",
+  "schoolCount": 0
+}

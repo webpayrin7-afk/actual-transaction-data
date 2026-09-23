@@ -1,0 +1,15 @@
+{
+  "filled": 3058,
+  "updates": 0,
+  "held": 0,
+  "resultingReady": 22130,
+  "beforeReady": 19072,
+  "unrelated": {
+    "transactions": 20293
+  },
+  "applySeconds": 179.182,
+  "schoolArtifact": "data/poc/living/school-delta-newly-coordinate-ready.json",
+  "schoolCount": 3058,
+  "source_version": "20260908",
+  "owner_extract_date": "2026-09-23"
+}
