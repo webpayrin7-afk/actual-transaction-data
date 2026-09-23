@@ -15,6 +15,10 @@ import {
 } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
+import {
+  RegionSeoulRankBadges,
+  type SeoulRank,
+} from "@/components/region/RegionSeoulRankBadges";
 import type {
   RegionPriceTrend,
   RegionPriceTrendPoint,
@@ -49,14 +53,6 @@ const DIR_DOWN = "var(--lab-change-down)";
 const DIR_OTHER = "#CBD5E1";
 
 type ChartRow = RegionPriceTrendPoint & { label: string; partial: boolean };
-
-type SeoulRank = {
-  status: "ok";
-  yearMonth: string;
-  total: number;
-  priceRank: number | null;
-  change1yRank: number | null;
-};
 
 function ymDot(ym: string): string {
   return `${ym.slice(0, 4)}.${ym.slice(4, 6)}`;
@@ -416,18 +412,7 @@ export function RegionPriceTrendChart({
           </p>
         ) : null}
         {current && rankQuery.data && rankQuery.data.yearMonth === current.yearMonth ? (
-          <p className="mt-1.5 flex flex-wrap gap-1.5">
-            {rankQuery.data.priceRank != null ? (
-              <span className="inline-flex rounded-full border border-[color:var(--lab-border)] px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-brand-primary)]">
-                서울 {rankQuery.data.total}개 구 중 {rankQuery.data.priceRank}위
-              </span>
-            ) : null}
-            {rankQuery.data.change1yRank != null ? (
-              <span className="inline-flex rounded-full border border-[color:var(--lab-border)] px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-body)]">
-                1년 상승률 {rankQuery.data.change1yRank}위
-              </span>
-            ) : null}
-          </p>
+          <RegionSeoulRankBadges rank={rankQuery.data} />
         ) : null}
       </div>
 

@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
         change1y: gu.change1y,
         priceRank: gu.priceRank,
         change1yRank: gu.change1yRank,
+        gus: ranks.gus,
       },
       { headers: CACHE_HEADERS },
     );
