@@ -212,7 +212,7 @@ export function AptQuickSearch({
               <div className="max-h-80 overflow-y-auto py-1">
                 {regionSuggestions.length > 0 ? (
                   <div>
-                    <p className="px-4 pt-2 pb-1 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
+                    <p className="detail-meta px-4 pt-2 pb-1 font-semibold">
                       지역
                     </p>
                     <ul>
@@ -234,7 +234,7 @@ export function AptQuickSearch({
                                 <span className="block truncate text-sm font-semibold text-slate-900">
                                   {item.name}
                                 </span>
-                                <span className="mt-0.5 block truncate text-xs text-slate-500">
+                                <span className="detail-meta mt-0.5 block truncate">
                                   {item.metroLabel} · {item.matchLabel}
                                 </span>
                               </span>
@@ -247,7 +247,7 @@ export function AptQuickSearch({
                 ) : null}
                 {aptSuggestions.length > 0 ? (
                   <div>
-                    <p className="px-4 pt-2 pb-1 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
+                    <p className="detail-meta px-4 pt-2 pb-1 font-semibold">
                       단지
                     </p>
                     <ul>
@@ -279,7 +279,7 @@ export function AptQuickSearch({
                                 <span className="block truncate text-sm font-semibold text-slate-900">
                                   {item.aptName}
                                 </span>
-                                <span className="mt-0.5 block truncate text-xs text-slate-500">
+                                <span className="detail-meta mt-0.5 block truncate">
                                   {location}
                                 </span>
                               </span>
@@ -325,7 +325,7 @@ export function AptQuickSearch({
                           <span className="block truncate text-sm font-semibold text-slate-900">
                             {item.aptName}
                           </span>
-                          <span className="mt-0.5 block truncate text-xs text-slate-500">
+                          <span className="detail-meta mt-0.5 block truncate">
                             {location}
                           </span>
                         </span>
@@ -344,7 +344,7 @@ export function AptQuickSearch({
         )}
       </div>
       {hint ? (
-        <p className="mt-1.5 text-xs text-slate-500">{hint}</p>
+        <p className="detail-meta mt-1.5">{hint}</p>
       ) : null}
     </form>
   );
