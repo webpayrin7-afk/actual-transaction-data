@@ -54,3 +54,6 @@ data/map-anchor/
 
 # SEMAS national store zip + local commerce build (large, regenerable)
 /data/semas/
+
+# 건축HUB / VWorld response cache for the supply fill (regenerable, large)
+/data/supply-fill-cache/
