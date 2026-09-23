@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ComplexRegionPriceCompare } from "@/components/apt/ComplexRegionPriceCompare";
-import { InfoTip } from "@/components/ui/InfoTip";
+import { LAB_SUBSECTION_RULE, LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
 import { areaSelectorPyeongLabel } from "@/lib/apt/area-selector-label";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
@@ -42,7 +42,7 @@ function RankValue({
   return (
     <p className="detail-compact-value">
       <span>{line.rank}</span>
-      <span className="detail-micro ml-0.5 font-medium">위</span>
+      <span className="detail-label ml-0.5">위</span>
     </p>
   );
 }
@@ -136,35 +136,22 @@ export function ComplexRegionRankSection({
   const showDecade = decadeLabel != null;
 
   return (
-    <section
-      id="section-region-rank"
-      className="lab-card detail-card scroll-mt-28"
-    >
-      <h2 className="detail-section-title min-w-0 truncate">
-        지역 내 비교
-      </h2>
-
-      <div className="detail-after-title">
-        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-          <div className="flex min-w-0 items-center">
-            <h3 className="detail-subsection-title">
-              {ZIPLAB_RANK_TITLE}
-            </h3>
-            <InfoTip aria-label="집랩 순위 안내">
+    <LabSection id="section-region-rank" title="지역 내 비교">
+      <div>
+        <LabSubsectionHeader
+          title={ZIPLAB_RANK_TITLE}
+          meta={asOf || undefined}
+          tip={
+            <>
               <p className="font-medium text-slate-800">{ZIPLAB_RANK_TIP_TITLE}</p>
               {ZIPLAB_RANK_TIP.split("\n\n").map((paragraph) => (
                 <p key={paragraph} className="mt-1.5 first:mt-1">
                   {paragraph}
                 </p>
               ))}
-            </InfoTip>
-          </div>
-          {asOf ? (
-            <p className="detail-meta shrink-0 text-right">
-              {asOf}
-            </p>
-          ) : null}
-        </div>
+            </>
+          }
+        />
 
         {query.isLoading ? (
           <div className="mt-2 space-y-2" aria-label="순위 불러오는 중">
@@ -226,11 +213,11 @@ export function ComplexRegionRankSection({
         marketPyeongLabel={marketPyeongLabel}
       />
 
-      <div className="mt-6 border-t border-[color:var(--lab-border)] pt-6">
+      <div className={`mt-3 ${LAB_SUBSECTION_RULE}`}>
         <Link
           href={regionHref}
           data-event="complex_region_rank_cta"
-          className="lab-button lab-button-primary w-full"
+          className="lab-button lab-button-secondary w-full"
         >
           {regionOverviewCtaLabel(regionName)}
           <span aria-hidden className="ml-1">
@@ -238,6 +225,6 @@ export function ComplexRegionRankSection({
           </span>
         </Link>
       </div>
-    </section>
+    </LabSection>
   );
 }

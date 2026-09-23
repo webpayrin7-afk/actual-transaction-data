@@ -3,8 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { LabCard } from "@/components/ui/lab";
-import { InfoTip } from "@/components/ui/InfoTip";
+import { LabSection } from "@/components/ui/LabSection";
 import type {
   AptAreaOption,
   AptDetailResponse,
@@ -144,7 +143,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
   ];
 
   return (
-    <div className="detail-after-title">
+    <div>
       <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
         <div className="min-w-0" style={{ minWidth: 72 + n * 104 }}>
           <div
@@ -208,7 +207,7 @@ function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
         </div>
       </div>
       {n > 2 ? (
-        <p className="detail-meta mt-2">좌우로 밀어서 다른 단지를 확인하세요.</p>
+        <p className="detail-meta">좌우로 밀어서 다른 단지를 확인하세요.</p>
       ) : null}
     </div>
   );
@@ -316,36 +315,32 @@ export function ComplexCompareSection({
   const empty = !peersQuery.isLoading && !loadingPeers && peers.length === 0;
 
   return (
-    <LabCard className="detail-card">
-      <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <h2 className="detail-section-title flex items-center">
-            주변 단지 비교
-            <InfoTip aria-label="주변 단지 비교 안내">
-              <p>
-                같은 동·인근 지역에서 전용면적, 준공연도, 최근 거래와 확인 가능한
-                단지 규모를 기준으로 비교 단지를 자동 선정합니다.
-              </p>
-              <p>거리 기반 추천은 아닙니다.</p>
-            </InfoTip>
-          </h2>
-        </div>
-        <p className="detail-meta shrink-0 pt-0.5 text-right">
-          {areaBandLabel(areaCenter)}
-        </p>
-      </div>
+    <LabSection
+      id="section-comparison"
+      title="주변 단지 비교"
+      meta={areaBandLabel(areaCenter)}
+      tip={
+        <>
+          <p>
+            같은 동·인근 지역에서 면적·연식·규모가 비슷한 단지를 자동으로
+            골라 비교합니다.
+          </p>
+          <p>거리 기반 추천은 아닙니다.</p>
+        </>
+      }
+    >
 
       {loadingPeers ? (
-        <p className="detail-meta mt-2">비교 단지를 불러오는 중…</p>
+        <p className="detail-meta">비교 단지를 불러오는 중…</p>
       ) : null}
 
       {empty ? (
-        <p className="detail-meta mt-2">
+        <p className="detail-meta">
           비교할 수 있는 주변 유사 단지가 아직 없습니다.
         </p>
       ) : null}
 
       {!loadingPeers && !empty ? <CompareMatrix columns={columns} /> : null}
-    </LabCard>
+    </LabSection>
   );
 }

@@ -15,10 +15,9 @@ import {
   type NaverMapMarker,
   type LivingMarkerCategory,
 } from "@/components/map/NaverMap";
-import {
-  LabCard,
-  LabState,
-} from "@/components/ui/lab";
+import { LabState } from "@/components/ui/lab";
+import { LabSection } from "@/components/ui/LabSection";
+import { LabMoreButton } from "@/components/ui/LabMoreButton";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
@@ -1327,7 +1326,7 @@ export function ComplexNearbyLifeSection({
 
   const moreCount = (() => {
     const data = lifeQuery.data;
-    if (!data || expanded) return 0;
+    if (!data) return 0;
     if (tab === "transport") {
       // 더보기 expands bus stops only — subway is always fully listed.
       const buses = data.transport.items.filter((p) => !isSubwayPoi(p)).length;
@@ -1346,14 +1345,11 @@ export function ComplexNearbyLifeSection({
   })();
 
   return (
-    <LabCard
-      className={`lab-card detail-card ${tab === "living" ? "overflow-visible" : ""}`}
-    >
-      <div className="lab-section-heading mb-px">
-        <div className="min-w-0">
-          <h2 className="detail-section-title flex items-center">
-            주변 생활
-            <InfoTip aria-label="주변 생활 출처 안내" className="detail-meta">
+    <LabSection
+      id="section-nearby-life"
+      title="주변 생활"
+      className={`gap-3 ${tab === "living" ? "overflow-visible" : ""}`}
+      tip={<>
               <p className="detail-body">
                 지도: NAVER Maps
                 <br />
@@ -1384,12 +1380,9 @@ export function ComplexNearbyLifeSection({
                 <br />
                 지역 검색 결과 기준이며 전체 시설 수를 의미하지 않습니다.
               </p>
-            </InfoTip>
-          </h2>
-        </div>
-      </div>
+      </>}
+    >
       <LabTabs
-        className="mt-2.5"
         variant="secondary"
         ariaLabel="주변 생활 카테고리"
         value={tab}
@@ -1397,7 +1390,7 @@ export function ComplexNearbyLifeSection({
         onChange={selectTab}
       />
 
-      <div className="mt-3 space-y-3">
+      <div className="space-y-3">
         {tab === "commerce" && commerceSnapshot ? (
           <ComplexCommerceMeta snapshot={commerceSnapshot} />
         ) : null}
@@ -1491,7 +1484,7 @@ export function ComplexNearbyLifeSection({
                 className="h-full w-full rounded-none"
               />
               {tab === "commerce" && commerceSnapshot?.mapPoints ? (
-                <p className="detail-micro pointer-events-none absolute bottom-2 left-3 rounded bg-white/85 px-1.5 py-0.5 font-medium text-slate-600 shadow-sm">
+                <p className="detail-meta pointer-events-none absolute bottom-2 left-3 rounded bg-white/90 px-1.5 py-0.5 font-medium text-slate-600">
                   점 1개 = 생활업소 1곳 · 색 = 업종 대분류
                 </p>
               ) : null}
@@ -1518,20 +1511,20 @@ export function ComplexNearbyLifeSection({
         <div className="min-w-0">
           {listContent}
           {moreCount > 0 && (tab === "transport" || tab === "living") ? (
-            <div className="mt-2 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setExpanded(true)}
-                className="detail-label font-medium text-[var(--lab-teal-700)] hover:underline"
-              >
-                {tab === "transport"
-                  ? `버스 정류장 더보기 · ${moreCount}곳`
-                  : `${LIVING_CHIP_LABEL[livingCategory]} 더보기 · ${moreCount}곳`}
-              </button>
+            <div className="mt-3">
+              <LabMoreButton
+                expanded={expanded}
+                onToggle={() => setExpanded((v) => !v)}
+                label={
+                  tab === "transport"
+                    ? `버스 정류장 ${moreCount}곳 더보기`
+                    : `${LIVING_CHIP_LABEL[livingCategory]} ${moreCount}곳 더보기`
+                }
+              />
             </div>
           ) : null}
         </div>
       </div>
-</LabCard>
+    </LabSection>
   );
 }

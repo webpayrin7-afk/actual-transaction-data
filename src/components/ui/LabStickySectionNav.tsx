@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 export type LabStickySection = { id: string; label: string };
 
@@ -24,12 +24,15 @@ export function LabStickySectionNav({
   title,
   subtitle,
   ariaLabel,
+  titleRow,
 }: {
   anchor: React.RefObject<HTMLElement | null>;
   sections: readonly LabStickySection[];
   title: string;
   subtitle?: string;
   ariaLabel?: string;
+  /** Replaces the default title line and stays visible on mobile (e.g. back + name + filter). */
+  titleRow?: ReactNode;
 }) {
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState<string>(sections[0]?.id ?? "");
@@ -93,9 +96,16 @@ export function LabStickySectionNav({
 
   useEffect(() => {
     const root = document.documentElement;
-    const h = visible ? barRef.current?.offsetHeight ?? 0 : 0;
-    root.style.setProperty(LAB_STICKY_NAV_HEIGHT_VAR, `${h}px`);
+    const bar = barRef.current;
+    const sync = () => {
+      const h = visible ? bar?.offsetHeight ?? 0 : 0;
+      root.style.setProperty(LAB_STICKY_NAV_HEIGHT_VAR, `${h}px`);
+    };
+    sync();
+    const ro = bar && visible ? new ResizeObserver(sync) : null;
+    if (bar && ro) ro.observe(bar);
     return () => {
+      ro?.disconnect();
       root.style.removeProperty(LAB_STICKY_NAV_HEIGHT_VAR);
     };
   }, [visible]);
@@ -147,10 +157,12 @@ export function LabStickySectionNav({
       {...(!visible ? { inert: true } : {})}
     >
       <div className="mx-auto w-full max-w-[70rem] px-4 sm:px-6 lg:px-8">
-        <p className="hidden min-w-0 items-baseline gap-1.5 pt-2 sm:flex">
-          <span className="detail-subsection-title truncate">{title}</span>
-          {subtitle ? <span className="detail-meta shrink-0">{subtitle}</span> : null}
-        </p>
+        {titleRow ?? (
+          <p className="hidden min-w-0 items-baseline gap-1.5 pt-2 sm:flex">
+            <span className="detail-subsection-title truncate">{title}</span>
+            {subtitle ? <span className="detail-meta shrink-0">{subtitle}</span> : null}
+          </p>
+        )}
         <nav aria-label={ariaLabel ?? `${title} 섹션`}>
           <div
             ref={tabsRef}

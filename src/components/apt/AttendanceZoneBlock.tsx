@@ -44,7 +44,7 @@ export function AttendanceZoneBlock({
           <ChevronRight className="h-3.5 w-3.5" aria-hidden />
         </button>
       </div>
-      <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+      <p className="mt-0.5 text-[13px] leading-5 text-slate-500">
         {zone.description}
       </p>
 
@@ -57,12 +57,12 @@ export function AttendanceZoneBlock({
         compactBodyTop
       >
         {zone.zoneKind === "joint" ? (
-          <p className="text-[12px] text-slate-500">
+          <p className="text-[13px] leading-5 text-slate-500">
             {`공동통학구역 · ${zone.designatedSchools.length}개교`}
           </p>
         ) : null}
         <p
-          className={`text-[11px] leading-4 text-slate-500 ${
+          className={`text-[13px] leading-5 text-slate-500 ${
             zone.zoneKind === "joint" ? "mt-1" : ""
           }`}
         >
@@ -99,7 +99,7 @@ export function AttendanceZoneBlock({
                         {m.name}
                       </span>
                       {meta ? (
-                        <span className="mt-0.5 block text-[10px] text-slate-500">
+                        <span className="mt-0.5 block text-[13px] leading-5 text-slate-500">
                           {meta}
                         </span>
                       ) : null}
@@ -115,7 +115,7 @@ export function AttendanceZoneBlock({
                       {m.name}
                     </p>
                     {meta ? (
-                      <p className="mt-0.5 text-[10px] text-slate-500">{meta}</p>
+                      <p className="mt-0.5 text-[13px] leading-5 text-slate-500">{meta}</p>
                     ) : null}
                   </div>
                 )}

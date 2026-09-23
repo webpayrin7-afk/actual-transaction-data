@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronsUpDown, LoaderCircle } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
   GroupedTransactionList,
@@ -114,44 +115,19 @@ function YearSelect({
   );
 }
 
-function KpiCell({
-  label,
-  value,
-  hint,
-  valueClassName,
-}: {
-  label: string;
-  value: string;
-  hint: string;
-  valueClassName?: string;
-}) {
-  return (
-    <div className="min-w-0 flex-1 px-2 py-2.5 text-center sm:px-3 sm:py-3">
-      <p className="detail-caption">
-        {label}
-      </p>
-      <p
-        className={`detail-number mt-0.5 truncate ${
-          valueClassName ?? "text-[color:var(--lab-navy-950)]"
-        }`}
-      >
-        {value}
-      </p>
-      <p className="detail-caption mt-0.5 truncate">
-        {hint}
-      </p>
-    </div>
-  );
-}
-
-/** Short centered rule — shorter than full cell height, not a full-bleed divide-x. */
-function KpiDivider() {
-  return (
-    <div
-      className="my-auto h-7 w-px shrink-0 self-center bg-[color:var(--lab-border)] sm:h-8"
-      aria-hidden
-    />
-  );
+function kpiTile(
+  key: string,
+  label: string,
+  value: string,
+  hint: string,
+  valueClassName?: string,
+): LabStatTile {
+  return {
+    key,
+    label,
+    value: valueClassName ? <span className={valueClassName}>{value}</span> : value,
+    sub: hint,
+  };
 }
 
 export function AptTransactionsPage({
@@ -344,14 +320,14 @@ export function AptTransactionsPage({
   return (
     <div className={PAGE_WRAP}>
       <div className="space-y-2">
-        <div className="flex min-h-10 items-center gap-1.5">
+        <div className="flex min-h-10 items-start gap-1.5">
           <BackLink fallback={detailHref} compact hideLabel />
-          <h1 className="detail-page-title min-w-0 flex-1 truncate">
+          <h1 className="detail-page-title min-w-0 flex-1 break-keep pt-1.5">
             {displayName}
           </h1>
           <Link
             href={detailHref}
-            className="hidden shrink-0 text-[11px] font-medium text-[color:var(--lab-muted)] hover:text-[color:var(--lab-teal-700)] sm:inline"
+            className="hidden min-h-11 shrink-0 items-center text-[13px] font-medium leading-5 text-[color:var(--lab-muted)] hover:text-[color:var(--lab-teal-700)] sm:inline-flex"
           >
             단지상세로 돌아가기 &gt;
           </Link>
@@ -395,77 +371,66 @@ export function AptTransactionsPage({
           />
         ) : null}
 
-        <div className="flex items-stretch overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
-          {dealType === "monthly" ? (
-            <>
-              <KpiCell
-                label="최고 보증금"
-                value={
-                  kpi?.monthlyDepositHigh
-                    ? formatEokDetail(kpi.monthlyDepositHigh.amount)
-                    : "—"
-                }
-                hint={
-                  kpi?.monthlyDepositHigh
-                    ? kpiDateShort(kpi.monthlyDepositHigh.date)
-                    : "—"
-                }
-                valueClassName={dealTypePriceTextClass("monthly")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label="최고 월세"
-                value={
-                  kpi?.monthlyRentHigh
-                    ? formatKpiMonthlyRent(kpi.monthlyRentHigh.amount)
-                    : "—"
-                }
-                hint={
-                  kpi?.monthlyRentHigh
-                    ? kpiDateShort(kpi.monthlyRentHigh.date)
-                    : "—"
-                }
-                valueClassName={dealTypePriceTextClass("monthly")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label="월세 거래"
-                value={`${activeCount.toLocaleString("ko-KR")}건`}
-                hint={yearHint}
-              />
-            </>
-          ) : (
-            <>
-              <KpiCell
-                label="매매 최고"
-                value={
-                  kpi?.saleHigh ? formatEokDetail(kpi.saleHigh.amount) : "—"
-                }
-                hint={kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"}
-                valueClassName={dealTypePriceTextClass("trade")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label="전세 최고"
-                value={
-                  kpi?.jeonseHigh
-                    ? formatEokDetail(kpi.jeonseHigh.amount)
-                    : "—"
-                }
-                hint={
-                  kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
-                }
-                valueClassName={dealTypePriceTextClass("jeonse")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label={dealType === "jeonse" ? "전세 거래" : "매매 거래"}
-                value={`${activeCount.toLocaleString("ko-KR")}건`}
-                hint={yearHint}
-              />
-            </>
-          )}
-        </div>
+        <LabStatTiles
+          columns={3}
+          items={
+            dealType === "monthly"
+              ? [
+                  kpiTile(
+                    "deposit-high",
+                    "최고 보증금",
+                    kpi?.monthlyDepositHigh
+                      ? formatEokDetail(kpi.monthlyDepositHigh.amount)
+                      : "—",
+                    kpi?.monthlyDepositHigh
+                      ? kpiDateShort(kpi.monthlyDepositHigh.date)
+                      : "—",
+                    dealTypePriceTextClass("monthly"),
+                  ),
+                  kpiTile(
+                    "rent-high",
+                    "최고 월세",
+                    kpi?.monthlyRentHigh
+                      ? formatKpiMonthlyRent(kpi.monthlyRentHigh.amount)
+                      : "—",
+                    kpi?.monthlyRentHigh
+                      ? kpiDateShort(kpi.monthlyRentHigh.date)
+                      : "—",
+                    dealTypePriceTextClass("monthly"),
+                  ),
+                  kpiTile(
+                    "count",
+                    "월세 거래",
+                    `${activeCount.toLocaleString("ko-KR")}건`,
+                    yearHint,
+                  ),
+                ]
+              : [
+                  kpiTile(
+                    "sale-high",
+                    "매매 최고",
+                    kpi?.saleHigh ? formatEokDetail(kpi.saleHigh.amount) : "—",
+                    kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—",
+                    dealTypePriceTextClass("trade"),
+                  ),
+                  kpiTile(
+                    "jeonse-high",
+                    "전세 최고",
+                    kpi?.jeonseHigh
+                      ? formatEokDetail(kpi.jeonseHigh.amount)
+                      : "—",
+                    kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—",
+                    dealTypePriceTextClass("jeonse"),
+                  ),
+                  kpiTile(
+                    "count",
+                    dealType === "jeonse" ? "전세 거래" : "매매 거래",
+                    `${activeCount.toLocaleString("ko-KR")}건`,
+                    yearHint,
+                  ),
+                ]
+          }
+        />
       </div>
 
       <div className="mt-5 space-y-4 pt-1 pb-3 sm:pb-4">
@@ -490,7 +455,7 @@ export function AptTransactionsPage({
             )}
           </button>
         ) : null}
-        <p className="text-center text-[10px] text-[color:var(--lab-muted)] sm:text-right sm:text-[11px]">
+        <p className="detail-meta text-center sm:text-right">
           최근 계약일 순으로 정렬됩니다.
         </p>
       </div>

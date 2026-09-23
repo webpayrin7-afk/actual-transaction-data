@@ -48,7 +48,7 @@ export function SchoolDistrictBlock({
           <ChevronRight className="h-3.5 w-3.5" aria-hidden />
         </button>
       </div>
-      <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+      <p className="mt-0.5 text-[13px] leading-5 text-slate-500">
         {district.description}
       </p>
 
@@ -60,7 +60,7 @@ export function SchoolDistrictBlock({
         hideHeaderDivider
         compactBodyTop
       >
-        <p className="text-[11px] leading-4 text-slate-500">
+        <p className="text-[13px] leading-5 text-slate-500">
           학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.
         </p>
         <div
@@ -115,7 +115,7 @@ function DistrictSchoolRow({
       <div className="rounded-lg px-2.5 py-[5px]">
         <p className="truncate text-[13px] font-medium text-slate-800">{name}</p>
         {meta ? (
-          <p className="mt-0.5 text-[10px] text-slate-500">{meta}</p>
+          <p className="mt-0.5 text-[13px] leading-5 text-slate-500">{meta}</p>
         ) : null}
       </div>
     );
@@ -133,7 +133,7 @@ function DistrictSchoolRow({
           {name}
         </span>
         {meta ? (
-          <span className="mt-0.5 block text-[10px] text-slate-500">{meta}</span>
+          <span className="mt-0.5 block text-[13px] leading-5 text-slate-500">{meta}</span>
         ) : null}
       </span>
       <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />

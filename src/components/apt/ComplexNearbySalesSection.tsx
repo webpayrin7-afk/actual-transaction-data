@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LabCard } from "@/components/ui/lab";
-import { InfoTip } from "@/components/ui/InfoTip";
+import { LabSection } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import type {
   NearbySaleCard,
   NearbySaleStatus,
@@ -108,7 +109,7 @@ function DetailCta({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="detail-label shrink-0 font-medium !text-[color:var(--lab-teal-700)] transition hover:!text-[color:var(--lab-teal-700)]"
+      className="detail-label relative shrink-0 font-medium !text-[color:var(--lab-teal-700)] transition before:absolute before:-inset-y-3 before:inset-x-0 before:content-[''] hover:!text-[color:var(--lab-teal-700)]"
     >
       {label}
     </a>
@@ -179,7 +180,7 @@ export function SaleRow({ item }: { item: NearbySaleCard }) {
             </li>
           ))}
           {pricedExtra > 0 ? (
-            <li className="detail-micro font-medium tabular-nums text-slate-400">
+            <li className="detail-meta font-medium tabular-nums">
               외 {pricedExtra}개
             </li>
           ) : null}
@@ -228,6 +229,9 @@ export function ComplexNearbySalesSection({
     FEED_STATUSES.has(item.status),
   );
   const ready = q.data?.status === "READY" && items.length > 0;
+  const [expandedFor, setExpandedFor] = useState<string | null>(null);
+  const expanded = expandedFor === key;
+  const visibleItems = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
   const emptyReason =
     q.data?.reason ||
     (key
@@ -235,43 +239,48 @@ export function ComplexNearbySalesSection({
       : "표시할 공급 정보가 없습니다.");
 
   return (
-    <LabCard className="detail-card">
-      <div className="lab-section-heading">
-        <div className="min-w-0">
-          <h2 className="detail-section-title flex items-center">
-            주변 공급
-            <InfoTip aria-label="주변 공급 출처 안내" className="detail-meta">
-              <p>출처: 청약홈 · 한국부동산원</p>
-              <p>지역 기준: 현재 단지가 속한 시군구</p>
-              <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
-              <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
-            </InfoTip>
-          </h2>
-          <p className="detail-meta mt-1">{description}</p>
-        </div>
-      </div>
+    <LabSection
+      id="section-nearby-sales"
+      title="주변 공급"
+      meta={description}
+      tip={
+        <>
+          <p>출처: 청약홈 · 한국부동산원</p>
+          <p>지역 기준: 현재 단지가 속한 시군구</p>
+          <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
+          <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
+        </>
+      }
+    >
 
       {!key ? (
-        <p className="detail-meta mt-2">
+        <p className="detail-meta">
           단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.
         </p>
       ) : null}
 
       {key && q.isLoading ? (
-        <p className="detail-meta mt-2">주변 공급 정보를 불러오는 중…</p>
+        <p className="detail-meta">주변 공급 정보를 불러오는 중…</p>
       ) : null}
 
       {key && !q.isLoading && !ready ? (
-        <p className="detail-meta mt-2">{emptyReason}</p>
+        <p className="detail-meta">{emptyReason}</p>
       ) : null}
 
       {ready ? (
-        <ul className="detail-after-title overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
-          {items.map((item) => (
+        <ul className="overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
+          {visibleItems.map((item) => (
             <SaleRow key={item.id} item={item} />
           ))}
         </ul>
       ) : null}
-    </LabCard>
+      {ready && items.length > LAB_LIST_PREVIEW ? (
+        <LabMoreButton
+          expanded={expanded}
+          onToggle={() => setExpandedFor(expanded ? null : key)}
+          label={`${(items.length - LAB_LIST_PREVIEW).toLocaleString("ko-KR")}곳 더보기`}
+        />
+      ) : null}
+    </LabSection>
   );
 }

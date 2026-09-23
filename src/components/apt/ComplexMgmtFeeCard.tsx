@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { LabCard } from "@/components/ui/lab";
+import { LAB_SUBSECTION_RULE, LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
 import {
   formatYyyymmBasisLabel,
@@ -35,7 +35,7 @@ function ManwonFigure({
   return (
     <span className="inline-flex items-baseline gap-0.5">
       <span className={numberClass}>{text.slice(0, -unit.length)}</span>
-      <span className="detail-number-unit">{unit}</span>
+      <span className="detail-label">{unit}</span>
     </span>
   );
 }
@@ -133,22 +133,24 @@ export function ComplexMgmtFeeCard({
   const showSelectedEstimate = estimate != null;
 
   return (
-    <LabCard className="detail-card">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="detail-section-title shrink-0">관리비</h2>
-        {showSelectedEstimate && estimate ? (
-          <p className="detail-meta min-w-0 text-right">
+    <LabSection
+      id="section-management"
+      title="관리비"
+      meta={
+        showSelectedEstimate && estimate ? (
+          <>
             기준월 {formatMonthKo(estimate.latestMonth)}
             {" · "}
             전용 {estimate.exclusiveAreaMin.toFixed(2)}~
             {estimate.exclusiveAreaMax.toFixed(2)}㎡
-          </p>
-        ) : null}
-      </div>
+          </>
+        ) : undefined
+      }
+    >
 
       {showSelectedEstimate && estimate ? (
         <>
-          <div className="detail-after-title detail-rows">
+          <div className="detail-rows">
             <MetricRow
               label="최근 예상 관리비"
               emphasize
@@ -202,9 +204,9 @@ export function ComplexMgmtFeeCard({
           {estimate.components.common &&
           estimate.components.individual &&
           estimate.components.reserve ? (
-            <div className="detail-subsection-rule">
-              <p className="detail-subsection-title">관리비 구성</p>
-              <div className="detail-rows mt-3">
+            <div className={`${LAB_SUBSECTION_RULE} flex flex-col gap-3`}>
+              <LabSubsectionHeader title="관리비 구성" />
+              <div className="detail-rows">
                 <MetricRow
                   label="공용관리비"
                   valueLabel={formatWonRangeAsManwon(
@@ -232,7 +234,6 @@ export function ComplexMgmtFeeCard({
 
           <LabDisclosure
             title="관리비 산정근거 보기"
-            className="detail-subsection"
             titleClassName={MGMT_FEE_DISCLOSURE_ACTION}
             chevronClassName="h-4 w-4"
           >
@@ -317,7 +318,7 @@ export function ComplexMgmtFeeCard({
         </>
       ) : (
         <>
-          <div className="detail-after-title">
+          <div>
             <p className="detail-meta">선택 평형 예상 관리비</p>
             <p className="detail-summary-value mt-1">
               평형별 관리비 데이터 준비 중
@@ -326,7 +327,6 @@ export function ComplexMgmtFeeCard({
 
           <LabDisclosure
             title="관리비 산정근거 보기"
-            className="detail-subsection"
             titleClassName={MGMT_FEE_DISCLOSURE_ACTION}
             chevronClassName="h-4 w-4"
           >
@@ -350,6 +350,6 @@ export function ComplexMgmtFeeCard({
           </LabDisclosure>
         </>
       )}
-    </LabCard>
+    </LabSection>
   );
 }
