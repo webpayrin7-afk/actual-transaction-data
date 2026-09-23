@@ -12,38 +12,38 @@ import {
   fetchRegionRankingBoard,
   formatReferenceMonthCompact,
   rankingComplexHref,
-  regionRankingCode,
 } from "@/lib/region-ranking/public";
 import { RegionPriceTrendChart } from "@/components/region/RegionPriceTrendChart";
+import type { RegionScope } from "@/lib/region/region-scope";
 
+/** 시세 평당가 섹션. `scope.dong`이 있으면 그 법정동 시세(제목 "동 시세 평당가"). */
 export function RegionPriceSection({
-  lawdCodes,
+  scope,
   regionName,
 }: {
-  lawdCodes: string[];
+  scope: RegionScope;
+  /** 화면 표기 지역명 (구 이름, 동 페이지는 동 이름). */
   regionName: string;
 }) {
-  const lawdCd = regionRankingCode(lawdCodes);
-  if (!lawdCd) return null;
-
+  const title = scope.dong ? "동 시세 평당가" : "지역 시세 평당가";
   return (
     <section
       id="market-price"
-      aria-label="지역 시세 평당가"
+      aria-label={title}
       className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
       <LabSectionHeader
-        title="지역 시세 평당가"
+        title={title}
         meta="공급면적 기준"
         tip={
           <p>
-            {regionName} 아파트 단지들의 실거래를 바탕으로 집랩이 산출한 지역 시세
+            {regionName} 아파트 단지들의 실거래를 바탕으로 집랩이 산출한 {scope.dong ? "동" : "지역"} 시세
             평당가입니다. 공급면적(평형) 기준입니다.
           </p>
         }
       />
 
-      <RegionPriceTrendChart lawdCd={lawdCd} regionName={regionName} />
+      <RegionPriceTrendChart scope={scope} regionName={regionName} />
     </section>
   );
 }
@@ -112,16 +112,27 @@ function numberOf(value: unknown): number | null {
 export function RegionRankingTable({
   regionSlug,
   regionName,
-  lawdCodes,
+  regionCode,
+  title = "지역 아파트 랭킹",
+  label,
+  emptyText = "순위 정보를 준비 중입니다.",
 }: {
   regionSlug: string;
+  /** 구 이름 — 단지 상세 링크의 gu 파라미터. */
   regionName: string;
-  lawdCodes: string[];
+  /** 5자리 구 코드 또는 10자리 법정동 코드. */
+  regionCode: string | null;
+  title?: string;
+  /** 접근성 이름에 쓰는 지역 표기 (기본 regionName). */
+  label?: string;
+  /** 순위 행이 없을 때 문구. */
+  emptyText?: string;
 }) {
-  const regionCode = regionRankingCode(lawdCodes);
   const [expanded, setExpanded] = useState(false);
   const [tab, setTab] = useState<RankTabId>("COMPOSITE");
   const metricTab = tab !== "COMPOSITE";
+  // 동 순위(10자리 코드)는 모든 단지가 같은 동이라 동 이름을 붙이지 않는다.
+  const showDong = regionCode?.length !== 10;
   const query = useQuery({
     queryKey: ["region-ranking-v4", regionCode, tab, RANK_FULL],
     queryFn: () =>
@@ -145,17 +156,17 @@ export function RegionRankingTable({
   return (
     <section
       id="region-ranking"
-      aria-label="지역 아파트 랭킹"
+      aria-label={title}
       className={`${LAB_SECTION_SURFACE} flex scroll-mt-28 flex-col gap-3`}
     >
       <LabSectionHeader
-        title="지역 아파트 랭킹"
+        title={title}
         meta={formatReferenceMonthCompact(board?.transactionAsOf ?? null)}
         tip={<p>{RANK_TIPS[tab]}</p>}
       />
       <LabTabs
         variant="secondary"
-        ariaLabel="지역 아파트 랭킹 기준"
+        ariaLabel={`${title} 기준`}
         items={RANK_TABS}
         value={tab}
         onChange={(next) => {
@@ -170,11 +181,11 @@ export function RegionRankingTable({
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <p className="detail-body">순위 정보를 준비 중입니다.</p>
+        <p className="detail-body">{emptyText}</p>
       ) : (
         <>
           {/* 머리글 줄 없음 — 값 옆에 단위를 직접 붙인다. */}
-          <div aria-label={`${regionName} 아파트 랭킹`}>
+          <div aria-label={`${label ?? regionName} 아파트 랭킹`}>
             <ul className="divide-y divide-[color:var(--lab-border)]">
               {visible.map((row) => {
                 const href = rankingComplexHref({
@@ -194,7 +205,7 @@ export function RegionRankingTable({
                           <span className="detail-data-value-emphasis block truncate">
                             {row.apt_name ?? "—"}
                           </span>
-                          {row.dong ? (
+                          {showDong && row.dong ? (
                             <span className="detail-meta block truncate">{row.dong}</span>
                           ) : null}
                         </>
@@ -204,7 +215,7 @@ export function RegionRankingTable({
                             <span className="detail-data-value-emphasis min-w-0 truncate">
                               {row.apt_name ?? "—"}
                             </span>
-                            {row.dong ? (
+                            {showDong && row.dong ? (
                               <span className="detail-meta shrink-0 whitespace-nowrap">
                                 {row.dong}
                               </span>

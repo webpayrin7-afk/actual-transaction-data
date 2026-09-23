@@ -13,7 +13,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { SaleRow } from "@/components/apt/ComplexNearbySalesSection";
 import { RegionMarketTemperature } from "@/components/region/RegionMarketTemperature";
-import { useRegionMarketDetail } from "@/components/region/useRegionMarketDetail";
+import { useRegionMarketDetail } from "@/components/region/useRegionScopeQueries";
+import type { RegionScope } from "@/lib/region/region-scope";
 
 export { useRegionMarketDetail };
 import { aptDetailHref } from "@/lib/molit/apt-client";
@@ -50,6 +51,7 @@ function HighlightRow({
   reason,
   value,
   sub,
+  hideDong,
 }: {
   deal: RegionHighlightDeal;
   regionSlug: string;
@@ -58,9 +60,11 @@ function HighlightRow({
   reason: string;
   value: string;
   sub: string | null;
+  /** 동 페이지: 모든 거래가 같은 동이라 동 이름을 뺀다. */
+  hideDong?: boolean;
 }) {
   const meta = [
-    deal.dong,
+    hideDong ? null : deal.dong,
     formatSqmApproxPyeong(deal.exclusiveArea),
     deal.floor != null ? `${deal.floor}층` : null,
     shortDate(deal.dealDate),
@@ -98,15 +102,19 @@ function HighlightRow({
 }
 
 export function RegionTradeHighlightsSection({
-  lawdCd,
+  scope,
   regionSlug,
   regionName,
+  label,
 }: {
-  lawdCd: string;
+  scope: RegionScope;
   regionSlug: string;
+  /** 구 이름 — 단지 상세 링크의 gu 파라미터. */
   regionName: string;
+  /** 섹션 접근성 이름에 쓰는 지역 표기 (기본 regionName, 동 페이지는 동 이름). */
+  label?: string;
 }) {
-  const query = useRegionMarketDetail(lawdCd);
+  const query = useRegionMarketDetail(scope);
   if (query.isError) return null;
   const h = query.data?.highlights;
   const rows = h
@@ -141,7 +149,7 @@ export function RegionTradeHighlightsSection({
   return (
     <section
       id="market-trends"
-      aria-label={`${regionName} 거래 동향`}
+      aria-label={`${label ?? regionName} 거래 동향`}
       className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
       <LabSectionHeader
@@ -154,7 +162,7 @@ export function RegionTradeHighlightsSection({
           </p>
         }
       />
-      <RegionMarketTemperature lawdCd={lawdCd} />
+      <RegionMarketTemperature scope={scope} />
       <div className={`mt-1 ${LAB_SUBSECTION_RULE}`}>
         <LabSubsectionHeader
           title="주목할 거래"
@@ -183,6 +191,7 @@ export function RegionTradeHighlightsSection({
               reason={r.reason}
               value={r.value}
               sub={r.sub}
+              hideDong={Boolean(scope.dong)}
             />
           ))}
         </ul>

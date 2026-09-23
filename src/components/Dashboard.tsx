@@ -8,6 +8,7 @@ import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabTabs } from "@/components/ui/LabTabs";
 import type { RegionDef } from "@/lib/constants/regions";
+import { regionRankingCode } from "@/lib/region-ranking/public";
 
 export type RegionTab = "dong" | "stats";
 
@@ -32,6 +33,7 @@ export function Dashboard({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tab = parseTab(searchParams.get("tab")) ?? initialTab ?? "stats";
+  const lawdCd = regionRankingCode(region.lawdCodes);
 
   const selectTab = (next: RegionTab) => {
     if (next === tab) return;
@@ -50,7 +52,7 @@ export function Dashboard({
           titleClassName="detail-page-title"
           showDivider={false}
         >
-          <RegionHeroMeta lawdCodes={region.lawdCodes} />
+          <RegionHeroMeta scope={lawdCd ? { lawdCd } : null} />
         </PageHeader>
       </header>
 

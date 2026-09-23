@@ -11,10 +11,13 @@ import {
 } from "recharts";
 import { LabSubsectionHeader } from "@/components/ui/LabSection";
 import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
-import { useRegionMarketDetail } from "@/components/region/useRegionMarketDetail";
+import { useRegionMarketDetail } from "@/components/region/useRegionScopeQueries";
+import type { RegionScope } from "@/lib/region/region-scope";
 
 const MONTHS_SHOWN = 36;
 const POOL = 3;
+/** 최근 3개월 매매가 이보다 적으면(동 단위 등) 비율 대신 건수만 보인다. */
+const MIN_ANALYSIS_TRADES = 10;
 const LINE = "#087F83";
 
 type Point = { yearMonth: string; label: string; share: number | null; sample: number };
@@ -28,8 +31,8 @@ function ymFromIndex(idx: number): string {
 }
 
 /** 직전 거래 대비 오른 거래 비율(3개월 묶음). 보합·비교 불가 거래는 분모에서 뺀다. */
-export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
-  const query = useRegionMarketDetail(lawdCd);
+export function RegionMarketTemperature({ scope }: { scope: RegionScope }) {
+  const query = useRegionMarketDetail(scope);
   const points = useMemo<Point[]>(() => {
     const months = query.data?.months ?? {};
     const keys = Object.keys(months).sort();
@@ -66,7 +69,9 @@ export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
   const yearTicks = points.filter((p) => p.yearMonth.endsWith("01")).map((p) => p.label);
   const a = query.data?.analysis;
   const shareOf = (n: number | undefined) =>
-    a && a.tradeCount > 0 && n != null ? Math.round((n / a.tradeCount) * 100) : null;
+    a && a.tradeCount >= MIN_ANALYSIS_TRADES && n != null
+      ? Math.round((n / a.tradeCount) * 100)
+      : null;
   const highShare = shareOf(a?.recordHighCount);
   const peakShare = shareOf(a?.belowPeakCount);
   const tiles: LabStatTile[] = [
@@ -112,7 +117,9 @@ export function RegionMarketTemperature({ lawdCd }: { lawdCd: string }) {
       />
       {query.isLoading ? (
         <div className="mt-2 h-[140px] animate-pulse rounded-lg bg-slate-100" />
-      ) : points.length < 2 ? null : (
+      ) : points.length < 2 ? null : !points.some((p) => p.share != null) ? (
+        <p className="detail-meta mt-2">거래가 적어 추이를 표시하지 않아요.</p>
+      ) : (
         <div className="mt-2 h-[140px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={points} margin={{ top: 6, right: 4, bottom: 0, left: -18 }}>

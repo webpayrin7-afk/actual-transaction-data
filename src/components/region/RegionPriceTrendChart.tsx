@@ -27,15 +27,16 @@ import {
   RegionSeoulRankBadges,
   type SeoulRank,
 } from "@/components/region/RegionSeoulRankBadges";
+import type { RegionPriceTrendPoint } from "@/lib/region/region-price-trend";
 import type {
-  RegionPriceTrend,
-  RegionPriceTrendPoint,
-} from "@/lib/region/region-price-trend";
-import type {
-  RegionMarketDetail,
   RegionMonthBreakdownRow,
   RegionMonthDetail,
 } from "@/lib/region/region-market-detail";
+import { regionScopeKey, type RegionScope } from "@/lib/region/region-scope";
+import {
+  useRegionMarketDetail,
+  useRegionPriceTrend,
+} from "@/components/region/useRegionScopeQueries";
 import { seoulToday, yearMonthFromSeoulDate } from "@/lib/market/time";
 
 const PERIODS = [
@@ -46,6 +47,11 @@ type PeriodId = (typeof PERIODS)[number]["id"];
 
 const BREAKDOWNS = [
   { id: "dong", label: "동" },
+  { id: "area", label: "면적" },
+] as const;
+/** 동 범위: 동 대신 단지별로 나눈다. */
+const DONG_SCOPE_BREAKDOWNS = [
+  { id: "dong", label: "단지" },
   { id: "area", label: "면적" },
 ] as const;
 type BreakdownId = (typeof BREAKDOWNS)[number]["id"];
@@ -116,16 +122,20 @@ function MonthComposition({
   detail,
   monthLabel,
   tradeCount,
+  dongScope,
 }: {
   detail: RegionMonthDetail;
   monthLabel: string;
   tradeCount: number;
+  /** 동 범위: "동" 구분 대신 단지별 구성. */
+  dongScope: boolean;
 }) {
   const [mode, setMode] = useState<BreakdownId>("dong");
   const [expanded, setExpanded] = useState(false);
   const d = detail.direction;
   const sum = total(d);
-  const rows: RegionMonthBreakdownRow[] = mode === "dong" ? detail.byDong : detail.byArea;
+  const groupRows = dongScope ? detail.byComplex ?? [] : detail.byDong;
+  const rows: RegionMonthBreakdownRow[] = mode === "dong" ? groupRows : detail.byArea;
   const visible = expanded ? rows : rows.slice(0, BREAKDOWN_PREVIEW);
   const scale = Math.max(1, ...rows.map(total));
   const share = (n: number) => (sum > 0 ? Math.round((n / sum) * 100) : 0);
@@ -172,7 +182,7 @@ function MonthComposition({
             variant="compact"
             ariaLabel="거래량 구분"
             equalWidth={false}
-            items={BREAKDOWNS}
+            items={dongScope ? DONG_SCOPE_BREAKDOWNS : BREAKDOWNS}
             value={mode}
             onChange={(next) => {
               setMode(next);
@@ -212,7 +222,7 @@ function MonthComposition({
             <LabMoreButton
               expanded={expanded}
               onToggle={() => setExpanded((v) => !v)}
-              label={`${rows.length - BREAKDOWN_PREVIEW}${mode === "dong" ? "개 동" : "개"} 더보기`}
+              label={`${rows.length - BREAKDOWN_PREVIEW}${mode === "dong" ? (dongScope ? "곳" : "개 동") : "개"} 더보기`}
             />
           </div>
         ) : null}
@@ -222,27 +232,21 @@ function MonthComposition({
 }
 
 export function RegionPriceTrendChart({
-  lawdCd,
+  scope,
   regionName,
 }: {
-  lawdCd: string;
+  scope: RegionScope;
+  /** 화면 표기 지역명 (구 이름, 동 페이지는 동 이름). */
   regionName: string;
 }) {
   const [period, setPeriod] = useState<PeriodId>("3y");
   const [selected, setSelected] = useState<string | null>(null);
   const currentYm = yearMonthFromSeoulDate(seoulToday());
+  const { lawdCd } = scope;
+  const dongScope = Boolean(scope.dong);
 
-  const query = useQuery({
-    queryKey: ["region-price-trend", lawdCd],
-    queryFn: async () => {
-      const res = await fetch(`/api/region-price-trend?lawd_cd=${lawdCd}`);
-      if (!res.ok) throw new Error("trend");
-      return (await res.json()) as RegionPriceTrend;
-    },
-    enabled: !!lawdCd,
-    staleTime: 30 * 60_000,
-    retry: 1,
-  });
+  const query = useRegionPriceTrend(scope);
+  // 서울 구 순위 배지는 구 범위에만 있다.
   const rankQuery = useQuery({
     queryKey: ["region-seoul-rank", lawdCd],
     queryFn: async (): Promise<SeoulRank | null> => {
@@ -251,21 +255,11 @@ export function RegionPriceTrendChart({
       const body = (await res.json()) as SeoulRank | { status: string };
       return body.status === "ok" ? (body as SeoulRank) : null;
     },
-    enabled: !!lawdCd,
+    enabled: !!lawdCd && !dongScope,
     staleTime: 60 * 60_000,
     retry: 0,
   });
-  const detailQuery = useQuery({
-    queryKey: ["region-market-detail", lawdCd],
-    queryFn: async () => {
-      const res = await fetch(`/api/region-market-detail?lawd_cd=${lawdCd}`);
-      if (!res.ok) throw new Error("detail");
-      return (await res.json()) as RegionMarketDetail;
-    },
-    enabled: !!lawdCd,
-    staleTime: 30 * 60_000,
-    retry: 1,
-  });
+  const detailQuery = useRegionMarketDetail(scope);
 
   const all = useMemo<ChartRow[]>(
     () =>
@@ -375,7 +369,7 @@ export function RegionPriceTrendChart({
             {current.complexCount.toLocaleString("ko-KR")}곳 기준
           </p>
         ) : null}
-        {current && rankQuery.data && rankQuery.data.yearMonth === current.yearMonth ? (
+        {!dongScope && current && rankQuery.data && rankQuery.data.yearMonth === current.yearMonth ? (
           <RegionSeoulRankBadges rank={rankQuery.data} />
         ) : null}
       </div>
@@ -423,6 +417,8 @@ export function RegionPriceTrendChart({
         <div className="h-[220px] animate-pulse rounded-lg bg-slate-100" />
       ) : rows.length < 2 ? (
         <p className="detail-body">그래프를 그릴 거래가 부족합니다.</p>
+      ) : prices.length < 2 ? (
+        <p className="detail-body">거래가 적어 추이를 표시하지 않아요.</p>
       ) : (
         <>
           <div className="h-[220px] w-full lg:h-[280px]">
@@ -524,8 +520,9 @@ export function RegionPriceTrendChart({
           {current ? (
             monthDetail ? (
               <MonthComposition
-                key={current.yearMonth}
+                key={`${regionScopeKey(scope)}-${current.yearMonth}`}
                 detail={monthDetail}
+                dongScope={dongScope}
                 monthLabel={ymKorean(current.yearMonth)}
                 tradeCount={current.tradeCount}
               />
