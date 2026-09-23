@@ -1,7 +1,9 @@
-import type { ReactNode } from "react";
 import { AdvancementSection } from "@/components/school/AdvancementSection";
 import { SchoolHero } from "@/components/school/SchoolHero";
-import { LAB_SECTION_SURFACE, LabSection } from "@/components/ui/LabSection";
+import { DETAIL_PAGE_SHELL } from "@/components/layout/PageHeader";
+import { LabSection } from "@/components/ui/LabSection";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
+import { LabStatTiles } from "@/components/ui/LabStatTiles";
 import { DataAttribution } from "@/components/ui/DataAttribution";
 import type {
   ProductMetric,
@@ -9,67 +11,10 @@ import type {
 } from "@/lib/school-info/product-school-detail";
 import { SCHOOLINFO_HOME_URL } from "@/lib/school-info/schoolinfo-public-url";
 
-/** 2-column status metrics; 5th metric spans full width. */
-function StatusMetrics({ items }: { items: ProductMetric[] }) {
-  if (!items.length) return null;
-  const head = items.slice(0, 4);
-  const fifth = items.length >= 5 ? items[4] : null;
-  const rest = items.length > 5 ? items.slice(5) : [];
-
-  return (
-    <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-      {head.map((m) => (
-        <div key={m.label} className="min-w-0">
-          <dt className="detail-label">{m.label}</dt>
-          <dd className="mt-0.5 detail-data-value-emphasis tabular-nums">
-            {m.value}
-          </dd>
-        </div>
-      ))}
-      {fifth ? (
-        <div className="col-span-2 min-w-0 border-t border-[color:var(--lab-border)] pt-2.5">
-          <dt className="detail-label">{fifth.label}</dt>
-          <dd className="mt-0.5 detail-data-value-emphasis tabular-nums">
-            {fifth.value}
-          </dd>
-        </div>
-      ) : null}
-      {rest.map((m) => (
-        <div key={m.label} className="min-w-0">
-          <dt className="detail-label">{m.label}</dt>
-          <dd className="mt-0.5 detail-data-value-emphasis tabular-nums">
-            {m.value}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-function CompactRows({
-  rows,
-}: {
-  rows: Array<{ label: string; value: ReactNode }>;
-}) {
-  if (!rows.length) return null;
-  return (
-    <dl className="space-y-1.5">
-      {rows.map((r) => (
-        <div
-          key={r.label}
-          className="flex items-baseline justify-between gap-3"
-        >
-          <dt className="detail-label shrink-0">
-            {r.label}
-          </dt>
-          <dd className="min-w-0 text-right detail-data-value tabular-nums">
-            {r.value}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
+/** 360px 3열 박스에서 라벨이 한 줄이 되도록 줄인 표기 (policy §12.5). */
+const STAT_LABEL: Record<string, string> = {
+  "교원 1인당 학생수": "교원당 학생수",
+};
 
 export function SchoolDetailView({
   detail,
@@ -93,12 +38,18 @@ export function SchoolDetailView({
     ...(detail.scholarship
       ? [detail.scholarship.total, detail.scholarship.perStudent]
       : []),
-  ]
-    .filter((m): m is ProductMetric => Boolean(m?.value))
-    .map((m) => ({ label: m.label, value: m.value }));
+  ].filter((m): m is ProductMetric => Boolean(m?.value));
+
+  const notice = detail.authHold
+    ? "공시 상세를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요."
+    : detail.unresolved
+      ? "이 학교의 공시 정보를 찾지 못했습니다."
+      : detail.basicError
+        ? "학교 기본정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+        : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col">
+    <div className={DETAIL_PAGE_SHELL}>
       <SchoolHero
         name={detail.name}
         kind={detail.kind}
@@ -112,70 +63,54 @@ export function SchoolDetailView({
         backHref={backHref}
       />
 
-      <div className="flex flex-col gap-3.5 px-3 pb-5 pt-3.5 sm:gap-4 sm:px-4 sm:pb-6 sm:pt-4">
-        {detail.authHold ? (
-          <section className={LAB_SECTION_SURFACE}>
-            <p className="detail-body">
-              공시 상세를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.
-            </p>
-          </section>
-        ) : null}
+      {notice ? <p className="lab-state">{notice}</p> : null}
 
-        {!detail.authHold && detail.unresolved ? (
-          <section className={LAB_SECTION_SURFACE}>
-            <p className="detail-body">
-              이 학교의 공시 정보를 찾지 못했습니다.
-            </p>
-          </section>
-        ) : null}
+      {coreItems.length > 0 ? (
+        <LabSection title="학교 현황">
+          <LabStatTiles
+            columns={3}
+            items={coreItems.map((m) => ({
+              key: m.label,
+              label: STAT_LABEL[m.label] ?? m.label,
+              value: m.value,
+            }))}
+          />
+        </LabSection>
+      ) : null}
 
-        {!detail.authHold && detail.basicError ? (
-          <section className={LAB_SECTION_SURFACE}>
-            <p className="detail-body">
-              학교 기본정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
-            </p>
-          </section>
-        ) : null}
+      <AdvancementSection data={detail.advancement} schoolKind={detail.kind} />
 
-        {/* 1. 학교 현황 — first content card */}
-        {coreItems.length > 0 ? (
-          <LabSection title="학교 현황">
-            <StatusMetrics items={coreItems} />
-          </LabSection>
-        ) : null}
+      {lifeRows.length > 0 ? (
+        <LabSection title="학교생활">
+          <ul className={LAB_LIST}>
+            {lifeRows.map((m) => (
+              <LabListRow key={m.label} title={m.label} value={m.value} />
+            ))}
+          </ul>
+        </LabSection>
+      ) : null}
 
-        {/* 2. 진학/진학·진로 현황 */}
-        <AdvancementSection data={detail.advancement} schoolKind={detail.kind} />
+      {detail.schoolInfoUrl ? (
+        <a
+          href={detail.schoolInfoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="lab-button lab-button-secondary w-full"
+        >
+          학교알리미에서 전체 공시 보기
+        </a>
+      ) : null}
 
-        {/* 3. 학교생활 */}
-        {lifeRows.length > 0 ? (
-          <LabSection title="학교생활">
-            <CompactRows rows={lifeRows} />
-          </LabSection>
-        ) : null}
-
-        {detail.schoolInfoUrl ? (
-          <a
-            href={detail.schoolInfoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="lab-button lab-button-primary w-full"
-          >
-            학교알리미에서 보기
-          </a>
-        ) : null}
-
-        {detail.attribution ? (
-          <footer className="mt-1 border-t border-[color:var(--lab-border)] pt-3 sm:mt-1.5 sm:pt-3.5">
-            <DataAttribution
-              provider="학교알리미"
-              organization="교육부"
-              context="항목별 공시연도 기준"
-              providerHref={SCHOOLINFO_HOME_URL}
-            />
-          </footer>
-        ) : null}
-      </div>
+      {detail.attribution ? (
+        <footer className="border-t border-[color:var(--lab-border)] pt-3">
+          <DataAttribution
+            provider="학교알리미"
+            organization="교육부"
+            context="항목별 공시연도 기준"
+            providerHref={SCHOOLINFO_HOME_URL}
+          />
+        </footer>
+      ) : null}
     </div>
   );
 }
