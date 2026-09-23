@@ -144,7 +144,7 @@ function SingogaHistory({ tradesAsc, ruled }: { tradesAsc: AptHistoryItem[]; rul
   );
 }
 
-/* ---------- 전월세 지표 (실거래 시세 섹션에서 사용) ---------- */
+/* ---------- 전월세 지표 (실거래 현황 섹션에서 사용) ---------- */
 
 export type RentMetrics = {
   /** 전월세 전환율 % (연), 계산 불가면 null */

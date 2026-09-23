@@ -4,7 +4,7 @@ import { InfoTip } from "@/components/ui/InfoTip";
 import { computeRentMetrics } from "@/components/apt/ComplexTradeInsightSection";
 import type { AptHistoryItem } from "@/lib/molit/apt-client";
 
-/** 실거래 시세 섹션의 전월세 한 줄 요약 두 개 (policy §12.5): 전월세 전환율 · 월세 비중. */
+/** 실거래 현황 섹션의 전월세 한 줄 요약 두 개 (policy §12.5): 전월세 전환율 · 월세 비중. */
 export function ComplexRentMetrics({ items }: { items: AptHistoryItem[] }) {
   const m = computeRentMetrics(items);
   if (!m) return null;
