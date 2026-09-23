@@ -293,14 +293,14 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
   const totalUnits = aptUnits + officetelUnits;
   const failed = query.isError || query.data?.status === "ERROR";
   const fmt = (n: number) => n.toLocaleString("ko-KR");
+  const breakdown = [
+    officetelUnits > 0 ? `오피스텔 ${fmt(officetelUnits)}세대` : null,
+    aptUnits > 0 ? `아파트 ${fmt(aptUnits)}세대` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
   const summary =
-    totalUnits > 0
-      ? `총 ${fmt(totalUnits)}세대${
-          aptUnits > 0 && officetelUnits > 0
-            ? ` (아파트 ${fmt(aptUnits)} · 오피스텔 ${fmt(officetelUnits)})`
-            : ""
-        }`
-      : null;
+    totalUnits > 0 ? `총 ${fmt(totalUnits)}세대${breakdown ? ` (${breakdown})` : ""}` : null;
 
   return (
     <section
