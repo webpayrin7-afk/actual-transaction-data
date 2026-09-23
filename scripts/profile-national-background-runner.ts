@@ -651,12 +651,6 @@ async function runWave2(
 
       let basic = null as Record<string, unknown> | null;
       let detail = null as Record<string, unknown> | null;
-      if (m.kapt_code) {
-        const k = await fetchKapt(m.kapt_code, apiKey, stats);
-        basic = k.basic;
-        detail = k.detail;
-      }
-
       let recapItem = null as Record<string, unknown> | null;
       let recapKey: string | null = null;
       let recapSource = "BUILDING_HUB_RECAP";
@@ -667,12 +661,41 @@ async function runWave2(
         stillMissing.includes("building_count") ||
         stillMissing.includes("approval_date") ||
         stillMissing.includes("parking_per_household") ||
+        stillMissing.includes("heating_type") ||
         !m.kapt_code;
-      if (needsRecap && m.has_parcel) {
-        const rec = await fetchRecap(master, apiKey, stats);
-        recapItem = rec.item;
-        recapKey = rec.parcelKey;
-        if (rec.status === "COLLAPSE") recapSource = "BUILDING_HUB_DUPLICATE_COLLAPSE";
+      // Heartbeat before external I/O so stalls are visible.
+      prog.heartbeat_seq += 1;
+      prog.updated_at = nowIso();
+      if (prog.heartbeat_seq % 5 === 0) writeJsonAtomic(PROGRESS, prog);
+
+      const runOne = async () => {
+        if (m.kapt_code) {
+          const k = await fetchKapt(m.kapt_code, apiKey, stats);
+          basic = k.basic;
+          detail = k.detail;
+        }
+        if (needsRecap && m.has_parcel) {
+          const rec = await fetchRecap(master, apiKey, stats);
+          recapItem = rec.item;
+          recapKey = rec.parcelKey;
+          if (rec.status === "COLLAPSE") recapSource = "BUILDING_HUB_DUPLICATE_COLLAPSE";
+        }
+      };
+      {
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        try {
+          await Promise.race([
+            runOne(),
+            new Promise<never>((_, reject) => {
+              timer = setTimeout(
+                () => reject(new Error("complex_timeout_120s")),
+                120_000,
+              );
+            }),
+          ]);
+        } finally {
+          if (timer) clearTimeout(timer);
+        }
       }
 
       const bags = collectCandidates({

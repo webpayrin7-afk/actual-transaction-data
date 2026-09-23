@@ -443,12 +443,21 @@ export async function getJson(
     ?.response;
   const code = String(resp?.header?.resultCode ?? res.status);
   const b = resp?.body as
-    | { items?: { item?: JsonRec | JsonRec[] } | string; totalCount?: number }
+    | {
+        items?: { item?: JsonRec | JsonRec[] } | string;
+        item?: JsonRec | JsonRec[];
+        totalCount?: number;
+      }
     | undefined;
   let items: JsonRec[] = [];
+  // AptBasisInfoServiceV5 often returns body.item directly (no items wrapper).
+  // BuildingHub recap uses body.items.item.
   if (b?.items && typeof b.items === "object" && "item" in b.items) {
     const it = b.items.item;
     items = Array.isArray(it) ? it : it ? [it] : [];
+  } else if (b?.item) {
+    const it = b.item;
+    items = Array.isArray(it) ? it : [it];
   }
   return {
     ok: code === "00" || code === "0",
@@ -545,7 +554,8 @@ export async function fetchKapt(
     detail: JsonRec | null;
     ok: boolean;
   }>("kapt", kaptCode);
-  if (cached) return cached;
+  // Reject hollow caches written when body.item was mis-parsed as empty.
+  if (cached && (cached.basic || cached.detail)) return cached;
   const bass = await getJson(
     "/AptBasisInfoServiceV5/getAphusBassInfoV5",
     { kaptCode },
@@ -563,9 +573,10 @@ export async function fetchKapt(
   const out = {
     basic: bass.ok ? bass.item : null,
     detail: dtl.ok ? dtl.item : null,
-    ok: bass.ok || dtl.ok,
+    ok: !!(bass.ok && bass.item) || !!(dtl.ok && dtl.item),
   };
-  writeCache("kapt", kaptCode, out);
+  // Never persist hollow ok:true shells — forces refetch next time.
+  if (out.basic || out.detail) writeCache("kapt", kaptCode, out);
   return out;
 }
 
@@ -589,7 +600,9 @@ export function collectCandidates(args: {
   const recapSrc = args.recapSource ?? "BUILDING_HUB_RECAP";
 
   if (b && kc) {
-    const hh = num(b.kaptdaCnt) ?? num(b.hoCnt);
+    const hhRaw = num(b.kaptdaCnt);
+    const hh =
+      hhRaw != null && hhRaw > 0 ? hhRaw : num(b.hoCnt);
     if (hh != null)
       push("household_count", {
         value: Math.round(hh),
