@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ChevronsUpDown } from "lucide-react";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
-import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_SECTION_SURFACE, LAB_SUBSECTION_RULE, LabSectionHeader } from "@/components/ui/LabSection";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { LabTabs, labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import {
@@ -795,14 +795,14 @@ export function ComplexPurchaseCalculatorSection({
   return (
     <section
       id="section-calculator"
-      aria-label="세금, 대출 계산"
+      aria-label="세금·대출 계산"
       className={`${LAB_SECTION_SURFACE} scroll-mt-28`}
     >
       <div id="calculator" className="sr-only" aria-hidden />
 
       <header className="min-w-0">
         <LabSectionHeader
-          title="세금, 대출 계산"
+          title="세금·대출 계산"
           meta={compactArea ? `${compactArea} 기준` : undefined}
         />
         <p className="detail-meta mt-1.5">
@@ -814,7 +814,7 @@ export function ComplexPurchaseCalculatorSection({
         className="calculator-primary-tabs"
         variant="primary"
         idPrefix="calc"
-        ariaLabel="세금, 대출 계산 메뉴"
+        ariaLabel="세금·대출 계산 메뉴"
         items={TABS}
         value={tab}
         onChange={(next) => {
@@ -1542,109 +1542,8 @@ export function ComplexPurchaseCalculatorSection({
               ) : null}
             </p>
 
-            {loan && fundingPlan ? (
-              <dl className="space-y-3">
-                {loan.breakdown.blocked ? (
-                  <p className="detail-body rounded-lg bg-rose-50 px-3 py-2 text-[color:var(--lab-error-text)]">
-                    {loan.breakdown.blockedReason ?? "대출 불가 가정"}
-                  </p>
-                ) : null}
-
-                <Row
-                  label={
-                    fundingPlan.provisional
-                      ? "잠정 최대 한도"
-                      : "예상 최대 대출 가능액"
-                  }
-                  value={formatEokManOrZero(loan.maxLoanMan)}
-                  hint={
-                    fundingPlan.provisional
-                      ? "DSR 입력 완료 후 최종 한도가 달라질 수 있습니다."
-                      : undefined
-                  }
-                  emph
-                />
-                {!fundingPlan.provisional ? (
-                  <Row
-                    label="제한 요인"
-                    value={loan.limitingLabels.join(", ") || "—"}
-                  />
-                ) : (
-                  <Row
-                    label="제한 요인"
-                    value={
-                      loan.limitingLabels.length
-                        ? `${loan.limitingLabels.join(", ")} (잠정)`
-                        : "잠정"
-                    }
-                    hint="DSR은 연소득 입력 후 반영됩니다."
-                  />
-                )}
-                <Row
-                  label="집값 기준 필요 대출"
-                  value={formatEokManOrZero(loan.requiredLoanMan)}
-                  hint="매수가 − 보유 자기자금 (규제 한도 아님)"
-                />
-                {!fundingPlan.provisional ? (
-                  fundingPlan.cashShortageMan > 0 ? (
-                    <Row
-                      label="추가로 필요한 자기자금"
-                      value={formatEokManOrZero(fundingPlan.cashShortageMan)}
-                      hint={
-                        purchaseExtraMan > 0
-                          ? `총 필요자금 ${formatEokMan(fundingPlan.totalRequiredFundsMan)} 기준 · 취득세·중개보수 등 매수비용 포함`
-                          : "총 필요자금 − 예상 실행 대출"
-                      }
-                    />
-                  ) : (
-                    <Row
-                      label="자기자금 여유"
-                      value={formatEokManOrZero(fundingPlan.cashSurplusMan)}
-                      hint={
-                        loan.requiredLoanMan <= 0
-                          ? "집값 기준 필요 대출 0원 · 부대비용은 별도"
-                          : undefined
-                      }
-                    />
-                  )
-                ) : (
-                  <p className="detail-body">
-                    연소득을 입력하면 최종 자금계획(추가 필요/여유)을 확인할 수
-                    있습니다.
-                  </p>
-                )}
-
-                <div className="space-y-2 border-t border-slate-100 pt-3">
-                  <Row
-                    label={
-                      fundingPlan.provisional
-                        ? "잠정 실행 대출액"
-                        : "예상 실행 대출액"
-                    }
-                    value={formatEokManOrZero(fundingPlan.expectedLoanMan)}
-                    hint="min(필요 대출, 최대 한도)"
-                  />
-                  <Row
-                    label="월 예상 상환액"
-                    value={
-                      fundingPlan.expectedLoanMan > 0
-                        ? formatManWon(loan.monthlyPaymentMan)
-                        : "0만원"
-                    }
-                  />
-                  <p className="detail-meta">
-                    {loan.repayMethodLabel} · {baseRatePct}% · {years}년
-                    {fundingPlan.provisional ? " · 잠정 기준" : ""}
-                  </p>
-                </div>
-              </dl>
-            ) : (
-              <p className="detail-meta">
-                매수가를 입력하면 결과가 표시됩니다.
-              </p>
-            )}
-
-            <div className="space-y-2.5 border-t border-slate-200/80 pt-3">
+            {/* 입력 → 결과 순서: 모바일에서 값을 넣기 전에 결과부터 보이지 않게 */}
+            <div className="space-y-2.5">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <label
@@ -1736,7 +1635,7 @@ export function ComplexPurchaseCalculatorSection({
                         setCashMan(next);
                         if (cashFocused) setCashDraft(formatManInput(next));
                       }}
-                      className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-teal-600"
+                      className="h-11 w-full cursor-pointer accent-[color:var(--lab-teal-600)]"
                       aria-label="보유 자기자금 빠른 조절"
                     />
                     <div className="detail-micro mt-1 flex justify-between tabular-nums">
@@ -1745,6 +1644,36 @@ export function ComplexPurchaseCalculatorSection({
                     </div>
                   </div>
                 ) : null}
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="calc-loan-income"
+                  className="detail-label font-medium"
+                >
+                  연소득
+                  <span className="detail-meta ml-1">(만원)</span>
+                </label>
+                <p className="detail-meta">
+                  DSR(소득 대비 상환 비율) 한도 계산에 필요합니다.
+                </p>
+                <ManWonField
+                  id="calc-loan-income"
+                  value={incomeInputValue}
+                  placeholder="예: 15000"
+                  liveMan={liveIncomeMan}
+                  onFocus={() => {
+                    setIncomeFocused(true);
+                    setIncomeDraft(
+                      annualIncomeMan > 0 ? formatManInput(annualIncomeMan) : "",
+                    );
+                  }}
+                  onChange={(v) => setIncomeDraft(v)}
+                  onBlur={() => {
+                    setIncomeFocused(false);
+                    commitIncomeDraft(incomeDraft);
+                  }}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -1763,15 +1692,95 @@ export function ComplexPurchaseCalculatorSection({
                   <span className="detail-meta">기간 (년)</span>
                   <input
                     className={inputClass}
-                    type="number"
-                    min={1}
-                    max={40}
+                    inputMode="numeric"
                     value={years}
-                    onChange={(e) => setYears(Number(e.target.value) || 30)}
+                    onChange={(e) => {
+                      const n = Number(e.target.value.replace(/\D/g, ""));
+                      setYears(Math.min(40, Math.max(1, n || 30)));
+                    }}
                   />
                 </label>
               </div>
             </div>
+
+            {loan && fundingPlan ? (
+              <dl className={`space-y-3 ${LAB_SUBSECTION_RULE}`}>
+                {loan.breakdown.blocked ? (
+                  <p className="lab-state lab-state-error">
+                    {loan.breakdown.blockedReason ?? "대출 불가 가정"}
+                  </p>
+                ) : null}
+
+                <Row
+                  label="예상 대출 가능액"
+                  value={formatEokManOrZero(loan.maxLoanMan)}
+                  hint={
+                    fundingPlan.provisional
+                      ? `연소득 입력 전이라 DSR 없이 계산한 한도입니다${loan.limitingLabels.length ? ` · ${loan.limitingLabels.join(", ")} 기준` : ""}.`
+                      : loan.limitingLabels.length
+                        ? `${loan.limitingLabels.join(", ")} 기준`
+                        : undefined
+                  }
+                  emph
+                />
+
+                {cashMan > 0 ? (
+                  <>
+                    <Row
+                      label="필요한 대출"
+                      value={formatEokManOrZero(loan.requiredLoanMan)}
+                      hint="매수가에서 보유 자기자금을 뺀 금액"
+                    />
+                    <Row
+                      label="실제 받을 대출"
+                      value={formatEokManOrZero(fundingPlan.expectedLoanMan)}
+                      hint="필요한 대출과 대출 가능액 중 작은 금액"
+                    />
+                    {fundingPlan.cashShortageMan > 0 ? (
+                      <Row
+                        label="부족한 자금"
+                        value={formatEokManOrZero(fundingPlan.cashShortageMan)}
+                        hint={[
+                          purchaseExtraMan > 0 ? "취득세·중개보수 등 매수비용 포함" : null,
+                          fundingPlan.provisional ? "연소득 입력 전 잠정치" : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ") || undefined}
+                      />
+                    ) : (
+                      <Row
+                        label="남는 자금"
+                        value={formatEokManOrZero(fundingPlan.cashSurplusMan)}
+                        hint={
+                          loan.requiredLoanMan <= 0
+                            ? "대출 없이 매수 가능 · 매수비용은 별도"
+                            : fundingPlan.provisional
+                              ? "연소득 입력 전 잠정치"
+                              : undefined
+                        }
+                      />
+                    )}
+                    <Row
+                      label="월 예상 상환액"
+                      value={
+                        fundingPlan.expectedLoanMan > 0
+                          ? formatManWon(loan.monthlyPaymentMan)
+                          : "0만원"
+                      }
+                      hint={`${loan.repayMethodLabel} · ${baseRatePct}% · ${years}년`}
+                    />
+                  </>
+                ) : (
+                  <p className="detail-body">
+                    보유 자기자금을 입력하면 필요한 대출과 월 상환액을 계산합니다.
+                  </p>
+                )}
+              </dl>
+            ) : (
+              <p className="detail-meta">
+                매수가를 입력하면 결과가 표시됩니다.
+              </p>
+            )}
 
             <div className="space-y-2 border-t border-slate-200/80 pt-3">
               <div className="flex items-start justify-between gap-3">
@@ -1797,39 +1806,6 @@ export function ComplexPurchaseCalculatorSection({
               title="대출 계산 조건"
             >
               <div className="grid gap-2.5 sm:grid-cols-2">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label
-                    htmlFor="calc-loan-income"
-                    className="detail-label font-medium"
-                  >
-                    연소득
-                    <span className="detail-meta ml-1">
-                      (만원)
-                    </span>
-                  </label>
-                  <p className="detail-meta">
-                    DSR 한도 계산에 필요합니다.
-                  </p>
-                  <ManWonField
-                    id="calc-loan-income"
-                    value={incomeInputValue}
-                    placeholder="예: 15000"
-                    liveMan={liveIncomeMan}
-                    onFocus={() => {
-                      setIncomeFocused(true);
-                      setIncomeDraft(
-                        annualIncomeMan > 0
-                          ? formatManInput(annualIncomeMan)
-                          : "",
-                      );
-                    }}
-                    onChange={(v) => setIncomeDraft(v)}
-                    onBlur={() => {
-                      setIncomeFocused(false);
-                      commitIncomeDraft(incomeDraft);
-                    }}
-                  />
-                </div>
                 <div className="space-y-1.5 sm:col-span-2">
                   <label
                     htmlFor="calc-loan-existing"

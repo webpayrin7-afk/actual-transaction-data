@@ -805,7 +805,7 @@ export function AptDetailPage({
         />
       </LabSectionBoundary>
 
-      <LabSectionBoundary id="section-calculator" title="세금, 대출 계산">
+      <LabSectionBoundary id="section-calculator" title="세금·대출 계산">
       <ComplexPurchaseCalculatorSection
           complexId={identity?.complexId ?? null}
           complexName={data.aptName}
