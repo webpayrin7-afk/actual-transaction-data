@@ -1,21 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { canRenderAdvancementSection } from "@/lib/school-info/advancement-disclosure";
+import { advancementColorByRank } from "@/lib/school-info/advancement-category-colors";
 import type { ProductAdvancementData } from "@/lib/school-info/product-school-detail";
 import { LabSection } from "@/components/ui/LabSection";
-import { LabShareBars } from "@/components/ui/LabShareBars";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabStackedBar } from "@/components/ui/LabStackedBar";
 
 type VisibleCategory = {
   key: string;
   label: string;
   count: number;
   percent: number | null;
+  color: string;
 };
 
 /**
  * Presentation for middle 진학현황 / high 진학·진로현황.
- * 정렬된 가로 막대(LabShareBars): 항목마다 이름 · 비율 · 인원 + 막대, 5개 + 더보기 — policy §12.4 / §12.7.
- * (도넛은 78% + 여러 개의 한 자릿수 조각이라 작은 값 표시가 어려워 쓰지 않는다.)
+ * 구성비 막대 1줄 + 항목 행(비율·인원 병기, 5개 + 더보기) — policy §12.4 / §12.7.
  * Consumes product AdvancementData only — no provider field / mapping logic.
  */
 export function AdvancementSection({
@@ -25,6 +29,7 @@ export function AdvancementSection({
   data: ProductAdvancementData | null | undefined;
   schoolKind: string | null | undefined;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const isMiddle = Boolean(schoolKind?.includes("중"));
   const isHigh = Boolean(schoolKind?.includes("고"));
 
@@ -34,8 +39,9 @@ export function AdvancementSection({
 
   const categories: VisibleCategory[] = data.categories
     .filter((c): c is typeof c & { count: number } => c.count != null && c.count > 0)
-    .map((c) => ({ key: c.key, label: c.label, count: c.count, percent: c.percent }))
-    .sort((a, b) => b.count - a.count);
+    .map((c) => ({ key: c.key, label: c.label, count: c.count, percent: c.percent, color: "" }))
+    .sort((a, b) => b.count - a.count)
+    .map((c, i) => ({ ...c, color: advancementColorByRank(i) }));
 
   if (!data.graduates?.value && categories.length === 0) return null;
 
@@ -45,6 +51,8 @@ export function AdvancementSection({
   ]
     .filter(Boolean)
     .join(" · ");
+  const visible = expanded ? categories : categories.slice(0, LAB_LIST_PREVIEW);
+  const hidden = categories.length - LAB_LIST_PREVIEW;
 
   return (
     <LabSection
@@ -53,16 +61,42 @@ export function AdvancementSection({
       tip="비율은 졸업생 수 기준입니다. 0명인 항목은 표시하지 않습니다."
     >
       {categories.length > 0 ? (
-        <LabShareBars
-          items={categories.map((c) => ({
-            key: c.key,
-            label: c.label,
-            value: c.count,
-            percent: c.percent,
-            sub: `${c.count.toLocaleString("ko-KR")}명`,
-          }))}
-          moreLabel={(n) => `${n}개 항목 더보기`}
-        />
+        <>
+          <LabStackedBar
+            className="h-2.5"
+            segments={categories.map((c) => ({
+              key: c.key,
+              value: c.percent ?? c.count,
+              color: c.color,
+            }))}
+          />
+          <ul className={LAB_LIST}>
+            {visible.map((c) => (
+              <LabListRow
+                key={c.key}
+                title={
+                  <span className="inline-flex min-w-0 items-center gap-2">
+                    <span
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: c.color }}
+                      aria-hidden
+                    />
+                    <span className="truncate">{c.label}</span>
+                  </span>
+                }
+                value={c.percent != null ? `${c.percent}%` : `${c.count.toLocaleString("ko-KR")}명`}
+                sub={c.percent != null ? `${c.count.toLocaleString("ko-KR")}명` : undefined}
+              />
+            ))}
+          </ul>
+          {hidden > 0 ? (
+            <LabMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${hidden}개 항목 더보기`}
+            />
+          ) : null}
+        </>
       ) : null}
 
       {data.completeness === "partial" ? (
