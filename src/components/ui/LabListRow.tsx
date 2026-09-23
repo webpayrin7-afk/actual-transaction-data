@@ -10,18 +10,27 @@ export const LAB_LIST = "divide-y divide-[color:var(--lab-border)]";
 
 export function LabListRow({
   href,
+  onClick,
+  selected,
   title,
   meta,
   value,
   sub,
   valueTone,
+  children,
 }: {
   href?: string | null;
+  /** In-page action row (button) — e.g. choose this 평형. Ignored when `href` is set. */
+  onClick?: () => void;
+  /** Current choice among clickable rows (aria-pressed + brand ink on title). */
+  selected?: boolean;
   title: ReactNode;
   meta?: ReactNode;
   value?: ReactNode;
   sub?: ReactNode;
   valueTone?: "up" | "down";
+  /** Extra full-width line under the row (e.g. a share bar). */
+  children?: ReactNode;
 }) {
   const toneStyle =
     valueTone === "down"
@@ -32,8 +41,14 @@ export function LabListRow({
   const body = (
     <>
       <div className="min-w-0 flex-1">
-        <p className="detail-data-value-emphasis truncate">{title}</p>
+        <p
+          className="detail-data-value-emphasis truncate"
+          style={selected ? { color: "var(--lab-brand-primary)" } : undefined}
+        >
+          {title}
+        </p>
         {meta ? <p className="detail-meta truncate">{meta}</p> : null}
+        {children}
       </div>
       {value != null ? (
         <div className="shrink-0 text-right">
@@ -56,6 +71,15 @@ export function LabListRow({
         <Link href={href} className={`${cls} hover:bg-slate-50`}>
           {body}
         </Link>
+      ) : onClick ? (
+        <button
+          type="button"
+          onClick={onClick}
+          aria-pressed={selected ?? false}
+          className={`${cls} w-full text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]`}
+        >
+          {body}
+        </button>
       ) : (
         <div className={cls}>{body}</div>
       )}

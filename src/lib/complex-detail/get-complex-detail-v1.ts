@@ -67,8 +67,21 @@ export type ComplexManagementV1 = {
   disclaimer: string;
 };
 
+/** 평형 구성 원천: unit_type_household_counts (ui_safe=1). 추정 없음. */
+export type ComplexUnitMixRowV1 = {
+  exclusiveSqm: number;
+  supplySqm: number | null;
+  householdCount: number;
+};
+
+export type ComplexUnitMixV1 = {
+  rows: ComplexUnitMixRowV1[];
+  sourceAsOf: string | null;
+};
+
 export type ComplexDetailV1 = {
   resolved: boolean;
+  unitMix?: ComplexUnitMixV1 | null;
   identity: ComplexDetailIdentity | null;
   basic: ComplexDetailBasic | null;
   building: ComplexDetailBuilding | null;
@@ -338,7 +351,7 @@ export async function getComplexDetailV1(params: {
   };
 
   const tProfile = performance.now();
-  const [profileRes, stateRes] = await Promise.all([
+  const [profileRes, stateRes, unitMixRes] = await Promise.all([
     db.execute({
       sql: `SELECT household_count, building_count, approval_date, heating_type,
                    management_type, parking_total, parking_per_household,
@@ -350,6 +363,16 @@ export async function getComplexDetailV1(params: {
     db.execute({
       sql: `SELECT domain, status FROM apt_complex_enrichment_state
             WHERE complex_id = ?`,
+      args: [complexId],
+    }),
+    db.execute({
+      sql: `SELECT exclusive_cents, supply_cents,
+                   SUM(household_count) AS household_count,
+                   MAX(source_as_of) AS source_as_of
+            FROM unit_type_household_counts
+            WHERE complex_id = ? AND ui_safe = 1 AND household_count > 0
+            GROUP BY exclusive_cents, supply_cents
+            ORDER BY exclusive_cents`,
       args: [complexId],
     }),
   ]);
@@ -535,8 +558,26 @@ export async function getComplexDetailV1(params: {
         ? "partial"
         : "minimum";
 
+  const unitMixRows: ComplexUnitMixRowV1[] = unitMixRes.rows
+    .map((r) => ({
+      exclusiveSqm: Number(r.exclusive_cents) / 100,
+      supplySqm: r.supply_cents == null ? null : Number(r.supply_cents) / 100,
+      householdCount: Number(r.household_count),
+    }))
+    .filter((r) => r.exclusiveSqm > 0 && r.householdCount > 0);
+  const unitMixAsOf = unitMixRes.rows
+    .map((r) => asStr(r.source_as_of))
+    .filter((v): v is string => Boolean(v))
+    .sort()
+    .at(-1);
+  const unitMix: ComplexUnitMixV1 | null =
+    unitMixRows.length > 0
+      ? { rows: unitMixRows, sourceAsOf: unitMixAsOf ?? null }
+      : null;
+
   return {
     resolved: true,
+    unitMix,
     identity,
     basic,
     building,

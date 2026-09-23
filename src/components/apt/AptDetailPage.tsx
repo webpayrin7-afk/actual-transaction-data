@@ -19,6 +19,7 @@ import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSect
 import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
 import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
 import { ComplexRegionRankSection } from "@/components/apt/ComplexRegionRankSection";
+import { ComplexUnitMixSection } from "@/components/apt/ComplexUnitMixSection";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
@@ -785,6 +786,15 @@ export function AptDetailPage({
           </div>
         </div>
       </LabSection>
+
+      <LabSectionBoundary id="section-unit-mix" title="평형 구성">
+        <ComplexUnitMixSection
+          unitMix={complexDetail?.unitMix}
+          areas={data.areas}
+          areaKey={areaKey}
+          onAreaChange={(key) => setAreaOverride({ forId: aptIdentity, key })}
+        />
+      </LabSectionBoundary>
 
       <LabSectionBoundary id="section-calculator" title="세금, 대출 계산">
       <ComplexPurchaseCalculatorSection
