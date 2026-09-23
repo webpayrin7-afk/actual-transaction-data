@@ -11,9 +11,15 @@ import {
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import { RegionLeaderboard } from "@/components/region/RegionLeaderboard";
+import {
+  MARKET_SECTION_SURFACE,
+  MarketSectionHeader,
+  RegionAptSummarySection,
+  RegionRankingTable,
+  RegionRepPriceSection,
+} from "@/components/region/RegionMarketSections";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -26,27 +32,19 @@ import {
   CONTRACT_DATE_BASIS_HELP,
   CONTRACT_DATE_BASIS_LABEL,
   CALENDAR_HELPER,
-  CONTRACT_MONTH_LOOKBACK,
   EMPTY_MONTH_HISTORY,
-  EMPTY_NEWLY_SEEN,
   HISTORY_INITIAL_DAY_COUNT,
-  contractMonthOptions,
-  hiddenNewlySeenCount,
   increaseRatePct,
   koreanMonthDayLabel,
   koreanYearMonthLabel,
   listedHistoryDates,
-  newlySeenCompactStatus,
   priorPeakAmount,
   recordDateDomId,
   SEEN_DATE_BASIS_HELP,
-  SEEN_DATE_BASIS_LABEL,
   shiftYearMonth,
   sortNewlySeenDeals,
-  visibleNewlySeenDeals,
   formatMomChangeValue,
   momChangePct,
-  singogaSharePct,
   vsPreviousTypeDeal,
 } from "@/lib/region/market-insight";
 import { TypePriceSparkline } from "@/components/region/TypePriceSparkline";
@@ -120,12 +118,7 @@ function DealMetaLine({
   );
 }
 
-function fallbackContractMonths(): string[] {
-  return contractMonthOptions(
-    yearMonthFromSeoulDate(seoulToday()),
-    CONTRACT_MONTH_LOOKBACK,
-  );
-}
+const SINGOGA_PREVIEW = 2;
 
 function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
   if (kind === "type") return "타입 신고가";
@@ -218,6 +211,93 @@ function FeaturedDealCard({
           currentDate={deal.dealDate}
         />
       ) : null}
+    </Link>
+  );
+}
+
+function MiniSparkline({ points }: { points: { date: string; amount: number }[] }) {
+  if (points.length < 3) return null;
+  const width = 96;
+  const height = 36;
+  const pad = 4;
+  const amounts = points.map((p) => p.amount);
+  const min = Math.min(...amounts);
+  const range = Math.max(...amounts) - min || 1;
+  const coords = points.map((p, i) => ({
+    x: pad + (i / (points.length - 1)) * (width - pad * 2),
+    y: pad + (1 - (p.amount - min) / range) * (height - pad * 2),
+  }));
+  const path = coords
+    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
+    .join(" ");
+  const last = coords[coords.length - 1]!;
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width={width}
+      height={height}
+      className="shrink-0"
+      aria-hidden
+    >
+      <path d={path} fill="none" stroke="#0f766e" strokeWidth={1.5} />
+      {coords.map((c, i) => (
+        <circle
+          key={i}
+          cx={c.x}
+          cy={c.y}
+          r={i === coords.length - 1 ? 2.8 : 1.6}
+          fill={i === coords.length - 1 ? "#0f766e" : "#14b8a6"}
+        />
+      ))}
+      <circle cx={last.x} cy={last.y} r={4.5} fill="#0f766e" opacity={0.15} />
+    </svg>
+  );
+}
+
+function SingogaRowCard({
+  deal,
+  regionSlug,
+}: {
+  deal: RegionDailyDeal;
+  regionSlug: string;
+}) {
+  const rate = increaseRatePct(deal);
+  const meta = [deal.dong || null, deal.buildYear ? `${deal.buildYear}년 준공` : null]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <Link
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      className="flex items-center gap-2.5 rounded-xl border border-slate-200 px-3 py-2.5 transition hover:border-teal-200 hover:bg-teal-50/40"
+    >
+      <SingogaBadge variant="compact">{singogaLabel(deal.singogaKind)}</SingogaBadge>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[15px] font-semibold leading-snug text-slate-900">
+          {deal.aptName}
+        </p>
+        {meta ? <p className="truncate text-[11px] text-slate-500">{meta}</p> : null}
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+          <span className="whitespace-nowrap text-[18px] font-bold leading-none tabular-nums text-slate-900">
+            {formatEok(deal.dealAmount)}
+          </span>
+          {deal.increaseAmount > 0 ? (
+            <span className="whitespace-nowrap text-[12px] font-medium tabular-nums text-rose-600">
+              ▲ {formatEok(deal.increaseAmount)}
+              {rate != null ? ` (+${rate}%)` : ""}
+            </span>
+          ) : null}
+        </div>
+        <p className="mt-1 truncate text-[11px] tabular-nums text-slate-500">
+          {specLine(deal)} · {contractLine(deal.dealDate)} ·{" "}
+          {deal.dealingGbn || "중개거래"}
+        </p>
+      </div>
+      {deal.priceTrend && deal.priceTrend.length >= 3 ? (
+        <span className="hidden min-[360px]:block">
+          <MiniSparkline points={deal.priceTrend} />
+        </span>
+      ) : null}
+      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
     </Link>
   );
 }
@@ -444,24 +524,6 @@ function MonthNav({
   );
 }
 
-function MoreControl({
-  children,
-  onClick,
-}: {
-  children: ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="mt-1 inline-flex min-h-9 items-center self-start whitespace-nowrap px-0.5 text-sm font-medium text-slate-600 underline-offset-2 transition hover:text-slate-900 hover:underline"
-    >
-      {children}
-    </button>
-  );
-}
-
 function MonthCalendar({
   yearMonth,
   days,
@@ -562,95 +624,11 @@ function MonthCalendar({
   );
 }
 
-function formatPyeongMedian(manwon: number): string {
-  if (manwon >= 10000) return formatEok(manwon);
-  return `${manwon.toLocaleString("ko-KR")}만원`;
-}
-
-function volumeChangeSide(
-  current: number,
-  previous: number,
-  pct: number | null,
-): { full: string; compact: string } | undefined {
-  if (pct == null || previous <= 0) return undefined;
-  const from = previous.toLocaleString("ko-KR");
-  const to = current.toLocaleString("ko-KR");
-  return {
-    full: `${from}건 → ${to}건`,
-    compact: `${from}→${to}건`,
-  };
-}
-
 function volumeChangeClass(pct: number | null): string {
   if (pct == null) return "text-slate-400";
   if (pct === 0) return "text-slate-500";
   if (pct > 0) return "text-rose-600";
   return "text-blue-600";
-}
-
-function volumeChangeSideClass(pct: number | null): string {
-  if (pct == null || pct === 0) return "text-slate-400";
-  if (pct > 0) return "text-rose-500";
-  return "text-blue-500";
-}
-
-function singogaValueClass(count: number | null): string {
-  if (count == null || count === 0) return "text-slate-400";
-  return "text-teal-700";
-}
-
-function formatSharePct(pct: number | null): string {
-  if (pct == null) return "—";
-  return `${pct.toFixed(1)}%`;
-}
-
-function Kpi({
-  label,
-  value,
-  side,
-  className,
-  valueClassName = "text-teal-700",
-  sideClassName = "text-teal-600/80",
-}: {
-  label: string;
-  value: string;
-  side?: string | { full: string; compact: string };
-  className?: string;
-  valueClassName?: string;
-  sideClassName?: string;
-}) {
-  const sideFull = typeof side === "string" ? side : side?.full;
-  const sideCompact = typeof side === "string" ? side : side?.compact;
-  return (
-    <div
-      className={`overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-4 sm:py-3.5 ${className ?? ""}`}
-    >
-      <p className="whitespace-nowrap text-[11px] leading-4 text-slate-600">
-        {label}
-      </p>
-      <div className="mt-1.5 flex min-w-0 items-baseline gap-x-1 sm:mt-2 sm:gap-x-2">
-        <p
-          className={`lab-kpi-figure whitespace-nowrap text-base font-semibold leading-none sm:text-xl ${valueClassName}`}
-        >
-          {value}
-        </p>
-        {sideFull ? (
-          <>
-            <p
-              className={`whitespace-nowrap text-[10px] leading-none tabular-nums sm:hidden ${sideClassName}`}
-            >
-              {sideCompact}
-            </p>
-            <p
-              className={`hidden whitespace-nowrap text-[11px] leading-none tabular-nums sm:inline ${sideClassName}`}
-            >
-              {sideFull}
-            </p>
-          </>
-        ) : null}
-      </div>
-    </div>
-  );
 }
 
 function PhraseRow({
@@ -693,16 +671,6 @@ function dayCountPhrases(section: RegionDailyDaySection): string[] {
   return [`총 ${n}건`, `신고가 ${section.singogaCount.toLocaleString("ko-KR")}건`];
 }
 
-function seenCountPhrases(opts: {
-  total: number;
-  singogaCount: number;
-  bulk: boolean;
-}): string[] {
-  const n = opts.total.toLocaleString("ko-KR");
-  if (opts.bulk) return [`총 ${n}건`, "신고가 계산 생략"];
-  return [`총 ${n}건`, `신고가 ${opts.singogaCount.toLocaleString("ko-KR")}건`];
-}
-
 function scrollToDateHeading(date: string) {
   const el = document.getElementById(recordDateDomId(date));
   if (!el) return false;
@@ -725,14 +693,13 @@ export function RegionDailyStatus({
   regionName: string;
   lawdCodes?: string[];
 }) {
-  const contractMonthFallback = useMemo(() => fallbackContractMonths(), []);
-  const [contractMonth, setContractMonth] = useState(
+  const [contractMonth] = useState(
     () => yearMonthFromSeoulDate(seoulToday()),
   );
   const [activityMonthUser, setActivityMonthUser] = useState<string | null>(
     null,
   );
-  const [heroExpanded, setHeroExpanded] = useState(false);
+  const [singogaExpanded, setSingogaExpanded] = useState(false);
   const [visibleDayCount, setVisibleDayCount] = useState(
     HISTORY_INITIAL_DAY_COUNT,
   );
@@ -806,11 +773,6 @@ export function RegionDailyStatus({
     retry: 1,
   });
 
-
-  const section1Months =
-    marketQuery.data?.contractMonthOptions?.length
-      ? marketQuery.data.contractMonthOptions
-      : contractMonthFallback;
   const section3Months =
     historyQuery.data?.activityYearMonths?.length
       ? historyQuery.data.activityYearMonths
@@ -944,19 +906,15 @@ export function RegionDailyStatus({
     market?.yearAgoMonthTradeCount != null
       ? momChangePct(market.monthTradeCount, market.yearAgoMonthTradeCount)
       : null;
-  const singogaPct =
-    market?.monthSingogaCount != null
-      ? singogaSharePct(market.monthSingogaCount, market.monthTradeCount)
-      : null;
 
-  const heroDeals = useMemo(
-    () => sortNewlySeenDeals(latest?.deals ?? []),
+  const singogaDeals = useMemo(
+    () =>
+      sortNewlySeenDeals(latest?.deals ?? []).filter(
+        (deal) => deal.singogaKind != null,
+      ),
     [latest],
   );
-  const heroVisible = visibleNewlySeenDeals(heroDeals, heroExpanded);
-  const heroHidden = hiddenNewlySeenCount(heroDeals, heroExpanded);
   const heroDate = latest?.selectedDate ?? null;
-  const heroIsToday = Boolean(latest?.latestIsToday);
 
   function changeActivityMonth(next: string) {
     requestEpoch.current += 1;
@@ -1067,11 +1025,6 @@ export function RegionDailyStatus({
     };
   });
 
-  const heroCountPhrases = seenCountPhrases({
-    total: latest?.tradeCount ?? heroDeals.length,
-    singogaCount: latest?.selectedDaySingogaCount ?? 0,
-    bulk: Boolean(latest?.bulkIngestDay),
-  });
   const visibleDealsByDate = useMemo(() => {
     const map = new Map<string, RegionDailyDeal[]>();
     let remaining = visibleDealCount;
@@ -1089,163 +1042,122 @@ export function RegionDailyStatus({
   return (
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
       <section
-        aria-label={`${regionName} 지역 시장 현황`}
-        className={`${SECTION_SURFACE} flex flex-col gap-3`}
+        aria-label={`${regionName} 이달의 거래 현황`}
+        className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
       >
-        <SectionHeading
-          title="지역 시장 현황"
-          basisLabel={CONTRACT_DATE_BASIS_LABEL}
-          basisHelp={CONTRACT_DATE_BASIS_HELP}
-        />
-        <div className="flex flex-col gap-2">
-        <MonthNav
-          value={contractMonth}
-          options={section1Months}
-          onChange={setContractMonth}
+        <MarketSectionHeader
+          title="이달의 거래 현황"
+          meta={`계약일 기준 · ${koreanYearMonthLabel(contractMonth)}${
+            market?.comparePartial ? " (오늘까지)" : ""
+          }`}
         />
         {marketQuery.isError ? (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            시장 현황을 불러오지 못했습니다.
-          </p>
-        ) : null}
-        {marketQuery.isLoading && !market ? (
-          <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
+          <p className="text-sm text-slate-600">거래 현황을 불러오지 못했습니다.</p>
+        ) : marketQuery.isLoading && !market ? (
+          <div className="h-20 animate-pulse rounded-lg bg-slate-100" />
         ) : market ? (
-          <>
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
-              <Kpi
-                label="거래량"
-                value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
-                side={market.comparePartial ? "오늘까지" : undefined}
-              />
-              <Kpi
-                label="전월 대비"
-                value={formatMomChangeValue(volumePct)}
-                side={volumeChangeSide(
-                  market.monthTradeCount,
-                  market.prevMonthTradeCount,
-                  volumePct,
-                )}
-                valueClassName={volumeChangeClass(volumePct)}
-                sideClassName={volumeChangeSideClass(volumePct)}
-              />
-              <Kpi
-                label="전년 동월 대비"
-                value={formatMomChangeValue(yearAgoPct)}
-                side={
-                  market.yearAgoMonthTradeCount != null
-                    ? volumeChangeSide(
-                        market.monthTradeCount,
-                        market.yearAgoMonthTradeCount,
-                        yearAgoPct,
-                      )
-                    : undefined
-                }
-                valueClassName={volumeChangeClass(yearAgoPct)}
-                sideClassName={volumeChangeSideClass(yearAgoPct)}
-              />
-              <Kpi
-                label="신고가"
-                value={
-                  market.monthSingogaCount != null
-                    ? `${market.monthSingogaCount.toLocaleString("ko-KR")}건`
-                    : "—"
-                }
-                valueClassName={singogaValueClass(market.monthSingogaCount)}
-              />
-              <Kpi
-                label="신고가 비율"
-                value={formatSharePct(singogaPct)}
-                valueClassName={singogaValueClass(
-                  market.monthSingogaCount,
-                )}
-              />
-              <Kpi
-                label="평당 중위가"
-                value={
-                  market.medianPyeongPrice != null
-                    ? formatPyeongMedian(market.medianPyeongPrice)
-                    : "—"
-                }
-              />
-            </div>
-            <Link
-              href="/stats"
-              className="inline-flex items-center gap-1 self-start text-sm font-medium text-slate-600 transition hover:text-slate-900"
-            >
-              시장 동향 자세히 보기
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              {
+                label: "거래량",
+                value: `${market.monthTradeCount.toLocaleString("ko-KR")}건`,
+                cls: "text-slate-900",
+              },
+              {
+                label: "전월 대비",
+                value: formatMomChangeValue(volumePct),
+                cls: volumeChangeClass(volumePct),
+              },
+              {
+                label: "전년 동월 대비",
+                value: formatMomChangeValue(yearAgoPct),
+                cls: volumeChangeClass(yearAgoPct),
+              },
+            ].map((kpi) => (
+              <div
+                key={kpi.label}
+                className="min-w-0 rounded-lg border border-slate-200 px-1.5 py-3 text-center"
+              >
+                <p className="whitespace-nowrap text-[12px] leading-4 text-slate-600">
+                  {kpi.label}
+                </p>
+                <p
+                  className={`mt-1.5 whitespace-nowrap text-[19px] font-bold leading-none tabular-nums sm:text-2xl ${kpi.cls}`}
+                >
+                  {kpi.value}
+                </p>
+              </div>
+            ))}
+          </div>
         ) : null}
-        </div>
       </section>
-
-      {lawdCodes.length > 0 ? (
-        <RegionLeaderboard
-          regionSlug={regionSlug}
-          regionName={regionName}
-          lawdCodes={lawdCodes}
-        />
-      ) : null}
 
       <section
         id="newly-seen-deals"
-        aria-label={`${regionName} 새로 확인된 거래`}
-        className={`${SECTION_SURFACE} flex flex-col gap-2.5`}
+        aria-label={`${regionName} 새로 확인된 신고가`}
+        className={`${MARKET_SECTION_SURFACE} flex flex-col gap-2.5`}
       >
-        <SectionHeading
-          title="새로 확인된 거래"
-          basisLabel={SEEN_DATE_BASIS_LABEL}
-          basisHelp={SEEN_DATE_BASIS_HELP}
+        <MarketSectionHeader
+          title="새로 확인된 신고가"
+          meta={
+            heroDate ? `확인일 기준 · 최근 확인 ${koreanMonthDayLabel(heroDate)}` : "확인일 기준"
+          }
+          tip={<p>{SEEN_DATE_BASIS_HELP}</p>}
         />
         {latestQuery.isError ? (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            새로 확인된 거래를 불러오지 못했습니다.
-          </p>
-        ) : null}
-        {latestQuery.isLoading && !latest ? (
-          <div className="h-40 animate-pulse rounded-lg bg-slate-200/50" />
-        ) : heroDate && heroDeals.length > 0 ? (
+          <p className="text-sm text-slate-600">새로 확인된 신고가를 불러오지 못했습니다.</p>
+        ) : latestQuery.isLoading && !latest ? (
+          <div className="h-32 animate-pulse rounded-lg bg-slate-100" />
+        ) : singogaDeals.length > 0 ? (
           <>
-            {heroIsToday ? (
-              <PhraseRow
-                className="text-sm leading-5"
-                leadingClassName="font-medium text-slate-900"
-                restClassName="tabular-nums text-slate-500"
-                items={[koreanMonthDayLabel(heroDate), ...heroCountPhrases]}
-              />
-            ) : (
-              <p className="break-keep text-sm text-slate-600">
-                {newlySeenCompactStatus({
-                  isToday: false,
-                  heroDate,
-                })}
-              </p>
-            )}
-            {latest?.bulkIngestDay ? (
-              <p className="text-pretty text-xs leading-5 text-slate-500">
-                이날 확인 건수가 많아 신고가 강조는 생략했습니다. 신고가가
-                0건이라는 뜻은 아닙니다.
-              </p>
-            ) : null}
-            <DealGrid
-              deals={heroVisible}
-              regionSlug={regionSlug}
-              variant="featured"
-            />
-            {heroHidden > 0 ? (
-              <MoreControl onClick={() => setHeroExpanded(true)}>
-                더보기 {heroHidden.toLocaleString("ko-KR")}건
-              </MoreControl>
+            <div className="flex flex-col gap-2">
+              {(singogaExpanded ? singogaDeals : singogaDeals.slice(0, SINGOGA_PREVIEW)).map(
+                (deal) => (
+                  <SingogaRowCard key={deal.id} deal={deal} regionSlug={regionSlug} />
+                ),
+              )}
+            </div>
+            {singogaDeals.length > SINGOGA_PREVIEW ? (
+              <button
+                type="button"
+                onClick={() => setSingogaExpanded((v) => !v)}
+                aria-expanded={singogaExpanded}
+                className="inline-flex min-h-10 w-full items-center justify-center gap-1 rounded-lg bg-teal-50 text-[14px] font-medium text-teal-800 hover:bg-teal-100/70"
+              >
+                {singogaExpanded
+                  ? "접기"
+                  : `신고가 전체 보기 (${singogaDeals.length.toLocaleString("ko-KR")}건)`}
+                <ChevronRight
+                  className={`h-4 w-4 transition ${singogaExpanded ? "-rotate-90" : ""}`}
+                  aria-hidden
+                />
+              </button>
             ) : null}
           </>
         ) : (
-          <div className="px-1 py-2 text-sm text-slate-500">
-            {EMPTY_NEWLY_SEEN}
-          </div>
+          <p className="px-1 py-2 text-sm text-slate-500">
+            {latest?.bulkIngestDay
+              ? "이날 확인 건수가 많아 신고가 강조는 생략했습니다."
+              : "최근 확인된 거래 중 신고가가 없습니다."}
+          </p>
         )}
       </section>
+
+      {lawdCodes.length > 0 ? (
+        <>
+          <RegionRepPriceSection
+            lawdCodes={lawdCodes}
+            regionName={regionName}
+            monthTradeCount={market?.monthTradeCount ?? null}
+          />
+          <RegionRankingTable
+            regionSlug={regionSlug}
+            regionName={regionName}
+            lawdCodes={lawdCodes}
+          />
+          <RegionAptSummarySection lawdCodes={lawdCodes} regionName={regionName} />
+        </>
+      ) : null}
 
       <section
         aria-label={`${regionName} 지역 거래 내역`}

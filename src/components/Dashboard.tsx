@@ -174,7 +174,10 @@ export function Dashboard({
       <header className={PAGE_HEADER_WITH_BACK}>
         <BackLink fallback="/regions" />
         <PageHeader
-          title={`${region.name} 아파트 시장`}
+          title={region.name}
+          description={
+            region.fullName.replace(region.name, "").trim() || region.fullName
+          }
           showDivider={false}
         />
       </header>
