@@ -398,7 +398,7 @@ function FloorCell({ floor }: { floor: number | null | undefined }) {
   return <span className="tabular-nums text-[color:var(--lab-navy-700)]">{floor}층</span>;
 }
 
-/** 표 머리글 — 목록 맨 위 한 번. 배경 틴트 없이 아래 구분선만 (policy §12.1). */
+/** 표 머리글 — 월마다 제목 바로 아래. 배경 틴트 없이 아래 구분선만 (policy §12.1). */
 function ArchiveColHeader() {
   return (
     <div>
@@ -422,8 +422,8 @@ function ArchiveColHeader() {
 }
 
 /**
- * Archive list — one continuous table inside the page's 거래 내역 section:
- * column header once, month divider rows, dense 6-column rows (desktop = mobile IA).
+ * Archive list inside the page's 거래 내역 section: per month a title + count, its column
+ * header, then dense 6-column rows (desktop = mobile IA).
  * 계약일 | 상태 | 가격 | 면적 | 거래동 | 층
  */
 export function GroupedTransactionList({
@@ -445,15 +445,18 @@ export function GroupedTransactionList({
 
   return (
     <div>
-      <ArchiveColHeader />
-      {groups.map((group) => (
+      {groups.map((group, gi) => (
         <section key={group.key} aria-label={`${group.label} 거래`}>
-          <div className="flex items-baseline justify-between gap-2 border-b border-[color:var(--lab-border)] pt-4 pb-1.5">
+          <div
+            className={`flex items-baseline justify-between gap-2 pb-2 ${gi === 0 ? "" : "pt-5"}`}
+          >
             <h3 className="detail-data-value-emphasis">{group.label}</h3>
             <span className="detail-meta tabular-nums">
               {group.count.toLocaleString("ko-KR")}건
             </span>
           </div>
+
+          <ArchiveColHeader />
 
           <ul>
             {group.items.map((tx, idx) => {
