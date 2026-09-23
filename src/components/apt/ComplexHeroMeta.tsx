@@ -14,10 +14,13 @@ export function ComplexHeroMeta({
   /** 관리 방식 · 구조처럼 hero-meta 줄에 없는 값 */
   extraTags?: Array<string | null | undefined>;
 }) {
+  // 용적률·건폐율은 한 라벨로 묶어 줄바꿈으로 갈라지지 않게 한다.
+  const ratios = lines.line3.filter((t) => /^(용적률|건폐율)/.test(t));
   const tags = [
     ...lines.line1.filter((t) => /입주$/.test(t)),
     ...lines.line2,
-    ...lines.line3,
+    ...(ratios.length ? [ratios.join(" · ")] : []),
+    ...lines.line3.filter((t) => !/^(용적률|건폐율)/.test(t)),
     ...extraTags.filter((t): t is string => Boolean(t?.trim())),
   ];
   if (tags.length === 0) return null;
