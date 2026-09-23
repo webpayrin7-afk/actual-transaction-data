@@ -227,6 +227,16 @@ function MonthComposition({
                   </span>
                 </div>
                 <DirectionBar row={row} widthPct={(n / scale) * 100} className="h-2" />
+                <p className="detail-meta flex flex-wrap gap-x-2 tabular-nums">
+                  {DIRECTIONS.map((dir) => (
+                    <span key={dir.key} className="whitespace-nowrap">
+                      {dir.label}{" "}
+                      <span className={dir.cls ? `font-semibold ${dir.cls}` : "font-semibold"}>
+                        {row[dir.key].toLocaleString("ko-KR")}
+                      </span>
+                    </span>
+                  ))}
+                </p>
               </li>
             );
           })}
