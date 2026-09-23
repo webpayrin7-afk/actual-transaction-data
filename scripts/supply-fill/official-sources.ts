@@ -73,7 +73,7 @@ export function acceptVworld(
 }
 
 function quotaText(text: string): boolean {
-  return /LIMITED_NUMBER_OF_SERVICE_REQUESTS|한도|트래픽|"returnReasonCode"\s*:\s*"22"/.test(text);
+  return /LIMITED_NUMBER_OF_SERVICE_REQUESTS|초과|"returnReasonCode"\s*:\s*"22"|<returnReasonCode>22</.test(text);
 }
 
 async function fetchExposPage(parcel: Parcel, page: number): Promise<{ total: number; items: ExposRow[] }> {
@@ -101,7 +101,12 @@ async function fetchExposPage(parcel: Parcel, page: number): Promise<{ total: nu
         { headers: { "User-Agent": "ziplab-supply-fill" }, signal: controller.signal },
       );
       const text = await res.text();
-      if (quotaText(text)) throw new QuotaError();
+      // Quota errors come as a gateway error body, never inside a NORMAL SERVICE payload
+      // (row data can legitimately contain words like 한도).
+      if (!text.includes('"resultCode":"00"') && quotaText(text)) {
+        console.error(`quota body: ${text.slice(0, 200)}`);
+        throw new QuotaError();
+      }
       if (res.status === 429) {
         apiStats.http429 += 1;
         spacingMs = Math.min(3000, Math.round(spacingMs * 1.6));

@@ -411,6 +411,7 @@ async function planComplex(client: Client, target: Target, now: string): Promise
     existing.set(ex, bucket);
   }
   if (target.group === "G1" && existing.size > 0) return null; // no longer a NO_TYPE complex
+  if (klass !== "RECOVERED") return plan; // nothing verified → only the checkpoint records the outcome
   const pairRows = await client.execute({
     sql: `SELECT exclusive_cents, resolution_status, observed_from, trade_count_3y FROM apt_unit_exclusive_pairs WHERE complex_id = ?`,
     args: [target.complexId],
