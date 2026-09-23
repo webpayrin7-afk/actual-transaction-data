@@ -3,6 +3,8 @@
  */
 
 export type ComplexHeroMetaLines = {
+  /** "서울특별시 송파구 잠실동" — shown beside the title (titleSuffix). */
+  location: string | null;
   line1: string[];
   line2: string[];
   line3: string[];
@@ -95,5 +97,10 @@ export function complexHeroMeta(params: {
   const heating = trimmed(params.heatingType);
   if (heating) line3.push(heating);
 
-  return { line1, line2, line3 };
+  // Title suffix drops the 시·도 ("송파구 잠실동"); falls back to the full label.
+  const shortLocation = [params.sigungu, params.legalDongName]
+    .map((part) => trimmed(part))
+    .filter((part): part is string => part != null)
+    .join(" ");
+  return { location: shortLocation || locationLabel || null, line1, line2, line3 };
 }

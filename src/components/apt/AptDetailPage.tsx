@@ -590,6 +590,7 @@ export function AptDetailPage({
             <BackLink fallback="/complexes" compact hideLabel />
           }
           title={data.aptName}
+          titleSuffix={heroMeta.location ?? undefined}
           titleClassName="detail-page-title"
           meta={<ComplexHeroMeta lines={heroMeta} />}
           showDivider={false}
@@ -618,7 +619,7 @@ export function AptDetailPage({
       {/* 시세 = 요약(면적 기준) → 추이(차트) → 거래내역. 한 주제 한 섹션 (policy §12.1). */}
       <LabSection
         id="section-market"
-        title="시세"
+        title="실거래 시세"
         meta={
           areaKey === "all" || !selectedArea
             ? "전체 면적 기준"
