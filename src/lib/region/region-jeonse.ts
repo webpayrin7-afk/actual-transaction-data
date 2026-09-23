@@ -9,7 +9,7 @@
  *   둘 다 있을 때만 집계. 전세가율 = 전세가 ÷ 매매가, 갭 = 매매가 − 전세가(만원).
  * 지역 월 전세가율 = 집계된 pair 전세가율의 중앙값.
  * 기준월(asOfMonth) = 최신 매매 계약월, 단 진행 중인 달력월은 제외(신고 미완료).
- * 전세 3개월 창이 전세 수집 시작월 이전에 걸치는 달은 null.
+ * 시계열: 매매·전세 3개월 창이 모두 수집 구간에 들어오는 첫 달 ~ 기준월 (최대 240개월).
  *
  * 목록(lowGap, highRatio) 표본 기준: 기준월 3개월 창에서 매매 2건 이상 · 전세 2건 이상인 pair.
  *   (중앙값이 단일 거래 한 건에 좌우되지 않도록 하는 최소치)
@@ -97,7 +97,7 @@ export type RegionJeonse = {
 
 type Snapshot = Omit<RegionJeonse, "status" | "lawdCd" | "series">;
 
-const SERIES_MONTHS = 60;
+const MAX_SERIES_MONTHS = 240;
 const WINDOW_MONTHS = 3;
 const LEASE_MONTHS = 24;
 const MIN_LIST_SAMPLE = 2;
@@ -154,7 +154,7 @@ export async function computeRegionJeonse(
   lawdCd: string,
 ): Promise<RegionJeonse> {
   const currentIdx = monthIndex(seoulToday().slice(0, 7).replace("-", ""));
-  const fromYm = ymFromIndex(currentIdx - (SERIES_MONTHS + WINDOW_MONTHS));
+  const fromYm = ymFromIndex(currentIdx - (MAX_SERIES_MONTHS + WINDOW_MONTHS));
   const result = await db.execute({
     sql: `SELECT m.complex_id AS c, MAX(m.apt_name) AS apt_name, MAX(m.legal_dong_name) AS dong,
                  ROUND(CAST(t.exclusive_area AS REAL), 0) AS ar,
@@ -175,6 +175,7 @@ export async function computeRegionJeonse(
 
   const pairs = new Map<string, PairData>();
   let asOfIdx = -1;
+  let tradeFromIdx = Infinity;
   let jeonseFromIdx = Infinity;
   for (const row of result.rows) {
     const complexId = String(row.c);
@@ -198,6 +199,7 @@ export async function computeRegionJeonse(
     if (String(row.k) === "trade") {
       p.trade.set(ym, amounts);
       if (ym > asOfIdx) asOfIdx = ym;
+      if (ym < tradeFromIdx) tradeFromIdx = ym;
     } else {
       p.jeonse.set(ym, amounts);
       if (ym < jeonseFromIdx) jeonseFromIdx = ym;
@@ -205,10 +207,15 @@ export async function computeRegionJeonse(
   }
   asOfIdx = asOfIdx < 0 ? currentIdx - 1 : Math.min(asOfIdx, currentIdx - 1);
 
+  const coveredFromIdx = Math.max(tradeFromIdx, jeonseFromIdx) + WINDOW_MONTHS - 1;
+  const seriesFromIdx = Math.max(
+    asOfIdx - MAX_SERIES_MONTHS + 1,
+    Math.min(coveredFromIdx, asOfIdx),
+  );
   const series: RegionJeonsePoint[] = [];
-  for (let m = asOfIdx - SERIES_MONTHS + 1; m <= asOfIdx; m++) {
+  for (let m = seriesFromIdx; m <= asOfIdx; m++) {
     const ratios: number[] = [];
-    if (m - WINDOW_MONTHS + 1 >= jeonseFromIdx) {
+    if (m >= coveredFromIdx) {
       for (const p of pairs.values()) {
         const t = median(windowValues(p.trade, m));
         const j = median(windowValues(p.jeonse, m));
@@ -325,7 +332,7 @@ async function readMaterialized(db: RankingReader, lawdCd: string): Promise<Regi
   } catch {
     return null;
   }
-  const series = seriesRows.rows.slice(-SERIES_MONTHS).map((r) => ({
+  const series = seriesRows.rows.slice(-MAX_SERIES_MONTHS).map((r) => ({
     yearMonth: String(r.year_month),
     jeonseRatio: r.jeonse_ratio == null ? null : Number(r.jeonse_ratio),
     pairCount: Number(r.pair_count ?? 0),
