@@ -33,7 +33,7 @@
 
 | 작업 | 브랜치 / PR | 상태 (16:39Z) | 재개 |
 |---|---|---|---|
-| 전월세 과거 이력 2011-01~2022-09 (서울 25구) | tmux `rent-backfill` → `rent-fail-retry` | **완료** + 실패 10셀 재시도 중(tmux `rent-fail-retry`, codes 11680/11710/11740, skip-existing) | 재시도 로그 `/tmp/rent-fail-retry.log` |
+| 전월세 과거 이력 2011-01~2022-09 (서울 25구) | tmux `rent-backfill` | **완료** jobs=3525 written=3515 ins=1,976,686. SUMMARY fail=10이었으나 해당 월칸 transactions 행 존재 → skip-existing 재시도 no-op | — |
 | 전세가율 시리즈 rematerialize (서울 25구) | living `data/poc/region-jeonse/` | **완료** index 2,925행(25구×117월, **201612~202608**; 이전 60월/202109~). 매매 원천이 ~201610부터라 2011까지는 미확장. `test-region-jeonse` PASS (matchesLive) | `npx tsx scripts/materialize-region-jeonse.ts` |
 | 매매·전월세 전국 전체 이력 missing-only | `cursor/tx-registration-status-1922` / PR #131 | **3,983/24,243** (16:39Z restart after stall; checkpoint resume). fail=10 · daegu RENT | `cd /home/ubuntu/wt/tx && bash scripts/full-history/start.sh` |
 | 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` | **인천 ACQUIRING** COMPLETE 560 + NO_PUB 42 / 1,093 (~55%), api~16,990, seg 15. 부산 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
