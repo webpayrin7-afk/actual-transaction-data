@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabSection } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import type {
   NearbySaleCard,
   NearbySaleStatus,
@@ -107,7 +109,7 @@ function DetailCta({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="detail-label shrink-0 font-medium !text-[color:var(--lab-teal-700)] transition hover:!text-[color:var(--lab-teal-700)]"
+      className="detail-label relative shrink-0 font-medium !text-[color:var(--lab-teal-700)] transition before:absolute before:-inset-y-3 before:inset-x-0 before:content-[''] hover:!text-[color:var(--lab-teal-700)]"
     >
       {label}
     </a>
@@ -178,7 +180,7 @@ export function SaleRow({ item }: { item: NearbySaleCard }) {
             </li>
           ))}
           {pricedExtra > 0 ? (
-            <li className="detail-micro font-medium tabular-nums text-slate-400">
+            <li className="detail-meta font-medium tabular-nums">
               외 {pricedExtra}개
             </li>
           ) : null}
@@ -227,6 +229,9 @@ export function ComplexNearbySalesSection({
     FEED_STATUSES.has(item.status),
   );
   const ready = q.data?.status === "READY" && items.length > 0;
+  const [expandedFor, setExpandedFor] = useState<string | null>(null);
+  const expanded = expandedFor === key;
+  const visibleItems = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
   const emptyReason =
     q.data?.reason ||
     (key
@@ -264,10 +269,17 @@ export function ComplexNearbySalesSection({
 
       {ready ? (
         <ul className="overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
-          {items.map((item) => (
+          {visibleItems.map((item) => (
             <SaleRow key={item.id} item={item} />
           ))}
         </ul>
+      ) : null}
+      {ready && items.length > LAB_LIST_PREVIEW ? (
+        <LabMoreButton
+          expanded={expanded}
+          onToggle={() => setExpandedFor(expanded ? null : key)}
+          label={`${(items.length - LAB_LIST_PREVIEW).toLocaleString("ko-KR")}곳 더보기`}
+        />
       ) : null}
     </LabSection>
   );
