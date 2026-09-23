@@ -921,6 +921,7 @@ export function AptDetailPage({
               : undefined
           }
           initialSchoolLevel={initialSchoolLevel}
+          presetAnchor={complexDetail?.mapAnchor ?? null}
         />
       </LabSectionBoundary>
 

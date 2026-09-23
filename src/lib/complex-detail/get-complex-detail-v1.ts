@@ -79,9 +79,13 @@ export type ComplexUnitMixV1 = {
   sourceAsOf: string | null;
 };
 
+/** NAVER geocoded complex center (complex_map_anchor) — matches the NAVER map label position. */
+export type ComplexMapAnchorV1 = { lat: number; lng: number; matchedAddress: string | null };
+
 export type ComplexDetailV1 = {
   resolved: boolean;
   unitMix?: ComplexUnitMixV1 | null;
+  mapAnchor?: ComplexMapAnchorV1 | null;
   identity: ComplexDetailIdentity | null;
   basic: ComplexDetailBasic | null;
   building: ComplexDetailBuilding | null;
@@ -575,9 +579,29 @@ export async function getComplexDetailV1(params: {
       ? { rows: unitMixRows, sourceAsOf: unitMixAsOf ?? null }
       : null;
 
+  // Optional table (scripts/map-anchor) — absent until the first apply; never fail the page on it.
+  let mapAnchor: ComplexMapAnchorV1 | null = null;
+  try {
+    const a = await db.execute({
+      sql: `SELECT lat, lng, matched_road, matched_jibun FROM complex_map_anchor WHERE complex_id = ? LIMIT 1`,
+      args: [complexId],
+    });
+    const row = a.rows[0];
+    if (row && Number.isFinite(Number(row.lat)) && Number.isFinite(Number(row.lng))) {
+      mapAnchor = {
+        lat: Number(row.lat),
+        lng: Number(row.lng),
+        matchedAddress: asStr(row.matched_road) ?? asStr(row.matched_jibun),
+      };
+    }
+  } catch {
+    mapAnchor = null;
+  }
+
   return {
     resolved: true,
     unitMix,
+    mapAnchor,
     identity,
     basic,
     building,

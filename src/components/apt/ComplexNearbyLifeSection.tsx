@@ -375,6 +375,7 @@ export function ComplexNearbyLifeSection({
   identity,
   initialTab,
   initialSchoolLevel,
+  presetAnchor = null,
 }: {
   aptName: string;
   identity?: {
@@ -389,6 +390,8 @@ export function ComplexNearbyLifeSection({
   initialTab?: NearbyLifeCategory;
   /** Restore school-level sub-tab (?schoolLevel=high). */
   initialSchoolLevel?: string;
+  /** NAVER geocoded center stored in complex_map_anchor — skips the in-browser geocode. */
+  presetAnchor?: { lat: number; lng: number; matchedAddress: string | null } | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -477,6 +480,25 @@ export function ComplexNearbyLifeSection({
         if (cancelled) return;
         setGeocodeStatus("loading");
 
+        // Stored NAVER anchor (same geocoder, precomputed) — no network round-trips.
+        // The 잠실엘스 commerce pilot origin still wins below via canonicalFromCommerce.
+        if (presetAnchor && !commerceSnapshot?.mapPoints) {
+          const coordinate = { lat: presetAnchor.lat, lng: presetAnchor.lng };
+          setMapAnchor({
+            ok: true,
+            coordinate,
+            anchorType: "NAVER_GEOCODE",
+            addressUsed: presetAnchor.matchedAddress ?? "",
+            matchedAddress: presetAnchor.matchedAddress ?? "",
+            poiLookup: "HOLD",
+            poiLookupReason: null,
+          });
+          setCoords(coordinate);
+          setGeocodeStatus("ready");
+          setGeocodeReason(null);
+          return;
+        }
+
         let apiAddress: string | null = null;
         try {
           const qs = new URLSearchParams({ aptName });
@@ -531,7 +553,7 @@ export function ComplexNearbyLifeSection({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [identity, aptName, commerceSnapshot]);
+  }, [identity, aptName, commerceSnapshot, presetAnchor]);
 
   const lifeQuery = useQuery({
     queryKey: [

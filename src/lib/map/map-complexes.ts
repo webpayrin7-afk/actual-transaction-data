@@ -55,18 +55,36 @@ function regionSlugFor(lawdCd: string): string {
   return LAWD_TO_REGION[lawdCd]?.slug ?? slugFromLawd("", lawdCd);
 }
 
+/** complex_map_anchor (NAVER geocode) exists? Cached per server instance. */
+let anchorTable: boolean | null = null;
+async function hasAnchorTable(db: Client): Promise<boolean> {
+  if (anchorTable != null) return anchorTable;
+  const r = await db.execute({
+    sql: "SELECT 1 FROM sqlite_master WHERE type='table' AND name='complex_map_anchor'",
+    args: [],
+  });
+  anchorTable = r.rows.length > 0;
+  return anchorTable;
+}
+
 export async function readMapComplexes(
   db: Client,
   bbox: MapBBox,
   band: MapAreaBand,
 ): Promise<{ complexes: MapComplex[]; truncated: boolean }> {
+  // 좌표: NAVER 지오코딩 중심점(complex_map_anchor)이 있으면 그것, 없으면 필지 대표점.
+  // 네이버 지도 위 아파트 라벨과 마커 위치를 맞추기 위함.
+  const anchored = await hasAnchorTable(db);
+  const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
+  const lng = anchored ? "COALESCE(a.lng, m.longitude)" : "m.longitude";
   const master = await db.execute({
     // 영역에 단지가 많으면 세대수 큰 단지부터 (호갱노노처럼 주요 단지가 먼저 보이게).
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
-                 m.latitude, m.longitude, p.household_count
+                 ${lat} AS latitude, ${lng} AS longitude, p.household_count
           FROM apt_complex_master m
+          ${anchored ? "LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id" : ""}
           LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
-          WHERE m.latitude BETWEEN ? AND ? AND m.longitude BETWEEN ? AND ?
+          WHERE ${lat} BETWEEN ? AND ? AND ${lng} BETWEEN ? AND ?
           ORDER BY COALESCE(p.household_count, 0) DESC
           LIMIT ?`,
     args: [bbox.swLat, bbox.neLat, bbox.swLng, bbox.neLng, MAP_MAX_COMPLEXES + 1],

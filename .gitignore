@@ -48,3 +48,6 @@ next-env.d.ts
 
 # national coordinate cache (manifest is tracked; raw extracts are not)
 /data/poc/national-expansion/coordinates/cache/
+
+# NAVER map-anchor geocode runs (local review files)
+data/map-anchor/
