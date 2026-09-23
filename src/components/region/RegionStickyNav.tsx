@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { labUnderlineTabClass } from "@/components/ui/lab";
 
 export const MARKET_SECTIONS = [
   { id: "market-price", label: "시세" },
@@ -160,7 +159,7 @@ export function RegionStickyNav({
         <nav aria-label={`${title} 시장 현황 섹션`}>
           <div
             ref={tabsRef}
-            className="-mx-4 flex gap-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+            className="-mx-4 flex items-center gap-1 overflow-x-auto px-4 py-1.5 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
             style={{ scrollbarWidth: "none" }}
           >
             {items.map((s) => (
@@ -170,7 +169,11 @@ export function RegionStickyNav({
                 data-section={s.id}
                 aria-current={active === s.id ? "true" : undefined}
                 onClick={() => jump(s.id)}
-                className={labUnderlineTabClass(active === s.id, "shrink-0 whitespace-nowrap")}
+                className={`relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                  active === s.id
+                    ? "border-[color:color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[color:var(--lab-teal-50)] font-semibold text-[color:var(--lab-teal-700)]"
+                    : "border-transparent font-medium text-[color:var(--lab-muted)] hover:bg-slate-50 hover:text-[color:var(--lab-navy-950)]"
+                }`}
               >
                 {s.label}
               </button>
