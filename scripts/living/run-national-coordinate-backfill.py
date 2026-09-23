@@ -538,10 +538,10 @@ for (let i = 0; i < payload.rows.length; i += batchSize) {{
       sql: `INSERT INTO complex_parcel_coordinates (
               complex_id, pnu, latitude, longitude, coordinate_semantics, resolution_status,
               coordinate_source, source_object_id, source_version, source_dataset, generated_at
-            ) VALUES (?, ?, ?, ?, 'PARCEL_REPRESENTATIVE_POINT', 'EXACT_PNU', ?, ?, '20260908', ?, ?)
+            ) VALUES (?, ?, ?, ?, 'PARCEL_REPRESENTATIVE_POINT', 'EXACT_PNU', ?, ?, ?, ?, ?)
             ON CONFLICT(complex_id) DO NOTHING`,
       args: [row.complex_id, row.pnu, row.latitude_text, row.longitude_text,
-             {json.dumps(SOURCE_NAME)}, row.pnu, {json.dumps(SOURCE_NAME)}, payload.generated_at],
+             {json.dumps(SOURCE_NAME)}, row.pnu, {json.dumps(SOURCE_VERSION)}, {json.dumps(SOURCE_NAME)}, payload.generated_at],
     }});
   }}
   const rs = await db.batch(statements, "write");
