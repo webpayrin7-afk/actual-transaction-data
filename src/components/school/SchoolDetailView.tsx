@@ -11,7 +11,7 @@ import type {
 } from "@/lib/school-info/product-school-detail";
 import { SCHOOLINFO_HOME_URL } from "@/lib/school-info/schoolinfo-public-url";
 
-/** 360px 3열 박스에서 라벨이 한 줄이 되도록 줄인 표기 (policy §12.5). */
+/** 360px 2열 박스에서 라벨이 한 줄이 되도록 줄인 표기 (policy §12.5). */
 const STAT_LABEL: Record<string, string> = {
   "교원 1인당 학생수": "교원당 학생수",
 };
@@ -68,7 +68,7 @@ export function SchoolDetailView({
       {coreItems.length > 0 ? (
         <LabSection title="학교 현황">
           <LabStatTiles
-            columns={3}
+            columns={2}
             items={coreItems.map((m) => ({
               key: m.label,
               label: STAT_LABEL[m.label] ?? m.label,
