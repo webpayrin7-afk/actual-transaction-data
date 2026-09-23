@@ -22,9 +22,13 @@ export const PAGE_HEADER_WITH_BACK =
  * - action: 제목 오른쪽 (면적 선택 등 compact control)
  * - children: 제목 아래 (검색 폼 등)
  */
+/** eyebrow 행 높이(24) + 제목까지 간격(6) — leading(뒤로가기)을 제목 줄에 맞추는 오프셋. */
+const EYEBROW_OFFSET = "mt-[30px]";
+
 export function PageHeader({
   title,
   titleSuffix,
+  eyebrow,
   description,
   meta,
   action,
@@ -38,6 +42,8 @@ export function PageHeader({
   title: string;
   /** Small context text right after the title (e.g. parent region). */
   titleSuffix?: ReactNode;
+  /** 제목 위 한 줄 (e.g. 학교급 · 설립 · 성별 색 라벨). 24px 높이 행으로 넘긴다. */
+  eyebrow?: ReactNode;
   description?: ReactNode;
   meta?: ReactNode;
   action?: ReactNode;
@@ -94,15 +100,23 @@ export function PageHeader({
       <div className="flex items-start justify-between gap-3">
         {leading ? (
           <div className="flex min-w-0 flex-1 items-start gap-2">
-            <div className={`flex shrink-0 items-center ${leadingLine}`}>{leading}</div>
+            <div
+              className={`flex shrink-0 items-center ${leadingLine} ${eyebrow ? EYEBROW_OFFSET : ""}`.trim()}
+            >
+              {leading}
+            </div>
             <div className="min-w-0 flex-1">
+              {eyebrow ? <div className="mb-1.5 flex h-6 items-center">{eyebrow}</div> : null}
               {heading}
               {descriptionNode}
               {metaNode("mt-1")}
             </div>
           </div>
         ) : (
-          <div className="min-w-0 flex-1">{heading}</div>
+          <div className="min-w-0 flex-1">
+            {eyebrow ? <div className="mb-1.5 flex h-6 items-center">{eyebrow}</div> : null}
+            {heading}
+          </div>
         )}
         {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
       </div>
