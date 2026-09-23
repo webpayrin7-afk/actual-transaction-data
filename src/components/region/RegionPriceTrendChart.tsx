@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -138,16 +138,16 @@ function MonthStepper({
   );
 }
 
-function DataRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 py-2.5">
-      <dt className="detail-label">{label}</dt>
-      <dd className="text-right">{children}</dd>
-    </div>
-  );
-}
 
-function MonthComposition({ detail }: { detail: RegionMonthDetail }) {
+function MonthComposition({
+  detail,
+  monthLabel,
+  tradeCount,
+}: {
+  detail: RegionMonthDetail;
+  monthLabel: string;
+  tradeCount: number;
+}) {
   const [mode, setMode] = useState<BreakdownId>("dong");
   const [expanded, setExpanded] = useState(false);
   const d = detail.direction;
@@ -160,14 +160,22 @@ function MonthComposition({ detail }: { detail: RegionMonthDetail }) {
   return (
     <>
       <div className="detail-subsection-rule">
-        <div className="flex items-center">
-          <h4 className="detail-subsection-title">거래 방향</h4>
-          <InfoTip aria-label="거래 방향 안내">
-            <p>
-              같은 단지·면적의 직전 거래와 비교합니다. 직전 거래가 없거나 같은
-              가격이면 보합·기타로 분류합니다.
-            </p>
-          </InfoTip>
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <div className="flex min-w-0 items-center">
+            <h4 className="detail-subsection-title">거래 방향</h4>
+            <InfoTip aria-label="거래 방향 안내">
+              <p>
+                같은 단지·면적의 직전 거래와 비교합니다. 직전 거래가 없거나 같은
+                가격이면 보합·기타로 분류합니다.
+              </p>
+            </InfoTip>
+          </div>
+          <p className="detail-meta tabular-nums">
+            {monthLabel} · 매매{" "}
+            <span className="detail-data-value-emphasis">
+              {tradeCount.toLocaleString("ko-KR")}건
+            </span>
+          </p>
         </div>
         <div className="mt-3">
           <DirectionBar row={d} scale={sum} label="이 달 전체" />
@@ -480,6 +488,7 @@ export function RegionPriceTrendChart({
                   stroke="none"
                   fill={CHART_VOLUME}
                   fillOpacity={0.12}
+                  activeDot={{ r: 3.5, fill: CHART_VOLUME, stroke: "#fff", strokeWidth: 1.5 }}
                   isAnimationActive={false}
                   name="거래량"
                 />
@@ -513,7 +522,7 @@ export function RegionPriceTrendChart({
                       <g key={`d-${props.index}`} />
                     )
                   }
-                  activeDot={false}
+                  activeDot={{ r: 4, fill: CHART_TRADE, stroke: "#fff", strokeWidth: 2 }}
                   isAnimationActive={false}
                   connectNulls
                   name="평당가"
@@ -533,25 +542,22 @@ export function RegionPriceTrendChart({
           </p>
 
           {current ? (
-            <div className="detail-subsection-rule flex flex-col">
-              <h4 className="detail-subsection-title">
-                {ymKorean(current.yearMonth)} 거래
-              </h4>
-              <dl className="mt-1 divide-y divide-[color:var(--lab-border)]">
-                <DataRow label="이 달 매매 거래">
-                  <span className="detail-data-value-emphasis">
-                    {current.tradeCount.toLocaleString("ko-KR")}건
-                  </span>
-                </DataRow>
-              </dl>
-              {monthDetail ? (
-                <MonthComposition key={current.yearMonth} detail={monthDetail} />
-              ) : detailQuery.isLoading ? (
-                <div className="mt-4 h-24 animate-pulse rounded-lg bg-slate-100" />
-              ) : (
-                <p className="detail-meta mt-2">거래 구성은 최근 5년까지 제공합니다.</p>
-              )}
-            </div>
+            monthDetail ? (
+              <MonthComposition
+                key={current.yearMonth}
+                detail={monthDetail}
+                monthLabel={ymKorean(current.yearMonth)}
+                tradeCount={current.tradeCount}
+              />
+            ) : detailQuery.isLoading ? (
+              <div className="h-24 animate-pulse rounded-lg bg-slate-100" />
+            ) : (
+              <p className="detail-meta">
+                {ymKorean(current.yearMonth)} · 매매{" "}
+                {current.tradeCount.toLocaleString("ko-KR")}건 · 거래 구성은 최근
+                5년까지 제공합니다.
+              </p>
+            )
           ) : null}
         </>
       )}
