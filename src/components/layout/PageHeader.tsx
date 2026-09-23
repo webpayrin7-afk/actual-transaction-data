@@ -70,7 +70,7 @@ export function PageHeader({
     >
       {title}
       {titleSuffix ? (
-        <span className="detail-meta ml-2 align-baseline font-normal tracking-normal">
+        <span className="detail-meta ml-2 inline-block whitespace-nowrap align-baseline font-normal tracking-normal">
           {titleSuffix}
         </span>
       ) : null}
