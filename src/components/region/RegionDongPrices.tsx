@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabTabs } from "@/components/ui/LabTabs";
 import {
+  LIST_PREVIEW,
+  ListMoreButton,
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
 } from "@/components/region/RegionMarketSections";
@@ -16,7 +18,7 @@ const SORTS = [
 ] as const;
 type SortId = (typeof SORTS)[number]["id"];
 
-const PREVIEW = 6;
+const PREVIEW = LIST_PREVIEW;
 const BAR = "#0F766E";
 
 function pctText(pct: number | null): string {
@@ -161,14 +163,11 @@ export function RegionDongPricesSection({
             })}
           </ol>
           {dongs.length > PREVIEW ? (
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              aria-expanded={expanded}
-              className="lab-button lab-button-secondary w-full"
-            >
-              {expanded ? "접기" : `${dongs.length - PREVIEW}개 동 더 보기`}
-            </button>
+            <ListMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${dongs.length - PREVIEW}개 동 더보기`}
+            />
           ) : null}
         </>
       )}

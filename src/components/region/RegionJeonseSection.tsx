@@ -7,6 +7,8 @@ import { ChevronRight } from "lucide-react";
 import { Area, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
 import {
+  LIST_PREVIEW,
+  ListMoreButton,
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
 } from "@/components/region/RegionMarketSections";
@@ -15,7 +17,6 @@ import type { RegionJeonse } from "@/lib/region/region-jeonse";
 import { formatEok } from "@/lib/utils/format";
 
 const LINE = "#087F83";
-const LIST_SHOWN = 6;
 
 const TABS = [
   { id: "gap", label: "갭 작은 순" },
@@ -70,6 +71,7 @@ export function RegionJeonseSection({
 }) {
   const query = useRegionJeonse(lawdCd);
   const [tab, setTab] = useState<TabId>("gap");
+  const [expanded, setExpanded] = useState(false);
   const data = query.data?.status === "ok" ? query.data : null;
 
   const points = useMemo(
@@ -84,7 +86,7 @@ export function RegionJeonseSection({
   const rows = useMemo<Row[]>(() => {
     if (!data) return [];
     if (tab === "drop") {
-      return data.jeonseBelow2yAgo.items.slice(0, LIST_SHOWN).map((d) => ({
+      return data.jeonseBelow2yAgo.items.map((d) => ({
         key: `${d.complexId}|${d.exclusiveArea}`,
         complexId: d.complexId,
         name: d.aptName,
@@ -95,7 +97,7 @@ export function RegionJeonseSection({
       }));
     }
     const source = tab === "gap" ? data.lowGap : data.highRatio;
-    return source.slice(0, LIST_SHOWN).map((p) => ({
+    return source.map((p) => ({
       key: `${p.complexId}|${p.exclusiveArea}`,
       complexId: p.complexId,
       name: p.aptName,
@@ -225,7 +227,10 @@ export function RegionJeonseSection({
               ariaLabel="전세 목록 기준"
               items={TABS}
               value={tab}
-              onChange={setTab}
+              onChange={(next) => {
+                setTab(next);
+                setExpanded(false);
+              }}
             />
           </div>
 
@@ -237,7 +242,7 @@ export function RegionJeonseSection({
             </p>
           ) : (
             <ul className="divide-y divide-[color:var(--lab-border)]">
-              {rows.map((row) => {
+              {(expanded ? rows : rows.slice(0, LIST_PREVIEW)).map((row) => {
                 const href = rankingComplexHref({
                   aptName: row.name,
                   regionSlug,
@@ -277,6 +282,13 @@ export function RegionJeonseSection({
               })}
             </ul>
           )}
+          {rows.length > LIST_PREVIEW ? (
+            <ListMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${rows.length - LIST_PREVIEW}곳 더보기`}
+            />
+          ) : null}
         </>
       )}
     </section>

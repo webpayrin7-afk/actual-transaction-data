@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { LabTabs } from "@/components/ui/LabTabs";
 import {
+  LIST_PREVIEW,
+  ListMoreButton,
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
 } from "@/components/region/RegionMarketSections";
@@ -33,6 +35,7 @@ export function RegionBudgetFinderSection({
 }) {
   const [budget, setBudget] = useState<BudgetId>("150000");
   const [band, setBand] = useState<string>("30");
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const query = useQuery({
     queryKey: ["region-budget", lawdCd, budget],
     queryFn: async () => {
@@ -49,6 +52,10 @@ export function RegionBudgetFinderSection({
   const bands = data?.bands ?? [];
   const current = bands.find((b) => b.key === band) ?? bands[0] ?? null;
   const budgetLabel = BUDGETS.find((b) => b.id === budget)?.label ?? "";
+  const listKey = `${budget}|${current?.key ?? ""}`;
+  const expanded = expandedKey === listKey;
+  const items = current?.items ?? [];
+  const visibleItems = expanded ? items : items.slice(0, LIST_PREVIEW);
 
   return (
     <section
@@ -103,7 +110,7 @@ export function RegionBudgetFinderSection({
               {current.total}곳
             </p>
             <ul className="divide-y divide-[color:var(--lab-border)]">
-              {current.items.map((item) => {
+              {visibleItems.map((item) => {
                 const href = rankingComplexHref({
                   aptName: item.name,
                   regionSlug,
@@ -140,6 +147,13 @@ export function RegionBudgetFinderSection({
                 );
               })}
             </ul>
+            {items.length > LIST_PREVIEW ? (
+              <ListMoreButton
+                expanded={expanded}
+                onToggle={() => setExpandedKey(expanded ? null : listKey)}
+                label={`${items.length - LIST_PREVIEW}곳 더보기`}
+              />
+            ) : null}
           </>
         )
       ) : null}

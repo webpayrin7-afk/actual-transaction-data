@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
@@ -10,6 +11,8 @@ import { useRegionMarketDetail } from "@/components/region/useRegionMarketDetail
 
 export { useRegionMarketDetail };
 import {
+  LIST_PREVIEW,
+  ListMoreButton,
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
 } from "@/components/region/RegionMarketSections";
@@ -249,6 +252,7 @@ function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
 const SUPPLY_HORIZON_YEARS = 6;
 
 export function RegionSupplyTimelineSection({ regionName }: { regionName: string }) {
+  const [expanded, setExpanded] = useState(false);
   const query = useQuery({
     queryKey: ["region-nearby-sales", regionName],
     queryFn: async () => {
@@ -271,10 +275,15 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
         Number(it.moveInYm.slice(0, 4)) <= lastYear,
     )
     .sort((a, b) => (a.moveInYm ?? "").localeCompare(b.moveInYm ?? ""));
-  const groups = [...new Set(items.map((it) => it.moveInYm!.slice(0, 4)))].map((year) => ({
-    year,
-    list: items.filter((it) => it.moveInYm!.startsWith(year)),
-  }));
+  const visibleIds = new Set(
+    (expanded ? items : items.slice(0, LIST_PREVIEW)).map((it) => it.id),
+  );
+  const groups = [...new Set(items.map((it) => it.moveInYm!.slice(0, 4)))]
+    .map((year) => {
+      const list = items.filter((it) => it.moveInYm!.startsWith(year));
+      return { year, list, visible: list.filter((it) => visibleIds.has(it.id)) };
+    })
+    .filter((g) => g.visible.length > 0);
   const aptUnits = items
     .filter((it) => it.housingCategory === "apartment")
     .reduce((s, it) => s + (it.supplyCount ?? 0), 0);
@@ -335,7 +344,7 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
                     </p>
                   </div>
                   <ul className="mt-2 overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
-                    {g.list.map((it) => (
+                    {g.visible.map((it) => (
                       <SaleRow key={it.id} item={it} />
                     ))}
                   </ul>
@@ -343,6 +352,13 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
               );
             })}
           </div>
+          {items.length > LIST_PREVIEW ? (
+            <ListMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${items.length - LIST_PREVIEW}곳 더보기`}
+            />
+          ) : null}
         </>
       )}
     </section>

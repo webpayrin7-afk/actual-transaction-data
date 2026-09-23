@@ -40,6 +40,33 @@ export function MarketSectionHeader({
   );
 }
 
+export const LIST_PREVIEW = 5;
+
+export function ListMoreButton({
+  expanded,
+  onToggle,
+  label = "더보기",
+}: {
+  expanded: boolean;
+  onToggle: () => void;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={expanded}
+      className="lab-button lab-button-secondary w-full"
+    >
+      {expanded ? "접기" : label}
+      <ChevronRight
+        className={`h-4 w-4 transition ${expanded ? "-rotate-90" : "rotate-90"}`}
+        aria-hidden
+      />
+    </button>
+  );
+}
+
 
 
 
@@ -111,7 +138,7 @@ function strengthTags(
     .map((t) => `${STRENGTH_LABELS[t.k]} 상위 ${t.share}%`);
 }
 
-const RANK_PREVIEW = 5;
+const RANK_PREVIEW = LIST_PREVIEW;
 const RANK_FULL = 20;
 
 const RANK_TABS = [
@@ -294,18 +321,11 @@ export function RegionRankingTable({
             </ul>
           </div>
           {rows.length > RANK_PREVIEW ? (
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              aria-expanded={expanded}
-              className="lab-button lab-button-secondary w-full"
-            >
-              {expanded ? "접기" : "전체 순위 보기"}
-              <ChevronRight
-                className={`h-4 w-4 transition ${expanded ? "-rotate-90" : ""}`}
-                aria-hidden
-              />
-            </button>
+            <ListMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${rows.length - RANK_PREVIEW}곳 더보기`}
+            />
           ) : null}
         </>
       )}

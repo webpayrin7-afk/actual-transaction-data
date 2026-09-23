@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -14,6 +13,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
+  LIST_PREVIEW,
+  ListMoreButton,
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
   RegionRankingTable,
@@ -630,7 +631,7 @@ export function RegionDailyStatus({
   const [visibleDayCount, setVisibleDayCount] = useState(
     HISTORY_INITIAL_DAY_COUNT,
   );
-  const [visibleDealCount, setVisibleDealCount] = useState(15);
+  const [visibleDealCount, setVisibleDealCount] = useState(LIST_PREVIEW);
   const [clickedDates, setClickedDates] = useState<string[]>([]);
   const [calendarSelected, setCalendarSelected] = useState<string | null>(null);
   const [flashDate, setFlashDate] = useState<string | null>(null);
@@ -643,7 +644,6 @@ export function RegionDailyStatus({
   );
   const [pendingDates, setPendingDates] = useState<string[]>([]);
   const pendingScroll = useRef<string | null>(null);
-  const historySentinel = useRef<HTMLDivElement | null>(null);
   const requestEpoch = useRef(0);
   const activityMonthRef = useRef(activityMonthUser ?? yearMonthFromSeoulDate(seoulToday()));
   const inFlightDates = useRef(new Set<string>());
@@ -829,7 +829,7 @@ export function RegionDailyStatus({
     inFlightPages.current.clear();
     setActivityMonthUser(next);
     setVisibleDayCount(HISTORY_INITIAL_DAY_COUNT);
-    setVisibleDealCount(15);
+    setVisibleDealCount(LIST_PREVIEW);
     setClickedDates([]);
     setCalendarSelected(null);
     setBulkExtra({});
@@ -908,18 +908,6 @@ export function RegionDailyStatus({
     }
   }, [activeDates, fetchDaySections, listedDates, loadMoreBulk, sectionByDate, visibleDayCount]);
 
-  useEffect(() => {
-    const target = historySentinel.current;
-    if (!target || !hasMoreHistory) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) loadNextHistory();
-      },
-      { rootMargin: "320px 0px" },
-    );
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [hasMoreHistory, loadNextHistory]);
   const calendarDays = (historyQuery.data?.days ?? []).map((day) => {
     const section = sectionByDate.get(day.date);
     if (!section) return day;
@@ -978,20 +966,11 @@ export function RegionDailyStatus({
               )}
             </div>
             {singogaDeals.length > SINGOGA_PREVIEW ? (
-              <button
-                type="button"
-                onClick={() => setSingogaExpanded((v) => !v)}
-                aria-expanded={singogaExpanded}
-                className="lab-button lab-button-secondary w-full"
-              >
-                {singogaExpanded
-                  ? "접기"
-                  : `신고가 전체 보기 (${singogaDeals.length.toLocaleString("ko-KR")}건)`}
-                <ChevronRight
-                  className={`h-4 w-4 transition ${singogaExpanded ? "-rotate-90" : ""}`}
-                  aria-hidden
-                />
-              </button>
+              <ListMoreButton
+                expanded={singogaExpanded}
+                onToggle={() => setSingogaExpanded((v) => !v)}
+                label={`${(singogaDeals.length - SINGOGA_PREVIEW).toLocaleString("ko-KR")}건 더보기`}
+              />
             ) : null}
           </>
         ) : (
@@ -1138,7 +1117,9 @@ export function RegionDailyStatus({
           {pendingDates.length > 0 ? (
             <div className="h-16 animate-pulse rounded-lg bg-slate-200/50" />
           ) : null}
-          <div ref={historySentinel} className="h-px" aria-hidden="true" />
+          {hasMoreHistory && pendingDates.length === 0 ? (
+            <ListMoreButton expanded={false} onToggle={loadNextHistory} />
+          ) : null}
         </div>
       </section>
     </div>
