@@ -20,11 +20,10 @@ const daily = readFileSync(
 assert(daily.includes("RegionStatusHero"), "hero section");
 assert(daily.includes("RegionMarketSummary"), "market summary");
 assert(daily.includes("RegionPriceTrendSection"), "price trend");
-assert(daily.includes("RegionLeaderboard"), "ranking preserved");
+assert(!daily.includes("RegionLeaderboard"), "apartment ranking removed from region status");
 assert(daily.includes("RegionRecentTransactions"), "recent tx");
 assert(daily.includes("RegionAnalysisSection"), "analysis");
 assert(daily.includes("RegionSupplySection"), "supply");
-assert(daily.includes("hideScopeToggle"), "scope lifted to hero");
 assert(daily.includes("decade"), "shared decade URL state");
 assert(!daily.includes("지역 평균 평당가"), "forbidden avg label");
 
@@ -43,13 +42,6 @@ const api = readFileSync(
 );
 assert(api.includes("readRegionalPricePosition"), "region price API");
 assert(api.includes("DECADE_KEYS_V3"), "decade bands only");
-
-const leaderboard = readFileSync(
-  resolve(import.meta.dirname, "../src/components/region/RegionLeaderboard.tsx"),
-  "utf8",
-);
-assert(leaderboard.includes("REGION_RANK_V3_TABS"), "ranking V3 intact");
-assert(leaderboard.includes("onDecadeSelect"), "decade handoff to price");
 
 const db = getDb();
 if (!db) {

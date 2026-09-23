@@ -13,7 +13,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import { RegionLeaderboard } from "@/components/region/RegionLeaderboard";
 import {
   RegionAnalysisSection,
   RegionDecadeSelector,
@@ -1232,21 +1231,6 @@ export function RegionDailyStatus({
         decade={decade}
         fromComplexId={fromComplexId}
       />
-
-      {lawdCodes.length > 0 ? (
-        <RegionLeaderboard
-          regionSlug={regionSlug}
-          regionName={regionName}
-          lawdCodes={lawdCodes}
-          dongName={rankingDongName}
-          dongRegionCode={rankingDongCode}
-          fromComplexId={fromComplexId}
-          scope={scope}
-          onScopeChange={setScope}
-          hideScopeToggle
-          onDecadeSelect={(key) => setDecade(key as DecadeKeyV3)}
-        />
-      ) : null}
 
       <RegionRecentTransactions
         deals={recentMerged}
