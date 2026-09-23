@@ -1,0 +1,37 @@
+{
+  "started_at": "2026-09-23T05:07:36Z",
+  "updated_at": "2026-09-23T05:07:40Z",
+  "wave": "WAVE1_LOCAL",
+  "total_targets": 8452,
+  "processed": 772,
+  "remaining": 7680,
+  "coord_added": 0,
+  "coord_failed": 0,
+  "living500_added": 0,
+  "living1000_added": 0,
+  "PNU_linked": 7680,
+  "geometry_found": 0,
+  "ambiguous": 758,
+  "no_source": 14,
+  "failed": 0,
+  "current_region": "50",
+  "current_complex_id": "cx_fe516cc013aae6d4",
+  "external_calls": 0,
+  "retry_count": 0,
+  "classification": {
+    "HAS_PNU_NO_GEOMETRY": 7680,
+    "AMBIGUOUS_PARCEL": 758,
+    "NO_PNU_IDENTITY_GAP": 14
+  },
+  "terminals": {
+    "AMBIGUOUS": 758,
+    "IDENTITY_GAP": 14
+  },
+  "seoul_missing": 73,
+  "gyeonggi_missing": 937,
+  "coverage_ready": 19072,
+  "coverage_total": 27524,
+  "pid": 22350,
+  "first_batch": true,
+  "wave1_fills": 0
+}
