@@ -61,6 +61,11 @@ function changeSrText(pct: number | null | undefined): string {
   return pct > 0 ? " 상승" : " 하락";
 }
 
+function shortRange(start: string, end: string): string {
+  const fmt = (d: string) => `${Number(d.slice(5, 7))}.${Number(d.slice(8, 10))}`;
+  return `${fmt(start)}~${fmt(end)}`;
+}
+
 export function fetchRegionPriceTrend(lawdCd: string) {
   return async (): Promise<RegionPriceTrend> => {
     const res = await fetch(`/api/region-price-trend?lawd_cd=${lawdCd}`);
@@ -106,27 +111,21 @@ export function RegionPriceSection({
         }
       />
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="min-w-0 rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-3 py-3">
-          <p className="detail-label">최근 1개월 평당가</p>
-          {query.isLoading ? (
-            <div className="mt-2 h-7 w-28 animate-pulse rounded bg-teal-100/70" />
-          ) : (
-            <p className="detail-summary-value detail-kpi-brand mt-1 whitespace-nowrap">
-              {priceText ?? "—"}
-            </p>
-          )}
-        </div>
-        <div className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-3 py-3">
-          <p className="detail-label">최근 1개월 거래량</p>
-          {query.isLoading ? (
-            <div className="mt-2 h-7 w-16 animate-pulse rounded bg-slate-100" />
-          ) : (
-            <p className="detail-summary-value mt-1 whitespace-nowrap">
-              {recent ? `${recent.current.tradeCount.toLocaleString("ko-KR")}건` : "—"}
-            </p>
-          )}
-        </div>
+      <div className="rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-4 py-3">
+        <p className="detail-label">최근 1개월 평당가</p>
+        {query.isLoading ? (
+          <div className="mt-2 h-7 w-32 animate-pulse rounded bg-teal-100/70" />
+        ) : (
+          <p className="detail-summary-value detail-kpi-brand mt-1 whitespace-nowrap">
+            {priceText ?? "—"}
+          </p>
+        )}
+        {recent ? (
+          <p className="detail-meta mt-0.5 tabular-nums">
+            {shortRange(recent.current.start, recent.current.end)} 계약 · 평형 확인{" "}
+            {recent.current.priceSampleCount.toLocaleString("ko-KR")}건 기준
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -149,12 +148,7 @@ export function RegionPriceSection({
           );
         })}
       </div>
-      <p className="detail-meta">
-        같은 30일 구간의 과거 평당가 대비
-        {recent && recent.current.priceSampleCount < recent.current.tradeCount
-          ? ` · 평당가는 평형 확인 ${recent.current.priceSampleCount.toLocaleString("ko-KR")}건 기준`
-          : ""}
-      </p>
+      <p className="detail-meta">같은 30일 구간의 과거 평당가 대비</p>
       </div>
 
       <RegionPriceTrendChart lawdCd={lawdCd} regionName={regionName} />
