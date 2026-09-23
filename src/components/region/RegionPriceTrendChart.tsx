@@ -40,6 +40,8 @@ type BreakdownId = (typeof BREAKDOWNS)[number]["id"];
 
 const BREAKDOWN_PREVIEW = 5;
 
+const PANEL_RULE = "mt-4 border-t border-[color:var(--lab-border)] pt-4";
+
 const CHART_TRADE = "#087F83";
 const CHART_VOLUME = "#0F766E";
 const DIR_UP = "var(--lab-change-up)";
@@ -159,7 +161,7 @@ function MonthComposition({
 
   return (
     <>
-      <div className="detail-subsection-rule">
+      <div className={PANEL_RULE}>
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <div className="flex min-w-0 items-center">
             <h4 className="detail-subsection-title">거래 방향</h4>
@@ -177,7 +179,7 @@ function MonthComposition({
             </span>
           </p>
         </div>
-        <div className="mt-3">
+        <div className="mt-2">
           <DirectionBar row={d} scale={sum} label="이 달 전체" />
         </div>
         <dl className="mt-1 divide-y divide-[color:var(--lab-border)]">
@@ -202,7 +204,7 @@ function MonthComposition({
         </dl>
       </div>
 
-      <div className="detail-subsection-rule">
+      <div className={PANEL_RULE}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h4 className="detail-subsection-title">어디서 거래됐나</h4>
           <LabTabs
@@ -241,7 +243,7 @@ function MonthComposition({
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
-            className="lab-button lab-button-secondary detail-cta w-full"
+            className="lab-button lab-button-secondary mt-3 w-full"
           >
             {expanded ? "접기" : `${rows.length - BREAKDOWN_PREVIEW}곳 더 보기`}
           </button>
@@ -395,14 +397,14 @@ export function RegionPriceTrendChart({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         {changeTiles.map((t) => (
           <div
             key={t.key}
-            className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-2 py-2.5 sm:px-3"
+            className="flex min-w-0 items-baseline justify-between gap-2 rounded-xl border border-[color:var(--lab-border)] px-3 py-2.5"
           >
             <p className="detail-label whitespace-nowrap">{t.label}</p>
-            <p className={`detail-data-value-emphasis mt-0.5 whitespace-nowrap ${changeClass(t.pct)}`}>
+            <p className={`detail-data-value-emphasis whitespace-nowrap ${changeClass(t.pct)}`}>
               {query.isLoading ? "…" : pctText2(t.pct)}
               <span className="sr-only">
                 {t.pct == null || t.pct === 0 ? "" : t.pct > 0 ? " 상승" : " 하락"}
@@ -412,7 +414,7 @@ export function RegionPriceTrendChart({
         ))}
       </div>
 
-      <div className="detail-subsection-rule flex flex-wrap items-center justify-between gap-2">
+      <div className={`${PANEL_RULE} flex flex-wrap items-center justify-between gap-2`}>
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">{regionName} 시세 평당가 추이</h3>
           <InfoTip aria-label="평당가 추이 안내">
