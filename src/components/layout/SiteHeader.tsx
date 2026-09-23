@@ -237,26 +237,6 @@ export function SiteHeader() {
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 pt-3 pb-4">
-              {/* Mobile: the primary menus live here (the text menu is desktop-only). */}
-              <div className="mb-3.5 border-b border-slate-100/80 pb-3.5 sm:hidden">
-                <p className={sectionHeadingClass()}>메뉴</p>
-                <nav aria-label="주요 메뉴" className="flex flex-col gap-0.5">
-                  {PRIMARY_NAV.map((item) => {
-                    const active = item.match(pathname);
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={drawerItemClass(active)}
-                        onClick={closeMenu}
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
-
               <p className={sectionHeadingClass()}>도구</p>
               <nav aria-label="도구" className="flex flex-col gap-0.5">
                 {TOOL_NAV.map((item) => {

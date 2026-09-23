@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
 import { BarChart3, Building2, Map, MapPinned, Search } from "lucide-react";
+import { MOBILE_DOCK_SPACER, MobileDock } from "@/components/layout/MobileDock";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
@@ -83,6 +84,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* No SiteHeader / desktop sidebar / mobile global nav */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
         <SiteFooter />
+        {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
+        <div aria-hidden className={MOBILE_DOCK_SPACER} />
+        <MobileDock />
       </div>
     );
   }
@@ -123,6 +127,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
+        <div aria-hidden className={MOBILE_DOCK_SPACER} />
+        <MobileDock />
       </div>
     </div>
   );
