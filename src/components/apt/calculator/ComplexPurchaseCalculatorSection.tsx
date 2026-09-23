@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNod
 import { ChevronsUpDown } from "lucide-react";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
 import { LAB_SECTION_SURFACE, LAB_SUBSECTION_RULE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { LabTabs, labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import {
@@ -612,6 +613,11 @@ export function ComplexPurchaseCalculatorSection({
       ? taxDeltaMan / baselineYear0.totalMan
       : 0;
   const growthActive = growthPct !== 0;
+  /** 공식 공시가격 연도별 (최신 → 과거). 추정값은 제외. */
+  const officialYears = publicPrice.years
+    .filter((y): y is typeof y & { priceMan: number } => y.kind === "official" && y.priceMan != null && y.priceMan > 0)
+    .sort((a, b) => b.year - a.year);
+
   const officialPriceYear =
     publicPrice.priceBaseYear ??
     (publicPrice.officialPriceDate
@@ -1299,6 +1305,33 @@ export function ComplexPurchaseCalculatorSection({
                       </div>
                     </li>
                   ) : null}
+                </ul>
+              </div>
+            ) : null}
+
+            {officialYears.length >= 2 ? (
+              <div className="space-y-2 border-t border-[color:var(--lab-border)] pt-3">
+                <p className="detail-label font-medium text-[color:var(--lab-navy-950)]">
+                  공시가격 추이
+                  <span className="detail-meta ml-1 font-normal">
+                    공식 공시 · 최근 매매가 대비
+                  </span>
+                </p>
+                <ul className={LAB_LIST}>
+                  {officialYears.map((y, i) => {
+                    const prev = officialYears[i + 1]?.priceMan ?? null;
+                    const yoy = prev ? Math.round((y.priceMan / prev - 1) * 1000) / 10 : null;
+                    const ratio = latestTradeMan > 0 ? Math.round((y.priceMan / latestTradeMan) * 100) : null;
+                    return (
+                      <LabListRow
+                        key={y.year}
+                        title={`${y.year}년`}
+                        meta={yoy != null ? `전년 대비 ${yoy > 0 ? "+" : ""}${yoy}%` : undefined}
+                        value={formatEokMan(y.priceMan)}
+                        sub={i === 0 && ratio != null ? `최근 매매가의 ${ratio}%` : undefined}
+                      />
+                    );
+                  })}
                 </ul>
               </div>
             ) : null}

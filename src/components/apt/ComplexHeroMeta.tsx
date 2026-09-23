@@ -6,12 +6,20 @@ import type { ComplexHeroMetaLines } from "@/lib/complex-detail/hero-meta";
  * 위치는 제목 옆 titleSuffix로 가므로 여기서는 입주 · 세대 · 동 · 층 · 주차 · 용적률 · 건폐율 · 난방만.
  * 좁으면 태그 단위로 줄바꿈된다.
  */
-export function ComplexHeroMeta({ lines }: { lines: ComplexHeroMetaLines }) {
+export function ComplexHeroMeta({
+  lines,
+  extraTags = [],
+}: {
+  lines: ComplexHeroMetaLines;
+  /** e.g. "가까운 초교 212m" — appended after the building facts */
+  extraTags?: string[];
+}) {
   // line1 = [full location?, 입주년도?] — location is shown as the title suffix instead.
   const tags = [
     ...lines.line1.filter((t) => /입주$/.test(t)),
     ...lines.line2,
     ...lines.line3,
+    ...extraTags,
   ];
   if (tags.length === 0) return null;
   return (

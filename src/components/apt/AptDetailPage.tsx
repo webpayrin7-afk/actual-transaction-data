@@ -22,6 +22,7 @@ import { ComplexRegionRankSection } from "@/components/apt/ComplexRegionRankSect
 import { ComplexUnitMixSection } from "@/components/apt/ComplexUnitMixSection";
 import { ComplexJeonseBenchmark } from "@/components/apt/ComplexJeonseBenchmark";
 import { ComplexTradeInsightSection } from "@/components/apt/ComplexTradeInsightSection";
+import { ComplexTradeActivity } from "@/components/apt/ComplexTradeActivity";
 import { SaveComplexButton } from "@/components/complexes/SaveComplexButton";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
@@ -620,7 +621,22 @@ export function AptDetailPage({
               }}
             />
           }
-          meta={<ComplexHeroMeta lines={heroMeta} />}
+          meta={
+            <ComplexHeroMeta
+              lines={heroMeta}
+              extraTags={
+                complexDetail?.nearestElementary
+                  ? [
+                      `가까운 초교 ${
+                        complexDetail.nearestElementary.distanceM >= 1000
+                          ? `${(complexDetail.nearestElementary.distanceM / 1000).toFixed(1)}km`
+                          : `${complexDetail.nearestElementary.distanceM}m`
+                      }`,
+                    ]
+                  : []
+              }
+            />
+          }
           showDivider={false}
         >
           <AptAreaSelector
@@ -723,6 +739,7 @@ export function AptDetailPage({
           regionName={region?.name ?? data.regionName ?? null}
           complexRatioPct={jeonseRatio}
         />
+        <ComplexTradeActivity items={areaFiltered} />
 
         <div className={LAB_SUBSECTION_RULE}>
           <div className="detail-market-header">
