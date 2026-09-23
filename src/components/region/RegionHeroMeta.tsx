@@ -1,24 +1,12 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { LabTag } from "@/components/ui/LabTag";
-import { regionRankingCode } from "@/lib/region-ranking/public";
-import type { RegionAptSummary } from "@/lib/region/region-summary";
+import { useRegionSummary } from "@/components/region/useRegionScopeQueries";
+import type { RegionScope } from "@/lib/region/region-scope";
 
-/** 지역 요약 속성 라벨 (단지 수 · 세대 · 연식 · 주력 평형). */
-export function RegionHeroMeta({ lawdCodes }: { lawdCodes: string[] }) {
-  const lawdCd = regionRankingCode(lawdCodes);
-  const query = useQuery({
-    queryKey: ["region-summary", lawdCd],
-    queryFn: async () => {
-      const res = await fetch(`/api/region-summary?lawd_cd=${lawdCd}`);
-      if (!res.ok) throw new Error("summary");
-      return (await res.json()) as RegionAptSummary;
-    },
-    enabled: !!lawdCd,
-    staleTime: 60 * 60_000,
-    retry: 1,
-  });
+/** 지역(구·동) 요약 속성 라벨 (단지 수 · 세대 · 연식 · 주력 평형). */
+export function RegionHeroMeta({ scope }: { scope: RegionScope | null }) {
+  const query = useRegionSummary(scope);
   const data = query.data?.status === "ok" ? query.data : null;
   const tags = data
     ? [

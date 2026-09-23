@@ -1,26 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import { parseRegionScope } from "@/lib/region/region-scope";
-import { readRegionMarketDetail } from "@/lib/region/region-market-detail";
+import { readRegionDongOverview } from "@/lib/region/region-dong-overview";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export async function GET(request: NextRequest) {
   const { scope, error } = parseRegionScope(request.nextUrl.searchParams);
-  if (!scope) {
-    return NextResponse.json({ error }, { status: 400 });
+  if (!scope || !scope.dong) {
+    return NextResponse.json({ error: error ?? "dong이 필요합니다." }, { status: 400 });
   }
   const db = getDb();
   if (!db) {
     return NextResponse.json({ status: "unavailable" }, { status: 503 });
   }
   try {
-    const data = await readRegionMarketDetail(db, scope.lawdCd, scope.dong);
+    const data = await readRegionDongOverview(db, scope.lawdCd, scope.dong);
     return NextResponse.json(data, {
       headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" },
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     return NextResponse.json({ status: "unavailable" }, { status: 500 });
   }
 }

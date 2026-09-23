@@ -1,5 +1,5 @@
 /**
- * 구 단위 아파트 요약 (read-only).
+ * 구(또는 법정동) 단위 아파트 요약 (read-only).
  * - 단지 수: apt_complex_master
  * - 세대수: apt_complex_profile.household_count, 없으면 평형별 세대수 합
  * - 평균 연차: 2024년 이후 실거래의 건축년도 (단지별 최댓값)
@@ -8,10 +8,13 @@
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { marketPyeongLabelInteger } from "@/lib/unit-type/supply-label";
 import { seoulToday } from "@/lib/market/time";
+import { DONG_TX_FROM, DONG_TX_WHERE, regionScopeKey } from "@/lib/region/region-scope";
 
 export type RegionAptSummary = {
   status: "ok";
   lawdCd: string;
+  /** 동 범위일 때만 존재. */
+  dong?: string;
   complexCount: number;
   householdTotal: number | null;
   householdComplexCount: number;
@@ -31,15 +34,36 @@ function decadeLabel(decade: number): string {
   return `${decade}평대`;
 }
 
+/** 동 범위 build_year 쿼리: 동 단지만 인덱스(lawd_cd, apt_name_norm, year_month)로 읽는다. */
+function dongAgesQuery(lawdCd: string, dong: string, currentYear: number) {
+  return {
+    sql: `SELECT MAX(CAST(t.build_year AS INTEGER)) AS y
+          FROM ${DONG_TX_FROM}
+          WHERE ${DONG_TX_WHERE}
+            AND t.build_year IS NOT NULL AND t.build_year <> ''
+          GROUP BY m.complex_id
+          HAVING y BETWEEN 1950 AND ?`,
+    args: [lawdCd, dong, BUILD_YEAR_SINCE, currentYear],
+  };
+}
+
+/**
+ * 구(또는 그 안 법정동) 아파트 요약. `dong`을 주면 같은 계산을
+ * `apt_complex_master.legal_dong_name = dong` 단지로 좁힌다.
+ */
 export async function readRegionAptSummary(
   db: RankingReader,
   lawdCd: string,
+  dong?: string | null,
 ): Promise<RegionAptSummary> {
-  const hit = cache.get(lawdCd);
+  const key = regionScopeKey({ lawdCd, dong });
+  const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
 
   const today = seoulToday();
   const currentYear = Number(today.slice(0, 4));
+  const dongSql = dong ? " AND m.legal_dong_name = ?" : "";
+  const dongArgs = dong ? [dong] : [];
 
   const [households, ages, units] = await Promise.all([
     db.execute({
@@ -47,7 +71,7 @@ export async function readRegionAptSummary(
               SELECT u.complex_id, SUM(u.household_count) AS hh
               FROM unit_type_household_counts u
               JOIN apt_complex_master m ON m.complex_id = u.complex_id
-              WHERE m.lawd_cd = ? AND u.household_count IS NOT NULL
+              WHERE m.lawd_cd = ?${dongSql} AND u.household_count IS NOT NULL
               GROUP BY u.complex_id
             )
             SELECT COUNT(*) AS n,
@@ -56,11 +80,14 @@ export async function readRegionAptSummary(
             FROM apt_complex_master m
             LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
             LEFT JOIN u ON u.complex_id = m.complex_id
-            WHERE m.lawd_cd = ?`,
-      args: [lawdCd, lawdCd],
+            WHERE m.lawd_cd = ?${dongSql}`,
+      args: [lawdCd, ...dongArgs, lawdCd, ...dongArgs],
     }),
-    db.execute({
-      sql: `WITH by AS (
+    db.execute(
+      dong
+        ? dongAgesQuery(lawdCd, dong, currentYear)
+        : {
+            sql: `WITH by AS (
               SELECT apt_name_norm, dong, MAX(CAST(build_year AS INTEGER)) AS y
               FROM transactions
               WHERE lawd_cd = ? AND year_month >= ?
@@ -71,15 +98,16 @@ export async function readRegionAptSummary(
             FROM apt_complex_master m
             JOIN by b ON b.apt_name_norm = m.apt_name_norm AND b.dong = m.legal_dong_name
             WHERE m.lawd_cd = ? AND b.y BETWEEN 1950 AND ?`,
-      args: [lawdCd, BUILD_YEAR_SINCE, lawdCd, currentYear],
-    }),
+            args: [lawdCd, BUILD_YEAR_SINCE, lawdCd, currentYear],
+          },
+    ),
     db.execute({
       sql: `SELECT u.supply_cents AS supply_cents, u.household_count AS hh
             FROM unit_type_household_counts u
             JOIN apt_complex_master m ON m.complex_id = u.complex_id
-            WHERE m.lawd_cd = ? AND u.ui_safe = 1
+            WHERE m.lawd_cd = ?${dongSql} AND u.ui_safe = 1
               AND u.household_count IS NOT NULL AND u.supply_cents > 0`,
-      args: [lawdCd],
+      args: [lawdCd, ...dongArgs],
     }),
   ]);
 
@@ -121,6 +149,7 @@ export async function readRegionAptSummary(
   const value: RegionAptSummary = {
     status: "ok",
     lawdCd,
+    ...(dong ? { dong } : {}),
     complexCount,
     householdTotal,
     householdComplexCount,
@@ -129,6 +158,6 @@ export async function readRegionAptSummary(
     representativeDecade,
     asOfMonth: today.slice(0, 7),
   };
-  cache.set(lawdCd, { at: Date.now(), value });
+  cache.set(key, { at: Date.now(), value });
   return value;
 }

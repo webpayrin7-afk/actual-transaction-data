@@ -1,6 +1,9 @@
 "use client";
 
-import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
+import {
+  LabStickySectionNav,
+  type LabStickySection,
+} from "@/components/ui/LabStickySectionNav";
 
 export const MARKET_SECTIONS = [
   { id: "market-price", label: "시세" },
@@ -14,19 +17,32 @@ export const MARKET_SECTIONS = [
   { id: "market-history", label: "거래 내역" },
 ] as const;
 
+/** 동 상세: 구 시장 현황 섹션을 동 범위로 재사용 + 동 전용 섹션. */
+export const DONG_MARKET_SECTIONS = [
+  { id: "market-price", label: "시세" },
+  { id: "market-compare", label: "주변 동" },
+  { id: "market-jeonse", label: "전세" },
+  { id: "market-trends", label: "거래 동향" },
+  { id: "region-ranking", label: "랭킹" },
+  { id: "dong-complexes", label: "단지" },
+  { id: "dong-deals", label: "거래 내역" },
+] as const;
+
 export function RegionStickyNav({
   anchor,
   title,
   subtitle,
+  sections = MARKET_SECTIONS,
 }: {
   anchor: React.RefObject<HTMLElement | null>;
   title: string;
   subtitle?: string;
+  sections?: readonly LabStickySection[];
 }) {
   return (
     <LabStickySectionNav
       anchor={anchor}
-      sections={MARKET_SECTIONS}
+      sections={sections}
       title={title}
       subtitle={subtitle}
       ariaLabel={`${title} 시장 현황 섹션`}

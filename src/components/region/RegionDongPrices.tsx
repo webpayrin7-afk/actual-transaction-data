@@ -3,9 +3,15 @@
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { LabTabs } from "@/components/ui/LabTabs";
-import type { RegionDongPrice, RegionPriceTrend } from "@/lib/region/region-price-trend";
+import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
+import { LabTag } from "@/components/ui/LabTag";
+import { LabTextLink } from "@/components/ui/LabListRow";
+import { useRegionPriceTrend } from "@/components/region/useRegionScopeQueries";
+import { regionDongHref } from "@/lib/molit/region-paths";
+import type { RegionDongPrice } from "@/lib/region/region-price-trend";
 
 const SORTS = [
   { id: "price", label: "시세 높은 순" },
@@ -28,25 +34,38 @@ function pctClass(pct: number | null): string {
   return pct > 0 ? "detail-change-up" : "detail-change-down";
 }
 
+function signedPct(pct: number | null, digits = 1): string {
+  if (pct == null) return "—";
+  return `${pct > 0 ? "+" : pct < 0 ? "−" : ""}${Math.abs(pct).toFixed(digits)}%`;
+}
+
+function toneOf(pct: number | null): LabStatTile["tone"] {
+  return pct == null || pct === 0 ? "neutral" : pct > 0 ? "up" : "down";
+}
+
+/**
+ * 구 안 법정동별 시세 비교.
+ * - 구 페이지: "동네별 시세" 목록. 각 동은 동 상세로 이동한다.
+ * - 동 페이지(`currentDong`): "주변 동 비교" — 이 동 vs 구 전체 요약 박스 + 같은 목록에서
+ *   현재 동을 강조한다(미리보기 5개 밖이면 마지막 칸에 끼워 보여 준다).
+ */
 export function RegionDongPricesSection({
   lawdCd,
   regionName,
+  regionSlug,
+  currentDong,
+  guLink,
 }: {
   lawdCd: string;
   regionName: string;
+  regionSlug: string;
+  currentDong?: string;
+  /** 동 페이지: 목록 아래 구 시장 현황으로 가는 보조 링크. */
+  guLink?: { href: string; label: string };
 }) {
   const [sort, setSort] = useState<SortId>("price");
   const [expanded, setExpanded] = useState(false);
-  const query = useQuery({
-    queryKey: ["region-price-trend", lawdCd],
-    queryFn: async () => {
-      const res = await fetch(`/api/region-price-trend?lawd_cd=${lawdCd}`);
-      if (!res.ok) throw new Error("trend");
-      return (await res.json()) as RegionPriceTrend;
-    },
-    staleTime: 30 * 60_000,
-    retry: 1,
-  });
+  const query = useRegionPriceTrend({ lawdCd });
   const data = query.data?.status === "ok" ? query.data : null;
   const dongs = useMemo(() => {
     const list = (data?.dongs ?? []).filter((d) => d.pyeongPrice != null);
@@ -58,8 +77,15 @@ export function RegionDongPricesSection({
   if (query.isError) return null;
   if (!query.isLoading && dongs.length < 2) return null;
 
-  const visible = expanded ? dongs : dongs.slice(0, PREVIEW);
+  const compare = Boolean(currentDong);
+  const currentIndex = compare ? dongs.findIndex((d) => d.name === currentDong) : -1;
+  const ranked = dongs.map((d, index) => ({ d, rank: index + 1 }));
+  let visible = expanded ? ranked : ranked.slice(0, PREVIEW);
+  if (!expanded && currentIndex >= PREVIEW) {
+    visible = [...ranked.slice(0, PREVIEW - 1), ranked[currentIndex]!];
+  }
   const guPrice = data?.latest?.pyeongPrice ?? null;
+  const guChange1y = data?.latest?.changes["1Y"] ?? null;
   const maxPrice = Math.max(1, ...dongs.map((d) => d.pyeongPrice ?? 0));
   const maxTrades = Math.max(1, ...dongs.map((d) => d.tradeCount12m));
   const maxAbsChange = Math.max(1, ...dongs.map((d) => Math.abs(d.change1y ?? 0)));
@@ -67,22 +93,64 @@ export function RegionDongPricesSection({
     ? `${data.latest.yearMonth.slice(0, 4)}.${data.latest.yearMonth.slice(4, 6)}`
     : null;
 
+  const current = currentIndex >= 0 ? dongs[currentIndex]! : null;
+  const priceRank = current
+    ? [...dongs]
+        .sort((a, b) => (b.pyeongPrice ?? 0) - (a.pyeongPrice ?? 0))
+        .findIndex((d) => d.name === currentDong) + 1
+    : null;
+  const vsGu =
+    current?.pyeongPrice != null && guPrice
+      ? ((current.pyeongPrice - guPrice) / guPrice) * 100
+      : null;
+  const tiles: LabStatTile[] = [
+    {
+      key: "price",
+      label: "평당가",
+      value: current?.pyeongPrice != null ? `${current.pyeongPrice.toLocaleString("ko-KR")}만원` : "—",
+      sub: vsGu != null ? `${regionName} 대비 ${signedPct(vsGu, 0)}` : undefined,
+    },
+    {
+      key: "change",
+      label: "1년 변화",
+      value: signedPct(current?.change1y ?? null),
+      tone: toneOf(current?.change1y ?? null),
+      sub: guChange1y != null ? `${regionName} ${signedPct(guChange1y)}` : undefined,
+    },
+    {
+      key: "rank",
+      label: "시세 순위",
+      value: priceRank ? `${priceRank}위` : "—",
+      sub: `${dongs.length.toLocaleString("ko-KR")}개 동 중`,
+    },
+  ];
+
   return (
     <section
-      id="market-dong"
-      aria-label={`${regionName} 동네별 시세`}
+      id={compare ? "market-compare" : "market-dong"}
+      aria-label={compare ? `${currentDong} 주변 동 비교` : `${regionName} 동네별 시세`}
       className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
       <LabSectionHeader
-        title="동네별 시세"
+        title={compare ? "주변 동 비교" : "동네별 시세"}
         meta={asOf ? `공급면적 기준 · ${asOf}` : "공급면적 기준"}
         tip={
           <p>
             {regionName} 안에서 법정동별 시세 평당가와 1년 변화, 최근 1년 매매 거래량을
             비교합니다. 지역 시세 평당가와 같은 방식으로 산출합니다.
+            {compare ? " 동을 누르면 그 동의 상세로 이동합니다." : ""}
           </p>
         }
       />
+      {compare && !query.isLoading ? (
+        current ? (
+          <LabStatTiles items={tiles} columns={3} />
+        ) : (
+          <p className="detail-body">
+            이 동은 최근 시세를 계산할 단지가 없어 비교에서 빠졌어요.
+          </p>
+        )
+      ) : null}
       <LabTabs
         variant="secondary"
         ariaLabel="동네별 시세 정렬"
@@ -107,7 +175,8 @@ export function RegionDongPricesSection({
             </p>
           ) : null}
           <ol className="flex flex-col divide-y divide-[color:var(--lab-border)]">
-            {visible.map((d, index) => {
+            {visible.map(({ d, rank }) => {
+              const isCurrent = d.name === currentDong;
               const width =
                 sort === "price"
                   ? ((d.pyeongPrice ?? 0) / maxPrice) * 100
@@ -116,14 +185,20 @@ export function RegionDongPricesSection({
                     : (Math.abs(d.change1y ?? 0) / maxAbsChange) * 100;
               const barColor =
                 sort === "change" && (d.change1y ?? 0) < 0 ? "var(--lab-change-down)" : BAR;
-              return (
-                <li key={d.bjdongCd} className="flex flex-col gap-1.5 py-2.5">
+              const body = (
+                <>
                   <div className="flex items-baseline justify-between gap-3">
                     <p className="flex min-w-0 items-baseline gap-2">
                       <span className="detail-meta w-4 shrink-0 text-right tabular-nums">
-                        {index + 1}
+                        {rank}
                       </span>
-                      <span className="detail-data-value-emphasis truncate">{d.name}</span>
+                      <span
+                        className="detail-data-value-emphasis truncate"
+                        style={isCurrent ? { color: "var(--lab-brand-primary)" } : undefined}
+                      >
+                        {d.name}
+                      </span>
+                      {isCurrent ? <LabTag>현재 동</LabTag> : null}
                     </p>
                     <p className="shrink-0 whitespace-nowrap tabular-nums">
                       {sort === "trades" ? (
@@ -155,6 +230,26 @@ export function RegionDongPricesSection({
                       {sort !== "trades" ? ` · 1년 ${d.tradeCount12m.toLocaleString("ko-KR")}건` : ""}
                     </span>
                   </div>
+                </>
+              );
+              return (
+                <li key={d.bjdongCd}>
+                  {isCurrent ? (
+                    <div className="flex flex-col gap-1.5 py-2.5 pr-6" aria-current="page">
+                      {body}
+                    </div>
+                  ) : (
+                    <Link
+                      href={regionDongHref(regionSlug, d.name)}
+                      className="relative flex min-h-11 flex-col gap-1.5 py-2.5 pr-6 hover:bg-slate-50"
+                    >
+                      {body}
+                      <ChevronRight
+                        className="absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                        aria-hidden
+                      />
+                    </Link>
+                  )}
                 </li>
               );
             })}
@@ -166,6 +261,7 @@ export function RegionDongPricesSection({
               label={`${dongs.length - PREVIEW}개 동 더보기`}
             />
           ) : null}
+          {guLink ? <LabTextLink href={guLink.href}>{guLink.label}</LabTextLink> : null}
         </>
       )}
     </section>

@@ -3,12 +3,12 @@
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Area, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { rankingComplexHref } from "@/lib/region-ranking/public";
-import type { RegionJeonse } from "@/lib/region/region-jeonse";
+import { useRegionJeonse } from "@/components/region/useRegionScopeQueries";
+import type { RegionScope } from "@/lib/region/region-scope";
 import { formatEok } from "@/lib/utils/format";
 
 const LINE = "#087F83";
@@ -49,29 +49,21 @@ function areaLabel(area: number): string {
   return `전용 ${Math.round(area)}㎡`;
 }
 
-function useRegionJeonse(lawdCd: string) {
-  return useQuery({
-    queryKey: ["region-jeonse", lawdCd],
-    queryFn: async () => {
-      const res = await fetch(`/api/region-jeonse?lawd_cd=${lawdCd}`);
-      if (!res.ok) throw new Error("jeonse");
-      return (await res.json()) as RegionJeonse;
-    },
-    staleTime: 30 * 60_000,
-    retry: 1,
-  });
-}
-
 export function RegionJeonseSection({
-  lawdCd,
+  scope,
   regionSlug,
   regionName,
+  label,
 }: {
-  lawdCd: string;
+  scope: RegionScope;
   regionSlug: string;
+  /** 구 이름 — 단지 상세 링크의 gu 파라미터. */
   regionName: string;
+  /** 화면 표기 지역명 (기본 regionName, 동 페이지는 동 이름). */
+  label?: string;
 }) {
-  const query = useRegionJeonse(lawdCd);
+  const place = label ?? regionName;
+  const query = useRegionJeonse(scope);
   const [tab, setTab] = useState<TabId>("gap");
   const [expanded, setExpanded] = useState(false);
   const data = query.data?.status === "ok" ? query.data : null;
@@ -96,7 +88,7 @@ export function RegionJeonseSection({
         key: `${d.complexId}|${d.exclusiveArea}`,
         complexId: d.complexId,
         name: d.aptName,
-        meta: [d.dong, areaLabel(d.exclusiveArea)].filter(Boolean).join(" · "),
+        meta: [scope.dong ? null : d.dong, areaLabel(d.exclusiveArea)].filter(Boolean).join(" · "),
         value: `${formatEok(Math.abs(d.change))} 하락`,
         sub: `전세 ${formatEok(d.jeonseNow)} · 2년 전 ${formatEok(d.jeonse2yAgo)}`,
         tone: "down",
@@ -107,11 +99,11 @@ export function RegionJeonseSection({
       key: `${p.complexId}|${p.exclusiveArea}`,
       complexId: p.complexId,
       name: p.aptName,
-      meta: [p.dong, areaLabel(p.exclusiveArea)].filter(Boolean).join(" · "),
+      meta: [scope.dong ? null : p.dong, areaLabel(p.exclusiveArea)].filter(Boolean).join(" · "),
       value: tab === "gap" ? `갭 ${formatEok(p.gap)}` : `전세가율 ${pct(p.jeonseRatio)}`,
       sub: `매매 ${formatEok(p.tradeMedian)} · 전세 ${formatEok(p.jeonseMedian)}`,
     }));
-  }, [data, tab]);
+  }, [data, tab, scope.dong]);
 
   if (query.isError || (query.isSuccess && !data)) return null;
 
@@ -129,7 +121,7 @@ export function RegionJeonseSection({
   return (
     <section
       id="market-jeonse"
-      aria-label={`${regionName} 전세가율과 갭`}
+      aria-label={`${place} 전세가율과 갭`}
       className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
     >
       <LabSectionHeader
@@ -150,14 +142,23 @@ export function RegionJeonseSection({
           <div className="h-10 w-40 animate-pulse rounded-lg bg-slate-100" />
           <div className="h-[120px] animate-pulse rounded-lg bg-slate-100" />
         </div>
+      ) : (latest?.pairCount ?? 0) === 0 ? (
+        <p className="detail-body">
+          최근 3개월에 매매와 전세가 함께 거래된 단지가 없어 전세가율을 계산하지 않았어요.
+        </p>
       ) : (
         <>
           <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
             <div>
-              <p className="detail-label">{regionName} 전세가율</p>
+              <p className="detail-label">{place} 전세가율</p>
               <p className="detail-kpi-value tabular-nums">
                 {latest?.jeonseRatio != null ? pct(latest.jeonseRatio) : "—"}
               </p>
+              {scope.dong && latest ? (
+                <p className="detail-meta tabular-nums">
+                  단지·면적 {latest.pairCount.toLocaleString("ko-KR")}곳 기준
+                </p>
+              ) : null}
             </div>
             {change != null ? (
               <p className="detail-meta tabular-nums">

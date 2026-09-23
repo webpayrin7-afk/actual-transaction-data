@@ -948,13 +948,19 @@ export function RegionDailyStatus({
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
       <div ref={stickyNavAnchor} className="-mb-4 h-0 sm:-mb-5" aria-hidden />
       <RegionStickyNav anchor={stickyNavAnchor} title={regionName} subtitle="시장 현황" />
-      {lawdCodes.length > 0 ? (
-        <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
+      {guLawdCd ? (
+        <RegionPriceSection scope={{ lawdCd: guLawdCd }} regionName={regionName} />
       ) : null}
-      {guLawdCd ? <RegionDongPricesSection lawdCd={guLawdCd} regionName={regionName} /> : null}
+      {guLawdCd ? (
+        <RegionDongPricesSection
+          lawdCd={guLawdCd}
+          regionSlug={regionSlug}
+          regionName={regionName}
+        />
+      ) : null}
       {guLawdCd ? (
         <RegionJeonseSection
-          lawdCd={guLawdCd}
+          scope={{ lawdCd: guLawdCd }}
           regionSlug={regionSlug}
           regionName={regionName}
         />
@@ -962,7 +968,7 @@ export function RegionDailyStatus({
 
       {guLawdCd ? (
         <RegionTradeHighlightsSection
-          lawdCd={guLawdCd}
+          scope={{ lawdCd: guLawdCd }}
           regionSlug={regionSlug}
           regionName={regionName}
         />
@@ -1015,7 +1021,7 @@ export function RegionDailyStatus({
           <RegionRankingTable
             regionSlug={regionSlug}
             regionName={regionName}
-            lawdCodes={lawdCodes}
+            regionCode={guLawdCd}
           />
           {guLawdCd ? (
             <RegionBudgetFinderSection
