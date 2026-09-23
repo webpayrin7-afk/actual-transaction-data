@@ -16,6 +16,11 @@ import {
 } from "@/lib/constants/regions";
 import { suggestRegions } from "@/lib/region/suggest-regions";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import {
+  LAB_SUBSECTION_RULE,
+  LabSection,
+  LabSubsectionHeader,
+} from "@/components/ui/LabSection";
 
 /** 지역별 조회 시·도 탭 — 서울 다음 경기(수도권)를 우선 배치 */
 const METRO_TAB_ORDER: Metro[] = [
@@ -99,6 +104,7 @@ export function RegionsPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="지역 조회"
+        titleClassName="detail-page-title"
         description="지역별 아파트 실거래와 시장 현황을 확인하세요."
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
@@ -158,14 +164,14 @@ export function RegionsPage() {
                           }`}
                         >
                           <span>
-                            <span className="block text-sm font-semibold text-slate-900">
+                            <span className="detail-data-value-emphasis block">
                               {item.name}
                             </span>
-                            <span className="mt-0.5 block text-xs text-slate-500">
+                            <span className="detail-meta mt-0.5 block">
                               {item.metroLabel} · {item.matchLabel}
                             </span>
                           </span>
-                          <span className="shrink-0 text-xs font-medium text-teal-700">
+                          <span className="shrink-0 text-[13px] font-medium leading-5 text-[color:var(--lab-teal-700)]">
                             이동
                           </span>
                         </button>
@@ -179,27 +185,21 @@ export function RegionsPage() {
         </form>
       </PageHeader>
 
-      <section className="flex flex-col gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-            지역 선택
-          </h2>
-          <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
-            시·도를 고른 뒤 시·군·구를 선택하면 해당 지역 시장으로 이동합니다
-          </p>
-        </div>
-
-        {/* 시·도 — nationwide METRO_OPTIONS */}
-        <div className="flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-white p-1">
+      <LabSection
+        title="지역 선택"
+        tip={<p>시·도를 고른 뒤 시·군·구를 선택하면 해당 지역 시장으로 이동합니다.</p>}
+      >
+        <div className="flex flex-wrap gap-2" role="group" aria-label="시·도">
           {METRO_OPTIONS.map(([value, label]) => {
             const active = metro === value;
             return (
               <button
                 key={value}
                 type="button"
+                aria-pressed={active}
                 onClick={() => setMetro(value)}
-                className={`lab-tab min-h-10 px-3 text-xs sm:text-[13px] ${
-                  active ? "lab-tab-active" : ""
+                className={`lab-choice min-h-11 rounded-full px-3.5 font-medium ${
+                  active ? "lab-choice-selected font-semibold" : ""
                 }`}
               >
                 {label}
@@ -208,19 +208,24 @@ export function RegionsPage() {
           })}
         </div>
 
-        {/* 시·군·구 */}
-        <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-          {regions.map((region) => (
-            <Link
-              key={region.slug}
-              href={`/region/${region.slug}`}
-              className="flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-center text-xs font-semibold text-slate-800 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 sm:text-sm"
-            >
-              {region.name}
-            </Link>
-          ))}
+        <div className={`${LAB_SUBSECTION_RULE} flex flex-col gap-3`}>
+          <LabSubsectionHeader
+            title={METRO_LABELS[metro]}
+            meta={`${regions.length.toLocaleString("ko-KR")}곳`}
+          />
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+            {regions.map((region) => (
+              <Link
+                key={region.slug}
+                href={`/region/${region.slug}`}
+                className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--lab-border)] bg-white px-2 py-2 text-center text-[14px] font-semibold leading-5 text-[color:var(--lab-navy-950)] transition hover:border-[color:var(--lab-teal-600)] hover:text-[color:var(--lab-teal-700)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+              >
+                {region.name}
+              </Link>
+            ))}
+          </div>
         </div>
-      </section>
+      </LabSection>
     </div>
   );
 }
