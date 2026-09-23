@@ -1,10 +1,7 @@
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST } from "@/components/ui/LabListRow";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
-import {
-  formatHeroPercent,
-  formatParkingPerHouseholdLabel,
-} from "@/lib/complex-detail/hero-meta";
+import { formatParkingPerHouseholdLabel } from "@/lib/complex-detail/hero-meta";
 
 function distanceLabel(m: number): string {
   return m >= 1000 ? `${(m / 1000).toFixed(1)}km` : `${m}m`;
@@ -26,15 +23,6 @@ export function ComplexInfoSection({ detail }: { detail: ComplexDetailV1 | null 
   if (basic?.parkingPerHousehold != null && basic.parkingPerHousehold > 0) {
     const total = basic.parkingTotal ? ` (총 ${basic.parkingTotal.toLocaleString("ko-KR")}대)` : "";
     rows.push({ label: "주차", value: `${formatParkingPerHouseholdLabel(basic.parkingPerHousehold).replace(/^주차\s*/, "")}${total}` });
-  }
-  if (building?.farRatio || building?.bcrRatio) {
-    rows.push({
-      label: "용적률 · 건폐율",
-      value: [
-        building.farRatio ? `${formatHeroPercent(building.farRatio)}%` : "—",
-        building.bcrRatio ? `${formatHeroPercent(building.bcrRatio)}%` : "—",
-      ].join(" · "),
-    });
   }
   if (basic?.heatingType) rows.push({ label: "난방", value: basic.heatingType });
   if (basic?.managementType) rows.push({ label: "관리 방식", value: basic.managementType });
