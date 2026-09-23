@@ -163,7 +163,7 @@ export function RegionTradeHighlightsSection({
         }
       />
       <RegionTradeSignals lawdCd={lawdCd} />
-      <div className="detail-subsection-rule flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[color:var(--lab-border)] pt-4">
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">주목할 거래</h3>
           <InfoTip aria-label="주목할 거래 안내">
