@@ -23,7 +23,6 @@ import {
 import {
   RegionSupplyTimelineSection,
   RegionTradeHighlightsSection,
-  RegionTradeSignals,
 } from "@/components/region/RegionMarketExtras";
 import { regionRankingCode } from "@/lib/region-ranking/public";
 import { aptDetailHref } from "@/lib/molit/apt-client";
@@ -49,8 +48,6 @@ import {
   SEEN_DATE_BASIS_HELP,
   shiftYearMonth,
   sortNewlySeenDeals,
-  formatMomChangeValue,
-  momChangePct,
   vsPreviousTypeDeal,
 } from "@/lib/region/market-insight";
 import { TypePriceSparkline } from "@/components/region/TypePriceSparkline";
@@ -562,12 +559,6 @@ function MonthCalendar({
   );
 }
 
-function volumeChangeClass(pct: number | null): string {
-  if (pct == null || pct === 0) return "text-[color:var(--lab-muted)]";
-  if (pct > 0) return "detail-change-up";
-  return "detail-change-down";
-}
-
 function PhraseRow({
   items,
   className,
@@ -630,9 +621,6 @@ export function RegionDailyStatus({
   regionName: string;
   lawdCodes?: string[];
 }) {
-  const [contractMonth] = useState(
-    () => yearMonthFromSeoulDate(seoulToday()),
-  );
   const [activityMonthUser, setActivityMonthUser] = useState<string | null>(
     null,
   );
@@ -658,18 +646,6 @@ export function RegionDailyStatus({
   const activityMonthRef = useRef(activityMonthUser ?? yearMonthFromSeoulDate(seoulToday()));
   const inFlightDates = useRef(new Set<string>());
   const inFlightPages = useRef(new Set<string>());
-
-  const marketQuery = useQuery({
-    queryKey: ["region-market", regionSlug, contractMonth],
-    queryFn: () =>
-      fetchRegionPart({
-        region: regionSlug,
-        part: "market",
-        contractMonth,
-      }),
-    staleTime: 60_000,
-    retry: 1,
-  });
 
   const latestQuery = useQuery({
     queryKey: ["region-latest", regionSlug],
@@ -758,7 +734,6 @@ export function RegionDailyStatus({
     !historyQuery.data &&
     !initialDaysQuery.data;
   const marketStatusLoading =
-    (marketQuery.isFetching && !marketQuery.data) ||
     (latestQuery.isFetching && !latestQuery.data) ||
     historyShellLoading ||
     pendingDates.length > 0;
@@ -834,15 +809,6 @@ export function RegionDailyStatus({
     scrollToDateHeading(date);
   }, [listedDates, sectionByDate, visibleDayCount, clickedDates]);
 
-  const market = marketQuery.data;
-  const volumePct =
-    market != null
-      ? momChangePct(market.monthTradeCount, market.prevMonthTradeCount)
-      : null;
-  const yearAgoPct =
-    market?.yearAgoMonthTradeCount != null
-      ? momChangePct(market.monthTradeCount, market.yearAgoMonthTradeCount)
-      : null;
 
   const guLawdCd = regionRankingCode(lawdCodes);
   const singogaDeals = useMemo(
@@ -979,56 +945,9 @@ export function RegionDailyStatus({
 
   return (
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
-      <section
-        aria-label={`${regionName} 거래 현황`}
-        className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
-      >
-        <MarketSectionHeader
-          title="거래 현황"
-          meta="계약일 기준"
-          tip={<p>{CONTRACT_DATE_BASIS_HELP}</p>}
-        />
-        <p className="detail-label -mb-1 text-[color:var(--lab-body)]">
-          이번 달 · {koreanYearMonthLabel(contractMonth)}
-          {market?.comparePartial ? " (오늘까지)" : ""}
-        </p>
-        {marketQuery.isError ? (
-          <p className="detail-body">거래 현황을 불러오지 못했습니다.</p>
-        ) : marketQuery.isLoading && !market ? (
-          <div className="h-20 animate-pulse rounded-lg bg-slate-100" />
-        ) : market ? (
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              {
-                label: "거래량",
-                value: `${market.monthTradeCount.toLocaleString("ko-KR")}건`,
-                cls: "text-slate-900",
-              },
-              {
-                label: "전월 대비",
-                value: formatMomChangeValue(volumePct),
-                cls: volumeChangeClass(volumePct),
-              },
-              {
-                label: "전년 동월 대비",
-                value: formatMomChangeValue(yearAgoPct),
-                cls: volumeChangeClass(yearAgoPct),
-              },
-            ].map((kpi) => (
-              <div
-                key={kpi.label}
-                className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-1.5 py-3 text-center"
-              >
-                <p className="detail-label whitespace-nowrap">{kpi.label}</p>
-                <p className={`detail-summary-value mt-1 whitespace-nowrap ${kpi.cls}`}>
-                  {kpi.value}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : null}
-        {guLawdCd ? <RegionTradeSignals lawdCd={guLawdCd} /> : null}
-      </section>
+      {lawdCodes.length > 0 ? (
+        <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
+      ) : null}
 
       <section
         id="newly-seen-deals"
@@ -1083,7 +1002,6 @@ export function RegionDailyStatus({
 
       {lawdCodes.length > 0 ? (
         <>
-          <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
           {guLawdCd ? (
             <RegionTradeHighlightsSection
               lawdCd={guLawdCd}

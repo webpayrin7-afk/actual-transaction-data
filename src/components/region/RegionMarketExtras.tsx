@@ -122,19 +122,32 @@ export function RegionTradeHighlightsSection({
 
   return (
     <section
-      aria-label={`${regionName} 주목할 거래`}
-      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-2`}
+      aria-label={`${regionName} 거래 동향`}
+      className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >
       <MarketSectionHeader
-        title="주목할 거래"
-        meta="계약일 기준 · 최근 1개월"
+        title="거래 동향"
+        meta="계약일 기준"
         tip={
           <p>
-            최근 30일 동안 계약된 매매 실거래 중 거래금액이 가장 큰 거래와, 같은
-            단지·면적의 직전 거래 대비 가장 크게 오르거나 내린 거래입니다.
+            실거래는 계약 후 30일 안에 신고되므로 최근 한 달 거래는 아직 모두
+            집계되지 않았을 수 있습니다.
           </p>
         }
       />
+      <RegionTradeSignals lawdCd={lawdCd} />
+      <div className="detail-subsection-rule flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <div className="flex min-w-0 items-center">
+          <h3 className="detail-subsection-title">주목할 거래</h3>
+          <InfoTip aria-label="주목할 거래 안내">
+            <p>
+              최근 30일 동안 계약된 매매 실거래 중 거래금액이 가장 큰 거래와, 같은
+              단지·면적의 직전 거래 대비 가장 크게 오르거나 내린 거래입니다.
+            </p>
+          </InfoTip>
+        </div>
+        <p className="detail-meta">최근 1개월</p>
+      </div>
       {query.isLoading ? (
         <div className="h-40 animate-pulse rounded-lg bg-slate-100" />
       ) : rows.length === 0 ? (
@@ -158,7 +171,7 @@ export function RegionTradeHighlightsSection({
   );
 }
 
-export function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
+function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
   const query = useRegionMarketDetail(lawdCd);
   if (query.isError) return null;
   const a = query.data?.analysis;
@@ -168,7 +181,7 @@ export function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
     { key: "down", label: "직전보다 내림", value: a?.downCount, cls: "detail-change-down" },
   ];
   return (
-    <div className="detail-subsection-rule">
+    <div>
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">최근 3개월 거래 신호</h3>
