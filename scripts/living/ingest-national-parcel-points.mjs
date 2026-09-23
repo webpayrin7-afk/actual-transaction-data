@@ -5,7 +5,9 @@
  * Existing positive coordinates are never overwritten.
  * Usage:
  *   node scripts/living/ingest-national-parcel-points.mjs --input=path.csv.gz
- *   node scripts/living/ingest-national-parcel-points.mjs --input=path.csv.gz --commit
+ *   node scripts/living/ingest-national-parcel-points.mjs --input=path.csv.gz --package=residual --commit
+ *
+ * Packages pin expected sha/row counts so prior ingest artifacts stay reproducible.
  */
 import { createClient } from "@libsql/client";
 import { createReadStream, readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -17,11 +19,29 @@ const commit = process.argv.includes("--commit");
 const inputArg = process.argv.find((arg) => arg.startsWith("--input="));
 if (!inputArg) throw new Error("--input= required");
 const inputPath = resolve(inputArg.slice("--input=".length));
+const packageArg = process.argv.find((arg) => arg.startsWith("--package="));
+const packageName = packageArg ? packageArg.slice("--package=".length) : "national";
+const PACKAGES = {
+  national: {
+    sha256: "30e622d790569a601160d143586646f0d2f98fbb6f2fe2be680df1e562ea83a7",
+    rows: 17708,
+    gzipBytes: 532155,
+    requireJamsil: true,
+    reportPrefix: "national-parcel-ingest",
+  },
+  residual: {
+    sha256: "2246e15e37a9e2ff8827956198cd4bd9fd09aa19c533e49800e4671d0be0cb46",
+    rows: 3058,
+    gzipBytes: 83567,
+    requireJamsil: false,
+    reportPrefix: "national-parcel-residual-ingest",
+  },
+};
+const pkg = PACKAGES[packageName];
+if (!pkg) throw new Error(`unknown package ${packageName}`);
 const outDir = resolve("data/poc/living");
 mkdirSync(outDir, { recursive: true });
 
-const EXPECTED_SHA = "30e622d790569a601160d143586646f0d2f98fbb6f2fe2be680df1e562ea83a7";
-const EXPECTED_ROWS = 17708;
 const JAMSIL = "cx_4c63d9a100973c60";
 const JAMSIL_PNU = "1171010100100190000";
 const SAME_POINT_M = 1;
@@ -78,8 +98,8 @@ async function loadRows() {
     stream.on("end", () => resolvePromise(Buffer.concat(chunks)));
   });
   const sha256 = hash.digest("hex");
-  if (sha256 !== EXPECTED_SHA) throw new Error(`sha256 mismatch ${sha256}`);
-  if (bytes.length !== 532155) throw new Error(`gzip bytes ${bytes.length}`);
+  if (sha256 !== pkg.sha256) throw new Error(`sha256 mismatch ${sha256}`);
+  if (bytes.length !== pkg.gzipBytes) throw new Error(`gzip bytes ${bytes.length}`);
   const rows = [];
   const { Readable } = await import("node:stream");
   const lineReader = createInterface({ input: Readable.from(bytes).pipe(createGunzip()) });
@@ -108,7 +128,7 @@ async function loadRows() {
       resolution_status,
     });
   }
-  if (rows.length !== EXPECTED_ROWS) throw new Error(`rows ${rows.length}`);
+  if (rows.length !== pkg.rows) throw new Error(`rows ${rows.length}`);
   return { rows, sha256, gzipBytes: bytes.length };
 }
 
@@ -198,8 +218,10 @@ const classified = rows.map((row) => {
 const counts = {};
 for (const row of classified) counts[row.klass] = (counts[row.klass] ?? 0) + 1;
 const jamsil = classified.find((row) => row.complex_id === JAMSIL);
-if (!jamsil || jamsil.pnu !== JAMSIL_PNU || jamsil.klass !== "EXISTING_SAME_PNU_SAME_POINT") {
-  throw new Error(`jamsil classification ${JSON.stringify(jamsil && { klass: jamsil.klass, pnu: jamsil.pnu, lat: jamsil.latitude_text })}`);
+if (pkg.requireJamsil) {
+  if (!jamsil || jamsil.pnu !== JAMSIL_PNU || jamsil.klass !== "EXISTING_SAME_PNU_SAME_POINT") {
+    throw new Error(`jamsil classification ${JSON.stringify(jamsil && { klass: jamsil.klass, pnu: jamsil.pnu, lat: jamsil.latitude_text })}`);
+  }
 }
 
 const masterCensus = await db.execute(
@@ -234,6 +256,7 @@ const regionRows = masterCensus.rows.map((row) => {
 
 const plan = {
   mode: commit ? "commit" : "dry-run",
+  package: packageName,
   sha256,
   gzipBytes,
   incoming: rows.length,
@@ -242,7 +265,9 @@ const plan = {
   expectedReady: beforeReady + fills.length,
   expectedCoverage: Number((((beforeReady + fills.length) / 27524) * 100).toFixed(2)),
   regions: regionRows,
-  jamsil: { klass: jamsil.klass, pnu: jamsil.pnu, lat: jamsil.latitude_text, lon: jamsil.longitude_text, deltaM: jamsil.deltaM },
+  jamsil: jamsil
+    ? { klass: jamsil.klass, pnu: jamsil.pnu, lat: jamsil.latitude_text, lon: jamsil.longitude_text, deltaM: jamsil.deltaM }
+    : null,
   pointDifferenceSamples: classified
     .filter((row) => row.klass === "EXISTING_SAME_PNU_POINT_DIFFERENCE")
     .slice(0, 10)
@@ -253,7 +278,7 @@ const plan = {
     .map((row) => ({ complex_id: row.complex_id, pnu: row.pnu, storedPnu: row.storedPnu })),
   validationSeconds: Number(((Date.now() - started) / 1000).toFixed(3)),
 };
-writeFileSync(resolve(outDir, "national-parcel-ingest-plan.json"), JSON.stringify(plan, null, 2) + "\n");
+writeFileSync(resolve(outDir, `${pkg.reportPrefix}-plan.json`), JSON.stringify(plan, null, 2) + "\n");
 process.stdout.write(`${JSON.stringify(plan)}\n`);
 
 if (!commit) {
@@ -373,6 +398,6 @@ const result = {
   schoolArtifact: "data/poc/living/school-delta-newly-coordinate-ready.json",
   schoolCount: fills.length,
 };
-writeFileSync(resolve(outDir, "national-parcel-ingest-result.json"), JSON.stringify(result, null, 2) + "\n");
+writeFileSync(resolve(outDir, `${pkg.reportPrefix}-result.json`), JSON.stringify(result, null, 2) + "\n");
 process.stdout.write(`${JSON.stringify(result)}\n`);
 db.close();
