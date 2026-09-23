@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { LabTabs } from "@/components/ui/LabTabs";
 import {
   TREND_PERIOD_TABS,
   fetchRegionRankingBoard,
@@ -15,6 +14,7 @@ import {
   regionRankingCode,
 } from "@/lib/region-ranking/public";
 import type { RegionAptSummary } from "@/lib/region/region-summary";
+import type { RegionPriceTrend } from "@/lib/region/region-price-trend";
 import { RegionPriceTrendChart } from "@/components/region/RegionPriceTrendChart";
 
 export const MARKET_SECTION_SURFACE = "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
@@ -61,87 +61,54 @@ function changeSrText(pct: number | null | undefined): string {
   return pct > 0 ? " 상승" : " 하락";
 }
 
-const PRICE_BANDS = [
-  { id: "20", label: "20평대" },
-  { id: "30", label: "30평대" },
-  { id: "40", label: "40평대" },
-  { id: "50", label: "50평대" },
-] as const;
-type PriceBand = (typeof PRICE_BANDS)[number]["id"];
-
-type RegionPriceResponse =
-  | { status: "unavailable"; reason?: string }
-  | {
-      status: "ok";
-      supplyPyeongCohort: string | null;
-      price: { meanPricePerSupplyPyeong: number | null; status: string };
-      trends: Array<{
-        period: "6M" | "1Y" | "2Y" | "5Y";
-        changePercent: number | null;
-        status: string;
-      }>;
-    };
-
-async function fetchRegionPrice(
-  regionCode: string,
-  band: string,
-): Promise<RegionPriceResponse> {
-  const qs = new URLSearchParams({ region_code: regionCode, area_band: band });
-  const res = await fetch(`/api/region-price-position?${qs.toString()}`);
-  if (!res.ok) return { status: "unavailable", reason: "http" };
-  return (await res.json()) as RegionPriceResponse;
+export function fetchRegionPriceTrend(lawdCd: string) {
+  return async (): Promise<RegionPriceTrend> => {
+    const res = await fetch(`/api/region-price-trend?lawd_cd=${lawdCd}`);
+    if (!res.ok) throw new Error("trend");
+    return (await res.json()) as RegionPriceTrend;
+  };
 }
 
-export function RegionRepPriceSection({
+export function RegionPriceSection({
   lawdCodes,
   regionName,
-  monthTradeCount,
 }: {
   lawdCodes: string[];
   regionName: string;
-  monthTradeCount: number | null;
 }) {
-  const regionCode = regionRankingCode(lawdCodes);
-  const [band, setBand] = useState<PriceBand>("30");
+  const lawdCd = regionRankingCode(lawdCodes);
   const query = useQuery({
-    queryKey: ["region-price-position", regionCode, band],
-    queryFn: () => fetchRegionPrice(regionCode!, band),
-    enabled: !!regionCode,
-    staleTime: 10 * 60_000,
+    queryKey: ["region-price-trend", lawdCd],
+    queryFn: fetchRegionPriceTrend(lawdCd ?? ""),
+    enabled: !!lawdCd,
+    staleTime: 30 * 60_000,
     retry: 1,
   });
-  if (!regionCode) return null;
-  const data = query.data?.status === "ok" ? query.data : null;
-  const priceText = formatWonPerPyeong(data?.price.meanPricePerSupplyPyeong);
-  const bandLabel = PRICE_BANDS.find((b) => b.id === band)?.label ?? "";
+  if (!lawdCd) return null;
+  const recent = query.data?.status === "ok" ? query.data.recent : null;
+  const priceText = formatWonPerPyeong(recent?.current.medianPyeongPrice);
 
   return (
     <section
-      aria-label="지역 대표 평당가"
+      aria-label="지역 평당가"
       className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
     >
       <MarketSectionHeader
-        title="지역 대표 평당가"
-        meta={`최근 실거래 기준 · ${bandLabel}`}
+        title="지역 평당가"
+        meta="전용면적 기준 · 최근 1개월"
         tip={
           <p>
-            같은 지역·평형대 단지들의 최근 실거래를 바탕으로 계산한 대표
-            평당가입니다.
+            최근 30일 동안 계약된 {regionName} 아파트 매매 실거래의 평당가
+            중앙값입니다. 거래금액을 전용면적(평)으로 나눠 계산합니다. 최근
+            거래는 신고 기간이 남아 있어 건수가 늘어날 수 있습니다.
           </p>
         }
-      />
-      <LabTabs
-        variant="secondary"
-        ariaLabel="평형대"
-        items={PRICE_BANDS}
-        value={band}
-        onChange={setBand}
       />
 
       <div className="grid grid-cols-2 gap-2">
         <div className="min-w-0 rounded-lg bg-teal-50/70 px-3 py-3">
           <p className="text-[12px] leading-4 text-slate-600">
-            {regionName} 대표 평당가
+            최근 1개월 평당가
           </p>
           {query.isLoading ? (
             <div className="mt-2 h-7 w-28 animate-pulse rounded bg-teal-100/70" />
@@ -153,48 +120,39 @@ export function RegionRepPriceSection({
         </div>
         <div className="min-w-0 rounded-lg border border-slate-200 px-3 py-3">
           <p className="text-[12px] leading-4 text-slate-600">
-            {regionName} 거래량
+            최근 1개월 거래량
           </p>
-          <p className="mt-1.5 whitespace-nowrap leading-none">
-            <span className="text-[19px] font-bold tabular-nums text-slate-900 sm:text-2xl">
-              {monthTradeCount != null
-                ? `${monthTradeCount.toLocaleString("ko-KR")}건`
-                : "—"}
-            </span>
-            <span className="ml-1 text-[12px] text-slate-500">(이번 달)</span>
-          </p>
+          {query.isLoading ? (
+            <div className="mt-2 h-7 w-16 animate-pulse rounded bg-slate-100" />
+          ) : (
+            <p className="mt-1.5 whitespace-nowrap text-[19px] font-bold leading-none tabular-nums text-slate-900 sm:text-2xl">
+              {recent ? `${recent.current.tradeCount.toLocaleString("ko-KR")}건` : "—"}
+            </p>
+          )}
         </div>
       </div>
 
-      {!query.isLoading && !priceText ? (
-        <p className="text-sm text-slate-500">
-          {bandLabel} 대표 평당가를 계산할 거래가 부족합니다.
-        </p>
-      ) : (
-        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-          {TREND_PERIOD_TABS.map((tab) => {
-            const hit = data?.trends.find((t) => t.period === tab.id);
-            const pct = hit?.status === "ok" ? hit.changePercent : null;
-            return (
-              <div
-                key={tab.id}
-                className="min-w-0 rounded-lg border border-slate-200 px-2 py-2.5 sm:px-3"
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+        {TREND_PERIOD_TABS.map((tab) => {
+          const pct = recent?.changes[tab.id] ?? null;
+          return (
+            <div
+              key={tab.id}
+              className="min-w-0 rounded-lg border border-slate-200 px-2 py-2.5 sm:px-3"
+            >
+              <p className="text-[11px] leading-4 text-slate-500">{tab.label} 전 대비</p>
+              <p
+                className={`mt-1 whitespace-nowrap text-[13px] font-semibold tabular-nums sm:text-[15px] ${changeToneClass(pct)}`}
               >
-                <p className="text-[11px] leading-4 text-slate-500">
-                  {tab.label}
-                </p>
-                <p
-                  className={`mt-1 whitespace-nowrap text-[13px] font-semibold tabular-nums sm:text-[15px] ${changeToneClass(pct)}`}
-                >
-                  {query.isLoading ? "…" : changeArrowText(pct)}
-                  <span className="sr-only">{changeSrText(pct)}</span>
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      )}
-      <RegionPriceTrendChart lawdCd={regionCode} regionName={regionName} />
+                {query.isLoading ? "…" : changeArrowText(pct)}
+                <span className="sr-only">{changeSrText(pct)}</span>
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
+      <RegionPriceTrendChart lawdCd={lawdCd} regionName={regionName} />
     </section>
   );
 }

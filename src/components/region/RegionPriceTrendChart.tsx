@@ -69,6 +69,7 @@ export function RegionPriceTrendChart({
       if (!res.ok) throw new Error("trend");
       return (await res.json()) as RegionPriceTrend;
     },
+    enabled: !!lawdCd,
     staleTime: 30 * 60_000,
     retry: 1,
   });
@@ -123,9 +124,9 @@ export function RegionPriceTrendChart({
           </p>
           <InfoTip aria-label="월별 평당가 안내">
             <p>
-              계약월별 매매 실거래의 전용면적 기준 평당가 중앙값입니다. 전체
-              평형을 합산하므로 위의 평형대별 대표 평당가와 기준이 다릅니다.
-              이번 달 값은 거래 신고 기간 중이라 바뀔 수 있습니다.
+              계약월별 매매 실거래의 평당가 중앙값(전용면적 기준)과
+              거래량입니다. 이번 달 값은 거래 신고 기간 중이라 바뀔 수
+              있습니다.
             </p>
           </InfoTip>
         </div>

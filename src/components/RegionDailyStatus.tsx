@@ -18,7 +18,7 @@ import {
   MarketSectionHeader,
   RegionAptSummarySection,
   RegionRankingTable,
-  RegionRepPriceSection,
+  RegionPriceSection,
 } from "@/components/region/RegionMarketSections";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
@@ -1077,11 +1077,7 @@ export function RegionDailyStatus({
 
       {lawdCodes.length > 0 ? (
         <>
-          <RegionRepPriceSection
-            lawdCodes={lawdCodes}
-            regionName={regionName}
-            monthTradeCount={market?.monthTradeCount ?? null}
-          />
+          <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
           <RegionRankingTable
             regionSlug={regionSlug}
             regionName={regionName}
