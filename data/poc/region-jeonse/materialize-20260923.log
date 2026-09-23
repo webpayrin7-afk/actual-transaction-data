@@ -1,0 +1,28 @@
+◇ injected env (0) from .env.local // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+{"step":"1/25","lawdCd":"11110","name":"종로구","asOfMonth":"202608","jeonseRatio":0.5029,"pairCount":24,"change1yPp":-3.47,"listed":10,"below2y":"2/23","computeMs":2611,"totalMs":3876}
+{"step":"2/25","lawdCd":"11140","name":"중구","asOfMonth":"202608","jeonseRatio":0.4765,"pairCount":48,"change1yPp":-5.26,"listed":10,"below2y":"6/38","computeMs":2855,"totalMs":56364}
+{"step":"3/25","lawdCd":"11170","name":"용산구","asOfMonth":"202608","jeonseRatio":0.4049,"pairCount":74,"change1yPp":-0.92,"listed":10,"below2y":"6/80","computeMs":4592,"totalMs":9598}
+{"step":"4/25","lawdCd":"11200","name":"성동구","asOfMonth":"202608","jeonseRatio":0.3985,"pairCount":95,"change1yPp":-6.25,"listed":10,"below2y":"14/129","computeMs":7575,"totalMs":14794}
+{"step":"5/25","lawdCd":"11215","name":"광진구","asOfMonth":"202608","jeonseRatio":0.4234,"pairCount":58,"change1yPp":-5.77,"listed":10,"below2y":"3/57","computeMs":4008,"totalMs":12753}
+{"step":"6/25","lawdCd":"11230","name":"동대문구","asOfMonth":"202608","jeonseRatio":0.5055,"pairCount":132,"change1yPp":-5.15,"listed":10,"below2y":"12/95","computeMs":7217,"totalMs":14596}
+{"step":"7/25","lawdCd":"11260","name":"중랑구","asOfMonth":"202608","jeonseRatio":0.6147,"pairCount":127,"change1yPp":0.21,"listed":10,"below2y":"4/74","computeMs":5635,"totalMs":13797}
+{"step":"8/25","lawdCd":"11290","name":"성북구","asOfMonth":"202608","jeonseRatio":0.5465,"pairCount":184,"change1yPp":-4.18,"listed":10,"below2y":"10/128","computeMs":7419,"totalMs":13276}
+{"step":"9/25","lawdCd":"11305","name":"강북구","asOfMonth":"202608","jeonseRatio":0.5832,"pairCount":54,"change1yPp":-1.5,"listed":10,"below2y":"5/34","computeMs":3472,"totalMs":11836}
+{"step":"10/25","lawdCd":"11320","name":"도봉구","asOfMonth":"202608","jeonseRatio":0.6007,"pairCount":142,"change1yPp":0.16,"listed":10,"below2y":"7/90","computeMs":6279,"totalMs":13453}
+{"step":"11/25","lawdCd":"11350","name":"노원구","asOfMonth":"202608","jeonseRatio":0.5505,"pairCount":267,"change1yPp":-0.8,"listed":10,"below2y":"16/186","computeMs":12649,"totalMs":14639}
+{"step":"12/25","lawdCd":"11380","name":"은평구","asOfMonth":"202608","jeonseRatio":0.5907,"pairCount":176,"change1yPp":-0.21,"listed":10,"below2y":"9/106","computeMs":7532,"totalMs":27283}
+{"step":"13/25","lawdCd":"11410","name":"서대문구","asOfMonth":"202608","jeonseRatio":0.5213,"pairCount":122,"change1yPp":-3.25,"listed":10,"below2y":"7/82","computeMs":5175,"totalMs":16560}
+{"step":"14/25","lawdCd":"11440","name":"마포구","asOfMonth":"202608","jeonseRatio":0.4516,"pairCount":131,"change1yPp":-4.66,"listed":10,"below2y":"10/130","computeMs":8743,"totalMs":14446}
+{"step":"15/25","lawdCd":"11470","name":"양천구","asOfMonth":"202608","jeonseRatio":0.4818,"pairCount":152,"change1yPp":-3.66,"listed":10,"below2y":"17/156","computeMs":9960,"totalMs":13390}
+{"step":"16/25","lawdCd":"11500","name":"강서구","asOfMonth":"202608","jeonseRatio":0.5212,"pairCount":215,"change1yPp":-2.96,"listed":10,"below2y":"15/172","computeMs":12455,"totalMs":14519}
+{"step":"17/25","lawdCd":"11530","name":"구로구","asOfMonth":"202608","jeonseRatio":0.5747,"pairCount":193,"change1yPp":-1.32,"listed":10,"below2y":"13/111","computeMs":9599,"totalMs":13319}
+{"step":"18/25","lawdCd":"11545","name":"금천구","asOfMonth":"202608","jeonseRatio":0.6182,"pairCount":54,"change1yPp":-0.15,"listed":10,"below2y":"7/39","computeMs":4085,"totalMs":13126}
+{"step":"19/25","lawdCd":"11560","name":"영등포구","asOfMonth":"202608","jeonseRatio":0.4595,"pairCount":169,"change1yPp":-5.95,"listed":10,"below2y":"14/130","computeMs":8987,"totalMs":13033}
+{"step":"20/25","lawdCd":"11590","name":"동작구","asOfMonth":"202608","jeonseRatio":0.436,"pairCount":126,"change1yPp":-7.12,"listed":10,"below2y":"13/106","computeMs":8539,"totalMs":14570}
+{"step":"21/25","lawdCd":"11620","name":"관악구","asOfMonth":"202608","jeonseRatio":0.5935,"pairCount":91,"change1yPp":-0.66,"listed":10,"below2y":"8/67","computeMs":6923,"totalMs":13306}
+{"step":"22/25","lawdCd":"11650","name":"서초구","asOfMonth":"202608","jeonseRatio":0.4068,"pairCount":153,"change1yPp":-0.33,"listed":10,"below2y":"20/181","computeMs":11122,"totalMs":13343}
+{"step":"23/25","lawdCd":"11680","name":"강남구","asOfMonth":"202608","jeonseRatio":0.406,"pairCount":168,"change1yPp":1.2,"listed":10,"below2y":"23/213","computeMs":16471,"totalMs":22578}
+{"step":"24/25","lawdCd":"11710","name":"송파구","asOfMonth":"202608","jeonseRatio":0.396,"pairCount":185,"change1yPp":-6.92,"listed":10,"below2y":"12/170","computeMs":16006,"totalMs":19274}
+{"step":"25/25","lawdCd":"11740","name":"강동구","asOfMonth":"202608","jeonseRatio":0.4188,"pairCount":166,"change1yPp":-6.93,"listed":10,"below2y":"18/157","computeMs":8429,"totalMs":16410}
+{"written":{"seriesRows":2925,"snapshots":25},"table":{"n":2925,"regions":25,"min_ym":"201612","max_ym":"202608","snapshots":25},"elapsedSec":404.6}

@@ -1,6 +1,6 @@
 # ZIPLAB 인수인계 현황판
 
-기준 시각: 2026-09-23 15:42 UTC · 작성: Cursor 데이터 감시(Auto/Composer) · living `cursor/vworld-watch-6779`
+기준 시각: 2026-09-23 16:06 UTC · 작성: Cursor 데이터 감시(Auto/Composer) · living `cursor/vworld-watch-6779`
 
 이 문서는 Claude Max(Opus)와 Cursor(Composer)가 같은 현황을 보고 이어서 작업하기 위한 한 장짜리 현황판이다. 작업을 넘겨받으면 이 문서부터 읽고, 상태가 바뀌면 이 문서를 갱신한다.
 
@@ -31,19 +31,21 @@
 
 실행 위치: Cursor VM tmux. 워크트리 `/home/ubuntu/wt/<이름>`.
 
-| 작업 | 브랜치 / PR | 상태 (15:42Z) | 재개 |
+| 작업 | 브랜치 / PR | 상태 (16:06Z) | 재개 |
 |---|---|---|---|
-| 전월세 과거 이력 2011-01~2022-09 (서울 25구) | tmux `rent-backfill` /workspace | **3,425/3,525** 셀, ~189.5만 행, failures=8, eta~14m | 완료 후 `region-jeonse` 시리즈 확장 → materialize → test |
-| 매매·전월세 전국 전체 이력 missing-only | `cursor/tx-registration-status-1922` / PR #131 | **3,443/24,243**, 87.9만 행, fail=10 · 대구 RENT | `cd /home/ubuntu/wt/tx && bash scripts/full-history/start.sh` |
-| 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` | **인천 ACQUIRING** COMPLETE 474 + NO_PUB 33 / 1,093 (~46%), api~14,380, seg 12. 부산 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
+| 전월세 과거 이력 2011-01~2022-09 (서울 25구) | tmux `rent-backfill` /workspace | **완료** jobs=3,525 written=3,515 ins=1,976,686 fail=10(관악·송파·강동 일부 월 fetch/timeout). 재시도 후보 10키 | 실패 10셀 재시도 여지 |
+| 전세가율 시리즈 rematerialize (서울 25구) | living `data/poc/region-jeonse/` | **완료** index 2,925행(25구×117월, **201612~202608**; 이전 60월/202109~). 매매 원천이 ~201610부터라 2011까지는 미확장. `test-region-jeonse` PASS (matchesLive) | `npx tsx scripts/materialize-region-jeonse.ts` |
+| 매매·전월세 전국 전체 이력 missing-only | `cursor/tx-registration-status-1922` / PR #131 | **3,573/24,243**, 93.7만 행, fail=12 · daejeon RENT | `cd /home/ubuntu/wt/tx && bash scripts/full-history/start.sh` |
+| 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` | **인천 ACQUIRING** COMPLETE 516 + NO_PUB 36 / 1,093 (~50%), api~15,620, seg 13. 부산 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
 | 좌표 잔여 → SEMAS 생활 → 학교 | `cursor/vworld-watch-6779` / PR #135 | **완료(이번 배치)** coords 19,072→**22,130** (+3,058) · living +238,524 snaps · school +35,612 links. 잔여 NULL ~5,394 / exact-PNU 재추출 ~3,612는 오너 PC | `scripts/living/local-extract-residual-parcels.py` |
 | 학교 잔여 델타 | `cursor/school-residual-delta-6779` / PR #134 | **완료** — 3,058 materialized, +35,612 nearby links (36 NO_SCHOOLS_WITHIN_RADIUS). assignment HOLD | — |
-| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | 502/disconnect — 대기 (마지막 15:27Z) | `bash scripts/living/vworld-watch.sh` |
+| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | 502/disconnect — 대기 (마지막 15:49Z) | `bash scripts/living/vworld-watch.sh` |
 | 건축물 동·세대 | PR #115 | **완료** | — |
 | 단지 기본정보(HERO) | PR #122 | 원 에이전트 쪽에서 계속 | `bash scripts/profile-national-background-start.sh` |
 | 주변 공급(청약홈) | PR #124 | 완료 | — |
 
-주요 수치 (15:42Z Production)
+주요 수치 (16:06Z Production)
+- `region_jeonse_index` 2,925행 / 25구 / 201612~202608 (송파 asOf 202608 전세가율 0.396).
 - 단지 마스터 27,524. 좌표·생활 readiness COMPLETE **22,130** (80.4%). NO_COORDINATE living stub 5,394.
 - 관리비 2,923행/2,810단지(인천 적용 전). 전국 거래 백필 진행 중.
 

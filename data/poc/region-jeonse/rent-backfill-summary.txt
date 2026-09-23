@@ -1,0 +1,7 @@
+[sync] SUMMARY regions=25 jobs=3525 writtenCells=3515 inserted=1976686 updated=0
+ deleted=0 unchanged=0 failures=10 skippedExisting=0 durationSec=29833 discovery
+=0 dryRun=0 sqlWrites=1976686
+--
+[sync] failed keys (10): 11680|202102|rent, 11680|202103|rent, 11710|201307|rent
+, 11710|201306|rent, 11710|201902|rent, 11710|201903|rent, 11710|202204|rent, 11
+710|202205|rent, 11740|201506|rent, 11740|201505|rent
