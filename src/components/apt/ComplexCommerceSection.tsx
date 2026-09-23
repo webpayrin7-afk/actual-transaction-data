@@ -125,7 +125,7 @@ export function ComplexCommerceStats({
         <div className="mt-1.5 flex items-center gap-1">
           <p className="detail-summary-value leading-none">
             {formatCommerceCount(snapshot.p2Total)}
-            <span className="detail-micro ml-0.5 font-medium">개</span>
+            <span className="detail-label ml-0.5">개</span>
           </p>
           <InfoTip aria-label="생활 상권 집계 안내">
             <p className="detail-body">
@@ -241,7 +241,7 @@ export function ComplexCommerceStats({
             return (
               <li key={cat.code} className="min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="detail-micro w-3.5 shrink-0 font-semibold tabular-nums">
+                  <span className="detail-meta w-4 shrink-0 font-semibold tabular-nums">
                     {idx + 1}
                   </span>
                   <span className="detail-label min-w-0 flex-1 truncate text-[color:var(--lab-navy-950)]">
@@ -251,7 +251,7 @@ export function ComplexCommerceStats({
                     {formatCommerceCount(cat.count)}
                   </span>
                 </div>
-                <div className="ml-5 mt-1 h-1.5 overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)]">
+                <div className="ml-6 mt-1 h-1.5 overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)]">
                   <div
                     className="h-full rounded-full"
                     style={{

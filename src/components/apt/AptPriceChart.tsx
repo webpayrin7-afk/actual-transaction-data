@@ -189,7 +189,7 @@ type PriorityExtreme = {
 };
 
 const TOOLTIP_BOX_CLASS =
-  "w-max max-w-[min(14rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-md";
+  "w-max max-w-[min(14rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-md";
 
 function DealScatterTooltip({
   row,
@@ -318,7 +318,7 @@ function VolumeTooltip({
   const row = payload[0]?.payload as MonthSeriesPoint | undefined;
   if (!row) return null;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs shadow-md">
+    <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm shadow-md">
       <p className="font-medium text-slate-700">{formatYmLabel(row.yearMonth)}</p>
       <p className="mt-0.5 tabular-nums text-slate-500">{row.volume}건</p>
     </div>
@@ -381,7 +381,7 @@ function ExtremeDot(
           y={cy - 9}
           textAnchor="middle"
           fill={fill}
-          fontSize={10}
+          fontSize={12}
           fontWeight={600}
         >
           {label}
@@ -708,7 +708,7 @@ export function AptPriceChart({
                   const d = new Date(ts);
                   return `${String(d.getUTCFullYear()).slice(2)}년`;
                 }}
-                tick={{ fill: "#94a3b8", fontSize: 11, dy: 4 }}
+                tick={{ fill: "#64748b", fontSize: 12, dy: 4 }}
                 axisLine={{ stroke: "#e2e8f0" }}
                 tickLine={false}
                 height={24}
@@ -717,7 +717,7 @@ export function AptPriceChart({
                 type="number"
                 dataKey="priceEok"
                 tickFormatter={(v: number) => `${v}억`}
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                tick={{ fill: "#64748b", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
                 width={PRICE_Y_AXIS_WIDTH}
@@ -777,7 +777,9 @@ export function AptPriceChart({
 
         {hasVolume ? (
           <div className="detail-price-chart-volume" aria-label="월별 거래량">
-            <span className="detail-price-chart-volume-label">거래량</span>
+            <span className="pointer-events-none absolute left-0 top-0.5 z-[1] w-[34px] pr-0.5 text-right text-[12px] font-medium leading-none text-[color:var(--lab-muted)]">
+              거래량
+            </span>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 key={`vol-${chartAnimKey}`}
@@ -922,7 +924,7 @@ export function PeriodRangeSlider({
   return (
     <div className={showPresets ? "mt-2 space-y-1" : "mt-1 space-y-0.5"}>
       {showPresets ? (
-        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[13px] leading-5">
           <p className="font-medium tabular-nums text-slate-700">{rangeLabel}</p>
           <div className="flex w-fit flex-wrap items-center gap-1">
             {onRecentYears

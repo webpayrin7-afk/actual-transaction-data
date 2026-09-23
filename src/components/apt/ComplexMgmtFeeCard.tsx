@@ -35,7 +35,7 @@ function ManwonFigure({
   return (
     <span className="inline-flex items-baseline gap-0.5">
       <span className={numberClass}>{text.slice(0, -unit.length)}</span>
-      <span className="detail-number-unit">{unit}</span>
+      <span className="detail-label">{unit}</span>
     </span>
   );
 }

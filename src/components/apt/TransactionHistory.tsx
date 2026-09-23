@@ -240,7 +240,7 @@ export function TransactionRow({
             >
               {m.primary}
             </p>
-            <p className="mt-0.5 text-xs font-medium tabular-nums text-slate-600 sm:text-[13px]">
+            <p className="mt-0.5 text-[13px] font-medium leading-5 tabular-nums text-slate-600">
               {m.secondary}
             </p>
           </div>
@@ -273,7 +273,7 @@ export function TransactionRow({
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {mode === "trade" && tx.isSingoga ? (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:gap-1 sm:px-2 sm:text-[11px]">
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-500 px-2 py-0.5 text-[12px] font-semibold leading-4 text-white">
               <Flame className="h-3 w-3" aria-hidden />
               신고가
             </span>
@@ -319,7 +319,7 @@ export function TransactionList({
     return (
       <ul className="detail-trade-list">
         <li
-          className="detail-trade-list-head detail-trade-row--inline"
+          className="detail-meta detail-trade-row--inline border-b border-[color:var(--lab-border)] pb-2 font-medium"
           aria-hidden
         >
           <span>계약일</span>
@@ -402,7 +402,7 @@ function ArchiveColHeader() {
   return (
     <div className="px-2 pb-1 pt-0.5 sm:px-3">
       <div
-        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] py-1.5 text-[11px] font-medium text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg sm:text-[12px]"
+        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] py-1.5 text-[13px] font-medium leading-5 text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg"
         style={{ gridTemplateColumns: ARCHIVE_GRID }}
         role="row"
       >
@@ -448,7 +448,7 @@ export function GroupedTransactionList({
       {groups.map((group) => (
         <section
           key={group.key}
-          className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white shadow-[var(--lab-shadow)]"
+          className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white"
         >
           <div className="flex items-center justify-between gap-2 bg-white px-2.5 pt-2.5 pb-1 sm:px-3">
             <h3 className="detail-subsection-title">
@@ -489,7 +489,7 @@ export function GroupedTransactionList({
                         {archivePriceLabel(tx, mode)}
                       </span>
                       {mode === "trade" && tx.isSingoga ? (
-                        <span className="shrink-0 whitespace-nowrap rounded border border-rose-400 px-1 py-px text-[10px] font-bold leading-none text-rose-600">
+                        <span className="shrink-0 whitespace-nowrap rounded border border-rose-400 px-1 py-px text-[12px] font-semibold leading-4 text-rose-600">
                           신고가
                         </span>
                       ) : null}
