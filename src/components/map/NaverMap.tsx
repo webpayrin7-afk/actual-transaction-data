@@ -10,7 +10,10 @@ import {
 } from "react";
 import {
   getNaverMapClientId,
+  isNaverMapAuthFailed,
   loadNaverMapsSdk,
+  NAVER_AUTH_FAILURE_EVENT,
+  NAVER_AUTH_FAILURE_MESSAGE,
   type NaverMapInstance,
   type NaverMarkerInstance,
   type NaverCircleInstance,
@@ -583,12 +586,25 @@ export function NaverMap({
         return;
       }
 
+      if (isNaverMapAuthFailed()) {
+        setStatus("error");
+        setError(NAVER_AUTH_FAILURE_MESSAGE);
+        return;
+      }
+
       const maps = window.naver.maps;
-      const map = new maps.Map(hostRef.current, {
-        center: new maps.LatLng(center.lat, center.lng),
-        zoom,
-        zoomControl: false,
-      });
+      let map: NaverMapInstance;
+      try {
+        map = new maps.Map(hostRef.current, {
+          center: new maps.LatLng(center.lat, center.lng),
+          zoom,
+          zoomControl: false,
+        });
+      } catch {
+        setStatus("error");
+        setError("지도를 표시할 수 없습니다.");
+        return;
+      }
       mapRef.current = map;
       setStatus("ready");
       if (process.env.NODE_ENV !== "production") {
@@ -622,6 +638,23 @@ export function NaverMap({
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // NAVER rejects unregistered origins after the SDK has loaded; drop the map and show why.
+  useEffect(() => {
+    const onAuthFailure = () => {
+      try {
+        mapRef.current?.destroy?.();
+      } catch {
+        /* ignore */
+      }
+      mapRef.current = null;
+      setStatus("error");
+      setError(NAVER_AUTH_FAILURE_MESSAGE);
+    };
+    if (isNaverMapAuthFailed()) onAuthFailure();
+    window.addEventListener(NAVER_AUTH_FAILURE_EVENT, onAuthFailure);
+    return () => window.removeEventListener(NAVER_AUTH_FAILURE_EVENT, onAuthFailure);
   }, []);
 
   // Keep tiles/layout correct when the parent animates container height.

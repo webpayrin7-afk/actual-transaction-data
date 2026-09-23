@@ -63,6 +63,7 @@ import {
   LabSubsectionHeader,
 } from "@/components/ui/LabSection";
 import { LabStatTiles } from "@/components/ui/LabStatTiles";
+import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import {
   formatDealDate,
   formatEok,
@@ -785,96 +786,108 @@ export function AptDetailPage({
         </div>
       </LabSection>
 
+      <LabSectionBoundary id="section-calculator" title="세금, 대출 계산">
       <ComplexPurchaseCalculatorSection
-        complexId={identity?.complexId ?? null}
-        complexName={data.aptName}
-        areaKey={areaKey}
-        areaLabel={
-          areaKey === "all" || !selectedArea
-            ? "전체 면적"
-            : areaSelectorClosedLabel(selectedArea)
-        }
-        latestTradeMan={latestTrade?.dealAmount ?? 0}
-        exclusiveAreaMinSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
-        exclusiveAreaMaxSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
-        regionSlug={regionSlug}
-        locationLabel={locationLabel}
-      />
-
-      <ComplexRegionRankSection
-        complexId={identity?.complexId ?? null}
-        aptName={data.aptName}
-        regionSlug={regionSlug}
-        regionName={region?.name ?? data.regionName}
-        dongName={identity?.legalDongName ?? data.dong}
-        lawdCd={identity?.lawdCd ?? null}
-        bjdongCd={identity?.bjdongCd ?? null}
-        selectedArea={areaKey === "all" ? null : selectedArea}
-      />
-
-      {data ? (
-        <ComplexCompareSection
-          aptName={aptName}
-          regionSlug={regionSlug}
-          gu={gu}
-          dong={data.dong}
-          detail={data}
-          selectedArea={selectedArea}
+          complexId={identity?.complexId ?? null}
+          complexName={data.aptName}
           areaKey={areaKey}
-          householdCount={complexDetail?.basic?.householdCount ?? null}
-        />
-      ) : null}
-
-      <ComplexNearbyLifeSection
-        aptName={aptName}
-        identity={identity ?? null}
-        initialTab={
-          // Default apt entry → 교통. School tab only via back-from-detail restore.
-          initialNearbyTab === "school"
-            ? "school"
-            : undefined
-        }
-        initialSchoolLevel={initialSchoolLevel}
-      />
-
-      <ComplexNearbySalesSection
-        aptName={aptName}
-        sigungu={nearbySigungu}
-      />
-
-      {complexDetail?.management ? (
-        <ComplexMgmtFeeCard
-          management={complexDetail.management}
-          selectedPyeongLabel={
+          areaLabel={
             areaKey === "all" || !selectedArea
-              ? null
-              : areaSelectorPyeongLabel(selectedArea)
+              ? "전체 면적"
+              : areaSelectorClosedLabel(selectedArea)
           }
+          latestTradeMan={latestTrade?.dealAmount ?? 0}
           exclusiveAreaMinSqm={
             selectedArea
-              ? (selectedArea.exclusiveAreaMin ??
-                selectedArea.exclusiveArea ??
-                null)
+              ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
               : null
           }
           exclusiveAreaMaxSqm={
             selectedArea
-              ? (selectedArea.exclusiveAreaMax ??
-                selectedArea.exclusiveArea ??
-                null)
+              ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
               : null
           }
-          aptName={data.aptName}
-          complexId={identity?.complexId ?? null}
+          regionSlug={regionSlug}
+          locationLabel={locationLabel}
         />
+      </LabSectionBoundary>
+
+      <LabSectionBoundary id="section-region-rank" title="지역 비교">
+      <ComplexRegionRankSection
+          complexId={identity?.complexId ?? null}
+          aptName={data.aptName}
+          regionSlug={regionSlug}
+          regionName={region?.name ?? data.regionName}
+          dongName={identity?.legalDongName ?? data.dong}
+          lawdCd={identity?.lawdCd ?? null}
+          bjdongCd={identity?.bjdongCd ?? null}
+          selectedArea={areaKey === "all" ? null : selectedArea}
+        />
+      </LabSectionBoundary>
+
+      {data ? (
+        <LabSectionBoundary id="section-comparison" title="단지 비교">
+      <ComplexCompareSection
+            aptName={aptName}
+            regionSlug={regionSlug}
+            gu={gu}
+            dong={data.dong}
+            detail={data}
+            selectedArea={selectedArea}
+            areaKey={areaKey}
+            householdCount={complexDetail?.basic?.householdCount ?? null}
+          />
+        </LabSectionBoundary>
+      ) : null}
+
+      <LabSectionBoundary id="section-nearby-life" title="주변 생활">
+      <ComplexNearbyLifeSection
+          aptName={aptName}
+          identity={identity ?? null}
+          initialTab={
+            // Default apt entry → 교통. School tab only via back-from-detail restore.
+            initialNearbyTab === "school"
+              ? "school"
+              : undefined
+          }
+          initialSchoolLevel={initialSchoolLevel}
+        />
+      </LabSectionBoundary>
+
+      <LabSectionBoundary id="section-nearby-sales" title="주변 공급">
+      <ComplexNearbySalesSection
+          aptName={aptName}
+          sigungu={nearbySigungu}
+        />
+      </LabSectionBoundary>
+
+      {complexDetail?.management ? (
+        <LabSectionBoundary id="section-management" title="관리비">
+      <ComplexMgmtFeeCard
+            management={complexDetail.management}
+            selectedPyeongLabel={
+              areaKey === "all" || !selectedArea
+                ? null
+                : areaSelectorPyeongLabel(selectedArea)
+            }
+            exclusiveAreaMinSqm={
+              selectedArea
+                ? (selectedArea.exclusiveAreaMin ??
+                  selectedArea.exclusiveArea ??
+                  null)
+                : null
+            }
+            exclusiveAreaMaxSqm={
+              selectedArea
+                ? (selectedArea.exclusiveAreaMax ??
+                  selectedArea.exclusiveArea ??
+                  null)
+                : null
+            }
+            aptName={data.aptName}
+            complexId={identity?.complexId ?? null}
+          />
+        </LabSectionBoundary>
       ) : null}
     </div>
   );
