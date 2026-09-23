@@ -198,7 +198,7 @@ export function RegionsPage() {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setMetro(value)}
-                className={`lab-choice min-h-11 rounded-full px-3.5 font-medium ${
+                className={`lab-choice h-11 rounded-full px-3.5 font-medium ${
                   active ? "lab-choice-selected font-semibold" : ""
                 }`}
               >

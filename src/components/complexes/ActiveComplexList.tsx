@@ -55,10 +55,9 @@ export function ActiveComplexList() {
                     {item.aptName}
                   </>
                 }
-                meta={`${item.regionLabel}${
-                  item.latestDealDate ? ` · 최근 ${formatDealDate(item.latestDealDate)}` : ""
-                }`}
+                meta={item.regionLabel}
                 value={`${item.recentCount.toLocaleString("ko-KR")}건`}
+                sub={item.latestDealDate ? `최근 ${formatDealDate(item.latestDealDate)}` : undefined}
               />
             ))}
           </ul>
