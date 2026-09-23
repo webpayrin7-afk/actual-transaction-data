@@ -61,7 +61,7 @@ export function TypePriceSparkline({
 
   return (
     <div className="mt-2 rounded-md border border-slate-200 bg-slate-50/70 px-2 py-1.5">
-      <div className="flex items-baseline justify-between gap-2 text-[10px] tabular-nums text-slate-500">
+      <div className="flex items-baseline justify-between gap-2 text-[12px] tabular-nums text-slate-500">
         <span>{formatEok(firstPoint.amount)}</span>
         <span className="font-medium text-slate-700">
           현재 {formatEok(currentAmount)}
@@ -96,7 +96,7 @@ export function TypePriceSparkline({
         ) : null}
         <circle cx={current.x} cy={current.y} r="3.2" fill="currentColor" />
       </svg>
-      <p className="mt-0.5 text-[10px] leading-4 text-slate-500">
+      <p className="mt-0.5 text-[12px] leading-4 text-slate-500">
         {yearMonthDot(firstPoint.date)}–{yearMonthDot(lastPoint.date)} · 동일 전용면적
         {prior ? " · ○ 종전 최고가" : ""}
       </p>

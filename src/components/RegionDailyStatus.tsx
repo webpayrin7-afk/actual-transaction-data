@@ -99,7 +99,7 @@ function DealMetaLine({
   emphasizeSpec?: boolean;
 }) {
   return (
-    <div className="mt-1.5 flex flex-wrap items-baseline text-[12px] leading-4">
+    <div className="mt-1.5 flex flex-wrap items-baseline text-[13px] leading-5">
       <span
         className={`whitespace-nowrap ${
           emphasizeSpec ? "font-medium text-slate-800" : "text-slate-500"
@@ -135,8 +135,8 @@ function SingogaBadge({
 }) {
   const cls =
     variant === "featured"
-      ? "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-teal-600 px-2.5 py-1 text-[11px] font-bold leading-none text-white"
-      : "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-300 bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-teal-800";
+      ? "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-teal-600 px-2.5 py-1 text-[12px] font-semibold leading-4 text-white"
+      : "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-300 bg-teal-50 px-2 py-0.5 text-[12px] font-semibold leading-4 text-teal-800";
   return <span className={cls}>{children}</span>;
 }
 
@@ -152,9 +152,9 @@ function prevDealDelta(
 }
 
 function prevDealDeltaClass(tone: "up" | "down" | "same"): string {
-  if (tone === "up") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-rose-600";
-  if (tone === "down") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-blue-600";
-  return "whitespace-nowrap text-[12px] tabular-nums text-slate-500";
+  if (tone === "up") return "whitespace-nowrap text-[13px] font-medium tabular-nums text-rose-600";
+  if (tone === "down") return "whitespace-nowrap text-[13px] font-medium tabular-nums text-blue-600";
+  return "whitespace-nowrap text-[13px] tabular-nums text-slate-500";
 }
 
 function FeaturedDealCard({
@@ -180,16 +180,16 @@ function FeaturedDealCard({
       <SingogaBadge variant="featured">
         {singogaLabel(deal.singogaKind)}
       </SingogaBadge>
-      <strong className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
+      <strong className="mt-1.5 block break-keep text-[16px] font-semibold leading-6 text-slate-900 line-clamp-2">
         {deal.aptName}
       </strong>
       {titleMeta.length > 0 ? (
-        <p className="mt-1.5 truncate text-xs font-normal text-slate-500">
+        <p className="detail-meta mt-1 truncate">
           {titleMeta.join(" · ")}
         </p>
       ) : null}
       <div className="mt-2 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
-        <span className="whitespace-nowrap text-[22px] font-semibold leading-none tabular-nums text-slate-900">
+        <span className="whitespace-nowrap text-[20px] font-semibold leading-7 tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
         {deal.increaseAmount > 0 ? (
@@ -200,7 +200,7 @@ function FeaturedDealCard({
         ) : null}
       </div>
       {prior != null ? (
-        <p className="mt-1 whitespace-nowrap text-[12px] tabular-nums text-slate-500">
+        <p className="detail-meta mt-1 whitespace-nowrap tabular-nums">
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
@@ -236,17 +236,17 @@ function SingogaRowCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="break-keep text-[16px] font-bold leading-snug text-slate-900 line-clamp-2">
+          <p className="break-keep text-[16px] font-semibold leading-6 text-slate-900 line-clamp-2">
             {deal.aptName}
           </p>
           {meta ? (
-            <p className="mt-0.5 truncate text-xs text-slate-500">{meta}</p>
+            <p className="detail-meta mt-0.5 truncate">{meta}</p>
           ) : null}
         </div>
         <SingogaBadge variant="compact">{singogaLabel(deal.singogaKind)}</SingogaBadge>
       </div>
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="whitespace-nowrap text-[21px] font-semibold leading-none tabular-nums text-slate-900">
+        <span className="whitespace-nowrap text-[20px] font-semibold leading-7 tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
         {deal.increaseAmount > 0 ? (
@@ -257,7 +257,7 @@ function SingogaRowCard({
         ) : null}
       </div>
       {prior != null ? (
-        <p className="mt-1 whitespace-nowrap text-[12px] tabular-nums text-slate-500">
+        <p className="detail-meta mt-1 whitespace-nowrap tabular-nums">
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
@@ -503,7 +503,7 @@ function MonthCalendar({
         spread
       />
       <div className="mt-1.5 rounded-xl border border-slate-200 bg-slate-50/70 p-1.5 sm:p-2">
-        <div className="mb-1 grid grid-cols-7 border-b border-slate-200/80 text-center text-[10px] font-medium text-slate-400">
+        <div className="mb-1 grid grid-cols-7 border-b border-slate-200/80 text-center text-[12px] font-medium text-slate-500">
           {weekLabels.map((label) => (
             <div key={label} className="py-1">
               {label}
@@ -537,7 +537,7 @@ function MonthCalendar({
               >
                 <span className="font-medium leading-none">{day}</span>
                 {hasDeals ? <span
-                  className={`mt-0.5 text-[10px] leading-none tabular-nums ${
+                  className={`mt-0.5 text-[12px] leading-none tabular-nums ${
                     active ? "text-[color:var(--lab-teal-700)]" : "text-slate-500"
                   }`}
                 >
@@ -1037,14 +1037,14 @@ export function RegionDailyStatus({
             monthOptions={section3Months}
             onChangeMonth={changeActivityMonth}
           />
-          <p className="mt-2 max-w-md text-[11px] leading-4 text-slate-400">
+          <p className="detail-meta mt-2 max-w-md">
             {CALENDAR_HELPER}
           </p>
         </div>
 
         <div className="mt-2 flex flex-col gap-5 border-t border-slate-200/70 pt-5">
           {historyQuery.data ? (
-            <p className="shrink-0 text-left text-xs tabular-nums text-slate-500">
+            <p className="detail-meta shrink-0 text-left tabular-nums">
               이 달 총{" "}
               {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
                 "ko-KR",
@@ -1083,7 +1083,7 @@ export function RegionDailyStatus({
                 >
                   <PhraseRow
                     className="text-sm font-medium text-slate-900"
-                    restClassName="text-xs font-normal tabular-nums text-slate-500"
+                    restClassName="text-[13px] font-normal tabular-nums text-slate-500"
                     items={[
                       koreanMonthDayLabel(date),
                       ...(section
@@ -1095,7 +1095,7 @@ export function RegionDailyStatus({
                   />
                 </h4>
                 {section?.bulkIngestDay ? (
-                  <p className="mt-1 text-pretty text-xs leading-5 text-slate-500">
+                  <p className="detail-meta mt-1 text-pretty">
                     이날 거래 건수가 많아 신고가 강조는 생략했습니다. 신고가가
                     0건이라는 뜻은 아닙니다.
                   </p>
