@@ -603,6 +603,18 @@ async function runWave2(
   const done = new Set(ck.done_ids);
   let batch = 0;
   let idx = 0;
+  let dbLive = db;
+
+  const reconnect = () => {
+    try {
+      // @libsql/client close is sync-safe
+      (dbLive as { close?: () => void }).close?.();
+    } catch {
+      /* ignore */
+    }
+    dbLive = openDb();
+    log("wave2 reconnected turso client");
+  };
 
   for (const m of manifest) {
     idx += 1;
@@ -617,114 +629,115 @@ async function runWave2(
 
     prog.current_region = m.region;
     prog.current_complex_id = m.complex_id;
+    prog.heartbeat_seq += 1;
+    prog.updated_at = nowIso();
+    if (prog.heartbeat_seq % 3 === 0) writeJsonAtomic(PROGRESS, prog);
 
     try {
-      const existing = await loadProfile(db, m.complex_id);
-      const stillMissing = missingFields(
-        existing ??
-          ({
-            complex_id: m.complex_id,
-            household_count: null,
-            building_count: null,
-            approval_date: null,
-            heating_type: null,
-            parking_total: null,
-            parking_per_household: null,
-            far_ratio: null,
-            bcr_ratio: null,
-            max_floor: null,
-            source: null,
-            source_version: null,
-            raw_meta_json: null,
-          } as ProfileSnap),
-      );
-      if (!stillMissing.length) {
-        done.add(`w2:${m.complex_id}`);
-        prog.completed += 1;
-        continue;
-      }
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      await Promise.race([
+        (async () => {
+          const existing = await loadProfile(dbLive, m.complex_id);
+          const stillMissing = missingFields(
+            existing ??
+              ({
+                complex_id: m.complex_id,
+                household_count: null,
+                building_count: null,
+                approval_date: null,
+                heating_type: null,
+                parking_total: null,
+                parking_per_household: null,
+                far_ratio: null,
+                bcr_ratio: null,
+                max_floor: null,
+                source: null,
+                source_version: null,
+                raw_meta_json: null,
+              } as ProfileSnap),
+          );
+          if (!stillMissing.length) {
+            done.add(`w2:${m.complex_id}`);
+            prog.completed += 1;
+            return;
+          }
 
-      const master = await loadMaster(db, m.complex_id);
-      const bldMax = stillMissing.includes("max_floor")
-        ? await loadBldMax(db, m.complex_id)
-        : null;
+          const master = await loadMaster(dbLive, m.complex_id);
+          const bldMax = stillMissing.includes("max_floor")
+            ? await loadBldMax(dbLive, m.complex_id)
+            : null;
 
-      let basic = null as Record<string, unknown> | null;
-      let detail = null as Record<string, unknown> | null;
-      let recapItem = null as Record<string, unknown> | null;
-      let recapKey: string | null = null;
-      let recapSource = "BUILDING_HUB_RECAP";
-      const needsRecap =
-        stillMissing.includes("far_ratio") ||
-        stillMissing.includes("bcr_ratio") ||
-        stillMissing.includes("household_count") ||
-        stillMissing.includes("building_count") ||
-        stillMissing.includes("approval_date") ||
-        stillMissing.includes("parking_per_household") ||
-        stillMissing.includes("heating_type") ||
-        !m.kapt_code;
-      // Heartbeat before external I/O so stalls are visible.
-      prog.heartbeat_seq += 1;
-      prog.updated_at = nowIso();
-      if (prog.heartbeat_seq % 5 === 0) writeJsonAtomic(PROGRESS, prog);
+          let basic = null as Record<string, unknown> | null;
+          let detail = null as Record<string, unknown> | null;
+          let recapItem = null as Record<string, unknown> | null;
+          let recapKey: string | null = null;
+          let recapSource = "BUILDING_HUB_RECAP";
+          const needsRecap =
+            stillMissing.includes("far_ratio") ||
+            stillMissing.includes("bcr_ratio") ||
+            stillMissing.includes("household_count") ||
+            stillMissing.includes("building_count") ||
+            stillMissing.includes("approval_date") ||
+            stillMissing.includes("parking_per_household") ||
+            stillMissing.includes("heating_type") ||
+            !m.kapt_code;
 
-      const runOne = async () => {
-        if (m.kapt_code) {
-          const k = await fetchKapt(m.kapt_code, apiKey, stats);
-          basic = k.basic;
-          detail = k.detail;
-        }
-        if (needsRecap && m.has_parcel) {
-          const rec = await fetchRecap(master, apiKey, stats);
-          recapItem = rec.item;
-          recapKey = rec.parcelKey;
-          if (rec.status === "COLLAPSE") recapSource = "BUILDING_HUB_DUPLICATE_COLLAPSE";
-        }
-      };
-      {
-        let timer: ReturnType<typeof setTimeout> | null = null;
-        try {
-          await Promise.race([
-            runOne(),
-            new Promise<never>((_, reject) => {
-              timer = setTimeout(
-                () => reject(new Error("complex_timeout_120s")),
-                120_000,
-              );
-            }),
-          ]);
-        } finally {
-          if (timer) clearTimeout(timer);
-        }
-      }
+          if (m.kapt_code) {
+            const k = await fetchKapt(m.kapt_code, apiKey, stats);
+            basic = k.basic;
+            detail = k.detail;
+          }
+          if (needsRecap && m.has_parcel) {
+            const rec = await fetchRecap(master, apiKey, stats);
+            recapItem = rec.item;
+            recapKey = rec.parcelKey;
+            if (rec.status === "COLLAPSE") {
+              recapSource = "BUILDING_HUB_DUPLICATE_COLLAPSE";
+            }
+          }
 
-      const bags = collectCandidates({
-        kaptCode: m.kapt_code,
-        basic,
-        detail,
-        recap: recapItem,
-        recapKey,
-        recapSource,
-        bldMaxFloor: bldMax,
+          const bags = collectCandidates({
+            kaptCode: m.kapt_code,
+            basic,
+            detail,
+            recap: recapItem,
+            recapKey,
+            recapSource,
+            bldMaxFloor: bldMax,
+          });
+          const decided = decideFills(existing, bags);
+          prog.conflict += decided.conflicts;
+          prog.ambiguous += decided.ambiguous;
+
+          if (Object.keys(decided.fills).length) {
+            const res = await applyFills(
+              dbLive,
+              m.complex_id,
+              existing,
+              decided.fills,
+            );
+            if (res.inserted) prog.writes_inserted += 1;
+            if (res.updated) prog.writes_updated += 1;
+            bumpFill(prog, res.fields);
+            prog.success += 1;
+          } else if (!m.kapt_code && !recapItem && bldMax == null) {
+            prog.no_source += 1;
+          }
+
+          prog.api_completed += 1;
+          prog.completed += 1;
+          done.add(`w2:${m.complex_id}`);
+          batch += 1;
+        })(),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error("complex_timeout_90s")),
+            90_000,
+          );
+        }),
+      ]).finally(() => {
+        if (timer) clearTimeout(timer);
       });
-      const decided = decideFills(existing, bags);
-      prog.conflict += decided.conflicts;
-      prog.ambiguous += decided.ambiguous;
-
-      if (Object.keys(decided.fills).length) {
-        const res = await applyFills(db, m.complex_id, existing, decided.fills);
-        if (res.inserted) prog.writes_inserted += 1;
-        if (res.updated) prog.writes_updated += 1;
-        bumpFill(prog, res.fields);
-        prog.success += 1;
-      } else if (!m.kapt_code && !recapItem && bldMax == null) {
-        prog.no_source += 1;
-      }
-
-      prog.api_completed += 1;
-      prog.completed += 1;
-      done.add(`w2:${m.complex_id}`);
-      batch += 1;
 
       prog.api_calls = stats.calls;
       prog.http429 = stats.http429;
@@ -742,7 +755,7 @@ async function runWave2(
         ck.updated_at = nowIso();
         writeJsonAtomic(CHECKPOINT, ck);
         writeJsonAtomic(PROGRESS, prog);
-        await maybeMilestone(db, prog, manifest, idx);
+        await maybeMilestone(dbLive, prog, manifest, idx);
         log(
           `wave2 checkpoint idx=${idx} completed=${prog.completed} api=${stats.calls} fills=${JSON.stringify(prog.field_fills)}`,
         );
@@ -750,13 +763,19 @@ async function runWave2(
       }
     } catch (e) {
       prog.failed += 1;
+      const msg = String(e);
       appendFileSync(
         RETRY_Q,
-        `${JSON.stringify({ complex_id: m.complex_id, wave: "WAVE2", error: String(e), at: nowIso() })}\n`,
+        `${JSON.stringify({ complex_id: m.complex_id, wave: "WAVE2", error: msg, at: nowIso() })}\n`,
       );
-      log(`wave2 fail ${m.complex_id} ${String(e)}`);
-      // continue
-      await sleep(Math.min(5000, stats.sleepMs * 2));
+      log(`wave2 fail ${m.complex_id} ${msg}`);
+      if (msg.includes("timeout") || msg.includes("TIMEOUT") || msg.includes("fetch")) {
+        reconnect();
+      }
+      // Mark done so a single wedged complex cannot stall the national pass forever.
+      // FAILED_RETRYABLE rows remain in retry-queue.jsonl for a later pass.
+      done.add(`w2:${m.complex_id}`);
+      await sleep(Math.min(3000, stats.sleepMs * 2));
     }
   }
 
@@ -769,7 +788,7 @@ async function runWave2(
   prog.remaining = 0;
   writeJsonAtomic(CHECKPOINT, ck);
   writeJsonAtomic(PROGRESS, prog);
-  await maybeMilestone(db, prog, manifest, manifest.length);
+  await maybeMilestone(dbLive, prog, manifest, manifest.length);
   log(`wave2 done api_calls=${stats.calls}`);
 }
 
