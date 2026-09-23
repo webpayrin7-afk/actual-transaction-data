@@ -123,6 +123,7 @@ export function ComplexUnitMixSection({
             value: g.householdCount,
             color: colors[i]!,
             dimmed: selectedKey != null && g.key !== selectedKey,
+            label: g.title,
           }))}
           centerLabel={partial ? "확인 세대" : "총 세대"}
           centerValue={total.toLocaleString("ko-KR")}
