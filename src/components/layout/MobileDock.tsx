@@ -11,10 +11,13 @@ export const MOBILE_DOCK_SPACER = "h-[calc(80px+env(safe-area-inset-bottom))] sm
 /** Scroll distance before the dock may hide, and the minimum delta that counts as a direction. */
 const HIDE_AFTER_Y = 80;
 const DELTA = 6;
+/** After scrolling stops for this long, a hidden dock comes back. */
+const IDLE_SHOW_MS = 1000;
 
 /**
  * 모바일 떠 있는 독 (B+ 내비) — 좌우 여백을 둔 캡슐, 아이콘 + 13px 라벨 5개.
- * 아래로 스크롤하면 숨고 위로 올리면 나타난다. 맨 위·맨 아래에서는 항상 보인다.
+ * 아래로 스크롤하면 숨고, 위로 올리거나 스크롤을 멈추고 잠시(1초) 지나면 나타난다.
+ * 맨 위·맨 아래에서는 항상 보인다.
  * 데스크톱(≥sm)은 상단 메뉴·사이드바를 쓰므로 숨김.
  */
 export function MobileDock() {
@@ -24,6 +27,7 @@ export function MobileDock() {
 
   useEffect(() => {
     let raf = 0;
+    let idle = 0;
     lastY.current = window.scrollY;
     const update = () => {
       raf = 0;
@@ -37,11 +41,14 @@ export function MobileDock() {
     };
     const onScroll = () => {
       if (!raf) raf = window.requestAnimationFrame(update);
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => setHidden(false), IDLE_SHOW_MS);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (raf) window.cancelAnimationFrame(raf);
+      window.clearTimeout(idle);
     };
   }, []);
 
