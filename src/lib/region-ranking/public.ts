@@ -650,8 +650,9 @@ export function unavailableBoardCopy(_type?: RankingType): {
   };
 }
 
-export function regionOverviewCtaLabel(_regionName?: string): string {
-  return "지역현황으로 이동";
+export function regionOverviewCtaLabel(regionName?: string): string {
+  const name = regionName?.trim();
+  return name ? `${name} 지역 현황 자세히 보기` : "지역 현황 자세히 보기";
 }
 
 export const PRICE_COMPARE_TABS = [

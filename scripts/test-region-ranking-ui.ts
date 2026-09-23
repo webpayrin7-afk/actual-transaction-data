@@ -339,8 +339,8 @@ assert(
   assert(href.includes("#region-ranking"), "region CTA anchors ranking section");
 }
 assert(
-  regionOverviewCtaLabel("송파구") === "지역현황으로 이동",
-  "CTA renamed to 지역현황으로 이동",
+  regionOverviewCtaLabel("송파구") === "송파구 지역 현황 자세히 보기",
+  "CTA reads '송파구 지역 현황 자세히 보기'",
 );
 
 assert(PRICE_COMPARE_TABS.map((tab) => tab.label).join("|") === "가격 수준|변동률", "price compare tabs");
