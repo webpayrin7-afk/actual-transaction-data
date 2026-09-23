@@ -51,9 +51,9 @@ import { AttendanceZoneBlock } from "@/components/apt/AttendanceZoneBlock";
 import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
 import {
   ComplexCommerceMeta,
-  ComplexCommercePreparing,
   ComplexCommerceStats,
 } from "@/components/apt/ComplexCommerceSection";
+import { ComplexLivingCensus } from "@/components/apt/ComplexLivingCensus";
 
 export type NearbyLifeCategory = "commerce" | "living" | "transport" | "school";
 
@@ -890,7 +890,7 @@ export function ComplexNearbyLifeSection({
       return commerceSnapshot ? (
         <ComplexCommerceStats snapshot={commerceSnapshot} />
       ) : (
-        <ComplexCommercePreparing />
+        <ComplexLivingCensus complexId={identity?.complexId ?? null} />
       );
     }
 

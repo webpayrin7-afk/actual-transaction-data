@@ -30,7 +30,7 @@ import {
   type CommerceCategoryColorKey,
 } from "@/lib/complex-detail/commerce-category-colors";
 
-function FacilityIcon({
+export function FacilityIcon({
   keyName,
   className = "h-5 w-5",
 }: {
