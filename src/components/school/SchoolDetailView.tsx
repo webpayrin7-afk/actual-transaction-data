@@ -1,20 +1,13 @@
 import type { ReactNode } from "react";
 import { AdvancementSection } from "@/components/school/AdvancementSection";
 import { SchoolHero } from "@/components/school/SchoolHero";
+import { LAB_SECTION_SURFACE, LabSection } from "@/components/ui/LabSection";
 import { DataAttribution } from "@/components/ui/DataAttribution";
 import type {
   ProductMetric,
   ProductSchoolDetail,
 } from "@/lib/school-info/product-school-detail";
 import { SCHOOLINFO_HOME_URL } from "@/lib/school-info/schoolinfo-public-url";
-
-function SectionTitle({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-      {children}
-    </h2>
-  );
-}
 
 /** 2-column status metrics; 5th metric spans full width. */
 function StatusMetrics({ items }: { items: ProductMetric[] }) {
@@ -24,27 +17,27 @@ function StatusMetrics({ items }: { items: ProductMetric[] }) {
   const rest = items.length > 5 ? items.slice(5) : [];
 
   return (
-    <dl className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-2.5">
+    <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5">
       {head.map((m) => (
         <div key={m.label} className="min-w-0">
-          <dt className="text-[11px] leading-4 text-slate-500">{m.label}</dt>
-          <dd className="mt-0.5 text-[15px] font-semibold tabular-nums leading-5 text-slate-900">
+          <dt className="detail-label">{m.label}</dt>
+          <dd className="mt-0.5 detail-data-value-emphasis tabular-nums">
             {m.value}
           </dd>
         </div>
       ))}
       {fifth ? (
-        <div className="col-span-2 min-w-0 border-t border-slate-100 pt-2.5">
-          <dt className="text-[11px] leading-4 text-slate-500">{fifth.label}</dt>
-          <dd className="mt-0.5 text-[15px] font-semibold tabular-nums leading-5 text-slate-900">
+        <div className="col-span-2 min-w-0 border-t border-[color:var(--lab-border)] pt-2.5">
+          <dt className="detail-label">{fifth.label}</dt>
+          <dd className="mt-0.5 detail-data-value-emphasis tabular-nums">
             {fifth.value}
           </dd>
         </div>
       ) : null}
       {rest.map((m) => (
         <div key={m.label} className="min-w-0">
-          <dt className="text-[11px] leading-4 text-slate-500">{m.label}</dt>
-          <dd className="mt-0.5 text-[15px] font-semibold tabular-nums leading-5 text-slate-900">
+          <dt className="detail-label">{m.label}</dt>
+          <dd className="mt-0.5 detail-data-value-emphasis tabular-nums">
             {m.value}
           </dd>
         </div>
@@ -60,16 +53,16 @@ function CompactRows({
 }) {
   if (!rows.length) return null;
   return (
-    <dl className="mt-2 space-y-1.5">
+    <dl className="space-y-1.5">
       {rows.map((r) => (
         <div
           key={r.label}
           className="flex items-baseline justify-between gap-3"
         >
-          <dt className="shrink-0 text-[12px] leading-5 text-slate-500">
+          <dt className="detail-label shrink-0">
             {r.label}
           </dt>
-          <dd className="min-w-0 text-right text-[13px] font-semibold tabular-nums leading-5 text-slate-900">
+          <dd className="min-w-0 text-right detail-data-value tabular-nums">
             {r.value}
           </dd>
         </div>
@@ -121,24 +114,24 @@ export function SchoolDetailView({
 
       <div className="flex flex-col gap-3.5 px-3 pb-5 pt-3.5 sm:gap-4 sm:px-4 sm:pb-6 sm:pt-4">
         {detail.authHold ? (
-          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
-            <p className="text-sm text-slate-700">
+          <section className={LAB_SECTION_SURFACE}>
+            <p className="detail-body">
               공시 상세를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.
             </p>
           </section>
         ) : null}
 
         {!detail.authHold && detail.unresolved ? (
-          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
-            <p className="text-sm text-slate-700">
+          <section className={LAB_SECTION_SURFACE}>
+            <p className="detail-body">
               이 학교의 공시 정보를 찾지 못했습니다.
             </p>
           </section>
         ) : null}
 
         {!detail.authHold && detail.basicError ? (
-          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5">
-            <p className="text-sm text-slate-700">
+          <section className={LAB_SECTION_SURFACE}>
+            <p className="detail-body">
               학교 기본정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
             </p>
           </section>
@@ -146,10 +139,9 @@ export function SchoolDetailView({
 
         {/* 1. 학교 현황 — first content card */}
         {coreItems.length > 0 ? (
-          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
-            <SectionTitle>학교 현황</SectionTitle>
+          <LabSection title="학교 현황">
             <StatusMetrics items={coreItems} />
-          </section>
+          </LabSection>
         ) : null}
 
         {/* 2. 진학/진학·진로 현황 */}
@@ -157,10 +149,9 @@ export function SchoolDetailView({
 
         {/* 3. 학교생활 */}
         {lifeRows.length > 0 ? (
-          <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
-            <SectionTitle>학교생활</SectionTitle>
+          <LabSection title="학교생활">
             <CompactRows rows={lifeRows} />
-          </section>
+          </LabSection>
         ) : null}
 
         {detail.schoolInfoUrl ? (
@@ -168,14 +159,14 @@ export function SchoolDetailView({
             href={detail.schoolInfoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="lab-button lab-button-primary inline-flex w-full items-center justify-center rounded-xl px-3.5 py-3 text-[13px] font-semibold"
+            className="lab-button lab-button-primary w-full"
           >
             학교알리미에서 보기
           </a>
         ) : null}
 
         {detail.attribution ? (
-          <footer className="mt-1 border-t border-slate-200/80 pt-3 sm:mt-1.5 sm:pt-3.5">
+          <footer className="mt-1 border-t border-[color:var(--lab-border)] pt-3 sm:mt-1.5 sm:pt-3.5">
             <DataAttribution
               provider="학교알리미"
               organization="교육부"
