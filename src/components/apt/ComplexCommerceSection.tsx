@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import {
   Coffee,
   Dumbbell,
@@ -13,6 +12,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
+import { LabSubsectionHeader } from "@/components/ui/LabSection";
 import {
   COMMERCE_COMPOSITION_ORDER,
   COMMERCE_FACILITY_ORDER,
@@ -74,8 +74,8 @@ function catCssVar(key: CommerceCategoryColorKey | null | undefined): string {
   return "var(--lab-muted)";
 }
 
-function SectionHeading({ children }: { children: ReactNode }) {
-  return <h3 className="detail-subsection-title">{children}</h3>;
+function SectionHeading({ children }: { children: string }) {
+  return <LabSubsectionHeader title={children} />;
 }
 
 function thinDividerClass() {

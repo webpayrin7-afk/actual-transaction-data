@@ -59,6 +59,10 @@ import {
   labUnderlineTabClass,
 } from "@/components/ui/lab";
 import { LabTabs } from "@/components/ui/LabTabs";
+import {
+  LAB_SECTION_SURFACE,
+  LabSubsectionHeader,
+} from "@/components/ui/LabSection";
 import { InfoTip } from "@/components/ui/InfoTip";
 import {
   formatDealDate,
@@ -761,7 +765,7 @@ export function AptDetailPage({
       {/* Price summary — area-scoped; independent of chart period / deal tab */}
       <section
         id="section-price-summary"
-        className="lab-card detail-card scroll-mt-28"
+        className={`${LAB_SECTION_SURFACE} scroll-mt-28`}
         aria-label="시세 요약"
       >
         <div className="detail-summary-primary" role="group">
@@ -841,7 +845,11 @@ export function AptDetailPage({
       </section>
 
       {/* Market + trades — single card */}
-      <section id="section-market" className="lab-card detail-card scroll-mt-28">
+      <section
+        id="section-market"
+        aria-label="시세 추이"
+        className={`${LAB_SECTION_SURFACE} scroll-mt-28`}
+      >
         <div className="detail-market-header">
           <h2 className="detail-section-title shrink-0">시세 추이</h2>
           <div className="detail-market-period">{periodButtons}</div>
@@ -896,9 +904,8 @@ export function AptDetailPage({
         </div>
 
         <div className="detail-market-trades">
-          <div className="detail-market-trades-head">
-            <h3 className="detail-subsection-title">거래내역</h3>
-            <p className="detail-meta">최근 계약일순</p>
+          <div className="mb-3">
+            <LabSubsectionHeader title="거래내역" meta="최근 계약일순" />
           </div>
 
           {selectedMonthYm ? (
@@ -976,68 +983,60 @@ export function AptDetailPage({
       />
 
       {data ? (
-        <div id="section-comparison" className="scroll-mt-28">
-          <ComplexCompareSection
-            aptName={aptName}
-            regionSlug={regionSlug}
-            gu={gu}
-            dong={data.dong}
-            detail={data}
-            selectedArea={selectedArea}
-            areaKey={areaKey}
-            householdCount={complexDetail?.basic?.householdCount ?? null}
-          />
-        </div>
+        <ComplexCompareSection
+          aptName={aptName}
+          regionSlug={regionSlug}
+          gu={gu}
+          dong={data.dong}
+          detail={data}
+          selectedArea={selectedArea}
+          areaKey={areaKey}
+          householdCount={complexDetail?.basic?.householdCount ?? null}
+        />
       ) : null}
 
-      <div id="section-nearby-life" className="scroll-mt-28">
-        <ComplexNearbyLifeSection
-          aptName={aptName}
-          identity={identity ?? null}
-          initialTab={
-            // Default apt entry → 교통. School tab only via back-from-detail restore.
-            initialNearbyTab === "school"
-              ? "school"
-              : undefined
-          }
-          initialSchoolLevel={initialSchoolLevel}
-        />
-      </div>
+      <ComplexNearbyLifeSection
+        aptName={aptName}
+        identity={identity ?? null}
+        initialTab={
+          // Default apt entry → 교통. School tab only via back-from-detail restore.
+          initialNearbyTab === "school"
+            ? "school"
+            : undefined
+        }
+        initialSchoolLevel={initialSchoolLevel}
+      />
 
-      <div id="section-nearby-sales" className="scroll-mt-28">
-        <ComplexNearbySalesSection
-          aptName={aptName}
-          sigungu={nearbySigungu}
-        />
-      </div>
+      <ComplexNearbySalesSection
+        aptName={aptName}
+        sigungu={nearbySigungu}
+      />
 
       {complexDetail?.management ? (
-        <div id="section-management" className="scroll-mt-28">
-          <ComplexMgmtFeeCard
-            management={complexDetail.management}
-            selectedPyeongLabel={
-              areaKey === "all" || !selectedArea
-                ? null
-                : areaSelectorPyeongLabel(selectedArea)
-            }
-            exclusiveAreaMinSqm={
-              selectedArea
-                ? (selectedArea.exclusiveAreaMin ??
-                  selectedArea.exclusiveArea ??
-                  null)
-                : null
-            }
-            exclusiveAreaMaxSqm={
-              selectedArea
-                ? (selectedArea.exclusiveAreaMax ??
-                  selectedArea.exclusiveArea ??
-                  null)
-                : null
-            }
-            aptName={data.aptName}
-            complexId={identity?.complexId ?? null}
-          />
-        </div>
+        <ComplexMgmtFeeCard
+          management={complexDetail.management}
+          selectedPyeongLabel={
+            areaKey === "all" || !selectedArea
+              ? null
+              : areaSelectorPyeongLabel(selectedArea)
+          }
+          exclusiveAreaMinSqm={
+            selectedArea
+              ? (selectedArea.exclusiveAreaMin ??
+                selectedArea.exclusiveArea ??
+                null)
+              : null
+          }
+          exclusiveAreaMaxSqm={
+            selectedArea
+              ? (selectedArea.exclusiveAreaMax ??
+                selectedArea.exclusiveArea ??
+                null)
+              : null
+          }
+          aptName={data.aptName}
+          complexId={identity?.complexId ?? null}
+        />
       ) : null}
     </div>
   );

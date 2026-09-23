@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ChevronsUpDown } from "lucide-react";
 import { LabDisclosure } from "@/components/ui/LabDisclosure";
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { LabTabs, labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import {
@@ -794,21 +795,16 @@ export function ComplexPurchaseCalculatorSection({
   return (
     <section
       id="section-calculator"
-      className="lab-card detail-card scroll-mt-28"
+      aria-label="세금, 대출 계산"
+      className={`${LAB_SECTION_SURFACE} scroll-mt-28`}
     >
       <div id="calculator" className="sr-only" aria-hidden />
 
       <header className="min-w-0">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <h2 className="detail-section-title">
-            세금, 대출 계산
-          </h2>
-          {compactArea ? (
-            <p className="detail-meta tabular-nums">
-              {compactArea} 기준
-            </p>
-          ) : null}
-        </div>
+        <LabSectionHeader
+          title="세금, 대출 계산"
+          meta={compactArea ? `${compactArea} 기준` : undefined}
+        />
         <p className="detail-meta mt-1.5">
           이 단지를 매수할 때 필요한 비용과 대출을 계산해보세요.
         </p>

@@ -15,10 +15,8 @@ import {
   type NaverMapMarker,
   type LivingMarkerCategory,
 } from "@/components/map/NaverMap";
-import {
-  LabCard,
-  LabState,
-} from "@/components/ui/lab";
+import { LabState } from "@/components/ui/lab";
+import { LabSection } from "@/components/ui/LabSection";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
@@ -1346,14 +1344,11 @@ export function ComplexNearbyLifeSection({
   })();
 
   return (
-    <LabCard
-      className={`lab-card detail-card ${tab === "living" ? "overflow-visible" : ""}`}
-    >
-      <div className="lab-section-heading mb-px">
-        <div className="min-w-0">
-          <h2 className="detail-section-title flex items-center">
-            주변 생활
-            <InfoTip aria-label="주변 생활 출처 안내" className="detail-meta">
+    <LabSection
+      id="section-nearby-life"
+      title="주변 생활"
+      className={`gap-3 ${tab === "living" ? "overflow-visible" : ""}`}
+      tip={<>
               <p className="detail-body">
                 지도: NAVER Maps
                 <br />
@@ -1384,12 +1379,9 @@ export function ComplexNearbyLifeSection({
                 <br />
                 지역 검색 결과 기준이며 전체 시설 수를 의미하지 않습니다.
               </p>
-            </InfoTip>
-          </h2>
-        </div>
-      </div>
+      </>}
+    >
       <LabTabs
-        className="mt-2.5"
         variant="secondary"
         ariaLabel="주변 생활 카테고리"
         value={tab}
@@ -1397,7 +1389,7 @@ export function ComplexNearbyLifeSection({
         onChange={selectTab}
       />
 
-      <div className="mt-3 space-y-3">
+      <div className="space-y-3">
         {tab === "commerce" && commerceSnapshot ? (
           <ComplexCommerceMeta snapshot={commerceSnapshot} />
         ) : null}
@@ -1532,6 +1524,6 @@ export function ComplexNearbyLifeSection({
           ) : null}
         </div>
       </div>
-</LabCard>
+    </LabSection>
   );
 }

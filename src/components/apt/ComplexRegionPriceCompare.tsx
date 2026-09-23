@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { useQuery } from "@tanstack/react-query";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabTabs } from "@/components/ui/LabTabs";
+import { LAB_SUBSECTION_RULE, LabSubsectionHeader } from "@/components/ui/LabSection";
 import {
   PARTIAL_HISTORY_TIP,
   PRICE_COMPARE_TABS,
@@ -423,23 +424,21 @@ export function ComplexRegionPriceCompare({
     query.isSuccess ? "ready" : "wait",
   ].join("|");
   return (
-    <div className="detail-subsection-rule">
-      <div className="flex min-w-0 items-center justify-between gap-x-3 gap-y-1">
-        <div className="flex min-w-0 items-center gap-1">
-          <h3 className="detail-subsection-title">{PRICE_COMPARE_TITLE}</h3>
-          <InfoTip aria-label="가격 비교 안내">
+    <div className={LAB_SUBSECTION_RULE}>
+      <LabSubsectionHeader
+        title={PRICE_COMPARE_TITLE}
+        meta={meta ? <span className="break-keep">{meta}</span> : undefined}
+        tip={
+          <>
             <p className="font-medium text-slate-800">{PRICE_COMPARE_TIP_TITLE}</p>
             {PRICE_COMPARE_TIP.split("\n\n").map((paragraph) => (
               <p key={paragraph} className="mt-1.5 first:mt-1">
                 {paragraph}
               </p>
             ))}
-          </InfoTip>
-        </div>
-        {meta ? (
-          <p className="detail-meta ml-auto min-w-0 shrink text-right break-keep">{meta}</p>
-        ) : null}
-      </div>
+          </>
+        }
+      />
 
       {!enabled || unsupported ? (
         <p className="detail-meta mt-1.5">
