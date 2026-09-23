@@ -7,6 +7,9 @@ import { ChevronDown, ChevronsUpDown, LoaderCircle } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
+import { LAB_SUBSECTION_RULE, LabSection } from "@/components/ui/LabSection";
+import { LabTextLink } from "@/components/ui/LabListRow";
+import { DETAIL_PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
   GroupedTransactionList,
@@ -29,12 +32,8 @@ import {
   formatEokDetail,
   formatKpiMonthlyRent,
 } from "@/lib/utils/format";
-import Link from "next/link";
 
 const PAGE_SIZE = 30;
-
-const PAGE_WRAP =
-  "mx-auto flex w-full max-w-5xl flex-col overflow-x-clip px-4 pt-3 pb-8 sm:px-6 sm:pt-4 sm:pb-10 lg:px-8";
 
 async function fetchArchive(params: {
   aptName: string;
@@ -294,18 +293,16 @@ export function AptTransactionsPage({
 
   if (query.isLoading && items.length === 0 && !meta) {
     return (
-      <div className={PAGE_WRAP}>
-        <div className="h-48 animate-pulse rounded-xl bg-slate-200/70" />
+      <div className={DETAIL_PAGE_SHELL}>
+        <div className="lab-skeleton h-48" />
       </div>
     );
   }
 
   if ((query.isError && !meta) || (!query.isLoading && !meta && !data)) {
     return (
-      <div className={`${PAGE_WRAP} text-center`}>
-        <p className="text-sm font-medium text-slate-700">
-          거래내역을 불러오지 못했습니다.
-        </p>
+      <div className={DETAIL_PAGE_SHELL}>
+        <p className="lab-state lab-state-error">거래내역을 불러오지 못했습니다.</p>
         <div className="mt-3 flex justify-center">
           <BackLink fallback={detailHref} compact />
         </div>
@@ -318,21 +315,24 @@ export function AptTransactionsPage({
   const areas = meta?.areas ?? [];
 
   return (
-    <div className={PAGE_WRAP}>
-      <div className="space-y-2">
-        <div className="flex min-h-10 items-start gap-1.5">
-          <BackLink fallback={detailHref} compact hideLabel />
-          <h1 className="detail-page-title min-w-0 flex-1 break-keep pt-1.5">
-            {displayName}
-          </h1>
-          <Link
-            href={detailHref}
-            className="hidden min-h-11 shrink-0 items-center text-[13px] font-medium leading-5 text-[color:var(--lab-muted)] hover:text-[color:var(--lab-teal-700)] sm:inline-flex"
-          >
-            단지상세로 돌아가기 &gt;
-          </Link>
-        </div>
+    <div className={DETAIL_PAGE_SHELL}>
+      <header className="-mt-1 sm:-mt-1.5">
+        <PageHeader
+          leading={<BackLink fallback={detailHref} compact hideLabel />}
+          title={displayName}
+          titleSuffix="거래 내역"
+          titleClassName="detail-page-title"
+          showDivider={false}
+          action={
+            <span className="hidden sm:inline-flex">
+              <LabTextLink href={detailHref}>단지 상세</LabTextLink>
+            </span>
+          }
+        />
+      </header>
 
+      {/* 조회 조건 — 거래유형 · 연도 · 면적 */}
+      <div className="flex flex-col gap-2">
         <div className="flex items-stretch gap-2">
           <TransactionTypeTabs
             value={dealType}
@@ -370,7 +370,13 @@ export function AptTransactionsPage({
             }}
           />
         ) : null}
+      </div>
 
+      <LabSection
+        title="거래 내역"
+        meta={`${total.toLocaleString("ko-KR")}건 · 최근 계약일순`}
+        className="gap-4"
+      >
         <LabStatTiles
           columns={3}
           items={
@@ -431,16 +437,16 @@ export function AptTransactionsPage({
                 ]
           }
         />
-      </div>
 
-      <div className="mt-5 space-y-4 pt-1 pb-3 sm:pb-4">
-        <GroupedTransactionList items={items} mode={dealType} />
+        <div className={LAB_SUBSECTION_RULE}>
+          <GroupedTransactionList items={items} mode={dealType} />
+        </div>
         {hasMore ? (
           <button
             type="button"
             onClick={() => setOffset((o) => o + PAGE_SIZE)}
             disabled={loadingMore}
-            className="lab-button lab-button-secondary flex w-full min-h-10 items-center justify-center gap-1.5 text-sm disabled:opacity-60"
+            className="lab-button lab-button-secondary flex w-full items-center justify-center gap-1.5 disabled:opacity-60"
           >
             {loadingMore ? (
               <>
@@ -455,10 +461,7 @@ export function AptTransactionsPage({
             )}
           </button>
         ) : null}
-        <p className="detail-meta text-center sm:text-right">
-          최근 계약일 순으로 정렬됩니다.
-        </p>
-      </div>
+      </LabSection>
     </div>
   );
 }

@@ -398,11 +398,12 @@ function FloorCell({ floor }: { floor: number | null | undefined }) {
   return <span className="tabular-nums text-[color:var(--lab-navy-700)]">{floor}층</span>;
 }
 
+/** 표 머리글 — 목록 맨 위 한 번. 배경 틴트 없이 아래 구분선만 (policy §12.1). */
 function ArchiveColHeader() {
   return (
-    <div className="px-2 pb-1 pt-0.5 sm:px-3">
+    <div>
       <div
-        className="grid items-center gap-x-1 rounded-md bg-[color:var(--lab-bg)] py-1.5 text-[13px] font-medium leading-5 text-[color:var(--lab-muted)] sm:gap-x-2 sm:rounded-lg"
+        className="grid items-center gap-x-1 border-b border-[color:var(--lab-border)] pb-2 text-[13px] font-medium leading-5 text-[color:var(--lab-muted)] sm:gap-x-2"
         style={{ gridTemplateColumns: ARCHIVE_GRID }}
         role="row"
       >
@@ -421,7 +422,8 @@ function ArchiveColHeader() {
 }
 
 /**
- * Archive list — month cards + dense 6-column rows (desktop = mobile IA).
+ * Archive list — one continuous table inside the page's 거래 내역 section:
+ * column header once, month divider rows, dense 6-column rows (desktop = mobile IA).
  * 계약일 | 상태 | 가격 | 면적 | 거래동 | 층
  */
 export function GroupedTransactionList({
@@ -435,31 +437,23 @@ export function GroupedTransactionList({
 }) {
   if (items.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-[color:var(--lab-border)] bg-white px-4 py-8 text-center text-sm text-[color:var(--lab-muted)]">
-        {emptyLabel}
-      </p>
+      <p className="lab-state">{emptyLabel}</p>
     );
   }
 
   const groups = groupTransactionsByMonth(items);
 
   return (
-    <div className="space-y-4">
+    <div>
+      <ArchiveColHeader />
       {groups.map((group) => (
-        <section
-          key={group.key}
-          className="overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white"
-        >
-          <div className="flex items-center justify-between gap-2 bg-white px-2.5 pt-2.5 pb-1 sm:px-3">
-            <h3 className="detail-subsection-title">
-              {group.label}
-            </h3>
+        <section key={group.key} aria-label={`${group.label} 거래`}>
+          <div className="flex items-baseline justify-between gap-2 border-b border-[color:var(--lab-border)] pt-4 pb-1.5">
+            <h3 className="detail-data-value-emphasis">{group.label}</h3>
             <span className="detail-meta tabular-nums">
               {group.count.toLocaleString("ko-KR")}건
             </span>
           </div>
-
-          <ArchiveColHeader />
 
           <ul>
             {group.items.map((tx, idx) => {
@@ -468,7 +462,7 @@ export function GroupedTransactionList({
               return (
                 <li
                   key={`${tx.id}-${idx}`}
-                  className="detail-trade-archive-row grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 px-2 py-2 last:border-b-0 sm:gap-x-2 sm:px-3 sm:py-2.5"
+                  className="detail-trade-archive-row grid items-center gap-x-1 border-b border-[color:var(--lab-border)]/70 py-2 last:border-b-0 sm:gap-x-2 sm:py-2.5"
                   style={{ gridTemplateColumns: ARCHIVE_GRID }}
                 >
                   <span className="tabular-nums text-[color:var(--lab-navy-900)]">
