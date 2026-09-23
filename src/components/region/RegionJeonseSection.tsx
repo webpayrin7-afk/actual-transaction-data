@@ -17,6 +17,13 @@ import type { RegionJeonse } from "@/lib/region/region-jeonse";
 import { formatEok } from "@/lib/utils/format";
 
 const LINE = "#087F83";
+const RECENT_MONTHS = 60;
+
+const PERIODS = [
+  { id: "5y", label: "최근 5년" },
+  { id: "all", label: "전체 기간" },
+] as const;
+type PeriodId = (typeof PERIODS)[number]["id"];
 
 const TABS = [
   { id: "gap", label: "갭 작은 순" },
@@ -74,14 +81,18 @@ export function RegionJeonseSection({
   const [expanded, setExpanded] = useState(false);
   const data = query.data?.status === "ok" ? query.data : null;
 
-  const points = useMemo(
-    () =>
-      (data?.series ?? []).map((p) => ({
-        label: monthLabel(p.yearMonth),
-        ratio: p.jeonseRatio == null ? null : Math.round(p.jeonseRatio * 1000) / 10,
-      })),
-    [data],
-  );
+  const [period, setPeriod] = useState<PeriodId>("5y");
+  const allPoints = useMemo(() => {
+    const series = data?.series ?? [];
+    const first = series.findIndex((p) => p.jeonseRatio != null);
+    return (first < 0 ? [] : series.slice(first)).map((p) => ({
+      label: monthLabel(p.yearMonth),
+      ratio: p.jeonseRatio == null ? null : Math.round(p.jeonseRatio * 1000) / 10,
+    }));
+  }, [data]);
+  const hasLongHistory = allPoints.length > RECENT_MONTHS;
+  const points =
+    hasLongHistory && period === "5y" ? allPoints.slice(-RECENT_MONTHS) : allPoints;
 
   const rows = useMemo<Row[]>(() => {
     if (!data) return [];
@@ -112,7 +123,9 @@ export function RegionJeonseSection({
   const latest = data?.latest ?? null;
   const change = latest?.change1yPp ?? null;
   const drop = data?.jeonseBelow2yAgo ?? null;
-  const yearTicks = points.filter((p) => p.label.endsWith(".01")).map((p) => p.label);
+  const januaries = points.filter((p) => p.label.endsWith(".01")).map((p) => p.label);
+  const tickEvery = januaries.length > 12 ? 3 : januaries.length > 7 ? 2 : 1;
+  const yearTicks = januaries.filter((_, i) => (januaries.length - 1 - i) % tickEvery === 0);
   const ratios = points.flatMap((p) => (p.ratio == null ? [] : [p.ratio]));
   const yMin = ratios.length ? Math.floor(Math.min(...ratios) / 10) * 10 : 0;
   const yMax = ratios.length ? Math.max(Math.ceil(Math.max(...ratios) / 10) * 10, yMin + 10) : 100;
@@ -170,6 +183,18 @@ export function RegionJeonseSection({
             ) : null}
           </div>
 
+          {hasLongHistory ? (
+            <div className="flex justify-end">
+              <LabTabs
+                variant="compact"
+                ariaLabel="전세가율 그래프 기간"
+                equalWidth={false}
+                items={PERIODS}
+                value={period}
+                onChange={setPeriod}
+              />
+            </div>
+          ) : null}
           {points.length > 1 ? (
             <div className="h-[120px] w-full">
               <ResponsiveContainer width="100%" height="100%">
