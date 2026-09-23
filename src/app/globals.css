@@ -897,7 +897,9 @@ h2.detail-section-title {
   box-shadow: none;
   overflow: hidden; /* clip thumb to shell; keeps inset gutter visually even */
 }
+/* Legacy sliding thumb — no longer painted; the active button carries the fill. */
 .lab-tabs__thumb {
+  display: none !important;
   position: absolute;
   top: 0;
   left: 0;
@@ -938,7 +940,9 @@ h2.detail-section-title {
   cursor: pointer;
   white-space: nowrap;
   box-shadow: none;
-  transition: color 160ms ease;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
 }
 .lab-tabs__btn:focus-visible {
   outline: 2px solid var(--lab-teal-600);
@@ -952,10 +956,15 @@ h2.detail-section-title {
 .lab-tabs__btn--equal {
   flex: 1 1 0;
 }
+/*
+ * 선택 면은 활성 버튼 자체의 배경으로 그린다. 버튼 박스가 곧 트랙 패딩 안쪽이라
+ * 위·아래·좌·우 여백이 기기(DPR·폰트 로딩)와 무관하게 항상 같다.
+ * (JS로 재서 겹치던 슬라이딩 thumb는 iOS Safari·Android Chrome에서 위아래가 어긋났다.)
+ */
 .lab-tabs__btn.is-active,
 .lab-tabs__btn[aria-selected="true"],
 .lab-tabs__btn[aria-checked="true"] {
-  background: transparent;
+  background: var(--lab-tabs-thumb-bg);
   color: var(--lab-tabs-active-ink);
   font-weight: 600;
   box-shadow: none;

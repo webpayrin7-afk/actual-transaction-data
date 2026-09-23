@@ -2,7 +2,6 @@
 
 import {
   useCallback,
-  useLayoutEffect,
   useRef,
   type KeyboardEvent,
   type ReactNode,
@@ -84,7 +83,8 @@ function itemClass(
 
 /**
  * Shared LAB Series segmented control (1·2·3차).
- * Track + sliding thumb styles live in `.lab-tabs*` tokens (globals.css).
+ * Track + active-button fill live in `.lab-tabs*` tokens (globals.css). The active button itself
+ * carries the fill so the inset is equal on every device (no measured overlay).
  */
 export function LabTabs<T extends string>({
   items,
@@ -105,76 +105,8 @@ export function LabTabs<T extends string>({
   const equalWidth =
     equalWidthProp ?? (variant === "compact" ? false : true);
   const listRef = useRef<HTMLDivElement | null>(null);
-  const thumbRef = useRef<HTMLSpanElement | null>(null);
-  const thumbReadyRef = useRef(false);
-
   const isRadio = variant === "compact";
   const listRole = isRadio ? "radiogroup" : "tablist";
-
-  const syncThumb = useCallback(() => {
-    const root = listRef.current;
-    const thumb = thumbRef.current;
-    if (!root || !thumb) return;
-
-    const active =
-      value == null
-        ? null
-        : Array.from(
-            root.querySelectorAll<HTMLElement>("[data-lab-tab]"),
-          ).find((el) => el.getAttribute("data-lab-tab-id") === value) ?? null;
-
-    if (!active) {
-      thumb.hidden = true;
-      thumb.style.width = "0px";
-      thumb.style.height = "0px";
-      thumb.style.top = "0px";
-      thumb.style.transform = "translate3d(0,0,0)";
-      return;
-    }
-
-    // Pin thumb to the active button box (inherits equal track padding on all sides).
-    // Avoid CSS top+bottom on a min-height-only parent — WebKit can resolve bottom unevenly.
-    // Fractional rects, not offset* (whole px): rounding left the thumb 0.8px off the shell edge
-    // on one side, so inner spacing looked uneven.
-    const a = active.getBoundingClientRect();
-    const r = root.getBoundingClientRect();
-    const cs = getComputedStyle(root);
-    const borderLeft = parseFloat(cs.borderLeftWidth) || 0;
-    const borderTop = parseFloat(cs.borderTopWidth) || 0;
-    const top = a.top - r.top - borderTop;
-    const left = a.left - r.left - borderLeft;
-    const width = a.width;
-    const height = a.height;
-    thumb.hidden = false;
-    thumb.style.top = `${top}px`;
-    thumb.style.height = `${height}px`;
-    thumb.style.width = `${width}px`;
-    thumb.style.transform = `translate3d(${left}px,0,0)`;
-
-    // Enable motion only after the first measured paint (avoids SSR/hydration jump).
-    if (!thumbReadyRef.current) {
-      thumbReadyRef.current = true;
-      requestAnimationFrame(() => {
-        thumb.classList.add("is-ready");
-      });
-    }
-  }, [value]);
-
-  useLayoutEffect(() => {
-    syncThumb();
-    const root = listRef.current;
-    if (!root || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => syncThumb());
-    ro.observe(root);
-    for (const btn of root.querySelectorAll("[data-lab-tab]")) {
-      ro.observe(btn);
-    }
-    window.addEventListener("resize", syncThumb);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", syncThumb);
-    };
-  }, [syncThumb, items, equalWidth, variant]);
 
   const focusAt = useCallback((index: number) => {
     const root = listRef.current;
@@ -222,12 +154,6 @@ export function LabTabs<T extends string>({
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
     >
-      <span
-        ref={thumbRef}
-        className="lab-tabs__thumb"
-        aria-hidden
-        hidden
-      />
       {items.map((item) => {
         const active = value === item.id;
         return (

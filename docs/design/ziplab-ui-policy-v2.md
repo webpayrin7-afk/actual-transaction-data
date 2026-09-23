@@ -227,7 +227,7 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 - 선택 글자 `#087F83`(teal-700), 비선택 글자 `#64748B`
 - 선택 면과 바깥 테두리 사이 여백은 상·하·좌(첫 항목)·우(마지막 항목)가 동일
 - 동일 폭 기본, 활성 시 글자 크기·항목 폭·전체 높이 불변
-- 선택 면 이동 160ms, `prefers-reduced-motion` 시 제거
+- 선택 면은 활성 항목 자체의 배경 (JS로 재서 겹치는 슬라이딩 면 금지 — iOS Safari·Android Chrome에서 위아래 여백이 어긋남). 색 전환 160ms, `prefers-reduced-motion` 시 제거
 - 금지: 그라데이션, 진한 청록 전체 채움, 밑줄형, 회색 트랙+흰 선택 면
 
 ### 1차 — primary (48px)
@@ -263,10 +263,9 @@ PC 실측만으로 모바일 완료 판정을 내리지 않는다. 현재 근거
 ### 구현
 
 - `LabTabs` variant=`primary` | `secondary` | `compact` (`src/components/ui/LabTabs.tsx`)
-- 공통 트랙 + `.lab-tabs__thumb` 슬라이딩 선택 면 (`src/app/globals.css`)
+- 공통 트랙 + 활성 버튼(`.lab-tabs__btn[aria-selected|aria-checked]`) 배경이 선택 면 (`src/app/globals.css`). 트랙 패딩 안의 버튼 박스가 곧 선택 면이라 사방 여백이 기기와 무관하게 같다
 - 색·radius·그림자는 `--lab-*` / `--lab-tabs-*` 토큰에서 관리 (페이지별 하드코딩 금지)
-  - 선택 면 `--lab-tabs-thumb-bg` `#EEFAFA`, 선택 글자 `--lab-tabs-active-ink` `#087F83`, 트랙 패딩 `--lab-tabs-track-pad` 4px, thumb radius = shell − pad (글로벌 `--lab-teal-*`와 구분)
-- SSR/hydration 시 첫 측정 후에만 thumb transition 활성화
+  - 선택 면 `--lab-tabs-thumb-bg` `#EEFAFA`, 선택 글자 `--lab-tabs-active-ink` `#087F83`, 트랙 패딩 `--lab-tabs-track-pad` 4px, 선택 면 radius = shell − pad (글로벌 `--lab-teal-*`와 구분)
 ## 12. 랩시리즈 공통 패턴 — 「시장 현황」 기준 (2026-09-23)
 
 기준 페이지: `/region/[slug]?tab=stats` (지역 조회 › 시장 현황, 구 단위). 이 장의 규칙과 컴포넌트는 앞 장과 충돌하면 이 장이 우선한다. 다른 페이지(단지 상세, 동 단위 지역, 검색·홈)는 새로 만들거나 손볼 때 이 장을 따른다.
