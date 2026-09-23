@@ -36,7 +36,8 @@ import {
   type TrendPublicCell,
 } from "@/lib/region-ranking/public";
 
-const SCOPE_LABEL_CLASS = "detail-label min-w-0 truncate";
+/** 지역·단지 이름은 회색 라벨이 아니라 데이터 글꼴 (policy §12.2). */
+const SCOPE_LABEL_CLASS = "detail-data-value-emphasis min-w-0 truncate";
 const PRICE_UNIT = "만원/평";
 
 function formatPriceNumber(value: number | null | undefined): string {
@@ -185,9 +186,28 @@ function RowHeader({
   );
 }
 
-/** Compact compare bars — ~8–10px visual height (보조 시각화). */
-const BAR_TRACK = "h-2.5";
-const BAR_FILL = "h-2.5 rounded-full";
+/**
+ * 지역 현황(동네별 시세)과 같은 막대 문법: 행 구분선 + 옅은 트랙 위 채움 막대 + 막대 옆 보조 수치.
+ * 이 단지는 브랜드 청록, 비교 지역은 같은 계열을 옅게.
+ */
+const BAR_TRACK = "h-2 rounded-full bg-[color:var(--lab-surface-subtle)]";
+const BAR_FILL = "h-2 rounded-full";
+const BAR_COLOR = "var(--lab-brand-primary)";
+const ROW = "flex flex-col gap-1.5 py-2.5";
+
+/** "이 단지보다 12% 낮음" — 비교 지역 행의 보조 줄. */
+function diffVsComplex(value: number | null | undefined, complex: number | null | undefined) {
+  if (value == null || complex == null || complex <= 0) return null;
+  const pct = Math.round(((complex - value) / value) * 100);
+  if (pct === 0) return { text: "이 단지와 비슷", tone: "flat" as const };
+  if (complex / value >= 2) {
+    return { text: `이 단지가 ${(complex / value).toFixed(1)}배`, tone: "up" as const };
+  }
+  return {
+    text: `이 단지가 ${Math.abs(pct)}% ${pct > 0 ? "높음" : "낮음"}`,
+    tone: pct > 0 ? ("up" as const) : ("down" as const),
+  };
+}
 
 function PriceLevelBars({
   cells,
@@ -204,8 +224,11 @@ function PriceLevelBars({
       value: cell.meanPricePerSupplyPyeong,
     })),
   );
+  const complexValue = cells.find(
+    (c) => c.scope === "COMPLEX" && c.status === "ok",
+  )?.meanPricePerSupplyPyeong;
   return (
-    <ul className="space-y-3">
+    <ul className="flex flex-col divide-y divide-[color:var(--lab-border)]">
       {cells.map((cell, index) => {
         const hiddenBar = cell.status !== "ok";
         const value = cell.meanPricePerSupplyPyeong;
@@ -216,11 +239,13 @@ function PriceLevelBars({
           label: cell.label,
           aptName,
         });
+        const diff = !accent && !hiddenBar ? diffVsComplex(value, complexValue) : null;
         return (
-          <li key={cell.scope} className="space-y-1">
+          <li key={cell.scope} className={ROW}>
             <RowHeader
               scopeLabel={scopeLabel}
               accent={accent}
+              layout="inline"
               value={
                 hiddenBar ? (
                   <span className="detail-meta shrink-0 text-right">
@@ -231,15 +256,37 @@ function PriceLevelBars({
                 )
               }
             />
-            <div className="min-w-0">
-              {hiddenBar || width <= 0 ? (
-                <div className={BAR_TRACK} />
-              ) : (
-                <div
-                  className={`${BAR_FILL} ${accent ? "bg-[color:var(--lab-brand-primary)]" : "bg-slate-300"} ${barPlayClass(animate, "left")}`}
-                  style={{ width: `${width}%`, ...barDelayStyle(index) }}
-                />
-              )}
+            <div className="flex min-w-0 items-center gap-2">
+              <div className={`${BAR_TRACK} min-w-0 flex-1 overflow-hidden`} aria-hidden>
+                {!hiddenBar && width > 0 ? (
+                  <div
+                    className={`${BAR_FILL} ${barPlayClass(animate, "left")}`}
+                    style={{
+                      width: `${Math.max(2, width)}%`,
+                      background: BAR_COLOR,
+                      opacity: accent ? 1 : 0.35,
+                      ...barDelayStyle(index),
+                    }}
+                  />
+                ) : null}
+              </div>
+              {diff ? (
+                <span
+                  className={`detail-meta shrink-0 whitespace-nowrap tabular-nums ${
+                    diff.tone === "up"
+                      ? "text-[color:var(--lab-change-up)]"
+                      : diff.tone === "down"
+                        ? "text-[color:var(--lab-change-down)]"
+                        : ""
+                  }`}
+                >
+                  {diff.text}
+                </span>
+              ) : accent && !hiddenBar ? (
+                <span className="detail-meta shrink-0 whitespace-nowrap font-medium !text-[color:var(--lab-brand-primary)]">
+                  기준
+                </span>
+              ) : null}
             </div>
           </li>
         );
@@ -273,7 +320,7 @@ function TrendBars({
   return (
     <div>
       {maxAbs != null && maxAbs > 0 ? <TrendScale maxAbs={maxAbs} /> : null}
-      <ul className="space-y-3">
+      <ul className="flex flex-col divide-y divide-[color:var(--lab-border)]">
         {cells.map((cell, index) => {
           const unavailable = isTrendHorizonUnavailable(cell);
           const value = cell.changePercent;
@@ -296,7 +343,7 @@ function TrendBars({
             aptName,
           });
           return (
-            <li key={cell.scope} className="space-y-1">
+            <li key={cell.scope} className={ROW}>
               <RowHeader
                 scopeLabel={scopeLabel}
                 accent={cell.scope === "COMPLEX"}
@@ -335,24 +382,32 @@ function TrendBars({
                 }
               />
               {!unavailable ? (
-                <div className={`relative flex ${BAR_TRACK} min-w-0 items-center`}>
-                  <div className={`flex ${BAR_TRACK} w-1/2 justify-end pr-px`}>
+                <div className={`relative flex ${BAR_TRACK} min-w-0 items-center`} aria-hidden>
+                  <div className="flex h-2 w-1/2 justify-end pr-px">
                     {layout.side === "left" ? (
                       <div
                         className={`${BAR_FILL} bg-[color:var(--lab-change-down)] ${barPlayClass(animate, "right")}`}
-                        style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
+                        style={{
+                          width: `${layout.pct}%`,
+                          opacity: cell.scope === "COMPLEX" ? 1 : 0.55,
+                          ...barDelayStyle(index),
+                        }}
                       />
                     ) : null}
                   </div>
                   <div
-                    className={`absolute left-1/2 ${BAR_TRACK} w-px -translate-x-1/2 bg-slate-300`}
+                    className="absolute left-1/2 h-3.5 w-px -translate-x-1/2 bg-[color:var(--lab-muted)]"
                     aria-hidden
                   />
-                  <div className={`flex ${BAR_TRACK} w-1/2 justify-start pl-px`}>
+                  <div className="flex h-2 w-1/2 justify-start pl-px">
                     {layout.side === "right" ? (
                       <div
                         className={`${BAR_FILL} bg-[color:var(--lab-change-up)] ${barPlayClass(animate, "left")}`}
-                        style={{ width: `${layout.pct}%`, ...barDelayStyle(index) }}
+                        style={{
+                          width: `${layout.pct}%`,
+                          opacity: cell.scope === "COMPLEX" ? 1 : 0.55,
+                          ...barDelayStyle(index),
+                        }}
                       />
                     ) : null}
                   </div>
