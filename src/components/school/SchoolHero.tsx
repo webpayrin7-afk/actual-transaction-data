@@ -53,7 +53,10 @@ function KindChip({ children }: { children: string }) {
   );
 }
 
-/** 전화·홈페이지 — 아이콘 + 청록 텍스트 링크. 누르면 전화 걸기 / 새 창으로 홈페이지. 44px 터치. */
+/**
+ * 전화·홈페이지 — LabTag md와 같은 라벨 모양 + 앞 아이콘. 누르면 전화 걸기 / 새 창으로 홈페이지.
+ * 보이는 26px, 숨은 영역으로 44px 터치.
+ */
 function ContactLink({
   href,
   external,
@@ -72,9 +75,9 @@ function ContactLink({
       href={href}
       aria-label={label}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="inline-flex min-h-11 min-w-0 items-center gap-1.5 text-[14px] font-medium leading-5 text-[color:var(--lab-brand-primary)] tabular-nums underline-offset-2 hover:underline"
+      className="relative inline-flex h-[26px] min-w-0 items-center gap-1 rounded-md border border-[color:var(--lab-border)] bg-white px-1.5 text-[12px] font-medium leading-6 text-[color:var(--lab-brand-primary)] tabular-nums before:absolute before:inset-x-0 before:-inset-y-[9px] before:content-[''] hover:border-[color:var(--lab-brand-border)]"
     >
-      <Icon className="h-4 w-4 shrink-0" aria-hidden />
+      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
       <span className="truncate">{children}</span>
     </a>
   );
@@ -149,7 +152,7 @@ export function SchoolHero({
             ) : null}
             {/* 전화 · 홈페이지는 한 줄 */}
             {tel || homepageHref ? (
-              <div className="flex min-w-0 flex-nowrap items-center gap-x-4">
+              <div className="flex min-w-0 flex-nowrap items-center gap-1">
                 {tel ? (
                   <ContactLink
                     href={`tel:${tel.replace(/\s+/g, "")}`}
