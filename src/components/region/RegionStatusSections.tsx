@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
-import { LabTabs } from "@/components/ui/LabTabs";
+import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 import {
   DECADE_COHORTS_V3,
   type DecadeKeyV3,
@@ -37,11 +36,6 @@ export const REGION_SUPPLY_SCOPE_TIP =
 export const REGION_SUPPLY_ERROR = "주변 공급 정보를 불러오지 못했습니다.";
 export const REGION_PRICE_UNAVAILABLE = "대표 평당가 정보를 준비 중입니다.";
 
-const PRICE_COHORT_TABS = DECADE_COHORTS_V3.map((cohort) => ({
-  id: cohort.key as DecadeKeyV3,
-  label: cohort.label === "100평+" ? "100평대+" : cohort.label,
-}));
-
 export type RegionPricePositionResponse =
   | { status: "unavailable"; reason?: string }
   | {
@@ -53,17 +47,11 @@ export type RegionPricePositionResponse =
       supplyPyeongCohort: string | null;
       hostComplexId: string;
       price: {
-        scope: "GU" | "DONG" | "SEOUL";
+        scope: "GU" | "DONG";
         label: string;
         meanPricePerSupplyPyeong: number | null;
         status: string;
       };
-      comparisons?: Array<{
-        scope: "GU" | "DONG" | "SEOUL";
-        label: string;
-        meanPricePerSupplyPyeong: number | null;
-        status: string;
-      }>;
       trends: Array<{
         period: "6M" | "1Y" | "2Y" | "5Y";
         scope: "GU" | "DONG";
@@ -94,73 +82,123 @@ export async function fetchRegionPricePosition(params: {
 
 export function RegionStatusHero({
   title,
-  parentLabel,
-  onParentClick,
+  subtitle,
+  guLabel,
+  dongLabel,
+  scope,
+  onScopeChange,
+  canDong,
 }: {
   title: string;
-  /** e.g. "서울 · 송파구" or "서울" */
-  parentLabel: string;
-  onParentClick?: (() => void) | null;
+  subtitle: string;
+  guLabel: string;
+  dongLabel: string | null;
+  scope: "gu" | "dong";
+  onScopeChange: (next: "gu" | "dong") => void;
+  canDong: boolean;
 }) {
   return (
-    <header className="flex flex-col gap-1.5">
-      <h1 className="text-[1.75rem] font-semibold leading-tight tracking-tight text-[color:var(--lab-navy-950)] sm:text-[2rem]">
-        {title}
-      </h1>
-      {onParentClick ? (
-        <button
-          type="button"
-          onClick={onParentClick}
-          className="inline-flex max-w-full items-center gap-0.5 self-start text-[13px] leading-5 text-slate-500 hover:text-slate-800"
-          aria-label={`${parentLabel}로 이동`}
+    <header className="flex flex-col gap-3">
+      <div>
+        <h1 className="text-[1.75rem] font-semibold leading-tight tracking-tight text-[color:var(--lab-navy-950)] sm:text-[2rem]">
+          {title}
+        </h1>
+        <p className="mt-1 text-[13px] leading-5 text-slate-500">{subtitle}</p>
+      </div>
+      {canDong && dongLabel ? (
+        <div
+          className={`${labSegmentedClass()} w-full max-w-md`}
+          role="tablist"
+          aria-label="지역 범위"
         >
-          <span className="truncate">{parentLabel}</span>
-          <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
-        </button>
-      ) : (
-        <p className="text-[13px] leading-5 text-slate-500">{parentLabel}</p>
-      )}
+          {(
+            [
+              { id: "gu" as const, label: guLabel },
+              { id: "dong" as const, label: dongLabel },
+            ] as const
+          ).map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={scope === item.id}
+              onClick={() => onScopeChange(item.id)}
+              className={labSecondaryTabClass(
+                scope === item.id,
+                "min-h-9 flex-1 px-2.5 text-[13px]",
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </header>
   );
 }
 
-export function RegionPriceCohortSelector({
+export function RegionDecadeSelector({
   value,
   onChange,
 }: {
-  value: DecadeKeyV3;
+  value: string;
   onChange: (next: DecadeKeyV3) => void;
 }) {
   return (
-    <LabTabs
-      items={PRICE_COHORT_TABS}
-      value={value}
-      onChange={onChange}
-      ariaLabel="평형대"
-      variant="compact"
-      equalWidth={false}
-      className="!max-w-full !justify-start overflow-x-auto"
-    />
+    <div
+      className={`${labSegmentedClass("!flex-nowrap !overflow-x-auto")} w-full max-w-full`}
+      role="tablist"
+      aria-label="평형대"
+    >
+      {DECADE_COHORTS_V3.map((cohort) => {
+        const active = value === cohort.key;
+        const label = cohort.label === "100평+" ? "100평대+" : cohort.label;
+        return (
+          <button
+            key={cohort.key}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(cohort.key)}
+            className={labSecondaryTabClass(
+              active,
+              "min-h-9 shrink-0 px-2.5 text-[13px] sm:px-3",
+            )}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
 export function RegionMarketSummary({
   regionCode,
   decade,
-  onDecadeChange,
-  guName,
+  fromComplexId,
+  monthTradeCount,
+  volumeSide,
+  volumeLoading,
+  volumeError,
+  volumeLabel,
 }: {
   regionCode: string | null;
-  decade: DecadeKeyV3;
-  onDecadeChange: (next: DecadeKeyV3) => void;
-  guName: string;
+  decade: string;
+  fromComplexId?: string | null;
+  monthTradeCount: number | null;
+  volumeSide?: string | null;
+  volumeLoading?: boolean;
+  volumeError?: boolean;
+  volumeLabel: string;
 }) {
   const query = useQuery({
-    queryKey: ["region-price-position", regionCode, decade],
+    queryKey: ["region-price-position", regionCode, decade, fromComplexId ?? ""],
     queryFn: () =>
       fetchRegionPricePosition({
         regionCode: regionCode!,
         areaBand: decade,
+        fromComplexId,
       }),
     enabled: !!regionCode && /^\d+$/.test(decade),
     staleTime: 5 * 60_000,
@@ -172,60 +210,70 @@ export function RegionMarketSummary({
     data?.price.meanPricePerSupplyPyeong != null
       ? formatWonPerPyeong(data.price.meanPricePerSupplyPyeong)
       : null;
-  const cohortLabel =
-    data?.supplyPyeongCohort ||
-    DECADE_COHORTS_V3.find((c) => c.key === decade)?.label ||
-    null;
-
-  const comparisons = (data?.comparisons ?? [])
-    .filter((c) => c.status === "ok" && c.meanPricePerSupplyPyeong != null)
-    .map((c) => ({
-      label:
-        c.scope === "SEOUL"
-          ? "서울"
-          : c.scope === "GU"
-            ? c.label || guName
-            : c.label,
-      text: formatWonPerPyeong(c.meanPricePerSupplyPyeong),
-    }))
-    .filter((c) => c.text);
+  const change6 = data?.trends.find((t) => t.period === "6M");
+  const changeText =
+    change6?.status === "ok" && change6.changePercent != null
+      ? formatSignedPct(change6.changePercent)
+      : null;
 
   return (
-    <section aria-label="지역 대표 평당가" className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <section aria-label="지역 시장 요약" className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="flex min-w-0 items-center">
-          <h2 className="text-[15px] font-semibold leading-none tracking-tight text-slate-800">
+          <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
             {REGION_REP_PRICE_TITLE}
           </h2>
           <InfoTip aria-label="지역 대표 평당가 안내">
             <p>{REGION_REP_PRICE_TIP}</p>
           </InfoTip>
         </div>
-        <RegionPriceCohortSelector value={decade} onChange={onDecadeChange} />
+        <p className="text-[12px] leading-4 text-slate-500">
+          {REGION_REP_PRICE_BASIS}
+          {data?.supplyPyeongCohort ? ` · ${data.supplyPyeongCohort}` : null}
+        </p>
       </div>
 
       {query.isLoading ? (
-        <div className="h-14 animate-pulse rounded-lg bg-slate-100" />
+        <div className="h-16 animate-pulse rounded-lg bg-slate-100" />
       ) : query.isError || !priceText ? (
         <p className="text-sm text-slate-600">{REGION_PRICE_UNAVAILABLE}</p>
       ) : (
-        <div className="flex flex-col gap-2">
-          <p className="text-[2rem] font-semibold tabular-nums leading-none tracking-tight text-slate-900 sm:text-[2.25rem]">
-            {priceText}
-          </p>
-          <p className="text-[12px] leading-4 text-slate-500">
-            {[cohortLabel, REGION_REP_PRICE_BASIS].filter(Boolean).join(" · ")}
-          </p>
-          {comparisons.length > 0 ? (
-            <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] tabular-nums text-slate-600">
-              {comparisons.map((c) => (
-                <span key={c.label}>
-                  <span className="text-slate-500">{c.label}</span>{" "}
-                  <span className="font-medium text-slate-800">{c.text}</span>
-                </span>
-              ))}
+        <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
+          <div>
+            <p className="text-[1.75rem] font-semibold tabular-nums leading-none text-slate-900">
+              {priceText}
             </p>
-          ) : null}
+            {changeText ? (
+              <p
+                className={`mt-1.5 text-[13px] tabular-nums ${
+                  (change6?.changePercent ?? 0) > 0
+                    ? "text-[color:var(--lab-change-up)]"
+                    : (change6?.changePercent ?? 0) < 0
+                      ? "text-[color:var(--lab-change-down)]"
+                      : "text-slate-500"
+                }`}
+              >
+                6개월 {changeText}
+              </p>
+            ) : null}
+          </div>
+          <div className="min-w-[7rem]">
+            <p className="text-[12px] text-slate-500">{volumeLabel}</p>
+            {volumeError ? (
+              <p className="mt-1 text-sm text-slate-600">—</p>
+            ) : volumeLoading ? (
+              <div className="mt-1 h-7 w-20 animate-pulse rounded bg-slate-100" />
+            ) : (
+              <p className="mt-1 text-[1.25rem] font-semibold tabular-nums leading-none text-slate-900">
+                {monthTradeCount != null
+                  ? `${monthTradeCount.toLocaleString("ko-KR")}건`
+                  : "—"}
+              </p>
+            )}
+            {volumeSide ? (
+              <p className="mt-1 text-[12px] text-slate-500">{volumeSide}</p>
+            ) : null}
+          </div>
         </div>
       )}
     </section>
@@ -235,16 +283,19 @@ export function RegionMarketSummary({
 export function RegionPriceTrendSection({
   regionCode,
   decade,
+  fromComplexId,
 }: {
   regionCode: string | null;
   decade: string;
+  fromComplexId?: string | null;
 }) {
   const query = useQuery({
-    queryKey: ["region-price-position", regionCode, decade],
+    queryKey: ["region-price-position", regionCode, decade, fromComplexId ?? ""],
     queryFn: () =>
       fetchRegionPricePosition({
         regionCode: regionCode!,
         areaBand: decade,
+        fromComplexId,
       }),
     enabled: !!regionCode && /^\d+$/.test(decade),
     staleTime: 5 * 60_000,
@@ -279,13 +330,15 @@ export function RegionPriceTrendSection({
   if (!hasAny) return null;
 
   return (
-    <section
-      aria-label={REGION_PRICE_TREND_TITLE}
-      className="flex flex-col gap-3 border-t border-slate-100 pt-8"
-    >
-      <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-        {REGION_PRICE_TREND_TITLE}
-      </h2>
+    <section aria-label={REGION_PRICE_TREND_TITLE} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+          {REGION_PRICE_TREND_TITLE}
+        </h2>
+        {data?.supplyPyeongCohort ? (
+          <p className="text-[12px] text-slate-500">{data.supplyPyeongCohort}</p>
+        ) : null}
+      </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
         {rows.map((row) => (
           <div key={row.id} className="min-w-0">
@@ -302,15 +355,6 @@ export function RegionPriceTrendSection({
               }`}
             >
               {row.value ?? "—"}
-              <span className="sr-only">
-                {row.raw == null
-                  ? ""
-                  : row.raw > 0
-                    ? " 상승"
-                    : row.raw < 0
-                      ? " 하락"
-                      : " 보합"}
-              </span>
             </p>
           </div>
         ))}
@@ -323,16 +367,12 @@ export function RegionRecentTransactions({
   deals,
   regionSlug,
   guName,
-  volumeCount,
-  volumeNote,
   loading,
   error,
 }: {
   deals: RegionDailyDeal[];
   regionSlug: string;
   guName: string;
-  volumeCount?: number | null;
-  volumeNote?: string | null;
   loading?: boolean;
   error?: boolean;
 }) {
@@ -341,19 +381,11 @@ export function RegionRecentTransactions({
     <section
       id="region-recent-transactions"
       aria-label={REGION_RECENT_TX_TITLE}
-      className="flex flex-col gap-3 scroll-mt-28 border-t border-slate-100 pt-8"
+      className="flex flex-col gap-3 scroll-mt-28"
     >
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-          {REGION_RECENT_TX_TITLE}
-        </h2>
-        {volumeCount != null ? (
-          <p className="text-[12px] leading-4 text-slate-500">
-            이번 달 {volumeCount.toLocaleString("ko-KR")}건
-            {volumeNote ? ` · ${volumeNote}` : null}
-          </p>
-        ) : null}
-      </div>
+      <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+        {REGION_RECENT_TX_TITLE}
+      </h2>
       {error ? (
         <p className="text-sm text-slate-600">최근 실거래를 불러오지 못했습니다.</p>
       ) : loading ? (
@@ -436,10 +468,7 @@ export function RegionAnalysisSection({
   if (items.length === 0) return null;
 
   return (
-    <section
-      aria-label={REGION_ANALYSIS_TITLE}
-      className="flex flex-col gap-3 border-t border-slate-100 pt-8"
-    >
+    <section aria-label={REGION_ANALYSIS_TITLE} className="flex flex-col gap-3">
       <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
         {REGION_ANALYSIS_TITLE}
       </h2>
@@ -482,7 +511,7 @@ export function RegionSupplySection({ sigungu }: { sigungu: string }) {
     <section
       id="region-supply"
       aria-label={REGION_SUPPLY_TITLE}
-      className="flex flex-col gap-3 scroll-mt-28 border-t border-slate-100 pt-8"
+      className="flex flex-col gap-3 scroll-mt-28"
     >
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="flex min-w-0 items-center">

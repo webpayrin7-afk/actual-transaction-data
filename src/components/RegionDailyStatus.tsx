@@ -16,6 +16,7 @@ import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { RegionLeaderboard } from "@/components/region/RegionLeaderboard";
 import {
   RegionAnalysisSection,
+  RegionDecadeSelector,
   RegionMarketSummary,
   RegionPriceTrendSection,
   RegionRecentTransactions,
@@ -1148,7 +1149,7 @@ export function RegionDailyStatus({
     });
   };
 
-  const setPriceDecade = (next: DecadeKeyV3) => {
+  const setDecade = (next: DecadeKeyV3) => {
     setParams({
       decade: next,
       scope,
@@ -1163,14 +1164,12 @@ export function RegionDailyStatus({
     scope === "dong" && rankingDongName?.trim()
       ? rankingDongName.trim()
       : regionName;
-  const parentLabel =
+  const heroSubtitle =
     scope === "dong" && rankingDongName?.trim()
-      ? `서울 · ${regionName}`
-      : "서울";
-  const parentNav =
-    scope === "dong" && canDong
-      ? () => setScope("gu")
-      : null;
+      ? regionFullName?.trim() || `서울 ${regionName}`
+      : regionFullName?.includes(" ")
+        ? regionFullName.split(/\s+/)[0] || "서울특별시"
+        : regionFullName?.replace(regionName, "").trim() || "서울특별시";
 
   const recentFromCalendar = useMemo(() => {
     const sections = [...sectionByDate.values()].map((s) => ({ deals: s.deals }));
@@ -1189,64 +1188,70 @@ export function RegionDailyStatus({
     });
   }, [recentFromCalendar]);
 
-  /** Volume only when scope matches the underlying contract-month stats. */
-  const volumeCount =
-    scope === "gu"
-      ? (market?.monthTradeCount ?? null)
-      : recentFromCalendar.filter((d) =>
-          d.dealDate.replaceAll("-", "").startsWith(contractMonth),
-        ).length;
-  const volumeNote =
-    scope === "gu"
-      ? market?.comparePartial
-        ? "계약월 · 오늘까지"
-        : market
-          ? "계약월 기준"
-          : null
-      : "계약일 기준";
-
   return (
     <div className="flex min-h-[min(70vh,42rem)] flex-col gap-8 sm:gap-10">
       <RegionStatusHero
         title={heroTitle}
-        parentLabel={parentLabel}
-        onParentClick={parentNav}
+        subtitle={heroSubtitle}
+        guLabel={regionName}
+        dongLabel={rankingDongName}
+        scope={scope}
+        onScopeChange={setScope}
+        canDong={canDong}
       />
 
-      <RegionMarketSummary
-        regionCode={activeRegionCode}
-        decade={decade}
-        onDecadeChange={setPriceDecade}
-        guName={regionName}
-      />
+      <div className="flex flex-col gap-3">
+        <RegionDecadeSelector value={decade} onChange={setDecade} />
+        <RegionMarketSummary
+          regionCode={activeRegionCode}
+          decade={decade}
+          fromComplexId={fromComplexId}
+          monthTradeCount={market?.monthTradeCount ?? null}
+          volumeLoading={marketQuery.isLoading && !market}
+          volumeError={marketQuery.isError}
+          volumeLabel={scope === "dong" ? `${regionName} 거래량` : "거래량"}
+          volumeSide={
+            market?.comparePartial
+              ? "계약월 · 오늘까지"
+              : market
+                ? "계약월 기준"
+                : null
+          }
+        />
+        <div className="pt-1">
+          <MonthNav
+            value={contractMonth}
+            options={section1Months}
+            onChange={setContractMonth}
+          />
+        </div>
+      </div>
 
       <RegionPriceTrendSection
         regionCode={activeRegionCode}
         decade={decade}
+        fromComplexId={fromComplexId}
       />
 
       {lawdCodes.length > 0 ? (
-        <div className="border-t border-slate-100 pt-8">
-          <RegionLeaderboard
-            regionSlug={regionSlug}
-            regionName={regionName}
-            lawdCodes={lawdCodes}
-            dongName={rankingDongName}
-            dongRegionCode={rankingDongCode}
-            fromComplexId={fromComplexId}
-            scope={scope}
-            onScopeChange={setScope}
-            hideScopeToggle
-          />
-        </div>
+        <RegionLeaderboard
+          regionSlug={regionSlug}
+          regionName={regionName}
+          lawdCodes={lawdCodes}
+          dongName={rankingDongName}
+          dongRegionCode={rankingDongCode}
+          fromComplexId={fromComplexId}
+          scope={scope}
+          onScopeChange={setScope}
+          hideScopeToggle
+          onDecadeSelect={(key) => setDecade(key as DecadeKeyV3)}
+        />
       ) : null}
 
       <RegionRecentTransactions
         deals={recentMerged}
         regionSlug={regionSlug}
         guName={regionName}
-        volumeCount={volumeCount}
-        volumeNote={volumeNote}
         loading={
           (historyQuery.isLoading || initialDaysQuery.isLoading) &&
           recentMerged.length === 0
@@ -1254,15 +1259,13 @@ export function RegionDailyStatus({
         error={historyQuery.isError && recentMerged.length === 0}
       />
 
-      {scope === "gu" ? (
-        <RegionAnalysisSection
-          volumePct={volumePct}
-          yearAgoPct={yearAgoPct}
-          singogaCount={market?.monthSingogaCount ?? null}
-          singogaPct={singogaPct}
-          comparePartial={Boolean(market?.comparePartial)}
-        />
-      ) : null}
+      <RegionAnalysisSection
+        volumePct={volumePct}
+        yearAgoPct={yearAgoPct}
+        singogaCount={market?.monthSingogaCount ?? null}
+        singogaPct={singogaPct}
+        comparePartial={Boolean(market?.comparePartial)}
+      />
 
       <RegionSupplySection sigungu={regionName} />
     </div>
