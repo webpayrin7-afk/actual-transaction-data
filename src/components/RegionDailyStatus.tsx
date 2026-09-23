@@ -939,6 +939,21 @@ export function RegionDailyStatus({
         <RegionPriceSection lawdCodes={lawdCodes} regionName={regionName} />
       ) : null}
       {guLawdCd ? <RegionDongPricesSection lawdCd={guLawdCd} regionName={regionName} /> : null}
+      {guLawdCd ? (
+        <RegionJeonseSection
+          lawdCd={guLawdCd}
+          regionSlug={regionSlug}
+          regionName={regionName}
+        />
+      ) : null}
+
+      {guLawdCd ? (
+        <RegionTradeHighlightsSection
+          lawdCd={guLawdCd}
+          regionSlug={regionSlug}
+          regionName={regionName}
+        />
+      ) : null}
 
       <section
         id="newly-seen-deals"
@@ -984,13 +999,6 @@ export function RegionDailyStatus({
 
       {lawdCodes.length > 0 ? (
         <>
-          {guLawdCd ? (
-            <RegionTradeHighlightsSection
-              lawdCd={guLawdCd}
-              regionSlug={regionSlug}
-              regionName={regionName}
-            />
-          ) : null}
           <RegionRankingTable
             regionSlug={regionSlug}
             regionName={regionName}
@@ -998,13 +1006,6 @@ export function RegionDailyStatus({
           />
           {guLawdCd ? (
             <RegionBudgetFinderSection
-              lawdCd={guLawdCd}
-              regionSlug={regionSlug}
-              regionName={regionName}
-            />
-          ) : null}
-          {guLawdCd ? (
-            <RegionJeonseSection
               lawdCd={guLawdCd}
               regionSlug={regionSlug}
               regionName={regionName}

@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
+import { LIST_PREVIEW, ListMoreButton } from "@/components/region/ListMoreButton";
 import {
   RegionSeoulRankBadges,
   type SeoulRank,
@@ -42,15 +43,12 @@ const BREAKDOWNS = [
 ] as const;
 type BreakdownId = (typeof BREAKDOWNS)[number]["id"];
 
-const BREAKDOWN_PREVIEW = 5;
+const BREAKDOWN_PREVIEW = LIST_PREVIEW;
 
 const PANEL_RULE = "mt-4 border-t border-[color:var(--lab-border)] pt-4";
 
 const CHART_TRADE = "#087F83";
 const CHART_VOLUME = "#0F766E";
-const DIR_UP = "var(--lab-change-up)";
-const DIR_DOWN = "var(--lab-change-down)";
-const DIR_OTHER = "#CBD5E1";
 
 type ChartRow = RegionPriceTrendPoint & { label: string; partial: boolean };
 
@@ -77,41 +75,6 @@ function changeClass(n: number | null): string {
 
 function total(row: { up: number; down: number; other: number }): number {
   return row.up + row.down + row.other;
-}
-
-function DirectionBar({
-  row,
-  scale,
-  label,
-}: {
-  row: { up: number; down: number; other: number };
-  scale: number;
-  label: string;
-}) {
-  const sum = total(row);
-  const width = scale > 0 ? (sum / scale) * 100 : 0;
-  return (
-    <div
-      className="flex h-3 overflow-hidden rounded-sm bg-slate-100"
-      role="img"
-      aria-label={`${label} 상승 ${row.up}건, 하락 ${row.down}건, 기타 ${row.other}건`}
-    >
-      <div className="flex h-full" style={{ width: `${width}%` }}>
-        {(["up", "other", "down"] as const).map((k) =>
-          row[k] > 0 ? (
-            <span
-              key={k}
-              className="h-full"
-              style={{
-                width: `${(row[k] / sum) * 100}%`,
-                background: k === "up" ? DIR_UP : k === "down" ? DIR_DOWN : DIR_OTHER,
-              }}
-            />
-          ) : null,
-        )}
-      </div>
-    </div>
-  );
 }
 
 function MonthStepper({
@@ -166,51 +129,13 @@ function MonthComposition({
   return (
     <>
       <div className={PANEL_RULE}>
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <div className="flex min-w-0 items-center">
-            <h4 className="detail-subsection-title">거래 방향</h4>
-            <InfoTip aria-label="거래 방향 안내">
-              <p>
-                같은 단지·면적의 직전 거래와 비교합니다. 직전 거래가 없거나 같은
-                가격이면 보합·기타로 분류합니다.
-              </p>
-            </InfoTip>
-          </div>
-          <p className="detail-meta tabular-nums">
-            {monthLabel} · 매매{" "}
-            <span className="detail-data-value-emphasis">
-              {tradeCount.toLocaleString("ko-KR")}건
-            </span>
-          </p>
-        </div>
-        <div className="mt-2">
-          <DirectionBar row={d} scale={sum} label="이 달 전체" />
-        </div>
-        <dl className="mt-1 divide-y divide-[color:var(--lab-border)]">
-          {(
-            [
-              ["up", "직전보다 오름", "detail-change-up", DIR_UP],
-              ["down", "직전보다 내림", "detail-change-down", DIR_DOWN],
-              ["other", "보합·기타", "", DIR_OTHER],
-            ] as const
-          ).map(([k, label, cls, color]) => (
-            <div key={k} className="flex items-center justify-between gap-3 py-2">
-              <dt className="detail-label flex items-center gap-2">
-                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: color }} aria-hidden />
-                {label}
-              </dt>
-              <dd className={`detail-data-value-emphasis ${cls}`}>
-                {d[k].toLocaleString("ko-KR")}건
-                <span className="detail-meta ml-1.5">{share(d[k])}%</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-
-      <div className={PANEL_RULE}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h4 className="detail-subsection-title">어디서 거래됐나</h4>
+          <div className="min-w-0">
+            <h4 className="detail-subsection-title">어디서 거래됐나</h4>
+            <p className="detail-meta tabular-nums">
+              {monthLabel} · 매매 {tradeCount.toLocaleString("ko-KR")}건
+            </p>
+          </div>
           <LabTabs
             variant="compact"
             ariaLabel="거래량 구분"
@@ -243,14 +168,13 @@ function MonthComposition({
           })}
         </ul>
         {rows.length > BREAKDOWN_PREVIEW ? (
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            aria-expanded={expanded}
-            className="lab-button lab-button-secondary mt-3 w-full"
-          >
-            {expanded ? "접기" : `${rows.length - BREAKDOWN_PREVIEW}곳 더 보기`}
-          </button>
+          <div className="mt-3">
+            <ListMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${rows.length - BREAKDOWN_PREVIEW}${mode === "dong" ? "개 동" : "개"} 더보기`}
+            />
+          </div>
         ) : null}
       </div>
     </>

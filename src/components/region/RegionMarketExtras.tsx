@@ -200,7 +200,6 @@ function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
   const tiles = [
     { key: "high", label: "신고가", value: a?.recordHighCount, cls: "detail-change-up" },
     { key: "peak", label: "최고가 대비 10%↓", value: a?.belowPeakCount, cls: "detail-change-down" },
-    { key: "down", label: "직전보다 내림", value: a?.downCount, cls: "detail-change-down" },
   ];
   return (
     <div>
@@ -211,7 +210,6 @@ function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
             <p>같은 단지·면적의 이전 거래와 비교합니다.</p>
             <p className="mt-1.5">신고가: 종전 최고가를 넘은 거래</p>
             <p>최고가 대비 10%↓: 종전 최고가보다 10% 이상 낮은 거래</p>
-            <p>직전보다 내림: 바로 전 거래보다 낮은 거래</p>
           </InfoTip>
         </div>
         {a ? (
