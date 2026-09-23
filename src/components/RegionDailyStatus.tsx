@@ -48,7 +48,6 @@ import {
   vsPreviousTypeDeal,
 } from "@/lib/region/market-insight";
 import { TypePriceSparkline } from "@/components/region/TypePriceSparkline";
-import { InfoChip } from "@/components/ui/InfoChip";
 import {
   formatDealDate,
   formatEok,
@@ -78,9 +77,6 @@ function weekdayOfFirst(ym: string): number {
   const month = Number(ym.slice(4, 6));
   return new Date(year, month - 1, 1).getDay();
 }
-
-const SECTION_SURFACE =
-  "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
 
 function contractLine(date: string): string {
   return `계약 ${formatDealDate(date)}`;
@@ -214,7 +210,6 @@ function FeaturedDealCard({
     </Link>
   );
 }
-
 
 function SingogaRowCard({
   deal,
@@ -379,40 +374,6 @@ function DealGrid({
           />
         ),
       )}
-    </div>
-  );
-}
-
-function DateBasisChip({
-  label,
-  help,
-}: {
-  label: string;
-  help: string;
-}) {
-  return <InfoChip label={label}>{help}</InfoChip>;
-}
-
-function SectionHeading({
-  title,
-  basisLabel,
-  basisHelp,
-  aside,
-}: {
-  title: string;
-  basisLabel: string;
-  basisHelp: string;
-  aside?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <h2 className="shrink-0 text-[15px] font-semibold tracking-tight text-slate-900 sm:text-base">
-        {title}
-      </h2>
-      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-        <DateBasisChip label={basisLabel} help={basisHelp} />
-        {aside}
-      </div>
     </div>
   );
 }
@@ -1132,12 +1093,12 @@ export function RegionDailyStatus({
 
       <section
         aria-label={`${regionName} 지역 거래 내역`}
-        className={`${SECTION_SURFACE} flex flex-col gap-3`}
+        className={`${MARKET_SECTION_SURFACE} flex flex-col gap-3`}
       >
-        <SectionHeading
+        <MarketSectionHeader
           title="지역 거래 내역"
-          basisLabel={CONTRACT_DATE_BASIS_LABEL}
-          basisHelp={CONTRACT_DATE_BASIS_HELP}
+          meta={CONTRACT_DATE_BASIS_LABEL}
+          tip={<p>{CONTRACT_DATE_BASIS_HELP}</p>}
         />
 
         <div>

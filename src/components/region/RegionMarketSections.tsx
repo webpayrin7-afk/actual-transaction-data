@@ -250,11 +250,11 @@ export function RegionRankingTable({
   return (
     <section
       id="region-ranking"
-      aria-label="이 지역 아파트 랭킹"
+      aria-label="지역 아파트 랭킹"
       className={`${MARKET_SECTION_SURFACE} flex scroll-mt-28 flex-col gap-3`}
     >
       <MarketSectionHeader
-        title="이 지역 아파트 랭킹"
+        title="지역 아파트 랭킹"
         meta={formatReferenceMonthCompact(board?.transactionAsOf ?? null)}
         tip={
           <p>
