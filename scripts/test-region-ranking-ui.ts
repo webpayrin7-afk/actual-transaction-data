@@ -887,7 +887,7 @@ assert(!rankSection.includes("59/84/114"), "no legacy band comment in card");
 assert(rankSection.includes("지역 내 비교"), "top section title");
 assert(rankSection.includes("ZIPLAB_RANK_TITLE"), "집랩 순위 subtitle");
 assert(
-  rankSection.includes("detail-subsection-title"),
+  rankSection.includes("detail-subsection-title") || rankSection.includes("LabSubsectionHeader"),
   "집랩 순위 uses the detail subsection title",
 );
 assert(rankSection.includes('label="종합 순위"'), "overall is a rank row");
@@ -897,7 +897,8 @@ assert(!rankSection.includes("rankingSelectedHeading"), "no decade subsection he
 assert(rankSection.includes("rankingDecadeRowLabel"), "decade row from API");
 assert(rankSection.includes("formatRankingAsOf"), "ranking date stays on 집랩 순위");
 assert(
-  /<h2[\s\S]*?>\s*지역 내 비교\s*<\/h2>/.test(rankSection),
+  /<h2[\s\S]*?>\s*지역 내 비교\s*<\/h2>/.test(rankSection) ||
+    /<LabSection\s+id="section-region-rank"\s+title="지역 내 비교">/.test(rankSection),
   "top heading has no merged as-of date",
 );
 assert(rankSection.includes("complex-region-rank-v3"), "v3 query key");
@@ -909,19 +910,20 @@ assert(rankSection.includes("placeRankDisplay"), "stacked rank display");
 assert(!rankSection.includes("선택 평형 순위"), "no invented selected heading");
 assert(!rankSection.includes("selectedPyeongCompareLines"), "rank card does not repeat 33평 · 30평대 비교");
 assert(
-  rankSection.includes("lab-button lab-button-primary") &&
+  rankSection.includes("lab-button lab-button-secondary") &&
     rankSection.includes("→"),
-  "region rank CTA is primary (matches trade-history CTA)",
+  "region rank CTA is secondary (matches trade-history CTA, policy §6)",
 );
 assert(rankSection.includes("detail-compact-value"), "ranks use compact-value");
 assert(
   rankSection.includes('data-event="complex_region_rank_cta"') &&
-    /complex_region_rank_cta[\s\S]*?lab-button-primary/.test(rankSection),
-  "region rank CTA link uses primary button",
+    /complex_region_rank_cta[\s\S]*?lab-button-secondary/.test(rankSection),
+  "region rank CTA link uses secondary button",
 );
 assert(
-  rankSection.includes("border-t border-[color:var(--lab-border)] pt-6"),
-  "region rank CTA sits below a light divider with 24px padding",
+  rankSection.includes("border-t border-[color:var(--lab-border)] pt-6") ||
+    rankSection.includes("LAB_SUBSECTION_RULE"),
+  "region rank CTA sits below a light divider",
 );
 
 const priceCompare = readFileSync(
@@ -930,7 +932,7 @@ const priceCompare = readFileSync(
 );
 assert(priceCompare.includes("PRICE_COMPARE_TITLE"), "가격 비교 subtitle");
 assert(
-  priceCompare.includes("detail-subsection-title"),
+  priceCompare.includes("detail-subsection-title") || priceCompare.includes("LabSubsectionHeader"),
   "가격 비교 uses the detail subsection title",
 );
 assert(priceCompare.includes("PRICE_COMPARE_TIP"), "가격 비교 tooltip");

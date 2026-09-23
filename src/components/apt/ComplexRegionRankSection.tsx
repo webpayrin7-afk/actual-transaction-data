@@ -42,7 +42,7 @@ function RankValue({
   return (
     <p className="detail-compact-value">
       <span>{line.rank}</span>
-      <span className="detail-micro ml-0.5 font-medium">위</span>
+      <span className="detail-label ml-0.5">위</span>
     </p>
   );
 }
@@ -217,7 +217,7 @@ export function ComplexRegionRankSection({
         <Link
           href={regionHref}
           data-event="complex_region_rank_cta"
-          className="lab-button lab-button-primary w-full"
+          className="lab-button lab-button-secondary w-full"
         >
           {regionOverviewCtaLabel(regionName)}
           <span aria-hidden className="ml-1">

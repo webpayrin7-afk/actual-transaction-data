@@ -61,7 +61,7 @@ import {
   LAB_SECTION_SURFACE,
   LabSubsectionHeader,
 } from "@/components/ui/LabSection";
-import { InfoTip } from "@/components/ui/InfoTip";
+import { LabStatTiles } from "@/components/ui/LabStatTiles";
 import {
   formatDealDate,
   formatEok,
@@ -617,80 +617,68 @@ export function AptDetailPage({
         className={`${LAB_SECTION_SURFACE} scroll-mt-28`}
         aria-label="시세 요약"
       >
-        <div className="detail-summary-primary" role="group">
-          <div className="detail-summary-cell">
-            <p className="detail-summary-label">최근 매매</p>
-            <p
-              className={`detail-summary-value ${dealTypePriceTextClass("trade")}`}
-            >
-              {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
-            </p>
-            <p className="detail-summary-hint">
-              {latestTrade ? formatDealDate(latestTrade.dealDate) : "—"}
-            </p>
-          </div>
-          <div className="detail-summary-cell">
-            <p className="detail-summary-label">최근 전세</p>
-            <p
-              className={`detail-summary-value ${dealTypePriceTextClass("jeonse")}`}
-            >
-              {latestJeonse ? formatEok(latestJeonse.dealAmount) : "—"}
-            </p>
-            <p className="detail-summary-hint">
-              {latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—"}
-            </p>
-          </div>
-          <div className="detail-summary-cell">
-            <p className="detail-summary-label">최고가 대비</p>
-            <p
-              className={`detail-summary-value ${
-                vsMaxPct == null
-                  ? ""
-                  : vsMaxPct < 0
-                    ? "detail-change-down"
-                    : vsMaxPct > 0
-                      ? "detail-change-up"
-                      : "text-[color:var(--lab-muted)]"
-              }`.trim()}
-            >
-              {vsMaxPct == null
-                ? "—"
-                : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`}
-            </p>
-            <p className="detail-summary-hint">최근 매매 기준</p>
-          </div>
-        </div>
-        <div className="detail-summary-secondary">
-          <p className="detail-summary-meta">
-            <span className="detail-summary-meta-item">
-              <span className="detail-summary-meta-label">전세가율</span>
-              <span className="detail-summary-meta-value">
-                {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
-              </span>
-            </span>
-            <span className="detail-summary-meta-sep" aria-hidden>
-              ·
-            </span>
-            <span className="detail-summary-meta-item">
-              <span className="detail-summary-meta-label">매매−전세 갭</span>
-              <span className="detail-summary-meta-value">
-                {saleJeonseGap != null && saleJeonseGap !== 0
-                  ? formatEok(Math.abs(saleJeonseGap))
-                  : "—"}
-              </span>
-              <InfoTip
-                aria-label="전세가율 및 매매-전세 갭 계산 기준"
-                rootClassName="detail-summary-meta-tip"
-              >
-                <p>
-                  {latestTrade && latestJeonse
-                    ? `최근 매매가(${formatDealDate(latestTrade.dealDate)})와 최근 전세가(${formatDealDate(latestJeonse.dealDate)})를 기준으로 계산했어요.`
-                    : "계산 기준 자료 없음"}
-                </p>
-              </InfoTip>
-            </span>
-          </p>
-        </div>
+        <LabStatTiles
+          columns={4}
+          items={[
+            {
+              key: "trade",
+              label: "최근 매매",
+              value: (
+                <span
+                  className={`detail-summary-value ${dealTypePriceTextClass("trade")}`}
+                >
+                  {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
+                </span>
+              ),
+              sub: latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
+            },
+            {
+              key: "jeonse",
+              label: "최근 전세",
+              value: (
+                <span
+                  className={`detail-summary-value ${dealTypePriceTextClass("jeonse")}`}
+                >
+                  {latestJeonse ? formatEok(latestJeonse.dealAmount) : "—"}
+                </span>
+              ),
+              sub: latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
+            },
+            {
+              key: "vs-max",
+              label: "최고가 대비",
+              value: (
+                <span
+                  className={`detail-summary-value ${
+                    vsMaxPct == null || vsMaxPct === 0
+                      ? ""
+                      : vsMaxPct < 0
+                        ? "detail-change-down"
+                        : "detail-change-up"
+                  }`.trim()}
+                >
+                  {vsMaxPct == null
+                    ? "—"
+                    : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`}
+                </span>
+              ),
+              sub: "최근 매매 기준",
+            },
+            {
+              key: "ratio",
+              label: "전세가율",
+              value: (
+                <span className="detail-summary-value">
+                  {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
+                </span>
+              ),
+              sub:
+                saleJeonseGap != null && saleJeonseGap !== 0
+                  ? `갭 ${formatEok(Math.abs(saleJeonseGap))}`
+                  : "갭 —",
+            },
+          ]}
+        />
       </section>
 
       {/* Market + trades — single card */}
@@ -784,7 +772,7 @@ export function AptDetailPage({
               {/* Full document navigation — soft Link nav is unreliable via the preview tunnel. */}
               <a
                 href={transactionsHref}
-                className="lab-button lab-button-primary w-full"
+                className="lab-button lab-button-secondary w-full"
               >
                 {`거래 내역 자세히 보기 (${listSourceItems.length.toLocaleString("ko-KR")}건)`}
                 <span aria-hidden className="ml-1">
