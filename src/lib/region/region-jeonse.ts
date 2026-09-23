@@ -1,5 +1,6 @@
 /**
- * 구 단위 전세가율 · 갭 (read-only 계산 + region_jeonse_* 적재본 읽기).
+ * 구(또는 법정동) 단위 전세가율 · 갭 (read-only 계산 + region_jeonse_* 적재본 읽기).
+ * 동 범위는 적재본이 없어 최근 3년 시계열만 요청 때 계산한다.
  *
  * 전세: 임대 거래 중 월세 0(또는 NULL)이고 보증금 > 0인 거래.
  * 비교 단위(pair): 단지(apt_complex_master) × 전용면적 타입(㎡ 반올림).
@@ -18,6 +19,7 @@
  */
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { seoulToday } from "@/lib/market/time";
+import { DONG_TX_FROM, DONG_TX_WHERE, regionScopeKey } from "@/lib/region/region-scope";
 
 export const REGION_JEONSE_INDEX_TABLE = "region_jeonse_index";
 export const REGION_JEONSE_SNAPSHOT_TABLE = "region_jeonse_snapshot";
@@ -78,6 +80,8 @@ export type RegionJeonseDrop = {
 export type RegionJeonse = {
   status: "ok";
   lawdCd: string;
+  /** 동 범위일 때만 존재. */
+  dong?: string;
   asOfMonth: string;
   series: RegionJeonsePoint[];
   latest: {
@@ -98,6 +102,11 @@ export type RegionJeonse = {
 type Snapshot = Omit<RegionJeonse, "status" | "lawdCd" | "series">;
 
 const MAX_SERIES_MONTHS = 240;
+/**
+ * 동 범위 시계열 길이. 동은 적재본이 없어 요청 때 계산하므로 읽는 행 수를 줄이려고
+ * 최근 3년만 그린다(목록·2년 전 비교에 필요한 창은 모두 포함).
+ */
+const DONG_SERIES_MONTHS = 36;
 const WINDOW_MONTHS = 3;
 const LEASE_MONTHS = 24;
 const MIN_LIST_SAMPLE = 2;
@@ -149,13 +158,29 @@ function parseAmounts(raw: unknown): number[] {
     .filter((v) => Number.isFinite(v) && v > 0);
 }
 
+/** 동 범위: 동 단지 거래만 인덱스로 읽는다. 열·집계는 구 쿼리와 같다. */
+const DONG_JEONSE_SQL = `SELECT m.complex_id AS c, MAX(m.apt_name) AS apt_name, MAX(m.legal_dong_name) AS dong,
+                 ROUND(CAST(t.exclusive_area AS REAL), 0) AS ar,
+                 MAX(CAST(t.exclusive_area AS REAL)) AS ea,
+                 t.year_month AS ym, t.deal_type AS k,
+                 GROUP_CONCAT(CAST(t.deal_amount AS REAL)) AS v
+          FROM ${DONG_TX_FROM}
+          WHERE ${DONG_TX_WHERE}
+            AND CAST(t.deal_amount AS REAL) > 0 AND CAST(t.exclusive_area AS REAL) > 0
+            AND (t.deal_type = 'trade'
+              OR (t.deal_type = 'rent' AND COALESCE(CAST(t.monthly_rent AS REAL), 0) = 0))
+          GROUP BY m.complex_id, ar, t.year_month, t.deal_type`;
+
 export async function computeRegionJeonse(
   db: RankingReader,
   lawdCd: string,
+  dong?: string | null,
 ): Promise<RegionJeonse> {
+  const maxSeriesMonths = dong ? DONG_SERIES_MONTHS : MAX_SERIES_MONTHS;
   const currentIdx = monthIndex(seoulToday().slice(0, 7).replace("-", ""));
-  const fromYm = ymFromIndex(currentIdx - (MAX_SERIES_MONTHS + WINDOW_MONTHS));
-  const result = await db.execute({
+  // 시계열 첫 달의 3개월 창까지 담는다(24개월 전 비교 창은 그 안에 들어간다).
+  const fromYm = ymFromIndex(currentIdx - (maxSeriesMonths + WINDOW_MONTHS));
+  const result = await db.execute(dong ? { sql: DONG_JEONSE_SQL, args: [lawdCd, dong, fromYm] } : {
     sql: `SELECT m.complex_id AS c, MAX(m.apt_name) AS apt_name, MAX(m.legal_dong_name) AS dong,
                  ROUND(CAST(t.exclusive_area AS REAL), 0) AS ar,
                  MAX(CAST(t.exclusive_area AS REAL)) AS ea,
@@ -209,7 +234,7 @@ export async function computeRegionJeonse(
 
   const coveredFromIdx = Math.max(tradeFromIdx, jeonseFromIdx) + WINDOW_MONTHS - 1;
   const seriesFromIdx = Math.max(
-    asOfIdx - MAX_SERIES_MONTHS + 1,
+    asOfIdx - maxSeriesMonths + 1,
     Math.min(coveredFromIdx, asOfIdx),
   );
   const series: RegionJeonsePoint[] = [];
@@ -280,6 +305,7 @@ export async function computeRegionJeonse(
   return {
     status: "ok",
     lawdCd,
+    ...(dong ? { dong } : {}),
     asOfMonth: ymFromIndex(asOfIdx),
     series,
     latest: {
@@ -340,18 +366,24 @@ async function readMaterialized(db: RankingReader, lawdCd: string): Promise<Regi
   return { status: "ok", lawdCd, series, ...snapshot };
 }
 
-export async function readRegionJeonse(db: RankingReader, lawdCd: string): Promise<RegionJeonse> {
-  const hit = cache.get(lawdCd);
+/** 구는 적재본 우선, 동(`dong`)은 적재본이 없어 최근 3년을 바로 계산한다. */
+export async function readRegionJeonse(
+  db: RankingReader,
+  lawdCd: string,
+  dong?: string | null,
+): Promise<RegionJeonse> {
+  const key = regionScopeKey({ lawdCd, dong });
+  const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
-  const pending = inflight.get(lawdCd);
+  const pending = inflight.get(key);
   if (pending) return pending;
-  const job = readMaterialized(db, lawdCd)
-    .then((stored) => stored ?? computeRegionJeonse(db, lawdCd))
+  const job = (dong ? computeRegionJeonse(db, lawdCd, dong) : readMaterialized(db, lawdCd)
+    .then((stored) => stored ?? computeRegionJeonse(db, lawdCd)))
     .then((value) => {
-      cache.set(lawdCd, { at: Date.now(), value });
+      cache.set(key, { at: Date.now(), value });
       return value;
     })
-    .finally(() => inflight.delete(lawdCd));
-  inflight.set(lawdCd, job);
+    .finally(() => inflight.delete(key));
+  inflight.set(key, job);
   return job;
 }

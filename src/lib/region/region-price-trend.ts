@@ -13,6 +13,7 @@
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { seoulToday } from "@/lib/market/time";
 import { REGION_PRICE_INDEX_METHOD, REGION_PRICE_INDEX_TABLE } from "@/lib/region/region-price-index";
+import { regionScopeKey } from "@/lib/region/region-scope";
 
 export type RegionPriceTrendPoint = {
   yearMonth: string;
@@ -38,6 +39,8 @@ export type RegionDongPrice = {
 export type RegionPriceTrend = {
   status: "ok";
   lawdCd: string;
+  /** 동 범위일 때만 존재: 이 시계열의 법정동. `dongs`는 비어 있다. */
+  dong?: { bjdongCd: string; name: string };
   basis: "SUPPLY_PYEONG_LABEL";
   method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED";
   points: RegionPriceTrendPoint[];
@@ -396,21 +399,84 @@ async function readMaterialized(db: RankingReader, lawdCd: string): Promise<Regi
   return buildRegionPriceTrend({ lawdCd, points, dongs: [...dongs.values()] });
 }
 
+/** 한 법정동의 월별 시계열을 API 응답 모양으로 만든다(동 목록 없음). */
+function buildDongPriceTrend(lawdCd: string, series: RegionDongPriceSeries): RegionPriceTrend {
+  const trend = buildRegionPriceTrend({ lawdCd, points: series.points, dongs: [] });
+  return { ...trend, dong: { bjdongCd: series.bjdongCd, name: series.name } };
+}
+
+/** 적재본에서 법정동 하나의 전체 시계열을 읽는다. 없으면 null. */
+async function readMaterializedDong(
+  db: RankingReader,
+  lawdCd: string,
+  dong: string,
+): Promise<RegionPriceTrend | null> {
+  const [lo, hi] = dongCodeRange(lawdCd);
+  let rows;
+  try {
+    rows = await db.execute({
+      sql: `SELECT region_code, region_name, year_month, pyeong_price, complex_count, trade_count
+            FROM ${REGION_PRICE_INDEX_TABLE}
+            WHERE method_version = ? AND scope = 'dong'
+              AND region_code BETWEEN ? AND ? AND region_name = ?
+            ORDER BY year_month`,
+      args: [REGION_PRICE_INDEX_METHOD, lo, hi, dong],
+    });
+  } catch {
+    return null;
+  }
+  if (!rows.rows.length) return null;
+  const first = rows.rows[0]!;
+  return buildDongPriceTrend(lawdCd, {
+    bjdongCd: String(first.region_code).slice(5),
+    name: String(first.region_name),
+    points: rows.rows.map((r) => ({
+      yearMonth: String(r.year_month),
+      pyeongPrice: r.pyeong_price == null ? null : Number(r.pyeong_price),
+      complexCount: Number(r.complex_count ?? 0),
+      tradeCount: Number(r.trade_count ?? 0),
+    })),
+  });
+}
+
+/** 적재본이 없을 때: 구 시계열을 계산해 해당 동만 꺼낸다(구 계산과 같은 비용). */
+async function computeDongPriceTrend(
+  db: RankingReader,
+  lawdCd: string,
+  dong: string,
+): Promise<RegionPriceTrend> {
+  const series = await computeRegionPriceSeries(db, lawdCd);
+  const match = series.dongs.find((d) => d.name === dong);
+  if (!match) return { ...emptyTrend(lawdCd), dong: { bjdongCd: "", name: dong } };
+  return buildDongPriceTrend(lawdCd, match);
+}
+
+/**
+ * 구(또는 `dong` 법정동) 시세 평당가 시계열. 적재본(region_price_index)을 먼저 읽고,
+ * 없으면 원천 거래에서 계산한다.
+ */
 export async function readRegionPriceTrend(
   db: RankingReader,
   lawdCd: string,
+  dong?: string | null,
 ): Promise<RegionPriceTrend> {
-  const hit = cache.get(lawdCd);
+  const key = regionScopeKey({ lawdCd, dong });
+  const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
-  const pending = inflight.get(lawdCd);
+  const pending = inflight.get(key);
   if (pending) return pending;
-  const job = readMaterialized(db, lawdCd)
-    .then((stored) => stored ?? computeRegionPriceTrend(db, lawdCd))
+  const job = (
+    dong
+      ? readMaterializedDong(db, lawdCd, dong).then(
+          (stored) => stored ?? computeDongPriceTrend(db, lawdCd, dong),
+        )
+      : readMaterialized(db, lawdCd).then((stored) => stored ?? computeRegionPriceTrend(db, lawdCd))
+  )
     .then((value) => {
-      cache.set(lawdCd, { at: Date.now(), value });
+      cache.set(key, { at: Date.now(), value });
       return value;
     })
-    .finally(() => inflight.delete(lawdCd));
-  inflight.set(lawdCd, job);
+    .finally(() => inflight.delete(key));
+  inflight.set(key, job);
   return job;
 }
