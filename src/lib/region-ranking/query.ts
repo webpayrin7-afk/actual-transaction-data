@@ -3,7 +3,12 @@
  * Composite and decade boards are scored at read time by Ranking V4
  * over published V3 feature snapshots; objective boards read V3 rows.
  */
-import { RANKING_V4_VERSION, readRankingV4Board } from "./ranking-v4";
+import {
+  RANKING_V4_VERSION,
+  readRankingV4Board,
+  rerankRankingV4,
+  type RankingV4Sort,
+} from "./ranking-v4";
 
 export type LaunchAreaBand = "59" | "84" | "114" | "ALL";
 export type RankingAreaBandV3 =
@@ -131,7 +136,13 @@ function scopeOf(regionCode: string): "gu" | "dong" | null {
 
 export async function publishedRegionRanking(
   db: RankingReader,
-  query: { regionCode: string; areaBand: RegionBoardBand; period?: string; limit?: number },
+  query: {
+    regionCode: string;
+    areaBand: RegionBoardBand;
+    period?: string;
+    limit?: number;
+    sort?: RankingV4Sort;
+  },
 ) {
   const regionScope = scopeOf(query.regionCode);
   const period = query.period ?? "12M";
@@ -158,7 +169,9 @@ export async function publishedRegionRanking(
       areaBand: query.areaBand,
       period,
     });
-    const rows = board.rows.slice(0, query.limit ?? 10).map((row) => ({
+    const rows = rerankRankingV4(board.rows, query.sort ?? "composite")
+      .slice(0, query.limit ?? 10)
+      .map((row) => ({
       complexId: row.complexId,
       name: row.name,
       dong: row.dong,

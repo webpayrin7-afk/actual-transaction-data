@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
+import { LabTabs } from "@/components/ui/LabTabs";
 import {
   fetchRegionRankingBoard,
   formatReferenceMonthCompact,
@@ -113,6 +114,27 @@ function strengthText(
 const RANK_PREVIEW = 5;
 const RANK_FULL = 20;
 
+const RANK_TABS = [
+  { id: "COMPOSITE", label: "종합" },
+  { id: "TRADES_12M", label: "거래량" },
+  { id: "PRICE_12M", label: "평당가" },
+] as const;
+type RankTabId = (typeof RANK_TABS)[number]["id"];
+
+const RANK_TIPS: Record<RankTabId, string> = {
+  COMPOSITE:
+    "최근 1년 실거래를 바탕으로 가격 수준, 거래 활발도, 단지 규모 등을 종합해 매긴 집랩 순위입니다. 거래가 충분한 단지만 포함합니다.",
+  TRADES_12M:
+    "최근 1년 동안 매매 실거래가 많았던 단지 순서입니다. 거래가 충분한 단지만 포함합니다.",
+  PRICE_12M:
+    "최근 1년 매매 실거래의 평당가(공급면적 기준)가 높은 단지 순서입니다. 거래가 충분한 단지만 포함합니다.",
+};
+
+function numberOf(value: unknown): number | null {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 export function RegionRankingTable({
   regionSlug,
   regionName,
@@ -124,12 +146,14 @@ export function RegionRankingTable({
 }) {
   const regionCode = regionRankingCode(lawdCodes);
   const [expanded, setExpanded] = useState(false);
+  const [tab, setTab] = useState<RankTabId>("COMPOSITE");
+  const metricTab = tab !== "COMPOSITE";
   const query = useQuery({
-    queryKey: ["region-ranking-v3", regionCode, "COMPOSITE", RANK_FULL],
+    queryKey: ["region-ranking-v4", regionCode, tab, RANK_FULL],
     queryFn: () =>
       fetchRegionRankingBoard({
         regionCode: regionCode!,
-        rankingType: "COMPOSITE",
+        rankingType: tab,
         limit: RANK_FULL,
       }),
     enabled: !!regionCode,
@@ -140,6 +164,9 @@ export function RegionRankingTable({
   const board = query.data;
   const rows = board?.status === "ok" ? board.rows : [];
   const visible = expanded ? rows : rows.slice(0, RANK_PREVIEW);
+  const gridCols = metricTab
+    ? "grid-cols-[2.5rem_minmax(0,1fr)_5rem_1rem]"
+    : "grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem]";
 
   return (
     <section
@@ -150,12 +177,17 @@ export function RegionRankingTable({
       <MarketSectionHeader
         title="지역 아파트 랭킹"
         meta={formatReferenceMonthCompact(board?.transactionAsOf ?? null)}
-        tip={
-          <p>
-            최근 1년 실거래를 바탕으로 가격 수준, 거래 활발도, 단지 규모 등을
-            종합해 매긴 집랩 순위입니다. 거래가 충분한 단지만 포함합니다.
-          </p>
-        }
+        tip={<p>{RANK_TIPS[tab]}</p>}
+      />
+      <LabTabs
+        variant="secondary"
+        ariaLabel="지역 아파트 랭킹 기준"
+        items={RANK_TABS}
+        value={tab}
+        onChange={(next) => {
+          setTab(next);
+          setExpanded(false);
+        }}
       />
       {query.isLoading ? (
         <div className="space-y-2">
@@ -170,12 +202,12 @@ export function RegionRankingTable({
           <div role="table" aria-label={`${regionName} 아파트 랭킹`}>
             <div
               role="row"
-              className="detail-meta grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 rounded-lg bg-[color:var(--lab-surface-subtle,#F1F5F9)] px-2 py-1.5"
+              className={`detail-meta grid ${gridCols} items-center gap-x-2 rounded-lg bg-[color:var(--lab-surface-subtle,#F1F5F9)] px-2 py-1.5`}
             >
               <span role="columnheader">순위</span>
               <span role="columnheader">단지명</span>
-              <span role="columnheader" className="text-center">
-                지역
+              <span role="columnheader" className={metricTab ? "text-right" : "text-center"}>
+                {tab === "TRADES_12M" ? "1년 거래" : tab === "PRICE_12M" ? "만원/평" : "지역"}
               </span>
               <span aria-hidden />
             </div>
@@ -196,23 +228,36 @@ export function RegionRankingTable({
                       <span className="detail-data-value-emphasis block truncate">
                         {row.apt_name ?? "—"}
                       </span>
-                      {strengthText(row.percentiles) ? (
+                      {metricTab ? (
+                        row.dong ? (
+                          <span className="detail-meta block truncate">{row.dong}</span>
+                        ) : null
+                      ) : strengthText(row.percentiles) ? (
                         <span className="detail-meta block truncate">
                           {strengthText(row.percentiles)}
                         </span>
                       ) : null}
                     </span>
-                    <span className="detail-meta truncate text-center">
-                      {row.dong ?? "—"}
-                    </span>
+                    {metricTab ? (
+                      <span className="detail-data-value-emphasis whitespace-nowrap text-right tabular-nums">
+                        {tab === "TRADES_12M"
+                          ? `${(numberOf(row.public_metrics?.trade_count) ?? 0).toLocaleString("ko-KR")}건`
+                          : numberOf(row.public_metrics?.median_price_per_sqm) != null
+                            ? Math.round(numberOf(row.public_metrics?.median_price_per_sqm)!).toLocaleString("ko-KR")
+                            : "—"}
+                      </span>
+                    ) : (
+                      <span className="detail-meta truncate text-center">
+                        {row.dong ?? "—"}
+                      </span>
+                    )}
                     <ChevronRight
                       className="h-4 w-4 text-slate-400"
                       aria-hidden
                     />
                   </>
                 );
-                const cls =
-                  "grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_1rem] items-center gap-x-2 px-2 py-2.5";
+                const cls = `grid min-h-11 ${gridCols} items-center gap-x-2 px-2 py-2.5`;
                 return (
                   <li key={row.complex_id} role="row">
                     {href ? (

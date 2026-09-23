@@ -234,3 +234,20 @@ export async function readRankingV4Board(
   cache.set(key, { at: Date.now(), value });
   return value;
 }
+
+export type RankingV4Sort = "composite" | "trades" | "price";
+
+/** Same eligible set as the composite board, re-ranked by a single metric. */
+export function rerankRankingV4(rows: RankingV4Row[], sort: RankingV4Sort): RankingV4Row[] {
+  if (sort === "composite") return rows;
+  const key = (row: RankingV4Row) =>
+    sort === "trades" ? row.metrics.tradeCount : row.metrics.medianPricePerSqm;
+  return [...rows]
+    .sort(
+      (a, b) =>
+        key(b) - key(a) ||
+        b.score - a.score ||
+        a.complexId.localeCompare(b.complexId),
+    )
+    .map((row, index) => ({ ...row, rank: index + 1 }));
+}

@@ -37,10 +37,14 @@ function publicMetricsOf(metrics: Record<string, unknown> | null) {
   };
 }
 
-function boardOf(rankingType: string): { areaBand: RegionBoardBand; period: string } | null {
+function boardOf(
+  rankingType: string,
+): { areaBand: RegionBoardBand; period: string; sort?: "composite" | "trades" | "price" } | null {
   if (rankingType === "COMPOSITE" || rankingType === "ALL") {
     return { areaBand: "ALL", period: "12M" };
   }
+  if (rankingType === "TRADES_12M") return { areaBand: "ALL", period: "12M", sort: "trades" };
+  if (rankingType === "PRICE_12M") return { areaBand: "ALL", period: "12M", sort: "price" };
   if (DECADE_KEYS_V3.has(rankingType)) {
     return { areaBand: rankingType as RegionBoardBand, period: "12M" };
   }
@@ -80,6 +84,7 @@ export async function GET(request: NextRequest) {
       areaBand: board.areaBand,
       period: board.period,
       limit,
+      sort: board.sort,
     });
     if (!("published" in data) || !data.published) {
       return NextResponse.json({
