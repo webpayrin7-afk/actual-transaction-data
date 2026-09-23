@@ -51,6 +51,12 @@ const CHART_TRADE = "#087F83";
 const CHART_VOLUME = "#0F766E";
 const DIR_UP = "var(--lab-change-up)";
 const DIR_DOWN = "var(--lab-change-down)";
+const DIR_OTHER = "#CBD5E1";
+const DIRECTIONS = [
+  { key: "up", label: "오름", color: DIR_UP, cls: "detail-change-up" },
+  { key: "other", label: "보합·기타", color: DIR_OTHER, cls: "" },
+  { key: "down", label: "내림", color: DIR_DOWN, cls: "detail-change-down" },
+] as const;
 
 type ChartRow = RegionPriceTrendPoint & { label: string; partial: boolean };
 
@@ -79,26 +85,28 @@ function total(row: { up: number; down: number; other: number }): number {
   return row.up + row.down + row.other;
 }
 
-function DivergingBar({
-  up,
-  down,
-  maxSide,
+function DirectionBar({
+  row,
+  widthPct,
   className,
 }: {
-  up: number;
-  down: number;
-  maxSide: number;
+  row: { up: number; down: number; other: number };
+  widthPct: number;
   className: string;
 }) {
-  const w = (n: number) => (maxSide > 0 ? `${(n / maxSide) * 100}%` : "0%");
+  const sum = total(row);
   return (
-    <div className={`relative flex items-center ${className}`} aria-hidden>
-      <div className="flex h-full flex-1 justify-end">
-        <span className="h-full rounded-l-full" style={{ width: w(down), background: DIR_DOWN }} />
-      </div>
-      <span className="h-[calc(100%+6px)] w-px shrink-0 bg-slate-300" />
-      <div className="flex h-full flex-1">
-        <span className="h-full rounded-r-full" style={{ width: w(up), background: DIR_UP }} />
+    <div className={`overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)] ${className}`} aria-hidden>
+      <div className="flex h-full overflow-hidden rounded-full" style={{ width: `${widthPct}%` }}>
+        {DIRECTIONS.map((dir) =>
+          row[dir.key] > 0 && sum > 0 ? (
+            <span
+              key={dir.key}
+              className="h-full"
+              style={{ width: `${(row[dir.key] / sum) * 100}%`, background: dir.color }}
+            />
+          ) : null,
+        )}
       </div>
     </div>
   );
@@ -150,7 +158,7 @@ function MonthComposition({
   const sum = total(d);
   const rows: RegionMonthBreakdownRow[] = mode === "dong" ? detail.byDong : detail.byArea;
   const visible = expanded ? rows : rows.slice(0, BREAKDOWN_PREVIEW);
-  const rowSide = Math.max(1, ...rows.map((r) => Math.max(r.up, r.down)));
+  const scale = Math.max(1, ...rows.map(total));
   const share = (n: number) => (sum > 0 ? Math.round((n / sum) * 100) : 0);
 
   return (
@@ -172,32 +180,25 @@ function MonthComposition({
             </p>
           </div>
         </div>
-        <div
-          className="mt-3"
-          role="img"
-          aria-label={`${monthLabel} 오름 ${d.up}건, 내림 ${d.down}건, 보합·기타 ${d.other}건`}
-        >
-          <div className="flex items-baseline justify-between gap-3 tabular-nums">
-            <p className="whitespace-nowrap">
-              <span className="detail-meta mr-1.5">내림</span>
-              <span className="detail-data-value-emphasis detail-change-down">{share(d.down)}%</span>
-              <span className="detail-meta ml-1">{d.down.toLocaleString("ko-KR")}건</span>
-            </p>
-            <p className="whitespace-nowrap text-right">
-              <span className="detail-meta mr-1.5">오름</span>
-              <span className="detail-data-value-emphasis detail-change-up">{share(d.up)}%</span>
-              <span className="detail-meta ml-1">{d.up.toLocaleString("ko-KR")}건</span>
-            </p>
-          </div>
-          <DivergingBar
-            up={d.up}
-            down={d.down}
-            maxSide={Math.max(d.up, d.down)}
-            className="mt-2 h-3"
-          />
-          <p className="detail-meta mt-1.5 text-center tabular-nums">
-            보합·기타 {d.other.toLocaleString("ko-KR")}건 ({share(d.other)}%)
-          </p>
+        <div className="mt-3">
+          <DirectionBar row={d} widthPct={100} className="h-2.5" />
+          <dl
+            className="mt-2 grid grid-cols-3 gap-2"
+            aria-label={`${monthLabel} 오름 ${d.up}건, 보합·기타 ${d.other}건, 내림 ${d.down}건`}
+          >
+            {DIRECTIONS.map((dir) => (
+              <div key={dir.key} className="min-w-0">
+                <dt className="detail-meta flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="inline-block h-2 w-2 shrink-0 rounded-sm" style={{ background: dir.color }} aria-hidden />
+                  {dir.label}
+                </dt>
+                <dd className="whitespace-nowrap tabular-nums">
+                  <span className={`detail-data-value-emphasis ${dir.cls}`}>{share(d[dir.key])}%</span>
+                  <span className="detail-meta ml-1">{d[dir.key].toLocaleString("ko-KR")}건</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
         <div className="mt-4 flex items-center justify-between gap-2 border-t border-[color:var(--lab-border)] pt-3">
           <p className="detail-label">어디서 거래됐나</p>
@@ -213,22 +214,19 @@ function MonthComposition({
             }}
           />
         </div>
-        <ul className="mt-3 flex flex-col gap-3">
+        <ul className="mt-3 flex flex-col gap-2.5">
           {visible.map((row) => {
             const n = total(row);
             return (
-              <li
-                key={row.key}
-                className="grid grid-cols-[4.75rem_minmax(0,1fr)_3.25rem] items-center gap-2"
-              >
-                <span className="detail-label truncate text-[color:var(--lab-body)]">{row.label}</span>
-                <DivergingBar up={row.up} down={row.down} maxSide={rowSide} className="h-2" />
-                <span className="detail-data-value whitespace-nowrap text-right tabular-nums">
-                  {n.toLocaleString("ko-KR")}건
-                </span>
-                <span className="sr-only">
-                  오름 {row.up}건, 내림 {row.down}건, 보합·기타 {row.other}건
-                </span>
+              <li key={row.key} className="flex flex-col gap-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="detail-label truncate text-[color:var(--lab-body)]">{row.label}</span>
+                  <span className="detail-data-value shrink-0">
+                    {n.toLocaleString("ko-KR")}건
+                    <span className="detail-meta ml-1.5">{share(n)}%</span>
+                  </span>
+                </div>
+                <DirectionBar row={row} widthPct={(n / scale) * 100} className="h-2" />
               </li>
             );
           })}
