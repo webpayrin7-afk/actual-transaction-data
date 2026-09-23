@@ -361,10 +361,17 @@ export function RegionPriceTrendChart({
 
   return (
     <div className="flex flex-col gap-3">
+      {current ? (
+        <MonthStepper
+          label={`${ymKorean(current.yearMonth)}${current.partial ? " (진행 중)" : ""}`}
+          canPrev={selectedIndex > 0}
+          canNext={selectedIndex < rows.length - 1}
+          onPrev={() => stepMonth(-1)}
+          onNext={() => stepMonth(1)}
+        />
+      ) : null}
       <div className="rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-4 py-3" aria-live="polite">
-        <p className="detail-label">
-          {current ? `${ymKorean(current.yearMonth)}${current.partial ? " (진행 중)" : ""}` : "지역 시세 평당가"}
-        </p>
+        <p className="detail-label">시세 평당가</p>
         {query.isLoading ? (
           <div className="mt-2 h-7 w-32 animate-pulse rounded bg-teal-100/70" />
         ) : (
@@ -406,8 +413,8 @@ export function RegionPriceTrendChart({
               거래는 신고 기간 중이라 값이 바뀔 수 있습니다.
             </p>
             <p className="mt-1.5">
-              그래프를 누르거나 아래 ◀ ▶ 버튼으로 달을 바꾸면 위 평당가와 그 달의
-              거래 구성이 함께 바뀝니다.
+              그래프를 누르거나 맨 위 ◀ ▶ 버튼으로 달을 바꾸면 평당가, 변화율, 그
+              달의 거래 구성이 함께 바뀝니다.
             </p>
           </InfoTip>
         </div>
@@ -526,15 +533,11 @@ export function RegionPriceTrendChart({
           </p>
 
           {current ? (
-            <div className="flex flex-col">
-              <MonthStepper
-                label={`${ymKorean(current.yearMonth)}${current.partial ? " (진행 중)" : ""}`}
-                canPrev={selectedIndex > 0}
-                canNext={selectedIndex < rows.length - 1}
-                onPrev={() => stepMonth(-1)}
-                onNext={() => stepMonth(1)}
-              />
-              <dl className="mt-2 divide-y divide-[color:var(--lab-border)]">
+            <div className="detail-subsection-rule flex flex-col">
+              <h4 className="detail-subsection-title">
+                {ymKorean(current.yearMonth)} 거래
+              </h4>
+              <dl className="mt-1 divide-y divide-[color:var(--lab-border)]">
                 <DataRow label="이 달 매매 거래">
                   <span className="detail-data-value-emphasis">
                     {current.tradeCount.toLocaleString("ko-KR")}건
