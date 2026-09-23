@@ -19,9 +19,7 @@ import {
 } from "recharts";
 import {
   ArrowDownRight,
-  ArrowRight,
   ArrowUpRight,
-  TrendingUp,
 } from "lucide-react";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { MarketStatsResponse, StatsRegionRank } from "@/lib/market/stats";
@@ -33,7 +31,10 @@ import {
 } from "@/components/stats/StatsDealExplorer";
 import { StatsRegionSelect } from "@/components/stats/StatsRegionSelect";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import { LabKpiCard } from "@/components/lab/LabKpiCard";
+import { LabSection } from "@/components/ui/LabSection";
+import { LAB_LIST, LabTextLink } from "@/components/ui/LabListRow";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabTabs } from "@/components/ui/LabTabs";
 import { isStatsScope } from "@/lib/market/region-scope";
 
 async function fetchStats(
@@ -60,44 +61,10 @@ function parseScope(v: string | null): StatsScope {
   return "all";
 }
 
-/** Compact segmented control for market filters */
-function Segmented<T extends string>({
-  value,
-  onChange,
-  options,
-  fullWidth = false,
-}: {
-  value: T;
-  onChange: (v: T) => void;
-  options: { value: T; label: string }[];
-  fullWidth?: boolean;
-}) {
-  return (
-    <div
-      className={`gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5 ${
-        fullWidth
-          ? "flex w-full lg:inline-flex lg:w-auto"
-          : "inline-flex"
-      }`}
-    >
-      {options.map((opt) => {
-        const active = value === opt.value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => onChange(opt.value)}
-            className={`lab-tab min-h-8 min-w-0 px-2.5 py-1 text-center text-xs sm:px-3 sm:text-[13px] ${
-              fullWidth ? "flex-1 lg:flex-none" : ""
-            } ${active ? "lab-tab-active" : ""}`}
-          >
-            {opt.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+const UP = { color: "var(--lab-change-up)" };
+const DOWN = { color: "var(--lab-change-down)" };
+const CHART_TICK = { fill: "#64748b", fontSize: 12 };
+const CHART_TOOLTIP = { borderRadius: 12, borderColor: "#e2e8f0", fontSize: 14 };
 
 function ChangeText({
   pct,
@@ -108,19 +75,18 @@ function ChangeText({
 }) {
   if (pct == null)
     return (
-      <span className="text-slate-400">
+      <span>
         {compareLabel ? `${compareLabel} 없음` : "대비 없음"}
       </span>
     );
   const up = pct > 0;
   const down = pct < 0;
   return (
-    <span
-      className={`inline-flex flex-wrap items-center gap-x-1 gap-y-0.5 tabular-nums ${
-        up ? "text-rose-600" : down ? "text-blue-600" : "text-slate-500"
-      }`}
-    >
-      <span className="inline-flex items-center gap-0.5">
+    <span className="inline-flex flex-wrap items-center gap-x-1 gap-y-0.5 tabular-nums">
+      <span
+        className="inline-flex items-center gap-0.5 font-semibold"
+        style={up ? UP : down ? DOWN : undefined}
+      >
         {up ? (
           <ArrowUpRight className="h-3.5 w-3.5" />
         ) : down ? (
@@ -130,7 +96,7 @@ function ChangeText({
         {pct}%
       </span>
       {compareLabel ? (
-        <span className="font-normal text-slate-400">{compareLabel}</span>
+        <span className="font-normal">{compareLabel}</span>
       ) : null}
     </span>
   );
@@ -152,17 +118,15 @@ function KpiCard({
   share?: string | null;
 }) {
   return (
-    <LabKpiCard
-      label={label}
-      value={value}
-      hint={share}
-      footer={
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
-          <ChangeText pct={change} compareLabel={compareLabel} />
-          {sub ? <span>{sub}</span> : null}
-        </div>
-      }
-    />
+    <div className="lab-card detail-card flex flex-col">
+      <p className="detail-label">{label}</p>
+      <p className="detail-summary-value mt-1 tabular-nums">{value}</p>
+      {share ? <p className="detail-meta">{share}</p> : null}
+      <div className="detail-meta mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+        <ChangeText pct={change} compareLabel={compareLabel} />
+        {sub ? <span>{sub}</span> : null}
+      </div>
+    </div>
   );
 }
 
@@ -175,29 +139,31 @@ function RankList({
   items: StatsRegionRank[];
   mode: "volume" | "growth" | "singoga" | "drop";
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       <div className="sr-only">{title}</div>
       {items.length === 0 ? (
-        <p className="px-1 py-10 text-center text-sm text-slate-500">
+        <p className="detail-body py-6 text-center">
           표시할 지역이 없습니다.
         </p>
       ) : (
-        <ul className="divide-y divide-slate-100">
-          {items.map((item, idx) => (
+        <ul className={LAB_LIST}>
+          {visible.map((item, idx) => (
             <li key={item.lawdCd}>
               <Link
                 href={item.href}
-                className="flex items-center justify-between gap-3 px-1 py-3 transition hover:bg-slate-50 sm:px-2"
+                className="flex min-h-11 items-center justify-between gap-3 py-2.5 transition hover:bg-slate-50"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-900">
-                    <span className="mr-2 text-xs font-medium text-slate-400">
+                  <p className="detail-data-value-emphasis truncate">
+                    <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full border border-[color:var(--lab-border)] px-1 align-[1px] text-[12px] font-semibold leading-4 tabular-nums text-[color:var(--lab-muted)]">
                       {idx + 1}
                     </span>
                     {item.regionName}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-slate-500">
+                  <p className="detail-meta mt-0.5">
                     {item.metro === "seoul" ? "서울" : "경기"} · 직전{" "}
                     {item.tradePrev.toLocaleString("ko-KR")}건
                   </p>
@@ -205,29 +171,29 @@ function RankList({
                 <div className="shrink-0 text-right">
                   {mode === "volume" || mode === "growth" ? (
                     <>
-                      <p className="text-sm font-semibold tabular-nums text-slate-900">
+                      <p className="detail-data-value-emphasis tabular-nums">
                         {item.tradeCount.toLocaleString("ko-KR")}건
                       </p>
-                      <p className="mt-0.5 text-xs">
+                      <p className="detail-meta mt-0.5">
                         <ChangeText pct={item.growthPct} />
                       </p>
                     </>
                   ) : mode === "singoga" ? (
                     <>
-                      <p className="text-sm font-semibold tabular-nums text-rose-700">
+                      <p className="detail-data-value-emphasis tabular-nums" style={UP}>
                         신고가 {item.singogaCount.toLocaleString("ko-KR")}
                       </p>
-                      <p className="mt-0.5 text-xs text-slate-500">
+                      <p className="detail-meta mt-0.5">
                         비중 {item.singogaSharePct ?? "-"}% · 거래{" "}
                         {item.tradeCount}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-semibold tabular-nums text-blue-700">
+                      <p className="detail-data-value-emphasis tabular-nums" style={DOWN}>
                         하락 {item.dropCount.toLocaleString("ko-KR")}
                       </p>
-                      <p className="mt-0.5 text-xs text-slate-500">
+                      <p className="detail-meta mt-0.5">
                         비중 {item.dropSharePct ?? "-"}% · 거래{" "}
                         {item.tradeCount}
                       </p>
@@ -239,6 +205,13 @@ function RankList({
           ))}
         </ul>
       )}
+      {items.length > LAB_LIST_PREVIEW ? (
+        <LabMoreButton
+          expanded={expanded}
+          onToggle={() => setExpanded((v) => !v)}
+          label={`${items.length - LAB_LIST_PREVIEW}곳 더보기`}
+        />
+      ) : null}
     </div>
   );
 }
@@ -253,17 +226,10 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="lab-card p-4 sm:p-5">
-      <div className="mb-3">
-        <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
-          {title}
-        </h2>
-        {hint ? (
-          <p className="mt-0.5 text-xs text-slate-500">{hint}</p>
-        ) : null}
-      </div>
+    <LabSection title={title}>
+      {hint ? <p className="detail-meta -mt-2">{hint}</p> : null}
       {children}
-    </section>
+    </LabSection>
   );
 }
 
@@ -272,7 +238,7 @@ function chartXAxisProps(interval: number) {
     type: "category" as const,
     dataKey: "label",
     interval,
-    tick: { fill: "#475569", fontSize: 11 },
+    tick: CHART_TICK,
     axisLine: { stroke: "#cbd5e1" },
     tickLine: false as const,
     // "05.11"처럼 숫자로 보이는 문자열이 number scale로 깨지지 않게 함
@@ -354,69 +320,58 @@ export function MarketStatsPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="아파트 시장동향"
+        titleClassName="detail-page-title"
         description="실제 계약일 기준으로 거래량·신고가·하락거래와 주요 거래를 확인하세요."
       />
 
-      {/* Market control bar — period / date / region filter */}
-      <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2 sm:gap-2.5 lg:flex-row lg:items-center lg:justify-between lg:gap-3 lg:px-2.5 lg:py-1.5">
-        <Segmented
-          value={period}
-          onChange={setPeriod}
-          fullWidth
-          options={[
-            { value: "daily", label: "일간" },
-            { value: "weekly", label: "주간" },
-            { value: "monthly", label: "월간" },
-          ]}
-        />
-
-        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:justify-center lg:justify-end">
-          <div className="inline-flex min-w-0 items-center gap-0.5 rounded-lg border border-slate-200 bg-white px-0.5 py-0.5">
-            <button
-              type="button"
-              disabled={!data?.kpi?.canGoPrev}
-              onClick={() => data?.kpi && setDate(data.kpi.prevAnchor)}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-base text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35"
-              aria-label="이전 기간"
-            >
-              ‹
-            </button>
-            <p className="min-w-0 truncate px-1.5 text-center text-xs font-semibold tabular-nums text-slate-900 sm:min-w-[11rem] sm:px-2 sm:text-[13px]">
-              {data?.kpi?.windowLabel ?? "—"}
-            </p>
-            <button
-              type="button"
-              disabled={!data?.kpi?.canGoNext}
-              onClick={() => data?.kpi && setDate(data.kpi.nextAnchor)}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-base text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35"
-              aria-label="다음 기간"
-            >
-              ›
-            </button>
-          </div>
-
-          {/* 시·도 filter — 추후 시·군·구 filter를 옆에 추가 가능 */}
-          <div className="flex shrink-0 items-center gap-1.5">
-            <StatsRegionSelect value={scope} onChange={setScope} />
-          </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <LabTabs
+            variant="compact"
+            items={[
+              { id: "daily", label: "일간" },
+              { id: "weekly", label: "주간" },
+              { id: "monthly", label: "월간" },
+            ]}
+            value={period}
+            onChange={(v) => setPeriod(v as StatsPeriod)}
+            ariaLabel="기간 단위"
+          />
+          <StatsRegionSelect value={scope} onChange={setScope} />
         </div>
+        <div className="flex min-w-0 items-center gap-1 self-start rounded-lg border border-[color:var(--lab-border)] bg-white">
+          <button
+            type="button"
+            disabled={!data?.kpi?.canGoPrev}
+            onClick={() => data?.kpi && setDate(data.kpi.prevAnchor)}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-base text-[color:var(--lab-navy-950)] hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35"
+            aria-label="이전 기간"
+          >
+            ‹
+          </button>
+          <p className="min-w-0 truncate px-1 text-center text-[14px] font-semibold leading-5 tabular-nums text-[color:var(--lab-navy-950)] sm:min-w-[11rem]">
+            {data?.kpi?.windowLabel ?? "—"}
+          </p>
+          <button
+            type="button"
+            disabled={!data?.kpi?.canGoNext}
+            onClick={() => data?.kpi && setDate(data.kpi.nextAnchor)}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-base text-[color:var(--lab-navy-950)] hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-35"
+            aria-label="다음 기간"
+          >
+            ›
+          </button>
+        </div>
+        {data?.asOfDate ? (
+          <p className="detail-meta">
+            데이터 기준(최신 계약일) {formatDealDate(data.asOfDate)}
+            {data.kpi
+              ? ` · 선택 ${data.kpi.windowLabel} (${formatDealDate(data.kpi.windowFrom)} ~ ${formatDealDate(data.kpi.windowTo)})`
+              : null}
+          </p>
+        ) : null}
+        {data?.dateBasisNote ? <p className="detail-meta">{data.dateBasisNote}</p> : null}
       </div>
-
-      {(data?.asOfDate || data?.dateBasisNote) && (
-        <div className="-mt-3 space-y-0.5 text-xs text-slate-500">
-          {data?.asOfDate ? (
-            <p>
-              데이터 기준(최신 계약일) {formatDealDate(data.asOfDate)}
-              {data.kpi
-                ? ` · 선택 ${data.kpi.windowLabel} (${formatDealDate(data.kpi.windowFrom)} ~ ${formatDealDate(data.kpi.windowTo)})`
-                : null}
-            </p>
-          ) : null}
-          {data?.dateBasisNote ? (
-            <p className="text-[11px] text-slate-400">{data.dateBasisNote}</p>
-          ) : null}
-        </div>
-      )}
 
       {query.isLoading ? (
         <div className="lab-skeleton" />
@@ -530,18 +485,14 @@ export function MarketStatsPage() {
                   />
                   <XAxis {...chartXAxisProps(axisInterval)} />
                   <YAxis
-                    tick={{ fill: "#64748b", fontSize: 11 }}
+                    tick={CHART_TICK}
                     axisLine={false}
                     tickLine={false}
                     width={40}
                     tickFormatter={(v: number) => `${v}`}
                   />
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: 12,
-                      borderColor: "#e2e8f0",
-                      fontSize: 12,
-                    }}
+                    contentStyle={CHART_TOOLTIP}
                     formatter={(value: number) => [
                       `${value.toLocaleString("ko-KR")}건`,
                       "거래량",
@@ -589,29 +540,25 @@ export function MarketStatsPage() {
                     />
                     <XAxis {...chartXAxisProps(axisInterval)} />
                     <YAxis
-                      tick={{ fill: "#64748b", fontSize: 11 }}
+                      tick={CHART_TICK}
                       axisLine={false}
                       tickLine={false}
                       width={36}
                     />
                     <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        borderColor: "#e2e8f0",
-                        fontSize: 12,
-                      }}
+                      contentStyle={CHART_TOOLTIP}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 13 }} />
                     <Bar
                       dataKey="singogaCount"
                       name="신고가"
-                      fill="#e11d48"
+                      fill="#B91C1C"
                       radius={[4, 4, 0, 0]}
                     />
                     <Bar
                       dataKey="dropCount"
                       name="하락"
-                      fill="#2563eb"
+                      fill="#1D4ED8"
                       radius={[4, 4, 0, 0]}
                     />
                   </ComposedChart>
@@ -635,41 +582,19 @@ export function MarketStatsPage() {
             />
           ) : null}
 
-          <section className="lab-card p-4 sm:p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-rose-600" />
-              <div>
-                <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
-                  지역별 시장
-                </h2>
-                <p className="mt-0.5 text-xs text-slate-500">
-                  선택 기간 기준 지역 순위
-                </p>
-              </div>
-            </div>
-            <div className="mb-3 flex w-full gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-1">
-              {(
-                [
-                  { id: "volume", label: "거래량" },
-                  { id: "growth", label: "증가" },
-                  { id: "singoga", label: "신고가" },
-                  { id: "drop", label: "하락" },
-                ] as const
-              ).map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setRegionTab(t.id)}
-                  className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 text-center text-xs font-medium transition sm:text-sm ${
-                    regionTab === t.id
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
+          <LabSection title="지역별 시장" meta="선택 기간 기준 지역 순위">
+            <LabTabs
+              variant="secondary"
+              items={[
+                { id: "volume", label: "거래량" },
+                { id: "growth", label: "증가" },
+                { id: "singoga", label: "신고가" },
+                { id: "drop", label: "하락" },
+              ]}
+              value={regionTab}
+              onChange={setRegionTab}
+              ariaLabel="지역별 시장"
+            />
             <RankList
               title={
                 regionTab === "volume"
@@ -689,9 +614,10 @@ export function MarketStatsPage() {
                       ? data.rankings.singogaTop
                       : data.rankings.dropTop
               }
+              key={regionTab}
               mode={regionTab}
             />
-          </section>
+          </LabSection>
         </>
       ) : null}
 
@@ -701,21 +627,9 @@ export function MarketStatsPage() {
         </p>
       ) : null}
 
-      <div className="flex flex-wrap gap-3 text-sm">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 font-medium text-teal-700 hover:underline"
-        >
-          오늘의 시장
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-        <Link
-          href="/regions"
-          className="inline-flex items-center gap-1 font-medium text-slate-600 hover:underline"
-        >
-          지역 조회
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+      <div className="flex flex-wrap gap-x-4">
+        <LabTextLink href="/">오늘의 시장</LabTextLink>
+        <LabTextLink href="/regions">지역 조회</LabTextLink>
       </div>
     </div>
   );
@@ -736,18 +650,14 @@ function LineChartSafe({
       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
       <XAxis {...chartXAxisProps(interval)} />
       <YAxis
-        tick={{ fill: "#64748b", fontSize: 11 }}
+        tick={CHART_TICK}
         axisLine={false}
         tickLine={false}
         width={42}
         tickFormatter={(v: number) => `${v}억`}
       />
       <Tooltip
-        contentStyle={{
-          borderRadius: 12,
-          borderColor: "#e2e8f0",
-          fontSize: 12,
-        }}
+        contentStyle={CHART_TOOLTIP}
         formatter={(value: number) => [`${value}억`, "중위가"]}
       />
       <Line
