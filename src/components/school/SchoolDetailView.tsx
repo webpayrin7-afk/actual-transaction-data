@@ -13,7 +13,7 @@ import type {
 import { SCHOOLINFO_HOME_URL } from "@/lib/school-info/schoolinfo-public-url";
 
 const INFO_LINK =
-  "inline-flex min-h-11 items-center break-all font-medium text-[color:var(--lab-brand-primary)] underline-offset-2 hover:underline tabular-nums";
+  "-my-2 inline-flex min-h-11 items-center break-all font-medium text-[color:var(--lab-brand-primary)] underline-offset-2 hover:underline tabular-nums";
 
 /** 360px 2열 박스에서 라벨이 한 줄이 되도록 줄인 표기 (policy §12.5). */
 const STAT_LABEL: Record<string, string> = {
