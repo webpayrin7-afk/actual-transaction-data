@@ -12,6 +12,7 @@
  */
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { seoulToday } from "@/lib/market/time";
+import { REGION_PRICE_INDEX_METHOD, REGION_PRICE_INDEX_TABLE } from "@/lib/region/region-price-index";
 
 export type RegionPriceTrendPoint = {
   yearMonth: string;
@@ -64,7 +65,98 @@ function ymFromIndex(idx: number): string {
   return `${Math.floor(idx / 12)}${String((idx % 12) + 1).padStart(2, "0")}`;
 }
 
-async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTrend> {
+export type RegionPriceRawPoint = {
+  yearMonth: string;
+  /** 반올림 전 지역 시세 평당가. */
+  pyeongPrice: number | null;
+  complexCount: number;
+  tradeCount: number;
+};
+
+export type RegionDongPriceSeries = {
+  bjdongCd: string;
+  name: string;
+  points: RegionPriceRawPoint[];
+};
+
+export type RegionPriceSeries = {
+  lawdCd: string;
+  points: RegionPriceRawPoint[];
+  dongs: RegionDongPriceSeries[];
+};
+
+function emptyTrend(lawdCd: string): RegionPriceTrend {
+  return { status: "ok", lawdCd, basis: "SUPPLY_PYEONG_LABEL", method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED", points: [], latest: null, dongs: [] };
+}
+
+function pctChange(now: number | null, base: number | null | undefined): number | null {
+  return now != null && base != null && base > 0
+    ? Math.round(((now - base) / base) * 10000) / 100
+    : null;
+}
+
+/** 월별 원시 시계열(월 연속)에서 API 응답을 만든다. 계산 경로와 적재본 경로가 공유한다. */
+export function buildRegionPriceTrend(series: RegionPriceSeries): RegionPriceTrend {
+  const { lawdCd } = series;
+  if (!series.points.length) return emptyTrend(lawdCd);
+  const points: RegionPriceTrendPoint[] = series.points.map((p) => ({
+    yearMonth: p.yearMonth,
+    pyeongPrice: p.pyeongPrice != null ? Math.round(p.pyeongPrice) : null,
+    complexCount: p.complexCount,
+    tradeCount: p.tradeCount,
+  }));
+
+  const tail = points[points.length - 1]!;
+  const changes = {} as Record<keyof typeof CHANGE_MONTHS, number | null>;
+  for (const [key, months] of Object.entries(CHANGE_MONTHS) as Array<[keyof typeof CHANGE_MONTHS, number]>) {
+    changes[key] = pctChange(tail.pyeongPrice, points[points.length - 1 - months]?.pyeongPrice);
+  }
+
+  const last = monthIndex(tail.yearMonth);
+  const dongs: RegionDongPrice[] = [];
+  for (const dong of series.dongs) {
+    const byMonth = new Map(dong.points.map((p) => [monthIndex(p.yearMonth), p]));
+    const now = byMonth.get(last);
+    if (!now || now.complexCount <= 0 || now.pyeongPrice == null) continue;
+    const price = Math.round(now.pyeongPrice);
+    const prev = byMonth.get(last - 12);
+    const prevPrice = prev && prev.complexCount > 0 ? prev.pyeongPrice : null;
+    let trades = 0;
+    for (let m = last - 11; m <= last; m += 1) trades += byMonth.get(m)?.tradeCount ?? 0;
+    dongs.push({
+      bjdongCd: dong.bjdongCd,
+      name: dong.name,
+      pyeongPrice: price,
+      change1y: pctChange(price, prevPrice),
+      complexCount: now.complexCount,
+      tradeCount12m: trades,
+    });
+  }
+  dongs.sort(
+    (a, b) => (b.pyeongPrice ?? 0) - (a.pyeongPrice ?? 0) || a.bjdongCd.localeCompare(b.bjdongCd),
+  );
+
+  return {
+    status: "ok",
+    lawdCd,
+    basis: "SUPPLY_PYEONG_LABEL",
+    method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED",
+    points,
+    dongs,
+    latest: {
+      yearMonth: tail.yearMonth,
+      pyeongPrice: tail.pyeongPrice,
+      complexCount: tail.complexCount,
+      changes,
+    },
+  };
+}
+
+/** 원천 거래·평형 테이블에서 구 및 법정동 월별 시계열을 직접 계산한다. */
+export async function computeRegionPriceSeries(
+  db: RankingReader,
+  lawdCd: string,
+): Promise<RegionPriceSeries> {
   const [typeRows, volumeRows] = await Promise.all([
     db.execute({
       sql: `WITH cu AS (
@@ -131,7 +223,7 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
   ]);
 
   const volume = new Map<string, number>();
-  const dongVolume = new Map<string, Array<{ m: number; c: number }>>();
+  const dongVolume = new Map<string, Map<number, number>>();
   for (const row of volumeRows.rows) {
     const ym = String(row.ym);
     if (!/^\d{6}$/.test(ym)) continue;
@@ -139,9 +231,10 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
     volume.set(ym, (volume.get(ym) ?? 0) + c);
     const dn = String(row.dong ?? "").trim();
     if (dn) {
-      const list = dongVolume.get(dn) ?? [];
-      list.push({ m: monthIndex(ym), c });
-      dongVolume.set(dn, list);
+      const byMonth = dongVolume.get(dn) ?? new Map<number, number>();
+      const m = monthIndex(ym);
+      byMonth.set(m, (byMonth.get(m) ?? 0) + c);
+      dongVolume.set(dn, byMonth);
     }
   }
 
@@ -175,15 +268,16 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
   }
 
   const allMonths = [...volume.keys()].map(monthIndex);
-  if (!allMonths.length) {
-    return { status: "ok", lawdCd, basis: "SUPPLY_PYEONG_LABEL", method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED", points: [], latest: null, dongs: [] };
-  }
+  if (!allMonths.length) return { lawdCd, points: [], dongs: [] };
   const first = Math.min(...allMonths);
   const last = Math.max(...allMonths, monthIndex(seoulToday().slice(0, 7).replace("-", "")));
 
-  const dongAt = new Map<number, Map<string, { num: number; den: number; n: number }>>();
-  const snapshotMonths = new Set([last, last - 12]);
-  const points: RegionPriceTrendPoint[] = [];
+  const nameOf = new Map<string, string>();
+  for (const d of complexDong.values()) if (!nameOf.has(d.bj)) nameOf.set(d.bj, d.name);
+  const dongPoints = new Map<string, RegionPriceRawPoint[]>();
+  for (const bj of nameOf.keys()) dongPoints.set(bj, []);
+
+  const points: RegionPriceRawPoint[] = [];
   for (let m = first; m <= last; m += 1) {
     const byComplex = new Map<string, { sum: number; n: number }>();
     for (const t of types.values()) {
@@ -197,15 +291,13 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
     }
     let num = 0;
     let den = 0;
-    const byDong = snapshotMonths.has(m)
-      ? new Map<string, { num: number; den: number; n: number }>()
-      : null;
+    const byDong = new Map<string, { num: number; den: number; n: number }>();
     for (const [cid, agg] of byComplex) {
       const w = weights.get(cid)!;
       num += (agg.sum / agg.n) * w;
       den += w;
-      const dong = byDong ? complexDong.get(cid) : null;
-      if (byDong && dong) {
+      const dong = complexDong.get(cid);
+      if (dong) {
         const d = byDong.get(dong.bj) ?? { num: 0, den: 0, n: 0 };
         d.num += (agg.sum / agg.n) * w;
         d.den += w;
@@ -213,69 +305,95 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
         byDong.set(dong.bj, d);
       }
     }
-    if (byDong) dongAt.set(m, byDong);
     const ym = ymFromIndex(m);
     points.push({
       yearMonth: ym,
-      pyeongPrice: den > 0 ? Math.round(num / den) : null,
+      pyeongPrice: den > 0 ? num / den : null,
       complexCount: byComplex.size,
       tradeCount: volume.get(ym) ?? 0,
     });
+    for (const [bj, list] of dongPoints) {
+      const d = byDong.get(bj);
+      list.push({
+        yearMonth: ym,
+        pyeongPrice: d && d.den > 0 ? d.num / d.den : null,
+        complexCount: d?.n ?? 0,
+        tradeCount: dongVolume.get(nameOf.get(bj)!)?.get(m) ?? 0,
+      });
+    }
   }
-
-  const tail = points[points.length - 1] ?? null;
-  const changes = {} as Record<keyof typeof CHANGE_MONTHS, number | null>;
-  for (const [key, months] of Object.entries(CHANGE_MONTHS) as Array<[keyof typeof CHANGE_MONTHS, number]>) {
-    const base = points[points.length - 1 - months];
-    changes[key] =
-      tail?.pyeongPrice != null && base?.pyeongPrice != null && base.pyeongPrice > 0
-        ? Math.round(((tail.pyeongPrice - base.pyeongPrice) / base.pyeongPrice) * 10000) / 100
-        : null;
-  }
-
-  const nameOf = new Map<string, string>();
-  for (const d of complexDong.values()) if (!nameOf.has(d.bj)) nameOf.set(d.bj, d.name);
-  const now = dongAt.get(last) ?? new Map();
-  const yearAgo = dongAt.get(last - 12) ?? new Map();
-  const dongs: RegionDongPrice[] = [...now.entries()]
-    .map(([bj, d]) => {
-      const price = d.den > 0 ? Math.round(d.num / d.den) : null;
-      const prev = yearAgo.get(bj);
-      const prevPrice = prev && prev.den > 0 ? prev.num / prev.den : null;
-      const name = nameOf.get(bj) ?? bj;
-      const trades = (dongVolume.get(name) ?? [])
-        .filter((v) => last - v.m < 12)
-        .reduce((sum, v) => sum + v.c, 0);
-      return {
-        bjdongCd: bj,
-        name,
-        pyeongPrice: price,
-        change1y:
-          price != null && prevPrice != null && prevPrice > 0
-            ? Math.round(((price - prevPrice) / prevPrice) * 10000) / 100
-            : null,
-        complexCount: d.n,
-        tradeCount12m: trades,
-      };
-    })
-    .sort((a, b) => (b.pyeongPrice ?? 0) - (a.pyeongPrice ?? 0));
 
   return {
-    status: "ok",
     lawdCd,
-    basis: "SUPPLY_PYEONG_LABEL",
-    method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED",
     points,
-    dongs,
-    latest: tail
-      ? {
-          yearMonth: tail.yearMonth,
-          pyeongPrice: tail.pyeongPrice,
-          complexCount: tail.complexCount,
-          changes,
-        }
-      : null,
+    dongs: [...dongPoints.entries()].map(([bj, list]) => ({
+      bjdongCd: bj,
+      name: nameOf.get(bj)!,
+      points: list,
+    })),
   };
+}
+
+export async function computeRegionPriceTrend(
+  db: RankingReader,
+  lawdCd: string,
+): Promise<RegionPriceTrend> {
+  return buildRegionPriceTrend(await computeRegionPriceSeries(db, lawdCd));
+}
+
+function dongCodeRange(lawdCd: string): [string, string] {
+  return [`${lawdCd}00000`, `${lawdCd}99999`];
+}
+
+/** 적재본이 있으면 구 시계열 전체와 최근 13개월 법정동 값만 읽는다. 없으면 null. */
+async function readMaterialized(db: RankingReader, lawdCd: string): Promise<RegionPriceTrend | null> {
+  const [lo, hi] = dongCodeRange(lawdCd);
+  const readDongs = (fromYm: string) =>
+    db.execute({
+      sql: `SELECT region_code, region_name, year_month, pyeong_price, complex_count, trade_count
+            FROM ${REGION_PRICE_INDEX_TABLE}
+            WHERE method_version = ? AND scope = 'dong'
+              AND region_code BETWEEN ? AND ? AND year_month >= ?`,
+      args: [REGION_PRICE_INDEX_METHOD, lo, hi, fromYm],
+    });
+  const speculativeFrom = monthIndex(seoulToday().slice(0, 7).replace("-", "")) - 14;
+  let guRows;
+  let dongRows;
+  try {
+    [guRows, dongRows] = await Promise.all([
+      db.execute({
+        sql: `SELECT year_month, pyeong_price, complex_count, trade_count
+              FROM ${REGION_PRICE_INDEX_TABLE}
+              WHERE method_version = ? AND scope = 'gu' AND region_code = ?
+              ORDER BY year_month`,
+        args: [REGION_PRICE_INDEX_METHOD, lawdCd],
+      }),
+      readDongs(ymFromIndex(speculativeFrom)),
+    ]);
+  } catch {
+    return null;
+  }
+  if (!guRows.rows.length) return null;
+  const toPoint = (r: Record<string, unknown>): RegionPriceRawPoint => ({
+    yearMonth: String(r.year_month),
+    pyeongPrice: r.pyeong_price == null ? null : Number(r.pyeong_price),
+    complexCount: Number(r.complex_count ?? 0),
+    tradeCount: Number(r.trade_count ?? 0),
+  });
+  const points = guRows.rows.map(toPoint);
+  const last = monthIndex(points[points.length - 1]!.yearMonth);
+  if (last - 12 < speculativeFrom) dongRows = await readDongs(ymFromIndex(last - 12));
+  const dongs = new Map<string, RegionDongPriceSeries>();
+  for (const r of dongRows.rows) {
+    const bj = String(r.region_code).slice(5);
+    let d = dongs.get(bj);
+    if (!d) {
+      d = { bjdongCd: bj, name: String(r.region_name), points: [] };
+      dongs.set(bj, d);
+    }
+    d.points.push(toPoint(r));
+  }
+  return buildRegionPriceTrend({ lawdCd, points, dongs: [...dongs.values()] });
 }
 
 export async function readRegionPriceTrend(
@@ -286,7 +404,8 @@ export async function readRegionPriceTrend(
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
   const pending = inflight.get(lawdCd);
   if (pending) return pending;
-  const job = compute(db, lawdCd)
+  const job = readMaterialized(db, lawdCd)
+    .then((stored) => stored ?? computeRegionPriceTrend(db, lawdCd))
     .then((value) => {
       cache.set(lawdCd, { at: Date.now(), value });
       return value;
