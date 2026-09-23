@@ -6,15 +6,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
 import {
-  TREND_PERIOD_TABS,
   fetchRegionRankingBoard,
   formatReferenceMonthCompact,
-  formatWonPerPyeong,
   rankingComplexHref,
   regionRankingCode,
 } from "@/lib/region-ranking/public";
 import type { RegionAptSummary } from "@/lib/region/region-summary";
-import type { RegionPriceTrend } from "@/lib/region/region-price-trend";
 import { RegionPriceTrendChart } from "@/components/region/RegionPriceTrendChart";
 
 export const MARKET_SECTION_SURFACE = "lab-card detail-card";
@@ -43,31 +40,8 @@ export function MarketSectionHeader({
   );
 }
 
-export function changeArrowText(pct: number | null | undefined): string {
-  if (pct == null || !Number.isFinite(pct)) return "—";
-  const abs = Math.abs(pct).toFixed(2);
-  if (pct > 0) return `▲ ${abs}%`;
-  if (pct < 0) return `▼ ${abs}%`;
-  return `${abs}%`;
-}
 
-export function changeToneClass(pct: number | null | undefined): string {
-  if (pct == null || !Number.isFinite(pct) || pct === 0) return "text-[color:var(--lab-muted)]";
-  return pct > 0 ? "detail-change-up" : "detail-change-down";
-}
 
-function changeSrText(pct: number | null | undefined): string {
-  if (pct == null || !Number.isFinite(pct) || pct === 0) return "";
-  return pct > 0 ? " 상승" : " 하락";
-}
-
-export function fetchRegionPriceTrend(lawdCd: string) {
-  return async (): Promise<RegionPriceTrend> => {
-    const res = await fetch(`/api/region-price-trend?lawd_cd=${lawdCd}`);
-    if (!res.ok) throw new Error("trend");
-    return (await res.json()) as RegionPriceTrend;
-  };
-}
 
 export function RegionPriceSection({
   lawdCodes,
@@ -77,17 +51,7 @@ export function RegionPriceSection({
   regionName: string;
 }) {
   const lawdCd = regionRankingCode(lawdCodes);
-  const query = useQuery({
-    queryKey: ["region-price-trend", lawdCd],
-    queryFn: fetchRegionPriceTrend(lawdCd ?? ""),
-    enabled: !!lawdCd,
-    staleTime: 30 * 60_000,
-    retry: 1,
-  });
   if (!lawdCd) return null;
-  const latest = query.data?.status === "ok" ? query.data.latest : null;
-  const priceText = formatWonPerPyeong(latest?.pyeongPrice);
-  const asOf = latest ? `${latest.yearMonth.slice(0, 4)}.${latest.yearMonth.slice(4, 6)}` : null;
 
   return (
     <section
@@ -96,7 +60,7 @@ export function RegionPriceSection({
     >
       <MarketSectionHeader
         title="지역 시세 평당가"
-        meta={asOf ? `공급면적 기준 · ${asOf}` : "공급면적 기준"}
+        meta="공급면적 기준"
         tip={
           <>
             <p>
@@ -111,45 +75,6 @@ export function RegionPriceSection({
           </>
         }
       />
-
-      <div className="rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-4 py-3">
-        <p className="detail-label">지역 시세 평당가</p>
-        {query.isLoading ? (
-          <div className="mt-2 h-7 w-32 animate-pulse rounded bg-teal-100/70" />
-        ) : (
-          <p className="detail-summary-value detail-kpi-brand mt-1 whitespace-nowrap">
-            {priceText ?? "—"}
-          </p>
-        )}
-        {latest ? (
-          <p className="detail-meta mt-0.5 tabular-nums">
-            단지 {latest.complexCount.toLocaleString("ko-KR")}곳 · 세대수 가중
-          </p>
-        ) : null}
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-        {TREND_PERIOD_TABS.map((tab) => {
-          const pct = latest?.changes[tab.id] ?? null;
-          return (
-            <div
-              key={tab.id}
-              className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-2 py-2.5 sm:px-3"
-            >
-              <p className="detail-label whitespace-nowrap">{tab.label} 전</p>
-              <p
-                className={`detail-data-value-emphasis mt-0.5 whitespace-nowrap ${changeToneClass(pct)}`}
-              >
-                {query.isLoading ? "…" : changeArrowText(pct)}
-                <span className="sr-only">{changeSrText(pct)}</span>
-              </p>
-            </div>
-          );
-        })}
-      </div>
-      <p className="detail-meta">같은 방식으로 계산한 과거 시세 평당가 대비</p>
-      </div>
 
       <RegionPriceTrendChart lawdCd={lawdCd} regionName={regionName} />
     </section>

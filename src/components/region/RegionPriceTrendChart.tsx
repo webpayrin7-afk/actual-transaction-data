@@ -56,29 +56,18 @@ function ymKorean(ym: string): string {
   return `${ym.slice(0, 4)}년 ${ym.slice(4, 6)}월`;
 }
 
-function formatManwon(n: number): string {
-  return `${Math.round(n).toLocaleString("ko-KR")}만원`;
-}
 
 function formatAxisManwon(n: number): string {
   if (n >= 10000) return `${(Math.round(n / 1000) / 10).toFixed(1).replace(/\.0$/, "")}억`;
   return `${(Math.round(n / 100) / 10).toFixed(1).replace(/\.0$/, "")}천`;
 }
 
-function signedManwon(n: number): string {
-  const sign = n > 0 ? "+" : n < 0 ? "−" : "";
-  return `${sign}${Math.abs(Math.round(n)).toLocaleString("ko-KR")}만원`;
-}
 
 function changeClass(n: number | null): string {
   if (n == null || n === 0) return "text-[color:var(--lab-muted)]";
   return n > 0 ? "detail-change-up" : "detail-change-down";
 }
 
-function pctText(diff: number | null, base: number | null): string {
-  if (diff == null || base == null || base <= 0) return "";
-  return ` (${((diff / base) * 100).toFixed(1)}%)`;
-}
 
 function total(row: { up: number; down: number; other: number }): number {
   return row.up + row.down + row.other;
@@ -328,9 +317,18 @@ export function RegionPriceTrendChart({
   const value = current?.pyeongPrice ?? null;
   const diffTo = (base: ChartRow | null) =>
     value != null && base?.pyeongPrice != null ? value - base.pyeongPrice : null;
-  const momDiff = diffTo(prevRow);
-  const yoyDiff = diffTo(yearAgo);
-  const peakDiff = diffTo(peak);
+  const threeYearsAgo = allIndex >= 36 ? all[allIndex - 36]! : null;
+  const changeTiles = [
+    { key: "1m", label: "1개월 전", base: prevRow },
+    { key: "1y", label: "1년 전", base: yearAgo },
+    { key: "3y", label: "3년 전", base: threeYearsAgo },
+    { key: "peak", label: "최고점", base: peak },
+  ].map((t) => {
+    const diff = diffTo(t.base);
+    const baseValue = t.base?.pyeongPrice ?? null;
+    const pct = diff != null && baseValue ? (diff / baseValue) * 100 : null;
+    return { ...t, diff, pct };
+  });
   const monthDetail = current ? detailQuery.data?.months?.[current.yearMonth] ?? null : null;
 
   if (query.isError) return null;
@@ -358,9 +356,47 @@ export function RegionPriceTrendChart({
     if (next) setSelected(next.yearMonth);
   };
 
+  const pctText2 = (pct: number | null) =>
+    pct == null ? "—" : `${pct > 0 ? "▲" : pct < 0 ? "▼" : ""} ${Math.abs(pct).toFixed(2)}%`.trim();
+
   return (
-    <div className="detail-subsection-rule flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="flex flex-col gap-3">
+      <div className="rounded-xl bg-[color:var(--lab-brand-subtle,#F0FDFA)] px-4 py-3" aria-live="polite">
+        <p className="detail-label">
+          {current ? `${ymKorean(current.yearMonth)}${current.partial ? " (진행 중)" : ""}` : "지역 시세 평당가"}
+        </p>
+        {query.isLoading ? (
+          <div className="mt-2 h-7 w-32 animate-pulse rounded bg-teal-100/70" />
+        ) : (
+          <p className="detail-summary-value detail-kpi-brand mt-1 whitespace-nowrap">
+            {value != null ? `${Math.round(value).toLocaleString("ko-KR")}만원/평` : "—"}
+          </p>
+        )}
+        {current ? (
+          <p className="detail-meta mt-0.5 tabular-nums">
+            단지 {current.complexCount.toLocaleString("ko-KR")}곳 · 세대수 가중
+          </p>
+        ) : null}
+      </div>
+
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+        {changeTiles.map((t) => (
+          <div
+            key={t.key}
+            className="min-w-0 rounded-xl border border-[color:var(--lab-border)] px-2 py-2.5 sm:px-3"
+          >
+            <p className="detail-label whitespace-nowrap">{t.label}</p>
+            <p className={`detail-data-value-emphasis mt-0.5 whitespace-nowrap ${changeClass(t.pct)}`}>
+              {query.isLoading ? "…" : pctText2(t.pct)}
+              <span className="sr-only">
+                {t.pct == null || t.pct === 0 ? "" : t.pct > 0 ? " 상승" : " 하락"}
+              </span>
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="detail-subsection-rule flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">{regionName} 시세 평당가 추이</h3>
           <InfoTip aria-label="평당가 추이 안내">
@@ -496,30 +532,7 @@ export function RegionPriceTrendChart({
                 onNext={() => stepMonth(1)}
               />
               <dl className="mt-2 divide-y divide-[color:var(--lab-border)]">
-                <DataRow label="시세 평당가">
-                  <span className="detail-summary-value">
-                    {value != null ? formatManwon(value) : "—"}
-                  </span>
-                  <span className="detail-meta block">
-                    {value != null
-                      ? `단지 ${current.complexCount.toLocaleString("ko-KR")}곳 · 세대수 가중`
-                      : "계산할 수 있는 단지가 없습니다."}
-                  </span>
-                </DataRow>
-                {(
-                  [
-                    ["전월 대비", momDiff, prevRow?.pyeongPrice ?? null],
-                    ["전년 대비", yoyDiff, yearAgo?.pyeongPrice ?? null],
-                    ["최고점 대비", peakDiff, peak?.pyeongPrice ?? null],
-                  ] as const
-                ).map(([label, diff, base]) => (
-                  <DataRow key={label} label={label}>
-                    <span className={`detail-data-value-emphasis ${changeClass(diff)}`}>
-                      {diff != null ? `${signedManwon(diff)}${pctText(diff, base)}` : "—"}
-                    </span>
-                  </DataRow>
-                ))}
-                <DataRow label="거래량">
+                <DataRow label="이 달 매매 거래">
                   <span className="detail-data-value-emphasis">
                     {current.tradeCount.toLocaleString("ko-KR")}건
                   </span>
