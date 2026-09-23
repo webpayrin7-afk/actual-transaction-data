@@ -42,7 +42,7 @@ const DISCLAIMER =
   "계산 결과는 입력값을 기준으로 한 참고용이며, 실제 대출 가능 금액과 조건은 금융기관 심사에 따라 달라질 수 있습니다.";
 
 const PANEL_SCROLL =
-  "scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)]";
+  "scroll-mt-[calc(var(--site-header-height,3.5rem)+var(--lab-quicknav-height,0px)+0.75rem)]";
 
 function initialRateFromQuery(searchParams: URLSearchParams): string {
   const raw = searchParams.get("rate");

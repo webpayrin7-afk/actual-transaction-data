@@ -43,7 +43,6 @@ function drawerItemClass(active: boolean) {
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuMounted, setMenuMounted] = useState(false);
   const [menuShown, setMenuShown] = useState(false);
@@ -144,17 +143,12 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      className={`sticky top-0 z-50 bg-white ${
-        isHome
-          ? "border-b-0 shadow-none sm:border-b sm:border-slate-200/80"
-          : "border-b border-slate-200/80"
-      }`}
+      // Mobile: the quick nav below carries the divider on every page.
+      className="sticky top-0 z-50 border-b-0 bg-white shadow-none sm:border-b sm:border-slate-200/80"
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div
-          className={`flex flex-col gap-0.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0 ${
-            isHome ? "pt-1.5 pb-1" : "py-1"
-          }`}
+          className="flex flex-col gap-0.5 pt-1.5 pb-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0"
         >
           <div className="flex min-w-0 items-center gap-2 sm:gap-5">
             <Link
@@ -200,26 +194,7 @@ export function SiteHeader() {
             </div>
           </div>
 
-          {/* Home uses QuickNav + sticky compact nav instead of text tabs. */}
-          {!isHome ? (
-            <nav
-              className="ml-0.5 flex items-center gap-0.5 overflow-x-auto px-0.5 pb-0.5 sm:hidden"
-              aria-label="주요 메뉴"
-            >
-              {PRIMARY_NAV.map((item) => {
-                const active = item.match(pathname);
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className={navLinkClass(active)}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          ) : null}
+          {/* Mobile: HomeNavigation (AppShell) is the menu on every page — no text tabs here. */}
         </div>
       </div>
       <SiteHeaderLoadProgress />

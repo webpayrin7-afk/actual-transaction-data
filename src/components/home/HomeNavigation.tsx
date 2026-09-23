@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LabTag } from "@/components/ui/LabTag";
 import { HOME_QUICK_NAV } from "@/lib/nav/home-quick-nav";
@@ -11,18 +11,21 @@ const EASE = "duration-200 ease-out";
 const COMPACT_SCROLL_Y = 12;
 
 /**
- * Mobile home navigation — expanded ↔ compact morph, sticky under SiteHeader.
- * Rendered outside PAGE_SHELL (MarketHome) so sticky spans the full page.
+ * Mobile quick navigation on every menu page (AppShell), sticky under SiteHeader.
+ * Home: starts expanded and morphs to compact on scroll. Other pages: always compact.
  */
 export function HomeNavigation() {
   const pathname = usePathname();
-  const [compact, setCompact] = useState(false);
+  const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
+  const compact = !isHome || scrolled;
 
   useEffect(() => {
+    if (!isHome) return;
     let raf = 0;
     const update = () => {
       raf = 0;
-      setCompact(window.scrollY > COMPACT_SCROLL_Y);
+      setScrolled(window.scrollY > COMPACT_SCROLL_Y);
     };
     const onScroll = () => {
       if (!raf) raf = window.requestAnimationFrame(update);
@@ -33,10 +36,28 @@ export function HomeNavigation() {
       window.removeEventListener("scroll", onScroll);
       if (raf) window.cancelAnimationFrame(raf);
     };
+  }, [isHome]);
+
+  // Expose height for full-height pages (지도) and sticky offsets; 0 when hidden (≥sm).
+  const navRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const root = document.documentElement;
+    const sync = () =>
+      root.style.setProperty("--lab-quicknav-height", `${Math.round(el.getBoundingClientRect().height)}px`);
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--lab-quicknav-height");
+    };
   }, []);
 
   return (
     <nav
+      ref={navRef}
       aria-label="주요 탐색"
       data-mode={compact ? "compact" : "expanded"}
       className={[

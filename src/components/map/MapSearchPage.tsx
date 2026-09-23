@@ -268,7 +268,10 @@ export function MapSearchPage() {
   return (
     <div
       className="relative w-full"
-      style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}
+      style={{
+        height:
+          "calc(100dvh - var(--site-header-height, 56px) - var(--lab-quicknav-height, 0px))",
+      }}
     >
       {/* h-full, not absolute inset-0: the NAVER SDK forces position:relative on its host. */}
       <div ref={hostRef} className="h-full w-full" role="application" aria-label="단지 가격 지도" />

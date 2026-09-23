@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
-import { BarChart3, Building2, MapPinned, Search } from "lucide-react";
+import { BarChart3, Building2, Map, MapPinned, Search } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { HomeNavigation } from "@/components/home/HomeNavigation";
 
 const NAV = [
   {
@@ -33,6 +34,12 @@ const NAV = [
     label: "시장 동향",
     icon: Search,
     match: (p: string) => p.startsWith("/stats"),
+  },
+  {
+    href: "/map",
+    label: "지도로 찾기",
+    icon: Map,
+    match: (p: string) => p.startsWith("/map"),
   },
 ] as const;
 
@@ -115,6 +122,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="flex min-h-dvh min-w-0 flex-col lg:col-start-2">
         <SiteHeader />
+        {/* Mobile quick nav on every menu page — expanded on home, compact elsewhere. */}
+        <HomeNavigation />
         <main className="flex-1">{children}</main>
         <SiteFooter />
       </div>

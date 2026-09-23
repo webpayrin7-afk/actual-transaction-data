@@ -1104,7 +1104,7 @@ export function RegionDailyStatus({
                     flashDate === date ? `${date}-flash-${flashNonce}` : date
                   }
                   id={recordDateDomId(date)}
-                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+var(--lab-sticky-nav-height,0px)+0.75rem)] ${headingClass}`}
+                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+var(--lab-quicknav-height,0px)+var(--lab-sticky-nav-height,0px)+0.75rem)] ${headingClass}`}
                 >
                   <PhraseRow
                     className="text-sm font-medium text-slate-900"

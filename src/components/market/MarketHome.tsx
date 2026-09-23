@@ -4,7 +4,6 @@ import { Fragment, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
-import { HomeNavigation } from "@/components/home/HomeNavigation";
 import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 import { LabSection as LabExperiments } from "@/components/lab/LabSection";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
@@ -156,7 +155,6 @@ export function MarketHome() {
 
   return (
     <>
-      <HomeNavigation />
     <div className={PAGE_SHELL}>
       <PageHeader
         title="오늘의 아파트 시장"
