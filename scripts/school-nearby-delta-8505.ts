@@ -23,8 +23,10 @@ import {
   type NearbySchoolPoint,
 } from "../src/lib/school-national/nearby-delta";
 
-const ARTIFACT = "data/poc/living/school-delta-newly-coordinate-ready.json";
-const EXPECTED_COUNT = 8505;
+const artifactArg = process.argv.find((arg) => arg.startsWith("--artifact="));
+const ARTIFACT = artifactArg ? artifactArg.slice("--artifact=".length) : "data/poc/living/school-delta-newly-coordinate-ready.json";
+const labelArg = process.argv.find((arg) => arg.startsWith("--label="));
+const REPORT_LABEL = labelArg ? labelArg.slice("--label=".length) : "8505";
 const WRITE_TABLES = ["complex_nearby_schools", "complex_nearby_materialization"];
 const KOREA_LAT = { min: 33, max: 39.5 };
 const KOREA_LNG = { min: 124, max: 132.5 };
@@ -100,10 +102,11 @@ function loadTargetIds(): string[] {
     throw new Error(`unexpected purpose: ${artifact.purpose}`);
   }
   const ids = artifact.complex_ids;
-  if (artifact.count !== EXPECTED_COUNT || ids.length !== EXPECTED_COUNT) {
-    throw new Error(`expected ${EXPECTED_COUNT}, got count=${artifact.count} len=${ids.length}`);
+  const expected = artifact.count ?? ids.length;
+  if (expected !== ids.length || artifact.count !== ids.length) {
+    throw new Error(`artifact count mismatch: count=${artifact.count} len=${ids.length}`);
   }
-  if (new Set(ids).size !== EXPECTED_COUNT) {
+  if (new Set(ids).size !== ids.length) {
     throw new Error("duplicate complex_id in artifact");
   }
   return ids;
@@ -579,7 +582,7 @@ async function main(): Promise<void> {
   mkdirSync(outDir, { recursive: true });
 
   if (!write) {
-    writeFileSync(path.join(outDir, "nearby-delta-8505-dryrun.json"), JSON.stringify(dry, null, 2));
+    writeFileSync(path.join(outDir, `nearby-delta-${REPORT_LABEL}-dryrun.json`), JSON.stringify(dry, null, 2));
     console.log(JSON.stringify(dry, null, 2));
     return;
   }
@@ -610,7 +613,7 @@ async function main(): Promise<void> {
     pilots_before: pilotBefore,
     pilots_after: pilots,
   };
-  writeFileSync(path.join(outDir, "nearby-delta-8505-apply.json"), JSON.stringify(report, null, 2));
+  writeFileSync(path.join(outDir, `nearby-delta-${REPORT_LABEL}-apply.json`), JSON.stringify(report, null, 2));
   console.log(
     JSON.stringify(
       {
