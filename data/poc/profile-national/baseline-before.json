@@ -1,0 +1,51 @@
+{
+  "at": "2026-09-23T05:06:36.250Z",
+  "national": {
+    "total": 27524,
+    "profile_rows": 8132,
+    "hh": 2973,
+    "bld": 2325,
+    "ap": 1924,
+    "mf": 8062,
+    "far": 2067,
+    "bcr": 2070,
+    "heat": 1060,
+    "pph": 2484
+  },
+  "seoul": {
+    "total": 8437,
+    "profile_rows": 8131,
+    "hh": 2972,
+    "bld": 2324,
+    "ap": 1923,
+    "mf": 8061,
+    "far": 2067,
+    "bcr": 2070,
+    "heat": 1059,
+    "pph": 2484
+  },
+  "gyeonggi": {
+    "total": 6529,
+    "profile_rows": 1,
+    "hh": 1,
+    "bld": 1,
+    "ap": 1,
+    "mf": 1,
+    "far": 0,
+    "bcr": 0,
+    "heat": 1,
+    "pph": 0
+  },
+  "seoul_chips": {
+    "zero": 5428,
+    "one": 287,
+    "two_plus": 2722,
+    "three": 1488
+  },
+  "gyeonggi_chips": {
+    "zero": 6528,
+    "one": 0,
+    "two_plus": 1,
+    "three": 1
+  }
+}
