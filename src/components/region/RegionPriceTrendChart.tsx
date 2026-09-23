@@ -50,6 +50,14 @@ const DIR_OTHER = "#CBD5E1";
 
 type ChartRow = RegionPriceTrendPoint & { label: string; partial: boolean };
 
+type SeoulRank = {
+  status: "ok";
+  yearMonth: string;
+  total: number;
+  priceRank: number | null;
+  change1yRank: number | null;
+};
+
 function ymDot(ym: string): string {
   return `${ym.slice(0, 4)}.${ym.slice(4, 6)}`;
 }
@@ -275,6 +283,18 @@ export function RegionPriceTrendChart({
     staleTime: 30 * 60_000,
     retry: 1,
   });
+  const rankQuery = useQuery({
+    queryKey: ["region-seoul-rank", lawdCd],
+    queryFn: async (): Promise<SeoulRank | null> => {
+      const res = await fetch(`/api/region-seoul-rank?lawd_cd=${lawdCd}`);
+      if (!res.ok) return null;
+      const body = (await res.json()) as SeoulRank | { status: string };
+      return body.status === "ok" ? (body as SeoulRank) : null;
+    },
+    enabled: !!lawdCd,
+    staleTime: 60 * 60_000,
+    retry: 0,
+  });
   const detailQuery = useQuery({
     queryKey: ["region-market-detail", lawdCd],
     queryFn: async () => {
@@ -393,6 +413,20 @@ export function RegionPriceTrendChart({
           <p className="detail-meta mt-0.5 tabular-nums">
             이 달 매매 {current.tradeCount.toLocaleString("ko-KR")}건 · 단지{" "}
             {current.complexCount.toLocaleString("ko-KR")}곳 기준
+          </p>
+        ) : null}
+        {current && rankQuery.data && rankQuery.data.yearMonth === current.yearMonth ? (
+          <p className="mt-1.5 flex flex-wrap gap-1.5">
+            {rankQuery.data.priceRank != null ? (
+              <span className="inline-flex rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-brand-primary)]">
+                서울 {rankQuery.data.total}개 구 중 {rankQuery.data.priceRank}위
+              </span>
+            ) : null}
+            {rankQuery.data.change1yRank != null ? (
+              <span className="inline-flex rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-body)]">
+                1년 상승률 {rankQuery.data.change1yRank}위
+              </span>
+            ) : null}
           </p>
         ) : null}
       </div>
