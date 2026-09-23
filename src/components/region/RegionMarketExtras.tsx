@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
+import { SaleRow } from "@/components/apt/ComplexNearbySalesSection";
 import {
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
@@ -72,6 +73,7 @@ function HighlightRow({
     formatSqmApproxPyeong(deal.exclusiveArea),
     deal.floor != null ? `${deal.floor}층` : null,
     shortDate(deal.dealDate),
+    sub,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -91,10 +93,9 @@ function HighlightRow({
           <p className="detail-list-title mt-1 break-keep">{deal.aptName}</p>
           <p className="detail-meta break-keep">{meta}</p>
         </div>
-        <div className="shrink-0 self-center text-right">
-          <p className={`detail-list-title whitespace-nowrap ${t.value}`}>{value}</p>
-          {sub ? <p className="detail-meta whitespace-nowrap">{sub}</p> : null}
-        </div>
+        <p className={`detail-list-title shrink-0 self-center whitespace-nowrap text-right ${t.value}`}>
+          {value}
+        </p>
         <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
       </Link>
     </li>
@@ -314,7 +315,7 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
       ) : (
         <>
           <div className="rounded-xl bg-[color:var(--lab-brand-subtle)] px-4 py-3">
-            <p className="detail-label">앞으로 {SUPPLY_HORIZON_YEARS}년 입주 예정</p>
+            <p className="detail-label">앞으로 {SUPPLY_HORIZON_YEARS}년 동안 입주 예정</p>
             <p className="detail-summary-value detail-kpi-brand mt-1">
               {items.length.toLocaleString("ko-KR")}곳
             </p>
@@ -324,7 +325,7 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
             {groups.map((g) => {
               const units = g.list.reduce((sum, it) => sum + (it.supplyCount ?? 0), 0);
               return (
-                <div key={g.year} className="detail-subsection-rule first:mt-0 first:border-t-0 first:pt-1">
+                <div key={g.year} className="mt-4 border-t border-[color:var(--lab-border)] pt-4 first:mt-0 first:border-t-0 first:pt-0">
                   <div className="flex items-baseline justify-between gap-2">
                     <h3 className="detail-subsection-title">{g.year}년</h3>
                     <p className="detail-meta tabular-nums">
@@ -332,43 +333,9 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
                       {units > 0 ? ` · ${units.toLocaleString("ko-KR")}세대·실` : ""}
                     </p>
                   </div>
-                  <ul className="mt-1 divide-y divide-[color:var(--lab-border)]">
+                  <ul className="mt-2 overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
                     {g.list.map((it) => (
-                      <li key={it.id} className="flex items-start justify-between gap-3 py-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="detail-list-title break-keep">{it.houseName}</p>
-                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                            <span className="inline-flex rounded-full bg-[color:var(--lab-surface-subtle)] px-2 py-0.5 text-[12px] font-medium leading-4 text-[color:var(--lab-body)]">
-                              {it.housingCategory === "officetel" ? "오피스텔" : "아파트"}
-                            </span>
-                            {it.statusLabel ? (
-                              <span className="inline-flex rounded-full bg-[color:var(--lab-brand-subtle)] px-2 py-0.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-brand-primary)]">
-                                {it.statusLabel}
-                              </span>
-                            ) : null}
-                            {it.supplyCountLabel ? (
-                              <span className="detail-meta">{it.supplyCountLabel}</span>
-                            ) : null}
-                          </div>
-                        </div>
-                        <div className="flex shrink-0 flex-col items-end gap-1">
-                          <p className="detail-data-value-emphasis whitespace-nowrap">
-                            {it.moveInLabel} 입주
-                          </p>
-                          {it.pblancUrl ? (
-                            <a
-                              href={it.pblancUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex min-h-[44px] items-center gap-0.5 text-[14px] font-semibold leading-5 hover:underline"
-                              style={{ color: "var(--lab-brand-primary)" }}
-                            >
-                              공고 보기
-                              <ChevronRight className="h-4 w-4" aria-hidden />
-                            </a>
-                          ) : null}
-                        </div>
-                      </li>
+                      <SaleRow key={it.id} item={it} />
                     ))}
                   </ul>
                 </div>

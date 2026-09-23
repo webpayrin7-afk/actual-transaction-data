@@ -119,7 +119,7 @@ function DetailCta({
  * Stack: name → meta → badges → date/link.
  * Badges wrap; long names wrap naturally.
  */
-function SaleRow({ item }: { item: NearbySaleCard }) {
+export function SaleRow({ item }: { item: NearbySaleCard }) {
   const isMoveIn = item.status === "move_in_upcoming";
   const detailHref = item.pblancUrl;
   const detailLabel = isMoveIn ? "공고상세 가기 →" : "청약상세 가기 →";
