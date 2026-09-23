@@ -4,7 +4,6 @@ import { useState } from "react";
 import { LAB_SUBSECTION_RULE, LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
-import { LabStatTiles } from "@/components/ui/LabStatTiles";
 import type { AptHistoryItem } from "@/lib/molit/apt-client";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
 
@@ -108,7 +107,7 @@ function singogaEvents(tradesAsc: AptHistoryItem[]): SingogaEvent[] {
   return events.reverse();
 }
 
-function SingogaHistory({ tradesAsc }: { tradesAsc: AptHistoryItem[] }) {
+function SingogaHistory({ tradesAsc, ruled }: { tradesAsc: AptHistoryItem[]; ruled: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const events = singogaEvents(tradesAsc);
   if (events.length === 0) return null;
@@ -117,7 +116,7 @@ function SingogaHistory({ tradesAsc }: { tradesAsc: AptHistoryItem[] }) {
   const last = events[0]!.item;
 
   return (
-    <div className={`${LAB_SUBSECTION_RULE} flex flex-col gap-3`}>
+    <div className={`${ruled ? LAB_SUBSECTION_RULE : ""} flex flex-col gap-3`}>
       <LabSubsectionHeader
         title="신고가 이력"
         meta={`${events.length}회 · 최근 ${formatDealDate(last.dealDate)}`}
@@ -145,16 +144,28 @@ function SingogaHistory({ tradesAsc }: { tradesAsc: AptHistoryItem[] }) {
   );
 }
 
-/* ---------- 3. 전월세 시세 ---------- */
+/* ---------- 전월세 지표 (실거래 시세 섹션에서 사용) ---------- */
 
-function RentSummary({ rents }: { rents: AptHistoryItem[] }) {
+export type RentMetrics = {
+  /** 전월세 전환율 % (연), 계산 불가면 null */
+  conversionPct: number | null;
+  /** 전월세 계약 중 월세 비중 % */
+  wolseSharePct: number;
+  jeonseCount: number;
+  wolseCount: number;
+};
+
+/**
+ * 최근 2년 전월세 계약에서 전환율·월세 비중.
+ * 전환율 = 연 월세 ÷ (전세 중위가 − 월세 보증금), 전세 중위보다 보증금이 낮은 계약의 중위값.
+ */
+export function computeRentMetrics(items: AptHistoryItem[]): RentMetrics | null {
+  const since = monthsAgoIso(WINDOW_MONTHS);
+  const rents = items.filter((i) => i.dealType === "rent" && i.dealDate >= since);
   const jeonse = rents.filter(isJeonse);
   const wolse = rents.filter(isWolse);
   if (jeonse.length + wolse.length === 0) return null;
   const jeonseMedian = median(jeonse.map((i) => i.dealAmount));
-  const wolseDeposit = median(wolse.map((i) => i.dealAmount));
-  const wolseRent = median(wolse.map((i) => Number(i.monthlyRent)));
-  // 전월세 전환율 = 연 월세 ÷ (전세 − 월세 보증금). 전세 중위보다 보증금이 낮은 계약만.
   const conversion =
     jeonseMedian != null
       ? median(
@@ -163,39 +174,12 @@ function RentSummary({ rents }: { rents: AptHistoryItem[] }) {
             .map((i) => ((Number(i.monthlyRent) * 12) / (jeonseMedian - i.dealAmount)) * 100),
         )
       : null;
-  const wolseShare = Math.round((wolse.length / (jeonse.length + wolse.length)) * 100);
-
-  return (
-    <div className={`${LAB_SUBSECTION_RULE} flex flex-col gap-3`}>
-      <LabSubsectionHeader
-        title="전월세 시세"
-        meta={`최근 2년 · 전세 ${jeonse.length}건 · 월세 ${wolse.length}건`}
-        tip="최근 2년 계약의 중위값입니다. 전월세 전환율은 월세 1년치를 (전세 중위가 − 월세 보증금)으로 나눈 비율의 중위값입니다."
-      />
-      <LabStatTiles
-        columns={2}
-        items={[
-          { key: "jeonse", label: "전세", value: jeonseMedian != null ? formatEok(Math.round(jeonseMedian)) : "—" },
-          {
-            key: "wolse",
-            label: "월세",
-            value:
-              wolseDeposit != null && wolseRent != null
-                ? `${formatEok(Math.round(wolseDeposit))} / ${Math.round(wolseRent).toLocaleString("ko-KR")}만`
-                : "—",
-            sub: wolse.length ? "보증금 / 월세" : undefined,
-          },
-          {
-            key: "conversion",
-            label: "전월세 전환율",
-            value: conversion != null ? `${conversion.toFixed(1)}%` : "—",
-            sub: "연 기준",
-          },
-          { key: "share", label: "월세 비중", value: `${wolseShare}%`, sub: "전월세 계약 중" },
-        ]}
-      />
-    </div>
-  );
+  return {
+    conversionPct: conversion,
+    wolseSharePct: Math.round((wolse.length / (jeonse.length + wolse.length)) * 100),
+    jeonseCount: jeonse.length,
+    wolseCount: wolse.length,
+  };
 }
 
 /**
@@ -215,18 +199,17 @@ export function ComplexTradeInsightSection({
   const trades = items.filter((i) => i.dealType === "trade");
   const recentTrades = trades.filter((i) => i.dealDate >= since);
   const tradesAsc = [...trades].sort((a, b) => (a.dealDate < b.dealDate ? -1 : 1));
-  const recentRents = items.filter((i) => i.dealType === "rent" && i.dealDate >= since);
 
   const hasFloor = recentTrades.length >= MIN_SAMPLE;
   const hasSingoga = trades.some((t) => t.isSingoga);
-  const hasRent = recentRents.length > 0;
-  if (!hasFloor && !hasSingoga && !hasRent) return null;
+  if (!hasFloor && !hasSingoga) return null;
 
   return (
     <LabSection id="section-trade-insight" title="거래 분석" meta={`${areaLabel} 기준`} className="gap-4">
       {hasFloor ? <FloorPrices trades={recentTrades} maxFloor={maxFloor} /> : null}
-      {hasSingoga ? <SingogaHistory tradesAsc={tradesAsc} /> : null}
-      {hasRent ? <RentSummary rents={recentRents} /> : null}
+      {hasSingoga ? (
+        <SingogaHistory tradesAsc={tradesAsc} ruled={hasFloor} />
+      ) : null}
     </LabSection>
   );
 }
