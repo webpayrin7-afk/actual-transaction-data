@@ -219,16 +219,19 @@ function RegionTradeSignals({ lawdCd }: { lawdCd: string }) {
           </p>
         ) : null}
       </div>
-      <dl className="mt-2 divide-y divide-[color:var(--lab-border)]">
+      <dl className="mt-3 grid grid-cols-2 gap-2">
         {tiles.map((t) => {
           const share =
             a && a.tradeCount > 0 && t.value != null
               ? Math.round((t.value / a.tradeCount) * 100)
               : null;
           return (
-            <div key={t.key} className="flex items-baseline justify-between gap-3 py-2.5">
-              <dt className="detail-label">{t.label}</dt>
-              <dd>
+            <div
+              key={t.key}
+              className="flex min-w-0 flex-col gap-0.5 rounded-xl border border-[color:var(--lab-border)] px-3 py-2.5"
+            >
+              <dt className="detail-label break-keep">{t.label}</dt>
+              <dd className="whitespace-nowrap tabular-nums">
                 {query.isLoading ? (
                   <span className="inline-block h-5 w-14 animate-pulse rounded bg-slate-100 align-middle" />
                 ) : (
