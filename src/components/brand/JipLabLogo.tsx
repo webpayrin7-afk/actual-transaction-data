@@ -21,7 +21,7 @@ export function JipLabLogo({
       <Image
         src="/brand/jiplab-logo.png"
         alt={title}
-        width={1087}
+        width={1065}
         height={406}
         priority={priority}
         className="h-7 w-auto"
