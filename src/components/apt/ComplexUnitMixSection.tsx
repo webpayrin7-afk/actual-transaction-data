@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LabDonut } from "@/components/ui/LabDonut";
+import { LabShareBars } from "@/components/ui/LabShareBars";
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
@@ -100,6 +101,9 @@ export function ComplexUnitMixSection({
   const hidden = groups.length - LAB_LIST_PREVIEW;
   const partial =
     complexHouseholdCount != null && complexHouseholdCount > total;
+  /** 도넛은 평형 ≤4개이고 모든 조각이 5% 이상일 때만 (작은 조각 라벨이 겹치지 않게). */
+  const useDonut =
+    groups.length <= 4 && groups.every((g) => g.householdCount / total >= 0.05);
 
   return (
     <LabSection
@@ -116,6 +120,8 @@ export function ComplexUnitMixSection({
           : "건축물대장 전유부 기준 평형별 세대수입니다. 평형을 누르면 시세·계산기가 그 면적으로 바뀝니다."
       }
     >
+      {useDonut ? (
+      <>
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
         <LabDonut
           segments={groups.map((g, i) => ({
@@ -162,6 +168,23 @@ export function ComplexUnitMixSection({
           label={`${hidden}개 평형 더보기`}
         />
       ) : null}
+      </>
+      ) : (
+        // 평형이 많거나 작은 조각이 있으면 가로 막대 — 평형 순서(작은 → 큰) 유지.
+        <LabShareBars
+          sort="none"
+          items={groups.map((g) => ({
+            key: g.key,
+            label: g.title,
+            meta: g.meta,
+            value: g.householdCount,
+            sub: `${g.householdCount.toLocaleString("ko-KR")}세대`,
+            onClick: g.area ? () => onAreaChange(g.area!.key) : undefined,
+            selected: selectedKey == null ? undefined : g.key === selectedKey,
+          }))}
+          moreLabel={(n) => `${n}개 평형 더보기`}
+        />
+      )}
       {unitMix.sourceAsOf ? (
         <p className="detail-meta">건축물대장 · {unitMix.sourceAsOf} 기준</p>
       ) : null}
