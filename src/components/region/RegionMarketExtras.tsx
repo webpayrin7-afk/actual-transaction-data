@@ -5,32 +5,20 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { SaleRow } from "@/components/apt/ComplexNearbySalesSection";
+import { RegionMarketTemperature } from "@/components/region/RegionMarketTemperature";
+import { useRegionMarketDetail } from "@/components/region/useRegionMarketDetail";
+
+export { useRegionMarketDetail };
 import {
   MARKET_SECTION_SURFACE,
   MarketSectionHeader,
 } from "@/components/region/RegionMarketSections";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import { seoulToday } from "@/lib/market/time";
-import type {
-  RegionHighlightDeal,
-  RegionMarketDetail,
-} from "@/lib/region/region-market-detail";
+import type { RegionHighlightDeal } from "@/lib/region/region-market-detail";
 import type { NearbySalesResult } from "@/lib/complex-detail/applyhome-nearby-sales";
 import { formatEok, formatSqmApproxPyeong } from "@/lib/utils/format";
 
-export function useRegionMarketDetail(lawdCd: string | null) {
-  return useQuery({
-    queryKey: ["region-market-detail", lawdCd],
-    queryFn: async () => {
-      const res = await fetch(`/api/region-market-detail?lawd_cd=${lawdCd}`);
-      if (!res.ok) throw new Error("detail");
-      return (await res.json()) as RegionMarketDetail;
-    },
-    enabled: !!lawdCd,
-    staleTime: 30 * 60_000,
-    retry: 1,
-  });
-}
 
 function shortDate(day: string): string {
   return `${day.slice(2, 4)}.${day.slice(5, 7)}.${day.slice(8, 10)}`;
@@ -162,7 +150,10 @@ export function RegionTradeHighlightsSection({
           </p>
         }
       />
-      <RegionTradeSignals lawdCd={lawdCd} />
+      <RegionMarketTemperature lawdCd={lawdCd} />
+      <div className="border-t border-[color:var(--lab-border)] pt-4">
+        <RegionTradeSignals lawdCd={lawdCd} />
+      </div>
       <div className="mt-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[color:var(--lab-border)] pt-4">
         <div className="flex min-w-0 items-center">
           <h3 className="detail-subsection-title">주목할 거래</h3>
