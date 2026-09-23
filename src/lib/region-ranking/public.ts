@@ -30,7 +30,7 @@ export const REGION_RANK_V3_TABS: ReadonlyArray<{
 export const REGION_APT_RANK_TITLE = "지역 아파트 순위";
 export const REGION_APT_RANK_TIP_TITLE = "집랩 순위란?";
 export const REGION_APT_RANK_TIP =
-  "가격 수준, 가격 흐름, 단지 특성 등을 종합해 같은 지역의 아파트를 비교한 집랩 순위예요.";
+  "가격 수준, 거래 활발도, 단지 규모, 회전율을 같은 지역 안에서 비교해 종합한 집랩 순위예요.";
 export const REGION_RANK_EMPTY_DECADE_COPY =
   "이 평형대의 순위 정보가 아직 없습니다.";
 export const REGION_RANK_UNAVAILABLE_COPY = "순위 정보를 준비 중입니다.";
@@ -44,7 +44,7 @@ export const RANKING_TABS: ReadonlyArray<{
   {
     id: "COMPOSITE",
     label: "종합",
-    hint: "가격 경쟁력, 거래활성도, 단지 규모, 시장 안정성과 최근 흐름 등을 종합해 비교합니다.",
+    hint: "가격 수준, 거래 활발도, 단지 규모, 회전율을 종합해 비교합니다.",
   },
   {
     id: "TRADE_VOLUME",
@@ -84,6 +84,7 @@ export type RegionRankingRow = {
   confidence?: string | null;
   coverage?: RegionRankingCoverage | null;
   public_metrics?: RegionRankingPublicMetrics | null;
+  percentiles?: { price: number; liquidity: number; size: number; turnover: number } | null;
   trade_count_3m?: unknown;
   latest_deal_date?: unknown;
   median_price_per_sqm_3m?: unknown;
@@ -676,7 +677,8 @@ export const COMPLEX_EXACT_TIP = "이 단지는 선택한 평형만 사용합니
 export const ZIPLAB_RANK_TITLE = "집랩 순위";
 export const ZIPLAB_RANK_TIP_TITLE = "집랩 순위란?";
 export const ZIPLAB_RANK_TIP = [
-  "거래 가격과 같은 지역·평형대 안에서의 상대적인 위치를 종합해, 단지가 지역 안에서 어느 정도인지 보여줍니다.",
+  "같은 지역·평형대 안에서 거래 가격 수준(50%), 거래 활발도(20%), 단지 규모(20%), 회전율(10%)의 상대적인 위치를 종합해 순위를 매깁니다.",
+  "최근 12개월 거래 6건 이상, 세대수 100세대 이상인 단지만 순위에 포함합니다.",
   "종합은 단지 전체를, 평형대 순위는 현재 선택한 평형이 속한 평형대를 기준으로 합니다.",
 ].join("\n\n");
 

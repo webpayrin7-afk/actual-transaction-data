@@ -151,6 +151,7 @@ export async function GET(request: NextRequest) {
           public_metrics: publicMetricsOf(metrics),
           trade_count_3m: extra?.tradeCount3m ?? 0,
           median_price_per_sqm_3m: extra?.medianPricePerSqm3m ?? null,
+          percentiles: row.percentiles ?? null,
         };
       }),
     });

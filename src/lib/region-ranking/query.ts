@@ -1,7 +1,9 @@
 /**
  * Read path for the Seoul launch dataset.
- * Does not score and does not contain private config.
+ * Composite and decade boards are scored at read time by Ranking V4
+ * over published V3 feature snapshots; objective boards read V3 rows.
  */
+import { RANKING_V4_VERSION, readRankingV4Board } from "./ranking-v4";
 
 export type LaunchAreaBand = "59" | "84" | "114" | "ALL";
 export type RankingAreaBandV3 =
@@ -150,6 +152,41 @@ export async function publishedRegionRanking(
       rows: [] as Awaited<ReturnType<typeof regionTop>>,
     };
   }
+  if (query.areaBand !== "TRADE_VOLUME" && query.areaBand !== "PRICE_PER_SQM") {
+    const board = await readRankingV4Board(db, {
+      regionCode: query.regionCode,
+      areaBand: query.areaBand,
+      period,
+    });
+    const rows = board.rows.slice(0, query.limit ?? 10).map((row) => ({
+      complexId: row.complexId,
+      name: row.name,
+      dong: row.dong,
+      buildYear: row.buildYear,
+      rank: row.rank,
+      regionTotal: row.regionTotal,
+      confidenceBucket: row.confidenceBucket,
+      transactionAsOf: String(pointer.transaction_as_of),
+      publicMetrics: {
+        median_price_per_sqm: row.metrics.medianPricePerSqm,
+        median_deal_amount: row.metrics.medianDealAmount,
+        trade_count: row.metrics.tradeCount,
+        latest_deal_date: row.metrics.latestDealDate,
+      } as Record<string, unknown>,
+      percentiles: row.percentiles,
+    }));
+    return {
+      published: true as const,
+      rankingType: query.areaBand,
+      regionScope,
+      regionCode: query.regionCode,
+      transactionAsOf: String(pointer.transaction_as_of),
+      rankingVersion: RANKING_V4_VERSION,
+      period,
+      regionTotal: board.rows.length,
+      rows,
+    };
+  }
   const rows = await regionTop(db, {
     rankingRunId: String(pointer.active_ranking_run_id),
     regionScope,
@@ -167,7 +204,7 @@ export async function publishedRegionRanking(
     rankingVersion: String(pointer.ranking_version),
     period,
     regionTotal: rows[0]?.regionTotal ?? 0,
-    rows,
+    rows: rows.map((row) => ({ ...row, percentiles: null })),
   };
 }
 
@@ -219,47 +256,46 @@ export async function publishedComplexPosition(
   const dongCode = `${guCode}${String(row.bjdong_cd)}`;
   const bands: RankingAreaBandV3[] =
     query.areaBand && query.areaBand !== "ALL" ? ["ALL", query.areaBand] : ["ALL"];
-  const result = await db.execute({
-    sql: `SELECT p.area_band, p.region_scope, p.ranking_version, p.transaction_as_of,
-                 r."rank" AS rank, r.region_total, r.confidence_bucket, r.public_display_metrics_json
-          FROM region_ranking_publications p
-          LEFT JOIN region_complex_rankings r
-            ON r.ranking_run_id = p.active_ranking_run_id
-           AND r.region_scope = p.region_scope
-           AND r.region_code = p.region_code
-           AND r.area_band = p.area_band
-           AND r.period = p.period
-           AND r.complex_id = ?
-           AND r.eligible = 1
-          WHERE p.period = '12M'
-            AND p.area_band IN (${bands.map(() => "?").join(",")})
-            AND (
-              (p.region_scope = 'gu' AND p.region_code = ?)
-              OR (p.region_scope = 'dong' AND p.region_code = ?)
-            )`,
-    args: [query.complexId, ...bands, guCode, dongCode],
-  });
-  const byKey = new Map(result.rows.map((item) => [`${item.area_band}:${item.region_scope}`, item]));
+  const boards = await Promise.all(
+    bands.flatMap((band) =>
+      (["gu", "dong"] as const).map(async (scope) => ({
+        key: `${band}:${scope}`,
+        board: await readRankingV4Board(db, {
+          regionCode: scope === "gu" ? guCode : dongCode,
+          areaBand: band,
+        }),
+      })),
+    ),
+  );
+  const byKey = new Map(boards.map((item) => [item.key, item.board]));
   const read = (band: RankingAreaBandV3, scope: "gu" | "dong") => {
-    const got = byKey.get(`${band}:${scope}`);
-    if (!got) return { published: false as const, status: "unavailable" as const };
-    if (got.rank == null) {
+    const board = byKey.get(`${band}:${scope}`);
+    if (!board || !board.featureRunId) {
+      return { published: false as const, status: "unavailable" as const };
+    }
+    const hit = board.rows.find((item) => item.complexId === query.complexId);
+    if (!hit) {
       return {
         published: true as const,
         status: "not_ranked" as const,
-        transactionAsOf: String(got.transaction_as_of),
-        rankingVersion: String(got.ranking_version),
+        transactionAsOf: String(board.transactionAsOf),
+        rankingVersion: RANKING_V4_VERSION,
       };
     }
     return {
       published: true as const,
       status: "ranked" as const,
-      rank: Number(got.rank),
-      regionTotal: Number(got.region_total),
-      confidenceBucket: got.confidence_bucket == null ? null : String(got.confidence_bucket),
-      transactionAsOf: String(got.transaction_as_of),
-      rankingVersion: String(got.ranking_version),
-      publicMetrics: JSON.parse(String(got.public_display_metrics_json)),
+      rank: hit.rank,
+      regionTotal: hit.regionTotal,
+      confidenceBucket: hit.confidenceBucket,
+      transactionAsOf: String(board.transactionAsOf),
+      rankingVersion: RANKING_V4_VERSION,
+      publicMetrics: {
+        median_price_per_sqm: hit.metrics.medianPricePerSqm,
+        median_deal_amount: hit.metrics.medianDealAmount,
+        trade_count: hit.metrics.tradeCount,
+        latest_deal_date: hit.metrics.latestDealDate,
+      } as Record<string, unknown>,
     };
   };
   return {

@@ -100,6 +100,24 @@ function RankCircle({ rank }: { rank: number }) {
 }
 
 
+const STRENGTH_LABELS = {
+  price: "가격",
+  liquidity: "거래",
+  size: "규모",
+  turnover: "회전율",
+} as const;
+
+function strengthText(
+  p: { price: number; liquidity: number; size: number; turnover: number } | null | undefined,
+): string | null {
+  if (!p) return null;
+  const top = (Object.keys(STRENGTH_LABELS) as Array<keyof typeof STRENGTH_LABELS>)
+    .map((k) => ({ k, share: Math.max(1, Math.round((1 - p[k]) * 100)) }))
+    .sort((a, b) => a.share - b.share)
+    .slice(0, 2);
+  return top.map((t) => `${STRENGTH_LABELS[t.k]} 상위 ${t.share}%`).join(" · ");
+}
+
 const RANK_PREVIEW = 5;
 const RANK_FULL = 20;
 
@@ -141,10 +159,16 @@ export function RegionRankingTable({
         title="지역 아파트 랭킹"
         meta={formatReferenceMonthCompact(board?.transactionAsOf ?? null)}
         tip={
-          <p>
-            최근 12개월 실거래의 가격 수준과 거래 활발도를 함께 반영한 집랩
-            종합 순위입니다.
-          </p>
+          <>
+            <p>
+              최근 12개월 실거래를 바탕으로 같은 지역 안에서 가격 수준(50%), 거래
+              활발도(20%), 단지 규모(20%), 회전율(10%)을 비교해 종합한 집랩
+              순위입니다.
+            </p>
+            <p className="mt-1.5">
+              12개월 거래 6건 이상, 세대수 100세대 이상인 단지만 포함합니다.
+            </p>
+          </>
         }
       />
       {query.isLoading ? (
@@ -182,8 +206,15 @@ export function RegionRankingTable({
                     <span className="flex justify-center">
                       <RankCircle rank={row.rank} />
                     </span>
-                    <span className="detail-data-value-emphasis truncate">
-                      {row.apt_name ?? "—"}
+                    <span className="min-w-0">
+                      <span className="detail-data-value-emphasis block truncate">
+                        {row.apt_name ?? "—"}
+                      </span>
+                      {strengthText(row.percentiles) ? (
+                        <span className="detail-meta block truncate">
+                          {strengthText(row.percentiles)}
+                        </span>
+                      ) : null}
                     </span>
                     <span className="detail-meta truncate text-center">
                       {row.dong ?? "—"}
