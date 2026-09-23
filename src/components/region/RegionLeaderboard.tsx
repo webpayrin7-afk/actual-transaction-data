@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { InfoTip } from "@/components/ui/InfoTip";
+import { LabTabs, labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import {
   RANKING_TABS,
   fetchRegionRankingBoards,
@@ -15,7 +16,6 @@ import {
   type RankingType,
   type RegionRankingRow,
 } from "@/lib/region-ranking/public";
-import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 
 const PREVIEW_COUNT = 5;
 
@@ -23,7 +23,7 @@ function RankMark({ rank }: { rank: number }) {
   const top = rank >= 1 && rank <= 3;
   return (
     <span
-      className={`w-7 shrink-0 text-right text-[15px] font-semibold tabular-nums sm:w-8 sm:text-base ${
+      className={`w-7 shrink-0 text-right text-lg font-semibold tabular-nums sm:w-8 ${
         top ? "text-slate-900" : "text-slate-500"
       }`}
     >
@@ -42,7 +42,7 @@ function RowMetrics({
   const metrics = rowPublicMetrics(type, row);
   if (type === "COMPOSITE") {
     return metrics.hint ? (
-      <p className="truncate text-[12px] leading-4 text-slate-500 sm:text-[13px]">
+      <p className="text-[13px] leading-5 text-slate-500">
         {metrics.hint}
       </p>
     ) : null;
@@ -50,12 +50,12 @@ function RowMetrics({
   return (
     <div className="min-w-0 text-right">
       {metrics.primary ? (
-        <p className="truncate text-[15px] font-semibold leading-5 tabular-nums text-slate-900 sm:text-base">
+        <p className="text-[15px] font-semibold leading-6 tabular-nums text-slate-900">
           {metrics.primary}
         </p>
       ) : null}
       {metrics.secondary ? (
-        <p className="truncate text-[12px] leading-4 text-slate-500">{metrics.secondary}</p>
+        <p className="text-[13px] leading-5 text-slate-500">{metrics.secondary}</p>
       ) : null}
     </div>
   );
@@ -97,54 +97,31 @@ export function RegionLeaderboard({
   return (
     <section
       id="region-ranking"
-      className="lab-card scroll-mt-28 px-3.5 py-4 sm:px-5 sm:py-5"
+      className="lab-card scroll-mt-28 p-4 md:p-6"
     >
-      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
-        <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+        <h2 className="text-lg font-bold leading-[26px] text-slate-900 lg:text-xl lg:leading-7">
           이 지역 아파트 랭킹
         </h2>
         {asOf ? (
-          <p className="text-[12px] leading-4 text-slate-500">{asOf}</p>
+          <p className="text-[13px] leading-5 text-slate-500">{asOf}</p>
         ) : null}
       </div>
 
-      <div
-        className={`${labSegmentedClass("mt-3 !flex-nowrap !overflow-x-auto")} w-full max-w-full`}
-        role="tablist"
-        aria-label="지역 아파트 랭킹"
-      >
-        {RANKING_TABS.map((item) => {
-          const active = tab === item.id;
-          const published = query.data?.[item.id]?.status === "ok";
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              data-event="ranking_tab_change"
-              data-ranking-type={item.id}
-              onClick={() => {
-                setTab(item.id);
-                setExpanded(false);
-              }}
-              className={labSecondaryTabClass(
-                active,
-                "min-h-9 shrink-0 px-2.5 text-[13px] sm:px-3",
-              )}
-            >
-              <span>{item.label}</span>
-              {published ? (
-                <span
-                  className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-teal-600"
-                  aria-label="순위 제공 중"
-                />
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
+      <LabTabs
+        items={RANKING_TABS}
+        value={tab}
+        onChange={(next) => {
+          setTab(next);
+          setExpanded(false);
+        }}
+        ariaLabel="지역 아파트 랭킹"
+        variant="secondary"
+        className="mt-4"
+        idPrefix="region-ranking-view"
+      />
 
+      <div role="tabpanel" id={labTabPanelId("region-ranking-view", tab)} aria-labelledby={labTabId("region-ranking-view", tab)}>
       {tab === "COMPOSITE" ? (
         <div className="mt-3 flex items-center text-[13px] font-medium text-slate-600">
           <span>집랩 종합랭킹</span>
@@ -153,7 +130,7 @@ export function RegionLeaderboard({
           </InfoTip>
         </div>
       ) : activeTab?.hint ? (
-        <div className="mt-3 flex items-center text-[12px] text-slate-500">
+        <div className="mt-3 flex items-center text-[13px] text-slate-500">
           <span>{tab === "TRADE_VOLUME" ? "최근 3개월 매매" : "최근 3개월 중위값"}</span>
           <InfoTip aria-label={`${activeTab.label} 기준 안내`}>
             <p>{activeTab.hint}</p>
@@ -196,7 +173,7 @@ export function RegionLeaderboard({
           </p>
         </div>
       ) : (
-        <ol className="mt-3 divide-y divide-slate-100">
+      <ol className="mt-3 divide-y divide-slate-200">
           {visible.map((row) => {
             const href = rankingComplexHref({
               aptName: row.apt_name,
@@ -211,11 +188,11 @@ export function RegionLeaderboard({
               <>
                 <RankMark rank={row.rank} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[15px] font-semibold leading-5 text-slate-900">
+                  <p className="break-keep text-base font-semibold leading-6 text-slate-900">
                     {name}
                   </p>
                   {row.dong ? (
-                    <p className="mt-0.5 truncate text-[12px] leading-4 text-slate-500">
+                    <p className="mt-0.5 text-[13px] leading-5 text-slate-500">
                       {row.dong}
                     </p>
                   ) : null}
@@ -252,11 +229,12 @@ export function RegionLeaderboard({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="lab-button lab-button-secondary mt-3 w-full min-h-10 text-sm"
+          className="lab-button lab-button-secondary mt-3 w-full min-h-11 text-sm"
         >
           전체 순위 보기
         </button>
       ) : null}
+      </div>
     </section>
   );
 }

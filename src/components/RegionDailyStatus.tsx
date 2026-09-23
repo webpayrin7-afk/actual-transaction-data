@@ -82,7 +82,7 @@ function weekdayOfFirst(ym: string): number {
 }
 
 const SECTION_SURFACE =
-  "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
+  "lab-card p-4 md:p-6";
 
 function contractLine(date: string): string {
   return `계약 ${formatDealDate(date)}`;
@@ -100,7 +100,7 @@ function DealMetaLine({
   emphasizeSpec?: boolean;
 }) {
   return (
-    <div className="mt-1.5 flex flex-wrap items-baseline text-[12px] leading-4">
+    <div className="mt-1.5 flex flex-wrap items-baseline text-[13px] leading-5">
       <span
         className={`whitespace-nowrap ${
           emphasizeSpec ? "font-medium text-slate-800" : "text-slate-500"
@@ -158,9 +158,9 @@ function prevDealDelta(
 }
 
 function prevDealDeltaClass(tone: "up" | "down" | "same"): string {
-  if (tone === "up") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-rose-600";
-  if (tone === "down") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-blue-600";
-  return "whitespace-nowrap text-[12px] tabular-nums text-slate-500";
+  if (tone === "up") return "text-[13px] font-medium tabular-nums text-[#B91C1C]";
+  if (tone === "down") return "text-[13px] font-medium tabular-nums text-[#1D4ED8]";
+  return "text-[13px] tabular-nums text-slate-500";
 }
 
 function FeaturedDealCard({
@@ -181,32 +181,32 @@ function FeaturedDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50"
+      className="block rounded-lg border border-slate-200 bg-slate-50 p-4 transition hover:border-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
     >
       <SingogaBadge variant="featured">
         {singogaLabel(deal.singogaKind)}
       </SingogaBadge>
-      <strong className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
+      <strong className="mt-1.5 block break-keep text-base font-semibold leading-6 text-slate-900">
         {deal.aptName}
       </strong>
       {titleMeta.length > 0 ? (
-        <p className="mt-1.5 truncate text-xs font-normal text-slate-500">
+        <p className="mt-1.5 text-[13px] leading-5 text-slate-500">
           {titleMeta.join(" · ")}
         </p>
       ) : null}
       <div className="mt-2 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
-        <span className="whitespace-nowrap text-[22px] font-semibold leading-none tabular-nums text-slate-900">
+        <span className="text-xl font-semibold leading-7 tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
         {deal.increaseAmount > 0 ? (
-          <span className="whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
+          <span className="text-[13px] font-medium tabular-nums text-[#B91C1C]">
             ▲ {formatEok(deal.increaseAmount)}
             {rate != null ? ` (+${rate}%)` : ""}
           </span>
         ) : null}
       </div>
       {prior != null ? (
-        <p className="mt-1 whitespace-nowrap text-[12px] tabular-nums text-slate-500">
+        <p className="mt-1 text-[13px] leading-5 tabular-nums text-slate-500">
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
@@ -233,13 +233,13 @@ function RegularDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
+      className="block min-h-16 py-3 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
     >
-      <p className="break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
+      <p className="break-keep text-base font-semibold leading-6 text-slate-900">
         {deal.aptName}
       </p>
       <div className="mt-1.5 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
-        <span className="whitespace-nowrap text-lg font-semibold tabular-nums leading-none text-slate-900">
+        <span className="text-base font-semibold tabular-nums leading-6 text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
         {delta ? (
@@ -264,10 +264,10 @@ function HistoryDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-lg border border-solid border-slate-100 px-3 py-2 transition hover:bg-slate-50/80"
+      className="block min-h-16 py-3 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 flex-1 break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
+        <p className="min-w-0 flex-1 break-keep text-base font-semibold leading-6 text-slate-900">
           {deal.aptName}
         </p>
         {deal.singogaKind ? (
@@ -275,7 +275,7 @@ function HistoryDealCard({
         ) : null}
       </div>
       <div className="mt-1 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
-        <span className="whitespace-nowrap text-base font-semibold tabular-nums leading-none text-slate-900">
+        <span className="text-base font-semibold tabular-nums leading-6 text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
         {delta ? (
@@ -300,13 +300,7 @@ function DealGrid({
 }) {
   const sorted = sortNewlySeenDeals(deals);
   return (
-    <div
-      className={
-        sorted.length > 1
-          ? "mt-2 grid grid-cols-1 gap-2 lg:grid-cols-2"
-          : "mt-2 flex flex-col gap-2"
-      }
-    >
+    <div className={variant === "history" ? "mt-3 divide-y divide-slate-200" : "mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2"}>
       {sorted.map((deal) =>
         variant === "history" ? (
           <HistoryDealCard
@@ -354,11 +348,11 @@ function SectionHeading({
   aside?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <h2 className="shrink-0 text-[15px] font-semibold tracking-tight text-slate-900 sm:text-base">
+    <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+      <h2 className="text-lg font-bold leading-[26px] text-slate-900 lg:text-xl lg:leading-7">
         {title}
       </h2>
-      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         <DateBasisChip label={basisLabel} help={basisHelp} />
         {aside}
       </div>
@@ -609,8 +603,8 @@ function Kpi({
   value,
   side,
   className,
-  valueClassName = "text-teal-700",
-  sideClassName = "text-teal-600/80",
+  valueClassName = "text-slate-900",
+  sideClassName = "text-slate-500",
 }: {
   label: string;
   value: string;
@@ -622,27 +616,25 @@ function Kpi({
   const sideFull = typeof side === "string" ? side : side?.full;
   const sideCompact = typeof side === "string" ? side : side?.compact;
   return (
-    <div
-      className={`overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-4 sm:py-3.5 ${className ?? ""}`}
-    >
-      <p className="whitespace-nowrap text-[11px] leading-4 text-slate-600">
+    <div className={`min-w-0 py-2 ${className ?? ""}`}>
+      <p className="text-sm leading-5 text-slate-500">
         {label}
       </p>
-      <div className="mt-1.5 flex min-w-0 items-baseline gap-x-1 sm:mt-2 sm:gap-x-2">
+      <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
         <p
-          className={`lab-kpi-figure whitespace-nowrap text-base font-semibold leading-none sm:text-xl ${valueClassName}`}
+          className={`lab-kpi-figure text-xl font-semibold leading-7 tabular-nums lg:text-2xl lg:leading-8 ${valueClassName}`}
         >
           {value}
         </p>
         {sideFull ? (
           <>
             <p
-              className={`whitespace-nowrap text-[10px] leading-none tabular-nums sm:hidden ${sideClassName}`}
+              className={`text-[13px] leading-5 tabular-nums sm:hidden ${sideClassName}`}
             >
               {sideCompact}
             </p>
             <p
-              className={`hidden whitespace-nowrap text-[11px] leading-none tabular-nums sm:inline ${sideClassName}`}
+              className={`hidden text-[13px] leading-5 tabular-nums sm:inline ${sideClassName}`}
             >
               {sideFull}
             </p>
@@ -1087,7 +1079,7 @@ export function RegionDailyStatus({
   }, [calendarSelected, listedDates, sectionByDate, visibleDealCount]);
 
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-6 lg:gap-8">
       <section
         aria-label={`${regionName} 지역 시장 현황`}
         className={`${SECTION_SURFACE} flex flex-col gap-3`}
@@ -1112,7 +1104,7 @@ export function RegionDailyStatus({
           <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
         ) : market ? (
           <>
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 divide-y divide-slate-200 border-y border-slate-200 sm:grid-cols-3 sm:divide-y-0 lg:grid-cols-6">
               <Kpi
                 label="거래량"
                 value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
@@ -1171,7 +1163,7 @@ export function RegionDailyStatus({
             </div>
             <Link
               href="/stats"
-              className="inline-flex items-center gap-1 self-start text-sm font-medium text-slate-600 transition hover:text-slate-900"
+              className="lab-button lab-button-secondary inline-flex min-h-11 items-center gap-1 self-start px-4 text-sm"
             >
               시장 동향 자세히 보기
               <ArrowRight className="h-3.5 w-3.5" />

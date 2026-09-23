@@ -3,12 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  BarChart3,
-  Building2,
-  Search,
-} from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
 import { RegionDailyStatus } from "@/components/RegionDailyStatus";
@@ -21,7 +16,7 @@ import {
   PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
-import { labPrimaryTabClass } from "@/components/ui/lab";
+import { LabTabs, labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import { PAGE_SIZE, type RegionDef } from "@/lib/constants/regions";
 import { recentYearMonths } from "@/lib/utils/format";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -30,10 +25,10 @@ import type { AreaFilter, DealType } from "@/types/transaction";
 type RegionTab = "dong" | "stats" | "search";
 
 /** 지역 요약 → 실거래 검색 → 단지 탐색 */
-const TABS: { id: RegionTab; label: string; icon: typeof Building2 }[] = [
-  { id: "stats", label: "시장 현황", icon: BarChart3 },
-  { id: "search", label: "실거래 검색", icon: Search },
-  { id: "dong", label: "단지 탐색", icon: Building2 },
+const TABS: { id: RegionTab; label: string }[] = [
+  { id: "stats", label: "시장 현황" },
+  { id: "search", label: "실거래 검색" },
+  { id: "dong", label: "단지 탐색" },
 ];
 
 function parseTab(value: string | null | undefined): RegionTab | null {
@@ -175,46 +170,38 @@ export function Dashboard({
         <BackLink fallback="/regions" />
         <PageHeader
           title={`${region.name} 아파트 시장`}
+          description="가격과 거래를 살펴보고 이 지역의 단지를 찾아보세요."
           showDivider={false}
         />
       </header>
 
-      <nav
-        className="inline-flex w-full gap-1 rounded-xl border border-slate-200 bg-white p-1 sm:w-auto"
-        aria-label="지역 상세 탭"
-      >
-        {TABS.map(({ id, label, icon: Icon }) => {
-          const active = tab === id;
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => selectTab(id)}
-              aria-pressed={active}
-              className={labPrimaryTabClass(
-                active,
-                "flex flex-1 items-center justify-center gap-1.5 sm:flex-none",
-              )}
-            >
-              <Icon className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{label}</span>
-            </button>
-          );
-        })}
-      </nav>
+      <LabTabs
+        items={TABS}
+        value={tab}
+        onChange={selectTab}
+        ariaLabel="지역 상세 보기"
+        variant="primary"
+        idPrefix="region-view"
+      />
 
-      {tab === "dong" && <RegionDongBrowse regionSlug={region.slug} />}
+      {tab === "dong" && (
+        <div role="tabpanel" id={labTabPanelId("region-view", "dong")} aria-labelledby={labTabId("region-view", "dong")}>
+          <RegionDongBrowse regionSlug={region.slug} />
+        </div>
+      )}
 
       {tab === "stats" && (
-        <RegionDailyStatus
-          regionSlug={region.slug}
-          regionName={region.name}
-          lawdCodes={region.lawdCodes}
-        />
+        <div role="tabpanel" id={labTabPanelId("region-view", "stats")} aria-labelledby={labTabId("region-view", "stats")}>
+          <RegionDailyStatus
+            regionSlug={region.slug}
+            regionName={region.name}
+            lawdCodes={region.lawdCodes}
+          />
+        </div>
       )}
 
       {tab === "search" && (
-        <div className="flex flex-col gap-4">
+        <div role="tabpanel" id={labTabPanelId("region-view", "search")} aria-labelledby={labTabId("region-view", "search")} className="flex flex-col gap-4">
           {(data?.warning || data?.source === "mock") && (
             <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
