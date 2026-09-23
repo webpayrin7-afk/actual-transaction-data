@@ -23,6 +23,17 @@ export type RegionPriceTrendPoint = {
   tradeCount: number;
 };
 
+export type RegionDongPrice = {
+  bjdongCd: string;
+  name: string;
+  pyeongPrice: number | null;
+  /** 1년 전 같은 방식 값 대비 변화율(%). */
+  change1y: number | null;
+  complexCount: number;
+  /** 최근 12개월 계약 매매 건수. */
+  tradeCount12m: number;
+};
+
 export type RegionPriceTrend = {
   status: "ok";
   lawdCd: string;
@@ -35,6 +46,7 @@ export type RegionPriceTrend = {
     complexCount: number;
     changes: Record<"6M" | "1Y" | "2Y" | "5Y", number | null>;
   } | null;
+  dongs: RegionDongPrice[];
 };
 
 const SUPPLY_PYEONG_FACTOR = 3.305785;
@@ -76,7 +88,9 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
               SELECT m.complex_id AS cid,
                      CAST(ROUND(CAST(t.exclusive_area AS REAL) * 100) AS INTEGER) AS ec,
                      t.year_month AS ym,
-                     CAST(t.deal_amount AS REAL) AS a
+                     CAST(t.deal_amount AS REAL) AS a,
+                     m.bjdong_cd AS bj,
+                     m.legal_dong_name AS dn
               FROM transactions t
               JOIN apt_complex_master m
                 ON m.lawd_cd = t.lawd_cd AND m.apt_name_norm = t.apt_name_norm
@@ -93,36 +107,48 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
               GROUP BY u.complex_id
             ),
             agg AS (
-              SELECT b.cid, b.ec, b.ym, AVG(b.a / ul.label) AS v
+              SELECT b.cid, b.ec, b.ym, AVG(b.a / ul.label) AS v,
+                     MAX(b.bj) AS bj, MAX(b.dn) AS dn
               FROM base b
               JOIN ul ON ul.complex_id = b.cid AND ul.exclusive_cents = b.ec
               WHERE ul.label > 0
               GROUP BY b.cid, b.ec, b.ym
             )
-            SELECT agg.cid, agg.ec, agg.ym, agg.v, COALESCE(hh.h, p.household_count) AS w
+            SELECT agg.cid, agg.ec, agg.ym, agg.v, agg.bj, agg.dn,
+                   COALESCE(hh.h, p.household_count) AS w
             FROM agg
             LEFT JOIN hh ON hh.complex_id = agg.cid
             LEFT JOIN apt_complex_profile p ON p.complex_id = agg.cid`,
       args: [lawdCd, lawdCd],
     }),
     db.execute({
-      sql: `SELECT year_month AS ym, COUNT(*) AS c
+      sql: `SELECT year_month AS ym, dong, COUNT(*) AS c
             FROM transactions
             WHERE lawd_cd = ? AND deal_type = 'trade' AND CAST(deal_amount AS REAL) > 0
-            GROUP BY year_month`,
+            GROUP BY year_month, dong`,
       args: [lawdCd],
     }),
   ]);
 
   const volume = new Map<string, number>();
+  const dongVolume = new Map<string, Array<{ m: number; c: number }>>();
   for (const row of volumeRows.rows) {
     const ym = String(row.ym);
-    if (/^\d{6}$/.test(ym)) volume.set(ym, Number(row.c));
+    if (!/^\d{6}$/.test(ym)) continue;
+    const c = Number(row.c);
+    volume.set(ym, (volume.get(ym) ?? 0) + c);
+    const dn = String(row.dong ?? "").trim();
+    if (dn) {
+      const list = dongVolume.get(dn) ?? [];
+      list.push({ m: monthIndex(ym), c });
+      dongVolume.set(dn, list);
+    }
   }
 
   type TypeSeries = { cid: string; months: number[]; values: number[]; cursor: number };
   const types = new Map<string, TypeSeries>();
   const weights = new Map<string, number>();
+  const complexDong = new Map<string, { bj: string; name: string }>();
   for (const row of typeRows.rows) {
     const ym = String(row.ym);
     const v = Number(row.v);
@@ -130,6 +156,9 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
     const cid = String(row.cid);
     const w = Number(row.w);
     if (Number.isFinite(w) && w > 0) weights.set(cid, w);
+    if (row.bj != null && row.dn != null && !complexDong.has(cid)) {
+      complexDong.set(cid, { bj: String(row.bj), name: String(row.dn) });
+    }
     const key = `${cid}|${row.ec}`;
     let t = types.get(key);
     if (!t) {
@@ -147,11 +176,13 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
 
   const allMonths = [...volume.keys()].map(monthIndex);
   if (!allMonths.length) {
-    return { status: "ok", lawdCd, basis: "SUPPLY_PYEONG_LABEL", method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED", points: [], latest: null };
+    return { status: "ok", lawdCd, basis: "SUPPLY_PYEONG_LABEL", method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED", points: [], latest: null, dongs: [] };
   }
   const first = Math.min(...allMonths);
   const last = Math.max(...allMonths, monthIndex(seoulToday().slice(0, 7).replace("-", "")));
 
+  const dongAt = new Map<number, Map<string, { num: number; den: number; n: number }>>();
+  const snapshotMonths = new Set([last, last - 12]);
   const points: RegionPriceTrendPoint[] = [];
   for (let m = first; m <= last; m += 1) {
     const byComplex = new Map<string, { sum: number; n: number }>();
@@ -166,11 +197,23 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
     }
     let num = 0;
     let den = 0;
+    const byDong = snapshotMonths.has(m)
+      ? new Map<string, { num: number; den: number; n: number }>()
+      : null;
     for (const [cid, agg] of byComplex) {
       const w = weights.get(cid)!;
       num += (agg.sum / agg.n) * w;
       den += w;
+      const dong = byDong ? complexDong.get(cid) : null;
+      if (byDong && dong) {
+        const d = byDong.get(dong.bj) ?? { num: 0, den: 0, n: 0 };
+        d.num += (agg.sum / agg.n) * w;
+        d.den += w;
+        d.n += 1;
+        byDong.set(dong.bj, d);
+      }
     }
+    if (byDong) dongAt.set(m, byDong);
     const ym = ymFromIndex(m);
     points.push({
       yearMonth: ym,
@@ -190,12 +233,40 @@ async function compute(db: RankingReader, lawdCd: string): Promise<RegionPriceTr
         : null;
   }
 
+  const nameOf = new Map<string, string>();
+  for (const d of complexDong.values()) if (!nameOf.has(d.bj)) nameOf.set(d.bj, d.name);
+  const now = dongAt.get(last) ?? new Map();
+  const yearAgo = dongAt.get(last - 12) ?? new Map();
+  const dongs: RegionDongPrice[] = [...now.entries()]
+    .map(([bj, d]) => {
+      const price = d.den > 0 ? Math.round(d.num / d.den) : null;
+      const prev = yearAgo.get(bj);
+      const prevPrice = prev && prev.den > 0 ? prev.num / prev.den : null;
+      const name = nameOf.get(bj) ?? bj;
+      const trades = (dongVolume.get(name) ?? [])
+        .filter((v) => last - v.m < 12)
+        .reduce((sum, v) => sum + v.c, 0);
+      return {
+        bjdongCd: bj,
+        name,
+        pyeongPrice: price,
+        change1y:
+          price != null && prevPrice != null && prevPrice > 0
+            ? Math.round(((price - prevPrice) / prevPrice) * 10000) / 100
+            : null,
+        complexCount: d.n,
+        tradeCount12m: trades,
+      };
+    })
+    .sort((a, b) => (b.pyeongPrice ?? 0) - (a.pyeongPrice ?? 0));
+
   return {
     status: "ok",
     lawdCd,
     basis: "SUPPLY_PYEONG_LABEL",
     method: "COMPLEX_LATEST_36M_HOUSEHOLD_WEIGHTED",
     points,
+    dongs,
     latest: tail
       ? {
           yearMonth: tail.yearMonth,
