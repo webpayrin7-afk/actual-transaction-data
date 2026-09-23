@@ -1,3 +1,4 @@
+import { Globe, Phone } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { LabTag } from "@/components/ui/LabTag";
@@ -28,15 +29,29 @@ function KindChip({ children }: { children: string }) {
   );
 }
 
-/** 전화·홈페이지 — LabTag와 같은 모양의 링크 라벨. 보이는 26px, 숨은 영역으로 44px 터치. */
-function LinkTag({ href, external, children }: { href: string; external?: boolean; children: string }) {
+/** 전화·홈페이지 — 아이콘 + 청록 텍스트 링크. 누르면 전화 걸기 / 새 창으로 홈페이지. 44px 터치. */
+function ContactLink({
+  href,
+  external,
+  icon: Icon,
+  label,
+  children,
+}: {
+  href: string;
+  external?: boolean;
+  icon: typeof Phone;
+  label: string;
+  children: string;
+}) {
   return (
     <a
       href={href}
+      aria-label={label}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="relative inline-flex h-[26px] max-w-full items-center truncate rounded-md border border-[color:var(--lab-border)] bg-white px-1.5 text-[12px] font-medium leading-6 text-[color:var(--lab-brand-primary)] tabular-nums before:absolute before:inset-x-0 before:-inset-y-[9px] before:content-[''] hover:underline"
+      className="inline-flex min-h-11 min-w-0 items-center gap-1.5 text-[14px] font-medium leading-5 text-[color:var(--lab-brand-primary)] tabular-nums underline-offset-2 hover:underline"
     >
-      {children}
+      <Icon className="h-4 w-4 shrink-0" aria-hidden />
+      <span className="truncate">{children}</span>
     </a>
   );
 }
@@ -96,19 +111,41 @@ export function SchoolHero({
         showDivider={false}
       >
         {hasInfo ? (
-          <div className="flex flex-wrap gap-1" aria-label="학교 기본정보">
-            {area ? (
-              <span title={address ?? undefined}>
-                <LabTag size="md">{area}</LabTag>
-              </span>
+          <div className="flex flex-col gap-1" aria-label="학교 기본정보">
+            {area || office || founded ? (
+              <div className="flex flex-wrap gap-1">
+                {area ? (
+                  <span title={address ?? undefined}>
+                    <LabTag size="md">{area}</LabTag>
+                  </span>
+                ) : null}
+                {office ? <LabTag size="md">{office}</LabTag> : null}
+                {founded ? <LabTag size="md">{founded}</LabTag> : null}
+              </div>
             ) : null}
-            {office ? <LabTag size="md">{office}</LabTag> : null}
-            {founded ? <LabTag size="md">{founded}</LabTag> : null}
-            {tel ? <LinkTag href={`tel:${tel.replace(/\s+/g, "")}`}>{tel}</LinkTag> : null}
-            {homepageHref ? (
-              <LinkTag href={homepageHref} external>
-                {homepageLabel(homepage!)}
-              </LinkTag>
+            {/* 전화 · 홈페이지는 한 줄 */}
+            {tel || homepageHref ? (
+              <div className="flex min-w-0 flex-nowrap items-center gap-x-4">
+                {tel ? (
+                  <ContactLink
+                    href={`tel:${tel.replace(/\s+/g, "")}`}
+                    icon={Phone}
+                    label={`전화 걸기 ${tel}`}
+                  >
+                    {tel}
+                  </ContactLink>
+                ) : null}
+                {homepageHref ? (
+                  <ContactLink
+                    href={homepageHref}
+                    external
+                    icon={Globe}
+                    label={`홈페이지 열기 ${homepageLabel(homepage!)}`}
+                  >
+                    {homepageLabel(homepage!)}
+                  </ContactLink>
+                ) : null}
+              </div>
             ) : null}
           </div>
         ) : null}
