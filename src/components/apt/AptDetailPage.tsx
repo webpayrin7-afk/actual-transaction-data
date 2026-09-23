@@ -21,6 +21,7 @@ import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
 import { ComplexRegionRankSection } from "@/components/apt/ComplexRegionRankSection";
 import { ComplexUnitMixSection } from "@/components/apt/ComplexUnitMixSection";
 import { ComplexJeonseBenchmark } from "@/components/apt/ComplexJeonseBenchmark";
+import { ComplexTradeInsightSection } from "@/components/apt/ComplexTradeInsightSection";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
@@ -794,6 +795,18 @@ export function AptDetailPage({
           </div>
         </div>
       </LabSection>
+
+      <LabSectionBoundary id="section-trade-insight" title="거래 분석">
+        <ComplexTradeInsightSection
+          items={areaFiltered}
+          maxFloor={complexDetail?.building?.maxFloor ?? null}
+          areaLabel={
+            areaKey === "all" || !selectedArea
+              ? "전체 면적"
+              : areaSelectorClosedLabel(selectedArea)
+          }
+        />
+      </LabSectionBoundary>
 
       <LabSectionBoundary id="section-unit-mix" title="평형 구성">
         <ComplexUnitMixSection
