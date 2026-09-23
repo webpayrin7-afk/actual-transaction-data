@@ -139,7 +139,7 @@ export function RegionRankingTable({
   const rows = board?.status === "ok" ? board.rows : [];
   const visible = expanded ? rows : rows.slice(0, RANK_PREVIEW);
   const gridCols = metricTab
-    ? "grid-cols-[2.5rem_minmax(0,1fr)_5rem_1rem]"
+    ? "grid-cols-[2.5rem_minmax(0,1fr)_auto_1rem]"
     : "grid-cols-[2.5rem_minmax(0,1fr)_1rem]";
 
   return (
@@ -173,20 +173,8 @@ export function RegionRankingTable({
         <p className="detail-body">순위 정보를 준비 중입니다.</p>
       ) : (
         <>
-          <div role="table" aria-label={`${regionName} 아파트 랭킹`}>
-            <div
-              role="row"
-              className={`detail-meta grid ${gridCols} items-center gap-x-2 rounded-lg bg-[color:var(--lab-surface-subtle,#F1F5F9)] px-2 py-1.5`}
-            >
-              <span role="columnheader">순위</span>
-              <span role="columnheader">단지명</span>
-              {metricTab ? (
-                <span role="columnheader" className="text-right">
-                  {tab === "TRADES_12M" ? "1년 거래" : "만원/평"}
-                </span>
-              ) : null}
-              <span aria-hidden />
-            </div>
+          {/* 머리글 줄 없음 — 값 옆에 단위를 직접 붙인다. */}
+          <div aria-label={`${regionName} 아파트 랭킹`}>
             <ul className="divide-y divide-[color:var(--lab-border)]">
               {visible.map((row) => {
                 const href = rankingComplexHref({
@@ -233,12 +221,21 @@ export function RegionRankingTable({
                       )}
                     </span>
                     {metricTab ? (
-                      <span className="detail-data-value-emphasis whitespace-nowrap text-right tabular-nums">
-                        {tab === "TRADES_12M"
-                          ? `${(numberOf(row.public_metrics?.trade_count) ?? 0).toLocaleString("ko-KR")}건`
-                          : numberOf(row.public_metrics?.median_price_per_sqm) != null
-                            ? Math.round(numberOf(row.public_metrics?.median_price_per_sqm)!).toLocaleString("ko-KR")
-                            : "—"}
+                      <span className="whitespace-nowrap text-right tabular-nums">
+                        {tab === "TRADES_12M" ? (
+                          <span className="detail-data-value-emphasis">
+                            {(numberOf(row.public_metrics?.trade_count) ?? 0).toLocaleString("ko-KR")}건
+                          </span>
+                        ) : numberOf(row.public_metrics?.median_price_per_sqm) != null ? (
+                          <>
+                            <span className="detail-data-value-emphasis">
+                              {Math.round(numberOf(row.public_metrics?.median_price_per_sqm)!).toLocaleString("ko-KR")}
+                            </span>
+                            <span className="detail-meta ml-0.5">만원/평</span>
+                          </>
+                        ) : (
+                          <span className="detail-meta">—</span>
+                        )}
                       </span>
                     ) : null}
                     <ChevronRight
@@ -249,7 +246,7 @@ export function RegionRankingTable({
                 );
                 const cls = `grid min-h-11 ${gridCols} items-center gap-x-2 px-2 py-2.5`;
                 return (
-                  <li key={row.complex_id} role="row">
+                  <li key={row.complex_id}>
                     {href ? (
                       <Link href={href} className={`${cls} hover:bg-slate-50`}>
                         {body}
