@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-/** 집랩 브랜드 로고 + 슬로건 (로고 크기는 기존과 동일) */
+/** 집랩 브랜드 로고 + 슬로건 (PC 사이드바) */
 export function BrandLogo({
   compact = false,
   priority = false,
@@ -10,22 +10,15 @@ export function BrandLogo({
 }) {
   return (
     <span className="flex shrink-0 items-center bg-white">
-      <span
-        className={`flex shrink-0 items-center justify-center ${
-          compact
-            ? "-mr-5 h-[56px] w-[138px] sm:-mr-6"
-            : "-mr-6 h-[84px] w-[205px] sm:-mr-7"
-        }`}
-      >
-        <Image
-          src="/jiplab-logo.jpg"
-          width={1280}
-          height={524}
-          alt="집랩"
-          priority={priority}
-          className="h-auto w-full object-contain"
-        />
-      </span>
+      {/* Same asset as the mobile header (JipLabLogo) — tight crop, no built-in padding. */}
+      <Image
+        src="/brand/jiplab-logo.png"
+        width={1065}
+        height={406}
+        alt="집랩"
+        priority={priority}
+        className={`w-auto shrink-0 ${compact ? "h-7" : "h-9"}`}
+      />
       <span
         aria-hidden
         className={`mx-1.5 -translate-x-px shrink-0 self-center bg-slate-300 sm:mx-2 ${

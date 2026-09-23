@@ -96,7 +96,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-slate-200 bg-white lg:flex lg:flex-col">
         <Link
           href="/"
-          className="flex min-h-[92px] items-center border-b border-slate-100 px-0 py-1"
+          className="flex min-h-[92px] items-center border-b border-slate-100 px-5 py-1"
           aria-label="집랩 홈"
         >
           <BrandLogo priority />
