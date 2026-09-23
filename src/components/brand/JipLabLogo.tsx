@@ -24,7 +24,7 @@ export function JipLabLogo({
         width={1087}
         height={406}
         priority={priority}
-        className="h-9 w-auto"
+        className="h-7 w-auto"
       />
     </span>
   );
