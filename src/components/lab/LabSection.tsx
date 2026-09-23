@@ -88,7 +88,7 @@ function RankTable({
               </td>
               <td className="max-w-[9.5rem] truncate py-3 pr-2 font-semibold text-[color:var(--lab-navy-900)] sm:max-w-none">
                 {row.href ? (
-                  <Link href={row.href} className="hover:text-teal-800 hover:underline">
+                  <Link href={row.href} className="-my-3 block truncate py-3 hover:underline">
                     {row.label}
                   </Link>
                 ) : (
