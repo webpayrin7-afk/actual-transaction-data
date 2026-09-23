@@ -38,7 +38,8 @@
   --lab-school-national-bg: #e2e8f0; --lab-school-national-ink: #1e293b; /* 국립 */
   --lab-school-boys-bg: #cffafe; --lab-school-boys-ink: #155e75; /* 남 */
   --lab-school-girls-bg: #fce7f3; --lab-school-girls-ink: #9d174d; /* 여 */
-  --lab-school-coed-bg: #e0e7ff; --lab-school-coed-ink: #3730a3; /* 남녀공학 */
+  /* 남녀공학: 함께 나오는 학교급(초록·파랑·보라)·설립(청록·호박) 색과 먼 로즈. 여학교(분홍)와는 동시에 나오지 않음 */
+  --lab-school-coed-bg: #ffe4e6; --lab-school-coed-ink: #be123c; /* 남녀공학 */
   --lab-school-neutral-bg: #f1f5f9; --lab-school-neutral-ink: #334155;
   --lab-change-up: #b91c1c;
   --lab-change-down: #1d4ed8;
@@ -816,6 +817,16 @@ h2.detail-section-title {
 .lab-button-tertiary { background: transparent; color: var(--lab-teal-600); font-weight: 500; min-height: 44px; padding: 0 8px; }
 .lab-button-tertiary:hover { color: var(--lab-teal-700); }
 .lab-button:disabled { cursor: not-allowed; opacity: .45; }
+/*
+ * 더보기/접기 — 실행(primary)·이동(secondary, →)과 구분되는 텍스트형 (policy §6).
+ * 테두리·채움 없음, 회색 글자 + ▾. hover 면은 마우스 기기에서만 (터치 후 눌린 채 남지 않게).
+ */
+.lab-more-button { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; gap: 4px; border-radius: var(--lab-radius-sm); background: transparent; color: var(--lab-muted); font-size: .875rem; font-weight: 500; line-height: 1.25rem; transition: color .15s, background-color .15s; }
+.lab-more-button:focus-visible { outline: 2px solid var(--lab-teal-600); outline-offset: 2px; }
+.lab-more-button:disabled { cursor: not-allowed; opacity: .45; }
+@media (hover: hover) {
+  .lab-more-button:hover { background: var(--lab-surface-subtle); color: var(--lab-navy-950); }
+}
 .lab-input { min-height: 48px; width: 100%; border: 1px solid var(--lab-border-control); border-radius: var(--lab-radius-sm); background: white; color: var(--lab-navy-950); font-size: 1rem; font-weight: 400; line-height: 1.5rem; }
 /* Selection (tabs/filters/options): light teal — solid teal is CTA-only via .lab-button-primary */
 .lab-tab { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border-radius: 9px; padding: 0 13px; color: #526579; font-size: .875rem; font-weight: 600; transition: background-color .15s, color .15s; }

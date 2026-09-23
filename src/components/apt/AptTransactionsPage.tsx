@@ -9,6 +9,7 @@ import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
 import { LAB_SUBSECTION_RULE, LabSection } from "@/components/ui/LabSection";
 import { LabTextLink } from "@/components/ui/LabListRow";
+import { LAB_MORE_BUTTON } from "@/components/ui/LabMoreButton";
 import { DETAIL_PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
@@ -445,7 +446,7 @@ export function AptTransactionsPage({
             type="button"
             onClick={() => setOffset((o) => o + PAGE_SIZE)}
             disabled={loadingMore}
-            className="lab-button lab-button-secondary flex w-full items-center justify-center gap-1.5 disabled:opacity-60"
+            className={LAB_MORE_BUTTON}
           >
             {loadingMore ? (
               <>
