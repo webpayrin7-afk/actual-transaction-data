@@ -1,0 +1,10 @@
+# Full-history background runner runtime artifacts (rebuildable / live)
+data/poc/full-history/run.lock
+data/poc/full-history/heartbeat.json
+data/poc/full-history/checkpoint.json
+data/poc/full-history/progress.json
+data/poc/full-history/runner.log
+data/poc/full-history/retry-queue.jsonl
+data/poc/full-history/manifest-sale.json
+data/poc/full-history/manifest-rent.json
+data/poc/full-history/run.lock.test
