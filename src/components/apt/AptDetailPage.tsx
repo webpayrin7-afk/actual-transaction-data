@@ -22,6 +22,7 @@ import { ComplexRegionRankSection } from "@/components/apt/ComplexRegionRankSect
 import { ComplexUnitMixSection } from "@/components/apt/ComplexUnitMixSection";
 import { ComplexJeonseBenchmark } from "@/components/apt/ComplexJeonseBenchmark";
 import { ComplexTradeInsightSection } from "@/components/apt/ComplexTradeInsightSection";
+import { SaveComplexButton } from "@/components/complexes/SaveComplexButton";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
@@ -593,6 +594,32 @@ export function AptDetailPage({
           title={data.aptName}
           titleSuffix={heroMeta.location ?? undefined}
           titleClassName="detail-page-title"
+          action={
+            <SaveComplexButton
+              entry={{
+                aptName: data.aptName,
+                regionSlug: data.regionSlug,
+                gu: data.gu || gu,
+                dong: data.dong,
+                regionLabel: formatComplexLocationLabel({
+                  regionSlug: data.regionSlug,
+                  regionName: data.regionName,
+                  gu: data.gu || gu,
+                  dong: data.dong,
+                }),
+                snapshot: latestTrade
+                  ? {
+                      areaLabel:
+                        areaKey === "all" || !selectedArea
+                          ? "전체 면적"
+                          : areaSelectorClosedLabel(selectedArea),
+                      latestTradeMan: latestTrade.dealAmount,
+                      latestTradeDate: latestTrade.dealDate,
+                    }
+                  : null,
+              }}
+            />
+          }
           meta={<ComplexHeroMeta lines={heroMeta} />}
           showDivider={false}
         >
