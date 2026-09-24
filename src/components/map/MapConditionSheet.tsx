@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ChevronDown, RotateCcw } from "lucide-react";
+import { useMemo } from "react";
+import { RotateCcw } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import type { MapComplex } from "@/lib/map/map-complexes";
 import {
@@ -56,7 +56,7 @@ function DistributionRange({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex h-12 items-end gap-[2px]" aria-hidden>
+      <div className="flex h-9 items-end gap-[2px]" aria-hidden>
         {bins.map((n, i) => {
           const lo = def.min + i * binWidth;
           const inRange = lo + binWidth > value.min && lo < (value.max >= def.max ? Infinity : value.max);
@@ -215,7 +215,6 @@ export function MapConditionSheet({
   complexes: MapComplex[];
   only?: ConditionKey | null;
 }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
   const defs = useMemo(() => rangeDefs(conditions.deal), [conditions.deal]);
   const matched = complexes.filter((c) => matches(c, conditions, defs)).length;
   const onlyDef = only && only !== "heating" ? defs.find((d) => d.id === only) ?? null : null;
@@ -272,7 +271,7 @@ export function MapConditionSheet({
           )}
         </div>
       ) : (
-        <div className="flex flex-col gap-5 pb-2">
+        <div className="flex flex-col gap-7 pb-4">
           {/* 레시피: 한 줄 칩. 켠 레시피가 무엇을 걸었는지는 칩 아래 한 줄로만 */}
           <div className="flex flex-col gap-1.5">
             <div
@@ -315,61 +314,47 @@ export function MapConditionSheet({
             ))}
           </div>
 
-          {FILTER_GROUPS.map((g) => (
-            <section key={g.id} className="flex flex-col gap-1.5" aria-label={g.label}>
-              {/* 묶음 이름은 작은 회색 캡션, 조건은 그 아래 목록 — 글자 크기·색으로 위계를 구분 */}
-              <h4 className="px-1 text-[13px] font-semibold leading-5 text-[color:var(--lab-muted)]">{g.label}</h4>
-              <ul className="divide-y divide-[color:var(--lab-border)] border-t border-[color:var(--lab-border)]">
-                {defs
-                  .filter((d) => d.group === g.id)
-                  .map((d) => {
-                    const cur = conditions.ranges[d.id];
-                    const isOpen = expanded === d.id;
-                    const active = !isFullRange(d, cur);
-                    const hint = rowHint(d);
-                    return (
-                      <li key={d.id}>
-                        <button
-                          type="button"
-                          aria-expanded={isOpen}
-                          onClick={() => setExpanded(isOpen ? null : d.id)}
-                          className="flex min-h-12 w-full items-center justify-between gap-3 py-2 text-left"
+          {FILTER_GROUPS.map((g, gi) => (
+            <section
+              key={g.id}
+              aria-label={g.label}
+              className={`flex flex-col gap-7 ${gi > 0 ? "border-t border-[color:var(--lab-border)] pt-6" : ""}`}
+            >
+              {/* 묶음 이름은 작은 회색 캡션. 조건은 항상 펼쳐 두고 구분선 대신 여백으로 나눈다. */}
+              <h4 className="-mb-3 text-[13px] font-semibold leading-5 text-[color:var(--lab-muted)]">{g.label}</h4>
+              {defs
+                .filter((d) => d.group === g.id)
+                .map((d) => {
+                  const cur = conditions.ranges[d.id];
+                  const active = !isFullRange(d, cur);
+                  const hint = rowHint(d);
+                  return (
+                    <div key={d.id} className="flex flex-col gap-2.5">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="flex min-w-0 flex-col">
+                          <span className="text-[16px] font-semibold leading-6 text-[color:var(--lab-navy-950)]">
+                            {d.label}
+                          </span>
+                          {hint ? <span className="detail-meta">{hint}</span> : null}
+                        </span>
+                        <span
+                          className={`shrink-0 text-[15px] tabular-nums ${
+                            active ? "font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
+                          }`}
                         >
-                          <span className="flex min-w-0 flex-col">
-                            <span className="text-[15px] font-medium leading-6 text-[color:var(--lab-navy-950)]">
-                              {d.label}
-                            </span>
-                            {hint ? <span className="detail-meta truncate">{hint}</span> : null}
-                          </span>
-                          <span className="flex shrink-0 items-center gap-1">
-                            <span
-                              className={`text-[14px] tabular-nums ${
-                                active ? "font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
-                              }`}
-                            >
-                              {conditionSummary(d, cur)}
-                            </span>
-                            <ChevronDown
-                              className={`h-4 w-4 text-[color:var(--lab-muted)] transition-transform ${isOpen ? "rotate-180" : ""}`}
-                              aria-hidden
-                            />
-                          </span>
-                        </button>
-                        {isOpen ? (
-                          <div className="pb-4">
-                            <RangeBody def={d} conditions={conditions} complexes={complexes} onRange={setRange} />
-                          </div>
-                        ) : null}
-                      </li>
-                    );
-                  })}
-                {g.id === "env" ? (
-                  <li className="flex flex-col gap-2 py-3">
-                    <span className="text-[15px] font-medium leading-6 text-[color:var(--lab-navy-950)]">난방방식</span>
-                    <HeatingChips conditions={conditions} onChange={onChange} />
-                  </li>
-                ) : null}
-              </ul>
+                          {conditionSummary(d, cur)}
+                        </span>
+                      </div>
+                      <RangeBody def={d} conditions={conditions} complexes={complexes} onRange={setRange} />
+                    </div>
+                  );
+                })}
+              {g.id === "env" ? (
+                <div className="flex flex-col gap-2.5">
+                  <span className="text-[16px] font-semibold leading-6 text-[color:var(--lab-navy-950)]">난방방식</span>
+                  <HeatingChips conditions={conditions} onChange={onChange} />
+                </div>
+              ) : null}
             </section>
           ))}
         </div>
