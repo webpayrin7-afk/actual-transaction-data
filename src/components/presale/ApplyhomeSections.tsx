@@ -77,23 +77,26 @@ function MoreList<T>({
   step,
   render,
   unit = "곳",
+  preview = LAB_LIST_PREVIEW,
 }: {
   items: T[];
+  /** 처음 보이는 수 (기본 5) */
+  preview?: number;
   /** 한 번에 더 여는 수. 없으면 한 번에 전부 */
   step?: number;
   render: (item: T) => React.ReactNode;
   unit?: string;
 }) {
-  const [shown, setShown] = useState(LAB_LIST_PREVIEW);
+  const [shown, setShown] = useState(preview);
   const visible = items.slice(0, shown);
   const rest = items.length - shown;
   return (
     <>
       <ul className={LAB_LIST}>{visible.map(render)}</ul>
-      {items.length > LAB_LIST_PREVIEW ? (
+      {items.length > preview ? (
         <LabMoreButton
           expanded={rest <= 0}
-          onToggle={() => setShown(rest <= 0 ? LAB_LIST_PREVIEW : step ? shown + step : items.length)}
+          onToggle={() => setShown(rest <= 0 ? preview : step ? shown + step : items.length)}
           label={`${step ? Math.min(step, rest) : rest}${unit} 더보기`}
         />
       ) : null}
@@ -129,6 +132,7 @@ export function ApplyhomeUpcomingSection({ filter, toolbar }: { filter: PresaleF
         <MoreList
           key={listKey}
           items={items}
+          preview={10}
           render={(n) => {
             const st = status(n, data!.today);
             return (

@@ -32,17 +32,18 @@ const SUPPLIER_OPTIONS = [
   { id: "public", label: "공공분양" },
 ] as const;
 
-type PresaleTab = "schedule" | "results" | "movein";
+type PresaleTab = "schedule" | "results" | "stats";
 const TABS = [
   { id: "schedule" as const, label: "청약 일정" },
   { id: "results" as const, label: "분양 결과" },
-  { id: "movein" as const, label: "입주 예정" },
+  { id: "stats" as const, label: "분양 통계" },
 ];
 const TAB_PREFIX = "presale";
 
 /**
- * 분양 — [청약 일정 | 분양 결과 | 입주 예정] (한국부동산원 청약홈 공고 사본).
- * 조건은 탭 아래 한 줄 칩 → 바텀시트. 지역은 모든 탭, 공급은 일정·결과, 면적·분양가는 결과만.
+ * 분양 정보 — [청약 일정 | 분양 결과 | 분양 통계] (한국부동산원 청약홈 공고 사본).
+ * 조건은 탭 아래 한 줄 칩 → 바텀시트. 지역은 모든 탭, 공급 유형은 일정·결과, 면적·분양가는 결과만.
+ * 분양 통계 = 분양·청약·입주를 모아 보는 곳 (최근 경쟁률 높은 곳 · 입주 예정 …).
  */
 export function PresalePage() {
   const [tab, setTab] = useState<PresaleTab>("schedule");
@@ -58,7 +59,7 @@ export function PresalePage() {
 
   const filters: FilterDef[] = [
     { key: "metro", title: "지역", options: METRO_OPTIONS, value: metro, defaultId: "all", onChange: setMetro, grid: true },
-    ...(tab !== "movein"
+    ...(tab !== "stats"
       ? [
           {
             key: "supplier",
@@ -98,7 +99,7 @@ export function PresalePage() {
     <div className={PAGE_SHELL}>
       <PageHeader title="분양 정보" titleClassName="detail-page-title" showDivider={false} titleInHeader />
       {/* 모바일: 탭 + 조건 칩 줄을 흰 띠 하나로 상단바에 잇고, 띠 아래에만 구분선 */}
-      <div className="-mx-4 border-b border-[color:var(--lab-border)] bg-white px-4 pb-2.5 sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0">
+      <div className="-mx-4 border-b border-[color:var(--lab-border)] bg-white px-4 pb-3.5 sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0">
         <LabPageTabs bare ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
         <div className="pt-2">{chips}</div>
       </div>
@@ -111,12 +112,13 @@ export function PresalePage() {
         {tab === "schedule" ? (
           <ApplyhomeUpcomingSection filter={filter} />
         ) : tab === "results" ? (
-          <>
-            <PresaleResults metro={metro} supplier={supplier} area={area} price={price} />
-            <ApplyhomeCompetitionSection filter={filter} />
-          </>
+          <PresaleResults metro={metro} supplier={supplier} area={area} price={price} />
         ) : (
-          <MoveInSection metro={metro} onPickMetro={pickMetro} />
+          <>
+            {/* 분양 통계 탭엔 공급 유형 칩이 없으니 경쟁률도 전체 공급 기준 */}
+            <ApplyhomeCompetitionSection filter={{ metro, supplier: "all" }} />
+            <MoveInSection metro={metro} onPickMetro={pickMetro} />
+          </>
         )}
       </div>
     </div>
