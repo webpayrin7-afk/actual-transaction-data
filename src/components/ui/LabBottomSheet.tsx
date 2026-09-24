@@ -26,6 +26,8 @@ type LabBottomSheetProps = {
   footer?: ReactNode;
   /** Small note right after the title (e.g. what a chart means). */
   titleNote?: ReactNode;
+  /** tall: long forms (e.g. 지도 조건) open to 88% of the viewport instead of 65%. */
+  size?: "default" | "tall";
 };
 
 /**
@@ -42,6 +44,7 @@ export function LabBottomSheet({
   compactBodyTop = false,
   footer,
   titleNote,
+  size = "default",
 }: LabBottomSheetProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
@@ -109,7 +112,7 @@ export function LabBottomSheet({
         aria-labelledby={titleId}
         className="relative z-10 flex w-full max-w-md flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
         style={{
-          maxHeight: "65dvh",
+          maxHeight: size === "tall" ? "88dvh" : "65dvh",
           height: "auto",
           transform: visible ? "translateY(0)" : "translateY(100%)",
           transition: `transform ${duration}ms ${easing}`,

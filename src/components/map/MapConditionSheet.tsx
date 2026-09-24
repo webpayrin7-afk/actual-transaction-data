@@ -146,6 +146,7 @@ export function MapConditionSheet({
       title="조건으로 찾기"
       hideHeaderDivider
       compactBodyTop
+      size="tall"
       doneLabel="닫기"
       titleNote="막대는 지금 화면 속 단지 분포"
       footer={
