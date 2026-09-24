@@ -16,11 +16,9 @@ import {
 } from "@/lib/constants/regions";
 import { suggestRegions } from "@/lib/region/suggest-regions";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import {
-  LAB_SUBSECTION_RULE,
-  LabSection,
-  LabSubsectionHeader,
-} from "@/components/ui/LabSection";
+import { Search } from "lucide-react";
+import { LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
+import { LabTabs } from "@/components/ui/LabTabs";
 
 /** 지역별 조회 시·도 탭 — 서울 다음 경기(수도권)를 우선 배치 */
 const METRO_TAB_ORDER: Metro[] = [
@@ -112,6 +110,7 @@ export function RegionsPage() {
             지역명 검색
           </label>
           <div ref={searchWrapRef} className="relative z-30">
+            <Search className="pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
             <input
               id="region-search"
               value={regionQuery}
@@ -139,7 +138,7 @@ export function RegionsPage() {
                 }
               }}
               placeholder="지역명 검색 (예: 강남, 분당, 수원)"
-              className="lab-input px-3.5 text-sm outline-none placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+              className="lab-input pr-3 pl-10 outline-none placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
               autoComplete="off"
             />
 
@@ -188,38 +187,28 @@ export function RegionsPage() {
       <LabSection
         title="지역 선택"
       >
-        <div className="flex flex-wrap gap-2" role="group" aria-label="시·도">
-          {METRO_OPTIONS.map(([value, label]) => {
-            const active = metro === value;
-            return (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setMetro(value)}
-                className={`lab-choice h-11 rounded-full px-3.5 font-medium ${
-                  active ? "lab-choice-selected font-semibold" : ""
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        <LabTabs
+          variant="secondary"
+          ariaLabel="시·도"
+          columns={6}
+          items={METRO_OPTIONS.map(([id, label]) => ({ id, label }))}
+          value={metro}
+          onChange={setMetro}
+        />
 
-        <div className={`${LAB_SUBSECTION_RULE} flex flex-col gap-3`}>
+        <div className="flex flex-col gap-3">
           <LabSubsectionHeader
             title={METRO_LABELS[metro]}
             meta={`${regions.length.toLocaleString("ko-KR")}곳`}
           />
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
             {regions.map((region) => (
               <Link
                 key={region.slug}
                 href={`/region/${region.slug}`}
-                className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--lab-border)] bg-white px-2 py-2 text-center text-[14px] font-semibold leading-5 text-[color:var(--lab-navy-950)] transition hover:border-[color:var(--lab-teal-600)] hover:text-[color:var(--lab-teal-700)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                className="flex min-h-12 items-center rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2.5 transition hover:border-[color:var(--lab-brand-border)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
               >
-                {region.name}
+                <span className="detail-data-value-emphasis break-keep">{region.name}</span>
               </Link>
             ))}
           </div>

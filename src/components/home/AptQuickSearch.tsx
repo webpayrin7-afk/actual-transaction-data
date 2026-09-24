@@ -153,7 +153,7 @@ export function AptQuickSearch({
         {includeRegions ? "단지 또는 지역 검색" : "단지명 검색"}
       </label>
       <div ref={searchWrapRef} className="relative z-30">
-        <div className="relative flex min-h-12 items-center overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
+        <div className="relative flex min-h-12 items-center overflow-hidden rounded-lg border border-[color:var(--lab-border-control)] bg-white focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-100">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             ref={inputRef}
@@ -185,7 +185,7 @@ export function AptQuickSearch({
               }
             }}
             placeholder={placeholder}
-            className={`w-full border-0 bg-transparent pl-10 text-sm text-slate-900 outline-none placeholder:text-slate-400 ${
+            className={`w-full border-0 bg-transparent pl-10 text-[16px] leading-6 text-[color:var(--lab-navy-950)] outline-none placeholder:text-slate-400 ${
               query.length > 0 ? "pr-10" : "pr-3"
             } ${compact ? "py-2.5" : "py-2.5 sm:py-3"}`}
             autoComplete="off"

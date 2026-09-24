@@ -21,6 +21,8 @@ export function RecentComplexList() {
     getRecentComplexesServerSnapshot,
   );
   const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
+  // 본 단지가 없으면 섹션을 숨긴다 (관심 단지와 같은 규칙).
+  if (items.length === 0) return null;
 
   return (
     <section aria-label="최근 조회한 단지" className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}>

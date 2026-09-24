@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { ActiveComplexesResponse } from "@/lib/complexes/active-complexes";
-import { formatDealDate } from "@/lib/utils/format";
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
@@ -30,8 +29,7 @@ export function ActiveComplexList() {
 
   return (
     <LabSection
-      title="최근 거래 활발 단지"
-      meta="최근 30일 매매 건수 순"
+      title="최근 30일 거래 많은 단지"
     >
       {query.isLoading ? (
         <div className="lab-skeleton" />
@@ -56,7 +54,7 @@ export function ActiveComplexList() {
                 }
                 meta={item.regionLabel}
                 value={`${item.recentCount.toLocaleString("ko-KR")}건`}
-                sub={item.latestDealDate ? `최근 ${formatDealDate(item.latestDealDate)}` : undefined}
+                sub={item.latestDealDate ? `최근 ${item.latestDealDate.slice(5, 10).replace("-", ".")}` : undefined}
               />
             ))}
           </ul>

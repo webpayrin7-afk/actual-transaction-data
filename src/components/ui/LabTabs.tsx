@@ -49,6 +49,8 @@ type LabTabsProps<T extends string> = {
    * `${idPrefix}-tab-${id}` / `${idPrefix}-panel-${id}`.
    */
   idPrefix?: string;
+  /** 항목이 많을 때 한 셸 안에서 N열로 줄바꿈 (예: 시·도 17개). */
+  columns?: number;
 };
 
 export function labTabId(idPrefix: string, id: string): string {
@@ -98,6 +100,7 @@ export function LabTabs<T extends string>({
   equalWidth: equalWidthProp,
   allowEmpty = false,
   idPrefix,
+  columns,
 }: LabTabsProps<T>) {
   // Legacy density=compact on calculator meant denser primary tabs — map to primary.
   const variant: LabTabsVariant =
@@ -153,6 +156,7 @@ export function LabTabs<T extends string>({
       role={listRole}
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
+      style={columns ? { display: "grid", gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` } : undefined}
     >
       {items.map((item) => {
         const active = value === item.id;
