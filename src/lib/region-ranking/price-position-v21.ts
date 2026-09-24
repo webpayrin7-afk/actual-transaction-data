@@ -21,6 +21,7 @@ import {
   complexMonthStat,
   HORIZON_SHIFT_MONTHS_V21,
   mean,
+  monthsBetweenInclusive,
   resolveComplexMonth,
   TREND_HORIZONS_V21,
   type TrendHorizonV21,
@@ -78,6 +79,8 @@ export const TREND_MIN_COMPLEXES_V21: Record<PriceScopeV21, number> = {
 
 export { TREND_HORIZONS_V21, HORIZON_SHIFT_MONTHS_V21, type TrendHorizonV21 };
 
+export type FreshnessStatusV3 = "FRESH" | "STALE_MIXED" | "STALE_HEAVY";
+
 export type PriceLevelCellV21 = {
   scope: PriceScopeV21;
   label: string;
@@ -87,6 +90,17 @@ export type PriceLevelCellV21 = {
   contributingComplexCount: number | null;
   referenceMonth: string | null;
   status: "ok" | "INSUFFICIENT_SAMPLE";
+  /** V3 regional freshness. Absent on V2.x rows. */
+  canonicalCount?: number | null;
+  historyUsableCount?: number | null;
+  medianAgeMonths?: number | null;
+  p75AgeMonths?: number | null;
+  p90AgeMonths?: number | null;
+  shareOver12Months?: number | null;
+  shareOver24Months?: number | null;
+  freshnessStatus?: FreshnessStatusV3 | null;
+  /** Calculation as-of month for latest-active regional cells (not a shared trade month). */
+  asOfMonth?: string | null;
 };
 
 export type TrendCellV21 = {
@@ -152,7 +166,7 @@ export type PricePositionBodyV21 = {
   /** How COMPLEX scope was produced for this response. */
   complexScopeBasis: "decade_cohort" | "exact_market_pyeong_label" | "ambiguous" | "unavailable";
   changeUnit: typeof CHANGE_UNIT_V21;
-  priceLevelDefinition: typeof PRICE_LEVEL_DEFINITION_V21;
+  priceLevelDefinition: string;
   complexPriceDefinition: typeof COMPLEX_PRICE_DEFINITION_V21;
   complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label";
   regionTrendDefinition: string;
@@ -174,6 +188,21 @@ export type PricePositionBodyV21 = {
     exactMappedTrades: number;
     ambiguousExcluded: number;
   };
+};
+
+export type ContributorAuditRow = {
+  cohortKey: string;
+  cacheKey: string;
+  referenceMonth: string;
+  horizon: TrendHorizonV21;
+  legacyContributors: number;
+  canonicalContributors: number;
+  nonCanonicalContributors: number;
+  legacyMedian: number | null;
+  canonicalMedian: number | null;
+  publishedMedian: number | null;
+  publishedContributors: number;
+  nonCanonicalIds: string[];
 };
 
 export function pricePositionV21SnapshotId(asOf: string = PRICE_POSITION_V21_AS_OF): string {
@@ -206,10 +235,24 @@ export function buildPricePositionV21(params: {
   /** Default S1 keeps V2.1/V2.2 region trends unchanged. */
   regionEndpoint?: "S1" | "TRAILING_6M";
   regionTrendDefinition?: string;
-  /** Canonical supply complexes. Coverage denominator only; matching stays on traded complexes. */
+  /** Canonical supply complexes. Coverage denominator. V2.3.1 also uses this set as the regional median population. */
   cohortUniverse?: ReadonlySet<string>;
   /** When false, a matched median is returned even below the legacy minimum. */
   enforceTrendMinimum?: boolean;
+  /** V2.3.1. Regional median uses canonical cohort members only. */
+  canonicalContributorsOnly?: boolean;
+  /**
+   * Regional price membership month policy.
+   * SAME_MONTH (default): exact calendar referenceMonth.
+   * LATEST_ACTIVE (V3): each complex's latest usable month ≤ as-of.
+   */
+  regionPriceMode?: "SAME_MONTH" | "LATEST_ACTIVE";
+  /** Override published price-level definition string (V3). */
+  priceLevelDefinition?: string;
+  /** Override price methodology copy (V3). */
+  priceCopy?: string;
+  /** Read-only. Does not change the published median. */
+  contributorAudit?: ContributorAuditRow[];
 }): { bodies: PricePositionBodyV21[]; ambiguousExcluded: number; exactMapped: number } {
   const cohort = params.cohort ?? BAND_TO_SUPPLY_COHORT[params.areaBand as RegionalAreaBandId];
   const version = params.version ?? PRICE_POSITION_V21_VERSION;
@@ -219,6 +262,10 @@ export function buildPricePositionV21(params: {
   const regionEndpoint = params.regionEndpoint ?? "S1";
   const regionTrendDefinition = params.regionTrendDefinition ?? REGION_TREND_DEFINITION_V21;
   const enforceTrendMinimum = params.enforceTrendMinimum ?? true;
+  const canonicalContributorsOnly = params.canonicalContributorsOnly === true;
+  const regionPriceMode = params.regionPriceMode ?? "SAME_MONTH";
+  const priceLevelDefinition = params.priceLevelDefinition ?? PRICE_LEVEL_DEFINITION_V21;
+  const priceCopy = params.priceCopy ?? PRICE_COPY_V21;
 
   const dealPoints: Array<{
     complexId: string;
@@ -371,27 +418,103 @@ export function buildPricePositionV21(params: {
     sampleCount: number | null;
     contributingComplexCount: number | null;
     status: "ok" | "INSUFFICIENT_SAMPLE";
+    canonicalCount: number | null;
+    historyUsableCount: number | null;
+    medianAgeMonths: number | null;
+    p75AgeMonths: number | null;
+    p90AgeMonths: number | null;
+    shareOver12Months: number | null;
+    shareOver24Months: number | null;
+    freshnessStatus: FreshnessStatusV3 | null;
   };
   const regionPriceCache = new Map<string, RegionPrice>();
-  function regionPrice(cacheKey: string, ids: readonly string[], referenceMonth: string, minComplexes: number): RegionPrice {
+
+  function agePercentile(sorted: number[], p: number): number | null {
+    if (!sorted.length) return null;
+    return sorted[Math.max(0, Math.ceil(p * sorted.length) - 1)] ?? null;
+  }
+
+  function classifyFreshness(share12: number, share24: number, medianAge: number | null): FreshnessStatusV3 {
+    const med = medianAge ?? 0;
+    if (share24 >= 0.15 || (share12 >= 0.25 && med >= 6)) return "STALE_HEAVY";
+    if (share12 >= 0.25 || med >= 6) return "STALE_MIXED";
+    return "FRESH";
+  }
+
+  function regionPrice(
+    cacheKey: string,
+    ids: readonly string[],
+    referenceMonth: string,
+    minComplexes: number,
+    canonicalSet: ReadonlySet<string> | null,
+  ): RegionPrice {
     const cached = regionPriceCache.get(cacheKey);
     if (cached) return cached;
     const values: number[] = [];
+    const ages: number[] = [];
     let trades = 0;
+    // Canonical filter for regional price applies to V3 latest-active only.
+    // SAME_MONTH (V2.3.x) keeps prior traded-scope membership.
+    const useCanonical = regionPriceMode === "LATEST_ACTIVE" && canonicalContributorsOnly && canonicalSet != null;
+    let historyUsable = 0;
     for (const cid of ids) {
-      const cell = tables.get(cid)?.get(referenceMonth);
-      if (!cell || cell.tradeCount < 1) continue;
-      values.push(complexMonthStat(cell, "C1_MEAN"));
-      trades += cell.tradeCount;
+      if (useCanonical && !canonicalSet!.has(cid)) continue;
+      const months = tables.get(cid);
+      if (!months || months.size < 1) continue;
+      historyUsable += 1;
+      if (regionPriceMode === "LATEST_ACTIVE") {
+        const latest = identityRef.get(cid);
+        if (!latest) continue;
+        const cell = months.get(latest);
+        if (!cell || cell.tradeCount < 1) continue;
+        values.push(complexMonthStat(cell, "C1_MEAN"));
+        trades += cell.tradeCount;
+        ages.push(monthsBetweenInclusive(latest, asOfMonth));
+      } else {
+        const cell = months.get(referenceMonth);
+        if (!cell || cell.tradeCount < 1) continue;
+        values.push(complexMonthStat(cell, "C1_MEAN"));
+        trades += cell.tradeCount;
+        ages.push(0);
+      }
+    }
+    // Also count canonical complexes with history that may be missing from traded scope ids
+    let canonicalCount: number | null = null;
+    if (canonicalSet) {
+      canonicalCount = canonicalSet.size;
+      if (regionPriceMode === "LATEST_ACTIVE") {
+        historyUsable = 0;
+        for (const cid of canonicalSet) {
+          if ((tables.get(cid)?.size ?? 0) > 0) historyUsable += 1;
+        }
+      }
     }
     const med = median(values);
     const ok = med != null && values.length >= minComplexes;
+    const sortedAges = [...ages].sort((a, b) => a - b);
+    const medianAge = agePercentile(sortedAges, 0.5);
+    const gt12 = ages.filter((a) => a > 12).length;
+    const gt24 = ages.filter((a) => a > 24).length;
+    const share12 = ages.length ? gt12 / ages.length : 0;
+    const share24 = ages.length ? gt24 / ages.length : 0;
+    const freshness =
+      regionPriceMode === "LATEST_ACTIVE" && ages.length
+        ? classifyFreshness(share12, share24, medianAge)
+        : null;
     const computed: RegionPrice = {
       meanPricePerSupplyPyeong: ok ? roundToV2(med!, 4) : null,
       tradeCount: values.length ? trades : null,
       sampleCount: values.length || null,
       contributingComplexCount: values.length || null,
       status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
+      canonicalCount,
+      historyUsableCount: canonicalSet ? historyUsable : null,
+      medianAgeMonths: regionPriceMode === "LATEST_ACTIVE" ? medianAge : null,
+      p75AgeMonths: regionPriceMode === "LATEST_ACTIVE" ? agePercentile(sortedAges, 0.75) : null,
+      p90AgeMonths: regionPriceMode === "LATEST_ACTIVE" ? agePercentile(sortedAges, 0.9) : null,
+      shareOver12Months: regionPriceMode === "LATEST_ACTIVE" && ages.length ? roundToV2(share12, 4) : null,
+      shareOver24Months: regionPriceMode === "LATEST_ACTIVE" && ages.length ? roundToV2(share24, 4) : null,
+      freshnessStatus: freshness,
     };
     regionPriceCache.set(cacheKey, computed);
     return computed;
@@ -433,10 +556,14 @@ export function buildPricePositionV21(params: {
     const cached = regionTrendCache.get(cacheKey);
     if (cached) return cached;
     const changes: number[] = [];
+    const canonicalChanges: number[] = [];
+    const nonCanonicalIds: string[] = [];
     let matched = 0;
     let canonicalMatched = 0;
     const actualCurrent = new Set<string>();
     const actualBaseline = new Set<string>();
+    const canonicalCurrent = new Set<string>();
+    const canonicalBaseline = new Set<string>();
     let historyAvailable = 0;
     let canonicalHistory = 0;
     const window =
@@ -447,6 +574,7 @@ export function buildPricePositionV21(params: {
             historyFloor: HISTORY_FLOOR_MONTH_V21,
           })
         : null;
+    const useCanonical = canonicalContributorsOnly && canonicalSet != null;
     for (const cid of ids) {
       const cells = tables.get(cid);
       if (!cells) continue;
@@ -462,9 +590,16 @@ export function buildPricePositionV21(params: {
         if (ch == null) continue;
         changes.push(ch);
         matched += 1;
-        if (inCanonical) canonicalMatched += 1;
-        for (const month of cur.months) actualCurrent.add(month);
-        for (const month of base.months) actualBaseline.add(month);
+        if (inCanonical) {
+          canonicalChanges.push(ch);
+          canonicalMatched += 1;
+          for (const month of cur.months) canonicalCurrent.add(month);
+          for (const month of base.months) canonicalBaseline.add(month);
+        } else nonCanonicalIds.push(cid);
+        if (!useCanonical) {
+          for (const month of cur.months) actualCurrent.add(month);
+          for (const month of base.months) actualBaseline.add(month);
+        }
         continue;
       }
       const cur = resolveComplexMonth({
@@ -489,14 +624,20 @@ export function buildPricePositionV21(params: {
       actualCurrent.add(cur.month);
       actualBaseline.add(base.month);
     }
-    const med = median(changes);
     const minimum = enforceTrendMinimum ? minComplexes : 1;
-    const ok = med != null && matched >= minimum;
+    const legacyMed = median(changes);
+    const legacyOk = legacyMed != null && matched >= minimum;
+    const publishedChanges = useCanonical ? canonicalChanges : changes;
+    const publishedCount = useCanonical ? canonicalMatched : matched;
+    const med = median(publishedChanges);
+    const ok = med != null && publishedCount >= minimum;
+    const publishedCurrent = useCanonical ? canonicalCurrent : actualCurrent;
+    const publishedBaseline = useCanonical ? canonicalBaseline : actualBaseline;
     const computed: RegionTrend = {
       changePercent: ok ? roundToV2(med!, 2) : null,
-      matchedComplexCount: matched || null,
-      actualCurrentMonth: actualCurrent.size ? [...actualCurrent].sort().join(",") : null,
-      actualBaselineMonth: actualBaseline.size ? [...actualBaseline].sort().join(",") : null,
+      matchedComplexCount: publishedCount || null,
+      actualCurrentMonth: publishedCurrent.size ? [...publishedCurrent].sort().join(",") : null,
+      actualBaselineMonth: publishedBaseline.size ? [...publishedBaseline].sort().join(",") : null,
       status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
       cohortUniverseCount: null,
       historyAvailableCount: null,
@@ -521,7 +662,8 @@ export function buildPricePositionV21(params: {
       const confidenceUniverse = canonicalSet ? canonicalSet.size : coverageUniverse;
       computed.cohortUniverseCount = confidenceUniverse;
       computed.historyAvailableCount = historyAvailable;
-      computed.matchedCoverageRatio = coverageUniverse > 0 ? roundToV2(matched / coverageUniverse, 4) : null;
+      const membership = useCanonical ? canonicalMatched : matched;
+      computed.matchedCoverageRatio = coverageUniverse > 0 ? roundToV2(membership / coverageUniverse, 4) : null;
       computed.canonicalHistoryAvailableCount = confidenceHistory;
       computed.canonicalMatchedComplexCount = confidenceMatched;
       computed.matchedComplexCount = confidenceMatched || null;
@@ -541,6 +683,24 @@ export function buildPricePositionV21(params: {
         canonicalHistory: confidenceHistory,
       });
       computed.windowStatistic = "pooled_trade_mean";
+      if (params.contributorAudit) {
+        const canonicalMed = median(canonicalChanges);
+        const canonicalOk = canonicalMed != null && canonicalMatched >= minimum;
+        params.contributorAudit.push({
+          cohortKey: params.cohort?.key ?? String(params.areaBand),
+          cacheKey,
+          referenceMonth,
+          horizon,
+          legacyContributors: matched,
+          canonicalContributors: canonicalMatched,
+          nonCanonicalContributors: matched - canonicalMatched,
+          legacyMedian: legacyOk ? roundToV2(legacyMed!, 2) : null,
+          canonicalMedian: canonicalOk ? roundToV2(canonicalMed!, 2) : null,
+          publishedMedian: computed.changePercent,
+          publishedContributors: publishedCount,
+          nonCanonicalIds,
+        });
+      }
     }
     regionTrendCache.set(cacheKey, computed);
     return computed;
@@ -623,11 +783,18 @@ export function buildPricePositionV21(params: {
           status: ok ? "ok" : "INSUFFICIENT_SAMPLE",
         };
       }
+      const regionKey = scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL";
+      const canon = regionCanonical(scope, key, id.lawdCd);
+      const priceCacheKey =
+        regionPriceMode === "LATEST_ACTIVE"
+          ? `${scope}|${regionKey}|LATEST_ACTIVE|${asOfMonth}`
+          : `${scope}|${regionKey}|${referenceMonth}`;
       const cached = regionPrice(
-        `${scope}|${scope === "DONG" ? key : scope === "GU" ? id.lawdCd : "SEOUL"}|${referenceMonth}`,
+        priceCacheKey,
         scopeComplexes[scope],
         referenceMonth,
         PRICE_MIN_COMPLEXES_V21[scope],
+        canon,
       );
       return {
         scope,
@@ -636,8 +803,22 @@ export function buildPricePositionV21(params: {
         tradeCount: cached.tradeCount,
         sampleCount: cached.sampleCount,
         contributingComplexCount: cached.contributingComplexCount,
-        referenceMonth,
+        // Latest-active regional price is not a shared calendar trade month.
+        referenceMonth: regionPriceMode === "LATEST_ACTIVE" ? null : referenceMonth,
         status: cached.status,
+        ...(regionPriceMode === "LATEST_ACTIVE"
+          ? {
+              canonicalCount: cached.canonicalCount,
+              historyUsableCount: cached.historyUsableCount,
+              medianAgeMonths: cached.medianAgeMonths,
+              p75AgeMonths: cached.p75AgeMonths,
+              p90AgeMonths: cached.p90AgeMonths,
+              shareOver12Months: cached.shareOver12Months,
+              shareOver24Months: cached.shareOver24Months,
+              freshnessStatus: cached.freshnessStatus,
+              asOfMonth,
+            }
+          : {}),
       };
     });
 
@@ -716,14 +897,14 @@ export function buildPricePositionV21(params: {
       selectedMarketPyeongLabel: null,
       complexScopeBasis: "decade_cohort",
       changeUnit: CHANGE_UNIT_V21,
-      priceLevelDefinition: PRICE_LEVEL_DEFINITION_V21,
+      priceLevelDefinition,
       complexPriceDefinition: COMPLEX_PRICE_DEFINITION_V21,
       complexTrendDefinition: "calendar_month_mean_deal_per_market_pyeong_label",
       regionTrendDefinition,
       areaBasis: AREA_BASIS_V21,
       pyeongLabelVersion: PYEONG_LABEL_VERSION_V21,
       methodologyFingerprint: fingerprint,
-      methodologyCopy: { price: PRICE_COPY_V21, trend: TREND_COPY_V21 },
+      methodologyCopy: { price: priceCopy, trend: TREND_COPY_V21 },
       priceLevel,
       trends,
       complexExactByMarketLabel,

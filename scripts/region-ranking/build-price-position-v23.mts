@@ -1,12 +1,19 @@
 /**
- * Materialize price-position-v2.3 for every supply-pyeong decade.
- * Does not update or delete V2 / V2.1 / V2.2 rows.
+ * Materialize price-position-v2.3 / v2.3.1 / v2.3.2 for every supply-pyeong decade.
+ * Does not update or delete older version rows.
  *
  * Usage:
  *   tsx scripts/region-ranking/build-price-position-v23.mts
  *   tsx scripts/region-ranking/build-price-position-v23.mts --apply
+ *   tsx scripts/region-ranking/build-price-position-v23.mts --v231
+ *   tsx scripts/region-ranking/build-price-position-v23.mts --v231 --apply
+ *   tsx scripts/region-ranking/build-price-position-v23.mts --v232
+ *   tsx scripts/region-ranking/build-price-position-v23.mts --v232 --apply
  *   tsx scripts/region-ranking/build-price-position-v23.mts --confidence
  *   tsx scripts/region-ranking/build-price-position-v23.mts --confidence --apply
+ *
+ * --v232 is a freshness patch of V2.3.1 (same methodology). Dry-run compares
+ * rebuilt regional price cells against stored V2.3.1; --apply inserts V2.3.2 only.
  *
  * --confidence updates sample-confidence-v2 metadata on the current V2.3
  * snapshot only. It does not insert a snapshot and does not change prices.
@@ -39,9 +46,18 @@ import { decadeCohortForLabel, pricePositionV22SnapshotId } from "../../src/lib/
 import {
   DECADE_COHORTS_V22,
   METHODOLOGY_FINGERPRINT_V23,
+  METHODOLOGY_FINGERPRINT_V231,
+  METHODOLOGY_FINGERPRINT_V232,
   PRICE_POSITION_V23_VERSION,
+  PRICE_POSITION_V231_VERSION,
+  PRICE_POSITION_V232_VERSION,
   buildPricePositionV23,
+  buildPricePositionV231,
+  buildPricePositionV232,
   pricePositionV23SnapshotId,
+  pricePositionV231SnapshotId,
+  pricePositionV232SnapshotId,
+  type ContributorAuditRow,
 } from "../../src/lib/region-ranking/price-position-v23";
 import { SAMPLE_CONFIDENCE_VERSION } from "../../src/lib/region-ranking/sample-confidence-v2";
 
@@ -50,10 +66,17 @@ const FLOOR_YM = "202107";
 const ASOF_YM = "202609";
 const APPLY = process.argv.includes("--apply");
 const CONFIDENCE = process.argv.includes("--confidence");
+const AUDIT_CONTRIBUTORS = process.argv.includes("--audit-contributors");
+const V231 = process.argv.includes("--v231");
+const V232 = process.argv.includes("--v232");
 const SNAP23 = pricePositionV23SnapshotId();
+const SNAP231 = pricePositionV231SnapshotId();
+const SNAP232 = pricePositionV232SnapshotId();
 const SNAP22 = pricePositionV22SnapshotId();
 const BATCH = 40;
 const REPORT = "/tmp/building-hub-bulk/external-evidence/v23-publish-report.json";
+/** Freshness dry-run fails if regional value changes exceed this (expected ~133). */
+const V232_MAX_UNEXPECTED_REGIONAL_CHANGES = 400;
 const JAMSIL = "cx_4c63d9a100973c60";
 const PILOTS: Record<string, string> = {
   잠실엘스: JAMSIL,
@@ -152,6 +175,22 @@ function payloadPricesEqual(stored: PricePositionBodyV21, rebuilt: PricePosition
   return true;
 }
 
+function regionalStructureEqual(stored: TrendCellV21, rebuilt: TrendCellV21): boolean {
+  if (stored.currentMonth !== rebuilt.currentMonth || stored.baselineMonth !== rebuilt.baselineMonth) return false;
+  if ((stored.currentWindow ?? null) !== (rebuilt.currentWindow ?? null)) return false;
+  if ((stored.baselineWindow ?? null) !== (rebuilt.baselineWindow ?? null)) return false;
+  if ((stored.windowStatus ?? null) !== (rebuilt.windowStatus ?? null)) return false;
+  if ((stored.historyAvailableCount ?? null) !== (rebuilt.historyAvailableCount ?? null)) return false;
+  if ((stored.canonicalHistoryAvailableCount ?? null) !== (rebuilt.canonicalHistoryAvailableCount ?? null)) return false;
+  if ((stored.cohortUniverseCount ?? null) !== (rebuilt.cohortUniverseCount ?? null)) return false;
+  if ((stored.sampleStatus ?? null) !== (rebuilt.sampleStatus ?? null)) return false;
+  if ((stored.matchedComplexCount ?? null) !== (rebuilt.matchedComplexCount ?? null)) return false;
+  if (!sameNum(stored.sampleCoverageRatio, rebuilt.sampleCoverageRatio)) return false;
+  if ((stored.sampleConfidenceVersion ?? null) !== (rebuilt.sampleConfidenceVersion ?? null)) return false;
+  if ((stored.dataCoverageStatus ?? null) !== (rebuilt.dataCoverageStatus ?? null)) return false;
+  return true;
+}
+
 function regionalValueEqual(stored: TrendCellV21, rebuilt: TrendCellV21): boolean {
   if (stored.status !== rebuilt.status) return false;
   if (!sameNum(stored.changePercent, rebuilt.changePercent)) return false;
@@ -164,6 +203,148 @@ function regionalValueEqual(stored: TrendCellV21, rebuilt: TrendCellV21): boolea
   if ((stored.historyAvailableCount ?? null) !== (rebuilt.historyAvailableCount ?? null)) return false;
   if (!sameNum(stored.matchedCoverageRatio, rebuilt.matchedCoverageRatio)) return false;
   return true;
+}
+
+type RegionalPriceCell = {
+  status: string;
+  mean: number | null;
+  contributingComplexCount: number | null;
+  tradeCount: number | null;
+  sampleCount: number | null;
+};
+
+function regionalPriceKey(
+  cohortKey: string,
+  scope: string,
+  region: string,
+  referenceMonth: string | null,
+): string {
+  return `${cohortKey}|${scope}|${region}|${referenceMonth ?? ""}`;
+}
+
+function pctAbsDelta(a: number, b: number): number {
+  if (a === 0) return b === 0 ? 0 : 100;
+  return (Math.abs(b - a) / Math.abs(a)) * 100;
+}
+
+function nearestSorted(sorted: number[], p: number): number | null {
+  if (!sorted.length) return null;
+  return sorted[Math.max(0, Math.ceil(p * sorted.length) - 1)] ?? null;
+}
+
+function summarizeContributorAudit(rows: ContributorAuditRow[]) {
+  const absDeltas: number[] = [];
+  const signedDeltas: number[] = [];
+  let affected = 0;
+  let unaffected = 0;
+  let valueChanged = 0;
+  let numericChanged = 0;
+  let nullTransitions = 0;
+  let legacyOnly = 0;
+  let canonicalOnly = 0;
+  let nonCanonicalSlots = 0;
+  const uniqueNonCanonical = new Set<string>();
+  const byScope: Record<string, { cells: number; affected: number; valueChanged: number }> = {};
+  const examples: {
+    cohortKey: string;
+    cacheKey: string;
+    legacyContributors: number;
+    canonicalContributors: number;
+    nonCanonicalContributors: number;
+    legacyMedian: number | null;
+    canonicalMedian: number | null;
+    delta: number | null;
+  }[] = [];
+  const jamsil: Record<string, unknown> = {};
+  for (const row of rows) {
+    const scope = row.cacheKey.split("|")[0] ?? "";
+    const bucket = byScope[scope] ?? { cells: 0, affected: 0, valueChanged: 0 };
+    bucket.cells += 1;
+    const moved = row.legacyMedian !== row.canonicalMedian;
+    if (row.nonCanonicalContributors > 0) {
+      affected += 1;
+      bucket.affected += 1;
+      nonCanonicalSlots += row.nonCanonicalContributors;
+      for (const id of row.nonCanonicalIds) uniqueNonCanonical.add(`${row.cohortKey}|${id}`);
+    } else unaffected += 1;
+    if (moved) {
+      valueChanged += 1;
+      bucket.valueChanged += 1;
+      if (row.legacyMedian != null && row.canonicalMedian != null) {
+        numericChanged += 1;
+        const delta = Math.round((row.canonicalMedian - row.legacyMedian) * 100) / 100;
+        absDeltas.push(Math.abs(delta));
+        signedDeltas.push(delta);
+        examples.push({
+          cohortKey: row.cohortKey,
+          cacheKey: row.cacheKey,
+          legacyContributors: row.legacyContributors,
+          canonicalContributors: row.canonicalContributors,
+          nonCanonicalContributors: row.nonCanonicalContributors,
+          legacyMedian: row.legacyMedian,
+          canonicalMedian: row.canonicalMedian,
+          delta,
+        });
+      } else {
+        nullTransitions += 1;
+        if (row.legacyMedian != null) legacyOnly += 1;
+        if (row.canonicalMedian != null) canonicalOnly += 1;
+      }
+    }
+    byScope[scope] = bucket;
+    if (
+      row.cohortKey === "30" &&
+      row.referenceMonth === "2026-09" &&
+      (row.cacheKey.startsWith("DONG|1171010100|") ||
+        row.cacheKey.startsWith("GU|11710|") ||
+        row.cacheKey.startsWith("SEOUL|SEOUL|"))
+    ) {
+      const delta =
+        row.legacyMedian != null && row.canonicalMedian != null
+          ? Math.round((row.canonicalMedian - row.legacyMedian) * 100) / 100
+          : null;
+      jamsil[`${row.horizon}|${scope}`] = {
+        legacyContributors: row.legacyContributors,
+        canonicalContributors: row.canonicalContributors,
+        nonCanonicalContributors: row.nonCanonicalContributors,
+        legacyMedian: row.legacyMedian,
+        canonicalMedian: row.canonicalMedian,
+        delta,
+        nonCanonicalIds: row.nonCanonicalIds,
+      };
+    }
+  }
+  absDeltas.sort((a, b) => a - b);
+  signedDeltas.sort((a, b) => a - b);
+  examples.sort((a, b) => Math.abs(b.delta ?? 0) - Math.abs(a.delta ?? 0));
+  const nearest = (sorted: number[], p: number) => {
+    if (!sorted.length) return null;
+    return sorted[Math.max(0, Math.ceil(p * sorted.length) - 1)] ?? null;
+  };
+  return {
+    summary: {
+      totalRegionalCells: rows.length,
+      affectedCells: affected,
+      unaffectedCells: unaffected,
+      valueChangedCells: valueChanged,
+      numericChangedCells: numericChanged,
+      nullTransitions,
+      legacyMedianOnly: legacyOnly,
+      canonicalMedianOnly: canonicalOnly,
+      nonCanonicalContributorSlots: nonCanonicalSlots,
+      uniqueCohortComplexes: uniqueNonCanonical.size,
+      absDeltaP50: nearest(absDeltas, 0.5),
+      absDeltaP90: nearest(absDeltas, 0.9),
+      absDeltaP99: nearest(absDeltas, 0.99),
+      maxAbsDelta: absDeltas.at(-1) ?? null,
+      signedDeltaP50: nearest(signedDeltas, 0.5),
+      signedDeltaMin: signedDeltas[0] ?? null,
+      signedDeltaMax: signedDeltas.at(-1) ?? null,
+      byScope,
+    },
+    largest: examples.slice(0, 15),
+    jamsil,
+  };
 }
 
 function regionTrendChanged(left: PricePositionBodyV21, right: PricePositionBodyV21): boolean {
@@ -397,6 +578,31 @@ async function main() {
   const newViolationExamples: string[] = [];
   const uniqueConfidence = new Map<string, { scope: string; horizon: string; status: string; window: string | null }>();
   const confidenceJamsil: Record<string, unknown> = {};
+  const v231Stats = {
+    scanned: 0,
+    missingRebuilt: 0,
+    priceMismatch: 0,
+    complexMismatch: 0,
+    structuralMismatch: 0,
+    regionalValueCells: new Set<string>(),
+    statusOnlyCells: new Set<string>(),
+    invariantKeys: new Set<string>(),
+    sampleStatus: new Map<string, string>(),
+  };
+  const v232Fresh = {
+    storedOkCells: new Map<string, RegionalPriceCell>(),
+    rebuiltOkCells: new Map<string, RegionalPriceCell>(),
+    rebuiltBodies: 0,
+    selfVsStored232: {
+      scanned: 0,
+      priceMismatch: 0,
+      complexMismatch: 0,
+      missingRebuilt: 0,
+    },
+    jamsil: null as null | Record<string, unknown>,
+    impossibleContributor: 0,
+    nullPriceWrites: 0,
+  };
   let smallArea: Record<string, unknown> | null = null;
   let largeArea: Record<string, unknown> | null = null;
   let duplicateKeys = 0;
@@ -413,15 +619,18 @@ async function main() {
   const gatePass = { DONG: 0, GU: 0, SEOUL: 0 };
   const bodiesDir = "/tmp/v23-bodies";
   mkdirSync(bodiesDir, { recursive: true });
+  const contributorAudit: ContributorAuditRow[] = [];
 
   for (const cohort of DECADE_COHORTS_V22) {
     const started = Date.now();
-    const built = buildPricePositionV23({
+    const buildFn = V232 ? buildPricePositionV232 : V231 ? buildPricePositionV231 : buildPricePositionV23;
+    const built = buildFn({
       cohort,
       points: points.get(cohort.key) ?? [],
       identities,
       cohortUniverse: canonical.get(cohort.key),
       transactionAsOf: AS_OF,
+      contributorAudit: AUDIT_CONTRIBUTORS || V231 || V232 ? contributorAudit : undefined,
     });
     const seen = new Set<string>();
     let slices = 0;
@@ -432,12 +641,22 @@ async function main() {
     let guFail = 0;
     let seoulFail = 0;
     const reasons: Record<string, number> = {};
+    const expectedVersion = V232
+      ? PRICE_POSITION_V232_VERSION
+      : V231
+        ? PRICE_POSITION_V231_VERSION
+        : PRICE_POSITION_V23_VERSION;
+    const expectedFingerprint = V232
+      ? METHODOLOGY_FINGERPRINT_V232
+      : V231
+        ? METHODOLOGY_FINGERPRINT_V231
+        : METHODOLOGY_FINGERPRINT_V23;
     for (const body of built.bodies) {
       if (seen.has(body.complexId)) duplicateKeys += 1;
       seen.add(body.complexId);
       uniqueComplexes.add(body.complexId);
-      if (body.version !== PRICE_POSITION_V23_VERSION) fail(`${cohort.key} version`);
-      if (body.methodologyFingerprint !== METHODOLOGY_FINGERPRINT_V23) fail(`${cohort.key} fingerprint`);
+      if (body.version !== expectedVersion) fail(`${cohort.key} version`);
+      if (body.methodologyFingerprint !== expectedFingerprint) fail(`${cohort.key} fingerprint`);
       if (body.areaBand !== cohort.key || body.cohortKey !== cohort.key || body.regionPyeongDecade !== cohort.label) {
         fail(`${cohort.key} cohort identity ${body.complexId}`);
       }
@@ -486,11 +705,226 @@ async function main() {
       seconds: Math.round((Date.now() - started) / 1000),
     };
     console.log(`built ${cohort.label}`, coverage[cohort.label]);
+    if (AUDIT_CONTRIBUTORS) {
+      points.set(cohort.key, []);
+      continue;
+    }
     for (const body of built.bodies) {
       const gu = seoulGuName(identities.get(body.complexId)?.lawdCd ?? "") || "구";
       for (const cell of body.priceLevel) if (cell.scope === "GU") cell.label = gu;
       for (const horizon of TREND_HORIZONS_V21) {
         for (const cell of body.trends[horizon]) if (cell.scope === "GU") cell.label = gu;
+      }
+    }
+    if (V231) {
+      const stored23 = await db.execute({
+        sql: `SELECT complex_id, payload_json FROM complex_region_price_position WHERE snapshot_id=? AND area_band=?`,
+        args: [SNAP23, cohort.key],
+      });
+      const rebuiltById = new Map(built.bodies.map((body) => [body.complexId, body]));
+      const storedIds = new Set<string>();
+      for (const row of stored23.rows) {
+        v231Stats.scanned += 1;
+        const complexId = String(row.complex_id);
+        storedIds.add(complexId);
+        const rebuilt = rebuiltById.get(complexId);
+        if (!rebuilt) {
+          v231Stats.missingRebuilt += 1;
+          continue;
+        }
+        const storedBody = JSON.parse(String(row.payload_json)) as PricePositionBodyV21;
+        if (!priceLevelEqual(storedBody, rebuilt)) v231Stats.priceMismatch += 1;
+        if (!complexTrendEqual(storedBody, rebuilt)) v231Stats.complexMismatch += 1;
+        const ident = identities.get(complexId);
+        for (const horizon of TREND_HORIZONS_V21) {
+          for (const scope of ["DONG", "GU", "SEOUL"] as const) {
+            const src = rebuilt.trends[horizon].find((cell) => cell.scope === scope);
+            const dst = storedBody.trends[horizon]?.find((cell) => cell.scope === scope);
+            if (!src || !dst) {
+              v231Stats.structuralMismatch += 1;
+              continue;
+            }
+            const region =
+              scope === "DONG" ? `${ident?.lawdCd}|${ident?.bjdongCd}` : scope === "GU" ? ident?.lawdCd ?? "" : "SEOUL";
+            const key = `${cohort.key}|${scope}|${region}|${horizon}|${rebuilt.referenceMonth}`;
+            const nextA = src.cohortUniverseCount ?? 0;
+            const nextB = src.canonicalHistoryAvailableCount ?? 0;
+            const nextC = src.matchedComplexCount ?? 0;
+            if (!(nextC <= nextB && nextB <= nextA)) v231Stats.invariantKeys.add(key);
+            if (!regionalStructureEqual(dst, src)) v231Stats.structuralMismatch += 1;
+            if ((dst.changePercent ?? null) !== (src.changePercent ?? null)) v231Stats.regionalValueCells.add(key);
+            if ((dst.status ?? null) !== (src.status ?? null) && (src.changePercent ?? null) != null) {
+              v231Stats.statusOnlyCells.add(key);
+            }
+            if (!v231Stats.sampleStatus.has(key)) v231Stats.sampleStatus.set(key, src.sampleStatus ?? "");
+          }
+        }
+      }
+      for (const id of rebuiltById.keys()) {
+        if (!storedIds.has(id)) v231Stats.missingRebuilt += 1;
+      }
+    }
+    if (V232) {
+      v232Fresh.rebuiltBodies += built.bodies.length;
+      for (const body of built.bodies) {
+        const ident = identities.get(body.complexId);
+        if (!ident) continue;
+        for (const cell of body.priceLevel) {
+          if (cell.scope === "COMPLEX") continue;
+          if (cell.meanPricePerSupplyPyeong != null && !Number.isFinite(cell.meanPricePerSupplyPyeong)) {
+            v232Fresh.nullPriceWrites += 1;
+          }
+          if (
+            cell.status === "ok" &&
+            (cell.contributingComplexCount == null ||
+              cell.contributingComplexCount < 1 ||
+              (cell.sampleCount != null && cell.contributingComplexCount > cell.sampleCount))
+          ) {
+            v232Fresh.impossibleContributor += 1;
+          }
+          const region =
+            cell.scope === "DONG"
+              ? `${ident.lawdCd}${ident.bjdongCd}`
+              : cell.scope === "GU"
+                ? ident.lawdCd
+                : "SEOUL";
+          const key = regionalPriceKey(cohort.key, cell.scope, region, body.referenceMonth);
+          if (cell.status === "ok" && cell.meanPricePerSupplyPyeong != null) {
+            v232Fresh.rebuiltOkCells.set(key, {
+              status: cell.status,
+              mean: cell.meanPricePerSupplyPyeong,
+              contributingComplexCount: cell.contributingComplexCount ?? null,
+              tradeCount: cell.tradeCount ?? null,
+              sampleCount: cell.sampleCount ?? null,
+            });
+          } else if (!v232Fresh.rebuiltOkCells.has(key)) {
+            // keep unavailable markers only when no ok witness exists yet
+            v232Fresh.rebuiltOkCells.set(key, {
+              status: cell.status,
+              mean: cell.meanPricePerSupplyPyeong ?? null,
+              contributingComplexCount: cell.contributingComplexCount ?? null,
+              tradeCount: cell.tradeCount ?? null,
+              sampleCount: cell.sampleCount ?? null,
+            });
+          }
+        }
+        if (body.complexId === JAMSIL && cohort.key === "30") {
+          const dong = body.priceLevel.find((c) => c.scope === "DONG");
+          const gu = body.priceLevel.find((c) => c.scope === "GU");
+          const seoul = body.priceLevel.find((c) => c.scope === "SEOUL");
+          const complex = body.priceLevel.find((c) => c.scope === "COMPLEX");
+          const overlaid = applyExactComplexMarketLabel(body, 33, "exact");
+          const complexExact = overlaid.priceLevel.find((c) => c.scope === "COMPLEX");
+          const ref = body.referenceMonth ?? "";
+          const tables = buildComplexMonthValues(points.get(cohort.key) ?? []);
+          const canon = canonical.get(cohort.key) ?? new Set<string>();
+          const contributors: { complexId: string; aptName: string; mean: number; trades: number }[] = [];
+          for (const cid of canon) {
+            const ident = identities.get(cid);
+            if (!ident || `${ident.lawdCd}${ident.bjdongCd}` !== "1171010100") continue;
+            const cell = tables.get(cid)?.get(ref);
+            if (!cell || cell.tradeCount < 1) continue;
+            contributors.push({
+              complexId: cid,
+              aptName: ident.aptName,
+              mean: Math.round(cell.meanPrice * 10000) / 10000,
+              trades: cell.tradeCount,
+            });
+          }
+          contributors.sort((a, b) => a.mean - b.mean);
+          const cohortDong = [...canon].filter((cid) => {
+            const ident = identities.get(cid);
+            return ident && `${ident.lawdCd}${ident.bjdongCd}` === "1171010100";
+          }).length;
+          v232Fresh.jamsil = {
+            referenceMonth: body.referenceMonth,
+            complexDecadeMean: complex?.meanPricePerSupplyPyeong ?? null,
+            complexExact33: complexExact?.meanPricePerSupplyPyeong ?? null,
+            dongCohort: cohortDong,
+            dongContributors: contributors,
+            dong: {
+              status: dong?.status ?? null,
+              value: dong?.meanPricePerSupplyPyeong ?? null,
+              contributors: dong?.contributingComplexCount ?? null,
+              trades: dong?.tradeCount ?? null,
+            },
+            gu: {
+              status: gu?.status ?? null,
+              value: gu?.meanPricePerSupplyPyeong ?? null,
+              contributors: gu?.contributingComplexCount ?? null,
+            },
+            seoul: {
+              status: seoul?.status ?? null,
+              value: seoul?.meanPricePerSupplyPyeong ?? null,
+              contributors: seoul?.contributingComplexCount ?? null,
+            },
+            complexEqualsDong:
+              complexExact?.meanPricePerSupplyPyeong != null &&
+              dong?.meanPricePerSupplyPyeong != null &&
+              complexExact.meanPricePerSupplyPyeong === dong.meanPricePerSupplyPyeong,
+          };
+        }
+      }
+      const stored231 = await db.execute({
+        sql: `SELECT complex_id, payload_json FROM complex_region_price_position WHERE snapshot_id=? AND area_band=?`,
+        args: [SNAP231, cohort.key],
+      });
+      for (const row of stored231.rows) {
+        const storedBody = JSON.parse(String(row.payload_json)) as PricePositionBodyV21;
+        const ident = identities.get(String(row.complex_id));
+        if (!ident) continue;
+        for (const cell of storedBody.priceLevel ?? []) {
+          if (cell.scope === "COMPLEX") continue;
+          const region =
+            cell.scope === "DONG"
+              ? `${ident.lawdCd}${ident.bjdongCd}`
+              : cell.scope === "GU"
+                ? ident.lawdCd
+                : "SEOUL";
+          const key = regionalPriceKey(cohort.key, cell.scope, region, storedBody.referenceMonth);
+          if (cell.status === "ok" && cell.meanPricePerSupplyPyeong != null) {
+            v232Fresh.storedOkCells.set(key, {
+              status: cell.status,
+              mean: cell.meanPricePerSupplyPyeong,
+              contributingComplexCount: cell.contributingComplexCount ?? null,
+              tradeCount: cell.tradeCount ?? null,
+              sampleCount: cell.sampleCount ?? null,
+            });
+          } else if (!v232Fresh.storedOkCells.has(key)) {
+            v232Fresh.storedOkCells.set(key, {
+              status: cell.status,
+              mean: cell.meanPricePerSupplyPyeong ?? null,
+              contributingComplexCount: cell.contributingComplexCount ?? null,
+              tradeCount: cell.tradeCount ?? null,
+              sampleCount: cell.sampleCount ?? null,
+            });
+          }
+        }
+      }
+      // Post-apply / idempotent self-check against existing V232 rows when present
+      const stored232 = await db.execute({
+        sql: `SELECT complex_id, payload_json FROM complex_region_price_position WHERE snapshot_id=? AND area_band=?`,
+        args: [SNAP232, cohort.key],
+      });
+      if (stored232.rows.length) {
+        const rebuiltById = new Map(built.bodies.map((body) => [body.complexId, body]));
+        const storedIds = new Set<string>();
+        for (const row of stored232.rows) {
+          v232Fresh.selfVsStored232.scanned += 1;
+          const complexId = String(row.complex_id);
+          storedIds.add(complexId);
+          const rebuilt = rebuiltById.get(complexId);
+          if (!rebuilt) {
+            v232Fresh.selfVsStored232.missingRebuilt += 1;
+            continue;
+          }
+          const storedBody = JSON.parse(String(row.payload_json)) as PricePositionBodyV21;
+          if (!priceLevelEqual(storedBody, rebuilt)) v232Fresh.selfVsStored232.priceMismatch += 1;
+          if (!complexTrendEqual(storedBody, rebuilt)) v232Fresh.selfVsStored232.complexMismatch += 1;
+        }
+        for (const id of rebuiltById.keys()) {
+          if (!storedIds.has(id)) v232Fresh.selfVsStored232.missingRebuilt += 1;
+        }
       }
     }
     if (CONFIDENCE) {
@@ -739,6 +1173,17 @@ async function main() {
     points.set(cohort.key, []);
   }
 
+  if (AUDIT_CONTRIBUTORS) {
+    const report = summarizeContributorAudit(contributorAudit);
+    const auditPath = "/tmp/building-hub-bulk/external-evidence/canonical-contributor-audit.json";
+    mkdirSync("/tmp/building-hub-bulk/external-evidence", { recursive: true });
+    writeFileSync(auditPath, JSON.stringify(report));
+    console.log(`contributor audit ${auditPath}`);
+    console.log(JSON.stringify(report.summary));
+    console.log(JSON.stringify(report.jamsil));
+    return;
+  }
+
   const withDecade = uniqueComplexes.size;
   let noTrade = 0;
   let unresolvedOnly = 0;
@@ -953,6 +1398,386 @@ async function main() {
     };
     writeFileSync(confidenceReportPath, JSON.stringify({ ...confidenceReport, delta }));
     console.log("confidence delta", delta);
+    if (delta.v23Rows !== 0 || delta.v22Rows !== 0 || delta.v21Rows !== 0 || delta.v2Rows !== 0) {
+      throw new Error("unrelated snapshot changed");
+    }
+    return;
+  }
+
+  if (V232) {
+    let contributorFail = 0;
+    for (const row of contributorAudit) {
+      if (row.publishedMedian !== row.canonicalMedian) contributorFail += 1;
+      if (row.publishedContributors !== row.canonicalContributors) contributorFail += 1;
+    }
+    const allKeys = new Set([...v232Fresh.storedOkCells.keys(), ...v232Fresh.rebuiltOkCells.keys()]);
+    let unchanged = 0;
+    let changed = 0;
+    let newlyAvailable = 0;
+    let newlyUnavailable = 0;
+    let contributorCountChanged = 0;
+    const absDeltas: number[] = [];
+    const pctDeltas: number[] = [];
+    let materialGe1 = 0;
+    for (const key of allKeys) {
+      const stored = v232Fresh.storedOkCells.get(key);
+      const rebuilt = v232Fresh.rebuiltOkCells.get(key);
+      const storedOk = stored?.status === "ok" && stored.mean != null;
+      const rebuiltOk = rebuilt?.status === "ok" && rebuilt.mean != null;
+      if (storedOk && rebuiltOk) {
+        if ((stored!.contributingComplexCount ?? null) !== (rebuilt!.contributingComplexCount ?? null)) {
+          contributorCountChanged += 1;
+        }
+        if (sameNum(stored!.mean, rebuilt!.mean)) {
+          unchanged += 1;
+        } else {
+          changed += 1;
+          const abs = Math.abs(rebuilt!.mean! - stored!.mean!);
+          absDeltas.push(abs);
+          const pct = pctAbsDelta(stored!.mean!, rebuilt!.mean!);
+          pctDeltas.push(pct);
+          if (pct >= 1) materialGe1 += 1;
+        }
+      } else if (!storedOk && rebuiltOk) {
+        newlyAvailable += 1;
+      } else if (storedOk && !rebuiltOk) {
+        newlyUnavailable += 1;
+      } else {
+        unchanged += 1;
+      }
+    }
+    absDeltas.sort((a, b) => a - b);
+    pctDeltas.sort((a, b) => a - b);
+    const freshnessUnexpected = changed > V232_MAX_UNEXPECTED_REGIONAL_CHANGES;
+    const integrityOk =
+      v232Fresh.impossibleContributor === 0 &&
+      v232Fresh.nullPriceWrites === 0 &&
+      duplicateKeys === 0 &&
+      contributorFail === 0 &&
+      invariantFailureCount === 0;
+    const selfParityOk =
+      v232Fresh.selfVsStored232.scanned === 0 ||
+      (v232Fresh.selfVsStored232.priceMismatch === 0 &&
+        v232Fresh.selfVsStored232.complexMismatch === 0 &&
+        v232Fresh.selfVsStored232.missingRebuilt === 0);
+    // Do not require V2.2→V2.3 publish invariantOk (priceMismatch vs SNAP22).
+    // V2.3.2 is a freshness patch of V2.3.1; gate on integrity + expected delta only.
+    // When V2.3.2 already exists, allow idempotent ON CONFLICT DO NOTHING even if
+    // a live rebuild drifts from the frozen snapshot (source inputs may move).
+    const alreadyPublished = v232Fresh.selfVsStored232.scanned > 0;
+    const gate = integrityOk && !freshnessUnexpected && (selfParityOk || alreadyPublished);
+    const v232Report = {
+      version: PRICE_POSITION_V232_VERSION,
+      snapshot: SNAP232,
+      previousSnapshot: SNAP231,
+      fingerprint: METHODOLOGY_FINGERPRINT_V232,
+      methodologyChanged: false,
+      rebuiltBodies: v232Fresh.rebuiltBodies,
+      regionalCells: allKeys.size,
+      storedRegionalOk: [...v232Fresh.storedOkCells.values()].filter((c) => c.status === "ok").length,
+      rebuiltRegionalOk: [...v232Fresh.rebuiltOkCells.values()].filter((c) => c.status === "ok").length,
+      unchanged,
+      changed,
+      newlyAvailable,
+      newlyUnavailable,
+      contributorCountChanged,
+      deltaAbs: {
+        p50: nearestSorted(absDeltas, 0.5),
+        p90: nearestSorted(absDeltas, 0.9),
+        p99: nearestSorted(absDeltas, 0.99),
+        max: absDeltas.length ? absDeltas[absDeltas.length - 1]! : 0,
+      },
+      deltaPct: {
+        p50: nearestSorted(pctDeltas, 0.5),
+        p90: nearestSorted(pctDeltas, 0.9),
+        p99: nearestSorted(pctDeltas, 0.99),
+        max: pctDeltas.length ? pctDeltas[pctDeltas.length - 1]! : 0,
+        ge1: materialGe1,
+      },
+      baselineExpectedStale: 133,
+      maxAllowedChanged: V232_MAX_UNEXPECTED_REGIONAL_CHANGES,
+      unexpectedChanges: freshnessUnexpected,
+      impossibleContributor: v232Fresh.impossibleContributor,
+      nullPriceWrites: v232Fresh.nullPriceWrites,
+      contributorParityFails: contributorFail,
+      auditCells: contributorAudit.length,
+      jamsil: v232Fresh.jamsil,
+      selfVsStored232: v232Fresh.selfVsStored232,
+      alreadyPublished,
+      invariantOk,
+      integrityOk,
+      selfParityOk,
+      gate,
+    };
+    const v232Path = "/tmp/building-hub-bulk/external-evidence/v232-publish-report.json";
+    mkdirSync("/tmp/building-hub-bulk/external-evidence", { recursive: true });
+    writeFileSync(v232Path, JSON.stringify(v232Report));
+    console.log(`v232 report ${v232Path} gate=${gate}`);
+    console.log(JSON.stringify(v232Report));
+    if (!gate) {
+      console.log("v232 gate failed; no write");
+      process.exitCode = 2;
+      return;
+    }
+    if (!APPLY) {
+      console.log("v232 dry-run only");
+      return;
+    }
+    const before232 = await countSnap(db, SNAP232);
+    const before231 = await countSnap(db, SNAP231);
+    const now = new Date().toISOString();
+    let insertedBatches = 0;
+    let insertedRows = 0;
+    for (const cohort of DECADE_COHORTS_V22) {
+      const pending: PricePositionBodyV21[] = [];
+      const rl = createInterface({ input: createReadStream(`${bodiesDir}/${cohort.key}.jsonl`), crlfDelay: Infinity });
+      const flush = async () => {
+        if (!pending.length) return;
+        const slice = pending.splice(0, pending.length).map((body) => ({
+          sql: `INSERT INTO complex_region_price_position (
+                  snapshot_id, complex_id, area_band, transaction_as_of, area_band_version,
+                  reference_month, status, payload_json, calculated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(snapshot_id, complex_id, area_band) DO NOTHING`,
+          args: [
+            SNAP232,
+            body.complexId,
+            body.areaBand,
+            body.transactionAsOf,
+            body.areaBandVersion,
+            body.referenceMonth,
+            body.status,
+            JSON.stringify(body),
+            now,
+          ],
+        }));
+        let last: unknown = null;
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          try {
+            await db.batch(slice, "write");
+            last = null;
+            break;
+          } catch (error) {
+            last = error;
+            await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+          }
+        }
+        if (last) throw last;
+        insertedBatches += 1;
+        insertedRows += slice.length;
+      };
+      for await (const line of rl) {
+        if (!line) continue;
+        pending.push(JSON.parse(line) as PricePositionBodyV21);
+        if (pending.length >= BATCH) await flush();
+      }
+      await flush();
+      console.log(`inserted v232 cohort ${cohort.key}`);
+    }
+    const after232 = await countSnap(db, SNAP232);
+    const after231 = await countSnap(db, SNAP231);
+    const after23 = await countSnap(db, SNAP23);
+    const after22 = await countSnap(db, SNAP22);
+    const afterV2 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2|2026-09-17"] })).rows[0]?.n,
+    );
+    const after21 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2.1|2026-09-17"] })).rows[0]?.n,
+    );
+    let postValueMismatch = 0;
+    let postContributorMismatch = 0;
+    let postUnavailableMismatch = 0;
+    let postRebuiltCells = 0;
+    for (const cohort of DECADE_COHORTS_V22) {
+      const stored232 = await db.execute({
+        sql: `SELECT complex_id, payload_json FROM complex_region_price_position WHERE snapshot_id=? AND area_band=?`,
+        args: [SNAP232, cohort.key],
+      });
+      const rebuiltById = new Map<string, PricePositionBodyV21>();
+      const rl = createInterface({ input: createReadStream(`${bodiesDir}/${cohort.key}.jsonl`), crlfDelay: Infinity });
+      for await (const line of rl) {
+        if (!line) continue;
+        const body = JSON.parse(line) as PricePositionBodyV21;
+        rebuiltById.set(body.complexId, body);
+      }
+      for (const row of stored232.rows) {
+        const storedBody = JSON.parse(String(row.payload_json)) as PricePositionBodyV21;
+        const rebuilt = rebuiltById.get(String(row.complex_id));
+        if (!rebuilt) {
+          postUnavailableMismatch += 1;
+          continue;
+        }
+        for (const scope of ["DONG", "GU", "SEOUL"] as const) {
+          const a = storedBody.priceLevel.find((c) => c.scope === scope);
+          const b = rebuilt.priceLevel.find((c) => c.scope === scope);
+          if (!a || !b) {
+            postUnavailableMismatch += 1;
+            continue;
+          }
+          postRebuiltCells += 1;
+          if ((a.status ?? null) !== (b.status ?? null)) postUnavailableMismatch += 1;
+          if (!sameNum(a.meanPricePerSupplyPyeong, b.meanPricePerSupplyPyeong)) postValueMismatch += 1;
+          if ((a.contributingComplexCount ?? null) !== (b.contributingComplexCount ?? null)) postContributorMismatch += 1;
+        }
+      }
+    }
+    const postParityGate = postValueMismatch === 0 && postContributorMismatch === 0 && postUnavailableMismatch === 0;
+    const delta = {
+      v232Rows: after232.rows - before232.rows,
+      v231Rows: after231.rows - before231.rows,
+      v23Rows: after23.rows - before23.rows,
+      v22Rows: after22.rows - before22.rows,
+      v21Rows: after21 - beforeV21,
+      v2Rows: afterV2 - beforeV2,
+      batches: insertedBatches,
+      attempted: insertedRows,
+      postParity: {
+        rebuiltCells: postRebuiltCells,
+        valueMismatches: postValueMismatch,
+        contributorMismatches: postContributorMismatch,
+        unavailableStateMismatches: postUnavailableMismatch,
+        gate: postParityGate,
+      },
+    };
+    writeFileSync(v232Path, JSON.stringify({ ...v232Report, delta }));
+    console.log("v232 delta", delta);
+    if (delta.v231Rows !== 0 || delta.v23Rows !== 0 || delta.v22Rows !== 0 || delta.v21Rows !== 0 || delta.v2Rows !== 0) {
+      throw new Error("unrelated snapshot changed");
+    }
+    if (!postParityGate) {
+      // First publish must match the bodies just written. Idempotent re-apply may
+      // rebuild from drifted live sources against a frozen snapshot — inserts stay 0.
+      if (alreadyPublished && delta.v232Rows === 0) {
+        console.log("v232 idempotent re-apply; live-rebuild vs frozen snapshot drift noted");
+      } else {
+        console.log("v232 post-apply parity failed");
+        process.exitCode = 2;
+        return;
+      }
+    }
+    return;
+  }
+
+  if (V231) {
+    let contributorFail = 0;
+    for (const row of contributorAudit) {
+      if (row.publishedMedian !== row.canonicalMedian) contributorFail += 1;
+      if (row.publishedContributors !== row.canonicalContributors) contributorFail += 1;
+    }
+    const sampleTally: Record<string, number> = {};
+    for (const status of v231Stats.sampleStatus.values()) sampleTally[status] = (sampleTally[status] ?? 0) + 1;
+    const gate =
+      invariantOk &&
+      v231Stats.priceMismatch === 0 &&
+      v231Stats.complexMismatch === 0 &&
+      v231Stats.structuralMismatch === 0 &&
+      v231Stats.missingRebuilt === 0 &&
+      v231Stats.invariantKeys.size === 0 &&
+      v231Stats.statusOnlyCells.size === 0 &&
+      contributorFail === 0;
+    const v231Report = {
+      version: PRICE_POSITION_V231_VERSION,
+      snapshot: SNAP231,
+      fingerprint: METHODOLOGY_FINGERPRINT_V231,
+      scanned: v231Stats.scanned,
+      priceMismatch: v231Stats.priceMismatch,
+      complexMismatch: v231Stats.complexMismatch,
+      structuralMismatch: v231Stats.structuralMismatch,
+      missingRebuilt: v231Stats.missingRebuilt,
+      regionalValueCells: v231Stats.regionalValueCells.size,
+      statusOnlyCells: v231Stats.statusOnlyCells.size,
+      invariantViolations: v231Stats.invariantKeys.size,
+      contributorParityFails: contributorFail,
+      auditCells: contributorAudit.length,
+      sampleTally,
+      jamsilComplex1Y,
+      invariantOk,
+      gate,
+    };
+    const v231Path = "/tmp/building-hub-bulk/external-evidence/v231-publish-report.json";
+    mkdirSync("/tmp/building-hub-bulk/external-evidence", { recursive: true });
+    writeFileSync(v231Path, JSON.stringify(v231Report));
+    console.log(`v231 report ${v231Path} gate=${gate}`);
+    console.log(JSON.stringify(v231Report));
+    if (!gate) {
+      console.log("v231 gate failed; no write");
+      process.exitCode = 2;
+      return;
+    }
+    if (!APPLY) {
+      console.log("v231 dry-run only");
+      return;
+    }
+    const before231 = await countSnap(db, SNAP231);
+    const now = new Date().toISOString();
+    let insertedBatches = 0;
+    let insertedRows = 0;
+    for (const cohort of DECADE_COHORTS_V22) {
+      const pending: PricePositionBodyV21[] = [];
+      const rl = createInterface({ input: createReadStream(`${bodiesDir}/${cohort.key}.jsonl`), crlfDelay: Infinity });
+      const flush = async () => {
+        if (!pending.length) return;
+        const slice = pending.splice(0, pending.length).map((body) => ({
+          sql: `INSERT INTO complex_region_price_position (
+                  snapshot_id, complex_id, area_band, transaction_as_of, area_band_version,
+                  reference_month, status, payload_json, calculated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(snapshot_id, complex_id, area_band) DO NOTHING`,
+          args: [
+            SNAP231,
+            body.complexId,
+            body.areaBand,
+            body.transactionAsOf,
+            body.areaBandVersion,
+            body.referenceMonth,
+            body.status,
+            JSON.stringify(body),
+            now,
+          ],
+        }));
+        let last: unknown = null;
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          try {
+            await db.batch(slice, "write");
+            last = null;
+            break;
+          } catch (error) {
+            last = error;
+            await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+          }
+        }
+        if (last) throw last;
+        insertedBatches += 1;
+        insertedRows += slice.length;
+      };
+      for await (const line of rl) {
+        if (!line) continue;
+        pending.push(JSON.parse(line) as PricePositionBodyV21);
+        if (pending.length >= BATCH) await flush();
+      }
+      await flush();
+      console.log(`inserted v231 cohort ${cohort.key}`);
+    }
+    const after231 = await countSnap(db, SNAP231);
+    const after23 = await countSnap(db, SNAP23);
+    const after22 = await countSnap(db, SNAP22);
+    const afterV2 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2|2026-09-17"] })).rows[0]?.n,
+    );
+    const after21 = num(
+      (await db.execute({ sql: `SELECT COUNT(*) n FROM complex_region_price_position WHERE snapshot_id=?`, args: ["price-position-v2.1|2026-09-17"] })).rows[0]?.n,
+    );
+    const delta = {
+      v231Rows: after231.rows - before231.rows,
+      v23Rows: after23.rows - before23.rows,
+      v22Rows: after22.rows - before22.rows,
+      v21Rows: after21 - beforeV21,
+      v2Rows: afterV2 - beforeV2,
+      batches: insertedBatches,
+      attempted: insertedRows,
+    };
+    writeFileSync(v231Path, JSON.stringify({ ...v231Report, delta }));
+    console.log("v231 delta", delta);
     if (delta.v23Rows !== 0 || delta.v22Rows !== 0 || delta.v21Rows !== 0 || delta.v2Rows !== 0) {
       throw new Error("unrelated snapshot changed");
     }

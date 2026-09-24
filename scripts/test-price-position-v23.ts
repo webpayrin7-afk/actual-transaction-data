@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
 import { buildComplexMonthValues } from "../src/lib/region-ranking/price-position-v21-audit";
-import { buildPricePositionV23, METHODOLOGY_FINGERPRINT_V23, pricePositionV23SnapshotId } from "../src/lib/region-ranking/price-position-v23";
+import {
+  buildPricePositionV23,
+  buildPricePositionV231,
+  buildPricePositionV232,
+  METHODOLOGY_FINGERPRINT_V23,
+  METHODOLOGY_FINGERPRINT_V231,
+  METHODOLOGY_FINGERPRINT_V232,
+  pricePositionV23SnapshotId,
+  pricePositionV231SnapshotId,
+  pricePositionV232SnapshotId,
+} from "../src/lib/region-ranking/price-position-v23";
 import { PRICE_POSITION_PUBLIC_VERSION } from "../src/lib/region-ranking/price-position-read";
 import { decadeKeyFromLegacyAreaBand } from "../src/lib/region-ranking/price-position-v22";
 import type { ComplexIdentityV2, SupplySalePoint } from "../src/lib/region-ranking/price-position-v2";
@@ -13,7 +23,12 @@ import {
 } from "../src/lib/region-ranking/region-trend-window";
 
 assert.equal(pricePositionV23SnapshotId(), "price-position-v2.3|2026-09-17");
-assert.equal(PRICE_POSITION_PUBLIC_VERSION, "price-position-v2.3");
+assert.equal(pricePositionV231SnapshotId(), "price-position-v2.3.1|2026-09-17");
+assert.equal(pricePositionV232SnapshotId(), "price-position-v2.3.2|2026-09-17");
+assert.equal(PRICE_POSITION_PUBLIC_VERSION, "price-position-v3");
+assert.match(METHODOLOGY_FINGERPRINT_V231, /canonical-cohort-contributors/);
+assert.match(METHODOLOGY_FINGERPRINT_V232, /canonical-cohort-contributors/);
+assert.match(METHODOLOGY_FINGERPRINT_V232, /freshness-patch/);
 assert.equal(decadeKeyFromLegacyAreaBand("84"), "30");
 assert.match(METHODOLOGY_FINGERPRINT_V23, /complex-exact-endpoint-s1/);
 assert.match(METHODOLOGY_FINGERPRINT_V23, /region-trailing-6m-pooled-mean/);
@@ -119,5 +134,45 @@ assert.equal(fiveYear?.windowStatus, "PARTIAL_HISTORY_WINDOW");
 assert.equal(fiveYear?.currentWindow, "2026-07..2026-09");
 assert.equal(fiveYear?.baselineWindow, "2021-07..2021-09");
 assert.ok(!String(fiveYear?.baselineWindow).startsWith("2021-04"));
+
+const outside = "cx_dddddddddddddddd";
+identities.set(outside, { complexId: outside, lawdCd: "11710", bjdongCd: "10100", aptName: "D", legalDongName: "잠실동" });
+const parityPoints = [
+  point("cx_aaaaaaaaaaaaaaaa", "2026-09", 100),
+  point("cx_aaaaaaaaaaaaaaaa", "2025-09", 100),
+  point("cx_bbbbbbbbbbbbbbbb", "2026-09", 200),
+  point("cx_bbbbbbbbbbbbbbbb", "2025-09", 100),
+  point(outside, "2026-09", 1000),
+  point(outside, "2025-09", 100),
+];
+const parityArgs = {
+  cohort,
+  points: parityPoints,
+  identities,
+  cohortUniverse: new Set(["cx_aaaaaaaaaaaaaaaa", "cx_bbbbbbbbbbbbbbbb"]),
+  transactionAsOf: "2026-09-17",
+};
+const legacyBody = buildPricePositionV23(parityArgs).bodies.find((row) => row.complexId === "cx_aaaaaaaaaaaaaaaa");
+const canonicalBody = buildPricePositionV231(parityArgs).bodies.find((row) => row.complexId === "cx_aaaaaaaaaaaaaaaa");
+const freshBody = buildPricePositionV232(parityArgs).bodies.find((row) => row.complexId === "cx_aaaaaaaaaaaaaaaa");
+const legacyDong = legacyBody?.trends["1Y"].find((cell) => cell.scope === "DONG");
+const canonicalDong = canonicalBody?.trends["1Y"].find((cell) => cell.scope === "DONG");
+const freshDong = freshBody?.trends["1Y"].find((cell) => cell.scope === "DONG");
+assert.equal(legacyDong?.changePercent, 100);
+assert.equal(canonicalDong?.changePercent, 50);
+assert.equal(freshDong?.changePercent, canonicalDong?.changePercent);
+assert.equal(legacyDong?.matchedComplexCount, 2);
+assert.equal(canonicalDong?.matchedComplexCount, 2);
+assert.equal(canonicalDong?.canonicalHistoryAvailableCount, 2);
+assert.equal(canonicalBody?.methodologyFingerprint, METHODOLOGY_FINGERPRINT_V231);
+assert.equal(freshBody?.methodologyFingerprint, METHODOLOGY_FINGERPRINT_V232);
+assert.equal(freshBody?.version, "price-position-v2.3.2");
+assert.equal(
+  freshBody?.priceLevel.find((cell) => cell.scope === "DONG")?.meanPricePerSupplyPyeong,
+  canonicalBody?.priceLevel.find((cell) => cell.scope === "DONG")?.meanPricePerSupplyPyeong,
+);
+assert.equal(canonicalBody?.sampleConfidenceVersion, "sample-confidence-v2");
+assert.equal(canonicalBody?.regionTrendDefinition, "median_of_canonical_matched_complex_changes_trailing_6m_pooled_mean");
+assert.equal(legacyBody?.priceLevel.find((cell) => cell.scope === "COMPLEX")?.meanPricePerSupplyPyeong, canonicalBody?.priceLevel.find((cell) => cell.scope === "COMPLEX")?.meanPricePerSupplyPyeong);
 
 console.log("price-position-v23 tests ok");
