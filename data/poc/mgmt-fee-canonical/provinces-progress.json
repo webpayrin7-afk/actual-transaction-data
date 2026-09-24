@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-24T18:45:39.316Z",
-  "driver_status": "stopped at daegu",
+  "generated_at": "2026-09-24T21:45:38.290Z",
+  "driver_status": "BLOCKED daegu: fee API openapi_04 HTTP_ERROR since 2026-09-24T17:45Z (still failing 21:35Z); 2999 transient failures purged, acquire must resume; not applied",
   "fee_table": {
     "rows": 4819,
     "complexes": 4706
@@ -52,7 +52,7 @@
       "province": "daegu",
       "sido_code": "27",
       "sido": "대구광역시",
-      "phase": "DRYRUN_PASS",
+      "phase": "ACQUIRING",
       "cohort": 1151,
       "terminal": 1151,
       "unfinished": 0,
@@ -65,7 +65,7 @@
       "api_calls": 16981,
       "http_429": 0,
       "retries": 13,
-      "dryrun_gate": "PASS",
+      "dryrun_gate": null,
       "applied_rows": 0
     },
     {
