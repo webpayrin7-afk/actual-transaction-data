@@ -1,23 +1,24 @@
 /**
  * 지역 조회 첫 페이지 — 시·군·구 타일 숫자.
- * 최근 완결 월의 매매 전용 평당 중위가(market_monthly_deal_stats, lawd 범위)와 전년 같은 달 대비 변화.
- * 여러 구를 묶은 시(성남시 등)는 구별 중위가를 합칠 수 없으니 구별 범위(최저~최고)만 보인다. 읽기 전용.
+ * 지역 상세와 같은 '지역 시세 평당가'(region_price_index, 공급평 · 단지 최근 거래 세대수 가중)의
+ * 최신 월 값과 전년 같은 달 대비 변화.
+ * 여러 구를 묶은 시(성남시 등)는 구별 값의 범위(최저~최고)만 보인다. 적재본이 없는 지역은 값 없이 보낸다. 읽기 전용.
  */
 import type { Client } from "@libsql/client";
 import { ALL_REGIONS } from "@/lib/constants/regions";
-import { DEAL_STATS_TABLE, lastCompleteVolumeMonth, ymShift } from "@/lib/market/deal-stats";
+import { ymShift } from "@/lib/market/deal-stats";
+import { REGION_PRICE_INDEX_METHOD, REGION_PRICE_INDEX_TABLE } from "@/lib/region/region-price-index";
 
-/** 한 달 거래가 이보다 적으면 중위가를 보이지 않는다 */
-const MIN_DEALS = 10;
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 export type RegionTileStat = {
-  /** 평당 중위가 (만원). 여러 구면 null */
+  /** 지역 시세 평당가 (만원/공급평). 여러 구면 null */
   ppp: number | null;
-  /** 여러 구: 구별 평당 중위가 최저~최고 (만원) */
+  /** 여러 구: 구별 시세 평당가 최저~최고 (만원) */
   range: [number, number] | null;
-  /** 전년 같은 달 대비 (%) — 단일 구, 두 달 모두 MIN_DEALS 이상일 때만 */
+  /** 전년 같은 달 대비 (%) — 단일 구, 두 달 모두 값이 있을 때만 */
   yoyPct: number | null;
+  /** 그 달 매매 건수 */
   deals: number;
 };
 
@@ -31,26 +32,28 @@ let cache: { at: number; value: RegionsOverview } | null = null;
 
 export async function readRegionsOverview(db: Client): Promise<RegionsOverview> {
   if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.value;
-  // 최근 완결 월 중 테이블에 실제로 있는 가장 최근 달
-  const latest = await db.execute({
-    sql: `SELECT MAX(year_month) AS ym FROM ${DEAL_STATS_TABLE}
-          WHERE scope = 'lawd' AND deal_kind = 'trade' AND area_band = 'all' AND year_month <= ?`,
-    args: [lastCompleteVolumeMonth()],
-  });
-  const ym = String(latest.rows[0]?.ym ?? "");
+  const latest = await db
+    .execute({
+      sql: `SELECT MAX(year_month) AS ym FROM ${REGION_PRICE_INDEX_TABLE}
+            WHERE method_version = ? AND scope = 'gu' AND pyeong_price IS NOT NULL`,
+      args: [REGION_PRICE_INDEX_METHOD],
+    })
+    .catch(() => null);
+  const ym = String(latest?.rows[0]?.ym ?? "");
   const prev = ym ? ymShift(ym, -12) : "";
   const res = ym
     ? await db.execute({
-        sql: `SELECT scope_key, year_month, deal_count, median_ppp FROM ${DEAL_STATS_TABLE}
-              WHERE scope = 'lawd' AND deal_kind = 'trade' AND area_band = 'all' AND year_month IN (?, ?)`,
-        args: [ym, prev],
+        sql: `SELECT region_code, year_month, pyeong_price, trade_count FROM ${REGION_PRICE_INDEX_TABLE}
+              WHERE method_version = ? AND scope = 'gu' AND year_month IN (?, ?)`,
+        args: [REGION_PRICE_INDEX_METHOD, ym, prev],
       })
     : { rows: [] };
-  const byLawd = new Map<string, { now?: { n: number; ppp: number | null }; prev?: { n: number; ppp: number | null } }>();
+  type V = { ppp: number | null; n: number };
+  const byLawd = new Map<string, { now?: V; prev?: V }>();
   for (const r of res.rows) {
-    const k = String(r.scope_key);
+    const k = String(r.region_code);
     const e = byLawd.get(k) ?? {};
-    const v = { n: Number(r.deal_count), ppp: r.median_ppp == null ? null : Number(r.median_ppp) };
+    const v = { ppp: r.pyeong_price == null ? null : Math.round(Number(r.pyeong_price)), n: Number(r.trade_count ?? 0) };
     if (String(r.year_month) === ym) e.now = v;
     else e.prev = v;
     byLawd.set(k, e);
@@ -62,16 +65,12 @@ export async function readRegionsOverview(db: Client): Promise<RegionsOverview> 
     const deals = codes.reduce((s, c) => s + (byLawd.get(c)?.now?.n ?? 0), 0);
     if (codes.length === 1) {
       const e = byLawd.get(codes[0]!);
-      const ok = (x?: { n: number; ppp: number | null }) => x && x.n >= MIN_DEALS && x.ppp != null;
-      const ppp = ok(e?.now) ? e!.now!.ppp! : null;
-      const yoyPct =
-        ppp != null && ok(e?.prev) ? Math.round(((ppp - e!.prev!.ppp!) / e!.prev!.ppp!) * 1000) / 10 : null;
+      const ppp = e?.now?.ppp ?? null;
+      const before = e?.prev?.ppp ?? null;
+      const yoyPct = ppp != null && before ? Math.round(((ppp - before) / before) * 1000) / 10 : null;
       regions[region.slug] = { ppp, range: null, yoyPct, deals };
     } else {
-      const vals = codes
-        .map((c) => byLawd.get(c)?.now)
-        .filter((x): x is { n: number; ppp: number } => !!x && x.n >= MIN_DEALS && x.ppp != null)
-        .map((x) => x.ppp);
+      const vals = codes.map((c) => byLawd.get(c)?.now?.ppp).filter((v): v is number => v != null);
       regions[region.slug] = {
         ppp: vals.length === 1 ? vals[0]! : null,
         range: vals.length > 1 ? [Math.min(...vals), Math.max(...vals)] : null,

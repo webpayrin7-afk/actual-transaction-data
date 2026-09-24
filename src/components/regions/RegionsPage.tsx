@@ -248,7 +248,7 @@ export function RegionsPage() {
           />
           {ymLabel ? (
             <p className="detail-meta -mt-1">
-              {ymLabel} 매매 전용 평당 중위가 · 전년 같은 달 대비
+              {ymLabel} 지역 시세 평당가 · 전년 같은 달 대비
               {regions.some((r) => r.lawdCodes.length > 1) ? ". 여러 구가 있는 시는 구별 범위" : ""}
             </p>
           ) : null}
