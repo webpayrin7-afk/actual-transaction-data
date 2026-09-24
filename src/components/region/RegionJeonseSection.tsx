@@ -3,6 +3,8 @@
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { DealStatsPayload } from "@/lib/market/deal-stats";
 import { Area, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
@@ -64,12 +66,42 @@ export function RegionJeonseSection({
 }) {
   const place = label ?? regionName;
   const query = useRegionJeonse(scope);
+  const dealQuery = useQuery({
+    queryKey: ["market-deal-stats", "dong", scope.lawdCd, scope.dong ?? ""],
+    enabled: !!scope.dong,
+    staleTime: 30 * 60_000,
+    retry: 1,
+    queryFn: async (): Promise<DealStatsPayload> => {
+      const params = new URLSearchParams({ lawd: scope.lawdCd, dong: scope.dong! });
+      const res = await fetch(`/api/market-deal-stats?${params}`);
+      if (!res.ok) throw new Error("실거래 집계를 불러오지 못했습니다.");
+      return res.json();
+    },
+  });
   const [tab, setTab] = useState<TabId>("gap");
   const [expanded, setExpanded] = useState(false);
   const data = query.data?.status === "ok" ? query.data : null;
 
   const [period, setPeriod] = useState<PeriodId>("5y");
-  const allPoints = useMemo(() => {
+  const dealRatios = useMemo(() => {
+    const points = dealQuery.data?.points ?? [];
+    const trade = new Map<string, number>();
+    const jeonse = new Map<string, number>();
+    for (const p of points) {
+      if (p.area !== "all" || p.median == null || p.median <= 0 || p.count <= 0) continue;
+      if (p.kind === "trade") trade.set(p.ym, p.median);
+      if (p.kind === "jeonse") jeonse.set(p.ym, p.median);
+    }
+    const out: Array<{ label: string; ratio: number }> = [];
+    for (const ym of [...trade.keys()].sort()) {
+      const t = trade.get(ym);
+      const j = jeonse.get(ym);
+      if (t == null || j == null) continue;
+      out.push({ label: monthLabel(ym), ratio: Math.round((j / t) * 1000) / 10 });
+    }
+    return out;
+  }, [dealQuery.data]);
+  const pairPoints = useMemo(() => {
     const series = data?.series ?? [];
     const first = series.findIndex((p) => p.jeonseRatio != null);
     return (first < 0 ? [] : series.slice(first)).map((p) => ({
@@ -77,6 +109,8 @@ export function RegionJeonseSection({
       ratio: p.jeonseRatio == null ? null : Math.round(p.jeonseRatio * 1000) / 10,
     }));
   }, [data]);
+  const usingDealStats = !!scope.dong && dealRatios.length > pairPoints.length;
+  const allPoints = usingDealStats ? dealRatios : pairPoints;
   const hasLongHistory = allPoints.length > RECENT_MONTHS;
   const points =
     hasLongHistory && period === "5y" ? allPoints.slice(-RECENT_MONTHS) : allPoints;
@@ -192,6 +226,12 @@ export function RegionJeonseSection({
                 onChange={setPeriod}
               />
             </div>
+          ) : null}
+          {usingDealStats ? (
+            <p className="detail-meta">
+              그래프는 이 동 전체의 월별 매매 중위가 대비 전세 중위가입니다. 위의 숫자와 단지 목록은 단지·면적별
+              최근 3개월 전세가율의 중앙값입니다.
+            </p>
           ) : null}
           {points.length > 1 ? (
             <div className="h-[120px] w-full">

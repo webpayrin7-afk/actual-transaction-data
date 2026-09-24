@@ -3,6 +3,7 @@
  * 빌드 스크립트·서버 조회·클라이언트 화면이 같이 쓰므로 server-only가 아니다.
  */
 import { seoulToday } from "@/lib/market/time";
+import type { TrendRegion } from "@/lib/market/trends-regions";
 
 export const DEAL_STATS_TABLE = "market_monthly_deal_stats";
 /** 집계 방식이 바뀌면 올린다 — 행마다 기록된다. */
@@ -82,6 +83,47 @@ export function lastCompleteVolumeMonth(today = seoulToday()): string {
 export function dongScopeKey(lawdCd: string, dong: string): string {
   return `${lawdCd}|${dong}`;
 }
+
+/**
+ * 시장 흐름 지역 → 사전집계 키.
+ * 시군구 하나는 lawd(그 구 실거래의 중위값).
+ * 여러 시군구(전국·수도권·시도)는 region. 빌드가 소속 거래를 모아 계산한 중위값이라
+ * 구별 중위가를 평균 낸 값이 아니다.
+ */
+export function dealStatsTargetForRegion(region: TrendRegion): {
+  scope: "lawd" | "region";
+  scopeKey: string;
+  medianMethod: "pooled" | "single";
+} | null {
+  if (!region.lawdRanges?.length) return null;
+  const only = region.lawdRanges.length === 1 ? region.lawdRanges[0] : null;
+  if (only && only[0] === only[1]) {
+    return { scope: "lawd", scopeKey: only[0], medianMethod: "single" };
+  }
+  return { scope: "region", scopeKey: region.id, medianMethod: "pooled" };
+}
+
+export type DealStatsPoint = {
+  ym: string;
+  kind: DealKind;
+  area: AreaBand;
+  count: number;
+  median: number | null;
+  ppp: number | null;
+  /** 가격대 7칸 건수. PRICE_BAND_LABELS[kind]와 같은 순서. */
+  bands: number[];
+};
+
+export type DealStatsPayload = {
+  status: "ok";
+  scope: DealStatsScope;
+  scopeKey: string;
+  medianMethod: "pooled" | "single";
+  points: DealStatsPoint[];
+  from: string | null;
+  to: string | null;
+  note?: string;
+};
 
 export const DEAL_STATS_DDL = `
 CREATE TABLE IF NOT EXISTS ${DEAL_STATS_TABLE} (
