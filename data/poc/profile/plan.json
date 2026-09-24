@@ -1,0 +1,15 @@
+{
+  "at": "2026-09-24T06:51:27.101Z",
+  "apply": false,
+  "totals": {
+    "targets": 13400,
+    "plannedComplexes": 0,
+    "inserts": 0,
+    "updates": 0,
+    "byField": {},
+    "sharedParcelHold": 1,
+    "sharedKaptHold": 0,
+    "conflicts": 1024,
+    "appliedChanges": 0
+  }
+}
