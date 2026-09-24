@@ -20,6 +20,9 @@ import {
   type RangeValue,
 } from "@/lib/map/map-filters";
 
+/** 슬라이더 손잡이 반지름 (globals.css .lab-dual-range thumb 28px) */
+const THUMB_R = 14;
+
 /** 조건 하나를 가리키는 키 — 범위 조건 또는 난방 */
 export type ConditionKey = RangeFilterId | "heating";
 
@@ -52,32 +55,38 @@ function DistributionRange({
   const peak = Math.max(1, ...bins);
   const span = def.max - def.min;
   const pos = (v: number) => ((v - def.min) / span) * 100;
+  // 손잡이(28px) 중심이 움직이는 구간 = 양 끝 14px 안쪽. 막대·트랙·눈금을 모두 이 구간에 맞춘다.
+  const at = (pct: number) => `calc(${THUMB_R}px + (100% - ${THUMB_R * 2}px) * ${pct / 100})`;
   const binWidth = span / bins.length;
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex h-9 items-end gap-[2px]" aria-hidden>
+      <div className="flex h-9 items-end" style={{ marginInline: THUMB_R }} aria-hidden>
         {bins.map((n, i) => {
           const lo = def.min + i * binWidth;
           const inRange = lo + binWidth > value.min && lo < (value.max >= def.max ? Infinity : value.max);
           return (
-            <span
-              key={i}
-              className="flex-1 rounded-t-[2px]"
-              style={{
-                height: `${n === 0 ? 2 : Math.max(6, (n / peak) * 100)}%`,
-                backgroundColor: inRange ? "var(--lab-brand-primary)" : "var(--lab-border)",
-                opacity: n === 0 ? 0.5 : 1,
-              }}
-            />
+            <span key={i} className="flex h-full flex-1 items-end justify-center">
+              <span
+                className="w-[60%] rounded-t-[2px]"
+                style={{
+                  height: `${n === 0 ? 2 : Math.max(6, (n / peak) * 100)}%`,
+                  backgroundColor: inRange ? "var(--lab-brand-primary)" : "var(--lab-border)",
+                  opacity: n === 0 ? 0.5 : 1,
+                }}
+              />
+            </span>
           );
         })}
       </div>
       <div className="lab-dual-range relative h-8">
-        <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[color:var(--lab-border)]" />
+        <div
+          className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-[color:var(--lab-border)]"
+          style={{ left: THUMB_R, right: THUMB_R }}
+        />
         <div
           className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-[color:var(--lab-navy-950)]"
-          style={{ left: `${pos(value.min)}%`, right: `${100 - pos(value.max)}%` }}
+          style={{ left: at(pos(value.min)), right: `calc(100% - ${at(pos(value.max))})` }}
         />
         <input
           type="range"
@@ -104,8 +113,14 @@ function DistributionRange({
             key={t}
             className="absolute whitespace-nowrap text-[12px] leading-4 text-[color:var(--lab-muted)] tabular-nums"
             style={{
-              left: `${pos(t)}%`,
-              transform: i === 0 ? "none" : i === def.ticks.length - 1 ? "translateX(-100%)" : "translateX(-50%)",
+              left: at(pos(t)),
+              // 양 끝 눈금은 가장자리에 맞추고(잘림 방지), 가운데는 손잡이 위치에 가운데 정렬
+              transform:
+                i === 0
+                  ? `translateX(-${THUMB_R}px)`
+                  : i === def.ticks.length - 1
+                    ? `translateX(calc(-100% + ${THUMB_R}px))`
+                    : "translateX(-50%)",
             }}
           >
             {(def.tick ?? def.format)(t)}
