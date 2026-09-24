@@ -2,7 +2,7 @@
  * 전국 버스정류장 (bus_stops, 국토교통부 전국 버스정류장 위치정보) + 경유 노선.
  * - 위치: DB, 좌표는 원천 그대로. 같은 정류장이 관리 BIS별로 두 번 실린 경우(서울BIS·경기BIS, 같은 모바일단축번호)는
  *   이름·단축번호가 같고 30m 안이면 하나로 묶는다.
- * - 노선: 서울은 bus_stop_routes(서울시 버스노선별 정류소정보, ARS 번호 정확 일치 — 원천에 앞자리 0이 빠진 번호가 있어
+ * - 노선(TAGO 파라미터는 소문자 nodeid — nodeId로 보내면 도시 전체 노선이 온다): 서울은 bus_stop_routes(서울시 버스노선별 정류소정보, ARS 번호 정확 일치 — 원천에 앞자리 0이 빠진 번호가 있어
  *   양쪽을 5자리로 맞춰 비교), 서울 밖은 TAGO 정류소별 경유노선(getSttnThrghRouteList)을 필요할 때 조회(하루 캐시).
  * 읽기 전용. 표가 없거나 실패하면 빈 목록.
  */
@@ -34,7 +34,7 @@ let tableChecked: boolean | null = null;
 async function taGoRoutes(cityCode: string, nodeId: string): Promise<string[]> {
   const key = process.env.MOLIT_API_KEY?.trim();
   if (!key || cityCode === "11") return [];
-  const qs = `serviceKey=${encodeURIComponent(key)}&cityCode=${encodeURIComponent(cityCode)}&nodeId=${encodeURIComponent(nodeId)}&numOfRows=100&pageNo=1&_type=json`;
+  const qs = `serviceKey=${encodeURIComponent(key)}&cityCode=${encodeURIComponent(cityCode)}&nodeid=${encodeURIComponent(nodeId)}&numOfRows=100&pageNo=1&_type=json`;
   try {
     const res = await fetch(`${TAGO_BASE}?${qs}`, {
       next: { revalidate: 86_400 },
