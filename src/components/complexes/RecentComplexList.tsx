@@ -29,6 +29,7 @@ export function RecentComplexList() {
       <div className="flex items-center justify-between gap-3">
         <LabSectionHeader
           title="최근 조회한 단지"
+          tip={<p>이 브라우저에만 저장됩니다.</p>}
         />
         {items.length > 0 ? (
           <button
