@@ -64,6 +64,14 @@ import {
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
+import { pickLatestDeal } from "@/lib/deals/latest";
+
+const DETAIL_PICK = {
+  date: (i: { dealDate: string }) => i.dealDate,
+  floor: (i: { floor?: number | string | null }) => (i.floor == null || i.floor === "" ? null : Number(i.floor)),
+  amount: (i: { dealAmount: number }) => Number(i.dealAmount),
+  gbn: (i: { dealingGbn?: string | null }) => i.dealingGbn ?? null,
+};
 import {
   LAB_SUBSECTION_RULE,
   LabSection,
@@ -391,24 +399,26 @@ export function AptDetailPage({
       .reduce((m, i) => Math.max(m, i.dealAmount), 0) || 0;
 
   // 최근 매매·전세: 선택 평수(area) 기준 최신건. 기간 슬라이더와 독립.
-  const latestTrade = useMemo(() => {
-    const trades = areaFiltered
-      .filter((i) => i.dealType === "trade")
-      .sort((a, b) => (a.dealDate < b.dealDate ? 1 : -1));
-    return trades[0] ?? null;
-  }, [areaFiltered]);
+  // 최근 거래 — 지도와 같은 규칙 (매매 직거래 제외 · 전세 갱신 제외 · 같은 날이면 높은 층)
+  const latestTrade = useMemo(
+    () => pickLatestDeal(areaFiltered.filter((i) => i.dealType === "trade"), "trade", DETAIL_PICK),
+    [areaFiltered],
+  );
 
   const vsMaxPct =
     latestTrade && areaTradeMax > 0
       ? Math.round((latestTrade.dealAmount / areaTradeMax - 1) * 1000) / 10
       : null;
 
-  const latestJeonse = useMemo(() => {
-    const rows = areaFiltered
-      .filter((i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0)
-      .sort((a, b) => (a.dealDate < b.dealDate ? 1 : -1));
-    return rows[0] ?? null;
-  }, [areaFiltered]);
+  const latestJeonse = useMemo(
+    () =>
+      pickLatestDeal(
+        areaFiltered.filter((i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0),
+        "jeonse",
+        DETAIL_PICK,
+      ),
+    [areaFiltered],
+  );
 
   const periodJeonseCount = periodItems.filter(
     (i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0,

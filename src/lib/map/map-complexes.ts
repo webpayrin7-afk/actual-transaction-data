@@ -11,6 +11,7 @@ import { slugFromLawd } from "@/lib/constants/nationwide-lawd";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import { readRankingV4Board } from "@/lib/region-ranking/ranking-v4";
 import { regionDongHref } from "@/lib/molit/region-paths";
+import { pickLatestDeal } from "@/lib/deals/latest";
 
 /** @deprecated 면적 범위(areaMin/areaMax)로 대체 — 옛 URL 호환용 */
 export type MapAreaBand = "all" | "small" | "mid" | "large";
@@ -58,11 +59,11 @@ export type MapComplex = {
   tradeCount12m: number;
   latestDealDate: string | null;
   latestPriceMan: number | null;
-  /** 전세 중위 ÷ 매매 중위 (%) — 둘 다 있을 때만 */
+  /** 대표 평형 최근 전세가 ÷ 최근 매매가 (%) — 단지 상세와 같은 정의, 둘 다 있을 때만 */
   jeonseRatioPct: number | null;
-  /** 매매 중위 − 전세 중위 (만원). 음수면 역전(마이너스 갭) */
+  /** 대표 평형 최근 매매가 − 최근 전세가 (만원). 음수면 역전(마이너스 갭) */
   gapMan: number | null;
-  /** 월세 연 수익률 중위 (%) — 월세×12 ÷ (매매 중위 − 보증금) */
+  /** 월세 연 수익률 중위 (%) — 대표 평형 월세×12 ÷ (최근 매매가 − 보증금) */
   rentYieldPct: number | null;
   /** 용적률 (%) */
   farRatio: number | null;
@@ -94,7 +95,7 @@ function median(values: number[]): number | null {
  * 대표 평형의 가장 최근 실거래가 — 대표 평형 = 가장 많이 거래된 전용면적(±1㎡).
  * 직거래는 빼고 고른다(대표 평형 거래가 모두 직거래면 그중 최근). 범위는 대표 평형 거래 전체.
  */
-function representativePrice(selected: Deal[]): {
+function representativePrice(selected: Deal[], kind: "trade" | "jeonse"): {
   priceMan: number | null;
   priceDate: string | null;
   rangeMinMan: number | null;
@@ -103,8 +104,7 @@ function representativePrice(selected: Deal[]): {
   const main = modeArea(selected.map((d) => d.area));
   const same = main == null ? [] : selected.filter((d) => Math.abs(d.area - main) < 1);
   if (!same.length) return { priceMan: null, priceDate: null, rangeMinMan: null, rangeMaxMan: null };
-  const pool = same.some((d) => !d.direct) ? same.filter((d) => !d.direct) : same;
-  const latest = pool.reduce((a, d) => (d.date > a.date ? d : a));
+  const latest = pickLatestDeal(same, kind, PICK)!;
   const amounts = same.map((d) => d.amount);
   return {
     priceMan: latest.amount,
@@ -192,7 +192,15 @@ type Deal = {
   date: string;
   area: number;
   buildYear: number | null;
-  direct: boolean;
+  floor: number | null;
+  gbn: string | null;
+};
+
+const PICK = {
+  date: (d: Deal) => d.date,
+  floor: (d: Deal) => d.floor,
+  amount: (d: Deal) => d.amount,
+  gbn: (d: Deal) => d.gbn,
 };
 
 export async function readMapComplexes(
@@ -242,7 +250,7 @@ export async function readMapComplexes(
         db
           .execute({
             sql: `SELECT lawd_cd, apt_name_norm, deal_type, deal_amount, monthly_rent, deal_date,
-                         exclusive_area, build_year, dealing_gbn
+                         exclusive_area, build_year, dealing_gbn, floor
                   FROM transactions
                   WHERE lawd_cd = ? AND apt_name_norm IN (${slice.map(() => "?").join(",")})
                     AND year_month >= ?
@@ -266,7 +274,8 @@ export async function readMapComplexes(
                 date: String(r.deal_date),
                 area: Number(r.exclusive_area),
                 buildYear: Number.isFinite(by) && by > 1900 ? by : null,
-                direct: String(r.dealing_gbn ?? "") === "직거래",
+                floor: r.floor == null ? null : Number(r.floor),
+                gbn: r.dealing_gbn == null ? null : String(r.dealing_gbn),
               });
               deals.set(k, list);
             }
@@ -299,12 +308,15 @@ export async function readMapComplexes(
     const wolses = all.filter((d) => d.kind === "wolse");
     const selected = deal === "trade" ? trades : jeonses;
     const latest = selected.reduce<Deal | null>((acc, d) => (!acc || d.date > acc.date ? d : acc), null);
-    const tradeMed = median(trades.map((d) => d.amount));
-    const jeonseMed = median(jeonses.map((d) => d.amount));
-    const yields = tradeMed
+    // 전세가율·갭·월세수익률 — 단지 상세와 같은 정의: 매매 대표 평형(±1㎡)의 최근 매매가·최근 전세가
+    const tradeMain = modeArea(trades.map((d) => d.area));
+    const inMain = (d: Deal) => tradeMain != null && Math.abs(d.area - tradeMain) < 1;
+    const tradeNow = pickLatestDeal(trades.filter(inMain), "trade", PICK)?.amount ?? null;
+    const jeonseNow = pickLatestDeal(jeonses.filter(inMain), "jeonse", PICK)?.amount ?? null;
+    const yields = tradeNow
       ? wolses
-          .filter((d) => tradeMed > d.amount)
-          .map((d) => ((d.rent * 12) / (tradeMed - d.amount)) * 100)
+          .filter((d) => inMain(d) && tradeNow > d.amount)
+          .map((d) => ((d.rent * 12) / (tradeNow - d.amount)) * 100)
       : [];
     const gu = (r.sigungu ? String(r.sigungu).split(/\s+/).pop() : null) || districtNameFromCode(lawd);
     const approvalYear = r.approval_date ? Number(String(r.approval_date).slice(0, 4)) || null : null;
@@ -316,15 +328,15 @@ export async function readMapComplexes(
       dong: r.legal_dong_name ? String(r.legal_dong_name) : null,
       householdCount: num(r.household_count),
       href: aptDetailHref(String(r.apt_name), regionSlugFor(lawd), gu || undefined),
-      ...representativePrice(selected),
+      ...representativePrice(selected, deal),
       medianPriceMan: median(selected.map((d) => d.amount)),
       mainAreaSqm: modeArea(selected.map((d) => d.area)),
       buildYear: all.find((d) => d.buildYear != null)?.buildYear ?? approvalYear,
       tradeCount12m: selected.length,
       latestDealDate: latest?.date ?? null,
       latestPriceMan: latest?.amount ?? null,
-      jeonseRatioPct: tradeMed && jeonseMed ? Math.round((jeonseMed / tradeMed) * 1000) / 10 : null,
-      gapMan: tradeMed != null && jeonseMed != null ? Math.round(tradeMed - jeonseMed) : null,
+      jeonseRatioPct: tradeNow && jeonseNow ? Math.round((jeonseNow / tradeNow) * 1000) / 10 : null,
+      gapMan: tradeNow != null && jeonseNow != null ? Math.round(tradeNow - jeonseNow) : null,
       rentYieldPct: yields.length ? Math.round(median(yields)! * 100) / 100 : null,
       farRatio: num(r.far_ratio),
       bcrRatio: num(r.bcr_ratio),
