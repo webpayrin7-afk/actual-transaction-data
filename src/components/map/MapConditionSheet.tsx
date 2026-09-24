@@ -274,8 +274,8 @@ export function MapConditionSheet({
         </div>
       ) : (
         <div className="flex flex-col gap-7 pb-4">
-          {/* 필터 이동 — 탭 모양 글자 버튼, 스크롤해도 위에 고정. 조건이 걸린 필터는 강조색 */}
-          <nav aria-label="필터로 이동" className="sticky top-0 z-10 -mx-4 -mt-2 -mb-3 bg-white px-4 pt-1">
+          {/* 필터 이동 — 탭 모양 글자 버튼, 스크롤해도 위에 고정(본문 위 여백 8px까지 덮도록 -top-2). 조건이 걸린 필터는 강조색 */}
+          <nav aria-label="필터로 이동" className="sticky -top-2 z-10 -mx-4 -mt-2 -mb-3 bg-white px-4 pt-2">
             <div
               className="-mx-4 flex gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4"
               style={{ scrollbarWidth: "none" }}
