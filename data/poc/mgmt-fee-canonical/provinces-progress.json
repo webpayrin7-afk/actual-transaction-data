@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-24T16:35:38.991Z",
-  "driver_status": "STOPPED by owner request 2026-09-24T16:35Z — daegu mid-acquire",
+  "generated_at": "2026-09-24T18:04:18.426Z",
+  "driver_status": "daegu acquiring",
   "fee_table": {
     "rows": 4819,
     "complexes": 4706
   },
-  "api_calls_total": 68690,
+  "api_calls_total": 72166,
   "applied_rows_total": 1896,
   "provinces": [
     {
@@ -52,17 +52,17 @@
       "province": "daegu",
       "sido_code": "27",
       "sido": "대구광역시",
-      "phase": "ACQUIRING_STOPPED",
+      "phase": "ACQUIRING",
       "cohort": 1151,
-      "terminal": 393,
-      "unfinished": 758,
-      "COMPLETE": 371,
-      "NO_PUBLISHED_MONTH": 22,
-      "PARTIAL": 0,
+      "terminal": 513,
+      "unfinished": 638,
+      "COMPLETE": 458,
+      "NO_PUBLISHED_MONTH": 25,
+      "PARTIAL": 30,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 11240,
+      "api_calls": 14716,
       "http_429": 0,
       "retries": 13,
       "dryrun_gate": null,
@@ -288,11 +288,5 @@
       "dryrun_gate": null,
       "applied_rows": 0
     }
-  ],
-  "stop_note": {
-    "stopped_at": "2026-09-24T16:35:20Z",
-    "daegu_segments_completed": 9,
-    "daegu_checkpoint": "data/poc/mgmt-fee-canonical/province-daegu-final-op-checkpoint.json",
-    "daegu_segment_state": "data/poc/mgmt-fee-canonical/province-daegu-final-segment-state.json"
-  }
+  ]
 }
