@@ -41,6 +41,8 @@ type LabBottomSheetProps = {
   hideDone?: boolean;
   /** The scrolling body element (e.g. for a scroll-spy header). */
   bodyRef?: RefObject<HTMLDivElement | null>;
+  /** Scroll events of the body — attached on the element itself, so it works whenever the body mounts. */
+  onBodyScroll?: (body: HTMLDivElement) => void;
 };
 
 /**
@@ -62,6 +64,7 @@ export function LabBottomSheet({
   dragHandle = false,
   hideDone = false,
   bodyRef,
+  onBodyScroll,
 }: LabBottomSheetProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
@@ -199,6 +202,7 @@ export function LabBottomSheet({
         )}
         <div
           ref={bodyRef}
+          onScroll={onBodyScroll ? (e) => onBodyScroll(e.currentTarget) : undefined}
           className={`relative min-h-0 flex-1 overflow-y-auto px-4 pb-4 ${
             compactBodyTop ? "pt-2" : "pt-4"
           }`}

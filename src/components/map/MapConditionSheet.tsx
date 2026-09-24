@@ -272,14 +272,12 @@ export function MapConditionSheet({
     tabs.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
   }, [activeJump]);
 
-  // 스크롤 위치에 따라 이동 탭 선택 — 페이지의 고정 섹션 탭과 같은 동작
-  useEffect(() => {
-    if (!open || only) return;
-    let raf = 0;
-    let body: HTMLDivElement | null = null;
-    const update = () => {
-      raf = 0;
-      if (!body) return;
+  // 스크롤 위치에 따라 이동 탭 선택 — 페이지의 고정 섹션 탭과 같은 동작 (본문 onScroll로 받음)
+  const spyRaf = useRef(0);
+  const onBodyScroll = (body: HTMLDivElement) => {
+    if (only || spyRaf.current) return;
+    spyRaf.current = window.requestAnimationFrame(() => {
+      spyRaf.current = 0;
       const top = body.scrollTop + 24;
       let current = jumpList[0]!.id;
       for (const j of jumpList) {
@@ -292,27 +290,19 @@ export function MapConditionSheet({
         jumpingTo.current = null;
       }
       setActiveJump(current);
-    };
-    const onScroll = () => {
-      if (!raf) raf = window.requestAnimationFrame(update);
-    };
-    // 시트가 붙은 뒤에 본문이 생긴다
-    const t = window.setTimeout(() => {
-      body = bodyRef.current;
-      body?.addEventListener("scroll", onScroll, { passive: true });
-    }, 0);
-    return () => {
-      window.clearTimeout(t);
-      body?.removeEventListener("scroll", onScroll);
-      if (raf) window.cancelAnimationFrame(raf);
-    };
-  }, [open, only, jumpList]);
+    });
+  };
+  useEffect(() => () => window.cancelAnimationFrame(spyRaf.current), []);
 
   const jumpTo = (id: string) => {
     const body = bodyRef.current;
     const el = body?.querySelector<HTMLElement>(`#cond-${id}`);
     if (!body || !el) return;
     jumpingTo.current = id;
+    // 끝까지 못 가는 아래쪽 필터도 있으니 잠금은 잠시만
+    window.setTimeout(() => {
+      if (jumpingTo.current === id) jumpingTo.current = null;
+    }, 900);
     setActiveJump(id);
     body.scrollTo({ top: Math.max(0, el.offsetTop - 12), behavior: "smooth" });
   };
@@ -330,6 +320,7 @@ export function MapConditionSheet({
       dragHandle
       hideDone
       bodyRef={bodyRef}
+      onBodyScroll={onBodyScroll}
       header={
         only ? undefined : (
           <nav aria-label="필터로 이동" className="border-b border-[color:var(--lab-border)]">
