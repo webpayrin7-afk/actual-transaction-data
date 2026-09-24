@@ -62,7 +62,7 @@ export function PresalePage() {
       ? [
           {
             key: "supplier",
-            title: "공급",
+            title: "공급 유형",
             options: SUPPLIER_OPTIONS,
             value: supplier,
             defaultId: "all",
@@ -97,9 +97,10 @@ export function PresalePage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader title="분양 정보" titleClassName="detail-page-title" showDivider={false} titleInHeader />
-      {/* 모바일: 탭을 흰 띠로 상단바에 바로 잇는다. 조건 칩은 각 탭 첫 카드 안(목록 바로 위)에 둔다 */}
-      <div className="-mx-4 bg-white px-4 sm:mx-0 sm:bg-transparent sm:px-0">
-        <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
+      {/* 모바일: 탭 + 조건 칩 줄을 흰 띠 하나로 상단바에 잇고, 띠 아래에만 구분선 */}
+      <div className="-mx-4 border-b border-[color:var(--lab-border)] bg-white px-4 pb-2.5 sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0">
+        <LabPageTabs bare ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
+        <div className="pt-2">{chips}</div>
       </div>
 
       <div
@@ -108,14 +109,14 @@ export function PresalePage() {
         aria-labelledby={labTabId(TAB_PREFIX, tab)}
         className="flex flex-col gap-5 sm:gap-6">
         {tab === "schedule" ? (
-          <ApplyhomeUpcomingSection filter={filter} toolbar={chips} />
+          <ApplyhomeUpcomingSection filter={filter} />
         ) : tab === "results" ? (
           <>
-            <PresaleResults metro={metro} supplier={supplier} area={area} price={price} toolbar={chips} />
+            <PresaleResults metro={metro} supplier={supplier} area={area} price={price} />
             <ApplyhomeCompetitionSection filter={filter} />
           </>
         ) : (
-          <MoveInSection metro={metro} onPickMetro={pickMetro} toolbar={chips} />
+          <MoveInSection metro={metro} onPickMetro={pickMetro} />
         )}
       </div>
     </div>

@@ -14,12 +14,15 @@ export function LabPageTabs<T extends string>({
   onChange,
   ariaLabel,
   idPrefix,
+  bare = false,
 }: {
   items: readonly { id: T; label: string }[];
   value: T;
   onChange: (id: T) => void;
   ariaLabel: string;
   idPrefix: string;
+  /** 바닥선 없이 (아래 조건 줄과 한 띠로 묶고 띠 아래에만 선을 둘 때) */
+  bare?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [bar, setBar] = useState<{ left: number; width: number; ready: boolean }>({ left: 0, width: 0, ready: false });
@@ -61,7 +64,7 @@ export function LabPageTabs<T extends string>({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
-      className="relative -mx-4 flex border-b border-[color:var(--lab-border)] sm:mx-0"
+      className={`relative -mx-4 flex sm:mx-0 ${bare ? "" : "border-b border-[color:var(--lab-border)]"}`}
     >
       {items.map((item) => {
         const active = item.id === value;
