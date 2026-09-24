@@ -1,0 +1,12 @@
+2026-09-23T05:07:36Z runner start
+2026-09-23T05:07:39Z first batch size 40
+2026-09-23T05:07:40Z wave2 probe sido=11 fileNo=4604 targets=73
+2026-09-23T05:07:49Z wave2 probe sido=41 fileNo=4612 targets=937
+2026-09-23T05:07:59Z wave2 probe sido=28 fileNo=4624 targets=781
+2026-09-23T05:08:07Z wave2 probe sido=26 fileNo=4606 targets=114
+2026-09-23T05:08:16Z wave2 probe sido=27 fileNo=4607 targets=114
+2026-09-23T05:08:24Z wave2 probe sido=30 fileNo=4609 targets=369
+2026-09-23T05:08:33Z wave2 probe sido=12 fileNo=4605 targets=1099
+2026-09-23T05:08:41Z wave2 probe sido=31 fileNo=4610 targets=339
+2026-09-23T05:08:50Z wave2 probe sido=36 fileNo=4611 targets=140
+2026-09-23T05:08:59Z wave2 probe sido=51 fileNo=4618 targets=480

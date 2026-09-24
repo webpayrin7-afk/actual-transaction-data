@@ -1,0 +1,432 @@
+{
+  "generated_at": "2026-09-20T14:57:29Z",
+  "semantics": "PARCEL_REPRESENTATIVE_POINT",
+  "production_write": false,
+  "input_no_coordinate": 25322,
+  "recovered_safe": 8365,
+  "remaining_no_coordinate": 16957,
+  "resolution_counts": {
+    "EXACT_PRIMARY_PARCEL": 24549,
+    "PARCEL_AMBIGUOUS": 759,
+    "NO_PARCEL_IDENTITY": 14
+  },
+  "geometry_counts": {
+    "MATCHED": 8365,
+    "SOURCE_UNAVAILABLE": 15883,
+    "NOT_JOINED": 773,
+    "PNU_NOT_FOUND": 301
+  },
+  "duplicate_pnu_conflicts": [],
+  "point_files": {
+    "11": {
+      "source_version": "AL_D002_11_20260908",
+      "needed": 8437,
+      "matched": 8364
+    },
+    "26": {
+      "source_version": "AL_D002_26_20260908",
+      "needed": 113,
+      "matched": 0
+    },
+    "27": {
+      "source_version": "AL_D002_27_20260908",
+      "needed": 115,
+      "matched": 1
+    }
+  },
+  "vworld": {
+    "downloaded": false,
+    "attempts": [
+      {
+        "attempt": 1,
+        "host": "www.vworld.kr",
+        "status": "fail",
+        "detail": "RemoteDisconnected",
+        "seconds": 0.751
+      },
+      {
+        "attempt": 2,
+        "host": "www.vworld.kr",
+        "status": "fail",
+        "detail": "HTTPError",
+        "seconds": 0.743
+      },
+      {
+        "attempt": 3,
+        "host": "www.vworld.kr",
+        "status": "fail",
+        "detail": "RemoteDisconnected",
+        "seconds": 0.735
+      }
+    ],
+    "unavailable_sido_file_no": {
+      "41": 4612,
+      "28": 4624,
+      "30": 4609,
+      "12": 4605,
+      "31": 4610,
+      "36": 4611,
+      "43": 4613,
+      "44": 4614,
+      "47": 4615,
+      "48": 4616,
+      "50": 4617,
+      "51": 4618,
+      "52": 4619
+    },
+    "note": "Representative-point files on disk cover Seoul, Busan, and Daegu only. Other sidos stay unwritten while the official SHP host is unreachable."
+  },
+  "by_sido": {
+    "11": {
+      "sido": "서울특별시",
+      "no_coordinate_in": 8437,
+      "safe": 8364,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 8437
+      },
+      "geometry": {
+        "MATCHED": 8364,
+        "PNU_NOT_FOUND": 73
+      }
+    },
+    "12": {
+      "sido": "전남광주통합특별시",
+      "no_coordinate_in": 1646,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 1568,
+        "PARCEL_AMBIGUOUS": 78
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 1568,
+        "NOT_JOINED": 78
+      }
+    },
+    "26": {
+      "sido": "부산광역시",
+      "no_coordinate_in": 176,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 114,
+        "PARCEL_AMBIGUOUS": 61,
+        "NO_PARCEL_IDENTITY": 1
+      },
+      "geometry": {
+        "PNU_NOT_FOUND": 114,
+        "NOT_JOINED": 62
+      }
+    },
+    "27": {
+      "sido": "대구광역시",
+      "no_coordinate_in": 177,
+      "safe": 1,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 115,
+        "PARCEL_AMBIGUOUS": 61,
+        "NO_PARCEL_IDENTITY": 1
+      },
+      "geometry": {
+        "PNU_NOT_FOUND": 114,
+        "NOT_JOINED": 62,
+        "MATCHED": 1
+      }
+    },
+    "28": {
+      "sido": "인천광역시",
+      "no_coordinate_in": 1093,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 1028,
+        "PARCEL_AMBIGUOUS": 58,
+        "NO_PARCEL_IDENTITY": 7
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 1028,
+        "NOT_JOINED": 65
+      }
+    },
+    "30": {
+      "sido": "대전광역시",
+      "no_coordinate_in": 561,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 536,
+        "PARCEL_AMBIGUOUS": 24,
+        "NO_PARCEL_IDENTITY": 1
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 536,
+        "NOT_JOINED": 25
+      }
+    },
+    "31": {
+      "sido": "울산광역시",
+      "no_coordinate_in": 519,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 489,
+        "PARCEL_AMBIGUOUS": 29,
+        "NO_PARCEL_IDENTITY": 1
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 489,
+        "NOT_JOINED": 30
+      }
+    },
+    "36": {
+      "sido": "세종특별자치시",
+      "no_coordinate_in": 210,
+      "safe": 0,
+      "resolution": {
+        "PARCEL_AMBIGUOUS": 42,
+        "EXACT_PRIMARY_PARCEL": 168
+      },
+      "geometry": {
+        "NOT_JOINED": 42,
+        "SOURCE_UNAVAILABLE": 168
+      }
+    },
+    "41": {
+      "sido": "경기도",
+      "no_coordinate_in": 6529,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 6529
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 6529
+      }
+    },
+    "43": {
+      "sido": "충청북도",
+      "no_coordinate_in": 756,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 702,
+        "PARCEL_AMBIGUOUS": 54
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 702,
+        "NOT_JOINED": 54
+      }
+    },
+    "44": {
+      "sido": "충청남도",
+      "no_coordinate_in": 976,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 931,
+        "PARCEL_AMBIGUOUS": 44,
+        "NO_PARCEL_IDENTITY": 1
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 931,
+        "NOT_JOINED": 45
+      }
+    },
+    "47": {
+      "sido": "경상북도",
+      "no_coordinate_in": 1006,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 909,
+        "PARCEL_AMBIGUOUS": 95,
+        "NO_PARCEL_IDENTITY": 2
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 909,
+        "NOT_JOINED": 97
+      }
+    },
+    "48": {
+      "sido": "경상남도",
+      "no_coordinate_in": 1395,
+      "safe": 0,
+      "resolution": {
+        "PARCEL_AMBIGUOUS": 93,
+        "EXACT_PRIMARY_PARCEL": 1302
+      },
+      "geometry": {
+        "NOT_JOINED": 93,
+        "SOURCE_UNAVAILABLE": 1302
+      }
+    },
+    "50": {
+      "sido": "제주특별자치도",
+      "no_coordinate_in": 175,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 146,
+        "PARCEL_AMBIGUOUS": 29
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 146,
+        "NOT_JOINED": 29
+      }
+    },
+    "51": {
+      "sido": "강원특별자치도",
+      "no_coordinate_in": 815,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 766,
+        "PARCEL_AMBIGUOUS": 49
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 766,
+        "NOT_JOINED": 49
+      }
+    },
+    "52": {
+      "sido": "전북특별자치도",
+      "no_coordinate_in": 851,
+      "safe": 0,
+      "resolution": {
+        "EXACT_PRIMARY_PARCEL": 809,
+        "PARCEL_AMBIGUOUS": 42
+      },
+      "geometry": {
+        "SOURCE_UNAVAILABLE": 809,
+        "NOT_JOINED": 42
+      }
+    }
+  },
+  "pilots": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "name": "잠실엘스",
+      "pnu": "1171010100100190000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "HUB_AGREES",
+      "latitude": "37.51413457",
+      "longitude": "127.07932524",
+      "reference_delta_m": 220.5,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "name": "파크리오",
+      "pnu": "1171010200100170000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "HUB_AGREES",
+      "latitude": "37.52044215",
+      "longitude": "127.10628392",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "name": "리센츠",
+      "pnu": "1171010100100220000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "NO_HUB",
+      "latitude": "37.51437686",
+      "longitude": "127.08600489",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_30d7eea6da810b52",
+      "name": "헬리오시티",
+      "pnu": "1171010700109130000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "NO_HUB",
+      "latitude": "37.49741997",
+      "longitude": "127.10710307",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "name": "반포자이",
+      "pnu": "1165010700100200043",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "HUB_AGREES",
+      "latitude": "37.50635182",
+      "longitude": "127.01103462",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_3bcf0f87bce7496b",
+      "name": "래미안퍼스티지",
+      "pnu": "1165010700100180001",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "NO_HUB",
+      "latitude": "37.50260221",
+      "longitude": "127.00066812",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "name": "은마",
+      "pnu": "1168010600103160000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "HUB_AGREES",
+      "latitude": "37.49753987",
+      "longitude": "127.06544388",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_c9ed0235ecca960c",
+      "name": "도곡렉슬",
+      "pnu": "1168011800105270000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "NO_HUB",
+      "latitude": "37.49360812",
+      "longitude": "127.04935013",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_07caf64c556e85a7",
+      "name": "마포프레스티지자이",
+      "pnu": "1144010900105320000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "NO_HUB",
+      "latitude": "37.55279198",
+      "longitude": "126.94775555",
+      "reference_delta_m": null,
+      "safe": true
+    },
+    {
+      "complex_id": "cx_88d05e29df26a0d6",
+      "name": "포레나노원",
+      "pnu": "1135010500106800000",
+      "resolution_status": "EXACT_PRIMARY_PARCEL",
+      "geometry_status": "MATCHED",
+      "hub_relation": "NO_HUB",
+      "latitude": "37.66405441",
+      "longitude": "127.06236194",
+      "reference_delta_m": null,
+      "safe": true
+    }
+  ],
+  "jamsil_els": {
+    "pnu": "1171010100100190000",
+    "expected_pnu": "1171010100100190000",
+    "latitude": "37.51413457",
+    "longitude": "127.07932524",
+    "reference": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "reference_delta_m": 220.5,
+    "hub_relation": "HUB_AGREES",
+    "resolution_status": "EXACT_PRIMARY_PARCEL",
+    "geometry_status": "MATCHED",
+    "safe": true,
+    "identity_note": "Master jibun 19, 잠실동, and BUILDING_HUB_PARCEL lot 19 normalize to the same cadastral PNU. The reference pin is not the parcel representative point."
+  }
+}

@@ -28,6 +28,9 @@
 /data/*.db
 /data/*.db-*
 
+# SEMAS bulk downloads and local living materialization (not source of truth)
+/data/cache/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

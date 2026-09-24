@@ -1,0 +1,30 @@
+{
+  "complex_id": "cx_4c63d9a100973c60",
+  "name": "잠실엘스",
+  "semantics": "PARCEL_REPRESENTATIVE_POINT",
+  "latitude": 37.51413457,
+  "longitude": 127.07932524,
+  "reference_point": {
+    "lat": 37.5133051,
+    "lng": 127.0815962
+  },
+  "radius_m": 1000,
+  "totals": {
+    "MEDICAL": 191,
+    "FOOD": 736,
+    "CAFE": 103,
+    "CONVENIENCE": 45,
+    "GROCERY": 33,
+    "ETC": 43,
+    "SPORTS": 84
+  },
+  "count_delta_vs_reference_point": {
+    "MEDICAL": -14,
+    "FOOD": -85,
+    "CAFE": -13,
+    "CONVENIENCE": -9,
+    "GROCERY": -2,
+    "ETC": -8,
+    "SPORTS": -10
+  }
+}

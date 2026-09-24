@@ -1,0 +1,40 @@
+{
+  "national_missing": 8452,
+  "classification": {
+    "HAS_PNU_NO_GEOMETRY": 7680,
+    "AMBIGUOUS_PARCEL": 758,
+    "NO_PNU_IDENTITY_GAP": 14
+  },
+  "seoul": {
+    "missing": 73,
+    "classification": {
+      "HAS_PNU_NO_GEOMETRY": 73
+    }
+  },
+  "gyeonggi": {
+    "missing": 937,
+    "classification": {
+      "HAS_PNU_NO_GEOMETRY": 937
+    }
+  },
+  "by_sido_missing": {
+    "11": 73,
+    "41": 937,
+    "28": 846,
+    "26": 176,
+    "27": 175,
+    "30": 394,
+    "12": 1177,
+    "31": 369,
+    "36": 182,
+    "51": 529,
+    "43": 469,
+    "44": 689,
+    "52": 670,
+    "47": 669,
+    "48": 942,
+    "50": 155
+  },
+  "runner_pid": 22350,
+  "resume_command": "bash scripts/living/start-national-coordinate-backfill.sh"
+}
