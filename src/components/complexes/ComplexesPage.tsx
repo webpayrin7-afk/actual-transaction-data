@@ -3,6 +3,7 @@
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { RecentComplexList } from "@/components/complexes/RecentComplexList";
 import { SavedComplexList } from "@/components/complexes/SavedComplexList";
+import { ApplyhomeCompetitionSection, ApplyhomeUpcomingSection } from "@/components/complexes/ApplyhomeSections";
 import { GuLeaderList } from "@/components/complexes/GuLeaderList";
 import { ActiveComplexList } from "@/components/complexes/ActiveComplexList";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
@@ -30,7 +31,11 @@ export function ComplexesPage() {
 
       <RecentComplexList />
 
+      <ApplyhomeUpcomingSection />
+
       <GuLeaderList />
+
+      <ApplyhomeCompetitionSection />
 
 
       <ActiveComplexList />

@@ -18,6 +18,7 @@ export function LabListRow({
   sub,
   valueTone,
   wrap = false,
+  external = false,
   children,
 }: {
   href?: string | null;
@@ -32,6 +33,8 @@ export function LabListRow({
   valueTone?: "up" | "down";
   /** 긴 행: 제목 두 줄까지, 보조 문구는 자르지 않고 줄바꿈 (거래 목록 등) */
   wrap?: boolean;
+  /** 바깥 사이트 링크 — 새 창으로 연다 */
+  external?: boolean;
   /** Extra full-width line under the row (e.g. a share bar). */
   children?: ReactNode;
 }) {
@@ -70,7 +73,12 @@ export function LabListRow({
   const cls = "flex min-h-11 items-center gap-3 py-2.5";
   return (
     <li>
-      {href ? (
+      {href && external ? (
+        <a href={href} target="_blank" rel="noopener noreferrer" className={`${cls} hover:bg-slate-50`}>
+          {body}
+          <span className="sr-only">(새 창)</span>
+        </a>
+      ) : href ? (
         <Link href={href} className={`${cls} hover:bg-slate-50`}>
           {body}
         </Link>
