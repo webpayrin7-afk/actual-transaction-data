@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-23T23:33:51.464Z",
-  "driver_status": "incheon applied",
+  "generated_at": "2026-09-24T00:26:45.019Z",
+  "driver_status": "busan acquiring",
   "fee_table": {
     "rows": 3938,
     "complexes": 3825
   },
-  "api_calls_total": 30684,
+  "api_calls_total": 33003,
   "applied_rows_total": 1015,
   "provinces": [
     {
@@ -32,19 +32,19 @@
       "province": "busan",
       "sido_code": "26",
       "sido": "부산광역시",
-      "phase": "PENDING",
-      "cohort": null,
-      "terminal": 0,
-      "unfinished": null,
-      "COMPLETE": 0,
-      "NO_PUBLISHED_MONTH": 0,
+      "phase": "ACQUIRING",
+      "cohort": 993,
+      "terminal": 80,
+      "unfinished": 913,
+      "COMPLETE": 77,
+      "NO_PUBLISHED_MONTH": 3,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 0,
+      "api_calls": 2319,
       "http_429": 0,
-      "retries": 0,
+      "retries": 2,
       "dryrun_gate": null,
       "applied_rows": 0
     },
