@@ -48,7 +48,8 @@
     "school:mat:probe-api": "tsx scripts/school-materialization/probe-nearby-api-latency.ts",
     "coord:dry-run": "tsx scripts/complex-coordinates/dry_run_seoul_coords.ts",
     "coord:public-source-dry-run": "tsx scripts/complex-coordinates/dry_run_public_source.ts",
-    "build:pilot-complex-coordinate": "node scripts/build-pilot-complex-coordinate.mjs"
+    "build:pilot-complex-coordinate": "node scripts/build-pilot-complex-coordinate.mjs",
+    "db:ranking:nationwide-all": "tsx scripts/region-ranking/launch-nationwide-all.mts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
