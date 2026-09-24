@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-24T18:04:18.426Z",
-  "driver_status": "daegu acquiring",
+  "generated_at": "2026-09-24T18:45:30.606Z",
+  "driver_status": "daegu dry-run PASS",
   "fee_table": {
     "rows": 4819,
     "complexes": 4706
   },
-  "api_calls_total": 72166,
+  "api_calls_total": 74431,
   "applied_rows_total": 1896,
   "provinces": [
     {
@@ -52,20 +52,20 @@
       "province": "daegu",
       "sido_code": "27",
       "sido": "대구광역시",
-      "phase": "ACQUIRING",
+      "phase": "DRYRUN_PASS",
       "cohort": 1151,
-      "terminal": 513,
-      "unfinished": 638,
+      "terminal": 1151,
+      "unfinished": 0,
       "COMPLETE": 458,
-      "NO_PUBLISHED_MONTH": 25,
-      "PARTIAL": 30,
+      "NO_PUBLISHED_MONTH": 650,
+      "PARTIAL": 43,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 14716,
+      "api_calls": 16981,
       "http_429": 0,
       "retries": 13,
-      "dryrun_gate": null,
+      "dryrun_gate": "PASS",
       "applied_rows": 0
     },
     {
