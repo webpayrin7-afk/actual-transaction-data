@@ -26,6 +26,8 @@ export type ApplyhomeNotice = {
   priceMin: number | null;
   priceMax: number | null;
   url: string | null;
+  /** 주택형 전용면적(㎡) — 청약 일정 목록에만 채운다 (면적 필터용) */
+  areas?: number[];
 };
 
 export type ApplyhomeCompetition = ApplyhomeNotice & {
@@ -167,6 +169,21 @@ export async function readApplyhomeOverview(db: Client): Promise<ApplyhomeOvervi
   ]);
 
   const upcoming = upcomingRes.rows.map((r) => toNotice(r as DbRow));
+  if (upcoming.length) {
+    const ids = upcoming.map((n) => n.id);
+    const mr = await db.execute({
+      sql: `SELECT house_manage_no, house_ty FROM applyhome_models WHERE house_manage_no IN (${ids.map(() => "?").join(",")})`,
+      args: ids,
+    });
+    const byId = new Map<string, number[]>();
+    for (const r of mr.rows) {
+      const a = parseHouseTy(str(r.house_ty)).area;
+      if (a == null) continue;
+      const k = String(r.house_manage_no);
+      byId.set(k, [...(byId.get(k) ?? []), a]);
+    }
+    for (const n of upcoming) n.areas = byId.get(n.id) ?? [];
+  }
   const history = historyRes.rows.map((r) => withRate(r as DbRow));
   const since30 = addDays(today, -30);
   const competition = history

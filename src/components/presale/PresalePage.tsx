@@ -59,7 +59,7 @@ export function PresalePage() {
   const [supplier, setSupplier] = useState<PresaleSupplier>("all");
   const [area, setArea] = useState<ResultsQuery["area"]>("all");
   const [price, setPrice] = useState<ResultsQuery["price"]>("all");
-  const filter = { metro, supplier, price };
+  const filter = { metro, supplier, price, area };
 
   // 청약 일정 · 분양 결과: 맨 앞에 '무순위'(무순위·잔여세대 공고, 전국)
   const metroChips = (label: string, withRemndr = true) => (
@@ -97,7 +97,7 @@ export function PresalePage() {
           },
         ]
       : []),
-    ...(tab === "results"
+    ...(tab !== "stats"
       ? [
           {
             key: "area",

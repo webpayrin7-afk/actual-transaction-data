@@ -30,8 +30,16 @@ export const PRICE_BANDS: Record<PresalePrice, [number, number]> = {
   p3: [90_000, 150_000],
   p4: [150_000, Infinity],
 };
+/** 전용면적 구간 (㎡) — 청약 일정: 주택형 하나라도 구간에 들면 포함 */
+export type PresaleArea = "all" | "s" | "m" | "l";
+const AREA_BANDS: Record<PresaleArea, [number, number]> = {
+  all: [0, Infinity],
+  s: [0, 60],
+  m: [60, 85.0001],
+  l: [85.0001, Infinity],
+};
 /** metro "remndr" = 무순위·잔여세대 공고만 (전국), 그 밖은 일반 공고만 */
-export type PresaleFilter = { metro: PresaleMetro; supplier: PresaleSupplier; price?: PresalePrice };
+export type PresaleFilter = { metro: PresaleMetro; supplier: PresaleSupplier; price?: PresalePrice; area?: PresaleArea };
 
 export const md = (iso: string | null) => (iso ? iso.slice(5, 10).replace("-", ".") : "");
 export const ymDot = (v: string | null) => (v && v.length === 6 ? `${v.slice(0, 4)}.${v.slice(4)}` : "");
@@ -76,12 +84,16 @@ function metaOf(n: ApplyhomeNotice): string {
     .join(" · ");
 }
 
-const matches = ({ metro, supplier, price = "all" }: PresaleFilter) => (n: ApplyhomeNotice) => {
+const matches = ({ metro, supplier, price = "all", area = "all" }: PresaleFilter) => (n: ApplyhomeNotice) => {
   if (metro === "remndr" ? !n.remndr : n.remndr || (metro !== "all" && n.metro !== metro)) return false;
   if (price !== "all") {
     const [lo, hi] = PRICE_BANDS[price];
     if (n.priceMin == null) return false;
     if (n.priceMin >= hi || (n.priceMax ?? n.priceMin) < lo) return false;
+  }
+  if (area !== "all") {
+    const [lo, hi] = AREA_BANDS[area];
+    if (!(n.areas ?? []).some((a) => a >= lo && a < hi)) return false;
   }
   if (supplier === "all") return true;
   const isPublic = /국민/.test(n.kind ?? "");
@@ -127,7 +139,7 @@ export function ApplyhomeUpcomingSection({ filter, toolbar }: { filter: PresaleF
   const data = query.data;
   if (query.isError) return null;
   const items = (data?.upcoming ?? []).filter(matches(filter));
-  const listKey = `${filter.metro}|${filter.supplier}|${filter.price ?? "all"}`;
+  const listKey = `${filter.metro}|${filter.supplier}|${filter.price ?? "all"}|${filter.area ?? "all"}`;
 
   return (
     <LabSection
