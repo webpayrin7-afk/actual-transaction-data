@@ -27,6 +27,7 @@ export type NaverMapsApi = {
     LatLngBounds: new (sw: unknown, ne: unknown) => unknown;
     Marker: new (opts: Record<string, unknown>) => NaverMarkerInstance;
     Circle: new (opts: Record<string, unknown>) => NaverCircleInstance;
+    Polygon?: new (opts: Record<string, unknown>) => NaverCircleInstance;
     OverlayView: new () => NaverOverlayViewInstance;
     Point: new (x: number, y: number) => unknown;
     Size: new (width: number, height: number) => unknown;

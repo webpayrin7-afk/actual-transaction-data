@@ -110,6 +110,7 @@ function regionSlugFor(lawdCd: string): string {
 }
 
 export type MapRegionLinks = {
+  lawdCd: string;
   /** 지역 페이지 이름 (시 단위 지역이면 "성남시") */
   guLabel: string;
   guHref: string;
@@ -124,6 +125,7 @@ export function mapRegionLinks(lawdCd: string, dong: string | null): MapRegionLi
   const guName = districtNameFromCode(lawdCd) || reg?.name || lawdCd;
   const multi = (reg?.lawdCodes.length ?? 1) > 1;
   return {
+    lawdCd,
     guLabel: reg?.name ?? guName,
     guHref: `/region/${encodeURIComponent(slug)}`,
     dongLabel: dong,

@@ -469,9 +469,10 @@ export function MapSearchPage() {
 
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
 
-  // 화면 가운데 지역 → 구(지역 페이지)·동 상세 이동 버튼을 함께 보여준다 (동 말풍선·단지 단계).
-  const centerLinks = useMemo(() => {
-    if (!center) return [];
+  // 화면 가운데 지역 → 상세 이동 버튼 하나. 동 말풍선 단계는 구(지역 페이지), 단지 단계는 동 상세.
+  // 버튼이 가리키는 구·동은 지도에 단지 범위 다각형으로 표시한다.
+  const centerLink = useMemo(() => {
+    if (!center) return null;
     const c = { y: center.lat, x: center.lng };
     const near = <T extends { lat: number; lng: number }>(list: T[]): T | null =>
       list.reduce<T | null>((best, p) => {
@@ -480,13 +481,60 @@ export function MapSearchPage() {
         return d < bd ? p : best;
       }, null);
     const hit = level === "dong" ? near(areas) : level === "complex" ? near(complexes) : null;
-    if (!hit) return [];
+    if (!hit) return null;
     const { links } = hit;
-    return [
-      { label: `${links.guLabel} 상세`, href: links.guHref },
-      ...(links.dongHref ? [{ label: `${links.dongLabel} 상세`, href: links.dongHref }] : []),
-    ];
+    if (level === "dong") {
+      return { label: `${links.guLabel} 상세 보기`, href: links.guHref, lawd: links.lawdCd, dong: null };
+    }
+    return links.dongHref
+      ? { label: `${links.dongLabel} 상세 보기`, href: links.dongHref, lawd: links.lawdCd, dong: links.dongLabel }
+      : null;
   }, [level, areas, complexes, center]);
+
+  // 지역 범위 다각형 — 버튼 대상이 바뀔 때만 다시 그린다. 불러온 모양은 캐시.
+  const shapeKey = centerLink && !selectedId ? `${centerLink.lawd}|${centerLink.dong ?? ""}` : null;
+  const shapeCache = useRef(new Map<string, Array<{ lat: number; lng: number }>>());
+  useEffect(() => {
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    if (!shapeKey || !map || !maps?.Polygon) return;
+    let polygon: { setMap: (m: null) => void } | null = null;
+    let cancelled = false;
+    const draw = (path: Array<{ lat: number; lng: number }>) => {
+      if (cancelled || path.length < 3 || !maps.Polygon) return;
+      polygon = new maps.Polygon({
+        map,
+        paths: [path.map((p) => new maps.LatLng(p.lat, p.lng))],
+        fillColor: "#0E9AA0",
+        fillOpacity: 0.08,
+        strokeColor: "#0E9AA0",
+        strokeOpacity: 0.7,
+        strokeWeight: 2,
+        strokeStyle: "shortdash",
+        clickable: false,
+        zIndex: 1,
+      });
+    };
+    const cached = shapeCache.current.get(shapeKey);
+    if (cached) draw(cached);
+    else {
+      const [lawd, dong] = shapeKey.split("|");
+      const qs = new URLSearchParams({ lawd: lawd! });
+      if (dong) qs.set("dong", dong);
+      fetch(`/api/map/region-shape?${qs}`)
+        .then((r) => r.json())
+        .then((d: { path?: Array<{ lat: number; lng: number }> }) => {
+          const path = d.path ?? [];
+          shapeCache.current.set(shapeKey, path);
+          draw(path);
+        })
+        .catch(() => {});
+    }
+    return () => {
+      cancelled = true;
+      polygon?.setMap(null);
+    };
+  }, [shapeKey]);
   const priced = visibleComplexes.filter((c) => c.medianPriceMan != null).length;
   const dealLabel = DEAL_LABEL[conditions.deal];
   const nActive = activeCount(conditions);
@@ -641,18 +689,15 @@ export function MapSearchPage() {
       </button>
 
       {/* 하단 가운데: 화면 가운데 구·동 상세로 이동 */}
-      {centerLinks.length && !selected ? (
-        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px)] flex justify-center gap-2 px-16 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
-          {centerLinks.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="pointer-events-auto inline-flex h-11 min-w-0 items-center gap-0.5 rounded-full bg-[color:var(--lab-navy-950)] pl-4 pr-2.5 text-[14px] font-semibold leading-5 text-white shadow-lg"
-            >
-              <span className="truncate">{l.label}</span>
-              <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
-            </Link>
-          ))}
+      {centerLink && !selected ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px)] flex justify-center px-16 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
+          <Link
+            href={centerLink.href}
+            className="pointer-events-auto inline-flex h-11 min-w-0 items-center gap-0.5 rounded-full bg-[color:var(--lab-navy-950)] pl-4 pr-2.5 text-[14px] font-semibold leading-5 text-white shadow-lg"
+          >
+            <span className="truncate">{centerLink.label}</span>
+            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+          </Link>
         </div>
       ) : null}
 
