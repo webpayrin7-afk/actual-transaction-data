@@ -11,6 +11,7 @@ import { MarketRegionBreakdown } from "@/components/market/MarketRegionBreakdown
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabSection } from "@/components/ui/LabSection";
 import { MarketFlowSummary } from "@/components/market/MarketFlowSummary";
+import { MarketHeadlines } from "@/components/market/MarketHeadlines";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
@@ -39,6 +40,7 @@ async function fetchMarketHome(): Promise<MarketHomeResponse> {
 const MARKET_SECTIONS = [
   { id: "market-summary", label: "요약" },
   { id: "market-price-issues", label: "가격" },
+  { id: "market-headlines", label: "뉴스" },
   { id: "market-policy", label: "정책" },
   { id: "market-regions", label: "지역" },
   { id: "market-volume", label: "거래량" },
@@ -364,6 +366,10 @@ export function MarketHome() {
         {data && hasIssues ? (
           <PriceIssuesSection id="market-price-issues" data={data} />
         ) : null}
+
+        <LabSectionBoundary id="market-headlines" title="부동산 뉴스">
+          <MarketHeadlines id="market-headlines" />
+        </LabSectionBoundary>
 
         <LabSectionBoundary id="market-policy" title="정책·규제 발표">
           <MarketPolicyNews id="market-policy" />
