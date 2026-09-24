@@ -7,6 +7,7 @@
 적재 후보만 남긴다 (퍼지/이름 매칭 없음):
   A. complex_buildings.mgm_bldrgst_pk[5:] = GIS A19, 같은 lawd(A3 앞 5자리)에서만 정확 일치,
      그리고 GIS 건물 대표점이 그 키를 가진 단지 좌표에서 --a-max(m, 기본 1000) 안.
+     번호는 맞는데 멀면 B로도 싣지 않는다 (read.ts가 lawd+번호만으로 동에 붙이므로).
      - A19는 옛 시군구별 일련번호(예: "1682")라 시군구가 합쳐진 곳(전남광주 12, 인천 28125 등)에서는
        같은 lawd 안에서도 겹친다. 거리 조건이 없으면 수십 km 떨어진 단독주택이 단지 동으로 붙는다.
      - (삭제) 12번 파일의 "lawd 불일치 시 12/29/46 단지 중 A19 유일이면 A" 규칙: 표본 검증에서
@@ -139,7 +140,7 @@ def shp_sources(root: Path):
 
 
 seen = kept_a = kept_b = skipped = bad = 0
-a_too_far = 0  # lawd|A19는 맞지만 단지에서 --a-max 밖 → A 아님 (B 조건으로 다시 봄)
+a_too_far = 0  # lawd|A19는 맞지만 단지에서 --a-max 밖 → 싣지 않음
 with out.open("w", encoding="utf-8") as fo:
     for shp in shp_sources(src):
         r = shapefile.Reader(str(shp.with_suffix("")), encoding="cp949")
@@ -164,12 +165,14 @@ with out.open("w", encoding="utf-8") as fo:
             cids = keys_lawd.get(f"{lawd}|{a19}") if a19 and lawd else None
             if cids and a_near(cids, c.y, c.x):
                 kind = "A"
+            elif cids:
+                # 번호는 먼 단지 동과 같다 → 화면(read.ts)은 lawd+번호만으로 붙이므로 B로도 싣지 않는다
+                kind = None
+                a_too_far += 1
             elif floors is not None and floors >= 5 and near_complex(c.y, c.x):
                 kind = "B"
             else:
                 kind = None
-            if cids and kind != "A":
-                a_too_far += 1
             if kind is None:
                 skipped += 1
                 continue
