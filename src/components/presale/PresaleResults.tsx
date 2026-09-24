@@ -6,7 +6,6 @@ import type { ApplyhomeResult, ResultOutcome, ResultsQuery } from "@/lib/applyho
 import { Pagination } from "@/components/Pagination";
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
-import { LabTabs } from "@/components/ui/LabTabs";
 import { LabTag } from "@/components/ui/LabTag";
 import { shortMan } from "@/components/presale/ApplyhomeSections";
 
@@ -26,14 +25,14 @@ const OUTCOME: Record<ResultOutcome, { label: string; tone?: "brand" | "up" | "d
   none: { label: "접수 기록 없음" },
 };
 
-const AREA_TABS = [
+export const AREA_OPTIONS = [
   { id: "all", label: "전체" },
-  { id: "s", label: "60㎡ 이하" },
+  { id: "s", label: "60㎡ 미만" },
   { id: "m", label: "60~85㎡" },
   { id: "l", label: "85㎡ 초과" },
 ] as const;
 
-const PRICE_TABS = [
+export const PRICE_OPTIONS = [
   { id: "all", label: "전체" },
   { id: "p1", label: "5억 미만" },
   { id: "p2", label: "5~9억" },
@@ -57,13 +56,16 @@ async function fetchResults(q: ResultsQuery): Promise<ResultsResponse> {
 const ym2 = (iso: string | null) => (iso ? `${iso.slice(2, 4)}.${iso.slice(5, 7)}` : "");
 
 /** 분양 결과 — 최근 12개월 주택형별 청약 결과 (면적·분양가 필터, 15건씩). */
-export function PresaleResults({ metro, supplier }: { metro: string; supplier: ResultsQuery["supplier"] }) {
-  const [area, setArea] = useState<ResultsQuery["area"]>("all");
-  const [price, setPrice] = useState<ResultsQuery["price"]>("all");
+export function PresaleResults({
+  metro,
+  supplier,
+  area,
+  price,
+}: Pick<ResultsQuery, "metro" | "supplier" | "area" | "price">) {
   const [pageState, setPageState] = useState({ key: "", page: 1 });
   const filterKey = `${metro}|${supplier}|${area}|${price}`;
   const page = pageState.key === filterKey ? pageState.page : 1;
-  const topRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLParagraphElement>(null);
 
   const query = useQuery({
     queryKey: ["applyhome-results", filterKey, page],
@@ -88,25 +90,8 @@ export function PresaleResults({ metro, supplier }: { metro: string; supplier: R
         </p>
       }
     >
-      <div ref={topRef} className="flex flex-col gap-2">
-        <LabTabs
-          variant="compact"
-          ariaLabel="전용면적"
-          items={AREA_TABS}
-          value={area}
-          onChange={(v) => setArea(v)}
-        />
-        <LabTabs
-          variant="compact"
-          ariaLabel="분양가"
-          items={PRICE_TABS}
-          value={price}
-          onChange={(v) => setPrice(v)}
-        />
-      </div>
-
       {c && data && data.total > 0 ? (
-        <p className="detail-meta tabular-nums">
+        <p ref={topRef} className="detail-meta scroll-mt-28 tabular-nums">
           마감 {closed.toLocaleString("ko-KR")} · 미달 {c.short.toLocaleString("ko-KR")}
           {c.none ? ` · 기록 없음 ${c.none.toLocaleString("ko-KR")}` : ""}
         </p>
