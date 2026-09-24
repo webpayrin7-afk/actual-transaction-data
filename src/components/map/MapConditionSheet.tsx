@@ -209,9 +209,9 @@ export function MapConditionSheet({
 
         {FILTER_GROUPS.map((g) => (
           <section key={g.id} className="flex flex-col gap-1.5" aria-label={g.label}>
-            {/* 묶음 이름은 작은 회색 캡션, 조건들은 그 아래 카드 — 위계를 모양으로 구분 */}
+            {/* 묶음 이름은 작은 회색 캡션, 조건은 그 아래 목록 — 글자 크기·색으로 위계를 구분 */}
             <h4 className="px-1 text-[13px] font-semibold leading-5 text-[color:var(--lab-muted)]">{g.label}</h4>
-            <ul className="divide-y divide-[color:var(--lab-border)] rounded-xl border border-[color:var(--lab-border)] px-3">
+            <ul className="divide-y divide-[color:var(--lab-border)] border-t border-[color:var(--lab-border)]">
               {defs
                 .filter((d) => d.group === g.id)
                 .map((d) => {
