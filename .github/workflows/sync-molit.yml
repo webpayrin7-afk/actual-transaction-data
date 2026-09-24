@@ -104,6 +104,16 @@ jobs:
             --skip-existing=0 \
             --only-changed=1
 
+      # 동기화가 실제로 끝난 뒤에만. 15분 probe로 sync가 건너뛴 틱에서는 돌리지 않는다.
+      # days=2: 오늘·어제 확인분. INSERT OR IGNORE 라 같은 범위 재실행은 inserted 0.
+      # 하루 확인 매매가 2만 건을 넘으면 스크립트가 대량 적재일로 보고 그 날은 건너뛴다.
+      - name: Record new highs and drops after sync
+        if: steps.probe.outputs.should_sync == 'true'
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: npm run db:price-moves -- --days=2 --apply
+
       - name: Skip sync (already fresh)
         if: steps.probe.outputs.should_sync != 'true'
         run: echo "Warehouse already matches MOLIT probe sentinels — skip sync."
