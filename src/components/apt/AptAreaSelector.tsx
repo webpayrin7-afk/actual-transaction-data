@@ -136,7 +136,7 @@ export function AptAreaSelector({
       return (
         <div
           className={`flex items-center rounded-[var(--lab-radius-sm)] border border-[color:var(--lab-border-control)] text-[color:var(--lab-navy-950)] ${
-            compact ? "detail-label min-h-11 px-2.5" : "detail-label min-h-12 w-full px-3.5"
+            compact ? "detail-label min-h-11 px-2.5" : "detail-label min-h-10 w-full px-3.5"
           } ${triggerClassName || "bg-white"}`}
         >
           전체 면적
@@ -148,7 +148,7 @@ export function AptAreaSelector({
         className={`flex items-center rounded-[var(--lab-radius-sm)] border border-[color:var(--lab-border-control)] tabular-nums text-[color:var(--lab-navy-950)] ${
           compact
             ? "detail-label min-h-11 max-w-full px-2.5 font-semibold"
-            : "detail-label min-h-12 w-full px-3.5 font-semibold"
+            : "detail-label min-h-10 w-full px-3.5 font-semibold"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 truncate">
@@ -179,7 +179,7 @@ export function AptAreaSelector({
         className={`flex items-center gap-1.5 border border-[color:var(--lab-border-control)] text-left tabular-nums text-[color:var(--lab-navy-950)] hover:bg-[color:var(--lab-surface-subtle)] ${
           compact
             ? "detail-label min-h-11 max-w-full rounded-[var(--lab-radius-sm)] px-2.5 font-semibold"
-            : "detail-label min-h-12 w-full gap-2 rounded-[var(--lab-radius-sm)] px-3.5 sm:gap-3"
+            : "detail-label relative min-h-10 w-full gap-2 rounded-[var(--lab-radius-sm)] px-3.5 sm:gap-3 before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-['']"
         } ${triggerClassName || "bg-white"}`}
       >
         <span className="min-w-0 flex-1 truncate">
