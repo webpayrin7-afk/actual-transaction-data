@@ -8,6 +8,7 @@ import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
+import { InfoTip } from "@/components/ui/InfoTip";
 import { LabTag } from "@/components/ui/LabTag";
 import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
 
@@ -32,10 +33,18 @@ export function LabPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         leading={<BackLink fallback="/" compact hideLabel />}
-        flushBody
         title="오늘의 실험실"
-        titleSuffix={<LabTag size="md">LAB</LabTag>}
-        description="실거래 데이터를 조금 다른 방법으로 들여다봅니다. 같은 단지·같은 평형끼리 비교하는 식으로 지역 차이를 덜어 내고 봅니다."
+        titleSuffix={
+          <span className="inline-flex items-center gap-0.5 align-middle">
+            <LabTag size="md">LAB</LabTag>
+            <InfoTip aria-label="오늘의 실험실 안내">
+              <p>
+                실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험을 모아 둔 곳입니다. 결과는 표본과
+                기준에 따라 달라질 수 있어 참고용으로 봐 주세요.
+              </p>
+            </InfoTip>
+          </span>
+        }
         meta={
           data?.asOfDate ? (
             <div className="flex flex-wrap items-center gap-1">
