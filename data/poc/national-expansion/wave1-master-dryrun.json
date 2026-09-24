@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-09-18T23:34:22.494Z",
+  "wave": 1,
+  "selected_sido": [],
+  "candidates": 0,
+  "safe": 0,
+  "ambiguous": 0,
+  "unresolved": 0,
+  "sample": [],
+  "collision": {
+    "duplicate_complex_id": 0,
+    "duplicate_external_identity": 0,
+    "existing_row_overwrite": 0
+  },
+  "gate": {
+    "pass": false,
+    "reasons": [
+      "wave_size",
+      "safe_count"
+    ]
+  },
+  "apply": "REFUSED",
+  "production_rows_written": 0,
+  "post_write_validation": "NOT_RUN",
+  "reason": "No sido outside Seoul/Gyeonggi has a deterministic MOLIT identity universe. Partial Busan lawd 26350 in sync_months is not a complex candidate set."
+}

@@ -27,6 +27,11 @@ export function canUseInternalHistoryBack(currentUrl: string): boolean {
     const prev = sessionStorage.getItem(INTERNAL_PREV_URL_KEY);
     if (!prev || !isInternalAppPath(prev)) return false;
     if (prev === currentUrl) return false;
+    // School detail returns into apt via replace/push and would otherwise make
+    // 단지상세 ← back land on /school/* instead of 단지 조회.
+    if (prev.startsWith("/school/") || prev.startsWith("/school?")) {
+      return false;
+    }
     return true;
   } catch {
     return false;

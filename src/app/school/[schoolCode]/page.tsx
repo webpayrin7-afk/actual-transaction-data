@@ -1,0 +1,98 @@
+import type { Metadata } from "next";
+import { AptDetailEnterTransition } from "@/components/apt/AptDetailEnterTransition";
+import { SchoolDetailView } from "@/components/school/SchoolDetailView";
+import { getSchoolDetail } from "@/lib/school-info/get-school-detail";
+import {
+  parseKindParam,
+  type Kind,
+} from "@/lib/school-info/identity";
+import { toProductSchoolDetail } from "@/lib/school-info/product-school-detail";
+
+type PageProps = {
+  params: Promise<{ schoolCode: string }>;
+  searchParams: Promise<{
+    name?: string;
+    from?: string;
+    nearbyTab?: string;
+    schoolLevel?: string;
+    kind?: string;
+    address?: string;
+  }>;
+};
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const { schoolCode } = await params;
+  const sp = await searchParams;
+  const name = sp.name?.trim();
+  return {
+    title: name ? `${name} - 학교 상세` : `학교 상세 (${schoolCode})`,
+    description: "공시자료 기반 학교 상세",
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function SchoolDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
+  const { schoolCode: rawCode } = await params;
+  const sp = await searchParams;
+  const schoolCode = decodeURIComponent(rawCode).trim();
+  const nameHint = sp.name?.trim() || null;
+  const addressHint = sp.address?.trim() || null;
+  const kind: Kind | undefined = parseKindParam(sp.kind) ?? undefined;
+
+  const detail = toProductSchoolDetail(
+    await getSchoolDetail({
+      schoolCode,
+      nameHint,
+      addressHint,
+      kind,
+    }),
+  );
+
+  const from = sp.from?.trim();
+  const nearbyTab = sp.nearbyTab?.trim() || "school";
+  const schoolLevel = sp.schoolLevel?.trim() || null;
+  const backHref = buildSchoolBackHref(from, nearbyTab, schoolLevel);
+
+  return (
+    <main className="flex-1 overflow-x-clip">
+      <AptDetailEnterTransition>
+        <SchoolDetailView detail={detail} backHref={backHref} />
+      </AptDetailEnterTransition>
+    </main>
+  );
+}
+
+/**
+ * Back from school detail only: restore 학교 탭 + schoolLevel + scroll to 주변 생활.
+ * Normal apt entry never includes these markers → initial tab stays first tab.
+ */
+function buildSchoolBackHref(
+  from: string | undefined,
+  nearbyTab: string,
+  schoolLevel: string | null,
+): string {
+  if (!from || !from.startsWith("/") || from.startsWith("//")) {
+    return "/complexes";
+  }
+  const hashIdx = from.indexOf("#");
+  const withoutHash = hashIdx >= 0 ? from.slice(0, hashIdx) : from;
+  const qIdx = withoutHash.indexOf("?");
+  const path = qIdx >= 0 ? withoutHash.slice(0, qIdx) : withoutHash;
+  const qs = qIdx >= 0 ? withoutHash.slice(qIdx + 1) : "";
+  const params = new URLSearchParams(qs);
+  params.delete("nearbyTab");
+  params.delete("schoolLevel");
+  params.set("nearbyTab", nearbyTab);
+  const level = (schoolLevel ?? "").trim().toLowerCase();
+  if (level === "elementary" || level === "middle" || level === "high") {
+    params.set("schoolLevel", level);
+  }
+  const q = params.toString();
+  return `${path}${q ? `?${q}` : ""}#section-nearby-life`;
+}

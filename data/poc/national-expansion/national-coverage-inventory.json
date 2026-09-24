@@ -1,0 +1,617 @@
+{
+  "generated_at": "2026-09-18T23:34:22.494Z",
+  "transaction_scan": false,
+  "seoul_safe_7963_recomputed": false,
+  "identity_contract": {
+    "complex_id": "cx_ + sha1(utf8 molit:{lawd}:{apt_name_norm})[:16]",
+    "source": "MOLIT",
+    "source_key": "{lawd_cd}|{apt_name_norm}",
+    "safe_class": "IDENTITY-READY only",
+    "legal_dong_table_on_this_branch": false,
+    "note": "catalog apt name / gu is not an identity. Existing complex_id values are not reissued."
+  },
+  "totals": {
+    "current_master": 14966,
+    "sido_with_master": [
+      "11",
+      "41"
+    ],
+    "coordinates_written": 0,
+    "apt_catalog_rows": 15907,
+    "apt_catalog_sido": "NOT_KEYED",
+    "catalog_rows_unique_sigungu_name": [
+      [
+        "41",
+        2856
+      ],
+      [
+        "11",
+        8017
+      ],
+      [
+        "26",
+        124
+      ]
+    ],
+    "catalog_rows_ambiguous_sigungu_name": 761,
+    "catalog_rows_unmapped_gu": 4149
+  },
+  "enrichment_state_existing_domains_only": [
+    {
+      "domain": "BASIC_INFO",
+      "status": "PENDING",
+      "n": 4
+    },
+    {
+      "domain": "BASIC_INFO",
+      "status": "READY",
+      "n": 6
+    },
+    {
+      "domain": "BUILDING_INFO",
+      "status": "READY",
+      "n": 10
+    },
+    {
+      "domain": "MANAGEMENT_FEE",
+      "status": "READY",
+      "n": 8
+    }
+  ],
+  "transaction_region_universe": {
+    "source": "sync_months aggregate, not transactions",
+    "by_sido": [
+      {
+        "sido": "11",
+        "lawds": 25,
+        "cells": 4200,
+        "rows": 1626992
+      },
+      {
+        "sido": "26",
+        "lawds": 1,
+        "cells": 2,
+        "rows": 292
+      },
+      {
+        "sido": "41",
+        "lawds": 49,
+        "cells": 5204,
+        "rows": 2180127
+      }
+    ],
+    "outside_11_41": [
+      {
+        "lawd_cd": "26350",
+        "year_month": "202608",
+        "deal_kind": "trade",
+        "row_count": 250
+      },
+      {
+        "lawd_cd": "26350",
+        "year_month": "202609",
+        "deal_kind": "trade",
+        "row_count": 42
+      }
+    ]
+  },
+  "candidate_source": {
+    "confirmed": "MOLIT",
+    "writable_safe_outside_capital": 0,
+    "expected_nationwide_coverage": "not_estimable_without_ingested_lawd_universe_and_legal_dong_table"
+  },
+  "sido": [
+    {
+      "sido_code": "11",
+      "sido": "서울특별시",
+      "current_master": 8437,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 8017
+      },
+      "source_coverage": {
+        "lawd_catalog": 25,
+        "molit_links": 8437,
+        "kapt_links": 9,
+        "building_hub_parcel_links": 9,
+        "sync_lawds": 25,
+        "sync_month_cells": 4200,
+        "sync_row_count_sum": 1626992
+      },
+      "coordinate_source_availability": "SEOUL_PARCEL_ZIP_ONLY_REB_CACHE_MISSING",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "EXISTING_MASTER_PROTECTED",
+        "COORDINATES_NOT_WRITTEN",
+        "BLOCKED_SOURCE_CACHE_LOST"
+      ]
+    },
+    {
+      "sido_code": "26",
+      "sido": "부산광역시",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 124
+      },
+      "source_coverage": {
+        "lawd_catalog": 16,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 1,
+        "sync_month_cells": 2,
+        "sync_row_count_sum": 292
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "SYNC_IS_NOT_COMPLEX_IDENTITY",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "27",
+      "sido": "대구광역시",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 8,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "28",
+      "sido": "인천광역시",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 10,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "29",
+      "sido": "광주광역시",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 5,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "30",
+      "sido": "대전광역시",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 5,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "31",
+      "sido": "울산광역시",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 5,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "36",
+      "sido": "세종특별자치시",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 1,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "41",
+      "sido": "경기도",
+      "current_master": 6529,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 2856
+      },
+      "source_coverage": {
+        "lawd_catalog": 47,
+        "molit_links": 6529,
+        "kapt_links": 2,
+        "building_hub_parcel_links": 1,
+        "sync_lawds": 49,
+        "sync_month_cells": 5204,
+        "sync_row_count_sum": 2180127
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "EXISTING_MASTER_PROTECTED",
+        "COORDINATES_NOT_WRITTEN"
+      ]
+    },
+    {
+      "sido_code": "42",
+      "sido": "강원특별자치도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 18,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "43",
+      "sido": "충청북도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 14,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "44",
+      "sido": "충청남도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 16,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "45",
+      "sido": "전북특별자치도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 15,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "46",
+      "sido": "전라남도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 22,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "47",
+      "sido": "경상북도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 23,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "48",
+      "sido": "경상남도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 22,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    },
+    {
+      "sido_code": "50",
+      "sido": "제주특별자치도",
+      "current_master": 0,
+      "coordinates_written": 0,
+      "candidate_complexes": {
+        "safe": 0,
+        "ambiguous": 0,
+        "unresolved": 0,
+        "catalog_name_signal_not_identity": 0
+      },
+      "source_coverage": {
+        "lawd_catalog": 2,
+        "molit_links": 0,
+        "kapt_links": 0,
+        "building_hub_parcel_links": 0,
+        "sync_lawds": 0,
+        "sync_month_cells": 0,
+        "sync_row_count_sum": 0
+      },
+      "coordinate_source_availability": "NO_SOURCE",
+      "school_source_availability": "NO_NATIONAL_SOURCE_IN_REPO",
+      "blockers": [
+        "NO_DETERMINISTIC_COMPLEX_UNIVERSE",
+        "LEGAL_DONG_RESOLVER_ABSENT",
+        "NO_SYNC_UNIVERSE",
+        "NO_CADASTRAL_SOURCE",
+        "NO_SCHOOL_SOURCE"
+      ]
+    }
+  ],
+  "global_blockers": [
+    "LEGAL_DONG_RESOLVER_NOT_ON_BRANCH",
+    "NO_NON_CAPITAL_COMPLEX_IDENTITY_UNIVERSE",
+    "CATALOG_HAS_NO_LAWD",
+    "NO_NON_SEOUL_CADASTRAL_SOURCE",
+    "SEOUL_REB_CACHE_MISSING"
+  ]
+}

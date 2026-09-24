@@ -118,7 +118,7 @@ export function useLoadProgressWhen(
 }
 
 
-/** SiteHeader 하단에 붙여 렌더 — fixed top 계산 없이 헤더와 한 덩어리 */
+/** SiteHeader 하단에 절대 배치 — 헤더 높이를 흔들지 않아 sticky 깜빡임 방지 */
 export function SiteHeaderLoadProgress() {
   const { label, active } = useLoadProgress();
   const [displayLabel, setDisplayLabel] = useState<string | null>(null);
@@ -144,7 +144,11 @@ export function SiteHeaderLoadProgress() {
   const text = label ?? displayLabel;
 
   return (
-    <div role="status" aria-live="polite">
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none absolute inset-x-0 top-full z-[60]"
+    >
       <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
         <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
       </div>

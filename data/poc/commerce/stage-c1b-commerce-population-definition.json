@@ -1,0 +1,1345 @@
+{
+  "stage": "C1B",
+  "purpose": "ziplab-commerce-population-definition",
+  "generatedAt": "2026-09-16T07:22:07.134015Z",
+  "center": {
+    "complexKey": "jamsil-els",
+    "lat": 37.5133,
+    "lng": 127.1028,
+    "source": "data/poc/nearby-transport/jamsil-els.json"
+  },
+  "radiusM": 1000,
+  "distanceMetric": "straight-line-haversine",
+  "semasSnapshot": {
+    "datasetDate": "2026-06-30",
+    "file": "소상공인시장진흥공단_상가(상권)정보_서울_202606.csv"
+  },
+  "baseline": {
+    "expectedSourceNativeAll": 5904,
+    "actualSourceNativeAll": 5904,
+    "match": true,
+    "note": "Same SEMAS 202606 Seoul CSV + same center/radius/dedupe as Stage C1."
+  },
+  "sourceLargeCategories": [
+    {
+      "code": "I2",
+      "name": "음식",
+      "count": 1846,
+      "sharePct": 31.27
+    },
+    {
+      "code": "G2",
+      "name": "소매",
+      "count": 1249,
+      "sharePct": 21.16
+    },
+    {
+      "code": "M1",
+      "name": "과학·기술",
+      "count": 893,
+      "sharePct": 15.13
+    },
+    {
+      "code": "S2",
+      "name": "수리·개인",
+      "count": 527,
+      "sharePct": 8.93
+    },
+    {
+      "code": "P1",
+      "name": "교육",
+      "count": 366,
+      "sharePct": 6.2
+    },
+    {
+      "code": "R1",
+      "name": "예술·스포츠",
+      "count": 250,
+      "sharePct": 4.23
+    },
+    {
+      "code": "L1",
+      "name": "부동산",
+      "count": 240,
+      "sharePct": 4.07
+    },
+    {
+      "code": "Q1",
+      "name": "보건의료",
+      "count": 211,
+      "sharePct": 3.57
+    },
+    {
+      "code": "N1",
+      "name": "시설관리·임대",
+      "count": 197,
+      "sharePct": 3.34
+    },
+    {
+      "code": "I1",
+      "name": "숙박",
+      "count": 125,
+      "sharePct": 2.12
+    }
+  ],
+  "m1ScienceTechnology": {
+    "total": 893,
+    "shareOfP0Pct": 15.13,
+    "midClasses": [
+      {
+        "code": "M107",
+        "name": "본사·경영 컨설팅",
+        "count": 225,
+        "shareOfM1Pct": 25.2
+      },
+      {
+        "code": "M109",
+        "name": "기술 서비스",
+        "count": 149,
+        "shareOfM1Pct": 16.69
+      },
+      {
+        "code": "M105",
+        "name": "광고",
+        "count": 134,
+        "shareOfM1Pct": 15.01
+      },
+      {
+        "code": "M104",
+        "name": "회계·세무",
+        "count": 106,
+        "shareOfM1Pct": 11.87
+      },
+      {
+        "code": "M112",
+        "name": "전문 디자인",
+        "count": 95,
+        "shareOfM1Pct": 10.64
+      },
+      {
+        "code": "M113",
+        "name": "사진 촬영",
+        "count": 83,
+        "shareOfM1Pct": 9.29
+      },
+      {
+        "code": "M103",
+        "name": "법무관련",
+        "count": 46,
+        "shareOfM1Pct": 5.15
+      },
+      {
+        "code": "M115",
+        "name": "기타 전문 과학",
+        "count": 28,
+        "shareOfM1Pct": 3.14
+      },
+      {
+        "code": "M114",
+        "name": "인쇄·제품제작",
+        "count": 13,
+        "shareOfM1Pct": 1.46
+      },
+      {
+        "code": "M111",
+        "name": "수의",
+        "count": 11,
+        "shareOfM1Pct": 1.23
+      },
+      {
+        "code": "M106",
+        "name": "시장 조사",
+        "count": 3,
+        "shareOfM1Pct": 0.34
+      }
+    ],
+    "smallClassesExplaining80Pct": [
+      {
+        "code": "M10703",
+        "name": "경영 컨설팅업",
+        "count": 225,
+        "shareOfM1Pct": 25.2,
+        "cumSharePct": 25.2
+      },
+      {
+        "code": "M10501",
+        "name": "광고 대행업",
+        "count": 118,
+        "shareOfM1Pct": 13.21,
+        "cumSharePct": 38.4
+      },
+      {
+        "code": "M10901",
+        "name": "건축 설계 및 관련 서비스업",
+        "count": 106,
+        "shareOfM1Pct": 11.87,
+        "cumSharePct": 50.3
+      },
+      {
+        "code": "M10402",
+        "name": "세무사",
+        "count": 100,
+        "shareOfM1Pct": 11.2,
+        "cumSharePct": 61.5
+      },
+      {
+        "code": "M11301",
+        "name": "사진촬영업",
+        "count": 83,
+        "shareOfM1Pct": 9.29,
+        "cumSharePct": 70.8
+      },
+      {
+        "code": "M11203",
+        "name": "시각 디자인업",
+        "count": 44,
+        "shareOfM1Pct": 4.93,
+        "cumSharePct": 75.7
+      },
+      {
+        "code": "M11201",
+        "name": "인테리어 디자인업",
+        "count": 35,
+        "shareOfM1Pct": 3.92,
+        "cumSharePct": 79.6
+      },
+      {
+        "code": "M10999",
+        "name": "기타 엔지니어링 서비스업",
+        "count": 22,
+        "shareOfM1Pct": 2.46,
+        "cumSharePct": 82.1
+      }
+    ],
+    "residentFacingInterpretation": {
+      "mostly": "office/professional services (경영컨설팅, 건축설계, 광고대행, 세무사, 법무, 디자인 에이전시)",
+      "residentFacingPockets": [
+        {
+          "mcls": "M113",
+          "name": "사진 촬영",
+          "count": 83,
+          "note": "소비자 사진관/스튜디오 가능"
+        },
+        {
+          "mcls": "M111",
+          "name": "수의",
+          "count": 11,
+          "note": "반려동물 병원 — resident-facing"
+        }
+      ],
+      "asSangkwonForHomebuyer": "대부분 오피스/전문서비스로, 거주자가 일상적으로 이용하는 상권으로 해석하기 어려움. 사진·수의만 예외적으로 생활접점."
+    }
+  },
+  "populations": {
+    "P0_SOURCE_NATIVE_ALL": {
+      "definition": "SEMAS 1km 내 전체 상가업소 레코드 (provider+상가업소번호 dedupe)",
+      "includeRule": "all rows within 1000m",
+      "excludeRule": "none",
+      "count": 5904,
+      "shareOfP0Pct": 100.0,
+      "composition": {
+        "large": [
+          {
+            "code": "I2",
+            "name": "음식",
+            "count": 1846,
+            "sharePct": 31.27
+          },
+          {
+            "code": "G2",
+            "name": "소매",
+            "count": 1249,
+            "sharePct": 21.16
+          },
+          {
+            "code": "M1",
+            "name": "과학·기술",
+            "count": 893,
+            "sharePct": 15.13
+          },
+          {
+            "code": "S2",
+            "name": "수리·개인",
+            "count": 527,
+            "sharePct": 8.93
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 366,
+            "sharePct": 6.2
+          },
+          {
+            "code": "R1",
+            "name": "예술·스포츠",
+            "count": 250,
+            "sharePct": 4.23
+          },
+          {
+            "code": "L1",
+            "name": "부동산",
+            "count": 240,
+            "sharePct": 4.07
+          },
+          {
+            "code": "Q1",
+            "name": "보건의료",
+            "count": 211,
+            "sharePct": 3.57
+          },
+          {
+            "code": "N1",
+            "name": "시설관리·임대",
+            "count": 197,
+            "sharePct": 3.34
+          },
+          {
+            "code": "I1",
+            "name": "숙박",
+            "count": 125,
+            "sharePct": 2.12
+          }
+        ],
+        "midTop5": [
+          {
+            "code": "I201",
+            "name": "한식",
+            "count": 597
+          },
+          {
+            "code": "G209",
+            "name": "섬유·의복·신발 소매",
+            "count": 504
+          },
+          {
+            "code": "I210",
+            "name": "기타 간이",
+            "count": 329
+          },
+          {
+            "code": "S207",
+            "name": "이용·미용",
+            "count": 320
+          },
+          {
+            "code": "I212",
+            "name": "비알코올",
+            "count": 260
+          }
+        ],
+        "allLarge": [
+          {
+            "code": "I2",
+            "name": "음식",
+            "count": 1846,
+            "sharePct": 31.27
+          },
+          {
+            "code": "G2",
+            "name": "소매",
+            "count": 1249,
+            "sharePct": 21.16
+          },
+          {
+            "code": "M1",
+            "name": "과학·기술",
+            "count": 893,
+            "sharePct": 15.13
+          },
+          {
+            "code": "S2",
+            "name": "수리·개인",
+            "count": 527,
+            "sharePct": 8.93
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 366,
+            "sharePct": 6.2
+          },
+          {
+            "code": "R1",
+            "name": "예술·스포츠",
+            "count": 250,
+            "sharePct": 4.23
+          },
+          {
+            "code": "L1",
+            "name": "부동산",
+            "count": 240,
+            "sharePct": 4.07
+          },
+          {
+            "code": "Q1",
+            "name": "보건의료",
+            "count": 211,
+            "sharePct": 3.57
+          },
+          {
+            "code": "N1",
+            "name": "시설관리·임대",
+            "count": 197,
+            "sharePct": 3.34
+          },
+          {
+            "code": "I1",
+            "name": "숙박",
+            "count": 125,
+            "sharePct": 2.12
+          }
+        ]
+      },
+      "facilities": {
+        "병원/의원": 204,
+        "약국": 88,
+        "편의점": 106,
+        "마트/슈퍼": 46,
+        "카페": 260,
+        "음식점": 1586,
+        "미용": 320,
+        "학원": 271,
+        "체육": 116
+      },
+      "pros": [
+        "source-complete",
+        "deterministic",
+        "no subjective filter",
+        "투명"
+      ],
+      "cons": [
+        "office/professional(M1 등) 비중이 커 사용자 인식 상권과 괴리",
+        "경쟁사 consumer 상권 규모와 직접 비교 부적합"
+      ],
+      "interpretability": "POOR",
+      "interpretabilityReasons": [
+        "A: \"주변 상권 규모\"로 오해될 위험 — 실제는 전체 상가업소",
+        "B: 업종 구성에 과학·기술 전문서비스가 상위 진입",
+        "C: M1 893(15%)가 office/professional로 규모 팽창",
+        "D: 규칙은 재사용 가능하나 product meaning 약함"
+      ]
+    },
+    "P1_RESIDENT_FACING_BROAD": {
+      "definition": "거주자가 직접 방문/이용할 수 있는 소비·생활서비스 중심 모집단",
+      "includeTaxonomy": {
+        "largeClassCodes": [
+          "G2",
+          "I1",
+          "I2",
+          "L1",
+          "P1",
+          "Q1",
+          "R1",
+          "S2"
+        ],
+        "largeClassNames": [
+          "숙박",
+          "음식",
+          "소매",
+          "수리·개인",
+          "교육",
+          "예술·스포츠",
+          "보건의료",
+          "부동산"
+        ],
+        "additionalMidClassFromM1": [
+          {
+            "code": "M111",
+            "name": "수의",
+            "reason": "반려동물 의료 — resident-facing"
+          },
+          {
+            "code": "M113",
+            "name": "사진 촬영",
+            "reason": "소비자 사진관 — resident-facing"
+          }
+        ],
+        "additionalMidClassFromN1": [
+          {
+            "code": "N105",
+            "name": "여행사·보조",
+            "reason": "여행사 — resident-facing"
+          },
+          {
+            "code": "N109",
+            "name": "운송장비 대여",
+            "reason": "차량 대여 등"
+          },
+          {
+            "code": "N110",
+            "name": "가정용품 대여",
+            "reason": "개인/가정용품 대여·만화방 등"
+          }
+        ]
+      },
+      "excludeTaxonomy": {
+        "largeClassMostlyExcluded": [
+          {
+            "code": "M1",
+            "name": "과학·기술",
+            "exceptMid": [
+              "M111",
+              "M113"
+            ],
+            "reason": "B2B/professional office services"
+          },
+          {
+            "code": "N1",
+            "name": "시설관리·임대",
+            "exceptMid": [
+              "N105",
+              "N109",
+              "N110"
+            ],
+            "reason": "사업지원·시설관리·산업대여"
+          }
+        ],
+        "midClassExcludedEvenIfParentIncluded": [
+          {
+            "code": "P107",
+            "name": "교육 지원",
+            "reason": "교육컨설팅/지원서비스 — not academy"
+          }
+        ]
+      },
+      "count": 4923,
+      "shareOfP0Pct": 83.38,
+      "exclusion": {
+        "excludedCount": 981,
+        "includedCount": 4923,
+        "topExcludedLarge": [
+          {
+            "code": "M1",
+            "name": "과학·기술",
+            "count": 799
+          },
+          {
+            "code": "N1",
+            "name": "시설관리·임대",
+            "count": 133
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 49
+          }
+        ],
+        "topExcludedMid": [
+          {
+            "code": "M107",
+            "name": "본사·경영 컨설팅",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 225
+          },
+          {
+            "code": "M109",
+            "name": "기술 서비스",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 149
+          },
+          {
+            "code": "M105",
+            "name": "광고",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 134
+          },
+          {
+            "code": "M104",
+            "name": "회계·세무",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 106
+          },
+          {
+            "code": "M112",
+            "name": "전문 디자인",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 95
+          },
+          {
+            "code": "P107",
+            "name": "교육 지원",
+            "largeCode": "P1",
+            "largeName": "교육",
+            "count": 49
+          },
+          {
+            "code": "M103",
+            "name": "법무관련",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 46
+          },
+          {
+            "code": "N108",
+            "name": "기타 사업 서비스",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 34
+          },
+          {
+            "code": "N104",
+            "name": "고용 알선",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 33
+          },
+          {
+            "code": "N102",
+            "name": "청소·방제",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 33
+          },
+          {
+            "code": "M115",
+            "name": "기타 전문 과학",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 28
+          },
+          {
+            "code": "N101",
+            "name": "시설관리",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 21
+          },
+          {
+            "code": "M114",
+            "name": "인쇄·제품제작",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 13
+          },
+          {
+            "code": "N111",
+            "name": "산업용품 대여",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 7
+          },
+          {
+            "code": "N107",
+            "name": "사무 지원",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 5
+          }
+        ]
+      },
+      "composition": {
+        "large": [
+          {
+            "code": "I2",
+            "name": "음식",
+            "count": 1846,
+            "sharePct": 37.5
+          },
+          {
+            "code": "G2",
+            "name": "소매",
+            "count": 1249,
+            "sharePct": 25.37
+          },
+          {
+            "code": "S2",
+            "name": "수리·개인",
+            "count": 527,
+            "sharePct": 10.7
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 317,
+            "sharePct": 6.44
+          },
+          {
+            "code": "R1",
+            "name": "예술·스포츠",
+            "count": 250,
+            "sharePct": 5.08
+          },
+          {
+            "code": "L1",
+            "name": "부동산",
+            "count": 240,
+            "sharePct": 4.88
+          },
+          {
+            "code": "Q1",
+            "name": "보건의료",
+            "count": 211,
+            "sharePct": 4.29
+          },
+          {
+            "code": "I1",
+            "name": "숙박",
+            "count": 125,
+            "sharePct": 2.54
+          },
+          {
+            "code": "M1",
+            "name": "과학·기술",
+            "count": 94,
+            "sharePct": 1.91
+          },
+          {
+            "code": "N1",
+            "name": "시설관리·임대",
+            "count": 64,
+            "sharePct": 1.3
+          }
+        ],
+        "midTop5": [
+          {
+            "code": "I201",
+            "name": "한식",
+            "count": 597
+          },
+          {
+            "code": "G209",
+            "name": "섬유·의복·신발 소매",
+            "count": 504
+          },
+          {
+            "code": "I210",
+            "name": "기타 간이",
+            "count": 329
+          },
+          {
+            "code": "S207",
+            "name": "이용·미용",
+            "count": 320
+          },
+          {
+            "code": "I212",
+            "name": "비알코올",
+            "count": 260
+          }
+        ],
+        "allLarge": [
+          {
+            "code": "I2",
+            "name": "음식",
+            "count": 1846,
+            "sharePct": 37.5
+          },
+          {
+            "code": "G2",
+            "name": "소매",
+            "count": 1249,
+            "sharePct": 25.37
+          },
+          {
+            "code": "S2",
+            "name": "수리·개인",
+            "count": 527,
+            "sharePct": 10.7
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 317,
+            "sharePct": 6.44
+          },
+          {
+            "code": "R1",
+            "name": "예술·스포츠",
+            "count": 250,
+            "sharePct": 5.08
+          },
+          {
+            "code": "L1",
+            "name": "부동산",
+            "count": 240,
+            "sharePct": 4.88
+          },
+          {
+            "code": "Q1",
+            "name": "보건의료",
+            "count": 211,
+            "sharePct": 4.29
+          },
+          {
+            "code": "I1",
+            "name": "숙박",
+            "count": 125,
+            "sharePct": 2.54
+          },
+          {
+            "code": "M1",
+            "name": "과학·기술",
+            "count": 94,
+            "sharePct": 1.91
+          },
+          {
+            "code": "N1",
+            "name": "시설관리·임대",
+            "count": 64,
+            "sharePct": 1.3
+          }
+        ]
+      },
+      "facilities": {
+        "병원/의원": 204,
+        "약국": 88,
+        "편의점": 106,
+        "마트/슈퍼": 46,
+        "카페": 260,
+        "음식점": 1586,
+        "미용": 320,
+        "학원": 271,
+        "체육": 116
+      },
+      "pros": [
+        "거주자 해석 가능",
+        "facility counts 유지",
+        "서울 전역 재사용 가능한 code rule",
+        "office inflation 제거"
+      ],
+      "cons": [
+        "숙박·부동산 포함으로 daily-core보다 넓음",
+        "일부 B2B-leaning retail/repair 잔존 가능"
+      ],
+      "interpretability": "GOOD",
+      "interpretabilityReasons": [
+        "A: \"생활 상권/주변 생활업소\"로 이해 가능",
+        "B: 구성이 음식·소매·의료·교육·미용 중심",
+        "C: M1/N1 office 대량 제외",
+        "D: taxonomy code만으로 서울 전역 적용 가능"
+      ]
+    },
+    "P2_DAILY_COMMERCE_CORE": {
+      "definition": "일상적으로 이용하는 근린 생활상권 코어 (외식·소매·의료·학원·미용·체육·오락·생활수리)",
+      "includeTaxonomy": {
+        "largeClassCodes": [
+          "G2",
+          "I2",
+          "Q1",
+          "R1"
+        ],
+        "largeClassNames": [
+          "음식",
+          "소매",
+          "보건의료",
+          "예술·스포츠"
+        ],
+        "additionalMidClassCodes": [
+          "P105",
+          "P106",
+          "S201",
+          "S202",
+          "S203",
+          "S204",
+          "S205",
+          "S206",
+          "S207",
+          "S208",
+          "S209"
+        ],
+        "additionalMidClassNames": {
+          "P105": "일반 교육",
+          "P106": "기타 교육",
+          "S201": "컴퓨터 수리",
+          "S202": "통신장비 수리",
+          "S203": "자동차 수리·세차",
+          "S204": "모터사이클 수리",
+          "S205": "가전제품 수리",
+          "S206": "기타 가정용품 수리",
+          "S207": "이용·미용",
+          "S208": "욕탕·신체관리",
+          "S209": "세탁"
+        }
+      },
+      "excludeTaxonomy": {
+        "excludedLarge": [
+          {
+            "code": "M1",
+            "reason": "professional/office"
+          },
+          {
+            "code": "N1",
+            "reason": "business support / facility mgmt"
+          },
+          {
+            "code": "L1",
+            "reason": "부동산 중개 — transaction service, not daily commerce"
+          },
+          {
+            "code": "I1",
+            "reason": "숙박 — not daily neighborhood commerce"
+          }
+        ],
+        "excludedMidDespiteParentInP1": [
+          {
+            "code": "P107",
+            "reason": "교육 지원"
+          },
+          {
+            "code": "S210",
+            "reason": "장례식장"
+          },
+          {
+            "code": "S211",
+            "reason": "기타 개인(예식/결혼상담 등)"
+          },
+          {
+            "code": "M111",
+            "reason": "P2에서는 수의 미포함 — daily core를 외식·소매·의료인·학원·미용 중심으로 좁힘 (동물병원은 P1에 존재)"
+          },
+          {
+            "code": "M113",
+            "reason": "사진촬영 P2 미포함"
+          },
+          {
+            "code": "N105",
+            "reason": "여행사 P2 미포함"
+          },
+          {
+            "code": "N109",
+            "reason": "차량대여 P2 미포함"
+          },
+          {
+            "code": "N110",
+            "reason": "가정용품대여 P2 미포함"
+          }
+        ]
+      },
+      "count": 4381,
+      "shareOfP0Pct": 74.2,
+      "exclusion": {
+        "excludedCount": 1523,
+        "includedCount": 4381,
+        "topExcludedLarge": [
+          {
+            "code": "M1",
+            "name": "과학·기술",
+            "count": 893
+          },
+          {
+            "code": "L1",
+            "name": "부동산",
+            "count": 240
+          },
+          {
+            "code": "N1",
+            "name": "시설관리·임대",
+            "count": 197
+          },
+          {
+            "code": "I1",
+            "name": "숙박",
+            "count": 125
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 49
+          },
+          {
+            "code": "S2",
+            "name": "수리·개인",
+            "count": 19
+          }
+        ],
+        "topExcludedMid": [
+          {
+            "code": "L102",
+            "name": "부동산 서비스",
+            "largeCode": "L1",
+            "largeName": "부동산",
+            "count": 240
+          },
+          {
+            "code": "M107",
+            "name": "본사·경영 컨설팅",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 225
+          },
+          {
+            "code": "M109",
+            "name": "기술 서비스",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 149
+          },
+          {
+            "code": "M105",
+            "name": "광고",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 134
+          },
+          {
+            "code": "M104",
+            "name": "회계·세무",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 106
+          },
+          {
+            "code": "M112",
+            "name": "전문 디자인",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 95
+          },
+          {
+            "code": "I101",
+            "name": "일반 숙박",
+            "largeCode": "I1",
+            "largeName": "숙박",
+            "count": 93
+          },
+          {
+            "code": "M113",
+            "name": "사진 촬영",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 83
+          },
+          {
+            "code": "P107",
+            "name": "교육 지원",
+            "largeCode": "P1",
+            "largeName": "교육",
+            "count": 49
+          },
+          {
+            "code": "M103",
+            "name": "법무관련",
+            "largeCode": "M1",
+            "largeName": "과학·기술",
+            "count": 46
+          },
+          {
+            "code": "N105",
+            "name": "여행사·보조",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 34
+          },
+          {
+            "code": "N108",
+            "name": "기타 사업 서비스",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 34
+          },
+          {
+            "code": "N104",
+            "name": "고용 알선",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 33
+          },
+          {
+            "code": "N102",
+            "name": "청소·방제",
+            "largeCode": "N1",
+            "largeName": "시설관리·임대",
+            "count": 33
+          },
+          {
+            "code": "I102",
+            "name": "기타 숙박",
+            "largeCode": "I1",
+            "largeName": "숙박",
+            "count": 32
+          }
+        ]
+      },
+      "composition": {
+        "large": [
+          {
+            "code": "I2",
+            "name": "음식",
+            "count": 1846,
+            "sharePct": 42.14
+          },
+          {
+            "code": "G2",
+            "name": "소매",
+            "count": 1249,
+            "sharePct": 28.51
+          },
+          {
+            "code": "S2",
+            "name": "수리·개인",
+            "count": 508,
+            "sharePct": 11.6
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 317,
+            "sharePct": 7.24
+          },
+          {
+            "code": "R1",
+            "name": "예술·스포츠",
+            "count": 250,
+            "sharePct": 5.71
+          },
+          {
+            "code": "Q1",
+            "name": "보건의료",
+            "count": 211,
+            "sharePct": 4.82
+          }
+        ],
+        "midTop5": [
+          {
+            "code": "I201",
+            "name": "한식",
+            "count": 597
+          },
+          {
+            "code": "G209",
+            "name": "섬유·의복·신발 소매",
+            "count": 504
+          },
+          {
+            "code": "I210",
+            "name": "기타 간이",
+            "count": 329
+          },
+          {
+            "code": "S207",
+            "name": "이용·미용",
+            "count": 320
+          },
+          {
+            "code": "I212",
+            "name": "비알코올",
+            "count": 260
+          }
+        ],
+        "allLarge": [
+          {
+            "code": "I2",
+            "name": "음식",
+            "count": 1846,
+            "sharePct": 42.14
+          },
+          {
+            "code": "G2",
+            "name": "소매",
+            "count": 1249,
+            "sharePct": 28.51
+          },
+          {
+            "code": "S2",
+            "name": "수리·개인",
+            "count": 508,
+            "sharePct": 11.6
+          },
+          {
+            "code": "P1",
+            "name": "교육",
+            "count": 317,
+            "sharePct": 7.24
+          },
+          {
+            "code": "R1",
+            "name": "예술·스포츠",
+            "count": 250,
+            "sharePct": 5.71
+          },
+          {
+            "code": "Q1",
+            "name": "보건의료",
+            "count": 211,
+            "sharePct": 4.82
+          }
+        ]
+      },
+      "facilities": {
+        "병원/의원": 204,
+        "약국": 88,
+        "편의점": 106,
+        "마트/슈퍼": 46,
+        "카페": 260,
+        "음식점": 1586,
+        "미용": 320,
+        "학원": 271,
+        "체육": 116
+      },
+      "pros": [
+        "가장 직관적인 \"생활 상권\"",
+        "facility 거의 전부 보존",
+        "office/부동산/숙박 제거"
+      ],
+      "cons": [
+        "과필터 시 오피스 밀집지 상업 활력 과소평가 위험(개념적)",
+        "여행사·수의·사진관 등 합리적 생활접점 일부 누락"
+      ],
+      "interpretability": "GOOD",
+      "interpretabilityReasons": [
+        "A: \"생활 상권/생활 편의 업소\"에 가장 부합",
+        "B: 구성이 음식·소매·의료·학원·미용·체육",
+        "C: office 지배 제거",
+        "D: code rule Seoul-wide 재사용 가능"
+      ]
+    }
+  },
+  "facilityComparison": {
+    "rows": [
+      {
+        "facility": "병원/의원",
+        "P0": 204,
+        "P1": 204,
+        "P2": 204
+      },
+      {
+        "facility": "약국",
+        "P0": 88,
+        "P1": 88,
+        "P2": 88
+      },
+      {
+        "facility": "편의점",
+        "P0": 106,
+        "P1": 106,
+        "P2": 106
+      },
+      {
+        "facility": "마트/슈퍼",
+        "P0": 46,
+        "P1": 46,
+        "P2": 46
+      },
+      {
+        "facility": "카페",
+        "P0": 260,
+        "P1": 260,
+        "P2": 260
+      },
+      {
+        "facility": "음식점",
+        "P0": 1586,
+        "P1": 1586,
+        "P2": 1586
+      },
+      {
+        "facility": "미용",
+        "P0": 320,
+        "P1": 320,
+        "P2": 320
+      },
+      {
+        "facility": "학원",
+        "P0": 271,
+        "P1": 271,
+        "P2": 271
+      },
+      {
+        "facility": "체육",
+        "P0": 116,
+        "P1": 116,
+        "P2": 116
+      }
+    ]
+  },
+  "competitorSanityReference": {
+    "competitorShownCountApprox": 1922,
+    "P0": 5904,
+    "P1": 4923,
+    "P2": 4381,
+    "note": "Filters were NOT tuned to reproduce 1922. Reference only.",
+    "ratioVsCompetitor": {
+      "P0": 3.07,
+      "P1": 2.56,
+      "P2": 2.28
+    }
+  },
+  "officeDistrictRisk": {
+    "assessment": "P2 excludes M1/N1/L1/I1 entirely. In Gangnam/Yeouido/Magok, street-level F&B/retail/medical still remain in P2, but business-district professional density will not inflate \"생활 상권\". Risk: areas whose commercial character is professional-service heavy may look weaker on P2 alone — mitigated by optional dual disclosure of source-native total, not by loosening P2.",
+    "ranOtherAreas": false
+  },
+  "dualMetric": {
+    "recommended": true,
+    "primary": "P2_DAILY_COMMERCE_CORE",
+    "secondaryOptional": "P0_SOURCE_NATIVE_ALL",
+    "reason": "Primary should answer resident 상권 규모. Secondary source-native total adds transparency (\"SEMAS 상가업소 전체\") without polluting the consumer metric. Avoid showing both as equal competing headlines — primary + ⓘ secondary."
+  },
+  "recommendation": {
+    "primaryPopulation": "DAILY_COMMERCE_CORE",
+    "primaryCode": "P2",
+    "userFacingLabel": "생활 상권",
+    "alternateLabels": [
+      "생활 편의 업소",
+      "근린 생활업소"
+    ],
+    "avoidLabelForP0": "상권 규모 (without qualifier)",
+    "p0SuggestedLabelIfShown": "주변 상가업소(전체)",
+    "dataDateCopy": "2026년 2분기 기준 · 소상공인시장진흥공단 상가업소",
+    "reason": [
+      "Product question is resident-facing commercial environment, not full SEMAS universe.",
+      "P2 removes office/professional inflation while preserving all key facility families.",
+      "P1 is acceptable broader alternative but includes 숙박·부동산 which dilute \"daily commerce\" meaning.",
+      "Dual metric OK if P2 primary and P0 secondary with clear labels."
+    ]
+  },
+  "frozenTaxonomyContractCandidate": {
+    "include": {
+      "lcls": [
+        "G2",
+        "I2",
+        "Q1",
+        "R1"
+      ],
+      "mcls": [
+        "P105",
+        "P106",
+        "S201",
+        "S202",
+        "S203",
+        "S204",
+        "S205",
+        "S206",
+        "S207",
+        "S208",
+        "S209"
+      ]
+    },
+    "exclude": {
+      "lcls": [
+        "M1",
+        "N1",
+        "L1",
+        "I1"
+      ],
+      "mcls": [
+        "P107",
+        "S210",
+        "S211"
+      ]
+    },
+    "needsMoreEvidence": [
+      "P1 vs P2 preference across 20–30 complexes (office vs residential mix)",
+      "Whether L1 부동산 should appear in a separate \"거주 관련 서비스\" chip (not in core count)",
+      "Whether M111 수의 / M113 사진 should be promoted into P2 later"
+    ]
+  },
+  "sizeLabel": "DEFER",
+  "db": {
+    "productionWrites": 0,
+    "tursoWrites": 0,
+    "schema": 0
+  },
+  "decision": {
+    "SEMAS_SOURCE": "PASS",
+    "SOURCE_NATIVE_CENSUS": "PASS",
+    "ZIPLAB_COMMERCE_POPULATION": "READY",
+    "TAXONOMY_FILTER": "READY",
+    "NEXT_ACTION": "A",
+    "NEXT_ACTION_REASON": "Population contract candidate ready (P2 primary). Next validate distribution across 20–30 Seoul complexes before ingestion; size label still DEFER."
+  }
+}

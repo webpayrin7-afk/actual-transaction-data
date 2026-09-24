@@ -1,0 +1,37 @@
+{
+  "status": "PASS_STRUCTURALLY_CONFIRMED",
+  "productConstant": "ADVANCEMENT_API52",
+  "holdReason": null,
+  "mappingDecision": "STRUCTURALLY_CONFIRMED",
+  "productUiPossible": "YES",
+  "scope": "middle_school_only",
+  "forbiddenWhileHold": [],
+  "unblockBasis": [
+    "2022 초·중등학교 정보공시 입력 지침서 13-다 official 12-leaf order",
+    "openData apiType52 TOTAL3–TOTAL14 exactly 12 partition fields",
+    "TOTAL_i = MAN_i + WOMAN_i; TOTAL_RATE_i ≈ TOTAL_i/TOTAL2; sum(TOTAL3..14)=TOTAL2",
+    "Screen anchors at 잠실중 2025 lock TOTAL3/4/6/9/11; gaps uniquely determined by leaf order",
+    "Multi-school Songpa/nationwide invariant checks"
+  ],
+  "doNotUnblockOn": [
+    "관측값만으로 TOTAL* ↔ 화면 라벨 일치 (alone)"
+  ],
+  "source": {
+    "title": "13-다. 졸업생의 진로 현황",
+    "provider": "학교알리미(한국교육학술정보원)",
+    "apiType": "52",
+    "transport": "openData.do (openApi.do returns fail for apiType52)",
+    "jgHangmokCd": "52",
+    "gsHangmokNo": "13-다",
+    "mappingReport": "apitype52-total-mapping-report.json",
+    "fieldMap": "middle-advancement-mapping.ts",
+    "fetchedAt": "2026-09-17"
+  },
+  "confirmedSchoolInfoApiTypesForDetail": ["0", "09", "22", "35", "55", "59"],
+  "apiType09Note": "apiType 09 is 학년별·학급별 학생수 — never present as 진학현황.",
+  "categoryFieldMapping": "STRUCTURALLY_CONFIRMED",
+  "confirmedOfficialTotalBindings": 0,
+  "structurallyConfirmedTotalBindings": 13,
+  "highSchoolCareer": "PASS_STRUCTURALLY_CONFIRMED — see high-school-career-mapping-report.json",
+  "elementaryAdvancement": "NOT_APPLICABLE"
+}

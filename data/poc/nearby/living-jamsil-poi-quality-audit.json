@@ -1,0 +1,840 @@
+{
+  "generatedAt": "2026-09-16T04:39:48.138Z",
+  "complex": {
+    "name": "잠실엘스",
+    "sigungu": "송파구",
+    "legalDong": "잠실동",
+    "center": {
+      "lat": 37.5133,
+      "lng": 127.1028
+    }
+  },
+  "currentContract": {
+    "queryA": "`${aptName} ${label}`",
+    "queryB": "`${sigungu} ${legalDong} ${label}` (fallback only when primary unusable)",
+    "naverDisplay": 5,
+    "currentRadiusM": 1500,
+    "currentResultCap": 2,
+    "naverCategoryValidationCurrentlyUsed": false,
+    "note": "sourceCategory stored but not used for accept/reject",
+    "analysisWindowM": 3000,
+    "analysisAlwaysRunsBothQueries": true
+  },
+  "api": {
+    "liveCalls": 10,
+    "hardCap": 12,
+    "cacheReuse": "none_in_audit_script",
+    "http429": 0,
+    "authError": 0,
+    "callLog": [
+      {
+        "query": "잠실엘스 병원",
+        "status": 200,
+        "raw": 2,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "송파구 잠실동 병원",
+        "status": 200,
+        "raw": 5,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "잠실엘스 약국",
+        "status": 200,
+        "raw": 4,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "송파구 잠실동 약국",
+        "status": 200,
+        "raw": 5,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "잠실엘스 마트",
+        "status": 200,
+        "raw": 1,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "송파구 잠실동 마트",
+        "status": 200,
+        "raw": 5,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "잠실엘스 편의점",
+        "status": 200,
+        "raw": 2,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "송파구 잠실동 편의점",
+        "status": 200,
+        "raw": 5,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "잠실엘스 공원",
+        "status": 200,
+        "raw": 0,
+        "total": 5,
+        "ok": true
+      },
+      {
+        "query": "송파구 잠실동 공원",
+        "status": 200,
+        "raw": 5,
+        "total": 5,
+        "ok": true
+      }
+    ]
+  },
+  "categories": {
+    "HOSPITAL": {
+      "category": "HOSPITAL",
+      "label": "병원",
+      "queryA": "잠실엘스 병원",
+      "queryB": "송파구 잠실동 병원",
+      "rawA": 2,
+      "rawB": 5,
+      "mergedRaw": 7,
+      "afterDedupe": 7,
+      "dedupeRemoved": 0,
+      "noCoords": 0,
+      "semanticRejected": 0,
+      "semanticUnknown": 0,
+      "semanticValidAll": 7,
+      "semanticValidWithin3km": 7,
+      "distanceBuckets": {
+        "0-500": 0,
+        "501-800": 1,
+        "801-1000": 0,
+        "1001-1500": 1,
+        "1501-2000": 5,
+        "2001-3000": 0
+      },
+      "radiusSimulation": {
+        "within500": 0,
+        "within800": 1,
+        "within1000": 1,
+        "within1500": 2,
+        "within2000": 7,
+        "within3000": 7
+      },
+      "displayCapSimulationAt1500": {
+        "top2": [
+          {
+            "name": "유앤아이의원 잠실점",
+            "distanceM": 619
+          },
+          {
+            "name": "안도의원 잠실",
+            "distanceM": 1491
+          }
+        ],
+        "top5": [
+          {
+            "name": "유앤아이의원 잠실점",
+            "distanceM": 619
+          },
+          {
+            "name": "안도의원 잠실",
+            "distanceM": 1491
+          }
+        ],
+        "top10": [
+          {
+            "name": "유앤아이의원 잠실점",
+            "distanceM": 619
+          },
+          {
+            "name": "안도의원 잠실",
+            "distanceM": 1491
+          }
+        ],
+        "countAt1500": 2
+      },
+      "samples": {
+        "valid": [
+          {
+            "name": "유앤아이의원 잠실점",
+            "sourceCategory": "병원,의원>피부과",
+            "distanceM": 619,
+            "hospitalType": "의원"
+          },
+          {
+            "name": "안도의원 잠실",
+            "sourceCategory": "병원,의원>피부과",
+            "distanceM": 1491,
+            "hospitalType": "의원"
+          },
+          {
+            "name": "맘앤맘소아청소년과의원",
+            "sourceCategory": "병원,의원>소아청소년과",
+            "distanceM": 1636,
+            "hospitalType": "의원"
+          },
+          {
+            "name": "엘스치과의원",
+            "sourceCategory": "병원,의원>치과",
+            "distanceM": 1665,
+            "hospitalType": "의원"
+          },
+          {
+            "name": "VS라인의원 잠실점",
+            "sourceCategory": "병원,의원>피부과",
+            "distanceM": 1740,
+            "hospitalType": "의원"
+          }
+        ],
+        "rejected": []
+      },
+      "naverTotalA": 5,
+      "naverTotalB": 5,
+      "radiusRecommendation": {
+        "recommendedRadiusM": 1500,
+        "reason": "first_radius_with_ge_2_valid (2 valid); character=의료 이용권 — 종합병원은 넓게, 의원은 좁게 혼재; valid3km=7",
+        "countsAtSteps": {
+          "500": 0,
+          "800": 1,
+          "1000": 1,
+          "1500": 2,
+          "2000": 7,
+          "3000": 7
+        }
+      },
+      "hospitalTypeBreakdown": {
+        "종합병원": 0,
+        "병원": 0,
+        "의원": 7,
+        "기타의료": 0,
+        "excluded": 0,
+        "unknown": 0
+      },
+      "hospitalExamples": [
+        {
+          "name": "유앤아이의원 잠실점",
+          "distanceM": 619,
+          "type": "의원",
+          "sourceCategory": "병원,의원>피부과"
+        },
+        {
+          "name": "안도의원 잠실",
+          "distanceM": 1491,
+          "type": "의원",
+          "sourceCategory": "병원,의원>피부과"
+        },
+        {
+          "name": "맘앤맘소아청소년과의원",
+          "distanceM": 1636,
+          "type": "의원",
+          "sourceCategory": "병원,의원>소아청소년과"
+        },
+        {
+          "name": "엘스치과의원",
+          "distanceM": 1665,
+          "type": "의원",
+          "sourceCategory": "병원,의원>치과"
+        },
+        {
+          "name": "VS라인의원 잠실점",
+          "distanceM": 1740,
+          "type": "의원",
+          "sourceCategory": "병원,의원>피부과"
+        },
+        {
+          "name": "베러미의원 잠실",
+          "distanceM": 1778,
+          "type": "의원",
+          "sourceCategory": "병원,의원>피부과"
+        },
+        {
+          "name": "선샤인의원",
+          "distanceM": 1848,
+          "type": "의원",
+          "sourceCategory": "병원,의원>피부과"
+        }
+      ]
+    },
+    "PHARMACY": {
+      "category": "PHARMACY",
+      "label": "약국",
+      "queryA": "잠실엘스 약국",
+      "queryB": "송파구 잠실동 약국",
+      "rawA": 4,
+      "rawB": 5,
+      "mergedRaw": 9,
+      "afterDedupe": 9,
+      "dedupeRemoved": 0,
+      "noCoords": 0,
+      "semanticRejected": 0,
+      "semanticUnknown": 0,
+      "semanticValidAll": 9,
+      "semanticValidWithin3km": 9,
+      "distanceBuckets": {
+        "0-500": 0,
+        "501-800": 0,
+        "801-1000": 1,
+        "1001-1500": 0,
+        "1501-2000": 7,
+        "2001-3000": 1
+      },
+      "radiusSimulation": {
+        "within500": 0,
+        "within800": 0,
+        "within1000": 1,
+        "within1500": 1,
+        "within2000": 8,
+        "within3000": 9
+      },
+      "displayCapSimulationAt1500": {
+        "top2": [
+          {
+            "name": "잠실래미안약국",
+            "distanceM": 874
+          }
+        ],
+        "top5": [
+          {
+            "name": "잠실래미안약국",
+            "distanceM": 874
+          }
+        ],
+        "top10": [
+          {
+            "name": "잠실래미안약국",
+            "distanceM": 874
+          }
+        ],
+        "countAt1500": 1
+      },
+      "samples": {
+        "valid": [
+          {
+            "name": "잠실래미안약국",
+            "sourceCategory": "건강,의료>약국",
+            "distanceM": 874
+          },
+          {
+            "name": "휴베이스 코끼리약국",
+            "sourceCategory": "건강,의료>약국",
+            "distanceM": 1522
+          },
+          {
+            "name": "더하늘약국",
+            "sourceCategory": "건강,의료>약국",
+            "distanceM": 1615
+          },
+          {
+            "name": "엘스3층온누리약국",
+            "sourceCategory": "건강,의료>약국",
+            "distanceM": 1639
+          },
+          {
+            "name": "매일여는온누리약국",
+            "sourceCategory": "건강,의료>약국",
+            "distanceM": 1640
+          }
+        ],
+        "rejected": []
+      },
+      "naverTotalA": 5,
+      "naverTotalB": 5,
+      "radiusRecommendation": {
+        "recommendedRadiusM": 2000,
+        "reason": "expand_to_reach_ge_2_valid (8 valid @ 2000m); character=도보 생활권 강함; valid3km=9",
+        "countsAtSteps": {
+          "500": 0,
+          "800": 0,
+          "1000": 1,
+          "1500": 1,
+          "2000": 8,
+          "3000": 9
+        }
+      }
+    },
+    "MART": {
+      "category": "MART",
+      "label": "마트",
+      "queryA": "잠실엘스 마트",
+      "queryB": "송파구 잠실동 마트",
+      "rawA": 1,
+      "rawB": 5,
+      "mergedRaw": 6,
+      "afterDedupe": 6,
+      "dedupeRemoved": 0,
+      "noCoords": 0,
+      "semanticRejected": 1,
+      "semanticUnknown": 0,
+      "semanticValidAll": 5,
+      "semanticValidWithin3km": 5,
+      "distanceBuckets": {
+        "0-500": 0,
+        "501-800": 1,
+        "801-1000": 0,
+        "1001-1500": 2,
+        "1501-2000": 2,
+        "2001-3000": 0
+      },
+      "radiusSimulation": {
+        "within500": 0,
+        "within800": 1,
+        "within1000": 1,
+        "within1500": 3,
+        "within2000": 5,
+        "within3000": 5
+      },
+      "displayCapSimulationAt1500": {
+        "top2": [
+          {
+            "name": "롯데마트 제타플렉스 잠실점",
+            "distanceM": 568
+          },
+          {
+            "name": "홈플러스익스프레스 잠실점",
+            "distanceM": 1158
+          }
+        ],
+        "top5": [
+          {
+            "name": "롯데마트 제타플렉스 잠실점",
+            "distanceM": 568
+          },
+          {
+            "name": "홈플러스익스프레스 잠실점",
+            "distanceM": 1158
+          },
+          {
+            "name": "한살림 잠실새내역매장",
+            "distanceM": 1489
+          }
+        ],
+        "top10": [
+          {
+            "name": "롯데마트 제타플렉스 잠실점",
+            "distanceM": 568
+          },
+          {
+            "name": "홈플러스익스프레스 잠실점",
+            "distanceM": 1158
+          },
+          {
+            "name": "한살림 잠실새내역매장",
+            "distanceM": 1489
+          }
+        ],
+        "countAt1500": 3
+      },
+      "samples": {
+        "valid": [
+          {
+            "name": "롯데마트 제타플렉스 잠실점",
+            "sourceCategory": "쇼핑,유통>슈퍼,마트",
+            "distanceM": 568,
+            "martKind": "mart"
+          },
+          {
+            "name": "홈플러스익스프레스 잠실점",
+            "sourceCategory": "쇼핑,유통>슈퍼,마트",
+            "distanceM": 1158,
+            "martKind": "mart"
+          },
+          {
+            "name": "한살림 잠실새내역매장",
+            "sourceCategory": "유기농산물마트",
+            "distanceM": 1489,
+            "martKind": "mart"
+          },
+          {
+            "name": "잠실세계로마트",
+            "sourceCategory": "쇼핑,유통>슈퍼,마트",
+            "distanceM": 1542,
+            "martKind": "mart"
+          },
+          {
+            "name": "롯데슈퍼 신천점",
+            "sourceCategory": "쇼핑,유통>슈퍼,마트",
+            "distanceM": 1742,
+            "martKind": "mart"
+          }
+        ],
+        "rejected": [
+          {
+            "name": "CU 엘스프리미어점",
+            "sourceCategory": "생활,편의>편의점",
+            "distanceM": 1582,
+            "reason": "convenience_not_mart",
+            "martKind": "convenience"
+          }
+        ]
+      },
+      "naverTotalA": 5,
+      "naverTotalB": 5,
+      "radiusRecommendation": {
+        "recommendedRadiusM": 1500,
+        "reason": "first_radius_with_ge_2_valid (3 valid); character=장보기 생활권 — 800–1500m 흔함; valid3km=5",
+        "countsAtSteps": {
+          "500": 0,
+          "800": 1,
+          "1000": 1,
+          "1500": 3,
+          "2000": 5,
+          "3000": 5
+        }
+      },
+      "martKindBreakdown": {
+        "mart": 5,
+        "department_shopping": 0,
+        "convenience_rejected": 1,
+        "other_rejected": 0,
+        "unknown": 0
+      }
+    },
+    "CONVENIENCE": {
+      "category": "CONVENIENCE",
+      "label": "편의점",
+      "queryA": "잠실엘스 편의점",
+      "queryB": "송파구 잠실동 편의점",
+      "rawA": 2,
+      "rawB": 5,
+      "mergedRaw": 7,
+      "afterDedupe": 7,
+      "dedupeRemoved": 0,
+      "noCoords": 0,
+      "semanticRejected": 0,
+      "semanticUnknown": 0,
+      "semanticValidAll": 7,
+      "semanticValidWithin3km": 7,
+      "distanceBuckets": {
+        "0-500": 0,
+        "501-800": 1,
+        "801-1000": 0,
+        "1001-1500": 1,
+        "1501-2000": 3,
+        "2001-3000": 2
+      },
+      "radiusSimulation": {
+        "within500": 0,
+        "within800": 1,
+        "within1000": 1,
+        "within1500": 2,
+        "within2000": 5,
+        "within3000": 7
+      },
+      "displayCapSimulationAt1500": {
+        "top2": [
+          {
+            "name": "CU 잠실갤러리아점",
+            "distanceM": 774
+          },
+          {
+            "name": "CU 한강르네상스잠실점",
+            "distanceM": 1090
+          }
+        ],
+        "top5": [
+          {
+            "name": "CU 잠실갤러리아점",
+            "distanceM": 774
+          },
+          {
+            "name": "CU 한강르네상스잠실점",
+            "distanceM": 1090
+          }
+        ],
+        "top10": [
+          {
+            "name": "CU 잠실갤러리아점",
+            "distanceM": 774
+          },
+          {
+            "name": "CU 한강르네상스잠실점",
+            "distanceM": 1090
+          }
+        ],
+        "countAt1500": 2
+      },
+      "samples": {
+        "valid": [
+          {
+            "name": "CU 잠실갤러리아점",
+            "sourceCategory": "생활,편의>편의점",
+            "distanceM": 774
+          },
+          {
+            "name": "CU 한강르네상스잠실점",
+            "sourceCategory": "생활,편의>편의점",
+            "distanceM": 1090
+          },
+          {
+            "name": "CU 엘스프리미어점",
+            "sourceCategory": "생활,편의>편의점",
+            "distanceM": 1582
+          },
+          {
+            "name": "GS25 잠실엘스점",
+            "sourceCategory": "생활,편의>편의점",
+            "distanceM": 1713
+          },
+          {
+            "name": "CU 잠실선착장점",
+            "sourceCategory": "생활,편의>편의점",
+            "distanceM": 1941
+          }
+        ],
+        "rejected": []
+      },
+      "naverTotalA": 5,
+      "naverTotalB": 5,
+      "radiusRecommendation": {
+        "recommendedRadiusM": 1500,
+        "reason": "first_radius_with_ge_2_valid (2 valid); character=초근거리 도보권; valid3km=7",
+        "countsAtSteps": {
+          "500": 0,
+          "800": 1,
+          "1000": 1,
+          "1500": 2,
+          "2000": 5,
+          "3000": 7
+        }
+      },
+      "coverageDiagnosis": {
+        "QUERY_LIMITED": true,
+        "DISPLAY_LIMITED": true,
+        "SEMANTIC_FILTER_LIMITED": false,
+        "RADIUS_LIMITED": true,
+        "DEDUPE_LIMITED": false,
+        "SOURCE_LIMITED": false,
+        "notes": {
+          "naverTotalA": 5,
+          "naverTotalB": 5,
+          "displayPerQuery": 5,
+          "validAt1500": 2,
+          "validAt3000": 7,
+          "primaryOnlyValidAt1500": 0,
+          "productionShowsMax": 2,
+          "primaryQueryUsableAt1500": 0,
+          "explanation": "Primary apt query returns far/few usable CUs; fallback dong query fills 1500m with 2. Expanding to 3km adds 5 more from same 10-call window — radius matters, but query+display also cap the pool."
+        }
+      }
+    },
+    "PARK": {
+      "category": "PARK",
+      "label": "공원",
+      "queryA": "잠실엘스 공원",
+      "queryB": "송파구 잠실동 공원",
+      "rawA": 0,
+      "rawB": 5,
+      "mergedRaw": 5,
+      "afterDedupe": 5,
+      "dedupeRemoved": 0,
+      "noCoords": 0,
+      "semanticRejected": 1,
+      "semanticUnknown": 3,
+      "semanticValidAll": 1,
+      "semanticValidWithin3km": 1,
+      "distanceBuckets": {
+        "0-500": 0,
+        "501-800": 0,
+        "801-1000": 0,
+        "1001-1500": 1,
+        "1501-2000": 0,
+        "2001-3000": 0
+      },
+      "radiusSimulation": {
+        "within500": 0,
+        "within800": 0,
+        "within1000": 0,
+        "within1500": 1,
+        "within2000": 1,
+        "within3000": 1
+      },
+      "displayCapSimulationAt1500": {
+        "top2": [
+          {
+            "name": "잠실 한강공원",
+            "distanceM": 1286
+          }
+        ],
+        "top5": [
+          {
+            "name": "잠실 한강공원",
+            "distanceM": 1286
+          }
+        ],
+        "top10": [
+          {
+            "name": "잠실 한강공원",
+            "distanceM": 1286
+          }
+        ],
+        "countAt1500": 1
+      },
+      "samples": {
+        "valid": [
+          {
+            "name": "잠실 한강공원",
+            "sourceCategory": "여행,명소>시민공원",
+            "distanceM": 1286,
+            "parkKind": "true_park"
+          }
+        ],
+        "rejected": [
+          {
+            "name": "테라로사 잠실한강공원점",
+            "sourceCategory": "카페,디저트>카페",
+            "distanceM": 1710,
+            "reason": "non_park_venue",
+            "parkKind": "commercial"
+          }
+        ]
+      },
+      "naverTotalA": 5,
+      "naverTotalB": 5,
+      "radiusRecommendation": {
+        "recommendedRadiusM": 1500,
+        "reason": "default_keep; character=근린 녹지권; valid3km=1",
+        "countsAtSteps": {
+          "500": 0,
+          "800": 0,
+          "1000": 0,
+          "1500": 1,
+          "2000": 1,
+          "3000": 1
+        }
+      },
+      "parkQuality": {
+        "true_park": 1,
+        "commercial": 1,
+        "sports_facility": 0,
+        "unknown": 3
+      },
+      "parkFalsePositives": [
+        {
+          "name": "테라로사 잠실한강공원점",
+          "sourceCategory": "카페,디저트>카페",
+          "distanceM": 1710,
+          "reason": "non_park_venue"
+        }
+      ],
+      "terrarosaJamsilHangang": "REJECT_WRONG_CATEGORY",
+      "unknownNote": "3 UNKNOWN_REVIEW remain (not dumped). Semantic filter already rejects 테라로사. Need accept-list on NAVER category containing 공원/시민공원."
+    }
+  },
+  "classificationIntegrity": {
+    "cuInMartValidExpected": 0,
+    "cuInMartObservedInRejectOrLeak": 1,
+    "cuInConvenienceValid": true,
+    "commercialVenueInPark": 1,
+    "terrarosa": "REJECT_WRONG_CATEGORY",
+    "crossCategoryContaminationNotes": "MART rejects convenience brands; PARK rejects café/restaurant with 공원 in name"
+  },
+  "resultCapRecommendation": {
+    "current": 2,
+    "recommended": 5,
+    "reason": "display=5 already fetched; showing only 2 discards usable nearest results without extra NAVER cost. top10 not justified while display=5."
+  },
+  "uiCountWording": {
+    "current": "1.5km 내 N곳",
+    "accurateAsCensus": false,
+    "recommendedReplacement": "가까운 순 · 주요 시설",
+    "reason": "NAVER Local is query search not exhaustive POI census within radius"
+  },
+  "proposedFinalLivingContract": {
+    "병원": {
+      "radiusM": 1500,
+      "displayCount": 5,
+      "semanticFilter": true,
+      "note": "의원 중심; 종합병원 미노출은 query limit"
+    },
+    "약국": {
+      "radiusM": 2000,
+      "displayCount": 5,
+      "semanticFilter": true,
+      "note": "1500m valid=1 → 2000m valid=8"
+    },
+    "마트": {
+      "radiusM": 1500,
+      "displayCount": 5,
+      "semanticFilter": true,
+      "note": "reject convenience brands"
+    },
+    "편의점": {
+      "radiusM": 1500,
+      "displayCount": 5,
+      "semanticFilter": true,
+      "note": "keep walk-radius; always merge A+B (not fallback-only)"
+    },
+    "공원": {
+      "radiusM": 1500,
+      "displayCount": 5,
+      "semanticFilter": true,
+      "note": "NAVER category must include 공원; reject café"
+    }
+  },
+  "decisions": {
+    "SEMANTIC_CLASSIFICATION": "NEEDS_FIX",
+    "CURRENT_1500M_ONE_SIZE_FITS_ALL": "CHANGE",
+    "CURRENT_MAX_2": "CHANGE",
+    "LIVING_POI_QUALITY": "READY_FOR_IMPLEMENTATION",
+    "notes": {
+      "semanticNeeded": "PARK/MART false positives prove query≠category",
+      "radius": "category-specific based on distance distribution",
+      "displayCap": "raise to 5 to use already-fetched display window",
+      "convenienceRootCause": {
+        "QUERY_LIMITED": true,
+        "DISPLAY_LIMITED": true,
+        "SEMANTIC_FILTER_LIMITED": false,
+        "RADIUS_LIMITED": true,
+        "DEDUPE_LIMITED": false,
+        "SOURCE_LIMITED": false,
+        "notes": {
+          "naverTotalA": 5,
+          "naverTotalB": 5,
+          "displayPerQuery": 5,
+          "validAt1500": 2,
+          "validAt3000": 7,
+          "primaryOnlyValidAt1500": 0,
+          "productionShowsMax": 2,
+          "primaryQueryUsableAt1500": 0,
+          "explanation": "Primary apt query returns far/few usable CUs; fallback dong query fills 1500m with 2. Expanding to 3km adds 5 more from same 10-call window — radius matters, but query+display also cap the pool."
+        }
+      }
+    }
+  },
+  "hospitalCategoryDecision": {
+    "keepOneHospital": true,
+    "considerSplit": true,
+    "reason": "잠실엘스 10-call window returned 의원 7 / 종합병원 0 / 병원 0. '병원' 라벨이 실제로는 피부과·치과 의원 위주. 종합병원(아산 등)은 현재 query로는 미노출 — 추후 종합병원 별도 query 검토. UI 분리는 다음 Stage.",
+    "breakdown": {
+      "종합병원": 0,
+      "병원": 0,
+      "의원": 7,
+      "기타의료": 0,
+      "excluded": 0,
+      "unknown": 0
+    }
+  },
+  "martCategoryDecision": {
+    "keepMart": true,
+    "considerMartDepartment": false,
+    "reason": "백화점/몰 후보가 있으면 '마트/백화점' 라벨 검토 가능. 편의점은 절대 MART 제외.",
+    "breakdown": {
+      "mart": 5,
+      "department_shopping": 0,
+      "convenience_rejected": 1,
+      "other_rejected": 0,
+      "unknown": 0
+    }
+  }
+}

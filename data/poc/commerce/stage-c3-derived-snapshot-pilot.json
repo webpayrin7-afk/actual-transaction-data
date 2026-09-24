@@ -1,0 +1,452 @@
+{
+  "stage": "C3",
+  "purpose": "offline-semas-complex-commerce-snapshot-pilot",
+  "generatedAt": "2026-09-16T08:55:38.529Z",
+  "source": {
+    "SEMAS_period": "2026Q2",
+    "SEMAS_date": "2026-06-30",
+    "sourceRows": 554092,
+    "sourceScanCount": 1,
+    "file": "소상공인시장진흥공단_상가(상권)정보_서울_202606.csv",
+    "radiusM": 1000,
+    "distanceMetric": "straight-line-haversine"
+  },
+  "pilot": {
+    "complexes": 25,
+    "snapshotsGenerated": 25,
+    "c2ExactSemanticMatches": "25/25",
+    "exactMatchCount": 25,
+    "mismatches": [],
+    "matchRows": [
+      {
+        "complexId": "cx_01c0dbf7da85cc41",
+        "name": "창신쌍용2",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_27b567709a54de37",
+        "name": "남산타운",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_190b3cad0f08ec10",
+        "name": "한가람",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_a7c61717bc30d0b5",
+        "name": "행당한진타운",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_46318d9ca7d49f92",
+        "name": "현대프라임",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_2468523874a116f7",
+        "name": "래미안위브",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_022bdfc83b2e13a0",
+        "name": "신내6대주",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_54c57b4ba2afb7b4",
+        "name": "정릉풍림아이원",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_6b236be5a5a32830",
+        "name": "에스케이북한산시티",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_80a9adfc80df01f8",
+        "name": "신동아아파트1",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_639ca6420a0eb61b",
+        "name": "중계그린1단지",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_271339c044af8a26",
+        "name": "백련산힐스테이트1차",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_eadbeb3ecc646d9e",
+        "name": "dmc래미안e편한세상",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_6ac833495f0dffa5",
+        "name": "대흥동태영아파트",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_20d97260455ec07f",
+        "name": "신월시영",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_42f523cef23d0848",
+        "name": "강서힐스테이트",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_cb0c0bc9958f2d47",
+        "name": "한마을",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_bc0722f2de30a225",
+        "name": "관악산벽산타운5",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_8d35e3c7f5e24ba9",
+        "name": "영등포푸르지오",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_7e037735051548bf",
+        "name": "힐스테이트상도센트럴파크",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_71b2a1be4e457891",
+        "name": "관악푸르지오",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_1c244e7305d12c44",
+        "name": "반포자이",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_c9ed0235ecca960c",
+        "name": "도곡렉슬",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_ed52bf895d064c11",
+        "name": "파크리오",
+        "match": true,
+        "mismatches": []
+      },
+      {
+        "complexId": "cx_f523f190604978e6",
+        "name": "선사현대아파트",
+        "match": true,
+        "mismatches": []
+      }
+    ],
+    "goldenFixture": {
+      "name": "잠실엘스",
+      "complexId": "cx_4c63d9a100973c60",
+      "expectedP0": 5904,
+      "expectedP2": 4381,
+      "actualP0": 5904,
+      "actualP2": 4381,
+      "composition": {
+        "음식/외식": {
+          "count": 1846,
+          "share": 42.14
+        },
+        "쇼핑/소매": {
+          "count": 1249,
+          "share": 28.51
+        },
+        "생활서비스": {
+          "count": 508,
+          "share": 11.6
+        },
+        "의료/건강": {
+          "count": 211,
+          "share": 4.82
+        },
+        "교육": {
+          "count": 317,
+          "share": 7.24
+        },
+        "여가/체육": {
+          "count": 250,
+          "share": 5.71
+        },
+        "기타": {
+          "count": 0,
+          "share": 0
+        }
+      },
+      "facilities": {
+        "병원/의원": 204,
+        "약국": 88,
+        "편의점": 106,
+        "마트/슈퍼": 46,
+        "카페": 260,
+        "음식점": 1586,
+        "미용": 320,
+        "학원": 271,
+        "체육": 116
+      },
+      "topCategories": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 597
+        },
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 504
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 329
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 320
+        },
+        {
+          "code": "I212",
+          "name": "비알코올",
+          "count": 260
+        }
+      ],
+      "semanticMatch": "PASS",
+      "note": "Golden fixture from C1/C1B center; not part of the 25-sigungu sample set."
+    }
+  },
+  "snapshotContract": {
+    "populationVersion": "daily_commerce_core_v1",
+    "populationRuleVersion": "c1b_frozen_p2_v1",
+    "radiusM": 1000,
+    "fields": [
+      "complexId",
+      "source",
+      "sourcePeriod",
+      "radiusM",
+      "populationVersion",
+      "p0Total",
+      "p2Total",
+      "p2ToP0Ratio",
+      "composition",
+      "topCategories",
+      "facilities",
+      "sourceDate",
+      "sourceUpdatedDate",
+      "computedAt",
+      "coordinateSource",
+      "populationRuleVersion"
+    ],
+    "rawBusinessesEmbedded": false,
+    "sizeLabelsIncluded": false,
+    "canonicalPayloadHashSha256": "9d9b3bf9ad366fe9b4bbbb7d08ecf681b78cfd17a92039c14aff00e6823d2660",
+    "examplePayload": {
+      "complexId": "cx_4c63d9a100973c60",
+      "source": "semas",
+      "sourcePeriod": "2026Q2",
+      "radiusM": 1000,
+      "populationVersion": "daily_commerce_core_v1",
+      "p0Total": 5904,
+      "p2Total": 4381,
+      "p2ToP0Ratio": 74.2,
+      "composition": {
+        "음식/외식": {
+          "count": 1846,
+          "share": 42.14
+        },
+        "쇼핑/소매": {
+          "count": 1249,
+          "share": 28.51
+        },
+        "생활서비스": {
+          "count": 508,
+          "share": 11.6
+        },
+        "의료/건강": {
+          "count": 211,
+          "share": 4.82
+        },
+        "교육": {
+          "count": 317,
+          "share": 7.24
+        },
+        "여가/체육": {
+          "count": 250,
+          "share": 5.71
+        },
+        "기타": {
+          "count": 0,
+          "share": 0
+        }
+      },
+      "topCategories": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 597
+        },
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 504
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 329
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 320
+        },
+        {
+          "code": "I212",
+          "name": "비알코올",
+          "count": 260
+        }
+      ],
+      "facilities": {
+        "병원/의원": 204,
+        "약국": 88,
+        "편의점": 106,
+        "마트/슈퍼": 46,
+        "카페": 260,
+        "음식점": 1586,
+        "미용": 320,
+        "학원": 271,
+        "체육": 116
+      },
+      "sourceDate": "2026-06-30",
+      "sourceUpdatedDate": "2026-06-30",
+      "computedAt": "2026-09-16T08:55:38.060Z",
+      "coordinateSource": "c1_verified_pilot_center",
+      "populationRuleVersion": "c1b_frozen_p2_v1"
+    }
+  },
+  "performance": {
+    "sourceReadMs": 3755,
+    "aggregationMs": 3755,
+    "streamWallMs": 3755,
+    "serializationMs": 6,
+    "totalMs": 3762,
+    "peakHeapMbApprox": 37.6,
+    "centersInPass": 26,
+    "note": "Single measurement. Pass includes 25 pilot + 1 golden fixture. sourceRead/aggregation share streamWallMs (single-pass)."
+  },
+  "outputSize": {
+    "snapshots25Bytes": 27247,
+    "averageBytesPerComplex": 1090,
+    "projected8437BytesApprox": 9196330,
+    "projected8437MBApprox": 8.77
+  },
+  "productionStorageProposal": {
+    "table": "apt_commerce_snapshots",
+    "oneRowPerComplexPeriodRadiusPopulation": true,
+    "rawSemasRowsInTurso": false,
+    "summaryJson": true,
+    "indexedColumns": [
+      "complex_id",
+      "source_period"
+    ],
+    "primaryKey": [
+      "complex_id",
+      "source_period",
+      "radius_m",
+      "population_version"
+    ],
+    "schemaDraftSql": "-- DRAFT ONLY — Stage C3 does not apply migrations.\nCREATE TABLE IF NOT EXISTS apt_commerce_snapshots (\n  complex_id TEXT NOT NULL,\n  source TEXT NOT NULL,\n  source_period TEXT NOT NULL,\n  radius_m INTEGER NOT NULL,\n  population_version TEXT NOT NULL,\n  p0_total INTEGER NOT NULL,\n  p2_total INTEGER NOT NULL,\n  summary_json TEXT NOT NULL,\n  source_updated_at TEXT NOT NULL,\n  computed_at TEXT NOT NULL,\n  PRIMARY KEY (complex_id, source_period, radius_m, population_version)\n);\nCREATE INDEX IF NOT EXISTS idx_commerce_snap_complex\n  ON apt_commerce_snapshots(complex_id);\nCREATE INDEX IF NOT EXISTS idx_commerce_snap_period\n  ON apt_commerce_snapshots(source_period);",
+    "estimatedRowsPerPeriod": 8437,
+    "estimatedProductionWritesPerFullRefresh": 8437
+  },
+  "quarterlyRefresh": {
+    "source": "SEMAS Seoul file (data.go.kr 15083033)",
+    "flow": [
+      "download Seoul CSV for new quarter",
+      "offline/CI single-pass aggregate against complexes with Production coords",
+      "compare previous snapshot (p0/p2/summary hash)",
+      "bounded upsert changed/current rows only",
+      "postcheck counts + sample semantic checks"
+    ],
+    "expectedSnapshotWrites": "~8437 max per quarter (changed-only may be lower)",
+    "changedOnlyStrategy": true,
+    "schedulerImplemented": false
+  },
+  "retention": {
+    "recommendation": "LATEST_ONLY",
+    "reason": "상권 변화 추이 is not a near-term product feature; LATEST_ONLY keeps ~8437 rows and simplifies upsert. Revisit PER_QUARTER_HISTORY only if trend UI is scheduled."
+  },
+  "geoGate": {
+    "seoulComplexes": 8437,
+    "productionUsableCoordinates": 0,
+    "missingCoordinates": 8437,
+    "note": "Read-only Turso query. Nominatim pilot coords NOT written to Production.",
+    "fullScaleCommerceCalculation": "BLOCKED_BY_GEO",
+    "FULL_SCALE_GEO_GATE": "OPEN",
+    "recommendedNextGeoPath": "apt_complex_master validated lat/lng via existing NAVER Maps geocode (src/lib/nearby-map/naver-sdk.ts geocodeAddressWithNaver) + official GIS / VWorld fallbacks already sketched in src/lib/nearby-map/geocode.ts — separate GEO stage; Nominatim is PILOT_ONLY"
+  },
+  "fullSeoulEstimate": {
+    "estimatedComputeRuntimeMs": 1220445,
+    "estimatedComputeRuntimeMin": 20.3,
+    "alternateNaiveScaleMs": 1079724,
+    "estimatedSnapshotRows": 8437,
+    "estimatedProductionWrites": 8437,
+    "mainBottleneck": "Production GEO coverage (0 usable coords). Secondary: single-pass CSV aggregation time scales with center count.",
+    "note": "Estimate only — full 8437 not executed."
+  },
+  "requestPathContract": {
+    "flow": "/apt/[name] → complex_id → apt_commerce_snapshots lookup → render",
+    "requestTimeSemasCsv": false,
+    "requestTimeAggregation": false,
+    "requestPathDbWrites": false,
+    "naverRole": "representative POI/map/store names only — never alters SEMAS counts"
+  },
+  "db": {
+    "productionWrites": 0,
+    "tursoWrites": 0,
+    "schema": 0
+  },
+  "decision": {
+    "P2_TRANSFORM": "PASS",
+    "DERIVED_SNAPSHOT_CONTRACT": "READY",
+    "OFFLINE_PIPELINE": "PASS",
+    "RAW_SEMAS_PRODUCTION_INGEST": "NOT_NEEDED",
+    "FULL_SCALE_GEO": "GATE_OPEN",
+    "COMMERCE_INGESTION_ARCHITECTURE": "READY",
+    "NEXT_ACTION": "A",
+    "NEXT_ACTION_REASON": "Snapshot contract + offline pipeline PASS on 25/25 C2 semantic match. Full-Seoul blocked by Production GEO (0/8437 usable coords). Next: Production GEO coverage preparation."
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "seoul-elem-jam-il-attendance-zone",
+  "type": "attendance_zone",
+  "officialName": "서울잠일초통학구역",
+  "zoneKind": "single",
+  "hakgudoId": "Z000100307",
+  "hakgudoGb": "0",
+  "educationOffice": "서울특별시강동송파교육지원청",
+  "status": "CONFIRMED",
+  "source": {
+    "provider": "한국교육시설안전원 학구도안내서비스",
+    "kind": "shp",
+    "dataset": "초등학교 통학구역 및 공동통학구역",
+    "baseDate": "2026-03-20",
+    "retrievedAt": "2026-09-17",
+    "schoolYear": null,
+    "updateCycle": "반기(3월, 9월)",
+    "note": "초·중등교육법 시행령 제16조 통학구역 SHP. HAKGUDO_GB=0(일반 통학구역). 단지 product map anchor PIP로 매칭."
+  },
+  "designatedSchool": {
+    "name": "서울잠일초등학교",
+    "establishment": "공립",
+    "neisSdSchulCode": "7130153",
+    "roadAddress": "서울특별시 송파구 올림픽로 95"
+  },
+  "complexLinks": [
+    {
+      "complexId": "cx_4c63d9a100973c60",
+      "aptNames": ["잠실엘스", "잠실엘스아파트"],
+      "resolutionMethod": "official_shp_point_in_polygon",
+      "confidence": "CONFIRMED",
+      "basis": "product map anchor(올림픽로 99)가 공식 서울잠일초통학구역(Z000100307) 폴리곤 내부"
+    }
+  ]
+}

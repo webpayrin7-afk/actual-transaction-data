@@ -10,6 +10,12 @@
 | `/region/[slug]` | 지역별 상세 조회 (예: `/region/seoul-gangnam`, `/region/gyeonggi-suwon`) |
 | `/anyang` | `/region/gyeonggi-anyang` 로 리다이렉트 |
 
+## 데이터 출처 노출 정책
+
+외부 데이터의 **기준일·의무 attribution**은 사용자에게 제공하고, API path·raw field·mapping·수집 파이프라인 등 **내부 구현정보는 제품 UI/client에 노출하지 않습니다.**
+
+자세한 규칙·신규 source 체크리스트: [`docs/architecture/data-source-exposure-policy.md`](docs/architecture/data-source-exposure-policy.md)
+
 ## 실행
 
 ```bash

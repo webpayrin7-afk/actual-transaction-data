@@ -1,0 +1,4475 @@
+{
+  "stage": "C2",
+  "purpose": "seoul-25-complex-p2-distribution-pilot",
+  "generatedAt": "2026-09-16T08:09:59.722682+00:00",
+  "sample": {
+    "requested": 25,
+    "selected": 25,
+    "geocoded": 25,
+    "GEO_HOLD": 0,
+    "selectionRule": "Per Seoul sigungu: IDENTITY-READY + address present; max trade_count(deal_type=trade); tie-break complex_id ASC",
+    "coordinateNote": "NAVER Maps JS geocoder returned status=500 on localhost (Client ID domain). Pilot used Nominatim fallback for coordinates after NAVER attempt. Local cache only; production DB writes=0."
+  },
+  "source": {
+    "SEMAS_date": "2026-06-30",
+    "Seoul_rows": 554092,
+    "radiusM": 1000,
+    "distanceMetric": "straight-line-haversine",
+    "taxonomyFrozenFrom": "stage-c1b P2 DAILY_COMMERCE_CORE"
+  },
+  "populations": {
+    "P0": "SOURCE_NATIVE_ALL",
+    "P1": "RESIDENT_FACING_BROAD (C1B frozen)",
+    "P2": "DAILY_COMMERCE_CORE (C1B frozen; not modified in C2)"
+  },
+  "complexes": [
+    {
+      "complex_id": "cx_01c0dbf7da85cc41",
+      "name": "창신쌍용2",
+      "apt_name_norm": "창신쌍용2",
+      "sigungu": "종로구",
+      "lawd_cd": "11110",
+      "trade_count": 438,
+      "lat": 37.57595,
+      "lng": 127.01313,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "창신동, 창신3동, 종로구, 서울특별시, 03103, 대한민국",
+      "coordinateQuery": "서울 종로구 창신동 703",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 6449,
+      "P1": 5651,
+      "P2": 4934,
+      "P1_over_P0_pct": 87.63,
+      "P2_over_P0_pct": 76.51,
+      "P2_over_P1_pct": 87.31,
+      "P1_minus_P2": 717,
+      "P0_minus_P2": 1515,
+      "P2_per_km2": 1570.5,
+      "excludedFromP2": {
+        "M1": 622,
+        "L1": 235,
+        "N1": 258,
+        "I1": 354,
+        "other": 46
+      },
+      "P2_top3_large": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 2662,
+          "sharePct": 53.95
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1496,
+          "sharePct": 30.32
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 366,
+          "sharePct": 7.42
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 1500
+        },
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 608
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 270
+        },
+        {
+          "code": "I212",
+          "name": "비알코올",
+          "count": 246
+        },
+        {
+          "code": "G204",
+          "name": "종합 소매",
+          "count": 222
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 2662,
+          "sharePct": 53.95
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1496,
+          "sharePct": 30.32
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 366,
+          "sharePct": 7.42
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 148,
+          "sharePct": 3.0
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 134,
+          "sharePct": 2.72
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 128,
+          "sharePct": 2.59
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 143,
+          "P1": 143,
+          "P2": 143
+        },
+        "약국": {
+          "P0": 47,
+          "P1": 47,
+          "P2": 47
+        },
+        "편의점": {
+          "P0": 80,
+          "P1": 80,
+          "P2": 80
+        },
+        "마트/슈퍼": {
+          "P0": 127,
+          "P1": 127,
+          "P2": 127
+        },
+        "카페": {
+          "P0": 246,
+          "P1": 246,
+          "P2": 246
+        },
+        "음식점": {
+          "P0": 1250,
+          "P1": 1250,
+          "P2": 1250
+        },
+        "미용": {
+          "P0": 160,
+          "P1": 160,
+          "P2": 160
+        },
+        "학원": {
+          "P0": 104,
+          "P1": 104,
+          "P2": 104
+        },
+        "체육": {
+          "P0": 61,
+          "P1": 61,
+          "P2": 61
+        }
+      }
+    },
+    {
+      "complex_id": "cx_27b567709a54de37",
+      "name": "남산타운",
+      "apt_name_norm": "남산타운",
+      "sigungu": "중구",
+      "lawd_cd": "11140",
+      "trade_count": 1400,
+      "lat": 37.5490132,
+      "lng": 127.0092806,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "원할머니 보쌈족발 약수역 남산타운 배달점, 32, 다산로, 한남동, 약수동, 중구, 서울특별시, 04597, 대한민국",
+      "coordinateQuery": "서울 중구 신당동 남산타운",
+      "naverMapsGeocoder": "ERROR_500_domain_or_auth_on_localhost",
+      "P0": 2385,
+      "P1": 1943,
+      "P2": 1725,
+      "P1_over_P0_pct": 81.47,
+      "P2_over_P0_pct": 72.33,
+      "P2_over_P1_pct": 88.78,
+      "P1_minus_P2": 218,
+      "P0_minus_P2": 660,
+      "P2_per_km2": 549.1,
+      "excludedFromP2": {
+        "M1": 393,
+        "L1": 119,
+        "N1": 96,
+        "I1": 29,
+        "other": 23
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 603,
+          "sharePct": 34.96
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 434,
+          "sharePct": 25.16
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 238,
+          "sharePct": 13.8
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 205
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 172
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 159
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 131
+        },
+        {
+          "code": "Q102",
+          "name": "의원",
+          "count": 108
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 603,
+          "sharePct": 34.96
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 434,
+          "sharePct": 25.16
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 238,
+          "sharePct": 13.8
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 226,
+          "sharePct": 13.1
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 114,
+          "sharePct": 6.61
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 110,
+          "sharePct": 6.38
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 111,
+          "P1": 111,
+          "P2": 111
+        },
+        "약국": {
+          "P0": 32,
+          "P1": 32,
+          "P2": 32
+        },
+        "편의점": {
+          "P0": 37,
+          "P1": 37,
+          "P2": 37
+        },
+        "마트/슈퍼": {
+          "P0": 29,
+          "P1": 29,
+          "P2": 29
+        },
+        "카페": {
+          "P0": 104,
+          "P1": 104,
+          "P2": 104
+        },
+        "음식점": {
+          "P0": 499,
+          "P1": 499,
+          "P2": 499
+        },
+        "미용": {
+          "P0": 159,
+          "P1": 159,
+          "P2": 159
+        },
+        "학원": {
+          "P0": 197,
+          "P1": 197,
+          "P2": 197
+        },
+        "체육": {
+          "P0": 60,
+          "P1": 60,
+          "P2": 60
+        }
+      }
+    },
+    {
+      "complex_id": "cx_190b3cad0f08ec10",
+      "name": "한가람",
+      "apt_name_norm": "한가람",
+      "sigungu": "용산구",
+      "lawd_cd": "11170",
+      "trade_count": 753,
+      "lat": 37.5212351,
+      "lng": 126.9708499,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "한가람아파트, 이촌동, 이촌1동, 용산구, 서울특별시, 대한민국",
+      "coordinateQuery": "서울 용산구 이촌동 한가람아파트",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 1663,
+      "P1": 1498,
+      "P2": 1311,
+      "P1_over_P0_pct": 90.08,
+      "P2_over_P0_pct": 78.83,
+      "P2_over_P1_pct": 87.52,
+      "P1_minus_P2": 187,
+      "P0_minus_P2": 352,
+      "P2_per_km2": 417.3,
+      "excludedFromP2": {
+        "M1": 149,
+        "L1": 137,
+        "N1": 39,
+        "I1": 20,
+        "other": 7
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 617,
+          "sharePct": 47.06
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 322,
+          "sharePct": 24.56
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 175,
+          "sharePct": 13.35
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 188
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 132
+        },
+        {
+          "code": "I212",
+          "name": "비알코올",
+          "count": 123
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 119
+        },
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 79
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 617,
+          "sharePct": 47.06
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 322,
+          "sharePct": 24.56
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 175,
+          "sharePct": 13.35
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 91,
+          "sharePct": 6.94
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 67,
+          "sharePct": 5.11
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 39,
+          "sharePct": 2.97
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 67,
+          "P1": 67,
+          "P2": 67
+        },
+        "약국": {
+          "P0": 25,
+          "P1": 25,
+          "P2": 25
+        },
+        "편의점": {
+          "P0": 24,
+          "P1": 24,
+          "P2": 24
+        },
+        "마트/슈퍼": {
+          "P0": 18,
+          "P1": 18,
+          "P2": 18
+        },
+        "카페": {
+          "P0": 123,
+          "P1": 123,
+          "P2": 123
+        },
+        "음식점": {
+          "P0": 494,
+          "P1": 494,
+          "P2": 494
+        },
+        "미용": {
+          "P0": 132,
+          "P1": 132,
+          "P2": 132
+        },
+        "학원": {
+          "P0": 75,
+          "P1": 75,
+          "P2": 75
+        },
+        "체육": {
+          "P0": 26,
+          "P1": 26,
+          "P2": 26
+        }
+      }
+    },
+    {
+      "complex_id": "cx_a7c61717bc30d0b5",
+      "name": "행당한진타운",
+      "apt_name_norm": "행당한진타운",
+      "sigungu": "성동구",
+      "lawd_cd": "11200",
+      "trade_count": 1090,
+      "lat": 37.55783,
+      "lng": 127.03571,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "행당동, 행당1동, 성동구, 서울특별시, 04745, 대한민국",
+      "coordinateQuery": "서울 성동구 행당동 346",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 3765,
+      "P1": 3297,
+      "P2": 2915,
+      "P1_over_P0_pct": 87.57,
+      "P2_over_P0_pct": 77.42,
+      "P2_over_P1_pct": 88.41,
+      "P1_minus_P2": 382,
+      "P0_minus_P2": 850,
+      "P2_per_km2": 927.9,
+      "excludedFromP2": {
+        "M1": 372,
+        "L1": 165,
+        "N1": 143,
+        "I1": 133,
+        "other": 37
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1176,
+          "sharePct": 40.34
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 723,
+          "sharePct": 24.8
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 417,
+          "sharePct": 14.31
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 453
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 278
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 267
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 161
+        },
+        {
+          "code": "I212",
+          "name": "비알코올",
+          "count": 157
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1176,
+          "sharePct": 40.34
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 723,
+          "sharePct": 24.8
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 417,
+          "sharePct": 14.31
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 295,
+          "sharePct": 10.12
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 168,
+          "sharePct": 5.76
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 136,
+          "sharePct": 4.67
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 130,
+          "P1": 130,
+          "P2": 130
+        },
+        "약국": {
+          "P0": 39,
+          "P1": 39,
+          "P2": 39
+        },
+        "편의점": {
+          "P0": 73,
+          "P1": 73,
+          "P2": 73
+        },
+        "마트/슈퍼": {
+          "P0": 66,
+          "P1": 66,
+          "P2": 66
+        },
+        "카페": {
+          "P0": 157,
+          "P1": 157,
+          "P2": 157
+        },
+        "음식점": {
+          "P0": 1019,
+          "P1": 1019,
+          "P2": 1019
+        },
+        "미용": {
+          "P0": 267,
+          "P1": 267,
+          "P2": 267
+        },
+        "학원": {
+          "P0": 260,
+          "P1": 260,
+          "P2": 260
+        },
+        "체육": {
+          "P0": 67,
+          "P1": 67,
+          "P2": 67
+        }
+      }
+    },
+    {
+      "complex_id": "cx_46318d9ca7d49f92",
+      "name": "현대프라임",
+      "apt_name_norm": "현대프라임",
+      "sigungu": "광진구",
+      "lawd_cd": "11215",
+      "trade_count": 678,
+      "lat": 37.5373852,
+      "lng": 127.0977105,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "현대프라임아파트, 구의3동, 광진구, 서울특별시, 05119, 대한민국",
+      "coordinateQuery": "현대프라임아파트 광진구",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 2935,
+      "P1": 2527,
+      "P2": 2286,
+      "P1_over_P0_pct": 86.1,
+      "P2_over_P0_pct": 77.89,
+      "P2_over_P1_pct": 90.46,
+      "P1_minus_P2": 241,
+      "P0_minus_P2": 649,
+      "P2_per_km2": 727.7,
+      "excludedFromP2": {
+        "M1": 323,
+        "L1": 133,
+        "N1": 117,
+        "I1": 43,
+        "other": 33
+      },
+      "P2_top3_large": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 957,
+          "sharePct": 41.86
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 561,
+          "sharePct": 24.54
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 286,
+          "sharePct": 12.51
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "G208",
+          "name": "가전·통신 소매",
+          "count": 423
+        },
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 199
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 159
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 146
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 140
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 957,
+          "sharePct": 41.86
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 561,
+          "sharePct": 24.54
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 286,
+          "sharePct": 12.51
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 263,
+          "sharePct": 11.5
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 122,
+          "sharePct": 5.34
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 97,
+          "sharePct": 4.24
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 91,
+          "P1": 91,
+          "P2": 91
+        },
+        "약국": {
+          "P0": 29,
+          "P1": 29,
+          "P2": 29
+        },
+        "편의점": {
+          "P0": 49,
+          "P1": 49,
+          "P2": 49
+        },
+        "마트/슈퍼": {
+          "P0": 45,
+          "P1": 45,
+          "P2": 45
+        },
+        "카페": {
+          "P0": 101,
+          "P1": 101,
+          "P2": 101
+        },
+        "음식점": {
+          "P0": 460,
+          "P1": 460,
+          "P2": 460
+        },
+        "미용": {
+          "P0": 159,
+          "P1": 159,
+          "P2": 159
+        },
+        "학원": {
+          "P0": 258,
+          "P1": 258,
+          "P2": 258
+        },
+        "체육": {
+          "P0": 56,
+          "P1": 56,
+          "P2": 56
+        }
+      }
+    },
+    {
+      "complex_id": "cx_2468523874a116f7",
+      "name": "래미안위브",
+      "apt_name_norm": "래미안위브",
+      "sigungu": "동대문구",
+      "lawd_cd": "11230",
+      "trade_count": 1235,
+      "lat": 37.5720374,
+      "lng": 127.053982,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "아크디자인 스튜디오, 130, 근린생활시설-3동 지하1층 3-3호 (답십리동, 래미안위브), 답십리로, 답십리동, 답십리1동, 동대문구, 서울특별시, 02598, 대한민국",
+      "coordinateQuery": "서울 동대문구 답십리동 래미안위브",
+      "naverMapsGeocoder": "ERROR_500_domain_or_auth_on_localhost",
+      "P0": 3574,
+      "P1": 3201,
+      "P2": 2857,
+      "P1_over_P0_pct": 89.56,
+      "P2_over_P0_pct": 79.94,
+      "P2_over_P1_pct": 89.25,
+      "P1_minus_P2": 344,
+      "P0_minus_P2": 717,
+      "P2_per_km2": 909.4,
+      "excludedFromP2": {
+        "M1": 265,
+        "L1": 194,
+        "N1": 159,
+        "I1": 76,
+        "other": 23
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 913,
+          "sharePct": 31.96
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 844,
+          "sharePct": 29.54
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 464,
+          "sharePct": 16.24
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 379
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 272
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 247
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 191
+        },
+        {
+          "code": "G204",
+          "name": "종합 소매",
+          "count": 146
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 913,
+          "sharePct": 31.96
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 844,
+          "sharePct": 29.54
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 464,
+          "sharePct": 16.24
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 305,
+          "sharePct": 10.68
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 185,
+          "sharePct": 6.48
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 146,
+          "sharePct": 5.11
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 142,
+          "P1": 142,
+          "P2": 142
+        },
+        "약국": {
+          "P0": 51,
+          "P1": 51,
+          "P2": 51
+        },
+        "편의점": {
+          "P0": 63,
+          "P1": 63,
+          "P2": 63
+        },
+        "마트/슈퍼": {
+          "P0": 76,
+          "P1": 76,
+          "P2": 76
+        },
+        "카페": {
+          "P0": 121,
+          "P1": 121,
+          "P2": 121
+        },
+        "음식점": {
+          "P0": 792,
+          "P1": 792,
+          "P2": 792
+        },
+        "미용": {
+          "P0": 272,
+          "P1": 272,
+          "P2": 272
+        },
+        "학원": {
+          "P0": 267,
+          "P1": 267,
+          "P2": 267
+        },
+        "체육": {
+          "P0": 70,
+          "P1": 70,
+          "P2": 70
+        }
+      }
+    },
+    {
+      "complex_id": "cx_022bdfc83b2e13a0",
+      "name": "신내6대주",
+      "apt_name_norm": "신내6대주",
+      "sigungu": "중랑구",
+      "lawd_cd": "11260",
+      "trade_count": 916,
+      "lat": 37.61182,
+      "lng": 127.09298,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "신내동, 신내2동, 중랑구, 서울특별시, 02026, 대한민국",
+      "coordinateQuery": "서울 중랑구 신내동 650",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 1370,
+      "P1": 1215,
+      "P2": 1116,
+      "P1_over_P0_pct": 88.69,
+      "P2_over_P0_pct": 81.46,
+      "P2_over_P1_pct": 91.85,
+      "P1_minus_P2": 99,
+      "P0_minus_P2": 254,
+      "P2_per_km2": 355.2,
+      "excludedFromP2": {
+        "M1": 123,
+        "L1": 64,
+        "N1": 59,
+        "I1": 0,
+        "other": 8
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 357,
+          "sharePct": 31.99
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 287,
+          "sharePct": 25.72
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 182,
+          "sharePct": 16.31
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 145
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 118
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 97
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 82
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 70
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 357,
+          "sharePct": 31.99
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 287,
+          "sharePct": 25.72
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 182,
+          "sharePct": 16.31
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 167,
+          "sharePct": 14.96
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 63,
+          "sharePct": 5.65
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 60,
+          "sharePct": 5.38
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 59,
+          "P1": 59,
+          "P2": 59
+        },
+        "약국": {
+          "P0": 28,
+          "P1": 28,
+          "P2": 28
+        },
+        "편의점": {
+          "P0": 30,
+          "P1": 30,
+          "P2": 30
+        },
+        "마트/슈퍼": {
+          "P0": 31,
+          "P1": 31,
+          "P2": 31
+        },
+        "카페": {
+          "P0": 67,
+          "P1": 67,
+          "P2": 67
+        },
+        "음식점": {
+          "P0": 290,
+          "P1": 290,
+          "P2": 290
+        },
+        "미용": {
+          "P0": 118,
+          "P1": 118,
+          "P2": 118
+        },
+        "학원": {
+          "P0": 159,
+          "P1": 159,
+          "P2": 159
+        },
+        "체육": {
+          "P0": 31,
+          "P1": 31,
+          "P2": 31
+        }
+      }
+    },
+    {
+      "complex_id": "cx_54c57b4ba2afb7b4",
+      "name": "정릉풍림아이원",
+      "apt_name_norm": "정릉풍림아이원",
+      "sigungu": "성북구",
+      "lawd_cd": "11290",
+      "trade_count": 1202,
+      "lat": 37.6171464,
+      "lng": 127.0093765,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "정릉풍림아이원아파트, 정릉4동, 성북구, 서울특별시, 02712, 대한민국",
+      "coordinateQuery": "정릉풍림아이원아파트 성북구",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 1623,
+      "P1": 1470,
+      "P2": 1343,
+      "P1_over_P0_pct": 90.57,
+      "P2_over_P0_pct": 82.75,
+      "P2_over_P1_pct": 91.36,
+      "P1_minus_P2": 127,
+      "P0_minus_P2": 280,
+      "P2_per_km2": 427.5,
+      "excludedFromP2": {
+        "M1": 123,
+        "L1": 86,
+        "N1": 43,
+        "I1": 15,
+        "other": 13
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 433,
+          "sharePct": 32.24
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 351,
+          "sharePct": 26.14
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 208,
+          "sharePct": 15.49
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 170
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 127
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 125
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 114
+        },
+        {
+          "code": "G204",
+          "name": "종합 소매",
+          "count": 95
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 433,
+          "sharePct": 32.24
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 351,
+          "sharePct": 26.14
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 208,
+          "sharePct": 15.49
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 203,
+          "sharePct": 15.12
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 76,
+          "sharePct": 5.66
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 72,
+          "sharePct": 5.36
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 75,
+          "P1": 75,
+          "P2": 75
+        },
+        "약국": {
+          "P0": 25,
+          "P1": 25,
+          "P2": 25
+        },
+        "편의점": {
+          "P0": 38,
+          "P1": 38,
+          "P2": 38
+        },
+        "마트/슈퍼": {
+          "P0": 54,
+          "P1": 54,
+          "P2": 54
+        },
+        "카페": {
+          "P0": 66,
+          "P1": 66,
+          "P2": 66
+        },
+        "음식점": {
+          "P0": 367,
+          "P1": 367,
+          "P2": 367
+        },
+        "미용": {
+          "P0": 127,
+          "P1": 127,
+          "P2": 127
+        },
+        "학원": {
+          "P0": 190,
+          "P1": 190,
+          "P2": 190
+        },
+        "체육": {
+          "P0": 32,
+          "P1": 32,
+          "P2": 32
+        }
+      }
+    },
+    {
+      "complex_id": "cx_6b236be5a5a32830",
+      "name": "에스케이북한산시티",
+      "apt_name_norm": "에스케이북한산시티",
+      "sigungu": "강북구",
+      "lawd_cd": "11305",
+      "trade_count": 2273,
+      "lat": 37.628995,
+      "lng": 127.0257543,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "미아동, 강북구, 서울특별시, 대한민국",
+      "coordinateQuery": "서울 강북구 미아동 1353",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 4451,
+      "P1": 3841,
+      "P2": 3453,
+      "P1_over_P0_pct": 86.3,
+      "P2_over_P0_pct": 77.58,
+      "P2_over_P1_pct": 89.9,
+      "P1_minus_P2": 388,
+      "P0_minus_P2": 998,
+      "P2_per_km2": 1099.1,
+      "excludedFromP2": {
+        "M1": 451,
+        "L1": 187,
+        "N1": 211,
+        "I1": 108,
+        "other": 41
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1162,
+          "sharePct": 33.65
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1064,
+          "sharePct": 30.81
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 652,
+          "sharePct": 18.88
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 497
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 406
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 256
+        },
+        {
+          "code": "G204",
+          "name": "종합 소매",
+          "count": 200
+        },
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 199
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1162,
+          "sharePct": 33.65
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1064,
+          "sharePct": 30.81
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 652,
+          "sharePct": 18.88
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 197,
+          "sharePct": 5.71
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 193,
+          "sharePct": 5.59
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 185,
+          "sharePct": 5.36
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 191,
+          "P1": 191,
+          "P2": 191
+        },
+        "약국": {
+          "P0": 63,
+          "P1": 63,
+          "P2": 63
+        },
+        "편의점": {
+          "P0": 96,
+          "P1": 96,
+          "P2": 96
+        },
+        "마트/슈퍼": {
+          "P0": 95,
+          "P1": 95,
+          "P2": 95
+        },
+        "카페": {
+          "P0": 142,
+          "P1": 142,
+          "P2": 142
+        },
+        "음식점": {
+          "P0": 1020,
+          "P1": 1020,
+          "P2": 1020
+        },
+        "미용": {
+          "P0": 406,
+          "P1": 406,
+          "P2": 406
+        },
+        "학원": {
+          "P0": 153,
+          "P1": 153,
+          "P2": 153
+        },
+        "체육": {
+          "P0": 62,
+          "P1": 62,
+          "P2": 62
+        }
+      }
+    },
+    {
+      "complex_id": "cx_80a9adfc80df01f8",
+      "name": "신동아아파트1",
+      "apt_name_norm": "신동아아파트1",
+      "sigungu": "도봉구",
+      "lawd_cd": "11320",
+      "trade_count": 1450,
+      "lat": 37.66442,
+      "lng": 127.03333,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "방학동, 방학2동, 도봉구, 서울특별시, 01356, 대한민국",
+      "coordinateQuery": "서울특별시 도봉구 방학동 271-1",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 2961,
+      "P1": 2693,
+      "P2": 2547,
+      "P1_over_P0_pct": 90.95,
+      "P2_over_P0_pct": 86.02,
+      "P2_over_P1_pct": 94.58,
+      "P1_minus_P2": 146,
+      "P0_minus_P2": 414,
+      "P2_per_km2": 810.7,
+      "excludedFromP2": {
+        "M1": 177,
+        "L1": 114,
+        "N1": 107,
+        "I1": 5,
+        "other": 11
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 816,
+          "sharePct": 32.04
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 764,
+          "sharePct": 30.0
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 442,
+          "sharePct": 17.35
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 334
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 265
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 196
+        },
+        {
+          "code": "G204",
+          "name": "종합 소매",
+          "count": 153
+        },
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 146
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 816,
+          "sharePct": 32.04
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 764,
+          "sharePct": 30.0
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 442,
+          "sharePct": 17.35
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 229,
+          "sharePct": 8.99
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 193,
+          "sharePct": 7.58
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 103,
+          "sharePct": 4.04
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 102,
+          "P1": 102,
+          "P2": 102
+        },
+        "약국": {
+          "P0": 29,
+          "P1": 29,
+          "P2": 29
+        },
+        "편의점": {
+          "P0": 70,
+          "P1": 70,
+          "P2": 70
+        },
+        "마트/슈퍼": {
+          "P0": 74,
+          "P1": 74,
+          "P2": 74
+        },
+        "카페": {
+          "P0": 102,
+          "P1": 102,
+          "P2": 102
+        },
+        "음식점": {
+          "P0": 714,
+          "P1": 714,
+          "P2": 714
+        },
+        "미용": {
+          "P0": 265,
+          "P1": 265,
+          "P2": 265
+        },
+        "학원": {
+          "P0": 216,
+          "P1": 216,
+          "P2": 216
+        },
+        "체육": {
+          "P0": 73,
+          "P1": 73,
+          "P2": 73
+        }
+      }
+    },
+    {
+      "complex_id": "cx_639ca6420a0eb61b",
+      "name": "중계그린1단지",
+      "apt_name_norm": "중계그린1단지",
+      "sigungu": "노원구",
+      "lawd_cd": "11350",
+      "trade_count": 1589,
+      "lat": 37.64802,
+      "lng": 127.07678,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "중계동, 중계본동, 노원구, 서울특별시, 01743, 대한민국",
+      "coordinateQuery": "서울특별시 노원구 중계동 502-1",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 1934,
+      "P1": 1837,
+      "P2": 1748,
+      "P1_over_P0_pct": 94.98,
+      "P2_over_P0_pct": 90.38,
+      "P2_over_P1_pct": 95.16,
+      "P1_minus_P2": 89,
+      "P0_minus_P2": 186,
+      "P2_per_km2": 556.4,
+      "excludedFromP2": {
+        "M1": 71,
+        "L1": 69,
+        "N1": 28,
+        "I1": 0,
+        "other": 18
+      },
+      "P2_top3_large": [
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 624,
+          "sharePct": 35.7
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 420,
+          "sharePct": 24.03
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 303,
+          "sharePct": 17.33
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 463
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 161
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 148
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 127
+        },
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 114
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 624,
+          "sharePct": 35.7
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 420,
+          "sharePct": 24.03
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 303,
+          "sharePct": 17.33
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 196,
+          "sharePct": 11.21
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 130,
+          "sharePct": 7.44
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 75,
+          "sharePct": 4.29
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 73,
+          "P1": 73,
+          "P2": 73
+        },
+        "약국": {
+          "P0": 20,
+          "P1": 20,
+          "P2": 20
+        },
+        "편의점": {
+          "P0": 37,
+          "P1": 37,
+          "P2": 37
+        },
+        "마트/슈퍼": {
+          "P0": 39,
+          "P1": 39,
+          "P2": 39
+        },
+        "카페": {
+          "P0": 82,
+          "P1": 82,
+          "P2": 82
+        },
+        "음식점": {
+          "P0": 338,
+          "P1": 338,
+          "P2": 338
+        },
+        "미용": {
+          "P0": 127,
+          "P1": 127,
+          "P2": 127
+        },
+        "학원": {
+          "P0": 610,
+          "P1": 610,
+          "P2": 610
+        },
+        "체육": {
+          "P0": 57,
+          "P1": 57,
+          "P2": 57
+        }
+      }
+    },
+    {
+      "complex_id": "cx_271339c044af8a26",
+      "name": "백련산힐스테이트1차",
+      "apt_name_norm": "백련산힐스테이트1차",
+      "sigungu": "은평구",
+      "lawd_cd": "11380",
+      "trade_count": 634,
+      "lat": 37.5912381,
+      "lng": 126.925097,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "백련산힐스테이트1차아파트, 19, 응암동, 응암2동, 은평구, 서울특별시, 03476, 대한민국",
+      "coordinateQuery": "서울 은평구 응암동 백련산힐스테이트1차아파트",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 2463,
+      "P1": 2213,
+      "P2": 2003,
+      "P1_over_P0_pct": 89.85,
+      "P2_over_P0_pct": 81.32,
+      "P2_over_P1_pct": 90.51,
+      "P1_minus_P2": 210,
+      "P0_minus_P2": 460,
+      "P2_per_km2": 637.6,
+      "excludedFromP2": {
+        "M1": 197,
+        "L1": 137,
+        "N1": 81,
+        "I1": 31,
+        "other": 14
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 737,
+          "sharePct": 36.79
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 546,
+          "sharePct": 27.26
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 300,
+          "sharePct": 14.98
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 281
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 185
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 166
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 129
+        },
+        {
+          "code": "I211",
+          "name": "주점",
+          "count": 120
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 737,
+          "sharePct": 36.79
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 546,
+          "sharePct": 27.26
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 300,
+          "sharePct": 14.98
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 231,
+          "sharePct": 11.53
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 117,
+          "sharePct": 5.84
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 72,
+          "sharePct": 3.59
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 71,
+          "P1": 71,
+          "P2": 71
+        },
+        "약국": {
+          "P0": 23,
+          "P1": 23,
+          "P2": 23
+        },
+        "편의점": {
+          "P0": 51,
+          "P1": 51,
+          "P2": 51
+        },
+        "마트/슈퍼": {
+          "P0": 39,
+          "P1": 39,
+          "P2": 39
+        },
+        "카페": {
+          "P0": 98,
+          "P1": 98,
+          "P2": 98
+        },
+        "음식점": {
+          "P0": 639,
+          "P1": 639,
+          "P2": 639
+        },
+        "미용": {
+          "P0": 185,
+          "P1": 185,
+          "P2": 185
+        },
+        "학원": {
+          "P0": 210,
+          "P1": 210,
+          "P2": 210
+        },
+        "체육": {
+          "P0": 38,
+          "P1": 38,
+          "P2": 38
+        }
+      }
+    },
+    {
+      "complex_id": "cx_eadbeb3ecc646d9e",
+      "name": "dmc래미안e편한세상",
+      "apt_name_norm": "dmc래미안e편한세상",
+      "sigungu": "서대문구",
+      "lawd_cd": "11410",
+      "trade_count": 1275,
+      "lat": 37.57953,
+      "lng": 126.91156,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "북가좌동, 북가좌2동, 서대문구, 서울특별시, 03683, 대한민국",
+      "coordinateQuery": "서울 서대문구 북가좌동 481",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 2754,
+      "P1": 2480,
+      "P2": 2201,
+      "P1_over_P0_pct": 90.05,
+      "P2_over_P0_pct": 79.92,
+      "P2_over_P1_pct": 88.75,
+      "P1_minus_P2": 279,
+      "P0_minus_P2": 553,
+      "P2_per_km2": 700.6,
+      "excludedFromP2": {
+        "M1": 212,
+        "L1": 181,
+        "N1": 93,
+        "I1": 48,
+        "other": 19
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 759,
+          "sharePct": 34.48
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 598,
+          "sharePct": 27.17
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 343,
+          "sharePct": 15.58
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 288
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 215
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 212
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 150
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 149
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 759,
+          "sharePct": 34.48
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 598,
+          "sharePct": 27.17
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 343,
+          "sharePct": 15.58
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 299,
+          "sharePct": 13.58
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 107,
+          "sharePct": 4.86
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 95,
+          "sharePct": 4.32
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 105,
+          "P1": 105,
+          "P2": 105
+        },
+        "약국": {
+          "P0": 36,
+          "P1": 36,
+          "P2": 36
+        },
+        "편의점": {
+          "P0": 69,
+          "P1": 69,
+          "P2": 69
+        },
+        "마트/슈퍼": {
+          "P0": 65,
+          "P1": 65,
+          "P2": 65
+        },
+        "카페": {
+          "P0": 102,
+          "P1": 102,
+          "P2": 102
+        },
+        "음식점": {
+          "P0": 657,
+          "P1": 657,
+          "P2": 657
+        },
+        "미용": {
+          "P0": 212,
+          "P1": 212,
+          "P2": 212
+        },
+        "학원": {
+          "P0": 277,
+          "P1": 277,
+          "P2": 277
+        },
+        "체육": {
+          "P0": 42,
+          "P1": 42,
+          "P2": 42
+        }
+      }
+    },
+    {
+      "complex_id": "cx_6ac833495f0dffa5",
+      "name": "대흥동태영아파트",
+      "apt_name_norm": "대흥동태영아파트",
+      "sigungu": "마포구",
+      "lawd_cd": "11440",
+      "trade_count": 617,
+      "lat": 37.5510043,
+      "lng": 126.9419496,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "대흥동, 마포구, 서울특별시, 대한민국",
+      "coordinateQuery": "서울 마포구 대흥동 660",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 6665,
+      "P1": 5757,
+      "P2": 4859,
+      "P1_over_P0_pct": 86.38,
+      "P2_over_P0_pct": 72.9,
+      "P2_over_P1_pct": 84.4,
+      "P1_minus_P2": 898,
+      "P0_minus_P2": 1806,
+      "P2_per_km2": 1546.7,
+      "excludedFromP2": {
+        "M1": 744,
+        "L1": 305,
+        "N1": 280,
+        "I1": 379,
+        "other": 98
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 2050,
+          "sharePct": 42.19
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1130,
+          "sharePct": 23.26
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 616,
+          "sharePct": 12.68
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 639
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 419
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 413
+        },
+        {
+          "code": "I212",
+          "name": "비알코올",
+          "count": 406
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 371
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 2050,
+          "sharePct": 42.19
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1130,
+          "sharePct": 23.26
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 616,
+          "sharePct": 12.68
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 608,
+          "sharePct": 12.51
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 252,
+          "sharePct": 5.19
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 203,
+          "sharePct": 4.18
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 199,
+          "P1": 199,
+          "P2": 199
+        },
+        "약국": {
+          "P0": 67,
+          "P1": 67,
+          "P2": 67
+        },
+        "편의점": {
+          "P0": 126,
+          "P1": 126,
+          "P2": 126
+        },
+        "마트/슈퍼": {
+          "P0": 85,
+          "P1": 85,
+          "P2": 85
+        },
+        "카페": {
+          "P0": 406,
+          "P1": 406,
+          "P2": 406
+        },
+        "음식점": {
+          "P0": 1644,
+          "P1": 1644,
+          "P2": 1644
+        },
+        "미용": {
+          "P0": 419,
+          "P1": 419,
+          "P2": 419
+        },
+        "학원": {
+          "P0": 530,
+          "P1": 530,
+          "P2": 530
+        },
+        "체육": {
+          "P0": 94,
+          "P1": 94,
+          "P2": 94
+        }
+      }
+    },
+    {
+      "complex_id": "cx_20d97260455ec07f",
+      "name": "신월시영",
+      "apt_name_norm": "신월시영",
+      "sigungu": "양천구",
+      "lawd_cd": "11470",
+      "trade_count": 999,
+      "lat": 37.5182192,
+      "lng": 126.8336216,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "신월시영아파트, 신월7동, 양천구, 서울특별시, 대한민국",
+      "coordinateQuery": "신월시영아파트 양천구",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 1710,
+      "P1": 1582,
+      "P2": 1450,
+      "P1_over_P0_pct": 92.51,
+      "P2_over_P0_pct": 84.8,
+      "P2_over_P1_pct": 91.66,
+      "P1_minus_P2": 132,
+      "P0_minus_P2": 260,
+      "P2_per_km2": 461.5,
+      "excludedFromP2": {
+        "M1": 99,
+        "L1": 94,
+        "N1": 52,
+        "I1": 4,
+        "other": 11
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 469,
+          "sharePct": 32.34
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 378,
+          "sharePct": 26.07
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 239,
+          "sharePct": 16.48
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 184
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 149
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 112
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 102
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 79
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 469,
+          "sharePct": 32.34
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 378,
+          "sharePct": 26.07
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 239,
+          "sharePct": 16.48
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 181,
+          "sharePct": 12.48
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 111,
+          "sharePct": 7.66
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 72,
+          "sharePct": 4.97
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 71,
+          "P1": 71,
+          "P2": 71
+        },
+        "약국": {
+          "P0": 25,
+          "P1": 25,
+          "P2": 25
+        },
+        "편의점": {
+          "P0": 36,
+          "P1": 36,
+          "P2": 36
+        },
+        "마트/슈퍼": {
+          "P0": 38,
+          "P1": 38,
+          "P2": 38
+        },
+        "카페": {
+          "P0": 58,
+          "P1": 58,
+          "P2": 58
+        },
+        "음식점": {
+          "P0": 411,
+          "P1": 411,
+          "P2": 411
+        },
+        "미용": {
+          "P0": 149,
+          "P1": 149,
+          "P2": 149
+        },
+        "학원": {
+          "P0": 170,
+          "P1": 170,
+          "P2": 170
+        },
+        "체육": {
+          "P0": 50,
+          "P1": 50,
+          "P2": 50
+        }
+      }
+    },
+    {
+      "complex_id": "cx_42f523cef23d0848",
+      "name": "강서힐스테이트",
+      "apt_name_norm": "강서힐스테이트",
+      "sigungu": "강서구",
+      "lawd_cd": "11500",
+      "trade_count": 1126,
+      "lat": 37.5479312,
+      "lng": 126.8372165,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "강서힐스테이트, 우현로, 내발산동, 우장산동, 강서구, 서울특별시, 07694, 대한민국",
+      "coordinateQuery": "서울 강서구 강서힐스테이트",
+      "naverMapsGeocoder": "ERROR_500_domain_or_auth_on_localhost",
+      "P0": 3790,
+      "P1": 3516,
+      "P2": 3191,
+      "P1_over_P0_pct": 92.77,
+      "P2_over_P0_pct": 84.2,
+      "P2_over_P1_pct": 90.76,
+      "P1_minus_P2": 325,
+      "P0_minus_P2": 599,
+      "P2_per_km2": 1015.7,
+      "excludedFromP2": {
+        "M1": 232,
+        "L1": 196,
+        "N1": 88,
+        "I1": 62,
+        "other": 21
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1065,
+          "sharePct": 33.38
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 787,
+          "sharePct": 24.66
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 490,
+          "sharePct": 15.36
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 388
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 337
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 292
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 246
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 216
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1065,
+          "sharePct": 33.38
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 787,
+          "sharePct": 24.66
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 490,
+          "sharePct": 15.36
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 462,
+          "sharePct": 14.48
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 202,
+          "sharePct": 6.33
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 185,
+          "sharePct": 5.8
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 183,
+          "P1": 183,
+          "P2": 183
+        },
+        "약국": {
+          "P0": 58,
+          "P1": 58,
+          "P2": 58
+        },
+        "편의점": {
+          "P0": 68,
+          "P1": 68,
+          "P2": 68
+        },
+        "마트/슈퍼": {
+          "P0": 75,
+          "P1": 75,
+          "P2": 75
+        },
+        "카페": {
+          "P0": 139,
+          "P1": 139,
+          "P2": 139
+        },
+        "음식점": {
+          "P0": 926,
+          "P1": 926,
+          "P2": 926
+        },
+        "미용": {
+          "P0": 337,
+          "P1": 337,
+          "P2": 337
+        },
+        "학원": {
+          "P0": 432,
+          "P1": 432,
+          "P2": 432
+        },
+        "체육": {
+          "P0": 77,
+          "P1": 77,
+          "P2": 77
+        }
+      }
+    },
+    {
+      "complex_id": "cx_cb0c0bc9958f2d47",
+      "name": "한마을",
+      "apt_name_norm": "한마을",
+      "sigungu": "구로구",
+      "lawd_cd": "11530",
+      "trade_count": 951,
+      "lat": 37.4964981,
+      "lng": 126.8630981,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "한마을아파트 정문상가, 경인로, 고척동, 개봉1동, 구로구, 서울특별시, 08275, 대한민국",
+      "coordinateQuery": "서울 구로구 개봉동 한마을아파트",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 2251,
+      "P1": 2046,
+      "P2": 1903,
+      "P1_over_P0_pct": 90.89,
+      "P2_over_P0_pct": 84.54,
+      "P2_over_P1_pct": 93.01,
+      "P1_minus_P2": 143,
+      "P0_minus_P2": 348,
+      "P2_per_km2": 605.7,
+      "excludedFromP2": {
+        "M1": 163,
+        "L1": 74,
+        "N1": 71,
+        "I1": 26,
+        "other": 14
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 633,
+          "sharePct": 33.26
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 499,
+          "sharePct": 26.22
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 310,
+          "sharePct": 16.29
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 208
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 196
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 177
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 117
+        },
+        {
+          "code": "G204",
+          "name": "종합 소매",
+          "count": 112
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 633,
+          "sharePct": 33.26
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 499,
+          "sharePct": 26.22
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 310,
+          "sharePct": 16.29
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 211,
+          "sharePct": 11.09
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 136,
+          "sharePct": 7.15
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 114,
+          "sharePct": 5.99
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 114,
+          "P1": 114,
+          "P2": 114
+        },
+        "약국": {
+          "P0": 38,
+          "P1": 38,
+          "P2": 38
+        },
+        "편의점": {
+          "P0": 44,
+          "P1": 44,
+          "P2": 44
+        },
+        "마트/슈퍼": {
+          "P0": 59,
+          "P1": 59,
+          "P2": 59
+        },
+        "카페": {
+          "P0": 99,
+          "P1": 99,
+          "P2": 99
+        },
+        "음식점": {
+          "P0": 534,
+          "P1": 534,
+          "P2": 534
+        },
+        "미용": {
+          "P0": 196,
+          "P1": 196,
+          "P2": 196
+        },
+        "학원": {
+          "P0": 197,
+          "P1": 197,
+          "P2": 197
+        },
+        "체육": {
+          "P0": 71,
+          "P1": 71,
+          "P2": 71
+        }
+      }
+    },
+    {
+      "complex_id": "cx_bc0722f2de30a225",
+      "name": "관악산벽산타운5",
+      "apt_name_norm": "관악산벽산타운5",
+      "sigungu": "금천구",
+      "lawd_cd": "11545",
+      "trade_count": 1427,
+      "lat": 37.4507049,
+      "lng": 126.9085555,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "시흥동, 시흥5동, 금천구, 서울특별시, 08574, 대한민국",
+      "coordinateQuery": "서울 금천구 시흥동 1013",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 2863,
+      "P1": 2541,
+      "P2": 2383,
+      "P1_over_P0_pct": 88.75,
+      "P2_over_P0_pct": 83.23,
+      "P2_over_P1_pct": 93.78,
+      "P1_minus_P2": 158,
+      "P0_minus_P2": 480,
+      "P2_per_km2": 758.5,
+      "excludedFromP2": {
+        "M1": 241,
+        "L1": 101,
+        "N1": 110,
+        "I1": 16,
+        "other": 12
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 800,
+          "sharePct": 33.57
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 719,
+          "sharePct": 30.17
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 394,
+          "sharePct": 16.53
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 317
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 224
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 184
+        },
+        {
+          "code": "G205",
+          "name": "식료품 소매",
+          "count": 161
+        },
+        {
+          "code": "I211",
+          "name": "주점",
+          "count": 148
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 800,
+          "sharePct": 33.57
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 719,
+          "sharePct": 30.17
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 394,
+          "sharePct": 16.53
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 199,
+          "sharePct": 8.35
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 157,
+          "sharePct": 6.59
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 114,
+          "sharePct": 4.78
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 112,
+          "P1": 112,
+          "P2": 112
+        },
+        "약국": {
+          "P0": 44,
+          "P1": 44,
+          "P2": 44
+        },
+        "편의점": {
+          "P0": 43,
+          "P1": 43,
+          "P2": 43
+        },
+        "마트/슈퍼": {
+          "P0": 77,
+          "P1": 77,
+          "P2": 77
+        },
+        "카페": {
+          "P0": 82,
+          "P1": 82,
+          "P2": 82
+        },
+        "음식점": {
+          "P0": 718,
+          "P1": 718,
+          "P2": 718
+        },
+        "미용": {
+          "P0": 224,
+          "P1": 224,
+          "P2": 224
+        },
+        "학원": {
+          "P0": 182,
+          "P1": 182,
+          "P2": 182
+        },
+        "체육": {
+          "P0": 45,
+          "P1": 45,
+          "P2": 45
+        }
+      }
+    },
+    {
+      "complex_id": "cx_8d35e3c7f5e24ba9",
+      "name": "영등포푸르지오",
+      "apt_name_norm": "영등포푸르지오",
+      "sigungu": "영등포구",
+      "lawd_cd": "11560",
+      "trade_count": 1041,
+      "lat": 37.5118372,
+      "lng": 126.9034273,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "영등포푸르지오, 도신로29길, 영등포동, 영등포본동, 영등포구, 서울특별시, 07365, 대한민국",
+      "coordinateQuery": "서울 영등포구 영등포동 영등포푸르지오",
+      "naverMapsGeocoder": "ERROR_500_domain_or_auth_on_localhost",
+      "P0": 6082,
+      "P1": 5130,
+      "P2": 4615,
+      "P1_over_P0_pct": 84.35,
+      "P2_over_P0_pct": 75.88,
+      "P2_over_P1_pct": 89.96,
+      "P1_minus_P2": 515,
+      "P0_minus_P2": 1467,
+      "P2_per_km2": 1469.0,
+      "excludedFromP2": {
+        "M1": 808,
+        "L1": 197,
+        "N1": 264,
+        "I1": 155,
+        "other": 43
+      },
+      "P2_top3_large": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1768,
+          "sharePct": 38.31
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1674,
+          "sharePct": 36.27
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 466,
+          "sharePct": 10.1
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 787
+        },
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 686
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 261
+        },
+        {
+          "code": "I211",
+          "name": "주점",
+          "count": 254
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 237
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1768,
+          "sharePct": 38.31
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1674,
+          "sharePct": 36.27
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 466,
+          "sharePct": 10.1
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 261,
+          "sharePct": 5.66
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 260,
+          "sharePct": 5.63
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 186,
+          "sharePct": 4.03
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 180,
+          "P1": 180,
+          "P2": 180
+        },
+        "약국": {
+          "P0": 63,
+          "P1": 63,
+          "P2": 63
+        },
+        "편의점": {
+          "P0": 97,
+          "P1": 97,
+          "P2": 97
+        },
+        "마트/슈퍼": {
+          "P0": 120,
+          "P1": 120,
+          "P2": 120
+        },
+        "카페": {
+          "P0": 209,
+          "P1": 209,
+          "P2": 209
+        },
+        "음식점": {
+          "P0": 1465,
+          "P1": 1465,
+          "P2": 1465
+        },
+        "미용": {
+          "P0": 237,
+          "P1": 237,
+          "P2": 237
+        },
+        "학원": {
+          "P0": 208,
+          "P1": 208,
+          "P2": 208
+        },
+        "체육": {
+          "P0": 88,
+          "P1": 88,
+          "P2": 88
+        }
+      }
+    },
+    {
+      "complex_id": "cx_7e037735051548bf",
+      "name": "힐스테이트상도센트럴파크",
+      "apt_name_norm": "힐스테이트상도센트럴파크",
+      "sigungu": "동작구",
+      "lawd_cd": "11590",
+      "trade_count": 848,
+      "lat": 37.495527,
+      "lng": 126.9506608,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "힐스테이트상도센트럴파크아파트, 346-1, 상도1동, 동작구, 서울특별시, 07039, 대한민국",
+      "coordinateQuery": "서울 동작구 상도동 힐스테이트상도센트럴파크아파트",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 2113,
+      "P1": 1867,
+      "P2": 1647,
+      "P1_over_P0_pct": 88.36,
+      "P2_over_P0_pct": 77.95,
+      "P2_over_P1_pct": 88.22,
+      "P1_minus_P2": 220,
+      "P0_minus_P2": 466,
+      "P2_per_km2": 524.3,
+      "excludedFromP2": {
+        "M1": 183,
+        "L1": 125,
+        "N1": 78,
+        "I1": 55,
+        "other": 25
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 540,
+          "sharePct": 32.79
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 360,
+          "sharePct": 21.86
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 290,
+          "sharePct": 17.61
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 168
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 167
+        },
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 162
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 161
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 129
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 540,
+          "sharePct": 32.79
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 360,
+          "sharePct": 21.86
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 290,
+          "sharePct": 17.61
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 261,
+          "sharePct": 15.85
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 112,
+          "sharePct": 6.8
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 84,
+          "sharePct": 5.1
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 82,
+          "P1": 82,
+          "P2": 82
+        },
+        "약국": {
+          "P0": 23,
+          "P1": 23,
+          "P2": 23
+        },
+        "편의점": {
+          "P0": 58,
+          "P1": 58,
+          "P2": 58
+        },
+        "마트/슈퍼": {
+          "P0": 45,
+          "P1": 45,
+          "P2": 45
+        },
+        "카페": {
+          "P0": 99,
+          "P1": 99,
+          "P2": 99
+        },
+        "음식점": {
+          "P0": 441,
+          "P1": 441,
+          "P2": 441
+        },
+        "미용": {
+          "P0": 167,
+          "P1": 167,
+          "P2": 167
+        },
+        "학원": {
+          "P0": 269,
+          "P1": 269,
+          "P2": 269
+        },
+        "체육": {
+          "P0": 41,
+          "P1": 41,
+          "P2": 41
+        }
+      }
+    },
+    {
+      "complex_id": "cx_71b2a1be4e457891",
+      "name": "관악푸르지오",
+      "apt_name_norm": "관악푸르지오",
+      "sigungu": "관악구",
+      "lawd_cd": "11620",
+      "trade_count": 1194,
+      "lat": 37.4867633,
+      "lng": 126.9601186,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "관악푸르지오 관리사무소, 27, 관악로30길, 청림동, 관악구, 서울특별시, 08734, 대한민국",
+      "coordinateQuery": "서울 관악구 봉천동 관악푸르지오",
+      "naverMapsGeocoder": "ERROR_500_domain_or_auth_on_localhost",
+      "P0": 3564,
+      "P1": 3132,
+      "P2": 2789,
+      "P1_over_P0_pct": 87.88,
+      "P2_over_P0_pct": 78.25,
+      "P2_over_P1_pct": 89.05,
+      "P1_minus_P2": 343,
+      "P0_minus_P2": 775,
+      "P2_per_km2": 887.8,
+      "excludedFromP2": {
+        "M1": 353,
+        "L1": 180,
+        "N1": 124,
+        "I1": 86,
+        "other": 32
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1050,
+          "sharePct": 37.65
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 650,
+          "sharePct": 23.31
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 503,
+          "sharePct": 18.04
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 369
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 323
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 219
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 181
+        },
+        {
+          "code": "I212",
+          "name": "비알코올",
+          "count": 154
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 1050,
+          "sharePct": 37.65
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 650,
+          "sharePct": 23.31
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 503,
+          "sharePct": 18.04
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 297,
+          "sharePct": 10.65
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 154,
+          "sharePct": 5.52
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 135,
+          "sharePct": 4.84
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 132,
+          "P1": 132,
+          "P2": 132
+        },
+        "약국": {
+          "P0": 50,
+          "P1": 50,
+          "P2": 50
+        },
+        "편의점": {
+          "P0": 73,
+          "P1": 73,
+          "P2": 73
+        },
+        "마트/슈퍼": {
+          "P0": 56,
+          "P1": 56,
+          "P2": 56
+        },
+        "카페": {
+          "P0": 154,
+          "P1": 154,
+          "P2": 154
+        },
+        "음식점": {
+          "P0": 896,
+          "P1": 896,
+          "P2": 896
+        },
+        "미용": {
+          "P0": 323,
+          "P1": 323,
+          "P2": 323
+        },
+        "학원": {
+          "P0": 265,
+          "P1": 265,
+          "P2": 265
+        },
+        "체육": {
+          "P0": 60,
+          "P1": 60,
+          "P2": 60
+        }
+      }
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "name": "반포자이",
+      "apt_name_norm": "반포자이",
+      "sigungu": "서초구",
+      "lawd_cd": "11650",
+      "trade_count": 1073,
+      "lat": 37.5062971,
+      "lng": 127.0110504,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "반포자이아파트, 270, 반포1동, 서초구, 서울특별시, 06544, 대한민국",
+      "coordinateQuery": "서울 서초구 반포동 반포자이아파트",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 5491,
+      "P1": 4643,
+      "P2": 4115,
+      "P1_over_P0_pct": 84.56,
+      "P2_over_P0_pct": 74.94,
+      "P2_over_P1_pct": 88.63,
+      "P1_minus_P2": 528,
+      "P0_minus_P2": 1376,
+      "P2_per_km2": 1309.8,
+      "excludedFromP2": {
+        "M1": 778,
+        "L1": 315,
+        "N1": 161,
+        "I1": 62,
+        "other": 60
+      },
+      "P2_top3_large": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1872,
+          "sharePct": 45.49
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 919,
+          "sharePct": 22.33
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 614,
+          "sharePct": 14.92
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 1025
+        },
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 334
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 280
+        },
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 273
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 238
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 1872,
+          "sharePct": 45.49
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 919,
+          "sharePct": 22.33
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 614,
+          "sharePct": 14.92
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 377,
+          "sharePct": 9.16
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 196,
+          "sharePct": 4.76
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 137,
+          "sharePct": 3.33
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 191,
+          "P1": 191,
+          "P2": 191
+        },
+        "약국": {
+          "P0": 61,
+          "P1": 61,
+          "P2": 61
+        },
+        "편의점": {
+          "P0": 64,
+          "P1": 64,
+          "P2": 64
+        },
+        "마트/슈퍼": {
+          "P0": 49,
+          "P1": 49,
+          "P2": 49
+        },
+        "카페": {
+          "P0": 162,
+          "P1": 162,
+          "P2": 162
+        },
+        "음식점": {
+          "P0": 757,
+          "P1": 757,
+          "P2": 757
+        },
+        "미용": {
+          "P0": 232,
+          "P1": 232,
+          "P2": 232
+        },
+        "학원": {
+          "P0": 557,
+          "P1": 557,
+          "P2": 557
+        },
+        "체육": {
+          "P0": 65,
+          "P1": 65,
+          "P2": 65
+        }
+      }
+    },
+    {
+      "complex_id": "cx_c9ed0235ecca960c",
+      "name": "도곡렉슬",
+      "apt_name_norm": "도곡렉슬",
+      "sigungu": "강남구",
+      "lawd_cd": "11680",
+      "trade_count": 1167,
+      "lat": 37.4935234,
+      "lng": 127.05061,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "도곡렉슬아파트, 221, 도곡2동, 강남구, 서울특별시, 06276, 대한민국",
+      "coordinateQuery": "서울 강남구 도곡동 도곡렉슬아파트",
+      "naverMapsGeocoder": "ERROR_500_on_localhost",
+      "P0": 4695,
+      "P1": 3854,
+      "P2": 3294,
+      "P1_over_P0_pct": 82.09,
+      "P2_over_P0_pct": 70.16,
+      "P2_over_P1_pct": 85.47,
+      "P1_minus_P2": 560,
+      "P0_minus_P2": 1401,
+      "P2_per_km2": 1048.5,
+      "excludedFromP2": {
+        "M1": 707,
+        "L1": 407,
+        "N1": 137,
+        "I1": 67,
+        "other": 83
+      },
+      "P2_top3_large": [
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 915,
+          "sharePct": 27.78
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 805,
+          "sharePct": 24.44
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 774,
+          "sharePct": 23.5
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "P105",
+          "name": "일반 교육",
+          "count": 587
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 328
+        },
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 247
+        },
+        {
+          "code": "Q102",
+          "name": "의원",
+          "count": 242
+        },
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 219
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 915,
+          "sharePct": 27.78
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 805,
+          "sharePct": 24.44
+        },
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 774,
+          "sharePct": 23.5
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 337,
+          "sharePct": 10.23
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 259,
+          "sharePct": 7.86
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 204,
+          "sharePct": 6.19
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 249,
+          "P1": 249,
+          "P2": 249
+        },
+        "약국": {
+          "P0": 61,
+          "P1": 61,
+          "P2": 61
+        },
+        "편의점": {
+          "P0": 77,
+          "P1": 77,
+          "P2": 77
+        },
+        "마트/슈퍼": {
+          "P0": 39,
+          "P1": 39,
+          "P2": 39
+        },
+        "카페": {
+          "P0": 154,
+          "P1": 154,
+          "P2": 154
+        },
+        "음식점": {
+          "P0": 620,
+          "P1": 620,
+          "P2": 620
+        },
+        "미용": {
+          "P0": 215,
+          "P1": 215,
+          "P2": 215
+        },
+        "학원": {
+          "P0": 865,
+          "P1": 865,
+          "P2": 865
+        },
+        "체육": {
+          "P0": 96,
+          "P1": 96,
+          "P2": 96
+        }
+      }
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "name": "파크리오",
+      "apt_name_norm": "파크리오",
+      "sigungu": "송파구",
+      "lawd_cd": "11710",
+      "trade_count": 2661,
+      "lat": 37.5208775,
+      "lng": 127.1097261,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "잠실 파크리오, 435, 행정4동, 송파구, 서울특별시, 05507, 대한민국",
+      "coordinateQuery": "서울 송파구 신천동 파크리오",
+      "naverMapsGeocoder": "ERROR_500_domain_or_auth_on_localhost",
+      "P0": 3411,
+      "P1": 2576,
+      "P2": 2253,
+      "P1_over_P0_pct": 75.52,
+      "P2_over_P0_pct": 66.05,
+      "P2_over_P1_pct": 87.46,
+      "P1_minus_P2": 323,
+      "P0_minus_P2": 1158,
+      "P2_per_km2": 717.2,
+      "excludedFromP2": {
+        "M1": 732,
+        "L1": 132,
+        "N1": 154,
+        "I1": 91,
+        "other": 49
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 973,
+          "sharePct": 43.19
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 576,
+          "sharePct": 25.57
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 291,
+          "sharePct": 12.92
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 361
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 162
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 153
+        },
+        {
+          "code": "G209",
+          "name": "섬유·의복·신발 소매",
+          "count": 147
+        },
+        {
+          "code": "I211",
+          "name": "주점",
+          "count": 146
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 973,
+          "sharePct": 43.19
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 576,
+          "sharePct": 25.57
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 291,
+          "sharePct": 12.92
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 170,
+          "sharePct": 7.55
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 134,
+          "sharePct": 5.95
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 109,
+          "sharePct": 4.84
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 103,
+          "P1": 103,
+          "P2": 103
+        },
+        "약국": {
+          "P0": 59,
+          "P1": 59,
+          "P2": 59
+        },
+        "편의점": {
+          "P0": 56,
+          "P1": 56,
+          "P2": 56
+        },
+        "마트/슈퍼": {
+          "P0": 33,
+          "P1": 33,
+          "P2": 33
+        },
+        "카페": {
+          "P0": 111,
+          "P1": 111,
+          "P2": 111
+        },
+        "음식점": {
+          "P0": 862,
+          "P1": 862,
+          "P2": 862
+        },
+        "미용": {
+          "P0": 162,
+          "P1": 162,
+          "P2": 162
+        },
+        "학원": {
+          "P0": 147,
+          "P1": 147,
+          "P2": 147
+        },
+        "체육": {
+          "P0": 65,
+          "P1": 65,
+          "P2": 65
+        }
+      }
+    },
+    {
+      "complex_id": "cx_f523f190604978e6",
+      "name": "선사현대아파트",
+      "apt_name_norm": "선사현대아파트",
+      "sigungu": "강동구",
+      "lawd_cd": "11740",
+      "trade_count": 1600,
+      "lat": 37.5525934,
+      "lng": 127.1258631,
+      "coordinateSource": "nominatim_fallback",
+      "coordinateMatched": "선사현대아파트, 11, 암사2동, 강동구, 서울특별시, 05240, 대한민국",
+      "coordinateQuery": "서울 강동구 암사동 선사현대아파트",
+      "naverMapsGeocoder": "ERROR_500_domain_or_auth_on_localhost",
+      "P0": 2439,
+      "P1": 2141,
+      "P2": 1915,
+      "P1_over_P0_pct": 87.78,
+      "P2_over_P0_pct": 78.52,
+      "P2_over_P1_pct": 89.44,
+      "P1_minus_P2": 226,
+      "P0_minus_P2": 524,
+      "P2_per_km2": 609.6,
+      "excludedFromP2": {
+        "M1": 223,
+        "L1": 112,
+        "N1": 111,
+        "I1": 56,
+        "other": 22
+      },
+      "P2_top3_large": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 662,
+          "sharePct": 34.57
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 534,
+          "sharePct": 27.89
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 342,
+          "sharePct": 17.86
+        }
+      ],
+      "P2_top5_mid": [
+        {
+          "code": "I201",
+          "name": "한식",
+          "count": 265
+        },
+        {
+          "code": "S207",
+          "name": "이용·미용",
+          "count": 210
+        },
+        {
+          "code": "I210",
+          "name": "기타 간이",
+          "count": 153
+        },
+        {
+          "code": "P106",
+          "name": "기타 교육",
+          "count": 115
+        },
+        {
+          "code": "G205",
+          "name": "식료품 소매",
+          "count": 100
+        }
+      ],
+      "P2_large_all": [
+        {
+          "code": "I2",
+          "name": "음식",
+          "count": 662,
+          "sharePct": 34.57
+        },
+        {
+          "code": "G2",
+          "name": "소매",
+          "count": 534,
+          "sharePct": 27.89
+        },
+        {
+          "code": "S2",
+          "name": "수리·개인",
+          "count": 342,
+          "sharePct": 17.86
+        },
+        {
+          "code": "P1",
+          "name": "교육",
+          "count": 177,
+          "sharePct": 9.24
+        },
+        {
+          "code": "R1",
+          "name": "예술·스포츠",
+          "count": 114,
+          "sharePct": 5.95
+        },
+        {
+          "code": "Q1",
+          "name": "보건의료",
+          "count": 86,
+          "sharePct": 4.49
+        }
+      ],
+      "facilities": {
+        "병원/의원": {
+          "P0": 85,
+          "P1": 85,
+          "P2": 85
+        },
+        "약국": {
+          "P0": 25,
+          "P1": 25,
+          "P2": 25
+        },
+        "편의점": {
+          "P0": 52,
+          "P1": 52,
+          "P2": 52
+        },
+        "마트/슈퍼": {
+          "P0": 45,
+          "P1": 45,
+          "P2": 45
+        },
+        "카페": {
+          "P0": 96,
+          "P1": 96,
+          "P2": 96
+        },
+        "음식점": {
+          "P0": 566,
+          "P1": 566,
+          "P2": 566
+        },
+        "미용": {
+          "P0": 210,
+          "P1": 210,
+          "P2": 210
+        },
+        "학원": {
+          "P0": 145,
+          "P1": 145,
+          "P2": 145
+        },
+        "체육": {
+          "P0": 41,
+          "P1": 41,
+          "P2": 41
+        }
+      }
+    }
+  ],
+  "distribution": {
+    "P2": {
+      "n": 25,
+      "min": 1116,
+      "p25": 1748,
+      "median": 2286,
+      "mean": 2594.1,
+      "p75": 3191,
+      "max": 4934
+    },
+    "P2_over_P0_pct": {
+      "min": 66.05,
+      "median": 78.52,
+      "max": 90.38
+    },
+    "P2_over_P1_pct": {
+      "min": 84.4,
+      "median": 89.44,
+      "max": 95.16,
+      "mean": 89.83
+    },
+    "P1_minus_P2": {
+      "median": 241,
+      "max": 898,
+      "largestCases": [
+        {
+          "name": "대흥동태영아파트",
+          "sigungu": "마포구",
+          "P1": 5757,
+          "P2": 4859,
+          "diff": 898,
+          "likelyDrivers": "숙박(I1)+부동산(L1)+여행/대여(N1 pockets)+P1 extras vs P2"
+        },
+        {
+          "name": "창신쌍용2",
+          "sigungu": "종로구",
+          "P1": 5651,
+          "P2": 4934,
+          "diff": 717,
+          "likelyDrivers": "숙박(I1)+부동산(L1)+여행/대여(N1 pockets)+P1 extras vs P2"
+        },
+        {
+          "name": "도곡렉슬",
+          "sigungu": "강남구",
+          "P1": 3854,
+          "P2": 3294,
+          "diff": 560,
+          "likelyDrivers": "숙박(I1)+부동산(L1)+여행/대여(N1 pockets)+P1 extras vs P2"
+        },
+        {
+          "name": "반포자이",
+          "sigungu": "서초구",
+          "P1": 4643,
+          "P2": 4115,
+          "diff": 528,
+          "likelyDrivers": "숙박(I1)+부동산(L1)+여행/대여(N1 pockets)+P1 extras vs P2"
+        },
+        {
+          "name": "영등포푸르지오",
+          "sigungu": "영등포구",
+          "P1": 5130,
+          "P2": 4615,
+          "diff": 515,
+          "likelyDrivers": "숙박(I1)+부동산(L1)+여행/대여(N1 pockets)+P1 extras vs P2"
+        }
+      ]
+    }
+  },
+  "rankingAnalysisOnly": {
+    "top5_P2": [
+      {
+        "name": "창신쌍용2",
+        "sigungu": "종로구",
+        "P0": 6449,
+        "P1": 5651,
+        "P2": 4934,
+        "P2_over_P0_pct": 76.51
+      },
+      {
+        "name": "대흥동태영아파트",
+        "sigungu": "마포구",
+        "P0": 6665,
+        "P1": 5757,
+        "P2": 4859,
+        "P2_over_P0_pct": 72.9
+      },
+      {
+        "name": "영등포푸르지오",
+        "sigungu": "영등포구",
+        "P0": 6082,
+        "P1": 5130,
+        "P2": 4615,
+        "P2_over_P0_pct": 75.88
+      },
+      {
+        "name": "반포자이",
+        "sigungu": "서초구",
+        "P0": 5491,
+        "P1": 4643,
+        "P2": 4115,
+        "P2_over_P0_pct": 74.94
+      },
+      {
+        "name": "에스케이북한산시티",
+        "sigungu": "강북구",
+        "P0": 4451,
+        "P1": 3841,
+        "P2": 3453,
+        "P2_over_P0_pct": 77.58
+      }
+    ],
+    "bottom5_P2": [
+      {
+        "name": "힐스테이트상도센트럴파크",
+        "sigungu": "동작구",
+        "P0": 2113,
+        "P1": 1867,
+        "P2": 1647,
+        "P2_over_P0_pct": 77.95
+      },
+      {
+        "name": "신월시영",
+        "sigungu": "양천구",
+        "P0": 1710,
+        "P1": 1582,
+        "P2": 1450,
+        "P2_over_P0_pct": 84.8
+      },
+      {
+        "name": "정릉풍림아이원",
+        "sigungu": "성북구",
+        "P0": 1623,
+        "P1": 1470,
+        "P2": 1343,
+        "P2_over_P0_pct": 82.75
+      },
+      {
+        "name": "한가람",
+        "sigungu": "용산구",
+        "P0": 1663,
+        "P1": 1498,
+        "P2": 1311,
+        "P2_over_P0_pct": 78.83
+      },
+      {
+        "name": "신내6대주",
+        "sigungu": "중랑구",
+        "P0": 1370,
+        "P1": 1215,
+        "P2": 1116,
+        "P2_over_P0_pct": 81.46
+      }
+    ]
+  },
+  "outliers": {
+    "highest_P2_over_P0": {
+      "name": "중계그린1단지",
+      "sigungu": "노원구",
+      "P0": 1934,
+      "P2": 1748,
+      "pct": 90.38,
+      "excluded": {
+        "M1": 71,
+        "L1": 69,
+        "N1": 28,
+        "I1": 0,
+        "other": 18
+      },
+      "reason": "High share of already-resident categories; low office/professional share in 1km"
+    },
+    "lowest_P2_over_P0": {
+      "name": "파크리오",
+      "sigungu": "송파구",
+      "P0": 3411,
+      "P2": 2253,
+      "pct": 66.05,
+      "excluded": {
+        "M1": 732,
+        "L1": 132,
+        "N1": 154,
+        "I1": 91,
+        "other": 49
+      },
+      "reason": "Larger M1/L1/N1/I1 exclusion mass relative to P0"
+    },
+    "largest_P0_minus_P2": [
+      {
+        "name": "대흥동태영아파트",
+        "sigungu": "마포구",
+        "P0": 6665,
+        "P2": 4859,
+        "difference": 1806,
+        "excluded": {
+          "M1": 744,
+          "L1": 305,
+          "N1": 280,
+          "I1": 379,
+          "other": 98
+        }
+      },
+      {
+        "name": "창신쌍용2",
+        "sigungu": "종로구",
+        "P0": 6449,
+        "P2": 4934,
+        "difference": 1515,
+        "excluded": {
+          "M1": 622,
+          "L1": 235,
+          "N1": 258,
+          "I1": 354,
+          "other": 46
+        }
+      },
+      {
+        "name": "영등포푸르지오",
+        "sigungu": "영등포구",
+        "P0": 6082,
+        "P2": 4615,
+        "difference": 1467,
+        "excluded": {
+          "M1": 808,
+          "L1": 197,
+          "N1": 264,
+          "I1": 155,
+          "other": 43
+        }
+      },
+      {
+        "name": "도곡렉슬",
+        "sigungu": "강남구",
+        "P0": 4695,
+        "P2": 3294,
+        "difference": 1401,
+        "excluded": {
+          "M1": 707,
+          "L1": 407,
+          "N1": 137,
+          "I1": 67,
+          "other": 83
+        }
+      },
+      {
+        "name": "반포자이",
+        "sigungu": "서초구",
+        "P0": 5491,
+        "P2": 4115,
+        "difference": 1376,
+        "excluded": {
+          "M1": 778,
+          "L1": 315,
+          "N1": 161,
+          "I1": 62,
+          "other": 60
+        }
+      }
+    ]
+  },
+  "facilityIntegrity": {
+    "divergencesByFacility": {
+      "병원/의원": 0,
+      "약국": 0,
+      "편의점": 0,
+      "마트/슈퍼": 0,
+      "카페": 0,
+      "음식점": 0,
+      "미용": 0,
+      "학원": 0,
+      "체육": 0
+    },
+    "expectedAllZero": true,
+    "pass": true
+  },
+  "compositionConsistency": {
+    "음식/외식": {
+      "minSharePct": 22.33,
+      "medianSharePct": 33.38,
+      "maxSharePct": 47.06
+    },
+    "쇼핑/소매": {
+      "minSharePct": 17.33,
+      "medianSharePct": 26.14,
+      "maxSharePct": 53.95
+    },
+    "생활서비스": {
+      "minSharePct": 7.42,
+      "medianSharePct": 15.36,
+      "maxSharePct": 18.88
+    },
+    "의료/건강": {
+      "minSharePct": 3.0,
+      "medianSharePct": 4.84,
+      "maxSharePct": 7.86
+    },
+    "교육": {
+      "minSharePct": 2.72,
+      "medianSharePct": 11.53,
+      "maxSharePct": 35.7
+    },
+    "여가/체육": {
+      "minSharePct": 2.59,
+      "medianSharePct": 5.84,
+      "maxSharePct": 7.66
+    },
+    "기타": {
+      "minSharePct": 0.0,
+      "medianSharePct": 0.0,
+      "maxSharePct": 0.0
+    }
+  },
+  "interpretability": {
+    "officeHeavyAreas": "PASS",
+    "residentialAreas": "PASS",
+    "P2_underinclusive_cases": [],
+    "P2_overinclusive_cases": [],
+    "notes": [
+      "P2 still separates high vs low commercial intensity across districts.",
+      "Largest P0-P2 gaps driven by M1 professional services (taxonomy evidence).",
+      "Facility families preserved identically across P0/P1/P2."
+    ]
+  },
+  "populationDecision": {
+    "P2": "CONFIRMED",
+    "P1": "not preferred as primary",
+    "finalPrimaryPopulation": "DAILY_COMMERCE_CORE",
+    "reason": "Across 25 sigungu representatives, P2 retains food/retail/medical/education/personal/leisure, removes office inflation, and facility integrity holds. P1 mainly adds lodging/real-estate/travel extras."
+  },
+  "dualMetric": {
+    "recommendation": "P2_ONLY_UI_P0_METADATA",
+    "reason": "P2 should be the headline 생활 상권. P0 as ⓘ metadata aids transparency without dual competing totals in UI."
+  },
+  "sizeDistribution": {
+    "P25": 1748,
+    "P50": 2286,
+    "P75": 3191,
+    "decision": "DEFER_TO_FULL_SEOUL",
+    "note": "25 points show shape but are insufficient to freeze 소/중/대 thresholds."
+  },
+  "presentationTaxonomy": {
+    "음식/외식": "PASS",
+    "쇼핑/소매": "PASS",
+    "생활서비스": "PASS",
+    "의료/건강": "PASS",
+    "교육": "PASS",
+    "여가/체육": "PASS",
+    "기타": "PASS",
+    "shareRanges": {
+      "음식/외식": {
+        "minSharePct": 22.33,
+        "medianSharePct": 33.38,
+        "maxSharePct": 47.06
+      },
+      "쇼핑/소매": {
+        "minSharePct": 17.33,
+        "medianSharePct": 26.14,
+        "maxSharePct": 53.95
+      },
+      "생활서비스": {
+        "minSharePct": 7.42,
+        "medianSharePct": 15.36,
+        "maxSharePct": 18.88
+      },
+      "의료/건강": {
+        "minSharePct": 3.0,
+        "medianSharePct": 4.84,
+        "maxSharePct": 7.86
+      },
+      "교육": {
+        "minSharePct": 2.72,
+        "medianSharePct": 11.53,
+        "maxSharePct": 35.7
+      },
+      "여가/체육": {
+        "minSharePct": 2.59,
+        "medianSharePct": 5.84,
+        "maxSharePct": 7.66
+      },
+      "기타": {
+        "minSharePct": 0.0,
+        "medianSharePct": 0.0,
+        "maxSharePct": 0.0
+      }
+    }
+  },
+  "db": {
+    "productionWrites": 0,
+    "tursoWrites": 0,
+    "schema": 0
+  },
+  "decision": {
+    "P2_DAILY_COMMERCE_CORE": "CONFIRMED",
+    "MULTI_COMPLEX_DISTRIBUTION": "PASS",
+    "FACILITY_PRESERVATION": "PASS",
+    "SIZE_LABEL": "DEFER",
+    "COMMERCE_DATA_FOUNDATION": "READY_FOR_INGESTION_PILOT",
+    "NEXT_ACTION": "A",
+    "NEXT_ACTION_REASON": "P2 confirmed across 25 Seoul sigungu reps; proceed to minimal SEMAS ingestion + derived snapshot pilot before full Seoul backfill."
+  }
+}

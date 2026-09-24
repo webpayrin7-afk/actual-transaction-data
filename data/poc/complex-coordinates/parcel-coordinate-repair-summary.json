@@ -1,0 +1,175 @@
+{
+  "mode": "dry-run",
+  "repair_version": "v1",
+  "coordinate_source": "CADASTRAL_PARCEL",
+  "coordinate_semantics": "PARCEL_REPRESENTATIVE_POINT",
+  "parcel_identity": "SAME_ROW_ADDRESS_DERIVED_PNU",
+  "fuzzy_matching": false,
+  "geocoder_calls": 0,
+  "production_coordinate_rows_written": 0,
+  "generatedAt": "2026-09-18T14:16:39.350Z",
+  "before": {
+    "total": 8437,
+    "safe_coordinates": 2643,
+    "overall_coverage": 0.3133,
+    "spatial_stage_coverage": 0.3197
+  },
+  "after": {
+    "total": 8437,
+    "EXACT_ORIGINAL": 2643,
+    "REPAIRED_FROM_SAME_ROW_LOT": 3613,
+    "ORIGINAL_CONFLICT_REPAIRED": 1707,
+    "total_safe_coordinates": 7963,
+    "overall_coverage": 0.943819,
+    "valid_source_row_coverage": 0.963111,
+    "unique_safe_pnu": 7962
+  },
+  "unresolved": {
+    "NOT_FOUND": 6,
+    "AMBIGUOUS": 299,
+    "NO_SOURCE_PARCEL": 169,
+    "NO_PNU_examined": 168,
+    "NO_PNU_repaired": 0
+  },
+  "causes": {
+    "SUBLOT_0000_TO_NONEMPTY": 5320
+  },
+  "gu_patterns": [
+    {
+      "name": "서초구",
+      "complexes": 750,
+      "repaired": 613,
+      "rate": 0.817
+    },
+    {
+      "name": "구로구",
+      "complexes": 643,
+      "repaired": 486,
+      "rate": 0.756
+    },
+    {
+      "name": "금천구",
+      "complexes": 173,
+      "repaired": 124,
+      "rate": 0.717
+    },
+    {
+      "name": "관악구",
+      "complexes": 299,
+      "repaired": 214,
+      "rate": 0.716
+    },
+    {
+      "name": "용산구",
+      "complexes": 233,
+      "repaired": 163,
+      "rate": 0.7
+    },
+    {
+      "name": "은평구",
+      "complexes": 514,
+      "repaired": 359,
+      "rate": 0.698
+    },
+    {
+      "name": "양천구",
+      "complexes": 476,
+      "repaired": 329,
+      "rate": 0.691
+    },
+    {
+      "name": "강동구",
+      "complexes": 498,
+      "repaired": 337,
+      "rate": 0.677
+    }
+  ],
+  "dong_patterns": [
+    {
+      "name": "구로구 구로동",
+      "complexes": 440,
+      "repaired": 394,
+      "rate": 0.895
+    },
+    {
+      "name": "강서구 화곡동",
+      "complexes": 278,
+      "repaired": 247,
+      "rate": 0.888
+    },
+    {
+      "name": "서초구 방배동",
+      "complexes": 256,
+      "repaired": 224,
+      "rate": 0.875
+    },
+    {
+      "name": "서초구 서초동",
+      "complexes": 211,
+      "repaired": 188,
+      "rate": 0.891
+    },
+    {
+      "name": "양천구 신월동",
+      "complexes": 208,
+      "repaired": 151,
+      "rate": 0.726
+    },
+    {
+      "name": "동대문구 장안동",
+      "complexes": 164,
+      "repaired": 135,
+      "rate": 0.823
+    },
+    {
+      "name": "관악구 봉천동",
+      "complexes": 148,
+      "repaired": 113,
+      "rate": 0.764
+    },
+    {
+      "name": "강동구 성내동",
+      "complexes": 130,
+      "repaired": 99,
+      "rate": 0.762
+    }
+  ],
+  "multiplicity": {
+    "groups": 1,
+    "affected_complexes": 2,
+    "max_complexes_per_pnu": 2
+  },
+  "cross_check": {
+    "compared": 64,
+    "repaired_compared": 6,
+    "median_m": 21.3,
+    "p75_m": 47.3,
+    "p90_m": 108.3,
+    "p95_m": 211.5,
+    "max_m": 10140.1,
+    "le_50m": 48,
+    "m50_100": 9,
+    "m100_250": 4,
+    "m250_500": 1,
+    "m500_plus": 2,
+    "repaired_500m_plus": 0
+  },
+  "sample": {
+    "count": 42,
+    "gate": "PASS"
+  },
+  "jamsil": {
+    "classification": "EXACT_ORIGINAL",
+    "pnu": "1171010100100190000",
+    "coordinate": {
+      "lat": 37.51413457,
+      "lng": 127.07932524
+    },
+    "result": "PASS"
+  },
+  "gate": {
+    "decision": "PASS",
+    "eligibility": "YES",
+    "reason": "Same-row lot repair is deterministic. Every safe coordinate is one exact cadastral hit inside Seoul. Jamsil Els stayed EXACT_ORIGINAL. Residual rows are separated and were not guessed."
+  }
+}

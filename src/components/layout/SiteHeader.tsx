@@ -143,7 +143,7 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white"
+      className="relative sticky top-0 z-50 border-b border-slate-200/80 bg-white"
     >
       <div className="mx-auto w-full max-w-7xl pr-2 pl-0 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div className="flex flex-col gap-0.5 py-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">

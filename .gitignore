@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# national coordinate cache (manifest is tracked; raw extracts are not)
+/data/poc/national-expansion/coordinates/cache/

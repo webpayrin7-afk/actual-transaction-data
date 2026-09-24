@@ -1,0 +1,420 @@
+{
+  "source_version": "public-source-discovery-2026-09-18",
+  "count": 69,
+  "overrides": {
+    "cx_0a3becce972cf070": {
+      "lat": 37.5949317,
+      "lng": 126.9420732,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_0dcaa45f350aa659": {
+      "lat": 37.656669,
+      "lng": 127.0295385,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_0f51ec5ecb9de628": {
+      "lat": 37.583841,
+      "lng": 126.95112,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_0f97e2394ccb03e4": {
+      "lat": 37.598029,
+      "lng": 126.945723,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_13470b7cc4b90676": {
+      "lat": 37.5604168,
+      "lng": 126.9651045,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_17d8f4ecbd6b6bbc": {
+      "lat": 37.6814584,
+      "lng": 127.0468345,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_1d51fcfe6f4030f0": {
+      "lat": 37.5757029,
+      "lng": 126.9141298,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_1e38aeea0d8d0844": {
+      "lat": 37.5921958,
+      "lng": 126.948372,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_1ee6a73f6ff57d4f": {
+      "lat": 37.562291,
+      "lng": 126.951063,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_2275ae576b83d169": {
+      "lat": 37.5804108,
+      "lng": 126.9528765,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_229c345502407d30": {
+      "lat": 37.576911,
+      "lng": 126.918137,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_23a95ced22ef4b3c": {
+      "lat": 37.57512476,
+      "lng": 126.9274723,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_255ba269a3e08990": {
+      "lat": 37.631732,
+      "lng": 127.0582196,
+      "source": "seoul_openaptinfo_sample",
+      "method": "EXACT_OFFICIAL_ID"
+    },
+    "cx_2ce33d7aa1edd88b": {
+      "lat": 37.5652014,
+      "lng": 126.927128,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_2d7cb64e2755f304": {
+      "lat": 37.5784484,
+      "lng": 126.9508555,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_2d83dab881f6e939": {
+      "lat": 37.5719992,
+      "lng": 126.9126716,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_3a66527bd21deee5": {
+      "lat": 37.5890017,
+      "lng": 126.9414014,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_3f2292f892bc1f43": {
+      "lat": 37.5887933,
+      "lng": 126.9381745,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_4b65ef6e63f07f24": {
+      "lat": 37.5755277,
+      "lng": 126.9162819,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_579c17c2d89cde2f": {
+      "lat": 37.6470982,
+      "lng": 127.0352394,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_57a8bee628be1f96": {
+      "lat": 37.6560862,
+      "lng": 127.0453524,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_5c6de7dee80e3712": {
+      "lat": 37.5006676,
+      "lng": 126.9596386,
+      "source": "seoul_openaptinfo_sample",
+      "method": "EXACT_OFFICIAL_ID"
+    },
+    "cx_5c7b4d08b2f2bbce": {
+      "lat": 37.5676522,
+      "lng": 126.958455,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_5d5b370f66498962": {
+      "lat": 37.6030233,
+      "lng": 126.9509978,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_60caf2936960be62": {
+      "lat": 37.5595234,
+      "lng": 126.9479632,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_63259c64dba5969c": {
+      "lat": 37.56989002,
+      "lng": 126.9178155,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_633ff32494dff977": {
+      "lat": 37.56397,
+      "lng": 126.9281324,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_6a1f4e7d0bc394f7": {
+      "lat": 37.6809076,
+      "lng": 127.0486883,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_6fa22bfc6db13ab1": {
+      "lat": 37.5663309,
+      "lng": 126.9598553,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_7629c96518c21505": {
+      "lat": 37.5972741,
+      "lng": 126.9378412,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_764c5eb81fdcb178": {
+      "lat": 37.5975121,
+      "lng": 126.9446692,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_81394e57a727f50a": {
+      "lat": 37.5759022,
+      "lng": 126.9091078,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_816aa3d44ca161e0": {
+      "lat": 37.592258,
+      "lng": 126.9494989,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_8460762869c616d7": {
+      "lat": 37.4997285,
+      "lng": 127.0499952,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_846b2a88508e6cef": {
+      "lat": 37.5765928,
+      "lng": 126.9040715,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_84de2b9c32e7576e": {
+      "lat": 37.5662487,
+      "lng": 126.9613516,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_85b9cf462a0cfe50": {
+      "lat": 37.5754721,
+      "lng": 126.9362953,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_8f0d7b4c75b5f439": {
+      "lat": 37.5759769,
+      "lng": 126.9156652,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_900e439b82e32079": {
+      "lat": 37.5802688,
+      "lng": 126.9172378,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_947aadd108f798ed": {
+      "lat": 37.58267368,
+      "lng": 126.9403932,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_a5542c9c8c29db05": {
+      "lat": 37.5830058,
+      "lng": 126.9475449,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_a6e7984c097a11b1": {
+      "lat": 37.58463448,
+      "lng": 126.9444662,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_a7e5e5379114bc29": {
+      "lat": 37.6548448,
+      "lng": 127.0349748,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_ac6195ede1deff1b": {
+      "lat": 37.5011622,
+      "lng": 126.8406749,
+      "source": "seoul_openaptinfo_sample",
+      "method": "EXACT_OFFICIAL_ID"
+    },
+    "cx_b00f851835e4fb96": {
+      "lat": 37.5951028,
+      "lng": 126.9523764,
+      "source": "seodaemun_apt_status_csv",
+      "method": "MULTI_RECORD_RESOLVED"
+    },
+    "cx_b520fb2a9bd388ca": {
+      "lat": 37.5703141,
+      "lng": 126.9584462,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_b8cc2446e7b1674a": {
+      "lat": 37.5773849,
+      "lng": 126.912154,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_ba6e5837d602569f": {
+      "lat": 37.6563305,
+      "lng": 127.0417,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_c00bde9482487206": {
+      "lat": 37.5892439,
+      "lng": 126.9491411,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_c99b28bc82066670": {
+      "lat": 37.6518064,
+      "lng": 127.0216044,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_ca4e4c8234de83f7": {
+      "lat": 37.5972741,
+      "lng": 126.9378412,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_cf91f2556c194446": {
+      "lat": 37.5905613,
+      "lng": 126.938788,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_cfdd5c8ac0c45b36": {
+      "lat": 37.58061874,
+      "lng": 126.9202967,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_d33b54a68abe418c": {
+      "lat": 37.6554883,
+      "lng": 127.0427387,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_d361484428434c0f": {
+      "lat": 37.59456536,
+      "lng": 126.9411725,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_d77dccd04c65be20": {
+      "lat": 37.5615291,
+      "lng": 126.9295194,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_da17b5e13dfcfcf8": {
+      "lat": 37.6428627,
+      "lng": 127.0333996,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_dd7f14f68812b5e7": {
+      "lat": 37.6333523,
+      "lng": 127.0424529,
+      "source": "dobong_apt_status_csv_2018",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_e1319608bb89c0d6": {
+      "lat": 37.5768106,
+      "lng": 126.9079507,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_e376b8ef2d0291b0": {
+      "lat": 37.5932796,
+      "lng": 126.943037,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_e58bc575e99cb5b5": {
+      "lat": 37.4768967,
+      "lng": 127.1291789,
+      "source": "seoul_openaptinfo_sample",
+      "method": "EXACT_OFFICIAL_ID"
+    },
+    "cx_e99ef1c66bc1ad97": {
+      "lat": 37.5954557,
+      "lng": 126.9455393,
+      "source": "seodaemun_apt_status_csv",
+      "method": "MULTI_RECORD_RESOLVED"
+    },
+    "cx_eadbeb3ecc646d9e": {
+      "lat": 37.572773,
+      "lng": 126.9109013,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_eaf0c342ffff72cf": {
+      "lat": 37.5749642,
+      "lng": 126.9514854,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_f0adb970ba7c27bd": {
+      "lat": 37.5991679,
+      "lng": 126.9439015,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_f486e24dc43a3587": {
+      "lat": 37.575195,
+      "lng": 126.904045,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_fd6338c01141bd3a": {
+      "lat": 37.56190913,
+      "lng": 126.9560004,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_fdf305d887270bcd": {
+      "lat": 37.5819293,
+      "lng": 126.9520597,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    },
+    "cx_fe815bdca81bad25": {
+      "lat": 37.5935653,
+      "lng": 126.9466544,
+      "source": "seodaemun_apt_status_csv",
+      "method": "EXACT_ROAD_ADDRESS"
+    }
+  }
+}

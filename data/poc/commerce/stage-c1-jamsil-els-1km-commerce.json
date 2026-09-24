@@ -1,0 +1,207 @@
+{
+  "stage": "C1",
+  "purpose": "commerce-census-source-validation-poc",
+  "generatedAt": "2026-09-16T07:02:00.722Z",
+  "center": {
+    "complexKey": "jamsil-els",
+    "complexName": "잠실엘스",
+    "lat": 37.5133,
+    "lng": 127.1028,
+    "coordinateSource": "data/poc/nearby-transport/jamsil-els.json"
+  },
+  "radiusM": 1000,
+  "distanceMetric": "straight-line-haversine",
+  "source": {
+    "name": "소상공인시장진흥공단_상가(상권)정보",
+    "provider": "소상공인시장진흥공단",
+    "datasetDate": "2026-06-30",
+    "fileLabel": "소상공인시장진흥공단_상가(상권)정보_20260630",
+    "portalUrl": "https://www.data.go.kr/data/15083033/fileData.do",
+    "accessUsed": "bulk-download-seoul-csv-stream-filter",
+    "populationMeaning": "소상공인시장진흥공단이 제공하는 영업 중 상가업소 레코드(국세청/카드사 기반). '실시간 현장 확인된 현재 영업 중 전체 점포'와 동일하다고 단정하지 않음.",
+    "identity": "provider=SEMAS + 상가업소번호",
+    "taxonomyNative": "대/중/소분류 (상권업종분류) + 표준산업분류"
+  },
+  "counts": {
+    "sourceRowsConsideredSeoulCsv": 554092,
+    "missingCoordsInSeoulCsv": 0,
+    "invalidCoordsInSeoulCsv": 0,
+    "within1kmRaw": 5904,
+    "duplicatesRemoved": 0,
+    "uniqueBusinesses": 5904
+  },
+  "categoryComposition": {
+    "largeClassTop3": [
+      {
+        "code": "I2",
+        "category": "음식",
+        "count": 1846,
+        "sharePct": 31.27
+      },
+      {
+        "code": "G2",
+        "category": "소매",
+        "count": 1249,
+        "sharePct": 21.16
+      },
+      {
+        "code": "M1",
+        "category": "과학·기술",
+        "count": 893,
+        "sharePct": 15.13
+      }
+    ],
+    "midClassTop5": [
+      {
+        "code": "I201",
+        "category": "한식",
+        "count": 597
+      },
+      {
+        "code": "G209",
+        "category": "섬유·의복·신발 소매",
+        "count": 504
+      },
+      {
+        "code": "I210",
+        "category": "기타 간이",
+        "count": 329
+      },
+      {
+        "code": "S207",
+        "category": "이용·미용",
+        "count": 320
+      },
+      {
+        "code": "I212",
+        "category": "비알코올 ",
+        "count": 260
+      }
+    ],
+    "allLargeClasses": [
+      {
+        "code": "I2",
+        "category": "음식",
+        "count": 1846,
+        "sharePct": 31.27
+      },
+      {
+        "code": "G2",
+        "category": "소매",
+        "count": 1249,
+        "sharePct": 21.16
+      },
+      {
+        "code": "M1",
+        "category": "과학·기술",
+        "count": 893,
+        "sharePct": 15.13
+      },
+      {
+        "code": "S2",
+        "category": "수리·개인",
+        "count": 527,
+        "sharePct": 8.93
+      },
+      {
+        "code": "P1",
+        "category": "교육",
+        "count": 366,
+        "sharePct": 6.2
+      },
+      {
+        "code": "R1",
+        "category": "예술·스포츠",
+        "count": 250,
+        "sharePct": 4.23
+      },
+      {
+        "code": "L1",
+        "category": "부동산",
+        "count": 240,
+        "sharePct": 4.07
+      },
+      {
+        "code": "Q1",
+        "category": "보건의료",
+        "count": 211,
+        "sharePct": 3.57
+      },
+      {
+        "code": "N1",
+        "category": "시설관리·임대",
+        "count": 197,
+        "sharePct": 3.34
+      },
+      {
+        "code": "I1",
+        "category": "숙박",
+        "count": 125,
+        "sharePct": 2.12
+      }
+    ]
+  },
+  "majorFacilities": {
+    "병원/의원": {
+      "count": 204,
+      "mapping": "mcls Q101 병원 + Q102 의원"
+    },
+    "약국": {
+      "count": 88,
+      "mapping": "scls G21501 약국"
+    },
+    "편의점": {
+      "count": 106,
+      "mapping": "scls G20405 편의점"
+    },
+    "마트/슈퍼": {
+      "count": 46,
+      "mapping": "scls G20404 슈퍼마켓 only (G20499 not forced)"
+    },
+    "카페": {
+      "count": 260,
+      "mapping": "scls I21201 카페 (스터디카페 excluded)"
+    },
+    "음식점": {
+      "count": 1586,
+      "mapping": "lcls I2 음식 minus mcls I212 비알코올(카페)"
+    },
+    "미용": {
+      "count": 320,
+      "mapping": "mcls S207 이용·미용"
+    },
+    "학원": {
+      "count": 271,
+      "mapping": "mcls/scls name contains 학원"
+    },
+    "체육시설": {
+      "count": 116,
+      "mapping": "mcls R103 스포츠 서비스"
+    }
+  },
+  "unsupportedFacilities": [],
+  "naver": {
+    "usedAsCensus": false,
+    "role": "POI / map marker / representative businesses only"
+  },
+  "sizeLabel": "DEFER",
+  "polygon": {
+    "officialPolygonAvailable": true,
+    "note": "SEMAS API provides designated commercial-area (상권) polygons via storeZone* endpoints; not used in this 1km apartment-radius PoC.",
+    "used": false
+  },
+  "presentationTaxonomyProposal": [
+    "음식/외식",
+    "쇼핑/소매",
+    "생활서비스",
+    "의료/건강",
+    "교육",
+    "여가/체육",
+    "기타"
+  ],
+  "notes": [
+    "NAVER Local Search must not be used for total/store-ratio/facility census.",
+    "PoC does not write production DB/Turso/schema.",
+    "Raw Seoul/nationwide dumps are not stored in the repository."
+  ]
+}

@@ -1,0 +1,779 @@
+{
+  "mode": "dry-run",
+  "source_version": "public-source-discovery-2026-09-18",
+  "generatedAt": "2026-09-18T03:39:08.448Z",
+  "production_coordinate_rows_written": 0,
+  "production_school_rows_written": 0,
+  "school_rerun": false,
+  "join_keys": {
+    "total": 8437,
+    "lawd": 8437,
+    "dong_name": 8437,
+    "bjdong_cd": 8437,
+    "jibun": 8437,
+    "bun_ji_parseable": 8432,
+    "road_address": 0,
+    "kapt_links": 9,
+    "building_hub_pnu": 9,
+    "pnu_plat0_composable": 8432,
+    "pnu_land_agnostic_key": 8432,
+    "note": "platGb not stored on master; PNU uses platGb=0 (대지) for composable key; REB join uses land-agnostic key"
+  },
+  "sources": [
+    {
+      "name": "Seoul OpenAptInfo (OA-15818)",
+      "provider": "서울특별시 열린데이터광장",
+      "official": true,
+      "format": "OpenAPI JSON",
+      "bulk": "API pagination (not file bulk without key)",
+      "api_key": "SEOUL_OPENAPI_KEY required for >5 rows (sample key max 5)",
+      "available_keys": [
+        "APT_CD",
+        "APT_RDN_ADDR",
+        "XCRD",
+        "YCRD",
+        "SGG_ADDR",
+        "EMD_ADDR"
+      ],
+      "coordinate": true,
+      "coordinate_meaning": "XCRD/YCRD appear WGS84 lon/lat (verified sample bbox)",
+      "crs": "EPSG:4326 (observed)",
+      "version": "live API; sample pulled 2026-09-18",
+      "license": "공공누리 1유형 : 출처표시 (상업적 이용 및 변경 가능) — per OA-15818 page",
+      "attribution": "required (제1유형)",
+      "classification": "PRIMARY CANDIDATE (KEY_REQUIRED)",
+      "coverage_records": 5,
+      "reason": "Only citywide official apartment table found with coordinates + APT_CD"
+    },
+    {
+      "name": "한국부동산원 공동주택 단지 식별정보_기본정보",
+      "provider": "한국부동산원",
+      "official": true,
+      "format": "CSV bulk",
+      "bulk": true,
+      "api_key": "none for file download",
+      "available_keys": [
+        "단지고유번호",
+        "필지고유번호(PNU)",
+        "주소",
+        "도로명주소",
+        "단지명"
+      ],
+      "coordinate": false,
+      "coordinate_meaning": "n/a",
+      "crs": "n/a",
+      "version": "20260831",
+      "license": "이용허락범위 제한 없음 (portal stated)",
+      "attribution": "UNKNOWN (not explicitly stated beyond unrestricted use)",
+      "classification": "SECONDARY CANDIDATE (identity/PNU only)",
+      "coverage_records_seoul": 106143,
+      "reason": "Deterministic PNU join; does not itself supply coordinates"
+    },
+    {
+      "name": "서대문구/도봉구 공동주택 현황 CSV",
+      "provider": "자치구 → 공공데이터포털",
+      "official": true,
+      "format": "CSV",
+      "bulk": true,
+      "api_key": "none",
+      "available_keys": [
+        "도로명주소/지번",
+        "좌표 or 위도경도"
+      ],
+      "coordinate": true,
+      "coordinate_meaning": "UNKNOWN representative point",
+      "crs": "EPSG:4326 (observed WGS84)",
+      "version": "서대문 20220623 / 도봉 2018",
+      "license": "이용허락범위 제한 없음 (portal stated for downloaded files)",
+      "attribution": "UNKNOWN",
+      "classification": "FALLBACK ONLY",
+      "reason": "Coords present but gu-partial; not citywide"
+    },
+    {
+      "name": "연속지적도형정보 / LX 필지점 / 위치정보요약DB",
+      "provider": "국토교통부 / LX / 행정안전부",
+      "official": true,
+      "format": "SHP/TXT via VWorld or juso application",
+      "bulk": true,
+      "api_key": "VWorld login or juso application (KEY_REQUIRED / APPLICATION_REQUIRED)",
+      "coordinate": true,
+      "coordinate_meaning": "parcel polygon / parcel point / building entrance",
+      "crs": "EPSG:5186 or EPSG:5179 (per dataset)",
+      "version": "UNKNOWN (not downloaded)",
+      "license": "varies (daily 연속지적: 제한 없음; some LX/nationwide: 제4유형 commercial prohibited)",
+      "attribution": "UNKNOWN/dataset-specific",
+      "classification": "SECONDARY CANDIDATE (blocked this run)",
+      "reason": "Best parcel-centroid path but download gated; not fetched"
+    },
+    {
+      "name": "NAVER geocode / VWorld geocode / Nominatim",
+      "classification": "REJECT for this order",
+      "reason": "NAVER 401; VWorld key absent; Nominatim low-confidence pilot only"
+    }
+  ],
+  "reb_identity_join": {
+    "total": 8437,
+    "EXACT_JIBUN_ADDRESS": 5317,
+    "EXACT_PARCEL": 2638,
+    "NO_MATCH": 169,
+    "MULTI_RECORD_SAME_PARCEL": 313,
+    "high_confidence_identity": 8268,
+    "high_confidence_identity_pct": 98
+  },
+  "coordinate_join": {
+    "total": 8437,
+    "NO_MATCH": 8362,
+    "EXACT_ROAD_ADDRESS": 63,
+    "EXACT_OFFICIAL_ID": 4,
+    "AMBIGUOUS": 6,
+    "MULTI_RECORD_RESOLVED": 2,
+    "gate_eligible": 69,
+    "high_confidence_coverage_pct": 0.8178,
+    "openapt_full_loaded": 0,
+    "gu_and_sample_coord_rows": 171,
+    "seoul_openapi_key_present": false
+  },
+  "sample": {
+    "sample_total": 40,
+    "rows": [
+      {
+        "complex_id": "cx_02d46a6106c0e6b0",
+        "apt_name": "현대10차(201,202동)",
+        "sigungu": "강남구",
+        "our_key": "116801100004360000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1168011000104360000",
+        "coordinate": null,
+        "coord_source": null,
+        "method": null,
+        "status": "NO_MATCH"
+      },
+      {
+        "complex_id": "cx_e58bc575e99cb5b5",
+        "apt_name": "송파파인타운13단지",
+        "sigungu": "송파구",
+        "our_key": "117101090008570000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1171010900108570000",
+        "coordinate": {
+          "lat": 37.4768967,
+          "lng": 127.1291789
+        },
+        "coord_source": "seoul_openaptinfo_sample",
+        "method": "EXACT_OFFICIAL_ID",
+        "status": "EXACT_OFFICIAL_ID"
+      },
+      {
+        "complex_id": "cx_01c0dbf7da85cc41",
+        "apt_name": "창신쌍용2",
+        "sigungu": "종로구",
+        "our_key": "111101740007030000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1111017400107030000",
+        "coordinate": null,
+        "coord_source": null,
+        "method": null,
+        "status": "NO_MATCH"
+      },
+      {
+        "complex_id": "cx_0276fe98811f6b51",
+        "apt_name": "공덕파크자이",
+        "sigungu": "마포구",
+        "our_key": "114401020004760000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1144010200104760000",
+        "coordinate": null,
+        "coord_source": null,
+        "method": null,
+        "status": "NO_MATCH"
+      },
+      {
+        "complex_id": "cx_01210eca6e2ee4cc",
+        "apt_name": "마곡수명산파크2단지",
+        "sigungu": "강서구",
+        "our_key": "115001060007410000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1150010600107410000",
+        "coordinate": null,
+        "coord_source": null,
+        "method": null,
+        "status": "NO_MATCH"
+      },
+      {
+        "complex_id": "cx_255ba269a3e08990",
+        "apt_name": "동원베네스트",
+        "sigungu": "노원구",
+        "our_key": "113501020009400000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1135010200109400000",
+        "coordinate": {
+          "lat": 37.631732,
+          "lng": 127.0582196
+        },
+        "coord_source": "seoul_openaptinfo_sample",
+        "method": "EXACT_OFFICIAL_ID",
+        "status": "EXACT_OFFICIAL_ID"
+      },
+      {
+        "complex_id": "cx_0a3becce972cf070",
+        "apt_name": "풍림1차",
+        "sigungu": "서대문구",
+        "our_key": "114101180004400003",
+        "reb_status": "EXACT_JIBUN_ADDRESS",
+        "reb_pnu": "1141011800104400000",
+        "coordinate": {
+          "lat": 37.5949317,
+          "lng": 126.9420732
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_0dcaa45f350aa659",
+        "apt_name": "금호2",
+        "sigungu": "도봉구",
+        "our_key": "서울 도봉구 쌍문동 산69-1",
+        "reb_status": "EXACT_JIBUN_ADDRESS",
+        "reb_pnu": "1132010500200690000",
+        "coordinate": {
+          "lat": 37.656669,
+          "lng": 127.0295385
+        },
+        "coord_source": "dobong_apt_status_csv_2018",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_5c6de7dee80e3712",
+        "apt_name": "우리유앤미",
+        "sigungu": "동작구",
+        "our_key": "115901050003290000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1159010500103290000",
+        "coordinate": {
+          "lat": 37.5006676,
+          "lng": 126.9596386
+        },
+        "coord_source": "seoul_openaptinfo_sample",
+        "method": "EXACT_OFFICIAL_ID",
+        "status": "EXACT_OFFICIAL_ID"
+      },
+      {
+        "complex_id": "cx_ac6195ede1deff1b",
+        "apt_name": "건영",
+        "sigungu": "구로구",
+        "our_key": "115301070000470001",
+        "reb_status": "EXACT_JIBUN_ADDRESS",
+        "reb_pnu": "1153010700100470000",
+        "coordinate": {
+          "lat": 37.5011622,
+          "lng": 126.8406749
+        },
+        "coord_source": "seoul_openaptinfo_sample",
+        "method": "EXACT_OFFICIAL_ID",
+        "status": "EXACT_OFFICIAL_ID"
+      },
+      {
+        "complex_id": "cx_0f51ec5ecb9de628",
+        "apt_name": "인왕산어울림",
+        "sigungu": "서대문구",
+        "our_key": "114101110004670000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011100104670000",
+        "coordinate": {
+          "lat": 37.583841,
+          "lng": 126.95112
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_0f97e2394ccb03e4",
+        "apt_name": "북한산두산위브",
+        "sigungu": "서대문구",
+        "our_key": "114101180004670000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011800104670000",
+        "coordinate": {
+          "lat": 37.598029,
+          "lng": 126.945723
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_13470b7cc4b90676",
+        "apt_name": "충정리시온",
+        "sigungu": "서대문구",
+        "our_key": "114101020004650000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141010200104650000",
+        "coordinate": {
+          "lat": 37.5604168,
+          "lng": 126.9651045
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_17d8f4ecbd6b6bbc",
+        "apt_name": "동아에코빌",
+        "sigungu": "도봉구",
+        "our_key": "113201080006540000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1132010800106540000",
+        "coordinate": {
+          "lat": 37.6814584,
+          "lng": 127.0468345
+        },
+        "coord_source": "dobong_apt_status_csv_2018",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_1d51fcfe6f4030f0",
+        "apt_name": "dmc아이파크",
+        "sigungu": "서대문구",
+        "our_key": "114101190004580000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011900104580000",
+        "coordinate": {
+          "lat": 37.5757029,
+          "lng": 126.9141298
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_1e38aeea0d8d0844",
+        "apt_name": "인왕산벽산",
+        "sigungu": "서대문구",
+        "our_key": "114101110004650000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011100104650000",
+        "coordinate": {
+          "lat": 37.5921958,
+          "lng": 126.948372
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_1ee6a73f6ff57d4f",
+        "apt_name": "힐스테이트신촌",
+        "sigungu": "서대문구",
+        "our_key": "114101100010170000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011000110170000",
+        "coordinate": {
+          "lat": 37.562291,
+          "lng": 126.951063
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_2275ae576b83d169",
+        "apt_name": "청구3차",
+        "sigungu": "서대문구",
+        "our_key": "114101110004620000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011100104620000",
+        "coordinate": {
+          "lat": 37.5804108,
+          "lng": 126.9528765
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_229c345502407d30",
+        "apt_name": "dmc에코자이",
+        "sigungu": "서대문구",
+        "our_key": "114101200003890000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141012000103890000",
+        "coordinate": {
+          "lat": 37.576911,
+          "lng": 126.918137
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_23a95ced22ef4b3c",
+        "apt_name": "연희파크푸르지오",
+        "sigungu": "서대문구",
+        "our_key": "114101170007470000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011700107470000",
+        "coordinate": {
+          "lat": 37.57512476,
+          "lng": 126.9274723
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_2ce33d7aa1edd88b",
+        "apt_name": "임광",
+        "sigungu": "서대문구",
+        "our_key": "114101170007380000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011700107380000",
+        "coordinate": {
+          "lat": 37.5652014,
+          "lng": 126.927128
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_2d7cb64e2755f304",
+        "apt_name": "홍제삼성래미안",
+        "sigungu": "서대문구",
+        "our_key": "114101110004610000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011100104610000",
+        "coordinate": {
+          "lat": 37.5784484,
+          "lng": 126.9508555
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_2d83dab881f6e939",
+        "apt_name": "래미안남가좌2차",
+        "sigungu": "서대문구",
+        "our_key": "114101200003790000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141012000103790000",
+        "coordinate": {
+          "lat": 37.5719992,
+          "lng": 126.9126716
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_3a66527bd21deee5",
+        "apt_name": "홍제현대",
+        "sigungu": "서대문구",
+        "our_key": "114101110003310000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011100103310000",
+        "coordinate": {
+          "lat": 37.5890017,
+          "lng": 126.9414014
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_3f2292f892bc1f43",
+        "apt_name": "남양",
+        "sigungu": "서대문구",
+        "our_key": "114101110004570000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011100104570000",
+        "coordinate": {
+          "lat": 37.5887933,
+          "lng": 126.9381745
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_4b65ef6e63f07f24",
+        "apt_name": "래미안루센티아",
+        "sigungu": "서대문구",
+        "our_key": "114101200003900000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141012000103900000",
+        "coordinate": {
+          "lat": 37.5755277,
+          "lng": 126.9162819
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_579c17c2d89cde2f",
+        "apt_name": "창동현대타운",
+        "sigungu": "도봉구",
+        "our_key": "113201070008120000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1132010700108120000",
+        "coordinate": {
+          "lat": 37.6470982,
+          "lng": 127.0352394
+        },
+        "coord_source": "dobong_apt_status_csv_2018",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_57a8bee628be1f96",
+        "apt_name": "창동신도브래뉴1차",
+        "sigungu": "도봉구",
+        "our_key": "113201070008200000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1132010700108200000",
+        "coordinate": {
+          "lat": 37.6560862,
+          "lng": 127.0453524
+        },
+        "coord_source": "dobong_apt_status_csv_2018",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_5c7b4d08b2f2bbce",
+        "apt_name": "천연뜨란채",
+        "sigungu": "서대문구",
+        "our_key": "114101060001450000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141010600101450000",
+        "coordinate": {
+          "lat": 37.5676522,
+          "lng": 126.958455
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_5d5b370f66498962",
+        "apt_name": "극동",
+        "sigungu": "서대문구",
+        "our_key": "114101180004540000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011800104540000",
+        "coordinate": {
+          "lat": 37.6030233,
+          "lng": 126.9509978
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_60caf2936960be62",
+        "apt_name": "신촌럭키",
+        "sigungu": "서대문구",
+        "our_key": "114101120001440000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011200101440000",
+        "coordinate": {
+          "lat": 37.5595234,
+          "lng": 126.9479632
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_63259c64dba5969c",
+        "apt_name": "디엠씨엘가",
+        "sigungu": "서대문구",
+        "our_key": "114101200003870000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141012000103870000",
+        "coordinate": {
+          "lat": 37.56989002,
+          "lng": 126.9178155
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_633ff32494dff977",
+        "apt_name": "연희자이엘라",
+        "sigungu": "서대문구",
+        "our_key": "114101170007450000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011700107450000",
+        "coordinate": {
+          "lat": 37.56397,
+          "lng": 126.9281324
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_6a1f4e7d0bc394f7",
+        "apt_name": "삼환도봉",
+        "sigungu": "도봉구",
+        "our_key": "113201080000870000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1132010800100870000",
+        "coordinate": {
+          "lat": 37.6809076,
+          "lng": 127.0486883
+        },
+        "coord_source": "dobong_apt_status_csv_2018",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_6fa22bfc6db13ab1",
+        "apt_name": "동부센트레빌",
+        "sigungu": "서대문구",
+        "our_key": "114101050002600000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141010500102600000",
+        "coordinate": {
+          "lat": 37.5663309,
+          "lng": 126.9598553
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_7629c96518c21505",
+        "apt_name": "홍은동풍림아이원",
+        "sigungu": "서대문구",
+        "our_key": "114101180004600000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011800104600000",
+        "coordinate": {
+          "lat": 37.5972741,
+          "lng": 126.9378412
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_764c5eb81fdcb178",
+        "apt_name": "유원",
+        "sigungu": "서대문구",
+        "our_key": "114101180000220000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011800100220000",
+        "coordinate": {
+          "lat": 37.5975121,
+          "lng": 126.9446692
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_81394e57a727f50a",
+        "apt_name": "dmc한양",
+        "sigungu": "서대문구",
+        "our_key": "114101190004310000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011900104310000",
+        "coordinate": {
+          "lat": 37.5759022,
+          "lng": 126.9091078
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_816aa3d44ca161e0",
+        "apt_name": "문화촌현대",
+        "sigungu": "서대문구",
+        "our_key": "114101110004630000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141011100104630000",
+        "coordinate": {
+          "lat": 37.592258,
+          "lng": 126.9494989
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      },
+      {
+        "complex_id": "cx_8460762869c616d7",
+        "apt_name": "에스케이뷰",
+        "sigungu": "서대문구",
+        "our_key": "114101030001180000",
+        "reb_status": "EXACT_PARCEL",
+        "reb_pnu": "1141010300101180000",
+        "coordinate": {
+          "lat": 37.4997285,
+          "lng": 127.0499952
+        },
+        "coord_source": "seodaemun_apt_status_csv",
+        "method": "EXACT_ROAD_ADDRESS",
+        "status": "EXACT_ROAD_ADDRESS"
+      }
+    ]
+  },
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "known_anchor": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "reb_status": "EXACT_PARCEL",
+    "reb_pnu": "1171010100100190000",
+    "our_pnu0": "1171010100000190000",
+    "our_hub_pnu": "1171010100000190000",
+    "candidate": null,
+    "difference_meters": null,
+    "coord_status": "NO_MATCH",
+    "note": "Official OpenAptInfo coordinate for 잠실엘스 not fetched (SEOUL_OPENAPI_KEY absent); REB PNU identity matched"
+  },
+  "unresolved_coord": {
+    "total": 8368,
+    "no_match": 8362,
+    "ambiguous": 6,
+    "invalid": 0,
+    "primary_blocker": "SEOUL_OPENAPI_KEY absent — citywide OpenAptInfo coordinates unavailable"
+  },
+  "operations": {
+    "external_geocoder": false,
+    "network_geocode_calls": 0,
+    "bulk_downloads": [
+      {
+        "id": "15106861",
+        "name": "REB complex identity basic",
+        "sha256": "87272863d9c2edcd69d1a5319eb5755c288f13e8d0525dafb92c10a54c3cb00d"
+      },
+      {
+        "id": "15055494",
+        "name": "Seodaemun apt status",
+        "sha256": "c9e22458c3e35aa1a757512ae9e896b28f7cb98074acb7d037e339bde8e1361d"
+      },
+      {
+        "id": "15028125",
+        "name": "Dobong apt status 2018",
+        "sha256": "7e9d5f35eca93996f7ef5fb01dfeb101922a427dfa4333a0273e7df029ebf358"
+      }
+    ],
+    "api_calls": {
+      "openaptinfo_sample": 1,
+      "openaptinfo_full": 0
+    },
+    "api_key_required_for_citywide_coords": true,
+    "pc_required": false,
+    "deterministic_rerun": true
+  }
+}
