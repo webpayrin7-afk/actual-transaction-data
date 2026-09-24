@@ -16,7 +16,8 @@ export function ComplexesPage() {
       <PageHeader
         title="단지별 조회"
         titleClassName="detail-page-title"
-        description="궁금한 아파트를 검색하고 실거래가와 거래 이력을 확인하세요."
+        showDivider={false}
+        titleTip={<p>궁금한 아파트를 검색하고 실거래가와 거래 이력을 확인하세요.</p>}
       >
         <AptQuickSearch
           inputId="complexes-search"

@@ -139,7 +139,13 @@ export function MarketTrendsPage() {
       <PageHeader
         title="시장 흐름"
         titleClassName="detail-page-title"
-        description="한국부동산원 가격지수와 국토교통부 실거래로 아파트 시장의 장기 흐름을 봅니다. 실거래 중위가·평당가·가격대는 미리 모아 둔 월간 집계입니다."
+        showDivider={false}
+        titleTip={
+          <p>
+            한국부동산원 가격지수와 국토교통부 실거래로 아파트 시장의 장기 흐름을 봅니다. 실거래 중위가·평당가·가격대는
+            미리 모아 둔 월간 집계입니다.
+          </p>
+        }
       />
 
       <div

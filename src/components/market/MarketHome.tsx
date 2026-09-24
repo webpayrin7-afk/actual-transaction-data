@@ -304,6 +304,7 @@ export function MarketHome() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="아파트 시장"
+        titleClassName="detail-page-title"
         showDivider={false}
         className="mt-1.5 sm:mt-2"
         titleTip={
