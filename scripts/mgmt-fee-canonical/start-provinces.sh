@@ -48,9 +48,11 @@ commit_push() {
 
 seconds_until_quota_reset() {
   # data.go.kr daily quota resets at 00:00 KST; resume at 00:10 KST.
+  # 00:10 KST == 15:10 UTC. Computed in UTC so it works where TZ data is unavailable (Git Bash).
   local now target
   now=$(date -u +%s)
-  target=$(TZ=Asia/Seoul date -d "tomorrow 00:10" +%s)
+  target=$(date -u -d "$(date -u +%F) 15:10" +%s)
+  if [ "$target" -le "$now" ]; then target=$((target + 86400)); fi
   echo $((target - now))
 }
 
@@ -74,6 +76,9 @@ run_province() {
     elif [ "$rc" -eq 2 ]; then
       holds=$((holds + 1))
       progress "$p quota hold $holds"; commit_push "$p quota hold checkpoint"
+      if [ "${NO_QUOTA_WAIT:-0}" = "1" ]; then
+        log "$p quota/429 hold; NO_QUOTA_WAIT=1 so stopping instead of sleeping"; rm -f "$out"; return 2
+      fi
       if [ "$holds" -gt "$MAX_QUOTA_HOLDS" ]; then
         log "$p quota hold exceeded $MAX_QUOTA_HOLDS consecutive days; stopping"; rm -f "$out"; return 2
       fi
@@ -95,6 +100,10 @@ run_province() {
     log "$p dry-run gate not PASS; stopping"; progress "$p dry-run blocked"; commit_push "$p dry-run blocked"; return 3
   fi
   progress "$p dry-run PASS"; commit_push "$p dry-run PASS"
+  if [ "${STOP_BEFORE_APPLY:-0}" = "1" ]; then
+    log "$p dry-run PASS; STOP_BEFORE_APPLY=1 so stopping for manual review before apply"
+    return 10
+  fi
 
   log "$p apply precheck"
   $TSX scripts/mgmt-fee-canonical/apply-province-final.mts "--province=$p" || { log "$p precheck blocked"; progress "$p apply blocked"; commit_push "$p apply blocked"; return 4; }
