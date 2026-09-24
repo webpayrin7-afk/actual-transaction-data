@@ -1014,6 +1014,15 @@ export function RegionDailyStatus({
               : "최근 확인된 거래 중 신고가가 없습니다."}
           </p>
         )}
+        <Link
+          href={`/market/price-moves?region=${encodeURIComponent(regionSlug)}`}
+          className="lab-button lab-button-secondary mt-1 w-full"
+        >
+          {regionName} 신고가 · 하락 거래 전체 보기
+          <span aria-hidden className="ml-1">
+            →
+          </span>
+        </Link>
       </section>
 
       {lawdCodes.length > 0 ? (
