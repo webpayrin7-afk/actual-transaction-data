@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
   isNaverMapAuthFailed,
@@ -138,7 +139,7 @@ function crownHtml(rank: 1 | 2 | 3): string {
     </svg>`;
 }
 
-function complexMarkerHtml(c: MapComplex, selected: boolean): string {
+function complexMarkerHtml(c: MapComplex, selected: boolean, metric: MarkerMetric): string {
   if (c.priceMan == null) {
     const stroke = selected ? "var(--lab-brand-primary)" : "#94a3b8";
     return `<div style="transform:translate(-50%,-100%);cursor:pointer">
@@ -147,24 +148,65 @@ function complexMarkerHtml(c: MapComplex, selected: boolean): string {
         <path d="M6 5h2M10 5h2M6 9h2M10 9h2M6 13h2M10 13h2" stroke="${stroke}" stroke-width="1.5"/>
       </svg></div>`;
   }
-  // 공급면적(평) 데이터가 없어 전용㎡로 표기 — "84㎡"가 흔히 쓰는 평형 이름과 맞다.
-  const pyeong = c.mainAreaSqm ? `${Math.floor(c.mainAreaSqm)}㎡` : "";
+  // 평형 이름(단지 상세와 같은 "33평"), 모르면 전용㎡
+  const pyeong = c.pyeongLabel ?? (c.mainAreaSqm ? `${Math.floor(c.mainAreaSqm)}㎡` : "");
+  const value = markerValue(c, metric);
   const bodyBg = selected ? "var(--lab-brand-primary)" : "#fff";
-  const bodyFg = selected ? "#fff" : "var(--lab-navy-950)";
+  const bodyFg = selected ? "#fff" : value.color ?? "var(--lab-navy-950)";
   const edge = "var(--lab-brand-primary)";
   const top = selected ? "var(--lab-navy-950)" : edge;
-  return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(15,23,42,.22))">
+  // 신고가 빨간 점 · 하락(고점 대비 −10% 이하) 파란 점
+  const dot = c.move
+    ? `<span style="position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;background:${
+        c.move === "singoga" ? "#E5484D" : "#3B6FE0"
+      };border:1.5px solid #fff"></span>`
+    : "";
+  // 최근 거래가 6개월보다 오래되면 흐리게
+  const faded = c.stale && !selected ? "opacity:.55;" : "";
+  return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;${faded}filter:drop-shadow(0 1px 2px rgba(15,23,42,.22))">
     ${c.guRank ? crownHtml(c.guRank) : ""}
     ${
       pyeong
         ? `<div style="min-width:30px;padding:0 6px;height:16px;border-radius:5px 5px 0 0;background:${top};color:#fff;font:600 11px/16px ${FONT};text-align:center;white-space:nowrap">${escapeHtml(pyeong)}</div>`
         : ""
     }
-    <div style="min-width:48px;padding:2px 8px;border-radius:7px;${pyeong ? "border-top-left-radius:7px;" : ""}background:${bodyBg};color:${bodyFg};border:1.5px solid ${edge};font:700 13px/18px ${FONT};font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap">${escapeHtml(
-      shortEok(c.priceMan),
-    )}</div>
+    <div style="position:relative;min-width:48px;padding:2px 8px;border-radius:7px;background:${bodyBg};color:${bodyFg};border:1.5px solid ${edge};font:700 13px/18px ${FONT};font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap">${escapeHtml(
+      value.text,
+    )}${dot}</div>
     <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${edge};margin-top:-1px"></div>
   </div>`;
+}
+
+/** 마커 표시 값 — 가격 · 평당가 · 전세가율 · 1년 변동 */
+type MarkerMetric = "price" | "perPyeong" | "jeonseRatio" | "change1y";
+const MARKER_METRICS: Array<{ id: MarkerMetric; label: string; note: string }> = [
+  { id: "price", label: "가격", note: "대표 평형 최근 실거래가" },
+  { id: "perPyeong", label: "평당가", note: "최근 실거래가 ÷ 평형(공급 3.3㎡)" },
+  { id: "jeonseRatio", label: "전세가율", note: "대표 평형 최근 전세가 ÷ 최근 매매가" },
+  { id: "change1y", label: "1년 변동", note: "최근 6개월 거래 vs 1년 전 같은 기간, 같은 평형 (각 2건 이상)" },
+];
+const METRIC_KEY = "apt-datalab:map-marker-metric:v1";
+
+function readSavedMetric(): MarkerMetric | null {
+  try {
+    const v = window.localStorage.getItem(METRIC_KEY);
+    return v && MARKER_METRICS.some((m) => m.id === v) ? (v as MarkerMetric) : null;
+  } catch {
+    return null;
+  }
+}
+
+function markerValue(c: MapComplex, metric: MarkerMetric): { text: string; color?: string } {
+  const none = { text: "–", color: "#94a3b8" };
+  if (metric === "perPyeong") return c.perPyeongMan != null ? { text: shortPerPyeong(c.perPyeongMan) } : none;
+  if (metric === "jeonseRatio") return c.jeonseRatioPct != null ? { text: `${Math.round(c.jeonseRatioPct)}%` } : none;
+  if (metric === "change1y") {
+    const v = c.change1yPct;
+    if (v == null) return none;
+    if (v === 0) return { text: "0%" };
+    return { text: `${v > 0 ? "+" : "−"}${Math.abs(v).toFixed(1)}%`, color: v > 0 ? "#D93A3F" : "#2F62D6" };
+  }
+  return { text: shortEok(c.priceMan!) };
 }
 
 /** 평당가 짧은 표기: 13059 → "1.31억", 6465 → "6,465만" */
@@ -213,6 +255,16 @@ export function MapSearchPage() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
   const [truncated, setTruncated] = useState(false);
+  /** 마커에 보일 값 — 브라우저에 기억 */
+  const [metric, setMetric] = useState<MarkerMetric>("price");
+  const [metricOpen, setMetricOpen] = useState(false);
+  const chooseMetric = (m: MarkerMetric) => {
+    setMetric(m);
+    setMetricOpen(false);
+    try {
+      window.localStorage.setItem(METRIC_KEY, m);
+    } catch {}
+  };
   /** Read by the map idle listener, which is registered once. */
   const condRef = useRef(conditions);
   /** Bumped on every map idle so marker culling follows zoom even when data is unchanged. */
@@ -301,6 +353,8 @@ export function MapSearchPage() {
       }
       const maps = loaded.naver.maps;
       const view = readLastView();
+      const savedMetric = readSavedMetric();
+      if (savedMetric) setMetric(savedMetric);
       try {
         const map = new maps.Map(hostRef.current, {
           center: new maps.LatLng(view.lat, view.lng),
@@ -391,7 +445,7 @@ export function MapSearchPage() {
           id: `c:${c.complexId}`,
           lat: c.lat,
           lng: c.lng,
-          html: complexMarkerHtml(c, selected),
+          html: complexMarkerHtml(c, selected, metric),
           z: selected ? 1000 : c.guRank ? 200 + (4 - c.guRank) : c.priceMan != null ? 100 : 10,
           priority: c.householdCount ?? 0,
           title: c.aptName,
@@ -465,7 +519,7 @@ export function MapSearchPage() {
       maps.Event.addListener(marker, "click", s.onClick);
       markers.set(s.id, marker);
     }
-  }, [visibleComplexes, areas, selectedId, cullTick]);
+  }, [visibleComplexes, areas, selectedId, cullTick, metric]);
 
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
 
@@ -551,7 +605,15 @@ export function MapSearchPage() {
     if (level === "far") return null;
     if (level === "complex") {
       const filtered = nActive > 0 ? ` · 조건 맞는 ${visibleComplexes.length}개 단지` : ` · 가격 있는 ${priced}개 단지`;
-      return `대표 평형 최근 ${dealLabel}가${areaRangeText}${state === "ready" ? filtered : ""}${truncated ? " · 세대수 큰 400개 단지까지" : ""}`;
+      const what =
+        metric === "perPyeong"
+          ? `대표 평형 최근 ${dealLabel} 평당가`
+          : metric === "jeonseRatio"
+            ? "대표 평형 전세가율"
+            : metric === "change1y"
+              ? `대표 평형 ${dealLabel} 1년 변동`
+              : `대표 평형 최근 ${dealLabel}가`;
+      return `${what}${areaRangeText}${state === "ready" ? filtered : ""}${truncated ? " · 세대수 큰 400개 단지까지" : ""}`;
     }
     return `최근 12개월 ${dealLabel}${areaRangeText} · ${level === "gu" ? "구" : "동"}별 전용 평당가`;
   })();
@@ -572,7 +634,7 @@ export function MapSearchPage() {
   return (
     <div className="relative w-full" style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}>
       {/* h-full, not absolute inset-0: the NAVER SDK forces position:relative on its host. */}
-      <div ref={hostRef} className="h-full w-full" role="application" aria-label="단지 가격 지도" />
+      <div ref={hostRef} className="isolate h-full w-full" role="application" aria-label="단지 가격 지도" />
 
       {/* 상단: 거래유형 · 조건 · 레시피 + 상태 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 pt-2 sm:pt-3">
@@ -605,6 +667,21 @@ export function MapSearchPage() {
               </button>
             ))}
           </div>
+          {level === "complex" ? (
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              onClick={() => setMetricOpen(true)}
+              className={`relative inline-flex h-9 shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                metric !== "price"
+                  ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
+                  : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
+              }`}
+            >
+              표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
+              <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => {
@@ -747,12 +824,23 @@ export function MapSearchPage() {
               <div className="rounded-xl border border-[color:var(--lab-border)] px-3 py-2">
                 <dt className="detail-label">
                   최근 {dealLabel}
-                  {selected.mainAreaSqm ? ` · ${Math.floor(selected.mainAreaSqm)}㎡` : ""}
+                  {selected.pyeongLabel
+                    ? ` · ${selected.pyeongLabel}`
+                    : selected.mainAreaSqm
+                      ? ` · ${Math.floor(selected.mainAreaSqm)}㎡`
+                      : ""}
                 </dt>
                 <dd className="detail-data-value-emphasis tabular-nums">
                   {selected.priceMan ? formatEok(selected.priceMan) : "거래 없음"}
                 </dd>
-                <dd className="detail-meta">{selected.priceDate ? formatDealDate(selected.priceDate) : "기간 내 없음"}</dd>
+                <dd className="detail-meta">
+                  {selected.priceDate ? formatDealDate(selected.priceDate) : "기간 내 없음"}
+                  {selected.move ? (
+                    <span className={`ml-1 font-semibold ${selected.move === "singoga" ? "text-[#D93A3F]" : "text-[#2F62D6]"}`}>
+                      {selected.move === "singoga" ? "신고가" : "고점 대비 하락"}
+                    </span>
+                  ) : null}
+                </dd>
               </div>
               <div className="rounded-xl border border-[color:var(--lab-border)] px-3 py-2">
                 <dt className="detail-label">최근 12개월</dt>
@@ -766,7 +854,7 @@ export function MapSearchPage() {
                 <dd className="detail-meta">{selected.tradeCount12m}건 거래</dd>
               </div>
             </dl>
-            {selected.jeonseRatioPct != null || selected.rentYieldPct != null ? (
+            {selected.jeonseRatioPct != null || selected.rentYieldPct != null || selected.change1yPct != null ? (
               <p className="detail-body mt-2 tabular-nums">
                 {[
                   selected.jeonseRatioPct != null ? `전세가율 ${selected.jeonseRatioPct}%` : null,
@@ -774,6 +862,9 @@ export function MapSearchPage() {
                     ? `갭 ${selected.gapMan < 0 ? "−" : ""}${formatEok(Math.abs(selected.gapMan))}`
                     : null,
                   selected.rentYieldPct != null ? `월세수익률 ${selected.rentYieldPct}%` : null,
+                  selected.change1yPct != null
+                    ? `1년 ${selected.change1yPct > 0 ? "+" : selected.change1yPct < 0 ? "−" : ""}${Math.abs(selected.change1yPct).toFixed(1)}%`
+                    : null,
                 ]
                   .filter(Boolean)
                   .join(" · ")}
@@ -790,6 +881,41 @@ export function MapSearchPage() {
           </div>
         </div>
       ) : null}
+
+      <LabBottomSheet open={metricOpen} onClose={() => setMetricOpen(false)} title="마커에 보일 값" hideDone>
+        <ul className="flex flex-col" role="radiogroup" aria-label="마커에 보일 값">
+          {MARKER_METRICS.map((m) => (
+            <li key={m.id}>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={metric === m.id}
+                onClick={() => chooseMetric(m.id)}
+                className="flex min-h-14 w-full items-center justify-between gap-3 border-b border-[color:var(--lab-border)] py-2 text-left last:border-b-0"
+              >
+                <span className="min-w-0">
+                  <span className={`block text-[16px] leading-6 ${metric === m.id ? "font-semibold text-[color:var(--lab-teal-700)]" : "font-medium text-[color:var(--lab-navy-950)]"}`}>
+                    {m.label}
+                  </span>
+                  <span className="block text-[13px] leading-5 text-[color:var(--lab-muted)]">{m.note}</span>
+                </span>
+                {metric === m.id ? <Check className="h-5 w-5 shrink-0 text-[color:var(--lab-brand-primary)]" aria-hidden /> : null}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] leading-5 text-[color:var(--lab-muted)]">
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#E5484D]" aria-hidden />
+            최근 거래가 신고가
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#3B6FE0]" aria-hidden />
+            고점 대비 10% 넘게 하락
+          </span>
+          <span>흐린 마커: 최근 거래가 6개월 넘음</span>
+        </p>
+      </LabBottomSheet>
 
       <MapConditionSheet
         open={sheetOpen}

@@ -52,6 +52,16 @@ export type MapComplex = {
   rangeMaxMan: number | null;
   /** 최근 12개월 선택 면적·거래유형 중위가 (만원) — 전세가율·갭 계산용 */
   medianPriceMan: number | null;
+  /** 대표 평형 이름 "33평" — 단지 상세 평형 선택과 같은 규칙(공급면적 가운데 ÷ 3.3058). 모르면 null */
+  pyeongLabel: string | null;
+  /** 3.3㎡당 가격 (만원) — 공급 평을 알면 공급 기준, 모르면 전용 기준 */
+  perPyeongMan: number | null;
+  /** 지도 가격 거래가 신고가·하락(고점 대비 −10% 이하) 기록이면 표시 — 매매만 */
+  move: "singoga" | "drop" | null;
+  /** 지도 가격 거래가 6개월보다 오래됨 */
+  stale: boolean;
+  /** 1년 변동 (%) — 대표 평형 최근 6개월 거래 가운데 값 vs 1년 전 같은 6개월(12~18개월 전) 가운데 값. 각 2건 이상일 때만 */
+  change1yPct: number | null;
   /** 기간 내 가장 많이 거래된 전용면적(㎡, 소수 첫째 자리) — 마커 표기용 */
   mainAreaSqm: number | null;
   /** 건축년도 (거래 신고의 build_year, 없으면 사용승인일 연도) */
@@ -137,6 +147,13 @@ function yearMonthMonthsAgo(months: number): string {
   const d = new Date();
   d.setMonth(d.getMonth() - months);
   return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+const PYEONG = 3.3058;
+
+/** 오늘에서 n일 전 (YYYY-MM-DD) — deal_date·seen_date 비교용 */
+function daysAgo(n: number): string {
+  return new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
 }
 
 function regionSlugFor(lawdCd: string): string {
@@ -229,7 +246,8 @@ export async function readMapComplexes(
   const rows = master.rows.slice(0, MAP_MAX_COMPLEXES);
   if (rows.length === 0) return { complexes: [], truncated: false };
 
-  const since = yearMonthMonthsAgo(WINDOW_MONTHS);
+  // 1년 변동을 보려고 18개월을 읽는다 — 나머지 값은 최근 12개월만 쓴다.
+  const since = yearMonthMonthsAgo(WINDOW_MONTHS + 6);
   const deals = new Map<string, Deal[]>();
   const keyOf = (lawd: unknown, norm: unknown) => `${String(lawd)}|${String(norm)}`;
 
@@ -298,11 +316,62 @@ export async function readMapComplexes(
       }
     }),
   );
+  // 평형 이름 — 단지 평형 목록(공급 평)에서. 실패해도 지도는 그대로.
+  const unitTypes = new Map<string, Array<{ area: number; supplySqm: number | null }>>();
+  const ids = rows.map((r) => String(r.complex_id));
+  for (let i = 0; i < ids.length; i += 200) {
+    const chunk = ids.slice(i, i + 200);
+    jobs.push(
+      db
+        .execute({
+          sql: `SELECT complex_id, exclusive_area, supply_pyeong FROM apt_canonical_unit_types
+                WHERE complex_id IN (${chunk.map(() => "?").join(",")})`,
+          args: chunk,
+        })
+        .then((res) => {
+          for (const u of res.rows) {
+            const k = String(u.complex_id);
+            const sp = num(u.supply_pyeong);
+            const list = unitTypes.get(k) ?? [];
+            list.push({ area: Number(u.exclusive_area), supplySqm: sp && sp > 0 ? sp * PYEONG : null });
+            unitTypes.set(k, list);
+          }
+        })
+        .catch(() => {}),
+    );
+  }
+  // 신고가·하락 기록 (시장 > 신고가·하락 거래와 같은 표). 매매 지도에서만.
+  const moves = new Map<string, "singoga" | "drop">();
+  const moveSince = daysAgo(180);
+  if (deal === "trade") {
+    for (const [lawd, names] of byLawd) {
+      jobs.push(
+        db
+          .execute({
+            sql: `SELECT apt_name_norm, deal_date, deal_amount, kind FROM market_price_moves
+                  WHERE lawd_cd = ? AND seen_date >= ? AND apt_name_norm IN (${names.map(() => "?").join(",")})`,
+            args: [lawd, moveSince, ...names],
+          })
+          .then((res) => {
+            for (const m of res.rows) {
+              moves.set(`${lawd}|${m.apt_name_norm}|${m.deal_date}|${Number(m.deal_amount)}`, m.kind === "drop" ? "drop" : "singoga");
+            }
+          })
+          .catch(() => {}),
+      );
+    }
+  }
   await Promise.all(jobs);
+
+  const cut12 = daysAgo(365);
+  const cut6 = daysAgo(183);
+  const pastFrom = daysAgo(548);
+  const staleBefore = daysAgo(183);
 
   const complexes: MapComplex[] = rows.map((r) => {
     const lawd = String(r.lawd_cd);
-    const all = deals.get(keyOf(r.lawd_cd, r.apt_name_norm)) ?? [];
+    const all18 = deals.get(keyOf(r.lawd_cd, r.apt_name_norm)) ?? [];
+    const all = all18.filter((d) => d.date >= cut12);
     const trades = all.filter((d) => d.kind === "trade");
     const jeonses = all.filter((d) => d.kind === "jeonse");
     const wolses = all.filter((d) => d.kind === "wolse");
@@ -318,6 +387,22 @@ export async function readMapComplexes(
           .filter((d) => inMain(d) && tradeNow > d.amount)
           .map((d) => ((d.rent * 12) / (tradeNow - d.amount)) * 100)
       : [];
+    // 대표 평형 · 평 · 평당가 · 1년 변동 · 신고가/하락 · 오래된 가격
+    const rp = representativePrice(selected, deal);
+    const main = modeArea(selected.map((d) => d.area));
+    const supplies = (unitTypes.get(String(r.complex_id)) ?? [])
+      .filter((u) => main != null && Math.abs(u.area - main) < 1 && u.supplySqm != null)
+      .map((u) => u.supplySqm!);
+    const pyeong = supplies.length ? Math.round((Math.min(...supplies) + Math.max(...supplies)) / 2 / PYEONG) : null;
+    const perPyeongMan =
+      rp.priceMan != null && main != null ? Math.round(rp.priceMan / (pyeong ?? main / PYEONG)) : null;
+    const series = all18.filter((d) => d.kind === deal && main != null && Math.abs(d.area - main) < 1);
+    const recent = series.filter((d) => d.date >= cut6).map((d) => d.amount);
+    const yearAgo = series.filter((d) => d.date >= pastFrom && d.date < cut12).map((d) => d.amount);
+    const change1yPct =
+      recent.length >= 2 && yearAgo.length >= 2
+        ? Math.round((median(recent)! / median(yearAgo)! - 1) * 1000) / 10
+        : null;
     const gu = (r.sigungu ? String(r.sigungu).split(/\s+/).pop() : null) || districtNameFromCode(lawd);
     const approvalYear = r.approval_date ? Number(String(r.approval_date).slice(0, 4)) || null : null;
     return {
@@ -328,9 +413,14 @@ export async function readMapComplexes(
       dong: r.legal_dong_name ? String(r.legal_dong_name) : null,
       householdCount: num(r.household_count),
       href: aptDetailHref(String(r.apt_name), regionSlugFor(lawd), gu || undefined),
-      ...representativePrice(selected, deal),
+      ...rp,
       medianPriceMan: median(selected.map((d) => d.amount)),
-      mainAreaSqm: modeArea(selected.map((d) => d.area)),
+      pyeongLabel: pyeong ? `${pyeong}평` : null,
+      perPyeongMan,
+      move: rp.priceMan != null ? (moves.get(`${lawd}|${r.apt_name_norm}|${rp.priceDate}|${rp.priceMan}`) ?? null) : null,
+      stale: rp.priceDate != null && rp.priceDate < staleBefore,
+      change1yPct,
+      mainAreaSqm: main,
       buildYear: all.find((d) => d.buildYear != null)?.buildYear ?? approvalYear,
       tradeCount12m: selected.length,
       latestDealDate: latest?.date ?? null,
