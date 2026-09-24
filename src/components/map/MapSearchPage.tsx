@@ -469,9 +469,9 @@ export function MapSearchPage() {
 
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
 
-  // 화면 가운데 지역 → 상세 이동 버튼. 동 말풍선 단계는 구(지역 페이지), 단지 단계는 동 상세.
-  const centerLink = useMemo(() => {
-    if (!center) return null;
+  // 화면 가운데 지역 → 구(지역 페이지)·동 상세 이동 버튼을 함께 보여준다 (동 말풍선·단지 단계).
+  const centerLinks = useMemo(() => {
+    if (!center) return [];
     const c = { y: center.lat, x: center.lng };
     const near = <T extends { lat: number; lng: number }>(list: T[]): T | null =>
       list.reduce<T | null>((best, p) => {
@@ -479,15 +479,13 @@ export function MapSearchPage() {
         const bd = best ? (best.lat - c.y) ** 2 + ((best.lng - c.x) * 0.8) ** 2 : Infinity;
         return d < bd ? p : best;
       }, null);
-    if (level === "dong") {
-      const a = near(areas);
-      return a ? { label: `${a.links.guLabel} 상세 보기`, href: a.links.guHref } : null;
-    }
-    if (level === "complex") {
-      const x = near(complexes);
-      return x?.links.dongHref ? { label: `${x.links.dongLabel} 상세 보기`, href: x.links.dongHref } : null;
-    }
-    return null;
+    const hit = level === "dong" ? near(areas) : level === "complex" ? near(complexes) : null;
+    if (!hit) return [];
+    const { links } = hit;
+    return [
+      { label: `${links.guLabel} 상세`, href: links.guHref },
+      ...(links.dongHref ? [{ label: `${links.dongLabel} 상세`, href: links.dongHref }] : []),
+    ];
   }, [level, areas, complexes, center]);
   const priced = visibleComplexes.filter((c) => c.medianPriceMan != null).length;
   const dealLabel = DEAL_LABEL[conditions.deal];
@@ -643,15 +641,18 @@ export function MapSearchPage() {
       </button>
 
       {/* 하단 가운데: 화면 가운데 구·동 상세로 이동 */}
-      {centerLink && !selected ? (
-        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px)] flex justify-center sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
-          <Link
-            href={centerLink.href}
-            className="pointer-events-auto inline-flex h-11 items-center gap-1 rounded-full bg-[color:var(--lab-navy-950)] pl-4 pr-3 text-[14px] font-semibold leading-5 text-white shadow-lg"
-          >
-            {centerLink.label}
-            <ChevronRight className="h-4 w-4" aria-hidden />
-          </Link>
+      {centerLinks.length && !selected ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px)] flex justify-center gap-2 px-16 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
+          {centerLinks.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="pointer-events-auto inline-flex h-11 min-w-0 items-center gap-0.5 rounded-full bg-[color:var(--lab-navy-950)] pl-4 pr-2.5 text-[14px] font-semibold leading-5 text-white shadow-lg"
+            >
+              <span className="truncate">{l.label}</span>
+              <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+            </Link>
+          ))}
         </div>
       ) : null}
 
