@@ -127,9 +127,8 @@ async function loadSigunguNames(db: NonNullable<ReturnType<typeof getDb>>): Prom
   return sigunguByLawd;
 }
 
-/** 광주·전남 통합 신코드(12xxx)의 구는 광주 */
+/** 광주·전남 통합 신코드(12xxx)의 구는 metroFromLawdNationwide 가 광주로 본다 */
 function sidoShort(lawdCd: string): string {
-  if (lawdCd.startsWith("12")) return "광주";
   const m = metroFromLawdNationwide(lawdCd);
   return m === "other" ? "" : METRO_LABELS[m];
 }

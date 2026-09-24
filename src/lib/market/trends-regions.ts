@@ -26,8 +26,17 @@ function prefix(p: string): [string, string] {
   return [`${p}000`, `${p}999`];
 }
 
-const MERGED_NOTE =
-  "광주·전남은 2026년 행정구역 통합으로 시군구 코드가 바뀌어 거래량을 나눠 집계할 수 없습니다.";
+/**
+ * 광주·전남은 2026년 전남광주통합특별시(12xxx)로 합쳐졌다. 옛 광주 5개 구는 12210~12330,
+ * 나머지 시·군은 옛 전남 (nationwide-lawd metroFromLawdNationwide 와 같은 경계).
+ */
+const MERGED_RANGES: Record<string, Array<[string, string]>> = {
+  gwangju: [["12200", "12499"]],
+  jeonnam: [
+    ["12000", "12199"],
+    ["12500", "12999"],
+  ],
+};
 
 const WIDE: TrendRegion[] = [
   { id: "all", label: "전국", fullLabel: "전국", clsId: 500001, group: "wide", lawdRanges: [["00000", "99999"]] },
@@ -60,7 +69,7 @@ const SIDO: TrendRegion[] = (
     ["incheon", "인천", 500010, "28"],
     ["busan", "부산", 500011, "26"],
     ["daegu", "대구", 500012, "27"],
-    ["gwangju", "광주", 500013, null],
+    ["gwangju", "광주", 500013, "12"],
     ["daejeon", "대전", 500014, "30"],
     ["ulsan", "울산", 500015, "31"],
     ["sejong", "세종", 500016, "36"],
@@ -68,7 +77,7 @@ const SIDO: TrendRegion[] = (
     ["chungbuk", "충북", 500018, "43"],
     ["chungnam", "충남", 500019, "44"],
     ["jeonbuk", "전북", 500020, "52"],
-    ["jeonnam", "전남", 500021, null],
+    ["jeonnam", "전남", 500021, "12"],
     ["gyeongbuk", "경북", 500022, "47"],
     ["gyeongnam", "경남", 500023, "48"],
     ["jeju", "제주", 500024, "50"],
@@ -79,8 +88,7 @@ const SIDO: TrendRegion[] = (
   fullLabel: label,
   clsId,
   group: "sido" as const,
-  lawdRanges: p ? [prefix(p)] : null,
-  volumeNote: p ? undefined : MERGED_NOTE,
+  lawdRanges: MERGED_RANGES[id] ?? [prefix(p)],
 }));
 
 /** R-ONE 서울 구 분류 ID (2026.08 기준 목록). */

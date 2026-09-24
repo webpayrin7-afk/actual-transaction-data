@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { Dashboard } from "@/components/Dashboard";
 import { RegionPageLoadFallback } from "@/components/RegionPageLoadFallback";
 import { ALL_REGIONS, getRegion } from "@/lib/constants/regions";
@@ -41,6 +41,13 @@ export default async function RegionPage({
   if (!region) notFound();
 
   const sp = await searchParams;
+  if (region.slug !== slug) {
+    // 행정구역 개편 전 slug·별칭 → 정식 주소로 영구 이동 (쿼리 유지)
+    const qs = new URLSearchParams(
+      Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string"),
+    ).toString();
+    permanentRedirect(`/region/${region.slug}${qs ? `?${qs}` : ""}`);
+  }
   if (sp.tab === "search" || sp.aptName?.trim()) {
     const qs = new URLSearchParams({ region: region.slug });
     if (sp.aptName?.trim()) qs.set("aptName", sp.aptName.trim());

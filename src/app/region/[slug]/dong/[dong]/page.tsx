@@ -1,7 +1,14 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { RegionDongDetail } from "@/components/region/RegionDongDetail";
-import { districtNameFromCode, getRegion, type RegionDef } from "@/lib/constants/regions";
+import {
+  LAWD_TO_REGION,
+  LEGACY_REGION_SLUGS,
+  districtNameFromCode,
+  getRegion,
+  type RegionDef,
+} from "@/lib/constants/regions";
 import { getDb } from "@/lib/db/client";
+import { regionDongHref } from "@/lib/molit/region-paths";
 import { resolveDongLawdCd } from "@/lib/region/region-dong-overview";
 import { normalizeDongName } from "@/lib/region/region-scope";
 
@@ -20,6 +27,19 @@ function dongFromParam(raw: string): string | null {
 }
 
 /** 여러 구로 나뉜 시: ?gu=(예: "수원시 장안구", "장안구")로 구 코드를 고른다. */
+/**
+ * 예전 slug·별칭으로 들어온 동 화면의 정식 지역 slug.
+ * 분할된 인천 구(예: 옛 중구 → 제물포구/영종구)는 동이 속한 새 구를 단지 마스터에서 찾는다.
+ */
+async function canonicalDongRegionSlug(slug: string, region: RegionDef, dong: string): Promise<string> {
+  const candidates = LEGACY_REGION_SLUGS[slug];
+  if (!candidates || candidates.length < 2) return region.slug;
+  const codes = candidates.flatMap((s) => getRegion(s)?.lawdCodes ?? []);
+  const db = getDb();
+  const code = db ? await resolveDongLawdCd(db, codes, dong).catch(() => null) : null;
+  return (code && LAWD_TO_REGION[code]?.slug) || region.slug;
+}
+
 function lawdCdFromGuParam(region: RegionDef, gu: string | undefined): string | null {
   if (region.lawdCodes.length === 1) return region.lawdCodes[0] ?? null;
   const needle = gu?.trim();
@@ -55,6 +75,10 @@ export default async function RegionDongPage({
   if (!region || !dong) notFound();
 
   const sp = await searchParams;
+  if (region.slug !== slug) {
+    const target = await canonicalDongRegionSlug(slug, region, dong);
+    permanentRedirect(regionDongHref(target, dong, sp.gu));
+  }
   let lawdCd = lawdCdFromGuParam(region, sp.gu);
   if (!lawdCd) {
     // 구 정보 없는 링크(예: 동네별 시세 목록): 단지 마스터에서 동이 속한 구를 찾는다.
