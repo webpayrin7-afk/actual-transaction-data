@@ -24,6 +24,8 @@ type LabBottomSheetProps = {
   compactBodyTop?: boolean;
   /** Fixed area under the scrolling body (e.g. result count + 초기화 / 적용). */
   footer?: ReactNode;
+  /** Small note right after the title (e.g. what a chart means). */
+  titleNote?: ReactNode;
 };
 
 /**
@@ -39,6 +41,7 @@ export function LabBottomSheet({
   hideHeaderDivider = false,
   compactBodyTop = false,
   footer,
+  titleNote,
 }: LabBottomSheetProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
@@ -118,12 +121,15 @@ export function LabBottomSheet({
             hideHeaderDivider ? "pt-5 pb-2" : "border-b border-slate-200 py-3"
           }`}
         >
-          <h3
-            id={titleId}
-            className="min-w-0 flex-1 truncate text-base font-semibold leading-snug text-slate-900"
-          >
-            {title}
-          </h3>
+          <div className="flex min-w-0 flex-1 items-baseline gap-2">
+            <h3
+              id={titleId}
+              className="shrink-0 truncate text-base font-semibold leading-snug text-slate-900"
+            >
+              {title}
+            </h3>
+            {titleNote ? <span className="detail-meta min-w-0 truncate">{titleNote}</span> : null}
+          </div>
           <button
             type="button"
             className="shrink-0 text-sm font-medium text-teal-700"

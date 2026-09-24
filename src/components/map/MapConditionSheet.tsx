@@ -3,8 +3,6 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, RotateCcw } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
-import { InfoTip } from "@/components/ui/InfoTip";
-import { LabSubsectionHeader } from "@/components/ui/LabSection";
 import type { MapComplex } from "@/lib/map/map-complexes";
 import {
   EMPTY_CONDITIONS,
@@ -149,36 +147,20 @@ export function MapConditionSheet({
       hideHeaderDivider
       compactBodyTop
       doneLabel="닫기"
+      titleNote="막대는 지금 화면 속 단지 분포"
       footer={
-        <div className="flex flex-col gap-2.5">
-          <p className="detail-body flex items-center tabular-nums">
-            <span>
-              화면 속 {complexes.length.toLocaleString("ko-KR")}곳 중{" "}
-              <strong className="font-semibold text-[color:var(--lab-teal-700)]">
-                {matched.toLocaleString("ko-KR")}곳
-              </strong>
-              이 맞아요
-            </span>
-            <InfoTip aria-label="분포 막대 안내">
-              <p>
-                조건을 펼치면 나오는 막대는 지금 지도 화면 속 단지가 어느 값에 몰려 있는지 보여 줘요. 진한
-                막대가 고른 범위예요. 지도를 옮기면 함께 바뀌어요.
-              </p>
-            </InfoTip>
-          </p>
-          <div className="grid grid-cols-[1fr_2fr] gap-2">
-            <button
-              type="button"
-              onClick={() => onChange({ ...EMPTY_CONDITIONS, deal: conditions.deal })}
-              className="lab-button lab-button-secondary"
-            >
-              <RotateCcw className="mr-1 h-4 w-4" aria-hidden />
-              초기화
-            </button>
-            <button type="button" onClick={onClose} className="lab-button lab-button-primary tabular-nums">
-              {matched.toLocaleString("ko-KR")}곳 보기
-            </button>
-          </div>
+        <div className="grid grid-cols-[1fr_2fr] gap-2">
+          <button
+            type="button"
+            onClick={() => onChange({ ...EMPTY_CONDITIONS, deal: conditions.deal })}
+            className="lab-button lab-button-secondary"
+          >
+            <RotateCcw className="mr-1 h-4 w-4" aria-hidden />
+            초기화
+          </button>
+          <button type="button" onClick={onClose} className="lab-button lab-button-primary tabular-nums">
+            {matched.toLocaleString("ko-KR")}곳 보기
+          </button>
         </div>
       }
     >
@@ -226,9 +208,10 @@ export function MapConditionSheet({
         </div>
 
         {FILTER_GROUPS.map((g) => (
-          <section key={g.id} className="flex flex-col">
-            <LabSubsectionHeader title={g.label} />
-            <ul className="divide-y divide-[color:var(--lab-border)]">
+          <section key={g.id} className="flex flex-col gap-1.5" aria-label={g.label}>
+            {/* 묶음 이름은 작은 회색 캡션, 조건들은 그 아래 카드 — 위계를 모양으로 구분 */}
+            <h4 className="px-1 text-[13px] font-semibold leading-5 text-[color:var(--lab-muted)]">{g.label}</h4>
+            <ul className="divide-y divide-[color:var(--lab-border)] rounded-xl border border-[color:var(--lab-border)] px-3">
               {defs
                 .filter((d) => d.group === g.id)
                 .map((d) => {
