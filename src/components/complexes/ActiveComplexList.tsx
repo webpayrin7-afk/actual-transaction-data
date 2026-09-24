@@ -37,7 +37,7 @@ export function ActiveComplexList() {
       ) : query.isError ? (
         <p className="detail-body">{(query.error as Error).message}</p>
       ) : !items.length ? (
-        <p className="detail-body">표시할 거래 활발 단지가 없습니다.</p>
+        <p className="detail-body">최근 30일 동안 거래가 많은 단지가 없습니다.</p>
       ) : (
         <>
           <ul className={LAB_LIST}>

@@ -6,7 +6,9 @@ import { addDays } from "@/lib/market/keys";
 
 /** 단지 discovery용 — 시장 이벤트 랭킹이 아님 */
 export const ACTIVE_COMPLEX_WINDOW_DAYS = 30;
-export const ACTIVE_COMPLEX_LIMIT = 8;
+export const ACTIVE_COMPLEX_LIMIT = 20;
+/** 이보다 적게 거래된 단지는 순위에 넣지 않는다 — 1~3건짜리가 '거래 많은 단지'로 보이지 않게 */
+export const ACTIVE_COMPLEX_MIN_DEALS = 10;
 
 /**
  * 거래량 집계 identity (stats-feeds activeComplexes와 동일):
@@ -123,9 +125,10 @@ export async function getActiveComplexes(): Promise<ActiveComplexesResponse> {
             AND deal_date >= ?
             AND deal_date <= ?
           GROUP BY apt_name_norm, lawd_cd, dong
+          HAVING COUNT(*) >= ?
           ORDER BY recent_count DESC, latest_deal_date DESC
           LIMIT ?`,
-    args: [fromDate, asOfDate, ACTIVE_COMPLEX_LIMIT],
+    args: [fromDate, asOfDate, ACTIVE_COMPLEX_MIN_DEALS, ACTIVE_COMPLEX_LIMIT],
   });
 
   const items: ActiveComplexItem[] = topRes.rows.map((row, idx) => {
@@ -161,7 +164,7 @@ export async function getActiveComplexes(): Promise<ActiveComplexesResponse> {
     items,
     scannedRows,
     source: "db",
-    note: "최근 30일 계약일(매매) 기준 거래건수입니다. 신고 지연으로 최신 구간이 낮게 보일 수 있으며, 시장 강세·약세 지표가 아닙니다.",
+    note: `최근 30일 계약일(매매) 기준 거래건수입니다. ${ACTIVE_COMPLEX_MIN_DEALS}건 이상 거래된 단지만 보여줍니다. 신고 지연으로 최신 구간이 낮게 보일 수 있으며, 시장 강세·약세 지표가 아닙니다.`,
   };
 
   readCache = { expiresAt: Date.now() + READ_CACHE_TTL_MS, data };
