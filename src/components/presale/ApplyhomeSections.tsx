@@ -190,7 +190,7 @@ export function ApplyhomeCompetitionSection({ filter }: { filter: PresaleFilter 
 
   return (
     <LabSection
-      title="최근 청약 경쟁률"
+      title="최근 30일 경쟁률 높은 곳"
       tip={
         <p>
           최근 30일 안에 1순위 접수가 끝난 분양 공고입니다. 경쟁률은 1순위 접수 건수(해당지역·기타지역 합)를

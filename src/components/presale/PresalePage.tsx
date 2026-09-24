@@ -31,16 +31,17 @@ const SUPPLIER_OPTIONS = [
   { id: "public", label: "공공분양" },
 ] as const;
 
-type PresaleTab = "schedule" | "results";
+type PresaleTab = "schedule" | "results" | "movein";
 const TABS = [
   { id: "schedule" as const, label: "청약 일정" },
   { id: "results" as const, label: "분양 결과" },
+  { id: "movein" as const, label: "입주 예정" },
 ];
 const TAB_PREFIX = "presale";
 
 /**
- * 분양 — [청약 일정 | 분양 결과] (한국부동산원 청약홈 공고 사본).
- * 조건은 탭 아래 한 줄 칩(지역 · 공급, 분양 결과는 + 면적 · 분양가) → 바텀시트에서 고른다.
+ * 분양 — [청약 일정 | 분양 결과 | 입주 예정] (한국부동산원 청약홈 공고 사본).
+ * 조건은 탭 아래 한 줄 칩 → 바텀시트. 지역은 모든 탭, 공급은 일정·결과, 면적·분양가는 결과만.
  */
 export function PresalePage() {
   const [tab, setTab] = useState<PresaleTab>("schedule");
@@ -56,14 +57,18 @@ export function PresalePage() {
 
   const filters: FilterDef[] = [
     { key: "metro", title: "지역", options: METRO_OPTIONS, value: metro, defaultId: "all", onChange: setMetro, grid: true },
-    {
-      key: "supplier",
-      title: "공급",
-      options: SUPPLIER_OPTIONS,
-      value: supplier,
-      defaultId: "all",
-      onChange: (v) => setSupplier(v as PresaleSupplier),
-    },
+    ...(tab !== "movein"
+      ? [
+          {
+            key: "supplier",
+            title: "공급",
+            options: SUPPLIER_OPTIONS,
+            value: supplier,
+            defaultId: "all",
+            onChange: (v: string) => setSupplier(v as PresaleSupplier),
+          },
+        ]
+      : []),
     ...(tab === "results"
       ? [
           {
@@ -97,13 +102,14 @@ export function PresalePage() {
 
       <div id={labTabPanelId(TAB_PREFIX, tab)} role="tabpanel" className="flex flex-col gap-5 sm:gap-6">
         {tab === "schedule" ? (
+          <ApplyhomeUpcomingSection filter={filter} />
+        ) : tab === "results" ? (
           <>
-            <ApplyhomeUpcomingSection filter={filter} />
             <ApplyhomeCompetitionSection filter={filter} />
-            <MoveInSection metro={metro} onPickMetro={pickMetro} />
+            <PresaleResults metro={metro} supplier={supplier} area={area} price={price} />
           </>
         ) : (
-          <PresaleResults metro={metro} supplier={supplier} area={area} price={price} />
+          <MoveInSection metro={metro} onPickMetro={pickMetro} />
         )}
       </div>
     </div>
