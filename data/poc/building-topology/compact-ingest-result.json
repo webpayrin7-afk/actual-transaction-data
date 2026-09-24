@@ -1,0 +1,233 @@
+{
+  "apply": true,
+  "version": "building-unit-link|buildinghub-2026-08|exact-dong-v1",
+  "physical": {
+    "incoming": 51056,
+    "insert": 0,
+    "update": 0,
+    "unchanged": 51056,
+    "held": 0,
+    "writes": 0
+  },
+  "type": {
+    "incoming": 106245,
+    "match": 0,
+    "expand": 0,
+    "neu": 0,
+    "conflict": 0,
+    "held": 106245,
+    "writes": 0,
+    "holdReason": "CANONICAL_TYPE_ID_NOT_IN_CORE"
+  },
+  "unresolved": {
+    "incoming": 15339,
+    "insert": 0,
+    "update": 0,
+    "unchanged": 15339
+  },
+  "pilots": {
+    "잠실엘스": {
+      "physical": 5678,
+      "linked": 5678,
+      "exactType": 4464,
+      "groupOnly": 1214,
+      "noCanonical": 0,
+      "noBuilding": 0,
+      "buildings": 72,
+      "coverage": "FULL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "파크리오": {
+      "physical": 6864,
+      "linked": 6864,
+      "exactType": 6819,
+      "groupOnly": 45,
+      "noCanonical": 0,
+      "noBuilding": 0,
+      "buildings": 66,
+      "coverage": "FULL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "리센츠": {
+      "physical": 5564,
+      "linked": 5564,
+      "exactType": 1710,
+      "groupOnly": 3854,
+      "noCanonical": 0,
+      "noBuilding": 0,
+      "buildings": 65,
+      "coverage": "FULL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "헬리오시티": {
+      "physical": 10134,
+      "linked": 9510,
+      "exactType": 8349,
+      "groupOnly": 1161,
+      "noCanonical": 0,
+      "noBuilding": 624,
+      "buildings": 84,
+      "coverage": "PARTIAL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "반포자이": {
+      "physical": 3411,
+      "linked": 3410,
+      "exactType": 3269,
+      "groupOnly": 141,
+      "noCanonical": 0,
+      "noBuilding": 1,
+      "buildings": 44,
+      "coverage": "PARTIAL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "래미안퍼스티지": {
+      "physical": 2444,
+      "linked": 2444,
+      "exactType": 983,
+      "groupOnly": 1461,
+      "noCanonical": 0,
+      "noBuilding": 0,
+      "buildings": 28,
+      "coverage": "FULL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "은마": {
+      "physical": 4922,
+      "linked": 4454,
+      "exactType": 0,
+      "groupOnly": 4449,
+      "noCanonical": 5,
+      "noBuilding": 468,
+      "buildings": 29,
+      "coverage": "PARTIAL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": true
+    },
+    "도곡렉슬": {
+      "physical": 3003,
+      "linked": 3002,
+      "exactType": 2955,
+      "groupOnly": 47,
+      "noCanonical": 0,
+      "noBuilding": 1,
+      "buildings": 34,
+      "coverage": "PARTIAL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "마포프레스티지자이": {
+      "physical": 1797,
+      "linked": 1694,
+      "exactType": 1694,
+      "groupOnly": 0,
+      "noCanonical": 0,
+      "noBuilding": 103,
+      "buildings": 18,
+      "coverage": "PARTIAL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    },
+    "포레나노원": {
+      "physical": 1078,
+      "linked": 1062,
+      "exactType": 1028,
+      "groupOnly": 34,
+      "noCanonical": 0,
+      "noBuilding": 16,
+      "buildings": 13,
+      "coverage": "PARTIAL",
+      "physicalRefOk": true,
+      "linkedRefOk": true,
+      "buildingsRefOk": true,
+      "exactTypeRefOk": null
+    }
+  },
+  "api": {
+    "cx_4c63d9a100973c60": {
+      "liveMs": 342,
+      "bytes": 44073,
+      "buildings": 72,
+      "physicalSum": 5678
+    },
+    "cx_ed52bf895d064c11": {
+      "liveMs": 321,
+      "bytes": 41439,
+      "buildings": 66,
+      "physicalSum": 6864
+    },
+    "cx_caf229b5ac63cfbd": {
+      "liveMs": 105,
+      "bytes": 45176,
+      "buildings": 65,
+      "physicalSum": 5564
+    },
+    "cx_30d7eea6da810b52": {
+      "liveMs": 107,
+      "bytes": 98003,
+      "buildings": 84,
+      "physicalSum": 9510
+    },
+    "cx_1c244e7305d12c44": {
+      "liveMs": 104,
+      "bytes": 32170,
+      "buildings": 44,
+      "physicalSum": 3410
+    },
+    "cx_3bcf0f87bce7496b": {
+      "liveMs": 104,
+      "bytes": 26852,
+      "buildings": 28,
+      "physicalSum": 2444
+    },
+    "cx_0320fd9e007e1f8c": {
+      "liveMs": 102,
+      "bytes": 12731,
+      "buildings": 29,
+      "physicalSum": 4454
+    },
+    "cx_c9ed0235ecca960c": {
+      "liveMs": 115,
+      "bytes": 23166,
+      "buildings": 34,
+      "physicalSum": 3002
+    },
+    "cx_07caf64c556e85a7": {
+      "liveMs": 105,
+      "bytes": 31716,
+      "buildings": 18,
+      "physicalSum": 1694
+    },
+    "cx_88d05e29df26a0d6": {
+      "liveMs": 105,
+      "bytes": 14450,
+      "buildings": 13,
+      "physicalSum": 1062
+    }
+  },
+  "appliedAt": "2026-09-21T01:25:22.949Z"
+}

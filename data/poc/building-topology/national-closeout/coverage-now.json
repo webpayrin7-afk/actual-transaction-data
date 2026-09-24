@@ -1,0 +1,172 @@
+{
+  "at": "2026-09-23T05:24:44.464Z",
+  "national": {
+    "total": 27524,
+    "building": 17295,
+    "buildingAny": 17614,
+    "unit": 18664,
+    "exclusive": 18664,
+    "supply": 17051,
+    "typeBuilding": 7382,
+    "areaSelectorReady": 18664,
+    "supplyPyeongReady": 17051
+  },
+  "inventory": {
+    "complexes": 17614,
+    "residential": 82947,
+    "dong": 77764,
+    "height_official": 73230,
+    "floor_only": 9654,
+    "height_missing": 63
+  },
+  "links": {
+    "links": 93446,
+    "complexes": 7382
+  },
+  "byRegion": [
+    {
+      "region": "BUSAN",
+      "total": 1404,
+      "building": 403,
+      "unit_type": 396,
+      "exclusive_area": 396,
+      "supply_area": 384,
+      "type_building": 0
+    },
+    {
+      "region": "CHUNGBUK",
+      "total": 756,
+      "building": 287,
+      "unit_type": 284,
+      "exclusive_area": 284,
+      "supply_area": 284,
+      "type_building": 1
+    },
+    {
+      "region": "CHUNGNAM",
+      "total": 976,
+      "building": 287,
+      "unit_type": 281,
+      "exclusive_area": 281,
+      "supply_area": 281,
+      "type_building": 0
+    },
+    {
+      "region": "DAEGU",
+      "total": 1151,
+      "building": 440,
+      "unit_type": 434,
+      "exclusive_area": 434,
+      "supply_area": 434,
+      "type_building": 0
+    },
+    {
+      "region": "DAEJEON",
+      "total": 561,
+      "building": 167,
+      "unit_type": 165,
+      "exclusive_area": 165,
+      "supply_area": 165,
+      "type_building": 1
+    },
+    {
+      "region": "GANGWON",
+      "total": 815,
+      "building": 286,
+      "unit_type": 287,
+      "exclusive_area": 287,
+      "supply_area": 287,
+      "type_building": 0
+    },
+    {
+      "region": "GYEONGBUK",
+      "total": 1006,
+      "building": 338,
+      "unit_type": 334,
+      "exclusive_area": 334,
+      "supply_area": 334,
+      "type_building": 0
+    },
+    {
+      "region": "GYEONGGI",
+      "total": 6529,
+      "building": 5442,
+      "unit_type": 6528,
+      "exclusive_area": 6528,
+      "supply_area": 5341,
+      "type_building": 3815
+    },
+    {
+      "region": "GYEONGNAM",
+      "total": 1395,
+      "building": 453,
+      "unit_type": 439,
+      "exclusive_area": 439,
+      "supply_area": 439,
+      "type_building": 0
+    },
+    {
+      "region": "INCHEON",
+      "total": 1093,
+      "building": 248,
+      "unit_type": 243,
+      "exclusive_area": 243,
+      "supply_area": 243,
+      "type_building": 0
+    },
+    {
+      "region": "JEJU",
+      "total": 175,
+      "building": 20,
+      "unit_type": 20,
+      "exclusive_area": 20,
+      "supply_area": 20,
+      "type_building": 0
+    },
+    {
+      "region": "JEONBUK",
+      "total": 851,
+      "building": 181,
+      "unit_type": 188,
+      "exclusive_area": 188,
+      "supply_area": 188,
+      "type_building": 0
+    },
+    {
+      "region": "JEONNAM",
+      "total": 1646,
+      "building": 469,
+      "unit_type": 456,
+      "exclusive_area": 456,
+      "supply_area": 456,
+      "type_building": 0
+    },
+    {
+      "region": "SEJONG",
+      "total": 210,
+      "building": 28,
+      "unit_type": 27,
+      "exclusive_area": 27,
+      "supply_area": 27,
+      "type_building": 0
+    },
+    {
+      "region": "SEOUL",
+      "total": 8437,
+      "building": 8095,
+      "unit_type": 8437,
+      "exclusive_area": 8437,
+      "supply_area": 8023,
+      "type_building": 3565
+    },
+    {
+      "region": "ULSAN",
+      "total": 519,
+      "building": 151,
+      "unit_type": 145,
+      "exclusive_area": 145,
+      "supply_area": 145,
+      "type_building": 0
+    }
+  ]
+}

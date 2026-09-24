@@ -1,0 +1,477 @@
+{
+  "generatedAt": "2026-09-20T23:23:01.269Z",
+  "extras": {
+    "apply": true,
+    "phase": "report",
+    "api": {
+      "cx_4c63d9a100973c60": {
+        "coldMs": 381,
+        "liveMs": 105,
+        "snapshotMs": 103,
+        "bytes": 40003,
+        "buildings": 72,
+        "displayedHousehold": 5678
+      },
+      "cx_ed52bf895d064c11": {
+        "coldMs": 130,
+        "liveMs": 105,
+        "snapshotMs": 103,
+        "bytes": 37677,
+        "buildings": 66,
+        "displayedHousehold": 6864
+      },
+      "cx_caf229b5ac63cfbd": {
+        "coldMs": 143,
+        "liveMs": 106,
+        "snapshotMs": 106,
+        "bytes": 41494,
+        "buildings": 65,
+        "displayedHousehold": 5563
+      },
+      "cx_30d7eea6da810b52": {
+        "coldMs": 135,
+        "liveMs": 113,
+        "snapshotMs": 204,
+        "bytes": 93185,
+        "buildings": 84,
+        "displayedHousehold": 9510
+      },
+      "cx_1c244e7305d12c44": {
+        "coldMs": 161,
+        "liveMs": 105,
+        "snapshotMs": 102,
+        "bytes": 29688,
+        "buildings": 44,
+        "displayedHousehold": 3410
+      },
+      "cx_3bcf0f87bce7496b": {
+        "coldMs": 120,
+        "liveMs": 107,
+        "snapshotMs": 105,
+        "bytes": 25274,
+        "buildings": 28,
+        "displayedHousehold": 2444
+      },
+      "cx_0320fd9e007e1f8c": {
+        "coldMs": 105,
+        "liveMs": 105,
+        "snapshotMs": 102,
+        "bytes": 11051,
+        "buildings": 29,
+        "displayedHousehold": 10
+      },
+      "cx_c9ed0235ecca960c": {
+        "coldMs": 145,
+        "liveMs": 109,
+        "snapshotMs": 103,
+        "bytes": 21254,
+        "buildings": 34,
+        "displayedHousehold": 3002
+      },
+      "cx_07caf64c556e85a7": {
+        "coldMs": 116,
+        "liveMs": 107,
+        "snapshotMs": 102,
+        "bytes": 30694,
+        "buildings": 18,
+        "displayedHousehold": 1694
+      },
+      "cx_88d05e29df26a0d6": {
+        "coldMs": 109,
+        "liveMs": 105,
+        "snapshotMs": 103,
+        "bytes": 13712,
+        "buildings": 13,
+        "displayedHousehold": 1061
+      }
+    }
+  },
+  "national": {
+    "inventory": {
+      "complexes": 17614,
+      "residential": 82947
+    },
+    "height": {
+      "official": 73230,
+      "floor_only": 9654,
+      "missing": 63
+    },
+    "threeD": {
+      "exact": 0,
+      "partial": 0,
+      "footprint": 0,
+      "none": 82947
+    },
+    "counts": [
+      {
+        "count_status": "EXACT_SINGLE_VARIANT_COUNT",
+        "ui_safe": 147999,
+        "n": 147999,
+        "hh": 4583791
+      },
+      {
+        "count_status": "EXACT_VARIANT_COUNT",
+        "ui_safe": 391,
+        "n": 391,
+        "hh": 42795
+      },
+      {
+        "count_status": "EXCLUSIVE_GROUP_ONLY",
+        "ui_safe": 0,
+        "n": 5761,
+        "hh": null
+      },
+      {
+        "count_status": "NO_SOURCE",
+        "ui_safe": 0,
+        "n": 6209,
+        "hh": null
+      },
+      {
+        "count_status": "PARTIAL_UNIT_EVIDENCE",
+        "ui_safe": 0,
+        "n": 26692,
+        "hh": null
+      }
+    ],
+    "exceed": [
+      {
+        "n": 0
+      }
+    ],
+    "links": {
+      "complexes": 163,
+      "links": 2758,
+      "exact": 2758
+    },
+    "resolution": {
+      "complexes": 373,
+      "physical_units": 161469,
+      "building_linked": 157643,
+      "exact_variant_building": 42601,
+      "exact_single_building": 62039,
+      "exclusive_group_only": 2846,
+      "ambiguous_type": 0,
+      "ambiguous_building": 0,
+      "no_canonical_type": 50157,
+      "no_building_identity": 3826,
+      "public_exact_links": 2758
+    },
+    "geometry": {
+      "n": 0,
+      "footprints": null
+    },
+    "title": [
+      {
+        "title_status": "EMPTY",
+        "title_recovery_status": null,
+        "n": 1133
+      },
+      {
+        "title_status": "EMPTY",
+        "title_recovery_status": "OFFICIAL_EMPTY",
+        "n": 1
+      },
+      {
+        "title_status": "NO_PARCEL",
+        "title_recovery_status": null,
+        "n": 8766
+      },
+      {
+        "title_status": "SKIP_CACHED",
+        "title_recovery_status": null,
+        "n": 6537
+      },
+      {
+        "title_status": "SKIP_CACHED",
+        "title_recovery_status": "RECOVERED",
+        "n": 1199
+      },
+      {
+        "title_status": "SUCCESS",
+        "title_recovery_status": null,
+        "n": 9887
+      },
+      {
+        "title_status": "SUCCESS",
+        "title_recovery_status": "RECOVERED",
+        "n": 1
+      }
+    ]
+  },
+  "sido": {
+    "OTHER": {
+      "sido": "충청북도",
+      "sido_code": "43",
+      "residential": 1858,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 1
+    },
+    "GYEONGGI": {
+      "sido": "경기도",
+      "sido_code": "41",
+      "residential": 33894,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 6
+    },
+    "DAEGU": {
+      "sido": "대구광역시",
+      "sido_code": "27",
+      "residential": 2778,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 0
+    },
+    "DAEJEON": {
+      "sido": "대전광역시",
+      "sido_code": "30",
+      "residential": 1614,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 1
+    },
+    "BUSAN": {
+      "sido": "부산광역시",
+      "sido_code": "26",
+      "residential": 3088,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 0
+    },
+    "SEOUL": {
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "residential": 22489,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 155
+    },
+    "ULSAN": {
+      "sido": "울산광역시",
+      "sido_code": "31",
+      "residential": 1049,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 0
+    },
+    "INCHEON": {
+      "sido": "인천광역시",
+      "sido_code": "28",
+      "residential": 2055,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 0
+    },
+    "GWANGJU": {
+      "sido": "전남광주통합특별시",
+      "sido_code": "12",
+      "residential": 3126,
+      "geometry": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "type_building": 0
+    }
+  },
+  "pilots": [
+    {
+      "complex_id": "cx_c9ed0235ecca960c",
+      "apt_name": "도곡렉슬",
+      "residential": 34,
+      "official_height": 35,
+      "floor_only": 0,
+      "height_missing": 0,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 3002,
+      "unit_household_count": 3002,
+      "building_household_sum": 3002,
+      "ui_safe_type_sum": 3002,
+      "physical_unit_count": 3002,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "PARITY",
+      "links": 55
+    },
+    {
+      "complex_id": "cx_3bcf0f87bce7496b",
+      "apt_name": "래미안퍼스티지",
+      "residential": 28,
+      "official_height": 28,
+      "floor_only": 0,
+      "height_missing": 0,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 2444,
+      "unit_household_count": 2444,
+      "building_household_sum": 2444,
+      "ui_safe_type_sum": 2444,
+      "physical_unit_count": 2444,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "PARITY",
+      "links": 86
+    },
+    {
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "apt_name": "리센츠",
+      "residential": 65,
+      "official_height": 66,
+      "floor_only": 0,
+      "height_missing": 0,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 5563,
+      "unit_household_count": 5563,
+      "building_household_sum": 5562,
+      "ui_safe_type_sum": 5563,
+      "physical_unit_count": 5563,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "MINOR_SCOPE_DIFF",
+      "links": 127
+    },
+    {
+      "complex_id": "cx_07caf64c556e85a7",
+      "apt_name": "마포프레스티지자이",
+      "residential": 18,
+      "official_height": 18,
+      "floor_only": 2,
+      "height_missing": 3,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 1694,
+      "unit_household_count": 1694,
+      "building_household_sum": 1694,
+      "ui_safe_type_sum": 1694,
+      "physical_unit_count": 1694,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "PARITY",
+      "links": 61
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "residential": 44,
+      "official_height": 45,
+      "floor_only": 0,
+      "height_missing": 1,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 3410,
+      "unit_household_count": 3410,
+      "building_household_sum": 3410,
+      "ui_safe_type_sum": 3410,
+      "physical_unit_count": 3410,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "PARITY",
+      "links": 86
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "residential": 29,
+      "official_height": 0,
+      "floor_only": 31,
+      "height_missing": 0,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 4424,
+      "unit_household_count": 4424,
+      "building_household_sum": 4456,
+      "ui_safe_type_sum": 10,
+      "physical_unit_count": 4424,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "MAJOR_MISMATCH",
+      "links": 8
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "residential": 72,
+      "official_height": 72,
+      "floor_only": 0,
+      "height_missing": 0,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 5678,
+      "unit_household_count": 5678,
+      "building_household_sum": 5678,
+      "ui_safe_type_sum": 5678,
+      "physical_unit_count": 5678,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "PARITY",
+      "links": 115
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "residential": 66,
+      "official_height": 66,
+      "floor_only": 1,
+      "height_missing": 0,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 6864,
+      "unit_household_count": 6864,
+      "building_household_sum": 6864,
+      "ui_safe_type_sum": 6864,
+      "physical_unit_count": 6864,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "PARITY",
+      "links": 108
+    },
+    {
+      "complex_id": "cx_88d05e29df26a0d6",
+      "apt_name": "포레나노원",
+      "residential": 13,
+      "official_height": 14,
+      "floor_only": 0,
+      "height_missing": 0,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 1062,
+      "unit_household_count": 1062,
+      "building_household_sum": 1062,
+      "ui_safe_type_sum": 1061,
+      "physical_unit_count": 1062,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "MINOR_SCOPE_DIFF",
+      "links": 41
+    },
+    {
+      "complex_id": "cx_30d7eea6da810b52",
+      "apt_name": "헬리오시티",
+      "residential": 84,
+      "official_height": 86,
+      "floor_only": 1,
+      "height_missing": 6,
+      "footprints": 0,
+      "d3_exact": 0,
+      "d3_partial": 0,
+      "kapt_household_count": 9510,
+      "unit_household_count": 9510,
+      "building_household_sum": 9510,
+      "ui_safe_type_sum": 9510,
+      "physical_unit_count": 9510,
+      "displayed_exceeds_physical": 0,
+      "parity_class": "PARITY",
+      "links": 230
+    }
+  ]
+}

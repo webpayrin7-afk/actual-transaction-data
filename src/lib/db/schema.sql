@@ -197,3 +197,237 @@ CREATE TABLE IF NOT EXISTS apt_pyeong_group_baselines (
 );
 CREATE INDEX IF NOT EXISTS idx_apt_pyeong_group_baselines_complex
   ON apt_pyeong_group_baselines (complex_key);
+
+-- BUILDING topology (see src/lib/db/migrations/20260920_complex_buildings.sql)
+CREATE TABLE IF NOT EXISTS complex_buildings (
+  building_id TEXT PRIMARY KEY,
+  complex_id TEXT NOT NULL REFERENCES apt_complex_master(complex_id),
+  official_building_key TEXT NOT NULL,
+  mgm_bldrgst_pk TEXT,
+  dong_label TEXT,
+  dong_label_status TEXT NOT NULL,
+  building_name TEXT,
+  main_usage TEXT,
+  main_usage_code TEXT,
+  main_atch_type TEXT,
+  residential_flag INTEGER NOT NULL DEFAULT 0,
+  household_count INTEGER,
+  floor_count INTEGER,
+  source TEXT NOT NULL,
+  source_key TEXT NOT NULL DEFAULT '',
+  source_as_of TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL,
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE (official_building_key)
+);
+CREATE INDEX IF NOT EXISTS idx_cb_complex
+  ON complex_buildings (complex_id, residential_flag);
+CREATE INDEX IF NOT EXISTS idx_cb_api
+  ON complex_buildings (complex_id, residential_flag, status);
+
+CREATE TABLE IF NOT EXISTS complex_building_geometry (
+  building_id TEXT PRIMARY KEY REFERENCES complex_buildings(building_id),
+  geometry_source TEXT NOT NULL,
+  centroid_lat REAL,
+  centroid_lng REAL,
+  representative_lat REAL,
+  representative_lng REAL,
+  footprint_geojson TEXT,
+  source_object_id TEXT,
+  source_version TEXT,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  geometry_status TEXT NOT NULL,
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS unit_type_stats (
+  complex_id TEXT NOT NULL,
+  unit_type_id TEXT NOT NULL,
+  household_count INTEGER,
+  source TEXT NOT NULL,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL,
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, unit_type_id)
+);
+
+CREATE TABLE IF NOT EXISTS unit_type_building_links (
+  complex_id TEXT NOT NULL,
+  unit_type_id TEXT NOT NULL,
+  building_id TEXT NOT NULL,
+  household_count INTEGER,
+  source TEXT NOT NULL,
+  source_key TEXT NOT NULL DEFAULT '',
+  confidence TEXT NOT NULL,
+  status TEXT NOT NULL,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, unit_type_id, building_id)
+);
+
+CREATE TABLE IF NOT EXISTS complex_building_parity (
+  complex_id TEXT PRIMARY KEY REFERENCES apt_complex_master(complex_id),
+  kapt_household_count INTEGER,
+  unit_household_count INTEGER,
+  type_household_sum INTEGER,
+  building_household_sum INTEGER,
+  parity_class TEXT NOT NULL,
+  detail TEXT NOT NULL DEFAULT '',
+  source_as_of TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS complex_building_checkpoint (
+  complex_id TEXT PRIMARY KEY,
+  parcel_key TEXT NOT NULL DEFAULT '',
+  pnu TEXT NOT NULL DEFAULT '',
+  priority INTEGER NOT NULL DEFAULT 9,
+  title_status TEXT NOT NULL,
+  building_status TEXT NOT NULL,
+  geometry_status TEXT NOT NULL,
+  link_status TEXT NOT NULL,
+  title_total_count INTEGER NOT NULL DEFAULT 0,
+  residential_count INTEGER NOT NULL DEFAULT 0,
+  api_calls INTEGER NOT NULL DEFAULT 0,
+  detail TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS official_building_title_cache (
+  parcel_key TEXT NOT NULL,
+  page_no INTEGER NOT NULL,
+  total_count INTEGER NOT NULL,
+  item_count INTEGER NOT NULL,
+  payload_json TEXT NOT NULL,
+  source TEXT NOT NULL,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  fetched_at TEXT NOT NULL,
+  PRIMARY KEY (parcel_key, page_no)
+);
+
+-- BUILDING V2 (see src/lib/db/migrations/20260921_building_geometry_3d.sql)
+CREATE TABLE IF NOT EXISTS building_3d_source_links (
+  complex_id TEXT NOT NULL,
+  building_id TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  provider_complex_id TEXT NOT NULL DEFAULT '',
+  provider_building_id TEXT NOT NULL DEFAULT '',
+  provider_object_id TEXT NOT NULL DEFAULT '',
+  geometry_version TEXT NOT NULL DEFAULT '',
+  provider_geometry_version TEXT NOT NULL DEFAULT '',
+  source_as_of TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'EMPTY',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (building_id, provider, provider_object_id)
+);
+CREATE TABLE IF NOT EXISTS building_3d_provider_capabilities (
+  provider TEXT PRIMARY KEY,
+  supports_footprint INTEGER,
+  supports_height INTEGER,
+  supports_3d_object INTEGER,
+  supports_sunlight INTEGER,
+  supports_datetime_shadow INTEGER,
+  embed_allowed INTEGER,
+  commercial_use_status TEXT NOT NULL DEFAULT 'UNVERIFIED',
+  cache_allowed INTEGER,
+  source_version TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS unit_type_household_counts (
+  complex_id TEXT NOT NULL,
+  unit_type_id TEXT NOT NULL,
+  exclusive_cents INTEGER NOT NULL,
+  supply_cents INTEGER,
+  household_count INTEGER,
+  count_status TEXT NOT NULL,
+  ui_safe INTEGER NOT NULL DEFAULT 0,
+  source TEXT NOT NULL,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, unit_type_id)
+);
+CREATE TABLE IF NOT EXISTS unit_exclusive_group_counts (
+  complex_id TEXT NOT NULL,
+  exclusive_cents INTEGER NOT NULL,
+  household_count INTEGER,
+  variant_count INTEGER NOT NULL DEFAULT 0,
+  count_status TEXT NOT NULL,
+  source TEXT NOT NULL,
+  source_as_of TEXT NOT NULL DEFAULT '',
+  provenance_json TEXT NOT NULL DEFAULT '{}',
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, exclusive_cents)
+);
+CREATE TABLE IF NOT EXISTS gis_building_source_manifest (
+  manifest_id TEXT PRIMARY KEY,
+  source_dataset TEXT NOT NULL,
+  source_version TEXT NOT NULL DEFAULT '',
+  source_date TEXT NOT NULL DEFAULT '',
+  checksum TEXT NOT NULL DEFAULT '',
+  crs TEXT NOT NULL DEFAULT '',
+  feature_count INTEGER,
+  valid_geometry_count INTEGER,
+  license_attribution TEXT NOT NULL DEFAULT '',
+  wfs_fallback_used INTEGER NOT NULL DEFAULT 0,
+  acquisition_status TEXT NOT NULL,
+  local_path TEXT NOT NULL DEFAULT '',
+  detail TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS compact_extractor_spec (
+  spec_id TEXT PRIMARY KEY,
+  required INTEGER NOT NULL DEFAULT 1,
+  artifact_name TEXT NOT NULL,
+  expected_size TEXT NOT NULL DEFAULT '',
+  spec_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_utbl_complex_status
+  ON unit_type_building_links (complex_id, status);
+CREATE INDEX IF NOT EXISTS idx_uthc_complex
+  ON unit_type_household_counts (complex_id);
+CREATE TABLE IF NOT EXISTS unit_building_resolution_stats (
+  complex_id TEXT PRIMARY KEY,
+  physical_units INTEGER NOT NULL DEFAULT 0,
+  building_linked_units INTEGER NOT NULL DEFAULT 0,
+  exact_variant_building INTEGER NOT NULL DEFAULT 0,
+  exact_single_building INTEGER NOT NULL DEFAULT 0,
+  exclusive_group_only INTEGER NOT NULL DEFAULT 0,
+  ambiguous_type INTEGER NOT NULL DEFAULT 0,
+  ambiguous_building INTEGER NOT NULL DEFAULT 0,
+  no_canonical_type INTEGER NOT NULL DEFAULT 0,
+  no_building_identity INTEGER NOT NULL DEFAULT 0,
+  public_exact_links INTEGER NOT NULL DEFAULT 0,
+  source TEXT NOT NULL DEFAULT '',
+  source_as_of TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+-- physical household totals from exact-dong unit evidence; distinct from title household_count
+-- unresolved holds are internal and are not public exact type links
+CREATE TABLE IF NOT EXISTS building_unit_unresolved_holds (
+  complex_id TEXT NOT NULL,
+  resolution_status TEXT NOT NULL,
+  household_count INTEGER NOT NULL,
+  source_version TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (complex_id, resolution_status)
+);
+CREATE TABLE IF NOT EXISTS complex_building_api_snapshot (
+  complex_id TEXT PRIMARY KEY,
+  payload_json TEXT NOT NULL,
+  payload_bytes INTEGER NOT NULL DEFAULT 0,
+  building_count INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL
+);

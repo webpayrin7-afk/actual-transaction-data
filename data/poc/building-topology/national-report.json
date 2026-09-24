@@ -1,0 +1,466 @@
+{
+  "generatedAt": "2026-09-20T18:29:59.156Z",
+  "apply": true,
+  "totals": {
+    "titleApiCalls": 0,
+    "titleCacheHits": 0,
+    "titleErrors": 0,
+    "quota": false,
+    "building": {
+      "inserted": 0,
+      "unchanged": 0,
+      "skippedPositive": 0,
+      "updatedFill": 0
+    },
+    "links": {
+      "inserted": 0,
+      "unchanged": 0,
+      "skippedPositive": 0,
+      "updatedFill": 0
+    }
+  },
+  "national": {
+    "targetComplexes": 27524,
+    "inventory": {
+      "complexes": 17613,
+      "residential": 82944,
+      "exact": 82944,
+      "partial": 0,
+      "labeled": 77761,
+      "unlabeled": 5183
+    },
+    "geometry": {
+      "n": 0,
+      "footprints": null,
+      "points": null,
+      "none": null
+    },
+    "typeStats": {
+      "complexes": 17051,
+      "types": 180171,
+      "households": 6239866
+    },
+    "typeBuilding": {
+      "complexes": 163,
+      "links": 2758,
+      "exact": 2758
+    },
+    "parity": [
+      {
+        "parity_class": "MAJOR_MISMATCH",
+        "n": 61
+      },
+      {
+        "parity_class": "MINOR_SCOPE_DIFF",
+        "n": 39
+      },
+      {
+        "parity_class": "PARITY",
+        "n": 58
+      },
+      {
+        "parity_class": "PARTIAL_SOURCE",
+        "n": 22
+      }
+    ],
+    "titleStatus": [
+      {
+        "title_status": "EMPTY",
+        "n": 1133
+      },
+      {
+        "title_status": "ERROR",
+        "n": 1200
+      },
+      {
+        "title_status": "NO_PARCEL",
+        "n": 8767
+      },
+      {
+        "title_status": "SKIP_CACHED",
+        "n": 6537
+      },
+      {
+        "title_status": "SUCCESS",
+        "n": 9887
+      }
+    ]
+  },
+  "sido": [
+    {
+      "sido": "강원특별자치도",
+      "sido_code": "51",
+      "complexes": 815,
+      "with_buildings": 298,
+      "residential": 1679,
+      "with_links": 0,
+      "with_types": 287
+    },
+    {
+      "sido": "경기도",
+      "sido_code": "41",
+      "complexes": 6529,
+      "with_buildings": 5544,
+      "residential": 33894,
+      "with_links": 6,
+      "with_types": 5341
+    },
+    {
+      "sido": "경상남도",
+      "sido_code": "48",
+      "complexes": 1395,
+      "with_buildings": 455,
+      "residential": 3349,
+      "with_links": 0,
+      "with_types": 439
+    },
+    {
+      "sido": "경상북도",
+      "sido_code": "47",
+      "complexes": 1006,
+      "with_buildings": 339,
+      "residential": 2245,
+      "with_links": 0,
+      "with_types": 334
+    },
+    {
+      "sido": "대구광역시",
+      "sido_code": "27",
+      "complexes": 1151,
+      "with_buildings": 439,
+      "residential": 2775,
+      "with_links": 0,
+      "with_types": 434
+    },
+    {
+      "sido": "대전광역시",
+      "sido_code": "30",
+      "complexes": 561,
+      "with_buildings": 167,
+      "residential": 1614,
+      "with_links": 1,
+      "with_types": 165
+    },
+    {
+      "sido": "부산광역시",
+      "sido_code": "26",
+      "complexes": 1404,
+      "with_buildings": 403,
+      "residential": 3088,
+      "with_links": 0,
+      "with_types": 384
+    },
+    {
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "complexes": 8437,
+      "with_buildings": 8289,
+      "residential": 22489,
+      "with_links": 155,
+      "with_types": 8023
+    },
+    {
+      "sido": "세종특별자치시",
+      "sido_code": "36",
+      "complexes": 210,
+      "with_buildings": 28,
+      "residential": 285,
+      "with_links": 0,
+      "with_types": 27
+    },
+    {
+      "sido": "울산광역시",
+      "sido_code": "31",
+      "complexes": 519,
+      "with_buildings": 152,
+      "residential": 1049,
+      "with_links": 0,
+      "with_types": 145
+    },
+    {
+      "sido": "인천광역시",
+      "sido_code": "28",
+      "complexes": 1093,
+      "with_buildings": 248,
+      "residential": 2055,
+      "with_links": 0,
+      "with_types": 243
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sido_code": "12",
+      "complexes": 1646,
+      "with_buildings": 469,
+      "residential": 3126,
+      "with_links": 0,
+      "with_types": 456
+    },
+    {
+      "sido": "전북특별자치도",
+      "sido_code": "52",
+      "complexes": 851,
+      "with_buildings": 188,
+      "residential": 1207,
+      "with_links": 0,
+      "with_types": 188
+    },
+    {
+      "sido": "제주특별자치도",
+      "sido_code": "50",
+      "complexes": 175,
+      "with_buildings": 20,
+      "residential": 195,
+      "with_links": 0,
+      "with_types": 20
+    },
+    {
+      "sido": "충청남도",
+      "sido_code": "44",
+      "complexes": 976,
+      "with_buildings": 287,
+      "residential": 2036,
+      "with_links": 0,
+      "with_types": 281
+    },
+    {
+      "sido": "충청북도",
+      "sido_code": "43",
+      "complexes": 756,
+      "with_buildings": 287,
+      "residential": 1858,
+      "with_links": 1,
+      "with_types": 284
+    }
+  ],
+  "sidoBuckets": {
+    "OTHER": {
+      "sido": "충청북도",
+      "sido_code": "43",
+      "complexes": 756,
+      "with_buildings": 287,
+      "residential": 1858,
+      "with_links": 1,
+      "with_types": 284
+    },
+    "GYEONGGI": {
+      "sido": "경기도",
+      "sido_code": "41",
+      "complexes": 6529,
+      "with_buildings": 5544,
+      "residential": 33894,
+      "with_links": 6,
+      "with_types": 5341
+    },
+    "DAEGU": {
+      "sido": "대구광역시",
+      "sido_code": "27",
+      "complexes": 1151,
+      "with_buildings": 439,
+      "residential": 2775,
+      "with_links": 0,
+      "with_types": 434
+    },
+    "DAEJEON": {
+      "sido": "대전광역시",
+      "sido_code": "30",
+      "complexes": 561,
+      "with_buildings": 167,
+      "residential": 1614,
+      "with_links": 1,
+      "with_types": 165
+    },
+    "BUSAN": {
+      "sido": "부산광역시",
+      "sido_code": "26",
+      "complexes": 1404,
+      "with_buildings": 403,
+      "residential": 3088,
+      "with_links": 0,
+      "with_types": 384
+    },
+    "SEOUL": {
+      "sido": "서울특별시",
+      "sido_code": "11",
+      "complexes": 8437,
+      "with_buildings": 8289,
+      "residential": 22489,
+      "with_links": 155,
+      "with_types": 8023
+    },
+    "ULSAN": {
+      "sido": "울산광역시",
+      "sido_code": "31",
+      "complexes": 519,
+      "with_buildings": 152,
+      "residential": 1049,
+      "with_links": 0,
+      "with_types": 145
+    },
+    "INCHEON": {
+      "sido": "인천광역시",
+      "sido_code": "28",
+      "complexes": 1093,
+      "with_buildings": 248,
+      "residential": 2055,
+      "with_links": 0,
+      "with_types": 243
+    },
+    "GWANGJU": {
+      "sido": "전남광주통합특별시",
+      "sido_code": "12",
+      "complexes": 1646,
+      "with_buildings": 469,
+      "residential": 3126,
+      "with_links": 0,
+      "with_types": 456
+    }
+  },
+  "pilots": [
+    {
+      "complex_id": "cx_c9ed0235ecca960c",
+      "apt_name": "도곡렉슬",
+      "residential": 34,
+      "labeled": 34,
+      "kapt_household_count": 3002,
+      "unit_household_count": 3002,
+      "type_household_sum": 3049,
+      "building_household_sum": 3002,
+      "parity_class": "MINOR_SCOPE_DIFF",
+      "links": 55
+    },
+    {
+      "complex_id": "cx_3bcf0f87bce7496b",
+      "apt_name": "래미안퍼스티지",
+      "residential": 28,
+      "labeled": 28,
+      "kapt_household_count": 2444,
+      "unit_household_count": 2444,
+      "type_household_sum": 2444,
+      "building_household_sum": 2444,
+      "parity_class": "PARITY",
+      "links": 86
+    },
+    {
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "apt_name": "리센츠",
+      "residential": 65,
+      "labeled": 65,
+      "kapt_household_count": 5563,
+      "unit_household_count": 5563,
+      "type_household_sum": 5563,
+      "building_household_sum": 5562,
+      "parity_class": "MINOR_SCOPE_DIFF",
+      "links": 127
+    },
+    {
+      "complex_id": "cx_07caf64c556e85a7",
+      "apt_name": "마포프레스티지자이",
+      "residential": 18,
+      "labeled": 18,
+      "kapt_household_count": 1694,
+      "unit_household_count": 1694,
+      "type_household_sum": 1797,
+      "building_household_sum": 1694,
+      "parity_class": "MAJOR_MISMATCH",
+      "links": 61
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "residential": 44,
+      "labeled": 44,
+      "kapt_household_count": 3410,
+      "unit_household_count": 3410,
+      "type_household_sum": 4855,
+      "building_household_sum": 3410,
+      "parity_class": "MAJOR_MISMATCH",
+      "links": 86
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "residential": 29,
+      "labeled": 29,
+      "kapt_household_count": 4424,
+      "unit_household_count": 4424,
+      "type_household_sum": 3,
+      "building_household_sum": 4456,
+      "parity_class": "MAJOR_MISMATCH",
+      "links": 8
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "residential": 72,
+      "labeled": 72,
+      "kapt_household_count": 5678,
+      "unit_household_count": 5678,
+      "type_household_sum": 5678,
+      "building_household_sum": 5678,
+      "parity_class": "PARITY",
+      "links": 115
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "residential": 66,
+      "labeled": 66,
+      "kapt_household_count": 6864,
+      "unit_household_count": 6864,
+      "type_household_sum": 6864,
+      "building_household_sum": 6864,
+      "parity_class": "PARITY",
+      "links": 108
+    },
+    {
+      "complex_id": "cx_88d05e29df26a0d6",
+      "apt_name": "포레나노원",
+      "residential": 13,
+      "labeled": 13,
+      "kapt_household_count": 1062,
+      "unit_household_count": 1062,
+      "type_household_sum": 1078,
+      "building_household_sum": 1062,
+      "parity_class": "MINOR_SCOPE_DIFF",
+      "links": 41
+    },
+    {
+      "complex_id": "cx_30d7eea6da810b52",
+      "apt_name": "헬리오시티",
+      "residential": 84,
+      "labeled": 84,
+      "kapt_household_count": 9510,
+      "unit_household_count": 9510,
+      "type_household_sum": 13976,
+      "building_household_sum": 9510,
+      "parity_class": "MAJOR_MISMATCH",
+      "links": 230
+    }
+  ],
+  "jamsilTypes": [
+    {
+      "exclusive_area": 84.8,
+      "supply_area": 111.52,
+      "canonical_hh": 2938,
+      "stats_hh": 2938,
+      "buildings": 45,
+      "linked_hh": 2938
+    },
+    {
+      "exclusive_area": 84.88,
+      "supply_area": 109.29,
+      "canonical_hh": 548,
+      "stats_hh": 548,
+      "buildings": 11,
+      "linked_hh": 548
+    },
+    {
+      "exclusive_area": 84.97,
+      "supply_area": 109.47,
+      "canonical_hh": 556,
+      "stats_hh": 556,
+      "buildings": 11,
+      "linked_hh": 556
+    }
+  ]
+}

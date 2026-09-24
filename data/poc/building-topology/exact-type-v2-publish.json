@@ -1,0 +1,181 @@
+{
+  "apply": true,
+  "input": {
+    "rows": 106141,
+    "households": 3177121,
+    "dupKeys": 0,
+    "distinctPairs": 60063,
+    "multiSupplyExclusiveKeys": 1405
+  },
+  "core": {
+    "CORE_EXACT_MATCH": 92554,
+    "matchedHouseholds": 2458985,
+    "matchedComplexes": 7366,
+    "matchedBuildings": 36382,
+    "matchedUnitTypes": 55282,
+    "matchedPairs": 55282,
+    "unmatchedPairs": 4781,
+    "CORE_NO_MATCH": 13587,
+    "CORE_DUPLICATE_MATCH": 0,
+    "duplicateCorePairs": 0,
+    "BUILDING_MISSING": 0,
+    "COMPLEX_MISMATCH": 0,
+    "collapsedSameType": 0
+  },
+  "parity": {
+    "MATCH_EXISTING": 92496,
+    "EXPAND_EXISTING": 0,
+    "NEW_EXACT": 57,
+    "CONFLICT": 1
+  },
+  "safety": {
+    "v2OnlyBuildingViolations": 0,
+    "v2OnlyComplexViolations": 0,
+    "afterHoldBuildingViolations": 0,
+    "afterHoldComplexViolations": 0,
+    "legacyOnlyBuildingOver": 0,
+    "heldForSafety": 57
+  },
+  "publish": {
+    "inserts": 0,
+    "updates": 0,
+    "held": 13645
+  },
+  "pilots": {
+    "잠실엘스": {
+      "households": 4464,
+      "expected": 4464,
+      "ok": true,
+      "publishHouseholds": 4464
+    },
+    "파크리오": {
+      "households": 6819,
+      "expected": 6819,
+      "ok": true,
+      "publishHouseholds": 6819
+    },
+    "리센츠": {
+      "households": 1710,
+      "expected": 1710,
+      "ok": true,
+      "publishHouseholds": 1710
+    },
+    "헬리오시티": {
+      "households": 8349,
+      "expected": 8349,
+      "ok": true,
+      "publishHouseholds": 8349
+    },
+    "반포자이": {
+      "households": 3269,
+      "expected": 3269,
+      "ok": true,
+      "publishHouseholds": 1824
+    },
+    "래미안퍼스티지": {
+      "households": 983,
+      "expected": 983,
+      "ok": true,
+      "publishHouseholds": 983
+    },
+    "은마": {
+      "households": 0,
+      "expected": 0,
+      "ok": true,
+      "publishHouseholds": 0
+    },
+    "도곡렉슬": {
+      "households": 2955,
+      "expected": 2955,
+      "ok": true,
+      "publishHouseholds": 2613
+    },
+    "마포프레스티지자이": {
+      "households": 1694,
+      "expected": 1694,
+      "ok": true,
+      "publishHouseholds": 1156
+    },
+    "포레나노원": {
+      "households": 1028,
+      "expected": 1028,
+      "ok": true,
+      "publishHouseholds": 910
+    }
+  },
+  "gate": true,
+  "api": {
+    "cx_4c63d9a100973c60": {
+      "liveMs": 459,
+      "bytes": 44073,
+      "physicalSum": 5678,
+      "typedSum": 5678,
+      "coreIds": 115
+    },
+    "cx_ed52bf895d064c11": {
+      "liveMs": 326,
+      "bytes": 41439,
+      "physicalSum": 6864,
+      "typedSum": 6864,
+      "coreIds": 108
+    },
+    "cx_caf229b5ac63cfbd": {
+      "liveMs": 111,
+      "bytes": 45176,
+      "physicalSum": 5564,
+      "typedSum": 5563,
+      "coreIds": 127
+    },
+    "cx_30d7eea6da810b52": {
+      "liveMs": 112,
+      "bytes": 98003,
+      "physicalSum": 9510,
+      "typedSum": 9510,
+      "coreIds": 230
+    },
+    "cx_1c244e7305d12c44": {
+      "liveMs": 109,
+      "bytes": 32170,
+      "physicalSum": 3410,
+      "typedSum": 3410,
+      "coreIds": 86
+    },
+    "cx_3bcf0f87bce7496b": {
+      "liveMs": 107,
+      "bytes": 26852,
+      "physicalSum": 2444,
+      "typedSum": 2444,
+      "coreIds": 86
+    },
+    "cx_0320fd9e007e1f8c": {
+      "liveMs": 104,
+      "bytes": 12731,
+      "physicalSum": 4454,
+      "typedSum": 10,
+      "coreIds": 8
+    },
+    "cx_c9ed0235ecca960c": {
+      "liveMs": 107,
+      "bytes": 23166,
+      "physicalSum": 3002,
+      "typedSum": 3002,
+      "coreIds": 55
+    },
+    "cx_07caf64c556e85a7": {
+      "liveMs": 106,
+      "bytes": 31716,
+      "physicalSum": 1694,
+      "typedSum": 1694,
+      "coreIds": 61
+    },
+    "cx_88d05e29df26a0d6": {
+      "liveMs": 107,
+      "bytes": 14450,
+      "physicalSum": 1062,
+      "typedSum": 1061,
+      "coreIds": 41
+    }
+  },
+  "appliedAt": "2026-09-21T04:48:09.883Z",
+  "writes": 0
+}

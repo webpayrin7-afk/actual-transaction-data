@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-09-21T00:28:10.854Z",
+  "output": {
+    "path": "/workspace/data/poc/building-topology/canonical_building_dong_keymap.csv.gz",
+    "rows": 82947,
+    "gzipSize": 2089735,
+    "checksum": "feafa828033875d013b70d2f18f959973ea66a4993b00781038fd4f7fb721349"
+  },
+  "buildings": {
+    "residential": 82947,
+    "labeled": 77764,
+    "UNIQUE_EXACT": 77704,
+    "DUPLICATE_LABEL": 60,
+    "MISSING_LABEL": 5183
+  },
+  "complexes": {
+    "represented": 17295,
+    "withUniqueExactDongMapping": 12338
+  },
+  "joinContract": {
+    "exactComplexIdPlusDong": true,
+    "fuzzyMatchingUsed": false,
+    "productionWrites": 0,
+    "normalization": "NFKC + trim only; raw label preserved in official_dong_label"
+  }
+}
