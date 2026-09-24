@@ -18,6 +18,7 @@ export function ComplexesPage() {
         title="단지별 조회"
         titleClassName="detail-page-title"
         showDivider={false}
+        titleInHeader
       >
         <AptQuickSearch
           inputId="complexes-search"

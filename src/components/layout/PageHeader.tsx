@@ -40,6 +40,7 @@ export function PageHeader({
   showDivider = true,
   titleClassName = "",
   className = "",
+  titleInHeader = false,
 }: {
   title: string;
   /** Small context text right after the title (e.g. parent region). */
@@ -60,6 +61,11 @@ export function PageHeader({
   /** Replaces the default title scale. Apt detail passes detail-page-title. */
   titleClassName?: string;
   className?: string;
+  /**
+   * 하단 메뉴 페이지(시장·지역·단지·분양): 모바일에서는 제목을 사이트 상단바 가운데에 보이고
+   * 본문 제목 줄은 숨긴다 (h1은 화면낭독기용으로 남김). sm 이상은 그대로.
+   */
+  titleInHeader?: boolean;
 }) {
   const isDetailTitle = titleClassName.includes("detail-page-title");
   const titleNode = (
@@ -108,8 +114,14 @@ export function PageHeader({
       : "h-7 sm:h-8";
 
   return (
-    <header className={`${isDetailTitle ? "max-w-none" : "max-w-4xl"} ${className}`.trim()}>
-      <div className="flex items-start justify-between gap-3">
+    <header
+      className={`${isDetailTitle ? "max-w-none" : "max-w-4xl"} ${
+        // 모바일에서 보이는 것이 없으면 상자를 없애 페이지 간격(gap)을 먹지 않게
+        titleInHeader && !children ? "max-sm:contents" : ""
+      } ${className}`.trim()}
+    >
+      {titleInHeader ? <h1 className="sr-only sm:hidden">{title}</h1> : null}
+      <div className={`${titleInHeader ? "hidden sm:flex" : "flex"} items-start justify-between gap-3`}>
         {leading ? (
           <div className="flex min-w-0 flex-1 items-start gap-2">
             <div

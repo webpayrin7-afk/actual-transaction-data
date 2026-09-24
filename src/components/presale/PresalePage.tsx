@@ -94,7 +94,8 @@ export function PresalePage() {
 
   return (
     <div className={PAGE_SHELL}>
-      <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false}>
+      <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false}
+        titleInHeader>
         <div className="flex flex-col gap-3">
           <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
           <LabFilterChips filters={filters} ariaLabel="분양 조건" />

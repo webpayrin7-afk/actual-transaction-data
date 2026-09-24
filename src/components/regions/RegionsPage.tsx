@@ -148,6 +148,7 @@ export function RegionsPage() {
         title="지역 조회"
         titleClassName="detail-page-title"
         showDivider={false}
+        titleInHeader
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
           <label className="sr-only" htmlFor="region-search">

@@ -21,6 +21,15 @@ import {
 
 const DRAWER_CLOSE_MS = 160;
 
+/** 하단 메뉴 첫 페이지 — 모바일 상단바 가운데 제목 (본문 제목 줄 대신) */
+const HEADER_TITLES: Record<string, string> = {
+  "/": "아파트 시장",
+  "/map": "지도",
+  "/regions": "지역 조회",
+  "/complexes": "단지 조회",
+  "/presale": "분양",
+};
+
 function navLinkClass(active: boolean) {
   return `whitespace-nowrap rounded-md px-2 py-1.5 text-sm font-medium transition sm:px-2.5 sm:text-[0.9375rem] ${
     active
@@ -52,6 +61,7 @@ export function SiteHeader() {
   const touchStartXRef = useRef<number | null>(null);
   const menuId = useId();
   const titleId = useId();
+  const headerTitle = HEADER_TITLES[pathname] ?? null;
 
   function clearCloseTimer() {
     if (closeTimerRef.current != null) {
@@ -146,7 +156,15 @@ export function SiteHeader() {
       className="sticky top-0 z-50 border-b border-[color:var(--lab-border)] bg-white shadow-none"
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
-        <div className="flex py-1.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
+        <div className="relative flex py-1.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
+          {headerTitle ? (
+            <p
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-1/2 flex -translate-x-1/2 items-center whitespace-nowrap text-[17px] font-bold leading-6 tracking-tight text-[color:var(--lab-navy-950)] sm:hidden"
+            >
+              {headerTitle}
+            </p>
+          ) : null}
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-5">
             <Link
               href="/"

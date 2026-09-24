@@ -6,7 +6,8 @@ import { RegionDongBrowse } from "@/components/RegionDongBrowse";
 import { RegionHeroMeta } from "@/components/region/RegionHeroMeta";
 import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import { LabTabs } from "@/components/ui/LabTabs";
+import { LabPageTabs } from "@/components/ui/LabPageTabs";
+import { labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import type { RegionDef } from "@/lib/constants/regions";
 import { regionRankingCode } from "@/lib/region-ranking/public";
 
@@ -56,23 +57,19 @@ export function Dashboard({
         </PageHeader>
       </header>
 
-      <LabTabs
-        variant="primary"
-        ariaLabel="지역 상세 탭"
-        items={TABS}
-        value={tab}
-        onChange={selectTab}
-      />
+      <LabPageTabs ariaLabel="지역 상세 탭" idPrefix="region" items={TABS} value={tab} onChange={selectTab} />
 
-      {tab === "dong" && <RegionDongBrowse regionSlug={region.slug} />}
+      <div id={labTabPanelId("region", tab)} role="tabpanel" aria-labelledby={labTabId("region", tab)} className="contents">
+        {tab === "dong" && <RegionDongBrowse regionSlug={region.slug} />}
 
-      {tab === "stats" && (
-        <RegionDailyStatus
-          regionSlug={region.slug}
-          regionName={region.name}
-          lawdCodes={region.lawdCodes}
-        />
-      )}
+        {tab === "stats" && (
+          <RegionDailyStatus
+            regionSlug={region.slug}
+            regionName={region.name}
+            lawdCodes={region.lawdCodes}
+          />
+        )}
+      </div>
     </div>
   );
 }
