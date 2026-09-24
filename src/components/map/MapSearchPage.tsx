@@ -179,11 +179,11 @@ function complexMarkerHtml(c: MapComplex, selected: boolean, metric: MarkerMetri
 type MarkerMetric = "price" | "perPyeong" | "jeonseRatio" | "change1y";
 // 가격: 대표 평형 최근 실거래가 · 평당가: 최근 실거래가 ÷ 평형(공급 3.3㎡)
 // 전세가율: 대표 평형 최근 전세가 ÷ 최근 매매가 · 1년 변동: 최근 6개월 vs 1년 전 같은 6개월 (같은 평형, 각 2건 이상)
-const MARKER_METRICS: Array<{ id: MarkerMetric; label: string }> = [
-  { id: "price", label: "가격" },
-  { id: "perPyeong", label: "평당가" },
-  { id: "jeonseRatio", label: "전세가율" },
-  { id: "change1y", label: "1년 변동" },
+const MARKER_METRICS: Array<{ id: MarkerMetric; label: string; note: string }> = [
+  { id: "price", label: "가격", note: "가장 많이 거래된 평형의 최근 거래가예요" },
+  { id: "perPyeong", label: "평당가", note: "한 평 가격이라 크기가 달라도 비교하기 좋아요" },
+  { id: "jeonseRatio", label: "전세가율", note: "매매가 대비 전세가가 어느 정도인지 보여줘요" },
+  { id: "change1y", label: "1년 변동", note: "1년 전보다 얼마나 오르고 내렸는지 보여줘요" },
 ];
 const METRIC_KEY = "apt-datalab:map-marker-metric:v1";
 
@@ -911,10 +911,13 @@ export function MapSearchPage() {
                 role="radio"
                 aria-checked={metric === m.id}
                 onClick={() => chooseMetric(m.id)}
-                className="flex min-h-12 w-full items-center justify-between gap-3 border-b border-[color:var(--lab-border)] py-2 text-left last:border-b-0"
+                className="flex min-h-14 w-full items-center justify-between gap-3 border-b border-[color:var(--lab-border)] py-2 text-left last:border-b-0"
               >
-                <span className={`min-w-0 text-[16px] leading-6 ${metric === m.id ? "font-semibold text-[color:var(--lab-teal-700)]" : "font-medium text-[color:var(--lab-navy-950)]"}`}>
-                  {m.label}
+                <span className="min-w-0">
+                  <span className={`block text-[16px] leading-6 ${metric === m.id ? "font-semibold text-[color:var(--lab-teal-700)]" : "font-medium text-[color:var(--lab-navy-950)]"}`}>
+                    {m.label}
+                  </span>
+                  <span className="block text-[13px] leading-5 text-[color:var(--lab-muted)]">{m.note}</span>
                 </span>
                 {metric === m.id ? <Check className="h-5 w-5 shrink-0 text-[color:var(--lab-brand-primary)]" aria-hidden /> : null}
               </button>
