@@ -18,12 +18,17 @@
  *   npx tsx scripts/sync-molit.ts --codes=26350 --trade-months=1 --rent-months=0 \
  *     --skip-existing=0 --only-changed=0 --discovery=0 --concurrency=1
  *
+ *   # sync_months 공백 CSV만 매매 백필 (discovery=0 권장)
+ *   npx tsx scripts/sync-molit.ts --gaps-file=data/sync-gaps/trade-gaps.csv \
+ *     --discovery=0 --skip-delete=1 --skip-existing=1 --dry-run=1
+ *
  * 문서: docs/nationwide-sync.md
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });
 config();
 
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   FEATURED_LAWD_CODES,
@@ -49,6 +54,54 @@ import {
   type DbCellSnap,
   type RollingSyncJob,
 } from "../src/lib/molit/sync-policy";
+
+/** CSV from export-trade-sync-gaps.ts (lawd_cd,year_month[,deal_kind]) */
+function loadGapsFile(path: string): RollingSyncJob[] {
+  const text = readFileSync(resolve(path), "utf8");
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length === 0) return [];
+  const header = lines[0]!.split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+  const lawdIdx = header.indexOf("lawd_cd");
+  const ymIdx = header.indexOf("year_month");
+  const kindIdx = header.indexOf("deal_kind");
+  if (lawdIdx < 0 || ymIdx < 0) {
+    throw new Error(
+      `--gaps-file requires lawd_cd,year_month columns (got: ${header.join(",")})`,
+    );
+  }
+  const jobs: RollingSyncJob[] = [];
+  const seen = new Set<string>();
+  for (const line of lines.slice(1)) {
+    // naive CSV split that keeps quoted commas out of field breaks
+    const cols: string[] = [];
+    let cur = "";
+    let inQ = false;
+    for (let i = 0; i < line.length; i += 1) {
+      const ch = line[i]!;
+      if (ch === '"') {
+        inQ = !inQ;
+        continue;
+      }
+      if (ch === "," && !inQ) {
+        cols.push(cur);
+        cur = "";
+        continue;
+      }
+      cur += ch;
+    }
+    cols.push(cur);
+    const lawdCd = (cols[lawdIdx] ?? "").trim();
+    const yearMonth = (cols[ymIdx] ?? "").trim();
+    const kindRaw = kindIdx >= 0 ? (cols[kindIdx] ?? "trade").trim() : "trade";
+    const kind = kindRaw === "rent" ? "rent" : "trade";
+    if (!/^\d{5}$/.test(lawdCd) || !/^\d{6}$/.test(yearMonth)) continue;
+    const key = `${lawdCd}|${yearMonth}|${kind}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    jobs.push({ lawdCd, yearMonth, kind });
+  }
+  return jobs;
+}
 
 function argValue(name: string, fallback: string): string {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -146,6 +199,7 @@ async function main() {
   const maxMonths = Number(argValue("max-months", "0"));
   const fromMonth = argValue("from-month", "");
   const toMonth = argValue("to-month", "");
+  const gapsFile = argValue("gaps-file", "");
   const asOfArg = argValue("as-of", "");
   const asOf = asOfArg
     ? new Date(`${asOfArg}T12:00:00+09:00`)
@@ -167,8 +221,24 @@ async function main() {
   }
   await ensureSchema(db);
 
-  let lawdCodes: string[];
-  if (codesArg) {
+  let lawdCodes: string[] = [];
+  let tradeYms: string[] = [];
+  let rentYms: string[] = [];
+  let jobs: RollingSyncJob[] = [];
+
+  if (gapsFile) {
+    jobs = loadGapsFile(gapsFile);
+    lawdCodes = [...new Set(jobs.map((j) => j.lawdCd))];
+    tradeYms = [
+      ...new Set(jobs.filter((j) => j.kind === "trade").map((j) => j.yearMonth)),
+    ].sort();
+    rentYms = [
+      ...new Set(jobs.filter((j) => j.kind === "rent").map((j) => j.yearMonth)),
+    ].sort();
+    console.log(
+      `[sync] gaps-file=${gapsFile} loadedJobs=${jobs.length} lawds=${lawdCodes.length}`,
+    );
+  } else if (codesArg) {
     lawdCodes = codesArg.split(",").map((s) => s.trim()).filter(Boolean);
   } else if (scope === "nationwide") {
     lawdCodes = allNationwideLawdCodes();
@@ -181,36 +251,35 @@ async function main() {
     lawdCodes = expandFeatured();
   }
 
-  if (maxRegions > 0) {
-    lawdCodes = lawdCodes.slice(0, maxRegions);
-  }
-
-  let tradeYms: string[];
-  let rentYms: string[];
-  let jobs: RollingSyncJob[];
-  if (fromMonth && toMonth) {
-    const span = yearMonthsBetween(fromMonth, toMonth);
-    tradeYms = span;
-    rentYms = rentMonths > 0 ? span : [];
-    jobs = [];
-    for (const lawdCd of lawdCodes) {
-      for (const yearMonth of tradeYms) {
-        jobs.push({ lawdCd, yearMonth, kind: "trade" });
-      }
-      for (const yearMonth of rentYms) {
-        jobs.push({ lawdCd, yearMonth, kind: "rent" });
-      }
+  if (!gapsFile) {
+    if (maxRegions > 0) {
+      lawdCodes = lawdCodes.slice(0, maxRegions);
     }
-  } else {
-    const planned = buildRollingSyncJobs({
-      lawdCodes,
-      tradeMonths,
-      rentMonths,
-      asOf,
-    });
-    tradeYms = planned.tradeYms;
-    rentYms = planned.rentYms;
-    jobs = planned.jobs;
+
+    if (fromMonth && toMonth) {
+      const span = yearMonthsBetween(fromMonth, toMonth);
+      tradeYms = span;
+      rentYms = rentMonths > 0 ? span : [];
+      jobs = [];
+      for (const lawdCd of lawdCodes) {
+        for (const yearMonth of tradeYms) {
+          jobs.push({ lawdCd, yearMonth, kind: "trade" });
+        }
+        for (const yearMonth of rentYms) {
+          jobs.push({ lawdCd, yearMonth, kind: "rent" });
+        }
+      }
+    } else {
+      const planned = buildRollingSyncJobs({
+        lawdCodes,
+        tradeMonths,
+        rentMonths,
+        asOf,
+      });
+      tradeYms = planned.tradeYms;
+      rentYms = planned.rentYms;
+      jobs = planned.jobs;
+    }
   }
   if (maxMonths > 0) {
     tradeYms = tradeYms.slice(0, maxMonths);
@@ -274,11 +343,36 @@ async function main() {
   let written = 0;
   let unchanged = 0;
   let failures = 0;
+  let emptyMarked = 0;
   let next = 0;
   let stop = false;
   const failedKeys: string[] = [];
   const insertByYearMonth = new Map<string, number>();
+  const insertByCell = new Map<string, number>();
   const startedAt = Date.now();
+
+  async function touchSyncMonth(
+    job: RollingSyncJob,
+    rowCount: number,
+  ): Promise<void> {
+    if (dryRun) return;
+    const client = getDb();
+    if (!client) return;
+    await client.execute({
+      sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
+              synced_at = excluded.synced_at,
+              row_count = excluded.row_count`,
+      args: [
+        job.lawdCd,
+        job.yearMonth,
+        job.kind,
+        new Date().toISOString(),
+        rowCount,
+      ],
+    });
+  }
 
   async function worker() {
     while (!stop) {
@@ -295,6 +389,11 @@ async function main() {
 
         if (onlyChanged && isCellUnchanged(snapshots?.get(key), items)) {
           unchanged += 1;
+          // gaps-file: still stamp sync_months so resume skips this cell
+          if (gapsFile) {
+            await touchSyncMonth(job, items.length);
+            emptyMarked += 1;
+          }
         } else {
           const preview = await replaceMonthTransactions({
             lawdCd: job.lawdCd,
@@ -336,9 +435,14 @@ async function main() {
               job.yearMonth,
               (insertByYearMonth.get(job.yearMonth) ?? 0) + result.inserted,
             );
+            insertByCell.set(key, result.inserted);
           }
           if (result.wrote) {
             written += 1;
+          } else if (gapsFile) {
+            // 0건 또는 warehouse와 완전 일치 — sync_months만 찍어 공백 재시도를 막음
+            await touchSyncMonth(job, items.length);
+            emptyMarked += 1;
           }
           if (snapshots) {
             snapshots.set(key, {
@@ -350,10 +454,21 @@ async function main() {
       } catch (err) {
         failures += 1;
         failedKeys.push(key);
+        const msg = err instanceof Error ? err.message : String(err);
         console.warn(
           `[sync] fail ${job.kind} ${job.lawdCd} ${job.yearMonth}:`,
-          err instanceof Error ? err.message : err,
+          msg,
         );
+        // 일일 한도/차단이면 이어받기 위해 즉시 중단 (skip-existing으로 다음날 재개)
+        if (
+          /LIMIT|한도|quota|429|403|SERVICE.?KEY|일일/i.test(msg) ||
+          /초과|exceeded/i.test(msg)
+        ) {
+          stop = true;
+          console.error(
+            `[sync] API limit/block detected — stopping for resume. remaining≈${jobs.length - done - 1}`,
+          );
+        }
       } finally {
         done += 1;
         if (done % 25 === 0 || done === jobs.length || stop) {
@@ -365,7 +480,7 @@ async function main() {
             60
           ).toFixed(0);
           console.log(
-            `[sync] progress ${done}/${jobs.length} writtenCells=${written} ins=${inserted} upd=${updated} del=${deleted} unchanged=${unchanged} failures=${failures} elapsed=${elapsedMin}m eta~${etaMin}m${dryRun ? " DRY-RUN" : ""}`,
+            `[sync] progress ${done}/${jobs.length} writtenCells=${written} emptyMarked=${emptyMarked} ins=${inserted} upd=${updated} del=${deleted} unchanged=${unchanged} failures=${failures} elapsed=${elapsedMin}m eta~${etaMin}m${dryRun ? " DRY-RUN" : ""}`,
           );
         }
       }
@@ -378,7 +493,7 @@ async function main() {
 
   const durationSec = Math.round((Date.now() - startedAt) / 1000);
   console.log(
-    `[sync] SUMMARY regions=${lawdCodes.length} jobs=${done} writtenCells=${written} inserted=${inserted} updated=${updated} deleted=${deleted} unchanged=${unchanged} failures=${failures} skippedExisting=${skippedExisting} durationSec=${durationSec} discovery=${discovery ? 1 : 0} dryRun=${dryRun ? 1 : 0} sqlWrites=${inserted + updated + deleted}`,
+    `[sync] SUMMARY regions=${lawdCodes.length} jobs=${done} writtenCells=${written} emptyMarked=${emptyMarked} inserted=${inserted} updated=${updated} deleted=${deleted} unchanged=${unchanged} failures=${failures} skippedExisting=${skippedExisting} durationSec=${durationSec} discovery=${discovery ? 1 : 0} dryRun=${dryRun ? 1 : 0} sqlWrites=${inserted + updated + deleted}`,
   );
   if (insertByYearMonth.size > 0) {
     const insertYm = [...insertByYearMonth.entries()].sort((a, b) =>
@@ -386,6 +501,18 @@ async function main() {
     );
     console.log(
       `[sync] INSERT yearMonth distribution: ${JSON.stringify(Object.fromEntries(insertYm))}`,
+    );
+  }
+  if (insertByCell.size > 0 && insertByCell.size <= 200) {
+    console.log(
+      `[sync] INSERT by cell: ${JSON.stringify(Object.fromEntries([...insertByCell.entries()].sort()))}`,
+    );
+  } else if (insertByCell.size > 200) {
+    const top = [...insertByCell.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 40);
+    console.log(
+      `[sync] INSERT by cell (top 40 of ${insertByCell.size}): ${JSON.stringify(Object.fromEntries(top))}`,
     );
   }
   if (failedKeys.length) {
