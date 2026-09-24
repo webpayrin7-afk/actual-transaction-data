@@ -7,7 +7,7 @@
  *
  * --missing-only: 이미 있는 bld_key는 건드리지 않음 (해시 갱신 없음).
  * 단지 동 연결 보고: complex_buildings.mgm_bldrgst_pk[5:] = gis bldrgst_pk, 같은 lawd_cd.
- * 12/29/46 단지는 lawd 불일치 시 A19만으로도 연결 수를 센다(보고용).
+ * file12_region: lawd 12/29/46 단지 동만 따로 연결률을 보고 (연결 규칙은 같음 — lawd·번호 정확 일치).
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });
