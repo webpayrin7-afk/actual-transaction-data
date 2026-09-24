@@ -160,7 +160,6 @@ function RangeBody({
         범위 안{" "}
         <strong className="font-semibold text-[color:var(--lab-teal-700)]">{inRange.toLocaleString("ko-KR")}곳</strong>
         {" "}/ 화면 {complexes.length.toLocaleString("ko-KR")}곳
-        {vals.length < complexes.length ? ` · 정보 있는 ${vals.length.toLocaleString("ko-KR")}곳` : ""}
       </p>
       <DistributionRange def={def} value={cur ?? { min: def.min, max: def.max }} values={vals} onChange={(v) => onRange(def, v)} />
       {def.id === "gap" ? (
