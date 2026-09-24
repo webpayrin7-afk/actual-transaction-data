@@ -54,3 +54,7 @@ data/map-anchor/
 
 # SEMAS national store zip + local commerce build (large, regenerable)
 /data/semas/
+
+# local API page caches (resumable; not source)
+/data/supply-fill-cache/
+/data/profile-fill-cache/
