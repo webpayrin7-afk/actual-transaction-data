@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { InfoTip } from "@/components/ui/InfoTip";
 
 /** 페이지 본문 공통 shell — max-width / padding 정렬 */
 export const PAGE_SHELL =
@@ -28,6 +29,7 @@ const EYEBROW_OFFSET = "mt-[30px]";
 export function PageHeader({
   title,
   titleSuffix,
+  titleTip,
   eyebrow,
   description,
   meta,
@@ -42,6 +44,8 @@ export function PageHeader({
   title: string;
   /** Small context text right after the title (e.g. parent region). */
   titleSuffix?: ReactNode;
+  /** 제목 바로 뒤 (i)팁 — 섹션 제목(LabSectionHeader)과 같은 규칙: 제목 줄 가운데 정렬, 간격 없이 붙임 */
+  titleTip?: ReactNode;
   /** 제목 위 한 줄 (e.g. 학교급 · 설립 · 성별 색 라벨). 24px 높이 행으로 넘긴다. */
   eyebrow?: ReactNode;
   description?: ReactNode;
@@ -58,7 +62,7 @@ export function PageHeader({
   className?: string;
 }) {
   const isDetailTitle = titleClassName.includes("detail-page-title");
-  const heading = (
+  const titleNode = (
     <h1
       className={`min-w-0 tracking-tight text-[color:var(--lab-navy-950)] ${
         titleClassName
@@ -75,6 +79,14 @@ export function PageHeader({
         </span>
       ) : null}
     </h1>
+  );
+  const heading = titleTip ? (
+    <div className="flex min-w-0 items-center">
+      {titleNode}
+      <InfoTip aria-label={`${title} 안내`}>{titleTip}</InfoTip>
+    </div>
+  ) : (
+    titleNode
   );
   const descriptionNode = description ? (
     <p className="mt-1 text-pretty text-[13px] leading-5 text-[color:var(--lab-muted)] sm:text-sm sm:leading-5">

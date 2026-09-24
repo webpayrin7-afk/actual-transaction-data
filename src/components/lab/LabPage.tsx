@@ -6,7 +6,6 @@ import { LabExperimentCard } from "@/components/lab/LabExperimentCard";
 import { LAB_QUERY_KEY, fetchLab } from "@/components/lab/LabSection";
 import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import { InfoTip } from "@/components/ui/InfoTip";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
 import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
@@ -30,15 +29,11 @@ export function LabPage() {
         leading={<BackLink fallback="/" compact hideLabel />}
         title="오늘의 실험실"
         showDivider={false}
-        titleSuffix={
-          <span className="inline-flex items-center align-middle">
-            <InfoTip aria-label="오늘의 실험실 안내">
-              <p>
-                실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험을 모아 둔 곳이에요. 결과는 표본과 기준에
-                따라 달라질 수 있어 참고용으로 봐 주세요. 각 실험의 기간과 표본은 실험 아래에 적어 두었어요.
-              </p>
-            </InfoTip>
-          </span>
+        titleTip={
+          <p>
+            실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험을 모아 둔 곳이에요. 결과는 표본과 기준에
+            따라 달라질 수 있어 참고용으로 봐 주세요. 각 실험의 기간과 표본은 실험 아래에 적어 두었어요.
+          </p>
         }
       />
       <div ref={anchorRef} className="-mb-5 h-0 sm:-mb-6" aria-hidden />
