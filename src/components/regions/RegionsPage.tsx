@@ -17,6 +17,8 @@ import {
 import { suggestRegions } from "@/lib/region/suggest-regions";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { RegionTileStat, RegionsOverview } from "@/lib/region/regions-overview";
 import { LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
 import { LabTabs } from "@/components/ui/LabTabs";
 
@@ -45,6 +47,45 @@ const METRO_OPTIONS = METRO_TAB_ORDER.filter(
   (key) => key !== "other" && key in METRO_LABELS,
 ).map((key) => [key, METRO_LABELS[key]] as [Metro, string]);
 
+async function fetchOverview(): Promise<RegionsOverview> {
+  const res = await fetch("/api/regions/overview");
+  if (!res.ok) throw new Error("지역 정보를 불러오지 못했습니다.");
+  return res.json();
+}
+
+/** 평당가 짧은 표기: 12345 → "1.23억", 4120 → "4,120만" */
+function pppText(man: number): string {
+  return man >= 10_000 ? `${(man / 10_000).toFixed(2)}억` : `${Math.round(man).toLocaleString("ko-KR")}만`;
+}
+
+function TileStat({ stat }: { stat: RegionTileStat | undefined }) {
+  if (!stat || (stat.ppp == null && !stat.range)) {
+    return <span className="detail-meta">거래 적음</span>;
+  }
+  if (stat.range) {
+    return (
+      <span className="detail-meta tabular-nums">
+        {pppText(stat.range[0])}~{pppText(stat.range[1])}
+      </span>
+    );
+  }
+  const yoy = stat.yoyPct;
+  return (
+    <span className="detail-meta flex flex-wrap items-baseline gap-x-1 tabular-nums">
+      <span>{pppText(stat.ppp!)}</span>
+      {yoy != null ? (
+        <span
+          className="font-semibold"
+          style={{ color: yoy > 0 ? "var(--lab-change-up)" : yoy < 0 ? "var(--lab-change-down)" : undefined }}
+        >
+          {yoy > 0 ? "+" : yoy < 0 ? "−" : ""}
+          {Math.abs(yoy)}%
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 /**
  * 지역 조회 인덱스.
  * 시·도 → 시·군·구 compact selector 후 /region/[slug]로 이동.
@@ -61,6 +102,9 @@ export function RegionsPage() {
   const [openSuggest, setOpenSuggest] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const searchWrapRef = useRef<HTMLDivElement>(null);
+  const overview = useQuery({ queryKey: ["regions-overview"], queryFn: fetchOverview, staleTime: 30 * 60_000 });
+  const ov = overview.data;
+  const ymLabel = ov?.yearMonth ? `${ov.yearMonth.slice(0, 4)}년 ${Number(ov.yearMonth.slice(4))}월` : null;
 
   const regions = useMemo(
     () => ALL_REGIONS.filter((r) => r.metro === metro),
@@ -201,14 +245,21 @@ export function RegionsPage() {
             title={METRO_LABELS[metro]}
             meta={`${regions.length.toLocaleString("ko-KR")}곳`}
           />
+          {ymLabel ? (
+            <p className="detail-meta -mt-1">
+              {ymLabel} 매매 전용 평당 중위가 · 전년 같은 달 대비
+              {regions.some((r) => r.lawdCodes.length > 1) ? ". 여러 구가 있는 시는 구별 범위" : ""}
+            </p>
+          ) : null}
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
             {regions.map((region) => (
               <Link
                 key={region.slug}
                 href={`/region/${region.slug}`}
-                className="flex min-h-12 items-center rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2.5 transition hover:border-[color:var(--lab-brand-border)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                className="flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2.5 transition hover:border-[color:var(--lab-brand-border)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
               >
                 <span className="detail-data-value-emphasis break-keep">{region.name}</span>
+                {ov ? <TileStat stat={ov.regions[region.slug]} /> : null}
               </Link>
             ))}
           </div>

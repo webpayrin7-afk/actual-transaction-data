@@ -3,6 +3,7 @@
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { RecentComplexList } from "@/components/complexes/RecentComplexList";
 import { SavedComplexList } from "@/components/complexes/SavedComplexList";
+import { GuLeaderList } from "@/components/complexes/GuLeaderList";
 import { ActiveComplexList } from "@/components/complexes/ActiveComplexList";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
@@ -28,6 +29,9 @@ export function ComplexesPage() {
       <SavedComplexList />
 
       <RecentComplexList />
+
+      <GuLeaderList />
+
 
       <ActiveComplexList />
     </div>
