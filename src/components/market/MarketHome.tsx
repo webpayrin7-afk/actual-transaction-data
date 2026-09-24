@@ -239,9 +239,9 @@ function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse
     <LabSection
       id={id}
       title="오늘의 가격 이슈"
-      meta="오늘 확인 · 계약일 이전 거래와 비교"
       tip={
         <ul className="flex list-disc flex-col gap-1 pl-4">
+          <li>오늘 집랩이 처음 확인한 매매를 계약일 이전 거래와 비교합니다.</li>
           <li>오늘의 기록: 오늘 확인된 매매 중 가장 비싼 거래, 가장 크게 오른 신고가, 가장 오래된 고점을 넘은 신고가, 가장 많이 떨어진 거래, 거래가 가장 많은 단지</li>
           <li>신고가: 같은 단지·면적에서 계약일 이전 최고가보다 높은 거래</li>
           <li>하락거래(고점 −10%): 계약일 이전 최고가보다 10% 이상 낮은 거래</li>
@@ -461,7 +461,6 @@ export function MarketHome() {
           <LabSection
             id="market-volume"
             title="거래량 급증 단지"
-            meta="최근 30일 vs 직전 30일 · 계약일 기준"
             tip={
               <p>
                 계약일 기준 최근 30일 매매가 5건 이상이면서 직전 30일(3건 이상)의 2배 이상으로 늘어난

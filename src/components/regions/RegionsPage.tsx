@@ -106,7 +106,6 @@ export function RegionsPage() {
         title="지역 조회"
         titleClassName="detail-page-title"
         showDivider={false}
-        titleTip={<p>지역별 아파트 실거래와 시장 현황을 확인하세요.</p>}
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
           <label className="sr-only" htmlFor="region-search">

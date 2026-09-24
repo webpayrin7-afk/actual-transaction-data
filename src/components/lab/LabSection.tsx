@@ -55,10 +55,9 @@ export function LabSection() {
     <Section
       id="market-lab"
       title="오늘의 실험실"
-      meta={data ? `${data.coverageShort} · 최근 30일` : undefined}
       tip={
         <p>
-          실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험입니다. 같은 단지·같은 평형끼리
+          실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험입니다. 전국 최근 30일 매매로 계산합니다. 같은 단지·같은 평형끼리
           비교하는 식으로 지역 차이를 덜어 내고 봅니다. 결과는 표본과 방법에 따라 달라질 수 있어
           참고용입니다.
         </p>
