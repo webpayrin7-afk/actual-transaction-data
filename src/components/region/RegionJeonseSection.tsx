@@ -109,7 +109,7 @@ export function RegionJeonseSection({
       ratio: p.jeonseRatio == null ? null : Math.round(p.jeonseRatio * 1000) / 10,
     }));
   }, [data]);
-  const usingDealStats = !!scope.dong && dealRatios.length > pairPoints.length;
+  const usingDealStats = !!scope.dong && dealRatios.length > 1;
   const allPoints = usingDealStats ? dealRatios : pairPoints;
   const hasLongHistory = allPoints.length > RECENT_MONTHS;
   const points =
