@@ -7,6 +7,9 @@
  *   npx tsx scripts/region-ranking/launch-nationwide-all.mts --scope=seoul --as-of=2026-07-31 --apply
  *
  * --scope=nationwide (default): skip Seoul pubs (insert-only for non-Seoul).
+ * --only-missing (nationwide only): limit targets to registry lawd codes that have
+ *   no gu ALL/12M publication yet (e.g. after a 시군구 code change). Reports go to
+ *   nationwide-all-missing-*.json so the original run's reports are kept.
  * --scope=seoul: rebuild Seoul features under a new feature_run_id and UPDATE
  *   Seoul gu ALL/12M publication pointers only. Old Seoul snapshots are kept.
  */
@@ -48,6 +51,8 @@ const asOfArg = process.argv.find((a) => a.startsWith("--as-of="))?.slice("--as-
 const scopeRaw =
   process.argv.find((a) => a.startsWith("--scope="))?.slice("--scope=".length) ?? "nationwide";
 const SCOPE = scopeRaw === "seoul" ? "seoul" : "nationwide";
+const ONLY_MISSING = process.argv.includes("--only-missing");
+if (ONLY_MISSING && SCOPE !== "nationwide") throw new Error("--only-missing is nationwide-only");
 const REPORT_DIR = "data/poc/region-ranking";
 const RANKING_VERSION = "ziplab-ranking-v4";
 const AREA_BAND = "ALL" as const;
@@ -389,7 +394,16 @@ async function main() {
   const allLawds = allNationwideLawdCodes();
   const seoulLawds = allLawds.filter((c) => c.startsWith("11")).sort();
   const nonSeoulLawds = allLawds.filter((c) => !c.startsWith("11")).sort();
-  const targetLawds = SCOPE === "seoul" ? seoulLawds : nonSeoulLawds;
+  let targetLawds = SCOPE === "seoul" ? seoulLawds : nonSeoulLawds;
+  if (ONLY_MISSING) {
+    const pubs = await db.execute({
+      sql: `SELECT region_code FROM region_ranking_publications
+            WHERE region_scope='gu' AND area_band=? AND period=?`,
+      args: [AREA_BAND, PERIOD],
+    });
+    const published = new Set(pubs.rows.map((r) => String(r.region_code)));
+    targetLawds = targetLawds.filter((c) => !published.has(c));
+  }
 
   console.log(
     JSON.stringify({
@@ -402,6 +416,7 @@ async function main() {
       areaBand: AREA_BAND,
       period: PERIOD,
       targetLawds: targetLawds.length,
+      onlyMissing: ONLY_MISSING,
     }),
   );
 
@@ -467,7 +482,7 @@ async function main() {
           cohort_origin: "apt_complex_profile",
           scope: SCOPE,
         })),
-    ),
+    ) + (ONLY_MISSING ? ":only-missing" : ""),
   );
   const runId = featureRunId({
     transactionAsOf: asOf,
@@ -606,7 +621,9 @@ async function main() {
   const dryPath =
     SCOPE === "seoul"
       ? `${REPORT_DIR}/seoul-all-asof-align-dry-run.json`
-      : `${REPORT_DIR}/nationwide-all-dry-run.json`;
+      : ONLY_MISSING
+        ? `${REPORT_DIR}/nationwide-all-missing-dry-run.json`
+        : `${REPORT_DIR}/nationwide-all-dry-run.json`;
   writeFileSync(dryPath, JSON.stringify({ ...dryReport, guReports, before }, null, 2));
   console.log(JSON.stringify({ phase: "dry-run-report", ...dryReport }, null, 2));
 
@@ -710,7 +727,9 @@ async function main() {
   const applyPath =
     SCOPE === "seoul"
       ? `${REPORT_DIR}/seoul-all-asof-align-apply.json`
-      : `${REPORT_DIR}/nationwide-all-apply.json`;
+      : ONLY_MISSING
+        ? `${REPORT_DIR}/nationwide-all-missing-apply.json`
+        : `${REPORT_DIR}/nationwide-all-apply.json`;
   writeFileSync(applyPath, JSON.stringify(applyReport, null, 2));
   console.log(JSON.stringify({ phase: "apply-done", ...applyReport }, null, 2));
 }

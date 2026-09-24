@@ -1,0 +1,11 @@
+{
+  "apply": true,
+  "scope": "nationwide",
+  "asOf": "2026-07-31",
+  "featureRunId": "25271cada9ee3dd1ad731132eaeda56574b59e922073a110449e1ec5df1ee2f4",
+  "featureRowsAttempted": 4589,
+  "publicationsInserted": 51,
+  "publicationsUpdated": 0,
+  "publicationsSkippedUnchanged": 0,
+  "oldSeoulFeatureKept": null
+}
