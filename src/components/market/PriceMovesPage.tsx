@@ -34,9 +34,9 @@ const AREA_ITEMS: Array<{ id: PriceMovesArea; label: string }> = [
   { id: "large", label: "대형" },
 ];
 const SORT_ITEMS: Array<{ id: PriceMovesSort; label: string }> = [
-  { id: "amount", label: "변화 금액" },
-  { id: "pct", label: "변화율" },
-  { id: "recent", label: "최신" },
+  { id: "amount", label: "금액순" },
+  { id: "pct", label: "비율순" },
+  { id: "recent", label: "최신순" },
 ];
 
 function ym(iso: string | null): string {
@@ -109,13 +109,11 @@ function ScopeSelect({
 }) {
   const id = useId();
   return (
-    <div className="flex min-w-0 flex-col gap-1">
-      <label htmlFor={id} className="detail-label">
-        지역
-      </label>
+    <div className="flex min-w-0 flex-col">
       <div className="relative">
         <select
           id={id}
+          aria-label="지역"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="lab-input h-12 w-full appearance-none pr-10 pl-3 text-[16px] font-medium"
