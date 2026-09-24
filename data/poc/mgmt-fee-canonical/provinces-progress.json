@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-24T03:38:29.676Z",
+  "generated_at": "2026-09-24T04:41:08.198Z",
   "driver_status": "busan acquiring",
   "fee_table": {
     "rows": 3938,
     "complexes": 3825
   },
-  "api_calls_total": 39837,
+  "api_calls_total": 42048,
   "applied_rows_total": 1015,
   "provinces": [
     {
@@ -34,17 +34,17 @@
       "sido": "부산광역시",
       "phase": "ACQUIRING",
       "cohort": 993,
-      "terminal": 360,
-      "unfinished": 633,
-      "COMPLETE": 299,
-      "NO_PUBLISHED_MONTH": 61,
+      "terminal": 440,
+      "unfinished": 553,
+      "COMPLETE": 372,
+      "NO_PUBLISHED_MONTH": 68,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 9153,
+      "api_calls": 11364,
       "http_429": 0,
-      "retries": 11,
+      "retries": 15,
       "dryrun_gate": null,
       "applied_rows": 0
     },
