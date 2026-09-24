@@ -21,7 +21,6 @@ import { useQuery } from "@tanstack/react-query";
 import type { RegionTileStat, RegionsOverview } from "@/lib/region/regions-overview";
 import { LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
 import { LabTabs } from "@/components/ui/LabTabs";
-import { MoveInSection } from "@/components/regions/MoveInSection";
 
 /** 지역별 조회 시·도 탭 — 서울 다음 경기(수도권)를 우선 배치 */
 const METRO_TAB_ORDER: Metro[] = [
@@ -266,8 +265,6 @@ export function RegionsPage() {
           </div>
         </div>
       </LabSection>
-
-      <MoveInSection metro={metro} metroLabel={METRO_LABELS[metro]} />
     </div>
   );
 }
