@@ -261,6 +261,16 @@ export function MapConditionSheet({
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const [activeJump, setActiveJump] = useState<string>(jumpList[0]!.id);
   const jumpingTo = useRef<string | null>(null);
+  const tabsRef = useRef<HTMLDivElement | null>(null);
+
+  // 선택된 탭을 탭 줄 가운데로 — 세로로 스크롤하면 탭 줄도 따라 옆으로 움직인다
+  useEffect(() => {
+    const tabs = tabsRef.current;
+    const btn = tabs?.querySelector<HTMLElement>(`[data-jump="${activeJump}"]`);
+    if (!tabs || !btn) return;
+    const left = btn.offsetLeft - (tabs.clientWidth - btn.offsetWidth) / 2;
+    tabs.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [activeJump]);
 
   // 스크롤 위치에 따라 이동 탭 선택 — 페이지의 고정 섹션 탭과 같은 동작
   useEffect(() => {
@@ -324,7 +334,8 @@ export function MapConditionSheet({
         only ? undefined : (
           <nav aria-label="필터로 이동" className="border-b border-[color:var(--lab-border)]">
             <div
-              className="-mx-4 flex items-center gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 pb-2"
+              ref={tabsRef}
+              className="relative -mx-4 flex items-center gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 pb-2"
               style={{ scrollbarWidth: "none" }}
             >
               {jumpList.map((j) => {
@@ -333,6 +344,7 @@ export function MapConditionSheet({
                   <button
                     key={j.id}
                     type="button"
+                    data-jump={j.id}
                     aria-current={current ? "true" : undefined}
                     onClick={() => jumpTo(j.id)}
                     className={`relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
