@@ -1,14 +1,43 @@
 /**
- * 지도 '구·동 상세' 버튼과 함께 그리는 지역 표시 — 그 구·동 아파트 단지 좌표를 감싼 볼록 다각형.
- * 행정 경계가 아니라 "단지가 모여 있는 범위"다 (경계 데이터 없음). 읽기 전용, 좌표는 map anchor 우선.
+ * 지도 '구·동 상세' 버튼과 함께 그리는 지역 표시.
+ * 1순위: map_boundaries (국토지리정보원 행정경계, 법정동코드). 동은 이름 → 첫 단어(읍·면) → 같은 시(앞 4자리) 순으로 찾는다.
+ * 경계가 없으면(행정구역 개편 지역 등) 그 구·동 아파트 단지 좌표를 감싼 볼록 다각형("단지가 모여 있는 범위").
+ * 읽기 전용, 단지 좌표는 map anchor 우선.
  */
 import type { Client } from "@libsql/client";
 import { hasAnchorTable } from "@/lib/map/map-complexes";
 
 export type LatLng = { lat: number; lng: number };
 
+export type RegionShape = { source: "boundary" | "hull"; paths: LatLng[][] };
+
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const cache = new Map<string, { at: number; value: LatLng[] }>();
+const cache = new Map<string, { at: number; value: RegionShape }>();
+
+let boundaryTable: boolean | null = null;
+
+/** map_boundaries 경계 — 없으면 null */
+async function readBoundary(db: Client, lawd: string, dong: string | null): Promise<LatLng[][] | null> {
+  if (boundaryTable == null) {
+    boundaryTable =
+      (await db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='map_boundaries'")).rows.length > 0;
+  }
+  if (!boundaryTable) return null;
+  const tries: Array<{ sql: string; args: string[] }> = dong
+    ? [
+        { sql: "level = 'dong' AND substr(code, 1, 5) = ? AND name = ?", args: [lawd, dong] },
+        { sql: "level = 'dong' AND substr(code, 1, 5) = ? AND name = ?", args: [lawd, dong.split(/\s+/)[0]!] },
+        { sql: "level = 'dong' AND substr(code, 1, 4) = ? AND name = ?", args: [lawd.slice(0, 4), dong.split(/\s+/)[0]!] },
+      ]
+    : [{ sql: "code = ?", args: [`${lawd}00000`] }];
+  for (const t of tries) {
+    const res = await db.execute({ sql: `SELECT rings FROM map_boundaries WHERE ${t.sql}`, args: t.args });
+    if (res.rows.length !== 1) continue; // 없거나 둘 이상이면 다음 규칙
+    const rings = JSON.parse(String(res.rows[0]!.rings)) as number[][][];
+    return rings.map((ring) => ring.map(([lng, lat]) => ({ lat: lat!, lng: lng! })));
+  }
+  return null;
+}
 
 /** 단지 마커가 선 위에 걸치지 않게 중심에서 바깥으로 넓히는 거리 (m) */
 const PAD_M = 120;
@@ -58,10 +87,16 @@ function pad(hull: LatLng[]): LatLng[] {
   });
 }
 
-export async function readRegionShape(db: Client, lawd: string, dong: string | null): Promise<LatLng[]> {
+export async function readRegionShape(db: Client, lawd: string, dong: string | null): Promise<RegionShape> {
   const key = `${lawd}|${dong ?? ""}`;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
+  const boundary = await readBoundary(db, lawd, dong);
+  if (boundary?.length) {
+    const value: RegionShape = { source: "boundary", paths: boundary };
+    cache.set(key, { at: Date.now(), value });
+    return value;
+  }
   const anchored = await hasAnchorTable(db);
   const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
   const lng = anchored ? "COALESCE(a.lng, m.longitude)" : "m.longitude";
@@ -76,7 +111,7 @@ export async function readRegionShape(db: Client, lawd: string, dong: string | n
   const points = res.rows
     .map((r) => ({ lat: Number(r.lat), lng: Number(r.lng) }))
     .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
-  const value = points.length ? pad(convexHull(points)) : [];
+  const value: RegionShape = { source: "hull", paths: points.length ? [pad(convexHull(points))] : [] };
   cache.set(key, { at: Date.now(), value });
   return value;
 }

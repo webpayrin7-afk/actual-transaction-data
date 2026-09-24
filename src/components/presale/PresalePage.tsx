@@ -4,7 +4,8 @@ import { useState } from "react";
 import { METRO_LABELS } from "@/lib/constants/regions";
 import type { ResultsQuery } from "@/lib/applyhome/read";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import { LabTabs, labTabPanelId } from "@/components/ui/LabTabs";
+import { labTabId, labTabPanelId } from "@/components/ui/LabTabs";
+import { LabPageTabs } from "@/components/ui/LabPageTabs";
 import {
   ApplyhomeCompetitionSection,
   ApplyhomeUpcomingSection,
@@ -95,12 +96,16 @@ export function PresalePage() {
     <div className={PAGE_SHELL}>
       <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false}>
         <div className="flex flex-col gap-3">
-          <LabTabs variant="primary" ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
+          <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
           <LabFilterChips filters={filters} ariaLabel="분양 조건" />
         </div>
       </PageHeader>
 
-      <div id={labTabPanelId(TAB_PREFIX, tab)} role="tabpanel" className="flex flex-col gap-5 sm:gap-6">
+      <div
+        id={labTabPanelId(TAB_PREFIX, tab)}
+        role="tabpanel"
+        aria-labelledby={labTabId(TAB_PREFIX, tab)}
+        className="flex flex-col gap-5 sm:gap-6">
         {tab === "schedule" ? (
           <ApplyhomeUpcomingSection filter={filter} />
         ) : tab === "results" ? (

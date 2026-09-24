@@ -491,26 +491,29 @@ export function MapSearchPage() {
       : null;
   }, [level, areas, complexes, center]);
 
-  // 지역 범위 다각형 — 버튼 대상이 바뀔 때만 다시 그린다. 불러온 모양은 캐시.
+  // 지역 표시 — 버튼 대상이 바뀔 때만 다시 그린다. 행정경계는 실선, 경계가 없어 단지 범위로 대신하면 점선.
   const shapeKey = centerLink && !selectedId ? `${centerLink.lawd}|${centerLink.dong ?? ""}` : null;
-  const shapeCache = useRef(new Map<string, Array<{ lat: number; lng: number }>>());
+  type Shape = { source: "boundary" | "hull"; paths: Array<Array<{ lat: number; lng: number }>> };
+  const shapeCache = useRef(new Map<string, Shape>());
   useEffect(() => {
     const map = mapRef.current;
     const maps = window.naver?.maps;
     if (!shapeKey || !map || !maps?.Polygon) return;
     let polygon: { setMap: (m: null) => void } | null = null;
     let cancelled = false;
-    const draw = (path: Array<{ lat: number; lng: number }>) => {
-      if (cancelled || path.length < 3 || !maps.Polygon) return;
+    const draw = (shape: Shape) => {
+      const paths = shape.paths.filter((p) => p.length >= 3);
+      if (cancelled || !paths.length || !maps.Polygon) return;
+      const boundary = shape.source === "boundary";
       polygon = new maps.Polygon({
         map,
-        paths: [path.map((p) => new maps.LatLng(p.lat, p.lng))],
+        paths: paths.map((path) => path.map((p) => new maps.LatLng(p.lat, p.lng))),
         fillColor: "#0E9AA0",
-        fillOpacity: 0.08,
+        fillOpacity: boundary ? 0.06 : 0.08,
         strokeColor: "#0E9AA0",
-        strokeOpacity: 0.7,
+        strokeOpacity: boundary ? 0.85 : 0.7,
         strokeWeight: 2,
-        strokeStyle: "shortdash",
+        strokeStyle: boundary ? "solid" : "shortdash",
         clickable: false,
         zIndex: 1,
       });
@@ -523,10 +526,10 @@ export function MapSearchPage() {
       if (dong) qs.set("dong", dong);
       fetch(`/api/map/region-shape?${qs}`)
         .then((r) => r.json())
-        .then((d: { path?: Array<{ lat: number; lng: number }> }) => {
-          const path = d.path ?? [];
-          shapeCache.current.set(shapeKey, path);
-          draw(path);
+        .then((d: Partial<Shape>) => {
+          const shape: Shape = { source: d.source ?? "hull", paths: d.paths ?? [] };
+          shapeCache.current.set(shapeKey, shape);
+          draw(shape);
         })
         .catch(() => {});
     }
