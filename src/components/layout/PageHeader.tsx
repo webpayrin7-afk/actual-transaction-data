@@ -5,6 +5,13 @@ import { InfoTip } from "@/components/ui/InfoTip";
 export const PAGE_SHELL =
   "mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-4 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10";
 
+/**
+ * 하단 메뉴 첫 페이지(제목이 상단바에 있는 페이지) — 모바일 위 여백을 줄인다 (16 → 8).
+ * 1차 페이지 탭으로 시작하는 페이지는 PAGE_SHELL_FLUSH (0, 탭이 상단바에 붙는다).
+ */
+export const PAGE_SHELL_MENU = PAGE_SHELL.replace("pt-4", "pt-2");
+export const PAGE_SHELL_FLUSH = PAGE_SHELL.replace("pt-4", "pt-0");
+
 /** 단지상세 — ZIPLAB UI Policy v2 (padding/max-width from .detail-page) */
 export const DETAIL_PAGE_SHELL =
   "mx-auto flex w-full detail-page flex-col pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] lg:pt-5 lg:pb-10";

@@ -5,7 +5,7 @@ import { RecentComplexList } from "@/components/complexes/RecentComplexList";
 import { SavedComplexList } from "@/components/complexes/SavedComplexList";
 import { GuLeaderList } from "@/components/complexes/GuLeaderList";
 import { ActiveComplexList } from "@/components/complexes/ActiveComplexList";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 /**
  * 단지별 조회 = 검색 · 다시보기 · 단지 발견.

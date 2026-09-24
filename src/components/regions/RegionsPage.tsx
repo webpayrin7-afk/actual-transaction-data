@@ -15,7 +15,7 @@ import {
   type Metro,
 } from "@/lib/constants/regions";
 import { suggestRegions } from "@/lib/region/suggest-regions";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { RegionTileStat, RegionsOverview } from "@/lib/region/regions-overview";

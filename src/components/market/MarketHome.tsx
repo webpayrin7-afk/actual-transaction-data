@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { LabSection as LabExperiments } from "@/components/lab/LabSection";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { MarketPolicyNews } from "@/components/market/MarketPolicyNews";
 import { MarketRegionBreakdown } from "@/components/market/MarketRegionBreakdown";
 import { LAB_SECTION_SURFACE, LabSection } from "@/components/ui/LabSection";
@@ -383,25 +383,6 @@ export function MarketHome() {
 
       {data ? (
         <section id="market-summary" aria-label="오늘의 요약" className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}>
-          {/* 확인일·업데이트 — 페이지 제목 줄 대신 요약 카드 오른쪽 위 */}
-          <div className="-mb-1 flex items-center justify-end">
-            <p className="detail-meta tabular-nums">
-              {data.discoveryDate ? `${monthDay(data.discoveryDate)} 확인` : ""}
-              {clockOf(data.lastUpdatedLabel, data.computedAt) ? ` · ${clockOf(data.lastUpdatedLabel, data.computedAt)} 업데이트` : ""}
-            </p>
-            <InfoTip aria-label="아파트 시장 안내">
-          <>
-            <p>오늘 집랩이 새로 확인한 거래·가격 이슈와 정책 발표, 시장 흐름을 한눈에 봅니다.</p>
-            <p className="mt-1.5">
-              확인일: {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
-            </p>
-            <p className="mt-1.5">
-              업데이트: 집랩 데이터가 마지막으로 갱신된 시각입니다. 각 거래의 날짜와 시장 흐름은 계약일
-              기준입니다. {CONTRACT_DATE_BASIS_HELP}
-            </p>
-          </>
-            </InfoTip>
-          </div>
           <p className="text-[20px] font-bold leading-7 tracking-tight text-[color:var(--lab-navy-950)]">
             {hasNewDeals ? (
               <>
@@ -437,6 +418,25 @@ export function MarketHome() {
           {data.warning && hasNewDeals ? (
             <p className="detail-body text-[color:var(--lab-warning-text)]">{data.warning}</p>
           ) : null}
+          {/* 확인일·업데이트 — 페이지 제목 줄 대신 요약 카드 맨 아래 오른쪽 */}
+          <div className="-mt-1 -mb-1.5 flex items-center justify-end">
+            <p className="detail-meta tabular-nums">
+              {data.discoveryDate ? `${monthDay(data.discoveryDate)} 확인` : ""}
+              {clockOf(data.lastUpdatedLabel, data.computedAt) ? ` · ${clockOf(data.lastUpdatedLabel, data.computedAt)} 업데이트` : ""}
+            </p>
+            <InfoTip aria-label="아파트 시장 안내">
+          <>
+            <p>오늘 집랩이 새로 확인한 거래·가격 이슈와 정책 발표, 시장 흐름을 한눈에 봅니다.</p>
+            <p className="mt-1.5">
+              확인일: {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
+            </p>
+            <p className="mt-1.5">
+              업데이트: 집랩 데이터가 마지막으로 갱신된 시각입니다. 각 거래의 날짜와 시장 흐름은 계약일
+              기준입니다. {CONTRACT_DATE_BASIS_HELP}
+            </p>
+          </>
+            </InfoTip>
+          </div>
         </section>
       ) : null}
 

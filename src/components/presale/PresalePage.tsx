@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { METRO_LABELS } from "@/lib/constants/regions";
 import type { ResultsQuery } from "@/lib/applyhome/read";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { PAGE_SHELL_FLUSH as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import { LabPageTabs } from "@/components/ui/LabPageTabs";
 import {
