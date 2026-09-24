@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, ChevronDown, ChevronRight, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Construction, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
@@ -25,6 +25,7 @@ import {
   type RangeFilterId,
 } from "@/lib/map/map-filters";
 import type { MapArea, MapAreaLevel } from "@/lib/map/map-areas";
+import { REDEV_STAGES, type RedevZoneShape } from "@/lib/redev/read";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
 
 type Bounds = { getMin(): { y: number; x: number }; getMax(): { y: number; x: number } };
@@ -239,6 +240,12 @@ function areaMarkerHtml(a: MapArea): string {
   </div>`;
 }
 
+/** 정비구역 색 — 재건축 보라 · 재개발 주황 · 사업 단계 정보가 없는 구역 회색 */
+function zoneColor(z: RedevZoneShape): string {
+  if (!z.project) return "#64748B";
+  return z.project.kind === "재건축" ? "#7C3AED" : z.project.kind === "재개발" ? "#EA580C" : "#0E7490";
+}
+
 /* ───────────── 컴포넌트 ───────────── */
 
 export function MapSearchPage() {
@@ -260,6 +267,10 @@ export function MapSearchPage() {
   /** 마커에 보일 값 — 브라우저에 기억 */
   const [metric, setMetric] = useState<MarkerMetric>("price");
   const [metricOpen, setMetricOpen] = useState(false);
+  /** 정비구역 레이어 (서울) */
+  const [redevOn, setRedevOn] = useState(false);
+  const [zones, setZones] = useState<RedevZoneShape[]>([]);
+  const [zoneId, setZoneId] = useState<string | null>(null);
   const chooseMetric = (m: MarkerMetric) => {
     setMetric(m);
     setMetricOpen(false);
@@ -523,6 +534,62 @@ export function MapSearchPage() {
     }
   }, [visibleComplexes, areas, selectedId, cullTick, metric]);
 
+  // 정비구역 — 켜져 있고 단지·동 거리일 때 화면 영역의 구역을 읽는다 (영역이 0.01° 넘게 바뀔 때만)
+  const zoneKeyRef = useRef("");
+  useEffect(() => {
+    const map = mapRef.current as MapWithBounds | null;
+    if (!redevOn || !map || (level !== "complex" && level !== "dong")) return;
+    const b = map.getBounds();
+    const r = (v: number) => Math.round(v * 100) / 100;
+    const q = { swLat: r(b.getMin().y), swLng: r(b.getMin().x), neLat: r(b.getMax().y), neLng: r(b.getMax().x) };
+    const key = Object.values(q).join(",");
+    if (key === zoneKeyRef.current) return;
+    zoneKeyRef.current = key;
+    const qs = new URLSearchParams(Object.fromEntries(Object.entries(q).map(([k, v]) => [k, String(v)])));
+    let cancelled = false;
+    fetch(`/api/map/redev-zones?${qs}`)
+      .then((res) => res.json())
+      .then((d: { zones?: RedevZoneShape[] }) => {
+        if (!cancelled) setZones(d.zones ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [redevOn, cullTick, level]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    if (!redevOn || !map || !maps?.Polygon || (level !== "complex" && level !== "dong")) return;
+    const drawn: Array<{ setMap: (m: null) => void }> = [];
+    for (const z of zones) {
+      if (!z.rings.length) continue;
+      const color = zoneColor(z);
+      const on = z.zoneId === zoneId;
+      const polygon = new maps.Polygon({
+        map,
+        paths: z.rings.map((ring) => ring.map(([lng, lat]) => new maps.LatLng(lat, lng))),
+        fillColor: color,
+        fillOpacity: on ? 0.28 : 0.14,
+        strokeColor: color,
+        strokeOpacity: 0.9,
+        strokeWeight: on ? 3 : 1.5,
+        clickable: true,
+        zIndex: on ? 3 : 2,
+      });
+      maps.Event.addListener(polygon, "click", () => {
+        setSelectedId(null);
+        setZoneId(z.zoneId);
+      });
+      drawn.push(polygon);
+    }
+    return () => {
+      for (const p of drawn) p.setMap(null);
+    };
+  }, [zones, redevOn, zoneId, level]);
+  const zone = redevOn ? (zones.find((z) => z.zoneId === zoneId) ?? null) : null;
+
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
 
   // 화면 가운데 지역 → 상세 이동 버튼 하나. 동 말풍선 단계는 구(지역 페이지), 단지 단계는 동 상세.
@@ -731,6 +798,8 @@ export function MapSearchPage() {
           })}
         </div>
         <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
+          {level === "complex" || level === "dong" ? (
+          <div className="flex items-center gap-2">
           {level === "complex" ? (
             // 마커에 보일 값 — 조건(필터)이 아니라 보기 방식이라 칩 줄과 따로 둔다
             <button
@@ -743,6 +812,41 @@ export function MapSearchPage() {
               마커 표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
               <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
             </button>
+          ) : null}
+            <button
+              type="button"
+              aria-pressed={redevOn}
+              onClick={() => {
+                setRedevOn((v) => !v);
+                setZoneId(null);
+                zoneKeyRef.current = "";
+                if (redevOn) setZones([]);
+              }}
+              className={`pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border pl-2.5 pr-3 text-[13px] font-semibold leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] ${
+                redevOn
+                  ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+                  : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)]"
+              }`}
+            >
+              <Construction className="h-4 w-4" aria-hidden />
+              정비구역
+            </button>
+          </div>
+          ) : null}
+          {redevOn && (level === "complex" || level === "dong") ? (
+            <p className="pointer-events-auto flex flex-wrap items-center gap-x-2.5 rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
+              {[
+                ["#7C3AED", "재건축"],
+                ["#EA580C", "재개발"],
+                ["#64748B", "단계 정보 없음"],
+              ].map(([c, l]) => (
+                <span key={l} className="inline-flex items-center gap-1">
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: c }} aria-hidden />
+                  {l}
+                </span>
+              ))}
+              <span>· 서울</span>
+            </p>
           ) : null}
           {statusText ? (
             <p className="pointer-events-auto rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
@@ -909,6 +1013,73 @@ export function MapSearchPage() {
                 단지 상세 보기
               </Link>
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {zone && !selected ? (
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:p-4 sm:pb-4">
+          <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="flex flex-wrap items-center gap-1.5">
+                  <span
+                    className="rounded px-1.5 text-[12px] font-semibold leading-5 text-white"
+                    style={{ background: zoneColor(zone) }}
+                  >
+                    {zone.project ? (zone.project.kind === "기타" ? "정비사업" : zone.project.kind) : "정비구역"}
+                  </span>
+                  {zone.category ? <span className="detail-meta">{zone.category}</span> : null}
+                </p>
+                <p className="detail-subsection-title mt-1 break-keep">{zone.project?.zoneName ?? zone.name}</p>
+                {zone.project && zone.project.zoneName !== zone.name ? (
+                  <p className="detail-meta break-keep">{zone.name}</p>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => setZoneId(null)}
+                aria-label="닫기"
+                className="-mr-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center text-[color:var(--lab-muted)]"
+              >
+                <X className="h-5 w-5" aria-hidden />
+              </button>
+            </div>
+            {zone.project?.stage ? (
+              <div className="mt-3 flex flex-col gap-2">
+                <p className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="text-[18px] font-bold leading-6 text-[color:var(--lab-teal-700)]">{zone.project.stage}</span>
+                  {zone.project.stageIndex >= 0 && zone.project.stageIndex < REDEV_STAGES.length - 1 ? (
+                    <span className="detail-meta">다음: {REDEV_STAGES[zone.project.stageIndex + 1]}</span>
+                  ) : null}
+                  {zone.project.householdsTotal != null ? (
+                    <span className="detail-meta tabular-nums">새로 짓는 {zone.project.householdsTotal.toLocaleString("ko-KR")}세대</span>
+                  ) : null}
+                </p>
+                {zone.project.stageIndex >= 0 ? (
+                  <div className="flex gap-1" aria-hidden>
+                    {REDEV_STAGES.map((st, i) => (
+                      <span
+                        key={st}
+                        className="h-2 flex-1 rounded-full"
+                        style={{
+                          background:
+                            i < zone.project!.stageIndex
+                              ? "var(--lab-brand-border)"
+                              : i === zone.project!.stageIndex
+                                ? "var(--lab-brand-primary)"
+                                : "var(--lab-surface-subtle)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <p className="detail-meta mt-2">
+                사업 단계 정보가 없는 구역입니다{zone.noticeDate ? ` · 고시 ${zone.noticeDate.slice(0, 7).replace("-", ".")}` : ""}.
+              </p>
+            )}
           </div>
         </div>
       ) : null}
