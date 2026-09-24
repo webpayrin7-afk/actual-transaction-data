@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import type { MapComplex } from "@/lib/map/map-complexes";
@@ -231,14 +231,66 @@ export function MapConditionSheet({
   };
 
   // 이동 목록: 묶음 순서(가격 → 단지 → 환경) 그대로 + 난방
-  const jumpList = [
-    ...FILTER_GROUPS.flatMap((g) =>
-      defs
-        .filter((d) => d.group === g.id)
-        .map((d) => ({ id: d.id as string, label: d.label, active: !isFullRange(d, conditions.ranges[d.id]) })),
-    ),
-    { id: "heating", label: "난방", active: conditions.heating.length > 0 },
-  ];
+  const jumpList = useMemo(
+    () => [
+      ...FILTER_GROUPS.flatMap((g) =>
+        defs
+          .filter((d) => d.group === g.id)
+          .map((d) => ({ id: d.id as string, label: d.label, active: !isFullRange(d, conditions.ranges[d.id]) })),
+      ),
+      { id: "heating", label: "난방", active: conditions.heating.length > 0 },
+    ],
+    [defs, conditions.ranges, conditions.heating.length],
+  );
+
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const [activeJump, setActiveJump] = useState<string>(jumpList[0]!.id);
+  const jumpingTo = useRef<string | null>(null);
+
+  // 스크롤 위치에 따라 이동 탭 선택 — 페이지의 고정 섹션 탭과 같은 동작
+  useEffect(() => {
+    if (!open || only) return;
+    let raf = 0;
+    let body: HTMLDivElement | null = null;
+    const update = () => {
+      raf = 0;
+      if (!body) return;
+      const top = body.scrollTop + 24;
+      let current = jumpList[0]!.id;
+      for (const j of jumpList) {
+        const el = body.querySelector<HTMLElement>(`#cond-${j.id}`);
+        if (el && el.offsetTop <= top) current = j.id;
+      }
+      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 4) current = jumpList.at(-1)!.id;
+      if (jumpingTo.current) {
+        if (jumpingTo.current !== current) return;
+        jumpingTo.current = null;
+      }
+      setActiveJump(current);
+    };
+    const onScroll = () => {
+      if (!raf) raf = window.requestAnimationFrame(update);
+    };
+    // 시트가 붙은 뒤에 본문이 생긴다
+    const t = window.setTimeout(() => {
+      body = bodyRef.current;
+      body?.addEventListener("scroll", onScroll, { passive: true });
+    }, 0);
+    return () => {
+      window.clearTimeout(t);
+      body?.removeEventListener("scroll", onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, [open, only, jumpList]);
+
+  const jumpTo = (id: string) => {
+    const body = bodyRef.current;
+    const el = body?.querySelector<HTMLElement>(`#cond-${id}`);
+    if (!body || !el) return;
+    jumpingTo.current = id;
+    setActiveJump(id);
+    body.scrollTo({ top: Math.max(0, el.offsetTop - 12), behavior: "smooth" });
+  };
 
   const title = only ? (only === "heating" ? "난방방식" : (onlyDef?.label ?? "조건")) : "조건으로 찾기";
 
@@ -250,8 +302,41 @@ export function MapConditionSheet({
       hideHeaderDivider
       compactBodyTop
       size={only ? "default" : "tall"}
-      doneLabel="닫기"
-      titleNote={only === "heating" ? undefined : "막대가 높을수록 단지가 많아요"}
+      dragHandle
+      hideDone
+      bodyRef={bodyRef}
+      header={
+        only ? undefined : (
+          <nav aria-label="필터로 이동" className="border-b border-[color:var(--lab-border)]">
+            <div
+              className="-mx-4 flex items-center gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 pb-2"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {jumpList.map((j) => {
+                const current = activeJump === j.id;
+                return (
+                  <button
+                    key={j.id}
+                    type="button"
+                    aria-current={current ? "true" : undefined}
+                    onClick={() => jumpTo(j.id)}
+                    className={`relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                      current
+                        ? "border-[color:color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[color:var(--lab-teal-50)] font-semibold text-[color:var(--lab-teal-700)]"
+                        : "border-transparent font-medium text-[color:var(--lab-muted)]"
+                    }`}
+                  >
+                    {j.label}
+                    {j.active ? (
+                      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[color:var(--lab-brand-primary)]" />
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+        )
+      }
       footer={
         <div className="grid grid-cols-[1fr_2fr] gap-2">
           <button type="button" onClick={resetScope} className="lab-button lab-button-secondary">
@@ -274,35 +359,6 @@ export function MapConditionSheet({
         </div>
       ) : (
         <div className="flex flex-col gap-7 pb-4">
-          {/* 필터 이동 — 탭 모양 글자 버튼, 스크롤해도 위에 고정(본문 위 여백 8px까지 덮도록 -top-2). 조건이 걸린 필터는 강조색 */}
-          <nav aria-label="필터로 이동" className="sticky -top-2 z-10 -mx-4 -mt-2 -mb-3 bg-white px-4 pt-2">
-            <div
-              className="-mx-4 flex gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4"
-              style={{ scrollbarWidth: "none" }}
-            >
-              {jumpList.map((j) => (
-                <button
-                  key={j.id}
-                  type="button"
-                  onClick={() =>
-                    document.getElementById(`cond-${j.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
-                  }
-                  className={`inline-flex h-11 shrink-0 items-center gap-1 whitespace-nowrap text-[14px] leading-5 ${
-                    j.active
-                      ? "font-semibold text-[color:var(--lab-teal-700)]"
-                      : "font-medium text-[color:var(--lab-muted)]"
-                  }`}
-                >
-                  {j.label}
-                  {j.active ? (
-                    <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[color:var(--lab-brand-primary)]" />
-                  ) : null}
-                </button>
-              ))}
-            </div>
-            <div aria-hidden className="-mx-4 h-px bg-[color:var(--lab-border)]" />
-          </nav>
-
           {/* 레시피 — 이름표 + 연한 채움 칩(조건을 한 번에 적용). 이동 탭과 모양이 달라 섞이지 않는다 */}
           <div className="flex flex-col gap-1.5">
             <div
@@ -362,7 +418,7 @@ export function MapConditionSheet({
                   const cur = conditions.ranges[d.id];
                   const active = !isFullRange(d, cur);
                   return (
-                    <div key={d.id} id={`cond-${d.id}`} className="flex scroll-mt-16 flex-col gap-2.5">
+                    <div key={d.id} id={`cond-${d.id}`} className="flex flex-col gap-2.5">
                       <div className="flex items-baseline justify-between gap-3">
                         <span className="min-w-0 text-[16px] font-semibold leading-6 text-[color:var(--lab-navy-950)]">
                           {d.label}
@@ -380,7 +436,7 @@ export function MapConditionSheet({
                   );
                 })}
               {g.id === "env" ? (
-                <div id="cond-heating" className="flex scroll-mt-16 flex-col gap-2.5">
+                <div id="cond-heating" className="flex flex-col gap-2.5">
                   <span className="text-[16px] font-semibold leading-6 text-[color:var(--lab-navy-950)]">난방방식</span>
                   <HeatingChips conditions={conditions} onChange={onChange} />
                 </div>
