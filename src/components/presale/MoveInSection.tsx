@@ -16,7 +16,15 @@ type Row = MoveInRegion & { href: string | null; onPick?: () => void };
  * 분양 — 앞으로 24개월 입주 예정 세대 (청약홈 분양 공고의 입주 예정월 · 공급 세대).
  * 전국이면 시·도별 합계(누르면 그 시·도로 좁힘), 시·도면 시·군·구별(누르면 지역 페이지).
  */
-export function MoveInSection({ metro, onPickMetro }: { metro: PresaleMetro; onPickMetro: (m: string) => void }) {
+export function MoveInSection({
+  metro,
+  onPickMetro,
+  toolbar,
+}: {
+  metro: PresaleMetro;
+  onPickMetro: (m: string) => void;
+  toolbar?: React.ReactNode;
+}) {
   const query = useApplyhome();
   const [state, setState] = useState<{ metro: PresaleMetro; expanded: boolean }>({ metro, expanded: false });
   const expanded = state.metro === metro && state.expanded;
@@ -56,6 +64,7 @@ export function MoveInSection({ metro, onPickMetro }: { metro: PresaleMetro; onP
         </p>
       }
     >
+      {toolbar}
       {items.length === 0 ? (
         <p className="detail-body">앞으로 24개월 안에 입주 예정인 분양 공고가 없습니다.</p>
       ) : (

@@ -120,14 +120,15 @@ export function PageHeader({
       ? "h-6 sm:h-7"
       : "h-7 sm:h-8";
 
+  // 모바일에서 보이는 것이 없으면 상자를 숨겨(display:none) 페이지 간격(gap)을 먹지 않게.
+  // h1은 화면낭독기용으로 absolute(sr-only) 형제로 둔다 — flex 간격에 끼지 않는다.
+  const hideOnMobile = titleInHeader && !children;
   return (
-    <header
-      className={`${isDetailTitle ? "max-w-none" : "max-w-4xl"} ${
-        // 모바일에서 보이는 것이 없으면 상자를 없애 페이지 간격(gap)을 먹지 않게
-        titleInHeader && !children ? "max-sm:contents" : ""
-      } ${className}`.trim()}
-    >
+    <>
       {titleInHeader ? <h1 className="sr-only sm:hidden">{title}</h1> : null}
+    <header
+      className={`${isDetailTitle ? "max-w-none" : "max-w-4xl"} ${hideOnMobile ? "hidden sm:block" : ""} ${className}`.trim()}
+    >
       <div className={`${titleInHeader ? "hidden sm:flex" : "flex"} items-start justify-between gap-3`}>
         {leading ? (
           <div className="flex min-w-0 flex-1 items-start gap-2">
@@ -161,5 +162,6 @@ export function PageHeader({
       ) : null}
       {children ? <div className={titleInHeader ? "sm:mt-2.5" : "mt-2.5"}>{children}</div> : null}
     </header>
+    </>
   );
 }

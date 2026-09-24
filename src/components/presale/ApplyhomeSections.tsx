@@ -102,7 +102,7 @@ function MoreList<T>({
 }
 
 /** 접수가 끝나지 않은 청약 (특별공급 시작일 순). */
-export function ApplyhomeUpcomingSection({ filter }: { filter: PresaleFilter }) {
+export function ApplyhomeUpcomingSection({ filter, toolbar }: { filter: PresaleFilter; toolbar?: React.ReactNode }) {
   const query = useApplyhome();
   const data = query.data;
   if (query.isError) return null;
@@ -120,6 +120,7 @@ export function ApplyhomeUpcomingSection({ filter }: { filter: PresaleFilter }) 
         </p>
       }
     >
+      {toolbar}
       {query.isLoading ? (
         <div className="lab-skeleton" />
       ) : items.length === 0 ? (

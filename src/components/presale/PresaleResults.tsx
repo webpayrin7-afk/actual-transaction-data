@@ -61,7 +61,8 @@ export function PresaleResults({
   supplier,
   area,
   price,
-}: Pick<ResultsQuery, "metro" | "supplier" | "area" | "price">) {
+  toolbar,
+}: Pick<ResultsQuery, "metro" | "supplier" | "area" | "price"> & { toolbar?: React.ReactNode }) {
   const [pageState, setPageState] = useState({ key: "", page: 1 });
   const filterKey = `${metro}|${supplier}|${area}|${price}`;
   const page = pageState.key === filterKey ? pageState.page : 1;
@@ -90,6 +91,7 @@ export function PresaleResults({
         </p>
       }
     >
+      {toolbar}
       {c && data && data.total > 0 ? (
         <p ref={topRef} className="detail-meta scroll-mt-28 tabular-nums">
           마감 {closed.toLocaleString("ko-KR")} · 미달 {c.short.toLocaleString("ko-KR")}

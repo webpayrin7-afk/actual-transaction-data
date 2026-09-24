@@ -92,15 +92,14 @@ export function PresalePage() {
       : []),
   ];
 
+  const chips = <LabFilterChips filters={filters} ariaLabel="분양 조건" />;
+
   return (
     <div className={PAGE_SHELL}>
       <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false} titleInHeader />
-      {/* 모바일: 탭 + 조건 칩을 흰 띠로 묶어 상단바에 바로 잇는다 (회색 캔버스 위에 탭만 떠 보이지 않게) */}
-      <div className="-mx-4 flex flex-col border-b border-[color:var(--lab-border)] bg-white px-4 pb-2.5 sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0">
+      {/* 모바일: 탭을 흰 띠로 상단바에 바로 잇는다. 조건 칩은 각 탭 첫 카드 안(목록 바로 위)에 둔다 */}
+      <div className="-mx-4 bg-white px-4 sm:mx-0 sm:bg-transparent sm:px-0">
         <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
-        <div className="pt-2.5 sm:pt-0">
-          <LabFilterChips filters={filters} ariaLabel="분양 조건" />
-        </div>
       </div>
 
       <div
@@ -109,14 +108,14 @@ export function PresalePage() {
         aria-labelledby={labTabId(TAB_PREFIX, tab)}
         className="flex flex-col gap-5 sm:gap-6">
         {tab === "schedule" ? (
-          <ApplyhomeUpcomingSection filter={filter} />
+          <ApplyhomeUpcomingSection filter={filter} toolbar={chips} />
         ) : tab === "results" ? (
           <>
+            <PresaleResults metro={metro} supplier={supplier} area={area} price={price} toolbar={chips} />
             <ApplyhomeCompetitionSection filter={filter} />
-            <PresaleResults metro={metro} supplier={supplier} area={area} price={price} />
           </>
         ) : (
-          <MoveInSection metro={metro} onPickMetro={pickMetro} />
+          <MoveInSection metro={metro} onPickMetro={pickMetro} toolbar={chips} />
         )}
       </div>
     </div>
