@@ -118,7 +118,7 @@ export function PresalePage() {
       <PageHeader title="분양 정보" titleClassName="detail-page-title" showDivider={false} titleInHeader />
       {/* 모바일: 탭 + 조건 칩 줄을 흰 띠 하나로 상단바에 잇고, 띠 아래에만 구분선 */}
       <div
-        className={`-mx-4 bg-white px-4 sm:mx-0 sm:bg-transparent sm:px-0 ${
+        className={`lab-bleed bg-white sm:bg-transparent ${
           tab !== "stats" ? "border-b border-[color:var(--lab-border)] pb-1.5 sm:border-0 sm:pb-0" : ""
         }`}
       >

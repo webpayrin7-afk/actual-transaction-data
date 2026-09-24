@@ -1358,20 +1358,32 @@ h3 {
 
 /*
  * 촘촘한 페이지 (시범 · 2026-09-24 · 분양 정보에만 적용 — 오너 확인 후 전 페이지 확대 검토)
- * 모바일에서 카드 바깥 좌우 여백 16→10, 카드 안 여백 16→12(좌우)·14(위아래). 섹션 간격은 페이지에서 gap-3(12).
- * 카드 안에서 좌우로 번지는 줄(한 줄 칩 등)은 .lab-bleed + --lab-bleed 로 카드 안 여백만큼만 번진다.
+ * 모바일: 페이지 좌우 여백 16→12 (칩 줄 시작선 = 카드 테두리), 카드 안 여백 16→12(좌우)·14(위아래),
+ * 섹션 간격은 페이지에서 gap-3(12).
+ * 화면·카드 끝까지 번지는 줄은 --lab-bleed(기본 16px)만큼 번진다:
+ *   .lab-bleed   = 바깥으로 번지고 같은 만큼 안쪽 여백 (칩 줄 — 글자는 제자리)
+ *   .lab-bleed-m = 바깥으로만 번짐 (1차 탭 — 칸이 화면 끝까지)
  */
 .lab-bleed {
   margin-inline: calc(-1 * var(--lab-bleed, 1rem));
   padding-inline: var(--lab-bleed, 1rem);
 }
+.lab-bleed-m {
+  margin-inline: calc(-1 * var(--lab-bleed, 1rem));
+}
 @media (min-width: 640px) {
   .lab-bleed { margin-inline: 0; padding-inline: 0; }
+  .lab-bleed-m { margin-inline: 0; }
+}
+@media (max-width: 639px) {
+  .lab-dense {
+    --lab-bleed: 0.75rem;
+    padding-inline: 0.75rem;
+  }
 }
 @media (max-width: 767px) {
   .lab-dense .detail-card {
     --lab-bleed: 0.75rem;
     padding: 0.875rem 0.75rem;
-    margin-inline: -6px;
   }
 }

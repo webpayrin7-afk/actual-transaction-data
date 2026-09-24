@@ -35,7 +35,7 @@ export function LabFilterChips({ filters, ariaLabel = "조건" }: { filters: Fil
 
   return (
     <>
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto overflow-y-hidden px-4 py-1 sm:mx-0 sm:px-0" role="group" aria-label={ariaLabel}>
+      <div className="lab-bleed flex gap-1.5 overflow-x-auto overflow-y-hidden py-1" role="group" aria-label={ariaLabel}>
         {filters.map((f) => {
           const on = f.value !== f.defaultId;
           const label = on ? f.options.find((o) => o.id === f.value)?.label ?? f.title : f.title;

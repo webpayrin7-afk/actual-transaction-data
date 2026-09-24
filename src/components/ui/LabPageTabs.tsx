@@ -64,7 +64,7 @@ export function LabPageTabs<T extends string>({
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
-      className={`relative -mx-4 flex sm:mx-0 ${bare ? "" : "border-b border-[color:var(--lab-border)]"}`}
+      className={`lab-bleed-m relative flex ${bare ? "" : "border-b border-[color:var(--lab-border)]"}`}
     >
       {items.map((item) => {
         const active = item.id === value;
