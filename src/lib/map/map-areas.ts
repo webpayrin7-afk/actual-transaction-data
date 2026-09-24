@@ -5,7 +5,7 @@
  */
 import type { Client } from "@libsql/client";
 import { districtNameFromCode } from "@/lib/constants/regions-registry";
-import { hasAnchorTable, type MapAreaRange, type MapBBox, type MapDealKind } from "@/lib/map/map-complexes";
+import { hasAnchorTable, mapRegionLinks, type MapRegionLinks, type MapAreaRange, type MapBBox, type MapDealKind } from "@/lib/map/map-complexes";
 
 export type MapAreaLevel = "gu" | "dong";
 
@@ -20,6 +20,8 @@ export type MapArea = {
   /** 전용 3.3㎡(1평)당 중위가, 만원 */
   medianPerPyeongMan: number | null;
   tradeCount12m: number;
+  /** 지역 상세 링크 (구 말풍선이면 dong 링크 없음) */
+  links: MapRegionLinks;
 };
 
 const PYEONG_SQM = 3.3058;
@@ -131,6 +133,7 @@ export async function readMapAreas(
       complexCount: Number(r.n),
       medianPerPyeongMan: med == null ? null : Math.round(med),
       tradeCount12m: samples.length,
+      links: mapRegionLinks(lawd, dong),
     };
   });
 }

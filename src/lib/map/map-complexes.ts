@@ -9,6 +9,8 @@ import type { Client } from "@libsql/client";
 import { LAWD_TO_REGION, districtNameFromCode } from "@/lib/constants/regions-registry";
 import { slugFromLawd } from "@/lib/constants/nationwide-lawd";
 import { aptDetailHref } from "@/lib/molit/apt-client";
+import { readRankingV4Board } from "@/lib/region-ranking/ranking-v4";
+import { regionDongHref } from "@/lib/molit/region-paths";
 
 /** @deprecated 면적 범위(areaMin/areaMax)로 대체 — 옛 URL 호환용 */
 export type MapAreaBand = "all" | "small" | "mid" | "large";
@@ -58,6 +60,12 @@ export type MapComplex = {
   bcrRatio: number | null;
   /** 세대당 주차 대수 */
   parkingPerHousehold: number | null;
+  /** 시군구(구) 종합 랭킹 1~3위 — 지역 페이지 '이 지역 아파트 랭킹' 종합과 같은 순위. 그 밖은 null */
+  guRank: 1 | 2 | 3 | null;
+  /** 시군구 이름 (예: "송파구") */
+  guName: string | null;
+  /** 지역 상세 링크 — 구(지역 페이지)·동(동 상세) */
+  links: MapRegionLinks;
   /** 난방 방식 원문 (개별난방·지역난방·중앙난방…) */
   heatingType: string | null;
 };
@@ -99,6 +107,28 @@ function yearMonthMonthsAgo(months: number): string {
 
 function regionSlugFor(lawdCd: string): string {
   return LAWD_TO_REGION[lawdCd]?.slug ?? slugFromLawd("", lawdCd);
+}
+
+export type MapRegionLinks = {
+  /** 지역 페이지 이름 (시 단위 지역이면 "성남시") */
+  guLabel: string;
+  guHref: string;
+  dongLabel: string | null;
+  dongHref: string | null;
+};
+
+/** lawd(+동) → 지역 페이지·동 상세 링크. 여러 구를 묶은 시는 동 링크에 구를 붙인다. */
+export function mapRegionLinks(lawdCd: string, dong: string | null): MapRegionLinks {
+  const reg = LAWD_TO_REGION[lawdCd];
+  const slug = regionSlugFor(lawdCd);
+  const guName = districtNameFromCode(lawdCd) || reg?.name || lawdCd;
+  const multi = (reg?.lawdCodes.length ?? 1) > 1;
+  return {
+    guLabel: reg?.name ?? guName,
+    guHref: `/region/${encodeURIComponent(slug)}`,
+    dongLabel: dong,
+    dongHref: dong ? regionDongHref(slug, dong, multi ? guName : undefined) : null,
+  };
 }
 
 function num(v: unknown): number | null {
@@ -199,6 +229,21 @@ export async function readMapComplexes(
       );
     }
   }
+  // 구별 종합 랭킹 상위 3 (발행된 스냅샷 · 30분 캐시). 실패해도 지도는 그대로.
+  const guRanks = new Map<string, 1 | 2 | 3>();
+  jobs.push(
+    Promise.all(
+      [...byLawd.keys()].map((lawd) =>
+        readRankingV4Board(db, { regionCode: lawd, areaBand: "ALL" }).catch(() => null),
+      ),
+    ).then((boards) => {
+      for (const b of boards) {
+        for (const row of b?.rows ?? []) {
+          if (row.rank >= 1 && row.rank <= 3) guRanks.set(row.complexId, row.rank as 1 | 2 | 3);
+        }
+      }
+    }),
+  );
   await Promise.all(jobs);
 
   const complexes: MapComplex[] = rows.map((r) => {
@@ -239,6 +284,9 @@ export async function readMapComplexes(
       bcrRatio: num(r.bcr_ratio),
       parkingPerHousehold: num(r.parking_per_household),
       heatingType: r.heating_type ? String(r.heating_type) : null,
+      guRank: guRanks.get(String(r.complex_id)) ?? null,
+      guName: gu || null,
+      links: mapRegionLinks(lawd, r.legal_dong_name ? String(r.legal_dong_name) : null),
     };
   });
 

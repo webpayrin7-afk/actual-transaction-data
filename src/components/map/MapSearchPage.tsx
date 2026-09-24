@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, ChevronRight, LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
   isNaverMapAuthFailed,
@@ -104,6 +104,40 @@ const FONT = "'Noto Sans KR',system-ui,sans-serif";
  * 아파트 모양 마커 — 좁은 윗동(전용㎡) 위에 넓은 몸통(가격)을 얹은 계단형 건물 실루엣 + 꼬리.
  * 거래가 없는 단지는 작은 회색 건물 아이콘.
  */
+/**
+ * 구 종합 랭킹 1~3위 왕관 — 순위마다 모양·색이 다르다.
+ * 1위 금색 다섯 봉우리+보석 · 2위 은색 네 봉우리 · 3위 동색 세 봉우리.
+ */
+const CROWNS: Record<1 | 2 | 3, { fill: string; stroke: string; path: string; jewels: string }> = {
+  1: {
+    fill: "#F6C343",
+    stroke: "#A86B00",
+    path: "M2 15 L1 4 L6 8 L8.5 1.5 L12 7 L15.5 1.5 L18 8 L23 4 L22 15 Z",
+    jewels: '<circle cx="12" cy="11.2" r="1.6" fill="#E5484D"/><circle cx="6.5" cy="11.6" r="1.1" fill="#fff"/><circle cx="17.5" cy="11.6" r="1.1" fill="#fff"/>',
+  },
+  2: {
+    fill: "#D5DCE5",
+    stroke: "#5B6778",
+    path: "M3 15 L2 5 L7.5 9 L10 3 L14 3 L16.5 9 L22 5 L21 15 Z",
+    jewels: '<circle cx="12" cy="11.4" r="1.4" fill="#4C6FFF"/>',
+  },
+  3: {
+    fill: "#E2A26D",
+    stroke: "#8A4B1C",
+    path: "M4 15 L3 6 L8.5 10 L12 4 L15.5 10 L21 6 L20 15 Z",
+    jewels: '<circle cx="12" cy="12" r="1.3" fill="#fff"/>',
+  },
+};
+
+function crownHtml(rank: 1 | 2 | 3): string {
+  const c = CROWNS[rank];
+  return `<svg width="24" height="17" viewBox="0 0 24 17" aria-hidden="true" style="display:block;margin-bottom:-3px;position:relative;z-index:1;filter:drop-shadow(0 1px 1px rgba(15,23,42,.25))">
+      <path d="${c.path}" fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.3" stroke-linejoin="round"/>
+      <path d="M2.5 13.2 H21.5" stroke="${c.stroke}" stroke-width="1" opacity=".55"/>
+      ${c.jewels}
+    </svg>`;
+}
+
 function complexMarkerHtml(c: MapComplex, selected: boolean): string {
   if (c.medianPriceMan == null) {
     const stroke = selected ? "var(--lab-brand-primary)" : "#94a3b8";
@@ -120,6 +154,7 @@ function complexMarkerHtml(c: MapComplex, selected: boolean): string {
   const edge = "var(--lab-brand-primary)";
   const top = selected ? "var(--lab-navy-950)" : edge;
   return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(15,23,42,.22))">
+    ${c.guRank ? crownHtml(c.guRank) : ""}
     ${
       pyeong
         ? `<div style="min-width:30px;padding:0 6px;height:16px;border-radius:5px 5px 0 0;background:${top};color:#fff;font:600 11px/16px ${FONT};text-align:center;white-space:nowrap">${escapeHtml(pyeong)}</div>`
@@ -182,6 +217,8 @@ export function MapSearchPage() {
   const condRef = useRef(conditions);
   /** Bumped on every map idle so marker culling follows zoom even when data is unchanged. */
   const [cullTick, setCullTick] = useState(0);
+  /** 지도 가운데 (idle마다 갱신) — 구·동 상세 이동 버튼용 */
+  const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
 
   const fetchViewport = useCallback(async () => {
     const map = mapRef.current;
@@ -274,10 +311,13 @@ export function MapSearchPage() {
           mapDataControl: false,
         }) as MapWithBounds;
         mapRef.current = map;
+        setCenter({ lat: view.lat, lng: view.lng });
         maps.Event.addListener(map, "idle", () => {
           window.clearTimeout(idleTimer);
           idleTimer = window.setTimeout(() => {
             setCullTick((t) => t + 1);
+            const c = map.getCenter();
+            setCenter({ lat: c.y, lng: c.x });
             void fetchViewport();
           }, 250);
         });
@@ -352,13 +392,13 @@ export function MapSearchPage() {
           lat: c.lat,
           lng: c.lng,
           html: complexMarkerHtml(c, selected),
-          z: selected ? 1000 : c.medianPriceMan != null ? 100 : 10,
+          z: selected ? 1000 : c.guRank ? 200 + (4 - c.guRank) : c.medianPriceMan != null ? 100 : 10,
           priority: c.householdCount ?? 0,
           title: c.aptName,
           // 꼬리 끝이 좌표 — 박스는 그 위쪽. 가격 없는 단지 아이콘은 작다.
           box: (p: { x: number; y: number }): Box =>
             c.medianPriceMan != null
-              ? { x0: p.x - 28, x1: p.x + 28, y0: p.y - (c.mainAreaSqm ? 44 : 28), y1: p.y }
+              ? { x0: p.x - 28, x1: p.x + 28, y0: p.y - (c.mainAreaSqm ? 44 : 28) - (c.guRank ? 14 : 0), y1: p.y }
               : { x0: p.x - 9, x1: p.x + 9, y0: p.y - 20, y1: p.y },
           onClick: () => setSelectedId(c.complexId),
         };
@@ -428,6 +468,27 @@ export function MapSearchPage() {
   }, [visibleComplexes, areas, selectedId, cullTick]);
 
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
+
+  // 화면 가운데 지역 → 상세 이동 버튼. 동 말풍선 단계는 구(지역 페이지), 단지 단계는 동 상세.
+  const centerLink = useMemo(() => {
+    if (!center) return null;
+    const c = { y: center.lat, x: center.lng };
+    const near = <T extends { lat: number; lng: number }>(list: T[]): T | null =>
+      list.reduce<T | null>((best, p) => {
+        const d = (p.lat - c.y) ** 2 + ((p.lng - c.x) * 0.8) ** 2;
+        const bd = best ? (best.lat - c.y) ** 2 + ((best.lng - c.x) * 0.8) ** 2 : Infinity;
+        return d < bd ? p : best;
+      }, null);
+    if (level === "dong") {
+      const a = near(areas);
+      return a ? { label: `${a.links.guLabel} 상세 보기`, href: a.links.guHref } : null;
+    }
+    if (level === "complex") {
+      const x = near(complexes);
+      return x?.links.dongHref ? { label: `${x.links.dongLabel} 상세 보기`, href: x.links.dongHref } : null;
+    }
+    return null;
+  }, [level, areas, complexes, center]);
   const priced = visibleComplexes.filter((c) => c.medianPriceMan != null).length;
   const dealLabel = DEAL_LABEL[conditions.deal];
   const nActive = activeCount(conditions);
@@ -581,13 +642,40 @@ export function MapSearchPage() {
         <LocateFixed className="h-5 w-5" aria-hidden />
       </button>
 
+      {/* 하단 가운데: 화면 가운데 구·동 상세로 이동 */}
+      {centerLink && !selected ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px)] flex justify-center sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
+          <Link
+            href={centerLink.href}
+            className="pointer-events-auto inline-flex h-11 items-center gap-1 rounded-full bg-[color:var(--lab-navy-950)] pl-4 pr-3 text-[14px] font-semibold leading-5 text-white shadow-lg"
+          >
+            {centerLink.label}
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+      ) : null}
+
       {/* 하단: 선택 단지 카드 */}
       {selected ? (
         <div className="absolute inset-x-0 bottom-0 p-3 pb-[calc(env(safe-area-inset-bottom)+80px)] sm:p-4 sm:pb-4">
           <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="detail-subsection-title truncate">{selected.aptName}</p>
+                <p className="detail-subsection-title flex min-w-0 items-center gap-1.5">
+                  <span className="truncate">{selected.aptName}</span>
+                  {selected.guRank ? (
+                    <span
+                      className="shrink-0 rounded px-1.5 text-[12px] font-semibold leading-5"
+                      style={{
+                        color: CROWNS[selected.guRank].stroke,
+                        background: `color-mix(in srgb, ${CROWNS[selected.guRank].fill} 35%, white)`,
+                      }}
+                    >
+                      {selected.guName ? `${selected.guName} ` : ""}
+                      {selected.guRank}위
+                    </span>
+                  ) : null}
+                </p>
                 <p className="detail-meta">
                   {[
                     selected.dong,
