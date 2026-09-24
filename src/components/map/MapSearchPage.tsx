@@ -161,9 +161,7 @@ function complexMarkerHtml(c: MapComplex, selected: boolean, metric: MarkerMetri
         c.move === "singoga" ? "#E5484D" : "#3B6FE0"
       };border:1.5px solid #fff"></span>`
     : "";
-  // 최근 거래가 6개월보다 오래되면 흐리게
-  const faded = c.stale && !selected ? "opacity:.55;" : "";
-  return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;${faded}filter:drop-shadow(0 1px 2px rgba(15,23,42,.22))">
+  return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(15,23,42,.22))">
     ${c.guRank ? crownHtml(c.guRank) : ""}
     ${
       pyeong
@@ -729,7 +727,7 @@ export function MapSearchPage() {
               className="pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']"
             >
               <Eye className="h-4 w-4" aria-hidden />
-              표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
+              마커 표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
               <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
             </button>
           ) : null}
@@ -933,7 +931,6 @@ export function MapSearchPage() {
             <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#3B6FE0]" aria-hidden />
             고점 대비 10% 넘게 하락
           </span>
-          <span>흐린 마커: 최근 거래가 6개월 넘음</span>
         </p>
       </LabBottomSheet>
 

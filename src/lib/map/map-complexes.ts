@@ -58,8 +58,6 @@ export type MapComplex = {
   perPyeongMan: number | null;
   /** 지도 가격 거래가 신고가·하락(고점 대비 −10% 이하) 기록이면 표시 — 매매만 */
   move: "singoga" | "drop" | null;
-  /** 지도 가격 거래가 6개월보다 오래됨 */
-  stale: boolean;
   /** 1년 변동 (%) — 대표 평형 최근 6개월 거래 가운데 값 vs 1년 전 같은 6개월(12~18개월 전) 가운데 값. 각 2건 이상일 때만 */
   change1yPct: number | null;
   /** 기간 내 가장 많이 거래된 전용면적(㎡, 소수 첫째 자리) — 마커 표기용 */
@@ -366,7 +364,6 @@ export async function readMapComplexes(
   const cut12 = daysAgo(365);
   const cut6 = daysAgo(183);
   const pastFrom = daysAgo(548);
-  const staleBefore = daysAgo(183);
 
   const complexes: MapComplex[] = rows.map((r) => {
     const lawd = String(r.lawd_cd);
@@ -418,7 +415,6 @@ export async function readMapComplexes(
       pyeongLabel: pyeong ? `${pyeong}평` : null,
       perPyeongMan,
       move: rp.priceMan != null ? (moves.get(`${lawd}|${r.apt_name_norm}|${rp.priceDate}|${rp.priceMan}`) ?? null) : null,
-      stale: rp.priceDate != null && rp.priceDate < staleBefore,
       change1yPct,
       mainAreaSqm: main,
       buildYear: all.find((d) => d.buildYear != null)?.buildYear ?? approvalYear,
