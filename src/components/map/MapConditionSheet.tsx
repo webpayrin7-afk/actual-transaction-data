@@ -158,7 +158,7 @@ function RangeBody({
     <div className="flex flex-col gap-2">
       <p className="detail-meta self-end tabular-nums" aria-live="polite">
         범위 안{" "}
-        <strong className="font-semibold text-[color:var(--lab-teal-700)]">{inRange.toLocaleString("ko-KR")}곳</strong>
+        <strong className="font-semibold text-[color:var(--lab-teal-700)]">{inRange.toLocaleString("ko-KR")}개 단지</strong>
       </p>
       <DistributionRange def={def} value={cur ?? { min: def.min, max: def.max }} values={vals} onChange={(v) => onRange(def, v)} />
       {def.id === "gap" ? (
@@ -370,7 +370,7 @@ export function MapConditionSheet({
             초기화
           </button>
           <button type="button" onClick={onClose} className="lab-button lab-button-primary tabular-nums">
-            {complexes.length.toLocaleString("ko-KR")}곳 중 {matched.toLocaleString("ko-KR")}곳 보기
+            {complexes.length.toLocaleString("ko-KR")}개 단지 중 {matched.toLocaleString("ko-KR")}개 보기
           </button>
         </div>
       }

@@ -441,8 +441,8 @@ export function MapSearchPage() {
     if (level === "far") return null;
     const basis = `최근 12개월 ${dealLabel}${areaRangeText}`;
     if (level === "complex") {
-      const filtered = nActive > 0 ? ` · 조건 맞는 ${visibleComplexes.length}곳` : ` · 가격 ${priced}곳`;
-      return `${basis} 중위가${state === "ready" ? filtered : ""}${truncated ? " · 큰 단지 400곳까지" : ""}`;
+      const filtered = nActive > 0 ? ` · 조건 맞는 ${visibleComplexes.length}개 단지` : ` · 가격 있는 ${priced}개 단지`;
+      return `${basis} 중위가${state === "ready" ? filtered : ""}${truncated ? " · 세대수 큰 400개 단지까지" : ""}`;
     }
     return `${basis} · ${level === "gu" ? "구" : "동"}별 전용 평당 중위가`;
   })();
