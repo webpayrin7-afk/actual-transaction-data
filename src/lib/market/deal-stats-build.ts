@@ -156,18 +156,45 @@ function inRanges(lawd: string, ranges: Array<[string, string]>): boolean {
 }
 
 /**
- * 지역·계약월이 "완전"한지: 소속 시군구가 모두 수집을 시작한 뒤(가장 늦은 시작월 이후)이고
- * 그 달을 모든 소속 시군구가 수집했을 때만. 일부만 수집된 달은 합계·중위값이 왜곡되므로 만들지 않는다.
+ * 시도 묶음 — 행정구역 개편으로 앞 두 자리가 바뀐 곳은 한 묶음 (강원 42→51, 전북 45→52,
+ * 광주·전남 29·46→12). 지역이 "완전"하려면 그 지역에 걸친 묶음마다 그 달 수집된 시군구가 있어야 한다.
+ */
+const SIDO_GROUPS: string[][] = [
+  ["11"], ["26"], ["27"], ["28"], ["29", "46", "12"], ["30"], ["31"], ["36"], ["41"],
+  ["42", "51"], ["43"], ["44"], ["45", "52"], ["47"], ["48"], ["50"],
+];
+
+function groupOf(lawd: string): number {
+  const p = lawd.slice(0, 2);
+  return SIDO_GROUPS.findIndex((g) => g.includes(p));
+}
+
+/**
+ * 지역·계약월이 "완전"한지.
+ * - 시군구 코드는 수집된 기간(첫 달~마지막 달) 안에서만 따진다. 개편으로 없어진 옛 코드(폐지 뒤)와
+ *   새로 생긴 코드(생기기 전)가 서로의 달을 막지 않게 하기 위함 (예전 규칙은 옛·새 코드가 겹치는 달만 남겨
+ *   전국 매매가 2개월뿐이었다).
+ * - 그 기간 안의 시군구는 그 달을 빠짐없이 수집했어야 한다(중간 공백 = 불완전).
+ * - 지역에 걸친 시도 묶음마다 그 달 수집된 시군구가 하나 이상 있어야 한다 — 아직 수집 전인 시도가 있는 달
+ *   (예: 지방 수집 시작 전 2020년)은 빠진다.
+ * 일부만 수집된 달은 합계·중위값이 왜곡되므로 만들지 않는다. 추정·보간 없음.
  */
 export function completeRegionMonths(cov: Coverage, region: AggRegion, kind: DealKind): Set<string> {
-  const members = [...cov[SYNC_KIND[kind]].entries()].filter(([lawd]) => inRanges(lawd, region.ranges));
+  const members = [...cov[SYNC_KIND[kind]].entries()]
+    .filter(([lawd]) => inRanges(lawd, region.ranges))
+    .map(([lawd, set]) => {
+      const sorted = [...set].sort();
+      return { lawd, set, first: sorted[0]!, last: sorted.at(-1)!, group: groupOf(lawd) };
+    });
   const out = new Set<string>();
   if (!members.length) return out;
-  const from = members.map(([, s]) => [...s].sort()[0]!).sort().at(-1)!;
-  const [, first] = members[0]!;
-  for (const ym of first) {
-    if (ym < from) continue;
-    if (members.every(([, s]) => s.has(ym))) out.add(ym);
+  const groups = new Set(members.map((m) => m.group));
+  const months = new Set(members.flatMap((m) => [...m.set]));
+  for (const ym of months) {
+    const active = members.filter((m) => m.first <= ym && ym <= m.last);
+    if (!active.every((m) => m.set.has(ym))) continue;
+    const covered = new Set(active.map((m) => m.group));
+    if ([...groups].every((g) => covered.has(g))) out.add(ym);
   }
   return out;
 }
