@@ -247,7 +247,7 @@ export function MapConditionSheet({
       compactBodyTop
       size={only ? "default" : "tall"}
       doneLabel="닫기"
-      titleNote={only === "heating" ? undefined : "막대는 지금 화면 속 단지 분포"}
+      titleNote={only === "heating" ? undefined : "막대가 높을수록 단지가 많아요"}
       footer={
         <div className="grid grid-cols-[1fr_2fr] gap-2">
           <button type="button" onClick={resetScope} className="lab-button lab-button-secondary">
