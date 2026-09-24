@@ -76,17 +76,16 @@ function DealRow({ item, showKind = false }: { item: MarketDealItem; showKind?: 
   return (
     <LabListRow
       href={item.href}
+      wrap
       title={item.aptName}
       meta={
         <>
-          <span className="block truncate">
+          <span className="block">
             {item.gu} {item.dong} · {formatArea(item.exclusiveArea)}
           </span>
-          <span className="block truncate">
-            계약 {formatDealDate(item.dealDate)}
-            {item.priorMaxAmount != null
-              ? ` · 이전 최고 ${formatEok(item.priorMaxAmount)}`
-              : ""}
+          <span className="block tabular-nums">
+            {item.priorMaxAmount != null ? `직전 ${formatEok(item.priorMaxAmount)} · ` : ""}
+            {formatDealDate(item.dealDate)} 계약
           </span>
         </>
       }

@@ -17,6 +17,7 @@ export function LabListRow({
   value,
   sub,
   valueTone,
+  wrap = false,
   children,
 }: {
   href?: string | null;
@@ -29,6 +30,8 @@ export function LabListRow({
   value?: ReactNode;
   sub?: ReactNode;
   valueTone?: "up" | "down";
+  /** 긴 행: 제목 두 줄까지, 보조 문구는 자르지 않고 줄바꿈 (거래 목록 등) */
+  wrap?: boolean;
   /** Extra full-width line under the row (e.g. a share bar). */
   children?: ReactNode;
 }) {
@@ -42,12 +45,12 @@ export function LabListRow({
     <>
       <div className="min-w-0 flex-1">
         <p
-          className="detail-data-value-emphasis truncate"
+          className={`detail-data-value-emphasis ${wrap ? "line-clamp-2 break-keep" : "truncate"}`}
           style={selected ? { color: "var(--lab-brand-primary)" } : undefined}
         >
           {title}
         </p>
-        {meta ? <p className="detail-meta truncate">{meta}</p> : null}
+        {meta ? <div className={`detail-meta ${wrap ? "break-keep" : "truncate"}`}>{meta}</div> : null}
         {children}
       </div>
       {value != null ? (
