@@ -1,18 +1,19 @@
 /**
  * build-gis-buildings.py 결과(NDJSON) → gis_buildings. 이 테이블 외 쓰기 없음.
  *
- *   npx tsx scripts/building-3d/load-gis-buildings.ts --from=C:/data/gis/out/buildings.ndjson          # dry-run
- *   npx tsx scripts/building-3d/load-gis-buildings.ts --from=C:/data/gis/out/buildings.ndjson --apply
+ *   npx tsx scripts/building-3d/load-gis-buildings.ts --from=C:/data/gis/out/buildings.ndjson
+ *   npx tsx scripts/building-3d/load-gis-buildings.ts --from=... --missing-only          # dry-run
+ *   npx tsx scripts/building-3d/load-gis-buildings.ts --from=... --missing-only --apply
  *
- * 같은 bld_key는 원천 값이 바뀌었을 때만(payload_hash) 갱신. 다시 돌리면 insert·update 0.
- * 단지 동 연결은 읽을 때 한다: complex_buildings.mgm_bldrgst_pk = (기관코드 5자리) + gis_buildings.bldrgst_pk,
- * 같은 시·군·구(lawd_cd) 안에서만 (보고용으로 연결 수만 센다). 예: 10891|100208583 ↔ 100208583.
+ * --missing-only: 이미 있는 bld_key는 건드리지 않음 (해시 갱신 없음).
+ * 단지 동 연결 보고: complex_buildings.mgm_bldrgst_pk[5:] = gis bldrgst_pk, 같은 lawd_cd.
+ * 12/29/46 단지는 lawd 불일치 시 A19만으로도 연결 수를 센다(보고용).
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import { createHash } from "node:crypto";
-import { createReadStream, readFileSync } from "node:fs";
+import { createReadStream, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
 import { getDb } from "../../src/lib/db/client";
@@ -36,30 +37,38 @@ async function main() {
   const from = arg("from");
   if (!from) throw new Error("--from=<ndjson> 이 필요합니다.");
   const apply = process.argv.includes("--apply");
+  const missingOnly = process.argv.includes("--missing-only");
 
-  const rows: Array<Record<string, Cell>> = [];
+  const rows: Array<Record<string, Cell> & { keep?: string }> = [];
+  let keepA = 0;
+  let keepB = 0;
   const rl = createInterface({ input: createReadStream(from), crlfDelay: Infinity });
   for await (const line of rl) {
     if (!line.trim()) continue;
     const r = JSON.parse(line) as Record<string, unknown>;
-    const v: Record<string, Cell> = {};
+    const v: Record<string, Cell> & { keep?: string } = {};
     for (const c of COLS) v[c] = c === "rings" ? JSON.stringify(r.rings) : ((r[c] ?? null) as Cell);
-    v.payload_hash = createHash("sha1").update(JSON.stringify(v)).digest("hex");
+    v.payload_hash = createHash("sha1").update(JSON.stringify(Object.fromEntries(COLS.map((c) => [c, v[c]])))).digest("hex");
+    if (r.keep === "A") keepA++;
+    else if (r.keep === "B") keepB++;
     rows.push(v);
   }
 
   const exists =
     (await db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='gis_buildings'")).rows.length > 0;
   const have = new Map<string, string>();
+  let existingCount = 0;
   if (exists) {
     for (const r of (await db.execute("SELECT bld_key, payload_hash FROM gis_buildings")).rows) {
       have.set(String(r.bld_key), String(r.payload_hash));
     }
+    existingCount = have.size;
   }
   const seen = new Set<string>();
   const changed: typeof rows = [];
   let ins = 0;
   let dup = 0;
+  let skippedExisting = 0;
   for (const r of rows) {
     const k = String(r.bld_key);
     if (seen.has(k)) {
@@ -68,33 +77,103 @@ async function main() {
     }
     seen.add(k);
     const h = have.get(k);
-    if (h === r.payload_hash) continue;
-    if (h == null) ins++;
+    if (h != null) {
+      if (missingOnly) {
+        skippedExisting++;
+        continue;
+      }
+      if (h === r.payload_hash) continue;
+    } else {
+      ins++;
+    }
     changed.push(r);
   }
 
-  // 단지 동 연결 보고 — 건축물대장 번호(앞 5자리 기관코드 제외)와 시·군·구가 모두 같은 건물 수
   const keys = new Set(
     rows.filter((r) => r.bldrgst_pk && r.lawd_cd).map((r) => `${r.lawd_cd}|${r.bldrgst_pk}`),
   );
-  const cb = await db.execute(`SELECT cb.complex_id, cb.mgm_bldrgst_pk, m.lawd_cd FROM complex_buildings cb
-    JOIN apt_complex_master m ON m.complex_id = cb.complex_id WHERE cb.mgm_bldrgst_pk IS NOT NULL`);
+
+  const cb = await db.execute(`SELECT cb.complex_id, cb.mgm_bldrgst_pk, cb.dong_label, m.lawd_cd, m.apt_name
+    FROM complex_buildings cb
+    JOIN apt_complex_master m ON m.complex_id = cb.complex_id
+    WHERE cb.mgm_bldrgst_pk IS NOT NULL AND length(cb.mgm_bldrgst_pk) > 5`);
+
   const linkedComplexes = new Set<string>();
+  const linkedBuildingsByComplex = new Map<string, number>();
+  const totalByComplex = new Map<string, { n: number; apt: string; lawd: string; samples: string[] }>();
   let linkedBuildings = 0;
+  let linkedFile12Region = 0;
+  let totalFile12Region = 0;
+
   for (const r of cb.rows) {
+    const cid = String(r.complex_id);
     const pk = String(r.mgm_bldrgst_pk);
-    if (pk.length > 5 && keys.has(`${r.lawd_cd}|${pk.slice(5)}`)) {
+    const suf = pk.slice(5);
+    const lawd = String(r.lawd_cd);
+    const apt = String(r.apt_name ?? "");
+    const dong = String(r.dong_label ?? "");
+    const t = totalByComplex.get(cid) ?? { n: 0, apt, lawd, samples: [] };
+    t.n++;
+    if (t.samples.length < 3) t.samples.push(dong || suf);
+    totalByComplex.set(cid, t);
+
+    const in12 = lawd.startsWith("12") || lawd.startsWith("29") || lawd.startsWith("46");
+    if (in12) totalFile12Region++;
+    if (keys.has(`${lawd}|${suf}`)) {
       linkedBuildings++;
-      linkedComplexes.add(String(r.complex_id));
+      linkedComplexes.add(cid);
+      linkedBuildingsByComplex.set(cid, (linkedBuildingsByComplex.get(cid) ?? 0) + 1);
+      if (in12) linkedFile12Region++;
     }
   }
+
+  const unlinked: Array<{ complex_id: string; apt_name: string; lawd_cd: string; buildings: number; linked: number; samples: string[] }> = [];
+  for (const [cid, t] of totalByComplex) {
+    const linked = linkedBuildingsByComplex.get(cid) ?? 0;
+    if (linked < t.n) {
+      unlinked.push({
+        complex_id: cid,
+        apt_name: t.apt,
+        lawd_cd: t.lawd,
+        buildings: t.n,
+        linked,
+        samples: t.samples,
+      });
+    }
+  }
+  unlinked.sort((a, b) => b.buildings - a.buildings || a.linked - b.linked);
+
+  const fromBytes = statSync(from).size;
+  const payloadBytes = rows.reduce((a, r) => a + String(r.rings ?? "").length, 0);
 
   console.log(
     JSON.stringify(
       {
         mode: apply ? "apply" : "dry-run",
-        buildings: { rows: rows.length, insert: ins, update: changed.length - ins, unchanged: rows.length - dup - changed.length, duplicate_keys: dup },
-        links_by_bldrgst_pk: { complexes: linkedComplexes.size, buildings: linkedBuildings },
+        missing_only: missingOnly,
+        source: { path: from, bytes: fromBytes, rows: rows.length, keep_a: keepA, keep_b: keepB },
+        buildings: {
+          existing: existingCount,
+          insert: ins,
+          update: missingOnly ? 0 : changed.length - ins,
+          unchanged_or_skipped: rows.length - dup - changed.length,
+          skipped_existing: skippedExisting,
+          duplicate_keys: dup,
+          would_write: changed.length,
+          rings_payload_bytes: payloadBytes,
+        },
+        links_by_bldrgst_pk: {
+          complex_buildings: cb.rows.length,
+          linked_buildings: linkedBuildings,
+          linked_complexes: linkedComplexes.size,
+          link_rate_buildings: cb.rows.length ? Number((linkedBuildings / cb.rows.length).toFixed(4)) : 0,
+          file12_region: {
+            complex_buildings: totalFile12Region,
+            linked_buildings: linkedFile12Region,
+            link_rate: totalFile12Region ? Number((linkedFile12Region / totalFile12Region).toFixed(4)) : 0,
+          },
+        },
+        unlinked_top10: unlinked.slice(0, 10),
       },
       null,
       2,
@@ -122,7 +201,8 @@ async function main() {
     );
     affected += res.reduce((a, x) => a + x.rowsAffected, 0);
   }
-  console.log(JSON.stringify({ applied: { buildings: affected } }));
+  const after = await db.execute("SELECT COUNT(*) AS n FROM gis_buildings");
+  console.log(JSON.stringify({ applied: { buildings: affected, gis_buildings_total: after.rows[0]?.n } }));
 }
 
 main().catch((e) => {
