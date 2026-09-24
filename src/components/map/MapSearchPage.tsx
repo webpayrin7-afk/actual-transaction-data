@@ -468,7 +468,7 @@ export function MapSearchPage() {
       {/* 상단: 거래유형 · 조건 · 레시피 + 상태 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 pt-2 sm:pt-3">
         <div
-          className="pointer-events-auto flex items-center gap-1.5 overflow-x-auto px-3 pb-1 sm:px-4"
+          className="pointer-events-auto flex items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain px-3 py-1 sm:px-4"
           style={{ scrollbarWidth: "none" }}
           role="toolbar"
           aria-label="지도 조건"

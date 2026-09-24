@@ -276,7 +276,7 @@ export function MapConditionSheet({
           {/* 레시피: 한 줄 칩. 켠 레시피가 무엇을 걸었는지는 칩 아래 한 줄로만 */}
           <div className="flex flex-col gap-1.5">
             <div
-              className="-mx-4 flex gap-1.5 overflow-x-auto px-4 py-0.5"
+              className="-mx-4 flex gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 py-1"
               style={{ scrollbarWidth: "none" }}
               role="group"
               aria-label="레시피"
