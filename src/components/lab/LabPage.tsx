@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabExperimentCard } from "@/components/lab/LabExperimentCard";
 import { LAB_QUERY_KEY, fetchLab, pickTodaysExperiment } from "@/components/lab/LabSection";
+import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
@@ -11,6 +12,12 @@ import { LabTag } from "@/components/ui/LabTag";
 import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
 
 const SECTIONS = LAB_EXPERIMENTS.map((d) => ({ id: d.slug, label: d.shortTitle }));
+
+/** 한국 날짜 M월 D일 */
+function todayLabel(): string {
+  const d = new Date(Date.now() + 9 * 3_600_000);
+  return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`;
+}
 
 function fmtDot(iso: string): string {
   return `${iso.slice(0, 4)}.${iso.slice(5, 7)}.${iso.slice(8, 10)}`;
@@ -34,14 +41,16 @@ export function LabPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        eyebrow="ZIPLAB LAB"
+        leading={<BackLink fallback="/" compact hideLabel />}
         title="오늘의 실험실"
+        titleSuffix={<LabTag size="md">LAB</LabTag>}
         description="실거래 데이터를 조금 다른 방법으로 들여다봅니다. 같은 단지·같은 평형끼리 비교하는 식으로 지역 차이를 덜어 내고 봅니다."
         meta={
           data?.asOfDate ? (
             <div className="flex flex-wrap items-center gap-1">
               <LabTag size="md">{data.coverageLabel}</LabTag>
               <LabTag size="md">기준 계약일 {fmtDot(data.asOfDate)}</LabTag>
+              <LabTag size="md">{todayLabel()} 오늘의 실험</LabTag>
             </div>
           ) : null
         }

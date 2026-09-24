@@ -16,13 +16,16 @@ export async function fetchLab(): Promise<LabHomeResponse> {
 
 export const LAB_QUERY_KEY = ["lab-home"] as const;
 
-/** 오늘의 실험 — 기준 계약일마다 순서를 돌려 매일 다른 실험이 맨 위에 온다 (답이 있는 실험만). */
+/** 한국 날짜 기준 날짜 번호 (1970-01-01부터 며칠째) — 한국 자정에 바뀐다. */
+function seoulDayNumber(now = Date.now()): number {
+  return Math.floor((now + 9 * 3_600_000) / 86_400_000);
+}
+
+/** 오늘의 실험 — 한국 날짜가 바뀔 때마다 다음 실험이 맨 위에 온다 (답이 있는 실험만). */
 export function pickTodaysExperiment(data: LabHomeResponse): LabExperimentResult | null {
   const ready = data.experiments.filter((e) => e.headline && e.headline !== "표본 부족");
   if (ready.length === 0) return null;
-  const seed = (data.asOfDate ?? "").replace(/\D/g, "");
-  const n = seed ? Number(seed.slice(-4)) : 0;
-  return ready[n % ready.length]!;
+  return ready[seoulDayNumber() % ready.length]!;
 }
 
 /**
