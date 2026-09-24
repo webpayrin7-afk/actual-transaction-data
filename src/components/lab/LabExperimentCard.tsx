@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { LabDisclosure } from "@/components/ui/LabDisclosure";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { LabSection, LabSubsectionHeader, LAB_SUBSECTION_RULE } from "@/components/ui/LabSection";
@@ -134,7 +133,7 @@ function ShareList({ rows }: { rows: LabBucketRow[] }) {
   );
 }
 
-/** 실험 한 개 — 질문 · 한 줄 답 · 그래프 · 해석 · 실험 방법. */
+/** 실험 한 개 — 질문 · 한 줄 답 · 그래프 · 해석 · 기준 한 줄. 계산 방법(def.method)은 내부 기록용이라 보이지 않는다. */
 export function LabExperimentCard({ result }: { result: LabExperimentResult }) {
   const def = getLabDef(result.id);
   const isDelta = result.buckets?.some((b) => b.deltaPct !== undefined) ?? false;
@@ -176,9 +175,6 @@ export function LabExperimentCard({ result }: { result: LabExperimentResult }) {
         {result.excludedNote ? <p className="detail-meta">{result.excludedNote}</p> : null}
       </div>
 
-      <LabDisclosure title="실험 방법">
-        <p className="detail-body text-[color:var(--lab-muted)]">{def.method}</p>
-      </LabDisclosure>
     </LabSection>
   );
 }

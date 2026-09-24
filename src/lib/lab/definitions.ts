@@ -23,7 +23,7 @@ export interface LabExperimentDef {
   /** 섹션 탭용 짧은 이름 */
   shortTitle: string;
   question: string;
-  /** 실험 방법 — 어떻게 셌는지, 무엇을 뺐는지 (결과 옆 '실험 방법'에 보인다) */
+  /** 실험 방법 — 어떻게 셌는지, 무엇을 뺐는지. 내부 기록용(화면에 노출하지 않음) */
   method: string;
   /** A=기존 aggregate, B=bounded indexed query, C=full scan(제외) */
   computeClass: "A" | "B";
