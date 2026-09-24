@@ -11,7 +11,7 @@
  * NULL cells only. No deletes. Disagreement between hub and K-apt is reported,
  * not written. parking_per_household is derived only when both inputs are official.
  *
- * Usage: ./node_modules/.bin/tsx scripts/profile-fill/fill-complex-profile.mts <diagnose|fetch|plan|apply> [--min-weight N]
+ * Usage: ./node_modules/.bin/tsx scripts/profile-fill/fill-complex-profile.mts <diagnose|fetch|plan|apply> [--min-weight N] [--max-weight N] [--ids file --tag name]
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -380,6 +380,11 @@ function filtered(targets: Target[]): Target[] {
   const maxRaw = arg("--max-weight");
   const max = maxRaw == null ? null : Number(maxRaw);
   let list = targets;
+  const idsFile = arg("--ids");
+  if (idsFile) {
+    const ids = new Set(readFileSync(idsFile, "utf8").split("\n").map((l) => l.trim()).filter(Boolean));
+    list = list.filter((t) => ids.has(t.complexId));
+  }
   if (min > 0) list = list.filter((t) => t.weight >= min);
   if (max != null) list = list.filter((t) => t.weight <= max);
   list.sort((a, b) => b.weight - a.weight || a.complexId.localeCompare(b.complexId));
@@ -387,6 +392,7 @@ function filtered(targets: Target[]): Target[] {
 }
 
 function outTag(): string {
+  if (arg("--tag") != null) return `-${arg("--tag")}`;
   if (arg("--max-weight") != null) return `-max${arg("--max-weight")}`;
   if (arg("--min-weight") != null) return `-min${arg("--min-weight")}`;
   return "";
