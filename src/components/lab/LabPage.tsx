@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LabExperimentCard } from "@/components/lab/LabExperimentCard";
-import { LAB_QUERY_KEY, fetchLab, pickTodaysExperiment } from "@/components/lab/LabSection";
+import { LAB_QUERY_KEY, fetchLab } from "@/components/lab/LabSection";
 import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
@@ -13,29 +13,19 @@ import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
 
 const SECTIONS = LAB_EXPERIMENTS.map((d) => ({ id: d.slug, label: d.shortTitle }));
 
-/** 한국 날짜 M월 D일 */
-function todayLabel(): string {
-  const d = new Date(Date.now() + 9 * 3_600_000);
-  return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`;
-}
-
 function fmtDot(iso: string): string {
   return `${iso.slice(0, 4)}.${iso.slice(5, 7)}.${iso.slice(8, 10)}`;
 }
 
-/** /lab — 오늘의 실험실 전체. 오늘의 실험을 맨 위에, 나머지는 번호 순. */
+/** /lab — 실험을 모아 두는 곳. 번호 순으로 쌓인다 (오늘의 실험 순환은 시장 홈에서만). */
 export function LabPage() {
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const query = useQuery({ queryKey: LAB_QUERY_KEY, queryFn: fetchLab, staleTime: 10 * 60 * 1000 });
   const data = query.data;
-  const today = data ? pickTodaysExperiment(data) : null;
   const ordered = data
-    ? [
-        ...(today ? [today] : []),
-        ...LAB_EXPERIMENTS.map((d) => data.experiments.find((e) => e.id === d.id)).filter(
-          (e): e is NonNullable<typeof e> => e != null && e.id !== today?.id,
-        ),
-      ]
+    ? LAB_EXPERIMENTS.map((d) => data.experiments.find((e) => e.id === d.id)).filter(
+        (e): e is NonNullable<typeof e> => e != null,
+      )
     : [];
 
   return (
@@ -50,7 +40,6 @@ export function LabPage() {
             <div className="flex flex-wrap items-center gap-1">
               <LabTag size="md">{data.coverageLabel}</LabTag>
               <LabTag size="md">기준 계약일 {fmtDot(data.asOfDate)}</LabTag>
-              <LabTag size="md">{todayLabel()} 오늘의 실험</LabTag>
             </div>
           ) : null
         }

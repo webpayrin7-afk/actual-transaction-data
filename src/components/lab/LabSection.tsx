@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LabSection as Section } from "@/components/ui/LabSection";
 import { LabTag } from "@/components/ui/LabTag";
-import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
+import { getLabDef } from "@/lib/lab/definitions";
 import type { LabExperimentResult, LabHomeResponse } from "@/lib/lab/types";
 
 export async function fetchLab(): Promise<LabHomeResponse> {
@@ -107,7 +107,7 @@ export function LabSection() {
 
       {data ? (
         <Link href="/lab" className="lab-button lab-button-secondary w-full">
-          실험 {LAB_EXPERIMENTS.length}개 모두 보기
+          실험실에서 더 과감한 실험 보기
           <span aria-hidden className="ml-1">
             →
           </span>
