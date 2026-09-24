@@ -13,7 +13,10 @@ import { TrendsPriceIndexSection } from "@/components/stats/TrendsPriceIndexSect
 import { TrendsVolumeSection } from "@/components/stats/TrendsVolumeSection";
 import { TrendsPriceLevelSection } from "@/components/stats/TrendsPriceLevelSection";
 import { TrendsRegionCompareSection } from "@/components/stats/TrendsRegionCompareSection";
+import { TrendsDealPriceSection } from "@/components/stats/TrendsDealPriceSection";
+import { TrendsDealMixSection } from "@/components/stats/TrendsDealMixSection";
 import type { TrendSeries } from "@/lib/market/trends";
+import type { DealStatsPayload } from "@/lib/market/deal-stats";
 import {
   DEFAULT_TREND_REGION,
   TREND_PERIODS,
@@ -29,6 +32,12 @@ const DEFAULT_PERIOD: TrendPeriod = "10y";
 async function fetchSeries(regionId: string): Promise<TrendSeries> {
   const res = await fetch(`/api/market-trends?region=${encodeURIComponent(regionId)}`);
   if (!res.ok) throw new Error("시장 동향을 불러오지 못했습니다.");
+  return res.json();
+}
+
+async function fetchDealStats(regionId: string): Promise<DealStatsPayload> {
+  const res = await fetch(`/api/market-deal-stats?region=${encodeURIComponent(regionId)}`);
+  if (!res.ok) throw new Error("실거래 집계를 불러오지 못했습니다.");
   return res.json();
 }
 
@@ -109,18 +118,28 @@ export function MarketTrendsPage() {
     staleTime: 30 * 60_000,
     retry: 1,
   });
+  const dealQuery = useQuery({
+    queryKey: ["market-deal-stats", regionId],
+    queryFn: () => fetchDealStats(regionId),
+    staleTime: 30 * 60_000,
+    retry: 1,
+  });
   const data = query.data?.regionId === regionId ? query.data : undefined;
+  const deal = dealQuery.data?.scopeKey ? dealQuery.data : undefined;
   const loading = query.isLoading;
   const error = query.isError;
   const retry = () => void query.refetch();
-  useLoadProgressWhen(loading && !data, "시장 동향 불러오는 중…");
+  const dealLoading = dealQuery.isLoading;
+  const dealError = dealQuery.isError;
+  const retryDeal = () => void dealQuery.refetch();
+  useLoadProgressWhen((loading && !data) || (dealLoading && !deal), "시장 동향 불러오는 중…");
 
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
         title="시장 흐름"
         titleClassName="detail-page-title"
-        description="한국부동산원 가격지수와 국토교통부 실거래로 아파트 시장의 장기 흐름을 봅니다."
+        description="한국부동산원 가격지수와 국토교통부 실거래로 아파트 시장의 장기 흐름을 봅니다. 실거래 중위가·평당가·가격대는 미리 모아 둔 월간 집계입니다."
       />
 
       <div
@@ -154,6 +173,28 @@ export function MarketTrendsPage() {
           loading={loading}
           error={error || (!!data && !data.tradeIndex)}
           onRetry={retry}
+        />
+      </LabSectionBoundary>
+
+      <LabSectionBoundary id="deal-price" title="실거래 가격">
+        <TrendsDealPriceSection
+          regionLabel={region.fullLabel}
+          data={deal ?? null}
+          period={period}
+          loading={dealLoading}
+          error={dealError}
+          onRetry={retryDeal}
+        />
+      </LabSectionBoundary>
+
+      <LabSectionBoundary id="deal-mix" title="가격대 구성">
+        <TrendsDealMixSection
+          regionLabel={region.fullLabel}
+          data={deal ?? null}
+          period={period}
+          loading={dealLoading}
+          error={dealError}
+          onRetry={retryDeal}
         />
       </LabSectionBoundary>
 
