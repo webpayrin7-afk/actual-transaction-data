@@ -21,6 +21,11 @@ export const PRIMARY_NAV = [
     label: "지도",
     match: (pathname: string) => pathname.startsWith("/map"),
   },
+  {
+    href: "/presale",
+    label: "분양",
+    match: (pathname: string) => pathname.startsWith("/presale"),
+  },
 ] as const;
 
 /** 더보기 > 도구 — 학군(/school)은 비활성·메뉴 비노출 */

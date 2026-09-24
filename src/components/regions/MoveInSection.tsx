@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Metro } from "@/lib/constants/regions";
-import { useApplyhome } from "@/components/complexes/ApplyhomeSections";
+import { useApplyhome } from "@/components/presale/ApplyhomeSections";
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";

@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Building2,
   Grid2x2,
+  HousePlus,
   Map,
   TrendingUp,
 } from "lucide-react";
@@ -56,5 +57,13 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
     icon: Building2,
     match: (pathname) =>
       pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
+  },
+  {
+    id: "presale",
+    label: "분양",
+    shortLabel: "분양",
+    href: "/presale",
+    icon: HousePlus,
+    match: (pathname) => pathname.startsWith("/presale"),
   },
 ];
