@@ -318,9 +318,9 @@ export function MarketHome() {
             </p>
           </>
         }
-        meta={
+        action={
           data?.discoveryDate ? (
-            <p className="detail-meta tabular-nums">
+            <p className="detail-meta pt-1 text-right tabular-nums">
               {monthDay(data.discoveryDate)} 확인
               {clockOf(data.lastUpdatedLabel, data.computedAt) ? ` · ${clockOf(data.lastUpdatedLabel, data.computedAt)} 업데이트` : ""}
             </p>
