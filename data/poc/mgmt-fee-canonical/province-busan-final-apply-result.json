@@ -1,0 +1,5325 @@
+{
+  "status": "PASS",
+  "province": "busan",
+  "total": 881,
+  "unpublished": 112,
+  "skipped_non_complete": 0,
+  "collisions": 0,
+  "periods": {
+    "202607": 378,
+    "202608": 474,
+    "202609": 29
+  },
+  "canonical_total": 125141784907,
+  "existing_rows": 3938,
+  "existing_complexes": 3825,
+  "checkpoint_sha256": "de35a0b91955464bbf8e3bbd356e7c233ef2d621d2ff8f72f734a18a6cf19702",
+  "dryrun_sha256": "bb092ef75acdb278db6688147a072a66eac046b7fd33aa98087aa20e5dd8d083",
+  "cohort_sha256": "6229a681a2a3c80e953a24d4e36c5f3ab9bb8268dd7702774e6d476cb940e140",
+  "inserted": 881,
+  "updated": 0,
+  "deleted": 0,
+  "rows_before": 3938,
+  "complexes_before": 3825,
+  "rows": 4819,
+  "complexes": 4706,
+  "duplicate_keys": 0,
+  "existing_rows_unchanged": true,
+  "existing_row_hash": "9610b7220352115cf9ad45f90e6c8f83f737bc55505bc332a956b9d734371dba",
+  "inserted_canonical_total": 125141784907,
+  "updated_at": "2026-09-24T11:22:58.528Z",
+  "source": "MOLIT_KAPT_FEE_V3",
+  "amount_basis": "complex_month_total_krw",
+  "component_policy": "reference-catalog service sums; per-area household fee_status source_version left null",
+  "rollback_executed": false,
+  "production_write": true,
+  "api_calls": 0,
+  "plans": [
+    {
+      "complex_id": "cx_015592f0548859cd",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 32009144
+    },
+    {
+      "complex_id": "cx_036d73bdc7e5df1d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 33722074
+    },
+    {
+      "complex_id": "cx_038b9aa008131bdd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 65481232
+    },
+    {
+      "complex_id": "cx_0524542acb017b2b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 266016103
+    },
+    {
+      "complex_id": "cx_09d8e45b254a538c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 12945810
+    },
+    {
+      "complex_id": "cx_0aa6688135577207",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 180365209
+    },
+    {
+      "complex_id": "cx_0ebec6879bd36ac7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 36315325
+    },
+    {
+      "complex_id": "cx_1248b61038864847",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41018265
+    },
+    {
+      "complex_id": "cx_1414b70a7fee3f0f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 14676130
+    },
+    {
+      "complex_id": "cx_1fd59f5a36945bc6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 185947879
+    },
+    {
+      "complex_id": "cx_2013ba7b692bd6c0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 33599984
+    },
+    {
+      "complex_id": "cx_213117b571b26e6e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 75436607
+    },
+    {
+      "complex_id": "cx_250c779785dcbcaf",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 37212819
+    },
+    {
+      "complex_id": "cx_2a0ce31f71b6c770",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 21614552
+    },
+    {
+      "complex_id": "cx_2f252beeaae5a5e1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 11142103
+    },
+    {
+      "complex_id": "cx_30ff6495de1511d0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 43959120
+    },
+    {
+      "complex_id": "cx_32ba7e5fbba3723f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 17824042
+    },
+    {
+      "complex_id": "cx_3ab80c71d743881b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 236526880
+    },
+    {
+      "complex_id": "cx_4015a1154acb214d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 66068782
+    },
+    {
+      "complex_id": "cx_418d4e105f51a454",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 54905098
+    },
+    {
+      "complex_id": "cx_43737e8dae71f113",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 9859921
+    },
+    {
+      "complex_id": "cx_4da00754bdf1efb4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 238214816
+    },
+    {
+      "complex_id": "cx_558ce01051d1230d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 152695635
+    },
+    {
+      "complex_id": "cx_55947ea56b42eddc",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 65232127
+    },
+    {
+      "complex_id": "cx_55fc1624f65a6540",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34314660
+    },
+    {
+      "complex_id": "cx_5685f97187f99d99",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 279311889
+    },
+    {
+      "complex_id": "cx_56a1a55034aa51ff",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 86973359
+    },
+    {
+      "complex_id": "cx_578ceeb39064f2ca",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 114640612
+    },
+    {
+      "complex_id": "cx_579a4cab5edcdc49",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 60421310
+    },
+    {
+      "complex_id": "cx_57a0eaf5066a9b50",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 12898480
+    },
+    {
+      "complex_id": "cx_585a77a3f000c148",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 58726269
+    },
+    {
+      "complex_id": "cx_58b91069075677e3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 50553859
+    },
+    {
+      "complex_id": "cx_58c1be3812dc2897",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 150216976
+    },
+    {
+      "complex_id": "cx_591085761f519b8a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 17313189
+    },
+    {
+      "complex_id": "cx_5919b8709df2a965",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 32887349
+    },
+    {
+      "complex_id": "cx_599f61c6cf9c8ef1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 57122880
+    },
+    {
+      "complex_id": "cx_59a63168967d6536",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 112339053
+    },
+    {
+      "complex_id": "cx_59b9fbb96ac1b1e7",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 187979654
+    },
+    {
+      "complex_id": "cx_59c0660969c5199b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 128909941
+    },
+    {
+      "complex_id": "cx_59d8e69dda11c904",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 377889991
+    },
+    {
+      "complex_id": "cx_5a574992474d9626",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 169097510
+    },
+    {
+      "complex_id": "cx_5a963ebd2b513649",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 55267783
+    },
+    {
+      "complex_id": "cx_5a98d1e5a93c4778",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 75867255
+    },
+    {
+      "complex_id": "cx_5ab8b56e5bc1ef25",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 214587282
+    },
+    {
+      "complex_id": "cx_5aca62bd5fa38de7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 230595053
+    },
+    {
+      "complex_id": "cx_5ae577461d55a77e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 220499774
+    },
+    {
+      "complex_id": "cx_5afe6a8f397cea45",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 197251531
+    },
+    {
+      "complex_id": "cx_5b56cf2afaaa6d62",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 72743431
+    },
+    {
+      "complex_id": "cx_5b63d4a3bd1b6425",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 18638070
+    },
+    {
+      "complex_id": "cx_5bf702f10a7930b8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 33949804
+    },
+    {
+      "complex_id": "cx_5c08fb2798b85035",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 50648884
+    },
+    {
+      "complex_id": "cx_5c5038f78599261e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 358268660
+    },
+    {
+      "complex_id": "cx_5c5ac4e59fafc8b9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 55736032
+    },
+    {
+      "complex_id": "cx_5c6eb8a1643b21e5",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 35296713
+    },
+    {
+      "complex_id": "cx_5cbc51a6a7e5a1d7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 313163834
+    },
+    {
+      "complex_id": "cx_5ccfe2c538bd4523",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 189805442
+    },
+    {
+      "complex_id": "cx_5cff13c0296c275d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 76116895
+    },
+    {
+      "complex_id": "cx_5d06b237f195c9d7",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 156299819
+    },
+    {
+      "complex_id": "cx_5d1e977549ae09d1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 91603967
+    },
+    {
+      "complex_id": "cx_5d85a94fed293e57",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 57722966
+    },
+    {
+      "complex_id": "cx_5d8d47b3f1314b77",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 23629195
+    },
+    {
+      "complex_id": "cx_5defec7bd095da64",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 193052254
+    },
+    {
+      "complex_id": "cx_5e09bdd8043761cb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 180877591
+    },
+    {
+      "complex_id": "cx_5e7a8f9d52504a03",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 109690616
+    },
+    {
+      "complex_id": "cx_5eb0a53626b4db3c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 73045642
+    },
+    {
+      "complex_id": "cx_5f116518d8efa08c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 61677967
+    },
+    {
+      "complex_id": "cx_5f620907debbb7b2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 1161277421
+    },
+    {
+      "complex_id": "cx_5f90010eb49e6367",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 16707086
+    },
+    {
+      "complex_id": "cx_5f903e1ef09a788e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 51798226
+    },
+    {
+      "complex_id": "cx_5f9b94bf6abb6dc0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 543442283
+    },
+    {
+      "complex_id": "cx_5fe387bbaa0f6207",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 416411853
+    },
+    {
+      "complex_id": "cx_5fe4a3e52eb1ff18",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 64376894
+    },
+    {
+      "complex_id": "cx_6004d26f1a466546",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 98838120
+    },
+    {
+      "complex_id": "cx_6029b05e575354d7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 120633308
+    },
+    {
+      "complex_id": "cx_603fd4480012a698",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 40328088
+    },
+    {
+      "complex_id": "cx_6087cd6106ad3883",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 26546660
+    },
+    {
+      "complex_id": "cx_60d64dbd2fa5c83a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 20788035
+    },
+    {
+      "complex_id": "cx_6124746fcd89b0f4",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 34952870
+    },
+    {
+      "complex_id": "cx_6151a9d5df7fa258",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 23540590
+    },
+    {
+      "complex_id": "cx_615589e0fcc9e50d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 45920049
+    },
+    {
+      "complex_id": "cx_6162a049a881c254",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 35716888
+    },
+    {
+      "complex_id": "cx_619d140e95401eea",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 49245332
+    },
+    {
+      "complex_id": "cx_61b9541720fc4327",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 21199061
+    },
+    {
+      "complex_id": "cx_61e3ed272fb1949e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 84363290
+    },
+    {
+      "complex_id": "cx_61fa2ccc160dc624",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 38079688
+    },
+    {
+      "complex_id": "cx_621d52b7d6175020",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 257776733
+    },
+    {
+      "complex_id": "cx_62356b25b5d7399b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 371344610
+    },
+    {
+      "complex_id": "cx_624cbdffe7cc3dcc",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 363739880
+    },
+    {
+      "complex_id": "cx_625bcbbbc77506dc",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 63951313
+    },
+    {
+      "complex_id": "cx_627e91899a87f27c",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 110953859
+    },
+    {
+      "complex_id": "cx_628b8545ca047b6d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 8390800
+    },
+    {
+      "complex_id": "cx_62d0014a649353fb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 12588798
+    },
+    {
+      "complex_id": "cx_6315a06ec05e06e7",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 113464602
+    },
+    {
+      "complex_id": "cx_632b5e867a26ae35",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 822371408
+    },
+    {
+      "complex_id": "cx_635b310eace30733",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 31080297
+    },
+    {
+      "complex_id": "cx_636dd55646728821",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 284957430
+    },
+    {
+      "complex_id": "cx_639f1ca3e25a6ff7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 241072957
+    },
+    {
+      "complex_id": "cx_63a43ed757bee485",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 189645038
+    },
+    {
+      "complex_id": "cx_63c532d85ac346ed",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 82318939
+    },
+    {
+      "complex_id": "cx_644210b80ea1fabc",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 48191917
+    },
+    {
+      "complex_id": "cx_6445dc0908c5ca28",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 114392468
+    },
+    {
+      "complex_id": "cx_648891a51a861fa0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 50849242
+    },
+    {
+      "complex_id": "cx_64eb1d158fb6f364",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 274281865
+    },
+    {
+      "complex_id": "cx_64f18b1b02d45a23",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 47822893
+    },
+    {
+      "complex_id": "cx_64f1f500f2f6dfa3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 279273668
+    },
+    {
+      "complex_id": "cx_650c2d9ddad72638",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 168396206
+    },
+    {
+      "complex_id": "cx_65147620e3957004",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 116014052
+    },
+    {
+      "complex_id": "cx_6521c7987a912787",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 37702154
+    },
+    {
+      "complex_id": "cx_65a9256ffce40f3d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 18153619
+    },
+    {
+      "complex_id": "cx_65dc08a59fc0da01",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 201964483
+    },
+    {
+      "complex_id": "cx_65fec3a9dc58c8b3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 56252391
+    },
+    {
+      "complex_id": "cx_668ad1c2c6d648a5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 67189197
+    },
+    {
+      "complex_id": "cx_66b33c9ae574e51a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 62981861
+    },
+    {
+      "complex_id": "cx_66b4b3be05a47794",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 83718019
+    },
+    {
+      "complex_id": "cx_672ee3b75ced806b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 29298810
+    },
+    {
+      "complex_id": "cx_67a9d96a19949f2e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 384013470
+    },
+    {
+      "complex_id": "cx_67b1099d377af034",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 253329908
+    },
+    {
+      "complex_id": "cx_67e02bbf4a780899",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 97396269
+    },
+    {
+      "complex_id": "cx_67efd0c912459938",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 272610922
+    },
+    {
+      "complex_id": "cx_680fa32d4f779b1b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 21348920
+    },
+    {
+      "complex_id": "cx_682e516d037dccf6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 236568953
+    },
+    {
+      "complex_id": "cx_687a94d0cebb9014",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 26898384
+    },
+    {
+      "complex_id": "cx_68b2e46f0920c571",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 76373841
+    },
+    {
+      "complex_id": "cx_68e0f8f422638cf5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 26951429
+    },
+    {
+      "complex_id": "cx_699167c6505ca73f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 19319753
+    },
+    {
+      "complex_id": "cx_6998c3b71a68dc2b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 107382270
+    },
+    {
+      "complex_id": "cx_69bc83111d5ab137",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 75226404
+    },
+    {
+      "complex_id": "cx_69e888140179b289",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 45451130
+    },
+    {
+      "complex_id": "cx_6a88bfbc27169472",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 254572853
+    },
+    {
+      "complex_id": "cx_6aba3144efd39012",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 168388595
+    },
+    {
+      "complex_id": "cx_6ac9f48388f075c8",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 193312865
+    },
+    {
+      "complex_id": "cx_6afef6787ccabf98",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 28237851
+    },
+    {
+      "complex_id": "cx_6b28003fccebca6e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 35886699
+    },
+    {
+      "complex_id": "cx_6b75517ca18778e2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 74947787
+    },
+    {
+      "complex_id": "cx_6bc12edd04449bdf",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 78391397
+    },
+    {
+      "complex_id": "cx_6beadd1eff3da9ba",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 74027605
+    },
+    {
+      "complex_id": "cx_6c95feae4aec2833",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 325073788
+    },
+    {
+      "complex_id": "cx_6cfa1425cb9e02d2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 41806115
+    },
+    {
+      "complex_id": "cx_6d297488e331456d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 288748180
+    },
+    {
+      "complex_id": "cx_6d32cb278a6b979d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 8490190
+    },
+    {
+      "complex_id": "cx_6d5a21427a0054d6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 79531748
+    },
+    {
+      "complex_id": "cx_6d6fe48a58d191be",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 538433853
+    },
+    {
+      "complex_id": "cx_6e9f52b1008a243e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 50531865
+    },
+    {
+      "complex_id": "cx_6ebe666d7c4f1ebf",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 60859745
+    },
+    {
+      "complex_id": "cx_6f41fdde27992892",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 94575932
+    },
+    {
+      "complex_id": "cx_6f86c8cede2853e2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 214786137
+    },
+    {
+      "complex_id": "cx_6fc5c03bb9333640",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 112119690
+    },
+    {
+      "complex_id": "cx_6fd3a0aa86fbee09",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 36913797
+    },
+    {
+      "complex_id": "cx_6feb5076f97a50d6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 286554905
+    },
+    {
+      "complex_id": "cx_7001dbdf1c93d739",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 37365536
+    },
+    {
+      "complex_id": "cx_706bdb7b211986cf",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 30373253
+    },
+    {
+      "complex_id": "cx_70b6a48fe850f3e4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 65007560
+    },
+    {
+      "complex_id": "cx_71347c8721957a73",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 48956802
+    },
+    {
+      "complex_id": "cx_71683b2aa49b577b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 43996380
+    },
+    {
+      "complex_id": "cx_717d213c7a206d18",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 75276104
+    },
+    {
+      "complex_id": "cx_717d74affd4451ef",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 119516031
+    },
+    {
+      "complex_id": "cx_717e5ba1df961526",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 158964018
+    },
+    {
+      "complex_id": "cx_7197fc107f7b9481",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 92178664
+    },
+    {
+      "complex_id": "cx_71b1cad91394b4f6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 141400699
+    },
+    {
+      "complex_id": "cx_71d2da8b6a2798fb",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41003470
+    },
+    {
+      "complex_id": "cx_71ed5c8a234fc0f1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 50853361
+    },
+    {
+      "complex_id": "cx_721b79d91af480bd",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 26935363
+    },
+    {
+      "complex_id": "cx_72750bb182aa1dee",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 130849641
+    },
+    {
+      "complex_id": "cx_7282cf3d23639aa8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 65769752
+    },
+    {
+      "complex_id": "cx_72a0ded8e2d1ec2a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 23118498
+    },
+    {
+      "complex_id": "cx_72a193dd1315fe52",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 1282972274
+    },
+    {
+      "complex_id": "cx_72b6dc87bb4f2ef3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 107336846
+    },
+    {
+      "complex_id": "cx_72d26e094e6a93a1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 142818342
+    },
+    {
+      "complex_id": "cx_72e7c627d5d77c6c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 11622783
+    },
+    {
+      "complex_id": "cx_7305a81208cd8702",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 57824266
+    },
+    {
+      "complex_id": "cx_731f7e126e590a65",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 31578236
+    },
+    {
+      "complex_id": "cx_73444e5baf306799",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 419652874
+    },
+    {
+      "complex_id": "cx_739d5e1cd2065064",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 160907278
+    },
+    {
+      "complex_id": "cx_73e7ac3cb8c737c6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 33216054
+    },
+    {
+      "complex_id": "cx_73ea3d1cb4657ff9",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 32001280
+    },
+    {
+      "complex_id": "cx_73f652fe4a878688",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 364879357
+    },
+    {
+      "complex_id": "cx_7415775f6315ded8",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 36101263
+    },
+    {
+      "complex_id": "cx_745c1381992c9c52",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 44709148
+    },
+    {
+      "complex_id": "cx_74706b817c6e6c5b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 185853427
+    },
+    {
+      "complex_id": "cx_748108c34d855bfa",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 38177014
+    },
+    {
+      "complex_id": "cx_74b9518349803381",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 210008931
+    },
+    {
+      "complex_id": "cx_74bf8d945ace3534",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 831605764
+    },
+    {
+      "complex_id": "cx_75853d3565827d4c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 472400298
+    },
+    {
+      "complex_id": "cx_75a2ee97e5c4f53b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 88709416
+    },
+    {
+      "complex_id": "cx_75b5fbdd3a6ef886",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 114144771
+    },
+    {
+      "complex_id": "cx_75e63635c7209f64",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 57494906
+    },
+    {
+      "complex_id": "cx_76014e12685a2f43",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 125167426
+    },
+    {
+      "complex_id": "cx_760356a3aa2efd83",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 204071953
+    },
+    {
+      "complex_id": "cx_760ef02846180116",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 73951780
+    },
+    {
+      "complex_id": "cx_7615f71225f41a04",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 76306515
+    },
+    {
+      "complex_id": "cx_7668564b6497bc19",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 52963137
+    },
+    {
+      "complex_id": "cx_76a1ef1061efd204",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 166541428
+    },
+    {
+      "complex_id": "cx_76a76e895dfc7bff",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 186225628
+    },
+    {
+      "complex_id": "cx_76ab6ef9e7f1c45e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 35342656
+    },
+    {
+      "complex_id": "cx_76b17bfa55649cad",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 150116897
+    },
+    {
+      "complex_id": "cx_77125188a502f6ae",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 66140571
+    },
+    {
+      "complex_id": "cx_772cda83789da758",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 187537987
+    },
+    {
+      "complex_id": "cx_7739f0b39a5a4139",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 39704252
+    },
+    {
+      "complex_id": "cx_7795a6f7199b7c97",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 34237370
+    },
+    {
+      "complex_id": "cx_779ecfea50ee2524",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 62132004
+    },
+    {
+      "complex_id": "cx_779ef8250de64b0a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 82974171
+    },
+    {
+      "complex_id": "cx_77b7630b8aa45fc3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 294666328
+    },
+    {
+      "complex_id": "cx_77e9033c998da557",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 25453575
+    },
+    {
+      "complex_id": "cx_7806cee99bd470fe",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 162484393
+    },
+    {
+      "complex_id": "cx_782b3b13f5218c70",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 92265133
+    },
+    {
+      "complex_id": "cx_7848f3b5d41d8206",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 62019965
+    },
+    {
+      "complex_id": "cx_78a098463e92ed41",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 57491617
+    },
+    {
+      "complex_id": "cx_78f2b35bbda0c6c0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 80252992
+    },
+    {
+      "complex_id": "cx_78f71ae5bb02cbb6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 60610322
+    },
+    {
+      "complex_id": "cx_795fda649273dcfe",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 67952750
+    },
+    {
+      "complex_id": "cx_7964a4febc7e5f91",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 74820356
+    },
+    {
+      "complex_id": "cx_798ee16aa0b074d8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 199801056
+    },
+    {
+      "complex_id": "cx_798feb306195aaef",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 54368860
+    },
+    {
+      "complex_id": "cx_7998ef582d0c090a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 32145080
+    },
+    {
+      "complex_id": "cx_79e48ebc94a4ef3a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 124092721
+    },
+    {
+      "complex_id": "cx_79e997c6512fd229",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 42881170
+    },
+    {
+      "complex_id": "cx_7a19b774546260dc",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 157789766
+    },
+    {
+      "complex_id": "cx_7aa62ec00a5c7f64",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 63008676
+    },
+    {
+      "complex_id": "cx_7ac8a6a89bbcf971",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 1637062970
+    },
+    {
+      "complex_id": "cx_7af1105356038bfb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 87782290
+    },
+    {
+      "complex_id": "cx_7b057b9fdb3eda32",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 30017624
+    },
+    {
+      "complex_id": "cx_7b2a1e09e12c7ba1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 59946960
+    },
+    {
+      "complex_id": "cx_7bb8feb934b88844",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 31795860
+    },
+    {
+      "complex_id": "cx_7bd225fec3815e92",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 139915761
+    },
+    {
+      "complex_id": "cx_7bfc5c64fd9cc85c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 161473099
+    },
+    {
+      "complex_id": "cx_7c29306946032686",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 55979040
+    },
+    {
+      "complex_id": "cx_7c36b2ad8be969f9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 206472360
+    },
+    {
+      "complex_id": "cx_7c6d8f964d0146f5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 91044741
+    },
+    {
+      "complex_id": "cx_7cabc4c85f147cca",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 54103655
+    },
+    {
+      "complex_id": "cx_7cb95afa1b3ab730",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 173373400
+    },
+    {
+      "complex_id": "cx_7cd77ad20dac3808",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 30882840
+    },
+    {
+      "complex_id": "cx_7cf70701a4b95b16",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 290344010
+    },
+    {
+      "complex_id": "cx_7d0d51e39db587cb",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 107123630
+    },
+    {
+      "complex_id": "cx_7d58e375e04db2c2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 5942610
+    },
+    {
+      "complex_id": "cx_7da47cb2fb77bd56",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 98224897
+    },
+    {
+      "complex_id": "cx_7dc50f116a7c8f58",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 259689133
+    },
+    {
+      "complex_id": "cx_7e10a1f8215f82a2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 556750992
+    },
+    {
+      "complex_id": "cx_7e1c33aefee17c4b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 26281749
+    },
+    {
+      "complex_id": "cx_7ea43c54a455f6a0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 125569260
+    },
+    {
+      "complex_id": "cx_7eece296647e60b2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 42853002
+    },
+    {
+      "complex_id": "cx_7f03da441b6366c5",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 144522676
+    },
+    {
+      "complex_id": "cx_7f3490a08a2443bd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 236315079
+    },
+    {
+      "complex_id": "cx_7f4b2a618c7957d4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 297574882
+    },
+    {
+      "complex_id": "cx_7f63e92f4c7806e4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 104793813
+    },
+    {
+      "complex_id": "cx_7fa2b3fc5c713bb9",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 97062175
+    },
+    {
+      "complex_id": "cx_801fbc142e99d9d0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 94936830
+    },
+    {
+      "complex_id": "cx_805c5c2e09e65711",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 80990440
+    },
+    {
+      "complex_id": "cx_8072816c16863651",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 62066961
+    },
+    {
+      "complex_id": "cx_807f3dce8db33f4f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 90857089
+    },
+    {
+      "complex_id": "cx_80ae4281e04bd3aa",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41144296
+    },
+    {
+      "complex_id": "cx_81282bc4f9b0486b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 161270052
+    },
+    {
+      "complex_id": "cx_812c2b658743589c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 88387694
+    },
+    {
+      "complex_id": "cx_81d3a8e008cefbe9",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 177548115
+    },
+    {
+      "complex_id": "cx_81ef0dd27b228d21",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 130857175
+    },
+    {
+      "complex_id": "cx_822dfbac6b166445",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 92375051
+    },
+    {
+      "complex_id": "cx_82515d73e51b3eb7",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 55116057
+    },
+    {
+      "complex_id": "cx_825b73f57966f116",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 281904838
+    },
+    {
+      "complex_id": "cx_83cbaa75e17f3902",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 59199775
+    },
+    {
+      "complex_id": "cx_83d0a5c2dc914e4d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 16400480
+    },
+    {
+      "complex_id": "cx_840331e63636c9ba",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 38872619
+    },
+    {
+      "complex_id": "cx_840f752ecc3ace17",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 36485240
+    },
+    {
+      "complex_id": "cx_842b584b5d0f6cce",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 102895275
+    },
+    {
+      "complex_id": "cx_85206cad5b11da0a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 83679979
+    },
+    {
+      "complex_id": "cx_8558d80aab9ebd13",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 243333134
+    },
+    {
+      "complex_id": "cx_855c2a3503057ab9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 151284358
+    },
+    {
+      "complex_id": "cx_85a6ef854961cdc8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 95963204
+    },
+    {
+      "complex_id": "cx_85bc8573acd068f5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 42976946
+    },
+    {
+      "complex_id": "cx_85c5edc0b7b16ebd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 39705099
+    },
+    {
+      "complex_id": "cx_8608d6766cbaec6e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 180301809
+    },
+    {
+      "complex_id": "cx_860d41c67e349921",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 332242229
+    },
+    {
+      "complex_id": "cx_86c939f36f4047d9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 455679291
+    },
+    {
+      "complex_id": "cx_86ccf53f8e71f300",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 351608803
+    },
+    {
+      "complex_id": "cx_86e75a50d7d462b1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 189224429
+    },
+    {
+      "complex_id": "cx_8722ed217fe68403",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 74932784
+    },
+    {
+      "complex_id": "cx_87291ec39c2a6820",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 61577377
+    },
+    {
+      "complex_id": "cx_8743d63c8d5c0655",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 263445127
+    },
+    {
+      "complex_id": "cx_87c46b1a924b61fb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 29808388
+    },
+    {
+      "complex_id": "cx_880893a7daae26a2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 33734982
+    },
+    {
+      "complex_id": "cx_883b004b0e7ed777",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 123011252
+    },
+    {
+      "complex_id": "cx_8842ff4e988a59c5",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 73060862
+    },
+    {
+      "complex_id": "cx_885748450beff0ef",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 91096815
+    },
+    {
+      "complex_id": "cx_88a90d3317a32d38",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 93178247
+    },
+    {
+      "complex_id": "cx_88eec7fe78a15dd8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 187969303
+    },
+    {
+      "complex_id": "cx_8968260d3266587f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 47578098
+    },
+    {
+      "complex_id": "cx_897f2f2330c80848",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 292911264
+    },
+    {
+      "complex_id": "cx_89c75a25c879a6c4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 101165024
+    },
+    {
+      "complex_id": "cx_89daa7e0a44ecb6a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 247795085
+    },
+    {
+      "complex_id": "cx_8a0c573890b60d05",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 158993480
+    },
+    {
+      "complex_id": "cx_8a17c03539ff62d8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34622641
+    },
+    {
+      "complex_id": "cx_8a1b59562861e3e3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 57041386
+    },
+    {
+      "complex_id": "cx_8aa4a81600543166",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 73109989
+    },
+    {
+      "complex_id": "cx_8ac41acb87f87e62",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 201956216
+    },
+    {
+      "complex_id": "cx_8b4321c799325827",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 9826171
+    },
+    {
+      "complex_id": "cx_8b6752a09bbb3d05",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 145625503
+    },
+    {
+      "complex_id": "cx_8baad34a2cca32b9",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 1232101072
+    },
+    {
+      "complex_id": "cx_8bb0eb0cc8fca992",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 87141224
+    },
+    {
+      "complex_id": "cx_8bd874f272b1626d",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 114451189
+    },
+    {
+      "complex_id": "cx_8bd90e364e885790",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 110718864
+    },
+    {
+      "complex_id": "cx_8c0de4c0c933c97a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 125665837
+    },
+    {
+      "complex_id": "cx_8c166218bac533d9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 36164595
+    },
+    {
+      "complex_id": "cx_8c1f7212ac7810cf",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 144364468
+    },
+    {
+      "complex_id": "cx_8c512e7d2ef566b5",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 84002181
+    },
+    {
+      "complex_id": "cx_8c9809571ccbdaf4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 254441323
+    },
+    {
+      "complex_id": "cx_8cf51edbdedf5d62",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 181044885
+    },
+    {
+      "complex_id": "cx_8d24a50a76ee2963",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 48885953
+    },
+    {
+      "complex_id": "cx_8d36ebe7e28cdf10",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 48439167
+    },
+    {
+      "complex_id": "cx_8d3e7469eb26eedc",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 303834467
+    },
+    {
+      "complex_id": "cx_8d773a3d4d32ffd4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 43325872
+    },
+    {
+      "complex_id": "cx_8d83be7a8adf5fea",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 13327110
+    },
+    {
+      "complex_id": "cx_8dee6da031180ddc",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 12807587
+    },
+    {
+      "complex_id": "cx_8e189d437bd498cf",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 96948875
+    },
+    {
+      "complex_id": "cx_8ea6b6774a41196e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 212147083
+    },
+    {
+      "complex_id": "cx_8eb710a7acc34c94",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 119148371
+    },
+    {
+      "complex_id": "cx_8fc3d0a9c3727c30",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 44459140
+    },
+    {
+      "complex_id": "cx_8fd48702a3efd52f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 135916095
+    },
+    {
+      "complex_id": "cx_8fea6f19d93e8bcb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 160106596
+    },
+    {
+      "complex_id": "cx_8ff707d3ba4b2991",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 147220047
+    },
+    {
+      "complex_id": "cx_90a06b71ccb7c07a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 143745893
+    },
+    {
+      "complex_id": "cx_90b47f63ea701e5c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 849376140
+    },
+    {
+      "complex_id": "cx_90be0cc5084b7303",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 478158304
+    },
+    {
+      "complex_id": "cx_90be9218d4a347f4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 477948650
+    },
+    {
+      "complex_id": "cx_91358986f359fa80",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 35923410
+    },
+    {
+      "complex_id": "cx_9159586599dd481b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 146585387
+    },
+    {
+      "complex_id": "cx_9247f467e2aeb570",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 1281225732
+    },
+    {
+      "complex_id": "cx_9288e8330b926edb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 37004918
+    },
+    {
+      "complex_id": "cx_92c615328bbf8e70",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 171296822
+    },
+    {
+      "complex_id": "cx_92f47201cadcb1e4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 155334589
+    },
+    {
+      "complex_id": "cx_92fa6aaeba280746",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 20194155
+    },
+    {
+      "complex_id": "cx_93148985a6301cdb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 134316369
+    },
+    {
+      "complex_id": "cx_932bcfbaf7b34ee0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 180341385
+    },
+    {
+      "complex_id": "cx_93cd2479489e42fd",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 101736814
+    },
+    {
+      "complex_id": "cx_93ed6de92b58da2c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 36148150
+    },
+    {
+      "complex_id": "cx_93f9d4dac7c26564",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 77715474
+    },
+    {
+      "complex_id": "cx_947bc8c7474a50b0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 162223574
+    },
+    {
+      "complex_id": "cx_9496fce2c64649a6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41727171
+    },
+    {
+      "complex_id": "cx_94a789e1959c785d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 94712918
+    },
+    {
+      "complex_id": "cx_94ad1455b221ad43",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 8714860
+    },
+    {
+      "complex_id": "cx_94bf0fe0ee45793e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 31745147
+    },
+    {
+      "complex_id": "cx_94cbae2e0f666872",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 304815796
+    },
+    {
+      "complex_id": "cx_94fdc7f2c2317c20",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34104188
+    },
+    {
+      "complex_id": "cx_951c993ff69dbd5b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 7995780
+    },
+    {
+      "complex_id": "cx_959fb287f34e3a96",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 195436143
+    },
+    {
+      "complex_id": "cx_95f29da783044522",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 154184459
+    },
+    {
+      "complex_id": "cx_96187d7890118d30",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 14473377
+    },
+    {
+      "complex_id": "cx_961af0e78bda7d81",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 46042879
+    },
+    {
+      "complex_id": "cx_96268e13a2a9de1a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 81656727
+    },
+    {
+      "complex_id": "cx_966a1c31edbb8e0b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 10743430
+    },
+    {
+      "complex_id": "cx_966e3c791734496c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 81006296
+    },
+    {
+      "complex_id": "cx_967d0ee8968285eb",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 276035222
+    },
+    {
+      "complex_id": "cx_969592eada707581",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 13659750
+    },
+    {
+      "complex_id": "cx_969baf30d0155342",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 96374802
+    },
+    {
+      "complex_id": "cx_96a3fece00edb492",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 211883736
+    },
+    {
+      "complex_id": "cx_96af4e5a3d08be76",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 85632185
+    },
+    {
+      "complex_id": "cx_96e6fc62c8a92d09",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 121684729
+    },
+    {
+      "complex_id": "cx_972bd737004021b8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 68754670
+    },
+    {
+      "complex_id": "cx_97312c059eca50aa",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 42050090
+    },
+    {
+      "complex_id": "cx_9781aaa404cd747e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 31248080
+    },
+    {
+      "complex_id": "cx_97a40f2b30baeb75",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 36812437
+    },
+    {
+      "complex_id": "cx_97be68fc6eaf4306",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 454407254
+    },
+    {
+      "complex_id": "cx_9860338ec57d1803",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 240975109
+    },
+    {
+      "complex_id": "cx_989ca112197704fe",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 43155510
+    },
+    {
+      "complex_id": "cx_98aa1bf4b1735446",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 151455786
+    },
+    {
+      "complex_id": "cx_98c3a3ad74d53920",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 116720613
+    },
+    {
+      "complex_id": "cx_98df2ad1f9c9df3c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 272019001
+    },
+    {
+      "complex_id": "cx_99113d3d71d923a7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 135915092
+    },
+    {
+      "complex_id": "cx_99225292bfc82e43",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 113874478
+    },
+    {
+      "complex_id": "cx_993ee84d74e23251",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 76654329
+    },
+    {
+      "complex_id": "cx_9942f307592ebde6",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 96336350
+    },
+    {
+      "complex_id": "cx_999fd2770fbdd60d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 123927922
+    },
+    {
+      "complex_id": "cx_99badd0705ae9dbf",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 96833127
+    },
+    {
+      "complex_id": "cx_99d6ff7a8598b100",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 11399640
+    },
+    {
+      "complex_id": "cx_99f72c7e89c74d4a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 151417878
+    },
+    {
+      "complex_id": "cx_9a414a6968b17f07",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 163823765
+    },
+    {
+      "complex_id": "cx_9a60981d53ebd595",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 158976208
+    },
+    {
+      "complex_id": "cx_9a8a91e4edbe6c28",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 75931610
+    },
+    {
+      "complex_id": "cx_9a9bf3e9ce45f2e8",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 24277503
+    },
+    {
+      "complex_id": "cx_9b378003f68e09ac",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 117770781
+    },
+    {
+      "complex_id": "cx_9b56d32b5edeb1a3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 332149339
+    },
+    {
+      "complex_id": "cx_9b5d684f2ffa3f05",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 57682685
+    },
+    {
+      "complex_id": "cx_9b6398fab143d0b0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 121909615
+    },
+    {
+      "complex_id": "cx_9b8e39331230a3e1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 532115119
+    },
+    {
+      "complex_id": "cx_9bdb14fb87959182",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 114502282
+    },
+    {
+      "complex_id": "cx_9c194967c7158f22",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 27163765
+    },
+    {
+      "complex_id": "cx_9c8baf2f9f6d60f7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 371214374
+    },
+    {
+      "complex_id": "cx_9ca658e7bac4ef8d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 118005638
+    },
+    {
+      "complex_id": "cx_9ca765ba78fe7260",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34801561
+    },
+    {
+      "complex_id": "cx_9ccb5e395eed2acf",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 46236555
+    },
+    {
+      "complex_id": "cx_9ce25715f597f9fe",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 225333036
+    },
+    {
+      "complex_id": "cx_9ce2a0634d12c6b1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 529742785
+    },
+    {
+      "complex_id": "cx_9d5d75ac76396761",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 222133282
+    },
+    {
+      "complex_id": "cx_9deeeefb551dace9",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 49006561
+    },
+    {
+      "complex_id": "cx_9e101e31c43cdeba",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 7229070
+    },
+    {
+      "complex_id": "cx_9e4b956cc669b8f7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 934332239
+    },
+    {
+      "complex_id": "cx_9ebbf9eda24f114b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 49333664
+    },
+    {
+      "complex_id": "cx_9ee6c7a01c3f04b3",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 187773714
+    },
+    {
+      "complex_id": "cx_9f461e29e9ee242b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 113421331
+    },
+    {
+      "complex_id": "cx_9f84eb3b932c19c4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 85007408
+    },
+    {
+      "complex_id": "cx_9f88d12dae617fce",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 113147016
+    },
+    {
+      "complex_id": "cx_9f8b0676ce262885",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 75194744
+    },
+    {
+      "complex_id": "cx_9fb5dc39bcfb149d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 137470862
+    },
+    {
+      "complex_id": "cx_9fda1631a110a173",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 111317739
+    },
+    {
+      "complex_id": "cx_a04d882d44c4ecf8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 189546601
+    },
+    {
+      "complex_id": "cx_a0509cefdc99299e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 92040915
+    },
+    {
+      "complex_id": "cx_a063d67223b1e8b8",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 58644070
+    },
+    {
+      "complex_id": "cx_a08de3bdd7999d64",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 99463146
+    },
+    {
+      "complex_id": "cx_a0af71f67f4a1cc4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 84663720
+    },
+    {
+      "complex_id": "cx_a0b00d0773f13efb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 81594999
+    },
+    {
+      "complex_id": "cx_a18d8c78dafdb843",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 335768285
+    },
+    {
+      "complex_id": "cx_a1c2f85a4e71d93e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 28762010
+    },
+    {
+      "complex_id": "cx_a1dc7df801cfaa83",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 299516283
+    },
+    {
+      "complex_id": "cx_a233e27a51a922c2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 98453530
+    },
+    {
+      "complex_id": "cx_a2ef971753ecdd7f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 35470465
+    },
+    {
+      "complex_id": "cx_a338a838b59db168",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 89938912
+    },
+    {
+      "complex_id": "cx_a3b28d5aac784bf1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 138853861
+    },
+    {
+      "complex_id": "cx_a3bdc24ecec89d7c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 56127726
+    },
+    {
+      "complex_id": "cx_a40bf04426e967df",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 108232446
+    },
+    {
+      "complex_id": "cx_a4468b064b8a62ba",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 17942367
+    },
+    {
+      "complex_id": "cx_a4fa0991cf6b43c2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 160443432
+    },
+    {
+      "complex_id": "cx_a551b7d179bc94d2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 146943684
+    },
+    {
+      "complex_id": "cx_a58b1cb6356ee0c2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 90635963
+    },
+    {
+      "complex_id": "cx_a6008f2c96ef194b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 173482802
+    },
+    {
+      "complex_id": "cx_a62b7d864fdc5cf5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 74656817
+    },
+    {
+      "complex_id": "cx_a66500999b19bd8f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 95107333
+    },
+    {
+      "complex_id": "cx_a712773db376be12",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 172730453
+    },
+    {
+      "complex_id": "cx_a727b6c07a686117",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 519492173
+    },
+    {
+      "complex_id": "cx_a741ed025236fcfe",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 33875159
+    },
+    {
+      "complex_id": "cx_a74df9bc442cb534",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 95998021
+    },
+    {
+      "complex_id": "cx_a766093b6c83fca3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 188486030
+    },
+    {
+      "complex_id": "cx_a790e45bd16847e9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41580640
+    },
+    {
+      "complex_id": "cx_a79566f327e4968d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 291143036
+    },
+    {
+      "complex_id": "cx_a803db0a24c940d2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 64219851
+    },
+    {
+      "complex_id": "cx_a813781d208d14d8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 15205360
+    },
+    {
+      "complex_id": "cx_a840d96083e53ff0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 197406681
+    },
+    {
+      "complex_id": "cx_a84c8702ec0e1acc",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 144045258
+    },
+    {
+      "complex_id": "cx_a85c219a16585c09",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 131886702
+    },
+    {
+      "complex_id": "cx_a87fd43eef6ba9f2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 60348364
+    },
+    {
+      "complex_id": "cx_a8bc882c1e9d6d5c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 91447091
+    },
+    {
+      "complex_id": "cx_a8dd93e21db8334a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 109514622
+    },
+    {
+      "complex_id": "cx_a907cfa2abc97bc4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 132196586
+    },
+    {
+      "complex_id": "cx_a90a4cbcc303b874",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 182666522
+    },
+    {
+      "complex_id": "cx_a9166ccf3a376d75",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 48814430
+    },
+    {
+      "complex_id": "cx_a964a2d182ed987e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 158905645
+    },
+    {
+      "complex_id": "cx_aa04309fe1809612",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 93641686
+    },
+    {
+      "complex_id": "cx_aa27a39f60423a07",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 443066686
+    },
+    {
+      "complex_id": "cx_aa4725ad6acd6eb2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 14589196
+    },
+    {
+      "complex_id": "cx_aa4fd8139666db0e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 61184390
+    },
+    {
+      "complex_id": "cx_aaaee6442995f106",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 53868771
+    },
+    {
+      "complex_id": "cx_aad84c6f16ee200c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 84060201
+    },
+    {
+      "complex_id": "cx_aaebbd6e0c957839",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 58493747
+    },
+    {
+      "complex_id": "cx_ab00c87d8098904c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 62903544
+    },
+    {
+      "complex_id": "cx_ab27dba59e2898a9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 19185842
+    },
+    {
+      "complex_id": "cx_abadab04564250aa",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 1270135425
+    },
+    {
+      "complex_id": "cx_abf60475b3602706",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 55620823
+    },
+    {
+      "complex_id": "cx_ac49f1e99b700102",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 272791151
+    },
+    {
+      "complex_id": "cx_ac76aa1839fe076b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 472043234
+    },
+    {
+      "complex_id": "cx_ac7c0d45fd3b5142",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 52117326
+    },
+    {
+      "complex_id": "cx_ac88a45a31ad7ee6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 125606595
+    },
+    {
+      "complex_id": "cx_ac9017fd9a2b4b28",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 316352019
+    },
+    {
+      "complex_id": "cx_acb830dd4e4afd45",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 36462391
+    },
+    {
+      "complex_id": "cx_acc29a31c35e53cf",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 213895972
+    },
+    {
+      "complex_id": "cx_acf3c18cac2d4cf5",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 52519596
+    },
+    {
+      "complex_id": "cx_ad0ea1e0cf6c0796",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 284117357
+    },
+    {
+      "complex_id": "cx_ad3557fcfe19f13e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 130256941
+    },
+    {
+      "complex_id": "cx_ad47648df65eee2c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 47077640
+    },
+    {
+      "complex_id": "cx_ad54f3e279afc19d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 37780092
+    },
+    {
+      "complex_id": "cx_ad59465e6d8d28c2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 211927610
+    },
+    {
+      "complex_id": "cx_adaefec20c4a8848",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 60480167
+    },
+    {
+      "complex_id": "cx_adbaba53cd7e0b1f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 40221441
+    },
+    {
+      "complex_id": "cx_adc5493103cfc75c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 298694588
+    },
+    {
+      "complex_id": "cx_adca330166f33241",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 286142740
+    },
+    {
+      "complex_id": "cx_ae1a812b014e26b7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 65885888
+    },
+    {
+      "complex_id": "cx_ae254fe8ff89ac9b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 65447540
+    },
+    {
+      "complex_id": "cx_ae54ad24b1b280df",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 95270236
+    },
+    {
+      "complex_id": "cx_ae6fd4218623c243",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 35696247
+    },
+    {
+      "complex_id": "cx_ae789bf20cfd7406",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 31119905
+    },
+    {
+      "complex_id": "cx_af255caea8bcff7a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 136385910
+    },
+    {
+      "complex_id": "cx_af4d1ad3f2c1f83a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 198626659
+    },
+    {
+      "complex_id": "cx_af9b46e6354cf858",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 31522155
+    },
+    {
+      "complex_id": "cx_afbd0da622d0e740",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 39457801
+    },
+    {
+      "complex_id": "cx_afcce44aadf6d7e3",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 39836423
+    },
+    {
+      "complex_id": "cx_b0243396fccfa6b8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 111376283
+    },
+    {
+      "complex_id": "cx_b02fad172a783346",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 58566940
+    },
+    {
+      "complex_id": "cx_b06e979baf27b6f8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 90649787
+    },
+    {
+      "complex_id": "cx_b072c03a31d783ac",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 256743300
+    },
+    {
+      "complex_id": "cx_b11692ce8cff332e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 222749877
+    },
+    {
+      "complex_id": "cx_b1380c946e2f0abe",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 307804472
+    },
+    {
+      "complex_id": "cx_b13dc5814740a3f5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 89558815
+    },
+    {
+      "complex_id": "cx_b14a428848fa5272",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 109350499
+    },
+    {
+      "complex_id": "cx_b1ab4aab013216d3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 915601847
+    },
+    {
+      "complex_id": "cx_b1d7528a4e29e166",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 138089572
+    },
+    {
+      "complex_id": "cx_b1f057fdd8604830",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 277914278
+    },
+    {
+      "complex_id": "cx_b1f2cf7da8654b2c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 348543799
+    },
+    {
+      "complex_id": "cx_b28955b8f43fcadf",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 73005182
+    },
+    {
+      "complex_id": "cx_b2faaf18f5eb88b7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 521341047
+    },
+    {
+      "complex_id": "cx_b2fcfb9396c6e888",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 193297442
+    },
+    {
+      "complex_id": "cx_b30839490064f5b0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 67675302
+    },
+    {
+      "complex_id": "cx_b335833ca3e112af",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 35620965
+    },
+    {
+      "complex_id": "cx_b36fc9a6bddc9b37",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 33937990
+    },
+    {
+      "complex_id": "cx_b39b8f462937ad6c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 54131642
+    },
+    {
+      "complex_id": "cx_b39ec844fdac0ff0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 171799617
+    },
+    {
+      "complex_id": "cx_b3c833d761c4f5ff",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 79356305
+    },
+    {
+      "complex_id": "cx_b4170cce7fa8ad85",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 128200930
+    },
+    {
+      "complex_id": "cx_b458d85977a0b47a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 159467004
+    },
+    {
+      "complex_id": "cx_b46d5627f24b8130",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 214531353
+    },
+    {
+      "complex_id": "cx_b4d6a69d7ecf0c79",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 441739529
+    },
+    {
+      "complex_id": "cx_b4f1cea347bc4c92",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 40628325
+    },
+    {
+      "complex_id": "cx_b545221f11675ace",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 151577844
+    },
+    {
+      "complex_id": "cx_b56f4b1ea567fd99",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 25243105
+    },
+    {
+      "complex_id": "cx_b597be8833671731",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 375065647
+    },
+    {
+      "complex_id": "cx_b609638b5b5e4f2b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 9179891
+    },
+    {
+      "complex_id": "cx_b61e1295547ab74d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 160086587
+    },
+    {
+      "complex_id": "cx_b6f2284c63ffe485",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 43867820
+    },
+    {
+      "complex_id": "cx_b789182c52ef67c9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 1127200092
+    },
+    {
+      "complex_id": "cx_b7eea1f1dcefbd1d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 27129408
+    },
+    {
+      "complex_id": "cx_b84ab3a634ff3713",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 55016831
+    },
+    {
+      "complex_id": "cx_b87aefa734c53b0e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 388507961
+    },
+    {
+      "complex_id": "cx_b8e086ab85cbb70c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 747395320
+    },
+    {
+      "complex_id": "cx_b93a7d1145f9f38c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 56517304
+    },
+    {
+      "complex_id": "cx_b957d41897e8fc69",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 235784018
+    },
+    {
+      "complex_id": "cx_ba2d52dccba94033",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 54189284
+    },
+    {
+      "complex_id": "cx_ba43479d4048f307",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 52058016
+    },
+    {
+      "complex_id": "cx_ba7dadf91cb972b3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 76852867
+    },
+    {
+      "complex_id": "cx_ba9fbe2377262484",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 95260246
+    },
+    {
+      "complex_id": "cx_badf5c41a15427d1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 81341606
+    },
+    {
+      "complex_id": "cx_bae4533058d5acdd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 134249144
+    },
+    {
+      "complex_id": "cx_bb2cae01c87cc1f3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 106777409
+    },
+    {
+      "complex_id": "cx_bb593f86ef611bec",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 166061270
+    },
+    {
+      "complex_id": "cx_bb804597de6e4071",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 60811530
+    },
+    {
+      "complex_id": "cx_bb8a5557044c25e4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 15541402
+    },
+    {
+      "complex_id": "cx_bb8aad491c6740e6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 1452132477
+    },
+    {
+      "complex_id": "cx_bbae0d5b220cc3a8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 64493161
+    },
+    {
+      "complex_id": "cx_bbdf71b936a44e95",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 275818835
+    },
+    {
+      "complex_id": "cx_bc0e1e129dc9d676",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 216618922
+    },
+    {
+      "complex_id": "cx_bc28ed1c5ceca976",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 66118810
+    },
+    {
+      "complex_id": "cx_bc63678121a2b143",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 74778160
+    },
+    {
+      "complex_id": "cx_bc7e2462260fd6a1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 113786697
+    },
+    {
+      "complex_id": "cx_bc800a8d3742f130",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 18023635
+    },
+    {
+      "complex_id": "cx_bc899a1c08b54a6a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 43293650
+    },
+    {
+      "complex_id": "cx_bcecac134be92db8",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 310546804
+    },
+    {
+      "complex_id": "cx_bd21ea557ecb331c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 55607393
+    },
+    {
+      "complex_id": "cx_bd24990628190b2a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 250515536
+    },
+    {
+      "complex_id": "cx_bde671b2d0e8f973",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 47813232
+    },
+    {
+      "complex_id": "cx_be168cb0f0655c06",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 68276888
+    },
+    {
+      "complex_id": "cx_be48d7c7a902bafd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 205443877
+    },
+    {
+      "complex_id": "cx_be5a5ded1859488c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 233729192
+    },
+    {
+      "complex_id": "cx_be76e4cc5da428eb",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 239346497
+    },
+    {
+      "complex_id": "cx_be8bb70abf0f88c7",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 27826000
+    },
+    {
+      "complex_id": "cx_bea7aa31cfc705df",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 278262605
+    },
+    {
+      "complex_id": "cx_beab83b167ed942e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 146574804
+    },
+    {
+      "complex_id": "cx_bf0d44ca1c222f71",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 75269053
+    },
+    {
+      "complex_id": "cx_bf386aa921e9e191",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 111453108
+    },
+    {
+      "complex_id": "cx_bf66dd691851c1de",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 23410597
+    },
+    {
+      "complex_id": "cx_bf9002888cd55870",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 171648332
+    },
+    {
+      "complex_id": "cx_bfbb9b58417a1ea6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 89830895
+    },
+    {
+      "complex_id": "cx_bfe119ffd51e89c3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 246292146
+    },
+    {
+      "complex_id": "cx_bfe7e0bb89bda236",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 155111050
+    },
+    {
+      "complex_id": "cx_c01bf95a7e3f29a5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 94908245
+    },
+    {
+      "complex_id": "cx_c02afc3c1e7a12ed",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 195689766
+    },
+    {
+      "complex_id": "cx_c0662e34bc590bbf",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34224190
+    },
+    {
+      "complex_id": "cx_c074fe1286543af0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 59867885
+    },
+    {
+      "complex_id": "cx_c08414fa57f0f929",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 50326986
+    },
+    {
+      "complex_id": "cx_c0a13eeee211de6a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 65590058
+    },
+    {
+      "complex_id": "cx_c0edd5f0b94199ca",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 80051940
+    },
+    {
+      "complex_id": "cx_c0f8b7fd99eeed7c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 225927589
+    },
+    {
+      "complex_id": "cx_c100f17f9fea2893",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 211982267
+    },
+    {
+      "complex_id": "cx_c10e597094c6eea0",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 39075583
+    },
+    {
+      "complex_id": "cx_c119bb421a93e405",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 47360586
+    },
+    {
+      "complex_id": "cx_c11ad76c9ffc32f6",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 73555266
+    },
+    {
+      "complex_id": "cx_c143f46cbf386a3a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 109680322
+    },
+    {
+      "complex_id": "cx_c14eaa0aec014e6d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 92882886
+    },
+    {
+      "complex_id": "cx_c14fea4c8e0dc0b9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 48867830
+    },
+    {
+      "complex_id": "cx_c1a02b0430164751",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 40271625
+    },
+    {
+      "complex_id": "cx_c1e5db9b37685cf4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 93930077
+    },
+    {
+      "complex_id": "cx_c20024a9fec703d2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 82858517
+    },
+    {
+      "complex_id": "cx_c23e0be4f91d1af6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 155793558
+    },
+    {
+      "complex_id": "cx_c249f6aaab2568a8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 58811384
+    },
+    {
+      "complex_id": "cx_c277f9105d1f03d3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 194511222
+    },
+    {
+      "complex_id": "cx_c298d5520bd713c9",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 52588953
+    },
+    {
+      "complex_id": "cx_c2b535f2a181a583",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 45353095
+    },
+    {
+      "complex_id": "cx_c2e3822225182468",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 126966088
+    },
+    {
+      "complex_id": "cx_c3247ea9eba6d65a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 390129212
+    },
+    {
+      "complex_id": "cx_c3404a9f5da904f7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 368262596
+    },
+    {
+      "complex_id": "cx_c38a7a5ea6b0d3b1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 64983253
+    },
+    {
+      "complex_id": "cx_c3999e8f93fba76f",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 43327640
+    },
+    {
+      "complex_id": "cx_c3da1696517a4610",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 279760782
+    },
+    {
+      "complex_id": "cx_c3f62ec11e4db340",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 586600035
+    },
+    {
+      "complex_id": "cx_c40cd6193c24dabc",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 141439679
+    },
+    {
+      "complex_id": "cx_c4897bca5f0aa0b4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 257325828
+    },
+    {
+      "complex_id": "cx_c4ad225db7b1505d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 44147509
+    },
+    {
+      "complex_id": "cx_c52d17b441b495b1",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 145306754
+    },
+    {
+      "complex_id": "cx_c55870af0088e6e6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 306926380
+    },
+    {
+      "complex_id": "cx_c57c292ef091994f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 167305540
+    },
+    {
+      "complex_id": "cx_c57ff3f17e9aa7c3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 177612986
+    },
+    {
+      "complex_id": "cx_c58317914744c961",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 50903278
+    },
+    {
+      "complex_id": "cx_c59af6ab4a0300e8",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 26098276
+    },
+    {
+      "complex_id": "cx_c5bb89dfcd4aa361",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 42184677
+    },
+    {
+      "complex_id": "cx_c5bdab1ea86cb6da",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 124501668
+    },
+    {
+      "complex_id": "cx_c6b2fb34f66bd4df",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 33710509
+    },
+    {
+      "complex_id": "cx_c71233d951ed564c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 160069644
+    },
+    {
+      "complex_id": "cx_c7427e85d8840663",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 282242341
+    },
+    {
+      "complex_id": "cx_c7a7ba94b472f78c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 222202850
+    },
+    {
+      "complex_id": "cx_c86c0c7fc3d55aaf",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 116202536
+    },
+    {
+      "complex_id": "cx_c8888472d24be021",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41232032
+    },
+    {
+      "complex_id": "cx_c8ad9fcf535d93e4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 67298834
+    },
+    {
+      "complex_id": "cx_c8e8a09104510e8b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 50377480
+    },
+    {
+      "complex_id": "cx_c91ccb2bed19a7a9",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 110458531
+    },
+    {
+      "complex_id": "cx_c95d996eef1f6a3a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 218078437
+    },
+    {
+      "complex_id": "cx_c968973286324f77",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 91010035
+    },
+    {
+      "complex_id": "cx_c98892ffedf6bd49",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 355149489
+    },
+    {
+      "complex_id": "cx_c992f963ced1432a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 40456695
+    },
+    {
+      "complex_id": "cx_c9bb06cf8d45bafc",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 64737003
+    },
+    {
+      "complex_id": "cx_c9d762633d8725ca",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 35054343
+    },
+    {
+      "complex_id": "cx_ca04c464ccc74317",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 70143832
+    },
+    {
+      "complex_id": "cx_ca2a5d880caa18df",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34005623
+    },
+    {
+      "complex_id": "cx_ca71b8bac016c5ad",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 209649225
+    },
+    {
+      "complex_id": "cx_caba9eac57475929",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 26214386
+    },
+    {
+      "complex_id": "cx_caed1ec96c132dc0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 627094584
+    },
+    {
+      "complex_id": "cx_cb1b3a287245c4c1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 96415218
+    },
+    {
+      "complex_id": "cx_cb31b949248055b5",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 130043548
+    },
+    {
+      "complex_id": "cx_cb68e06a205115bf",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 191619753
+    },
+    {
+      "complex_id": "cx_cba528252aa7ac9a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 89464137
+    },
+    {
+      "complex_id": "cx_cbc6b38f054af479",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 31826102
+    },
+    {
+      "complex_id": "cx_cc3619e62d1afbd3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 247295475
+    },
+    {
+      "complex_id": "cx_cc596a5f7ac6aebe",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 189384671
+    },
+    {
+      "complex_id": "cx_cca37e77a1b4b45b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 194837150
+    },
+    {
+      "complex_id": "cx_cca97475d9d9f5dd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 150412826
+    },
+    {
+      "complex_id": "cx_ccaf83938a22b98c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 95587650
+    },
+    {
+      "complex_id": "cx_cce00c0e4afed4f6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 49519739
+    },
+    {
+      "complex_id": "cx_cce48fbfb7b2a686",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 65874040
+    },
+    {
+      "complex_id": "cx_ccf04210fb10d5ca",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 38980876
+    },
+    {
+      "complex_id": "cx_cd175e079aa5cb82",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 18134760
+    },
+    {
+      "complex_id": "cx_cd2efae44e9d9081",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 32025571
+    },
+    {
+      "complex_id": "cx_cd52c2af641c00fe",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 25141089
+    },
+    {
+      "complex_id": "cx_cd94bd5bc46553a3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 59746085
+    },
+    {
+      "complex_id": "cx_cdd83c6a5d82c23a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 72431652
+    },
+    {
+      "complex_id": "cx_cde1126bf6065241",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 92784992
+    },
+    {
+      "complex_id": "cx_cdf5dc24945af767",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 55849666
+    },
+    {
+      "complex_id": "cx_ce030f4a9606b8a3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 107232910
+    },
+    {
+      "complex_id": "cx_ce1a3b97b306a416",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 48286261
+    },
+    {
+      "complex_id": "cx_ce321e4c08aedf6e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 6447400
+    },
+    {
+      "complex_id": "cx_ce55ff7c3c1e47fa",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 104580515
+    },
+    {
+      "complex_id": "cx_cea99f69053141a2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 167844824
+    },
+    {
+      "complex_id": "cx_cf12626412fa57ad",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 27486772
+    },
+    {
+      "complex_id": "cx_cf3096ced8a75085",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 127200980
+    },
+    {
+      "complex_id": "cx_cf6c6aa1f0c02225",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 94775711
+    },
+    {
+      "complex_id": "cx_cf7ba0f207d517aa",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 60090412
+    },
+    {
+      "complex_id": "cx_cf905f2b5440eb2e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 88323195
+    },
+    {
+      "complex_id": "cx_cfa5fbe61027de2b",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 347091631
+    },
+    {
+      "complex_id": "cx_cfd0eb7dc45d3b1a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 195027281
+    },
+    {
+      "complex_id": "cx_d007d75d7a9d9a3a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 42074040
+    },
+    {
+      "complex_id": "cx_d082df446b500509",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 39378115
+    },
+    {
+      "complex_id": "cx_d0e0a4cd21e8cf64",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41415869
+    },
+    {
+      "complex_id": "cx_d0eff183ab4768dc",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 10773830
+    },
+    {
+      "complex_id": "cx_d0f68031b50e7504",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 210779166
+    },
+    {
+      "complex_id": "cx_d13c3fd35f93eb89",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 48650771
+    },
+    {
+      "complex_id": "cx_d1a5506b33d14b20",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 99099630
+    },
+    {
+      "complex_id": "cx_d1a8eb737b63855f",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 68184143
+    },
+    {
+      "complex_id": "cx_d1eadb6c51b95541",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 28221898
+    },
+    {
+      "complex_id": "cx_d21d021941e6f590",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 68529057
+    },
+    {
+      "complex_id": "cx_d23b4997afda99eb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 229224182
+    },
+    {
+      "complex_id": "cx_d242607d2f1c821b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 50180696
+    },
+    {
+      "complex_id": "cx_d2e1026afeb17ecf",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 134108572
+    },
+    {
+      "complex_id": "cx_d2e80498892e31d8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 181443292
+    },
+    {
+      "complex_id": "cx_d2edfa3c0ba72dfc",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 113108962
+    },
+    {
+      "complex_id": "cx_d31d4f23b715a139",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 92012791
+    },
+    {
+      "complex_id": "cx_d3a8d575cdb1a3ac",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 82851900
+    },
+    {
+      "complex_id": "cx_d3ba30eaea231907",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 174242667
+    },
+    {
+      "complex_id": "cx_d3d2c3e4f9d39376",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 218403829
+    },
+    {
+      "complex_id": "cx_d3eec581e124f66b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 293825170
+    },
+    {
+      "complex_id": "cx_d423a41c7b6fdfcd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 35974030
+    },
+    {
+      "complex_id": "cx_d4e2407e0dd44303",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 58918679
+    },
+    {
+      "complex_id": "cx_d500bdeee63d70ee",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 85501794
+    },
+    {
+      "complex_id": "cx_d53cfafe034255f4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 77272680
+    },
+    {
+      "complex_id": "cx_d567dc0c9d26f748",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 585942099
+    },
+    {
+      "complex_id": "cx_d5aba70aa215ad31",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 63411469
+    },
+    {
+      "complex_id": "cx_d5dd427b01aea1e0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 173796147
+    },
+    {
+      "complex_id": "cx_d60095d056258858",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 39108285
+    },
+    {
+      "complex_id": "cx_d608460c7926c816",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 25454277
+    },
+    {
+      "complex_id": "cx_d68987fdde69defd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 162491254
+    },
+    {
+      "complex_id": "cx_d6f3aea94eebde9f",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 193073022
+    },
+    {
+      "complex_id": "cx_d6f9f61413a2db21",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 37238065
+    },
+    {
+      "complex_id": "cx_d768c44c8123a308",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 37770012
+    },
+    {
+      "complex_id": "cx_d794b483f1d3e7dd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 227805562
+    },
+    {
+      "complex_id": "cx_d7c726e6e8dac4f0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 278342445
+    },
+    {
+      "complex_id": "cx_d7e94eb19a6feefa",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 276515603
+    },
+    {
+      "complex_id": "cx_d80663b27513a0f5",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 104981409
+    },
+    {
+      "complex_id": "cx_d8104772d96db38d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 17736520
+    },
+    {
+      "complex_id": "cx_d823cc633398acad",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 182082399
+    },
+    {
+      "complex_id": "cx_d82f5850fb4b79c1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 27923170
+    },
+    {
+      "complex_id": "cx_d911bf7c3758653d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 349854274
+    },
+    {
+      "complex_id": "cx_d9252269e9760007",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 48548429
+    },
+    {
+      "complex_id": "cx_d958f30a441d25c4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 338645981
+    },
+    {
+      "complex_id": "cx_d963041ef4e14519",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 119303449
+    },
+    {
+      "complex_id": "cx_d98fa894ac03e2b3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 773554896
+    },
+    {
+      "complex_id": "cx_d9b559d1efe1b14e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 48447357
+    },
+    {
+      "complex_id": "cx_d9f189f4d98150db",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 21244938
+    },
+    {
+      "complex_id": "cx_da42dc0c3907eddc",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 265395193
+    },
+    {
+      "complex_id": "cx_da99917ec47dd82c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 109122333
+    },
+    {
+      "complex_id": "cx_db391c19a4a88665",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 9056290
+    },
+    {
+      "complex_id": "cx_db3da0290613af41",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 273569604
+    },
+    {
+      "complex_id": "cx_db42b90918572a84",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 115097186
+    },
+    {
+      "complex_id": "cx_db9855999a5fec49",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 113053896
+    },
+    {
+      "complex_id": "cx_dba427fe3f0ecebd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 278274204
+    },
+    {
+      "complex_id": "cx_dbbb6c87432f3514",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 73545775
+    },
+    {
+      "complex_id": "cx_dbd8255f19fe490c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 58556740
+    },
+    {
+      "complex_id": "cx_dc2525adb138bf18",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 32432279
+    },
+    {
+      "complex_id": "cx_dc3e26837cfeab47",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 163970127
+    },
+    {
+      "complex_id": "cx_dc885fd5144c7f6f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 40201304
+    },
+    {
+      "complex_id": "cx_dcaddddd8434af18",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 109748987
+    },
+    {
+      "complex_id": "cx_dd038c065c6d4ae1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 78389987
+    },
+    {
+      "complex_id": "cx_dd2e8588f517c22d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 54836040
+    },
+    {
+      "complex_id": "cx_dd7fe956d5d77ce7",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 34343763
+    },
+    {
+      "complex_id": "cx_dd92537de5dcf4eb",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 62296152
+    },
+    {
+      "complex_id": "cx_dd936589092e2290",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 137773885
+    },
+    {
+      "complex_id": "cx_ddb77a93291ac252",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 211054991
+    },
+    {
+      "complex_id": "cx_ddee5af74dcac56c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 525500963
+    },
+    {
+      "complex_id": "cx_de11e9250b0a0a95",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 222651841
+    },
+    {
+      "complex_id": "cx_de1d774a2ff90b46",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 67912693
+    },
+    {
+      "complex_id": "cx_de8711980912433f",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 32146520
+    },
+    {
+      "complex_id": "cx_de93ea4e95728b0f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 121683967
+    },
+    {
+      "complex_id": "cx_df050b86af778334",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 18750550
+    },
+    {
+      "complex_id": "cx_df072c67b36dcd05",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 470229541
+    },
+    {
+      "complex_id": "cx_df46c28ed8717a46",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 343134124
+    },
+    {
+      "complex_id": "cx_df4d576c7fb3be27",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 197588277
+    },
+    {
+      "complex_id": "cx_df6e7048fa1d9ab7",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 45569850
+    },
+    {
+      "complex_id": "cx_df86f35be57c94ea",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 69769967
+    },
+    {
+      "complex_id": "cx_df91f4a8ae717614",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 159088069
+    },
+    {
+      "complex_id": "cx_df96907a308d377d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 187784347
+    },
+    {
+      "complex_id": "cx_dfe156b4377c82e6",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 113357932
+    },
+    {
+      "complex_id": "cx_e05109e6aa689bf4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 47683291
+    },
+    {
+      "complex_id": "cx_e0e7d9ce59db320b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 123311674
+    },
+    {
+      "complex_id": "cx_e120a947ba1d77eb",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 45325880
+    },
+    {
+      "complex_id": "cx_e1ad866f1db65275",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 86033452
+    },
+    {
+      "complex_id": "cx_e1e1301319a4a86e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 65196170
+    },
+    {
+      "complex_id": "cx_e1f8010e47063dae",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 309201421
+    },
+    {
+      "complex_id": "cx_e2190411fa86ddee",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 133640317
+    },
+    {
+      "complex_id": "cx_e221c0fbd55f0dc2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 55969488
+    },
+    {
+      "complex_id": "cx_e26191dc4a1aa0d2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 108683119
+    },
+    {
+      "complex_id": "cx_e26b1893c5056786",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 171880600
+    },
+    {
+      "complex_id": "cx_e27373bdaf336b9d",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 180229289
+    },
+    {
+      "complex_id": "cx_e2d1937bfbdf7289",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 44387023
+    },
+    {
+      "complex_id": "cx_e2d8ca2d34352933",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 125392962
+    },
+    {
+      "complex_id": "cx_e3052b3cc4be2f37",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 170338145
+    },
+    {
+      "complex_id": "cx_e38f0b8a30e64bf4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 31694180
+    },
+    {
+      "complex_id": "cx_e39a878b97053c4a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 16555616
+    },
+    {
+      "complex_id": "cx_e3c75a76ab3d0533",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 60892218
+    },
+    {
+      "complex_id": "cx_e3dcb2aaba35291f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 374455183
+    },
+    {
+      "complex_id": "cx_e40307f62b9ad2ed",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 135803624
+    },
+    {
+      "complex_id": "cx_e4065e772eb89bf2",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 159438570
+    },
+    {
+      "complex_id": "cx_e40a031558a0cbfd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 493687089
+    },
+    {
+      "complex_id": "cx_e451dc3e3354cafb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 12511716
+    },
+    {
+      "complex_id": "cx_e46091154bd5d4de",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 29093580
+    },
+    {
+      "complex_id": "cx_e469eab01adb3cf4",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 190269757
+    },
+    {
+      "complex_id": "cx_e4841c11172013b5",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 68676756
+    },
+    {
+      "complex_id": "cx_e4c5755686c65a78",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 39242375
+    },
+    {
+      "complex_id": "cx_e56f284634228018",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 130488293
+    },
+    {
+      "complex_id": "cx_e59cd6adb0571512",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 48867478
+    },
+    {
+      "complex_id": "cx_e5c69973b5f1c5c3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 19726180
+    },
+    {
+      "complex_id": "cx_e6c937bc70c3f20e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 44519930
+    },
+    {
+      "complex_id": "cx_e6ee1bc33852d7c6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 158472727
+    },
+    {
+      "complex_id": "cx_e76a77b723b57b1c",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 200055613
+    },
+    {
+      "complex_id": "cx_e79d4bd608ced15b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 273219024
+    },
+    {
+      "complex_id": "cx_e7c29393a652523a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 62253380
+    },
+    {
+      "complex_id": "cx_e802c3874e2ff49f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 79703157
+    },
+    {
+      "complex_id": "cx_e8291d38c1a3ad91",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 50276143
+    },
+    {
+      "complex_id": "cx_e83ad8fd68f166bd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 107908738
+    },
+    {
+      "complex_id": "cx_e854ccf23d2619df",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 103376530
+    },
+    {
+      "complex_id": "cx_e8b24dd41ed208f3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 36198110
+    },
+    {
+      "complex_id": "cx_e8b9d0a5a00d7960",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 171990285
+    },
+    {
+      "complex_id": "cx_e8ec46d232d97805",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 66686988
+    },
+    {
+      "complex_id": "cx_e9095a8e239957f3",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 28197297
+    },
+    {
+      "complex_id": "cx_e91c81cb0f9c53ba",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 337252845
+    },
+    {
+      "complex_id": "cx_e92c410281d1ab28",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 157560170
+    },
+    {
+      "complex_id": "cx_e9325215e312ad85",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 172115287
+    },
+    {
+      "complex_id": "cx_e93c930432f11e5f",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 229762118
+    },
+    {
+      "complex_id": "cx_e960847b3f0bde25",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 37035345
+    },
+    {
+      "complex_id": "cx_e9816b6270cf9e5b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 18013940
+    },
+    {
+      "complex_id": "cx_e99d4091881297ab",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 207018615
+    },
+    {
+      "complex_id": "cx_e9d9156f08812e21",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 69432735
+    },
+    {
+      "complex_id": "cx_e9e1c93db4bef447",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 55799214
+    },
+    {
+      "complex_id": "cx_ea16fe4e966c3b20",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 27054961
+    },
+    {
+      "complex_id": "cx_ea5fff908bfc5cdd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 62074729
+    },
+    {
+      "complex_id": "cx_ea69bd8f08c99539",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 41662410
+    },
+    {
+      "complex_id": "cx_ea81d3035244cef1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 212522529
+    },
+    {
+      "complex_id": "cx_ea8bade95f0f6004",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 28326144
+    },
+    {
+      "complex_id": "cx_ea9eaf10bc31cbc0",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 76970574
+    },
+    {
+      "complex_id": "cx_eaa16effa7c1ef52",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 244824576
+    },
+    {
+      "complex_id": "cx_eab9a0dcc5f1f069",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 584765732
+    },
+    {
+      "complex_id": "cx_eb4b042b88a98551",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 8827999
+    },
+    {
+      "complex_id": "cx_eb571ccdc7e1bc76",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 398139224
+    },
+    {
+      "complex_id": "cx_eb674da7cfef3a4e",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 33805797
+    },
+    {
+      "complex_id": "cx_eb928d861e8a34c4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 87459170
+    },
+    {
+      "complex_id": "cx_eba041dfb678eae5",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 214828729
+    },
+    {
+      "complex_id": "cx_ebc8facf94e72635",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 211598141
+    },
+    {
+      "complex_id": "cx_ebcc1170328019bf",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 74950925
+    },
+    {
+      "complex_id": "cx_ec0158497e6fc441",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 190504282
+    },
+    {
+      "complex_id": "cx_ec1be5e778356f05",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 30299728
+    },
+    {
+      "complex_id": "cx_ec3dd4a9622cc313",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 124492454
+    },
+    {
+      "complex_id": "cx_ec48da29f93f3afd",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 44995419
+    },
+    {
+      "complex_id": "cx_ec97a1cc07cf3f92",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 26450217
+    },
+    {
+      "complex_id": "cx_ecaa029ce967ddb2",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 228547110
+    },
+    {
+      "complex_id": "cx_ecd0833f5d416d14",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 112246549
+    },
+    {
+      "complex_id": "cx_ed17742e972a923a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 413163296
+    },
+    {
+      "complex_id": "cx_ed1ae8e153237df1",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 20871240
+    },
+    {
+      "complex_id": "cx_ed24d028d01f8dc8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 237958533
+    },
+    {
+      "complex_id": "cx_ed3f0f1b0ff3a07b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 23662140
+    },
+    {
+      "complex_id": "cx_ed714d994ea079ed",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 1233260455
+    },
+    {
+      "complex_id": "cx_ed715a2b4dc083d7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 48303162
+    },
+    {
+      "complex_id": "cx_eda7c5d7adbef573",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 14200650
+    },
+    {
+      "complex_id": "cx_eddbaf3401e94220",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 172560779
+    },
+    {
+      "complex_id": "cx_ee1f6a0d1611e091",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 35976835
+    },
+    {
+      "complex_id": "cx_eeb4367ca433802f",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 327288414
+    },
+    {
+      "complex_id": "cx_eec9e5c4b85c3865",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 20121376
+    },
+    {
+      "complex_id": "cx_eef0f3ac467a706e",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 89493978
+    },
+    {
+      "complex_id": "cx_ef364c31302e70ed",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 462810908
+    },
+    {
+      "complex_id": "cx_ef5612b2ca1ec31a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 255252053
+    },
+    {
+      "complex_id": "cx_ef5fcb4a012dea44",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 67844091
+    },
+    {
+      "complex_id": "cx_ef7d0118bed10d15",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 17018260
+    },
+    {
+      "complex_id": "cx_ef8382daff15bb8a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 46703580
+    },
+    {
+      "complex_id": "cx_f012d7c98337c552",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 165535047
+    },
+    {
+      "complex_id": "cx_f069f9c10d14c470",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 216647623
+    },
+    {
+      "complex_id": "cx_f0e7d687ab20bed4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 32149947
+    },
+    {
+      "complex_id": "cx_f0fff83138ec3c02",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 120920812
+    },
+    {
+      "complex_id": "cx_f162b5c29e242a86",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 45874999
+    },
+    {
+      "complex_id": "cx_f1697e38d1672e07",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 25007866
+    },
+    {
+      "complex_id": "cx_f176a8f96453f1cb",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 44992365
+    },
+    {
+      "complex_id": "cx_f318c88c7b129c62",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 30885633
+    },
+    {
+      "complex_id": "cx_f32f2ec5030cdf58",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 38101622
+    },
+    {
+      "complex_id": "cx_f37c87d5493e22f9",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 95820950
+    },
+    {
+      "complex_id": "cx_f3875af302952efd",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34323583
+    },
+    {
+      "complex_id": "cx_f3aa3fb4ca353f57",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 70255339
+    },
+    {
+      "complex_id": "cx_f3bee99c8d789db3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 95185879
+    },
+    {
+      "complex_id": "cx_f491805025444379",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34931760
+    },
+    {
+      "complex_id": "cx_f4be2f98a0f5a024",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 104815629
+    },
+    {
+      "complex_id": "cx_f4cea5288eb286dc",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 144200757
+    },
+    {
+      "complex_id": "cx_f4d273b64951b439",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 36641360
+    },
+    {
+      "complex_id": "cx_f4d6c4911c231d1e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 95705414
+    },
+    {
+      "complex_id": "cx_f503f68e5dddef7b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 223773816
+    },
+    {
+      "complex_id": "cx_f5d4783cf8aeb762",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 12216867
+    },
+    {
+      "complex_id": "cx_f5e7c12a2a43a367",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 79863694
+    },
+    {
+      "complex_id": "cx_f5f427d853c28b2a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 42758088
+    },
+    {
+      "complex_id": "cx_f61608bdb92fb3b4",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 198552244
+    },
+    {
+      "complex_id": "cx_f6f709551f5be680",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 55258380
+    },
+    {
+      "complex_id": "cx_f709e07c9f7df3ba",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 21903473
+    },
+    {
+      "complex_id": "cx_f7d04e49d033d72b",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 46053913
+    },
+    {
+      "complex_id": "cx_f7fa525da23cc8e5",
+      "sido_code": "26",
+      "period_yyyymm": "202609",
+      "total_fee": 164036328
+    },
+    {
+      "complex_id": "cx_f8075b5e156fa78f",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 247351002
+    },
+    {
+      "complex_id": "cx_f884382ca0a58715",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 59919457
+    },
+    {
+      "complex_id": "cx_f88bdecb09fb4b11",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 37832193
+    },
+    {
+      "complex_id": "cx_f8cb42308d7ee148",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 151237627
+    },
+    {
+      "complex_id": "cx_f9906f08f367b943",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 43474067
+    },
+    {
+      "complex_id": "cx_f9979f0463b48555",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 210357110
+    },
+    {
+      "complex_id": "cx_f99c3f2b31f1ccc6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 34149121
+    },
+    {
+      "complex_id": "cx_f9ab7efb54b834ed",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 330619747
+    },
+    {
+      "complex_id": "cx_f9b32cadfc312b0d",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 185136472
+    },
+    {
+      "complex_id": "cx_f9b47e79bc89879b",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 151697828
+    },
+    {
+      "complex_id": "cx_f9f8d076e7a24ef8",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 46874810
+    },
+    {
+      "complex_id": "cx_fa007a458150d20a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 42661790
+    },
+    {
+      "complex_id": "cx_fae736236e01ff1a",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 14677930
+    },
+    {
+      "complex_id": "cx_fbc61d2c3691b9f3",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 146214688
+    },
+    {
+      "complex_id": "cx_fbf4bb458787c3ae",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 34815939
+    },
+    {
+      "complex_id": "cx_fc353abb06287bf7",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 31173902
+    },
+    {
+      "complex_id": "cx_fc6894f176328c87",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 134905267
+    },
+    {
+      "complex_id": "cx_fc90881693c931d2",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 128802411
+    },
+    {
+      "complex_id": "cx_fcf017f9c15b67b1",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 194780889
+    },
+    {
+      "complex_id": "cx_fd09de512deb4bb6",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 42648766
+    },
+    {
+      "complex_id": "cx_fd672804c6c54829",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 259339275
+    },
+    {
+      "complex_id": "cx_fd92bb3da0ca9e4f",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 179817460
+    },
+    {
+      "complex_id": "cx_fdda0cd7e621445c",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 114201311
+    },
+    {
+      "complex_id": "cx_fdda6395f007a5d4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 50002049
+    },
+    {
+      "complex_id": "cx_fe05e80f125b5068",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 105412382
+    },
+    {
+      "complex_id": "cx_fe67286f7b4e273a",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 195095721
+    },
+    {
+      "complex_id": "cx_fe72d4c6b0c3564e",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 13297665
+    },
+    {
+      "complex_id": "cx_fe86ef891244af01",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 117425694
+    },
+    {
+      "complex_id": "cx_fe958d37eb4fd186",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 290898125
+    },
+    {
+      "complex_id": "cx_feaa94399d706dd8",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 70654725
+    },
+    {
+      "complex_id": "cx_fee797635d1d62de",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 35806868
+    },
+    {
+      "complex_id": "cx_fefbb8195b796d62",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 234169569
+    },
+    {
+      "complex_id": "cx_ff51f9e7d5818626",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 342263329
+    },
+    {
+      "complex_id": "cx_ffbfcc552ccb2245",
+      "sido_code": "26",
+      "period_yyyymm": "202608",
+      "total_fee": 44120139
+    },
+    {
+      "complex_id": "cx_ffed2df51f96adc4",
+      "sido_code": "26",
+      "period_yyyymm": "202607",
+      "total_fee": 30576362
+    }
+  ]
+}

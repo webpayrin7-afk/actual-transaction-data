@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-24T11:22:49.507Z",
-  "driver_status": "busan dry-run PASS",
+  "generated_at": "2026-09-24T11:24:34.945Z",
+  "driver_status": "busan applied",
   "fee_table": {
-    "rows": 3938,
-    "complexes": 3825
+    "rows": 4819,
+    "complexes": 4706
   },
   "api_calls_total": 57450,
-  "applied_rows_total": 1015,
+  "applied_rows_total": 1896,
   "provinces": [
     {
       "province": "incheon",
@@ -32,7 +32,7 @@
       "province": "busan",
       "sido_code": "26",
       "sido": "부산광역시",
-      "phase": "DRYRUN_PASS",
+      "phase": "APPLIED",
       "cohort": 993,
       "terminal": 993,
       "unfinished": 0,
@@ -46,7 +46,7 @@
       "http_429": 0,
       "retries": 32,
       "dryrun_gate": "PASS",
-      "applied_rows": 0
+      "applied_rows": 881
     },
     {
       "province": "daegu",
