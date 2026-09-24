@@ -2,7 +2,8 @@
  * 전국 버스정류장 (bus_stops, 국토교통부 전국 버스정류장 위치정보) + 경유 노선.
  * - 위치: DB, 좌표는 원천 그대로. 같은 정류장이 관리 BIS별로 두 번 실린 경우(서울BIS·경기BIS, 같은 모바일단축번호)는
  *   이름·단축번호가 같고 30m 안이면 하나로 묶는다.
- * - 노선: 서울 밖은 TAGO 정류소별 경유노선(getSttnThrghRouteList)을 필요할 때 조회(하루 캐시). 서울은 TAGO에 없어 아직 비운다.
+ * - 노선: 서울은 bus_stop_routes(서울시 버스노선별 정류소정보, ARS 번호 정확 일치 — 원천에 앞자리 0이 빠진 번호가 있어
+ *   양쪽을 5자리로 맞춰 비교), 서울 밖은 TAGO 정류소별 경유노선(getSttnThrghRouteList)을 필요할 때 조회(하루 캐시).
  * 읽기 전용. 표가 없거나 실패하면 빈 목록.
  */
 import type { Client } from "@libsql/client";
@@ -52,6 +53,32 @@ async function taGoRoutes(cityCode: string, nodeId: string): Promise<string[]> {
   }
 }
 
+const pad5 = (ars: string) => ars.trim().padStart(5, "0");
+
+/** 서울 정류장 ARS → 노선 번호 (bus_stop_routes). 표가 없으면 빈 맵. */
+async function seoulRoutesByArs(db: Client, arsList: string[]): Promise<Map<string, string[]>> {
+  const out = new Map<string, string[]>();
+  if (!arsList.length) return out;
+  const keys = [...new Set(arsList.flatMap((a) => [pad5(a), a.trim().replace(/^0+/, "")]))];
+  try {
+    const res = await db.execute({
+      sql: `SELECT ars_id, route_no FROM bus_stop_routes WHERE ars_id IN (${keys.map(() => "?").join(",")})`,
+      args: keys,
+    });
+    for (const r of res.rows) {
+      const k = pad5(String(r.ars_id));
+      const list = out.get(k) ?? [];
+      const no = String(r.route_no).trim();
+      if (no && !list.includes(no)) list.push(no);
+      out.set(k, list);
+    }
+    for (const [k, v] of out) out.set(k, v.sort((a, b) => a.localeCompare(b, "ko", { numeric: true })));
+  } catch {
+    /* 표 없음 */
+  }
+  return out;
+}
+
 /** 반경 안 정류장 (가까운 순, 최대 limit). 노선은 서울 밖만 채운다. */
 export async function readNearbyBusStops(
   db: Client,
@@ -98,7 +125,15 @@ export async function readNearbyBusStops(
       if (!dup) picked.push(s);
       if (picked.length >= limit) break;
     }
-    const routes = await Promise.all(picked.map((s) => taGoRoutes(s.cityCode, s.id)));
+    const seoulRoutes = await seoulRoutesByArs(
+      db,
+      picked.filter((s) => s.cityCode === "11" && s.arsNo).map((s) => s.arsNo!),
+    );
+    const routes = await Promise.all(
+      picked.map((s) =>
+        s.cityCode === "11" ? Promise.resolve(s.arsNo ? (seoulRoutes.get(pad5(s.arsNo)) ?? []) : []) : taGoRoutes(s.cityCode, s.id),
+      ),
+    );
     return picked.map((s, i) => ({
       id: `bus-${s.id}`,
       name: s.name,

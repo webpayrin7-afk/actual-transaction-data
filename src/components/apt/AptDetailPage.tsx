@@ -64,6 +64,7 @@ import {
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
+import { ComplexRedevSection } from "@/components/apt/ComplexRedevSection";
 import { pickLatestDeal } from "@/lib/deals/latest";
 
 const DETAIL_PICK = {
@@ -665,6 +666,7 @@ export function AptDetailPage({
       )}
 
       {identity?.complexId ? <Complex3dEntryCard complexId={identity.complexId} /> : null}
+      {identity?.complexId ? <ComplexRedevSection complexId={identity.complexId} /> : null}
 
       {/* 시세 = 요약(면적 기준) → 추이(차트) → 거래내역. 한 주제 한 섹션 (policy §12.1). */}
       <LabSection
