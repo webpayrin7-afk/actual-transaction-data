@@ -26,16 +26,16 @@ const CHIP_ON =
 const CHIP_OFF = "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]";
 
 /**
- * 분양 조건 — 한 줄 칩(지도 조건 칩과 같은 모양). 누르면 바텀시트에서 하나를 고른다.
+ * 조건 칩 한 줄 (분양 · 단지 조회 등)(지도 조건 칩과 같은 모양). 누르면 바텀시트에서 하나를 고른다.
  * 기본값이면 제목(지역·공급·면적·분양가), 골랐으면 고른 값이 칩에 보인다.
  */
-export function PresaleFilters({ filters }: { filters: FilterDef[] }) {
+export function LabFilterChips({ filters, ariaLabel = "조건" }: { filters: FilterDef[]; ariaLabel?: string }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const open = filters.find((f) => f.key === openKey) ?? null;
 
   return (
     <>
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto overflow-y-hidden px-4 py-1 sm:mx-0 sm:px-0" role="group" aria-label="분양 조건">
+      <div className="-mx-4 flex gap-1.5 overflow-x-auto overflow-y-hidden px-4 py-1 sm:mx-0 sm:px-0" role="group" aria-label={ariaLabel}>
         {filters.map((f) => {
           const on = f.value !== f.defaultId;
           const label = on ? f.options.find((o) => o.id === f.value)?.label ?? f.title : f.title;

@@ -13,7 +13,7 @@ import {
 } from "@/components/presale/ApplyhomeSections";
 import { MoveInSection } from "@/components/presale/MoveInSection";
 import { AREA_OPTIONS, PRICE_OPTIONS, PresaleResults } from "@/components/presale/PresaleResults";
-import { PresaleFilters, type FilterDef } from "@/components/presale/PresaleFilters";
+import { LabFilterChips, type FilterDef } from "@/components/ui/LabFilterChips";
 
 const METRO_ORDER = [
   "seoul", "gyeonggi", "incheon", "busan", "daegu", "gwangju", "daejeon", "ulsan", "sejong",
@@ -96,7 +96,7 @@ export function PresalePage() {
       <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false}>
         <div className="flex flex-col gap-3">
           <LabTabs variant="primary" ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
-          <PresaleFilters filters={filters} />
+          <LabFilterChips filters={filters} ariaLabel="분양 조건" />
         </div>
       </PageHeader>
 

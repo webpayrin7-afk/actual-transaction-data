@@ -7,13 +7,18 @@ import { formatEok } from "@/lib/utils/format";
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabFilterChips } from "@/components/ui/LabFilterChips";
+import { METRO_LABELS } from "@/lib/constants/regions";
 
-/** 구별 종합 랭킹이 발행된 시·도 — 넓어지면 여기에 추가하고 선택 탭을 붙인다. */
-const METRO = "seoul";
-const METRO_LABEL = "서울";
+/** 구별 종합 랭킹이 발행된 시·도 (강원·전북·광주·전남은 단지 목록 정비 전이라 아직 없음) */
+const METROS = [
+  "seoul", "gyeonggi", "incheon", "busan", "daegu", "daejeon", "ulsan", "sejong",
+  "chungbuk", "chungnam", "gyeongbuk", "gyeongnam", "jeju",
+] as const;
+const METRO_OPTIONS = METROS.map((m) => ({ id: m as string, label: METRO_LABELS[m] }));
 
-async function fetchLeaders(): Promise<GuLeadersResponse> {
-  const res = await fetch(`/api/complexes/gu-leaders?metro=${METRO}`);
+async function fetchLeaders(metro: string): Promise<GuLeadersResponse> {
+  const res = await fetch(`/api/complexes/gu-leaders?metro=${metro}`);
   if (!res.ok) throw new Error("대장 단지를 불러오지 못했습니다.");
   return res.json();
 }
@@ -40,15 +45,22 @@ function perPyeong(man: number): string {
 
 /** 단지 조회 — 구마다 종합 1위 단지 (평당가 높은 구부터). 지도 왕관 1위와 같은 순위. */
 export function GuLeaderList() {
-  const [expanded, setExpanded] = useState(false);
-  const query = useQuery({ queryKey: ["gu-leaders", METRO], queryFn: fetchLeaders, staleTime: 30 * 60_000 });
+  const [metro, setMetro] = useState<string>("seoul");
+  const [expandedFor, setExpandedFor] = useState<string | null>(null);
+  const expanded = expandedFor === metro;
+  const query = useQuery({
+    queryKey: ["gu-leaders", metro],
+    queryFn: () => fetchLeaders(metro),
+    staleTime: 30 * 60_000,
+    placeholderData: (prev) => prev,
+  });
   const items = query.data?.items ?? [];
-  if (query.isError || (query.isSuccess && items.length === 0)) return null;
+  if (query.isError) return null;
   const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
 
   return (
     <LabSection
-      title={`${METRO_LABEL} 구별 대장 단지`}
+      title="구별 대장 단지"
       tip={
         <p>
           구마다 집랩 종합 랭킹 1위 단지입니다. 최근 12개월 평당가(50%)·거래량(20%)·세대수(20%)·회전율(10%)을 같은 구
@@ -56,8 +68,24 @@ export function GuLeaderList() {
         </p>
       }
     >
+      <LabFilterChips
+        ariaLabel="대장 단지 지역"
+        filters={[
+          {
+            key: "metro",
+            title: "지역",
+            options: METRO_OPTIONS,
+            value: metro,
+            defaultId: "",
+            onChange: setMetro,
+            grid: true,
+          },
+        ]}
+      />
       {query.isLoading ? (
         <div className="lab-skeleton" />
+      ) : items.length === 0 ? (
+        <p className="detail-body">이 지역은 아직 랭킹 대상 단지가 없습니다.</p>
       ) : (
         <>
           <ul className={LAB_LIST}>
@@ -85,7 +113,7 @@ export function GuLeaderList() {
           {items.length > LAB_LIST_PREVIEW ? (
             <LabMoreButton
               expanded={expanded}
-              onToggle={() => setExpanded((v) => !v)}
+              onToggle={() => setExpandedFor(expanded ? null : metro)}
               label={`${items.length - LAB_LIST_PREVIEW}곳 더보기`}
             />
           ) : null}
