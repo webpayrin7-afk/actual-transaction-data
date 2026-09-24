@@ -39,7 +39,17 @@ export type MapComplex = {
   dong: string | null;
   householdCount: number | null;
   href: string;
-  /** 최근 12개월 선택 면적·거래유형 중위가 (만원) */
+  /**
+   * 지도 가격 — 대표 평형(mainAreaSqm, 기간 내 가장 많이 거래된 전용면적)의 가장 최근 실거래가 (만원).
+   * 직거래는 빼고(없으면 직거래 포함), 선택한 거래유형(매매·전세) 기준.
+   */
+  priceMan: number | null;
+  /** priceMan 거래의 계약일 */
+  priceDate: string | null;
+  /** 최근 12개월 대표 평형 거래 범위 (만원) */
+  rangeMinMan: number | null;
+  rangeMaxMan: number | null;
+  /** 최근 12개월 선택 면적·거래유형 중위가 (만원) — 전세가율·갭 계산용 */
   medianPriceMan: number | null;
   /** 기간 내 가장 많이 거래된 전용면적(㎡, 소수 첫째 자리) — 마커 표기용 */
   mainAreaSqm: number | null;
@@ -78,6 +88,30 @@ function median(values: number[]): number | null {
   const s = [...values].sort((a, b) => a - b);
   const mid = s.length >> 1;
   return s.length % 2 ? s[mid]! : (s[mid - 1]! + s[mid]!) / 2;
+}
+
+/**
+ * 대표 평형의 가장 최근 실거래가 — 대표 평형 = 가장 많이 거래된 전용면적(±1㎡).
+ * 직거래는 빼고 고른다(대표 평형 거래가 모두 직거래면 그중 최근). 범위는 대표 평형 거래 전체.
+ */
+function representativePrice(selected: Deal[]): {
+  priceMan: number | null;
+  priceDate: string | null;
+  rangeMinMan: number | null;
+  rangeMaxMan: number | null;
+} {
+  const main = modeArea(selected.map((d) => d.area));
+  const same = main == null ? [] : selected.filter((d) => Math.abs(d.area - main) < 1);
+  if (!same.length) return { priceMan: null, priceDate: null, rangeMinMan: null, rangeMaxMan: null };
+  const pool = same.some((d) => !d.direct) ? same.filter((d) => !d.direct) : same;
+  const latest = pool.reduce((a, d) => (d.date > a.date ? d : a));
+  const amounts = same.map((d) => d.amount);
+  return {
+    priceMan: latest.amount,
+    priceDate: latest.date,
+    rangeMinMan: Math.min(...amounts),
+    rangeMaxMan: Math.max(...amounts),
+  };
 }
 
 /** 가장 많이 거래된 전용면적 (소수 첫째 자리로 묶음). 동률이면 작은 면적. */
@@ -151,7 +185,15 @@ export async function hasAnchorTable(db: Client): Promise<boolean> {
   return anchorTable;
 }
 
-type Deal = { kind: "trade" | "jeonse" | "wolse"; amount: number; rent: number; date: string; area: number; buildYear: number | null };
+type Deal = {
+  kind: "trade" | "jeonse" | "wolse";
+  amount: number;
+  rent: number;
+  date: string;
+  area: number;
+  buildYear: number | null;
+  direct: boolean;
+};
 
 export async function readMapComplexes(
   db: Client,
@@ -200,7 +242,7 @@ export async function readMapComplexes(
         db
           .execute({
             sql: `SELECT lawd_cd, apt_name_norm, deal_type, deal_amount, monthly_rent, deal_date,
-                         exclusive_area, build_year
+                         exclusive_area, build_year, dealing_gbn
                   FROM transactions
                   WHERE lawd_cd = ? AND apt_name_norm IN (${slice.map(() => "?").join(",")})
                     AND year_month >= ?
@@ -224,6 +266,7 @@ export async function readMapComplexes(
                 date: String(r.deal_date),
                 area: Number(r.exclusive_area),
                 buildYear: Number.isFinite(by) && by > 1900 ? by : null,
+                direct: String(r.dealing_gbn ?? "") === "직거래",
               });
               deals.set(k, list);
             }
@@ -273,6 +316,7 @@ export async function readMapComplexes(
       dong: r.legal_dong_name ? String(r.legal_dong_name) : null,
       householdCount: num(r.household_count),
       href: aptDetailHref(String(r.apt_name), regionSlugFor(lawd), gu || undefined),
+      ...representativePrice(selected),
       medianPriceMan: median(selected.map((d) => d.amount)),
       mainAreaSqm: modeArea(selected.map((d) => d.area)),
       buildYear: all.find((d) => d.buildYear != null)?.buildYear ?? approvalYear,

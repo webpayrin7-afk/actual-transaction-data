@@ -65,8 +65,8 @@ export function rangeDefs(deal: MapDealKind): RangeFilterDef[] {
       step: 5_000,
       ticks: deal === "trade" ? [0, 100_000, 200_000, 300_000, 400_000] : [0, 50_000, 100_000, 150_000, 200_000],
       format: eok,
-      value: (c) => c.medianPriceMan,
-      hint: "최근 12개월 중위가",
+      value: (c) => c.priceMan,
+      hint: "대표 평형 최근 실거래가",
     },
     {
       id: "jeonseRatio",
@@ -78,7 +78,7 @@ export function rangeDefs(deal: MapDealKind): RangeFilterDef[] {
       ticks: [0, 40, 60, 80, 100, 120],
       format: (v) => `${v}%`,
       value: (c) => c.jeonseRatioPct,
-      hint: "전세 중위 ÷ 매매 중위",
+      hint: "전세가 ÷ 매매가 · 최근 12개월",
     },
     {
       id: "gap",
@@ -90,7 +90,7 @@ export function rangeDefs(deal: MapDealKind): RangeFilterDef[] {
       ticks: [-50_000, 0, 50_000, 100_000, 150_000],
       format: (v) => (v < 0 ? `−${eok(-v)}` : eok(v)),
       value: (c) => c.gapMan,
-      hint: "매매 중위 − 전세 중위 · 0 아래는 역전",
+      hint: "매매가 − 전세가 · 0 아래는 역전",
     },
     {
       id: "rentYield",
@@ -102,7 +102,7 @@ export function rangeDefs(deal: MapDealKind): RangeFilterDef[] {
       ticks: [0, 2, 4, 6, 8],
       format: (v) => `${v}%`,
       value: (c) => c.rentYieldPct,
-      hint: "월세×12 ÷ (매매 중위 − 보증금)",
+      hint: "월세×12 ÷ (매매가 − 보증금)",
     },
     {
       id: "area",

@@ -139,7 +139,7 @@ function crownHtml(rank: 1 | 2 | 3): string {
 }
 
 function complexMarkerHtml(c: MapComplex, selected: boolean): string {
-  if (c.medianPriceMan == null) {
+  if (c.priceMan == null) {
     const stroke = selected ? "var(--lab-brand-primary)" : "#94a3b8";
     return `<div style="transform:translate(-50%,-100%);cursor:pointer">
       <svg width="18" height="20" viewBox="0 0 18 20" aria-hidden="true" style="display:block;filter:drop-shadow(0 1px 1px rgba(15,23,42,.2))">
@@ -161,7 +161,7 @@ function complexMarkerHtml(c: MapComplex, selected: boolean): string {
         : ""
     }
     <div style="min-width:48px;padding:2px 8px;border-radius:7px;${pyeong ? "border-top-left-radius:7px;" : ""}background:${bodyBg};color:${bodyFg};border:1.5px solid ${edge};font:700 13px/18px ${FONT};font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap">${escapeHtml(
-      shortEok(c.medianPriceMan),
+      shortEok(c.priceMan),
     )}</div>
     <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${edge};margin-top:-1px"></div>
   </div>`;
@@ -184,7 +184,7 @@ function areaLabel(a: MapArea): { name: string; price: string } {
   };
 }
 
-/** 지역(구·동) 말풍선 — 이름 + 전용 평당 중위가(짧은 표기). 누르면 확대. */
+/** 지역(구·동) 말풍선 — 이름 + 최근 12개월 전용 평당가(중위, 짧은 표기). 누르면 확대. */
 function areaMarkerHtml(a: MapArea): string {
   const { name, price } = areaLabel(a);
   return `<div style="transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:56px;padding:3px 8px;border-radius:10px;background:var(--lab-navy-950);color:#fff;cursor:pointer;box-shadow:0 2px 6px rgba(15,23,42,.25);text-align:center;white-space:nowrap">
@@ -350,7 +350,7 @@ export function MapSearchPage() {
     };
   }, [fetchViewport]);
 
-  // 거래유형·전용면적이 바뀌면 서버 값(중위가)이 달라지므로 다시 불러온다. 나머지 조건은 화면에서 거른다.
+  // 거래유형·전용면적이 바뀌면 서버 값(대표 평형·최근가)이 달라지므로 다시 불러온다. 나머지 조건은 화면에서 거른다.
   const areaKey = `${areaQuery(conditions).min}-${areaQuery(conditions).max}`;
   useEffect(() => {
     condRef.current = conditions;
@@ -392,12 +392,12 @@ export function MapSearchPage() {
           lat: c.lat,
           lng: c.lng,
           html: complexMarkerHtml(c, selected),
-          z: selected ? 1000 : c.guRank ? 200 + (4 - c.guRank) : c.medianPriceMan != null ? 100 : 10,
+          z: selected ? 1000 : c.guRank ? 200 + (4 - c.guRank) : c.priceMan != null ? 100 : 10,
           priority: c.householdCount ?? 0,
           title: c.aptName,
           // 꼬리 끝이 좌표 — 박스는 그 위쪽. 가격 없는 단지 아이콘은 작다.
           box: (p: { x: number; y: number }): Box =>
-            c.medianPriceMan != null
+            c.priceMan != null
               ? { x0: p.x - 28, x1: p.x + 28, y0: p.y - (c.mainAreaSqm ? 44 : 28) - (c.guRank ? 14 : 0), y1: p.y }
               : { x0: p.x - 9, x1: p.x + 9, y0: p.y - 20, y1: p.y },
           onClick: () => setSelectedId(c.complexId),
@@ -538,7 +538,7 @@ export function MapSearchPage() {
       polygon?.setMap(null);
     };
   }, [shapeKey]);
-  const priced = visibleComplexes.filter((c) => c.medianPriceMan != null).length;
+  const priced = visibleComplexes.filter((c) => c.priceMan != null).length;
   const dealLabel = DEAL_LABEL[conditions.deal];
   const nActive = activeCount(conditions);
   const chipDefs = rangeDefs(conditions.deal);
@@ -549,12 +549,11 @@ export function MapSearchPage() {
 
   const statusText = (() => {
     if (level === "far") return null;
-    const basis = `최근 12개월 ${dealLabel}${areaRangeText}`;
     if (level === "complex") {
       const filtered = nActive > 0 ? ` · 조건 맞는 ${visibleComplexes.length}개 단지` : ` · 가격 있는 ${priced}개 단지`;
-      return `${basis} 중위가${state === "ready" ? filtered : ""}${truncated ? " · 세대수 큰 400개 단지까지" : ""}`;
+      return `대표 평형 최근 ${dealLabel}가${areaRangeText}${state === "ready" ? filtered : ""}${truncated ? " · 세대수 큰 400개 단지까지" : ""}`;
     }
-    return `${basis} · ${level === "gu" ? "구" : "동"}별 전용 평당 중위가`;
+    return `최근 12개월 ${dealLabel}${areaRangeText} · ${level === "gu" ? "구" : "동"}별 전용 평당가`;
   })();
 
   const locate = () => {
@@ -747,22 +746,24 @@ export function MapSearchPage() {
             <dl className="mt-3 grid grid-cols-2 gap-2">
               <div className="rounded-xl border border-[color:var(--lab-border)] px-3 py-2">
                 <dt className="detail-label">
-                  {dealLabel} 중위가
+                  최근 {dealLabel}
                   {selected.mainAreaSqm ? ` · ${Math.floor(selected.mainAreaSqm)}㎡` : ""}
                 </dt>
                 <dd className="detail-data-value-emphasis tabular-nums">
-                  {selected.medianPriceMan ? formatEok(Math.round(selected.medianPriceMan)) : "거래 없음"}
+                  {selected.priceMan ? formatEok(selected.priceMan) : "거래 없음"}
                 </dd>
-                <dd className="detail-meta">최근 12개월 {selected.tradeCount12m}건</dd>
+                <dd className="detail-meta">{selected.priceDate ? formatDealDate(selected.priceDate) : "기간 내 없음"}</dd>
               </div>
               <div className="rounded-xl border border-[color:var(--lab-border)] px-3 py-2">
-                <dt className="detail-label">최근 {dealLabel}</dt>
+                <dt className="detail-label">최근 12개월</dt>
                 <dd className="detail-data-value-emphasis tabular-nums">
-                  {selected.latestPriceMan ? formatEok(selected.latestPriceMan) : "—"}
+                  {selected.rangeMinMan != null && selected.rangeMaxMan != null
+                    ? selected.rangeMinMan === selected.rangeMaxMan
+                      ? formatEok(selected.rangeMinMan)
+                      : `${shortEok(selected.rangeMinMan)}~${shortEok(selected.rangeMaxMan)}`
+                    : "—"}
                 </dd>
-                <dd className="detail-meta">
-                  {selected.latestDealDate ? formatDealDate(selected.latestDealDate) : "기간 내 없음"}
-                </dd>
+                <dd className="detail-meta">{selected.tradeCount12m}건 거래</dd>
               </div>
             </dl>
             {selected.jeonseRatioPct != null || selected.rentYieldPct != null ? (
