@@ -706,7 +706,7 @@ export function MapSearchPage() {
 
       {/* 하단: 선택 단지 카드 */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 p-3 pb-[calc(env(safe-area-inset-bottom)+80px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:p-4 sm:pb-4">
           <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
