@@ -14,6 +14,7 @@ import {
   seoulBusRoutePilotMeta,
 } from "@/lib/complex-detail/seoul-bus-routes-pilot";
 import { seoulMetroCsvFileNames } from "@/lib/complex-detail/seoul-metro-stations";
+import { readNearbyRailStations } from "@/lib/transit/rail-stations";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 25;
@@ -108,7 +109,8 @@ type PoiItem = {
 
 function subwaySubcategory(lines: string[]): string {
   if (!lines.length) return "지하철역";
-  return lines.map((l) => (/호선$/.test(l) ? l : `${l}호선`)).join("·");
+  // 숫자만 온 노선(시범 단지 CSV의 "2")에만 "호선"을 붙인다 — "신분당선"·"부산1호선"은 그대로
+  return lines.map((l) => (/^\d+$/.test(l) ? `${l}호선` : l)).join("·");
 }
 
 /**
@@ -247,13 +249,25 @@ export async function GET(request: NextRequest) {
       centerUsed: coords,
     };
   } else {
-    // Non-pilot complexes: no nationwide transport master yet.
-    transportStatus = "EMPTY";
-    transportReason = "현재 확인 가능한 주변 교통 정보가 없습니다.";
+    // 그 밖 단지: 전국 도시철도 역(rail_stations) 800m 안. 버스는 아직 시범 단지만.
+    const url = dbUrl();
+    const stations = url
+      ? await readNearbyRailStations(createClient({ url, authToken: dbAuth() }), coords, { maxMeters: 800 })
+      : [];
+    transportItems = stations.map((s) => ({
+      id: s.id,
+      name: s.name,
+      subcategory: subwaySubcategory(s.lines),
+      distanceMeters: s.distanceMeters,
+      distanceLabel: s.distanceLabel,
+      lat: s.lat,
+      lng: s.lng,
+      lines: s.lines,
+    }));
     transportMeta = {
-      subwaySource: "NONE",
+      subwaySource: "RAIL_STATIONS_STANDARD",
       busSource: "NONE",
-      subwayStatus: "HOLD",
+      subwayStatus: transportItems.length ? "PASS" : "HOLD",
       busStatus: "HOLD",
       busReason: "pilot-only",
       vworldTransport: false,

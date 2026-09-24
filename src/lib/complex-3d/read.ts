@@ -8,7 +8,7 @@ import type { Client } from "@libsql/client";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import { LAWD_TO_REGION, districtNameFromCode } from "@/lib/constants/regions-registry";
 import { slugFromLawd } from "@/lib/constants/nationwide-lawd";
-import { nearestSeoulMetroStations } from "@/lib/complex-detail/seoul-metro-stations";
+import { readNearbyRailStations } from "@/lib/transit/rail-stations";
 
 export type Ring = Array<[number, number]>; // [lng, lat]
 
@@ -232,10 +232,8 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
       distanceM: Math.round(Number(r.distance_m ?? haversine(center.lat, center.lng, Number(r.lat), Number(r.lng)))),
     });
   }
-  if (lawd.startsWith("11")) {
-    for (const st of nearestSeoulMetroStations(center, { maxMeters: 1200, limit: 4 })) {
-      pois.push({ kind: "station", name: `${st.name}역`, sub: st.lines.join("·"), lat: st.lat, lng: st.lng, distanceM: st.distanceMeters });
-    }
+  for (const st of await readNearbyRailStations(db, center, { maxMeters: 1200, limit: 4 })) {
+    pois.push({ kind: "station", name: st.name, sub: st.lines.join("·"), lat: st.lat, lng: st.lng, distanceM: st.distanceMeters });
   }
 
   return {
