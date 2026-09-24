@@ -1,14 +1,8 @@
 export const PRIMARY_NAV = [
   {
     href: "/",
-    label: "오늘의 시장",
-    match: (pathname: string) => pathname === "/",
-  },
-  {
-    href: "/complexes",
-    label: "단지별 조회",
-    match: (pathname: string) =>
-      pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
+    label: "시장",
+    match: (pathname: string) => pathname === "/" || pathname.startsWith("/stats"),
   },
   {
     href: "/regions",
@@ -17,14 +11,25 @@ export const PRIMARY_NAV = [
       pathname === "/regions" || pathname.startsWith("/region/"),
   },
   {
-    href: "/stats",
-    label: "시장 동향",
-    match: (pathname: string) => pathname.startsWith("/stats"),
+    href: "/complexes",
+    label: "단지별 조회",
+    match: (pathname: string) =>
+      pathname.startsWith("/complexes") || pathname.startsWith("/apt/"),
+  },
+  {
+    href: "/map",
+    label: "지도",
+    match: (pathname: string) => pathname.startsWith("/map"),
   },
 ] as const;
 
 /** 더보기 > 도구 — 학군(/school)은 비활성·메뉴 비노출 */
 export const TOOL_NAV = [
+  {
+    href: "/transactions",
+    label: "실거래 검색",
+    match: (pathname: string) => pathname.startsWith("/transactions"),
+  },
   {
     href: "/loan",
     label: "대출계산기",

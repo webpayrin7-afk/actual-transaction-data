@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-09-18T23:34:22.494Z",
+  "semantics": "PARCEL_REPRESENTATIVE_POINT",
+  "cache_policy": {
+    "tracked": [
+      "data/poc/national-expansion/coordinates/source-manifest.json"
+    ],
+    "gitignored_cache": "data/poc/national-expansion/coordinates/cache/",
+    "do_not_depend_on": [
+      "/tmp/coord-source/reb-seoul-basic.csv"
+    ],
+    "raw_commit_policy": "Do not commit additional large raw cadastral or REB extracts. Record hash, CRS, row count, and retrieval name here."
+  },
+  "inputs": [
+    {
+      "source_name": "국토교통부 일별연속지적도형정보 서울특별시",
+      "source_version": "AL_D002_11_20260908.zip",
+      "original_crs": "EPSG:5186",
+      "output_crs": "EPSG:4326",
+      "sido": "11",
+      "file": "seoul_parcel_coordinates_cursor_input_20260908.zip",
+      "file_hash": "3ae3977a35cb2f9b06c2cfe11f0dee3ccacce37b5654eaecd9dca7520a7876fe",
+      "file_bytes": 10351005,
+      "row_count": 896903,
+      "reb_basic_cache_present": false,
+      "status": "PARCEL_ZIP_PRESENT_REB_CACHE_ABSENT"
+    }
+  ],
+  "other_sido": "NO_SOURCE"
+}

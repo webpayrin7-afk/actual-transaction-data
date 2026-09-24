@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { RegionBrowseResponse, RegionDongSummary } from "@/lib/molit/service";
 import { regionDongHref } from "@/lib/molit/region-paths";
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 
 async function fetchRegionDongs(region: string): Promise<RegionBrowseResponse> {
   const qs = new URLSearchParams({ region });
@@ -27,12 +28,10 @@ function DongCard({
   return (
     <Link
       href={regionDongHref(regionSlug, item.dong, item.gu)}
-      className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-teal-300 hover:bg-teal-50/40"
+      className="flex min-h-11 flex-col justify-center rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2.5 text-left transition hover:border-[color:var(--lab-brand-border)] hover:bg-slate-50"
     >
-      <p className="text-sm font-semibold text-slate-900">{item.dong}</p>
-      <p className="mt-1 text-xs text-slate-500">
-        {item.gu} · 단지 {item.aptCount}
-      </p>
+      <p className="detail-data-value-emphasis">{item.dong}</p>
+      <p className="detail-meta tabular-nums">단지 {item.aptCount.toLocaleString("ko-KR")}곳</p>
     </Link>
   );
 }
@@ -49,35 +48,30 @@ export function RegionDongBrowse({ regionSlug }: { regionSlug: string }) {
   const data = query.data;
   useLoadProgressWhen(query.isLoading && !data, "동 목록 불러오는 중…");
 
+  const dongs = data?.dongs ?? [];
   return (
-    <div className="flex flex-col gap-4">
-      {query.isError && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          동 목록을 불러오지 못했습니다.
-        </p>
-      )}
-
-      {query.isLoading && !data ? (
-        <div className="h-20 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
+    <section
+      aria-label="동별 단지 탐색"
+      className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
+    >
+      <LabSectionHeader
+        title="동별 단지 탐색"
+        meta={dongs.length ? `${dongs.length.toLocaleString("ko-KR")}개 동` : undefined}
+        tip={<p>동을 고르면 그 동에서 거래 이력이 있는 단지를 거래량 순으로 보여줍니다.</p>}
+      />
+      {query.isError ? (
+        <p className="detail-body">동 목록을 불러오지 못했습니다.</p>
+      ) : query.isLoading && !data ? (
+        <div className="h-20 animate-pulse rounded-lg bg-slate-100" />
+      ) : dongs.length === 0 ? (
+        <p className="detail-body">표시할 동이 없습니다.</p>
       ) : (
-        <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {(data?.dongs ?? []).map((item) => (
-              <DongCard
-                key={`${item.gu}-${item.dong}`}
-                item={item}
-                regionSlug={regionSlug}
-              />
-            ))}
-          </div>
-
-          {(data?.dongs.length ?? 0) === 0 && !query.isLoading && (
-            <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-              표시할 동이 없습니다.
-            </p>
-          )}
-        </>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          {dongs.map((item) => (
+            <DongCard key={`${item.gu}-${item.dong}`} item={item} regionSlug={regionSlug} />
+          ))}
+        </div>
       )}
-    </div>
+    </section>
   );
 }

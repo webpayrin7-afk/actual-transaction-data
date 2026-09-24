@@ -12,6 +12,7 @@ const STATIC_PATHS = [
   "/tools",
   "/loan",
   "/rates",
+  "/transactions",
   "/about",
   "/guide",
   "/data-policy",

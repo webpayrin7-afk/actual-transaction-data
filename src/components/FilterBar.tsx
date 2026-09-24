@@ -1,11 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  Building2,
-  Search,
-  TrendingUp,
-} from "lucide-react";
+import { Building2, Search } from "lucide-react";
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import {
   AREA_OPTIONS,
   DEAL_TYPE_OPTIONS,
@@ -32,7 +29,7 @@ interface FilterBarProps {
 }
 
 const selectClass =
-  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
+  "min-h-12 w-full rounded-lg border border-[color:var(--lab-border)] bg-white px-3 text-[16px] leading-6 text-[color:var(--lab-navy-950)] outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
 
 export function FilterBar({
   aptName,
@@ -90,17 +87,14 @@ export function FilterBar({
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-sm backdrop-blur sm:p-5">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-700">
-        <Search className="h-4 w-4 text-teal-600" />
-        검색 필터
-      </div>
+    <section aria-label="검색 조건" className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}>
+      <LabSectionHeader title="검색 조건" />
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
         <label
           className={`flex flex-col gap-1.5 ${showDistrict ? "xl:col-span-1" : "xl:col-span-2"}`}
         >
-          <span className="text-xs font-medium text-slate-500">단지명</span>
+          <span className="detail-label">단지명</span>
           <div className="relative">
             <Building2 className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -111,14 +105,14 @@ export function FilterBar({
                 if (e.key === "Enter") onSearch();
               }}
               placeholder="예: 래미안, 자이, 푸르지오"
-              className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pr-3 pl-10 text-sm text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+              className={`${selectClass} pl-10`}
             />
           </div>
         </label>
 
         {showDistrict && (
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-slate-500">구</span>
+            <span className="detail-label">구</span>
             <select
               value={gu}
               onChange={(e) => onGuChange(e.target.value)}
@@ -135,7 +129,7 @@ export function FilterBar({
         )}
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-slate-500">법정동</span>
+          <span className="detail-label">법정동</span>
           <input
             type="text"
             value={dong === "all" ? "" : dong}
@@ -146,7 +140,7 @@ export function FilterBar({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-slate-500">거래 유형</span>
+          <span className="detail-label">거래 유형</span>
           <select
             value={dealType}
             onChange={(e) =>
@@ -163,7 +157,7 @@ export function FilterBar({
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-slate-500">전용면적</span>
+          <span className="detail-label">전용면적</span>
           <select
             value={area}
             onChange={(e) => onAreaChange(e.target.value as AreaFilter)}
@@ -178,7 +172,7 @@ export function FilterBar({
         </label>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-slate-500">계약년월</span>
+          <span className="detail-label">계약년월</span>
           <div className="grid grid-cols-2 gap-2">
             <label className="sr-only" htmlFor="filter-contract-year">
               계약년
@@ -214,14 +208,14 @@ export function FilterBar({
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-1 flex justify-end">
         <button
           type="button"
           onClick={onSearch}
           className="lab-button lab-button-primary gap-2 px-4"
 
         >
-          <TrendingUp className="h-4 w-4" />
+          <Search className="h-4 w-4" aria-hidden />
           조회
         </button>
       </div>

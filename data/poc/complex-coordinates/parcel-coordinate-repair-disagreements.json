@@ -1,0 +1,31 @@
+{
+  "count": 2,
+  "rows": [
+    {
+      "complex_id": "cx_8460762869c616d7",
+      "apt_name": "에스케이뷰",
+      "classification": "EXACT_ORIGINAL",
+      "derived_pnu": "1141010300101180000",
+      "parcel_lat": 37.5619317,
+      "parcel_lng": 126.96590631,
+      "existing_lat": 37.4997285,
+      "existing_lng": 127.0499952,
+      "existing_source": "seodaemun_apt_status_csv",
+      "distance_m": 10140.1,
+      "note": "distance is not an automatic reject; existing coordinate is not a parcel representative point"
+    },
+    {
+      "complex_id": "cx_7629c96518c21505",
+      "apt_name": "홍은동풍림아이원",
+      "classification": "EXACT_ORIGINAL",
+      "derived_pnu": "1141011800104600000",
+      "parcel_lat": 37.60364493,
+      "parcel_lng": 126.94838328,
+      "existing_lat": 37.5972741,
+      "existing_lng": 126.9378412,
+      "existing_source": "seodaemun_apt_status_csv",
+      "distance_m": 1168.1,
+      "note": "distance is not an automatic reject; existing coordinate is not a parcel representative point"
+    }
+  ]
+}

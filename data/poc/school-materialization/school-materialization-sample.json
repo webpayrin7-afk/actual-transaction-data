@@ -1,0 +1,203 @@
+{
+  "jamsil_areas": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "area_type": "attendance_zone",
+      "area_id": "Z000100307",
+      "zone_name": "서울잠일초통학구역",
+      "school_code": "7130153",
+      "school_name": "서울잠일초등학교",
+      "resolution_status": "CONFIRMED_SINGLE",
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "middle",
+      "area_type": "district",
+      "area_id": "Z000200027",
+      "district_name": "강동송파3학교군",
+      "membership_status": "MEMBERSHIP_COMPLETE",
+      "member_count": 11,
+      "resolution_status": "CONFIRMED_SINGLE",
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "high",
+      "area_type": "district",
+      "area_id": null,
+      "district_name": "강동송파학교군",
+      "membership_status": "MEMBERSHIP_COMPLETE",
+      "member_count": 26,
+      "resolution_status": "CONFIRMED_SEED",
+      "source_version": "pilot-high-seed-web"
+    }
+  ],
+  "jamsil_nearby_top": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "school_name": "서울잠일초등학교",
+      "school_code": "7130153",
+      "facility_id": "B000002131",
+      "distance_m": 159.8,
+      "rank": 1,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "school_name": "서울잠신초등학교",
+      "school_code": null,
+      "facility_id": "B000002132",
+      "distance_m": 567.0,
+      "rank": 2,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "school_name": "서울잠전초등학교",
+      "school_code": null,
+      "facility_id": "B000002153",
+      "distance_m": 692.7,
+      "rank": 3,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "school_name": "서울버들초등학교",
+      "school_code": null,
+      "facility_id": "B000002158",
+      "distance_m": 734.4,
+      "rank": 4,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "school_name": "서울아주초등학교",
+      "school_code": null,
+      "facility_id": "B000002157",
+      "distance_m": 977.8,
+      "rank": 5,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "school_name": "서울신천초등학교",
+      "school_code": null,
+      "facility_id": "B000002159",
+      "distance_m": 1189.0,
+      "rank": 6,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "elementary",
+      "school_name": "서울송전초등학교",
+      "school_code": null,
+      "facility_id": "B000002133",
+      "distance_m": 1293.7,
+      "rank": 7,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "middle",
+      "school_name": "신천중학교",
+      "school_code": "7130194",
+      "facility_id": "B000008261",
+      "distance_m": 385.8,
+      "rank": 1,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "middle",
+      "school_name": "잠신중학교",
+      "school_code": "7130201",
+      "facility_id": "B000008262",
+      "distance_m": 631.6,
+      "rank": 2,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "middle",
+      "school_name": "정신여자중학교",
+      "school_code": "7130203",
+      "facility_id": "B000008281",
+      "distance_m": 806.6,
+      "rank": 3,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "middle",
+      "school_name": "아주중학교",
+      "school_code": "7130195",
+      "facility_id": "B000008274",
+      "distance_m": 1002.2,
+      "rank": 4,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "high",
+      "school_name": "잠일고등학교",
+      "school_code": "7011112",
+      "facility_id": "B000012073",
+      "distance_m": 159.5,
+      "rank": 1,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "high",
+      "school_name": "잠신고등학교",
+      "school_code": "7010106",
+      "facility_id": "B000012080",
+      "distance_m": 609.9,
+      "rank": 2,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "high",
+      "school_name": "정신여자고등학교",
+      "school_code": "7010236",
+      "facility_id": "B000012085",
+      "distance_m": 806.6,
+      "rank": 3,
+      "source_version": "koies-2026-03-20"
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "school_level": "high",
+      "school_name": "영동일고등학교",
+      "school_code": "7010712",
+      "facility_id": "B000012087",
+      "distance_m": 815.1,
+      "rank": 4,
+      "source_version": "koies-2026-03-20"
+    }
+  ],
+  "samples": {
+    "normal_elementary_single": {
+      "complex_id": "cx_4c63d9a100973c60",
+      "zone_id": "Z000100307",
+      "zone_name": "서울잠일초통학구역",
+      "school_name": "서울잠일초등학교"
+    },
+    "middle_normal_district": {
+      "complex_id": "cx_4c63d9a100973c60",
+      "district_id": "Z000200027",
+      "district_name": "강동송파3학교군",
+      "member_count": 11
+    }
+  }
+}

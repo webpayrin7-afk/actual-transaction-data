@@ -83,7 +83,7 @@ export function HeaderAptSearch({ className = "" }: { className?: string }) {
         aria-haspopup="dialog"
         aria-label="통합 검색"
         onClick={toggleSearch}
-        className={`inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
+        className={`inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors duration-150 sm:h-9 sm:w-9 ${
           open
             ? "text-teal-800 hover:bg-teal-50/70"
             : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"

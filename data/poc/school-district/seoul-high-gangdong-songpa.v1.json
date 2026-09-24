@@ -1,0 +1,245 @@
+{
+  "id": "seoul-high-gangdong-songpa",
+  "level": "high",
+  "officialName": "강동송파학교군",
+  "officialNameVariants": [
+    "강동·송파 학교군",
+    "강동송파 학교군"
+  ],
+  "jurisdictionGu": [
+    "강동구",
+    "송파구"
+  ],
+  "educationOffice": "서울특별시교육청",
+  "status": "CONFIRMED",
+  "source": {
+    "provider": "서울특별시교육청 하이인포",
+    "kind": "web",
+    "hakgoonCode": "06",
+    "retrievedAt": "2026-09-17",
+    "schoolYear": null,
+    "note": "학군전체 보기(강동송파 학교군: 강동구, 송파구). 일반고·교육감배정교만 membership에 포함. 자율고(학교장선발) 제외. NEIS SD_SCHUL_CODE·도로명주소는 schoolInfo로 연결."
+  },
+  "members": [
+    {
+      "name": "강일고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010958",
+      "roadAddress": "서울특별시 강동구 아리수로98길 40"
+    },
+    {
+      "name": "광문고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010131",
+      "roadAddress": "서울특별시 강동구 동남로 968"
+    },
+    {
+      "name": "선사고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010984",
+      "roadAddress": "서울특별시 강동구 고덕로25길 17"
+    },
+    {
+      "name": "상일여자고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010181",
+      "roadAddress": "서울특별시 강동구 천호대로219길 61"
+    },
+    {
+      "name": "강동고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010117",
+      "roadAddress": "서울특별시 강동구 구천면로 572"
+    },
+    {
+      "name": "성덕고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7011179",
+      "roadAddress": "서울특별시 강동구 구천면로 396"
+    },
+    {
+      "name": "명일여자고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010078",
+      "roadAddress": "서울특별시 강동구 명일로 350"
+    },
+    {
+      "name": "한영고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010258",
+      "roadAddress": "서울특별시 강동구 동남로 832"
+    },
+    {
+      "name": "영파여자고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010217",
+      "roadAddress": "서울특별시 송파구 올림픽로 565"
+    },
+    {
+      "name": "둔촌고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010076",
+      "roadAddress": "서울특별시 강동구 명일로 140"
+    },
+    {
+      "name": "잠실고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010107",
+      "roadAddress": "서울특별시 송파구 올림픽로33길 71"
+    },
+    {
+      "name": "동북고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010154",
+      "roadAddress": "서울특별시 강동구 강동대로 305"
+    },
+    {
+      "name": "보성고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010173",
+      "roadAddress": "서울특별시 송파구 양재대로 1278"
+    },
+    {
+      "name": "잠일고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7011112",
+      "roadAddress": "서울특별시 송파구 백제고분로 21"
+    },
+    {
+      "name": "창덕여자고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010110",
+      "roadAddress": "서울특별시 송파구 양재대로 1240"
+    },
+    {
+      "name": "잠신고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010106",
+      "roadAddress": "서울특별시 송파구 잠실로 24"
+    },
+    {
+      "name": "정신여자고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010236",
+      "roadAddress": "서울특별시 송파구 올림픽로4길 16"
+    },
+    {
+      "name": "영동일고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010712",
+      "roadAddress": "서울특별시 송파구 석촌호수로 93"
+    },
+    {
+      "name": "방산고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010590",
+      "roadAddress": "서울특별시 송파구 오금로27길 18"
+    },
+    {
+      "name": "잠실여자고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010232",
+      "roadAddress": "서울특별시 송파구 송파대로38길 8"
+    },
+    {
+      "name": "배명고등학교",
+      "establishment": "사립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010168",
+      "roadAddress": "서울특별시 송파구 삼학사로 11"
+    },
+    {
+      "name": "가락고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010057",
+      "roadAddress": "서울특별시 송파구 송이로 42"
+    },
+    {
+      "name": "오금고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010101",
+      "roadAddress": "서울특별시 송파구 중대로 247"
+    },
+    {
+      "name": "문정고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010701",
+      "roadAddress": "서울특별시 송파구 송이로34길 62"
+    },
+    {
+      "name": "덕수고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010808",
+      "roadAddress": "서울특별시 송파구 위례북로 10"
+    },
+    {
+      "name": "문현고등학교",
+      "establishment": "공립",
+      "schoolType": "일반고",
+      "selection": "교육감배정교",
+      "neisSdSchulCode": "7010959",
+      "roadAddress": "서울특별시 송파구 충민로 115"
+    }
+  ],
+  "complexLinks": [
+    {
+      "complexId": "cx_4c63d9a100973c60",
+      "aptNames": [
+        "잠실엘스",
+        "잠실엘스아파트"
+      ],
+      "resolutionMethod": "official_gu_membership",
+      "confidence": "DERIVED",
+      "basis": "단지 주소 관할 자치구=송파구 → 공식 학교군 범위(강동구·송파구)에 포함"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit, Noto_Sans_KR } from "next/font/google";
 import { AppShell } from "@/components/layout/AppShell";
 import { Providers } from "./providers";
@@ -15,6 +15,12 @@ const notoSansKr = Noto_Sans_KR({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "집랩 | 오늘의 아파트 시장",

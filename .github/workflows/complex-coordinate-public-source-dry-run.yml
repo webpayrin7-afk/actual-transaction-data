@@ -1,0 +1,78 @@
+name: Complex coordinate public-source dry-run
+
+# Discover/join official public coordinate sources for Seoul complexes.
+# Default mode refuses Production writes. No school materialization.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run | write (write blocked)"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - write
+
+jobs:
+  public-source-dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Write guard
+        run: |
+          if [ "${{ github.event.inputs.mode }}" = "write" ]; then
+            echo "WRITE GUARD: refusing Production coordinate write"
+            exit 2
+          fi
+
+      - name: Public-source dry-run
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          SEOUL_OPENAPI_KEY: ${{ secrets.SEOUL_OPENAPI_KEY }}
+          COORD_SOURCE_CACHE: /tmp/coord-source
+        run: |
+          mkdir -p /tmp/coord-source/downloads data/poc/complex-coordinates
+          # Expect REB/gu CSVs to be prepared in cache by a prior download step or committed metadata.
+          # If SEOUL_OPENAPI_KEY is set, OpenAptInfo full pull runs inside the script.
+          npx tsx scripts/complex-coordinates/dry_run_public_source.ts data/poc/complex-coordinates
+
+      - name: REB PNU identity (spatial join if PARCEL_SHP present)
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          COORD_SOURCE_CACHE: /tmp/coord-source
+          PARCEL_SHP: ${{ vars.PARCEL_SHP }}
+        run: |
+          python3 scripts/complex-coordinates/download_public_sources.py
+          npx tsx scripts/complex-coordinates/dry_run_parcel_spatial.ts data/poc/complex-coordinates
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coordinate-source-dry-run
+          path: |
+            data/poc/complex-coordinates/coordinate-source-report.json
+            data/poc/complex-coordinates/coordinate-source-sample.json
+            data/poc/complex-coordinates/coordinate-source-unresolved.csv
+            data/poc/complex-coordinates/coordinate-source-gate-overrides.json
+            data/poc/complex-coordinates/parcel-coordinate-summary.json
+            data/poc/complex-coordinates/parcel-coordinate-full-summary.json
+            data/poc/complex-coordinates/parcel-coordinate-sample.json
+            data/poc/complex-coordinates/parcel-coordinate-unresolved.csv
+            data/poc/complex-coordinates/parcel-coordinate-unresolved.json
+            data/poc/complex-coordinates/parcel-coordinate-disagreements.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-summary.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-sample.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-unresolved.json
+            data/poc/complex-coordinates/parcel-coordinate-repair-disagreements.json
+          if-no-files-found: error

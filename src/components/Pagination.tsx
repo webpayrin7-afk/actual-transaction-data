@@ -22,8 +22,8 @@ export function Pagination({
 
   return (
     <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-      <p className="text-sm text-slate-500">
-        총 <span className="font-medium text-slate-700">{totalCount}</span>건 ·{" "}
+      <p className="detail-meta tabular-nums">
+        총 <span className="font-semibold text-[color:var(--lab-navy-950)]">{totalCount.toLocaleString("ko-KR")}</span>건 ·{" "}
         {page} / {totalPages} 페이지
       </p>
 
@@ -32,7 +32,7 @@ export function Pagination({
           type="button"
           disabled={!canPrev}
           onClick={() => onPageChange(page - 1)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-body)] transition before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="이전 페이지"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -42,7 +42,7 @@ export function Pagination({
           p === "..." ? (
             <span
               key={`ellipsis-${idx}`}
-              className="px-2 text-sm text-slate-400"
+              className="detail-meta px-1"
             >
               …
             </span>
@@ -51,7 +51,8 @@ export function Pagination({
               key={p}
               type="button"
               onClick={() => onPageChange(p)}
-              className={`lab-choice inline-flex h-9 min-w-9 px-2 text-sm ${
+              aria-current={p === page ? "page" : undefined}
+              className={`lab-choice relative inline-flex h-9 min-h-9 min-w-9 px-2 text-[14px] tabular-nums before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
                 p === page ? "lab-choice-selected" : ""
               }`}
             >
@@ -64,7 +65,7 @@ export function Pagination({
           type="button"
           disabled={!canNext}
           onClick={() => onPageChange(page + 1)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-body)] transition before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="다음 페이지"
         >
           <ChevronRight className="h-4 w-4" />

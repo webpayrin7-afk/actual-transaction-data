@@ -11,7 +11,7 @@ import {
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { SiteHeaderLoadProgress } from "@/components/layout/LoadProgress";
-import { BrandLogo } from "@/components/layout/BrandLogo";
+import { JipLabLogo } from "@/components/brand/JipLabLogo";
 import { HeaderAptSearch } from "@/components/layout/HeaderAptSearch";
 import {
   MORE_SERVICE_LINKS,
@@ -143,16 +143,17 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      className="sticky top-0 z-50 border-b border-slate-200/80 bg-white"
+      className="sticky top-0 z-50 border-b border-[color:var(--lab-border)] bg-white shadow-none"
     >
-      <div className="mx-auto w-full max-w-7xl pr-2 pl-0 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
-        <div className="flex flex-col gap-0.5 py-1 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-5">
+      <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
+        <div className="flex py-1.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-5">
             <Link
               href="/"
-              className="-ml-1 inline-flex shrink-0 items-center gap-2 lg:hidden sm:-ml-1.5"
+              className="inline-flex shrink-0 items-center lg:hidden"
+              aria-label="집랩 홈"
             >
-              <BrandLogo compact priority />
+              <JipLabLogo priority />
             </Link>
 
             <nav
@@ -173,7 +174,7 @@ export function SiteHeader() {
               })}
             </nav>
 
-            <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:ml-0">
+            <div className="ml-auto flex shrink-0 items-center gap-0.5 lg:ml-0">
               <HeaderAptSearch />
 
               <button
@@ -183,30 +184,12 @@ export function SiteHeader() {
                 aria-haspopup="dialog"
                 aria-label="더보기"
                 onClick={openMenu}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[color:var(--lab-navy-900)] transition-colors duration-150 hover:bg-slate-100 sm:h-9 sm:w-9"
               >
                 <Menu className="h-[18px] w-[18px]" aria-hidden />
               </button>
             </div>
           </div>
-
-          <nav
-            className="ml-1.5 flex items-center gap-0.5 overflow-x-auto px-1 pb-0.5 sm:hidden"
-            aria-label="주요 메뉴"
-          >
-            {PRIMARY_NAV.map((item) => {
-              const active = item.match(pathname);
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={navLinkClass(active)}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
       </div>
       <SiteHeaderLoadProgress />

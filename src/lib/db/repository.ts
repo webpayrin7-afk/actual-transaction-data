@@ -470,7 +470,241 @@ export async function queryAptTransactions(params: {
   }));
 }
 
-/** 자동완성용: 여러 법정동의 매매 풀. sync_months 게이트 없음 — warehouse rows 그대로. */
+export type AptArchiveAreaFilter =
+  | { kind: "all" }
+  | { kind: "exclusive"; areaKey: string }
+  | { kind: "range"; min: number; max: number };
+
+export type AptArchiveListType = "trade" | "jeonse" | "monthly";
+
+export type AptArchiveYearBound = { from: string; to: string } | null;
+
+function archiveWhere(params: {
+  lawdCodes: string[];
+  aptNameNorm: string;
+  yearBound: AptArchiveYearBound;
+  area: AptArchiveAreaFilter;
+  listType?: AptArchiveListType;
+}): { sql: string; args: Array<string | number> } {
+  const lawdPh = params.lawdCodes.map(() => "?").join(",");
+  const args: Array<string | number> = [...params.lawdCodes, params.aptNameNorm];
+  let sql = `lawd_cd IN (${lawdPh}) AND apt_name_norm = ?`;
+  if (params.yearBound) {
+    sql += " AND year_month >= ? AND year_month <= ?";
+    args.push(params.yearBound.from, params.yearBound.to);
+  }
+  if (params.area.kind === "exclusive") {
+    sql += " AND ROUND(exclusive_area * 100) = ?";
+    args.push(Math.round(Number(params.area.areaKey) * 100));
+  } else if (params.area.kind === "range") {
+    sql += " AND exclusive_area >= ? AND exclusive_area <= ?";
+    args.push(params.area.min, params.area.max);
+  }
+  if (params.listType === "trade") {
+    sql += " AND deal_type = 'trade'";
+  } else if (params.listType === "jeonse") {
+    sql += " AND deal_type = 'rent' AND monthly_rent = 0";
+  } else if (params.listType === "monthly") {
+    sql += " AND deal_type = 'rent' AND monthly_rent > 0";
+  }
+  return { sql, args };
+}
+
+function mapArchiveRow(row: Record<string, unknown>): Transaction {
+  return {
+    id: String(row.id),
+    dealType: row.deal_type as DealType,
+    dealDate: String(row.deal_date),
+    aptName: String(row.apt_name),
+    gu: String(row.gu ?? ""),
+    dong: String(row.dong ?? ""),
+    exclusiveArea: Number(row.exclusive_area) || 0,
+    dealAmount: Number(row.deal_amount) || 0,
+    monthlyRent: Number(row.monthly_rent) || 0,
+    floor: Number(row.floor) || 0,
+    buildYear: row.build_year == null ? null : Number(row.build_year),
+    jibun: String(row.jibun ?? ""),
+    dealingGbn: String(row.dealing_gbn ?? ""),
+  };
+}
+
+/** Distinct contract years for a complex (newest first). Cheap indexed scan. */
+export async function queryAptArchiveYears(params: {
+  lawdCodes: string[];
+  aptName: string;
+}): Promise<number[]> {
+  const db = await readyDb();
+  if (!db) return [];
+  const aptKey = normalizeAptName(params.aptName);
+  if (!aptKey || !params.lawdCodes.length) return [];
+  const lawdPh = params.lawdCodes.map(() => "?").join(",");
+  const result = await db.execute({
+    sql: `SELECT DISTINCT substr(year_month, 1, 4) AS y
+          FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+          WHERE lawd_cd IN (${lawdPh}) AND apt_name_norm = ?
+          ORDER BY y DESC`,
+    args: [...params.lawdCodes, aptKey],
+  });
+  return result.rows
+    .map((row) => Number(row.y))
+    .filter((y) => Number.isFinite(y) && y >= 1990 && y <= 2100);
+}
+
+/** Exclusive-area buckets for selector (optional year window). */
+export async function queryAptArchiveAreaBuckets(params: {
+  lawdCodes: string[];
+  aptName: string;
+  yearBound: AptArchiveYearBound;
+}): Promise<Array<{ exclusiveArea: number; count: number }>> {
+  const db = await readyDb();
+  if (!db) return [];
+  const aptKey = normalizeAptName(params.aptName);
+  if (!aptKey || !params.lawdCodes.length) return [];
+  const { sql, args } = archiveWhere({
+    lawdCodes: params.lawdCodes,
+    aptNameNorm: aptKey,
+    yearBound: params.yearBound,
+    area: { kind: "all" },
+  });
+  const result = await db.execute({
+    sql: `SELECT exclusive_area AS exclusiveArea, COUNT(*) AS cnt
+          FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+          WHERE ${sql}
+          GROUP BY ROUND(exclusive_area * 100)
+          ORDER BY exclusive_area`,
+    args,
+  });
+  return result.rows.map((row) => ({
+    exclusiveArea: Number(row.exclusiveArea) || 0,
+    count: Number(row.cnt) || 0,
+  }));
+}
+
+export type AptArchiveHigh = { amount: number; date: string } | null;
+
+export async function queryAptArchiveKpi(params: {
+  lawdCodes: string[];
+  aptName: string;
+  yearBound: AptArchiveYearBound;
+  area: AptArchiveAreaFilter;
+}): Promise<{
+  saleHigh: AptArchiveHigh;
+  jeonseHigh: AptArchiveHigh;
+  monthlyDepositHigh: AptArchiveHigh;
+  monthlyRentHigh: AptArchiveHigh;
+  tradeCount: number;
+  jeonseCount: number;
+  monthlyCount: number;
+}> {
+  const empty = {
+    saleHigh: null,
+    jeonseHigh: null,
+    monthlyDepositHigh: null,
+    monthlyRentHigh: null,
+    tradeCount: 0,
+    jeonseCount: 0,
+    monthlyCount: 0,
+  };
+  const db = await readyDb();
+  if (!db) return empty;
+  const aptKey = normalizeAptName(params.aptName);
+  if (!aptKey || !params.lawdCodes.length) return empty;
+
+  const base = {
+    lawdCodes: params.lawdCodes,
+    aptNameNorm: aptKey,
+    yearBound: params.yearBound,
+    area: params.area,
+  };
+
+  async function high(
+    listType: AptArchiveListType,
+    amountCol: "deal_amount" | "monthly_rent",
+  ): Promise<AptArchiveHigh> {
+    const w = archiveWhere({ ...base, listType });
+    const result = await db!.execute({
+      sql: `SELECT ${amountCol} AS amount, deal_date AS dealDate
+            FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+            WHERE ${w.sql} AND ${amountCol} > 0
+            ORDER BY ${amountCol} DESC, deal_date DESC
+            LIMIT 1`,
+      args: w.args,
+    });
+    const row = result.rows[0];
+    if (!row) return null;
+    const amount = Number(row.amount) || 0;
+    const date = String(row.dealDate ?? "");
+    if (amount <= 0 || !date) return null;
+    return { amount, date };
+  }
+
+  const countsWhere = archiveWhere(base);
+  const [saleHigh, jeonseHigh, monthlyDepositHigh, monthlyRentHigh, countsRes] =
+    await Promise.all([
+      high("trade", "deal_amount"),
+      high("jeonse", "deal_amount"),
+      high("monthly", "deal_amount"),
+      high("monthly", "monthly_rent"),
+      db.execute({
+        sql: `SELECT
+                SUM(CASE WHEN deal_type = 'trade' THEN 1 ELSE 0 END) AS tradeCnt,
+                SUM(CASE WHEN deal_type = 'rent' AND monthly_rent = 0 THEN 1 ELSE 0 END) AS jeonseCnt,
+                SUM(CASE WHEN deal_type = 'rent' AND monthly_rent > 0 THEN 1 ELSE 0 END) AS monthlyCnt
+              FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+              WHERE ${countsWhere.sql}`,
+        args: countsWhere.args,
+      }),
+    ]);
+
+  const c = countsRes.rows[0];
+  return {
+    saleHigh,
+    jeonseHigh,
+    monthlyDepositHigh,
+    monthlyRentHigh,
+    tradeCount: Number(c?.tradeCnt ?? 0),
+    jeonseCount: Number(c?.jeonseCnt ?? 0),
+    monthlyCount: Number(c?.monthlyCnt ?? 0),
+  };
+}
+
+/** Newest-first page. Stable by id. */
+export async function queryAptArchivePage(params: {
+  lawdCodes: string[];
+  aptName: string;
+  yearBound: AptArchiveYearBound;
+  area: AptArchiveAreaFilter;
+  listType: AptArchiveListType;
+  offset: number;
+  limit: number;
+}): Promise<Transaction[]> {
+  const db = await readyDb();
+  if (!db) return [];
+  const aptKey = normalizeAptName(params.aptName);
+  if (!aptKey || !params.lawdCodes.length) return [];
+  const w = archiveWhere({
+    lawdCodes: params.lawdCodes,
+    aptNameNorm: aptKey,
+    yearBound: params.yearBound,
+    area: params.area,
+    listType: params.listType,
+  });
+  const limit = Math.min(Math.max(params.limit, 1), 50);
+  const offset = Math.max(params.offset, 0);
+  const result = await db.execute({
+    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+          FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+          WHERE ${w.sql}
+          ORDER BY deal_date DESC, id DESC
+          LIMIT ? OFFSET ?`,
+    args: [...w.args, limit, offset],
+  });
+  return result.rows.map((row) =>
+    mapArchiveRow(row as Record<string, unknown>),
+  );
+}
+
 export async function queryTradePool(params: {
   lawdCodes: string[];
   yearMonths: string[];

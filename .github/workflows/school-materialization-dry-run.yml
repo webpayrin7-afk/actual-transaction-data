@@ -1,0 +1,129 @@
+name: School materialization dry-run
+
+# Seoul school materialization — DRY-RUN only by default.
+# Production Turso WRITE is guarded and must not run in this workflow
+# without an explicit future write-order approval.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run | write (write is blocked by guard)"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - write
+      region:
+        description: "Region scope"
+        required: true
+        default: "seoul"
+        type: choice
+        options:
+          - seoul
+      school_level:
+        description: "School level scope"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - elementary
+          - middle
+          - high
+      complex_id:
+        description: "Optional single complex_id"
+        required: false
+        default: ""
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Node deps
+        run: npm ci
+
+      - name: Install Python spatial deps
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pyshp shapely pyproj
+
+      - name: Write guard
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          echo "mode=$MODE"
+          if [ "$MODE" = "write" ]; then
+            echo "WRITE GUARD: refusing Production write in this workflow."
+            echo "Re-run with mode=dry-run, or await an explicit WRITE order."
+            exit 2
+          fi
+
+      - name: Require schoolzone SHP path
+        id: shp
+        run: |
+          # SHP binaries are not committed (large). Provide via secret URL or runner cache.
+          if [ -f /tmp/schoolzone-data/elem/초등학교통학구역.shp ]; then
+            echo "elem_shp=/tmp/schoolzone-data/elem/초등학교통학구역.shp" >> "$GITHUB_OUTPUT"
+            echo "middle_shp=/tmp/schoolzone-data/middle/중학교학교군.shp" >> "$GITHUB_OUTPUT"
+            echo "schools_csv=/tmp/schoolzone-data/schools/한국교육시설안전원_초중등학교위치_20260320.csv" >> "$GITHUB_OUTPUT"
+            echo "using runner-local /tmp/schoolzone-data"
+            exit 0
+          fi
+          if [ -n "${{ secrets.SCHOOLZONE_DATA_URL }}" ]; then
+            mkdir -p /tmp/schoolzone-data
+            curl -L --fail --retry 3 -o /tmp/schoolzone.tgz "${{ secrets.SCHOOLZONE_DATA_URL }}"
+            tar -xzf /tmp/schoolzone.tgz -C /tmp/schoolzone-data
+            echo "elem_shp=/tmp/schoolzone-data/elem/초등학교통학구역.shp" >> "$GITHUB_OUTPUT"
+            echo "middle_shp=/tmp/schoolzone-data/middle/중학교학교군.shp" >> "$GITHUB_OUTPUT"
+            echo "schools_csv=/tmp/schoolzone-data/schools/한국교육시설안전원_초중등학교위치_20260320.csv" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "HOLD: schoolzone SHP not available on runner (set SCHOOLZONE_DATA_URL secret or pre-stage /tmp/schoolzone-data)."
+          exit 2
+
+      - name: Export Seoul complexes (Turso READ-ONLY)
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: |
+          mkdir -p /tmp/school-materialization-out
+          npx tsx scripts/school-materialization/export-seoul-complexes.ts /tmp/school-materialization-out
+
+      - name: Run dry-run materializer
+        run: |
+          ARGS=(
+            --mode=dry-run
+            --region="${{ github.event.inputs.region }}"
+            --school-level="${{ github.event.inputs.school_level }}"
+            --complexes-json=/tmp/school-materialization-out/seoul-complexes.json
+            --elem-shp="${{ steps.shp.outputs.elem_shp }}"
+            --middle-shp="${{ steps.shp.outputs.middle_shp }}"
+            --schools-csv="${{ steps.shp.outputs.schools_csv }}"
+            --out-dir=/tmp/school-materialization-out
+          )
+          CID="${{ github.event.inputs.complex_id }}"
+          if [ -n "$CID" ]; then ARGS+=(--complex-id="$CID"); fi
+          python3 scripts/school-materialization/dry_run_seoul.py "${ARGS[@]}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-materialization-dry-run
+          path: |
+            /tmp/school-materialization-out/school-materialization-summary.json
+            /tmp/school-materialization-out/school-materialization-unresolved.csv
+            /tmp/school-materialization-out/school-materialization-sample.json
+          if-no-files-found: error

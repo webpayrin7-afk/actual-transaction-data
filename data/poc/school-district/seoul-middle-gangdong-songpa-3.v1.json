@@ -1,0 +1,121 @@
+{
+  "id": "seoul-middle-gangdong-songpa-3",
+  "level": "middle",
+  "officialName": "강동송파3학교군",
+  "officialNameVariants": [
+    "강동 송파 3",
+    "강동송파 3학교군"
+  ],
+  "jurisdictionGu": ["송파구"],
+  "educationOffice": "서울특별시강동송파교육지원청",
+  "status": "CONFIRMED",
+  "source": {
+    "provider": "서울특별시강동송파교육지원청",
+    "kind": "hwp+shp",
+    "hakgoonCode": "Z000200027",
+    "retrievedAt": "2026-09-17",
+    "schoolYear": null,
+    "baseDate": "2026-03-20",
+    "note": "주소→학교군: 학구도안내서비스 중학교학교군 SHP(Z000200027) PIP. 소속학교: 강동송파교육지원청 「학교군별 소속 지역 안내」. HWP의 일신=현 잠실여자중학교(2025-03-01 교명 변경, NEIS 7130279)."
+  },
+  "members": [
+    {
+      "name": "배명중학교",
+      "establishment": "사립",
+      "schoolType": "중학교",
+      "selection": "남",
+      "neisSdSchulCode": "7130180",
+      "roadAddress": "서울특별시 송파구 삼학사로 11"
+    },
+    {
+      "name": "아주중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130195",
+      "roadAddress": "서울특별시 송파구 올림픽로4길 69"
+    },
+    {
+      "name": "잠신중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130201",
+      "roadAddress": "서울특별시 송파구 잠실로 12"
+    },
+    {
+      "name": "잠실중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130202",
+      "roadAddress": "서울특별시 송파구 올림픽로35길 130"
+    },
+    {
+      "name": "가락중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130165",
+      "roadAddress": "서울특별시 송파구 송이로 45"
+    },
+    {
+      "name": "방이중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130179",
+      "roadAddress": "서울특별시 송파구 오금로11길 64"
+    },
+    {
+      "name": "방산중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130178",
+      "roadAddress": "서울특별시 송파구 오금로29길 31"
+    },
+    {
+      "name": "신천중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130194",
+      "roadAddress": "서울특별시 송파구 백제고분로 11"
+    },
+    {
+      "name": "해누리중학교",
+      "establishment": "공립",
+      "schoolType": "중학교",
+      "selection": "공학",
+      "neisSdSchulCode": "7130256",
+      "roadAddress": "서울특별시 송파구 송파대로37길 95"
+    },
+    {
+      "name": "정신여자중학교",
+      "establishment": "사립",
+      "schoolType": "중학교",
+      "selection": "여",
+      "neisSdSchulCode": "7130203",
+      "roadAddress": "서울특별시 송파구 올림픽로4길 16"
+    },
+    {
+      "name": "잠실여자중학교",
+      "establishment": "사립",
+      "schoolType": "중학교",
+      "selection": "여",
+      "neisSdSchulCode": "7130279",
+      "roadAddress": "서울특별시 송파구 송파대로38길 8",
+      "sourceNameNote": "공식 안내 문서 표기: 일신 (2025-03-01 잠실여자중학교로 교명 변경)"
+    }
+  ],
+  "complexLinks": [
+    {
+      "complexId": "cx_4c63d9a100973c60",
+      "aptNames": ["잠실엘스", "잠실엘스아파트"],
+      "resolutionMethod": "official_shp_point_in_polygon",
+      "confidence": "CONFIRMED",
+      "basis": "product map anchor가 공식 강동송파3학교군(Z000200027) 폴리곤 내부 + 교육지원청 소속학교 목록"
+    }
+  ]
+}

@@ -1,20 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --lab-bg: #f4f7fa;
+  /* ZIPLAB UI Policy v2 — docs/design/ziplab-ui-policy-v2.md */
+  --lab-bg: #f8fafc;
   --lab-surface: #ffffff;
-  --lab-navy-950: #061b33;
-  --lab-navy-900: #0b2745;
-  --lab-navy-700: #244663;
-  --lab-teal-700: #087f83;
-  --lab-teal-600: #07969a;
-  --lab-teal-50: #eefafa;
-  --lab-border: #dce4eb;
+  --lab-surface-subtle: #f1f5f9;
+  --lab-navy-950: #0f172a;
+  --lab-navy-900: #0f172a;
+  --lab-navy-700: #334155;
+  --lab-body: #334155;
+  --lab-teal-700: #115e59;
+  --lab-teal-600: #0f766e;
+  --lab-teal-50: #f0fdfa;
+  --lab-teal-border: #ccfbf1;
+  /* Brand role aliases (selection / attention / entry) */
+  --lab-brand-primary: var(--lab-teal-600);
+  --lab-brand-hover: var(--lab-teal-700);
+  --lab-brand-subtle: var(--lab-teal-50);
+  --lab-brand-border: var(--lab-teal-border);
+  /* Chart series — align with deal price ink (매매/전세) */
+  --lab-chart-trade: var(--lab-price-trade);
+  --lab-chart-jeonse: var(--lab-price-jeonse);
+  --lab-chart-volume: #0f766e;
+  /* Deal list prices — archive 매매/전세/월세 ink (unify detail + archive) */
+  --lab-price-trade: #087f83;
+  --lab-price-jeonse: #c2410c;
+  --lab-price-monthly: #4338ca;
+  --lab-border: #e2e8f0;
+  --lab-border-control: #64748b;
   --lab-muted: #64748b;
+  /* 학교 속성 라벨 (학교 상세 제목 위) — 값마다 구분되는 연한 배경 + 진한 글자 */
+  --lab-school-elementary-bg: #dcfce7; --lab-school-elementary-ink: #166534; /* 초등 */
+  --lab-school-middle-bg: #dbeafe; --lab-school-middle-ink: #1e40af; /* 중 */
+  --lab-school-high-bg: #ede9fe; --lab-school-high-ink: #5b21b6; /* 고 */
+  --lab-school-public-bg: #ccfbf1; --lab-school-public-ink: #115e59; /* 공립 */
+  --lab-school-private-bg: #fef3c7; --lab-school-private-ink: #92400e; /* 사립 */
+  --lab-school-national-bg: #e2e8f0; --lab-school-national-ink: #1e293b; /* 국립 */
+  --lab-school-boys-bg: #cffafe; --lab-school-boys-ink: #155e75; /* 남 */
+  --lab-school-girls-bg: #fce7f3; --lab-school-girls-ink: #9d174d; /* 여 */
+  /* 남녀공학: 함께 나오는 학교급(초록·파랑·보라)·설립(청록·호박) 색과 먼 로즈. 여학교(분홍)와는 동시에 나오지 않음 */
+  --lab-school-coed-bg: #ffe4e6; --lab-school-coed-ink: #be123c; /* 남녀공학 */
+  --lab-school-neutral-bg: #f1f5f9; --lab-school-neutral-ink: #334155;
+  --lab-change-up: #b91c1c;
+  --lab-change-down: #1d4ed8;
+  --lab-warning-text: #92400e;
+  --lab-error-text: #b91c1c;
+  --lab-success-text: #166534;
+  /* Commerce category colors */
+  --lab-cat-food: #c2410c;
+  --lab-cat-shop: #0369a1;
+  --lab-cat-life: #475569;
+  --lab-cat-edu: #7c3aed;
+  --lab-cat-leisure: #15803d;
+  --lab-cat-health: #be185d;
   --lab-radius-sm: 8px;
   --lab-radius-md: 12px;
-  --lab-radius-lg: 16px;
-  --lab-shadow: 0 1px 2px rgb(15 23 42 / 0.035);
+  --lab-radius-lg: 12px;
+  --lab-shadow: none;
+  --lab-shadow-popover: 0 8px 24px rgb(15 23 42 / 0.12);
   --background: var(--lab-bg);
   --foreground: var(--lab-navy-950);
   --surface: var(--lab-surface);
@@ -26,8 +69,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-pretendard), system-ui, sans-serif;
+  --font-display: var(--font-pretendard), system-ui, sans-serif;
 }
 
 body {
@@ -40,41 +83,1113 @@ body {
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, [role="button"], a { touch-action: manipulation; }
 
-.lab-card {
-  border: 1px solid var(--lab-border);
-  border-radius: var(--lab-radius-lg);
-  background: var(--lab-surface);
-  box-shadow: var(--lab-shadow);
+/*
+ * Prevent focus zoom on mobile browsers (esp. iOS Safari).
+ * Controls under 16px trigger automatic page zoom; keep form text at 16px
+ * site-wide. Also pin text-size-adjust so WebKit does not inflate type.
+ */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-.lab-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.lab-section-heading h2 { color: var(--lab-navy-950); font-size: 1rem; font-weight: 700; letter-spacing: -.015em; }
-.lab-section-heading p { margin-top: 3px; color: var(--lab-muted); font-size: .75rem; line-height: 1.25rem; }
-.lab-button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; padding: 0 14px; font-size: .875rem; font-weight: 650; transition: background-color .15s, border-color .15s, color .15s; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
+select,
+textarea,
+.lab-input,
+.lab-input input,
+.lab-input select,
+.lab-input textarea {
+  font-size: 16px !important;
+}
+
+.lab-card {
+  border: 1px solid var(--lab-border);
+  border-radius: var(--lab-radius-md); /* 12 */
+  background: var(--lab-surface);
+  box-shadow: none;
+}
+
+.lab-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 0; }
+/* Default LAB heading. Apt detail overrides with .detail-section-title (Guide v1). */
+.lab-section-heading h2 { color: var(--lab-navy-950); font-size: 1.25rem; font-weight: 600; letter-spacing: -.025em; line-height: 1; }
+.lab-section-heading p { margin-top: 4px; color: var(--lab-muted); font-size: .75rem; line-height: 1.25rem; }
+
+/*
+ * ZIPLAB UI Policy v2
+ * Apt-detail semantic type and rhythm. Unlayered so these beat one-off utilities.
+ * Spec: docs/design/ziplab-ui-policy-v2.md
+ * Breakpoints: mobile <768, tablet 768–1023 (mobile type), PC ≥1024
+ */
+.detail-page {
+  gap: 1.5rem; /* 24 */
+  max-width: 70rem; /* 1120 */
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 768px) {
+  .detail-page {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .detail-page {
+    gap: 2rem; /* 32 */
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+.detail-page h1,
+.detail-page h2,
+.detail-page h3 {
+  font-family: var(--font-sans);
+}
+.detail-page .lab-tab-secondary {
+  height: 2.75rem; /* 44 */
+  min-height: 2.75rem;
+  flex: 1 1 0;
+  width: auto;
+  border-radius: var(--lab-radius-sm);
+  font-size: 0.875rem; /* 14 */
+  font-weight: 500;
+  line-height: 1.25rem; /* 20 */
+}
+.detail-page .lab-tab-secondary[aria-checked="true"],
+.detail-page .lab-tab-secondary[aria-pressed="true"],
+.detail-page .lab-tab-secondary-active {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.detail-page .lab-segmented {
+  width: 100%;
+  gap: 0.5rem; /* 8 */
+}
+.detail-card { padding: 1rem; } /* 16 */
+@media (min-width: 768px) {
+  .detail-card { padding: 1.5rem; } /* 24 */
+}
+
+/*
+ * Calculator card uses standard .detail-card padding.
+ * Primary LabTabs sit inset; spacing via utility / section classes.
+ */
+.calculator-primary-tabs {
+  margin-top: 1rem; /* 16 — below title group */
+}
+.calculator-tab-panel {
+  margin-top: 1.5rem; /* 24 — first content below tabs */
+}
+.detail-after-title { margin-top: 1rem; } /* 16 title-group → body */
+@media (min-width: 1024px) {
+  .detail-after-title { margin-top: 1.5rem; } /* 24 */
+}
+.detail-subsection { margin-top: 1.5rem; } /* 24 */
+.detail-subsection-rule {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--lab-border);
+  padding-top: 1.5rem;
+}
+.detail-rows { display: flex; flex-direction: column; gap: 0.75rem; }
+.detail-chart-gap { margin-top: 0.75rem; }
+.detail-cta { margin-top: 1rem; }
+
+/* Market trend: title + compact period filter; wrap filter to next row right */
+.detail-market-header {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem; /* 8 */
+}
+.detail-market-period {
+  display: flex;
+  min-width: 0;
+  flex-shrink: 0;
+  margin-left: auto;
+  align-items: center;
+  justify-content: flex-end;
+}
+.detail-market-deal-tabs {
+  margin-top: 0.75rem; /* 12 */
+}
+.detail-market-context { margin-top: 0.5rem; } /* 8 period → meta */
+.detail-market-chart { margin-top: 0.75rem; } /* 12 meta → chart */
+.detail-market-slider { margin-top: 0.75rem; } /* 12 chart → slider */
+.detail-market-kpi { margin-top: 0.75rem; } /* 12 slider → compact KPI */
+.detail-market-trades {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--lab-border);
+}
+.detail-market-trades-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.detail-market-month-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--lab-radius-sm);
+  background: var(--lab-surface-subtle);
+}
+.detail-market-month-clear {
+  min-height: 36px;
+  padding: 0 8px;
+  font-size: 0.8125rem;
+}
+
+/* Area-scoped price summary (below area selector) */
+.detail-summary-primary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+.detail-summary-cell {
+  min-width: 0;
+  padding: 0 0.5rem;
+  text-align: center;
+}
+.detail-summary-primary > .detail-summary-cell:not(:last-child) {
+  border-right: 1px solid var(--lab-border);
+}
+.detail-summary-label {
+  font-size: 0.75rem; /* 12 */
+  font-weight: 500;
+  line-height: 1rem;
+  color: var(--lab-muted);
+}
+.detail-summary-primary .detail-summary-value {
+  margin-top: 0.25rem;
+  font-size: 1.125rem; /* 18 — compact vs hero */
+  line-height: 1.5rem;
+  white-space: nowrap;
+}
+@media (min-width: 640px) {
+  .detail-summary-primary .detail-summary-value {
+    font-size: 1.25rem; /* 20 */
+    line-height: 1.75rem;
+  }
+}
+.detail-summary-value.detail-kpi-brand {
+  color: var(--lab-brand-primary);
+}
+.detail-summary-hint {
+  margin-top: 0.125rem;
+  font-size: 0.6875rem; /* 11 */
+  font-weight: 400;
+  line-height: 1rem;
+  color: var(--lab-muted);
+  white-space: nowrap;
+}
+.detail-summary-secondary {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--lab-border);
+  text-align: center;
+}
+.detail-summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  row-gap: 0.25rem; /* 4 */
+  margin: 0;
+  font-size: 0.875rem; /* 14 */
+  font-weight: 400;
+  line-height: 1.375rem; /* 22 */
+  color: var(--lab-muted);
+}
+.detail-summary-meta-item {
+  display: inline-flex;
+  align-items: center; /* vertically center ⓘ with label/value */
+  gap: 0.375rem; /* 6 — label ↔ value */
+  max-width: 100%;
+  white-space: nowrap;
+}
+.detail-summary-meta-label {
+  color: var(--lab-muted);
+  font-weight: 400;
+}
+.detail-summary-meta-sep {
+  margin: 0 0.375rem; /* 6 around · */
+  color: var(--lab-muted);
+  font-weight: 400;
+}
+.detail-summary-meta-value {
+  font-weight: 600;
+  color: var(--lab-navy-950);
+  font-variant-numeric: tabular-nums;
+}
+.detail-summary-meta-item .relative {
+  align-self: center;
+}
+.detail-summary-meta-tip {
+  /* tighter to value; vertically centered with label/value (shared InfoTip rule) */
+  margin-left: 0.125rem; /* 2 */
+}
+/* 360: wrap by meaning unit — ratio on row 1, gap+tip on row 2 */
+@media (max-width: 379px) {
+  .detail-summary-meta-sep {
+    display: none;
+  }
+  .detail-summary-meta-item {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+.detail-summary-foot {
+  margin-top: 0.25rem; /* 4 */
+  text-align: left;
+  font-size: 0.75rem; /* 12 */
+  font-weight: 400;
+  line-height: 1.125rem; /* 18 */
+  color: var(--lab-muted);
+}
+
+/* Embedded trade list inside market card — full-width columns, left-aligned cells */
+.detail-trade-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  width: 100%;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem minmax(0, 1.25fr);
+  column-gap: 0.5rem; /* 8 — shared so head + rows align */
+}
+.detail-trade-list-head {
+  padding: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+  color: var(--lab-muted);
+  border-bottom: 1px solid var(--lab-border);
+}
+.detail-trade-row {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgb(241 245 249); /* slate-100 */
+}
+.detail-trade-row:last-child {
+  border-bottom: none;
+}
+/* One-line: 계약일 · 전용면적 · 층 · 가격 — full bleed width via subgrid */
+.detail-trade-row--inline {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: center;
+}
+.detail-trade-row--inline > * {
+  justify-self: start;
+  text-align: left;
+  min-width: 0;
+}
+/* 층 · 매매가: head + values both right-aligned */
+.detail-trade-row--inline > :nth-child(3),
+.detail-trade-row--inline > :nth-child(4) {
+  justify-self: end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+@supports not (grid-template-columns: subgrid) {
+  .detail-trade-list {
+    display: block;
+  }
+  .detail-trade-row--inline {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem minmax(0, 1.25fr);
+    grid-column: auto;
+    column-gap: 0.5rem;
+  }
+}
+.detail-trade-row-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--lab-navy-950);
+  font-variant-numeric: tabular-nums;
+}
+.detail-trade-row-area,
+.detail-trade-row-floor {
+  margin: 0;
+  font-size: 0.8125rem; /* 13 */
+  font-weight: 400;
+  line-height: 1.25rem;
+  color: var(--lab-muted);
+}
+/* Archive dense rows — same size as detail 전용·층 */
+.detail-trade-archive-row {
+  font-size: 0.8125rem; /* 13 */
+  font-weight: 400;
+  line-height: 1.25rem;
+}
+.detail-trade-archive-price {
+  font-size: inherit;
+  font-weight: 600;
+  line-height: inherit;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.detail-trade-row-price {
+  font-size: 0.9375rem; /* 15 */
+  font-weight: 600;
+  line-height: 1.375rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.detail-trade-row-meta {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1rem;
+  color: var(--lab-muted);
+}
+
+/* Market KPI — compact 1×4 summary below chart (always one row) */
+.detail-kpi-panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  border: none;
+  border-top: 1px solid var(--lab-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.detail-kpi-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.125rem; /* 2 */
+  padding: 0.5rem 0.375rem; /* 8 / 6 — mobile-friendly 1×4 */
+  border: none;
+  background: transparent;
+}
+@media (min-width: 640px) {
+  .detail-kpi-cell {
+    padding: 0.625rem 0.5rem; /* 10 / 8 */
+  }
+}
+.detail-kpi-label {
+  font-size: 0.6875rem; /* 11 */
+  font-weight: 500;
+  line-height: 1rem; /* 16 */
+  color: var(--lab-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 640px) {
+  .detail-kpi-label {
+    font-size: 0.75rem; /* 12 */
+  }
+}
+.detail-kpi-value {
+  font-size: 0.875rem; /* 14 */
+  font-weight: 600;
+  line-height: 1.25rem; /* 20 */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 640px) {
+  .detail-kpi-value {
+    font-size: 1rem; /* 16 */
+    line-height: 1.375rem; /* 22 */
+  }
+}
+.detail-kpi-value.detail-kpi-brand {
+  color: var(--lab-brand-primary);
+}
+.detail-kpi-value.detail-change-up {
+  color: var(--lab-change-up);
+}
+.detail-kpi-value.detail-change-down {
+  color: var(--lab-change-down);
+}
+.detail-kpi-hint {
+  font-size: 0.625rem; /* 10 */
+  font-weight: 400;
+  line-height: 0.875rem; /* 14 */
+  color: var(--lab-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (min-width: 640px) {
+  .detail-kpi-hint {
+    font-size: 0.6875rem; /* 11 */
+    line-height: 1rem; /* 16 */
+  }
+}
+
+/* Price chart: main plot + compact volume strip */
+.detail-price-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem; /* 12 legend → plot */
+  font-size: 0.8125rem; /* 13 */
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--lab-navy-700);
+}
+.detail-price-chart-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.detail-price-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.detail-price-chart-legend-count {
+  margin: 0;
+  margin-left: auto;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  white-space: nowrap;
+}
+.detail-price-chart-legend-count-label {
+  font-weight: 400;
+  color: var(--lab-muted);
+}
+.detail-price-chart-legend-count-value {
+  font-weight: 600;
+  color: var(--lab-navy-950);
+  font-variant-numeric: tabular-nums;
+}
+.detail-price-chart-legend-swatch {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.detail-price-chart-legend-line {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.1875rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.detail-price-chart-legend-bar {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.detail-price-chart-stack {
+  width: 100%;
+  overflow: visible;
+}
+.detail-price-chart-plot {
+  width: 100%;
+  height: 220px; /* ~80% of prior plot budget */
+  overflow: visible;
+}
+@media (min-width: 768px) {
+  .detail-price-chart-plot { height: 248px; }
+}
+@media (min-width: 1024px) {
+  .detail-price-chart-plot { height: 270px; }
+}
+.detail-price-chart-volume {
+  position: relative;
+  width: 100%;
+  height: 48px; /* ~15–18% of stack */
+  margin-top: 0.125rem;
+}
+@media (min-width: 768px) {
+  .detail-price-chart-volume { height: 56px; }
+}
+.detail-price-chart-volume-label {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  z-index: 1;
+  width: 34px; /* match price Y-axis gutter */
+  padding-right: 2px;
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--lab-muted);
+  text-align: right;
+  pointer-events: none;
+}
+
+/* Typography roles — sizes in rem (16px root) */
+.detail-page-title {
+  font-size: 1.5rem; /* 24 */
+  font-weight: 700;
+  line-height: 2rem; /* 32 */
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+}
+@media (min-width: 1024px) {
+  .detail-page-title {
+    font-size: 1.75rem; /* 28 */
+    line-height: 2.25rem; /* 36 */
+  }
+}
+.detail-section-title,
+.lab-section-heading h2.detail-section-title,
+h2.detail-section-title {
+  font-size: 1.125rem; /* 18 */
+  font-weight: 700;
+  line-height: 1.625rem; /* 26 */
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+}
+@media (min-width: 1024px) {
+  .detail-section-title,
+  .lab-section-heading h2.detail-section-title,
+  h2.detail-section-title {
+    font-size: 1.25rem; /* 20 */
+    line-height: 1.75rem; /* 28 */
+  }
+}
+.detail-subsection-title {
+  font-size: 1rem; /* 16 */
+  font-weight: 600;
+  line-height: 1.5rem; /* 24 */
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+}
+.detail-hero-value {
+  font-size: 1.75rem; /* 28 */
+  font-weight: 700;
+  line-height: 2.25rem; /* 36 */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+}
+@media (min-width: 1024px) {
+  .detail-hero-value {
+    font-size: 2rem; /* 32 */
+    line-height: 2.5rem; /* 40 */
+  }
+}
+.detail-summary-value,
+.detail-number-strong {
+  font-size: 1.25rem; /* 20 */
+  font-weight: 600;
+  line-height: 1.75rem; /* 28 */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+}
+.detail-price-trade,
+.detail-number.detail-price-trade,
+.detail-summary-value.detail-price-trade,
+.detail-list-title.detail-price-trade,
+.detail-trade-row-price.detail-price-trade {
+  color: var(--lab-price-trade);
+}
+.detail-price-jeonse,
+.detail-number.detail-price-jeonse,
+.detail-summary-value.detail-price-jeonse,
+.detail-list-title.detail-price-jeonse,
+.detail-trade-row-price.detail-price-jeonse {
+  color: var(--lab-price-jeonse);
+}
+.detail-price-monthly,
+.detail-number.detail-price-monthly,
+.detail-summary-value.detail-price-monthly,
+.detail-list-title.detail-price-monthly,
+.detail-trade-row-price.detail-price-monthly {
+  color: var(--lab-price-monthly);
+}
+@media (min-width: 1024px) {
+  .detail-summary-value,
+  .detail-number-strong {
+    font-size: 1.5rem; /* 24 */
+    line-height: 2rem; /* 32 */
+  }
+}
+.detail-compact-value {
+  font-size: 1.125rem; /* 18 */
+  font-weight: 600;
+  line-height: 1.625rem; /* 26 */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+}
+.detail-list-title,
+.detail-number {
+  font-size: 1rem; /* 16 */
+  font-weight: 600;
+  line-height: 1.5rem; /* 24 */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--lab-navy-950);
+}
+.detail-data-value {
+  font-size: 0.9375rem; /* 15 */
+  font-weight: 500;
+  line-height: 1.375rem; /* 22 */
+  font-variant-numeric: tabular-nums;
+  color: var(--lab-navy-950);
+}
+.detail-data-value-emphasis {
+  font-size: 0.9375rem; /* 15 */
+  font-weight: 600;
+  line-height: 1.375rem; /* 22 */
+  font-variant-numeric: tabular-nums;
+  color: var(--lab-navy-950);
+}
+.detail-body {
+  font-size: 0.9375rem; /* 15 */
+  font-weight: 400;
+  line-height: 1.5rem; /* 24 */
+  color: var(--lab-body);
+}
+/*
+ * Layered so utilities win: `detail-label text-[color:var(--lab-navy-950)]` (names in lists,
+ * disclosure titles, calculator labels) was rendering gray because this unlayered rule beat
+ * Tailwind's utilities layer. Default stays muted gray for plain labels.
+ */
+@layer components {
+  .detail-label {
+    font-size: 0.875rem; /* 14 */
+    font-weight: 500;
+    line-height: 1.25rem; /* 20 */
+    color: var(--lab-muted);
+  }
+}
+.detail-meta,
+.detail-caption,
+.detail-source {
+  font-size: 0.8125rem; /* 13 */
+  font-weight: 400;
+  line-height: 1.25rem; /* 20 */
+  color: var(--lab-muted);
+}
+.detail-micro,
+.detail-chip,
+.detail-number-unit {
+  font-size: 0.75rem; /* 12 */
+  font-weight: 400;
+  line-height: 1rem; /* 16 */
+  color: var(--lab-muted);
+}
+.detail-chip {
+  font-weight: 500;
+  line-height: 1;
+}
+.detail-number-unit {
+  font-weight: 500;
+}
+.detail-change-up { color: var(--lab-change-up); }
+.detail-change-down { color: var(--lab-change-down); }
+.detail-summary-value.detail-change-up { color: var(--lab-change-up); }
+.detail-summary-value.detail-change-down { color: var(--lab-change-down); }
+
+.lab-button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 6px; border-radius: var(--lab-radius-sm); padding: 0 14px; font-size: .875rem; font-weight: 500; line-height: 1.25rem; transition: background-color .15s, border-color .15s, color .15s; }
 .lab-button:focus-visible, .lab-input:focus-visible, .lab-tab:focus-visible, .lab-side-link:focus-visible { outline: 2px solid var(--lab-teal-600); outline-offset: 2px; }
-.lab-button-primary { background: var(--lab-teal-600); color: white; }
+.lab-button-primary { background: var(--lab-teal-600); color: white; font-weight: 600; }
 .lab-button-primary:hover { background: var(--lab-teal-700); }
-.lab-button-secondary { border: 1px solid var(--lab-border); background: white; color: var(--lab-navy-900); }
-.lab-button-secondary:hover { background: #f8fafc; }
+.lab-button-secondary { border: 1px solid var(--lab-border-control); background: white; color: var(--lab-teal-600); font-weight: 500; }
+.lab-button-secondary:hover { background: var(--lab-teal-50); color: var(--lab-teal-700); }
+.lab-button-tertiary { background: transparent; color: var(--lab-teal-600); font-weight: 500; min-height: 44px; padding: 0 8px; }
+.lab-button-tertiary:hover { color: var(--lab-teal-700); }
 .lab-button:disabled { cursor: not-allowed; opacity: .45; }
-.lab-input { min-height: 44px; width: 100%; border: 1px solid var(--lab-border); border-radius: 10px; background: white; color: var(--lab-navy-950); }
+/*
+ * 더보기/접기 — 실행(primary)·이동(secondary, →)과 구분되는 텍스트형 (policy §6).
+ * 테두리·채움 없음, 회색 글자 + ▾. hover 면은 마우스 기기에서만 (터치 후 눌린 채 남지 않게).
+ */
+.lab-more-button { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; gap: 4px; border-radius: var(--lab-radius-sm); background: transparent; color: var(--lab-muted); font-size: .875rem; font-weight: 500; line-height: 1.25rem; transition: color .15s, background-color .15s; }
+.lab-more-button:focus-visible { outline: 2px solid var(--lab-teal-600); outline-offset: 2px; }
+.lab-more-button:disabled { cursor: not-allowed; opacity: .45; }
+@media (hover: hover) {
+  .lab-more-button:hover { background: var(--lab-surface-subtle); color: var(--lab-navy-950); }
+}
+.lab-input { min-height: 48px; width: 100%; border: 1px solid var(--lab-border-control); border-radius: var(--lab-radius-sm); background: white; color: var(--lab-navy-950); font-size: 1rem; font-weight: 400; line-height: 1.5rem; }
 /* Selection (tabs/filters/options): light teal — solid teal is CTA-only via .lab-button-primary */
-.lab-tab { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; border-radius: 9px; padding: 0 13px; color: #526579; font-size: .875rem; font-weight: 600; transition: background-color .15s, color .15s; }
+.lab-tab { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border-radius: 9px; padding: 0 13px; color: #526579; font-size: .875rem; font-weight: 600; transition: background-color .15s, color .15s; }
 .lab-tab:hover:not([aria-selected="true"]):not([aria-pressed="true"]):not(.lab-tab-active):not(:disabled) { background: #f8fafc; color: var(--lab-navy-950); }
 .lab-tab[aria-selected="true"], .lab-tab[aria-pressed="true"], .lab-tab-active { background: var(--lab-teal-50); color: var(--lab-teal-700); }
 .lab-tab:disabled { cursor: not-allowed; opacity: .45; }
 /* Primary = section switcher (size step up); same selection colors */
-.lab-tab-primary { min-height: 44px; padding: 0 14px; font-size: .8125rem; font-weight: 650; }
-/* Secondary = in-page filter chips; same colors, compact */
-.lab-tab-secondary { display: inline-flex; height: 28px; width: fit-content; align-items: center; justify-content: center; border: 1px solid var(--lab-border); border-radius: 8px; background: white; padding: 0 8px; color: #526579; font-size: .75rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
-.lab-tab-secondary:hover:not([aria-checked="true"]):not([aria-pressed="true"]):not(.lab-tab-secondary-active):not(:disabled) { background: #f8fafc; color: var(--lab-navy-950); }
-.lab-tab-secondary[aria-checked="true"], .lab-tab-secondary[aria-pressed="true"], .lab-tab-secondary-active { border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent); background: var(--lab-teal-50); color: var(--lab-teal-700); }
-.lab-tab-secondary:disabled { cursor: not-allowed; opacity: .45; }
-.lab-choice { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; border: 1px solid var(--lab-border); border-radius: 10px; background: white; padding: 8px 12px; color: var(--lab-navy-900); font-size: .875rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
+.lab-tab-primary {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--lab-radius-sm);
+  font-size: 0.875rem; /* 14 */
+  font-weight: 500;
+  line-height: 1.25rem; /* 20 */
+}
+.lab-tab-primary.lab-tab-active,
+.lab-tab.lab-tab-primary[aria-selected="true"],
+.lab-tab.lab-tab-primary[aria-pressed="true"] {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+/* Secondary = in-page filter / segmented chips (기간·거래유형·주변생활 공통 size) */
+.lab-tab-secondary {
+  display: inline-flex;
+  box-sizing: border-box;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--lab-border);
+  border-radius: var(--lab-radius-sm);
+  background: white;
+  padding: 0 12px;
+  color: var(--lab-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.lab-tab-secondary:hover:not([aria-checked="true"]):not([aria-pressed="true"]):not(.lab-tab-secondary-active):not(:disabled) {
+  background: #f8fafc;
+  color: var(--lab-navy-950);
+}
+.lab-tab-secondary[aria-checked="true"],
+.lab-tab-secondary[aria-pressed="true"],
+.lab-tab-secondary-active {
+  border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent);
+  background: var(--lab-teal-50);
+  color: var(--lab-teal-700);
+}
+.lab-tab-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+/* Shared row wrapper for secondary segmented controls */
+.lab-segmented {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/*
+ * ZIPLAB UI Policy v2 §11 — 랩시리즈 공통 segmented family
+ * Soft teal selection in a white bordered shell (apt-detail reference).
+ * primary 48 / secondary 40 / compact 30(visual)·44(touch)
+ */
+.lab-tabs {
+  /* Soft-teal shell tokens (policy §11 / apt-detail reference) — local so brand buttons stay on Tailwind teal scale */
+  --lab-tabs-track-pad: 4px;
+  --lab-tabs-shell-radius: 12px;
+  /* concentric: thumb radius = shell − pad so inset reads equal on all sides */
+  --lab-tabs-thumb-radius: calc(var(--lab-tabs-shell-radius) - var(--lab-tabs-track-pad));
+  --lab-tabs-thumb-bg: #eefafa;
+  --lab-tabs-active-ink: #087f83;
+  position: relative;
+  display: flex;
+  max-width: 100%;
+  align-items: stretch;
+  box-sizing: border-box;
+  gap: 0;
+  padding: var(--lab-tabs-track-pad);
+  border: 1px solid var(--lab-border); /* #E2E8F0 */
+  border-radius: var(--lab-tabs-shell-radius);
+  background: var(--lab-surface); /* #FFFFFF */
+  box-shadow: none;
+  overflow: hidden; /* clip thumb to shell; keeps inset gutter visually even */
+}
+/* Legacy sliding thumb — no longer painted; the active button carries the fill. */
+.lab-tabs__thumb {
+  display: none !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  box-sizing: border-box;
+  height: 0;
+  width: 0;
+  border-radius: var(--lab-tabs-thumb-radius);
+  background: var(--lab-tabs-thumb-bg);
+  box-shadow: none;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  opacity: 0;
+}
+.lab-tabs__thumb.is-ready {
+  opacity: 1;
+  transition:
+    transform 160ms ease,
+    width 160ms ease,
+    height 160ms ease,
+    top 160ms ease,
+    opacity 160ms ease;
+}
+.lab-tabs__btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--lab-tabs-thumb-radius);
+  background: transparent;
+  color: var(--lab-muted); /* #64748B */
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: none;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+.lab-tabs__btn:focus-visible {
+  outline: 2px solid var(--lab-teal-600);
+  outline-offset: 2px;
+  z-index: 2;
+}
+.lab-tabs__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.lab-tabs__btn--equal {
+  flex: 1 1 0;
+}
+/*
+ * 선택 면은 활성 버튼 자체의 배경으로 그린다. 버튼 박스가 곧 트랙 패딩 안쪽이라
+ * 위·아래·좌·우 여백이 기기(DPR·폰트 로딩)와 무관하게 항상 같다.
+ * (JS로 재서 겹치던 슬라이딩 thumb는 iOS Safari·Android Chrome에서 위아래가 어긋났다.)
+ */
+.lab-tabs__btn.is-active,
+.lab-tabs__btn[aria-selected="true"],
+.lab-tabs__btn[aria-checked="true"] {
+  background: var(--lab-tabs-thumb-bg);
+  color: var(--lab-tabs-active-ink);
+  font-weight: 600;
+  box-shadow: none;
+}
+.lab-tabs__btn:hover:not(.is-active):not([aria-selected="true"]):not([aria-checked="true"]):not(:disabled) {
+  color: var(--lab-navy-950);
+}
+.lab-tabs__label {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  text-align: center;
+}
+.lab-tabs__btn--compact .lab-tabs__label {
+  white-space: nowrap;
+}
+.lab-tabs__label:has(.lab-tabs__count) {
+  white-space: nowrap;
+}
+.lab-tabs__count {
+  margin-left: 0.1875rem;
+  font-size: 0.75rem; /* 12 */
+  font-weight: 500;
+  color: var(--lab-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-tabs__btn {
+    transition: none;
+  }
+  .lab-tabs__thumb.is-ready {
+    transition: none;
+  }
+}
+
+/* 1차 — 주요 모드 (48) */
+.lab-tabs--primary {
+  width: 100%;
+  min-height: 3rem; /* 48 */
+}
+.lab-tabs__btn--primary {
+  min-height: calc(3rem - (var(--lab-tabs-track-pad) * 2));
+  min-width: 2.75rem; /* 44 touch */
+  padding: 0.5rem 0.5rem;
+  font-size: 1rem; /* 16 */
+  line-height: 1.5rem; /* 24 */
+}
+.lab-tabs__btn--primary .lab-tabs__label {
+  white-space: normal; /* allow height growth at 200% zoom */
+}
+
+/* 2차 — 내부 분류·보기 (40) */
+.lab-tabs--secondary {
+  width: 100%;
+  min-height: 2.5rem; /* 40 */
+}
+.lab-tabs__btn--secondary {
+  min-height: calc(2.5rem - (var(--lab-tabs-track-pad) * 2));
+  min-width: 2.75rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem; /* 14 */
+  line-height: 1.25rem; /* 20 */
+}
+
+/* 3차 — 보조 조건 (visual 30 / touch 44) */
+.lab-tabs--compact {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  min-height: 1.875rem; /* 30 visual */
+}
+.lab-tabs--compact.w-full {
+  display: flex;
+  width: 100%;
+}
+.lab-tabs__btn--compact {
+  min-height: calc(1.875rem - (var(--lab-tabs-track-pad) * 2));
+  min-width: 2.75rem; /* 44 horizontal touch */
+  padding: 0 0.5rem;
+  font-size: 0.8125rem; /* 13 */
+  line-height: 1.25rem; /* 20 */
+}
+/* Expand vertical hit to ≥44 without overlapping neighbors horizontally */
+.lab-tabs__btn--secondary::before,
+.lab-tabs__btn--compact::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2.75rem; /* 44 */
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+/* Legacy alias — prefer LabTabs variants */
+.lab-tabs-connected {
+  width: 100%;
+}
+.lab-tabs-connected__panel {
+  padding-top: 1.5rem; /* 24 — first content below primary tabs */
+}
+/* Official LAB section navigation — text + underline (no filled pill) */
+.lab-tab-underline {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2.5px solid transparent;
+  background: transparent;
+  padding: 0 2px 7px;
+  color: #475569;
+  font-size: .875rem;
+  font-weight: 500;
+  transition: color .15s, border-color .15s;
+}
+.lab-tab-underline:hover:not([aria-selected="true"]):not(.lab-tab-underline-active):not(:disabled) {
+  color: var(--lab-navy-950);
+}
+.lab-tab-underline[aria-selected="true"],
+.lab-tab-underline-active {
+  border-bottom-color: var(--lab-teal-600);
+  background: transparent;
+  color: var(--lab-teal-700);
+  font-weight: 600;
+}
+.lab-tab-underline:disabled { cursor: not-allowed; opacity: .45; }
+
+/* LAB Series range slider — teal active track, compact thumb */
+.lab-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+.lab-range:focus-visible {
+  outline: 2px solid var(--lab-teal-600);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+.lab-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+.lab-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1.5px solid #cbd5e1;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
+}
+.lab-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+.lab-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1.5px solid #cbd5e1;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
+}
+.lab-range {
+  accent-color: var(--lab-teal-600);
+}
+
+/* Semantic price/tax direction on range thumbs (rise=rose, fall=blue) */
+.lab-range-up {
+  accent-color: #e11d48; /* rose-600 */
+}
+.lab-range-down {
+  accent-color: #2563eb; /* blue-600 */
+}
+.lab-range-neutral {
+  accent-color: #64748b; /* slate-500 */
+}
+.lab-range-up::-webkit-slider-runnable-track,
+.lab-range-down::-webkit-slider-runnable-track,
+.lab-range-neutral::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.lab-range-up::-moz-range-track,
+.lab-range-down::-moz-range-track,
+.lab-range-neutral::-moz-range-track {
+  background: transparent;
+}
+
+
+.lab-choice { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border: 1px solid var(--lab-border); border-radius: 10px; background: white; padding: 8px 12px; color: var(--lab-navy-900); font-size: .875rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
 .lab-choice:hover:not([aria-checked="true"]):not(.lab-choice-selected):not(:disabled) { background: #f8fafc; }
 .lab-choice[aria-checked="true"], .lab-choice-selected { border-color: color-mix(in srgb, var(--lab-teal-600) 35%, transparent); background: var(--lab-teal-50); color: var(--lab-teal-700); }
 .lab-choice:disabled { cursor: not-allowed; opacity: .45; }
-.lab-badge { display: inline-flex; align-items: center; border: 1px solid #cfe1e5; border-radius: 999px; background: var(--lab-teal-50); padding: 3px 8px; color: var(--lab-teal-700); font-size: .6875rem; font-weight: 650; }
+.lab-badge { display: inline-flex; align-items: center; border: 1px solid #cfe1e5; border-radius: 999px; background: var(--lab-teal-50); padding: 2px 8px; color: var(--lab-teal-700); font-size: .75rem; line-height: 1rem; font-weight: 600; }
 .lab-state { display: flex; min-height: 120px; align-items: center; justify-content: center; border: 1px dashed var(--lab-border); border-radius: 12px; padding: 20px; color: var(--lab-muted); font-size: .875rem; text-align: center; }
 .lab-state-error { border-style: solid; border-color: #fecdd3; background: #fff1f2; color: #9f1239; }
 .lab-skeleton { height: 112px; border: 1px solid var(--lab-border); border-radius: 14px; background: #e9eef3; animation: pulse 1.7s cubic-bezier(.4,0,.6,1) infinite; }
@@ -82,18 +1197,12 @@ button, [role="button"], a { touch-action: manipulation; }
 .lab-side-link:hover { background: #f5f8fa; color: var(--lab-navy-950); }
 .lab-side-link-active { background: var(--lab-teal-50); color: var(--lab-teal-700); }
 .lab-kpi-value { color: var(--lab-navy-950); }
-.lab-kpi-value, .lab-kpi-figure { font-family: var(--font-outfit), var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
-
-@media (max-width: 639px) {
-  .lab-button, .lab-tab:not(.lab-tab-secondary) { min-height: 44px; }
-  .lab-tab-primary { min-height: 46px; }
-  .lab-card { border-radius: 14px; }
-}
+.lab-kpi-value, .lab-kpi-figure { font-family: var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
 
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
 }
 
 @keyframes apt-load-progress {
@@ -118,6 +1227,53 @@ h3 {
   animation: region-date-flash 1.1s ease-out;
 }
 
+/* /apt/[name] enter — drill-in from the right (full-page detail) */
+@keyframes apt-detail-slide-in {
+  from {
+    opacity: 0.88;
+    transform: translate3d(18%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.apt-detail-enter {
+  animation: apt-detail-slide-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes price-compare-bar-grow {
+  from {
+    opacity: 0.4;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.price-compare-bar,
+.price-compare-bar-left {
+  opacity: 0.4;
+  transform: scaleX(0);
+}
+
+.price-compare-bar {
+  transform-origin: left center;
+}
+
+.price-compare-bar-left {
+  transform-origin: right center;
+}
+
+.price-compare-bar-play {
+  animation: price-compare-bar-grow 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--bar-delay, 0ms);
+}
+
 .region-basis-chip {
   flex-shrink: 0;
 }
@@ -135,5 +1291,18 @@ h3 {
   .region-date-flash {
     animation: none;
     background-color: rgb(240 253 250);
+  }
+
+  .apt-detail-enter {
+    animation: none;
+    will-change: auto;
+  }
+
+  .price-compare-bar,
+  .price-compare-bar-left,
+  .price-compare-bar-play {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }

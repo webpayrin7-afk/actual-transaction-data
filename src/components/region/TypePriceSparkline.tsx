@@ -45,6 +45,15 @@ export function TypePriceSparkline({
     .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
     .join(" ");
   const first = coords[0]!;
+  const priorIndex = (() => {
+    let best = -1;
+    points.forEach((point, index) => {
+      if (point.date.slice(0, 10) >= currentDay) return;
+      if (best < 0 || point.amount >= points[best]!.amount) best = index;
+    });
+    return best;
+  })();
+  const prior = priorIndex >= 0 ? coords[priorIndex]! : null;
   const current =
     [...coords].reverse().find((c) => c.isCurrent) ?? coords[coords.length - 1]!;
   const firstPoint = points[0]!;
@@ -52,7 +61,7 @@ export function TypePriceSparkline({
 
   return (
     <div className="mt-2 rounded-md border border-slate-200 bg-slate-50/70 px-2 py-1.5">
-      <div className="flex items-baseline justify-between gap-2 text-[10px] tabular-nums text-slate-500">
+      <div className="flex items-baseline justify-between gap-2 text-[12px] tabular-nums text-slate-500">
         <span>{formatEok(firstPoint.amount)}</span>
         <span className="font-medium text-slate-700">
           현재 {formatEok(currentAmount)}
@@ -73,10 +82,23 @@ export function TypePriceSparkline({
           strokeLinecap="round"
         />
         <circle cx={first.x} cy={first.y} r="2.2" fill="currentColor" />
+        {prior ? (
+          <circle
+            cx={prior.x}
+            cy={prior.y}
+            r="3"
+            fill="#fff"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <title>종전 최고가</title>
+          </circle>
+        ) : null}
         <circle cx={current.x} cy={current.y} r="3.2" fill="currentColor" />
       </svg>
-      <p className="mt-0.5 text-[10px] leading-4 text-slate-500">
+      <p className="mt-0.5 text-[12px] leading-4 text-slate-500">
         {yearMonthDot(firstPoint.date)}–{yearMonthDot(lastPoint.date)} · 동일 전용면적
+        {prior ? " · ○ 종전 최고가" : ""}
       </p>
     </div>
   );
