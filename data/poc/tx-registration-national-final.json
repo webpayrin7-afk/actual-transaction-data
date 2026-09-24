@@ -1,0 +1,59 @@
+{
+  "title": "TRANSACTION REGISTRATION NATIONAL FINAL",
+  "STATUS": "COMPLETE",
+  "SCOPE": {
+    "start": "202301",
+    "end": "202609",
+    "cells": 2263,
+    "lawds": 75,
+    "API_calls": 2264,
+    "expectedTradeRowsAtPlan": 486894,
+    "tradeRowsAfter": 489164
+  },
+  "PRODUCTION": {
+    "matched": "via naturalKey + stableTransactionId",
+    "updated": 408243,
+    "inserted": 2247,
+    "unchanged": 60998,
+    "identityConflicts": 0,
+    "unrelatedWrites": 0,
+    "skipDelete": true,
+    "failedCellsRetried": 4,
+    "finalFailed": 0
+  },
+  "COVERAGE": {
+    "NATIONAL": { "total": 489164, "filled": 425103, "unresolved": 64061, "pct": 86.9 },
+    "SEOUL": { "total": 225648, "filled": 201408, "unresolved": 24240, "pct": 89.3 },
+    "GYEONGGI": { "total": 263085, "filled": 223651, "unresolved": 39434, "pct": 85.0 },
+    "INCHEON": { "total": 0, "filled": 0, "unresolved": 0, "pct": 0, "note": "no lawd 28xxx in warehouse sync_months" },
+    "BUSAN": { "total": 431, "filled": 44, "unresolved": 387, "pct": 10.2, "note": "only 2 recent sync months in warehouse" },
+    "SONGPA": { "total": 15281, "filled": 14469, "unresolved": 812, "pct": 94.7 },
+    "JAMSIL_ELS": { "total": 574, "filled": 536, "unresolved": 38, "pct": 93.4 }
+  },
+  "YEAR": {
+    "2023": { "total": 82942, "filled": 80064, "unresolved": 2878, "pct": 96.5 },
+    "2024": { "total": 116934, "filled": 112362, "unresolved": 4572, "pct": 96.1 },
+    "2025": { "total": 154211, "filled": 145107, "unresolved": 9104, "pct": 94.1 },
+    "2026": { "total": 135077, "filled": 87570, "unresolved": 47507, "pct": 64.8, "note": "publication lag expected" }
+  },
+  "REGISTRATION_LAG_SONGPA_DAYS": {
+    "n": 14468,
+    "median": 86,
+    "p75": 105,
+    "p90": 123,
+    "p95": 139
+  },
+  "ROLLING_REFRESH": {
+    "windowMonths": 6,
+    "mechanism": "scripts/refresh-rgst-date-rolling.mts / npm run db:rgst:refresh",
+    "onlyChangedHandling": "forced 0 (always re-fetch + dirty-check)",
+    "applyValidation": { "cells": 392, "inserted": 0, "updated": 0, "unchanged": 96274, "failed": 0 }
+  },
+  "SAFETY": {
+    "pre2023_populated": 0,
+    "invalid_fmt": 0,
+    "idempotencySongpa202404": { "ins": 0, "upd": 0, "same": 347 },
+    "cancellationRegression": "test-trade-resolve pass",
+    "preserveOnSourceEmpty": true
+  }
+}

@@ -3,6 +3,7 @@ import {
   resetDiscoveryAtColumnCache,
   shouldMigrateDiscoveryAtColumn,
 } from "@/lib/db/discovery-axis";
+import { resetRgstDateColumnCache } from "@/lib/db/rgst-date-column";
 
 let client: Client | null | undefined;
 
@@ -151,6 +152,9 @@ CREATE TABLE IF NOT EXISTS market_stats_feeds (
     // 기존 DB에 audit 시간축 컬럼 추가 (legacy는 NULL 유지 — migration 시각으로 채우지 않음)
     await ensureColumn(db, "transactions", "first_seen_at", "TEXT");
     await ensureColumn(db, "transactions", "last_seen_at", "TEXT");
+    // MOLIT AptTrade 등기일자 (nullable). Additive; empty = 미확인.
+    await ensureColumn(db, "transactions", "rgst_date", "TEXT");
+    resetRgstDateColumnCache();
     await db.execute(
       `CREATE INDEX IF NOT EXISTS idx_tx_type_first_seen
        ON transactions (deal_type, first_seen_at)`,

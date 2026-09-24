@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS transactions (
   build_year INTEGER,
   jibun TEXT NOT NULL DEFAULT '',
   dealing_gbn TEXT NOT NULL DEFAULT '',
+  -- MOLIT AptTrade 등기일자 (YYYY-MM-DD). 매매만. 2023-01-01 계약부터 공개 대상.
+  -- 비어 있음 = 미확인(미등기 단정 금지).
+  rgst_date TEXT,
   -- warehouse가 transaction identity를 처음 확보한 시각 (UTC ISO). internal audit.
   -- 삭제/rename 금지. INSERT 시 설정 후 절대 덮어쓰지 않음.
   first_seen_at TEXT,

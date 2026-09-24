@@ -7,12 +7,17 @@ import {
 import type { TxContentSnapshot } from "@/lib/db/sync-diff";
 import { naturalKeyFromTx, stableTransactionId } from "@/lib/market/identity";
 import { isUnsafeMonthShrink } from "@/lib/molit/trade-resolve";
+import {
+  mergeRgstDateForPersist,
+  rgstDateFromTx,
+} from "@/lib/molit/rgst-date";
 import type { DealType, Transaction } from "@/types/transaction";
 import { noteDbQuery } from "@/lib/db/query-stats";
 import {
   hasDiscoveryAtColumn,
   isoOrNull,
 } from "@/lib/db/discovery-axis";
+import { hasRgstDateColumn } from "@/lib/db/rgst-date-column";
 
 export function normalizeAptName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
@@ -105,6 +110,7 @@ export async function replaceMonthTransactions(params: {
   const skipDelete = params.skipDelete === true;
   const syncedAt = new Date().toISOString();
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
+  const writeRgstCol = await hasRgstDateColumn(db);
   // Future ingest: audit first_seen always; product discovery only when flagged.
   // Legacy (no column): keep first_seen as the product switch so prod feeds
   // are not suddenly filled by discovery=0 warehouse INSERTs.
@@ -118,7 +124,7 @@ export async function replaceMonthTransactions(params: {
   const existingResult = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, jibun, floor,
                  exclusive_area, deal_amount, monthly_rent, build_year,
-                 dealing_gbn, first_seen_at
+                 dealing_gbn, first_seen_at${writeRgstCol ? ", rgst_date" : ""}
           FROM transactions
           WHERE lawd_cd = ? AND year_month = ? AND deal_type = ?`,
     args: [lawdCd, yearMonth, dealKind],
@@ -143,6 +149,9 @@ export async function replaceMonthTransactions(params: {
           : Number(row.build_year),
       jibun: String(row.jibun ?? ""),
       dealingGbn: String(row.dealing_gbn ?? ""),
+      rgstDate: writeRgstCol
+        ? String(row.rgst_date ?? "").trim().slice(0, 10)
+        : "",
     };
     const nk = naturalKeyFromTx(
       {
@@ -202,13 +211,19 @@ export async function replaceMonthTransactions(params: {
     const matched = byNatural.get(nk) ?? byId.get(raw.id) ?? byId.get(candidateId);
 
     if (matched) {
+      const incomingRgst = rgstDateFromTx(raw);
+      const mergedRgst = mergeRgstDateForPersist(
+        matched.content.rgstDate,
+        incomingRgst,
+      );
+      const tx: Transaction = { ...raw, rgstDate: mergedRgst };
       const dirty = !isSameTransactionContent(
         matched.content,
-        snapshotFromTx(raw),
+        snapshotFromTx(tx),
       );
       upserts.push({
         id: matched.id,
-        tx: raw,
+        tx,
         firstSeen: matched.firstSeenAt,
         isInsert: false,
         dirty,
@@ -224,7 +239,7 @@ export async function replaceMonthTransactions(params: {
     usedIds.add(candidateId);
     upserts.push({
       id: candidateId,
-      tx: raw,
+      tx: { ...raw, rgstDate: rgstDateFromTx(raw) },
       firstSeen: null,
       isInsert: true,
       dirty: true,
@@ -245,12 +260,24 @@ export async function replaceMonthTransactions(params: {
   let unchanged = 0;
 
   const insertSql = writeDiscoveryCol
-    ? `INSERT INTO transactions (
+    ? writeRgstCol
+      ? `INSERT INTO transactions (
+    id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
+    gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
+    jibun, dealing_gbn, rgst_date, first_seen_at, last_seen_at, discovery_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      : `INSERT INTO transactions (
     id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
     gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
     jibun, dealing_gbn, first_seen_at, last_seen_at, discovery_at
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    : `INSERT INTO transactions (
+    : writeRgstCol
+      ? `INSERT INTO transactions (
+    id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
+    gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
+    jibun, dealing_gbn, rgst_date, first_seen_at, last_seen_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      : `INSERT INTO transactions (
     id, lawd_cd, year_month, deal_type, deal_date, apt_name, apt_name_norm,
     gu, dong, exclusive_area, deal_amount, monthly_rent, floor, build_year,
     jibun, dealing_gbn, first_seen_at, last_seen_at
@@ -258,6 +285,7 @@ export async function replaceMonthTransactions(params: {
 
   for (const u of upserts) {
     const aptNorm = normalizeAptName(u.tx.aptName);
+    const rgstVal = writeRgstCol ? (u.tx.rgstDate ?? rgstDateFromTx(u.tx)) : null;
     if (u.isInsert) {
       inserted += 1;
       statements.push({
@@ -279,6 +307,7 @@ export async function replaceMonthTransactions(params: {
           u.tx.buildYear,
           u.tx.jibun,
           u.tx.dealingGbn,
+          ...(writeRgstCol ? [rgstVal] : []),
           insertFirstSeen,
           syncedAt,
           ...(writeDiscoveryCol ? [insertDiscoveryAt] : []),
@@ -287,7 +316,15 @@ export async function replaceMonthTransactions(params: {
     } else if (u.dirty) {
       updated += 1;
       statements.push({
-        sql: `UPDATE transactions SET
+        sql: writeRgstCol
+          ? `UPDATE transactions SET
+          lawd_cd = ?, year_month = ?, deal_type = ?, deal_date = ?,
+          apt_name = ?, apt_name_norm = ?, gu = ?, dong = ?,
+          exclusive_area = ?, deal_amount = ?, monthly_rent = ?, floor = ?,
+          build_year = ?, jibun = ?, dealing_gbn = ?, rgst_date = ?,
+          last_seen_at = ?
+        WHERE id = ?`
+          : `UPDATE transactions SET
           lawd_cd = ?, year_month = ?, deal_type = ?, deal_date = ?,
           apt_name = ?, apt_name_norm = ?, gu = ?, dong = ?,
           exclusive_area = ?, deal_amount = ?, monthly_rent = ?, floor = ?,
@@ -310,6 +347,7 @@ export async function replaceMonthTransactions(params: {
           u.tx.buildYear,
           u.tx.jibun,
           u.tx.dealingGbn,
+          ...(writeRgstCol ? [rgstVal] : []),
           syncedAt,
           u.id,
         ],
@@ -510,7 +548,10 @@ function archiveWhere(params: {
   return { sql, args };
 }
 
-function mapArchiveRow(row: Record<string, unknown>): Transaction {
+function mapArchiveRow(
+  row: Record<string, unknown>,
+  includeRgst = false,
+): Transaction {
   return {
     id: String(row.id),
     dealType: row.deal_type as DealType,
@@ -525,6 +566,9 @@ function mapArchiveRow(row: Record<string, unknown>): Transaction {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: includeRgst
+      ? isoOrNull(row.rgst_date)
+      : undefined,
   };
 }
 
@@ -691,9 +735,12 @@ export async function queryAptArchivePage(params: {
   });
   const limit = Math.min(Math.max(params.limit, 1), 50);
   const offset = Math.max(params.offset, 0);
+  const includeRgst = await hasRgstDateColumn(db);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn${
+                   includeRgst ? ", rgst_date" : ""
+                 }
           FROM transactions INDEXED BY idx_tx_lawd_apt_ym
           WHERE ${w.sql}
           ORDER BY deal_date DESC, id DESC
@@ -701,7 +748,7 @@ export async function queryAptArchivePage(params: {
     args: [...w.args, limit, offset],
   });
   return result.rows.map((row) =>
-    mapArchiveRow(row as Record<string, unknown>),
+    mapArchiveRow(row as Record<string, unknown>, includeRgst),
   );
 }
 

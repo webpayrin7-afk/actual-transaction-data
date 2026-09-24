@@ -1,0 +1,114 @@
+{
+  "masterComplexes": {
+    "before": 27524,
+    "after": 27524,
+    "delta": 0
+  },
+  "gwangju": {
+    "lawds": 5,
+    "covered": 5,
+    "cells": 225,
+    "complexes": 888,
+    "currentCodes": [
+      "12210",
+      "12240",
+      "12270",
+      "12300",
+      "12330"
+    ]
+  },
+  "jeonnam": {
+    "lawds": 22,
+    "covered": 22,
+    "cells": 949,
+    "complexes": 758,
+    "currentCodes": [
+      "12110",
+      "12130",
+      "12150",
+      "12170",
+      "12190",
+      "12710",
+      "12720",
+      "12730",
+      "12740",
+      "12750",
+      "12760",
+      "12770",
+      "12780",
+      "12790",
+      "12800",
+      "12810",
+      "12820",
+      "12830",
+      "12840",
+      "12850",
+      "12860",
+      "12870"
+    ]
+  },
+  "incheonBackfill": {
+    "lawds": 4,
+    "covered": 4,
+    "cells": 180
+  },
+  "incheonClassifications": [
+    {
+      "code": "28110",
+      "classification": "TEMPORAL_CODE_ISSUE",
+      "successors": [
+        "28125",
+        "28155"
+      ],
+      "note": "Obsolete catalog code; MOLIT serves successor lawds for pre/post months"
+    },
+    {
+      "code": "28140",
+      "classification": "TEMPORAL_CODE_ISSUE",
+      "successors": [
+        "28125"
+      ],
+      "note": "Obsolete catalog code; MOLIT serves successor lawds for pre/post months"
+    },
+    {
+      "code": "28260",
+      "classification": "TEMPORAL_CODE_ISSUE",
+      "successors": [
+        "28275",
+        "28290"
+      ],
+      "note": "Obsolete catalog code; MOLIT serves successor lawds for pre/post months"
+    },
+    {
+      "code": "28720",
+      "classification": "TRUE_NODATA",
+      "successors": [
+        "28720"
+      ],
+      "note": "Unchanged under 2026-07-01 reform; AptTrade returns 0"
+    }
+  ],
+  "trueNodata": [
+    "28720"
+  ],
+  "idempotency": [
+    {
+      "lawdCd": "12210",
+      "yearMonth": "202405",
+      "rows": 102,
+      "inserted": 0,
+      "updated": 0,
+      "unchanged": 102,
+      "deleted": 0
+    },
+    {
+      "lawdCd": "12110",
+      "yearMonth": "202301",
+      "rows": 119,
+      "inserted": 0,
+      "updated": 0,
+      "unchanged": 119,
+      "deleted": 0
+    }
+  ]
+}

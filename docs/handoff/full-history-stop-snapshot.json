@@ -1,0 +1,47 @@
+{
+  "stoppedAt": "2026-09-24T16:20:17.379Z",
+  "reason": "user_stop_handoff_to_claude",
+  "startedAt": "2026-09-23T05:40:06.228Z",
+  "updatedAt": "2026-09-24T16:19:40.512Z",
+  "cursor": 2352,
+  "completedCount": 2350,
+  "failed": {
+    "trade|41570|201912": {
+      "at": "2026-09-23T12:48:07.085Z",
+      "error": "The operation was aborted due to timeout",
+      "errorClass": "timeout",
+      "attempts": 1
+    },
+    "trade|41550|201912": {
+      "at": "2026-09-23T12:48:49.067Z",
+      "error": "fetch failed",
+      "errorClass": "other",
+      "attempts": 1
+    },
+    "rent|26200|202506": {
+      "at": "2026-09-24T16:19:22.653Z",
+      "error": "The operation was aborted due to timeout",
+      "errorClass": "timeout",
+      "attempts": 1
+    }
+  },
+  "totals": {
+    "apiCalls": 2354,
+    "inserted": 231517,
+    "updated": 0,
+    "unchanged": 410234,
+    "deleted": 0,
+    "emptyComplete": 0,
+    "saleCells": 1807,
+    "rentCells": 543,
+    "identityConflicts": 0
+  },
+  "current": {
+    "priority": 2,
+    "source": "RENT",
+    "region": "busan",
+    "monthRange": "202508"
+  },
+  "completedRun": false,
+  "firstBatchApplied": true
+}

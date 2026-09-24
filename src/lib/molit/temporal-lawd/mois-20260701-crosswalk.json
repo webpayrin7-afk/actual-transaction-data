@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "effective_date": "2026-07-01",
+  "sources": [
+    {
+      "id": "mois_20260701",
+      "title": "행정기관(행정동) 및 관할구역(법정동) 변경내역(2026.7.1. 시행)",
+      "url": "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000052&nttId=127039",
+      "attachments": [
+        "(별첨1) 전남광주통합특별시.xlsx",
+        "(별첨1) 인천광역시.xlsx",
+        "(별첨2) 인천시_제물포구 영종구 검단구 추가.xlsx"
+      ]
+    }
+  ],
+  "molit_aptrade_behavior": {
+    "summary": "Live AptTrade returns rows on successor/canonical lawds for both pre- and post-2026-07 months; obsolete admin codes (29/46, 28110/28140/28260) return 0 even for pre-change months.",
+    "implication": "For MOLIT_APTTRADE requests in 202301-202609, use apttrade_request_lawd (=canonical successor), not historical_admin_lawd."
+  },
+  "gwangju_jeonnam": {
+    "canonical_sido": "전남광주통합특별시",
+    "pairs": [
+      {
+        "row": 3,
+        "historical_name": "전라남도 목포시",
+        "historical_lawd": "46110",
+        "canonical_name": "전남광주통합특별시 목포시",
+        "canonical_lawd": "12110",
+        "aptrade_request_lawd": "12110",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 103,
+        "historical_name": "전라남도 여수시",
+        "historical_lawd": "46130",
+        "canonical_name": "전남광주통합특별시 여수시",
+        "canonical_lawd": "12130",
+        "aptrade_request_lawd": "12130",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 232,
+        "historical_name": "전라남도 순천시",
+        "historical_lawd": "46150",
+        "canonical_name": "전남광주통합특별시 순천시",
+        "canonical_lawd": "12150",
+        "aptrade_request_lawd": "12150",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 443,
+        "historical_name": "전라남도 나주시",
+        "historical_lawd": "46170",
+        "canonical_name": "전남광주통합특별시 나주시",
+        "canonical_lawd": "12170",
+        "aptrade_request_lawd": "12170",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 645,
+        "historical_name": "전라남도 광양시",
+        "historical_lawd": "46230",
+        "canonical_name": "전남광주통합특별시 광양시",
+        "canonical_lawd": "12190",
+        "aptrade_request_lawd": "12190",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 721,
+        "historical_name": "광주광역시 동구",
+        "historical_lawd": "29110",
+        "canonical_name": "전남광주통합특별시 동구",
+        "canonical_lawd": "12210",
+        "aptrade_request_lawd": "12210",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 764,
+        "historical_name": "광주광역시 서구",
+        "historical_lawd": "29140",
+        "canonical_name": "전남광주통합특별시 서구",
+        "canonical_lawd": "12240",
+        "aptrade_request_lawd": "12240",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 797,
+        "historical_name": "광주광역시 남구",
+        "historical_lawd": "29155",
+        "canonical_name": "전남광주통합특별시 남구",
+        "canonical_lawd": "12270",
+        "aptrade_request_lawd": "12270",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 838,
+        "historical_name": "광주광역시 북구",
+        "historical_lawd": "29170",
+        "canonical_name": "전남광주통합특별시 북구",
+        "canonical_lawd": "12300",
+        "aptrade_request_lawd": "12300",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 889,
+        "historical_name": "광주광역시 광산구",
+        "historical_lawd": "29200",
+        "canonical_name": "전남광주통합특별시 광산구",
+        "canonical_lawd": "12330",
+        "aptrade_request_lawd": "12330",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 989,
+        "historical_name": "전라남도 담양군",
+        "historical_lawd": "46710",
+        "canonical_name": "전남광주통합특별시 담양군",
+        "canonical_lawd": "12710",
+        "aptrade_request_lawd": "12710",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 1141,
+        "historical_name": "전라남도 곡성군",
+        "historical_lawd": "46720",
+        "canonical_name": "전남광주통합특별시 곡성군",
+        "canonical_lawd": "12720",
+        "aptrade_request_lawd": "12720",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 1277,
+        "historical_name": "전라남도 구례군",
+        "historical_lawd": "46730",
+        "canonical_name": "전남광주통합특별시 구례군",
+        "canonical_lawd": "12730",
+        "aptrade_request_lawd": "12730",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 1354,
+        "historical_name": "전라남도 고흥군",
+        "historical_lawd": "46770",
+        "canonical_name": "전남광주통합특별시 고흥군",
+        "canonical_lawd": "12740",
+        "aptrade_request_lawd": "12740",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 1503,
+        "historical_name": "전라남도 보성군",
+        "historical_lawd": "46780",
+        "canonical_name": "전남광주통합특별시 보성군",
+        "canonical_lawd": "12750",
+        "aptrade_request_lawd": "12750",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 1642,
+        "historical_name": "전라남도 화순군",
+        "historical_lawd": "46790",
+        "canonical_name": "전남광주통합특별시 화순군",
+        "canonical_lawd": "12760",
+        "aptrade_request_lawd": "12760",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 1855,
+        "historical_name": "전라남도 장흥군",
+        "historical_lawd": "46800",
+        "canonical_name": "전남광주통합특별시 장흥군",
+        "canonical_lawd": "12770",
+        "aptrade_request_lawd": "12770",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2001,
+        "historical_name": "전라남도 강진군",
+        "historical_lawd": "46810",
+        "canonical_name": "전남광주통합특별시 강진군",
+        "canonical_lawd": "12780",
+        "aptrade_request_lawd": "12780",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2124,
+        "historical_name": "전라남도 해남군",
+        "historical_lawd": "46820",
+        "canonical_name": "전남광주통합특별시 해남군",
+        "canonical_lawd": "12790",
+        "aptrade_request_lawd": "12790",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2316,
+        "historical_name": "전라남도 영암군",
+        "historical_lawd": "46830",
+        "canonical_name": "전남광주통합특별시 영암군",
+        "canonical_lawd": "12800",
+        "aptrade_request_lawd": "12800",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2450,
+        "historical_name": "전라남도 무안군",
+        "historical_lawd": "46840",
+        "canonical_name": "전남광주통합특별시 무안군",
+        "canonical_lawd": "12810",
+        "aptrade_request_lawd": "12810",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2564,
+        "historical_name": "전라남도 함평군",
+        "historical_lawd": "46860",
+        "canonical_name": "전남광주통합특별시 함평군",
+        "canonical_lawd": "12820",
+        "aptrade_request_lawd": "12820",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2677,
+        "historical_name": "전라남도 영광군",
+        "historical_lawd": "46870",
+        "canonical_name": "전남광주통합특별시 영광군",
+        "canonical_lawd": "12830",
+        "aptrade_request_lawd": "12830",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2821,
+        "historical_name": "전라남도 장성군",
+        "historical_lawd": "46880",
+        "canonical_name": "전남광주통합특별시 장성군",
+        "canonical_lawd": "12840",
+        "aptrade_request_lawd": "12840",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 2955,
+        "historical_name": "전라남도 완도군",
+        "historical_lawd": "46890",
+        "canonical_name": "전남광주통합특별시 완도군",
+        "canonical_lawd": "12850",
+        "aptrade_request_lawd": "12850",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 3059,
+        "historical_name": "전라남도 진도군",
+        "historical_lawd": "46900",
+        "canonical_name": "전남광주통합특별시 진도군",
+        "canonical_lawd": "12860",
+        "aptrade_request_lawd": "12860",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      },
+      {
+        "row": 3168,
+        "historical_name": "전라남도 신안군",
+        "historical_lawd": "46910",
+        "canonical_name": "전남광주통합특별시 신안군",
+        "canonical_lawd": "12870",
+        "aptrade_request_lawd": "12870",
+        "aptrade_request_applies_to": "all_months_in_scope",
+        "molit_probe": "historical_admin_lawd returns 0; canonical returns rows for 202301 and 202608"
+      }
+    ],
+    "exact": 27,
+    "ambiguous": 0,
+    "unmapped": 0
+  },
+  "incheon": {
+    "pairs": [
+      {
+        "historical_name": "인천광역시 중구",
+        "historical_lawd": "28110",
+        "canonical_name": "인천광역시 제물포구",
+        "canonical_lawd": "28125",
+        "relation": "split_partial",
+        "note": "중구 내륙 → 제물포구; 섬지역은 영종구",
+        "evidence": "MOIS 별첨2 row 중구→제물포구"
+      },
+      {
+        "historical_name": "인천광역시 중구",
+        "historical_lawd": "28110",
+        "canonical_name": "인천광역시 영종구",
+        "canonical_lawd": "28155",
+        "relation": "split_partial",
+        "note": "중구 영종·용유 등 섬지역 → 영종구",
+        "evidence": "MOIS 별첨2 row 중구→영종구"
+      },
+      {
+        "historical_name": "인천광역시 동구",
+        "historical_lawd": "28140",
+        "canonical_name": "인천광역시 제물포구",
+        "canonical_lawd": "28125",
+        "relation": "merge",
+        "note": "동구 전체 → 제물포구 (중구 내륙과 통합)",
+        "evidence": "MOIS 별첨2 동구 section under 제물포구 continuation; Incheon reform law"
+      },
+      {
+        "historical_name": "인천광역시 서구",
+        "historical_lawd": "28260",
+        "canonical_name": "인천광역시 서해구",
+        "canonical_lawd": "28275",
+        "relation": "split_partial",
+        "note": "서구 남부 → 서해구",
+        "evidence": "MOIS 별첨1 서구→서해구"
+      },
+      {
+        "historical_name": "인천광역시 서구",
+        "historical_lawd": "28260",
+        "canonical_name": "인천광역시 검단구",
+        "canonical_lawd": "28290",
+        "relation": "split_partial",
+        "note": "서구 북부 검단 → 검단구",
+        "evidence": "MOIS 별첨2 서구→검단구"
+      },
+      {
+        "historical_name": "인천광역시 옹진군",
+        "historical_lawd": "28720",
+        "canonical_name": "인천광역시 옹진군",
+        "canonical_lawd": "28720",
+        "relation": "unchanged",
+        "note": "2026-07-01 개편 대상 아님; AptTrade persistent NODATA",
+        "evidence": "not in MOIS Incheon change sheets; master has 1 complex; probes rows=0"
+      }
+    ],
+    "aptrade_request_lawds_to_backfill": [
+      "28125",
+      "28155",
+      "28275",
+      "28290"
+    ],
+    "true_nodata": [
+      "28720"
+    ],
+    "obsolete_catalog_nodata": [
+      "28110",
+      "28140",
+      "28260"
+    ]
+  }
+}

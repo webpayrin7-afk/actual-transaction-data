@@ -1,0 +1,28 @@
+{
+  "processAlive": true,
+  "lockExists": true,
+  "checkpointExists": true,
+  "heartbeatExists": true,
+  "firstBatchApplied": true,
+  "heartbeatRecent": true,
+  "pid": 27626,
+  "totals": {
+    "apiCalls": 9,
+    "inserted": 2968,
+    "updated": 0,
+    "unchanged": 0,
+    "deleted": 0,
+    "emptyComplete": 0,
+    "saleCells": 8,
+    "rentCells": 0,
+    "identityConflicts": 0
+  },
+  "current": {
+    "priority": 1,
+    "source": "SALE",
+    "region": "gyeonggi",
+    "monthRange": "201610"
+  },
+  "BACKGROUND_RUNNING": true,
+  "checkedAt": "2026-09-23T05:40:28.731Z"
+}

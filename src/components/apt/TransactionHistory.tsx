@@ -16,6 +16,10 @@ import {
   TRANSACTION_TABS,
 } from "@/lib/apt/transaction-type";
 import { archiveContractTypeLabel } from "@/lib/apt/transaction-row-display";
+import {
+  archiveRegistrationDateTitle,
+  archiveRegistrationLabel,
+} from "@/lib/molit/rgst-date";
 
 
 /** Compact monthly-rent money line — deposit strongest, monthly secondary. */
@@ -289,9 +293,9 @@ export function TransactionList({
     </ul>
   );
 }
-/** 매매: 계약일 | 가격 | 면적 | 층 */
+/** 매매: 계약일 | 가격 | 면적 | 등기 | 층 */
 const ARCHIVE_GRID_TRADE =
-  "minmax(2.4rem,0.7fr) minmax(5.4rem,2.1fr) minmax(2.2rem,0.85fr) minmax(1.8rem,0.55fr)";
+  "minmax(2.2rem,0.6fr) minmax(4.8rem,1.9fr) minmax(2rem,0.7fr) minmax(2.4rem,0.85fr) minmax(1.6rem,0.5fr)";
 
 /** 전세/월세: 계약일 | 계약구분 | 가격 | 면적 | 층 */
 const ARCHIVE_GRID_RENT =
@@ -331,6 +335,28 @@ function ContractTypeBadge({ label }: { label: "신규" | "갱신" }) {
   );
 }
 
+function RegistrationBadge({
+  label,
+  title,
+}: {
+  label: "등기완료" | "등기 미확인";
+  title?: string;
+}) {
+  const done = label === "등기완료";
+  return (
+    <span
+      title={title}
+      className={
+        done
+          ? "inline-flex max-w-full items-center truncate rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-50)] sm:text-[11px]"
+          : "inline-flex max-w-full items-center truncate rounded px-1 py-0.5 text-[10px] font-medium leading-none text-[color:var(--lab-muted)] bg-[color-mix(in_srgb,var(--lab-muted)_12%,white)] sm:text-[11px]"
+      }
+    >
+      {label}
+    </span>
+  );
+}
+
 function AreaCell({ exclusiveArea }: { exclusiveArea: number }) {
   if (!Number.isFinite(exclusiveArea)) {
     return <span className="text-[color:var(--lab-muted)]">—</span>;
@@ -351,6 +377,7 @@ function FloorCell({ floor }: { floor: number | null | undefined }) {
 
 function ArchiveColHeader({ mode }: { mode: TransactionTabType }) {
   const showContractType = mode !== "trade";
+  const showRegistration = mode === "trade";
   return (
     <div className="bg-white px-1 pb-1 pt-0.5 sm:px-1.5">
       <div
@@ -363,6 +390,7 @@ function ArchiveColHeader({ mode }: { mode: TransactionTabType }) {
         <span>가격</span>
         <span className="hidden sm:inline">면적(㎡)</span>
         <span className="sm:hidden">면적</span>
+        {showRegistration ? <span>등기</span> : null}
         <span>층</span>
       </div>
     </div>
@@ -371,7 +399,7 @@ function ArchiveColHeader({ mode }: { mode: TransactionTabType }) {
 
 /**
  * Archive list — month cards + dense rows (desktop = mobile IA).
- * 매매: 계약일 | 가격 | 면적 | 층
+ * 매매: 계약일 | 가격 | 면적 | 등기 | 층
  * 전세/월세: 계약일 | 계약구분 | 가격 | 면적 | 층
  */
 export function GroupedTransactionList({
@@ -394,6 +422,7 @@ export function GroupedTransactionList({
   const groups = groupTransactionsByMonth(items);
   const grid = archiveGridFor(mode);
   const showContractType = mode !== "trade";
+  const showRegistration = mode === "trade";
 
   return (
     <div className="space-y-4">
@@ -418,6 +447,12 @@ export function GroupedTransactionList({
               const contractType = showContractType
                 ? archiveContractTypeLabel(mode, tx.dealingGbn)
                 : null;
+              const registration = showRegistration
+                ? archiveRegistrationLabel(tx.dealDate, tx.rgstDate)
+                : null;
+              const registrationTitle = showRegistration
+                ? archiveRegistrationDateTitle(tx.rgstDate)
+                : undefined;
               return (
                 <li
                   key={`${tx.id}-${idx}`}
@@ -453,6 +488,18 @@ export function GroupedTransactionList({
                   <span className="min-w-0">
                     <AreaCell exclusiveArea={tx.exclusiveArea} />
                   </span>
+                  {showRegistration ? (
+                    <span className="min-w-0">
+                      {registration ? (
+                        <RegistrationBadge
+                          label={registration}
+                          title={registrationTitle}
+                        />
+                      ) : (
+                        <span className="text-[color:var(--lab-muted)]">—</span>
+                      )}
+                    </span>
+                  ) : null}
                   <span className="min-w-0">
                     <FloorCell floor={tx.floor} />
                   </span>

@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import { districtNameFromCode } from "@/lib/constants/regions";
+import { normalizeMolitRgstDate } from "@/lib/molit/rgst-date";
 import type { DealType, Transaction } from "@/types/transaction";
 import { pad2, parseManwon } from "@/lib/utils/format";
 
@@ -99,6 +100,7 @@ export function parseTradeXml(xml: string, lawdCd: string): Transaction[] {
         jibun,
         dealingGbn: text(item.dealingGbn) || "중개거래",
         lawdCd,
+        rgstDate: normalizeMolitRgstDate(text(item.rgstDate)),
         ingestMeta: {
           cdealType: text(item.cdealType),
           cdealDay: text(item.cdealDay),

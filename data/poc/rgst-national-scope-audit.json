@@ -1,0 +1,624 @@
+{
+  "readOnly": true,
+  "molitApiCalls": 0,
+  "dbWrites": 0,
+  "CURRENT_BACKFILL": {
+    "lawds": 75,
+    "lawdList": [
+      "11110",
+      "11140",
+      "11170",
+      "11200",
+      "11215",
+      "11230",
+      "11260",
+      "11290",
+      "11305",
+      "11320",
+      "11350",
+      "11380",
+      "11410",
+      "11440",
+      "11470",
+      "11500",
+      "11530",
+      "11545",
+      "11560",
+      "11590",
+      "11620",
+      "11650",
+      "11680",
+      "11710",
+      "11740",
+      "26350",
+      "41111",
+      "41113",
+      "41115",
+      "41117",
+      "41131",
+      "41133",
+      "41135",
+      "41150",
+      "41171",
+      "41173",
+      "41190",
+      "41192",
+      "41194",
+      "41196",
+      "41210",
+      "41220",
+      "41250",
+      "41271",
+      "41273",
+      "41281",
+      "41285",
+      "41287",
+      "41290",
+      "41310",
+      "41360",
+      "41370",
+      "41390",
+      "41410",
+      "41430",
+      "41450",
+      "41461",
+      "41463",
+      "41465",
+      "41480",
+      "41500",
+      "41550",
+      "41570",
+      "41590",
+      "41591",
+      "41593",
+      "41595",
+      "41597",
+      "41610",
+      "41630",
+      "41650",
+      "41670",
+      "41800",
+      "41820",
+      "41830"
+    ],
+    "byMetro": {
+      "서울": {
+        "count": 25,
+        "lawds": [
+          "11110",
+          "11140",
+          "11170",
+          "11200",
+          "11215",
+          "11230",
+          "11260",
+          "11290",
+          "11305",
+          "11320",
+          "11350",
+          "11380",
+          "11410",
+          "11440",
+          "11470",
+          "11500",
+          "11530",
+          "11545",
+          "11560",
+          "11590",
+          "11620",
+          "11650",
+          "11680",
+          "11710",
+          "11740"
+        ]
+      },
+      "부산": {
+        "count": 1,
+        "lawds": [
+          "26350"
+        ]
+      },
+      "경기": {
+        "count": 49,
+        "lawds": [
+          "41111",
+          "41113",
+          "41115",
+          "41117",
+          "41131",
+          "41133",
+          "41135",
+          "41150",
+          "41171",
+          "41173",
+          "41190",
+          "41192",
+          "41194",
+          "41196",
+          "41210",
+          "41220",
+          "41250",
+          "41271",
+          "41273",
+          "41281",
+          "41285",
+          "41287",
+          "41290",
+          "41310",
+          "41360",
+          "41370",
+          "41390",
+          "41410",
+          "41430",
+          "41450",
+          "41461",
+          "41463",
+          "41465",
+          "41480",
+          "41500",
+          "41550",
+          "41570",
+          "41590",
+          "41591",
+          "41593",
+          "41595",
+          "41597",
+          "41610",
+          "41630",
+          "41650",
+          "41670",
+          "41800",
+          "41820",
+          "41830"
+        ]
+      }
+    },
+    "explain75": "서울 25 + 경기 49 + 부산 1(해운대 26350) = 75. Capital sync_months universe, not national catalog.",
+    "cells": 2263,
+    "warehouseRows2023plus": 489164,
+    "rgstPopulated": 425103,
+    "warehouseCoveragePct": 86.9,
+    "note": "Prior report 86.9% = WAREHOUSE COVERAGE (A), NOT national geographic coverage (B)"
+  },
+  "GEOGRAPHIC_COVERAGE": {
+    "nationalCanonicalComplexes": 27524,
+    "nationwideCatalogLawds": 254,
+    "expectedTradeLawds": 256,
+    "coveredLawdsInSyncMonths": 75,
+    "missingLawds": 181,
+    "missingCatalogLawds": 181,
+    "geographicCoveragePct": 29.3,
+    "catalogGeographicCoveragePct": 28.7,
+    "monthsPresentInWarehouse2023to202609": 45,
+    "capitalLawdCodesInRegistry": 72,
+    "gwangjuJeonnamMasterMapping": {
+      "dbSido": "전남광주통합특별시",
+      "masterComplexes": 1646,
+      "masterDistinctLawds": 26,
+      "masterLawdPrefixes": [
+        "12"
+      ],
+      "molitCatalogGwangju": 5,
+      "molitCatalogJeonnam": 22,
+      "note": "Master stores non-MOLIT 12xxx lawd_cd; AptTrade targets remain catalog 29xxx/46xxx"
+    }
+  },
+  "DENOMINATORS": {
+    "A_WAREHOUSE_COVERAGE": {
+      "definition": "rgst populated / 2023+ AptTrade rows already in transactions warehouse",
+      "value": "425103 / 489164 = 86.9%",
+      "reclassifiesPrior869": true
+    },
+    "B_NATIONAL_GEOGRAPHIC_COVERAGE": {
+      "definition": "lawds with 2023+ sync_months trade cells / MOLIT nationwide catalog AptTrade lawd universe",
+      "value": "75 / 256 = 29.3%"
+    }
+  },
+  "BY_REGION": {
+    "서울": {
+      "canonicalComplexes": 8437,
+      "expectedTradeLawds": 25,
+      "syncLawds": 25,
+      "missingLawds": 0,
+      "syncCells2023plus": 1125,
+      "txRows2023plus": 225648,
+      "rgstFilled": 201408,
+      "warehouseCoveragePct": 89.3,
+      "incompleteCause": [
+        "complete in warehouse scope"
+      ]
+    },
+    "경기": {
+      "canonicalComplexes": 6529,
+      "expectedTradeLawds": 49,
+      "syncLawds": 49,
+      "missingLawds": 0,
+      "syncCells2023plus": 1136,
+      "txRows2023plus": 263085,
+      "rgstFilled": 223651,
+      "warehouseCoveragePct": 85,
+      "incompleteCause": [
+        "complete in warehouse scope"
+      ]
+    },
+    "인천": {
+      "canonicalComplexes": 1093,
+      "expectedTradeLawds": 10,
+      "syncLawds": 0,
+      "missingLawds": 10,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "부산": {
+      "canonicalComplexes": 1404,
+      "expectedTradeLawds": 16,
+      "syncLawds": 1,
+      "missingLawds": 15,
+      "syncCells2023plus": 2,
+      "txRows2023plus": 431,
+      "rgstFilled": 44,
+      "warehouseCoveragePct": 10.2,
+      "incompleteCause": [
+        "partial history",
+        "partial geography vs catalog"
+      ]
+    },
+    "대구": {
+      "canonicalComplexes": 1151,
+      "expectedTradeLawds": 8,
+      "syncLawds": 0,
+      "missingLawds": 8,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "대전": {
+      "canonicalComplexes": 561,
+      "expectedTradeLawds": 5,
+      "syncLawds": 0,
+      "missingLawds": 5,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "광주": {
+      "canonicalComplexes": 1646,
+      "expectedTradeLawds": 5,
+      "syncLawds": 0,
+      "missingLawds": 5,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent",
+        "master lawd mapping non-MOLIT (12xxx under 전남광주통합특별시)"
+      ],
+      "notes": "DB sido=전남광주통합특별시 complexes=1646; master lawd prefixes=12; MOLIT catalog lawds=5"
+    },
+    "울산": {
+      "canonicalComplexes": 519,
+      "expectedTradeLawds": 5,
+      "syncLawds": 0,
+      "missingLawds": 5,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "세종": {
+      "canonicalComplexes": 210,
+      "expectedTradeLawds": 1,
+      "syncLawds": 0,
+      "missingLawds": 1,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "강원": {
+      "canonicalComplexes": 815,
+      "expectedTradeLawds": 18,
+      "syncLawds": 0,
+      "missingLawds": 18,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "충북": {
+      "canonicalComplexes": 756,
+      "expectedTradeLawds": 14,
+      "syncLawds": 0,
+      "missingLawds": 14,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "충남": {
+      "canonicalComplexes": 976,
+      "expectedTradeLawds": 16,
+      "syncLawds": 0,
+      "missingLawds": 16,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "전북": {
+      "canonicalComplexes": 851,
+      "expectedTradeLawds": 15,
+      "syncLawds": 0,
+      "missingLawds": 15,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "전남": {
+      "canonicalComplexes": 0,
+      "expectedTradeLawds": 22,
+      "syncLawds": 0,
+      "missingLawds": 22,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent",
+        "master lawd mapping non-MOLIT (12xxx under 전남광주통합특별시)"
+      ],
+      "notes": "no separate sido in master; folded into 전남광주통합특별시; MOLIT catalog lawds=22"
+    },
+    "경북": {
+      "canonicalComplexes": 1006,
+      "expectedTradeLawds": 23,
+      "syncLawds": 0,
+      "missingLawds": 23,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "경남": {
+      "canonicalComplexes": 1395,
+      "expectedTradeLawds": 22,
+      "syncLawds": 0,
+      "missingLawds": 22,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    },
+    "제주": {
+      "canonicalComplexes": 175,
+      "expectedTradeLawds": 2,
+      "syncLawds": 0,
+      "missingLawds": 2,
+      "syncCells2023plus": 0,
+      "txRows2023plus": 0,
+      "rgstFilled": 0,
+      "warehouseCoveragePct": 0,
+      "incompleteCause": [
+        "sync_months absent",
+        "warehouse absent"
+      ]
+    }
+  },
+  "INCOMPLETE_CAUSES": {
+    "sync_months_absent": [
+      "인천",
+      "대구",
+      "대전",
+      "광주",
+      "울산",
+      "세종",
+      "강원",
+      "충북",
+      "충남",
+      "전북",
+      "전남",
+      "경북",
+      "경남",
+      "제주"
+    ],
+    "partial_history": [
+      {
+        "region": "부산",
+        "syncLawds": 1,
+        "cells": 2,
+        "avgCellsPerLawd": 2
+      }
+    ],
+    "warehouse_absent": [
+      "인천",
+      "대구",
+      "대전",
+      "광주",
+      "울산",
+      "세종",
+      "강원",
+      "충북",
+      "충남",
+      "전북",
+      "전남",
+      "경북",
+      "경남",
+      "제주"
+    ],
+    "mapping": {
+      "method": "master sido via MASTER_SIDO_TO_METRO; AptTrade lawds via nationwide catalog prefix",
+      "gwangjuJeonnam": "master lawd_cd uses 12xxx under 전남광주통합특별시 — not usable as MOLIT AptTrade lawd; target 29xxx/46xxx from catalog"
+    },
+    "incheonDetail": {
+      "syncLawds": 0,
+      "txRows": 0,
+      "expectedTradeLawds": 10,
+      "canonicalComplexes": 1093,
+      "cause": "sync_months absent for all lawd 28xxx; master has complexes but zero AptTrade warehouse cells → 0/0"
+    },
+    "busanDetail": {
+      "syncLawds": 1,
+      "syncCells": 2,
+      "expectedTradeLawds": 16,
+      "missingLawds": 15,
+      "txRows": 431,
+      "rgstFilled": 44,
+      "cells": [
+        {
+          "lawd": "26350",
+          "ym": "202609",
+          "row_count": 157
+        },
+        {
+          "lawd": "26350",
+          "ym": "202608",
+          "row_count": 270
+        }
+      ],
+      "cause": "partial geography (1/16 lawds) + partial history (only 202608/202609 for 26350) — not full 2023+ national backfill"
+    }
+  },
+  "TRUE_NATIONAL_EXPANSION": {
+    "additionalLawds": 181,
+    "additionalLawdsIncludingPartialMonths": 181,
+    "existingReusableCells": 2263,
+    "reusablePartialCellsOnIncompleteNonCapitalLawds": 2,
+    "partialOutsideCapital": [
+      {
+        "lawd": "26350",
+        "have": 2,
+        "need": 43
+      }
+    ],
+    "monthsInWarehouseScope": 45,
+    "additionalCellsEstimate": {
+      "value": 8188,
+      "method": "missing_catalog_lawds(181)*45 + remaining months on non-capital partial sync lawds (26350:43)",
+      "note": "Seoul/Gyeonggi treated as launch-complete; their <45-month sync tails are NOT counted as national expansion"
+    },
+    "estimatedApiCalls": {
+      "value": 8188,
+      "note": "1 MOLIT AptTrade call per lawd-month cell (trade ingest + rgst fill jointly)"
+    },
+    "estimatedRows": {
+      "low": 184706,
+      "mid": 287321,
+      "high": 410458,
+      "method": "uncovered_complexes(12558) * rows_per_covered_complex(32.7) * density{0.45,0.7,1.0}; capital-biased so low/mid preferred"
+    },
+    "estimatedWrites": {
+      "low": 184706,
+      "high": 410458,
+      "note": "First-time geography needs INSERT of trade rows then rgst UPDATE; counts ≈ new trade rows (rgst populated on insert)"
+    },
+    "estimatedRuntimeMinutes": {
+      "low": 149,
+      "high": 182,
+      "assumedRateCellsPerMin": "45-55 (prior national Seoul/Gyeonggi run)",
+      "approxHours": {
+        "low": 2.5,
+        "high": 3
+      }
+    },
+    "caveat": "Missing geographies have no AptTrade warehouse history. True national registration requires trade-month sync for those lawds first (or jointly), not rgst_date column fill alone."
+  },
+  "OPTIONS": {
+    "SEOUL_GYEONGGI_LAUNCH": {
+      "ready": true,
+      "warehouseRows": 488733,
+      "rgstFilled": 425059,
+      "warehouseCoveragePct": 87,
+      "seoul": {
+        "filled": 201408,
+        "total": 225648
+      },
+      "gyeonggi": {
+        "filled": 223651,
+        "total": 263085
+      },
+      "additionalApiCalls": 0,
+      "additionalWrites": 0,
+      "note": "Use current warehouse; 2026 unresolved = publication lag"
+    },
+    "TRUE_NATIONAL": {
+      "ready": false,
+      "additionalLawds": 181,
+      "additionalCells": 8188,
+      "estimatedApiCalls": 8188,
+      "estimatedRows": {
+        "low": 184706,
+        "mid": 287321,
+        "high": 410458
+      },
+      "estimatedRuntimeMinutes": {
+        "low": 149,
+        "high": 182
+      },
+      "prerequisite": "ingest AptTrade months for missing lawds into warehouse"
+    },
+    "tradeoff": "A ships Seoul+Gyeonggi now with honest warehouse coverage (~87%). B needs ~8k additional lawd-month cells and first-time trade ingest outside capital region; geographic coverage today is ~30%."
+  },
+  "ROLLING_REFRESH": {
+    "windowMonths": 6,
+    "lagSupports6M": true,
+    "lagMedianDays": 86,
+    "lagP75Days": 105,
+    "lagP90Days": 123,
+    "lagP95Days": 139,
+    "initialBackfillReplacement": false,
+    "note": "p95 lag 139d < 6M window — operational refresh is reasonable for already-synced lawds. Does NOT discover or fill missing national geography."
+  },
+  "VERDICT": "NATIONAL_EXPANSION_REQUIRED"
+}
