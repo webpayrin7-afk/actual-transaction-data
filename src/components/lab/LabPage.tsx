@@ -32,6 +32,7 @@ export function LabPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         leading={<BackLink fallback="/" compact hideLabel />}
+        flushBody
         title="오늘의 실험실"
         titleSuffix={<LabTag size="md">LAB</LabTag>}
         description="실거래 데이터를 조금 다른 방법으로 들여다봅니다. 같은 단지·같은 평형끼리 비교하는 식으로 지역 차이를 덜어 내고 봅니다."
