@@ -819,14 +819,16 @@ h2.detail-section-title {
 .lab-button:disabled { cursor: not-allowed; opacity: .45; }
 /*
  * 누르는 맛 (policy §6) — 지역 조회 칸에서 시작한 공통 규칙.
- * 이동 카드(.lab-press): 회색 테두리 + 옅은 그림자, 청록 화살표(.lab-press-arrow), hover 연청록, 누르면 살짝 들어감.
- * 버튼: 누르면 살짝 들어감, 보조 버튼은 같은 그림자. 목록 행(.lab-row-press): 청록 화살표 + 눌림 면.
+ * 이동 카드(.lab-press): 회색 테두리 + 옅은 그림자, 화살표(.lab-press-arrow)는 평소 회색 → hover·누를 때 청록,
+ * hover 연청록, 누르면 살짝 들어감. 버튼: 누르면 살짝 들어감, 보조 버튼은 같은 그림자.
+ * 목록 행(.lab-row-press): 같은 화살표 + 눌림 면.
  * hover 면은 마우스 기기에서만 (터치 후 눌린 채 남지 않게).
  */
 .lab-press { border: 1px solid var(--lab-border); border-radius: .75rem; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.06); transition: background-color .15s, border-color .15s, transform .1s; }
 .lab-press:focus-visible { outline: 2px solid var(--lab-teal-600); outline-offset: 2px; }
 .lab-press:active { transform: scale(.98); background: var(--lab-brand-subtle); }
-.lab-press-arrow { color: var(--lab-brand-primary); transition: transform .15s; }
+.lab-press-arrow { color: #94a3b8; transition: transform .15s, color .15s; }
+.lab-press:active .lab-press-arrow, .lab-row-press:active .lab-press-arrow { color: var(--lab-brand-primary); }
 .lab-row-press { transition: background-color .15s; }
 .lab-row-press:active { background: var(--lab-brand-subtle); }
 .lab-button { transition: background-color .15s, border-color .15s, color .15s, transform .1s; }
@@ -834,7 +836,7 @@ h2.detail-section-title {
 .lab-button-secondary { box-shadow: 0 1px 2px rgba(15,23,42,.06); }
 @media (hover: hover) {
   .lab-press:hover { border-color: var(--lab-brand-border); background: var(--lab-brand-subtle); }
-  .lab-press:hover .lab-press-arrow, .lab-row-press:hover .lab-press-arrow { transform: translateX(2px); }
+  .lab-press:hover .lab-press-arrow, .lab-row-press:hover .lab-press-arrow { transform: translateX(2px); color: var(--lab-brand-primary); }
   .lab-row-press:hover { background: var(--lab-surface-subtle); }
 }
 /*
