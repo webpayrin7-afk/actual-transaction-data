@@ -179,12 +179,14 @@ function complexMarkerHtml(c: MapComplex, selected: boolean, metric: MarkerMetri
 type MarkerMetric = "price" | "perPyeong" | "jeonseRatio" | "change1y";
 // 가격: 대표 평형 최근 실거래가 · 평당가: 최근 실거래가 ÷ 평형(공급 3.3㎡)
 // 전세가율: 대표 평형 최근 전세가 ÷ 최근 매매가 · 1년 변동: 최근 6개월 vs 1년 전 같은 6개월 (같은 평형, 각 2건 이상)
-const MARKER_METRICS: Array<{ id: MarkerMetric; label: string; note: string }> = [
-  { id: "price", label: "가격", note: "가장 많이 거래된 평형의 최근 거래가예요" },
-  { id: "perPyeong", label: "평당가", note: "한 평 가격이라 크기가 달라도 비교하기 좋아요" },
-  { id: "jeonseRatio", label: "전세가율", note: "매매가 대비 전세가가 어느 정도인지 보여줘요" },
-  { id: "change1y", label: "1년 변동", note: "1년 전보다 얼마나 오르고 내렸는지 보여줘요" },
+const MARKER_METRICS: Array<{ id: MarkerMetric; label: string }> = [
+  { id: "price", label: "가격" },
+  { id: "perPyeong", label: "평당가" },
+  { id: "jeonseRatio", label: "전세가율" },
+  { id: "change1y", label: "1년 변동" },
 ];
+/** 화면에 예시 단지가 없을 때 미리보기 모양만 보여줄 값 */
+const SAMPLE_TEXT: Record<MarkerMetric, string> = { price: "12.5억", perPyeong: "3,800만", jeonseRatio: "55%", change1y: "+3.0%" };
 const METRIC_KEY = "apt-datalab:map-marker-metric:v1";
 
 function readSavedMetric(): MarkerMetric | null {
@@ -593,6 +595,13 @@ export function MapSearchPage() {
     };
   }, [shapeKey]);
   const priced = visibleComplexes.filter((c) => c.priceMan != null).length;
+  // 마커 표시 미리보기 — 네 값이 다 있는 단지 중 세대수가 가장 큰 곳 (없으면 가격 있는 단지)
+  const sample = (() => {
+    const withPrice = visibleComplexes.filter((c) => c.priceMan != null);
+    const full = withPrice.filter((c) => c.perPyeongMan != null && c.jeonseRatioPct != null && c.change1yPct != null);
+    const pool = full.length ? full : withPrice;
+    return pool.reduce<MapComplex | null>((best, c) => (!best || (c.householdCount ?? 0) > (best.householdCount ?? 0) ? c : best), null);
+  })();
   const dealLabel = DEAL_LABEL[conditions.deal];
   const nActive = activeCount(conditions);
   const chipDefs = rangeDefs(conditions.deal);
@@ -903,27 +912,51 @@ export function MapSearchPage() {
       ) : null}
 
       <LabBottomSheet open={metricOpen} onClose={() => setMetricOpen(false)} title="마커 표시" hideDone>
-        <ul className="flex flex-col" role="radiogroup" aria-label="마커 표시">
-          {MARKER_METRICS.map((m) => (
-            <li key={m.id}>
+        {/* 선택지마다 실제 마커 모양으로 미리보기 — 화면 속 대표 단지 값 */}
+        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="마커 표시">
+          {MARKER_METRICS.map((m) => {
+            const on = metric === m.id;
+            const v = sample ? markerValue(sample, m.id) : { text: SAMPLE_TEXT[m.id] };
+            return (
               <button
+                key={m.id}
                 type="button"
                 role="radio"
-                aria-checked={metric === m.id}
+                aria-checked={on}
                 onClick={() => chooseMetric(m.id)}
-                className="flex min-h-14 w-full items-center justify-between gap-3 border-b border-[color:var(--lab-border)] py-2 text-left last:border-b-0"
+                className={`relative flex flex-col items-center gap-2 rounded-xl px-2 pb-2.5 pt-3.5 ${
+                  on
+                    ? "border-2 border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)]"
+                    : "border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)]"
+                }`}
               >
-                <span className="min-w-0">
-                  <span className={`block text-[16px] leading-6 ${metric === m.id ? "font-semibold text-[color:var(--lab-teal-700)]" : "font-medium text-[color:var(--lab-navy-950)]"}`}>
-                    {m.label}
+                {on ? (
+                  <Check className="absolute right-2 top-2 h-4 w-4 text-[color:var(--lab-brand-primary)]" aria-hidden />
+                ) : null}
+                <span className="flex flex-col items-center" aria-hidden>
+                  <span className="h-4 min-w-[30px] rounded-t-[5px] bg-[color:var(--lab-brand-primary)] px-1.5 text-center text-[11px] font-semibold leading-4 text-white">
+                    {sample?.pyeongLabel ?? "33평"}
                   </span>
-                  <span className="block text-[13px] leading-5 text-[color:var(--lab-muted)]">{m.note}</span>
+                  <span
+                    className="min-w-12 whitespace-nowrap rounded-[7px] border-[1.5px] border-[color:var(--lab-brand-primary)] bg-white px-2 py-0.5 text-center text-[13px] font-bold leading-[18px] tabular-nums text-[color:var(--lab-navy-950)]"
+                    style={v.color ? { color: v.color } : undefined}
+                  >
+                    {v.text}
+                  </span>
+                  <span className="-mt-px h-0 w-0 border-x-[5px] border-t-[6px] border-x-transparent border-t-[color:var(--lab-brand-primary)]" />
                 </span>
-                {metric === m.id ? <Check className="h-5 w-5 shrink-0 text-[color:var(--lab-brand-primary)]" aria-hidden /> : null}
+                <span
+                  className={`text-[15px] leading-5 ${on ? "font-semibold text-[color:var(--lab-teal-700)]" : "font-medium text-[color:var(--lab-navy-950)]"}`}
+                >
+                  {m.label}
+                </span>
               </button>
-            </li>
-          ))}
-        </ul>
+            );
+          })}
+        </div>
+        {sample ? (
+          <p className="mt-2 text-[13px] leading-5 text-[color:var(--lab-muted)]">예시: {sample.aptName}</p>
+        ) : null}
         <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] leading-5 text-[color:var(--lab-muted)]">
           <span className="inline-flex items-center gap-1">
             <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#E5484D]" aria-hidden />
