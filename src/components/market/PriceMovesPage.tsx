@@ -241,10 +241,7 @@ export function PriceMovesPage() {
             syncUrl({ period: p });
           }}
         />
-        <div className="grid grid-cols-2 gap-2">
-          <LabTabs variant="compact" ariaLabel="면적" equalWidth items={AREA_ITEMS} value={area} onChange={setArea} />
-          <LabTabs variant="compact" ariaLabel="정렬" equalWidth items={SORT_ITEMS} value={sort} onChange={setSort} />
-        </div>
+        <LabTabs variant="compact" ariaLabel="면적" equalWidth items={AREA_ITEMS} value={area} onChange={setArea} />
       </div>
 
       {query.isLoading ? <div className="lab-skeleton" aria-label="불러오는 중" /> : null}
@@ -291,6 +288,8 @@ export function PriceMovesPage() {
           </LabSection>
 
           <LabSection title={`${kindLabel} 단지`} meta={`${first.totalGroups.toLocaleString("ko-KR")}개 단지`}>
+            {/* 정렬은 이 목록에만 영향 — 요약 위 조건(지역·기간·면적)과 분리 */}
+            <LabTabs variant="compact" ariaLabel="정렬" equalWidth items={SORT_ITEMS} value={sort} onChange={setSort} />
             {items.length === 0 ? (
               <p className="lab-state">이 조건에 해당하는 {kindLabel}가 없어요.</p>
             ) : (
