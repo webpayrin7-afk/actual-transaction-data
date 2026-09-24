@@ -430,3 +430,148 @@ export async function readApplyhomeDetail(db: Client, id: string): Promise<Apply
     },
   };
 }
+
+/* ───────────── 분양 결과 (주택형 단위) ───────────── */
+
+export type ResultOutcome = "local1" | "rank1" | "rank2" | "short" | "none";
+
+export const OUTCOME_LABELS: Record<ResultOutcome, string> = {
+  local1: "1순위 해당지역 마감",
+  rank1: "1순위 마감",
+  rank2: "2순위 마감",
+  short: "청약 미달",
+  none: "접수 기록 없음",
+};
+
+export type ApplyhomeResult = {
+  noticeId: string;
+  modelNo: string;
+  name: string;
+  typeLabel: string;
+  exclusiveArea: number | null;
+  place: string;
+  metro: string;
+  /** 공공(국민) 여부 */
+  isPublic: boolean;
+  rceptEnd: string | null;
+  topAmount: number | null;
+  supply: number;
+  firstRankRequests: number;
+  /** 1순위 경쟁률 (배) — 1순위 접수 ÷ 일반공급 */
+  rate: number | null;
+  outcome: ResultOutcome;
+};
+
+export type ResultsQuery = {
+  metro: string;
+  supplier: "all" | "private" | "public";
+  area: "all" | "s" | "m" | "l";
+  price: "all" | "p1" | "p2" | "p3" | "p4";
+  page: number;
+};
+
+export const RESULTS_PAGE_SIZE = 15;
+
+let resultsCache: { at: number; key: string; rows: ApplyhomeResult[] } | null = null;
+
+async function allResults(db: Client): Promise<ApplyhomeResult[]> {
+  const today = seoulToday();
+  if (resultsCache && resultsCache.key === today && Date.now() - resultsCache.at < CACHE_TTL_MS) {
+    return resultsCache.rows;
+  }
+  const res = await db.execute({
+    sql: `SELECT n.house_manage_no, n.house_nm, n.lawd_cd, n.area_name, n.house_dtl_secd_nm, n.rcept_end,
+                 m.model_no, m.house_ty, m.general_supply, m.top_amount,
+                 (SELECT SUM(CASE WHEN c.rank_code = 1 AND c.reside_code = '01' THEN c.request_count ELSE 0 END)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS local1,
+                 (SELECT SUM(CASE WHEN c.rank_code = 1 THEN c.request_count ELSE 0 END)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS total1,
+                 (SELECT SUM(CASE WHEN c.rank_code = 2 THEN c.request_count ELSE 0 END)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS total2,
+                 (SELECT MAX(c.supply_count)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS comp_supply,
+                 (SELECT COUNT(*)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS comp_rows
+          FROM applyhome_models m
+          JOIN applyhome_notices n ON n.house_manage_no = m.house_manage_no
+          WHERE n.rcept_end >= ? AND n.rcept_end < ?
+          ORDER BY n.rcept_end DESC, n.house_manage_no DESC, m.model_no`,
+    args: [addDays(today, -365), today],
+  });
+  const rows = res.rows.map((r) => {
+    const { area, label } = parseHouseTy(str(r.house_ty));
+    const supply = Number(r.comp_supply ?? 0) || Number(r.general_supply ?? 0);
+    const local1 = Number(r.local1 ?? 0);
+    const total1 = Number(r.total1 ?? 0);
+    const total2 = Number(r.total2 ?? 0);
+    const outcome: ResultOutcome =
+      Number(r.comp_rows ?? 0) === 0 || supply === 0
+        ? "none"
+        : local1 >= supply
+          ? "local1"
+          : total1 >= supply
+            ? "rank1"
+            : total1 + total2 >= supply
+              ? "rank2"
+              : "short";
+    const lawd = str(r.lawd_cd);
+    const areaName = str(r.area_name);
+    return {
+      noticeId: String(r.house_manage_no),
+      modelNo: String(r.model_no),
+      name: String(r.house_nm),
+      typeLabel: label,
+      exclusiveArea: area,
+      place: placeOf(lawd, areaName),
+      metro: metroOf(lawd, areaName),
+      isPublic: str(r.house_dtl_secd_nm) === "국민",
+      rceptEnd: str(r.rcept_end),
+      topAmount: num(r.top_amount) || null,
+      supply,
+      firstRankRequests: total1,
+      rate: supply > 0 && outcome !== "none" ? Math.round((total1 / supply) * 100) / 100 : null,
+      outcome,
+    };
+  });
+  resultsCache = { at: Date.now(), key: today, rows };
+  return rows;
+}
+
+const AREA_BANDS: Record<ResultsQuery["area"], [number, number]> = {
+  all: [0, Infinity],
+  s: [0, 60],
+  m: [60, 85.0001],
+  l: [85.0001, Infinity],
+};
+const PRICE_BANDS: Record<ResultsQuery["price"], [number, number]> = {
+  all: [0, Infinity],
+  p1: [0, 50_000],
+  p2: [50_000, 90_000],
+  p3: [90_000, 150_000],
+  p4: [150_000, Infinity],
+};
+
+export async function readApplyhomeResults(
+  db: Client,
+  q: ResultsQuery,
+): Promise<{ total: number; page: number; pageSize: number; items: ApplyhomeResult[]; counts: Record<ResultOutcome, number> }> {
+  const [aLo, aHi] = AREA_BANDS[q.area];
+  const [pLo, pHi] = PRICE_BANDS[q.price];
+  const filtered = (await allResults(db)).filter(
+    (r) =>
+      (q.metro === "all" || r.metro === q.metro) &&
+      (q.supplier === "all" || (q.supplier === "public") === r.isPublic) &&
+      (q.area === "all" || (r.exclusiveArea != null && r.exclusiveArea >= aLo && r.exclusiveArea < aHi)) &&
+      (q.price === "all" || (r.topAmount != null && r.topAmount >= pLo && r.topAmount < pHi)),
+  );
+  const counts = { local1: 0, rank1: 0, rank2: 0, short: 0, none: 0 } as Record<ResultOutcome, number>;
+  for (const r of filtered) counts[r.outcome]++;
+  const page = Math.max(1, q.page);
+  return {
+    total: filtered.length,
+    page,
+    pageSize: RESULTS_PAGE_SIZE,
+    items: filtered.slice((page - 1) * RESULTS_PAGE_SIZE, page * RESULTS_PAGE_SIZE),
+    counts,
+  };
+}

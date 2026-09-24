@@ -19,6 +19,9 @@ export function useApplyhome() {
 
 /** "all" = 전국 */
 export type PresaleMetro = string;
+/** 공급 주체 — 공공 = 국민주택(LH 등) */
+export type PresaleSupplier = "all" | "private" | "public";
+export type PresaleFilter = { metro: PresaleMetro; supplier: PresaleSupplier };
 
 export const md = (iso: string | null) => (iso ? iso.slice(5, 10).replace("-", ".") : "");
 export const ymDot = (v: string | null) => (v && v.length === 6 ? `${v.slice(0, 4)}.${v.slice(4)}` : "");
@@ -61,7 +64,12 @@ function metaOf(n: ApplyhomeNotice): string {
     .join(" · ");
 }
 
-const inMetro = (metro: PresaleMetro) => (n: ApplyhomeNotice) => metro === "all" || n.metro === metro;
+const matches = ({ metro, supplier }: PresaleFilter) => (n: ApplyhomeNotice) => {
+  if (metro !== "all" && n.metro !== metro) return false;
+  if (supplier === "all") return true;
+  const isPublic = /국민/.test(n.kind ?? "");
+  return supplier === "public" ? isPublic : !isPublic;
+};
 const detailHref = (n: ApplyhomeNotice) => `/presale/${n.id}`;
 
 function MoreList<T>({
@@ -94,11 +102,12 @@ function MoreList<T>({
 }
 
 /** 접수가 끝나지 않은 청약 (특별공급 시작일 순). */
-export function ApplyhomeUpcomingSection({ metro }: { metro: PresaleMetro }) {
+export function ApplyhomeUpcomingSection({ filter }: { filter: PresaleFilter }) {
   const query = useApplyhome();
   const data = query.data;
   if (query.isError) return null;
-  const items = (data?.upcoming ?? []).filter(inMetro(metro));
+  const items = (data?.upcoming ?? []).filter(matches(filter));
+  const listKey = `${filter.metro}|${filter.supplier}`;
 
   return (
     <LabSection
@@ -117,7 +126,7 @@ export function ApplyhomeUpcomingSection({ metro }: { metro: PresaleMetro }) {
         <p className="detail-body">지금 접수 중이거나 예정된 청약이 없습니다.</p>
       ) : (
         <MoreList
-          key={metro}
+          key={listKey}
           items={items}
           render={(n) => {
             const st = status(n, data!.today);
@@ -174,9 +183,9 @@ function RateRow({ n }: { n: ApplyhomeCompetition }) {
 }
 
 /** 최근 30일 접수가 끝난 청약의 1순위 경쟁률 높은 순. */
-export function ApplyhomeCompetitionSection({ metro }: { metro: PresaleMetro }) {
+export function ApplyhomeCompetitionSection({ filter }: { filter: PresaleFilter }) {
   const query = useApplyhome();
-  const items = (query.data?.competition ?? []).filter(inMetro(metro));
+  const items = (query.data?.competition ?? []).filter(matches(filter));
   if (query.isError || query.isLoading || items.length === 0) return null;
 
   return (
@@ -189,29 +198,11 @@ export function ApplyhomeCompetitionSection({ metro }: { metro: PresaleMetro }) 
         </p>
       }
     >
-      <MoreList key={metro} items={items} render={(n) => <RateRow key={n.id} n={n} />} />
-    </LabSection>
-  );
-}
-
-/** 최근 12개월 접수가 끝난 공고, 최신순. 15곳씩 더 연다. */
-export function ApplyhomeHistorySection({ metro }: { metro: PresaleMetro }) {
-  const query = useApplyhome();
-  const items = (query.data?.history ?? []).filter(inMetro(metro));
-  if (query.isError || query.isLoading || items.length === 0) return null;
-
-  return (
-    <LabSection
-      title="지난 청약 결과"
-      meta={`최근 12개월 ${items.length.toLocaleString("ko-KR")}곳`}
-      tip={
-        <p>
-          최근 12개월 안에 접수가 끝난 분양 공고를 마감일 최신순으로 모았습니다. 경쟁률은 1순위 접수 ÷ 일반공급
-          세대입니다. 누르면 주택형별 분양가와 경쟁률을 볼 수 있습니다.
-        </p>
-      }
-    >
-      <MoreList key={metro} items={items} step={15} render={(n) => <RateRow key={n.id} n={n} />} />
+      <MoreList
+        key={`${filter.metro}|${filter.supplier}`}
+        items={items}
+        render={(n) => <RateRow key={n.id} n={n} />}
+      />
     </LabSection>
   );
 }
