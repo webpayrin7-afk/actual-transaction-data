@@ -20,7 +20,7 @@
  * Supply = 전유 + 주거공용 (deriveOfficialSupplies). Complex-level ambiguity (ratio < 0.9),
  * name mismatch, and exclusive groups that would change an existing verified supply are held.
  *
- * Usage: ./node_modules/.bin/tsx scripts/supply-fill/fill-missing-supply.mts <phase> [--limit N] [--group G1|G2]
+ * Usage: ./node_modules/.bin/tsx scripts/supply-fill/fill-missing-supply.mts <phase> [--limit N] [--group G1|G2] [--min-weight N]
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -210,8 +210,10 @@ async function allTargets(client: Client): Promise<Target[]> {
   if (!group || group === "G1") list.push(...(await g1Targets(client)));
   if (!group || group === "G2") list.push(...(await g2Targets(client)));
   list.sort((a, b) => b.weight - a.weight || a.complexId.localeCompare(b.complexId));
+  const minWeight = Number(arg("--min-weight") ?? 0);
+  const filtered = minWeight > 0 ? list.filter((t) => t.weight >= minWeight) : list;
   const limit = Number(arg("--limit") ?? 0);
-  return limit > 0 ? list.slice(0, limit) : list;
+  return limit > 0 ? filtered.slice(0, limit) : filtered;
 }
 
 // ---------------------------------------------------------------------------
