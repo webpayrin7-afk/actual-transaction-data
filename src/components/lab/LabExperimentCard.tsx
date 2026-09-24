@@ -168,11 +168,11 @@ export function LabExperimentCard({ result }: { result: LabExperimentResult }) {
       ) : null}
 
       <div className="flex flex-col gap-1">
-        <p className="detail-meta">
-          {result.period.label} · 표본 {fmtN(result.totalCount)}건
-        </p>
+        <p className="detail-meta">{result.period.label}</p>
         {result.period.priorLabel ? <p className="detail-meta">비교 {result.period.priorLabel}</p> : null}
-        {result.excludedNote ? <p className="detail-meta">{result.excludedNote}</p> : null}
+        <p className="detail-meta tabular-nums">
+          표본 {fmtN(result.totalCount)}건{result.excludedNote ? ` · ${result.excludedNote}` : ""}
+        </p>
       </div>
 
     </LabSection>
