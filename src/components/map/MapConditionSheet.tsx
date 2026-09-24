@@ -188,11 +188,6 @@ function HeatingChips({
   );
 }
 
-function rowHint(def: RangeFilterDef): string | null {
-  const parts = [def.hint, def.sparse ? "정보 있는 단지만" : null].filter(Boolean);
-  return parts.length ? parts.join(" · ") : null;
-}
-
 /**
  * 지도 조건 시트.
  * - 전체 모드(only 없음): 레시피 · 가격/단지/환경 전부 — 한 번에 바꾸기
@@ -235,6 +230,16 @@ export function MapConditionSheet({
     onChange({ ...conditions, ranges });
   };
 
+  // 이동 목록: 묶음 순서(가격 → 단지 → 환경) 그대로 + 난방
+  const jumpList = [
+    ...FILTER_GROUPS.flatMap((g) =>
+      defs
+        .filter((d) => d.group === g.id)
+        .map((d) => ({ id: d.id as string, label: d.label, active: !isFullRange(d, conditions.ranges[d.id]) })),
+    ),
+    { id: "heating", label: "난방", active: conditions.heating.length > 0 },
+  ];
+
   const title = only ? (only === "heating" ? "난방방식" : (onlyDef?.label ?? "조건")) : "조건으로 찾기";
 
   return (
@@ -262,24 +267,53 @@ export function MapConditionSheet({
       {only ? (
         <div className="flex flex-col gap-3 pb-2">
           {onlyDef ? (
-            <>
-              {rowHint(onlyDef) ? <p className="detail-meta">{rowHint(onlyDef)}</p> : null}
-              <RangeBody def={onlyDef} conditions={conditions} complexes={complexes} onRange={setRange} />
-            </>
+            <RangeBody def={onlyDef} conditions={conditions} complexes={complexes} onRange={setRange} />
           ) : (
             <HeatingChips conditions={conditions} onChange={onChange} />
           )}
         </div>
       ) : (
         <div className="flex flex-col gap-7 pb-4">
-          {/* 레시피: 한 줄 칩. 켠 레시피가 무엇을 걸었는지는 칩 아래 한 줄로만 */}
+          {/* 필터 이동 — 탭 모양 글자 버튼, 스크롤해도 위에 고정. 조건이 걸린 필터는 강조색 */}
+          <nav aria-label="필터로 이동" className="sticky top-0 z-10 -mx-4 -mt-2 -mb-3 bg-white px-4 pt-1">
+            <div
+              className="-mx-4 flex gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {jumpList.map((j) => (
+                <button
+                  key={j.id}
+                  type="button"
+                  onClick={() =>
+                    document.getElementById(`cond-${j.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
+                  className={`inline-flex h-11 shrink-0 items-center gap-1 whitespace-nowrap text-[14px] leading-5 ${
+                    j.active
+                      ? "font-semibold text-[color:var(--lab-teal-700)]"
+                      : "font-medium text-[color:var(--lab-muted)]"
+                  }`}
+                >
+                  {j.label}
+                  {j.active ? (
+                    <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[color:var(--lab-brand-primary)]" />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+            <div aria-hidden className="-mx-4 h-px bg-[color:var(--lab-border)]" />
+          </nav>
+
+          {/* 레시피 — 이름표 + 연한 채움 칩(조건을 한 번에 적용). 이동 탭과 모양이 달라 섞이지 않는다 */}
           <div className="flex flex-col gap-1.5">
             <div
-              className="-mx-4 flex gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 py-1"
+              className="-mx-4 flex items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 py-1"
               style={{ scrollbarWidth: "none" }}
               role="group"
               aria-label="레시피"
             >
+              <span className="mr-1 shrink-0 text-[13px] font-semibold leading-5 text-[color:var(--lab-muted)]">
+                레시피
+              </span>
               {RECIPES.map((r) => {
                 const on = recipeActive(r, conditions);
                 return (
@@ -299,7 +333,7 @@ export function MapConditionSheet({
                     className={`relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
                       on
                         ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
-                        : "border-[color:var(--lab-border)] font-medium text-[color:var(--lab-navy-950)]"
+                        : "border-transparent bg-[color:var(--lab-surface-subtle)] font-medium text-[color:var(--lab-navy-950)]"
                     }`}
                   >
                     {r.label}
@@ -327,15 +361,11 @@ export function MapConditionSheet({
                 .map((d) => {
                   const cur = conditions.ranges[d.id];
                   const active = !isFullRange(d, cur);
-                  const hint = rowHint(d);
                   return (
-                    <div key={d.id} className="flex flex-col gap-2.5">
+                    <div key={d.id} id={`cond-${d.id}`} className="flex scroll-mt-16 flex-col gap-2.5">
                       <div className="flex items-baseline justify-between gap-3">
-                        <span className="flex min-w-0 flex-col">
-                          <span className="text-[16px] font-semibold leading-6 text-[color:var(--lab-navy-950)]">
-                            {d.label}
-                          </span>
-                          {hint ? <span className="detail-meta">{hint}</span> : null}
+                        <span className="min-w-0 text-[16px] font-semibold leading-6 text-[color:var(--lab-navy-950)]">
+                          {d.label}
                         </span>
                         <span
                           className={`shrink-0 text-[15px] tabular-nums ${
@@ -350,7 +380,7 @@ export function MapConditionSheet({
                   );
                 })}
               {g.id === "env" ? (
-                <div className="flex flex-col gap-2.5">
+                <div id="cond-heating" className="flex scroll-mt-16 flex-col gap-2.5">
                   <span className="text-[16px] font-semibold leading-6 text-[color:var(--lab-navy-950)]">난방방식</span>
                   <HeatingChips conditions={conditions} onChange={onChange} />
                 </div>
