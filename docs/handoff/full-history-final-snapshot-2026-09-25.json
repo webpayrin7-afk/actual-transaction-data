@@ -1,0 +1,50 @@
+{
+  "run": "claude/full-history-resume",
+  "finishedAt": "2026-09-24T18:39:25.836Z",
+  "progress": {
+    "apiCalls": 3832,
+    "inserted": 500156,
+    "updated": 0,
+    "unchanged": 0,
+    "deleted": 0,
+    "emptyComplete": 111,
+    "saleCells": 3832,
+    "rentCells": 0,
+    "identityConflicts": 0,
+    "updateSkipped": 0,
+    "cursor": 3832,
+    "firstBatchApplied": true,
+    "completedRun": true,
+    "currentPriority": 3,
+    "currentSource": "SALE",
+    "currentRegion": "ulsan",
+    "currentMonthRange": "202212",
+    "updatedAt": "2026-09-24T18:39:25.836Z",
+    "completedCount": 3832,
+    "failedCount": 0
+  },
+  "manifestAfter": {
+    "SALE": {
+      "expected": 30480,
+      "complete": 30480,
+      "ready": 0
+    },
+    "RENT": {
+      "expected": 12192,
+      "complete": 12192,
+      "ready": 0
+    }
+  },
+  "verification": {
+    "preTradeRowsBefore": 2875328,
+    "preTradeRowsAfter": 3375484,
+    "delta": 500156,
+    "duplicateNaturalKeyGroups": 0,
+    "rerunDryRunInserted": 0
+  },
+  "safety": {
+    "skipUpdate": true,
+    "skipDelete": true,
+    "sale2023PlusFrozenFilter": true
+  }
+}

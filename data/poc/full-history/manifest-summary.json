@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-09-23T05:39:55.521Z",
+  "builtAt": "2026-09-24T18:39:47.918Z",
   "sourceRange": {
     "SALE": {
       "earliest": "201610",
@@ -19,28 +19,26 @@
   ],
   "SALE": {
     "expected": 30480,
-    "complete": 14035,
-    "ready": 16445,
+    "complete": 30480,
+    "ready": 0,
     "nodata": 0,
     "byStatus": {
-      "COMPLETE": 14035,
-      "READY": 16445
+      "COMPLETE": 30480
     },
     "byPriority": {
       "1": 5400,
       "3": 25080
     },
-    "historicalPre2023Missing": 15459,
-    "baseline2023Complete": 10444
+    "historicalPre2023Missing": 0,
+    "baseline2023Complete": 11430
   },
   "RENT": {
     "expected": 12192,
-    "complete": 3456,
-    "ready": 8736,
+    "complete": 12192,
+    "ready": 0,
     "nodata": 0,
     "byStatus": {
-      "COMPLETE": 3456,
-      "READY": 8736
+      "COMPLETE": 12192
     },
     "byPriority": {
       "0": 3456,
@@ -48,7 +46,7 @@
     }
   },
   "paths": {
-    "sale": "/workspace/data/poc/full-history/manifest-sale.json",
-    "rent": "/workspace/data/poc/full-history/manifest-rent.json"
+    "sale": "C:\\dev\\ziplab-wt\\full-history\\data\\poc\\full-history\\manifest-sale.json",
+    "rent": "C:\\dev\\ziplab-wt\\full-history\\data\\poc\\full-history\\manifest-rent.json"
   }
 }

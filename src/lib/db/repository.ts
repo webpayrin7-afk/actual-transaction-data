@@ -59,6 +59,8 @@ export type ReplaceMonthResult = {
   deleted: number;
   /** transaction INSERT/UPDATE/DELETE 가 있었는지 */
   wrote: boolean;
+  /** skipUpdate=true 일 때 본문이 달랐지만 UPDATE 하지 않은 건수 */
+  updateSkipped?: number;
 };
 
 /**
@@ -92,6 +94,11 @@ export async function replaceMonthTransactions(params: {
    * `deleted` still reports the extra-candidate count; SQL DELETE is 0.
    */
   skipDelete?: boolean;
+  /**
+   * Insert-only (missing-only backfill): matched rows whose content differs
+   * are counted in `updateSkipped` and NOT updated. `updated` stays 0.
+   */
+  skipUpdate?: boolean;
 }): Promise<ReplaceMonthResult> {
   const empty: ReplaceMonthResult = {
     rowCount: 0,
@@ -108,6 +115,7 @@ export async function replaceMonthTransactions(params: {
   const setFirstSeenOnInsert = params.setFirstSeenOnInsert !== false;
   const dryRun = params.dryRun === true;
   const skipDelete = params.skipDelete === true;
+  const skipUpdate = params.skipUpdate === true;
   const syncedAt = new Date().toISOString();
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   const writeRgstCol = await hasRgstDateColumn(db);
@@ -258,6 +266,7 @@ export async function replaceMonthTransactions(params: {
   let inserted = 0;
   let updated = 0;
   let unchanged = 0;
+  let updateSkipped = 0;
 
   const insertSql = writeDiscoveryCol
     ? writeRgstCol
@@ -313,6 +322,8 @@ export async function replaceMonthTransactions(params: {
           ...(writeDiscoveryCol ? [insertDiscoveryAt] : []),
         ],
       });
+    } else if (u.dirty && skipUpdate) {
+      updateSkipped += 1;
     } else if (u.dirty) {
       updated += 1;
       statements.push({
@@ -404,6 +415,7 @@ export async function replaceMonthTransactions(params: {
       unchanged,
       deleted,
       wrote: false,
+      updateSkipped,
     };
   }
 
@@ -421,6 +433,7 @@ export async function replaceMonthTransactions(params: {
     unchanged,
     deleted: executedDeletes,
     wrote: wroteTx,
+    updateSkipped,
   };
 }
 

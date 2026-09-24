@@ -43,6 +43,16 @@ export function cellKey(c: Pick<ManifestCell, "dealKind" | "requestLawd" | "year
   return `${c.dealKind}|${c.requestLawd}|${c.yearMonth}`;
 }
 
+function pidAlive(pid: number): boolean {
+  if (existsSync(`/proc/${pid}`)) return true;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function acquireLock(
   argv: string[],
   log: (line: string) => void = console.error,
@@ -53,7 +63,7 @@ export function acquireLock(
       const prev = JSON.parse(readFileSync(FULL_HISTORY_LOCK, "utf8")) as {
         pid?: number;
       };
-      if (prev.pid && existsSync(`/proc/${prev.pid}`)) {
+      if (prev.pid && pidAlive(prev.pid)) {
         log(`lock held by pid=${prev.pid}`);
         return false;
       }

@@ -207,10 +207,28 @@ async function ensureEmptySync(
   await db.execute({
     sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
           VALUES (?, ?, ?, ?, 0)
-          ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
-            synced_at = excluded.synced_at,
-            row_count = excluded.row_count`,
+          ON CONFLICT(lawd_cd, year_month, deal_kind) DO NOTHING`,
     args: [lawdCd, yearMonth, dealKind, new Date().toISOString()],
+  });
+}
+
+/**
+ * Fetch succeeded but every row already existed (insert-only → no tx write,
+ * so replaceMonthTransactions did not record sync_months). Record the cell
+ * as synced so re-runs skip it. Never overwrites an existing sync row.
+ */
+async function ensureSyncNoWrite(
+  db: NonNullable<ReturnType<typeof getDb>>,
+  dealKind: "trade" | "rent",
+  lawdCd: string,
+  yearMonth: string,
+  rowCount: number,
+) {
+  await db.execute({
+    sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
+          VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT(lawd_cd, year_month, deal_kind) DO NOTHING`,
+    args: [lawdCd, yearMonth, dealKind, new Date().toISOString(), rowCount],
   });
 }
 
@@ -284,7 +302,12 @@ async function runDaemon() {
   saveCheckpoint(cp);
   heartbeat({ phase: "boot", apply });
 
-  const queue = loadQueue().filter((c) => !cp.completed[cellKey(c)]);
+  // 2023-01+ SALE is a frozen baseline — never re-fetch (owner rule).
+  const queue = loadQueue().filter(
+    (c) =>
+      !cp.completed[cellKey(c)] &&
+      !(c.source === "SALE" && c.yearMonth >= "202301"),
+  );
   const pending = maxCells > 0 ? queue.slice(0, maxCells) : queue;
   log(
     `boot apply=${apply ? 1 : 0} concurrency=${concurrency} sleepMs=${sleepMs} pending=${pending.length} completed=${Object.keys(cp.completed).length} failed=${Object.keys(cp.failed).length}`,
@@ -292,6 +315,8 @@ async function runDaemon() {
 
   let next = 0;
   let consecutiveSoftErrors = 0;
+  let consecutiveFails = 0;
+  let haltReason: string | null = null;
   const startedAt = Date.now();
 
   async function processOne(job: ManifestCell) {
@@ -318,7 +343,24 @@ async function runDaemon() {
         setFirstSeenOnInsert: discovery,
         dryRun: !apply,
         skipDelete: true,
+        // Owner rule: missing-only — never overwrite existing rows.
+        skipUpdate: true,
       });
+      if (result.updated !== 0 || result.deleted !== 0) {
+        throw new Error(
+          `SAFETY: unexpected write updated=${result.updated} deleted=${result.deleted} ${key}`,
+        );
+      }
+
+      if (apply && items.length > 0 && !result.wrote) {
+        await ensureSyncNoWrite(
+          db,
+          job.dealKind,
+          job.requestLawd,
+          job.yearMonth,
+          result.rowCount,
+        );
+      }
 
       if (apply && items.length === 0) {
         await ensureEmptySync(db, job.dealKind, job.requestLawd, job.yearMonth);
@@ -339,10 +381,14 @@ async function runDaemon() {
       cp.totals.inserted += result.inserted;
       cp.totals.updated += result.updated;
       cp.totals.unchanged += result.unchanged;
+      (cp.totals as Record<string, number>).updateSkipped =
+        ((cp.totals as Record<string, number>).updateSkipped ?? 0) +
+        (result.updateSkipped ?? 0);
       cp.totals.deleted += result.deleted;
       if (job.source === "SALE") cp.totals.saleCells += 1;
       else cp.totals.rentCells += 1;
       consecutiveSoftErrors = 0;
+      consecutiveFails = 0;
     } catch (err) {
       const errorClass = classifyError(err);
       const attempts = priorAttempts + 1;
@@ -367,11 +413,21 @@ async function runDaemon() {
         log(`backoff sleepMs=${sleepMs} class=${errorClass} key=${key}`);
       }
       log(`FAIL ${key} class=${errorClass}: ${cp.failed[key].error}`);
+      consecutiveFails += 1;
+      const msg = cp.failed[key].error;
+      if (/LIMITED_NUMBER|EXCEEDS|quota|SERVICE_KEY|SERVICE ERROR|UNREGISTERED|DEADLINE/i.test(msg)) {
+        haltReason = `QUOTA_OR_KEY_ERROR at ${key}: ${msg.slice(0, 160)}`;
+      } else if (/^SAFETY:/.test(msg)) {
+        haltReason = msg;
+      } else if (consecutiveFails >= 12) {
+        haltReason = `ERROR_SPIKE ${consecutiveFails} consecutive failures (last ${key})`;
+      }
     }
   }
 
   async function worker() {
     while (true) {
+      if (haltReason) return;
       const i = next;
       next += 1;
       if (i >= pending.length) return;
@@ -420,6 +476,14 @@ async function runDaemon() {
     ),
   );
 
+  if (haltReason) {
+    saveCheckpoint(cp);
+    heartbeat({ phase: "halted", haltReason });
+    log(`HALT ${haltReason} api=${cp.totals.apiCalls} ins=${cp.totals.inserted}`);
+    releaseLock();
+    process.exitCode = 4;
+    return;
+  }
   cp.completedRun = true;
   if (!cp.firstBatchApplied && Object.keys(cp.completed).length > 0) {
     cp.firstBatchApplied = true;
