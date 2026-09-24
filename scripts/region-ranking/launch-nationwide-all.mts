@@ -182,14 +182,28 @@ async function loadMasters(db: NonNullable<ReturnType<typeof getDb>>, lawds: str
     const slice = lawds.slice(i, i + 40);
     const r = await db.execute({
       sql: `SELECT m.complex_id, m.lawd_cd, m.bjdong_cd, m.apt_name, m.apt_name_norm,
-                   p.household_count, p.source
+                   p.household_count, p.source,
+                   uh.h AS unit_households
             FROM apt_complex_master m
             LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
+            LEFT JOIN (
+              SELECT complex_id, SUM(household_count) AS h
+              FROM unit_type_household_counts
+              WHERE household_count IS NOT NULL
+              GROUP BY complex_id
+            ) uh ON uh.complex_id = m.complex_id
             WHERE m.lawd_cd IN (${slice.map(() => "?").join(",")})`,
       args: slice,
     });
     for (const row of r.rows) {
-      const hh = row.household_count == null ? null : Number(row.household_count);
+      const profileHh = row.household_count == null ? null : Number(row.household_count);
+      const unitHh = row.unit_households == null ? null : Number(row.unit_households);
+      const hh =
+        profileHh != null && profileHh > 0
+          ? profileHh
+          : unitHh != null && unitHh > 0
+            ? unitHh
+            : null;
       const hasHh = hh != null && hh > 0;
       masters.push({
         complexId: String(row.complex_id),
@@ -199,7 +213,12 @@ async function loadMasters(db: NonNullable<ReturnType<typeof getDb>>, lawds: str
         aptNameNorm: String(row.apt_name_norm ?? ""),
         household: hasHh ? hh : null,
         confidence: hasHh ? "LOW" : "MISSING",
-        profileSource: row.source == null ? null : String(row.source),
+        profileSource:
+          row.source == null
+            ? unitHh != null && unitHh > 0
+              ? "unit_type_household_counts"
+              : null
+            : String(row.source),
       });
     }
   }

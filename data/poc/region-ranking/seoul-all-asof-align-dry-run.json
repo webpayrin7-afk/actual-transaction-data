@@ -1,0 +1,2580 @@
+{
+  "apply": true,
+  "scope": "seoul",
+  "asOf": "2026-07-31",
+  "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+  "featureRows": 8437,
+  "featureEligibleInput": 5533,
+  "guTotal": 25,
+  "guPublish": 25,
+  "guEmpty": 0,
+  "byMetro": {
+    "seoul": {
+      "publishGus": 25,
+      "emptyGus": 0,
+      "eligibleComplexes": 2219
+    }
+  },
+  "emptyGuAll": [],
+  "seoulDiff": {
+    "changedGuCount": 0,
+    "unchangedGuCount": 25,
+    "changed": [],
+    "allGuEligible": [
+      {
+        "lawd": "11110",
+        "name": "종로구",
+        "eligibleBefore": 26,
+        "eligibleAfter": 26,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_bfdd6a70eb2d394d",
+            "name": "경희궁자이(2단지)",
+            "score": 0.8077
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_81fa540f3fb53c25",
+            "name": "인왕산아이파크",
+            "score": 0.7769
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_5a7c44c4618a614e",
+            "name": "현대",
+            "score": 0.7769
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_bfdd6a70eb2d394d",
+            "name": "경희궁자이(2단지)",
+            "score": 0.8077
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_81fa540f3fb53c25",
+            "name": "인왕산아이파크",
+            "score": 0.7769
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_5a7c44c4618a614e",
+            "name": "현대",
+            "score": 0.7769
+          }
+        ]
+      },
+      {
+        "lawd": "11140",
+        "name": "중구",
+        "eligibleBefore": 34,
+        "eligibleAfter": 34,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_7bf3821a158d3a70",
+            "name": "서울역센트럴자이",
+            "score": 0.8618
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_8196b6f38c2669d0",
+            "name": "약수하이츠",
+            "score": 0.8235
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_27b567709a54de37",
+            "name": "남산타운",
+            "score": 0.8088
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_7bf3821a158d3a70",
+            "name": "서울역센트럴자이",
+            "score": 0.8618
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_8196b6f38c2669d0",
+            "name": "약수하이츠",
+            "score": 0.8235
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_27b567709a54de37",
+            "name": "남산타운",
+            "score": 0.8088
+          }
+        ]
+      },
+      {
+        "lawd": "11170",
+        "name": "용산구",
+        "eligibleBefore": 51,
+        "eligibleAfter": 51,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_190b3cad0f08ec10",
+            "name": "한가람",
+            "score": 0.8569
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_af718ffa933820bf",
+            "name": "강촌",
+            "score": 0.8078
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_ba8d6d79c43908b4",
+            "name": "신동아",
+            "score": 0.8039
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_190b3cad0f08ec10",
+            "name": "한가람",
+            "score": 0.8569
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_af718ffa933820bf",
+            "name": "강촌",
+            "score": 0.8078
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_ba8d6d79c43908b4",
+            "name": "신동아",
+            "score": 0.8039
+          }
+        ]
+      },
+      {
+        "lawd": "11200",
+        "name": "성동구",
+        "eligibleBefore": 75,
+        "eligibleAfter": 75,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_4ffda47da0de7668",
+            "name": "래미안옥수리버젠",
+            "score": 0.9
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_c3f8a052ae66fd32",
+            "name": "옥수파크힐스101동~116동",
+            "score": 0.868
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_f0ea3c3ab7622456",
+            "name": "센트라스",
+            "score": 0.8507
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_4ffda47da0de7668",
+            "name": "래미안옥수리버젠",
+            "score": 0.9
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_c3f8a052ae66fd32",
+            "name": "옥수파크힐스101동~116동",
+            "score": 0.868
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_f0ea3c3ab7622456",
+            "name": "센트라스",
+            "score": 0.8507
+          }
+        ]
+      },
+      {
+        "lawd": "11215",
+        "name": "광진구",
+        "eligibleBefore": 61,
+        "eligibleAfter": 61,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_46318d9ca7d49f92",
+            "name": "현대프라임",
+            "score": 0.9033
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_5bc22b4e22133b01",
+            "name": "현대파크빌",
+            "score": 0.8607
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_6688c94546d9e495",
+            "name": "구의현대2단지",
+            "score": 0.8377
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_46318d9ca7d49f92",
+            "name": "현대프라임",
+            "score": 0.9033
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_5bc22b4e22133b01",
+            "name": "현대파크빌",
+            "score": 0.8607
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_6688c94546d9e495",
+            "name": "구의현대2단지",
+            "score": 0.8377
+          }
+        ]
+      },
+      {
+        "lawd": "11230",
+        "name": "동대문구",
+        "eligibleBefore": 98,
+        "eligibleAfter": 98,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_626257d2955688cc",
+            "name": "래미안크레시티",
+            "score": 0.9143
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_a488372d4b813b54",
+            "name": "청량리역롯데캐슬sky-l65",
+            "score": 0.902
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_3d96a5fc6a75e3c5",
+            "name": "힐스테이트청계",
+            "score": 0.902
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_626257d2955688cc",
+            "name": "래미안크레시티",
+            "score": 0.9143
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_a488372d4b813b54",
+            "name": "청량리역롯데캐슬sky-l65",
+            "score": 0.902
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_3d96a5fc6a75e3c5",
+            "name": "힐스테이트청계",
+            "score": 0.902
+          }
+        ]
+      },
+      {
+        "lawd": "11260",
+        "name": "중랑구",
+        "eligibleBefore": 90,
+        "eligibleAfter": 90,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_c194a498af54b795",
+            "name": "사가정센트럴아이파크",
+            "score": 0.9444
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_ed02f1741eddcc19",
+            "name": "한신아파트상가동유치원동(103~109)",
+            "score": 0.9156
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_dd57d5482ae4b672",
+            "name": "한양수자인사가정파크",
+            "score": 0.8978
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_c194a498af54b795",
+            "name": "사가정센트럴아이파크",
+            "score": 0.9444
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_ed02f1741eddcc19",
+            "name": "한신아파트상가동유치원동(103~109)",
+            "score": 0.9156
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_dd57d5482ae4b672",
+            "name": "한양수자인사가정파크",
+            "score": 0.8978
+          }
+        ]
+      },
+      {
+        "lawd": "11290",
+        "name": "성북구",
+        "eligibleBefore": 103,
+        "eligibleAfter": 103,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_268951fd172743da",
+            "name": "롯데캐슬클라시아",
+            "score": 0.9194
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_af6691b3c66a44e3",
+            "name": "보문파크뷰자이",
+            "score": 0.9078
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_90eeae4864ac114a",
+            "name": "래미안길음센터피스",
+            "score": 0.8806
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_268951fd172743da",
+            "name": "롯데캐슬클라시아",
+            "score": 0.9194
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_af6691b3c66a44e3",
+            "name": "보문파크뷰자이",
+            "score": 0.9078
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_90eeae4864ac114a",
+            "name": "래미안길음센터피스",
+            "score": 0.8806
+          }
+        ]
+      },
+      {
+        "lawd": "11305",
+        "name": "강북구",
+        "eligibleBefore": 35,
+        "eligibleAfter": 35,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_e13322579a97aed9",
+            "name": "꿈의숲해링턴플레이스",
+            "score": 0.8771
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_911474c2bdecf309",
+            "name": "미아동부센트레빌",
+            "score": 0.84
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_24676ba323d52c4f",
+            "name": "주공1단지",
+            "score": 0.8371
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_e13322579a97aed9",
+            "name": "꿈의숲해링턴플레이스",
+            "score": 0.8771
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_911474c2bdecf309",
+            "name": "미아동부센트레빌",
+            "score": 0.84
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_24676ba323d52c4f",
+            "name": "주공1단지",
+            "score": 0.8371
+          }
+        ]
+      },
+      {
+        "lawd": "11320",
+        "name": "도봉구",
+        "eligibleBefore": 82,
+        "eligibleAfter": 82,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_622ec32107d49a92",
+            "name": "창동주공3단지(해등마을)",
+            "score": 0.9683
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_e0c9bb760d5fdaf3",
+            "name": "동아청솔",
+            "score": 0.9415
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_cdce80e03f55958d",
+            "name": "주공19단지(창동리버타운)",
+            "score": 0.9043
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_622ec32107d49a92",
+            "name": "창동주공3단지(해등마을)",
+            "score": 0.9683
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_e0c9bb760d5fdaf3",
+            "name": "동아청솔",
+            "score": 0.9415
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_cdce80e03f55958d",
+            "name": "주공19단지(창동리버타운)",
+            "score": 0.9043
+          }
+        ]
+      },
+      {
+        "lawd": "11350",
+        "name": "노원구",
+        "eligibleBefore": 156,
+        "eligibleAfter": 156,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_ca784709c2ce2f03",
+            "name": "상계주공6(고층)",
+            "score": 0.9449
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_f60298b8d6597b74",
+            "name": "장미(시영6)",
+            "score": 0.9288
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_fe74d4ff43443b50",
+            "name": "상계주공7(고층)",
+            "score": 0.9288
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_ca784709c2ce2f03",
+            "name": "상계주공6(고층)",
+            "score": 0.9449
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_f60298b8d6597b74",
+            "name": "장미(시영6)",
+            "score": 0.9288
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_fe74d4ff43443b50",
+            "name": "상계주공7(고층)",
+            "score": 0.9288
+          }
+        ]
+      },
+      {
+        "lawd": "11380",
+        "name": "은평구",
+        "eligibleBefore": 103,
+        "eligibleAfter": 103,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_bcc5fb9535412ace",
+            "name": "dmc롯데캐슬더퍼스트",
+            "score": 0.9505
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_5f12141d8b550031",
+            "name": "녹번역e편한세상캐슬",
+            "score": 0.9485
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_a3d36802764b9d84",
+            "name": "래미안베라힐즈",
+            "score": 0.918
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_bcc5fb9535412ace",
+            "name": "dmc롯데캐슬더퍼스트",
+            "score": 0.9505
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_5f12141d8b550031",
+            "name": "녹번역e편한세상캐슬",
+            "score": 0.9485
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_a3d36802764b9d84",
+            "name": "래미안베라힐즈",
+            "score": 0.918
+          }
+        ]
+      },
+      {
+        "lawd": "11410",
+        "name": "서대문구",
+        "eligibleBefore": 66,
+        "eligibleAfter": 66,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_c36e50988b1b9019",
+            "name": "서대문푸르지오센트럴파크",
+            "score": 0.9091
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_51a28730351ab2a2",
+            "name": "홍제역해링턴플레이스",
+            "score": 0.8758
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_5c7b4d08b2f2bbce",
+            "name": "천연뜨란채",
+            "score": 0.853
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_c36e50988b1b9019",
+            "name": "서대문푸르지오센트럴파크",
+            "score": 0.9091
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_51a28730351ab2a2",
+            "name": "홍제역해링턴플레이스",
+            "score": 0.8758
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_5c7b4d08b2f2bbce",
+            "name": "천연뜨란채",
+            "score": 0.853
+          }
+        ]
+      },
+      {
+        "lawd": "11440",
+        "name": "마포구",
+        "eligibleBefore": 104,
+        "eligibleAfter": 104,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_e70fb244c957c9f9",
+            "name": "더클래시",
+            "score": 0.9298
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_07caf64c556e85a7",
+            "name": "마포프레스티지자이",
+            "score": 0.875
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_488b8078fe87530d",
+            "name": "마포그랑자이",
+            "score": 0.8702
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_e70fb244c957c9f9",
+            "name": "더클래시",
+            "score": 0.9298
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_07caf64c556e85a7",
+            "name": "마포프레스티지자이",
+            "score": 0.875
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_488b8078fe87530d",
+            "name": "마포그랑자이",
+            "score": 0.8702
+          }
+        ]
+      },
+      {
+        "lawd": "11470",
+        "name": "양천구",
+        "eligibleBefore": 105,
+        "eligibleAfter": 105,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_55a0252cbc2225e9",
+            "name": "목동신시가지7",
+            "score": 0.9152
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_1cc19edab11d4dd7",
+            "name": "목동신시가지3",
+            "score": 0.861
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_70ed3c6d42282563",
+            "name": "목동신시가지1",
+            "score": 0.8581
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_55a0252cbc2225e9",
+            "name": "목동신시가지7",
+            "score": 0.9152
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_1cc19edab11d4dd7",
+            "name": "목동신시가지3",
+            "score": 0.861
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_70ed3c6d42282563",
+            "name": "목동신시가지1",
+            "score": 0.8581
+          }
+        ]
+      },
+      {
+        "lawd": "11500",
+        "name": "강서구",
+        "eligibleBefore": 137,
+        "eligibleAfter": 137,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_2ffe4801849314f3",
+            "name": "가양6단지",
+            "score": 0.9474
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_c7c69a546feb871f",
+            "name": "가양2단지(성지)",
+            "score": 0.9277
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_56cdec2e714127f8",
+            "name": "강변",
+            "score": 0.9263
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_2ffe4801849314f3",
+            "name": "가양6단지",
+            "score": 0.9474
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_c7c69a546feb871f",
+            "name": "가양2단지(성지)",
+            "score": 0.9277
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_56cdec2e714127f8",
+            "name": "강변",
+            "score": 0.9263
+          }
+        ]
+      },
+      {
+        "lawd": "11530",
+        "name": "구로구",
+        "eligibleBefore": 130,
+        "eligibleAfter": 130,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_8dad8e23bb07e1c3",
+            "name": "신도림태영타운",
+            "score": 0.9177
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_e8ce66cee970b98a",
+            "name": "주공2",
+            "score": 0.9123
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_2de71f20df8d389d",
+            "name": "동아1",
+            "score": 0.8946
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_8dad8e23bb07e1c3",
+            "name": "신도림태영타운",
+            "score": 0.9177
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_e8ce66cee970b98a",
+            "name": "주공2",
+            "score": 0.9123
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_2de71f20df8d389d",
+            "name": "동아1",
+            "score": 0.8946
+          }
+        ]
+      },
+      {
+        "lawd": "11545",
+        "name": "금천구",
+        "eligibleBefore": 30,
+        "eligibleAfter": 30,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_e4049090b7766d77",
+            "name": "금천롯데캐슬골드파크3차",
+            "score": 0.9267
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_2e789555cf7b1962",
+            "name": "남서울힐스테이트",
+            "score": 0.8633
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_bd8464479cee97b4",
+            "name": "금천롯데캐슬골드파크1차",
+            "score": 0.8567
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_e4049090b7766d77",
+            "name": "금천롯데캐슬골드파크3차",
+            "score": 0.9267
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_2e789555cf7b1962",
+            "name": "남서울힐스테이트",
+            "score": 0.8633
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_bd8464479cee97b4",
+            "name": "금천롯데캐슬골드파크1차",
+            "score": 0.8567
+          }
+        ]
+      },
+      {
+        "lawd": "11560",
+        "name": "영등포구",
+        "eligibleBefore": 126,
+        "eligibleAfter": 126,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_6d318f5942492e19",
+            "name": "힐스테이트클래시안",
+            "score": 0.8786
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_bda6d6312c81625e",
+            "name": "시범",
+            "score": 0.8782
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_4bd01569b84cac7f",
+            "name": "신길센트럴자이아파트",
+            "score": 0.8722
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_6d318f5942492e19",
+            "name": "힐스테이트클래시안",
+            "score": 0.8786
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_bda6d6312c81625e",
+            "name": "시범",
+            "score": 0.8782
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_4bd01569b84cac7f",
+            "name": "신길센트럴자이아파트",
+            "score": 0.8722
+          }
+        ]
+      },
+      {
+        "lawd": "11590",
+        "name": "동작구",
+        "eligibleBefore": 95,
+        "eligibleAfter": 95,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_1aacf2b891b7498d",
+            "name": "흑석리버파크자이",
+            "score": 0.8663
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_cd27c4f0c84653f9",
+            "name": "보라매자이더포레스트",
+            "score": 0.8495
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_992c16b577be618e",
+            "name": "사당롯데캐슬골든포레",
+            "score": 0.8442
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_1aacf2b891b7498d",
+            "name": "흑석리버파크자이",
+            "score": 0.8663
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_cd27c4f0c84653f9",
+            "name": "보라매자이더포레스트",
+            "score": 0.8495
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_992c16b577be618e",
+            "name": "사당롯데캐슬골든포레",
+            "score": 0.8442
+          }
+        ]
+      },
+      {
+        "lawd": "11620",
+        "name": "관악구",
+        "eligibleBefore": 67,
+        "eligibleAfter": 67,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_798e8d5d39cc661e",
+            "name": "e편한세상서울대입구1단지",
+            "score": 0.9104
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_f8c4e519ba42ad0c",
+            "name": "두산",
+            "score": 0.909
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_71b2a1be4e457891",
+            "name": "관악푸르지오",
+            "score": 0.909
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_798e8d5d39cc661e",
+            "name": "e편한세상서울대입구1단지",
+            "score": 0.9104
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_f8c4e519ba42ad0c",
+            "name": "두산",
+            "score": 0.909
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_71b2a1be4e457891",
+            "name": "관악푸르지오",
+            "score": 0.909
+          }
+        ]
+      },
+      {
+        "lawd": "11650",
+        "name": "서초구",
+        "eligibleBefore": 113,
+        "eligibleAfter": 113,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_be79446c405496bd",
+            "name": "래미안원베일리",
+            "score": 0.9
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_3bcf0f87bce7496b",
+            "name": "래미안퍼스티지",
+            "score": 0.8982
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_2c2311555140b149",
+            "name": "신반포2",
+            "score": 0.8655
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_be79446c405496bd",
+            "name": "래미안원베일리",
+            "score": 0.9
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_3bcf0f87bce7496b",
+            "name": "래미안퍼스티지",
+            "score": 0.8982
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_2c2311555140b149",
+            "name": "신반포2",
+            "score": 0.8655
+          }
+        ]
+      },
+      {
+        "lawd": "11680",
+        "name": "강남구",
+        "eligibleBefore": 112,
+        "eligibleAfter": 112,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_de547f7aab2e1751",
+            "name": "개포자이프레지던스",
+            "score": 0.8598
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_2b1f3357c2388205",
+            "name": "신현대12차",
+            "score": 0.8491
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_adb7193c5c99abd6",
+            "name": "래미안대치팰리스",
+            "score": 0.8375
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_de547f7aab2e1751",
+            "name": "개포자이프레지던스",
+            "score": 0.8598
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_2b1f3357c2388205",
+            "name": "신현대12차",
+            "score": 0.8491
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_adb7193c5c99abd6",
+            "name": "래미안대치팰리스",
+            "score": 0.8375
+          }
+        ]
+      },
+      {
+        "lawd": "11710",
+        "name": "송파구",
+        "eligibleBefore": 116,
+        "eligibleAfter": 116,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_caf229b5ac63cfbd",
+            "name": "리센츠",
+            "score": 0.9293
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_b4db01945df2a55b",
+            "name": "주공아파트5단지",
+            "score": 0.9034
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_4c63d9a100973c60",
+            "name": "잠실엘스",
+            "score": 0.9017
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_caf229b5ac63cfbd",
+            "name": "리센츠",
+            "score": 0.9293
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_b4db01945df2a55b",
+            "name": "주공아파트5단지",
+            "score": 0.9034
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_4c63d9a100973c60",
+            "name": "잠실엘스",
+            "score": 0.9017
+          }
+        ]
+      },
+      {
+        "lawd": "11740",
+        "name": "강동구",
+        "eligibleBefore": 104,
+        "eligibleAfter": 104,
+        "topBefore": [
+          {
+            "rank": 1,
+            "complexId": "cx_aab204c22d16a9c2",
+            "name": "고덕그라시움",
+            "score": 0.9115
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_0d3aa06062c08f6d",
+            "name": "올림픽파크포레온",
+            "score": 0.8846
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_8bb8df3562c3dd86",
+            "name": "고덕아르테온",
+            "score": 0.8827
+          }
+        ],
+        "topAfter": [
+          {
+            "rank": 1,
+            "complexId": "cx_aab204c22d16a9c2",
+            "name": "고덕그라시움",
+            "score": 0.9115
+          },
+          {
+            "rank": 2,
+            "complexId": "cx_0d3aa06062c08f6d",
+            "name": "올림픽파크포레온",
+            "score": 0.8846
+          },
+          {
+            "rank": 3,
+            "complexId": "cx_8bb8df3562c3dd86",
+            "name": "고덕아르테온",
+            "score": 0.8827
+          }
+        ]
+      }
+    ]
+  },
+  "guReports": [
+    {
+      "lawd": "11110",
+      "name": "종로구",
+      "metro": "seoul",
+      "candidates": 84,
+      "eligible": 26,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_bfdd6a70eb2d394d",
+          "name": "경희궁자이(2단지)",
+          "score": 0.8077
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_81fa540f3fb53c25",
+          "name": "인왕산아이파크",
+          "score": 0.7769
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_5a7c44c4618a614e",
+          "name": "현대",
+          "score": 0.7769
+        }
+      ]
+    },
+    {
+      "lawd": "11140",
+      "name": "중구",
+      "metro": "seoul",
+      "candidates": 91,
+      "eligible": 34,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_7bf3821a158d3a70",
+          "name": "서울역센트럴자이",
+          "score": 0.8618
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_8196b6f38c2669d0",
+          "name": "약수하이츠",
+          "score": 0.8235
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_27b567709a54de37",
+          "name": "남산타운",
+          "score": 0.8088
+        }
+      ]
+    },
+    {
+      "lawd": "11170",
+      "name": "용산구",
+      "metro": "seoul",
+      "candidates": 158,
+      "eligible": 51,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_190b3cad0f08ec10",
+          "name": "한가람",
+          "score": 0.8569
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_af718ffa933820bf",
+          "name": "강촌",
+          "score": 0.8078
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_ba8d6d79c43908b4",
+          "name": "신동아",
+          "score": 0.8039
+        }
+      ]
+    },
+    {
+      "lawd": "11200",
+      "name": "성동구",
+      "metro": "seoul",
+      "candidates": 132,
+      "eligible": 75,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_4ffda47da0de7668",
+          "name": "래미안옥수리버젠",
+          "score": 0.9
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_c3f8a052ae66fd32",
+          "name": "옥수파크힐스101동~116동",
+          "score": 0.868
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_f0ea3c3ab7622456",
+          "name": "센트라스",
+          "score": 0.8507
+        }
+      ]
+    },
+    {
+      "lawd": "11215",
+      "name": "광진구",
+      "metro": "seoul",
+      "candidates": 173,
+      "eligible": 61,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_46318d9ca7d49f92",
+          "name": "현대프라임",
+          "score": 0.9033
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_5bc22b4e22133b01",
+          "name": "현대파크빌",
+          "score": 0.8607
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_6688c94546d9e495",
+          "name": "구의현대2단지",
+          "score": 0.8377
+        }
+      ]
+    },
+    {
+      "lawd": "11230",
+      "name": "동대문구",
+      "metro": "seoul",
+      "candidates": 233,
+      "eligible": 98,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_626257d2955688cc",
+          "name": "래미안크레시티",
+          "score": 0.9143
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_a488372d4b813b54",
+          "name": "청량리역롯데캐슬sky-l65",
+          "score": 0.902
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_3d96a5fc6a75e3c5",
+          "name": "힐스테이트청계",
+          "score": 0.902
+        }
+      ]
+    },
+    {
+      "lawd": "11260",
+      "name": "중랑구",
+      "metro": "seoul",
+      "candidates": 203,
+      "eligible": 90,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c194a498af54b795",
+          "name": "사가정센트럴아이파크",
+          "score": 0.9444
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_ed02f1741eddcc19",
+          "name": "한신아파트상가동유치원동(103~109)",
+          "score": 0.9156
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_dd57d5482ae4b672",
+          "name": "한양수자인사가정파크",
+          "score": 0.8978
+        }
+      ]
+    },
+    {
+      "lawd": "11290",
+      "name": "성북구",
+      "metro": "seoul",
+      "candidates": 150,
+      "eligible": 103,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_268951fd172743da",
+          "name": "롯데캐슬클라시아",
+          "score": 0.9194
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_af6691b3c66a44e3",
+          "name": "보문파크뷰자이",
+          "score": 0.9078
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_90eeae4864ac114a",
+          "name": "래미안길음센터피스",
+          "score": 0.8806
+        }
+      ]
+    },
+    {
+      "lawd": "11305",
+      "name": "강북구",
+      "metro": "seoul",
+      "candidates": 90,
+      "eligible": 35,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e13322579a97aed9",
+          "name": "꿈의숲해링턴플레이스",
+          "score": 0.8771
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_911474c2bdecf309",
+          "name": "미아동부센트레빌",
+          "score": 0.84
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_24676ba323d52c4f",
+          "name": "주공1단지",
+          "score": 0.8371
+        }
+      ]
+    },
+    {
+      "lawd": "11320",
+      "name": "도봉구",
+      "metro": "seoul",
+      "candidates": 154,
+      "eligible": 82,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_622ec32107d49a92",
+          "name": "창동주공3단지(해등마을)",
+          "score": 0.9683
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_e0c9bb760d5fdaf3",
+          "name": "동아청솔",
+          "score": 0.9415
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_cdce80e03f55958d",
+          "name": "주공19단지(창동리버타운)",
+          "score": 0.9043
+        }
+      ]
+    },
+    {
+      "lawd": "11350",
+      "name": "노원구",
+      "metro": "seoul",
+      "candidates": 238,
+      "eligible": 156,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_ca784709c2ce2f03",
+          "name": "상계주공6(고층)",
+          "score": 0.9449
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_f60298b8d6597b74",
+          "name": "장미(시영6)",
+          "score": 0.9288
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_fe74d4ff43443b50",
+          "name": "상계주공7(고층)",
+          "score": 0.9288
+        }
+      ]
+    },
+    {
+      "lawd": "11380",
+      "name": "은평구",
+      "metro": "seoul",
+      "candidates": 306,
+      "eligible": 103,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_bcc5fb9535412ace",
+          "name": "dmc롯데캐슬더퍼스트",
+          "score": 0.9505
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_5f12141d8b550031",
+          "name": "녹번역e편한세상캐슬",
+          "score": 0.9485
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_a3d36802764b9d84",
+          "name": "래미안베라힐즈",
+          "score": 0.918
+        }
+      ]
+    },
+    {
+      "lawd": "11410",
+      "name": "서대문구",
+      "metro": "seoul",
+      "candidates": 188,
+      "eligible": 66,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c36e50988b1b9019",
+          "name": "서대문푸르지오센트럴파크",
+          "score": 0.9091
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_51a28730351ab2a2",
+          "name": "홍제역해링턴플레이스",
+          "score": 0.8758
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_5c7b4d08b2f2bbce",
+          "name": "천연뜨란채",
+          "score": 0.853
+        }
+      ]
+    },
+    {
+      "lawd": "11440",
+      "name": "마포구",
+      "metro": "seoul",
+      "candidates": 226,
+      "eligible": 104,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e70fb244c957c9f9",
+          "name": "더클래시",
+          "score": 0.9298
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_07caf64c556e85a7",
+          "name": "마포프레스티지자이",
+          "score": 0.875
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_488b8078fe87530d",
+          "name": "마포그랑자이",
+          "score": 0.8702
+        }
+      ]
+    },
+    {
+      "lawd": "11470",
+      "name": "양천구",
+      "metro": "seoul",
+      "candidates": 312,
+      "eligible": 105,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_55a0252cbc2225e9",
+          "name": "목동신시가지7",
+          "score": 0.9152
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_1cc19edab11d4dd7",
+          "name": "목동신시가지3",
+          "score": 0.861
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_70ed3c6d42282563",
+          "name": "목동신시가지1",
+          "score": 0.8581
+        }
+      ]
+    },
+    {
+      "lawd": "11500",
+      "name": "강서구",
+      "metro": "seoul",
+      "candidates": 393,
+      "eligible": 137,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_2ffe4801849314f3",
+          "name": "가양6단지",
+          "score": 0.9474
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_c7c69a546feb871f",
+          "name": "가양2단지(성지)",
+          "score": 0.9277
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_56cdec2e714127f8",
+          "name": "강변",
+          "score": 0.9263
+        }
+      ]
+    },
+    {
+      "lawd": "11530",
+      "name": "구로구",
+      "metro": "seoul",
+      "candidates": 303,
+      "eligible": 130,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_8dad8e23bb07e1c3",
+          "name": "신도림태영타운",
+          "score": 0.9177
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_e8ce66cee970b98a",
+          "name": "주공2",
+          "score": 0.9123
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_2de71f20df8d389d",
+          "name": "동아1",
+          "score": 0.8946
+        }
+      ]
+    },
+    {
+      "lawd": "11545",
+      "name": "금천구",
+      "metro": "seoul",
+      "candidates": 98,
+      "eligible": 30,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e4049090b7766d77",
+          "name": "금천롯데캐슬골드파크3차",
+          "score": 0.9267
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_2e789555cf7b1962",
+          "name": "남서울힐스테이트",
+          "score": 0.8633
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_bd8464479cee97b4",
+          "name": "금천롯데캐슬골드파크1차",
+          "score": 0.8567
+        }
+      ]
+    },
+    {
+      "lawd": "11560",
+      "name": "영등포구",
+      "metro": "seoul",
+      "candidates": 208,
+      "eligible": 126,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_6d318f5942492e19",
+          "name": "힐스테이트클래시안",
+          "score": 0.8786
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_bda6d6312c81625e",
+          "name": "시범",
+          "score": 0.8782
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_4bd01569b84cac7f",
+          "name": "신길센트럴자이아파트",
+          "score": 0.8722
+        }
+      ]
+    },
+    {
+      "lawd": "11590",
+      "name": "동작구",
+      "metro": "seoul",
+      "candidates": 164,
+      "eligible": 95,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_1aacf2b891b7498d",
+          "name": "흑석리버파크자이",
+          "score": 0.8663
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_cd27c4f0c84653f9",
+          "name": "보라매자이더포레스트",
+          "score": 0.8495
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_992c16b577be618e",
+          "name": "사당롯데캐슬골든포레",
+          "score": 0.8442
+        }
+      ]
+    },
+    {
+      "lawd": "11620",
+      "name": "관악구",
+      "metro": "seoul",
+      "candidates": 198,
+      "eligible": 67,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_798e8d5d39cc661e",
+          "name": "e편한세상서울대입구1단지",
+          "score": 0.9104
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_f8c4e519ba42ad0c",
+          "name": "두산",
+          "score": 0.909
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_71b2a1be4e457891",
+          "name": "관악푸르지오",
+          "score": 0.909
+        }
+      ]
+    },
+    {
+      "lawd": "11650",
+      "name": "서초구",
+      "metro": "seoul",
+      "candidates": 412,
+      "eligible": 113,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_be79446c405496bd",
+          "name": "래미안원베일리",
+          "score": 0.9
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_3bcf0f87bce7496b",
+          "name": "래미안퍼스티지",
+          "score": 0.8982
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_2c2311555140b149",
+          "name": "신반포2",
+          "score": 0.8655
+        }
+      ]
+    },
+    {
+      "lawd": "11680",
+      "name": "강남구",
+      "metro": "seoul",
+      "candidates": 358,
+      "eligible": 112,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_de547f7aab2e1751",
+          "name": "개포자이프레지던스",
+          "score": 0.8598
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_2b1f3357c2388205",
+          "name": "신현대12차",
+          "score": 0.8491
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_adb7193c5c99abd6",
+          "name": "래미안대치팰리스",
+          "score": 0.8375
+        }
+      ]
+    },
+    {
+      "lawd": "11710",
+      "name": "송파구",
+      "metro": "seoul",
+      "candidates": 309,
+      "eligible": 116,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_caf229b5ac63cfbd",
+          "name": "리센츠",
+          "score": 0.9293
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_b4db01945df2a55b",
+          "name": "주공아파트5단지",
+          "score": 0.9034
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_4c63d9a100973c60",
+          "name": "잠실엘스",
+          "score": 0.9017
+        }
+      ]
+    },
+    {
+      "lawd": "11740",
+      "name": "강동구",
+      "metro": "seoul",
+      "candidates": 352,
+      "eligible": 104,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_aab204c22d16a9c2",
+          "name": "고덕그라시움",
+          "score": 0.9115
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_0d3aa06062c08f6d",
+          "name": "올림픽파크포레온",
+          "score": 0.8846
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_8bb8df3562c3dd86",
+          "name": "고덕아르테온",
+          "score": 0.8827
+        }
+      ]
+    }
+  ],
+  "before": [
+    {
+      "lawd": "11110",
+      "name": "종로구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 26,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_bfdd6a70eb2d394d",
+          "name": "경희궁자이(2단지)",
+          "score": 0.8077
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_81fa540f3fb53c25",
+          "name": "인왕산아이파크",
+          "score": 0.7769
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_5a7c44c4618a614e",
+          "name": "현대",
+          "score": 0.7769
+        }
+      ]
+    },
+    {
+      "lawd": "11140",
+      "name": "중구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 34,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_7bf3821a158d3a70",
+          "name": "서울역센트럴자이",
+          "score": 0.8618
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_8196b6f38c2669d0",
+          "name": "약수하이츠",
+          "score": 0.8235
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_27b567709a54de37",
+          "name": "남산타운",
+          "score": 0.8088
+        }
+      ]
+    },
+    {
+      "lawd": "11170",
+      "name": "용산구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 51,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_190b3cad0f08ec10",
+          "name": "한가람",
+          "score": 0.8569
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_af718ffa933820bf",
+          "name": "강촌",
+          "score": 0.8078
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_ba8d6d79c43908b4",
+          "name": "신동아",
+          "score": 0.8039
+        }
+      ]
+    },
+    {
+      "lawd": "11200",
+      "name": "성동구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 75,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_4ffda47da0de7668",
+          "name": "래미안옥수리버젠",
+          "score": 0.9
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_c3f8a052ae66fd32",
+          "name": "옥수파크힐스101동~116동",
+          "score": 0.868
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_f0ea3c3ab7622456",
+          "name": "센트라스",
+          "score": 0.8507
+        }
+      ]
+    },
+    {
+      "lawd": "11215",
+      "name": "광진구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 61,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_46318d9ca7d49f92",
+          "name": "현대프라임",
+          "score": 0.9033
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_5bc22b4e22133b01",
+          "name": "현대파크빌",
+          "score": 0.8607
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_6688c94546d9e495",
+          "name": "구의현대2단지",
+          "score": 0.8377
+        }
+      ]
+    },
+    {
+      "lawd": "11230",
+      "name": "동대문구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 98,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_626257d2955688cc",
+          "name": "래미안크레시티",
+          "score": 0.9143
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_a488372d4b813b54",
+          "name": "청량리역롯데캐슬sky-l65",
+          "score": 0.902
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_3d96a5fc6a75e3c5",
+          "name": "힐스테이트청계",
+          "score": 0.902
+        }
+      ]
+    },
+    {
+      "lawd": "11260",
+      "name": "중랑구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 90,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c194a498af54b795",
+          "name": "사가정센트럴아이파크",
+          "score": 0.9444
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_ed02f1741eddcc19",
+          "name": "한신아파트상가동유치원동(103~109)",
+          "score": 0.9156
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_dd57d5482ae4b672",
+          "name": "한양수자인사가정파크",
+          "score": 0.8978
+        }
+      ]
+    },
+    {
+      "lawd": "11290",
+      "name": "성북구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 103,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_268951fd172743da",
+          "name": "롯데캐슬클라시아",
+          "score": 0.9194
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_af6691b3c66a44e3",
+          "name": "보문파크뷰자이",
+          "score": 0.9078
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_90eeae4864ac114a",
+          "name": "래미안길음센터피스",
+          "score": 0.8806
+        }
+      ]
+    },
+    {
+      "lawd": "11305",
+      "name": "강북구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 35,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e13322579a97aed9",
+          "name": "꿈의숲해링턴플레이스",
+          "score": 0.8771
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_911474c2bdecf309",
+          "name": "미아동부센트레빌",
+          "score": 0.84
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_24676ba323d52c4f",
+          "name": "주공1단지",
+          "score": 0.8371
+        }
+      ]
+    },
+    {
+      "lawd": "11320",
+      "name": "도봉구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 82,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_622ec32107d49a92",
+          "name": "창동주공3단지(해등마을)",
+          "score": 0.9683
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_e0c9bb760d5fdaf3",
+          "name": "동아청솔",
+          "score": 0.9415
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_cdce80e03f55958d",
+          "name": "주공19단지(창동리버타운)",
+          "score": 0.9043
+        }
+      ]
+    },
+    {
+      "lawd": "11350",
+      "name": "노원구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 156,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_ca784709c2ce2f03",
+          "name": "상계주공6(고층)",
+          "score": 0.9449
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_f60298b8d6597b74",
+          "name": "장미(시영6)",
+          "score": 0.9288
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_fe74d4ff43443b50",
+          "name": "상계주공7(고층)",
+          "score": 0.9288
+        }
+      ]
+    },
+    {
+      "lawd": "11380",
+      "name": "은평구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 103,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_bcc5fb9535412ace",
+          "name": "dmc롯데캐슬더퍼스트",
+          "score": 0.9505
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_5f12141d8b550031",
+          "name": "녹번역e편한세상캐슬",
+          "score": 0.9485
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_a3d36802764b9d84",
+          "name": "래미안베라힐즈",
+          "score": 0.918
+        }
+      ]
+    },
+    {
+      "lawd": "11410",
+      "name": "서대문구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 66,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c36e50988b1b9019",
+          "name": "서대문푸르지오센트럴파크",
+          "score": 0.9091
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_51a28730351ab2a2",
+          "name": "홍제역해링턴플레이스",
+          "score": 0.8758
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_5c7b4d08b2f2bbce",
+          "name": "천연뜨란채",
+          "score": 0.853
+        }
+      ]
+    },
+    {
+      "lawd": "11440",
+      "name": "마포구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 104,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e70fb244c957c9f9",
+          "name": "더클래시",
+          "score": 0.9298
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_07caf64c556e85a7",
+          "name": "마포프레스티지자이",
+          "score": 0.875
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_488b8078fe87530d",
+          "name": "마포그랑자이",
+          "score": 0.8702
+        }
+      ]
+    },
+    {
+      "lawd": "11470",
+      "name": "양천구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 105,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_55a0252cbc2225e9",
+          "name": "목동신시가지7",
+          "score": 0.9152
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_1cc19edab11d4dd7",
+          "name": "목동신시가지3",
+          "score": 0.861
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_70ed3c6d42282563",
+          "name": "목동신시가지1",
+          "score": 0.8581
+        }
+      ]
+    },
+    {
+      "lawd": "11500",
+      "name": "강서구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 137,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_2ffe4801849314f3",
+          "name": "가양6단지",
+          "score": 0.9474
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_c7c69a546feb871f",
+          "name": "가양2단지(성지)",
+          "score": 0.9277
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_56cdec2e714127f8",
+          "name": "강변",
+          "score": 0.9263
+        }
+      ]
+    },
+    {
+      "lawd": "11530",
+      "name": "구로구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 130,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_8dad8e23bb07e1c3",
+          "name": "신도림태영타운",
+          "score": 0.9177
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_e8ce66cee970b98a",
+          "name": "주공2",
+          "score": 0.9123
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_2de71f20df8d389d",
+          "name": "동아1",
+          "score": 0.8946
+        }
+      ]
+    },
+    {
+      "lawd": "11545",
+      "name": "금천구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 30,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e4049090b7766d77",
+          "name": "금천롯데캐슬골드파크3차",
+          "score": 0.9267
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_2e789555cf7b1962",
+          "name": "남서울힐스테이트",
+          "score": 0.8633
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_bd8464479cee97b4",
+          "name": "금천롯데캐슬골드파크1차",
+          "score": 0.8567
+        }
+      ]
+    },
+    {
+      "lawd": "11560",
+      "name": "영등포구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 126,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_6d318f5942492e19",
+          "name": "힐스테이트클래시안",
+          "score": 0.8786
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_bda6d6312c81625e",
+          "name": "시범",
+          "score": 0.8782
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_4bd01569b84cac7f",
+          "name": "신길센트럴자이아파트",
+          "score": 0.8722
+        }
+      ]
+    },
+    {
+      "lawd": "11590",
+      "name": "동작구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 95,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_1aacf2b891b7498d",
+          "name": "흑석리버파크자이",
+          "score": 0.8663
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_cd27c4f0c84653f9",
+          "name": "보라매자이더포레스트",
+          "score": 0.8495
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_992c16b577be618e",
+          "name": "사당롯데캐슬골든포레",
+          "score": 0.8442
+        }
+      ]
+    },
+    {
+      "lawd": "11620",
+      "name": "관악구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 67,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_798e8d5d39cc661e",
+          "name": "e편한세상서울대입구1단지",
+          "score": 0.9104
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_f8c4e519ba42ad0c",
+          "name": "두산",
+          "score": 0.909
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_71b2a1be4e457891",
+          "name": "관악푸르지오",
+          "score": 0.909
+        }
+      ]
+    },
+    {
+      "lawd": "11650",
+      "name": "서초구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 113,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_be79446c405496bd",
+          "name": "래미안원베일리",
+          "score": 0.9
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_3bcf0f87bce7496b",
+          "name": "래미안퍼스티지",
+          "score": 0.8982
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_2c2311555140b149",
+          "name": "신반포2",
+          "score": 0.8655
+        }
+      ]
+    },
+    {
+      "lawd": "11680",
+      "name": "강남구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 112,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_de547f7aab2e1751",
+          "name": "개포자이프레지던스",
+          "score": 0.8598
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_2b1f3357c2388205",
+          "name": "신현대12차",
+          "score": 0.8491
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_adb7193c5c99abd6",
+          "name": "래미안대치팰리스",
+          "score": 0.8375
+        }
+      ]
+    },
+    {
+      "lawd": "11710",
+      "name": "송파구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 116,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_caf229b5ac63cfbd",
+          "name": "리센츠",
+          "score": 0.9293
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_b4db01945df2a55b",
+          "name": "주공아파트5단지",
+          "score": 0.9034
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_4c63d9a100973c60",
+          "name": "잠실엘스",
+          "score": 0.9017
+        }
+      ]
+    },
+    {
+      "lawd": "11740",
+      "name": "강동구",
+      "asOf": "2026-07-31",
+      "rankingVersion": "ziplab-ranking-v4",
+      "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+      "eligible": 104,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_aab204c22d16a9c2",
+          "name": "고덕그라시움",
+          "score": 0.9115
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_0d3aa06062c08f6d",
+          "name": "올림픽파크포레온",
+          "score": 0.8846
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_8bb8df3562c3dd86",
+          "name": "고덕아르테온",
+          "score": 0.8827
+        }
+      ]
+    }
+  ]
+}
