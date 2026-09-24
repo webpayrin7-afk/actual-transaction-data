@@ -23,11 +23,11 @@ const DRAWER_CLOSE_MS = 160;
 
 /** 하단 메뉴 첫 페이지 — 모바일 상단바 가운데 제목 (본문 제목 줄 대신) */
 const HEADER_TITLES: Record<string, string> = {
-  "/": "시장",
+  "/": "시장 정보",
   "/map": "지도",
   "/regions": "지역 조회",
   "/complexes": "단지 조회",
-  "/presale": "분양",
+  "/presale": "분양 정보",
 };
 
 function navLinkClass(active: boolean) {
@@ -153,7 +153,7 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       data-site-header
-      className="sticky top-0 z-50 border-b border-[color:var(--lab-border)] bg-white shadow-none"
+      className="sticky top-0 z-50 bg-white shadow-none"
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div className="relative flex py-1.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">

@@ -15,7 +15,7 @@ export function ComplexesPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="단지별 조회"
+        title="단지 조회"
         titleClassName="detail-page-title"
         showDivider={false}
         titleInHeader

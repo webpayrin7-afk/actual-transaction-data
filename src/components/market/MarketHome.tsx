@@ -351,7 +351,7 @@ export function MarketHome() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="아파트 시장"
+        title="시장 정보"
         titleClassName="detail-page-title"
         showDivider={false}
         titleInHeader
@@ -361,7 +361,7 @@ export function MarketHome() {
       <LabStickySectionNav
         anchor={stickyAnchorRef}
         sections={MARKET_SECTIONS}
-        title="아파트 시장"
+        title="시장 정보"
         subtitle={data?.discoveryDate ?? undefined}
         ariaLabel="시장 섹션"
       />
@@ -424,7 +424,7 @@ export function MarketHome() {
               {data.discoveryDate ? `${monthDay(data.discoveryDate)} 확인` : ""}
               {clockOf(data.lastUpdatedLabel, data.computedAt) ? ` · ${clockOf(data.lastUpdatedLabel, data.computedAt)} 업데이트` : ""}
             </p>
-            <InfoTip aria-label="아파트 시장 안내">
+            <InfoTip aria-label="시장 정보 안내">
           <>
             <p>오늘 집랩이 새로 확인한 거래·가격 이슈와 정책 발표, 시장 흐름을 한눈에 봅니다.</p>
             <p className="mt-1.5">

@@ -96,7 +96,7 @@ export function PresalePage() {
 
   return (
     <div className={PAGE_SHELL}>
-      <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false} titleInHeader />
+      <PageHeader title="분양 정보" titleClassName="detail-page-title" showDivider={false} titleInHeader />
       {/* 모바일: 탭을 흰 띠로 상단바에 바로 잇는다. 조건 칩은 각 탭 첫 카드 안(목록 바로 위)에 둔다 */}
       <div className="-mx-4 bg-white px-4 sm:mx-0 sm:bg-transparent sm:px-0">
         <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
