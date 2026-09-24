@@ -15,6 +15,7 @@ import {
 } from "@/lib/complex-detail/seoul-bus-routes-pilot";
 import { seoulMetroCsvFileNames } from "@/lib/complex-detail/seoul-metro-stations";
 import { readNearbyRailStations } from "@/lib/transit/rail-stations";
+import { readNearbyBusStops } from "@/lib/transit/bus-stops";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 25;
@@ -249,11 +250,25 @@ export async function GET(request: NextRequest) {
       centerUsed: coords,
     };
   } else {
-    // 그 밖 단지: 전국 도시철도 역(rail_stations) 800m 안. 버스는 아직 시범 단지만.
+    // 그 밖 단지: 전국 도시철도 역(rail_stations) 800m 안 + 버스정류장(bus_stops) 500m 안 가까운 6곳.
     const url = dbUrl();
-    const stations = url
-      ? await readNearbyRailStations(createClient({ url, authToken: dbAuth() }), coords, { maxMeters: 800 })
-      : [];
+    const db = url ? createClient({ url, authToken: dbAuth() }) : null;
+    const [stations, stops] = db
+      ? await Promise.all([
+          readNearbyRailStations(db, coords, { maxMeters: 800 }),
+          readNearbyBusStops(db, coords, { maxMeters: 500, limit: 6 }),
+        ])
+      : [[], []];
+    const busItems: PoiItem[] = stops.map((b) => ({
+      id: b.id,
+      name: b.name,
+      subcategory: b.arsNo ? `ARS ${b.arsNo}` : "버스정류장",
+      distanceMeters: b.distanceMeters,
+      distanceLabel: b.distanceLabel,
+      lat: b.lat,
+      lng: b.lng,
+      routes: b.routes,
+    }));
     transportItems = stations.map((s) => ({
       id: s.id,
       name: s.name,
@@ -264,12 +279,14 @@ export async function GET(request: NextRequest) {
       lng: s.lng,
       lines: s.lines,
     }));
+    const subwayCount = transportItems.length;
+    transportItems = [...transportItems, ...busItems];
     transportMeta = {
       subwaySource: "RAIL_STATIONS_STANDARD",
-      busSource: "NONE",
-      subwayStatus: transportItems.length ? "PASS" : "HOLD",
-      busStatus: "HOLD",
-      busReason: "pilot-only",
+      busSource: busItems.length ? "BUS_STOPS_STANDARD" : "NONE",
+      subwayStatus: subwayCount ? "PASS" : "HOLD",
+      busStatus: busItems.length ? "PASS" : "HOLD",
+      busReason: busItems.length ? null : "no-bus-stops",
       vworldTransport: false,
       tagoForSeoul: false,
     };
