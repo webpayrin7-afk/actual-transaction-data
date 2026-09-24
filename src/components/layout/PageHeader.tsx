@@ -159,7 +159,7 @@ export function PageHeader({
           className="mt-2.5 h-px w-full bg-[color:var(--lab-border)]"
         />
       ) : null}
-      {children ? <div className="mt-2.5">{children}</div> : null}
+      {children ? <div className={titleInHeader ? "sm:mt-2.5" : "mt-2.5"}>{children}</div> : null}
     </header>
   );
 }

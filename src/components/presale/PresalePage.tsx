@@ -94,13 +94,14 @@ export function PresalePage() {
 
   return (
     <div className={PAGE_SHELL}>
-      <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false}
-        titleInHeader>
-        <div className="flex flex-col gap-3">
-          <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
+      <PageHeader title="분양" titleClassName="detail-page-title" showDivider={false} titleInHeader />
+      {/* 모바일: 탭 + 조건 칩을 흰 띠로 묶어 상단바에 바로 잇는다 (회색 캔버스 위에 탭만 떠 보이지 않게) */}
+      <div className="-mx-4 flex flex-col border-b border-[color:var(--lab-border)] bg-white px-4 pb-2.5 sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0">
+        <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
+        <div className="pt-2.5 sm:pt-0">
           <LabFilterChips filters={filters} ariaLabel="분양 조건" />
         </div>
-      </PageHeader>
+      </div>
 
       <div
         id={labTabPanelId(TAB_PREFIX, tab)}

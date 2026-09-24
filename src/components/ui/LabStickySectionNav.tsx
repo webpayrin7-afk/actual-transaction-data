@@ -53,7 +53,8 @@ export function LabStickySectionNav({
       if (!shown && anchorTop <= top - SHOW_SLACK_PX) {
         shown = true;
         setVisible(true);
-      } else if (shown && anchorTop >= top + HIDE_SLACK_PX) {
+      } else if (shown && (anchorTop >= top + HIDE_SLACK_PX || window.scrollY <= 2)) {
+        // 맨 위로 돌아오면 무조건 숨긴다 — 기준점이 상단바 바로 아래(제목 줄 없는 페이지)면 여유 32px에 못 미친다
         shown = false;
         setVisible(false);
       }
