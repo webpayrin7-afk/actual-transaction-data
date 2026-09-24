@@ -178,7 +178,21 @@ export async function readCommerceSnapshot(
     COMMERCE_FACILITY_ORDER_V1.map((key, i) => [key, fac[i]]),
   ) as CommerceFacilities;
 
-  const center = { lat: Number(row.center_lat), lng: Number(row.center_lng) };
+  // 지도 중심은 현재 단지 좌표(complex_map_anchor, 도로명 기준 재측정)를 쓴다 — 스냅샷에 저장된 center는
+  // 재측정 전 값이라 단지 마커·주변 역과 어긋난다. 점은 절대 좌표 셀에서 다시 풀므로 새 중심 기준으로 맞는다.
+  let center = { lat: Number(row.center_lat), lng: Number(row.center_lng) };
+  try {
+    const a = await db.execute({
+      sql: `SELECT lat, lng FROM complex_map_anchor WHERE complex_id = ? LIMIT 1`,
+      args: [complexId],
+    });
+    const hit = a.rows[0];
+    if (hit && Number.isFinite(Number(hit.lat)) && Number.isFinite(Number(hit.lng))) {
+      center = { lat: Number(hit.lat), lng: Number(hit.lng) };
+    }
+  } catch {
+    /* anchor table optional */
+  }
   let mapPoints: CommerceMapPoints | null = null;
   if (opts.withMapPoints !== false) {
     const keys = commerceQueryCells(center.lat, center.lng, radiusM);
