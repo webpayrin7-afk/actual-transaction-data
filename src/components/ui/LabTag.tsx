@@ -7,12 +7,37 @@ import { ChevronDown } from "lucide-react";
  * 테두리 태그 — 짧은 속성 나열. 줄바꿈 시 태그 단위로 넘어간다.
  * - sm: 목록 행의 근거 (예: "가격 상위 3%")
  * - md: 페이지 헤더의 요약 속성 (예: "429개 단지")
+ * tone을 주면 색 배경 라벨이 된다 (brand 청록 · up 상승 · down 하락).
  */
-export function LabTag({ children, size = "sm" }: { children: ReactNode; size?: "sm" | "md" }) {
+export function LabTag({
+  children,
+  size = "sm",
+  tone,
+}: {
+  children: ReactNode;
+  size?: "sm" | "md";
+  tone?: "brand" | "up" | "down";
+}) {
   const scale =
     size === "md"
       ? "rounded-md px-1.5 text-[12px] leading-6"
       : "rounded px-1.5 text-[12px] leading-5";
+  if (tone) {
+    const c =
+      tone === "up" ? "var(--lab-change-up)" : tone === "down" ? "var(--lab-change-down)" : "var(--lab-brand-primary)";
+    return (
+      <span
+        className={`whitespace-nowrap border font-semibold tabular-nums ${scale}`}
+        style={{
+          color: c,
+          background: `color-mix(in srgb, ${c} 9%, white)`,
+          borderColor: `color-mix(in srgb, ${c} 28%, white)`,
+        }}
+      >
+        {children}
+      </span>
+    );
+  }
   return (
     <span
       className={`whitespace-nowrap border border-[color:var(--lab-border)] bg-white font-medium text-[color:var(--lab-body)] tabular-nums ${scale}`}

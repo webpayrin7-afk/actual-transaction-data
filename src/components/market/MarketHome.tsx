@@ -186,7 +186,7 @@ function RecordRow({ r }: { r: MarketRecord }) {
       meta={
         <>
           <span className="mb-0.5 block">
-            <LabTag>{r.reason}</LabTag>
+            <LabTag tone={r.tone ?? "brand"}>{r.reason}</LabTag>
           </span>
           <span className="block">{spec}</span>
           {r.detail ? (

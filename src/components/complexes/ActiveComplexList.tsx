@@ -32,7 +32,6 @@ export function ActiveComplexList() {
     <LabSection
       title="최근 거래 활발 단지"
       meta="최근 30일 매매 건수 순"
-      tip={<p>최근 30일 매매 거래건수가 많았던 단지입니다.</p>}
     >
       {query.isLoading ? (
         <div className="lab-skeleton" />

@@ -27,7 +27,6 @@ export function SavedComplexList() {
     <LabSection
       title="관심 단지"
       meta={`${items.length}곳`}
-      tip="단지 상세의 하트로 저장한 단지입니다. 이 브라우저에만 저장되며, 가격은 마지막으로 그 단지를 열어본 시점의 최근 매매입니다."
     >
       <ul className={LAB_LIST}>
         {visible.map((item) => (

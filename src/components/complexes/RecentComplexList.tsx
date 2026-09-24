@@ -27,7 +27,6 @@ export function RecentComplexList() {
       <div className="flex items-center justify-between gap-3">
         <LabSectionHeader
           title="최근 조회한 단지"
-          tip={<p>이전에 본 단지를 바로 다시 열어볼 수 있습니다.</p>}
         />
         {items.length > 0 ? (
           <button

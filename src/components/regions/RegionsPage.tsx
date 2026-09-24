@@ -187,7 +187,6 @@ export function RegionsPage() {
 
       <LabSection
         title="지역 선택"
-        tip={<p>시·도를 고른 뒤 시·군·구를 선택하면 해당 지역 시장으로 이동합니다.</p>}
       >
         <div className="flex flex-wrap gap-2" role="group" aria-label="시·도">
           {METRO_OPTIONS.map(([value, label]) => {
