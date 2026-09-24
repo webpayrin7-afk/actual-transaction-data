@@ -39,7 +39,7 @@
 | 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` / PR #136 | **인천 APPLIED** (+1,015). **부산 APPLIED** (+881). fee_table **4,819/4,706**. **대구 ACQUIRING** cohort 1,151 · terminal **82**/1151 (COMPLETE 78 / NO_PUB 4) · api~2,490 · seg2 (SEGMENT_PAUSE→resume 12:22Z) · ~37 api/min · timeout=3. 광주·전남 이하 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
 | 좌표 잔여 → SEMAS 생활 → 학교 | `cursor/vworld-watch-6779` / PR #135 | **완료(이번 배치)** coords 19,072→**22,130** (+3,058) · living +238,524 snaps · school +35,612 links. 잔여 NULL ~5,394 / exact-PNU 재추출 ~3,612는 오너 PC | `scripts/living/local-extract-residual-parcels.py` |
 | 학교 잔여 델타 | `cursor/school-residual-delta-6779` / PR #134 | **완료** — 3,058 materialized, +35,612 nearby links (36 NO_SCHOOLS_WITHIN_RADIUS). assignment HOLD | — |
-| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | WAIT RemoteDisconnected (마지막 ~12:15Z대) | `bash scripts/living/vworld-watch.sh` |
+| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | WAIT RemoteDisconnected (마지막 12:18Z) | `bash scripts/living/vworld-watch.sh` |
 | 건축물 동·세대 | PR #115 | **완료** | — |
 | 단지 기본정보(HERO) | PR #122 | 원 에이전트 쪽에서 계속 | `bash scripts/profile-national-background-start.sh` |
 | 주변 공급(청약홈) | PR #124 | 완료 | — |
