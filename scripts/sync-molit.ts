@@ -533,11 +533,15 @@ async function main() {
   }
 
   // 시장 홈 스냅샷 — 쓰기가 있거나 강제 플래그일 때 갱신
+  // gaps-file / historical backfill는 기본 스킵 (--rebuild-market=1 로 강제)
+  const rebuildMarketFlag = argValue("rebuild-market", gapsFile ? "0" : "");
   const rebuildMarket =
     !dryRun &&
-    (process.env.REBUILD_MARKET_HOME === "1" ||
+    rebuildMarketFlag !== "0" &&
+    (rebuildMarketFlag === "1" ||
+      process.env.REBUILD_MARKET_HOME === "1" ||
       process.argv.includes("--rebuild-market=1") ||
-      written > 0);
+      (!gapsFile && written > 0));
   if (rebuildMarket) {
     try {
       const { rebuildMarketHomeSnapshot } = await import(

@@ -88,6 +88,25 @@ npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
 `sync_months(lawd_cd, year_month, deal_kind)` — write가 있는 cell만 갱신.  
 `--skip-existing=1`로 이미 적재된 cell 건너뛰기.
 
+### 매매 sync 공백 백필
+
+```bash
+npm run db:export-trade-gaps   # → data/sync-gaps/trade-gaps.csv
+npm run db:sync:trade-gaps -- --dry-run=1
+npm run db:sync:trade-gaps     # discovery=0, skip-delete, resume
+```
+
+`--gaps-file=` 은 CSV의 `(lawd_cd, year_month)` 셀만 매매 수집한다.  
+과거 백필은 반드시 `--discovery=0` (시장 홈 발견 피드 제외; `discovery_at=NULL`).
+국토부 일일 한도 시 중단 후 같은 명령으로 이어받기.
+
+과거 월을 채운 뒤 월간 사전집계:
+
+```bash
+npm run db:deal-stats -- --mode=full
+npm run db:deal-stats -- --mode=full --apply
+```
+
 ## Pagination / timeout / retry
 
 - 모든 page 수집 (`numOfRows=1000`, page 상한 100)
