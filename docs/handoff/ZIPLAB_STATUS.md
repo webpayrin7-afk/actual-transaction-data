@@ -1,6 +1,6 @@
 # ZIPLAB 인수인계 현황판
 
-기준 시각: 2026-09-24 11:30 UTC · 작성: Cursor 데이터 감시(Auto/Composer) · living `cursor/vworld-watch-6779`
+기준 시각: 2026-09-24 11:47 UTC · 작성: Cursor 데이터 감시(Auto/Composer) · living `cursor/vworld-watch-6779`
 
 이 문서는 Claude Max(Opus)와 Cursor(Composer)가 같은 현황을 보고 이어서 작업하기 위한 한 장짜리 현황판이다. 작업을 넘겨받으면 이 문서부터 읽고, 상태가 바뀌면 이 문서를 갱신한다.
 
@@ -31,28 +31,28 @@
 
 실행 위치: Cursor VM tmux. 워크트리 `/home/ubuntu/wt/<이름>`.
 
-| 작업 | 브랜치 / PR | 상태 (11:30Z) | 재개 |
+| 작업 | 브랜치 / PR | 상태 (11:47Z) | 재개 |
 |---|---|---|---|
 | 전월세 과거 이력 2011-01~2022-09 (서울 25구) | tmux `rent-backfill` | **완료** jobs=3525 written=3515 ins=1,976,686. SUMMARY fail=10이었으나 해당 월칸 transactions 행 존재 → skip-existing 재시도 no-op | — |
 | 전세가율 시리즈 rematerialize (서울 25구) | living `data/poc/region-jeonse/` | **완료** index 2,925행(25구×117월, **201612~202608**; 이전 60월/202109~). 매매 원천이 ~201610부터라 2011까지는 미확장. `test-region-jeonse` PASS (matchesLive) | `npx tsx scripts/materialize-region-jeonse.ts` |
-| 매매·전월세 전국 전체 이력 missing-only | `cursor/tx-registration-status-1922` / PR #131 | **17,256/24,243**, ins=3,270,528, fail=90 · gyeongbuk SALE 202207 · hb 신선·PID 365030 정상(stall 아님) | `cd /home/ubuntu/wt/tx && bash scripts/full-history/start.sh` |
-| 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` / PR #136 | **인천 APPLIED** (+1,015). **부산 APPLIED** dry-run PASS → insert **881** (verify IDEMPOTENT_NOOP). fee_table **4,819행/4,706단지** (applied_total 1,896). **대구 ACQUIRING** cohort 1,151, api~240, class COMPLETE 4 / NO_PUB 1, unfinished~1,146. 광주·전남 이하 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
+| 매매·전월세 전국 전체 이력 missing-only | `cursor/tx-registration-status-1922` / PR #131 | **17,495/24,243**, ins=3,278,143, fail=91 · gyeonggi SALE 202305 · hb 신선·PID 365030 정상 | `cd /home/ubuntu/wt/tx && bash scripts/full-history/start.sh` |
+| 관리비 시·도 확장 | `cursor/mgmt-fee-provinces-6779` / PR #136 | **인천 APPLIED** (+1,015). **부산 APPLIED** (+881). fee_table **4,819/4,706** (applied_total 1,896). **대구 ACQUIRING** cohort 1,151 · terminal **29**/1151 (COMPLETE 28 / NO_PUB 1) · api~900 (~40/min) · seg0 unfinished~1,122. 광주·전남 이하 PENDING | `cd /home/ubuntu/wt/fee && bash scripts/mgmt-fee-canonical/start-provinces.sh` |
 | 좌표 잔여 → SEMAS 생활 → 학교 | `cursor/vworld-watch-6779` / PR #135 | **완료(이번 배치)** coords 19,072→**22,130** (+3,058) · living +238,524 snaps · school +35,612 links. 잔여 NULL ~5,394 / exact-PNU 재추출 ~3,612는 오너 PC | `scripts/living/local-extract-residual-parcels.py` |
 | 학교 잔여 델타 | `cursor/school-residual-delta-6779` / PR #134 | **완료** — 3,058 materialized, +35,612 nearby links (36 NO_SCHOOLS_WITHIN_RADIUS). assignment HOLD | — |
-| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | 502 — 대기 (마지막 11:22Z) | `bash scripts/living/vworld-watch.sh` |
+| VWorld 감시 | `cursor/vworld-watch-6779` / PR #135 | WAIT — RemoteDisconnected (마지막 11:37Z) | `bash scripts/living/vworld-watch.sh` |
 | 건축물 동·세대 | PR #115 | **완료** | — |
 | 단지 기본정보(HERO) | PR #122 | 원 에이전트 쪽에서 계속 | `bash scripts/profile-national-background-start.sh` |
 | 주변 공급(청약홈) | PR #124 | 완료 | — |
 
-주요 수치 (11:30Z Production)
+주요 수치 (11:47Z Production)
 - `region_jeonse_index` 2,925행 / 25구 / 201612~202608 (송파 asOf 202608 전세가율 0.396).
 - 단지 마스터 27,524. 좌표·생활 readiness COMPLETE **22,130** (80.4%). NO_COORDINATE living stub 5,394.
-- 관리비 **4,819행/4,706단지** (인천+부산 적용 완료). 대구 acquire 진행 중(~240/…). 전국 거래 백필 진행 중.
+- 관리비 **4,819행/4,706단지** (인천+부산 적용 완료). 대구 acquire ~2.5% terminal (29/1151). 전국 거래 백필 진행 중.
 
 ## 3. 오너 결정 대기
 
 1. 좌표 잔여 ~3,612(exact-PNU): 로컬 AL_D002에서 `pnu_not_found` 다수(부산·대구). 최신 시·도 지적도 zip 필요 여부 조사 후 요청 예정.
-2. 관리비: 인천·**부산 적용 완료**. **대구 acquire 진행**(cohort 1,151, api~240). 경남 등은 이후 PENDING.
+2. 관리비: 인천·**부산 적용 완료**. **대구 acquire ~2.5%**(29/1151, api~900). 경남 등은 이후 PENDING.
 3. PR #101, #120 닫기(UI #127로 대체).
 
 ## 4. 참고 경로
