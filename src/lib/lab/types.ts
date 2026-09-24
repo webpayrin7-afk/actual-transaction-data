@@ -28,16 +28,25 @@ export interface LabBucketRow {
   label: string;
   count: number;
   sharePct: number;
+  /**
+   * 비교형 실험(프리미엄·가격차)의 값 — 기준 대비 %(예: +4.2). 있으면 비중 대신 이 값을 그린다.
+   * 표본이 부족하면 null.
+   */
+  deltaPct?: number | null;
 }
 
 export interface LabExperimentResult {
   id: LabExperimentId;
   period: LabPeriod;
+  /** 질문에 대한 한 줄 답 (예: "과천시 +50%", "3억 미만 41.1%") */
+  headline: string;
   insight: string;
-  /** 순위형 (온도계·84㎡) */
+  /** 순위형 (온도계·84㎡·직거래 지역) */
   ranks?: LabRankRow[];
-  /** 분포형 (가격·층·연식) */
+  /** 분포형 (가격·층·연식·요일) 또는 비교형 (deltaPct) */
   buckets?: LabBucketRow[];
+  /** 비교형이면 기준 설명 (예: "같은 단지·같은 면적 중위가 대비") */
+  deltaBasis?: string;
   /** 분포 합계(unknown 제외 기준일 수 있음) */
   totalCount: number;
   /** unknown/제외 건수 */

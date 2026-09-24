@@ -45,6 +45,7 @@ const MARKET_SECTIONS = [
   { id: "market-regions", label: "지역" },
   { id: "market-volume", label: "거래량" },
   { id: "price-index", label: "흐름" },
+  { id: "market-lab", label: "실험실" },
 ] as const;
 
 const KIND_TAG: Record<MarketDealItem["kind"], string> = {

@@ -9,6 +9,7 @@ const STATIC_PATHS = [
   "/complexes",
   "/regions",
   "/stats",
+  "/lab",
   "/tools",
   "/loan",
   "/rates",

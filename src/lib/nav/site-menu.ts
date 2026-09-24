@@ -40,6 +40,11 @@ export const TOOL_NAV = [
     label: "금리정보",
     match: (pathname: string) => pathname.startsWith("/rates"),
   },
+  {
+    href: "/lab",
+    label: "오늘의 실험실",
+    match: (pathname: string) => pathname.startsWith("/lab"),
+  },
 ] as const;
 
 /** 더보기 > 서비스 (보조) — 정책/FAQ는 Footer 전용 */

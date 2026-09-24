@@ -1,351 +1,115 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  LAB_EXPERIMENTS,
-  LAB_FEATURED_ID,
-  getLabDef,
-  type LabExperimentId,
-} from "@/lib/lab/definitions";
-import type {
-  LabBucketRow,
-  LabExperimentResult,
-  LabHomeResponse,
-  LabRankRow,
-} from "@/lib/lab/types";
-import {
-  LAB_SECTION_SURFACE,
-  LAB_SUBSECTION_RULE,
-  LabSectionHeader,
-  LabSubsectionHeader,
-} from "@/components/ui/LabSection";
-import { LAB_LIST } from "@/components/ui/LabListRow";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
+import { LabSection as Section } from "@/components/ui/LabSection";
 import { LabTag } from "@/components/ui/LabTag";
+import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
+import type { LabExperimentResult, LabHomeResponse } from "@/lib/lab/types";
 
-async function fetchLab(): Promise<LabHomeResponse> {
+export async function fetchLab(): Promise<LabHomeResponse> {
   const res = await fetch("/api/lab");
   if (!res.ok) throw new Error("실험실 데이터를 불러오지 못했습니다.");
   return res.json();
 }
 
-function ShareBar({ pct }: { pct: number }) {
-  return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-      <div
-        className="h-full rounded-full bg-teal-600/80"
-        style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
-      />
-    </div>
-  );
+export const LAB_QUERY_KEY = ["lab-home"] as const;
+
+/** 오늘의 실험 — 기준 계약일마다 순서를 돌려 매일 다른 실험이 맨 위에 온다 (답이 있는 실험만). */
+export function pickTodaysExperiment(data: LabHomeResponse): LabExperimentResult | null {
+  const ready = data.experiments.filter((e) => e.headline && e.headline !== "표본 부족");
+  if (ready.length === 0) return null;
+  const seed = (data.asOfDate ?? "").replace(/\D/g, "");
+  const n = seed ? Number(seed.slice(-4)) : 0;
+  return ready[n % ready.length]!;
 }
 
-function RankTable({
-  rows,
-  mode,
-}: {
-  rows: LabRankRow[];
-  mode: "growth" | "count";
-}) {
-  if (rows.length === 0) {
-    return (
-      <p className="lab-state">
-        표시할 결과가 없습니다.
-      </p>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[280px] border-collapse text-left text-[14px] leading-5">
-        <thead>
-          <tr className="detail-label border-b border-[color:var(--lab-border)]">
-            <th className="py-2.5 pr-2 font-medium">#</th>
-            <th className="py-2.5 pr-2 font-medium">지역</th>
-            {mode === "growth" ? (
-              <>
-                <th className="py-2.5 pr-2 text-right font-medium">최근</th>
-                <th className="py-2.5 pr-2 text-right font-medium">직전</th>
-                <th className="py-2.5 text-right font-medium">증감률</th>
-              </>
-            ) : (
-              <>
-                <th className="py-2.5 pr-2 text-right font-medium">거래</th>
-                <th className="py-2.5 text-right font-medium">비중</th>
-              </>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr
-              key={`${row.rank}-${row.label}`}
-              className="border-b border-[color:var(--lab-border)] last:border-0"
-            >
-              <td className="py-3 pr-2 tabular-nums text-[color:var(--lab-muted)]">
-                {row.rank}
-              </td>
-              <td className="max-w-[9.5rem] truncate py-3 pr-2 font-semibold text-[color:var(--lab-navy-900)] sm:max-w-none">
-                {row.href ? (
-                  <Link href={row.href} className="-my-3 block truncate py-3 hover:underline">
-                    {row.label}
-                  </Link>
-                ) : (
-                  row.label
-                )}
-              </td>
-              {mode === "growth" ? (
-                <>
-                  <td className="py-3 pr-2 text-right tabular-nums text-slate-900">
-                    {row.recentCount.toLocaleString("ko-KR")}
-                  </td>
-                  <td className="py-3 pr-2 text-right tabular-nums text-slate-900">
-                    {(row.priorCount ?? 0).toLocaleString("ko-KR")}
-                  </td>
-                  <td className="py-3 text-right font-semibold tabular-nums" style={{ color: "var(--lab-change-up)" }}>
-                    {row.growthPct != null ? `+${row.growthPct}%` : "—"}
-                  </td>
-                </>
-              ) : (
-                <>
-                  <td className="py-3 pr-2 text-right tabular-nums text-slate-900">
-                    {row.recentCount.toLocaleString("ko-KR")}건
-                  </td>
-                  <td className="py-3 text-right tabular-nums text-slate-900">
-                    {row.sharePct != null ? `${row.sharePct}%` : "—"}
-                  </td>
-                </>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function BucketList({ buckets }: { buckets: LabBucketRow[] }) {
-  const max = Math.max(...buckets.map((b) => b.count), 1);
-  return (
-    <ul className="space-y-2.5">
-      {buckets.map((b) => (
-        <li key={b.key}>
-          <div className="mb-1 flex items-baseline justify-between gap-2 text-[14px] leading-5">
-            <span className="min-w-0 truncate font-medium text-slate-800">
-              {b.label}
-            </span>
-            <span className="shrink-0 tabular-nums text-slate-900">
-              {b.count.toLocaleString("ko-KR")}건 · {b.sharePct}%
-            </span>
-          </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-            <div
-              className="h-full rounded-full bg-teal-600/75"
-              style={{ width: `${(b.count / max) * 100}%` }}
-            />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function ExperimentBody({ result }: { result: LabExperimentResult }) {
-  if (result.ranks) {
-    return (
-      <RankTable
-        rows={result.ranks}
-        mode={result.id === "volume-thermometer" ? "growth" : "count"}
-      />
-    );
-  }
-  if (result.buckets) {
-    return <BucketList buckets={result.buckets} />;
-  }
-  return null;
-}
-
-function FeaturedCard({ result }: { result: LabExperimentResult }) {
-  const def = getLabDef(result.id);
-  return (
-    <article className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <LabTag>{def.labNo}</LabTag>
-        <span className="detail-label">{def.title}</span>
-      </div>
-      <div>
-        <LabSubsectionHeader title={def.question} />
-        <p className="detail-meta">
-          {result.period.label}
-          {result.period.priorLabel ? ` · 비교 ${result.period.priorLabel}` : ""}
-        </p>
-      </div>
-      <ExperimentBody result={result} />
-      <p className="detail-body">{result.insight}</p>
-    </article>
-  );
-}
-
-function CompactExperiment({
-  result,
-  active,
-  onSelect,
-}: {
-  result: LabExperimentResult;
-  active: boolean;
-  onSelect: () => void;
-}) {
-  const def = getLabDef(result.id);
-  const preview =
-    result.ranks?.[0] != null
-      ? result.id === "volume-thermometer"
-        ? `${result.ranks[0].label} +${result.ranks[0].growthPct}%`
-        : `${result.ranks[0].label} ${result.ranks[0].recentCount.toLocaleString("ko-KR")}건`
-      : result.buckets?.[0] != null
-        ? `${[...result.buckets].sort((a, b) => b.count - a.count)[0]!.label} ${[...result.buckets].sort((a, b) => b.count - a.count)[0]!.sharePct}%`
-        : "데이터 없음";
-
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={onSelect}
-        aria-expanded={active}
-        className="flex min-h-11 w-full items-start gap-3 py-3 text-left hover:bg-slate-50"
-      >
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <LabTag>{def.labNo}</LabTag>
-            <span className="detail-meta">{def.title}</span>
-          </div>
-          <p className="detail-data-value-emphasis mt-1">{def.question}</p>
-          <p className="detail-data-value mt-0.5 truncate tabular-nums">{preview}</p>
-        </div>
-        <span
-          className="detail-label mt-0.5 shrink-0 font-semibold"
-          style={{ color: "var(--lab-brand-primary)" }}
-        >
-          {active ? "접기" : "보기"}
-        </span>
-      </button>
-
-      {active ? (
-        <div className="flex flex-col gap-3 pb-4">
-          <p className="detail-meta">{result.period.label}</p>
-          <ExperimentBody result={result} />
-          <p className="detail-body">{result.insight}</p>
-          {result.excludedNote ? (
-            <p className="detail-meta">{result.excludedNote}</p>
-          ) : null}
-        </div>
-      ) : (
-        <div className="pb-3">
-          {result.buckets ? (
-            <ShareBar
-              pct={
-                [...result.buckets].sort((a, b) => b.count - a.count)[0]
-                  ?.sharePct ?? 0
-              }
-            />
-          ) : result.ranks?.[0] ? (
-            <p className="detail-meta">
-              Top {result.ranks.length} · {result.period.label}
-            </p>
-          ) : null}
-        </div>
-      )}
-    </li>
-  );
-}
-
+/**
+ * 시장 홈의 '오늘의 실험실' — 오늘의 실험 한 개를 크게, 나머지는 질문·답 한 줄씩.
+ * 전체 실험(그래프·실험 방법)은 /lab.
+ */
 export function LabSection() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["lab-home"],
+  const query = useQuery({
+    queryKey: LAB_QUERY_KEY,
     queryFn: fetchLab,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
+  const data = query.data;
+  if (query.isError || (data && data.experiments.length === 0)) return null;
 
-  const featured = useMemo(
-    () => data?.experiments.find((e) => e.id === (data.featuredId ?? LAB_FEATURED_ID)),
-    [data],
-  );
-
-  const others = useMemo(() => {
+  const today = data ? pickTodaysExperiment(data) : null;
+  // 오늘의 실험 다음 번호부터 4개 — 날마다 목록도 함께 돈다
+  const others = (() => {
     if (!data) return [];
-    const featuredId = data.featuredId ?? LAB_FEATURED_ID;
-    return LAB_EXPERIMENTS.filter((d) => d.id !== featuredId)
-      .map((d) => data.experiments.find((e) => e.id === d.id))
-      .filter((e): e is LabExperimentResult => Boolean(e));
-  }, [data]);
+    const list = data.experiments;
+    const start = today ? list.findIndex((e) => e.id === today.id) + 1 : 0;
+    return [...list.slice(start), ...list.slice(0, start)].filter((e) => e.id !== today?.id).slice(0, 4);
+  })();
+  const todayDef = today ? getLabDef(today.id) : null;
 
-  const [activeId, setActiveId] = useState<LabExperimentId | null>("area-84");
-
-  if (isLoading) {
-    return (
-      <section
-        aria-label="오늘의 실험실"
-        className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
-      >
-        <LabHeader />
-        <div className="h-48 animate-pulse rounded-xl bg-slate-100" />
-      </section>
-    );
-  }
-
-  if (isError || !data || data.source === "empty") {
-    return (
-      <section
-        aria-label="오늘의 실험실"
-        className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
-      >
-        <LabHeader />
-        <p className="lab-state">
-          {data?.warning ?? "실험실 데이터를 불러오지 못했습니다."}
+  return (
+    <Section
+      id="market-lab"
+      title="오늘의 실험실"
+      meta={data ? `${data.coverageShort} · 최근 30일` : undefined}
+      tip={
+        <p>
+          실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험입니다. 같은 단지·같은 평형끼리
+          비교하는 식으로 지역 차이를 덜어 내고 봅니다. 결과는 표본과 방법에 따라 달라질 수 있어
+          참고용입니다.
         </p>
-      </section>
-    );
-  }
-
-  return (
-    <section
-      aria-label="오늘의 실험실"
-      className={`${LAB_SECTION_SURFACE} flex flex-col gap-4`}
+      }
     >
-      <div>
-        <LabHeader meta={`${data.coverageLabel} · 기준 계약일 ${data.asOfDate}`} />
-        <p className="detail-meta mt-1">{data.dateBasisNote}</p>
-      </div>
+      {query.isLoading ? <div className="lab-skeleton" aria-label="실험실 불러오는 중" /> : null}
 
-      {featured ? <FeaturedCard result={featured} /> : null}
+      {today && todayDef ? (
+        <Link
+          href={`/lab#${todayDef.slug}`}
+          className="flex flex-col gap-1.5 rounded-xl border border-[color:var(--lab-border)] p-4 transition-colors hover:border-[color:var(--lab-brand-border)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]"
+        >
+          <span className="flex items-center gap-1.5">
+            <LabTag>오늘의 실험</LabTag>
+            <span className="detail-meta">
+              {todayDef.labNo} · {todayDef.title}
+            </span>
+          </span>
+          <span className="detail-data-value-emphasis break-keep">{todayDef.question}</span>
+          <span className="text-[20px] font-bold leading-7 tracking-tight text-[color:var(--lab-teal-700)] tabular-nums">
+            {today.headline}
+          </span>
+          <span className="detail-body line-clamp-3 text-[color:var(--lab-muted)]">{today.insight}</span>
+        </Link>
+      ) : null}
 
-      <div className={`${LAB_SUBSECTION_RULE} flex flex-col gap-1`}>
-        <LabSubsectionHeader title="다른 실험" />
+      {others.length > 0 ? (
         <ul className={LAB_LIST}>
-          {others.map((result) => (
-            <CompactExperiment
-              key={result.id}
-              result={result}
-              active={activeId === result.id}
-              onSelect={() =>
-                setActiveId((cur) => (cur === result.id ? null : result.id))
-              }
-            />
-          ))}
+          {others.map((e) => {
+            const def = getLabDef(e.id);
+            return (
+              <LabListRow
+                key={e.id}
+                href={`/lab#${def.slug}`}
+                title={def.question}
+                meta={
+                  <span className="font-semibold text-[color:var(--lab-teal-700)] tabular-nums">
+                    {e.headline}
+                  </span>
+                }
+              />
+            );
+          })}
         </ul>
-      </div>
-    </section>
-  );
-}
+      ) : null}
 
-function LabHeader({ meta }: { meta?: string }) {
-  return (
-    <div>
-      <LabSectionHeader title="오늘의 실험실" meta={meta} />
-      <p className="detail-body mt-1">
-        실거래 데이터를 조금 다른 방법으로 들여다봅니다. 가격·거래량·면적·층·연식
-        등 다양한 관점에서 실제 거래를 살펴봅니다.
-      </p>
-    </div>
+      {data ? (
+        <Link href="/lab" className="lab-button lab-button-secondary w-full">
+          실험 {LAB_EXPERIMENTS.length}개 모두 보기
+          <span aria-hidden className="ml-1">
+            →
+          </span>
+        </Link>
+      ) : null}
+    </Section>
   );
 }
