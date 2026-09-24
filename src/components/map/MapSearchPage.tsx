@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { LocateFixed, SlidersHorizontal, X } from "lucide-react";
-import { MapConditionSheet } from "@/components/map/MapConditionSheet";
+import { ChevronDown, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
   isNaverMapAuthFailed,
   loadNaverMapsSdk,
@@ -15,12 +15,13 @@ import {
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
 import {
   EMPTY_CONDITIONS,
-  RECIPES,
   activeCount,
   areaQuery,
+  isFullRange,
   matches,
-  recipeActive,
+  rangeDefs,
   type MapConditions,
+  type RangeFilterId,
 } from "@/lib/map/map-filters";
 import type { MapArea, MapAreaLevel } from "@/lib/map/map-areas";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
@@ -33,6 +34,21 @@ type MapWithBounds = NaverMapInstance & {
 };
 
 const DEAL_LABEL: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
+
+/** 지도 위 조건 칩 순서 — 자주 쓰는 것부터 */
+const CHIP_ORDER: Array<RangeFilterId | "heating"> = [
+  "price",
+  "area",
+  "households",
+  "age",
+  "jeonseRatio",
+  "gap",
+  "rentYield",
+  "far",
+  "bcr",
+  "parking",
+  "heating",
+];
 
 /* ───────────── 지도 상태 ───────────── */
 
@@ -153,6 +169,8 @@ export function MapSearchPage() {
   const abortRef = useRef<AbortController | null>(null);
   const [conditions, setConditions] = useState<MapConditions>(EMPTY_CONDITIONS);
   const [sheetOpen, setSheetOpen] = useState(false);
+  /** null = 전체 조건 시트, 값이 있으면 그 조건 하나만 */
+  const [sheetOnly, setSheetOnly] = useState<ConditionKey | null>(null);
   const [level, setLevel] = useState<ViewLevel>("complex");
   const [complexes, setComplexes] = useState<MapComplex[]>([]);
   const [areas, setAreas] = useState<MapArea[]>([]);
@@ -413,6 +431,7 @@ export function MapSearchPage() {
   const priced = visibleComplexes.filter((c) => c.medianPriceMan != null).length;
   const dealLabel = DEAL_LABEL[conditions.deal];
   const nActive = activeCount(conditions);
+  const chipDefs = rangeDefs(conditions.deal);
   const area = areaQuery(conditions);
   const areaRangeText = area.max < 10_000 || area.min > 0
     ? ` · 전용 ${area.min > 0 ? `${area.min}` : ""}~${area.max < 10_000 ? `${Math.floor(area.max)}` : ""}㎡`
@@ -479,7 +498,10 @@ export function MapSearchPage() {
           </div>
           <button
             type="button"
-            onClick={() => setSheetOpen(true)}
+            onClick={() => {
+              setSheetOnly(null);
+              setSheetOpen(true);
+            }}
             aria-haspopup="dialog"
             className={`relative inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
               nActive > 0
@@ -495,29 +517,33 @@ export function MapSearchPage() {
               </span>
             ) : null}
           </button>
-          {RECIPES.map((r) => {
-            const on = recipeActive(r, conditions);
+          {CHIP_ORDER.map((key) => {
+            const def = key === "heating" ? null : chipDefs.find((d) => d.id === key)!;
+            const on = def ? !isFullRange(def, conditions.ranges[def.id]) : conditions.heating.length > 0;
+            const label = def
+              ? on
+                ? `${def.label} ${conditionSummary(def, conditions.ranges[def.id])}`
+                : def.label
+              : on
+                ? `${conditions.heating.join("·")}난방`
+                : "난방";
             return (
               <button
-                key={r.id}
+                key={key}
                 type="button"
-                aria-pressed={on}
-                title={r.hint}
+                aria-haspopup="dialog"
                 onClick={() => {
-                  if (on) {
-                    const applied = r.apply({ ...conditions, ranges: {} });
-                    const ranges = { ...conditions.ranges };
-                    for (const k of Object.keys(applied.ranges)) delete ranges[k as keyof typeof ranges];
-                    updateConditions({ ...conditions, ranges });
-                  } else updateConditions(r.apply(conditions));
+                  setSheetOnly(key);
+                  setSheetOpen(true);
                 }}
-                className={`relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                className={`relative inline-flex h-9 shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
                   on
                     ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
                     : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
                 }`}
               >
-                {r.label}
+                {label}
+                <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
               </button>
             );
           })}
@@ -628,6 +654,7 @@ export function MapSearchPage() {
       <MapConditionSheet
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
+        only={sheetOnly}
         conditions={conditions}
         onChange={updateConditions}
         complexes={complexes}

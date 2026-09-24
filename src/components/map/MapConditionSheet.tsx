@@ -16,10 +16,15 @@ import {
   recipeActive,
   type MapConditions,
   type RangeFilterDef,
+  type RangeFilterId,
   type RangeValue,
 } from "@/lib/map/map-filters";
 
-function summary(def: RangeFilterDef, r: RangeValue | undefined): string {
+/** 조건 하나를 가리키는 키 — 범위 조건 또는 난방 */
+export type ConditionKey = RangeFilterId | "heating";
+
+/** "1,000세대 이상", "10~15억", "전체" */
+export function conditionSummary(def: RangeFilterDef, r: RangeValue | undefined): string {
   if (isFullRange(def, r)) return "전체";
   const lo = r!.min > def.min ? def.format(r!.min) : null;
   const hi = r!.max < def.max ? def.format(r!.max) : null;
@@ -112,13 +117,95 @@ function DistributionRange({
   );
 }
 
-/** 지도 조건 시트 — 레시피 · 실시간 개수 · 가격/단지/환경. 바꾸는 즉시 지도에 반영된다. */
+/** 범위 조건 본문 — 분포 슬라이더 (+ 갭은 '역전만' 버튼) */
+function RangeBody({
+  def,
+  conditions,
+  complexes,
+  onRange,
+}: {
+  def: RangeFilterDef;
+  conditions: MapConditions;
+  complexes: MapComplex[];
+  onRange: (def: RangeFilterDef, v: RangeValue) => void;
+}) {
+  const cur = conditions.ranges[def.id];
+  const vals = useMemo(
+    () => complexes.map((c) => def.value(c, conditions.deal)).filter((v): v is number => v != null),
+    [complexes, def, conditions.deal],
+  );
+  const inverseOnly = cur?.max === 0 && cur.min === def.min;
+  return (
+    <div className="flex flex-col gap-2">
+      <DistributionRange def={def} value={cur ?? { min: def.min, max: def.max }} values={vals} onChange={(v) => onRange(def, v)} />
+      {def.id === "gap" ? (
+        <button
+          type="button"
+          aria-pressed={inverseOnly}
+          onClick={() => onRange(def, inverseOnly ? { min: def.min, max: def.max } : { min: def.min, max: 0 })}
+          className="self-start rounded-full border border-[color:var(--lab-border)] px-3 py-2 text-[14px] font-medium aria-pressed:border-[color:var(--lab-brand-primary)] aria-pressed:text-[color:var(--lab-teal-700)]"
+        >
+          전세가 매매가 이상(역전)만
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function HeatingChips({
+  conditions,
+  onChange,
+}: {
+  conditions: MapConditions;
+  onChange: (next: MapConditions) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {HEATING_KINDS.map((k) => {
+        const on = conditions.heating.includes(k);
+        return (
+          <button
+            key={k}
+            type="button"
+            aria-pressed={on}
+            onClick={() =>
+              onChange({
+                ...conditions,
+                heating: on ? conditions.heating.filter((x) => x !== k) : [...conditions.heating, k],
+              })
+            }
+            className={`min-h-11 rounded-full border px-4 text-[14px] font-medium ${
+              on
+                ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+                : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+            }`}
+          >
+            {k}난방
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function rowHint(def: RangeFilterDef): string | null {
+  const parts = [def.hint, def.sparse ? "정보 있는 단지만" : null].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
+
+/**
+ * 지도 조건 시트.
+ * - 전체 모드(only 없음): 레시피 · 가격/단지/환경 전부 — 한 번에 바꾸기
+ * - 하나 모드(only): 지도 위 칩에서 연 조건 하나만
+ * 바꾸는 즉시 지도에 반영된다.
+ */
 export function MapConditionSheet({
   open,
   onClose,
   conditions,
   onChange,
   complexes,
+  only = null,
 }: {
   open: boolean;
   onClose: () => void;
@@ -126,10 +213,12 @@ export function MapConditionSheet({
   onChange: (next: MapConditions) => void;
   /** 지금 화면에서 받은 단지 (분포·개수 계산용) */
   complexes: MapComplex[];
+  only?: ConditionKey | null;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const defs = useMemo(() => rangeDefs(conditions.deal), [conditions.deal]);
   const matched = complexes.filter((c) => matches(c, conditions, defs)).length;
+  const onlyDef = only && only !== "heating" ? defs.find((d) => d.id === only) ?? null : null;
 
   const setRange = (def: RangeFilterDef, v: RangeValue) => {
     const full = v.min <= def.min && v.max >= def.max;
@@ -139,23 +228,29 @@ export function MapConditionSheet({
     onChange({ ...conditions, ranges });
   };
 
+  const resetScope = () => {
+    if (!only) return onChange({ ...EMPTY_CONDITIONS, deal: conditions.deal });
+    if (only === "heating") return onChange({ ...conditions, heating: [] });
+    const ranges = { ...conditions.ranges };
+    delete ranges[only];
+    onChange({ ...conditions, ranges });
+  };
+
+  const title = only ? (only === "heating" ? "난방방식" : (onlyDef?.label ?? "조건")) : "조건으로 찾기";
+
   return (
     <LabBottomSheet
       open={open}
       onClose={onClose}
-      title="조건으로 찾기"
+      title={title}
       hideHeaderDivider
       compactBodyTop
-      size="tall"
+      size={only ? "default" : "tall"}
       doneLabel="닫기"
-      titleNote="막대는 지금 화면 속 단지 분포"
+      titleNote={only === "heating" ? undefined : "막대는 지금 화면 속 단지 분포"}
       footer={
         <div className="grid grid-cols-[1fr_2fr] gap-2">
-          <button
-            type="button"
-            onClick={() => onChange({ ...EMPTY_CONDITIONS, deal: conditions.deal })}
-            className="lab-button lab-button-secondary"
-          >
+          <button type="button" onClick={resetScope} className="lab-button lab-button-secondary">
             <RotateCcw className="mr-1 h-4 w-4" aria-hidden />
             초기화
           </button>
@@ -165,157 +260,120 @@ export function MapConditionSheet({
         </div>
       }
     >
-      <div className="flex flex-col gap-5 pb-2">
-        {/* 레시피: 한 줄 칩. 켠 레시피가 무엇을 걸었는지는 칩 아래 한 줄로만 */}
-        <div className="flex flex-col gap-1.5">
-          <div
-            className="-mx-4 flex gap-1.5 overflow-x-auto px-4 py-0.5"
-            style={{ scrollbarWidth: "none" }}
-            role="group"
-            aria-label="레시피"
-          >
-            {RECIPES.map((r) => {
-              const on = recipeActive(r, conditions);
-              return (
-                <button
-                  key={r.id}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => {
-                    if (on) {
-                      // 레시피가 넣은 범위만 걷어낸다
-                      const applied = r.apply({ ...conditions, ranges: {} });
-                      const ranges = { ...conditions.ranges };
-                      for (const k of Object.keys(applied.ranges)) delete ranges[k as keyof typeof ranges];
-                      onChange({ ...conditions, ranges });
-                    } else onChange(r.apply(conditions));
-                  }}
-                  className={`relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
-                    on
-                      ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
-                      : "border-[color:var(--lab-border)] font-medium text-[color:var(--lab-navy-950)]"
-                  }`}
-                >
-                  {r.label}
-                </button>
-              );
-            })}
+      {only ? (
+        <div className="flex flex-col gap-3 pb-2">
+          {onlyDef ? (
+            <>
+              {rowHint(onlyDef) ? <p className="detail-meta">{rowHint(onlyDef)}</p> : null}
+              <RangeBody def={onlyDef} conditions={conditions} complexes={complexes} onRange={setRange} />
+            </>
+          ) : (
+            <HeatingChips conditions={conditions} onChange={onChange} />
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-5 pb-2">
+          {/* 레시피: 한 줄 칩. 켠 레시피가 무엇을 걸었는지는 칩 아래 한 줄로만 */}
+          <div className="flex flex-col gap-1.5">
+            <div
+              className="-mx-4 flex gap-1.5 overflow-x-auto px-4 py-0.5"
+              style={{ scrollbarWidth: "none" }}
+              role="group"
+              aria-label="레시피"
+            >
+              {RECIPES.map((r) => {
+                const on = recipeActive(r, conditions);
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => {
+                      if (on) {
+                        // 레시피가 넣은 범위만 걷어낸다
+                        const applied = r.apply({ ...conditions, ranges: {} });
+                        const ranges = { ...conditions.ranges };
+                        for (const k of Object.keys(applied.ranges)) delete ranges[k as keyof typeof ranges];
+                        onChange({ ...conditions, ranges });
+                      } else onChange(r.apply(conditions));
+                    }}
+                    className={`relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                      on
+                        ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
+                        : "border-[color:var(--lab-border)] font-medium text-[color:var(--lab-navy-950)]"
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                );
+              })}
+            </div>
+            {RECIPES.filter((r) => recipeActive(r, conditions)).map((r) => (
+              <p key={r.id} className="detail-meta">
+                {r.label} → {r.hint}
+              </p>
+            ))}
           </div>
-          {RECIPES.filter((r) => recipeActive(r, conditions)).map((r) => (
-            <p key={r.id} className="detail-meta">
-              {r.label} → {r.hint}
-            </p>
+
+          {FILTER_GROUPS.map((g) => (
+            <section key={g.id} className="flex flex-col gap-1.5" aria-label={g.label}>
+              {/* 묶음 이름은 작은 회색 캡션, 조건은 그 아래 목록 — 글자 크기·색으로 위계를 구분 */}
+              <h4 className="px-1 text-[13px] font-semibold leading-5 text-[color:var(--lab-muted)]">{g.label}</h4>
+              <ul className="divide-y divide-[color:var(--lab-border)] border-t border-[color:var(--lab-border)]">
+                {defs
+                  .filter((d) => d.group === g.id)
+                  .map((d) => {
+                    const cur = conditions.ranges[d.id];
+                    const isOpen = expanded === d.id;
+                    const active = !isFullRange(d, cur);
+                    const hint = rowHint(d);
+                    return (
+                      <li key={d.id}>
+                        <button
+                          type="button"
+                          aria-expanded={isOpen}
+                          onClick={() => setExpanded(isOpen ? null : d.id)}
+                          className="flex min-h-12 w-full items-center justify-between gap-3 py-2 text-left"
+                        >
+                          <span className="flex min-w-0 flex-col">
+                            <span className="text-[15px] font-medium leading-6 text-[color:var(--lab-navy-950)]">
+                              {d.label}
+                            </span>
+                            {hint ? <span className="detail-meta truncate">{hint}</span> : null}
+                          </span>
+                          <span className="flex shrink-0 items-center gap-1">
+                            <span
+                              className={`text-[14px] tabular-nums ${
+                                active ? "font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
+                              }`}
+                            >
+                              {conditionSummary(d, cur)}
+                            </span>
+                            <ChevronDown
+                              className={`h-4 w-4 text-[color:var(--lab-muted)] transition-transform ${isOpen ? "rotate-180" : ""}`}
+                              aria-hidden
+                            />
+                          </span>
+                        </button>
+                        {isOpen ? (
+                          <div className="pb-4">
+                            <RangeBody def={d} conditions={conditions} complexes={complexes} onRange={setRange} />
+                          </div>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                {g.id === "env" ? (
+                  <li className="flex flex-col gap-2 py-3">
+                    <span className="text-[15px] font-medium leading-6 text-[color:var(--lab-navy-950)]">난방방식</span>
+                    <HeatingChips conditions={conditions} onChange={onChange} />
+                  </li>
+                ) : null}
+              </ul>
+            </section>
           ))}
         </div>
-
-        {FILTER_GROUPS.map((g) => (
-          <section key={g.id} className="flex flex-col gap-1.5" aria-label={g.label}>
-            {/* 묶음 이름은 작은 회색 캡션, 조건은 그 아래 목록 — 글자 크기·색으로 위계를 구분 */}
-            <h4 className="px-1 text-[13px] font-semibold leading-5 text-[color:var(--lab-muted)]">{g.label}</h4>
-            <ul className="divide-y divide-[color:var(--lab-border)] border-t border-[color:var(--lab-border)]">
-              {defs
-                .filter((d) => d.group === g.id)
-                .map((d) => {
-                  const cur = conditions.ranges[d.id];
-                  const isOpen = expanded === d.id;
-                  const active = !isFullRange(d, cur);
-                  const vals = complexes
-                    .map((c) => d.value(c, conditions.deal))
-                    .filter((v): v is number => v != null);
-                  return (
-                    <li key={d.id}>
-                      <button
-                        type="button"
-                        aria-expanded={isOpen}
-                        onClick={() => setExpanded(isOpen ? null : d.id)}
-                        className="flex min-h-12 w-full items-center justify-between gap-3 py-2 text-left"
-                      >
-                        <span className="flex min-w-0 flex-col">
-                          <span className="text-[15px] font-medium leading-6 text-[color:var(--lab-navy-950)]">
-                            {d.label}
-                          </span>
-                          {d.hint || d.sparse ? (
-                            <span className="detail-meta truncate">
-                              {[d.hint, d.sparse ? "정보 있는 단지만" : null].filter(Boolean).join(" · ")}
-                            </span>
-                          ) : null}
-                        </span>
-                        <span className="flex shrink-0 items-center gap-1">
-                          <span
-                            className={`text-[14px] tabular-nums ${
-                              active ? "font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
-                            }`}
-                          >
-                            {summary(d, cur)}
-                          </span>
-                          <ChevronDown
-                            className={`h-4 w-4 text-[color:var(--lab-muted)] transition-transform ${isOpen ? "rotate-180" : ""}`}
-                            aria-hidden
-                          />
-                        </span>
-                      </button>
-                      {isOpen ? (
-                        <div className="flex flex-col gap-2 pb-4">
-                          <DistributionRange
-                            def={d}
-                            value={cur ?? { min: d.min, max: d.max }}
-                            values={vals}
-                            onChange={(v) => setRange(d, v)}
-                          />
-                          {d.id === "gap" ? (
-                            <button
-                              type="button"
-                              aria-pressed={cur?.max === 0 && cur.min === d.min}
-                              onClick={() =>
-                                setRange(
-                                  d,
-                                  cur?.max === 0 && cur.min === d.min ? { min: d.min, max: d.max } : { min: d.min, max: 0 },
-                                )
-                              }
-                              className="self-start rounded-full border border-[color:var(--lab-border)] px-3 py-2 text-[14px] font-medium aria-pressed:border-[color:var(--lab-brand-primary)] aria-pressed:text-[color:var(--lab-teal-700)]"
-                            >
-                              전세가 매매가 이상(역전)만
-                            </button>
-                          ) : null}
-                        </div>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              {g.id === "env" ? (
-                <li className="flex flex-col gap-2 py-3">
-                  <span className="text-[15px] font-medium leading-6 text-[color:var(--lab-navy-950)]">난방방식</span>
-                  <div className="flex flex-wrap gap-2">
-                    {HEATING_KINDS.map((k) => {
-                      const on = conditions.heating.includes(k);
-                      return (
-                        <button
-                          key={k}
-                          type="button"
-                          aria-pressed={on}
-                          onClick={() =>
-                            onChange({
-                              ...conditions,
-                              heating: on ? conditions.heating.filter((x) => x !== k) : [...conditions.heating, k],
-                            })
-                          }
-                          className={`min-h-11 rounded-full border px-4 text-[14px] font-medium ${
-                            on
-                              ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
-                              : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
-                          }`}
-                        >
-                          {k}난방
-                        </button>
-                      );
-                    })}
-                  </div>
-                </li>
-              ) : null}
-            </ul>
-          </section>
-        ))}
-      </div>
+      )}
     </LabBottomSheet>
   );
 }
