@@ -17,7 +17,11 @@ config({ path: ".env.local", quiet: true });
 const OUT = "data/poc/profile";
 const LIST = "data/profile-fill-cache/kapt-list.jsonl";
 const KAPT_DIR = "data/profile-fill-cache/kapt";
-const SIDO = ["11", "26", "27", "28", "29", "30", "31", "36", "41", "42", "43", "44", "45", "46", "47", "48", "50", "51", "52"];
+/** 시도 목록은 apt_complex_master 의 법정동 코드 앞 2자리 (신규 코드: 전남광주 12, 강원 51, 전북 52). */
+async function sidoCodes(client: Client): Promise<string[]> {
+  const rows = (await client.execute(`SELECT DISTINCT substr(lawd_cd, 1, 2) AS sido FROM apt_complex_master WHERE lawd_cd <> '' ORDER BY sido`)).rows;
+  return rows.map((r) => str(r.sido)).filter((s) => /^\d{2}$/.test(s));
+}
 
 class QuotaError extends Error {}
 let spacingMs = 250;
@@ -44,16 +48,31 @@ async function fetchJson(path: string, qs: Record<string, string>): Promise<{ to
   let last = "unknown";
   for (let attempt = 0; attempt < 8; attempt += 1) {
     await pace();
-    const res = await fetch(u, { signal: AbortSignal.timeout(30000) });
-    const text = await res.text();
+    let res: Response;
+    let text: string;
+    try {
+      res = await fetch(u, { signal: AbortSignal.timeout(30000) });
+      text = await res.text();
+    } catch {
+      last = "network";
+      await sleep(700 * (attempt + 1));
+      continue;
+    }
     if (/PER_SECOND|초당 서비스 요청제한/.test(text)) {
       spacingMs = Math.min(3000, Math.round(spacingMs * 1.8));
       last = "per-second";
-    } else if (/LIMITED_NUMBER_OF_SERVICE_REQUESTS|SERVICE_REQUESTS_EXCEEDS/.test(text) && !/PER_SECOND/.test(text)) {
+    } else if (/LIMITED_NUMBER_OF_SERVICE_REQUESTS|SERVICE_REQUESTS_EXCEEDS|"returnReasonCode"\s*:\s*"22"/.test(text) && !/PER_SECOND/.test(text)) {
       throw new QuotaError("QUOTA");
     } else if (!res.ok) last = `HTTP ${res.status}`;
     else {
-      const parsed = JSON.parse(text) as { response?: { header?: { resultCode?: string }; body?: { totalCount?: unknown; items?: { item?: unknown } | unknown[] } } };
+      let parsed: { response?: { header?: { resultCode?: string }; body?: { totalCount?: unknown; items?: { item?: unknown } | unknown[] } } };
+      try {
+        parsed = JSON.parse(text) as { response?: { header?: { resultCode?: string }; body?: { totalCount?: unknown; items?: { item?: unknown } | unknown[] } } };
+      } catch {
+        last = "bad-json";
+        await sleep(700 * (attempt + 1));
+        continue;
+      }
       const code = String(parsed.response?.header?.resultCode ?? "");
       if (code === "00" || code === "03") {
         const body = parsed.response?.body;
@@ -82,6 +101,8 @@ async function listPhase() {
       seen.add(String(JSON.parse(line).kaptCode));
     }
   }
+  const SIDO = await sidoCodes(db());
+  console.log(JSON.stringify({ sido: SIDO }));
   const out = createWriteStream(LIST, { flags: "a" });
   let added = 0;
   try {
@@ -128,6 +149,7 @@ async function addressPhase() {
   mkdirSync(KAPT_DIR, { recursive: true });
   let calls = 0;
   let skipped = 0;
+  let failed = 0;
   try {
     for (const row of readList()) {
       if (linked.has(row.kaptCode)) {
@@ -139,18 +161,25 @@ async function addressPhase() {
         const prev = JSON.parse(readFileSync(file, "utf8")) as { bassOk?: boolean };
         if (prev.bassOk) continue;
       }
-      const got = await fetchJson("/AptBasisInfoServiceV5/getAphusBassInfoV5", { kaptCode: row.kaptCode });
+      let got: { total: number; items: Record<string, unknown>[] };
       calls += 1;
+      try {
+        got = await fetchJson("/AptBasisInfoServiceV5/getAphusBassInfoV5", { kaptCode: row.kaptCode });
+      } catch (error) {
+        if (error instanceof QuotaError) throw error;
+        failed += 1;
+        continue;
+      }
       const prev = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown> : {};
       writeFileSync(file, JSON.stringify({ ...prev, bass: got.items[0] ?? null, bassOk: true, dtl: prev.dtl ?? null, dtlOk: Boolean(prev.dtlOk) }));
-      if (calls % 200 === 0) console.log(JSON.stringify({ calls, skipped }));
+      if (calls % 200 === 0) console.log(JSON.stringify({ calls, skipped, failed }));
     }
   } catch (error) {
     if (!(error instanceof QuotaError)) throw error;
-    console.log(JSON.stringify({ quotaStop: true, calls }));
+    console.log(JSON.stringify({ quotaStop: true, calls, failed }));
     return;
   }
-  console.log(JSON.stringify({ calls, skipped, quotaStop: false }));
+  console.log(JSON.stringify({ calls, skipped, failed, quotaStop: false }));
 }
 
 function kaptParcel(bjdCode: string, addr: string): string {
