@@ -36,6 +36,8 @@ const SEGMENT_SIZE = 40;
 const SLEEP_MS = 1000;
 const PERIOD_CEILING = "202609";
 const PROCESS_BUDGET_MS = 46 * 60 * 1000;
+const UPSTREAM_ERROR_ATTEMPTS = 3;
+const UPSTREAM_ERROR_BACKOFF_MS = 10000;
 const OBSOLETE_OPS = new Set([
   "getHsmpDisinfectCostInfoV3",
   "getHsmpElevatorCostInfoV3",
@@ -269,12 +271,26 @@ async function fetchOp(
   url.searchParams.set("kaptCode", kapt);
   url.searchParams.set("searchDate", period);
   url.searchParams.set("_type", "json");
-  const response = await fetchText(url);
-  try {
-    return parseFeeResponse({ http: response.status, body: response.body, expectedKapt: kapt });
-  } catch (error) {
-    if (error instanceof RateLimitStop) throw error;
-    throw new Error(scrub(error instanceof Error ? error.message : "fetch failed"));
+  // OpenAPI gateway envelopes (e.g. openapi_04 "HTTP_ERROR") are portal/upstream outages, not answers
+  // about the complex. Never store them as terminal: retry with backoff, then hold (exit 2) so the
+  // op is refetched on resume. Storing them made failed probes read as NO_PUBLISHED_MONTH (daegu 2026-09-24).
+  for (let attempt = 1; ; attempt += 1) {
+    const response = await fetchText(url);
+    let parsed: ParsedOp;
+    try {
+      parsed = parseFeeResponse({ http: response.status, body: response.body, expectedKapt: kapt });
+    } catch (error) {
+      if (error instanceof RateLimitStop) throw error;
+      throw new Error(scrub(error instanceof Error ? error.message : "fetch failed"));
+    }
+    if (parsed.state === "failed" && /^openapi_/.test(parsed.result_class)) {
+      stats.retries += 1;
+      if (attempt >= UPSTREAM_ERROR_ATTEMPTS) throw new RateLimitStop(`upstream ${parsed.result_class}`);
+      stats.api_calls += 1; // the caller counts only the final attempt
+      await sleep(UPSTREAM_ERROR_BACKOFF_MS * attempt);
+      continue;
+    }
+    return parsed;
   }
 }
 
