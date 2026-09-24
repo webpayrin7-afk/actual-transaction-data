@@ -65,6 +65,7 @@ import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
 import { ComplexRedevSection } from "@/components/apt/ComplexRedevSection";
+import { ComplexTypeDongSection } from "@/components/apt/ComplexTypeDongSection";
 import { pickLatestDeal } from "@/lib/deals/latest";
 
 const DETAIL_PICK = {
@@ -860,6 +861,12 @@ export function AptDetailPage({
           }
         />
       </LabSectionBoundary>
+
+      {identity?.complexId ? (
+        <LabSectionBoundary id="section-type-dong" title="타입·동 정보">
+          <ComplexTypeDongSection complexId={identity.complexId} selectedArea={selectedArea} items={data.items} />
+        </LabSectionBoundary>
+      ) : null}
 
       <LabSectionBoundary id="section-unit-mix" title="평형 구성">
         <ComplexUnitMixSection
