@@ -4,6 +4,10 @@ export const APPLYHOME_ENDPOINTS = {
   notices: "ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail",
   models: "ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancMdl",
   competition: "ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet",
+  /** 무순위 · 잔여세대 · 취소후재공급 */
+  remndrNotices: "ApplyhomeInfoDetailSvc/v1/getRemndrLttotPblancDetail",
+  remndrModels: "ApplyhomeInfoDetailSvc/v1/getRemndrLttotPblancMdl",
+  remndrCompetition: "ApplyhomeInfoCmpetRtSvc/v1/getRemndrLttotPblancCmpet",
 } as const;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

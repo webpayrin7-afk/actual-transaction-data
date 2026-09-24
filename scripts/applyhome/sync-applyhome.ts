@@ -6,6 +6,7 @@
  *
  * 원천 사본이라 같은 키 행이 원천에서 바뀌면(payload_hash 다름) 갱신한다. 다시 돌리면 insert·update 0.
  * lawd_cd는 주소 이름 정확 일치만 (lawd-match.ts). 못 붙인 공고 수를 보고한다.
+ * 무순위·잔여세대 공고(별도 API)도 같은 테이블에 notice_type='remndr'로 넣는다.
  */
 import { config } from "dotenv";
 config({ path: ".env.local" });
@@ -89,12 +90,17 @@ async function main() {
   const apply = process.argv.includes("--apply");
   const now = new Date().toISOString();
 
-  const [rawNotices, rawModels, rawComp] = await Promise.all([
+  const [rawNotices, rawModels, rawComp, remNotices, remModels, remComp] = await Promise.all([
     fetchAllPages(APPLYHOME_ENDPOINTS.notices, key),
     fetchAllPages(APPLYHOME_ENDPOINTS.models, key),
     fetchAllPages(APPLYHOME_ENDPOINTS.competition, key),
+    fetchAllPages(APPLYHOME_ENDPOINTS.remndrNotices, key),
+    fetchAllPages(APPLYHOME_ENDPOINTS.remndrModels, key),
+    fetchAllPages(APPLYHOME_ENDPOINTS.remndrCompetition, key),
   ]);
-  console.log(`fetched notices=${rawNotices.length} models=${rawModels.length} competition=${rawComp.length}`);
+  console.log(
+    `fetched notices=${rawNotices.length} models=${rawModels.length} competition=${rawComp.length} | 무순위 notices=${remNotices.length} models=${remModels.length} competition=${remComp.length}`,
+  );
 
   const dongIndex: DongIndex = new Map();
   const dongRows = await db.execute(
@@ -160,6 +166,79 @@ async function main() {
     return { ...v, payload_hash: hash(v) };
   });
 
+  // 무순위·잔여세대 공고 — 같은 테이블, notice_type='remndr' (일반 공고 행은 이 열이 NULL, 해시도 그대로).
+  // 접수일은 SUBSCRPT(없으면 GNRL) 기준.
+  for (const r of remNotices as Row[]) {
+    const v: Record<string, Cell> = {
+      house_manage_no: String(r.HOUSE_MANAGE_NO),
+      pblanc_no: s(r.PBLANC_NO),
+      house_nm: s(r.HOUSE_NM) ?? "",
+      house_secd_nm: "무순위",
+      house_dtl_secd_nm: s(r.HOUSE_SECD_NM),
+      rent_secd_nm: null,
+      area_name: s(r.SUBSCRPT_AREA_CODE_NM),
+      address: s(r.HSSPLY_ADRES),
+      lawd_cd: matchLawd(s(r.HSSPLY_ADRES), dongIndex),
+      total_supply: n(r.TOT_SUPLY_HSHLDCO),
+      notice_date: s(r.RCRIT_PBLANC_DE),
+      special_rcept_begin: s(r.SPSPLY_RCEPT_BGNDE),
+      rcept_begin: s(r.SUBSCRPT_RCEPT_BGNDE) ?? s(r.GNRL_RCEPT_BGNDE),
+      rcept_end: s(r.SUBSCRPT_RCEPT_ENDDE) ?? s(r.GNRL_RCEPT_ENDDE),
+      winner_date: s(r.PRZWNER_PRESNATN_DE),
+      contract_begin: s(r.CNTRCT_CNCLS_BGNDE),
+      contract_end: s(r.CNTRCT_CNCLS_ENDDE),
+      move_in_ym: s(r.MVN_PREARNGE_YM),
+      builder: null,
+      developer: s(r.BSNS_MBY_NM),
+      homepage: s(r.HMPG_ADRES),
+      notice_url: s(r.PBLANC_URL),
+      payload: JSON.stringify(r),
+      notice_type: "remndr",
+    };
+    notices.push({ ...v, payload_hash: hash(v) });
+  }
+  const remModelRows = (remModels as Row[]).map((r) => {
+    const v: Record<string, Cell> = {
+      house_manage_no: String(r.HOUSE_MANAGE_NO),
+      model_no: String(r.MODEL_NO),
+      house_ty: s(r.HOUSE_TY),
+      supply_area: n(r.SUPLY_AR),
+      general_supply: n(r.SUPLY_HSHLDCO),
+      special_supply: n(r.SPSPLY_HSHLDCO),
+      top_amount: n(r.LTTOT_TOP_AMOUNT),
+    };
+    return { ...v, payload_hash: hash(v) };
+  });
+  models.push(...remModelRows);
+  // 무순위 경쟁률은 주택형(house_ty)으로 온다 → 같은 공고의 주택형이 정확히 하나일 때만 model_no를 붙인다.
+  const modelByTy = new Map<string, string[]>();
+  for (const row of remModelRows) {
+    const m = row as Record<string, Cell>;
+    const k = `${m.house_manage_no}|${m.house_ty}`;
+    modelByTy.set(k, [...(modelByTy.get(k) ?? []), String(m.model_no)]);
+  }
+  let remCompUnmatched = 0;
+  for (const r of remComp as Row[]) {
+    const hits = modelByTy.get(`${r.HOUSE_MANAGE_NO}|${s(r.HOUSE_TY)}`) ?? [];
+    if (hits.length !== 1) {
+      remCompUnmatched++;
+      continue;
+    }
+    const v: Record<string, Cell> = {
+      house_manage_no: String(r.HOUSE_MANAGE_NO),
+      model_no: hits[0]!,
+      rank_code: 1,
+      reside_code: `R${String(r.REMNDR_HSHLD_PBLANC_TYCD ?? "")}`,
+      house_ty: s(r.HOUSE_TY),
+      reside_name: "무순위",
+      supply_count: n(r.SUPLY_HSHLDCO),
+      request_count: n(r.REQ_CNT),
+      competition_rate: s(r.CMPET_RATE),
+    };
+    comps.push({ ...v, payload_hash: hash(v) });
+  }
+  console.log(`무순위 경쟁률 주택형 매칭 실패(건너뜀): ${remCompUnmatched}`);
+
   const compKey = ["house_manage_no", "model_no", "rank_code", "reside_code"];
   const plan = {
     notices: diff(notices, ["house_manage_no"], await existingHashes(db, "applyhome_notices", ["house_manage_no"])),
@@ -199,6 +278,11 @@ async function main() {
     .map((x) => x.replace(/^\s*--.*$/gm, "").trim())
     .filter(Boolean)) {
     await db.execute(stmt);
+  }
+  // 20260927_applyhome_notice_type.sql — 컬럼이 없을 때만 추가
+  const cols = (await db.execute("PRAGMA table_info(applyhome_notices)")).rows.map((r) => String(r.name));
+  if (!cols.includes("notice_type")) {
+    await db.execute("ALTER TABLE applyhome_notices ADD COLUMN notice_type TEXT");
   }
   console.log(
     JSON.stringify({

@@ -14,6 +14,8 @@ export type ApplyhomeNotice = {
   place: string;
   /** 시·도 키 (seoul, gyeonggi …). 주소로 못 찾으면 청약 지역명으로 */
   metro: string;
+  /** 무순위 · 잔여세대 · 취소후재공급 공고 */
+  remndr: boolean;
   kind: string | null;
   totalSupply: number | null;
   specialBegin: string | null;
@@ -96,6 +98,7 @@ function toNotice(r: DbRow): ApplyhomeNotice {
     name: String(r.house_nm),
     place: placeOf(lawd, area),
     metro: metroOf(lawd, area),
+    remndr: str(r.notice_type) === "remndr",
     kind:
       [str(r.house_secd_nm) === "APT" ? null : str(r.house_secd_nm), str(r.house_dtl_secd_nm)]
         .filter(Boolean)
@@ -112,7 +115,7 @@ function toNotice(r: DbRow): ApplyhomeNotice {
   };
 }
 
-const NOTICE_COLS = `n.house_manage_no, n.house_nm, n.lawd_cd, n.area_name, n.house_secd_nm, n.house_dtl_secd_nm,
+const NOTICE_COLS = `n.house_manage_no, n.house_nm, n.lawd_cd, n.area_name, n.house_secd_nm, n.house_dtl_secd_nm, n.notice_type,
   n.total_supply, n.special_rcept_begin, n.rcept_begin, n.rcept_end, n.winner_date, n.move_in_ym, n.notice_url,
   (SELECT MIN(top_amount) FROM applyhome_models m WHERE m.house_manage_no = n.house_manage_no AND top_amount > 0) AS price_min,
   (SELECT MAX(top_amount) FROM applyhome_models m WHERE m.house_manage_no = n.house_manage_no AND top_amount > 0) AS price_max`;
@@ -158,7 +161,7 @@ export async function readApplyhomeOverview(db: Client): Promise<ApplyhomeOvervi
     db.execute({
       sql: `SELECT lawd_cd, move_in_ym, total_supply FROM applyhome_notices
             WHERE lawd_cd IS NOT NULL AND move_in_ym BETWEEN ? AND ? AND total_supply > 0
-              AND COALESCE(rent_secd_nm, '') <> '임대주택'`,
+              AND COALESCE(rent_secd_nm, '') <> '임대주택' AND notice_type IS NULL`,
       args: [fromYm, toYm],
     }),
   ]);
@@ -167,7 +170,7 @@ export async function readApplyhomeOverview(db: Client): Promise<ApplyhomeOvervi
   const history = historyRes.rows.map((r) => withRate(r as DbRow));
   const since30 = addDays(today, -30);
   const competition = history
-    .filter((x) => (x.rceptEnd ?? "") >= since30 && x.generalSupply >= 10 && x.firstRankRequests > 0)
+    .filter((x) => !x.remndr && (x.rceptEnd ?? "") >= since30 && x.generalSupply >= 10 && x.firstRankRequests > 0)
     .sort((a, b) => b.rate - a.rate);
 
   const agg = new Map<string, MoveInRegion & { metro: string }>();
@@ -453,6 +456,8 @@ export type ApplyhomeResult = {
   metro: string;
   /** 공공(국민) 여부 */
   isPublic: boolean;
+  /** 무순위 · 잔여세대 공고 */
+  remndr: boolean;
   rceptEnd: string | null;
   topAmount: number | null;
   supply: number;
@@ -480,7 +485,7 @@ async function allResults(db: Client): Promise<ApplyhomeResult[]> {
     return resultsCache.rows;
   }
   const res = await db.execute({
-    sql: `SELECT n.house_manage_no, n.house_nm, n.lawd_cd, n.area_name, n.house_dtl_secd_nm, n.rcept_end,
+    sql: `SELECT n.house_manage_no, n.house_nm, n.lawd_cd, n.area_name, n.house_dtl_secd_nm, n.rcept_end, n.notice_type,
                  m.model_no, m.house_ty, m.general_supply, m.top_amount,
                  (SELECT SUM(CASE WHEN c.rank_code = 1 AND c.reside_code = '01' THEN c.request_count ELSE 0 END)
                     FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS local1,
@@ -525,6 +530,7 @@ async function allResults(db: Client): Promise<ApplyhomeResult[]> {
       place: placeOf(lawd, areaName),
       metro: metroOf(lawd, areaName),
       isPublic: str(r.house_dtl_secd_nm) === "국민",
+      remndr: str(r.notice_type) === "remndr",
       rceptEnd: str(r.rcept_end),
       topAmount: num(r.top_amount) || null,
       supply,
@@ -559,7 +565,7 @@ export async function readApplyhomeResults(
   const [pLo, pHi] = PRICE_BANDS[q.price];
   const filtered = (await allResults(db)).filter(
     (r) =>
-      (q.metro === "all" || r.metro === q.metro) &&
+      (q.metro === "remndr" ? r.remndr : !r.remndr && (q.metro === "all" || r.metro === q.metro)) &&
       (q.supplier === "all" || (q.supplier === "public") === r.isPublic) &&
       (q.area === "all" || (r.exclusiveArea != null && r.exclusiveArea >= aLo && r.exclusiveArea < aHi)) &&
       (q.price === "all" || (r.topAmount != null && r.topAmount >= pLo && r.topAmount < pHi)),
@@ -650,7 +656,8 @@ export async function readApplyhomeTrends(db: Client): Promise<PresaleTrends> {
                     FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS comp_supply
           FROM applyhome_models m
           JOIN applyhome_notices n ON n.house_manage_no = m.house_manage_no
-          WHERE n.rcept_end >= ? AND n.rcept_end < ? AND COALESCE(n.rent_secd_nm, '') <> '임대주택'`,
+          WHERE n.rcept_end >= ? AND n.rcept_end < ? AND COALESCE(n.rent_secd_nm, '') <> '임대주택'
+            AND n.notice_type IS NULL`,
     args: [from, today],
   });
 

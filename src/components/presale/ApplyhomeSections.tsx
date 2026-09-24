@@ -21,7 +21,17 @@ export function useApplyhome() {
 export type PresaleMetro = string;
 /** 공급 주체 — 공공 = 국민주택(LH 등) */
 export type PresaleSupplier = "all" | "private" | "public";
-export type PresaleFilter = { metro: PresaleMetro; supplier: PresaleSupplier };
+/** 분양가 구간 (만원) — 청약 일정: 주택형 분양가 범위가 구간과 겹치면 포함 */
+export type PresalePrice = "all" | "p1" | "p2" | "p3" | "p4";
+export const PRICE_BANDS: Record<PresalePrice, [number, number]> = {
+  all: [0, Infinity],
+  p1: [0, 50_000],
+  p2: [50_000, 90_000],
+  p3: [90_000, 150_000],
+  p4: [150_000, Infinity],
+};
+/** metro "remndr" = 무순위·잔여세대 공고만 (전국), 그 밖은 일반 공고만 */
+export type PresaleFilter = { metro: PresaleMetro; supplier: PresaleSupplier; price?: PresalePrice };
 
 export const md = (iso: string | null) => (iso ? iso.slice(5, 10).replace("-", ".") : "");
 export const ymDot = (v: string | null) => (v && v.length === 6 ? `${v.slice(0, 4)}.${v.slice(4)}` : "");
@@ -55,7 +65,9 @@ function status(n: ApplyhomeNotice, today: string): { text: string; live: boolea
 
 /** 민영은 기본이라 생략하고 국민(공공)·신혼희망타운 등만 붙인다 */
 export function kindLabel(kind: string | null): string | null {
-  return kind?.replace(/(^| · )민영$/, "").replace(/ · 국민$/, "").replace(/^국민$/, "공공") || null;
+  const cleaned = kind?.replace(/(^| · )민영$/, "").replace(/ · 국민$/, "").replace(/^국민$/, "공공") || null;
+  // "무순위 · 무순위"처럼 같은 말이 겹치면 한 번만
+  return cleaned ? [...new Set(cleaned.split(" · "))].join(" · ") : null;
 }
 
 function metaOf(n: ApplyhomeNotice): string {
@@ -64,8 +76,13 @@ function metaOf(n: ApplyhomeNotice): string {
     .join(" · ");
 }
 
-const matches = ({ metro, supplier }: PresaleFilter) => (n: ApplyhomeNotice) => {
-  if (metro !== "all" && n.metro !== metro) return false;
+const matches = ({ metro, supplier, price = "all" }: PresaleFilter) => (n: ApplyhomeNotice) => {
+  if (metro === "remndr" ? !n.remndr : n.remndr || (metro !== "all" && n.metro !== metro)) return false;
+  if (price !== "all") {
+    const [lo, hi] = PRICE_BANDS[price];
+    if (n.priceMin == null) return false;
+    if (n.priceMin >= hi || (n.priceMax ?? n.priceMin) < lo) return false;
+  }
   if (supplier === "all") return true;
   const isPublic = /국민/.test(n.kind ?? "");
   return supplier === "public" ? isPublic : !isPublic;
@@ -110,7 +127,7 @@ export function ApplyhomeUpcomingSection({ filter, toolbar }: { filter: PresaleF
   const data = query.data;
   if (query.isError) return null;
   const items = (data?.upcoming ?? []).filter(matches(filter));
-  const listKey = `${filter.metro}|${filter.supplier}`;
+  const listKey = `${filter.metro}|${filter.supplier}|${filter.price ?? "all"}`;
 
   return (
     <LabSection

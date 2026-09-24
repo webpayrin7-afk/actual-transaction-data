@@ -19,7 +19,7 @@ export function LabChoiceChips<T extends string>({
 }) {
   return (
     <div
-      className={`-mx-4 flex gap-1.5 overflow-x-auto overflow-y-hidden px-4 py-0.5 sm:mx-0 sm:px-0 ${className}`.trim()}
+      className={`lab-bleed flex gap-1.5 overflow-x-auto overflow-y-hidden py-0.5 ${className}`.trim()}
       role="radiogroup"
       style={{ scrollbarWidth: "none" }}
       aria-label={ariaLabel}

@@ -59,10 +59,16 @@ export function PresalePage() {
   const [supplier, setSupplier] = useState<PresaleSupplier>("all");
   const [area, setArea] = useState<ResultsQuery["area"]>("all");
   const [price, setPrice] = useState<ResultsQuery["price"]>("all");
-  const filter = { metro, supplier };
+  const filter = { metro, supplier, price };
 
-  const metroChips = (label: string) => (
-    <LabChoiceChips ariaLabel={label} options={METRO_OPTIONS} value={metro} onChange={setMetro} />
+  // 청약 일정 · 분양 결과: 맨 앞에 '무순위'(무순위·잔여세대 공고, 전국)
+  const metroChips = (label: string, withRemndr = true) => (
+    <LabChoiceChips
+      ariaLabel={label}
+      options={withRemndr ? [{ id: "remndr", label: "무순위" }, ...METRO_OPTIONS] : METRO_OPTIONS}
+      value={!withRemndr && metro === "remndr" ? "all" : metro}
+      onChange={setMetro}
+    />
   );
   // 지역은 한 줄 선택 칩, 그 아래 줄에 나머지 조건(공급 유형 · 면적 · 분양가) 칩.
   // 분양 동향 탭은 전국 통계라 위 조건 줄이 없다 (입주 예정 카드 안에서만 지역을 고른다).
@@ -79,16 +85,8 @@ export function PresalePage() {
           },
         ]
       : []),
-    ...(tab === "results"
+    ...(tab !== "stats"
       ? [
-          {
-            key: "area",
-            title: "면적",
-            options: AREA_OPTIONS,
-            value: area,
-            defaultId: "all",
-            onChange: (v: string) => setArea(v as ResultsQuery["area"]),
-          },
           {
             key: "price",
             title: "분양가",
@@ -99,12 +97,24 @@ export function PresalePage() {
           },
         ]
       : []),
+    ...(tab === "results"
+      ? [
+          {
+            key: "area",
+            title: "면적",
+            options: AREA_OPTIONS,
+            value: area,
+            defaultId: "all",
+            onChange: (v: string) => setArea(v as ResultsQuery["area"]),
+          },
+        ]
+      : []),
   ];
 
   const chips = <LabFilterChips filters={filters} ariaLabel="분양 조건" />;
 
   return (
-    <div className={PAGE_SHELL}>
+    <div className={`${PAGE_SHELL.replace("gap-5", "gap-3")} lab-dense`}>
       <PageHeader title="분양 정보" titleClassName="detail-page-title" showDivider={false} titleInHeader />
       {/* 모바일: 탭 + 조건 칩 줄을 흰 띠 하나로 상단바에 잇고, 띠 아래에만 구분선 */}
       <div
@@ -125,7 +135,7 @@ export function PresalePage() {
         id={labTabPanelId(TAB_PREFIX, tab)}
         role="tabpanel"
         aria-labelledby={labTabId(TAB_PREFIX, tab)}
-        className="flex flex-col gap-5 sm:gap-6">
+        className="flex flex-col gap-3 sm:gap-6">
         {tab === "schedule" ? (
           <ApplyhomeUpcomingSection filter={filter} />
         ) : tab === "results" ? (
@@ -140,9 +150,9 @@ export function PresalePage() {
             {/* 동향 탭은 전국 기준 — 경쟁률 상위도 전국·전체 공급 */}
             <ApplyhomeCompetitionSection filter={{ metro: "all", supplier: "all" }} />
             <MoveInSection
-              metro={metro}
+              metro={metro === "remndr" ? "all" : metro}
               onPickMetro={setMetro}
-              toolbar={metroChips("입주 예정 지역")}
+              toolbar={metroChips("입주 예정 지역", false)}
             />
           </>
         )}
