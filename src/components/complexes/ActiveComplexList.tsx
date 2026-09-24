@@ -30,6 +30,7 @@ export function ActiveComplexList() {
   return (
     <LabSection
       title="최근 30일 거래 많은 단지"
+      tip={data?.note ? <p>{data.note}</p> : undefined}
     >
       {query.isLoading ? (
         <div className="lab-skeleton" />
@@ -65,7 +66,6 @@ export function ActiveComplexList() {
               label={`${items.length - LAB_LIST_PREVIEW}곳 더보기`}
             />
           ) : null}
-          {data?.note ? <p className="detail-meta">{data.note}</p> : null}
         </>
       )}
     </LabSection>
