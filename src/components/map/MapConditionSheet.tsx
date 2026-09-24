@@ -141,16 +141,19 @@ export function MapConditionSheet({
   };
 
   return (
-    <LabBottomSheet open={open} onClose={onClose} title="조건으로 찾기" doneLabel={`${matched.toLocaleString("ko-KR")}곳 보기`}>
+    <LabBottomSheet open={open} onClose={onClose} title="조건으로 찾기" hideHeaderDivider doneLabel={`${matched.toLocaleString("ko-KR")}곳 보기`}>
       <div className="flex flex-col gap-5 pb-2">
         <div className="flex items-center justify-between gap-2">
-          <p className="detail-body tabular-nums">
-            화면 속 {complexes.length.toLocaleString("ko-KR")}곳 중{" "}
-            <strong className="font-semibold text-[color:var(--lab-teal-700)]">
-              {matched.toLocaleString("ko-KR")}곳
-            </strong>
-            이 맞아요
-          </p>
+          <div className="flex min-w-0 flex-col">
+            <p className="detail-body tabular-nums">
+              화면 속 {complexes.length.toLocaleString("ko-KR")}곳 중{" "}
+              <strong className="font-semibold text-[color:var(--lab-teal-700)]">
+                {matched.toLocaleString("ko-KR")}곳
+              </strong>
+              이 맞아요
+            </p>
+            <p className="detail-meta">조건을 펼치면 화면 속 단지가 어디에 몰려 있는지 막대로 보여요</p>
+          </div>
           <button
             type="button"
             onClick={() => onChange({ ...EMPTY_CONDITIONS, deal: conditions.deal })}
@@ -219,7 +222,11 @@ export function MapConditionSheet({
                           <span className="text-[15px] font-medium leading-6 text-[color:var(--lab-navy-950)]">
                             {d.label}
                           </span>
-                          {d.hint ? <span className="detail-meta truncate">{d.hint}</span> : null}
+                          {d.hint || d.sparse ? (
+                            <span className="detail-meta truncate">
+                              {[d.hint, d.sparse ? "정보 있는 단지만" : null].filter(Boolean).join(" · ")}
+                            </span>
+                          ) : null}
                         </span>
                         <span className="flex shrink-0 items-center gap-1">
                           <span
@@ -243,11 +250,6 @@ export function MapConditionSheet({
                             values={vals}
                             onChange={(v) => setRange(d, v)}
                           />
-                          <p className="detail-meta">
-                            {d.sparse
-                              ? `정보가 있는 단지 ${vals.length.toLocaleString("ko-KR")}곳의 분포예요. 조건을 걸면 정보 없는 단지는 빠져요.`
-                              : `화면 속 단지 ${vals.length.toLocaleString("ko-KR")}곳의 분포예요.`}
-                          </p>
                           {d.id === "gap" ? (
                             <button
                               type="button"
@@ -296,7 +298,6 @@ export function MapConditionSheet({
                       );
                     })}
                   </div>
-                  <span className="detail-meta">난방 정보가 있는 단지만 걸러져요.</span>
                 </li>
               ) : null}
             </ul>
