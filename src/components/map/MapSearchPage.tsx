@@ -224,7 +224,7 @@ function areaShortName(a: MapArea): string {
 function areaLabel(a: MapArea): { name: string; price: string } {
   return {
     name: areaShortName(a),
-    price: a.medianPerPyeongMan != null ? shortPerPyeong(a.medianPerPyeongMan) : "거래 없음",
+    price: a.perPyeongMan != null ? shortPerPyeong(a.perPyeongMan) : "거래 없음",
   };
 }
 
@@ -234,7 +234,7 @@ function areaMarkerHtml(a: MapArea): string {
   return `<div style="transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:56px;padding:3px 8px;border-radius:10px;background:var(--lab-navy-950);color:#fff;cursor:pointer;box-shadow:0 2px 6px rgba(15,23,42,.25);text-align:center;white-space:nowrap">
     <span style="font:600 12px/16px ${FONT}">${escapeHtml(name)}</span>
     <span style="font:700 13px/17px ${FONT};font-variant-numeric:tabular-nums;color:${
-      a.medianPerPyeongMan != null ? "#5eead4" : "#cbd5e1"
+      a.perPyeongMan != null ? "#5eead4" : "#cbd5e1"
     }">${escapeHtml(price)}</span>
   </div>`;
 }
@@ -624,7 +624,9 @@ export function MapSearchPage() {
               : `대표 평형 최근 ${dealLabel}가`;
       return `${what}${areaRangeText}${state === "ready" ? filtered : ""}${truncated ? " · 세대수 큰 400개 단지까지" : ""}`;
     }
-    return `최근 12개월 ${dealLabel}${areaRangeText} · ${level === "gu" ? "구" : "동"}별 전용 평당가`;
+    return conditions.deal === "trade"
+      ? `${level === "gu" ? "구" : "동"}별 지역 시세 평당가`
+      : `최근 12개월 ${dealLabel}${areaRangeText} · ${level === "gu" ? "구" : "동"}별 전용 평당가`;
   })();
 
   const locate = () => {
@@ -748,9 +750,9 @@ export function MapSearchPage() {
               {state === "loading" ? " · 불러오는 중…" : ""}
             </p>
           ) : null}
-          {level !== "complex" && level !== "far" && nActive > (area.min > 0 || area.max < 10_000 ? 1 : 0) ? (
+          {level !== "complex" && level !== "far" && nActive > (conditions.deal === "trade" ? 0 : area.min > 0 || area.max < 10_000 ? 1 : 0) ? (
             <p className="pointer-events-auto rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
-              면적 외 조건은 단지가 보이는 거리에서 적용돼요
+              {conditions.deal === "trade" ? "조건" : "면적 외 조건"}은 단지가 보이는 거리에서 적용돼요
             </p>
           ) : null}
           {level === "far" ? (

@@ -1,10 +1,13 @@
 /**
  * 지도로 찾기 — 축소 화면용 지역(구·동) 시세 말풍선. 읽기 전용.
- * 위치: 영역 안 단지 좌표(NAVER 중심점 우선)의 평균. 가격: 최근 12개월 거래의 전용 평당가 중위값.
+ * 위치: 영역 안 단지 좌표(NAVER 중심점 우선)의 평균.
+ * 가격: 매매는 지역 상세·지역 조회와 같은 '지역 시세 평당가'(region_price_index 최신 월, 공급평) — 면적 조건과 무관.
+ *       전세는 시세 평당가가 없어 최근 12개월 전세 거래의 전용 평당가 가운데 값.
  * 추정·보간 없음 — 기간 안 거래가 없는 지역은 가격 없이 보낸다.
  */
 import type { Client } from "@libsql/client";
 import { districtNameFromCode } from "@/lib/constants/regions-registry";
+import { REGION_PRICE_INDEX_METHOD, REGION_PRICE_INDEX_TABLE } from "@/lib/region/region-price-index";
 import { hasAnchorTable, mapRegionLinks, type MapRegionLinks, type MapAreaRange, type MapBBox, type MapDealKind } from "@/lib/map/map-complexes";
 
 export type MapAreaLevel = "gu" | "dong";
@@ -17,8 +20,8 @@ export type MapArea = {
   lat: number;
   lng: number;
   complexCount: number;
-  /** 전용 3.3㎡(1평)당 중위가, 만원 */
-  medianPerPyeongMan: number | null;
+  /** 평당가 (만원) — 매매: 지역 시세 평당가(공급평), 전세: 전용 평당가 가운데 값 */
+  perPyeongMan: number | null;
   tradeCount12m: number;
   /** 지역 상세 링크 (구 말풍선이면 dong 링크 없음) */
   links: MapRegionLinks;
@@ -87,6 +90,34 @@ async function lawdPrices(
   return agg;
 }
 
+/** lawd 하나의 시세 평당가 최신 월: 구 → lawd, 동 → "lawd|동이름" */
+async function indexPrices(db: Client, lawd: string): Promise<Map<string, number>> {
+  const key = `idx|${lawd}`;
+  const hit = indexCache.get(key);
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.map;
+  const out = new Map<string, number>();
+  try {
+    const res = await db.execute({
+      sql: `SELECT scope, region_code, region_name, pyeong_price FROM ${REGION_PRICE_INDEX_TABLE}
+            WHERE method_version = ? AND pyeong_price IS NOT NULL
+              AND year_month = (SELECT MAX(year_month) FROM ${REGION_PRICE_INDEX_TABLE}
+                                WHERE method_version = ? AND scope = 'gu' AND region_code = ?)
+              AND ((scope = 'gu' AND region_code = ?) OR (scope = 'dong' AND region_code BETWEEN ? AND ?))`,
+      args: [REGION_PRICE_INDEX_METHOD, REGION_PRICE_INDEX_METHOD, lawd, lawd, `${lawd}00000`, `${lawd}99999`],
+    });
+    for (const r of res.rows) {
+      const v = Number(r.pyeong_price);
+      if (r.scope === "gu") out.set(lawd, v);
+      else out.set(`${lawd}|${String(r.region_name)}`, v);
+    }
+  } catch {
+    /* 적재본 없음 → 가격 없이 */
+  }
+  indexCache.set(key, { at: Date.now(), map: out });
+  return out;
+}
+const indexCache = new Map<string, { at: number; map: Map<string, number> }>();
+
 export async function readMapAreas(
   db: Client,
   bbox: MapBBox,
@@ -111,18 +142,26 @@ export async function readMapAreas(
 
   const lawds = [...new Set(groups.rows.map((r) => String(r.lawd_cd)))];
   const prices = new Map<string, LawdAgg>();
-  await Promise.all(
-    lawds.map(async (l) => {
-      prices.set(l, await lawdPrices(db, l, deal, area));
-    }),
-  );
+  // 매매: 지역 시세 평당가 적재본 (구 = lawd, 동 = lawd+법정동코드, 이름으로 찾는다)
+  const index = new Map<string, number>();
+  if (deal === "trade") {
+    await Promise.all(lawds.map(async (l) => {
+      for (const [k, v] of await indexPrices(db, l)) index.set(k, v);
+    }));
+  } else {
+    await Promise.all(
+      lawds.map(async (l) => {
+        prices.set(l, await lawdPrices(db, l, deal, area));
+      }),
+    );
+  }
 
   return groups.rows.map((r) => {
     const lawd = String(r.lawd_cd);
     const agg = prices.get(lawd);
     const dong = level === "dong" ? String(r.dong) : null;
     const samples = (dong ? agg?.byDong.get(dong) : agg?.all) ?? [];
-    const med = median(samples);
+    const med = deal === "trade" ? (index.get(dong ? `${lawd}|${dong}` : lawd) ?? null) : median(samples);
     return {
       id: dong ? `${lawd}|${dong}` : lawd,
       level,
@@ -131,7 +170,7 @@ export async function readMapAreas(
       lat: Number(r.lat),
       lng: Number(r.lng),
       complexCount: Number(r.n),
-      medianPerPyeongMan: med == null ? null : Math.round(med),
+      perPyeongMan: med == null ? null : Math.round(med),
       tradeCount12m: samples.length,
       links: mapRegionLinks(lawd, dong),
     };

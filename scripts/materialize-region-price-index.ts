@@ -10,6 +10,7 @@ config();
 import type { InStatement } from "@libsql/client";
 import { getDb } from "../src/lib/db/client";
 import { seoulGuName, seoulLawdCodes } from "../src/lib/region-ranking/price-position-read";
+import { districtNameFromCode } from "../src/lib/constants/regions-registry";
 import {
   ensureRegionPriceIndexTable,
   REGION_PRICE_INDEX_METHOD,
@@ -70,7 +71,7 @@ async function main() {
     const t0 = performance.now();
     const series = await computeRegionPriceSeries(db, lawdCd);
     const tCompute = performance.now() - t0;
-    const guName = seoulGuName(lawdCd) ?? lawdCd;
+    const guName = seoulGuName(lawdCd) ?? (districtNameFromCode(lawdCd) || lawdCd);
     const rows: Row[] = [
       ...series.points.map((point) => ({ scope: "gu" as const, code: lawdCd, name: guName, point })),
       ...series.dongs.flatMap((d) =>

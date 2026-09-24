@@ -16,7 +16,7 @@ import {
 } from "@/lib/constants/regions";
 import { suggestRegions } from "@/lib/region/suggest-regions";
 import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
-import { Search } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { RegionTileStat, RegionsOverview } from "@/lib/region/regions-overview";
 import { LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
@@ -60,7 +60,7 @@ function pppText(man: number): string {
 
 function TileStat({ stat }: { stat: RegionTileStat | undefined }) {
   if (!stat || (stat.ppp == null && !stat.range)) {
-    return <span className="detail-meta">거래 적음</span>;
+    return <span className="detail-meta">—</span>;
   }
   if (stat.range) {
     return (
@@ -257,9 +257,16 @@ export function RegionsPage() {
               <Link
                 key={region.slug}
                 href={`/region/${region.slug}`}
-                className="flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2.5 transition hover:border-[color:var(--lab-brand-border)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                // 누르면 지역 상세로 — 버튼으로 읽히게 그림자·화살표·눌림 효과
+                className="group flex min-h-12 flex-col items-stretch justify-center gap-0.5 rounded-xl border border-[color:var(--lab-border)] bg-white py-2.5 pl-3 pr-2 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-[color:var(--lab-brand-border)] hover:bg-slate-50 active:scale-[0.98] active:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
               >
-                <span className="detail-data-value-emphasis break-keep">{region.name}</span>
+                <span className="flex items-center justify-between gap-1">
+                  <span className="detail-data-value-emphasis min-w-0 break-keep">{region.name}</span>
+                  <ChevronRight
+                    className="h-4 w-4 shrink-0 text-[color:var(--lab-muted)] transition group-hover:translate-x-0.5 group-hover:text-[color:var(--lab-brand-primary)]"
+                    aria-hidden
+                  />
+                </span>
                 {ov ? <TileStat stat={ov.regions[region.slug]} /> : null}
               </Link>
             ))}
