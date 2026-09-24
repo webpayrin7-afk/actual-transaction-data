@@ -16,6 +16,7 @@ import {
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
+import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
 import {
   formatComplexLocationLabel,
   recordRecentComplex,
@@ -667,6 +668,8 @@ export function AptDetailPage({
           </div>
         )}
       </section>
+
+      <ComplexNearbySalesSection sigungu={data.gu?.trim() || gu?.trim() || ""} />
     </div>
   );
 }
