@@ -150,8 +150,18 @@ function RangeBody({
     [complexes, def, conditions.deal],
   );
   const inverseOnly = cur?.max === 0 && cur.min === def.min;
+  // 이 조건 하나만 봤을 때 범위 안에 드는 단지 수 (진한 막대의 합) — 슬라이더를 움직이는 대로 바뀐다
+  const inRange = isFullRange(def, cur)
+    ? vals.length
+    : vals.filter((v) => (cur!.min <= def.min || v >= cur!.min) && (cur!.max >= def.max || v <= cur!.max)).length;
   return (
     <div className="flex flex-col gap-2">
+      <p className="detail-meta self-end tabular-nums" aria-live="polite">
+        범위 안{" "}
+        <strong className="font-semibold text-[color:var(--lab-teal-700)]">{inRange.toLocaleString("ko-KR")}곳</strong>
+        {" "}/ 화면 {complexes.length.toLocaleString("ko-KR")}곳
+        {vals.length < complexes.length ? ` · 정보 있는 ${vals.length.toLocaleString("ko-KR")}곳` : ""}
+      </p>
       <DistributionRange def={def} value={cur ?? { min: def.min, max: def.max }} values={vals} onChange={(v) => onRange(def, v)} />
       {def.id === "gap" ? (
         <button
