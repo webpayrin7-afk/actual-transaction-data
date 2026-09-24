@@ -1,0 +1,1027 @@
+{
+  "generated_at": "2026-09-20T19:38:05.105Z",
+  "rights": {
+    "publisher": "한국교육시설안전원 (KOIES)",
+    "datasets": [
+      {
+        "id": "15021148",
+        "name": "전국초중등학교위치표준데이터",
+        "version": "2026-03-20"
+      },
+      {
+        "id": "15021149",
+        "name": "전국초등학교통학구역표준데이터",
+        "version": "2026-03-20"
+      },
+      {
+        "id": "15021151",
+        "name": "전국중학교학교군표준데이터",
+        "version": "2026-03-20"
+      },
+      {
+        "id": "15021153",
+        "name": "전국고등학교학교군표준데이터",
+        "version": "2026-03-20"
+      },
+      {
+        "id": "15021158",
+        "name": "전국학교학구도연계정보표준데이터",
+        "version": "2026-03-20"
+      }
+    ],
+    "schoolzone": "https://schoolzone.emac.kr/publicData/dataInfo.do",
+    "cadence": "March and September",
+    "standard_pdf_mentions_kogl": false,
+    "commercial_use": "UNKNOWN",
+    "redistribution": "UNKNOWN",
+    "modification": "UNKNOWN",
+    "attribution": "UNKNOWN — publisher identity is clear (KOIES / data.go.kr), but no KOGL type mark was found on the dataset pages or the 2026-03-20 standard PDF extract",
+    "unresolved": "No explicit 공공누리/KOGL type, commercial-use, modification, or redistribution clause found on the fetched portal pages or standard PDF text. SchoolInfo 제3유형 must not be assumed for KOIES polygons.",
+    "verdict": "RIGHTS_UNKNOWN"
+  },
+  "crosswalk": {
+    "method": "Deterministic level + exact normalized road/parcel address unique match. Name-only rejected. No shared official school code field between KOIES 학교ID (B…) and SchoolInfo SCHUL_CODE (S…). EXACT_OFFICIAL_CODE = 0.",
+    "exact_official_code": 0,
+    "exact_multi_field": 10430,
+    "ambiguous": 474,
+    "unmatched": 1107,
+    "national": {
+      "elementary": {
+        "koies_schools": 6303,
+        "schoolinfo_schools": 6773,
+        "exact_mapped": 5444,
+        "ambiguous": 256,
+        "unmatched": 603,
+        "coverage_pct": 86.4
+      },
+      "middle": {
+        "koies_schools": 3312,
+        "schoolinfo_schools": 3489,
+        "exact_mapped": 2892,
+        "ambiguous": 110,
+        "unmatched": 310,
+        "coverage_pct": 87.3
+      },
+      "high": {
+        "koies_schools": 2396,
+        "schoolinfo_schools": 2444,
+        "exact_mapped": 2094,
+        "ambiguous": 108,
+        "unmatched": 194,
+        "coverage_pct": 87.4
+      },
+      "all": {
+        "koies_schools": 12011,
+        "schoolinfo_schools": 12706,
+        "exact_mapped": 10430,
+        "ambiguous": 474,
+        "unmatched": 1107,
+        "coverage_pct": 86.8
+      }
+    },
+    "seoul": {
+      "elementary": {
+        "koies_schools": 606,
+        "schoolinfo_schools": 614,
+        "exact_mapped": 593,
+        "ambiguous": 0,
+        "unmatched": 13,
+        "coverage_pct": 97.9
+      },
+      "middle": {
+        "koies_schools": 388,
+        "schoolinfo_schools": 392,
+        "exact_mapped": 374,
+        "ambiguous": 6,
+        "unmatched": 8,
+        "coverage_pct": 96.4
+      },
+      "high": {
+        "koies_schools": 319,
+        "schoolinfo_schools": 323,
+        "exact_mapped": 259,
+        "ambiguous": 51,
+        "unmatched": 9,
+        "coverage_pct": 81.2
+      },
+      "all": {
+        "koies_schools": 1313,
+        "schoolinfo_schools": 1329,
+        "exact_mapped": 1226,
+        "ambiguous": 57,
+        "unmatched": 30,
+        "coverage_pct": 93.4
+      }
+    },
+    "gyeonggi": {
+      "elementary": {
+        "koies_schools": 1379,
+        "schoolinfo_schools": 1411,
+        "exact_mapped": 1185,
+        "ambiguous": 49,
+        "unmatched": 145,
+        "coverage_pct": 85.9
+      },
+      "middle": {
+        "koies_schools": 684,
+        "schoolinfo_schools": 700,
+        "exact_mapped": 587,
+        "ambiguous": 19,
+        "unmatched": 78,
+        "coverage_pct": 85.8
+      },
+      "high": {
+        "koies_schools": 495,
+        "schoolinfo_schools": 501,
+        "exact_mapped": 432,
+        "ambiguous": 19,
+        "unmatched": 44,
+        "coverage_pct": 87.3
+      },
+      "all": {
+        "koies_schools": 2558,
+        "schoolinfo_schools": 2612,
+        "exact_mapped": 2204,
+        "ambiguous": 87,
+        "unmatched": 267,
+        "coverage_pct": 86.2
+      }
+    },
+    "linkage_rows": 17985,
+    "sample_mapped": [
+      {
+        "koiesId": "B000013195",
+        "name": "경일고등학교",
+        "level": "high",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S150000733",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000013530",
+        "name": "보문고등학교",
+        "level": "high",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S050000139",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000002807",
+        "name": "대구내서초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S030000871",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000007927",
+        "name": "유림초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S160002892",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000003875",
+        "name": "호계초등학교",
+        "level": "elementary",
+        "region": "gyeonggi",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S090003084",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000005736",
+        "name": "조치원교동초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S080000054",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000009920",
+        "name": "대성중학교",
+        "level": "middle",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S110000896",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000022777",
+        "name": "가재울고등학교",
+        "level": "high",
+        "region": "seoul",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S010005591",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000007002",
+        "name": "모아초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S150001175",
+        "evidence": "level+road_address+name"
+      },
+      {
+        "koiesId": "B000002704",
+        "name": "반안초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "EXACT_MULTI_FIELD",
+        "schoolCode": "S020001660",
+        "evidence": "level+road_address+name"
+      }
+    ],
+    "sample_unmatched": [
+      {
+        "koiesId": "B000006285",
+        "name": "무주초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S130000898; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000009731",
+        "name": "강원체육중학교",
+        "level": "middle",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S100003726; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000009729",
+        "name": "봄내중학교",
+        "level": "middle",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S100001815; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000012774",
+        "name": "육민관고등학교",
+        "level": "high",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S100000477; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000025756",
+        "name": "인천청호초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S040002308; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000009788",
+        "name": "상장중학교",
+        "level": "middle",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S100001962; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000005015",
+        "name": "맹방초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S100000888; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000004967",
+        "name": "통리초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S100001986; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000003476",
+        "name": "대전하기초등학교",
+        "level": "elementary",
+        "region": "other",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S060001072; rejected (name-only insufficient)"
+      },
+      {
+        "koiesId": "B000002065",
+        "name": "서울한천초등학교",
+        "level": "elementary",
+        "region": "seoul",
+        "classification": "NO_MATCH",
+        "schoolCode": null,
+        "evidence": "name+level only to S010001791; rejected (name-only insufficient)"
+      }
+    ]
+  },
+  "year_2027": {
+    "documentation_note": "SchoolInfo openApi.do requires pbanYr. Rows often omit PBAN_YR on BASIC. Official SchoolInfo help treats pbanYr as 공시년도 (disclosure year), not an academic-year enrollment promise. 2027 returns live BASIC rows for current districts before all categories publish together.",
+    "comparisons": {
+      "songpa_middle": {
+        "y2026_rows": 29,
+        "y2027_rows": 29,
+        "only_2026": [],
+        "only_2027": [],
+        "sample_2026": [
+          {
+            "code": "S010000856",
+            "name": "가락중학교",
+            "close": "N",
+            "fond": "19860129",
+            "road": "서울특별시 송파구 송이로 45",
+            "lat": 37.5025484202,
+            "lng": 127.1188431145
+          },
+          {
+            "code": "S010000857",
+            "name": "가원중학교",
+            "close": "N",
+            "fond": "19881224",
+            "road": "서울특별시 송파구 중대로10길 40-18",
+            "lat": 37.4908634664,
+            "lng": 127.1230536332
+          },
+          {
+            "code": "S010000859",
+            "name": "거원중학교",
+            "close": "N",
+            "fond": "19971220",
+            "road": "서울특별시 송파구 양산로2길 30",
+            "lat": 37.4879065939,
+            "lng": 127.1465404774
+          }
+        ],
+        "sample_2027": [
+          {
+            "code": "S010000856",
+            "name": "가락중학교",
+            "close": "N",
+            "fond": "19860129",
+            "road": "서울특별시 송파구 송이로 45",
+            "lat": 37.5025484202,
+            "lng": 127.1188431145
+          },
+          {
+            "code": "S010000857",
+            "name": "가원중학교",
+            "close": "N",
+            "fond": "19881224",
+            "road": "서울특별시 송파구 중대로10길 40-18",
+            "lat": 37.4908634664,
+            "lng": 127.1230536332
+          },
+          {
+            "code": "S010000859",
+            "name": "거원중학교",
+            "close": "N",
+            "fond": "19971220",
+            "road": "서울특별시 송파구 양산로2길 30",
+            "lat": 37.4879065939,
+            "lng": 127.1465404774
+          }
+        ],
+        "result_2027": {
+          "code": "success",
+          "msg": "성공",
+          "absent": false
+        }
+      },
+      "songpa_elementary": {
+        "y2026_rows": 41,
+        "y2027_rows": 41,
+        "only_2026": [],
+        "only_2027": [],
+        "sample_2026": [
+          {
+            "code": "S010000897",
+            "name": "서울가동초등학교",
+            "close": "N",
+            "fond": "19900425",
+            "road": "서울특별시 송파구 중대로20길 47",
+            "lat": 37.4974117759,
+            "lng": 127.129976172
+          },
+          {
+            "code": "S010000898",
+            "name": "서울가락초등학교",
+            "close": "N",
+            "fond": "19810909",
+            "road": "서울특별시 송파구 송파대로37길 45",
+            "lat": 37.5001660984,
+            "lng": 127.1076298763
+          },
+          {
+            "code": "S010000899",
+            "name": "서울가원초등학교",
+            "close": "N",
+            "fond": "19881208",
+            "road": "서울특별시 송파구 중대로4길 8",
+            "lat": 37.4893974843,
+            "lng": 127.1112870537
+          }
+        ],
+        "sample_2027": [
+          {
+            "code": "S010000897",
+            "name": "서울가동초등학교",
+            "close": "N",
+            "fond": "19900425",
+            "road": "서울특별시 송파구 중대로20길 47",
+            "lat": 37.4974117759,
+            "lng": 127.129976172
+          },
+          {
+            "code": "S010000898",
+            "name": "서울가락초등학교",
+            "close": "N",
+            "fond": "19810909",
+            "road": "서울특별시 송파구 송파대로37길 45",
+            "lat": 37.5001660984,
+            "lng": 127.1076298763
+          },
+          {
+            "code": "S010000899",
+            "name": "서울가원초등학교",
+            "close": "N",
+            "fond": "19881208",
+            "road": "서울특별시 송파구 중대로4길 8",
+            "lat": 37.4893974843,
+            "lng": 127.1112870537
+          }
+        ],
+        "result_2027": {
+          "code": "success",
+          "msg": "성공",
+          "absent": false
+        }
+      },
+      "songpa_high": {
+        "y2026_rows": 21,
+        "y2027_rows": 21,
+        "only_2026": [],
+        "only_2027": [],
+        "sample_2026": [
+          {
+            "code": "S010000370",
+            "name": "가락고등학교",
+            "close": "N",
+            "fond": "19881223",
+            "road": "서울특별시 송파구 송이로 42",
+            "lat": 37.501605692,
+            "lng": 127.1173171404
+          },
+          {
+            "code": "S010000441",
+            "name": "배명고등학교",
+            "close": "N",
+            "fond": "19490307",
+            "road": "서울특별시 송파구 삼학사로 11",
+            "lat": 37.4988137989,
+            "lng": 127.096002511
+          },
+          {
+            "code": "S010000446",
+            "name": "보성고등학교",
+            "close": "N",
+            "fond": "19060905",
+            "road": "서울특별시 송파구 양재대로 1278",
+            "lat": 37.5195542163,
+            "lng": 127.1353583136
+          }
+        ],
+        "sample_2027": [
+          {
+            "code": "S010000370",
+            "name": "가락고등학교",
+            "close": "N",
+            "fond": "19881223",
+            "road": "서울특별시 송파구 송이로 42",
+            "lat": 37.501605692,
+            "lng": 127.1173171404
+          },
+          {
+            "code": "S010000441",
+            "name": "배명고등학교",
+            "close": "N",
+            "fond": "19490307",
+            "road": "서울특별시 송파구 삼학사로 11",
+            "lat": 37.4988137989,
+            "lng": 127.096002511
+          },
+          {
+            "code": "S010000446",
+            "name": "보성고등학교",
+            "close": "N",
+            "fond": "19060905",
+            "road": "서울특별시 송파구 양재대로 1278",
+            "lat": 37.5195542163,
+            "lng": 127.1353583136
+          }
+        ],
+        "result_2027": {
+          "code": "success",
+          "msg": "성공",
+          "absent": false
+        }
+      },
+      "busan_jung_middle": {
+        "y2026_rows": 1,
+        "y2027_rows": 1,
+        "only_2026": [],
+        "only_2027": [],
+        "sample_2026": [
+          {
+            "code": "S020000608",
+            "name": "덕원중학교",
+            "close": "N",
+            "fond": "19530713",
+            "road": "부산광역시 중구 망양로 356",
+            "lat": 35.1081158096,
+            "lng": 129.0315690481
+          }
+        ],
+        "sample_2027": [
+          {
+            "code": "S020000608",
+            "name": "덕원중학교",
+            "close": "N",
+            "fond": "19530713",
+            "road": "부산광역시 중구 망양로 356",
+            "lat": 35.1081158096,
+            "lng": 129.0315690481
+          }
+        ],
+        "result_2027": {
+          "code": "success",
+          "msg": "성공",
+          "absent": false
+        }
+      }
+    },
+    "category_years": [
+      {
+        "category": "AFTERSCHOOL",
+        "loaded_year": "2026",
+        "candidate_year": null,
+        "candidate_status": null
+      },
+      {
+        "category": "BASIC",
+        "loaded_year": "2026",
+        "candidate_year": "2027",
+        "candidate_status": "available"
+      },
+      {
+        "category": "GRADUATE_PATH",
+        "loaded_year": "2025",
+        "candidate_year": null,
+        "candidate_status": null
+      },
+      {
+        "category": "MEAL",
+        "loaded_year": "2026",
+        "candidate_year": null,
+        "candidate_status": null
+      },
+      {
+        "category": "SCHOLARSHIP",
+        "loaded_year": "2026",
+        "candidate_year": null,
+        "candidate_status": null
+      },
+      {
+        "category": "STUDENT",
+        "loaded_year": "2026",
+        "candidate_year": null,
+        "candidate_status": null
+      },
+      {
+        "category": "TEACHER",
+        "loaded_year": "2026",
+        "candidate_year": null,
+        "candidate_status": null
+      }
+    ],
+    "pointer_recommendation": "Keep current pointer on the latest COMPLETE officially-effective disclosure year that is fully loaded for the category. Do not switch BASIC to MAX(year)=2027 until a controlled incremental load proves category completeness and product semantics. Candidate 2027 is recorded only.",
+    "pointer_changed": false,
+    "field_identity_checks": {
+      "songpa_middle": {
+        "rows": 29,
+        "identical": 29,
+        "changed": 0
+      },
+      "songpa_elementary": {
+        "rows": 41,
+        "identical": 41,
+        "changed": 0
+      },
+      "songpa_high": {
+        "rows": 21,
+        "identical": 21,
+        "changed": 0
+      },
+      "busan_jung_middle": {
+        "rows": 1,
+        "identical": 1,
+        "changed": 0
+      },
+      "gangnam_middle": {
+        "rows": 24,
+        "identical": 24,
+        "changed": 0
+      },
+      "pban_yr_present_in_basic_rows": false,
+      "semantics": "pbanYr is the SchoolInfo disclosure-year request parameter. BASIC rows omit PBAN_YR. Across sampled districts, 2027 BASIC currently returns the same school codes and identical field payloads as 2026. Treat 2027 as an early/open disclosure-year slot that is not yet a distinct loaded year for product pointers."
+    }
+  },
+  "nearby_pending": {
+    "identity_ready_with_coord": 10567,
+    "materialized": 10567,
+    "pending_delta_only_count": 0,
+    "note": "Count only. No nearby rematerialization in this run."
+  },
+  "excluded": {
+    "recovered": 0,
+    "remaining": 4,
+    "rows": [
+      {
+        "school_code": "S090005579",
+        "in_master": false,
+        "graduate": {
+          "name": "봉담고등학교",
+          "adrcd": null,
+          "adrcd_cd": null,
+          "office": "경기도교육청"
+        },
+        "decision": "EXCLUDED_IDENTITY_INCOMPLETE"
+      },
+      {
+        "school_code": "S090005676",
+        "in_master": false,
+        "graduate": {
+          "name": "광덕고등학교",
+          "adrcd": null,
+          "adrcd_cd": null,
+          "office": "경기도교육청"
+        },
+        "decision": "EXCLUDED_IDENTITY_INCOMPLETE"
+      },
+      {
+        "school_code": "S090006652",
+        "in_master": false,
+        "graduate": {
+          "name": "화성반월중학교",
+          "adrcd": null,
+          "adrcd_cd": null,
+          "office": "경기도교육청"
+        },
+        "decision": "EXCLUDED_IDENTITY_INCOMPLETE"
+      },
+      {
+        "school_code": "S090007522",
+        "in_master": false,
+        "graduate": {
+          "name": "치동중학교",
+          "adrcd": null,
+          "adrcd_cd": null,
+          "office": "경기도교육청"
+        },
+        "decision": "EXCLUDED_IDENTITY_INCOMPLETE"
+      }
+    ]
+  },
+  "assignment_writes": 0,
+  "elementary_pilot": {
+    "method": "PARCEL_REPRESENTATIVE_POINT transformed WGS84->EPSG:5186 then point-in-polygon vs KOIES elementary SHP. Not nearest school.",
+    "rights_gate": "RIGHTS_UNKNOWN — technical feasibility only",
+    "results": [
+      {
+        "query": "잠실엘스",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_4c63d9a100973c60",
+          "apt_name": "잠실엘스",
+          "sido": "서울특별시",
+          "sigungu": "송파구",
+          "lat": 37.51413457,
+          "lng": 127.07932524,
+          "projected_epsg5186": [
+            207013.04776902002,
+            546075.835733982
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100307",
+            "name": "서울잠일초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울잠일초등학교",
+            "school_code": "S010000944",
+            "school_name": "서울잠일초등학교"
+          }
+        ]
+      },
+      {
+        "query": "파크리오",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_ed52bf895d064c11",
+          "apt_name": "파크리오",
+          "sido": "서울특별시",
+          "sigungu": "송파구",
+          "lat": 37.52044215,
+          "lng": 127.10628392,
+          "projected_epsg5186": [
+            209395.64156727566,
+            546778.2485824237
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100309",
+            "name": "서울잠현초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울잠현초등학교",
+            "school_code": "S010005504",
+            "school_name": "서울잠현초등학교"
+          }
+        ]
+      },
+      {
+        "query": "리센츠",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_caf229b5ac63cfbd",
+          "apt_name": "리센츠",
+          "sido": "서울특별시",
+          "sigungu": "송파구",
+          "lat": 37.51437686,
+          "lng": 127.08600489,
+          "projected_epsg5186": [
+            207603.56301324157,
+            546103.2456986429
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100305",
+            "name": "서울잠신초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울잠신초등학교",
+            "school_code": "S010000942",
+            "school_name": "서울잠신초등학교"
+          }
+        ]
+      },
+      {
+        "query": "헬리오시티",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_30d7eea6da810b52",
+          "apt_name": "헬리오시티",
+          "sido": "서울특별시",
+          "sigungu": "송파구",
+          "lat": 37.49741997,
+          "lng": 127.10710307,
+          "projected_epsg5186": [
+            209470.9638213905,
+            544223.1621329789
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000106210",
+            "name": "서울가락초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울가락초등학교",
+            "school_code": "S010000898",
+            "school_name": "서울가락초등학교"
+          }
+        ]
+      },
+      {
+        "query": "반포자이",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_1c244e7305d12c44",
+          "apt_name": "반포자이",
+          "sido": "서울특별시",
+          "sigungu": "서초구",
+          "lat": 37.50635182,
+          "lng": 127.01103462,
+          "projected_epsg5186": [
+            200975.65851822408,
+            545209.1507474778
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100431",
+            "name": "서울원촌초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울원촌초등학교",
+            "school_code": "S010000780",
+            "school_name": "서울원촌초등학교"
+          }
+        ]
+      },
+      {
+        "query": "은마",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_0320fd9e007e1f8c",
+          "apt_name": "은마",
+          "sido": "서울특별시",
+          "sigungu": "강남구",
+          "lat": 37.49753987,
+          "lng": 127.06544388,
+          "projected_epsg5186": [
+            205787.09433511514,
+            544233.0928738411
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100390",
+            "name": "서울대곡초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울대곡초등학교",
+            "school_code": "S010000743",
+            "school_name": "서울대곡초등학교"
+          }
+        ]
+      },
+      {
+        "query": "도곡렉슬",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_c9ed0235ecca960c",
+          "apt_name": "도곡렉슬",
+          "sido": "서울특별시",
+          "sigungu": "강남구",
+          "lat": 37.49360812,
+          "lng": 127.04935013,
+          "projected_epsg5186": [
+            204364.17925273077,
+            543795.8520400925
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100391",
+            "name": "서울대도초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울대도초등학교",
+            "school_code": "S010000744",
+            "school_name": "서울대도초등학교"
+          }
+        ]
+      },
+      {
+        "query": "마포프레스티지자이",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_07caf64c556e85a7",
+          "apt_name": "마포프레스티지자이",
+          "sido": "서울특별시",
+          "sigungu": "마포구",
+          "lat": 37.55279198,
+          "lng": 126.94775555,
+          "projected_epsg5186": [
+            195383.51551220551,
+            550364.6579853226
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100098",
+            "name": "서울한서초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울한서초등학교",
+            "school_code": "S010002015",
+            "school_name": "서울한서초등학교"
+          }
+        ]
+      },
+      {
+        "query": "포레나노원",
+        "status": "EXACT_AREA_MATCH",
+        "complex": {
+          "complex_id": "cx_88d05e29df26a0d6",
+          "apt_name": "포레나노원",
+          "sido": "서울특별시",
+          "sigungu": "노원구",
+          "lat": 37.66405441,
+          "lng": 127.06236194,
+          "projected_epsg5186": [
+            205502.2954994181,
+            562714.119590346
+          ],
+          "identity_status": "IDENTITY-READY"
+        },
+        "areas": [
+          {
+            "id": "Z000100182",
+            "name": "서울상곡초통학구역",
+            "type": "0"
+          }
+        ],
+        "schools": [
+          {
+            "koies": "서울상곡초등학교",
+            "school_code": "S010001750",
+            "school_name": "서울상곡초등학교"
+          }
+        ]
+      }
+    ],
+    "boundary_overlap_issues": 0,
+    "multi_zone_caveat": "Representative parcel point only; MULTI_ZONE_COMPLEX not proven without footprint parcels."
+  },
+  "middle_high_semantics_sample": {
+    "complex": "잠실엘스",
+    "middle_group": {
+      "id": "Z000200027",
+      "name": "강동송파3학교군",
+      "claim": "MIDDLE_SCHOOL_GROUP membership only; not exact assigned middle school"
+    },
+    "high_group": {
+      "id": "Z000300006",
+      "name": "강동송파학교군",
+      "claim": "HIGH_SCHOOL_GROUP membership only; not exact assigned high school"
+    }
+  },
+  "product_decision": {
+    "ELEMENTARY_ASSIGNMENT": "HOLD",
+    "MIDDLE_GROUP": "HOLD",
+    "HIGH_GROUP": "HOLD",
+    "EXACT_MIDDLE_ASSIGNMENT": "HOLD",
+    "EXACT_HIGH_ASSIGNMENT": "HOLD",
+    "reason": "RIGHTS_UNKNOWN blocks commercial publication. Technical elementary PIP and group PIP work. Exact middle/high assignment unsupported."
+  },
+  "region_alias_design": {
+    "held": 1391,
+    "classification": "HISTORICAL_REGION_CODE_ALIAS",
+    "table": "school_region_aliases (design only)",
+    "production_changes": 0
+  }
+}

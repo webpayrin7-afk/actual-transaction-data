@@ -1,0 +1,359 @@
+{
+  "generated_at": "2026-09-20T19:39:28.423243+00:00",
+  "rights_gate": "RIGHTS_UNKNOWN — technical feasibility only",
+  "crosswalk_gate": "road+level EXACT_MULTI_FIELD only; EXACT_OFFICIAL_CODE unavailable",
+  "method": "PARCEL_REPRESENTATIVE_POINT transformed WGS84->EPSG:5186 then point-in-polygon vs KOIES elementary SHP. Not nearest school.",
+  "results": [
+    {
+      "query": "잠실엘스",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_4c63d9a100973c60",
+        "apt_name": "잠실엘스",
+        "sido": "서울특별시",
+        "sigungu": "송파구",
+        "lat": 37.51413457,
+        "lng": 127.07932524,
+        "projected_epsg5186": [
+          207013.04776902002,
+          546075.835733982
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100307",
+          "area_name": "서울잠일초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002131",
+              "koies_name": "서울잠일초등학교",
+              "mapped": {
+                "school_code": "S010000944",
+                "school_name": "서울잠일초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 1,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "파크리오",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_ed52bf895d064c11",
+        "apt_name": "파크리오",
+        "sido": "서울특별시",
+        "sigungu": "송파구",
+        "lat": 37.52044215,
+        "lng": 127.10628392,
+        "projected_epsg5186": [
+          209395.64156727566,
+          546778.2485824237
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100309",
+          "area_name": "서울잠현초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002136",
+              "koies_name": "서울잠현초등학교",
+              "mapped": {
+                "school_code": "S010005504",
+                "school_name": "서울잠현초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 1,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "리센츠",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_caf229b5ac63cfbd",
+        "apt_name": "리센츠",
+        "sido": "서울특별시",
+        "sigungu": "송파구",
+        "lat": 37.51437686,
+        "lng": 127.08600489,
+        "projected_epsg5186": [
+          207603.56301324157,
+          546103.2456986429
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100305",
+          "area_name": "서울잠신초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002132",
+              "koies_name": "서울잠신초등학교",
+              "mapped": {
+                "school_code": "S010000942",
+                "school_name": "서울잠신초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 2,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "헬리오시티",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_30d7eea6da810b52",
+        "apt_name": "헬리오시티",
+        "sido": "서울특별시",
+        "sigungu": "송파구",
+        "lat": 37.49741997,
+        "lng": 127.10710307,
+        "projected_epsg5186": [
+          209470.9638213905,
+          544223.1621329789
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000106210",
+          "area_name": "서울가락초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002124",
+              "koies_name": "서울가락초등학교",
+              "mapped": {
+                "school_code": "S010000898",
+                "school_name": "서울가락초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 2,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "반포자이",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_1c244e7305d12c44",
+        "apt_name": "반포자이",
+        "sido": "서울특별시",
+        "sigungu": "서초구",
+        "lat": 37.50635182,
+        "lng": 127.01103462,
+        "projected_epsg5186": [
+          200975.65851822408,
+          545209.1507474778
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100431",
+          "area_name": "서울원촌초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002256",
+              "koies_name": "서울원촌초등학교",
+              "mapped": {
+                "school_code": "S010000780",
+                "school_name": "서울원촌초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 2,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "은마",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_0320fd9e007e1f8c",
+        "apt_name": "은마",
+        "sido": "서울특별시",
+        "sigungu": "강남구",
+        "lat": 37.49753987,
+        "lng": 127.06544388,
+        "projected_epsg5186": [
+          205787.09433511514,
+          544233.0928738411
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100390",
+          "area_name": "서울대곡초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002291",
+              "koies_name": "서울대곡초등학교",
+              "mapped": {
+                "school_code": "S010000743",
+                "school_name": "서울대곡초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 8,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "도곡렉슬",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_c9ed0235ecca960c",
+        "apt_name": "도곡렉슬",
+        "sido": "서울특별시",
+        "sigungu": "강남구",
+        "lat": 37.49360812,
+        "lng": 127.04935013,
+        "projected_epsg5186": [
+          204364.17925273077,
+          543795.8520400925
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100391",
+          "area_name": "서울대도초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002285",
+              "koies_name": "서울대도초등학교",
+              "mapped": {
+                "school_code": "S010000744",
+                "school_name": "서울대도초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 1,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "마포프레스티지자이",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_07caf64c556e85a7",
+        "apt_name": "마포프레스티지자이",
+        "sido": "서울특별시",
+        "sigungu": "마포구",
+        "lat": 37.55279198,
+        "lng": 126.94775555,
+        "projected_epsg5186": [
+          195383.51551220551,
+          550364.6579853226
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100098",
+          "area_name": "서울한서초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000001945",
+              "koies_name": "서울한서초등학교",
+              "mapped": {
+                "school_code": "S010002015",
+                "school_name": "서울한서초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 1,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    },
+    {
+      "query": "포레나노원",
+      "status": "EXACT_AREA_MATCH",
+      "complex": {
+        "complex_id": "cx_88d05e29df26a0d6",
+        "apt_name": "포레나노원",
+        "sido": "서울특별시",
+        "sigungu": "노원구",
+        "lat": 37.66405441,
+        "lng": 127.06236194,
+        "projected_epsg5186": [
+          205502.2954994181,
+          562714.119590346
+        ],
+        "identity_status": "IDENTITY-READY"
+      },
+      "source_version": "KOIES 2026-03-20 / EPSG:5186",
+      "areas": [
+        {
+          "area_id": "Z000100182",
+          "area_name": "서울상곡초통학구역",
+          "area_type": "0",
+          "type_meaning": "0=통학구역, 1=공동통학구역",
+          "schools": [
+            {
+              "koies_id": "B000002057",
+              "koies_name": "서울상곡초등학교",
+              "mapped": {
+                "school_code": "S010001750",
+                "school_name": "서울상곡초등학교",
+                "class": "EXACT_MULTI_FIELD"
+              }
+            }
+          ]
+        }
+      ],
+      "candidate_count": 1,
+      "multi_zone_caveat": "Representative parcel point only. Without multi-parcel footprint geometry, MULTI_ZONE_COMPLEX cannot be proven; do not claim a single assigned school from the centroid alone when a complex may span zones."
+    }
+  ]
+}

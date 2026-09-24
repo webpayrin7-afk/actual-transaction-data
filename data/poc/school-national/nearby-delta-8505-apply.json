@@ -1,0 +1,285 @@
+{
+  "generated_at": "2026-09-21T07:29:14.836Z",
+  "input": {
+    "target_complexes": 8505,
+    "unique": 8505,
+    "coordinate_verified": 8505
+  },
+  "baseline_before": {
+    "coord_ready": 19072,
+    "nearby_ready": 10567,
+    "nearby_links": 193599,
+    "schools": 12706,
+    "snapshots": 89280
+  },
+  "precheck": {
+    "already_complete": 0,
+    "need_materialization": 8505,
+    "invalid": 0,
+    "conflicts": 0
+  },
+  "dry_run": {
+    "complexes": 8505,
+    "inserts": 98368,
+    "updates": 0,
+    "deletes": 0,
+    "duplicates": 0,
+    "missing_school_identities": 0,
+    "no_schools_within_radius": 88
+  },
+  "production": {
+    "newly_materialized_complexes": 8505,
+    "relation_inserts": 98368,
+    "updates": 0,
+    "deletes": 0,
+    "unrelated_writes": 0
+  },
+  "idempotency": {
+    "inserts": 0,
+    "updates": 0,
+    "deletes": 0
+  },
+  "coverage_after": {
+    "totals": {
+      "schools": 12706,
+      "snapshots": 89280,
+      "nearby_links": 291967,
+      "materialized": 19072,
+      "coord_ready": 19072,
+      "assignment_tables": 0
+    },
+    "regions": [
+      {
+        "region": "강원",
+        "materialized": 286,
+        "with_links": 280
+      },
+      {
+        "region": "경기",
+        "materialized": 5592,
+        "with_links": 5557
+      },
+      {
+        "region": "경남",
+        "materialized": 453,
+        "with_links": 446
+      },
+      {
+        "region": "경북",
+        "materialized": 337,
+        "with_links": 325
+      },
+      {
+        "region": "광주/combined",
+        "materialized": 469,
+        "with_links": 467
+      },
+      {
+        "region": "대구",
+        "materialized": 976,
+        "with_links": 976
+      },
+      {
+        "region": "대전",
+        "materialized": 167,
+        "with_links": 167
+      },
+      {
+        "region": "부산",
+        "materialized": 1228,
+        "with_links": 1228
+      },
+      {
+        "region": "서울",
+        "materialized": 8364,
+        "with_links": 8364
+      },
+      {
+        "region": "세종",
+        "materialized": 28,
+        "with_links": 28
+      },
+      {
+        "region": "울산",
+        "materialized": 150,
+        "with_links": 150
+      },
+      {
+        "region": "인천",
+        "materialized": 247,
+        "with_links": 246
+      },
+      {
+        "region": "전북",
+        "materialized": 181,
+        "with_links": 179
+      },
+      {
+        "region": "제주",
+        "materialized": 20,
+        "with_links": 20
+      },
+      {
+        "region": "충남",
+        "materialized": 287,
+        "with_links": 270
+      },
+      {
+        "region": "충북",
+        "materialized": 287,
+        "with_links": 281
+      }
+    ]
+  },
+  "pilots": {
+    "잠실엘스": {
+      "name": "잠실엘스",
+      "complex_id": "cx_4c63d9a100973c60",
+      "in_delta_list": false,
+      "materialization": {
+        "coord_version": "parcel-rep|37.5141346|127.0793252",
+        "link_count": 14,
+        "status": "READY",
+        "materialized_at": "2026-09-20T15:36:36.107Z"
+      },
+      "links_by_level": [
+        {
+          "school_level": "elementary",
+          "n": 6
+        },
+        {
+          "school_level": "high",
+          "n": 4
+        },
+        {
+          "school_level": "middle",
+          "n": 4
+        }
+      ]
+    },
+    "파크리오": {
+      "name": "파크리오",
+      "complex_id": "cx_ed52bf895d064c11",
+      "in_delta_list": false,
+      "materialization": {
+        "coord_version": "parcel-rep|37.5204422|127.1062839",
+        "link_count": 11,
+        "status": "READY",
+        "materialized_at": "2026-09-20T15:36:36.107Z"
+      },
+      "links_by_level": [
+        {
+          "school_level": "elementary",
+          "n": 6
+        },
+        {
+          "school_level": "high",
+          "n": 1
+        },
+        {
+          "school_level": "middle",
+          "n": 4
+        }
+      ]
+    },
+    "리센츠": {
+      "name": "리센츠",
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "in_delta_list": false,
+      "materialization": {
+        "coord_version": "parcel-rep|37.5143769|127.0860049",
+        "link_count": 17,
+        "status": "READY",
+        "materialized_at": "2026-09-20T15:36:36.107Z"
+      },
+      "links_by_level": [
+        {
+          "school_level": "elementary",
+          "n": 8
+        },
+        {
+          "school_level": "high",
+          "n": 4
+        },
+        {
+          "school_level": "middle",
+          "n": 5
+        }
+      ]
+    }
+  },
+  "new_region_samples": [
+    {
+      "region": "경기",
+      "complex_id": "cx_8d841866b92a81e3",
+      "apt_name": "행복한마을(서해)",
+      "sido": "경기도",
+      "link_count": 44,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    },
+    {
+      "region": "인천",
+      "complex_id": "cx_f64d7342f103fd8c",
+      "apt_name": "작전삼천리3차",
+      "sido": "인천광역시",
+      "link_count": 32,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    },
+    {
+      "region": "대전",
+      "complex_id": "cx_376758eaa2bb7695",
+      "apt_name": "선화동현대아파트",
+      "sido": "대전광역시",
+      "link_count": 27,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    },
+    {
+      "region": "충북",
+      "complex_id": "cx_2bdf7653263cf232",
+      "apt_name": "영운미림아파트",
+      "sido": "충청북도",
+      "link_count": 25,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    },
+    {
+      "region": "충남",
+      "complex_id": "cx_34babb675c8aa5c9",
+      "apt_name": "일성3차능수",
+      "sido": "충청남도",
+      "link_count": 24,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    },
+    {
+      "region": "경북",
+      "complex_id": "cx_809135983e77319c",
+      "apt_name": "신동아베르디1차아파트",
+      "sido": "경상북도",
+      "link_count": 21,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    },
+    {
+      "region": "경남",
+      "complex_id": "cx_371578ad2f16a0ec",
+      "apt_name": "연지마을현대1차",
+      "sido": "경상남도",
+      "link_count": 23,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    },
+    {
+      "region": "제주",
+      "complex_id": "cx_52c8d0bb1ca44fb6",
+      "apt_name": "장원월드컵아파트",
+      "sido": "제주특별자치도",
+      "link_count": 13,
+      "status": "READY",
+      "materialized_at": "2026-09-21T07:20:32.888Z"
+    }
+  ]
+}

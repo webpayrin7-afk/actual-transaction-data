@@ -1,0 +1,1285 @@
+{
+  "generated_at": "2026-09-20T14:56:02.858Z",
+  "attribution": "출처: 학교알리미",
+  "master": [
+    {
+      "level": "elementary",
+      "status": "closed",
+      "n": 43,
+      "coords": 43
+    },
+    {
+      "level": "elementary",
+      "status": "operating",
+      "n": 6730,
+      "coords": 6665
+    },
+    {
+      "level": "high",
+      "status": "closed",
+      "n": 3,
+      "coords": 3
+    },
+    {
+      "level": "high",
+      "status": "operating",
+      "n": 2441,
+      "coords": 2434
+    },
+    {
+      "level": "middle",
+      "status": "closed",
+      "n": 6,
+      "coords": 6
+    },
+    {
+      "level": "middle",
+      "status": "operating",
+      "n": 3483,
+      "coords": 3460
+    }
+  ],
+  "categories": {
+    "AFTERSCHOOL": {
+      "COMPLETE": 11975,
+      "NO_DATA": 731
+    },
+    "BASIC": {
+      "COMPLETE": 12706
+    },
+    "GRADUATE_PATH": {
+      "COMPLETE": 5420,
+      "NOT_APPLICABLE": 6773,
+      "NO_DATA": 827
+    },
+    "MEAL": {
+      "COMPLETE": 11930,
+      "NO_DATA": 776
+    },
+    "SCHOLARSHIP": {
+      "COMPLETE": 4880,
+      "NOT_APPLICABLE": 6773,
+      "NO_DATA": 1053
+    },
+    "STUDENT": {
+      "COMPLETE": 11999,
+      "NO_DATA": 731
+    },
+    "TEACHER": {
+      "COMPLETE": 11975,
+      "NO_DATA": 731
+    }
+  },
+  "regions": {
+    "seoul": {
+      "schools": 1329,
+      "complete": 1102,
+      "partial": 227,
+      "no_data": 0,
+      "failed": 0
+    },
+    "gyeonggi": {
+      "schools": 2612,
+      "complete": 2180,
+      "partial": 432,
+      "no_data": 0,
+      "failed": 0
+    },
+    "other": {
+      "schools": 8765,
+      "complete": 7297,
+      "partial": 1468,
+      "no_data": 0,
+      "failed": 0
+    }
+  },
+  "complexes": [
+    {
+      "region": "gyeonggi",
+      "complexes": 6529,
+      "with_coord": 0
+    },
+    {
+      "region": "other",
+      "complexes": 12558,
+      "with_coord": 2202
+    },
+    {
+      "region": "seoul",
+      "complexes": 8437,
+      "with_coord": 0
+    }
+  ],
+  "nearby": {
+    "seoul": {
+      "complexes_with_link": 0,
+      "elementary": 0,
+      "middle": 0,
+      "high": 0,
+      "all_three": 0
+    },
+    "gyeonggi": {
+      "complexes_with_link": 0,
+      "elementary": 0,
+      "middle": 0,
+      "high": 0,
+      "all_three": 0
+    },
+    "national": {
+      "complexes_with_link": 2202,
+      "elementary": 2202,
+      "middle": 2154,
+      "high": 1983,
+      "all_three": 1971
+    }
+  },
+  "checkpoints": [
+    {
+      "status": "complete",
+      "n": 4864,
+      "attempts": 4864,
+      "retries": 0,
+      "rate_limits": 0
+    },
+    {
+      "status": "empty",
+      "n": 1760,
+      "attempts": 1760,
+      "retries": 0,
+      "rate_limits": 0
+    }
+  ],
+  "orphan_snapshots": 314,
+  "duplicate_snapshots": 0,
+  "samples": [
+    {
+      "bucket": "busan",
+      "school_level": "elementary",
+      "school_code": "S000003559",
+      "school_name": "부산교육대학교부설초등학교",
+      "sido": "부산광역시",
+      "sigungu": "연제구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "elementary",
+      "school_code": "S020000625",
+      "school_name": "광일초등학교",
+      "sido": "부산광역시",
+      "sigungu": "중구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "elementary",
+      "school_code": "S020000626",
+      "school_name": "남성초등학교",
+      "sido": "부산광역시",
+      "sigungu": "중구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "high",
+      "school_code": "S000003509",
+      "school_name": "부산대학교사범대학부설고등학교",
+      "sido": "부산광역시",
+      "sigungu": "금정구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "high",
+      "school_code": "S000003543",
+      "school_name": "부산기계공업고등학교",
+      "sido": "부산광역시",
+      "sigungu": "해운대구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "high",
+      "school_code": "S000003604",
+      "school_name": "부산해사고등학교",
+      "sido": "부산광역시",
+      "sigungu": "영도구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "middle",
+      "school_code": "S020000599",
+      "school_name": "감만중학교",
+      "sido": "부산광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "middle",
+      "school_code": "S020000600",
+      "school_name": "경남여자중학교",
+      "sido": "부산광역시",
+      "sigungu": "동구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "busan",
+      "school_level": "middle",
+      "school_code": "S020000601",
+      "school_name": "금성중학교",
+      "sido": "부산광역시",
+      "sigungu": "동구",
+      "categories": "AFTERSCHOOL:NO_DATA,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:NO_DATA,SCHOLARSHIP:NO_DATA,STUDENT:NO_DATA,TEACHER:NO_DATA"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "elementary",
+      "school_code": "S000003493",
+      "school_name": "경북대학교사범대학부설초등학교",
+      "sido": "대구광역시",
+      "sigungu": "중구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "elementary",
+      "school_code": "S000003506",
+      "school_name": "대구교육대학교대구부설초등학교",
+      "sido": "대구광역시",
+      "sigungu": "달서구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "elementary",
+      "school_code": "S030000406",
+      "school_name": "남대구초등학교",
+      "sido": "대구광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "high",
+      "school_code": "S000003490",
+      "school_name": "경북대학교사범대학부설고등학교",
+      "sido": "대구광역시",
+      "sigungu": "중구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "high",
+      "school_code": "S030000243",
+      "school_name": "강북고등학교",
+      "sido": "대구광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "high",
+      "school_code": "S030000244",
+      "school_name": "경덕여자고등학교",
+      "sido": "대구광역시",
+      "sigungu": "서구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "middle",
+      "school_code": "S000003491",
+      "school_name": "경북대학교사범대학부설중학교",
+      "sido": "대구광역시",
+      "sigungu": "중구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "middle",
+      "school_code": "S030000363",
+      "school_name": "감삼중학교",
+      "sido": "대구광역시",
+      "sigungu": "달서구",
+      "categories": "AFTERSCHOOL:NO_DATA,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:NO_DATA,SCHOLARSHIP:NO_DATA,STUDENT:NO_DATA,TEACHER:NO_DATA"
+    },
+    {
+      "bucket": "daegu",
+      "school_level": "middle",
+      "school_code": "S030000365",
+      "school_name": "경복중학교",
+      "sido": "대구광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:NO_DATA,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:NO_DATA,SCHOLARSHIP:NO_DATA,STUDENT:NO_DATA,TEACHER:NO_DATA"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "elementary",
+      "school_code": "S060000282",
+      "school_name": "대전가양초등학교",
+      "sido": "대전광역시",
+      "sigungu": "동구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "elementary",
+      "school_code": "S060000283",
+      "school_name": "대전대동초등학교",
+      "sido": "대전광역시",
+      "sigungu": "동구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "elementary",
+      "school_code": "S060000284",
+      "school_name": "대전대룡초등학교",
+      "sido": "대전광역시",
+      "sigungu": "동구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "high",
+      "school_code": "S060000164",
+      "school_name": "대전생활과학고등학교",
+      "sido": "대전광역시",
+      "sigungu": "대덕구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "high",
+      "school_code": "S060000165",
+      "school_name": "계룡디지텍고등학교",
+      "sido": "대전광역시",
+      "sigungu": "동구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "high",
+      "school_code": "S060000166",
+      "school_name": "남대전고등학교",
+      "sido": "대전광역시",
+      "sigungu": "중구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "middle",
+      "school_code": "S060000245",
+      "school_name": "대전경덕중학교",
+      "sido": "대전광역시",
+      "sigungu": "대덕구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "middle",
+      "school_code": "S060000247",
+      "school_name": "대전대성여자중학교",
+      "sido": "대전광역시",
+      "sigungu": "동구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "daejeon",
+      "school_level": "middle",
+      "school_code": "S060000248",
+      "school_name": "대전대성중학교",
+      "sido": "대전광역시",
+      "sigungu": "중구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "elementary",
+      "school_code": "S000003503",
+      "school_name": "광주교육대학교광주부설초등학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "elementary",
+      "school_code": "S050000210",
+      "school_name": "각화초등학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "elementary",
+      "school_code": "S050000211",
+      "school_name": "경양초등학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "high",
+      "school_code": "S000003516",
+      "school_name": "전남대학교사범대학부설고등학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "high",
+      "school_code": "S050000088",
+      "school_name": "고려고등학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "high",
+      "school_code": "S050000089",
+      "school_name": "광덕고등학교",
+      "sido": "광주광역시",
+      "sigungu": "서구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "middle",
+      "school_code": "S000003517",
+      "school_name": "전남대학교사범대학부설중학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:NO_DATA,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "middle",
+      "school_code": "S050000169",
+      "school_name": "각화중학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gwangju",
+      "school_level": "middle",
+      "school_code": "S050000171",
+      "school_name": "고려중학교",
+      "sido": "광주광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "elementary",
+      "school_code": "S090000881",
+      "school_name": "가평마장초등학교",
+      "sido": "경기도",
+      "sigungu": "가평군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "elementary",
+      "school_code": "S090000882",
+      "school_name": "가평초등학교",
+      "sido": "경기도",
+      "sigungu": "가평군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "elementary",
+      "school_code": "S090000885",
+      "school_name": "대성초등학교",
+      "sido": "경기도",
+      "sigungu": "가평군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "high",
+      "school_code": "S090000445",
+      "school_name": "가평고등학교",
+      "sido": "경기도",
+      "sigungu": "가평군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "high",
+      "school_code": "S090000447",
+      "school_name": "경기과학고등학교",
+      "sido": "경기도",
+      "sigungu": "수원시 장안구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "high",
+      "school_code": "S090000448",
+      "school_name": "경기대명고등학교",
+      "sido": "경기도",
+      "sigungu": "수원시 권선구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:COMPLETE,SCHOLARSHIP:NO_DATA,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "middle",
+      "school_code": "S090000876",
+      "school_name": "가평중학교",
+      "sido": "경기도",
+      "sigungu": "가평군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "middle",
+      "school_code": "S090000877",
+      "school_name": "가평북중학교",
+      "sido": "경기도",
+      "sigungu": "가평군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "gyeonggi",
+      "school_level": "middle",
+      "school_code": "S090000878",
+      "school_name": "설악중학교",
+      "sido": "경기도",
+      "sigungu": "가평군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "elementary",
+      "school_code": "S000003564",
+      "school_name": "경인교육대학교부설초등학교",
+      "sido": "인천광역시",
+      "sigungu": "계양구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "elementary",
+      "school_code": "S040000327",
+      "school_name": "서도초등학교볼음분교장",
+      "sido": "인천광역시",
+      "sigungu": "강화군",
+      "categories": "AFTERSCHOOL:NO_DATA,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:NO_DATA,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:NO_DATA,TEACHER:NO_DATA"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "elementary",
+      "school_code": "S040000330",
+      "school_name": "갑룡초등학교",
+      "sido": "인천광역시",
+      "sigungu": "강화군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "high",
+      "school_code": "S000003549",
+      "school_name": "인천해사고등학교",
+      "sido": "인천광역시",
+      "sigungu": "제물포구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "high",
+      "school_code": "S040000181",
+      "school_name": "가정고등학교",
+      "sido": "인천광역시",
+      "sigungu": "서구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "high",
+      "school_code": "S040000182",
+      "school_name": "강남영상미디어고등학교",
+      "sido": "인천광역시",
+      "sigungu": "강화군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NO_DATA,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "middle",
+      "school_code": "S040000317",
+      "school_name": "강남중학교",
+      "sido": "인천광역시",
+      "sigungu": "강화군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "middle",
+      "school_code": "S040000318",
+      "school_name": "강서중학교",
+      "sido": "인천광역시",
+      "sigungu": "강화군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "incheon",
+      "school_level": "middle",
+      "school_code": "S040000320",
+      "school_name": "강화여자중학교",
+      "sido": "인천광역시",
+      "sigungu": "강화군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "elementary",
+      "school_code": "S000003511",
+      "school_name": "서울교육대학교부설초등학교",
+      "sido": "서울특별시",
+      "sigungu": "서초구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "elementary",
+      "school_code": "S000003563",
+      "school_name": "서울대학교사범대학부설초등학교",
+      "sido": "서울특별시",
+      "sigungu": "종로구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "elementary",
+      "school_code": "S010000737",
+      "school_name": "서울개원초등학교",
+      "sido": "서울특별시",
+      "sigungu": "강남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "high",
+      "school_code": "S000003540",
+      "school_name": "국립국악고등학교",
+      "sido": "서울특별시",
+      "sigungu": "강남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "high",
+      "school_code": "S000003561",
+      "school_name": "서울대학교사범대학부설고등학교",
+      "sido": "서울특별시",
+      "sigungu": "성북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "high",
+      "school_code": "S000005401",
+      "school_name": "국립전통예술고등학교",
+      "sido": "서울특별시",
+      "sigungu": "금천구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "middle",
+      "school_code": "S000003514",
+      "school_name": "서울대학교사범대학부설중학교",
+      "sido": "서울특별시",
+      "sigungu": "성북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:NO_DATA,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "middle",
+      "school_code": "S000003562",
+      "school_name": "서울대학교사범대학부설여자중학교",
+      "sido": "서울특별시",
+      "sigungu": "종로구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "seoul",
+      "school_level": "middle",
+      "school_code": "S010000698",
+      "school_name": "개원중학교",
+      "sido": "서울특별시",
+      "sigungu": "강남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "elementary",
+      "school_code": "S070000152",
+      "school_name": "강남초등학교",
+      "sido": "울산광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "elementary",
+      "school_code": "S070000153",
+      "school_name": "개운초등학교",
+      "sido": "울산광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:COMPLETE,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "elementary",
+      "school_code": "S070000154",
+      "school_name": "검단초등학교",
+      "sido": "울산광역시",
+      "sigungu": "울주군",
+      "categories": "AFTERSCHOOL:NO_DATA,BASIC:COMPLETE,GRADUATE_PATH:NOT_APPLICABLE,MEAL:NO_DATA,SCHOLARSHIP:NOT_APPLICABLE,STUDENT:NO_DATA,TEACHER:NO_DATA"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "high",
+      "school_code": "S070000080",
+      "school_name": "문수고등학교",
+      "sido": "울산광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "high",
+      "school_code": "S070000081",
+      "school_name": "남창고등학교",
+      "sido": "울산광역시",
+      "sigungu": "울주군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "high",
+      "school_code": "S070000082",
+      "school_name": "울산동천고등학교",
+      "sido": "울산광역시",
+      "sigungu": "북구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "middle",
+      "school_code": "S070000129",
+      "school_name": "남창중학교",
+      "sido": "울산광역시",
+      "sigungu": "울주군",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "middle",
+      "school_code": "S070000130",
+      "school_name": "대현중학교",
+      "sido": "울산광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    },
+    {
+      "bucket": "ulsan",
+      "school_level": "middle",
+      "school_code": "S070000131",
+      "school_name": "동평중학교",
+      "sido": "울산광역시",
+      "sigungu": "남구",
+      "categories": "AFTERSCHOOL:COMPLETE,BASIC:COMPLETE,GRADUATE_PATH:COMPLETE,MEAL:COMPLETE,SCHOLARSHIP:COMPLETE,STUDENT:COMPLETE,TEACHER:COMPLETE"
+    }
+  ],
+  "pilots": [
+    {
+      "school_code": "S010000887",
+      "category": "AFTERSCHOOL",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "programs": {
+          "label": "방과후학교 프로그램",
+          "value": "10개",
+          "raw": 10,
+          "sourceField": "SUM_ASL_PGM_FGR"
+        }
+      }
+    },
+    {
+      "school_code": "S010000887",
+      "category": "BASIC",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "schoolCode": "S010000887",
+        "name": "잠신중학교",
+        "level": "middle",
+        "establishmentType": "공립",
+        "genderType": "남녀공학",
+        "sido": "서울특별시",
+        "sigungu": "송파구",
+        "address": "서울특별시 송파구 잠실동",
+        "roadAddress": "서울특별시 송파구 잠실로 12 , 잠신중학교 (잠실동)",
+        "lat": 37.5162238763,
+        "lng": 127.0879484654,
+        "status": "operating",
+        "tel": "02-2251-1234",
+        "homepage": "http://jamsin.sen.ms.kr",
+        "office": "서울특별시교육청",
+        "foundedOn": "1984.04.25"
+      }
+    },
+    {
+      "school_code": "S010000887",
+      "category": "GRADUATE_PATH",
+      "disclosure_year": "2025",
+      "status": "COMPLETE",
+      "parsed": {
+        "graduates": {
+          "label": "졸업생",
+          "value": "327명",
+          "raw": 327,
+          "sourceField": "TOTAL2"
+        },
+        "categories": [
+          {
+            "key": "general_hs",
+            "label": "일반고",
+            "count": 236,
+            "percent": 72.2,
+            "sourceField": "TOTAL3"
+          },
+          {
+            "key": "specialized_hs",
+            "label": "특성화고",
+            "count": 8,
+            "percent": 2.4,
+            "sourceField": "TOTAL4"
+          },
+          {
+            "key": "science_hs",
+            "label": "과학고",
+            "count": 1,
+            "percent": 0.3,
+            "sourceField": "TOTAL5"
+          },
+          {
+            "key": "foreign_intl_hs",
+            "label": "외고·국제고",
+            "count": 6,
+            "percent": 1.8,
+            "sourceField": "TOTAL6"
+          },
+          {
+            "key": "arts_sports_hs",
+            "label": "예고·체고",
+            "count": 6,
+            "percent": 1.8,
+            "sourceField": "TOTAL7"
+          },
+          {
+            "key": "meister_hs",
+            "label": "마이스터고",
+            "count": 1,
+            "percent": 0.3,
+            "sourceField": "TOTAL8"
+          },
+          {
+            "key": "autonomous_private_hs",
+            "label": "자율형사립고",
+            "count": 61,
+            "percent": 18.7,
+            "sourceField": "TOTAL9"
+          },
+          {
+            "key": "autonomous_public_hs",
+            "label": "자율형공립고",
+            "count": 0,
+            "percent": 0,
+            "sourceField": "TOTAL10"
+          },
+          {
+            "key": "other_advancers",
+            "label": "기타",
+            "count": 7,
+            "percent": 2.1,
+            "sourceField": "TOTAL11"
+          },
+          {
+            "key": "employed",
+            "label": "취업자",
+            "count": 0,
+            "percent": 0,
+            "sourceField": "TOTAL12"
+          },
+          {
+            "key": "alternative_unrecognized",
+            "label": "대안교육기관진학(학력미인정)",
+            "count": 1,
+            "percent": 0.3,
+            "sourceField": "TOTAL13"
+          },
+          {
+            "key": "unemployed_unknown",
+            "label": "무직자 및 미상",
+            "count": 0,
+            "percent": 0,
+            "sourceField": "TOTAL14"
+          }
+        ],
+        "completeness": "full_structurally_confirmed"
+      }
+    },
+    {
+      "school_code": "S010000887",
+      "category": "MEAL",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "meal": {
+          "label": "급식비(1식)",
+          "value": "4,576원 / 1인",
+          "raw": 4576,
+          "sourceField": "STDNT_ONE_PSNBY_LM"
+        }
+      }
+    },
+    {
+      "school_code": "S010000887",
+      "category": "SCHOLARSHIP",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "total": {
+          "label": "총 장학금",
+          "value": "6,000,000원",
+          "raw": 6000000,
+          "sourceField": "SCHO_AMT"
+        },
+        "perStudent": {
+          "label": "학생 1인당",
+          "value": "5,367원",
+          "raw": 5366.7262969588555,
+          "sourceField": "SCHO_AMT / students",
+          "derived": true
+        }
+      }
+    },
+    {
+      "school_code": "S010000887",
+      "category": "STUDENT",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "students": {
+          "label": "학생수",
+          "value": "1,118명",
+          "raw": 1118,
+          "sourceField": "COL_S_SUM"
+        },
+        "classes": {
+          "label": "학급수",
+          "value": "38학급",
+          "raw": 38,
+          "sourceField": "COL_C_SUM"
+        },
+        "classSize": {
+          "label": "학급당 학생수",
+          "value": "29.4명",
+          "raw": 29.4,
+          "sourceField": "COL_SUM"
+        },
+        "teachersOnStudentFeed": {
+          "label": "교원수",
+          "value": "75명",
+          "raw": 75,
+          "sourceField": "TEACH_CNT"
+        },
+        "studentsPerTeacher": {
+          "label": "교원 1인당 학생수",
+          "value": "14.9명",
+          "raw": 14.9,
+          "sourceField": "TEACH_CAL"
+        }
+      }
+    },
+    {
+      "school_code": "S010000887",
+      "category": "TEACHER",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "teachers": {
+          "label": "교원수",
+          "value": "86명",
+          "raw": 86,
+          "sourceField": "COL_S"
+        }
+      }
+    },
+    {
+      "school_code": "S010000888",
+      "category": "AFTERSCHOOL",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "programs": {
+          "label": "방과후학교 프로그램",
+          "value": "7개",
+          "raw": 7,
+          "sourceField": "SUM_ASL_PGM_FGR"
+        }
+      }
+    },
+    {
+      "school_code": "S010000888",
+      "category": "BASIC",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "schoolCode": "S010000888",
+        "name": "잠실중학교",
+        "level": "middle",
+        "establishmentType": "공립",
+        "genderType": "남녀공학",
+        "sido": "서울특별시",
+        "sigungu": "송파구",
+        "address": "서울특별시 송파구 신천동",
+        "roadAddress": "서울특별시 송파구 올림픽로35길 130 (신천동)",
+        "lat": 37.5175845381,
+        "lng": 127.0991395082,
+        "status": "operating",
+        "tel": "02-420-8051",
+        "homepage": "http://jamsil.sen.ms.kr",
+        "office": "서울특별시교육청",
+        "foundedOn": "1980.05.06"
+      }
+    },
+    {
+      "school_code": "S010000888",
+      "category": "GRADUATE_PATH",
+      "disclosure_year": "2025",
+      "status": "COMPLETE",
+      "parsed": {
+        "graduates": {
+          "label": "졸업생",
+          "value": "337명",
+          "raw": 337,
+          "sourceField": "TOTAL2"
+        },
+        "categories": [
+          {
+            "key": "general_hs",
+            "label": "일반고",
+            "count": 223,
+            "percent": 66.2,
+            "sourceField": "TOTAL3"
+          },
+          {
+            "key": "specialized_hs",
+            "label": "특성화고",
+            "count": 6,
+            "percent": 1.8,
+            "sourceField": "TOTAL4"
+          },
+          {
+            "key": "science_hs",
+            "label": "과학고",
+            "count": 4,
+            "percent": 1.2,
+            "sourceField": "TOTAL5"
+          },
+          {
+            "key": "foreign_intl_hs",
+            "label": "외고·국제고",
+            "count": 9,
+            "percent": 2.7,
+            "sourceField": "TOTAL6"
+          },
+          {
+            "key": "arts_sports_hs",
+            "label": "예고·체고",
+            "count": 3,
+            "percent": 0.9,
+            "sourceField": "TOTAL7"
+          },
+          {
+            "key": "meister_hs",
+            "label": "마이스터고",
+            "count": 1,
+            "percent": 0.3,
+            "sourceField": "TOTAL8"
+          },
+          {
+            "key": "autonomous_private_hs",
+            "label": "자율형사립고",
+            "count": 86,
+            "percent": 25.5,
+            "sourceField": "TOTAL9"
+          },
+          {
+            "key": "autonomous_public_hs",
+            "label": "자율형공립고",
+            "count": 0,
+            "percent": 0,
+            "sourceField": "TOTAL10"
+          },
+          {
+            "key": "other_advancers",
+            "label": "기타",
+            "count": 5,
+            "percent": 1.5,
+            "sourceField": "TOTAL11"
+          },
+          {
+            "key": "employed",
+            "label": "취업자",
+            "count": 0,
+            "percent": 0,
+            "sourceField": "TOTAL12"
+          },
+          {
+            "key": "alternative_unrecognized",
+            "label": "대안교육기관진학(학력미인정)",
+            "count": 0,
+            "percent": 0,
+            "sourceField": "TOTAL13"
+          },
+          {
+            "key": "unemployed_unknown",
+            "label": "무직자 및 미상",
+            "count": 0,
+            "percent": 0,
+            "sourceField": "TOTAL14"
+          }
+        ],
+        "completeness": "full_structurally_confirmed"
+      }
+    },
+    {
+      "school_code": "S010000888",
+      "category": "MEAL",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "meal": {
+          "label": "급식비(1식)",
+          "value": "4,579원 / 1인",
+          "raw": 4579,
+          "sourceField": "STDNT_ONE_PSNBY_LM"
+        }
+      }
+    },
+    {
+      "school_code": "S010000888",
+      "category": "SCHOLARSHIP",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "total": {
+          "label": "총 장학금",
+          "value": "3,200,000원",
+          "raw": 3200000,
+          "sourceField": "SCHO_AMT"
+        },
+        "perStudent": {
+          "label": "학생 1인당",
+          "value": "2,645원",
+          "raw": 2644.628099173554,
+          "sourceField": "SCHO_AMT / students",
+          "derived": true
+        }
+      }
+    },
+    {
+      "school_code": "S010000888",
+      "category": "STUDENT",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "students": {
+          "label": "학생수",
+          "value": "1,210명",
+          "raw": 1210,
+          "sourceField": "COL_S_SUM"
+        },
+        "classes": {
+          "label": "학급수",
+          "value": "40학급",
+          "raw": 40,
+          "sourceField": "COL_C_SUM"
+        },
+        "classSize": {
+          "label": "학급당 학생수",
+          "value": "30.3명",
+          "raw": 30.3,
+          "sourceField": "COL_SUM"
+        },
+        "teachersOnStudentFeed": {
+          "label": "교원수",
+          "value": "69명",
+          "raw": 69,
+          "sourceField": "TEACH_CNT"
+        },
+        "studentsPerTeacher": {
+          "label": "교원 1인당 학생수",
+          "value": "17.5명",
+          "raw": 17.5,
+          "sourceField": "TEACH_CAL"
+        }
+      }
+    },
+    {
+      "school_code": "S010000888",
+      "category": "TEACHER",
+      "disclosure_year": "2026",
+      "status": "COMPLETE",
+      "parsed": {
+        "teachers": {
+          "label": "교원수",
+          "value": "86명",
+          "raw": 86,
+          "sourceField": "COL_S"
+        }
+      }
+    }
+  ],
+  "run_stats": {
+    "calls": 608,
+    "reused": 2,
+    "retries": 0,
+    "rateLimits": 0,
+    "failures": 0,
+    "masterInserts": 90,
+    "masterUpdates": 0,
+    "masterSkips": 0,
+    "masterConflicts": 1391,
+    "snapshotInserts": 541,
+    "snapshotSkips": 13792,
+    "statusWrites": 541,
+    "nearbyInserts": 0,
+    "nearbySkips": 32788,
+    "missingSchoolCode": 0
+  },
+  "assignment": {
+    "elementary_district": "HOLD",
+    "middle_assignment": "HOLD",
+    "high_school_district": "HOLD",
+    "national_district_inference": "NOT_GENERATED"
+  },
+  "pilot_parity": {
+    "jamsil": "PASS",
+    "jamsin": "PASS"
+  }
+}

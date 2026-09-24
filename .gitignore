@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# SCHOOL national background runner runtime
+data/poc/school-national/runner/
