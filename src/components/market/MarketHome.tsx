@@ -167,27 +167,24 @@ type IssueTab = "notable" | "singoga" | "drop";
 
 /** 오늘의 가격 이슈 — 주요 · 신고가 · 하락거래를 한 섹션의 탭으로 (같은 주제 한 곳). */
 function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse }) {
-  const tabs: { id: IssueTab; label: string; count: string; items: MarketDealItem[]; total: number }[] = [
+  const tabs: { id: IssueTab; label: string; count: string; items: MarketDealItem[] }[] = [
     {
       id: "notable",
       label: "주요",
       count: String(data.notables.length),
       items: data.notables,
-      total: data.notables.length,
     },
     {
       id: "singoga",
       label: "신고가",
       count: String(data.kpis.singogaCount),
       items: data.singoga,
-      total: data.kpis.singogaCount,
     },
     {
       id: "drop",
       label: "하락거래",
       count: String(data.kpis.dropCount),
       items: data.drops,
-      total: data.kpis.dropCount,
     },
   ];
   const firstWithItems = tabs.find((t) => t.items.length > 0)?.id ?? "notable";
@@ -218,24 +215,22 @@ function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse
         onChange={setPicked}
       />
       <div id={labTabPanelId(prefix, active)} role="tabpanel" className="flex flex-col">
-        <PreviewList
-          items={tab.items}
-          resetKey={active}
-          getKey={(item) => `${active}-${item.id}`}
-          emptyLabel={
-            active === "singoga"
+        {/* 홈은 요약 — 5건만, 더보기 없이. 전체는 아래 '전체 보기'(신고가·하락 거래 페이지) */}
+        {tab.items.length === 0 ? (
+          <p className="lab-state">
+            {active === "singoga"
               ? "오늘 확인된 신고가가 없습니다."
               : active === "drop"
                 ? "오늘 확인된 하락거래가 없습니다."
-                : "오늘 확인된 주요 거래가 없습니다."
-          }
-          render={(item) => <DealRow item={item} showKind={active === "notable"} />}
-        />
-        {tab.total > tab.items.length ? (
-          <p className="detail-meta mt-2">
-            {tab.total.toLocaleString("ko-KR")}건 중 변화가 큰 {tab.items.length}건을 보여 줍니다.
+                : "오늘 확인된 주요 거래가 없습니다."}
           </p>
-        ) : null}
+        ) : (
+          <ul className={LAB_LIST}>
+            {tab.items.slice(0, LAB_LIST_PREVIEW).map((item) => (
+              <DealRow key={`${active}-${item.id}`} item={item} showKind={active === "notable"} />
+            ))}
+          </ul>
+        )}
       </div>
       <Link
         href={`/market/price-moves?period=1d${active === "drop" ? "&kind=drop" : ""}`}
