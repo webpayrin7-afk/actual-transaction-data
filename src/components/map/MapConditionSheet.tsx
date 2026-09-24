@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, RotateCcw } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
+import { InfoTip } from "@/components/ui/InfoTip";
 import { LabSubsectionHeader } from "@/components/ui/LabSection";
 import type { MapComplex } from "@/lib/map/map-complexes";
 import {
@@ -141,32 +142,55 @@ export function MapConditionSheet({
   };
 
   return (
-    <LabBottomSheet open={open} onClose={onClose} title="조건으로 찾기" hideHeaderDivider doneLabel={`${matched.toLocaleString("ko-KR")}곳 보기`}>
-      <div className="flex flex-col gap-5 pb-2">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 flex-col">
-            <p className="detail-body tabular-nums">
+    <LabBottomSheet
+      open={open}
+      onClose={onClose}
+      title="조건으로 찾기"
+      hideHeaderDivider
+      compactBodyTop
+      doneLabel="닫기"
+      footer={
+        <div className="flex flex-col gap-2.5">
+          <p className="detail-body flex items-center tabular-nums">
+            <span>
               화면 속 {complexes.length.toLocaleString("ko-KR")}곳 중{" "}
               <strong className="font-semibold text-[color:var(--lab-teal-700)]">
                 {matched.toLocaleString("ko-KR")}곳
               </strong>
               이 맞아요
-            </p>
-            <p className="detail-meta">조건을 펼치면 화면 속 단지가 어디에 몰려 있는지 막대로 보여요</p>
+            </span>
+            <InfoTip aria-label="분포 막대 안내">
+              <p>
+                조건을 펼치면 나오는 막대는 지금 지도 화면 속 단지가 어느 값에 몰려 있는지 보여 줘요. 진한
+                막대가 고른 범위예요. 지도를 옮기면 함께 바뀌어요.
+              </p>
+            </InfoTip>
+          </p>
+          <div className="grid grid-cols-[1fr_2fr] gap-2">
+            <button
+              type="button"
+              onClick={() => onChange({ ...EMPTY_CONDITIONS, deal: conditions.deal })}
+              className="lab-button lab-button-secondary"
+            >
+              <RotateCcw className="mr-1 h-4 w-4" aria-hidden />
+              초기화
+            </button>
+            <button type="button" onClick={onClose} className="lab-button lab-button-primary tabular-nums">
+              {matched.toLocaleString("ko-KR")}곳 보기
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => onChange({ ...EMPTY_CONDITIONS, deal: conditions.deal })}
-            className="inline-flex h-11 shrink-0 items-center gap-1 px-1 text-[14px] font-medium text-[color:var(--lab-muted)]"
-          >
-            <RotateCcw className="h-4 w-4" aria-hidden />
-            초기화
-          </button>
         </div>
-
-        <section className="flex flex-col gap-2">
-          <LabSubsectionHeader title="레시피" meta="자주 찾는 조건 묶음" />
-          <div className="flex flex-wrap gap-2">
+      }
+    >
+      <div className="flex flex-col gap-5 pb-2">
+        {/* 레시피: 한 줄 칩. 켠 레시피가 무엇을 걸었는지는 칩 아래 한 줄로만 */}
+        <div className="flex flex-col gap-1.5">
+          <div
+            className="-mx-4 flex gap-1.5 overflow-x-auto px-4 py-0.5"
+            style={{ scrollbarWidth: "none" }}
+            role="group"
+            aria-label="레시피"
+          >
             {RECIPES.map((r) => {
               const on = recipeActive(r, conditions);
               return (
@@ -183,19 +207,23 @@ export function MapConditionSheet({
                       onChange({ ...conditions, ranges });
                     } else onChange(r.apply(conditions));
                   }}
-                  className={`flex min-h-11 flex-col items-start justify-center rounded-xl border px-3 py-1.5 text-left transition-colors ${
+                  className={`relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
                     on
-                      ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
-                      : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+                      ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
+                      : "border-[color:var(--lab-border)] font-medium text-[color:var(--lab-navy-950)]"
                   }`}
                 >
-                  <span className="text-[14px] font-semibold leading-5">{r.label}</span>
-                  <span className="detail-meta">{r.hint}</span>
+                  {r.label}
                 </button>
               );
             })}
           </div>
-        </section>
+          {RECIPES.filter((r) => recipeActive(r, conditions)).map((r) => (
+            <p key={r.id} className="detail-meta">
+              {r.label} → {r.hint}
+            </p>
+          ))}
+        </div>
 
         {FILTER_GROUPS.map((g) => (
           <section key={g.id} className="flex flex-col">

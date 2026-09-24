@@ -22,6 +22,8 @@ type LabBottomSheetProps = {
   hideHeaderDivider?: boolean;
   /** Tighten top padding above sheet body copy. */
   compactBodyTop?: boolean;
+  /** Fixed area under the scrolling body (e.g. result count + 초기화 / 적용). */
+  footer?: ReactNode;
 };
 
 /**
@@ -36,6 +38,7 @@ export function LabBottomSheet({
   doneLabel = "완료",
   hideHeaderDivider = false,
   compactBodyTop = false,
+  footer,
 }: LabBottomSheetProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
@@ -136,6 +139,9 @@ export function LabBottomSheet({
         >
           {children}
         </div>
+        {footer ? (
+          <div className="shrink-0 border-t border-[color:var(--lab-border)] px-4 pt-3 pb-3">{footer}</div>
+        ) : null}
       </div>
     </div>,
     document.body,
