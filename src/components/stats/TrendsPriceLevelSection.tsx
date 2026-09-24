@@ -79,6 +79,11 @@ export function TrendsPriceLevelSection({
         <>
           <p>중위 매매가격: 한국부동산원 조사 표본 아파트 가격을 줄 세웠을 때 가운데 값입니다. 실거래가의 중위값과는 다릅니다.</p>
           <p className="mt-1.5">전세가율: 평균 매매가격 대비 평균 전세가격 비율입니다.</p>
+          <p className="mt-1.5">2021년 7월 한국부동산원 조사 표본이 확대돼 그 전후 값은 바로 이어 비교하기 어렵습니다.</p>
+          <p className="mt-1.5">
+            출처: 한국부동산원 전국주택가격동향조사 ({mode === "median" ? "월간 아파트 중위매매가격" : "월간 아파트 평균 매매가격 대비 전세가격"})
+            {series[0] ? ` · ${ymDot(series[0].ym)}부터` : ""}
+          </p>
         </>
       }
     >
@@ -167,15 +172,6 @@ export function TrendsPriceLevelSection({
               </ResponsiveContainer>
             </div>
           )}
-          {rows.length && rows[0]!.ym < "202107" && rows.at(-1)!.ym >= "202107" ? (
-            <p className="detail-meta">
-              2021년 7월 한국부동산원 조사 표본이 확대돼 그 전후 값은 바로 이어 비교하기 어렵습니다.
-            </p>
-          ) : null}
-          <p className="detail-meta">
-            출처: 한국부동산원 전국주택가격동향조사 ({mode === "median" ? "월간 아파트 중위매매가격" : "월간 아파트 평균 매매가격 대비 전세가격"})
-            {series[0] ? ` · ${ymDot(series[0].ym)}부터` : ""}
-          </p>
         </>
       )}
     </LabSection>

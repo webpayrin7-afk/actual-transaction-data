@@ -126,10 +126,13 @@ export function TrendsPriceIndexSection({
       label={`${regionLabel} 아파트 가격지수 흐름`}
       meta={latest ? `${ymDot(latest.ym)} 기준 · 월간` : undefined}
       tip={
-        <p>
-          한국부동산원이 표본 아파트 시세를 매달 조사해 만든 매매·전세가격지수입니다. 기준 시점을 100으로 둔
-          상대값이므로 지역끼리 지수 크기가 아니라 변동률을 비교해 주세요.
-        </p>
+        <>
+          <p>
+            한국부동산원이 표본 아파트 시세를 매달 조사해 만든 매매·전세가격지수입니다. 기준 시점을 100으로 둔
+            상대값이므로 지역끼리 지수 크기가 아니라 변동률을 비교해 주세요.
+          </p>
+          <p className="mt-1.5">출처: 한국부동산원 전국주택가격동향조사 (월간 아파트 매매·전세가격지수)</p>
+        </>
       }
     >
       {error ? (
@@ -331,7 +334,6 @@ export function TrendsPriceIndexSection({
             </div>
           </div>
 
-          <p className="detail-meta">출처: 한국부동산원 전국주택가격동향조사 (월간 아파트 매매·전세가격지수)</p>
         </>
       )}
     </LabSection>

@@ -84,6 +84,11 @@ export function TrendsRegionCompareSection({
         <>
           <p>한국부동산원 월간 아파트 매매가격지수로 기간별 변동률을 비교합니다. 같은 달끼리 비교합니다.</p>
           <p className="mt-1.5">고점 대비: 2003년 11월 이후 가장 높았던 달의 지수와 비교한 현재 수준입니다.</p>
+          <p className="mt-1.5">
+            지역을 누르면 위 그래프가 그 지역으로 바뀝니다.
+            {query.data && query.data.missing > 0 ? ` 원천 응답이 없는 ${query.data.missing}곳은 빠졌습니다.` : ""}
+          </p>
+          <p className="mt-1.5">출처: 한국부동산원 전국주택가격동향조사 (월간 아파트 매매가격지수)</p>
         </>
       }
     >
@@ -154,13 +159,8 @@ export function TrendsRegionCompareSection({
               label={`${sorted.length - LAB_LIST_PREVIEW}곳 더보기`}
             />
           ) : null}
-          <p className="detail-meta">
-            지역을 누르면 위 그래프가 그 지역으로 바뀝니다.
-            {query.data && query.data.missing > 0 ? ` 원천 응답이 없는 ${query.data.missing}곳은 빠졌습니다.` : ""}
-          </p>
         </>
       )}
-      <p className="detail-meta">출처: 한국부동산원 전국주택가격동향조사 (월간 아파트 매매가격지수)</p>
     </LabSection>
   );
 }

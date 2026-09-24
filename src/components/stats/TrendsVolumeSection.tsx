@@ -141,10 +141,17 @@ export function TrendsVolumeSection({
       label={`${regionLabel} 아파트 매매 거래량 흐름`}
       meta="계약월 기준"
       tip={
-        <p>
-          국토교통부 아파트 매매 실거래 신고 건수를 계약한 달 기준으로 센 값입니다. 신고 기한(계약 후 30일)이
-          지나지 않은 최근 달은 아직 덜 집계돼 제외했습니다.
-        </p>
+        <>
+          <p>
+            국토교통부 아파트 매매 실거래 신고 건수를 계약한 달 기준으로 센 값입니다. 신고 기한(계약 후 30일)이
+            지나지 않은 최근 달은 아직 덜 집계돼 제외했습니다.
+          </p>
+          <p className="mt-1.5">
+            출처: 국토교통부 아파트 매매 실거래가 · 계약월 기준
+            {volume?.from ? ` · ${ymDot(volume.from)}부터 수집` : ""}
+            {volume?.to ? ` · ${ymDot(volume.to)}까지 (신고 기한이 지난 달)` : ""}
+          </p>
+        </>
       }
     >
       {error ? (
@@ -299,11 +306,6 @@ export function TrendsVolumeSection({
             </div>
           ) : null}
 
-          <p className="detail-meta">
-            출처: 국토교통부 아파트 매매 실거래가 · 계약월 기준
-            {volume?.from ? ` · ${ymDot(volume.from)}부터 수집` : ""}
-            {volume?.to ? ` · ${ymDot(volume.to)}까지 (신고 기한이 지난 달)` : ""}
-          </p>
         </>
       )}
     </LabSection>

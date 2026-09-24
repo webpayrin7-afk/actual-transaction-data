@@ -104,6 +104,11 @@ export function TrendsDealPriceSection({
           </p>
           <p className="mt-1.5">{method}</p>
           <p className="mt-1.5">계약 후 30일 신고 기한이 지나지 않은 달은 빼 두었습니다.</p>
+          <p className="mt-1.5">
+            출처: 국토교통부 실거래가 ({kindLabel} · {AREA_BAND_LABELS[area]} · {metricLabel})
+            {data?.medianMethod === "pooled" ? " · 소속 실거래를 모아 계산" : ""}
+            {series[0] ? ` · ${ymDot(series[0].ym)}부터` : ""}
+          </p>
         </>
       }
     >
@@ -192,11 +197,6 @@ export function TrendsDealPriceSection({
               </ResponsiveContainer>
             </div>
           )}
-          <p className="detail-meta">
-            출처: 국토교통부 실거래가 ({kindLabel} · {AREA_BAND_LABELS[area]} · {metricLabel})
-            {data?.medianMethod === "pooled" ? " · 소속 실거래를 모아 계산" : ""}
-            {series[0] ? ` · ${ymDot(series[0].ym)}부터` : ""}
-          </p>
         </>
       )}
     </LabSection>

@@ -89,10 +89,17 @@ export function TrendsDealMixSection({
       label={`${regionLabel} 아파트 실거래 가격대 구성`}
       meta={latest ? `${latest.year}년 · ${AREA_BAND_LABELS[area]}` : undefined}
       tip={
-        <p>
-          연도 안에 신고된 거래 건수를 가격대별로 쌓았습니다. 막대 길이는 그 해 구성비이고, 오른쪽 숫자는 거래
-          건수입니다. 가격대 경계는 매매와 전세가 다릅니다.
-        </p>
+        <>
+          <p>
+            연도 안에 신고된 거래 건수를 가격대별로 쌓았습니다. 막대 길이는 그 해 구성비이고, 오른쪽 숫자는 거래
+            건수입니다. 가격대 경계는 매매와 전세가 다릅니다.
+          </p>
+          <p className="mt-1.5">
+            출처: 국토교통부 실거래가 ({kind === "trade" ? "매매" : "전세"} · {AREA_BAND_LABELS[area]})
+            {data?.from ? ` · ${ymDot(data.from)}부터` : ""}
+            {data?.medianMethod === "pooled" ? " · 소속 시군구 거래를 합산" : ""}
+          </p>
+        </>
       }
     >
       {error ? (
@@ -152,11 +159,6 @@ export function TrendsDealMixSection({
               ) : null}
             </>
           )}
-          <p className="detail-meta">
-            출처: 국토교통부 실거래가 ({kind === "trade" ? "매매" : "전세"} · {AREA_BAND_LABELS[area]})
-            {data?.from ? ` · ${ymDot(data.from)}부터` : ""}
-            {data?.medianMethod === "pooled" ? " · 소속 시군구 거래를 합산" : ""}
-          </p>
         </>
       )}
     </LabSection>
