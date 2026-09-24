@@ -1,0 +1,22 @@
+{
+  "seoul_master": 8437,
+  "universe_rows": 3335,
+  "confirmed_before": 1080,
+  "classification": {
+    "EXACT_MULTI_SIGNAL": 3,
+    "STRONG_BUT_NOT_EXACT": 0,
+    "CONFLICT": 1439,
+    "INSUFFICIENT": 602,
+    "STALE_INVALID": 243,
+    "ALREADY_CONFIRMED": 1048
+  },
+  "exact_candidates": 3,
+  "estimated_nulls_among_exact": {
+    "household": 0,
+    "building_count": 0,
+    "approval_date": 0,
+    "max_floor": 0,
+    "heating_type": 3,
+    "parking_per_household": 0
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "at": "2026-09-23T21:41:23.817Z",
+  "total": 27524,
+  "buckets": {
+    "FULL_HERO": 592,
+    "GOOD_HERO": 9974,
+    "PARTIAL_HERO": 12102,
+    "NO_PROFILE": 4856
+  },
+  "byReg": {
+    "SEOUL": {
+      "FULL_HERO": 351,
+      "GOOD_HERO": 1071,
+      "PARTIAL_HERO": 6709,
+      "NO_PROFILE": 306
+    },
+    "GYEONGGI": {
+      "FULL_HERO": 241,
+      "GOOD_HERO": 1560,
+      "PARTIAL_HERO": 3673,
+      "NO_PROFILE": 1055
+    },
+    "GWANGJU_JEONNAM": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 750,
+      "PARTIAL_HERO": 272,
+      "NO_PROFILE": 624
+    },
+    "BUSAN": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 650,
+      "PARTIAL_HERO": 243,
+      "NO_PROFILE": 511
+    },
+    "GYEONGNAM": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 888,
+      "PARTIAL_HERO": 202,
+      "NO_PROFILE": 305
+    },
+    "DAEGU": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 746,
+      "PARTIAL_HERO": 159,
+      "NO_PROFILE": 246
+    },
+    "INCHEON": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 526,
+      "PARTIAL_HERO": 147,
+      "NO_PROFILE": 420
+    },
+    "GYEONGBUK": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 637,
+      "PARTIAL_HERO": 155,
+      "NO_PROFILE": 214
+    },
+    "CHUNGNAM": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 629,
+      "PARTIAL_HERO": 112,
+      "NO_PROFILE": 235
+    },
+    "JEONBUK": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 531,
+      "PARTIAL_HERO": 74,
+      "NO_PROFILE": 246
+    },
+    "GANGWON": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 529,
+      "PARTIAL_HERO": 117,
+      "NO_PROFILE": 169
+    },
+    "CHUNGBUK": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 489,
+      "PARTIAL_HERO": 104,
+      "NO_PROFILE": 163
+    },
+    "DAEJEON": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 352,
+      "PARTIAL_HERO": 61,
+      "NO_PROFILE": 148
+    },
+    "ULSAN": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 350,
+      "PARTIAL_HERO": 48,
+      "NO_PROFILE": 121
+    },
+    "SEJONG": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 154,
+      "PARTIAL_HERO": 12,
+      "NO_PROFILE": 44
+    },
+    "JEJU": {
+      "FULL_HERO": 0,
+      "GOOD_HERO": 112,
+      "PARTIAL_HERO": 14,
+      "NO_PROFILE": 49
+    }
+  },
+  "chips": {
+    "SEOUL": {
+      "zero": 5426,
+      "one": 283,
+      "two_plus": 2728,
+      "three": 1524
+    },
+    "GYEONGGI": {
+      "zero": 2586,
+      "one": 123,
+      "two_plus": 3820,
+      "three": 1824
+    }
+  },
+  "jamsil_els": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "household_count": 5678,
+      "building_count": 72,
+      "approval_date": "20080930",
+      "max_floor": 34,
+      "far_ratio": 275.99,
+      "bcr_ratio": 16.41,
+      "heating_type": "지역난방",
+      "parking_total": null,
+      "parking_per_household": null
+    }
+  ],
+  "bundang_sibom": [
+    {
+      "complex_id": "cx_d6b07e832d194cf9",
+      "apt_name": "시범한양",
+      "lawd_cd": "41135",
+      "household_count": 2419,
+      "building_count": 32,
+      "approval_date": "19911021",
+      "max_floor": 30,
+      "far_ratio": null,
+      "bcr_ratio": null,
+      "heating_type": "지역난방",
+      "parking_per_household": 0.938
+    }
+  ]
+}

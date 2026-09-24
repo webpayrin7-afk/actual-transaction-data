@@ -1,0 +1,722 @@
+{
+  "reconciled": {
+    "label": "reconcile",
+    "mode": "APPLY",
+    "total_complexes": 8437,
+    "unique_complexes_fillable": 10,
+    "planned_or_applied_field_fills": 762,
+    "complexes_changed": 517,
+    "overwrites_of_positive_values": 0,
+    "deletes": 0,
+    "fieldStats": {
+      "household_count": {
+        "NULL_SAFE_FILL": 5,
+        "EXISTING_SAME": 2689,
+        "EXISTING_DIFFERENT": 205,
+        "SOURCE_MISSING": 5438,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 56,
+        "INVALID_VALUE": 44
+      },
+      "building_count": {
+        "NULL_SAFE_FILL": 0,
+        "EXISTING_SAME": 2267,
+        "EXISTING_DIFFERENT": 3,
+        "SOURCE_MISSING": 5716,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 444,
+        "INVALID_VALUE": 7
+      },
+      "approval_date": {
+        "NULL_SAFE_FILL": 0,
+        "EXISTING_SAME": 1792,
+        "EXISTING_DIFFERENT": 0,
+        "SOURCE_MISSING": 6609,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 36,
+        "INVALID_VALUE": 0
+      },
+      "max_floor": {
+        "NULL_SAFE_FILL": 6,
+        "EXISTING_SAME": 8053,
+        "EXISTING_DIFFERENT": 0,
+        "SOURCE_MISSING": 318,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 60,
+        "INVALID_VALUE": 0
+      },
+      "parking_per_household": {
+        "NULL_SAFE_FILL": 4,
+        "EXISTING_SAME": 2442,
+        "EXISTING_DIFFERENT": 0,
+        "SOURCE_MISSING": 5769,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 222,
+        "INVALID_VALUE": 0
+      },
+      "far_ratio": {
+        "NULL_SAFE_FILL": 0,
+        "EXISTING_SAME": 2064,
+        "EXISTING_DIFFERENT": 0,
+        "SOURCE_MISSING": 5905,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 0,
+        "INVALID_VALUE": 468
+      },
+      "bcr_ratio": {
+        "NULL_SAFE_FILL": 0,
+        "EXISTING_SAME": 2067,
+        "EXISTING_DIFFERENT": 0,
+        "SOURCE_MISSING": 5905,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 0,
+        "INVALID_VALUE": 465
+      },
+      "heating_type": {
+        "NULL_SAFE_FILL": 0,
+        "EXISTING_SAME": 792,
+        "EXISTING_DIFFERENT": 0,
+        "SOURCE_MISSING": 7645,
+        "IDENTITY_UNRESOLVED": 0,
+        "AMBIGUOUS": 0,
+        "INVALID_VALUE": 0
+      }
+    },
+    "conflicts_count": 208,
+    "conflicts_sample": [
+      {
+        "complex_id": "cx_01c0dbf7da85cc41",
+        "apt_name": "창신쌍용2",
+        "field": "household_count",
+        "existing": 919,
+        "candidate": 1006,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_b1e0a5f32b3d0be8",
+        "apt_name": "삼성사이버빌리지",
+        "field": "household_count",
+        "existing": 712,
+        "candidate": 792,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_041b686d4a0fe569",
+        "apt_name": "현대",
+        "field": "household_count",
+        "existing": 942,
+        "candidate": 1038,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_05cc94c73f2a6ccf",
+        "apt_name": "cj나인파크",
+        "field": "household_count",
+        "existing": 280,
+        "candidate": 404,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_b2a2821a2b2ca829",
+        "apt_name": "그린파크(코오롱하늘채)",
+        "field": "household_count",
+        "existing": 123,
+        "candidate": 133,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_43715b458293b492",
+        "apt_name": "남산대림",
+        "field": "household_count",
+        "existing": 400,
+        "candidate": 407,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_2f6d4137cd395c2c",
+        "apt_name": "동부센트레빌",
+        "field": "household_count",
+        "existing": 309,
+        "candidate": 310,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_fd57871d4a4c58b9",
+        "apt_name": "아크로타워",
+        "field": "household_count",
+        "existing": 208,
+        "candidate": 296,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_190b3cad0f08ec10",
+        "apt_name": "한가람",
+        "field": "household_count",
+        "existing": 2036,
+        "candidate": 297,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_32575b0f298cfd81",
+        "apt_name": "강변금호타운",
+        "field": "household_count",
+        "existing": 109,
+        "candidate": 119,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_d8207456d90d34e7",
+        "apt_name": "강변동양",
+        "field": "household_count",
+        "existing": 142,
+        "candidate": 145,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_6e7f53a2858f72f7",
+        "apt_name": "강변임광",
+        "field": "household_count",
+        "existing": 141,
+        "candidate": 142,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_dc2df13bec672fa4",
+        "apt_name": "강변현대",
+        "field": "household_count",
+        "existing": 123,
+        "candidate": 127,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_305aa54e3abfe285",
+        "apt_name": "극동",
+        "field": "household_count",
+        "existing": 900,
+        "candidate": 1021,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_d97e18d07c9fab29",
+        "apt_name": "극동미라주",
+        "field": "household_count",
+        "existing": 414,
+        "candidate": 425,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_fd08310545d9b518",
+        "apt_name": "극동옥정",
+        "field": "household_count",
+        "existing": 73,
+        "candidate": 72,
+        "source": "KAPT_BASIC_V5",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_852fe8f43927245c",
+        "apt_name": "금호",
+        "field": "household_count",
+        "existing": 159,
+        "candidate": 168,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_41105c3f8a5b9c21",
+        "apt_name": "금호타운2차아파트",
+        "field": "household_count",
+        "existing": 141,
+        "candidate": 150,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_d82ffdf405fd103a",
+        "apt_name": "금호현대",
+        "field": "household_count",
+        "existing": 644,
+        "candidate": 696,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_e78da3787d6d7f92",
+        "apt_name": "대림(1차)",
+        "field": "household_count",
+        "existing": 855,
+        "candidate": 976,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_e564621c74b2cf0e",
+        "apt_name": "대림(2차)",
+        "field": "household_count",
+        "existing": 410,
+        "candidate": 420,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_240447129ee9a96c",
+        "apt_name": "대림강변타운",
+        "field": "household_count",
+        "existing": 1150,
+        "candidate": 1174,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_e37155382e340bb3",
+        "apt_name": "대우",
+        "field": "household_count",
+        "existing": 1181,
+        "candidate": 1239,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_5efb2fe768735605",
+        "apt_name": "대우2",
+        "field": "household_count",
+        "existing": 283,
+        "candidate": 294,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_131559fb3afe170d",
+        "apt_name": "롯데캐슬파크",
+        "field": "household_count",
+        "existing": 604,
+        "candidate": 616,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_91780092fc3921da",
+        "apt_name": "삼성쉐르빌",
+        "field": "household_count",
+        "existing": 342,
+        "candidate": 455,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_f69be229e78df66d",
+        "apt_name": "서울숲대림",
+        "field": "household_count",
+        "existing": 372,
+        "candidate": 387,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_0c3ce83a1a89a44b",
+        "apt_name": "서울숲성수현대",
+        "field": "household_count",
+        "existing": 217,
+        "candidate": 226,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_e57f51482a35cbd2",
+        "apt_name": "서울숲한양현대",
+        "field": "household_count",
+        "existing": 168,
+        "candidate": 173,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_3f6be5d9e5120bc4",
+        "apt_name": "세림",
+        "field": "household_count",
+        "existing": 811,
+        "candidate": 819,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_65378bd31a7f269b",
+        "apt_name": "쌍용",
+        "field": "household_count",
+        "existing": 777,
+        "candidate": 840,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_349c1fde5f5a75a1",
+        "apt_name": "옥수하이츠",
+        "field": "household_count",
+        "existing": 854,
+        "candidate": 853,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_12a9e346f95d1999",
+        "apt_name": "왕십리금호어울림",
+        "field": "household_count",
+        "existing": 367,
+        "candidate": 390,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_4b5f462bc7bb9483",
+        "apt_name": "왕십리삼성아파트",
+        "field": "household_count",
+        "existing": 430,
+        "candidate": 460,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_378aa314556fb2f1",
+        "apt_name": "중앙하이츠빌",
+        "field": "household_count",
+        "existing": 256,
+        "candidate": 264,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_d7cf3ca8a05f5db9",
+        "apt_name": "청구강변1",
+        "field": "household_count",
+        "existing": 246,
+        "candidate": 272,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_387ea8e886f847c3",
+        "apt_name": "한신한강",
+        "field": "household_count",
+        "existing": 202,
+        "candidate": 205,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_cd64b1069497122f",
+        "apt_name": "한진타운",
+        "field": "household_count",
+        "existing": 378,
+        "candidate": 409,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_88ede999f3febf59",
+        "apt_name": "행당두산위브",
+        "field": "household_count",
+        "existing": 351,
+        "candidate": 465,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_755f802ec41e0e07",
+        "apt_name": "현대i-park",
+        "field": "household_count",
+        "existing": 656,
+        "candidate": 668,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_e15749554d0dea53",
+        "apt_name": "현대그린",
+        "field": "household_count",
+        "existing": 219,
+        "candidate": 242,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_7ccc30277a99494b",
+        "apt_name": "더샵스타시티",
+        "field": "household_count",
+        "existing": 1177,
+        "candidate": 1170,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_5add6253e99690c9",
+        "apt_name": "에스케이",
+        "field": "household_count",
+        "existing": 182,
+        "candidate": 183,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_7154cd1c8702393d",
+        "apt_name": "중곡2단지",
+        "field": "household_count",
+        "existing": 120,
+        "candidate": 123,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_e3fefd32404b12e8",
+        "apt_name": "대림",
+        "field": "household_count",
+        "existing": 228,
+        "candidate": 275,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_2ca3b9eab368170f",
+        "apt_name": "대우",
+        "field": "household_count",
+        "existing": 490,
+        "candidate": 499,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_79b8d95b9f890218",
+        "apt_name": "동일스위트리버",
+        "field": "household_count",
+        "existing": 445,
+        "candidate": 460,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_aca2f918ca47c9a0",
+        "apt_name": "롯데낙천대",
+        "field": "household_count",
+        "existing": 239,
+        "candidate": 243,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_f3b6def5965c5210",
+        "apt_name": "미주",
+        "field": "household_count",
+        "existing": 1089,
+        "candidate": 423,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      },
+      {
+        "complex_id": "cx_e8accb7d767e74d0",
+        "apt_name": "서울가든",
+        "field": "household_count",
+        "existing": 160,
+        "candidate": 162,
+        "source": "BUILDING_HUB_RECAP",
+        "conflict": "MATERIAL_DIFFERENCE"
+      }
+    ],
+    "pilotTrace": [],
+    "jamsilTrace": {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "kapt_code": "A13822004",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 5678,
+        "building_count": 72,
+        "approval_date": "20080930",
+        "max_floor": 34,
+        "parking_per_household": 1.3582,
+        "far_ratio": 275.99,
+        "bcr_ratio": 16.41,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 5678,
+        "building_count": 72,
+        "approval_date": "20080930",
+        "max_floor": 34,
+        "parking_per_household": 1.3582,
+        "far_ratio": 275.99,
+        "bcr_ratio": 16.41,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 5678,
+          "candidate": {
+            "value": 5678,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 72,
+          "candidate": {
+            "value": 72,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "FORMAT_ONLY_DIFFERENCE",
+          "existing": "20080930",
+          "candidate": {
+            "value": "2008-09-30",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "format_only_keep_existing"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 34,
+          "candidate": {
+            "value": 34,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 275.99,
+          "candidate": {
+            "value": 275.99,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010100000190000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 16.41,
+          "candidate": {
+            "value": 16.41,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010100000190000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": 1.3582,
+          "candidate": null,
+          "reason": "parking_or_household_sources_disagree"
+        }
+      ]
+    },
+    "gate": "PASS"
+  },
+  "after": {
+    "coverage": {
+      "total": 8437,
+      "profile_rows": 8131,
+      "household_count": 2958,
+      "building_count": 2274,
+      "approval_date": 1792,
+      "max_floor": 8053,
+      "parking_per_household": 2442,
+      "far_ratio": 2064,
+      "bcr_ratio": 2067,
+      "heating_type": 792,
+      "hh_invalid": 0,
+      "bld_invalid": 0,
+      "fl_invalid": 0
+    },
+    "source_distribution": [
+      {
+        "source": "COMPOSITE",
+        "n": 8121
+      },
+      {
+        "source": "(no row)",
+        "n": 306
+      },
+      {
+        "source": "AptBasisInfoServiceV5",
+        "n": 6
+      },
+      {
+        "source": "kapt_basis_v5",
+        "n": 4
+      }
+    ],
+    "buckets": {
+      "FULL_HERO": 134,
+      "GOOD_HERO": 1110,
+      "PARTIAL_HERO": 6887,
+      "NO_PROFILE": 306
+    },
+    "intersection": {
+      "all8": 134,
+      "n7": 1207,
+      "n6": 813,
+      "le5": 6283
+    }
+  }
+}

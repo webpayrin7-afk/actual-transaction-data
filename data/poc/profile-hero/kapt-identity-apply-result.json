@@ -1,0 +1,28 @@
+{
+  "mode": "APPLY_RESULT",
+  "note": "First apply. Idempotent rerun is kapt-identity-idempotency.json (promotions 0, fills 0).",
+  "promoted": 270,
+  "held_live_address_mismatch": [
+    "상도파크자이",
+    "보문파크뷰자이",
+    "포레나영등포센트럴"
+  ],
+  "complexes_changed": 269,
+  "field_fills": {
+    "household": 9,
+    "building_count": 50,
+    "approval": 131,
+    "max_floor": 2,
+    "heating": 267,
+    "parking": 38
+  },
+  "total_field_fills": 497,
+  "material_conflicts_held": 185,
+  "invalid": 16,
+  "api_calls_apply": 446,
+  "api_calls_pilot": 100,
+  "http429": 0,
+  "http5xx": 0,
+  "confirmed_kapt_after": 1080,
+  "duplicate_codes": 0
+}

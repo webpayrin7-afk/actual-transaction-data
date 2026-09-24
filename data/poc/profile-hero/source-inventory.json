@@ -1,0 +1,50 @@
+{
+  "sources": {
+    "BuildingHub_getBrRecapTitleInfo": {
+      "fields": [
+        "household_count(hhldCnt)",
+        "building_count(mainBldCnt)",
+        "approval_date(useAprDay)",
+        "far_ratio(vlRat)",
+        "bcr_ratio(bcRat)",
+        "parking_total(totPkngCnt)",
+        "land_area_sqm(platArea)",
+        "total_area_sqm(totArea)"
+      ],
+      "join": "exact parcel lawd+bjdong+bun+ji from apt_complex_master",
+      "local_cache": "data/poc/profile-hero/cache/recap_*.json",
+      "db_cache": "official_building_title_cache empty; not reused"
+    },
+    "BuildingHub_complex_buildings": {
+      "fields": [
+        "max_floor(MAX floor_count residential main EXACT)"
+      ],
+      "join": "exact complex_id",
+      "note": "building_count/household_count row aggregates NOT used for HERO fill (known material drift vs KAPT)"
+    },
+    "KAPT_BASIC_V5": {
+      "fields": [
+        "household_count(kaptdaCnt)",
+        "building_count(kaptDongCnt)",
+        "approval_date(kaptUsedate)",
+        "max_floor(kaptTopFloor)",
+        "heating_type(codeHeatNm)"
+      ],
+      "join": "apt_complex_source_links source=KAPT exact code",
+      "seoul_linked": 810
+    },
+    "KAPT_DETAIL_V5": {
+      "fields": [
+        "parking_total(kaptdPcnt+kaptdPcntu)"
+      ],
+      "join": "same KAPT code"
+    },
+    "derived": {
+      "fields": [
+        "parking_per_household from parking_total/household_count"
+      ],
+      "tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+    }
+  },
+  "new_source_family_used": false
+}

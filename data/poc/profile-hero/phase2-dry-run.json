@@ -1,0 +1,304 @@
+{
+  "mode": "DRY-RUN",
+  "before": {
+    "coverage": {
+      "total": 8437,
+      "profile_rows": 8131,
+      "household_count": 2963,
+      "building_count": 2274,
+      "approval_date": 1792,
+      "max_floor": 8059,
+      "parking_per_household": 2446,
+      "far_ratio": 2064,
+      "bcr_ratio": 2067,
+      "heating_type": 792
+    },
+    "buckets": {
+      "FULL_HERO": 136,
+      "GOOD_HERO": 1110,
+      "PARTIAL_HERO": 6885,
+      "NO_PROFILE": 306
+    }
+  },
+  "after": {
+    "coverage": {
+      "total": 8437,
+      "profile_rows": 8131,
+      "household_count": 2963,
+      "building_count": 2274,
+      "approval_date": 1792,
+      "max_floor": 8059,
+      "parking_per_household": 2446,
+      "far_ratio": 2064,
+      "bcr_ratio": 2067,
+      "heating_type": 792
+    },
+    "buckets": {
+      "FULL_HERO": 136,
+      "GOOD_HERO": 1110,
+      "PARTIAL_HERO": 6885,
+      "NO_PROFILE": 306
+    }
+  },
+  "parity": {
+    "bld_known": 2274,
+    "bld_exact": 1310,
+    "bld_off1": 721,
+    "bld_material": 235,
+    "hh_known": 2963,
+    "hh_exact": 2176,
+    "hh_gt2pct": 578,
+    "hh_overcount": 632,
+    "fl_exact": 8034,
+    "fl_diff": 0
+  },
+  "rejected_rules": {
+    "household_sum": "REJECTED systematic overcount vs known positives",
+    "building_row_count": "REJECTED exact parity 1310/2274 and 721 off-by-1 (profile often +1)",
+    "approval_min_max_modal": "REJECTED no per-building useAprDay stored; recap conflicts held",
+    "far_bcr_average": "REJECTED not used",
+    "heating_inference": "REJECTED no non-KAPT official heating field",
+    "parking_conflict_pick": "REJECTED material KAPT vs recap totals stay NULL"
+  },
+  "duplicate_collapse": [
+    {
+      "name": "성요셉",
+      "complex_id": "cx_d452a80ac0611b6d",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "롯데",
+      "complex_id": "cx_c328ef042e1ce692",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [],
+      "bcr": []
+    },
+    {
+      "name": "정릉푸르지오",
+      "complex_id": "cx_635bbe234abe0f76",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0,
+        249.01
+      ],
+      "bcr": [
+        0,
+        18.3
+      ]
+    },
+    {
+      "name": "성북맨션",
+      "complex_id": "cx_9a942d17a49c426f",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "홍제한양",
+      "complex_id": "cx_a5542c9c8c29db05",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        229.47,
+        0
+      ],
+      "bcr": [
+        25.53,
+        0
+      ]
+    },
+    {
+      "name": "인왕궁맨숀",
+      "complex_id": "cx_6fffa95b31a87ab0",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "홍제현대",
+      "complex_id": "cx_3a66527bd21deee5",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "홍은동벽산",
+      "complex_id": "cx_e99ef1c66bc1ad97",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        253.44,
+        0
+      ],
+      "bcr": [
+        21.94,
+        0
+      ]
+    },
+    {
+      "name": "dmc마포청구아파트",
+      "complex_id": "cx_88dc322ff5ca652c",
+      "classification": "NULL_SAFE_FILL",
+      "wrote": false,
+      "reason": "dry_run_fill",
+      "far": 343.67,
+      "bcr": 25.47
+    },
+    {
+      "name": "서광등촌마을아파트",
+      "complex_id": "cx_61ea5fa3928c1cd0",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0,
+        291.42
+      ],
+      "bcr": [
+        0,
+        24.47
+      ]
+    },
+    {
+      "name": "등촌1,2단지주공아파트",
+      "complex_id": "cx_aa25c2cd7facc243",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "등촌7,8단지주공아파트",
+      "complex_id": "cx_eb3d64f256b357fe",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "현대(209)",
+      "complex_id": "cx_a6bf47e1fcb24ccc",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "영일",
+      "complex_id": "cx_21d354d371ee5c9f",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "현대(관악)",
+      "complex_id": "cx_5a58ff08740959d2",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "보라매삼성",
+      "complex_id": "cx_8a0481f5bc1175fd",
+      "classification": "NULL_SAFE_FILL",
+      "wrote": false,
+      "reason": "dry_run_fill",
+      "far": 268.07,
+      "bcr": 28.26
+    },
+    {
+      "name": "봉천우성",
+      "complex_id": "cx_170ac152c21e31c4",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        340.49,
+        0
+      ],
+      "bcr": [
+        18.9,
+        0
+      ]
+    },
+    {
+      "name": "래미안그레이튼(진달래2차)",
+      "complex_id": "cx_689344cb85ae13ea",
+      "classification": "NULL_SAFE_FILL",
+      "wrote": false,
+      "reason": "dry_run_fill",
+      "far": 266.4,
+      "bcr": 17.01
+    },
+    {
+      "name": "우성아파트",
+      "complex_id": "cx_85066296693b771d",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    },
+    {
+      "name": "현대3차",
+      "complex_id": "cx_418069b2f92cb394",
+      "classification": "HOLD",
+      "reason": "recap_rows_disagree_or_invalid",
+      "far": [
+        0
+      ],
+      "bcr": [
+        0
+      ]
+    }
+  ],
+  "planned_or_applied_complexes": 3,
+  "planned_or_applied_field_fills": 6
+}

@@ -1,0 +1,2203 @@
+{
+  "label": "pilot",
+  "mode": "DRY-RUN",
+  "total_complexes": 16,
+  "unique_complexes_fillable": 0,
+  "planned_or_applied_field_fills": 0,
+  "complexes_changed": 0,
+  "overwrites_of_positive_values": 0,
+  "deletes": 0,
+  "fieldStats": {
+    "household_count": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 12,
+      "EXISTING_DIFFERENT": 0,
+      "SOURCE_MISSING": 2,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 1,
+      "INVALID_VALUE": 1
+    },
+    "building_count": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 6,
+      "EXISTING_DIFFERENT": 1,
+      "SOURCE_MISSING": 4,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 5,
+      "INVALID_VALUE": 0
+    },
+    "approval_date": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 12,
+      "EXISTING_DIFFERENT": 0,
+      "SOURCE_MISSING": 4,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 0,
+      "INVALID_VALUE": 0
+    },
+    "max_floor": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 14,
+      "EXISTING_DIFFERENT": 0,
+      "SOURCE_MISSING": 2,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 0,
+      "INVALID_VALUE": 0
+    },
+    "parking_per_household": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 8,
+      "EXISTING_DIFFERENT": 0,
+      "SOURCE_MISSING": 4,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 4,
+      "INVALID_VALUE": 0
+    },
+    "far_ratio": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 9,
+      "EXISTING_DIFFERENT": 0,
+      "SOURCE_MISSING": 6,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 0,
+      "INVALID_VALUE": 1
+    },
+    "bcr_ratio": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 9,
+      "EXISTING_DIFFERENT": 0,
+      "SOURCE_MISSING": 6,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 0,
+      "INVALID_VALUE": 1
+    },
+    "heating_type": {
+      "NULL_SAFE_FILL": 0,
+      "EXISTING_SAME": 11,
+      "EXISTING_DIFFERENT": 0,
+      "SOURCE_MISSING": 5,
+      "IDENTITY_UNRESOLVED": 0,
+      "AMBIGUOUS": 0,
+      "INVALID_VALUE": 0
+    }
+  },
+  "conflicts_count": 1,
+  "conflicts_sample": [
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "field": "building_count",
+      "existing": 86,
+      "candidate": 66,
+      "source": "KAPT_BASIC_V5",
+      "conflict": "MATERIAL_DIFFERENCE"
+    }
+  ],
+  "pilotTrace": [
+    {
+      "complex_id": "cx_02facccab6bb6e6e",
+      "apt_name": "이지마루종로",
+      "kapt_code": null,
+      "recap_status": "OK",
+      "before": {
+        "household_count": 92,
+        "building_count": 2,
+        "approval_date": "2021-08-26",
+        "max_floor": 16,
+        "parking_per_household": 0.663,
+        "far_ratio": 532.71,
+        "bcr_ratio": 53.56,
+        "heating_type": null
+      },
+      "after": {
+        "household_count": 92,
+        "building_count": 2,
+        "approval_date": "2021-08-26",
+        "max_floor": 16,
+        "parking_per_household": 0.663,
+        "far_ratio": 532.71,
+        "bcr_ratio": 53.56,
+        "heating_type": null
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 92,
+          "candidate": {
+            "value": 92,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1111016200001260002",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 2,
+          "candidate": {
+            "value": 2,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1111016200001260002",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2021-08-26",
+          "candidate": {
+            "value": "2021-08-26",
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1111016200001260002",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 16,
+          "candidate": {
+            "value": 16,
+            "source": "COMPLEX_BUILDINGS_MAX_FLOOR",
+            "source_key": "residential_main_exact",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 532.71,
+          "candidate": {
+            "value": 532.71,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1111016200001260002",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 53.56,
+          "candidate": {
+            "value": 53.56,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1111016200001260002",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 0.663,
+          "candidate": {
+            "value": 0.663,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1111016200001260002",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_0320fd9e007e1f8c",
+      "apt_name": "은마",
+      "kapt_code": "A13583507",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 4424,
+        "building_count": 28,
+        "approval_date": "19790830",
+        "max_floor": 14,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 4424,
+        "building_count": 28,
+        "approval_date": "19790830",
+        "max_floor": 14,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 4424,
+          "candidate": {
+            "value": 4424,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13583507",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": 28,
+          "candidate": null,
+          "reason": "official_sources_disagree"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "FORMAT_ONLY_DIFFERENCE",
+          "existing": "19790830",
+          "candidate": {
+            "value": "1979-08-30",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13583507",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "format_only_keep_existing"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 14,
+          "candidate": {
+            "value": 14,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13583507",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "INVALID_VALUE",
+          "conflict": null,
+          "existing": null,
+          "candidate": {
+            "value": 0,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1168010600003160000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "failed_validation"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "INVALID_VALUE",
+          "conflict": null,
+          "existing": null,
+          "candidate": {
+            "value": 0,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1168010600003160000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "failed_validation"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13583507",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": null,
+          "candidate": null,
+          "reason": "parking_or_household_sources_disagree"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_1c244e7305d12c44",
+      "apt_name": "반포자이",
+      "kapt_code": "A13704104",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 3410,
+        "building_count": 44,
+        "approval_date": "20090313",
+        "max_floor": 29,
+        "parking_per_household": 1.7815,
+        "far_ratio": 270.02,
+        "bcr_ratio": 13.92,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 3410,
+        "building_count": 44,
+        "approval_date": "20090313",
+        "max_floor": 29,
+        "parking_per_household": 1.7815,
+        "far_ratio": 270.02,
+        "bcr_ratio": 13.92,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 3410,
+          "candidate": {
+            "value": 3410,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13704104",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": 44,
+          "candidate": null,
+          "reason": "official_sources_disagree"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "FORMAT_ONLY_DIFFERENCE",
+          "existing": "20090313",
+          "candidate": {
+            "value": "2009-03-13",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13704104",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "format_only_keep_existing"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 29,
+          "candidate": {
+            "value": 29,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13704104",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 270.02,
+          "candidate": {
+            "value": 270.02,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1165010700000200043",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 13.92,
+          "candidate": {
+            "value": 13.92,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1165010700000200043",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13704104",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 1.7815,
+          "candidate": {
+            "value": 1.7815,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1165010700000200043",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_30d7eea6da810b52",
+      "apt_name": "헬리오시티",
+      "kapt_code": "A10025850",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 9510,
+        "building_count": null,
+        "approval_date": "2018-12-28",
+        "max_floor": 35,
+        "parking_per_household": null,
+        "far_ratio": 285.98,
+        "bcr_ratio": 19.41,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 9510,
+        "building_count": null,
+        "approval_date": "2018-12-28",
+        "max_floor": 35,
+        "parking_per_household": null,
+        "far_ratio": 285.98,
+        "bcr_ratio": 19.41,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 9510,
+          "candidate": {
+            "value": 9510,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10025850",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": null,
+          "candidate": null,
+          "reason": "official_sources_disagree"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2018-12-28",
+          "candidate": {
+            "value": "2018-12-28",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10025850",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 35,
+          "candidate": {
+            "value": 35,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10025850",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 285.98,
+          "candidate": {
+            "value": 285.98,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010700009130000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 19.41,
+          "candidate": {
+            "value": 19.41,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010700009130000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10025850",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": null,
+          "candidate": null,
+          "reason": "parking_or_household_sources_disagree"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_365cf176032a7336",
+      "apt_name": "한진해모로",
+      "kapt_code": null,
+      "recap_status": "MISSING",
+      "before": {
+        "household_count": null,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "after": {
+        "household_count": null,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "building_count",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "approval_date",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "max_floor",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "heating_type",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_3bcf0f87bce7496b",
+      "apt_name": "래미안퍼스티지",
+      "kapt_code": "A13776509",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 2444,
+        "building_count": 28,
+        "approval_date": "2009-07-14",
+        "max_floor": 32,
+        "parking_per_household": 1.7872,
+        "far_ratio": 269.99,
+        "bcr_ratio": 12.76,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 2444,
+        "building_count": 28,
+        "approval_date": "2009-07-14",
+        "max_floor": 32,
+        "parking_per_household": 1.7872,
+        "far_ratio": 269.99,
+        "bcr_ratio": 12.76,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 2444,
+          "candidate": {
+            "value": 2444,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13776509",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 28,
+          "candidate": {
+            "value": 28,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13776509",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2009-07-14",
+          "candidate": {
+            "value": "2009-07-14",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13776509",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 32,
+          "candidate": {
+            "value": 32,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13776509",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 269.99,
+          "candidate": {
+            "value": 269.99,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1165010700000180001",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 12.76,
+          "candidate": {
+            "value": 12.76,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1165010700000180001",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13776509",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 1.7872,
+          "candidate": {
+            "value": 1.7872,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1165010700000180001",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "kapt_code": "A13822004",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 5678,
+        "building_count": 72,
+        "approval_date": "20080930",
+        "max_floor": 34,
+        "parking_per_household": null,
+        "far_ratio": 275.99,
+        "bcr_ratio": 16.41,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 5678,
+        "building_count": 72,
+        "approval_date": "20080930",
+        "max_floor": 34,
+        "parking_per_household": null,
+        "far_ratio": 275.99,
+        "bcr_ratio": 16.41,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 5678,
+          "candidate": {
+            "value": 5678,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 72,
+          "candidate": {
+            "value": 72,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "FORMAT_ONLY_DIFFERENCE",
+          "existing": "20080930",
+          "candidate": {
+            "value": "2008-09-30",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "format_only_keep_existing"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 34,
+          "candidate": {
+            "value": 34,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 275.99,
+          "candidate": {
+            "value": 275.99,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010100000190000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 16.41,
+          "candidate": {
+            "value": 16.41,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010100000190000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822004",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": null,
+          "candidate": null,
+          "reason": "parking_or_household_sources_disagree"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_53f74b8fc8ee97a5",
+      "apt_name": "그린아파트",
+      "kapt_code": null,
+      "recap_status": "MISSING",
+      "before": {
+        "household_count": 18,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": 10,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "after": {
+        "household_count": 18,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": 10,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 18,
+          "candidate": null,
+          "reason": "keep_existing_no_candidate"
+        },
+        {
+          "field": "building_count",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "approval_date",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 10,
+          "candidate": {
+            "value": 10,
+            "source": "COMPLEX_BUILDINGS_MAX_FLOOR",
+            "source_key": "residential_main_exact",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "heating_type",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_8a981fdd1a1ce1df",
+      "apt_name": "네르비",
+      "kapt_code": null,
+      "recap_status": "MISSING",
+      "before": {
+        "household_count": 17,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": 7,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "after": {
+        "household_count": 17,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": 7,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 17,
+          "candidate": null,
+          "reason": "keep_existing_no_candidate"
+        },
+        {
+          "field": "building_count",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "approval_date",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 7,
+          "candidate": {
+            "value": 7,
+            "source": "COMPLEX_BUILDINGS_MAX_FLOOR",
+            "source_key": "residential_main_exact",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "heating_type",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_98799cc8d3637e54",
+      "apt_name": "마포한강푸르지오",
+      "kapt_code": "A10027902",
+      "recap_status": "MISSING",
+      "before": {
+        "household_count": 198,
+        "building_count": 2,
+        "approval_date": "2015-03-31",
+        "max_floor": 37,
+        "parking_per_household": 1.9394,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": "개별난방"
+      },
+      "after": {
+        "household_count": 198,
+        "building_count": 2,
+        "approval_date": "2015-03-31",
+        "max_floor": 37,
+        "parking_per_household": 1.9394,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": "개별난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 198,
+          "candidate": {
+            "value": 198,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10027902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 2,
+          "candidate": {
+            "value": 2,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10027902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2015-03-31",
+          "candidate": {
+            "value": "2015-03-31",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10027902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 37,
+          "candidate": {
+            "value": 37,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10027902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "개별난방",
+          "candidate": {
+            "value": "개별난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10027902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 1.9394,
+          "candidate": {
+            "value": 1.9394,
+            "source": "KAPT_DETAIL_V5",
+            "source_key": "A10027902",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_c9ed0235ecca960c",
+      "apt_name": "도곡렉슬",
+      "kapt_code": "A13527203",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 3002,
+        "building_count": null,
+        "approval_date": "2006-01-27",
+        "max_floor": 25,
+        "parking_per_household": 1.48,
+        "far_ratio": 274.39,
+        "bcr_ratio": 15.12,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 3002,
+        "building_count": null,
+        "approval_date": "2006-01-27",
+        "max_floor": 25,
+        "parking_per_household": 1.48,
+        "far_ratio": 274.39,
+        "bcr_ratio": 15.12,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 3002,
+          "candidate": {
+            "value": 3002,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13527203",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": null,
+          "candidate": null,
+          "reason": "official_sources_disagree"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2006-01-27",
+          "candidate": {
+            "value": "2006-01-27",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13527203",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 25,
+          "candidate": {
+            "value": 25,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13527203",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 274.39,
+          "candidate": {
+            "value": 274.39,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1168011800005270000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 15.12,
+          "candidate": {
+            "value": 15.12,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1168011800005270000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13527203",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 1.48,
+          "candidate": {
+            "value": 1.48,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1168011800005270000",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_caf229b5ac63cfbd",
+      "apt_name": "리센츠",
+      "kapt_code": "A13822003",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 5563,
+        "building_count": 65,
+        "approval_date": "2008-07-31",
+        "max_floor": 33,
+        "parking_per_household": 1.4158,
+        "far_ratio": 275.25,
+        "bcr_ratio": 15.17,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 5563,
+        "building_count": 65,
+        "approval_date": "2008-07-31",
+        "max_floor": 33,
+        "parking_per_household": 1.4158,
+        "far_ratio": 275.25,
+        "bcr_ratio": 15.17,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": 5563,
+          "candidate": null,
+          "reason": "official_sources_disagree"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 65,
+          "candidate": {
+            "value": 65,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822003",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2008-07-31",
+          "candidate": {
+            "value": "2008-07-31",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822003",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 33,
+          "candidate": {
+            "value": 33,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822003",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 275.25,
+          "candidate": {
+            "value": 275.25,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010100000220000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 15.17,
+          "candidate": {
+            "value": 15.17,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010100000220000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13822003",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 1.4158,
+          "candidate": {
+            "value": 1.4158,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010100000220000",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_dd1179f9dcebd791",
+      "apt_name": "힐스테이트창경궁",
+      "kapt_code": "A10023586",
+      "recap_status": "MISSING",
+      "before": {
+        "household_count": 181,
+        "building_count": 1,
+        "approval_date": "2022-09-29",
+        "max_floor": 15,
+        "parking_per_household": 1.2707,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": "개별난방"
+      },
+      "after": {
+        "household_count": 181,
+        "building_count": 1,
+        "approval_date": "2022-09-29",
+        "max_floor": 15,
+        "parking_per_household": 1.2707,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": "개별난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "INVALID_VALUE",
+          "conflict": null,
+          "existing": 181,
+          "candidate": {
+            "value": 0,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10023586",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "failed_validation"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 1,
+          "candidate": {
+            "value": 1,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10023586",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2022-09-29",
+          "candidate": {
+            "value": "2022-09-29",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10023586",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 15,
+          "candidate": {
+            "value": 15,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10023586",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "개별난방",
+          "candidate": {
+            "value": "개별난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A10023586",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 1.2707,
+          "candidate": {
+            "value": 1.2707,
+            "source": "KAPT_DETAIL_V5",
+            "source_key": "A10023586",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_e0e7bf6667825066",
+      "apt_name": "하이텍하우스",
+      "kapt_code": null,
+      "recap_status": "MISSING",
+      "before": {
+        "household_count": null,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "after": {
+        "household_count": null,
+        "building_count": null,
+        "approval_date": null,
+        "max_floor": null,
+        "parking_per_household": null,
+        "far_ratio": null,
+        "bcr_ratio": null,
+        "heating_type": null
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "building_count",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "approval_date",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "max_floor",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "heating_type",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "SOURCE_MISSING",
+          "conflict": null,
+          "existing": null,
+          "candidate": null,
+          "reason": "no_candidate"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_e47102400fbc8ec6",
+      "apt_name": "한남더힐",
+      "kapt_code": "A14077902",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 600,
+        "building_count": 32,
+        "approval_date": "20110107",
+        "max_floor": 12,
+        "parking_per_household": 2.8867,
+        "far_ratio": 120.47,
+        "bcr_ratio": 29.04,
+        "heating_type": "개별난방"
+      },
+      "after": {
+        "household_count": 600,
+        "building_count": 32,
+        "approval_date": "20110107",
+        "max_floor": 12,
+        "parking_per_household": 2.8867,
+        "far_ratio": 120.47,
+        "bcr_ratio": 29.04,
+        "heating_type": "개별난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 600,
+          "candidate": {
+            "value": 600,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A14077902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": 32,
+          "candidate": null,
+          "reason": "official_sources_disagree"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "FORMAT_ONLY_DIFFERENCE",
+          "existing": "20110107",
+          "candidate": {
+            "value": "2011-01-07",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A14077902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "format_only_keep_existing"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 12,
+          "candidate": {
+            "value": 12,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A14077902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 120.47,
+          "candidate": {
+            "value": 120.47,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1117013100008100000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 29.04,
+          "candidate": {
+            "value": 29.04,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1117013100008100000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "개별난방",
+          "candidate": {
+            "value": "개별난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A14077902",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 2.8867,
+          "candidate": {
+            "value": 2.8867,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1117013100008100000",
+            "derived": true,
+            "derived_tag": "DERIVED_PARKING_PER_HOUSEHOLD"
+          },
+          "reason": "exact_same"
+        }
+      ]
+    },
+    {
+      "complex_id": "cx_ed52bf895d064c11",
+      "apt_name": "파크리오",
+      "kapt_code": "A13824006",
+      "recap_status": "OK",
+      "before": {
+        "household_count": 6864,
+        "building_count": 86,
+        "approval_date": "2008-08-29",
+        "max_floor": 36,
+        "parking_per_household": null,
+        "far_ratio": 283.63,
+        "bcr_ratio": 14.26,
+        "heating_type": "지역난방"
+      },
+      "after": {
+        "household_count": 6864,
+        "building_count": 86,
+        "approval_date": "2008-08-29",
+        "max_floor": 36,
+        "parking_per_household": null,
+        "far_ratio": 283.63,
+        "bcr_ratio": 14.26,
+        "heating_type": "지역난방"
+      },
+      "decisions": [
+        {
+          "field": "household_count",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 6864,
+          "candidate": {
+            "value": 6864,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13824006",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "building_count",
+          "classification": "EXISTING_DIFFERENT",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": 86,
+          "candidate": {
+            "value": 66,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13824006",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "hold_material_conflict"
+        },
+        {
+          "field": "approval_date",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "2008-08-29",
+          "candidate": {
+            "value": "2008-08-29",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13824006",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "max_floor",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 36,
+          "candidate": {
+            "value": 36,
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13824006",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "far_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 283.63,
+          "candidate": {
+            "value": 283.63,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010200000170000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "bcr_ratio",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": 14.26,
+          "candidate": {
+            "value": 14.26,
+            "source": "BUILDING_HUB_RECAP",
+            "source_key": "1171010200000170000",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "heating_type",
+          "classification": "EXISTING_SAME",
+          "conflict": "EXACT_SAME",
+          "existing": "지역난방",
+          "candidate": {
+            "value": "지역난방",
+            "source": "KAPT_BASIC_V5",
+            "source_key": "A13824006",
+            "derived": false,
+            "derived_tag": null
+          },
+          "reason": "exact_same"
+        },
+        {
+          "field": "parking_per_household",
+          "classification": "AMBIGUOUS",
+          "conflict": "MATERIAL_DIFFERENCE",
+          "existing": null,
+          "candidate": null,
+          "reason": "parking_or_household_sources_disagree"
+        }
+      ]
+    }
+  ],
+  "jamsilTrace": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "apt_name": "잠실엘스",
+    "kapt_code": "A13822004",
+    "recap_status": "OK",
+    "before": {
+      "household_count": 5678,
+      "building_count": 72,
+      "approval_date": "20080930",
+      "max_floor": 34,
+      "parking_per_household": null,
+      "far_ratio": 275.99,
+      "bcr_ratio": 16.41,
+      "heating_type": "지역난방"
+    },
+    "after": {
+      "household_count": 5678,
+      "building_count": 72,
+      "approval_date": "20080930",
+      "max_floor": 34,
+      "parking_per_household": null,
+      "far_ratio": 275.99,
+      "bcr_ratio": 16.41,
+      "heating_type": "지역난방"
+    },
+    "decisions": [
+      {
+        "field": "household_count",
+        "classification": "EXISTING_SAME",
+        "conflict": "EXACT_SAME",
+        "existing": 5678,
+        "candidate": {
+          "value": 5678,
+          "source": "KAPT_BASIC_V5",
+          "source_key": "A13822004",
+          "derived": false,
+          "derived_tag": null
+        },
+        "reason": "exact_same"
+      },
+      {
+        "field": "building_count",
+        "classification": "EXISTING_SAME",
+        "conflict": "EXACT_SAME",
+        "existing": 72,
+        "candidate": {
+          "value": 72,
+          "source": "KAPT_BASIC_V5",
+          "source_key": "A13822004",
+          "derived": false,
+          "derived_tag": null
+        },
+        "reason": "exact_same"
+      },
+      {
+        "field": "approval_date",
+        "classification": "EXISTING_SAME",
+        "conflict": "FORMAT_ONLY_DIFFERENCE",
+        "existing": "20080930",
+        "candidate": {
+          "value": "2008-09-30",
+          "source": "KAPT_BASIC_V5",
+          "source_key": "A13822004",
+          "derived": false,
+          "derived_tag": null
+        },
+        "reason": "format_only_keep_existing"
+      },
+      {
+        "field": "max_floor",
+        "classification": "EXISTING_SAME",
+        "conflict": "EXACT_SAME",
+        "existing": 34,
+        "candidate": {
+          "value": 34,
+          "source": "KAPT_BASIC_V5",
+          "source_key": "A13822004",
+          "derived": false,
+          "derived_tag": null
+        },
+        "reason": "exact_same"
+      },
+      {
+        "field": "far_ratio",
+        "classification": "EXISTING_SAME",
+        "conflict": "EXACT_SAME",
+        "existing": 275.99,
+        "candidate": {
+          "value": 275.99,
+          "source": "BUILDING_HUB_RECAP",
+          "source_key": "1171010100000190000",
+          "derived": false,
+          "derived_tag": null
+        },
+        "reason": "exact_same"
+      },
+      {
+        "field": "bcr_ratio",
+        "classification": "EXISTING_SAME",
+        "conflict": "EXACT_SAME",
+        "existing": 16.41,
+        "candidate": {
+          "value": 16.41,
+          "source": "BUILDING_HUB_RECAP",
+          "source_key": "1171010100000190000",
+          "derived": false,
+          "derived_tag": null
+        },
+        "reason": "exact_same"
+      },
+      {
+        "field": "heating_type",
+        "classification": "EXISTING_SAME",
+        "conflict": "EXACT_SAME",
+        "existing": "지역난방",
+        "candidate": {
+          "value": "지역난방",
+          "source": "KAPT_BASIC_V5",
+          "source_key": "A13822004",
+          "derived": false,
+          "derived_tag": null
+        },
+        "reason": "exact_same"
+      },
+      {
+        "field": "parking_per_household",
+        "classification": "AMBIGUOUS",
+        "conflict": "MATERIAL_DIFFERENCE",
+        "existing": null,
+        "candidate": null,
+        "reason": "parking_or_household_sources_disagree"
+      }
+    ]
+  },
+  "gate": "PASS"
+}

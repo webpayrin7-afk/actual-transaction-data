@@ -1,0 +1,100 @@
+{
+  "mode": "APPLY",
+  "audit": {
+    "seoul_master": 8437,
+    "universe_rows": 3335,
+    "confirmed_before": 1080,
+    "classification": {
+      "EXACT_MULTI_SIGNAL": 3,
+      "STRONG_BUT_NOT_EXACT": 0,
+      "CONFLICT": 1439,
+      "INSUFFICIENT": 602,
+      "STALE_INVALID": 243,
+      "ALREADY_CONFIRMED": 1048
+    },
+    "exact_candidates": 3,
+    "estimated_nulls_among_exact": {
+      "household": 0,
+      "building_count": 0,
+      "approval_date": 0,
+      "max_floor": 0,
+      "heating_type": 3,
+      "parking_per_household": 0
+    }
+  },
+  "pilot_tested": 3,
+  "pilot_passed": 0,
+  "pilot_failed": 3,
+  "pilot": [
+    {
+      "complex_id": "cx_59a6d46a56d41543",
+      "apt_name": "상도파크자이",
+      "kapt_code": "A10027424",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [
+        "kaptAddr_jibun"
+      ],
+      "promote": "NO",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_af6691b3c66a44e3",
+      "apt_name": "보문파크뷰자이",
+      "kapt_code": "A10027189",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [
+        "kaptAddr_jibun"
+      ],
+      "promote": "NO",
+      "basic": "YES",
+      "detail": "YES"
+    },
+    {
+      "complex_id": "cx_b225f47f4dcc40ce",
+      "apt_name": "포레나영등포센트럴",
+      "kapt_code": "A10024567",
+      "signals": [
+        "exact_bjdong",
+        "exact_jibun",
+        "exact_normalized_name"
+      ],
+      "conflicts": [
+        "kaptAddr_jibun"
+      ],
+      "promote": "NO",
+      "basic": "YES",
+      "detail": "YES"
+    }
+  ],
+  "api": {
+    "calls": 0,
+    "http429": 0,
+    "http5xx": 0,
+    "timeout": 0,
+    "basic_ok": 3,
+    "detail_ok": 3
+  },
+  "promoted": 0,
+  "heldIdentity": 3,
+  "complexesChanged": 0,
+  "fieldFills": {
+    "household": 0,
+    "building_count": 0,
+    "approval": 0,
+    "max_floor": 0,
+    "heating": 0,
+    "parking": 0
+  },
+  "fills": 0,
+  "material": 0,
+  "invalid": 0
+}

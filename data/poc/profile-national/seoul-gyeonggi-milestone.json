@@ -1,0 +1,39 @@
+{
+  "at": "2026-09-23T15:04:53.787Z",
+  "seoul": {
+    "total": 8437,
+    "profile_rows": 8131,
+    "household_count": 2991,
+    "building_count": 2344,
+    "approval_date": 1928,
+    "max_floor": 8121,
+    "far_ratio": 2076,
+    "bcr_ratio": 2079,
+    "heating_type": 1059,
+    "parking_per_household": 2506
+  },
+  "gyeonggi": {
+    "total": 6529,
+    "profile_rows": 5476,
+    "household_count": 3827,
+    "building_count": 3195,
+    "approval_date": 2565,
+    "max_floor": 5452,
+    "far_ratio": 3491,
+    "bcr_ratio": 3477,
+    "heating_type": 1149,
+    "parking_per_household": 3609
+  },
+  "seoul_chips": {
+    "zero": 5426,
+    "one": 283,
+    "two_plus": 2728,
+    "three": 1524
+  },
+  "gyeonggi_chips": {
+    "zero": 2586,
+    "one": 123,
+    "two_plus": 3820,
+    "three": 1824
+  }
+}
