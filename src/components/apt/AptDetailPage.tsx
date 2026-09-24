@@ -63,6 +63,7 @@ import {
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabTabs } from "@/components/ui/LabTabs";
+import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
 import {
   LAB_SUBSECTION_RULE,
   LabSection,
@@ -652,6 +653,8 @@ export function AptDetailPage({
           </p>
         </div>
       )}
+
+      {identity?.complexId ? <Complex3dEntryCard complexId={identity.complexId} /> : null}
 
       {/* 시세 = 요약(면적 기준) → 추이(차트) → 거래내역. 한 주제 한 섹션 (policy §12.1). */}
       <LabSection

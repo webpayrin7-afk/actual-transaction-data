@@ -1,0 +1,451 @@
+/**
+ * 3D 단지 장면 (three.js) — React 밖에서 캔버스 하나를 맡는다.
+ * 좌표: 단지 중심 기준 미터. x = 동쪽, y = 위, z = 남쪽(북쪽이 -z).
+ * 높이: 원천 높이(m)가 있으면 그대로, 없으면 지상층수 × 3m (화면에 "층수로 표시"라고 알린다).
+ */
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer.js";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib/complex-3d/read";
+
+export const FLOOR_M = 3;
+const TEAL = 0x0e9aa0;
+const TEAL_DARK = 0x087f83;
+const OWN = 0xdff3f3;
+const OWN_EDGE = 0x0e9aa0;
+const NEIGHBOR = 0xe6e9ee;
+const SELECT = 0x0f766e;
+
+export type SceneMode = "base" | "floors" | "sun" | "view" | "around";
+
+export type ViewResult = {
+  /** 72방향(5°) 첫 가림까지 거리(m), 막힘 없으면 null */
+  rays: Array<{ azimuth: number; distance: number | null }>;
+  openShare: number;
+};
+
+export function buildingHeight(b: { heightM: number | null; floors: number | null }): { h: number; estimated: boolean } {
+  if (b.heightM && b.heightM > 0) return { h: b.heightM, estimated: false };
+  return { h: Math.max(1, b.floors ?? 1) * FLOOR_M, estimated: true };
+}
+
+/** 태양 고도·방위 (NOAA 간이식). 방위는 북=0°, 시계방향. hour는 KST. */
+export function sunPosition(lat: number, lng: number, date: Date, hourKst: number): { altitude: number; azimuth: number } {
+  const start = Date.UTC(date.getUTCFullYear(), 0, 0);
+  const n = Math.floor((date.getTime() - start) / 86_400_000);
+  const g = ((2 * Math.PI) / 365) * (n - 1 + (hourKst - 9 - 12) / 24);
+  const eqTime =
+    229.18 *
+    (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const decl =
+    0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) -
+    0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const solarMin = hourKst * 60 + eqTime + 4 * lng - 60 * 9;
+  const ha = ((solarMin / 4 - 180) * Math.PI) / 180;
+  const phi = (lat * Math.PI) / 180;
+  const cosZen = Math.sin(phi) * Math.sin(decl) + Math.cos(phi) * Math.cos(decl) * Math.cos(ha);
+  const zen = Math.acos(Math.min(1, Math.max(-1, cosZen)));
+  const az = Math.atan2(Math.sin(ha), Math.cos(ha) * Math.sin(phi) - Math.tan(decl) * Math.cos(phi)) + Math.PI;
+  return { altitude: Math.PI / 2 - zen, azimuth: az };
+}
+
+type Local = { x: number; z: number };
+
+export class Complex3dScene {
+  private renderer: THREE.WebGLRenderer;
+  private labels: CSS2DRenderer;
+  private scene = new THREE.Scene();
+  private camera: THREE.PerspectiveCamera;
+  private controls: OrbitControls;
+  private sun = new THREE.DirectionalLight(0xffffff, 1.6);
+  private ambient = new THREE.HemisphereLight(0xffffff, 0xdfe7ee, 1.1);
+  private ground: THREE.Mesh;
+  private groups = {
+    own: new THREE.Group(),
+    floors: new THREE.Group(),
+    neighbors: new THREE.Group(),
+    labels: new THREE.Group(),
+    view: new THREE.Group(),
+    pois: new THREE.Group(),
+  };
+  private ownMeshes = new Map<string, THREE.Mesh>();
+  private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
+  private selectMaterial = new THREE.MeshStandardMaterial({ color: SELECT, roughness: 0.7, metalness: 0 });
+  private raycaster = new THREE.Raycaster();
+  private data: Complex3d | null = null;
+  private mPerLat = 111_320;
+  private mPerLng = 111_320;
+  private raf = 0;
+  private selectedId: string | null = null;
+  private mode: SceneMode = "base";
+  private disposed = false;
+  onSelect: (id: string | null) => void = () => {};
+
+  constructor(private host: HTMLElement) {
+    const w = host.clientWidth;
+    const h = host.clientHeight;
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    this.renderer.setSize(w, h);
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.setClearColor(0xf4f7f9);
+    host.appendChild(this.renderer.domElement);
+
+    this.labels = new CSS2DRenderer();
+    this.labels.setSize(w, h);
+    Object.assign(this.labels.domElement.style, { position: "absolute", inset: "0", pointerEvents: "none" });
+    host.appendChild(this.labels.domElement);
+
+    this.camera = new THREE.PerspectiveCamera(45, w / h, 1, 5000);
+    this.camera.position.set(220, 260, 320);
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
+    this.controls.minDistance = 40;
+    this.controls.maxDistance = 1400;
+
+    this.sun.castShadow = true;
+    const cam = this.sun.shadow.camera;
+    cam.left = cam.bottom = -450;
+    cam.right = cam.top = 450;
+    cam.near = 1;
+    cam.far = 2400;
+    this.sun.shadow.mapSize.set(w < 640 ? 1024 : 2048, w < 640 ? 1024 : 2048);
+    this.sun.shadow.bias = -0.0005;
+    this.scene.add(this.sun, this.sun.target, this.ambient);
+
+    this.ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(3000, 3000),
+      new THREE.MeshStandardMaterial({ color: 0xf1f4f6, roughness: 1 }),
+    );
+    this.ground.rotation.x = -Math.PI / 2;
+    this.ground.receiveShadow = true;
+    this.scene.add(this.ground);
+    const grid = new THREE.GridHelper(1200, 24, 0xdde3e8, 0xe8ecf0);
+    (grid.material as THREE.Material).transparent = true;
+    (grid.material as THREE.Material).opacity = 0.6;
+    this.scene.add(grid);
+    for (const g of Object.values(this.groups)) this.scene.add(g);
+
+    this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
+    this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
+    this.setSun(new Date(), 14);
+    this.loop();
+  }
+
+  private toLocal(lng: number, lat: number): Local {
+    const c = this.data!.center;
+    return { x: (lng - c.lng) * this.mPerLng, z: -(lat - c.lat) * this.mPerLat };
+  }
+
+  private extrude(rings: Ring[], from: number, to: number): THREE.BufferGeometry | null {
+    const geos: THREE.BufferGeometry[] = [];
+    for (const ring of rings) {
+      if (ring.length < 4) continue;
+      const shape = new THREE.Shape(
+        ring.map(([lng, lat]) => {
+          const p = this.toLocal(lng, lat);
+          return new THREE.Vector2(p.x, -p.z);
+        }),
+      );
+      const g = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.5, to - from), bevelEnabled: false });
+      g.rotateX(-Math.PI / 2);
+      g.translate(0, from, 0);
+      geos.push(g);
+    }
+    if (!geos.length) return null;
+    return geos.length === 1 ? geos[0]! : mergeGeometries(geos);
+  }
+
+  setData(data: Complex3d) {
+    this.data = data;
+    this.mPerLng = 111_320 * Math.cos((data.center.lat * Math.PI) / 180);
+    for (const g of Object.values(this.groups)) g.clear();
+    this.ownMeshes.clear();
+
+    // 우리 단지 동
+    const edgeMat = new THREE.LineBasicMaterial({ color: OWN_EDGE, transparent: true, opacity: 0.55 });
+    let maxH = 20;
+    for (const b of data.buildings) {
+      if (!b.rings) continue;
+      const { h } = buildingHeight(b);
+      maxH = Math.max(maxH, h);
+      const geo = this.extrude(b.rings, 0, h);
+      if (!geo) continue;
+      const mesh = new THREE.Mesh(geo, this.ownMaterial);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData.id = b.id;
+      this.ownMeshes.set(b.id, mesh);
+      this.groups.own.add(mesh);
+      this.groups.own.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), edgeMat));
+      // 동 라벨
+      if (b.dong) {
+        const el = document.createElement("div");
+        el.textContent = b.dong;
+        el.className = "complex3d-label";
+        const c = this.ringCenter(b.rings);
+        const obj = new CSS2DObject(el);
+        obj.position.set(c.x, h + 4, c.z);
+        this.groups.labels.add(obj);
+      }
+    }
+
+    // 주변 건물 — 한 덩어리로 합쳐 가볍게 (그림자·조망 계산에 쓴다)
+    const neighborGeos: THREE.BufferGeometry[] = [];
+    for (const n of data.neighbors) {
+      const { h } = buildingHeight(n);
+      const g = this.extrude(n.rings, 0, h);
+      if (g) neighborGeos.push(g.index ? g.toNonIndexed() : g);
+    }
+    if (neighborGeos.length) {
+      const merged = mergeGeometries(neighborGeos);
+      if (merged) {
+        const mesh = new THREE.Mesh(
+          merged,
+          new THREE.MeshStandardMaterial({ color: NEIGHBOR, roughness: 0.95, transparent: true, opacity: 0.9 }),
+        );
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        this.groups.neighbors.add(mesh);
+      }
+    }
+
+    this.controls.target.set(0, maxH * 0.3, 0);
+    const dist = Math.max(260, maxH * 4);
+    this.camera.position.set(dist * 0.55, dist * 0.65, dist * 0.8);
+    this.controls.update();
+  }
+
+  private ringCenter(rings: Ring[]): Local {
+    let x = 0;
+    let z = 0;
+    let n = 0;
+    for (const [lng, lat] of rings[0] ?? []) {
+      const p = this.toLocal(lng, lat);
+      x += p.x;
+      z += p.z;
+      n++;
+    }
+    return { x: x / Math.max(1, n), z: z / Math.max(1, n) };
+  }
+
+  /** 모드 바꾸기 — 층별 시세 색칠·조망 부채꼴·주변 핀은 각 모드에서만 보인다 */
+  setMode(mode: SceneMode) {
+    this.mode = mode;
+    this.groups.floors.visible = mode === "floors";
+    this.groups.own.visible = mode !== "floors";
+    this.groups.view.visible = mode === "view";
+    this.groups.pois.visible = mode === "around";
+    this.groups.labels.visible = mode !== "around";
+  }
+
+  /** 층별 시세 — 각 동을 저·중·고 구간으로 잘라 구간 평당가에 따라 색을 입힌다 */
+  setFloorBands(bands: FloorBand[]) {
+    this.groups.floors.clear();
+    if (!this.data) return;
+    const prices = bands.map((b) => b.perPyeong).filter((v): v is number => v != null);
+    const lo = Math.min(...prices);
+    const hi = Math.max(...prices);
+    const color = (v: number | null) => {
+      if (v == null) return new THREE.Color(0xd5dbe1);
+      const t = hi > lo ? (v - lo) / (hi - lo) : 0.5;
+      return new THREE.Color(0xcfeeee).lerp(new THREE.Color(TEAL_DARK), 0.15 + t * 0.85);
+    };
+    for (const b of this.data.buildings) {
+      if (!b.rings) continue;
+      const { h } = buildingHeight(b);
+      const floors = b.floors ?? Math.max(1, Math.round(h / FLOOR_M));
+      const perFloor = h / floors;
+      for (const band of bands) {
+        if (band.fromFloor > floors) continue;
+        const from = (band.fromFloor - 1) * perFloor;
+        const to = Math.min(band.toFloor, floors) * perFloor;
+        const geo = this.extrude(b.rings, from, to);
+        if (!geo) continue;
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: color(band.perPyeong), roughness: 0.8 }));
+        mesh.castShadow = true;
+        mesh.userData.id = b.id;
+        this.groups.floors.add(mesh);
+      }
+    }
+  }
+
+  /** 해 위치 — date: 날짜(연·월·일만 씀), hour: KST 시각 */
+  setSun(date: Date, hour: number): { altitude: number; azimuth: number } {
+    const c = this.data?.center ?? { lat: 37.5, lng: 127 };
+    const p = sunPosition(c.lat, c.lng, date, hour);
+    const r = 900;
+    const up = Math.max(0.02, Math.sin(p.altitude));
+    this.sun.position.set(Math.sin(p.azimuth) * Math.cos(p.altitude) * r, up * r, -Math.cos(p.azimuth) * Math.cos(p.altitude) * r);
+    this.sun.intensity = p.altitude > 0 ? 1.6 : 0.05;
+    return p;
+  }
+
+  setShadows(on: boolean) {
+    this.sun.castShadow = on;
+  }
+
+  /** 조망 — 고른 동의 floor층 눈높이에서 72방향으로 가장 가까운 건물까지 거리 */
+  computeView(buildingId: string, floor: number): ViewResult | null {
+    if (!this.data) return null;
+    const b = this.data.buildings.find((x) => x.id === buildingId);
+    if (!b?.rings) return null;
+    const { h } = buildingHeight(b);
+    const floors = b.floors ?? Math.max(1, Math.round(h / FLOOR_M));
+    const eyeY = Math.min(h - 1, ((floor - 0.5) * h) / floors) + 1.2;
+    const c = this.ringCenter(b.rings);
+    const targets: THREE.Object3D[] = [...this.groups.neighbors.children];
+    for (const [id, mesh] of this.ownMeshes) if (id !== buildingId) targets.push(mesh);
+    const self = this.ownMeshes.get(buildingId);
+    const rays: ViewResult["rays"] = [];
+    const MAX = 500;
+    for (let i = 0; i < 72; i++) {
+      const az = (i * 5 * Math.PI) / 180;
+      const dir = new THREE.Vector3(Math.sin(az), 0, -Math.cos(az));
+      // 자기 동 벽 밖에서 출발
+      let start = new THREE.Vector3(c.x, eyeY, c.z);
+      if (self) {
+        this.raycaster.set(start, dir);
+        this.raycaster.far = 200;
+        const own = this.raycaster.intersectObject(self, false);
+        if (own[0]) start = own[0].point.clone().add(dir.clone().multiplyScalar(0.5));
+      }
+      this.raycaster.set(start, dir);
+      this.raycaster.far = MAX;
+      const hit = this.raycaster.intersectObjects(targets, false)[0];
+      rays.push({ azimuth: i * 5, distance: hit ? Math.round(hit.distance) : null });
+    }
+    // 부채꼴 그리기
+    this.groups.view.clear();
+    for (const r of rays) {
+      const d = r.distance ?? MAX;
+      const a0 = ((r.azimuth - 2.5) * Math.PI) / 180;
+      const a1 = ((r.azimuth + 2.5) * Math.PI) / 180;
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(c.x, eyeY, c.z),
+        new THREE.Vector3(c.x + Math.sin(a0) * d, eyeY, c.z - Math.cos(a0) * d),
+        new THREE.Vector3(c.x + Math.sin(a1) * d, eyeY, c.z - Math.cos(a1) * d),
+      ]);
+      const open = r.distance == null || r.distance >= 200;
+      const mat = new THREE.MeshBasicMaterial({
+        color: open ? TEAL : r.distance! >= 80 ? 0xf59e0b : 0xef4444,
+        transparent: true,
+        opacity: open ? 0.28 : 0.35,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      this.groups.view.add(new THREE.Mesh(geo, mat));
+    }
+    const openShare = rays.filter((r) => r.distance == null || r.distance >= 200).length / rays.length;
+    return { rays, openShare };
+  }
+
+  /** 주변 학교·역 핀 */
+  setPois(pois: Poi3d[]) {
+    this.groups.pois.clear();
+    if (!this.data) return;
+    for (const p of pois) {
+      const l = this.toLocal(p.lng, p.lat);
+      if (Math.hypot(l.x, l.z) > 900) continue;
+      const pole = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.8, 0.8, 30, 8),
+        new THREE.MeshBasicMaterial({ color: p.kind === "station" ? 0x2563eb : 0xd97706 }),
+      );
+      pole.position.set(l.x, 15, l.z);
+      this.groups.pois.add(pole);
+      const el = document.createElement("div");
+      el.className = `complex3d-pin complex3d-pin--${p.kind}`;
+      el.textContent = `${p.name} · ${p.distanceM.toLocaleString("ko-KR")}m`;
+      const obj = new CSS2DObject(el);
+      obj.position.set(l.x, 34, l.z);
+      this.groups.pois.add(obj);
+    }
+  }
+
+  select(id: string | null) {
+    if (this.selectedId && this.ownMeshes.get(this.selectedId)) this.ownMeshes.get(this.selectedId)!.material = this.ownMaterial;
+    this.selectedId = id;
+    const mesh = id ? this.ownMeshes.get(id) : null;
+    if (mesh) mesh.material = this.selectMaterial;
+  }
+
+  /** 두 동 외곽선 사이 최소 거리 (m, 평면) */
+  nearestDistance(id: string): { dong: string | null; meters: number } | null {
+    if (!this.data) return null;
+    const me = this.data.buildings.find((b) => b.id === id);
+    if (!me?.rings) return null;
+    const pts = (b: Complex3dBuilding) => (b.rings ?? []).flat().map(([lng, lat]) => this.toLocal(lng, lat));
+    const segDist = (p: Local, a: Local, b: Local) => {
+      const dx = b.x - a.x;
+      const dz = b.z - a.z;
+      const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.z - a.z) * dz) / (dx * dx + dz * dz || 1)));
+      return Math.hypot(p.x - (a.x + t * dx), p.z - (a.z + t * dz));
+    };
+    const mine = pts(me);
+    let best: { dong: string | null; meters: number } | null = null;
+    for (const other of this.data.buildings) {
+      if (other.id === id || !other.rings || !other.residential) continue;
+      const theirs = pts(other);
+      let d = Infinity;
+      for (const p of mine) for (let i = 1; i < theirs.length; i++) d = Math.min(d, segDist(p, theirs[i - 1]!, theirs[i]!));
+      for (const p of theirs) for (let i = 1; i < mine.length; i++) d = Math.min(d, segDist(p, mine[i - 1]!, mine[i]!));
+      if (!best || d < best.meters) best = { dong: other.dong, meters: Math.round(d) };
+    }
+    return best;
+  }
+
+  private down: { x: number; y: number } | null = null;
+  private onPointerDown = (e: PointerEvent) => {
+    this.down = { x: e.clientX, y: e.clientY };
+  };
+  private onPointerUp = (e: PointerEvent) => {
+    if (!this.down || Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) > 6) return;
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+    this.raycaster.setFromCamera(ndc, this.camera);
+    this.raycaster.far = Infinity;
+    const pool = this.mode === "floors" ? this.groups.floors.children : [...this.ownMeshes.values()];
+    const hit = this.raycaster.intersectObjects(pool, false)[0];
+    const id = (hit?.object.userData.id as string | undefined) ?? null;
+    this.select(id);
+    this.onSelect(id);
+  };
+
+  resize() {
+    const w = this.host.clientWidth;
+    const h = this.host.clientHeight;
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(w, h);
+    this.labels.setSize(w, h);
+  }
+
+  private loop = () => {
+    if (this.disposed) return;
+    this.raf = requestAnimationFrame(this.loop);
+    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+    this.labels.render(this.scene, this.camera);
+  };
+
+  dispose() {
+    this.disposed = true;
+    cancelAnimationFrame(this.raf);
+    this.renderer.domElement.removeEventListener("pointerdown", this.onPointerDown);
+    this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
+    this.controls.dispose();
+    this.scene.traverse((o) => {
+      const m = o as THREE.Mesh;
+      m.geometry?.dispose?.();
+      const mat = m.material as THREE.Material | THREE.Material[] | undefined;
+      if (Array.isArray(mat)) mat.forEach((x) => x.dispose());
+      else mat?.dispose?.();
+    });
+    this.renderer.dispose();
+    this.renderer.domElement.remove();
+    this.labels.domElement.remove();
+  }
+}

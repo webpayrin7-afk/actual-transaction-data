@@ -1388,3 +1388,28 @@ h3 {
     padding-right: 0.75rem;
   }
 }
+
+/* 3D 단지 탐색 — 동 라벨 · 주변 핀 (CSS2D) */
+.complex3d-label {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--lab-brand-border);
+  color: var(--lab-teal-700);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.complex3d-pin {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+}
+.complex3d-pin--school { color: #b45309; border: 1px solid #f5d0a6; }
+.complex3d-pin--station { color: #1d4ed8; border: 1px solid #bfd3f8; }

@@ -781,9 +781,14 @@ export function MapSearchPage() {
             {selected.mainAreaSqm ? (
               <p className="detail-meta mt-1">면적은 최근 가장 많이 거래된 전용 {selected.mainAreaSqm}㎡ 기준</p>
             ) : null}
-            <Link href={selected.href} className="lab-button lab-button-primary mt-3 w-full">
-              단지 상세 보기
-            </Link>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Link href={`/complex-3d/${selected.complexId}`} className="lab-button lab-button-secondary w-full">
+                3D로 보기
+              </Link>
+              <Link href={selected.href} className="lab-button lab-button-primary w-full">
+                단지 상세 보기
+              </Link>
+            </div>
           </div>
         </div>
       ) : null}

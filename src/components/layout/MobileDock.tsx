@@ -59,6 +59,9 @@ export function MobileDock() {
     setHidden(false);
   }
 
+  // 3D 단지 탐색은 화면 전체를 쓴다 (하단 조작 패널과 겹치지 않게)
+  if (pathname.startsWith("/complex-3d")) return null;
+
   return (
     <nav
       aria-label="주요 탐색"
