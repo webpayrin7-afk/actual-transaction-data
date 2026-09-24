@@ -22,9 +22,12 @@ import {
 const LIST_LIMIT = 8;
 const HIGH_PRICE_MAN = 200_000; // 20억
 const VOLUME_WINDOW_DAYS = 30;
-const MIN_RECENT_VOLUME = 3;
-const MIN_PRIOR_VOLUME = 1;
-const MIN_VOLUME_GROWTH_RATIO = 1.5;
+/** 거래량 급증: 개수는 이만큼까지 세고(요약 타일), 목록은 VOLUME_LIST_LIMIT개만 보낸다 */
+const VOLUME_SCAN_LIMIT = 1000;
+const VOLUME_LIST_LIMIT = 20;
+const MIN_RECENT_VOLUME = 5;
+const MIN_PRIOR_VOLUME = 3;
+const MIN_VOLUME_GROWTH_RATIO = 2;
 /** 스냅샷 메모리 캐시 (DB 스냅샷 읽기용) */
 const READ_CACHE_TTL_MS = 60 * 1000;
 
@@ -283,7 +286,7 @@ async function computeVolumeSurges(asOfDate: string): Promise<MarketVolumeItem[]
         MIN_RECENT_VOLUME,
         MIN_PRIOR_VOLUME,
         MIN_VOLUME_GROWTH_RATIO,
-        LIST_LIMIT,
+        VOLUME_SCAN_LIMIT,
       ],
     });
     const items: MarketVolumeItem[] = result.rows.map((row) => {
@@ -402,9 +405,10 @@ function withVolumeSurges(
   if (payload.volumeSurges.length > 0 && volumeSurges.length === 0) {
     return payload;
   }
+  // 개수는 전체(최대 VOLUME_SCAN_LIMIT), 목록은 상위 VOLUME_LIST_LIMIT개 — 예전엔 목록 8개 길이가 곧 개수여서 늘 8곳이었다
   return {
     ...payload,
-    volumeSurges,
+    volumeSurges: volumeSurges.slice(0, VOLUME_LIST_LIMIT),
     kpis: {
       ...payload.kpis,
       volumeSurgeCount: volumeSurges.length,

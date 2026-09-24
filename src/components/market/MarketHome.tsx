@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Fragment, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
@@ -236,6 +237,15 @@ function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse
           </p>
         ) : null}
       </div>
+      <Link
+        href={`/market/price-moves?period=1d${active === "drop" ? "&kind=drop" : ""}`}
+        className="lab-button lab-button-secondary w-full"
+      >
+        {active === "drop" ? "하락거래 전체 보기" : active === "singoga" ? "신고가 전체 보기" : "신고가 · 하락 거래 전체 보기"}
+        <span aria-hidden className="ml-1">
+          →
+        </span>
+      </Link>
     </LabSection>
   );
 }
@@ -387,8 +397,8 @@ export function MarketHome() {
             meta="최근 30일 vs 직전 30일 · 계약일 기준"
             tip={
               <p>
-                계약일 기준 최근 30일 매매가 그 직전 30일보다 크게 늘어난 단지입니다. 늘어난
-                건수가 많은 순입니다.
+                계약일 기준 최근 30일 매매가 5건 이상이면서 직전 30일(3건 이상)의 2배 이상으로 늘어난
+                단지입니다. 늘어난 건수가 많은 순입니다.
               </p>
             }
           >
