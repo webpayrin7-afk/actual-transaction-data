@@ -304,12 +304,12 @@ export function MarketHome() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="아파트 시장"
-        description="오늘 새로 확인된 거래·가격 이슈와 정책 발표, 시장 흐름을 한눈에 봅니다."
         showDivider={false}
         className="mt-1.5 sm:mt-2"
         titleTip={
           <>
-            <p>
+            <p>오늘 집랩이 새로 확인한 거래·가격 이슈와 정책 발표, 시장 흐름을 한눈에 봅니다.</p>
+            <p className="mt-1.5">
               확인일: {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
             </p>
             <p className="mt-1.5">
