@@ -60,8 +60,14 @@ jobs:
           # 23:00 KST (0 14 * * *) stays probe-based — do not force
           # 06:00 KST = 21:00 UTC tick of the 15-min probe cron (grace: first 15 min)
           if [ "$UTC_HOUR" = "21" ] && [ "$UTC_MIN" -lt 15 ]; then FORCE=true; fi
+          # 청약홈 사본은 하루 1회, sync 여부와 무관하게 06:00 KST 틱에서만.
+          APPLYHOME=false
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$UTC_HOUR" = "21" ] && [ "$UTC_MIN" -lt 15 ]; then
+            APPLYHOME=true
+          fi
           echo "force=$FORCE" >> "$GITHUB_OUTPUT"
-          echo "utc=${UTC_HOUR}:${UTC_MIN} force=$FORCE"
+          echo "applyhome=$APPLYHOME" >> "$GITHUB_OUTPUT"
+          echo "utc=${UTC_HOUR}:${UTC_MIN} force=$FORCE applyhome=$APPLYHOME"
 
       - name: Probe MOLIT freshness
         id: probe
@@ -104,6 +110,26 @@ jobs:
             --skip-existing=0 \
             --only-changed=1
 
+      # 동기화가 실제로 끝난 뒤에만. 15분 probe로 sync가 건너뛴 틱에서는 돌리지 않는다.
+      # days=2: 오늘·어제 확인분. INSERT OR IGNORE 라 같은 범위 재실행은 inserted 0.
+      # 하루 확인 매매가 2만 건을 넘으면 스크립트가 대량 적재일로 보고 그 날은 건너뛴다.
+      - name: Record new highs and drops after sync
+        if: steps.probe.outputs.should_sync == 'true'
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: npm run db:price-moves -- --days=2 --apply
+
       - name: Skip sync (already fresh)
         if: steps.probe.outputs.should_sync != 'true'
         run: echo "Warehouse already matches MOLIT probe sentinels — skip sync."
+
+      # 하루 1회. MOLIT sync 가 돌았는지와 무관하고, KST 06:00 틱(UTC 21:00, 15분 유예)에서만.
+      # 바뀐 applyhome_* 행만 upsert. 같은 명령을 --apply 없이 다시 돌리면 insert 0 / update 0.
+      - name: Refresh Applyhome copy
+        if: (success() || failure()) && steps.window.outputs.applyhome == 'true'
+        env:
+          MOLIT_API_KEY: ${{ secrets.MOLIT_API_KEY }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: npx tsx scripts/applyhome/sync-applyhome.ts --apply
