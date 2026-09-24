@@ -1,0 +1,129 @@
+{
+  "status": {
+    "MISSING": 844,
+    "LIVE": 757,
+    "ABOLISHED": 12
+  },
+  "samples": [
+    {
+      "code": "4119411000",
+      "kind": "MISSING",
+      "name": "에코파인",
+      "sigungu": "부천시",
+      "dong": "소사본동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4119411300",
+      "kind": "MISSING",
+      "name": "순영지타워",
+      "sigungu": "부천시",
+      "dong": "괴안동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4119612100",
+      "kind": "MISSING",
+      "name": "서전",
+      "sigungu": "부천시",
+      "dong": "고강동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4119612100",
+      "kind": "MISSING",
+      "name": "더테라리움",
+      "sigungu": "부천시",
+      "dong": "고강동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4159712700",
+      "kind": "MISSING",
+      "name": "센트럴s타운",
+      "sigungu": "화성시",
+      "dong": "반송동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4119411000",
+      "kind": "MISSING",
+      "name": "더로얄아파트",
+      "sigungu": "부천시",
+      "dong": "소사본동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4159325321",
+      "kind": "MISSING",
+      "name": "호수마을동문굿모닝힐",
+      "sigungu": "화성시",
+      "dong": "봉담읍 상리",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4159713500",
+      "kind": "MISSING",
+      "name": "더레이크시티부영1단지",
+      "sigungu": "화성시",
+      "dong": "산척동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4119612000",
+      "kind": "MISSING",
+      "name": "영안(273-1)",
+      "sigungu": "부천시",
+      "dong": "원종동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4159712700",
+      "kind": "MISSING",
+      "name": "시범한빛마을동탄아이파크",
+      "sigungu": "화성시",
+      "dong": "반송동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4159713400",
+      "kind": "MISSING",
+      "name": "호반베르디움센트럴포레",
+      "sigungu": "화성시",
+      "dong": "목동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    },
+    {
+      "code": "4119612000",
+      "kind": "MISSING",
+      "name": "동진2",
+      "sigungu": "부천시",
+      "dong": "원종동",
+      "del": "",
+      "sgg": "",
+      "umd": ""
+    }
+  ]
+}

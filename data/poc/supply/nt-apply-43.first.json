@@ -1,0 +1,55 @@
+{
+ "at": "2026-09-24T18:31:12.087Z",
+ "affected": 696,
+ "statements": 696,
+ "prefix": "43",
+ "targeted": 431,
+ "filled": 112,
+ "types": 349,
+ "multiExclusives": 17,
+ "rangeLabels": 5,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "NO_DERIVABLE": 182,
+  "HOLD_LOT_PARSE_FAILED": 50,
+  "SHARED_PNU": 10,
+  "CADASTRE_ABSENT": 28,
+  "NO_APT_EXCLUSIVE": 32,
+  "NO_EXPOS_ROWS": 7,
+  "COMMON_SEMANTICS_UNCLEAR": 9,
+  "IMPLAUSIBLE_RATIO": 1
+ },
+ "bySido": {
+  "43": {
+   "targeted": 431,
+   "filled": 112,
+   "held": {
+    "NO_DERIVABLE": 182,
+    "HOLD_LOT_PARSE_FAILED": 50,
+    "SHARED_PNU": 10,
+    "CADASTRE_ABSENT": 28,
+    "NO_APT_EXCLUSIVE": 32,
+    "NO_EXPOS_ROWS": 7,
+    "COMMON_SEMANTICS_UNCLEAR": 9,
+    "IMPLAUSIBLE_RATIO": 1
+   }
+  }
+ },
+ "lawdCodes": {
+  "43111": 21,
+  "43112": 5,
+  "43113": 20,
+  "43114": 14,
+  "43130": 15,
+  "43150": 8,
+  "43720": 1,
+  "43730": 3,
+  "43740": 1,
+  "43745": 2,
+  "43750": 9,
+  "43760": 2,
+  "43770": 9,
+  "43800": 2
+ }
+}

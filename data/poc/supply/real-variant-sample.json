@@ -1,0 +1,86 @@
+[
+  {
+    "complexId": "cx_49836e8f46658966",
+    "exclusiveCents": 5982,
+    "representativeSupplyCents": 7257,
+    "representativeHousehold": 37,
+    "variants": [
+      {
+        "supplyCents": 7257,
+        "householdCount": 37
+      },
+      {
+        "supplyCents": 7259,
+        "householdCount": 3
+      },
+      {
+        "supplyCents": 7866,
+        "householdCount": 37
+      },
+      {
+        "supplyCents": 7869,
+        "householdCount": 3
+      }
+    ]
+  },
+  {
+    "complexId": "cx_bf80871aabe394bc",
+    "exclusiveCents": 4977,
+    "representativeSupplyCents": 6124,
+    "representativeHousehold": 480,
+    "variants": [
+      {
+        "supplyCents": 6124,
+        "householdCount": 480
+      },
+      {
+        "supplyCents": 6634,
+        "householdCount": 480
+      }
+    ]
+  },
+  {
+    "complexId": "cx_a4cf9793911dc0f9",
+    "exclusiveCents": 8432,
+    "representativeSupplyCents": 10271,
+    "representativeHousehold": 213,
+    "variants": [
+      {
+        "supplyCents": 9755,
+        "householdCount": 1
+      },
+      {
+        "supplyCents": 9788,
+        "householdCount": 1
+      },
+      {
+        "supplyCents": 9858,
+        "householdCount": 94
+      },
+      {
+        "supplyCents": 9859,
+        "householdCount": 212
+      },
+      {
+        "supplyCents": 9860,
+        "householdCount": 176
+      },
+      {
+        "supplyCents": 9902,
+        "householdCount": 1
+      },
+      {
+        "supplyCents": 10268,
+        "householdCount": 95
+      },
+      {
+        "supplyCents": 10271,
+        "householdCount": 213
+      },
+      {
+        "supplyCents": 10308,
+        "householdCount": 176
+      }
+    ]
+  }
+]

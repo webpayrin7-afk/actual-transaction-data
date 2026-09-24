@@ -1,0 +1,57 @@
+{
+ "at": "2026-09-24T18:33:46.986Z",
+ "affected": 0,
+ "statements": 1120,
+ "prefix": "47",
+ "targeted": 565,
+ "filled": 150,
+ "types": 568,
+ "multiExclusives": 44,
+ "rangeLabels": 17,
+ "predecessorUsed": 0,
+ "alreadyOurs": 150,
+ "held": {
+  "CADASTRE_ABSENT": 37,
+  "HOLD_LOT_PARSE_FAILED": 80,
+  "NO_DERIVABLE": 205,
+  "SHARED_PNU": 18,
+  "NO_APT_EXCLUSIVE": 46,
+  "COMMON_SEMANTICS_UNCLEAR": 13,
+  "NO_EXPOS_ROWS": 14,
+  "HOLD_INVALID_PNU": 2
+ },
+ "bySido": {
+  "47": {
+   "targeted": 565,
+   "filled": 150,
+   "held": {
+    "CADASTRE_ABSENT": 37,
+    "HOLD_LOT_PARSE_FAILED": 80,
+    "NO_DERIVABLE": 205,
+    "SHARED_PNU": 18,
+    "NO_APT_EXCLUSIVE": 46,
+    "COMMON_SEMANTICS_UNCLEAR": 13,
+    "NO_EXPOS_ROWS": 14,
+    "HOLD_INVALID_PNU": 2
+   }
+  }
+ },
+ "lawdCodes": {
+  "47111": 12,
+  "47113": 15,
+  "47130": 9,
+  "47150": 5,
+  "47170": 13,
+  "47190": 34,
+  "47210": 4,
+  "47230": 4,
+  "47250": 5,
+  "47280": 1,
+  "47290": 33,
+  "47760": 1,
+  "47830": 1,
+  "47840": 1,
+  "47850": 6,
+  "47900": 6
+ }
+}

@@ -1,0 +1,53 @@
+{
+ "at": "2026-09-24T18:24:32.874Z",
+ "statements": 1921,
+ "prefix": "28",
+ "targeted": 707,
+ "filled": 219,
+ "types": 981,
+ "multiExclusives": 105,
+ "rangeLabels": 34,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "NO_DERIVABLE": 267,
+  "COMMON_SEMANTICS_UNCLEAR": 60,
+  "SHARED_PNU": 29,
+  "HOLD_LOT_PARSE_FAILED": 40,
+  "NO_APT_EXCLUSIVE": 30,
+  "NO_EXPOS_ROWS": 20,
+  "CADASTRE_ABSENT": 35,
+  "HOLD_INVALID_PNU": 5,
+  "IMPLAUSIBLE_RATIO": 2
+ },
+ "bySido": {
+  "28": {
+   "targeted": 707,
+   "filled": 219,
+   "held": {
+    "NO_DERIVABLE": 267,
+    "COMMON_SEMANTICS_UNCLEAR": 60,
+    "SHARED_PNU": 29,
+    "HOLD_LOT_PARSE_FAILED": 40,
+    "NO_APT_EXCLUSIVE": 30,
+    "NO_EXPOS_ROWS": 20,
+    "CADASTRE_ABSENT": 35,
+    "HOLD_INVALID_PNU": 5,
+    "IMPLAUSIBLE_RATIO": 2
+   }
+  }
+ },
+ "lawdCodes": {
+  "28125": 9,
+  "28155": 13,
+  "28177": 20,
+  "28185": 26,
+  "28200": 28,
+  "28237": 30,
+  "28245": 29,
+  "28275": 25,
+  "28290": 37,
+  "28710": 1,
+  "28720": 1
+ }
+}

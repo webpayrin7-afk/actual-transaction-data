@@ -1,0 +1,43 @@
+{
+ "at": "2026-09-24T18:24:42.884Z",
+ "statements": 398,
+ "prefix": "31",
+ "targeted": 230,
+ "filled": 47,
+ "types": 202,
+ "multiExclusives": 11,
+ "rangeLabels": 4,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "CADASTRE_ABSENT": 25,
+  "HOLD_LOT_PARSE_FAILED": 23,
+  "NO_DERIVABLE": 94,
+  "SHARED_PNU": 8,
+  "NO_EXPOS_ROWS": 5,
+  "NO_APT_EXCLUSIVE": 13,
+  "COMMON_SEMANTICS_UNCLEAR": 15
+ },
+ "bySido": {
+  "31": {
+   "targeted": 230,
+   "filled": 47,
+   "held": {
+    "CADASTRE_ABSENT": 25,
+    "HOLD_LOT_PARSE_FAILED": 23,
+    "NO_DERIVABLE": 94,
+    "SHARED_PNU": 8,
+    "NO_EXPOS_ROWS": 5,
+    "NO_APT_EXCLUSIVE": 13,
+    "COMMON_SEMANTICS_UNCLEAR": 15
+   }
+  }
+ },
+ "lawdCodes": {
+  "31110": 11,
+  "31140": 11,
+  "31170": 2,
+  "31200": 15,
+  "31710": 8
+ }
+}

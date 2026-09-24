@@ -1,0 +1,49 @@
+{
+ "at": "2026-09-24T18:28:22.349Z",
+ "affected": 639,
+ "statements": 639,
+ "prefix": "27",
+ "targeted": 393,
+ "filled": 72,
+ "types": 326,
+ "multiExclusives": 44,
+ "rangeLabels": 23,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "NO_DERIVABLE": 214,
+  "COMMON_SEMANTICS_UNCLEAR": 16,
+  "HOLD_LOT_PARSE_FAILED": 33,
+  "CADASTRE_ABSENT": 29,
+  "SHARED_PNU": 13,
+  "NO_APT_EXCLUSIVE": 11,
+  "NO_EXPOS_ROWS": 4,
+  "LOW_COVERAGE": 1
+ },
+ "bySido": {
+  "27": {
+   "targeted": 393,
+   "filled": 72,
+   "held": {
+    "NO_DERIVABLE": 214,
+    "COMMON_SEMANTICS_UNCLEAR": 16,
+    "HOLD_LOT_PARSE_FAILED": 33,
+    "CADASTRE_ABSENT": 29,
+    "SHARED_PNU": 13,
+    "NO_APT_EXCLUSIVE": 11,
+    "NO_EXPOS_ROWS": 4,
+    "LOW_COVERAGE": 1
+   }
+  }
+ },
+ "lawdCodes": {
+  "27110": 1,
+  "27140": 10,
+  "27170": 3,
+  "27200": 2,
+  "27230": 15,
+  "27260": 13,
+  "27290": 12,
+  "27710": 16
+ }
+}

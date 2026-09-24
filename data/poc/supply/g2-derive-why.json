@@ -1,0 +1,40 @@
+{
+  "cadastrePnus": 1017,
+  "pnusWithRows": 861,
+  "pnusWithAptExclusive": 843,
+  "pnusWithAptExclusiveAndDongHo": 435,
+  "exclusivePurpsTop": [
+    [
+      "02001",
+      128126
+    ],
+    [
+      "14202",
+      2633
+    ],
+    [
+      "02005",
+      1113
+    ],
+    [
+      "03001",
+      1046
+    ],
+    [
+      "03999",
+      615
+    ],
+    [
+      "04999",
+      590
+    ],
+    [
+      "07101",
+      536
+    ],
+    [
+      "02002",
+      508
+    ]
+  ]
+}

@@ -4,6 +4,7 @@
  */
 import assert from "node:assert/strict";
 import { deriveOfficialSupplies, type ExposRow } from "../src/lib/unit-type/official-expos";
+import { pickRepresentativeSupply } from "../src/lib/unit-type/supply-representative";
 import { acceptVworld, cadastralToRegistryPnu, parcelFromRegistryPnu } from "./supply-fill/official-sources";
 
 
@@ -75,5 +76,15 @@ const balcony = [
   { dongNm: "", hoNm: "101-101", exposPubuseGbCdNm: "공용", mainAtchGbCdNm: "주건축물", mainPurpsCdNm: "부대시설", etcPurps: "발코니", area: 5, bldNm: "테스트" },
 ];
 assert.equal(deriveOfficialSupplies(balcony, "테스트").units[0]!.derivable, false);
+
+const picked = pickRepresentativeSupply([
+  { supplyCents: 11200, householdCount: 10 },
+  { supplyCents: 11000, householdCount: 40 },
+  { supplyCents: 11100, householdCount: 40 },
+]);
+assert.equal(picked?.representativeSupplyCents, 11000);
+assert.equal(picked?.representativeHouseholdCount, 40);
+assert.equal(pickRepresentativeSupply([{ supplyCents: 11000, householdCount: 3 }, { supplyCents: 11200, householdCount: null }]), null);
+assert.equal(pickRepresentativeSupply([{ supplyCents: 11000, householdCount: 3 }]), null);
 
 console.log("test-supply-fill: ok");

@@ -1,0 +1,56 @@
+{
+ "at": "2026-09-24T18:27:31.339Z",
+ "affected": 1003,
+ "statements": 1003,
+ "prefix": "26",
+ "targeted": 736,
+ "filled": 98,
+ "types": 512,
+ "multiExclusives": 49,
+ "rangeLabels": 11,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "NO_DERIVABLE": 378,
+  "NO_APT_EXCLUSIVE": 84,
+  "CADASTRE_ABSENT": 65,
+  "HOLD_LOT_PARSE_FAILED": 37,
+  "COMMON_SEMANTICS_UNCLEAR": 51,
+  "NO_EXPOS_ROWS": 16,
+  "SHARED_PNU": 6,
+  "HOLD_INVALID_PNU": 1
+ },
+ "bySido": {
+  "26": {
+   "targeted": 736,
+   "filled": 98,
+   "held": {
+    "NO_DERIVABLE": 378,
+    "NO_APT_EXCLUSIVE": 84,
+    "CADASTRE_ABSENT": 65,
+    "HOLD_LOT_PARSE_FAILED": 37,
+    "COMMON_SEMANTICS_UNCLEAR": 51,
+    "NO_EXPOS_ROWS": 16,
+    "SHARED_PNU": 6,
+    "HOLD_INVALID_PNU": 1
+   }
+  }
+ },
+ "lawdCodes": {
+  "26140": 1,
+  "26170": 1,
+  "26200": 3,
+  "26230": 5,
+  "26260": 10,
+  "26290": 5,
+  "26320": 10,
+  "26350": 16,
+  "26380": 5,
+  "26410": 7,
+  "26440": 5,
+  "26470": 1,
+  "26500": 7,
+  "26530": 9,
+  "26710": 13
+ }
+}
