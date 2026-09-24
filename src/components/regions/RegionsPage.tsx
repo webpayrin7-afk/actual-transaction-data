@@ -58,30 +58,35 @@ function pppText(man: number): string {
   return man >= 10_000 ? `${(man / 10_000).toFixed(2)}억` : `${Math.round(man).toLocaleString("ko-KR")}만`;
 }
 
+/** 칸은 항상 3줄: 이름 / 평당가 / 전년 대비 — 값이 없는 줄은 빈 줄로 높이를 맞춘다 */
 function TileStat({ stat }: { stat: RegionTileStat | undefined }) {
+  const line = "block min-h-5 whitespace-nowrap";
   if (!stat || (stat.ppp == null && !stat.range)) {
-    return <span className="detail-meta">—</span>;
+    return (
+      <span className="detail-meta flex flex-col">
+        <span className={line}>—</span>
+        <span className={line} aria-hidden />
+      </span>
+    );
   }
   if (stat.range) {
     return (
-      <span className="detail-meta tabular-nums">
-        {pppText(stat.range[0])}~{pppText(stat.range[1])}
+      <span className="detail-meta flex flex-col tabular-nums">
+        <span className={line}>{pppText(stat.range[0])}~</span>
+        <span className={line}>{pppText(stat.range[1])}</span>
       </span>
     );
   }
   const yoy = stat.yoyPct;
   return (
-    <span className="detail-meta flex flex-wrap items-baseline gap-x-1 tabular-nums">
-      <span>{pppText(stat.ppp!)}</span>
-      {yoy != null ? (
-        <span
-          className="font-semibold"
-          style={{ color: yoy > 0 ? "var(--lab-change-up)" : yoy < 0 ? "var(--lab-change-down)" : undefined }}
-        >
-          {yoy > 0 ? "+" : yoy < 0 ? "−" : ""}
-          {Math.abs(yoy)}%
-        </span>
-      ) : null}
+    <span className="detail-meta flex flex-col tabular-nums">
+      <span className={line}>{pppText(stat.ppp!)}</span>
+      <span
+        className={`${line} font-semibold`}
+        style={{ color: yoy == null ? undefined : yoy > 0 ? "var(--lab-change-up)" : yoy < 0 ? "var(--lab-change-down)" : undefined }}
+      >
+        {yoy == null ? "" : `${yoy > 0 ? "+" : yoy < 0 ? "−" : ""}${Math.abs(yoy)}%`}
+      </span>
     </span>
   );
 }
@@ -258,7 +263,7 @@ export function RegionsPage() {
                 key={region.slug}
                 href={`/region/${region.slug}`}
                 // 누르면 지역 상세로 — 버튼으로 읽히게 그림자·화살표·눌림 효과
-                className="group flex min-h-12 flex-col items-stretch justify-center gap-0.5 rounded-xl border border-[color:var(--lab-brand-border)] bg-white py-2.5 pl-3 pr-2 shadow-[0_1px_3px_rgba(15,118,110,0.12)] transition hover:border-[color:var(--lab-brand-primary)] hover:bg-[color:var(--lab-brand-subtle)] active:scale-[0.98] active:bg-[color:var(--lab-brand-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                className="group flex min-h-12 flex-col items-stretch justify-center gap-0.5 rounded-xl border border-[color:var(--lab-border)] bg-white py-2.5 pl-3 pr-2 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-[color:var(--lab-brand-border)] hover:bg-[color:var(--lab-brand-subtle)] active:scale-[0.98] active:bg-[color:var(--lab-brand-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
               >
                 <span className="flex items-center justify-between gap-1">
                   <span className="detail-data-value-emphasis min-w-0 break-keep">{region.name}</span>
