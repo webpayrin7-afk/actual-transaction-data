@@ -1,0 +1,11 @@
+{
+  "apply": true,
+  "asOf": "2026-07-31",
+  "featureRunId": "486ebed0c6d1f8fafaa87b058a5ed4800c4fdeeaf0cbf9791b8b36e955dd215f",
+  "featureRowsAttempted": 15419,
+  "publicationsInserted": 0,
+  "publicationsSkippedExisting": 141,
+  "seoulPubsBefore": 25,
+  "seoulPubsAfter": 25,
+  "seoulUnchanged": true
+}

@@ -1,0 +1,1715 @@
+{
+  "apply": true,
+  "asOf": "2026-07-31",
+  "featureRunId": "486ebed0c6d1f8fafaa87b058a5ed4800c4fdeeaf0cbf9791b8b36e955dd215f",
+  "featureRows": 15419,
+  "featureEligibleInput": 8097,
+  "guTotal": 164,
+  "guPublish": 141,
+  "guEmpty": 23,
+  "byMetro": {
+    "busan": {
+      "publishGus": 16,
+      "emptyGus": 0,
+      "eligibleComplexes": 170
+    },
+    "chungbuk": {
+      "publishGus": 11,
+      "emptyGus": 3,
+      "eligibleComplexes": 62
+    },
+    "chungnam": {
+      "publishGus": 14,
+      "emptyGus": 2,
+      "eligibleComplexes": 104
+    },
+    "daegu": {
+      "publishGus": 8,
+      "emptyGus": 0,
+      "eligibleComplexes": 329
+    },
+    "daejeon": {
+      "publishGus": 5,
+      "emptyGus": 0,
+      "eligibleComplexes": 81
+    },
+    "gyeongbuk": {
+      "publishGus": 15,
+      "emptyGus": 6,
+      "eligibleComplexes": 156
+    },
+    "gyeonggi": {
+      "publishGus": 42,
+      "emptyGus": 5,
+      "eligibleComplexes": 3431
+    },
+    "gyeongnam": {
+      "publishGus": 17,
+      "emptyGus": 5,
+      "eligibleComplexes": 219
+    },
+    "incheon": {
+      "publishGus": 5,
+      "emptyGus": 2,
+      "eligibleComplexes": 60
+    },
+    "jeju": {
+      "publishGus": 2,
+      "emptyGus": 0,
+      "eligibleComplexes": 12
+    },
+    "sejong": {
+      "publishGus": 1,
+      "emptyGus": 0,
+      "eligibleComplexes": 29
+    },
+    "ulsan": {
+      "publishGus": 5,
+      "emptyGus": 0,
+      "eligibleComplexes": 147
+    }
+  },
+  "emptyGuSample": [
+    {
+      "lawd": "28710",
+      "name": "강화군",
+      "metro": "incheon",
+      "candidates": 0
+    },
+    {
+      "lawd": "28720",
+      "name": "옹진군",
+      "metro": "incheon",
+      "candidates": 0
+    },
+    {
+      "lawd": "41194",
+      "name": "부천시 소사구",
+      "metro": "gyeonggi",
+      "candidates": 180
+    },
+    {
+      "lawd": "41196",
+      "name": "부천시 오정구",
+      "metro": "gyeonggi",
+      "candidates": 155
+    },
+    {
+      "lawd": "41591",
+      "name": "화성시 만세구",
+      "metro": "gyeonggi",
+      "candidates": 76
+    },
+    {
+      "lawd": "41595",
+      "name": "화성시 병점구",
+      "metro": "gyeonggi",
+      "candidates": 71
+    },
+    {
+      "lawd": "41597",
+      "name": "화성시 동탄구",
+      "metro": "gyeonggi",
+      "candidates": 123
+    },
+    {
+      "lawd": "43720",
+      "name": "보은군",
+      "metro": "chungbuk",
+      "candidates": 0
+    },
+    {
+      "lawd": "43745",
+      "name": "증평군",
+      "metro": "chungbuk",
+      "candidates": 0
+    },
+    {
+      "lawd": "43760",
+      "name": "괴산군",
+      "metro": "chungbuk",
+      "candidates": 1
+    },
+    {
+      "lawd": "44760",
+      "name": "부여군",
+      "metro": "chungnam",
+      "candidates": 0
+    },
+    {
+      "lawd": "44770",
+      "name": "서천군",
+      "metro": "chungnam",
+      "candidates": 1
+    },
+    {
+      "lawd": "47730",
+      "name": "의성군",
+      "metro": "gyeongbuk",
+      "candidates": 0
+    },
+    {
+      "lawd": "47750",
+      "name": "청송군",
+      "metro": "gyeongbuk",
+      "candidates": 0
+    },
+    {
+      "lawd": "47760",
+      "name": "영양군",
+      "metro": "gyeongbuk",
+      "candidates": 0
+    },
+    {
+      "lawd": "47820",
+      "name": "청도군",
+      "metro": "gyeongbuk",
+      "candidates": 0
+    },
+    {
+      "lawd": "47840",
+      "name": "성주군",
+      "metro": "gyeongbuk",
+      "candidates": 4
+    },
+    {
+      "lawd": "47930",
+      "name": "울진군",
+      "metro": "gyeongbuk",
+      "candidates": 1
+    },
+    {
+      "lawd": "48720",
+      "name": "의령군",
+      "metro": "gyeongnam",
+      "candidates": 0
+    },
+    {
+      "lawd": "48840",
+      "name": "남해군",
+      "metro": "gyeongnam",
+      "candidates": 0
+    },
+    {
+      "lawd": "48860",
+      "name": "산청군",
+      "metro": "gyeongnam",
+      "candidates": 2
+    },
+    {
+      "lawd": "48870",
+      "name": "함양군",
+      "metro": "gyeongnam",
+      "candidates": 3
+    },
+    {
+      "lawd": "48890",
+      "name": "합천군",
+      "metro": "gyeongnam",
+      "candidates": 1
+    }
+  ],
+  "emptyGuAll": [
+    "28710:강화군",
+    "28720:옹진군",
+    "41194:부천시 소사구",
+    "41196:부천시 오정구",
+    "41591:화성시 만세구",
+    "41595:화성시 병점구",
+    "41597:화성시 동탄구",
+    "43720:보은군",
+    "43745:증평군",
+    "43760:괴산군",
+    "44760:부여군",
+    "44770:서천군",
+    "47730:의성군",
+    "47750:청송군",
+    "47760:영양군",
+    "47820:청도군",
+    "47840:성주군",
+    "47930:울진군",
+    "48720:의령군",
+    "48840:남해군",
+    "48860:산청군",
+    "48870:함양군",
+    "48890:합천군"
+  ],
+  "guReports": [
+    {
+      "lawd": "26110",
+      "name": "중구",
+      "metro": "busan",
+      "candidates": 5,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_fee797635d1d62de"
+    },
+    {
+      "lawd": "26140",
+      "name": "서구",
+      "metro": "busan",
+      "candidates": 8,
+      "eligible": 6,
+      "publish": true,
+      "top1": "cx_3cfad06453d99677"
+    },
+    {
+      "lawd": "26170",
+      "name": "동구",
+      "metro": "busan",
+      "candidates": 15,
+      "eligible": 9,
+      "publish": true,
+      "top1": "cx_9b8e39331230a3e1"
+    },
+    {
+      "lawd": "26200",
+      "name": "영도구",
+      "metro": "busan",
+      "candidates": 10,
+      "eligible": 4,
+      "publish": true,
+      "top1": "cx_00bb60653fa26025"
+    },
+    {
+      "lawd": "26230",
+      "name": "부산진구",
+      "metro": "busan",
+      "candidates": 55,
+      "eligible": 25,
+      "publish": true,
+      "top1": "cx_6a88bfbc27169472"
+    },
+    {
+      "lawd": "26260",
+      "name": "동래구",
+      "metro": "busan",
+      "candidates": 38,
+      "eligible": 17,
+      "publish": true,
+      "top1": "cx_5ccfe2c538bd4523"
+    },
+    {
+      "lawd": "26290",
+      "name": "남구",
+      "metro": "busan",
+      "candidates": 18,
+      "eligible": 10,
+      "publish": true,
+      "top1": "cx_0f98e4f483700ebd"
+    },
+    {
+      "lawd": "26320",
+      "name": "북구",
+      "metro": "busan",
+      "candidates": 21,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_fcf017f9c15b67b1"
+    },
+    {
+      "lawd": "26350",
+      "name": "해운대구",
+      "metro": "busan",
+      "candidates": 49,
+      "eligible": 32,
+      "publish": true,
+      "top1": "cx_8baad34a2cca32b9"
+    },
+    {
+      "lawd": "26380",
+      "name": "사하구",
+      "metro": "busan",
+      "candidates": 19,
+      "eligible": 10,
+      "publish": true,
+      "top1": "cx_3c57a59da4286e22"
+    },
+    {
+      "lawd": "26410",
+      "name": "금정구",
+      "metro": "busan",
+      "candidates": 22,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_1156b10f3ed2cd75"
+    },
+    {
+      "lawd": "26440",
+      "name": "강서구",
+      "metro": "busan",
+      "candidates": 14,
+      "eligible": 6,
+      "publish": true,
+      "top1": "cx_e40a031558a0cbfd"
+    },
+    {
+      "lawd": "26470",
+      "name": "연제구",
+      "metro": "busan",
+      "candidates": 31,
+      "eligible": 15,
+      "publish": true,
+      "top1": "cx_34610bcb1eb242ee"
+    },
+    {
+      "lawd": "26500",
+      "name": "수영구",
+      "metro": "busan",
+      "candidates": 16,
+      "eligible": 7,
+      "publish": true,
+      "top1": "cx_02ea5e15289ec89a"
+    },
+    {
+      "lawd": "26530",
+      "name": "사상구",
+      "metro": "busan",
+      "candidates": 22,
+      "eligible": 7,
+      "publish": true,
+      "top1": "cx_0ccbf706ddd76a48"
+    },
+    {
+      "lawd": "26710",
+      "name": "기장군",
+      "metro": "busan",
+      "candidates": 20,
+      "eligible": 5,
+      "publish": true,
+      "top1": "cx_08ad41aa7641c5ab"
+    },
+    {
+      "lawd": "27110",
+      "name": "중구",
+      "metro": "daegu",
+      "candidates": 39,
+      "eligible": 28,
+      "publish": true,
+      "top1": "cx_2b63553fa4e5d0e2"
+    },
+    {
+      "lawd": "27140",
+      "name": "동구",
+      "metro": "daegu",
+      "candidates": 86,
+      "eligible": 46,
+      "publish": true,
+      "top1": "cx_8f10cfe85ec8ea6c"
+    },
+    {
+      "lawd": "27170",
+      "name": "서구",
+      "metro": "daegu",
+      "candidates": 18,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_c6d53d08bdb1a507"
+    },
+    {
+      "lawd": "27200",
+      "name": "남구",
+      "metro": "daegu",
+      "candidates": 27,
+      "eligible": 15,
+      "publish": true,
+      "top1": "cx_ae22a370d20b2da0"
+    },
+    {
+      "lawd": "27230",
+      "name": "북구",
+      "metro": "daegu",
+      "candidates": 78,
+      "eligible": 53,
+      "publish": true,
+      "top1": "cx_f7f7cbc707a6b730"
+    },
+    {
+      "lawd": "27260",
+      "name": "수성구",
+      "metro": "daegu",
+      "candidates": 130,
+      "eligible": 77,
+      "publish": true,
+      "top1": "cx_672642532a27f6cf"
+    },
+    {
+      "lawd": "27290",
+      "name": "달서구",
+      "metro": "daegu",
+      "candidates": 94,
+      "eligible": 57,
+      "publish": true,
+      "top1": "cx_f7241bd197affa1f"
+    },
+    {
+      "lawd": "27710",
+      "name": "달성군",
+      "metro": "daegu",
+      "candidates": 60,
+      "eligible": 45,
+      "publish": true,
+      "top1": "cx_be721b30fb9e502f"
+    },
+    {
+      "lawd": "28177",
+      "name": "미추홀구",
+      "metro": "incheon",
+      "candidates": 16,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_f5f6fa325d792ed4"
+    },
+    {
+      "lawd": "28185",
+      "name": "연수구",
+      "metro": "incheon",
+      "candidates": 36,
+      "eligible": 19,
+      "publish": true,
+      "top1": "cx_e0cefe666d9099f1"
+    },
+    {
+      "lawd": "28200",
+      "name": "남동구",
+      "metro": "incheon",
+      "candidates": 21,
+      "eligible": 12,
+      "publish": true,
+      "top1": "cx_65ff735d0e88f671"
+    },
+    {
+      "lawd": "28237",
+      "name": "부평구",
+      "metro": "incheon",
+      "candidates": 29,
+      "eligible": 15,
+      "publish": true,
+      "top1": "cx_eb597938648e9efc"
+    },
+    {
+      "lawd": "28245",
+      "name": "계양구",
+      "metro": "incheon",
+      "candidates": 12,
+      "eligible": 6,
+      "publish": true,
+      "top1": "cx_6d43a5ea2308e09f"
+    },
+    {
+      "lawd": "28710",
+      "name": "강화군",
+      "metro": "incheon",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "28720",
+      "name": "옹진군",
+      "metro": "incheon",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "30110",
+      "name": "동구",
+      "metro": "daejeon",
+      "candidates": 18,
+      "eligible": 11,
+      "publish": true,
+      "top1": "cx_d5b384eca02960eb"
+    },
+    {
+      "lawd": "30140",
+      "name": "중구",
+      "metro": "daejeon",
+      "candidates": 23,
+      "eligible": 10,
+      "publish": true,
+      "top1": "cx_b52f3abbd0c8b96e"
+    },
+    {
+      "lawd": "30170",
+      "name": "서구",
+      "metro": "daejeon",
+      "candidates": 48,
+      "eligible": 22,
+      "publish": true,
+      "top1": "cx_cd37f823adfd7a52"
+    },
+    {
+      "lawd": "30200",
+      "name": "유성구",
+      "metro": "daejeon",
+      "candidates": 41,
+      "eligible": 29,
+      "publish": true,
+      "top1": "cx_2c927d1d1049840c"
+    },
+    {
+      "lawd": "30230",
+      "name": "대덕구",
+      "metro": "daejeon",
+      "candidates": 12,
+      "eligible": 9,
+      "publish": true,
+      "top1": "cx_26cad52d58f91f66"
+    },
+    {
+      "lawd": "31110",
+      "name": "중구",
+      "metro": "ulsan",
+      "candidates": 31,
+      "eligible": 22,
+      "publish": true,
+      "top1": "cx_37f222063cfc44f7"
+    },
+    {
+      "lawd": "31140",
+      "name": "남구",
+      "metro": "ulsan",
+      "candidates": 81,
+      "eligible": 48,
+      "publish": true,
+      "top1": "cx_e660368fc6b7a5ff"
+    },
+    {
+      "lawd": "31170",
+      "name": "동구",
+      "metro": "ulsan",
+      "candidates": 24,
+      "eligible": 17,
+      "publish": true,
+      "top1": "cx_bdd000f4f8cf54f5"
+    },
+    {
+      "lawd": "31200",
+      "name": "북구",
+      "metro": "ulsan",
+      "candidates": 44,
+      "eligible": 33,
+      "publish": true,
+      "top1": "cx_ec926f87793beeaa"
+    },
+    {
+      "lawd": "31710",
+      "name": "울주군",
+      "metro": "ulsan",
+      "candidates": 37,
+      "eligible": 27,
+      "publish": true,
+      "top1": "cx_246df32f9f20c359"
+    },
+    {
+      "lawd": "36110",
+      "name": "세종특별자치시",
+      "metro": "sejong",
+      "candidates": 38,
+      "eligible": 29,
+      "publish": true,
+      "top1": "cx_179bd60841fa1cb0"
+    },
+    {
+      "lawd": "41111",
+      "name": "수원시 장안구",
+      "metro": "gyeonggi",
+      "candidates": 122,
+      "eligible": 65,
+      "publish": true,
+      "top1": "cx_4529f324a21b7189"
+    },
+    {
+      "lawd": "41113",
+      "name": "수원시 권선구",
+      "metro": "gyeonggi",
+      "candidates": 162,
+      "eligible": 114,
+      "publish": true,
+      "top1": "cx_1042f03ec42a741e"
+    },
+    {
+      "lawd": "41115",
+      "name": "수원시 팔달구",
+      "metro": "gyeonggi",
+      "candidates": 101,
+      "eligible": 39,
+      "publish": true,
+      "top1": "cx_d48ddbeb30098a7e"
+    },
+    {
+      "lawd": "41117",
+      "name": "수원시 영통구",
+      "metro": "gyeonggi",
+      "candidates": 115,
+      "eligible": 95,
+      "publish": true,
+      "top1": "cx_c7050dff6dbe253d"
+    },
+    {
+      "lawd": "41131",
+      "name": "성남시 수정구",
+      "metro": "gyeonggi",
+      "candidates": 83,
+      "eligible": 39,
+      "publish": true,
+      "top1": "cx_12e8a7152c4a3067"
+    },
+    {
+      "lawd": "41133",
+      "name": "성남시 중원구",
+      "metro": "gyeonggi",
+      "candidates": 81,
+      "eligible": 35,
+      "publish": true,
+      "top1": "cx_bed91570d4ab97d5"
+    },
+    {
+      "lawd": "41135",
+      "name": "성남시 분당구",
+      "metro": "gyeonggi",
+      "candidates": 161,
+      "eligible": 141,
+      "publish": true,
+      "top1": "cx_c5294567ec17404f"
+    },
+    {
+      "lawd": "41150",
+      "name": "의정부시",
+      "metro": "gyeonggi",
+      "candidates": 219,
+      "eligible": 152,
+      "publish": true,
+      "top1": "cx_06b60736866a8c92"
+    },
+    {
+      "lawd": "41171",
+      "name": "안양시 만안구",
+      "metro": "gyeonggi",
+      "candidates": 165,
+      "eligible": 63,
+      "publish": true,
+      "top1": "cx_e474ded8adea26e6"
+    },
+    {
+      "lawd": "41173",
+      "name": "안양시 동안구",
+      "metro": "gyeonggi",
+      "candidates": 175,
+      "eligible": 92,
+      "publish": true,
+      "top1": "cx_dfdc6607384aa63b"
+    },
+    {
+      "lawd": "41192",
+      "name": "부천시 원미구",
+      "metro": "gyeonggi",
+      "candidates": 233,
+      "eligible": 86,
+      "publish": true,
+      "top1": "cx_a694a9cfce9bd1c9"
+    },
+    {
+      "lawd": "41194",
+      "name": "부천시 소사구",
+      "metro": "gyeonggi",
+      "candidates": 180,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "41196",
+      "name": "부천시 오정구",
+      "metro": "gyeonggi",
+      "candidates": 155,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "41210",
+      "name": "광명시",
+      "metro": "gyeonggi",
+      "candidates": 83,
+      "eligible": 63,
+      "publish": true,
+      "top1": "cx_ca109f42d57597e9"
+    },
+    {
+      "lawd": "41220",
+      "name": "평택시",
+      "metro": "gyeonggi",
+      "candidates": 255,
+      "eligible": 183,
+      "publish": true,
+      "top1": "cx_7eda061005b62c67"
+    },
+    {
+      "lawd": "41250",
+      "name": "동두천시",
+      "metro": "gyeonggi",
+      "candidates": 51,
+      "eligible": 34,
+      "publish": true,
+      "top1": "cx_614b595e80cfe085"
+    },
+    {
+      "lawd": "41271",
+      "name": "안산시 상록구",
+      "metro": "gyeonggi",
+      "candidates": 53,
+      "eligible": 29,
+      "publish": true,
+      "top1": "cx_a05aeffe582e0673"
+    },
+    {
+      "lawd": "41273",
+      "name": "안산시 단원구",
+      "metro": "gyeonggi",
+      "candidates": 61,
+      "eligible": 44,
+      "publish": true,
+      "top1": "cx_376dfbd838a602f2"
+    },
+    {
+      "lawd": "41281",
+      "name": "고양시 덕양구",
+      "metro": "gyeonggi",
+      "candidates": 191,
+      "eligible": 125,
+      "publish": true,
+      "top1": "cx_5dc0dc59cf241511"
+    },
+    {
+      "lawd": "41285",
+      "name": "고양시 일산동구",
+      "metro": "gyeonggi",
+      "candidates": 65,
+      "eligible": 55,
+      "publish": true,
+      "top1": "cx_a85f29ea62fa2959"
+    },
+    {
+      "lawd": "41287",
+      "name": "고양시 일산서구",
+      "metro": "gyeonggi",
+      "candidates": 130,
+      "eligible": 101,
+      "publish": true,
+      "top1": "cx_b76a3d73321c9682"
+    },
+    {
+      "lawd": "41290",
+      "name": "과천시",
+      "metro": "gyeonggi",
+      "candidates": 12,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_53195bb9d2b10e5b"
+    },
+    {
+      "lawd": "41310",
+      "name": "구리시",
+      "metro": "gyeonggi",
+      "candidates": 97,
+      "eligible": 61,
+      "publish": true,
+      "top1": "cx_4ff8d812f3a59811"
+    },
+    {
+      "lawd": "41360",
+      "name": "남양주시",
+      "metro": "gyeonggi",
+      "candidates": 285,
+      "eligible": 224,
+      "publish": true,
+      "top1": "cx_8bacdcdf1b83fc6e"
+    },
+    {
+      "lawd": "41370",
+      "name": "오산시",
+      "metro": "gyeonggi",
+      "candidates": 107,
+      "eligible": 78,
+      "publish": true,
+      "top1": "cx_30cdce52f2131421"
+    },
+    {
+      "lawd": "41390",
+      "name": "시흥시",
+      "metro": "gyeonggi",
+      "candidates": 233,
+      "eligible": 173,
+      "publish": true,
+      "top1": "cx_8aec28f94dc7917d"
+    },
+    {
+      "lawd": "41410",
+      "name": "군포시",
+      "metro": "gyeonggi",
+      "candidates": 171,
+      "eligible": 75,
+      "publish": true,
+      "top1": "cx_8dad17cc87385ac0"
+    },
+    {
+      "lawd": "41430",
+      "name": "의왕시",
+      "metro": "gyeonggi",
+      "candidates": 77,
+      "eligible": 63,
+      "publish": true,
+      "top1": "cx_d6885ec6125019f6"
+    },
+    {
+      "lawd": "41450",
+      "name": "하남시",
+      "metro": "gyeonggi",
+      "candidates": 107,
+      "eligible": 90,
+      "publish": true,
+      "top1": "cx_2ba58cbd70c013d3"
+    },
+    {
+      "lawd": "41461",
+      "name": "용인시 처인구",
+      "metro": "gyeonggi",
+      "candidates": 150,
+      "eligible": 71,
+      "publish": true,
+      "top1": "cx_f1e555423d8703eb"
+    },
+    {
+      "lawd": "41463",
+      "name": "용인시 기흥구",
+      "metro": "gyeonggi",
+      "candidates": 208,
+      "eligible": 187,
+      "publish": true,
+      "top1": "cx_0f34cda70e2028c7"
+    },
+    {
+      "lawd": "41465",
+      "name": "용인시 수지구",
+      "metro": "gyeonggi",
+      "candidates": 201,
+      "eligible": 173,
+      "publish": true,
+      "top1": "cx_587964e66f8eeb9f"
+    },
+    {
+      "lawd": "41480",
+      "name": "파주시",
+      "metro": "gyeonggi",
+      "candidates": 174,
+      "eligible": 105,
+      "publish": true,
+      "top1": "cx_c58329022ecea4f0"
+    },
+    {
+      "lawd": "41500",
+      "name": "이천시",
+      "metro": "gyeonggi",
+      "candidates": 112,
+      "eligible": 72,
+      "publish": true,
+      "top1": "cx_1f14f54d63825071"
+    },
+    {
+      "lawd": "41550",
+      "name": "안성시",
+      "metro": "gyeonggi",
+      "candidates": 66,
+      "eligible": 51,
+      "publish": true,
+      "top1": "cx_b7c45a480e95651f"
+    },
+    {
+      "lawd": "41570",
+      "name": "김포시",
+      "metro": "gyeonggi",
+      "candidates": 144,
+      "eligible": 130,
+      "publish": true,
+      "top1": "cx_595151229f83030e"
+    },
+    {
+      "lawd": "41591",
+      "name": "화성시 만세구",
+      "metro": "gyeonggi",
+      "candidates": 76,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "41593",
+      "name": "화성시 효행구",
+      "metro": "gyeonggi",
+      "candidates": 57,
+      "eligible": 5,
+      "publish": true,
+      "top1": "cx_1ae4519008d7ee29"
+    },
+    {
+      "lawd": "41595",
+      "name": "화성시 병점구",
+      "metro": "gyeonggi",
+      "candidates": 71,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "41597",
+      "name": "화성시 동탄구",
+      "metro": "gyeonggi",
+      "candidates": 123,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "41610",
+      "name": "광주시",
+      "metro": "gyeonggi",
+      "candidates": 130,
+      "eligible": 120,
+      "publish": true,
+      "top1": "cx_ec3cba30a75a5ed3"
+    },
+    {
+      "lawd": "41630",
+      "name": "양주시",
+      "metro": "gyeonggi",
+      "candidates": 109,
+      "eligible": 87,
+      "publish": true,
+      "top1": "cx_eb8bc7ed3ebd2e72"
+    },
+    {
+      "lawd": "41650",
+      "name": "포천시",
+      "metro": "gyeonggi",
+      "candidates": 39,
+      "eligible": 27,
+      "publish": true,
+      "top1": "cx_087bb30eb733ad7a"
+    },
+    {
+      "lawd": "41670",
+      "name": "여주시",
+      "metro": "gyeonggi",
+      "candidates": 42,
+      "eligible": 30,
+      "publish": true,
+      "top1": "cx_e491b3e7767dc74c"
+    },
+    {
+      "lawd": "41800",
+      "name": "연천군",
+      "metro": "gyeonggi",
+      "candidates": 16,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_4739ab2a7ca7a2c1"
+    },
+    {
+      "lawd": "41820",
+      "name": "가평군",
+      "metro": "gyeonggi",
+      "candidates": 26,
+      "eligible": 14,
+      "publish": true,
+      "top1": "cx_42f2b6ba74fae73d"
+    },
+    {
+      "lawd": "41830",
+      "name": "양평군",
+      "metro": "gyeonggi",
+      "candidates": 37,
+      "eligible": 24,
+      "publish": true,
+      "top1": "cx_133c55adcbf1b80e"
+    },
+    {
+      "lawd": "43111",
+      "name": "청주시 상당구",
+      "metro": "chungbuk",
+      "candidates": 11,
+      "eligible": 7,
+      "publish": true,
+      "top1": "cx_b25e40b06a51ec66"
+    },
+    {
+      "lawd": "43112",
+      "name": "청주시 서원구",
+      "metro": "chungbuk",
+      "candidates": 11,
+      "eligible": 5,
+      "publish": true,
+      "top1": "cx_25d9b0e6449e4760"
+    },
+    {
+      "lawd": "43113",
+      "name": "청주시 흥덕구",
+      "metro": "chungbuk",
+      "candidates": 26,
+      "eligible": 18,
+      "publish": true,
+      "top1": "cx_7015027a9c51e9a3"
+    },
+    {
+      "lawd": "43114",
+      "name": "청주시 청원구",
+      "metro": "chungbuk",
+      "candidates": 11,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_20a7e2c911539418"
+    },
+    {
+      "lawd": "43130",
+      "name": "충주시",
+      "metro": "chungbuk",
+      "candidates": 9,
+      "eligible": 5,
+      "publish": true,
+      "top1": "cx_3c5a9e4feb3762db"
+    },
+    {
+      "lawd": "43150",
+      "name": "제천시",
+      "metro": "chungbuk",
+      "candidates": 2,
+      "eligible": 2,
+      "publish": true,
+      "top1": "cx_a02a2b2c60929d6d"
+    },
+    {
+      "lawd": "43720",
+      "name": "보은군",
+      "metro": "chungbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "43730",
+      "name": "옥천군",
+      "metro": "chungbuk",
+      "candidates": 6,
+      "eligible": 3,
+      "publish": true,
+      "top1": "cx_620ea2a27a611816"
+    },
+    {
+      "lawd": "43740",
+      "name": "영동군",
+      "metro": "chungbuk",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_231b10ea3663933e"
+    },
+    {
+      "lawd": "43745",
+      "name": "증평군",
+      "metro": "chungbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "43750",
+      "name": "진천군",
+      "metro": "chungbuk",
+      "candidates": 4,
+      "eligible": 2,
+      "publish": true,
+      "top1": "cx_e5020324d7911272"
+    },
+    {
+      "lawd": "43760",
+      "name": "괴산군",
+      "metro": "chungbuk",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "43770",
+      "name": "음성군",
+      "metro": "chungbuk",
+      "candidates": 18,
+      "eligible": 9,
+      "publish": true,
+      "top1": "cx_0748bb499bd3775c"
+    },
+    {
+      "lawd": "43800",
+      "name": "단양군",
+      "metro": "chungbuk",
+      "candidates": 2,
+      "eligible": 2,
+      "publish": true,
+      "top1": "cx_d4c171d6e8e18359"
+    },
+    {
+      "lawd": "44131",
+      "name": "천안시 동남구",
+      "metro": "chungnam",
+      "candidates": 25,
+      "eligible": 13,
+      "publish": true,
+      "top1": "cx_20325bcb6b895e5a"
+    },
+    {
+      "lawd": "44133",
+      "name": "천안시 서북구",
+      "metro": "chungnam",
+      "candidates": 61,
+      "eligible": 31,
+      "publish": true,
+      "top1": "cx_c81134026d1b0727"
+    },
+    {
+      "lawd": "44150",
+      "name": "공주시",
+      "metro": "chungnam",
+      "candidates": 6,
+      "eligible": 3,
+      "publish": true,
+      "top1": "cx_c112350c239082d2"
+    },
+    {
+      "lawd": "44180",
+      "name": "보령시",
+      "metro": "chungnam",
+      "candidates": 5,
+      "eligible": 4,
+      "publish": true,
+      "top1": "cx_8545ede7f4bcec31"
+    },
+    {
+      "lawd": "44200",
+      "name": "아산시",
+      "metro": "chungnam",
+      "candidates": 34,
+      "eligible": 23,
+      "publish": true,
+      "top1": "cx_1aced256831d9cc1"
+    },
+    {
+      "lawd": "44210",
+      "name": "서산시",
+      "metro": "chungnam",
+      "candidates": 11,
+      "eligible": 4,
+      "publish": true,
+      "top1": "cx_0d886741d928f475"
+    },
+    {
+      "lawd": "44230",
+      "name": "논산시",
+      "metro": "chungnam",
+      "candidates": 6,
+      "eligible": 3,
+      "publish": true,
+      "top1": "cx_e7c95123ad76d8d5"
+    },
+    {
+      "lawd": "44250",
+      "name": "계룡시",
+      "metro": "chungnam",
+      "candidates": 6,
+      "eligible": 4,
+      "publish": true,
+      "top1": "cx_d2b2288ed7dbee2f"
+    },
+    {
+      "lawd": "44270",
+      "name": "당진시",
+      "metro": "chungnam",
+      "candidates": 16,
+      "eligible": 9,
+      "publish": true,
+      "top1": "cx_ccba052f3dc59183"
+    },
+    {
+      "lawd": "44710",
+      "name": "금산군",
+      "metro": "chungnam",
+      "candidates": 4,
+      "eligible": 3,
+      "publish": true,
+      "top1": "cx_0e03a963f70d2924"
+    },
+    {
+      "lawd": "44760",
+      "name": "부여군",
+      "metro": "chungnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "44770",
+      "name": "서천군",
+      "metro": "chungnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "44790",
+      "name": "청양군",
+      "metro": "chungnam",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_9d33634422bc8de5"
+    },
+    {
+      "lawd": "44800",
+      "name": "홍성군",
+      "metro": "chungnam",
+      "candidates": 4,
+      "eligible": 3,
+      "publish": true,
+      "top1": "cx_49d5ad0260019c69"
+    },
+    {
+      "lawd": "44810",
+      "name": "예산군",
+      "metro": "chungnam",
+      "candidates": 4,
+      "eligible": 2,
+      "publish": true,
+      "top1": "cx_ee71b2392063b21d"
+    },
+    {
+      "lawd": "44825",
+      "name": "태안군",
+      "metro": "chungnam",
+      "candidates": 3,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_9dfe695ecd639ec1"
+    },
+    {
+      "lawd": "47111",
+      "name": "포항시 남구",
+      "metro": "gyeongbuk",
+      "candidates": 27,
+      "eligible": 17,
+      "publish": true,
+      "top1": "cx_dcd1b239be80385e"
+    },
+    {
+      "lawd": "47113",
+      "name": "포항시 북구",
+      "metro": "gyeongbuk",
+      "candidates": 51,
+      "eligible": 30,
+      "publish": true,
+      "top1": "cx_f06df2b00555a437"
+    },
+    {
+      "lawd": "47130",
+      "name": "경주시",
+      "metro": "gyeongbuk",
+      "candidates": 26,
+      "eligible": 14,
+      "publish": true,
+      "top1": "cx_e2dc42005d525b42"
+    },
+    {
+      "lawd": "47150",
+      "name": "김천시",
+      "metro": "gyeongbuk",
+      "candidates": 15,
+      "eligible": 10,
+      "publish": true,
+      "top1": "cx_71049777741c316b"
+    },
+    {
+      "lawd": "47170",
+      "name": "안동시",
+      "metro": "gyeongbuk",
+      "candidates": 12,
+      "eligible": 7,
+      "publish": true,
+      "top1": "cx_1c468c1f1a27235e"
+    },
+    {
+      "lawd": "47190",
+      "name": "구미시",
+      "metro": "gyeongbuk",
+      "candidates": 46,
+      "eligible": 26,
+      "publish": true,
+      "top1": "cx_f35dfc5948b7d5d1"
+    },
+    {
+      "lawd": "47210",
+      "name": "영주시",
+      "metro": "gyeongbuk",
+      "candidates": 5,
+      "eligible": 4,
+      "publish": true,
+      "top1": "cx_791ebf591a0be80b"
+    },
+    {
+      "lawd": "47230",
+      "name": "영천시",
+      "metro": "gyeongbuk",
+      "candidates": 9,
+      "eligible": 3,
+      "publish": true,
+      "top1": "cx_823ebf22214433f5"
+    },
+    {
+      "lawd": "47250",
+      "name": "상주시",
+      "metro": "gyeongbuk",
+      "candidates": 4,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_115e6de525c18158"
+    },
+    {
+      "lawd": "47280",
+      "name": "문경시",
+      "metro": "gyeongbuk",
+      "candidates": 4,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_d2f1c3fe6cb5cda4"
+    },
+    {
+      "lawd": "47290",
+      "name": "경산시",
+      "metro": "gyeongbuk",
+      "candidates": 46,
+      "eligible": 31,
+      "publish": true,
+      "top1": "cx_e87f4229f88ce2c5"
+    },
+    {
+      "lawd": "47730",
+      "name": "의성군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "47750",
+      "name": "청송군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "47760",
+      "name": "영양군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "47770",
+      "name": "영덕군",
+      "metro": "gyeongbuk",
+      "candidates": 1,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_45ec81e18e52d751"
+    },
+    {
+      "lawd": "47820",
+      "name": "청도군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "47830",
+      "name": "고령군",
+      "metro": "gyeongbuk",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_9ea6df362bd3a4d2"
+    },
+    {
+      "lawd": "47840",
+      "name": "성주군",
+      "metro": "gyeongbuk",
+      "candidates": 4,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "47850",
+      "name": "칠곡군",
+      "metro": "gyeongbuk",
+      "candidates": 14,
+      "eligible": 6,
+      "publish": true,
+      "top1": "cx_1a0ed4a5c5cbe2e0"
+    },
+    {
+      "lawd": "47900",
+      "name": "예천군",
+      "metro": "gyeongbuk",
+      "candidates": 6,
+      "eligible": 4,
+      "publish": true,
+      "top1": "cx_1e47228676087586"
+    },
+    {
+      "lawd": "47930",
+      "name": "울진군",
+      "metro": "gyeongbuk",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "48121",
+      "name": "창원시 의창구",
+      "metro": "gyeongnam",
+      "candidates": 16,
+      "eligible": 9,
+      "publish": true,
+      "top1": "cx_1067c201c28f0cae"
+    },
+    {
+      "lawd": "48123",
+      "name": "창원시 성산구",
+      "metro": "gyeongnam",
+      "candidates": 20,
+      "eligible": 12,
+      "publish": true,
+      "top1": "cx_bab14f1a14cc6bea"
+    },
+    {
+      "lawd": "48125",
+      "name": "창원시 마산합포구",
+      "metro": "gyeongnam",
+      "candidates": 15,
+      "eligible": 9,
+      "publish": true,
+      "top1": "cx_d8491e47b75eda44"
+    },
+    {
+      "lawd": "48127",
+      "name": "창원시 마산회원구",
+      "metro": "gyeongnam",
+      "candidates": 17,
+      "eligible": 7,
+      "publish": true,
+      "top1": "cx_c07ba16d7a8ecf52"
+    },
+    {
+      "lawd": "48129",
+      "name": "창원시 진해구",
+      "metro": "gyeongnam",
+      "candidates": 16,
+      "eligible": 8,
+      "publish": true,
+      "top1": "cx_17d3817bfd5ef34f"
+    },
+    {
+      "lawd": "48170",
+      "name": "진주시",
+      "metro": "gyeongnam",
+      "candidates": 64,
+      "eligible": 44,
+      "publish": true,
+      "top1": "cx_5787ce79677bc86a"
+    },
+    {
+      "lawd": "48220",
+      "name": "통영시",
+      "metro": "gyeongnam",
+      "candidates": 27,
+      "eligible": 13,
+      "publish": true,
+      "top1": "cx_0f997323c008c6e5"
+    },
+    {
+      "lawd": "48240",
+      "name": "사천시",
+      "metro": "gyeongnam",
+      "candidates": 23,
+      "eligible": 12,
+      "publish": true,
+      "top1": "cx_b6898c97eff3a2b2"
+    },
+    {
+      "lawd": "48250",
+      "name": "김해시",
+      "metro": "gyeongnam",
+      "candidates": 55,
+      "eligible": 40,
+      "publish": true,
+      "top1": "cx_5020c1e706b50ee3"
+    },
+    {
+      "lawd": "48270",
+      "name": "밀양시",
+      "metro": "gyeongnam",
+      "candidates": 16,
+      "eligible": 6,
+      "publish": true,
+      "top1": "cx_75be5c4e20bd2a13"
+    },
+    {
+      "lawd": "48310",
+      "name": "거제시",
+      "metro": "gyeongnam",
+      "candidates": 51,
+      "eligible": 28,
+      "publish": true,
+      "top1": "cx_e3c801d221ad306e"
+    },
+    {
+      "lawd": "48330",
+      "name": "양산시",
+      "metro": "gyeongnam",
+      "candidates": 47,
+      "eligible": 24,
+      "publish": true,
+      "top1": "cx_7fc41e6e5db9968a"
+    },
+    {
+      "lawd": "48720",
+      "name": "의령군",
+      "metro": "gyeongnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "48730",
+      "name": "함안군",
+      "metro": "gyeongnam",
+      "candidates": 3,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_a7ea7239a0a00b40"
+    },
+    {
+      "lawd": "48740",
+      "name": "창녕군",
+      "metro": "gyeongnam",
+      "candidates": 1,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_2ce9ef04a4caa271"
+    },
+    {
+      "lawd": "48820",
+      "name": "고성군",
+      "metro": "gyeongnam",
+      "candidates": 5,
+      "eligible": 1,
+      "publish": true,
+      "top1": "cx_cd5422ac66a7be40"
+    },
+    {
+      "lawd": "48840",
+      "name": "남해군",
+      "metro": "gyeongnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "48850",
+      "name": "하동군",
+      "metro": "gyeongnam",
+      "candidates": 2,
+      "eligible": 2,
+      "publish": true,
+      "top1": "cx_b13c1259d64782e1"
+    },
+    {
+      "lawd": "48860",
+      "name": "산청군",
+      "metro": "gyeongnam",
+      "candidates": 2,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "48870",
+      "name": "함양군",
+      "metro": "gyeongnam",
+      "candidates": 3,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "48880",
+      "name": "거창군",
+      "metro": "gyeongnam",
+      "candidates": 3,
+      "eligible": 2,
+      "publish": true,
+      "top1": "cx_65bd415378c714fc"
+    },
+    {
+      "lawd": "48890",
+      "name": "합천군",
+      "metro": "gyeongnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top1": null
+    },
+    {
+      "lawd": "50110",
+      "name": "제주시",
+      "metro": "jeju",
+      "candidates": 21,
+      "eligible": 7,
+      "publish": true,
+      "top1": "cx_a033da9777cc0e6f"
+    },
+    {
+      "lawd": "50130",
+      "name": "서귀포시",
+      "metro": "jeju",
+      "candidates": 8,
+      "eligible": 5,
+      "publish": true,
+      "top1": "cx_6abe767c8c3a9a7f"
+    }
+  ]
+}
