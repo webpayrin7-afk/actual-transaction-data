@@ -27,6 +27,7 @@ import type {
   MarketHomeResponse,
   MarketVolumeItem,
 } from "@/lib/market/home";
+import type { MarketRecord, MarketRecordsResponse } from "@/lib/market/records";
 import { formatArea, formatDealDate, formatEok } from "@/lib/utils/format";
 
 async function fetchMarketHome(): Promise<MarketHomeResponse> {
@@ -160,34 +161,78 @@ function PreviewList<T>({
   );
 }
 
-type IssueTab = "notable" | "singoga" | "drop";
+type IssueTab = "records" | "singoga" | "drop";
 
-/** 오늘의 가격 이슈 — 주요 · 신고가 · 하락거래를 한 섹션의 탭으로 (같은 주제 한 곳). */
+async function fetchRecords(date: string): Promise<MarketRecordsResponse> {
+  const res = await fetch(`/api/market/records?date=${encodeURIComponent(date)}`);
+  if (!res.ok) throw new Error("오늘의 기록을 불러오지 못했습니다.");
+  return res.json();
+}
+
+/** 오늘의 기록 한 줄 — 이유 태그가 먼저, 오른쪽은 가격(또는 건수) */
+function RecordRow({ r }: { r: MarketRecord }) {
+  const spec = [
+    r.place,
+    r.exclusiveArea ? `${Math.round(r.exclusiveArea * 10) / 10}㎡` : null,
+    r.floor != null ? `${r.floor}층` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <LabListRow
+      href={r.href}
+      wrap
+      title={r.aptName}
+      meta={
+        <>
+          <span className="mb-0.5 block">
+            <LabTag>{r.reason}</LabTag>
+          </span>
+          <span className="block">{spec}</span>
+          {r.detail ? (
+            <span className="block tabular-nums">
+              {r.detail}
+              {r.dealDate && r.kind !== "top-price" ? ` · ${r.dealDate.slice(5).replace("-", ".")} 계약` : ""}
+            </span>
+          ) : null}
+        </>
+      }
+      value={r.dealAmount != null ? formatEok(r.dealAmount) : r.sub}
+      valueTone={r.tone ?? undefined}
+      sub={r.dealAmount != null ? r.sub : null}
+    />
+  );
+}
+
+/** 오늘의 기록 — 날마다 다섯 가지 기록 (가장 비싼 · 가장 크게 오른 · 가장 오래된 고점 · 가장 많이 떨어진 · 거래 많은 단지) */
+function TodayRecords({ date }: { date: string }) {
+  const query = useQuery({
+    queryKey: ["market-records", date],
+    queryFn: () => fetchRecords(date),
+    staleTime: 5 * 60 * 1000,
+  });
+  if (query.isLoading) return <div className="lab-skeleton" aria-label="오늘의 기록 불러오는 중" />;
+  if (query.isError) return <p className="lab-state">오늘의 기록을 불러오지 못했습니다.</p>;
+  const records = query.data?.records ?? [];
+  if (records.length === 0) return <p className="lab-state">오늘 확인된 매매가 아직 없어 기록이 없습니다.</p>;
+  return (
+    <ul className={LAB_LIST}>
+      {records.map((r) => (
+        <RecordRow key={r.kind} r={r} />
+      ))}
+    </ul>
+  );
+}
+
+/** 오늘의 가격 이슈 — 오늘의 기록 · 신고가 · 하락거래 (신고가·하락 전체는 전용 페이지). */
 function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse }) {
-  const tabs: { id: IssueTab; label: string; count: string; items: MarketDealItem[] }[] = [
-    {
-      id: "notable",
-      label: "주요",
-      count: String(data.notables.length),
-      items: data.notables,
-    },
-    {
-      id: "singoga",
-      label: "신고가",
-      count: String(data.kpis.singogaCount),
-      items: data.singoga,
-    },
-    {
-      id: "drop",
-      label: "하락거래",
-      count: String(data.kpis.dropCount),
-      items: data.drops,
-    },
+  const tabs: { id: IssueTab; label: string; count?: string; items: MarketDealItem[] }[] = [
+    { id: "records", label: "오늘의 기록", items: [] },
+    { id: "singoga", label: "신고가", count: String(data.kpis.singogaCount), items: data.singoga },
+    { id: "drop", label: "하락거래", count: String(data.kpis.dropCount), items: data.drops },
   ];
-  const firstWithItems = tabs.find((t) => t.items.length > 0)?.id ?? "notable";
-  const [picked, setPicked] = useState<IssueTab | null>(null);
-  const active = picked ?? firstWithItems;
-  const tab = tabs.find((t) => t.id === active) ?? tabs[0];
+  const [active, setActive] = useState<IssueTab>("records");
+  const tab = tabs.find((t) => t.id === active) ?? tabs[0]!;
   const prefix = "market-issues";
 
   return (
@@ -197,9 +242,9 @@ function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse
       meta="오늘 확인 · 계약일 이전 거래와 비교"
       tip={
         <ul className="flex list-disc flex-col gap-1 pl-4">
+          <li>오늘의 기록: 오늘 확인된 매매 중 가장 비싼 거래, 가장 크게 오른 신고가, 가장 오래된 고점을 넘은 신고가, 가장 많이 떨어진 거래, 거래가 가장 많은 단지</li>
           <li>신고가: 같은 단지·면적에서 계약일 이전 최고가보다 높은 거래</li>
           <li>하락거래(고점 −10%): 계약일 이전 최고가보다 10% 이상 낮은 거래</li>
-          <li>주요: 오늘 확인된 신고가·하락거래·20억 이상 거래 중 일부</li>
         </ul>
       }
     >
@@ -209,22 +254,24 @@ function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse
         idPrefix={prefix}
         items={tabs.map(({ id: tid, label, count }) => ({ id: tid, label, count }))}
         value={active}
-        onChange={setPicked}
+        onChange={setActive}
       />
       <div id={labTabPanelId(prefix, active)} role="tabpanel" className="flex flex-col">
         {/* 홈은 요약 — 5건만, 더보기 없이. 전체는 아래 '전체 보기'(신고가·하락 거래 페이지) */}
-        {tab.items.length === 0 ? (
+        {active === "records" ? (
+          data.discoveryDate ? (
+            <TodayRecords date={data.discoveryDate} />
+          ) : (
+            <p className="lab-state">오늘 확인된 매매가 아직 없어 기록이 없습니다.</p>
+          )
+        ) : tab.items.length === 0 ? (
           <p className="lab-state">
-            {active === "singoga"
-              ? "오늘 확인된 신고가가 없습니다."
-              : active === "drop"
-                ? "오늘 확인된 하락거래가 없습니다."
-                : "오늘 확인된 주요 거래가 없습니다."}
+            {active === "singoga" ? "오늘 확인된 신고가가 없습니다." : "오늘 확인된 하락거래가 없습니다."}
           </p>
         ) : (
           <ul className={LAB_LIST}>
             {tab.items.slice(0, LAB_LIST_PREVIEW).map((item) => (
-              <DealRow key={`${active}-${item.id}`} item={item} showKind={active === "notable"} />
+              <DealRow key={`${active}-${item.id}`} item={item} />
             ))}
           </ul>
         )}
