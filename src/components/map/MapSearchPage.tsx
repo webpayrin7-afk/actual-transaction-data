@@ -836,8 +836,8 @@ export function MapSearchPage() {
                 <dd className="detail-meta">
                   {selected.priceDate ? formatDealDate(selected.priceDate) : "기간 내 없음"}
                   {selected.move ? (
-                    <span className={`ml-1 font-semibold ${selected.move === "singoga" ? "text-[#D93A3F]" : "text-[#2F62D6]"}`}>
-                      {selected.move === "singoga" ? "신고가" : "고점 대비 하락"}
+                    <span className={`ml-1 whitespace-nowrap font-semibold ${selected.move === "singoga" ? "text-[#D93A3F]" : "text-[#2F62D6]"}`}>
+                      {selected.move === "singoga" ? "신고가" : "하락"}
                     </span>
                   ) : null}
                 </dd>
@@ -855,20 +855,42 @@ export function MapSearchPage() {
               </div>
             </dl>
             {selected.jeonseRatioPct != null || selected.rentYieldPct != null || selected.change1yPct != null ? (
-              <p className="detail-body mt-2 tabular-nums">
-                {[
-                  selected.jeonseRatioPct != null ? `전세가율 ${selected.jeonseRatioPct}%` : null,
-                  selected.gapMan != null
-                    ? `갭 ${selected.gapMan < 0 ? "−" : ""}${formatEok(Math.abs(selected.gapMan))}`
-                    : null,
-                  selected.rentYieldPct != null ? `월세수익률 ${selected.rentYieldPct}%` : null,
-                  selected.change1yPct != null
-                    ? `1년 ${selected.change1yPct > 0 ? "+" : selected.change1yPct < 0 ? "−" : ""}${Math.abs(selected.change1yPct).toFixed(1)}%`
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
+              <dl className="mt-2 grid grid-cols-4 gap-1 text-center">
+                {(
+                  [
+                    ["전세가율", selected.jeonseRatioPct != null ? `${selected.jeonseRatioPct}%` : null, null],
+                    [
+                      "갭",
+                      selected.gapMan != null
+                        ? `${selected.gapMan < 0 ? "−" : ""}${shortEok(Math.abs(selected.gapMan))}`
+                        : null,
+                      null,
+                    ],
+                    ["월세수익률", selected.rentYieldPct != null ? `${selected.rentYieldPct}%` : null, null],
+                    [
+                      "1년 변동",
+                      selected.change1yPct != null
+                        ? `${selected.change1yPct > 0 ? "+" : selected.change1yPct < 0 ? "−" : ""}${Math.abs(selected.change1yPct).toFixed(1)}%`
+                        : null,
+                      selected.change1yPct == null || selected.change1yPct === 0
+                        ? null
+                        : selected.change1yPct > 0
+                          ? "#D93A3F"
+                          : "#2F62D6",
+                    ],
+                  ] as Array<[string, string | null, string | null]>
+                ).map(([label, value, color]) => (
+                  <div key={label} className="min-w-0">
+                    <dt className="whitespace-nowrap text-[12px] leading-4 text-[color:var(--lab-muted)]">{label}</dt>
+                    <dd
+                      className="whitespace-nowrap text-[15px] font-semibold leading-5 tabular-nums text-[color:var(--lab-navy-950)]"
+                      style={color ? { color } : undefined}
+                    >
+                      {value ?? "–"}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Link href={`/complex-3d/${selected.complexId}`} className="lab-button lab-button-secondary w-full">
