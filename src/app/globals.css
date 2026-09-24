@@ -1357,33 +1357,34 @@ h3 {
 }
 
 /*
- * 촘촘한 페이지 (시범 · 2026-09-24 · 분양 정보에만 적용 — 오너 확인 후 전 페이지 확대 검토)
- * 모바일: 페이지 좌우 여백 16→12 (칩 줄 시작선 = 카드 테두리), 카드 안 여백 16→12(좌우)·14(위아래),
- * 섹션 간격은 페이지에서 gap-3(12).
- * 화면·카드 끝까지 번지는 줄은 --lab-bleed(기본 16px)만큼 번진다:
+ * 모바일 여백 (2026-09-24 · 분양 정보 시범 후 전 페이지 적용)
+ * 정보가 많은 사이트라 둥근 카드(랩시리즈 고유 UI)는 지키면서 모바일 여백을 줄인다:
+ *   페이지 좌우 16→12 (칩 줄 시작선 = 카드 테두리), 카드 안 16→12(좌우)·14(위아래), 섹션 간격 20·24→12.
+ * 화면·카드 끝까지 번지는 줄은 --lab-bleed 만큼 번진다 (모바일 12, 카드 안 12):
  *   .lab-bleed   = 바깥으로 번지고 같은 만큼 안쪽 여백 (칩 줄 — 글자는 제자리)
  *   .lab-bleed-m = 바깥으로만 번짐 (1차 탭 — 칸이 화면 끝까지)
  */
+:root {
+  --lab-bleed: 0.75rem;
+}
 .lab-bleed {
-  margin-inline: calc(-1 * var(--lab-bleed, 1rem));
-  padding-inline: var(--lab-bleed, 1rem);
+  margin-inline: calc(-1 * var(--lab-bleed));
+  padding-inline: var(--lab-bleed);
 }
 .lab-bleed-m {
-  margin-inline: calc(-1 * var(--lab-bleed, 1rem));
+  margin-inline: calc(-1 * var(--lab-bleed));
 }
 @media (min-width: 640px) {
   .lab-bleed { margin-inline: 0; padding-inline: 0; }
   .lab-bleed-m { margin-inline: 0; }
 }
-@media (max-width: 639px) {
-  .lab-dense {
-    --lab-bleed: 0.75rem;
-    padding-inline: 0.75rem;
-  }
-}
 @media (max-width: 767px) {
-  .lab-dense .detail-card {
-    --lab-bleed: 0.75rem;
+  .detail-card {
     padding: 0.875rem 0.75rem;
+  }
+  .detail-page {
+    gap: 0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 }

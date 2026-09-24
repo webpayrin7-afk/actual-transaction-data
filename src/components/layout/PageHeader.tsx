@@ -3,7 +3,7 @@ import { InfoTip } from "@/components/ui/InfoTip";
 
 /** 페이지 본문 공통 shell — max-width / padding 정렬 */
 export const PAGE_SHELL =
-  "mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-4 pt-4 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10";
+  "mx-auto flex w-full max-w-[1440px] flex-col gap-3 px-3 pt-4 pb-8 sm:gap-6 sm:px-6 sm:pt-5 sm:pb-10 lg:px-8 xl:px-10";
 
 /**
  * 하단 메뉴 첫 페이지(제목이 상단바에 있는 페이지) — 모바일 위 여백을 줄인다 (16 → 8).

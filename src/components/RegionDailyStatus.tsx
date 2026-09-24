@@ -945,8 +945,8 @@ export function RegionDailyStatus({
   }, [calendarSelected, listedDates, sectionByDate, visibleDealCount]);
 
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
-      <div ref={stickyNavAnchor} className="-mb-4 h-0 sm:-mb-5" aria-hidden />
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-3 sm:gap-5">
+      <div ref={stickyNavAnchor} className="-mb-3 h-0 sm:-mb-5" aria-hidden />
       <RegionStickyNav anchor={stickyNavAnchor} title={regionName} subtitle="시장 현황" />
       {guLawdCd ? (
         <RegionPriceSection scope={{ lawdCd: guLawdCd }} regionName={regionName} />

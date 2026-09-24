@@ -68,8 +68,8 @@ export function RegionDongDetail({
         </PageHeader>
       </header>
 
-      <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
-        <div ref={anchor} className="-mb-4 h-0 sm:-mb-5" aria-hidden />
+      <div className="flex min-h-[min(70vh,42rem)] flex-col gap-3 sm:gap-5">
+        <div ref={anchor} className="-mb-3 h-0 sm:-mb-5" aria-hidden />
         <RegionStickyNav
           anchor={anchor}
           title={dong}

@@ -114,7 +114,7 @@ export function PresalePage() {
   const chips = <LabFilterChips filters={filters} ariaLabel="분양 조건" />;
 
   return (
-    <div className={`${PAGE_SHELL.replace("gap-5", "gap-3")} lab-dense`}>
+    <div className={PAGE_SHELL}>
       <PageHeader title="분양 정보" titleClassName="detail-page-title" showDivider={false} titleInHeader />
       {/* 모바일: 탭 + 조건 칩 줄을 흰 띠 하나로 상단바에 잇고, 띠 아래에만 구분선 */}
       <div

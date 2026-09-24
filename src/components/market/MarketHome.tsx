@@ -357,7 +357,7 @@ export function MarketHome() {
         titleInHeader
         className="sm:mt-2"
       />
-      <div ref={stickyAnchorRef} className="-mb-5 h-0 sm:-mb-6" aria-hidden />
+      <div ref={stickyAnchorRef} className="-mb-3 h-0 sm:-mb-6" aria-hidden />
       <LabStickySectionNav
         anchor={stickyAnchorRef}
         sections={MARKET_SECTIONS}
@@ -441,7 +441,7 @@ export function MarketHome() {
       ) : null}
 
       {/* 정책 발표는 시장 데이터와 별도로 불러와 먼저 보일 수 있다 */}
-      <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
+      <div className="grid grid-cols-1 gap-3 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
         {data && hasIssues ? (
           <PriceIssuesSection id="market-price-issues" data={data} />
         ) : null}

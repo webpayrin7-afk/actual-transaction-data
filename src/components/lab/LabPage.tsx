@@ -36,7 +36,7 @@ export function LabPage() {
           </p>
         }
       />
-      <div ref={anchorRef} className="-mb-5 h-0 sm:-mb-6" aria-hidden />
+      <div ref={anchorRef} className="-mb-3 h-0 sm:-mb-6" aria-hidden />
       <LabStickySectionNav anchor={anchorRef} sections={SECTIONS} title="오늘의 실험실" ariaLabel="실험 목록" />
 
       {query.isLoading ? <div className="lab-skeleton" aria-label="실험실 불러오는 중" /> : null}
@@ -50,7 +50,7 @@ export function LabPage() {
       ) : null}
       {data?.warning ? <p className="lab-state">{data.warning}</p> : null}
 
-      <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
+      <div className="grid grid-cols-1 gap-3 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
         {ordered.map((e) => (
           <LabSectionBoundary key={e.id} id={getLabDef(e.id).slug} title={getLabDef(e.id).title}>
             <LabExperimentCard result={e} />

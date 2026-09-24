@@ -216,7 +216,7 @@ export function MarketTrendsPage() {
         />
       </LabSectionBoundary>
 
-      <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="grid grid-cols-1 gap-3 sm:gap-6 lg:grid-cols-2 lg:items-start">
         <LabSectionBoundary id="price-level" title="가격 수준">
           <TrendsPriceLevelSection
             regionLabel={region.fullLabel}
