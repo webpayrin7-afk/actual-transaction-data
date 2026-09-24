@@ -42,7 +42,7 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   {
     id: "regions",
     label: "지역조회",
-    shortLabel: "지역조회",
+    shortLabel: "지역",
     href: "/regions",
     icon: Grid2x2,
     match: (pathname) =>
@@ -51,7 +51,7 @@ export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
   {
     id: "complexes",
     label: "단지조회",
-    shortLabel: "단지조회",
+    shortLabel: "단지",
     href: "/complexes",
     icon: Building2,
     match: (pathname) =>
