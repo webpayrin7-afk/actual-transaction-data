@@ -1,0 +1,160 @@
+{
+  "seoul": [
+    {
+      "complex_id": "cx_addb0af3aa8f0806",
+      "apt_name": "래미안첼리투스",
+      "identity_class": "EXACT",
+      "kapt_code": "A10027908",
+      "source": "existing_link"
+    },
+    {
+      "complex_id": "cx_458e52b41c3431ef",
+      "apt_name": "금호삼성래미안",
+      "identity_class": "EXACT",
+      "kapt_code": "A13309102",
+      "source": "existing_link"
+    },
+    {
+      "complex_id": "cx_4ffda47da0de7668",
+      "apt_name": "래미안옥수리버젠",
+      "identity_class": "EXACT",
+      "kapt_code": "A13375907",
+      "source": "existing_link"
+    },
+    {
+      "complex_id": "cx_ca67620695488aaf",
+      "apt_name": "종로청계힐스테이트",
+      "identity_class": "EXACT",
+      "kapt_code": "A11055002",
+      "source": "existing_link"
+    }
+  ],
+  "jamsil_els": [
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "identity_class": "EXACT",
+      "kapt_code": "A13822004",
+      "source": "existing_link"
+    }
+  ],
+  "gyeonggi": [
+    {
+      "complex_id": "cx_e474ded8adea26e6",
+      "apt_name": "래미안안양메가트리아",
+      "identity_class": "EXACT",
+      "kapt_code": "A10027336",
+      "source": "existing_link"
+    },
+    {
+      "complex_id": "cx_1117efa559d80681",
+      "apt_name": "수원아이파크시티1단지",
+      "identity_class": "EXACT",
+      "kapt_code": "A44173911",
+      "source": "existing_link"
+    },
+    {
+      "complex_id": "cx_4529f324a21b7189",
+      "apt_name": "화서역파크푸르지오",
+      "identity_class": "EXACT",
+      "kapt_code": "A10024170",
+      "source": "existing_link"
+    },
+    {
+      "complex_id": "cx_0f3fe722e75d87e8",
+      "apt_name": "북수원자이렉스비아",
+      "identity_class": "EXACT",
+      "kapt_code": "A10022677",
+      "source": "existing_link"
+    },
+    {
+      "complex_id": "cx_84707b4d65930dff",
+      "apt_name": "건우2차",
+      "identity_class": "EXACT",
+      "kapt_code": "A52780002",
+      "source": "existing_link"
+    }
+  ],
+  "non_capital": [
+    {
+      "complex_id": "cx_0007937da6d12946",
+      "apt_name": "우암5차자유아파트",
+      "identity_class": "EXACT",
+      "kapt_code": "A60880001",
+      "sido": "부산광역시",
+      "region": "부산"
+    },
+    {
+      "complex_id": "cx_000e69af5c96ab70",
+      "apt_name": "사직삼환나우빌",
+      "identity_class": "EXACT",
+      "kapt_code": "A60776401",
+      "sido": "부산광역시",
+      "region": "부산"
+    },
+    {
+      "complex_id": "cx_001ddd0f1594fc9a",
+      "apt_name": "팔공2차보성타운",
+      "identity_class": "EXACT",
+      "kapt_code": "A70148006",
+      "sido": "대구광역시",
+      "region": "대구"
+    },
+    {
+      "complex_id": "cx_007042986e09048e",
+      "apt_name": "수성레이크푸르지오",
+      "identity_class": "EXACT",
+      "kapt_code": "A10023587",
+      "sido": "대구광역시",
+      "region": "대구"
+    },
+    {
+      "complex_id": "cx_0028f64493162847",
+      "apt_name": "세강듀오빌아파트",
+      "identity_class": "EXACT",
+      "kapt_code": "A10022215",
+      "sido": "대전광역시",
+      "region": "대전"
+    },
+    {
+      "complex_id": "cx_005913b71d1f53ac",
+      "apt_name": "아이빌",
+      "identity_class": "EXACT",
+      "kapt_code": "A10021976",
+      "sido": "대전광역시",
+      "region": "대전"
+    },
+    {
+      "complex_id": "cx_00198a6d5f200453",
+      "apt_name": "힐스테이트오룡1단지",
+      "identity_class": "EXACT",
+      "kapt_code": "A10022567",
+      "sido": "전남광주통합특별시",
+      "region": "광주전남"
+    },
+    {
+      "complex_id": "cx_0019d20c4fb88dc4",
+      "apt_name": "목포부영5차아파트",
+      "identity_class": "EXACT",
+      "kapt_code": "A53073526",
+      "sido": "전남광주통합특별시",
+      "region": "광주전남"
+    },
+    {
+      "complex_id": "cx_00677a42d37ae393",
+      "apt_name": "두산위브더제니스양산",
+      "identity_class": "EXACT",
+      "kapt_code": "A10022561",
+      "sido": "경상남도",
+      "region": "경남"
+    },
+    {
+      "complex_id": "cx_00860b3bf4490ee1",
+      "apt_name": "분성마을2단지부영(북부부영7차)",
+      "identity_class": "EXACT",
+      "kapt_code": "A62176812",
+      "sido": "경상남도",
+      "region": "경남"
+    }
+  ]
+}

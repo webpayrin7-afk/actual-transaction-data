@@ -1,0 +1,86 @@
+{
+  "generated_at": "2026-09-20T19:36:18.593Z",
+  "task": "seoul_gyeonggi_mgmt_fee_expansion",
+  "status": "BLOCKED_CANDIDATES_EXHAUSTED",
+  "production_write": false,
+  "api_calls": 0,
+  "reason": "Seoul and Gyeonggi have zero READY unloaded complexes with a confirmed unique KAPT identity. Fee acquisition requires complex_id ↔ KAPT before published-month probes. This task does not alter canonical identity.",
+  "production": {
+    "rows": 963,
+    "complexes": 850
+  },
+  "seoul": {
+    "sido": "서울특별시",
+    "sido_code": "11",
+    "master_complexes": 8437,
+    "confirmed_kapt": 9,
+    "existing_fee_complexes": 9,
+    "ready_unloaded": 0,
+    "unmapped": 8428,
+    "ambiguous": 0,
+    "selected": 0,
+    "waves": 0,
+    "fee_coverage_pct_of_master": 0.11,
+    "fee_coverage_pct_of_confirmed_kapt": 100
+  },
+  "gyeonggi": {
+    "sido": "경기도",
+    "sido_code": "41",
+    "master_complexes": 6529,
+    "confirmed_kapt": 2,
+    "existing_fee_complexes": 2,
+    "ready_unloaded": 0,
+    "unmapped": 6527,
+    "ambiguous": 0,
+    "selected": 0,
+    "waves": 0,
+    "fee_coverage_pct_of_master": 0.03,
+    "fee_coverage_pct_of_confirmed_kapt": 100
+  },
+  "busan": {
+    "sido": "부산광역시",
+    "sido_code": "26",
+    "master_complexes": 1404,
+    "confirmed_kapt": 1404,
+    "existing_fee_complexes": 411,
+    "ready_unloaded": 993,
+    "fee_coverage_pct_of_master": 29.27
+  },
+  "gyeongnam": {
+    "sido": "경상남도",
+    "sido_code": "48",
+    "master_complexes": 1395,
+    "confirmed_kapt": 1395,
+    "existing_fee_complexes": 428,
+    "ready_unloaded": 967,
+    "fee_coverage_pct_of_master": 30.68
+  },
+  "national": {
+    "master_complexes": 27524,
+    "confirmed_kapt": 12569,
+    "existing_fee_complexes": 850,
+    "fee_coverage_pct_of_master": 3.09,
+    "fee_coverage_pct_of_confirmed_kapt": 6.76
+  },
+  "identity_context_read_only": {
+    "stage_m3_seoul_promotion_manifest_commit": "b1102640f3241c4ad976d2989cc10e7b64966a5c",
+    "stage_m3_expected_new_source_links": 1655,
+    "stage_m3_write_policy": "manifest_only_no_production_source_link_write",
+    "national_identity_foundation": "KAPT universe artifact exists; Production source-link inserts not created by that work",
+    "applied_in_this_task": false
+  },
+  "product": {
+    "detail_sql_readable": true,
+    "detail_app_read_path": "absent_in_this_branch",
+    "live_source_calls_on_page_request": "none_observed_for_fee_table",
+    "note": "Existing fee rows are readable from apt_complex_mgmt_fee_monthly by complex_id. No dedicated complex-detail fee API/UI route was found on this branch. UI was not redesigned."
+  },
+  "stop": {
+    "reason": "CANDIDATES_EXHAUSTED",
+    "current_wave": null,
+    "checkpoint_resumable": false,
+    "exact_next_cursor": "Separate explicit order: promote confirmed Seoul (then Gyeonggi) KAPT identity links into apt_complex_source_links. After READY unloaded > 0, launch Seoul fee wave 1 (cohort 100, freeze, checkpoint)."
+  },
+  "waves_started": false,
+  "busan_gyeongnam_waves_3_to_6_restarted": false
+}

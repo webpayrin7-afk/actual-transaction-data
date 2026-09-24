@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-09-21T23:54:35.050Z",
+  "canonical_ok": true,
+  "duplicate_kapt": true,
+  "duplicate_complex": true,
+  "seoul_regressions": true,
+  "unrelated_writes": true,
+  "gate": "PASS",
+  "gyeonggi": {
+    "sido_code": "41",
+    "sido": "경기도",
+    "canonical": 6529,
+    "existing_exact": 1152,
+    "new_exact": 0,
+    "exact_after": 1152,
+    "conflict": 12,
+    "insufficient": 1140,
+    "stale_invalid": 0,
+    "no_candidate": 4225,
+    "unclassified": 0,
+    "api_calls": 0
+  }
+}

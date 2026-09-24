@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-09-21T23:53:30.000Z",
+  "region": "41",
+  "sido": "경기도",
+  "commit": true,
+  "production_write": true,
+  "management_fee_write": false,
+  "identity_inserts": 1150,
+  "identity_updates": 0,
+  "identity_deletes": 0,
+  "conflicts": 0,
+  "invalid": 0,
+  "existing_exact_before": 2,
+  "exact_after": 1152,
+  "unrelated_writes": 0,
+  "fee_rows_unchanged": true,
+  "source_version": "national-identity/kapt-complex-universe@2026-09-18",
+  "stage": "national-kapt-identity-v1",
+  "resolver_version": "kapt_identity_resolver_v2",
+  "exact_safe_rule_changed": false,
+  "note": "Gyeonggi EXACT_SAFE promotions applied before national idempotent pass."
+}

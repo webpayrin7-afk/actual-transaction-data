@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-09-21T23:54:34.020Z",
+  "stage": "national-kapt-identity-v1",
+  "resolver_version": "kapt_identity_resolver_v2",
+  "exact_safe_rule_changed": false,
+  "universe_sha256": "77129a57c8249d2ac1f311fc3fd56e1058a33b63ef6300a204b5215c6cda49d4",
+  "region": "all",
+  "production_write": false,
+  "management_fee_write": false,
+  "candidates": [],
+  "counts": {
+    "promotable": 0,
+    "by_sido": {
+      "11": 0,
+      "12": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "30": 0,
+      "31": 0,
+      "36": 0,
+      "41": 0,
+      "43": 0,
+      "44": 0,
+      "47": 0,
+      "48": 0,
+      "50": 0,
+      "51": 0,
+      "52": 0
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "status": "SUPERSEDED_BY_SEOUL_WAVE1_DRYRUN",
+  "wave": 1,
+  "region": "seoul",
+  "production_write": false,
+  "stop_reason": "WALL_RUNTIME_90_MIN",
+  "note": "Historical 90-minute stop at 2229 records and 19 remaining catalog targets. The same frozen cohort and checkpoint were resumed and finished. Canonical artifact is seoul-wave1-dryrun.json. Do not reselect. Do not start wave 2.",
+  "resume_start": "2026-09-20T23:48:09Z",
+  "stopped_at": "2026-09-21T01:18:39Z",
+  "selected": 100,
+  "published_months": 90,
+  "no_published_month": 10,
+  "full_catalog_months": 71,
+  "remaining_catalog_targets": 19,
+  "ending_records": 2229,
+  "checkpoint_resumable": false,
+  "next": "NONE. Seoul wave 1 acquisition finished. Do not start wave 2."
+}

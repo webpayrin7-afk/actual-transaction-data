@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-09-21T23:55:00.000Z",
+  "prior_status": "GYEONGGI_IDENTITY_ARTIFACT_MISSING",
+  "resolved_status": "GYEONGGI_IDENTITY_ARTIFACT_PRESENT",
+  "artifact": "data/poc/mgmt-fee-canonical/national-kapt-identity/",
+  "gate": "PASS",
+  "exact_after": 1152,
+  "new_exact_promoted": 1150
+}
