@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import {
-  MAP_AREA_BANDS,
   MAP_DEAL_KINDS,
+  parseAreaRange,
   readMapComplexes,
-  type MapAreaBand,
   type MapDealKind,
 } from "@/lib/map/map-complexes";
 
@@ -24,8 +23,7 @@ export async function GET(request: NextRequest) {
   if (neLat - swLat > MAX_SPAN_DEG || neLng - swLng > MAX_SPAN_DEG * 1.4) {
     return NextResponse.json({ status: "zoom_in", complexes: [] });
   }
-  const bandParam = sp.get("band") ?? "all";
-  const band: MapAreaBand = bandParam in MAP_AREA_BANDS ? (bandParam as MapAreaBand) : "all";
+  const area = parseAreaRange(sp);
 
   const dealParam = sp.get("deal") ?? "trade";
   const deal: MapDealKind = dealParam in MAP_DEAL_KINDS ? (dealParam as MapDealKind) : "trade";
@@ -33,9 +31,9 @@ export async function GET(request: NextRequest) {
   const db = getDb();
   if (!db) return NextResponse.json({ status: "unavailable", complexes: [] }, { status: 503 });
   try {
-    const result = await readMapComplexes(db, { swLat, swLng, neLat, neLng }, band, deal);
+    const result = await readMapComplexes(db, { swLat, swLng, neLat, neLng }, area, deal);
     return NextResponse.json(
-      { status: "ok", band, deal, ...result },
+      { status: "ok", area, deal, ...result },
       { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } },
     );
   } catch (error) {

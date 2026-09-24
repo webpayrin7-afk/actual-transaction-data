@@ -5,7 +5,7 @@
  */
 import type { Client } from "@libsql/client";
 import { districtNameFromCode } from "@/lib/constants/regions-registry";
-import { MAP_AREA_BANDS, type MapAreaBand, type MapBBox, type MapDealKind } from "@/lib/map/map-complexes";
+import { hasAnchorTable, type MapAreaRange, type MapBBox, type MapDealKind } from "@/lib/map/map-complexes";
 
 export type MapAreaLevel = "gu" | "dong";
 
@@ -32,7 +32,7 @@ type LawdAgg = {
   byDong: Map<string, number[]>;
   all: number[];
 };
-/** Per server instance: lawd|deal|band → per-dong 평당가 samples. */
+/** Per server instance: lawd|deal|area range → per-dong 평당가 samples. */
 const lawdCache = new Map<string, LawdAgg>();
 
 function median(values: number[]): number | null {
@@ -52,12 +52,11 @@ async function lawdPrices(
   db: Client,
   lawd: string,
   deal: MapDealKind,
-  band: MapAreaBand,
+  area: MapAreaRange,
 ): Promise<LawdAgg> {
-  const key = `${lawd}|${deal}|${band}`;
+  const key = `${lawd}|${deal}|${area.min}-${area.max}`;
   const hit = lawdCache.get(key);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit;
-  const { min, max } = MAP_AREA_BANDS[band];
   // idx_tx_lawd_ym_type (lawd_cd, year_month, deal_type)
   const res = await db.execute({
     sql: `SELECT dong, exclusive_area, deal_amount
@@ -65,15 +64,15 @@ async function lawdPrices(
           WHERE lawd_cd = ? AND year_month >= ? AND deal_type = ?
             AND exclusive_area >= ? AND exclusive_area <= ?
             ${deal === "jeonse" ? "AND COALESCE(monthly_rent, 0) = 0" : ""}`,
-    args: [lawd, sinceYearMonth(), deal === "trade" ? "trade" : "rent", min, max],
+    args: [lawd, sinceYearMonth(), deal === "trade" ? "trade" : "rent", area.min, area.max],
   });
   const byDong = new Map<string, number[]>();
   const all: number[] = [];
   for (const r of res.rows) {
-    const area = Number(r.exclusive_area);
+    const sqm = Number(r.exclusive_area);
     const amount = Number(r.deal_amount);
-    if (!(area > 0) || !(amount > 0)) continue;
-    const per = amount / (area / PYEONG_SQM);
+    if (!(sqm > 0) || !(amount > 0)) continue;
+    const per = amount / (sqm / PYEONG_SQM);
     all.push(per);
     const dong = r.dong ? String(r.dong).trim() : "";
     if (!dong) continue;
@@ -90,12 +89,10 @@ export async function readMapAreas(
   db: Client,
   bbox: MapBBox,
   level: MapAreaLevel,
-  band: MapAreaBand,
+  area: MapAreaRange,
   deal: MapDealKind,
 ): Promise<MapArea[]> {
-  const anchored = await db
-    .execute({ sql: "SELECT 1 FROM sqlite_master WHERE type='table' AND name='complex_map_anchor'", args: [] })
-    .then((r) => r.rows.length > 0);
+  const anchored = await hasAnchorTable(db);
   const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
   const lng = anchored ? "COALESCE(a.lng, m.longitude)" : "m.longitude";
   const groupCol = level === "gu" ? "m.lawd_cd" : "m.lawd_cd, m.legal_dong_name";
@@ -114,7 +111,7 @@ export async function readMapAreas(
   const prices = new Map<string, LawdAgg>();
   await Promise.all(
     lawds.map(async (l) => {
-      prices.set(l, await lawdPrices(db, l, deal, band));
+      prices.set(l, await lawdPrices(db, l, deal, area));
     }),
   );
 

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, LocateFixed, RotateCcw, X } from "lucide-react";
-import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
+import { LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { MapConditionSheet } from "@/components/map/MapConditionSheet";
 import {
   isNaverMapAuthFailed,
   loadNaverMapsSdk,
@@ -12,7 +12,16 @@ import {
   type NaverMapInstance,
   type NaverMarkerInstance,
 } from "@/lib/nearby-map/naver-sdk";
-import type { MapAreaBand, MapComplex, MapDealKind } from "@/lib/map/map-complexes";
+import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
+import {
+  EMPTY_CONDITIONS,
+  RECIPES,
+  activeCount,
+  areaQuery,
+  matches,
+  recipeActive,
+  type MapConditions,
+} from "@/lib/map/map-filters";
 import type { MapArea, MapAreaLevel } from "@/lib/map/map-areas";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
 
@@ -23,70 +32,7 @@ type MapWithBounds = NaverMapInstance & {
   getZoom(): number;
 };
 
-/* ───────────── 필터 정의 ───────────── */
-
-type Option<T extends string> = { id: T; label: string; hint?: string };
-
-const DEALS: Array<Option<MapDealKind>> = [
-  { id: "trade", label: "매매" },
-  { id: "jeonse", label: "전세", hint: "보증금만 있는 계약 (월세 제외)" },
-];
-
-const BANDS: Array<Option<MapAreaBand>> = [
-  { id: "all", label: "전체 평형", hint: "모든 면적" },
-  { id: "small", label: "소형", hint: "전용 60㎡ 미만 · 약 18평 미만" },
-  { id: "mid", label: "중형", hint: "전용 60~85㎡ · 약 18~25평" },
-  { id: "large", label: "대형", hint: "전용 85㎡ 초과 · 약 25평 초과" },
-];
-
-type PriceId = "all" | "p1" | "p2" | "p3" | "p4" | "p5";
-/** 만원 단위 [min, max) */
-const PRICE_RANGES: Record<MapDealKind, Array<Option<PriceId> & { min: number; max: number }>> = {
-  trade: [
-    { id: "all", label: "전체 가격", min: 0, max: Infinity },
-    { id: "p1", label: "5억 이하", min: 0, max: 50_000 },
-    { id: "p2", label: "5~10억", min: 50_000, max: 100_000 },
-    { id: "p3", label: "10~15억", min: 100_000, max: 150_000 },
-    { id: "p4", label: "15~20억", min: 150_000, max: 200_000 },
-    { id: "p5", label: "20억 이상", min: 200_000, max: Infinity },
-  ],
-  jeonse: [
-    { id: "all", label: "전체 가격", min: 0, max: Infinity },
-    { id: "p1", label: "3억 이하", min: 0, max: 30_000 },
-    { id: "p2", label: "3~5억", min: 30_000, max: 50_000 },
-    { id: "p3", label: "5~8억", min: 50_000, max: 80_000 },
-    { id: "p4", label: "8~12억", min: 80_000, max: 120_000 },
-    { id: "p5", label: "12억 이상", min: 120_000, max: Infinity },
-  ],
-};
-
-type HouseholdId = "all" | "h300" | "h500" | "h1000" | "h2000";
-const HOUSEHOLDS: Array<Option<HouseholdId> & { min: number }> = [
-  { id: "all", label: "전체 세대수", min: 0 },
-  { id: "h300", label: "300세대 이상", min: 300 },
-  { id: "h500", label: "500세대 이상", min: 500 },
-  { id: "h1000", label: "1,000세대 이상", min: 1000 },
-  { id: "h2000", label: "2,000세대 이상", min: 2000 },
-];
-
-type AgeId = "all" | "a5" | "a10" | "a20" | "a20p";
-const AGES: Array<Option<AgeId> & { min: number; max: number }> = [
-  { id: "all", label: "전체 연차", min: 0, max: Infinity },
-  { id: "a5", label: "5년 이내", min: 0, max: 5 },
-  { id: "a10", label: "10년 이내", min: 0, max: 10 },
-  { id: "a20", label: "20년 이내", min: 0, max: 20 },
-  { id: "a20p", label: "20년 초과", min: 21, max: Infinity },
-];
-
-type Filters = {
-  deal: MapDealKind;
-  band: MapAreaBand;
-  price: PriceId;
-  households: HouseholdId;
-  age: AgeId;
-};
-const DEFAULT_FILTERS: Filters = { deal: "trade", band: "all", price: "all", households: "all", age: "all" };
-type SheetId = "deal" | "band" | "price" | "households" | "age";
+const DEAL_LABEL: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
 
 /* ───────────── 지도 상태 ───────────── */
 
@@ -205,8 +151,8 @@ export function MapSearchPage() {
   const mapRef = useRef<MapWithBounds | null>(null);
   const markersRef = useRef<Map<string, NaverMarkerInstance>>(new Map());
   const abortRef = useRef<AbortController | null>(null);
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const [sheet, setSheet] = useState<SheetId | null>(null);
+  const [conditions, setConditions] = useState<MapConditions>(EMPTY_CONDITIONS);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [level, setLevel] = useState<ViewLevel>("complex");
   const [complexes, setComplexes] = useState<MapComplex[]>([]);
   const [areas, setAreas] = useState<MapArea[]>([]);
@@ -215,7 +161,7 @@ export function MapSearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [truncated, setTruncated] = useState(false);
   /** Read by the map idle listener, which is registered once. */
-  const filtersRef = useRef(filters);
+  const condRef = useRef(conditions);
   /** Bumped on every map idle so marker culling follows zoom even when data is unchanged. */
   const [cullTick, setCullTick] = useState(0);
 
@@ -239,13 +185,15 @@ export function MapSearchPage() {
     const ne = b.getMax();
     const ac = new AbortController();
     abortRef.current = ac;
-    const { deal, band } = filtersRef.current;
+    const { deal } = condRef.current;
+    const area = areaQuery(condRef.current);
     const qs = new URLSearchParams({
       swLat: sw.y.toFixed(4),
       swLng: sw.x.toFixed(4),
       neLat: ne.y.toFixed(4),
       neLng: ne.x.toFixed(4),
-      band,
+      areaMin: String(area.min),
+      areaMax: String(area.max),
       deal,
     });
     if (lv !== "complex") qs.set("level", lv);
@@ -344,32 +292,21 @@ export function MapSearchPage() {
     };
   }, [fetchViewport]);
 
-  // 거래유형·평형이 바뀌면 서버 값이 달라지므로 다시 불러온다 (가격·세대수·연차는 화면에서 거름).
+  // 거래유형·전용면적이 바뀌면 서버 값(중위가)이 달라지므로 다시 불러온다. 나머지 조건은 화면에서 거른다.
+  const areaKey = `${areaQuery(conditions).min}-${areaQuery(conditions).max}`;
   useEffect(() => {
-    filtersRef.current = filters;
-    // Deferred so the fetch (and its setState) runs outside the effect body.
-    const t = window.setTimeout(() => void fetchViewport(), 0);
+    condRef.current = conditions;
+  }, [conditions]);
+  useEffect(() => {
+    // 슬라이더를 끄는 동안 연달아 부르지 않게 잠깐 기다린다.
+    const t = window.setTimeout(() => void fetchViewport(), 350);
     return () => window.clearTimeout(t);
-  }, [filters.deal, filters.band, fetchViewport]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [conditions.deal, areaKey, fetchViewport]);
 
-  const visibleComplexes = useMemo(() => {
-    const price = PRICE_RANGES[filters.deal].find((p) => p.id === filters.price)!;
-    const hh = HOUSEHOLDS.find((h) => h.id === filters.households)!;
-    const age = AGES.find((a) => a.id === filters.age)!;
-    const year = new Date().getFullYear();
-    return complexes.filter((c) => {
-      if (filters.price !== "all") {
-        if (c.medianPriceMan == null || c.medianPriceMan < price.min || c.medianPriceMan >= price.max) return false;
-      }
-      if (filters.households !== "all" && (c.householdCount == null || c.householdCount < hh.min)) return false;
-      if (filters.age !== "all") {
-        if (c.buildYear == null) return false;
-        const a = year - c.buildYear;
-        if (a < age.min || a > age.max) return false;
-      }
-      return true;
-    });
-  }, [complexes, filters]);
+  const visibleComplexes = useMemo(
+    () => complexes.filter((c) => matches(c, conditions)),
+    [complexes, conditions],
+  );
 
   // Sync markers (diff by id). Complex and area markers share the map, keyed by prefix.
   useEffect(() => {
@@ -474,31 +411,19 @@ export function MapSearchPage() {
 
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
   const priced = visibleComplexes.filter((c) => c.medianPriceMan != null).length;
-  const dealLabel = DEALS.find((d) => d.id === filters.deal)!.label;
-  const bandOpt = BANDS.find((b) => b.id === filters.band)!;
-  const priceOpt = PRICE_RANGES[filters.deal].find((p) => p.id === filters.price)!;
-  const hhOpt = HOUSEHOLDS.find((h) => h.id === filters.households)!;
-  const ageOpt = AGES.find((a) => a.id === filters.age)!;
-  const anyFilter =
-    filters.band !== "all" || filters.price !== "all" || filters.households !== "all" || filters.age !== "all";
-
-  const chips: Array<{ id: SheetId; label: string; active: boolean }> = [
-    { id: "deal", label: dealLabel, active: true },
-    { id: "band", label: filters.band === "all" ? "평형" : bandOpt.label, active: filters.band !== "all" },
-    { id: "price", label: filters.price === "all" ? "가격" : priceOpt.label, active: filters.price !== "all" },
-    {
-      id: "households",
-      label: filters.households === "all" ? "세대수" : hhOpt.label,
-      active: filters.households !== "all",
-    },
-    { id: "age", label: filters.age === "all" ? "입주년차" : ageOpt.label, active: filters.age !== "all" },
-  ];
+  const dealLabel = DEAL_LABEL[conditions.deal];
+  const nActive = activeCount(conditions);
+  const area = areaQuery(conditions);
+  const areaRangeText = area.max < 10_000 || area.min > 0
+    ? ` · 전용 ${area.min > 0 ? `${area.min}` : ""}~${area.max < 10_000 ? `${Math.floor(area.max)}` : ""}㎡`
+    : "";
 
   const statusText = (() => {
     if (level === "far") return null;
-    const basis = `최근 12개월 ${dealLabel}${filters.band !== "all" ? ` · ${bandOpt.label}` : ""}`;
+    const basis = `최근 12개월 ${dealLabel}${areaRangeText}`;
     if (level === "complex") {
-      return `${basis} 중위가${state === "ready" ? ` · 가격 ${priced}곳` : ""}${truncated ? " · 큰 단지 400곳까지" : ""}`;
+      const filtered = nActive > 0 ? ` · 조건 맞는 ${visibleComplexes.length}곳` : ` · 가격 ${priced}곳`;
+      return `${basis} 중위가${state === "ready" ? filtered : ""}${truncated ? " · 큰 단지 400곳까지" : ""}`;
     }
     return `${basis} · ${level === "gu" ? "구" : "동"}별 전용 평당 중위가`;
   })();
@@ -511,77 +436,91 @@ export function MapSearchPage() {
     });
   };
 
-  const setFilter = <K extends keyof Filters>(key: K, value: Filters[K]) => {
+  const updateConditions = (next: MapConditions) => {
     setSelectedId(null);
-    setFilters((f) => ({ ...f, [key]: value, ...(key === "deal" && value !== f.deal ? { price: "all" } : {}) }));
-    setSheet(null);
+    setConditions(next);
   };
-
-  const sheetOptions: { title: string; key: keyof Filters; options: Array<Option<string>> } | null = (() => {
-    switch (sheet) {
-      case "deal":
-        return { title: "거래 유형", key: "deal", options: DEALS };
-      case "band":
-        return { title: "평형 (전용면적)", key: "band", options: BANDS };
-      case "price":
-        return {
-          title: `${dealLabel} 가격 (최근 12개월 중위가)`,
-          key: "price",
-          options: PRICE_RANGES[filters.deal],
-        };
-      case "households":
-        return { title: "세대수", key: "households", options: HOUSEHOLDS };
-      case "age":
-        return { title: "입주년차 (건축년도 기준)", key: "age", options: AGES };
-      default:
-        return null;
-    }
-  })();
 
   return (
     <div className="relative w-full" style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}>
       {/* h-full, not absolute inset-0: the NAVER SDK forces position:relative on its host. */}
       <div ref={hostRef} className="h-full w-full" role="application" aria-label="단지 가격 지도" />
 
-      {/* 상단: 필터 칩 + 상태 */}
+      {/* 상단: 거래유형 · 조건 · 레시피 + 상태 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 pt-2 sm:pt-3">
         <div
           className="pointer-events-auto flex items-center gap-1.5 overflow-x-auto px-3 pb-1 sm:px-4"
           style={{ scrollbarWidth: "none" }}
           role="toolbar"
-          aria-label="지도 필터"
+          aria-label="지도 조건"
         >
-          {chips.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => setSheet(chip.id)}
-              aria-haspopup="dialog"
-              className={`relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 shadow-sm transition-colors before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
-                chip.id === "deal"
-                  ? "border-[color:var(--lab-navy-950)] bg-[color:var(--lab-navy-950)] font-semibold text-white"
-                  : chip.active
-                    ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-surface)] font-semibold text-[color:var(--lab-teal-700)]"
+          <div className="inline-flex h-9 shrink-0 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5 shadow-sm" role="group" aria-label="거래 유형">
+            {(["trade", "jeonse"] as const).map((d) => (
+              <button
+                key={d}
+                type="button"
+                aria-pressed={conditions.deal === d}
+                onClick={() => {
+                  if (conditions.deal === d) return;
+                  // 가격 구간은 거래유형마다 다르므로 바꿀 때 뺀다
+                  const ranges = { ...conditions.ranges };
+                  delete ranges.price;
+                  updateConditions({ ...conditions, deal: d, ranges });
+                }}
+                className={`relative rounded-full px-3.5 text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] ${
+                  conditions.deal === d
+                    ? "bg-[color:var(--lab-navy-950)] font-semibold text-white"
+                    : "font-medium text-[color:var(--lab-navy-950)]"
+                }`}
+              >
+                {DEAL_LABEL[d]}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            aria-haspopup="dialog"
+            className={`relative inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+              nActive > 0
+                ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-surface)] font-semibold text-[color:var(--lab-teal-700)]"
+                : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" aria-hidden />
+            조건
+            {nActive > 0 ? (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--lab-brand-primary)] px-1 text-[12px] font-semibold leading-none text-white tabular-nums">
+                {nActive}
+              </span>
+            ) : null}
+          </button>
+          {RECIPES.map((r) => {
+            const on = recipeActive(r, conditions);
+            return (
+              <button
+                key={r.id}
+                type="button"
+                aria-pressed={on}
+                title={r.hint}
+                onClick={() => {
+                  if (on) {
+                    const applied = r.apply({ ...conditions, ranges: {} });
+                    const ranges = { ...conditions.ranges };
+                    for (const k of Object.keys(applied.ranges)) delete ranges[k as keyof typeof ranges];
+                    updateConditions({ ...conditions, ranges });
+                  } else updateConditions(r.apply(conditions));
+                }}
+                className={`relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                  on
+                    ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
                     : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
-              }`}
-            >
-              {chip.label}
-              <ChevronDown className="h-4 w-4 opacity-70" aria-hidden />
-            </button>
-          ))}
-          {anyFilter ? (
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedId(null);
-                setFilters((f) => ({ ...DEFAULT_FILTERS, deal: f.deal }));
-              }}
-              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3 text-[14px] font-medium text-[color:var(--lab-muted)] shadow-sm"
-            >
-              <RotateCcw className="h-4 w-4" aria-hidden />
-              초기화
-            </button>
-          ) : null}
+                }`}
+              >
+                {r.label}
+              </button>
+            );
+          })}
         </div>
         <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
           {statusText ? (
@@ -590,9 +529,9 @@ export function MapSearchPage() {
               {state === "loading" ? " · 불러오는 중…" : ""}
             </p>
           ) : null}
-          {level !== "complex" && level !== "far" && anyFilter && (filters.price !== "all" || filters.households !== "all" || filters.age !== "all") ? (
+          {level !== "complex" && level !== "far" && nActive > (area.min > 0 || area.max < 10_000 ? 1 : 0) ? (
             <p className="pointer-events-auto rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
-              가격·세대수·연차 필터는 단지가 보이는 거리에서 적용돼요
+              면적 외 조건은 단지가 보이는 거리에서 적용돼요
             </p>
           ) : null}
           {level === "far" ? (
@@ -663,8 +602,21 @@ export function MapSearchPage() {
                 </dd>
               </div>
             </dl>
+            {selected.jeonseRatioPct != null || selected.rentYieldPct != null ? (
+              <p className="detail-body mt-2 tabular-nums">
+                {[
+                  selected.jeonseRatioPct != null ? `전세가율 ${selected.jeonseRatioPct}%` : null,
+                  selected.gapMan != null
+                    ? `갭 ${selected.gapMan < 0 ? "−" : ""}${formatEok(Math.abs(selected.gapMan))}`
+                    : null,
+                  selected.rentYieldPct != null ? `월세수익률 ${selected.rentYieldPct}%` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            ) : null}
             {selected.mainAreaSqm ? (
-              <p className="detail-meta mt-2">면적은 최근 가장 많이 거래된 전용 {selected.mainAreaSqm}㎡ 기준</p>
+              <p className="detail-meta mt-1">면적은 최근 가장 많이 거래된 전용 {selected.mainAreaSqm}㎡ 기준</p>
             ) : null}
             <Link href={selected.href} className="lab-button lab-button-primary mt-3 w-full">
               단지 상세 보기
@@ -673,41 +625,13 @@ export function MapSearchPage() {
         </div>
       ) : null}
 
-      <LabBottomSheet open={sheet != null} onClose={() => setSheet(null)} title={sheetOptions?.title ?? ""}>
-        {sheetOptions ? (
-          <ul className="flex flex-col" role="radiogroup" aria-label={sheetOptions.title}>
-            {sheetOptions.options.map((o) => {
-              const active = filters[sheetOptions.key] === o.id;
-              return (
-                <li key={o.id}>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={active}
-                    onClick={() => setFilter(sheetOptions.key, o.id as never)}
-                    className={`flex min-h-11 w-full items-center justify-between gap-3 border-b border-[color:var(--lab-border)] py-2.5 text-left last:border-b-0 ${
-                      active ? "font-semibold text-[color:var(--lab-teal-700)]" : "font-medium text-[color:var(--lab-navy-950)]"
-                    }`}
-                  >
-                    <span className="flex min-w-0 flex-col">
-                      <span className="text-[15px] leading-6">{o.label}</span>
-                      {o.hint ? <span className="detail-meta">{o.hint}</span> : null}
-                    </span>
-                    <span
-                      aria-hidden
-                      className={`h-5 w-5 shrink-0 rounded-full border-2 ${
-                        active
-                          ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-primary)] shadow-[inset_0_0_0_3px_#fff]"
-                          : "border-[color:var(--lab-border)]"
-                      }`}
-                    />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        ) : null}
-      </LabBottomSheet>
+      <MapConditionSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        conditions={conditions}
+        onChange={updateConditions}
+        complexes={complexes}
+      />
     </div>
   );
 }

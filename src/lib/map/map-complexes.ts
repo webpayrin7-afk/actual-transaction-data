@@ -1,16 +1,17 @@
 /**
- * 지도로 찾기 — 화면 영역(bbox) 안 단지의 좌표 + 최근 매매 요약. 읽기 전용.
- * 좌표: apt_complex_master.latitude/longitude. 가격: transactions (lawd_cd, apt_name_norm, year_month) 인덱스.
- * 추정·보간 없음 — 기간 안 거래가 없으면 가격 없이 이름만 보낸다.
+ * 지도로 찾기 — 화면 영역(bbox) 안 단지의 좌표 + 최근 12개월 거래 요약 + 단지 속성. 읽기 전용.
+ * 좌표: NAVER 중심점(complex_map_anchor) 우선, 없으면 필지 대표점.
+ * 가격: transactions (lawd_cd, apt_name_norm, year_month) 인덱스. 매매·전세·월세를 한 번에 읽는다.
+ * 추정·보간 없음 — 기간 안 거래가 없으면 가격 없이 보낸다. 전세가율·갭·월세수익률도 같은 면적 범위의
+ * 실제 거래 중위값끼리만 계산한다.
  */
 import type { Client } from "@libsql/client";
 import { LAWD_TO_REGION, districtNameFromCode } from "@/lib/constants/regions-registry";
 import { slugFromLawd } from "@/lib/constants/nationwide-lawd";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 
+/** @deprecated 면적 범위(areaMin/areaMax)로 대체 — 옛 URL 호환용 */
 export type MapAreaBand = "all" | "small" | "mid" | "large";
-
-/** 전용면적 기준 구간 (㎡). 소형 <60, 중형 60~85, 대형 >85. */
 export const MAP_AREA_BANDS: Record<MapAreaBand, { label: string; min: number; max: number }> = {
   all: { label: "전체", min: 0, max: 10_000 },
   small: { label: "소형", min: 0, max: 60 },
@@ -18,7 +19,11 @@ export const MAP_AREA_BANDS: Record<MapAreaBand, { label: string; min: number; m
   large: { label: "대형", min: 86, max: 10_000 },
 };
 
-/** 매매 = trade, 전세 = rent with monthly_rent 0 (보증금만). 월세는 제외. */
+/** 전용면적 범위 (㎡, 양 끝 포함) */
+export type MapAreaRange = { min: number; max: number };
+export const MAP_AREA_ANY: MapAreaRange = { min: 0, max: 10_000 };
+
+/** 매매 = trade, 전세 = rent with monthly_rent 0 (보증금만). */
 export type MapDealKind = "trade" | "jeonse";
 export const MAP_DEAL_KINDS: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
 
@@ -32,15 +37,29 @@ export type MapComplex = {
   dong: string | null;
   householdCount: number | null;
   href: string;
-  /** 최근 12개월 선택 구간·거래유형 중위가 (만원) */
+  /** 최근 12개월 선택 면적·거래유형 중위가 (만원) */
   medianPriceMan: number | null;
-  /** 기간 내 가장 많이 거래된 전용면적(㎡, 소수 첫째 자리) — 마커의 평형 표기용 */
+  /** 기간 내 가장 많이 거래된 전용면적(㎡, 소수 첫째 자리) — 마커 표기용 */
   mainAreaSqm: number | null;
   /** 건축년도 (거래 신고의 build_year, 없으면 사용승인일 연도) */
   buildYear: number | null;
   tradeCount12m: number;
   latestDealDate: string | null;
   latestPriceMan: number | null;
+  /** 전세 중위 ÷ 매매 중위 (%) — 둘 다 있을 때만 */
+  jeonseRatioPct: number | null;
+  /** 매매 중위 − 전세 중위 (만원). 음수면 역전(마이너스 갭) */
+  gapMan: number | null;
+  /** 월세 연 수익률 중위 (%) — 월세×12 ÷ (매매 중위 − 보증금) */
+  rentYieldPct: number | null;
+  /** 용적률 (%) */
+  farRatio: number | null;
+  /** 건폐율 (%) */
+  bcrRatio: number | null;
+  /** 세대당 주차 대수 */
+  parkingPerHousehold: number | null;
+  /** 난방 방식 원문 (개별난방·지역난방·중앙난방…) */
+  heatingType: string | null;
 };
 
 export const MAP_MAX_COMPLEXES = 400;
@@ -82,9 +101,15 @@ function regionSlugFor(lawdCd: string): string {
   return LAWD_TO_REGION[lawdCd]?.slug ?? slugFromLawd("", lawdCd);
 }
 
+function num(v: unknown): number | null {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
 /** complex_map_anchor (NAVER geocode) exists? Cached per server instance. */
 let anchorTable: boolean | null = null;
-async function hasAnchorTable(db: Client): Promise<boolean> {
+export async function hasAnchorTable(db: Client): Promise<boolean> {
   if (anchorTable != null) return anchorTable;
   const r = await db.execute({
     sql: "SELECT 1 FROM sqlite_master WHERE type='table' AND name='complex_map_anchor'",
@@ -94,21 +119,22 @@ async function hasAnchorTable(db: Client): Promise<boolean> {
   return anchorTable;
 }
 
+type Deal = { kind: "trade" | "jeonse" | "wolse"; amount: number; rent: number; date: string; area: number; buildYear: number | null };
+
 export async function readMapComplexes(
   db: Client,
   bbox: MapBBox,
-  band: MapAreaBand,
+  area: MapAreaRange,
   deal: MapDealKind = "trade",
 ): Promise<{ complexes: MapComplex[]; truncated: boolean }> {
-  // 좌표: NAVER 지오코딩 중심점(complex_map_anchor)이 있으면 그것, 없으면 필지 대표점.
-  // 네이버 지도 위 아파트 라벨과 마커 위치를 맞추기 위함.
   const anchored = await hasAnchorTable(db);
   const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
   const lng = anchored ? "COALESCE(a.lng, m.longitude)" : "m.longitude";
   const master = await db.execute({
-    // 영역에 단지가 많으면 세대수 큰 단지부터 (호갱노노처럼 주요 단지가 먼저 보이게).
+    // 영역에 단지가 많으면 세대수 큰 단지부터 (주요 단지가 먼저 보이게).
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
-                 ${lat} AS latitude, ${lng} AS longitude, p.household_count, p.approval_date
+                 ${lat} AS latitude, ${lng} AS longitude, p.household_count, p.approval_date,
+                 p.far_ratio, p.bcr_ratio, p.parking_per_household, p.heating_type
           FROM apt_complex_master m
           ${anchored ? "LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id" : ""}
           LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
@@ -121,12 +147,11 @@ export async function readMapComplexes(
   const rows = master.rows.slice(0, MAP_MAX_COMPLEXES);
   if (rows.length === 0) return { complexes: [], truncated: false };
 
-  const { min, max } = MAP_AREA_BANDS[band];
   const since = yearMonthMonthsAgo(WINDOW_MONTHS);
-  const deals = new Map<string, Array<{ amount: number; date: string; area: number; buildYear: number | null }>>();
+  const deals = new Map<string, Deal[]>();
   const keyOf = (lawd: unknown, norm: unknown) => `${String(lawd)}|${String(norm)}`;
 
-  // lawd_cd별로 묶어 `lawd_cd = ? AND apt_name_norm IN (...)` — idx_tx_lawd_apt_ym 를 그대로 탄다.
+  // lawd_cd별 `lawd_cd = ? AND apt_name_norm IN (...)` — idx_tx_lawd_apt_ym 를 그대로 탄다.
   // (행 값 IN (VALUES …) 형태는 인덱스를 못 타 30초 넘게 걸렸다.)
   const wanted = new Set(rows.map((r) => keyOf(r.lawd_cd, r.apt_name_norm)));
   const byLawd = new Map<string, string[]>();
@@ -142,22 +167,28 @@ export async function readMapComplexes(
       jobs.push(
         db
           .execute({
-            sql: `SELECT lawd_cd, apt_name_norm, deal_amount, deal_date, exclusive_area, build_year
+            sql: `SELECT lawd_cd, apt_name_norm, deal_type, deal_amount, monthly_rent, deal_date,
+                         exclusive_area, build_year
                   FROM transactions
                   WHERE lawd_cd = ? AND apt_name_norm IN (${slice.map(() => "?").join(",")})
-                    AND year_month >= ? AND deal_type = ?
-                    AND exclusive_area >= ? AND exclusive_area <= ?
-                    ${deal === "jeonse" ? "AND COALESCE(monthly_rent, 0) = 0" : ""}`,
-            args: [lawd, ...slice, since, deal === "trade" ? "trade" : "rent", min, max],
+                    AND year_month >= ?
+                    AND exclusive_area >= ? AND exclusive_area <= ?`,
+            args: [lawd, ...slice, since, area.min, area.max],
           })
           .then((res) => {
             for (const r of res.rows) {
               const k = keyOf(r.lawd_cd, r.apt_name_norm);
               if (!wanted.has(k)) continue;
-              const list = deals.get(k) ?? [];
+              const amount = Number(r.deal_amount);
+              if (!(amount > 0)) continue;
+              const rent = Number(r.monthly_rent) || 0;
+              const kind = r.deal_type === "trade" ? "trade" : rent > 0 ? "wolse" : "jeonse";
               const by = Number(r.build_year);
+              const list = deals.get(k) ?? [];
               list.push({
-                amount: Number(r.deal_amount),
+                kind,
+                amount,
+                rent,
                 date: String(r.deal_date),
                 area: Number(r.exclusive_area),
                 buildYear: Number.isFinite(by) && by > 1900 ? by : null,
@@ -172,30 +203,62 @@ export async function readMapComplexes(
 
   const complexes: MapComplex[] = rows.map((r) => {
     const lawd = String(r.lawd_cd);
-    const list = (deals.get(keyOf(r.lawd_cd, r.apt_name_norm)) ?? []).filter((d) => d.amount > 0);
-    const latest = list.reduce<{ amount: number; date: string } | null>(
-      (acc, d) => (!acc || d.date > acc.date ? d : acc),
-      null,
-    );
+    const all = deals.get(keyOf(r.lawd_cd, r.apt_name_norm)) ?? [];
+    const trades = all.filter((d) => d.kind === "trade");
+    const jeonses = all.filter((d) => d.kind === "jeonse");
+    const wolses = all.filter((d) => d.kind === "wolse");
+    const selected = deal === "trade" ? trades : jeonses;
+    const latest = selected.reduce<Deal | null>((acc, d) => (!acc || d.date > acc.date ? d : acc), null);
+    const tradeMed = median(trades.map((d) => d.amount));
+    const jeonseMed = median(jeonses.map((d) => d.amount));
+    const yields = tradeMed
+      ? wolses
+          .filter((d) => tradeMed > d.amount)
+          .map((d) => ((d.rent * 12) / (tradeMed - d.amount)) * 100)
+      : [];
     const gu = (r.sigungu ? String(r.sigungu).split(/\s+/).pop() : null) || districtNameFromCode(lawd);
+    const approvalYear = r.approval_date ? Number(String(r.approval_date).slice(0, 4)) || null : null;
     return {
       complexId: String(r.complex_id),
       aptName: String(r.apt_name),
       lat: Number(r.latitude),
       lng: Number(r.longitude),
       dong: r.legal_dong_name ? String(r.legal_dong_name) : null,
-      householdCount: r.household_count == null ? null : Number(r.household_count),
+      householdCount: num(r.household_count),
       href: aptDetailHref(String(r.apt_name), regionSlugFor(lawd), gu || undefined),
-      medianPriceMan: median(list.map((d) => d.amount)),
-      mainAreaSqm: modeArea(list.map((d) => d.area)),
-      buildYear:
-        list.find((d) => d.buildYear != null)?.buildYear ??
-        (r.approval_date ? Number(String(r.approval_date).slice(0, 4)) || null : null),
-      tradeCount12m: list.length,
+      medianPriceMan: median(selected.map((d) => d.amount)),
+      mainAreaSqm: modeArea(selected.map((d) => d.area)),
+      buildYear: all.find((d) => d.buildYear != null)?.buildYear ?? approvalYear,
+      tradeCount12m: selected.length,
       latestDealDate: latest?.date ?? null,
       latestPriceMan: latest?.amount ?? null,
+      jeonseRatioPct: tradeMed && jeonseMed ? Math.round((jeonseMed / tradeMed) * 1000) / 10 : null,
+      gapMan: tradeMed != null && jeonseMed != null ? Math.round(tradeMed - jeonseMed) : null,
+      rentYieldPct: yields.length ? Math.round(median(yields)! * 100) / 100 : null,
+      farRatio: num(r.far_ratio),
+      bcrRatio: num(r.bcr_ratio),
+      parkingPerHousehold: num(r.parking_per_household),
+      heatingType: r.heating_type ? String(r.heating_type) : null,
     };
   });
 
   return { complexes, truncated };
+}
+
+/** URL → 전용면적 범위. areaMin/areaMax(㎡) 우선, 없으면 옛 band. */
+export function parseAreaRange(sp: URLSearchParams): MapAreaRange {
+  const min = Number(sp.get("areaMin"));
+  const max = Number(sp.get("areaMax"));
+  if (sp.has("areaMin") || sp.has("areaMax")) {
+    return {
+      min: Number.isFinite(min) && min > 0 ? min : 0,
+      max: Number.isFinite(max) && max > 0 ? max : MAP_AREA_ANY.max,
+    };
+  }
+  const band = sp.get("band");
+  if (band && band in MAP_AREA_BANDS) {
+    const b = MAP_AREA_BANDS[band as MapAreaBand];
+    return { min: b.min, max: b.max };
+  }
+  return MAP_AREA_ANY;
 }

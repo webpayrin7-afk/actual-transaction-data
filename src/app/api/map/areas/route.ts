@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import { readMapAreas, type MapAreaLevel } from "@/lib/map/map-areas";
-import {
-  MAP_AREA_BANDS,
-  MAP_DEAL_KINDS,
-  type MapAreaBand,
-  type MapDealKind,
-} from "@/lib/map/map-complexes";
+import { MAP_DEAL_KINDS, parseAreaRange, type MapDealKind } from "@/lib/map/map-complexes";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -25,17 +20,16 @@ export async function GET(request: NextRequest) {
   if (neLat - swLat > MAX_SPAN[level] || neLng - swLng > MAX_SPAN[level] * 1.4) {
     return NextResponse.json({ status: "zoom_in", areas: [] });
   }
-  const bandParam = sp.get("band") ?? "all";
-  const band: MapAreaBand = bandParam in MAP_AREA_BANDS ? (bandParam as MapAreaBand) : "all";
+  const area = parseAreaRange(sp);
   const dealParam = sp.get("deal") ?? "trade";
   const deal: MapDealKind = dealParam in MAP_DEAL_KINDS ? (dealParam as MapDealKind) : "trade";
 
   const db = getDb();
   if (!db) return NextResponse.json({ status: "unavailable", areas: [] }, { status: 503 });
   try {
-    const areas = await readMapAreas(db, { swLat, swLng, neLat, neLng }, level, band, deal);
+    const areas = await readMapAreas(db, { swLat, swLng, neLat, neLng }, level, area, deal);
     return NextResponse.json(
-      { status: "ok", level, band, deal, areas },
+      { status: "ok", level, area, deal, areas },
       { headers: { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=21600" } },
     );
   } catch (error) {
