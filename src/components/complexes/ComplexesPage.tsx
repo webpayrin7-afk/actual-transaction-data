@@ -31,10 +31,10 @@ export function ComplexesPage() {
 
       <RecentComplexList />
 
-      <GuLeaderList />
-
-
       <ActiveComplexList />
+
+
+      <GuLeaderList />
     </div>
   );
 }

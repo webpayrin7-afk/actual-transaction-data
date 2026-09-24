@@ -15,6 +15,13 @@ import {
 import { MoveInSection } from "@/components/presale/MoveInSection";
 import { AREA_OPTIONS, PRICE_OPTIONS, PresaleResults } from "@/components/presale/PresaleResults";
 import { LabFilterChips, type FilterDef } from "@/components/ui/LabFilterChips";
+import {
+  PresaleMetroTable,
+  PresalePriceChart,
+  PresaleRateChart,
+  PresaleTrendSummary,
+  PresaleVolumeChart,
+} from "@/components/presale/PresaleTrends";
 
 const METRO_ORDER = [
   "seoul", "gyeonggi", "incheon", "busan", "daegu", "gwangju", "daejeon", "ulsan", "sejong",
@@ -36,7 +43,7 @@ type PresaleTab = "schedule" | "results" | "stats";
 const TABS = [
   { id: "schedule" as const, label: "청약 일정" },
   { id: "results" as const, label: "분양 결과" },
-  { id: "stats" as const, label: "분양 통계" },
+  { id: "stats" as const, label: "분양 동향" },
 ];
 const TAB_PREFIX = "presale";
 
@@ -52,13 +59,19 @@ export function PresalePage() {
   const [area, setArea] = useState<ResultsQuery["area"]>("all");
   const [price, setPrice] = useState<ResultsQuery["price"]>("all");
   const filter = { metro, supplier };
-  const pickMetro = (m: string) => {
-    setMetro(m);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
+  const metroFilter: FilterDef = {
+    key: "metro",
+    title: "지역",
+    options: METRO_OPTIONS,
+    value: metro,
+    defaultId: "all",
+    onChange: setMetro,
+    grid: true,
+  };
+  // 분양 동향 탭은 전국 통계라 위 조건 줄이 없다 (입주 예정 카드 안에서만 지역을 고른다).
   const filters: FilterDef[] = [
-    { key: "metro", title: "지역", options: METRO_OPTIONS, value: metro, defaultId: "all", onChange: setMetro, grid: true },
+    ...(tab !== "stats" ? [metroFilter] : []),
     ...(tab !== "stats"
       ? [
           {
@@ -99,9 +112,13 @@ export function PresalePage() {
     <div className={PAGE_SHELL}>
       <PageHeader title="분양 정보" titleClassName="detail-page-title" showDivider={false} titleInHeader />
       {/* 모바일: 탭 + 조건 칩 줄을 흰 띠 하나로 상단바에 잇고, 띠 아래에만 구분선 */}
-      <div className="-mx-4 border-b border-[color:var(--lab-border)] bg-white px-4 pb-3.5 sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0">
-        <LabPageTabs bare ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
-        <div className="pt-2">{chips}</div>
+      <div
+        className={`-mx-4 bg-white px-4 sm:mx-0 sm:bg-transparent sm:px-0 ${
+          filters.length ? "border-b border-[color:var(--lab-border)] pb-1.5 sm:border-0 sm:pb-0" : ""
+        }`}
+      >
+        <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
+        {filters.length ? <div className="pt-1.5">{chips}</div> : null}
       </div>
 
       <div
@@ -115,9 +132,18 @@ export function PresalePage() {
           <PresaleResults metro={metro} supplier={supplier} area={area} price={price} />
         ) : (
           <>
-            {/* 분양 통계 탭엔 공급 유형 칩이 없으니 경쟁률도 전체 공급 기준 */}
-            <ApplyhomeCompetitionSection filter={{ metro, supplier: "all" }} />
-            <MoveInSection metro={metro} onPickMetro={pickMetro} />
+            <PresaleTrendSummary />
+            <PresaleVolumeChart />
+            <PresaleRateChart />
+            <PresalePriceChart />
+            <PresaleMetroTable />
+            {/* 동향 탭은 전국 기준 — 경쟁률 상위도 전국·전체 공급 */}
+            <ApplyhomeCompetitionSection filter={{ metro: "all", supplier: "all" }} />
+            <MoveInSection
+              metro={metro}
+              onPickMetro={setMetro}
+              toolbar={<LabFilterChips filters={[metroFilter]} ariaLabel="입주 예정 지역" />}
+            />
           </>
         )}
       </div>

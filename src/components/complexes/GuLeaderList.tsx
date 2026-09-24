@@ -7,7 +7,6 @@ import { formatEok } from "@/lib/utils/format";
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
-import { LabFilterChips } from "@/components/ui/LabFilterChips";
 import { METRO_LABELS } from "@/lib/constants/regions";
 
 /** 구별 종합 랭킹이 발행된 시·도 (강원·전북·광주·전남은 단지 목록 정비 전이라 아직 없음) */
@@ -60,7 +59,7 @@ export function GuLeaderList() {
 
   return (
     <LabSection
-      title="구별 대장 단지"
+      title="지역별 대장 단지"
       tip={
         <p>
           구마다 집랩 종합 랭킹 1위 단지입니다. 최근 12개월 평당가(50%)·거래량(20%)·세대수(20%)·회전율(10%)을 같은 구
@@ -68,20 +67,32 @@ export function GuLeaderList() {
         </p>
       }
     >
-      <LabFilterChips
-        ariaLabel="대장 단지 지역"
-        filters={[
-          {
-            key: "metro",
-            title: "지역",
-            options: METRO_OPTIONS,
-            value: metro,
-            defaultId: "",
-            onChange: setMetro,
-            grid: true,
-          },
-        ]}
-      />
+      {/* 시·도 한 줄 가로 스크롤 — 바로 눌러 고른다 */}
+      <div
+        className="-mx-4 flex gap-1.5 overflow-x-auto overflow-y-hidden px-4 py-0.5 [scrollbar-width:none] sm:mx-0 sm:px-0"
+        role="radiogroup"
+        aria-label="대장 단지 지역"
+      >
+        {METRO_OPTIONS.map((o) => {
+          const on = o.id === metro;
+          return (
+            <button
+              key={o.id}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => setMetro(o.id)}
+              className={`relative inline-flex h-8 shrink-0 items-center rounded-full border px-3 text-[14px] leading-5 before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] ${
+                on
+                  ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
+                  : "border-[color:var(--lab-border)] bg-white font-medium text-[color:var(--lab-navy-950)]"
+              }`}
+            >
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
       {query.isLoading ? (
         <div className="lab-skeleton" />
       ) : items.length === 0 ? (

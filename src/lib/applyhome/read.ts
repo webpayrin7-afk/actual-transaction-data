@@ -575,3 +575,149 @@ export async function readApplyhomeResults(
     counts,
   };
 }
+
+/* ───────────── 분양 동향 (통계) ───────────── */
+
+export type PresaleQuarter = {
+  /** "2026Q3" */
+  q: string;
+  notices: number;
+  households: number;
+  /** 1순위 경쟁률 (1순위 접수 ÷ 일반공급, 배) */
+  rate: number | null;
+  /** 청약 미달 주택형 비율 (%) — 경쟁 기록이 있는 주택형 중 */
+  shortPct: number | null;
+  /** 평당 분양가 중위 (공급면적 기준, 만원) */
+  pppCapital: number | null;
+  pppOther: number | null;
+};
+
+export type PresaleMetroStat = {
+  metro: string;
+  notices: number;
+  households: number;
+  rate: number | null;
+  shortPct: number | null;
+  ppp: number | null;
+};
+
+export type PresaleTrends = {
+  /** 최근 12개월 · 직전 12개월 요약 */
+  recent: { notices: number; households: number; rate: number | null; shortPct: number | null };
+  prior: { notices: number; households: number; rate: number | null; shortPct: number | null };
+  /** 최근 12분기 (1순위 마감일 기준) */
+  quarters: PresaleQuarter[];
+  /** 최근 12개월 시·도별 */
+  metros: PresaleMetroStat[];
+  basis: { from: string; to: string };
+};
+
+let trendsCache: { at: number; key: string; value: PresaleTrends } | null = null;
+const CAPITAL = new Set(["seoul", "gyeonggi", "incheon"]);
+const PYEONG = 3.3058;
+
+function median(values: number[]): number | null {
+  if (!values.length) return null;
+  const s = [...values].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
+}
+
+type Acc = { notices: Set<string>; households: Map<string, number>; req: number; supply: number; short: number; judged: number; ppp: number[] };
+const newAcc = (): Acc => ({ notices: new Set(), households: new Map(), req: 0, supply: 0, short: 0, judged: 0, ppp: [] });
+function summarize(a: Acc) {
+  return {
+    notices: a.notices.size,
+    households: [...a.households.values()].reduce((s, v) => s + v, 0),
+    rate: a.supply > 0 ? Math.round((a.req / a.supply) * 10) / 10 : null,
+    shortPct: a.judged > 0 ? Math.round((a.short / a.judged) * 1000) / 10 : null,
+  };
+}
+
+/** 분양 동향 — 1순위 마감일 기준 최근 3년. 임대 제외, 원천 값 그대로 (추정 없음). */
+export async function readApplyhomeTrends(db: Client): Promise<PresaleTrends> {
+  const today = seoulToday();
+  if (trendsCache && trendsCache.key === today && Date.now() - trendsCache.at < CACHE_TTL_MS) return trendsCache.value;
+  const from = addDays(today, -365 * 3);
+  const res = await db.execute({
+    sql: `SELECT n.house_manage_no, n.lawd_cd, n.area_name, n.total_supply, n.rcept_end,
+                 m.model_no, m.supply_area, m.general_supply, m.top_amount,
+                 (SELECT SUM(CASE WHEN c.rank_code = 1 THEN c.request_count ELSE 0 END)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS total1,
+                 (SELECT SUM(CASE WHEN c.rank_code = 2 THEN c.request_count ELSE 0 END)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS total2,
+                 (SELECT MAX(c.supply_count)
+                    FROM applyhome_competition c WHERE c.house_manage_no = m.house_manage_no AND c.model_no = m.model_no) AS comp_supply
+          FROM applyhome_models m
+          JOIN applyhome_notices n ON n.house_manage_no = m.house_manage_no
+          WHERE n.rcept_end >= ? AND n.rcept_end < ? AND COALESCE(n.rent_secd_nm, '') <> '임대주택'`,
+    args: [from, today],
+  });
+
+  const qOf = (d: string) => `${d.slice(0, 4)}Q${Math.floor((Number(d.slice(5, 7)) - 1) / 3) + 1}`;
+  const since12 = addDays(today, -365);
+  const since24 = addDays(today, -730);
+  const byQ = new Map<string, Acc & { pppCap: number[]; pppOther: number[] }>();
+  const byMetro = new Map<string, Acc>();
+  const recent = newAcc();
+  const prior = newAcc();
+
+  for (const r of res.rows) {
+    const id = String(r.house_manage_no);
+    const end = String(r.rcept_end);
+    const metro = metroOf(str(r.lawd_cd), str(r.area_name));
+    const supply = Number(r.comp_supply ?? 0) || Number(r.general_supply ?? 0);
+    const t1 = Number(r.total1 ?? 0);
+    const t2 = Number(r.total2 ?? 0);
+    const judged = r.comp_supply != null && supply > 0;
+    const area = Number(r.supply_area ?? 0);
+    const price = Number(r.top_amount ?? 0);
+    const ppp = area > 0 && price > 0 ? price / (area / PYEONG) : null;
+    const add = (a: Acc) => {
+      a.notices.add(id);
+      a.households.set(id, Number(r.total_supply ?? 0));
+      if (judged) {
+        a.req += t1;
+        a.supply += supply;
+        a.judged += 1;
+        if (t1 + t2 < supply) a.short += 1;
+      }
+      if (ppp != null) a.ppp.push(ppp);
+    };
+    const q = qOf(end);
+    const qa = byQ.get(q) ?? { ...newAcc(), pppCap: [], pppOther: [] };
+    add(qa);
+    if (ppp != null) (CAPITAL.has(metro) ? qa.pppCap : qa.pppOther).push(ppp);
+    byQ.set(q, qa);
+    if (end >= since12) {
+      add(recent);
+      const ma = byMetro.get(metro) ?? newAcc();
+      add(ma);
+      byMetro.set(metro, ma);
+    } else if (end >= since24) add(prior);
+  }
+
+  const quarters: PresaleQuarter[] = [...byQ.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .slice(-12)
+    .map(([q, a]) => ({
+      q,
+      ...summarize(a),
+      pppCapital: a.pppCap.length >= 5 ? Math.round(median(a.pppCap)!) : null,
+      pppOther: a.pppOther.length >= 5 ? Math.round(median(a.pppOther)!) : null,
+    }));
+  const metros: PresaleMetroStat[] = [...byMetro.entries()]
+    .filter(([m]) => m !== "other")
+    .map(([metro, a]) => ({ metro, ...summarize(a), ppp: a.ppp.length >= 5 ? Math.round(median(a.ppp)!) : null }))
+    .sort((a, b) => (b.rate ?? -1) - (a.rate ?? -1));
+
+  const value: PresaleTrends = {
+    recent: summarize(recent),
+    prior: summarize(prior),
+    quarters,
+    metros,
+    basis: { from, to: today },
+  };
+  trendsCache = { at: Date.now(), key: today, value };
+  return value;
+}
