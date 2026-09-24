@@ -169,9 +169,9 @@ export function LabExperimentCard({ result }: { result: LabExperimentResult }) {
 
       <div className="flex flex-col gap-1">
         <p className="detail-meta">
-          {result.period.label}
-          {result.period.priorLabel ? ` · 비교 ${result.period.priorLabel}` : ""} · 표본 {fmtN(result.totalCount)}건
+          {result.period.label} · 표본 {fmtN(result.totalCount)}건
         </p>
+        {result.period.priorLabel ? <p className="detail-meta">비교 {result.period.priorLabel}</p> : null}
         {result.excludedNote ? <p className="detail-meta">{result.excludedNote}</p> : null}
       </div>
 
