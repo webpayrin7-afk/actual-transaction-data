@@ -71,6 +71,7 @@ export type Complex3d = {
 };
 
 const RADIUS_M = 500;
+const A_LINK_MAX_M = 1000;
 const PYEONG = 3.3058;
 
 function median(values: number[]): number | null {
@@ -128,11 +129,18 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
   const gisByPk = new Map<string, Record<string, unknown>>();
   if (suffixes.length) {
     const g = await db.execute({
-      sql: `SELECT bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings
+      sql: `SELECT bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng
             FROM gis_buildings WHERE lawd_cd = ? AND bldrgst_pk IN (${suffixes.map(() => "?").join(",")})`,
       args: [lawd, ...suffixes],
     });
-    for (const r of g.rows) gisByPk.set(String(r.bldrgst_pk), r as Record<string, unknown>);
+    // 건축물대장 번호는 옛 시군구마다 따로 매긴 짧은 일련번호라, 합쳐진 구에서는 같은 번호의 먼 건물이 있다 —
+    // 단지 좌표에서 1km 안인 건물만 동 모양으로 쓴다 (적재 규칙과 같음)
+    for (const r of g.rows) {
+      const lat = Number(r.lat);
+      const lng = Number(r.lng);
+      if (Number.isFinite(lat) && Number.isFinite(lng) && haversine(center.lat, center.lng, lat, lng) > A_LINK_MAX_M) continue;
+      gisByPk.set(String(r.bldrgst_pk), r as Record<string, unknown>);
+    }
   }
 
   const unitsByBuilding = new Map<string, Array<{ label: string; households: number }>>();
