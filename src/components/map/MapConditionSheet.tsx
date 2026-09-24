@@ -102,7 +102,7 @@ function DistributionRange({
         {def.ticks.map((t, i) => (
           <span
             key={t}
-            className="absolute text-[12px] leading-4 text-[color:var(--lab-muted)] tabular-nums"
+            className="absolute whitespace-nowrap text-[12px] leading-4 text-[color:var(--lab-muted)] tabular-nums"
             style={{
               left: `${pos(t)}%`,
               transform: i === 0 ? "none" : i === def.ticks.length - 1 ? "translateX(-100%)" : "translateX(-50%)",
