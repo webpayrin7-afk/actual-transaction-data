@@ -902,8 +902,8 @@ export function MapSearchPage() {
         </div>
       ) : null}
 
-      <LabBottomSheet open={metricOpen} onClose={() => setMetricOpen(false)} title="마커에 보일 값" hideDone>
-        <ul className="flex flex-col" role="radiogroup" aria-label="마커에 보일 값">
+      <LabBottomSheet open={metricOpen} onClose={() => setMetricOpen(false)} title="마커 표시" hideDone>
+        <ul className="flex flex-col" role="radiogroup" aria-label="마커 표시">
           {MARKER_METRICS.map((m) => (
             <li key={m.id}>
               <button
