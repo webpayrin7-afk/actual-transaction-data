@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, ChevronDown, ChevronRight, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Eye, LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
@@ -667,21 +667,6 @@ export function MapSearchPage() {
               </button>
             ))}
           </div>
-          {level === "complex" ? (
-            <button
-              type="button"
-              aria-haspopup="dialog"
-              onClick={() => setMetricOpen(true)}
-              className={`relative inline-flex h-9 shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
-                metric !== "price"
-                  ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
-                  : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
-              }`}
-            >
-              표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
-              <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
-            </button>
-          ) : null}
           <button
             type="button"
             onClick={() => {
@@ -735,6 +720,19 @@ export function MapSearchPage() {
           })}
         </div>
         <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
+          {level === "complex" ? (
+            // 마커에 보일 값 — 조건(필터)이 아니라 보기 방식이라 칩 줄과 따로 둔다
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              onClick={() => setMetricOpen(true)}
+              className="pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']"
+            >
+              <Eye className="h-4 w-4" aria-hidden />
+              표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
+              <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
+            </button>
+          ) : null}
           {statusText ? (
             <p className="pointer-events-auto rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
               {statusText}
