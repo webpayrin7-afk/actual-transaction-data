@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { jibunToken, masterJibun, normalizeAddress } from "./kapt-match";
 import { cadastralToRegistryPnu, hallOrNull, hubFromRows, kaptParking, parkingPerHousehold, pickAgreed } from "./rules";
 
 assert.equal(cadastralToRegistryPnu("1171010100100190000"), "1171010100000190000");
@@ -25,4 +26,9 @@ assert.equal(summed?.parking, 17);
 assert.equal(summed?.far, 200);
 assert.equal(summed?.bcr, null);
 
+assert.deepEqual(jibunToken("경기도 파주시 금촌동 792-3 보광그랑베르"), { san: false, bun: "0792", ji: "0003" });
+assert.equal(jibunToken("서울특별시 송파구 잠실동 19 잠실엘스아파트")?.bun, "0019");
+assert.equal(jibunToken("서울 강남구 역삼동 1 2"), null);
+assert.deepEqual(masterJibun("1-102"), { san: false, bun: "0001", ji: "0102" });
+assert.equal(normalizeAddress("  경기도  파주시 중앙로 215 "), "경기도 파주시 중앙로 215");
 console.log("test-profile-rules: ok");

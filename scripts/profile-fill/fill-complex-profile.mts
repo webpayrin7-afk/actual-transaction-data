@@ -377,9 +377,19 @@ async function diagnose(client: Client) {
 
 function filtered(targets: Target[]): Target[] {
   const min = Number(arg("--min-weight") ?? 0);
-  const list = min > 0 ? targets.filter((t) => t.weight >= min) : targets;
+  const maxRaw = arg("--max-weight");
+  const max = maxRaw == null ? null : Number(maxRaw);
+  let list = targets;
+  if (min > 0) list = list.filter((t) => t.weight >= min);
+  if (max != null) list = list.filter((t) => t.weight <= max);
   list.sort((a, b) => b.weight - a.weight || a.complexId.localeCompare(b.complexId));
   return list;
+}
+
+function outTag(): string {
+  if (arg("--max-weight") != null) return `-max${arg("--max-weight")}`;
+  if (arg("--min-weight") != null) return `-min${arg("--min-weight")}`;
+  return "";
 }
 
 async function fetchPhase(client: Client) {
@@ -415,7 +425,7 @@ async function fetchPhase(client: Client) {
     await run([...need], "kapt", true);
   }
   const summary = { quotaStop: quota, failed: failed.length, failedSample: failed.slice(0, 20), ...apiStats };
-  writeFileSync(`${OUT}/fetch-summary.json`, JSON.stringify({ at: new Date().toISOString(), ...summary }, null, 2));
+  writeFileSync(`${OUT}/fetch-summary${outTag()}.json`, JSON.stringify({ at: new Date().toISOString(), ...summary }, null, 2));
   console.log(JSON.stringify(summary));
 }
 
@@ -589,8 +599,8 @@ async function planPhase(client: Client, apply: boolean) {
     }
   }
   mkdirSync(OUT, { recursive: true });
-  writeFileSync(`${OUT}/${apply ? "apply" : "plan"}.json`, JSON.stringify({ at: now, apply, totals }, null, 2));
-  writeFileSync(`${OUT}/conflicts.json`, JSON.stringify(conflictRows, null, 1));
+  writeFileSync(`${OUT}/${apply ? "apply" : "plan"}${outTag()}.json`, JSON.stringify({ at: now, apply, totals }, null, 2));
+  writeFileSync(`${OUT}/conflicts${outTag()}.json`, JSON.stringify(conflictRows, null, 1));
   console.log(JSON.stringify({ apply, statements: stmts.length, ...totals }, null, 2));
 }
 
