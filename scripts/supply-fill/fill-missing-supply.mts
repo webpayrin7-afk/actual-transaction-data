@@ -170,25 +170,38 @@ async function g2Rows(client: Client): Promise<G2Row[]> {
 type Resolution = { complexId: string; status: string; pnu: string; address: string; vworldText: string; vworldDetail: string };
 
 async function resolvePhase(client: Client) {
-  const rows = await g2Rows(client);
+  const minWeight = Number(arg("--min-weight") ?? 0);
+  let rows = await g2Rows(client);
+  rows.sort((a, b) => b.ns3y - a.ns3y || a.complexId.localeCompare(b.complexId));
+  if (minWeight > 0) rows = rows.filter((row) => row.ns3y * 10 >= minWeight);
   const out: Resolution[] = [];
   const counts: Record<string, number> = {};
+  let quota = false;
   for (const row of rows) {
     const address = `${row.sido} ${row.sigungu} ${row.dong} ${row.jibun}`.replace(/\s+/g, " ").trim();
     let res: Resolution;
-    if (!row.jibun || !parseParcelJibun(row.jibun)) {
-      res = { complexId: row.complexId, status: "BAD_JIBUN", pnu: "", address, vworldText: "", vworldDetail: "" };
-    } else {
-      const v = await vworldParcel(address);
-      const verdict = acceptVworld(row, v);
-      res = { complexId: row.complexId, status: verdict.reason, pnu: verdict.registryPnu, address, vworldText: v.text, vworldDetail: v.detail };
+    try {
+      if (!row.jibun || !parseParcelJibun(row.jibun)) {
+        res = { complexId: row.complexId, status: "BAD_JIBUN", pnu: "", address, vworldText: "", vworldDetail: "" };
+      } else {
+        const v = await vworldParcel(address);
+        const verdict = acceptVworld(row, v);
+        res = { complexId: row.complexId, status: verdict.reason, pnu: verdict.registryPnu, address, vworldText: v.text, vworldDetail: v.detail };
+      }
+    } catch (error) {
+      if (error instanceof QuotaError) {
+        quota = true;
+        break;
+      }
+      throw error;
     }
     counts[res.status] = (counts[res.status] ?? 0) + 1;
     out.push(res);
+    if (out.length % 100 === 0) console.log(JSON.stringify({ progress: `${out.length}/${rows.length}`, ...counts, vworldCalls: apiStats.vworldCalls }));
   }
   mkdirSync(OUT_DIR, { recursive: true });
   writeFileSync(RESOLVED, JSON.stringify(out, null, 1));
-  console.log(JSON.stringify({ g2: rows.length, counts, vworldCalls: apiStats.vworldCalls }));
+  console.log(JSON.stringify({ g2: rows.length, resolved: out.length, quotaStop: quota, counts, vworldCalls: apiStats.vworldCalls }));
 }
 
 async function g2Targets(client: Client): Promise<Target[]> {
@@ -239,6 +252,7 @@ async function probePhase(client: Client) {
           break;
         }
         status.failed += 1;
+        console.log(JSON.stringify({ pnu, error: error instanceof Error ? error.message : "error" }));
       }
       if ((status.probed + status.failed) % 100 === 0) console.log(JSON.stringify({ progress: `${cursor}/${pnus.length}`, ...status, ...apiStats }));
     }

@@ -12,7 +12,7 @@ import { parseParcelJibun, type ExposRow } from "../../src/lib/unit-type/officia
 
 export const CACHE_ROOT = "data/supply-fill-cache";
 const PAGE_SIZE = 100; // API caps numOfRows at 100.
-const MAX_ATTEMPTS = 6;
+const MAX_ATTEMPTS = 8;
 const PAGE_PARALLEL = 4;
 
 export class QuotaError extends Error {
@@ -107,12 +107,12 @@ async function fetchExposPage(parcel: Parcel, page: number): Promise<{ total: nu
         console.error(`quota body: ${text.slice(0, 200)}`);
         throw new QuotaError();
       }
-      if (res.status === 429) {
-        apiStats.http429 += 1;
+      if (res.status === 429 || res.status === 503) {
+        if (res.status === 429) apiStats.http429 += 1;
+        else apiStats.http503 += 1;
         spacingMs = Math.min(3000, Math.round(spacingMs * 1.6));
-        last = "429";
+        last = String(res.status);
       } else if (!res.ok) {
-        if (res.status === 503) apiStats.http503 += 1;
         last = `HTTP ${res.status}`;
       } else {
         let parsed: { response?: { header?: { resultCode?: string }; body?: { totalCount?: unknown; items?: { item?: unknown } } } };
