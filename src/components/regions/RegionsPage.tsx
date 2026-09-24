@@ -263,12 +263,12 @@ export function RegionsPage() {
                 key={region.slug}
                 href={`/region/${region.slug}`}
                 // 누르면 지역 상세로 — 버튼으로 읽히게 그림자·화살표·눌림 효과
-                className="group flex min-h-12 flex-col items-stretch justify-center gap-0.5 rounded-xl border border-[color:var(--lab-border)] bg-white py-2.5 pl-3 pr-2 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-[color:var(--lab-brand-border)] hover:bg-[color:var(--lab-brand-subtle)] active:scale-[0.98] active:bg-[color:var(--lab-brand-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                className="lab-press flex min-h-12 flex-col items-stretch justify-center gap-0.5 py-2.5 pl-3 pr-2"
               >
                 <span className="flex items-center justify-between gap-1">
                   <span className="detail-data-value-emphasis min-w-0 break-keep">{region.name}</span>
                   <ChevronRight
-                    className="h-4 w-4 shrink-0 text-[color:var(--lab-brand-primary)] transition group-hover:translate-x-0.5"
+                    className="lab-press-arrow h-4 w-4 shrink-0"
                     aria-hidden
                   />
                 </span>

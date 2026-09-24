@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
@@ -68,13 +69,14 @@ export function LabSection() {
       {today && todayDef ? (
         <Link
           href={`/lab#${todayDef.slug}`}
-          className="flex flex-col gap-1.5 rounded-xl border border-[color:var(--lab-border)] p-4 transition-colors hover:border-[color:var(--lab-brand-border)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]"
+          className="lab-press flex flex-col gap-1.5 p-4"
         >
           <span className="flex items-center gap-1.5">
             <LabTag>오늘의 실험</LabTag>
-            <span className="detail-meta">
+            <span className="detail-meta min-w-0 flex-1 truncate">
               {todayDef.labNo} · {todayDef.title}
             </span>
+            <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden />
           </span>
           <span className="detail-data-value-emphasis break-keep">{todayDef.question}</span>
           <span className="text-[20px] font-bold leading-7 tracking-tight text-[color:var(--lab-teal-700)] tabular-nums">

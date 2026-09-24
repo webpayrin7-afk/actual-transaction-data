@@ -2,6 +2,7 @@
 
 /* rebuild-marker: drop dong-nav hint */
 
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
@@ -28,9 +29,12 @@ function DongCard({
   return (
     <Link
       href={regionDongHref(regionSlug, item.dong, item.gu)}
-      className="flex min-h-11 flex-col justify-center rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2.5 text-left transition hover:border-[color:var(--lab-brand-border)] hover:bg-slate-50"
+      className="lab-press flex min-h-11 flex-col justify-center py-2.5 pl-3 pr-2 text-left"
     >
-      <p className="detail-data-value-emphasis">{item.dong}</p>
+      <p className="flex items-center justify-between gap-1">
+        <span className="detail-data-value-emphasis min-w-0 break-keep">{item.dong}</span>
+        <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden />
+      </p>
       <p className="detail-meta tabular-nums">단지 {item.aptCount.toLocaleString("ko-KR")}곳</p>
     </Link>
   );

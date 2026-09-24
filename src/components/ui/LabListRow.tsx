@@ -67,19 +67,19 @@ export function LabListRow({
           {sub ? <p className="detail-meta whitespace-nowrap tabular-nums">{sub}</p> : null}
         </div>
       ) : null}
-      {href ? <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden /> : null}
+      {href ? <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden /> : null}
     </>
   );
   const cls = "flex min-h-11 items-center gap-3 py-2.5";
   return (
     <li>
       {href && external ? (
-        <a href={href} target="_blank" rel="noopener noreferrer" className={`${cls} hover:bg-slate-50`}>
+        <a href={href} target="_blank" rel="noopener noreferrer" className={`${cls} lab-row-press`}>
           {body}
           <span className="sr-only">(새 창)</span>
         </a>
       ) : href ? (
-        <Link href={href} className={`${cls} hover:bg-slate-50`}>
+        <Link href={href} className={`${cls} lab-row-press`}>
           {body}
         </Link>
       ) : onClick ? (
@@ -87,7 +87,7 @@ export function LabListRow({
           type="button"
           onClick={onClick}
           aria-pressed={selected ?? false}
-          className={`${cls} w-full text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]`}
+          className={`${cls} lab-row-press w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]`}
         >
           {body}
         </button>

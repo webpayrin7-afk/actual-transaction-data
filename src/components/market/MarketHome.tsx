@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Fragment, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ChevronRight } from "lucide-react";
 import { LabSection as LabExperiments } from "@/components/lab/LabSection";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
@@ -320,9 +320,12 @@ function SummaryStat({
   return (
     <Link
       href={href}
-      className="flex min-h-11 flex-col justify-center rounded-xl border border-[color:var(--lab-border)] px-3 py-2 transition-colors hover:border-[color:var(--lab-brand-border)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]"
+      className="lab-press flex min-h-11 flex-col justify-center py-2 pl-3 pr-2"
     >
-      <span className="detail-meta">{label}</span>
+      <span className="flex items-center justify-between gap-1">
+        <span className="detail-meta min-w-0">{label}</span>
+        <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden />
+      </span>
       <span
         className="text-[18px] font-bold leading-6 tabular-nums text-[color:var(--lab-navy-950)]"
         style={tone ? { color: tone === "up" ? "var(--lab-change-up)" : "var(--lab-change-down)" } : undefined}
