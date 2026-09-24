@@ -1,13 +1,13 @@
 {
-  "at": "2026-09-23T23:52:52.468Z",
-  "parcels": 2937,
-  "probed": 2929,
-  "failed": 8,
+  "at": "2026-09-24T00:32:11.300Z",
+  "parcels": 770,
+  "probed": 770,
+  "failed": 0,
   "quotaStop": false,
-  "calls": 1270,
-  "retries": 210,
-  "http503": 90,
+  "calls": 485,
+  "retries": 0,
+  "http503": 0,
   "http429": 0,
-  "cachedPages": 1869,
+  "cachedPages": 285,
   "vworldCalls": 0
 }

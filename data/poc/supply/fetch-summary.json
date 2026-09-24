@@ -1,15 +1,15 @@
 {
-  "at": "2026-09-23T23:53:48.636Z",
-  "parcels": 2124,
-  "cursor": 3,
-  "done": 3,
+  "at": "2026-09-24T03:26:29.861Z",
+  "parcels": 726,
+  "cursor": 726,
+  "done": 726,
   "cached": 0,
   "failed": 0,
   "quotaStop": false,
-  "calls": 20,
-  "retries": 0,
+  "calls": 34359,
+  "retries": 21,
   "http503": 0,
   "http429": 0,
-  "cachedPages": 3,
+  "cachedPages": 726,
   "vworldCalls": 0
 }
