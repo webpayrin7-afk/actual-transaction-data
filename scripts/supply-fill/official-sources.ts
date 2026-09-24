@@ -23,7 +23,7 @@ export class QuotaError extends Error {
 
 export const apiStats = { calls: 0, retries: 0, http503: 0, http429: 0, cachedPages: 0, vworldCalls: 0 };
 
-let spacingMs = Number(process.env.SUPPLY_FILL_SPACING_MS ?? 120);
+let spacingMs = Number(process.env.SUPPLY_FILL_SPACING_MS ?? 250);
 let nextSlot = 0;
 async function pace() {
   const now = Date.now();
@@ -72,8 +72,14 @@ export function acceptVworld(
   return { ok: true, reason: "OK", registryPnu };
 }
 
+function perSecondLimit(text: string): boolean {
+  return /PER_SECOND|초당 서비스 요청제한/.test(text);
+}
+
+/** Daily/total quota. Per-second bursts are retried, not a stop. */
 function quotaText(text: string): boolean {
-  return /LIMITED_NUMBER_OF_SERVICE_REQUESTS|초과|"returnReasonCode"\s*:\s*"22"|<returnReasonCode>22</.test(text);
+  if (perSecondLimit(text)) return false;
+  return /LIMITED_NUMBER_OF_SERVICE_REQUESTS|SERVICE_REQUESTS_EXCEEDS|"returnReasonCode"\s*:\s*"22"|<returnReasonCode>22</.test(text);
 }
 
 async function fetchExposPage(parcel: Parcel, page: number): Promise<{ total: number; items: ExposRow[] }> {
@@ -103,11 +109,13 @@ async function fetchExposPage(parcel: Parcel, page: number): Promise<{ total: nu
       const text = await res.text();
       // Quota errors come as a gateway error body, never inside a NORMAL SERVICE payload
       // (row data can legitimately contain words like 한도).
-      if (!text.includes('"resultCode":"00"') && quotaText(text)) {
-        console.error(`quota body: ${text.slice(0, 200)}`);
+      if (!text.includes('"resultCode":"00"') && perSecondLimit(text)) {
+        apiStats.http429 += 1;
+        spacingMs = Math.min(3000, Math.round(spacingMs * 1.8));
+        last = "per-second";
+      } else if (!text.includes('"resultCode":"00"') && quotaText(text)) {
         throw new QuotaError();
-      }
-      if (res.status === 429 || res.status === 503) {
+      } else if (res.status === 429 || res.status === 503) {
         if (res.status === 429) apiStats.http429 += 1;
         else apiStats.http503 += 1;
         spacingMs = Math.min(3000, Math.round(spacingMs * 1.6));
