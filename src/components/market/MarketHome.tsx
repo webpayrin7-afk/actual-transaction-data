@@ -9,14 +9,12 @@ import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { MarketPolicyNews } from "@/components/market/MarketPolicyNews";
 import { MarketRegionBreakdown } from "@/components/market/MarketRegionBreakdown";
-import { InfoTip } from "@/components/ui/InfoTip";
-import { LabSection } from "@/components/ui/LabSection";
+import { LAB_SECTION_SURFACE, LabSection } from "@/components/ui/LabSection";
 import { MarketFlowSummary } from "@/components/market/MarketFlowSummary";
 import { MarketHeadlines } from "@/components/market/MarketHeadlines";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
-import { LabStatTiles } from "@/components/ui/LabStatTiles";
 import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
 import { LabTabs, labTabPanelId } from "@/components/ui/LabTabs";
 import { LabTag } from "@/components/ui/LabTag";
@@ -244,12 +242,46 @@ function PriceIssuesSection({ id, data }: { id: string; data: MarketHomeResponse
   );
 }
 
-function MetaTag({ label, tip }: { label: string; tip: React.ReactNode }) {
+/** "2026-09-24" → "9월 24일" */
+function monthDay(iso: string): string {
+  return `${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일`;
+}
+
+/** 업데이트 시각 HH:MM (KST) — 표기 라벨에서, 없으면 computedAt(ISO)에서 */
+function clockOf(label: string | null | undefined, iso?: string | null): string | null {
+  const m = label?.match(/(d{1,2}:d{2})s*$/);
+  if (m) return m[1]!;
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit", hour12: false }).format(d);
+}
+
+/** 요약 아래 숫자 한 칸 — 누르면 해당 목록으로 이동 */
+function SummaryStat({
+  href,
+  label,
+  value,
+  tone,
+}: {
+  href: string;
+  label: string;
+  value: string;
+  tone?: "up" | "down";
+}) {
   return (
-    <span className="inline-flex items-center">
-      <LabTag size="md">{label}</LabTag>
-      <InfoTip aria-label={`${label} 안내`}>{tip}</InfoTip>
-    </span>
+    <Link
+      href={href}
+      className="flex min-h-11 flex-col justify-center rounded-xl border border-[color:var(--lab-border)] px-3 py-2 transition-colors hover:border-[color:var(--lab-brand-border)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]"
+    >
+      <span className="detail-meta">{label}</span>
+      <span
+        className="text-[18px] font-bold leading-6 tabular-nums text-[color:var(--lab-navy-950)]"
+        style={tone ? { color: tone === "up" ? "var(--lab-change-up)" : "var(--lab-change-down)" } : undefined}
+      >
+        {value}
+      </span>
+    </Link>
   );
 }
 
@@ -272,34 +304,26 @@ export function MarketHome() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="아파트 시장"
-        description="오늘의 거래·정책 이슈와 시장 흐름을 한눈에 봅니다."
+        showDivider={false}
         className="mt-1.5 sm:mt-2"
+        titleTip={
+          <>
+            <p>오늘 집랩이 새로 확인한 거래·가격 이슈와 정책 발표, 시장 흐름을 한눈에 봅니다.</p>
+            <p className="mt-1.5">
+              확인일: {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지 않습니다.
+            </p>
+            <p className="mt-1.5">
+              업데이트: 집랩 데이터가 마지막으로 갱신된 시각입니다. 각 거래의 날짜와 시장 흐름은 계약일
+              기준입니다. {CONTRACT_DATE_BASIS_HELP}
+            </p>
+          </>
+        }
         meta={
-          data?.lastUpdatedLabel || data?.computedAt || data?.discoveryDate ? (
-            <div className="flex flex-wrap items-center gap-x-1 gap-y-1">
-              {data?.discoveryDate ? (
-                <MetaTag
-                  label={`확인일 ${data.discoveryDate}`}
-                  tip={
-                    <>
-                      {SEEN_DATE_BASIS_HELP} 공식 신고일이나 공개일을 뜻하지
-                      않습니다.
-                    </>
-                  }
-                />
-              ) : null}
-              {data?.lastUpdatedLabel || data?.computedAt ? (
-                <MetaTag
-                  label={`업데이트 ${data.lastUpdatedLabel ?? data.computedAt}`}
-                  tip={
-                    <>
-                      집랩 데이터가 마지막으로 갱신된 시점입니다. 각 거래의
-                      날짜와 시장동향은 계약일 기준입니다. {CONTRACT_DATE_BASIS_HELP}
-                    </>
-                  }
-                />
-              ) : null}
-            </div>
+          data?.discoveryDate ? (
+            <p className="detail-meta tabular-nums">
+              {monthDay(data.discoveryDate)} 확인
+              {clockOf(data.lastUpdatedLabel, data.computedAt) ? ` · ${clockOf(data.lastUpdatedLabel, data.computedAt)} 업데이트` : ""}
+            </p>
           ) : null
         }
       />
@@ -328,42 +352,43 @@ export function MarketHome() {
       ) : null}
 
       {data ? (
-        <LabSection id="market-summary" title="오늘의 요약">
-          <LabStatTiles
-            columns={4}
-            items={[
-              {
-                key: "new",
-                label: "새로 확인된 매매",
-                value: `${(data.kpis.newDealCount ?? 0).toLocaleString("ko-KR")}건`,
-                sub: "집랩 첫 확인 기준",
-              },
-              {
-                key: "singoga",
-                label: "신고가",
-                value: `${data.kpis.singogaCount.toLocaleString("ko-KR")}건`,
-                sub: "이전 최고가 갱신",
-                tone: data.kpis.singogaCount > 0 ? "up" : "neutral",
-              },
-              {
-                key: "drop",
-                label: "고점 −10%",
-                value: `${data.kpis.dropCount.toLocaleString("ko-KR")}건`,
-                sub: "이전 최고가 대비",
-                tone: data.kpis.dropCount > 0 ? "down" : "neutral",
-              },
-              {
-                key: "surge",
-                label: "거래량 급증",
-                value: `${(data.kpis.volumeSurgeCount ?? 0).toLocaleString("ko-KR")}곳`,
-                sub: "최근 30일 vs 직전",
-              },
-            ]}
-          />
-          {data.warning ? (
+        <section id="market-summary" aria-label="오늘의 요약" className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}>
+          <p className="text-[20px] font-bold leading-7 tracking-tight text-[color:var(--lab-navy-950)]">
+            {hasNewDeals ? (
+              <>
+                오늘 매매{" "}
+                <span className="tabular-nums text-[color:var(--lab-teal-700)]">
+                  {(data.kpis.newDealCount ?? 0).toLocaleString("ko-KR")}건
+                </span>
+                이 새로 확인됐어요
+              </>
+            ) : (
+              "오늘은 아직 새로 확인된 매매가 없어요"
+            )}
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <SummaryStat
+              href="/market/price-moves?period=1d"
+              label="신고가"
+              value={`${data.kpis.singogaCount.toLocaleString("ko-KR")}건`}
+              tone={data.kpis.singogaCount > 0 ? "up" : undefined}
+            />
+            <SummaryStat
+              href="/market/price-moves?period=1d&kind=drop"
+              label="고점 −10%"
+              value={`${data.kpis.dropCount.toLocaleString("ko-KR")}건`}
+              tone={data.kpis.dropCount > 0 ? "down" : undefined}
+            />
+            <SummaryStat
+              href="#market-volume"
+              label="거래량 급증"
+              value={`${(data.kpis.volumeSurgeCount ?? 0).toLocaleString("ko-KR")}곳`}
+            />
+          </div>
+          {data.warning && hasNewDeals ? (
             <p className="detail-body text-[color:var(--lab-warning-text)]">{data.warning}</p>
           ) : null}
-        </LabSection>
+        </section>
       ) : null}
 
       {/* 정책 발표는 시장 데이터와 별도로 불러와 먼저 보일 수 있다 */}
