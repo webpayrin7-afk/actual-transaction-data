@@ -185,6 +185,8 @@ export function PriceMovesPage() {
     },
     getNextPageParam: (last, pages) => (last.hasMore ? pages.length * PAGE : undefined),
     staleTime: 5 * 60_000,
+    // 탭·정렬을 바꾸는 동안 이전 결과를 그대로 보여 준다 — 비었다가 다시 그려지며 스크롤이 튀지 않게
+    placeholderData: (prev) => prev,
   });
 
   const first = query.data?.pages[0];
@@ -287,7 +289,7 @@ export function PriceMovesPage() {
             ) : null}
           </LabSection>
 
-          <LabSection title={`${kindLabel} 단지`} meta={`${first.totalGroups.toLocaleString("ko-KR")}개 단지`}>
+          <LabSection title={`${kindLabel} 단지 목록`} meta={`${first.totalGroups.toLocaleString("ko-KR")}개 단지`}>
             {/* 정렬은 이 목록에만 영향 — 요약 위 조건(지역·기간·면적)과 분리 */}
             <LabTabs variant="compact" ariaLabel="정렬" equalWidth items={SORT_ITEMS} value={sort} onChange={setSort} />
             {items.length === 0 ? (
