@@ -2,16 +2,16 @@
   "version": 1,
   "wave": "busan",
   "started_at": "2026-09-23T23:34:16.077Z",
-  "updated_at": "2026-09-24T11:19:09.288Z",
+  "updated_at": "2026-09-24T11:22:48.140Z",
   "segment_size": 40,
-  "segments_completed": 24,
-  "api_calls": 26580,
+  "segments_completed": 25,
+  "api_calls": 26766,
   "retries": 32,
   "http_429": 0,
   "http_5xx": 1,
   "timeouts": 31,
-  "reused_ops": 852,
-  "runtime_ms": 42222297,
+  "reused_ops": 881,
+  "runtime_ms": 42441149,
   "classifications": {
     "cx_63a43ed757bee485": "COMPLETE",
     "cx_7ac8a6a89bbcf971": "COMPLETE",
@@ -998,15 +998,14 @@
     "cx_fd92bb3da0ca9e4f": "COMPLETE",
     "cx_fdda0cd7e621445c": "COMPLETE",
     "cx_fdda6395f007a5d4": "COMPLETE",
-    "cx_fe05e80f125b5068": "COMPLETE"
+    "cx_fe05e80f125b5068": "COMPLETE",
+    "cx_fe67286f7b4e273a": "COMPLETE",
+    "cx_fe72d4c6b0c3564e": "COMPLETE",
+    "cx_fe86ef891244af01": "COMPLETE",
+    "cx_feaa94399d706dd8": "COMPLETE",
+    "cx_fefbb8195b796d62": "COMPLETE",
+    "cx_ff51f9e7d5818626": "COMPLETE",
+    "cx_ffed2df51f96adc4": "COMPLETE"
   },
-  "unfinished_complex_ids": [
-    "cx_fe67286f7b4e273a",
-    "cx_fe72d4c6b0c3564e",
-    "cx_fe86ef891244af01",
-    "cx_feaa94399d706dd8",
-    "cx_fefbb8195b796d62",
-    "cx_ff51f9e7d5818626",
-    "cx_ffed2df51f96adc4"
-  ]
+  "unfinished_complex_ids": []
 }

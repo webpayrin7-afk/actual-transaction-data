@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-24T10:37:37.779Z",
-  "driver_status": "busan acquiring",
+  "generated_at": "2026-09-24T11:22:49.507Z",
+  "driver_status": "busan dry-run PASS",
   "fee_table": {
     "rows": 3938,
     "complexes": 3825
   },
-  "api_calls_total": 55395,
+  "api_calls_total": 57450,
   "applied_rows_total": 1015,
   "provinces": [
     {
@@ -32,20 +32,20 @@
       "province": "busan",
       "sido_code": "26",
       "sido": "부산광역시",
-      "phase": "ACQUIRING",
+      "phase": "DRYRUN_PASS",
       "cohort": 993,
-      "terminal": 920,
-      "unfinished": 73,
-      "COMPLETE": 813,
-      "NO_PUBLISHED_MONTH": 107,
+      "terminal": 993,
+      "unfinished": 0,
+      "COMPLETE": 881,
+      "NO_PUBLISHED_MONTH": 112,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 24711,
+      "api_calls": 26766,
       "http_429": 0,
-      "retries": 30,
-      "dryrun_gate": null,
+      "retries": 32,
+      "dryrun_gate": "PASS",
       "applied_rows": 0
     },
     {
