@@ -6,6 +6,7 @@ import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabTabs } from "@/components/ui/LabTabs";
 import type { Complex3dScene, SceneMode, ViewResult } from "@/components/complex-3d/scene";
+import { TYPE_COLORS } from "@/components/complex-3d/palette";
 
 async function fetch3d(id: string): Promise<Complex3d> {
   const res = await fetch(`/api/complex-3d/${encodeURIComponent(id)}`);
@@ -16,6 +17,7 @@ async function fetch3d(id: string): Promise<Complex3d> {
 const MODES: Array<{ id: SceneMode; label: string }> = [
   { id: "base", label: "단지" },
   { id: "floors", label: "층별가" },
+  { id: "types", label: "평형" },
   { id: "sun", label: "일조" },
   { id: "view", label: "조망" },
   { id: "around", label: "주변" },
@@ -51,6 +53,25 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const d = query.data;
   const hasShape = (d?.coverage.withShape ?? 0) > 0;
 
+  // 평형 범례 — 단지 안 평형을 작은 것부터, 동별 주력 평형 수와 세대 합계
+  const typeLegend = useMemo(() => {
+    if (!d) return [];
+    const byLabel = new Map<string, { households: number; mainDongs: string[] }>();
+    for (const b of d.buildings) {
+      for (const u of b.units) {
+        const e = byLabel.get(u.label) ?? { households: 0, mainDongs: [] };
+        e.households += u.households;
+        byLabel.set(u.label, e);
+      }
+      const top = b.units[0];
+      if (top && b.dong) byLabel.get(top.label)!.mainDongs.push(b.dong);
+    }
+    const pyeong = (l: string) => Number(/(\d+(?:\.\d+)?)/.exec(l)?.[1] ?? 0);
+    return [...byLabel.entries()]
+      .sort((a, b) => pyeong(a[0]) - pyeong(b[0]))
+      .map(([label, v], i) => ({ label, ...v, color: TYPE_COLORS[i % TYPE_COLORS.length]! }));
+  }, [d]);
+
   // 장면 만들기 (three.js는 이 화면에서만 불러온다)
   useEffect(() => {
     if (!d || !hasShape || !hostRef.current) return;
@@ -69,6 +90,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         scene.setData(d);
         scene.setFloorBands(d.floorBands);
         scene.setPois(d.pois);
+        const colors = new Map(typeLegend.map((t) => [t.label, t.color]));
+        scene.setTypeColors((label) => colors.get(label) ?? "#d5dbe1");
         const s = scene;
         s.onSelect = (id) => {
           setSelected(id);
@@ -87,7 +110,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       sceneRef.current = null;
       setReady(false);
     };
-  }, [d, hasShape]);
+  }, [d, hasShape, typeLegend]);
 
   useEffect(() => {
     sceneRef.current?.setMode(mode);
@@ -176,6 +199,34 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             </div>
           ) : null}
 
+          {mode === "types" ? (
+            typeLegend.length ? (
+              <div className="flex flex-col gap-2">
+                <p className="detail-label">동마다 세대가 가장 많은 평형(주력 평형) 색이에요. 동을 누르면 그 동의 평형 구성이 나와요.</p>
+                <ul className="flex flex-col gap-1.5">
+                  {typeLegend.map((t) => (
+                    <li key={t.label} className="flex items-start gap-2">
+                      <span className="mt-1 h-3 w-3 shrink-0 rounded-sm" style={{ background: t.color }} aria-hidden />
+                      <span className="min-w-0 flex-1">
+                        <span className="detail-data-value tabular-nums">{t.label}</span>
+                        <span className="detail-meta ml-1.5 tabular-nums">{t.households.toLocaleString("ko-KR")}세대</span>
+                        {t.mainDongs.length ? (
+                          <span className="detail-meta block">주력 동 {t.mainDongs.join(", ")}</span>
+                        ) : null}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="detail-meta">
+                  동 안에서 어느 라인이 어느 평형인지(호 라인별)는 건축물대장 전유부 적재 후 보여줄 예정이에요. 라인이 건물 어느 쪽에
+                  있는지는 공공데이터에 없어 표시하지 않아요.
+                </p>
+              </div>
+            ) : (
+              <p className="detail-body">이 단지는 동별 평형 정보가 아직 없어요.</p>
+            )
+          ) : null}
+
           {mode === "sun" ? (
             <div className="flex flex-col gap-2">
               <LabTabs
@@ -260,7 +311,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             )
           ) : null}
 
-          {(mode === "base" || mode === "floors" || mode === "view") && sel ? (
+          {(mode === "base" || mode === "floors" || mode === "types" || mode === "view") && sel ? (
             <div className={`${mode === "base" ? "" : "mt-3 border-t border-[color:var(--lab-border)] pt-3"} flex flex-col gap-1.5`}>
               <p className="detail-subsection-title">{sel.dong ?? sel.name ?? "동"}</p>
               <p className="detail-body tabular-nums">

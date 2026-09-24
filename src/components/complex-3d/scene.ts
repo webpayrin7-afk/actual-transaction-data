@@ -17,7 +17,14 @@ const OWN_EDGE = 0x0e9aa0;
 const NEIGHBOR = 0xe6e9ee;
 const SELECT = 0x0f766e;
 
-export type SceneMode = "base" | "floors" | "sun" | "view" | "around";
+export type SceneMode = "base" | "floors" | "types" | "sun" | "view" | "around";
+
+/** 동의 주력 평형 (세대가 가장 많은 평형) */
+export function dominantUnit(b: Complex3dBuilding): { label: string; share: number } | null {
+  const total = b.units.reduce((s, u) => s + u.households, 0);
+  const top = b.units[0];
+  return top && total > 0 ? { label: top.label, share: top.households / total } : null;
+}
 
 export type ViewResult = {
   /** 72방향(5°) 첫 가림까지 거리(m), 막힘 없으면 null */
@@ -64,6 +71,7 @@ export class Complex3dScene {
   private groups = {
     own: new THREE.Group(),
     floors: new THREE.Group(),
+    types: new THREE.Group(),
     neighbors: new THREE.Group(),
     labels: new THREE.Group(),
     view: new THREE.Group(),
@@ -236,7 +244,8 @@ export class Complex3dScene {
   setMode(mode: SceneMode) {
     this.mode = mode;
     this.groups.floors.visible = mode === "floors";
-    this.groups.own.visible = mode !== "floors";
+    this.groups.types.visible = mode === "types";
+    this.groups.own.visible = mode !== "floors" && mode !== "types";
     this.groups.view.visible = mode === "view";
     this.groups.pois.visible = mode === "around";
     this.groups.labels.visible = mode !== "around";
@@ -270,6 +279,26 @@ export class Complex3dScene {
         mesh.userData.id = b.id;
         this.groups.floors.add(mesh);
       }
+    }
+  }
+
+  /** 평형 — 각 동을 주력 평형 색으로 (colorOf: 평형 이름 → 색). 평형 정보가 없는 동은 회색 */
+  setTypeColors(colorOf: (label: string) => string) {
+    this.groups.types.clear();
+    if (!this.data) return;
+    for (const b of this.data.buildings) {
+      if (!b.rings) continue;
+      const { h } = buildingHeight(b);
+      const geo = this.extrude(b.rings, 0, h);
+      if (!geo) continue;
+      const dom = dominantUnit(b);
+      const mesh = new THREE.Mesh(
+        geo,
+        new THREE.MeshStandardMaterial({ color: dom ? colorOf(dom.label) : "#d5dbe1", roughness: 0.8 }),
+      );
+      mesh.castShadow = true;
+      mesh.userData.id = b.id;
+      this.groups.types.add(mesh);
     }
   }
 
@@ -407,7 +436,12 @@ export class Complex3dScene {
     const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
     this.raycaster.setFromCamera(ndc, this.camera);
     this.raycaster.far = Infinity;
-    const pool = this.mode === "floors" ? this.groups.floors.children : [...this.ownMeshes.values()];
+    const pool =
+      this.mode === "floors"
+        ? this.groups.floors.children
+        : this.mode === "types"
+          ? this.groups.types.children
+          : [...this.ownMeshes.values()];
     const hit = this.raycaster.intersectObjects(pool, false)[0];
     const id = (hit?.object.userData.id as string | undefined) ?? null;
     this.select(id);
