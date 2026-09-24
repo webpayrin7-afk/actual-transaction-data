@@ -6,16 +6,12 @@ import { LabExperimentCard } from "@/components/lab/LabExperimentCard";
 import { LAB_QUERY_KEY, fetchLab } from "@/components/lab/LabSection";
 import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { InfoTip } from "@/components/ui/InfoTip";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
 import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
 
 const SECTIONS = LAB_EXPERIMENTS.map((d) => ({ id: d.slug, label: d.shortTitle }));
-
-/** 2026-09-23 → 2026년 9월 23일 */
-function fmtKorean(iso: string): string {
-  return `${iso.slice(0, 4)}년 ${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일`;
-}
 
 /** /lab — 실험을 모아 두는 곳. 번호 순으로 쌓인다 (오늘의 실험 순환은 시장 홈에서만). */
 export function LabPage() {
@@ -32,14 +28,17 @@ export function LabPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         leading={<BackLink fallback="/" compact hideLabel />}
-        flushBody
         title="오늘의 실험실"
-        description={
-          <>
-            실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험을 모아 둔 곳이에요.
-            {data?.asOfDate ? ` ${fmtKorean(data.asOfDate)} 계약분까지의 전국 아파트 매매로 계산했고,` : ""} 결과는
-            표본과 기준에 따라 달라질 수 있어 참고용으로 봐 주세요.
-          </>
+        showDivider={false}
+        titleSuffix={
+          <span className="inline-flex items-center align-middle">
+            <InfoTip aria-label="오늘의 실험실 안내">
+              <p>
+                실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험을 모아 둔 곳이에요. 결과는 표본과 기준에
+                따라 달라질 수 있어 참고용으로 봐 주세요. 각 실험의 기간과 표본은 실험 아래에 적어 두었어요.
+              </p>
+            </InfoTip>
+          </span>
         }
       />
       <div ref={anchorRef} className="-mb-5 h-0 sm:-mb-6" aria-hidden />
