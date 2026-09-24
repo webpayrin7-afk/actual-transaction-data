@@ -15,6 +15,7 @@ import {
 import { MoveInSection } from "@/components/presale/MoveInSection";
 import { AREA_OPTIONS, PRICE_OPTIONS, PresaleResults } from "@/components/presale/PresaleResults";
 import { LabFilterChips, type FilterDef } from "@/components/ui/LabFilterChips";
+import { LabChoiceChips } from "@/components/ui/LabChoiceChips";
 import {
   PresaleMetroTable,
   PresalePriceChart,
@@ -60,18 +61,12 @@ export function PresalePage() {
   const [price, setPrice] = useState<ResultsQuery["price"]>("all");
   const filter = { metro, supplier };
 
-  const metroFilter: FilterDef = {
-    key: "metro",
-    title: "지역",
-    options: METRO_OPTIONS,
-    value: metro,
-    defaultId: "all",
-    onChange: setMetro,
-    grid: true,
-  };
+  const metroChips = (label: string) => (
+    <LabChoiceChips ariaLabel={label} options={METRO_OPTIONS} value={metro} onChange={setMetro} />
+  );
+  // 지역은 한 줄 선택 칩, 그 아래 줄에 나머지 조건(공급 유형 · 면적 · 분양가) 칩.
   // 분양 동향 탭은 전국 통계라 위 조건 줄이 없다 (입주 예정 카드 안에서만 지역을 고른다).
   const filters: FilterDef[] = [
-    ...(tab !== "stats" ? [metroFilter] : []),
     ...(tab !== "stats"
       ? [
           {
@@ -114,11 +109,16 @@ export function PresalePage() {
       {/* 모바일: 탭 + 조건 칩 줄을 흰 띠 하나로 상단바에 잇고, 띠 아래에만 구분선 */}
       <div
         className={`-mx-4 bg-white px-4 sm:mx-0 sm:bg-transparent sm:px-0 ${
-          filters.length ? "border-b border-[color:var(--lab-border)] pb-1.5 sm:border-0 sm:pb-0" : ""
+          tab !== "stats" ? "border-b border-[color:var(--lab-border)] pb-1.5 sm:border-0 sm:pb-0" : ""
         }`}
       >
         <LabPageTabs ariaLabel="분양 보기" idPrefix={TAB_PREFIX} items={TABS} value={tab} onChange={setTab} />
-        {filters.length ? <div className="pt-1.5">{chips}</div> : null}
+        {tab !== "stats" ? (
+          <div className="flex flex-col gap-1 pt-2">
+            {metroChips("분양 지역")}
+            {chips}
+          </div>
+        ) : null}
       </div>
 
       <div
@@ -142,7 +142,7 @@ export function PresalePage() {
             <MoveInSection
               metro={metro}
               onPickMetro={setMetro}
-              toolbar={<LabFilterChips filters={[metroFilter]} ariaLabel="입주 예정 지역" />}
+              toolbar={metroChips("입주 예정 지역")}
             />
           </>
         )}
