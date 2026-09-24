@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-24T18:45:30.606Z",
-  "driver_status": "daegu dry-run PASS",
+  "generated_at": "2026-09-24T18:45:39.316Z",
+  "driver_status": "stopped at daegu",
   "fee_table": {
     "rows": 4819,
     "complexes": 4706
