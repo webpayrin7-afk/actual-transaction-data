@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, ChevronDown, ChevronRight, Eye, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
@@ -728,7 +728,7 @@ export function MapSearchPage() {
               onClick={() => setMetricOpen(true)}
               className="pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']"
             >
-              <Eye className="h-4 w-4" aria-hidden />
+              <MapPin className="h-4 w-4" aria-hidden />
               마커 표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
               <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
             </button>
