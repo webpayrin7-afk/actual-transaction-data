@@ -33,10 +33,10 @@ export function LabPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         leading={<BackLink fallback="/" compact hideLabel />}
+        flushBody
         title="오늘의 실험실"
         titleSuffix={
-          <span className="inline-flex items-center gap-0.5 align-middle">
-            <LabTag size="md">LAB</LabTag>
+          <span className="inline-flex items-center align-middle">
             <InfoTip aria-label="오늘의 실험실 안내">
               <p>
                 실거래 데이터를 조금 다른 방법으로 들여다보는 집랩의 실험을 모아 둔 곳입니다. 결과는 표본과

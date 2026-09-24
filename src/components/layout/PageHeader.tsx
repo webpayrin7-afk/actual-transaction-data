@@ -33,6 +33,7 @@ export function PageHeader({
   meta,
   action,
   leading,
+  flushBody = false,
   children,
   compact = false,
   showDivider = true,
@@ -47,6 +48,8 @@ export function PageHeader({
   description?: ReactNode;
   meta?: ReactNode;
   action?: ReactNode;
+  /** leading이 있을 때 설명·라벨을 제목 아래로 들여쓰지 않고 헤더 전체 폭에 둔다 */
+  flushBody?: boolean;
   /** 제목 왼쪽 (뒤로가기 등). 단지명과 같은 줄에 배치 */
   leading?: ReactNode;
   children?: ReactNode;
@@ -108,8 +111,8 @@ export function PageHeader({
             <div className="min-w-0 flex-1">
               {eyebrow ? <div className="mb-1.5 flex h-6 items-center">{eyebrow}</div> : null}
               {heading}
-              {descriptionNode}
-              {metaNode("mt-1")}
+              {flushBody ? null : descriptionNode}
+              {flushBody ? null : metaNode("mt-1")}
             </div>
           </div>
         ) : (
@@ -120,8 +123,8 @@ export function PageHeader({
         )}
         {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
       </div>
-      {leading ? null : descriptionNode}
-      {leading ? null : metaNode("mt-1.5")}
+      {leading && !flushBody ? null : descriptionNode}
+      {leading && !flushBody ? null : metaNode("mt-1.5")}
       {showDivider ? (
         <div
           aria-hidden
