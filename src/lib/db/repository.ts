@@ -725,7 +725,7 @@ export async function queryTradePool(params: {
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
                  deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong,
-                 first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
+                 first_seen_at, lawd_cd${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -749,6 +749,7 @@ export async function queryTradePool(params: {
     dealingGbn: String(row.dealing_gbn ?? ""),
     rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
     aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
+    lawdCd: String(row.lawd_cd ?? ""),
     firstSeenAt: isoOrNull(row.first_seen_at),
     ...(writeDiscoveryCol
       ? { discoveryAt: isoOrNull(row.discovery_at) }
@@ -1143,6 +1144,9 @@ export async function searchAptAggregatesFromDb(params: {
   locations?: string[];
 }): Promise<
   | Array<{
+      aptNameNorm: string;
+      /** 단지명 일치 점수 (정확 > 앞부분 > 포함 > 띄엄) */
+      score: number;
       aptName: string;
       gu: string;
       dong: string;
@@ -1182,7 +1186,9 @@ export async function searchAptAggregatesFromDb(params: {
     return b.row.maxDealAmount - a.row.maxDealAmount;
   });
 
-  return scored.slice(0, limit).map(({ row }) => ({
+  return scored.slice(0, limit).map(({ row, score }) => ({
+    aptNameNorm: row.aptNameNorm,
+    score,
     aptName: row.aptName,
     gu: row.gu,
     dong: row.dong,
@@ -1260,6 +1266,71 @@ async function loadAptCatalogRows(): Promise<CatalogRow[] | null> {
   }));
 
   catalogCache = { builtAt: Date.now(), rows };
+  return rows;
+}
+
+export type AptLawdSplitRow = {
+  lawdCd: string;
+  aptName: string;
+  dong: string;
+  dealCount: number;
+  maxDealAmount: number;
+  latestDealDate: string;
+};
+
+const aptLawdSplitCache = new Map<
+  string,
+  { builtAt: number; rows: AptLawdSplitRow[] }
+>();
+
+/**
+ * apt_catalog 은 (단지명, 구명) 으로만 묶여 법정동코드가 없다 — "중구 삼성" 은 서울 중구·대전 중구
+ * 거래가 한 줄로 합쳐진다. 후보 법정동코드 안에서 같은 단지명·구명 매매를 코드별로 다시 센다.
+ * idx_tx_trade_lawd_apt_ym (매매만, lawd_cd·apt_name_norm) 로 찾는다 — 그 단지 매매만 읽는다.
+ */
+export async function splitAptByLawd(params: {
+  aptNameNorm: string;
+  gu: string;
+  lawdCodes: string[];
+}): Promise<AptLawdSplitRow[] | null> {
+  const codes = [...new Set(params.lawdCodes)].sort();
+  if (!params.aptNameNorm || codes.length === 0) return [];
+  const key = `${params.aptNameNorm}|${params.gu}|${codes.join(",")}`;
+  const cached = aptLawdSplitCache.get(key);
+  if (cached && Date.now() - cached.builtAt < CATALOG_TTL_MS) return cached.rows;
+
+  const db = await readyDb();
+  if (!db) return null;
+
+  noteDbQuery();
+  const placeholders = codes.map(() => "?").join(",");
+  const result = await db.execute({
+    sql: `SELECT lawd_cd,
+                 MAX(apt_name) AS apt_name,
+                 MAX(dong) AS dong,
+                 COUNT(*) AS deal_count,
+                 MAX(deal_amount) AS max_deal_amount,
+                 MAX(deal_date) AS latest_deal_date
+          FROM transactions INDEXED BY idx_tx_trade_lawd_apt_ym
+          WHERE lawd_cd IN (${placeholders})
+            AND apt_name_norm = ?
+            AND deal_type = 'trade'
+            AND gu = ?
+          GROUP BY lawd_cd
+          ORDER BY deal_count DESC`,
+    args: [...codes, params.aptNameNorm, params.gu],
+  });
+
+  const rows: AptLawdSplitRow[] = result.rows.map((row) => ({
+    lawdCd: String(row.lawd_cd),
+    aptName: String(row.apt_name ?? ""),
+    dong: String(row.dong ?? ""),
+    dealCount: Number(row.deal_count) || 0,
+    maxDealAmount: Number(row.max_deal_amount) || 0,
+    latestDealDate: String(row.latest_deal_date ?? ""),
+  }));
+  if (aptLawdSplitCache.size > 2000) aptLawdSplitCache.clear();
+  aptLawdSplitCache.set(key, { builtAt: Date.now(), rows });
   return rows;
 }
 
