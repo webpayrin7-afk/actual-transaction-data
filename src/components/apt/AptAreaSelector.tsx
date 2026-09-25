@@ -133,7 +133,8 @@ export function AptAreaSelector({
   const chip =
     "relative inline-flex h-9 min-w-0 max-w-full items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 tabular-nums before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']";
   const chipOn =
-    "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]";
+    // 평형은 늘 하나가 골라진 값이라 청록 면(필터 걸림 표시) 대신 흰 면 + 회색 테두리, "34평"만 청록 글씨
+    "border-[color:var(--lab-border-control)] bg-white font-semibold text-[color:var(--lab-navy-950)]";
   const chipOff =
     "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]";
   // 본문은 폭 전체(글자 왼쪽 · ▾ 오른쪽 끝), 스티키는 글자 길이만큼
