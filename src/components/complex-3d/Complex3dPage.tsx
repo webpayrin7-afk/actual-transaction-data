@@ -88,9 +88,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           return;
         }
         scene.setData(d);
-        // 바닥 지도 — Static Map level 16, 1024 논리 px (웹 메르카토르 미터/px)
-        const mpp = (40075016.686 * Math.cos((d.center.lat * Math.PI) / 180)) / (256 * 2 ** 16);
-        scene.setGroundMap(`/api/complex-3d/${d.complexId}/ground`, 1024 * mpp);
+        // 바닥 지도 — Static Map level 15, scale=2 이미지는 한 변이 월드 px 512 (웹 메르카토르 미터/px × 512 ≈ 1.9km)
+        const mpp = (40075016.686 * Math.cos((d.center.lat * Math.PI) / 180)) / (256 * 2 ** 15);
+        scene.setGroundMap(`/api/complex-3d/${d.complexId}/ground?v=2`, 512 * mpp);
         scene.setFloorBands(d.floorBands);
         scene.setPois(d.pois);
         const colors = new Map(typeLegend.map((t) => [t.label, t.color]));

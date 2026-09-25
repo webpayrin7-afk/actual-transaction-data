@@ -4,8 +4,8 @@ import { getDb } from "@/lib/db/client";
 export const dynamic = "force-dynamic";
 export const maxDuration = 15;
 
-/** 3D 바닥에 깔 지도 이미지 — 단지 중심 기준 NAVER Static Map (1024×1024 논리 px, 2배 해상도). 오래 캐시한다. */
-const GROUND_LEVEL = 16;
+/** 3D 바닥에 깔 지도 이미지 — 단지 중심 기준 NAVER Static Map (w·h 1024, scale=2 → 2048px). scale=2면 한 변이 월드 px 512(해당 level)만큼만 담긴다 (겹쳐 그려 확인). 오래 캐시한다. */
+const GROUND_LEVEL = 15;
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ complexId: string }> }) {
   const { complexId } = await params;
