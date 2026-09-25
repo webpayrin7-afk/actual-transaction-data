@@ -434,3 +434,35 @@ export function ComplexMgmtFeeCard({
     </LabSection>
   );
 }
+
+/** K-apt 관리비 공개 의무 대상 기준(세대수) — 이보다 작으면 공개하지 않는 단지가 많다 */
+const KAPT_DISCLOSURE_MIN_HOUSEHOLDS = 150;
+
+/**
+ * 관리비 자료가 없는 단지 — 영역을 숨기지 않고 왜 없는지 알려 준다(상단 '관리비' 탭이 빈 곳으로 가지 않게).
+ * 소규모 단지는 공개 의무가 없어 자료가 없을 수 있고, 그 밖엔 아직 불러오지 못한 것이다.
+ */
+export function ComplexMgmtFeeEmpty({ householdCount }: { householdCount: number | null }) {
+  const small = householdCount != null && householdCount > 0 && householdCount < KAPT_DISCLOSURE_MIN_HOUSEHOLDS;
+  return (
+    <LabSection
+      id="section-management"
+      title="관리비"
+      tip={
+        <p>
+          관리비는 공동주택관리정보시스템(K-apt)에 단지가 공개한 월별 관리비로 보여 드립니다. 150세대 이상 등 의무관리대상
+          단지가 공개하며, 그보다 작은 단지는 공개하지 않는 경우가 많습니다.
+        </p>
+      }
+    >
+      <div>
+        <p className="detail-summary-value">관리비 정보가 없어요</p>
+        <p className="detail-body mt-1">
+          {small
+            ? `이 단지는 ${householdCount!.toLocaleString("ko-KR")}세대 규모로 관리비 공개 의무 대상(150세대 이상 등)이 아니어서, 공개된 관리비 자료가 없습니다.`
+            : "이 단지의 공개 관리비 자료를 아직 불러오지 못했어요. 자료가 확인되는 대로 채워 드릴게요."}
+        </p>
+      </div>
+    </LabSection>
+  );
+}

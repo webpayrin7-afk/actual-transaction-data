@@ -11,7 +11,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
+import { ComplexMgmtFeeCard, ComplexMgmtFeeEmpty } from "@/components/apt/ComplexMgmtFeeCard";
 import { ComplexHeroMeta } from "@/components/apt/ComplexHeroMeta";
 import { complexHeroMeta } from "@/lib/complex-detail/hero-meta";
 import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSection";
@@ -996,6 +996,8 @@ export function AptDetailPage({
             complexId={identity?.complexId ?? null}
           />
         </LabSectionBoundary>
+      ) : complexDetail ? (
+        <ComplexMgmtFeeEmpty householdCount={complexDetail.basic?.householdCount ?? null} />
       ) : null}
     </div>
   );
