@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-09-25T23:47:58.974Z",
+  "wave": "chungbuk",
+  "region": "chungbuk",
+  "production_write": false,
+  "cohort_terminal": false,
+  "gate": "BLOCKED",
+  "stopped": "HOLD_429",
+  "http_429": true,
+  "http_429_count": 0,
+  "http_5xx": 0,
+  "timeouts": 0,
+  "api_calls": 53,
+  "reused_ops": 0,
+  "retries": 4,
+  "reuse_confirmation_api_calls": null,
+  "selected_sidos": [
+    "43"
+  ],
+  "complexes": 756,
+  "no_published_month": null,
+  "periods": [],
+  "target_months": 0,
+  "mapping_mismatch": 0,
+  "duplicate_keys": 0,
+  "by_sido": [],
+  "samples": [],
+  "totals": {
+    "COMPLETE": 0,
+    "PARTIAL": 0,
+    "MISSING": 0,
+    "FAILED": 0,
+    "would_insert": 0,
+    "would_update": 0
+  }
+}
