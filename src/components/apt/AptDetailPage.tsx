@@ -28,6 +28,7 @@ import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
 import { APT_API_VERSION } from "@/lib/molit/apt-client";
+import { unpackAptDetail } from "@/lib/molit/apt-detail-wire";
 import {
   AptPriceChart,
   PeriodRangeSlider,
@@ -107,7 +108,7 @@ async function fetchAptDetail(
   qs.set("v", APT_API_VERSION);
   const res = await fetch(`/api/apt-detail?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
-  return res.json();
+  return unpackAptDetail(await res.json());
 }
 
 function ymFromDealDate(dealDate: string): string {

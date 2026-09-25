@@ -9,6 +9,7 @@ import type {
   AptDetailResponse,
 } from "@/lib/molit/apt-client";
 import { APT_API_VERSION, aptDetailHref } from "@/lib/molit/apt-client";
+import { unpackAptDetail } from "@/lib/molit/apt-detail-wire";
 import {
   buildCompareMetrics,
   compareAreaRefFromOption,
@@ -77,7 +78,7 @@ async function fetchDetail(
   qs.set("v", APT_API_VERSION);
   const res = await fetch(`/api/apt-detail?${qs}`);
   if (!res.ok) return null;
-  return res.json();
+  return unpackAptDetail(await res.json());
 }
 
 async function fetchPeers(params: {
