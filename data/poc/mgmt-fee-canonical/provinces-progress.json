@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-25T08:17:45.707Z",
+  "generated_at": "2026-09-25T09:19:18.416Z",
   "driver_status": "daegu acquiring",
   "fee_table": {
     "rows": 4819,
     "complexes": 4706
   },
-  "api_calls_total": 87754,
+  "api_calls_total": 91215,
   "applied_rows_total": 1896,
   "provinces": [
     {
@@ -54,17 +54,17 @@
       "sido": "대구광역시",
       "phase": "ACQUIRING",
       "cohort": 1151,
-      "terminal": 964,
-      "unfinished": 187,
-      "COMPLETE": 904,
-      "NO_PUBLISHED_MONTH": 60,
+      "terminal": 1084,
+      "unfinished": 67,
+      "COMPLETE": 1019,
+      "NO_PUBLISHED_MONTH": 65,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 30304,
+      "api_calls": 33765,
       "http_429": 0,
-      "retries": 13,
+      "retries": 14,
       "dryrun_gate": null,
       "applied_rows": 0
     },
