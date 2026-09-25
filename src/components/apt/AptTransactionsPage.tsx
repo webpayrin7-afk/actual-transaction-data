@@ -1,5 +1,6 @@
 "use client";
 
+import { APT_API_VERSION } from "@/lib/molit/apt-client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
