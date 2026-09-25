@@ -49,13 +49,13 @@ function esc(s: string): string {
 
 const FONT = "'Noto Sans KR',system-ui,sans-serif";
 
-/** "131동 / 109.29A㎡ · 26층" 작은 말풍선 — 동이 많아도 지도를 덮지 않게 두 줄로 */
-function labelHtml(dong: string, type: string, floors: number | null, on: boolean): string {
+/** "131동 / 109.29A㎡" 작은 말풍선 — 동이 많아도 지도를 덮지 않게 두 줄로 */
+function labelHtml(dong: string, type: string, on: boolean): string {
   const head = on ? "var(--lab-navy-950)" : "var(--lab-brand-primary)";
   return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 1px 1px rgba(15,23,42,.2))">
     <div style="border-radius:4px;overflow:hidden;border:1px solid ${head};background:#fff;text-align:center;white-space:nowrap">
       <div style="background:${head};color:#fff;font:600 10px/13px ${FONT};padding:0 4px">${esc(dong)}</div>
-      <div style="color:var(--lab-navy-950);font:600 10px/13px ${FONT};padding:0 4px">${esc(type)}${floors ? `<span style="color:var(--lab-muted);font-weight:500"> · ${floors}층</span>` : ""}</div>
+      <div style="color:var(--lab-navy-950);font:600 10px/13px ${FONT};padding:0 4px">${esc(type)}</div>
     </div>
     <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid ${head};margin-top:-1px"></div>
   </div>`;
@@ -167,7 +167,7 @@ export function ComplexTypeDongMap({
         const marker = new maps.Marker({
           position: new maps.LatLng(c.lat, c.lng),
           map,
-          icon: { content: labelHtml(dong, typeLabel, b.floors, picked), anchor: new maps.Point(0, 0) },
+          icon: { content: labelHtml(dong, typeLabel, picked), anchor: new maps.Point(0, 0) },
           zIndex: picked ? 20 : 10,
         });
         maps.Event.addListener(marker, "click", () => pickRef.current(dong));
