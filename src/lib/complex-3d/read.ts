@@ -93,7 +93,16 @@ function haversine(aLat: number, aLng: number, bLat: number, bLng: number): numb
 const str = (v: unknown) => (v == null || v === "" ? null : String(v));
 const num = (v: unknown) => (v == null || v === "" || Number.isNaN(Number(v)) ? null : Number(v));
 
-export async function readComplex3d(db: Client, complexId: string): Promise<Complex3d | null> {
+/**
+ * `shapesOnly` — 단지 상세(3D 카드 노출 여부·타입·동 지도)용 가벼운 읽기: 동 번호·주거 여부·외곽선만.
+ * 주변 건물(최대 2500개 모양)·층별 시세(3년 실거래)·학교·역·동별 평형/라인은 읽지 않고 빈 배열로 돌려준다.
+ */
+export async function readComplex3d(
+  db: Client,
+  complexId: string,
+  opts: { shapesOnly?: boolean } = {},
+): Promise<Complex3d | null> {
+  const lite = !!opts.shapesOnly;
   const mres = await db.execute({
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
                  COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
@@ -115,20 +124,24 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
             FROM complex_buildings WHERE complex_id = ?`,
       args: [complexId],
     }),
-    db.execute({
-      sql: `SELECT l.building_id, l.household_count, u.display_pyeong_label, u.exclusive_area
-            FROM unit_type_building_links l
-            JOIN apt_canonical_unit_types u ON u.unit_type_id = l.unit_type_id
-            WHERE l.complex_id = ?`,
-      args: [complexId],
-    }),
-    db
-      .execute({
-        sql: `SELECT building_id, line, exclusive_area, supply_area, unit_count, floor_min, floor_max
-              FROM complex_unit_lines WHERE complex_id = ? ORDER BY building_id, line`,
-        args: [complexId],
-      })
-      .catch(() => ({ rows: [] as Array<Record<string, unknown>> })),
+    lite
+      ? { rows: [] as Array<Record<string, unknown>> }
+      : db.execute({
+          sql: `SELECT l.building_id, l.household_count, u.display_pyeong_label, u.exclusive_area
+                FROM unit_type_building_links l
+                JOIN apt_canonical_unit_types u ON u.unit_type_id = l.unit_type_id
+                WHERE l.complex_id = ?`,
+          args: [complexId],
+        }),
+    lite
+      ? { rows: [] as Array<Record<string, unknown>> }
+      : db
+          .execute({
+            sql: `SELECT building_id, line, exclusive_area, supply_area, unit_count, floor_min, floor_max
+                  FROM complex_unit_lines WHERE complex_id = ? ORDER BY building_id, line`,
+            args: [complexId],
+          })
+          .catch(() => ({ rows: [] as Array<Record<string, unknown>> })),
   ]);
   const linesByBuilding = new Map<string, Complex3dBuilding["lines"]>();
   for (const r of lineRes.rows) {
@@ -198,6 +211,25 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
       rings: gis ? (JSON.parse(String(gis.rings)) as Ring[]) : null,
     };
   });
+
+  const coverage = { buildings: buildings.length, withShape: buildings.filter((b) => b.rings).length };
+  const place = [reg?.name ?? gu, str(m.legal_dong_name)].filter(Boolean).join(" ");
+  const href = aptDetailHref(String(m.apt_name), reg?.slug ?? slugFromLawd("", lawd), gu || undefined);
+  if (lite) {
+    return {
+      complexId,
+      name: String(m.apt_name),
+      place,
+      href,
+      center,
+      buildings,
+      neighbors: [],
+      floorBands: [],
+      floorBandsBasis: "",
+      pois: [],
+      coverage,
+    };
+  }
 
   // 주변 건물 (반경 RADIUS_M 사각형)
   const dLat = RADIUS_M / 111_320;
@@ -271,14 +303,14 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
   return {
     complexId,
     name: String(m.apt_name),
-    place: [reg?.name ?? gu, str(m.legal_dong_name)].filter(Boolean).join(" "),
-    href: aptDetailHref(String(m.apt_name), reg?.slug ?? slugFromLawd("", lawd), gu || undefined),
+    place,
+    href,
     center,
     buildings,
     neighbors,
     floorBands,
     floorBandsBasis: `최근 3년 매매 ${deals.length}건`,
     pois,
-    coverage: { buildings: buildings.length, withShape: buildings.filter((b) => b.rings).length },
+    coverage,
   };
 }
