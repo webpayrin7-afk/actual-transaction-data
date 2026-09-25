@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchComplexTypes } from "@/lib/apt/area-supply";
 import { mergeNearSupply, sameSqm, supplyLabels } from "@/lib/apt/type-labels";
@@ -21,7 +21,75 @@ const PICK = {
   gbn: (i: AptHistoryItem) => i.dealingGbn ?? null,
 };
 
-const DONG_PREVIEW = 12;
+/** 동 칩은 개수가 아니라 줄 수로 자른다 — 처음 3줄, 화면이 넓으면 한 줄에 더 들어간다 */
+const DONG_ROWS = 3;
+const CHIP_H = 36;
+const CHIP_GAP = 8;
+const COLLAPSED_H = DONG_ROWS * CHIP_H + (DONG_ROWS - 1) * CHIP_GAP;
+
+/** 동 칩 묶음 — 접으면 3줄까지, 넘치면 더보기. 지도에서 고른 동이 가려져 있으면 저절로 펼친다 */
+function DongChipWrap({
+  dongs,
+  selected,
+  flash,
+  expanded,
+  setExpanded,
+  onPick,
+}: {
+  dongs: string[];
+  selected: string | null;
+  flash: { dong: string; at: number } | null;
+  expanded: boolean;
+  setExpanded: (v: boolean) => void;
+  onPick: (dong: string) => void;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [hidden, setHidden] = useState(0);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      let n = 0;
+      for (const c of Array.from(el.children) as HTMLElement[]) if (c.offsetTop >= COLLAPSED_H) n++;
+      setHidden(n);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [dongs]);
+  useEffect(() => {
+    if (!flash || expanded || !ref.current) return;
+    const idx = dongs.indexOf(flash.dong);
+    const chip = ref.current.children[idx] as HTMLElement | undefined;
+    if (chip && chip.offsetTop >= COLLAPSED_H) setExpanded(true);
+  }, [flash, expanded, dongs, setExpanded]);
+  return (
+    <>
+      <div
+        ref={ref}
+        className="relative flex flex-wrap gap-2 overflow-hidden p-0.5 -m-0.5"
+        role="group"
+        aria-label="동"
+        style={expanded ? undefined : { maxHeight: COLLAPSED_H + 4 }}
+      >
+        {dongs.map((d) => (
+          <Chip
+            key={d}
+            on={d === selected}
+            flash={flash?.dong === d ? flash.at : undefined}
+            onClick={() => onPick(d)}
+          >
+            {d}
+          </Chip>
+        ))}
+      </div>
+      {hidden > 0 ? (
+        <LabMoreButton expanded={expanded} onToggle={() => setExpanded(!expanded)} label={`${hidden}개 동 더보기`} />
+      ) : null}
+    </>
+  );
+}
 
 function Chip({
   on,
@@ -173,7 +241,6 @@ export function ComplexTypeDongSection({
           pickedDong={dong?.dong ?? null}
           onPickDong={(d) => {
             setPickedDong(d);
-            if (!allDongs && type.dongs.findIndex((x) => x.dong === d) >= DONG_PREVIEW) setAllDongs(true);
             setFlash({ dong: d, at: Date.now() });
           }}
         />
@@ -184,25 +251,14 @@ export function ComplexTypeDongSection({
           <p className="detail-subsection-title">
             이 타입이 있는 동 <span className="detail-meta font-normal">{type.dongs.length}개 동</span>
           </p>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="동">
-            {(allDongs ? type.dongs : type.dongs.slice(0, DONG_PREVIEW)).map((d) => (
-              <Chip
-                key={d.dong}
-                on={d.dong === dong?.dong}
-                flash={flash?.dong === d.dong ? flash.at : undefined}
-                onClick={() => setPickedDong(d.dong === dong?.dong ? null : d.dong)}
-              >
-                {d.dong}
-              </Chip>
-            ))}
-          </div>
-          {type.dongs.length > DONG_PREVIEW ? (
-            <LabMoreButton
-              expanded={allDongs}
-              onToggle={() => setAllDongs((v) => !v)}
-              label={`${type.dongs.length - DONG_PREVIEW}개 동 더보기`}
-            />
-          ) : null}
+          <DongChipWrap
+            dongs={type.dongs.map((d) => d.dong)}
+            selected={dong?.dong ?? null}
+            flash={flash}
+            expanded={allDongs}
+            setExpanded={setAllDongs}
+            onPick={(d) => setPickedDong(d === dong?.dong ? null : d)}
+          />
           {dong ? (
             // 고른 동의 타입 구성 — 지금 타입 먼저(굵게·청록 막대), 다른 타입은 회색 막대 (누르면 그 타입으로)
             (() => {
