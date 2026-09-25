@@ -30,24 +30,33 @@ const sameSqm = (a: number, b: number) => Math.abs(a - b) < 0.005;
 
 /**
  * 타입 이름 (호갱노노 방식)
- *  - 분양 공고 타입 글자가 있으면 공급면적 정수 + 글자: "109A" (여러 글자면 첫 글자만: "114A/C" → "114A")
- *  - 글자가 없으면 "111타입" — 같은 정수 공급면적이 둘이면 소수 첫째 자리까지 ("109.3타입")
- *  - 공급면적을 모르면 "전용 84㎡"
+ *  - 분양 공고(청약홈) 타입 글자가 있으면 공급면적 정수 + 글자: "114A" (여러 글자면 그대로: "114A/C")
+ *  - 글자가 없고 공급면적 정수가 다른 타입과 겹치면, 겹치는 타입끼리 전용면적이 작은 순서로 A·B·C: "109A", "109B"
+ *    (공식 이름이 아니라 구분용 — 잠실엘스처럼 흔히 부르는 이름과 같게)
+ *  - 겹치지 않으면 "111타입", 공급면적을 모르면 "전용 84㎡"
  */
 function supplyLabels(types: UnitTypeInfo[]): Map<string, string> {
   const out = new Map<string, string>();
+  const groups = new Map<number, UnitTypeInfo[]>();
   for (const t of types) {
     if (t.supplySqm == null) {
       out.set(t.id, `전용 ${Math.floor(t.exclusiveSqm)}㎡`);
       continue;
     }
-    const whole = Math.floor(t.supplySqm);
     if (t.typeName) {
-      out.set(t.id, `${whole}${t.typeName}`);
+      out.set(t.id, `${Math.floor(t.supplySqm)}${t.typeName}`);
       continue;
     }
-    const clash = types.some((o) => o.id !== t.id && o.supplySqm != null && Math.floor(o.supplySqm) === whole);
-    out.set(t.id, `${clash ? t.supplySqm.toFixed(1) : whole}타입`);
+    const whole = Math.floor(t.supplySqm);
+    groups.set(whole, [...(groups.get(whole) ?? []), t]);
+  }
+  for (const [whole, list] of groups) {
+    if (list.length === 1) {
+      out.set(list[0]!.id, `${whole}타입`);
+      continue;
+    }
+    const sorted = [...list].sort((x, y) => x.exclusiveSqm - y.exclusiveSqm || (x.supplySqm ?? 0) - (y.supplySqm ?? 0));
+    sorted.forEach((t, i) => out.set(t.id, `${whole}${String.fromCharCode(65 + i)}`));
   }
   return out;
 }
@@ -139,12 +148,12 @@ export function ComplexTypeDongSection({
       tip={
         <p>
           같은 평형 안에서도 공급면적(타입)에 따라 구조와 가격이 다릅니다. 타입은 건축물대장의 공급·전용면적으로 나누고, 동별
-          세대수도 건축물대장 기준입니다. 왕관은 세대가 가장 많은 타입입니다.
+          세대수도 건축물대장 기준입니다. 왕관은 세대가 가장 많은 타입입니다. 분양 공고의 타입 이름이 없는 단지는 공급면적이 같은 타입을 전용면적이 작은 순서로 A·B로 구분합니다.
         </p>
       }
     >
       <div className="flex flex-wrap gap-2" role="group" aria-label="타입">
-        {inArea.map((t) => (
+        {[...inArea].sort((x, y) => (x.supplySqm ?? 0) - (y.supplySqm ?? 0) || x.exclusiveSqm - y.exclusiveSqm).map((t) => (
           <Chip
             key={t.id}
             on={t.id === type.id}
