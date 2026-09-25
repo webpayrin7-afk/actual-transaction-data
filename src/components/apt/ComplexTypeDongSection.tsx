@@ -266,58 +266,50 @@ export function ComplexTypeDongSection({
                 n: t.dongs.find((d) => d.dong === dong.dong)?.households ?? 0,
                 inThisArea: inArea.some((x) => x.id === t.id),
               }));
-              const total = rows.reduce((sum, r) => sum + r.n, 0);
-              const max = Math.max(1, ...rows.map((r) => r.n));
+              const total = rows.reduce((sum, r) => sum + r.n, 0) || 1;
+              const grays = ["#94A3B8", "#CBD5E1", "#E2E8F0"];
+              const color = (i: number) => (i === 0 ? "var(--lab-brand-primary)" : grays[(i - 1) % grays.length]!);
               return (
                 <div className="flex flex-col gap-1.5 border-t border-[color:var(--lab-border)] pt-2.5 text-[13px] leading-[18px] tabular-nums">
                   <p className="text-[color:var(--lab-muted)]">
                     <span className="font-semibold text-[color:var(--lab-navy-950)]">{dong.dong}</span> 구성 ·{" "}
                     {total.toLocaleString("ko-KR")}세대
                   </p>
-                  {rows.map(({ t, n, inThisArea }) => {
-                    const current = t.id === type.id;
-                    const body = (
-                      <>
-                        <span
-                          className={`w-[92px] shrink-0 truncate text-left ${
-                            current ? "font-semibold text-[color:var(--lab-navy-950)]" : "text-[color:var(--lab-muted)]"
-                          }`}
+                  {/* 동 전체를 막대 하나로 — 타입별 칸 */}
+                  <div className="flex h-2 w-full overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)]" aria-hidden>
+                    {rows.map(({ t, n }, i) => (
+                      <span key={t.id} className="h-full" style={{ width: `${(n / total) * 100}%`, background: color(i), marginLeft: i ? 1 : 0 }} />
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1">
+                    {rows.map(({ t, n, inThisArea }, i) => {
+                      const current = i === 0;
+                      const body = (
+                        <>
+                          <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: color(i) }} aria-hidden />
+                          <span className={current ? "font-semibold text-[color:var(--lab-navy-950)]" : "text-[color:var(--lab-muted)]"}>
+                            {!inThisArea && t.pyeongLabel ? `${t.pyeongLabel} ` : ""}
+                            {labels.get(t.id)} {n.toLocaleString("ko-KR")}세대
+                          </span>
+                        </>
+                      );
+                      return !current && inThisArea ? (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setPickedType(t.id)}
+                          className="inline-flex items-center gap-1 underline decoration-[color:var(--lab-border)] underline-offset-2"
+                          aria-label={`${labels.get(t.id)} 타입 보기`}
                         >
-                          {!inThisArea && t.pyeongLabel ? `${t.pyeongLabel} ` : ""}
-                          {labels.get(t.id)}
+                          {body}
+                        </button>
+                      ) : (
+                        <span key={t.id} className="inline-flex items-center gap-1">
+                          {body}
                         </span>
-                        <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[color:var(--lab-surface-subtle)]">
-                          <span
-                            className="block h-full rounded-full"
-                            style={{
-                              width: `${(n / max) * 100}%`,
-                              background: current ? "var(--lab-brand-primary)" : "#CBD5E1",
-                            }}
-                          />
-                        </span>
-                        <span
-                          className={`w-14 shrink-0 text-right ${current ? "font-semibold text-[color:var(--lab-navy-950)]" : "text-[color:var(--lab-muted)]"}`}
-                        >
-                          {n.toLocaleString("ko-KR")}세대
-                        </span>
-                      </>
-                    );
-                    return !current && inThisArea ? (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => setPickedType(t.id)}
-                        className="lab-row-press -mx-1 flex items-center gap-2 rounded px-1"
-                        aria-label={`${labels.get(t.id)} 타입 보기`}
-                      >
-                        {body}
-                      </button>
-                    ) : (
-                      <div key={t.id} className="flex items-center gap-2">
-                        {body}
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })()
