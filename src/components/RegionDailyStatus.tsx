@@ -1039,7 +1039,7 @@ export function RegionDailyStatus({
               regionName={regionName}
             />
           ) : null}
-          <RegionSupplyTimelineSection regionName={regionName} />
+          <RegionSupplyTimelineSection regionName={regionName} lawdCodes={lawdCodes} />
         </>
       ) : null}
 

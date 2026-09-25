@@ -1,19 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchNearbySalesBySigungu } from "@/lib/complex-detail/applyhome-nearby-sales";
+import { fetchNearbySales } from "@/lib/complex-detail/applyhome-nearby-sales";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
+const MAX_LAWD_CODES = 12;
+
 /**
  * Optional nearby 분양 enrichment — isolated from market/mgmt rendering.
+ * ?lawd=41135 (여러 구면 쉼표로) — 시군구 코드 정확 일치. ?sigungu= 는 표시 이름 · 오피스텔 검색어.
  * Server-only; serviceKey never sent to the browser.
  */
 export async function GET(request: NextRequest) {
   const sigungu = request.nextUrl.searchParams.get("sigungu")?.trim() ?? "";
+  const lawdCodes = [
+    ...new Set(
+      (request.nextUrl.searchParams.get("lawd") ?? "")
+        .split(",")
+        .map((c) => c.trim())
+        .filter((c) => /^\d{5}$/.test(c)),
+    ),
+  ].slice(0, MAX_LAWD_CODES);
 
   try {
-    const result = await fetchNearbySalesBySigungu(sigungu);
-    return NextResponse.json(result);
+    const result = await fetchNearbySales({ lawdCodes, sigungu });
+    const cacheable = result.status === "READY" || result.status === "EMPTY";
+    return NextResponse.json(result, {
+      headers: cacheable
+        ? { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=21600" }
+        : undefined,
+    });
   } catch (err) {
     console.error(
       "[complex-nearby-sales]",
