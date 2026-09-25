@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
   areaSelectorClosedLabel,
@@ -340,22 +340,8 @@ function AreaSheet({
               id={titleId}
               className="text-center detail-section-title"
             >
-              평형
+              평형 선택
             </h2>
-            <button
-              type="button"
-              aria-label="닫기"
-              onClick={onClose}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              className="absolute right-2.5 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-            >
-              <X
-                className="pointer-events-none h-6 w-6"
-                strokeWidth={1.5}
-                aria-hidden
-              />
-            </button>
           </div>
         </div>
 
