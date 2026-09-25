@@ -4,12 +4,12 @@
  * 읽기 전용. 동 ↔ GIS 건물 연결: 같은 시·군·구에서 건축물대장 번호(앞 5자리 기관코드 제외)가 정확히 같을 때만.
  * 값은 원천 그대로 — 높이가 없으면 null (화면에서 층수로 그리고 그렇게 표기한다).
  */
-import type { Client } from "@libsql/client";
+import type { Client, InStatement } from "@libsql/client";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import { LAWD_TO_REGION, districtNameFromCode } from "@/lib/constants/regions-registry";
 import { slugFromLawd } from "@/lib/constants/nationwide-lawd";
-import { readNearbyRailStations } from "@/lib/transit/rail-stations";
-import { complexTxNameNorms } from "@/lib/complex-detail/tx-name-norms";
+import { railStationsBoxStatement, rankNearbyRailStations } from "@/lib/transit/rail-stations";
+import { txNameLinksStatement, txNameNormsFromLinks } from "@/lib/complex-detail/tx-name-norms";
 
 export type Ring = Array<[number, number]>; // [lng, lat]
 
@@ -75,6 +75,7 @@ export type Complex3d = {
 
 const RADIUS_M = 500;
 const A_LINK_MAX_M = 1000;
+const RAIL_MAX_M = 1200;
 const PYEONG = 3.3058;
 
 function median(values: number[]): number | null {
@@ -94,57 +95,86 @@ function haversine(aLat: number, aLng: number, bLat: number, bLng: number): numb
 const str = (v: unknown) => (v == null || v === "" ? null : String(v));
 const num = (v: unknown) => (v == null || v === "" || Number.isNaN(Number(v)) ? null : Number(v));
 
-/** 동(건축물대장 번호) ↔ GIS 건물 연결. 키 = 번호 뒤쪽(앞 5자리 기관코드 제외). */
-async function readLinkedGis(
-  db: Client,
-  lawd: string,
-  center: { lat: number; lng: number },
-  mgmPks: string[],
-  columns: string,
-): Promise<Map<string, Record<string, unknown>>> {
-  const suffixes = mgmPks.filter((pk) => pk.length > 5).map((pk) => pk.slice(5));
+type Rows = ReadonlyArray<Record<string, unknown>>;
+
+/**
+ * 여러 읽기를 DB 왕복 한 번(batch)으로. 한 문장이라도 실패하면(테이블 없음 등) batch 전체가 실패하니,
+ * 그때만 문장별로 다시 읽는다 — `optional` 문장의 실패는 예전처럼 빈 결과로, 나머지 실패는 그대로 던진다.
+ */
+async function readAll(db: Client, stmts: Array<{ stmt: InStatement; optional?: boolean }>): Promise<Rows[]> {
+  try {
+    return (await db.batch(stmts.map((s) => s.stmt), "read")).map((r) => r.rows);
+  } catch (error) {
+    if (!stmts.some((s) => s.optional)) throw error;
+    return Promise.all(
+      stmts.map((s) =>
+        db.execute(s.stmt).then(
+          (r) => r.rows as Rows,
+          (e) => {
+            if (s.optional) return [] as Rows;
+            throw e;
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/** 단지 좌표(지도 기준점 우선)와 이름 */
+function masterStatement(complexId: string): InStatement {
+  return {
+    sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
+                 COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
+          FROM apt_complex_master m LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
+          WHERE m.complex_id = ?`,
+    args: [complexId],
+  };
+}
+
+/**
+ * 동(건축물대장 번호) ↔ GIS 건물 후보 — 같은 시군구에서 번호 뒤쪽(앞 5자리 기관코드 제외)이 같은 건물.
+ * 시군구·번호를 하위 질의로 읽어 마스터·동 조회를 기다리지 않는다 (idx_gis_buildings_bldrgst).
+ */
+function linkedGisStatement(complexId: string, columns: string): InStatement {
+  return {
+    sql: `SELECT ${columns} FROM gis_buildings
+          WHERE lawd_cd = (SELECT lawd_cd FROM apt_complex_master WHERE complex_id = ?)
+            AND bldrgst_pk IN (
+              SELECT substr(mgm_bldrgst_pk, 6) FROM complex_buildings
+              WHERE complex_id = ? AND length(mgm_bldrgst_pk) > 5)`,
+    args: [complexId, complexId],
+  };
+}
+
+/**
+ * 번호 뒤쪽 → GIS 행. 건축물대장 번호는 옛 시군구마다 따로 매긴 짧은 일련번호라, 합쳐진 구에서는 같은 번호의 먼 건물이 있다 —
+ * 단지 좌표에서 1km 안인 건물만 동 모양으로 쓴다 (적재 규칙과 같음)
+ */
+function linkGis(rows: Rows, center: { lat: number; lng: number }): Map<string, Record<string, unknown>> {
   const gisByPk = new Map<string, Record<string, unknown>>();
-  if (!suffixes.length) return gisByPk;
-  const g = await db.execute({
-    sql: `SELECT ${columns} FROM gis_buildings WHERE lawd_cd = ? AND bldrgst_pk IN (${suffixes.map(() => "?").join(",")})`,
-    args: [lawd, ...suffixes],
-  });
-  // 건축물대장 번호는 옛 시군구마다 따로 매긴 짧은 일련번호라, 합쳐진 구에서는 같은 번호의 먼 건물이 있다 —
-  // 단지 좌표에서 1km 안인 건물만 동 모양으로 쓴다 (적재 규칙과 같음)
-  for (const r of g.rows) {
+  for (const r of rows) {
     const lat = Number(r.lat);
     const lng = Number(r.lng);
     if (Number.isFinite(lat) && Number.isFinite(lng) && haversine(center.lat, center.lng, lat, lng) > A_LINK_MAX_M) continue;
-    gisByPk.set(String(r.bldrgst_pk), r as Record<string, unknown>);
+    gisByPk.set(String(r.bldrgst_pk), r);
   }
   return gisByPk;
 }
 
-/** 3D 모형을 그릴 수 있는지만 — 지도 카드의 '3D로 보기' 버튼용 (동 수 · 모양 연결된 동 수). */
+/** 3D 모형을 그릴 수 있는지만 — 지도 카드의 '3D로 보기' 버튼용 (동 수 · 모양 연결된 동 수). DB 왕복 1번. */
 export async function readComplex3dCoverage(
   db: Client,
   complexId: string,
 ): Promise<Complex3d["coverage"] | null> {
-  const mres = await db.execute({
-    sql: `SELECT m.lawd_cd, COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
-          FROM apt_complex_master m LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
-          WHERE m.complex_id = ?`,
-    args: [complexId],
-  });
-  const m = mres.rows[0];
+  const [mRows, cbRows, gisRows] = await readAll(db, [
+    { stmt: masterStatement(complexId) },
+    { stmt: { sql: `SELECT mgm_bldrgst_pk FROM complex_buildings WHERE complex_id = ?`, args: [complexId] } },
+    { stmt: linkedGisStatement(complexId, "bldrgst_pk, lat, lng, (rings IS NOT NULL AND rings <> 'null') AS has_rings") },
+  ]);
+  const m = mRows![0];
   if (!m || m.lat == null) return null;
-  const cb = await db.execute({
-    sql: `SELECT mgm_bldrgst_pk FROM complex_buildings WHERE complex_id = ?`,
-    args: [complexId],
-  });
-  const pks = cb.rows.map((r) => String(r.mgm_bldrgst_pk ?? ""));
-  const gisByPk = await readLinkedGis(
-    db,
-    String(m.lawd_cd),
-    { lat: Number(m.lat), lng: Number(m.lng) },
-    pks,
-    "bldrgst_pk, lat, lng, (rings IS NOT NULL AND rings <> 'null') AS has_rings",
-  );
+  const pks = cbRows!.map((r) => String(r.mgm_bldrgst_pk ?? ""));
+  const gisByPk = linkGis(gisRows!, { lat: Number(m.lat), lng: Number(m.lng) });
   return {
     buildings: pks.length,
     withShape: pks.filter((pk) => pk.length > 5 && Number(gisByPk.get(pk.slice(5))?.has_rings) === 1).length,
@@ -155,6 +185,9 @@ export async function readComplex3dCoverage(
 /**
  * `shapesOnly` — 단지 상세(3D 카드 노출 여부·타입·동 지도)용 가벼운 읽기: 동 번호·주거 여부·외곽선만.
  * 주변 건물(최대 2500개 모양)·층별 시세(3년 실거래)·학교·역·동별 평형/라인은 읽지 않고 빈 배열로 돌려준다.
+ *
+ * DB 왕복: 단지 번호만으로 되는 조회(마스터·동·평형·라인·동 모양·학교·실거래 이름 연결)를 batch 한 번,
+ * 좌표·이름이 있어야 하는 조회(주변 건물·층별 시세·역)를 batch 한 번 더 — 2번 (shapesOnly는 1번).
  */
 export async function readComplex3d(
   db: Client,
@@ -162,48 +195,63 @@ export async function readComplex3d(
   opts: { shapesOnly?: boolean } = {},
 ): Promise<Complex3d | null> {
   const lite = !!opts.shapesOnly;
-  const mres = await db.execute({
-    sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
-                 COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
-          FROM apt_complex_master m LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
-          WHERE m.complex_id = ?`,
-    args: [complexId],
-  });
-  const m = mres.rows[0];
+  const first = await readAll(db, [
+    { stmt: masterStatement(complexId) },
+    {
+      stmt: {
+        sql: `SELECT building_id, mgm_bldrgst_pk, dong_label, building_name, main_usage, residential_flag,
+                     household_count, floor_count, underground_floor_count, height_m
+              FROM complex_buildings WHERE complex_id = ?`,
+        args: [complexId],
+      },
+    },
+    {
+      stmt: linkedGisStatement(
+        complexId,
+        "bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng",
+      ),
+    },
+    ...(lite
+      ? []
+      : [
+          {
+            stmt: {
+              sql: `SELECT l.building_id, l.household_count, u.display_pyeong_label, u.exclusive_area
+                    FROM unit_type_building_links l
+                    JOIN apt_canonical_unit_types u ON u.unit_type_id = l.unit_type_id
+                    WHERE l.complex_id = ?`,
+              args: [complexId],
+            },
+          },
+          {
+            stmt: {
+              sql: `SELECT building_id, line, exclusive_area, supply_area, unit_count, floor_min, floor_max
+                    FROM complex_unit_lines WHERE complex_id = ? ORDER BY building_id, line`,
+              args: [complexId],
+            },
+            optional: true,
+          },
+          {
+            stmt: {
+              sql: `SELECT s.school_name, s.school_level, s.lat, s.lng, n.distance_m
+                    FROM complex_nearby_schools n JOIN school_master s ON s.school_code = n.school_code
+                    WHERE n.complex_id = ? AND s.lat IS NOT NULL ORDER BY n.distance_m LIMIT 8`,
+              args: [complexId],
+            },
+          },
+          { stmt: txNameLinksStatement(complexId) },
+        ]),
+  ]);
+  const [mRows, cbRows, gisRows, unitRows = [], lineRows = [], schoolRows = [], linkRows = []] = first;
+  const m = mRows![0];
   if (!m || m.lat == null) return null;
   const lawd = String(m.lawd_cd);
   const center = { lat: Number(m.lat), lng: Number(m.lng) };
   const gu = (m.sigungu ? String(m.sigungu).split(/\s+/).pop() : null) || districtNameFromCode(lawd);
   const reg = LAWD_TO_REGION[lawd];
 
-  const [cbRes, unitRes, lineRes] = await Promise.all([
-    db.execute({
-      sql: `SELECT building_id, mgm_bldrgst_pk, dong_label, building_name, main_usage, residential_flag,
-                   household_count, floor_count, underground_floor_count, height_m
-            FROM complex_buildings WHERE complex_id = ?`,
-      args: [complexId],
-    }),
-    lite
-      ? { rows: [] as Array<Record<string, unknown>> }
-      : db.execute({
-          sql: `SELECT l.building_id, l.household_count, u.display_pyeong_label, u.exclusive_area
-                FROM unit_type_building_links l
-                JOIN apt_canonical_unit_types u ON u.unit_type_id = l.unit_type_id
-                WHERE l.complex_id = ?`,
-          args: [complexId],
-        }),
-    lite
-      ? { rows: [] as Array<Record<string, unknown>> }
-      : db
-          .execute({
-            sql: `SELECT building_id, line, exclusive_area, supply_area, unit_count, floor_min, floor_max
-                  FROM complex_unit_lines WHERE complex_id = ? ORDER BY building_id, line`,
-            args: [complexId],
-          })
-          .catch(() => ({ rows: [] as Array<Record<string, unknown>> })),
-  ]);
   const linesByBuilding = new Map<string, Complex3dBuilding["lines"]>();
-  for (const r of lineRes.rows) {
+  for (const r of lineRows) {
     const k = String(r.building_id);
     const list = linesByBuilding.get(k) ?? [];
     list.push({
@@ -217,16 +265,10 @@ export async function readComplex3d(
     linesByBuilding.set(k, list);
   }
 
-  const gisByPk = await readLinkedGis(
-    db,
-    lawd,
-    center,
-    cbRes.rows.map((r) => String(r.mgm_bldrgst_pk ?? "")),
-    "bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng",
-  );
+  const gisByPk = linkGis(gisRows!, center);
 
   const unitsByBuilding = new Map<string, Array<{ label: string; households: number }>>();
-  for (const r of unitRes.rows) {
+  for (const r of unitRows) {
     const k = String(r.building_id);
     const label = str(r.display_pyeong_label) ?? (r.exclusive_area != null ? `전용 ${Math.round(Number(r.exclusive_area))}㎡` : "기타");
     const list = unitsByBuilding.get(k) ?? [];
@@ -237,7 +279,7 @@ export async function readComplex3d(
   }
 
   const ownKeys = new Set<string>();
-  const buildings: Complex3dBuilding[] = cbRes.rows.map((r) => {
+  const buildings: Complex3dBuilding[] = cbRows!.map((r) => {
     const pk = String(r.mgm_bldrgst_pk ?? "");
     const gis = pk.length > 5 ? gisByPk.get(pk.slice(5)) : undefined;
     if (gis) ownKeys.add(String(gis.bld_key));
@@ -277,15 +319,34 @@ export async function readComplex3d(
     };
   }
 
-  // 주변 건물 (반경 RADIUS_M 사각형)
+  // 좌표·이름이 있어야 하는 조회 — 주변 건물(반경 RADIUS_M 사각형) · 층별 시세(최근 3년 매매) · 역을 batch 한 번에
   const dLat = RADIUS_M / 111_320;
   const dLng = RADIUS_M / (111_320 * Math.cos((center.lat * Math.PI) / 180));
-  const nres = await db.execute({
-    sql: `SELECT bld_key, name, use_name, height_m, floors_above, rings FROM gis_buildings
-          WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ? LIMIT 2500`,
-    args: [center.lat - dLat, center.lat + dLat, center.lng - dLng, center.lng + dLng],
-  });
-  const neighbors: Neighbor3d[] = nres.rows
+  const since = `${new Date().getFullYear() - 3}${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const txNorms = txNameNormsFromLinks(linkRows, lawd, String(m.apt_name_norm));
+  const [neighborRows, tradeRows, railRows] = await readAll(db, [
+    {
+      stmt: {
+        sql: `SELECT bld_key, name, use_name, height_m, floors_above, rings FROM gis_buildings
+              WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ? LIMIT 2500`,
+        args: [center.lat - dLat, center.lat + dLat, center.lng - dLng, center.lng + dLng],
+      },
+    },
+    // 매매 부분 색인 idx_tx_trade_lawd_apt_ym (lawd, 단지명, 연월, 층, 금액, 면적) WHERE deal_type = 'trade'만 읽는다
+    // (전월세 행·원본 행을 건너뜀) — 색인 조건이라 deal_type = 'trade'를 빼지 말 것
+    {
+      stmt: {
+        sql: `SELECT floor, deal_amount, exclusive_area FROM transactions
+              WHERE lawd_cd = ? AND apt_name_norm IN (${txNorms.map(() => "?").join(",")}) AND deal_type = 'trade' AND year_month >= ?
+                AND deal_amount > 0 AND exclusive_area > 0 AND floor IS NOT NULL`,
+        args: [lawd, ...txNorms, since],
+      },
+    },
+    // 역 — 실패(테이블 없음 등)하면 예전처럼 빈 목록
+    { stmt: railStationsBoxStatement(center, RAIL_MAX_M), optional: true },
+  ]);
+
+  const neighbors: Neighbor3d[] = neighborRows!
     .filter((r) => !ownKeys.has(String(r.bld_key)))
     .map((r) => ({
       id: String(r.bld_key),
@@ -297,15 +358,7 @@ export async function readComplex3d(
     }));
 
   // 층별 시세 — 최근 3년 매매, 최고층을 3등분 (저·중·고), 전용 3.3㎡당 중위가
-  const since = `${new Date().getFullYear() - 3}${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const txNorms = await complexTxNameNorms(db, complexId, lawd, String(m.apt_name_norm));
-  const tres = await db.execute({
-    sql: `SELECT floor, deal_amount, exclusive_area FROM transactions
-          WHERE lawd_cd = ? AND apt_name_norm IN (${txNorms.map(() => "?").join(",")}) AND deal_type = 'trade' AND year_month >= ?
-            AND deal_amount > 0 AND exclusive_area > 0 AND floor IS NOT NULL`,
-    args: [lawd, ...txNorms, since],
-  });
-  const deals = tres.rows
+  const deals = tradeRows!
     .map((r) => ({ floor: Number(r.floor), ppp: Number(r.deal_amount) / (Number(r.exclusive_area) / PYEONG) }))
     .filter((d) => d.floor > 0 && Number.isFinite(d.ppp));
   const maxFloor = Math.max(0, ...buildings.map((b) => b.floors ?? 0), ...deals.map((d) => d.floor));
@@ -327,13 +380,7 @@ export async function readComplex3d(
 
   // 주변 학교 · 역
   const pois: Poi3d[] = [];
-  const sres = await db.execute({
-    sql: `SELECT s.school_name, s.school_level, s.lat, s.lng, n.distance_m
-          FROM complex_nearby_schools n JOIN school_master s ON s.school_code = n.school_code
-          WHERE n.complex_id = ? AND s.lat IS NOT NULL ORDER BY n.distance_m LIMIT 8`,
-    args: [complexId],
-  });
-  for (const r of sres.rows) {
+  for (const r of schoolRows) {
     pois.push({
       kind: "school",
       name: String(r.school_name),
@@ -343,7 +390,7 @@ export async function readComplex3d(
       distanceM: Math.round(Number(r.distance_m ?? haversine(center.lat, center.lng, Number(r.lat), Number(r.lng)))),
     });
   }
-  for (const st of await readNearbyRailStations(db, center, { maxMeters: 1200, limit: 4 })) {
+  for (const st of rankNearbyRailStations(railRows!, center, RAIL_MAX_M, 4)) {
     pois.push({ kind: "station", name: st.name, sub: st.lines.join("·"), lat: st.lat, lng: st.lng, distanceM: st.distanceMeters });
   }
 
