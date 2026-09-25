@@ -1238,9 +1238,10 @@ export function ComplexNearbyLifeSection({
       }
       const school = schoolQuery.data;
       if (!school || school.status === "PILOT_ONLY") {
+        // PILOT_ONLY reason is developer text — never show it to users.
         return (
           <EmptyBlock>
-            {school?.reason || "인근 학교 실데이터는 준비 중입니다."}
+            이 단지의 인근 학교 정보는 준비 중이에요.
           </EmptyBlock>
         );
       }

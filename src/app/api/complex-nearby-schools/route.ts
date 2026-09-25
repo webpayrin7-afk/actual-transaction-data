@@ -64,7 +64,8 @@ export async function GET(req: NextRequest) {
   if (!pilot) {
     return NextResponse.json({
       status: "PILOT_ONLY",
-      reason: "인근 학교 실데이터는 잠실엘스 pilot만 지원합니다.",
+      // Pilot-only (잠실엘스) for now; reason is user-facing if a client passes it through.
+      reason: "이 단지의 인근 학교 정보는 준비 중이에요.",
       source: "NEIS",
       cacheVersion: SCHOOL_CACHE_VERSION,
       displayMaxMeters: SCHOOL_DISPLAY_MAX_METERS,
