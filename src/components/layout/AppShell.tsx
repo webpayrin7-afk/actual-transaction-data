@@ -56,9 +56,15 @@ export function isDetailFullPagePath(pathname: string): boolean {
   );
 }
 
+/** /complex-3d/[id] — 화면 전체를 3D 캔버스로 (헤더·사이드바·푸터·독 없음) */
+export function isImmersivePath(pathname: string): boolean {
+  return /^\/complex-3d\/[^/]+\/?$/.test(pathname);
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const fullPage = isDetailFullPagePath(pathname);
+  const immersive = isImmersivePath(pathname);
+  const fullPage = immersive || isDetailFullPagePath(pathname);
 
   // Sync before paint so sticky offsets don't briefly assume global header height.
   useLayoutEffect(() => {
@@ -71,6 +77,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       root.removeAttribute("data-apt-full-page");
     };
   }, [fullPage]);
+
+  if (immersive) return <div className="min-w-0 overflow-hidden" style={{ height: "100dvh" }}>{children}</div>;
 
   if (fullPage) {
     return (

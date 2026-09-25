@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronUp, Maximize2, SquareDashed } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabTabs } from "@/components/ui/LabTabs";
@@ -34,7 +35,9 @@ const DIRS = ["북", "북동", "동", "남동", "남", "남서", "서", "북서"
 const dirOf = (deg: number) => DIRS[Math.round((((deg % 360) + 360) % 360) / 45) % 8]!;
 const man = (v: number) => (v >= 10_000 ? `${(v / 10_000).toFixed(2)}억` : `${Math.round(v).toLocaleString("ko-KR")}만`);
 
-/** 3D 단지 탐색 — 실제 높이 모형 · 층별 시세 · 일조 · 조망 · 주변 */
+const FLOAT = "bg-white/95 shadow-[0_2px_10px_rgba(15,23,42,0.14)] backdrop-blur";
+
+/** 3D 단지 탐색 — 화면 전체가 모형, 위·오른쪽·아래에 떠 있는 조작 */
 export function Complex3dPage({ complexId }: { complexId: string }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<Complex3dScene | null>(null);
@@ -48,6 +51,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [view, setView] = useState<ViewResult | null>(null);
   const [webglError, setWebglError] = useState(false);
   const [nearest, setNearest] = useState<{ dong: string | null; meters: number } | null>(null);
+  const [heading, setHeading] = useState(0);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const query = useQuery({ queryKey: ["complex-3d", complexId], queryFn: () => fetch3d(complexId), staleTime: 60 * 60_000 });
   const d = query.data;
@@ -71,6 +76,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       .sort((a, b) => pyeong(a[0]) - pyeong(b[0]))
       .map(([label, v], i) => ({ label, ...v, color: TYPE_COLORS[i % TYPE_COLORS.length]! }));
   }, [d]);
+
+  // 동 목록 (모양이 있는 주거동, 동 번호 순)
+  const dongs = useMemo(
+    () =>
+      (d?.buildings ?? [])
+        .filter((b) => b.rings && b.dong)
+        .sort((a, b) => a.dong!.localeCompare(b.dong!, "ko", { numeric: true })),
+    [d],
+  );
 
   // 장면 만들기 (three.js는 이 화면에서만 불러온다)
   useEffect(() => {
@@ -100,6 +114,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           setSelected(id);
           setNearest(id ? s.nearestDistance(id) : null);
         };
+        s.onHeading = setHeading;
         sceneRef.current = scene;
         setReady(true);
       })
@@ -138,109 +153,169 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
 
   const estimated = (d?.buildings ?? []).some((b) => b.rings && !(b.heightM && b.heightM > 0));
   const maxFloors = sel?.floors ?? 1;
+  const floorNow = Math.min(viewFloor, maxFloors);
+
+  const pickDong = (id: string) => {
+    const s = sceneRef.current;
+    if (!s) return;
+    s.select(id);
+    s.focus(id);
+    setSelected(id);
+    setNearest(s.nearestDistance(id));
+    // 모형이 보이게 시트는 접는다 (요약 줄에 동 정보)
+    setSheetOpen(false);
+  };
+
+  const selLine = sel
+    ? [
+        sel.dong ?? sel.name ?? "동",
+        sel.floors ? `${sel.floors}층` : null,
+        sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : null;
+
+  // 시트를 접었을 때 한 줄 요약
+  const summary =
+    mode === "base"
+      ? (selLine ?? `동 ${dongs.length}개 · 동을 눌러 보세요`)
+      : mode === "floors"
+        ? `층 구간별 3.3㎡당 가격 · ${d?.floorBandsBasis ?? ""}`
+        : mode === "types"
+          ? `평형 ${typeLegend.length}개 · 동별 주력 평형 색`
+          : mode === "sun"
+            ? `${SEASONS.find((x) => x.id === season)!.label} ${String(hour).padStart(2, "0")}:00 · ${
+                sunInfo && sunInfo.altitude > 0
+                  ? `해 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽`
+                  : "해 진 뒤"
+              }`
+            : mode === "view"
+              ? sel
+                ? `${sel.dong ?? "이 동"} ${floorNow}층 · 트인 방향 ${view ? Math.round(view.openShare * 100) : "—"}%`
+                : "조망을 볼 동을 눌러 주세요"
+              : `학교·역 ${d?.pois.length ?? 0}곳`;
 
   return (
-    <div className="relative flex flex-col bg-[color:var(--lab-surface)]" style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}>
-      {/* 상단: 뒤로 · 단지명 · 모드 */}
-      <div className="z-10 flex flex-col gap-2 border-b border-[color:var(--lab-border)] bg-white px-3 pb-2 pt-1.5">
-        <div className="flex min-h-11 items-center gap-1">
-          <BackLink fallback={d?.href ?? "/complexes"} compact hideLabel />
-          <div className="min-w-0">
-            <p className="detail-subsection-title truncate">{d?.name ?? "3D 단지 탐색"}</p>
-            {d ? <p className="detail-meta truncate">{d.place} · 3D 단지 탐색</p> : null}
+    <div className="relative w-full overflow-hidden bg-[#f4f7f9]" style={{ height: "100dvh" }}>
+      {/* 캔버스 — 화면 전체 */}
+      <div ref={hostRef} className="absolute inset-0 touch-none" style={{ isolation: "isolate" }} />
+      {query.isLoading ? <div className="absolute inset-0 flex items-center justify-center detail-meta">3D 모형을 불러오는 중…</div> : null}
+      {query.isError ? <div className="absolute inset-0 flex items-center justify-center detail-body">{(query.error as Error).message}</div> : null}
+      {d && !hasShape ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-6 text-center">
+          <p className="detail-subsection-title">아직 이 단지의 건물 모양 데이터가 없어요</p>
+          <p className="detail-meta">
+            국토교통부 GIS건물통합정보를 순서대로 적재하고 있어요. 동 {d.coverage.buildings}개의 층수·세대수는 이미 있어요.
+          </p>
+        </div>
+      ) : null}
+      {webglError ? (
+        <div className="absolute inset-0 flex items-center justify-center px-6 text-center detail-body">
+          이 기기에서는 3D 화면(WebGL)을 켤 수 없어요.
+        </div>
+      ) : null}
+
+      {/* 위: 뒤로·단지명 · 모드 */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-2 pt-[calc(env(safe-area-inset-top)+8px)]">
+        <div className="flex items-center gap-2 px-3">
+          <div className={`pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${FLOAT}`}>
+            <BackLink fallback={d?.href ?? "/complexes"} compact hideLabel />
+          </div>
+          <div className={`pointer-events-auto min-w-0 rounded-full px-3.5 py-1.5 ${FLOAT}`}>
+            <p className="truncate text-[15px] font-bold leading-5 text-[color:var(--lab-navy-950)]">{d?.name ?? "3D 단지 탐색"}</p>
+            {d ? <p className="truncate text-[11px] leading-4 text-[color:var(--lab-muted)]">{d.place}</p> : null}
           </div>
         </div>
-        <LabTabs variant="secondary" ariaLabel="3D 보기" items={MODES} value={mode} onChange={setMode} />
-      </div>
-
-      {/* 캔버스 */}
-      <div className="relative min-h-0 flex-1">
-        <div ref={hostRef} className="absolute inset-0 touch-none" />
-        {query.isLoading ? <div className="absolute inset-0 flex items-center justify-center detail-meta">3D 모형을 불러오는 중…</div> : null}
-        {query.isError ? <div className="absolute inset-0 flex items-center justify-center detail-body">{(query.error as Error).message}</div> : null}
-        {d && !hasShape ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-6 text-center">
-            <p className="detail-subsection-title">아직 이 단지의 건물 모양 데이터가 없어요</p>
-            <p className="detail-meta">
-              국토교통부 GIS건물통합정보를 순서대로 적재하고 있어요. 동 {d.coverage.buildings}개의 층수·세대수는 이미 있어요.
-            </p>
-          </div>
-        ) : null}
-        {webglError ? (
-          <div className="absolute inset-0 flex items-center justify-center px-6 text-center detail-body">
-            이 기기에서는 3D 화면(WebGL)을 켤 수 없어요.
-          </div>
-        ) : null}
+        <div className="pointer-events-auto flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setMode(m.id)}
+              aria-pressed={mode === m.id}
+              className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95 ${
+                mode === m.id
+                  ? "bg-[color:var(--lab-brand-primary)] text-white shadow-[0_2px_10px_rgba(15,118,110,0.35)]"
+                  : `${FLOAT} text-[color:var(--lab-navy-950)]`
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
         {d && hasShape && d.coverage.withShape < d.coverage.buildings ? (
-          <p className="pointer-events-none absolute left-3 top-3 rounded-md bg-white/90 px-2 py-1 detail-meta shadow-sm">
+          <p className={`mx-3 self-start rounded-md px-2 py-1 text-[11px] text-[color:var(--lab-muted)] ${FLOAT}`}>
             동 {d.coverage.buildings}개 중 {d.coverage.withShape}개 모양 · 나머지는 준비 중
           </p>
         ) : null}
-        <p className="pointer-events-none absolute bottom-1 right-2 text-[11px] text-[color:var(--lab-muted)]">
-          건물: 국토교통부 GIS건물통합정보 · 지도 © NAVER Corp.{estimated ? " · 일부 높이는 층수×3m로 표시" : ""}
-        </p>
       </div>
 
-      {/* 하단 패널 — 모드별 조작 + 고른 동 정보 */}
+      {/* 오른쪽: 나침반 · 처음 시점 · 위에서 보기 */}
+      {ready ? (
+        <div className="absolute right-3 z-10 flex flex-col gap-2" style={{ top: "calc(env(safe-area-inset-top) + 104px)" }}>
+          <button
+            type="button"
+            onClick={() => sceneRef.current?.northUp()}
+            aria-label="북쪽을 위로"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+          >
+            <svg viewBox="0 0 24 24" className="h-6 w-6" style={{ transform: `rotate(${heading}deg)` }} aria-hidden>
+              <path d="M12 3 L15.5 12 H8.5 Z" fill="#e11d48" />
+              <path d="M12 21 L8.5 12 H15.5 Z" fill="#94a3b8" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => sceneRef.current?.resetView()}
+            aria-label="단지 전체 보기"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+          >
+            <Maximize2 className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => sceneRef.current?.topView()}
+            aria-label="위에서 보기"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+          >
+            <SquareDashed className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
+          </button>
+        </div>
+      ) : null}
+
+      {/* 아래: 접히는 시트 — 접으면 한 줄 요약, 펼치면 모드별 내용 */}
       {d && hasShape ? (
-        <div className="z-10 max-h-[42%] overflow-y-auto border-t border-[color:var(--lab-border)] bg-white px-3 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
-          {mode === "floors" ? (
-            <div className="flex flex-col gap-2">
-              <p className="detail-label">층 구간별 전용 3.3㎡당 중위가 · {d.floorBandsBasis}</p>
-              <div className="grid grid-cols-3 gap-2">
-                {d.floorBands.map((b) => (
-                  <div key={b.label} className="rounded-lg border border-[color:var(--lab-border)] px-2.5 py-2">
-                    <p className="detail-label">
-                      {b.label} {b.fromFloor}~{b.toFloor}층
-                    </p>
-                    <p className="detail-data-value-emphasis tabular-nums">{b.perPyeong != null ? man(b.perPyeong) : "—"}</p>
-                    <p className="detail-meta tabular-nums">{b.count}건</p>
-                  </div>
-                ))}
-              </div>
-              <p className="detail-meta">색이 진할수록 비싼 층 구간이에요.</p>
-            </div>
-          ) : null}
+        <div className="absolute inset-x-0 bottom-0 z-10 sm:bottom-3 sm:left-3 sm:right-auto sm:w-[400px]">
+          <div className="rounded-t-2xl bg-white shadow-[0_-4px_20px_rgba(15,23,42,0.12)] sm:rounded-2xl">
+            <button
+              type="button"
+              onClick={() => setSheetOpen((v) => !v)}
+              aria-expanded={sheetOpen}
+              className="flex w-full flex-col items-stretch px-4 pb-2.5 pt-2 text-left"
+            >
+              <span className="mx-auto mb-2 h-1 w-9 rounded-full bg-slate-200 sm:hidden" aria-hidden />
+              <span className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 truncate text-[14px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
+                  {summary}
+                </span>
+                <ChevronUp
+                  className={`h-4 w-4 shrink-0 text-slate-400 transition ${sheetOpen ? "rotate-180" : ""}`}
+                  aria-hidden
+                />
+              </span>
+            </button>
 
-          {mode === "types" ? (
-            typeLegend.length ? (
-              <div className="flex flex-col gap-2">
-                <p className="detail-label">동마다 세대가 가장 많은 평형(주력 평형) 색이에요. 동을 누르면 그 동의 평형 구성이 나와요.</p>
-                <ul className="flex flex-col gap-1.5">
-                  {typeLegend.map((t) => (
-                    <li key={t.label} className="flex items-start gap-2">
-                      <span className="mt-1 h-3 w-3 shrink-0 rounded-sm" style={{ background: t.color }} aria-hidden />
-                      <span className="min-w-0 flex-1">
-                        <span className="detail-data-value tabular-nums">{t.label}</span>
-                        <span className="detail-meta ml-1.5 tabular-nums">{t.households.toLocaleString("ko-KR")}세대</span>
-                        {t.mainDongs.length ? (
-                          <span className="detail-meta block">주력 동 {t.mainDongs.join(", ")}</span>
-                        ) : null}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="detail-meta">
-                  동 안에서 어느 라인이 어느 평형인지(호 라인별)는 건축물대장 전유부 적재 후 보여줄 예정이에요. 라인이 건물 어느 쪽에
-                  있는지는 공공데이터에 없어 표시하지 않아요.
-                </p>
-              </div>
-            ) : (
-              <p className="detail-body">이 단지는 동별 평형 정보가 아직 없어요.</p>
-            )
-          ) : null}
-
-          {mode === "sun" ? (
-            <div className="flex flex-col gap-2">
-              <LabTabs
-                variant="compact"
-                ariaLabel="계절"
-                items={SEASONS.map((s) => ({ id: s.id, label: s.label }))}
-                value={season}
-                onChange={setSeason}
-              />
-              <label className="flex items-center gap-3">
-                <span className="detail-label w-14 tabular-nums">{String(hour).padStart(2, "0")}:00</span>
+            {/* 조작은 접어도 보인다 — 일조 시각, 조망 층 */}
+            {mode === "sun" ? (
+              <div className="flex flex-col gap-2 px-4 pb-3">
+                <LabTabs
+                  variant="compact"
+                  ariaLabel="계절"
+                  items={SEASONS.map((s) => ({ id: s.id, label: s.label }))}
+                  value={season}
+                  onChange={setSeason}
+                />
                 <input
                   type="range"
                   min={6}
@@ -248,101 +323,176 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   step={1}
                   value={hour}
                   onChange={(e) => setHour(Number(e.target.value))}
-                  className="flex-1 accent-[color:var(--lab-brand-primary)]"
+                  className="w-full accent-[color:var(--lab-brand-primary)]"
                   aria-label="시각"
                 />
-              </label>
-              <p className="detail-meta tabular-nums">
-                {sunInfo && sunInfo.altitude > 0
-                  ? `해 높이 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° · ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽에서 비춰요`
-                  : "해가 진 시각이에요"}
-              </p>
-            </div>
-          ) : null}
+              </div>
+            ) : null}
+            {mode === "view" && sel ? (
+              <div className="px-4 pb-3">
+                <input
+                  type="range"
+                  min={1}
+                  max={Math.max(1, maxFloors)}
+                  step={1}
+                  value={floorNow}
+                  onChange={(e) => setViewFloor(Number(e.target.value))}
+                  className="w-full accent-[color:var(--lab-brand-primary)]"
+                  aria-label="층"
+                />
+              </div>
+            ) : null}
 
-          {mode === "view" ? (
-            !sel ? (
-              <p className="detail-body">조망을 볼 동을 눌러 주세요.</p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-3">
-                  <span className="detail-label w-14 tabular-nums">{Math.min(viewFloor, maxFloors)}층</span>
-                  <input
-                    type="range"
-                    min={1}
-                    max={Math.max(1, maxFloors)}
-                    step={1}
-                    value={Math.min(viewFloor, maxFloors)}
-                    onChange={(e) => setViewFloor(Number(e.target.value))}
-                    className="flex-1 accent-[color:var(--lab-brand-primary)]"
-                    aria-label="층"
-                  />
-                </label>
-                {view ? (
-                  <>
-                    <p className="detail-body tabular-nums">
-                      {sel.dong ?? "이 동"} {Math.min(viewFloor, maxFloors)}층 눈높이에서 200m 안에 가리는 건물이 없는 방향이{" "}
-                      <b>{Math.round(view.openShare * 100)}%</b>예요.
-                    </p>
-                    <OpenDirections view={view} />
-                    <p className="detail-meta">
-                      청록 = 200m 이상 트임 · 주황 = 80~200m · 빨강 = 80m 안 가림. 주변 건물 모양이 없는 곳은 트인 것으로 보일 수 있어요.
-                    </p>
-                  </>
+            {sheetOpen ? (
+              <div className="max-h-[42dvh] overflow-y-auto border-t border-[color:var(--lab-border)] px-4 pb-3 pt-3">
+                {mode === "base" ? (
+                  <div className="flex flex-col gap-3">
+                    {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
+                    <div>
+                      <p className="detail-label mb-1.5">동 바로가기</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {dongs.map((b) => (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => pickDong(b.id)}
+                            className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
+                              b.id === selected
+                                ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+                                : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+                            }`}
+                          >
+                            {b.dong}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {mode === "floors" ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      {d.floorBands.map((b) => (
+                        <div key={b.label} className="rounded-lg border border-[color:var(--lab-border)] px-2.5 py-2">
+                          <p className="detail-label">
+                            {b.label} {b.fromFloor}~{b.toFloor}층
+                          </p>
+                          <p className="detail-data-value-emphasis tabular-nums">{b.perPyeong != null ? man(b.perPyeong) : "—"}</p>
+                          <p className="detail-meta tabular-nums">{b.count}건</p>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="detail-meta">색이 진할수록 비싼 층 구간이에요.</p>
+                    {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
+                  </div>
+                ) : null}
+
+                {mode === "types" ? (
+                  typeLegend.length ? (
+                    <div className="flex flex-col gap-2">
+                      <ul className="flex flex-col gap-1.5">
+                        {typeLegend.map((t) => (
+                          <li key={t.label} className="flex items-start gap-2">
+                            <span className="mt-1 h-3 w-3 shrink-0 rounded-sm" style={{ background: t.color }} aria-hidden />
+                            <span className="min-w-0 flex-1">
+                              <span className="detail-data-value tabular-nums">{t.label}</span>
+                              <span className="detail-meta ml-1.5 tabular-nums">{t.households.toLocaleString("ko-KR")}세대</span>
+                              {t.mainDongs.length ? <span className="detail-meta block">주력 동 {t.mainDongs.join(", ")}</span> : null}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
+                    </div>
+                  ) : (
+                    <p className="detail-body">이 단지는 동별 평형 정보가 아직 없어요.</p>
+                  )
+                ) : null}
+
+                {mode === "sun" ? (
+                  <p className="detail-meta">
+                    계절과 시각을 바꾸면 그 시각의 그림자가 보여요. 주변 건물 모양이 없는 곳은 그림자가 빠질 수 있어요.
+                  </p>
+                ) : null}
+
+                {mode === "view" ? (
+                  sel && view ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="detail-body tabular-nums">
+                        {sel.dong ?? "이 동"} {floorNow}층 눈높이에서 200m 안에 가리는 건물이 없는 방향이{" "}
+                        <b>{Math.round(view.openShare * 100)}%</b>예요.
+                      </p>
+                      <OpenDirections view={view} />
+                      <p className="detail-meta">
+                        청록 = 200m 이상 트임 · 주황 = 80~200m · 빨강 = 80m 안 가림. 주변 건물 모양이 없는 곳은 트인 것으로 보일 수 있어요.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="detail-body">모형에서 동을 누르면 층별 조망을 계산해요.</p>
+                  )
+                ) : null}
+
+                {mode === "around" ? (
+                  d.pois.length ? (
+                    <ul className="divide-y divide-[color:var(--lab-border)]">
+                      {d.pois.map((p) => (
+                        <li key={`${p.kind}-${p.name}`} className="flex items-center justify-between gap-3 py-2">
+                          <span className="min-w-0">
+                            <span className="detail-data-value">{p.name}</span>
+                            <span className="detail-meta ml-1.5">{p.kind === "school" ? schoolLevel(p.sub) : p.sub}</span>
+                          </span>
+                          <span className="detail-meta shrink-0 tabular-nums">
+                            직선 {p.distanceM.toLocaleString("ko-KR")}m · 약 {Math.max(1, Math.round(p.distanceM / 67))}분
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="detail-body">주변 학교·역 정보가 없어요.</p>
+                  )
                 ) : null}
               </div>
-            )
-          ) : null}
+            ) : null}
 
-          {mode === "around" ? (
-            d.pois.length ? (
-              <ul className="divide-y divide-[color:var(--lab-border)]">
-                {d.pois.map((p) => (
-                  <li key={`${p.kind}-${p.name}`} className="flex items-center justify-between gap-3 py-2">
-                    <span className="min-w-0">
-                      <span className="detail-data-value">{p.name}</span>
-                      <span className="detail-meta ml-1.5">{p.kind === "school" ? schoolLevel(p.sub) : p.sub}</span>
-                    </span>
-                    <span className="detail-meta shrink-0 tabular-nums">
-                      직선 {p.distanceM.toLocaleString("ko-KR")}m · 약 {Math.max(1, Math.round(p.distanceM / 67))}분
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="detail-body">주변 학교·역 정보가 없어요.</p>
-            )
-          ) : null}
-
-          {(mode === "base" || mode === "floors" || mode === "types" || mode === "view") && sel ? (
-            <div className={`${mode === "base" ? "" : "mt-3 border-t border-[color:var(--lab-border)] pt-3"} flex flex-col gap-1.5`}>
-              <p className="detail-subsection-title">{sel.dong ?? sel.name ?? "동"}</p>
-              <p className="detail-body tabular-nums">
-                {[
-                  sel.floors ? `지상 ${sel.floors}층` : null,
-                  sel.floorsBelow ? `지하 ${sel.floorsBelow}층` : null,
-                  sel.heightM ? `높이 ${sel.heightM}m` : null,
-                  sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
-                  sel.approvalDate ? `${sel.approvalDate.slice(0, 4)}년 사용승인` : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-              {sel.units.length ? (
-                <p className="detail-meta tabular-nums">평형 {sel.units.map((u) => `${u.label} ${u.households}세대`).join(" · ")}</p>
-              ) : null}
-              {nearest ? (
-                <p className="detail-meta tabular-nums">
-                  가장 가까운 동 {nearest.dong ?? ""}까지 {nearest.meters}m
-                </p>
-              ) : null}
-            </div>
-          ) : mode === "base" ? (
-            <p className="detail-body">
-              손가락으로 돌리고 확대해 보세요. 동을 누르면 층수·세대수·평형과 가장 가까운 동까지 거리를 보여줘요.
+            <p className="px-4 pb-[calc(env(safe-area-inset-bottom)+6px)] text-[10px] leading-4 text-[color:var(--lab-muted)] sm:pb-2">
+              건물: 국토교통부 GIS건물통합정보 · 지도 © NAVER Corp.{estimated ? " · 일부 높이는 층수×3m" : ""}
             </p>
-          ) : null}
+          </div>
         </div>
+      ) : null}
+    </div>
+  );
+}
+
+function DongDetail({
+  sel,
+  nearest,
+}: {
+  sel: Complex3d["buildings"][number];
+  nearest: { dong: string | null; meters: number } | null;
+}) {
+  return (
+    <div className="flex flex-col gap-1 rounded-xl bg-[color:var(--lab-surface-subtle)] px-3 py-2.5">
+      <p className="detail-subsection-title">{sel.dong ?? sel.name ?? "동"}</p>
+      <p className="detail-body tabular-nums">
+        {[
+          sel.floors ? `지상 ${sel.floors}층` : null,
+          sel.floorsBelow ? `지하 ${sel.floorsBelow}층` : null,
+          sel.heightM ? `높이 ${sel.heightM}m` : null,
+          sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
+          sel.approvalDate ? `${sel.approvalDate.slice(0, 4)}년 사용승인` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+      </p>
+      {sel.units.length ? (
+        <p className="detail-meta tabular-nums">평형 {sel.units.map((u) => `${u.label} ${u.households}세대`).join(" · ")}</p>
+      ) : null}
+      {nearest ? (
+        <p className="detail-meta tabular-nums">
+          가장 가까운 동 {nearest.dong ?? ""}까지 {nearest.meters}m
+        </p>
       ) : null}
     </div>
   );

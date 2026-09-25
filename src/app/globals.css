@@ -1423,6 +1423,12 @@ h3 {
   line-height: 16px;
   white-space: nowrap;
 }
+.complex3d-far .complex3d-label {
+  padding: 0 3px;
+  font-size: 9px;
+  line-height: 12px;
+  border-radius: 4px;
+}
 .complex3d-pin {
   padding: 2px 7px;
   border-radius: 999px;

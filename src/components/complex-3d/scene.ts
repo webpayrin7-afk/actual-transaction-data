@@ -89,6 +89,12 @@ export class Complex3dScene {
   private mode: SceneMode = "base";
   private disposed = false;
   onSelect: (id: string | null) => void = () => {};
+  /** 카메라가 북쪽에서 몇 도 돌아 있는지 (나침반용, 도) */
+  onHeading: (deg: number) => void = () => {};
+  private lastHeading = NaN;
+  private labelsFar = false;
+  private bounds = { radius: 150, maxH: 20, cx: 0, cz: 0, halfW: 100, halfD: 100 };
+  private anim: { p0: THREE.Vector3; p1: THREE.Vector3; t0: THREE.Vector3; t1: THREE.Vector3; start: number; ms: number } | null = null;
 
   constructor(private host: HTMLElement) {
     const w = host.clientWidth;
@@ -106,13 +112,13 @@ export class Complex3dScene {
     Object.assign(this.labels.domElement.style, { position: "absolute", inset: "0", pointerEvents: "none" });
     host.appendChild(this.labels.domElement);
 
-    this.camera = new THREE.PerspectiveCamera(45, w / h, 1, 5000);
+    this.camera = new THREE.PerspectiveCamera(45, w / h, 1, 9000);
     this.camera.position.set(220, 260, 320);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
     this.controls.minDistance = 40;
-    this.controls.maxDistance = 1400;
+    this.controls.maxDistance = 3200;
 
     this.sun.castShadow = true;
     const cam = this.sun.shadow.camera;
@@ -140,6 +146,8 @@ export class Complex3dScene {
 
     this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
+    // 사용자가 직접 돌리면 진행 중인 이동은 멈춘다
+    this.controls.addEventListener("start", () => (this.anim = null));
     this.setSun(new Date(), 14);
     this.loop();
   }
@@ -250,10 +258,94 @@ export class Complex3dScene {
       }
     }
 
-    this.controls.target.set(0, maxH * 0.3, 0);
-    const dist = Math.max(260, maxH * 4);
-    this.camera.position.set(dist * 0.55, dist * 0.65, dist * 0.8);
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+    for (const b of data.buildings) {
+      for (const [lng, lat] of (b.rings ?? []).flat()) {
+        const p = this.toLocal(lng, lat);
+        minX = Math.min(minX, p.x);
+        maxX = Math.max(maxX, p.x);
+        minZ = Math.min(minZ, p.z);
+        maxZ = Math.max(maxZ, p.z);
+      }
+    }
+    if (!Number.isFinite(minX)) minX = maxX = minZ = maxZ = 0;
+    const halfW = Math.max(40, (maxX - minX) / 2);
+    const halfD = Math.max(40, (maxZ - minZ) / 2);
+    this.bounds = { radius: Math.hypot(halfW, halfD), maxH, cx: (minX + maxX) / 2, cz: (minZ + maxZ) / 2, halfW, halfD };
+    const home = this.homeView();
+    this.controls.target.copy(home.target);
+    this.camera.position.copy(home.position);
     this.controls.update();
+  }
+
+  /** 단지 전체가 화면에 들어오는 시점 — 남쪽 위에서 비스듬히, 화면 비율(세로 모바일)까지 맞춰 거리 계산 */
+  private homeView(): { position: THREE.Vector3; target: THREE.Vector3 } {
+    const { maxH, cx, cz, halfW, halfD } = this.bounds;
+    const vfov = (this.camera.fov * Math.PI) / 180;
+    const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
+    const polar = (48 * Math.PI) / 180;
+    const azimuth = (15 * Math.PI) / 180;
+    // 가로는 단지 폭, 세로는 기울어진 깊이 + 건물 높이가 화면에 들어오게 (여백 약 8%)
+    const needW = halfW / Math.tan(hfov / 2);
+    const needH = (halfD * Math.cos(polar) + maxH * Math.sin(polar) * 0.5) / Math.tan(vfov / 2);
+    const dist = Math.min(this.controls.maxDistance, Math.max(120, Math.max(needW, needH) * 1.08));
+    const target = new THREE.Vector3(cx, maxH * 0.25, cz);
+    const position = new THREE.Vector3(
+      target.x + dist * Math.sin(polar) * Math.sin(azimuth),
+      target.y + dist * Math.cos(polar),
+      target.z + dist * Math.sin(polar) * Math.cos(azimuth),
+    );
+    return { position, target };
+  }
+
+  private flyTo(position: THREE.Vector3, target: THREE.Vector3, ms = 450) {
+    this.anim = {
+      p0: this.camera.position.clone(),
+      p1: position,
+      t0: this.controls.target.clone(),
+      t1: target,
+      start: performance.now(),
+      ms,
+    };
+  }
+
+  /** 처음 시점으로 */
+  resetView() {
+    const home = this.homeView();
+    this.flyTo(home.position, home.target);
+  }
+
+  /** 위에서 내려다보기 (북쪽이 위) */
+  topView() {
+    const { cx, cz, halfW, halfD } = this.bounds;
+    const vfov = (this.camera.fov * Math.PI) / 180;
+    const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
+    const dist = Math.min(this.controls.maxDistance, Math.max(halfW / Math.tan(hfov / 2), halfD / Math.tan(vfov / 2)) * 1.1);
+    const target = new THREE.Vector3(cx, 0, cz);
+    this.flyTo(new THREE.Vector3(cx, dist, cz + 0.01), target);
+  }
+
+  /** 지금 기울기·거리 그대로 북쪽이 화면 위로 */
+  northUp() {
+    const t = this.controls.target.clone();
+    const off = this.camera.position.clone().sub(t);
+    const flat = Math.hypot(off.x, off.z);
+    this.flyTo(new THREE.Vector3(t.x, t.y + off.y, t.z + Math.max(0.01, flat)), t);
+  }
+
+  /** 동 하나로 다가가기 — 지금 보는 방향은 유지 */
+  focus(id: string) {
+    const b = this.data?.buildings.find((x) => x.id === id);
+    if (!b?.rings) return;
+    const c = this.ringCenter(b.rings);
+    const { h } = buildingHeight(b);
+    const target = new THREE.Vector3(c.x, h * 0.45, c.z);
+    const dir = this.camera.position.clone().sub(this.controls.target).normalize();
+    const dist = Math.max(170, h * 4.2);
+    this.flyTo(target.clone().add(dir.multiplyScalar(dist)), target);
   }
 
   private ringCenter(rings: Ring[]): Local {
@@ -489,7 +581,26 @@ export class Complex3dScene {
   private loop = () => {
     if (this.disposed) return;
     this.raf = requestAnimationFrame(this.loop);
+    if (this.anim) {
+      const a = this.anim;
+      const k = Math.min(1, (performance.now() - a.start) / a.ms);
+      const e = 1 - Math.pow(1 - k, 3);
+      this.camera.position.lerpVectors(a.p0, a.p1, e);
+      this.controls.target.lerpVectors(a.t0, a.t1, e);
+      if (k >= 1) this.anim = null;
+    }
     this.controls.update();
+    // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)
+    const far = this.camera.position.distanceTo(this.controls.target) > this.bounds.radius * 2.6;
+    if (far !== this.labelsFar) {
+      this.labelsFar = far;
+      this.labels.domElement.classList.toggle("complex3d-far", far);
+    }
+    const heading = Math.round((this.controls.getAzimuthalAngle() * 180) / Math.PI);
+    if (heading !== this.lastHeading) {
+      this.lastHeading = heading;
+      this.onHeading(heading);
+    }
     this.renderer.render(this.scene, this.camera);
     this.labels.render(this.scene, this.camera);
   };
