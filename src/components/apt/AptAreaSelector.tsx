@@ -129,28 +129,24 @@ export function AptAreaSelector({
   }
 
   const compact = variant === "compact";
+  // 랩 UI 가이드 11.0 — 면적은 3차 조건: 둥근 필터 칩(누르면 바텀시트). 본문·스티키 같은 모양 (LabFilterChips와 같은 규격)
+  const chip =
+    "relative inline-flex h-9 min-w-0 max-w-full items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 tabular-nums before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']";
+  const chipOn =
+    "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]";
+  const chipOff =
+    "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]";
+  void compact;
 
   if (sorted.length <= 1) {
     const only = sorted[0];
     if (!only) {
       return (
-        <div
-          className={`flex items-center rounded-[var(--lab-radius-sm)] border border-[color:var(--lab-border-control)] text-[color:var(--lab-navy-950)] ${
-            compact ? "detail-label min-h-9 px-2.5" : "detail-label min-h-12 w-full px-3.5"
-          } ${triggerClassName || "bg-white"}`}
-        >
-          전체 면적
-        </div>
+        <div className={`${chip} ${chipOff} ${triggerClassName}`}>전체 면적</div>
       );
     }
     return (
-      <div
-        className={`flex items-center rounded-[var(--lab-radius-sm)] border border-[color:var(--lab-border-control)] tabular-nums text-[color:var(--lab-navy-950)] ${
-          compact
-            ? "detail-label min-h-9 max-w-full px-2.5 font-semibold"
-            : "detail-label min-h-12 w-full px-3.5 font-semibold"
-        } ${triggerClassName || "bg-white"}`}
-      >
+      <div className={`${chip} ${chipOn} ${triggerClassName}`}>
         <span className="min-w-0 truncate">
           <AreaTriggerLabel area={only} />
         </span>
@@ -176,25 +172,16 @@ export function AptAreaSelector({
         aria-expanded={open}
         aria-label={`현재 ${triggerLabel}, ${a11yExtra}`}
         onClick={openSheet}
-        className={`flex items-center gap-1.5 border border-[color:var(--lab-border-control)] text-left tabular-nums text-[color:var(--lab-navy-950)] hover:bg-[color:var(--lab-surface-subtle)] ${
-          compact
-            ? "detail-label relative min-h-9 max-w-full rounded-[var(--lab-radius-sm)] px-2.5 font-semibold before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
-            : "detail-label min-h-12 w-full gap-2 rounded-[var(--lab-radius-sm)] px-3.5 sm:gap-3"
-        } ${triggerClassName || "bg-white"}`}
+        className={`${chip} ${isAll || !selected ? chipOff : chipOn} text-left ${triggerClassName}`}
       >
-        <span className="min-w-0 flex-1 truncate">
+        <span className="min-w-0 truncate">
           {isAll || !selected ? (
             <span className="font-semibold">전체 면적</span>
           ) : (
             <AreaTriggerLabel area={selected} />
           )}
         </span>
-        <ChevronDown
-          className={`shrink-0 text-slate-400 transition ${
-            compact ? "h-3.5 w-3.5" : "h-4 w-4"
-          } ${open ? "rotate-180" : ""}`}
-          aria-hidden
-        />
+        <ChevronDown className={`h-4 w-4 shrink-0 opacity-60 transition ${open ? "rotate-180" : ""}`} aria-hidden />
       </button>
 
       {present

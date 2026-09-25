@@ -361,7 +361,6 @@ export function AptTransactionsPage({
           <AptAreaSelector
             areas={areas}
             value={resolvedAreaKey || areas[0]!.key}
-            triggerClassName="bg-white"
             onChange={(key) => {
               resetAnd(() => {
                 setAreaOverride({ forId: aptIdentity, key });

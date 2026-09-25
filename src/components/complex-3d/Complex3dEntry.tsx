@@ -1,8 +1,24 @@
+"use client";
+
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Box, ChevronRight } from "lucide-react";
 
-/** 3D 단지 탐색 들어가기 — 단지 상세 상단 카드 (집랩 핵심 콘텐츠라 청록 면으로 눈에 띄게) */
+/**
+ * 3D 단지 탐색 들어가기 — 단지 상세 상단 카드 (집랩 핵심 콘텐츠라 청록 면으로 눈에 띄게).
+ * 동 모양(GIS)이 하나도 없는 단지는 3D로 보여줄 게 없어 숨긴다 (타입·동 지도와 같은 요청·캐시).
+ */
 export function Complex3dEntryCard({ complexId }: { complexId: string }) {
+  const q = useQuery({
+    queryKey: ["complex-3d", complexId],
+    queryFn: async () => {
+      const res = await fetch(`/api/complex-3d/${complexId}?v=2`);
+      return res.ok ? res.json() : null;
+    },
+    staleTime: 60 * 60 * 1000,
+  });
+  const withShape = (q.data as { coverage?: { withShape?: number } } | null)?.coverage?.withShape;
+  if (q.isSuccess && !withShape) return null;
   return (
     <Link
       href={`/complex-3d/${complexId}`}
