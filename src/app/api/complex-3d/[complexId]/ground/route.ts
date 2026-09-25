@@ -10,7 +10,8 @@ const GROUND_LEVEL = 15;
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ complexId: string }> }) {
   const { complexId } = await params;
   if (!/^cx_[0-9a-f]{16}$/.test(complexId)) return new NextResponse("bad id", { status: 400 });
-  const id = process.env.NAVER_MAP_CLIENT_ID?.trim();
+  // 키 ID는 지도 SDK용 공개값과 같다 — 서버 전용 이름이 없으면 공개 이름으로
+  const id = (process.env.NAVER_MAP_CLIENT_ID || process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID)?.trim();
   const key = process.env.NAVER_MAP_CLIENT_SECRET?.trim();
   const db = getDb();
   if (!id || !key || !db) return new NextResponse("unavailable", { status: 503 });
