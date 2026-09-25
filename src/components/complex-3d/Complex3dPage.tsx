@@ -37,9 +37,9 @@ async function fetch3d(id: string): Promise<Complex3d> {
 
 const MODES: Array<{ id: SceneMode; label: string }> = [
   { id: "base", label: "동 정보" },
-  { id: "floors", label: "층별가" },
   { id: "sun", label: "일조" },
   { id: "view", label: "조망" },
+  { id: "floors", label: "층별가" },
   { id: "around", label: "주변" },
 ];
 
