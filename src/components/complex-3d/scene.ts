@@ -85,7 +85,6 @@ export class Complex3dScene {
     labels: new THREE.Group(),
     view: new THREE.Group(),
     pois: new THREE.Group(),
-    lineOverlay: new THREE.Group(),
   };
   private ownMeshes = new Map<string, THREE.Mesh>();
   private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
@@ -387,61 +386,6 @@ export class Complex3dScene {
     this.groups.view.visible = mode === "view";
     this.groups.pois.visible = mode === "around";
     this.groups.labels.visible = mode !== "around";
-    this.groups.lineOverlay.visible = mode === "base";
-  }
-
-  private lineMaterial = new THREE.MeshStandardMaterial({ color: 0x14b8a6, roughness: 0.8, metalness: 0 });
-
-  /**
-   * (시험) 호 라인 위치 추정 색칠 — 동 외곽선의 긴 축을 라인 수로 똑같이 나눠, 고른 타입 라인 칸만 칠한다.
-   * 라인이 건물 어느 쪽인지는 원천에 없어 1호 라인을 서쪽(긴 축이 남북이면 남쪽) 끝으로 가정한다.
-   */
-  setLineOverlay(items: Array<{ id: string; slots: number[]; count: number }> | null, color?: string) {
-    this.groups.lineOverlay.clear();
-    if (color) this.lineMaterial.color.set(color);
-    if (!items || !this.data) return;
-    for (const it of items) {
-      const b = this.data.buildings.find((x) => x.id === it.id);
-      if (!b?.rings?.[0] || it.count < 1) continue;
-      const pts = b.rings[0].map(([lng, lat]) => this.toLocal(lng, lat));
-      // 긴 축: 점들의 주성분
-      const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
-      const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
-      let sxx = 0, szz = 0, sxz = 0;
-      for (const q of pts) {
-        sxx += (q.x - mx) ** 2;
-        szz += (q.z - mz) ** 2;
-        sxz += (q.x - mx) * (q.z - mz);
-      }
-      const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
-      let ux = Math.cos(ang);
-      let uz = Math.sin(ang);
-      // 1호 라인 = 서쪽 끝 (긴 축이 남북에 가까우면 남쪽 끝, z가 클수록 남쪽)
-      if (Math.abs(ux) >= Math.abs(uz) ? ux < 0 : uz < 0) {
-        ux = -ux;
-        uz = -uz;
-      }
-      if (Math.abs(ux) < Math.abs(uz)) {
-        ux = -ux;
-        uz = -uz;
-      }
-      const proj = pts.map((q) => q.x * ux + q.z * uz);
-      const lo = Math.min(...proj);
-      const len = Math.max(...proj) - lo;
-      const { h } = buildingHeight(b);
-      for (const slot of it.slots) {
-        const a0 = lo + (len * slot) / it.count;
-        const a1 = lo + (len * (slot + 1)) / it.count;
-        const poly = clipSlab(pts, ux, uz, a0 + 0.3, a1 - 0.3);
-        if (poly.length < 3) continue;
-        const shape = new THREE.Shape(poly.map((q) => new THREE.Vector2(q.x, -q.z)));
-        const g = new THREE.ExtrudeGeometry(shape, { depth: h + 0.6, bevelEnabled: false });
-        g.rotateX(-Math.PI / 2);
-        const m = new THREE.Mesh(g, this.lineMaterial);
-        m.scale.set(1.004, 1, 1.004);
-        this.groups.lineOverlay.add(m);
-      }
-    }
   }
 
   /** 층별 시세 — 각 동을 저·중·고 구간으로 잘라 구간 평당가에 따라 색을 입힌다 */
@@ -856,24 +800,3 @@ export class Complex3dScene {
   }
 }
 
-/** 다각형을 두 평행선 사이(a0 ≤ 점·u ≤ a1)로 자르기 (Sutherland–Hodgman) */
-function clipSlab(pts: Local[], ux: number, uz: number, a0: number, a1: number): Local[] {
-  const cut = (poly: Local[], keep: (d: number) => boolean, edge: number): Local[] => {
-    const out: Local[] = [];
-    for (let i = 0; i < poly.length; i++) {
-      const p = poly[i]!;
-      const q = poly[(i + 1) % poly.length]!;
-      const dp = p.x * ux + p.z * uz;
-      const dq = q.x * ux + q.z * uz;
-      const kp = keep(dp);
-      const kq = keep(dq);
-      if (kp) out.push(p);
-      if (kp !== kq) {
-        const t = (edge - dp) / (dq - dp);
-        out.push({ x: p.x + (q.x - p.x) * t, z: p.z + (q.z - p.z) * t });
-      }
-    }
-    return out;
-  };
-  return cut(cut(pts, (d) => d >= a0, a0), (d) => d <= a1, a1);
-}

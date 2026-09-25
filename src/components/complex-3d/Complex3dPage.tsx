@@ -54,6 +54,17 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [webglError, setWebglError] = useState(false);
   const [nearest, setNearest] = useState<{ dong: string | null; meters: number } | null>(null);
   const [heading, setHeading] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<number | null>(null);
+  const showToastRef = useRef<(msg: string) => void>(() => {});
+  const showToast = (msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) window.clearTimeout(toastTimer.current);
+    toastTimer.current = window.setTimeout(() => setToast(null), 1800);
+  };
+  useEffect(() => {
+    showToastRef.current = showToast;
+  });
   const [sheetOpen, setSheetOpen] = useState(false);
   const drag = useRef<{ y: number; moved: boolean } | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -172,30 +183,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     if (!s || !d) return;
     if (mode === "floors" || mode === "types" || !picked) {
       s.setHighlight(null);
-      s.setLineOverlay(null);
       return;
     }
-    // (시험) ?lines=1 — 동 전체 대신 라인 위치를 추정해 칠하기
-    if (new URLSearchParams(window.location.search).get("lines") === "1") {
-      s.setHighlight(new Set(), picked.color);
-      s.setLineOverlay(
-        d.buildings
-          .filter((b) => b.rings && (b.lines ?? []).length)
-          .map((b) => {
-            const lines = [...new Set((b.lines ?? []).map((l) => Number(l.line)))].sort((x, y) => x - y);
-            const mine = new Set(
-              (b.lines ?? [])
-                .filter((l) => sameSqm(l.exclusive, picked.exclusive) && Math.abs(l.supply - picked.supply) < 1)
-                .map((l) => Number(l.line)),
-            );
-            return { id: b.id, count: lines.length, slots: lines.map((n, i) => (mine.has(n) ? i : -1)).filter((i) => i >= 0) };
-          })
-          .filter((x) => x.slots.length),
-        picked.color,
-      );
-      return;
-    }
-    s.setLineOverlay(null);
     s.setHighlight(new Set(d.buildings.filter((b) => b.dong && picked.dongs.has(b.dong)).map((b) => b.id)), picked.color);
   }, [picked, mode, d, ready]);
 
@@ -235,6 +224,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         s.onSelect = (id) => {
           setSelected(id);
           setNearest(id ? s.nearestDistance(id) : null);
+          if (id) showToastRef.current("두 번 누르면 해당 동으로 이동합니다");
         };
         s.onHeading = setHeading;
         sceneRef.current = scene;
@@ -421,6 +411,17 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           </p>
         ) : null}
       </div>
+
+      {/* 안내 토스트 */}
+      {toast ? (
+        <div
+          role="status"
+          className="pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color:var(--lab-navy-950)]/90 px-3.5 py-2 text-[13px] font-semibold text-white shadow-lg"
+          style={{ top: "calc(env(safe-area-inset-top) + 104px)" }}
+        >
+          {toast}
+        </div>
+      ) : null}
 
       {/* 오른쪽: 나침반 · 단지 전체 · 위에서 보기 */}
       {ready ? (
