@@ -13,7 +13,7 @@ import type { PriceMoveKind } from "@/lib/market/price-moves-build";
 
 export type PriceMovesPeriod = "1d" | "7d" | "30d";
 export const PRICE_MOVES_PERIODS: Record<PriceMovesPeriod, { label: string; days: number }> = {
-  "1d": { label: "오늘 확인", days: 1 },
+  "1d": { label: "최근 확인일", days: 1 },
   "7d": { label: "최근 7일", days: 7 },
   "30d": { label: "최근 30일", days: 30 },
 };
@@ -138,9 +138,21 @@ export async function readPriceMoves(
     limit: number;
   },
 ): Promise<PriceMovesResponse> {
-  const to = seoulToday();
-  const from = addDays(to, -(PRICE_MOVES_PERIODS[opts.period].days - 1));
+  const today = seoulToday();
   const scope = scopeFor(opts);
+  const notReady = !(await hasTable(db));
+  // 기간 끝 = 마지막 확인일 (오늘 이하). 자정~다음 갱신 사이(연휴 포함)엔 오늘 기록이 없어
+  // 오늘로 자르면 0건 — 시장 홈(마지막 확인일 기준) 숫자와 어긋난다. MAX는 (seen_date, kind) 인덱스로 끝난다.
+  let to = today;
+  if (!notReady) {
+    const latest = await db.execute({
+      sql: "SELECT MAX(seen_date) AS d FROM market_price_moves WHERE seen_date <= ?",
+      args: [today],
+    });
+    const d = String(latest.rows[0]?.d ?? "");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) to = d;
+  }
+  const from = addDays(to, -(PRICE_MOVES_PERIODS[opts.period].days - 1));
   const base = {
     kind: opts.kind,
     period: opts.period,
@@ -148,7 +160,7 @@ export async function readPriceMoves(
     to,
     scopeLabel: scope.label,
   };
-  if (!(await hasTable(db))) {
+  if (notReady) {
     return {
       status: "not_ready",
       ...base,

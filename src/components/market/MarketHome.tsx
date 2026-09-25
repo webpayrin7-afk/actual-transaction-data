@@ -29,6 +29,7 @@ import type {
   MarketVolumeItem,
 } from "@/lib/market/home";
 import type { MarketRecord, MarketRecordsResponse } from "@/lib/market/records";
+import { seoulToday } from "@/lib/market/time";
 import { formatArea, formatDealDate, formatEok } from "@/lib/utils/format";
 
 async function fetchMarketHome(): Promise<MarketHomeResponse> {
@@ -347,6 +348,9 @@ export function MarketHome() {
   const data = query.data;
   useLoadProgressWhen(query.isLoading && !data, "시장 불러오는 중…");
   const hasNewDeals = (data?.kpis.newDealCount ?? 0) > 0;
+  // 자정~다음 갱신 사이엔 확인일이 어제 — '오늘' 대신 날짜로 말한다
+  const dayWord =
+    data?.discoveryDate && data.discoveryDate !== seoulToday() ? monthDay(data.discoveryDate) : "오늘";
   const hasIssues =
     !!data &&
     (data.notables.length > 0 || data.singoga.length > 0 || data.drops.length > 0);
@@ -389,7 +393,7 @@ export function MarketHome() {
           <p className="text-[20px] font-bold leading-7 tracking-tight text-[color:var(--lab-navy-950)]">
             {hasNewDeals ? (
               <>
-                오늘 매매{" "}
+                {dayWord} 매매{" "}
                 <span className="tabular-nums text-[color:var(--lab-teal-700)]">
                   {(data.kpis.newDealCount ?? 0).toLocaleString("ko-KR")}건
                 </span>
