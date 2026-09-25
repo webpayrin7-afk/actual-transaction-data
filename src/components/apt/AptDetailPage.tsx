@@ -580,6 +580,11 @@ export function AptDetailPage({
     gu?.trim() ||
     region?.name?.trim() ||
     null;
+  /** 단지 시군구 코드 — 없으면 지역이 구 하나일 때만 그 코드 */
+  const nearbyLawdCd =
+    identity?.lawdCd?.trim() ||
+    (region?.lawdCodes.length === 1 ? region.lawdCodes[0] : null) ||
+    null;
   const locationLabel =
     identity?.sigungu || identity?.legalDongName
       ? [identity.sido, identity.sigungu, identity.legalDongName]
@@ -959,6 +964,7 @@ export function AptDetailPage({
       <ComplexNearbySalesSection
           aptName={aptName}
           sigungu={nearbySigungu}
+          lawdCd={nearbyLawdCd}
         />
       </LabSectionBoundary>
 

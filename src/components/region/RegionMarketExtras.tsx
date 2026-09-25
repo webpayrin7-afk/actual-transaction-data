@@ -203,14 +203,21 @@ export function RegionTradeHighlightsSection({
 
 const SUPPLY_HORIZON_YEARS = 6;
 
-export function RegionSupplyTimelineSection({ regionName }: { regionName: string }) {
+export function RegionSupplyTimelineSection({
+  regionName,
+  lawdCodes,
+}: {
+  regionName: string;
+  /** 지역 시군구 코드 — 이름(강서구·중구 …)은 여러 시도에 있어 코드로 찾는다 */
+  lawdCodes: string[];
+}) {
   const [expanded, setExpanded] = useState(false);
+  const lawd = lawdCodes.join(",");
   const query = useQuery({
-    queryKey: ["region-nearby-sales", regionName],
+    queryKey: ["region-nearby-sales", regionName, lawd],
     queryFn: async () => {
-      const res = await fetch(
-        `/api/complex-nearby-sales?sigungu=${encodeURIComponent(regionName)}`,
-      );
+      const qs = new URLSearchParams({ sigungu: regionName, lawd });
+      const res = await fetch(`/api/complex-nearby-sales?${qs}`);
       if (!res.ok) throw new Error("supply");
       return (await res.json()) as NearbySalesResult;
     },

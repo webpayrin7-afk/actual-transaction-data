@@ -1,16 +1,24 @@
 /**
- * Nearby APT + officetel supply by 시군구 (청약홈 Applyhome OpenAPI).
- * Server-only. No DB writes. Daily fetch cache via next.revalidate.
+ * Nearby APT + officetel supply by 시군구 코드(lawd 5자리).
+ * 아파트: 청약홈 사본(applyhome_notices/models/competition)에서 lawd_cd 정확 일치.
+ * 오피스텔: 청약홈 OpenAPI 라이브(daily fetch cache) → 주소를 코드로 다시 읽어 같은 시군구만.
+ * Server-only. No DB writes.
  */
 
+import type { Client } from "@libsql/client";
+import {
+  LEGACY_LAWD_SUCCESSORS,
+  dongScopeCodes,
+  legacyLawdCodesOf,
+  legacyLawdNamesOf,
+  matchLawd,
+  type DongIndex,
+} from "@/lib/applyhome/lawd-match";
+import { NATIONWIDE_LAWD_ROWS } from "@/lib/constants/nationwide-lawd";
+import { districtNameFromCode } from "@/lib/constants/regions-registry";
+import { getDb } from "@/lib/db/client";
 import { formatEok } from "@/lib/utils/format";
 
-const APT_DETAIL_BASE =
-  "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancDetail";
-const APT_MODEL_BASE =
-  "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getAPTLttotPblancMdl";
-const APT_CMPET_BASE =
-  "https://api.odcloud.kr/api/ApplyhomeInfoCmpetRtSvc/v1/getAPTLttotPblancCmpet";
 const OFFICETEL_DETAIL_BASE =
   "https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1/getUrbtyOfctlLttotPblancDetail";
 const OFFICETEL_MODEL_BASE =
@@ -289,6 +297,7 @@ function scheduleLabelFor(
 async function odcloudGet<T>(
   base: string,
   params: Record<string, string>,
+  timeoutMs = 30_000,
 ): Promise<T[]> {
   const key = serviceKey();
   if (!key) throw new Error("MOLIT_API_KEY missing");
@@ -307,7 +316,7 @@ async function odcloudGet<T>(
     const res = await fetch(url, {
       next: { revalidate: DAILY_REVALIDATE },
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     if (!res.ok) {
       throw new Error(`Applyhome HTTP ${res.status}`);
@@ -407,12 +416,23 @@ function regionLabel(row: DetailRow, sigungu: string): string {
   return dong ? `${base} ${dong}` : base;
 }
 
-async function buildCard(
+/** 청약 일정으로 본 상태 — 분양이 끝났고 입주도 지났으면 null (목록에서 뺀다) */
+function cardStatus(row: DetailRow, today: Date): NearbySaleStatus | null {
+  const status = classifyStatus(row, today);
+  if (status !== "completed") return status;
+  return isFutureMoveIn(str(row.MVN_PREARNGE_YM) || null, today)
+    ? "move_in_upcoming"
+    : null;
+}
+
+function toCard(
   row: DetailRow,
+  status: NearbySaleStatus,
   sigungu: string,
-  today: Date,
   kind: NearbyHousingCategory,
-): Promise<NearbySaleCard | null> {
+  models: ModelRow[],
+  cmpet: CmpetRow[],
+): NearbySaleCard | null {
   const houseManageNo = str(row.HOUSE_MANAGE_NO);
   const pblancNo = str(row.PBLANC_NO);
   const houseName = str(row.HOUSE_NM);
@@ -420,30 +440,9 @@ async function buildCard(
 
   const source: NearbySaleSource =
     kind === "officetel" ? "applyhome:officetel" : "applyhome:apt";
-  const modelBase =
-    kind === "officetel" ? OFFICETEL_MODEL_BASE : APT_MODEL_BASE;
-
   const moveInYm = str(row.MVN_PREARNGE_YM) || null;
-  let status = classifyStatus(row, today);
-  if (status === "completed") {
-    if (!isFutureMoveIn(moveInYm, today)) return null;
-    status = "move_in_upcoming";
-  }
-
   const isMoveIn = status === "move_in_upcoming";
   const skipCmpet = isMoveIn || kind === "officetel";
-  const [models, cmpet] = await Promise.all([
-    odcloudGet<ModelRow>(modelBase, {
-      "cond[HOUSE_MANAGE_NO::EQ]": houseManageNo,
-      "cond[PBLANC_NO::EQ]": pblancNo,
-    }),
-    skipCmpet
-      ? Promise.resolve([] as CmpetRow[])
-      : odcloudGet<CmpetRow>(APT_CMPET_BASE, {
-          "cond[HOUSE_MANAGE_NO::EQ]": houseManageNo,
-          "cond[PBLANC_NO::EQ]": pblancNo,
-        }).catch(() => [] as CmpetRow[]),
-  ]);
 
   const supplyCount = num(row.TOT_SUPLY_HSHLDCO);
   const supplyCountLabel =
@@ -475,29 +474,292 @@ async function buildCard(
   };
 }
 
-export async function fetchNearbySalesBySigungu(
-  sigunguRaw: string,
-): Promise<NearbySalesResult> {
+/** 단지 시군구 코드 + 그 코드가 이어받은 예전 인천 구 코드 → 이 공고 주소가 그 지역인가 */
+type RegionScope = {
+  codes: Set<string>;
+  /** 주소를 다시 읽어야 할 때만 불러오는 법정동 색인 (codes 의 시·형제 구 범위) */
+  dongIndex: () => Promise<DongIndex>;
+};
+
+function inScope(code: string | null, scope: RegionScope): boolean {
+  if (!code) return false;
+  if (scope.codes.has(code)) return true;
+  // 동 이름으로 못 좁힌 예전 인천 구 공고 — 이어받은 새 구 모두에 보여 준다
+  return (LEGACY_LAWD_SUCCESSORS[code] ?? []).some((c) => scope.codes.has(c));
+}
+
+/**
+ * 공고의 시군구 코드. 저장된 코드가 있고 예전 인천 구 코드가 아니면 그대로,
+ * 아니면(코드 없음 · 28110/28140/28260) 주소를 지금 표로 다시 읽는다 — 이름 정확 일치만.
+ */
+async function noticeLawd(
+  stored: string | null,
+  address: string,
+  scope: RegionScope,
+): Promise<string | null> {
+  if (stored && !LEGACY_LAWD_SUCCESSORS[stored]) return stored;
+  return (
+    matchLawd(address, undefined) ??
+    matchLawd(address, await scope.dongIndex(), { keepLegacy: true }) ??
+    stored
+  );
+}
+
+const dongIndexCache = new Map<string, { at: number; value: DongIndex }>();
+
+function makeScope(db: Client, codes: string[]): RegionScope {
+  const scopeCodes = dongScopeCodes(codes).sort();
+  const key = scopeCodes.join(",");
+  let pending: Promise<DongIndex> | null = null;
+  return {
+    codes: new Set(codes),
+    dongIndex: () => {
+      const hit = dongIndexCache.get(key);
+      if (hit && Date.now() - hit.at < DAILY_REVALIDATE * 1000) {
+        return Promise.resolve(hit.value);
+      }
+      pending ??= db
+        .execute({
+          sql: `SELECT DISTINCT lawd_cd, legal_dong_name FROM apt_complex_master
+                WHERE lawd_cd IN (${scopeCodes.map(() => "?").join(",")}) AND legal_dong_name IS NOT NULL`,
+          args: scopeCodes,
+        })
+        .then((res) => {
+          const index: DongIndex = new Map();
+          for (const r of res.rows) {
+            const d = String(r.legal_dong_name);
+            index.set(d, (index.get(d) ?? new Set<string>()).add(String(r.lawd_cd)));
+          }
+          dongIndexCache.set(key, { at: Date.now(), value: index });
+          return index;
+        });
+      return pending;
+    },
+  };
+}
+
+function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * 아파트(APT · 민간사전청약 · 신혼희망타운) — 청약홈 사본(applyhome_*)에서 시군구 코드 정확 일치로.
+ * 무순위 공고는 새 공급이 아니라 뺀다. 사본은 scripts/applyhome/sync-applyhome.ts 가 매일 채운다.
+ */
+async function readAptCards(
+  db: Client,
+  scope: RegionScope,
+  sigungu: string,
+  today: Date,
+): Promise<NearbySaleCard[]> {
+  const codes = [...scope.codes];
+  const lookup = [...new Set([...codes, ...codes.flatMap(legacyLawdCodesOf)])];
+  const todayIso = isoDate(today);
+  const res = await db.execute({
+    sql: `SELECT house_manage_no, pblanc_no, house_nm, address, area_name, lawd_cd, total_supply,
+                 notice_date, rcept_begin, rcept_end, winner_date, contract_begin, contract_end,
+                 move_in_ym, notice_url
+          FROM applyhome_notices
+          WHERE (lawd_cd IN (${lookup.map(() => "?").join(",")}) OR lawd_cd IS NULL)
+            AND notice_type IS NULL
+            AND (move_in_ym >= ? OR rcept_end >= ? OR contract_end >= ? OR contract_end IS NULL)`,
+    args: [...lookup, currentYm(today), todayIso, todayIso],
+  });
+
+  const rows: Array<{ row: DetailRow; status: NearbySaleStatus }> = [];
+  for (const r of res.rows) {
+    const code = await noticeLawd(
+      r.lawd_cd == null ? null : String(r.lawd_cd),
+      str(r.address),
+      scope,
+    );
+    if (!inScope(code, scope)) continue;
+    const row: DetailRow = {
+      HOUSE_MANAGE_NO: str(r.house_manage_no),
+      PBLANC_NO: str(r.pblanc_no) || str(r.house_manage_no),
+      HOUSE_NM: str(r.house_nm),
+      HSSPLY_ADRES: str(r.address),
+      SUBSCRPT_AREA_CODE_NM: str(r.area_name),
+      TOT_SUPLY_HSHLDCO: r.total_supply == null ? undefined : Number(r.total_supply),
+      RCRIT_PBLANC_DE: str(r.notice_date),
+      RCEPT_BGNDE: str(r.rcept_begin),
+      RCEPT_ENDDE: str(r.rcept_end),
+      PRZWNER_PRESNATN_DE: str(r.winner_date),
+      CNTRCT_CNCLS_BGNDE: str(r.contract_begin),
+      CNTRCT_CNCLS_ENDDE: str(r.contract_end),
+      MVN_PREARNGE_YM: str(r.move_in_ym),
+      PBLANC_URL: str(r.notice_url),
+    };
+    const status = cardStatus(row, today);
+    if (status) rows.push({ row, status });
+  }
+  if (rows.length === 0) return [];
+
+  const ids = rows.map((x) => str(x.row.HOUSE_MANAGE_NO));
+  const marks = ids.map(() => "?").join(",");
+  const [modelRes, cmpetRes] = await Promise.all([
+    db.execute({
+      sql: `SELECT house_manage_no, model_no, house_ty, general_supply, top_amount
+            FROM applyhome_models WHERE house_manage_no IN (${marks})`,
+      args: ids,
+    }),
+    db.execute({
+      sql: `SELECT house_manage_no, model_no, rank_code, reside_code, competition_rate
+            FROM applyhome_competition
+            WHERE house_manage_no IN (${marks}) AND rank_code = ${RANK_1} AND reside_code = '${RESIDE_LOCAL}'`,
+      args: ids,
+    }),
+  ]);
+  const models = new Map<string, ModelRow[]>();
+  for (const m of modelRes.rows) {
+    const id = str(m.house_manage_no);
+    models.set(id, [
+      ...(models.get(id) ?? []),
+      {
+        MODEL_NO: str(m.model_no),
+        HOUSE_TY: str(m.house_ty),
+        SUPLY_HSHLDCO: m.general_supply == null ? undefined : Number(m.general_supply),
+        LTTOT_TOP_AMOUNT: m.top_amount == null ? undefined : Number(m.top_amount),
+      },
+    ]);
+  }
+  const cmpet = new Map<string, CmpetRow[]>();
+  for (const c of cmpetRes.rows) {
+    const id = str(c.house_manage_no);
+    cmpet.set(id, [
+      ...(cmpet.get(id) ?? []),
+      {
+        MODEL_NO: str(c.model_no),
+        SUBSCRPT_RANK_CODE: Number(c.rank_code),
+        RESIDE_SECD: str(c.reside_code),
+        CMPET_RATE: str(c.competition_rate),
+      },
+    ]);
+  }
+
+  return rows
+    .map(({ row, status }) => {
+      const id = str(row.HOUSE_MANAGE_NO);
+      return toCard(row, status, sigungu, "apartment", models.get(id) ?? [], cmpet.get(id) ?? []);
+    })
+    .filter((c): c is NearbySaleCard => c != null);
+}
+
+const OFFICETEL_CALL_TIMEOUT_MS = 8_000;
+const OFFICETEL_TOTAL_TIMEOUT_MS = 12_000;
+
+/**
+ * 오피스텔·도시형 — 사본이 없어 청약홈 라이브 조회. 주소 LIKE 는 부분 일치라(강서구 ⊃ 서구)
+ * 받은 공고를 주소 → 시군구 코드로 다시 읽어 단지 지역과 정확히 같은 것만 남긴 뒤 주택형을 부른다.
+ */
+async function fetchOfficetelCards(
+  scope: RegionScope,
+  terms: string[],
+  sigungu: string,
+  today: Date,
+): Promise<NearbySaleCard[]> {
+  const pages = await Promise.all(
+    terms.map((term) =>
+      odcloudGet<DetailRow>(
+        OFFICETEL_DETAIL_BASE,
+        { "cond[HSSPLY_ADRES::LIKE]": term },
+        OFFICETEL_CALL_TIMEOUT_MS,
+      ),
+    ),
+  );
+  const seen = new Set<string>();
+  const rows: Array<{ row: DetailRow; status: NearbySaleStatus }> = [];
+  for (const row of pages.flat()) {
+    const key = `${str(row.HOUSE_MANAGE_NO)}:${str(row.PBLANC_NO)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const status = cardStatus(row, today);
+    if (!status) continue;
+    if (!inScope(await noticeLawd(null, str(row.HSSPLY_ADRES), scope), scope)) continue;
+    rows.push({ row, status });
+  }
+  const cards = await Promise.all(
+    rows.map(async ({ row, status }) => {
+      const models = await odcloudGet<ModelRow>(
+        OFFICETEL_MODEL_BASE,
+        {
+          "cond[HOUSE_MANAGE_NO::EQ]": str(row.HOUSE_MANAGE_NO),
+          "cond[PBLANC_NO::EQ]": str(row.PBLANC_NO),
+        },
+        OFFICETEL_CALL_TIMEOUT_MS,
+      ).catch(() => [] as ModelRow[]);
+      return toCard(row, status, sigungu, "officetel", models, []);
+    }),
+  );
+  return cards.filter((c): c is NearbySaleCard => c != null);
+}
+
+function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => resolve(fallback), ms);
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
+}
+
+/** 시군구 이름 → 코드. 전국에서 그 이름이 하나뿐일 때만 (강서구·중구처럼 여럿이면 null) */
+export function uniqueLawdForSigungu(name: string): string | null {
+  const n = name.trim();
+  if (!n) return null;
+  const hits = NATIONWIDE_LAWD_ROWS.filter((r) => {
+    const parts = r.fullName.split(/\s+/);
+    return parts[parts.length - 1] === n || parts.slice(1).join(" ") === n;
+  });
+  return hits.length === 1 ? hits[0]!.code : null;
+}
+
+/** 오피스텔 라이브 조회 주소 검색어 — 단지 시군구 이름 + 예전 인천 구 이름 (주소가 아직 옛 이름) */
+function officetelTerms(codes: string[], sigungu: string): string[] {
+  const names = sigungu
+    ? [sigungu]
+    : codes.slice(0, 3).map((c) => {
+        const full = NATIONWIDE_LAWD_ROWS.find((r) => r.code === c)?.fullName ?? "";
+        return full.split(/\s+/).pop() ?? "";
+      });
+  return [...new Set([...names, ...codes.flatMap(legacyLawdNamesOf)])].filter(Boolean);
+}
+
+export async function fetchNearbySales(input: {
+  lawdCodes: string[];
+  sigungu: string;
+}): Promise<NearbySalesResult> {
   const attribution = "출처: 청약홈 · 한국부동산원";
   const notice =
     "청약 일정과 공급조건은 실제 입주자모집공고를 확인하세요.";
 
-  const sigungu = sigunguRaw.trim();
-  if (!sigungu) {
+  const sigungu = input.sigungu.trim();
+  const codes = input.lawdCodes.length
+    ? input.lawdCodes
+    : [uniqueLawdForSigungu(sigungu)].filter((c): c is string => c != null);
+  if (codes.length === 0) {
     return {
       status: "NO_SIGUNGU",
       reason: "단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.",
-      sigungu: null,
+      sigungu: sigungu || null,
       items: [],
       attribution,
       notice,
     };
   }
-  if (!serviceKey()) {
+  const db = getDb();
+  if (!db) {
     return {
-      status: "NO_API_KEY",
-      reason: "공공데이터 API 키가 없어 주변 공급 조회를 건너뜁니다.",
-      sigungu,
+      status: "ERROR",
+      reason: "주변 공급 정보를 불러오지 못했습니다.",
+      sigungu: sigungu || null,
       items: [],
       attribution,
       notice,
@@ -506,34 +768,31 @@ export async function fetchNearbySalesBySigungu(
 
   try {
     const today = todayUtc();
+    const scope = makeScope(db, codes);
+    const label = sigungu || districtNameFromCode(codes[0]!) || codes[0]!;
 
-    const [aptDetails, officetelDetails] = await Promise.all([
-      odcloudGet<DetailRow>(APT_DETAIL_BASE, {
-        "cond[HSSPLY_ADRES::LIKE]": sigungu,
-      }),
-      odcloudGet<DetailRow>(OFFICETEL_DETAIL_BASE, {
-        "cond[HSSPLY_ADRES::LIKE]": sigungu,
-      }).catch((err) => {
-        console.error(
-          "[nearby-sales:officetel]",
-          err instanceof Error ? err.message : "error",
-        );
-        return [] as DetailRow[];
-      }),
+    const officetel = serviceKey()
+      ? withTimeout(
+          fetchOfficetelCards(scope, officetelTerms(codes, sigungu), label, today),
+          OFFICETEL_TOTAL_TIMEOUT_MS,
+          [] as NearbySaleCard[],
+        ).catch((err) => {
+          console.error(
+            "[nearby-sales:officetel]",
+            err instanceof Error ? err.message : "error",
+          );
+          return [] as NearbySaleCard[];
+        })
+      : Promise.resolve([] as NearbySaleCard[]);
+
+    const [aptCards, officetelCards] = await Promise.all([
+      readAptCards(db, scope, label, today),
+      officetel,
     ]);
-
-    const cards = (
-      await Promise.all([
-        ...aptDetails.map((row) => buildCard(row, sigungu, today, "apartment")),
-        ...officetelDetails.map((row) =>
-          buildCard(row, sigungu, today, "officetel"),
-        ),
-      ])
-    ).filter(Boolean) as NearbySaleCard[];
 
     const deduped: NearbySaleCard[] = [];
     const seen = new Set<string>();
-    for (const card of cards) {
+    for (const card of [...aptCards, ...officetelCards]) {
       if (seen.has(card.id)) continue;
       seen.add(card.id);
       deduped.push(card);
@@ -553,8 +812,8 @@ export async function fetchNearbySalesBySigungu(
       reason:
         deduped.length > 0
           ? ""
-          : `현재 ${sigungu}에 확인된 청약·입주예정 주택이 없습니다.`,
-      sigungu,
+          : `현재 ${label}에 확인된 청약·입주예정 주택이 없습니다.`,
+      sigungu: label,
       items: deduped,
       attribution,
       notice,
@@ -567,7 +826,7 @@ export async function fetchNearbySalesBySigungu(
     return {
       status: "ERROR",
       reason: "주변 공급 정보를 불러오지 못했습니다.",
-      sigungu,
+      sigungu: sigungu || null,
       items: [],
       attribution,
       notice,

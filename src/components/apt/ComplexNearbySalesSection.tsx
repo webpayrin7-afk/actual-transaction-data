@@ -21,8 +21,12 @@ const FEED_STATUSES = new Set<NearbySaleStatus>([
   "move_in_upcoming",
 ]);
 
-async function loadNearbySales(sigungu: string): Promise<NearbySalesResult> {
+async function loadNearbySales(
+  sigungu: string,
+  lawdCd: string,
+): Promise<NearbySalesResult> {
   const qs = new URLSearchParams({ sigungu });
+  if (lawdCd) qs.set("lawd", lawdCd);
   const res = await fetch(`/api/complex-nearby-sales?${qs}`);
   if (!res.ok) {
     return {
@@ -204,18 +208,22 @@ export function SaleRow({ item }: { item: NearbySaleCard }) {
   );
 }
 
-/** Inline 주변 공급 — sigungu only; no map/coords. Compact list. */
+/** Inline 주변 공급 — 단지 시군구 코드(lawdCd) 정확 일치; no map/coords. Compact list. */
 export function ComplexNearbySalesSection({
   aptName,
   sigungu,
+  lawdCd,
 }: {
   aptName: string;
   sigungu: string | null | undefined;
+  /** 단지 시군구 코드 — 이름만으로는 강서구(서울·부산)·중구처럼 여러 곳이라 코드로 찾는다 */
+  lawdCd: string | null | undefined;
 }) {
   const key = sigungu?.trim() || "";
+  const lawd = lawdCd?.trim() || "";
   const q = useQuery({
-    queryKey: ["complex-nearby-supply", key, "apt+officetel"],
-    queryFn: () => loadNearbySales(key),
+    queryKey: ["complex-nearby-supply", key, lawd, "apt+officetel"],
+    queryFn: () => loadNearbySales(key, lawd),
     enabled: key.length > 0,
     staleTime: 60 * 60 * 1000,
     retry: 0,
