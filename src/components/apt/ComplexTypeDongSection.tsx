@@ -259,35 +259,38 @@ export function ComplexTypeDongSection({
             />
           ) : null}
           {dong ? (
-            <div className="flex flex-col gap-2 rounded-xl bg-[color:var(--lab-surface-subtle)] px-3 py-2.5">
-              <p className="detail-body">
-                <span className="font-semibold">{dong.dong}</span>에 이 타입 {dong.households.toLocaleString("ko-KR")}세대
-              </p>
-              {otherTypesInDong.length > 1 ? (
-                <>
-                  <p className="detail-meta">{dong.dong}의 다른 타입</p>
-                  <div className="flex flex-wrap gap-2">
-                    {otherTypesInDong.map((t) =>
-                      inArea.some((x) => x.id === t.id) ? (
-                        <Chip key={t.id} on={t.id === type.id} onClick={() => setPickedType(t.id)}>
-                          {labels.get(t.id)}
-                        </Chip>
-                      ) : (
-                        // 다른 평형 타입 — 위 평형 선택을 바꾸면 볼 수 있다
-                        <span
-                          key={t.id}
-                          className="inline-flex min-h-9 items-center rounded-full border border-dashed border-[color:var(--lab-border)] px-3 text-[14px] leading-5 text-[color:var(--lab-muted)] tabular-nums"
-                        >
-                          {t.pyeongLabel ? `${t.pyeongLabel} · ` : ""}
-                          {labels.get(t.id)}
-                        </span>
-                      ),
-                    )}
-                  </div>
-                </>
-              ) : (
-                <p className="detail-meta">{dong.dong}은 이 타입만 있어요.</p>
-              )}
+            // 고른 동 한 줄 요약 — 이 타입 먼저, 그다음 이 동의 다른 타입 (작은 칩)
+            <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-[color:var(--lab-surface-subtle)] px-3 py-2 text-[13px] leading-[18px]">
+              <span className="mr-0.5 font-semibold text-[color:var(--lab-navy-950)]">{dong.dong}</span>
+              <span className="inline-flex h-7 items-center rounded-full bg-[color:var(--lab-brand-primary)] px-2.5 font-semibold text-white tabular-nums">
+                {labels.get(type.id)} · {dong.households.toLocaleString("ko-KR")}세대
+              </span>
+              {otherTypesInDong
+                .filter((t) => t.id !== type.id)
+                .map((t) => {
+                  const inThisArea = inArea.some((x) => x.id === t.id);
+                  const n = t.dongs.find((d) => d.dong === dong.dong)?.households;
+                  const text = `${labels.get(t.id)}${n != null ? ` · ${n.toLocaleString("ko-KR")}세대` : ""}`;
+                  return inThisArea ? (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setPickedType(t.id)}
+                      className="inline-flex h-7 items-center rounded-full border border-[color:var(--lab-border)] bg-white px-2.5 font-medium text-[color:var(--lab-navy-950)] tabular-nums active:scale-[0.97]"
+                    >
+                      {text}
+                    </button>
+                  ) : (
+                    // 다른 평형 타입 — 위 평형 선택을 바꾸면 볼 수 있다
+                    <span
+                      key={t.id}
+                      className="inline-flex h-7 items-center rounded-full border border-dashed border-[color:var(--lab-border)] px-2.5 text-[color:var(--lab-muted)] tabular-nums"
+                    >
+                      {t.pyeongLabel ? `${t.pyeongLabel} ` : ""}
+                      {text}
+                    </span>
+                  );
+                })}
             </div>
           ) : null}
         </div>
